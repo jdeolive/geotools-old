@@ -40,7 +40,6 @@ import org.opengis.metadata.citation.OnLineResource;
 import org.opengis.style.ColorReplacement;
 import org.opengis.style.ContrastMethod;
 import org.opengis.style.Description;
-import org.opengis.style.ExtensionSymbolizer;
 import org.opengis.style.ExternalMark;
 import org.opengis.style.GraphicFill;
 import org.opengis.style.GraphicLegend;
@@ -74,17 +73,17 @@ public class StyleFactoryImpl2 implements org.opengis.style.StyleFactory {
         filterFactory = factory;
     }
     
-    public org.opengis.style.AnchorPoint anchorPoint(Expression x, Expression y) {
+    public AnchorPoint anchorPoint(Expression x, Expression y) {
         return new AnchorPointImpl( filterFactory, x, y );
     }
 
-    public org.opengis.style.ChannelSelection channelSelection(
+    public ChannelSelection channelSelection(
             org.opengis.style.SelectedChannelType gray) {
         ChannelSelectionImpl channelSelection = new ChannelSelectionImpl();
         channelSelection.setGrayChannel( gray );
         return channelSelection;
     }
-    public org.opengis.style.ChannelSelection channelSelection(
+    public ChannelSelectionImpl channelSelection(
             org.opengis.style.SelectedChannelType red, org.opengis.style.SelectedChannelType green,
             org.opengis.style.SelectedChannelType blue) {
         ChannelSelectionImpl channelSelection = new ChannelSelectionImpl();
@@ -92,7 +91,7 @@ public class StyleFactoryImpl2 implements org.opengis.style.StyleFactory {
         return channelSelection;
     }
 
-    public org.opengis.style.ColorMap colorMap(Expression propertyName, Expression... mapping) {
+    public ColorMapImpl colorMap(Expression propertyName, Expression... mapping) {
         Expression[] arguments = new Expression[mapping.length + 2];
         arguments[0] = propertyName;
         for( int i=0; i<mapping.length;i++){
@@ -104,7 +103,7 @@ public class StyleFactoryImpl2 implements org.opengis.style.StyleFactory {
         return colorMap;
     }
 
-    public ColorReplacement colorReplacement(Expression propertyName, Expression... mapping) {
+    public ColorReplacementImpl colorReplacement(Expression propertyName, Expression... mapping) {
         Expression[] arguments = new Expression[mapping.length + 2];
         arguments[0] = propertyName;
         for( int i=0; i<mapping.length;i++){
@@ -116,12 +115,12 @@ public class StyleFactoryImpl2 implements org.opengis.style.StyleFactory {
         return colorMap;
     }
 
-    public org.opengis.style.ContrastEnhancement contrastEnhancement(Expression gamma,
+    public ContrastEnhancementImpl contrastEnhancement(Expression gamma,
             ContrastMethod method) {
         return new ContrastEnhancementImpl( filterFactory, gamma, method );
     }
 
-    public Description description(InternationalString title, InternationalString description) {
+    public DescriptionImpl description(InternationalString title, InternationalString description) {
         return new DescriptionImpl( title, description );
     }
 
@@ -129,28 +128,28 @@ public class StyleFactoryImpl2 implements org.opengis.style.StyleFactory {
         return new DisplacementImpl( dx, dy );
     }
 
-    public org.opengis.style.ExternalGraphic externalGraphic(Icon inline,
+    public ExternalGraphicImpl externalGraphic(Icon inline,
             Collection<ColorReplacement> replacements) {
         ExternalGraphicImpl externalGraphic = new ExternalGraphicImpl( inline, replacements, null );
         return externalGraphic;
     }
 
-    public org.opengis.style.ExternalGraphic externalGraphic(OnLineResource resource,
+    public ExternalGraphicImpl externalGraphic(OnLineResource resource,
             String format, Collection<ColorReplacement> replacements) {
         ExternalGraphicImpl externalGraphic = new ExternalGraphicImpl( null, replacements, resource);
         externalGraphic.setFormat( format );
         return externalGraphic;
     }
 
-    public ExternalMark externalMark(Icon inline) {
+    public ExternalMarkImpl externalMark(Icon inline) {
         return new ExternalMarkImpl( inline );
     }
 
-    public ExternalMark externalMark(OnLineResource resource, String format, int markIndex) {
+    public ExternalMarkImpl externalMark(OnLineResource resource, String format, int markIndex) {
         return new ExternalMarkImpl( resource, format, markIndex );
     }
 
-    public org.opengis.style.FeatureTypeStyle featureTypeStyle(String name,
+    public FeatureTypeStyleImpl featureTypeStyle(String name,
             Description description, Id definedFor, Set<Name> featureTypeNames,
             Set<SemanticType> types, List<org.opengis.style.Rule> rules) {
         FeatureTypeStyleImpl featureTypeStyle = new FeatureTypeStyleImpl();
@@ -177,7 +176,7 @@ public class StyleFactoryImpl2 implements org.opengis.style.StyleFactory {
         return featureTypeStyle;
     }
 
-    public org.opengis.style.Fill fill(GraphicFill graphicFill, Expression color, Expression opacity) {
+    public FillImpl fill(GraphicFill graphicFill, Expression color, Expression opacity) {
         FillImpl fill = new FillImpl( filterFactory);
         fill.setGraphicFill(graphicFill);
         fill.setColor(color);
@@ -185,9 +184,9 @@ public class StyleFactoryImpl2 implements org.opengis.style.StyleFactory {
         return fill;
     }
 
-    public Font font(List<Expression> family, Expression style,
+    public FontImpl font(List<Expression> family, Expression style,
             Expression weight, Expression size) {
-        Font font = new FontImpl();
+        FontImpl font = new FontImpl();
         font.getFamily().addAll( family );
         font.setStyle(style);
         font.setWeight(weight);
@@ -263,7 +262,7 @@ public class StyleFactoryImpl2 implements org.opengis.style.StyleFactory {
         
         return graphicLegend;
     }
-    public GraphicStroke graphicStroke(List<GraphicalSymbol> symbols, Expression opacity,
+    public GraphicImpl graphicStroke(List<GraphicalSymbol> symbols, Expression opacity,
             Expression size, Expression rotation, org.opengis.style.AnchorPoint anchorPoint,
             org.opengis.style.Displacement displacement, Expression initialGap, Expression gap) {
         GraphicImpl graphicStroke = new GraphicImpl( filterFactory );
@@ -390,7 +389,12 @@ public class StyleFactoryImpl2 implements org.opengis.style.StyleFactory {
         rasterSymbolizer.setColorMap( colorMap );
         rasterSymbolizer.setContrastEnhancement( contrast );
         rasterSymbolizer.setDescription(  description );
-        rasterSymbolizer.setGeometryPropertyName( ((PropertyName)geometry).getPropertyName() );
+        if( geometry != null ){
+            rasterSymbolizer.setGeometryPropertyName( ((PropertyName)geometry).getPropertyName() );
+        }
+        else {
+            rasterSymbolizer.setGeometryPropertyName(null);
+        }
         rasterSymbolizer.setImageOutline( outline );
         rasterSymbolizer.setName( name );
         rasterSymbolizer.setOpacity( opacity );
@@ -400,12 +404,21 @@ public class StyleFactoryImpl2 implements org.opengis.style.StyleFactory {
         return rasterSymbolizer;        
     }
     
+    @SuppressWarnings("unchecked")
     public ExtensionSymbolizer extensionSymbolizer(String name, String propertyName,
             Description description, Unit<?> unit, String extensionName,
             Map<String, Expression> parameters) {
         // We need a factory extension mechanism here to register additional
         // symbolizer implementations
-        return null;
+        VendorSymbolizerImpl extension = new VendorSymbolizerImpl();
+        extension.setName(name);
+        extension.setGeometryPropertyName(propertyName);
+        extension.setDescription(description);
+        extension.setUnitOfMeasure((Unit<Length>)unit);
+        extension.setExtensionName(extensionName);
+        extension.getParameters().putAll( parameters );
+        
+        return extension;
     }    
   
     static org.geotools.styling.Symbolizer cast( org.opengis.style.Symbolizer symbolizer ){
@@ -434,7 +447,7 @@ public class StyleFactoryImpl2 implements org.opengis.style.StyleFactory {
         }
         return null; // must be some new extension?   
     }
-    public org.opengis.style.Rule rule(String name, Description description, GraphicLegend legend,
+    public RuleImpl rule(String name, Description description, GraphicLegend legend,
             double min, double max, List<org.opengis.style.Symbolizer> symbolizers, Filter filter) {
         RuleImpl rule = new RuleImpl();
         rule.setName(name);
@@ -510,7 +523,7 @@ public class StyleFactoryImpl2 implements org.opengis.style.StyleFactory {
         return s;
     }
     
-    public Style style(String name, Description description, boolean isDefault,
+    public StyleImpl style(String name, Description description, boolean isDefault,
             List<org.opengis.style.FeatureTypeStyle> featureTypeStyles,
             org.opengis.style.Symbolizer defaultSymbolizer) {
         StyleImpl style = new StyleImpl();
@@ -527,7 +540,7 @@ public class StyleFactoryImpl2 implements org.opengis.style.StyleFactory {
     }
     
     @SuppressWarnings("unchecked")
-    public TextSymbolizer textSymbolizer(String name, Expression geometry,
+    public TextSymbolizerImpl textSymbolizer(String name, Expression geometry,
             Description description, Unit<?> unit, Expression label, org.opengis.style.Font font,
             org.opengis.style.LabelPlacement placement, org.opengis.style.Halo halo,
             org.opengis.style.Fill fill) {

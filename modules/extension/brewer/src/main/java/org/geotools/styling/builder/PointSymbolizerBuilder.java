@@ -5,16 +5,27 @@ import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.styling.PointSymbolizer;
 import org.geotools.styling.StyleFactory;
 
-public class PointSymbolizerBuilder implements Builder<PointSymbolizer> {
+public class PointSymbolizerBuilder<P> implements Builder<PointSymbolizer> {
     StyleFactory sf = CommonFactoryFinder.getStyleFactory(null);
+
+    P parent;
 
     String geometry;
 
-    GraphicBuilder graphic = new GraphicBuilder();
+    GraphicBuilder<PointSymbolizerBuilder<P>> graphic = new GraphicBuilder<PointSymbolizerBuilder<P>>();
 
     private boolean unset = false;
 
-    PointSymbolizerBuilder geometry(String geometry) {
+    public PointSymbolizerBuilder() {
+        this(null);
+    }
+
+    public PointSymbolizerBuilder(P parent) {
+        this.parent = parent;
+        reset();
+    }
+
+    PointSymbolizerBuilder<P> geometry(String geometry) {
         this.geometry = geometry;
         unset = false;
         return this;
@@ -26,7 +37,7 @@ public class PointSymbolizerBuilder implements Builder<PointSymbolizer> {
     }
 
     public PointSymbolizer build() {
-        if( unset ){
+        if (unset) {
             return null;
         }
         PointSymbolizer ps = sf.createPointSymbolizer(graphic.build(), geometry);
@@ -34,28 +45,30 @@ public class PointSymbolizerBuilder implements Builder<PointSymbolizer> {
         return ps;
     }
 
-    public PointSymbolizerBuilder reset() {
+    public PointSymbolizerBuilder<P> reset() {
         this.geometry = null;
         this.graphic.reset(); // TODO: See what the actual default is
         unset = false;
-        
+
         return this;
     }
+
     public Builder<PointSymbolizer> reset(PointSymbolizer original) {
-        if( original == null ){
+        if (original == null) {
             return unset();
         }
         this.geometry = original.getGeometryPropertyName();
-        this.graphic.reset( original.getGraphic() );
+        this.graphic.reset(original.getGraphic());
         unset = false;
-        
+
         return this;
     }
-    public PointSymbolizerBuilder unset() {
+
+    public PointSymbolizerBuilder<P> unset() {
         this.geometry = null;
         this.graphic.unset();
         unset = true;
-        
+
         return this;
     }
 }

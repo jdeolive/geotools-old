@@ -92,10 +92,10 @@ import org.opengis.style.GraphicalSymbol;
  *       problem?
  * @source $URL$
  */
-public interface Graphic extends org.opengis.style.Graphic,
+public interface Graphic extends GraphicLegend,
+                                 org.opengis.style.Graphic,
                                  org.opengis.style.GraphicFill, 
-                                 org.opengis.style.GraphicStroke,
-                                 org.opengis.style.GraphicLegend {
+                                 org.opengis.style.GraphicStroke {
     /**
      * A default Graphic instance.
      * <p>
@@ -139,6 +139,7 @@ public interface Graphic extends org.opengis.style.Graphic,
             public String getGeometryPropertyName() {
                 return "";
             }
+
         };
 
     /**
@@ -450,6 +451,14 @@ abstract class ConstantGraphic implements Graphic {
         cannotModifyConstant();
     }
 
+    public void setAnchorPoint(AnchorPoint anchor) {
+        cannotModifyConstant();
+    }
+
+    public void setDisplacmeent(Displacement displacement) {
+        cannotModifyConstant();
+    }
+    
     public Object accept(org.opengis.style.StyleVisitor visitor, Object data) {
         return visitor.visit((org.opengis.style.GraphicStroke)this,data);
     }

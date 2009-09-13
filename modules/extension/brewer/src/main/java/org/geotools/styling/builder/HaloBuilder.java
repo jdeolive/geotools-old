@@ -2,83 +2,109 @@ package org.geotools.styling.builder;
 
 import org.geotools.Builder;
 import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.filter.expression.ChildExpressionBuilder;
 import org.geotools.filter.expression.ExpressionBuilder;
 import org.geotools.styling.Halo;
 import org.geotools.styling.StyleFactory;
-import org.opengis.filter.expression.Expression;
 
-public class HaloBuilder implements Builder<org.opengis.style.Halo> {
-    boolean unset;
-
+public class HaloBuilder<P> implements Builder<org.opengis.style.Halo> {
     StyleFactory sf = CommonFactoryFinder.getStyleFactory(null);
 
-    ExpressionBuilder radius;
+    P parent;
 
-    FillBuilder fill;
+    boolean unset;
+
+    ChildExpressionBuilder<HaloBuilder<P>> radius = new ChildExpressionBuilder<HaloBuilder<P>>(this);
+
+    FillBuilder<HaloBuilder<P>> fill = new FillBuilder<HaloBuilder<P>>(this);
 
     public HaloBuilder() {
+        this(null);
+    }
+
+    public HaloBuilder(P parent) {
+        this.parent = parent;
         reset();
     }
 
     /**
-     * Set the HaloBuilder to produce <code>node</code>
-     * @return current HaloBuilder for chaining operations
+     * Set the HaloBuilder
+     * <P>
+     * to produce <code>node</code>
+     * 
+     * @return current HaloBuilder
+     *         <P>
+     *         for chaining operations
      */
-    public HaloBuilder unset() {
+    public HaloBuilder<P> unset() {
         unset = true;
         return this;
     }
 
     /**
-     * Set the HaloBuilder to produce a default Halo.
+     * Set the HaloBuilder
+     * <P>
+     * to produce a default Halo.
      * 
-     * @return current HaloBuilder for chaining operations
+     * @return current HaloBuilder
+     *         <P>
+     *         for chaining operations
      */
-    public HaloBuilder reset() {
+    public HaloBuilder<P> reset() {
         unset = false; // 
-        radius = new ExpressionBuilder();
-        fill = new FillBuilder();
+        radius.reset();
+        fill.reset();
 
         return this;
     }
 
     /**
-     * Set the HaloBuilder to produce the provided Halo.
+     * Set the HaloBuilder
+     * <P>
+     * to produce the provided Halo.
      * 
-     * @param halo Halo under construction; if null HaloBuilder will be unset()
-     * @return current HaloBuilder for chaining operations
+     * @param halo
+     *            Halo under construction; if null HaloBuilder
+     *            <P>
+     *            will be unset()
+     * @return current HaloBuilder
+     *         <P>
+     *         for chaining operations
      */
-    public HaloBuilder reset(org.opengis.style.Halo halo) {
-        if( halo == null ){
+    public HaloBuilder<P> reset(org.opengis.style.Halo halo) {
+        if (halo == null) {
             return unset();
         }
-        fill = new FillBuilder( halo.getFill() );
-        radius = new ExpressionBuilder( halo.getRadius() );
-        
+        fill = new FillBuilder<HaloBuilder<P>>(this).reset(halo.getFill());
+        radius = new ChildExpressionBuilder<HaloBuilder<P>>(this).reset(halo.getRadius());
+
         return this;
     }
 
-    public HaloBuilder radius(Object radius) {
-        this.radius.literal( radius );
+    public HaloBuilder<P> radius(Object radius) {
+        this.radius.literal(radius);
         return this;
     }
-    
-    public ExpressionBuilder radius(){
+
+    public ExpressionBuilder radius() {
         return radius;
     }
 
-    public HaloBuilder fill( Object color ) {
+    public HaloBuilder<P> fill(Object color) {
         this.fill.color().literal(color);
         return this;
     }
-    
-    public FillBuilder fill() {
+
+    public FillBuilder<HaloBuilder<P>> fill() {
         return fill;
     }
 
     public Halo build() {
+        if( unset ) return null;
+        
         Halo halo = sf.createHalo(fill.build(), radius.build());
-        reset();
+        if( parent == null ) reset();
+        
         return halo;
     }
 }

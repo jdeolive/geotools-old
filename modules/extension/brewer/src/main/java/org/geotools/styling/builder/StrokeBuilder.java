@@ -4,39 +4,45 @@ import java.awt.Color;
 
 import org.geotools.Builder;
 import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.filter.expression.ChildExpressionBuilder;
 import org.geotools.filter.expression.ExpressionBuilder;
 import org.geotools.styling.Stroke;
 import org.geotools.styling.StyleFactory;
 import org.opengis.filter.expression.Expression;
 
-public class StrokeBuilder implements Builder<Stroke> {
+public class StrokeBuilder<P> implements Builder<Stroke> {
+    P parent;
+    
     StyleFactory sf = CommonFactoryFinder.getStyleFactory(null);
+    
+    ChildExpressionBuilder<StrokeBuilder<P>> color = new ChildExpressionBuilder<StrokeBuilder<P>>(this);
 
-    ExpressionBuilder color = new ExpressionBuilder();
+    ChildExpressionBuilder<StrokeBuilder<P>> width = new ChildExpressionBuilder<StrokeBuilder<P>>(this);
 
-    ExpressionBuilder width = new ExpressionBuilder();
+    ChildExpressionBuilder<StrokeBuilder<P>> opacity = new ChildExpressionBuilder<StrokeBuilder<P>>(this);
 
-    ExpressionBuilder opacity = new ExpressionBuilder();
+    ChildExpressionBuilder<StrokeBuilder<P>> lineCap = new ChildExpressionBuilder<StrokeBuilder<P>>(this);
 
-    ExpressionBuilder lineCap = new ExpressionBuilder();
-
-    ExpressionBuilder lineJoin = new ExpressionBuilder();
+    ChildExpressionBuilder<StrokeBuilder<P>> lineJoin = new ChildExpressionBuilder<StrokeBuilder<P>>(this);
 
     float[] dashArray = null;
 
-    ExpressionBuilder dashOffset = new ExpressionBuilder();
+    ChildExpressionBuilder<StrokeBuilder<P>> dashOffset = new ChildExpressionBuilder<StrokeBuilder<P>>(this);
 
-    GraphicBuilder graphicFill = new GraphicBuilder();
+    GraphicBuilder<StrokeBuilder<P>> graphicFill = new GraphicBuilder<StrokeBuilder<P>>();
 
-    GraphicBuilder graphicStroke = new GraphicBuilder();
+    GraphicBuilder<StrokeBuilder<P>> graphicStroke = new GraphicBuilder<StrokeBuilder<P>>();
 
     private boolean unset;
 
     public StrokeBuilder() {
         reset();
     }
-
-    public StrokeBuilder unset() {
+    public StrokeBuilder(P parent) {
+        this.parent = parent;
+        reset();
+    }
+    public StrokeBuilder<P> unset() {
         reset();
         unset = true;
         return this;
@@ -45,7 +51,7 @@ public class StrokeBuilder implements Builder<Stroke> {
     /**
      * Reset stroke to default values.
      */
-    public StrokeBuilder reset() {
+    public StrokeBuilder<P> reset() {
         color.reset(Stroke.DEFAULT.getColor());
         width.reset(Stroke.DEFAULT.getWidth());
         opacity.reset(Stroke.DEFAULT.getOpacity());
@@ -64,7 +70,7 @@ public class StrokeBuilder implements Builder<Stroke> {
      * 
      * @param stroke
      */
-    public StrokeBuilder reset(Stroke stroke) {
+    public StrokeBuilder<P> reset(Stroke stroke) {
         color.reset(stroke.getColor());
         width.reset(stroke.getWidth());
         opacity.reset(stroke.getOpacity());
@@ -78,17 +84,17 @@ public class StrokeBuilder implements Builder<Stroke> {
         return this;
     }
 
-    public StrokeBuilder color(Expression color) {
+    public StrokeBuilder<P> color(Expression color) {
         this.color.reset(color);
         unset = false;
         return this;
     }
-    public StrokeBuilder color(Color color) {
+    public StrokeBuilder<P> color(Color color) {
         this.color.literal(color);
         unset = false;
         return this;
     }
-    public StrokeBuilder color(String color) {
+    public StrokeBuilder<P> color(String color) {
         this.color.literal(color);
         unset = false;
         return this;
@@ -98,34 +104,34 @@ public class StrokeBuilder implements Builder<Stroke> {
         return color;
     }
 
-    public StrokeBuilder width(Expression width) {
+    public StrokeBuilder<P> width(Expression width) {
         this.width.reset(width);
         unset = false;
         return this;
     }
     
-    public StrokeBuilder width(int width) {
+    public StrokeBuilder<P> width(int width) {
         this.width.literal( width );
         unset = false;
         return this;
     }
     
-    public StrokeBuilder width(double width) {
+    public StrokeBuilder<P> width(double width) {
         this.width.literal( width );
         unset = false;
         return this;
     }
 
-    public ExpressionBuilder width() {
+    public ChildExpressionBuilder<StrokeBuilder<P>> width() {
         return width;
     }
 
-    public StrokeBuilder opacity(Expression opacity) {
+    public StrokeBuilder<P> opacity(Expression opacity) {
         this.opacity.reset(opacity);
         unset = false;
         return this;
     }
-    public StrokeBuilder opacity(double opacity) {
+    public StrokeBuilder<P> opacity(double opacity) {
         this.opacity.literal(opacity);
         unset = false;
         return this;
@@ -134,27 +140,27 @@ public class StrokeBuilder implements Builder<Stroke> {
         return opacity;
     }
 
-    public StrokeBuilder lineCap(Expression lineCap) {
+    public StrokeBuilder<P> lineCap(Expression lineCap) {
         this.lineCap.reset(lineCap);
         unset = false;
         return this;
     }
 
-    public ExpressionBuilder lineCap() {
+    public ChildExpressionBuilder<StrokeBuilder<P>> lineCap() {
         return lineCap;
     }
 
-    public StrokeBuilder lineJoin(Expression lineJoin) {
+    public StrokeBuilder<P> lineJoin(Expression lineJoin) {
         this.lineJoin.reset(lineJoin);
         unset = false;
         return this;
     }
 
-    public ExpressionBuilder lineJoin() {
+    public ChildExpressionBuilder<StrokeBuilder<P>> lineJoin() {
         return lineJoin;
     }
 
-    public StrokeBuilder dashArray(float[] dashArray) {
+    public StrokeBuilder<P> dashArray(float[] dashArray) {
         this.dashArray = dashArray;
         unset = false;
         return this;
@@ -164,34 +170,34 @@ public class StrokeBuilder implements Builder<Stroke> {
         return dashArray;
     }
 
-    public StrokeBuilder dashOffet(Expression dashOffet) {
+    public StrokeBuilder<P> dashOffet(Expression dashOffet) {
         this.dashOffset.reset(dashOffet);
         unset = false;
         return this;
     }
 
-    public StrokeBuilder dashOffet(int offset) {
+    public StrokeBuilder<P> dashOffet(int offset) {
         this.dashOffset.literal( offset );
         unset = false;
         return this;
     }
     
-    public StrokeBuilder dashOffet(double offset) {
+    public StrokeBuilder<P> dashOffet(double offset) {
         this.dashOffset.literal( offset );
         unset = false;
         return this;
     }
     
-    public ExpressionBuilder dashOffset() {
+    public ChildExpressionBuilder<StrokeBuilder<P>> dashOffset() {
         return dashOffset;
     }
 
-    public GraphicBuilder graphicStroke() {
+    public GraphicBuilder<StrokeBuilder<P>> graphicStroke() {
         unset = false;
         return graphicStroke;
     }
 
-    public GraphicBuilder fillBuilder() {
+    public GraphicBuilder<StrokeBuilder<P>> fillBuilder() {
         unset = false;
         return graphicFill;
     }

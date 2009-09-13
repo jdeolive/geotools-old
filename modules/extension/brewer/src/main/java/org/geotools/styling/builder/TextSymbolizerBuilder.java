@@ -3,23 +3,21 @@ package org.geotools.styling.builder;
 import org.geotools.Builder;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.filter.expression.ExpressionBuilder;
-import org.geotools.styling.Fill;
 import org.geotools.styling.Font;
-import org.geotools.styling.Halo;
 import org.geotools.styling.LabelPlacement;
-import org.geotools.styling.LineSymbolizer;
-import org.geotools.styling.Stroke;
 import org.geotools.styling.StyleFactory;
+import org.geotools.styling.TextSymbolizer;
 import org.opengis.filter.expression.Expression;
-import org.opengis.style.TextSymbolizer;
 
-public class TextSymbolizerBuilder implements Builder<TextSymbolizer> {
+public class TextSymbolizerBuilder<P> implements Builder<TextSymbolizer> {
 
     StyleFactory sf = CommonFactoryFinder.getStyleFactory(null);
 
-    FillBuilder fill = new FillBuilder();
+    P parent;
 
-    HaloBuilder halo = new HaloBuilder().unset();
+    FillBuilder<TextSymbolizerBuilder<P>> fill = new FillBuilder<TextSymbolizerBuilder<P>>(this);
+
+    HaloBuilder<TextSymbolizerBuilder<P>> halo = new HaloBuilder(this).unset();
 
     ExpressionBuilder label = new ExpressionBuilder();
 
@@ -29,12 +27,21 @@ public class TextSymbolizerBuilder implements Builder<TextSymbolizer> {
 
     private LabelPlacement labelPlacement = null; // TODO: LabelPlacement builder
 
-    public TextSymbolizerBuilder geometry(String geometry) {
+    public TextSymbolizerBuilder() {
+        this(null);
+    }
+
+    public TextSymbolizerBuilder(P parent) {
+        this.parent = parent;
+        reset();
+    }
+
+    public TextSymbolizerBuilder<P> geometry(String geometry) {
         this.geometry = geometry;
         return this;
     }
 
-    public HaloBuilder halo() {
+    public HaloBuilder<TextSymbolizerBuilder<P>> halo() {
         return halo;
     }
 
@@ -49,13 +56,13 @@ public class TextSymbolizerBuilder implements Builder<TextSymbolizer> {
         return ts;
     }
 
-    public TextSymbolizerBuilder unset() {
+    public TextSymbolizerBuilder<P> unset() {
         reset();
         unset = true;
         return this;
     }
 
-    public TextSymbolizerBuilder reset() {
+    public TextSymbolizerBuilder<P> reset() {
         fill.reset(); // TODO: default fill for text?
         halo.unset(); // no default halo
         label.unset();
@@ -65,7 +72,7 @@ public class TextSymbolizerBuilder implements Builder<TextSymbolizer> {
         return this;
     }
 
-    public TextSymbolizerBuilder reset(TextSymbolizer symbolizer) {
+    public TextSymbolizerBuilder<P> reset(TextSymbolizer symbolizer) {
         fill.reset(symbolizer.getFill()); // TODO: default fill for text?
         halo.reset(symbolizer.getHalo()); // no default halo
         label.reset(symbolizer.getLabel());

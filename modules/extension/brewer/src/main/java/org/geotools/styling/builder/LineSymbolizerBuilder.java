@@ -6,20 +6,29 @@ import org.geotools.styling.LineSymbolizer;
 import org.geotools.styling.Stroke;
 import org.geotools.styling.StyleFactory;
 
-public class LineSymbolizerBuilder implements Builder<LineSymbolizer> {
-
+public class LineSymbolizerBuilder<P> implements Builder<LineSymbolizer> {
     StyleFactory sf = CommonFactoryFinder.getStyleFactory(null);
-    StrokeBuilder strokeBuilder = new StrokeBuilder();
+    P parent;
+    
+    StrokeBuilder<LineSymbolizerBuilder<P>> strokeBuilder = new StrokeBuilder<LineSymbolizerBuilder<P>>(this);
     String geometry = null;
     private boolean unset = false;
 
-    public LineSymbolizerBuilder geometry(String geometry) {
+    public LineSymbolizerBuilder(){
+        this( null );
+    }
+    public LineSymbolizerBuilder( P parent ){
+        this.parent = parent;
+        reset();
+    }
+    
+    public LineSymbolizerBuilder<P> geometry(String geometry) {
         this.geometry = geometry;
         unset = false;
         return this;
     }
 
-    public StrokeBuilder stroke() {
+    public StrokeBuilder<LineSymbolizerBuilder<P>> stroke() {
         unset = false;
         return strokeBuilder;
     }
@@ -34,14 +43,14 @@ public class LineSymbolizerBuilder implements Builder<LineSymbolizer> {
         return ls;
     }
 
-    public LineSymbolizerBuilder reset() {
+    public LineSymbolizerBuilder<P> reset() {
         strokeBuilder.reset();
         geometry = null;
         unset = false;
         return this;
     }
     
-    public LineSymbolizerBuilder reset( LineSymbolizer origional ){
+    public LineSymbolizerBuilder<P> reset( LineSymbolizer origional ){
         return this;   
     }
     

@@ -54,7 +54,7 @@ public class GraphicImpl implements Graphic, Cloneable {
     private String geometryPropertyName = "";
     private Expression rotation = null;
     private Expression size = null;
-    private Displacement displacement = null;
+    private DisplacementImpl displacement = null;
     private Expression opacity = null;
 
     /**
@@ -223,6 +223,9 @@ public class GraphicImpl implements Graphic, Cloneable {
         return anchor;
     }
 
+    public void setAnchorPoint(org.geotools.styling.AnchorPoint anchor) {
+        this.anchor = AnchorPointImpl.cast( anchor );
+    }
 
     public void setAnchorPoint(org.opengis.style.AnchorPoint anchorPoint) {
         this.anchor = AnchorPointImpl.cast( anchorPoint );
@@ -276,10 +279,13 @@ public class GraphicImpl implements Graphic, Cloneable {
         return size;
     }
 
-    public Displacement getDisplacement() {
+    public DisplacementImpl getDisplacement() {
         return displacement;
     }
 
+    public void setDisplacmeent(Displacement displacement) {
+        this.displacement = DisplacementImpl.cast( displacement );
+    }
     public Expression getInitialGap() {
         return initialGap;
     }

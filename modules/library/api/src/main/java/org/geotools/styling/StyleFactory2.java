@@ -39,5 +39,5 @@ public interface StyleFactory2 extends StyleFactory {
      */
     public TextSymbolizer2 createTextSymbolizer(Fill fill, Font[] fonts, Halo halo,
         Expression label, LabelPlacement labelPlacement, String geometryPropertyName,
-        Graphic graphic);
+        Graphic graphic);    
 }

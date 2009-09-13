@@ -19,7 +19,6 @@ package org.geotools.styling;
 
 import org.opengis.filter.expression.Expression;
 
-
 /**
  * A Mark element defines a "shape" which has coloring applied to it.
  *
@@ -146,5 +145,20 @@ public interface Mark extends org.opengis.style.Mark, Symbol {
      */
     void setRotation(Expression rotation);
 
+    /**
+     * Mark defined by an external resource.
+     *
+     * @return ExternalMark or null if WellKNownName is being used
+     */
+    ExternalMark getExternalMark();
+    
+    /**
+     * Mark defined by an external resource.
+     * 
+     * @param externalMark Indicate an mark defined by an external resource
+     */
+    void setExternalMark(org.opengis.style.ExternalMark externalMark);
+
+    
     void accept(org.geotools.styling.StyleVisitor visitor);
 }

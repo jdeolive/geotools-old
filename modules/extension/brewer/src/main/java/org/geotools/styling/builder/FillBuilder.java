@@ -2,40 +2,47 @@ package org.geotools.styling.builder;
 
 import org.geotools.Builder;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.filter.expression.ExpressionBuilder;
+import org.geotools.filter.expression.ChildExpressionBuilder;
 import org.geotools.styling.Fill;
 import org.geotools.styling.StyleFactory;
-import org.opengis.filter.expression.Expression;
 
-public class FillBuilder implements Builder<org.opengis.style.Fill>{
+public class FillBuilder<P> implements Builder<org.opengis.style.Fill>{
+    
+    private P parent;
+    
     StyleFactory sf = CommonFactoryFinder.getStyleFactory(null);
 
-    ExpressionBuilder color = new ExpressionBuilder().unset();
+    ChildExpressionBuilder<FillBuilder<P>> color = new ChildExpressionBuilder<FillBuilder<P>>(this).unset();
 
-    ExpressionBuilder opacity = new ExpressionBuilder().unset();
+    ChildExpressionBuilder<FillBuilder<P>> opacity = new ChildExpressionBuilder<FillBuilder<P>>(this).unset();
 
-    GraphicBuilder graphic = new GraphicBuilder().unset();
+    GraphicBuilder<FillBuilder<P>> graphic = new GraphicBuilder<FillBuilder<P>>(this).unset();
 
     private boolean unset = false;
 
-    public FillBuilder() {
+    /**
+     * Create a FillBuilder on its own; not part of a larger data structure.
+     */
+    public FillBuilder(){
+        this( null);
+    }
+    public FillBuilder(P parent) {
+        this.parent = parent;
         reset();
     }
-    public FillBuilder( org.opengis.style.Fill fill ){
-        reset( fill );
-    }
-    public FillBuilder color(Object color) {
+    
+    public FillBuilder<P> color(Object color) {
         this.color.literal( color );
         unset = false;
         return this;
     }
-
-    public FillBuilder opacity( Object opacity) {
+    
+    public FillBuilder<P> opacity( Object opacity) {
         this.opacity.literal( opacity );
         unset = false;
         return this;
     }
-    public ExpressionBuilder opacity(){
+    public ChildExpressionBuilder<FillBuilder<P>> opacity(){
         unset = false;
         return opacity;   
     }
@@ -43,7 +50,7 @@ public class FillBuilder implements Builder<org.opengis.style.Fill>{
         unset = false;
         return graphic;
     }
-    public ExpressionBuilder color(){
+    public ChildExpressionBuilder<FillBuilder<P>> color(){
         this.unset = false;
         return color;
     }
@@ -67,27 +74,31 @@ public class FillBuilder implements Builder<org.opengis.style.Fill>{
         return fill;
     }
 
-    public FillBuilder unset() {
-        unset = true;
+    public P end(){
+        return parent;
+    }
+
+    public FillBuilder<P> unset() {
+        unset = true;        
         return this;
     }
 
     /**
      * Reset to produce the default Fill.
      */
-    public FillBuilder reset() {
+    public FillBuilder<P> reset() {
         unset = false;
-        color = new ExpressionBuilder( Fill.DEFAULT.getColor() );
-        opacity = new ExpressionBuilder( Fill.DEFAULT.getOpacity() );
-        graphic = new GraphicBuilder().unset();
+        color.reset( Fill.DEFAULT.getColor() );
+        opacity.reset( Fill.DEFAULT.getOpacity() );
+        graphic.reset();
         return this;
     }
-    public FillBuilder reset(org.opengis.style.Fill original) {
+    public FillBuilder<P> reset(org.opengis.style.Fill original) {
         unset = false;
-        color = new ExpressionBuilder( original.getColor() );
-        opacity = new ExpressionBuilder( original.getOpacity() );
-        graphic = new GraphicBuilder( original.getGraphicFill() );
+        color.reset( original.getColor() );
+        opacity.reset( original.getOpacity() );
+        graphic.reset( original.getGraphicFill() );
         return this;
     }
-
+    
 }

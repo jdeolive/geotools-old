@@ -143,4 +143,7 @@ public class ExpressionBuilder implements Builder<Expression> {
         return this;
     }
 
+    public boolean isUnset() {
+        return unset;
+    }
 }

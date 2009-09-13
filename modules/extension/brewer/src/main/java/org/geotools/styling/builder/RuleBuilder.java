@@ -5,15 +5,16 @@ import java.util.List;
 
 import org.geotools.Builder;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.filter.FilterBuilder;
+import org.geotools.filter.SubFilterBuilder;
 import org.geotools.styling.Rule;
 import org.geotools.styling.StyleFactory;
 import org.geotools.styling.Symbolizer;
 import org.opengis.filter.Filter;
 
-public class RuleBuilder implements Builder<Rule> {
+public class RuleBuilder<P> implements Builder<Rule> {
     StyleFactory sf = CommonFactoryFinder.getStyleFactory(null);
-
+    P parent;
+    
     List<Symbolizer> symbolizers = new ArrayList<Symbolizer>();
 
     Builder<? extends Symbolizer> symbolizerBuilder;
@@ -26,7 +27,7 @@ public class RuleBuilder implements Builder<Rule> {
 
     double maxScaleDenominator;
 
-    FilterBuilder filter = new FilterBuilder();
+    SubFilterBuilder<RuleBuilder<P>> filter = new SubFilterBuilder<RuleBuilder<P>>(this);
 
     boolean elseFilter;
 
@@ -35,28 +36,33 @@ public class RuleBuilder implements Builder<Rule> {
     private boolean unset = false;
 
     public RuleBuilder() {
+        this( null );
+    }
+    
+    public RuleBuilder(P parent) {
+        this.parent = parent;
         reset();
     }
 
-    public RuleBuilder name(String name) {
+    public RuleBuilder<P> name(String name) {
         unset = false;
         this.name = name;
         return this;
     }
 
-    public RuleBuilder title(String title) {
+    public RuleBuilder<P> title(String title) {
         unset = false;
         this.title = title;
         return this;
     }
 
-    public RuleBuilder ruleAbstract(String ruleAbstract) {
+    public RuleBuilder<P> ruleAbstract(String ruleAbstract) {
         unset = false;
         this.ruleAbstract = ruleAbstract;
         return this;
     }
 
-    public RuleBuilder minScaleDenominator(double minScaleDenominator) {
+    public RuleBuilder<P> minScaleDenominator(double minScaleDenominator) {
         unset = false;
         if (minScaleDenominator < 0)
             throw new IllegalArgumentException(
@@ -65,7 +71,7 @@ public class RuleBuilder implements Builder<Rule> {
         return this;
     }
 
-    public RuleBuilder maxScaleDenominator(double maxScaleDenominator) {
+    public RuleBuilder<P> maxScaleDenominator(double maxScaleDenominator) {
         unset = false;
         if (maxScaleDenominator < 0)
             throw new IllegalArgumentException(
@@ -74,41 +80,41 @@ public class RuleBuilder implements Builder<Rule> {
         return this;
     }
 
-    public RuleBuilder elseFilter() {
+    public RuleBuilder<P> elseFilter() {
         unset = false;
         this.elseFilter = true;
         this.filter.unset();
         return this;
     }
 
-    public RuleBuilder filter(Filter filter) {
+    public RuleBuilder<P> filter(Filter filter) {
         unset = false;
         this.elseFilter = false;
-        this.filter = new FilterBuilder( filter );
+        this.filter.reset(filter);
         return this;
     }
 
-    public PointSymbolizerBuilder newPoint() {
+    public PointSymbolizerBuilder<RuleBuilder<P>> newPoint() {
         unset = false;
         if (symbolizerBuilder != null)
             symbolizers.add(symbolizerBuilder.build());
-        symbolizerBuilder = new PointSymbolizerBuilder();
+        symbolizerBuilder = new PointSymbolizerBuilder<RuleBuilder<P>>(this);
         return (PointSymbolizerBuilder) symbolizerBuilder;
     }
 
-    public LineSymbolizerBuilder newLine() {
+    public LineSymbolizerBuilder<RuleBuilder<P>> newLine() {
         unset = false;
         if (symbolizerBuilder != null)
             symbolizers.add(symbolizerBuilder.build());
-        symbolizerBuilder = new LineSymbolizerBuilder();
+        symbolizerBuilder = new LineSymbolizerBuilder<RuleBuilder<P>>(this);
         return (LineSymbolizerBuilder) symbolizerBuilder;
     }
 
-    public PolygonSymbolizerBuilder newPolygon() {
+    public PolygonSymbolizerBuilder<RuleBuilder<P>> newPolygon() {
         unset = false;
         if (symbolizerBuilder != null)
             symbolizers.add(symbolizerBuilder.build());
-        symbolizerBuilder = new PolygonSymbolizerBuilder();
+        symbolizerBuilder = new PolygonSymbolizerBuilder<RuleBuilder<P>>(this);
         return (PolygonSymbolizerBuilder) symbolizerBuilder;
     }
 
@@ -137,12 +143,12 @@ public class RuleBuilder implements Builder<Rule> {
         return rule;
     }
 
-    public RuleBuilder unset(){
+    public RuleBuilder<P> unset(){
         reset();
         unset = true;
         return this;
     }
-    public RuleBuilder reset() {
+    public RuleBuilder<P> reset() {
         name = null;
         title = null;
         ruleAbstract = null;
@@ -154,7 +160,7 @@ public class RuleBuilder implements Builder<Rule> {
         unset = false;
         return this;
     }
-    public RuleBuilder reset( Rule rule ){
+    public RuleBuilder<P> reset( Rule rule ){
         if( rule == null ){
             return unset();            
         }

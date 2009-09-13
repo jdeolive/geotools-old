@@ -1,95 +1,148 @@
 package org.geotools.styling.builder;
 
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.geotools.Builder;
 import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.filter.expression.ChildExpressionBuilder;
+import org.geotools.metadata.iso.citation.OnLineResourceImpl;
 import org.geotools.styling.Graphic;
 import org.geotools.styling.StyleFactory;
 import org.geotools.styling.Symbol;
 import org.opengis.filter.expression.Expression;
+import org.opengis.style.GraphicalSymbol;
 
-public class GraphicBuilder implements Builder<org.opengis.style.Graphic> {
+public class GraphicBuilder<P> implements Builder<org.opengis.style.Graphic> {
     boolean unset = false;
+
+    P parent;
 
     StyleFactory sf = CommonFactoryFinder.getStyleFactory(null);
 
-    List<Symbol> symbols = new ArrayList<Symbol>();
+    List<SymbolBuilder<GraphicBuilder<P>>> symbols = new ArrayList<SymbolBuilder<GraphicBuilder<P>>>();
 
-    MarkBuilder markBuilder;
+    ChildExpressionBuilder<GraphicBuilder<P>> opacity = new ChildExpressionBuilder<GraphicBuilder<P>>(
+            this);
 
-    Expression opacity;
+    ChildExpressionBuilder<GraphicBuilder<P>> size = new ChildExpressionBuilder<GraphicBuilder<P>>(
+            this);
 
-    Expression size;
+    ChildExpressionBuilder<GraphicBuilder<P>> rotation = new ChildExpressionBuilder<GraphicBuilder<P>>(
+            this);
 
-    Expression rotation;
-    public GraphicBuilder(){
+    private AnchorPointBuilder<GraphicBuilder<P>> anchor = new AnchorPointBuilder<GraphicBuilder<P>>(
+            this);
+
+    private DisplacementBuilder<GraphicBuilder<P>> displacement = new DisplacementBuilder<GraphicBuilder<P>>(
+            this);
+
+    public GraphicBuilder() {
+        this.parent = null;
         reset();
     }
-    public GraphicBuilder( org.opengis.style.Graphic graphic ){
-        reset( graphic );
+
+    public GraphicBuilder(P parent) {
+        this.parent = parent;
+        reset();
     }
-    public GraphicBuilder opacity(Expression opacity) {
-        this.opacity = opacity;
+
+    public GraphicBuilder<P> opacity(Expression opacity) {
+        this.opacity.reset(opacity);
         return this;
     }
 
-    public GraphicBuilder size(Expression size) {
-        this.size = size;
+    public GraphicBuilder<P> size(Expression size) {
+        this.size.reset(size);
         return this;
     }
 
-    public GraphicBuilder rotation(Expression rotation) {
-        this.rotation = rotation;
+    public GraphicBuilder<P> rotation(Expression rotation) {
+        this.rotation.reset(rotation);
         return this;
     }
 
-    public GraphicBuilder externalGraphic(URL onlineResource, String format) {
-        symbols.add(sf.createExternalGraphic(onlineResource, format));
-        return this;
+    public ExternalGraphicBuilder<GraphicBuilder<P>> externalGraphic() {
+        SymbolBuilder<GraphicBuilder<P>> symbolBuilder = new SymbolBuilder<GraphicBuilder<P>>(this);
+        symbols.add( symbolBuilder );
+        
+        return symbolBuilder.external();
+    }
+    
+    public ExternalGraphicBuilder<GraphicBuilder<P>> externalGraphic(URL onlineResource, String format) {
+        SymbolBuilder<GraphicBuilder<P>> symbolBuilder = new SymbolBuilder<GraphicBuilder<P>>(this);
+        symbols.add( symbolBuilder );
+        ExternalGraphicBuilder<GraphicBuilder<P>> external = symbolBuilder.external().format(format);
+        try {
+            external.resource( new OnLineResourceImpl( onlineResource.toURI() ) );
+        } catch (URISyntaxException e) {
+        }        
+        return external;
     }
 
-    public MarkBuilder newMark() {
-        if (markBuilder != null)
-            symbols.add(markBuilder.build());
-        else
-            markBuilder = new MarkBuilder();
-        return markBuilder;
+    public MarkBuilder<GraphicBuilder<P>> mark() {
+        SymbolBuilder<GraphicBuilder<P>> symbolBuilder = new SymbolBuilder<GraphicBuilder<P>>(this);
+        symbols.add( symbolBuilder );
+        return symbolBuilder.mark();
     }
 
     public Graphic build() {
-        if (markBuilder != null)
-            symbols.add(markBuilder.build());
-        if (symbols.size() == 0) {
-            MarkBuilder builder = new MarkBuilder();
-            symbols.add(builder.build());
+        if (unset) {
+            return null;
         }
-
-        Symbol[] symbolsArray = (Symbol[]) symbols.toArray(new Symbol[symbols.size()]);
-        Graphic g = sf.createGraphic(null, null, symbolsArray, opacity, size, rotation);
-
-        reset();
+        List<GraphicalSymbol> list = new ArrayList<GraphicalSymbol>();
+        for( SymbolBuilder<GraphicBuilder<P>> symbol : symbols ){
+            list.add( symbol.build() );
+        }        
+        Graphic g = sf.graphic(list, opacity.build(), size.build(), rotation.build(), anchor
+                .build(), displacement.build());
+        
+        if( parent == null ) reset();
         return g;
     }
-    public GraphicBuilder unset() {
+
+    public GraphicBuilder<P> unset() {
         unset = true;
+        symbols.clear();
+        opacity.unset();
+        size.unset();
+        rotation.unset();
+        displacement.unset();
+        anchor.unset();
         return this;
     }
-    public GraphicBuilder reset() {
+
+    public GraphicBuilder<P> reset() {
         unset = false;
         symbols.clear();
-        opacity = null;
-        size = null;
-        rotation = null;
-
+        opacity.reset().literal(1.0);
+        size.reset().literal(16);
+        rotation.reset().literal(0);
+        displacement.reset();
+        anchor.reset();
         return this;
     }
-    public GraphicBuilder reset( org.opengis.style.Graphic graphic ){
-        if( graphic == null ){
+
+    @SuppressWarnings("unchecked")
+    public GraphicBuilder<P> reset(org.opengis.style.Graphic graphic) {
+        if (graphic == null) {
             return unset();
         }
+        unset = false;
+        symbols.clear();
+        for( GraphicalSymbol graphicalSymbol : graphic.graphicalSymbols()){
+            if( graphicalSymbol instanceof Symbol){
+                Symbol symbol = (Symbol) graphicalSymbol;
+                symbols.add(new SymbolBuilder<GraphicBuilder<P>>(this).reset( symbol ));
+            }            
+        }
+        opacity.reset( graphic.getOpacity() );
+        size.reset( graphic.getSize() );
+        rotation.reset( graphic.getRotation() );
+        displacement.reset( graphic.getDisplacement() );
+        anchor.reset( graphic.getAnchorPoint() );
         return this;
     }
 }

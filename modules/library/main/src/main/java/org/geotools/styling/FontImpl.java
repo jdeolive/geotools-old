@@ -21,7 +21,6 @@ package org.geotools.styling;
 //import java.util.logging.Logger;
 // OpenGIS dependencies
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.geotools.util.Utilities;

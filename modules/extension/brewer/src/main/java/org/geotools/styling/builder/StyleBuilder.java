@@ -10,9 +10,10 @@ import org.geotools.styling.Style;
 import org.geotools.styling.StyleFactory;
 import org.geotools.util.SimpleInternationalString;
 
-public class StyleBuilder implements Builder<Style> {
+public class StyleBuilder<P> implements Builder<Style> {
     StyleFactory sf = CommonFactoryFinder.getStyleFactory(null);
-
+    P parent;
+    
     List<FeatureTypeStyle> fts = new ArrayList<FeatureTypeStyle>();
 
     FeatureTypeStyleBuilder ftsBuilder;
@@ -27,7 +28,15 @@ public class StyleBuilder implements Builder<Style> {
 
     private boolean unset;
 
-    public StyleBuilder name(String name) {
+    public StyleBuilder(){
+        this(null);
+    }
+    public StyleBuilder(P parent){
+        parent = null;
+        reset();
+    }
+    
+    public StyleBuilder<P> name(String name) {
         this.name = name;
         return this;
     }
@@ -51,6 +60,9 @@ public class StyleBuilder implements Builder<Style> {
     }
 
     public Style build() {
+        if( unset ){
+            return null;
+        }
         if (ftsBuilder == null)
             ftsBuilder = new FeatureTypeStyleBuilder();
         fts.add(ftsBuilder.build());
@@ -64,7 +76,7 @@ public class StyleBuilder implements Builder<Style> {
         s.featureTypeStyles().addAll(fts);
         s.setDefault(isDefault);
 
-        reset();
+        if( parent == null ) reset();
         return s;
     }
 

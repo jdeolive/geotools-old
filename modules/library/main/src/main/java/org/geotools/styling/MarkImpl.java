@@ -22,7 +22,6 @@ import org.geotools.factory.GeoTools;
 
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
-import org.opengis.style.ExternalMark;
 import org.opengis.style.GraphicalSymbol;
 import org.opengis.style.StyleVisitor;
 import org.opengis.util.Cloneable;
@@ -45,7 +44,7 @@ public class MarkImpl implements Mark, Cloneable {
     private FillImpl fill;
     private StrokeImpl stroke;
 
-    private ExternalMark external;
+    private ExternalMarkImpl external;
     private Expression wellKnownName = null;
     private Expression rotation = null;
     private Expression size = null;
@@ -63,7 +62,7 @@ public class MarkImpl implements Mark, Cloneable {
         setWellKnownName(name);
     }
 
-    public MarkImpl( FilterFactory filterFactory, ExternalMark exter ) {
+    public MarkImpl( FilterFactory filterFactory, ExternalMark external ) {
         this.filterFactory = filterFactory;
         LOGGER.fine("creating defaultMark");
 
@@ -78,7 +77,7 @@ public class MarkImpl implements Mark, Cloneable {
         } catch (org.geotools.filter.IllegalFilterException ife) {
             severe("<init>", "Failed to build default mark: ", ife);
         }
-        this.external = exter;
+        this.external = ExternalMarkImpl.cast( external );
     }
 
     /**
@@ -345,13 +344,13 @@ public class MarkImpl implements Mark, Cloneable {
 
         return true;
     }
-
-    public ExternalMark getExternalMark() {
+    
+    public ExternalMarkImpl getExternalMark() {
         return external;
     }
 
-    public void setExternalMark(ExternalMark external) {
-        this.external = external;
+    public void setExternalMark(org.opengis.style.ExternalMark external) {
+        this.external = ExternalMarkImpl.cast( external );
     }
     @SuppressWarnings("deprecation")
     static MarkImpl cast(GraphicalSymbol item) {

@@ -2,23 +2,32 @@ package org.geotools.styling.builder;
 
 import org.geotools.Builder;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.styling.Fill;
 import org.geotools.styling.PolygonSymbolizer;
-import org.geotools.styling.Stroke;
 import org.geotools.styling.StyleFactory;
 
-public class PolygonSymbolizerBuilder implements Builder<PolygonSymbolizer> {
+public class PolygonSymbolizerBuilder<P> implements Builder<PolygonSymbolizer> {
     StyleFactory sf = CommonFactoryFinder.getStyleFactory(null);
 
-    StrokeBuilder stroke = new StrokeBuilder();
+    P parent;
 
-    FillBuilder fill = new FillBuilder();
+    StrokeBuilder<PolygonSymbolizerBuilder<P>> stroke = new StrokeBuilder<PolygonSymbolizerBuilder<P>>();
+
+    FillBuilder<PolygonSymbolizerBuilder<P>> fill = new FillBuilder<PolygonSymbolizerBuilder<P>>();
 
     String geometry = null;
 
     boolean unset = false;
 
-    PolygonSymbolizerBuilder geometry(String geometry) {
+    public PolygonSymbolizerBuilder() {
+        this(null);
+    }
+
+    PolygonSymbolizerBuilder(P parent) {
+        this.parent = parent;
+        reset();
+    }
+
+    PolygonSymbolizerBuilder<P> geometry(String geometry) {
         this.geometry = geometry;
         unset = false;
         return this;
@@ -35,7 +44,7 @@ public class PolygonSymbolizerBuilder implements Builder<PolygonSymbolizer> {
     }
 
     public PolygonSymbolizer build() {
-        if( unset ){
+        if (unset) {
             return null;
         }
         PolygonSymbolizer ps = sf.createPolygonSymbolizer(stroke.build(), fill.build(), geometry);
@@ -43,19 +52,21 @@ public class PolygonSymbolizerBuilder implements Builder<PolygonSymbolizer> {
         return ps;
     }
 
-    public PolygonSymbolizerBuilder reset() {
+    public PolygonSymbolizerBuilder<P> reset() {
         stroke.reset(); // TODO: check what default stroke is for Polygon
         fill.reset(); // TODO: check what default fill is for Polygon
         unset = false;
         return this;
     }
-    public PolygonSymbolizerBuilder reset( PolygonSymbolizer symbolizer ) {
-        stroke.reset( symbolizer.getStroke() );
-        fill.reset( symbolizer.getFill() );
+
+    public PolygonSymbolizerBuilder<P> reset(PolygonSymbolizer symbolizer) {
+        stroke.reset(symbolizer.getStroke());
+        fill.reset(symbolizer.getFill());
         unset = false;
         return this;
     }
-    public PolygonSymbolizerBuilder unset() {
+
+    public PolygonSymbolizerBuilder<P> unset() {
         stroke.unset();
         fill.unset();
         unset = true;

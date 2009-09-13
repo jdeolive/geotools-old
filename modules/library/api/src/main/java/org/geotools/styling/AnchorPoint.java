@@ -22,9 +22,9 @@ import org.opengis.style.StyleVisitor;
 
 
 /**
- * An AnchorPoint identifies the location inside a textlabel to use as an
+ * An AnchorPoint identifies the location inside a label or graphic to use as an
  * "anchor" for positioning it relative to a point geometry.
- *
+ * 
  * @author Ian Turton
  * @source $URL$
  * @version $Id$
