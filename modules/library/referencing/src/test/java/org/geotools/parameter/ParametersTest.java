@@ -52,8 +52,6 @@ import org.geotools.referencing.wkt.Formatter;
 
 import org.junit.*;
 
-import com.sun.org.apache.xalan.internal.xsltc.dom.Axis;
-
 import static org.junit.Assert.*;
 
 
