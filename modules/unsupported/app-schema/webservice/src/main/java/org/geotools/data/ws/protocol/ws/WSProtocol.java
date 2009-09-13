@@ -23,7 +23,6 @@ import java.util.Set;
 import javax.xml.namespace.QName;
 
 import org.geotools.data.Query;
-import org.geotools.data.ws.protocol.http.HttpMethod;
 import org.opengis.filter.Filter;
 import org.opengis.filter.capability.FilterCapabilities;
 
@@ -54,7 +53,7 @@ public interface WSProtocol {
      * 
      * @return The URL access point for the given operation and method or {@code null} if the
      *         capabilities does not declare an access point for the operation/method combination
-     * @see #supportsOperation(WSOperationType, HttpMethod)
+     * @see #supportsOperation(WSOperationType)
      */
     public URL getOperationURL();
 

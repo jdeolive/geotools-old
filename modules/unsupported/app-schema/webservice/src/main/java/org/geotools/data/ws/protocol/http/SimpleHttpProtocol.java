@@ -22,7 +22,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
@@ -38,7 +37,7 @@ import org.geotools.util.logging.Logging;
  * @source $URL$
  */
 @SuppressWarnings("nls")
-public class SimpleHttpProtocol extends AbstractHttpProtocol {
+public class SimpleHttpProtocol implements HTTPProtocol {
 
     private static final Logger LOGGER = Logging.getLogger("org.geotools.data.ws.protocol.http");
 
@@ -50,20 +49,6 @@ public class SimpleHttpProtocol extends AbstractHttpProtocol {
 
         public SimpleHttpResponse(HttpURLConnection conn) {
             this.conn = conn;
-        }
-
-        public String getContentType() {
-            return conn.getContentType();
-        }
-
-        public String getResponseCharset() {
-            // String contentType = getContentType();
-            return null;
-        }
-
-        public String getResponseHeader(String headerName) {
-            String headerField = conn.getHeaderField(headerName);
-            return headerField;
         }
 
         public InputStream getResponseStream() throws IOException {
@@ -78,15 +63,31 @@ public class SimpleHttpProtocol extends AbstractHttpProtocol {
             }
             return this.inputStream;
         }
+    }
+    
+    private boolean tryGzip;
 
-        public String getTargetUrl() {
-            return conn.getURL().toExternalForm();
-        }
+   protected int timeoutMillis = -1;
 
+    public boolean isTryGzip() {
+        return this.tryGzip;
+    }
+
+    public void setTryGzip(boolean tryGzip) {
+        this.tryGzip = tryGzip;
+    }
+
+
+    public int getTimeoutMillis() {
+        return this.timeoutMillis;
+    }
+
+    public void setTimeoutMillis(int milliseconds) {
+        this.timeoutMillis = milliseconds;
     }
 
     public HTTPResponse issuePost(URL targetUrl, POSTCallBack callback) throws IOException {
-        HttpURLConnection conn = openConnection(targetUrl, HttpMethod.POST);
+        HttpURLConnection conn = openConnection(targetUrl); 
 
         long contentLength = callback.getContentLength();
         conn.setRequestProperty("Content-Length", String.valueOf(contentLength));
@@ -107,7 +108,7 @@ public class SimpleHttpProtocol extends AbstractHttpProtocol {
         return response;
     }
 
-    private HttpURLConnection openConnection(URL targetUrl, HttpMethod method) throws IOException {
+    private HttpURLConnection openConnection(URL targetUrl) throws IOException {
         HttpURLConnection conn = (HttpURLConnection) targetUrl.openConnection();
         if (0 < getTimeoutMillis()) {
             conn.setConnectTimeout(getTimeoutMillis());
@@ -116,13 +117,9 @@ public class SimpleHttpProtocol extends AbstractHttpProtocol {
         if (isTryGzip()) {
             conn.setRequestProperty("Accept-Encoding", "gzip");
         }
-        if (method == HttpMethod.POST) {
-            conn.setRequestMethod("POST");
-            // conn.setRequestProperty("Content-type", "text/xml, application/xml");
-            conn.setDoOutput(true);
-        } else {
-            conn.setRequestMethod("GET");
-        }
+
+        conn.setRequestMethod("POST");
+        conn.setDoOutput(true);
         conn.setDoInput(true);
         return conn;
     }

@@ -63,14 +63,6 @@ public interface HTTPProtocol {
     public boolean isTryGzip();
 
     /**
-     * Sets the HTTP authentication realms (not required/used so far, but intended to be)
-     * 
-     * @param username
-     * @param password
-     */
-    public void setAuth(String username, String password);
-
-    /**
      * Sets the request timeout in milliseconds.
      * 
      * @param milliseconds

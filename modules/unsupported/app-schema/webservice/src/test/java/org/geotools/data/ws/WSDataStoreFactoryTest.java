@@ -16,25 +16,18 @@
  */
 package org.geotools.data.ws;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.geotools.data.ws.XmlDataStore;
 import org.geotools.data.ws.WSDataStoreFactory;
-import org.geotools.data.ws.protocol.http.HTTPProtocol;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -76,13 +69,7 @@ public class WSDataStoreFactoryTest {
         
         params.put(WSDataStoreFactory.CAPABILITIES_FILE_LOCATION.key, "./src/test/resources/test-data/ws_capabilities.xml");
         assertTrue(dsf.canProcess(params));
-        
-        params.put(WSDataStoreFactory.USERNAME.key, "astroboy");
-        assertFalse(dsf.canProcess(params));
 
-        params.put(WSDataStoreFactory.PASSWORD.key, "secret");
-        assertTrue(dsf.canProcess(params));
-        
         params.put(WSDataStoreFactory.TIMEOUT.key, "30000");
         assertTrue(dsf.canProcess(params));       
     }
@@ -95,19 +82,7 @@ public class WSDataStoreFactoryTest {
     }
 
     private void testCreateDataStore_WS(final String capabilitiesFile) throws IOException {
-        // override caps loading not to set up an http connection at all but to
-        // load the test file
-        final WSDataStoreFactory dsf = new WSDataStoreFactory() {
-            byte[] loadCapabilities(final URL capabilitiesUrl, HTTPProtocol htp) throws IOException {
-                InputStream in = capabilitiesUrl.openStream();
-                ByteArrayOutputStream out = new ByteArrayOutputStream();
-                int aByte;
-                while ((aByte = in.read()) != -1) {
-                    out.write(aByte);
-                }
-                return out.toByteArray();
-            }
-        };
+         final WSDataStoreFactory dsf = new WSDataStoreFactory(); 
         Map<String, Serializable> params = new HashMap<String, Serializable>();
          
             

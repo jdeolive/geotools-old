@@ -93,7 +93,7 @@ public class WSDataStoreFactory extends AbstractDataStoreFactory {
         }
     }
 
-    private static final WSFactoryParam[] parametersInfo = new WSFactoryParam[9];
+    private static final WSFactoryParam[] parametersInfo = new WSFactoryParam[7];
     static {
         String name;
         Class clazz;
@@ -104,50 +104,38 @@ public class WSDataStoreFactory extends AbstractDataStoreFactory {
         description = "Represents a URL to the getCapabilities document or a server instance.";
         parametersInfo[0] = new WSFactoryParam(name, clazz, description);
 
-        name = "WSDataStoreFactory:USERNAME";
-        clazz = String.class;
-        description = "This allows the user to specify a username. This param should not "
-                + "be used without the PASSWORD param.";
-        parametersInfo[1] = new WSFactoryParam(name, clazz, description, (String) null);
-
-        name = "WSDataStoreFactory:PASSWORD";
-        clazz = String.class;
-        description = "This allows the user to specify a username. This param should not"
-                + " be used without the USERNAME param.";
-        parametersInfo[2] = new WSFactoryParam(name, clazz, description, (String) null);
-
         name = "WSDataStoreFactory:TIMEOUT";
         clazz = Integer.class;
         description = "This allows the user to specify a timeout in milliseconds. This param"
                 + " has a default value of 3000ms.";
-        parametersInfo[3] = new WSFactoryParam(name, clazz, description, Integer.valueOf(3000));
+        parametersInfo[1] = new WSFactoryParam(name, clazz, description, Integer.valueOf(3000));
 
         name = "WSDataStoreFactory:TRY_GZIP";
         clazz = Boolean.class;
         description = "Indicates that datastore should use gzip to transfer data if the server "
                 + "supports it. Default is true";
-        parametersInfo[4] = new WSFactoryParam(name, clazz, description, Boolean.TRUE);
+        parametersInfo[2] = new WSFactoryParam(name, clazz, description, Boolean.TRUE);
 
         name = "WSDataStoreFactory:MAXFEATURES";
         clazz = Integer.class;
         description = "Positive integer used as a hard limit for the amount of Features to retrieve"
                 + " for each FeatureType. A value of zero or not providing this parameter means no limit.";
-        parametersInfo[5] = new WSFactoryParam(name, clazz, description, Integer.valueOf(0));
+        parametersInfo[3] = new WSFactoryParam(name, clazz, description, Integer.valueOf(0));
 
         name = "WSDataStoreFactory:TEMPLATE_NAME";
         clazz = String.class;
         description = "File name of the template used to create the XML request";
-        parametersInfo[6] = new WSFactoryParam(name, clazz, description);
+        parametersInfo[4] = new WSFactoryParam(name, clazz, description);
 
         name = "WSDataStoreFactory:TEMPLATE_DIRECTORY";
         clazz = String.class;
         description = "Directory where the template used to create the XML request has been put";
-        parametersInfo[7] = new WSFactoryParam(name, clazz, description);
+        parametersInfo[5] = new WSFactoryParam(name, clazz, description);
 
         name = "WSDataStoreFactory:CAPABILITIES_FILE_LOCATION";
         clazz = String.class;
         description = "The location of the capabilities file";
-        parametersInfo[8] = new WSFactoryParam(name, clazz, description);
+        parametersInfo[6] = new WSFactoryParam(name, clazz, description);
     }
 
     /**
@@ -156,52 +144,30 @@ public class WSDataStoreFactory extends AbstractDataStoreFactory {
     public static final WSFactoryParam<URL> GET_CONNECTION_URL = parametersInfo[0];
 
     /**
-     * Optional {@code String} DataStore parameter supplying the user name to use when the server
-     * requires HTTP authentication
-     * <p>
-     * Shall be used together with {@link #PASSWORD} or not used at all.
-     * </p>
-     * 
-     * @see Authenticator
-     */
-    public static final WSFactoryParam<String> USERNAME = parametersInfo[1];
-
-    /**
-     * Optional {@code String} DataStore parameter supplying the password to use when the server
-     * requires HTTP authentication
-     * <p>
-     * Shall be used together with {@link #USERNAME} or not used at all.
-     * </p>
-     * 
-     * @see Authenticator
-     */
-    public static final WSFactoryParam<String> PASSWORD = parametersInfo[2];
-
-    /**
      * Optional {@code Integer} DataStore parameter indicating a timeout in milliseconds for the
      * HTTP connections.
      * 
      * @TODO: specify if its just a connection timeout or also a read timeout
      */
-    public static final WSFactoryParam<Integer> TIMEOUT = parametersInfo[3];
+    public static final WSFactoryParam<Integer> TIMEOUT = parametersInfo[1];
 
     /**
      * Optional {@code Boolean} data store parameter indicating whether to set the accept GZip
      * encoding on the HTTP request headers sent to the server
      */
-    public static final WSFactoryParam<Boolean> TRY_GZIP = parametersInfo[4];
+    public static final WSFactoryParam<Boolean> TRY_GZIP = parametersInfo[2];
 
     /**
      * Optional positive {@code Integer} used as a hard limit for the amount of Features to retrieve
      * for each FeatureType. A value of zero or not providing this parameter means no limit.
      */
-    public static final WSFactoryParam<Integer> MAXFEATURES = parametersInfo[5];
+    public static final WSFactoryParam<Integer> MAXFEATURES = parametersInfo[3];
 
-    public static final WSFactoryParam<String> TEMPLATE_NAME = parametersInfo[6];
+    public static final WSFactoryParam<String> TEMPLATE_NAME = parametersInfo[4];
 
-    public static final WSFactoryParam<String> TEMPLATE_DIRECTORY = parametersInfo[7];
-
-    public static final WSFactoryParam<String> CAPABILITIES_FILE_LOCATION = parametersInfo[8];
+    public static final WSFactoryParam<String> TEMPLATE_DIRECTORY = parametersInfo[5];
+    
+    public static final WSFactoryParam<String> CAPABILITIES_FILE_LOCATION = parametersInfo[6];
 
     protected Map<Map, XmlDataStore> perParameterSetDataStoreCache = new HashMap();
 
@@ -224,8 +190,6 @@ public class WSDataStoreFactory extends AbstractDataStoreFactory {
             return perParameterSetDataStoreCache.get(params);
         }
         final URL getQueryRequest = (URL) GET_CONNECTION_URL.lookUp(params);
-        final String user = (String) USERNAME.lookUp(params);
-        final String pass = (String) PASSWORD.lookUp(params);
         final int timeoutMillis = (Integer) TIMEOUT.lookUp(params);
         final boolean tryGZIP = (Boolean) TRY_GZIP.lookUp(params);
         final Integer maxFeatures = (Integer) MAXFEATURES.lookUp(params);
@@ -233,14 +197,8 @@ public class WSDataStoreFactory extends AbstractDataStoreFactory {
         final String templateDirectory = (String) TEMPLATE_DIRECTORY.lookUp(params);
         final String capabilitiesDirectory = (String) CAPABILITIES_FILE_LOCATION.lookUp(params);
 
-        if (((user == null) && (pass != null)) || ((pass == null) && (user != null))) {
-            throw new IOException(
-                    "Cannot define only one of USERNAME or PASSWORD, must define both or neither");
-        }
-
         final HTTPProtocol http = new SimpleHttpProtocol();
         http.setTryGzip(tryGZIP);
-        http.setAuth(user, pass);
         http.setTimeoutMillis(timeoutMillis);
 
         InputStream capsIn = new FileInputStream(new File(capabilitiesDirectory));
@@ -320,7 +278,7 @@ public class WSDataStoreFactory extends AbstractDataStoreFactory {
             throw new NullPointerException("params");
         }
         try {
-            // manditory fields
+            // mandatory fields
             GET_CONNECTION_URL.lookUp(params);
             TEMPLATE_NAME.lookUp(params);
             TEMPLATE_DIRECTORY.lookUp(params);
@@ -328,17 +286,7 @@ public class WSDataStoreFactory extends AbstractDataStoreFactory {
         } catch (Exception e) {
             return false;
         }
-
-        // check password / username
-        if (params.containsKey(USERNAME.key)) {
-            if (!params.containsKey(PASSWORD.key)) {
-                return false; // must have both
-            }
-        } else {
-            if (params.containsKey(PASSWORD.key)) {
-                return false; // must have both
-            }
-        }
+ 
         return true;
     }
 
@@ -346,7 +294,7 @@ public class WSDataStoreFactory extends AbstractDataStoreFactory {
      * @see org.geotools.data.DataStoreFactorySpi#getDisplayName()
      */
     public String getDisplayName() {
-        return "Web Feature Server";
+        return "Web Service Server";
     }
 
     /**

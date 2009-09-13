@@ -30,11 +30,6 @@ import java.io.InputStream;
 public interface HTTPResponse {
 
     /**
-     * @return the URL the request producing this response was sent to
-     */
-    public String getTargetUrl();
-
-    /**
      * Returns the stream to the response contents ready to be consumed, whether gzip encoding is
      * being used or not.
      * 
@@ -42,25 +37,4 @@ public interface HTTPResponse {
      *             the plain stream to the response contents
      */
     public InputStream getResponseStream() throws IOException;
-
-    /**
-     * Returns the value of the given HTTP response header.
-     * 
-     * @param headerName
-     *            the response header name to get the value of
-     * @return the value the HTTP server set for the given response header name, may be {@code null}
-     */
-    public String getResponseHeader(String headerName);
-
-    /**
-     * Returns the response charset identifier as extracted from the HTTP header, if any.
-     * 
-     * @return the charset or {@code null} if not indicated by the server.
-     */
-    public String getResponseCharset();
-
-    /**
-     * Shortcut method to get the response content-type header
-     */
-    public String getContentType();
 }
