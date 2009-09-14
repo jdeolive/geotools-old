@@ -18,6 +18,7 @@ package org.geotools.jdbc;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URLDecoder;
@@ -59,10 +60,15 @@ import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.NameImpl;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
+import org.geotools.feature.visitor.CountVisitor;
+import org.geotools.feature.visitor.MaxVisitor;
+import org.geotools.feature.visitor.MinVisitor;
+import org.geotools.feature.visitor.SumVisitor;
 import org.geotools.filter.FilterCapabilities;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.util.Converters;
+import org.opengis.feature.FeatureVisitor;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -70,6 +76,7 @@ import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.filter.Filter;
 import org.opengis.filter.Id;
 import org.opengis.filter.PropertyIsLessThanOrEqualTo;
+import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Function;
 import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;
@@ -207,6 +214,11 @@ public final class JDBCDataStore extends ContentDataStore
      */
     protected HashMap<Integer,String> sqlTypeToSqlTypeNameOverrides;
 
+    /**
+     * Feature visitor to aggregate function name
+     */
+    protected HashMap<Class<? extends FeatureVisitor>,String> aggregateFunctions;
+    
     /**
      * flag controlling if the datastore is supporting feature and geometry
      * relationships with associations
@@ -423,7 +435,17 @@ public final class JDBCDataStore extends ContentDataStore
         return sqlTypeToSqlTypeNameOverrides;
     }
 
-
+    /**
+     * Returns the supported aggregate functions and the visitors they map to.
+     */
+    public Map<Class<? extends FeatureVisitor>,String> getAggregateFunctions() {
+        if ( aggregateFunctions == null ) {
+            aggregateFunctions = new HashMap();
+            dialect.registerAggregateFunctions(aggregateFunctions);
+        }
+        return aggregateFunctions;
+    }
+    
     /**
      * Returns the java type mapped to the specified sql type.
      * <p>
@@ -991,36 +1013,145 @@ public final class JDBCDataStore extends ContentDataStore
     protected int getCount(SimpleFeatureType featureType, Query query, Connection cx)
         throws IOException {
         
-        Statement st = null;
-        ResultSet rs = null;
-        try {
-            if ( dialect instanceof PreparedStatementSQLDialect ) {
-                st = selectCountSQLPS(featureType, query, cx);
-                rs = ((PreparedStatement)st).executeQuery();
-            }
-            else {
-                String sql = selectCountSQL(featureType, query);
-                LOGGER.log(Level.FINE, "Counting features: {0}", sql);
-                
-                st = cx.createStatement();
-                rs = st.executeQuery(sql);    
+        CountVisitor v = new CountVisitor();
+        getAggregateValue(v,featureType,query,cx);
+        return v.getCount();
+    }
+    
+    /**
+     * Results the value of an aggregate function over a query.
+     */
+    protected Object getAggregateValue(FeatureVisitor visitor, SimpleFeatureType featureType, Query query, Connection cx ) 
+        throws IOException {
+        
+        //get the name of the function
+        String function = getAggregateFunctions().get( visitor.getClass() );
+        if ( function == null ) {
+            //try walking up the hierarchy
+            Class clazz = visitor.getClass();
+            while( clazz != null && function == null ) {
+                clazz = clazz.getSuperclass();
+                function = getAggregateFunctions().get( clazz );
             }
             
+            if ( function == null ) {
+                //not supported
+                LOGGER.info( "Unable to find aggregate function matching visitor: " + visitor.getClass());
+                return null;
+            }
+        }
+        
+        AttributeDescriptor att = null;
+        Expression expression = getExpression(visitor);
+        if ( expression != null ) {
+            att = (AttributeDescriptor) expression.evaluate( featureType );
+        }
+        
+        //result of the function
+        try {
+            Object result = null;
+            Statement st = null;
+            ResultSet rs = null;
+            
             try {
+                if ( dialect instanceof PreparedStatementSQLDialect ) {
+                    st = selectAggregateSQLPS(function, att, featureType, query, cx);
+                    rs = ((PreparedStatement)st).executeQuery();
+                } 
+                else {
+                    String sql = selectAggregateSQL(function, att, featureType, query);
+                    LOGGER.fine( sql );
+                    
+                    st = cx.createStatement();
+                    rs = st.executeQuery( sql );
+                }
+                    
                 rs.next();
-
-                return rs.getInt(1);
+                result = rs.getObject( 1 );
             }
             finally {
-                closeSafe(rs);
-                closeSafe(st);
+                closeSafe( rs );
+                closeSafe( st );
             }
-        } catch (SQLException e) {
-            String msg = "Error occured calculating count";
-            throw (IOException) new IOException(msg).initCause(e);
+            
+            if ( setResult(visitor,result) ){
+                return result;    
+            }
+            
+            return null;
+        }
+        catch( SQLException e ) {
+            throw (IOException) new IOException().initCause(e);
         }
     }
 
+    /**
+     * Helper method for getting the expression from a visitor
+     * TODO: Remove this method when there is an interface for aggregate visitors.
+     * See GEOT-2325 for details.
+     */
+    Expression getExpression(FeatureVisitor visitor) {
+        try {
+            Method g = visitor.getClass().getMethod( "getExpression", null );
+            if ( g != null ) {
+                Object result = g.invoke( visitor, null );
+                if ( result instanceof Expression ) {
+                    return (Expression) result;
+                }
+            }
+        }
+        catch( Exception e ) {
+            //ignore for now
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Helper method for setting the result of a aggregate functino on a visitor.
+     * TODO: Remove this method when there is an interface for aggregate visitors.
+     * See GEOT-2325 for details.
+     */
+    boolean setResult(FeatureVisitor visitor,Object result) {
+        try {
+            Method s = null;
+            try {
+                s = visitor.getClass().getMethod("setValue",result.getClass());
+            }
+            catch( Exception e ) {}
+            
+            if ( s == null ) {
+                for ( Method m : visitor.getClass().getMethods()) {
+                    if ( "setValue".equals( m.getName() ) ) {
+                        s = m;
+                        break;
+                    }
+                }
+            }
+            if ( s != null ){
+                Class type = s.getParameterTypes()[0];
+                if ( !type.isInstance( result ) ) {
+                    //convert
+                    Object converted = Converters.convert( result, type );
+                    if ( converted != null ) {
+                        result = converted;
+                    }
+                    else {
+                        //could not set value
+                        return false;
+                    }
+                }
+                
+                s.invoke( visitor, result );
+                return true;
+            }
+        }
+        catch( Exception e ) {
+            //ignore for now
+        }
+        return false;
+    }
+    
     /**
      * Inserts a new feature into the database for a particular feature type / table.
      */
@@ -2809,13 +2940,32 @@ public final class JDBCDataStore extends ContentDataStore
      * (and a count returns just one), and then count on the result of that first select
      */
     protected String selectCountSQL(SimpleFeatureType featureType, Query query) {
+        //JD: this method should not be called anymore
+        return selectAggregateSQL("count",null,featureType,query);
+    }
+
+    /**
+     * Generates a 'SELECT count(*) FROM' prepared statement.
+     */
+    protected PreparedStatement selectCountSQLPS(SimpleFeatureType featureType, Query query, Connection cx ) 
+        throws SQLException {
+        //JD: this method shold not be called anymore
+        return selectAggregateSQLPS("count",null,featureType,query,cx);
+    }
+    
+    /**
+     * Generates a 'SELECT <function>() FROM' statement.
+     */
+    protected String selectAggregateSQL(String function, AttributeDescriptor att, SimpleFeatureType featureType, Query query) {
         StringBuffer sql = new StringBuffer();
 
         boolean limitOffset = checkLimitOffset(query);
         if(limitOffset) {
             sql.append("SELECT * FROM ");
         } else {
-            sql.append("SELECT count(*) FROM ");
+            sql.append("SELECT ");
+            encodeFunction(function,att,query,sql);
+            sql.append( " FROM ");
         }
         encodeTableName(featureType.getTypeName(), sql);
 
@@ -2832,31 +2982,37 @@ public final class JDBCDataStore extends ContentDataStore
         
         if(limitOffset) {
             applyLimitOffset(sql, query);
-            sql.insert(0, "SELECT COUNT(*) FROM (");
-            sql.append(") AS GT_COUNT_ ");
             
+            StringBuffer sql2 = new StringBuffer("SELECT ");
+            encodeFunction(function,att,query,sql2);
+            sql2.append(" FROM (");
+            sql.insert(0,sql2.toString());
+            sql.append(") AS gt_result_");
         }
 
         return sql.toString();
     }
-
+    
     /**
-     * Generates a 'SELECT count(*) FROM' prepared statement.
+     * Generates a 'SELECT <function>() FROM' prepared statement.
      */
-    protected PreparedStatement selectCountSQLPS(SimpleFeatureType featureType, Query query, Connection cx ) 
+    protected PreparedStatement selectAggregateSQLPS(String function, AttributeDescriptor att, SimpleFeatureType featureType, Query query, Connection cx)
         throws SQLException {
+        
         StringBuffer sql = new StringBuffer();
 
         boolean limitOffset = checkLimitOffset(query);
         if(limitOffset) {
             sql.append("SELECT * FROM ");
         } else {
-            sql.append("SELECT count(*) FROM ");
+            sql.append("SELECT ");
+            encodeFunction(function,att,query,sql);
+            sql.append( " FROM ");
         }
         encodeTableName(featureType.getTypeName(), sql);
 
-        PreparedFilterToSQL toSQL = null;
         Filter filter = query.getFilter();
+        PreparedFilterToSQL toSQL = null;
         if (filter != null && !Filter.INCLUDE.equals(filter)) {
             //encode filter
             try {
@@ -2869,19 +3025,40 @@ public final class JDBCDataStore extends ContentDataStore
         
         if(limitOffset) {
             applyLimitOffset(sql, query);
-            sql.insert(0, "SELECT COUNT(*) FROM (");
-            sql.append(")");
-            dialect.encodeTableAlias("GT_COUNT_", sql);
+            
+            StringBuffer sql2 = new StringBuffer("SELECT ");
+            encodeFunction(function,att,query,sql2);
+            sql2.append(" FROM (");
+            sql.insert(0,sql2.toString());
+            sql.append(") AS gt_result_");
         }
-
+        
         LOGGER.fine( sql.toString() );
-        PreparedStatement ps = cx.prepareStatement(sql.toString());
+        PreparedStatement ps = cx.prepareStatement(sql.toString(), ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+        ps.setFetchSize(fetchSize);
         
         if ( toSQL != null ) {
             setPreparedFilterValues(ps, toSQL, 0, cx);
-        }
+        } 
         
         return ps;
+    }
+    
+    protected void encodeFunction( String function, AttributeDescriptor att, Query query, StringBuffer sql ) {
+        sql.append(function).append("(");
+        if ( att == null ) {
+            sql.append( "*" );
+        }
+        else {
+            if ( att instanceof GeometryDescriptor ) {
+                encodeGeometryColumn((GeometryDescriptor)att, sql,query.getHints());
+            }
+            else {
+                dialect.encodeColumnName( att.getLocalName(), sql);
+            }
+        }
+        
+        sql.append(")");
     }
     
     /**

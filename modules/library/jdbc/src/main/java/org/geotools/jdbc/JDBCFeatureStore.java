@@ -39,6 +39,7 @@ import org.geotools.data.store.ContentFeatureStore;
 import org.geotools.data.store.ContentState;
 import org.geotools.factory.Hints;
 import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.opengis.feature.FeatureVisitor;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -204,6 +205,11 @@ public final class JDBCFeatureStore extends ContentFeatureStore {
     protected FeatureReader<SimpleFeatureType, SimpleFeature> getReaderInternal(
             Query query) throws IOException {
         return delegate.getReaderInternal(query);
+    }
+    
+    @Override
+    protected boolean handleVisitor(Query query, FeatureVisitor visitor) throws IOException {
+        return delegate.handleVisitor(query, visitor);
     }
     
 //  /**

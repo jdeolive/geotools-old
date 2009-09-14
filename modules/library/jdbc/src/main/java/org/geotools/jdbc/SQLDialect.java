@@ -33,9 +33,14 @@ import java.util.logging.Logger;
 
 import org.geotools.data.Query;
 import org.geotools.factory.Hints;
+import org.geotools.feature.visitor.CountVisitor;
+import org.geotools.feature.visitor.MaxVisitor;
+import org.geotools.feature.visitor.MinVisitor;
+import org.geotools.feature.visitor.SumVisitor;
 import org.geotools.filter.FilterCapabilities;
 import org.geotools.referencing.CRS;
 import org.geotools.util.logging.Logging;
+import org.opengis.feature.FeatureVisitor;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.GeometryDescriptor;
@@ -301,6 +306,29 @@ public abstract class SQLDialect {
      * </p>
      */
     public void registerSqlTypeToSqlTypeNameOverrides(Map<Integer,String> overrides) {
+    }
+    
+    /**
+     * Registers the set of aggregate functions the dialect is capable of handling.
+     * <p>
+     * Aggregate functions are handled via visitors of special types. The <param>aggregates</param>
+     * maps the class of the visitor to the associated function name. This base implementation 
+     * handles some of the well known mappings:
+     * <ul>
+     * <li>{@link CountVisitor} -> "count" <li>
+     * <li>{@link MaxVisitor} -> "max" <li>
+     * <li>{@link MinVisitor} -> "min" <li>
+     * <li>{@link SumVisitor} -> "sum" <li>
+     *  </ul>
+     *  Subclasses should extend (not override) to provide additional functions.
+     * </p>
+     */
+    public void registerAggregateFunctions(Map<Class<? extends FeatureVisitor>,String> aggregates) {
+        //register the well known
+        aggregates.put( CountVisitor.class, "count" );
+        aggregates.put( MinVisitor.class, "min");
+        aggregates.put( MaxVisitor.class, "max");
+        aggregates.put( SumVisitor.class, "sum");
     }
     
     /**

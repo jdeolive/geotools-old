@@ -48,6 +48,7 @@ import org.geotools.filter.function.Collection_UniqueFunction;
 import org.geotools.filter.visitor.PropertyNameResolvingVisitor;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.util.NullProgressListener;
+import org.opengis.feature.FeatureVisitor;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.Name;
@@ -566,8 +567,17 @@ public abstract class ContentFeatureSource implements FeatureSource<SimpleFeatur
     public void accepts( Query query, org.opengis.feature.FeatureVisitor visitor,
             org.opengis.util.ProgressListener progress) throws IOException {
         
-        if( progress == null ) progress = new NullProgressListener();
+        if( progress == null ) {
+            progress = new NullProgressListener();
+        }
         
+
+        if ( handleVisitor(query,visitor) ) {
+            //all good, subclass handled
+            return;
+        }
+
+        //subclass could not handle, resort to manually walkign through
         FeatureReader<SimpleFeatureType, SimpleFeature> reader = getReader(query);
         try{
             float size = progress instanceof NullProgressListener ? 0.0f : (float) getCount( query );
@@ -588,6 +598,22 @@ public abstract class ContentFeatureSource implements FeatureSource<SimpleFeatur
             progress.complete();            
             reader.close();
         }
+    }
+    
+    /**
+     * Subclass method which allows subclasses to natively handle a visitor.
+     * <p>
+     * Subclasses would override this method and return true in cases where the specific 
+     * visitor could be handled without iterating over the entire result set of query. An 
+     * example would be handling visitors that calculate aggregate values.
+     * </p>
+     * @param query The query being made.
+     * @param visitor The visitor to 
+     * 
+     * @return true if the visitor can be handled natively, otherwise false. 
+     */
+    protected boolean handleVisitor( Query query, FeatureVisitor visitor ) throws IOException {
+        return false;
     }
     
     /**

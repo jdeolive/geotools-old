@@ -48,6 +48,7 @@ import org.geotools.filter.visitor.SimplifyingFilterVisitor;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.opengis.feature.Association;
+import org.opengis.feature.FeatureVisitor;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -578,4 +579,16 @@ public class JDBCFeatureSource extends ContentFeatureSource {
         return reader;
     }
 
+    @Override
+    protected boolean handleVisitor(Query query, FeatureVisitor visitor) throws IOException {
+        //grab connection
+        Connection cx = getDataStore().getConnection(getState());
+        try {
+            Object result = getDataStore().getAggregateValue(visitor, getSchema(), query, cx);
+            return result != null;
+        }
+        finally {
+            getDataStore().closeSafe( cx );
+        }
+    }
 }

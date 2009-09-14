@@ -101,6 +101,12 @@ public abstract class JDBCFeatureSourceTest extends JDBCTestSupport {
         assertEquals(1, featureSource.getCount(query));
     }
 
+    public void testCountWithOffsetLimit() throws Exception {
+        DefaultQuery query = new DefaultQuery();
+        query.setStartIndex(1);
+        query.setMaxFeatures(1);
+        assertEquals(1, featureSource.getCount(query));
+    }
     public void testGetFeatures() throws Exception {
         FeatureCollection<SimpleFeatureType, SimpleFeature> features = featureSource.getFeatures();
         assertEquals(3, features.size());
