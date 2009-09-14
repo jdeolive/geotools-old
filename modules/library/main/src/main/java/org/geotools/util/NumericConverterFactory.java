@@ -19,6 +19,7 @@ package org.geotools.util;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.NumberFormat;
+import java.util.HashMap;
 
 import org.geotools.factory.Hints;
 
@@ -44,7 +45,10 @@ import org.geotools.factory.Hints;
 public class NumericConverterFactory implements ConverterFactory {
 
     public Converter createConverter(Class source, Class target, Hints hints) {
-
+        //convert to non-primitive class
+        source = primitiveToWrapperClass(source);
+        target = primitiveToWrapperClass(target);
+        
         // check if source is a number or a string. We can't convert to a number
         // from anything else.
         if (!(Number.class.isAssignableFrom(source)) && !(String.class.isAssignableFrom(source)))
@@ -71,6 +75,7 @@ public class NumericConverterFactory implements ConverterFactory {
 
     class SafeNumericConverter implements Converter {
         public <T> T convert(Object source, Class<T> target) throws Exception {
+            target = primitiveToWrapperClass(target);
             if (source instanceof Number){
                 Number number = (Number) source;
                 Class c = number.getClass();
@@ -183,6 +188,7 @@ public class NumericConverterFactory implements ConverterFactory {
     class NumericConverter implements Converter {
 
         public Object convert(Object source, Class target) throws Exception {
+            target = primitiveToWrapperClass(target);
             if (source instanceof Number) {
                 Number s = (Number) source;
 
@@ -327,5 +333,23 @@ public class NumericConverterFactory implements ConverterFactory {
         } else {
             return s;
         }
+    }
+    
+    static HashMap<Class, Class> primitiveToWrapper = new HashMap();
+    static {
+        primitiveToWrapper.put(Byte.TYPE, Byte.class);
+        primitiveToWrapper.put(Short.TYPE, Short.class);
+        primitiveToWrapper.put(Integer.TYPE, Integer.class);
+        primitiveToWrapper.put(Long.TYPE, Long.class);
+        primitiveToWrapper.put(Float.TYPE, Float.class);
+        primitiveToWrapper.put(Double.TYPE, Double.class);
+        primitiveToWrapper.put(Boolean.TYPE, Boolean.class);
+    }
+    static Class primitiveToWrapperClass(Class primitive) {
+        if (primitive.isPrimitive()) {
+            Class wrapper = primitiveToWrapper.get(primitive); 
+            primitive = wrapper != null ? wrapper : primitive;
+        }
+        return primitive;
     }
 }

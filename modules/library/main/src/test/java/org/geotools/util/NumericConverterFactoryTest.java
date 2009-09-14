@@ -287,4 +287,16 @@ public class NumericConverterFactoryTest extends TestCase {
         assertEquals(new Byte("1"), convertSafe("1", Byte.class));
         assertNull(convertSafe("123.6", Byte.class));
     }      
+    
+    public void testPrimitiveTypes() throws Exception {
+        assertEquals(1, convert(new Integer(1), int.class));
+        assertEquals(new Integer(1), convert(new Integer(1), int.class));
+        assertEquals(1, convert(1, Integer.class));
+        assertEquals(new Integer(1), convert(1, Integer.class));
+        
+        assertEquals(1, convert("1", int.class));
+        assertEquals(new Integer(1), convert("1", int.class));
+        assertEquals(1, convert("1", Integer.class));
+        assertEquals(new Integer(1), convert("1", Integer.class));
+    }
 }
