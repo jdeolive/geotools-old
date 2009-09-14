@@ -43,6 +43,7 @@ import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.lang.reflect.InvocationTargetException;
 
@@ -203,29 +204,6 @@ public class ImageWorker {
         	worker.commonHints = hints;
         }
         return worker;
-    }
-
-    /**
-     * Loads an image using the provided file name and the provided hints, which
-     * are used to control caching and layout.
-     *
-     * @param source      The source image.
-     * @param hints       The hints to use.
-     * @param imageChoice For multipage images.
-     * @return The loaded image.
-     *
-     * @deprecated Use #load instead.
-     */
-    @Deprecated
-    @SuppressWarnings("unchecked")
-    public static PlanarImage loadPlanarImageImage(final String source,
-                    final RenderingHints hints, final int imageChoice,
-                    final boolean readMetadata)
-    {
-        final ImageWorker worker = new ImageWorker();
-        worker.commonHints = new RenderingHints((java.util.Map) hints);
-        worker.load(source, imageChoice, readMetadata);
-        return worker.getPlanarImage();
     }
 
     /**
@@ -2341,7 +2319,10 @@ public class ImageWorker {
             throws IOException
     {
         // Reformatting this image for jpeg.
-        LOGGER.finer("Encoding input image to write out as JPEG.");
+        if(LOGGER.isLoggable(Level.FINER))
+        	LOGGER.finer("Encoding input image to write out as JPEG.");
+
+             	
         tileCacheEnabled(false);
         final ColorModel cm = image.getColorModel();
         final boolean indexColorModel = image.getColorModel() instanceof IndexColorModel;
@@ -2358,7 +2339,8 @@ public class ImageWorker {
         tileCacheEnabled(true);
 
         // Getting a writer.
-        LOGGER.finer("Getting a JPEG writer and configuring it.");
+        if(LOGGER.isLoggable(Level.FINER))
+        	LOGGER.finer("Getting a JPEG writer and configuring it.");
         final Iterator<ImageWriter> it = ImageIO.getImageWritersByFormatName("JPEG");
         if (!it.hasNext()) {
             throw new IllegalStateException(Errors.format(ErrorKeys.NO_IMAGE_WRITER));
@@ -2387,11 +2369,39 @@ public class ImageWorker {
                 // TODO: inline cause when we will be allowed to target Java 6.
             }
         }
-        LOGGER.finer("Writing out...");
-        writer.write(null, new IIOImage(image, null, null), iwp);
-        outStream.flush();
-        writer.dispose();
-        outStream.close();
+
+        if(LOGGER.isLoggable(Level.FINER))
+        	LOGGER.finer("Writing out...");
+        
+        // the JDK writer has problems with images that do not  start at minx==miny==0
+        if (!nativeAcc&&image.getMinX()!=0 || image.getMinY()!=0) {
+      
+                  
+//                 final WritableRaster raster= RasterFactory.createWritableRaster(
+//                 		image.getSampleModel().createCompatibleSampleModel(image.getWidth(), image.getHeight()), 
+//                 		new Point(0,0)); 
+             	final BufferedImage finalImage= new BufferedImage(
+             			image.getColorModel(),
+//             			raster,
+             			((WritableRaster)image.getData()).createWritableTranslatedChild(0,0),
+             			image.getColorModel().isAlphaPremultiplied(),null);
+//             	final Graphics2D g2D= finalImage.createGraphics();
+//             	g2D.drawRenderedImage(image, AffineTransform.getTranslateInstance());
+//             	g2D.dispose();
+             	
+                writer.write(null, new IIOImage(finalImage, null, null), iwp);
+                outStream.flush();
+                writer.dispose();
+                outStream.close();
+         }       
+        else
+        {
+            writer.write(null, new IIOImage(image, null, null), iwp);
+            outStream.flush();
+            writer.dispose();
+            outStream.close();
+        }
+
     }
 
     /**
