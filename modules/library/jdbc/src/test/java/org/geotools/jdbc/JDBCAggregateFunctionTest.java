@@ -80,6 +80,9 @@ public abstract class JDBCAggregateFunctionTest extends JDBCTestSupport {
     }
     
     public void testSumWithLimitOffset() throws Exception {
+        if (!dataStore.getSQLDialect().isLimitOffsetSupported()) {
+            return;
+        }
         FilterFactory ff = dataStore.getFilterFactory();
         PropertyName p = ff.property( aname("doubleProperty") );
         
@@ -135,6 +138,9 @@ public abstract class JDBCAggregateFunctionTest extends JDBCTestSupport {
     }
     
     public void testMaxWithLimitOffset() throws Exception {
+        if (!dataStore.getSQLDialect().isLimitOffsetSupported()) {
+            return;
+        }
         FilterFactory ff = dataStore.getFilterFactory();
         PropertyName p = ff.property( aname("doubleProperty") );
         
@@ -189,6 +195,9 @@ public abstract class JDBCAggregateFunctionTest extends JDBCTestSupport {
     }
     
     public void testMinWithLimitOffset() throws Exception {
+        if (!dataStore.getSQLDialect().isLimitOffsetSupported()) {
+            return;
+        }
         FilterFactory ff = dataStore.getFilterFactory();
         PropertyName p = ff.property( aname("doubleProperty") );
         
