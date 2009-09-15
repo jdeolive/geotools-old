@@ -47,7 +47,7 @@ public class ImagePyramidServiceTest extends TestCase {
 	}
 
 	public void testIsAvailable() {
-		Iterator list = GridFormatFinder.getAvailableFormats().iterator();
+		final Iterator<GridFormatFactorySpi> list = GridFormatFinder.getAvailableFormats().iterator();
 		boolean found = false;
 
 		while (list.hasNext()) {

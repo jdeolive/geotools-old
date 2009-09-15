@@ -19,13 +19,12 @@ package org.geotools.gce.imagepyramid;
 import java.awt.Rectangle;
 import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
-import java.net.URLDecoder;
+import java.nio.channels.Channels;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -33,6 +32,7 @@ import java.util.logging.Logger;
 
 import javax.imageio.ImageReadParam;
 
+import org.apache.commons.io.IOUtils;
 import org.geotools.coverage.CoverageFactoryFinder;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridEnvelope2D;
@@ -115,20 +115,20 @@ import org.opengis.referencing.operation.TransformException;
  * </pre>
  * 
  * @author Simone Giannecchini
+ * @author Stefan Alfons Krueger (alfonx), Wikisquare.de : Support for jar:file:foo.jar/bar.properties like URLs
  * @since 2.3
  * 
  */
-public final class ImagePyramidReader extends AbstractGridCoverage2DReader
-		implements GridCoverageReader {
+@SuppressWarnings("deprecation")
+public final class ImagePyramidReader extends AbstractGridCoverage2DReader implements GridCoverageReader {
 
 	/** Logger. */
-	private final static Logger LOGGER = org.geotools.util.logging.Logging
-			.getLogger(ImagePyramidReader.class.toString());
+	private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(ImagePyramidReader.class.toString());
 
 	/**
 	 * The input properties file to read the pyramid information from.
 	 */
-	private File sourceFile;
+	private URL sourceURL;
 
 	/**
 	 * The directories where to find the different resolutions levels in
@@ -140,7 +140,7 @@ public final class ImagePyramidReader extends AbstractGridCoverage2DReader
 	 * Cache of {@link ImageMosaicReader} objects for the different levels.
 	 * 
 	 */
-	private Map readers;
+	private Map<Integer, ImageMosaicReader> readers;
 
 	/**
 	 * Constructor for an {@link ImagePyramidReader}.
@@ -173,27 +173,31 @@ public final class ImagePyramidReader extends AbstractGridCoverage2DReader
 		// /////////////////////////////////////////////////////////////////////
 		if (source == null) {
 
-			final IOException ex = new IOException(
-					"ImagePyramidReader:No source set to read this coverage.");
+			final IOException ex = new IOException("ImagePyramidReader:No source set to read this coverage.");
 			throw new DataSourceException(ex);
 		}
 		this.source = source;
 		if (source instanceof File)
-			this.sourceFile = ((File) source);
+			this.sourceURL = DataUtilities.fileToURL((File)source);
 		else if (source instanceof URL) {
-			final URL tempURL = (URL) source;
-			if (tempURL.getProtocol().equalsIgnoreCase("file"))
-				this.sourceFile = DataUtilities.urlToFile(tempURL);
-			else
-				throw new IllegalArgumentException(
-						"This plugin accepts only File, URL and String pointing to a valid properties file");
+			this.sourceURL = (URL)source;
 		} else if (source instanceof String) {
-			final File tempFile = new File((java.lang.String) source);
+			/*
+			 * Now we first try to interpret the String as a File. If it doesn't exist, we interpret it as a URL
+			 */
+			final File tempFile = new File((String) source);
 			if (tempFile.exists()) {
-				this.sourceFile = tempFile;
-			} else
-				throw new IllegalArgumentException(
-						"This plugin accepts only File, URL and String pointing to a file");
+				this.sourceURL = DataUtilities.fileToURL(tempFile);
+			} else {
+				try {
+					// Testing if the URL is valid and reachable
+					sourceURL = new URL((String) source);
+					sourceURL.openStream().close(); 
+				} catch (Exception e){
+					throw new IllegalArgumentException(
+					"The given String can't be intereted as a File nor as an URL.",e);
+				}
+			}
 		} else
 			throw new IllegalArgumentException(
 					"This plugin accepts only File, URL and String pointing to a file");
@@ -203,44 +207,37 @@ public final class ImagePyramidReader extends AbstractGridCoverage2DReader
 		// Load tiles informations, especially the bounds, which will be
 		// reused
 		//
-		//
 		// ///////////////////////////////////////////////////////////////////
 		// //
 		//
 		// get the crs if able to
 		//
-		// //
-		String fileName = sourceFile.getAbsolutePath();
-		final int index = fileName.lastIndexOf('.');
-		if (index != -1)
-			fileName = fileName.substring(0, index);
-		PrjFileReader crsReader;
+		// //		
+		final URL prjURL = DataUtilities.changeUrlExt(sourceURL, "prj"); 
+		
+		PrjFileReader crsReader=null;
 		try {
-			crsReader = new PrjFileReader(new RandomAccessFile(
-					new StringBuffer(fileName).append(".prj").toString(), "r")
-					.getChannel());
+			crsReader = new PrjFileReader(Channels.newChannel(prjURL.openStream()));
 		} catch (FactoryException e) {
 			throw new DataSourceException(e);
+		}finally{
+			try{
+				crsReader.close();
+			}
+			catch (Throwable e) {
+				// TODO: handle exception
+			}
 		}
-		final Object tempCRS = hints
-				.get(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM);
+		final Object tempCRS = hints.get(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM);
 		if (tempCRS != null) {
 			this.crs = (CoordinateReferenceSystem) tempCRS;
-			LOGGER.log(Level.WARNING, new StringBuffer(
-					"Using forced coordinate reference system ").append(
-					crs.toWKT()).toString());
+			LOGGER.log(Level.WARNING, "Using forced coordinate reference system "+crs.toWKT());
 		} else {
-			final CoordinateReferenceSystem tempcrs = crsReader
-					.getCoordinateReferenceSystem();
+			final CoordinateReferenceSystem tempcrs = crsReader.getCoordinateReferenceSystem();
 			if (tempcrs == null) {
 				// use the default crs
 				crs = AbstractGridFormat.getDefaultCRS();
-				LOGGER
-						.log(
-								Level.WARNING,
-								new StringBuffer(
-										"Unable to find a CRS for this coverage, using a default one: ")
-										.append(crs.toWKT()).toString());
+				LOGGER.log(Level.WARNING,"Unable to find a CRS for this coverage, using a default one: "+crs.toWKT());
 			} else
 				crs = tempcrs;
 		}
@@ -252,8 +249,7 @@ public final class ImagePyramidReader extends AbstractGridCoverage2DReader
 		//
 		// ///////////////////////////////////////////////////////////////////
 		// property file
-		assert sourceFile.exists() && sourceFile.isFile();
-		parseMainFile(sourceFile);
+		parseMainFile(sourceURL);
 	}
 
 	/**
@@ -264,11 +260,12 @@ public final class ImagePyramidReader extends AbstractGridCoverage2DReader
 	 * @throws IOException
 	 * @throws FileNotFoundException
 	 */
-	private void parseMainFile(final File sourceFile) throws IOException {
+	private void parseMainFile(final URL sourceURL) throws IOException {
 		BufferedInputStream propertyStream = null;
+		InputStream openStream = null;
 		try {
-			propertyStream = new BufferedInputStream(new FileInputStream(
-					sourceFile));
+			openStream = sourceURL.openStream();
+			propertyStream = new BufferedInputStream(openStream);
 			final Properties properties = new Properties();
 			properties.load(propertyStream);
 
@@ -282,32 +279,28 @@ public final class ImagePyramidReader extends AbstractGridCoverage2DReader
 				cornersV[i][0] = Double.parseDouble(pair[0]);
 				cornersV[i][1] = Double.parseDouble(pair[1]);
 			}
-			this.originalEnvelope = new GeneralEnvelope(cornersV[0],
-					cornersV[1]);
+			this.originalEnvelope = new GeneralEnvelope(cornersV[0],cornersV[1]);
 			this.originalEnvelope.setCoordinateReferenceSystem(crs);
 			// overviews dir
-			numOverviews = Integer
-					.parseInt(properties.getProperty("LevelsNum")) - 1;
+			numOverviews = Integer.parseInt(properties.getProperty("LevelsNum")) - 1;
 			levelsDirs = properties.getProperty("LevelsDirs").split(" ");
 
 			// readers soft map
 			final int readersCacheSize = (numOverviews + 1) / 3;
-			readers = new SoftValueHashMap(
-					readersCacheSize == 0 ? numOverviews + 1 : readersCacheSize);
+			readers = new SoftValueHashMap<Integer, ImageMosaicReader>(readersCacheSize == 0 ? numOverviews + 1 : readersCacheSize);
 
 			// resolutions levels
 			final String levels = properties.getProperty("Levels");
 			pairs = levels.split(" ");
-			overViewResolutions = numOverviews >= 1 ? new double[numOverviews][2]
-					: null;
+			overViewResolutions = numOverviews >= 1 ? new double[numOverviews][2]: null;
 			pair = pairs[0].split(",");
 			highestRes = new double[2];
-			highestRes[0] = Double.parseDouble(pair[0]);
-			highestRes[1] = Double.parseDouble(pair[1]);
+			highestRes[0] = Double.parseDouble(pair[0].trim());
+			highestRes[1] = Double.parseDouble(pair[1].trim());
 			for (int i = 1; i < numOverviews + 1; i++) {
 				pair = pairs[i].split(",");
-				overViewResolutions[i - 1][0] = Double.parseDouble(pair[0]);
-				overViewResolutions[i - 1][1] = Double.parseDouble(pair[1]);
+				overViewResolutions[i - 1][0] = Double.parseDouble(pair[0].trim());
+				overViewResolutions[i - 1][1] = Double.parseDouble(pair[1].trim());
 			}
 
 			// name
@@ -316,19 +309,19 @@ public final class ImagePyramidReader extends AbstractGridCoverage2DReader
 			// original gridrange (estimated)
 			originalGridRange = new GridEnvelope2D(
 					new Rectangle(
-							(int) Math.round(originalEnvelope.getLength(0)/ highestRes[0]), 
-							(int) Math.round(originalEnvelope.getLength(1)/ highestRes[1])
+							(int) Math.round(originalEnvelope.getSpan(0)/ highestRes[0]), 
+							(int) Math.round(originalEnvelope.getSpan(1)/ highestRes[1])
 							)
 					);
 			final GridToEnvelopeMapper geMapper= new GridToEnvelopeMapper(originalGridRange,originalEnvelope);
 			geMapper.setPixelAnchor(PixelInCell.CELL_CORNER);
 			raster2Model= geMapper.createTransform();			
-		} catch (IOException e) {
+		}  finally {
 			// close input stream
 			if (propertyStream != null)
-				propertyStream.close();
-			// re-throw exception
-			throw e;
+				IOUtils.closeQuietly(propertyStream);
+			if (openStream != null) 
+				IOUtils.closeQuietly(openStream);
 		}
 
 	}
@@ -375,19 +368,14 @@ public final class ImagePyramidReader extends AbstractGridCoverage2DReader
 			if (params != null) {
 				for (int i = 0; i < params.length; i++) {
 					final ParameterValue param = (ParameterValue) params[i];
-					final String name = param.getDescriptor().getName()
-							.getCode();
-					if (name.equals(AbstractGridFormat.READ_GRIDGEOMETRY2D
-							.getName().toString())) {
-						final GridGeometry2D gg = (GridGeometry2D) param
-								.getValue();
-						requestedEnvelope = new GeneralEnvelope((Envelope)gg
-								.getEnvelope2D());
+					final String name = param.getDescriptor().getName().getCode();
+					if (name.equals(AbstractGridFormat.READ_GRIDGEOMETRY2D.getName().toString())) {
+						final GridGeometry2D gg = (GridGeometry2D) param.getValue();
+						requestedEnvelope = new GeneralEnvelope((Envelope)gg.getEnvelope2D());
 						dim = gg.getGridRange2D().getBounds();
 						continue;
 					}
-					if (name.equals(AbstractGridFormat.OVERVIEW_POLICY
-							.getName().toString())) {
+					if (name.equals(AbstractGridFormat.OVERVIEW_POLICY.getName().toString())) {
 						overviewPolicy = (OverviewPolicy) param.getValue();
 						continue;
 					}
@@ -435,27 +423,18 @@ public final class ImagePyramidReader extends AbstractGridCoverage2DReader
 					.getCoordinateReferenceSystem(), this.crs)) {
 				try {
 					// transforming the envelope back to the data set crs
-					final MathTransform transform = CRS.findMathTransform(
-							requestedEnvelope.getCoordinateReferenceSystem(),
-							crs);
+					final MathTransform transform = CRS.findMathTransform(requestedEnvelope.getCoordinateReferenceSystem(),	crs,true);
 					if (!transform.isIdentity()) {
-						requestedEnvelope = CRS.transform(transform,
-								requestedEnvelope);
-						requestedEnvelope
-								.setCoordinateReferenceSystem(this.crs);
+						requestedEnvelope = CRS.transform(transform,requestedEnvelope);
+						requestedEnvelope.setCoordinateReferenceSystem(this.crs);
 
 						if (LOGGER.isLoggable(Level.FINE))
-							LOGGER.fine(new StringBuffer(
-									"Reprojected envelope ").append(
-									requestedEnvelope.toString()).append(
-									" crs ").append(crs.toWKT()).toString());
+							LOGGER.fine(new StringBuilder("Reprojected envelope ").append(requestedEnvelope.toString()).append(" crs ").append(crs.toWKT()).toString());
 					}
 				} catch (TransformException e) {
-					throw new DataSourceException(
-							"Unable to create a coverage for this source", e);
+					throw new DataSourceException("Unable to create a coverage for this source", e);
 				} catch (FactoryException e) {
-					throw new DataSourceException(
-							"Unable to create a coverage for this source", e);
+					throw new DataSourceException("Unable to create a coverage for this source", e);
 				}
 			}
 			if (!requestedEnvelope.intersects(this.originalEnvelope, true))
@@ -471,8 +450,7 @@ public final class ImagePyramidReader extends AbstractGridCoverage2DReader
 		requestedEnvelope.setCoordinateReferenceSystem(this.crs);
 		// ok we got something to return
 		try {
-			return loadRequestedTiles(requestedEnvelope, dim, params,
-					overviewPolicy);
+			return loadRequestedTiles(requestedEnvelope, dim, params,overviewPolicy);
 		} catch (TransformException e) {
 			throw new DataSourceException(e);
 		}
@@ -499,8 +477,11 @@ public final class ImagePyramidReader extends AbstractGridCoverage2DReader
 	 * @throws IllegalArgumentException
 	 * @throws FactoryRegistryException
 	 */
-	private GridCoverage loadRequestedTiles(GeneralEnvelope requestedEnvelope,
-			Rectangle dim, GeneralParameterValue[] params, OverviewPolicy overviewPolicy)
+	private GridCoverage loadRequestedTiles(
+			GeneralEnvelope requestedEnvelope,
+			Rectangle dim, 
+			GeneralParameterValue[] params, 
+			OverviewPolicy overviewPolicy)
 			throws TransformException, IOException {
 
 		// if we get here we have something to load
@@ -510,12 +491,9 @@ public final class ImagePyramidReader extends AbstractGridCoverage2DReader
 		//
 		// /////////////////////////////////////////////////////////////////////
 		final ImageReadParam readP = new ImageReadParam();
-		final Integer imageChoice;
+		Integer imageChoice=0;
 		if (dim != null)
-			imageChoice = setReadParams(overviewPolicy, readP,
-					requestedEnvelope, dim);
-		else
-			imageChoice = new Integer(0);
+			imageChoice = setReadParams(overviewPolicy, readP,requestedEnvelope, dim);
 		// /////////////////////////////////////////////////////////////////////
 		//
 		// Check to have the needed reader in memory
@@ -526,16 +504,15 @@ public final class ImagePyramidReader extends AbstractGridCoverage2DReader
 			Object o = readers.get(imageChoice);
 			if (o == null) {
 				final String levelDirName = levelsDirs[imageChoice.intValue()];
-				final File parentDir = new File(sourceFile.getParentFile(),
-						levelDirName);
-				if (parentDir.exists() && parentDir.isDirectory()) {
-					final File shpFile = new File(parentDir, new StringBuffer(
-							coverageName).append(".shp").toString());
-					reader = new ImageMosaicReader(shpFile.toURI().toURL());
-					readers.put(imageChoice, reader);
-				} else
-					throw new DataSourceException(
-							"Impossible to read the needed resolution level!");
+				final URL parentUrl = DataUtilities.getParentUrl(sourceURL);
+				// look for a shapefile first
+				final String extension = new StringBuilder(levelDirName).append("/").append(coverageName).append(".shp").toString();
+				final URL shpFileUrl = DataUtilities.extendURL(parentUrl,extension);
+				if(shpFileUrl.getProtocol()!=null&&shpFileUrl.getProtocol().equalsIgnoreCase("file")&&!DataUtilities.urlToFile(shpFileUrl).exists())
+					reader= new ImageMosaicReader(DataUtilities.extendURL(parentUrl,levelDirName), hints);
+				else
+					reader = new ImageMosaicReader(shpFileUrl,hints);
+				readers.put(imageChoice, reader);
 
 			} else
 				reader = (ImageMosaicReader) o;
@@ -553,7 +530,8 @@ public final class ImagePyramidReader extends AbstractGridCoverage2DReader
 	/**
 	 * @see org.opengis.coverage.grid.GridCoverageReader#dispose()
 	 */
-	public void dispose() {
+	@Override
+	public synchronized void dispose() {
 		super.dispose();
 		readers.clear();
 	}
@@ -566,6 +544,17 @@ public final class ImagePyramidReader extends AbstractGridCoverage2DReader
 	@Override
 	public int getGridCoverageCount() {
 		return 1;
+	}
+
+    /**
+	 * Returns the highest resolution available.
+	 * 
+	 * TODO The instance variable comes from
+	 * {@link AbstractGridCoverage2DReader}, so maybe we should move the getter
+	 * there.
+	 * */
+	double[] getHighestRes() {
+		return highestRes;
 	}
 
 }

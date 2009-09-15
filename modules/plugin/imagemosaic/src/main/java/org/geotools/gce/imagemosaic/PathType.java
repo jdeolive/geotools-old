@@ -4,21 +4,26 @@
 package org.geotools.gce.imagemosaic;
 
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.geotools.data.DataUtilities;
 
 /**
  * Enum that can be use to distinguish between relative paths and absolute paths
  * when trying to load a granule for a mosaic.
  * 
  * @author Simone Giannecchini, GeoSolutions SAS
+ * @author Stefan Alfons Krueger (alfonx), Wikisquare.de : Support for jar:file:foo.jar/bar.properties URLs
  * 
  */
 enum PathType {
 	RELATIVE{
 
 		@Override
-		File resolvePath(final String parentLocation,final  String location) {
+		URL resolvePath(final String parentLocation,final  String location) {
 			// initial checks
 			ImageMosaicUtils.ensureNonNull("parentLocation", parentLocation);
 			ImageMosaicUtils.ensureNonNull("location", location);
@@ -31,17 +36,33 @@ enum PathType {
 				builder.append("location:").append(location);
 				LOGGER.fine(builder.toString());
 			}
-			// create a file for the provided location, relative to parent location
-			File rasterFile= new File(parentLocation,location);
-			if(!ImageMosaicUtils.checkFileReadable(rasterFile))
+			// create a URL for the provided location, relative to parent location
+			try {
+				URL rasterURL= DataUtilities.extendURL(new URL(parentLocation), location);
+			if(!ImageMosaicUtils.checkURLReadable(rasterURL))
 			{		
 				if (LOGGER.isLoggable(Level.INFO))
-					LOGGER.info("Unable to read image for file "+ rasterFile.getAbsolutePath());
+					LOGGER.info("Unable to read image for file "+ rasterURL);
 
 				return null;
 
 			}		
-			return rasterFile;
+			return rasterURL;
+			} catch (MalformedURLException e) {
+				return null;
+			}
+			
+//			// create a file for the provided location, relative to parent location
+//			File rasterFile= new File(parentLocation,location);
+//			if(!ImageMosaicUtils.checkFileReadable(rasterFile))
+//			{		
+//				if (LOGGER.isLoggable(Level.INFO))
+//					LOGGER.info("Unable to read image for file "+ rasterFile.getAbsolutePath());
+//				
+//				return null;
+//				
+//			}		
+//			return rasterFile;
 
 		}
 		
@@ -50,7 +71,7 @@ enum PathType {
 	ABSOLUTE{
 
 		@Override
-		File resolvePath(final String parentLocation,final  String location) {
+		URL resolvePath(final String parentLocation,final  String location) {
 
 			ImageMosaicUtils.ensureNonNull("location", location);
 			if(LOGGER.isLoggable(Level.FINE))
@@ -63,15 +84,33 @@ enum PathType {
 				LOGGER.fine(builder.toString());	
 			}
 			// create a file for the provided location ignoring the parent type
-			File rasterFile= new File(location);
-			if(!ImageMosaicUtils.checkFileReadable(rasterFile))
+			// create a URL for the provided location, relative to parent location
+			try {
+				
+			URL rasterURL= new URL(location);
+			if(!ImageMosaicUtils.checkURLReadable(rasterURL))
 			{		
 				if (LOGGER.isLoggable(Level.INFO))
-					LOGGER.info("Unable to read image for file "+ rasterFile.getAbsolutePath());
+					LOGGER.info("Unable to read image for file "+ rasterURL);
+
 				return null;
 
 			}		
-			return rasterFile;
+			return rasterURL;
+			} catch (MalformedURLException e) {
+				return null;
+			}
+			
+//			// create a file for the provided location ignoring the parent type
+//			File rasterFile= new File(location);
+//			if(!ImageMosaicUtils.checkFileReadable(rasterFile))
+//			{		
+//				if (LOGGER.isLoggable(Level.INFO))
+//					LOGGER.info("Unable to read image for file "+ rasterFile.getAbsolutePath());
+//				return null;
+//				
+//			}		
+//			return rasterFile;
 		}
 		
 	};
@@ -94,7 +133,7 @@ enum PathType {
 	 *         this method is applied. This method might return <code>null</code>
 	 *         in case something bad happens.
 	 */
-	abstract File resolvePath(
+	abstract URL resolvePath(
 			final String parentLocation,
 			final String location);
 	

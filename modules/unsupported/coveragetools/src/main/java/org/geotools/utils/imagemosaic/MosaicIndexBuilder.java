@@ -365,11 +365,11 @@ public class MosaicIndexBuilder extends BaseArgumentsManager implements
 					} catch (Exception e) {
 						// ignore exception
 					}
-					try {
-						r.dispose();
-					} catch (Exception e) {
-						// ignore exception
-					}
+//					try {
+//						r.dispose();
+//					} catch (Exception e) {
+//						// ignore exception
+//					}
 
 					// send a message
 					message = new StringBuffer("Skipped file ").append(

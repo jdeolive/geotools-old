@@ -6,8 +6,8 @@ import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.RenderedImage;
-import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -54,6 +54,7 @@ import com.sun.media.jai.util.Rational;
  * ECW or JPEG2000.
  * 
  * @author Simone Giannecchini, GeoSolutions S.A.S.
+ * @author Stefan Alfons Krueger (alfonx), Wikisquare.de : Support for jar:file:foo.jar/bar.properties URLs
  * @since 2.5.5
  */
 class Granule {
@@ -320,16 +321,16 @@ class Granule {
 	
 	ReferencedEnvelope  granuleBBOX;
 	
-	File granuleFile;
+	URL granuleUrl;
 	
 	final Map<Integer,Level> granuleLevels= Collections.synchronizedMap(new HashMap<Integer,Level>());
 	
 	AffineTransform baseGridToWorld;
 
-	public Granule(BoundingBox granuleBBOX, File granuleFile) {
+	public Granule(BoundingBox granuleBBOX, URL granuleUrl) {
 		super();
 		this.granuleBBOX = ReferencedEnvelope.reference(granuleBBOX);
-		this.granuleFile = granuleFile;
+		this.granuleUrl = granuleUrl;
 		
 		// create the base grid to world transformation
 		ImageInputStream inStream=null;
@@ -340,15 +341,15 @@ class Granule {
 			//
 			
 			// get a stream
-			inStream = ImageMosaicUtils.getInputStream(granuleFile);
+			inStream = ImageMosaicUtils.getInputStream(granuleUrl);
 			if(inStream==null)
-				throw new IllegalArgumentException("Unable to get an input stream for the provided file "+granuleFile.toString());
+				throw new IllegalArgumentException("Unable to get an input stream for the provided file "+granuleUrl.toString());
 	
 			// get a reader
 			reader = ImageMosaicUtils.getReader( inStream);
 			if(reader==null)
 			{
-				throw new IllegalArgumentException("Unable to get an ImageReader for the provided file "+granuleFile.toString());
+				throw new IllegalArgumentException("Unable to get an ImageReader for the provided file "+granuleUrl.toString());
 			}
 			
 			//get selected level and base level dimensions
@@ -414,7 +415,7 @@ class Granule {
 			//
 			
 			// get a stream
-			inStream = ImageMosaicUtils.getInputStream(granuleFile);
+			inStream = ImageMosaicUtils.getInputStream(granuleUrl);
 			if(inStream==null)
 				return null;
 	
@@ -459,7 +460,7 @@ class Granule {
 			final RenderedImage raster;
 			try{
 				// read
-				raster= request.getReadType().read(readParameters,imageIndex, granuleFile, selectedlevel.rasterDimensions,tileDimension);
+				raster= request.getReadType().read(readParameters,imageIndex, granuleUrl, selectedlevel.rasterDimensions,tileDimension);
 				
 			}
 			catch (Throwable e) {
@@ -595,7 +596,7 @@ class Granule {
 					//
 					
 					// get a stream
-					inStream = ImageMosaicUtils.getInputStream(granuleFile);
+					inStream = ImageMosaicUtils.getInputStream(granuleUrl);
 					if(inStream==null)
 						throw new IllegalArgumentException();
 			
@@ -652,7 +653,7 @@ class Granule {
 		final StringBuilder buffer = new StringBuilder();
 		buffer.append("Description of a granule ").append("\n");
 		buffer.append("BBOX:\t\t").append(granuleBBOX.toString());
-		buffer.append("file:\t\t").append(granuleFile);
+		buffer.append("file:\t\t").append(granuleUrl);
 		buffer.append("gridToWorld:\t\t").append(baseGridToWorld);
 		int i=1;
 		for(final Level level : granuleLevels.values())

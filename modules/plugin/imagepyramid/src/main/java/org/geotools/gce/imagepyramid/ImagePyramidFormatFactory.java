@@ -16,6 +16,7 @@
  */
 package org.geotools.gce.imagepyramid;
 
+import java.awt.RenderingHints;
 import java.util.Collections;
 import java.util.Map;
 
@@ -29,6 +30,7 @@ import org.opengis.coverage.grid.Format;
  * @author Simone Giannecchini (simboss)
  * @since 2.3
  */
+@SuppressWarnings("deprecation")
 public final class ImagePyramidFormatFactory implements GridFormatFactorySpi {
 	/**
 	 * Tells us if this plugin is avaialble or not. Since usually coverage
@@ -65,7 +67,7 @@ public final class ImagePyramidFormatFactory implements GridFormatFactorySpi {
 	 * 
 	 * @return an empty map.
 	 */
-	public Map getImplementationHints() {
-		return Collections.EMPTY_MAP;
+	public Map<RenderingHints.Key, ?> getImplementationHints() {
+		return Collections.emptyMap();
 	}
 }

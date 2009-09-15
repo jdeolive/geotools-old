@@ -80,6 +80,7 @@ import com.sun.media.imageioimpl.plugins.tiff.TIFFImageReaderSpi;
  * 
  * 
  * @author Simone Giannecchini, GeoSolutions S.A.S
+ * @author Stefan Alfons Krueger (alfonx), Wikisquare.de : Support for jar:file:foo.jar/bar.properties URLs
  * @since 2.3
  * 
  */
@@ -191,7 +192,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 		this.source = source;		
 		this.sourceURL=ImageMosaicUtils.checkSource(source);
 		if(this.sourceURL==null)
-			throw new DataSourceException("This plugin accepts only File,  URL and String pointing to a file");
+			throw new DataSourceException("This plugin accepts File, URL or String. The string may describe a File or an URL");
 		
 
 		ShapefileDataStore tileIndexStore=null;

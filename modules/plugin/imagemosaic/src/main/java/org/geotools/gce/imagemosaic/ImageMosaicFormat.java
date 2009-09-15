@@ -17,19 +17,17 @@
 package org.geotools.gce.imagemosaic;
 
 import java.awt.Color;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.commons.io.FilenameUtils;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.imageio.GeoToolsWriteParams;
+import org.geotools.data.DataUtilities;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.factory.Hints;
@@ -82,6 +80,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * the threshold you can ask the mosaic plugin to load or not certain pixels of the original images.</li>
  * 
  * @author Simone Giannecchini (simboss), GeoSolutions
+ * @author Stefan Alfons Krueger (alfonx), Wikisquare.de : Support for jar:file:foo.jar/bar.properties URLs
  * @since 2.3
  */
 @SuppressWarnings("deprecation")
@@ -194,7 +193,6 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
      */
     public boolean accepts( Object source ) {
         try {
-
             URL sourceURL = ImageMosaicUtils.checkSource(source);
             if(sourceURL==null)
             	return false;
@@ -215,24 +213,18 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
                 final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = tileIndexStore.getFeatureSource(typeName);
                 final SimpleFeatureType schema = featureSource.getSchema();
                 crs = featureSource.getSchema().getGeometryDescriptor().getCoordinateReferenceSystem();
-         	
-
-
-
+   
 	            // /////////////////////////////////////////////////////////////////////
 	            //
 	            // Now look for the properties file and try to parse relevant fields
 	            //
-	            // /////////////////////////////////////////////////////////////////////
-	            final String temp = URLDecoder.decode(sourceURL.getFile(), "UTF8");
-	            final File propertiesFile = new File(
-	            			new StringBuffer(FilenameUtils.getFullPath(temp))
-	            			.append(FilenameUtils.getBaseName(temp))
-	            			.append(".properties")
-	            			.toString());
-	            if( !propertiesFile.exists() || !propertiesFile.isFile() ){
-	                throw new FileNotFoundException("Properties file, descibing the ImageMoasic, does not exist:"+propertiesFile);
-	            }
+	            // /////////////////////////////////////////////////////////////////////            
+                URL propsUrl = DataUtilities.changeUrlExt(sourceURL, "properties");
+                try {
+                	propsUrl.openStream().close();
+                } catch (Exception e) {
+	                throw new FileNotFoundException(".properties file, descibing the ImageMoasic, cant be opened:"+propsUrl);
+				}
 	            
 	            //get the properties file
 	            final MosaicConfigurationBean props = ImageMosaicUtils.loadPropertiesFile(sourceURL, crs,"location");

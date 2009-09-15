@@ -11,6 +11,7 @@ import java.nio.channels.FileLock;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -69,6 +70,7 @@ class RasterManager {
 	 * with this index.
 	 * 
 	 * @author Simone Giannecchini, S.A.S.
+     * @author Stefan Alfons Krueger (alfonx), Wikisquare.de : Support for jar:file:foo.jar/bar.properties URLs
 	 * @since 2.5
 	 */
 	public class GranuleIndex {
@@ -79,81 +81,101 @@ class RasterManager {
 		private SoftReference<STRtree> index= new SoftReference<STRtree>(null);
 
 		/**
-		 * Constructs a {@link GranuleIndex} out of a
-		 * {@link FeatureCollection}.
+		 * Constructs a {@link GranuleIndex} out of a {@link FeatureCollection}.
 		 * 
 		 * @param features
-		 * @throws IOException 
+		 * @throws IOException
 		 */
 		private synchronized SpatialIndex getIndex() throws IOException {
-			
 
-			FileLock lock =null;
-			FileChannel channel =null;
-			try{
-				
-				STRtree tree=null;
-				
-				 // Get a file channel for the file
-		        File file = DataUtilities.urlToFile(parent.sourceURL);
-		        channel = new RandomAccessFile(file, "rw").getChannel();
-		    
-		        // Create a shared lock on the file.
-		        // This method blocks until it can retrieve the lock.
-		        lock = channel.lock(0, Long.MAX_VALUE, true);
-		        
-		        // now check the modified time and rebuild the index as needed
-		        final long lastMod=file.lastModified();
-		        if(lastMod>this.lastModified)
-		        {
-		        	// the underlying files has been modified, let's clean up the index
-		        	index.clear();
-		        	tree=null;
-		        }
-		        else
-		        	tree = index.get();
-				if (tree == null) {
-	
-					if (LOGGER.isLoggable(Level.FINE))
-						LOGGER.fine("Index needs to be recreated...");
-					createIndex();
-					tree = index.get();
-					assert tree!=null;
-				}
-				else
-					if (LOGGER.isLoggable(Level.FINE))
+			/**
+			 * Comment by Stefan Krueger while patching the stuff to deal with
+			 * URLs instead of Files: If it is not a URL to a file, we don't
+			 * need locks, because no one can change to the index.
+			 */
+
+			STRtree tree = null;
+
+			if (parent.sourceURL.getProtocol().equals("file")) {
+
+				FileLock lock = null;
+				FileChannel channel = null;
+				try {
+
+					// // Get a file channel for the file
+					File file = DataUtilities.urlToFile(parent.sourceURL);
+					channel = new RandomAccessFile(file, "rw").getChannel();
+
+					// Create a shared lock on the file.
+					// This method blocks until it can retrieve the lock.
+					lock = channel.lock(0, Long.MAX_VALUE, true);
+
+					// now check the modified time and rebuild the index as
+					// needed
+					final long lastMod = file.lastModified();
+					if (lastMod > this.lastModified) {
+						// the underlying files has been modified, let's clean
+						// up the index
+						index.clear();
+						tree = null;
+					} else
+						tree = index.get();
+					if (tree == null) {
+
+						if (LOGGER.isLoggable(Level.FINE))
+							LOGGER.fine("Index needs to be recreated...");
+						createIndex();
+						tree = index.get();
+						assert tree != null;
+					} else if (LOGGER.isLoggable(Level.FINE))
 						LOGGER.fine("Index does not need to be created...");
-				return tree;		
-			}
-			finally{
-				
-				try {
-					if(lock!=null)
-						// Release the lock
-						lock.release();
-		        } catch (Throwable e) {
-					if (LOGGER.isLoggable(Level.FINE))
-						LOGGER.log(Level.FINE, e.getLocalizedMessage(), e);
-				}
-				finally{
-					lock=null;
-				}
-				
-				try {
-					if(channel!=null)
-						// Close the file
-						channel.close();
-				 } catch (Throwable e) {
+					return tree;
+				} finally {
+
+					try {
+						if (lock != null)
+							// Release the lock
+							lock.release();
+					} catch (Throwable e) {
 						if (LOGGER.isLoggable(Level.FINE))
 							LOGGER.log(Level.FINE, e.getLocalizedMessage(), e);
+					} finally {
+						lock = null;
 					}
-					finally{
-						lock=null;
+
+					try {
+						if (channel != null)
+							// Close the file
+							channel.close();
+					} catch (Throwable e) {
+						if (LOGGER.isLoggable(Level.FINE))
+							LOGGER.log(Level.FINE, e.getLocalizedMessage(), e);
+					} finally {
+						lock = null;
 					}
+				}
+
+			} else {
+				// The URL is not a file. So no locks are needed, and no index
+				// can be created. Use an index if it is there.
+
+				tree = index.get();
+				if (tree == null) {
+					if (LOGGER.isLoggable(Level.FINE))
+						LOGGER.fine("No index exits and we create a new one.");
+					createIndex();
+					tree = index.get();
+				} else if (LOGGER.isLoggable(Level.FINE))
+					LOGGER.fine("Index does not need to be created...");
+				
+				return tree;
 			}
 
 		}
 
+		/**
+		 * This method shall only be called when the <code>parent.sourceURL</code> is of protocol <code>file:</code>
+		 */
 		private void createIndex() {
 			// check that we holds a lock 
 			assert Thread.holdsLock(this);
@@ -214,9 +236,15 @@ class RasterManager {
 				
 				// save the soft reference
 				index= new SoftReference<STRtree>(tree);
-				
-				// set last modified time
-				this.lastModified=DataUtilities.urlToFile(parent.sourceURL).lastModified();
+
+				// IF this the sourceURL points to a File, THEN we are using the
+				// last modified time to determine whether we have to recreate the
+				// index. Otherwise now used.
+				if(parent.sourceURL.getProtocol().equals("file")) {
+					this.lastModified = DataUtilities.urlToFile(parent.sourceURL).lastModified();
+				} else {
+					this.lastModified = new Date().getTime();
+				}
 
 			}
 			catch (Throwable e) {
@@ -703,7 +731,6 @@ class RasterManager {
 	 *         {@link Hints#VALUE_OVERVIEW_POLICY_SPEED}, {@link Hints#VALUE_OVERVIEW_POLICY_QUALITY}.
 	 *         Default is {@link Hints#VALUE_OVERVIEW_POLICY_NEAREST}.
 	 */
-	@SuppressWarnings("deprecation")
 	private OverviewPolicy extractOverviewPolicy() {
 		
 		// check if a policy was provided using hints (check even the

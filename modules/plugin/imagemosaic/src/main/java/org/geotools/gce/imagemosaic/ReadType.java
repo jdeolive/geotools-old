@@ -8,8 +8,8 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.image.RenderedImage;
 import java.awt.image.renderable.ParameterBlock;
-import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,6 +28,7 @@ import org.geotools.resources.i18n.Errors;
  * This enum can be used to distinguish between differet read methods, namely, JAI ImageRead based and Java2D direct read via ImageReader.
  * 
  * @author Simone Giannecchini, GeoSolutions SAS
+ * @author Stefan Alfons Krueger (alfonx), Wikisquare.de : Support for jar:file:foo.jar/bar.properties URLs
  *
  */
 enum ReadType {
@@ -37,7 +38,7 @@ enum ReadType {
     	RenderedImage read(
     			final ImageReadParam readP,
     			final int imageIndex, 
-    			final File rasterFile,
+    			final URL rasterURL,
     			final Rectangle readDimension,
     			final Dimension tileDimension // we just ignore in this case
     			)throws IOException{
@@ -47,7 +48,7 @@ enum ReadType {
     		ImageInputStream inStream=null;
     		ImageReader reader=null;
     		try{
-    			inStream = ImageMosaicUtils.getInputStream(rasterFile);
+    			inStream = ImageMosaicUtils.getInputStream(rasterURL);
     			if(inStream==null)
     				return null;
     	
@@ -55,8 +56,8 @@ enum ReadType {
     			if(reader==null)
     			{
     				if (LOGGER.isLoggable(Level.WARNING))
-    					LOGGER.warning("Unable to get reader for file "
-    							+ rasterFile.getAbsolutePath());
+    					LOGGER.warning("Unable to get reader for URL "
+    							+ rasterURL);
     				return null;
     			}
     			
@@ -68,14 +69,14 @@ enum ReadType {
     				return null;
     			
     			if (LOGGER.isLoggable(Level.FINE))
-    			    LOGGER.log(Level.FINE, "reading file: " + rasterFile.getAbsolutePath());
+    			    LOGGER.log(Level.FINE, "reading file: " + rasterURL);
     			
     			// read data
     			return reader.read(imageIndex,readP);
     		} catch (IOException e) {
     			if (LOGGER.isLoggable(Level.WARNING))
-    				LOGGER.log(Level.WARNING,"Unable to compute source area for file "
-    						+ rasterFile.getAbsolutePath(),e);	
+    				LOGGER.log(Level.WARNING,"Unable to compute source area for URL "
+    						+ rasterURL,e);	
     			return null;
     		} finally {
     			//close everything
@@ -102,7 +103,7 @@ enum ReadType {
     	RenderedImage read(
     			final ImageReadParam readP,
     			final int imageIndex, 
-    			final File rasterFile,
+    			final URL rasterUrl,
     			final Rectangle readDimension,
     			final Dimension tileDimension
     			) throws IOException{
@@ -114,7 +115,7 @@ enum ReadType {
     		ImageReader reader=null;
     		try{
     			//get stream
-    			inStream = ImageMosaicUtils.getInputStream(rasterFile);
+    			inStream = ImageMosaicUtils.getInputStream(rasterUrl);
     			if(inStream==null)
     				return null;
     			// get a reader
@@ -122,8 +123,8 @@ enum ReadType {
     			if(reader==null)
     			{
     				if (LOGGER.isLoggable(Level.WARNING))
-    					LOGGER.warning("Unable to get reader for file "
-    							+ rasterFile.getAbsolutePath());
+    					LOGGER.warning("Unable to get reader for URL "
+    							+ rasterUrl);
     				return null;
     			}
     			
@@ -138,8 +139,8 @@ enum ReadType {
 
     		} catch (IOException e) {
     			if (LOGGER.isLoggable(Level.WARNING))
-    				LOGGER.log(Level.WARNING,"Unable to compute source area for file "
-    						+ rasterFile.getAbsolutePath(),e);	
+    				LOGGER.log(Level.WARNING,"Unable to compute source area for URL "
+    						+ rasterUrl,e);	
     			return null;
     		} finally {
     			//close everything
@@ -162,7 +163,7 @@ enum ReadType {
     		
 			// read data    	
 			final ParameterBlock pbjImageRead = new ParameterBlock();
-			pbjImageRead.add(rasterFile);
+			pbjImageRead.add(rasterUrl);
 			pbjImageRead.add(imageIndex);
 			pbjImageRead.add(false);
 			pbjImageRead.add(false);
@@ -193,7 +194,7 @@ enum ReadType {
 		RenderedImage read(
     			final ImageReadParam readP,
     			final int imageIndex, 
-    			final File rasterFile,
+    			final URL rasterUrl,
     			final Rectangle readDimension,
     			final Dimension tileDimension
     			)throws IOException{
@@ -223,7 +224,7 @@ enum ReadType {
 	 * 
 	 * @param readParameters
 	 * @param imageIndex
-	 * @param rasterFile
+	 * @param rasterUrl
 	 * @param readDimension
 	 * @param tileDimension
 	 *            a {@link Dimension} object that can be used to suggest specific
@@ -238,7 +239,7 @@ enum ReadType {
 	abstract RenderedImage read(
 			final ImageReadParam readParameters,
 			final int imageIndex, 
-			final File rasterFile,
+			final URL rasterUrl,
 			final Rectangle readDimension, 
 			final Dimension tileDimension
 			) throws IOException;

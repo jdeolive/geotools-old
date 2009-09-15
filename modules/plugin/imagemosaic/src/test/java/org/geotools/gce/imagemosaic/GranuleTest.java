@@ -6,6 +6,7 @@ import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URL;
 
 import javax.imageio.ImageReadParam;
 
@@ -25,6 +26,7 @@ import org.opengis.referencing.operation.NoninvertibleTransformException;
  * Testing {@link Granule} class.
  * 
  * @author Daniele Romagnoli, GeoSolutions SAS
+ * @author Stefan Alfons Krueger (alfonx), Wikisquare.de : Support for jar:file:foo.jar/bar.properties URLs
  *
  */
 public class GranuleTest extends Assert {
@@ -43,11 +45,11 @@ public class GranuleTest extends Assert {
 	public void testGranuleLevels() throws FileNotFoundException, IOException {
 		
 		//get some test data
-		final File testFile= TestData.file(this, "/overview/0/D220161A.tif");
-		assertTrue(testFile.exists());
+		final URL testUrl= TestData.url(this, "/overview/0/D220161A.tif");
+		testUrl.openStream().close();
 		
 		//Create a Granule
-		final Granule granule = new Granule(TEST_BBOX,testFile);
+		final Granule granule = new Granule(TEST_BBOX,testUrl);
 		assertNotNull(granule.toString());
 		
 		//Get a Level
@@ -98,10 +100,10 @@ public class GranuleTest extends Assert {
 		final File testMosaic = TestData.file(this, "/rgb");
 		assertTrue(testMosaic.exists());
 		
-		final File testFile= TestData.file(this, "/rgb/global_mosaic_12.png");
-		assertTrue(testFile.exists());
+		final URL testUrl= TestData.url(this, "/rgb/global_mosaic_12.png");
+		testUrl.openStream().close();
 		
-		final Granule granule = new Granule(TEST_BBOX,testFile);
+		final Granule granule = new Granule(TEST_BBOX,testUrl);
 		final Level level = granule.getLevel(0);
 		assertNotNull(level);
 		

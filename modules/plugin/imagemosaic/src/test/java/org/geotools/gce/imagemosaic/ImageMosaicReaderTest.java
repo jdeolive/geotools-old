@@ -35,7 +35,6 @@ import junit.framework.JUnit4TestAdapter;
 import junit.textui.TestRunner;
 
 import org.apache.commons.io.filefilter.FileFilterUtils;
-import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
@@ -43,6 +42,7 @@ import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.GridFormatFinder;
 import org.geotools.coverage.grid.io.UnknownFormat;
+import org.geotools.data.DataUtilities;
 import org.geotools.factory.Hints;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.parameter.Parameter;
@@ -62,6 +62,7 @@ import org.opengis.referencing.datum.PixelInCell;
  * Testing {@link ImageMosaicReader}.
  * 
  * @author Simone Giannecchini, GeoSolutions
+ * @author Stefan Alfons Krueger (alfonx), Wikisquare.de : Test coverage for mosaics stored in JARs and referenced by URLs
  * @since 2.3
  * 
  */
@@ -86,6 +87,16 @@ public class ImageMosaicReaderTest{
 
 	private URL overviewURL;
 
+	private URL rgbJarURL;
+	
+	private URL indexJarURL;
+	
+	private URL indexAlphaJarURL;
+	
+	private URL grayJarURL;
+	
+	private URL index_unique_paletteAlphaJarURL;
+	
 	private boolean interactive;
 
 	/**
@@ -99,12 +110,23 @@ public class ImageMosaicReaderTest{
 	public void crop() throws MismatchedDimensionException, IOException,
 			FactoryException {
 		imageMosaicCropTest(rgbURL, "crop-rgbURL");
+		imageMosaicCropTest(rgbJarURL, "crop-rgbJarURL");
+		
 		imageMosaicCropTest(indexURL, "crop-indexURL");
+		imageMosaicCropTest(indexJarURL, "crop-indexJarURL");
+		
 		imageMosaicCropTest(grayURL, "crop-grayURL");
+		imageMosaicCropTest(grayJarURL, "crop-grayJarURL");
+		
 		imageMosaicCropTest(overviewURL, "crop-overviewURL");
+		
 		imageMosaicCropTest(indexAlphaURL, "crop-indexAlphaURL");
+		imageMosaicCropTest(indexAlphaJarURL, "crop-indexAlphaJarURL");
+		
 		imageMosaicCropTest(rgbAURL, "crop-rgbAURL");
+		
 		imageMosaicCropTest(index_unique_paletteAlphaURL,"crop-index_unique_paletteAlphaURL");
+		imageMosaicCropTest(index_unique_paletteAlphaJarURL,"crop-index_unique_paletteAlphaJarURL");
 
 	}
 
@@ -126,6 +148,10 @@ public class ImageMosaicReaderTest{
 		imageMosaicSimpleParamsTest(rgbURL, Color.black,Color.black,testName+rgbURL.getFile(), false);
 
 		if (interactive)
+			imageMosaicSimpleParamsTest(rgbJarURL, null, null,testName+rgbJarURL.getFile()+"-original", false);
+		imageMosaicSimpleParamsTest(rgbJarURL, Color.black,Color.black,testName+rgbURL.getFile(), false);
+
+		if (interactive)
 			// the input images have transparency and they do overlap, we need
 			// to ask for blending mosaic.
 			imageMosaicSimpleParamsTest(rgbAURL, null, null,testName+rgbAURL.getFile()+"-original", true);
@@ -139,24 +165,39 @@ public class ImageMosaicReaderTest{
 		//
 		// When we do the input transparent color we will add transparency to
 		// the images but only where the transparent color resides. Moreover the
-		// background will be trasparent.
+		// background will be transparent.
 		//
 		// //
 		if (interactive)
 			imageMosaicSimpleParamsTest(indexURL, null, null,testName+indexURL.getFile()+"-original", false);
 		imageMosaicSimpleParamsTest(indexURL, new Color(58, 49, 8),Color.black,testName+indexURL.getFile(), false);
+
+		if (interactive)
+			imageMosaicSimpleParamsTest(indexJarURL, null, null,testName+indexJarURL.getFile()+"-original", false);
+		imageMosaicSimpleParamsTest(indexJarURL, new Color(58, 49, 8),Color.black,testName+indexJarURL.getFile(), false);
+		
+		
 		if (interactive)
 			imageMosaicSimpleParamsTest(overviewURL, null, null,testName+overviewURL.getFile()+"-original", false);
 		imageMosaicSimpleParamsTest(overviewURL, new Color(58, 49, 8),Color.black,testName+overviewURL.getFile()+"-indexURL", false);		
+		
 		
 		if (interactive)
 			imageMosaicSimpleParamsTest(indexAlphaURL, null, null,testName+indexAlphaURL.getFile()+"-original", false);
 		imageMosaicSimpleParamsTest(indexAlphaURL, new Color(41,41, 33), Color.black,testName+indexAlphaURL.getFile(), false);
 
 		if (interactive)
+			imageMosaicSimpleParamsTest(indexAlphaJarURL, null, null,testName+indexAlphaJarURL.getFile()+"-original", false);
+		imageMosaicSimpleParamsTest(indexAlphaJarURL, new Color(41,41, 33), Color.black,testName+indexAlphaJarURL.getFile(), false);
+		
+		
+		if (interactive)
 			imageMosaicSimpleParamsTest(grayURL, null, null,testName+grayURL.getFile()+"-original", false);
 		imageMosaicSimpleParamsTest(grayURL, Color.black,Color.black, testName+grayURL.getFile(), false);
-
+		
+		if (interactive)
+			imageMosaicSimpleParamsTest(grayJarURL, null, null,testName+grayJarURL.getFile()+"-original", false);
+		imageMosaicSimpleParamsTest(grayJarURL, Color.black,Color.black, testName+grayJarURL.getFile(), false);
 
 
 	}
@@ -215,6 +256,12 @@ public class ImageMosaicReaderTest{
 		imageMosaicSimpleParamsTest(indexURL, null, null,baseTestName+indexURL.getFile(), false);
 		imageMosaicSimpleParamsTest(grayURL, null, null,baseTestName+grayURL.getFile(), false);
 		imageMosaicSimpleParamsTest(indexAlphaURL, null, null,baseTestName+indexAlphaURL.getFile(), false);
+
+		// And again with URL that points into a JAR
+		imageMosaicSimpleParamsTest(rgbJarURL, null, null,baseTestName+rgbJarURL.getFile(), false);
+		imageMosaicSimpleParamsTest(indexJarURL, null, null,baseTestName+indexJarURL.getFile(), false);
+		imageMosaicSimpleParamsTest(grayJarURL, null, null,baseTestName+grayJarURL.getFile(), false);
+		imageMosaicSimpleParamsTest(indexAlphaJarURL, null, null,baseTestName+indexAlphaJarURL.getFile(), false);
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -224,7 +271,6 @@ public class ImageMosaicReaderTest{
 		//
 		// MOSAIC_LOCATION_ATTRIBUTE
 		//
-		////
 		// error for location attribute
 		AbstractGridCoverage2DReader reader=null;
 		try {
@@ -233,9 +279,25 @@ public class ImageMosaicReaderTest{
 		} catch (Throwable e) {
 			Assert.fail(e.getLocalizedMessage());
 		}
+		try {
+			reader=(AbstractGridCoverage2DReader) ((AbstractGridFormat) GridFormatFinder.findFormat(rgbJarURL)).getReader(rgbJarURL, new Hints(Hints.MOSAIC_LOCATION_ATTRIBUTE, "aaaa"));
+			Assert.assertNull(reader);
+		} catch (Throwable e) {
+			Assert.fail(e.getLocalizedMessage());
+		}
+		
 
 		try {
 			reader=(AbstractGridCoverage2DReader) ((AbstractGridFormat) GridFormatFinder.findFormat(rgbURL)).getReader(rgbURL, new Hints(Hints.MOSAIC_LOCATION_ATTRIBUTE, "location"));
+			Assert.assertNotNull(reader);
+			reader.dispose();
+			Assert.assertTrue(true);
+		} catch (Throwable e) {
+			Assert.fail(e.getLocalizedMessage());
+		}
+
+		try {
+			reader=(AbstractGridCoverage2DReader) ((AbstractGridFormat) GridFormatFinder.findFormat(rgbJarURL)).getReader(rgbJarURL, new Hints(Hints.MOSAIC_LOCATION_ATTRIBUTE, "location"));
 			Assert.assertNotNull(reader);
 			reader.dispose();
 			Assert.assertTrue(true);
@@ -259,7 +321,9 @@ public class ImageMosaicReaderTest{
 			Assert.fail("MAX_ALLOWED_TILES was not respected");
 		} catch (Throwable e) {
 
-			reader.dispose();
+			if (reader != null) 
+				reader.dispose();
+			
 			Assert.assertTrue(true);
 		}
 
@@ -363,6 +427,7 @@ public class ImageMosaicReaderTest{
 	 * @param title
 	 *            to use.
 	 */
+	@SuppressWarnings("deprecation")
 	static void show(RenderedImage image, String title) {
 		final JFrame jf = new JFrame(title);
 		jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -471,15 +536,27 @@ public class ImageMosaicReaderTest{
 
 	@Before
 	public void setUp() throws Exception {
-		rgbURL = TestData.url(this, "rgb/mosaic.shp");
 		//remove generated file
 		cleanUp();
+		
+		rgbURL = TestData.url(this, "rgb/mosaic.shp");
+		rgbJarURL = new URL("jar:"+TestData.url(this, "rgb.jar").toExternalForm()+"!/rgb/mosaic.shp");
+		
 		overviewURL = TestData.url(this, "overview/");
 		rgbAURL = TestData.url(this, "rgba/");
+		
 		indexURL = TestData.url(this, "index/modis.shp");
+		indexJarURL = new URL("jar:"+TestData.url(this, "index.jar").toExternalForm()+"!/index/modis.shp");
+		
 		indexAlphaURL = TestData.url(this, "index_alpha/modis.shp");
+		indexAlphaJarURL = new URL("jar:"+TestData.url(this, "index_alpha.jar").toExternalForm()+"!/index_alpha/modis.shp");
+		
 		grayURL = TestData.url(this, "gray/dof.shp");
+		grayJarURL = new URL("jar:"+TestData.url(this, "gray.jar").toExternalForm()+"!/gray/dof.shp");
+		
 		index_unique_paletteAlphaURL = TestData.url(this,"index_alpha_unique_palette/dof.shp");
+		index_unique_paletteAlphaJarURL = new URL("jar:"+TestData.url(this, "index_alpha_unique_palette.jar").toExternalForm()+"!/index_alpha_unique_palette/dof.shp");
+		
 		interactive =TestData.isInteractiveTest();
 
 	}

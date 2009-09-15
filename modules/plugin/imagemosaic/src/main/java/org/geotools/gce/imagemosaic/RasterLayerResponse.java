@@ -26,10 +26,9 @@ import java.awt.image.IndexColorModel;
 import java.awt.image.MultiPixelPackedSampleModel;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.net.URISyntaxException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,6 +57,7 @@ import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.data.DataSourceException;
+import org.geotools.data.DataUtilities;
 import org.geotools.factory.FactoryRegistryException;
 import org.geotools.factory.Hints;
 import org.geotools.gce.imagemosaic.RasterManager.OverviewLevel;
@@ -82,6 +82,7 @@ import com.vividsolutions.jts.index.ItemVisitor;
  * requestCoverage is called to a reader.
  * 
  * @author Daniele Romagnoli, GeoSolutions
+ * @author Stefan Alfons Krueger (alfonx), Wikisquare.de : Support for jar:file:foo.jar/bar.properties URLs
  */
 @SuppressWarnings("deprecation")
 class RasterLayerResponse{
@@ -181,7 +182,7 @@ class RasterLayerResponse{
 				LOGGER.fine("About to read image number " + granulesNumber);
 
 			// If the granule is not there, dump a message and continue
-			final File rasterFile = rasterManager.getPathType().resolvePath(parentLocation, granuleLocation);
+			final URL rasterFile = rasterManager.getPathType().resolvePath(parentLocation, granuleLocation);
 			if (rasterFile == null) {
 				return;
 			}
@@ -191,14 +192,18 @@ class RasterLayerResponse{
 			// granule cache
 			Granule granule=null;
 			synchronized (rasterManager.granulesCache) {
-				if(rasterManager.granulesCache.containsKey(rasterFile.toURI().toString()))
+				
+				// COmment by Stefan Krueger
+				// Before the File.toURI().toString was jused as the cache key. For URL that potentially throws an URISystaxException and i used just toString()  
+				
+				if(rasterManager.granulesCache.containsKey(rasterFile.toString()))
 				{
-					granule=rasterManager.granulesCache.get(rasterFile.toURI().toString());
+					granule=rasterManager.granulesCache.get(rasterFile.toString());
 				}
 				else
 				{
 					granule=new Granule(granuleBBox,rasterFile);
-					rasterManager.granulesCache.put(rasterFile.toURI().toString(),granule);
+					rasterManager.granulesCache.put(rasterFile.toString(),granule);
 				}
 			}
 			
@@ -428,13 +433,17 @@ class RasterLayerResponse{
 			final RasterManager rasterManager) {
 		this.request = request;
 		inputURL = rasterManager.getInputURL();
-		File tempFile;
+//		File tempFile;
+//		try {
+//			tempFile = new File(this.inputURL.toURI());
+//		} catch (URISyntaxException e) {
+//			throw new IllegalArgumentException(e);
+//		}// TODO improve me
 		try {
-			tempFile = new File(this.inputURL.toURI());
-		} catch (URISyntaxException e) {
-			throw new IllegalArgumentException(e);
-		}// TODO improve me
-		parentLocation = tempFile.getParent();
+			parentLocation = DataUtilities.getParentUrl(inputURL).toExternalForm();
+		} catch (MalformedURLException e) {
+			throw new IllegalArgumentException("Unable to determine the parent location of "+inputURL, e);
+		}
 		coverageEnvelope = rasterManager.getCoverageEnvelope();
 		this.coverageFactory = rasterManager.getCoverageFactory();
 		this.rasterManager = rasterManager;
@@ -614,7 +623,7 @@ class RasterLayerResponse{
 			
 			//
 			// Did we actually load anything?? Notice that it might happen that
-			// either we have wholes inside the definition area for the mosaic
+			// either we have holes inside the definition area for the mosaic
 			// or we had some problem with missing tiles, therefore it might
 			// happen that for some bboxes we don't have anything to load.
 			//

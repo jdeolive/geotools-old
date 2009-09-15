@@ -65,6 +65,8 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.metadata.iso.citation.Citations;
 import org.geotools.referencing.CRS;
 import org.geotools.resources.Utilities;
+import org.geotools.resources.i18n.ErrorKeys;
+import org.geotools.resources.i18n.Errors;
 import org.geotools.util.Converters;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.feature.Feature;
@@ -269,7 +271,6 @@ public class DataUtilities {
         } else {
             String auth = url.getAuthority();
             String path2 = url.getPath().replace("%20", " ");
-            File f = null;
             if (auth != null && !auth.equals("")) {
                 path3 = "//" + auth + path2;
             } else {
@@ -1794,5 +1795,83 @@ public class DataUtilities {
             i.close();
         }
     }
+    
+
+	/**
+	 * Changes the ending (e.g. ".sld") of a {@link URL}
+	 * 
+	 * @param url
+	 *            {@link URL} like <code>file:/sds/a.bmp</code> or
+	 *            <code>http://www.some.org/foo/bar.shp</code>
+	 * @param postfix
+	 *            New file extension for the {@link URL} without <code>.</code>
+	 * 
+	 * @return A new {@link URL} with new extension.
+	 * 
+	 * @throws {@link MalformedURLException} if the new {@link URL} can not be
+	 *         created.
+	 */
+	public static URL changeUrlExt(final URL url, final String postfix)
+			throws IllegalArgumentException {
+		String a = url.toExternalForm();
+		final int lastDotPos = a.lastIndexOf('.');
+		if (lastDotPos >= 0)
+			a = a.substring(0, lastDotPos);
+		a = a + "." + postfix;
+		try {
+			return new URL(a);
+		} catch (final MalformedURLException e) {
+			throw new IllegalArgumentException("can't create a new URL for "+ url + " with new extension " + postfix, e);
+		}
+	}
+
+	/**
+	 * The function is supposed to be equivalent to {@link File}.getParent().
+	 * The {@link URL} is converted to a String, truncated to the last / and
+	 * then recreated as a new URL.
+	 * 
+	 * @throws {@link MalformedURLException} if the parent {@link URL} can not
+	 *         be created.
+	 */
+	public static URL getParentUrl(final URL url) throws MalformedURLException {
+		String a = url.toExternalForm();
+		final int lastDotPos = a.lastIndexOf('/');
+		if (lastDotPos >= 0)
+			a = a.substring(0, lastDotPos);
+		
+		/**
+		 * The parent of jar:file:some!/bar.file is jar:file:some!/, not jar:file:some!  
+		 */
+		if (a.endsWith("!")) a+="/";
+		
+		return new URL(a);
+	}
+
+	/**
+	 * Extends an {@link URL}.
+	 * 
+	 * @param base
+	 *            Has to be a {@link URL} pointing to a directory. If it doesn't
+	 *            end with a <code>/</code> it will be added automatically.
+	 * @param extension
+	 *            The part that will be added to the {@link URL}
+	 * 
+	 * @throws MalformedURLException
+	 *             if the new {@link URL} can not be created.
+	 */
+	public static URL extendURL(URL base, String extension)
+			throws MalformedURLException {
+		if(base==null)
+			throw new NullPointerException(Errors.format(ErrorKeys.NULL_ARGUMENT_$1,"base"));
+		if(extension==null)
+			throw new NullPointerException(Errors.format(ErrorKeys.NULL_ARGUMENT_$1,"extension"));
+		String a = base.toExternalForm();
+		if (!a.endsWith("/"))
+			a += "/";
+		a += extension;
+		return new URL(a);
+	}
+
+
 
 }

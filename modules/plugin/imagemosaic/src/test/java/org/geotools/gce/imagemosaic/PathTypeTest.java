@@ -6,6 +6,7 @@ package org.geotools.gce.imagemosaic;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URL;
 
 import org.geotools.test.TestData;
 import org.junit.Assert;
@@ -15,7 +16,7 @@ import org.junit.Test;
  * Testing {@link PathType} class.
  * 
  * @author Simone Giannecchini, GeoSolutions SAS
- *
+ * @author Stefan Alfons Krueger (alfonx), Wikisquare.de : Support for jar:file:foo.jar/bar.properties like URLs
  */
 public class PathTypeTest extends Assert {
 
@@ -31,33 +32,46 @@ public class PathTypeTest extends Assert {
 		assertTrue(testFile.exists());
 		
 		// test it as a relative path to the test-data directory
-		final File temp=PathType.RELATIVE.resolvePath(TestData.file(this, ".").getAbsolutePath(), "rgb/global_mosaic_0.pgw");
+		final URL temp=PathType.RELATIVE.resolvePath(TestData.url(this, ".").toExternalForm(), "rgb/global_mosaic_0.pgw");
 		assertNotNull(temp);
-		assertTrue(temp.exists());
+		temp.openStream().close();
 		
 		// test error checks
-		final File temp1=PathType.RELATIVE.resolvePath(TestData.file(this, ".").getAbsolutePath(), "rgb/global_mosaic_0.pg");
+		final URL temp1=PathType.RELATIVE.resolvePath(TestData.url(this, ".").toExternalForm(), "rgb/global_mosaic_0.pg");
 		assertNull(temp1);
+		try {
+			temp1.openStream().close();
+			fail("The relative URL "+temp1+" is not supposed to exist!");
+		} catch (Exception e) {
+		}
 		
 	}
 	
 	@Test
 	public void absolute() throws FileNotFoundException, IOException{
 		//get some test data
-		final File testFile= TestData.file(this, "/rgb/global_mosaic_0.pgw");
-		assertTrue(testFile.exists());
+		final URL testFile= TestData.url(this, "/rgb/global_mosaic_0.pgw");
+		testFile.openStream().close();
 		
 		// test it as a relative path to the test-data directory
-		final File temp=PathType.ABSOLUTE.resolvePath(TestData.file(this, ".").getAbsolutePath(), testFile.getAbsolutePath());
+		final URL temp=PathType.ABSOLUTE.resolvePath(TestData.url(this, ".").toExternalForm(), testFile.toExternalForm());
 		assertNotNull(temp);
-		assertTrue(temp.exists());
-		final File temp1=PathType.ABSOLUTE.resolvePath(null, testFile.getAbsolutePath());
+		temp.openStream().close();
+
+		
+		final URL temp1=PathType.ABSOLUTE.resolvePath(null, testFile.toExternalForm());
 		assertNotNull(temp1);
-		assertTrue(temp1.exists());		
+		temp1.openStream().close();
 		
 		// test error checks using relative call
-		final File temp2=PathType.ABSOLUTE.resolvePath(TestData.file(this, ".").getAbsolutePath(), "rgb/global_mosaic_0.pg");
+		final URL temp2=PathType.ABSOLUTE.resolvePath(TestData.url(this, ".").toExternalForm(), "rgb/global_mosaic_0.pg");
 		assertNull(temp2);
+		try {
+			temp2.openStream().close();
+			fail("The relative URL "+temp2+" is not supposed to exist!");
+		} catch (Exception e) {
+		}
+		
 		
 	}
 

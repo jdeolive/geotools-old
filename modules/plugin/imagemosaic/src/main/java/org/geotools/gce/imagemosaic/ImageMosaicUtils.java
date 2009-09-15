@@ -12,13 +12,11 @@ import java.awt.image.MultiPixelPackedSampleModel;
 import java.awt.image.RenderedImage;
 import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -75,7 +73,7 @@ class ImageMosaicUtils {
 	 * Very simple bean to hold the configuration of the mosaic.
 	 * 
 	 * @author Simone Giannecchini, GeoSolutions S.A.S.
-	 *
+	 * @author Stefan Alfons Krueger (alfonx), Wikisquare.de : Support for jar:file:foo.jar/bar.properties URLs
 	 */
 	static final class MosaicConfigurationBean {
 
@@ -85,7 +83,7 @@ class ImageMosaicUtils {
 		private boolean absolutePath;
 		
 		/**
-		 * <code>true</code> if we need to expand to RGB(A) the single tiles in case they use a differen {@link IndexColorModel}.
+		 * <code>true</code> if we need to expand to RGB(A) the single tiles in case they use a different {@link IndexColorModel}.
 		 */
 		private boolean expandToRGB;
 		
@@ -159,7 +157,7 @@ class ImageMosaicUtils {
 	private final static Logger LOGGER = org.geotools.util.logging.Logging
 			.getLogger(ImageMosaicUtils.class.toString());
 	/**
-	 * Defaut wildcard for creating mosaics.
+	 * Default wildcard for creating mosaics.
 	 */
 	static final String DEFAULT_WILCARD = "*.*";
 	
@@ -171,18 +169,21 @@ class ImageMosaicUtils {
 	/**
 	 * Creates a mosaic for the provided input parameters.
 	 * 
-	 * @param location  path to the directory where to gather the lements for the mosaic.
+	 * @param location  path to the directory where to gather the elements for the mosaic.
 	 * @param indexName name to give to this mosaic
-	 * @param wildcard wildcard to use for walking through files. Weare  using commonsIO for this task
+	 * @param wildcard wildcard to use for walking through files. We are using commonsIO for this task
 	 * @return <code>true</code> if everything is right, <code>false</code>if something bad happens, in which case the reason should be logged to the logger.
 	 */
-	static boolean createMosaic(final String location,final  String indexName,
-			final String wildcard) {
+	static boolean createMosaic(
+			final String location,
+			final String indexName,
+			final String wildcard,
+			final boolean absolutePath) {
 		
 		
 		//create a mosaic index builder and set the relevant elements
 		final IndexBuilderConfiguration configuration = new IndexBuilderConfiguration();
-		configuration.setAbsolute(true);
+		configuration.setAbsolute(absolutePath);
 		configuration.setRootMosaicDirectory(location);
 		configuration.setIndexingDirectories(Arrays.asList(location));
 		configuration.setIndexName(indexName);		
@@ -248,16 +249,25 @@ class ImageMosaicUtils {
 		static URL checkSource(Object source) throws MalformedURLException,
 				DataSourceException {
 			URL sourceURL=null;
+			File sourceFile = null;
 			// /////////////////////////////////////////////////////////////////////
 			//
 			// Check source
 			//
 			// /////////////////////////////////////////////////////////////////////
 			//if it is a URL or a String let's try to see if we can get a file to check if we have to build the index
-			if (source instanceof URL)
+			if (source instanceof File)
+			{
+				sourceFile = (File)source; 				
+				sourceURL = DataUtilities.fileToURL(sourceFile);
+				sourceURL = checkURLForMosaicQuery((URL) sourceURL);
+			}
+			else if (source instanceof URL)
 			{
 				sourceURL = checkURLForMosaicQuery((URL) source);
-		    	source = DataUtilities.urlToFile(sourceURL); 				
+				if (sourceURL.getProtocol().equals("file")) {
+					sourceFile =DataUtilities.urlToFile(sourceURL);
+				} 
 			}
 			else if (source instanceof String) { 
 				//is it a File?
@@ -277,19 +287,19 @@ class ImageMosaicUtils {
 			    }
 			    else
 		        {
-			    	sourceURL = tempFile.toURI().toURL();
+			    	sourceURL =  DataUtilities.fileToURL(tempFile); 
+
 			    	// so that we can do our magic here below
-			    	source=tempFile;
+			    	sourceFile=tempFile;
 		        }
 			}
 			        
 	
 			// at this point we have tried to convert the thing to a File as hard as we could, let's see what we can do
-			if (source instanceof File)
+			if (sourceFile != null)
 			   {
-				final File sourceFile=(File) source;
 				if(!sourceFile.isDirectory())
-					sourceURL = ((File) source).toURI().toURL();
+					sourceURL = DataUtilities.fileToURL((File) sourceFile);
 				else
 				{
 					//it's a directory, let's look for a possible properties files that we want to load
@@ -314,24 +324,27 @@ class ImageMosaicUtils {
 					if(shapeFile==null)
 					{
 						//try to build a mosaic inside this directory and see what happens    	
-						createMosaic(locationPath, defaultIndexName,defaultWildcardString);   
+						createMosaic(locationPath, defaultIndexName,defaultWildcardString,DEFAULT_PATH_BEHAVIOR);   
 						shapeFile= new File(locationPath,defaultIndexName+".shp");
 						File propertiesFile = new File(locationPath,defaultIndexName+".properties");
 						if(!shapeFile.exists()||!shapeFile.canRead()||!propertiesFile.exists()||!propertiesFile.canRead())
 							sourceURL=null;
 						else
 							// now set the new source and proceed
-							sourceURL= shapeFile.toURI().toURL();
+							sourceURL= shapeFile.toURI().toURL(); //TODO Comment by Stefan Krueger: Shouldn't we use DataUtilities.fileToURL(file) 
+						
+						
 					}
 					else
 						// now set the new source and proceed
-						sourceURL= shapeFile.toURI().toURL();  
-					
+						sourceURL= shapeFile.toURI().toURL(); // TODO Comment by Stefan Krueger: Shouldn't we use DataUtilities.fileToURL(file) 
 					
 				}
 			   }
-				else
-				sourceURL=null;
+				else {
+					// SK: We don't set SourceURL to null now, just because it doesn't point to a file
+					// sourceURL=null;
+				}
 			return sourceURL;
 		}
 		
@@ -360,6 +373,7 @@ class ImageMosaicUtils {
             		if(!(sourceDir.isDirectory()&&sourceDir.exists()&&sourceDir.canRead()))
             			return null;
             		String wildcardString=null;
+            		boolean absolutePath=DEFAULT_PATH_BEHAVIOR;
             		for(String token:tokens)
             		{
             			//splitting token
@@ -369,6 +383,9 @@ class ImageMosaicUtils {
             			else
             				if(values[0].equalsIgnoreCase("w")||values[0].equalsIgnoreCase("wildcard"))
             					wildcardString=values[1];
+            				else
+                				if(values[0].equalsIgnoreCase("p")||values[0].equalsIgnoreCase("path"))
+                					absolutePath=Boolean.parseBoolean(values[1]);
 
             			
             		}
@@ -379,7 +396,7 @@ class ImageMosaicUtils {
         			if(!shapeFile.exists()||!shapeFile.canRead()||!shapeFile.isFile()||!propertiesFile.exists()||!propertiesFile.canRead()||!propertiesFile.isFile())
     				{
         				//try to build it
-        				createMosaic(locationPath, indexName!=null?indexName:FilenameUtils.getBaseName(locationPath),wildcardString!=null?wildcardString:DEFAULT_WILCARD);
+        				createMosaic(locationPath, indexName!=null?indexName:FilenameUtils.getBaseName(locationPath),wildcardString!=null?wildcardString:DEFAULT_WILCARD,absolutePath);
     					
     				}  
         			
@@ -413,38 +430,42 @@ class ImageMosaicUtils {
 			//ret value
 		    final MosaicConfigurationBean retValue= new MosaicConfigurationBean();
 		    
-		    //
-		    //  file path
-		    //		    
-			String path;
-			String name;
-			try {
-				String temp = DataUtilities.urlToFile(sourceURL.toURI().toURL()).getAbsolutePath();
-				path=FilenameUtils.getFullPath(temp);
-				name=FilenameUtils.getBaseName(temp);
-			}  catch (URISyntaxException e) {
-				if(LOGGER.isLoggable(Level.SEVERE))
-					LOGGER.log(Level.SEVERE,e.getLocalizedMessage(),e);
-				return null;
-			} catch (MalformedURLException e) {
-				if(LOGGER.isLoggable(Level.SEVERE))
-					LOGGER.log(Level.SEVERE,e.getLocalizedMessage(),e);
-				return null;
-			}
-			final File propertiesFile = new File(path,name+".properties");
-			if( !propertiesFile.exists() || !propertiesFile.isFile() ){
-			    if(LOGGER.isLoggable(Level.SEVERE))
-			    	LOGGER.severe("Properties file, describing the ImageMoasic, does not exist:"+propertiesFile);
-			    return null;
-			}
+//		    //
+//		    //  file path
+//		    //		    
+//			String path;
+//			String name;
+//			try {
+//				String temp = DataUtilities.urlToFile(sourceURL.toURI().toURL()).getAbsolutePath();
+//				path=FilenameUtils.getFullPath(temp);
+//				name=FilenameUtils.getBaseName(temp);
+//			}  catch (URISyntaxException e) {
+//				if(LOGGER.isLoggable(Level.SEVERE))
+//					LOGGER.log(Level.SEVERE,e.getLocalizedMessage(),e);
+//				return null;
+//			} catch (MalformedURLException e) {
+//				if(LOGGER.isLoggable(Level.SEVERE))
+//					LOGGER.log(Level.SEVERE,e.getLocalizedMessage(),e);
+//				return null;
+//			}
+//			final File propertiesFile = new File(path,name+".properties");
+//			if( !propertiesFile.exists() || !propertiesFile.isFile() ){
+//			    if(LOGGER.isLoggable(Level.SEVERE))
+//			    	LOGGER.severe("Properties file, describing the ImageMoasic, does not exist:"+propertiesFile);
+//			    return null;
+//			}
 			
 			//
 			// load the properties file
 			//
 			final Properties properties = new Properties();
-			InputStream stream;
+			URL propsURL = DataUtilities.changeUrlExt(sourceURL, "properties");
+			
+			InputStream stream = null;
+			InputStream openStream = null;
 			try {
-				stream = new BufferedInputStream(new FileInputStream(propertiesFile));
+				openStream =  propsURL.openStream();
+				stream = new BufferedInputStream(openStream);
 				properties.load(stream);
 			} catch (FileNotFoundException e) {
 				if(LOGGER.isLoggable(Level.SEVERE))
@@ -455,8 +476,16 @@ class ImageMosaicUtils {
 					LOGGER.log(Level.SEVERE,e.getLocalizedMessage(),e);				
 				return null;
 			}
-			if(stream!=null)
-				IOUtils.closeQuietly(stream);
+			finally {
+				
+				if(stream!=null)
+					IOUtils.closeQuietly(stream);
+				
+				if (openStream != null)
+					IOUtils.closeQuietly(openStream);
+					
+			}
+			
 
 			//
 			// load the envelope
@@ -795,6 +824,21 @@ class ImageMosaicUtils {
 			return null;
 		return inStream;
 	}
+	
+	/**
+	 * Retrieves an {@link ImageInputStream} for the provided input {@link URL}.
+	 * 
+	 * @param url
+	 * @return
+	 * @throws IOException
+	 */
+	static ImageInputStream getInputStream(final URL url)
+	throws IOException {
+		final ImageInputStream inStream= ImageIO.createImageInputStream(url);
+		if(inStream==null)
+			return null;
+		return inStream;
+	}
 
 
 
@@ -896,5 +940,18 @@ class ImageMosaicUtils {
 					"Provided input dir does not exist or is not a dir!");
 		}
 		return testingDirectory;
+	}
+
+
+
+
+
+	public static boolean checkURLReadable(URL url) {
+		try {
+			url.openStream().close();
+		} catch (Exception e) {
+			return false;
+		}
+		return true;
 	}
 }
