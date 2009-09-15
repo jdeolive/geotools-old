@@ -255,7 +255,7 @@ public class TextSymbolizerImpl implements TextSymbolizer2, Cloneable {
      * @deprecated Use setLabelPlacement
      */
     public void setPlacement(LabelPlacement labelPlacement) {
-        setLabelPlacement( placement );
+        setLabelPlacement( labelPlacement );
     }
 
     /**
