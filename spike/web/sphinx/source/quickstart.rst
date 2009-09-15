@@ -119,12 +119,46 @@ Depending on GeoTools
 
 To make use of GeoTools we are going to add two things to your pom.xml file:
 
-* A new dependency:: *gt-main* version |gtVersion|
+* A new dependency:: *gt-main* version 2.6-M2
 * A list of *repositories* where maven can find GeoTools and all the cool stuff it uses
 
-   .. literalinclude:: ../../../../demo/example/pom.xml
-      :language: xml
-      :lines: 1,10-15,25-28,30,82-92,141-169,202-
+.. sourcecode:: xml
+
+    <project xmlns="http://maven.apache.org/POM/4.0.0"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+      <modelVersion>4.0.0</modelVersion>
+      <groupId>org.geotools.demo</groupId>
+      <artifactId>example</artifactId>
+      <packaging>jar</packaging>
+      <version>1.0-SNAPSHOT</version>
+      <name>example</name>
+      <url>http://maven.apache.org</url>
+      <dependencies>
+        <dependency>
+          <groupId>junit</groupId>
+          <artifactId>junit</artifactId>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.geotools</groupId>
+          <artifactId>gt-main</artifactId>
+          <version>2.6-M2</version>
+        </dependency>
+      </dependencies>
+      <repositories>
+        <repository>
+          <id>maven2-repository.dev.java.net</id>
+          <name>Java.net repository</name>
+          <url>http://download.java.net/maven/2</url>
+        </repository>
+        <repository>
+          <id>osgeo</id>
+          <name>Open Source Geospatial Foundation Repository</name>
+          <url>http://download.osgeo.org/webdav/geotools/</url>
+        </repository>
+      </repositories>
+    </project>
 
 In later tutorials we will just show the dependency section of the pom.xml file since you won't need to make any further changes to the other sections. We will be adding dependencies over time as we try out more of the library.
       
@@ -407,6 +441,25 @@ If the application compiled you can now run it. Once again, you can do this from
 
 Questions
 =========
+
+
+How to use a SNAPSHOT?
+----------------------
+
+A snapshot release is a nightly release made by the geotools team; to make use of a SNAPSHOT please add the following to your pom.xml
+
+.. sourcecode:: xml
+
+    <repository>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <id>opengeo</id>
+      <name>OpenGeo Maven Repository</name>
+      <url>http://repo.opengeo.org</url>
+    </repository>
+
+You can now refer to 2.6-SNAPSHOT
 
 What Does ShapefileDataStore do?
 --------------------------------
