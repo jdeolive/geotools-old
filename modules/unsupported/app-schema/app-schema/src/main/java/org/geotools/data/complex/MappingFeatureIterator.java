@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 
@@ -59,6 +60,7 @@ import org.opengis.feature.type.GeometryType;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.NamespaceSupport;
 
@@ -101,6 +103,9 @@ public class MappingFeatureIterator implements Iterator<Feature>, FeatureIterato
     protected FeatureFactory attf;
 
     protected FeatureCollection<FeatureType, Feature> sourceFeatures;
+    
+    private static final Logger LOGGER = org.geotools.util.logging.Logging
+    .getLogger(MappingFeatureIterator.class.getPackage().getName());
 
     private FeatureSource<FeatureType, Feature> mappedSource;
 
@@ -126,20 +131,14 @@ public class MappingFeatureIterator implements Iterator<Feature>, FeatureIterato
     private int featureCounter;
 
     /**
-     * List of processed features by mapped id, so multiple instances are regarded as the same
-     * feature
+     * This is the feature that will be processed in next()
      */
-    private ArrayList<String> processedFeatureIds;
-
-    /**
-     * Next feature that doesn't already exist in processedFeatures map
-     */
-    private Feature nextSrcFeature;
+    private Feature curSrcFeature;
 
     /**
      * True if hasNext has been called prior to calling next()
      */
-    private boolean hasNextCalled;
+    private boolean hasNextCalled = false;
 
     /**
      * 
@@ -194,7 +193,6 @@ public class MappingFeatureIterator implements Iterator<Feature>, FeatureIterato
         namespaceAwareFilterFactory = new FilterFactoryImplNamespaceAware(namespaces);
         xpathAttributeBuilder.setFilterFactory(namespaceAwareFilterFactory);
         this.maxFeatures = query.getMaxFeatures();
-        this.processedFeatureIds = new ArrayList<String>();
 
     }
 
@@ -214,7 +212,6 @@ public class MappingFeatureIterator implements Iterator<Feature>, FeatureIterato
             sourceFeatureIterator = null;
             sourceFeatures = null;
         }
-        processedFeatureIds.clear();
     }
 
     /**
@@ -449,12 +446,19 @@ public class MappingFeatureIterator implements Iterator<Feature>, FeatureIterato
      * @see java.util.Iterator#next()
      */
     public Feature next() {
+        if (!hasNext()) {
+            throw new IllegalStateException("there are no more features in this iterator");
+        }
+        hasNextCalled = false;
+        Feature next;
         try {
-            return computeNext();
+            next = computeNext();
         } catch (IOException e) {
             close();
             throw new RuntimeException(e);
         }
+        ++featureCounter;
+        return next;
     }
 
     /**
@@ -463,24 +467,26 @@ public class MappingFeatureIterator implements Iterator<Feature>, FeatureIterato
      * @see java.util.Iterator#hasNext()
      */
     public boolean hasNext() {
-        hasNextCalled = true;
-        if (featureCounter >= maxFeatures) {
-            return false;
+        if (hasNextCalled) {
+            return curSrcFeature != null;
         }
-        if (sourceFeatureIterator == null) {
-            return false;
-        }
-        // make sure features are unique by mapped id
-        while (sourceFeatureIterator.hasNext()) {
-            Feature next = sourceFeatureIterator.next();
-            if (!processedFeatureIds.contains(extractIdForFeature(next))) {
-                nextSrcFeature = next;
-                return true;
+
+        boolean exists = false;
+
+        if (sourceFeatureIterator != null && featureCounter < maxFeatures) {
+            exists = sourceFeatureIterator.hasNext();
+            if (exists && this.curSrcFeature == null) {
+                this.curSrcFeature = sourceFeatureIterator.next();
             }
         }
-        // no more features.. close the source
-        close();
-        return false;
+
+        if (!exists) {
+            LOGGER.finest("no more features, produced " + featureCounter);
+            close();
+            curSrcFeature = null;
+        }
+        hasNextCalled = true;
+        return exists;
     }
 
     /**
@@ -495,49 +501,35 @@ public class MappingFeatureIterator implements Iterator<Feature>, FeatureIterato
     }
 
     private Feature computeNext() throws IOException {
-        if (!hasNextCalled) {
-            // hasNext needs to be called to set nextSrcFeature
-            if (!hasNext()) {
-                return null;
+        assert this.curSrcFeature != null : "hasNext not called?";       
+
+        String id = extractIdForFeature(curSrcFeature);
+        
+        ArrayList<Feature> sources = new ArrayList<Feature>();   
+        sources.add(curSrcFeature);
+        while (sourceFeatureIterator.hasNext()) {
+            Feature next = sourceFeatureIterator.next();
+            if (extractIdForFeature(next).equals(id)) {
+                sources.add(next);
+                curSrcFeature = null;
+//                // ensure the next in the stream is called next time
+//                hasNextCalled = false;
+            } else {
+                curSrcFeature = next;
+                // ensure curSrcFeature is returned when next() is called
+                hasNextCalled = true;
+                break;
             }
         }
-        hasNextCalled = false;
-        if (nextSrcFeature == null) {
-            throw new UnsupportedOperationException("No more features produced!");
-        }
-        ComplexAttribute sourceInstance = (ComplexAttribute) nextSrcFeature;
+        
         final AttributeDescriptor targetNode = mapping.getTargetFeature();
         final Name targetNodeName = targetNode.getName();
         final List<AttributeMapping> mappings = mapping.getAttributeMappings();
-        String id = extractIdForFeature(sourceInstance);
+        
         AttributeBuilder builder = new AttributeBuilder(attf);
         builder.setDescriptor(targetNode);
         Feature target = (Feature) builder.build(id);
-        // Run another query to find same features, in case they're from a denormalized view
-        // ie. having many to many relationship.
-        // This is so we can encode the same features as one complex feature.
-        // FIXME: Perhaps this can be optimized in the future.. other options:
-        // - enforce an "ORDER BY" rule in the denormalized view, so everything is ordered,
-        // so we can just keep calling next until the next one is different.
-        // - use "sortBy" when running the main query, but not possible at the moment..
-        // - store these features in a list.. but not a good memory management, especially if
-        // the features could be deeply nested, ie. storing numerous features per iterator
-        ArrayList<Feature> sources = new ArrayList<Feature>();
-
-        FeatureCollection<FeatureType, Feature> matchingFeatures = this.mappedSource
-                .getFeatures(namespaceAwareFilterFactory.equals(this.featureFidMapping,
-                        namespaceAwareFilterFactory.literal(target.getIdentifier())));
-
-        Iterator<Feature> iterator = matchingFeatures.iterator();
-
-        while (iterator.hasNext()) {
-            sources.add(iterator.next());
-        }
-
-        matchingFeatures.close(iterator);
-
-        assert sources.size() >= 1; // there should be at least the current feature
-
+        
         for (AttributeMapping attMapping : mappings) {
             StepList targetXpathProperty = attMapping.getTargetXPath();
             if (targetXpathProperty.size() == 1) {
@@ -555,15 +547,9 @@ public class MappingFeatureIterator implements Iterator<Feature>, FeatureIterato
                 setAttributeValue(target, source, attMapping);
             }
         }
-        // hasNext() should already ensure that this shouldn't happen
-        assert !processedFeatureIds.contains(id);
         featureCounter++;
         if (target.getDefaultGeometryProperty() == null) {
             setGeometry(target);
-        }
-        processedFeatureIds.add(id);
-        if (!sourceFeatureIterator.hasNext()) {
-            close();
         }
         return target;
     }
