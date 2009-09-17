@@ -1150,7 +1150,7 @@ public class GeodeticCalculator {
         final double         long2 = this.long2;
         final double          lat2 = this.lat2;
         final double      distance = this.distance;
-        final double deltaDistance = distance / (numberOfPoints+1);
+        final double deltaDistance = distance / numberOfPoints;
         final GeneralPath     path = new GeneralPath(GeneralPath.WIND_EVEN_ODD, numberOfPoints+1);
         path.moveTo((float) toDegrees(long1), (float) toDegrees(lat1));
         for (int i=1; i<numberOfPoints; i++) {
