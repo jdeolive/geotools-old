@@ -1107,7 +1107,7 @@ public class GeodeticCalculator {
 
         // The distance in ellispoid axis units.
         distance = semiMinorAxis * (bo*sig + b2*ssig*q2 + b4*r2*q4 + b6*r3*q6);
-        double az1 = (dlon < 0) ? PI*(3/2) : PI/2;
+        double az1 = (dlon < 0) ? PI*(3.0/2.0) : PI/2;
 
         // now compute the az1 & az2 for latitudes not on the equator
         if ((abs(su1) >= TOLERANCE_0) || (abs(su2) >= TOLERANCE_0)) {
