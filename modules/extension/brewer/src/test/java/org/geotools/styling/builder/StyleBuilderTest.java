@@ -15,6 +15,7 @@ import org.geotools.styling.Mark;
 import org.geotools.styling.PointSymbolizer;
 import org.geotools.styling.Rule;
 import org.geotools.styling.Style;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.opengis.filter.expression.Expression;
 import org.opengis.style.Halo;
@@ -422,6 +423,20 @@ public class StyleBuilderTest {
         Halo halo = b.build();
 
         assertNotNull(halo);
+    }
+
+    @Ignore
+    @Test
+    public void testPolygonStyle() {
+        StyleBuilder sb = new StyleBuilder();
+
+        PolygonSymbolizerBuilder symb = sb.newFeatureTypeStyle().name("Simple polygon style").rule().newPolygon();
+        symb.stroke().color(Color.BLUE).width(1).opacity(0.5);
+        symb.fill().color(Color.CYAN).opacity(0.5);
+
+        Style style = sb.build();
+
+        // now what do we test :-)
     }
 
     /*
