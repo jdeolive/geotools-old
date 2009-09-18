@@ -55,14 +55,11 @@ wish to work with.
 Example
 -------
 
-The example code is available directly from::
+The example code is available
  * Directly from svn: Csv2Shape.java_.
  * included in the demo directory when you downloaded geotools source
 
 .. _Csv2Shape.java:  http://svn.geotools.org/trunk/demo/example/src/main/java/org/geotools/demo/Csv2Shape.java
-
-The code has been cut & pasted into the document here; but please consider either of the above sources as
-they may have useful corrections or clarifications added since this document has been written.
 
 Main Application
 ----------------
