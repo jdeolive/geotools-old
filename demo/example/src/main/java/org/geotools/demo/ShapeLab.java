@@ -1,3 +1,13 @@
+/*
+ *    GeoTools - The Open Source Java GIS Tookit
+ *    http://geotools.org
+ *
+ *    (C) 2006-2008, Open Source Geospatial Foundation (OSGeo)
+ *
+ *    This file is hereby placed into the Public Domain. This means anyone is
+ *    free to do whatever they wish with this file. Use it well and enjoy!
+ */
+// start source
 package org.geotools.demo;
 
 import java.io.File;
@@ -57,16 +67,37 @@ public class ShapeLab {
         String typeName = shapefile.getTypeNames()[0];
         FeatureSource featureSource = shapefile.getFeatureSource();
         FeatureType schema = featureSource.getSchema();
+
+        // Get the coordinate system from the shapefile and create a 
+        // MapContext
         CoordinateReferenceSystem crs = schema.getGeometryDescriptor()
                 .getCoordinateReferenceSystem();
 
         MapContext map = new DefaultMapContext(crs);
+
+        // Create a basic Style to render the features
         Style style = createStyle(file, schema);
+
+        // Add the features and the associated Style object to
+        // the MapContext as a new MapLayer
         map.addLayer(featureSource, style);
 
+        // Now display the map
         JMapFrame.showMap(map);
     }
+// end main method
 
+// start promptShapeFile
+    /**
+     * Takes the command line arguments and examines the first argument
+     * for an input filename. If no filename was provided, prompts user
+     * for a shapefile using a {@code JFileDataStoreChooser} dialog.
+     *
+     * @param args command line args (only the first is examined)
+     *
+     * @return a File object for the shapefile or null if none is
+     *         selected
+     */
     private static File promptShapeFile(String[] args) {
         File file = null;
 
@@ -89,7 +120,9 @@ public class ShapeLab {
         // display a data store file chooser dialog for shapefiles
         return JFileDataStoreChooser.showOpenFile("shp", null);
     }
-
+// end promptShapeFile
+    
+// start createStyle
     private static Style createStyle(File file, FeatureType schema) {
         File sld = toSLDFile(file);
         if (sld.exists()) {
@@ -97,17 +130,27 @@ public class ShapeLab {
         }
         Class geomType = schema.getGeometryDescriptor().getType().getBinding();
 
-        if (geomType.isAssignableFrom(Polygon.class)
-                || geomType.isAssignableFrom(MultiPolygon.class)) {
+        if (Polygon.class.isAssignableFrom(geomType)
+                || MultiPolygon.class.isAssignableFrom(geomType)) {
             return createPolygonStyle();
-        } else if (geomType.isAssignableFrom(LineString.class)
-                || geomType.isAssignableFrom(MultiLineString.class)) {
+
+        } else if (LineString.class.isAssignableFrom(geomType)
+                || MultiLineString.class.isAssignableFrom(geomType)) {
             return createLineStyle();
+
         } else {
             return createPointStyle();
         }
     }
+// end createStyle
 
+// start createFromSLD
+    /**
+     * Create a Style object from a definition in a SLD document
+     *
+     * @param sld path and filename of the SLD document
+     * @return a new Style instance
+     */
     private static Style createFromSLD(File sld) {
         SLDParser stylereader;
         try {
@@ -120,31 +163,33 @@ public class ShapeLab {
         }
         return null;
     }
+// end createFromSLD
 
+// start createPolygonStyle
     /**
-     * Create a Style to draw point features as circles with blue outlines
-     * and cyan fill
+     * Create a Style to draw polygon features with a thin blue outline and
+     * a cyan fill
      */
-    private static Style createPointStyle() {
-        Graphic gr = styleFactory.createDefaultGraphic();
+    private static Style createPolygonStyle() {
 
-        Mark mark = styleFactory.getCircleMark();
+        // create a partially opaque outline stroke
+        Stroke stroke = styleFactory.createStroke(
+                filterFactory.literal(Color.BLUE),
+                filterFactory.literal(1),
+                filterFactory.literal(0.5));
 
-        mark.setStroke(styleFactory.createStroke(
-                filterFactory.literal(Color.BLUE), filterFactory.literal(1)));
-        
-        mark.setFill(styleFactory.createFill(filterFactory.literal(Color.CYAN)));
+        // create a partial opaque fill
+        Fill fill = styleFactory.createFill(
+                filterFactory.literal(Color.CYAN),
+                filterFactory.literal(0.5));
 
-        mark.setSize(filterFactory.literal(3));
-
-        gr.graphicalSymbols().clear();
-        gr.graphicalSymbols().add(mark);
+// mid createPolygonStyle
 
         /*
          * Setting the geometryPropertyName arg to null signals that we want to
          * draw the default geomettry of features
          */
-        PointSymbolizer sym = styleFactory.createPointSymbolizer(gr, null);
+        PolygonSymbolizer sym = styleFactory.createPolygonSymbolizer(stroke, fill, null);
 
         Rule rule = styleFactory.createRule();
         rule.symbolizers().add(sym);
@@ -154,6 +199,8 @@ public class ShapeLab {
 
         return style;
     }
+    
+// end createPolygonStyle
 
     /**
      * Create a Style to draw line features as thin blue lines
@@ -179,27 +226,29 @@ public class ShapeLab {
     }
 
     /**
-     * Create a Style to draw polygon features with a thin blue outline and
-     * a cyan fill
+     * Create a Style to draw point features as circles with blue outlines
+     * and cyan fill
      */
-    private static Style createPolygonStyle() {
+    private static Style createPointStyle() {
+        Graphic gr = styleFactory.createDefaultGraphic();
 
-        // create a partially opaque outline stroke
-        Stroke stroke = styleFactory.createStroke(
-                filterFactory.literal(Color.BLUE),
-                filterFactory.literal(1),
-                filterFactory.literal(0.5));
+        Mark mark = styleFactory.getCircleMark();
 
-        // create a partial opaque fill
-        Fill fill = styleFactory.createFill(
-                filterFactory.literal(Color.CYAN),
-                filterFactory.literal(0.5));
+        mark.setStroke(styleFactory.createStroke(
+                filterFactory.literal(Color.BLUE), filterFactory.literal(1)));
+
+        mark.setFill(styleFactory.createFill(filterFactory.literal(Color.CYAN)));
+
+        mark.setSize(filterFactory.literal(3));
+
+        gr.graphicalSymbols().clear();
+        gr.graphicalSymbols().add(mark);
 
         /*
          * Setting the geometryPropertyName arg to null signals that we want to
          * draw the default geomettry of features
          */
-        PolygonSymbolizer sym = styleFactory.createPolygonSymbolizer(stroke, fill, null);
+        PointSymbolizer sym = styleFactory.createPointSymbolizer(gr, null);
 
         Rule rule = styleFactory.createRule();
         rule.symbolizers().add(sym);
@@ -209,6 +258,7 @@ public class ShapeLab {
 
         return style;
     }
+// end createPointStyle
 
     /** Figure out the URL for the "sld" file */
     public static File toSLDFile(File file)  {
