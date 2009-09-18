@@ -83,6 +83,16 @@ public class MapToolManager implements MouseInputListener, MouseWheelListener {
     }
 
     /**
+     * Get the active cursor tool
+     *
+     * @return live reference to the active cursor tool or {@code null} if no
+     *         tool is active
+     */
+    public CursorTool getCursorTool() {
+        return cursorTool;
+    }
+
+    /**
      * Add a listener for JMapPaneMouseEvents
      *
      * @return true if successful; false otherwise
@@ -199,4 +209,5 @@ public class MapToolManager implements MouseInputListener, MouseWheelListener {
 
         return pme;
     }
+
 }

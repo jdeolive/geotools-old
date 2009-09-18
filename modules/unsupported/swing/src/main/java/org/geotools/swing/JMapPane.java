@@ -28,6 +28,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -226,6 +227,23 @@ public class JMapPane extends JPanel implements MapLayerListListener {
         this.addMouseListener(toolManager);
         this.addMouseMotionListener(toolManager);
         this.addMouseWheelListener(toolManager);
+
+        /*
+         * Listen for mouse entered events to (re-)set the
+         * current tool cursor, otherwise the cursor seems to
+         * default to the standard cursor sometimes (at least
+         * on OSX)
+         */
+        this.addMouseListener(new MouseInputAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                super.mouseEntered(e);
+                CursorTool tool = toolManager.getCursorTool();
+                if (tool != null) {
+                    JMapPane.this.setCursor(tool.getCursor());
+                }
+            }
+        });
         
         addComponentListener(new ComponentAdapter() {
             @Override
