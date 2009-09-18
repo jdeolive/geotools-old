@@ -17,7 +17,6 @@
 
 package org.geotools.demo.swing;
 
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -64,17 +63,6 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 public class ShapefileViewer extends JMapFrame {
 
     private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/demo/mapwidget/MapWidget");
-
-    private static Color[] colors = {
-        Color.BLUE,
-        Color.ORANGE,
-        Color.CYAN,
-        Color.PINK,
-        Color.GREEN,
-        Color.LIGHT_GRAY
-    };
-
-    private int colorIndex = 0;
 
     private DefaultRepository repository = new DefaultRepository();
     private MapContext context;
@@ -257,9 +245,6 @@ public class ShapefileViewer extends JMapFrame {
              * There was no associated SLD file so we attempt to create
              * a minimal style to display the layer
              */
-            Color color = colors[colorIndex];
-            colorIndex = (colorIndex + 1) % colors.length;
-
             style = JSimpleStyleDialog.showDialog(dstore, this);
             if (style == null) {
                 return false;
