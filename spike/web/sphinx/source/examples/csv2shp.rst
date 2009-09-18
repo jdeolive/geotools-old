@@ -71,7 +71,7 @@ Main Application
 
    .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/Csv2Shape.java
       :language: java
-      :lines: 1-64,123-125,231
+      :lines: 1-63,124-125,212
    
 Prompt for CSV File
 -------------------
@@ -165,3 +165,4 @@ Here is how to use SimpleFeatureTypeBuilder to accomplish the same result:
 
 
 With this new improved SimpleFeatureType (that contains a CoordinateReferenceSystem) we will no longer need to call forceSchemaCRS to generate our ".prj" file.
+
