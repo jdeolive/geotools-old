@@ -317,7 +317,7 @@ public class JSimpleStyleDialog extends JDialog {
 
         lineColorIcon = new JColorIcon(COLOR_ICON_SIZE, COLOR_ICON_SIZE, DEFAULT_LINE_COLOR);
         lineColorLabel = new JLabel(lineColorIcon);
-        panel.add(lineColorLabel);
+        panel.add(lineColorLabel, "gapafter 20px");
 
         label = new JLabel("Width");
         panel.add(label, "split 2");
@@ -350,13 +350,14 @@ public class JSimpleStyleDialog extends JDialog {
 
         fillColorIcon = new JColorIcon(COLOR_ICON_SIZE, COLOR_ICON_SIZE, DEFAULT_FILL_COLOR);
         fillColorLabel = new JLabel(fillColorIcon);
-        panel.add(fillColorLabel);
+        panel.add(fillColorLabel, "gapafter 20px");
 
-        label = new JLabel("Opacity");
+        label = new JLabel("% opacity");
         panel.add(label, "split 2");
 
         final JSlider slider = new JSlider(0, 100, 100);
-        slider.setPaintLabels(false);
+        slider.setPaintLabels(true);
+        slider.setMajorTickSpacing(20);
         slider.addChangeListener(new ChangeListener() {
 
             public void stateChanged(ChangeEvent e) {
@@ -409,7 +410,7 @@ public class JSimpleStyleDialog extends JDialog {
                 setVisible(false);
             }
         });
-        panel.add(btn, "skip");
+        panel.add(btn, "skip 2, split 2, align right");
 
         btn = new JButton("Cancel");
         btn.addActionListener(new ActionListener() {
