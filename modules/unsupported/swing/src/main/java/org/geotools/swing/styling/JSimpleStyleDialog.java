@@ -49,7 +49,6 @@ import org.geotools.styling.Style;
 import org.geotools.styling.StyleFactory;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
-import org.opengis.filter.FilterFactory2;
 
 /**
  * A dialog to prompt the user for feature style choices. It has a static
@@ -77,11 +76,11 @@ public class JSimpleStyleDialog extends JDialog {
     public static final float DEFAULT_LINE_WIDTH = 1.0f;
     public static final float DEFAULT_OPACITY = 1.0f;
     public static final float DEFAULT_POINT_SIZE = 3.0f;
-
+    private static final String DEFAULT_POINT_SYMBOL_NAME = "Circle";
+    
     private static int COLOR_ICON_SIZE = 16;
 
     private static StyleFactory sf = CommonFactoryFinder.getStyleFactory(null);
-    private static FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
 
     /**
      * Constants for the geometry type that the style
@@ -97,6 +96,7 @@ public class JSimpleStyleDialog extends JDialog {
     private float lineWidth;
     private float opacity;
     private float pointSize;
+    private String pointSymbolName;
 
     private JColorIcon lineColorIcon;
     private JLabel lineColorLabel;
@@ -147,6 +147,7 @@ public class JSimpleStyleDialog extends JDialog {
 
                 case POINT:
                     style = SimpleStyleHelper.createPointStyle(
+                            dialog.getPointSymbolName(),
                             dialog.getLineColor(),
                             dialog.getFillColor(),
                             dialog.getOpacity(),
@@ -185,6 +186,7 @@ public class JSimpleStyleDialog extends JDialog {
         lineWidth = DEFAULT_LINE_WIDTH;
         opacity = DEFAULT_OPACITY;
         pointSize = DEFAULT_POINT_SIZE;
+        pointSymbolName = DEFAULT_POINT_SYMBOL_NAME;
         geomType = GeomType.UNDEFINED;
         completed = false;
 
@@ -258,6 +260,15 @@ public class JSimpleStyleDialog extends JDialog {
      */
     public float getPointSize() {
         return pointSize;
+    }
+
+    /**
+     * Get the selected point symbol name
+     *
+     * @return symbol name
+     */
+    public String getPointSymbolName() {
+        return pointSymbolName;
     }
 
     /**
@@ -363,7 +374,7 @@ public class JSimpleStyleDialog extends JDialog {
 
         label = new JLabel("Size");
         panel.add(label, "split 2");
-        
+
         Object[] sizes = new Object[10];
         for (int i = 1; i <= sizes.length; i++) { sizes[i-1] = Integer.valueOf(i); }
         final JComboBox pointSizeCBox = new JComboBox(sizes);
@@ -372,8 +383,21 @@ public class JSimpleStyleDialog extends JDialog {
                 pointSize = ((Number)pointSizeCBox.getModel().getSelectedItem()).intValue();
             }
         });
-        panel.add(pointSizeCBox, "wrap");
+        panel.add(pointSizeCBox);
         controls.put(pointSizeCBox, ControlCategory.POINT);
+
+        label = new JLabel("Symbol");
+        panel.add(label, "skip, split 2");
+
+        final Object[] marks = {"Circle", "Cross", "X", "Triangle", "Star"};
+        final JComboBox pointSymbolCBox = new JComboBox(marks);
+        pointSymbolCBox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                pointSymbolName = marks[pointSymbolCBox.getSelectedIndex()].toString();
+            }
+        });
+        panel.add(pointSymbolCBox, "wrap");
+        controls.put(pointSymbolCBox, ControlCategory.POINT);
 
         /*
          * Apply and Cancel buttons

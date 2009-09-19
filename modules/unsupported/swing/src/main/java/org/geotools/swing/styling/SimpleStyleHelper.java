@@ -83,7 +83,7 @@ public class SimpleStyleHelper {
 
         } else if (Point.class.isAssignableFrom(clazz) ||
                 MultiPoint.class.isAssignableFrom(clazz)) {
-            return createPointStyle(color, color, 0.5f, 3.0f);
+            return createPointStyle("Circle", color, color, 0.5f, 3.0f);
         }
 
         throw new UnsupportedOperationException("No style method for " + clazz.getName());
@@ -112,13 +112,15 @@ public class SimpleStyleHelper {
      * Create a point style with circles of a given line and fill color, opacity and size
      * @return a new Style instance
      */
-    public static Style createPointStyle(Color lineColor, Color fillColor, float opacity, float size) {
-        Mark mark = sf.getCircleMark();
-        mark.setSize(ff.literal(size));
-        mark.setStroke(sf.createStroke(ff.literal(lineColor), ff.literal(1.0f)));
-        if (size > 1.0f) {
-            mark.setFill(sf.createFill(ff.literal(fillColor), ff.literal(opacity)));
+    public static Style createPointStyle(String wellKnownName, Color lineColor, Color fillColor, float opacity, float size) {
+        Stroke stroke = sf.createStroke(ff.literal(lineColor), ff.literal(1.0f));
+        Fill fill = Fill.NULL;
+        if (size > 1.0) {
+            fill = sf.createFill(ff.literal(fillColor), ff.literal(opacity));
         }
+
+        Mark mark = sf.createMark(ff.literal(wellKnownName), stroke, fill,
+                ff.literal(size), ff.literal(0));
 
         Graphic graphic = sf.createDefaultGraphic();
         graphic.graphicalSymbols().clear();
