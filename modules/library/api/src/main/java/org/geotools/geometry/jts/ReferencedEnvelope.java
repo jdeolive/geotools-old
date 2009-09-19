@@ -289,7 +289,7 @@ public class ReferencedEnvelope extends Envelope implements org.opengis.geometry
 
     /**
      * Make sure that the specified bounding box uses the same CRS than this one.
-     *
+     * 
      * @param  bbox The other bounding box to test for compatibility.
      * @throws MismatchedReferenceSystemException if the CRS are incompatibles.
      */
@@ -507,8 +507,13 @@ public class ReferencedEnvelope extends Envelope implements org.opengis.geometry
      * @since 2.4
      */
     public void include(final BoundingBox bbox) {
-        ensureCompatibleReferenceSystem(bbox);
-        super.expandToInclude(getJTSEnvelope(bbox));
+        if( crs == null ){
+            this.crs = bbox.getCoordinateReferenceSystem();
+        }
+        else {
+            ensureCompatibleReferenceSystem(bbox);
+        }
+        super.expandToInclude(getJTSEnvelope(bbox));        
     }
 
     /**

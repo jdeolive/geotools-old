@@ -1,12 +1,6 @@
 package org.geotools.geometry.jts;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import org.geotools.referencing.crs.DefaultEngineeringCRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
@@ -103,5 +97,21 @@ public class ReferencedEnvelopeTest {
         catch (MismatchedReferenceSystemException t){
             // expected
         }
+    }
+    
+    @Test
+    public void empty() {
+        // ensure empty can grab a default CRS when starting from nothing
+        ReferencedEnvelope bbox = new ReferencedEnvelope(); // this is empty
+        assertNull(bbox.getCoordinateReferenceSystem());
+
+        ReferencedEnvelope australia = new ReferencedEnvelope(DefaultGeographicCRS.WGS84);
+        australia.include(40, 110);
+        australia.include(10, 150);
+
+        bbox.include(australia);
+        
+        assertEquals( australia.getCoordinateReferenceSystem(), bbox.getCoordinateReferenceSystem() );
+  
     }
 }
