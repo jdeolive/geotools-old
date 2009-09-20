@@ -29,13 +29,16 @@ import org.geotools.data.AbstractDataStore;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.styling.FeatureTypeStyle;
 import org.geotools.styling.Fill;
+import org.geotools.styling.Font;
 import org.geotools.styling.Graphic;
 import org.geotools.styling.Mark;
+import org.geotools.styling.PointSymbolizer;
 import org.geotools.styling.Rule;
 import org.geotools.styling.Stroke;
 import org.geotools.styling.Style;
 import org.geotools.styling.StyleFactory;
 import org.geotools.styling.Symbolizer;
+import org.geotools.styling.TextSymbolizer;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.filter.FilterFactory2;
@@ -96,7 +99,7 @@ public class SimpleStyleHelper {
     public static Style createPolygonStyle(Color outlineColor, Color fillColor, float opacity) {
         Stroke stroke = sf.createStroke(ff.literal(outlineColor), ff.literal(1.0f));
         Fill fill = sf.createFill(ff.literal(fillColor), ff.literal(opacity));
-        return wrapSymbolizer( sf.createPolygonSymbolizer(stroke, fill, null) );
+        return wrapSymbolizers( sf.createPolygonSymbolizer(stroke, fill, null) );
     }
 
     /**
@@ -105,14 +108,57 @@ public class SimpleStyleHelper {
      */
     public static Style createLineStyle(Color lineColor, float width) {
         Stroke stroke = sf.createStroke(ff.literal(lineColor), ff.literal(width));
-        return wrapSymbolizer( sf.createLineSymbolizer(stroke, null) );
+        return wrapSymbolizers( sf.createLineSymbolizer(stroke, null) );
     }
 
     /**
-     * Create a point style with circles of a given line and fill color, opacity and size
+     * Create a point style without labels
+     *
+     * @param wellKnownName one of: Circle, Square, Cross, X, Triangle or Star
+     * @param lineColor color for the point symbol outline
+     * @param fillColor color for the point symbol fill
+     * @param opacity a value between 0 and 1 for the opacity of the fill
+     * @param size size of the point symbol
+     *
      * @return a new Style instance
      */
-    public static Style createPointStyle(String wellKnownName, Color lineColor, Color fillColor, float opacity, float size) {
+    public static Style createPointStyle(
+            String wellKnownName,
+            Color lineColor,
+            Color fillColor,
+            float opacity,
+            float size) {
+
+        return createPointStyle(wellKnownName, lineColor, fillColor, opacity, size, null, null);
+    }
+
+    /**
+     * Create a point style, optionally with text labels
+     *
+     * @param wellKnownName one of: Circle, Square, Cross, X, Triangle or Star
+     * @param lineColor color for the point symbol outline
+     * @param fillColor color for the point symbol fill
+     * @param opacity a value between 0 and 1 for the opacity of the fill
+     * @param size size of the point symbol
+     *
+     * @param labelField name of the feature field (attribute) to use for labelling;
+     *        mauy be {@code null} for no labels
+     *
+     * @param labelFont GeoTools Font object to use for labelling; if {@code null}
+     *        and {@code labelField} is not {@code null} the default font will be
+     *        used
+     *
+     * @return a new Style instance
+     */
+    public static Style createPointStyle(
+            String wellKnownName,
+            Color lineColor,
+            Color fillColor,
+            float opacity,
+            float size,
+            String labelField,
+            Font labelFont) {
+
         Stroke stroke = sf.createStroke(ff.literal(lineColor), ff.literal(1.0f));
         Fill fill = Fill.NULL;
         if (size > 1.0) {
@@ -126,7 +172,18 @@ public class SimpleStyleHelper {
         graphic.graphicalSymbols().clear();
         graphic.graphicalSymbols().add(mark);
 
-        return wrapSymbolizer( sf.createPointSymbolizer(graphic, null) );
+        PointSymbolizer pointSym = sf.createPointSymbolizer(graphic, null);
+
+        if (labelField == null) {
+            return wrapSymbolizers( pointSym );
+
+        } else {
+            Font font = (labelFont == null ? sf.getDefaultFont() : labelFont);
+            TextSymbolizer textSym = sf.createTextSymbolizer(
+                    Fill.NULL, new Font[]{font}, null, ff.property(labelField), null, null);
+            return wrapSymbolizers( pointSym, textSym );
+        }
+
     }
 
     /**
@@ -136,9 +193,12 @@ public class SimpleStyleHelper {
      *
      * @return a new Style instance
      */
-    public static Style wrapSymbolizer(Symbolizer sym) {
+    public static Style wrapSymbolizers(Symbolizer ...symbolizers) {
         Rule rule = sf.createRule();
-        rule.symbolizers().add(sym);
+
+        for (Symbolizer sym : symbolizers) {
+            rule.symbolizers().add(sym);
+        }
 
         FeatureTypeStyle fts = sf.createFeatureTypeStyle(new Rule[] {rule});
 

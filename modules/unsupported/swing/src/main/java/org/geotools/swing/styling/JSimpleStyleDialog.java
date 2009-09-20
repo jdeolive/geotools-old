@@ -17,6 +17,7 @@
 
 package org.geotools.swing.styling;
 
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPoint;
@@ -33,6 +34,7 @@ import java.util.Map;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -45,9 +47,11 @@ import javax.swing.event.ChangeListener;
 import net.miginfocom.swing.MigLayout;
 import org.geotools.data.AbstractDataStore;
 import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.styling.Font;
 import org.geotools.styling.Style;
 import org.geotools.styling.StyleFactory;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.GeometryDescriptor;
 
 /**
@@ -71,16 +75,17 @@ import org.opengis.feature.type.GeometryDescriptor;
  */
 public class JSimpleStyleDialog extends JDialog {
 
+    private static StyleFactory sf = CommonFactoryFinder.getStyleFactory(null);
+
     public static final Color DEFAULT_LINE_COLOR = Color.BLACK;
     public static final Color DEFAULT_FILL_COLOR = Color.WHITE;
     public static final float DEFAULT_LINE_WIDTH = 1.0f;
     public static final float DEFAULT_OPACITY = 1.0f;
     public static final float DEFAULT_POINT_SIZE = 3.0f;
-    private static final String DEFAULT_POINT_SYMBOL_NAME = "Circle";
+    public static final String DEFAULT_POINT_SYMBOL_NAME = "Circle";
     
     private static int COLOR_ICON_SIZE = 16;
 
-    private static StyleFactory sf = CommonFactoryFinder.getStyleFactory(null);
 
     /**
      * Constants for the geometry type that the style
@@ -97,12 +102,16 @@ public class JSimpleStyleDialog extends JDialog {
     private float opacity;
     private float pointSize;
     private String pointSymbolName;
+    private boolean labelFeatures;
+    private String labelField;
+    private Font labelFont;
 
     private JColorIcon lineColorIcon;
     private JLabel lineColorLabel;
     private JColorIcon fillColorIcon;
     private JLabel fillColorLabel;
     private JLabel geomTypeLabel;
+    private JComboBox labelCBox;
 
     private static enum ControlCategory {
         LINE, FILL, POINT;
@@ -111,6 +120,8 @@ public class JSimpleStyleDialog extends JDialog {
 
     private final AbstractDataStore store;
     private String[] typeNames;
+    private int typeIndex;
+    private String[] fieldsForLabels;
 
     private boolean completed;
 
@@ -151,7 +162,9 @@ public class JSimpleStyleDialog extends JDialog {
                             dialog.getLineColor(),
                             dialog.getFillColor(),
                             dialog.getOpacity(),
-                            dialog.getPointSize());
+                            dialog.getPointSize(),
+                            dialog.getLabelField(),
+                            dialog.getLabelFont());
                     break;
             }
         }
@@ -171,7 +184,7 @@ public class JSimpleStyleDialog extends JDialog {
      * @throws IllegalStateException if the data store cannot be accessed
      */
     public JSimpleStyleDialog(AbstractDataStore store, JFrame parent) {
-        super(parent, "Basic Style Maker", true);
+        super(parent, "Simple style maker", true);
         setResizable(false);
 
         this.store = store;
@@ -187,6 +200,10 @@ public class JSimpleStyleDialog extends JDialog {
         opacity = DEFAULT_OPACITY;
         pointSize = DEFAULT_POINT_SIZE;
         pointSymbolName = DEFAULT_POINT_SYMBOL_NAME;
+        labelFeatures = false;
+        labelField = null;
+        labelFont = sf.getDefaultFont();
+
         geomType = GeomType.UNDEFINED;
         completed = false;
 
@@ -272,6 +289,29 @@ public class JSimpleStyleDialog extends JDialog {
     }
 
     /**
+     * Get the feature field (attribute) to use for
+     * labels
+     *
+     * @return field name
+     */
+    public String getLabelField() {
+        if (labelFeatures) {
+            return labelField;
+        }
+
+        return null;
+    }
+
+    /**
+     * Get the font to use for labels
+     *
+     * @return a GeoTools Font object
+     */
+    public Font getLabelFont() {
+        return labelFont;
+    }
+
+    /**
      * Create and layout the controls
      */
     private void initComponents() {
@@ -282,10 +322,13 @@ public class JSimpleStyleDialog extends JDialog {
         JLabel label = null;
         JButton btn = null;
 
+        label = new JLabel("Feature type");
+        label.setForeground(Color.BLUE);
+        panel.add(label, "wrap");
+
         ComboBoxModel model = new DefaultComboBoxModel(typeNames);
 
         final JComboBox typeCBox = new JComboBox(model);
-        typeCBox.setEditable(false);
         typeCBox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
@@ -295,15 +338,16 @@ public class JSimpleStyleDialog extends JDialog {
                 }
             }
         });
-        panel.add(typeCBox, "span 2");
+        panel.add(typeCBox, "gapbefore indent");
 
         geomTypeLabel = new JLabel();
-        panel.add(geomTypeLabel, "wrap");
+        panel.add(geomTypeLabel, "span, wrap");
 
         /*
          * Line style items
          */
         label = new JLabel("Line");
+        label.setForeground(Color.BLUE);
         panel.add(label, "wrap");
 
         btn = new JButton("Color");
@@ -312,7 +356,7 @@ public class JSimpleStyleDialog extends JDialog {
                 chooseLineColor();
             }
         });
-        panel.add(btn);
+        panel.add(btn, "gapbefore indent");
         controls.put(btn, ControlCategory.LINE);
 
         lineColorIcon = new JColorIcon(COLOR_ICON_SIZE, COLOR_ICON_SIZE, DEFAULT_LINE_COLOR);
@@ -337,7 +381,9 @@ public class JSimpleStyleDialog extends JDialog {
         /*
          * Fill style items
          */
-        panel.add( new JLabel("Fill"), "wrap" );
+        label = new JLabel("Fill");
+        label.setForeground(Color.BLUE);
+        panel.add(label, "wrap");
 
         btn = new JButton("Color");
         btn.addActionListener(new ActionListener() {
@@ -345,7 +391,7 @@ public class JSimpleStyleDialog extends JDialog {
                 chooseFillColor();
             }
         });
-        panel.add(btn);
+        panel.add(btn, "gapbefore indent");
         controls.put(btn, ControlCategory.FILL);
 
         fillColorIcon = new JColorIcon(COLOR_ICON_SIZE, COLOR_ICON_SIZE, DEFAULT_FILL_COLOR);
@@ -364,17 +410,19 @@ public class JSimpleStyleDialog extends JDialog {
                 opacity = (float)slider.getValue() / 100;
             }
         });
-        panel.add(slider, "wrap");
+        panel.add(slider, "span, wrap");
         controls.put(slider, ControlCategory.FILL);
 
 
         /*
          * Point style items
          */
-        panel.add( new JLabel("Point"), "wrap" );
+        label = new JLabel("Point");
+        label.setForeground(Color.BLUE);
+        panel.add(label, "wrap");
 
         label = new JLabel("Size");
-        panel.add(label, "split 2");
+        panel.add(label, "gapbefore indent, split 2");
 
         Object[] sizes = new Object[10];
         for (int i = 1; i <= sizes.length; i++) { sizes[i-1] = Integer.valueOf(i); }
@@ -390,7 +438,7 @@ public class JSimpleStyleDialog extends JDialog {
         label = new JLabel("Symbol");
         panel.add(label, "skip, split 2");
 
-        final Object[] marks = {"Circle", "Cross", "X", "Triangle", "Star"};
+        final Object[] marks = {"Circle", "Square", "Cross", "X", "Triangle", "Star"};
         final JComboBox pointSymbolCBox = new JComboBox(marks);
         pointSymbolCBox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -399,6 +447,45 @@ public class JSimpleStyleDialog extends JDialog {
         });
         panel.add(pointSymbolCBox, "wrap");
         controls.put(pointSymbolCBox, ControlCategory.POINT);
+
+
+        /*
+         * Label items
+         */
+        label = new JLabel("Labels");
+        label.setForeground(Color.BLUE);
+        panel.add(label, "wrap");
+
+        final JButton fontBtn = new JButton("Font");
+        fontBtn.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                chooseLabelFont();
+            }
+        });
+
+        labelCBox = new JComboBox();
+        labelCBox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                labelField = labelCBox.getModel().getSelectedItem().toString();
+            }
+        });
+
+        final JCheckBox checkBox = new JCheckBox();
+        checkBox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                labelFeatures = checkBox.isSelected();
+                labelCBox.setEnabled(labelFeatures);
+                fontBtn.setEnabled(labelFeatures);
+            }
+        });
+        panel.add(checkBox, "gapbefore indent, span, split 3");
+
+        label = new JLabel("Field");
+        panel.add(label);
+        labelCBox.setEnabled(checkBox.isSelected());
+        panel.add(labelCBox, "wrap");
+        fontBtn.setEnabled(checkBox.isSelected());
+        panel.add(fontBtn, "wrap");
 
         /*
          * Apply and Cancel buttons
@@ -410,7 +497,7 @@ public class JSimpleStyleDialog extends JDialog {
                 setVisible(false);
             }
         });
-        panel.add(btn, "skip 2, split 2, align right");
+        panel.add(btn, "span, split 2, align right");
 
         btn = new JButton("Cancel");
         btn.addActionListener(new ActionListener() {
@@ -430,9 +517,10 @@ public class JSimpleStyleDialog extends JDialog {
      *
      * @param typeIndex index into the typeNames member field
      */
-    private void setType(int typeIndex) throws IOException {
+    private void setType(int index) throws IOException {
         SimpleFeatureType type = null;
-        type = store.getSchema(typeNames[typeIndex]);
+        typeIndex = index;
+        type = store.getSchema(typeNames[index]);
 
         GeometryDescriptor desc = type.getGeometryDescriptor();
         Class<?> clazz = desc.getType().getBinding();
@@ -440,22 +528,23 @@ public class JSimpleStyleDialog extends JDialog {
         if (Polygon.class.isAssignableFrom(clazz) ||
                 MultiPolygon.class.isAssignableFrom(clazz)) {
             geomType = GeomType.POLYGON;
-            geomTypeLabel.setText("Polygon features");
+            geomTypeLabel.setText("Geometry: polygon");
 
         } else if (LineString.class.isAssignableFrom(clazz) ||
                 MultiLineString.class.isAssignableFrom(clazz)) {
             geomType = GeomType.LINE;
-            geomTypeLabel.setText("Line features");
+            geomTypeLabel.setText("Geometry: line");
 
         } else if (Point.class.isAssignableFrom(clazz) ||
                 MultiPoint.class.isAssignableFrom(clazz)) {
             geomType = GeomType.POINT;
-            geomTypeLabel.setText("Point features");
+            geomTypeLabel.setText("Geometry: point");
 
         } else {
             throw new UnsupportedOperationException("No style method for " + clazz.getName());
         }
 
+        // enable relevant components
         for (Component c : controls.keySet()) {
             switch (controls.get(c)) {
                 case LINE:
@@ -471,6 +560,21 @@ public class JSimpleStyleDialog extends JDialog {
                     break;
             }
         }
+
+        // set the fields available for labels
+        SimpleFeatureType schema = store.getSchema(typeNames[typeIndex]);
+        fieldsForLabels = new String[schema.getAttributeCount() - 1];
+
+        int k = 0;
+        for (AttributeDescriptor attr : schema.getAttributeDescriptors()) {
+            if ( Geometry.class.isAssignableFrom( attr.getType().getBinding() ) ) {
+                continue;
+            }
+
+            fieldsForLabels[k++] = attr.getLocalName();
+        }
+
+        labelCBox.setModel(new DefaultComboBoxModel(fieldsForLabels));
     }
 
     /**
@@ -497,4 +601,10 @@ public class JSimpleStyleDialog extends JDialog {
         }
     }
 
+    private void chooseLabelFont() {
+        Font font = JFontChooser.showDialog(this, "Choose label font", labelFont);
+        if (font != null) {
+            labelFont = font;
+        }
+    }
 }
