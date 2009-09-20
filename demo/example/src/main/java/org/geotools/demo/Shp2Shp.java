@@ -41,7 +41,7 @@ import org.opengis.referencing.crs.CRSAuthorityFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 public class Shp2Shp {
-	public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
         System.out.println("Welcome to GeoTools:" + GeoTools.getVersion());
 
         File file = promptShapeFile(args);
@@ -55,7 +55,6 @@ public class Shp2Shp {
 
         System.out.println("Reading content " + typeName);
         FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = dataStore.getFeatureSource(typeName);
-
         SimpleFeatureType simpleFeatureType = featureSource.getSchema();
         System.out.println("Header: " + DataUtilities.spec( simpleFeatureType ));
 
@@ -102,49 +101,6 @@ public class Shp2Shp {
         System.exit(0);
     }
 
-    private static File getNewShapeFile(File file) {
-        String path = file.getAbsolutePath();
-        String newPath = path.substring(0, path.length() - 4) + "2.shp";
-
-        JFileDataStoreChooser chooser = new JFileDataStoreChooser("shp");
-        chooser.setDialogTitle("Save reprojected shapefile");
-        chooser.setSelectedFile(new File(newPath));
-
-        int returnVal = chooser.showSaveDialog(null);
-
-        if (returnVal != JFileDataStoreChooser.APPROVE_OPTION) {
-            System.exit(0);
-        }
-        File newFile = chooser.getSelectedFile();
-        if (newFile.equals(file)) {
-            System.out.println("Cannot replace " + file);
-            System.exit(0);
-        }
-        return newFile;
-    }
-
-    private static CoordinateReferenceSystem getCoordinateReferenceSystem(
-            String message) throws Exception {
-
-        CRSAuthorityFactory authorityFactory = ReferencingFactoryFinder.getCRSAuthorityFactory("EPSG", null);
-        Set<String> codes = authorityFactory.getAuthorityCodes(CoordinateReferenceSystem.class);
-        List<String> desc = new ArrayList<String>();
-        
-        for (String code : codes) {
-            desc.add(code + ": " + authorityFactory.getDescriptionText("EPSG:" + code).toString());
-        }
-        String selected = (String) JOptionPane.showInputDialog(null, message,
-                "Choose a Projection", JOptionPane.QUESTION_MESSAGE, null,
-                desc.toArray(), "EPSG:4326");
-
-        if (selected == null) {
-            System.exit(0);
-        }
-
-        String selectedCode = selected.substring(0, selected.indexOf(':'));
-        return CRS.decode("EPSG:" + selectedCode);
-    }
-
     private static File promptShapeFile(String[] args)
             throws FileNotFoundException {
         File file;
@@ -168,4 +124,52 @@ public class Shp2Shp {
         }
         return file;
     }
+
+// begin getCRS
+    private static CoordinateReferenceSystem getCoordinateReferenceSystem(
+            String message) throws Exception {
+
+        CRSAuthorityFactory authorityFactory = ReferencingFactoryFinder.getCRSAuthorityFactory("EPSG", null);
+        Set<String> codes = authorityFactory.getAuthorityCodes(CoordinateReferenceSystem.class);
+        List<String> desc = new ArrayList<String>();
+        
+        for (String code : codes) {
+            desc.add(code + ": " + authorityFactory.getDescriptionText("EPSG:" + code).toString());
+        }
+        String selected = (String) JOptionPane.showInputDialog(null, message,
+                "Choose a Projection", JOptionPane.QUESTION_MESSAGE, null,
+                desc.toArray(), "EPSG:4326");
+
+        if (selected == null) {
+            System.exit(0);
+        }
+
+        String selectedCode = selected.substring(0, selected.indexOf(':'));
+        return CRS.decode("EPSG:" + selectedCode);
+    }
+// end getCRS
+
+// begin getNewShapefile
+    private static File getNewShapeFile(File file) {
+        String path = file.getAbsolutePath();
+        String newPath = path.substring(0, path.length() - 4) + "2.shp";
+
+        JFileDataStoreChooser chooser = new JFileDataStoreChooser("shp");
+        chooser.setDialogTitle("Save reprojected shapefile");
+        chooser.setSelectedFile(new File(newPath));
+
+        int returnVal = chooser.showSaveDialog(null);
+
+        if (returnVal != JFileDataStoreChooser.APPROVE_OPTION) {
+            System.exit(0);
+        }
+        File newFile = chooser.getSelectedFile();
+        if (newFile.equals(file)) {
+            System.out.println("Cannot replace " + file);
+            System.exit(0);
+        }
+        return newFile;
+    }
+// end getNewShapefile
+
 }

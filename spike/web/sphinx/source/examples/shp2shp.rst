@@ -67,4 +67,11 @@ Application
 
    .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/Shp2Shp.java
       :language: java
+      :lines: 10-60, 102-127, 175
+
+Similar to the :ref:`quickstart` example, we get an input file path and name with the **promptShapeFile**
+method that takes the name from the command line arg if provided, or else displays a **JFileDataStoreChooser**
+dialog. Once we have the file name we connect to a **DataStore** (it will be an instance of **ShapefileDataStore**),
+then read the data and print the header details to the console.
+
 
