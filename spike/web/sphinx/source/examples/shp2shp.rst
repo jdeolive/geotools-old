@@ -3,7 +3,8 @@
 SHP 2 SHP Lab
 =============
 
-This page covers how to write a shapefile out to disk. We are going to make use of maven (as covered in quickstart).
+In this tutorial we will see how to read a shapefile, change its map projection, and then save the results as
+a new shapefile. We will use of maven to build the example application (as introduced in the :ref:`quickstart`).
 
 Additional information:
  * `Shapefile Plugin <http://docs.codehaus.org/display/GEOTDOC/Shapefile+Plugin>`_
@@ -24,45 +25,40 @@ This example uses the same dependencies as the quickstart; please ensure your po
     <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-main</artifactId>
-      <version>2.5.7</version>
+      <version>2.6-M2</version>
     </dependency>
     <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-shapefile</artifactId>
-      <version>2.5.7</version>
+      <version>2.6-M2</version>
     </dependency>
     <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-epsg-hsql</artifactId>
-      <version>2.5.7</version>
+      <version>2.6-M2</version>
     </dependency>
   </dependencies>
 
-Although 2.5.7 is shown above please please use make use of the correct "version" for the GeoTools you
+Although 2.6-M2 is shown above please please use make use of the correct "version" for the GeoTools you
 wish towork with.
 
-Refresh your IDE Project Files
-------------------------------
+.. Tip:: If you are using Netbeans you can edit the pom.xml file within the IDE (it is listed
+         under Project files in the Projects window). When you save your edits the library
+         entries for your project will update automatically.
 
-1. You will need to kick these dependencies into your IDE with another::
+         If you are using Eclipse you will need to kick the dependencies into your IDE as
+         follows:
 
-    C:\java\example>mvn eclipse:eclipse
-
-2. Hit refresh in Eclipse
-3. You can now see the new dependencies - and everything else they make use of!
+         * At the command line enter ``mvn eclipse:eclipse``
+         * Hit refresh in Eclipse
 
 Example Code
 ------------
 
-The example code is available directly from::
- * Directly from svn: Shp2Shp.java_.
- * included in the demo directory when you downloaded geotools source
+The example code is available directly from svn: Shp2Shp.java_ or, if you download the GeoTools
+source you can find it in the demo directory.
 
 .. _Shp2Shp.java:  http://svn.geotools.org/trunk/demo/example/src/main/java/org/geotools/demo/Shp2Shp.java
-
-
-The code has been cut & pasted into the document here; but please consider either of the above sources as
-they may have useful corrections or clarifications added since this document has been written.
 
 Application
 -----------

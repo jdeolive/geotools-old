@@ -11,8 +11,8 @@ Follow the :ref:`quickstart` to get up and running with GeoTools in minutes.
 Examples
 --------
 
-Visit the :ref:`examples` section illustrates some of the common uses of 
-GeoToools.
+Visit the :ref:`examples` section for tutorial notes and source code that
+illustrate some of the common uses of GeoToools.
 
 Reference
 ---------
