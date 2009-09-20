@@ -27,12 +27,17 @@ import java.awt.Color;
 import java.io.IOException;
 import org.geotools.data.AbstractDataStore;
 import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.styling.AnchorPoint;
+import org.geotools.styling.Displacement;
 import org.geotools.styling.FeatureTypeStyle;
 import org.geotools.styling.Fill;
 import org.geotools.styling.Font;
 import org.geotools.styling.Graphic;
+import org.geotools.styling.LabelPlacement;
+import org.geotools.styling.LineSymbolizer;
 import org.geotools.styling.Mark;
 import org.geotools.styling.PointSymbolizer;
+import org.geotools.styling.PolygonSymbolizer;
 import org.geotools.styling.Rule;
 import org.geotools.styling.Stroke;
 import org.geotools.styling.Style;
@@ -93,7 +98,12 @@ public class SimpleStyleHelper {
     }
 
     /**
-     * Create a polygon style with give colors and opacity
+     * Create a polygon style with the given colors and opacity.
+     *
+     * @param outlineColor color of polygon outlines
+     * @param fillColor color for the fill
+     * @param opacity proportional opacity (0 to 1)
+     *
      * @return a new Style instance
      */
     public static Style createPolygonStyle(Color outlineColor, Color fillColor, float opacity) {
@@ -103,12 +113,86 @@ public class SimpleStyleHelper {
     }
 
     /**
+     * Create a polygon style with the given colors, opacity and optional labels.
+     *
+     * @param outlineColor color of polygon outlines
+     * @param fillColor color for the fill
+     * @param opacity proportional opacity (0 to 1)
+     *
+     * @param labelField name of the feature field (attribute) to use for labelling;
+     *        mauy be {@code null} for no labels
+     *
+     * @param labelFont GeoTools Font object to use for labelling; if {@code null}
+     *        and {@code labelField} is not {@code null} the default font will be
+     *        used
+     *
+     * @return a new Style instance
+     */
+    public static Style createPolygonStyle(Color outlineColor, Color fillColor, float opacity,
+            String labelField, Font labelFont) {
+        Stroke stroke = sf.createStroke(ff.literal(outlineColor), ff.literal(1.0f));
+        Fill fill = sf.createFill(ff.literal(fillColor), ff.literal(opacity));
+        PolygonSymbolizer polySym = sf.createPolygonSymbolizer(stroke, fill, null);
+
+        if (labelField == null) {
+            return wrapSymbolizers( polySym );
+
+        } else {
+            Font font = (labelFont == null ? sf.getDefaultFont() : labelFont);
+            Fill labelFill = sf.createFill(ff.literal(Color.BLACK));
+            
+            TextSymbolizer textSym = sf.createTextSymbolizer(
+                    labelFill, new Font[]{font}, null, ff.property(labelField), null, null);
+
+            return wrapSymbolizers( polySym, textSym );
+        }
+    }
+
+    /**
      * Create a line style with given color and line width
+     *
+     * @param lineColor color of lines
+     * @param width width of lines
+     *
      * @return a new Style instance
      */
     public static Style createLineStyle(Color lineColor, float width) {
         Stroke stroke = sf.createStroke(ff.literal(lineColor), ff.literal(width));
         return wrapSymbolizers( sf.createLineSymbolizer(stroke, null) );
+    }
+
+    /**
+     * Create a line style with given color, line width and optional labels
+     *
+     * @param lineColor color of lines
+     * @param width width of lines
+     *
+     * @param labelField name of the feature field (attribute) to use for labelling;
+     *        mauy be {@code null} for no labels
+     *
+     * @param labelFont GeoTools Font object to use for labelling; if {@code null}
+     *        and {@code labelField} is not {@code null} the default font will be
+     *        used
+     *
+     * @return a new Style instance
+     */
+    public static Style createLineStyle(Color lineColor, float width,
+            String labelField, Font labelFont) {
+        Stroke stroke = sf.createStroke(ff.literal(lineColor), ff.literal(width));
+        LineSymbolizer lineSym = sf.createLineSymbolizer(stroke, null);
+
+        if (labelField == null) {
+            return wrapSymbolizers( lineSym );
+
+        } else {
+            Font font = (labelFont == null ? sf.getDefaultFont() : labelFont);
+            Fill labelFill = sf.createFill(ff.literal(Color.BLACK));
+
+            TextSymbolizer textSym = sf.createTextSymbolizer(
+                    labelFill, new Font[]{font}, null, ff.property(labelField), null, null);
+
+            return wrapSymbolizers( lineSym, textSym );
+        }
     }
 
     /**
@@ -179,8 +263,14 @@ public class SimpleStyleHelper {
 
         } else {
             Font font = (labelFont == null ? sf.getDefaultFont() : labelFont);
+            Fill labelFill = sf.createFill(ff.literal(Color.BLACK));
+            AnchorPoint anchor = sf.createAnchorPoint(ff.literal(0.5), ff.literal(0.0));
+            Displacement disp = sf.createDisplacement(ff.literal(0), ff.literal(5));
+            LabelPlacement placement = sf.createPointPlacement(anchor, disp, ff.literal(0));
+
             TextSymbolizer textSym = sf.createTextSymbolizer(
-                    Fill.NULL, new Font[]{font}, null, ff.property(labelField), null, null);
+                    labelFill, new Font[]{font}, null, ff.property(labelField), placement, null);
+
             return wrapSymbolizers( pointSym, textSym );
         }
 

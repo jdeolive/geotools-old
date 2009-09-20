@@ -127,7 +127,7 @@ class JFontChooser extends JDialog {
      *        for the GeoTools default font
      */
     public JFontChooser(JFrame owner, String title, Font initialFont) {
-        super(owner, title);
+        super(owner, title, true);
         setResizable(false);
         selectedFont = (initialFont == null ? sf.getDefaultFont() : initialFont);
 
@@ -144,7 +144,7 @@ class JFontChooser extends JDialog {
      *        for the GeoTools default font
      */
     public JFontChooser(JDialog owner, String title, Font initialFont) {
-        super(owner, title);
+        super(owner, title, true);
         setResizable(false);
         selectedFont = (initialFont == null ? sf.getDefaultFont() : initialFont);
 
@@ -183,7 +183,6 @@ class JFontChooser extends JDialog {
         familyCBox = new JComboBox(families);
         familyCBox.setSelectedIndex(familyIndex);
         familyCBox.addActionListener(new ActionListener() {
-
             public void actionPerformed(ActionEvent e) {
                 familyIndex = familyCBox.getSelectedIndex();
                 showSample();
@@ -197,7 +196,6 @@ class JFontChooser extends JDialog {
         styleCBox = new JComboBox(styles);
         styleCBox.setSelectedIndex(styleIndex);
         styleCBox.addActionListener(new ActionListener() {
-
             public void actionPerformed(ActionEvent e) {
                 styleIndex = styleCBox.getSelectedIndex();
                 showSample();
@@ -211,7 +209,6 @@ class JFontChooser extends JDialog {
         weightCBox = new JComboBox(weights);
         weightCBox.setSelectedIndex(weightIndex);
         weightCBox.addActionListener(new ActionListener() {
-
             public void actionPerformed(ActionEvent e) {
                 weightIndex = weightCBox.getSelectedIndex();
                 showSample();
@@ -225,7 +222,6 @@ class JFontChooser extends JDialog {
         sizeCBox = new JComboBox(sizes);
         sizeCBox.setSelectedIndex(sizeIndex);
         sizeCBox.addActionListener(new ActionListener() {
-
             public void actionPerformed(ActionEvent e) {
                 sizeIndex = sizeCBox.getSelectedIndex();
                 showSample();
@@ -314,11 +310,12 @@ class JFontChooser extends JDialog {
 
     private void showSample() {
         StringBuilder sb = new StringBuilder(families[familyIndex]);
+        java.awt.Font f;
         if (weightIndex == 0) {
             if (styleIndex == 0) {
                 sb.append("-PLAIN-");
             } else {
-                sb.append("-PLAINITALIC-");
+                sb.append("-ITALIC-");
             }
         } else {
             if (styleIndex == 0) {
@@ -342,6 +339,6 @@ class JFontChooser extends JDialog {
                 ff.literal(families[familyIndex]),
                 ff.literal(styles[styleIndex]),
                 ff.literal(weights[weightIndex]),
-                ff.literal(sizes[sizeIndex]));
+                ff.literal(String.valueOf(sizes[sizeIndex])));
     }
 }

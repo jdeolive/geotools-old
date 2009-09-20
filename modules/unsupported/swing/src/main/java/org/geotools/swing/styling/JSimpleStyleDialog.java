@@ -147,13 +147,17 @@ public class JSimpleStyleDialog extends JDialog {
                     style = SimpleStyleHelper.createPolygonStyle(
                             dialog.getLineColor(),
                             dialog.getFillColor(),
-                            dialog.getOpacity());
+                            dialog.getOpacity(),
+                            dialog.getLabelField(),
+                            dialog.getLabelFont());
                     break;
 
                 case LINE:
                     style = SimpleStyleHelper.createLineStyle(
                             dialog.getLineColor(),
-                            dialog.getLineWidth());
+                            dialog.getLineWidth(),
+                            dialog.getLabelField(),
+                            dialog.getLabelFont());
                     break;
 
                 case POINT:
