@@ -23,6 +23,7 @@ import java.awt.image.IndexColorModel;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import javax.measure.unit.Unit;
@@ -771,7 +772,11 @@ public class GridSampleDimension implements SampleDimension, Serializable {
      * @see #getCategory
      */
     public List<Category> getCategories() {
-        return categories;
+        if (categories == null) {
+            return Collections.emptyList();
+        } else {
+            return categories;
+        }
     }
 
     /**
