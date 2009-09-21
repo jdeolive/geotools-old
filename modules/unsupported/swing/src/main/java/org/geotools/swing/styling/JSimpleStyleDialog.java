@@ -48,6 +48,7 @@ import net.miginfocom.swing.MigLayout;
 import org.geotools.data.AbstractDataStore;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.styling.Font;
+import org.geotools.styling.SLD;
 import org.geotools.styling.Style;
 import org.geotools.styling.StyleFactory;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -57,7 +58,7 @@ import org.opengis.feature.type.GeometryDescriptor;
 /**
  * A dialog to prompt the user for feature style choices. It has a static
  * method to display the dialog and then create a new {@code Style} instance
- * using the {@code SimpleStyleHelper} class.
+ * using the {@code SLD} helper class.
  * <p>
  * Example of use:
  * <pre><code>
@@ -67,6 +68,8 @@ import org.opengis.feature.type.GeometryDescriptor;
  *    // create a map layer using this style
  * }
  * </code></pre>
+ *
+ * @see SLD
  *
  * @author Michael Bedward
  * @since 2.6
@@ -144,7 +147,7 @@ public class JSimpleStyleDialog extends JDialog {
         if (dialog.completed()) {
             switch (dialog.getGeomType()) {
                 case POLYGON:
-                    style = SimpleStyleHelper.createPolygonStyle(
+                    style = SLD.createPolygonStyle(
                             dialog.getLineColor(),
                             dialog.getFillColor(),
                             dialog.getOpacity(),
@@ -153,7 +156,7 @@ public class JSimpleStyleDialog extends JDialog {
                     break;
 
                 case LINE:
-                    style = SimpleStyleHelper.createLineStyle(
+                    style = SLD.createLineStyle(
                             dialog.getLineColor(),
                             dialog.getLineWidth(),
                             dialog.getLabelField(),
@@ -161,7 +164,7 @@ public class JSimpleStyleDialog extends JDialog {
                     break;
 
                 case POINT:
-                    style = SimpleStyleHelper.createPointStyle(
+                    style = SLD.createPointStyle(
                             dialog.getPointSymbolName(),
                             dialog.getLineColor(),
                             dialog.getFillColor(),
