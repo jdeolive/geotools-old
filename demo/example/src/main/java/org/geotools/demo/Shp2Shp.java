@@ -7,6 +7,7 @@
  *    This file is hereby placed into the Public Domain. This means anyone is
  *    free to do whatever they wish with this file. Use it well and enjoy!
  */
+// begin source
 package org.geotools.demo;
 
 import java.io.File;
@@ -41,6 +42,7 @@ import org.opengis.referencing.crs.CRSAuthorityFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 public class Shp2Shp {
+// begin main
     public static void main(String[] args) throws Exception {
         System.out.println("Welcome to GeoTools:" + GeoTools.getVersion());
 
@@ -100,7 +102,8 @@ public class Shp2Shp {
         }
         System.exit(0);
     }
-
+// end main
+// begin promptShapefile
     private static File promptShapeFile(String[] args)
             throws FileNotFoundException {
         File file;
@@ -124,7 +127,7 @@ public class Shp2Shp {
         }
         return file;
     }
-
+// end promptShapefile
 // begin getCRS
     private static CoordinateReferenceSystem getCoordinateReferenceSystem(
             String message) throws Exception {

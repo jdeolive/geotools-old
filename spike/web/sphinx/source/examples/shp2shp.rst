@@ -25,22 +25,19 @@ This example uses the same dependencies as the quickstart; please ensure your po
     <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-main</artifactId>
-      <version>2.6-M2</version>
+      <version>${geotools.version}</version>
     </dependency>
     <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-shapefile</artifactId>
-      <version>2.6-M2</version>
+      <version>${geotools.version}</version>
     </dependency>
     <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-epsg-hsql</artifactId>
-      <version>2.6-M2</version>
+      <version>${geotools.version}</version>
     </dependency>
   </dependencies>
-
-Although 2.6-M2 is shown above please please use make use of the correct "version" for the GeoTools you
-wish towork with.
 
 .. Tip:: If you are using Netbeans you can edit the pom.xml file within the IDE (it is listed
          under Project files in the Projects window). When you save your edits the library
@@ -62,16 +59,57 @@ source you can find it in the demo directory.
 
 Application
 -----------
+
 1. Please create the file **Shp2Shp.java**
 2. Copy and paste in the following code:
 
    .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/Shp2Shp.java
       :language: java
-      :lines: 10-60, 102-127, 175
+      :start-after: // begin source
+      :end-before: // begin main
 
-Similar to the :ref:`quickstart` example, we get an input file path and name with the **promptShapeFile**
-method that takes the name from the command line arg if provided, or else displays a **JFileDataStoreChooser**
-dialog. Once we have the file name we connect to a **DataStore** (it will be an instance of **ShapefileDataStore**),
-then read the data and print the header details to the console.
+Getting the input shapefile
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+The following method reads a file name from the command line or, if not provided, displays a dialog:
+
+   .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/Shp2Shp.java
+      :language: java
+      :start-after: // begin promptShapefile
+      :end-before: // end promptShapefile
+
+Getting a new projection
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Here we get a list of EPSG_ identifiers for coordinate reference systems, plus their summary descriptions,
+and display them for the user to select the new CRS:
+
+.. _EPSG: http://www.epsg-registry.org/ 
+
+   .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/Shp2Shp.java
+      :language: java
+      :start-after: // begin getCRS
+      :end-before: // end getCRS
+
+Getting the output shapefile
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following method prompts the user for an output shapefile:
+
+
+   .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/Shp2Shp.java
+      :language: java
+      :start-after: // begin getNewShapefile
+      :end-before: // end getNewShapefile
+
+Putting it all together in the main method
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Finally, here is the main method that does the work of reading the input shapefile, re-projecting
+the features and writing them out to the new shapefile:
+
+   .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/Shp2Shp.java
+      :language: java
+      :start-after: // begin main
+      :end-before: // end main
 
