@@ -64,16 +64,6 @@
      <!-- ================================================== -->
      <!--     Modules kicked out of the build                -->
      <!-- ================================================== -->
-     <!-- these modules do not compile; some are just here   -->
-     <!-- as a historical curisosity                         -->
-     <profile>
-       <id>archive</id>
-       <modules>
-         <module>ogr</module>
-         <module>widgets-swing</module>
-         <module>widgets-swing-pending</module>
-       </modules>
-     </profile>
 
      <!-- These modules have been removed from the build     -->
      <!-- so as not to clash with the new swing module.      -->

@@ -357,7 +357,7 @@ public class JSimpleStyleDialog extends JDialog {
         label.setForeground(Color.BLUE);
         panel.add(label, "wrap");
 
-        btn = new JButton("Color");
+        btn = new JButton("Color...");
         btn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 chooseLineColor();
@@ -392,7 +392,7 @@ public class JSimpleStyleDialog extends JDialog {
         label.setForeground(Color.BLUE);
         panel.add(label, "wrap");
 
-        btn = new JButton("Color");
+        btn = new JButton("Color...");
         btn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 chooseFillColor();
@@ -463,7 +463,7 @@ public class JSimpleStyleDialog extends JDialog {
         label.setForeground(Color.BLUE);
         panel.add(label, "wrap");
 
-        final JButton fontBtn = new JButton("Font");
+        final JButton fontBtn = new JButton("Font...");
         fontBtn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 chooseLabelFont();

@@ -16,7 +16,7 @@
  */
 
 /**
- * A dialog and helper class to create basic rendering styles.
+ * Dialogs to create basic rendering styles.
  */
 package org.geotools.swing.styling;
 
