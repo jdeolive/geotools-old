@@ -27,7 +27,7 @@ To start with you will need a CSV file.
 Dependencies
 ------------
 
-This example uses the same dependencies as the quickstart; please ensure your pom.xml includes the following::
+This example uses the same dependencies as the :ref:`quickstart`. Please ensure your pom.xml includes the following::
 
   <dependencies>
     <dependency>
@@ -39,18 +39,16 @@ This example uses the same dependencies as the quickstart; please ensure your po
     <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-shapefile</artifactId>
-      <version>2.5.7</version>
+      <version>${geotools.version}</version>
     </dependency>
     <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-epsg-hsql</artifactId>
-      <version>2.5.7</version>
+      <version>${geotools.version}</version>
     </dependency>
   </dependencies>
 
 Please note that the jars mentioned above will pull in a host of other dependencies (such as the hsql database driver).
-Although 2.5.7 is shown above please please use make use of the correct "version" for the GeoTools you
-wish to work with.
 
 Example
 -------
@@ -73,12 +71,8 @@ Main Application
 Prompt for CSV File
 -------------------
 
-Our first method will prompt the user for the CSV file to load. The method checks
-the provided command line arguments and will only prompt the user if a csv files
-was not provided on the command line.
-
-1. Select your **Csv2Shape.java** file
-2. Add the following method
+Here is the method to get the input csv file name from the command line or, if not provided, via a
+**JFileDataStoreChooser** dialog:
 
    .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/Csv2Shape.java
       :language: java
@@ -121,12 +115,12 @@ Things to note as we create the shapefile:
  * Our SimpleFeatureType did not include CoordinateReferenceSystem information (needed to make a .prj file) so we are going to call forceSchemaCRS ourself
  * Use of a Transaction to safely add the FeatureCollection in one go
 
-Here is the remaining code:
+Here is the main method with the additional code:
 
    .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/Csv2Shape.java
       :language: java
-      :start-after: // create shapefile from feature collection
-      :end-before: // we are actually exiting because we will use a Swing JFileChooser
+      :start-after: // start main
+      :end-before: // end main
 
 Running the Application
 -----------------------

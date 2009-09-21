@@ -59,6 +59,7 @@ public class Csv2Shape {
      * @param args
      * @throws Exception
      */
+    // start main
     public static void main(String[] args) throws Exception {
         
         // read csv file into feature collection
@@ -119,9 +120,11 @@ public class Csv2Shape {
         } finally {
             transaction.close();
         }
+
         // we are actually exiting because we will use a Swing JFileChooser
         System.exit(0); 
     }
+    // end main
 
     // start getCSVFile
     /**
