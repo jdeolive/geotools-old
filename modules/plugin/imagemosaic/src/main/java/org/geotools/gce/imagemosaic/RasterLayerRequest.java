@@ -31,7 +31,6 @@ import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.OverviewPolicy;
-import org.geotools.coverageio.gdal.BaseGDALGridFormat;
 import org.geotools.data.DataSourceException;
 import org.geotools.factory.Hints;
 import org.geotools.geometry.GeneralEnvelope;
@@ -309,7 +308,7 @@ class RasterLayerRequest {
 	        // and TileHeight are integer values)
 	        //
 	        // //
-	        if (name.equals(BaseGDALGridFormat.SUGGESTED_TILE_SIZE.getName())) {
+	        if (name.equals(ImageMosaicFormat.SUGGESTED_TILE_SIZE.getName())) {
 	            final String suggestedTileSize = (String) value;
 	
 	            // Preliminary checks on parameter value
@@ -317,9 +316,9 @@ class RasterLayerRequest {
 	                    && (suggestedTileSize.trim().length() > 0)) {
 	
 	                if (suggestedTileSize
-	                        .contains(BaseGDALGridFormat.TILE_SIZE_SEPARATOR)) {
+	                        .contains(ImageMosaicFormat.TILE_SIZE_SEPARATOR)) {
 	                    final String[] tilesSize = suggestedTileSize
-	                            .split(BaseGDALGridFormat.TILE_SIZE_SEPARATOR);
+	                            .split(ImageMosaicFormat.TILE_SIZE_SEPARATOR);
 	                    if (tilesSize.length == 2) {
 	                        try {
 	                            // Getting suggested tile size
@@ -468,7 +467,7 @@ class RasterLayerRequest {
         // and TileHeight are integer values)
         //
         // //
-        if (name.equals(BaseGDALGridFormat.SUGGESTED_TILE_SIZE.getName())) {
+        if (name.equals(ImageMosaicFormat.SUGGESTED_TILE_SIZE.getName())) {
             final String suggestedTileSize = (String) param.getValue();
 
             // Preliminary checks on parameter value
@@ -476,9 +475,9 @@ class RasterLayerRequest {
                     && (suggestedTileSize.trim().length() > 0)) {
 
                 if (suggestedTileSize
-                        .contains(BaseGDALGridFormat.TILE_SIZE_SEPARATOR)) {
+                        .contains(ImageMosaicFormat.TILE_SIZE_SEPARATOR)) {
                     final String[] tilesSize = suggestedTileSize
-                            .split(BaseGDALGridFormat.TILE_SIZE_SEPARATOR);
+                            .split(ImageMosaicFormat.TILE_SIZE_SEPARATOR);
                     if (tilesSize.length == 2) {
                         try {
                             // Getting suggested tile size
