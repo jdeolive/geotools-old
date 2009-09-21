@@ -102,13 +102,15 @@ class RasterManager {
 				FileChannel channel = null;
 				try {
 
-					// // Get a file channel for the file
+					//  Get a file channel for the file
 					File file = DataUtilities.urlToFile(parent.sourceURL);
-					channel = new RandomAccessFile(file, "rw").getChannel();
-
-					// Create a shared lock on the file.
-					// This method blocks until it can retrieve the lock.
-					lock = channel.lock(0, Long.MAX_VALUE, true);
+					if(file.canWrite()){
+						channel = new RandomAccessFile(file, "rw").getChannel();
+	
+						// Create a shared lock on the file.
+						// This method blocks until it can retrieve the lock.
+						lock = channel.lock(0, Long.MAX_VALUE, true);
+					}
 
 					// now check the modified time and rebuild the index as
 					// needed
@@ -151,7 +153,7 @@ class RasterManager {
 						if (LOGGER.isLoggable(Level.FINE))
 							LOGGER.log(Level.FINE, e.getLocalizedMessage(), e);
 					} finally {
-						lock = null;
+						channel = null;
 					}
 				}
 

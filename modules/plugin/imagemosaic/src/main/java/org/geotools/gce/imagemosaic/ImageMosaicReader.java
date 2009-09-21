@@ -183,8 +183,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 		//
 		// /////////////////////////////////////////////////////////////////////
 		if (source == null) {
-			final IOException ex = new IOException(
-					"ImageMosaicReader:No source set to read this coverage.");
+			final IOException ex = new IOException("ImageMosaicReader:No source set to read this coverage.");
 			if (LOGGER.isLoggable(Level.WARNING))
 				LOGGER.log(Level.WARNING, ex.getLocalizedMessage(), ex);
 			throw new DataSourceException(ex);
@@ -209,8 +208,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 						+ sourceURL.toString());
 			final String[] typeNames = tileIndexStore.getTypeNames();
 			if (typeNames.length <= 0)
-				throw new IllegalArgumentException(
-						"Problems when opening the index, no typenames for the schema are defined");
+				throw new IllegalArgumentException("Problems when opening the index, no typenames for the schema are defined");
 	
 			String typeName = typeNames[0];
 			FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = tileIndexStore.getFeatureSource(typeName);
@@ -223,9 +221,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 			final Object tempCRS = this.hints.get(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM);
 			if (tempCRS != null) {
 				this.crs = (CoordinateReferenceSystem) tempCRS;
-				LOGGER.log(Level.WARNING, new StringBuffer(
-						"Using forced coordinate reference system ").append(
-						crs.toWKT()).toString());
+				LOGGER.log(Level.WARNING, "Using forced coordinate reference system "+crs.toWKT().toString());
 			} else {
 				final CoordinateReferenceSystem tempcrs = featureSource.getSchema().getGeometryDescriptor().getCoordinateReferenceSystem();
 				if (tempcrs == null) {
