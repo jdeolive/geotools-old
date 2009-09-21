@@ -83,8 +83,6 @@ public class JMapFrame extends JFrame {
         frame.enableToolBar(true);
         frame.initComponents();
 
-        frame.setMapContext(context);
-
         frame.setSize(500, 500);
 
         SwingUtilities.invokeLater(new Runnable() {
@@ -129,6 +127,7 @@ public class JMapFrame extends JFrame {
         // the map pane is the one element that is always displayed
         mapPane = new JMapPane();
         mapPane.setBackground(Color.WHITE);
+        mapPane.setMapContext(context);
         mapPane.setRenderer(renderer);
     }
 
@@ -331,6 +330,17 @@ public class JMapFrame extends JFrame {
         }
 
         mapPane.setRenderer(renderer);
+    }
+
+    /**
+     * Set whether the renderer should use settings suitable for raster layers.
+     * This method can be called prior to setting a renderer.
+     *
+     * @param set if true the RenderingHints for the renderer will be set for faster
+     * raster rendering; if false, all such hints are removed from the renderer
+     */
+    public void setRasterRendering(boolean set) {
+        mapPane.setRasterRendering(set);
     }
 
     /**

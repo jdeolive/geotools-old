@@ -14,7 +14,6 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-
 package org.geotools.swing;
 
 import java.awt.AlphaComposite;
@@ -24,11 +23,11 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -37,9 +36,12 @@ import java.util.Map;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Rectangle2D;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.ResourceBundle;
 import java.util.Set;
+import javax.media.jai.Interpolation;
+import javax.media.jai.JAI;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 import javax.swing.event.MouseInputAdapter;
@@ -79,22 +81,19 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * @version $Id$
  */
 public class JMapPane extends JPanel implements MapLayerListListener {
+
     private static final long serialVersionUID = 6657390989310278122L;
-
     private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/swing/widget");
-
     /**
      * Default width of the margin (pixels) between the edge of the 
      * map pane and the drawing area
      */
     public static final int DEFAULT_BORDER_WIDTH = 5;
-
     /**
      * Default delay (milliseconds) before the map will be redrawn when resizing
      * the pane. This is to avoid flickering while drag-resizing.
      */
     public static final int DEFAULT_RESIZING_PAINT_DELAY = 200;  // delay in milliseconds
-
     private int resizingPaintDelay;
     private boolean acceptRepaintRequests;
 
@@ -102,6 +101,7 @@ public class JMapPane extends JPanel implements MapLayerListListener {
      * Encapsulates XOR box drawing logic used with mouse dragging
      */
     private class DragBox extends MouseInputAdapter {
+
         private Point startPos;
         private Rectangle rect;
         private boolean dragged;
@@ -121,7 +121,7 @@ public class JMapPane extends JPanel implements MapLayerListListener {
         public void mousePressed(MouseEvent e) {
             startPos = new Point(e.getPoint());
         }
-        
+
         @Override
         public void mouseDragged(MouseEvent e) {
             if (enabled) {
@@ -138,7 +138,7 @@ public class JMapPane extends JPanel implements MapLayerListListener {
                 dragged = true;
             }
         }
-        
+
         @Override
         public void mouseReleased(MouseEvent e) {
             if (dragged) {
@@ -150,29 +150,23 @@ public class JMapPane extends JPanel implements MapLayerListListener {
             }
         }
     }
-
     private DragBox dragBox;
-
     private MapContext context;
     private GTRenderer renderer;
+    private RenderingHints rasterHints;
     private LabelCache labelCache;
     private MapToolManager toolManager;
     private MapLayerTable layerTable;
-
     private Set<MapPaneListener> listeners = new HashSet<MapPaneListener>();
-    
     private AffineTransform worldToScreen;
     private AffineTransform screenToWorld;
-    
     private Rectangle curPaintArea;
     private int margin;
-
     private BufferedImage baseImage;
     private Point imageOrigin;
     boolean redrawBaseImage;
     private boolean needNewBaseImage;
     private boolean baseImageMoved;
-
     private Timer resizeTimer;
 
     /** 
@@ -191,7 +185,7 @@ public class JMapPane extends JPanel implements MapLayerListListener {
      * @param context an instance of MapContext
      */
     public JMapPane(GTRenderer renderer, MapContext context) {
-        margin = DEFAULT_BORDER_WIDTH;        
+        margin = DEFAULT_BORDER_WIDTH;
         imageOrigin = new Point(margin, margin);
 
         acceptRepaintRequests = true;
@@ -209,12 +203,13 @@ public class JMapPane extends JPanel implements MapLayerListListener {
          */
         resizingPaintDelay = DEFAULT_RESIZING_PAINT_DELAY;
         resizeTimer = new Timer(resizingPaintDelay, new ActionListener() {
+
             public void actionPerformed(ActionEvent e) {
                 onResizingCompleted();
             }
         });
         resizeTimer.setRepeats(false);
-        
+
         setRenderer(renderer);
         setMapContext(context);
 
@@ -223,7 +218,7 @@ public class JMapPane extends JPanel implements MapLayerListListener {
         dragBox = new DragBox();
         this.addMouseListener(dragBox);
         this.addMouseMotionListener(dragBox);
-        
+
         this.addMouseListener(toolManager);
         this.addMouseMotionListener(toolManager);
         this.addMouseWheelListener(toolManager);
@@ -235,6 +230,7 @@ public class JMapPane extends JPanel implements MapLayerListListener {
          * on OSX)
          */
         this.addMouseListener(new MouseInputAdapter() {
+
             @Override
             public void mouseEntered(MouseEvent e) {
                 super.mouseEntered(e);
@@ -244,8 +240,9 @@ public class JMapPane extends JPanel implements MapLayerListListener {
                 }
             }
         });
-        
+
         addComponentListener(new ComponentAdapter() {
+
             @Override
             public void componentResized(ComponentEvent ev) {
                 acceptRepaintRequests = false;
@@ -254,7 +251,6 @@ public class JMapPane extends JPanel implements MapLayerListListener {
         });
 
     }
-
 
     /**
      * Repaint the map when resizing has finished. This method will
@@ -277,14 +273,14 @@ public class JMapPane extends JPanel implements MapLayerListListener {
             toolManager.setNoCursorTool();
             this.setCursor(Cursor.getDefaultCursor());
             dragBox.setEnabled(false);
-            
+
         } else {
             this.setCursor(tool.getCursor());
             toolManager.setCursorTool(tool);
             dragBox.setEnabled(tool.drawDragBox());
         }
     }
-    
+
     /**
      * Register an object that wishes to receive MapMouseEvents
      * such as a {@linkplain org.geotools.swing.StatusBar}
@@ -295,7 +291,7 @@ public class JMapPane extends JPanel implements MapLayerListListener {
         if (listener == null) {
             throw new IllegalArgumentException(stringRes.getString("arg_null_error"));
         }
-        
+
         toolManager.addMouseListener(listener);
     }
 
@@ -345,14 +341,16 @@ public class JMapPane extends JPanel implements MapLayerListListener {
     }
 
     /**
-     * Set the renderer for this map pane
+     * Set the renderer for this map pane. If faster raster rendering was previously
+     * requested with the {@linkplain #setRasterRendering} method, this will be set
+     * for the new renderer.
      */
     public void setRenderer(GTRenderer renderer) {
-        Map<Object,Object> hints;
+        Map<Object, Object> hints;
         if (renderer instanceof StreamingRenderer) {
             hints = renderer.getRendererHints();
             if (hints == null) {
-                hints = new HashMap<Object,Object>();
+                hints = new HashMap<Object, Object>();
             }
             if (hints.containsKey(StreamingRenderer.LABEL_CACHE_KEY)) {
                 labelCache = (LabelCache) hints.get(StreamingRenderer.LABEL_CACHE_KEY);
@@ -361,12 +359,57 @@ public class JMapPane extends JPanel implements MapLayerListListener {
                 hints.put(StreamingRenderer.LABEL_CACHE_KEY, labelCache);
             }
             renderer.setRendererHints(hints);
+
+            if (rasterHints != null) {
+                RenderingHints rHints = renderer.getJava2DHints();
+                rHints.putAll(rasterHints);
+                renderer.setJava2DHints(rHints);
+            }
         }
 
         this.renderer = renderer;
 
         if (this.context != null) {
             this.renderer.setContext(this.context);
+        }
+    }
+
+    /**
+     * Set whether the renderer should use settings suitable for raster layers.
+     * This method can be called prior to setting a renderer.
+     *
+     * @param set if true the RenderingHints for the renderer will be set for faster
+     * raster rendering; if false, all such hints are removed from the renderer
+     */
+    public void setRasterRendering(boolean set) {
+        if (set) {
+            if (rasterHints == null) {
+                rasterHints = new RenderingHints(Collections.EMPTY_MAP);
+                rasterHints.add(new RenderingHints(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED));
+                rasterHints.add(new RenderingHints(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_DISABLE));
+                rasterHints.add(new RenderingHints(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED));
+                rasterHints.add(new RenderingHints(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_SPEED));
+                rasterHints.add(new RenderingHints(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR));
+                rasterHints.add(new RenderingHints(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE));
+                rasterHints.add(new RenderingHints(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_OFF));
+                rasterHints.add(new RenderingHints(JAI.KEY_INTERPOLATION, Interpolation.getInstance(Interpolation.INTERP_NEAREST)));
+            }
+
+            if (renderer != null) {
+                RenderingHints hints = renderer.getJava2DHints();
+                hints.putAll(rasterHints);
+                renderer.setJava2DHints(hints);
+            }
+
+        } else if (!set) {
+            if (renderer != null && rasterHints != null) {
+                RenderingHints hints = renderer.getJava2DHints();
+                for (Object key : rasterHints.keySet()) {
+                    hints.remove(key);
+                }
+                renderer.setJava2DHints(hints);
+            }
+            rasterHints = null;
         }
     }
 
@@ -392,7 +435,7 @@ public class JMapPane extends JPanel implements MapLayerListListener {
 
             if (context != null) {
                 this.context.addMapLayerListListener(this);
-                
+
                 // set all layers as selected by default for the info tool
                 for (MapLayer layer : context.getLayers()) {
                     layer.setSelected(true);
@@ -413,11 +456,11 @@ public class JMapPane extends JPanel implements MapLayerListListener {
      */
     public ReferencedEnvelope getEnvelope() {
         ReferencedEnvelope env = null;
-        
+
         if (context != null) {
             env = context.getAreaOfInterest();
         }
-        
+
         return env;
     }
 
@@ -440,9 +483,9 @@ public class JMapPane extends JPanel implements MapLayerListListener {
                         env.getMinimum(0), env.getMaximum(0),
                         env.getMinimum(1), env.getMaximum(1),
                         crs);
-                
+
                 context.setAreaOfInterest(refEnv);
-                
+
                 if (curPaintArea != null) {
                     setTransforms(refEnv, curPaintArea);
                     labelCache.clear();
@@ -451,7 +494,7 @@ public class JMapPane extends JPanel implements MapLayerListListener {
             }
         }
     }
-    
+
     /**
      * Reset the map area to include the full extent of all
      * layers and redraw the display
@@ -459,7 +502,7 @@ public class JMapPane extends JPanel implements MapLayerListListener {
     public void reset() {
         try {
             setEnvelope(context.getLayerBounds());
-        } catch(IOException ex) {
+        } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
@@ -492,7 +535,6 @@ public class JMapPane extends JPanel implements MapLayerListListener {
         setIgnoreRepaint(!repaint);
     }
 
-
     /**
      * Get the width of the current margin between the
      * edge of the map pane and the drawing area.
@@ -503,7 +545,7 @@ public class JMapPane extends JPanel implements MapLayerListListener {
     public int getMargin() {
         return margin;
     }
-    
+
     /**
      * Set the width of the margin between the edge of the 
      * map pane and the drawing area. It's helpful to have a
@@ -520,7 +562,7 @@ public class JMapPane extends JPanel implements MapLayerListListener {
             repaint();
         }
     }
-    
+
     /**
      * Get a (copy of) the screen to world coordinate transform
      * being used by this map pane.
@@ -532,7 +574,7 @@ public class JMapPane extends JPanel implements MapLayerListListener {
             return null;
         }
     }
-    
+
     /**
      * Get a (copy of) the world to screen coordinate transform
      * being used by this map pane. This method can be 
@@ -548,7 +590,7 @@ public class JMapPane extends JPanel implements MapLayerListListener {
             return null;
         }
     }
-    
+
     /**
      * Move the image currently displayed by the map pane from
      * its current origin (x,y) to (x+dx, y+dy). This method
@@ -565,7 +607,7 @@ public class JMapPane extends JPanel implements MapLayerListListener {
         baseImageMoved = true;
         repaint();
     }
-    
+
     /**
      * Called by the system to draw the layers currently visible layers.
      * Client code should not use this method directly; instead call
@@ -651,7 +693,7 @@ public class JMapPane extends JPanel implements MapLayerListListener {
              */
             reset();
         }
-            
+
         repaint();
     }
 
@@ -697,7 +739,7 @@ public class JMapPane extends JPanel implements MapLayerListListener {
     private void setTransforms(ReferencedEnvelope mapEnv, Rectangle paintArea) {
         double xscale = paintArea.getWidth() / mapEnv.getWidth();
         double yscale = paintArea.getHeight() / mapEnv.getHeight();
-        
+
         double scale = Math.min(xscale, yscale);
         double xoff = mapEnv.getMinimum(0) * scale;
         double yoff = mapEnv.getMaximum(1) * scale;
@@ -708,7 +750,7 @@ public class JMapPane extends JPanel implements MapLayerListListener {
             ex.printStackTrace();
         }
     }
-    
+
     /**
      * Erase the base image. This is much faster than recreating a new BufferedImage
      * object each time we need to redraw the image
@@ -737,5 +779,4 @@ public class JMapPane extends JPanel implements MapLayerListListener {
             }
         }
     }
-
 }
