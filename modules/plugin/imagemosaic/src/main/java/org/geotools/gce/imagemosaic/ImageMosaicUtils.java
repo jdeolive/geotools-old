@@ -3,6 +3,8 @@
  */
 package org.geotools.gce.imagemosaic;
 
+import it.geosolutions.imageio.stream.input.spi.URLImageInputStreamSpi;
+
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
@@ -29,6 +31,7 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
+import javax.imageio.spi.ImageInputStreamSpi;
 import javax.imageio.stream.ImageInputStream;
 
 import org.apache.commons.io.FilenameUtils;
@@ -165,6 +168,11 @@ class ImageMosaicUtils {
 	 * Default path behavior with respect to absolute paths.
 	 */
 	static final boolean DEFAULT_PATH_BEHAVIOR = false;
+	
+	/**
+	 * Cached instance of {@link URLImageInputStreamSpi} for creating {@link ImageInputStream} instances.
+	 */
+	private static ImageInputStreamSpi cachedStreamSPI=new URLImageInputStreamSpi();
 	
 	/**
 	 * Creates a mosaic for the provided input parameters.
@@ -834,7 +842,7 @@ class ImageMosaicUtils {
 	 */
 	static ImageInputStream getInputStream(final URL url)
 	throws IOException {
-		final ImageInputStream inStream= ImageIO.createImageInputStream(url);
+		final ImageInputStream inStream= cachedStreamSPI.createInputStreamInstance(url,ImageIO.getUseCache(),ImageIO.getCacheDirectory());
 		if(inStream==null)
 			return null;
 		return inStream;
@@ -946,7 +954,7 @@ class ImageMosaicUtils {
 
 
 
-	public static boolean checkURLReadable(URL url) {
+	static boolean checkURLReadable(URL url) {
 		try {
 			url.openStream().close();
 		} catch (Exception e) {

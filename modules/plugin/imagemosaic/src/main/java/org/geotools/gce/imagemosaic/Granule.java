@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 
 import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
+import javax.imageio.spi.ImageReaderSpi;
 import javax.imageio.stream.ImageInputStream;
 import javax.media.jai.ImageLayout;
 import javax.media.jai.Interpolation;
@@ -326,6 +327,8 @@ class Granule {
 	final Map<Integer,Level> granuleLevels= Collections.synchronizedMap(new HashMap<Integer,Level>());
 	
 	AffineTransform baseGridToWorld;
+	
+	ImageReaderSpi cachedSPI;
 
 	public Granule(BoundingBox granuleBBOX, URL granuleUrl) {
 		super();
@@ -344,13 +347,17 @@ class Granule {
 			inStream = ImageMosaicUtils.getInputStream(granuleUrl);
 			if(inStream==null)
 				throw new IllegalArgumentException("Unable to get an input stream for the provided file "+granuleUrl.toString());
-	
-			// get a reader
-			reader = ImageMosaicUtils.getReader( inStream);
-			if(reader==null)
-			{
-				throw new IllegalArgumentException("Unable to get an ImageReader for the provided file "+granuleUrl.toString());
+			
+			// get a reader and try to cache the relevant SPI
+			if(cachedSPI==null){
+				reader = ImageMosaicUtils.getReader( inStream);
+				if(reader!=null)
+					cachedSPI=reader.getOriginatingProvider();
 			}
+			else
+				reader=cachedSPI.createReaderInstance();
+			if(reader==null)
+				throw new IllegalArgumentException("Unable to get an ImageReader for the provided file "+granuleUrl.toString());
 			
 			//get selected level and base level dimensions
 			final Rectangle originalDimension = ImageMosaicUtils.getDimension(0,inStream, reader);
@@ -419,8 +426,14 @@ class Granule {
 			if(inStream==null)
 				return null;
 	
-			// get a reader
-			reader = ImageMosaicUtils.getReader( inStream);
+			// get a reader and try to cache the relevant SPI
+			if(cachedSPI==null){
+				reader = ImageMosaicUtils.getReader( inStream);
+				if(reader!=null)
+					cachedSPI=reader.getOriginatingProvider();
+			}
+			else
+				reader=cachedSPI.createReaderInstance();
 			if(reader==null)
 			{
 				if (LOGGER.isLoggable(java.util.logging.Level.WARNING))
@@ -447,8 +460,8 @@ class Granule {
 			XRectangle2D.intersect(sourceArea, selectedlevel.rasterDimensions, sourceArea);//make sure roundings don't bother us
 			// is it empty??
 			if (sourceArea.isEmpty()) {
-				if (LOGGER.isLoggable(java.util.logging.Level.WARNING))
-					LOGGER.warning("Got empty area for granule "+this.toString()+ " with request "+request.toString());
+				if (LOGGER.isLoggable(java.util.logging.Level.FINE))
+					LOGGER.fine("Got empty area for granule "+this.toString()+ " with request "+request.toString());
 				return null;
 
 			} else if (LOGGER.isLoggable(java.util.logging.Level.FINE))
@@ -460,7 +473,7 @@ class Granule {
 			final RenderedImage raster;
 			try{
 				// read
-				raster= request.getReadType().read(readParameters,imageIndex, granuleUrl, selectedlevel.rasterDimensions,tileDimension);
+				raster= request.getReadType().read(readParameters,imageIndex, granuleUrl, selectedlevel.rasterDimensions,tileDimension,cachedSPI);
 				
 			}
 			catch (Throwable e) {
@@ -600,12 +613,16 @@ class Granule {
 					if(inStream==null)
 						throw new IllegalArgumentException();
 			
-					// get a reader
-					reader = ImageMosaicUtils.getReader( inStream);
-					if(reader==null)
-					{
-						throw new IllegalArgumentException();
+					// get a reader and try to cache the relevant SPI
+					if(cachedSPI==null){
+						reader = ImageMosaicUtils.getReader( inStream);
+						if(reader!=null)
+							cachedSPI=reader.getOriginatingProvider();
 					}
+					else
+						reader=cachedSPI.createReaderInstance();
+					if(reader==null)
+						throw new IllegalArgumentException("Unable to get an ImageReader for the provided file "+granuleUrl.toString());					
 					
 					//get selected level and base level dimensions
 					final Rectangle levelDimension = ImageMosaicUtils.getDimension(index,inStream, reader);

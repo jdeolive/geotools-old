@@ -193,7 +193,7 @@ class RasterLayerResponse{
 			Granule granule=null;
 			synchronized (rasterManager.granulesCache) {
 				
-				// COmment by Stefan Krueger
+				// Comment by Stefan Krueger
 				// Before the File.toURI().toString was jused as the cache key. For URL that potentially throws an URISystaxException and i used just toString()  
 				
 				if(rasterManager.granulesCache.containsKey(rasterFile.toString()))

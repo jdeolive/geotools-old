@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 
 import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
+import javax.imageio.spi.ImageReaderSpi;
 import javax.imageio.stream.ImageInputStream;
 import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
@@ -40,7 +41,8 @@ enum ReadType {
     			final int imageIndex, 
     			final URL rasterURL,
     			final Rectangle readDimension,
-    			final Dimension tileDimension // we just ignore in this case
+    			final Dimension tileDimension, // we just ignore in this case
+    			final ImageReaderSpi spi
     			)throws IOException{
     		//
     		// Using ImageReader to load the data directly
@@ -52,7 +54,7 @@ enum ReadType {
     			if(inStream==null)
     				return null;
     	
-    			reader=ImageMosaicUtils.getReader( inStream);
+    			reader=spi.createReaderInstance();
     			if(reader==null)
     			{
     				if (LOGGER.isLoggable(Level.WARNING))
@@ -105,7 +107,8 @@ enum ReadType {
     			final int imageIndex, 
     			final URL rasterUrl,
     			final Rectangle readDimension,
-    			final Dimension tileDimension
+    			final Dimension tileDimension,
+    			final ImageReaderSpi spi
     			) throws IOException{
     		
       		///
@@ -119,7 +122,7 @@ enum ReadType {
     			if(inStream==null)
     				return null;
     			// get a reader
-    			reader=ImageMosaicUtils.getReader( inStream);
+    			reader=spi.createReaderInstance();
     			if(reader==null)
     			{
     				if (LOGGER.isLoggable(Level.WARNING))
@@ -196,7 +199,8 @@ enum ReadType {
     			final int imageIndex, 
     			final URL rasterUrl,
     			final Rectangle readDimension,
-    			final Dimension tileDimension
+    			final Dimension tileDimension,
+    			final ImageReaderSpi spi
     			)throws IOException{
     		throw new UnsupportedOperationException(Errors.format(ErrorKeys.UNSUPPORTED_OPERATION_$1,"read"));
     	}
@@ -241,7 +245,8 @@ enum ReadType {
 			final int imageIndex, 
 			final URL rasterUrl,
 			final Rectangle readDimension, 
-			final Dimension tileDimension
+			final Dimension tileDimension,
+			final ImageReaderSpi spi
 			) throws IOException;
 	
 };
