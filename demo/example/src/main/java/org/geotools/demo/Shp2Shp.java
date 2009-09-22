@@ -148,7 +148,7 @@ public class Shp2Shp {
         }
 
         String selectedCode = selected.substring(0, selected.indexOf(':'));
-        return CRS.decode("EPSG:" + selectedCode);
+        return CRS.decode("EPSG:" + selectedCode, true);
     }
 // end getCRS
 

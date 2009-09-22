@@ -96,6 +96,7 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
      * the pane. This is to avoid flickering while drag-resizing.
      */
     public static final int DEFAULT_RESIZING_PAINT_DELAY = 200;  // delay in milliseconds
+    private Timer resizeTimer;
     private int resizingPaintDelay;
     private boolean acceptRepaintRequests;
 
@@ -166,10 +167,10 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
     private int margin;
     private BufferedImage baseImage;
     private Point imageOrigin;
-    boolean redrawBaseImage;
+    private boolean redrawBaseImage;
     private boolean needNewBaseImage;
     private boolean baseImageMoved;
-    private Timer resizeTimer;
+    private boolean skipMapBoundsEvent;
 
     /** 
      * Constructor - creates an instance of JMapPane with no map 
@@ -193,6 +194,7 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
         acceptRepaintRequests = true;
         redrawBaseImage = true;
         baseImageMoved = false;
+        skipMapBoundsEvent = false;
 
         /*
          * We use a Timer object to avoid rendering delays and
@@ -742,8 +744,20 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
      * setting a new CRS.
      */
     public void mapBoundsChanged(MapBoundsEvent event) {
-        needNewBaseImage = true;
-        repaint();
+        // this avoids an endless loop when we call setEnvelope below
+        if (skipMapBoundsEvent) {
+            skipMapBoundsEvent = false;
+            return;
+        }
+
+        try {
+            ReferencedEnvelope bounds = context.getLayerBounds();
+            skipMapBoundsEvent = true;
+            this.setEnvelope(bounds);
+
+        } catch (IOException ex) {
+            throw new IllegalStateException(ex);
+        }
     }
 
 
