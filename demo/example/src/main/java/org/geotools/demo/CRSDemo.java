@@ -59,7 +59,9 @@ public class CRSDemo {
         btn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
-                    changeCRS(map);
+                    CoordinateReferenceSystem newCRS = getCoordinateReferenceSystem("Select a new CRS");
+                    map.setCoordinateReferenceSystem(newCRS);
+                    
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     System.exit(1);
@@ -72,10 +74,6 @@ public class CRSDemo {
         mapFrame.setVisible(true);
     }
 
-    private static void changeCRS(MapContext map) throws Exception {
-        CoordinateReferenceSystem newCRS = getCoordinateReferenceSystem("Select a new CRS");
-        map.setCoordinateReferenceSystem(newCRS);
-    }
 
     /**
      * Prompt the user to select a new coordinate reference system
