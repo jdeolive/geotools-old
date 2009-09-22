@@ -29,10 +29,13 @@ import org.geotools.data.DataStoreFinder;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureSource;
-import org.geotools.demo.postgis.PostGISDialog;
+import org.geotools.data.postgis.PostgisDataStoreFactory;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.filter.FilterTransformer;
 import org.geotools.filter.text.cql2.CQL;
+import org.geotools.swing.data.JDataStoreWizard;
+import org.geotools.swing.data.JFileDataStoreWizard;
+import org.geotools.swing.wizard.JWizard;
 import org.opengis.feature.Feature;
 import org.opengis.feature.FeatureVisitor;
 import org.opengis.feature.Property;
@@ -41,21 +44,20 @@ import org.opengis.feature.type.FeatureType;
 import org.opengis.filter.Filter;
 
 /**
- * A nice swing app to connect to PostGIS an try out
- * different queries.
+ * A nice swing app to connect to PostGIS an try out different queries.
  * 
  * @author Jody Garnett
  */
 public class PostGISLab {
     /**
      * Tip: When running from eclipse include the ${file_prompt} as an argument!
+     * 
      * @param args
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
         Map connectionProperties = getConnectionProperties(args);
-        DataStore dataStore = DataStoreFinder
-                .getDataStore(connectionProperties);
+        DataStore dataStore = DataStoreFinder.getDataStore(connectionProperties);
         String[] typeNames = dataStore.getTypeNames();
         if (typeNames == null) {
             JOptionPane.showConfirmDialog(null, "Could not conntect");
@@ -67,12 +69,13 @@ public class PostGISLab {
         System.exit(0);
     }
 
-    private static Map<String,Serializable> getConnectionProperties(String[] args)
+    private static Map<String, Serializable> getConnectionProperties(String[] args)
             throws IOException {
-        PostGISDialog dialog;
 
+        PostgisDataStoreFactory factory = new PostgisDataStoreFactory();
+        JDataStoreWizard wizard;
         if (args.length == 0) {
-            dialog = new PostGISDialog();
+            wizard = new JDataStoreWizard(factory);
         } else {
             File file = new File(args[0]);
             if (!file.exists()) {
@@ -82,26 +85,37 @@ public class PostGISLab {
             Properties config = new Properties();
             config.load(input);
 
-            dialog = new PostGISDialog(config);
+            wizard = new JDataStoreWizard(factory, config);
         }
-        dialog.setVisible(true);
-        Map<String,Serializable> properties = dialog.getProperties();
-        dialog.dispose();
+        // prompt user
+        int result = wizard.showModalDialog();
+        System.out.print("Wizard completed with:");
 
-        if (properties == null) {
+        switch (result) {
+        case JWizard.FINISH:
+            break;
+        case JWizard.CANCEL:
             System.exit(0);
+        case JWizard.ERROR:
+        default:
+            System.exit(1);
         }
-        return properties;
+        return wizard.getConnectionParameters();
     }
 
     static class JQuery extends JDialog {
         final DataStore dataStore;
 
         JTextArea query;
+
         JTextArea show;
+
         JButton selectButton;
+
         JButton closeButton;
+
         JComboBox typeNameSelect;
+
         JButton schemaButton;
 
         private JButton filterButton;
@@ -143,10 +157,8 @@ public class PostGISLab {
             query = new JTextArea(4, 80);
             c.fill = GridBagConstraints.BOTH;
             JScrollPane scrollPane1 = new JScrollPane(query);
-            scrollPane1.setPreferredSize(query
-                    .getPreferredScrollableViewportSize());
-            scrollPane1.setMinimumSize(query
-                    .getPreferredScrollableViewportSize());
+            scrollPane1.setPreferredSize(query.getPreferredScrollableViewportSize());
+            scrollPane1.setMinimumSize(query.getPreferredScrollableViewportSize());
             panel.add(scrollPane1, c);
 
             c.fill = GridBagConstraints.NONE;
@@ -176,10 +188,8 @@ public class PostGISLab {
             show = new JTextArea(24, 80);
             show.setTabSize(2);
             JScrollPane scrollPane2 = new JScrollPane(show);
-            scrollPane2
-                    .setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-            scrollPane2.setPreferredSize(show
-                    .getPreferredScrollableViewportSize());
+            scrollPane2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+            scrollPane2.setPreferredSize(show.getPreferredScrollableViewportSize());
             // scrollPane2.setMinimumSize(show.getMinimumSize() );
             panel.add(scrollPane2, c);
             add(panel);
@@ -224,9 +234,8 @@ public class PostGISLab {
             if (schema == null) {
                 show.setText("null");
                 return;
-            }
-            else {
-                show.setText( schema.toString() );
+            } else {
+                show.setText(schema.toString());
             }
         }
 
@@ -259,11 +268,11 @@ public class PostGISLab {
                 public void visit(Feature feature) {
                     buf.append(feature.getIdentifier());
                     buf.append("=");
-                    for(Property property : feature.getProperties() ){
+                    for (Property property : feature.getProperties()) {
                         buf.append("\t");
-                        buf.append( property.getName() );
+                        buf.append(property.getName());
                         buf.append("=");
-                        buf.append( property.getValue() );
+                        buf.append(property.getValue());
                     }
                     buf.append("]");
                 }

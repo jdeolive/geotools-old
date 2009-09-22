@@ -63,7 +63,7 @@ public class FileDataStoreFinder {
      * @throws IOException If a suitable loader can be found, but it can not be
      *         attached to the specified resource without errors.
      */
-    public static DataStore getDataStore(File file) throws IOException {
+    public static FileDataStore getDataStore(File file) throws IOException {
         return getDataStore(file.toURI().toURL());
     }
 
@@ -80,7 +80,7 @@ public class FileDataStoreFinder {
      * @throws IOException If a suitable loader can be found, but it can not be
      *         attached to the specified resource without errors.
      */
-    public static DataStore getDataStore(URL url) throws IOException {
+    public static FileDataStore getDataStore(URL url) throws IOException {
         Iterator<FileDataStoreFactorySpi> ps = getAvailableDataStores();
 
         while (ps.hasNext()) {

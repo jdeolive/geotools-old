@@ -16,7 +16,9 @@
  */
 package org.geotools.data.shapefile;
 
-import static org.geotools.data.shapefile.ShpFileType.*;
+import static org.geotools.data.shapefile.ShpFileType.PRJ;
+import static org.geotools.data.shapefile.ShpFileType.SHP;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;

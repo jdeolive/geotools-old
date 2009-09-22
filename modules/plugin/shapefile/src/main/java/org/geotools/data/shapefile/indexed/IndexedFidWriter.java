@@ -16,7 +16,7 @@
  */
 package org.geotools.data.shapefile.indexed;
 
-import static org.geotools.data.shapefile.ShpFileType.*;
+import static org.geotools.data.shapefile.ShpFileType.FIX;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

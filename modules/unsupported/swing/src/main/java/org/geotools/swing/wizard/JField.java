@@ -22,12 +22,14 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 import javax.swing.JComponent;
+import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.text.JTextComponent;
 
 import org.geotools.data.Parameter;
+import org.geotools.swing.wizard.JWizard.Controller;
 import org.geotools.util.Converters;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -36,7 +38,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  */
 public class JField extends ParamField {
     private JTextComponent text;
-    private boolean single;
+    private boolean single = true;
 
     public JField( Parameter< ? > parameter ) {
         super(parameter);
@@ -45,10 +47,14 @@ public class JField extends ParamField {
     public void setSingleLine( boolean single ){
         this.single = single;
     }
+    
     public JComponent doLayout() {
-        if( single ){
-            text = new JTextField(32);
-
+        if( parameter.metadata != null &&
+                parameter.metadata.get(Parameter.IS_PASSWORD) == Boolean.TRUE ){
+            text = new JPasswordField(32);
+        }
+        else if( single ){
+            text = new JTextField(32);            
         }
         else {
             text = new JTextArea(40, 2);
@@ -59,15 +65,13 @@ public class JField extends ParamField {
                 validate();
             }
         });
-        if( single ){
-            return text;            
-        }
-        else {
+        if( text instanceof JTextArea ){
             JScrollPane scroll = new JScrollPane(text, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
                     JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
             scroll.setPreferredSize(new Dimension(400, 80));
             return scroll;
         }
+        return text;
     }
 
     public Object getValue() {
@@ -96,8 +100,16 @@ public class JField extends ParamField {
 
     public void setValue( Object value ) {
         String txt = (String) Converters.convert(value, String.class);
-
         text.setText(txt);
+    }
+    
+    public void addListener( Controller controller ){
+        text.addKeyListener( controller );
+    }
+    
+    @Override
+    public void removeListener(Controller controller) {
+        text.addKeyListener( controller );
     }
 
     public boolean validate() {

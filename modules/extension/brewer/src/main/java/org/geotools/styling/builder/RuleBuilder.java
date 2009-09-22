@@ -62,7 +62,7 @@ public class RuleBuilder<P> implements Builder<Rule> {
         return this;
     }
 
-    public RuleBuilder<P> minScaleDenominator(double minScaleDenominator) {
+    public RuleBuilder<P> min(double minScaleDenominator) {
         unset = false;
         if (minScaleDenominator < 0)
             throw new IllegalArgumentException(
@@ -71,7 +71,7 @@ public class RuleBuilder<P> implements Builder<Rule> {
         return this;
     }
 
-    public RuleBuilder<P> maxScaleDenominator(double maxScaleDenominator) {
+    public RuleBuilder<P> max(double maxScaleDenominator) {
         unset = false;
         if (maxScaleDenominator < 0)
             throw new IllegalArgumentException(

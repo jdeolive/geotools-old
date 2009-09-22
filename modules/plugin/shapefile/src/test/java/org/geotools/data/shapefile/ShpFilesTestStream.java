@@ -16,7 +16,8 @@
  */
 package org.geotools.data.shapefile;
 
-import static org.geotools.data.shapefile.ShpFileType.*;
+import static org.geotools.data.shapefile.ShpFileType.PRJ;
+import static org.geotools.data.shapefile.ShpFileType.SHP;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -33,9 +34,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import org.geotools.TestData;
-
 import junit.framework.TestCase;
+
+import org.geotools.TestData;
 
 public class ShpFilesTestStream extends TestCase implements
         org.geotools.data.shapefile.FileWriter {

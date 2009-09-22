@@ -246,7 +246,6 @@ public class JWizard extends JDialog {
         if (page == null) {
             close(ERROR);
         }
-        page.setBackPageIdentifier(old == null ? null : old.getPageIdentifier());
         current = page;
         
         JPanel panel = null;
@@ -266,16 +265,12 @@ public class JWizard extends JDialog {
             }
             cardPanel.add(panel, id);
         }
-        syncWizardButtons();
+        controller.syncButtonsToPage();
         page.preDisplayPanel();
         
         // Show the panel in the dialog.
         cardLayout.show(cardPanel, id);
         page.postDisplayPanel();
-    }
-
-    public void syncWizardButtons() {
-        controller.syncButtonsToPage();
     }
 
     public void registerWizardPanel(JPage page) {
@@ -300,7 +295,11 @@ public class JWizard extends JDialog {
 
     /** The controller listens to everything and updates the buttons */
     public class Controller implements ActionListener, KeyListener {
+        public boolean listen = true;
+        
         public void actionPerformed(ActionEvent e) {
+            if( !listen ) return;
+            
             if (e.getSource() == cancelButton || e.getActionCommand().equals("Canel")){
                 cancelButtonPressed();
             }
@@ -314,7 +313,7 @@ public class JWizard extends JDialog {
                 finishButtonPressed();                
             }
             else {
-                syncWizardButtons();
+                syncButtonsToPage();
             }
         }
 
@@ -332,7 +331,7 @@ public class JWizard extends JDialog {
                 return;
             }
             if( !current.isValid() ){
-                syncWizardButtons();
+                syncButtonsToPage();
                 return; // not valid so we cannot go on
             }
             close(FINISH);            
@@ -347,7 +346,7 @@ public class JWizard extends JDialog {
                 return;
             }
             if( !current.isValid() ){
-                syncWizardButtons();
+                syncButtonsToPage();
                 return; // not valid so we cannot go on
             }
             String nextId = current.getNextPageIdentifier();
@@ -363,8 +362,17 @@ public class JWizard extends JDialog {
             String backId = current.getBackPageIdentifier();
             setCurrentPanel(backId);
         }
-
-        void syncButtonsToPage() {
+        /**
+         * Set listen to false to update a field without the controller
+         * passing on a notification.
+         * 
+         * @param listen
+         */
+        public void setListen( boolean listen ){
+            this.listen = listen;
+        }
+        
+        public void syncButtonsToPage() {
             String backPageId = current.getBackPageIdentifier();
             String nextPageId = current.getNextPageIdentifier();
             boolean isValid = current.isValid();
@@ -389,7 +397,7 @@ public class JWizard extends JDialog {
         }
 
         public void keyReleased(KeyEvent e) {
-            syncWizardButtons();
+            syncButtonsToPage();
         }
 
         public void keyTyped(KeyEvent e) {

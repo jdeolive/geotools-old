@@ -58,7 +58,7 @@ public class WPSFactory extends SingleProcessFactory {
 	}
 
 	/**
-	 * Go through the ProcessDescriptionType object tree and set this factory's
+	 * Go through the ProcessDescriptionType object tree and set this flactory's
 	 * values based on it.
 	 * @param pdt
 	 */
@@ -66,7 +66,7 @@ public class WPSFactory extends SingleProcessFactory {
 		this.version = this.pdt.getProcessVersion();
 		this.title = this.pdt.getTitle().getValue();
 		this.identifier = this.pdt.getIdentifier().getValue();
-		this.description = this.pdt.getAbstract().getValue();
+		this.description = this.pdt.getAbstract() != null ? this.pdt.getAbstract().getValue() : null;
 		this.parameterInfo = WPSUtils.createInputParamMap(this.pdt, this.parameterInfo);
 		this.resultInfo = WPSUtils.createOutputParamMap(this.pdt, this.resultInfo);
 	}

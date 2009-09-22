@@ -109,6 +109,11 @@ public class Parameter<T> {
     public static final String MAX = "max";
     
     /**
+     * File extension expected - "shp", "jpg", etc...
+     */
+    public static final String EXT = "ext";
+    
+    /**
      * Refinement of type; such as the FeatureType of a FeatureCollection, or component type of a List.
      * <p>
      * This information is supplied (along with type) to allow a process implementor communicate

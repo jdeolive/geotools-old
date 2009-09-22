@@ -16,9 +16,12 @@
  */
 package org.geotools.swing.wizard;
 
+import java.net.URL;
+
 import javax.swing.JComponent;
 
 import org.geotools.data.Parameter;
+import org.geotools.swing.wizard.JWizard.Controller;
 
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -29,6 +32,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * @author gdavis
  */
 public abstract class ParamField {
+
     protected final Parameter<?> parameter;
 
     /**
@@ -63,7 +67,10 @@ public abstract class ParamField {
      *            an object containing the value to set for the widget
      */
     abstract public void setValue(Object value);
-
+    
+    public abstract void addListener( Controller controller );
+    
+    public abstract void removeListener( Controller controller );    
     /**
      * Returns the current value of the widget.
      * 
@@ -72,27 +79,38 @@ public abstract class ParamField {
     abstract public Object getValue();
 
     /**
-     * Factory method creating the appropriate ParamField for the
-     * supplied Param.
+     * Factory method creating the appropriate ParamField for the supplied Param.
      * 
      * @param param
      * @return
      */
-    public static ParamField create( Parameter<?> parameter ){
-        if (Double.class.isAssignableFrom( parameter.type )) {
+    public static ParamField create(Parameter<?> parameter) {
+        if (Double.class.isAssignableFrom(parameter.type)) {
             return new JDoubleField(parameter);
-        }
-        else if (Boolean.class.isAssignableFrom( parameter.type )) {
+        } else if (URL.class.isAssignableFrom(parameter.type)){
+            if( parameter.metadata != null && parameter.metadata.get(Parameter.EXT) != null) {
+                return new JURLField(parameter);
+            }
+            else {
+                JField field = new JField(parameter);
+                field.setSingleLine(true);                
+                return field;
+            }
+        } else if (Boolean.class.isAssignableFrom(parameter.type)) {
             JField field = new JField(parameter);
             field.setSingleLine(true);
             return field;
-        } else if (Geometry.class.isAssignableFrom( parameter.type)){
-            return new JGeometryField(parameter);
         }
-        else {
+        else if (Number.class.isAssignableFrom(parameter.type)) {
+            JField field = new JField(parameter);
+            field.setSingleLine(true);
+            return field;
+        } else if (Geometry.class.isAssignableFrom(parameter.type)) {
+            return new JGeometryField(parameter);
+        } else {
             // We got nothing special hope the converter api can deal
-            return new JField( parameter );
+            return new JField(parameter);
         }
     }
-    
+
 }

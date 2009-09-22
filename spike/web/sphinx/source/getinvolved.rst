@@ -25,6 +25,9 @@ contribute, or an issue with a plug-in you are working on, discuss it on this
 list. This is list is also open to anyone who would like to take part in the
 more day to day development discussion.
 
+The `administration list <https://lists.sourceforge.net/lists/listinfo/geotools-administration>`_
+is for the care and feeding of the GeoTools project.
+
 Bug Tracker
 -----------
 

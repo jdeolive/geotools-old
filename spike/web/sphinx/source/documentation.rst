@@ -19,7 +19,6 @@ Reference
 
 The :ref:`userguide` is a comprehensive reference for the entire library.
 
-
 .. toctree::
    :hidden:
 

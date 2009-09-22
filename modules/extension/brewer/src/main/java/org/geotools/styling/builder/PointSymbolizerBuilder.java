@@ -24,6 +24,10 @@ public class PointSymbolizerBuilder<P> implements Builder<PointSymbolizer> {
         this.parent = parent;
         reset();
     }
+    
+    public P end() {
+        return parent;
+    }
 
     PointSymbolizerBuilder<P> geometry(String geometry) {
         this.geometry = geometry;

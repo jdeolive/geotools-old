@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.geotools.TestData;
 import org.geotools.data.DataStore;
 import org.geotools.data.shapefile.ShapefileDataStore;

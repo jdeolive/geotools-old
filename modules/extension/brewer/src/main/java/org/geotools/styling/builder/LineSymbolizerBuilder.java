@@ -21,7 +21,9 @@ public class LineSymbolizerBuilder<P> implements Builder<LineSymbolizer> {
         this.parent = parent;
         reset();
     }
-    
+    public P end() {
+        return parent;
+    }
     public LineSymbolizerBuilder<P> geometry(String geometry) {
         this.geometry = geometry;
         unset = false;

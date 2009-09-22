@@ -35,7 +35,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
  * @see AbstractDataStore
  * @source $URL$
  */
-public abstract class AbstractFileDataStore extends AbstractDataStore {
+public abstract class AbstractFileDataStore extends AbstractDataStore implements FileDataStore {
     /**
      * Singular version, returns the FeatureType for the url being read.
      *
@@ -49,7 +49,7 @@ public abstract class AbstractFileDataStore extends AbstractDataStore {
      *
      * @see org.geotools.data.DataStore#getFeatureReader(java.lang.String)
      */
-    protected abstract  FeatureReader<SimpleFeatureType, SimpleFeature> getFeatureReader()
+    public abstract  FeatureReader<SimpleFeatureType, SimpleFeature> getFeatureReader()
         throws IOException;
 
     /**

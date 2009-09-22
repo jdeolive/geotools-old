@@ -21,7 +21,6 @@ import java.nio.ByteBuffer;
 import org.geotools.geometry.jts.coordinatesequence.CSBuilder;
 import org.geotools.geometry.jts.coordinatesequence.CSBuilderFactory;
 
-import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.CoordinateSequence;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.GeometryFactory;

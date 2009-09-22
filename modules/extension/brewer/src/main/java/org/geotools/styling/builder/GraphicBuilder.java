@@ -1,5 +1,6 @@
 package org.geotools.styling.builder;
 
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -81,11 +82,27 @@ public class GraphicBuilder<P> implements Builder<org.opengis.style.Graphic> {
         }        
         return external;
     }
+    public GraphicBuilder<P> externalGraphic(String onlineResource, String format) {
+        SymbolBuilder<GraphicBuilder<P>> symbolBuilder = new SymbolBuilder<GraphicBuilder<P>>(this);
+        symbols.add( symbolBuilder );
+        ExternalGraphicBuilder<GraphicBuilder<P>> external = symbolBuilder.external().format(format);
+        try {
+            external.resource( new OnLineResourceImpl( new URI( onlineResource) ));
+        } catch (URISyntaxException e) {
+        }
+        return this;
+    }
 
     public MarkBuilder<GraphicBuilder<P>> mark() {
         SymbolBuilder<GraphicBuilder<P>> symbolBuilder = new SymbolBuilder<GraphicBuilder<P>>(this);
         symbols.add( symbolBuilder );
         return symbolBuilder.mark();
+    }
+    public GraphicBuilder<P> mark(String wellKnownName ) {
+        SymbolBuilder<GraphicBuilder<P>> symbolBuilder = new SymbolBuilder<GraphicBuilder<P>>(this);
+        symbols.add( symbolBuilder );
+        symbolBuilder.mark().wellKnownName().literal(wellKnownName);
+        return this;
     }
 
     public Graphic build() {

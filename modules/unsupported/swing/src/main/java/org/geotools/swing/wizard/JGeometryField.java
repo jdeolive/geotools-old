@@ -26,6 +26,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import org.geotools.data.Parameter;
+import org.geotools.swing.wizard.JWizard.Controller;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.vividsolutions.jts.geom.Geometry;
@@ -99,6 +100,14 @@ public class JGeometryField extends ParamField {
         text.setText(wkt);
     }
 
+    public void addListener(Controller controller) {
+        text.addKeyListener(controller);
+    }
+
+    public void removeListener(Controller controller) {
+        text.addKeyListener(controller);
+    }
+    
     public boolean validate() {
         WKTReader reader = new WKTReader();
         String wkt = text.getText();

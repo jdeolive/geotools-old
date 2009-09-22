@@ -40,7 +40,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 
 import org.geotools.data.AbstractFileDataStore;
 import org.geotools.data.DataSourceException;
@@ -74,8 +73,6 @@ import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.feature.type.BasicFeatureTypes;
 import org.geotools.filter.FilterAttributeExtractor;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.referencing.CRS;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.resources.Classes;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -83,8 +80,6 @@ import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.feature.type.GeometryType;
 import org.opengis.filter.Filter;
-import org.opengis.geometry.BoundingBox;
-import org.opengis.metadata.extent.GeographicBoundingBox;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -326,7 +321,7 @@ public class ShapefileDataStore extends AbstractFileDataStore {
         return getFeatureReader();
     }
 
-    protected  FeatureReader<SimpleFeatureType, SimpleFeature> getFeatureReader() throws IOException {
+    public FeatureReader<SimpleFeatureType, SimpleFeature> getFeatureReader() throws IOException {
         try {
             return createFeatureReader(getSchema().getTypeName(),
                     getAttributesReader(true), schema);

@@ -64,7 +64,7 @@ public interface FileDataStoreFactorySpi extends DataStoreFactorySpi {
      *
      * @see AbstractFileDataStore
      */
-    public DataStore createDataStore(URL url) throws IOException;
+    public FileDataStore createDataStore(URL url) throws IOException;
 
     /**
      * The typeName represented by the provided url.

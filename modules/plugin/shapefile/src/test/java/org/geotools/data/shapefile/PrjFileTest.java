@@ -17,6 +17,7 @@
 package org.geotools.data.shapefile;
 
 import java.io.IOException;
+
 import org.geotools.data.shapefile.prj.PrjFileReader;
 
 /**

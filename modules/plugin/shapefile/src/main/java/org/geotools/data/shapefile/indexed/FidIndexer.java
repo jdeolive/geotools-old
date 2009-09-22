@@ -16,14 +16,13 @@
  */
 package org.geotools.data.shapefile.indexed;
 
-import static org.geotools.data.shapefile.ShpFileType.*;
+import static org.geotools.data.shapefile.ShpFileType.FIX;
+import static org.geotools.data.shapefile.ShpFileType.SHP;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.channels.FileChannel;
 import java.util.logging.Logger;
 
-import org.geotools.data.shapefile.ShpFileType;
 import org.geotools.data.shapefile.ShpFiles;
 import org.geotools.data.shapefile.StorageFile;
 import org.geotools.data.shapefile.shp.IndexFile;

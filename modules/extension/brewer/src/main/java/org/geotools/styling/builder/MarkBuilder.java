@@ -26,7 +26,7 @@ public class MarkBuilder<P> implements Builder<Mark> {
         this.parent = parent;
         reset();
     }
-    public ChildExpressionBuilder<MarkBuilder<P>> getWellKnownName() {
+    public ChildExpressionBuilder<MarkBuilder<P>> wellKnownName() {
         externalMark.unset();
         return wellKnownName;
     }

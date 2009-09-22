@@ -97,7 +97,7 @@ public class JFileDataStorePage extends JPage {
                 if(returnVal == JFileChooser.APPROVE_OPTION) {
                     file = dialog.getSelectedFile();
                     field.setText(file.getPath());
-                    getJWizard().syncWizardButtons();
+                    getJWizard().getController().syncButtonsToPage();
                 }
             }
         });

@@ -21,6 +21,19 @@ import org.opengis.filter.expression.Expression;
 import org.opengis.style.Halo;
 
 public class StyleBuilderTest {
+    
+    @Test
+    public void emailExample(){
+        StyleBuilder<?> builder = new StyleBuilder();
+        
+        RuleBuilder rule = builder.newFeatureTypeStyle().featureTypeName("Feature").rule();
+                rule.newPoint().graphic().
+            externalGraphic( "file:///C:/images/house.gif", "image/gid").mark("circle");                
+
+        Style style = builder.build();
+        
+        assertNotNull( style );
+    }
     @Test
     public void anchorPoint() {
         AnchorPointBuilder<?> b = new AnchorPointBuilder();

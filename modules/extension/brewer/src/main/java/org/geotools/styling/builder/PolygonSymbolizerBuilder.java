@@ -27,6 +27,10 @@ public class PolygonSymbolizerBuilder<P> implements Builder<PolygonSymbolizer> {
         reset();
     }
 
+    public P end() {
+        return parent;
+    }
+    
     PolygonSymbolizerBuilder<P> geometry(String geometry) {
         this.geometry = geometry;
         unset = false;

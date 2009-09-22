@@ -16,7 +16,6 @@
  */
 package org.geotools.data.shapefile;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -31,9 +30,12 @@ import java.util.logging.Logger;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataUtilities;
+import org.geotools.data.FileDataStore;
 import org.geotools.data.FileDataStoreFactorySpi;
+import org.geotools.data.Parameter;
 import org.geotools.data.shapefile.indexed.IndexType;
 import org.geotools.data.shapefile.indexed.IndexedShapefileDataStore;
+import org.geotools.util.SimpleInternationalString;
 
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -64,8 +66,13 @@ public class ShapefileDataStoreFactory implements FileDataStoreFactorySpi {
     /**
      * url to the .shp file.
      */
-    public static final Param URLP = new Param("url", URL.class,
-            "url to a .shp file");
+    public static final Param URLP;
+    static {
+        Map<String, Object> metadata = new HashMap<String, Object>();
+        metadata.put( Parameter.EXT, "shp");
+        URLP = new Param("url", URL.class, new SimpleInternationalString("url to a .shp file"),
+                true, null, metadata);
+    }
 
     /**
      * Optional - uri of the FeatureType's namespace
@@ -235,7 +242,7 @@ public class ShapefileDataStoreFactory implements FileDataStoreFactorySpi {
      * yet.
      * 
      */
-    public DataStore createNewDataStore(Map params) throws IOException {
+    public FileDataStore createNewDataStore(Map params) throws IOException {
         URL url = (URL) URLP.lookUp(params);
         Boolean isMemoryMapped = (Boolean) MEMORY_MAPPED.lookUp(params);
         URI namespace = (URI) NAMESPACEP.lookUp(params);
@@ -371,7 +378,7 @@ public class ShapefileDataStoreFactory implements FileDataStoreFactorySpi {
      * 
      * @see org.geotools.data.dir.FileDataStoreFactorySpi#createDataStore(java.net.URL)
      */
-    public DataStore createDataStore(URL url) throws IOException {
+    public FileDataStore createDataStore(URL url) throws IOException {
         Map params = new HashMap();
         params.put(URLP.key, url);
 

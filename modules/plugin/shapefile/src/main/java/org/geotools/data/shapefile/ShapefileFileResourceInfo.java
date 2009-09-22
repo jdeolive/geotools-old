@@ -20,8 +20,6 @@ import java.net.URI;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.swing.Icon;
-
 import org.geotools.data.DataSourceException;
 import org.geotools.data.ResourceInfo;
 import org.geotools.feature.FeatureTypes;
