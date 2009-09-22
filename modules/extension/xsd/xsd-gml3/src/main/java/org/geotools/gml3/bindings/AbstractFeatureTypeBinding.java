@@ -22,6 +22,7 @@ import javax.xml.namespace.QName;
 
 import org.eclipse.xsd.XSDElementDeclaration;
 import org.geotools.gml2.FeatureTypeCache;
+import org.geotools.gml3.XSDIdRegistry;
 import org.geotools.gml3.GML;
 import org.geotools.xml.AbstractComplexBinding;
 import org.geotools.xml.BindingWalkerFactory;
@@ -68,15 +69,18 @@ import org.w3c.dom.Element;
  */
 public class AbstractFeatureTypeBinding extends AbstractComplexBinding {
     FeatureTypeCache ftCache;
+    XSDIdRegistry idSet;
     BindingWalkerFactory bwFactory;
     SchemaIndex schemaIndex;
     Configuration configuration;
     
-    public AbstractFeatureTypeBinding(FeatureTypeCache ftCache, BindingWalkerFactory bwFactory, SchemaIndex schemaIndex, Configuration configuration) {
+    public AbstractFeatureTypeBinding(FeatureTypeCache ftCache, BindingWalkerFactory bwFactory,
+            SchemaIndex schemaIndex, Configuration configuration, XSDIdRegistry idRegistry) {
         this.ftCache = ftCache;
         this.bwFactory = bwFactory;
         this.schemaIndex = schemaIndex;
         this.configuration = configuration;
+        this.idSet = idRegistry;
     }
 
     /**
@@ -126,7 +130,7 @@ public class AbstractFeatureTypeBinding extends AbstractComplexBinding {
 
     public Element encode(Object object, Document document, Element value)
         throws Exception {
-        return GML3EncodingUtils.AbstractFeatureType_encode(object,document,value);
+        return GML3EncodingUtils.AbstractFeatureType_encode(object,document,value,idSet);
     }
 
     @Override

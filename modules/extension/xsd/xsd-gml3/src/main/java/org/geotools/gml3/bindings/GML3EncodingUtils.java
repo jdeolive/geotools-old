@@ -20,18 +20,16 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
-
-import org.apache.xerces.dom.CoreDocumentImpl;
 import org.eclipse.xsd.XSDElementDeclaration;
 import org.geotools.feature.NameImpl;
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.gml2.bindings.GML2EncodingUtils;
+import org.geotools.gml3.XSDIdRegistry;
 import org.geotools.gml3.GML;
 import org.geotools.xlink.XLINK;
 import org.geotools.xml.ComplexBinding;
@@ -144,8 +142,9 @@ public class GML3EncodingUtils {
     public static List getProperties(Geometry geometry) {
         return GML2EncodingUtils.GeometryPropertyType_getProperties(geometry);
     }
-    
-    public static Element AbstractFeatureType_encode(Object object, Document document, Element value) {
+
+    public static Element AbstractFeatureType_encode(Object object, Document document,
+            Element value, XSDIdRegistry idSet) {
         Feature feature = (Feature) object;
         String id = feature.getIdentifier().getID();
         Name typeName;
@@ -159,41 +158,25 @@ public class GML3EncodingUtils {
         }
         Element encoding = document.createElementNS(typeName.getNamespaceURI(), typeName
                 .getLocalPart());
-        if (document instanceof CoreDocumentImpl && idExists((CoreDocumentImpl) document, id)) {
-            // XSD type ids can only appear once in the same document, otherwise the document is not
-            // schema valid. Attributes of the same ids should be encoded as xlink:href to the
-            // existing attribute.
-            encoding
-                    .setAttributeNS(XLINK.NAMESPACE, XLINK.HREF.getLocalPart(), "#" + id.toString());
-            // make sure the attributes aren't encoded
-            feature.setValue(Collections.emptyList());
-            return encoding;
+        if (idSet != null) {
+            if (idSet.idExists(id)) {
+                // XSD type ids can only appear once in the same document, otherwise the document is
+                // not schema valid. Attributes of the same ids should be encoded as xlink:href to 
+                // the existing attribute.
+                encoding.setAttributeNS(XLINK.NAMESPACE, XLINK.HREF.getLocalPart(), "#"
+                        + id.toString());
+                // make sure the attributes aren't encoded
+                feature.setValue(Collections.emptyList());
+                return encoding;
+            } else {
+                idSet.add(id);
+            }
         }
         encoding.setAttributeNS(GML.NAMESPACE, "id", id);
-        encoding.setIdAttributeNS(GML.NAMESPACE, "id", true);
         encodeClientProperties(feature, value);
         
         return encoding;
     }  
-
-    /**
-     * Checks that an id has already been set in the document.
-     * 
-     * @param doc
-     *            The document being encoded
-     * @param id
-     *            Id to search
-     * @return True if the id has already been seen in the document.
-     */
-    private static boolean idExists(CoreDocumentImpl doc, String id) {
-        Enumeration keys = doc.getIdentifiers();
-        while (keys.hasMoreElements()) {
-            if (keys.nextElement().equals(id)) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     public static List AbstractFeatureType_getProperties(Object object,
             XSDElementDeclaration element, SchemaIndex schemaIndex, Configuration configuration) {

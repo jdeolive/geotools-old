@@ -216,6 +216,7 @@ public class GMLConfiguration extends Configuration {
         super.configureContext(container);
 
         container.registerComponentInstance(new FeatureTypeCache());
+        container.registerComponentInstance(new XSDIdRegistry());
 
         //factories
         container.registerComponentInstance(CoordinateSequenceFactory.class,
