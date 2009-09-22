@@ -33,6 +33,8 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 import com.vividsolutions.jts.geom.Envelope;
+import org.geotools.referencing.crs.DefaultGeocentricCRS;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 
 
 /**
@@ -66,7 +68,7 @@ public class LabelingTest extends TestCase {
         Style style = loadStyle("LineStyle.sld");
         assertNotNull(style);
 
-        MapContext map = new DefaultMapContext();
+        MapContext map = new DefaultMapContext(DefaultGeographicCRS.WGS84);
         map.addLayer(ds.getFeatureSource(), style);
 
         ShapefileRenderer renderer = new ShapefileRenderer(map);
@@ -85,7 +87,7 @@ public class LabelingTest extends TestCase {
         Style style = loadStyle("PolyStyle.sld");
         assertNotNull(style);
 
-        MapContext map = new DefaultMapContext();
+        MapContext map = new DefaultMapContext(DefaultGeographicCRS.WGS84);
         map.addLayer(ds.getFeatureSource(), style);
 
         ShapefileRenderer renderer = new ShapefileRenderer(map);
@@ -105,7 +107,7 @@ public class LabelingTest extends TestCase {
         Style style = loadStyle("PolyStyle.sld");
         assertNotNull(style);
 
-        MapContext map = new DefaultMapContext();
+        MapContext map = new DefaultMapContext(DefaultGeographicCRS.WGS84);
         map.addLayer(ds.getFeatureSource(), style);
 
         ShapefileRenderer renderer = new ShapefileRenderer(map);
