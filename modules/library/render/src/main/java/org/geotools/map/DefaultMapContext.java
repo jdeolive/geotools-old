@@ -31,7 +31,6 @@ import org.geotools.data.FeatureSource;
 import org.geotools.data.memory.CollectionSource;
 import org.geotools.factory.FactoryRegistryException;
 import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.SchemaException;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.event.MapBoundsEvent;
@@ -43,14 +42,15 @@ import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.resources.coverage.FeatureUtilities;
 import org.geotools.styling.Style;
 import org.opengis.coverage.grid.GridCoverage;
+import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.FeatureType;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 
 import com.vividsolutions.jts.geom.Envelope;
-import java.awt.Color;
 import org.geotools.styling.SLD;
 
 /**
@@ -220,7 +220,9 @@ public class DefaultMapContext implements MapContext {
     }
 
     /**
-     * Add a new layer if not already present and trigger a {@linkplain MapLayerListEvent}
+     * Add a new layer if not already present and trigger a {@linkplain MapLayerListEvent}.
+     * If a coordinate reference system has not been set for the context an attempt is
+     * made to retrieve one from the new layer and use that as the context's CRS.
      *
      * @param index the position at which to insert the layer in the list of layers
      * held by this context
@@ -234,6 +236,8 @@ public class DefaultMapContext implements MapContext {
             return false;
         }
 
+        checkCRS(layer);
+
         layerList.add(index, layer);
         layer.addMapLayerListener(layerListener);
 
@@ -246,6 +250,8 @@ public class DefaultMapContext implements MapContext {
     /**
      * Add a new layer, if not already present, to the end of the list of layers held
      * by this context and trigger a {@linkplain MapLayerListEvent}
+     * If a coordinate reference system has not been set for the context an attempt is
+     * made to retrieve one from the new layer and use that as the context's CRS.
      *
      * @param layer the map layer to add
      *
@@ -256,6 +262,8 @@ public class DefaultMapContext implements MapContext {
             return false;
         }
 
+        checkCRS(layer);
+        
         layerList.add(layer);
         layer.addMapLayerListener(layerListener);
 
@@ -270,6 +278,9 @@ public class DefaultMapContext implements MapContext {
      * by this context and trigger a {@linkplain MapLayerListEvent}.
      * This is a convenience method equivalent to
      * {@linkplain #addLayer}(new DefaultMapLayer(featureSource, style).
+     * <p>
+     * If a coordinate reference system has not been set for the context an attempt is
+     * made to retrieve one from the new layer and use that as the context's CRS.
      *
      * @param featureSource the source of the features for the new layer
      * @param style a Style object to be used in rendering this layer. If style is
@@ -277,13 +288,7 @@ public class DefaultMapContext implements MapContext {
      */
     public void addLayer(FeatureSource<SimpleFeatureType, SimpleFeature> featureSource, Style style) {
 
-        // If we don't have a CRS yet try to get one from this layer
-        if (areaOfInterest == null) {
-            CoordinateReferenceSystem crs = featureSource.getSchema().getCoordinateReferenceSystem();
-            if (crs != null) {
-                this.areaOfInterest = new ReferencedEnvelope(crs);
-            }
-        }
+        checkCRS(featureSource);
 
         if (style != null) {
             this.addLayer(new DefaultMapLayer(featureSource, style, ""));
@@ -301,6 +306,9 @@ public class DefaultMapContext implements MapContext {
      * by this context and trigger a {@linkplain MapLayerListEvent}.
      * This is a convenience method equivalent to
      * {@linkplain #addLayer}(new DefaultMapLayer(source, style).
+     * <p>
+     * If a coordinate reference system has not been set for the context an attempt is
+     * made to retrieve one from the new layer and use that as the context's CRS.
      *
      * @param source the source of the features for the new layer
      * @param style a Style object to be used in rendering this layer
@@ -316,12 +324,16 @@ public class DefaultMapContext implements MapContext {
     /**
      * Add a grid coverage as a new layer to the end of the list of layers held by
      * this context.
+     * <p>
+     * If a coordinate reference system has not been set for the context an attempt is
+     * made to retrieve one from the grid coverage and use that as the context's CRS.
      *
      * @param gc the grid coverage
      * @param style a Style to be used when rendering the new layer
      */
-    @SuppressWarnings("empty-statement")
     public void addLayer(GridCoverage gc, Style style) {
+        checkCRS(gc.getCoordinateReferenceSystem());
+
         try {
             this.addLayer(FeatureUtilities.wrapGridCoverage((GridCoverage2D) gc), style);
         } catch (TransformException e) {
@@ -330,20 +342,22 @@ public class DefaultMapContext implements MapContext {
             DefaultMapContext.LOGGER.log(Level.WARNING, "Could not use gc", e);
         } catch (SchemaException e) {
             DefaultMapContext.LOGGER.log(Level.WARNING, "Could not use gc", e);
-        } catch (IllegalAttributeException e) {
-            DefaultMapContext.LOGGER.log(Level.WARNING, "Could not use gc", e);
-            ;
         }
     }
 
     /**
      * Add a grid coverage data to be supplied by the given reader as a new layer
      * to the end of the list of layers held by this context.
+     * <p>
+     * If a coordinate reference system has not been set for the context an attempt is
+     * made to retrieve one from the reader and use that as the context's CRS.
      *
      * @param reader the grid coverage reader
      * @param style a Style to be used when rendering the new layer
      */
     public void addLayer(AbstractGridCoverage2DReader reader, Style style) {
+        checkCRS( reader.getCrs() );
+
         try {
             this.addLayer(FeatureUtilities.wrapGridCoverageReader(reader, null), style);
         } catch (TransformException e) {
@@ -352,9 +366,6 @@ public class DefaultMapContext implements MapContext {
             DefaultMapContext.LOGGER.log(Level.WARNING, "Could not use gc", e);
         } catch (SchemaException e) {
             DefaultMapContext.LOGGER.log(Level.WARNING, "Could not use gc", e);
-        } catch (IllegalAttributeException e) {
-            DefaultMapContext.LOGGER.log(Level.WARNING, "Could not use gc", e);
-
         }
     }
 
@@ -387,6 +398,54 @@ public class DefaultMapContext implements MapContext {
         }
         this.addLayer(new DefaultMapLayer(collection, style, ""));
     }
+
+
+    /**
+     * If a CRS has not been defined for this context, attempt to
+     * get one from this map layer and set it as the context's CRS.
+     * Invoked by addLayer methods.
+     *
+     * @param layer a map layer being added to the context
+     */
+    private void checkCRS(MapLayer layer) {
+        FeatureSource<? extends FeatureType, ? extends Feature> featureSource = layer.getFeatureSource();
+        if (featureSource != null) {
+            checkCRS(featureSource);
+        } else {
+            CollectionSource source = layer.getSource();
+            if (source != null) {
+                checkCRS( source.getCRS() );
+            }
+        }
+    }
+
+    /**
+     * If a CRS has not been defined for this context, attempt to
+     * get one from this featureSource and set it as the context's CRS.
+     * Invoked by addLayer.
+     *
+     * @param featureSource a feature source being added in a new layer
+     */
+    private void checkCRS(FeatureSource<? extends FeatureType, ? extends Feature> featureSource) {
+        if (featureSource != null) {
+            checkCRS( featureSource.getSchema().getCoordinateReferenceSystem() );
+        }
+    }
+
+    /**
+     * If a CRS has not been defined for this context yet use
+     * the one provided if it is not null. We do this rather than
+     * call setCoordinateReferenceSystem because we don't want to
+     * trigger a change event being published to listeners.
+     */
+    private void checkCRS(CoordinateReferenceSystem crs) {
+        if (crs != null) {
+            if (areaOfInterest == null) {
+                this.areaOfInterest = new ReferencedEnvelope(crs);
+            }
+        }
+    }
+
 
     /**
      * Remove the given layer from this context, if present, and
@@ -447,6 +506,7 @@ public class DefaultMapContext implements MapContext {
         final int length = layers.length;
         for (int i = 0; i < length; i++) {
             if (!layerList.contains(layers[i])) {
+                checkCRS(layers[i]);
                 layerList.add(layers[i]);
                 layerAdded++;
                 lastLayer = layers[i];
@@ -530,7 +590,7 @@ public class DefaultMapContext implements MapContext {
     public MapLayer[] getLayers() {
         MapLayer[] layers = new MapLayer[layerList.size()];
 
-        return (MapLayer[]) layerList.toArray(layers);
+        return layerList.toArray(new MapLayer[0]);
     }
 
     /**
@@ -545,7 +605,7 @@ public class DefaultMapContext implements MapContext {
      *             if the index is out of range
      */
     public MapLayer getLayer(int index) throws IndexOutOfBoundsException {
-        return (MapLayer) layerList.get(index);
+        return layerList.get(index);
     }
 
     /**
@@ -781,7 +841,7 @@ public class DefaultMapContext implements MapContext {
             throw new IndexOutOfBoundsException("Destination position " + destPosition + " out of bounds");
         }
 
-        MapLayer layer = (MapLayer) layerList.remove(sourcePosition);
+        MapLayer layer = layerList.remove(sourcePosition);
         layerList.add(destPosition, layer);
         fireMapLayerListListenerLayerMoved(new MapLayerListEvent(this, layer,
                 Math.min(sourcePosition, destPosition), Math.max(
@@ -794,7 +854,7 @@ public class DefaultMapContext implements MapContext {
     public void clearLayerList() {
         final int size = layerList.size();
         for (int i = 0; i < size; i++) {
-            MapLayer layer = (MapLayer) layerList.get(i);
+            MapLayer layer = layerList.get(i);
             layer.removeMapLayerListener(layerListener);
         }
 
@@ -1137,6 +1197,9 @@ public class DefaultMapContext implements MapContext {
     }
 
     /**
+     * Set or change the coordinate reference system for this context.
+     * This will trigger a MapBoundsEvent to be published to listeners.
+     *
      * @throws FactoryException
      * @throws TransformException
      *
