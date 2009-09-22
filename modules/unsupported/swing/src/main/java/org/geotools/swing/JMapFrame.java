@@ -18,6 +18,9 @@ package org.geotools.swing;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Set;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -58,6 +61,39 @@ import org.geotools.swing.action.InfoAction;
  */
 public class JMapFrame extends JFrame {
 
+    /**
+     * Constants for available toolbar buttons used with the
+     * {@linkplain #enableTool(int)} method.
+     */
+    public enum Tool {
+        /**
+         * Used to request that an empty toolbar be created
+         */
+        NONE,
+
+        /**
+         * Requests the feature info cursor tool
+         */
+        INFO,
+
+        /**
+         * Requests the pan cursor tool
+         */
+        PAN,
+
+        /**
+         * Requests the reset map extent cursor tool
+         */
+        RESET,
+
+        /**
+         * Requests the zoom in and out cursor tools
+         */
+        ZOOM;
+    }
+
+    private Set<Tool> toolSet;
+
     /*
      * UI elements
      */
@@ -66,7 +102,6 @@ public class JMapFrame extends JFrame {
     private JToolBar toolBar;
     private StatusBar statusBar;
 
-    private boolean showToolBar;
     private boolean showStatusBar;
     private boolean showLayerTable;
     private boolean uiSet;
@@ -120,9 +155,9 @@ public class JMapFrame extends JFrame {
         super(context == null ? "" : context.getTitle());
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        showToolBar = false;
         showLayerTable = false;
         showStatusBar = false;
+        toolSet = new HashSet<Tool>();
 
         // the map pane is the one element that is always displayed
         mapPane = new JMapPane();
@@ -133,12 +168,34 @@ public class JMapFrame extends JFrame {
 
     /**
      * Set whether a toolbar, with a basic set of map tools, will be displayed
-     * (default is false);
+     * (default is false). Calling this with state == true is equivalent to
+     * calling {@linkplain #enableTool} with all {@linkplain JMapFrame.Tool}
+     * constants.
      * 
      * @param state whether the toolbar is required
      */
     public void enableToolBar(boolean state) {
-        showToolBar = state;
+        if (state) {
+            toolSet.addAll(EnumSet.allOf(Tool.class));
+        } else {
+            toolSet.clear();
+        }
+    }
+
+    /**
+     * This method is an alternative to {@linkplain #enableToolBar(boolean)}.
+     * It requests that a tool bar be created with specific tools, identified
+     * by {@linkplain JMapFrame.Tool} constants.
+     * <code><pre>
+     * myMapFrame.enableTool(Tool.PAN, Tool.ZOOM);
+     * </pre></code>
+     *
+     * @param tool one or more {@linkplain JMapFrame.Tool} constants
+     */
+    public void enableTool(Tool ...tool) {
+        for (Tool t : tool) {
+            toolSet.add(t);
+        }
     }
 
     /**
@@ -194,7 +251,7 @@ public class JMapFrame extends JFrame {
          * our UI design
          */
         StringBuilder sb = new StringBuilder();
-        if (showToolBar) {
+        if (!toolSet.isEmpty()) {
             sb.append("[]"); // fixed size
         }
         sb.append("[grow]"); // map pane and optionally layer table fill space
@@ -218,36 +275,44 @@ public class JMapFrame extends JFrame {
          * Note the use of the XXXAction objects which makes constructing
          * the tool bar buttons very simple.
          */
-        if (showToolBar) {
+        if (!toolSet.isEmpty()) {
             toolBar = new JToolBar();
             toolBar.setOrientation(JToolBar.HORIZONTAL);
             toolBar.setFloatable(false);
 
             ButtonGroup cursorToolGrp = new ButtonGroup();
 
-            JButton zoomInBtn = new JButton(new ZoomInAction(mapPane));
-            toolBar.add(zoomInBtn);
-            cursorToolGrp.add(zoomInBtn);
+            if (toolSet.contains(Tool.ZOOM)) {
+                JButton zoomInBtn = new JButton(new ZoomInAction(mapPane));
+                toolBar.add(zoomInBtn);
+                cursorToolGrp.add(zoomInBtn);
 
-            JButton zoomOutBtn = new JButton(new ZoomOutAction(mapPane));
-            toolBar.add(zoomOutBtn);
-            cursorToolGrp.add(zoomOutBtn);
+                JButton zoomOutBtn = new JButton(new ZoomOutAction(mapPane));
+                toolBar.add(zoomOutBtn);
+                cursorToolGrp.add(zoomOutBtn);
 
-            toolBar.addSeparator();
+                toolBar.addSeparator();
+            }
 
-            JButton panBtn = new JButton(new PanAction(mapPane));
-            toolBar.add(panBtn);
-            cursorToolGrp.add(panBtn);
+            if (toolSet.contains(Tool.PAN)) {
+                JButton panBtn = new JButton(new PanAction(mapPane));
+                toolBar.add(panBtn);
+                cursorToolGrp.add(panBtn);
 
-            toolBar.addSeparator();
+                toolBar.addSeparator();
+            }
 
-            JButton infoBtn = new JButton(new InfoAction(mapPane));
-            toolBar.add(infoBtn);
+            if (toolSet.contains(Tool.INFO)) {
+                JButton infoBtn = new JButton(new InfoAction(mapPane));
+                toolBar.add(infoBtn);
 
-            toolBar.addSeparator();
+                toolBar.addSeparator();
+            }
 
-            JButton resetBtn = new JButton(new ResetAction(mapPane));
-            toolBar.add(resetBtn);
+            if (toolSet.contains(Tool.RESET)) {
+                JButton resetBtn = new JButton(new ResetAction(mapPane));
+                toolBar.add(resetBtn);
+            }
 
             panel.add(toolBar, "grow");
         }
@@ -352,4 +417,17 @@ public class JMapFrame extends JFrame {
     public JMapPane getMapPane() {
         return mapPane;
     }
+
+    /**
+     * Provides access to the toolbar being used by this frame.
+     * If {@linkplain #initComponents} has not been called yet
+     * this method will invoke it.
+     *
+     * @return the toolbar or null if the toolbar was not enabled
+     */
+    public JToolBar getToolBar() {
+        if (!uiSet) initComponents();
+        return toolBar;
+    }
 }
+

@@ -47,6 +47,7 @@ import javax.swing.Timer;
 import javax.swing.event.MouseInputAdapter;
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.map.event.MapBoundsEvent;
 import org.geotools.swing.event.MapMouseListener;
 import org.geotools.swing.event.MapPaneEvent;
 import org.geotools.swing.event.MapPaneListener;
@@ -56,6 +57,7 @@ import org.geotools.swing.tool.CursorTool;
 import org.geotools.swing.tool.MapToolManager;
 import org.geotools.map.MapContext;
 import org.geotools.map.MapLayer;
+import org.geotools.map.event.MapBoundsListener;
 import org.geotools.map.event.MapLayerEvent;
 import org.geotools.map.event.MapLayerListEvent;
 import org.geotools.map.event.MapLayerListListener;
@@ -80,7 +82,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * @source $URL$
  * @version $Id$
  */
-public class JMapPane extends JPanel implements MapLayerListListener {
+public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsListener {
 
     private static final long serialVersionUID = 6657390989310278122L;
     private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/swing/widget");
@@ -441,6 +443,7 @@ public class JMapPane extends JPanel implements MapLayerListListener {
 
             if (context != null) {
                 this.context.addMapLayerListListener(this);
+                this.context.addMapBoundsListener(this);
 
                 // set all layers as selected by default for the info tool
                 for (MapLayer layer : context.getLayers()) {
@@ -733,6 +736,16 @@ public class JMapPane extends JPanel implements MapLayerListListener {
     public void layerMoved(MapLayerListEvent event) {
         repaint();
     }
+
+    /**
+     * Called when the bounds of the map context have changed, e.g. by
+     * setting a new CRS.
+     */
+    public void mapBoundsChanged(MapBoundsEvent event) {
+        needNewBaseImage = true;
+        repaint();
+    }
+
 
     /**
      * Calculate the affine transforms used to convert between
