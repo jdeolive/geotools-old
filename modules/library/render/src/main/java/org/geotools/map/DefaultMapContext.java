@@ -64,8 +64,13 @@ public class DefaultMapContext implements MapContext {
 
     /** The logger for the map module. */
     static public final Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.map");
+
+    /** List of MapLayers */
     List<MapLayer> layerList = new ArrayList<MapLayer>();
-    ReferencedEnvelope areaOfInterest = null;
+
+    /** Current area of interest */
+    ReferencedEnvelope areaOfInterest;
+
     /** Utility field used by event firing mechanism. */
     protected javax.swing.event.EventListenerList listenerList = null;
     protected MapLayerListener layerListener = new MapLayerListener() {
@@ -129,12 +134,13 @@ public class DefaultMapContext implements MapContext {
     }
 
     /**
-     * Creates a map context with the provided layers
+     * Creates a map context with the provided layers.
+     * <p>
+     * Note, the coordinate reference system for the context will be
+     * set from that of the first layer with an available CRS.
      *
      * @param layers an array of MapLayer objects (may be empty or null)
      * to be added to this context
-     *
-     * @deprecated
      */
     public DefaultMapContext(MapLayer[] layers) {
         this(layers, DefaultGeographicCRS.WGS84);
@@ -156,6 +162,9 @@ public class DefaultMapContext implements MapContext {
 
     /**
      * Creates a map context
+     * <p>
+     * Note, the coordinate reference system for the context will be
+     * set from that of the first layer with an available CRS.
      *
      * @param layers an array of MapLayer objects (may be empty or null)
      * to be added to this context
@@ -174,12 +183,10 @@ public class DefaultMapContext implements MapContext {
      * data that are, or will be, held by this context;
      * may be null or a zero-length String array
      *
-     * @deprecated
      */
     public DefaultMapContext(MapLayer[] layers, String title,
             String contextAbstract, String contactInformation, String[] keywords) {
-        this(layers, title, contextAbstract, contactInformation, keywords,
-                DefaultGeographicCRS.WGS84);
+        this(layers, title, contextAbstract, contactInformation, keywords, null);
     }
 
     /**
@@ -213,9 +220,9 @@ public class DefaultMapContext implements MapContext {
         setAbstract(contextAbstract);
         setContactInformation(contactInformation);
         setKeywords(keywords);
-        if (crs != null) {
-            this.areaOfInterest = new ReferencedEnvelope(crs);
-        }
+
+        this.areaOfInterest = new ReferencedEnvelope(crs);
+
         addLayers(layers);
     }
 
@@ -440,8 +447,8 @@ public class DefaultMapContext implements MapContext {
      */
     private void checkCRS(CoordinateReferenceSystem crs) {
         if (crs != null) {
-            if (areaOfInterest == null) {
-                this.areaOfInterest = new ReferencedEnvelope(crs);
+            if (areaOfInterest.getCoordinateReferenceSystem() == null) {
+                this.areaOfInterest = new ReferencedEnvelope(areaOfInterest, crs);
             }
         }
     }
@@ -640,8 +647,7 @@ public class DefaultMapContext implements MapContext {
      *
      */
     public ReferencedEnvelope getLayerBounds() throws IOException {
-        if (areaOfInterest == null ||
-                areaOfInterest.getCoordinateReferenceSystem() == null) {
+        if (areaOfInterest.getCoordinateReferenceSystem() == null) {
             throw new IOException("Area of interest not set for this context; can't get layer bounds");
         }
 
@@ -709,6 +715,7 @@ public class DefaultMapContext implements MapContext {
     public void setAreaOfInterest(Envelope areaOfInterest,
             CoordinateReferenceSystem coordinateReferenceSystem)
             throws IllegalArgumentException {
+
         if ((areaOfInterest == null) || (coordinateReferenceSystem == null)) {
             throw new IllegalArgumentException("Input arguments cannot be null");
         }
@@ -758,7 +765,7 @@ public class DefaultMapContext implements MapContext {
      *
      */
     public ReferencedEnvelope getAreaOfInterest() {
-        if (areaOfInterest == null || areaOfInterest.isEmpty()) {
+        if (areaOfInterest.isEmpty()) {
             try {
                 final Envelope e = getLayerBounds();
                 if (e != null) {
@@ -776,11 +783,7 @@ public class DefaultMapContext implements MapContext {
             }
         }
 
-        if (areaOfInterest == null) {
-            return null;
-        } else {
-            return this.areaOfInterest;
-        }
+        return this.areaOfInterest;
     }
 
     /**
@@ -791,9 +794,7 @@ public class DefaultMapContext implements MapContext {
     public CoordinateReferenceSystem getCoordinateReferenceSystem() {
         CoordinateReferenceSystem crs = null;
 
-        if (areaOfInterest != null) {
-            crs = areaOfInterest.getCoordinateReferenceSystem();
-        }
+        crs = areaOfInterest.getCoordinateReferenceSystem();
 
         return crs;
     }
