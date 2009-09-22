@@ -43,7 +43,7 @@ import org.geotools.styling.Stroke;
 import org.geotools.swing.JMapFrame;
 import org.geotools.swing.data.JFileDataStoreChooser;
 
-public class ShapeLab {
+public class StyleLab {
 
     static StyleFactory styleFactory = CommonFactoryFinder.getStyleFactory(null);
     static FilterFactory filterFactory = CommonFactoryFinder.getFilterFactory(null);

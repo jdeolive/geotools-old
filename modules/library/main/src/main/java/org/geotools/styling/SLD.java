@@ -1891,7 +1891,6 @@ public class SLD {
         return sf.createPointPlacement(anchorPoint, null, ff.literal(rotation));
     }
 
-
     /**
      * Create a minimal style to render features of type {@code typeName}
      * read from the given data store
@@ -1912,6 +1911,17 @@ public class SLD {
     }
 
     /**
+     * Create a minimal style to render features of type {@code type}.
+     *
+     * @param type the feature type
+     *
+     * @return a new Style instance
+     */
+    public static Style createSimpleStyle(SimpleFeatureType type) {
+        return createSimpleStyle(type, Color.BLACK);
+    }
+
+    /**
      * Create a minimal style to render features of type {@code type}
      *
      * @param store the data store containing the features
@@ -1927,10 +1937,16 @@ public class SLD {
     public static Style createSimpleStyle(SimpleFeatureType type, Color color) {
         GeometryDescriptor desc = type.getGeometryDescriptor();
         Class<?> clazz = desc.getType().getBinding();
+        Color fillColor = null;
 
         if (Polygon.class.isAssignableFrom(clazz) ||
                 MultiPolygon.class.isAssignableFrom(clazz)) {
-            return createPolygonStyle(color, color, 0.5f);
+            if (color.equals(Color.BLACK)) {
+                fillColor = null;
+            } else {
+                fillColor = color;
+            }
+            return createPolygonStyle(color, fillColor, 0.5f);
 
         } else if (LineString.class.isAssignableFrom(clazz) ||
                 MultiLineString.class.isAssignableFrom(clazz)) {
@@ -1938,7 +1954,12 @@ public class SLD {
 
         } else if (Point.class.isAssignableFrom(clazz) ||
                 MultiPoint.class.isAssignableFrom(clazz)) {
-            return createPointStyle("Circle", color, color, 0.5f, 3.0f);
+            if (color.equals(Color.BLACK)) {
+                fillColor = null;
+            } else {
+                fillColor = color;
+            }
+            return createPointStyle("Circle", color, fillColor, 0.5f, 3.0f);
         }
 
         throw new UnsupportedOperationException("No style method for " + clazz.getName());
@@ -1955,7 +1976,10 @@ public class SLD {
      */
     public static Style createPolygonStyle(Color outlineColor, Color fillColor, float opacity) {
         Stroke stroke = sf.createStroke(ff.literal(outlineColor), ff.literal(1.0f));
-        Fill fill = sf.createFill(ff.literal(fillColor), ff.literal(opacity));
+        Fill fill = Fill.NULL;
+        if (fillColor != null) {
+            fill = sf.createFill(ff.literal(fillColor), ff.literal(opacity));
+        }
         return wrapSymbolizers( sf.createPolygonSymbolizer(stroke, fill, null) );
     }
 
@@ -1978,7 +2002,10 @@ public class SLD {
     public static Style createPolygonStyle(Color outlineColor, Color fillColor, float opacity,
             String labelField, Font labelFont) {
         Stroke stroke = sf.createStroke(ff.literal(outlineColor), ff.literal(1.0f));
-        Fill fill = sf.createFill(ff.literal(fillColor), ff.literal(opacity));
+        Fill fill = Fill.NULL;
+        if (fillColor != null) {
+            fill = sf.createFill(ff.literal(fillColor), ff.literal(opacity));
+        }
         PolygonSymbolizer polySym = sf.createPolygonSymbolizer(stroke, fill, null);
 
         if (labelField == null) {
@@ -2092,7 +2119,7 @@ public class SLD {
 
         Stroke stroke = sf.createStroke(ff.literal(lineColor), ff.literal(1.0f));
         Fill fill = Fill.NULL;
-        if (size > 1.0) {
+        if (fillColor != null && size > 1.0) {
             fill = sf.createFill(ff.literal(fillColor), ff.literal(opacity));
         }
 
@@ -2148,4 +2175,5 @@ public class SLD {
 
         return style;
     }
+
 }

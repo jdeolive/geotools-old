@@ -16,6 +16,7 @@
  */
 package org.geotools.data;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashSet;
@@ -52,12 +53,26 @@ public class FileDataStoreFinder {
 
     /**
      * Checks each available datasource implementation in turn and returns the
+     * first one which claims to support the given file..
+     *
+     * @param file the file
+     *
+     * @return The first datasource which claims to process the required
+     *         resource, returns null if none can be found.
+     *
+     * @throws IOException If a suitable loader can be found, but it can not be
+     *         attached to the specified resource without errors.
+     */
+    public static DataStore getDataStore(File file) throws IOException {
+        return getDataStore(file.toURI().toURL());
+    }
+
+    /**
+     * Checks each available datasource implementation in turn and returns the
      * first one which claims to support the resource identified by the params
      * object.
      *
-     * @param url A Map object which contains a defenition of the resource to
-     *        connect to. for file based resources the property 'url' should
-     *        be set within this Map.
+     * @param url URL for the input resource
      *
      * @return The first datasource which claims to process the required
      *         resource, returns null if none can be found.
