@@ -362,6 +362,9 @@ public class JMapPane extends JPanel implements MapLayerListListener {
 
             if (rasterHints != null) {
                 RenderingHints rHints = renderer.getJava2DHints();
+                if (hints == null) {
+                    hints = new RenderingHints(Collections.EMPTY_MAP);
+                }
                 rHints.putAll(rasterHints);
                 renderer.setJava2DHints(rHints);
             }
@@ -397,6 +400,9 @@ public class JMapPane extends JPanel implements MapLayerListListener {
 
             if (renderer != null) {
                 RenderingHints hints = renderer.getJava2DHints();
+                if (hints == null) {
+                    hints = new RenderingHints(Collections.EMPTY_MAP);
+                }
                 hints.putAll(rasterHints);
                 renderer.setJava2DHints(hints);
             }
