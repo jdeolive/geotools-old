@@ -18,6 +18,7 @@
 package org.geotools.swing.tool;
 
 import java.awt.Cursor;
+import java.awt.Toolkit;
 import java.util.ResourceBundle;
 import javax.swing.Icon;
 import org.geotools.swing.JMapPane;
@@ -71,16 +72,22 @@ public abstract class CursorTool extends MapMouseAdapter {
     /**
      * Get the icon for this tool to be used with JButtons
      */
-    public abstract Icon getIcon();
+    public Icon getIcon() {
+        return null;
+    }
 
     /**
-     * Get the cursor for this tool
+     * Get the cursor for this tool.
      */
-    public abstract Cursor getCursor();
+    public Cursor getCursor() {
+        return Cursor.getDefaultCursor();
+    }
 
     /**
      * Query if the tool is one that draws a box on the map display
      * when the mouse is being dragged (eg. to indicate a zoom area).
      */
-    public abstract boolean drawDragBox();
+    public boolean drawDragBox() {
+        return false;
+    }
 }
