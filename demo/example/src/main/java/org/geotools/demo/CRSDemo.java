@@ -59,17 +59,17 @@ public class CRSDemo {
         btn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
-                    CoordinateReferenceSystem newCRS = getCoordinateReferenceSystem("Select a new CRS");
-                    map.setCoordinateReferenceSystem(newCRS);
-                    
+                    CoordinateReferenceSystem crs = getCoordinateReferenceSystem("Select a new CRS");
+                    if( crs == null){
+                        return; // canceled
+                    }
+                    map.setCoordinateReferenceSystem(crs);;                    
                 } catch (Exception ex) {
-                    ex.printStackTrace();
-                    System.exit(1);
+                    System.out.println("Could not uses crs "+ex);
                 }
             }
         });
         toolbar.add(btn);
-
         mapFrame.setSize(600, 600);
         mapFrame.setVisible(true);
     }
@@ -77,17 +77,19 @@ public class CRSDemo {
 
     /**
      * Prompt the user to select a new coordinate reference system
-     *
+     * 
      * @param title dialog title
-     * @return the selected CRS
+     * @return the selected CRS, or null if none selected
      */
     private static CoordinateReferenceSystem getCoordinateReferenceSystem(
             String title) throws Exception {
 
         CRSAuthorityFactory authorityFactory = ReferencingFactoryFinder.getCRSAuthorityFactory("EPSG", null);
-        Set<String> codes = authorityFactory.getAuthorityCodes(CoordinateReferenceSystem.class);
+        Set<String> epsg = authorityFactory.getAuthorityCodes(CoordinateReferenceSystem.class);
+        
+        List<String> codes = new ArrayList<String>( epsg );      
+        
         List<String> desc = new ArrayList<String>();
-
         for (String code : codes) {
             desc.add(code + ": " + authorityFactory.getDescriptionText("EPSG:" + code).toString());
         }
@@ -96,9 +98,8 @@ public class CRSDemo {
                 desc.toArray(), "EPSG:4326");
 
         if (selected == null) {
-            System.exit(0);
+            return null;
         }
-
         String selectedCode = selected.substring(0, selected.indexOf(':'));
         return CRS.decode("EPSG:" + selectedCode, true);
     }
