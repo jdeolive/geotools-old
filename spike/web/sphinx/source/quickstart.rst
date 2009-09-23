@@ -4,7 +4,7 @@
 Quickstart
 ==========
 
-Welcome to your first GeoTools project! We are going to set up a project to use GeoTools; and then go through an example of reading a shapefile.
+Welcome to your first GeoTools project! We are going to set up a project to use GeoTools; and then display a shapefile on the screen.
 
 Please note that GeoTools is large. Well actually quite HUGE. And it depends on a lot of other open source libraries, toolkits, hacks and so on. Keeping track of all of this is a bit of a chore - so I would like to introduce a tool to you.
 
@@ -119,7 +119,8 @@ Depending on GeoTools
 
 To make use of GeoTools we are going to add two things to your pom.xml file:
 
-* A new dependency:: *gt-main* version 2.6-M2
+* A *properties* element defining the version of GeoTools that we want to use
+* A new dependency: ``gt-main``
 * A list of *repositories* where maven can find GeoTools and all the cool stuff it uses
 
 .. sourcecode:: xml
@@ -134,6 +135,9 @@ To make use of GeoTools we are going to add two things to your pom.xml file:
       <version>1.0-SNAPSHOT</version>
       <name>example</name>
       <url>http://maven.apache.org</url>
+      <properties>
+        <geotools.version>2.6-M2</geotools.version>
+      </properties>
       <dependencies>
         <dependency>
           <groupId>junit</groupId>
@@ -143,7 +147,7 @@ To make use of GeoTools we are going to add two things to your pom.xml file:
         <dependency>
           <groupId>org.geotools</groupId>
           <artifactId>gt-main</artifactId>
-          <version>2.6-M2</version>
+          <version>${geotools.version}</version>
         </dependency>
       </dependencies>
       <repositories>
@@ -159,6 +163,8 @@ To make use of GeoTools we are going to add two things to your pom.xml file:
         </repository>
       </repositories>
     </project>
+
+Note how we use the *geotools.version* property with our ``gt-main`` dependency. 
 
 In later tutorials we will just show the dependency section of the pom.xml file since you won't need to make any further changes to the other sections. We will be adding dependencies over time as we try out more of the library.
       
@@ -262,10 +268,8 @@ Running your application from the command line is a bit more cumbersome, requiri
          incantation above by specifying the main class in the pom.xml file. See the Maven documentation
          for details.
  
-Fun Fun Fun !
-
-How to Read a Shapefile
-=======================
+How to read and display a shapefile
+===================================
 
 Now that we have tried out maven, we can get down to working with some real spatial data. The shapefile format used by ESRI products is in very common use. If you don't have a shapefile handy, you can download "world_borders.zip" and "world_borders.prj" from the following location:
 
@@ -284,30 +288,8 @@ We are going to start by adding two plugins to our GeoTools application. Plugins
 
 Here are the plugins we will be using to to read a shapefile.
 
-* gt2-shape - Is used to reads file.shp, file.dbf, file.shx etc...
-* gt2-epsg-hsql - Is used to read file.prj
-
-For both of these we want to use version |gtVersion|. In fact, since we will always be using the same version for all of the GeoTools dependencies that we add to our project we can make life easier for ourselves by specifying this in the top part of the pom.xml file like this:
-
-.. sourcecode:: xml
-
-  <project>
-    ...
-    <properties>
-      <geotools.version>2.6-M2</geotools.version>
-    </properties>
-
-Now, instead of explicitly specifying the version for each GeoTools module in our project (and having to edit them all when we upgrade) we can refer to our ``geotools.version`` property like this:
-
-.. sourcecode:: xml
-
-     <dependency>
-       <groupId>org.geotools</groupId>
-       <artifactId>gt-main</artifactId>
-       <version>${geotools.version}</version>
-     </dependency>
-
-OK, after that brief digression, let's add our plugins by editing the pom.xml file so that the dependencies section looks like this:
+* **gt2-shape** used to reads file.shp, file.dbf, file.shx etc...
+* **gt2-epsg-hsql** used to read file.prj (map projection)
 
 .. sourcecode:: xml
 
@@ -398,50 +380,31 @@ Example Code
 
 The following example is available from:
 
-  http://svn.osgeo.org/geotools/trunk/demo/example/src/main/java/org/geotools/demo/FirstProject.java
+  http://svn.osgeo.org/geotools/trunk/demo/example/src/main/java/org/geotools/demo/Quickstart.java
 
 It is also included in the demo directory when you download geotools.
 
-.. NOTE: *********************************************************************
-         Removed the sentence about the code below possible being out of date
-         because it is live linked now (well, sort of)
-         *********************************************************************
-
 Application
 -----------
-We are going to create an application to open a shapefile and read the spatial data for the features in it to do a simple calculation: the total length of all features.
+We are going to create an application to open a shapefile and display it with a simple map viewer.
 
 The code for the application is shown below. It consists of a single class: 
 
-  **org.geotools.demo.FirstProject** 
+  **org.geotools.demo.Quickstart** 
 
 Copy and paste the code into your IDE as part of your Maven project:
 
-   .. literalinclude:: ../../../../demo/example/src/main/java/org/geotools/demo/FirstProject.java
+   .. literalinclude:: ../../../../demo/example/src/main/java/org/geotools/demo/Quickstart.java
       :language: java
    
 Now build the application, either from within your IDE or from the command line with ``mvn compile``.
 
-If the application compiled you can now run it. Once again, you can do this from within your IDE or from the command line. The program should display a dialog where you can specify the shapefile. It will then read the shapefile and calculate the total length of the lines or polygon boundaries::
+If the application compiled you can now run it. Once again, you can do this from within your IDE or from the command line. The program should display a dialog prompting you for a shapefile and then display it in a simple map viewer.
 
-     C:\java\example>mvn exec:java -Dexec.mainClass="org.geotools.demo.example.FirstProject"
-     [INFO] Scanning for projects...
-     [INFO] Searching repository for plugin with prefix: 'exec'.
-     [INFO] ------------------------------------------------------------------------
-     [INFO] Building geotools-example
-     [INFO]    task-segment: [exec:java]
-     [INFO] ------------------------------------------------------------------------
-     [INFO] Preparing exec:java
-     [INFO] No goals needed for project - skipping
-     [INFO] [exec:java]
-     Welcome to GeoTools:2.6.SNAPSHOT
-     You chose to open this file: bc_border.shp
-     Reading content bc_border
-     Total Length 383.8965970055014
+.. image:: examples/JMapFrame.gif
 
 Questions
 =========
-
 
 How to use a SNAPSHOT?
 ----------------------
@@ -461,14 +424,14 @@ A snapshot release is a nightly release made by the geotools team; to make use o
 
 You can now refer to 2.6-SNAPSHOT
 
-What Does ShapefileDataStore do?
---------------------------------
+What are FileDataStore and FeatureSource ?
+------------------------------------------
 
 Here is how this all fits together:
 
-* DataStore represents the shapefile and allows you to work with the "shp", "dbf" and "prj" files as a group (even generating a new "qnx" index if needed)
+* FileDataStore represents the shapefile and allows you to work with the "shp", "dbf" and "prj" files as a group (even generating a new "qnx" index if needed)
 * FeatureSource is used to read the data in the shapefile; you can perform queries and get a FeatureCollection out
-* FeatureStoreis used to modify the data; you can add features; and update features etc...
+* FeatureStore is used to modify the data; you can add features; and update features etc...
 * FeatureCollection is used work with Features. Please note that this is more like a result set or data stream than a Java Collection (you will need to close each iterator after use)
 * Iterator, FeatureIterator or FeatureVisitors can all be used process the Features in your FeatureCollection.
 * Each Feature has a Geometry (a JTS Geometry object)
@@ -479,10 +442,7 @@ Here is how this all fits together:
 How can I write a Shapefile?
 ----------------------------
 
-A couple tutorials show how to write a shapefile:
-
- * http://docs.codehaus.org/display/GEOTDOC/05+SHP2SHP+Lab
- * http://docs.codehaus.org/display/GEOTDOC/06+CSV2SHP+Lab
+For an introduction to creating Features and writing them to a shapefile have a look at :ref:`csv2shp`
 
 Can the program read files that are several MB in size?
 -------------------------------------------------------
@@ -492,10 +452,4 @@ Yes the shapefile reading code actually does not read anything until you open up
 The approach used is to "stream" the content into your application as you read; it does NOT load it into memory allowing you to work with massive files. GIS data is almost always big; so this approach is needed.
 
 If you have database experience you may wish to think of a FeatureCollection as a prepared statement, and iterator() as executing the query.
-
-How can I see a shapefile?
---------------------------
-
-The following tutorial covers creating a style and drawing an image using a shapefile:
- * http://docs.codehaus.org/display/GEOTDOC/09+ShapeLab
 
