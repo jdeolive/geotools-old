@@ -35,7 +35,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * This is a visual example of changing the coordinate reference
  * system of a feature layer.
  */
-public class CRSDemo {
+public class CRSLab {
 
     public static void main(String[] args) throws Exception {
         File file = JFileDataStoreChooser.showOpenFile("shp", null);
