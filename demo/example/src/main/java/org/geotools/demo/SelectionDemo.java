@@ -35,8 +35,8 @@ import org.geotools.styling.StyleFactory;
 import org.geotools.styling.Symbolizer;
 import org.geotools.swing.JMapFrame;
 import org.geotools.swing.data.JFileDataStoreChooser;
-import org.geotools.swing.event.MapMouseAdapter;
 import org.geotools.swing.event.MapMouseEvent;
+import org.geotools.swing.tool.CursorTool;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
@@ -48,7 +48,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * In this example we create a map tool to select a feature clicked
  * with the mouse. The selected feature will be painted yellow.
  */
-public class SelectionDemo extends MapMouseAdapter {
+public class SelectionDemo {
 
     StyleFactory sf = CommonFactoryFinder.getStyleFactory(null);
     FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
@@ -57,7 +57,7 @@ public class SelectionDemo extends MapMouseAdapter {
     FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
     String geometryAttributeName;
 
-    boolean listening = false;
+    SelectTool selectTool = new SelectTool(this);
 
     public static void main(String[] args) throws Exception {
         SelectionDemo me = new SelectionDemo();
@@ -85,22 +85,17 @@ public class SelectionDemo extends MapMouseAdapter {
         map.addLayer(featureSource, style);
 
         mapFrame = new JMapFrame(map);
-        mapFrame.enableTool(JMapFrame.Tool.NONE);
+        mapFrame.enableToolBar(true);
 
         JToolBar toolBar = mapFrame.getToolBar();
 
-        final JButton btn = new JButton("Select");
+        JButton btn = new JButton("Select");
+        toolBar.addSeparator();
         toolBar.add(btn);
 
         btn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                listening = !listening;
-                if (listening) {
-                    mapFrame.getMapPane().addMouseListener(SelectionDemo.this);
-
-                } else {
-                    mapFrame.getMapPane().removeMouseListener(SelectionDemo.this);
-                }
+                mapFrame.getMapPane().setCursorTool(selectTool);
             }
         });
 
@@ -108,44 +103,6 @@ public class SelectionDemo extends MapMouseAdapter {
         mapFrame.setVisible(true);
     }
 
-    @Override
-    public void onMouseClicked(MapMouseEvent ev) {
-        if (listening) {
-            DirectPosition2D pos = ev.getMapPosition();
-
-            String filterString =
-                    String.format("CONTAINS(%s, POINT(%f %f))",
-                    geometryAttributeName, pos.x, pos.y);
-
-            System.out.println("Filter: " + filterString);
-
-            Filter filter = null;
-            try {
-                filter = CQL.toFilter(filterString);
-                FeatureCollection<SimpleFeatureType, SimpleFeature> selectedFeatures = featureSource.getFeatures(filter);
-
-                FeatureIterator<SimpleFeature> iter = selectedFeatures.features();
-                Set<FeatureId> IDs = new HashSet<FeatureId>();
-                try {
-                    while (iter.hasNext()) {
-                        SimpleFeature feature = iter.next();
-                        IDs.add(feature.getIdentifier());
-                    }
-
-                } finally {
-                    iter.close();
-                }
-
-                Style style = createSelectedStyle(IDs);
-                mapFrame.getMapContext().getLayer(0).setStyle(style);
-                mapFrame.getMapPane().repaint();
-
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                return;
-            }
-        }
-    }
 
     /**
      * Create a default Style to display polygon features
@@ -191,5 +148,69 @@ public class SelectionDemo extends MapMouseAdapter {
         Rule rule = sf.createRule();
         rule.symbolizers().add(symbolizer);
         return rule;
+    }
+
+    public void setSelectedFeatures(Set<FeatureId> IDs) {
+        Style style;
+
+        if (IDs.isEmpty()) {
+            style = createDefaultStyle();
+
+        } else {
+            style = createSelectedStyle(IDs);
+        }
+
+        mapFrame.getMapContext().getLayer(0).setStyle(style);
+        mapFrame.getMapPane().repaint();
+    }
+}
+
+class SelectTool extends CursorTool {
+
+    SelectionDemo owner;
+
+    SelectTool( SelectionDemo owner ) {
+        this.owner = owner;
+    }
+
+    @Override
+    public String getName() {
+        return "Select";
+    }
+
+    @Override
+    public void onMouseClicked(MapMouseEvent ev) {
+        DirectPosition2D pos = ev.getMapPosition();
+
+        String filterString =
+                String.format("CONTAINS(%s, POINT(%f %f))",
+                owner.geometryAttributeName, pos.x, pos.y);
+
+        System.out.println("Filter: " + filterString);
+
+        Filter filter = null;
+        try {
+            filter = CQL.toFilter(filterString);
+            FeatureCollection<SimpleFeatureType, SimpleFeature> selectedFeatures = 
+                    owner.featureSource.getFeatures(filter);
+
+            FeatureIterator<SimpleFeature> iter = selectedFeatures.features();
+            Set<FeatureId> IDs = new HashSet<FeatureId>();
+            try {
+                while (iter.hasNext()) {
+                    SimpleFeature feature = iter.next();
+                    IDs.add(feature.getIdentifier());
+                }
+
+            } finally {
+                iter.close();
+            }
+
+            owner.setSelectedFeatures( IDs );
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return;
+        }
     }
 }
