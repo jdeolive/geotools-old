@@ -288,24 +288,19 @@ public class DefaultMapContext implements MapContext {
      * <p>
      * If a coordinate reference system has not been set for the context an attempt is
      * made to retrieve one from the new layer and use that as the context's CRS.
+     * <p>
+     * If {@code style} is null, a default style is created using
+     * {@linkplain SLD#createSimpleStyle(org.opengis.feature.simple.SimpleFeatureType)}.
      *
      * @param featureSource the source of the features for the new layer
-     * @param style a Style object to be used in rendering this layer. If style is
-     *        {@code null} we attempt to create an appropriate default style
+     *
+     * @param style a Style object to be used in rendering this layer. 
      */
     public void addLayer(FeatureSource<SimpleFeatureType, SimpleFeature> featureSource, Style style) {
 
         checkCRS(featureSource);
-
-        if (style != null) {
-            this.addLayer(new DefaultMapLayer(featureSource, style, ""));
-        } else {
-            Style defStyle = SLD.createSimpleStyle(featureSource.getSchema());
-            if (defStyle == null) {
-                throw new IllegalStateException("Failed to creaate a default style for the layer");
-            }
-            addLayer(new DefaultMapLayer(featureSource, defStyle, ""));
-        }
+        Style layerStyle = checkStyle(style, featureSource.getSchema());
+        addLayer(new DefaultMapLayer(featureSource, layerStyle, ""));
     }
 
     /**
@@ -325,6 +320,7 @@ public class DefaultMapContext implements MapContext {
 //        if( source instanceof FeatureSource){
 //            addLayer( (FeatureSource<SimpleFeatureType, SimpleFeature>) source, style);
 //        }
+
         this.addLayer(new DefaultMapLayer(source, style, ""));
     }
 
@@ -339,6 +335,10 @@ public class DefaultMapContext implements MapContext {
      * @param style a Style to be used when rendering the new layer
      */
     public void addLayer(GridCoverage gc, Style style) {
+        if (style == null) {
+            throw new IllegalArgumentException("style cannot be null");
+        }
+
         checkCRS(gc.getCoordinateReferenceSystem());
 
         try {
@@ -363,6 +363,10 @@ public class DefaultMapContext implements MapContext {
      * @param style a Style to be used when rendering the new layer
      */
     public void addLayer(AbstractGridCoverage2DReader reader, Style style) {
+        if (style == null) {
+            throw new IllegalArgumentException("style cannot be null");
+        }
+
         checkCRS( reader.getCrs() );
 
         try {
@@ -386,7 +390,8 @@ public class DefaultMapContext implements MapContext {
      * @param style a Style object to be used in rendering this layer
      */
     public void addLayer(FeatureCollection<SimpleFeatureType, SimpleFeature> collection, Style style) {
-        this.addLayer(new DefaultMapLayer(collection, style, ""));
+        Style layerStyle = checkStyle(style, collection.getSchema());
+        this.addLayer(new DefaultMapLayer(collection, layerStyle, ""));
     }
 
     /**
@@ -453,6 +458,29 @@ public class DefaultMapContext implements MapContext {
         }
     }
 
+    /**
+     * Helper for some addLayer methods that tkae a Style argument.
+     * Checks if the style is null and, if so, attepts to create a default Style.
+
+     * @param style style argument that was passed to addLayer
+     * @param featureType feature type for which a default style be will made if
+     *        required
+     *
+     * @return the input Style object if not {@code null}, or a Style instance
+     *         for a default style
+     */
+    private Style checkStyle(Style style, SimpleFeatureType featureType) {
+        if (style != null) {
+            return style;
+        }
+
+        Style defaultStyle = SLD.createSimpleStyle(featureType);
+        if (defaultStyle == null) {
+            throw new IllegalStateException("Failed to creaate a default style for the layer");
+        }
+
+        return defaultStyle;
+    }
 
     /**
      * Remove the given layer from this context, if present, and
