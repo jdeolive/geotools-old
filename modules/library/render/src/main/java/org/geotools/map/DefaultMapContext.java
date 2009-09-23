@@ -675,10 +675,6 @@ public class DefaultMapContext implements MapContext {
      *
      */
     public ReferencedEnvelope getLayerBounds() throws IOException {
-        if (areaOfInterest.getCoordinateReferenceSystem() == null) {
-            throw new IOException("Area of interest not set for this context; can't get layer bounds");
-        }
-
         ReferencedEnvelope result = null;
         CoordinateReferenceSystem crs = areaOfInterest.getCoordinateReferenceSystem();
 
@@ -687,6 +683,7 @@ public class DefaultMapContext implements MapContext {
         FeatureSource<SimpleFeatureType, SimpleFeature> fs;
         ReferencedEnvelope env;
         CoordinateReferenceSystem sourceCrs;
+
         for (int i = 0; i < length; i++) {
             layer = layerList.get(i);
             /*fs = layer.getFeatureSource();
@@ -700,7 +697,7 @@ public class DefaultMapContext implements MapContext {
             } else {
                 try {
                     sourceCrs = env.getCoordinateReferenceSystem();
-                    if ((sourceCrs != null) && !CRS.equalsIgnoreMetadata(sourceCrs, crs)) {
+                    if ((sourceCrs != null) && crs != null && !CRS.equalsIgnoreMetadata(sourceCrs, crs)) {
                         env = env.transform(crs, true);
                     }
 
@@ -762,11 +759,7 @@ public class DefaultMapContext implements MapContext {
      * @return the coordinate system (may be null)
      */
     public CoordinateReferenceSystem getCoordinateReferenceSystem() {
-        CoordinateReferenceSystem crs = null;
-
-        crs = areaOfInterest.getCoordinateReferenceSystem();
-
-        return crs;
+        return areaOfInterest.getCoordinateReferenceSystem();
     }
 
     /**
@@ -783,7 +776,9 @@ public class DefaultMapContext implements MapContext {
         coords[1] = areaOfInterest.getMinY();
         coords[2] = areaOfInterest.getMaxX();
         coords[3] = areaOfInterest.getMaxY();
+        
         transform.transform(coords, 0, coords, 0, 2);
+
         this.areaOfInterest = new ReferencedEnvelope(coords[0], coords[2],
                 coords[1], coords[3], areaOfInterest.getCoordinateReferenceSystem());
 
@@ -793,15 +788,14 @@ public class DefaultMapContext implements MapContext {
     }
 
     /**
-     * DOCUMENT ME!
+     * Change the position of a layer in this context's list of map layers.
+     * This triggers a MapLayerList event.
      *
-     * @param sourcePosition
-     *            DOCUMENT ME!
-     * @param destPosition
-     *            DOCUMENT ME!
+     * @param sourcePosition the layer's current position
+     * @param destPosition the new position
      *
-     * @throws IndexOutOfBoundsException
-     *             DOCUMENT ME!
+     * @throws IndexOutOfBoundsException if either position is less than zero or
+     *         not less than the number of layers.
      */
     public void moveLayer(int sourcePosition, int destPosition) {
         if ((sourcePosition < 0) || (sourcePosition >= layerList.size())) {
@@ -820,7 +814,9 @@ public class DefaultMapContext implements MapContext {
     }
 
     /**
-     * DOCUMENT ME!
+     * Remove all of the map layers from this context.
+     * This triggers a MapLayerListEvent.
+     *
      */
     public void clearLayerList() {
         final int size = layerList.size();
@@ -1166,13 +1162,13 @@ public class DefaultMapContext implements MapContext {
      * @param areaOfInterest the new area of interest
      * @param coordinateReferenceSystem the CRS for the new area of interest
      *
-     * @throws IllegalArgumentException if either argument is {@code null}
+     * @throws IllegalArgumentException if areaOfInterest is {@code null}
      */
     public void setAreaOfInterest(Envelope areaOfInterest, CoordinateReferenceSystem crs)
             throws IllegalArgumentException {
 
-        if ((areaOfInterest == null) || (crs == null)) {
-            throw new IllegalArgumentException("Input arguments cannot be null");
+        if (areaOfInterest == null) {
+            throw new IllegalArgumentException("areaOfInterest should not be null");
         }
 
         setAreaOfInterest(new ReferencedEnvelope(areaOfInterest, crs));
@@ -1192,19 +1188,18 @@ public class DefaultMapContext implements MapContext {
             throw new IllegalArgumentException("areaOfInterest must not be null");
         }
 
-        if (areaOfInterest.getCoordinateReferenceSystem() == null) {
-            throw new IllegalArgumentException(
-                    "CRS of areaOfInterest cannot be null");
-        }
-
         ReferencedEnvelope oldAreaOfInterest = this.areaOfInterest;
+        CoordinateReferenceSystem oldCRS = this.areaOfInterest.getCoordinateReferenceSystem();
 
         this.areaOfInterest = new ReferencedEnvelope(areaOfInterest);
 
         int flags = 0;
-        if (!CRS.equalsIgnoreMetadata(
-                this.areaOfInterest.getCoordinateReferenceSystem(),
-                oldAreaOfInterest.getCoordinateReferenceSystem())) {
+
+        if (oldCRS != null) {
+            if (!CRS.equalsIgnoreMetadata( this.areaOfInterest.getCoordinateReferenceSystem(), oldCRS )) {
+                flags |= MapBoundsEvent.COORDINATE_SYSTEM_MASK;
+            }
+        } else if (this.areaOfInterest.getCoordinateReferenceSystem() != null) {
             flags |= MapBoundsEvent.COORDINATE_SYSTEM_MASK;
         }
 
@@ -1226,17 +1221,16 @@ public class DefaultMapContext implements MapContext {
      */
     public void setCoordinateReferenceSystem(CoordinateReferenceSystem crs)
             throws TransformException, FactoryException {
-        if (crs == null) {
-            throw new IllegalArgumentException("Input argument cannot be null");
-        }
 
         final ReferencedEnvelope oldAreaOfInterest = this.areaOfInterest;
-        if (this.areaOfInterest != null) {
-            if (!CRS.equalsIgnoreMetadata(crs, oldAreaOfInterest.getCoordinateReferenceSystem())) {
+        final CoordinateReferenceSystem oldCRS = this.areaOfInterest.getCoordinateReferenceSystem();
+
+        if (oldCRS != null) {
+            if (!CRS.equalsIgnoreMetadata(crs, oldCRS)) {
                 this.areaOfInterest = this.areaOfInterest.transform(crs, true);
             }
         } else {
-            this.areaOfInterest = new ReferencedEnvelope(crs);
+            this.areaOfInterest = new ReferencedEnvelope(areaOfInterest, crs);
         }
 
         fireMapBoundsListenerMapBoundsChanged(new MapBoundsEvent(this,
