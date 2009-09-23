@@ -1141,6 +1141,29 @@ public class DefaultMapContext implements MapContext {
      * published.
      *
      * @param areaOfInterest the new area of interest
+     *
+     * @throws IllegalArgumentException if the argument is {@code null}
+     *
+     * @deprecated Use of this method is not safe. Please use
+     *             {@linkplain #setAreaOfInterest(Envelope, CoordinateReferenceSystem)}
+     *             instead.
+     */
+    public void setAreaOfInterest(Envelope areaOfInterest)
+            throws IllegalArgumentException {
+
+        CoordinateReferenceSystem crs = this.areaOfInterest.getCoordinateReferenceSystem();
+        if (crs == null) {
+            crs = DefaultGeographicCRS.WGS84;
+        }
+        ReferencedEnvelope refEnv = new ReferencedEnvelope(areaOfInterest, crs);
+        setAreaOfInterest(refEnv);
+    }
+
+    /**
+     * Set the area of interest. This triggers a MapBoundsEvent to be
+     * published.
+     *
+     * @param areaOfInterest the new area of interest
      * @param coordinateReferenceSystem the CRS for the new area of interest
      *
      * @throws IllegalArgumentException if either argument is {@code null}
