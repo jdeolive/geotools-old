@@ -5,11 +5,12 @@ CSV 2 SHP Lab
 
 The tutorial covers the following:
 
- * Producing Features from Scratch
- * Use of GeometryFactory to build a Point
+ * Creating a FeatureType, FeatureCollection and Features
+ * Using a GeometryFactory to build Points
  * Writing out a Shapefile
  * Forcing a Projection
- * Building a FeatureType
+
+At the end of the tutorial you will be able to create your own custom shapefiles from a wide variety of data in text files !
 
 Comma Seperated Value
 ---------------------
@@ -17,9 +18,10 @@ To start with you will need a CSV file.
 # Create a text file *location.csv*
 # Copy and paste the following locations into the file::
 
-  "Longitude","Latitude","Name"
-  -123.31,48.4,Victoria
-  0,52,London
+  "Longitude", "Latitude", "Name"
+  -33.84,  151.26, Sydney
+  0, 52, London
+  -123.31,  48.4,  Victoria BC
   
  # Feel free to add your own location!
  # Save
@@ -66,86 +68,87 @@ Main Application
 
    .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/Csv2Shape.java
       :language: java
-      :lines: 1-63,124-125,212
-   
-Prompt for CSV File
--------------------
+      :start-after: // start source
+      :end-before: // docs break feature type
 
-Here is the method to get the input csv file name from the command line or, if not provided, via a
-**JFileDataStoreChooser** dialog:
+Now we look at the rest of the main method in sections...
 
-   .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/Csv2Shape.java
-      :language: java
-      :start-after: // start getNewShapeFile
-      :end-before: // end getNewShapeFile
+Create a FeatureType
+--------------------
 
-Prompt for Shape File
----------------------
-
-The next method will prompt the user for an appropriate shapefile to write
-out to. The original csv file will be used to determine a good default
-shapefile name.
+We create a FeatureType to describe the data the we are importing from the CSV file and writing to a shapefile.
+Here we use the DataUtilities convenience class:
 
    .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/Csv2Shape.java
       :language: java
-      :start-after: // start getCSVFile
-      :end-before: // end getCSVFile
+      :start-after: // docs break feature type
+      :end-before: // docs break feature collection
 
 Read into a FeatureCollection
 -----------------------------
 We can now read the CSV File into a FeatureCollection; please note the following:
 
  * Use of FeatureCollections.newCollection() to create a FeatureCollection
- * Creation of a SimpleFeatureType with location and name attributes
  * Use of GeometryFactory to create new Points
- * Creation of a SimpleFeature using SimpleFeatureBuilder
+ * Creation of features (SimpleFeature objects) using SimpleFeatureBuilder
 
    .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/Csv2Shape.java
       :language: java
-      :start-after: // read csv file into feature collection
-      :end-before: // create shapefile from feature collection
+      :start-after: // docs break feature collection
+      :end-before: // docs break new shapefile
 
-Create a Shapefile From a FeatureCollection
+Create a shapefile From a FeatureCollection
 -------------------------------------------
 
 Things to note as we create the shapefile:
 
- * Use of ShapefileDataStoreFactory with a parameter indicating we want a spatial index
- * We are using createSchema( SimpleFeatureType ) to set up the shapefile
- * Our SimpleFeatureType did not include CoordinateReferenceSystem information (needed to make a .prj file) so we are going to call forceSchemaCRS ourself
- * Use of a Transaction to safely add the FeatureCollection in one go
-
-Here is the main method with the additional code:
+ * Use of DataStoreFactory with a parameter indicating we want a spatial index
+ * The createSchema( SimpleFeatureType ) method to set up the shapefile
+ * Our SimpleFeatureType did not include map projection (coordinate reference system) information needed to make a .prj file, so we call forceSchemaCRS to do this
 
    .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/Csv2Shape.java
       :language: java
-      :start-after: // start main
+      :start-after: // docs break new shapefile
+      :end-before: // docs break transaction
+
+Write the feature data to the shapefile
+---------------------------------------
+
+Here we use a Transaction to safely add the FeatureCollection in one go:
+
+   .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/Csv2Shape.java
+      :language: java
+      :start-after: // docs break transaction
       :end-before: // end main
+
+This completes the main method.
+
+Prompt for the output shapefile
+-------------------------------
+
+This method prompts the user for an appropriate shapefile to write out to. The original csv file is used to determine a good default
+shapefile name.
+
+   .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/Csv2Shape.java
+      :language: java
+      :start-after: // start get shapefile
+      :end-before: // end get shapefile
+
 
 Running the Application
 -----------------------
 
-1. When you run this application it will prompt you for:
+When you run this application it will prompt you for:
 
  * the location of a CSV file to read; and then
  * a shapefile to create
 
-Building a SimpleFeatureType
-----------------------------
+You might like to see if you can view the new shapefile using the :ref:`quickstart` application !
 
-The above example was very quick; please review the following details to better understand how you can control the process of creating a SimpleFeatureType with all the required information
+Another way to build a SimpleFeatureType
+----------------------------------------
 
-We are going to build a SimpleFeatureType using SimpleFeatureTypeBuilder. In the example above we created a SimpleFeatureType using the following snippet::
-
-    final SimpleFeatureType TYPE = DataUtilities.createType("Location", "location:Point,name:String");
-
-I often use a constant to hold the SimpleFeatureType; because the SimpleFeatureType class is immutable I find tracking them as final variables helps me remember what they are.
-
-The createSchema method is fine for a quick example; but has a couple of disadvantages:
-
- * you cannot specify the CoordinateReferneceSystem of your "location" attribute
- * you cannot specify the max string length (so your DBF files may be bigger than strictly required).
- * the javadocs on the createSchema parameters are a bit hard to follow
+Although the DataUtilities class used above provided a quick and easy way to build our SimpleFeatureType, for most applications you will want to use SimpleFeatureTypeBuilder. 
 
 Here is how to use SimpleFeatureTypeBuilder to accomplish the same result:
 
@@ -154,6 +157,15 @@ Here is how to use SimpleFeatureTypeBuilder to accomplish the same result:
       :start-after: // start createFeatureType
       :end-before: // end createFeatureType
 
+Note the use of an upper-case constant to hold the SimpleFeatureType. Because the SimpleFeatureType class is immutable, tracking them as 
+final variables can help you to remember what they are.
 
 With this new improved SimpleFeatureType (that contains a CoordinateReferenceSystem) we will no longer need to call forceSchemaCRS to generate our ".prj" file.
+
+Other things to try
+-------------------
+
+* Modify the code to read take the feature attribute names from the data file header rather than hard-coding them in to the application.
+* Use the same techniques to create shapefiles from data in other structured file formats.
+* Read up about the other Geometry classes supported by shapefiles: MultiLineString for linear features and MultiPolygon for areal features and modify this example to work with these.
 

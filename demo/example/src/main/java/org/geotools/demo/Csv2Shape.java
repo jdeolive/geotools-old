@@ -1,3 +1,4 @@
+// start source
 /*
  *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
@@ -50,7 +51,11 @@ public class Csv2Shape {
     public static void main(String[] args) throws Exception {
 
         File file = JFileDataStoreChooser.showOpenFile("csv", null);
+        if (file == null) {
+            return;
+        }
 
+        // docs break feature type
         /*
          * We use the DataUtilities class to create a FeatureType that
          * will describe the data in our shapefile.
@@ -64,6 +69,7 @@ public class Csv2Shape {
                 "name:String"                    // <- a String attribute
                 );
 
+        // docs break feature collection
         /*
          * We create a FeatureCollection into which we will put
          * each Feature created from a record in the input csv data file
@@ -86,11 +92,11 @@ public class Csv2Shape {
             System.out.println("Header: " + line);
 
             for (line = reader.readLine(); line != null; line = reader.readLine()) {
-                String split[] = line.split("\\,");
+                String tokens[] = line.split("\\,");
 
-                double longitude = Double.parseDouble(split[0]);
-                double latitude = Double.parseDouble(split[1]);
-                String name = split[2];
+                double longitude = Double.parseDouble(tokens[0]);
+                double latitude = Double.parseDouble(tokens[1]);
+                String name = tokens[2].trim();
 
                 /* Longitude (= x coord) first ! */
                 Point point = geometryFactory.createPoint(new Coordinate(longitude, latitude));
@@ -105,6 +111,7 @@ public class Csv2Shape {
             reader.close();
         }
 
+        // docs break new shapefile
         /*
          * Get an output file name and create the new shapefile
          */
@@ -120,6 +127,7 @@ public class Csv2Shape {
         newDataStore.createSchema(TYPE);
         newDataStore.forceSchemaCRS(DefaultGeographicCRS.WGS84);
 
+        // docs break transaction
         /*
          * Write the features to the shapefile
          */
@@ -144,10 +152,10 @@ public class Csv2Shape {
 
         System.exit(0); 
     }
-    // end main
+// end main
 
     
-    // start getNewShapeFile
+// start get shapefile
     /**
      * Prompt the user for the name and path to use for the output shapefile
      * 
@@ -178,7 +186,7 @@ public class Csv2Shape {
 
         return newFile;
     }
-    // end getNewShapeFile
+// end get shapefile
 
     // start createFeatureType
     /**
@@ -186,24 +194,24 @@ public class Csv2Shape {
      * for your shapefile dynamically.
      * <p>
      * This method is an improvement on the code used in the main method above
-     * (where we used DataUtilities.createFeatureType) because we are specifying
-     * a Coordinate Reference System for the FeatureType (DefaultGeographicCRS.WGS84)
-     * and we are imposing a maximum field length for the 'name' field.
-     *
-     * @return SimpleFeatureType
+     * (where we used DataUtilities.createFeatureType) because we can set a
+     * Coordinate Reference System for the FeatureType and a a maximum field
+     * length for the 'name' field
+     * dddd
      */
     private static SimpleFeatureType createFeatureType() {
 
         SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
         builder.setName("Location");
-        builder.setCRS(DefaultGeographicCRS.WGS84);
+        builder.setCRS(DefaultGeographicCRS.WGS84); // <- Coordinate reference system
 
         // add attributes in order
         builder.add("Location", Point.class);
-        builder.length(15).add("Name", String.class);
+        builder.length(15).add("Name", String.class); // <- 15 chars width for name field
 
         // build the type
         final SimpleFeatureType LOCATION = builder.buildFeatureType();
+        
         return LOCATION;
     }
     // end createFeatureType
