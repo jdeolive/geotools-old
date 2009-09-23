@@ -283,9 +283,6 @@ public class GraphicImpl implements Graphic, Cloneable {
         return displacement;
     }
 
-    public void setDisplacmeent(Displacement displacement) {
-        this.displacement = DisplacementImpl.cast( displacement );
-    }
     public Expression getInitialGap() {
         return initialGap;
     }

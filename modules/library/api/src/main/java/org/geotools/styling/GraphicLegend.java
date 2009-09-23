@@ -14,11 +14,11 @@ public interface GraphicLegend extends org.opengis.style.GraphicLegend {
 
     public AnchorPoint getAnchorPoint();
     
-    public void setAnchorPoint( AnchorPoint anchor );
+    public void setAnchorPoint( org.opengis.style.AnchorPoint anchor );
 
     public Displacement getDisplacement();
     
-    public void setDisplacmeent( Displacement displacement );
+    public void setDisplacement( org.opengis.style.Displacement displacement );
 
     public Expression getOpacity();
 

@@ -16,7 +16,10 @@
  */
 package org.geotools.styling;
 
+import java.io.StringReader;
 import java.net.URL;
+
+import org.geotools.factory.CommonFactoryFinder;
 
 import junit.framework.TestCase;
 
@@ -37,6 +40,27 @@ public class GraphicImplTest extends TestCase {
         Graphic graphic = sb.createGraphic(extg, null, null);
         
         
-		assertEquals(1, graphic.getExternalGraphics().length);
+		assertEquals(1, graphic.graphicalSymbols().size());
+	}
+	
+	/**
+	 * Checks if the Displacement settings are exported to XML
+	 */
+	public void testDisplacement() throws Exception {
+           StyleBuilder sb = new StyleBuilder();
+           
+           Graphic graphic;
+           {
+               graphic = sb.createGraphic();
+               Displacement disp = sb.createDisplacement(10.1, -5.5);
+               graphic.setDisplacement(disp);
+           }
+           
+           Displacement disp = graphic.getDisplacement();
+           assertNotNull(disp);
+           
+           assertEquals(disp.getDisplacementX().toString(),"10.1");
+           assertEquals(disp.getDisplacementY().toString(),"-5.5");
+           
 	}
 }

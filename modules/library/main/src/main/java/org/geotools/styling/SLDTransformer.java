@@ -647,6 +647,7 @@ public class SLDTransformer extends TransformerBase {
             element("Opacity", gr.getOpacity());
             element("Size", gr.getSize());
             element("Rotation", gr.getRotation());
+            visit(gr.getDisplacement());
 
             end("Graphic");
         }
@@ -906,6 +907,15 @@ public class SLDTransformer extends TransformerBase {
         }
 
         public void visit(Displacement dis) {
+            if (dis == null)
+                return;
+
+            // We don't want to get huge SLDs with default values. So if displacement = 0 and 0 we
+            // drop it.
+            if (dis.getDisplacementX().toString().equals("0")
+                    && dis.getDisplacementY().toString().equals("0"))
+                return;
+
             start("Displacement");
             element("DisplacementX", dis.getDisplacementX());
             element("DisplacementY", dis.getDisplacementY());

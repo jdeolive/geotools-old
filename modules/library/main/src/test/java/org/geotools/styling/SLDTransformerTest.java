@@ -623,4 +623,21 @@ public class SLDTransformerTest extends TestCase {
 
         assertTrue(textSymbolizer2.getUnitOfMeasure() == null);
     }
+    
+    /**
+     * The displacement tag has not been exported to XML for a while...
+     */
+    public void testDisplacement() throws Exception {
+        StyleBuilder sb = new StyleBuilder();
+        
+        Graphic graphic;
+        graphic = sb.createGraphic();
+        Displacement disp = sb.createDisplacement(10.1, -5.5);
+        graphic.setDisplacement(disp);
+        
+        SLDTransformer st = new SLDTransformer();     
+        String xml = st.transform(graphic);
+        
+        assertTrue("XML transformation of this GraphicImpl does not contain the word 'Displacement' ", xml.contains("Displacement"));
+    }
 }

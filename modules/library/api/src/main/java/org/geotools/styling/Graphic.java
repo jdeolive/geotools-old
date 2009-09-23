@@ -398,6 +398,10 @@ abstract class ConstantGraphic implements Graphic {
     private void cannotModifyConstant() {
         throw new UnsupportedOperationException("Constant Graphic may not be modified");
     }
+    
+    public void setDisplacement(org.opengis.style.Displacement offset) {
+        cannotModifyConstant();
+    }
 
     public void setExternalGraphics(ExternalGraphic[] externalGraphics) {
         cannotModifyConstant();
@@ -439,10 +443,6 @@ abstract class ConstantGraphic implements Graphic {
         cannotModifyConstant();
     }
 
-    public void setDisplacement(org.opengis.style.Displacement offset) {
-        cannotModifyConstant();
-    }
-
     public void setRotation(Expression rotation) {
         cannotModifyConstant();
     }
@@ -452,10 +452,6 @@ abstract class ConstantGraphic implements Graphic {
     }
 
     public void setAnchorPoint(AnchorPoint anchor) {
-        cannotModifyConstant();
-    }
-
-    public void setDisplacmeent(Displacement displacement) {
         cannotModifyConstant();
     }
     
