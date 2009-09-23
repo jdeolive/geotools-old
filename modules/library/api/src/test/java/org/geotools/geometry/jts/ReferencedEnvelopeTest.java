@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.opengis.geometry.MismatchedReferenceSystemException;
 
 import com.vividsolutions.jts.geom.Coordinate;
+import java.awt.geom.Rectangle2D;
 
 public class ReferencedEnvelopeTest {
 
@@ -114,4 +115,21 @@ public class ReferencedEnvelopeTest {
         assertEquals( australia.getCoordinateReferenceSystem(), bbox.getCoordinateReferenceSystem() );
   
     }
+
+    @Test
+    public void testBoundsEquals2D() {
+        Rectangle2D bounds = new Rectangle2D.Double(-20.0, -20.0, 40.0, 40.0);
+
+        ReferencedEnvelope env1 = new ReferencedEnvelope(bounds, null);
+        ReferencedEnvelope env2 = new ReferencedEnvelope(bounds, null);
+        double eps = 1.0e-4d;
+        assertTrue(env1.boundsEquals2D(env2, eps));
+
+        bounds = new Rectangle2D.Double(-20.01, -20.01, 40.0, 40.0);
+        env2 = new ReferencedEnvelope(bounds, null);
+
+        assertFalse(env1.boundsEquals2D(env2, eps));
+
+    }
+
 }

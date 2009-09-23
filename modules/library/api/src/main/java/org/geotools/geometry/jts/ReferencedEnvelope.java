@@ -667,6 +667,45 @@ public class ReferencedEnvelope extends Envelope implements org.opengis.geometry
     }
 
     /**
+     * Compare the bounds of this envelope with those of another.
+     * <p>
+     * Note: in this test:
+     * <ul>
+     * <li> the coordinate reference systems of the envelopes are not examined
+     * <li> only the first two dimensions of the envelopes are compared
+     * <li> it is assumed that each dimension equates to the same axis for both envelopes
+     * </ul>
+     * 
+     * @param other other envelope
+     * @param eps a small tolerance factor (e.g. 1.0e-6d) which will be scaled 
+     *        relative to this envlope's width and height
+     * 
+     * @return true if all bounding coordinates are equal within the set tolerance;
+     *         false otherwise
+     */
+
+    public boolean boundsEquals2D(final org.opengis.geometry.Envelope other, double eps) {
+        eps *= 0.5*(getWidth() + getHeight());
+
+        double[] delta = new double[4];
+        delta[0] = getMinimum(0) - other.getMinimum(0);
+        delta[1] = getMaximum(0) - other.getMaximum(0);
+        delta[2] = getMinimum(1) - other.getMinimum(1);
+        delta[3] = getMaximum(1) - other.getMaximum(1);
+
+        for (int i = 0; i < delta.length; i++) {
+            /*
+             * As per Envelope2D#boundsEquals we use ! here to
+             * catch any NaN values
+             */
+            if (!(Math.abs(delta[i]) <= eps)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * Returns a string representation of this envelope. The default implementation
      * is okay for occasional formatting (for example for debugging purpose).
      */
