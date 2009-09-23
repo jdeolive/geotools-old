@@ -20,11 +20,14 @@ import java.awt.Component;
 import java.awt.HeadlessException;
 import java.io.File;
 
+import java.util.Map;
+import java.util.TreeMap;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 
 import org.geotools.data.FileDataStoreFactorySpi;
+import org.geotools.data.FileDataStoreFinder;
 
 /**
  * A file chooser dialog to get user choices for data stores.
@@ -63,51 +66,85 @@ public class JFileDataStoreChooser extends JFileChooser {
      * @param extensions the file extensions, with or without the leading '.'
      */
     public JFileDataStoreChooser(final String[] extensions) {
-        final String[] lowerExt = new String[extensions.length];
+        Map<String, String> fileAssociations = new TreeMap<String, String>();
 
-        for (int i = 0; i < extensions.length; i++) {
-            if (extensions[i].startsWith(".")) {
-                lowerExt[i] = extensions[i].toLowerCase();
+        for (String extension : extensions) {
+            String ext = extension.toLowerCase().trim();
+            if (!ext.startsWith(".")) {
+                ext = "." + ext;
+            }
+
+            FileDataStoreFactorySpi factory = FileDataStoreFinder.getDataStoreFactory(ext);
+            if (factory != null) {
+                fileAssociations.put(ext, factory.getDescription());
+
             } else {
-                lowerExt[i] = "." + extensions[i].toLowerCase();
+                // guess some common ones
+                if (".csv".equals(ext)) {
+                    fileAssociations.put(ext, "Comma-delimited files (*.csv)");
+
+                } else if (ext.startsWith(".tif")) {
+                    fileAssociations.put(ext, "GeoTIFF files (*.tif; *.tiff)");
+
+                } else {
+                    // fallback
+                    fileAssociations.put(ext, ext.toUpperCase().substring(1) + "files (*" + ext + ")");
+                }
             }
         }
 
-        setFileFilter(new FileFilter() {
+        init( fileAssociations );
+    }
 
-            public boolean accept(File f) {
-                if (f.isDirectory()) {
-                    return true;
-                }
-                
-                for (String ext : lowerExt) {
-                    if (f.getPath().endsWith(ext) ||
-                        f.getPath().endsWith(ext.toUpperCase())) {
+    /**
+     * Creates a dialog based on the given file associations.
+     *
+     * <pre><code>
+     * Map<String, String> assoc = new HashMap<String, String>();
+     * assoc.put(".foo", "Foo data files (*.foo)");
+     * assoc.put(".bar", "Bar data files (*.bar)");
+     * JFileDataStoreChooser chooser = new JFileDataStoreChooser(assoc);
+     * </code></pre>
+     *
+     * @param fileAssociations a {@code Map} where keys are extensions (with or
+     *        wirhout the leading dot) and values are descriptions.
+     */
+    public JFileDataStoreChooser(final Map<String, String> fileAssociations) {
+        init( fileAssociations );
+    }
+
+    /**
+     * Helper method for constructors that creates file filters.
+     *
+     * @param fileAssociations a {@code Map} where keys are extensions (with or
+     *        wirhout the leading dot) and values are descriptions.
+     */
+    private void init(final Map<String, String> fileAssociations) {
+
+        for (final String ext : fileAssociations.keySet()) {
+            addChoosableFileFilter(new FileFilter() {
+
+                public boolean accept(File f) {
+                    if (f.isDirectory()) {
                         return true;
                     }
-                }
 
-                return false;
-            }
-
-            public String getDescription() {
-                if (".shp".equals(lowerExt[0])) {
-                    return "Shapefiles";
-
-                } else {
-                    // @todo some was of discovering formats from extensions ?
-                    StringBuffer sb = new StringBuffer();
-                    sb.append("Files (");
-
-                    for (int k = 0; k < lowerExt.length; k++) {
-                        sb.append(lowerExt[k]);
-                        sb.append((k < lowerExt.length - 1 ? "; " : ")"));
+                    for (String ext : fileAssociations.keySet()) {
+                        if (f.getPath().endsWith(ext) ||
+                                f.getPath().endsWith(ext.toUpperCase())) {
+                            return true;
+                        }
                     }
 
-                    return sb.toString();
+                    return false;
                 }
-            }
-        });
+
+                @Override
+                public String getDescription() {
+                    return fileAssociations.get(ext);
+                }
+            });
+        }
     }
 
     /**
@@ -152,7 +189,7 @@ public class JFileDataStoreChooser extends JFileChooser {
      * @throws java.awt.HeadlessException if run in an unsupported environment
      */
     public static File showOpenFile(String extension, Component parent) throws HeadlessException {
-        JFileDataStoreChooser dialog = new JFileDataStoreChooser(new String[] {extension});
+        JFileDataStoreChooser dialog = new JFileDataStoreChooser(extension);
         
         if (dialog.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION) {
             return dialog.getSelectedFile();

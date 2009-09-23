@@ -21,7 +21,6 @@ import java.io.File;
 
 import org.geotools.data.FileDataStoreFactorySpi;
 import org.geotools.data.FileDataStoreFinder;
-import org.geotools.swing.wizard.JPage;
 import org.geotools.swing.wizard.JWizard;
 
 /**
