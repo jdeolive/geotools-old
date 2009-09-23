@@ -52,12 +52,9 @@ public class SelectionDemo {
 
     StyleFactory sf = CommonFactoryFinder.getStyleFactory(null);
     FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
-
     JMapFrame mapFrame;
     FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
     String geometryAttributeName;
-
-    SelectTool selectTool = new SelectTool(this);
 
     public static void main(String[] args) throws Exception {
         SelectionDemo me = new SelectionDemo();
@@ -94,15 +91,27 @@ public class SelectionDemo {
         toolBar.add(btn);
 
         btn.addActionListener(new ActionListener() {
+
             public void actionPerformed(ActionEvent e) {
-                mapFrame.getMapPane().setCursorTool(selectTool);
+                mapFrame.getMapPane().setCursorTool(
+                        new CursorTool() {
+
+                            @Override
+                            public String getName() {
+                                return "Select";
+                            }
+
+                            @Override
+                            public void onMouseClicked(MapMouseEvent ev) {
+                                selectFeatures(ev.getMapPosition());
+                            }
+                        });
             }
         });
 
         mapFrame.setSize(600, 600);
         mapFrame.setVisible(true);
     }
-
 
     /**
      * Create a default Style to display polygon features
@@ -163,36 +172,20 @@ public class SelectionDemo {
         mapFrame.getMapContext().getLayer(0).setStyle(style);
         mapFrame.getMapPane().repaint();
     }
-}
 
-class SelectTool extends CursorTool {
-
-    SelectionDemo owner;
-
-    SelectTool( SelectionDemo owner ) {
-        this.owner = owner;
-    }
-
-    @Override
-    public String getName() {
-        return "Select";
-    }
-
-    @Override
-    public void onMouseClicked(MapMouseEvent ev) {
-        DirectPosition2D pos = ev.getMapPosition();
+    void selectFeatures(DirectPosition2D pos) {
 
         String filterString =
                 String.format("CONTAINS(%s, POINT(%f %f))",
-                owner.geometryAttributeName, pos.x, pos.y);
+                geometryAttributeName, pos.x, pos.y);
 
         System.out.println("Filter: " + filterString);
 
         Filter filter = null;
         try {
             filter = CQL.toFilter(filterString);
-            FeatureCollection<SimpleFeatureType, SimpleFeature> selectedFeatures = 
-                    owner.featureSource.getFeatures(filter);
+            FeatureCollection<SimpleFeatureType, SimpleFeature> selectedFeatures =
+                    featureSource.getFeatures(filter);
 
             FeatureIterator<SimpleFeature> iter = selectedFeatures.features();
             Set<FeatureId> IDs = new HashSet<FeatureId>();
@@ -200,13 +193,19 @@ class SelectTool extends CursorTool {
                 while (iter.hasNext()) {
                     SimpleFeature feature = iter.next();
                     IDs.add(feature.getIdentifier());
+
+                    System.out.println("   " + feature.getIdentifier());
                 }
 
             } finally {
                 iter.close();
             }
 
-            owner.setSelectedFeatures( IDs );
+            if (IDs.isEmpty()) {
+                System.out.println("   no feature selected");
+            }
+
+            setSelectedFeatures(IDs);
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -214,3 +213,4 @@ class SelectTool extends CursorTool {
         }
     }
 }
+
