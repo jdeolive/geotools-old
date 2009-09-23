@@ -700,64 +700,6 @@ public class DefaultMapContext implements MapContext {
     }
 
     /**
-     * Set a new area of interest and trigger a {@link BoundingBoxEvent}.
-     *
-     * @param areaOfInterest
-     *            The new areaOfInterest.
-     * @param coordinateReferenceSystem
-     *            The coordinate system being using by this model.
-     *
-     * @throws IllegalArgumentException
-     *             if an argument is <code>null</code>.
-     *
-     *
-     */
-    public void setAreaOfInterest(Envelope areaOfInterest,
-            CoordinateReferenceSystem coordinateReferenceSystem)
-            throws IllegalArgumentException {
-
-        if ((areaOfInterest == null) || (coordinateReferenceSystem == null)) {
-            throw new IllegalArgumentException("Input arguments cannot be null");
-        }
-
-        final ReferencedEnvelope oldAreaOfInterest = this.areaOfInterest;
-
-        this.areaOfInterest = new ReferencedEnvelope(areaOfInterest,
-                coordinateReferenceSystem);
-
-        fireMapBoundsListenerMapBoundsChanged(new MapBoundsEvent(this,
-                MapBoundsEvent.AREA_OF_INTEREST_MASK | MapBoundsEvent.COORDINATE_SYSTEM_MASK,
-                oldAreaOfInterest, this.areaOfInterest));
-    }
-
-    /**
-     * Set a new area of interest and trigger an {@link BoundingBoxEvent}.
-     *
-     * @param areaOfInterest
-     *            The new area of interest.
-     * @throws IllegalArgumentException
-     *             if an argument is <code>null</code>.
-     *
-     * @deprecated
-     */
-    public void setAreaOfInterest(Envelope areaOfInterest) {
-        if (areaOfInterest == null) {
-            throw new IllegalArgumentException("Input argument cannot be null");
-        }
-
-        final ReferencedEnvelope oldAreaOfInterest = this.areaOfInterest;
-        // this is a bad guess, I use the context crs, hopint that it is going
-        // to be the right one
-        this.areaOfInterest = new ReferencedEnvelope(areaOfInterest,
-                oldAreaOfInterest.getCoordinateReferenceSystem());
-        LOGGER.info("USing a deprecated method!");
-
-        fireMapBoundsListenerMapBoundsChanged(new MapBoundsEvent(this,
-                MapBoundsEvent.AREA_OF_INTEREST_MASK,
-                oldAreaOfInterest, this.areaOfInterest));
-    }
-
-    /**
      * Gets the current area of interest. If no area of interest is set, the
      * default is to fall back on the layer bounds
      *
@@ -1167,34 +1109,60 @@ public class DefaultMapContext implements MapContext {
     }
 
     /**
-     * Set a new area of interest and trigger an {@link BoundingBoxEvent}.
+     * Set the area of interest. This triggers a MapBoundsEvent to be
+     * published.
      *
-     * @param areaOfInterest
-     *            The new area of interest.
+     * @param areaOfInterest the new area of interest
+     * @param coordinateReferenceSystem the CRS for the new area of interest
      *
-     * @throws NullPointerException
-     *             DOCUMENT ME!
+     * @throws IllegalArgumentException if either argument is {@code null}
+     */
+    public void setAreaOfInterest(Envelope areaOfInterest, CoordinateReferenceSystem crs)
+            throws IllegalArgumentException {
+
+        if ((areaOfInterest == null) || (crs == null)) {
+            throw new IllegalArgumentException("Input arguments cannot be null");
+        }
+
+        setAreaOfInterest(new ReferencedEnvelope(areaOfInterest, crs));
+    }
+
+    /**
+     * Set the area of interest. This triggers a MapBoundsEvent to be
+     * published.
      *
+     * @param areaOfInterest the new area of interest
      *
+     * @throws IllegalArgumentException if the provided areaOfInterest is {@code null}
+     *         or does not have a coordinate reference system
      */
     public void setAreaOfInterest(ReferencedEnvelope areaOfInterest) {
         if (areaOfInterest == null) {
-            throw new IllegalArgumentException("Input argument cannot be null");
+            throw new IllegalArgumentException("areaOfInterest must not be null");
         }
 
         if (areaOfInterest.getCoordinateReferenceSystem() == null) {
             throw new IllegalArgumentException(
-                    "CRS of the provided AOI cannot be null");
+                    "CRS of areaOfInterest cannot be null");
         }
 
         ReferencedEnvelope oldAreaOfInterest = this.areaOfInterest;
 
         this.areaOfInterest = new ReferencedEnvelope(areaOfInterest);
 
-        fireMapBoundsListenerMapBoundsChanged(new MapBoundsEvent(this,
-                MapBoundsEvent.AREA_OF_INTEREST_MASK | MapBoundsEvent.COORDINATE_SYSTEM_MASK,
-                oldAreaOfInterest, this.areaOfInterest));
+        int flags = 0;
+        if (!CRS.equalsIgnoreMetadata(
+                this.areaOfInterest.getCoordinateReferenceSystem(),
+                oldAreaOfInterest.getCoordinateReferenceSystem())) {
+            flags |= MapBoundsEvent.COORDINATE_SYSTEM_MASK;
+        }
 
+        if (!this.areaOfInterest.boundsEquals2D(oldAreaOfInterest, 1.0e-4d)) {
+            flags |= MapBoundsEvent.AREA_OF_INTEREST_MASK;
+        }
+
+        fireMapBoundsListenerMapBoundsChanged(
+                new MapBoundsEvent(this, flags, oldAreaOfInterest, this.areaOfInterest));
     }
 
     /**

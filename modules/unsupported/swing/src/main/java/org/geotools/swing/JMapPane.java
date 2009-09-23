@@ -170,7 +170,6 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
     private boolean redrawBaseImage;
     private boolean needNewBaseImage;
     private boolean baseImageMoved;
-    private boolean skipMapBoundsEvent;
 
     /** 
      * Constructor - creates an instance of JMapPane with no map 
@@ -194,7 +193,6 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
         acceptRepaintRequests = true;
         redrawBaseImage = true;
         baseImageMoved = false;
-        skipMapBoundsEvent = false;
 
         /*
          * We use a Timer object to avoid rendering delays and
@@ -476,33 +474,42 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
     }
 
     /**
-     * Set the map area to display. Does nothing if the MapContext and its
-     * CoordinateReferenceSystem have not been set.
+     * Sets the area to display by calling the {@linkplain MapContext#setAreaOfInterest}
+     * method of this pane's map context. Does nothing if the MapContext has not been set.
+     * If neither the context or the envelope have coordinate reference systems defined
+     * this method does nothing.
+     * <p>
+     * You can pass any GeoAPI Envelope implementation to this method such as
+     * ReferenedEnvelope or Envelope2D.
      * <p>
      * Note: This method does <b>not</b> check that the requested area overlaps
      * the bounds of the current map layers.
      * 
-     * @param mapArea Area of the map to display (you can use a geoapi Envelope implementations 
-     * such as ReferenedEnvelope or Envelope2D)
+     * @param envelope the bounds of the map to display
      */
-    public void setEnvelope(Envelope env) {
+    public void setEnvelope(Envelope envelope) {
         if (context != null) {
-            CoordinateReferenceSystem crs = context.getCoordinateReferenceSystem();
-            if (crs != null) {
-                // overriding the env arg's crs (if any)
-                ReferencedEnvelope refEnv = new ReferencedEnvelope(
-                        env.getMinimum(0), env.getMaximum(0),
-                        env.getMinimum(1), env.getMaximum(1),
+            ReferencedEnvelope refEnv;
+            if (envelope.getCoordinateReferenceSystem() == null) {
+                CoordinateReferenceSystem crs = context.getCoordinateReferenceSystem();
+                if (crs == null) {
+                    return;
+                }
+
+                /* TODO: check axis dimensions of envelope here ? */
+                refEnv = new ReferencedEnvelope(
+                        envelope.getMinimum(0),
+                        envelope.getMaximum(0),
+                        envelope.getMinimum(1),
+                        envelope.getMaximum(1),
                         crs);
 
-                context.setAreaOfInterest(refEnv);
-
-                if (curPaintArea != null) {
-                    setTransforms(refEnv, curPaintArea);
-                    labelCache.clear();
-                    repaint();
-                }
+            } else {
+                refEnv = new ReferencedEnvelope(envelope);
             }
+            
+            context.setAreaOfInterest(refEnv);
+            doSetEnvelope(refEnv);
         }
     }
 
@@ -740,26 +747,38 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
     }
 
     /**
-     * Called when the bounds of the map context have changed, e.g. by
-     * setting a new CRS.
+     * Called when the bounds of the map context have changed, ie. the
+     * bounding coordinates, the CRS, or both.
      */
     public void mapBoundsChanged(MapBoundsEvent event) {
-        // this avoids an endless loop when we call setEnvelope below
-        if (skipMapBoundsEvent) {
-            skipMapBoundsEvent = false;
-            return;
-        }
 
-        try {
-            ReferencedEnvelope bounds = context.getLayerBounds();
-            skipMapBoundsEvent = true;
-            this.setEnvelope(bounds);
-
-        } catch (IOException ex) {
-            throw new IllegalStateException(ex);
+        int type = event.getType();
+        if ((type & MapBoundsEvent.COORDINATE_SYSTEM_MASK) != 0) {
+            /*
+             * The coordinate reference system has changed. Set the map
+             * to display the full extent of layer bounds to avoid the
+             * effect of a shrinking map
+             */
+            try {
+                doSetEnvelope(context.getLayerBounds());
+            } catch (Exception ex) {
+                throw new IllegalStateException(ex);
+            }
         }
     }
 
+    /**
+     * Helper method for {@linkplain #setEnvelope} and {@linkplain #mapBoundsChanged}.
+     *
+     * @param env new display envelope
+     */
+    private void doSetEnvelope(ReferencedEnvelope env) {
+        if (curPaintArea != null) {
+            setTransforms(env, curPaintArea);
+            labelCache.clear();
+            repaint();
+        }
+    }
 
     /**
      * Calculate the affine transforms used to convert between
