@@ -49,12 +49,16 @@ public class MapBoundsEvent extends EventObject {
     /**
      * Creates a new instance of BoundsEvent
      *
-     * @param source DOCUMENT ME!
-     * @param type DOCUMENT ME!
-     * @param oldAreaOfInterest DOCUMENT ME!
-     * @param oldCoordinateReferenceSystem DOCUMENT ME!
+     * @param source the map context reporting the change
      *
-     * @throws IllegalArgumentException DOCUMENT ME!
+     * @param type the type of change indicated by one or both of the bit masks
+     *        {@linkplain #AREA_OF_INTEREST_MASK} and {@linkplain #COORDINATE_SYSTEM_MASK}
+     *
+     * @param oldAreaOfInterest the context's previous area of interest
+     *
+     * @param newAreaOfInterest the context's new area of interest
+     *
+     * @throws IllegalArgumentException if type is invalid
      */
     public MapBoundsEvent(MapContext source, int type,
             ReferencedEnvelope oldAreaOfInterest, ReferencedEnvelope newAreaOfInterest) {

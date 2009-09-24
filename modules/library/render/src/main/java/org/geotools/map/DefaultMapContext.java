@@ -750,7 +750,7 @@ public class DefaultMapContext implements MapContext {
             }
         }
 
-        return this.areaOfInterest;
+        return new ReferencedEnvelope(this.areaOfInterest);
     }
 
     /**
@@ -784,7 +784,7 @@ public class DefaultMapContext implements MapContext {
 
         fireMapBoundsListenerMapBoundsChanged(new MapBoundsEvent(this,
                 MapBoundsEvent.AREA_OF_INTEREST_MASK,
-                oldAreaOfInterest, this.areaOfInterest));
+                oldAreaOfInterest, new ReferencedEnvelope(this.areaOfInterest)));
     }
 
     /**
@@ -1208,7 +1208,7 @@ public class DefaultMapContext implements MapContext {
         }
 
         fireMapBoundsListenerMapBoundsChanged(
-                new MapBoundsEvent(this, flags, oldAreaOfInterest, this.areaOfInterest));
+                new MapBoundsEvent(this, flags, oldAreaOfInterest, new ReferencedEnvelope(this.areaOfInterest)));
     }
 
     /**
@@ -1235,6 +1235,6 @@ public class DefaultMapContext implements MapContext {
 
         fireMapBoundsListenerMapBoundsChanged(new MapBoundsEvent(this,
                 MapBoundsEvent.COORDINATE_SYSTEM_MASK,
-                oldAreaOfInterest, this.areaOfInterest));
+                oldAreaOfInterest, new ReferencedEnvelope(this.areaOfInterest)));
     }
 }
