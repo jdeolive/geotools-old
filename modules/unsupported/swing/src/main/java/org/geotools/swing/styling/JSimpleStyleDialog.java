@@ -432,7 +432,7 @@ public class JSimpleStyleDialog extends JDialog {
         panel.add(label, "gapbefore indent, split 2");
 
         Object[] sizes = new Object[10];
-        for (int i = 1; i <= sizes.length; i++) { sizes[i-1] = Integer.valueOf(i); }
+        for (int i = 1; i <= sizes.length; i++) { sizes[i-1] = Integer.valueOf(i*5); }
         final JComboBox pointSizeCBox = new JComboBox(sizes);
         pointSizeCBox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {

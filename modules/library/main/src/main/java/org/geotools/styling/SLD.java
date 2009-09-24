@@ -2119,16 +2119,17 @@ public class SLD {
 
         Stroke stroke = sf.createStroke(ff.literal(lineColor), ff.literal(1.0f));
         Fill fill = Fill.NULL;
-        if (fillColor != null && size > 1.0) {
+        if (fillColor != null) {
             fill = sf.createFill(ff.literal(fillColor), ff.literal(opacity));
         }
 
-        Mark mark = sf.createMark(ff.literal(wellKnownName), stroke, fill,
-                ff.literal(size), ff.literal(0));
+        Mark mark = sf.createMark(ff.literal(wellKnownName),
+                stroke, fill, ff.literal(size), ff.literal(0));
 
         Graphic graphic = sf.createDefaultGraphic();
         graphic.graphicalSymbols().clear();
         graphic.graphicalSymbols().add(mark);
+        graphic.setSize(ff.literal(size));
 
         PointSymbolizer pointSym = sf.createPointSymbolizer(graphic, null);
 
