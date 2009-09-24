@@ -65,8 +65,8 @@ public class PanTool extends CursorTool {
      * signal the start of a mouse drag. Records the event's window position.
      */
     @Override
-    public void onMousePressed(MapMouseEvent pme) {
-        panePos = pme.getPoint();
+    public void onMousePressed(MapMouseEvent ev) {
+        panePos = ev.getPoint();
         panning = true;
     }
 
@@ -74,9 +74,9 @@ public class PanTool extends CursorTool {
      * Respond to a mouse dragged event. Calls {@link org.geotools.swing.JMapPane#moveImage()}
      */
     @Override
-    public void onMouseDragged(MapMouseEvent pme) {
+    public void onMouseDragged(MapMouseEvent ev) {
         if (panning) {
-            Point pos = pme.getPoint();
+            Point pos = ev.getPoint();
             if (!pos.equals(panePos)) {
                 getMapPane().moveImage(pos.x - panePos.x, pos.y - panePos.y);
                 panePos = pos;
@@ -89,7 +89,7 @@ public class PanTool extends CursorTool {
      * map mapPane to repaint the display
      */
     @Override
-    public void onMouseReleased(MapMouseEvent pme) {
+    public void onMouseReleased(MapMouseEvent ev) {
         panning = false;
         getMapPane().repaint();
     }

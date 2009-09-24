@@ -122,93 +122,93 @@ public class MapToolManager implements MouseInputListener, MouseWheelListener {
     }
 
     public void mouseClicked(MouseEvent e) {
-        MapMouseEvent pme = convertEvent(e);
-        if (pme != null) {
+        MapMouseEvent ev = convertEvent(e);
+        if (ev != null) {
             for (MapMouseListener listener : listeners) {
-                listener.onMouseClicked(pme);
+                listener.onMouseClicked(ev);
             }
         }
     }
 
     public void mousePressed(MouseEvent e) {
-        MapMouseEvent pme = convertEvent(e);
-        if (pme != null) {
+        MapMouseEvent ev = convertEvent(e);
+        if (ev != null) {
             for (MapMouseListener listener : listeners) {
-                listener.onMousePressed(pme);
+                listener.onMousePressed(ev);
             }
         }
     }
 
     public void mouseReleased(MouseEvent e) {
-        MapMouseEvent pme = convertEvent(e);
-        if (pme != null) {
+        MapMouseEvent ev = convertEvent(e);
+        if (ev != null) {
             for (MapMouseListener listener : listeners) {
-                listener.onMouseReleased(pme);
+                listener.onMouseReleased(ev);
             }
         }
     }
 
     public void mouseEntered(MouseEvent e) {
-        MapMouseEvent pme = convertEvent(e);
-        if (pme != null) {
+        MapMouseEvent ev = convertEvent(e);
+        if (ev != null) {
             for (MapMouseListener listener : listeners) {
-                listener.onMouseEntered(pme);
+                listener.onMouseEntered(ev);
             }
         }
     }
 
     public void mouseExited(MouseEvent e) {
-        MapMouseEvent pme = convertEvent(e);
-        if (pme != null) {
+        MapMouseEvent ev = convertEvent(e);
+        if (ev != null) {
             for (MapMouseListener listener : listeners) {
-                listener.onMouseExited(pme);
+                listener.onMouseExited(ev);
             }
         }
     }
 
     public void mouseDragged(MouseEvent e) {
-        MapMouseEvent pme = convertEvent(e);
-        if (pme != null) {
+        MapMouseEvent ev = convertEvent(e);
+        if (ev != null) {
             for (MapMouseListener listener : listeners) {
-                listener.onMouseDragged(pme);
+                listener.onMouseDragged(ev);
             }
         }
     }
 
     public void mouseMoved(MouseEvent e) {
-        MapMouseEvent pme = convertEvent(e);
-        if (pme != null) {
+        MapMouseEvent ev = convertEvent(e);
+        if (ev != null) {
             for (MapMouseListener listener : listeners) {
-                listener.onMouseMoved(pme);
+                listener.onMouseMoved(ev);
             }
         }
     }
 
     public void mouseWheelMoved(MouseWheelEvent e) {
-        MapMouseEvent pme = convertEvent(e);
-        if (pme != null) {
+        MapMouseEvent ev = convertEvent(e);
+        if (ev != null) {
             for (MapMouseListener listener : listeners) {
-                listener.onMouseWheelMoved(pme);
+                listener.onMouseWheelMoved(ev);
             }
         }
     }
 
     private MapMouseEvent convertEvent(MouseEvent e) {
-        MapMouseEvent pme = null;
+        MapMouseEvent ev = null;
         if (mapPane.getScreenToWorldTransform() != null) {
-            pme = new MapMouseEvent(mapPane, e);
+            ev = new MapMouseEvent(mapPane, e);
         }
 
-        return pme;
+        return ev;
     }
 
     private MapMouseEvent convertEvent(MouseWheelEvent e) {
-        MapMouseEvent pme = null;
+        MapMouseEvent ev = null;
         if (mapPane.getScreenToWorldTransform() != null) {
-            pme = new MapMouseEvent(mapPane, e);
+            ev = new MapMouseEvent(mapPane, e);
         }
 
-        return pme;
+        return ev;
     }
 
 }

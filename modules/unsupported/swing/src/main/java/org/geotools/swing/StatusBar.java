@@ -17,16 +17,15 @@
 
 package org.geotools.swing;
 
-import com.vividsolutions.jts.geom.Envelope;
-import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.LayoutManager;
+import java.awt.geom.Rectangle2D;
 import java.util.ResourceBundle;
-import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.border.BevelBorder;
 import net.miginfocom.swing.MigLayout;
 import org.geotools.geometry.DirectPosition2D;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.swing.event.MapMouseAdapter;
 import org.geotools.swing.event.MapMouseEvent;
 import org.geotools.swing.event.MapMouseListener;
@@ -36,6 +35,8 @@ import org.geotools.swing.event.MapPaneNewRendererEvent;
 import org.geotools.map.MapContext;
 import org.geotools.map.event.MapBoundsEvent;
 import org.geotools.map.event.MapBoundsListener;
+import org.opengis.geometry.Envelope;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 /**
  * A status bar that displays the mouse cursor position in
@@ -51,17 +52,13 @@ import org.geotools.map.event.MapBoundsListener;
  * @version $Id$
  */
 public class StatusBar extends JPanel implements MapPaneListener {
-    private static final long serialVersionUID = 3871466161939637993L;
-
     private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/swing/widget");
 
-    /*
-     * TODO: display additional info in the status bar
-     */
-    public static final int NUM_SPACES = 2;
+    public static final int NUM_SPACES = 3;
 
     public static final int COORDS_SPACE = 0;
     public static final int BOUNDS_SPACE = 1;
+    public static final int CRS_SPACE = 2;
 
     private JMapPane pane;
     private MapMouseListener mouseListener;
@@ -148,22 +145,26 @@ public class StatusBar extends JPanel implements MapPaneListener {
      */
     public void displayCoords(DirectPosition2D mapPos) {
         if (spaces != null) {
-            spaces[COORDS_SPACE].setText(String.format("%.4f %.4f", mapPos.x, mapPos.y));
+            spaces[COORDS_SPACE].setText(String.format("  %.2f %.2f", mapPos.x, mapPos.y));
         }
     }
 
     /**
      * Display the bounding coordinates of the given envelope
      */
-    public void displayBounds(Envelope env) {
+    public void displayBounds(Envelope bounds) {
         if (spaces != null) {
-            spaces[BOUNDS_SPACE].setText(String.format("%.4f-%.4f (%.4f) %.4f-%.4f (%.4f)",
-                    env.getMinX(),
-                    env.getMaxX(),
-                    env.getWidth(),
-                    env.getMinY(),
-                    env.getMaxY(),
-                    env.getHeight()));
+            spaces[BOUNDS_SPACE].setText(String.format("Min:%.2f %.2f Span:%.2f %.2f",
+                    bounds.getMinimum(0),
+                    bounds.getMinimum(1),
+                    bounds.getSpan(0),
+                    bounds.getSpan(1)));
+        }
+    }
+
+    public void displayCRS(CoordinateReferenceSystem crs) {
+        if (spaces != null) {
+            spaces[CRS_SPACE].setText(crs.getName().toString());
         }
     }
 
@@ -179,26 +180,46 @@ public class StatusBar extends JPanel implements MapPaneListener {
 
     public void onNewRenderer(MapPaneNewRendererEvent ev) {
     }
-    
+
     /**
      * Helper for constructors. Sets basic layout and creates
      * the first space for map coordinates.
      */
     private void init() {
-        LayoutManager lm = new MigLayout("insets 0", "[][grow]");
+        LayoutManager lm = new MigLayout("insets 0");
         this.setLayout(lm);
 
         spaces = new JLabel[NUM_SPACES];
-        int fontH = getFontMetrics(this.getFont()).getHeight();
+        Font font = Font.decode("Courier-12");
 
-        for (int i = 0; i < NUM_SPACES; i++) {
-            spaces[i] = new JLabel();
-            spaces[i].setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+        int fontH = getFontMetrics(font).getHeight();
 
-            // @todo improve this arbitrary sizing
-            spaces[i].setMinimumSize(new Dimension(200, (int)(1.5 * fontH)));
-            add(spaces[i], "grow");
-        }
+        Rectangle2D rect;
+        String constraint;
+
+        spaces[COORDS_SPACE] = new JLabel();
+        spaces[COORDS_SPACE].setFont(font);
+        rect = getFontMetrics(font).getStringBounds(
+                "  00000000.000 00000000.000", spaces[0].getGraphics());
+        constraint = String.format("width %d!, height %d!",
+                (int)rect.getWidth() + 10, (int)rect.getHeight() + 6);
+        add(spaces[COORDS_SPACE], constraint);
+
+        spaces[BOUNDS_SPACE] = new JLabel();
+        spaces[BOUNDS_SPACE].setFont(font);
+        rect = getFontMetrics(font).getStringBounds(
+                "Min: 00000000.000 00000000.000 Span: 00000000.000 00000000.000", spaces[0].getGraphics());
+        constraint = String.format("width %d!, height %d!",
+                (int)rect.getWidth() + 10, (int)rect.getHeight() + 6);
+        add(spaces[BOUNDS_SPACE], constraint);
+
+        spaces[CRS_SPACE] = new JLabel();
+        spaces[CRS_SPACE].setFont(font);
+        rect = getFontMetrics(font).getStringBounds(
+                "The name of a CRS might be this long", spaces[0].getGraphics());
+        constraint = String.format("width %d!, height %d!",
+                (int)rect.getWidth() + 20, (int)rect.getHeight() + 6);
+        add(spaces[CRS_SPACE], constraint);
     }
 
     /**
@@ -222,6 +243,7 @@ public class StatusBar extends JPanel implements MapPaneListener {
 
             public void mapBoundsChanged(MapBoundsEvent event) {
                 displayBounds(event.getNewAreaOfInterest());
+                displayCRS(event.getNewCoordinateReferenceSystem());
             }
         };
     }

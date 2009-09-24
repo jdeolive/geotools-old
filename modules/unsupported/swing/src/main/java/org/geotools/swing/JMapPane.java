@@ -90,7 +90,7 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
      * Default width of the margin (pixels) between the edge of the 
      * map pane and the drawing area
      */
-    public static final int DEFAULT_BORDER_WIDTH = 5;
+    public static final int DEFAULT_BORDER_WIDTH = 1;
     /**
      * Default delay (milliseconds) before the map will be redrawn when resizing
      * the pane. This is to avoid flickering while drag-resizing.
@@ -464,13 +464,14 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
      * null if none is set
      */
     public ReferencedEnvelope getEnvelope() {
-        ReferencedEnvelope env = null;
+        ReferencedEnvelope aoi = null;
 
         if (context != null) {
-            env = context.getAreaOfInterest();
+            aoi = context.getAreaOfInterest();
         }
 
-        return env;
+        // work-around for GEOT-2730
+        return new ReferencedEnvelope(aoi);
     }
 
     /**
@@ -614,7 +615,7 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
      * its current origin (x,y) to (x+dx, y+dy). This method
      * allows dragging the map without the overhead of redrawing
      * the features during the drag. For example, it is used by
-     * {@link org.geotools.swing.tool.JMapPanePanTool}.
+     * {@link org.geotools.swing.tool.PanTool}.
      * 
      * @param dx the x offset in pixels
      * @param dy the y offset in pixels.
@@ -653,7 +654,6 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
                 labelCache.clear();
             }
 
-
             ReferencedEnvelope mapAOI = context.getAreaOfInterest();
             if (mapAOI == null) {
                 return;
@@ -687,7 +687,12 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
         int dy = imageOrigin.y - margin;
         DirectPosition2D newPos = new DirectPosition2D(dx, dy);
         screenToWorld.transform(newPos, newPos);
+
+        // work around for GEOT-2730
+        mapAOI = new ReferencedEnvelope(mapAOI);
+        
         mapAOI.translate(mapAOI.getMinimum(0) - newPos.x, mapAOI.getMaximum(1) - newPos.y);
+        context.setAreaOfInterest(mapAOI);
         setTransforms(mapAOI, paintArea);
     }
 
@@ -747,8 +752,9 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
     }
 
     /**
-     * Called when the bounds of the map context have changed, ie. the
-     * bounding coordinates, the CRS, or both.
+     * Called by the map context when its bounds have changed. Used
+     * here to watch for a changed CRS, in which case the map is
+     * redisplayed at (new) full extent.
      */
     public void mapBoundsChanged(MapBoundsEvent event) {
 
