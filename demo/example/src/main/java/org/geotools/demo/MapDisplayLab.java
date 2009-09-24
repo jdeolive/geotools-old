@@ -9,6 +9,9 @@
  */
 package org.geotools.demo;
 
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPolygon;
@@ -19,6 +22,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
+import javax.measure.unit.Unit;
 import javax.swing.JButton;
 import javax.swing.JToolBar;
 import org.geotools.data.FeatureSource;
@@ -27,8 +31,8 @@ import org.geotools.data.FileDataStoreFinder;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
-import org.geotools.filter.text.cql2.CQL;
 import org.geotools.geometry.DirectPosition2D;
+import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.map.MapContext;
 import org.geotools.styling.FeatureTypeStyle;
@@ -48,7 +52,7 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.filter.Filter;
-import org.opengis.filter.FilterFactory;
+import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.identity.FeatureId;
 
 /**
@@ -57,9 +61,16 @@ import org.opengis.filter.identity.FeatureId;
  */
 public class MapDisplayLab {
 
+    /*
+     * Factories that we will use to create style and filter objects
+     */
     private StyleFactory sf = CommonFactoryFinder.getStyleFactory(null);
-    private FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
+    private FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
+    private GeometryFactory geomFactory = JTSFactoryFinder.getGeometryFactory(null);
 
+    /*
+     * Convenient constants for the type of feature geometry in the shapefile
+     */
     private enum GeomType { POINT, LINE, POLYGON };
 
     /*
@@ -70,13 +81,14 @@ public class MapDisplayLab {
     private static final Color SELECTED_COLOUR = Color.YELLOW;
     private static final float OPACITY = 1.0f;
     private static final float LINE_WIDTH = 1.0f;
-    private static final float POINT_SIZE = 3.0f;
+    private static final float POINT_SIZE = 10.0f;
 
     private JMapFrame mapFrame;
     private FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
 
     private String geometryAttributeName;
     private GeomType geometryType;
+    private String distanceUnitName;
 
     /*
      * The application method
@@ -161,20 +173,33 @@ public class MapDisplayLab {
      */
     void selectFeatures(DirectPosition2D pos) {
 
+        Filter filter = null;
         String filterString = null;
+        Geometry point = geomFactory.createPoint(new Coordinate(pos.x, pos.y));
 
         if (geometryType == GeomType.POLYGON) {
-            filterString = String.format("CONTAINS(%s, POINT(%f %f))",
-                    geometryAttributeName, pos.x, pos.y);
+            /*
+             * For polygons we create a filter to test if the mouse
+             * cursor position is contained within a polygon
+             */
+            filter = ff.contains(ff.property(geometryAttributeName), ff.literal(point));
+
         } else {
-            // TODO filter for line and point features
+            /*
+             * For lines and points it is better to test if the
+             * mouse click was within a certain distance of the feature.
+             * We will use a threshold distance based on the current
+             * map display width.
+             */
+            double distance = mapFrame.getMapPane().getEnvelope().getWidth() / 100;
+
+            filter = ff.dwithin(
+                    ff.property(geometryAttributeName),
+                    ff.literal(point),
+                    distance, distanceUnitName);
         }
 
-        System.out.println("Filter: " + filterString);
-
-        Filter filter = null;
         try {
-            filter = CQL.toFilter(filterString);
             FeatureCollection<SimpleFeatureType, SimpleFeature> selectedFeatures =
                     featureSource.getFeatures(filter);
 
@@ -282,13 +307,13 @@ public class MapDisplayLab {
                 fill = sf.createFill(ff.literal(fillColor), ff.literal(OPACITY));
 
                 Mark mark = sf.getCircleMark();
-                mark.setSize(ff.literal(POINT_SIZE));
                 mark.setFill(fill);
                 mark.setStroke(stroke);
 
                 Graphic graphic = sf.createDefaultGraphic();
                 graphic.graphicalSymbols().clear();
                 graphic.graphicalSymbols().add(mark);
+                graphic.setSize(ff.literal(POINT_SIZE));
 
                 symbolizer = sf.createPointSymbolizer(graphic, geometryAttributeName);
         }
@@ -311,7 +336,7 @@ public class MapDisplayLab {
                 MultiPolygon.class.isAssignableFrom(clazz)) {
             geometryType = GeomType.POLYGON;
 
-        } if (LineString.class.isAssignableFrom(clazz) ||
+        } else if (LineString.class.isAssignableFrom(clazz) ||
                 MultiLineString.class.isAssignableFrom(clazz)) {
 
             geometryType = GeomType.LINE;
@@ -319,6 +344,9 @@ public class MapDisplayLab {
         } else {
             geometryType = GeomType.POINT;
         }
+
+        Unit<?> unit = geomDesc.getCoordinateReferenceSystem().getCoordinateSystem().getAxis(0).getUnit();
+        distanceUnitName = unit.toString();
     }
 
 }
