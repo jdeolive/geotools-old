@@ -2985,9 +2985,10 @@ public final class JDBCDataStore extends ContentDataStore
             
             StringBuffer sql2 = new StringBuffer("SELECT ");
             encodeFunction(function,att,query,sql2);
+            sql2.append(" AS gt_result_");
             sql2.append(" FROM (");
             sql.insert(0,sql2.toString());
-            sql.append(") AS gt_result_");
+            sql.append(") gt_limited_");
         }
 
         return sql.toString();
@@ -3028,9 +3029,10 @@ public final class JDBCDataStore extends ContentDataStore
             
             StringBuffer sql2 = new StringBuffer("SELECT ");
             encodeFunction(function,att,query,sql2);
+            sql2.append(" AS gt_result_");
             sql2.append(" FROM (");
             sql.insert(0,sql2.toString());
-            sql.append(") AS gt_result_");
+            sql.append(") gt_limited_");
         }
         
         LOGGER.fine( sql.toString() );
