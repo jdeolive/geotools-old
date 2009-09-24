@@ -37,26 +37,26 @@ public class ResetAction extends MapAction {
     public static final String ICON_IMAGE = "/org/geotools/swing/icons/mActionZoomFullExtent.png";
     
     /**
-     * Constructor - when used with a JButton the button will
-     * display a small icon only
+     * Constructor. The associated control will be labelled with an icon.
      * 
-     * @param pane the map pane being serviced by this action
+     * @param mapPane the map pane being serviced by this action
      */
-    public ResetAction(JMapPane pane) {
-        this(pane, false);
+    public ResetAction(JMapPane mapPane) {
+        this(mapPane, false);
     }
 
     /**
-     * Constructor
+     * Constructor. The associated control will be labelled with an icon and,
+     * optionally, the tool name.
      * 
-     * @param pane the map pane being serviced by this action
+     * @param mapPane the map pane being serviced by this action
      * @param showToolName set to true for the control to display the tool name
      */
-    public ResetAction(JMapPane pane, boolean showToolName) {
+    public ResetAction(JMapPane mapPane, boolean showToolName) {
         String toolName = showToolName ? TOOL_NAME : null;
         
         String iconImagePath = null;
-        super.init(pane, toolName, TOOL_TIP, ICON_IMAGE);
+        super.init(mapPane, toolName, TOOL_TIP, ICON_IMAGE);
     }
     
     /**
@@ -64,7 +64,7 @@ public class ResetAction extends MapAction {
      * display 
      */
     public void actionPerformed(ActionEvent e) {
-        pane.reset();
+        getMapPane().reset();
     }
 
 }

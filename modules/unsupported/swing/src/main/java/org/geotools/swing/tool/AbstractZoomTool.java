@@ -17,8 +17,6 @@
 
 package org.geotools.swing.tool;
 
-import org.geotools.swing.JMapPane;
-
 
 /**
  * Abstract base class for the zoom-in and zoom-out tools. Provides getter / setter
@@ -38,8 +36,7 @@ public abstract class AbstractZoomTool extends CursorTool {
     /**
      * Constructor
      */
-    public AbstractZoomTool(JMapPane pane) {
-        setMapPane(pane);
+    public AbstractZoomTool() {
         setZoom(DEFAULT_ZOOM_FACTOR);
     }
     

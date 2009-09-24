@@ -33,24 +33,24 @@ import org.geotools.swing.tool.PanTool;
 public class PanAction extends MapAction {
 
     /**
-     * Constructor - when used with a JButton the button will
-     * display a small icon only
+     * Constructor. The associated control will be labelled with an icon.
      * 
-     * @param pane the map pane being serviced by this action
+     * @param mapPane the map pane being serviced by this action
      */
-    public PanAction(JMapPane pane) {
-        this(pane, false);
+    public PanAction(JMapPane mapPane) {
+        this(mapPane, false);
     }
 
     /**
-     * Constructor
+     * Constructor. The associated control will be labelled with an icon and,
+     * optionally, the tool name.
      * 
-     * @param pane the map pane being serviced by this action
+     * @param mapPane the map pane being serviced by this action
      * @param showToolName set to true for the control to display the tool name
      */
-    public PanAction(JMapPane pane, boolean showToolName) {
+    public PanAction(JMapPane mapPane, boolean showToolName) {
         String toolName = showToolName ? PanTool.TOOL_NAME : null;
-        super.init(pane, toolName, PanTool.TOOL_TIP, PanTool.ICON_IMAGE);
+        super.init(mapPane, toolName, PanTool.TOOL_TIP, PanTool.ICON_IMAGE);
     }
     
     /**
@@ -58,7 +58,7 @@ public class PanAction extends MapAction {
      * map pane's cursor tool being set to a PanTool object
      */
     public void actionPerformed(ActionEvent e) {
-        pane.setCursorTool(new PanTool(pane));
+        getMapPane().setCursorTool(new PanTool());
     }
 
 }

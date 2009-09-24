@@ -23,11 +23,9 @@ import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.geom.Point2D;
 import java.util.ResourceBundle;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.geometry.Envelope2D;
-import org.geotools.swing.JMapPane;
 import org.geotools.swing.event.MapMouseEvent;
 
 /**
@@ -58,21 +56,14 @@ public class ZoomInTool extends AbstractZoomTool {
     public static final String ICON_IMAGE = "/org/geotools/swing/icons/mActionZoomIn.png";
     
     private Cursor cursor;
-    private Icon icon;
     
     private Point2D startDragPos;
     private boolean dragged;
     
     /**
      * Constructor
-     *
-     * @param mapPane the map mapPane that this tool is to work with
      */
-    public ZoomInTool(JMapPane pane) {
-        super(pane);
-        
-        icon = new ImageIcon(getClass().getResource(ICON_IMAGE));
-
+    public ZoomInTool() {
         Toolkit tk = Toolkit.getDefaultToolkit();
         ImageIcon imgIcon = new ImageIcon(getClass().getResource(CURSOR_IMAGE));
         cursor = tk.createCustomCursor(imgIcon.getImage(), CURSOR_HOTSPOT, TOOL_NAME);
@@ -90,10 +81,10 @@ public class ZoomInTool extends AbstractZoomTool {
      */
     @Override
     public void onMouseClicked(MapMouseEvent e) {
-        Rectangle paneArea = mapPane.getVisibleRect();
+        Rectangle paneArea = getMapPane().getVisibleRect();
         DirectPosition2D mapPos = e.getMapPosition();
 
-        double scale = mapPane.getWorldToScreenTransform().getScaleX();
+        double scale = getMapPane().getWorldToScreenTransform().getScaleX();
         double newScale = scale * zoom;
 
         DirectPosition2D corner = new DirectPosition2D(
@@ -102,7 +93,7 @@ public class ZoomInTool extends AbstractZoomTool {
         
         Envelope2D newMapArea = new Envelope2D();
         newMapArea.setFrameFromCenter(mapPos, corner);
-        mapPane.setEnvelope(newMapArea);
+        getMapPane().setEnvelope(newMapArea);
     }
     
     /**
@@ -135,33 +126,18 @@ public class ZoomInTool extends AbstractZoomTool {
             Envelope2D env = new Envelope2D();
             env.setFrameFromDiagonal(startDragPos, e.getMapPosition());
             dragged = false;
-            mapPane.setEnvelope(env);
+            getMapPane().setEnvelope(env);
         }
-    }
-
-    /**
-     * Get the name assigned to this tool
-     * @return "Zoom in"
-     */
-    @Override
-    public String getName() {
-        return TOOL_NAME;
     }
 
     /**
      * Get the mouse cursor for this tool
      */
+    @Override
     public Cursor getCursor() {
         return cursor;
     }
     
-    /**
-     * Get the icon for this tool
-     */
-    public Icon getIcon() {
-        return icon;
-    }
-
     /**
      * Returns true to indicate that this tool draws a box
      * on the map display when the mouse is being dragged to

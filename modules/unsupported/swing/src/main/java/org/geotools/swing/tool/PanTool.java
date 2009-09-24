@@ -21,9 +21,7 @@ import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.util.ResourceBundle;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
-import org.geotools.swing.JMapPane;
 import org.geotools.swing.event.MapMouseEvent;
 
 /**
@@ -47,20 +45,14 @@ public class PanTool extends CursorTool {
     public static final String ICON_IMAGE = "/org/geotools/swing/icons/mActionPan.png";
     
     private Cursor cursor;
-    private Icon icon;
 
     private Point panePos;
     boolean panning;
     
     /**
      * Constructor
-     *
-     * @param mapPane the map mapPane that this tool is to work with
      */
-    public PanTool(JMapPane pane) {
-        setMapPane(pane);
-        icon = new ImageIcon(getClass().getResource(ICON_IMAGE));
-
+    public PanTool() {
         Toolkit tk = Toolkit.getDefaultToolkit();
         ImageIcon imgIcon = new ImageIcon(getClass().getResource(CURSOR_IMAGE));
         cursor = tk.createCustomCursor(imgIcon.getImage(), CURSOR_HOTSPOT, TOOL_NAME);
@@ -86,7 +78,7 @@ public class PanTool extends CursorTool {
         if (panning) {
             Point pos = pme.getPoint();
             if (!pos.equals(panePos)) {
-                mapPane.moveImage(pos.x - panePos.x, pos.y - panePos.y);
+                getMapPane().moveImage(pos.x - panePos.x, pos.y - panePos.y);
                 panePos = pos;
             }
         }
@@ -99,32 +91,17 @@ public class PanTool extends CursorTool {
     @Override
     public void onMouseReleased(MapMouseEvent pme) {
         panning = false;
-        mapPane.repaint();
-    }
-
-    /**
-     * Get the name assigned to this tool
-     * @return "Pan"
-     */
-    @Override
-    public String getName() {
-        return TOOL_NAME;
+        getMapPane().repaint();
     }
 
     /**
      * Get the mouse cursor for this tool
      */
+    @Override
     public Cursor getCursor() {
         return cursor;
     }
     
-    /**
-     * Get the 24x24 pixel icon for this tool
-     */
-    public Icon getIcon() {
-        return icon;
-    }
-
     /**
      * Returns false to indicate that this tool does not draw a box
      * on the map display when the mouse is being dragged

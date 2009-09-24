@@ -18,9 +18,7 @@
 package org.geotools.swing.tool;
 
 import java.awt.Cursor;
-import java.awt.Toolkit;
 import java.util.ResourceBundle;
-import javax.swing.Icon;
 import org.geotools.swing.JMapPane;
 import org.geotools.swing.event.MapMouseAdapter;
 
@@ -37,19 +35,7 @@ public abstract class CursorTool extends MapMouseAdapter {
 
     private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/swing/widget");
 
-    /**
-     * Used with tool constructors to specify that the GUI control
-     * (e.g. JButton) should not display an icon for this tool
-     */
-    public static final int NO_ICON = 0;
-
-    /**
-     * Used with tool constructors to specify that the GUI control
-     * (e.g. JButton) display an icon for this tool
-     */
-    public static final int HAS_ICON = 1;
-
-    protected JMapPane mapPane;
+    private JMapPane mapPane;
 
     /**
      * Set the map mapPane that this cursor tool is associated with
@@ -65,15 +51,12 @@ public abstract class CursorTool extends MapMouseAdapter {
     }
 
     /**
-     * Get the name assigned to this tool (e.g. "Zoom in")
+     * Get the map pane that this tool is servicing
+     *
+     * @return the map pane
      */
-    public abstract String getName();
-
-    /**
-     * Get the icon for this tool to be used with JButtons
-     */
-    public Icon getIcon() {
-        return null;
+    public JMapPane getMapPane() {
+        return mapPane;
     }
 
     /**

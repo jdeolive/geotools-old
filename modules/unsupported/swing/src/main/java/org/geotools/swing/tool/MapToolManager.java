@@ -41,7 +41,7 @@ public class MapToolManager implements MouseInputListener, MouseWheelListener {
 
     private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/swing/widget");
 
-    private JMapPane pane;
+    private JMapPane mapPane;
     private Set<MapMouseListener> listeners = new HashSet<MapMouseListener>();
     private CursorTool cursorTool;
 
@@ -51,7 +51,7 @@ public class MapToolManager implements MouseInputListener, MouseWheelListener {
      * @param pane the map pane that owns this listener
      */
     public MapToolManager(JMapPane pane) {
-        this.pane = pane;
+        this.mapPane = pane;
     }
 
     /**
@@ -79,6 +79,7 @@ public class MapToolManager implements MouseInputListener, MouseWheelListener {
         }
 
         cursorTool = tool;
+        cursorTool.setMapPane(mapPane);
         return listeners.add(tool);
     }
 
@@ -194,8 +195,8 @@ public class MapToolManager implements MouseInputListener, MouseWheelListener {
 
     private MapMouseEvent convertEvent(MouseEvent e) {
         MapMouseEvent pme = null;
-        if (pane.getScreenToWorldTransform() != null) {
-            pme = new MapMouseEvent(pane, e);
+        if (mapPane.getScreenToWorldTransform() != null) {
+            pme = new MapMouseEvent(mapPane, e);
         }
 
         return pme;
@@ -203,8 +204,8 @@ public class MapToolManager implements MouseInputListener, MouseWheelListener {
 
     private MapMouseEvent convertEvent(MouseWheelEvent e) {
         MapMouseEvent pme = null;
-        if (pane.getScreenToWorldTransform() != null) {
-            pme = new MapMouseEvent(pane, e);
+        if (mapPane.getScreenToWorldTransform() != null) {
+            pme = new MapMouseEvent(mapPane, e);
         }
 
         return pme;

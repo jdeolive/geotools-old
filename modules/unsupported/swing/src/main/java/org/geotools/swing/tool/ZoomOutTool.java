@@ -22,11 +22,9 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.util.ResourceBundle;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.geometry.Envelope2D;
-import org.geotools.swing.JMapPane;
 import org.geotools.swing.event.MapMouseEvent;
 
 /**
@@ -54,17 +52,11 @@ public class ZoomOutTool extends AbstractZoomTool {
     public static final String ICON_IMAGE = "/org/geotools/swing/icons/mActionZoomOut.png";
     
     private Cursor cursor;
-    private Icon icon;
     
     /**
      * Constructor
-     *
-     * @param mapPane the map mapPane that this tool is to work with
      */
-    public ZoomOutTool(JMapPane pane) {
-        super(pane);
-        icon = new ImageIcon(getClass().getResource(ICON_IMAGE));
-
+    public ZoomOutTool() {
         Toolkit tk = Toolkit.getDefaultToolkit();
         ImageIcon imgIcon = new ImageIcon(getClass().getResource(CURSOR_IMAGE));
         cursor = tk.createCustomCursor(imgIcon.getImage(), CURSOR_HOTSPOT, TOOL_NAME);
@@ -77,10 +69,10 @@ public class ZoomOutTool extends AbstractZoomTool {
      */
     @Override
     public void onMouseClicked(MapMouseEvent pme) {
-        Rectangle paneArea = mapPane.getVisibleRect();
+        Rectangle paneArea = getMapPane().getVisibleRect();
         DirectPosition2D mapPos = pme.getMapPosition();
 
-        double scale = mapPane.getWorldToScreenTransform().getScaleX();
+        double scale = getMapPane().getWorldToScreenTransform().getScaleX();
         double newScale = scale / zoom;
 
         DirectPosition2D corner = new DirectPosition2D(
@@ -89,32 +81,17 @@ public class ZoomOutTool extends AbstractZoomTool {
         
         Envelope2D newMapArea = new Envelope2D();
         newMapArea.setFrameFromCenter(mapPos, corner);
-        mapPane.setEnvelope(newMapArea);
-    }
-
-    /**
-     * Get the name assigned to this tool
-     * @return "Zoom out"
-     */
-    @Override
-    public String getName() {
-        return TOOL_NAME;
+        getMapPane().setEnvelope(newMapArea);
     }
 
     /**
      * Get the mouse cursor for this tool
      */
+    @Override
     public Cursor getCursor() {
         return cursor;
     }
     
-    /**
-     * Get the icon for this tool
-     */
-    public Icon getIcon() {
-        return icon;
-    }
-
     /**
      * Returns false to indicate that this tool does not draw a box
      * on the map display when the mouse is being dragged

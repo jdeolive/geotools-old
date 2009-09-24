@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.ResourceBundle;
 import javax.measure.unit.Unit;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
@@ -40,7 +39,6 @@ import org.geotools.feature.FeatureIterator;
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.MapLayer;
-import org.geotools.swing.JMapPane;
 import org.geotools.swing.JTextReporter;
 import org.geotools.swing.TextReporterListener;
 import org.geotools.swing.event.MapMouseEvent;
@@ -78,12 +76,9 @@ public class InfoTool extends CursorTool implements TextReporterListener {
      */
     public static final double DEFAULT_DISTANCE_FRACTION = 0.04d;
 
-    private static boolean staticVarsInitialized;
-
-    private static Cursor cursor;
-    private static Icon icon;
-    private static FilterFactory2 filterFactory;
-    private static GeometryFactory geomFactory;
+    private Cursor cursor;
+    private FilterFactory2 filterFactory;
+    private GeometryFactory geomFactory;
 
     private JTextReporter reporter;
 
@@ -92,40 +87,33 @@ public class InfoTool extends CursorTool implements TextReporterListener {
      *
      * @param pane the map pane that this tool is to work with
      */
-    public InfoTool(JMapPane pane) {
-        setMapPane(pane);
-        if (!staticVarsInitialized) {
-            icon = new ImageIcon(getClass().getResource(ICON_IMAGE));
+    public InfoTool() {
+        Toolkit tk = Toolkit.getDefaultToolkit();
+        ImageIcon cursorIcon = new ImageIcon(getClass().getResource(CURSOR_IMAGE));
 
-            Toolkit tk = Toolkit.getDefaultToolkit();
-            ImageIcon cursorIcon = new ImageIcon(getClass().getResource(CURSOR_IMAGE));
+        int iconWidth = cursorIcon.getIconWidth();
+        int iconHeight = cursorIcon.getIconHeight();
 
-            int iconWidth = cursorIcon.getIconWidth();
-            int iconHeight = cursorIcon.getIconHeight();
+        Dimension bestCursorSize = tk.getBestCursorSize(cursorIcon.getIconWidth(), cursorIcon.getIconHeight());
 
-            Dimension bestCursorSize = tk.getBestCursorSize(cursorIcon.getIconWidth(), cursorIcon.getIconHeight());
-
-            cursor = tk.createCustomCursor(cursorIcon.getImage(), CURSOR_HOTSPOT, TOOL_TIP);
-            filterFactory = CommonFactoryFinder.getFilterFactory2(GeoTools.getDefaultHints());
-            geomFactory = new GeometryFactory();
-
-            staticVarsInitialized = true;
-        }
+        cursor = tk.createCustomCursor(cursorIcon.getImage(), CURSOR_HOTSPOT, TOOL_TIP);
+        filterFactory = CommonFactoryFinder.getFilterFactory2(GeoTools.getDefaultHints());
+        geomFactory = new GeometryFactory();
     }
 
     @Override
     public void onMouseClicked(MapMouseEvent ev) {
         DirectPosition2D pos = ev.getMapPosition();
-        Unit<?> uom = mapPane.getMapContext().getCoordinateReferenceSystem().getCoordinateSystem().getAxis(0).getUnit();
+        Unit<?> uom = getMapPane().getMapContext().getCoordinateReferenceSystem().getCoordinateSystem().getAxis(0).getUnit();
 
-        ReferencedEnvelope mapEnv = mapPane.getEnvelope();
+        ReferencedEnvelope mapEnv = getMapPane().getEnvelope();
         double len = Math.max(mapEnv.getWidth(), mapEnv.getHeight());
         double thresholdDistance = len * DEFAULT_DISTANCE_FRACTION;
         String uomName = uom.toString();
 
         Geometry posGeom = geomFactory.createPoint(new Coordinate(pos.x, pos.y));
 
-        for (MapLayer layer : mapPane.getMapContext().getLayers()) {
+        for (MapLayer layer : getMapPane().getMapContext().getLayers()) {
             if (layer.isSelected()) {
                 FeatureIterator<? extends Feature> iter = null;
                 Filter filter = null;
@@ -212,17 +200,6 @@ public class InfoTool extends CursorTool implements TextReporterListener {
             reporter.setSize(400, 400);
             reporter.setVisible(true);
         }
-    }
-
-
-    @Override
-    public String getName() {
-        return TOOL_NAME;
-    }
-
-    @Override
-    public Icon getIcon() {
-        return icon;
     }
 
     @Override
