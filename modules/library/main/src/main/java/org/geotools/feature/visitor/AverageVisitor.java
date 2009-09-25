@@ -103,13 +103,12 @@ public class AverageVisitor implements FeatureCalc {
     private static AverageStrategy createStrategy(Class type) {
         if (type == Integer.class) {
             return new IntegerAverageStrategy();
-        } else if (type == Double.class) {
-            return new DoubleAverageStrategy();
         } else if (type == Long.class) {
             return new LongAverageStrategy();
         } else if (type == Float.class) {
             return new FloatAverageStrategy();
-        }
+        } else if (Number.class.isAssignableFrom(type))
+            return new DoubleAverageStrategy();
 
         return null;
     }
