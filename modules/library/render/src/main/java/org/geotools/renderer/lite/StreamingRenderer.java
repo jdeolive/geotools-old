@@ -1329,7 +1329,7 @@ public final class StreamingRenderer implements GTRenderer {
 			}
 
 			if (attType instanceof GeometryDescriptor) {                                
-                BBOX gfilter = filterFactory.bbox( attType.getLocalName(), bbox.getMinX(), bbox.getMinY(), bbox.getMaxX(), bbox.getMaxY(), null );
+			    BBOX gfilter = new FastBBOX(attType.getLocalName(), bbox);
                 
 				if (filter == Filter.INCLUDE) {
 					filter = gfilter;
