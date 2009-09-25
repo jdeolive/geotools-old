@@ -30,11 +30,9 @@ import org.geotools.swing.event.MapMouseAdapter;
 import org.geotools.swing.event.MapMouseEvent;
 import org.geotools.swing.event.MapMouseListener;
 import org.geotools.swing.event.MapPaneListener;
-import org.geotools.swing.event.MapPaneNewContextEvent;
-import org.geotools.swing.event.MapPaneNewRendererEvent;
 import org.geotools.map.MapContext;
-import org.geotools.map.event.MapBoundsEvent;
-import org.geotools.map.event.MapBoundsListener;
+import org.geotools.swing.event.MapPaneAdapter;
+import org.geotools.swing.event.MapPaneEvent;
 import org.opengis.geometry.Envelope;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -51,7 +49,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * @source $URL$
  * @version $Id$
  */
-public class StatusBar extends JPanel implements MapPaneListener {
+public class StatusBar extends JPanel {
     private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/swing/widget");
 
     public static final int NUM_SPACES = 3;
@@ -60,9 +58,10 @@ public class StatusBar extends JPanel implements MapPaneListener {
     public static final int BOUNDS_SPACE = 1;
     public static final int CRS_SPACE = 2;
 
-    private JMapPane pane;
+    private JMapPane mapPane;
+    private MapContext context;
     private MapMouseListener mouseListener;
-    private MapBoundsListener mapBoundsListener;
+    private MapPaneAdapter mapPaneListener;
 
     private JLabel[] spaces;
 
@@ -97,30 +96,20 @@ public class StatusBar extends JPanel implements MapPaneListener {
      * @param pane the map pane
      * @throws IllegalArgumentException if pane is null
      */
-    public void setMapPane(final JMapPane pane) {
-        if (pane == null) {
+    public void setMapPane(final JMapPane newPane) {
+        if (newPane == null) {
             throw new IllegalArgumentException(stringRes.getString("arg_null_error"));
         }
 
-        if (this.pane != pane) {
-            if (this.pane != null) {
-                this.pane.removeMouseListener(mouseListener);
-
-                MapContext context = this.pane.getMapContext();
-                if (context != null) {
-                    context.removeMapBoundsListener(mapBoundsListener);
-                }
+        if (mapPane != newPane) {
+            if (mapPane != null) {
+                mapPane.removeMouseListener(mouseListener);
             }
 
-            pane.addMouseListener(mouseListener);
-
-            pane.addMapPaneListener(this);
-
-            if (pane.getMapContext() != null) {
-                pane.getMapContext().addMapBoundsListener(mapBoundsListener);
-            }
-
-            this.pane = pane;
+            newPane.addMouseListener(mouseListener);
+            newPane.addMapPaneListener(mapPaneListener);
+            context = newPane.getMapContext();
+            mapPane = newPane;
         }
     }
 
@@ -144,7 +133,7 @@ public class StatusBar extends JPanel implements MapPaneListener {
      * @param mapPos mouse cursor position (world coords)
      */
     public void displayCoords(DirectPosition2D mapPos) {
-        if (spaces != null) {
+        if (mapPos != null) {
             spaces[COORDS_SPACE].setText(String.format("  %.2f %.2f", mapPos.x, mapPos.y));
         }
     }
@@ -153,7 +142,7 @@ public class StatusBar extends JPanel implements MapPaneListener {
      * Display the bounding coordinates of the given envelope
      */
     public void displayBounds(Envelope bounds) {
-        if (spaces != null) {
+        if (bounds != null) {
             spaces[BOUNDS_SPACE].setText(String.format("Min:%.2f %.2f Span:%.2f %.2f",
                     bounds.getMinimum(0),
                     bounds.getMinimum(1),
@@ -163,22 +152,9 @@ public class StatusBar extends JPanel implements MapPaneListener {
     }
 
     public void displayCRS(CoordinateReferenceSystem crs) {
-        if (spaces != null) {
+        if (crs != null) {
             spaces[CRS_SPACE].setText(crs.getName().toString());
         }
-    }
-
-    public void onNewContext(MapPaneNewContextEvent ev) {
-        if (ev.getOldContext() != null) {
-            ev.getOldContext().removeMapBoundsListener(mapBoundsListener);
-        }
-
-        if (ev.getNewContext() != null) {
-            ev.getNewContext().addMapBoundsListener(mapBoundsListener);
-        }
-    }
-
-    public void onNewRenderer(MapPaneNewRendererEvent ev) {
     }
 
     /**
@@ -239,12 +215,22 @@ public class StatusBar extends JPanel implements MapPaneListener {
             }
         };
 
-        mapBoundsListener = new MapBoundsListener() {
+        mapPaneListener = new MapPaneAdapter() {
 
-            public void mapBoundsChanged(MapBoundsEvent event) {
-                displayBounds(event.getNewAreaOfInterest());
-                displayCRS(event.getNewCoordinateReferenceSystem());
+            @Override
+            public void onDisplayAreaChanged(MapPaneEvent ev) {
+                ReferencedEnvelope env = mapPane.getDisplayArea();
+                if (env != null) {
+                    displayBounds(env);
+                    displayCRS(env.getCoordinateReferenceSystem());
+                }
             }
+
+            @Override
+            public void onResized(MapPaneEvent ev) {
+                displayBounds(mapPane.getDisplayArea());
+            }
+
         };
     }
 

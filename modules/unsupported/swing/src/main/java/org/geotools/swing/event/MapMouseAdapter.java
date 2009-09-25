@@ -21,9 +21,7 @@ package org.geotools.swing.event;
 /**
  * An adapter class that implements all of the mouse event handling methods
  * defined in the MapMouseListener interface as empty methods, allowing sub-classes
- * to just override the methods they need. Note that this class is abstract and
- * sub-classes are required to implement
- * {@linkplain MapMouseListener#setMapPane(org.geotools.swing.JMapPane) }.
+ * to just override the methods they need. 
  *
  * @author Michael Bedward
  * @since 2.6
@@ -31,16 +29,6 @@ package org.geotools.swing.event;
  * @version $Id$
  */
 public class MapMouseAdapter implements MapMouseListener {
-
-//    private JMapPane pane;
-
-
-    /**
-     * Set the JMapPane instance for this tool
-     */
-    /*public void setMapPane(JMapPane pane) {
-        this.pane = pane;
-    }*/
 
     /**
      * Respond to a mouse click event received from the map pane

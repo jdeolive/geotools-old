@@ -21,16 +21,17 @@ import java.util.EventObject;
 import org.geotools.swing.JMapPane;
 
 /**
- * Base class for map pane events
+ * An event class used by {@code JMapPane} to signal changes of
+ * state to listeners.
+ *
+ * @see MapPaneListener
  * 
  * @author Michael Bedward
  * @since 2.6
  * @source $URL$
  * @version $Id$
  */
-public abstract class MapPaneEvent extends EventObject {
-    private static final long serialVersionUID = 3379688994962024035L;
-    
+public class MapPaneEvent extends EventObject {
     /**
      * Type of MapPane event
      */
@@ -43,13 +44,21 @@ public abstract class MapPaneEvent extends EventObject {
         /**
          * The map pane has set a new renderer.
          */
-        NEW_RENDERER;
-        
-        @Override
-        public String toString() {
-            return "map pane: " + name();
-        }
+        NEW_RENDERER,
+
+        /**
+         * The map pane has been resized.
+         */
+        PANE_RESIZED,
+
+        /**
+         * The display area has been changed. This can
+         * include both changes in bounds and in the
+         * coordinate reference system.
+         */
+        DISPLAY_AREA_CHANGED;
     }
+
     /** Type of mappane event */
     private Type type;
 
@@ -71,12 +80,4 @@ public abstract class MapPaneEvent extends EventObject {
         return type;
     }
 
-    /**
-     * Return a description of this event.
-     * @return "map pane: " plus a brief description of the event type
-     */
-    @Override
-    public String toString() {
-        return type.toString();
-    }
 }

@@ -80,7 +80,7 @@ public class ShapefileViewer extends JMapFrame {
         File dataDir = new File(ShapefileViewer.class.getResource("/data").getPath());
         widget.setWorkingDir(dataDir);
 
-        widget.setSize(500, 500);
+        widget.setSize(800, 600);
         widget.setVisible(true);
     }
 

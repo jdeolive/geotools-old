@@ -93,7 +93,7 @@ public class ZoomInTool extends AbstractZoomTool {
         
         Envelope2D newMapArea = new Envelope2D();
         newMapArea.setFrameFromCenter(mapPos, corner);
-        getMapPane().setEnvelope(newMapArea);
+        getMapPane().setDisplayArea(newMapArea);
     }
     
     /**
@@ -117,7 +117,7 @@ public class ZoomInTool extends AbstractZoomTool {
     /**
      * If the mouse was dragged, determines the bounds of the
      * box that the user defined and passes this to the mapPane's
-     * {@link org.geotools.swing.JMapPane#setEnvelope(org.opengis.geometry.Envelope) }
+     * {@link org.geotools.swing.JMapPane#setDisplayArea(org.opengis.geometry.Envelope) }
      * method
      */
     @Override
@@ -126,7 +126,7 @@ public class ZoomInTool extends AbstractZoomTool {
             Envelope2D env = new Envelope2D();
             env.setFrameFromDiagonal(startDragPos, e.getMapPosition());
             dragged = false;
-            getMapPane().setEnvelope(env);
+            getMapPane().setDisplayArea(env);
         }
     }
 

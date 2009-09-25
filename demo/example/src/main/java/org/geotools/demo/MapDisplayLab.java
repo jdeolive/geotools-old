@@ -191,7 +191,7 @@ public class MapDisplayLab {
              * We will use a threshold distance based on the current
              * map display width.
              */
-            double distance = mapFrame.getMapPane().getEnvelope().getWidth() / 100;
+            double distance = mapFrame.getMapPane().getDisplayArea().getWidth() / 100;
 
             filter = ff.dwithin(
                     ff.property(geometryAttributeName),

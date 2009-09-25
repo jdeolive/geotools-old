@@ -63,14 +63,14 @@ public class CRSLab {
                     if( crs == null){
                         return; // canceled
                     }
-                    map.setCoordinateReferenceSystem(crs);;                    
+                    map.setCoordinateReferenceSystem(crs);                   
                 } catch (Exception ex) {
                     System.out.println("Could not uses crs "+ex);
                 }
             }
         });
         toolbar.add(btn);
-        mapFrame.setSize(600, 600);
+        mapFrame.setSize(800, 600);
         mapFrame.setVisible(true);
     }
 

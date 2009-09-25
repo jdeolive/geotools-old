@@ -81,7 +81,7 @@ public class ZoomOutTool extends AbstractZoomTool {
         
         Envelope2D newMapArea = new Envelope2D();
         newMapArea.setFrameFromCenter(mapPos, corner);
-        getMapPane().setEnvelope(newMapArea);
+        getMapPane().setDisplayArea(newMapArea);
     }
 
     /**

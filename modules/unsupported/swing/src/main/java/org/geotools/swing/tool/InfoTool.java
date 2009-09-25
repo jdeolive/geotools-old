@@ -106,7 +106,7 @@ public class InfoTool extends CursorTool implements TextReporterListener {
         DirectPosition2D pos = ev.getMapPosition();
         Unit<?> uom = getMapPane().getMapContext().getCoordinateReferenceSystem().getCoordinateSystem().getAxis(0).getUnit();
 
-        ReferencedEnvelope mapEnv = getMapPane().getEnvelope();
+        ReferencedEnvelope mapEnv = getMapPane().getDisplayArea();
         double len = Math.max(mapEnv.getWidth(), mapEnv.getHeight());
         double thresholdDistance = len * DEFAULT_DISTANCE_FRACTION;
         String uomName = uom.toString();

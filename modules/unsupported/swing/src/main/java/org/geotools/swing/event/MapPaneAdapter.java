@@ -18,34 +18,35 @@
 package org.geotools.swing.event;
 
 /**
- * Implemented by classes that wish to receive MapPaneEvents
+ * An adapter class that implements all of the method
+ * defined in the {@code MapPaneListener} interface as empty methods, allowing sub-classes
+ * to just override the methods they need. 
  *
  * @author Michael Bedward
  * @since 2.6
  * @source $URL$
  * @version $Id$
  */
-public interface MapPaneListener {
+public class MapPaneAdapter implements MapPaneListener {
 
     /**
      * Called by the map pane when a new map context has been set
      */
-    public void onNewContext(MapPaneEvent ev);
+    public void onNewContext(MapPaneEvent ev) {}
 
     /**
      * Called by the map pane when a new renderer has been set
      */
-    public void onNewRenderer(MapPaneEvent ev);
+    public void onNewRenderer(MapPaneEvent ev) {}
 
     /**
      * Called by the map pane when it has been resized
      */
-    public void onResized(MapPaneEvent ev);
+    public void onResized(MapPaneEvent ev) {}
 
     /**
      * Called by the map pane when its display area has been
      * changed e.g. by zooming or panning
      */
-    public void onDisplayAreaChanged(MapPaneEvent ev);
-
+    public void onDisplayAreaChanged(MapPaneEvent ev) {}
 }
