@@ -965,13 +965,13 @@ public class ShapefileDataStore extends AbstractFileDataStore {
 
         if (isWriteable) {
             if (getLockingManager() != null) {
-                return new ShapefileFeatureLocking(this, HINTS, featureType);
+                return new ShapefileFeatureLocking(this, getSupportedHints(), featureType);
             }
             else {
-                return new ShapefileFeatureStore(this, HINTS, featureType);
+                return new ShapefileFeatureStore(this, getSupportedHints(), featureType);
             }
         }
-        return new ShapefileFeatureSource(this, HINTS, featureType);
+        return new ShapefileFeatureSource(this, getSupportedHints(), featureType);
     }
 
     /**
@@ -1073,6 +1073,11 @@ public class ShapefileDataStore extends AbstractFileDataStore {
     public void dispose() {
         super.dispose();
         shpFiles.dispose();
+    }
+    
+    @Override
+    protected Set getSupportedHints() {
+        return HINTS;
     }
     
 }

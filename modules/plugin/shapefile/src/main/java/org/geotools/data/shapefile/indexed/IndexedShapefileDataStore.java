@@ -460,8 +460,17 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
         }
 
         Hints hints = query != null ? query.getHints() : null;
-        return new IndexedShapefileAttributeReader(atts, openShapeReader(getGeometryFactory(hints)),
-                dbfR, goodRecs);
+        IndexedShapefileAttributeReader reader =  new IndexedShapefileAttributeReader(atts, 
+                openShapeReader(getGeometryFactory(hints)), dbfR, goodRecs);
+        reader.setTargetBBox(bbox);
+        if(hints != null) {
+            Number simplificationDistance = (Number) hints.get(Hints.GEOMETRY_DISTANCE);
+            if(simplificationDistance != null) {
+                reader.setSimplificationDistance(simplificationDistance.doubleValue());
+            } 
+        }
+        
+        return reader;
     }
 
     /**
@@ -1050,5 +1059,13 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
     public String id() {
         return getClass().getName() + ": " + getCurrentTypeName();
     }
-    
+ 
+    @Override
+    protected Set getSupportedHints() {
+        Set<Hints.Key> hints = new HashSet<Hints.Key>();
+        hints.add( Hints.JTS_GEOMETRY_FACTORY );
+        hints.add( Hints.JTS_COORDINATE_SEQUENCE_FACTORY );
+        hints.add( Hints.GEOMETRY_DISTANCE);
+        return hints;
+    }
 }

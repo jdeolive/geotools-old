@@ -23,8 +23,13 @@ import org.geotools.data.AbstractAttributeIO;
 import org.geotools.data.AttributeReader;
 import org.geotools.data.shapefile.dbf.DbaseFileHeader;
 import org.geotools.data.shapefile.dbf.DbaseFileReader;
+import org.geotools.data.shapefile.shp.ShapeType;
 import org.geotools.data.shapefile.shp.ShapefileReader;
+import org.geotools.data.shapefile.shp.ShapefileReader.Record;
 import org.opengis.feature.type.AttributeDescriptor;
+
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.GeometryFactory;
 
 /**
  * An AttributeReader implementation for Shapefile. Pretty straightforward.
@@ -41,10 +46,25 @@ public class ShapefileAttributeReader extends AbstractAttributeIO implements
     protected ShapefileReader.Record record;
     int cnt;
     int[] dbfindexes;
+    protected Envelope targetBBox;
+    double simplificationDistance;
 
     public ShapefileAttributeReader(List<AttributeDescriptor> atts,
             ShapefileReader shp, DbaseFileReader dbf) {
         this(atts.toArray(new AttributeDescriptor[0]), shp, dbf);
+    }
+    
+    /**
+     * Sets a search area. If the geometry does not fall into it
+     * it won't be read and will return a null geometry instead 
+     * @param envelope
+     */
+    public void setTargetBBox(Envelope envelope) {
+        this.targetBBox = envelope;
+    }
+    
+    public void setSimplificationDistance(double distance) {
+        this.simplificationDistance = distance;
     }
 
     /**
@@ -124,7 +144,13 @@ public class ShapefileAttributeReader extends AbstractAttributeIO implements
             java.lang.ArrayIndexOutOfBoundsException {
         switch (param) {
         case 0:
-            return record.shape();
+            Envelope envelope = record.envelope();
+            if(targetBBox != null && !targetBBox.isNull() && !targetBBox.intersects(envelope))
+                    return null;
+            else if(simplificationDistance > 0 && envelope.getWidth() < simplificationDistance && envelope.getHeight() < simplificationDistance )
+                return record.getSimplifiedShape();
+            else
+                return record.shape();
 
         default:
 
