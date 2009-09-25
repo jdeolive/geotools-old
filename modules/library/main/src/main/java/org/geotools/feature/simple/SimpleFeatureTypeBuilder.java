@@ -704,9 +704,10 @@ public class SimpleFeatureTypeBuilder {
      * </p>
      */
     public void addAll( List<AttributeDescriptor>  descriptors ) {
-        for ( AttributeDescriptor ad : descriptors ) {
-            add( ad );
-        }
+        if(descriptors != null)
+            for ( AttributeDescriptor ad : descriptors ) {
+                add( ad );
+            }
     }
 	/**
      * Adds an array of descriptors directly to the builder.
