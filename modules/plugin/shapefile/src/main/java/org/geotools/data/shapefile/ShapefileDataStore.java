@@ -83,8 +83,10 @@ import org.opengis.filter.Filter;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import com.vividsolutions.jts.geom.CoordinateSequenceFactory;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPoint;
@@ -320,11 +322,11 @@ public class ShapefileDataStore extends AbstractFileDataStore {
 
         return getFeatureReader();
     }
-
+    
     public FeatureReader<SimpleFeatureType, SimpleFeature> getFeatureReader() throws IOException {
         try {
             return createFeatureReader(getSchema().getTypeName(),
-                    getAttributesReader(true), schema);
+                    getAttributesReader(true, new GeometryFactory()), schema);
         } catch (SchemaException se) {
             throw new DataSourceException("Error creating schema", se);
         }
@@ -342,6 +344,8 @@ public class ShapefileDataStore extends AbstractFileDataStore {
             throws IOException {
         String[] propertyNames = query.getPropertyNames();
         String defaultGeomName = schema.getGeometryDescriptor().getLocalName();
+        
+        GeometryFactory geometryFactory = getGeometryFactory(query.getHints());
 
         // gather attributes needed by the query tool, they will be used by the
         // query filter
@@ -362,13 +366,42 @@ public class ShapefileDataStore extends AbstractFileDataStore {
                         schema, propertyNames);
 
                 return createFeatureReader(typeName,
-                        getAttributesReader(false), newSchema);
+                        getAttributesReader(false, geometryFactory), newSchema);
             } catch (SchemaException se) {
                 throw new DataSourceException("Error creating schema", se);
             }
         }
 
         return super.getFeatureReader(typeName, query);
+    }
+
+    /**
+     * Builds the most appropriate geometry factory depending on the available query hints
+     * @param query
+     * @return
+     */
+    protected GeometryFactory getGeometryFactory(Hints hints) {
+        // if no hints, use the default geometry factory
+        if(hints == null)
+            return new GeometryFactory();
+        
+        // grab a geometry factory... check for a special hint
+        GeometryFactory geometryFactory = (GeometryFactory) hints.get(Hints.JTS_GEOMETRY_FACTORY);
+        if (geometryFactory == null) {
+            // look for a coordinate sequence factory
+            CoordinateSequenceFactory csFactory = 
+                (CoordinateSequenceFactory) hints.get(Hints.JTS_COORDINATE_SEQUENCE_FACTORY);
+
+            if (csFactory != null) {
+                geometryFactory = new GeometryFactory(csFactory);
+            }
+        }
+
+        if (geometryFactory == null) {
+            // fall back on the default one
+            geometryFactory = new GeometryFactory();
+        }
+        return geometryFactory;
     }
 
     protected org.geotools.data.FIDFeatureReader createFeatureReader(String typeName,
@@ -389,7 +422,7 @@ public class ShapefileDataStore extends AbstractFileDataStore {
      * 
      * @throws IOException
      */
-    protected ShapefileAttributeReader getAttributesReader(boolean readDbf)
+    protected ShapefileAttributeReader getAttributesReader(boolean readDbf, GeometryFactory gf)
             throws IOException {
 
         List<AttributeDescriptor> atts = (schema == null) ? readAttributes()
@@ -400,10 +433,10 @@ public class ShapefileDataStore extends AbstractFileDataStore {
                     .fine("The DBF file won't be opened since no attributes will be read from it");
             atts = new ArrayList(1);
             atts.add(schema.getGeometryDescriptor());
-            return new ShapefileAttributeReader(atts, openShapeReader(), null);
+            return new ShapefileAttributeReader(atts, openShapeReader(gf), null);
         }
 
-        return new ShapefileAttributeReader(atts, openShapeReader(),
+        return new ShapefileAttributeReader(atts, openShapeReader(gf),
                 openDbfReader());
     }
 
@@ -415,9 +448,9 @@ public class ShapefileDataStore extends AbstractFileDataStore {
      * @throws IOException
      *                 If an error occurs during creation.
      */
-    protected ShapefileReader openShapeReader() throws IOException {
+    protected ShapefileReader openShapeReader(GeometryFactory gf) throws IOException {
         try {
-            return new ShapefileReader(shpFiles, true, useMemoryMappedBuffer);
+            return new ShapefileReader(shpFiles, true, useMemoryMappedBuffer, gf);
         } catch (ShapefileException se) {
             throw new DataSourceException("Error creating ShapefileReader", se);
         }
@@ -563,8 +596,8 @@ public class ShapefileDataStore extends AbstractFileDataStore {
             Transaction transaction) throws IOException {
         typeCheck(typeName);
 
-         FeatureReader<SimpleFeatureType, SimpleFeature> featureReader;
-        ShapefileAttributeReader attReader = getAttributesReader(true);
+        FeatureReader<SimpleFeatureType, SimpleFeature> featureReader;
+        ShapefileAttributeReader attReader = getAttributesReader(true, new GeometryFactory());
         try {
             SimpleFeatureType schema = getSchema();
             if (schema == null) {
@@ -644,7 +677,7 @@ public class ShapefileDataStore extends AbstractFileDataStore {
      *                 If AttributeType reading fails
      */
     protected List<AttributeDescriptor> readAttributes() throws IOException {
-        ShapefileReader shp = openShapeReader();
+        ShapefileReader shp = openShapeReader(new GeometryFactory());
         DbaseFileReader dbf = openDbfReader();
         CoordinateReferenceSystem crs = null;
 
@@ -956,7 +989,7 @@ public class ShapefileDataStore extends AbstractFileDataStore {
             }
 
             // no Index file so use the number of shapefile records
-            ShapefileReader reader = openShapeReader();
+            ShapefileReader reader = openShapeReader(new GeometryFactory());
             int count = -1;
 
             try {

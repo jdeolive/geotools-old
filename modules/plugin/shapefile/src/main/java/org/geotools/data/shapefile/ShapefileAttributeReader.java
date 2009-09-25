@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.geotools.data.AbstractAttributeIO;
 import org.geotools.data.AttributeReader;
+import org.geotools.data.shapefile.dbf.DbaseFileHeader;
 import org.geotools.data.shapefile.dbf.DbaseFileReader;
 import org.geotools.data.shapefile.shp.ShapefileReader;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -39,6 +40,7 @@ public class ShapefileAttributeReader extends AbstractAttributeIO implements
     protected DbaseFileReader.Row row;
     protected ShapefileReader.Record record;
     int cnt;
+    int[] dbfindexes;
 
     public ShapefileAttributeReader(List<AttributeDescriptor> atts,
             ShapefileReader shp, DbaseFileReader dbf) {
@@ -61,6 +63,18 @@ public class ShapefileAttributeReader extends AbstractAttributeIO implements
         super(atts);
         this.shp = shp;
         this.dbf = dbf;
+        
+        if(dbf != null) {
+            dbfindexes = new int[atts.length];
+            DbaseFileHeader head = dbf.getHeader();
+            for (int i = 1; i < atts.length; i++) {
+                String attName = atts[i].getLocalName();
+                for(int j = 0; j < head.getNumFields(); j++) {
+                    if(head.getFieldName(j).equals(attName))
+                        dbfindexes[i] = j;
+                }
+            }
+        }
     }
 
     public void close() throws IOException {
@@ -115,7 +129,7 @@ public class ShapefileAttributeReader extends AbstractAttributeIO implements
         default:
 
             if (row != null) {
-                return row.read(param - 1);
+                return row.read(dbfindexes[param]);
             }
 
             return null;

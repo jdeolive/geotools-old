@@ -36,6 +36,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 
 /**
  * 
@@ -108,9 +109,9 @@ public class ShapefileTest extends TestCaseSupport {
         final URL url2 = TestData.url(TestCaseSupport.class, STATEPOP); // Backed by File
         final URL url3 = TestData.url(TestCaseSupport.class, STATEPOP_IDX);
         final ShapefileReader reader1 = new ShapefileReader(new ShpFiles(url1),
-                false, false);
+                false, false, new GeometryFactory());
         final ShapefileReader reader2 = new ShapefileReader(new ShpFiles(url2),
-                false, false);
+                false, false, new GeometryFactory());
         final IndexFile index = new IndexFile(new ShpFiles(url3), false);
         try {
             for (int i = 0; i < index.getRecordCount(); i++) {
@@ -161,7 +162,7 @@ public class ShapefileTest extends TestCaseSupport {
     public void testSkippingRecords() throws Exception {
         final URL url = TestData.url(STATEPOP);
         final ShapefileReader r = new ShapefileReader(new ShpFiles(url), false,
-                false);
+                false, new GeometryFactory());
         try {
             int idx = 0;
             while (r.hasNext()) {
@@ -186,7 +187,7 @@ public class ShapefileTest extends TestCaseSupport {
     public void testShapefileReaderRecord() throws Exception {
         final URL c1 = TestData.url(STATEPOP);
         ShapefileReader reader = new ShapefileReader(new ShpFiles(c1), false,
-                false);
+                false, new GeometryFactory());
         URL c2;
         try {
             ArrayList offsets = new ArrayList();
@@ -201,7 +202,7 @@ public class ShapefileTest extends TestCaseSupport {
             copyShapefiles(STATEPOP);
             reader.close();
             c2 = TestData.url(TestCaseSupport.class, STATEPOP);
-            reader = new ShapefileReader(new ShpFiles(c2), false, false);
+            reader = new ShapefileReader(new ShpFiles(c2), false, false, new GeometryFactory());
             for (int i = 0, ii = offsets.size(); i < ii; i++) {
                 reader.shapeAt(((Integer) offsets.get(i)).intValue());
             }
@@ -213,7 +214,7 @@ public class ShapefileTest extends TestCaseSupport {
     protected void loadShapes(String resource, int expected) throws Exception {
         final URL url = TestData.url(resource);
         ShapefileReader reader = new ShapefileReader(new ShpFiles(url), false,
-                false);
+                false, new GeometryFactory());
         int cnt = 0;
         try {
             while (reader.hasNext()) {
@@ -231,7 +232,7 @@ public class ShapefileTest extends TestCaseSupport {
             throws Exception {
         final URL url = TestData.url(resource);
         ShapefileReader reader = new ShapefileReader(new ShpFiles(url), false,
-                false);
+                false, new GeometryFactory());
         int cnt = 0;
         try {
             while (reader.hasNext()) {

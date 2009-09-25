@@ -16,11 +16,7 @@
  */
 package org.geotools.data.shapefile.indexed;
 
-import static org.geotools.data.shapefile.ShpFileType.DBF;
-import static org.geotools.data.shapefile.ShpFileType.FIX;
-import static org.geotools.data.shapefile.ShpFileType.QIX;
-import static org.geotools.data.shapefile.ShpFileType.SHP;
-import static org.geotools.data.shapefile.ShpFileType.SHX;
+import static org.geotools.data.shapefile.ShpFileType.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,6 +31,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -59,7 +56,9 @@ import org.geotools.data.shapefile.dbf.IndexedDbaseFileReader;
 import org.geotools.data.shapefile.shp.IndexFile;
 import org.geotools.data.shapefile.shp.ShapefileReader;
 import org.geotools.data.shapefile.shp.ShapefileReader.Record;
+import org.geotools.factory.Hints;
 import org.geotools.feature.SchemaException;
+import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.feature.visitor.IdCollectorFilterVisitor;
 import org.geotools.filter.FilterAttributeExtractor;
 import org.geotools.filter.visitor.ExtractBoundsFilterVisitor;
@@ -80,7 +79,9 @@ import org.opengis.filter.Filter;
 import org.opengis.filter.Id;
 import org.opengis.filter.identity.Identifier;
 
+import com.vividsolutions.jts.geom.CoordinateSequenceFactory;
 import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.GeometryFactory;
 
 /**
  * A DataStore implementation which allows reading and writing from Shapefiles.
@@ -296,37 +297,74 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
                 : query.getPropertyNames();
         String defaultGeomName = schema.getGeometryDescriptor().getLocalName();
 
-        FilterAttributeExtractor fae = new FilterAttributeExtractor();
-        query.getFilter().accept(fae, null);
 
-        Set attributes = new HashSet(Arrays.asList(propertyNames));
-        attributes.addAll(fae.getAttributeNameSet());
+        if(propertyNames.length > 0) {
+            FilterAttributeExtractor fae = new FilterAttributeExtractor();
+            query.getFilter().accept(fae, null);
+    
+            Set attributes = new LinkedHashSet(Arrays.asList(propertyNames));
+            attributes.addAll(fae.getAttributeNameSet());
+    
+            propertyNames = (String[]) attributes.toArray(new String[attributes
+                    .size()]);
+        }
 
         SimpleFeatureType newSchema = schema;
         boolean readDbf = true;
         boolean readGeometry = true;
-
-        propertyNames = (String[]) attributes.toArray(new String[attributes
-                .size()]);
-
         try {
             if (((query.getPropertyNames() != null)
                     && (propertyNames.length == 1) && propertyNames[0]
                     .equals(defaultGeomName))) {
                 readDbf = false;
-                newSchema = DataUtilities.createSubType(schema, propertyNames);
+                newSchema = createSubType( propertyNames);
             } else if ((query.getPropertyNames() != null)
                     && (propertyNames.length == 0)) {
                 readDbf = false;
                 readGeometry = false;
-                newSchema = DataUtilities.createSubType(schema, propertyNames);
+                newSchema = createSubType( propertyNames);
+            } else if(propertyNames.length > 0) {
+                newSchema = createSubType( propertyNames);
             }
 
             return createFeatureReader(typeName, getAttributesReader(readDbf,
-                    readGeometry, query.getFilter()), newSchema);
+                    readGeometry, query, newSchema), newSchema);
         } catch (SchemaException se) {
             throw new DataSourceException("Error creating schema", se);
         }
+    }
+    
+    /**
+     * Much like {@link DataUtilities#createSubType(SimpleFeatureType, String[])}, but makes
+     * sure to preserve the original attribute order
+     * @param properties
+     * @return
+     * @throws SchemaException
+     */
+    public SimpleFeatureType createSubType(String[] properties) throws SchemaException {
+        if (properties == null || properties.length == 0) {
+            return schema;
+        }
+
+        boolean same = schema.getAttributeCount() == properties.length;
+
+        for (int i = 0; (i < schema.getAttributeCount()) && same; i++) {
+            same = schema.getDescriptor(i).getLocalName().equals(properties[i]);
+        }
+
+        if (same) {
+            return schema;
+        }
+
+        SimpleFeatureTypeBuilder tb = new SimpleFeatureTypeBuilder();
+        tb.setName( schema.getName() );
+        
+        Set<String> propIndex = new HashSet<String>(Arrays.asList(properties));
+        for(AttributeDescriptor ad : schema.getAttributeDescriptors()) {
+            if(propIndex.contains(ad.getLocalName()))
+                tb.add(ad);
+        }
+        return tb.buildFeatureType();
     }
 
     protected  FeatureReader<SimpleFeatureType, SimpleFeature> createFeatureReader(String typeName,
@@ -367,11 +405,12 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
      * @throws IOException
      */
     protected IndexedShapefileAttributeReader getAttributesReader(
-            boolean readDbf, boolean readGeometry, Filter filter)
+            boolean readDbf, boolean readGeometry, Query query, SimpleFeatureType targetSchema)
             throws IOException {
         Envelope bbox = new ReferencedEnvelope(); // will be bbox.isNull() to
         // start
 
+        Filter filter = query != null ? query.getFilter() : null;
         CloseableCollection<Data> goodRecs = null;
         if (filter instanceof Id && shpFiles.isLocal() && shpFiles.exists(FIX)) {
             Id fidFilter = (Id) filter;
@@ -403,8 +442,7 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
                 }
             }
         }
-        List<AttributeDescriptor> atts = (schema == null) ? readAttributes()
-                : schema.getAttributeDescriptors();
+        List<AttributeDescriptor> atts = targetSchema.getAttributeDescriptors();
 
         IndexedDbaseFileReader dbfR = null;
 
@@ -421,7 +459,8 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
             dbfR = (IndexedDbaseFileReader) openDbfReader();
         }
 
-        return new IndexedShapefileAttributeReader(atts, openShapeReader(),
+        Hints hints = query != null ? query.getHints() : null;
+        return new IndexedShapefileAttributeReader(atts, openShapeReader(getGeometryFactory(hints)),
                 dbfR, goodRecs);
     }
 
@@ -742,18 +781,18 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
         typeCheck(typeName);
 
          FeatureReader<SimpleFeatureType, SimpleFeature> featureReader;
-        IndexedShapefileAttributeReader attReader = getAttributesReader(true,
-                true, null);
+        IndexedShapefileAttributeReader attReader;
         try {
             SimpleFeatureType schema = getSchema();
             if (schema == null) {
                 throw new IOException(
                         "To create a shapefile, you must first call createSchema()");
             }
+            attReader = getAttributesReader(true, true, null, schema);
             featureReader = createFeatureReader(typeName, attReader, schema);
 
         } catch (Exception e) {
-
+            attReader = getAttributesReader(true, true, null, schema);
             featureReader = new EmptyFeatureReader<SimpleFeatureType, SimpleFeature>(schema);
         }
 
@@ -791,8 +830,26 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
 
         if (records.isEmpty())
             return null;
+        
+        // grab a geometry factory... check for a special hint
+        Hints hints = query.getHints(); 
+        GeometryFactory geometryFactory = (GeometryFactory) hints.get(Hints.JTS_GEOMETRY_FACTORY);
+        if (geometryFactory == null) {
+            // look for a coordinate sequence factory
+            CoordinateSequenceFactory csFactory = 
+                (CoordinateSequenceFactory) hints.get(Hints.JTS_COORDINATE_SEQUENCE_FACTORY);
 
-        ShapefileReader reader = new ShapefileReader(shpFiles, false, false);
+            if (csFactory != null) {
+                geometryFactory = new GeometryFactory(csFactory);
+            }
+        }
+
+        if (geometryFactory == null) {
+            // fall back on the default one
+            geometryFactory = new GeometryFactory();
+        }
+
+        ShapefileReader reader = new ShapefileReader(shpFiles, false, false, geometryFactory);
         try {
             ret = new ReferencedEnvelope(getSchema().getCoordinateReferenceSystem());
             for (Iterator iter = records.iterator(); iter.hasNext();) {
