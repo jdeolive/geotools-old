@@ -577,11 +577,15 @@ public class SLDStyleFactory {
 
             // compute anchor point and displacement
             PointPlacement p = (PointPlacement) placement;
-            anchorX = evalToDouble(p.getAnchorPoint().getAnchorPointX(), feature, 0);
-            anchorY = evalToDouble(p.getAnchorPoint().getAnchorPointY(), feature, 0.5);
+            if(p.getAnchorPoint() != null) {
+                anchorX = evalToDouble(p.getAnchorPoint().getAnchorPointX(), feature, 0);
+                anchorY = evalToDouble(p.getAnchorPoint().getAnchorPointY(), feature, 0.5);
+            }
 
-            dispX =  evalToDouble(p.getDisplacement().getDisplacementX(), feature, 0);
-            dispY = evalToDouble(p.getDisplacement().getDisplacementY(), feature, 0);;
+            if(p.getDisplacement() != null) {
+                dispX =  evalToDouble(p.getDisplacement().getDisplacementX(), feature, 0);
+                dispY = evalToDouble(p.getDisplacement().getDisplacementY(), feature, 0);;
+            }
 
             // rotation
             if  ( (symbolizer instanceof TextSymbolizer2)  && (((TextSymbolizer2)symbolizer).getGraphic() != null) )
@@ -674,29 +678,31 @@ public class SLDStyleFactory {
      * @return The first of the specified fonts found on this machine or null if none found
      */
     private java.awt.Font getFont(Object feature, Font[] fonts) {
-        for (int k = 0; k < fonts.length; k++) {
-            String requestedFont = evalToString(fonts[k].getFontFamily(), feature, null);
-            java.awt.Font javaFont = FontCache.getDefaultInsance().getFont(requestedFont);
-            
-            if(javaFont != null) {
-                String reqStyle = evalToString(fonts[k].getFontStyle(), feature, null);
-
-                int styleCode;
-                if (fontStyleLookup.containsKey(reqStyle)) {
-                    styleCode = ((Integer) fontStyleLookup.get(reqStyle)).intValue();
-                } else {
-                    styleCode = java.awt.Font.PLAIN;
+        if(fonts != null) {
+            for (int k = 0; k < fonts.length; k++) {
+                String requestedFont = evalToString(fonts[k].getFontFamily(), feature, null);
+                java.awt.Font javaFont = FontCache.getDefaultInsance().getFont(requestedFont);
+                
+                if(javaFont != null) {
+                    String reqStyle = evalToString(fonts[k].getFontStyle(), feature, null);
+    
+                    int styleCode;
+                    if (fontStyleLookup.containsKey(reqStyle)) {
+                        styleCode = ((Integer) fontStyleLookup.get(reqStyle)).intValue();
+                    } else {
+                        styleCode = java.awt.Font.PLAIN;
+                    }
+    
+                    String reqWeight = evalToString(fonts[k].getFontWeight(), feature, null);
+    
+                    if ("Bold".equalsIgnoreCase(reqWeight)) {
+                        styleCode = styleCode | java.awt.Font.BOLD;
+                    }
+    
+                    int size = evalToInt(fonts[k].getFontSize(), feature, 10);
+    
+                    return javaFont.deriveFont(styleCode, size);
                 }
-
-                String reqWeight = evalToString(fonts[k].getFontWeight(), feature, null);
-
-                if ("Bold".equalsIgnoreCase(reqWeight)) {
-                    styleCode = styleCode | java.awt.Font.BOLD;
-                }
-
-                int size = evalToInt(fonts[k].getFontSize(), feature, 10);
-
-                return javaFont.deriveFont(styleCode, size);
             }
         }
 
@@ -953,6 +959,9 @@ public class SLDStyleFactory {
      * @return
      */
     private BufferedImage getImage(Graphic graphic, Object feature, int size) {
+        if(graphic == null)
+            return null;
+        
         ExternalGraphic[] extgraphics = graphic.getExternalGraphics();
 
         if (extgraphics != null) {
@@ -974,6 +983,9 @@ public class SLDStyleFactory {
      * @return the image, or null if the external graphics could not be interpreted
      */
     private BufferedImage getImage(ExternalGraphic eg, Object feature, int size) {
+        if(eg == null)
+            return null;
+        
         // extract the url
         String strLocation;
         try {
@@ -1042,6 +1054,9 @@ public class SLDStyleFactory {
      * @return
      */
     private Mark getMark(Graphic graphic, Object feature) {
+        if(graphic == null)
+            return null;
+        
         Mark[] marks = graphic.getMarks();
         for (int i = 0; i < marks.length; i++) {
             final Mark mark = marks[i];
@@ -1062,6 +1077,9 @@ public class SLDStyleFactory {
      * @return
      */
     private Shape getShape(Mark mark, Object feature) {
+        if(mark == null)
+            return null;
+        
         Expression name = mark.getWellKnownName();
         // expand eventual cql expressions embedded in the name
         if(name instanceof Literal) {
@@ -1083,11 +1101,15 @@ public class SLDStyleFactory {
             }
             
         } 
+        
         return null;
     }
 
     private void fillDrawMark(Graphics2D g2d, double tx, double ty, Mark mark, int size,
         double rotation, Object feature) {
+        if(mark == null)
+            return;
+        
         Shape originalShape = getShape(mark, feature);
 
         // rescale and reposition the original shape so it's centered at tx, ty

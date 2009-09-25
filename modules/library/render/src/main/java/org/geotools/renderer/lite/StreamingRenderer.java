@@ -1329,7 +1329,8 @@ public final class StreamingRenderer implements GTRenderer {
 			}
 
 			if (attType instanceof GeometryDescriptor) {                                
-                BBOX gfilter = filterFactory.bbox( attType.getLocalName(), bbox.getMinX(), bbox.getMinY(), bbox.getMaxX(), bbox.getMaxY(), null );
+                BBOX gfilter = // filterFactory.bbox( attType.getLocalName(), bbox.getMinX(), bbox.getMinY(), bbox.getMaxX(), bbox.getMaxY(), null );
+                      new FastBBOX(attType.getLocalName(), bbox);
                 
 				if (filter == Filter.INCLUDE) {
 					filter = gfilter;
@@ -1736,7 +1737,7 @@ public final class StreamingRenderer implements GTRenderer {
 
 	}
 	
-	    /**
+	 /**
      * Performs all rendering on the user provided graphics object by scanning
      * the collection multiple times, one for each feature type style provided
      */
@@ -1794,7 +1795,10 @@ public final class StreamingRenderer implements GTRenderer {
             FeatureCollection features, final NumberRange scaleRange, final ArrayList lfts) {
         Iterator iterator = null;
 		if( collection != null ) iterator = collection.iterator();        
-		if( features != null ) iterator = features.iterator();
+		if( features != null ) {
+//		     iterator = new PrefetchingIterator(features);
+		    iterator = features.iterator();
+		}
 		
 		if( iterator == null ) return; // nothing to do
 		
@@ -1822,9 +1826,16 @@ public final class StreamingRenderer implements GTRenderer {
 				}
 			}
 		} finally {
-            if( collection instanceof FeatureCollection ){
+//            if( collection instanceof FeatureCollection ){
+//                FeatureCollection resource = (FeatureCollection ) collection;
+//                resource.close( iterator );
+//            } else if(features != null) {
+//                // features.close( ((PrefetchingIterator) iterator).getWrappedIterator() );
+//                ((PrefetchingIterator) iterator).close();
+//            }
+		    if( collection instanceof FeatureCollection ){
                 FeatureCollection resource = (FeatureCollection ) collection;
-                resource.close( iterator );
+                resource.close( iterator);
             } else if(features != null) {
                 features.close( iterator );
             }
