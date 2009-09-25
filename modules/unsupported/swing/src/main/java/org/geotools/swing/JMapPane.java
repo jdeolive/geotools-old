@@ -241,7 +241,6 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
             @Override
             public void componentResized(ComponentEvent ev) {
                 acceptRepaintRequests = false;
-                System.out.println("restart timer");
                 resizeTimer.restart();
             }
         });
@@ -254,7 +253,6 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
      * longer than resizingPaintDelay milliseconds
      */
     private void onResizingCompleted() {
-        System.out.println("in onResizingCompleted");
         acceptRepaintRequests = true;
         needNewBaseImage = true;
 
