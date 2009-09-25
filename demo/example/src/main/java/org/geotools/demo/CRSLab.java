@@ -13,22 +13,16 @@ package org.geotools.demo;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 import javax.swing.JButton;
-import javax.swing.JOptionPane;
 import javax.swing.JToolBar;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.FileDataStore;
 import org.geotools.data.FileDataStoreFinder;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.map.MapContext;
-import org.geotools.referencing.CRS;
-import org.geotools.referencing.ReferencingFactoryFinder;
+import org.geotools.swing.JCRSChooser;
 import org.geotools.swing.JMapFrame;
 import org.geotools.swing.data.JFileDataStoreChooser;
-import org.opengis.referencing.crs.CRSAuthorityFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 /**
@@ -59,49 +53,21 @@ public class CRSLab {
         btn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
-                    CoordinateReferenceSystem crs = getCoordinateReferenceSystem("Select a new CRS");
-                    if( crs == null){
-                        return; // canceled
+                    CoordinateReferenceSystem crs = JCRSChooser.showDialog(
+                            null, "Coordinate Reference System", "Choose a new projection:", null);
+                    if( crs != null){
+                        map.setCoordinateReferenceSystem(crs);
                     }
-                    map.setCoordinateReferenceSystem(crs);                   
+
                 } catch (Exception ex) {
-                    System.out.println("Could not uses crs "+ex);
+                    System.out.println("Could not use crs " + ex);
                 }
             }
         });
+        
         toolbar.add(btn);
         mapFrame.setSize(800, 600);
         mapFrame.setVisible(true);
-    }
-
-
-    /**
-     * Prompt the user to select a new coordinate reference system
-     * 
-     * @param title dialog title
-     * @return the selected CRS, or null if none selected
-     */
-    private static CoordinateReferenceSystem getCoordinateReferenceSystem(
-            String title) throws Exception {
-
-        CRSAuthorityFactory authorityFactory = ReferencingFactoryFinder.getCRSAuthorityFactory("EPSG", null);
-        Set<String> epsg = authorityFactory.getAuthorityCodes(CoordinateReferenceSystem.class);
-        
-        List<String> codes = new ArrayList<String>( epsg );      
-        
-        List<String> desc = new ArrayList<String>();
-        for (String code : codes) {
-            desc.add(code + ": " + authorityFactory.getDescriptionText("EPSG:" + code).toString());
-        }
-        String selected = (String) JOptionPane.showInputDialog(null, title,
-                "Choose a Projection", JOptionPane.QUESTION_MESSAGE, null,
-                desc.toArray(), "EPSG:4326");
-
-        if (selected == null) {
-            return null;
-        }
-        String selectedCode = selected.substring(0, selected.indexOf(':'));
-        return CRS.decode("EPSG:" + selectedCode, true);
     }
 
 }

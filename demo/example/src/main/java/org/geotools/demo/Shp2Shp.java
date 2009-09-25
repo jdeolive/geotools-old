@@ -13,13 +13,9 @@ package org.geotools.demo;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import javax.swing.JOptionPane;
 
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFactorySpi;
@@ -33,12 +29,10 @@ import org.geotools.data.Transaction;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
 import org.geotools.factory.GeoTools;
 import org.geotools.feature.FeatureCollection;
-import org.geotools.referencing.CRS;
-import org.geotools.referencing.ReferencingFactoryFinder;
+import org.geotools.swing.JCRSChooser;
 import org.geotools.swing.data.JFileDataStoreChooser;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.referencing.crs.CRSAuthorityFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 public class Shp2Shp {
@@ -65,13 +59,15 @@ public class Shp2Shp {
 
         CoordinateReferenceSystem prj = simpleFeatureType.getCoordinateReferenceSystem();
         if (prj == null) {
-            prj = getCoordinateReferenceSystem("No projection fround for "
-                    + file + " please choose one:");
+            prj = JCRSChooser.showDialog(null, "Choose a projection", 
+                    "No projection fround for " + file + " please choose one:", 
+                    "EPSG:4326");
             query.setCoordinateSystem(prj);
         }
 
-        CoordinateReferenceSystem crs = getCoordinateReferenceSystem("Project "
-                + file + " to:");
+        CoordinateReferenceSystem crs = JCRSChooser.showDialog(null, "Choose a projection", 
+                "Project " + file + " to:", null);
+
         query.setCoordinateSystemReproject(crs);
 
         FeatureCollection<SimpleFeatureType, SimpleFeature> collection = featureSource.getFeatures(query);
@@ -128,29 +124,6 @@ public class Shp2Shp {
         return file;
     }
 // end promptShapefile
-// begin getCRS
-    private static CoordinateReferenceSystem getCoordinateReferenceSystem(
-            String message) throws Exception {
-
-        CRSAuthorityFactory authorityFactory = ReferencingFactoryFinder.getCRSAuthorityFactory("EPSG", null);
-        Set<String> codes = authorityFactory.getAuthorityCodes(CoordinateReferenceSystem.class);
-        List<String> desc = new ArrayList<String>();
-        
-        for (String code : codes) {
-            desc.add(code + ": " + authorityFactory.getDescriptionText("EPSG:" + code).toString());
-        }
-        String selected = (String) JOptionPane.showInputDialog(null, message,
-                "Choose a Projection", JOptionPane.QUESTION_MESSAGE, null,
-                desc.toArray(), "EPSG:4326");
-
-        if (selected == null) {
-            System.exit(0);
-        }
-
-        String selectedCode = selected.substring(0, selected.indexOf(':'));
-        return CRS.decode("EPSG:" + selectedCode, true);
-    }
-// end getCRS
 
 // begin getNewShapefile
     private static File getNewShapeFile(File file) {
