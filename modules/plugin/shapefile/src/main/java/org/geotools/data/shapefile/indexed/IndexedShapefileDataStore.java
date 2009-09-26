@@ -1063,6 +1063,7 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
     @Override
     protected Set getSupportedHints() {
         Set<Hints.Key> hints = new HashSet<Hints.Key>();
+        hints.add( Hints.FEATURE_DETACHED );
         hints.add( Hints.JTS_GEOMETRY_FACTORY );
         hints.add( Hints.JTS_COORDINATE_SEQUENCE_FACTORY );
         hints.add( Hints.GEOMETRY_DISTANCE);
