@@ -14,17 +14,14 @@ At the end of the tutorial you will be able to create your own custom shapefiles
 
 Comma Seperated Value
 ---------------------
-To start with you will need a CSV file.
-# Create a text file *location.csv*
-# Copy and paste the following locations into the file::
+To start with you will need a CSV file.  Create a text file *location.csv* and copy and paste the following locations into it::
 
   "Longitude", "Latitude", "Name"
   -33.84,  151.26, Sydney
   0, 52, London
   -123.31,  48.4,  Victoria BC
   
- # Feel free to add your own location!
- # Save
+Feel free to add other locations to the file.
 
 Dependencies
 ------------
@@ -50,7 +47,7 @@ Please ensure your pom.xml includes the following::
     </dependency>
   </dependencies>
 
-Please note that the jars mentioned above will pull in a host of other dependencies (such as the hsql database driver).
+Note that the jars mentioned above will pull in a host of other dependencies (such as the hsql database driver).
 
 Example
 -------
@@ -148,7 +145,7 @@ You might like to see if you can view the new shapefile using the :ref:`quicksta
 Another way to build a SimpleFeatureType
 ----------------------------------------
 
-Although the DataUtilities class used above provided a quick and easy way to build our SimpleFeatureType, for most applications you will want to use SimpleFeatureTypeBuilder. 
+Although the DataUtilities class used above provided a quick and easy way to build a SimpleFeatureType, for most applications you will want to take advantage of the more flexible **SimpleFeatureTypeBuilder**. 
 
 Here is how to use SimpleFeatureTypeBuilder to accomplish the same result:
 
@@ -158,14 +155,14 @@ Here is how to use SimpleFeatureTypeBuilder to accomplish the same result:
       :end-before: // end createFeatureType
 
 Note the use of an upper-case constant to hold the SimpleFeatureType. Because the SimpleFeatureType class is immutable, tracking them as 
-final variables can help you to remember what they are.
+final variables can help you to remember what they are. 
 
-With this new improved SimpleFeatureType (that contains a CoordinateReferenceSystem) we will no longer need to call forceSchemaCRS to generate our ".prj" file.
+With this method our SimpleFeatureType contains a CoordinateReferenceSystem so there's no needl to call forceSchemaCRS to generate the ".prj" file. Also, we are now limiting the *Name* field to 15 characters.
 
 Other things to try
 -------------------
 
-* Modify the code to read take the feature attribute names from the data file header rather than hard-coding them in to the application.
+* Modify the code to read the feature attribute names from the data file header rather than hard-coding them in the application.
 * Use the same techniques to create shapefiles from data in other structured file formats.
 * Read up about the other Geometry classes supported by shapefiles: MultiLineString for linear features and MultiPolygon for areal features and modify this example to work with these.
 

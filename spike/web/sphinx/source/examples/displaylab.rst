@@ -65,12 +65,59 @@ The class constants and variables in the code above will be explained as we work
 Shapefile viewer with custom map tool
 -------------------------------------
 
-This is the central method of the application. The first part, which connects to the shapefile, should be familiar to your from the :ref:`quickstart` and :ref:
+This is the central method of the application. The first part, which connects to the shapefile, should be familiar to your from the :ref:`quickstart` example.
 
    .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/MapDisplayLab.java
       :language: java
       :start-after: // docs start display shapefile
       :end-before: // docs end display shapefile
 
+We create a JMapFrame and add an extra button to its toolbar. Then we set button action to create a new **CursorTool** object which will be our custom feature selection tool. Note that because our tool is relatively simple (only responding to mouse clicks) we are creating it as an anonymous class in the button action.
 
+Finally, we size the map frame and display it.
 
+In the **displayShapefile** method above we called two other class methods: **setGeometry** and **createDefaultStyle**. Let's have a look at these now.
+
+Geometry type of the shapefile features
+---------------------------------------
+
+The application needs to know what type of geometry the shapefile features represent: points, lines or polygons. This information will be used in creating rendering styles for the features and also influences how we query what feature the user has clicked on.
+
+The **setGeometry** method records the geometry type as well as the unit of distance that shapefile feature coordinates are expressed in.
+
+   .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/MapDisplayLab.java
+      :language: java
+      :start-after: // docs start set geometry
+      :end-before: // docs end set geometry
+
+Creating a default rendering style
+----------------------------------
+
+   .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/MapDisplayLab.java
+      :language: java
+      :start-after: // docs start default style
+      :end-before: // docs end default style
+
+The createRule method to set the symbolizer
+-------------------------------------------
+
+   .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/MapDisplayLab.java
+      :language: java
+      :start-after: // docs start create rule
+      :end-before: // docs end create rule
+
+What features did the user click on ?
+-------------------------------------
+
+   .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/MapDisplayLab.java
+      :language: java
+      :start-after: // docs start select features
+      :end-before: // docs end select features
+
+Highlighting selected features in the display
+---------------------------------------------
+
+   .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/MapDisplayLab.java
+      :language: java
+      :start-after: // docs start selected style
+      :end-before: // docs end selected style
