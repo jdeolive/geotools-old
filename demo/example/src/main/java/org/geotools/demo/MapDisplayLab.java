@@ -1,3 +1,4 @@
+// docs start source
 /*
  *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
@@ -103,7 +104,9 @@ public class MapDisplayLab {
 
         me.displayShapefile(file);
     }
+// docs end main
 
+// docs start display shapefile
     /**
      * This method connects to the shapefile; retrieves information about
      * its features; creates a map frame to display the shapefile and adds
@@ -164,7 +167,9 @@ public class MapDisplayLab {
         mapFrame.setSize(600, 600);
         mapFrame.setVisible(true);
     }
+// docs end display shapefile
 
+// docs start select features
     /**
      * This method is called by our feature selection tool when
      * the user has clicked on the map.
@@ -228,7 +233,9 @@ public class MapDisplayLab {
             return;
         }
     }
+// docs end select features
 
+// docs start display selected
     /**
      * Sets the display to paint selected features yellow and
      * unselected features in the default style.
@@ -248,7 +255,9 @@ public class MapDisplayLab {
         mapFrame.getMapContext().getLayer(0).setStyle(style);
         mapFrame.getMapPane().repaint();
     }
+// docs end display selected
 
+// docs start default style
     /**
      * Create a default Style for feature display
      */
@@ -262,7 +271,9 @@ public class MapDisplayLab {
         style.featureTypeStyles().add(fts);
         return style;
     }
+// docs end default style
 
+// docs start selected style
     /**
      * Create a Style where features with given IDs are painted
      * yellow, while others are painted with the default colors.
@@ -282,7 +293,9 @@ public class MapDisplayLab {
         style.featureTypeStyles().add(fts);
         return style;
     }
+// docs end selected style
 
+// docs start create rule
     /**
      * Helper for createXXXStyle methods. Creates a new Rule containing
      * a Symbolizer tailored to the geometry type of the features that
@@ -322,7 +335,9 @@ public class MapDisplayLab {
         rule.symbolizers().add(symbolizer);
         return rule;
     }
+// docs end create rule
 
+// docs start set geometry
     /**
      * Retrieve information about the feature geometry
      */
@@ -348,6 +363,7 @@ public class MapDisplayLab {
         Unit<?> unit = geomDesc.getCoordinateReferenceSystem().getCoordinateSystem().getAxis(0).getUnit();
         distanceUnitName = unit.toString();
     }
+// docs end set geometry
 
 }
 

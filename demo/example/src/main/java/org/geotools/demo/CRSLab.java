@@ -50,6 +50,8 @@ public class CRSLab {
 
         JToolBar toolbar = mapFrame.getToolBar();
         JButton btn = new JButton("Change CRS");
+        toolbar.add(btn);
+
         btn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
@@ -65,7 +67,6 @@ public class CRSLab {
             }
         });
         
-        toolbar.add(btn);
         mapFrame.setSize(800, 600);
         mapFrame.setVisible(true);
     }
