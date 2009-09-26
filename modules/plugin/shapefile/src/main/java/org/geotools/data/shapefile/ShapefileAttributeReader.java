@@ -48,6 +48,7 @@ public class ShapefileAttributeReader extends AbstractAttributeIO implements
     int[] dbfindexes;
     protected Envelope targetBBox;
     double simplificationDistance;
+    Object geometry;
 
     public ShapefileAttributeReader(List<AttributeDescriptor> atts,
             ShapefileReader shp, DbaseFileReader dbf) {
@@ -134,9 +135,33 @@ public class ShapefileAttributeReader extends AbstractAttributeIO implements
 
     public void next() throws IOException {
         record = shp.nextRecord();
+        
+        // read the geometry, so that we can decide if this row is to be skipped or not
+        Envelope envelope = record.envelope();
+        boolean skip = false;
+        // ... if geometry is out of the target bbox, skip both geom and row
+        if (targetBBox != null && !targetBBox.isNull() && !targetBBox.intersects(envelope)) {
+            geometry = null;
+            skip = true;
+        // ... if the geometry is awfully small avoid reading it (unless it's a point)
+        } else if (simplificationDistance > 0 && envelope.getWidth() < simplificationDistance
+                && envelope.getHeight() < simplificationDistance) {
+            geometry = record.getSimplifiedShape();
+        // ... otherwise business as usual
+        } else {
+            geometry = record.shape();
+        }
 
+        // read the dbf only if the geometry was not skipped
         if (dbf != null) {
-            row = dbf.readRow();
+            if(skip) {
+                dbf.skip();
+                row = null;
+            } else {
+                row = dbf.readRow();
+            }
+        } else {
+            row = null;
         }
     }
 
@@ -144,16 +169,9 @@ public class ShapefileAttributeReader extends AbstractAttributeIO implements
             java.lang.ArrayIndexOutOfBoundsException {
         switch (param) {
         case 0:
-            Envelope envelope = record.envelope();
-            if(targetBBox != null && !targetBBox.isNull() && !targetBBox.intersects(envelope))
-                    return null;
-            else if(simplificationDistance > 0 && envelope.getWidth() < simplificationDistance && envelope.getHeight() < simplificationDistance )
-                return record.getSimplifiedShape();
-            else
-                return record.shape();
+            return geometry;
 
         default:
-
             if (row != null) {
                 return row.read(dbfindexes[param]);
             }
