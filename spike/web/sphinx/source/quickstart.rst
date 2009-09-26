@@ -26,7 +26,7 @@ I am using Java 1.5 above; and Maven 2.1.0. You can use Java 6 if you like; curr
 
 Notes:
 
-* If you are using the Netbeans IDE for development then the command line Maven utility is optional because there is support for Maven within the IDE
+* If you are using the Netbeans IDE for development then the command line Maven utility is optional because there is support for Maven within the IDE. The notes below refer to Netbeans version 6.7.1
 * Windows and OSX users can download and install maven from apache: http://maven.apache.org/download.html
 * Linux users can either download or use apt-get::  
  
@@ -71,9 +71,7 @@ You can now import your project into eclipse:
 Netbeans IDE
 ------------
 
-Netbeans users don't need to go through the steps outlined above for Eclipse. The only thing you need to check is that you set up the IDE to suppport Maven projects by installing the Mevenide plugin as described on the Netbeans developers page. This plugin allows Netbeans to create new projects, and to open existing Maven projects.
-
-You can create a new Maven project from within Netbeans rather than at the command line. To do this, select the Maven Quickstart Archetype in the New Project dialog to create a basic pom.xml and directory structure, and then manually edit the POM to add the necessary repositories and dependencies as outlined below. 
+If you are using Netbeans you don't need to go through the steps outlined above for Eclipse. You can create a new Maven project from within Netbeans rather than at the command line. To do this, select the Maven Quickstart Archetype in the New Project dialog to create a basic pom.xml and directory structure, and then manually edit the POM to add the necessary repositories and dependencies as outlined below. 
 
 If you have already created your project at the command line (see above) then all that you need to do is open the project within Netbeans as if it was a normal Java project.
 
@@ -325,7 +323,7 @@ Eclipse users
 Netbeans users
 ~~~~~~~~~~~~~~
 
-Make sure you save the edits to your pom.xml file, then rebuild your project to nudge Maven to download the required jars, store them on your local disk, and add them to your project.
+Make sure you save the edits to your pom.xml file, then in the Projects window, right-click on the Libraries element of the Project and select 'Download missing dependencies' from the pop-up menu.
 
 Where did all these other JARs come from?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

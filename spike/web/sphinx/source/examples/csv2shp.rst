@@ -29,7 +29,7 @@ To start with you will need a CSV file.
 Dependencies
 ------------
 
-This example uses the same dependencies as the :ref:`quickstart`. Please ensure your pom.xml includes the following::
+Please ensure your pom.xml includes the following::
 
   <dependencies>
     <dependency>
@@ -57,9 +57,9 @@ Example
 
 The example code is available
  * Directly from svn: Csv2Shape.java_.
- * included in the demo directory when you downloaded geotools source
+ * Included in the demo directory when you download the GeoTools source code
 
-.. _Csv2Shape.java:  http://svn.geotools.org/trunk/demo/example/src/main/java/org/geotools/demo/Csv2Shape.java
+.. _Csv2Shape.java:  http://svn.osgeo.org/geotools/trunk/demo/example/src/main/java/org/geotools/demo/Csv2Shape.java
 
 Main Application
 ----------------

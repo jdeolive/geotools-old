@@ -55,7 +55,7 @@ Example Code
 The example code is available directly from svn: Shp2Shp.java_ or, if you download the GeoTools
 source you can find it in the demo directory.
 
-.. _Shp2Shp.java:  http://svn.geotools.org/trunk/demo/example/src/main/java/org/geotools/demo/Shp2Shp.java
+.. _Shp2Shp.java:  http://svn.osgeo.org/geotools/trunk/demo/example/src/main/java/org/geotools/demo/Shp2Shp.java
 
 Application
 -----------

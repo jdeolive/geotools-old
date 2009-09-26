@@ -15,7 +15,7 @@ The example code is available:
  * Directly from svn: ShapeLab.java_.
  * included in the demo directory when you downloaded geotools source
 
-.. _ShapeLab.java:  http://svn.geotools.org/trunk/demo/example/src/main/java/org/geotools/demo/ShapeLab.java
+.. _ShapeLab.java:  http://svn.osgeo.org/geotools/trunk/demo/example/src/main/java/org/geotools/demo/ShapeLab.java
 
 Main Application
 ----------------
