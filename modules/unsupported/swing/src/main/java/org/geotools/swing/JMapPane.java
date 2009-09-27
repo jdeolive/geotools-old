@@ -184,6 +184,7 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
         imageOrigin = new Point(0, 0);
 
         acceptRepaintRequests = true;
+        needNewBaseImage = true;
         redrawBaseImage = true;
         baseImageMoved = false;
 
@@ -267,7 +268,7 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
             repaint();
         
             MapPaneEvent ev = new MapPaneEvent(this, MapPaneEvent.Type.PANE_RESIZED);
-            fireEvent(ev);
+            publishEvent(ev);
         }
     }
 
@@ -461,7 +462,7 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
             }
 
             MapPaneEvent ev = new MapPaneEvent(this, MapPaneEvent.Type.NEW_CONTEXT);
-            fireEvent(ev);
+            publishEvent(ev);
         }
     }
 
@@ -536,7 +537,7 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
             repaint();
 
             MapPaneEvent ev = new MapPaneEvent(this, MapPaneEvent.Type.DISPLAY_AREA_CHANGED);
-            fireEvent(ev);
+            publishEvent(ev);
         }
     }
 
@@ -684,6 +685,9 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
         env.translate(env.getMinimum(0) - newPos.x, env.getMaximum(1) - newPos.y);
         setTransforms(env, paintArea);
         context.setAreaOfInterest(env);
+
+        MapPaneEvent ev = new MapPaneEvent(this, MapPaneEvent.Type.DISPLAY_AREA_CHANGED);
+        publishEvent(ev);
     }
 
     /**
@@ -787,6 +791,7 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
      * object each time we need to redraw the image
      */
     private void clearBaseImage() {
+        assert(baseImage != null);
         Graphics2D g2D = baseImage.createGraphics();
         g2D.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR, 0.0f));
         Rectangle2D.Double rect = new Rectangle2D.Double(
@@ -797,7 +802,7 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
     /**
      * Publish a MapPaneEvent to listening objects
      */
-    private void fireEvent(MapPaneEvent ev) {
+    private void publishEvent(MapPaneEvent ev) {
         for (MapPaneListener listener : listeners) {
             switch (ev.getType()) {
                 case NEW_CONTEXT:
