@@ -61,26 +61,4 @@ public class JFileDataStoreWizard extends JWizard {
         return page.file;
     }
 
-    public static void main( String args[]){
-        File file = null;
-        if( args.length > 0 ){
-            file = new File( args[0]);
-        }
-        JFileDataStoreWizard wizard = new JFileDataStoreWizard(".shp");
-        int result = wizard.showModalDialog();
-        System.out.print("Wizard completed with:");
-        switch (result) {
-        case JWizard.CANCEL:
-            System.out.println("CANCEL");
-            break;
-        case JWizard.FINISH:
-            System.out.println("FINISH "+wizard.getFile());
-            break;
-        case JWizard.ERROR:
-            System.out.println("ERROR");
-            break;
-        default:
-            System.out.println("unexpected " + result);
-        }
-    }
 }

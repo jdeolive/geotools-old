@@ -114,6 +114,23 @@ public class Parameter<T> {
     public static final String EXT = "ext";
     
     /**
+     * Level or Category of the parameter - "user", "advanced", "program"
+     * <p>
+     * <ul>
+     * <li>user - should be shown to all users and is used every time.<br>
+     *     example: user name and password
+     * </li>
+     * <li>advanced - advanced or expert parameter used in special cases<br>
+     *     example: choice between get and post requests for WFS
+     * </li>
+     * <li>program - intended for programs often tweaking settings for performance<br>
+     *     example: JDBC datasource for which it is hard for a user to type in
+     * </li>
+     * </ul>
+     */
+    public static final String LEVEL = "level";
+    
+    /**
      * Refinement of type; such as the FeatureType of a FeatureCollection, or component type of a List.
      * <p>
      * This information is supplied (along with type) to allow a process implementor communicate
@@ -219,4 +236,26 @@ public class Parameter<T> {
         this.metadata = metadata == null ? null : Collections.unmodifiableMap(metadata);
     }
     
+    /**
+     * Provides for easy access to the {@link Parameter#IS_PASSWORD} metadata
+     * @return true if {@code metadata.get(IS_PASSWORD) == Boolean.TRUE}
+     */
+    public boolean isPassword(){
+        return metadata != null && Boolean.TRUE.equals(metadata.get(IS_PASSWORD));
+    }
+ 
+    /**
+     * Easy access to check the {@link #LEVEL} metadata
+     * @return provided level or "user" by default
+     */
+    public String getLevel(){
+        if( metadata == null ){
+            return "user";
+        }
+        String level = (String) metadata.get(LEVEL);
+        if( level == null ){
+            return "user";
+        }
+        return level;        
+    }
 }

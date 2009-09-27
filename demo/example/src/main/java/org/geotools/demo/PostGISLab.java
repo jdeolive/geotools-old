@@ -29,12 +29,17 @@ import org.geotools.data.DataStoreFinder;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureSource;
+import org.geotools.data.FileDataStoreFactorySpi;
+import org.geotools.data.FileDataStoreFinder;
 import org.geotools.data.postgis.PostgisDataStoreFactory;
+import org.geotools.data.shapefile.ShapefileDataStore;
+import org.geotools.data.shapefile.ShapefileDataStoreFactory;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.filter.FilterTransformer;
 import org.geotools.filter.text.cql2.CQL;
 import org.geotools.swing.data.JDataStoreWizard;
 import org.geotools.swing.data.JFileDataStoreWizard;
+import org.geotools.swing.data.TypeNameChooser;
 import org.geotools.swing.wizard.JWizard;
 import org.opengis.feature.Feature;
 import org.opengis.feature.FeatureVisitor;
@@ -56,51 +61,23 @@ public class PostGISLab {
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
-        Map connectionProperties = getConnectionProperties(args);
-        DataStore dataStore = DataStoreFinder.getDataStore(connectionProperties);
-        String[] typeNames = dataStore.getTypeNames();
-        if (typeNames == null) {
-            JOptionPane.showConfirmDialog(null, "Could not conntect");
+        // new ShapefileDataStoreFactory()
+        
+        JDataStoreWizard wizard = new JDataStoreWizard( new PostgisDataStoreFactory() );
+        int result = wizard.showModalDialog();
+        if (result != JWizard.FINISH) System.exit(0);
+        Map<String, Object> connectionParameters = wizard.getConnectionParameters();
+        DataStore dataStore = DataStoreFinder.getDataStore(connectionParameters);
+        if (dataStore == null) {
+            JOptionPane.showMessageDialog(null, "Could not conntect");
             System.exit(0);
         }
+        String typeName = TypeNameChooser.showTypeNameChooser(dataStore);
+        
         JQuery dialog = new JQuery(dataStore);
         dialog.setVisible(true);
         dialog.dispose();
         System.exit(0);
-    }
-
-    private static Map<String, Serializable> getConnectionProperties(String[] args)
-            throws IOException {
-
-        PostgisDataStoreFactory factory = new PostgisDataStoreFactory();
-        JDataStoreWizard wizard;
-        if (args.length == 0) {
-            wizard = new JDataStoreWizard(factory);
-        } else {
-            File file = new File(args[0]);
-            if (!file.exists()) {
-                throw new FileNotFoundException(file.getAbsolutePath());
-            }
-            InputStream input = new FileInputStream(file);
-            Properties config = new Properties();
-            config.load(input);
-
-            wizard = new JDataStoreWizard(factory, config);
-        }
-        // prompt user
-        int result = wizard.showModalDialog();
-        System.out.print("Wizard completed with:");
-
-        switch (result) {
-        case JWizard.FINISH:
-            break;
-        case JWizard.CANCEL:
-            System.exit(0);
-        case JWizard.ERROR:
-        default:
-            System.exit(1);
-        }
-        return wizard.getConnectionParameters();
     }
 
     static class JQuery extends JDialog {

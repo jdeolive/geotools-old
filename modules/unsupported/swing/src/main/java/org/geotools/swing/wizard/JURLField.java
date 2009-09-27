@@ -105,15 +105,19 @@ public class JURLField extends ParamField {
     }
     
     public void addListener(Controller controller) {
-        field.addKeyListener(controller);
+        //field.addKeyListener(controller);
+        field.addActionListener(controller);
+        field.getDocument().addDocumentListener(controller);
     }
 
     public void removeListener(Controller controller) {
-        field.addKeyListener(controller);
+        //field.removeKeyListener(controller);
+        field.removeActionListener(controller);
+        field.getDocument().removeDocumentListener(controller);
     }
     
     public File getFile(){
-        String txt = browse.getText();
+        String txt = field.getText();
         if (txt == null || txt.equals("")) {
             return null;
         }
@@ -133,7 +137,7 @@ public class JURLField extends ParamField {
     public void setValue(Object value) {
         if( value instanceof File ){
             File file = (File) value;
-            field.setText( file.toString() );
+            field.setText( file.toString() );            
         }
         else if ( value instanceof URL ){
             URL url = (URL) value;
@@ -145,7 +149,7 @@ public class JURLField extends ParamField {
     }
 
     public boolean validate() {
-        String txt = browse.getText();
+        String txt = field.getText();
         if (txt == null || txt.equals("")) {
             return !parameter.required;
         }

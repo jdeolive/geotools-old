@@ -23,8 +23,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.geotools.data.DataStoreFactorySpi;
+import org.geotools.data.DataUtilities;
 import org.geotools.data.FileDataStoreFactorySpi;
 import org.geotools.data.FileDataStoreFinder;
+import org.geotools.data.DataAccessFactory.Param;
 import org.geotools.swing.wizard.JPage;
 import org.geotools.swing.wizard.JWizard;
 
@@ -47,35 +49,81 @@ public class JDataStoreWizard extends JWizard {
      * @param format
      */
     public JDataStoreWizard( DataStoreFactorySpi format ){
-        this( format, new HashMap<String,Serializable>() );
+        this( format, new HashMap<String,Object>() );
     }
     
     public JDataStoreWizard( DataStoreFactorySpi format, Map params ){
         super( format == null ? "" : format.getDisplayName() );
+        if( params == null ){
+            params = new HashMap<String,Object>();
+        }
+        fillInDefaults( format, params );
         if( format == null){
             // GeoTools detects FileDataStoreFactorSpi's on the classpath
             // if you are getting this error for "shp" perhaps you do not have the
             // gt-shape jar on your classpath?
             throw new NullPointerException("Please indicate the data format to connect to");
         }
+        
         this.format = format;
-        page1 = new JDataStorePage(format, params );
-        page1.setRequried(true);
+        page1 = new JDataStorePage(format, params );        
+        page1.setLevel("user");
         page1.setPageIdentifier("page1");
-        page1.setNextPageIdentifier("page2");
         registerWizardPanel( page1 );
-        
-        page2 = new JDataStorePage(format, params );       
-        page2.setPageIdentifier("page2");
-        page2.setBackPageIdentifier("page1");
-        page2.setRequried(false);
-        registerWizardPanel( page2 );
-        
+
+        if( countParamsAtLevel( format, "advanced") != 0 ){
+            page2 = new JDataStorePage(format, params );       
+            page2.setPageIdentifier("page2");
+            page2.setBackPageIdentifier("page1");
+            page2.setLevel("advanced");
+            registerWizardPanel( page2 );
+            
+            // link from page 1
+            page1.setNextPageIdentifier("page2");            
+        }        
         setCurrentPanel("page1");
     }
-    
-    public Map<String,Serializable> getConnectionParameters(){
-        return page2.connectionParameters;
+
+    /**
+     * Method used to fill in any required "programming" level defaults such as dbtype.
+     * 
+     * @param format2
+     * @param params
+     */
+    private void fillInDefaults(DataStoreFactorySpi format, Map<String, Object> params) {
+        if( format == null ) return;
+        for( Param param : format.getParametersInfo() ){
+            if( param.required && "program".equals(param.getLevel()) ){
+                if( !params.containsKey( param.key )){
+                    params.put( param.key, param.sample );
+                }
+            }
+        }
+    }
+
+    private int countParamsAtLevel(DataStoreFactorySpi format, String level) {
+        if( format == null ) return 0;
+        int count = 0;
+        Param[] parametersInfo = format.getParametersInfo();
+        if( level == null ){
+            return parametersInfo.length;
+        }
+        for( Param param : parametersInfo ){
+            String check = param.getLevel();
+            if( level.equals( check )){
+                count ++;
+            }
+        }
+        return count;
+    }
+
+    public Map<String,Object> getConnectionParameters(){
+        if( page2 != null ){
+            return page2.connectionParameters;
+        }
+        else {
+            return page1.connectionParameters;
+        }
     }
 
 }

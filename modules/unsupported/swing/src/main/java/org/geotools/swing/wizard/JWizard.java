@@ -36,6 +36,8 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 /**
  * Swing does not provide a wizard construct (boo hiss) so this is a quick dialog that can step us
@@ -294,7 +296,7 @@ public class JWizard extends JDialog {
     }
 
     /** The controller listens to everything and updates the buttons */
-    public class Controller implements ActionListener, KeyListener {
+    public class Controller implements ActionListener, KeyListener, DocumentListener {
         public boolean listen = true;
         
         public void actionPerformed(ActionEvent e) {
@@ -401,6 +403,18 @@ public class JWizard extends JDialog {
         }
 
         public void keyTyped(KeyEvent e) {
+            syncButtonsToPage();
+        }
+
+        public void changedUpdate(DocumentEvent e) {
+            syncButtonsToPage();
+        }
+
+        public void insertUpdate(DocumentEvent e) {
+            syncButtonsToPage();
+        }
+
+        public void removeUpdate(DocumentEvent e) {
             syncButtonsToPage();
         }
     }

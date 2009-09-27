@@ -41,7 +41,9 @@ public abstract class AbstractFileDataStore extends AbstractDataStore implements
      *
      * @see org.geotools.data.DataStore#getSchema(java.lang.String)
      */
-    public abstract SimpleFeatureType getSchema() throws IOException;
+    public SimpleFeatureType getSchema() throws IOException {
+        return this.getSchema( getTypeNames()[0] );
+    }
 
     /**
      * Singular version, which must be implemented to represent a Reader  for
@@ -49,8 +51,10 @@ public abstract class AbstractFileDataStore extends AbstractDataStore implements
      *
      * @see org.geotools.data.DataStore#getFeatureReader(java.lang.String)
      */
-    public abstract  FeatureReader<SimpleFeatureType, SimpleFeature> getFeatureReader()
-        throws IOException;
+    public FeatureReader<SimpleFeatureType, SimpleFeature> getFeatureReader()
+        throws IOException{
+        return getFeatureReader( getTypeNames()[0] );
+    }
 
     /**
      * Singular version, calls parent with getSchema().getTypeName()

@@ -35,6 +35,7 @@ import org.geotools.data.FileDataStoreFactorySpi;
 import org.geotools.data.Parameter;
 import org.geotools.data.shapefile.indexed.IndexType;
 import org.geotools.data.shapefile.indexed.IndexedShapefileDataStore;
+import org.geotools.util.KVP;
 import org.geotools.util.SimpleInternationalString;
 
 import com.vividsolutions.jts.geom.Geometry;
@@ -66,39 +67,40 @@ public class ShapefileDataStoreFactory implements FileDataStoreFactorySpi {
     /**
      * url to the .shp file.
      */
-    public static final Param URLP;
-    static {
-        Map<String, Object> metadata = new HashMap<String, Object>();
-        metadata.put( Parameter.EXT, "shp");
-        URLP = new Param("url", URL.class, new SimpleInternationalString("url to a .shp file"),
-                true, null, metadata);
-    }
+    public static final Param URLP = new Param("url", URL.class,
+            "url to a .shp file",true, null,
+            new KVP(Param.EXT,"shp"));
+    
 
     /**
      * Optional - uri of the FeatureType's namespace
      */
     public static final Param NAMESPACEP = new Param("namespace", URI.class,
-            "uri to a the namespace", false); // not required
+            "uri to a the namespace", false, null,  // not required
+            new KVP(Param.LEVEL,"advanced") );
 
     /**
      * Optional - enable/disable the use of memory-mapped io
      */
     public static final Param MEMORY_MAPPED = new Param("memory mapped buffer",
-            Boolean.class, "enable/disable the use of memory-mapped io", false);
+            Boolean.class, "enable/disable the use of memory-mapped io", false, true,
+            new KVP(Param.LEVEL,"advanced") );
 
     /**
      * Optional - Enable/disable the automatic creation of spatial index
      */
     public static final Param CREATE_SPATIAL_INDEX = new Param(
             "create spatial index", Boolean.class,
-            "enable/disable the automatic creation of spatial index", false);
+            "enable/disable the automatic creation of spatial index", false, true,
+            new KVP(Param.LEVEL,"advanced") );
 
     /**
      * Optional - character used to decode strings from the DBF file
      */
     public static final Param DBFCHARSET = new Param("charset", Charset.class,
             "character used to decode strings from the DBF file", false,
-            Charset.forName("ISO-8859-1")) {
+            Charset.forName("ISO-8859-1"),
+            new KVP(Param.LEVEL,"advanced")) {
         /*
          * This is an example of a non simple Param type where a custom parse
          * method is required.

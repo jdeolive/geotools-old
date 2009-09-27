@@ -426,7 +426,9 @@ public interface FeatureCollection<T extends FeatureType, F extends Feature> {
     /** @see java.util.Collection#retainAll(Collection) */   
     public boolean retainAll(Collection<?> c);
       
-    /** @see java.util.Collection#size() */
+    /**
+     * @see java.util.Collection#size()
+     */
     int size();
     
     /** @see java.util.Collection#toArray() */    
