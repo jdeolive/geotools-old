@@ -158,6 +158,7 @@
          <module>postgis-versioned</module>
          <module>vpf</module>
          <module>caching</module>
+         <module>shapefile-renderer</module>
        </modules>
      </profile>
   </profiles>
