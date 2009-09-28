@@ -158,13 +158,12 @@
          <module>postgis-versioned</module>
          <module>vpf</module>
          <module>caching</module>
-         <module>swing</module>
        </modules>
      </profile>
   </profiles>
 
   <modules>
-    <module>ogc</module>
+    <module>swing</module>
     <module>directory</module>
     <module>wfs</module>
   </modules>
