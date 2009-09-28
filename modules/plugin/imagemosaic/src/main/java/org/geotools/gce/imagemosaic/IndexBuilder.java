@@ -744,20 +744,17 @@ final class IndexBuilder implements Runnable {
 						inStream.close();
 				} catch (Throwable e) {
 					// ignore exception
+					if(LOGGER.isLoggable(Level.FINEST))
+						LOGGER.log(Level.FINEST,e.getLocalizedMessage(),e);
 				}
 				try {
 					if(imageioReader!=null)
 						imageioReader.dispose();
 				} catch (Throwable e) {
 					// ignore exception
-				}
-				
-				try {
-					if(imageioReader!=null)
-						imageioReader.dispose();
-				} catch (Throwable e) {
-					// ignore exception
-				}					
+					if(LOGGER.isLoggable(Level.FINEST))
+						LOGGER.log(Level.FINEST,e.getLocalizedMessage(),e);					
+				}				
 				
 				try {
 					if(coverageReader!=null)
@@ -765,6 +762,8 @@ final class IndexBuilder implements Runnable {
 						coverageReader.dispose();
 				} catch (Throwable e) {
 					// ignore exception
+					if(LOGGER.isLoggable(Level.FINEST))
+						LOGGER.log(Level.FINEST,e.getLocalizedMessage(),e);					
 				}
 			}
 		

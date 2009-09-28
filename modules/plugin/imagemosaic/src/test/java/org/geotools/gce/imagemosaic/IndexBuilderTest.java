@@ -9,12 +9,9 @@ import java.util.Arrays;
 
 import javax.media.jai.PlanarImage;
 
-import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.coverage.grid.io.AbstractGridFormat;
-import org.geotools.coverage.grid.io.GridFormatFinder;
 import org.geotools.gce.imagemosaic.IndexBuilder.ExceptionEvent;
 import org.geotools.gce.imagemosaic.IndexBuilder.IndexBuilderConfiguration;
 import org.geotools.gce.imagemosaic.IndexBuilder.ProcessingEvent;
