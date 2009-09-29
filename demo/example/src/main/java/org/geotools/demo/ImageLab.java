@@ -57,20 +57,12 @@ public class ImageLab {
             return;
         }
 
-        GridCoverage2D coverage;
-        try {
-            coverage = (GridCoverage2D) reader.read(null);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            return;
-        }
-
-        CoordinateReferenceSystem crs = coverage.getCoordinateReferenceSystem();
+        CoordinateReferenceSystem crs = reader.getCrs();
         if (crs == null) {
             crs = DefaultGeographicCRS.WGS84;
         }
 
-        Style style = createRGBStyle(coverage);
+        Style style = createRGBStyle(reader);
         if (style == null) {
             // input coverage didn't have bands labelled "red", "green", "blue"
             return;
@@ -80,7 +72,7 @@ public class ImageLab {
         MapLayer layer = null;
 
         try {
-            layer = new DefaultMapLayer(coverage, style);
+            layer = new DefaultMapLayer(reader, style);
         } catch (Exception ex) {
             ex.printStackTrace();
             return;
@@ -114,15 +106,22 @@ public class ImageLab {
      *
      * @return a new Style object containing a raster symbolizer set up for RGB image
      */
-    private static Style createRGBStyle(GridCoverage2D coverage) {
+    private static Style createRGBStyle(GeoTiffReader reader) {
         StyleFactory sf = CommonFactoryFinder.getStyleFactory(null);
         FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
 
-        SelectedChannelType[] sct = new SelectedChannelType[coverage.getNumSampleDimensions()];
+        GridCoverage2D cov = null;
+        try {
+            cov = (GridCoverage2D) reader.read(null);
+        } catch (IOException giveUp) {
+            throw new RuntimeException(giveUp);
+        }
+
+        SelectedChannelType[] sct = new SelectedChannelType[cov.getNumSampleDimensions()];
         ContrastEnhancement ce = sf.contrastEnhancement(ff.literal(1.0), ContrastMethod.NORMALIZE);
         final int RED = 0, GREEN = 1, BLUE = 2;
         int k = 1;
-        for (GridSampleDimension dim : coverage.getSampleDimensions()) {
+        for (GridSampleDimension dim : cov.getSampleDimensions()) {
             String name = dim.getDescription().toString().toLowerCase();
             if (name.matches("red.*")) {
                 sct[RED] = sf.createSelectedChannelType(String.valueOf(k++), ce);
