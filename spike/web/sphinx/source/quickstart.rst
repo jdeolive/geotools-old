@@ -309,7 +309,16 @@ Here are the plugins we will be using to to read a shapefile.
     <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-swing</artifactId>
-       <version>${geotools.version}</version>
+      <version>${geotools.version}</version>
+      <!-- For this module we explicitly exclude some of its own -->
+      <!-- dependencies from being downloaded because they are   -->
+      <!-- big and we don't need them                            -->
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.xmlgraphics</groupId>
+          <artifactId>batik-transcoder</artifactId>
+          </exclusion>
+        </exclusions>
     </dependency>
 
 Refresh your IDE Project Files
