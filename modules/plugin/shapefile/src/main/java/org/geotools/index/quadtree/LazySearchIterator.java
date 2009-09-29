@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Stack;
 
 import org.geotools.data.shapefile.shp.IndexFile;
 import org.geotools.index.Data;
@@ -89,6 +90,7 @@ public class LazySearchIterator implements Iterator<Data> {
         List indices = new ArrayList();
         ArrayList dataList = new ArrayList();
         try {
+            Stack<Node> nodes = new Stack<Node>();
             while (indices.size() < MAX_INDICES && current != null) {
                 if (idIndex < current.getNumShapeIds() && !current.isVisited()
                         && current.getBounds().intersects(bounds)) {
@@ -103,13 +105,17 @@ public class LazySearchIterator implements Iterator<Data> {
                         if (!node.isVisited()
                                 && node.getBounds().intersects(bounds)) {
                             foundUnvisited = true;
+                            nodes.push(current);
                             current = node;
                             break;
                         }
                     }
                     if (!foundUnvisited) {
                         current.setVisited(true);
-                        current = current.getParent();
+                        if(nodes.isEmpty())
+                            current = null;
+                        else
+                            current = nodes.pop();
                     }
                 }
             }

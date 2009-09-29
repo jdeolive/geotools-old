@@ -106,8 +106,8 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
     IndexType treeType;
 
     final boolean useIndex;
-
-    int maxDepth;
+    
+    final boolean createIndex;
 
     /**
      * Creates a new instance of ShapefileDataStore.
@@ -198,17 +198,7 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
 
         this.treeType = treeType;
         this.useIndex = treeType != IndexType.NONE;
-        maxDepth = -1;
-        try {
-            if (shpFiles.isLocal() && createIndex && useIndex
-                    && needsGeneration(treeType.shpFileType)) {
-                createSpatialIndex();
-            }
-        } catch (IOException e) {
-            this.treeType = IndexType.NONE;
-            ShapefileDataStoreFactory.LOGGER.log(Level.SEVERE, e
-                    .getLocalizedMessage());
-        }
+        this.createIndex = createIndex;
         try {
             if (shpFiles.isLocal() && needsGeneration(FIX)) {
                 generateFidIndex();
@@ -224,7 +214,7 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
      * Forces the spatial index to be created
      */
     public void createSpatialIndex() throws IOException {
-        buildQuadTree(maxDepth);
+        buildQuadTree();
     }
 
     protected Filter getUnsupportedFilter(String typeName, Filter filter) {
@@ -665,6 +655,18 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
     protected CloseableCollection<Data> queryQuadTree(Envelope bbox)
             throws DataSourceException, IOException, TreeException {
         CloseableCollection<Data> tmp = null;
+        
+        // create index as needed
+        try {
+            if (shpFiles.isLocal() && createIndex
+                    && needsGeneration(treeType.shpFileType)) {
+                createSpatialIndex();
+            }
+        } catch (IOException e) {
+            this.treeType = IndexType.NONE;
+            ShapefileDataStoreFactory.LOGGER.log(Level.SEVERE, e
+                    .getLocalizedMessage());
+        }
 
         try {
             QuadTree quadTree = openQuadTree();
@@ -1022,19 +1024,14 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
     /**
      * Builds the QuadTree index. Usually not necessary since reading features
      * will index when required
-     * 
-     * @param maxDepth
-     *                depth of the tree. if < 0 then a best guess is made.
      * @throws TreeException
      */
-    public void buildQuadTree(int maxDepth) throws TreeException {
+    public void buildQuadTree() throws TreeException {
         if (isLocal()) {
             LOGGER.fine("Creating spatial index for " + shpFiles.get(SHP));
 
             ShapeFileIndexer indexer = new ShapeFileIndexer();
-            indexer.setIdxType(IndexType.QIX);
             indexer.setShapeFileName(shpFiles);
-            indexer.setMax(maxDepth);
 
             try {
                 indexer.index(false, new NullProgressListener());

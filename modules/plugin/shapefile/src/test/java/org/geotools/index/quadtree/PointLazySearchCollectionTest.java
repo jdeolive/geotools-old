@@ -44,7 +44,7 @@ public class PointLazySearchCollectionTest extends TestCaseSupport {
         super.setUp();
         file = copyShapefiles("shapes/archsites.shp");
         ds = new IndexedShapefileDataStore(file.toURI().toURL());
-        ds.buildQuadTree(0);
+        ds.buildQuadTree();
         tree = LineLazySearchCollectionTest.openQuadTree(file);
         crs = ds.getSchema().getCoordinateReferenceSystem();
     }
@@ -68,7 +68,7 @@ public class PointLazySearchCollectionTest extends TestCaseSupport {
         ReferencedEnvelope env = new ReferencedEnvelope(597867, 598068,
                 4918863, 4919031, crs);
         LazySearchCollection collection = new LazySearchCollection(tree, env);
-        assertEquals(1, collection.size());
+        assertEquals(4, collection.size());
 
     }
 

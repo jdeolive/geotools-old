@@ -113,12 +113,10 @@ class IndexedShapefileFeatureWriter extends ShapefileFeatureWriter implements
                     FidIndexer.generate(shpFiles);
                 }
 
-                deleteFile(ShpFileType.GRX);
                 deleteFile(ShpFileType.QIX);
 
                 if (indexedShapefileDataStore.treeType == IndexType.QIX) {
-                    indexedShapefileDataStore
-                            .buildQuadTree(indexedShapefileDataStore.maxDepth);
+                    indexedShapefileDataStore.buildQuadTree();
                 }
             }
         } catch (Throwable e) {
