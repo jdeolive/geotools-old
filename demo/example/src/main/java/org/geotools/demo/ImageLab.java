@@ -68,7 +68,7 @@ public class ImageLab {
             return;
         }
 
-        MapContext context = new DefaultMapContext(crs);
+        MapContext map = new DefaultMapContext(crs);
         MapLayer layer = null;
 
         try {
@@ -78,22 +78,10 @@ public class ImageLab {
             return;
         }
         
-        context.addLayer(layer);
-        context.setTitle("My coverage");
+        map.addLayer(layer);
+        map.setTitle("My coverage");
 
-        /*
-         * Here we are constructing a JMapFrame object, rather than using
-         * the static JMapFrame.showMap method, so that we can call the
-         * setRasterRendering method which tries to optimize coverage
-         * drawing.
-         */
-        JMapFrame mapFrame = new JMapFrame(context);
-        mapFrame.setRasterRendering(true);
-
-        mapFrame.enableStatusBar(true);
-        mapFrame.enableToolBar(true);
-        mapFrame.setSize(800, 500);
-        mapFrame.setVisible(true);
+        JMapFrame.showMap(map);
     }
 
 
