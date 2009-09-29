@@ -398,17 +398,6 @@ public class JMapFrame extends JFrame {
     }
 
     /**
-     * Set whether the renderer should use settings suitable for raster layers.
-     * This method can be called prior to setting a renderer.
-     *
-     * @param set if true the RenderingHints for the renderer will be set for faster
-     * raster rendering; if false, all such hints are removed from the renderer
-     */
-    public void setRasterRendering(boolean set) {
-        mapPane.setRasterRendering(set);
-    }
-
-    /**
      * Provides access to the instance of {@code JMapPane} being used
      * by this frame.
      *

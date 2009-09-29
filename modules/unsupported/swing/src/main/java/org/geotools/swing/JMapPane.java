@@ -41,8 +41,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.ResourceBundle;
 import java.util.Set;
-import javax.media.jai.Interpolation;
-import javax.media.jai.JAI;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 import javax.swing.event.MouseInputAdapter;
@@ -383,48 +381,6 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
 
         if (this.context != null) {
             this.renderer.setContext(this.context);
-        }
-    }
-
-    /**
-     * Set whether the renderer should use settings suitable for raster layers.
-     * This method can be called prior to setting a renderer.
-     *
-     * @param set if true the RenderingHints for the renderer will be set for faster
-     * raster rendering; if false, all such hints are removed from the renderer
-     */
-    public void setRasterRendering(boolean set) {
-        if (set) {
-            if (rasterHints == null) {
-                rasterHints = new RenderingHints(Collections.EMPTY_MAP);
-                rasterHints.add(new RenderingHints(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED));
-                rasterHints.add(new RenderingHints(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_DISABLE));
-                rasterHints.add(new RenderingHints(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED));
-                rasterHints.add(new RenderingHints(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_SPEED));
-                rasterHints.add(new RenderingHints(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR));
-                rasterHints.add(new RenderingHints(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE));
-                rasterHints.add(new RenderingHints(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_OFF));
-                rasterHints.add(new RenderingHints(JAI.KEY_INTERPOLATION, Interpolation.getInstance(Interpolation.INTERP_NEAREST)));
-            }
-
-            if (renderer != null) {
-                RenderingHints hints = renderer.getJava2DHints();
-                if (hints == null) {
-                    hints = new RenderingHints(Collections.EMPTY_MAP);
-                }
-                hints.putAll(rasterHints);
-                renderer.setJava2DHints(hints);
-            }
-
-        } else if (!set) {
-            if (renderer != null && rasterHints != null) {
-                RenderingHints hints = renderer.getJava2DHints();
-                for (Object key : rasterHints.keySet()) {
-                    hints.remove(key);
-                }
-                renderer.setJava2DHints(hints);
-            }
-            rasterHints = null;
         }
     }
 
