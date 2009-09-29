@@ -306,7 +306,11 @@ Here are the plugins we will be using to to read a shapefile.
       <artifactId>gt-epsg-hsql</artifactId>
        <version>${geotools.version}</version>
     </dependency>
-
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-swing</artifactId>
+       <version>${geotools.version}</version>
+    </dependency>
 
 Refresh your IDE Project Files
 ------------------------------

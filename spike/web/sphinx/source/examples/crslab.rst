@@ -25,6 +25,11 @@ Please ensure your pom.xml includes the following::
     </dependency>
     <dependency>
       <groupId>org.geotools</groupId>
+      <artifactId>gt-render</artifactId>
+      <version>${geotools.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.geotools</groupId>
       <artifactId>gt-shapefile</artifactId>
       <version>${geotools.version}</version>
     </dependency>
