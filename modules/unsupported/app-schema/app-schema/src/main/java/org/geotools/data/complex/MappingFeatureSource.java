@@ -99,6 +99,7 @@ class MappingFeatureSource implements FeatureSource<FeatureType, Feature> {
         DefaultQuery namedQuery = namedQuery(query.getFilter(), query.getMaxFeatures());
         namedQuery.setPropertyNames(query.getPropertyNames());
         namedQuery.setCoordinateSystem(query.getCoordinateSystem());
+        namedQuery.setCoordinateSystemReproject(query.getCoordinateSystemReproject());
         namedQuery.setHandle(query.getHandle());
         namedQuery.setMaxFeatures(query.getMaxFeatures());
         namedQuery.setSortBy(query.getSortBy());

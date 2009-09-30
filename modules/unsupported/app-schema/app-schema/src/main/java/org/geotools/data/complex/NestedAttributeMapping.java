@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.complex.filter.XPath.StepList;
 import org.geotools.feature.FeatureCollection;
@@ -35,6 +36,7 @@ import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.PropertyName;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.xml.sax.helpers.NamespaceSupport;
 
 /**
@@ -116,11 +118,14 @@ public class NestedAttributeMapping extends AttributeMapping {
      * Get matching input features that are stored in this mapping using a supplied link value.
      * 
      * @param foreignKeyValue
+     * @param reprojection
+     *            Reprojected CRS or null
      * @return The matching input feature
      * @throws IOException
      * @throws IOException
      */
-    public Collection<Feature> getInputFeatures(Object foreignKeyValue) throws IOException {
+    public Collection<Feature> getInputFeatures(Object foreignKeyValue,
+            CoordinateReferenceSystem reprojection) throws IOException {
         ArrayList<Feature> matchingFeatures = new ArrayList<Feature>();
         if (source == null) {
             // We can't initiate this in the constructor because the feature type mapping
@@ -143,7 +148,10 @@ public class NestedAttributeMapping extends AttributeMapping {
         Filter filter = filterFac.equals(this.nestedSourceExpression, filterFac
                 .literal(foreignKeyValue));
         // get all the nested features based on the link values
-        FeatureCollection<FeatureType, Feature> fCollection = source.getFeatures(filter);
+        DefaultQuery query = new DefaultQuery();
+        query.setCoordinateSystemReproject(reprojection);
+        query.setFilter(filter);
+        FeatureCollection<FeatureType, Feature> fCollection = source.getFeatures(query);
         Iterator<Feature> it = fCollection.iterator();
 
         while (it.hasNext()) {
@@ -162,10 +170,13 @@ public class NestedAttributeMapping extends AttributeMapping {
      * Get the maching built features that are stored in this mapping using a supplied link value
      * 
      * @param foreignKeyValue
+     * @param reprojection
+     *            Reprojected CRS or null
      * @return The matching simple features
      * @throws IOException
      */
-    public Collection<Feature> getFeatures(Object foreignKeyValue) throws IOException {
+    public Collection<Feature> getFeatures(Object foreignKeyValue,
+            CoordinateReferenceSystem reprojection) throws IOException {
         if (mappingSource == null) {
             // this cannot be set in the constructor since it might not exist yet
             mappingSource = DataAccessRegistry.getFeatureSource(nestedFeatureType);
@@ -179,14 +190,19 @@ public class NestedAttributeMapping extends AttributeMapping {
         if (!(mappingSource instanceof MappingFeatureSource)) {
             // non app-schema source.. may not have simple feature source behind it
             // so we need to filter straight on the complex features
-            propertyName = new NestedAttributeExpression(this.nestedTargetXPath.toString());
+            propertyName = new NestedAttributeExpression(this.nestedTargetXPath.toString(),
+                    reprojection);
         } else {
             propertyName = filterFac.property(this.nestedTargetXPath.toString());
         }
         filter = filterFac.equals(propertyName, filterFac.literal(foreignKeyValue));
 
+        DefaultQuery query = new DefaultQuery();
+        query.setCoordinateSystemReproject(reprojection);
+        query.setFilter(filter);
+
         // get all the mapped nested features based on the link values
-        FeatureCollection<FeatureType, Feature> fCollection = mappingSource.getFeatures(filter);
+        FeatureCollection<FeatureType, Feature> fCollection = mappingSource.getFeatures(query);
         Iterator<Feature> iterator = fCollection.iterator();
         while (iterator.hasNext()) {
             matchingFeatures.add(iterator.next());

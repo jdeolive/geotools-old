@@ -60,6 +60,8 @@ import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.xml.SchemaIndex;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.AttributeType;
+import org.opengis.feature.type.GeometryDescriptor;
+import org.opengis.feature.type.GeometryType;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.expression.Expression;
 import org.xml.sax.helpers.NamespaceSupport;
@@ -187,7 +189,13 @@ public class AppSchemaDataAccessConfigurator {
             TypeMapping dto = (TypeMapping) it.next();
 
             FeatureSource featureSource = getFeatureSource(dto);
-            AttributeDescriptor target = getTargetDescriptor(dto);
+            GeometryType geomType = null;
+            // get default geometry from underlying feature source and pass it on
+            GeometryDescriptor defaultGeom = featureSource.getSchema().getGeometryDescriptor();
+            if (defaultGeom != null) {
+                geomType = defaultGeom.getType();
+            }
+            AttributeDescriptor target = getTargetDescriptor(dto, geomType);
 
             // set schema location for describeFeatureType
             String nsURI = target.getName().getNamespaceURI();
@@ -208,11 +216,13 @@ public class AppSchemaDataAccessConfigurator {
         return featureTypeMappings;
     }
 
-    private AttributeDescriptor getTargetDescriptor(TypeMapping dto) throws IOException {
+    private AttributeDescriptor getTargetDescriptor(TypeMapping dto, GeometryType geomType)
+            throws IOException {
         String prefixedTargetName = dto.getTargetElementName();
         Name targetNodeName = degloseName(prefixedTargetName);
 
-        AttributeDescriptor targetDescriptor = typeRegistry.getDescriptor(targetNodeName);
+        AttributeDescriptor targetDescriptor = typeRegistry.getDescriptor(targetNodeName, geomType,
+                dto.getAttributeMappings());
         if (targetDescriptor == null) {
             throw new NoSuchElementException("descriptor " + targetNodeName
                     + " not found in parsed schema");
@@ -270,7 +280,8 @@ public class AppSchemaDataAccessConfigurator {
 
             if (expectedInstanceTypeName != null) {
                 Name expectedNodeTypeName = degloseTypeName(expectedInstanceTypeName);
-                expectedInstanceOf = typeRegistry.getAttributeType(expectedNodeTypeName);
+                expectedInstanceOf = typeRegistry
+                        .getAttributeType(expectedNodeTypeName, null, null);
                 if (expectedInstanceOf == null) {
                     String msg = "mapping expects and instance of " + expectedNodeTypeName
                             + " for attribute " + targetXPath
@@ -419,8 +430,8 @@ public class AppSchemaDataAccessConfigurator {
         schemaParser = EmfAppSchemaReader.newInstance();
         schemaParser.setCatalog(oasisCatalog);
 
-        //create a single type registry for all the schemas in the config
-        typeRegistry = new FeatureTypeRegistry();
+        // create a single type registry for all the schemas in the config
+        typeRegistry = new FeatureTypeRegistry(namespaces);
 
         for (Iterator it = schemaFiles.iterator(); it.hasNext();) {
             String schemaLocation = (String) it.next();

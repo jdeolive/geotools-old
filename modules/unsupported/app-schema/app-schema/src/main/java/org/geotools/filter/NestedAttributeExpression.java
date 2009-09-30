@@ -36,6 +36,7 @@ import org.opengis.feature.Attribute;
 import org.opengis.feature.Feature;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.expression.Expression;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 /**
  * This class represents a list of expressions broken up from a single XPath expression that is
@@ -54,6 +55,8 @@ public class NestedAttributeExpression extends AttributeExpressionImpl {
      * The name spaces hints
      */
     private Hints namespaces;
+
+    private CoordinateReferenceSystem crs;
 
     /**
      * First constructor
@@ -81,9 +84,10 @@ public class NestedAttributeExpression extends AttributeExpressionImpl {
      * @param xpath
      *            Attribute XPath
      */
-    public NestedAttributeExpression(String xpath) {
+    public NestedAttributeExpression(String xpath, CoordinateReferenceSystem reprojection) {
         super(xpath);
         this.expressions = Collections.<Expression> emptyList();
+        this.crs = reprojection;
     }
 
     /**
@@ -298,11 +302,11 @@ public class NestedAttributeExpression extends AttributeExpressionImpl {
 
         if (hasSimpleFeatures) {
             for (Object val : foreignKeys) {
-                featureList.addAll(mapping.getInputFeatures(val));
+                featureList.addAll(mapping.getInputFeatures(val, crs));
             }
         } else {
             for (Object val : foreignKeys) {
-                featureList.addAll(mapping.getFeatures(val));
+                featureList.addAll(mapping.getFeatures(val, crs));
             }
         }
         return featureList;

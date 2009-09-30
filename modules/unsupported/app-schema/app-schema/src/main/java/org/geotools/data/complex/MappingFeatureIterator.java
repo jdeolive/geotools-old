@@ -141,6 +141,11 @@ public class MappingFeatureIterator implements Iterator<Feature>, FeatureIterato
     private boolean hasNextCalled = false;
 
     /**
+     * Reprojected CRS from the source simple features, or null
+     */
+    private CoordinateReferenceSystem reprojection;
+
+    /**
      * 
      * @param store
      * @param mapping
@@ -184,6 +189,8 @@ public class MappingFeatureIterator implements Iterator<Feature>, FeatureIterato
         mappedSource = mapping.getSource();
 
         sourceFeatures = mappedSource.getFeatures(unrolledQuery);
+
+        reprojection = unrolledQuery.getCoordinateSystemReproject();
 
         this.sourceFeatureIterator = sourceFeatures.iterator();
 
@@ -325,10 +332,10 @@ public class MappingFeatureIterator implements Iterator<Feature>, FeatureIterato
                         // eg. gsml:GeologicUnit/gsml:occurence/gsml:MappedFeature
                         // and gsml:MappedFeature/gsml:specification/gsml:GeologicUnit
                         nestedFeatures.addAll(((NestedAttributeMapping) attMapping)
-                                .getInputFeatures(val));
+                                .getInputFeatures(val, reprojection));
                     } else {
-                        nestedFeatures.addAll(((NestedAttributeMapping) attMapping)
-                                .getFeatures(val));
+                        nestedFeatures.addAll(((NestedAttributeMapping) attMapping).getFeatures(
+                                val, reprojection));
                     }
                 }
                 value = nestedFeatures;
@@ -337,9 +344,9 @@ public class MappingFeatureIterator implements Iterator<Feature>, FeatureIterato
                 // feature type also have a reference back to this type
                 // eg. gsml:GeologicUnit/gsml:occurence/gsml:MappedFeature
                 // and gsml:MappedFeature/gsml:specification/gsml:GeologicUnit
-                value = ((NestedAttributeMapping) attMapping).getInputFeatures(value);
+                value = ((NestedAttributeMapping) attMapping).getInputFeatures(value, reprojection);
             } else {
-                value = ((NestedAttributeMapping) attMapping).getFeatures(value);
+                value = ((NestedAttributeMapping) attMapping).getFeatures(value, reprojection);
             }
             if (isHRefLink) {
                 // only need to set the href link value, not the nested feature properties
