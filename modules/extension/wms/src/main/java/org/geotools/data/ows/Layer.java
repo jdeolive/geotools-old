@@ -16,8 +16,6 @@
  */
 package org.geotools.data.ows;
 
-import java.net.URI;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,31 +26,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.WeakHashMap;
 
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-
-import org.geotools.data.DefaultResourceInfo;
-import org.geotools.data.ResourceInfo;
-import org.geotools.data.wms.WMSOperationType;
-import org.geotools.data.wms.WebMapServer;
-import org.geotools.data.wms.request.GetLegendGraphicRequest;
-import org.geotools.data.wms.response.GetLegendGraphicResponse;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.NoSuchAuthorityCodeException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
-import org.opengis.geometry.DirectPosition;
-import org.opengis.geometry.MismatchedDimensionException;
-
-import com.vividsolutions.jts.geom.Envelope;
 
 
 /**
@@ -191,14 +175,14 @@ public class Layer implements Comparable<Layer> {
      * 
      * @return Set of all srs/crs for this layer and its ancestors
      */
-    public Set getSrs() {
+    public Set<String> getSrs() {
         synchronized (this) {
             if( allSRSCache==null ){
-                allSRSCache = new HashSet(srs);
+                allSRSCache = new HashSet<String>(srs);
                 // Get my ancestor's srs/crs
                 Layer parent = this.getParent();
                 if (parent != null) {
-                   Set parentSrs = parent.getSrs();
+                   Set<String> parentSrs = parent.getSrs();
                    if (parentSrs != null)  //got something, add to accumulation
                        allSRSCache.addAll(parentSrs);
                 }
@@ -604,5 +588,13 @@ public class Layer implements Comparable<Layer> {
     
         }
         return null;
+	}
+	
+	@Override
+	public String toString() {
+	    if( this.title != null ){
+	        return title;
+	    }
+	    return name;
 	}
 }

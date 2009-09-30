@@ -28,6 +28,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -396,9 +397,14 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
      */
     public void setMapContext(MapContext context) {
         if (this.context != context) {
-
+            
             if (this.context != null) {
                 this.context.removeMapLayerListListener(this);
+                for( MapLayer layer : this.context.getLayers() ){
+                    if( layer instanceof ComponentListener){
+                        removeComponentListener( (ComponentListener) layer );
+                    }
+                }
             }
 
             this.context = context;
@@ -410,6 +416,9 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
                 // set all layers as selected by default for the info tool
                 for (MapLayer layer : context.getLayers()) {
                     layer.setSelected(true);
+                    if( layer instanceof ComponentListener){
+                        addComponentListener( (ComponentListener) layer );
+                    }                    
                 }
             }
 
@@ -655,9 +664,13 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
         if (layerTable != null) {
             layerTable.addLayer(event.getLayer());
         }
+        MapLayer layer = event.getLayer();
+        layer.setSelected(true);
 
-        event.getLayer().setSelected(true);
-
+        if( layer instanceof ComponentListener ){
+            addComponentListener( (ComponentListener) layer );
+        }
+        
         if (context.getLayerCount() == 1) {
             /*
              * For the first layer added, calling reset() results in the
@@ -674,9 +687,13 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
      * Called when a map layer has been removed
      */
     public void layerRemoved(MapLayerListEvent event) {
+        MapLayer layer = event.getLayer();
         if (layerTable != null) {
-            layerTable.removeLayer(event.getLayer());
+            layerTable.removeLayer(layer);
         }
+        if( layer instanceof ComponentListener ){
+            addComponentListener( (ComponentListener) layer );
+        }        
         repaint();
     }
 

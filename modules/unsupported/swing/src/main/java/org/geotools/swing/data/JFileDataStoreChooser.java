@@ -233,7 +233,6 @@ public class JFileDataStoreChooser extends JFileChooser {
         if (dialog.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION) {
             return dialog.getSelectedFile();
         }
-
         return null;
     }
 

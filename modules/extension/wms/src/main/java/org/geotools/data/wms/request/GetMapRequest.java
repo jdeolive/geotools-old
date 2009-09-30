@@ -16,12 +16,14 @@
  */
 package org.geotools.data.wms.request;
 
+import java.awt.Dimension;
 import java.util.Properties;
 
 import org.geotools.data.ows.CRSEnvelope;
 import org.geotools.data.ows.Layer;
 import org.geotools.data.ows.Request;
 import org.geotools.data.ows.StyleImpl;
+import org.opengis.geometry.BoundingBox;
 
 /**
  * Construct a WMS getMap request.
@@ -221,6 +223,8 @@ public interface GetMapRequest extends Request{
      */
     public void setBBox(String bbox);
     public void setBBox(CRSEnvelope box);
+    public void setBBox(BoundingBox box);
+    
     /**
      * From the Web Map Service Implementation Specification: "The required
      * FORMAT parameter states the desired format of the response to an
@@ -249,7 +253,8 @@ public interface GetMapRequest extends Request{
      * @param height
      */
     public void setDimensions(String width, String height);
-     public void setDimensions(int width, int height);
+    public void setDimensions(int width, int height);
+    public void setDimensions(Dimension imageDimension); 
     // End required parameters, begin optional ones.
     //TODO Implement optional parameters.
 
@@ -343,4 +348,5 @@ public interface GetMapRequest extends Request{
      * create a request using a properties file to save time
      */
     public void setProperties(Properties p);
+    
 }

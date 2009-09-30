@@ -16,6 +16,7 @@
  */
 package org.geotools.data.ows;
 
+import java.awt.Dimension;
 import java.net.URL;
 
 import org.opengis.metadata.citation.ResponsibleParty;
@@ -107,6 +108,10 @@ public class Service {
         this.layerLimit = layerLimit;
     }
 
+    public Dimension getMaxDimension(){
+        return new Dimension( maxWidth, maxHeight );
+    }
+    
     public int getMaxHeight() {
         return maxHeight;
     }

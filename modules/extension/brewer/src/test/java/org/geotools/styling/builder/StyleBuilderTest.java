@@ -6,34 +6,69 @@ import static org.junit.Assert.assertNull;
 
 import java.awt.Color;
 
+import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.filter.expression.ExpressionBuilder;
 import org.geotools.styling.AnchorPoint;
 import org.geotools.styling.Description;
+import org.geotools.styling.FeatureTypeConstraint;
 import org.geotools.styling.FeatureTypeStyle;
 import org.geotools.styling.Fill;
 import org.geotools.styling.Mark;
 import org.geotools.styling.PointSymbolizer;
 import org.geotools.styling.Rule;
 import org.geotools.styling.Style;
+import org.geotools.styling.StyleFactory;
+import org.geotools.styling.StyleFactory2;
+import org.geotools.styling.StyledLayerDescriptor;
+import org.geotools.styling.UserLayer;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.opengis.filter.Filter;
 import org.opengis.filter.expression.Expression;
 import org.opengis.style.Halo;
 
 public class StyleBuilderTest {
-    
+
+    public void example() {
+        StyleFactory sf = CommonFactoryFinder.getStyleFactory(null);
+        StyledLayerDescriptor sld = sf.createStyledLayerDescriptor();
+        sld.setName("example");
+        sld.setAbstract("Example Style Layer Descriptor");
+
+        UserLayer layer = sf.createUserLayer();
+        layer.setName("layer");
+
+        FeatureTypeConstraint constraint = sf.createFeatureTypeConstraint("Feature",
+                Filter.INCLUDE, null);
+
+        layer.layerFeatureConstraints().add(constraint);
+
+        Style style = sf.createStyle();
+
+        style.getDescription().setTitle("Style");
+        style.getDescription().setAbstract("Definition of Style");
+
+        // define feature type styles used to actually
+        // define how features are rendered
+        //
+        layer.userStyles().add(style);
+
+        sld.layers().add(layer);
+    }
+
     @Test
-    public void emailExample(){
+    public void emailExample() {
         StyleBuilder<?> builder = new StyleBuilder();
-        
+
         RuleBuilder rule = builder.newFeatureTypeStyle().featureTypeName("Feature").rule();
-                rule.newPoint().graphic().
-            externalGraphic( "file:///C:/images/house.gif", "image/gid").mark("circle");                
+        rule.newPoint().graphic().externalGraphic("file:///C:/images/house.gif", "image/gid").mark(
+                "circle");
 
         Style style = builder.build();
-        
-        assertNotNull( style );
+
+        assertNotNull(style);
     }
+
     @Test
     public void anchorPoint() {
         AnchorPointBuilder<?> b = new AnchorPointBuilder();
@@ -443,7 +478,8 @@ public class StyleBuilderTest {
     public void testPolygonStyle() {
         StyleBuilder sb = new StyleBuilder();
 
-        PolygonSymbolizerBuilder symb = sb.newFeatureTypeStyle().name("Simple polygon style").rule().newPolygon();
+        PolygonSymbolizerBuilder symb = sb.newFeatureTypeStyle().name("Simple polygon style")
+                .rule().newPolygon();
         symb.stroke().color(Color.BLUE).width(1).opacity(0.5);
         symb.fill().color(Color.CYAN).opacity(0.5);
 

@@ -16,6 +16,7 @@
  */
 package org.geotools.data.wms.request;
 
+import java.awt.Dimension;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -28,6 +29,7 @@ import org.geotools.data.ows.AbstractRequest;
 import org.geotools.data.ows.CRSEnvelope;
 import org.geotools.data.ows.Layer;
 import org.geotools.data.ows.StyleImpl;
+import org.opengis.geometry.BoundingBox;
 
 /**
  * @author Richard Gould
@@ -184,6 +186,18 @@ public abstract class AbstractGetMapRequest extends AbstractWMSRequest implement
         sb.append(box.getMaxY());
         setBBox(sb.toString());
     }
+    public void setBBox(BoundingBox box) {
+        StringBuffer sb = new StringBuffer();
+        sb.append(box.getMinX());
+        sb.append(",");
+        sb.append(box.getMinY());
+        sb.append(",");
+        sb.append(box.getMaxX());
+        sb.append(",");
+        sb.append(box.getMaxY());
+        
+        setBBox(sb.toString());
+    }
     /**
      * From the Web Map Service Implementation Specification: "The required
      * FORMAT parameter states the desired format of the response to an
@@ -216,6 +230,9 @@ public abstract class AbstractGetMapRequest extends AbstractWMSRequest implement
     public void setDimensions(String width, String height) {
         properties.setProperty(HEIGHT, height);
         properties.setProperty(WIDTH, width);
+    }
+    public void setDimensions(Dimension imageDimension){
+        setDimensions( imageDimension.width, imageDimension.height );
     }
 
     // End required parameters, being optional ones.

@@ -15,6 +15,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -51,10 +52,9 @@ import org.geotools.data.wms.request.GetMapRequest;
  * This lab explores the use of the GeoTools WMS client code.
  * <p>
  * The GeoTools WMS client is a little bit more than simply sending away GetMap
- * request:
- * <ul>
- * <li></li>
- * </ul>
+ * request, the trick is to send the correct GetMap request based on the version
+ * of the web map server specification the server supports, and be able to chose
+ * layers and styles supported by the server.
  * 
  * @author Jody Garnett
  */
@@ -100,7 +100,7 @@ public class WMSLab2 extends JFrame {
         String title = getWMSTitle(wms);
         setTitle(title);
 
-        Set good = WMSUtils.getQueryableLayers(wms.getCapabilities());
+        Set good = new HashSet( Arrays.asList( WMSUtils.getNamedLayers(wms.getCapabilities())));
         this.layers = new JList(good.toArray());
         layers.setCellRenderer(new LayerCellRenderer());
         layers.getSelectionModel().addListSelectionListener(
@@ -153,9 +153,7 @@ public class WMSLab2 extends JFrame {
         this.selectedLayer = selected;
         if (selected != null) {
             // availableStyles.addElement("default");
-            List styles = selected.getStyles();
-            for (Iterator i = styles.iterator(); i.hasNext();) {
-                StyleImpl style = (StyleImpl) i.next();
+            for( StyleImpl style : selected.getStyles() ){
                 availableStyles.addElement(style);
             }
         }
