@@ -8,6 +8,6 @@ Examples
 
    csv2shp
    crslab
-   postgislab
+   querylab
    imagelab
    displaylab
