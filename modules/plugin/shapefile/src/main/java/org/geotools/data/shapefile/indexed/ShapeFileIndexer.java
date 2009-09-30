@@ -176,6 +176,7 @@ public class ShapeFileIndexer implements FileWriter {
                     nodes *= 4;
                 }
                 
+                reader.close();
                 reader = new ShapefileReader(shpFiles, true, false, new GeometryFactory());
             }
             
