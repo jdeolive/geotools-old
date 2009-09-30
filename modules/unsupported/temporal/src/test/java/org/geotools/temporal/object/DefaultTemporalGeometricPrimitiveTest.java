@@ -22,6 +22,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
+
 import org.opengis.temporal.Duration;
 import org.opengis.temporal.Instant;
 import org.opengis.temporal.Position;
@@ -102,4 +103,14 @@ public class DefaultTemporalGeometricPrimitiveTest {
         Duration result = temporalGeomericPrimitive1.length();
         assertFalse(temporalGeomericPrimitive2.length().equals(result));
     }
+
+	/**
+	 * Test comparison of Instants
+	 */
+	@Test
+	public void testCompare() {
+	   assertEquals(-1,((DefaultTemporalPrimitive)temporalGeomericPrimitive1).compareTo(temporalGeomericPrimitive2));
+	   assertEquals(0,((DefaultTemporalPrimitive)temporalGeomericPrimitive1).compareTo(temporalGeomericPrimitive1));
+	   assertEquals(0,((DefaultTemporalPrimitive)temporalGeomericPrimitive2).compareTo(temporalGeomericPrimitive2));
+	}
 }

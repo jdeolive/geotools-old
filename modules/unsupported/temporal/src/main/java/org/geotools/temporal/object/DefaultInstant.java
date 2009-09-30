@@ -16,8 +16,8 @@
  */
 package org.geotools.temporal.object;
 
-import java.util.Calendar;
 import java.util.Collection;
+
 import org.geotools.util.Utilities;
 import org.opengis.temporal.Instant;
 import org.opengis.temporal.Period;

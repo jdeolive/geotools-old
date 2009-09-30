@@ -69,6 +69,7 @@ public class DefaultPositionTest {
         Date result = position1.getDate();
         assertFalse(position2.getDate().equals(result));
     }
+  
 
     /**
      * Test of getTime method, of class DefaultPosition.

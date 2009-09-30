@@ -26,6 +26,7 @@ import org.opengis.temporal.TemporalPrimitive;
  * An abstract class that represents a non-decomposed element of geometry or topology of time.
  * 
  * @author Mehdi Sidhoum (Geomatys)
+ * @author Simone Giannecchini, GeoSolutions SAS
  */
 public abstract class DefaultTemporalPrimitive extends DefaultTemporalObject implements TemporalPrimitive, TemporalOrder, Comparable<TemporalPrimitive> {
 
@@ -35,9 +36,9 @@ public abstract class DefaultTemporalPrimitive extends DefaultTemporalObject imp
 		final RelativePosition pos= this.relativePosition(that);
 		if(pos==null)
 			throw new ClassCastException("The provided object cannot be compared to this one");
-		if(pos==RelativePosition.AFTER)
-			return -1;
 		if(pos==RelativePosition.BEFORE)
+			return -1;
+		if(pos==RelativePosition.AFTER)
 			return +1;
 		
 		if(pos==RelativePosition.EQUALS)

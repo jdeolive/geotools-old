@@ -106,6 +106,17 @@ public class DefaultInstantTest {
         ((DefaultInstant) instant1).setBegunBy(begunby);
         assertEquals(instant1.getBegunBy(), result);
     }
+    
+    
+    /**
+     * Test comparison of Instants
+     */
+    @Test
+    public void testCompare() {
+       assertEquals(1,((DefaultInstant)instant1).compareTo(instant2));
+       assertEquals(0,((DefaultInstant)instant1).compareTo(instant1));
+       assertEquals(0,((DefaultInstant)instant2).compareTo(instant2));
+    }
 
     /**
      * Test of setEndBy method, of class DefaultInstant.
