@@ -29,7 +29,6 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.swing.event.MapMouseAdapter;
 import org.geotools.swing.event.MapMouseEvent;
 import org.geotools.swing.event.MapMouseListener;
-import org.geotools.swing.event.MapPaneListener;
 import org.geotools.map.MapContext;
 import org.geotools.swing.event.MapPaneAdapter;
 import org.geotools.swing.event.MapPaneEvent;
@@ -152,7 +151,9 @@ public class StatusBar extends JPanel {
     }
 
     public void displayCRS(CoordinateReferenceSystem crs) {
-        if (crs != null) {
+        if (crs == null) {
+            spaces[CRS_SPACE].setText("Undefined");
+        } else {
             spaces[CRS_SPACE].setText(crs.getName().toString());
         }
     }
@@ -228,7 +229,11 @@ public class StatusBar extends JPanel {
 
             @Override
             public void onResized(MapPaneEvent ev) {
-                displayBounds(mapPane.getDisplayArea());
+                ReferencedEnvelope env = mapPane.getDisplayArea();
+                if (env != null) {
+                    displayBounds(env);
+                    displayCRS(env.getCoordinateReferenceSystem());
+                }
             }
 
         };

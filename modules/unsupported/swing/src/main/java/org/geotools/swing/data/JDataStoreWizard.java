@@ -17,17 +17,11 @@
 
 package org.geotools.swing.data;
 
-import java.io.File;
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.geotools.data.DataStoreFactorySpi;
-import org.geotools.data.DataUtilities;
-import org.geotools.data.FileDataStoreFactorySpi;
-import org.geotools.data.FileDataStoreFinder;
 import org.geotools.data.DataAccessFactory.Param;
-import org.geotools.swing.wizard.JPage;
 import org.geotools.swing.wizard.JWizard;
 
 /**

@@ -15,7 +15,9 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 /**
- * TableModel that will display a feature collection.
+ * A Swing {@code TableModel} to retrieve attribute values from
+ * each feature in a feature collection and cache them for a
+ * {@code JTable}
  * <p>
  */
 public class FeatureCollectionTableModel extends AbstractTableModel {
@@ -27,13 +29,27 @@ public class FeatureCollectionTableModel extends AbstractTableModel {
 
     public IOException exception;
 
+    /**
+     * A worker class to get the attributes of each feature and load 
+     * them into the {@code TableModel}. The work is performed on a
+     * background thread.
+     */
     class TableWorker extends SwingWorker<List<Object[]>, Object[]> {
         FeatureCollection<SimpleFeatureType,SimpleFeature> features;
-        
+
+        /**
+         * Constructor
+         *
+         * @param features the feature collection to be loaded into the table
+         */
         TableWorker( FeatureCollection<SimpleFeatureType,SimpleFeature> features ) { 
             this.features = features;            
         }
-        
+
+        /**
+         * {@code SwingWorker} method to visit each feature and retrieve
+         * its attributes
+         */
         public List<Object[]> doInBackground() {
             List<Object[]> list = new ArrayList<Object[]>();
             
@@ -53,6 +69,13 @@ public class FeatureCollectionTableModel extends AbstractTableModel {
             }           
             return list;
         }
+
+        /**
+         * Add a batch of feature data to the table
+         *
+         * @param chunks batch of feature data
+         */
+        @Override
         protected void process(List<Object[]> chunks) {            
             int from = cache.size();
             cache.addAll( chunks );
@@ -60,24 +83,44 @@ public class FeatureCollectionTableModel extends AbstractTableModel {
             fireTableRowsInserted( from, to );
         }        
     }
+
     TableWorker load;
+
     /**
-     * @param features
+     * Constructor
+     *
+     * @param features the feature collection to load into the table
      */
     public FeatureCollectionTableModel( FeatureCollection<SimpleFeatureType,SimpleFeature> features ){
         this.load = new TableWorker( features );
         load.execute();
         this.schema = features.getSchema();
     }
-    
+
+    /**
+     * Cancel the running job, if any
+     */
     public void dispose() {
         load.cancel(false);        
     }
-    
+
+    /**
+     * Retrieve the specified column name
+     *
+     * @param column column index
+     *
+     * @return the column name
+     */
+    @Override
     public String getColumnName(int column) {
         return schema.getDescriptor( column ).getLocalName();
     }
-    
+
+    /**
+     * Get the number of columns in the table
+     *
+     * @return the number of columns
+     */
     public int getColumnCount() {
         if( exception != null ){
             return 1;
@@ -85,6 +128,11 @@ public class FeatureCollectionTableModel extends AbstractTableModel {
         return schema.getAttributeCount();
     }
 
+    /**
+     * Get the number of rows in the table
+     *
+     * @return the number of rows
+     */
     public int getRowCount() {
         if( exception != null ){
             return 1;
@@ -92,6 +140,14 @@ public class FeatureCollectionTableModel extends AbstractTableModel {
         return cache.size();
     }
 
+    /**
+     * Get the value of a specified table entry
+     *
+     * @param rowIndex the row index
+     * @param columnIndex the column index
+     *
+     * @return the table entry
+     */
     public Object getValueAt(int rowIndex, int columnIndex) {
         if ( rowIndex < cache.size() ){
             Object row[] = cache.get( rowIndex );
