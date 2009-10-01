@@ -16,6 +16,7 @@
  */
 package org.geotools.referencing;
 
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Collection;
@@ -74,7 +75,7 @@ public final class FactoriesTest {
     /**
      * The output stream. Can be redirected to the standard output stream for debugging.
      */
-    private static PrintWriter out = new PrintWriter(new StringWriter());
+    private static PrintStream out = System.out;
 
     /**
      * Convenience method creating a map with only the "name" property.
@@ -248,7 +249,8 @@ public final class FactoriesTest {
     public void testDatumAliases() throws FactoryException {
         final String           name0 = "Nouvelle Triangulation Francaise (Paris)";
         final String           name1 = "Nouvelle_Triangulation_Francaise_Paris";
-        final String           name2 = "NTF (Paris meridian)";
+        final String           name2 = "D_NTF";
+        final String           name3 = "NTF (Paris meridian)";
         final Ellipsoid    ellipsoid = DefaultEllipsoid.WGS84;
         final PrimeMeridian meridian = DefaultPrimeMeridian.GREENWICH;
         DatumFactory         factory = new ReferencingObjectFactory();
@@ -266,13 +268,15 @@ public final class FactoriesTest {
             final String pass = "Pass #"+i;
             datum = factory.createGeodeticDatum(properties, ellipsoid, meridian);
             final GenericName[] aliases = datum.getAlias().toArray(new GenericName[0]);
-            assertEquals(pass, 3, aliases.length);
+            assertEquals(pass, 4, aliases.length);
             assertEquals(pass, name0, aliases[0].tip().toString());
             assertEquals(pass, name1, aliases[1].tip().toString());
             assertEquals(pass, name2, aliases[2].tip().toString());
+            assertEquals(pass, name3, aliases[3].tip().toString());
             assertTrue  (pass, aliases[0] instanceof ScopedName);
             assertTrue  (pass, aliases[1] instanceof ScopedName);
             assertTrue  (pass, aliases[2] instanceof ScopedName);
+            assertTrue  (pass, aliases[3] instanceof ScopedName);
         }
 
         datum = factory.createGeodeticDatum(Collections.singletonMap("name", "Tokyo"), ellipsoid, meridian);
