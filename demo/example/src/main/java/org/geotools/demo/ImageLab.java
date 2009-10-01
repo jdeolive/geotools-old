@@ -1,3 +1,4 @@
+// docs start source
 /*
  *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
@@ -52,7 +53,13 @@ public class ImageLab {
         ImageLab me = new ImageLab();
         me.getLayersAndDisplay();
     }
+// docs end main
 
+// docs start get layers
+    /**
+     * Prompts the user for a GeoTIFF file and a Shapefile and passes
+     * them to the displayLayers method
+     */
     private void getLayersAndDisplay() throws Exception {
         DataWizard wizard = new DataWizard("ImageLab");
         int rtnVal = wizard.showModalDialog();
@@ -62,8 +69,19 @@ public class ImageLab {
 
         displayLayers(wizard.getRasterFile(), wizard.getShapefile());
     }
-    
+// docs end get layers
+
+// docs start display layers
+    /**
+     * Displays a GeoTIFF file overlaid with a Shapefile
+     *
+     * @param rasterFile the GeoTIFF file
+     * @param shpFile the Shapefile
+     */
     private void displayLayers(File rasterFile, File shpFile) throws Exception {
+        /*
+         * Connect to the GeoTIFF file using a GeoTiffReader
+         */
         GeoTiffReader geotiffReader;
         try {
             geotiffReader = new GeoTiffReader(rasterFile);
@@ -73,27 +91,39 @@ public class ImageLab {
             return;
         }
 
+        /*
+         * Create a Style that will be used to display the raster data
+         */
         Style rasterStyle = createRGBStyle(geotiffReader);
         if (rasterStyle == null) {
             // input coverage didn't have bands labelled "red", "green", "blue"
             return;
         }
 
+        /*
+         * Connect to the shapefile
+         */
         FileDataStore dataStore = FileDataStoreFinder.getDataStore(shpFile);
         FeatureSource<SimpleFeatureType, SimpleFeature> shapefileSource = dataStore.getFeatureSource();
 
+        /*
+         * Create a basic style with yellow lines and no fill
+         */
         Style shpStyle = SLD.createPolygonStyle(Color.YELLOW, null, 0.0f);
 
+        /*
+         * Set up a MapContext with the two layers and display it
+         */
         MapContext map = new DefaultMapContext();
-        map.setTitle("My coverage");
-
+        map.setTitle("ImageLab");
         map.addLayer(geotiffReader, rasterStyle);
         map.addLayer(shapefileSource, shpStyle);
 
         JMapFrame.showMap(map);
     }
+// docs end display layers
 
-
+// docs start create style
     /**
      * This method examines the names of the sample dimensions in the provided coverage
      * looking for "red...", "green..." and "blue..." (case insensitive match). It then
@@ -141,15 +171,18 @@ public class ImageLab {
 
         return SLD.wrapSymbolizers(sym);
     }
+// docs end create style
 
-
+// docs start wizard
+    /**
+     * Wizard used to prompt for the input files
+     */
     class DataWizard extends JWizard {
 
         DataPage page;
 
         public DataWizard(String title) {
             super(title);
-            
             page = new DataPage();
             this.registerWizardPanel(page);
         }
@@ -159,6 +192,9 @@ public class ImageLab {
         File getShapefile() { return page.shapeFile; }
     }
 
+    /*
+     * The single page for the input file wizard
+     */
     class DataPage extends JPage {
 
         JTextField rasterTxt;
@@ -230,3 +266,4 @@ public class ImageLab {
 
     }
 }
+// docs end source
