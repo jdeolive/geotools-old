@@ -381,7 +381,7 @@ public abstract class MathTransformProvider extends DefaultOperationMethod {
      * @return The requested parameter value.
      * @throws ParameterNotFoundException if the parameter is not found.
      */
-    private static <T> ParameterValue<T> getParameter(final ParameterDescriptor<T> param,
+    protected static <T> ParameterValue<T> getParameter(final ParameterDescriptor<T> param,
                                                       final ParameterValueGroup    group)
             throws ParameterNotFoundException
     {
