@@ -12,7 +12,7 @@ import org.eclipse.emf.ecore.EObject;
 
 /**
  * <!-- begin-user-doc -->
- * A representation of the model object '<em><b>UO Ms Type</b></em>'.
+ * A representation of the model object '<em><b>UOMs Type</b></em>'.
  * <!-- end-user-doc -->
  *
  * <!-- begin-model-doc -->
@@ -41,9 +41,7 @@ public interface UOMsType extends EObject {
      * <!-- end-model-doc -->
      * @return the value of the '<em>UOM</em>' containment reference list.
      * @see net.opengis.wps10.Wps10Package#getUOMsType_UOM()
-     * @model type="net.opengis.ows11.DomainMetadataType" containment="true" required="true"
-     *        extendedMetaData="kind='element' name='UOM' namespace='http://www.opengis.net/ows/1.1'"
-     * @generated
+     * @model type="javax.measure.unit.Unit"
      */
     EList getUOM();
 

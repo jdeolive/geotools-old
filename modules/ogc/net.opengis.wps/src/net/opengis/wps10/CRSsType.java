@@ -10,7 +10,7 @@ import org.eclipse.emf.ecore.EObject;
 
 /**
  * <!-- begin-user-doc -->
- * A representation of the model object '<em><b>CR Ss Type</b></em>'.
+ * A representation of the model object '<em><b>CRSs Type</b></em>'.
  * <!-- end-user-doc -->
  *
  * <!-- begin-model-doc -->

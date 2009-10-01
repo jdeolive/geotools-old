@@ -8,6 +8,7 @@ package net.opengis.wps10.util;
 
 import java.util.List;
 
+import javax.measure.unit.Unit;
 import net.opengis.ows11.CapabilitiesBaseType;
 
 import net.opengis.wps10.*;
@@ -1241,6 +1242,21 @@ public class Wps10Switch {
      * @generated
      */
     public Object caseWSDLType(WSDLType object) {
+        return null;
+    }
+
+    /**
+     * Returns the result of interpreting the object as an instance of '<em>Unit</em>'.
+     * <!-- begin-user-doc -->
+     * This implementation returns null;
+     * returning a non-null result will terminate the switch.
+     * <!-- end-user-doc -->
+     * @param object the target of the switch.
+     * @return the result of interpreting the object as an instance of '<em>Unit</em>'.
+     * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
+     * @generated
+     */
+    public Object caseUnit(Unit object) {
         return null;
     }
 

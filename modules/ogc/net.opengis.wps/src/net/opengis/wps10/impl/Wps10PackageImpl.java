@@ -8,6 +8,7 @@ package net.opengis.wps10.impl;
 
 import java.math.BigInteger;
 
+import javax.measure.unit.Unit;
 import net.opengis.ows11.Ows11Package;
 
 import net.opengis.wps10.BodyReferenceType;
@@ -473,6 +474,13 @@ public class Wps10PackageImpl extends EPackageImpl implements Wps10Package {
      * <!-- end-user-doc -->
      * @generated
      */
+    private EClass unitEClass = null;
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
     private EEnum methodTypeEEnum = null;
 
     /**
@@ -516,20 +524,10 @@ public class Wps10PackageImpl extends EPackageImpl implements Wps10Package {
     private static boolean isInited = false;
 
     /**
-     * Creates, registers, and initializes the <b>Package</b> for this
-     * model, and for any others upon which it depends.  Simple
-     * dependencies are satisfied by calling this method on all
-     * dependent packages before doing anything else.  This method drives
-     * initialization for interdependent packages directly, in parallel
-     * with this package, itself.
-     * <p>Of this package and its interdependencies, all packages which
-     * have not yet been registered by their URI values are first created
-     * and registered.  The packages are then initialized in two steps:
-     * meta-model objects for all of the packages are created before any
-     * are initialized, since one package's meta-model objects may refer to
-     * those of another.
-     * <p>Invocation of this method will not affect any packages that have
-     * already been initialized.
+     * Creates, registers, and initializes the <b>Package</b> for this model, and for any others upon which it depends.
+     * 
+     * <p>This method is used to initialize {@link Wps10Package#eINSTANCE} when that field is accessed.
+     * Clients should not invoke it directly. Instead, they should simply access that field to obtain the package.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @see #eNS_URI
@@ -541,7 +539,7 @@ public class Wps10PackageImpl extends EPackageImpl implements Wps10Package {
         if (isInited) return (Wps10Package)EPackage.Registry.INSTANCE.getEPackage(Wps10Package.eNS_URI);
 
         // Obtain or create and register package
-        Wps10PackageImpl theWps10Package = (Wps10PackageImpl)(EPackage.Registry.INSTANCE.getEPackage(eNS_URI) instanceof Wps10PackageImpl ? EPackage.Registry.INSTANCE.getEPackage(eNS_URI) : new Wps10PackageImpl());
+        Wps10PackageImpl theWps10Package = (Wps10PackageImpl)(EPackage.Registry.INSTANCE.get(eNS_URI) instanceof Wps10PackageImpl ? EPackage.Registry.INSTANCE.get(eNS_URI) : new Wps10PackageImpl());
 
         isInited = true;
 
@@ -566,6 +564,9 @@ public class Wps10PackageImpl extends EPackageImpl implements Wps10Package {
         // Mark meta-data to indicate it can't be changed
         theWps10Package.freeze();
 
+  
+        // Update the registry and return the package
+        EPackage.Registry.INSTANCE.put(Wps10Package.eNS_URI, theWps10Package);
         return theWps10Package;
     }
 
@@ -2410,6 +2411,15 @@ public class Wps10PackageImpl extends EPackageImpl implements Wps10Package {
      * <!-- end-user-doc -->
      * @generated
      */
+    public EClass getUnit() {
+        return unitEClass;
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
     public EEnum getMethodType() {
         return methodTypeEEnum;
     }
@@ -2718,6 +2728,8 @@ public class Wps10PackageImpl extends EPackageImpl implements Wps10Package {
         wsdlTypeEClass = createEClass(WSDL_TYPE);
         createEAttribute(wsdlTypeEClass, WSDL_TYPE__HREF);
 
+        unitEClass = createEClass(UNIT);
+
         // Create enums
         methodTypeEEnum = createEEnum(METHOD_TYPE);
 
@@ -2809,7 +2821,7 @@ public class Wps10PackageImpl extends EPackageImpl implements Wps10Package {
         initEAttribute(getDefaultType_CRS(), theXMLTypePackage.getAnyURI(), "cRS", null, 1, 1, DefaultType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
         initEClass(defaultType1EClass, DefaultType1.class, "DefaultType1", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-        initEReference(getDefaultType1_UOM(), theOws11Package.getDomainMetadataType(), null, "uOM", null, 1, 1, DefaultType1.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEReference(getDefaultType1_UOM(), this.getUnit(), null, "uOM", null, 0, 1, DefaultType1.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
         initEClass(defaultType2EClass, DefaultType2.class, "DefaultType2", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
         initEAttribute(getDefaultType2_Language(), theXMLTypePackage.getLanguage(), "language", null, 1, 1, DefaultType2.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -3013,7 +3025,7 @@ public class Wps10PackageImpl extends EPackageImpl implements Wps10Package {
         initEReference(getSupportedUOMsType_Supported(), this.getUOMsType(), null, "supported", null, 1, 1, SupportedUOMsType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
         initEClass(uoMsTypeEClass, UOMsType.class, "UOMsType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-        initEReference(getUOMsType_UOM(), theOws11Package.getDomainMetadataType(), null, "uOM", null, 1, -1, UOMsType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEReference(getUOMsType_UOM(), this.getUnit(), null, "uOM", null, 0, -1, UOMsType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
         initEClass(valuesReferenceTypeEClass, ValuesReferenceType.class, "ValuesReferenceType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
         initEAttribute(getValuesReferenceType_Reference(), theXMLTypePackage.getAnyURI(), "reference", null, 0, 1, ValuesReferenceType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -3028,6 +3040,8 @@ public class Wps10PackageImpl extends EPackageImpl implements Wps10Package {
 
         initEClass(wsdlTypeEClass, WSDLType.class, "WSDLType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
         initEAttribute(getWSDLType_Href(), theXMLTypePackage.getAnyURI(), "href", null, 1, 1, WSDLType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+
+        initEClass(unitEClass, Unit.class, "Unit", IS_ABSTRACT, IS_INTERFACE, !IS_GENERATED_INSTANCE_CLASS);
 
         // Initialize enums and add enum literals
         initEEnum(methodTypeEEnum, MethodType.class, "MethodType");
@@ -3063,7 +3077,7 @@ public class Wps10PackageImpl extends EPackageImpl implements Wps10Package {
            source, 
            new String[] {
              "appinfo", "xlinks.xsd v3.0b2 2001-07"
-           });																																																																																																																																																																																																																																																																																																																																																																																												
+           });																																																																																																																																																																																																																																																																																																																																																																																										
     }
 
     /**
@@ -3079,7 +3093,7 @@ public class Wps10PackageImpl extends EPackageImpl implements Wps10Package {
            source, 
            new String[] {
              "lang", "en"
-           });																																																																																																																																																																																																																																																																																																																																																																																											
+           });																																																																																																																																																																																																																																																																																																																																																																																									
     }
 
     /**
@@ -3283,14 +3297,6 @@ public class Wps10PackageImpl extends EPackageImpl implements Wps10Package {
            new String[] {
              "name", "Default_._2_._type",
              "kind", "elementOnly"
-           });		
-        addAnnotation
-          (getDefaultType1_UOM(), 
-           source, 
-           new String[] {
-             "kind", "element",
-             "name", "UOM",
-             "namespace", "http://www.opengis.net/ows/1.1"
            });			
         addAnnotation
           (defaultType2EClass, 
@@ -4471,15 +4477,7 @@ public class Wps10PackageImpl extends EPackageImpl implements Wps10Package {
            new String[] {
              "name", "UOMsType",
              "kind", "elementOnly"
-           });			
-        addAnnotation
-          (getUOMsType_UOM(), 
-           source, 
-           new String[] {
-             "kind", "element",
-             "name", "UOM",
-             "namespace", "http://www.opengis.net/ows/1.1"
-           });			
+           });				
         addAnnotation
           (valuesReferenceTypeEClass, 
            source, 

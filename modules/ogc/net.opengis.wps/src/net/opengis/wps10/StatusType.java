@@ -174,13 +174,13 @@ public interface StatusType extends EObject {
      * The time (UTC) that the process finished.  If the process is still executing or awaiting execution, this element shall contain the creation time of this document.
      * <!-- end-model-doc -->
      * @return the value of the '<em>Creation Time</em>' attribute.
-     * @see #setCreationTime(XMLGregorianCalendar)
+     * @see #setCreationTime(Object)
      * @see net.opengis.wps10.Wps10Package#getStatusType_CreationTime()
      * @model dataType="org.eclipse.emf.ecore.xml.type.DateTime" required="true"
      *        extendedMetaData="kind='attribute' name='creationTime'"
      * @generated
      */
-    XMLGregorianCalendar getCreationTime();
+    Object getCreationTime();
 
     /**
      * Sets the value of the '{@link net.opengis.wps10.StatusType#getCreationTime <em>Creation Time</em>}' attribute.
@@ -190,6 +190,6 @@ public interface StatusType extends EObject {
      * @see #getCreationTime()
      * @generated
      */
-    void setCreationTime(XMLGregorianCalendar value);
+    void setCreationTime(Object value);
 
 } // StatusType

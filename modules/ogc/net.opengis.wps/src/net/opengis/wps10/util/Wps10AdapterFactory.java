@@ -6,6 +6,7 @@
  */
 package net.opengis.wps10.util;
 
+import javax.measure.unit.Unit;
 import net.opengis.ows11.CapabilitiesBaseType;
 
 import net.opengis.wps10.*;
@@ -235,6 +236,9 @@ public class Wps10AdapterFactory extends AdapterFactoryImpl {
             }
             public Object caseWSDLType(WSDLType object) {
                 return createWSDLTypeAdapter();
+            }
+            public Object caseUnit(Unit object) {
+                return createUnitAdapter();
             }
             public Object caseAnyType(AnyType object) {
                 return createAnyTypeAdapter();
@@ -1013,6 +1017,20 @@ public class Wps10AdapterFactory extends AdapterFactoryImpl {
      * @generated
      */
     public Adapter createWSDLTypeAdapter() {
+        return null;
+    }
+
+    /**
+     * Creates a new adapter for an object of class '{@link javax.measure.unit.Unit <em>Unit</em>}'.
+     * <!-- begin-user-doc -->
+     * This default implementation returns null so that we can easily ignore cases;
+     * it's useful to ignore a case when inheritance will catch all the cases anyway.
+     * <!-- end-user-doc -->
+     * @return the new adapter.
+     * @see javax.measure.unit.Unit
+     * @generated
+     */
+    public Adapter createUnitAdapter() {
         return null;
     }
 

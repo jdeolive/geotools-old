@@ -8,6 +8,7 @@ package net.opengis.wps10.impl;
 
 import java.util.Collection;
 
+import javax.measure.unit.Unit;
 import net.opengis.ows11.DomainMetadataType;
 
 import net.opengis.wps10.UOMsType;
@@ -22,6 +23,7 @@ import org.eclipse.emf.ecore.InternalEObject;
 
 import org.eclipse.emf.ecore.impl.EObjectImpl;
 
+import org.eclipse.emf.ecore.util.EObjectResolvingEList;
 import org.eclipse.emf.ecore.util.EObjectContainmentEList;
 import org.eclipse.emf.ecore.util.InternalEList;
 
@@ -40,7 +42,7 @@ import org.eclipse.emf.ecore.util.InternalEList;
  */
 public class UOMsTypeImpl extends EObjectImpl implements UOMsType {
     /**
-     * The cached value of the '{@link #getUOM() <em>UOM</em>}' containment reference list.
+     * The cached value of the '{@link #getUOM() <em>UOM</em>}' reference list.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @see #getUOM()
@@ -74,22 +76,9 @@ public class UOMsTypeImpl extends EObjectImpl implements UOMsType {
      */
     public EList getUOM() {
         if (uOM == null) {
-            uOM = new EObjectContainmentEList(DomainMetadataType.class, this, Wps10Package.UO_MS_TYPE__UOM);
+            uOM = new EObjectResolvingEList(Unit.class, this, Wps10Package.UO_MS_TYPE__UOM);
         }
         return uOM;
-    }
-
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
-        switch (featureID) {
-            case Wps10Package.UO_MS_TYPE__UOM:
-                return ((InternalEList)getUOM()).basicRemove(otherEnd, msgs);
-        }
-        return super.eInverseRemove(otherEnd, featureID, msgs);
     }
 
     /**

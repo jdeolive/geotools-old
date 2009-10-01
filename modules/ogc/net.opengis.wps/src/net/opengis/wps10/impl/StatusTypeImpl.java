@@ -119,7 +119,7 @@ public class StatusTypeImpl extends EObjectImpl implements StatusType {
      * @generated
      * @ordered
      */
-    protected static final XMLGregorianCalendar CREATION_TIME_EDEFAULT = null;
+    protected static final Object CREATION_TIME_EDEFAULT = null;
 
     /**
      * The cached value of the '{@link #getCreationTime() <em>Creation Time</em>}' attribute.
@@ -129,7 +129,7 @@ public class StatusTypeImpl extends EObjectImpl implements StatusType {
      * @generated
      * @ordered
      */
-    protected XMLGregorianCalendar creationTime = CREATION_TIME_EDEFAULT;
+    protected Object creationTime = CREATION_TIME_EDEFAULT;
 
     /**
      * <!-- begin-user-doc -->
@@ -325,7 +325,7 @@ public class StatusTypeImpl extends EObjectImpl implements StatusType {
      * <!-- end-user-doc -->
      * @generated
      */
-    public XMLGregorianCalendar getCreationTime() {
+    public Object getCreationTime() {
         return creationTime;
     }
 
@@ -334,8 +334,8 @@ public class StatusTypeImpl extends EObjectImpl implements StatusType {
      * <!-- end-user-doc -->
      * @generated
      */
-    public void setCreationTime(XMLGregorianCalendar newCreationTime) {
-        XMLGregorianCalendar oldCreationTime = creationTime;
+    public void setCreationTime(Object newCreationTime) {
+        Object oldCreationTime = creationTime;
         creationTime = newCreationTime;
         if (eNotificationRequired())
             eNotify(new ENotificationImpl(this, Notification.SET, Wps10Package.STATUS_TYPE__CREATION_TIME, oldCreationTime, creationTime));
@@ -404,7 +404,7 @@ public class StatusTypeImpl extends EObjectImpl implements StatusType {
                 setProcessFailed((ProcessFailedType)newValue);
                 return;
             case Wps10Package.STATUS_TYPE__CREATION_TIME:
-                setCreationTime((XMLGregorianCalendar)newValue);
+                setCreationTime(newValue);
                 return;
         }
         super.eSet(featureID, newValue);

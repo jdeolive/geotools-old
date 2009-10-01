@@ -663,7 +663,7 @@ public interface Wps10Package extends EPackage {
     int DEFAULT_TYPE1 = 10;
 
     /**
-     * The feature id for the '<em><b>UOM</b></em>' containment reference.
+     * The feature id for the '<em><b>UOM</b></em>' reference.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @generated
@@ -2953,7 +2953,7 @@ public interface Wps10Package extends EPackage {
     int UO_MS_TYPE = 50;
 
     /**
-     * The feature id for the '<em><b>UOM</b></em>' containment reference list.
+     * The feature id for the '<em><b>UOM</b></em>' reference list.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @generated
@@ -3145,6 +3145,25 @@ public interface Wps10Package extends EPackage {
     int WSDL_TYPE_FEATURE_COUNT = 1;
 
     /**
+     * The meta object id for the '{@link javax.measure.unit.Unit <em>Unit</em>}' class.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @see javax.measure.unit.Unit
+     * @see net.opengis.wps10.impl.Wps10PackageImpl#getUnit()
+     * @generated
+     */
+    int UNIT = 54;
+
+    /**
+     * The number of structural features of the '<em>Unit</em>' class.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     * @ordered
+     */
+    int UNIT_FEATURE_COUNT = 0;
+
+    /**
      * The meta object id for the '{@link net.opengis.wps10.MethodType <em>Method Type</em>}' enum.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
@@ -3152,7 +3171,7 @@ public interface Wps10Package extends EPackage {
      * @see net.opengis.wps10.impl.Wps10PackageImpl#getMethodType()
      * @generated
      */
-    int METHOD_TYPE = 54;
+    int METHOD_TYPE = 55;
 
     /**
      * The meta object id for the '<em>Method Type Object</em>' data type.
@@ -3162,7 +3181,7 @@ public interface Wps10Package extends EPackage {
      * @see net.opengis.wps10.impl.Wps10PackageImpl#getMethodTypeObject()
      * @generated
      */
-    int METHOD_TYPE_OBJECT = 55;
+    int METHOD_TYPE_OBJECT = 56;
 
     /**
      * The meta object id for the '<em>Percent Completed Type</em>' data type.
@@ -3172,7 +3191,7 @@ public interface Wps10Package extends EPackage {
      * @see net.opengis.wps10.impl.Wps10PackageImpl#getPercentCompletedType()
      * @generated
      */
-    int PERCENT_COMPLETED_TYPE = 56;
+    int PERCENT_COMPLETED_TYPE = 57;
 
 
     /**
@@ -3473,10 +3492,10 @@ public interface Wps10Package extends EPackage {
     EClass getDefaultType1();
 
     /**
-     * Returns the meta object for the containment reference '{@link net.opengis.wps10.DefaultType1#getUOM <em>UOM</em>}'.
+     * Returns the meta object for the reference '{@link net.opengis.wps10.DefaultType1#getUOM <em>UOM</em>}'.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @return the meta object for the containment reference '<em>UOM</em>'.
+     * @return the meta object for the reference '<em>UOM</em>'.
      * @see net.opengis.wps10.DefaultType1#getUOM()
      * @see #getDefaultType1()
      * @generated
@@ -5237,10 +5256,10 @@ public interface Wps10Package extends EPackage {
     EClass getUOMsType();
 
     /**
-     * Returns the meta object for the containment reference list '{@link net.opengis.wps10.UOMsType#getUOM <em>UOM</em>}'.
+     * Returns the meta object for the reference list '{@link net.opengis.wps10.UOMsType#getUOM <em>UOM</em>}'.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @return the meta object for the containment reference list '<em>UOM</em>'.
+     * @return the meta object for the reference list '<em>UOM</em>'.
      * @see net.opengis.wps10.UOMsType#getUOM()
      * @see #getUOMsType()
      * @generated
@@ -5364,6 +5383,17 @@ public interface Wps10Package extends EPackage {
      * @generated
      */
     EAttribute getWSDLType_Href();
+
+    /**
+     * Returns the meta object for class '{@link javax.measure.unit.Unit <em>Unit</em>}'.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @return the meta object for class '<em>Unit</em>'.
+     * @see javax.measure.unit.Unit
+     * @model instanceClass="javax.measure.unit.Unit"
+     * @generated
+     */
+    EClass getUnit();
 
     /**
      * Returns the meta object for enum '{@link net.opengis.wps10.MethodType <em>Method Type</em>}'.
@@ -5668,7 +5698,7 @@ public interface Wps10Package extends EPackage {
         EClass DEFAULT_TYPE1 = eINSTANCE.getDefaultType1();
 
         /**
-         * The meta object literal for the '<em><b>UOM</b></em>' containment reference feature.
+         * The meta object literal for the '<em><b>UOM</b></em>' reference feature.
          * <!-- begin-user-doc -->
          * <!-- end-user-doc -->
          * @generated
@@ -7060,7 +7090,7 @@ public interface Wps10Package extends EPackage {
         EClass UO_MS_TYPE = eINSTANCE.getUOMsType();
 
         /**
-         * The meta object literal for the '<em><b>UOM</b></em>' containment reference list feature.
+         * The meta object literal for the '<em><b>UOM</b></em>' reference list feature.
          * <!-- begin-user-doc -->
          * <!-- end-user-doc -->
          * @generated
@@ -7160,6 +7190,16 @@ public interface Wps10Package extends EPackage {
          * @generated
          */
         EAttribute WSDL_TYPE__HREF = eINSTANCE.getWSDLType_Href();
+
+        /**
+         * The meta object literal for the '{@link javax.measure.unit.Unit <em>Unit</em>}' class.
+         * <!-- begin-user-doc -->
+         * <!-- end-user-doc -->
+         * @see javax.measure.unit.Unit
+         * @see net.opengis.wps10.impl.Wps10PackageImpl#getUnit()
+         * @generated
+         */
+        EClass UNIT = eINSTANCE.getUnit();
 
         /**
          * The meta object literal for the '{@link net.opengis.wps10.MethodType <em>Method Type</em>}' enum.

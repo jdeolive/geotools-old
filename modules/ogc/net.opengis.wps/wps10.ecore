@@ -17,7 +17,7 @@
       <details key="name" value="BodyReference_._type"/>
       <details key="kind" value="empty"/>
     </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="href" lowerBound="1" eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="href" lowerBound="1" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="attribute"/>
         <details key="name" value="href"/>
@@ -84,7 +84,7 @@
         <details key="documentation" value="Mime type supported for this input or output (e.g., text/xml)."/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="encoding" eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="encoding" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="element"/>
         <details key="name" value="Encoding"/>
@@ -93,7 +93,7 @@
         <details key="documentation" value="Reference to an encoding supported for this input or output (e.g., UTF-8).  This element shall be omitted if Encoding does not apply to this Input/Output."/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="schema" eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="schema" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="element"/>
         <details key="name" value="Schema"/>
@@ -103,7 +103,7 @@
       </eAnnotations>
     </eStructuralFeatures>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="ComplexDataType" eSuperTypes="../org.eclipse.emf.ecore/model/XMLType.ecore#//AnyType">
+  <eClassifiers xsi:type="ecore:EClass" name="ComplexDataType" eSuperTypes="platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//AnyType">
     <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
       <details key="name" value="ComplexDataType"/>
       <details key="kind" value="mixed"/>
@@ -111,7 +111,7 @@
     <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
       <details key="documentation" value="Complex data (such as an image), including a definition of the complex value data structure (i.e., schema, format, and encoding).  May be an ows:Manifest data structure."/>
     </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="encoding" eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="encoding" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="attribute"/>
         <details key="name" value="encoding"/>
@@ -129,7 +129,7 @@
         <details key="documentation" value="The Format of this input or requested for this output (e.g., text/xml). This element shall be omitted when the Format is indicated in the http header of the output. When included, this format shall be one published for this output or input in the Process full description."/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="schema" eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="schema" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="attribute"/>
         <details key="name" value="schema"/>
@@ -149,7 +149,7 @@
       <details key="documentation" value="Identifies a Coordinate Reference System (CRS) supported for this input or output."/>
     </eAnnotations>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="cRS" unique="false" lowerBound="1"
-        eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
+        eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="element"/>
         <details key="name" value="CRS"/>
@@ -242,7 +242,7 @@
       <details key="name" value="Default_._1_._type"/>
       <details key="kind" value="elementOnly"/>
     </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="cRS" lowerBound="1" eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="cRS" lowerBound="1" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="element"/>
         <details key="name" value="CRS"/>
@@ -257,13 +257,7 @@
       <details key="name" value="Default_._2_._type"/>
       <details key="kind" value="elementOnly"/>
     </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="uOM" lowerBound="1" eType="ecore:EClass ../net.opengis.ows/ows11.ecore#//DomainMetadataType"
-        containment="true" resolveProxies="false">
-      <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
-        <details key="kind" value="element"/>
-        <details key="name" value="UOM"/>
-        <details key="namespace" value="http://www.opengis.net/ows/1.1"/>
-      </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="uOM" eType="#//Unit">
       <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
         <details key="documentation" value="Reference to the default UOM supported for this Input/Output"/>
       </eAnnotations>
@@ -275,7 +269,7 @@
       <details key="kind" value="elementOnly"/>
     </eAnnotations>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="language" lowerBound="1"
-        eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//Language">
+        eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//Language">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="element"/>
         <details key="name" value="Language"/>
@@ -389,7 +383,7 @@
         <details key="documentation" value="Brief narrative description of a process output, normally available for display to a human. This element should be used if the client wishes to customize the Abstract in the execute response. This element should not be used if the Abstract provided for this output in the ProcessDescription is adequate."/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="asReference" eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//Boolean"
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="asReference" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//Boolean"
         defaultValueLiteral="false" unsettable="true">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="attribute"/>
@@ -406,14 +400,14 @@
       <details key="kind" value="mixed"/>
     </eAnnotations>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="mixed" unique="false" upperBound="-1"
-        eType="ecore:EDataType ../org.eclipse.emf.ecore/model/Ecore.ecore#//EFeatureMapEntry">
+        eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/Ecore.ecore#//EFeatureMapEntry">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="elementWildcard"/>
         <details key="name" value=":mixed"/>
       </eAnnotations>
     </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EReference" name="xMLNSPrefixMap" upperBound="-1"
-        eType="ecore:EClass ../org.eclipse.emf.ecore/model/Ecore.ecore#//EStringToStringMapEntry"
+        eType="ecore:EClass platform:/plugin/org.eclipse.emf.ecore/model/Ecore.ecore#//EStringToStringMapEntry"
         transient="true" containment="true" resolveProxies="false">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="attribute"/>
@@ -421,7 +415,7 @@
       </eAnnotations>
     </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EReference" name="xSISchemaLocation" upperBound="-1"
-        eType="ecore:EClass ../org.eclipse.emf.ecore/model/Ecore.ecore#//EStringToStringMapEntry"
+        eType="ecore:EClass platform:/plugin/org.eclipse.emf.ecore/model/Ecore.ecore#//EStringToStringMapEntry"
         transient="true" containment="true" resolveProxies="false">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="attribute"/>
@@ -532,7 +526,7 @@
         <details key="documentation" value="Location of a WSDL document."/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="processVersion" eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//String">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="processVersion" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//String">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="attribute"/>
         <details key="name" value="processVersion"/>
@@ -604,7 +598,7 @@
       </eAnnotations>
     </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="serviceInstance" lowerBound="1"
-        eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
+        eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="attribute"/>
         <details key="name" value="serviceInstance"/>
@@ -613,7 +607,7 @@
         <details key="documentation" value="This attribute shall contain the GetCapabilities URL of the WPS service which was invoked"/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="statusLocation" eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="statusLocation" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="attribute"/>
         <details key="name" value="statusLocation"/>
@@ -679,7 +673,7 @@
         <details key="documentation" value="When omitted, server shall return latest supported version."/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="language" eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//String">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="language" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//String">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="attribute"/>
         <details key="name" value="language"/>
@@ -706,7 +700,7 @@
       <details key="name" value="Header_._type"/>
       <details key="kind" value="empty"/>
     </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="key" lowerBound="1" eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//String">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="key" lowerBound="1" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//String">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="attribute"/>
         <details key="name" value="key"/>
@@ -715,7 +709,7 @@
         <details key="documentation" value="Key portion of the Key-Value pair in the HTTP request header."/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="value" lowerBound="1" eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//String">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="value" lowerBound="1" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//String">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="attribute"/>
         <details key="name" value="value"/>
@@ -764,7 +758,7 @@
       </eAnnotations>
     </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="maxOccurs" lowerBound="1"
-        eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//PositiveInteger">
+        eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//PositiveInteger">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="attribute"/>
         <details key="name" value="maxOccurs"/>
@@ -774,7 +768,7 @@
       </eAnnotations>
     </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="minOccurs" lowerBound="1"
-        eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//NonNegativeInteger">
+        eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//NonNegativeInteger">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="attribute"/>
         <details key="name" value="minOccurs"/>
@@ -803,7 +797,7 @@
         <details key="documentation" value="Extra HTTP request headers needed by the service identified in ../Reference/@href.  For example, an HTTP SOAP request requires a SOAPAction header.  This permits the creation of a complete and valid POST request."/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="body" eType="ecore:EClass ../org.eclipse.emf.ecore/model/Ecore.ecore#//EObject"
+    <eStructuralFeatures xsi:type="ecore:EReference" name="body" eType="ecore:EClass platform:/plugin/org.eclipse.emf.ecore/model/Ecore.ecore#//EObject"
         containment="true" resolveProxies="false">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="element"/>
@@ -825,7 +819,7 @@
         <details key="documentation" value="Reference to a remote document to be used as the body of the an HTTP POST request message to the service identified in ../Reference/@href."/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="encoding" eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="encoding" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="attribute"/>
         <details key="name" value="encoding"/>
@@ -834,7 +828,7 @@
         <details key="documentation" value="The encoding of this input or requested for this output (e.g., UTF-8). This &quot;encoding&quot; shall be included whenever the encoding required is not the default encoding indicated in the Process full description. When included, this encoding shall be one published for this output or input in the Process full description."/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="href" lowerBound="1" eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="href" lowerBound="1" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="attribute"/>
         <details key="name" value="href"/>
@@ -863,7 +857,7 @@
         <details key="documentation" value="The Format of this input or requested for this output (e.g., text/xml). This element shall be omitted when the Format is indicated in the http header of the output. When included, this format shall be one published for this output or input in the Process full description."/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="schema" eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="schema" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="attribute"/>
         <details key="name" value="schema"/>
@@ -985,7 +979,7 @@
     <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
       <details key="documentation" value="One simple literal value (such as an integer or real number) that is embedded in the Execute operation request or response."/>
     </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="value" eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//String">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="value" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//String">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="name" value=":0"/>
         <details key="kind" value="simple"/>
@@ -994,7 +988,7 @@
         <details key="documentation" value="String containing the Literal value (e.g., &quot;49&quot;)."/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="dataType" eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="dataType" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="attribute"/>
         <details key="name" value="dataType"/>
@@ -1003,7 +997,7 @@
         <details key="documentation" value="Identifies the data type of this literal input or output. This dataType should be included for each quantity whose value is not a simple string."/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="uom" eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="uom" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="attribute"/>
         <details key="name" value="uom"/>
@@ -1053,7 +1047,7 @@
         <details key="documentation" value="Indicates that there are a finite set of values and ranges allowed for this input, which are specified in the referenced list."/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="defaultValue" eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//String">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="defaultValue" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//String">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="element"/>
         <details key="name" value="DefaultValue"/>
@@ -1165,7 +1159,7 @@
         <details key="documentation" value="Unambiguous identifier or name of an output, unique for this process."/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="encoding" eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="encoding" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="attribute"/>
         <details key="name" value="encoding"/>
@@ -1183,7 +1177,7 @@
         <details key="documentation" value="The Format of this input or requested for this output (e.g., text/xml). This element shall be omitted when the Format is indicated in the http header of the output. When included, this format shall be one published for this output or input in the Process full description."/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="schema" eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="schema" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="attribute"/>
         <details key="name" value="schema"/>
@@ -1192,7 +1186,7 @@
         <details key="documentation" value="Web-accessible XML Schema Document that defines the content model of this complex resource (e.g., encoded using GML 2.2 Application Schema).  This reference should be included for XML encoded complex resources to facilitate validation.&#xA;PS I changed the name of this attribute to be consistent with the ProcessDescription.  The original was giving me validation troubles in XMLSpy."/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="uom" eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="uom" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="attribute"/>
         <details key="name" value="uom"/>
@@ -1249,7 +1243,7 @@
     <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
       <details key="documentation" value="Reference to an output value that is a web accessible resource."/>
     </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="encoding" eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="encoding" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="attribute"/>
         <details key="name" value="encoding"/>
@@ -1258,7 +1252,7 @@
         <details key="documentation" value="The encoding of this input or requested for this output (e.g., UTF-8). This &quot;encoding&quot; shall be included whenever the encoding required is not the default encoding indicated in the Process full description. When included, this encoding shall be one published for this output or input in the Process full description."/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="href" lowerBound="1" eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="href" lowerBound="1" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="attribute"/>
         <details key="name" value="href"/>
@@ -1276,7 +1270,7 @@
         <details key="documentation" value="The Format of this input or requested for this output (e.g., text/xml). This element shall be omitted when the Format is indicated in the http header of the output. When included, this format shall be one published for this output or input in the Process full description."/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="schema" eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="schema" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="attribute"/>
         <details key="name" value="schema"/>
@@ -1292,7 +1286,7 @@
       <details key="kind" value="elementOnly"/>
     </eAnnotations>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="profile" unique="false"
-        eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
+        eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="element"/>
         <details key="name" value="Profile"/>
@@ -1314,7 +1308,7 @@
       </eAnnotations>
     </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="processVersion" lowerBound="1"
-        eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//String">
+        eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//String">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="attribute"/>
         <details key="name" value="processVersion"/>
@@ -1369,7 +1363,7 @@
         <details key="documentation" value="List of outputs which will or can result from executing the process."/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="statusSupported" eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//Boolean"
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="statusSupported" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//Boolean"
         defaultValueLiteral="false" unsettable="true">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="attribute"/>
@@ -1379,7 +1373,7 @@
         <details key="documentation" value="Indicates if ongoing status information can be provided for this process.  If &quot;true&quot;, the Status element of the stored Execute response document shall be kept up to date.  If &quot;false&quot; then the Status element shall not be updated until processing is complete. By default, status information is not provided for this process."/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="storeSupported" eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//Boolean"
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="storeSupported" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//Boolean"
         defaultValueLiteral="false" unsettable="true">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="attribute"/>
@@ -1469,7 +1463,7 @@
     <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
       <details key="documentation" value="Indicates that this process has been has been accepted by the server, and processing has begun."/>
     </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="value" eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//String">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="value" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//String">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="name" value=":0"/>
         <details key="kind" value="simple"/>
@@ -1496,7 +1490,7 @@
     <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
       <details key="documentation" value="WPS operation request base, for all WPS operations except GetCapabilities. In this XML encoding, no &quot;request&quot; parameter is included, since the element name specifies the specific operation."/>
     </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="language" eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//String">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="language" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//String">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="attribute"/>
         <details key="name" value="language"/>
@@ -1506,7 +1500,7 @@
       </eAnnotations>
     </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="service" lowerBound="1"
-        eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//String"
+        eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//String"
         defaultValueLiteral="WPS" unsettable="true">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="attribute"/>
@@ -1537,7 +1531,7 @@
     <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
       <details key="documentation" value="WPS operation response base, for all WPS operations except GetCapabilities."/>
     </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="lang" lowerBound="1" eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//String">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="lang" lowerBound="1" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//String">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="attribute"/>
         <details key="name" value="lang"/>
@@ -1548,7 +1542,7 @@
       </eAnnotations>
     </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="service" lowerBound="1"
-        eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//String"
+        eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//String"
         defaultValueLiteral="WPS" unsettable="true">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="attribute"/>
@@ -1587,7 +1581,7 @@
         <details key="documentation" value="Unordered list of definitions of the outputs (or parameters) requested from the process. These outputs are not normally identified, unless the client is specifically requesting a limited subset of outputs, and/or is requesting output formats and/or schemas and/or encodings different from the defaults and selected from the alternatives identified in the process description, or wishes to customize the descriptive information about the output."/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="lineage" eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//Boolean"
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="lineage" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//Boolean"
         defaultValueLiteral="false" unsettable="true">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="attribute"/>
@@ -1597,7 +1591,7 @@
         <details key="documentation" value="Indicates if the Execute operation response shall include the DataInputs and OutputDefinitions elements.  If lineage is &quot;true&quot; the server shall include in the execute response a complete copy of the DataInputs and OutputDefinition elements as received in the execute request.  If lineage is &quot;false&quot; then these elements shall be omitted from the response."/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="status" eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//Boolean"
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="status" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//Boolean"
         defaultValueLiteral="false" unsettable="true">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="attribute"/>
@@ -1607,7 +1601,7 @@
         <details key="documentation" value="Indicates if the stored execute response document shall be updated to provide ongoing reports on the status of execution.  If status is &quot;true&quot; and storeExecuteResponse is &quot;true&quot; (and the server has indicated that both storeSupported and statusSupported are &quot;true&quot;)  then the Status element of the execute response document stored at executeResponseLocation is kept up to date by the process.  While the execute response contains ProcessAccepted, ProcessStarted, or ProcessPaused, updates shall be made to the executeResponse document until either the process completes successfully (in which case ProcessSucceeded is populated), or the process fails (in which case ProcessFailed is populated).  If status is &quot;false&quot; then the Status element shall not be updated until the process either completes successfully or fails.  If status=&quot;true&quot; and storeExecuteResponse is &quot;false&quot; then the service shall raise an exception."/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="storeExecuteResponse" eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//Boolean"
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="storeExecuteResponse" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//Boolean"
         defaultValueLiteral="false" unsettable="true">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="attribute"/>
@@ -1657,7 +1651,7 @@
     <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
       <details key="documentation" value="Description of the status of process execution."/>
     </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="processAccepted" eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//String">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="processAccepted" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//String">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="element"/>
         <details key="name" value="ProcessAccepted"/>
@@ -1689,7 +1683,7 @@
         <details key="documentation" value="Indicates that this process has been  accepted by the server, and processing has started but subsequently been paused by the server."/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="processSucceeded" eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//String">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="processSucceeded" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//String">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="element"/>
         <details key="name" value="ProcessSucceeded"/>
@@ -1711,7 +1705,7 @@
       </eAnnotations>
     </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="creationTime" lowerBound="1"
-        eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//DateTime">
+        eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//DateTime">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="attribute"/>
         <details key="name" value="creationTime"/>
@@ -1729,7 +1723,7 @@
     <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
       <details key="documentation" value=""/>
     </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="maximumMegabytes" eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//Integer">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="maximumMegabytes" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//Integer">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="attribute"/>
         <details key="name" value="maximumMegabytes"/>
@@ -1834,14 +1828,7 @@
     <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
       <details key="documentation" value="Identifies a UOM supported for this input or output."/>
     </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="uOM" lowerBound="1" upperBound="-1"
-        eType="ecore:EClass ../net.opengis.ows/ows11.ecore#//DomainMetadataType" containment="true"
-        resolveProxies="false">
-      <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
-        <details key="kind" value="element"/>
-        <details key="name" value="UOM"/>
-        <details key="namespace" value="http://www.opengis.net/ows/1.1"/>
-      </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="uOM" upperBound="-1" eType="#//Unit">
       <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
         <details key="documentation" value="Reference to a UOM supported for this input or output."/>
       </eAnnotations>
@@ -1855,7 +1842,7 @@
     <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
       <details key="documentation" value="References an externally defined finite set of values and ranges for this input."/>
     </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="reference" eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="reference" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="attribute"/>
         <details key="name" value="reference"/>
@@ -1865,7 +1852,7 @@
         <details key="documentation" value="Reference to data or metadata recorded elsewhere, either external to this XML document or within it. Whenever practical, this attribute should be a URL from which this metadata can be electronically retrieved. Alternately, this attribute can reference a URN for well-known metadata. For example, such a URN could be a URN defined in the &quot;ogc&quot; URN namespace."/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="valuesForm" eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="valuesForm" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="attribute"/>
         <details key="name" value="valuesForm"/>
@@ -1913,7 +1900,7 @@
         <details key="documentation" value="Location of a WSDL document which describes the entire service."/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="lang" lowerBound="1" eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//String">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="lang" lowerBound="1" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//String">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="attribute"/>
         <details key="name" value="lang"/>
@@ -1924,7 +1911,7 @@
       </eAnnotations>
     </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="service" lowerBound="1"
-        eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//String"
+        eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//String"
         defaultValueLiteral="WPS" unsettable="true">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="attribute"/>
@@ -1937,7 +1924,7 @@
       <details key="name" value="WSDL_._type"/>
       <details key="kind" value="empty"/>
     </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="href" lowerBound="1" eType="ecore:EDataType ../org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="href" lowerBound="1" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="attribute"/>
         <details key="name" value="href"/>
@@ -1948,6 +1935,8 @@
       </eAnnotations>
     </eStructuralFeatures>
   </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Unit" instanceClassName="javax.measure.unit.Unit"
+      abstract="true" interface="true"/>
   <eClassifiers xsi:type="ecore:EEnum" name="MethodType">
     <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
       <details key="name" value="method_._type"/>
