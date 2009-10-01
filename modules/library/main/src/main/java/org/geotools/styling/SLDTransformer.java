@@ -182,6 +182,33 @@ public class SLDTransformer extends TransformerBase {
             addNamespaceDeclarations(filterTranslator);
         }
         
+        boolean isNull( Expression expr ){
+            if( expr == null ) return true;
+            if( expr == Expression.NIL ) return true;
+            if( expr instanceof Literal ){
+                Literal literal = (Literal) expr;
+                return literal.getValue() == null;
+            }
+            return false; // must be some other non null thing
+        }
+            
+        boolean isDefault( Expression expr, Object defaultValue ){
+            if( defaultValue == null ) return isNull( expr );
+            
+            if( expr == null ) return false;
+            if( expr == Expression.NIL ) return false;
+            if( expr instanceof Literal ){
+                Literal literal = (Literal) expr;
+                if( defaultValue.equals( literal.getValue() )){
+                    return true;
+                }
+                if( defaultValue.toString().equals( literal.getValue().toString() ) ){
+                    return true;
+                }
+            }
+            return false;
+        }
+        
         /**
          * Utility method used to quickly package up the provided expression.
          * @param element
@@ -218,7 +245,9 @@ public class SLDTransformer extends TransformerBase {
             start("LabelPlacement");
             start("PointPlacement");
             pp.getAnchorPoint().accept(this);
-            pp.getDisplacement().accept(this);
+            
+            visit( pp.getDisplacement() );
+
             element("Rotation", pp.getRotation());
             end("PointPlacement");
             end("LabelPlacement");
@@ -907,14 +936,23 @@ public class SLDTransformer extends TransformerBase {
         }
 
         public void visit(Displacement dis) {
-            if (dis == null)
+            if (dis == null){
                 return;
+            }
 
             // We don't want to get huge SLDs with default values. So if displacement = 0 and 0 we
             // drop it.
-            if (dis.getDisplacementX().toString().equals("0")
-                    && dis.getDisplacementY().toString().equals("0"))
+            Expression dx = dis.getDisplacementX();
+            Expression dy = dis.getDisplacementY();
+            if( isNull(dx) && isNull(dy)){
                 return;
+            }
+            if( isDefault(dx,0) && isDefault(dy,0)){
+                return;
+            }
+//            if (dis.getDisplacementX().toString().equals("0")
+//                    && dis.getDisplacementY().toString().equals("0"))
+//                return;
 
             start("Displacement");
             element("DisplacementX", dis.getDisplacementX());

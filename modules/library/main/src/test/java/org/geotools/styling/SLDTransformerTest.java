@@ -640,4 +640,23 @@ public class SLDTransformerTest extends TestCase {
         
         assertTrue("XML transformation of this GraphicImpl does not contain the word 'Displacement' ", xml.contains("Displacement"));
     }
+    
+    
+    public void testTextSymbolizerTransformOutAndInAndOutAgain() throws Exception {
+        StyleBuilder sb = new StyleBuilder();
+
+        Style style = sb.createStyle(sb.createTextSymbolizer());
+
+        SLDTransformer st = new SLDTransformer();
+        String firstExport = st.transform(style);
+        SLDParser sldp = new SLDParser(CommonFactoryFinder.getStyleFactory(null));
+        sldp.setInput(new StringReader(firstExport));
+        Style[] firstImport = sldp.readXML();
+
+        assertNotNull(firstImport[0]);
+
+        // NPE here
+        String secondExport = st.transform(firstImport);
+
+    }
 }
