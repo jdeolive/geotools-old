@@ -134,7 +134,7 @@ To make use of GeoTools we are going to add two things to your pom.xml file:
       <name>example</name>
       <url>http://maven.apache.org</url>
       <properties>
-        <geotools.version>2.6-M2</geotools.version>
+        <geotools.version>2.6-SNAPSHOT</geotools.version>
       </properties>
       <dependencies>
         <dependency>
@@ -158,6 +158,14 @@ To make use of GeoTools we are going to add two things to your pom.xml file:
           <id>osgeo</id>
           <name>Open Source Geospatial Foundation Repository</name>
           <url>http://download.osgeo.org/webdav/geotools/</url>
+        </repository>
+        <repository>
+          <id>osgeo-snapshots</id>
+          <name>OSGeo snapshots repository</name>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+          <url>http://repo.osgeo.org/</url>
         </repository>
       </repositories>
     </project>
