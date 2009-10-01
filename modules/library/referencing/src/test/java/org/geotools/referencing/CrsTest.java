@@ -98,6 +98,46 @@ public final class CrsTest {
         final MathTransform crsTransform = CRS.findMathTransform(WGS84, crs, true);
         assertFalse(crsTransform.isIdentity());
     }
+    
+    /**
+     * Checks X is equated to Easting and Y to Northing
+     * @throws Exception
+     */
+    public void testAxisAliases() throws Exception {
+        String wkt1 = "PROJCS[\"NAD_1927_Texas_Statewide_Mapping_System\"," +
+        		"GEOGCS[\"GCS_North_American_1927\"," +
+        		"DATUM[\"D_North_American_1927\"," +
+        		"SPHEROID[\"Clarke_1866\",6378206.4,294.9786982]]," +
+        		"PRIMEM[\"Greenwich\",0.0],UNIT[\"Degree\",0.0174532925199433]]," +
+        		"PROJECTION[\"Lambert_Conformal_Conic\"]," +
+        		"PARAMETER[\"False_Easting\",3000000.0]," +
+        		"PARAMETER[\"False_Northing\",3000000.0]," +
+        		"PARAMETER[\"Central_Meridian\",-100.0]," +
+        		"PARAMETER[\"Standard_Parallel_1\",27.416666666666668]," +
+        		"PARAMETER[\"Standard_Parallel_2\",34.916666666666664]," +
+        		"PARAMETER[\"Latitude_Of_Origin\",31.166666666666668]," +
+        		"UNIT[\"Foot\",0.3048]]";
+        
+        String wkt2 = "PROJCS[\"NAD_1927_Texas_Statewide_Mapping_System\"," +
+                "GEOGCS[\"GCS_North_American_1927\"," +
+                "DATUM[\"D_North_American_1927\"," +
+                "SPHEROID[\"Clarke_1866\",6378206.4,294.9786982]]," +
+                "PRIMEM[\"Greenwich\",0.0],UNIT[\"Degree\",0.0174532925199433]]," +
+                "PROJECTION[\"Lambert_Conformal_Conic\"]," +
+                "PARAMETER[\"False_Easting\",3000000.0]," +
+                "PARAMETER[\"False_Northing\",3000000.0]," +
+                "PARAMETER[\"Central_Meridian\",-100.0]," +
+                "PARAMETER[\"Standard_Parallel_1\",27.416666666666668]," +
+                "PARAMETER[\"Standard_Parallel_2\",34.916666666666664]," +
+                "PARAMETER[\"Latitude_Of_Origin\",31.166666666666668]," +
+                "UNIT[\"Foot\",0.3048]" +
+                "AXIS[\"Easting\", EAST]," + 
+                "AXIS[\"Northing\", NORTH]]";
+        
+        CoordinateReferenceSystem crs1 = CRS.parseWKT(wkt1);
+        CoordinateReferenceSystem crs2 = CRS.parseWKT(wkt2);
+        assertTrue(CRS.equalsIgnoreMetadata(crs1, crs2));
+    }
 
     /**
      * Tests the transformations of an envelope.

@@ -588,7 +588,7 @@ public class DefaultCoordinateSystemAxis extends AbstractIdentifiedObject
      */
     private static boolean nameMatchesXY(String xy, final String name) {
         xy = xy.trim();
-        if (xy.length() == 0) {
+        if (xy.length() == 1) {
             final DefaultCoordinateSystemAxis axis;
             switch (Character.toLowerCase(xy.charAt(0))) {
                 case 'x': axis=EASTING;  break;
