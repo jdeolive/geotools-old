@@ -327,8 +327,8 @@ Potsdam Datum/83;;D_Potsdam_1983
 Provisional South American Datum 1956;Provisional_South_American_Datum_1956;D_Provisional_S_American_1956;Provisional South American
 Puerto Rico;Puerto_Rico;D_Puerto_Rico;Puerto Rico
 Pulkovo 1942;Pulkovo_1942;D_Pulkovo_1942;Pulkovo 1942
-Pulkovo 1942/58;Pulkovo_1942/58;D_Pulkovo_1942_Adj_1958
-Pulkovo 1942/83;Pulkovo_1942/83;D_Pulkovo_1942_Adj_1983
+Pulkovo 1942(58);Pulkovo_1942/58;D_Pulkovo_1942_Adj_1958
+Pulkovo 1942(83);Pulkovo_1942/83;D_Pulkovo_1942_Adj_1983
 Pulkovo 1995;Pulkovo_1995;D_Pulkovo_1995
 Qatar 1948;Qatar_1948;D_Qatar_1948
 Qatar 1974;Qatar_1974;D_Qatar
