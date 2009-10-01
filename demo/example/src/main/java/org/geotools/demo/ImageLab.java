@@ -7,13 +7,25 @@
  *    This file is hereby placed into the Public Domain. This means anyone is
  *    free to do whatever they wish with this file. Use it well and enjoy!
  */
+
 package org.geotools.demo;
 
+import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import net.miginfocom.swing.MigLayout;
 import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.data.DataSourceException;
+import org.geotools.data.FeatureSource;
+import org.geotools.data.FileDataStore;
+import org.geotools.data.FileDataStoreFinder;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.gce.geotiff.GeoTiffReader;
 import org.geotools.styling.ChannelSelection;
@@ -21,65 +33,62 @@ import org.geotools.styling.RasterSymbolizer;
 import org.geotools.styling.SelectedChannelType;
 import org.geotools.swing.JMapFrame;
 import org.geotools.map.DefaultMapContext;
-import org.geotools.map.DefaultMapLayer;
 import org.geotools.map.MapContext;
-import org.geotools.map.MapLayer;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.styling.ContrastEnhancement;
 import org.geotools.styling.SLD;
 import org.geotools.styling.Style;
 import org.geotools.styling.StyleFactory;
 import org.geotools.swing.data.JFileDataStoreChooser;
+import org.geotools.swing.wizard.JPage;
+import org.geotools.swing.wizard.JWizard;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.FilterFactory;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.style.ContrastMethod;
 
 public class ImageLab {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
+        ImageLab me = new ImageLab();
+        me.getLayersAndDisplay();
+    }
 
-        /*
-         * We want to prompt the user for a GeoTIFF file which may
-         * have a tif or tiff extension. We can use GeoTools data
-         * format system to help us out
-         */
-        File file = JFileDataStoreChooser.showOpenFile(new String[] {"tiff", "tif"}, null);
-        if (file == null) {
-            return;
+    private void getLayersAndDisplay() throws Exception {
+        DataWizard wizard = new DataWizard("ImageLab");
+        int rtnVal = wizard.showModalDialog();
+        if (rtnVal != DataWizard.FINISH) {
+            System.exit(0);
         }
 
-        GeoTiffReader reader;
+        displayLayers(wizard.getRasterFile(), wizard.getShapefile());
+    }
+    
+    private void displayLayers(File rasterFile, File shpFile) throws Exception {
+        GeoTiffReader geotiffReader;
         try {
-            reader = new GeoTiffReader(file);
+            geotiffReader = new GeoTiffReader(rasterFile);
 
         } catch (DataSourceException ex) {
             ex.printStackTrace();
             return;
         }
 
-        CoordinateReferenceSystem crs = reader.getCrs();
-        if (crs == null) {
-            crs = DefaultGeographicCRS.WGS84;
-        }
-
-        Style style = createRGBStyle(reader);
-        if (style == null) {
+        Style rasterStyle = createRGBStyle(geotiffReader);
+        if (rasterStyle == null) {
             // input coverage didn't have bands labelled "red", "green", "blue"
             return;
         }
 
-        MapContext map = new DefaultMapContext(crs);
-        MapLayer layer = null;
+        FileDataStore dataStore = FileDataStoreFinder.getDataStore(shpFile);
+        FeatureSource<SimpleFeatureType, SimpleFeature> shapefileSource = dataStore.getFeatureSource();
 
-        try {
-            layer = new DefaultMapLayer(reader, style);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return;
-        }
-        
-        map.addLayer(layer);
+        Style shpStyle = SLD.createPolygonStyle(Color.YELLOW, null, 0.0f);
+
+        MapContext map = new DefaultMapContext();
         map.setTitle("My coverage");
+
+        map.addLayer(geotiffReader, rasterStyle);
+        map.addLayer(shapefileSource, shpStyle);
 
         JMapFrame.showMap(map);
     }
@@ -131,5 +140,93 @@ public class ImageLab {
         sym.setChannelSelection(sel);
 
         return SLD.wrapSymbolizers(sym);
+    }
+
+
+    class DataWizard extends JWizard {
+
+        DataPage page;
+
+        public DataWizard(String title) {
+            super(title);
+            
+            page = new DataPage();
+            this.registerWizardPanel(page);
+        }
+
+        File getRasterFile() { return page.rasterFile; }
+
+        File getShapefile() { return page.shapeFile; }
+    }
+
+    class DataPage extends JPage {
+
+        JTextField rasterTxt;
+        JTextField shapefileTxt;
+
+        File rasterFile;
+        File shapeFile;
+
+        @Override
+        public JPanel createPanel() {
+            JPanel page = new JPanel(new MigLayout());
+
+            JLabel label = new JLabel("Raster file");
+            page.add(label);
+
+            rasterTxt = new JTextField(30);
+            page.add(rasterTxt, "growx");
+
+            JButton btn = new JButton("Browse");
+            btn.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    JFileDataStoreChooser chooser = new JFileDataStoreChooser(new String[]{"tif", "tiff"});
+                    chooser.setDialogTitle("Choose a GeoTIFF file");
+                    if (chooser.showOpenDialog(null) == JFileDataStoreChooser.APPROVE_OPTION) {
+                        rasterTxt.setText(chooser.getSelectedFile().getAbsolutePath());
+                        DataPage.this.getJWizard().getController().syncButtonsToPage();
+                    }
+                }
+            });
+            page.add(btn, "wrap");
+
+
+            label = new JLabel("Shapefile");
+            page.add(label);
+
+            shapefileTxt = new JTextField(30);
+            page.add(shapefileTxt, "growx");
+
+            btn = new JButton("Browse");
+            btn.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    JFileDataStoreChooser chooser = new JFileDataStoreChooser("shp");
+                    chooser.setDialogTitle("Choose a shapefile");
+                    if (chooser.showOpenDialog(null) == JFileDataStoreChooser.APPROVE_OPTION) {
+                        shapefileTxt.setText(chooser.getSelectedFile().getAbsolutePath());
+                        DataPage.this.getJWizard().getController().syncButtonsToPage();
+                    }
+                }
+            });
+            page.add(btn, "wrap");
+
+            return page;
+        }
+
+        @Override
+        public boolean isValid() {
+            rasterFile = new File(rasterTxt.getText());
+            if (!rasterFile.exists()) {
+                return false;
+            }
+
+            shapeFile = new File(shapefileTxt.getText());
+            if (!shapeFile.exists()) {
+                return false;
+            }
+
+            return true;
+        }
+
     }
 }
