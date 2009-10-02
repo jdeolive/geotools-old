@@ -612,7 +612,7 @@ public class Console extends AbstractConsole {
                               targetPosition.getOrdinate(i))
                   <= tolerance[Math.min(i, tolerance.length-1)]))
             {
-                throw new TransformException(Errors.format(ErrorKeys.UNEXPECTED_TRANSFORM_RESULT));
+                throw new TransformException("Expected " + targetPosition + " but got " + transformedSource);
             }
         }
     }
