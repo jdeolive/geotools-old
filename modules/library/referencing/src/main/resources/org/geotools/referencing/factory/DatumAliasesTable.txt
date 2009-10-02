@@ -59,6 +59,7 @@ Chatham Islands Datum 1971;Chatham_Islands_Datum_1971;D_Chatham_Island_1971;Chat
 Chatham Islands Datum 1979;Chatham_Islands_Datum_1979;D_Chatham_Islands_1979
 Chos Malal 1914;Chos_Malal_1914;D_Chos_Malal_1914
 Chua;Chua;D_Chua;Chua Astro
+Clarke 1880 (IGN);;Clarke_1880_IGN
 Cocos Islands 1965;;D_Anna_1_1965;Anna 1 Astro 1965
 Combani 1950;Combani_1950;D_Combani_1950
 Conakry 1905;Conakry_1905;D_Conakry_1905
@@ -68,7 +69,8 @@ Cote d'Ivoire;Cote_d_Ivoire;D_Cote_d_Ivoire
 Dabola 1981;Dabola_1981;D_Dabola_1981
 Datum 73;Datum_73;D_Datum_73
 Datum Geodesi Nasional 1995;;D_Datum_Geodesi_Nasional_1995
-Dealul Piscului 1933;Dealul_Piscului_1933;D_Dealul_Piscului_1933
+Dealul Piscului 1930;;D_Dealul_Piscului_1933
+Dealul Piscului 1933;Dealul_Piscului_1933
 Dealul Piscului 1970;Dealul_Piscului_1970;D_Dealul_Piscului_1970
 Deception Island;;D_Deception_Island
 Deir ez Zor;Deir_ez_Zor;D_Deir_ez_Zor
@@ -222,8 +224,7 @@ Mhast;Mhast;D_Mhast
 Mhast (offshore);;D_Mhast_Offshore
 Mhast (onshore);;D_Mhast_Onshore
 Midway 1961;;D_Midway_1961
-Militar-Geographische Institut;Militar-Geographische_Institut;D_MGI
-Militar-Geographische Institut (Ferro);Militar-Geographische_Institut_Ferro
+Militar-Geographische Institut (Ferro);Militar-Geographische_Institut_Ferro;Militar-Geographische Institut;Militar-Geographische_Institut;D_MGI
 Minna;Minna;D_Minna;Minna
 Missao Hidrografico Angola y Sao Tome 1951;;D_Mhast_1951
 Monte Mario;Monte_Mario;D_Monte_Mario
