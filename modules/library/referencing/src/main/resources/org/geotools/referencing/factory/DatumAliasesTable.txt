@@ -170,7 +170,7 @@ Kalianpur 1962;Kalianpur_1962;D_Kalianpur_1962
 Kalianpur 1975;Kalianpur_1975;D_Kalianpur_1975
 Kandawala;Kandawala;D_Kandawala;Kandawala
 Karbala 1979;;D_Karbala_1979_Polservice
-Kartasto Koordinaati Jarjestelma 1966;Kartasto_Koordinaati_Jarjestelma_1966;D_KKJ
+Kartastokoordinaattijarjestelma (1966);Kartasto_Koordinaati_Jarjestelma_1966;D_KKJ
 Kasai 1953;;D_Kasai_1955
 Katanga 1955;;D_Katanga_1955
 Kertau;Kertau;D_Kertau;Kertau 1948
