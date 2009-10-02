@@ -185,7 +185,7 @@ public final class ImagePyramidFormat extends AbstractGridFormat implements Form
 				
 				try {
 					sourceURL.openStream().close();
-				} catch (Exception e) {
+				} catch (Throwable e) {
 					return false;
 				}
 
@@ -201,7 +201,7 @@ public final class ImagePyramidFormat extends AbstractGridFormat implements Form
 						// Testing if the URL is valid and reachable
 						sourceURL = new URL((String) source);
 						sourceURL.openStream().close(); 
-					} catch (Exception e){
+					} catch (Throwable e){
 						return false;
 					}
 				}
@@ -219,10 +219,7 @@ public final class ImagePyramidFormat extends AbstractGridFormat implements Form
 			// get the crs if able to
 			//
 			// //
-			
-
 			final URL prjURL = DataUtilities.changeUrlExt(sourceURL, "prj"); 
-			
 			PrjFileReader crsReader;
 			try {
 				crsReader = new PrjFileReader(Channels.newChannel(prjURL.openStream()));
@@ -233,12 +230,7 @@ public final class ImagePyramidFormat extends AbstractGridFormat implements Form
 			if (tempcrs == null) {
 				// use the default crs
 				tempcrs = AbstractGridFormat.getDefaultCRS();
-				LOGGER
-						.log(
-								Level.FINE,
-								new StringBuffer(
-										"Unable to find a CRS for this coverage, using a default one: ")
-										.append(tempcrs.toWKT()).toString());
+				LOGGER.log(Level.FINE,new StringBuffer("Unable to find a CRS for this coverage, using a default one: ").append(tempcrs.toWKT()).toString());
 			}
 			//
 			// ///////////////////////////////////////////////////////////////////
@@ -250,16 +242,19 @@ public final class ImagePyramidFormat extends AbstractGridFormat implements Form
 			// property file
 			final Properties properties = new Properties();
 			BufferedInputStream propertyStream = null;
+			if(!sourceURL.getPath().endsWith(".properties"))
+				return false;
 			final InputStream openStream = sourceURL.openStream();
 			try {
 				propertyStream = new BufferedInputStream(openStream);
 				properties.load(propertyStream);
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				if(propertyStream!=null)
 					propertyStream.close();
 				return false;
 			} finally {
-				if (openStream != null) openStream.close();
+				if (openStream != null) 
+					openStream.close();
 			}
 
 			// load the envelope
@@ -275,14 +270,12 @@ public final class ImagePyramidFormat extends AbstractGridFormat implements Form
 			}
 
 			// overviews dir
-			int numOverviews = Integer.parseInt(properties
-					.getProperty("LevelsNum")) - 1;
+			int numOverviews = Integer.parseInt(properties.getProperty("LevelsNum")) - 1;
 
 			// resolutions levels
 			final String levels = properties.getProperty("Levels");
 			pairs = levels.split(" ");
-			double[][] overViewResolutions = numOverviews >= 1 ? new double[numOverviews][2]
-					: null;
+			double[][] overViewResolutions = numOverviews >= 1 ? new double[numOverviews][2]: null;
 			pair = pairs[0].split(",");
 			double[] highestRes = new double[2];
 			highestRes[0] = Double.parseDouble(pair[0]);
