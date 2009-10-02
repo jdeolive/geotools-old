@@ -28,6 +28,8 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import junit.framework.TestCase;
 
@@ -291,4 +293,26 @@ public class TestUtilites {
             // TODO Auto-generated method stub
         }
     }
+    
+        public static class ExceptionCollectorRenderListener implements RenderListener {
+        public List<Exception> exceptions = new ArrayList<Exception>();
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see
+         * org.geotools.renderer.lite.RenderListener#featureRenderer(org.geotools.feature.Feature)
+         */
+        public void featureRenderer(SimpleFeature feature) {
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see org.geotools.renderer.lite.RenderListener#errorOccurred(java.lang.Exception)
+         */
+        public void errorOccurred(Exception e) {
+            exceptions.add(e);
+        }
+    }      
 }

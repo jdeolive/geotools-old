@@ -16,7 +16,11 @@
  */
 package org.geotools.renderer.shape;
 
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -47,6 +51,8 @@ import org.geotools.map.MapContext;
 import org.geotools.referencing.operation.transform.IdentityTransform;
 import org.geotools.renderer.RenderListener;
 import org.geotools.styling.Style;
+import org.geotools.styling.StyleBuilder;
+import org.geotools.styling.TextSymbolizer;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Id;
@@ -317,5 +323,55 @@ public class ShapeRendererTest extends TestCase {
 
         assertEquals(3, listener.count);
     }
+    
+    
+        /**
+     * The {@link ShapefileRenderer} is case-sensitive about its propertynames. This test checks for
+     * the correct Exception when the property is wrongly spelled.
+     * 
+     * @throws Exception
+     */
+    public void testExceptionWhenPropertyDoesntExist() throws Exception {
+
+        ShapefileDataStore store = TestUtilites.getDataStore("lakes.shp");
+
+        // Create a Style with a wrongly spelled property name
+        StyleBuilder sb = new StyleBuilder();
+        TextSymbolizer ts = sb.createTextSymbolizer(Color.red, sb.createFont("serif", 15.),
+                "ELEVaTION"); // Here is the mistake. The ShapefileRenderer is case-sensitive for
+        // the attributes.
+        Style styleWithWronglySpelledPropertyName = sb.createStyle(ts);
+
+        /**
+         * ComplexStyle and ShapefileRenderer works NOT !
+         */
+        {
+            MapContext context = new DefaultMapContext();
+            context.addLayer(store.getFeatureSource(), styleWithWronglySpelledPropertyName);
+
+            int w = 300;
+            int h = 300;
+            final BufferedImage image = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+            Graphics g = image.getGraphics();
+            g.setColor(Color.white);
+            g.fillRect(0, 0, w, h);
+
+            ShapefileRenderer renderer = new ShapefileRenderer();
+            TestUtilites.ExceptionCollectorRenderListener listenerForEx = new TestUtilites.ExceptionCollectorRenderListener();
+            renderer.addRenderListener(listenerForEx);
+            renderer.setContext(context);
+
+            renderer.paint((Graphics2D) g, new Rectangle(w, h), context.getLayerBounds());
+
+            assertEquals("Exactly one exception should have been thrown", 1,
+                    listenerForEx.exceptions.size());
+            assertTrue("The Exception catched is not of expected type IllegalArgumentException", listenerForEx.exceptions.get(0) instanceof IllegalArgumentException);
+            assertEquals("The IllegalArgumentException catched doesn't have the expected message.",
+                    "Attribute ELEVaTION does not exist. Maybe it has just been spelled wrongly?",
+                    listenerForEx.exceptions.get(0).getMessage());
+        }
+    }                                                                                                                                 
+                                                                                                                                          
+               
 
 }

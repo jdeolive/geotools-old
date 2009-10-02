@@ -785,17 +785,26 @@ public class ShapefileRenderer implements GTRenderer {
         AttributeDescriptor[] types = new AttributeDescriptor[attributes.length];
         attributeIndexing = new int[attributes.length];
         
-        if(attributes.length == 1 && attributes[0].equals(schema.getGeometryDescriptor().getLocalName())) {
+        if (attributes.length == 1
+                && attributes[0].equals(schema.getGeometryDescriptor().getLocalName())) {
             types[0] = schema.getDescriptor(attributes[0]);
+            
+            // the symbolizer might be referring "THE_GEOM" for example
+            if (types[0] == null)
+                throw new IllegalArgumentException("Attribute " + attributes[0]
+                        + " does not exist. Maybe it has just been spelled wrongly?");
         } else {
             dbfheader = getDBFHeader(ds);
-            for( int i = 0; i < types.length; i++ ) {
+            for (int i = 0; i < types.length; i++) {
                 types[i] = schema.getDescriptor(attributes[i]);
-    
-                for( int j = 0; j < dbfheader.getNumFields(); j++ ) {
+
+                if (types[i] == null)
+                    throw new IllegalArgumentException("Attribute " + attributes[i]
+                            + " does not exist. Maybe it has just been spelled wrongly?");
+                for (int j = 0; j < dbfheader.getNumFields(); j++) {
                     if (dbfheader.getFieldName(j).equals(attributes[i])) {
                         attributeIndexing[i] = j;
-    
+
                         break;
                     }
                 }
