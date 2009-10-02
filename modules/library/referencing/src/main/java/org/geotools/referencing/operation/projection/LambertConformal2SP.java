@@ -104,6 +104,7 @@ public class LambertConformal2SP extends LambertConformal {
                 new NamedIdentifier(Citations.OGC,      "Lambert_Conformal_Conic_2SP"),
                 new NamedIdentifier(Citations.EPSG,     "Lambert Conic Conformal (2SP)"),
                 new NamedIdentifier(Citations.ESRI,     "Lambert_Conformal_Conic"),
+                new NamedIdentifier(Citations.ESRI,     "Lambert_Conformal_Conic_2SP"),
                 new NamedIdentifier(Citations.EPSG,     "9802"),
                 new NamedIdentifier(Citations.GEOTIFF,  "CT_LambertConfConic_2SP"),
                 new NamedIdentifier(Citations.GEOTIFF,  "CT_LambertConfConic"),
@@ -142,7 +143,12 @@ public class LambertConformal2SP extends LambertConformal {
         protected MathTransform createMathTransform(final ParameterValueGroup parameters)
                 throws ParameterNotFoundException
         {
-            if(Utilities.equals(doubleValue(STANDARD_PARALLEL_1, parameters),
+            if(getParameter(STANDARD_PARALLEL_2, parameters) == null &&
+               getParameter(STANDARD_PARALLEL_1, parameters) == null &&
+               getParameter(LATITUDE_OF_ORIGIN, parameters) != null) {
+                // handle the ESRI 1SP case
+                return new LambertConformal1SP(parameters);
+            } else if(Utilities.equals(doubleValue(STANDARD_PARALLEL_1, parameters),
                                 doubleValue(STANDARD_PARALLEL_2, parameters)) &&
                Utilities.equals(doubleValue(STANDARD_PARALLEL_1, parameters),
                                 doubleValue(LATITUDE_OF_ORIGIN, parameters))
