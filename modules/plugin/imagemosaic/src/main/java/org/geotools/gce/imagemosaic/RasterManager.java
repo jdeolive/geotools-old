@@ -421,13 +421,14 @@ class RasterManager {
 				requestedScaleFactorY = reqy / max.resolutionY;		        
 			}
 			else
-			{
-				final double[] scaleFactors = request.getRequestedRasterScaleFactors();
-				if(scaleFactors==null)
-					return 0;
-				requestedScaleFactorX=scaleFactors[0];
-				requestedScaleFactorY=scaleFactors[1];
-			}
+				return 0;
+//			{
+//				final double[] scaleFactors = request.getRequestedRasterScaleFactors();
+//				if(scaleFactors==null)
+//					return 0;
+//				requestedScaleFactorX=scaleFactors[0];
+//				requestedScaleFactorY=scaleFactors[1];
+//			}
 			final int leastReduceAxis = requestedScaleFactorX <= requestedScaleFactorY ? 0: 1;
 			final double requestedScaleFactor = leastReduceAxis == 0 ? requestedScaleFactorX: requestedScaleFactorY;
 	        
@@ -757,7 +758,9 @@ class RasterManager {
 		// create a request
 		final RasterLayerRequest request= new RasterLayerRequest(params,this);
 		if(request.isEmpty()){
-			throw new DataSourceException("The provided request resulted in no area to load");
+			if(LOGGER.isLoggable(Level.FINE))
+				LOGGER.log(Level.FINE,"Request is empty: "+request.toString());
+			return Collections.emptyList();		
 		}
 		
 		// create a response for the provided request

@@ -493,10 +493,15 @@ class RasterLayerResponse{
 	 * 
 	 * @throws java.io.IOException
 	 */
-	private  synchronized void processRequest() throws IOException {
+	private  void processRequest() throws IOException {
 
 		if (request.isEmpty())
-			throw new IOException("Empty request " + request.toString());
+		{
+			if(LOGGER.isLoggable(Level.FINE))
+				LOGGER.log(Level.FINE,"Request is empty: "+request.toString());
+			this.gridCoverage=null;
+			return;
+		}
 
 		if (frozen)
 			return;
@@ -549,7 +554,6 @@ class RasterLayerResponse{
 	private RenderedImage prepareResponse() throws DataSourceException {
 
 		try {
-
 			
 			//
 			// prepare the params for executing a mosaic operation.
@@ -562,8 +566,6 @@ class RasterLayerResponse{
 				pbjMosaic.setParameter("mosaicType",MosaicDescriptor.MOSAIC_TYPE_BLEND);
 			else
 				pbjMosaic.setParameter("mosaicType",MosaicDescriptor.MOSAIC_TYPE_OVERLAY);
-
-
 
 			// select the relevant overview, notice that at this time we have
 			// relaxed a bit the requirement to have the same exact resolution
@@ -592,8 +594,7 @@ class RasterLayerResponse{
 				mosaicBBox = ReferencedEnvelope.reference(cropBBOX);
 			else
 				mosaicBBox = new ReferencedEnvelope(coverageEnvelope);
-			
-			
+						
 			//compute final world to grid
 			// base grid to world for the center of pixels
 			final AffineTransform g2w = new AffineTransform((AffineTransform) baseGridToWorld);

@@ -42,6 +42,8 @@ import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
 import org.geotools.referencing.operation.matrix.XAffineTransform;
 import org.geotools.referencing.operation.transform.ProjectiveTransform;
 import org.geotools.resources.geometry.XRectangle2D;
+import org.geotools.resources.i18n.ErrorKeys;
+import org.geotools.resources.i18n.Errors;
 import org.opengis.geometry.BoundingBox;
 import org.opengis.geometry.Envelope;
 import org.opengis.geometry.MismatchedDimensionException;
@@ -85,7 +87,7 @@ class RasterLayerRequest {
     /** The region where to fit the requested envelope */
     private Rectangle requestedRasterArea;
     
-    /** T	he region of the  */
+    /** The region of the  */
     private Rectangle destinationRasterArea;
 
     /**
@@ -120,8 +122,6 @@ class RasterLayerRequest {
 	private MathTransform destinationToSourceTransform;
 
 	private GeneralEnvelope requestedBBOXInCoverageGeographicCRS;
-
-	private double[] requestedRasterScaleFactors;
 
 	private MathTransform requestCRSToCoverageGeographicCRS2D;
 
@@ -842,38 +842,44 @@ class RasterLayerRequest {
 			        //
 			        // compute the approximated resolution in the request crs, notice that we are
 					// assuming a reprojection that keeps the raster area unchanged hence
-					// the effect is a degradation of quality, but we take that into account emprically
+					// the effect is a degradation of quality, but we might take that into account emprically
 			        //
 					requestedResolution=null;
-					
-					// compute the raster that correspond to the crop bbox at the highest resolution
-					final Rectangle sourceRasterArea = new GeneralGridEnvelope(
-							 CRS.transform(
-									 PixelTranslation.translate(rasterManager.getRaster2Model(),PixelInCell.CELL_CENTER,PixelInCell.CELL_CORNER).inverse(),
-									 cropBBox),PixelInCell.CELL_CORNER,false).toRectangle();
-					XRectangle2D.intersect(sourceRasterArea, rasterManager.spatialDomainManager.coverageRasterArea, sourceRasterArea);
-					if(sourceRasterArea.isEmpty())
-						throw new DataSourceException("aaa");
+//					
+//					// compute the raster that correspond to the crop bbox at the highest resolution
+//					final Rectangle sourceRasterArea = new GeneralGridEnvelope(
+//							 CRS.transform(
+//									 PixelTranslation.translate(rasterManager.getRaster2Model(),PixelInCell.CELL_CENTER,PixelInCell.CELL_CORNER).inverse(),
+//									 cropBBox),PixelInCell.CELL_CORNER,false).toRectangle();
+//					XRectangle2D.intersect(sourceRasterArea, rasterManager.spatialDomainManager.coverageRasterArea, sourceRasterArea);
+//					if(sourceRasterArea.isEmpty())
+//						throw new DataSourceException("The request source raster area is empty");
 					
 
 					// transform the crop bbox to the request model space
-					final GeneralEnvelope envelope=CRS.transform(destinationToSourceTransform.inverse(), cropBBox);
-			        final GridToEnvelopeMapper geMapper= new GridToEnvelopeMapper(new GridEnvelope2D(sourceRasterArea),envelope);
+					final GeneralEnvelope requestedEnvelopeInSourceCRS=CRS.transform(destinationToSourceTransform.inverse(), cropBBox);
+			        final GridToEnvelopeMapper geMapper= new GridToEnvelopeMapper(new GridEnvelope2D(requestedRasterArea),requestedEnvelopeInSourceCRS);
 			        final AffineTransform tempTransform = geMapper.createAffineTransform();
-			        final double scaleX=XAffineTransform.getScaleX0((AffineTransform) requestedGridToWorld)/XAffineTransform.getScaleX0(tempTransform);
-			        final double scaleY=XAffineTransform.getScaleY0((AffineTransform) requestedGridToWorld)/XAffineTransform.getScaleY0(tempTransform);
-					//
-					// empiric adjustment to get a finer resolution to have better quality when reprojecting
-			        // TODO make it parametric
-					//
-			        requestedRasterScaleFactors= new double[2];
-			        requestedRasterScaleFactors[0]=scaleX*1.0;
-			        requestedRasterScaleFactors[1]=scaleY*1.0;
+//			        final double scaleX=XAffineTransform.getScaleX0((AffineTransform) requestedGridToWorld)/XAffineTransform.getScaleX0(tempTransform);
+//			        final double scaleY=XAffineTransform.getScaleY0((AffineTransform) requestedGridToWorld)/XAffineTransform.getScaleY0(tempTransform);
+//					//
+//					// empiric adjustment to get a finer resolution to have better quality when reprojecting
+//			        // TODO make it parametric
+//					//
+//			        requestedRasterScaleFactors= new double[2];
+//			        requestedRasterScaleFactors[0]=scaleX*1.0;
+//			        requestedRasterScaleFactors[1]=scaleY*1.0;
 			        
-			        
-			        // adjust the final grid to world
-			        final GridToEnvelopeMapper geMapper1= new GridToEnvelopeMapper(new GridEnvelope2D(destinationRasterArea),cropBBox);
-			        requestedGridToWorld= geMapper1.createAffineTransform();
+			        requestedResolution= new double[]
+					                                {
+														XAffineTransform.getScaleX0(tempTransform),
+														XAffineTransform.getScaleY0(tempTransform)
+													};
+//					
+//			        
+//			        // adjust the final grid to world
+//			        final GridToEnvelopeMapper geMapper1= new GridToEnvelopeMapper(new GridEnvelope2D(destinationRasterArea),cropBBox);
+//			        requestedGridToWorld= geMapper1.createAffineTransform();
 
 
 					
@@ -885,33 +891,16 @@ class RasterLayerRequest {
 					// the crs of the request and the one of the coverage are the
 					// same, we can get the resolution from the grid to world
 					//					
-//					if(requestedGridToWorld instanceof AffineTransform){
-						requestedResolution= new double[]
-						                                {
-															XAffineTransform.getScaleX0(requestedGridToWorld),
-															XAffineTransform.getScaleY0(requestedGridToWorld)
-														};
-//					}
-//					else{
-//						// get the matrix
-//						final Matrix matrix= ((LinearTransform)requestedGridToWorld).getMatrix();
-//						final XAffineTransform transform=new XAffineTransform(
-//								matrix.getElement(0, 0),
-//								matrix.getElement(1, 0),
-//								matrix.getElement(0, 1),
-//								matrix.getElement(1, 1),
-//								matrix.getElement(0, 2),
-//								matrix.getElement(1, 2));
-//						requestedResolution= new double[]
-//						                                {
-//															XAffineTransform.getScaleX0(transform),
-//															XAffineTransform.getScaleY0(transform)
-//														};
-//					}
-//		
+					requestedResolution= new double[]
+					                                {
+														XAffineTransform.getScaleX0(requestedGridToWorld),
+														XAffineTransform.getScaleY0(requestedGridToWorld)
+													};
 				}
 			}
-				
+			else
+				// should not happen
+				throw new UnsupportedOperationException(Errors.format(ErrorKeys.UNSUPPORTED_OPERATION_$1,requestedGridToWorld.toString()));
 				
 			//leave
 			return;
@@ -1121,10 +1110,10 @@ class RasterLayerRequest {
 	public Dimension getTileDimensions() {
 		return tileDimensions;
 	}
-
-	public double[] getRequestedRasterScaleFactors() {
-		return requestedRasterScaleFactors!=null?requestedRasterScaleFactors.clone():requestedRasterScaleFactors;
-	}
+//
+//	public double[] getRequestedRasterScaleFactors() {
+//		return requestedRasterScaleFactors!=null?requestedRasterScaleFactors.clone():requestedRasterScaleFactors;
+//	}
 	
 	@Override
 	public String toString() {

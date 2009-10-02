@@ -549,7 +549,7 @@ final class IndexBuilder implements Runnable {
 				if(imageioReader==null)
 				{
 					// send a message
-					fireEvent(Level.INFO,new StringBuffer("Skipped file ").append(fileBeingProcessed).append(":No ImageIO readeres avalaible.").toString(), ((fileIndex * 99.0) / numFiles));
+					fireEvent(Level.INFO,new StringBuilder("Skipped file ").append(fileBeingProcessed).append(":No ImageIO readeres avalaible.").toString(), ((fileIndex * 99.0) / numFiles));
 					return;
 				}
 
@@ -560,7 +560,7 @@ final class IndexBuilder implements Runnable {
 				//
 				final AbstractGridFormat format = (AbstractGridFormat) GridFormatFinder.findFormat(fileBeingProcessed);
 				if ((format instanceof UnknownFormat)||format == null) {
-					fireEvent(Level.INFO,new StringBuffer("Skipped file ").append(fileBeingProcessed).append(": File format is not supported.").toString(), ((fileIndex * 99.0) / numFiles));
+					fireEvent(Level.INFO,new StringBuilder("Skipped file ").append(fileBeingProcessed).append(": File format is not supported.").toString(), ((fileIndex * 99.0) / numFiles));
 					return;
 				}
 				coverageReader = (AbstractGridCoverage2DReader) format.getReader(fileBeingProcessed);
@@ -615,8 +615,16 @@ final class IndexBuilder implements Runnable {
 					try{
 						inStream.reset();
 					}catch (IOException e) {
+						//close me and reopen me
+						try{
+							inStream.close();
+						}catch (Throwable e1) {
+							if(LOGGER.isLoggable(Level.FINE))
+								LOGGER.log(Level.FINE,e1.getLocalizedMessage(),e1);
+						}
 						inStream= ImageIO.createImageInputStream(fileBeingProcessed);
 					}
+					
 					//let's check if we got something now
 					if(inStream==null)
 					{
@@ -671,7 +679,7 @@ final class IndexBuilder implements Runnable {
 					if((fileIndex > 0 ? !(CRS.equalsIgnoreMetadata(defaultCRS, actualCRS)) : false)){
 						fireEvent(
 								Level.INFO,
-								new StringBuffer("Skipping image ").append(fileBeingProcessed).append(" because CRSs do not match.").toString(),
+								new StringBuilder("Skipping image ").append(fileBeingProcessed).append(" because CRSs do not match.").toString(),
 								(((fileIndex + 1) * 99.0) / numFiles));
 						return;
 					}
@@ -679,7 +687,7 @@ final class IndexBuilder implements Runnable {
 					if(checkColorModels(defaultCM, defaultPalette,actualCM)){
 						fireEvent(
 								Level.INFO,
-								new StringBuffer("Skipping image ").append(fileBeingProcessed).append(" because color models do not match.").toString(),
+								new StringBuilder("Skipping image ").append(fileBeingProcessed).append(" because color models do not match.").toString(),
 								(((fileIndex + 1) * 99.0) / numFiles));
 						return;
 					}							
@@ -693,14 +701,14 @@ final class IndexBuilder implements Runnable {
 					//
 //						 if (skipFeature)
 //						 LOGGER
-//						 .warning(new StringBuffer("Skipping image ")
+//						 .warning(new StringBuilder("Skipping image ")
 //						 .append(files.get(fileIndex))
 //						 .append(
 //						 " because cm or sm does not match.")
 //						 .toString());
 //						 double[] res = getResolution(envelope, new Rectangle(r.getWidth(0), r.getHeight(0)), defaultCRS);
 //						 if (Math.abs((resX - res[0]) / resX) > EPS || Math.abs(resY - res[1]) > EPS) {
-//							 LOGGER.warning(new StringBuffer("Skipping image").append( files.get(fileIndex)).append(" because resolutions does not match.")
+//							 LOGGER.warning(new StringBuilder("Skipping image").append( files.get(fileIndex)).append(" because resolutions does not match.")
 //						 .toString());
 //						 	skipFeature = true;
 //						 }
@@ -755,6 +763,7 @@ final class IndexBuilder implements Runnable {
 					if(LOGGER.isLoggable(Level.FINEST))
 						LOGGER.log(Level.FINEST,e.getLocalizedMessage(),e);					
 				}				
+		
 				
 				try {
 					if(coverageReader!=null)
@@ -786,7 +795,7 @@ final class IndexBuilder implements Runnable {
 		private boolean checkStop() {
 
 			if (getStop()) {
-				StringBuffer message = new StringBuffer("Stopping requested at file  ").append(fileIndex).append(" of ").append(numFiles).append(" files");
+				StringBuilder message = new StringBuilder("Stopping requested at file  ").append(fileIndex).append(" of ").append(numFiles).append(" files");
 				fireEvent(Level.INFO,message.toString(), ((fileIndex * 100.0) / numFiles));
 				return false;
 			}
@@ -797,7 +806,7 @@ final class IndexBuilder implements Runnable {
 			if(!fileBeingProcessed.exists()||!fileBeingProcessed.canRead()||!fileBeingProcessed.isFile())
 			{
 				// send a message
-				final StringBuffer message = new StringBuffer("Skipped file ").append(fileBeingProcessed).append(" snce it seems invalid.");
+				final StringBuilder message = new StringBuilder("Skipped file ").append(fileBeingProcessed).append(" snce it seems invalid.");
 				fireEvent(Level.INFO,message.toString(), ((fileIndex * 99.0) / numFiles));
 				return false;
 			}
@@ -1179,7 +1188,7 @@ final class IndexBuilder implements Runnable {
 		}
 		synchronized (notificationListeners) {
 			final String newLine = System.getProperty("line.separator");
-			final StringBuffer message = new StringBuffer("Thread Name ");
+			final StringBuilder message = new StringBuilder("Thread Name ");
 			message.append(Thread.currentThread().getName()).append(newLine);
 			message.append(this.getClass().toString()).append(newLine).append(inMessage);
 			final ProcessingEvent evt = new ProcessingEvent(this, message.toString(),percentage);
@@ -1218,7 +1227,7 @@ final class IndexBuilder implements Runnable {
 	private  void fireException(final String string, final double percentage,Exception ex) {
 		synchronized (notificationListeners) {
 			final String newLine = System.getProperty("line.separator");
-			final StringBuffer message = new StringBuffer("Thread Name ");
+			final StringBuilder message = new StringBuilder("Thread Name ");
 			message.append(Thread.currentThread().getName()).append(newLine);
 			message.append(this.getClass().toString()).append(newLine).append(
 					string);
@@ -1371,18 +1380,17 @@ final class IndexBuilder implements Runnable {
 		final Properties properties = new Properties();
 		properties.setProperty("AbsolutePath", Boolean.toString(mosaicConfiguration.isAbsolutePath()));
 		properties.setProperty("LocationAttribute", mosaicConfiguration.getLocationAttribute());
-		properties.setProperty("Envelope2D", new StringBuffer(Double.toString(globalEnvelope.getMinimum(0))).append(",").append(
+		properties.setProperty("Envelope2D", new StringBuilder(Double.toString(globalEnvelope.getMinimum(0))).append(",").append(
 				Double.toString(globalEnvelope.getMinimum(1))).append(" ")
 				.append(Double.toString(globalEnvelope.getMaximum(0)))
-				.append(",").append(
-						Double.toString(globalEnvelope.getMaximum(1)))
+				.append(",").append(Double.toString(globalEnvelope.getMaximum(1)))
 				.toString());
 		
 		
 		final int numberOfLevels=mosaicConfiguration.getLevelsNum();
 		final double[][] resolutionLevels=mosaicConfiguration.getLevels();
 		properties.setProperty("LevelsNum", Integer.toString(numberOfLevels));
-		final StringBuffer levels = new StringBuffer();
+		final StringBuilder levels = new StringBuilder();
 		for (int k = 0; k < numberOfLevels; k++) {
 			levels.append(Double.toString(resolutionLevels[0][k])).append(",").append(Double.toString(resolutionLevels[1][k]));
 			if (k < numberOfLevels - 1)
@@ -1394,7 +1402,7 @@ final class IndexBuilder implements Runnable {
 		OutputStream outStream=null;
 		try {
 			outStream=new BufferedOutputStream(new FileOutputStream(runConfiguration.rootMosaicDirectory + "/" + runConfiguration.indexName + ".properties"));
-			properties.store(outStream, "");
+			properties.store(outStream, "-Automagically created-");
 		} catch (FileNotFoundException e) {
 			fireEvent(Level.SEVERE,e.getLocalizedMessage(), 0);
 		} catch (IOException e) {

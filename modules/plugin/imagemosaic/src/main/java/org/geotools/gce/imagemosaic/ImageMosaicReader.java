@@ -424,7 +424,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 		
 		final Collection<GridCoverage2D> response = rasterManager.read(params);
 		if(response.isEmpty())
-			throw new DataSourceException("Unable to create a coverage for this request ");
+			return null;
 		else
 			return response.iterator().next();
 	}
