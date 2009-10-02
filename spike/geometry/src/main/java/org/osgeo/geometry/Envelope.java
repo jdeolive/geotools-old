@@ -38,7 +38,7 @@ package org.osgeo.geometry;
 import org.osgeo.geometry.primitive.Point;
 
 /**
- * 
+ * Axis-parallel bounding box.
  * 
  * @author <a href="mailto:poth@lat-lon.de">Andreas Poth</a>
  * @author <a href="mailto:schneider@lat-lon.de">Markus Schneider</a>
@@ -78,16 +78,25 @@ public interface Envelope extends Geometry {
     public Envelope merge( Envelope other );
 
     /**
-     * Returns the width of the envelope (in units of the associated coordinate system).
+     * Returns the envelope's span of the first dimension (in units of the associated coordinate system).
      * 
-     * @return width of the envelope
+     * @return span of the first dimension
      */
-    public double getWidth();
+    public double getSpan0();
 
     /**
-     * Returns the width of the envelope (in units of the associated coordinate system).
+     * Returns the envelope's span of the second dimension (in units of the associated coordinate system).
      * 
-     * @return height of the envelope
+     * @return span of the second dimension
      */
-    public double getHeight();
+    public double getSpan1();
+
+    /**
+     * Returns the envelope's span of the second dimension (in units of the associated coordinate system).
+     * 
+     * @param dim
+     *            index of the span to be returned
+     * @return span of the specified dimension
+     */
+    public double getSpan( int dim );
 }
