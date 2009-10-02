@@ -171,56 +171,82 @@ public class OracleDialect extends PreparedStatementSQLDialect {
         final int TYPE_NAME = 6;
         String typeName = columnMetaData.getString(TYPE_NAME);
 		if (typeName.equals("SDO_GEOMETRY")) {
-	        Connection conn = null;
-	        Statement statement = null;
-	        ResultSet result = null;
-	        try {
 	            String tableName = columnMetaData.getString(TABLE_NAME);
 	            String columnName = columnMetaData.getString(COLUMN_NAME);
-
-	            // Oracle 9 compatible query
-	            String sqlStatement;
-	            if(canAccessUserViews(cx)) {
-	                sqlStatement = "SELECT META.SDO_LAYER_GTYPE\n" + 
-	            		"FROM ALL_INDEXES INFO\n" + 
-	            		"INNER JOIN MDSYS.USER_SDO_INDEX_METADATA META\n" + 
-	            		"ON INFO.INDEX_NAME = META.SDO_INDEX_NAME\n" + 
-	            		"WHERE INFO.TABLE_NAME = '" + tableName + "'\n" + 
-	            		"AND REPLACE(meta.sdo_column_name, '\"') = '" + columnName + "'\n";
-	            } else {
-	                sqlStatement = "SELECT META.SDO_LAYER_GTYPE\n" + 
-                    "FROM ALL_INDEXES INFO\n" + 
-                    "INNER JOIN MDSYS.ALL_SDO_INDEX_METADATA META\n" + 
-                    "ON INFO.INDEX_NAME = META.SDO_INDEX_NAME\n" + 
-                    "WHERE INFO.TABLE_NAME = '" + tableName + "'\n" + 
-                    "AND REPLACE(meta.sdo_column_name, '\"') = '" + columnName + "'\n";
-	            }
 	            String schema = dataStore.getDatabaseSchema();
-	            if(schema != null && !"".equals(schema)) {
-	                sqlStatement += " AND INFO.TABLE_OWNER = '" + schema + "'";
-	                if(!canAccessUserViews(cx)) {
-	                    sqlStatement += " AND META.SDO_INDEX_OWNER = '" + schema + "'";
-	                }
-	            }
-	            
-	            LOGGER.log(Level.FINE, "Geometry type check; {0} ", sqlStatement);
-	            statement = cx.createStatement();
-	            result = statement.executeQuery(sqlStatement);
-	
-	            if (result.next()) {
-	                String gType = result.getString(1);
-	                Class geometryClass = (Class) TT.GEOM_CLASSES.get(gType);
-	                if(geometryClass == null)
-	                    geometryClass = Geometry.class;
-	
-	                return geometryClass;
-	            } else {
-	                return Geometry.class;
-	            }
-	        }  finally {
-	            dataStore.closeSafe(result);
-	            dataStore.closeSafe(statement);
-	        }
+
+                    if (canAccessUserViews(cx)) {
+                        //we only try this block if we are able to access the
+                        //user_sdo views
+
+                        //setup the sql to use for the USER_SDO table
+                        String userSdoSqlStatement = "SELECT META.SDO_LAYER_GTYPE\n" +
+                            "FROM ALL_INDEXES INFO\n" +
+                            "INNER JOIN MDSYS.USER_SDO_INDEX_METADATA META\n" +
+                            "ON INFO.INDEX_NAME = META.SDO_INDEX_NAME\n" +
+                            "WHERE INFO.TABLE_NAME = '" + tableName + "'\n" +
+                            "AND REPLACE(meta.sdo_column_name, '\"') = '" + columnName + "'\n";
+
+                        if(schema != null && !"".equals(schema)) {
+                            userSdoSqlStatement += " AND INFO.TABLE_OWNER = '" + schema + "'";
+                        }
+
+                        Statement userSdoStatement = null;
+                        ResultSet userSdoResult = null;
+                        try {
+                            userSdoStatement = cx.createStatement();
+                            LOGGER.log(Level.FINE, "Geometry type check; {0} ", userSdoSqlStatement);
+                            userSdoResult = userSdoStatement.executeQuery(userSdoSqlStatement);
+                            if (userSdoResult.next()) {
+                                String gType = userSdoResult.getString(1);
+                                Class geometryClass = (Class) TT.GEOM_CLASSES.get(gType);
+                                if(geometryClass == null)
+                                    geometryClass = Geometry.class;
+
+                                return geometryClass;
+                            }
+                        } finally {
+                            dataStore.closeSafe(userSdoResult);
+                            dataStore.closeSafe(userSdoStatement);
+                        }
+                    }
+
+                    Statement allSdoStatement = null;
+                    ResultSet allSdoResult = null;
+                    try {
+                        //setup the sql to use for the ALL_SDO table
+                        String allSdoSqlStatement = "SELECT META.SDO_LAYER_GTYPE\n" +
+                            "FROM ALL_INDEXES INFO\n" +
+                            "INNER JOIN MDSYS.ALL_SDO_INDEX_METADATA META\n" +
+                            "ON INFO.INDEX_NAME = META.SDO_INDEX_NAME\n" +
+                            "WHERE INFO.TABLE_NAME = '" + tableName + "'\n" +
+                            "AND REPLACE(meta.sdo_column_name, '\"') = '" + columnName + "'\n";
+
+                        if(schema != null && !"".equals(schema)) {
+                            allSdoSqlStatement += " AND INFO.TABLE_OWNER = '" + schema + "'";
+                            allSdoSqlStatement += " AND META.SDO_INDEX_OWNER = '" + schema + "'";
+                        }
+
+                        allSdoStatement = cx.createStatement();
+                        LOGGER.log(Level.FINE, "Geometry type check; {0} ", allSdoSqlStatement);
+                        allSdoResult = allSdoStatement.executeQuery(allSdoSqlStatement);
+                        if (allSdoResult.next()) {
+                            String gType = allSdoResult.getString(1);
+                            Class geometryClass = (Class) TT.GEOM_CLASSES.get(gType);
+                            if(geometryClass == null)
+                                geometryClass = Geometry.class;
+
+                            return geometryClass;
+                        } else {
+                            //must default at this point, this is as far as we can go
+                            return Geometry.class;
+                        }
+
+                    } finally {
+                        dataStore.closeSafe(allSdoResult);
+                        dataStore.closeSafe(allSdoStatement);
+                    }
+
 		} else {
 			// if we know, return non null value, otherwise returning
 			// null will force the datatore to figure it out using 
@@ -440,38 +466,55 @@ public class OracleDialect extends PreparedStatementSQLDialect {
     public Integer getGeometrySRID(String schemaName, String tableName,
             String columnName, Connection cx) throws SQLException {
         
-        StringBuffer sql;
-        if(canAccessUserViews(cx)) {
-            sql = new StringBuffer("SELECT SRID FROM MDSYS.USER_SDO_GEOM_METADATA WHERE ");
-            sql.append( "TABLE_NAME='").append( tableName.toUpperCase() ).append("' AND ");
-            sql.append( "COLUMN_NAME='").append( columnName.toUpperCase() ).append( "'");
-        } else {
-            sql = new StringBuffer("SELECT SRID FROM MDSYS.ALL_SDO_GEOM_METADATA WHERE ");
-            sql.append( "TABLE_NAME='").append( tableName.toUpperCase() ).append("' AND ");
-            sql.append( "COLUMN_NAME='").append( columnName.toUpperCase() ).append( "'");
-            if(schemaName != null)
-                sql.append(" AND OWNER='" + schemaName + "'");
-        }
-        
-        Statement st = cx.createStatement();
-        try {
-            ResultSet rs = st.executeQuery( sql.toString() );
+        if (canAccessUserViews(cx)) {
+            StringBuffer userSdoSql = new StringBuffer("SELECT SRID FROM MDSYS.USER_SDO_GEOM_METADATA WHERE ");
+            userSdoSql.append( "TABLE_NAME='").append( tableName.toUpperCase() ).append("' AND ");
+            userSdoSql.append( "COLUMN_NAME='").append( columnName.toUpperCase() ).append( "'");
+
+            Statement userSdoStatement = null;
+            ResultSet userSdoResult = null;
             try {
-                if ( rs.next() ) {
-                    Object srid = rs.getObject( 1 );
-                    if ( srid == null ) {
-                        return null;
+                userSdoStatement = cx.createStatement();
+                LOGGER.log(Level.FINE, "SRID check; {0} ", userSdoSql.toString());
+                userSdoResult = userSdoStatement.executeQuery(userSdoSql.toString());
+                if (userSdoResult.next()) {
+                    Object srid = userSdoResult.getObject( 1 );
+                    if ( srid != null ) {
+                        //return the SRID number if it was found in the USER_SDO
+                        return ((Number) srid).intValue();
                     }
-                    
-                    return ((Number) srid).intValue();
                 }
+            } finally {
+                dataStore.closeSafe(userSdoResult);
+                dataStore.closeSafe(userSdoStatement);
+            }
+        }
+
+        StringBuffer allSdoSql = new StringBuffer("SELECT SRID FROM MDSYS.ALL_SDO_GEOM_METADATA WHERE ");
+        allSdoSql.append( "TABLE_NAME='").append( tableName.toUpperCase() ).append("' AND ");
+        allSdoSql.append( "COLUMN_NAME='").append( columnName.toUpperCase() ).append( "'");
+        if(schemaName != null)
+            allSdoSql.append(" AND OWNER='" + schemaName + "'");
+
+        Statement allSdoStatement = null;
+        ResultSet allSdoResult = null;
+        try {
+            allSdoStatement = cx.createStatement();
+            LOGGER.log(Level.FINE, "SRID check; {0} ", allSdoSql.toString());
+            allSdoResult = allSdoStatement.executeQuery(allSdoSql.toString());
+            if (allSdoResult.next()) {
+                Object srid = allSdoResult.getObject( 1 );
+                if ( srid == null ) {
+                    return null;
+                }
+                //return the SRID number if it was found in the ALL_SDO
+                return ((Number) srid).intValue();
+            } else {
                 return null;
             }
-            finally {
-                dataStore.closeSafe( rs );
-            }
         } finally {
-            dataStore.closeSafe( st );
+            dataStore.closeSafe(allSdoResult);
+            dataStore.closeSafe(allSdoStatement);
         }
     }
     
