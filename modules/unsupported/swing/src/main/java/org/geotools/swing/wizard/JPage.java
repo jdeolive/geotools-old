@@ -44,7 +44,7 @@ public abstract class JPage {
     /**
      * The page contents; created as needed.
      */
-    protected JPanel panel;
+    private JPanel panel;
     
     /**
      * Identifier used to track this page in a work flow.
@@ -82,8 +82,9 @@ public abstract class JPage {
      */
     public final JPanel getPanel() {
         if( panel == null){
-            panel = createPanel();
+            return createPanel();
         }
+        
         return panel;        
     }
 
@@ -136,13 +137,16 @@ public abstract class JPage {
     /**
      * Called to initialize the page for the first time.
      * <p>
-     * Please note this method will only be called once; even if the
+     * Please note this method will normally only be called once; even if the
      * user clicks forwards and backwards to return to your page. It
-     * is only called if getPannel() returns null.
+     * is only called if getPanel() returns null.
+     * <p>
+     * Calling this method directly will erase any previously constructed
+     * panel.
      */
     public JPanel createPanel(){
-        // by default an empty JPanel is returned        
-        return new JPanel();
+        panel = new JPanel();
+        return panel;
     }
     /**
      * Called just before the panel is to be displayed.

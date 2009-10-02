@@ -72,7 +72,8 @@ public class JDataStorePage extends JPage {
 
     @Override
     public JPanel createPanel() {
-        final JPanel page = new JPanel(new MigLayout());
+        final JPanel page = super.createPanel();
+        page.setLayout(new MigLayout());
         JLabel title = new JLabel(format.getDisplayName());
         Font titleFont = new Font("Arial", Font.BOLD, 14);
         title.setFont(titleFont);
