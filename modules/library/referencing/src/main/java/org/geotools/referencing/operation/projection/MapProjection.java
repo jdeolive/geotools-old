@@ -50,6 +50,7 @@ import org.geotools.referencing.operation.MathTransformProvider;
 import org.geotools.referencing.operation.transform.AbstractMathTransform;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
+import org.geotools.util.Utilities;
 import org.geotools.util.logging.Logging;
 
 import static java.lang.Math.*;
@@ -1223,7 +1224,7 @@ public abstract class MapProjection extends AbstractMathTransform
      * Two {@link Double#NaN NaN} values are considered equals.
      */
     static boolean equals(final double value1, final double value2) {
-        return Double.doubleToLongBits(value1) == Double.doubleToLongBits(value2);
+        return Utilities.equals(value1, value2); 
     }
 
 
