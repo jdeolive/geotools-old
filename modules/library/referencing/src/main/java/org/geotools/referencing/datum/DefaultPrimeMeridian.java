@@ -171,12 +171,12 @@ public class DefaultPrimeMeridian extends AbstractIdentifiedObject implements Pr
         if (super.equals(object, compareMetadata)) {
             final DefaultPrimeMeridian that = (DefaultPrimeMeridian) object;
             if (compareMetadata) {
-                return Double.doubleToLongBits(this.greenwichLongitude) ==
-                       Double.doubleToLongBits(that.greenwichLongitude) &&
+                return Utilities.equals(this.greenwichLongitude, that.greenwichLongitude) &&
                        Utilities.equals(this.angularUnit, that.angularUnit);
             } else {
-                return Double.doubleToLongBits(this.getGreenwichLongitude(NonSI.DEGREE_ANGLE)) ==
-                       Double.doubleToLongBits(that.getGreenwichLongitude(NonSI.DEGREE_ANGLE));
+                return Utilities.equals(this.getGreenwichLongitude(NonSI.DEGREE_ANGLE), 
+                        that.getGreenwichLongitude(NonSI.DEGREE_ANGLE));
+                
                 /*
                  * Note: if compareMetadata==false, we relax the unit check because EPSG uses
                  *       sexagesimal degrees for the Greenwich meridian. Requirying the same
