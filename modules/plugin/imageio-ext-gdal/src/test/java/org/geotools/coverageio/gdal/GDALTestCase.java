@@ -46,7 +46,7 @@ public class GDALTestCase  {
 	protected static void forceDataLoading(final GridCoverage2D gc) {
     	Assert.assertNotNull(gc);
 
-        if (TestData.isInteractiveTest()) {
+        if (true) {
            final JFrame frame= new JFrame();
            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
            frame.getContentPane().add(new ScrollingImagePanel(gc.getRenderedImage(),800,800));

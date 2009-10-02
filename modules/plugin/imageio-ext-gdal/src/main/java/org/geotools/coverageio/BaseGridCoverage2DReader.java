@@ -394,7 +394,10 @@ public abstract class BaseGridCoverage2DReader extends AbstractGridCoverage2DRea
         
 
         // compute the request.
-        return (GridCoverage2D) requestCoverage(request).getGridCoverage();
+        final RasterLayerResponse response = requestCoverage(request);
+        if(response!=null)
+        	return (GridCoverage2D) response.getGridCoverage();
+        return null;
     }
 
     /**
