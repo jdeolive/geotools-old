@@ -275,8 +275,14 @@ public class DefaultOperation extends DefaultSingleOperation implements Operatio
              *
              * As a safety, we still compare the name. But I'm not completly sure that it is
              * necessary.
+             * 
+             * AA: this comparison was removed to allow the common case of Conformal 1SP vs
+             * conformal 2SP equivalence to succeed a equalsIgnoreMetadata comparison. Extensive tests
+             * revealed no regressions, as it was noted above, there is no proof this is actually
+             * necessary
              */
-            return nameMatches(this.method, that.method);
+            // return nameMatches(this.method, that.method);
+            return true;
         }
         return false;
     }
