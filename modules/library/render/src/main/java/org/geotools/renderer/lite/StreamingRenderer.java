@@ -2052,7 +2052,8 @@ public final class StreamingRenderer implements GTRenderer {
 					coverage = (GridCoverage2D) reader.read(new GeneralParameterValue[] { readGG });
 				}
 				try{
-					gcr.paint(graphics, coverage, symbolizer);
+					if(coverage!=null)
+						gcr.paint(graphics, coverage, symbolizer);
 				}
 				finally {
 
