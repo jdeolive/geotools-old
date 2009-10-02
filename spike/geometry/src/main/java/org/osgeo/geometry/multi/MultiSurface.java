@@ -17,8 +17,6 @@
  */
 package org.osgeo.geometry.multi;
 
-import org.osgeo.commons.uom.Measure;
-import org.osgeo.commons.uom.Unit;
 import org.osgeo.geometry.primitive.Surface;
 
 /**
@@ -30,12 +28,5 @@ import org.osgeo.geometry.primitive.Surface;
  * @version. $Revision$, $Date$
  */
 public interface MultiSurface extends MultiGeometry<Surface> {
-
-    /**
-     * The are of all contained {@link Surface}s.
-     * 
-     * @param requestedBaseUnit
-     * @return accumulated area of the surfaces
-     */
-    public Measure getArea( Unit requestedBaseUnit );
+    // marker interface
 }

@@ -19,9 +19,6 @@ package org.osgeo.geometry.primitive;
 
 import java.util.List;
 
-import org.osgeo.commons.uom.Measure;
-import org.osgeo.commons.uom.Unit;
-import org.osgeo.geometry.points.Points;
 import org.osgeo.geometry.primitive.segments.LineStringSegment;
 
 /**
@@ -63,21 +60,4 @@ public interface Tin extends TriangulatedSurface {
      * @return the break lines
      */
     public List<List<LineStringSegment>> getBreakLines();
-
-    /**
-     * Returns the maximum length of all triangle side.
-     * 
-     * @param uom
-     *            units-of-measure that the length shall be expressed as, or null for units of the underlying coordinate
-     *            system
-     * @return the length in the the requested uom
-     */
-    public Measure getMaxLength( Unit uom );
-
-    /**
-     * Returns the control points (vertices) of the triangles.
-     * 
-     * @return the control points
-     */
-    public Points getControlPoints();
 }

@@ -19,9 +19,6 @@ package org.osgeo.geometry.primitive;
 
 import java.util.List;
 
-import org.osgeo.commons.uom.Unit;
-import org.osgeo.commons.uom.Measure;
-
 /**
  * <code>Solid</code> instances are 3D-geometries that ...
  * 
@@ -56,20 +53,6 @@ public interface Solid extends GeometricPrimitive {
      * @return the type of solid
      */
     public SolidType getSolidType();
-
-    /**
-     * 
-     * @param requestedBaseUnit 
-     * @return volume of the solid
-     */
-    public Measure getVolume( Unit requestedBaseUnit );
-
-    /**
-     * 
-     * @param requestedBaseUnit 
-     * @return area of the solid's boundary
-     */
-    public Measure getArea( Unit requestedBaseUnit );
 
     /**
      * Returns the exterior surface (shell) of the solid.

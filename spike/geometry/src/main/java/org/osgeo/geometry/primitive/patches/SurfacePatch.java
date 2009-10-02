@@ -17,8 +17,6 @@
  */
 package org.osgeo.geometry.primitive.patches;
 
-import org.osgeo.commons.uom.Measure;
-import org.osgeo.commons.uom.Unit;
 import org.osgeo.geometry.primitive.Surface;
 
 /**
@@ -59,12 +57,4 @@ public interface SurfacePatch {
      * @return the coordinate dimension
      */
     public int getCoordinateDimension();
-
-    /**
-     * Returns the area covered by the patch.
-     * 
-     * @param uom
-     * @return area covered by the patch in the requested uom
-     */
-    public Measure getArea( Unit uom );
 }

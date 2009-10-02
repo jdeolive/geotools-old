@@ -19,8 +19,6 @@ package org.osgeo.geometry.primitive;
 
 import java.util.List;
 
-import org.osgeo.commons.uom.Measure;
-import org.osgeo.commons.uom.Unit;
 import org.osgeo.geometry.composite.CompositeCurve;
 import org.osgeo.geometry.points.Points;
 import org.osgeo.geometry.primitive.segments.CurveSegment;
@@ -77,22 +75,6 @@ public interface Curve extends GeometricPrimitive {
      * @return true, if the curve forms a closed loop, false otherwise
      */
     public boolean isClosed();
-
-    /**
-     * 
-     * @param requestedUnit
-     * @return length of the curve
-     */
-    public Measure getLength( Unit requestedUnit );
-
-    /**
-     * The boundary of a curve is the set of points at either end of the curve. If the curve is a cycle, the two ends
-     * are identical, and the curve (if topologically closed) is considered to not have a boundary.
-     * 
-     * @return boundary of a curve. If a curve does not have a boundary because it is closed an empty {@link List} shall
-     *         be retruned
-     */
-    public Points getBoundary();
 
     /**
      * Returns the start point of the curve.

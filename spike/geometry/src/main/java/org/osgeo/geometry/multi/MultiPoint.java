@@ -28,5 +28,5 @@ import org.osgeo.geometry.primitive.Point;
  * @version. $Revision$, $Date$
  */
 public interface MultiPoint extends MultiGeometry<Point> {
-    // no additional methods
+    // marker interface
 }

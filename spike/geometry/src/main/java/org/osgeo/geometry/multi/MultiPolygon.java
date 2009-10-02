@@ -17,8 +17,6 @@
  */
 package org.osgeo.geometry.multi;
 
-import org.osgeo.commons.uom.Measure;
-import org.osgeo.commons.uom.Unit;
 import org.osgeo.geometry.primitive.Polygon;
 
 /**
@@ -30,12 +28,5 @@ import org.osgeo.geometry.primitive.Polygon;
  * @version. $Revision$, $Date$
  */
 public interface MultiPolygon extends MultiGeometry<Polygon> {
-
-    /**
-     * The are of all contained {@link Polygon}s.
-     * 
-     * @param requestedBaseUnit
-     * @return accumulated area of the polygons
-     */
-    public Measure getArea( Unit requestedBaseUnit );
+    // marker interface
 }

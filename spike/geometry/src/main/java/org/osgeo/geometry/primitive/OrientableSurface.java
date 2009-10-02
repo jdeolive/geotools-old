@@ -21,14 +21,14 @@ package org.osgeo.geometry.primitive;
 /**
  * An <code>OrientableSurface</code> consists of a wrapped base {@link Surface} and an additional orientation.
  * <p>
- * If the orientation is *not* reversed, then the <code>OrientableSurfacec</code> is identical to the base curve. If the
+ * If the orientation is *not* reversed, then the <code>OrientableSurface</code> is identical to the base curve. If the
  * orientation is reversed, then the OrientableSurface is a reference to a surface with an up-normal that reverses the
  * direction for this OrientableSurface, the sense of "the top of the surface".
  *
  * @author <a href="mailto:schneider@lat-lon.de">Markus Schneider </a>
- * @author last edited by: $Author:$
+ * @author last edited by: $Author$
  *
- * @version $Revision:$, $Date:$
+ * @version $Revision$, $Date$
  */
 public interface OrientableSurface extends Surface {
 

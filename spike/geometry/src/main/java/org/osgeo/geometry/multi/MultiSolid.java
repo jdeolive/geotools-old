@@ -17,8 +17,6 @@
  */
 package org.osgeo.geometry.multi;
 
-import org.osgeo.commons.uom.Measure;
-import org.osgeo.commons.uom.Unit;
 import org.osgeo.geometry.primitive.Solid;
 
 /**
@@ -30,19 +28,5 @@ import org.osgeo.geometry.primitive.Solid;
  * @version. $Revision$, $Date$
  */
 public interface MultiSolid extends MultiGeometry<Solid> {
-
-    /**
-     * 
-     * @param requestedBaseUnit
-     * @return volume of the solids
-     */
-    public Measure getVolume( Unit requestedBaseUnit );
-
-    /**
-     * 
-     * @param requestedBaseUnit
-     * @return area of the solid's boundaries
-     */
-    public Measure getArea( Unit requestedBaseUnit );
-
+    // marker interface
 }

@@ -17,8 +17,6 @@
  */
 package org.osgeo.geometry.multi;
 
-import org.osgeo.commons.uom.Measure;
-import org.osgeo.commons.uom.Unit;
 import org.osgeo.geometry.primitive.Curve;
 
 /**
@@ -30,13 +28,5 @@ import org.osgeo.geometry.primitive.Curve;
  * @version. $Revision$, $Date$
  */
 public interface MultiCurve extends MultiGeometry<Curve> {
-
-    /**
-     * The length of a <code>MultiCurve</code> is calculated as the sum of the length of all contained
-     * {@link Curve}s.
-     * 
-     * @param requestedUnit
-     * @return accumulated length
-     */
-    public Measure getLength( Unit requestedUnit );
+    // marker interface
 }

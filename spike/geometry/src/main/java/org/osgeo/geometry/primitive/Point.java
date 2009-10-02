@@ -41,7 +41,7 @@ public interface Point extends GeometricPrimitive {
      * 
      * @return value of the ordinate 0
      */
-    public double get0(); // ordainte 0; rather then first ordiante to avoid confusion
+    public double get0();
 
     /**
      * Returns the value of the ordinate 1.
