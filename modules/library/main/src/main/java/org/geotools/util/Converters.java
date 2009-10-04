@@ -111,7 +111,10 @@ public final class Converters {
 
 	/**
 	 * Convenience for {@link #convert(Object, Class, Hints)}
-	 *
+	 * @param source The object to convert.
+         * @param target The type of the converted value.
+	 * @return The converted value as an instance of target, or <code>null</code> if a converter
+         * could not be found
 	 * @since 2.4
 	 */
 	public static <T> T convert( Object source, Class<T> target ) {

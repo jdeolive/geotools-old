@@ -1,6 +1,8 @@
 package org.geotools.util;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 /**
  * A linked HashMap set up for easy construction.
@@ -29,6 +31,31 @@ public class KVP extends LinkedHashMap<String, Object> {
         for (int i = 0; i < pairs.length; i += 2) {
             String key = (String) pairs[i];
             Object value = pairs[i + 1];
+            add(key, value);
+        }
+    }
+    /**
+     * An additive version of put; will add additional values resulting
+     * in a list.
+     * @param key
+     * @param value
+     */
+    @SuppressWarnings("unchecked")
+    public void add(String key, Object value) {
+        if( containsKey(key) ) {
+            Object existing = get( key );
+            if( existing instanceof List<?>){
+                List<Object> list = (List<Object>) existing;
+                list.add( value );
+            }
+            else {
+                List<Object> list = new ArrayList<Object>();
+                list.add( existing );
+                list.add( value );
+                put( key, list );
+            }
+        }
+        else {
             put(key, value);
         }
     }

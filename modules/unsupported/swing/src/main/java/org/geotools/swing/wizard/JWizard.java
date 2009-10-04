@@ -336,6 +336,7 @@ public class JWizard extends JDialog {
                 syncButtonsToPage();
                 return; // not valid so we cannot go on
             }
+            current.preClosePanel();        
             close(FINISH);            
         }
         

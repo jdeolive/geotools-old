@@ -162,13 +162,25 @@ public class Parameter<T> {
      * @param type Java class for the expected value
      * @param title Human readable title used for use in a user interface
      * @param description Human readable description
-     * @deprecated Please translate title and description into an InternationalString  
      */
      public Parameter(String key, Class<T> type, String title,
      		String description ) {
          this( key, type, new SimpleInternationalString(title), new SimpleInternationalString(description) );
      }
 
+     /**
+      * Mandatory parameter - quickly constructed with out a properly internationalized
+      * title and description.
+      * 
+      * @param key machine readable key for use in a java.util.Map
+      * @param type Java class for the expected value
+      * @param title Human readable title used for use in a user interface
+      * @param description Human readable description
+      */
+      public Parameter(String key, Class<T> type, String title,
+                 String description, Map<String,Object> metadata ) {
+          this( key, type, new SimpleInternationalString(title), new SimpleInternationalString(description), metadata);
+      }
    /**
     * Mandatory parameter
     * @param key machine readable key for use in a java.util.Map

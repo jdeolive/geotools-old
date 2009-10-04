@@ -38,7 +38,6 @@ import org.geotools.feature.FeatureCollection;
 import org.geotools.filter.FilterTransformer;
 import org.geotools.filter.text.cql2.CQL;
 import org.geotools.swing.data.JDataStoreWizard;
-import org.geotools.swing.data.JFileDataStoreWizard;
 import org.geotools.swing.data.TypeNameChooser;
 import org.geotools.swing.wizard.JWizard;
 import org.opengis.feature.Feature;

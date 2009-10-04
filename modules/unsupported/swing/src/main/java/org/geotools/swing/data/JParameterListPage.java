@@ -18,9 +18,8 @@
 package org.geotools.swing.data;
 
 import java.awt.Font;
-import java.io.IOException;
-import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -30,11 +29,10 @@ import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
 
-import org.geotools.data.DataStoreFactorySpi;
 import org.geotools.data.Parameter;
-import org.geotools.data.DataAccessFactory.Param;
 import org.geotools.swing.wizard.JPage;
 import org.geotools.swing.wizard.ParamField;
+import org.geotools.util.Converters;
 
 /**
  * A wizard page that will prompt the user for a file of the supplied format ask for any additional
@@ -44,65 +42,37 @@ import org.geotools.swing.wizard.ParamField;
  * - but will only show parameters that match the indicated "level". If level is null it
  * assumed to be "user".
  */
-public class JDataStorePage extends JPage {
-    /**
-     * Factory for which we are collection connection parameters
-     */
-    protected DataStoreFactorySpi format;
+public class JParameterListPage extends JPage {
+    String title;
+    String description;
+    List<Parameter<?>> contents;
 
     /** Map of user interface ParamFields displayed to the user */
-    private Map<Param, ParamField> fields = new HashMap<Param, ParamField>();
+    private Map<Parameter<?>, ParamField> fields = new HashMap<Parameter<?>, ParamField>();
 
     /** Connection params for datastore */
     protected Map<String, Object> connectionParameters;
 
-    /** level of parameters to display */
-    private String level = null;
-
-    public JDataStorePage(DataStoreFactorySpi format) {
-        this(format, null);
-    }
-
-    public JDataStorePage(DataStoreFactorySpi format, Map<String, Object> params) {
-        this.format = format;
-        if (params == null) {
-            params = new HashMap<String, Object>();
-            for (Param param : format.getParametersInfo()) {
-                params.put(param.key, (Serializable) param.sample);
-            }
-        }
+    public JParameterListPage(String title, String description, List<Parameter<?>> contents, Map<String, Object> params) {
+        this.title = title;
+        this.description =description;        
+        this.contents = contents;
         this.connectionParameters = params;
-    }
-
-    public void setLevel(String level) {
-        this.level = level;
     }
 
     @Override
     public JPanel createPanel() {
         final JPanel page = super.createPanel();
         page.setLayout(new MigLayout());
-        JLabel title = new JLabel(format.getDisplayName());
+        JLabel title = new JLabel(this.title);
         Font titleFont = new Font("Arial", Font.BOLD, 14);
         title.setFont(titleFont);
         page.add(title, "span");
-        JLabel description = new JLabel(format.getDescription());
-        page.add(description, "grow, span");
-
-        for (Param param : format.getParametersInfo()) {
-            if( level != null ){
-                String check = param.metadata == null ? "user" : (String) param.metadata.get(Parameter.LEVEL);
-                
-                if( check == null ){
-                    check = "user";
-                }
-                if (level.equals( check )){
-                    // we are good this is the one we want
-                }
-                else {
-                    continue; // skip since it is not the one we want
-                }
-            }
+        if( this.description != null ){
+            JLabel description = new JLabel( this.description);
+            page.add(description, "grow, span");
+        }
+        for (Parameter<?> param : contents ){            
             String txt = param.title.toString();
             if( param.required ){
                 txt +="*";
@@ -127,20 +97,21 @@ public class JDataStorePage extends JPage {
     @Override
     public void preDisplayPanel() {
         // populate panel from params map
-        for (Entry<Param, ParamField> entry : fields.entrySet()) {
-            Param param = entry.getKey();
+        for (Entry<Parameter<?>, ParamField> entry : fields.entrySet()) {
+            Parameter<?> param = entry.getKey();
             ParamField field = entry.getValue();
             Object value = null;
-            try {
-                value = param.lookUp(connectionParameters);
-            } catch (IOException e) {
-            }
+            Object object = connectionParameters.get( param.key);
+            value = Converters.convert( object, param.type );
+            if( value == null ) {
+                value = object;
+            }                
             if( value == null && param.required ){
                 value = param.sample;
             }
             field.setValue(value);
         }
-        for (Entry<Param, ParamField> entry : fields.entrySet()) {
+        for (Entry<Parameter<?>, ParamField> entry : fields.entrySet()) {
             ParamField field = entry.getValue();
             field.addListener(getJWizard().getController());
         }
@@ -148,15 +119,15 @@ public class JDataStorePage extends JPage {
 
     @Override
     public void preClosePanel() {
-        for (Entry<Param, ParamField> entry : fields.entrySet()) {
-            Param param = entry.getKey();
+        for (Entry<Parameter<?>, ParamField> entry : fields.entrySet()) {
+            Parameter<?> param = entry.getKey();
             ParamField field = entry.getValue();
 
             Object value = field.getValue();
-            connectionParameters.put(param.key, (Serializable) value);
-            field.setValue(value);
+            connectionParameters.put(param.key, value);
+            //field.setValue(value);
         }
-        for (Entry<Param, ParamField> entry : fields.entrySet()) {
+        for (Entry<Parameter<?>, ParamField> entry : fields.entrySet()) {
             ParamField field = entry.getValue();
             field.removeListener(getJWizard().getController());
         }
@@ -165,12 +136,15 @@ public class JDataStorePage extends JPage {
     @Override
     public boolean isValid() {
         // populate panel
-        for (Entry<Param, ParamField> entry : fields.entrySet()) {
-            if (!entry.getValue().validate()) {                
+        for (Entry<Parameter<?>, ParamField> entry : fields.entrySet()) {
+            Parameter<?> param = entry.getKey();
+            ParamField field = entry.getValue();
+
+            if (!field.validate()) {                
                 return false; // not validate
             }
-            if (entry.getKey().required && entry.getValue().getValue() == null) {
-
+            if (param.required && field.getValue() == null) {
+                return false; // a value is required here
             }
         }
         return true;

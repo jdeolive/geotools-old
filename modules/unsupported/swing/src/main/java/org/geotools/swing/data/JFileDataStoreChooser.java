@@ -20,6 +20,8 @@ import java.awt.Component;
 import java.awt.HeadlessException;
 import java.io.File;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import javax.swing.JFileChooser;
@@ -50,6 +52,7 @@ import org.geotools.data.FileDataStoreFinder;
  * @version $Id$
  */
 public class JFileDataStoreChooser extends JFileChooser {
+    private static final long serialVersionUID = -7482109609487216939L;
 
     /**
      * Create a dialog that filters for files with the specified extension.
@@ -60,12 +63,7 @@ public class JFileDataStoreChooser extends JFileChooser {
         this(new String[]{extension});
     }
 
-    /**
-     * Create a dialog that filters for files with the specified extensions.
-     *
-     * @param extensions the file extensions, with or without the leading '.'
-     */
-    public JFileDataStoreChooser(final String[] extensions) {
+    static Map<String, String> associations( List<String> extensions ){
         Map<String, String> fileAssociations = new TreeMap<String, String>();
 
         for (String extension : extensions) {
@@ -92,8 +90,25 @@ public class JFileDataStoreChooser extends JFileChooser {
                 }
             }
         }
-
-        init( fileAssociations );
+        return fileAssociations;
+    }
+    
+    /**
+     * Create a dialog that filters for files with the specified extensions.
+     *
+     * @param extensions the file extensions, with or without the leading '.'
+     */
+    public JFileDataStoreChooser(final List<String> extensions) {
+        this( associations( extensions ));
+    }
+    
+    /**
+     * Create a dialog that filters for files with the specified extensions.
+     *
+     * @param extensions the file extensions, with or without the leading '.'
+     */
+    public JFileDataStoreChooser(final String[] extensions) {
+        this( associations( Arrays.asList(extensions)));
     }
 
     /**

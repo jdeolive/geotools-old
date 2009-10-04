@@ -12,36 +12,33 @@
 package org.geotools.demo;
 
 import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import net.miginfocom.swing.MigLayout;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.FileDataStore;
 import org.geotools.data.FileDataStoreFinder;
+import org.geotools.data.Parameter;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.gce.geotiff.GeoTiffReader;
-import org.geotools.styling.ChannelSelection;
-import org.geotools.styling.RasterSymbolizer;
-import org.geotools.styling.SelectedChannelType;
-import org.geotools.swing.JMapFrame;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.map.MapContext;
+import org.geotools.styling.ChannelSelection;
 import org.geotools.styling.ContrastEnhancement;
+import org.geotools.styling.RasterSymbolizer;
 import org.geotools.styling.SLD;
+import org.geotools.styling.SelectedChannelType;
 import org.geotools.styling.Style;
 import org.geotools.styling.StyleFactory;
-import org.geotools.swing.data.JFileDataStoreChooser;
-import org.geotools.swing.wizard.JPage;
+import org.geotools.swing.JMapFrame;
+import org.geotools.swing.data.JParameterListWizard;
 import org.geotools.swing.wizard.JWizard;
+import org.geotools.util.KVP;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.FilterFactory;
@@ -53,30 +50,43 @@ public class ImageLab {
         ImageLab me = new ImageLab();
         me.getLayersAndDisplay();
     }
-// docs end main
 
-// docs start get layers
+    // docs end main
+
+    // docs start get layers
     /**
-     * Prompts the user for a GeoTIFF file and a Shapefile and passes
-     * them to the displayLayers method
+     * Prompts the user for a GeoTIFF file and a Shapefile and passes them to the displayLayers
+     * method
      */
     private void getLayersAndDisplay() throws Exception {
-        DataWizard wizard = new DataWizard("ImageLab");
-        int rtnVal = wizard.showModalDialog();
-        if (rtnVal != DataWizard.FINISH) {
+        List<Parameter<?>> list = new ArrayList<Parameter<?>>();
+        list.add(new Parameter<File>("image", File.class, "Image",
+                "GeoTiff image to use as basemap", new KVP(Parameter.EXT, "tif")));
+        list.add(new Parameter<File>("shape", File.class, "Shapefile",
+                "Shapefile contents to display", new KVP(Parameter.EXT, "shp")));
+
+        JParameterListWizard wizard = new JParameterListWizard("Image Lab",
+                "Fill in the following layers", list);
+        int finish = wizard.showModalDialog();
+
+        if (finish != JWizard.FINISH) {
             System.exit(0);
         }
-
-        displayLayers(wizard.getRasterFile(), wizard.getShapefile());
+        File imageFile = (File) wizard.getConnectionParameters().get("image");
+        File shapeFile = (File) wizard.getConnectionParameters().get("shape");
+        displayLayers(imageFile, shapeFile);
     }
-// docs end get layers
 
-// docs start display layers
+    // docs end get layers
+
+    // docs start display layers
     /**
      * Displays a GeoTIFF file overlaid with a Shapefile
-     *
-     * @param rasterFile the GeoTIFF file
-     * @param shpFile the Shapefile
+     * 
+     * @param rasterFile
+     *            the GeoTIFF file
+     * @param shpFile
+     *            the Shapefile
      */
     private void displayLayers(File rasterFile, File shpFile) throws Exception {
         /*
@@ -104,7 +114,8 @@ public class ImageLab {
          * Connect to the shapefile
          */
         FileDataStore dataStore = FileDataStoreFinder.getDataStore(shpFile);
-        FeatureSource<SimpleFeatureType, SimpleFeature> shapefileSource = dataStore.getFeatureSource();
+        FeatureSource<SimpleFeatureType, SimpleFeature> shapefileSource = dataStore
+                .getFeatureSource();
 
         /*
          * Create a basic style with yellow lines and no fill
@@ -121,16 +132,18 @@ public class ImageLab {
 
         JMapFrame.showMap(map);
     }
-// docs end display layers
 
-// docs start create style
+    // docs end display layers
+
+    // docs start create style
     /**
-     * This method examines the names of the sample dimensions in the provided coverage
-     * looking for "red...", "green..." and "blue..." (case insensitive match). It then
-     * sets up a raster symbolizer and returns this wrapped in a Style.
-     *
-     * @param coverage the coverage to be rendered
-     *
+     * This method examines the names of the sample dimensions in the provided coverage looking for
+     * "red...", "green..." and "blue..." (case insensitive match). It then sets up a raster
+     * symbolizer and returns this wrapped in a Style.
+     * 
+     * @param coverage
+     *            the coverage to be rendered
+     * 
      * @return a new Style object containing a raster symbolizer set up for RGB image
      */
     private static Style createRGBStyle(GeoTiffReader reader) {
@@ -171,99 +184,8 @@ public class ImageLab {
 
         return SLD.wrapSymbolizers(sym);
     }
-// docs end create style
 
-// docs start wizard
-    /**
-     * Wizard used to prompt for the input files
-     */
-    class DataWizard extends JWizard {
+    // docs end create style
 
-        DataPage page;
-
-        public DataWizard(String title) {
-            super(title);
-            page = new DataPage();
-            this.registerWizardPanel(page);
-        }
-
-        File getRasterFile() { return page.rasterFile; }
-
-        File getShapefile() { return page.shapeFile; }
-    }
-
-    /*
-     * The single page for the input file wizard
-     */
-    class DataPage extends JPage {
-
-        JTextField rasterTxt;
-        JTextField shapefileTxt;
-
-        File rasterFile;
-        File shapeFile;
-
-        @Override
-        public JPanel createPanel() {
-            JPanel page = new JPanel(new MigLayout());
-
-            JLabel label = new JLabel("Raster file");
-            page.add(label);
-
-            rasterTxt = new JTextField(30);
-            page.add(rasterTxt, "growx");
-
-            JButton btn = new JButton("Browse");
-            btn.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    JFileDataStoreChooser chooser = new JFileDataStoreChooser(new String[]{"tif", "tiff"});
-                    chooser.setDialogTitle("Choose a GeoTIFF file");
-                    if (chooser.showOpenDialog(null) == JFileDataStoreChooser.APPROVE_OPTION) {
-                        rasterTxt.setText(chooser.getSelectedFile().getAbsolutePath());
-                        DataPage.this.getJWizard().getController().syncButtonsToPage();
-                    }
-                }
-            });
-            page.add(btn, "wrap");
-
-
-            label = new JLabel("Shapefile");
-            page.add(label);
-
-            shapefileTxt = new JTextField(30);
-            page.add(shapefileTxt, "growx");
-
-            btn = new JButton("Browse");
-            btn.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    JFileDataStoreChooser chooser = new JFileDataStoreChooser("shp");
-                    chooser.setDialogTitle("Choose a shapefile");
-                    if (chooser.showOpenDialog(null) == JFileDataStoreChooser.APPROVE_OPTION) {
-                        shapefileTxt.setText(chooser.getSelectedFile().getAbsolutePath());
-                        DataPage.this.getJWizard().getController().syncButtonsToPage();
-                    }
-                }
-            });
-            page.add(btn, "wrap");
-
-            return page;
-        }
-
-        @Override
-        public boolean isValid() {
-            rasterFile = new File(rasterTxt.getText());
-            if (!rasterFile.exists()) {
-                return false;
-            }
-
-            shapeFile = new File(shapefileTxt.getText());
-            if (!shapeFile.exists()) {
-                return false;
-            }
-
-            return true;
-        }
-
-    }
 }
 // docs end source

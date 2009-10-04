@@ -16,6 +16,7 @@
  */
 package org.geotools.swing.wizard;
 
+import java.io.File;
 import java.net.URL;
 
 import javax.swing.JComponent;
@@ -105,7 +106,11 @@ public abstract class ParamField {
             JField field = new JField(parameter);
             field.setSingleLine(true);
             return field;
-        } else if (Geometry.class.isAssignableFrom(parameter.type)) {
+        }
+        else if (File.class.isAssignableFrom(parameter.type)){
+            return new JFileField( parameter );
+        }
+        else if (Geometry.class.isAssignableFrom(parameter.type)) {
             return new JGeometryField(parameter);
         } else {
             // We got nothing special hope the converter api can deal
