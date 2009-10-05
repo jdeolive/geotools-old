@@ -551,12 +551,12 @@ class ImageMosaicUtils {
 
 
 			//
-			// name
+			// name is not optional
 			//
-			if(!properties.containsKey("Envelope2D"))
+			if(!properties.containsKey("Name"))
 			{
 				if(LOGGER.isLoggable(Level.SEVERE))
-					LOGGER.severe("Required key Envelope2D not found.");		
+					LOGGER.severe("Required key Name not found.");		
 				return  null;
 			}			
 			String coverageName = properties.getProperty("Name").trim();
@@ -847,9 +847,6 @@ class ImageMosaicUtils {
 			return null;
 		return inStream;
 	}
-
-
-
 
 
 	/**
