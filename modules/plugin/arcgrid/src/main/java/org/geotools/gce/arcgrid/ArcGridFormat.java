@@ -32,7 +32,6 @@ import org.geotools.parameter.DefaultParameterDescriptor;
 import org.geotools.parameter.DefaultParameterDescriptorGroup;
 import org.geotools.parameter.ParameterGroup;
 import org.opengis.coverage.grid.Format;
-import org.opengis.coverage.grid.GridCoverageReader;
 import org.opengis.coverage.grid.GridCoverageWriter;
 import org.opengis.parameter.GeneralParameterDescriptor;
 
@@ -109,7 +108,7 @@ public final class ArcGridFormat extends AbstractGridFormat implements Format {
 	 * @see org.geotools.data.coverage.grid.AbstractGridFormat#getReader(Object
 	 *      source)
 	 */
-	public GridCoverageReader getReader(Object source) {
+	public ArcGridReader getReader(Object source) {
 		return getReader(source, null);
 	}
 
@@ -159,7 +158,7 @@ public final class ArcGridFormat extends AbstractGridFormat implements Format {
 	 * @see org.geotools.data.coverage.grid.AbstractGridFormat#getReader(Object,
 	 *      Hints)
 	 */
-	public GridCoverageReader getReader(Object source, Hints hints) {
+	public ArcGridReader getReader(Object source, Hints hints) {
 		try {
 			return new ArcGridReader(source, hints);
 		} catch (DataSourceException e) {

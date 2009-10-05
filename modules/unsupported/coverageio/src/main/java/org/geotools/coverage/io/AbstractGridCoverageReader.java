@@ -54,6 +54,7 @@ import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.coverage.grid.GridRange;
 import org.opengis.geometry.Envelope;
+import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 
@@ -434,7 +435,7 @@ public abstract class AbstractGridCoverageReader implements GridCoverageReader {
         }
         return name;
     }
-
+    
     /**
      * Returns the coordinate reference system for the {@link GridCoverage} to be read.
      *

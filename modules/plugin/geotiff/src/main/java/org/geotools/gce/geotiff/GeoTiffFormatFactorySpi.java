@@ -39,8 +39,8 @@ import java.awt.RenderingHints;
 import java.util.Collections;
 import java.util.Map;
 
+import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.GridFormatFactorySpi;
-import org.opengis.coverage.grid.Format;
 
 /**
  * The <CODE>GeoTiffFormatFactorySpi</CODE> should never be instantiated
@@ -61,7 +61,6 @@ import org.opengis.coverage.grid.Format;
  * @source $URL:
  *         http://svn.geotools.org/geotools/trunk/gt/plugin/geotiff/src/org/geotools/gce/geotiff/GeoTiffFormatFactorySpi.java $
  */
-@SuppressWarnings("deprecation")
 public final class GeoTiffFormatFactorySpi implements GridFormatFactorySpi {
 	/**
 	 * Creates a new instance of GeoTiffFormatFactorySpi
@@ -79,7 +78,7 @@ public final class GeoTiffFormatFactorySpi implements GridFormatFactorySpi {
 	 * @throws UnsupportedOperationException
 	 *             if this format is unavailable.
 	 */
-	public Format createFormat() {
+	public AbstractGridFormat createFormat() {
 		if (!isAvailable()) {
 			throw new UnsupportedOperationException(
 					"The GeoTiff plugin requires the JAI and JAI ImageI/O libraries!");

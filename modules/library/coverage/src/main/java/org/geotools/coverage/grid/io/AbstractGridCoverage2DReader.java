@@ -23,6 +23,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.ColorModel;
 import java.awt.image.SampleModel;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -52,10 +53,15 @@ import org.geotools.referencing.operation.transform.IdentityTransform;
 import org.geotools.referencing.operation.transform.ProjectiveTransform;
 import org.geotools.util.logging.Logging;
 import org.opengis.coverage.ColorInterpretation;
+import org.opengis.coverage.grid.Format;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.coverage.grid.GridCoverageReader;
 import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.coverage.grid.GridRange;
+import org.opengis.parameter.GeneralParameterValue;
+import org.opengis.parameter.InvalidParameterNameException;
+import org.opengis.parameter.InvalidParameterValueException;
+import org.opengis.parameter.ParameterNotFoundException;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.datum.PixelInCell;
@@ -158,6 +164,35 @@ public abstract class AbstractGridCoverage2DReader implements
 	protected GridCoverageFactory coverageFactory;
 
 	private ArrayList<Resolution> resolutionsLevels;
+
+    /**
+     * Read the current grid coverage from the stream.
+     * <p>
+     * Example:<pre><code>
+     * </code></pre>
+     * The method {@link #hasMoreGridCoverages} should be invoked first in order to verify that a
+     * coverage is available.
+     * 
+     * @param parameters Optional parameters matching {@link Format#getReadParameters}.
+     * @return a {@linkplain GridCoverage grid coverage} from the input source.
+     * @throws InvalidParameterNameException
+     *             if a parameter in {@code parameters} doesn't have a recognized name.
+     * @throws InvalidParameterValueException
+     *             if a parameter in {@code parameters} doesn't have a valid value.
+     * @throws ParameterNotFoundException
+     *             if a parameter was required for the operation but was not provided in the {@code
+     *             parameters} list.
+     * @throws CannotCreateGridCoverageException
+     *             if the coverage can't be created for a logical reason (for example an unsupported
+     *             format, or an inconsistency found in the data).
+     * @throws IOException
+     *             if a read operation failed for some other input/output reason, including
+     *             {@link FileNotFoundException} if no file with the given {@code name} can be
+     *             found, or {@link javax.imageio.IIOException} if an error was thrown by the
+     *             underlying image library.
+     */
+    public abstract GridCoverage read(GeneralParameterValue[] parameters)
+            throws IllegalArgumentException, IOException;
 
 	// -------------------------------------------------------------------------
 	//

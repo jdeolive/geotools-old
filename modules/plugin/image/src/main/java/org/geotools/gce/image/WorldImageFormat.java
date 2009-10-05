@@ -20,12 +20,10 @@ package org.geotools.gce.image;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -39,7 +37,6 @@ import org.geotools.parameter.DefaultParameterDescriptor;
 import org.geotools.parameter.DefaultParameterDescriptorGroup;
 import org.geotools.parameter.ParameterGroup;
 import org.opengis.coverage.grid.Format;
-import org.opengis.coverage.grid.GridCoverageReader;
 import org.opengis.coverage.grid.GridCoverageWriter;
 import org.opengis.parameter.GeneralParameterDescriptor;
 import org.opengis.parameter.ParameterDescriptor;
@@ -159,7 +156,7 @@ public final class WorldImageFormat extends AbstractGridFormat implements
 	 * 
 	 * @return a new WorldImageReader for the source
 	 */
-	public GridCoverageReader getReader(Object source) {
+	public WorldImageReader getReader(Object source) {
 		return getReader(source, null);
 	}
 
@@ -337,7 +334,7 @@ public final class WorldImageFormat extends AbstractGridFormat implements
 	 *            {@link Hints} to control the provided {@link WorldImageReader}.
 	 * @return a new WorldImageReader for the source
 	 */
-	public GridCoverageReader getReader(Object source, Hints hints) {
+	public WorldImageReader getReader(Object source, Hints hints) {
 		try {
 			return new WorldImageReader(source, hints);
 		} catch (DataSourceException e) {

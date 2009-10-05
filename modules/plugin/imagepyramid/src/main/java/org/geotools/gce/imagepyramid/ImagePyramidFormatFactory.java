@@ -57,7 +57,7 @@ public final class ImagePyramidFormatFactory implements GridFormatFactorySpi {
 	 * Creates a new {@link ImagePyramidFormat}.
 	 * @return an OpenGIS {@link Format} subclass for this coverage.
 	 */
-	public Format createFormat() {
+	public ImagePyramidFormat createFormat() {
 		return new ImagePyramidFormat();
 	}
 

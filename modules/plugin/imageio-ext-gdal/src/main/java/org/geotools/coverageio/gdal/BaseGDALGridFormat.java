@@ -22,6 +22,7 @@ import java.util.logging.Logger;
 
 import javax.imageio.spi.ImageReaderSpi;
 
+import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.imageio.GeoToolsWriteParams;
 import org.geotools.factory.Hints;
@@ -106,7 +107,7 @@ public abstract class BaseGDALGridFormat extends AbstractGridFormat implements
      * @see org.geotools.data.coverage.grid.AbstractGridFormat#getReader(Object
      *      source)
      */
-    public GridCoverageReader getReader(Object source) {
+    public AbstractGridCoverage2DReader getReader(Object source) {
         return getReader(source, null);
     }
 

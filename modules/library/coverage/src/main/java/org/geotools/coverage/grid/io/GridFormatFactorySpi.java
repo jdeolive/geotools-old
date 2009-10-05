@@ -20,7 +20,6 @@ package org.geotools.coverage.grid.io;
 import java.io.IOException;
 
 import org.geotools.factory.OptionalFactory;
-import org.opengis.coverage.grid.Format;
 
 
 /**
@@ -64,7 +63,7 @@ public interface GridFormatFactorySpi extends OptionalFactory {
      *                     if there were any problems creating or connecting
      *                     the datasource.
      */
-    Format createFormat();
+    AbstractGridFormat createFormat();
 
 
 

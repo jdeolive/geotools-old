@@ -87,7 +87,7 @@ public final class ECWFormat extends BaseGDALGridFormat implements Format {
     /**
      * @see org.geotools.data.coverage.grid.AbstractGridFormat#getReader(Object, Hints)
      */
-    public GridCoverageReader getReader(Object source, Hints hints) {
+    public ECWReader getReader(Object source, Hints hints) {
         try {
             return new ECWReader(source, hints);
         } catch (MismatchedDimensionException e) {

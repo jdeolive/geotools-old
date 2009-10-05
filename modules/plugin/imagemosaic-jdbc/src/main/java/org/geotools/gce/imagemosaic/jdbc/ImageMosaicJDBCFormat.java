@@ -139,7 +139,7 @@ public class ImageMosaicJDBCFormat extends AbstractGridFormat implements Format 
 	 * @see org.geotools.data.coverage.grid.AbstractGridFormat#getReader(Object)
 	 */
 	@Override
-	public GridCoverageReader getReader(Object source) {
+	public ImageMosaicJDBCReader getReader(Object source) {
 		return getReader(source, null);
 	}
 
@@ -190,7 +190,7 @@ public class ImageMosaicJDBCFormat extends AbstractGridFormat implements Format 
 	 * @see AbstractGridFormat#getReader(Object, Hints)
 	 */
 	@Override
-	public GridCoverageReader getReader(Object source, Hints hints) {
+	public ImageMosaicJDBCReader getReader(Object source, Hints hints) {
 		try {
 			return new ImageMosaicJDBCReader(source, hints);
 		} catch (Exception e) {

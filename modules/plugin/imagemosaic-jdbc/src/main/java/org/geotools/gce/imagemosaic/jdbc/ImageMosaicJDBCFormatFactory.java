@@ -57,7 +57,7 @@ public class ImageMosaicJDBCFormatFactory implements GridFormatFactorySpi {
 	/**
 	 * @see GridFormatFactorySpi#createFormat().
 	 */
-	public Format createFormat() {
+	public ImageMosaicJDBCFormat createFormat() {
 		return new ImageMosaicJDBCFormat();
 	}
 

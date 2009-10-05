@@ -215,7 +215,7 @@ public final class GeoTiffFormat extends AbstractGridFormat implements Format {
 	 * 
 	 * @return a GeoTiffReader object initialized to the specified File.
 	 */
-	public GridCoverageReader getReader(Object source) {
+	public GeoTiffReader getReader(Object source) {
 		return getReader(source, null);
 	}
 
@@ -231,7 +231,7 @@ public final class GeoTiffFormat extends AbstractGridFormat implements Format {
 	 * 
 	 * @return a GeoTiffReader object initialized to the specified File.
 	 */
-	public GridCoverageReader getReader(Object source, Hints hints) {
+	public GeoTiffReader getReader(Object source, Hints hints) {
 		// if (source instanceof CatalogEntry) {
 		// source = ((CatalogEntry) source).resource();
 		// }

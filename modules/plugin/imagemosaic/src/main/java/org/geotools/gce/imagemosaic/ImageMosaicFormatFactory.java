@@ -74,7 +74,7 @@ public final class ImageMosaicFormatFactory implements GridFormatFactorySpi {
 	/**
 	 * @see GridFormatFactorySpi#createFormat().
 	 */
-	public Format createFormat() {
+	public ImageMosaicFormat createFormat() {
 		return new ImageMosaicFormat();
 	}
 

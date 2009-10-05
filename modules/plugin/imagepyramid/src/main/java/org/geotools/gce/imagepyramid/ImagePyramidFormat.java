@@ -152,7 +152,7 @@ public final class ImagePyramidFormat extends AbstractGridFormat implements Form
 	 * @return An {@link ImagePyramidReader} if the provided object can be read
 	 *         using this plugin or null.
 	 */
-	public GridCoverageReader getReader(Object source) {
+	public ImagePyramidReader getReader(Object source) {
 		return getReader(source, null);
 	}
 
@@ -315,7 +315,7 @@ public final class ImagePyramidFormat extends AbstractGridFormat implements Form
 	 * @return An {@link ImagePyramidReader} if the provided object can be read
 	 *         using this plugin or null.
 	 */
-	public GridCoverageReader getReader(Object source, Hints hints) {
+	public ImagePyramidReader getReader(Object source, Hints hints) {
 		try {
 
 			return new ImagePyramidReader(source, hints);

@@ -70,7 +70,7 @@ public final class ArcGridFormatFactory implements GridFormatFactorySpi {
 	 * 
 	 * @return An {@link ArcGridFormat}.;
 	 */
-	public Format createFormat() {
+	public ArcGridFormat createFormat() {
 		return new ArcGridFormat();
 	}
 
