@@ -44,6 +44,7 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.ImageTypeSpecifier;
+import javax.imageio.spi.ImageReaderSpi;
 import javax.imageio.stream.ImageInputStream;
 import javax.swing.SwingUtilities;
 
@@ -478,6 +479,8 @@ final class IndexBuilder implements Runnable {
 	 */
 	final class MosaicDirectoryWalker  extends DirectoryWalker{
 
+		private ImageReaderSpi cachedSPI;
+		
 		@Override
 		protected void handleCancelled(File startDirectory, Collection results,
 				CancelException cancel) throws IOException {
@@ -540,12 +543,38 @@ final class IndexBuilder implements Runnable {
 					return;
 				}
 				inStream.mark();
-				final Iterator<ImageReader> it = ImageIO.getImageReaders(inStream);
-				if (it.hasNext()) {
-					imageioReader = it.next();
-					if(imageioReader!=null)
+				
+				
+				cachedSPITest: {
+					// there is no cached reader spi, let's look for one
+					if(cachedSPI==null){
+						final Iterator<ImageReader> it = ImageIO.getImageReaders(inStream);
+						if (it.hasNext()) {
+							imageioReader = it.next();
+							if(imageioReader!=null){
+								//cache the SPI
+								cachedSPI=imageioReader.getOriginatingProvider();
+								imageioReader.setInput(inStream);
+							}
+						}
+						else
+							imageioReader=null;
+					}
+					else
+					{
+						// we have a cached SPI, let's try to use it
+						if(!cachedSPI.canDecodeInput(inStream)){				
+							// the SPI is no good for this input
+							cachedSPI=null;
+							//take me to the SPI search
+							break cachedSPITest;
+						}
+						// the spi is good
+						imageioReader=cachedSPI.createReaderInstance();
 						imageioReader.setInput(inStream);
-				} 
+					}
+				}
+				// did we found a reader
 				if(imageioReader==null)
 				{
 					// send a message
