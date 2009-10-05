@@ -113,7 +113,8 @@ public class ImageLab {
         }
 
         /*
-         * Create a Style that will be used to display the raster data
+         * Initially display the raster in greyscale using the
+         * data from the first image band
          */
         Style rasterStyle = createGreyscaleStyle(1);
 
@@ -130,7 +131,7 @@ public class ImageLab {
         Style shpStyle = SLD.createPolygonStyle(Color.YELLOW, null, 0.0f);
 
         /*
-         * Set up a MapContext with the two layers and display it
+         * Set up a MapContext with the two layers
          */
         final MapContext map = new DefaultMapContext();
         map.setTitle("ImageLab");
@@ -138,13 +139,13 @@ public class ImageLab {
         map.addLayer(shapefileSource, shpStyle);
 
         /*
-         * Create a JMapFrame with a menu to set the display style for the raster
+         * Create a JMapFrame with a menu to choose the display style for the
+         * GeoTIFF image
          */
         frame = new JMapFrame(map);
         frame.setSize(800, 600);
         frame.enableStatusBar(true);
         frame.enableTool(JMapFrame.Tool.ZOOM, JMapFrame.Tool.PAN, JMapFrame.Tool.RESET);
-        frame.initComponents();
 
         JMenuBar menuBar = new JMenuBar();
         frame.setJMenuBar(menuBar);
@@ -176,12 +177,21 @@ public class ImageLab {
         menu.add(greyItem);
 
         menuBar.add(menu);
+
+        /*
+         * Finally display the map frame.
+         * When it is closed the app will exit.
+         */
         frame.setVisible(true);
     }
+    
+    // docs end display layers
 
+
+    // docs start create greyscale
     /**
-     * Prompt the user for an image band and set it as the
-     * channel for greyscale display
+     * Create a Style to display a selected band of the GeoTIFF image
+     * as a greyscale layer
      *
      * @return a new Style instance to render the image in greyscale
      */
@@ -212,15 +222,20 @@ public class ImageLab {
 
         return null;
     }
+    // docs end create greyscale
 
+
+    // docs start create greyscale band
     /**
-     * Helper for createGreyScale() that is also called directly by displayLayers()
-     * when the application first starts. It creates a RasterSymbolizer and wraps
-     * it in a new Style object.
+     * Create a Style to display the specified band of the GeoTIFF image
+     * as a greyscale layer.
+     * <p>
+     * This method is a helper for createGreyScale() and is also called directly
+     * by the displayLayers() method when the application first starts.
      *
      * @param band the image band to use for the greyscale display
      *
-     * @return a new Style instance
+     * @return a new Style instance to render the image in greyscale
      */
     private Style createGreyscaleStyle(int band) {
         ContrastEnhancement ce = sf.contrastEnhancement(ff.literal(1.0), ContrastMethod.NORMALIZE);
@@ -233,7 +248,9 @@ public class ImageLab {
         return SLD.wrapSymbolizers(sym);
     }
 
-    // docs start create style
+    // docs end create greyscale band
+
+    // docs start create rgb style
     /**
      * This method examines the names of the sample dimensions in the provided coverage looking for
      * "red...", "green..." and "blue..." (case insensitive match). If these names are not found
@@ -315,7 +332,7 @@ public class ImageLab {
         return SLD.wrapSymbolizers(sym);
     }
 
-    // docs end create style
+    // docs end create rgb style
 
 }
 // docs end source
