@@ -974,7 +974,7 @@ public class UnmappingFilterVisitor implements org.opengis.filter.FilterVisitor,
      * @param simplifiedSteps
      * @return
      */
-    private List<Expression> findMappingsFor(FeatureTypeMapping mappings,
+    protected List<Expression> findMappingsFor(FeatureTypeMapping mappings,
             final StepList propertyName) {
         // collect all the mappings for the given property
         List candidates;

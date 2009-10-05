@@ -296,7 +296,7 @@ public class FeatureChainingTest {
         final String LITHOLOGY = "lithology";
         final int EXPECTED_RESULT_COUNT = 2;
         // get controlled concept features on their own
-        MappingFeatureIterator iterator = (MappingFeatureIterator) ccFeatures.iterator();
+        AbstractMappingFeatureIterator iterator = (AbstractMappingFeatureIterator) ccFeatures.iterator();
         int count = 0;
         Map<String, Feature> featureList = new HashMap<String, Feature>();
         try {
@@ -649,7 +649,7 @@ public class FeatureChainingTest {
                 Object clientProps = property.getUserData().get(Attributes.class);
                 assertNotNull(clientProps);
                 assertEquals(clientProps instanceof HashMap, true);
-                Object hrefValue = ((Map) clientProps).get(MappingFeatureIterator.XLINK_HREF_NAME);
+                Object hrefValue = ((Map) clientProps).get(AbstractMappingFeatureIterator.XLINK_HREF_NAME);
 
                 // ensure the right href:xlink is there
                 assertEquals(hrefValue, MF_PREFIX + mfIds[propertyIndex]);
@@ -741,7 +741,7 @@ public class FeatureChainingTest {
     }
 
     protected static int getCount(FeatureCollection<FeatureType, Feature> features) {
-        MappingFeatureIterator iterator = (MappingFeatureIterator) features.iterator();
+        AbstractMappingFeatureIterator iterator = (AbstractMappingFeatureIterator) features.iterator();
         int count = 0;
         try {
             while (iterator.hasNext()) {

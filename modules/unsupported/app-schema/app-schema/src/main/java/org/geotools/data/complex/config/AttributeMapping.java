@@ -27,6 +27,7 @@ import java.util.Map;
  * 
  * @author Gabriel Roldan, Axios Engineering
  * @author Rini Angreani, Curtin University of Technology
+ * @author Russell Petty, GSV
  * @version $Id$
  * @source $URL$
  * @since 2.4
@@ -44,6 +45,10 @@ public class AttributeMapping implements Serializable {
      */
     private String inputAttributePath;
     /**
+     * XPath expression indicating the node in xml of an individual feature.
+     */ 
+    private String identifierPath;
+    /**
      * Expression whose evaluation result against a Feature of the source FeatureType is going to be
      * the value of the target attribute in output FeatureType.
      * 
@@ -53,6 +58,26 @@ public class AttributeMapping implements Serializable {
      */
     private String sourceExpression;
 
+    /**
+     * Label used to refer to an attribute.
+     */
+    private String label;
+
+    /**
+     * Reference to other attribute identified with 'label'.
+     */
+    private String parentLabel;
+
+    /**
+     * Filters will refer to this element via this label.
+     */
+    private String targetQueryString;
+    
+    /**
+     * Reference to instance xpath.
+     */
+    private String instancePath;
+    
     /**
      * Name of the linked element type of which this attribute is nesting/targeting.
      */
@@ -142,7 +167,47 @@ public class AttributeMapping implements Serializable {
     public void setInputAttributePath(String inputAttributePath) {
         this.inputAttributePath = inputAttributePath;
     }
+    
+    public String getLabel() {
+        return label;
+    }
 
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public String getParentLabel() {
+        return parentLabel;
+    }
+
+    public void setParentLabel(String parentLabel) {
+        this.parentLabel = parentLabel;
+    }
+    
+    public String getTargetQueryString() {
+        return targetQueryString;
+    }
+
+    public void setTargetQueryString(String targetQueryString) {
+        this.targetQueryString = targetQueryString;
+    }
+
+    public String getInstancePath() {
+        return instancePath;
+    }
+
+    public void setInstancePath(String instancePath) {
+        this.instancePath = instancePath;
+    }
+    
+    public String getIdentifierPath() {
+        return identifierPath;
+    }
+
+    public void setIdentifierPath(String identifierPath) {
+        this.identifierPath = identifierPath;
+    }  
+    
     /**
      * Returns the name of the linked element type of which this attribute is nesting/targeting.
      * 

@@ -47,7 +47,9 @@ import org.geotools.data.FeatureSource;
 import org.geotools.data.complex.AttributeMapping;
 import org.geotools.data.complex.DataAccessRegistry;
 import org.geotools.data.complex.FeatureTypeMapping;
+import org.geotools.data.complex.FeatureTypeMappingFactory;
 import org.geotools.data.complex.NestedAttributeMapping;
+import org.geotools.data.complex.TreeAttributeMapping;
 import org.geotools.data.complex.filter.XPath;
 import org.geotools.data.complex.filter.XPath.Step;
 import org.geotools.data.complex.filter.XPath.StepList;
@@ -73,6 +75,7 @@ import org.xml.sax.helpers.NamespaceSupport;
  * 
  * @author Gabriel Roldan, Axios Engineering
  * @author Rini Angreani, Curtin University of Technology
+ * @author Russell Petty, GSV
  * @version $Id$
  * @source $URL:
  *         http://svn.osgeo.org/geotools/trunk/modules/unsupported/app-schema/app-schema/src/main
@@ -205,11 +208,12 @@ public class AppSchemaDataAccessConfigurator {
                     target.getType().getUserData().put("schemaURI", schemaURI);
                 }
             }
-            List attMappings = getAttributeMappings(target, dto.getAttributeMappings());
+            List attMappings = getAttributeMappings(target, dto.getAttributeMappings(), dto.getItemXpath());
 
             FeatureTypeMapping mapping;
 
-            mapping = new FeatureTypeMapping(featureSource, target, attMappings, namespaces);
+            mapping = FeatureTypeMappingFactory.getInstance(featureSource, target, attMappings, namespaces,
+                    dto.getItemXpath(), dto.isXmlDataStore());
 
             featureTypeMappings.add(mapping);
         }
@@ -239,8 +243,8 @@ public class AppSchemaDataAccessConfigurator {
      * 
      * @return
      */
-    private List getAttributeMappings(final AttributeDescriptor root, final List attDtos)
-            throws IOException {
+    private List getAttributeMappings(final AttributeDescriptor root, final List attDtos,
+            String itemXpath) throws IOException {
         List attMappings = new LinkedList();
 
         for (Iterator it = attDtos.iterator(); it.hasNext();) {
@@ -248,14 +252,25 @@ public class AppSchemaDataAccessConfigurator {
             org.geotools.data.complex.config.AttributeMapping attDto;
             attDto = (org.geotools.data.complex.config.AttributeMapping) it.next();
 
-            String idExpr = attDto.getIdentifierExpression();
+            String idExpr = attDto.getIdentifierExpression();            
+            String idXpath = null;
+            if (idExpr == null) {
+             // this might be because it's an XPath expression
+                idXpath = attDto.getIdentifierPath();
+                if (idXpath != null) {
+                    //validate without indexed elements
+                    final StepList inputXPathSteps = XPath.steps(root, itemXpath + "/"+ idXpath, namespaces);
+                    validateConfiguredNamespaces(inputXPathSteps);
+                }                         
+            }
+                        
             String sourceExpr = attDto.getSourceExpression();
             String inputXPath = null;
             if (sourceExpr == null) {
                 // this might be because it's an XPath expression
                 inputXPath = attDto.getInputAttributePath();
                 if (inputXPath != null) {
-                    final StepList inputXPathSteps = XPath.steps(root, inputXPath, namespaces);
+                    final StepList inputXPathSteps = XPath.steps(root, itemXpath + "/" + inputXPath, namespaces);
                     validateConfiguredNamespaces(inputXPathSteps);
                 }
             }
@@ -267,16 +282,19 @@ public class AppSchemaDataAccessConfigurator {
 
             final boolean isMultiValued = attDto.isMultiple();
 
-            final Expression idExpression = parseOgcCqlExpression(idExpr);
+            final Expression idExpression = (idXpath == null) ? parseOgcCqlExpression(idExpr)
+                    : new AttributeExpressionImpl(idXpath, new Hints(
+                            FeaturePropertyAccessorFactory.NAMESPACE_CONTEXT, this.namespaces));
             // if the data source is a data access, the input XPath expression is the source
             // expression
-            final Expression sourceExpression = (inputXPath == null) ? parseOgcCqlExpression(sourceExpr)
-                    : new AttributeExpressionImpl(inputXPath, new Hints(
-                            FeaturePropertyAccessorFactory.NAMESPACE_CONTEXT, this.namespaces));
+            final Expression sourceExpression; 
+
+            sourceExpression = (inputXPath == null) ? parseOgcCqlExpression(sourceExpr) : new AttributeExpressionImpl(inputXPath, new Hints(
+                  FeaturePropertyAccessorFactory.NAMESPACE_CONTEXT, this.namespaces));
 
             final AttributeType expectedInstanceOf;
 
-            final Map clientProperties = getClientProperties(attDto);
+            final Map clientProperties = getClientProperties(attDto, itemXpath);
 
             if (expectedInstanceTypeName != null) {
                 Name expectedNodeTypeName = degloseTypeName(expectedInstanceTypeName);
@@ -293,6 +311,11 @@ public class AppSchemaDataAccessConfigurator {
             }
             AttributeMapping attMapping;
             String sourceElement = attDto.getLinkElement();
+            if(attDto.getLabel() != null || attDto.getParentLabel() != null) {
+                attMapping = new TreeAttributeMapping(idExpression, sourceExpression, targetXPathSteps,
+                        expectedInstanceOf, isMultiValued, clientProperties, attDto.getLabel(), 
+                        attDto.getParentLabel(), attDto.getTargetQueryString(), attDto.getInstancePath());
+            } else
             if (sourceElement != null) {
                 // nested complex attributes
                 String sourceField = attDto.getLinkField();
@@ -360,7 +383,7 @@ public class AppSchemaDataAccessConfigurator {
      *         mapping)
      * @throws DataSourceException
      */
-    private Map getClientProperties(org.geotools.data.complex.config.AttributeMapping dto)
+    private Map getClientProperties(org.geotools.data.complex.config.AttributeMapping dto, String inputXPath)
             throws DataSourceException {
 
         if (dto.getClientProperties().size() == 0) {
@@ -373,7 +396,17 @@ public class AppSchemaDataAccessConfigurator {
             String name = (String) entry.getKey();
             Name qName = degloseName(name);
             String cqlExpression = (String) entry.getValue();
-            Expression expression = parseOgcCqlExpression(cqlExpression);
+            
+            final Expression expression;
+            if (inputXPath == null) {
+                expression =  parseOgcCqlExpression(cqlExpression);
+            } else if(cqlExpression.startsWith("'")) {
+                expression = new AttributeExpressionImpl(cqlExpression, null);
+            } else {
+                expression =  new AttributeExpressionImpl(cqlExpression, new Hints(
+                        FeaturePropertyAccessorFactory.NAMESPACE_CONTEXT, this.namespaces));
+            }
+                        
             clientProperties.put(qName, expression);
         }
         return clientProperties;

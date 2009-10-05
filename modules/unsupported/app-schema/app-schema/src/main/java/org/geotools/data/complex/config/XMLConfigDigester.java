@@ -37,6 +37,7 @@ import org.xml.sax.SAXException;
  * @author Gabriel Roldan, Axios Engineering
  * @author Rini Angreani, Curtin University of Technology
  * @author Ben Caradoc-Davies, CSIRO Exploration and Mining
+ * @author Russell Petty, GSV
  * @version $Id$
  * @source $URL$
  * @since 2.4
@@ -173,13 +174,33 @@ public class XMLConfigDigester {
         digester.addCallParam(typeMapping + "/sourceType", 0);
         digester.addCallMethod(typeMapping + "/targetElement", "setTargetElementName", 1);
         digester.addCallParam(typeMapping + "/targetElement", 0);
-
+        digester.addCallMethod(typeMapping + "/itemXpath", "setItemXpath", 1);
+        digester.addCallParam(typeMapping + "/itemXpath", 0);
+        
+        // isXmlDataStore is a flag to denote that AppSchema needs to process
+        //the data from the datastore differently as it returns xml rather than features.        
+        digester.addCallMethod(typeMapping + "/isXmlDataStore", "setXmlDataStore", 1);
+        digester.addCallParam(typeMapping + "/isXmlDataStore", 0);
+        
         // create attribute mappings
         final String attMappings = typeMapping + "/attributeMappings";
         digester.addObjectCreate(attMappings, XMLConfigDigester.CONFIG_NS_URI, ArrayList.class);
 
         final String attMap = attMappings + "/AttributeMapping";
         digester.addObjectCreate(attMap, XMLConfigDigester.CONFIG_NS_URI, AttributeMapping.class);
+
+        digester.addCallMethod(attMap + "/label", "setLabel", 1);
+        digester.addCallParam(attMap + "/label", 0);
+
+        digester.addCallMethod(attMap + "/parentLabel", "setParentLabel", 1);
+        digester.addCallParam(attMap + "/parentLabel", 0);
+        
+        digester.addCallMethod(attMap + "/targetQueryString", "setTargetQueryString", 1);
+        digester.addCallParam(attMap + "/targetQueryString", 0);
+        
+        digester.addCallMethod(attMap + "/instancePath", "setInstancePath", 1);
+        digester.addCallParam(attMap + "/instancePath", 0);
+        
 
         digester.addCallMethod(attMap + "/isMultiple", "setMultiple", 1);
         digester.addCallParam(attMap + "/isMultiple", 0);
@@ -196,7 +217,10 @@ public class XMLConfigDigester {
 
         digester.addCallMethod(attMap + "/sourceExpression/OCQL", "setSourceExpression", 1);
         digester.addCallParam(attMap + "/sourceExpression/OCQL", 0);
-        
+
+        digester.addCallMethod(attMap + "/idExpression/inputAttribute", "setIdentifierPath", 1);
+        digester.addCallParam(attMap + "/idExpression/inputAttribute", 0);
+
         // if the source is a data access, then the input is in XPath expression
         digester.addCallMethod(attMap + "/sourceExpression/inputAttribute", "setInputAttributePath", 1);
         digester.addCallParam(attMap + "/sourceExpression/inputAttribute", 0);

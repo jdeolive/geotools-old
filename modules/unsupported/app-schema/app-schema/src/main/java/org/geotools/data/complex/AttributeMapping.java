@@ -105,7 +105,16 @@ public class AttributeMapping {
     public boolean isNestedAttribute() {
         return false;
     }
-
+    
+    /**
+     * This is overridden by TreeAttributeMapping
+     * 
+     * @return always return false
+     */
+    public boolean isTreeAttribute() {
+        return false;
+    }
+    
     @Override
     public boolean equals(Object o) {
         if (this == o) {

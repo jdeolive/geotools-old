@@ -40,6 +40,7 @@ import org.geotools.data.SchemaNotFoundException;
 import org.geotools.data.ServiceInfo;
 import org.geotools.data.complex.config.NonFeatureTypeProxy;
 import org.geotools.data.complex.filter.UnmappingFilterVisitor;
+import org.geotools.data.complex.filter.UnmappingFilterVistorFactory;
 import org.geotools.data.complex.filter.XPath;
 import org.geotools.data.complex.filter.XPath.StepList;
 import org.geotools.factory.CommonFactoryFinder;
@@ -325,7 +326,7 @@ public class AppSchemaDataAccess implements DataAccess<FeatureType, Feature> {
      * @return TODO: implement filter unrolling
      */
     public static Filter unrollFilter(Filter complexFilter, FeatureTypeMapping mapping) {
-        UnmappingFilterVisitor visitor = new UnmappingFilterVisitor(mapping);
+        UnmappingFilterVisitor visitor = UnmappingFilterVistorFactory.getInstance(mapping);
         Filter unrolledFilter = (Filter) complexFilter.accept(visitor, null);
         return unrolledFilter;
     }

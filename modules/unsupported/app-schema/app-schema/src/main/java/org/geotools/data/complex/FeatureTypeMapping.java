@@ -58,6 +58,8 @@ public class FeatureTypeMapping {
 
     NamespaceSupport namespaces;
 
+    String itemXpath;
+    
     /**
      * No parameters constructor for use by the digester configuration engine as a JavaBean
      */
@@ -73,6 +75,13 @@ public class FeatureTypeMapping {
         this.namespaces = namespaces;
     }
 
+    public FeatureTypeMapping(FeatureSource source, AttributeDescriptor target,
+            List<AttributeMapping> mappings, NamespaceSupport namespaces,
+            String itemXpath) {
+        this(source, target, mappings, namespaces);
+        this.itemXpath = itemXpath;
+    }
+    
     public List<AttributeMapping> getAttributeMappings() {
         return Collections.unmodifiableList(attributeMappings);
     }
@@ -141,6 +150,10 @@ public class FeatureTypeMapping {
 
     public NamespaceSupport getNamespaces() {
         return namespaces;
+    }
+
+    public String getItemXpath() {
+        return itemXpath;
     }
 
     /**

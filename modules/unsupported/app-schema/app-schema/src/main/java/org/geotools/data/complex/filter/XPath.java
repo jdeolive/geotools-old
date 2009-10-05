@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -390,8 +391,11 @@ public class XPath {
                     int start = step.indexOf('[');
                     int end = step.indexOf(']');
                     stepName = step.substring(0, start);
-                    index = Integer.parseInt(step.substring(start + 1, end));
-                    isIndexed = true;
+                    Scanner scanner = new Scanner(step.substring(start + 1, end));  
+                    if (scanner.hasNextInt()) { 
+                       index = scanner.nextInt();
+                       isIndexed = true;
+                    } 
                 }
                 if (step.charAt(0) == '@') {
                     isXmlAttribute = true;

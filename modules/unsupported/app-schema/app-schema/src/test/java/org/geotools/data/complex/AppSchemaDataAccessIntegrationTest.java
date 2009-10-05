@@ -304,7 +304,7 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
         FeatureCollection<FeatureType, Feature> guCollection = (FeatureCollection<FeatureType, Feature>) guFeatureSource
                 .getFeatures();
         // mo:EarthResource -> gsml:GeologicUnit output iterator
-        MappingFeatureIterator iterator = (MappingFeatureIterator) guCollection.iterator();
+        AbstractMappingFeatureIterator iterator = (AbstractMappingFeatureIterator) guCollection.iterator();
         FeatureTypeMapping guSchema = AppSchemaDataAccessRegistry.getMapping(GEOLOGIC_UNIT);
         Hints hints = new Hints(FeaturePropertyAccessorFactory.NAMESPACE_CONTEXT, guSchema
                 .getNamespaces());
