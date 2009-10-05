@@ -45,7 +45,6 @@ public class Node {
         this.bounds = new Envelope(bounds);
         this.subNodes = new ArrayList(4);
         this.shapesId = null;
-//        System.out.println(count++);
     }
 
     /**
