@@ -12,11 +12,17 @@
 package org.geotools.demo;
 
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.data.DataSourceException;
@@ -41,10 +47,16 @@ import org.geotools.swing.wizard.JWizard;
 import org.geotools.util.KVP;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.filter.FilterFactory;
+import org.opengis.filter.FilterFactory2;
 import org.opengis.style.ContrastMethod;
 
 public class ImageLab {
+
+    private StyleFactory sf = CommonFactoryFinder.getStyleFactory(null);
+    private FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
+
+    private JMapFrame frame;
+    private GeoTiffReader geotiffReader;
 
     public static void main(String[] args) throws Exception {
         ImageLab me = new ImageLab();
@@ -92,7 +104,6 @@ public class ImageLab {
         /*
          * Connect to the GeoTIFF file using a GeoTiffReader
          */
-        GeoTiffReader geotiffReader;
         try {
             geotiffReader = new GeoTiffReader(rasterFile);
 
@@ -104,11 +115,7 @@ public class ImageLab {
         /*
          * Create a Style that will be used to display the raster data
          */
-        Style rasterStyle = createRGBStyle(geotiffReader);
-        if (rasterStyle == null) {
-            // input coverage didn't have bands labelled "red", "green", "blue"
-            return;
-        }
+        Style rasterStyle = createGreyscaleStyle(1);
 
         /*
          * Connect to the shapefile
@@ -125,57 +132,180 @@ public class ImageLab {
         /*
          * Set up a MapContext with the two layers and display it
          */
-        MapContext map = new DefaultMapContext();
+        final MapContext map = new DefaultMapContext();
         map.setTitle("ImageLab");
         map.addLayer(geotiffReader, rasterStyle);
         map.addLayer(shapefileSource, shpStyle);
 
-        JMapFrame.showMap(map);
+        /*
+         * Create a JMapFrame with a menu to set the display style for the raster
+         */
+        frame = new JMapFrame(map);
+        frame.setSize(800, 600);
+        frame.enableStatusBar(true);
+        frame.enableTool(JMapFrame.Tool.ZOOM, JMapFrame.Tool.PAN, JMapFrame.Tool.RESET);
+        frame.initComponents();
+
+        JMenuBar menuBar = new JMenuBar();
+        frame.setJMenuBar(menuBar);
+
+        JMenu menu = new JMenu("Raster");
+
+        JMenuItem rgbItem = new JMenuItem("RGB display");
+        rgbItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                Style style = createRGBStyle();
+                if (style != null) {
+                    map.getLayer(0).setStyle(style);
+                    frame.repaint();
+                }
+            }
+        });
+        menu.add(rgbItem);
+
+        JMenuItem greyItem = new JMenuItem("Greyscale display");
+        greyItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                Style style = createGreyscaleStyle();
+                if (style != null) {
+                    map.getLayer(0).setStyle(style);
+                    frame.repaint();
+                }
+            }
+        });
+        menu.add(greyItem);
+
+        menuBar.add(menu);
+        frame.setVisible(true);
     }
 
-    // docs end display layers
-
-    // docs start create style
     /**
-     * This method examines the names of the sample dimensions in the provided coverage looking for
-     * "red...", "green..." and "blue..." (case insensitive match). It then sets up a raster
-     * symbolizer and returns this wrapped in a Style.
-     * 
-     * @param coverage
-     *            the coverage to be rendered
-     * 
-     * @return a new Style object containing a raster symbolizer set up for RGB image
+     * Prompt the user for an image band and set it as the
+     * channel for greyscale display
+     *
+     * @return a new Style instance to render the image in greyscale
      */
-    private static Style createRGBStyle(GeoTiffReader reader) {
-        StyleFactory sf = CommonFactoryFinder.getStyleFactory(null);
-        FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
-
+    private Style createGreyscaleStyle() {
         GridCoverage2D cov = null;
         try {
-            cov = (GridCoverage2D) reader.read(null);
+            cov = (GridCoverage2D) geotiffReader.read(null);
         } catch (IOException giveUp) {
             throw new RuntimeException(giveUp);
         }
 
-        SelectedChannelType[] sct = new SelectedChannelType[cov.getNumSampleDimensions()];
+        int numBands = cov.getNumSampleDimensions();
+        Integer[] bandNumbers = new Integer[numBands];
+        for (int i = 0; i < numBands; i++) { bandNumbers[i] = i+1; }
+        Object selection = JOptionPane.showInputDialog(
+                frame,
+                "Band to use for greyscale display",
+                "Select an image band",
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                bandNumbers,
+                1);
+
+        if (selection != null) {
+            int band = ((Number)selection).intValue();
+            return createGreyscaleStyle(band);
+        }
+
+        return null;
+    }
+
+    /**
+     * Helper for createGreyScale() that is also called directly by displayLayers()
+     * when the application first starts. It creates a RasterSymbolizer and wraps
+     * it in a new Style object.
+     *
+     * @param band the image band to use for the greyscale display
+     *
+     * @return a new Style instance
+     */
+    private Style createGreyscaleStyle(int band) {
         ContrastEnhancement ce = sf.contrastEnhancement(ff.literal(1.0), ContrastMethod.NORMALIZE);
+        SelectedChannelType sct = sf.createSelectedChannelType(String.valueOf(band), ce);
+
+        RasterSymbolizer sym = sf.getDefaultRasterSymbolizer();
+        ChannelSelection sel = sf.channelSelection(sct);
+        sym.setChannelSelection(sel);
+
+        return SLD.wrapSymbolizers(sym);
+    }
+
+    // docs start create style
+    /**
+     * This method examines the names of the sample dimensions in the provided coverage looking for
+     * "red...", "green..." and "blue..." (case insensitive match). If these names are not found
+     * it uses bands 1, 2, and 3 for the red, green and blue channels. It then sets up a raster
+     * symbolizer and returns this wrapped in a Style.
+     *
+     * @return a new Style object containing a raster symbolizer set up for RGB image
+     */
+    private Style createRGBStyle() {
+        GridCoverage2D cov = null;
+        try {
+            cov = (GridCoverage2D) geotiffReader.read(null);
+        } catch (IOException giveUp) {
+            throw new RuntimeException(giveUp);
+        }
+
+        /*
+         * We need at least three bands to create an RGB style
+         */
+        int numBands = cov.getNumSampleDimensions();
+        if (numBands < 3) {
+            return null;
+        }
+
+        /*
+         * Get the names of the bands
+         */
+        String[] sampleDimensionNames = new String[numBands];
+        for (int i = 0; i < numBands; i++) {
+            GridSampleDimension dim = cov.getSampleDimension(i);
+            sampleDimensionNames[i] = dim.getDescription().toString();
+        }
+
         final int RED = 0, GREEN = 1, BLUE = 2;
-        int k = 1;
-        for (GridSampleDimension dim : cov.getSampleDimensions()) {
-            String name = dim.getDescription().toString().toLowerCase();
-            if (name.matches("red.*")) {
-                sct[RED] = sf.createSelectedChannelType(String.valueOf(k++), ce);
+        int[] channelNum = {-1, -1, -1};
 
-            } else if (name.matches("green.*")) {
-                sct[GREEN] = sf.createSelectedChannelType(String.valueOf(k++), ce);
+        /*
+         * We examine the band names looking for "red...", "green...", "blue...".
+         * Note that the channel numbers we record are indexed from 1, not 0.
+         */
+        for (int i = 0; i < numBands; i++) {
+            String name = sampleDimensionNames[i].toLowerCase();
+            if (name != null) {
+                if (name.matches("red.*")) {
+                    channelNum[RED] = i + 1;
 
-            } else if (name.matches("blue.*")) {
-                sct[BLUE] = sf.createSelectedChannelType(String.valueOf(k++), ce);
+                } else if (name.matches("green.*")) {
+                    channelNum[GREEN] = i + 1;
+
+                } else if (name.matches("blue.*")) {
+                    channelNum[BLUE] = i + 1;
+                }
             }
         }
 
-        if (sct[0] == null || sct[1] == null || sct[2] == null) {
-            return null;
+        /*
+         * If we didn't find named bands "red...", "green...", "blue..."
+         * we fall back to using the first three bands in order
+         */
+        if (channelNum[RED] < 0 || channelNum[GREEN] < 0 || channelNum[BLUE] < 0) {
+            channelNum[RED] = 1;
+            channelNum[GREEN] = 2;
+            channelNum[BLUE] = 3;
+        }
+
+        /*
+         * Now we create a RasterSymbolizer using the selected channels
+         */
+        SelectedChannelType[] sct = new SelectedChannelType[cov.getNumSampleDimensions()];
+        ContrastEnhancement ce = sf.contrastEnhancement(ff.literal(1.0), ContrastMethod.NORMALIZE);
+        for (int i = 0; i < 3; i++) {
+            sct[i] = sf.createSelectedChannelType(String.valueOf(channelNum[i]), ce);
         }
 
         RasterSymbolizer sym = sf.getDefaultRasterSymbolizer();
