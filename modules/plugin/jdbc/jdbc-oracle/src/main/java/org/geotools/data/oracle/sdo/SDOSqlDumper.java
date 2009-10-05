@@ -57,11 +57,11 @@ public class SDOSqlDumper {
         } else if (LineString.class.isAssignableFrom(geometry.getClass())) {
             return toSDOGeom((LineString) geometry, srid);
         } else if (Polygon.class.isAssignableFrom(geometry.getClass())) {
-//            if(geometry.equals(geometry.getEnvelope())) {
-//                return toSDOGeom(geometry.getEnvelopeInternal(), srid);
-//            } else {
+            if(geometry.equals(geometry.getEnvelope())) {
+                return toSDOGeom(geometry.getEnvelopeInternal(), srid);
+            } else {
                 return toSDOGeom((Polygon) geometry, srid);
-//            }
+            }
         } else if (MultiLineString.class.isAssignableFrom(geometry.getClass())) {
             return toSDOGeom((MultiLineString) geometry, srid);
         }
