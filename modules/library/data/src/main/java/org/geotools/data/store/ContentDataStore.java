@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 import org.geotools.data.DataAccess;
@@ -143,7 +144,11 @@ public abstract class ContentDataStore implements DataStore {
     protected LockingManager lockingManager = new InProcessLockingManager();
     
     public ContentDataStore() {
-        this.entries = new HashMap<Name,ContentEntry>();
+        // get a concurrent map so that we can do reads in parallel with writes (writes vs writes
+        // are actually synchronized to prevent double work, see getEntry()).
+        this.entries = new ConcurrentHashMap<Name,ContentEntry>();
+        // grabbing the logger here makes the logger name polymorphic (the name of the actual
+        // subclass will be used
         this.LOGGER = org.geotools.util.logging.Logging.getLogger(
             getClass().getPackage().getName()
         );
