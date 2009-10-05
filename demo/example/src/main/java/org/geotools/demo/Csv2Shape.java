@@ -48,144 +48,144 @@ import com.vividsolutions.jts.geom.Point;
  */
 public class Csv2Shape {
 
-    public static void main(String[] args) throws Exception {
+public static void main(String[] args) throws Exception {
 
-        File file = JFileDataStoreChooser.showOpenFile("csv", null);
-        if (file == null) {
-            return;
-        }
-
-        // docs break feature type
-        /*
-         * We use the DataUtilities class to create a FeatureType that
-         * will describe the data in our shapefile.
-         *
-         * See also the createFeatureType method below for another,
-         * more flexible approach.
-         */
-        final SimpleFeatureType TYPE = DataUtilities.createType(
-                "Location",                      // <- the name for our feature type
-                "location:Point:srid=4326," +    // <- the geometry attribute: Point type
-                "name:String"                    // <- a String attribute
-                );
-
-        // docs break feature collection
-        /*
-         * We create a FeatureCollection into which we will put
-         * each Feature created from a record in the input csv data file
-         */
-        FeatureCollection<SimpleFeatureType, SimpleFeature> collection = 
-                FeatureCollections.newCollection();
-
-        /*
-         * GeometryFactory will be used to create the geometry attribute
-         * of each feature (a Point object for the location)
-         */
-        GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory(null);
-
-        SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(TYPE);
-
-        BufferedReader reader = new BufferedReader(new FileReader(file));
-        try {
-            /* First line of the data file is the header */
-            String line = reader.readLine();
-            System.out.println("Header: " + line);
-
-            for (line = reader.readLine(); line != null; line = reader.readLine()) {
-                String tokens[] = line.split("\\,");
-
-                double longitude = Double.parseDouble(tokens[0]);
-                double latitude = Double.parseDouble(tokens[1]);
-                String name = tokens[2].trim();
-
-                /* Longitude (= x coord) first ! */
-                Point point = geometryFactory.createPoint(new Coordinate(longitude, latitude));
-
-                featureBuilder.add(point);
-                featureBuilder.add(name);
-                SimpleFeature feature = featureBuilder.buildFeature(null);
-                collection.add(feature);
-            }
-
-        } finally {
-            reader.close();
-        }
-
-        // docs break new shapefile
-        /*
-         * Get an output file name and create the new shapefile
-         */
-        File newFile = getNewShapeFile(file);
-
-        DataStoreFactorySpi dataStoreFactory = new ShapefileDataStoreFactory();
-
-        Map<String, Serializable> params = new HashMap<String, Serializable>();
-        params.put("url", newFile.toURI().toURL());
-        params.put("create spatial index", Boolean.TRUE);
-
-        ShapefileDataStore newDataStore = (ShapefileDataStore) dataStoreFactory.createNewDataStore(params);
-        newDataStore.createSchema(TYPE);
-        newDataStore.forceSchemaCRS(DefaultGeographicCRS.WGS84);
-
-        // docs break transaction
-        /*
-         * Write the features to the shapefile
-         */
-        Transaction transaction = new DefaultTransaction("create");
-
-        String typeName = newDataStore.getTypeNames()[0];
-        FeatureStore<SimpleFeatureType, SimpleFeature> featureStore =
-                (FeatureStore<SimpleFeatureType, SimpleFeature>) newDataStore.getFeatureSource(typeName);
-
-        featureStore.setTransaction(transaction);
-        try {
-            featureStore.addFeatures(collection);
-            transaction.commit();
-
-        } catch (Exception problem) {
-            problem.printStackTrace();
-            transaction.rollback();
-
-        } finally {
-            transaction.close();
-        }
-
-        System.exit(0); 
+    File file = JFileDataStoreChooser.showOpenFile("csv", null);
+    if (file == null) {
+        return;
     }
+
+    // docs break feature type
+    /*
+     * We use the DataUtilities class to create a FeatureType that
+     * will describe the data in our shapefile.
+     *
+     * See also the createFeatureType method below for another,
+     * more flexible approach.
+     */
+    final SimpleFeatureType TYPE = DataUtilities.createType(
+            "Location",                      // <- the name for our feature type
+            "location:Point:srid=4326," +    // <- the geometry attribute: Point type
+            "name:String"                    // <- a String attribute
+            );
+
+    // docs break feature collection
+	/*
+	 * We create a FeatureCollection into which we will put each Feature
+	 * created from a record in the input csv data file
+	 */
+    FeatureCollection<SimpleFeatureType, SimpleFeature> collection = 
+            FeatureCollections.newCollection();
+
+    /*
+     * GeometryFactory will be used to create the geometry attribute
+     * of each feature (a Point object for the location)
+     */
+    GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory(null);
+
+    SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(TYPE);
+
+    BufferedReader reader = new BufferedReader(new FileReader(file));
+    try {
+        /* First line of the data file is the header */
+        String line = reader.readLine();
+        System.out.println("Header: " + line);
+
+        for (line = reader.readLine(); line != null; line = reader.readLine()) {
+            String tokens[] = line.split("\\,");
+
+            double longitude = Double.parseDouble(tokens[0]);
+            double latitude = Double.parseDouble(tokens[1]);
+            String name = tokens[2].trim();
+
+            /* Longitude (= x coord) first ! */
+            Point point = geometryFactory.createPoint(new Coordinate(longitude, latitude));
+
+            featureBuilder.add(point);
+            featureBuilder.add(name);
+            SimpleFeature feature = featureBuilder.buildFeature(null);
+            collection.add(feature);
+        }
+
+    } finally {
+        reader.close();
+    }
+
+    // docs break new shapefile
+    /*
+     * Get an output file name and create the new shapefile
+     */
+    File newFile = getNewShapeFile(file);
+
+    DataStoreFactorySpi dataStoreFactory = new ShapefileDataStoreFactory();
+
+    Map<String, Serializable> params = new HashMap<String, Serializable>();
+    params.put("url", newFile.toURI().toURL());
+    params.put("create spatial index", Boolean.TRUE);
+
+    ShapefileDataStore newDataStore = (ShapefileDataStore) dataStoreFactory.createNewDataStore(params);
+    newDataStore.createSchema(TYPE);
+    newDataStore.forceSchemaCRS(DefaultGeographicCRS.WGS84);
+
+    // docs break transaction
+    /*
+     * Write the features to the shapefile
+     */
+    Transaction transaction = new DefaultTransaction("create");
+
+    String typeName = newDataStore.getTypeNames()[0];
+    FeatureStore<SimpleFeatureType, SimpleFeature> featureStore =
+            (FeatureStore<SimpleFeatureType, SimpleFeature>) newDataStore.getFeatureSource(typeName);
+
+    featureStore.setTransaction(transaction);
+    try {
+        featureStore.addFeatures(collection);
+        transaction.commit();
+
+    } catch (Exception problem) {
+        problem.printStackTrace();
+        transaction.rollback();
+
+    } finally {
+        transaction.close();
+    }
+
+    System.exit(0); 
+}
 // end main
 
     
 // start get shapefile
-    /**
-     * Prompt the user for the name and path to use for the output shapefile
-     * 
-     * @param csvFile the input csv file used to create a default shapefile name
-     *
-     * @return name and path for the shapefile as a new File object
-     */
-    private static File getNewShapeFile(File csvFile) {
-        String path = csvFile.getAbsolutePath();
-        String newPath = path.substring(0, path.length() - 4) + ".shp";
+/**
+ * Prompt the user for the name and path to use for the output shapefile
+ * 
+ * @param csvFile the input csv file used to create a default shapefile name
+ *
+ * @return name and path for the shapefile as a new File object
+ */
+private static File getNewShapeFile(File csvFile) {
+    String path = csvFile.getAbsolutePath();
+    String newPath = path.substring(0, path.length() - 4) + ".shp";
 
-        JFileDataStoreChooser chooser = new JFileDataStoreChooser("shp");
-        chooser.setDialogTitle("Save shapefile");
-        chooser.setSelectedFile(new File(newPath));
+    JFileDataStoreChooser chooser = new JFileDataStoreChooser("shp");
+    chooser.setDialogTitle("Save shapefile");
+    chooser.setSelectedFile(new File(newPath));
 
-        int returnVal = chooser.showSaveDialog(null);
+    int returnVal = chooser.showSaveDialog(null);
 
-        if (returnVal != JFileDataStoreChooser.APPROVE_OPTION) {
-            // the user cancelled the dialog
-            System.exit(0);
-        }
-
-        File newFile = chooser.getSelectedFile();
-        if (newFile.equals(csvFile)) {
-            System.out.println("Error: cannot replace " + csvFile);
-            System.exit(0);
-        }
-
-        return newFile;
+    if (returnVal != JFileDataStoreChooser.APPROVE_OPTION) {
+        // the user cancelled the dialog
+        System.exit(0);
     }
+
+    File newFile = chooser.getSelectedFile();
+    if (newFile.equals(csvFile)) {
+        System.out.println("Error: cannot replace " + csvFile);
+        System.exit(0);
+    }
+
+    return newFile;
+}
 // end get shapefile
 
     // start createFeatureType

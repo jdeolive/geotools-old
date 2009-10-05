@@ -2,6 +2,7 @@ package org.geotools.swing.table;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
@@ -58,8 +59,10 @@ public class FeatureCollectionTableModel extends AbstractTableModel {
                 features.accepts( new FeatureVisitor() {                
                     public void visit(Feature feature) {
                         SimpleFeature simple = (SimpleFeature) feature;
-                        Object[] row = simple.getAttributes().toArray();
-                        publish( row );
+                        Object[] values = simple.getAttributes().toArray();
+                        ArrayList<Object> row = new ArrayList<Object>( Arrays.asList( values ));
+                        row.add(0, simple.getID() );
+                        publish( row.toArray() );
                         
                         if( isCancelled() ) listener.setCanceled(true);
                     }
@@ -113,7 +116,10 @@ public class FeatureCollectionTableModel extends AbstractTableModel {
      */
     @Override
     public String getColumnName(int column) {
-        return schema.getDescriptor( column ).getLocalName();
+    	if( column == 0 ){
+    		return "FeatureIdentifer";
+    	}
+        return schema.getDescriptor( column-1 ).getLocalName();
     }
 
     /**
@@ -125,7 +131,7 @@ public class FeatureCollectionTableModel extends AbstractTableModel {
         if( exception != null ){
             return 1;
         }
-        return schema.getAttributeCount();
+        return schema.getAttributeCount()+1;
     }
 
     /**
@@ -148,7 +154,7 @@ public class FeatureCollectionTableModel extends AbstractTableModel {
      *
      * @return the table entry
      */
-    public Object getValueAt(int rowIndex, int columnIndex) {
+    public Object getValueAt(int rowIndex, int columnIndex) {    	
         if ( rowIndex < cache.size() ){
             Object row[] = cache.get( rowIndex );
             return row[ columnIndex ];

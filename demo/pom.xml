@@ -91,21 +91,9 @@
   <!-- =========================================================== -->
   <!--     Modules included in the build                           -->
   <!-- =========================================================== -->
-
-  <profiles>
-      <!-- These modules depend on the swing module -->
-      <profile>
-          <id>swing</id>
-          <activation>
-              <property><name>all</name></property>
-          </activation>
-          <modules>
-              <module>example</module>
-              <module>shapefileviewer</module>
-          </modules>
-      </profile>
-  </profiles>
   <modules>
+    <module>example</module>
+    <module>shapefileviewer</module>
     <module>libraryJTS</module>
     <module>svgsupport</module>
     <module>gmlparsing</module>
