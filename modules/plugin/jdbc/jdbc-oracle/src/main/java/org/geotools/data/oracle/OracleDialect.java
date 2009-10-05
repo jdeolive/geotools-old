@@ -147,9 +147,15 @@ public class OracleDialect extends PreparedStatementSQLDialect {
             ResultSet rs = null;
             try {
                 st = cx.createStatement();
-                rs = st.executeQuery("SELECT * FROM MDSYS.USER_SDO_INDEX_METADATA WHERE ROWNUM < 2");
+                String sql = "SELECT * FROM MDSYS.USER_SDO_INDEX_METADATA WHERE ROWNUM < 2";
+                LOGGER.log(Level.FINE, "Check user can access user metadata views: {0}", sql);
+                rs = st.executeQuery(sql);
                 dataStore.closeSafe(rs);
-                rs = st.executeQuery("SELECT * FROM MDSYS.USER_SDO_GEOM_METADATA WHERE ROWNUM < 2");
+                
+                sql = "SELECT * FROM MDSYS.USER_SDO_GEOM_METADATA WHERE ROWNUM < 2";
+                LOGGER.log(Level.FINE, "Check user can access user metadata views: {0}", sql);
+                LOGGER.log(Level.FINE, sql);
+                rs = st.executeQuery(sql);
                 dataStore.closeSafe(rs);
 
                 canAccessUserViews = true;
