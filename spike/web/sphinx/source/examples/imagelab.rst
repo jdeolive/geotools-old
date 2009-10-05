@@ -75,43 +75,82 @@ Main Application
 Prompting for input data
 ------------------------
 
-We could use JFileDataStoreChooser to prompt the user for the GeoTIFF file and then again for the shapefile, but instead we'll use a dialog created with the GeoTools JWizard class. We'll look at the construction of this dialog later. 
+We use one of GeoTools' data wizards, **JParameterListWizard**, to prompt for the two input files:
 
    .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/ImageLab.java
       :language: java
       :start-after: // docs start get layers
       :end-before: // docs end get layers
 
+Note the use of **Parameter** objects for each input file. The arguments passed to the Parameter constructor are:
+
+:key: a key an identifier for the Parameter
+
+:type: the Class of the object that the Parameter refers to
+
+:title: a title which the wizard will use to label the text field
+
+:description: a brief description which the wizard will display below the text field
+
+:metadata: a Map containing additional data for the Parameter - in our case this is the file extension
+
+**KVP** is a handy class for creating a Map of String key : Object value pairs. It's particularly useful with multiple pairs::
+
+  // Create a new Map with three key:value pairs
+  KVP foo = new KVP(Foo.THING, thing, Foo.STUFF, stuff, Foo.BAR, bar);
+
 Displaying the map data
 -----------------------
 
-As usual, we are using JMapFrame to display the data. We use the **SLD** class, which contains a variety of handy style-related methods, to create a basic rendering style for the shapefile. For the GeoTIFF image we create a style with a method that we'll examine next.
+To display the map on screen we create a **MapContext**, add the image and the shapefile to it and pass it
+to a **JMapFrame**. 
+
+Rather than using the static JMapFrame.showMap method, as we have in previous examples, we create a map frame and customize it
+by adding a menu to choose the image display mode. 
 
    .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/ImageLab.java
       :language: java
       :start-after: // docs start display layers
       :end-before: // docs end display layers
 
+Note that we are creating a **Style** for each of the map layers...
+
+* A greyscale Style for the image, created with a method that we'll examine next
+* A simple outline style for the shapefile using the **SLD** utility class
+
 Creating a Style for the raster layer
 -------------------------------------
 
-Words to come...  This method's code will probably change.
+We want the user to be able to choose between greyscale display of a selected image band, or RGB display
+(assuming that the image contains at least three bands).
+
+Creating a greyscale Style
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Two methods are involved here: the first to prompt the user for the image band; and the second to actually
+create the Style.
 
    .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/ImageLab.java
       :language: java
-      :start-after: // docs start create style
-      :end-before: // docs end create style
+      :start-after: // docs start create greyscale style
+      :end-before: // docs end create greyscale style
 
-The file prompt wizard
-----------------------
+Creating an RGB Style
+~~~~~~~~~~~~~~~~~~~~~
 
-Words to come... This code may change.
+To create an RGB Style we specify the image bands to use for the red, green and blue *channels*. In the method here,
+we examine the image to see if its bands (known as *sample dimensions* in GeoTools-speak) have labels indicating which
+to use. If not, we just use the first three bands and hope for the best !
 
    .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/ImageLab.java
       :language: java
-      :start-after: // docs start wizard
+      :start-after: // docs start create rgb style
       :end-before: // docs end source
 
-To be continued...
+Running the application
+-----------------------
+
+Extra things to try
+-------------------
 
 

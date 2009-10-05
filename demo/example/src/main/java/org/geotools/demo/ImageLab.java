@@ -188,7 +188,7 @@ public class ImageLab {
     // docs end display layers
 
 
-    // docs start create greyscale
+    // docs start create greyscale style
     /**
      * Create a Style to display a selected band of the GeoTIFF image
      * as a greyscale layer
@@ -222,10 +222,8 @@ public class ImageLab {
 
         return null;
     }
-    // docs end create greyscale
 
 
-    // docs start create greyscale band
     /**
      * Create a Style to display the specified band of the GeoTIFF image
      * as a greyscale layer.
@@ -248,7 +246,7 @@ public class ImageLab {
         return SLD.wrapSymbolizers(sym);
     }
 
-    // docs end create greyscale band
+    // docs end create greyscale style
 
     // docs start create rgb style
     /**
@@ -331,8 +329,6 @@ public class ImageLab {
 
         return SLD.wrapSymbolizers(sym);
     }
-
-    // docs end create rgb style
 
 }
 // docs end source
