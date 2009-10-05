@@ -760,6 +760,7 @@ public final class JDBCDataStore extends ContentDataStore
                     try {
                         String tableName = entry.getName().getLocalPart();
                         DatabaseMetaData metaData = cx.getMetaData();
+                        LOGGER.log(Level.FINE, "Getting information about primary keys of {0}", tableName);
                         ResultSet primaryKey = metaData.getPrimaryKeys(null, databaseSchema,
                                 tableName);
 
@@ -781,7 +782,8 @@ public final class JDBCDataStore extends ContentDataStore
                                 // causes problems with Oracle, so we skip it
                                 if(!isView(metaData, databaseSchema, tableName)) {
                                     //no primary key, check for a unique index
-                                    ResultSet uniqueIndex =  metaData.getIndexInfo(null, databaseSchema, tableName, true, false);
+                                    LOGGER.log(Level.FINE, "Getting information about unique indexes of {0}", tableName);
+                                    ResultSet uniqueIndex =  metaData.getIndexInfo(null, databaseSchema, tableName, true, true);
                                     try {
                                         pkey = createPrimaryKey(uniqueIndex, metaData, tableName, cx);
                                     }
