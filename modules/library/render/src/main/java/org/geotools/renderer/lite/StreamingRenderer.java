@@ -287,7 +287,6 @@ public final class StreamingRenderer implements GTRenderer {
     public static final String OPTIMIZE_FTS_RENDERING_KEY = "optimizeFTSRendering";
 
 	public static final String LABEL_CACHE_KEY = "labelCache";
-	public static final String FORCE_CRS_KEY = "forceCRS";
 	public static final String DPI_KEY = "dpi";
 	public static final String DECLARED_SCALE_DENOM_KEY = "declaredScaleDenominator";
 	public static final String MEMORY_PRE_LOADING_KEY = "memoryPreloadingEnabled";
