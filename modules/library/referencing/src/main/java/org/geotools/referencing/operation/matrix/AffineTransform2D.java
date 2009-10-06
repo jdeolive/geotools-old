@@ -20,6 +20,7 @@ import java.awt.geom.AffineTransform;
 import org.opengis.referencing.operation.Matrix;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
+import org.geotools.util.Utilities;
 
 
 /**
@@ -210,5 +211,20 @@ public class AffineTransform2D extends AffineTransform implements Matrix {
     @Override
     public AffineTransform2D clone() {
         return (AffineTransform2D) super.clone();
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof AffineTransform)) {
+            return false;
+        }
+
+        AffineTransform a = (AffineTransform) obj;
+        
+        return Utilities.equals(getScaleX(), a.getScaleX()) &&
+            Utilities.equals(getScaleY(), a.getScaleY()) &&
+            Utilities.equals(getShearX(), a.getShearY()) &&
+            Utilities.equals(getTranslateX(), a.getTranslateX()) &&
+            Utilities.equals(getTranslateY(), a.getTranslateY());
     }
 }

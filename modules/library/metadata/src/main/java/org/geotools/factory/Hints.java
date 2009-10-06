@@ -871,6 +871,17 @@ public class Hints extends RenderingHints {
      * @since 2.5
      */
     public static final IntegerKey AUTHORITY_TIME_BETWEEN_EVICTION_RUNS = new IntegerKey(5 * 1000);
+    
+    
+    /**
+     * Tolerance used in comparisons between floating point values. Two floating points A and B are
+     * considered the same if A * (1 - tol) <= B <= A * (1 + tol).
+     * The default value is 0, meaning the two doubles have to be exactly the same (a bit to bit
+     * comparison will be performed).
+     * 
+     * @since 2.6
+     */
+    public static final DoubleKey COMPARISON_TOLERANCE = new DoubleKey(0.0);
 
     /**
      * Constructs an initially empty set of hints.
@@ -1589,6 +1600,79 @@ public class Hints extends RenderingHints {
                     Integer.parseInt(value.toString());
                 } catch (NumberFormatException e) {
                     Logging.getLogger(IntegerKey.class).finer(e.toString());
+                }
+            }
+            return false;
+        }
+    }
+    
+    /**
+     * A hint used to capture a configuration setting as double.
+     * A default value is provided and may be checked with {@link #getDefault()}.
+     *
+     * @since 2.6
+     * @source $URL$
+     * @version $Id$
+     * @author Jody Garnett
+     */
+    public static final class DoubleKey extends Key {
+        /**
+         * The default value.
+         */
+        private final double number;
+
+        /**
+         * Creates a new key with the specified default value.
+         *
+         * @param number The default value.
+         */
+        public DoubleKey(final double number) {
+            super(Integer.class);
+            this.number = number;
+        }
+
+        /**
+         * Returns the default value.
+         *
+         * @return The default value.
+         */
+        public double getDefault(){
+            return number;
+        }
+
+        /**
+         * Returns the value from the specified hints as a double. If no value were found
+         * for this key, then this method returns the {@linkplain #getDefault default value}.
+         *
+         * @param  hints The map where to fetch the hint value, or {@code null}.
+         * @return The hint value as a double, or the default value if not hint
+         *         was explicitly set.
+         */
+        public double toValue(final Hints hints) {
+            if (hints != null) {
+                final Object value = hints.get(this);
+                if (value instanceof Number) {
+                    return ((Number) value).doubleValue();
+                } else if (value instanceof CharSequence) {
+                    return Double.parseDouble(value.toString());
+                }
+            }
+            return number;
+        }
+
+        /**
+         * Returns {@code true} if the specified object is a valid integer.
+         */
+        @Override
+        public boolean isCompatibleValue(final Object value) {
+            if (value instanceof Float || value instanceof Double) {
+                return true;
+            }
+            if (value instanceof String || value instanceof InternationalString) {
+                try {
+                    Double.parseDouble(value.toString());
+                } catch (NumberFormatException e) {
+                    Logging.getLogger(DoubleKey.class).finer(e.toString());
                 }
             }
             return false;

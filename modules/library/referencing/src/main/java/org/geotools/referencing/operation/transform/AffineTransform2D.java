@@ -39,6 +39,7 @@ import org.geotools.referencing.wkt.Symbols;
 import org.geotools.resources.Formattable;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
+import org.geotools.util.Utilities;
 
 
 /**
@@ -241,5 +242,21 @@ public class AffineTransform2D extends XAffineTransform
     @Override
     public String toString() {
         return toWKT();
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof AffineTransform)) {
+            return false;
+        }
+
+        AffineTransform a = (AffineTransform) obj;
+        
+        return Utilities.equals(getScaleX(), a.getScaleX()) &&
+            Utilities.equals(getScaleY(), a.getScaleY()) &&
+            Utilities.equals(getShearX(), a.getShearX()) &&
+            Utilities.equals(getShearY(), a.getShearY()) &&
+            Utilities.equals(getTranslateX(), a.getTranslateX()) &&
+            Utilities.equals(getTranslateY(), a.getTranslateY());
     }
 }

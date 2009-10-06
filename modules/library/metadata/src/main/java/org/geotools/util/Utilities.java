@@ -16,6 +16,7 @@
  */
 package org.geotools.util;
 
+import java.awt.geom.AffineTransform;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.AbstractQueue;
@@ -24,6 +25,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Queue;
 import java.util.Set;
+
+import org.geotools.factory.Hints;
 
 
 /**
@@ -244,7 +247,13 @@ public final class Utilities {
      * @see Float#equals
      */
     public static boolean equals(float o1, float o2) {
-        return Float.floatToIntBits(o1) == Float.floatToIntBits(o2);
+        if (Float.floatToIntBits(o1) == Float.floatToIntBits(o2))
+            return true;
+        
+        double tol = getTolerance();
+        final double min = o1 - o1 * tol; 
+        final double max = o1 + o1 * tol;
+        return min <= o2 && o2 <= max;
     }
 
     /**
@@ -258,9 +267,27 @@ public final class Utilities {
      * @see Double#equals
      */
     public static boolean equals(double o1, double o2) {
-        return Double.doubleToLongBits(o1) == Double.doubleToLongBits(o2);
+        if (Double.doubleToLongBits(o1) == Double.doubleToLongBits(o2))
+            return true;
+        
+        double tol = getTolerance();
+        final double min = o1 - Math.signum(o1) * o1 * tol; 
+        final double max = o1 + Math.signum(o1) * o1 * tol;
+        return min <= o2 && o2 <= max;
     }
-
+    
+    /**
+     * Gathers the tolerance for floating point comparisons
+     * @return The tolerance set in the hints, or its default value if not set
+     */
+    private static double getTolerance() {
+        Double tol = ((Double) Hints.getSystemDefault(Hints.COMPARISON_TOLERANCE));
+        if(tol == null)
+            return Hints.COMPARISON_TOLERANCE.getDefault();
+        else
+            return tol;
+    }
+    
     /**
      * Convenience method for testing two objects for equality. One or both objects may be null.
      * This method do <strong>not</strong> iterates recursively in array elements. If array needs

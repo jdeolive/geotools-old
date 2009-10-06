@@ -87,6 +87,20 @@ import org.geotools.util.UnsupportedImplementationException;
  * <ul>
  *   <li>{@code CoordinateReferenceSystem parseXML(String)}</li>
  * </ul>
+ * <p>
+ * When using {@link CoordinateReferenceSystem} matching methods of this class 
+ * ({@link #equalsIgnoreMetadata(Object, Object)},{@link #lookupIdentifier(IdentifiedObject, boolean)}, 
+ * {@link #lookupEpsgCode(CoordinateReferenceSystem, boolean)}, 
+ * {@link #lookupIdentifier(IdentifiedObject, boolean)}, 
+ * {@link #lookupIdentifier(Citation, CoordinateReferenceSystem, boolean)})
+ * against objects derived from a database other than the 
+ * official EPSG one it may be advisable to set a non zero comparison tolerance with 
+ * {@link Hints#putSystemDefault(java.awt.RenderingHints.Key, Object)} using
+ * the {@link Hints#COMPARISON_TOLERANCE} key. A value of 10e-9 has proved to give satisfactory 
+ * results with definitions commonly found in .prj files accompaining shapefiles and georeferenced images.<br>
+ * <b>Warning</b>: the tolerance value is used in all internal comparison, this will also change 
+ * the way math transforms are setup. Use with care.
+ * 
  *
  * @since 2.1
  * @source $URL$
