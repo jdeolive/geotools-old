@@ -66,6 +66,7 @@ import org.geotools.coverage.Category;
 import org.geotools.coverage.CoverageFactoryFinder;
 import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.TypeMap;
+import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
@@ -395,7 +396,7 @@ public final class GeoTiffReader extends AbstractGridCoverage2DReader implements
 	 * @throws IOException
 	 *             on any IO related troubles
 	 */
-	public GridCoverage read(GeneralParameterValue[] params) throws IOException {
+	public GridCoverage2D read(GeneralParameterValue[] params) throws IOException {
 		GeneralEnvelope requestedEnvelope = null;
 		Rectangle dim = null;
 		OverviewPolicy overviewPolicy=null;
@@ -538,7 +539,7 @@ public final class GeoTiffReader extends AbstractGridCoverage2DReader implements
          * @return a {@link GridCoverage}
          * @throws IOException
          */
-        protected final GridCoverage createCoverage(PlanarImage image, MathTransform raster2Model) throws IOException {
+        protected final GridCoverage2D createCoverage(PlanarImage image, MathTransform raster2Model) throws IOException {
 
                 // creating bands
         final SampleModel sm = image.getSampleModel();

@@ -191,7 +191,7 @@ public abstract class AbstractGridCoverage2DReader implements
      *             found, or {@link javax.imageio.IIOException} if an error was thrown by the
      *             underlying image library.
      */
-    public abstract GridCoverage read(GeneralParameterValue[] parameters)
+    public abstract GridCoverage2D read(GeneralParameterValue[] parameters)
             throws IllegalArgumentException, IOException;
 
 	// -------------------------------------------------------------------------
@@ -559,7 +559,7 @@ public abstract class AbstractGridCoverage2DReader implements
 	 * @return a {@link GridCoverage}
 	 * @throws IOException
 	 */
-	protected final GridCoverage createImageCoverage(PlanarImage image,
+	protected final GridCoverage2D createImageCoverage(PlanarImage image,
 			MathTransform raster2Model) throws IOException {
 
 		// creating bands

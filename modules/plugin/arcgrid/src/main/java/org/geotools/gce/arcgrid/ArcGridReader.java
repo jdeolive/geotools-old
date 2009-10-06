@@ -414,7 +414,7 @@ public final class ArcGridReader extends AbstractGridCoverage2DReader implements
 	 * @see org.opengis.coverage.grid.GridCoverageReader#read(org.opengis.parameter.GeneralParameterValue[])
 	 */
 	@SuppressWarnings("unchecked")
-	public GridCoverage read(GeneralParameterValue[] params)
+	public GridCoverage2D read(GeneralParameterValue[] params)
 			throws IllegalArgumentException, IOException {
 		GeneralEnvelope readEnvelope = null;
 		Rectangle requestedDim = null;
@@ -449,7 +449,7 @@ public final class ArcGridReader extends AbstractGridCoverage2DReader implements
 	 * 
 	 * @throws java.io.IOException
 	 */
-	private GridCoverage createCoverage(GeneralEnvelope requestedEnvelope,
+	private GridCoverage2D createCoverage(GeneralEnvelope requestedEnvelope,
 			Rectangle requestedDim, OverviewPolicy overviewPolicy) throws IOException {
 
 		if (!closeMe) {

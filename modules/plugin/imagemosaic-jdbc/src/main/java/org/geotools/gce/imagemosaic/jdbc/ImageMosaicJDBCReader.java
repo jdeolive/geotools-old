@@ -49,7 +49,6 @@ import org.geotools.parameter.Parameter;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.operation.BufferedCoordinateOperationFactory;
 import org.opengis.coverage.grid.Format;
-import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.cs.AxisDirection;
@@ -280,7 +279,7 @@ public class ImageMosaicJDBCReader extends AbstractGridCoverage2DReader {
 	 * 
 	 * @see org.opengis.coverage.grid.GridCoverageReader#read(org.opengis.parameter.GeneralParameterValue[])
 	 */
-	public synchronized GridCoverage read(GeneralParameterValue[] params) throws IOException {
+	public synchronized GridCoverage2D read(GeneralParameterValue[] params) throws IOException {
 		logRequestParams(params);
 
 		Date start = new Date();
@@ -324,7 +323,7 @@ public class ImageMosaicJDBCReader extends AbstractGridCoverage2DReader {
 		// Loading tiles trying to optimize as much as possible
 		//
 		// /////////////////////////////////////////////////////////////////////
-		GridCoverage coverage = loadTiles(outputTransparentColor, dim);
+		GridCoverage2D coverage = loadTiles(outputTransparentColor, dim);
 		LOGGER.info("Mosaic Reader needs : "
 				+ ((new Date()).getTime() - start.getTime()) + " millisecs");
 
@@ -405,7 +404,7 @@ public class ImageMosaicJDBCReader extends AbstractGridCoverage2DReader {
 	 * @return the gridcoverage as the final result
 	 * @throws IOException
 	 */
-	private GridCoverage loadTiles(Color outputTransparentColor,
+	private GridCoverage2D loadTiles(Color outputTransparentColor,
 			Rectangle pixelDimension) throws IOException {
 		if (LOGGER.isLoggable(Level.FINE)) {
 			LOGGER.fine(new StringBuffer(

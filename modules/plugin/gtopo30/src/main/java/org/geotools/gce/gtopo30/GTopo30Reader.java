@@ -32,10 +32,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.nio.ByteOrder;
 import java.text.ParseException;
 import java.util.Collections;
@@ -311,7 +309,7 @@ public final class GTopo30Reader extends AbstractGridCoverage2DReader implements
 	/**
 	 * @see org.opengis.coverage.grid.GridCoverageReader#read(org.opengis.parameter.GeneralParameterValue[])
 	 */
-	public org.opengis.coverage.grid.GridCoverage read(
+	public GridCoverage2D read(
 			final GeneralParameterValue[] params)
 			throws java.lang.IllegalArgumentException, java.io.IOException {
 		// /////////////////////////////////////////////////////////////////////

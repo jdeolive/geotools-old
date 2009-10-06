@@ -60,7 +60,6 @@ import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.util.logging.Logging;
 import org.opengis.coverage.ColorInterpretation;
 import org.opengis.coverage.grid.Format;
-import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.coverage.grid.GridCoverageReader;
 import org.opengis.parameter.GeneralParameterValue;
 
@@ -168,7 +167,7 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
     /**
      * @see GridCoverageReader#read(GeneralParameterValue[])
      */
-    public GridCoverage read(GeneralParameterValue[] params) throws IOException {
+    public GridCoverage2D read(GeneralParameterValue[] params) throws IOException {
 
         final GeneralEnvelope requestedEnvelope;
         final Rectangle requestedDim;
@@ -333,7 +332,7 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
      * @param requestedDim
      * @return
      */
-    private GridCoverage createFakeCoverage(GeneralEnvelope requestedEnvelope,
+    private GridCoverage2D createFakeCoverage(GeneralEnvelope requestedEnvelope,
             Rectangle requestedDim) {
 
         ImageTypeSpecifier its = rasterInfo.getRenderedImageSpec(0);

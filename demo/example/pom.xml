@@ -127,15 +127,20 @@
       <artifactId>gt-epsg-hsql</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <!--  GeoTools Extentions -->
     <dependency>
       <groupId>org.geotools</groupId>
-      <artifactId>gt-wms</artifactId>
+      <artifactId>gt-geotiff</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.geotools</groupId>
-      <artifactId>gt-geotiff</artifactId>
+      <artifactId>gt-image</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <!--  GeoTools Extentions -->
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-wms</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

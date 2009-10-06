@@ -354,7 +354,7 @@ public final class ImagePyramidReader extends AbstractGridCoverage2DReader imple
 	 * 
 	 * @see org.opengis.coverage.grid.GridCoverageReader#read(org.opengis.parameter.GeneralParameterValue[])
 	 */
-	public GridCoverage read(GeneralParameterValue[] params) throws IOException {
+	public GridCoverage2D read(GeneralParameterValue[] params) throws IOException {
 
 		GeneralEnvelope requestedEnvelope = null;
 		Rectangle dim = null;
@@ -404,7 +404,7 @@ public final class ImagePyramidReader extends AbstractGridCoverage2DReader imple
 	 * @return A {@link GridCoverage}, well actually a {@link GridCoverage2D}.
 	 * @throws IOException
 	 */
-	private GridCoverage loadTiles(GeneralEnvelope requestedEnvelope,
+	private GridCoverage2D loadTiles(GeneralEnvelope requestedEnvelope,
 			Rectangle dim, GeneralParameterValue[] params, OverviewPolicy overviewPolicy)
 			throws IOException {
 
@@ -477,7 +477,7 @@ public final class ImagePyramidReader extends AbstractGridCoverage2DReader imple
 	 * @throws IllegalArgumentException
 	 * @throws FactoryRegistryException
 	 */
-	private GridCoverage loadRequestedTiles(
+	private GridCoverage2D loadRequestedTiles(
 			GeneralEnvelope requestedEnvelope,
 			Rectangle dim, 
 			GeneralParameterValue[] params, 

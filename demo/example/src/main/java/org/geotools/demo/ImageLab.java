@@ -23,15 +23,17 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+
 import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.grid.GridCoverage2D;
-import org.geotools.data.DataSourceException;
+import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
+import org.geotools.coverage.grid.io.AbstractGridFormat;
+import org.geotools.coverage.grid.io.GridFormatFinder;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.FileDataStore;
 import org.geotools.data.FileDataStoreFinder;
 import org.geotools.data.Parameter;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.gce.geotiff.GeoTiffReader;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.map.MapContext;
 import org.geotools.styling.ChannelSelection;
@@ -56,13 +58,12 @@ public class ImageLab {
     private FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
 
     private JMapFrame frame;
-    private GeoTiffReader geotiffReader;
+    private AbstractGridCoverage2DReader reader;
 
     public static void main(String[] args) throws Exception {
         ImageLab me = new ImageLab();
         me.getLayersAndDisplay();
     }
-
     // docs end main
 
     // docs start get layers
@@ -73,7 +74,8 @@ public class ImageLab {
     private void getLayersAndDisplay() throws Exception {
         List<Parameter<?>> list = new ArrayList<Parameter<?>>();
         list.add(new Parameter<File>("image", File.class, "Image",
-                "GeoTiff image to use as basemap", new KVP(Parameter.EXT, "tif")));
+                "GeoTiff or World+Image to display as basemap",
+                new KVP( Parameter.EXT, "tif", Parameter.EXT, "jpg")));
         list.add(new Parameter<File>("shape", File.class, "Shapefile",
                 "Shapefile contents to display", new KVP(Parameter.EXT, "shp")));
 
@@ -102,15 +104,10 @@ public class ImageLab {
      */
     private void displayLayers(File rasterFile, File shpFile) throws Exception {
         /*
-         * Connect to the GeoTIFF file using a GeoTiffReader
+         * Use GridFormatFinder to obtain a grid coverage reader
          */
-        try {
-            geotiffReader = new GeoTiffReader(rasterFile);
-
-        } catch (DataSourceException ex) {
-            ex.printStackTrace();
-            return;
-        }
+        AbstractGridFormat format = GridFormatFinder.findFormat( rasterFile );        
+        reader = format.getReader(rasterFile);
 
         /*
          * Initially display the raster in greyscale using the
@@ -135,7 +132,7 @@ public class ImageLab {
          */
         final MapContext map = new DefaultMapContext();
         map.setTitle("ImageLab");
-        map.addLayer(geotiffReader, rasterStyle);
+        map.addLayer(reader, rasterStyle);
         map.addLayer(shapefileSource, shpStyle);
 
         /*
@@ -198,7 +195,7 @@ public class ImageLab {
     private Style createGreyscaleStyle() {
         GridCoverage2D cov = null;
         try {
-            cov = (GridCoverage2D) geotiffReader.read(null);
+            cov = (GridCoverage2D) reader.read(null);
         } catch (IOException giveUp) {
             throw new RuntimeException(giveUp);
         }
@@ -260,7 +257,7 @@ public class ImageLab {
     private Style createRGBStyle() {
         GridCoverage2D cov = null;
         try {
-            cov = (GridCoverage2D) geotiffReader.read(null);
+            cov = reader.read(null);
         } catch (IOException giveUp) {
             throw new RuntimeException(giveUp);
         }
