@@ -480,6 +480,7 @@ final class IndexBuilder implements Runnable {
 	final class MosaicDirectoryWalker  extends DirectoryWalker{
 
 		private ImageReaderSpi cachedSPI;
+		private AbstractGridFormat cachedFormat;
 		
 		@Override
 		protected void handleCancelled(File startDirectory, Collection results,
@@ -587,11 +588,22 @@ final class IndexBuilder implements Runnable {
 				// STEP 2
 				// Getting a coverage reader for this coverage.
 				//
-				final AbstractGridFormat format = (AbstractGridFormat) GridFormatFinder.findFormat(fileBeingProcessed);
+				final AbstractGridFormat format;
+				if(cachedFormat==null)
+				{
+					format= (AbstractGridFormat) GridFormatFinder.findFormat(fileBeingProcessed);
+//					cachedFormat=format;
+				}
+				else
+					if(cachedFormat.accepts(fileBeingProcessed))
+						format=cachedFormat;
+					else
+						format=new UnknownFormat();
 				if ((format instanceof UnknownFormat)||format == null) {
 					fireEvent(Level.INFO,new StringBuilder("Skipped file ").append(fileBeingProcessed).append(": File format is not supported.").toString(), ((fileIndex * 99.0) / numFiles));
 					return;
 				}
+				cachedFormat=format;
 				coverageReader = (AbstractGridCoverage2DReader) format.getReader(fileBeingProcessed);
 				GeneralEnvelope envelope = (GeneralEnvelope) coverageReader.getOriginalEnvelope();
 				CoordinateReferenceSystem actualCRS = coverageReader.getCrs();

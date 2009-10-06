@@ -166,7 +166,7 @@ enum ReadType {
     		
 			// read data    	
 			final ParameterBlock pbjImageRead = new ParameterBlock();
-			pbjImageRead.add(rasterUrl);
+			pbjImageRead.add(ImageMosaicUtils.getInputStream(rasterUrl));
 			pbjImageRead.add(imageIndex);
 			pbjImageRead.add(false);
 			pbjImageRead.add(false);
@@ -174,7 +174,7 @@ enum ReadType {
 			pbjImageRead.add(null);
 			pbjImageRead.add(null);
 			pbjImageRead.add(readP);
-			pbjImageRead.add(null);
+			pbjImageRead.add(spi.createReaderInstance());
 			final RenderedOp raster;
 			if(tileDimension!=null){
 				//build a proper layout

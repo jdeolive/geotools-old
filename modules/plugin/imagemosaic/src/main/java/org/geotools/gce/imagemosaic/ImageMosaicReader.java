@@ -16,8 +16,6 @@
  */
 package org.geotools.gce.imagemosaic;
 
-import it.geosolutions.imageio.utilities.ImageIOUtilities;
-
 import java.awt.Rectangle;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -29,8 +27,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.imageio.spi.ImageReaderSpi;
 
 import org.geotools.coverage.CoverageFactoryFinder;
 import org.geotools.coverage.grid.GridCoverage2D;
@@ -55,8 +51,6 @@ import org.opengis.parameter.ParameterValue;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
-
-import com.sun.media.imageioimpl.plugins.tiff.TIFFImageReaderSpi;
 /**
  * This reader is responsible for providing access to mosaic of georeferenced
  * images. Citing JAI documentation:
@@ -91,25 +85,6 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 
 	final static ExecutorService multiThreadedLoader= new ThreadPoolExecutor(4,8,30,TimeUnit.SECONDS,new LinkedBlockingQueue<Runnable>());
 	
-	static{
-		try{
-			//check if our tiff plugin is in the path
-			final String customTiffName=it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReaderSpi.class.getName();
-			Class.forName(customTiffName);
-
-			// imageio tiff reader
-			final String imageioTiffName=TIFFImageReaderSpi.class.getName();
-			
-			
-			final boolean succeeded=ImageIOUtilities.replaceProvider(ImageReaderSpi.class, customTiffName, imageioTiffName, "tiff");
-        	if(!succeeded)
-        		LOGGER.warning("Unable to set ordering between tiff readers spi");	
-	        
-		} catch (ClassNotFoundException e) {
-			LOGGER.log(Level.SEVERE,"Unable to load specific TIFF reader spi",e);
-		} 
-        
-	}
 	/**
 	 * Number of coverages for this reader is 1
 	 * 
