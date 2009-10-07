@@ -114,7 +114,7 @@ public class XSNonPositiveIntegerBinding implements SimpleBinding {
     public String encode(Object object, String value) throws Exception {
         Number number = (Number) object;
 
-        if (number.intValue() > 0) {
+        if (number.longValue() > 0) {
             throw new IllegalArgumentException("Value '" + number
                 + "' must be non-positive (0 or below).");
         }
