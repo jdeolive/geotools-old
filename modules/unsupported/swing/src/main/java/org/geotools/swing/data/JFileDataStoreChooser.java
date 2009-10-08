@@ -264,4 +264,31 @@ public class JFileDataStoreChooser extends JFileChooser {
             JOptionPane.showMessageDialog(null, "Selection cancelled");
         }
     }
+    /**
+     * Consider the provided file as a candidate for
+     * a new filename; will append a number if there is a
+     * conflict.
+     * 
+     * @param origional
+     */
+    public void setSaveFile(File file) {
+        String path = file.getAbsolutePath();
+        int split = path.lastIndexOf('.');
+        String base;
+        String extension;
+        if( split == -1 ){
+            base = path;
+            extension = "";
+        }
+        else {
+            base = path.substring(0, split);
+            extension = path.substring(split);
+        }
+        File saveFile = new File( path );
+        int number = 0;
+        while( saveFile.exists() ){
+            saveFile = new File( base+(number++)+extension );            
+        }
+        setSelectedFile( saveFile );        
+    }
 }

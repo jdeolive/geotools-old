@@ -13,6 +13,8 @@ package org.geotools.demo;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+
+import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JToolBar;
 import org.geotools.data.FeatureSource;
@@ -22,6 +24,7 @@ import org.geotools.map.DefaultMapContext;
 import org.geotools.map.MapContext;
 import org.geotools.swing.JCRSChooser;
 import org.geotools.swing.JMapFrame;
+import org.geotools.swing.action.SafeAction;
 import org.geotools.swing.data.JFileDataStoreChooser;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -49,24 +52,19 @@ public class CRSLab {
         mapFrame.enableStatusBar(true);
 
         JToolBar toolbar = mapFrame.getToolBar();
-        JButton btn = new JButton("Change CRS");
-        toolbar.add(btn);
-
-        btn.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+        toolbar.add( new AbstractAction("Change CRS") {            
+            public void actionPerformed(ActionEvent arg0) {
                 try {
                     CoordinateReferenceSystem crs = JCRSChooser.showDialog(
                             null, "Coordinate Reference System", "Choose a new projection:", null);
                     if( crs != null){
                         map.setCoordinateReferenceSystem(crs);
                     }
-
                 } catch (Exception ex) {
                     System.out.println("Could not use crs " + ex);
                 }
             }
-        });
-        
+        }); 
         mapFrame.setSize(800, 600);
         mapFrame.setVisible(true);
     }
