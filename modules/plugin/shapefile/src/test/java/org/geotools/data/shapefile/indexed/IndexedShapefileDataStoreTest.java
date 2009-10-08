@@ -91,6 +91,8 @@ public class IndexedShapefileDataStoreTest extends TestCaseSupport {
 
     final static String CHINESE = "shapes/chinese_poly.shp";
 
+    final static String UTF8 = "shapes/wgs1snt.shp";
+
     public IndexedShapefileDataStoreTest(String testName) throws IOException {
         super(testName);
     }
@@ -155,6 +157,74 @@ public class IndexedShapefileDataStoreTest extends TestCaseSupport {
             // lanaguage
         }
     }
+    
+    public void testLoadUTF8Chars() throws Exception {
+        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = loadFeatures(UTF8, Charset
+                    .forName("UTF8"), null);
+        SimpleFeature first = firstFeature(fc);
+
+        assertEquals("200", first.getAttribute("VISUAL"));
+            
+        assertEquals(101.1, first.getAttribute("NUM1"));
+        assertEquals(5101.1, first.getAttribute("NUM2"));
+
+        // This is about charset:
+        String name = (String) first.getAttribute("NAME");
+        assertEquals("Iconfee Stra\u00dfe", name);
+    }
+    
+    
+
+    /**
+     * This is just another approach to open the shapefile and pass the Charset
+     * If the Shape is opened with "ISO-8859-1", the single UTF-8 encoded is shown as two ugly
+     * chars. As expected, because it's UTF8 two-byte.
+     */
+    public void testLoadingAndReadingUTF8Wrongly() throws Exception {
+        FeatureCollection<SimpleFeatureType, SimpleFeature> features = loadFeatures(UTF8, Charset
+                .forName("ISO-8859-1"), null);
+        
+        FeatureIterator<SimpleFeature> iterator = features.features();
+        assertTrue ( iterator.hasNext() );
+        assertEquals(4, features.size());
+        SimpleFeature f = iterator.next();
+        iterator.close();
+        
+        // GEOM, NAME,C,100   VISUAL,C,3      NUM1,N,5        NUM2,N,5  
+        assertEquals(5, f.getAttributeCount());
+        
+        String nameAttribute = (String) f.getAttribute("NAME");
+        
+        // We expect that the UTF8 is not understood here and there will be one extra char for the misinterpreted special char
+        assertEquals("Iconfee Straße".length()+1, nameAttribute.length());
+    }
+    
+
+    /**
+     * This is just another approach to open the shapefile and pass the Charset  
+     * Now we open the shape with UTF8 charset and expect the attribute to be correctly retuned with
+     * 4 chars and including the german special character.
+     */
+    public void testLoadingAndReadingUTF8Correctly() throws Exception {
+        FeatureCollection<SimpleFeatureType, SimpleFeature> features = loadFeatures(UTF8, Charset
+                .forName("UTF8"), null);
+        
+        FeatureIterator<SimpleFeature> iterator = features.features();
+        assertTrue(iterator.hasNext());
+        assertEquals(4, features.size());
+        SimpleFeature f = iterator.next();
+        iterator.close();
+
+        // GEOM, NAME,C,100   VISUAL,C,3      NUM1,N,5        NUM2,N,5  
+        assertEquals(5, f.getAttributeCount());
+
+        String nameAttribute = (String) f.getAttribute("NAME");
+
+        // We expect that the UTF8 is not understood here
+        assertEquals("Iconfee Straße".length(), nameAttribute.length());
+        assertEquals("Iconfee Stra\u00dfe", nameAttribute);
+    }
+    
 
     public void testSchema() throws Exception {
         URL url = TestData.url(STATE_POP);
@@ -338,30 +408,6 @@ public class IndexedShapefileDataStoreTest extends TestCaseSupport {
         }
         return indexedFeatures;
     }
-//
-//    public void testCreateAndReadGRX() throws Exception {
-//        URL url = TestData.url(STATE_POP);
-//        String filename = url.getFile();
-//        filename = filename.substring(0, filename.lastIndexOf("."));
-//
-//        File file = new File(filename + ".grx");
-//
-//        if (file.exists()) {
-//            file.delete();
-//        }
-//
-//        IndexedShapefileDataStore ds = new IndexedShapefileDataStore(url, null,
-//                true, true, IndexType.EXPERIMENTAL_UNSUPPORTED_GRX);
-//        FeatureCollection<SimpleFeatureType, SimpleFeature> features = ds.getFeatureSource().getFeatures();
-//        Iterator iter = features.iterator();
-//
-//        while (iter.hasNext()) {
-//            iter.next();
-//        }
-//
-//        // TODO: The following assertion fails
-//        // assertTrue(file.exists());
-//    }
 
     public void testLoadAndVerify() throws Exception {
         FeatureCollection<SimpleFeatureType, SimpleFeature> features = loadFeatures(STATE_POP, null);
