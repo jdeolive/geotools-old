@@ -37,6 +37,11 @@ Please ensure your pom.xml includes the following::
         </dependency>
         <dependency>
             <groupId>org.geotools</groupId>
+            <artifactId>gt-image</artifactId>
+            <version>${geotools.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
             <artifactId>gt-swing</artifactId>
             <version>${geotools.version}</version>
             <!-- For this module we explicitly exclude some of its own -->
@@ -51,7 +56,7 @@ Please ensure your pom.xml includes the following::
         </dependency>
     </dependencies>
 
-Most of these dependencies in the earlier examples such as :ref:`quickstart` and :ref:`crslab`. The module that we've added is **gt-geotiff** which allows us to read raster map data from a GeoTIFF file.
+Most of these dependencies in the earlier examples such as :ref:`quickstart` and :ref:`crslab`. The modules that we've added are **gt-geotiff** which allows us to read raster map data from a GeoTIFF file and **gt-image** which allows us to read an Image+World format file set (e.g. jpg + jpw).
  
 Example
 -------
@@ -75,7 +80,7 @@ Main Application
 Prompting for input data
 ------------------------
 
-We use one of GeoTools' data wizards, **JParameterListWizard**, to prompt for the two input files:
+We use one of GeoTools' data wizards, **JParameterListWizard**, to prompt for the raster file and the shapefile that will be displayed over it:
 
    .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/ImageLab.java
       :language: java
@@ -92,17 +97,22 @@ Note the use of **Parameter** objects for each input file. The arguments passed 
 
 :description: a brief description which the wizard will display below the text field
 
-:metadata: a Map containing additional data for the Parameter - in our case this is the file extension
+:metadata: a Map containing additional data for the Parameter - in our case this is one or more file extensions.
 
-**KVP** is a handy class for creating a Map of String key : Object value pairs. It's particularly useful with multiple pairs::
+**KVP** is a handy class for creating a Map of String key : Object value pairs:: 
 
-  // Create a new Map with three key:value pairs
-  KVP foo = new KVP(Foo.THING, thing, Foo.STUFF, stuff, Foo.BAR, bar);
+  // rather than doing this...
+  Map<String, Object> map = new HashMap<String, Object>
+  map.add(Parameter.EXT, "jpg");
+  map.add(Parameter.EXT, "tif");
 
-Displaying the map data
------------------------
+  // we can just say...
+  KVP map = new KVP(Parameter.EXT, "jpg", Parameter.EXT, "tif");
 
-To display the map on screen we create a **MapContext**, add the image and the shapefile to it and pass it
+Displaying the map
+------------------
+
+To display the map on screen we create a **MapContext**, add the image and the shapefile to it, and pass it
 to a **JMapFrame**. 
 
 Rather than using the static JMapFrame.showMap method, as we have in previous examples, we create a map frame and customize it
@@ -153,4 +163,9 @@ Running the application
 Extra things to try
 -------------------
 
+* Modify the file prompt wizard, or the menu, to allow additional shapfiles to be overlaid onto the image.
+
+* Add a map layer table to the JMapFrame using frame.enableLayerTable(true) so that you can toggle the visibility of the layers.
+
+* (Advanced) Experiment with Styles for the raster display: e.g. contrast enhancement options; display based on ranges of image band values
 
