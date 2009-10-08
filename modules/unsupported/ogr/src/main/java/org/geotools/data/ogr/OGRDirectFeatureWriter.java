@@ -17,6 +17,8 @@
 package org.geotools.data.ogr;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.gdal.gdal.gdal;
 import org.gdal.ogr.Layer;
@@ -24,10 +26,9 @@ import org.geotools.data.DataSourceException;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.jdbc.MutableFIDFeature;
-import org.geotools.feature.DefaultFeatureType;
-import org.geotools.feature.Feature;
-import org.geotools.feature.FeatureType;
-import org.geotools.feature.IllegalAttributeException;
+import org.opengis.feature.IllegalAttributeException;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
 
 import com.vividsolutions.jts.geom.GeometryFactory;
 
@@ -41,9 +42,9 @@ public class OGRDirectFeatureWriter implements FeatureWriter {
 
 	private OGRFeatureReader reader;
 
-	private FeatureType featureType;
+	private SimpleFeatureType featureType;
 
-	private Feature original;
+	private SimpleFeature original;
 
 	private MutableFIDFeature live;
 
@@ -81,7 +82,7 @@ public class OGRDirectFeatureWriter implements FeatureWriter {
 		}
 	}
 
-	public FeatureType getFeatureType() {
+	public SimpleFeatureType getFeatureType() {
 		return featureType;
 	}
 
@@ -89,7 +90,7 @@ public class OGRDirectFeatureWriter implements FeatureWriter {
 		return reader.hasNext();
 	}
 
-	public Feature next() throws IOException {
+	public SimpleFeature next() throws IOException {
 		if (live != null) {
 			write();
 		}
@@ -97,13 +98,16 @@ public class OGRDirectFeatureWriter implements FeatureWriter {
 		try {
 			if(reader.hasNext()) {
 				original = reader.next();
-				live = new MutableFIDFeature((DefaultFeatureType) original.getFeatureType(), original
-						.getAttributes(new Object[original.getFeatureType().getAttributeCount()]),
-						original.getID());
+				live = new MutableFIDFeature(original.getAttributes(), original.getType(),
+						original.getIdentifier().getID());
 			} else {
 				original = null;
-				live = new MutableFIDFeature((DefaultFeatureType) featureType, 
-						DataUtilities.defaultValues(featureType), null);
+				List<Object> list = new ArrayList<Object>();
+				Object[] obj = DataUtilities.defaultValues(featureType);
+				for (int i = 0; i < obj.length; i++) {
+					list.add(obj[i]);
+				}
+				live = new MutableFIDFeature(list, featureType, null);
 			}
 			
 			return live;

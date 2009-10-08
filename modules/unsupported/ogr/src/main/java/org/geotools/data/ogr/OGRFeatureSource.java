@@ -19,14 +19,14 @@ package org.geotools.data.ogr;
 import org.geotools.data.AbstractFeatureSource;
 import org.geotools.data.DataStore;
 import org.geotools.data.FeatureListener;
-import org.geotools.feature.FeatureType;
+import org.opengis.feature.simple.SimpleFeatureType;
 
 public class OGRFeatureSource extends AbstractFeatureSource {
 	
 	private OGRDataStore store;
-	private FeatureType schema;
+	private SimpleFeatureType schema;
 
-	public OGRFeatureSource(OGRDataStore store, FeatureType schema) {
+	public OGRFeatureSource(OGRDataStore store, SimpleFeatureType schema) {
 		this.store = store;
 		this.schema = schema;
 	}
@@ -40,7 +40,7 @@ public class OGRFeatureSource extends AbstractFeatureSource {
 		return store;
 	}
 
-	public FeatureType getSchema() {
+	public SimpleFeatureType getSchema() {
 		return schema;
 	}
 

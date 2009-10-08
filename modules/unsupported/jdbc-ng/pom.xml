@@ -14,10 +14,9 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.geotools.jdbc</groupId>
-    <artifactId>gt-jdbc</artifactId>
+    <groupId>org.geotools</groupId>
+    <artifactId>unsupported</artifactId>
     <version>2.6-SNAPSHOT</version>
-    <relativePath>../../plugin/jdbc/pom.xml</relativePath>
   </parent>
 
 
@@ -25,7 +24,7 @@
   <!--     Module Description                                      -->
   <!-- =========================================================== -->
   <groupId>org.geotools</groupId>
-  <artifactId>gt-jdbc-ng</artifactId>
+  <artifactId>gt-jdbc-unsupported</artifactId>
   <packaging>pom</packaging>
   <name>Next Generation JDBC DataStores</name>
   
@@ -62,10 +61,17 @@
     </developer>
   </developers>
 
-  <!--dependencies>
+  <dependencies>
     <dependency>
-      <groupId>simple-jndi</groupId>
-      <artifactId>simple-jndi</artifactId>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-jdbc</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-jdbc</artifactId>
+      <version>${project.version}</version>
+      <classifier>tests</classifier>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -93,7 +99,7 @@
          </configuration>
        </plugin>
      </plugins>
-  </build-->
+  </build>
 
   <modules>
     <module>jdbc-mysql</module>

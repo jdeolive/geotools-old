@@ -22,9 +22,9 @@ import java.util.NoSuchElementException;
 import org.gdal.ogr.DataSource;
 import org.gdal.ogr.Layer;
 import org.geotools.data.FeatureReader;
-import org.geotools.feature.Feature;
-import org.geotools.feature.FeatureType;
-import org.geotools.feature.IllegalAttributeException;
+import org.opengis.feature.IllegalAttributeException;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
 
 import com.vividsolutions.jts.geom.GeometryFactory;
 
@@ -41,7 +41,7 @@ public class OGRFeatureReader implements FeatureReader {
 
 	Layer layer;
 
-	FeatureType schema;
+	SimpleFeatureType schema;
 
 	org.gdal.ogr.Feature curr;
 
@@ -49,7 +49,7 @@ public class OGRFeatureReader implements FeatureReader {
 	
 	boolean layerCompleted;
 
-	public OGRFeatureReader(DataSource ds, Layer layer, FeatureType schema) {
+	public OGRFeatureReader(DataSource ds, Layer layer, SimpleFeatureType schema) {
 		this.ds = ds;
 		this.layer = layer;
 		this.schema = schema;
@@ -80,7 +80,7 @@ public class OGRFeatureReader implements FeatureReader {
 		close();
 	}
 
-	public FeatureType getFeatureType() {
+	public SimpleFeatureType getFeatureType() {
 		return schema;
 	}
 
@@ -99,11 +99,11 @@ public class OGRFeatureReader implements FeatureReader {
 		return hasNext;
 	}
 
-	public Feature next() throws IOException, IllegalAttributeException, NoSuchElementException {
+	public SimpleFeature next() throws IOException, IllegalAttributeException, NoSuchElementException {
 		if (!hasNext())
 			throw new NoSuchElementException("There are no more Features to be read");
 
-		Feature f = mapper.convertOgrFeature(schema, curr);
+		SimpleFeature f = mapper.convertOgrFeature(schema, curr);
 		
 		// .. nullify curr, so that we can move to the next one
 		curr.delete();
