@@ -48,7 +48,7 @@ public class OGRDataStoreFactoryTest extends TestCaseSupport {
 		map.put(OGRDataStoreFactory.OGR_NAME.key, getAbsolutePath(STATE_POP));
 		DataStore store = factory.createDataStore(map);
 		assertEquals(namespace, store.getSchema(STATE_POP.substring(STATE_POP.lastIndexOf('/')+1,
-                                                STATE_POP.lastIndexOf('.'))).getName().getNamespaceURI());
+                                                STATE_POP.lastIndexOf('.'))).getNamespace());
 	}
 
 }

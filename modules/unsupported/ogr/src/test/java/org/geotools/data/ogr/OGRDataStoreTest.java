@@ -24,7 +24,6 @@ import java.math.BigInteger;
 import java.net.URL;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.List;
 
 import org.geotools.TestData;
 import org.geotools.data.DataStore;
@@ -36,19 +35,19 @@ import org.geotools.data.FeatureWriter;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
 import org.geotools.data.shapefile.ShapefileDataStore;
+import org.geotools.feature.AttributeType;
+import org.geotools.feature.AttributeTypeFactory;
+import org.geotools.feature.DefaultFeature;
+import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.FeatureIterator;
+import org.geotools.feature.FeatureType;
+import org.geotools.feature.FeatureTypeFactory;
 import org.geotools.feature.FeatureTypes;
+import org.geotools.feature.SimpleFeature;
 import org.geotools.feature.type.BasicFeatureTypes;
 import org.geotools.referencing.CRS;
-import org.opengis.feature.Feature;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.feature.type.AttributeDescriptor;
-import org.opengis.feature.type.AttributeType;
-import org.opengis.feature.type.FeatureType;
-import org.opengis.feature.type.FeatureTypeFactory;
 import org.opengis.filter.Filter;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -78,25 +77,26 @@ public class OGRDataStoreTest extends TestCaseSupport {
 
 	public void testSchemaPop() throws Exception {
 		OGRDataStore s = new OGRDataStore(getAbsolutePath(STATE_POP), null, null);
-		SimpleFeatureType schema = s.getSchema(s.getTypeNames()[0]);
-		List<AttributeDescriptor> types = schema.getAttributeDescriptors();
-		assertEquals("Number of Attributes", 253, types.size());
+		FeatureType schema = s.getSchema(s.getTypeNames()[0]);
+		AttributeType[] types = schema.getAttributeTypes();
+		assertEquals("Number of Attributes", 253, types.length);
 		assertTrue(CRS.equalsIgnoreMetadata(CRS.decode("EPSG:4269", true), schema
-				.getGeometryDescriptor().getCoordinateReferenceSystem()));
+				.getDefaultGeometry().getCoordinateSystem()));
 	}
 
 	public void testSchemaMix() throws Exception {
 		OGRDataStore s = new OGRDataStore(getAbsolutePath(MIXED), null, null);
-		SimpleFeatureType schema = s.getSchema(s.getTypeNames()[0]);
-		List<AttributeDescriptor> types = schema.getAttributeDescriptors();
-		assertEquals("Number of Attributes", 11, types.size);
+		FeatureType schema = s.getSchema(s.getTypeNames()[0]);
+		AttributeType[] types = schema.getAttributeTypes();
+		assertEquals("Number of Attributes", 11, types.length);
 		// mixed geometry types, only way is to use Geometry as geom type
-		assertEquals(Geometry.class, schema.getGeometryDescriptor().getType());
+		assertEquals(Geometry.class, schema.getDefaultGeometry().getType());
 		// ah, can't compare the WKT against the EPSG database becuase it's
 		// apparently broken, it's EPSG:3003 but with (very) different TOWGS84
 		// parameters, crazy...
-		assertTrue(CRS.equalsIgnoreMetadata(CRS.decode("EPSG:3003", true), schema
-		        .getGeometryDescriptor().getCoordinateRefefenceSystem()));
+		// assertTrue(CRS.equalsIgnoreMetadata(CRS.decode("EPSG:3003", true),
+		// schema
+		// .getDefaultGeometry().getCoordinateSystem()));
 	}
 
 	/**

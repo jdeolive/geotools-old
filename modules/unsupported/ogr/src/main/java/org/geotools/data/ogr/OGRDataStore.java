@@ -20,9 +20,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Vector;
 
 import org.gdal.gdal.gdal;
@@ -39,18 +37,15 @@ import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
-import org.geotools.feature.AttributeTypeBuilder;
+import org.geotools.factory.FactoryRegistryException;
+import org.geotools.feature.AttributeType;
+import org.geotools.feature.AttributeTypeFactory;
+import org.geotools.feature.FeatureType;
 import org.geotools.feature.FeatureTypes;
-import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
+import org.geotools.feature.GeometryAttributeType;
+import org.geotools.feature.SchemaException;
 import org.geotools.feature.type.BasicFeatureTypes;
-import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.feature.type.AttributeDescriptor;
-import org.opengis.feature.type.AttributeType;
-import org.opengis.feature.type.GeometryDescriptor;
-import org.opengis.feature.type.GeometryType;
 import org.opengis.filter.Filter;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -85,8 +80,8 @@ public class OGRDataStore extends AbstractDataStore {
 	static final Class[] OGR_GEOM_TYPES = new Class[] { //
 	Geometry.class, // wkbUnknown = 0
 			Point.class, // wkbPoint = 1
-			LineString.class, // wkbLineString = 2,
-			Polygon.class, // wkbPolygon = 3,
+			MultiLineString.class, // wkbLineString = 2,
+			MultiPolygon.class, // wkbPolygon = 3,
 			MultiPoint.class, // wkbMultiPoint = 4,
 			MultiLineString.class, // wkbMultiLineString = 5,
 			MultiPolygon.class, // wkbMultiPolygon = 6,
@@ -143,104 +138,65 @@ public class OGRDataStore extends AbstractDataStore {
 			throws IOException {
 		DataSource ds = getOGRDataSource(openForUpdate ? TRUE : FALSE);
 		Layer layer = getOGRLayer(ds, typeName);
-		SimpleFeatureType schema = getSchema(typeName);
+		FeatureType schema = getSchema(typeName);
 		return new OGRFeatureReader(ds, layer, schema);
 	}
 
-	public SimpleFeatureType getSchema(String typeName)
-			throws IOException {
-			List<AttributeDescriptor> types = getAttributes(typeName);
+	public FeatureType getSchema(String typeName) throws IOException {
+		DataSource ds = getOGRDataSource(FALSE);
+		Layer layer = getOGRLayer(ds, typeName);
+		if (layer == null) {
+			ds.delete();
+			throw new IOException("No such type : " + typeName);
+		}
+		FeatureDefn featureDef = null;
+		try {
+			featureDef = layer.GetLayerDefn();
+			AttributeType[] types = new AttributeType[featureDef.GetFieldCount() + 1];
 
-			SimpleFeatureType parent = null;
-			Class<?> geomType = types.get(0).getType().getBinding();
+			// handle the geometry
+			CoordinateReferenceSystem crs = getCRS(layer);
+			Class geomClass = getGeometryClass(featureDef.GetGeomType());
+			types[0] = AttributeTypeFactory.newAttributeType("the_geom", geomClass, true, 0, null,
+					crs);
 
-			CoordinateReferenceSystem cs = ((GeometryDescriptor) types.get(0))
-					.getCoordinateReferenceSystem();
+			// compute a default parent feature type
+			Class geomType = types[0].getType();
+			FeatureType parent = null;
 			if ((geomType == Point.class) || (geomType == MultiPoint.class)) {
 				parent = BasicFeatureTypes.POINT;
 			} else if ((geomType == Polygon.class) || (geomType == MultiPolygon.class)) {
 				parent = BasicFeatureTypes.POLYGON;
 			} else if ((geomType == LineString.class) || (geomType == MultiLineString.class)) {
 				parent = BasicFeatureTypes.LINE;
-			}/*
-			 * else if (geomType == GeometryCollection.class) { parent =
-			 * BasicFeatureTypes.POINT; }
-			 */else {
-				parent = BasicFeatureTypes.FEATURE;
 			}
 
-			SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
-			builder.setCRS(cs);
-			builder.addAll(types);
-			builder.setName(typeName);
-
-			if (namespace != null) {
-				builder.setNamespaceURI(namespace);
-			} else {
-				builder.setNamespaceURI(BasicFeatureTypes.DEFAULT_NAMESPACE);
-			}
-			builder.setAbstract(false);
-			if (parent != null) {
-				builder.setSuperType(parent);
+			// handle the other fields
+			for (int i = 1; i < types.length; i++) {
+				FieldDefn fd = featureDef.GetFieldDefn(i - 1);
+				types[i] = AttributeTypeFactory.newAttributeType(fd.GetNameRef(),
+						getFieldClass(fd), true, fd.GetWidth());
+				fd.delete();
 			}
 
-			return builder.buildFeatureType();	
-		
-	}
-
-	private List<AttributeDescriptor> getAttributes(String typeName)
-		throws IOException {
-		DataSource ds = getOGRDataSource(FALSE);
-		CoordinateReferenceSystem crs = null;
-		AttributeTypeBuilder builder = new AttributeTypeBuilder();
-		List<AttributeDescriptor> types = new ArrayList<AttributeDescriptor>();
-		Layer layer = getOGRLayer(ds, typeName);
-		
-		if (layer == null) {
-			ds.delete();
-			throw new IOException("OGRDataStore no such type" + typeName);
-		}
-		FeatureDefn featureDef = layer.GetLayerDefn();
-
-		// Get CRS
-		try {
-			crs = getCRS(layer);
-			if (crs == null) {
-				crs = DefaultGeographicCRS.WGS84;
-			}
+			// finally build the geometry type
+			return FeatureTypes.newFeatureType(types, layer.GetName(), namespace, false,
+					parent != null ? new FeatureType[] { parent } : null);
 		} catch (FactoryException e) {
-			e.printStackTrace();
+			throw new DataSourceException("Could not determine geometry SRS", e);
+		} catch (FactoryRegistryException e) {
+			throw new DataSourceException("Could not create feature type", e);
+		} catch (SchemaException e) {
+			throw new DataSourceException("Could not create feature type", e);
+		} finally {
+			if (featureDef != null)
+				featureDef.delete();
+			if (layer != null)
+				layer.delete();
+			if (ds != null)
+				ds.delete();
 		}
-		// handle the geometry
-		
-		Class<?> geomClass = getGeometryClass(featureDef.GetGeomType());
-		builder.setBinding(geomClass);
-		builder.setCRS(crs);
-		builder.setNillable(true);
-		builder.setLength(0);
-		builder.setDefaultValue(null);
-		GeometryType geometryType = builder.buildGeometryType();
-		types.add(builder.buildDescriptor(
-				BasicFeatureTypes.GEOMETRY_ATTRIBUTE_NAME, geometryType));
-		
-		// handle the other fields
-		for (int i = 0; i < featureDef.GetFieldCount(); i++) {
-			FieldDefn fd = featureDef.GetFieldDefn(i);
 
-			builder.setName(fd.GetName());
-			builder.setBinding(getFieldClass(fd));
-			builder.setNillable(false);
-			builder.setLength(fd.GetWidth());
-			types.add(builder.buildDescriptor(fd.GetName()));
-			fd.delete();
-		}
-		if (layer != null) {
-			layer.delete();
-		}
-		if (ds != null) {
-			ds.delete();
-		}
-		return types;
 	}
 
 	public String[] getTypeNames() throws IOException {
@@ -324,17 +280,12 @@ public class OGRDataStore extends AbstractDataStore {
 		return retval;
 	}
 
-	public ReferencedEnvelope getBounds(Query q) throws IOException {
-		if (q.getFilter().equals(Filter.INCLUDE) || (q == Query.ALL)) {
-			return getBounds(q.getTypeName());
-		}
-		return null;
-	}
+	public Envelope getBounds(Query q) throws IOException {
+		if (!q.getFilter().equals(Filter.INCLUDE))
+			return null;
 
-	public ReferencedEnvelope getBounds(String layerName) throws IOException {
 		DataSource ds = getOGRDataSource(OGRDataStore.FALSE);
-		Layer l = getOGRLayer(ds, layerName);
-		try {
+		Layer l = getOGRLayer(ds, q.getTypeName());
 		if (l.TestCapability(ogr.OLCFastGetExtent)) {
 			double[] bbox = new double[4];
 			// TODO: hum... going thru this forcing the computation is anyways
@@ -343,31 +294,13 @@ public class OGRDataStore extends AbstractDataStore {
 			// explicit middle ground in Geotools
 			l.GetExtent(bbox, OGRDataStore.FALSE);
 			// TODO: return a ReferencedEnvelope?
-
-				SimpleFeatureType schema = getSchema(layerName);
-				ReferencedEnvelope bounds = new ReferencedEnvelope(schema
-						.getCoordinateReferenceSystem());
-				bounds.include(bbox[0], bbox[2]);
-				bounds.include(bbox[1], bbox[3]);
-
-				Envelope env = new Envelope(bbox[0], bbox[1], bbox[2], bbox[3]);
-				if (schema != null) {
-					return new ReferencedEnvelope(env, schema
-							.getCoordinateReferenceSystem());
-				}
-				return new ReferencedEnvelope(env, null);
-			} else {
-				return null;
-			}
-		} finally {
-			if (l != null)
-				l.delete();
-			if (ds != null)
-				ds.delete();
+			return new Envelope(bbox[0], bbox[1], bbox[2], bbox[3]);
+		} else {
+			return null;
 		}
 	}
 
-	public void createSchema(SimpleFeatureType schema) throws IOException {
+	public void createSchema(FeatureType schema) throws IOException {
 		// TODO: add a field to allow approximate definitions
 		createSchema(schema, false, null);
 	}
@@ -384,7 +317,7 @@ public class OGRDataStore extends AbstractDataStore {
 	 *            OGR data source/layer creation options
 	 * @throws IOException
 	 */
-	public void createSchema(SimpleFeatureType schema, boolean approximateFields, String[] options)
+	public void createSchema(FeatureType schema, boolean approximateFields, String[] options)
 			throws IOException {
 		DataSource ds = null;
 		Layer l = null;
@@ -410,11 +343,11 @@ public class OGRDataStore extends AbstractDataStore {
 			}
 
 			// get the spatial reference corresponding to the default geometry
-			GeometryType geomType = schema.getGeometryDescriptor().getType();
+			GeometryAttributeType geomType = schema.getDefaultGeometry();
 			int ogrGeomType = getOGRGeometryType(geomType);
 			SpatialReference sr = null;
-			if (geomType.getCoordinateReferenceSystem() != null) {
-				String wkt = geomType.getCoordinateReferenceSystem().toString();
+			if (geomType.getCoordinateSystem() != null) {
+				String wkt = geomType.getCoordinateSystem().toString();
 				sr = new SpatialReference(null);
 				if (sr.ImportFromWkt(wkt) != 0) {
 					sr = null;
@@ -432,15 +365,13 @@ public class OGRDataStore extends AbstractDataStore {
 
 			// create fields
 			for (int i = 0; i < schema.getAttributeCount(); i++) {
-				AttributeType at = schema.getType(i);
-				if (at == schema.getGeometryDescriptor().getType())
+				AttributeType at = schema.getAttributeType(i);
+				if (at == schema.getDefaultGeometry())
 					continue;
 
 				FieldDefn definition = getOGRFieldDefinition(at);
 				l.CreateField(definition, approximateFields ? TRUE : FALSE);
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
 		} finally {
 			if (l != null) {
 				l.delete();
@@ -455,7 +386,7 @@ public class OGRDataStore extends AbstractDataStore {
 	// ---------------------------------------------------------------------------------------
 
 	private FieldDefn getOGRFieldDefinition(AttributeType at) throws IOException {
-		final Class<?> type = at.getBinding();
+		final Class type = at.getType();
 		final FieldDefn def;
 		// set type, width, precision and justification where:
 		// * width is the number of chars needed to format the strings
@@ -466,56 +397,55 @@ public class OGRDataStore extends AbstractDataStore {
 		// TODO: steal code from Shapefile data store to guess eventual size
 		// limitations
 		if (Boolean.class.equals(type)) {
-			def = new FieldDefn(at.getName().toString(), ogr.OFTString);
+			def = new FieldDefn(at.getName(), ogr.OFTString);
 			def.SetWidth(5);
 		} else if (Byte.class.equals(type)) {
-			def = new FieldDefn(at.getName().toString(), ogr.OFTInteger);
+			def = new FieldDefn(at.getName(), ogr.OFTInteger);
 			def.SetWidth(3);
 			def.SetJustify(ogr.OJRight);
 		} else if (Short.class.equals(type)) {
-			def = new FieldDefn(at.getName().toString(), ogr.OFTInteger);
+			def = new FieldDefn(at.getName(), ogr.OFTInteger);
 			def.SetWidth(5);
 			def.SetJustify(ogr.OJRight);
 		} else if (Integer.class.equals(type)) {
-			def = new FieldDefn(at.getName().toString(), ogr.OFTInteger);
+			def = new FieldDefn(at.getName(), ogr.OFTInteger);
 			def.SetWidth(9);
 			def.SetJustify(ogr.OJRight);
 		} else if (Long.class.equals(type)) {
-			def = new FieldDefn(at.getName().toString(), ogr.OFTInteger);
+			def = new FieldDefn(at.getName(), ogr.OFTInteger);
 			def.SetWidth(19);
 			def.SetJustify(ogr.OJRight);
 		} else if (BigInteger.class.equals(type)) {
-			def = new FieldDefn(at.getName().toString(), ogr.OFTInteger);
+			def = new FieldDefn(at.getName(), ogr.OFTInteger);
 			def.SetWidth(32);
 			def.SetJustify(ogr.OJRight);
 		} else if (BigDecimal.class.equals(type)) {
-			def = new FieldDefn(at.getName().toString(), ogr.OFTReal);
+			def = new FieldDefn(at.getName(), ogr.OFTReal);
 			def.SetWidth(32);
 			def.SetPrecision(15);
 			def.SetJustify(ogr.OJRight);
 		} else if (Float.class.equals(type)) {
-			def = new FieldDefn(at.getName().toString(), ogr.OFTReal);
+			def = new FieldDefn(at.getName(), ogr.OFTReal);
 			def.SetWidth(12);
 			def.SetPrecision(7);
 			def.SetJustify(ogr.OJRight);
-		} else if (Double.class.equals(type)
-				|| Number.class.isAssignableFrom(type)) {
-			def = new FieldDefn(at.getName().toString(), ogr.OFTReal);
+		} else if (Double.class.equals(type) || Number.class.isAssignableFrom(type)) {
+			def = new FieldDefn(at.getName(), ogr.OFTReal);
 			def.SetWidth(22);
 			def.SetPrecision(16);
 			def.SetJustify(ogr.OJRight);
 		} else if (String.class.equals(type)) {
-			def = new FieldDefn(at.getName().toString(), ogr.OFTString);
+			def = new FieldDefn(at.getName(), ogr.OFTString);
 			def.SetWidth(255);
 			// TODO: do a serious attempt to cover blob and clob too
 		} else if (byte[].class.equals(type)) {
-			def = new FieldDefn(at.getName().toString(), ogr.OFTBinary);
+			def = new FieldDefn(at.getName(), ogr.OFTBinary);
 //		} else if (java.sql.Date.class.isAssignableFrom(type)) {
 //			def = new FieldDefn(at.getName(), ogr.OFTDate);
 //		} else if (java.sql.Time.class.isAssignableFrom(type)) {
 //			def = new FieldDefn(at.getName(), ogr.OFTTime);
 		} else if (java.util.Date.class.isAssignableFrom(type)) {
-			def = new FieldDefn(at.getName().toString(), ogr.OFTDateTime);
+			def = new FieldDefn(at.getName(), ogr.OFTDateTime);
 		} else {
 			throw new IOException("Cannot map " + type + " to an OGR type");
 		}
@@ -550,8 +480,6 @@ public class OGRDataStore extends AbstractDataStore {
 	 * @throws IOException
 	 */
 	Layer getOGRLayer(DataSource ds, String typeName) throws IOException {
-		if (ds == null)
-			return null;
 		Layer l = ds.GetLayerByName(typeName);
 		if (l == null) {
 			ds.delete();
@@ -640,12 +568,12 @@ public class OGRDataStore extends AbstractDataStore {
 	 * @return
 	 * @throws IOException
 	 */
-	private int getOGRGeometryType(GeometryType type) throws IOException {
+	private int getOGRGeometryType(GeometryAttributeType type) throws IOException {
 		for (int i = 0; i < OGR_GEOM_TYPES.length; i++) {
-			if (type.getBinding().equals(OGR_GEOM_TYPES[i]))
+			if (type.getType().equals(OGR_GEOM_TYPES[i]))
 				return i;
 		}
-		throw new IOException("Could not map " +  type.getBinding() + " to an OGR geometry type");
+		throw new IOException("Could not map " + type.getType() + " to an OGR geometry type");
 	}
 
 }

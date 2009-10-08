@@ -30,6 +30,7 @@ import org.gdal.ogr.ogr;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFactorySpi;
+import org.geotools.data.FileDataStoreFactorySpi;
 
 
 /**
@@ -64,16 +65,6 @@ public class OGRDataStoreFactory
      */
     private Map liveStores=new HashMap();
     
-    private String ogrName;
-    private String ogrDriver;
-    private URI namespace;
-    private String[] fileExtentions;
-    
-	public OGRDataStoreFactory(String[] fileExtentions) {
-		super();
-		this.fileExtentions = fileExtentions;
-	}
-	
     public boolean canProcess(Map params) {
         boolean accept = false;
         String ogrName = null;
@@ -124,16 +115,16 @@ public class OGRDataStoreFactory
 
         DataStore ds = null;
        
-    	ogrName = (String) OGR_NAME.lookUp(params);
-        ogrDriver = (String) OGR_DRIVER_NAME.lookUp(params);
-        namespace = (URI) NAMESPACEP.lookUp(params);  
+    	String ogrName = (String) OGR_NAME.lookUp(params);
+        String ogrDriver = (String) OGR_DRIVER_NAME.lookUp(params);
+        URI namespace = (URI) NAMESPACEP.lookUp(params);  
         ds = new OGRDataStore(ogrName, ogrDriver, namespace);
  
         return ds;
     }
 
     public String getDisplayName() {
-        return ogrDriver;
+        return "Shapefile";
     }
     /**
      * Describes the type of data the datastore returned by this factory works
@@ -143,7 +134,7 @@ public class OGRDataStoreFactory
      *         supported by this datastore.
      */
     public String getDescription() {
-        return ogrDriver + " " + ogrName;
+        return "ESRI(tm) Shapefiles (*.shp)";
     }
 
 //    public DataSourceMetadataEnity createMetadata( Map params )
@@ -187,14 +178,14 @@ public class OGRDataStoreFactory
      * @see org.geotools.data.DataStoreFactorySpi#getParametersInfo()
      */
     public Param[] getParametersInfo() {
-        return new Param[] {OGR_NAME};
+        return new Param[] { OGR_NAME};
     }
 
     /**
      * @see org.geotools.data.dir.FileDataStoreFactorySpi#getFileExtensions()
      */
     public String[] getFileExtensions() {
-        return fileExtentions;
+        return new String[] {".shp",};
     }
 
     /**
@@ -217,10 +208,16 @@ public class OGRDataStoreFactory
         	return true;
         }
         
-        return false;        
+        return false;
+        
     }
 
 	public Map getImplementationHints() {
 		return Collections.EMPTY_MAP;
 	}
+
+
+    
+
+
 }

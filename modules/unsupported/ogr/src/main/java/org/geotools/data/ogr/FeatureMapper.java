@@ -19,19 +19,16 @@ package org.geotools.data.ogr;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.List;
 
 import org.gdal.ogr.FeatureDefn;
 import org.gdal.ogr.FieldDefn;
 import org.gdal.ogr.ogr;
 import org.geotools.data.DataSourceException;
-import org.geotools.feature.simple.SimpleFeatureBuilder;
-import org.opengis.feature.Feature;
-import org.opengis.feature.IllegalAttributeException;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.feature.type.AttributeType;
-import org.opengis.feature.type.GeometryType;
+import org.geotools.feature.AttributeType;
+import org.geotools.feature.Feature;
+import org.geotools.feature.FeatureType;
+import org.geotools.feature.IllegalAttributeException;
+import org.geotools.feature.type.GeometricAttributeType;
 
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -107,7 +104,7 @@ class FeatureMapper {
 	 * @throws IOException
 	 * @throws IllegalAttributeException
 	 */
-	SimpleFeature convertOgrFeature(SimpleFeatureType schema, org.gdal.ogr.Feature ogrFeature) 
+	Feature convertOgrFeature(FeatureType schema, org.gdal.ogr.Feature ogrFeature)
 			throws IOException, IllegalAttributeException {
 		// Extract all attributes (do not assume any specific order, the feature
 		// type may have been re-ordered by the Query)
@@ -116,9 +113,8 @@ class FeatureMapper {
 		// .. then extract each attribute using the attribute type to determine
 		// which extraction method to call
 		for (int i = 0; i < attributes.length; i++) {
-			AttributeType at = schema.getType(i);
-			if (at instanceof GeometryType) {
-				
+			AttributeType at = schema.getAttributeType(i);
+			if (at instanceof GeometricAttributeType) {
 				org.gdal.ogr.Geometry ogrGeometry = ogrFeature.GetGeometryRef();
 				try {
 					attributes[i] = fixGeometryType(parseOgrGeometry(ogrGeometry), at);
@@ -134,8 +130,7 @@ class FeatureMapper {
 		String fid = convertOGRFID(schema, ogrFeature);
 
 		// .. finally create the feature
-		SimpleFeatureBuilder builder = new SimpleFeatureBuilder(schema);
-		return builder.buildFeature(fid, attributes);
+		return schema.create(attributes, fid);
 	}
 
 	/**
@@ -145,47 +140,42 @@ class FeatureMapper {
 	 * @return
 	 * @throws DataSourceException
 	 */
-	org.gdal.ogr.Feature convertGTFeature(FeatureDefn ogrSchema, SimpleFeature feature)
-		throws IOException {
+	org.gdal.ogr.Feature convertGTFeature(FeatureDefn ogrSchema, Feature feature)
+			throws IOException {
 		// create a new empty OGR feature
 		org.gdal.ogr.Feature result = new org.gdal.ogr.Feature(ogrSchema);
 
 		// go thru GeoTools feature attributes, and convert
-		SimpleFeatureType schema = feature.getFeatureType();
-		List<Object> attributes = feature.getAttributes();//(new Object[schema.getAttributeCount()]);
-		for (int i = 0, j = 0; i < attributes.size(); i++) {
-			AttributeType at = schema.getType(i);
-			if (at instanceof GeometryType) {
+		FeatureType schema = feature.getFeatureType();
+		Object[] attributes = feature.getAttributes(new Object[schema.getAttributeCount()]);
+		for (int i = 0, j = 0; i < attributes.length; i++) {
+			AttributeType at = schema.getAttributeType(i);
+			if (at instanceof GeometricAttributeType) {
                 // using setGeoemtryDirectly the feature becomes the owner of the generated
                 // OGR geometry and we don't have to .delete() it (it's faster, too) 
-				result.SetGeometryDirectly(parseGTGeometry((Geometry) attributes.get(i)));
+				result.SetGeometryDirectly(parseGTGeometry((Geometry) attributes[i]));
 				continue;
 			}
 
-			if (attributes.get(i) == null) {
+			if (attributes[i] == null) {
 				result.UnsetField(j);
 			} else {
-				final FieldDefn ogrField = ogrSchema.GetFieldDefn(j);
-				final int ogrType = ogrField.GetFieldType();
-				ogrField.delete();
-				if (ogrType == ogr.OFTInteger)
-					result.SetField(j, Integer.toString(((Number) attributes
-							.get(i)).intValue()));
-				else if (ogrType == ogr.OFTReal)
-					result.SetField(j, Double.toString(((Number) attributes
-							.get(i)).doubleValue()));
-				else if (ogrType == ogr.OFTDateTime)
-					result.SetField(j, dateTimeFormat
-							.format((java.util.Date) attributes.get(i)));
+                final FieldDefn ogrField = ogrSchema.GetFieldDefn(j);
+                final int ogrType = ogrField.GetFieldType();
+                ogrField.delete();
+                if(ogrType == ogr.OFTInteger)
+                    result.SetField(j, ((Number) attributes[i]).intValue());
+                else if(ogrType == ogr.OFTReal)
+                    result.SetField(j, ((Number) attributes[i]).doubleValue());
+                else if (ogrType == ogr.OFTDateTime)
+					result.SetField(j, dateTimeFormat.format((java.util.Date) attributes[i]));
 				else if (ogrType == ogr.OFTDate)
-					result.SetField(j, dateFormat
-							.format((java.util.Date) attributes.get(i)));
+					result.SetField(j, dateFormat.format((java.util.Date) attributes[i]));
 				else if (ogrType == ogr.OFTTime)
-					result.SetField(j, timeFormat
-							.format((java.util.Date) attributes.get(i)));
+					result.SetField(j, timeFormat.format((java.util.Date) attributes[i]));
 				else
-					result.SetField(j, attributes.get(i).toString());
-			}
+					result.SetField(j, attributes[i].toString());
+			} 
 			j++;
 		}
 
@@ -202,12 +192,12 @@ class FeatureMapper {
 	 * @return
 	 */
 	Geometry fixGeometryType(Geometry ogrGeometry, AttributeType at) {
-		if (MultiPolygon.class.equals(at.getClass())) {
+		if (MultiPolygon.class.equals(at.getType())) {
 			if (ogrGeometry instanceof MultiPolygon)
 				return ogrGeometry;
 			else
 				return geomFactory.createMultiPolygon(new Polygon[] { (Polygon) ogrGeometry });
-		} else if (MultiLineString.class.equals(at.getClass())) {
+		} else if (MultiLineString.class.equals(at.getType())) {
 			if (ogrGeometry instanceof MultiLineString)
 				return ogrGeometry;
 			else
@@ -283,8 +273,8 @@ class FeatureMapper {
 	 * @return
 	 */
 	Object getOgrField(AttributeType at, org.gdal.ogr.Feature ogrFeature) throws IOException {
-		String name = at.getName().toString();
-		Class<?> clazz = at.getBinding();
+		String name = at.getName();
+		Class clazz = at.getType();
 
 		// check for null fields
 		if (!ogrFeature.IsFieldSet(name))
@@ -299,6 +289,8 @@ class FeatureMapper {
 			return new Double(ogrFeature.GetFieldAsDouble(name));
 		} else if (clazz.equals(Float.class)) {
 			return new Float(ogrFeature.GetFieldAsDouble(name));
+		} else if (clazz.equals(Integer.class)) {
+			return new Integer(ogrFeature.GetFieldAsInteger(name));
 		} else if (clazz.equals(java.util.Date.class)) {
 			String date = ogrFeature.GetFieldAsString(name);
 			if (date == null || date.trim().equals(""))
@@ -328,7 +320,7 @@ class FeatureMapper {
 	 * @param ogrFeature
 	 * @return
 	 */
-	String convertOGRFID(SimpleFeatureType schema, org.gdal.ogr.Feature ogrFeature) {
+	String convertOGRFID(FeatureType schema, org.gdal.ogr.Feature ogrFeature) {
 		return schema.getTypeName() + "." + ogrFeature.GetFID();
 	}
 
@@ -339,7 +331,7 @@ class FeatureMapper {
 	 * @return
 	 */
 	int convertGTFID(Feature feature) {
-		String id = feature.getIdentifier().getID();
+		String id = feature.getID();
 		return Integer.parseInt(id.substring(id.indexOf(".") + 1));
 	}
 
