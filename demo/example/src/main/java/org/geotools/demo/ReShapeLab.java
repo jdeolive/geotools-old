@@ -37,10 +37,14 @@ import org.geotools.swing.JCRSChooser;
 import org.geotools.swing.JMapFrame;
 import org.geotools.swing.action.SafeAction;
 import org.geotools.swing.data.JFileDataStoreChooser;
+import org.opengis.feature.Feature;
+import org.opengis.feature.FeatureVisitor;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+
+import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * This is an extension to CRSLab allowing the export
@@ -84,8 +88,26 @@ public class ReShapeLab {
                 export( featureSource, map.getCoordinateReferenceSystem(), file );
             }
         });
+        toolbar.add( new SafeAction("Valid") {            
+            public void action(ActionEvent e) throws Throwable {
+                checkValid( featureSource );
+            }
+        });
         mapFrame.setSize(800, 600);
         mapFrame.setVisible(true);
+    }
+
+    protected static void checkValid(FeatureSource featureSource) throws Exception {
+        FeatureCollection<SimpleFeatureType,SimpleFeature> featureCollection = featureSource.getFeatures();
+        featureCollection.accepts( new FeatureVisitor() {           
+            public void visit(Feature feature) {
+                Geometry geom = (Geometry) feature.getDefaultGeometryProperty().getValue();
+                if( geom == null ) return;
+                if( geom.isValid() ) return;
+                
+                System.out.println( "Invalid Geoemtry: "+ feature.getIdentifier() );
+            }
+        }, null );
     }
 
     @SuppressWarnings("unchecked")
@@ -105,12 +127,15 @@ public class ReShapeLab {
             JOptionPane.showMessageDialog(null,"Cannot repalce "+file);
             return;
         }
+        // We can now query to retrieve a FeatureCollection
+        // in the desired coordiante reference system
         DefaultQuery query = new DefaultQuery();
         query.setTypeName(typeName);
         query.setCoordinateSystemReproject( crs );
         
         FeatureCollection<SimpleFeatureType,SimpleFeature> featureCollection = featureSource.getFeatures(query);
         
+        // And create a new Shapefile with the results
         DataStoreFactorySpi factory = new ShapefileDataStoreFactory();
 
         Map<String, Serializable> create = new HashMap<String,Serializable>();

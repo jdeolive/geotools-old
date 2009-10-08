@@ -35,13 +35,13 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 public class CRSLab {
 
     public static void main(String[] args) throws Exception {
-        File file = JFileDataStoreChooser.showOpenFile("shp", null);
+        final File file = JFileDataStoreChooser.showOpenFile("shp", null);
         if (file == null) {
             return;
         }
 
         FileDataStore store = FileDataStoreFinder.getDataStore(file);
-        FeatureSource featureSource = store.getFeatureSource();
+        final FeatureSource featureSource = store.getFeatureSource();
 
         // Create a map context and add our shapefile to it
         final MapContext map = new DefaultMapContext();
