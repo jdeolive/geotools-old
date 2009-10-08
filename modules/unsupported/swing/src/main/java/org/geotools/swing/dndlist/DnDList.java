@@ -52,7 +52,7 @@ import javax.swing.JList;
 public class DnDList<T> extends JList implements DragGestureListener, DragSourceListener, DropTargetListener {
     private static final long serialVersionUID = 3310751294076288683L;
 
-    private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/swing/widget");
+    private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/swing/Text");
 
     private DragSource src;
     

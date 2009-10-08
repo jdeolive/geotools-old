@@ -142,7 +142,8 @@ public class ImageLab {
         frame = new JMapFrame(map);
         frame.setSize(800, 600);
         frame.enableStatusBar(true);
-        frame.enableTool(JMapFrame.Tool.ZOOM, JMapFrame.Tool.PAN, JMapFrame.Tool.RESET);
+        //frame.enableTool(JMapFrame.Tool.ZOOM, JMapFrame.Tool.PAN, JMapFrame.Tool.RESET);
+        frame.enableToolBar(true);
 
         JMenuBar menuBar = new JMenuBar();
         frame.setJMenuBar(menuBar);
@@ -195,7 +196,7 @@ public class ImageLab {
     private Style createGreyscaleStyle() {
         GridCoverage2D cov = null;
         try {
-            cov = (GridCoverage2D) reader.read(null);
+            cov = reader.read(null);
         } catch (IOException giveUp) {
             throw new RuntimeException(giveUp);
         }

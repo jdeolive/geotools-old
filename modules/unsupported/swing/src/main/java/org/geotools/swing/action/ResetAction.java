@@ -32,8 +32,8 @@ import org.geotools.swing.JMapPane;
  * @version $Id$
  */
 public class ResetAction extends MapAction {
-    public static final String TOOL_NAME = java.util.ResourceBundle.getBundle("org/geotools/swing/widget").getString("tool_name_reset");
-    public static final String TOOL_TIP = java.util.ResourceBundle.getBundle("org/geotools/swing/widget").getString("tool_tip_reset");
+    public static final String TOOL_NAME = java.util.ResourceBundle.getBundle("org/geotools/swing/Text").getString("tool_name_reset");
+    public static final String TOOL_TIP = java.util.ResourceBundle.getBundle("org/geotools/swing/Text").getString("tool_tip_reset");
     public static final String ICON_IMAGE = "/org/geotools/swing/icons/mActionZoomFullExtent.png";
     
     /**

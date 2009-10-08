@@ -32,6 +32,8 @@ import java.util.Collection;
 import java.util.ResourceBundle;
 import javax.measure.unit.Unit;
 import javax.swing.ImageIcon;
+import org.geotools.coverage.grid.GridCoverage2D;
+import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
 import org.geotools.feature.FeatureCollection;
@@ -42,10 +44,12 @@ import org.geotools.map.MapLayer;
 import org.geotools.swing.JTextReporter;
 import org.geotools.swing.TextReporterListener;
 import org.geotools.swing.event.MapMouseEvent;
+import org.opengis.coverage.CannotEvaluateException;
 import org.opengis.feature.Feature;
 import org.opengis.feature.Property;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
+import org.opengis.feature.type.PropertyDescriptor;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory2;
 
@@ -60,7 +64,7 @@ import org.opengis.filter.FilterFactory2;
  */
 public class InfoTool extends CursorTool implements TextReporterListener {
 
-    private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/swing/widget");
+    private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/swing/Text");
 
     public static final String TOOL_NAME = stringRes.getString("tool_name_info");
     public static final String TOOL_TIP = stringRes.getString("tool_tip_info");
@@ -75,6 +79,15 @@ public class InfoTool extends CursorTool implements TextReporterListener {
      * as the maximum map side length multiplied by the distance fraction.
      */
     public static final double DEFAULT_DISTANCE_FRACTION = 0.04d;
+
+    /*
+     * Used by the isGridLayer method to return its results
+     */
+    private class IsGridLayerResult {
+        boolean isGridLayer = false;
+        private boolean isReader = false;
+        String gridAttrName = null;
+    }
 
     private Cursor cursor;
     private FilterFactory2 filterFactory;
@@ -113,42 +126,79 @@ public class InfoTool extends CursorTool implements TextReporterListener {
 
         Geometry posGeom = geomFactory.createPoint(new Coordinate(pos.x, pos.y));
 
+        report(pos);
+
         for (MapLayer layer : getMapPane().getMapContext().getLayers()) {
+            FeatureIterator<? extends Feature> iter = null;
             if (layer.isSelected()) {
-                FeatureIterator<? extends Feature> iter = null;
-                Filter filter = null;
+                String layerName = layer.getTitle();
+                if (layerName == null || layerName.length() == 0) {
+                    layerName = layer.getFeatureSource().getName().getLocalPart();
+                }
+                if (layerName == null || layerName.length() == 0) {
+                    layerName = layer.getFeatureSource().getSchema().getName().getLocalPart();
+                }
+
                 try {
-                    GeometryDescriptor geomDesc = layer.getFeatureSource().getSchema().getGeometryDescriptor();
-                    String attrName = geomDesc.getLocalName();
-                    Class<?> geomClass = geomDesc.getType().getBinding();
-
-                    if (Polygon.class.isAssignableFrom(geomClass) ||
-                            MultiPolygon.class.isAssignableFrom(geomClass)) {
+                    IsGridLayerResult result = isGridLayer(layer);
+                    if (result.isGridLayer) {
                         /*
-                         * For polygons we test if they contain mouse location
+                         * For grid coverages we directly evaluate the band values
                          */
-                        filter = filterFactory.intersects(
-                                filterFactory.property(attrName),
-                                filterFactory.literal(posGeom));
+                        iter = layer.getFeatureSource().getFeatures().features();
+                        Object obj = iter.next().getProperty(result.gridAttrName).getValue();
+                        GridCoverage2D cov = null;
+
+                        if (result.isReader) {
+                            AbstractGridCoverage2DReader reader = (AbstractGridCoverage2DReader) obj;
+                            cov = reader.read(null);
+                        } else {
+                            cov = (GridCoverage2D) obj;
+                        }
+
+                        try {
+                            Object objArray = cov.evaluate(pos);
+                            Number[] bandValues = asNumberArray(objArray);
+                            report(layerName, bandValues);
+
+                        } catch (CannotEvaluateException ex) {
+                            // do nothing - point outside coverage
+                        }
+
                     } else {
-                        /*
-                         * For point and line features we test if the are near
-                         * the mouse location
-                         */
-                        filter = filterFactory.dwithin(
-                                filterFactory.property(attrName),
-                                filterFactory.literal(posGeom),
-                                thresholdDistance, uomName);
+                        Filter filter = null;
+                        GeometryDescriptor geomDesc = layer.getFeatureSource().getSchema().getGeometryDescriptor();
+                        String attrName = geomDesc.getLocalName();
+                        Class<?> geomClass = geomDesc.getType().getBinding();
+
+                        if (Polygon.class.isAssignableFrom(geomClass) ||
+                                MultiPolygon.class.isAssignableFrom(geomClass)) {
+                            /*
+                             * For polygons we test if they contain mouse location
+                             */
+                            filter = filterFactory.intersects(
+                                    filterFactory.property(attrName),
+                                    filterFactory.literal(posGeom));
+                        } else {
+                            /*
+                             * For point and line features we test if the are near
+                             * the mouse location
+                             */
+                            filter = filterFactory.dwithin(
+                                    filterFactory.property(attrName),
+                                    filterFactory.literal(posGeom),
+                                    thresholdDistance, uomName);
+                        }
+
+                        FeatureCollection<? extends FeatureType, ? extends Feature> selectedFeatures =
+                                layer.getFeatureSource().getFeatures(filter);
+
+                        iter = selectedFeatures.features();
+                        while (iter.hasNext()) {
+                            report(layerName, iter.next());
+                        }
+
                     }
-
-                    FeatureCollection<? extends FeatureType, ? extends Feature> selectedFeatures =
-                            layer.getFeatureSource().getFeatures(filter);
-
-                    iter = selectedFeatures.features();
-                    while (iter.hasNext()) {
-                        report(iter.next());
-                    }
-
                 } catch (IOException ioEx) {
                 } finally {
                     if (iter != null) {
@@ -160,23 +210,37 @@ public class InfoTool extends CursorTool implements TextReporterListener {
     }
 
     /**
+     * Write the mouse click position to a {@code JTextReporter}
+     *
+     * @param pos mouse click position (world coords)
+     */
+    private void report(DirectPosition2D pos) {
+        createReporter();
+
+        reporter.append(String.format("Pos x=%.4f y=%.4f\n\n", pos.x, pos.y));
+    }
+
+    /**
      * Write the feature attribute names and values to a
      * {@code JTextReporter}
      *
      * @param feature the feature to report on
      */
-    private void report(Feature feature) {
+    private void report(String layerName, Feature feature) {
         createReporter();
 
         Collection<Property> props = feature.getProperties();
         String valueStr = null;
+
+        reporter.append(layerName);
+        reporter.append("\n");
 
         for (Property prop : props) {
             String name = prop.getName().getLocalPart();
             Object value = prop.getValue();
 
             if (value instanceof Geometry) {
-                name = "Geometry";
+                name = "  Geometry";
                 valueStr = value.getClass().getSimpleName();
             } else {
                 valueStr = value.toString();
@@ -184,6 +248,25 @@ public class InfoTool extends CursorTool implements TextReporterListener {
 
             reporter.append(name + ": " + valueStr);
             reporter.append("\n");
+        }
+        reporter.append("\n");
+    }
+
+    /**
+     * Write an array of grid coverage band values to a
+     * {@code JTextReporter}
+     *
+     * @param layerName name of the map layer that contains the grid coverage
+     * @param bandValues array of values
+     */
+    private void report(String layerName, Number[] bandValues) {
+        createReporter();
+
+        reporter.append(layerName);
+        reporter.append("\n");
+
+        for (int i = 0; i < bandValues.length; i++) {
+            reporter.append(String.format("  Band %d: %s\n", (i+1), bandValues[i].toString()));
         }
         reporter.append("\n");
     }
@@ -222,4 +305,74 @@ public class InfoTool extends CursorTool implements TextReporterListener {
         reporter = null;
     }
 
+    /**
+     * Check if the given map layer contains a grid coverage or a grid coverage reader
+     * @param layer theh map layer
+     * @return a new instance of {@linkplain InfoTool.IsGridLayerResult}
+     */
+    private IsGridLayerResult isGridLayer(MapLayer layer) {
+        IsGridLayerResult info = new IsGridLayerResult();
+
+        Collection<PropertyDescriptor> descriptors = layer.getFeatureSource().getSchema().getDescriptors();
+        for (PropertyDescriptor desc : descriptors) {
+            Class<?> clazz = desc.getType().getBinding();
+            
+            if (GridCoverage2D.class.isAssignableFrom(clazz)) {
+                info.isGridLayer = true;
+                info.isReader = false;
+                info.gridAttrName = desc.getName().getLocalPart();
+                break;
+
+            } else if (AbstractGridCoverage2DReader.class.isAssignableFrom(clazz)) {
+                info.isGridLayer = true;
+                info.isReader = true;
+                info.gridAttrName = desc.getName().getLocalPart();
+                break;
+            }
+        }
+
+        return info;
+    }
+
+    /**
+     * Convert the Object returned by {@linkplain GridCoverage2D#evaluate(DirectPosition)} into
+     * an array of Numbers
+     *
+     * @param objArray an Object representing a primitive array
+     *
+     * @return a new array of Numbers
+     */
+    private Number[] asNumberArray(Object objArray) {
+        Number[] numbers = null;
+
+        if (objArray instanceof byte[]) {
+            byte[] values = (byte[]) objArray;
+            numbers = new Number[values.length];
+            for (int i = 0; i < values.length; i++) {
+                numbers[i] = ((int)values[i]) & 0xff;
+            }
+
+        } else if (objArray instanceof int[]) {
+            int[] values = (int[]) objArray;
+            numbers = new Number[values.length];
+            for (int i = 0; i < values.length; i++) {
+                numbers[i] = values[i];
+            }
+
+        } else if (objArray instanceof float[]) {
+            float[] values = (float[]) objArray;
+            numbers = new Number[values.length];
+            for (int i = 0; i < values.length; i++) {
+                numbers[i] = values[i];
+            }
+        } else if (objArray instanceof double[]) {
+            double[] values = (double[]) objArray;
+            numbers = new Number[values.length];
+            for (int i = 0; i < values.length; i++) {
+                numbers[i] = values[i];
+            }
+        }
+
+        return numbers;
+    }
 }

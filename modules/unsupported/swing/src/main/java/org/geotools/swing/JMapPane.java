@@ -78,7 +78,7 @@ import org.opengis.geometry.Envelope;
  */
 public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsListener {
 
-    private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/swing/widget");
+    private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/swing/Text");
 
     /**
      * Default delay (milliseconds) before the map will be redrawn when resizing

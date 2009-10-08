@@ -23,7 +23,7 @@ import org.geotools.swing.JMapFrame;
 import org.geotools.swing.data.JFileDataStoreChooser;
 
 /**
- * The following code examples suppliment those provided in the Quickstart class.
+ * The following code examples supplement those provided in the Quickstart class.
  * <p>
  * They are intended to answer some of the "bonus" questions and explore the finer points
  * of using a shape file.

@@ -54,7 +54,7 @@ import org.geotools.map.MapLayer;
 public class MapLayerTable extends JPanel {
     private static final long serialVersionUID = -8461593609237317561L;
 
-    private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/swing/widget");
+    private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/swing/Text");
 
     //rivate static final int BORDER = 10;
 

@@ -42,7 +42,7 @@ import org.geotools.map.MapLayer;
 public class MapLayerTableCellRenderer extends JPanel implements ListCellRenderer {
     private static final long serialVersionUID = 7907189175227502588L;
 
-    private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/swing/widget");
+    private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/swing/Text");
 
     /**
      * Constants for icons used to display layer states. Each constant has

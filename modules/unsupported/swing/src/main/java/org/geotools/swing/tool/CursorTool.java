@@ -33,7 +33,7 @@ import org.geotools.swing.event.MapMouseAdapter;
  */
 public abstract class CursorTool extends MapMouseAdapter {
 
-    private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/swing/widget");
+    private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/swing/Text");
 
     private JMapPane mapPane;
 
