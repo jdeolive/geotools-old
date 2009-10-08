@@ -431,7 +431,6 @@ public class ImageMosaicReaderTest{
 	 * @param title
 	 *            to use.
 	 */
-	@SuppressWarnings("deprecation")
 	static void show(RenderedImage image, String title) {
 		final JFrame jf = new JFrame(title);
 		jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

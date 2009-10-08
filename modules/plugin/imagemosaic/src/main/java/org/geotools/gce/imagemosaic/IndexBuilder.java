@@ -700,7 +700,7 @@ final class IndexBuilder implements Runnable {
 					final SimpleFeatureTypeBuilder featureBuilder = new SimpleFeatureTypeBuilder();
 					featureBuilder.setName("mosaic_index");
 					featureBuilder.setNamespaceURI("http://www.geo-solutions.it/");
-					featureBuilder.add(ImageMosaicUtils.DEFAULT_LOCATION_ATTRIBUTE, String.class);
+					featureBuilder.add(runConfiguration.getLocationAttribute(), String.class);
 					featureBuilder.add("the_geom", Polygon.class,actualCRS);
 					featureBuilder.setDefaultGeometry("the_geom");
 					final SimpleFeatureType simpleFeatureType = featureBuilder.buildFeatureType();
