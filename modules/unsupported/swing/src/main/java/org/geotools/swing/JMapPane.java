@@ -812,6 +812,7 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
              * to display the full extent of layer bounds to avoid the
              * effect of a shrinking map
              */
+            setFullExtent();
             reset();
         }
     }
