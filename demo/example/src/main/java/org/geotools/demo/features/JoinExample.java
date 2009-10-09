@@ -17,7 +17,6 @@ import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureSource;
-import org.geotools.demo.swing.ShapeFileDialog;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
 import org.geotools.feature.FeatureCollection;
@@ -28,7 +27,7 @@ import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory2;
 
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.TopologyException;
+import org.geotools.swing.data.JFileDataStoreChooser;
 
 /**
  * This class shows how to "join" two feature sources.
@@ -47,13 +46,13 @@ public class JoinExample {
         
         File file, file2;
         if (args.length == 0){
-            file = ShapeFileDialog.showOpenShapefile(null);
+            file = JFileDataStoreChooser.showOpenFile("shp", null);
         }
         else {
             file = new File( args[0] );
         }
         if (args.length <= 1){
-            file2 = ShapeFileDialog.showOpenShapefile(null);
+            file2 = JFileDataStoreChooser.showOpenFile("shp", null);
         }
         else {
             file2 = new File( args[1] );
@@ -93,7 +92,7 @@ public class JoinExample {
         int max = 0;
         try {
             while( iterator.hasNext() ){
-                SimpleFeature feature = (SimpleFeature) iterator.next();
+                SimpleFeature feature = iterator.next();
                 try {
                     Geometry geometry = (Geometry) feature.getDefaultGeometry();
                     if( !geometry.isValid()) {

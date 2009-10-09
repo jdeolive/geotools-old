@@ -16,10 +16,8 @@ import java.util.Map;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.data.FeatureSource;
-import org.geotools.demo.swing.ShapeFileDialog;
 import org.geotools.factory.GeoTools;
 import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.collection.AbstractFeatureVisitor;
 import org.geotools.swing.ProgressWindow;
 import org.opengis.feature.Feature;
 import org.opengis.feature.FeatureVisitor;
@@ -27,6 +25,7 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 import com.vividsolutions.jts.geom.Geometry;
+import org.geotools.swing.data.JFileDataStoreChooser;
 
 /**
  * How to Read a Shapefile.
@@ -44,7 +43,7 @@ public class ShapefileRead {
 		
 		File file;
 		if (args.length == 0){
-		    file = ShapeFileDialog.showOpenShapefile(null);
+		    file = JFileDataStoreChooser.showOpenFile("shp", null);
 		}
 		else {
 			file = new File( args[0] );
