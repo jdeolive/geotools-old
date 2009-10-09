@@ -1,3 +1,4 @@
+// docs start source
 /*
  *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
@@ -57,12 +58,25 @@ public class CRSLab {
     private File sourceFile;
     private FeatureSource featureSource;
     private MapContext map;
+    private int numInvalidGeometries = 0;
+
 
     public static void main(String[] args) throws Exception {
         CRSLab lab = new CRSLab();
         lab.displayShapefile();
     }
 
+    // docs end main
+
+    // docs start display
+    /**
+     * This method:
+     * <ol type="1">
+     * <li> Prompts the user for a shapefile to display
+     * <li> Creates a JMapFrame with custom toolbar buttons
+     * <li> Displays the shapefile
+     * </ol>
+     */
     private void displayShapefile() throws Exception {
         sourceFile = JFileDataStoreChooser.showOpenFile("shp", null);
         if (sourceFile == null) {
@@ -76,6 +90,9 @@ public class CRSLab {
         map = new DefaultMapContext();
         map.addLayer(featureSource, null);
 
+        /*
+         * Create a JMapFrame with custom toolbar buttons
+         */
         JMapFrame mapFrame = new JMapFrame(map);
         mapFrame.enableTool(JMapFrame.Tool.NONE);
         mapFrame.enableStatusBar(true);
@@ -84,11 +101,124 @@ public class CRSLab {
         toolbar.add( new JButton( new ChangeCRSAction() ) );
         toolbar.add( new JButton( new ExportShapefileAction() ) );
         toolbar.add( new JButton( new ValidateGeometryAction() ) );
+
+        /*
+         * Display the map frame. When it is closed the application
+         * will exit
+         */
         mapFrame.setSize(800, 600);
         mapFrame.setVisible(true);
     }
 
+    // docs end display
 
+    // docs start export
+    /**
+     * Export features to a new shapefile using the map projection in which
+     * they are currently displayed
+     */
+    private void exportToShapefile() throws Exception {
+        FeatureType schema = featureSource.getSchema();
+        String typeName = schema.getName().getLocalPart();
+        JFileDataStoreChooser chooser = new JFileDataStoreChooser("shp");
+        chooser.setDialogTitle("Save reprojected shapefile");
+        chooser.setSaveFile(sourceFile);
+        int returnVal = chooser.showSaveDialog(null);
+        if (returnVal != JFileDataStoreChooser.APPROVE_OPTION) {
+            return;
+        }
+
+        File file = chooser.getSelectedFile();
+        if (file.equals(sourceFile)) {
+            JOptionPane.showMessageDialog(
+                    null, "Cannot replace " + file,
+                    "File warning", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // We can now query to retrieve a FeatureCollection
+        // in the desired coordiante reference system
+        DefaultQuery query = new DefaultQuery();
+        query.setTypeName(typeName);
+        query.setCoordinateSystemReproject(map.getCoordinateReferenceSystem());
+
+        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = featureSource.getFeatures(query);
+
+        // And create a new Shapefile with the results
+        DataStoreFactorySpi factory = new ShapefileDataStoreFactory();
+
+        Map<String, Serializable> create = new HashMap<String, Serializable>();
+        create.put("url", file.toURI().toURL());
+        create.put("create spatial index", Boolean.TRUE);
+        DataStore newDataStore = factory.createNewDataStore(create);
+
+        newDataStore.createSchema(featureCollection.getSchema());
+        Transaction transaction = new DefaultTransaction("Reproject");
+        FeatureStore<SimpleFeatureType, SimpleFeature> featureStore;
+        featureStore = (FeatureStore<SimpleFeatureType, SimpleFeature>) newDataStore.getFeatureSource(typeName);
+        featureStore.setTransaction(transaction);
+        try {
+            featureStore.addFeatures(featureCollection);
+            transaction.commit();
+            JOptionPane.showMessageDialog(null, "Export to shapefile complete", "Export", JOptionPane.INFORMATION_MESSAGE);
+
+        } catch (Exception problem) {
+            problem.printStackTrace();
+            transaction.rollback();
+            JOptionPane.showMessageDialog(null, "Export to shapefile failed", "Export", JOptionPane.ERROR_MESSAGE);
+
+        } finally {
+            transaction.close();
+        }
+    }
+
+    // docs end export
+
+    // docs start validate
+    /**
+     * Check the Geometry (point, line or polygon) of each feature to make
+     * sure that it is topologically valid and report on any errors found.
+     * <p>
+     * See also the nested ValidateGeometryAction class below which runs
+     * this method in a background thread and reports on the results
+     */
+    private void validateFeatureGeometry() throws Exception {
+        final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection =
+                featureSource.getFeatures();
+
+        /* 
+         * Rather than use an iterator, we create a FeatureVisitor to 
+         * check the Geometry of each feature
+         */
+        FeatureVisitor visitor = new FeatureVisitor() {
+
+            public void visit(Feature feature) {
+                Geometry geom = (Geometry) feature.getDefaultGeometryProperty().getValue();
+                if (geom != null && !geom.isValid()) {
+                    numInvalidGeometries++;
+                    System.out.println("Invalid Geoemtry: " + feature.getIdentifier());
+                }
+            }
+        };
+
+        /*
+         * For shapefiles with many features its nice to display
+         * a progress bar
+         */
+        final ProgressWindow progress = new ProgressWindow(null);
+        progress.setTitle("Validating feature geometry");
+
+        /*
+         * Now we pass the visitor and the progress bar to the feature
+         * collection
+         */
+        numInvalidGeometries = 0;
+        featureCollection.accepts(visitor, progress);
+    }
+
+    // docs end validate
+
+    // docs start crs action
     /**
      * This class performs the task of changing the CRS of the map display
      * when the toolbar button is pressed. It also supplies the name and
@@ -114,6 +244,9 @@ public class CRSLab {
         }
     }
 
+    // docs end crs action
+
+    // docs start export action
     /**
      * This class performs the task of exporting the features to a new shapefile
      * using the map projection that they are currently displayed in. It also
@@ -128,63 +261,13 @@ public class CRSLab {
 
         @Override
         public void action(ActionEvent e) throws Throwable {
-
-            FeatureType schema = featureSource.getSchema();
-            String typeName = schema.getName().getLocalPart();
-            JFileDataStoreChooser chooser = new JFileDataStoreChooser("shp");
-            chooser.setDialogTitle("Save reprojected shapefile");
-            chooser.setSaveFile(sourceFile);
-            int returnVal = chooser.showSaveDialog(null);
-            if (returnVal != JFileDataStoreChooser.APPROVE_OPTION) {
-                return;
-            }
-
-            File file = chooser.getSelectedFile();
-            if (file.equals(sourceFile)) {
-                JOptionPane.showMessageDialog(
-                        null, "Cannot replace " + file,
-                        "File warning", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-
-            // We can now query to retrieve a FeatureCollection
-            // in the desired coordiante reference system
-            DefaultQuery query = new DefaultQuery();
-            query.setTypeName(typeName);
-            query.setCoordinateSystemReproject(map.getCoordinateReferenceSystem());
-
-            FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = featureSource.getFeatures(query);
-
-            // And create a new Shapefile with the results
-            DataStoreFactorySpi factory = new ShapefileDataStoreFactory();
-
-            Map<String, Serializable> create = new HashMap<String, Serializable>();
-            create.put("url", file.toURI().toURL());
-            create.put("create spatial index", Boolean.TRUE);
-            DataStore newDataStore = factory.createNewDataStore(create);
-
-            newDataStore.createSchema(featureCollection.getSchema());
-            Transaction transaction = new DefaultTransaction("Reproject");
-            FeatureStore<SimpleFeatureType, SimpleFeature> featureStore;
-            featureStore = (FeatureStore<SimpleFeatureType, SimpleFeature>) newDataStore.getFeatureSource(typeName);
-            featureStore.setTransaction(transaction);
-            try {
-                featureStore.addFeatures(featureCollection);
-                transaction.commit();
-                JOptionPane.showMessageDialog(null, "Export to shapefile complete", "Export", JOptionPane.INFORMATION_MESSAGE);
-
-            } catch (Exception problem) {
-                problem.printStackTrace();
-                transaction.rollback();
-                JOptionPane.showMessageDialog(null, "Export to shapefile failed", "Export", JOptionPane.ERROR_MESSAGE);
-
-            } finally {
-                transaction.close();
-            }
-
+            exportToShapefile();
         }
     }
 
+    // docs end export action
+
+    // docs start validate action
     /**
      * This class performs the task of checking that the Geometry of each
      * feature is topologically valid and reports on the results. It also
@@ -192,8 +275,6 @@ public class CRSLab {
      */
     class ValidateGeometryAction extends SafeAction {
         
-        int numInvalidGeometries = 0;
-
         ValidateGeometryAction() {
             super("Validate geometry");
             putValue(Action.SHORT_DESCRIPTION, "Check the geometry of each feature");
@@ -201,29 +282,17 @@ public class CRSLab {
 
         @Override
         public void action(ActionEvent e) throws Throwable {
-
-            final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection =
-                    featureSource.getFeatures();
-            
-            final ProgressWindow progress = new ProgressWindow(null);
-            progress.setTitle("Validating feature geometry");
-
+            /*
+             * Here we use the SwingWorker helper class to run the
+             * validation routine in a background thread, otherwise
+             * the GUI would wait and the progress bar would not be
+             * displayed properly
+             */
             SwingWorker worker = new SwingWorker<String, Object>() {
 
                 @Override
                 protected String doInBackground() throws Exception {
-                    numInvalidGeometries = 0;
-
-                    featureCollection.accepts(new FeatureVisitor() {
-
-                        public void visit(Feature feature) {
-                            Geometry geom = (Geometry) feature.getDefaultGeometryProperty().getValue();
-                            if (geom != null && !geom.isValid()) {
-                                numInvalidGeometries++;
-                                System.out.println("Invalid Geoemtry: " + feature.getIdentifier());
-                            }
-                        }
-                    }, progress);
+                    validateFeatureGeometry();
 
                     if (numInvalidGeometries == 0) {
                         return "All feature geometries are valid";
@@ -243,11 +312,18 @@ public class CRSLab {
                 protected void done() {
                     try {
                         JOptionPane.showMessageDialog(null, get(), "Geometry results", JOptionPane.INFORMATION_MESSAGE);
-                    } catch (Exception ignore) { }
+                    } catch (Exception ignore) {
+                    }
                 }
+
             };
 
+            /*
+             * This statement runs the validateion method in a background thread
+             */
             worker.execute();
         }
     }
+
+    // docs end validate action
 }
