@@ -41,6 +41,7 @@ public class Quickstart {
 
         // Create a map context and add our shapefile to it
         MapContext map = new DefaultMapContext();
+        map.setTitle("Quickstart");
         map.addLayer(featureSource, null);
 
         // Now display the map
