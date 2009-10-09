@@ -121,6 +121,10 @@ public class ArcSDEConnectionFactory implements ObjectFactory {
 
     public ISessionPool getInstance(Map<String, String> properties) throws IOException {
         ArcSDEConnectionConfig config = ArcSDEConnectionConfig.fromMap(properties);
+        return getInstance(config);
+    }
+
+    public ISessionPool getInstance(ArcSDEConnectionConfig config) throws IOException {
         validate(config);
         ISessionPool sharedPool = getSharedPool(config);
         return sharedPool;
