@@ -165,16 +165,11 @@ public class ProgressWindow implements ProgressListener {
             frame.setDefaultCloseOperation(JInternalFrame.HIDE_ON_CLOSE);
             desktop.add(frame, JLayeredPane.PALETTE_LAYER);
         } else {
-            final Frame frame;
             final JDialog dialog;
-            frame      = JOptionPane.getFrameForComponent(parent);
-            dialog     = new JDialog(frame, title);
+            dialog     = new JDialog((Frame)null, title);
             window     = dialog;
             content    = (JComponent) dialog.getContentPane();
-            parentSize = frame.getSize();
-            if (parentSize.width==0 || parentSize.height==0) {
-                parentSize = Toolkit.getDefaultToolkit().getScreenSize();
-            }
+            parentSize = Toolkit.getDefaultToolkit().getScreenSize();
             dialog.setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
             dialog.setResizable(false);
         }
