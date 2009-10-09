@@ -58,13 +58,9 @@ import org.geotools.data.ReTypeFeatureReader;
 import org.geotools.data.ServiceInfo;
 import org.geotools.data.Transaction;
 import org.geotools.data.view.DefaultView;
-import org.geotools.factory.GeoTools;
-import org.geotools.factory.Hints;
 import org.geotools.feature.FeatureTypes;
 import org.geotools.feature.SchemaException;
-import org.geotools.geometry.jts.LiteCoordinateSequenceFactory;
 import org.geotools.util.logging.Logging;
-import org.hsqldb.Session;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -77,10 +73,6 @@ import com.esri.sde.sdk.client.SeLayer;
 import com.esri.sde.sdk.client.SeQueryInfo;
 import com.esri.sde.sdk.client.SeTable;
 import com.esri.sde.sdk.client.SeVersion;
-import com.vividsolutions.jts.geom.CoordinateSequenceFactory;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.PrecisionModel;
-import com.vividsolutions.jts.geom.impl.CoordinateArraySequenceFactory;
 
 /**
  * DataStore implementation to work upon an ArcSDE spatial database gateway.
@@ -374,12 +366,11 @@ public class ArcSDEDataStore implements DataStore {
                     versionHandler);
         }
 
-        final GeometryFactory geometryFactory = getGeometryFactory(query.getHints());
+        // /sdeQuery.execute();
 
         // this is the one which's gonna close the connection when done
         final ArcSDEAttributeReader attReader;
-        attReader = new ArcSDEAttributeReader(sdeQuery, geometryFactory, session);
-        
+        attReader = new ArcSDEAttributeReader(sdeQuery, session);
         FeatureReader<SimpleFeatureType, SimpleFeature> reader;
         try {
             reader = new ArcSDEFeatureReader(attReader);
@@ -404,39 +395,6 @@ public class ArcSDEDataStore implements DataStore {
         }
 
         return reader;
-    }
-
-    private GeometryFactory getGeometryFactory(final Hints queryHints) {
-        // setup the geometry factory according to the hints
-        final Hints hints;
-        if (queryHints == null) {
-            hints = GeoTools.getDefaultHints();
-        } else {
-            hints = queryHints;
-        }
-
-        GeometryFactory gf = (GeometryFactory) hints.get(Hints.JTS_GEOMETRY_FACTORY);
-
-        if (gf == null) {
-            PrecisionModel pm = (PrecisionModel) hints.get(Hints.JTS_PRECISION_MODEL);
-            if (pm == null) {
-                pm = new PrecisionModel();
-            }
-            Integer SRID = (Integer) hints.get(Hints.JTS_SRID);
-            int srid = SRID == null ? 0 : SRID.intValue();
-            Integer dimension = (Integer) hints.get(Hints.COORDINATE_DIMENSION);
-            CoordinateSequenceFactory csFactory = (CoordinateSequenceFactory) hints
-                    .get(Hints.JTS_COORDINATE_SEQUENCE_FACTORY);
-            if (csFactory == null) {
-                if (dimension == null || dimension <= 3) {
-                    csFactory = CoordinateArraySequenceFactory.instance();
-                } else {
-                    csFactory = new LiteCoordinateSequenceFactory();
-                }
-            }
-            gf = new GeometryFactory(pm, srid, csFactory);
-        }
-        return gf;
     }
 
     public SimpleFeatureType getQueryType(Query query) throws IOException {

@@ -52,7 +52,6 @@ import org.geotools.filter.visitor.PostPreProcessFilterSplittingVisitor;
 import org.geotools.filter.visitor.SimplifyingFilterVisitor;
 import org.geotools.filter.visitor.SimplifyingFilterVisitor.FIDValidator;
 import org.geotools.util.logging.Logging;
-import org.hsqldb.Session;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.GeometryDescriptor;
@@ -70,7 +69,6 @@ import com.esri.sde.sdk.client.SeQuery;
 import com.esri.sde.sdk.client.SeQueryInfo;
 import com.esri.sde.sdk.client.SeSqlConstruct;
 import com.esri.sde.sdk.client.SeTable;
-import com.esri.sde.sdk.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Envelope;
 
 /**
@@ -812,20 +810,20 @@ class ArcSDEQuery {
 
         final SeQuery seQuery = getSeQuery();
         // commented out while SeToJTSGeometryFactory is in development
-        // if (currentRow == null) {
+        // if(currentRow == null){
         // GeometryFactory geomFac = new SeToJTSGeometryFactory();
         // currentRow = new SdeRow(geomFac);
         // int geometryIndex = -1;
-        // for (int i = 0; i < schema.getAttributeCount(); i++) {
-        // if (schema.getDescriptor(i) instanceof GeometryDescriptor) {
+        // for(int i = 0; i < schema.getAttributeCount(); i++){
+        // if(schema.getDescriptor(i) instanceof GeometryDescriptor){
         // geometryIndex = i;
         // break;
         // }
         // }
         // currentRow.setGeometryIndex(geometryIndex);
         // }
+        // try {
         // currentRow = session.fetch(seQuery, currentRow);
-
         try {
             currentRow = session.fetch(seQuery);
         } catch (IOException e) {

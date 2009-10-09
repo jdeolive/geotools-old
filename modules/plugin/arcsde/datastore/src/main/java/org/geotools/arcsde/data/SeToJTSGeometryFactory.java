@@ -3,8 +3,6 @@
  */
 package org.geotools.arcsde.data;
 
-import java.util.Arrays;
-
 import org.geotools.geometry.jts.LiteCoordinateSequenceFactory;
 
 import com.esri.sde.sdk.client.SeRow;
@@ -29,15 +27,15 @@ public class SeToJTSGeometryFactory implements GeometryFactory {
 
     private SeToJTSGeometryFactory delegate;
 
-    public void init(final int type, final int numParts, final int numPoints) {
-        switch (type) {
-        case SeShape.TYPE_POLYGON:
-            delegate = new PolygonFactory();
-            break;
-        case SeShape.TYPE_MULTI_POLYGON:
-            delegate = new MultiPolygonFactory();
-            break;
-        default:
+    private int lastGeomType = Integer.MIN_VALUE;
+
+    public void init(int type, int numParts, int numPoints) {
+        if (type != lastGeomType) {
+            if (type == SeShape.TYPE_POLYGON) {
+                delegate = new PolygonFactory();
+            } else if (type == SeShape.TYPE_MULTI_POLYGON) {
+                delegate = new MultiPolygonFactory();
+            }
             throw new IllegalArgumentException("Unhandled geometry type: " + type);
         }
         delegate.init(numParts, numPoints);
@@ -76,7 +74,7 @@ public class SeToJTSGeometryFactory implements GeometryFactory {
     }
 
     public void partOffsets(int[] partOffsets) {
-        //System.out.println(Arrays.toString(partOffsets));
+        // System.out.println(Arrays.asList(partOffsets));
     }
 
     /**

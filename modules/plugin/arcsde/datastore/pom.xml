@@ -111,7 +111,6 @@
 			<version>0.3.14</version>
 		</dependency>
 		<dependency>
-      <!-- needed for MutableFidFeature, FilterToSQL and FilterToSQLException -->
 			<groupId>org.geotools</groupId>
 			<artifactId>gt-jdbc</artifactId>
 			<version>${project.version}</version>
@@ -121,13 +120,7 @@
 			<artifactId>gt-coverage</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-    <dependency>
-      <groupId>org.geotools</groupId>
-      <artifactId>gt-epsg-hsql</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-		<!--dependency>
+		<dependency>
 			<groupId>javax.media</groupId>
 			<artifactId>jai_core</artifactId>
 			<scope>provided</scope>
@@ -141,11 +134,7 @@
 			<groupId>javax.media</groupId>
 			<artifactId>jai_imageio</artifactId>
 			<scope>provided</scope>
-		</dependency-->
-      
-    <!-- 
-      Test dependencies
-     -->
+		</dependency>
 		<dependency>
 			<groupId>org.geotools</groupId>
 			<artifactId>gt-sample-data</artifactId>

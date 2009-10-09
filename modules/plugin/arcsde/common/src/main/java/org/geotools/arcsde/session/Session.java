@@ -547,8 +547,6 @@ class Session implements ISession {
             });
         } catch (Exception e) {
             LOGGER.log(Level.FINE, "closing connection " + toString(), e);
-        } finally {
-            taskExecutor.shutdown();
         }
     }
 
