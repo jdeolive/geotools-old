@@ -63,12 +63,14 @@ public class AnimatedMapPane extends JMapPane {
     private int millisDelay = 100;
     private List<DirectPosition2D> route;
 
-    private Graphics2D graphics2D;
     private Color lineColor;
     private java.awt.Stroke lineStroke;
     private boolean drawRoute;
     private RoutePainter routePainter;
 
+    /**
+     * Constructor
+     */
     public AnimatedMapPane(GTRenderer renderer, MapContext context) {
         super(renderer, context);
 
@@ -82,23 +84,37 @@ public class AnimatedMapPane extends JMapPane {
         drawRoute = false;
     }
 
+    /**
+     * Set the route to draw. It is assumed that the CRS of
+     * the route points matches that of the map, ie. no
+     * checking or reprojection is done as would be the case
+     * in a real application.
+     */
     public void setRoute(List<DirectPosition2D> route) {
         this.route = new ArrayList<DirectPosition2D>();
         this.route.addAll(route);
     }
 
+    /**
+     * Set the line color and width for the animated route
+     */
     public void setRouteStyle(Color color, float lineWidth) {
         lineColor = color;
         lineStroke = new BasicStroke(lineWidth);
     }
 
     /**
-     * Call repaint after this
+     * Turn route drawing on or off. This does not automatically
+     * repaint the map.
      */
     public void enableRouteDrawing(boolean b) {
         drawRoute = b;
     }
-    
+
+    /**
+     * Calls on JMapPane to paint the shapefile as required and then
+     * draw the animated route if route display is enabled.
+     */
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -110,6 +126,9 @@ public class AnimatedMapPane extends JMapPane {
     }
 
 
+    /**
+     * This class encapsulates the animated drawing routine
+     */
     class RoutePainter implements ActionListener {
         private Graphics2D g2 = null;
         private AffineTransform tr;
@@ -119,6 +138,11 @@ public class AnimatedMapPane extends JMapPane {
 
         private boolean firstPoint = true;
 
+        /**
+         * Initializes the route painter
+         *
+         * @param route the route to draw
+         */
         public void setRoute(List<DirectPosition2D> route) {
             tr = getWorldToScreenTransform();
 
@@ -137,6 +161,11 @@ public class AnimatedMapPane extends JMapPane {
             }
         }
 
+        /**
+         * This method is called by the animated map timer on each
+         * time step. It draws the next segment in the route. If
+         * there are no more segments to draw it stops the timer.
+         */
         public void actionPerformed(ActionEvent e) {
             if (iter.hasNext()) {
                 tr.transform(iter.next(), current);
@@ -149,13 +178,23 @@ public class AnimatedMapPane extends JMapPane {
             }
         }
 
+        /**
+         * Finish drawing. Stops the timer and discards the graphics.
+         */
         private void finish() {
             timer.stop();
-            g2 = null;
+            g2.dispose();
         }
 
     }
 
+    /**
+     * Main method. Prompts the user for a shapefile and displays it. When
+     * the user mouse clicks the map display a random walk is generated
+     * and drawn in animated form.
+     *
+     * @param args ignored
+     */
     public static void main(String[] args) throws IOException {
         File file = JFileDataStoreChooser.showOpenFile("shp", null);
         if (file == null) {
@@ -187,6 +226,15 @@ public class AnimatedMapPane extends JMapPane {
         frame.setVisible(true);
     }
 
+    /**
+     * Generate a random walk
+     *
+     * @param start start location
+     * @param bounds bounds of the map display, used to scale the walk steps
+     * @param N number of steps in the walk
+     *
+     * @return a new List of DirectPosition2D walk points
+     */
     private static List<DirectPosition2D> randomWalk(DirectPosition2D start, ReferencedEnvelope bounds, int N) {
         final double stepLength = bounds.getWidth() / 100;
         final double maxTurn = Math.PI / 4;
