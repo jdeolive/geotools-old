@@ -65,6 +65,7 @@ import com.esri.sde.sdk.client.SeShape;
 import com.esri.sde.sdk.client.SeShapeFilter;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
 
 /**
@@ -262,7 +263,7 @@ public class GeometryEncoderSDE implements FilterVisitor {
             SeShape extent = new SeShape(this.sdeLayer.getCoordRef());
             extent.generateRectangle(seExtent);
 
-            Geometry layerEnv = gb.construct(extent);
+            Geometry layerEnv = gb.construct(extent, new GeometryFactory());
             geom = geom.intersection(layerEnv); // does the work
 
             // Now make an SeShape

@@ -19,6 +19,20 @@ package org.geotools.arcsde.util;
 
 import static org.junit.Assert.assertSame;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
+
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultEngineeringCRS;
 import org.junit.Test;
@@ -26,6 +40,12 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.esri.sde.sdk.client.SeCoordinateReference;
 import com.esri.sde.sdk.client.SeObjectId;
+import com.esri.sde.sdk.pe.PeCoordinateSystem;
+import com.esri.sde.sdk.pe.PeFactory;
+import com.esri.sde.sdk.pe.PeFactoryCodelist;
+import com.esri.sde.sdk.pe.PeGeographicCS;
+import com.esri.sde.sdk.pe.PeProjectedCS;
+import com.esri.sde.sdk.pe.PeProjectionException;
 
 public class ArcSDEUtilsTest {
     @Test
@@ -62,6 +82,46 @@ public class ArcSDEUtilsTest {
         compatibleCRS = ArcSDEUtils.findCompatibleCRS(seCoordRefSys);
 
         assertSame(DefaultEngineeringCRS.CARTESIAN_2D, compatibleCRS);
+    }
+
+    public static void main(String argv[]) {
+        try {
+            int[] projcsCodelist = PeFactory.projcsCodelist();
+            int[] geogtranCodelist = PeFactory.geogcsCodelist();
+            Map<Integer, String> coordsystems = new TreeMap<Integer, String>();
+            for (int i : projcsCodelist) {
+                PeProjectedCS coordsys = PeFactory.projcs(i);
+                if (coordsys != null) {
+                    coordsystems.put(i, coordsys.toString());
+                } else {
+                    System.err.println("No PeProjectedCS found for code " + i);
+                }
+            }
+            for (int i : geogtranCodelist) {
+                PeGeographicCS coordsys = PeFactory.geogcs(i);
+                if (coordsys != null) {
+                    coordsystems.put(i, coordsys.toString());
+                } else {
+                    System.err.println("No PeGeographicCS found for code " + i);
+                }
+            }
+
+            PrintWriter p = new PrintWriter(new File("/Users/groldan/esri.properties"));
+            for (Map.Entry<Integer, String> e : coordsystems.entrySet()) {
+                p.print(e.getKey());
+                p.print("=");
+                p.println(e.getValue());
+            }
+            p.flush();
+            p.close();
+
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (PeProjectionException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
 }

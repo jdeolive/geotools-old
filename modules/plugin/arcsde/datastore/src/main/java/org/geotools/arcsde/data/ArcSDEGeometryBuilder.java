@@ -26,6 +26,7 @@ import java.util.logging.Logger;
 
 import org.geotools.arcsde.ArcSdeException;
 import org.geotools.data.DataSourceException;
+import org.geotools.geometry.jts.LiteCoordinateSequenceFactory;
 import org.geotools.util.logging.Logging;
 
 import com.esri.sde.sdk.client.SDEPoint;
@@ -33,6 +34,8 @@ import com.esri.sde.sdk.client.SeCoordinateReference;
 import com.esri.sde.sdk.client.SeException;
 import com.esri.sde.sdk.client.SeShape;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.CoordinateSequence;
+import com.vividsolutions.jts.geom.CoordinateSequenceFactory;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -80,7 +83,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * @version $Id$
  */
 public abstract class ArcSDEGeometryBuilder {
-    /** DOCUMENT ME! */
+
     private static final Logger LOGGER = Logging.getLogger(ArcSDEGeometryBuilder.class.getName());
 
     /** lookup specialized geometry builders classes by it's geometry type */
@@ -108,9 +111,6 @@ public abstract class ArcSDEGeometryBuilder {
         nullGeometries.put(MultiPolygon.class, new MultiPolygonBuilder().getEmpty());
     }
 
-    /** JTS geometry factory subclasses use to map SeShapes to JTS ones */
-    protected GeometryFactory factory = new GeometryFactory();
-
     /**
      * Private empty constructor to obligate using this class as factory.
      */
@@ -124,6 +124,7 @@ public abstract class ArcSDEGeometryBuilder {
      * 
      * @param shape
      *            the ESRI's ArcSDE java api shape upon wich to create the new JTS geometry
+     * @param geometryFactory
      * @return the type of JTS Geometry this subclass instance is specialized for or an empty
      *         geometry of the same class if <code>shape.isNil()</code>
      * @throws SeException
@@ -134,12 +135,13 @@ public abstract class ArcSDEGeometryBuilder {
      *             the <code>com.vividsolutions.jts.geom.Coordinate[]</code> provided by
      *             <code>newGeometry</code>
      */
-    public Geometry construct(SeShape shape) throws SeException, DataSourceException {
+    public Geometry construct(final SeShape shape, final GeometryFactory geometryFactory)
+            throws SeException, DataSourceException {
         if (shape == null || shape.isNil()) {
             return getEmpty();
         }
         double[][][] allCoords = shape.getAllCoords();
-        return newGeometry(allCoords);
+        return newGeometry(allCoords, geometryFactory);
     }
 
     /**
@@ -153,7 +155,6 @@ public abstract class ArcSDEGeometryBuilder {
      *            the <code>SeShape</code> is constructed.
      * @return the <code>SeShape</code> representation of passed <code>Geometry</code>
      * @throws ArcSDEGeometryBuildingException
-     *             DOCUMENT ME!
      */
     public final SeShape constructShape(final Geometry geometry, SeCoordinateReference seSrs)
             throws ArcSdeException {
@@ -237,100 +238,18 @@ public abstract class ArcSDEGeometryBuilder {
     }
 
     /**
-     * utility method that <code>ArcSDEGeometryBuilder</code> subclasses use to obtain the three
-     * dimensional array of double's that forms the body of the <code>SeShape</code> structure.
-     * 
-     * @param jtsGeom
-     *            the source JTS geometry
-     * @return the array of <code>double</code> primitives that represents <code>jtsGeom</code> in
-     *         <code>SeShape</code> format
-     */
-    // private double[][][] geometryToSdeCoords(Geometry jtsGeom) {
-    // int numParts;
-    // int numSubParts = 1;
-    // double[][][] sdeCoords;
-    //
-    // GeometryCollection gcol = null;
-    //
-    // // to simplify the algorithm, allways use GeometryCollections
-    // // as input geometries
-    // if (jtsGeom instanceof MultiPolygon) {
-    // gcol = (GeometryCollection) jtsGeom;
-    // } else {
-    // Geometry[] geoms = { jtsGeom };
-    //
-    // gcol = new GeometryFactory().createGeometryCollection(geoms);
-    // }
-    //
-    // numParts = gcol.getNumGeometries();
-    //
-    // sdeCoords = new double[numParts][0][0];
-    //
-    // for (int i = 0; i < numParts; i++) {
-    // Geometry geom = gcol.getGeometryN(i);
-    //
-    // numSubParts = (geom instanceof Polygon) ? (((Polygon)
-    // geom).getNumInteriorRing() + 1)
-    // : ((geom instanceof GeometryCollection) ? ((GeometryCollection) geom)
-    // .getNumGeometries() : 1);
-    //
-    // sdeCoords[i] = new double[numSubParts][0];
-    //
-    // Coordinate[] partCoords = null;
-    //
-    // for (int j = 0; j < numSubParts; j++) {
-    // if (geom instanceof Polygon) {
-    // if (j == 0) {
-    // partCoords = ((Polygon) geom).getExteriorRing().getCoordinates();
-    // } else {
-    // partCoords = ((Polygon) geom).getInteriorRingN(j - 1).getCoordinates();
-    // }
-    // } else if (geom instanceof GeometryCollection) {
-    // partCoords = ((GeometryCollection)
-    // geom).getGeometryN(j).getCoordinates();
-    // } else {
-    // partCoords = geom.getCoordinates();
-    // }
-    //
-    // sdeCoords[i][j] = toSdeCoords(partCoords);
-    // }
-    // }
-    //
-    // return sdeCoords;
-    // }
-    /**
-     * Creates an array of linear coordinates as <code>SeShape</code> use from an array of JTS
-     * <code>Coordinate</code> objects
-     * 
-     * @param coords
-     *            wich coordinate to generate the linear array from
-     * @return the <code>SeShape</code> style coordinate array of a single geometry given by its
-     *         <code>Coordinate</code> array
-     */
-    // private double[] toSdeCoords(Coordinate[] coords) {
-    // int nCoords = coords.length;
-    // double[] sdeCoords = new double[2 * nCoords];
-    // Coordinate c;
-    //
-    // for (int i = 0, j = 1; i < nCoords; i++, j += 2) {
-    // c = coords[i];
-    // sdeCoords[j - 1] = c.x;
-    // sdeCoords[j] = c.y;
-    // }
-    //
-    // return sdeCoords;
-    // }
-    /**
      * Builds a JTS Geometry who't type is given by the <code>ArcSDEGeometryBuilder</code> subclass
      * instance specialization that implements it
      * 
      * @param coords
      *            <code>SeShape</code>'s coordinate array to build the geometry from
+     * @param geometryFactory
      * @return the JST form of the passed geometry coordinates
      * @throws DataSourceException
      *             if an error occurs while creating the JTS Geometry
      */
-    protected abstract Geometry newGeometry(double[][][] coords) throws DataSourceException;
+    protected abstract Geometry newGeometry(final double[][][] coords,
+            final GeometryFactory geometryFactory) throws DataSourceException;
 
     /**
      * returns an empty JTS geometry who's type is given by the <code>ArcSDEGeometryBuilder</code>
@@ -341,7 +260,6 @@ public abstract class ArcSDEGeometryBuilder {
      * 
      * @return an empty JTS geometry
      * @throws UnsupportedOperationException
-     *             DOCUMENT ME!
      */
     protected Geometry getEmpty() {
         throw new UnsupportedOperationException(
@@ -360,24 +278,26 @@ public abstract class ArcSDEGeometryBuilder {
      * @return a geometrically equal to <code>coordList</code> array of <code>Coordinate</code>
      *         instances
      */
-    protected Coordinate[] toCoords(double[] coordList) {
-        int nCoords = coordList.length / 2;
+    protected final CoordinateSequence toCoords(double[] coordList,
+            final CoordinateSequenceFactory csFact) {
 
-        Coordinate[] coords = new Coordinate[nCoords];
+        final int dimension = 2;
 
-        for (int i = 0, j = 0; i < nCoords; i++, j++)
-            coords[i] = new Coordinate(coordList[j], coordList[++j]);
+        CoordinateSequence cs;
 
-        return coords;
+        if (csFact instanceof LiteCoordinateSequenceFactory) {
+            cs = ((LiteCoordinateSequenceFactory) csFact).create(coordList, dimension);
+        } else {
+            final int nCoords = coordList.length / dimension;
+            cs = csFact.create(nCoords, dimension);
+            for (int coordN = 0; coordN < nCoords; coordN++) {
+                cs.setOrdinate(coordN, 0, coordList[dimension * coordN]);
+                cs.setOrdinate(coordN, 1, coordList[dimension * coordN + 1]);
+            }
+        }
+        return cs;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param coords
-     *            DOCUMENT ME!
-     * @return DOCUMENT ME!
-     */
     protected SDEPoint[] toPointsArray(Coordinate[] coords) {
         int nCoords = coords.length;
 
@@ -420,11 +340,6 @@ public abstract class ArcSDEGeometryBuilder {
     /**
      * Create an empty geometry for the indicated class
      * 
-     * @param geoClass
-     *            DOCUMENT ME!
-     * @return DOCUMENT ME!
-     * @throws NullPointerException
-     *             DOCUMENT ME!
      */
     public static Geometry defaultValueFor(Class<?> geoClass) {
         if (geoClass == null) {
@@ -460,11 +375,6 @@ public abstract class ArcSDEGeometryBuilder {
             return instance;
         }
 
-        /**
-         * DOCUMENT ME!
-         * 
-         * @return DOCUMENT ME!
-         */
         @Override
         protected Geometry getEmpty() {
             if (EMPTY == null) {
@@ -479,7 +389,8 @@ public abstract class ArcSDEGeometryBuilder {
          * @see ArcSDEGeometryBuilder#construct(SeShape)
          */
         @Override
-        public Geometry construct(SeShape shape) throws SeException, DataSourceException {
+        public Geometry construct(SeShape shape, final GeometryFactory geometryFactory)
+                throws SeException, DataSourceException {
             if (shape == null || shape.isNil()) {
                 return getEmpty();
             }
@@ -490,22 +401,12 @@ public abstract class ArcSDEGeometryBuilder {
             }
             ArcSDEGeometryBuilder realBuilder = builderFor(realGeomClass);
 
-            return realBuilder.construct(shape);
+            return realBuilder.construct(shape, geometryFactory);
         }
 
-        /**
-         * DOCUMENT ME!
-         * 
-         * @param coords
-         *            DOCUMENT ME!
-         * @return DOCUMENT ME!
-         * @throws DataSourceException
-         *             DOCUMENT ME!
-         * @throws UnsupportedOperationException
-         *             DOCUMENT ME!
-         */
         @Override
-        protected Geometry newGeometry(double[][][] coords) throws DataSourceException {
+        protected Geometry newGeometry(final double[][][] coords,
+                final GeometryFactory geometryFactory) throws DataSourceException {
             throw new UnsupportedOperationException("This method should not "
                     + "be called for this builder. It should be mapped to the "
                     + "one capable of constructing the actual geometry type");
@@ -536,11 +437,6 @@ public abstract class ArcSDEGeometryBuilder {
             return instance;
         }
 
-        /**
-         * DOCUMENT ME!
-         * 
-         * @return DOCUMENT ME!
-         */
         @Override
         protected Geometry getEmpty() {
             if (EMPTY == null) {
@@ -550,20 +446,12 @@ public abstract class ArcSDEGeometryBuilder {
             return EMPTY;
         }
 
-        /**
-         * DOCUMENT ME!
-         * 
-         * @param coords
-         *            DOCUMENT ME!
-         * @return DOCUMENT ME!
-         * @throws DataSourceException
-         *             DOCUMENT ME!
-         */
         @Override
-        protected Geometry newGeometry(double[][][] coords) throws DataSourceException {
+        protected Geometry newGeometry(final double[][][] coords,
+                final GeometryFactory geometryFactory) throws DataSourceException {
             final double x = coords[0][0][0];
             final double y = coords[0][0][1];
-            return super.factory.createPoint(new Coordinate(x, y));
+            return geometryFactory.createPoint(new Coordinate(x, y));
         }
     }
 
@@ -591,11 +479,6 @@ public abstract class ArcSDEGeometryBuilder {
             return instance;
         }
 
-        /**
-         * DOCUMENT ME!
-         * 
-         * @return DOCUMENT ME!
-         */
         @Override
         protected Geometry getEmpty() {
             if (EMPTY == null) {
@@ -605,17 +488,9 @@ public abstract class ArcSDEGeometryBuilder {
             return EMPTY;
         }
 
-        /**
-         * DOCUMENT ME!
-         * 
-         * @param coords
-         *            DOCUMENT ME!
-         * @return DOCUMENT ME!
-         * @throws DataSourceException
-         *             DOCUMENT ME!
-         */
         @Override
-        protected Geometry newGeometry(double[][][] coords) throws DataSourceException {
+        protected Geometry newGeometry(final double[][][] coords,
+                final GeometryFactory geometryFactory) throws DataSourceException {
             int nPoints = coords.length;
 
             Coordinate[] points = new Coordinate[nPoints];
@@ -626,7 +501,7 @@ public abstract class ArcSDEGeometryBuilder {
                 points[i] = new Coordinate(x, y);
             }
 
-            return super.factory.createMultiPoint(points);
+            return geometryFactory.createMultiPoint(points);
         }
     }
 
@@ -654,11 +529,6 @@ public abstract class ArcSDEGeometryBuilder {
             return instance;
         }
 
-        /**
-         * DOCUMENT ME!
-         * 
-         * @return DOCUMENT ME!
-         */
         @Override
         protected Geometry getEmpty() {
             if (EMPTY == null) {
@@ -668,27 +538,20 @@ public abstract class ArcSDEGeometryBuilder {
             return EMPTY;
         }
 
-        /**
-         * DOCUMENT ME!
-         * 
-         * @param coords
-         *            DOCUMENT ME!
-         * @return DOCUMENT ME!
-         * @throws DataSourceException
-         *             DOCUMENT ME!
-         */
         @Override
-        protected Geometry newGeometry(double[][][] coords) throws DataSourceException {
-            return constructLineString(coords[0][0]);
+        protected Geometry newGeometry(final double[][][] coords,
+                final GeometryFactory geometryFactory) throws DataSourceException {
+            return constructLineString(coords[0][0], geometryFactory);
         }
 
-        //
-        protected LineString constructLineString(double[] linearCoords) throws DataSourceException {
+        protected final LineString constructLineString(final double[] linearCoords,
+                final GeometryFactory geometryFactory) throws DataSourceException {
             LineString ls = null;
 
-            Coordinate[] coords = toCoords(linearCoords);
+            CoordinateSequence coords = toCoords(linearCoords, geometryFactory
+                    .getCoordinateSequenceFactory());
 
-            ls = super.factory.createLineString(coords);
+            ls = geometryFactory.createLineString(coords);
 
             return ls;
         }
@@ -718,11 +581,6 @@ public abstract class ArcSDEGeometryBuilder {
             return instance;
         }
 
-        /**
-         * DOCUMENT ME!
-         * 
-         * @return DOCUMENT ME!
-         */
         @Override
         protected Geometry getEmpty() {
             if (EMPTY == null) {
@@ -732,17 +590,9 @@ public abstract class ArcSDEGeometryBuilder {
             return EMPTY;
         }
 
-        /**
-         * DOCUMENT ME!
-         * 
-         * @param coords
-         *            DOCUMENT ME!
-         * @return DOCUMENT ME!
-         * @throws DataSourceException
-         *             DOCUMENT ME!
-         */
         @Override
-        protected Geometry newGeometry(double[][][] coords) throws DataSourceException {
+        protected Geometry newGeometry(final double[][][] coords,
+                final GeometryFactory geometryFactory) throws DataSourceException {
             MultiLineString mls = null;
 
             LineString[] lineStrings = null;
@@ -751,10 +601,11 @@ public abstract class ArcSDEGeometryBuilder {
 
             lineStrings = new LineString[nLines];
 
-            for (int i = 0; i < nLines; i++)
-                lineStrings[i] = constructLineString(coords[i][0]);
+            for (int i = 0; i < nLines; i++) {
+                lineStrings[i] = constructLineString(coords[i][0], geometryFactory);
+            }
 
-            mls = super.factory.createMultiLineString(lineStrings);
+            mls = geometryFactory.createMultiLineString(lineStrings);
 
             return mls;
         }
@@ -784,11 +635,6 @@ public abstract class ArcSDEGeometryBuilder {
             return instance;
         }
 
-        /**
-         * DOCUMENT ME!
-         * 
-         * @return DOCUMENT ME!
-         */
         @Override
         protected Geometry getEmpty() {
             if (EMPTY == null) {
@@ -798,14 +644,9 @@ public abstract class ArcSDEGeometryBuilder {
             return EMPTY;
         }
 
-        /**
-         * DOCUMENT ME!
-         * 
-         * @param coords
-         * @throws DataSourceException
-         */
         @Override
-        protected Geometry newGeometry(double[][][] coords) throws DataSourceException {
+        protected Geometry newGeometry(final double[][][] coords,
+                final GeometryFactory geometryFactory) throws DataSourceException {
             // /////
             /*
              * for (int i = 0; i < coords.length; i++) { for (int j = 0; j < coords[i].length; j++)
@@ -820,13 +661,17 @@ public abstract class ArcSDEGeometryBuilder {
             for (int i = 0; i < nHoles; i++) {
                 holes[i] = coords[0][i + 1];
             }
-            return buildPolygon(shell, holes);
+            return buildPolygon(shell, holes, geometryFactory);
         }
 
-        protected Polygon buildPolygon(final double[] shellCoords, final double[][] holes) {
+        protected final Polygon buildPolygon(final double[] shellCoords, final double[][] holes,
+                final GeometryFactory geometryFactory) {
             Polygon p = null;
 
-            final LinearRing shell = super.factory.createLinearRing(toCoords(shellCoords));
+            final CoordinateSequenceFactory sequenceFactory = geometryFactory
+                    .getCoordinateSequenceFactory();
+            final CoordinateSequence coords = toCoords(shellCoords, sequenceFactory);
+            final LinearRing shell = geometryFactory.createLinearRing(coords);
             final int nHoles = holes.length;
 
             LinearRing[] polygonHoles = new LinearRing[nHoles];
@@ -834,32 +679,28 @@ public abstract class ArcSDEGeometryBuilder {
             if (nHoles > 0) {
                 for (int i = 0; i < nHoles; i++) {
                     double hole[] = holes[i];
-                    polygonHoles[i] = super.factory.createLinearRing(toCoords(hole));
+                    polygonHoles[i] = geometryFactory.createLinearRing(toCoords(hole,
+                            sequenceFactory));
                 }
             }
 
-            p = super.factory.createPolygon(shell, polygonHoles);
+            p = geometryFactory.createPolygon(shell, polygonHoles);
 
             return p;
         }
 
-        /**
-         * DOCUMENT ME!
-         * 
-         * @param parts
-         *            DOCUMENT ME!
-         * @return DOCUMENT ME!
-         * @deprecated
-         */
         @Deprecated
-        protected Polygon buildPolygon(double[][] parts) {
+        protected Polygon buildPolygon(final double[][] parts, final GeometryFactory geometryFactory) {
             Polygon p = null;
 
             double[] linearCoordArray = parts[0];
 
             int nHoles = parts.length - 1;
 
-            LinearRing shell = super.factory.createLinearRing(toCoords(linearCoordArray));
+            final CoordinateSequenceFactory coordinateSequenceFactory = geometryFactory
+                    .getCoordinateSequenceFactory();
+            LinearRing shell = geometryFactory.createLinearRing(toCoords(linearCoordArray,
+                    coordinateSequenceFactory));
 
             LinearRing[] holes = new LinearRing[nHoles];
 
@@ -867,32 +708,29 @@ public abstract class ArcSDEGeometryBuilder {
                 for (int i = 0; i < nHoles; i++) {
                     linearCoordArray = parts[i + 1];
 
-                    holes[i] = super.factory.createLinearRing(toCoords(linearCoordArray));
+                    holes[i] = geometryFactory.createLinearRing(toCoords(linearCoordArray,
+                            coordinateSequenceFactory));
                 }
             }
 
-            p = super.factory.createPolygon(shell, holes);
+            p = geometryFactory.createPolygon(shell, holes);
 
             return p;
         }
 
-        /**
-         * DOCUMENT ME!
-         * 
-         * @param parts
-         *            DOCUMENT ME!
-         * @return DOCUMENT ME!
-         * @deprecated
-         */
         @Deprecated
-        protected Polygon buildPolygon(double[][][] parts) {
+        protected Polygon buildPolygon(final double[][][] parts,
+                final GeometryFactory geometryFactory) {
             Polygon p = null;
 
             double[] linearCoordArray = parts[0][0];
 
             int nHoles = parts.length - 1;
 
-            LinearRing shell = super.factory.createLinearRing(toCoords(linearCoordArray));
+            CoordinateSequenceFactory sequenceFactory = geometryFactory
+                    .getCoordinateSequenceFactory();
+            LinearRing shell = geometryFactory.createLinearRing(toCoords(linearCoordArray,
+                    sequenceFactory));
 
             LinearRing[] holes = new LinearRing[nHoles];
 
@@ -900,11 +738,12 @@ public abstract class ArcSDEGeometryBuilder {
                 for (int i = 0; i < nHoles; i++) {
                     linearCoordArray = parts[i + 1][0];
 
-                    holes[i] = super.factory.createLinearRing(toCoords(linearCoordArray));
+                    holes[i] = geometryFactory.createLinearRing(toCoords(linearCoordArray,
+                            sequenceFactory));
                 }
             }
 
-            p = super.factory.createPolygon(shell, holes);
+            p = geometryFactory.createPolygon(shell, holes);
 
             return p;
         }
@@ -934,11 +773,6 @@ public abstract class ArcSDEGeometryBuilder {
             return instance;
         }
 
-        /**
-         * DOCUMENT ME!
-         * 
-         * @return an empty multipolygon
-         */
         @Override
         protected Geometry getEmpty() {
             if (EMPTY == null) {
@@ -949,7 +783,6 @@ public abstract class ArcSDEGeometryBuilder {
         }
 
         /**
-         * DOCUMENT ME!
          * 
          * @param coords
          *            the SeShape's multipolygon coordinates array
@@ -961,7 +794,8 @@ public abstract class ArcSDEGeometryBuilder {
          *             occurs while building the Geometry
          */
         @Override
-        protected Geometry newGeometry(double[][][] coords) throws DataSourceException {
+        protected Geometry newGeometry(final double[][][] coords,
+                final GeometryFactory geometryFactory) throws DataSourceException {
             Polygon[] polys = null;
 
             int numPolys = coords.length;
@@ -970,13 +804,13 @@ public abstract class ArcSDEGeometryBuilder {
 
             for (int i = 0; i < numPolys; i++) {
                 try {
-                    polys[i] = buildPolygon(coords[i]);
+                    polys[i] = buildPolygon(coords[i], geometryFactory);
                 } catch (Exception ex) {
                     throw new DataSourceException(ex.getMessage(), ex);
                 }
             }
 
-            MultiPolygon multiPoly = super.factory.createMultiPolygon(polys);
+            MultiPolygon multiPoly = geometryFactory.createMultiPolygon(polys);
 
             return multiPoly;
         }
