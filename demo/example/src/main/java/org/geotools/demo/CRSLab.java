@@ -11,11 +11,9 @@
 package org.geotools.demo;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 
 import javax.swing.AbstractAction;
-import javax.swing.JButton;
 import javax.swing.JToolBar;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.FileDataStore;
@@ -24,7 +22,6 @@ import org.geotools.map.DefaultMapContext;
 import org.geotools.map.MapContext;
 import org.geotools.swing.JCRSChooser;
 import org.geotools.swing.JMapFrame;
-import org.geotools.swing.action.SafeAction;
 import org.geotools.swing.data.JFileDataStoreChooser;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 

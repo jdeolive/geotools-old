@@ -112,19 +112,19 @@ public class ReShapeLab {
 
     @SuppressWarnings("unchecked")
     static void export(FeatureSource featureSource,
-            CoordinateReferenceSystem crs, File origional) throws Exception {
+            CoordinateReferenceSystem crs, File original) throws Exception {
         FeatureType schema = featureSource.getSchema();
         String typeName = schema.getName().getLocalPart();
         JFileDataStoreChooser chooser = new JFileDataStoreChooser("shp");
         chooser.setDialogTitle("Save reprojected shapefile");
-        chooser.setSaveFile( origional );
+        chooser.setSaveFile( original );
         int returnVal = chooser.showSaveDialog(null);
         if (returnVal != JFileDataStoreChooser.APPROVE_OPTION) {
             return;
         }
         File file = chooser.getSelectedFile();
-        if (file.equals(file)) {
-            JOptionPane.showMessageDialog(null,"Cannot repalce "+file);
+        if (file.equals(original)) {
+            JOptionPane.showMessageDialog(null,"Cannot replace "+file);
             return;
         }
         // We can now query to retrieve a FeatureCollection
