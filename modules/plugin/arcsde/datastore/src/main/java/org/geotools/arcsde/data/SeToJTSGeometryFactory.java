@@ -27,15 +27,12 @@ public class SeToJTSGeometryFactory implements GeometryFactory {
 
     private SeToJTSGeometryFactory delegate;
 
-    private int lastGeomType = Integer.MIN_VALUE;
-
-    public void init(int type, int numParts, int numPoints) {
-        if (type != lastGeomType) {
-            if (type == SeShape.TYPE_POLYGON) {
-                delegate = new PolygonFactory();
-            } else if (type == SeShape.TYPE_MULTI_POLYGON) {
-                delegate = new MultiPolygonFactory();
-            }
+    public void init(final int type, final int numParts, final int numPoints) {
+        if (type == SeShape.TYPE_POLYGON) {
+            delegate = new PolygonFactory();
+        } else if (type == SeShape.TYPE_MULTI_POLYGON) {
+            delegate = new MultiPolygonFactory();
+        } else {
             throw new IllegalArgumentException("Unhandled geometry type: " + type);
         }
         delegate.init(numParts, numPoints);
@@ -74,7 +71,7 @@ public class SeToJTSGeometryFactory implements GeometryFactory {
     }
 
     public void partOffsets(int[] partOffsets) {
-        // System.out.println(Arrays.asList(partOffsets));
+        //System.out.println(Arrays.toString(partOffsets));
     }
 
     /**

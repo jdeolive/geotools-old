@@ -16,8 +16,10 @@
  */
 package org.geotools.arcsde.data;
 
+import java.awt.RenderingHints;
+import java.awt.RenderingHints.Key;
 import java.io.IOException;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -45,10 +47,26 @@ import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 
 import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.GeometryFactory;
 
 public class ArcSdeFeatureSource implements FeatureSource<SimpleFeatureType, SimpleFeature> {
 
     private static final Logger LOGGER = Logging.getLogger("org.geotools.arcsde.data");
+
+    /**
+     * {@link Hints#FEATURE_DETACHED} and the ones supported by
+     * {@link ArcSDEDataStore#getGeometryFactory}
+     * 
+     * @see #getSupportedHints()
+     */
+    private static final Set<Key> supportedHints = new HashSet<Key>();
+    static {
+        supportedHints.add(Hints.FEATURE_DETACHED);
+        supportedHints.add(Hints.JTS_GEOMETRY_FACTORY);
+        supportedHints.add(Hints.JTS_COORDINATE_SEQUENCE_FACTORY);
+        supportedHints.add(Hints.JTS_PRECISION_MODEL);
+        supportedHints.add(Hints.JTS_SRID);
+    };
 
     protected Transaction transaction = Transaction.AUTO_COMMIT;
 
@@ -286,14 +304,30 @@ public class ArcSdeFeatureSource implements FeatureSource<SimpleFeatureType, Sim
     }
 
     /**
-     * ArcSDE features are always "detached", so we return the FEATURE_DETACHED hint here.
+     * ArcSDE features are always "detached", so we return the FEATURE_DETACHED hint here, as well
+     * as the JTS related ones.
+     * <p>
+     * The JTS related hints supported are:
+     * <ul>
+     * <li>JTS_GEOMETRY_FACTORY
+     * <li>JTS_COORDINATE_SEQUENCE_FACTORY
+     * <li>JTS_PRECISION_MODEL
+     * <li>JTS_SRID
+     * </ul>
+     * Note, however, that if a {@link GeometryFactory} is provided through the {@code
+     * JTS_GEOMETRY_FACTORY} hint, that very factory is used and takes precedence over all the other
+     * ones.
+     * </p>
      * 
-     * @return singleton with {@link Hints#FEATURE_DETACHED}
      * @see FeatureSource#getSupportedHints()
+     * @see Hints#FEATURE_DETACHED
+     * @see Hints#JTS_GEOMETRY_FACTORY
+     * @see Hints#JTS_COORDINATE_SEQUENCE_FACTORY
+     * @see Hints#JTS_PRECISION_MODEL
+     * @see Hints#JTS_SRID
      */
-    @SuppressWarnings("unchecked")
-    public final Set getSupportedHints() {
-        return Collections.singleton(Hints.FEATURE_DETACHED);
+    public final Set<RenderingHints.Key> getSupportedHints() {
+        return supportedHints;
     }
 
     public ArcSdeVersionHandler getVersionHandler() throws IOException {

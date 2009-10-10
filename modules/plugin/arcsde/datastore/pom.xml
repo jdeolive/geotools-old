@@ -120,7 +120,13 @@
 			<artifactId>gt-coverage</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<dependency>
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-epsg-hsql</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>		
+    <dependency>
 			<groupId>javax.media</groupId>
 			<artifactId>jai_core</artifactId>
 			<scope>provided</scope>
