@@ -19,6 +19,7 @@ package org.geotools.referencing.factory.epsg;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -202,6 +203,9 @@ public class ThreadedH2EpsgFactory extends ThreadedEpsgFactory {
             String path = ((JdbcDataSource) source).getURL();
             if (path!=null && PREFIX.regionMatches(true, 0, path, 0, PREFIX.length())) {
                 path = path.substring(PREFIX.length());
+                if( path.indexOf(';') != -1 ){
+                    path = path.substring(0, path.indexOf(';'));
+                }
                 return new File(path).getParentFile();
             }
         }
@@ -230,6 +234,7 @@ public class ThreadedH2EpsgFactory extends ThreadedEpsgFactory {
                 url.append('/');
             }
             url.append(path);
+            
             if (url.charAt(url.length()-1) != '/') {
                 url.append('/');
             }
@@ -317,6 +322,7 @@ public class ThreadedH2EpsgFactory extends ThreadedEpsgFactory {
     }
 
     private void setReadOnly(final File directory) {
+        if( directory == null ) return;
         for (File file : directory.listFiles()) {
             if(file.isDirectory()) {
                 setReadOnly(file);
