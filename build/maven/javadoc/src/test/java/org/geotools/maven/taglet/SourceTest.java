@@ -56,31 +56,5 @@ public class SourceTest {
             assertEquals("maven", category);
             assertEquals("javadoc", module);
         }
-
-        // Try an other URL from a tag.
-        url = "http://svn.geotools.org/tags/2.4-M0/modules/library/api/src/main/java/org/geotools/catalog/ResolveChangeListener.java";
-        m = s.findModule.matcher(url);
-        assertTrue(m.matches());
-        group    = m.group(1);
-        category = m.group(2);
-        module   = m.group(3);
-        assertEquals("modules", group);
-        assertEquals("library", category);
-        assertEquals("api", module);
-
-        // Try an other URL from a tag.
-        url = "http://svn.geotools.org/tags/2.2-RC4/modules/library/referencing/src/main/java/org/geotools/referencing/CRS.java";
-        tag = Source.SVN_KEYWORD_DELIMITER + "URL: " + url + ' ' + Source.SVN_KEYWORD_DELIMITER;
-        m = s.findURL.matcher(tag);
-        assertTrue(m.matches());
-        assertEquals(url, m.group(1).trim());
-        m = s.findModule.matcher(url);
-        assertTrue(m.matches());
-        group    = m.group(1);
-        category = m.group(2);
-        module   = m.group(3);
-        assertEquals("modules", group);
-        assertEquals("library", category);
-        assertEquals("referencing", module);
     }
 }
