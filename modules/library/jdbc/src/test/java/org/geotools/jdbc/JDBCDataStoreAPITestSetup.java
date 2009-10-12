@@ -26,6 +26,8 @@ import javax.sql.DataSource;
  *
  * @author Justin Deoliveira, The Open Planning Project
  *
+ *
+ * @source $URL$
  */
 public abstract class JDBCDataStoreAPITestSetup extends JDBCDelegatingTestSetup {
    

@@ -30,6 +30,8 @@ import org.opengis.filter.capability.SpatialOperators;
  * 
  * @author Justin Deoliveira, The Open Planning Project
  *
+ *
+ * @source $URL$
  */
 public class SpatialOperatorsImpl implements SpatialOperators {
     

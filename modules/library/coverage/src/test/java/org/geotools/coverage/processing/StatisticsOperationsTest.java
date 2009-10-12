@@ -49,6 +49,8 @@ import static org.junit.Assert.*;
  *
  * @author Simone Giannecchini (GeoSolutions)
  * @author Martin Desruisseaux (Geomatys)
+ *
+ * @source $URL$
  */
 public final class StatisticsOperationsTest extends GridProcessingTestBase {
     /**

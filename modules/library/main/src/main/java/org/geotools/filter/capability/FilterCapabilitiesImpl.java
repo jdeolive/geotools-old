@@ -26,6 +26,8 @@ import org.opengis.filter.capability.SpatialCapabilities;
  * 
  * @author Justin Deoliveira, The Open Planning Project
  *
+ *
+ * @source $URL$
  */
 public class FilterCapabilitiesImpl implements FilterCapabilities {
 

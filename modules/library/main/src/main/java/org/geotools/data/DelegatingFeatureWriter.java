@@ -25,6 +25,8 @@ import org.opengis.feature.type.FeatureType;
  * @author Justin Deoliveira, OpenGEO
  * @since 2.5
  *
+ *
+ * @source $URL$
  */
 public interface DelegatingFeatureWriter<T extends FeatureType,F extends Feature> extends FeatureWriter<T, F> {
 

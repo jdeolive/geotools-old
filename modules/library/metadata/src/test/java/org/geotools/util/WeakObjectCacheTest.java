@@ -24,6 +24,8 @@ import static org.junit.Assert.*;
  * Tests the WeakObjectCache with simple tests.
  *
  * @author Cory Horner (Refractions Research)
+ *
+ * @source $URL$
  */
 public final class WeakObjectCacheTest {
     private Integer  key1 = 1;

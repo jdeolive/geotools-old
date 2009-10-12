@@ -77,6 +77,8 @@ import org.opengis.filter.spatial.Within;
  * </code></pre>
  * 
  * @author Jody
+ *
+ * @source $URL$
  */
 public abstract class DefaultFilterVisitor implements FilterVisitor, ExpressionVisitor {
 

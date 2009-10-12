@@ -42,6 +42,8 @@ import org.opengis.feature.simple.SimpleFeatureType;
  * is set up to produce BufferedImage.
  * 
  * @author Johann Sorel (AlterSIG)
+ *
+ * @source $URL$
  */
 public class Glyph {
  

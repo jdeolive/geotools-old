@@ -36,6 +36,8 @@ import org.geotools.factory.Hints;
  * </p>
  * @author Jody Garnett (Refractions Research)
  * @since 2.5
+ *
+ * @source $URL$
  */
 public class ColorConverterFactory implements ConverterFactory {
 

@@ -34,6 +34,8 @@ import org.junit.Test;
 /**
  * Simple TestCase for      {@link RootNode}      class.
  * @author       Simone Giannecchini, GeoSolutions
+ *
+ * @source $URL$
  */
 public class RootNodeTest{
 

@@ -34,6 +34,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * @author dblasby
  * @author simone giannecchini
  * @author Andrea Aime - OpenGeo
+ *
+ * @source $URL$
  */
 public class LabelCacheItem implements Comparable<LabelCacheItem> {
 

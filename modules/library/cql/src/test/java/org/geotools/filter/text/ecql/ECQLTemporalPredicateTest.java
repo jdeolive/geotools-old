@@ -30,6 +30,8 @@ import org.geotools.filter.text.cql2.CQLTemporalPredicateTest;
  *
  * @author Mauricio Pazos (Axios Engineering)
  * @since 2.6
+ *
+ * @source $URL$
  */
 public class ECQLTemporalPredicateTest extends CQLTemporalPredicateTest {
 

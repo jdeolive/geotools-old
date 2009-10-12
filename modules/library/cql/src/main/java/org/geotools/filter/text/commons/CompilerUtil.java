@@ -38,6 +38,8 @@ import org.opengis.filter.expression.Expression;
  *
  * @author Mauricio Pazos (Axios Engineering)
  * @since 2.6
+ *
+ * @source $URL$
  */
 final public class CompilerUtil {
 

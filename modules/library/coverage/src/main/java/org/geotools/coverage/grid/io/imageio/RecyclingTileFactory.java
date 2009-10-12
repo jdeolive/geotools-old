@@ -84,6 +84,8 @@ import com.sun.media.jai.util.DataBufferUtils;
  * </p>
  * 
  * @since JAI 1.1.2
+ *
+ * @source $URL$
  */
 public class RecyclingTileFactory extends Observable implements TileFactory,
 		TileRecycler, Observer {

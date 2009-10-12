@@ -30,6 +30,8 @@ import org.opengis.feature.simple.SimpleFeature;
  * Allow multiple thread to modify LabelCache.  
  * 
  * @author Jesse
+ *
+ * @source $URL$
  */
 public class SynchronizedLabelCache implements LabelCache {
 

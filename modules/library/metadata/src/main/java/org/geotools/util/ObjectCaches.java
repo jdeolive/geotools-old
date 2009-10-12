@@ -39,6 +39,8 @@ import org.opengis.util.GenericName;
  * @since 2.5
  * @author Jody Garnett
  * @author Cory Horner
+ *
+ * @source $URL$
  */
 public final class ObjectCaches {
     /**

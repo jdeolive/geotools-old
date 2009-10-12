@@ -10,6 +10,8 @@ import org.opengis.metadata.citation.OnLineResource;
  * Please note that not all render can handle all image file formats; please organize your marks
  * into a preferred order with the most specific (say SVG) followed by common formats (PNG, GIF) and ending
  * with an appropriate WellKnownName.
+ *
+ * @source $URL: http://svn.somewhere.foo/org/geotools/trunk/modules/library/api/src/main/java/org/geotools/styling/ExternalMark.java $
  */
 public interface ExternalMark extends org.opengis.style.ExternalMark {
 

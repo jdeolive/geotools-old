@@ -35,6 +35,8 @@ import java.util.Map;
  * utility. Please be advised it is very hard to write cross platform tests for things
  *  
  * @author Jody Garnett
+ *
+ * @source $URL: http://svn.somewhere.foo/org/geotools/trunk/modules/library/sample-data/src/main/java/org/geotools/test/TestGraphics.java $
  */
 public class TestGraphics extends Graphics2D{
     public Map<Key, ?> hints;

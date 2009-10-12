@@ -36,6 +36,8 @@ import org.opengis.referencing.operation.MathTransform1D;
  * @see LinearColorMap
  * @see LinearColorMap.LinearColorMapType
  * @author      Simone Giannecchini, GeoSolutions
+ *
+ * @source $URL$
  */
 public class LinearColorMapElement extends DefaultLinearPiecewiseTransform1DElement
 		implements PiecewiseTransform1DElement, ColorMapTransformElement {

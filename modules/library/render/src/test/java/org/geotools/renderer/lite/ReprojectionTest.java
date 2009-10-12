@@ -49,6 +49,8 @@ import com.vividsolutions.jts.geom.LineString;
  * 
  * @author wolf
  * 
+ *
+ * @source $URL$
  */
 public class ReprojectionTest extends TestCase {
 

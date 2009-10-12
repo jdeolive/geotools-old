@@ -27,6 +27,8 @@ import org.opengis.filter.capability.SpatialOperator;
  * Implementation of the SpatialOperator interface.
  * 
  * @author Justin Deoliveira, The Open Planning Project
+ *
+ * @source $URL$
  */
 public class SpatialOperatorImpl extends OperatorImpl 
     implements SpatialOperator {

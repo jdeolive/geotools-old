@@ -59,6 +59,8 @@ import com.vividsolutions.jts.geom.Point;
  * Rendering is a pretty high level concept
  * @author Jody
  * @author PHustad
+ *
+ * @source $URL$
  */
 public class StreamingRendererTest extends TestCase {
 

@@ -48,6 +48,8 @@ import com.vividsolutions.jts.geom.Point;
  * 
  * @author Mauricio Pazos (Axios Engineering)
  * @since 2.6
+ *
+ * @source $URL$
  */
 public class CQLRelGeoOpTest {
 

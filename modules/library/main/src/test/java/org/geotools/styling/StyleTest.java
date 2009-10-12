@@ -25,6 +25,8 @@ import org.opengis.style.StyleVisitor;
  * required. These are used to ensure that any set methods can handle a org.opengis.styling
  * instances.
  * </ul>
+ *
+ * @source $URL: http://svn.somewhere.foo/org/geotools/trunk/modules/library/main/src/test/java/org/geotools/styling/StyleTest.java $
  */
 public class StyleTest {
     static FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);

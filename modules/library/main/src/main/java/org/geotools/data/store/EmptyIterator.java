@@ -23,6 +23,8 @@ import java.util.Iterator;
  * 
  * @author Justin Deoliveira, The Open Planning Project
  *
+ *
+ * @source $URL$
  */
 public class EmptyIterator implements Iterator {
 

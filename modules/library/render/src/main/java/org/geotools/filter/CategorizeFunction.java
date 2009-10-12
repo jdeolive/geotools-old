@@ -50,6 +50,8 @@ import org.opengis.filter.Filter;
  * In reality any expression will do.
  * @author Jody Garnett
  * @author Johann Sorel (Geomatys)
+ *
+ * @source $URL$
  */
 public class CategorizeFunction implements Function {
 

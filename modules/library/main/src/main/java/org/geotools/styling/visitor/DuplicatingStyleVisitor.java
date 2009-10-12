@@ -85,6 +85,8 @@ import org.opengis.style.Description;
  * or changing the scale - see RescaleStyleVisitor for an example).
  * </p>
  * @author Jesse Eichar
+ *
+ * @source $URL$
  */
 public class DuplicatingStyleVisitor implements StyleVisitor {
 	

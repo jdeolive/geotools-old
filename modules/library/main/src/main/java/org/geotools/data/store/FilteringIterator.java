@@ -27,6 +27,8 @@ import org.opengis.filter.Filter;
  * 
  * @author Justin Deoliveira, The Open Planning Project
  *
+ *
+ * @source $URL$
  */
 public class FilteringIterator<F extends Feature> implements Iterator<F> {
 

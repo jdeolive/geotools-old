@@ -31,6 +31,8 @@ import java.sql.Statement;
  * </p>
  * @author Justin Deoliveira, OpenGEO
  *
+ *
+ * @source $URL$
  */
 public class NonIncrementingPrimaryKeyColumn extends PrimaryKeyColumn {
 

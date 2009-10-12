@@ -31,6 +31,8 @@ import org.opengis.referencing.operation.NoninvertibleTransformException;
 /**
  * Convenience class for linear transformations that maps an interval to another interval.
  * @author  Simone Giannecchini, GeoSolutions
+ *
+ * @source $URL$
  */
 public class DefaultLinearPiecewiseTransform1DElement extends DefaultPiecewiseTransform1DElement implements
 		PiecewiseTransform1DElement {

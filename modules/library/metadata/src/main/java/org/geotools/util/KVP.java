@@ -10,6 +10,8 @@ import java.util.List;
  * Example: <code>KVP map = new KVP("foo",1,"bar,2);</code>
  * 
  * @author jody
+ *
+ * @source $URL: http://svn.somewhere.foo/org/geotools/trunk/modules/library/metadata/src/main/java/org/geotools/util/KVP.java $
  */
 public class KVP extends LinkedHashMap<String, Object> {
     /**

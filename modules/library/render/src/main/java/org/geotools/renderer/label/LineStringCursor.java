@@ -31,6 +31,8 @@ import com.vividsolutions.jts.geom.LineString;
  * 
  * @author Andrea Aime
  * 
+ *
+ * @source $URL$
  */
 public class LineStringCursor {
 

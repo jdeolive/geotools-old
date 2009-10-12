@@ -61,6 +61,8 @@ import org.geotools.styling.UserLayer;
  * 
  * @author Simone Giannecchini. GeoSolutions
  * 
+ *
+ * @source $URL$
  */
 public class StyleVisitorAdapter implements StyleVisitor {
 

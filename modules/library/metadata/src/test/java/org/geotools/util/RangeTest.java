@@ -24,6 +24,8 @@ import static org.junit.Assert.*;
  * Uses a bit of number theory to test the range class.
  *
  * @author Jody Garnett
+ *
+ * @source $URL$
  */
 public final class RangeTest {
     /** [-1,1] */

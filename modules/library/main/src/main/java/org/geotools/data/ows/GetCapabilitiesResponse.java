@@ -26,6 +26,8 @@ import org.geotools.ows.ServiceException;
  * parse the Capabilities document in inputStream in the constructor. 
  * 
  * @author Richard Gould
+ *
+ * @source $URL$
  */
 public abstract class GetCapabilitiesResponse extends Response {
 

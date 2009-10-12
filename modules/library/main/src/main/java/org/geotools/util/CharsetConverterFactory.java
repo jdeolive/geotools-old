@@ -26,6 +26,8 @@ import org.geotools.factory.Hints;
  * 
  * @author Justin Deoliveira, The Open Planning Project
  * @since 2.5
+ *
+ * @source $URL$
  */
 public class CharsetConverterFactory implements ConverterFactory {
 

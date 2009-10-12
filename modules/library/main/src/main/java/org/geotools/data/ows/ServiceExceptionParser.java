@@ -32,6 +32,8 @@ import org.jdom.input.SAXBuilder;
  * 
  * @author rgould
  *
+ *
+ * @source $URL$
  */
 public class ServiceExceptionParser {
 

@@ -77,6 +77,8 @@ import org.opengis.filter.spatial.Within;
  * entire Filter.
  * 
  * @author Jody Garnett (Refractions Research)
+ *
+ * @source $URL$
  */
 public class IsSupportedFilterVisitor implements FilterVisitor, ExpressionVisitor {
     

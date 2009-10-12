@@ -30,6 +30,8 @@ import org.opengis.feature.type.AttributeDescriptor;
  * 
  * @author Justin Deoliveira, The Open Planning Project
  *
+ *
+ * @source $URL$
  */
 public class ReTypingIterator implements Iterator {
 

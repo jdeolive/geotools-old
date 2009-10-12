@@ -106,6 +106,8 @@ import org.opengis.filter.expression.Function;
  * filter was in error.
  * 
  * @author Jody Garnett
+ *
+ * @source $URL$
  */
 public class Capabilities {    
     private static Map<Class<?>,String> scalarNames;

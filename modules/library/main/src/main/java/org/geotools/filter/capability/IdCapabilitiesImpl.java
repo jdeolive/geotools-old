@@ -23,6 +23,8 @@ import org.opengis.filter.capability.IdCapabilities;
  * 
  * @author Justin Deoliveira, The Open Planning Project
  *
+ *
+ * @source $URL$
  */
 public class IdCapabilitiesImpl implements IdCapabilities {
 

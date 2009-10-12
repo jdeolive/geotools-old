@@ -38,6 +38,8 @@ import com.vividsolutions.jts.io.WKTReader;
  * </p>
  * @author Justin Deoliveira, The Open Planning Project
  * @since 2.4
+ *
+ * @source $URL$
  */
 public class GeometryConverterFactory implements ConverterFactory {
 

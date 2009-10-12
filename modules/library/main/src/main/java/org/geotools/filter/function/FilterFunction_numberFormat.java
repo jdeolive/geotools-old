@@ -26,6 +26,8 @@ import org.geotools.filter.FunctionExpressionImpl;
  * by {@link DecimalFormat}} 
  * @author Andrea Aime - OpenGeo
  *
+ *
+ * @source $URL$
  */
 public class FilterFunction_numberFormat extends FunctionExpressionImpl {
     

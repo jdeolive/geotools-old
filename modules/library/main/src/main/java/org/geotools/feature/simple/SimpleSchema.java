@@ -54,6 +54,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * </p>
  * 
  * @author Justin Deoliveira, The Open Planning Project, jdeolive@openplans.org
+ *
+ * @source $URL$
  */
 public class SimpleSchema extends SchemaImpl {
    

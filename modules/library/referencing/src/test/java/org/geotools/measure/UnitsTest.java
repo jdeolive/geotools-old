@@ -31,6 +31,8 @@ import static org.junit.Assert.*;
  * Test conversions using the units declared in {@link Units}.
  *
  * @author Martin Desruisseaux (Geomatys)
+ *
+ * @source $URL$
  */
 public class UnitsTest {
     /**

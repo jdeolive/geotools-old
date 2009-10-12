@@ -34,6 +34,8 @@ import org.opengis.filter.identity.Identifier;
  * @author Ian Schneider
  * @author Jody Garnett
  * @author Gabriel Roldan
+ *
+ * @source $URL$
  * @version $Id$
  */
 public class AttributeImpl extends PropertyImpl implements Attribute {

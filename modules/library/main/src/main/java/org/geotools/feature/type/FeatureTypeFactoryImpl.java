@@ -48,6 +48,8 @@ import org.opengis.util.InternationalString;
  * </p>
  * 
  * @author Jody Garnett
+ *
+ * @source $URL$
  */
 public class FeatureTypeFactoryImpl implements FeatureTypeFactory {
 	/** Used for spatial content */

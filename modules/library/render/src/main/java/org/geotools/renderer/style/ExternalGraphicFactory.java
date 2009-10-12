@@ -23,6 +23,8 @@ import org.opengis.filter.expression.Expression;
 
 /**
  * Symbol handler for an external symbolizers.
+ *
+ * @source $URL$
  */
 public interface ExternalGraphicFactory {
     /**

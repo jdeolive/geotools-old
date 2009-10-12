@@ -24,6 +24,8 @@ import org.opengis.filter.capability.Functions;
  * 
  * @author Justin Deoliveira, The Open Planning Project
  *
+ *
+ * @source $URL$
  */
 public class ArithmeticOperatorsImpl implements ArithmeticOperators {
 

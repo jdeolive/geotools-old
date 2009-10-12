@@ -32,6 +32,8 @@ import com.vividsolutions.jts.geom.impl.PackedCoordinateSequence.Double;
  *
  * @author Andrea Aime
  * @author simone giannecchini  * @source $URL$
+ *
+ * @source $URL$
  * @version $Id$
  */
 public final class PackedLineIterator extends AbstractLiteIterator {

@@ -27,6 +27,8 @@ import org.geotools.data.DataSourceException;
  * 
  * @author Andrea Aime - TOPP
  * 
+ *
+ * @source $URL$
  */
 public class DataSourceUtil {
     private DataSourceUtil() {

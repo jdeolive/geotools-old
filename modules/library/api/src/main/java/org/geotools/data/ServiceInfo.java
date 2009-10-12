@@ -35,6 +35,8 @@ import java.util.Set;
  * @author David Zwiers, Refractions Research
  * @author Justin Deoliveira, The Open Planning Project
  * @since 2.5
+ *
+ * @source $URL$
  */
 public interface ServiceInfo {
 

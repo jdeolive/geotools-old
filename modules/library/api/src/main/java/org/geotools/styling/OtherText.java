@@ -25,6 +25,8 @@ import org.opengis.filter.expression.Expression;
  * associated to the 
  * @author Andrea Aime - TOPP
  *
+ *
+ * @source $URL$
  */
 public interface OtherText {
     /**

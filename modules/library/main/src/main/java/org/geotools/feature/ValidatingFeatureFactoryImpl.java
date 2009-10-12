@@ -22,6 +22,8 @@ package org.geotools.feature;
  * 
  * @author Andrea Aime
  * 
+ *
+ * @source $URL$
  * @version $Id$
  */
 public class ValidatingFeatureFactoryImpl extends AbstractFeatureFactoryImpl {

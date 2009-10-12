@@ -32,6 +32,8 @@ import org.opengis.filter.expression.Expression;
  * all the marks hardboiled into the SLD specification (cross, arrow, triangle etc...)
  * 
  * @author James
+ *
+ * @source $URL$
  */
 public class WellKnownMarkFactory implements MarkFactory {
 

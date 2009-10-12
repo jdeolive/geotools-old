@@ -22,6 +22,8 @@ package org.geotools.jdbc;
  * 
  * @author Justin Deoliveira, OpenGEO
  *
+ *
+ * @source $URL$
  */
 public abstract class PrimaryKeyColumn {
 

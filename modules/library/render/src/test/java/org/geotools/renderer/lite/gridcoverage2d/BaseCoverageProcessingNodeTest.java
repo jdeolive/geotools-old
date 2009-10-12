@@ -35,6 +35,8 @@ import org.junit.Test;
 /**
  * {@link TestCase}    subclass for    {@link BaseCoverageProcessingNode}    .
  * @author    Simone Giannecchini, GeoSlutions.
+ *
+ * @source $URL$
  */
 public class BaseCoverageProcessingNodeTest  {
 

@@ -51,6 +51,8 @@ import org.opengis.filter.expression.PropertyName;
  * @author Gabriel Roldan - Axios Engineering
  * @since 2.5
  *
+ *
+ * @source $URL$
  */
 public class FilterCQLSample {
 

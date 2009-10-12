@@ -70,6 +70,8 @@ import org.opengis.filter.spatial.Within;
  * </p>
  * @author Mauricio Pazos (Axios Engineering)
  * @since 2.6
+ *
+ * @source $URL$
  */
 public final class ECQLGeoOperationTest extends CQLGeoOperationTest{
 

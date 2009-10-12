@@ -27,6 +27,8 @@ import org.geotools.factory.Hints.Key;
  *
  * @since 2.4
  *
+ *
+ * @source $URL$
  */
 public interface ConverterFactory {
     

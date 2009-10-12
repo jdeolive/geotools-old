@@ -56,6 +56,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * Tests the ability of the datastore to cope with 3D data
  * 
  * @author Andrea Aime - OpenGeo
+ *
+ * @source $URL$
  */
 public abstract class JDBC3DTest extends JDBCTestSupport {
     

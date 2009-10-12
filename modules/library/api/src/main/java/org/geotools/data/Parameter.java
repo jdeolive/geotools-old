@@ -26,6 +26,8 @@ import org.opengis.util.InternationalString;
  * A Parameter defines information about a valid process parameter.
  *
  * @author gdavis
+ *
+ * @source $URL$
  */
 public class Parameter<T> {
     /**

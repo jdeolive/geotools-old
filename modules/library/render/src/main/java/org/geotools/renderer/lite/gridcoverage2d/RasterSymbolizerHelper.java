@@ -42,6 +42,8 @@ import org.opengis.coverage.grid.GridCoverage;
  * all RasterSymbolizer options.
  * 
  * @author Simone Giannecchini, GeoSolutions
+ *
+ * @source $URL$
  */
 public class RasterSymbolizerHelper extends
 		SubchainStyleVisitorCoverageProcessingAdapter implements StyleVisitor {

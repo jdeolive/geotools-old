@@ -26,6 +26,8 @@ package org.geotools.jdbc;
  * </p>
  * @author Justin Deoliveira, OpenGEO
  *
+ *
+ * @source $URL$
  */
 public class SequencedPrimaryKeyColumn extends PrimaryKeyColumn {
 

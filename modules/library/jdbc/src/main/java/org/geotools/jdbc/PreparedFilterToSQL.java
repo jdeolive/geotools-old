@@ -48,6 +48,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * @author Justin Deoliveira, OpenGEO
  * @author Andrea Aime, OpenGEO
  *
+ *
+ * @source $URL$
  */
 public class PreparedFilterToSQL extends FilterToSQL {
     

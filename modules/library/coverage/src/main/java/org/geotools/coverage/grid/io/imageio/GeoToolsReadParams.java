@@ -29,6 +29,8 @@ import javax.imageio.ImageReader;
  * @author Simone Giannecchini
  * @since 2.3.x
  * 
+ *
+ * @source $URL$
  */
 public abstract class GeoToolsReadParams extends ImageReadParam {
 	/** The {@link ImageReadParam} we are adapting/exteding. */

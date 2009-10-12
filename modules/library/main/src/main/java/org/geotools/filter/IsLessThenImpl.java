@@ -21,6 +21,8 @@ import org.opengis.filter.PropertyIsLessThan;
 import org.opengis.filter.expression.Expression;
 /**
  * @author jdeolive
+ *
+ * @source $URL$
  */
 public class IsLessThenImpl extends CompareFilterImpl implements
 		PropertyIsLessThan {

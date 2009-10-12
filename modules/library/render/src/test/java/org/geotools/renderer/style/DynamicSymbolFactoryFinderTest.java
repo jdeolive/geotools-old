@@ -26,6 +26,8 @@ import junit.framework.TestCase;
  * Makes sure the symbol factory lookup works as advertised
  * @author Andrea Aime - TOPP
  *
+ *
+ * @source $URL$
  */
 public class DynamicSymbolFactoryFinderTest extends TestCase {
 

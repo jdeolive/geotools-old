@@ -44,6 +44,8 @@ import org.opengis.feature.type.Schema;
  * a non conflicting set of "bindings" for the TypeBuilder(s).
  * </p>
  * @author Jody Garnett, Refractions Research Inc.
+ *
+ * @source $URL$
  */
 public class ProfileImpl implements Schema {
 

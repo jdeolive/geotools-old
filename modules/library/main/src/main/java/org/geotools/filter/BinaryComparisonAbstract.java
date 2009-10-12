@@ -26,6 +26,8 @@ import org.opengis.filter.expression.Expression;
  * Abstract implemention for binary filters.
  * 
  * @author Justin Deoliveira, The Open Planning Project, jdeolive@openplans.org
+ *
+ * @source $URL$
  */
 public abstract class BinaryComparisonAbstract extends AbstractFilter 
 	implements BinaryComparisonOperator {

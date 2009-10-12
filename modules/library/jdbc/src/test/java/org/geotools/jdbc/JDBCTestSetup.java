@@ -47,6 +47,8 @@ import org.geotools.data.jdbc.datasource.ManageableDataSource;
  *
  * @author Justin Deoliveira, The Open Planning Project
  *
+ *
+ * @source $URL$
  */
 public abstract class JDBCTestSetup {
     static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger(

@@ -9,6 +9,8 @@ import org.opengis.style.GraphicalSymbol;
  * Used to represent a Rule (or other construct) in a user interface or legend.
  * 
  * @author Jody
+ *
+ * @source $URL: http://svn.somewhere.foo/org/geotools/trunk/modules/library/api/src/main/java/org/geotools/styling/GraphicLegend.java $
  */
 public interface GraphicLegend extends org.opengis.style.GraphicLegend {
 

@@ -11,6 +11,8 @@ import org.junit.Test;
  * Tests the SoftObjectCache with simple tests.
  * 
  * @author Emily Gouge (Refractions Research)
+ *
+ * @source $URL: http://svn.somewhere.foo/org/geotools/trunk/modules/library/metadata/src/test/java/org/geotools/util/SoftObjectCacheTest.java $
  */
 public class SoftObjectCacheTest {
 	

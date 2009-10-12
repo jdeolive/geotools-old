@@ -29,6 +29,8 @@ import javax.imageio.ImageWriteParam;
  * @author Simone Giannecchini
  * @since 2.3.x
  * 
+ *
+ * @source $URL$
  */
 public abstract class GeoToolsWriteParams extends ImageWriteParam {
 

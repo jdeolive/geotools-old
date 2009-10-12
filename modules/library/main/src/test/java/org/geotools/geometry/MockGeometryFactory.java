@@ -74,6 +74,8 @@ import org.opengis.referencing.operation.TransformException;
  * Quick implementation for testing purposes.
  * 
  * @author Jody
+ *
+ * @source $URL$
  */
 public class MockGeometryFactory implements GeometryFactory, PrimitiveFactory {
     CoordinateReferenceSystem crs;

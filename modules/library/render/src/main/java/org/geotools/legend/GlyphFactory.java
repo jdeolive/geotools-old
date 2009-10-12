@@ -31,6 +31,8 @@ import org.opengis.feature.simple.SimpleFeatureType;
  * own icons as needed.
  * </p>
  * @author Jody Garnett
+ *
+ * @source $URL$
  */
 public interface GlyphFactory {
     

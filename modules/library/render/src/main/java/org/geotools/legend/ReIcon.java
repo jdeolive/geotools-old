@@ -26,6 +26,8 @@ import javax.swing.Icon;
  * Quick utility class used to "resize" an icon.
  * 
  * @author Jody Garnett
+ *
+ * @source $URL$
  */
 public class ReIcon {
     final Icon icon;

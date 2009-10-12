@@ -23,6 +23,8 @@ package org.geotools.filter.text.generated.parsers;
  * 
  * @author Mauricio Pazos (Axios Engineering)
  * @since 2.5
+ *
+ * @source $URL$
  */
 public interface Node {
 

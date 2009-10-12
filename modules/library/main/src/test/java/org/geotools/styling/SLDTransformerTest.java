@@ -45,6 +45,8 @@ import org.xml.sax.InputSource;
  * </p>
  * 
  * @author Jody
+ *
+ * @source $URL$
  */
 public class SLDTransformerTest extends TestCase {
     static StyleFactory2 sf = (StyleFactory2) CommonFactoryFinder.getStyleFactory(null);

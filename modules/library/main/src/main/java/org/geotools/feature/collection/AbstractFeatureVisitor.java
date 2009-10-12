@@ -35,6 +35,8 @@ import org.opengis.feature.type.FeatureType;
  * </code></pre>
  * 
  * @author Jody Garnett
+ *
+ * @source $URL$
  */
 public abstract class AbstractFeatureVisitor implements FeatureVisitor {
     //public void init( FeatureCollection<? extends FeatureType, ? extends Feature> collection ) {

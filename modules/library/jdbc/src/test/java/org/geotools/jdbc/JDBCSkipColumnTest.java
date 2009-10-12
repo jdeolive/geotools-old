@@ -26,6 +26,8 @@ import org.opengis.feature.simple.SimpleFeatureType;
 /**
  * Checks the datastore can work against unknown columns
  * @author Andrea Aime - OpenGeo
+ *
+ * @source $URL: http://svn.somewhere.foo/org/geotools/trunk/modules/library/jdbc/src/test/java/org/geotools/jdbc/JDBCSkipColumnTest.java $
  */
 public abstract class JDBCSkipColumnTest extends JDBCTestSupport {
 

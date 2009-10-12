@@ -36,6 +36,8 @@ import org.opengis.util.InternationalString;
  * 
  * @author gabriel
  *
+ *
+ * @source $URL$
  */
 public class FeatureTypeImpl extends ComplexTypeImpl implements FeatureType {
 	

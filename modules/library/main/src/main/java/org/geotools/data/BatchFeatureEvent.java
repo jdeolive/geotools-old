@@ -42,6 +42,8 @@ import org.opengis.filter.identity.Identifier;
  * were represented as an change event with no known bounds.
  * 
  * @author Jody Garnett
+ *
+ * @source $URL$
  */
 public class BatchFeatureEvent extends FeatureEvent {
     private static final long serialVersionUID = 3154238322369916486L;

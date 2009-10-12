@@ -28,6 +28,8 @@ import org.opengis.filter.expression.ExpressionVisitor;
  * object, tweak it, and then pass it to a ClassifyFunction.
  * 
  * @author Cory Horner, Refractions Research
+ *
+ * @source $URL$
  */
 public abstract class Classifier {
 

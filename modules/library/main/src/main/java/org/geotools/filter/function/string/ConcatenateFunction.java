@@ -35,6 +35,8 @@ import org.opengis.filter.expression.ExpressionVisitor;
  * <p>
  * 
  * @author Jody Garnett (Refractions Research, Inc.)
+ *
+ * @source $URL$
  */
 public class ConcatenateFunction extends FunctionImpl {
 

@@ -35,6 +35,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * 
  * @author Justin Deoliveira, OpenGEO
  *
+ *
+ * @source $URL$
  */
 public abstract class PreparedStatementSQLDialect extends SQLDialect {
 

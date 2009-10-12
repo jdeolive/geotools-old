@@ -54,6 +54,8 @@ import org.opengis.filter.spatial.Within;
  * 
  * @author Justin Deoliveira, The Open Planning Project, jdeolive@openplans.org
  *
+ *
+ * @source $URL$
  */
 public class FilterVisitorFilterWrapper implements FilterVisitor {
 

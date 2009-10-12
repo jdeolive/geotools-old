@@ -21,6 +21,8 @@ import org.opengis.filter.PropertyIsGreaterThanOrEqualTo;
 import org.opengis.filter.expression.Expression;
 /**
  * @author jdeolive
+ *
+ * @source $URL$
  */
 public class IsGreaterThanOrEqualToImpl extends CompareFilterImpl
 		implements PropertyIsGreaterThanOrEqualTo {

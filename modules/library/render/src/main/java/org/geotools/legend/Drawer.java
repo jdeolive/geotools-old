@@ -76,6 +76,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * being used for rendering.
  *
  * @author Administrateur
+ *
+ * @source $URL$
  */
 public class Drawer {
  

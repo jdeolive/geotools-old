@@ -26,6 +26,8 @@ import org.geotools.data.Transaction.State;
 
 /**
  * Responsible for flow control; issues commit and rollback on the managed connection.
+ *
+ * @source $URL$
  */
 public final class JDBCTransactionState implements State {
     /**

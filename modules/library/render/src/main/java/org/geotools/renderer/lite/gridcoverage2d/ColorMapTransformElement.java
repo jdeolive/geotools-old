@@ -35,6 +35,8 @@ import org.geotools.referencing.piecewise.PiecewiseTransform1DElement;
  * 
  * @author Simone Giannecchini, GeoSolutions
  * 
+ *
+ * @source $URL$
  */
 public interface ColorMapTransformElement extends PiecewiseTransform1DElement {
 	/**

@@ -39,6 +39,8 @@ import org.opengis.parameter.ParameterDescriptorGroup;
  * </p>
  * 
  * @author Christian Mueller
+ *
+ * @source $URL$
  */
 public abstract class JDBCJNDIDataStoreFactory extends JDBCDataStoreFactory {
 

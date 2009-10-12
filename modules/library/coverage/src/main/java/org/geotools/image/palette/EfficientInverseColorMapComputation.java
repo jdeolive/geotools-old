@@ -26,6 +26,8 @@ package org.geotools.image.palette;
  * 
  * @author Simone Giannecchini. GeoSOlutions
  * 
+ *
+ * @source $URL$
  */
 public final class EfficientInverseColorMapComputation {
 	/**

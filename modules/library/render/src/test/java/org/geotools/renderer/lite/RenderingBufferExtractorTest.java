@@ -29,6 +29,8 @@ import org.geotools.styling.Symbolizer;
 
 /**
  * @author  pc
+ *
+ * @source $URL$
  */
 public class RenderingBufferExtractorTest extends TestCase {
     StyleBuilder sb = new StyleBuilder();

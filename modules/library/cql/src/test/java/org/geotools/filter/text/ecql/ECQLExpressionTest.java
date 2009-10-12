@@ -25,6 +25,8 @@ import org.geotools.filter.text.cql2.CQLExpressionTest;
  *
  * @author Mauricio Pazos (Axios Engineering)
  * @since 2.6
+ *
+ * @source $URL$
  */
 public class ECQLExpressionTest extends CQLExpressionTest {
 

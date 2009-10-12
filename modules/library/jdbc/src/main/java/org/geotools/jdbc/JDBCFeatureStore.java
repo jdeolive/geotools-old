@@ -55,6 +55,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * All read only methods are delegated to {@link JDBCFeatureSource}.
  * </p>
  * @author Justin Deoliveira, The Open Planning Project
+ *
+ * @source $URL$
  */
 public final class JDBCFeatureStore extends ContentFeatureStore {
     

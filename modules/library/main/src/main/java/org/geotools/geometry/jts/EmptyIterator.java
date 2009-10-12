@@ -20,6 +20,8 @@ package org.geotools.geometry.jts;
  * An iterator for empty geometries
  * 
  * @since 2.4
+ *
+ * @source $URL$
  */
 public class EmptyIterator extends AbstractLiteIterator {
     public int getWindingRule() {

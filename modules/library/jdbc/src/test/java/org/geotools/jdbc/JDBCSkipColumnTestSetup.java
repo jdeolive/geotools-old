@@ -21,6 +21,8 @@ import java.sql.SQLException;
 /**
  *  
  * @author Andrea Aime
+ *
+ * @source $URL: http://svn.somewhere.foo/org/geotools/trunk/modules/library/jdbc/src/test/java/org/geotools/jdbc/JDBCSkipColumnTestSetup.java $
  */
 public abstract class JDBCSkipColumnTestSetup extends JDBCDelegatingTestSetup {
 

@@ -25,6 +25,8 @@ import org.opengis.feature.Feature;
  * 
  * @author Justin Deoliveira, The Open Planning Project
  *
+ *
+ * @source $URL$
  */
 public class MaxFeaturesIterator<F extends Feature> implements Iterator<F> {
 

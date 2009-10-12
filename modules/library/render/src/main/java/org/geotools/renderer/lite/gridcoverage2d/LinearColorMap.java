@@ -45,6 +45,8 @@ import org.opengis.util.InternationalString;
 
 /**
  * @author        Simone Giannecchini, GeoSolutions.
+ *
+ * @source $URL$
  */
 public final class LinearColorMap extends AbstractList<LinearColorMapElement>
 		implements ColorMapTransform<LinearColorMapElement> {

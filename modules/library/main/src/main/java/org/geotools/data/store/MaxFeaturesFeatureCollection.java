@@ -42,6 +42,8 @@ import org.opengis.filter.sort.SortBy;
  * 
  * @author Justin Deoliveira, The Open Planning Project
  *
+ *
+ * @source $URL$
  */
 public class MaxFeaturesFeatureCollection<T extends FeatureType, F extends Feature> extends
         DecoratingFeatureCollection<T, F>  {

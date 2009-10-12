@@ -29,6 +29,8 @@ import org.opengis.util.InternationalString;
  * 
  * @author Justin Deoliveira, The Open Planning Project, jdeolive@openplans.org
  *
+ *
+ * @source $URL$
  */
 public class AttributeTypeImpl extends PropertyTypeImpl implements AttributeType {
 	

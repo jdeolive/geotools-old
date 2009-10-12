@@ -30,6 +30,8 @@ import java.util.SortedSet;
  * </p>
  * @author Justin Deoliveira, The Open Planning Project
  *
+ *
+ * @source $URL$
  */
 public class FeatureImplUtils {
 

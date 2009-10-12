@@ -50,6 +50,8 @@ import org.opengis.filter.spatial.DistanceBufferOperator;
  * @author Jody Garnett
  * @author Mauricio Pazos (Axios Engineering)
  * 
+ *
+ * @source $URL$
  * @version Revision: 1.9
  * @since 2.6
  */

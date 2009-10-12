@@ -36,6 +36,8 @@ package org.geotools.filter.function;
  * 
  * @author Cory Horner, Refractions Research
  *
+ *
+ * @source $URL$
  */
 public final class RangedClassifier extends Classifier {
 

@@ -65,6 +65,8 @@ import org.opengis.filter.spatial.Within;
  * returned.
  * 
  * @author Jody Garnett (Refractions Research)
+ *
+ * @source $URL$
  */
 public abstract class AbstractFinderFilterVisitor implements FilterVisitor, ExpressionVisitor {
     protected boolean found = false; 

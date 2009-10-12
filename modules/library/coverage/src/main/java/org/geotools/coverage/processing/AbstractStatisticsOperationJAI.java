@@ -64,6 +64,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * @author Simone Giannecchini
  * @since 2.4.x
  * 
+ *
+ * @source $URL$
  */
 public abstract class AbstractStatisticsOperationJAI extends
 		OperationJAI {

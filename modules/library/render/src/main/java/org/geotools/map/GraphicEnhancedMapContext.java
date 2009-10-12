@@ -36,6 +36,8 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * </p>
  * 
  * @author simone giannecchini
+ *
+ * @source $URL$
  * @version $Id$
  */
 public class GraphicEnhancedMapContext extends DefaultMapContext {

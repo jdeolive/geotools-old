@@ -54,6 +54,8 @@ import org.geotools.util.Utilities;
  * @author Simone Giannecchini, GeoSolutions
  * @since 2.3
  * 
+ *
+ * @source $URL: http://svn.somewhere.foo/org/geotools/trunk/modules/library/coverage/src/main/java/org/geotools/coverage/grid/io/imageio/geotiff/PixelScale.java $
  */
 public final class PixelScale {
 

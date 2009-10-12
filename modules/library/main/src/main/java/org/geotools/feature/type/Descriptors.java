@@ -39,6 +39,8 @@ import org.opengis.feature.type.Name;
  * @author Justin Deoliveira
  * 
  * @since 2.5
+ *
+ * @source $URL$
  */
 public class Descriptors {
     private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger(Descriptors.class.getPackage().getName());

@@ -28,6 +28,8 @@ import org.geotools.factory.Hints;
  * 
  * @author Justin Deoliveira, The Open Planning Project
  * 
+ *
+ * @source $URL$
  */
 public class PropertyAccessors {
     static final PropertyAccessorFactory[] FACTORY_CACHE;

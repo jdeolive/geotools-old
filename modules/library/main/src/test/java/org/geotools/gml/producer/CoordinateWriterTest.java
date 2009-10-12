@@ -35,6 +35,8 @@ import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
  * 
  * @author Jody
  *
+ *
+ * @source $URL$
  */
 public class CoordinateWriterTest extends TestCase {
     

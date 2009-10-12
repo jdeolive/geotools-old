@@ -40,6 +40,8 @@ import org.w3c.dom.Document;
  * well.
  * 
  * @author Andrea Aime - TOPP
+ *
+ * @source $URL$
  */
 public class SVGGraphicFactory implements ExternalGraphicFactory {
 

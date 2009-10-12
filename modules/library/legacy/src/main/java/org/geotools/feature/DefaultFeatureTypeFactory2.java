@@ -38,6 +38,8 @@ import org.opengis.util.InternationalString;
  *
  * @deprecated
  * @since 2.5
+ *
+ * @source $URL$
  */
 public class DefaultFeatureTypeFactory2 extends FeatureTypeFactoryImpl {
 

@@ -42,6 +42,8 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * </p>
  * @author Justin Deoliveira, The Open Planning Project
  *
+ *
+ * @source $URL$
  */
 public abstract class JDBCDataStoreFactory extends AbstractDataStoreFactory {
     /** parameter for database type */

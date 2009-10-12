@@ -123,6 +123,8 @@ import com.vividsolutions.jts.geom.Point;
  *
  * @author Justin Deoliveira, The Open Planning Project
  *
+ *
+ * @source $URL$
  */
 public final class JDBCDataStore extends ContentDataStore
     implements GmlObjectStore {

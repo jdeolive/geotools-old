@@ -35,6 +35,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * @author dblasby
  * @author simone giannecchini  * @source $URL$
  * @deprecated Use {@link LabelCacheItem} instead (along with {@link LabelCacheImpl}
+ *
+ * @source $URL$
  */
 public class LabelCacheItem implements Comparable<LabelCacheItem> {
 	TextStyle2D textStyle;

@@ -34,6 +34,8 @@ import org.opengis.filter.capability.SpatialOperators;
  * 
  * @author Justin Deoliveira, The Open Planning Project
  *
+ *
+ * @source $URL$
  */
 public class SpatialCapabiltiesImpl implements SpatialCapabilities {
 

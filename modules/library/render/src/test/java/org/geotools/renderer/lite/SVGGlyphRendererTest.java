@@ -32,6 +32,8 @@ import org.geotools.styling.StyleFactoryFinder;
 
 /**
  * @author    pc
+ *
+ * @source $URL$
  */
 public class SVGGlyphRendererTest extends TestCase {
 

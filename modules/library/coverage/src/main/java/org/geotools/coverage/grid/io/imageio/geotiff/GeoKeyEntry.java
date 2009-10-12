@@ -35,6 +35,8 @@ import org.geotools.util.Utilities;
  * 
  * @author Simone Giannecchini, GeoSolutions
  * @author Mike Nidel
+ *
+ * @source $URL: http://svn.somewhere.foo/org/geotools/trunk/modules/library/coverage/src/main/java/org/geotools/coverage/grid/io/imageio/geotiff/GeoKeyEntry.java $
  */
 public final class GeoKeyEntry implements Comparable<GeoKeyEntry>{
 	@Override
