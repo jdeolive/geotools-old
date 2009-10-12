@@ -20,7 +20,7 @@ package org.geotools.coverage.grid.io.imageio.geotiff.codes;
  * @author Simone Giannecchini
  * @since 2.3
  *
- * @source $URL: http://svn.geotools.org/branches/2.5.x/modules/plugin/geotiff/src/main/java/org/geotools/gce/geotiff/IIOMetadataAdpaters/utils/codes/GeoTiffUoMCodes.java $
+ * @source $URL$
  */
 public final class GeoTiffUoMCodes {
 
