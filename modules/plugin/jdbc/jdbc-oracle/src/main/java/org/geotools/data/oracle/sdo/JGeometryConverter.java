@@ -31,6 +31,8 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * 
  * @author Andrea Aime - OpenGeo
  * 
+ *
+ * @source $URL$
  */
 public class JGeometryConverter {
 //    /**

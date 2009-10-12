@@ -47,6 +47,8 @@ import org.geotools.data.gen.info.GeneralizationInfosProviderImpl;
  * 
  * GeneralizationInfosProviderProviderParam (Object,optional) Parameter object for
  * {@link GeneralizationInfosProvider#getGeneralizationInfos(Object)}
+ *
+ * @source $URL$
  */
 
 public class PreGeneralizedDataStoreFactory implements DataStoreFactorySpi {

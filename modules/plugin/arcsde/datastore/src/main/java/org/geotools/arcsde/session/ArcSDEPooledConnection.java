@@ -38,6 +38,8 @@ import com.esri.sde.sdk.client.SeTable;
  * close().
  * 
  * @author Gabriel Roldan (TOPP)
+ *
+ * @source $URL$
  * @version $Id$
  * @since 2.3.x
  * 

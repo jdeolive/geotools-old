@@ -23,6 +23,8 @@ import java.util.Map;
  * Represents a set of ArcSDE database connection parameters.
  * 
  * @author Gabriel Roldan
+ *
+ * @source $URL$
  * @version $Id$
  */
 public class ArcSDEConnectionConfig {

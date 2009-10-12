@@ -25,6 +25,8 @@ import junit.framework.TestSuite;
 /**
  * @author mcr
  * 
+ *
+ * @source $URL$
  */
 public class PostGisOnlineTest extends AbstractTest {
 	static DBDialect dialect = null;

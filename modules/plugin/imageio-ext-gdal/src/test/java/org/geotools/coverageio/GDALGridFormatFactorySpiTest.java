@@ -27,6 +27,8 @@ import org.junit.Test;
  * @author Simone Giannecchini (simboss), GeoSolutions
  * 
  * Test class invoking BaseGridFormatFactorySpi methods.
+ *
+ * @source $URL$
  */
 public class GDALGridFormatFactorySpiTest {
 

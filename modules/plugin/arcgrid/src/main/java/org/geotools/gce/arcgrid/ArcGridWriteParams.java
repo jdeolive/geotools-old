@@ -27,6 +27,8 @@ import org.geotools.coverage.grid.io.imageio.GeoToolsWriteParams;
  * @author Simone Giannecchini
  * @since 2.3.x
  * 
+ *
+ * @source $URL$
  */
 public class ArcGridWriteParams extends GeoToolsWriteParams {
 

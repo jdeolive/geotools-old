@@ -25,6 +25,8 @@ import org.geotools.jdbc.JDBCTestSetup;
  *
  * @author Christian Mueller
  *
+ *
+ * @source $URL$
  */
 public class DB2DataStoreTest extends JDBCDataStoreTest {
     protected JDBCTestSetup createTestSetup() {

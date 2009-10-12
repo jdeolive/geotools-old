@@ -5,6 +5,8 @@ package com.esri.sde.sdk;
  * dummy API and shut down the ArcSDE module. 
  * @author sfarber
  *
+ *
+ * @source $URL$
  */
 public class GeoToolsDummyAPI {
     

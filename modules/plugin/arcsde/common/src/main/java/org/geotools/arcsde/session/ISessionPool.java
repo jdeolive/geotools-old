@@ -18,6 +18,8 @@ import java.io.IOException;
  * </p>
  * 
  * @author Gabriel Roldan
+ *
+ * @source $URL$
  * @version $Id$
  */
 public interface ISessionPool {

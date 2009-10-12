@@ -30,6 +30,8 @@ import org.opengis.feature.simple.SimpleFeatureType;
  * Allows read-write access to the contents of a shape file.
  * 
  * @author Jody Garnett (Refractions Research Inc)
+ *
+ * @source $URL$
  */
 public class ShapefileFeatureStore extends AbstractFeatureStore {
     private final ShapefileDataStore shapefile;

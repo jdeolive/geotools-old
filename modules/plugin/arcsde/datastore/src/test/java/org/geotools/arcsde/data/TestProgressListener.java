@@ -27,6 +27,8 @@ import org.opengis.util.ProgressListener;
  * This implementation is good about throwing illegal state exceptions and so forth.
  * 
  * @author Jody
+ *
+ * @source $URL$
  */
 public class TestProgressListener implements ProgressListener {
     int progressCount;

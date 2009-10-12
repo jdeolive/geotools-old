@@ -29,6 +29,8 @@ import org.geotools.data.shapefile.StreamLogging;
  * Class to read an attribute index file
  * 
  * @author Manuele Ventoruzzo
+ *
+ * @source $URL$
  */
 public class AttributeIndexReader {
 

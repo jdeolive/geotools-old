@@ -67,6 +67,8 @@ import org.opengis.filter.sort.SortBy;
  * {@link PreGeneralizedDataStore}
  * 
  * 
+ *
+ * @source $URL$
  */
 public class PreGeneralizedFeatureSource implements FeatureSource<SimpleFeatureType, SimpleFeature> {
 

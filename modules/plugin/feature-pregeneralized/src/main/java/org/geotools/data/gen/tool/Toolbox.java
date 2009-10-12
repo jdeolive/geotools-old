@@ -48,6 +48,8 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * 
  * @author Chrisitan Mueller
  * 
+ *
+ * @source $URL$
  */
 public class Toolbox {
     /**

@@ -21,6 +21,8 @@ package org.geotools.gce.imagemosaic.jdbc;
  * 
  * @author mcr
  * 
+ *
+ * @source $URL$
  */
 public class UniversalDialect extends DBDialect {
 	public UniversalDialect(Config config) {

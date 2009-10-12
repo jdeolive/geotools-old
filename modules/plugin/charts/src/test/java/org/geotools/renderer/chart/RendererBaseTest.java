@@ -43,6 +43,8 @@ import org.geotools.test.TestData;
  * DOCUMENT ME!
  * 
  * @author Simone Giannecchini
+ *
+ * @source $URL$
  */
 public abstract class RendererBaseTest {
 

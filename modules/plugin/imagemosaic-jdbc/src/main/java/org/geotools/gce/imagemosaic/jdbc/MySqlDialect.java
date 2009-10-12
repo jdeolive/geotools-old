@@ -21,6 +21,8 @@ package org.geotools.gce.imagemosaic.jdbc;
  * 
  * @author mcr
  * 
+ *
+ * @source $URL$
  */
 public class MySqlDialect extends DBDialect {
 	public MySqlDialect(Config config) {

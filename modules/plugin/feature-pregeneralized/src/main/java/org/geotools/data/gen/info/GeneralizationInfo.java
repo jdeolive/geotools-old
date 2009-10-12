@@ -35,6 +35,8 @@ import java.util.TreeSet;
  * 
  * @author Christian Mueller
  * 
+ *
+ * @source $URL$
  */
 public class GeneralizationInfo {
 

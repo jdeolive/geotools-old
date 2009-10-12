@@ -29,6 +29,8 @@ import org.opengis.referencing.FactoryException;
  * HsqlDialectEpsgFactory.
  * 
  * @author Cory Horner (Refractions Research)
+ *
+ * @source $URL$
  */
 public class HsqlDialectEpsgMediator extends AbstractEpsgMediator {
 

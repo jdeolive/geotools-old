@@ -98,6 +98,8 @@ import java.util.logging.Logger;
  * </p>
  *
  * @author Mueller Christian
+ *
+ * @source $URL$
  */
 public class DB2FilterToSQL extends PreparedFilterToSQL{
 	    private static Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.data.db2");

@@ -26,6 +26,8 @@ import java.util.Set;
  * 
  * DB2 speficfic WKB Constants, contributed by David Adler
  *
+ *
+ * @source $URL$
  */
 public class DB2WKBConstants {
     

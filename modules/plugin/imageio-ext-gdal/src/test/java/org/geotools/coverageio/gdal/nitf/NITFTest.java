@@ -50,6 +50,8 @@ import org.opengis.referencing.NoSuchAuthorityCodeException;
  * @author Simone Giannecchini (simboss), GeoSolutions
  * 
  * Testing {@link NITFReader}
+ *
+ * @source $URL$
  */
 public final class NITFTest extends GDALTestCase {
 	/**

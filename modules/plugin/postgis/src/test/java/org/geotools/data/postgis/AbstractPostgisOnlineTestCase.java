@@ -25,6 +25,8 @@ import java.sql.Statement;
  * Sets up various dummy tables/sequences, for extension.
  * 
  * @author Cory Horner, Refractions Research
+ *
+ * @source $URL$
  */
 public class AbstractPostgisOnlineTestCase extends PostgisOnlineTestCase {
     

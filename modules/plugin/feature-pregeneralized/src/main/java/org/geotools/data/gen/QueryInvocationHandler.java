@@ -30,6 +30,8 @@ import org.geotools.data.Query;
  * The proxy object returns typeName and propertyNames fitting for the backendstore, leaving all
  * other query data unchanged
  * 
+ *
+ * @source $URL$
  */
 public class QueryInvocationHandler implements InvocationHandler {
 

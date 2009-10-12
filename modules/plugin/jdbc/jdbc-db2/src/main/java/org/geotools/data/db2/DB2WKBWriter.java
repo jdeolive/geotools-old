@@ -43,6 +43,8 @@ import com.vividsolutions.jts.util.Assert;
  * @see WKBWriter 
  * for JTS Java Doc
  *
+ *
+ * @source $URL$
  */
 
 

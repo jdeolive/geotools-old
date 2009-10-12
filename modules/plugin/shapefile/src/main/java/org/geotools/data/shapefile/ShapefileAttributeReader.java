@@ -36,6 +36,8 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * <BR/>The default geometry is at position 0, and all dbf columns follow.
  * <BR/>The dbf file may not be necessary, if not, just pass null as the
  * DbaseFileReader
+ *
+ * @source $URL$
  */
 public class ShapefileAttributeReader extends AbstractAttributeIO implements
         AttributeReader {

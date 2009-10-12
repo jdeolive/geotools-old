@@ -43,6 +43,8 @@ import org.opengis.referencing.NoSuchAuthorityCodeException;
  * @author Simone Giannecchini (simboss), GeoSolutions
  *
  * Testing {@link JP2KReader}
+ *
+ * @source $URL$
  */
 public final class JP2KTest extends GDALTestCase {
     protected final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(

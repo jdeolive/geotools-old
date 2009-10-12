@@ -50,6 +50,8 @@ import org.opengis.referencing.NoSuchAuthorityCodeException;
  * @author Simone Giannecchini (simboss), GeoSolutions
  *
  * Testing {@link ErdasImgReader}
+ *
+ * @source $URL$
  */
 public final class ErdasImgTest extends GDALTestCase {
     protected final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(

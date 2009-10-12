@@ -19,6 +19,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * creates JTS geometries directly by calling {@link SeRow#getGeometry(GeometryFactory, int)},
  * instead of fetching an {@link SeShape} through {@link SeRow#getShape(int)} and then converting it
  * to a JTS geometry. This is work in progress and _experimental_, though.
+ *
+ * @source $URL$
  */
 public class SeToJTSGeometryFactory implements GeometryFactory {
 

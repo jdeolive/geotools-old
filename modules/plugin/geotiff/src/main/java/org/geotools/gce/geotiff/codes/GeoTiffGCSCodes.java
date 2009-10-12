@@ -31,6 +31,8 @@ package org.geotools.gce.geotiff.codes;
  * @author Simone Giannecchini
  * @since 2.3
  * 
+ *
+ * @source $URL$
  */
 public final class GeoTiffGCSCodes {
 

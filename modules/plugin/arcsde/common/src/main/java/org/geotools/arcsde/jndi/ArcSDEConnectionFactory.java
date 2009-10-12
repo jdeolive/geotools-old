@@ -75,6 +75,8 @@ import org.geotools.arcsde.session.SessionPoolFactory;
  * </p>
  * 
  * @author Gabriel Roldan (OpenGeo)
+ *
+ * @source $URL$
  * @version $Id$
  * @since 2.5.7
  */

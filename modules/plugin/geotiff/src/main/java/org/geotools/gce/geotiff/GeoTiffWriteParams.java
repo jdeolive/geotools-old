@@ -82,6 +82,8 @@ import org.geotools.coverage.grid.io.imageio.GeoToolsWriteParams;
  * @author Simone Giannecchini
  * @since 2.3.x
  * 
+ *
+ * @source $URL$
  */
 public final class GeoTiffWriteParams extends GeoToolsWriteParams {
 

@@ -40,6 +40,8 @@ import com.esri.sde.sdk.pe.PeProjectionException;
  * implementations
  * 
  * @author Gabriel Roldan
+ *
+ * @source $URL$
  * @version $Id$
  * @since 2.5.6
  * 

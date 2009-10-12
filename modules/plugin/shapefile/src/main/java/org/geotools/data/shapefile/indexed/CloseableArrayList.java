@@ -27,6 +27,8 @@ import org.geotools.index.Data;
 /**
  * Currently just wraps ArrayList and delegates to that class
  * @author jesse
+ *
+ * @source $URL$
  */
 public class CloseableArrayList extends AbstractList<Data> implements
         CloseableCollection<Data> {

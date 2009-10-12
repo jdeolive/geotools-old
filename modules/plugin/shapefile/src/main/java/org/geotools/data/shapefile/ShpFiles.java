@@ -65,6 +65,8 @@ import org.geotools.data.DataUtilities;
  * </p>
  * 
  * @author jesse
+ *
+ * @source $URL$
  */
 public class ShpFiles {
     /**

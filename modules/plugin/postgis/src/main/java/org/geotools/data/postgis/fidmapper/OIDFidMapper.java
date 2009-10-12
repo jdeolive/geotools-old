@@ -39,6 +39,8 @@ import org.postgresql.PGStatement;
  * index is not present.
  * 
  * @author wolf
+ *
+ * @source $URL$
  */
 public class OIDFidMapper extends AbstractFIDMapper {
 

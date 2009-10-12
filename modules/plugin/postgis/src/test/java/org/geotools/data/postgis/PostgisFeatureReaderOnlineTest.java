@@ -31,6 +31,8 @@ import org.opengis.feature.simple.SimpleFeatureType;
  * Hits a PostGIS database with a feature reader.
  * 
  * @author Cory Horner, Refractions Research 
+ *
+ * @source $URL$
  */
 public class PostgisFeatureReaderOnlineTest extends AbstractPostgisOnlineTestCase {
 

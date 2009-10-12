@@ -32,6 +32,8 @@ import org.geotools.jdbc.SQLDialect;
  *
  * @author Christian Mueller
  *
+ *
+ * @source $URL$
  */
 public class DB2NGDataStoreFactory extends JDBCDataStoreFactory {
 

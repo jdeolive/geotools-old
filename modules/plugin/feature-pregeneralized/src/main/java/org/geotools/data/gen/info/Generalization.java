@@ -28,6 +28,8 @@ import java.io.IOException;
  * the name of the geometry property in the feature dataSourceName the name of the datasource
  * dataSourceNameSpace the namespace of the datasource, may be null
  * 
+ *
+ * @source $URL$
  */
 public class Generalization implements Comparable<Generalization> {
     private Double distance;

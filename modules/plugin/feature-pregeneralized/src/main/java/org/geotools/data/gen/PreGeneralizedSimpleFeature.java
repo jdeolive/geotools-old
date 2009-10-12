@@ -49,6 +49,8 @@ import org.opengis.geometry.BoundingBox;
  * 
  * The special thing is that a generalized geometry is returned.
  * 
+ *
+ * @source $URL$
  */
 public class PreGeneralizedSimpleFeature implements SimpleFeature {
 

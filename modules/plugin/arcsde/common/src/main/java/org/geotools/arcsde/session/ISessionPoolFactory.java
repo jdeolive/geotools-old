@@ -29,6 +29,8 @@ import org.geotools.arcsde.jndi.ArcSDEConnectionFactory;
  * </p>
  * 
  * @author Gabriel Roldan (OpenGeo)
+ *
+ * @source $URL$
  * @version $Id$
  * @since 2.5.7
  */

@@ -19,6 +19,8 @@ package org.geotools.data.shapefile;
 /**
  * @author jesse
  * 
+ *
+ * @source $URL$
  */
 public class Option {
 

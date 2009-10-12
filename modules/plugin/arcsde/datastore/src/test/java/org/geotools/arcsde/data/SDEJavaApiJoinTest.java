@@ -140,6 +140,8 @@ import com.vividsolutions.jts.geom.Point;
  * /arcsde/data/SDEJavaApiJoinTest.java $ &#064;version $Id: SDEJavaApiJoinTest.java 31903
  * 2008-11-22 20:44:25Z groldan $ &#064;since 2.3.x
  * 
+ *
+ * @source $URL$
  */
 public class SDEJavaApiJoinTest {
     /** package logger */

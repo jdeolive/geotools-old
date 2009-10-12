@@ -20,6 +20,8 @@ package org.geotools.data.shapefile.indexed.attribute;
  * Record stored in attribute index file
  * 
  * @author Manuele Ventoruzzo
+ *
+ * @source $URL$
  */
 public class IndexRecord implements Comparable {
 

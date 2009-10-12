@@ -27,6 +27,8 @@ import org.junit.Test;
 /**
  * @author Simone Giannecchini,GeoSolutions
  * 
+ *
+ * @source $URL$
  */
 public class ImageMosaicServiceTest  {
 	@Test

@@ -63,6 +63,8 @@ import org.opengis.filter.Filter;
  * decrease response time for the user.
  * 
  * 
+ *
+ * @source $URL$
  */
 public class PreGeneralizedDataStore implements DataStore {
 

@@ -31,6 +31,8 @@ import java.nio.channels.WritableByteChannel;
  * release the lock on the URL.
  * 
  * @author jesse
+ *
+ * @source $URL$
  */
 public class FileChannelDecorator extends FileChannel implements
         ReadableByteChannel {

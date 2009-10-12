@@ -28,6 +28,8 @@ import org.geotools.coverage.grid.io.GridFormatFinder;
  * 
  * @author Simone Giannecchini
  * 
+ *
+ * @source $URL$
  */
 public class GeoTiffServiceTest extends TestCase {
 

@@ -27,6 +27,8 @@ import org.geotools.data.FeatureListener;
  * This class copies out some of the details about each event received.
  * 
  * @author Jody Garnett
+ *
+ * @source $URL$
  */
 public class TestFeatureListener implements FeatureListener {
     List<FeatureEvent> list = new LinkedList<FeatureEvent>();

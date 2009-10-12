@@ -58,6 +58,8 @@ import org.opengis.parameter.GeneralParameterDescriptor;
  * 
  * @author mcr
  * @since 2.5
+ *
+ * @source $URL$
  */
 public class ImageMosaicJDBCFormat extends AbstractGridFormat implements Format {
 	/** Logger. */

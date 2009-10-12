@@ -35,6 +35,8 @@ import org.geotools.util.Utilities;
  * 
  * @author Simone Giannecchini, GeoSolutions
  * @author Mike Nidel
+ *
+ * @source $URL$
  */
 public final class GeoKeyEntry implements Comparable<GeoKeyEntry>{
 	@Override

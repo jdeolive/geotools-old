@@ -30,6 +30,8 @@ import com.esri.sde.sdk.client.SeException;
  * to prevent a series of complicated locks and try/catch/finally code.
  * 
  * @author Jody Garnett
+ *
+ * @source $URL$
  */
 public abstract class Command<R> {
     /**

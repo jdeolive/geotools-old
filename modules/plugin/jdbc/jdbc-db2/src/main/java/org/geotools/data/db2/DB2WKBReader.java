@@ -40,6 +40,8 @@ import com.vividsolutions.jts.io.WKBConstants;
  * 
  * @see WKBReader for JTS Java Doc
  * 
+ *
+ * @source $URL$
  */
 
 

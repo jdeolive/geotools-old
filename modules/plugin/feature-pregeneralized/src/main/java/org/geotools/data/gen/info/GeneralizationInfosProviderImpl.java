@@ -45,6 +45,8 @@ import org.xml.sax.SAXException;
  * The xml schema file is "/geninfos_1.0.xsd"
  * 
  * 
+ *
+ * @source $URL$
  */
 public class GeneralizationInfosProviderImpl implements GeneralizationInfosProvider {
 

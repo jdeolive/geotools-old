@@ -37,6 +37,8 @@ import com.vividsolutions.jts.geom.Envelope;
  * on the same tree then they can interfere with each other.
  * 
  * @author Jesse
+ *
+ * @source $URL$
  */
 public class LazySearchIterator implements Iterator<Data> {
 

@@ -24,6 +24,8 @@ import java.io.File;
  * @author Simone Giannecchini
  * @since 2.3.x
  *
+ *
+ * @source $URL$
  */
 public class ArcGridTestCaseAdapter extends ArcGridBaseTestCase {
 

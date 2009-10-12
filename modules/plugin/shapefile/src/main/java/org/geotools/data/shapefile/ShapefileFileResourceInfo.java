@@ -29,6 +29,8 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 /**
  * Information about the contents of a shapefile on disk.
  * @author Jody Garnett (Refractions Reserach Inc)
+ *
+ * @source $URL$
  */
 public class ShapefileFileResourceInfo implements ResourceInfo {
 

@@ -80,6 +80,8 @@ import com.vividsolutions.jts.io.WKBWriter;
  * 
  * @author mcr
  * 
+ *
+ * @source $URL$
  */
 public class Import extends AbstractCmd {
 	class ImageFilter extends Object implements FileFilter {

@@ -30,6 +30,8 @@ import org.geotools.jdbc.SQLDialect;
  *
  * @author Justin Deoliveira, The Open Planning Project
  *
+ *
+ * @source $URL$
  */
 public class H2TestSetup extends JDBCTestSetup {
     protected void setUpData() throws Exception {

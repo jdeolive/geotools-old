@@ -72,6 +72,8 @@ package org.geotools.data.postgis;
  *
  * @author Robert Harder
  * @author rob@iharder.net
+ *
+ * @source $URL$
  * @version 2.1
  */
 public class Base64

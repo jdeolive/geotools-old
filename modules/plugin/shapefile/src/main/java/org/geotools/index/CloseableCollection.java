@@ -24,6 +24,8 @@ import java.util.Iterator;
  * Tag interface for collection that must be closed 
  * 
  * @author jesse
+ *
+ * @source $URL$
  */
 public interface CloseableCollection<T> extends Collection<T>{
 

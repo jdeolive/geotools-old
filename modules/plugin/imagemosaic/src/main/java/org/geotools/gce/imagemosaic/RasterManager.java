@@ -72,6 +72,8 @@ class RasterManager {
 	 * @author Simone Giannecchini, S.A.S.
      * @author Stefan Alfons Krueger (alfonx), Wikisquare.de : Support for jar:file:foo.jar/bar.properties URLs
 	 * @since 2.5
+ *
+ * @source $URL$
 	 */
 	public class GranuleIndex {
 		

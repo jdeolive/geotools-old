@@ -29,6 +29,8 @@ import org.opengis.coverage.grid.Format;
  * 
  * @author mcr
  * @since 2.5
+ *
+ * @source $URL$
  */
 public class ImageMosaicJDBCFormatFactory implements GridFormatFactorySpi {
 	/**

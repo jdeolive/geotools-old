@@ -31,6 +31,8 @@ import com.vividsolutions.jts.io.WKBReader;
  * Support DB2 geometries using WKB
  * 
  * @author David Adler - IBM Corporation
+ *
+ * @source $URL$
  */
 public class DB2WKBAttributeIO implements AttributeIO {
 	private WKBReader rdr = null;

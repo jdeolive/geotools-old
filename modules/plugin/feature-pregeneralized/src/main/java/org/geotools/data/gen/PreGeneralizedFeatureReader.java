@@ -28,6 +28,8 @@ import org.opengis.feature.simple.SimpleFeatureType;
  * @author Christian Mueller
  * 
  * Implementation of {@link FeatureReader} for {@link PreGeneralizedSimpleFeature}
+ *
+ * @source $URL$
  */
 
 public class PreGeneralizedFeatureReader implements FeatureReader<SimpleFeatureType, SimpleFeature> {

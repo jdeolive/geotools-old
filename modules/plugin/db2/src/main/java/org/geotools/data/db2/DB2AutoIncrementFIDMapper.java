@@ -29,6 +29,8 @@ import org.opengis.feature.simple.SimpleFeature;
  * Overrides AutoIncrementFIDMapper methods for DB2-specific handling.
  *
  * @author David Adler - IBM Corporation
+ *
+ * @source $URL$
  */
 public class DB2AutoIncrementFIDMapper extends AutoIncrementFIDMapper {
 

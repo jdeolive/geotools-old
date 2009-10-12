@@ -21,6 +21,8 @@ package org.geotools.gce.imagemosaic.jdbc;
  * 
  * @author mcr
  * 
+ *
+ * @source $URL$
  */
 public class DB2Dialect extends DBDialect {
 	public DB2Dialect(Config config) {

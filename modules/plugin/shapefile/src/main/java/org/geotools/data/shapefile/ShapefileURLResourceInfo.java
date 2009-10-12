@@ -30,6 +30,8 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * Information about the contents of a shapefile.
  * 
  * @author Jody Garnett (Refractions Reserach Inc)
+ *
+ * @source $URL$
  */
 public class ShapefileURLResourceInfo implements ResourceInfo {
 
