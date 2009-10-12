@@ -29,6 +29,8 @@ import org.geotools.gui.swing.map.map2d.stream.handler.DefaultZoomInHandler;
  * Zoom in action
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class StreamZoomIn extends AbstractAction {
 

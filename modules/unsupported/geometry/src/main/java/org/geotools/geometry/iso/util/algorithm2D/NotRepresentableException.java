@@ -22,6 +22,8 @@ package org.geotools.geometry.iso.util.algorithm2D;
  * representable on the Cartesian plane.
  * 
  * @see HCoordinate
+ *
+ * @source $URL$
  */
 public class NotRepresentableException extends Exception {
 

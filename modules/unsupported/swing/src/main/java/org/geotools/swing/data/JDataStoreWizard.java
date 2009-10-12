@@ -34,6 +34,8 @@ import org.geotools.swing.wizard.JWizard;
  * GeoTools DataStores that work with files are asked to provide a FileDataStoreFactorySpi
  * documenting what file extensions they support; and any additional parameters that may be
  * interesting etc.
+ *
+ * @source $URL$
  */
 public class JDataStoreWizard extends JWizard {
     private static final long serialVersionUID = -3788708439279424698L;

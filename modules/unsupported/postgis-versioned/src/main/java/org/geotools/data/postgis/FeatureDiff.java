@@ -28,6 +28,8 @@ import org.opengis.feature.simple.SimpleFeature;
  * 
  * @author aaime
  * @since 2.4
+ *
+ * @source $URL$
  */
 public class FeatureDiff {
     

@@ -21,6 +21,8 @@ package org.geotools.gui.swing.process;
  * what sort of form widget to create for it
  * 
  * @author Graham Davis
+ *
+ * @source $URL$
  */
 public class ParamWidgetFactory {
 

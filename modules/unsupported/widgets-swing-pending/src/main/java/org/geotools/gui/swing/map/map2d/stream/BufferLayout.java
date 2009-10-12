@@ -26,6 +26,8 @@ import java.awt.LayoutManager;
  * the complete size of the parent
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class BufferLayout implements LayoutManager{
 

@@ -39,6 +39,8 @@ import org.opengis.geometry.primitive.CurveBoundary;
  * @UML type GM_CompositeCurve
  * @author ISO/DIS 19107
  * @author <A HREF="http://www.opengis.org">OpenGIS&reg; consortium</A>
+ *
+ * @source $URL$
  * @version 2.0
  *
  * @revisit This interface extends (indirectly) both {@link org.opengis.geometry.primitive.Primitive} and

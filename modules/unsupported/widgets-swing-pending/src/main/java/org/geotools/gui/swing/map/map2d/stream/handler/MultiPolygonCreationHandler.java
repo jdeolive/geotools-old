@@ -47,6 +47,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * multipolygon creation handler
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class MultiPolygonCreationHandler extends AbstractEditionHandler {
 

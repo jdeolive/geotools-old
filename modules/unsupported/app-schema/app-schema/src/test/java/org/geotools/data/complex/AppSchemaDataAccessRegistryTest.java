@@ -46,6 +46,8 @@ import org.opengis.feature.type.Name;
  * source (simple or mapped) would be accessible globally.
  * 
  * @author Rini Angreani, Curtin Universtiy of Technology
+ *
+ * @source $URL$
  */
 public class AppSchemaDataAccessRegistryTest {
 

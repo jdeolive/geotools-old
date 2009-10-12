@@ -39,6 +39,8 @@ import org.opengis.geometry.primitive.SurfaceBoundary;
 /**
  * @author Sanjay Jena
  *
+ *
+ * @source $URL$
  */
 public class PaintGMObject {
 

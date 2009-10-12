@@ -24,6 +24,8 @@ import java.util.Stack;
  *
  * @author Christophe Rousson, SoC 2007, CRG-ULAVAL
  *
+ *
+ * @source $URL$
  */
 public abstract class AbstractSpatialIndex implements SpatialIndex {
     public static final int ContainmentQuery = 1;

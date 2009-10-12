@@ -26,6 +26,8 @@ import org.geotools.text.Text;
  *  Widget for double values
  * 
  * @author gdavis
+ *
+ * @source $URL$
  */
 public class JDoubleField extends AbstractParamWidget {
 

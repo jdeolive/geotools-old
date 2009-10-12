@@ -20,6 +20,8 @@ package org.geotools.gui.swing.contexttree;
  * Simplified context tree model
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class LightContextTreeModel {
 

@@ -38,6 +38,8 @@ import com.vividsolutions.jts.io.WKBWriter;
  * 
  * @author Justin Deoliveira, OpenGEO
  *
+ *
+ * @source $URL$
  */
 public class MySQLDialectPrepared extends PreparedStatementSQLDialect {
 

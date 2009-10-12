@@ -57,6 +57,8 @@ import org.opengis.feature.simple.SimpleFeatureType;
 /**
  *
  * @author johann sorel
+ *
+ * @source $URL$
  */
 public class Demo_ContextTree extends JPanel {
 

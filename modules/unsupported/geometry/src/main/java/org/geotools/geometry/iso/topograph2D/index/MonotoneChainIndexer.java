@@ -37,6 +37,8 @@ import org.geotools.geometry.iso.topograph2D.Quadrant;
  * types of real-world data, these properties eliminate a large number of
  * segment comparisons, producing substantial speed gains.
  * 
+ *
+ * @source $URL$
  */
 public class MonotoneChainIndexer {
 

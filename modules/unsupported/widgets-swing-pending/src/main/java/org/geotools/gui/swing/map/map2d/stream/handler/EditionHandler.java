@@ -24,6 +24,8 @@ import org.geotools.gui.swing.map.map2d.stream.EditableMap2D;
  * Edition handler
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public interface EditionHandler {
 

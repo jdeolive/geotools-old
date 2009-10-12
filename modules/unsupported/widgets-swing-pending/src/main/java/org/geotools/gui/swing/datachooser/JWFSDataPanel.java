@@ -42,6 +42,8 @@ import org.opengis.feature.simple.SimpleFeatureType;
  * WFS DataChoosert panel
  *
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class JWFSDataPanel extends javax.swing.JPanel implements DataPanel {
 

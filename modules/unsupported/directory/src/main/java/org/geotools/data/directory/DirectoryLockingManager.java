@@ -29,6 +29,8 @@ import org.geotools.data.Transaction;
  * delegate data stores 
  * @author Andrea Aime - OpenGeo
  *
+ *
+ * @source $URL$
  */
 public class DirectoryLockingManager implements LockingManager {
     

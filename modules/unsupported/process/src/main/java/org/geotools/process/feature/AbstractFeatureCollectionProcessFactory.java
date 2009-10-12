@@ -40,6 +40,8 @@ import org.geotools.text.Text;
  * 
  * @author Justin Deoliveira, OpenGEO
  * @since 2.6
+ *
+ * @source $URL$
  */
 public abstract class AbstractFeatureCollectionProcessFactory extends SingleProcessFactory {
     /** Features for operation */

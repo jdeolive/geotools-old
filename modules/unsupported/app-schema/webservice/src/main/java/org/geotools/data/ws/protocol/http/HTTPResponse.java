@@ -25,7 +25,7 @@ import java.io.InputStream;
  * @author Gabriel Roldan (OpenGeo)
  * @version $Id$
  * @since 2.6
- * @source $URL: http://svn.geotools.org/trunk/modules/plugin/wfs/src/main/java/org/geotools/data/wfs/protocol/http/HTTPResponse.java $
+ * @source $URL$
  */
 public interface HTTPResponse {
 

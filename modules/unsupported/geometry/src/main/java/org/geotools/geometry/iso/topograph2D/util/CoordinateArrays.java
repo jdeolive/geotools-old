@@ -32,6 +32,8 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 /**
  * Useful utility functions for handling Coordinate arrays
+ *
+ * @source $URL$
  */
 public class CoordinateArrays {
 

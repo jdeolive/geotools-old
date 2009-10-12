@@ -26,6 +26,8 @@ import org.geotools.gui.swing.propertyedit.PropertyPane;
  * Geometry panel
  * 
  * @author  Johann Sorel
+ *
+ * @source $URL$
  */
 public class GeometryPanel extends javax.swing.JPanel implements PropertyPane {
     

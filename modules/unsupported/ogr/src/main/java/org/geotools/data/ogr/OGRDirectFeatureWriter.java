@@ -36,6 +36,8 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * access and in place deletes
  * 
  * @author aaime
+ *
+ * @source $URL$
  */
 public class OGRDirectFeatureWriter implements FeatureWriter {
 

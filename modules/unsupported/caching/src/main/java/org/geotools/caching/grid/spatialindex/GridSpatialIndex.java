@@ -53,6 +53,8 @@ import org.opengis.feature.type.FeatureType;
  *
  * @author Christophe Rousson, SoC 2007, CRG-ULAVAL
  *
+ *
+ * @source $URL$
  */
 public class GridSpatialIndex extends AbstractSpatialIndex implements EvictableTree  {
     public static final String GRID_SIZE_PROPERTY = "Grid.GridSize";

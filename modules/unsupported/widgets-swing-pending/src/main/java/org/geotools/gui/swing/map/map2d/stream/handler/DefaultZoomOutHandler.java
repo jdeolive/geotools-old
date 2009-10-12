@@ -40,6 +40,8 @@ import org.geotools.gui.swing.map.map2d.stream.NavigableMap2D;
  * Zoom out handler
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class DefaultZoomOutHandler implements NavigationHandler {
 

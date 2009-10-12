@@ -29,6 +29,8 @@ import org.geotools.styling.Symbolizer;
  * 
  * @param T 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class DemoTableModel<T extends Symbolizer> extends AbstractTableModel implements TableModel {
     

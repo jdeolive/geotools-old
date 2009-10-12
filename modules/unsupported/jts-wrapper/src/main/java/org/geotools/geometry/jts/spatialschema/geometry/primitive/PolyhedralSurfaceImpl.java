@@ -37,6 +37,8 @@ import org.opengis.geometry.primitive.SurfaceBoundary;
  * 
  * @author SYS Technologies
  * @author dillard
+ *
+ * @source $URL$
  * @version $Revision $
  */
 public class PolyhedralSurfaceImpl extends GeometryImpl implements PolyhedralSurface {

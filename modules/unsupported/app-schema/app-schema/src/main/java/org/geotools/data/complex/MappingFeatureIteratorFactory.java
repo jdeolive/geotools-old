@@ -23,6 +23,8 @@ import org.geotools.data.Query;
 
 /**
  * @author Russell Petty, GSV
+ *
+ * @source $URL$
  */
 public class MappingFeatureIteratorFactory {
 

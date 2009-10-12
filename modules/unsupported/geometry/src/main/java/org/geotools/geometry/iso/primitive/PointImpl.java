@@ -44,6 +44,8 @@ import org.opengis.referencing.operation.TransformException;
  * only one point.
  * 
  * @author Jackson Roehrig & Sanjay Jena
+ *
+ * @source $URL$
  */
 
 public class PointImpl extends PrimitiveImpl implements Point {

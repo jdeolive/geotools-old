@@ -27,6 +27,8 @@ import org.geotools.gui.swing.map.map2d.Map2D;
  * Color Decoration
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class ColorDecoration extends JPanel implements MapDecoration{
 

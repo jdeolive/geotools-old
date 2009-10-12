@@ -28,6 +28,8 @@ import org.geotools.styling.Symbolizer;
  * opacity column for jcontexttree, with slider
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public final class OpacityTreeTableColumn extends TreeTableColumn {
 

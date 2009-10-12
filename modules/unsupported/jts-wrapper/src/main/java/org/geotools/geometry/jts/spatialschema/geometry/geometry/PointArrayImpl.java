@@ -42,6 +42,8 @@ import org.geotools.geometry.jts.JTSUtils;
  * @UML datatype GM_PointArray
  * @author ISO/DIS 19107
  * @author <A HREF="http://www.opengis.org">OpenGIS&reg; consortium</A>
+ *
+ * @source $URL$
  * @version 2.0
  */
 public class PointArrayImpl extends NotifyingArrayList<Position> implements PointArray, JTSGeometry {

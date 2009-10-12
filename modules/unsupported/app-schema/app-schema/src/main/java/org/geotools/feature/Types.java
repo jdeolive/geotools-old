@@ -52,6 +52,8 @@ import org.opengis.filter.identity.Identifier;
  * 
  * @author Jody Garnett, Refractions Research
  * @author Justin Deoliveira, The Open Planning Project
+ *
+ * @source $URL$
  */
 public class Types {
 

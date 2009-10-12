@@ -26,6 +26,8 @@ import org.geotools.gui.swing.map.map2d.stream.StreamingMap2D;
  * Refrash Action
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class StreamRefresh extends AbstractAction {
 

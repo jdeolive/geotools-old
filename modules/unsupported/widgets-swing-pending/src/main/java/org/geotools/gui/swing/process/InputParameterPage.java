@@ -35,6 +35,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * This page is responsible making a user interface based on the provided ProcessFactory.
  * 
  * @author Jody
+ *
+ * @source $URL$
  */
 public class InputParameterPage extends JPage {
     ProcessFactory factory;

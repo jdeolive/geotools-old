@@ -32,6 +32,8 @@ import org.geotools.map.MapLayer;
  * Default popup control for visibility of MapLayer, use for JContextTreePopup
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class LayerVisibleItem extends JCheckBoxMenuItem implements TreePopupItem{
     

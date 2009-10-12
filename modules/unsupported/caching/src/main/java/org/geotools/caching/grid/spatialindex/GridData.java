@@ -33,6 +33,8 @@ import org.opengis.feature.IllegalAttributeException;
  *
  * @author Christophe Rousson, SoC 2007, CRG-ULAVAL
  *
+ *
+ * @source $URL$
  */
 public class GridData implements Data<Object>, Externalizable {
     private static final long serialVersionUID = 2435341100521921266L;

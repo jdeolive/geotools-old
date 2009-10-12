@@ -25,6 +25,8 @@ import org.geotools.jdbc.JDBCTransactionTest;
  *
  * @author Justin Deoliveira, The Open Planning Project
  *
+ *
+ * @source $URL$
  */
 public class MySQLTransactionTest extends JDBCTransactionTest {
     protected JDBCTestSetup createTestSetup() {

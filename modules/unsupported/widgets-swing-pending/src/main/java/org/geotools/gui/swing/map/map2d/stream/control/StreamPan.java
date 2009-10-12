@@ -29,6 +29,8 @@ import org.geotools.gui.swing.map.map2d.stream.handler.DefaultPanHandler;
  * Stream Pane
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class StreamPan extends AbstractAction {
 

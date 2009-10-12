@@ -39,6 +39,8 @@ import org.geotools.styling.Symbolizer;
  * Raster Sybolizer edition panel
  *
  * @author  Johann Sorel
+ *
+ * @source $URL$
  */
 public class JRasterSymbolizerPane extends javax.swing.JPanel implements SymbolizerPane<RasterSymbolizer> {
 

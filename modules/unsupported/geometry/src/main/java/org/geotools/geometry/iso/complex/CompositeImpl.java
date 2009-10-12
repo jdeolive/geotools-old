@@ -33,6 +33,8 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * @author Jackson Roehrig & Sanjay Jena
  * 
  * @param <T>
+ *
+ * @source $URL$
  */
 public abstract class CompositeImpl<T> extends ComplexImpl implements Composite {
 

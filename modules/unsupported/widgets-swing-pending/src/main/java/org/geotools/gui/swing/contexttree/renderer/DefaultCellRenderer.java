@@ -32,6 +32,8 @@ import org.jdesktop.swingx.renderer.TableCellContext;
  * DefaultCellRenderer for JContextTree columns
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class DefaultCellRenderer implements javax.swing.table.TableCellRenderer, org.jdesktop.swingx.RolloverRenderer, java.io.Serializable {
     

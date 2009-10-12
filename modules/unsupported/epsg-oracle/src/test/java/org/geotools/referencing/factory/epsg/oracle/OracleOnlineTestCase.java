@@ -54,6 +54,8 @@ import org.geotools.test.OnlineTestCase;
  * path so we have a real driver to work with.
  * <p>
  * @author Jody Garnett (Refractions Research)
+ *
+ * @source $URL$
  */
 public class OracleOnlineTestCase extends OnlineTestCase {
     protected DataSource datasource;

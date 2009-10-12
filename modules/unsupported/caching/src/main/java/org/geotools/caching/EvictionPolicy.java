@@ -22,6 +22,8 @@ import org.geotools.caching.spatialindex.NodeIdentifier;
  * Eviction policy interface.  Used to determine which items are removed
  * from the cache when the maximum cache size is reached.
  * 
+ *
+ * @source $URL$
  */
 public interface EvictionPolicy {
    

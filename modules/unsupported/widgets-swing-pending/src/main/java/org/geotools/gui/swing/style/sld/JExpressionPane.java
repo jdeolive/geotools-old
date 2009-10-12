@@ -33,6 +33,8 @@ import org.opengis.filter.expression.Expression;
  * Expression panel
  *
  * @author  Johann Sorel
+ *
+ * @source $URL$
  */
 public class JExpressionPane extends javax.swing.JPanel{
 

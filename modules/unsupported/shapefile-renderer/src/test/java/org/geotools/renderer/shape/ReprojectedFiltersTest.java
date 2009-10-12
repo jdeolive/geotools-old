@@ -29,6 +29,8 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 /**
  * @author svn history suggests Andrea Aime was here
  * @author Ben Caradoc-Davies, CSIRO Exploration and Mining
+ *
+ * @source $URL$
  */
 public class ReprojectedFiltersTest extends TestCase {
 

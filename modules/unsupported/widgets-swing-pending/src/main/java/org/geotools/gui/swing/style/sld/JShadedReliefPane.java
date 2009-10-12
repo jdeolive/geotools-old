@@ -26,6 +26,8 @@ import org.geotools.styling.ShadedReliefImpl;
  * ShadedRelief panel
  * 
  * @author  Johann Sorel
+ *
+ * @source $URL$
  */
 public class JShadedReliefPane extends javax.swing.JPanel implements StyleElementEditor<ShadedRelief>{
 

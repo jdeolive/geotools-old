@@ -52,6 +52,8 @@ import org.opengis.feature.type.Name;
  * This is to ensure we have a working GeologicUnit configuration test.
  * 
  * @author Rini Angreani, Curtin University of Technology
+ *
+ * @source $URL$
  */
 public class GeologicUnitTest {
 

@@ -32,6 +32,8 @@ import java.awt.geom.AffineTransform;
  * technic and different solutions to answer a need (low memory, high drawing speed, smooth edition ...)
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public interface StreamingStrategy {
     

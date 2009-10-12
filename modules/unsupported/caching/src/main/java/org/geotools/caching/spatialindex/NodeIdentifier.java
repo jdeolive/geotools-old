@@ -36,6 +36,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  *
  * @author crousson
  *
+ *
+ * @source $URL$
  */
 public abstract class NodeIdentifier implements Serializable {
 	private static final long serialVersionUID = 1L;

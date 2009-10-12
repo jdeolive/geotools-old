@@ -57,8 +57,8 @@ import static org.junit.Assert.*;
  * MS-Access database. Otherwise, the default will probably be the one backed by the HSQL
  * database, since this test live in the {@code epsg-hsql} module.
  *
- * @source $URL: http://svn.osgeo.org/geotools/trunk/modules/plugin/epsg-hsql/src/test/java/org/geotools/referencing/factory/epsg/DefaultFactoryTest.java $
- * @version $Id: DefaultFactoryTest.java 32864 2009-04-25 20:37:10Z aaime $
+ * @source $URL$
+ * @version $Id$
  * @author Martin Desruisseaux
  * @author Vadim Semenov
  *

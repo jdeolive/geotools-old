@@ -41,6 +41,8 @@ package org.geotools.geometry.iso.topograph2D;
  * It is up to the client code to associate the 0 and 1
  * <code>TopologyLocation</code>s with specific geometries.
  * 
+ *
+ * @source $URL$
  * @version 1.7.2
  * 
  */

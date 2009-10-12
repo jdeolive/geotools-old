@@ -9,6 +9,8 @@ import org.geotools.jdbc.SQLDialect;
  * 
  * @author Justin Deoliveira, OpenGeo
  *
+ *
+ * @source $URL$
  */
 public class SpatiaLiteDataStoreFactory extends JDBCDataStoreFactory {
 

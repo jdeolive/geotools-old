@@ -30,6 +30,8 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * @see ChoiceAttributeType
  * @author Jesse
  * @since 1.1.0
+ *
+ * @source $URL$
  */
 public class WFSFeatureTypeTransformer {
 

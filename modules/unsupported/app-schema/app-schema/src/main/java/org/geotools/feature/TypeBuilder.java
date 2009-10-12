@@ -327,6 +327,8 @@ import org.opengis.util.InternationalString;
  * 
  * @author Justin
  * @author Jody
+ *
+ * @source $URL$
  */
 public class TypeBuilder {
 

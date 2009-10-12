@@ -33,6 +33,8 @@ import org.opengis.referencing.operation.MathTransform;
  * facilities factory
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class FacilitiesFactory {
 

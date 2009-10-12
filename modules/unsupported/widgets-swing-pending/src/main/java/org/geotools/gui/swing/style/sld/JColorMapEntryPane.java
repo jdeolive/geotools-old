@@ -26,6 +26,8 @@ import org.geotools.styling.ColorMapEntryImpl;
  * Color map entry edition panel
  * 
  * @author  Johann Sorel
+ *
+ * @source $URL$
  */
 public class JColorMapEntryPane extends javax.swing.JPanel implements StyleElementEditor<ColorMapEntry>{
 

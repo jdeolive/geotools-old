@@ -87,6 +87,8 @@ import org.xml.sax.helpers.NamespaceSupport;
  * FeatureType ft = (FeatureType)registry.getAttributeType(typeName);
  * </p>
  * @author Gabriel Roldan
+ *
+ * @source $URL$
  * @version $Id$
  * 
  */

@@ -34,6 +34,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * XXX Untested Buffer a Feature and return the result
  *
  * @author Lucas Reed, Refractions Research Inc
+ *
+ * @source $URL$
  */
 public class FeatureBufferProcess extends AbstractProcess
 {

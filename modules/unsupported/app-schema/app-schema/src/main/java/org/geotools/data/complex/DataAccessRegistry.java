@@ -34,6 +34,8 @@ import org.opengis.feature.type.Name;
  * different data accesses to be accessed globally.
  * 
  * @author Rini Angreani, Curtin University of Technology
+ *
+ * @source $URL$
  */
 public class DataAccessRegistry extends ArrayList<DataAccess<FeatureType, Feature>> {
     /**

@@ -25,6 +25,8 @@ import org.opengis.geometry.primitive.PrimitiveBoundary;
  * @UML type GM_PrimitiveBoundary
  * @author ISO/DIS 19107
  * @author <A HREF="http://www.opengis.org">OpenGIS&reg; consortium</A>
+ *
+ * @source $URL$
  * @version 2.0
  */
 public class PrimitiveBoundaryImpl extends BoundaryImpl implements PrimitiveBoundary {

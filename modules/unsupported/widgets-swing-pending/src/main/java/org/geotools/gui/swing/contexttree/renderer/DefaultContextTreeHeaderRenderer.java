@@ -28,6 +28,8 @@ import org.jdesktop.swingx.table.ColumnHeaderRenderer;
  * headerRenderer for treetable
  *
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class DefaultContextTreeHeaderRenderer extends ColumnHeaderRenderer{
 

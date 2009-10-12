@@ -26,6 +26,8 @@ import org.geotools.text.Text;
  * useful when implementing your own ParamWidget.
 
  * @author gdavis
+ *
+ * @source $URL$
  */
 public abstract class AbstractParamWidget implements ParamWidget {
 	protected final Parameter< ? > parameter;

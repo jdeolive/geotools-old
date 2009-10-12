@@ -30,6 +30,8 @@ import org.geotools.gui.swing.map.map2d.decoration.MapDecoration;
  * Selection decoration
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class LasoSelectionDecoration extends JComponent implements MapDecoration{
 

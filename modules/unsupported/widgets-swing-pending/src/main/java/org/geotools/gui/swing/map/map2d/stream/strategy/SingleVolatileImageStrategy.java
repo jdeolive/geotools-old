@@ -43,6 +43,8 @@ import com.vividsolutions.jts.geom.Envelope;
  * Must repaint everything each time.
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class SingleVolatileImageStrategy extends AbstractRenderingStrategy {
 

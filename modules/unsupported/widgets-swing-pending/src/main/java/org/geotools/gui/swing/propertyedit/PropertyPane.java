@@ -24,6 +24,8 @@ import javax.swing.ImageIcon;
  * property panel interface
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public interface PropertyPane {
     

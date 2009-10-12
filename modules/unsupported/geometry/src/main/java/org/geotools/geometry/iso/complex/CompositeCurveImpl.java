@@ -50,6 +50,8 @@ import org.opengis.geometry.primitive.Primitive;
  * (except the first) begins where the previous one ends.
  * 
  * @author Jackson Roehrig & Sanjay Jena
+ *
+ * @source $URL$
  */
 public class CompositeCurveImpl extends CompositeImpl<OrientableCurveImpl>
 		implements CompositeCurve {

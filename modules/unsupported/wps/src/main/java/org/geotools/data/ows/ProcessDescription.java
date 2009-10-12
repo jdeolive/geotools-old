@@ -24,6 +24,8 @@ import org.opengis.util.InternationalString;
  * Used to hold data regarding Processes. Used by the DescribeProcessResponse
  * 
  * @author gdavis
+ *
+ * @source $URL$
  */
 public class ProcessDescription {
     private String name;

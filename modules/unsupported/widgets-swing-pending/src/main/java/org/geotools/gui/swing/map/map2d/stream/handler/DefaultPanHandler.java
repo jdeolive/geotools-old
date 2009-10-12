@@ -40,6 +40,8 @@ import org.geotools.gui.swing.map.map2d.stream.NavigableMap2D;
  * Panoramic handler
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class DefaultPanHandler implements NavigationHandler {
 

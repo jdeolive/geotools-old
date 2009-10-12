@@ -27,6 +27,8 @@ import org.opengis.filter.expression.Expression;
  * Line cap panel
  * 
  * @author  Johann Sorel
+ *
+ * @source $URL$
  */
 public class JLinecapPane extends javax.swing.JPanel {
 

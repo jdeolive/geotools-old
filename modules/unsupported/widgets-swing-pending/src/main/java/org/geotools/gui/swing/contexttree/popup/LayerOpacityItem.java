@@ -28,6 +28,8 @@ import org.geotools.map.MapLayer;
  * layer opacity item
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class LayerOpacityItem implements TreePopupItem{
 

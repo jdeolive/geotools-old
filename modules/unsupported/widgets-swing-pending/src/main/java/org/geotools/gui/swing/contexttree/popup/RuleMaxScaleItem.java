@@ -28,6 +28,8 @@ import org.geotools.styling.Rule;
  * max scale rule item
  * 
  * @author  Johann Sorel
+ *
+ * @source $URL$
  */
 public class RuleMaxScaleItem extends javax.swing.JPanel implements TreePopupItem{
     

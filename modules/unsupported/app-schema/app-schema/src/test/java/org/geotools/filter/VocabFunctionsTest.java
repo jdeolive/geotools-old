@@ -52,6 +52,8 @@ import org.xml.sax.helpers.NamespaceSupport;
  * @author Jody Garnett, Geoserver
  * @author Rini Angreani, Curtin University of Technology
  * 
+ *
+ * @source $URL$
  */
 public class VocabFunctionsTest extends TestCase {
     private DataAccess<FeatureType, Feature> dataAccess;

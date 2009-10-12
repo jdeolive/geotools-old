@@ -26,6 +26,8 @@ import org.geotools.styling.ColorMapImpl;
  * ColorMap panel
  * 
  * @author  Johann Sorel
+ *
+ * @source $URL$
  */
 public class JColorMapPane extends javax.swing.JPanel implements StyleElementEditor<ColorMap>{
 

@@ -28,6 +28,8 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * Visits a filter and extracts the minimum bounds that the filter requires.
  * 
  * @author jones
+ *
+ * @source $URL$
  */
 public class BoundsExtractor extends AbstractFilterVisitor{
     private Stack/*<Envelope>*/ envelopeStack=new Stack/*<Envelope>*/();

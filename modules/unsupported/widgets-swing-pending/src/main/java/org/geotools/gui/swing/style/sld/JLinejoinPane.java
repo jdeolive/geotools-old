@@ -26,6 +26,8 @@ import org.opengis.filter.expression.Expression;
  * Line join panel
  * 
  * @author  Johann Sorel
+ *
+ * @source $URL$
  */
 public class JLinejoinPane extends javax.swing.JPanel {
     

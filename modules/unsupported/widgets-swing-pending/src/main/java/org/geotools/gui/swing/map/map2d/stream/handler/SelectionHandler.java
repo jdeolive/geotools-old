@@ -24,6 +24,8 @@ import org.geotools.gui.swing.map.map2d.stream.SelectableMap2D;
  * selection handler
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public interface SelectionHandler {
 

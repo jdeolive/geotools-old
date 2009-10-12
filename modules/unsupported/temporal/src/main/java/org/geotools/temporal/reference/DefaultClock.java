@@ -28,6 +28,8 @@ import org.opengis.referencing.ReferenceIdentifier;
 /**
  *
  * @author Mehdi Sidhoum (Geomatys)
+ *
+ * @source $URL$
  */
 public class DefaultClock extends DefaultTemporalReferenceSystem implements Clock {
 

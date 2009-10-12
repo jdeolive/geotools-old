@@ -60,6 +60,8 @@ import org.geotools.utils.progress.ProcessingEventListener;
  * @author Simone Giannecchini, GeoSolutions.
  * @since 2.3.x
  * 
+ *
+ * @source $URL$
  */
 public class PyramidBuilder extends BaseArgumentsManager implements Runnable,
 		ProcessingEventListener {

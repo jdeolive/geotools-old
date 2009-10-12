@@ -25,6 +25,8 @@ import org.geotools.map.MapLayer;
  * Data chooser panel
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public interface DataPanel {
         

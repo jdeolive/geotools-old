@@ -44,6 +44,8 @@ import com.vividsolutions.jts.io.WKTReader;
  * 
  * @author Justin Deoliveira, OpenGEO
  *
+ *
+ * @source $URL$
  */
 public class SQLServerDialect extends BasicSQLDialect {
 

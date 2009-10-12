@@ -26,6 +26,8 @@ import org.geotools.map.MapContext;
  * Context general panel
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class ContextGeneralPanel extends javax.swing.JPanel implements PropertyPane{
     

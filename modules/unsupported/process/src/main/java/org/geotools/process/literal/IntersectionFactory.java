@@ -40,6 +40,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * </li>
  * 
  * @author gdavis
+ *
+ * @source $URL$
  */
 public class IntersectionFactory extends SingleProcessFactory {
     // making parameters available as static constants to help java programmers

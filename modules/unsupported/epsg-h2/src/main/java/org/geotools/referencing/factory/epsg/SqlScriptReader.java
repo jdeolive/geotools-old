@@ -24,6 +24,8 @@ import java.io.Reader;
  * Utility class extracting SQL statement out of a script file with multiline
  * statements (works with EPSG distributed scripts)
  *
+ *
+ * @source $URL$
  */
 public class SqlScriptReader {
     boolean fetched = true;

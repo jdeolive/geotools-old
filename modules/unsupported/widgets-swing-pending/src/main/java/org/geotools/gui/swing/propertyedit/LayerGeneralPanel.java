@@ -32,6 +32,8 @@ import org.geotools.map.MapLayer;
  * layer general information panel
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class LayerGeneralPanel extends javax.swing.JPanel implements PropertyPane {
 

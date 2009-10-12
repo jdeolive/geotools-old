@@ -77,6 +77,8 @@ import org.geotools.resources.image.ImageUtilities;
  *  &#064;since 2.3.x
  *  &#064;version 0.3
  * 
+ *
+ * @source $URL$
  */
 public class OverviewsEmbedder extends BaseArgumentsManager implements
 		Runnable, ProcessingEventListener {

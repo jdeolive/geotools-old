@@ -31,6 +31,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * geometry cell editor
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class GeometryCellEditor extends AbstractCellEditor implements TableCellEditor{
     

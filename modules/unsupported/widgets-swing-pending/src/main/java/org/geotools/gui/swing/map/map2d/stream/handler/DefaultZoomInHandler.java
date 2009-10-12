@@ -41,6 +41,8 @@ import org.geotools.gui.swing.map.map2d.stream.strategy.StreamingStrategy;
  * Zoom in handler
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class DefaultZoomInHandler implements NavigationHandler {
 

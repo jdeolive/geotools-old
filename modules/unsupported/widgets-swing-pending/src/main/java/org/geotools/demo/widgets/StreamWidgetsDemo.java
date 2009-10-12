@@ -87,6 +87,8 @@ import org.opengis.feature.simple.SimpleFeatureType;
 /**
  *
  * @author sorel
+ *
+ * @source $URL$
  */
 public class StreamWidgetsDemo extends JFrame{
 

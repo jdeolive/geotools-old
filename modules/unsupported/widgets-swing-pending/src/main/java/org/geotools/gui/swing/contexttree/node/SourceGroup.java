@@ -32,6 +32,8 @@ import org.geotools.map.MapLayer;
  * subnode showing layer souurce
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class SourceGroup implements SubNodeGroup {
 

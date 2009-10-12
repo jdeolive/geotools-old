@@ -27,6 +27,8 @@ import org.geotools.gui.swing.map.map2d.stream.NavigableMap2D;
  * Previous Area action
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class StreamPreviousArea extends AbstractAction {
 

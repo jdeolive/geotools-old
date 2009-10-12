@@ -63,6 +63,8 @@ import org.opengis.referencing.operation.TransformException;
  * condition is required for Surface.
  * 
  * @author Jackson Roehrig & Sanjay Jena
+ *
+ * @source $URL$
  */
 public class SurfaceImpl extends OrientableSurfaceImpl implements Surface {
     private static final long serialVersionUID = 2431540523002962079L;

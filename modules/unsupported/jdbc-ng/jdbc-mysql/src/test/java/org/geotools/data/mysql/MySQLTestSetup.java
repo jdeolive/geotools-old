@@ -33,6 +33,8 @@ import org.geotools.jdbc.SQLDialect;
  *
  * @author Justin Deoliveira, The Open Planning Project
  *
+ *
+ * @source $URL$
  */
 public class MySQLTestSetup extends JDBCTestSetup {
   

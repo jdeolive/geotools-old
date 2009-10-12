@@ -23,6 +23,8 @@ import org.geotools.gui.swing.process.JWizard;
  * parameters can be handled.
  * <p>
  * @author Jody
+ *
+ * @source $URL$
  */
 public class JProcessWizardExample {
     public static void main( String args[] ){

@@ -28,6 +28,8 @@ import org.geotools.gui.swing.icon.IconBundle;
  * Simple dialog
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class JSimpleDialog extends javax.swing.JDialog {
 

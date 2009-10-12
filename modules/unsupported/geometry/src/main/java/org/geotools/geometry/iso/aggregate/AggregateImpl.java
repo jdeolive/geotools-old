@@ -29,6 +29,8 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * @author roehrig
  * @param <T>
  * 
+ *
+ * @source $URL$
  */
 public abstract class AggregateImpl extends GeometryImpl implements Aggregate {
 	

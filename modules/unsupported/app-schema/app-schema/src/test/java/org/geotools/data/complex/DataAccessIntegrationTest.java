@@ -88,6 +88,8 @@ import org.xml.sax.helpers.NamespaceSupport;
  * app-schema data access can chain features from a non-app-schema data access.
  * 
  * @author Rini Angreani, Curtin University of Technology
+ *
+ * @source $URL$
  */
 public class DataAccessIntegrationTest {
 

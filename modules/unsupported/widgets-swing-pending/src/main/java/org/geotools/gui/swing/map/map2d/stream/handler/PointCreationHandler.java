@@ -47,6 +47,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * point creation handler
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class PointCreationHandler extends AbstractEditionHandler {
 

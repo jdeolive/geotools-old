@@ -38,6 +38,8 @@ import org.geotools.gui.swing.map.map2d.stream.StreamingMap2D;
  * Coordinate panel
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class JStreamCoordPane extends javax.swing.JPanel {
     

@@ -30,7 +30,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * </p>
  *
  * @author rpetty
- * @source $URL: http://svn.geotools.org/trunk/modules/unsupported/app-schema/webservice/src/main/java/org/geotools/data/ows/FeatureSetDescription.java $
+ * @source $URL$
  */
 public class FeatureSetDescription {
 	/**

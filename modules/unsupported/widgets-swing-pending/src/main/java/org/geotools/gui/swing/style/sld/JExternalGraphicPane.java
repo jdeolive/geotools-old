@@ -28,6 +28,8 @@ import org.geotools.styling.StyleBuilder;
  * External graphic panel
  *
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class JExternalGraphicPane extends javax.swing.JPanel implements StyleElementEditor<ExternalGraphic> {
 

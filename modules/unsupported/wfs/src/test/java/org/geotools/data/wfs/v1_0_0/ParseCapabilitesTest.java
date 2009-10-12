@@ -36,6 +36,8 @@ import org.geotools.xml.DocumentFactory;
  * the Function expressions are constructed correctly.
  * 
  * @author Jesse
+ *
+ * @source $URL$
  */
 public class ParseCapabilitesTest extends TestCase {
 

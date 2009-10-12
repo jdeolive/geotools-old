@@ -29,7 +29,7 @@ import org.geotools.filter.FilterCapabilities;
  * </p>
  *
  * @author rpetty
- * @source $URL: http://svn.geotools.org/trunk/modules/unsupported/app-schema/webservice/src/main/java/org/geotools/data/ows/WSCapabilities.java $
+ * @source $URL$
  */
 public class WSCapabilities extends Capabilities {
     private List<FeatureSetDescription> featureTypes; // FeatureSetDescriptions

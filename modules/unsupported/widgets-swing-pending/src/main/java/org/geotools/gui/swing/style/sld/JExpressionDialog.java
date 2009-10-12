@@ -33,6 +33,8 @@ import org.opengis.filter.expression.Expression;
  * Expression dialog
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class JExpressionDialog extends javax.swing.JDialog {
 

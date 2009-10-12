@@ -26,6 +26,8 @@ import org.geotools.styling.StyleBuilder;
  * Line placement panel
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class JLinePlacementPane extends javax.swing.JPanel implements StyleElementEditor<LinePlacement>{
     

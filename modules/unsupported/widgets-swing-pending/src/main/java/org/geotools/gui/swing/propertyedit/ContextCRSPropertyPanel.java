@@ -39,6 +39,8 @@ import org.opengis.referencing.operation.TransformException;
  * ContextCRS property panel
  * 
  * @author  Johann Sorel
+ *
+ * @source $URL$
  */
 public class ContextCRSPropertyPanel extends javax.swing.JPanel implements PropertyPane {
 

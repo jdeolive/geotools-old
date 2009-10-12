@@ -56,6 +56,8 @@ import com.vividsolutions.jts.geom.Envelope;
  * a result during this time no other features can read or write
  * to the cache.</p>
  * 
+ *
+ * @source $URL$
  */
 public class GridFeatureCache extends AbstractFeatureCache {
 	protected int max_tiles = 10;			//number of tiles to insert data into before written to "root" node

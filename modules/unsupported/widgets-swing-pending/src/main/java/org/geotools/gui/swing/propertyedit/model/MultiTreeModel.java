@@ -24,6 +24,8 @@ import javax.swing.tree.TreeModel;
  * multitree model
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class MultiTreeModel extends DefaultTreeModel implements TreeModel{
         

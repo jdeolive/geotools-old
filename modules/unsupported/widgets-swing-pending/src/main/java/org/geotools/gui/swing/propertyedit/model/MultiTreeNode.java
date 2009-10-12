@@ -25,6 +25,8 @@ import org.geotools.gui.swing.propertyedit.PropertyPane;
  * multi tree node
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class MultiTreeNode extends DefaultMutableTreeNode{
     

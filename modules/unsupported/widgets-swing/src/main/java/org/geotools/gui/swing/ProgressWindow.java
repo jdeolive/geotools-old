@@ -46,7 +46,6 @@ import javax.swing.JTextArea;
 
 // Geotools dependencies
 import org.geotools.resources.SwingUtilities;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.i18n.Vocabulary;
 import org.geotools.resources.i18n.VocabularyKeys;
 import org.geotools.util.ProgressListener;
@@ -340,16 +339,20 @@ public class ProgressWindow implements ProgressListener {
             margin = trim(margin);
             if (margin.length() != 0) {
                 wm -= (margin.length()+3);
-                buffer.append(Utilities.spaces(wm));
+                for (int i = 0; i < wm; i++) {
+                    buffer.append(' ');
+                }
                 buffer.append('(');
                 buffer.append(margin);
                 buffer.append(')');
                 wm = 1;
             }
         }
-        buffer.append(Utilities.spaces(wm));
+        for (int i = 0; i < wm; i++) {
+            buffer.append(' ');
+        }
         buffer.append(warning);
-        if (buffer.charAt(buffer.length()-1) != '\n') {
+        if (buffer.charAt(buffer.length() - 1) != '\n') {
             buffer.append('\n');
         }
         set(Caller.WARNING, buffer.toString());

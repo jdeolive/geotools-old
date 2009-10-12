@@ -26,6 +26,8 @@ import org.geotools.styling.StyleBuilder;
  * Halo panel
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class JHaloPane extends javax.swing.JPanel implements StyleElementEditor<Halo> {
 

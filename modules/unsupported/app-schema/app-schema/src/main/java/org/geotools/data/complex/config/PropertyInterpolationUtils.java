@@ -44,6 +44,8 @@ import java.util.regex.Pattern;
  * loops are supported. This is not a feature.
  * 
  * @author Ben Caradoc-Davies, CSIRO Exploration and Mining
+ *
+ * @source $URL$
  */
 public class PropertyInterpolationUtils {
 

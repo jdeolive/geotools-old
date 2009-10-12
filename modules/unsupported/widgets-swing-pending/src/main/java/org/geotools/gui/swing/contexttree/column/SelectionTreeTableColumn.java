@@ -28,6 +28,8 @@ import org.geotools.map.MapLayer;
  * Default selection column.
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public final class SelectionTreeTableColumn extends TreeTableColumn {
     

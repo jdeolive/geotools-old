@@ -39,6 +39,8 @@ import org.opengis.coverage.grid.GridCoverageReader;
  * Static class to build GridCoverage
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class GridCoverageFinder {
 

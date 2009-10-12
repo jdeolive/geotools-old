@@ -26,6 +26,8 @@ import org.geotools.styling.ContrastEnhancementImpl;
  * ContrastEnchancement panel
  * 
  * @author  Johann Sorel
+ *
+ * @source $URL$
  */
 public class JContrastEnhancement extends javax.swing.JPanel implements StyleElementEditor<ContrastEnhancement>{
 

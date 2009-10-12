@@ -22,6 +22,8 @@ import java.util.EventListener;
  * Listener for ContextTreeModel
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public interface TreeContextListener extends EventListener{
         

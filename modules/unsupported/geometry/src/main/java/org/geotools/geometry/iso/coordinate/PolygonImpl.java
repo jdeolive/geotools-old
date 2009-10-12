@@ -32,6 +32,8 @@ import org.opengis.geometry.coordinate.PolyhedralSurface;
  * curves and an underlying surface to which these curves adhere. The default is
  * that the curves are coplanar and the polygon uses planar interpolation in its
  * interior.
+ *
+ * @source $URL$
  */
 public class PolygonImpl extends SurfacePatchImpl implements Polygon {
 

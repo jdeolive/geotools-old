@@ -38,6 +38,8 @@ import org.geotools.gui.swing.map.map2d.stream.strategy.StreamingStrategy;
  * Default selection handler
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class DefaultSelectionHandler implements SelectionHandler {
 

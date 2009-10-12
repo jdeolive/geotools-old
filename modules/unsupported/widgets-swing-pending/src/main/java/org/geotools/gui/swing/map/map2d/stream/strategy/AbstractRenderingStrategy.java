@@ -39,6 +39,8 @@ import org.geotools.referencing.crs.DefaultGeographicCRS;
  * Abstract rendering strategy
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public abstract class AbstractRenderingStrategy implements StreamingStrategy, MapLayerListListener {
 

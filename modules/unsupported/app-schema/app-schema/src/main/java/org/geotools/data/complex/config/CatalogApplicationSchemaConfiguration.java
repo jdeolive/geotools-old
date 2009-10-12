@@ -34,6 +34,8 @@ import org.geotools.xs.XSConfiguration;
  * </p>
  * 
  * @see ApplicationSchemaConfiguration
+ *
+ * @source $URL$
  */
 public class CatalogApplicationSchemaConfiguration extends Configuration {
 

@@ -20,6 +20,8 @@ package org.geotools.gui.swing.map.map2d.decoration;
  * Information decoration
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public interface InformationDecoration extends MapDecoration{
 

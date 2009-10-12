@@ -50,6 +50,8 @@ import org.opengis.geometry.Geometry;
  * repeated points.
  * <li>Empty <code>Geometry</code>s are always simple
  * <ul>
+ *
+ * @source $URL$
  */
 public class IsSimpleOp {
 

@@ -24,6 +24,8 @@ import javax.swing.JPanel;
  * This is a descriptor; identifying a page by id (and lazily creating it as needed).
  * 
  * @author Jody, gdavis
+ *
+ * @source $URL$
  */
 public abstract class JPage {
     /**

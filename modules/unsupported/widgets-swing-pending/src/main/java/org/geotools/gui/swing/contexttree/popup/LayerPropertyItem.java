@@ -38,6 +38,8 @@ import org.geotools.map.MapLayer;
  * Default popup control for property page of MapLayer, use for JContextTreePopup
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class LayerPropertyItem extends JMenuItem implements TreePopupItem {
 

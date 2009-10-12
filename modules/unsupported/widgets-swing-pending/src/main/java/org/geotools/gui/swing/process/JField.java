@@ -38,6 +38,8 @@ import com.vividsolutions.jts.io.WKTWriter;
 
 /**
  * Field that uses the converter API to hack away at a text representation of the provided value.
+ *
+ * @source $URL$
  */
 public class JField extends AbstractParamWidget {
     private JTextArea text;

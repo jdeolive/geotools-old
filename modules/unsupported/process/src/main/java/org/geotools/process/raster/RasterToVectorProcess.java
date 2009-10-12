@@ -88,6 +88,8 @@ import org.opengis.util.ProgressListener;
  * 
  * @author Michael Bedward, Jody Garnett
  * @since 2.6
+ *
+ * @source $URL$
  */
 public class RasterToVectorProcess extends AbstractProcess {
 

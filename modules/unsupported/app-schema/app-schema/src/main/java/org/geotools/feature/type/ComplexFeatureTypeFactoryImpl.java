@@ -15,6 +15,8 @@ import org.opengis.util.InternationalString;
  * be used to link the feature type to its parent, i.e. allow the type to be nested.
  * 
  * @author Rini Angreani, Curtin University of Technology 
+ *
+ * @source $URL$
  */
 public class ComplexFeatureTypeFactoryImpl extends FeatureTypeFactoryImpl {
 

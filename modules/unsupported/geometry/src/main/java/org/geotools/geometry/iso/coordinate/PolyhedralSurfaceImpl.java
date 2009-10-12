@@ -31,6 +31,8 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * Surface only in the restriction on the types of surface patches acceptable.
  * 
  * @author Jackson Roehrig & Sanjay Jena
+ *
+ * @source $URL$
  */
 public class PolyhedralSurfaceImpl extends SurfaceImpl implements
 		PolyhedralSurface {

@@ -36,6 +36,8 @@ import org.geotools.map.MapLayer;
  * layer list renderer
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class LayerListRenderer implements ListCellRenderer{
 

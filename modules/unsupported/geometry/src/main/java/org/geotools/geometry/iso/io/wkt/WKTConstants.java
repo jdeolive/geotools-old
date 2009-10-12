@@ -21,6 +21,8 @@ package org.geotools.geometry.iso.io.wkt;
  * 
  * @author sanjay
  * 
+ *
+ * @source $URL$
  */
 public class WKTConstants {
 

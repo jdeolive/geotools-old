@@ -19,6 +19,8 @@ import java.util.*;
 /**
  * Represents a TrackSegment. A TrackSegment is part of a Track. It contains 
  * two (2) or more "track points", which are represented by SimpleWaypoints.
+ *
+ * @source $URL$
  */
 public interface TrackSegment 
 {

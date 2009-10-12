@@ -52,6 +52,8 @@ import org.xml.sax.helpers.NamespaceSupport;
  * from the features.
  * 
  * @author Rini Angreani, Curtin University of Technology
+ *
+ * @source $URL$
  */
 public class FeaturePropertyAccessorTest extends TestCase {
     /**

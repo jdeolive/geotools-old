@@ -43,6 +43,8 @@ import org.opengis.feature.type.Name;
  * process page.
  * 
  * @author gdavis
+ *
+ * @source $URL$
  */
 public class ProcessSelectionPage extends JPage {
     Map<String, Object> input;

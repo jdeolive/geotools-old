@@ -19,6 +19,8 @@ import org.junit.Test;
  * For a test of proper listing and updates see the DataStoreCache test
  * @author Andrea Aime - OpenGeo
  *
+ *
+ * @source $URL$
  */
 public class DirectoryDataStoreTest extends TestSupport {
     

@@ -29,6 +29,8 @@ import org.geotools.gui.swing.map.map2d.stream.handler.DefaultZoomOutHandler;
  * Zomm out action
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class StreamZoomOut extends AbstractAction {
 

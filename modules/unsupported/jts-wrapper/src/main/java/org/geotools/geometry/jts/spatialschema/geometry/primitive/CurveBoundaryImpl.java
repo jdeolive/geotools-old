@@ -23,6 +23,8 @@ import org.opengis.geometry.primitive.Point;
  * realized about halfway through that I won't necessarily need it.  So the
  * last few methods are still unimplemented (and just delegate to the
  * superclass, which currently does nothing).
+ *
+ * @source $URL$
  */
 public class CurveBoundaryImpl extends PrimitiveBoundaryImpl implements CurveBoundary {
     

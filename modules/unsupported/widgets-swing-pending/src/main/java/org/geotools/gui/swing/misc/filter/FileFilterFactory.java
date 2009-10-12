@@ -26,6 +26,8 @@ import org.opengis.util.InternationalString;
  * file filter factory
  *  
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class FileFilterFactory {
 

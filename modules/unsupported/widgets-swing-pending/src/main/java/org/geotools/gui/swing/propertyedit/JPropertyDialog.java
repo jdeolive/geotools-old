@@ -37,6 +37,8 @@ import org.geotools.gui.swing.icon.IconBundle;
  * Property panel
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class JPropertyDialog extends JDialog{
         

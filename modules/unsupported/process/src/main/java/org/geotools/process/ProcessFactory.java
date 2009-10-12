@@ -28,6 +28,8 @@ import org.opengis.util.InternationalString;
  *
  * @author gdavis
  * @author Andrea Aime - OpenGeo
+ *
+ * @source $URL$
  */
 public interface ProcessFactory {
     public static final String GT_NAMESPACE = "gt";

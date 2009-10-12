@@ -46,6 +46,8 @@ import javax.swing.border.EmptyBorder;
  * with Java</a>.
  * 
  * @author Jody, gdavis
+ *
+ * @source $URL$
  */
 public class JWizard extends JDialog {
     private static final long serialVersionUID = 1L;

@@ -38,6 +38,8 @@ import org.opengis.util.InternationalString;
  * Gregorian calendar and UTC.
  *
  * @author Mehdi Sidhoum (Geomatys)
+ *
+ * @source $URL$
  */
 public class DefaultPosition implements Position {
 

@@ -22,6 +22,8 @@ import org.geotools.caching.spatialindex.NodeIdentifier;
  * Class for evicting nodes from the cache.
  * 
  *
+ *
+ * @source $URL$
  */
 public interface EvictableTree {
 	

@@ -29,6 +29,8 @@ import org.jdesktop.swingx.JXTable;
  * Data model
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class DataModel implements TableModel{
     

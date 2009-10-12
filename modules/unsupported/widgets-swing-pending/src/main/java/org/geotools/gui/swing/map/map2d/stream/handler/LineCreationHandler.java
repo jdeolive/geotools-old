@@ -48,6 +48,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * line creation handler
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class LineCreationHandler extends AbstractEditionHandler {
 

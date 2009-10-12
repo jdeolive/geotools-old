@@ -14,6 +14,8 @@ import org.geotools.swing.ExceptionMonitor;
  * examples with exception handling code (gasp!).
  * </p>
  * TODO: provide a background Runnable...
+ *
+ * @source $URL$
  */
 public abstract class SafeAction extends AbstractAction {
     private static final long serialVersionUID = 1118122797759176800L;

@@ -65,6 +65,8 @@ import org.opengis.referencing.operation.TransformException;
  * interaction of boundary elements.
  * 
  * @author Jackson Roehrig & Sanjay Jena
+ *
+ * @source $URL$
  */
 public class RingImpl extends RingImplUnsafe implements Ring {
 

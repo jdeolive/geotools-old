@@ -40,6 +40,8 @@ import java.util.Properties;
  * @copyright Copyright (C) 2002  Navel Ltd.
  * Modified by Christophe Rousson
  * Modified by Emily Gouge
+ *
+ * @source $URL$
  */
 public interface SpatialIndex {
     public static final String INDEX_TYPE_PROPERTY = "SpatialIndex.Type";

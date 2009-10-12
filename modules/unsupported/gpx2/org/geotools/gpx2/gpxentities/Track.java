@@ -25,6 +25,8 @@ import java.util.*;
  * @see SimpleWaypoint
  * @see BasicTrack
  * @see BasicTrackSegment
+ *
+ * @source $URL$
  */
 public interface Track 
 {

@@ -27,6 +27,8 @@ import org.opengis.filter.FilterVisitor;
  * geometry class filter
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class GeometryClassFilter implements Filter {
 

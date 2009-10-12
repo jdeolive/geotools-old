@@ -27,6 +27,8 @@ import org.opengis.geometry.coordinate.GeometryFactory;
 /**
  * @author Sanjay Jena
  *
+ *
+ * @source $URL$
  */
 public class DirectPositionTest extends TestCase {
 	GeometryFactory gf2D;

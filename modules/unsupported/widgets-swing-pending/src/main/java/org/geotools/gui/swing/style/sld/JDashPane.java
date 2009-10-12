@@ -22,6 +22,8 @@ import org.opengis.filter.expression.Expression;
 /**
  *
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class JDashPane extends javax.swing.JPanel {
 

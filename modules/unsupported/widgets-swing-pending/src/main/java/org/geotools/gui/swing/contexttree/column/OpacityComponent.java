@@ -40,6 +40,8 @@ import org.opengis.filter.expression.Expression;
  * Component used to present opacity
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public final class OpacityComponent extends RenderAndEditComponent {
 

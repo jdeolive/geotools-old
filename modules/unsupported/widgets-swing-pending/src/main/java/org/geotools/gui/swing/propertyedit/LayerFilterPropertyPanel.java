@@ -25,6 +25,8 @@ import org.geotools.gui.swing.icon.IconBundle;
  * layer filter panel
  * 
  * @author  Johann Sorel
+ *
+ * @source $URL$
  */
 public class LayerFilterPropertyPanel extends MultiPropertyPanel {
 

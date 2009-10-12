@@ -33,6 +33,8 @@ import org.geotools.map.MapContext;
  * 
  * @author Johann Sorel
  * 
+ *
+ * @source $URL$
  */
 public class ContextActiveItem extends JCheckBoxMenuItem implements TreePopupItem{
     

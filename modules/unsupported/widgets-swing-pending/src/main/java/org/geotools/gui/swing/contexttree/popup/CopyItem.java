@@ -32,6 +32,8 @@ import org.geotools.gui.swing.icon.IconBundle;
  * copy item for treetable
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class CopyItem implements TreePopupItem{
 

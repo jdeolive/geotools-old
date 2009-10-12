@@ -22,6 +22,8 @@ import javax.swing.Icon;
  * General header
  *
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class HeaderInfo {
 

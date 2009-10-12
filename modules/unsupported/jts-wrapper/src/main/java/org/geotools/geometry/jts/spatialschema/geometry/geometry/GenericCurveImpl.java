@@ -19,6 +19,8 @@ import org.geotools.geometry.jts.JTSGeometry;
  * 
  * @author SYS Technologies
  * @author crossley
+ *
+ * @source $URL$
  * @version $Revision $
  */
 public abstract class GenericCurveImpl implements GenericCurve, JTSGeometry {

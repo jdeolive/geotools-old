@@ -27,6 +27,8 @@ import javax.swing.tree.TreePath;
  * 
  * @author Johann Sorel
  * 
+ *
+ * @source $URL$
  */
 public class SeparatorItem extends JSeparator implements TreePopupItem{
        

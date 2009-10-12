@@ -30,6 +30,8 @@ import org.opengis.filter.identity.Identifier;
  * Simple, mutable class to store attributes - that does not validate!
  * 
  * @author Jody Garnett
+ *
+ * @source $URL$
  * @version $Id$
  */
 public class LenientAttribute extends PropertyImpl implements Attribute {

@@ -29,6 +29,8 @@ import org.geotools.map.MapContext;
  * Zoom all action
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class StreamZoomAll extends AbstractAction {
 

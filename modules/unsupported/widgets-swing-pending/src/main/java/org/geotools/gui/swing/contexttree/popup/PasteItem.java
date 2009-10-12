@@ -36,6 +36,8 @@ import org.geotools.map.MapLayer;
  * Paste item for treetable
  *
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class PasteItem implements TreePopupItem {
 

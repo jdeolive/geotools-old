@@ -23,6 +23,8 @@ import javax.swing.border.EmptyBorder;
  * in the JContextTree
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public abstract class RenderAndEditComponent extends javax.swing.JPanel {
 

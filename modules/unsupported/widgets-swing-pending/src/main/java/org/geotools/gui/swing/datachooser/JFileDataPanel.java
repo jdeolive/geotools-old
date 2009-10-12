@@ -51,6 +51,8 @@ import org.opengis.referencing.operation.TransformException;
  * File datachooser
  * 
  * @author  Johann Sorel
+ *
+ * @source $URL$
  */
 public class JFileDataPanel extends javax.swing.JPanel implements DataPanel {
 

@@ -23,6 +23,8 @@ import javax.swing.JComponent;
  *  creating, validating and maintaining a widget for one process parameter.
  * 
  * @author Graham Davis
+ *
+ * @source $URL$
  */
 public interface ParamWidget {
 	

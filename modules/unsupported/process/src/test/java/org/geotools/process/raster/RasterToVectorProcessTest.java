@@ -45,6 +45,8 @@ import static org.junit.Assert.*;
  * TODO: Rewrite and extend tests
  *
  * @author Michael Bedward <michael.bedward@gmail.com>
+ *
+ * @source $URL$
  */
 public class RasterToVectorProcessTest {
     private GridCoverage2D grid = null;

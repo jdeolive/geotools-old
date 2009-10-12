@@ -30,6 +30,8 @@ import org.opengis.geometry.TransfiniteSet;
 
 /**
  * @author <a href="mailto:joel@lggi.com">Joel Skelton</a>
+ *
+ * @source $URL$
  */
 public class GeometryTestOperation extends Assert {
     private String operation;

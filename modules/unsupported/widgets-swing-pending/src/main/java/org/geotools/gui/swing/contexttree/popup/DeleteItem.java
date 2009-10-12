@@ -32,6 +32,8 @@ import org.geotools.gui.swing.icon.IconBundle;
  * delete item for treetable
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class DeleteItem implements TreePopupItem{
 

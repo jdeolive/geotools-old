@@ -24,6 +24,8 @@ import org.geotools.map.MapLayer;
  * 
  * @param T : style element class edited
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public interface StyleElementEditor<T> {
 

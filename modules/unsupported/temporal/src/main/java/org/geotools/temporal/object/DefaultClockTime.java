@@ -29,6 +29,8 @@ import org.opengis.temporal.TemporalReferenceSystem;
  * of an event that recurs every day.
  * 
  * @author Mehdi Sidhoum (Geomatys)
+ *
+ * @source $URL$
  */
 public class DefaultClockTime extends DefaultTemporalPosition implements ClockTime {
 

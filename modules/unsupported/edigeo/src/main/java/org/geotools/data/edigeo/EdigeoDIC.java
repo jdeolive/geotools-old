@@ -25,6 +25,8 @@ import java.util.Iterator;
 /**
  *
  * @author mcoudert
+ *
+ * @source $URL$
  */
 public class EdigeoDIC {
     

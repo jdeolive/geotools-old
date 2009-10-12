@@ -44,6 +44,8 @@ import org.opengis.util.InternationalString;
 /**
  *
  * @author Mehdi Sidhoum (Geomatys)
+ *
+ * @source $URL$
  */
 public class DefaultCalendarEraTest {
 

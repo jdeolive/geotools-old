@@ -41,6 +41,8 @@ import org.geotools.swing.wizard.JWizard.Controller;
  * Widget for File; provides a "Browse" button to open a file dialog.
  * 
  * @author Jody Garnett
+ *
+ * @source $URL$
  */
 public class JFileField extends ParamField {
 

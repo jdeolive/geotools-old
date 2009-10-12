@@ -46,6 +46,8 @@ import org.geotools.geometry.Envelope2D;
  * 
  * @author Michael Bedward, Jody Garnett
  * @since 2.6
+ *
+ * @source $URL$
  */
 public class RasterToVectorFactory extends SingleProcessFactory {
 

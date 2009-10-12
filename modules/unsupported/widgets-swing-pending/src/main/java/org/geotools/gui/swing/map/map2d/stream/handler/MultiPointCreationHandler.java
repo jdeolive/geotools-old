@@ -48,6 +48,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * multipoint creation handler
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class MultiPointCreationHandler extends AbstractEditionHandler {
 

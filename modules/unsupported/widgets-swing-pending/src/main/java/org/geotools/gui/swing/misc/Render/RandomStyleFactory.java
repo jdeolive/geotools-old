@@ -55,6 +55,8 @@ import org.geotools.styling.visitor.DuplicatingStyleVisitor;
  * Random style factory
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class RandomStyleFactory {
 

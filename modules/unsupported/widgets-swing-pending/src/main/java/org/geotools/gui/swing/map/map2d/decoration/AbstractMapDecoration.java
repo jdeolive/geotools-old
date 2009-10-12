@@ -23,6 +23,8 @@ import org.geotools.gui.swing.map.map2d.Map2D;
  * getMap2D and setMap2D methods.
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public abstract class AbstractMapDecoration implements MapDecoration{
 

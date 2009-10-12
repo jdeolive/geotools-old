@@ -55,6 +55,8 @@ import org.opengis.referencing.operation.TransformException;
  * RingImpl should be used which will validate when it is created.
  *
  * @author Graham Davis
+ *
+ * @source $URL$
  */
 public class RingImplUnsafe extends CompositeCurveImpl implements Ring {
 

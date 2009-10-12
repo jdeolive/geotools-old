@@ -39,6 +39,8 @@ import org.opengis.filter.Filter;
  * CQL filter panel
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class JCQLFilterPanel extends javax.swing.JPanel implements FilterPanel{
 

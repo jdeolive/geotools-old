@@ -29,6 +29,8 @@ import java.util.logging.Logger;
 
 /**
  * @author <a href="mailto:joel@lggi.com">Joel Skelton</a>
+ *
+ * @source $URL$
  */
 public class RunStoredTest extends TestCase {
     private static final Logger LOG = org.geotools.util.logging.Logging.getLogger("org.geotools.geometry");

@@ -38,6 +38,8 @@ import org.opengis.feature.type.Name;
  * Defines static methods used to access the application's default process factory implementations.
  *
  * @author gdavis
+ *
+ * @source $URL$
  */
 public class Processors extends FactoryFinder {
     /**

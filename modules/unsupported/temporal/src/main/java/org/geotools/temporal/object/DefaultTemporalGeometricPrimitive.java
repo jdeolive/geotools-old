@@ -31,6 +31,8 @@ import org.opengis.temporal.TemporalGeometricPrimitive;
  * a temporal instant and a temporal period.
  * 
  * @author Mehdi Sidhoum (Geomatys)
+ *
+ * @source $URL$
  */
 public abstract class DefaultTemporalGeometricPrimitive extends DefaultTemporalPrimitive implements TemporalGeometricPrimitive, Separation {
 

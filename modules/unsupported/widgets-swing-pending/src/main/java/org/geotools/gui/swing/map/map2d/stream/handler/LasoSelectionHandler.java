@@ -41,6 +41,8 @@ import org.geotools.gui.swing.map.map2d.stream.strategy.StreamingStrategy;
  * laso selection handler
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class LasoSelectionHandler implements SelectionHandler {
 

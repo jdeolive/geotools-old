@@ -37,6 +37,8 @@ import java.util.Set;
  *
  * @author Christophe Rousson, SoC 2007, CRG-ULAVAL
  *
+ *
+ * @source $URL$
  */
 public abstract class AbstractSpatialIndexTest extends TestCase {
 	private static final String DATA_PREFIX = "Object: ";

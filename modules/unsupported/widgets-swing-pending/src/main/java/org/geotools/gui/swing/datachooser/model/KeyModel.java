@@ -29,6 +29,8 @@ import org.geotools.data.DataAccessFactory.Param;
  * Keys model
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class KeyModel implements TableModel {
 

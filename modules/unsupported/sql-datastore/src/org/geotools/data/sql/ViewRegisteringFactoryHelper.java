@@ -64,6 +64,8 @@ import net.sf.jsqlparser.statement.select.Union;
  * </p>
  * 
  * @author Gabriel Roldan, Axios Engineering
+ *
+ * @source $URL$
  */
 public class ViewRegisteringFactoryHelper {
 	private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger(ViewRegisteringFactoryHelper.class.getPackage()

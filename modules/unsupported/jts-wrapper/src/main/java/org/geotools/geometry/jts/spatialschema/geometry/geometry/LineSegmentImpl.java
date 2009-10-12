@@ -38,6 +38,8 @@ import org.opengis.geometry.coordinate.LineSegment;
  * @UML datatype GM_LineSegment
  * @author ISO/DIS 19107
  * @author <A HREF="http://www.opengis.org">OpenGIS&reg; consortium</A>
+ *
+ * @source $URL$
  * @version 2.0
  *
  * @see GeometryFactory#createLineSegment

@@ -32,6 +32,8 @@ import org.geotools.caching.spatialindex.Shape;
  * 
  * @author Christophe Rousson, SoC 2007, CRG-ULAVAL
  * 
+ *
+ * @source $URL$
  */
 public class GridRootNode extends GridNode {
 	private static final long serialVersionUID = 4675163856302389522L;

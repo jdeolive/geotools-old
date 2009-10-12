@@ -99,6 +99,8 @@ import com.vividsolutions.jts.geom.Envelope;
  * @author aaime
  * @since 2.4
  * 
+ *
+ * @source $URL$
  */
 public class VersionedPostgisDataStore implements VersioningDataStore {
 

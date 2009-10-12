@@ -43,6 +43,8 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * Forms {@link Surface}s out of a graph of {@link DirectedEdge}s. The edges
  * to use are marked as being in the result Area.
  * <p>
+ *
+ * @source $URL$
  */
 public class PolygonBuilder {
     final static int X = 0;

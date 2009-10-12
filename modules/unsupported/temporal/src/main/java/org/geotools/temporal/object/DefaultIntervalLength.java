@@ -25,6 +25,8 @@ import org.opengis.temporal.IntervalLength;
  * terms of a specified multiple of a single unit of time.
  * 
  * @author Mehdi Sidhoum (Geomatys)
+ *
+ * @source $URL$
  */
 public class DefaultIntervalLength extends DefaultDuration implements IntervalLength {
 

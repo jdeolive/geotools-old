@@ -25,6 +25,8 @@ import java.util.Properties;
  * the versioning info, which subclasses must implement.
  * 
  * @author gdavis
+ *
+ * @source $URL$
  */
 public abstract class AbstractDescribeProcessRequest extends AbstractWPSRequest implements DescribeProcessRequest {
 

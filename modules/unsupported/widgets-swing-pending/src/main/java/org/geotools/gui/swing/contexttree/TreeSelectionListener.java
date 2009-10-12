@@ -24,6 +24,8 @@ import javax.swing.event.TreeSelectionEvent;
  * Selection listener for JContextTree
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public interface TreeSelectionListener extends EventListener{
         

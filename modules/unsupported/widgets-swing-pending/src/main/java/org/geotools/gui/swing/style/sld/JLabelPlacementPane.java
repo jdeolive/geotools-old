@@ -28,6 +28,8 @@ import org.geotools.styling.StyleBuilder;
  * Label placement panel
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class JLabelPlacementPane extends javax.swing.JPanel implements StyleElementEditor<LabelPlacement> {
 

@@ -28,6 +28,8 @@ import org.opengis.referencing.FactoryException;
  * OracleDialectEpsgFactory.
  * 
  * @author Cory Horner (Refractions Research)
+ *
+ * @source $URL$
  */
 public class OracleDialectEpsgMediator extends AbstractEpsgMediator {
 

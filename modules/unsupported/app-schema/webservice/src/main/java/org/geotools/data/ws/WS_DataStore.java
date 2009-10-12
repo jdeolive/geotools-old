@@ -57,6 +57,8 @@ import org.jdom.Document;
  * </p>
  * 
  * @author Russell Petty
+ *
+ * @source $URL$
  * @version $Id$ 
  */
 public final class WS_DataStore implements XmlDataStore {

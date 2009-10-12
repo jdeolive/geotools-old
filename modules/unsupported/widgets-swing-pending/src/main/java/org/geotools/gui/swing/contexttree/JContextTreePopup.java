@@ -28,6 +28,8 @@ import org.geotools.gui.swing.contexttree.popup.TreePopupItem;
  * 
  * @author Johann Sorel
  *
+ *
+ * @source $URL$
  */
 public final class JContextTreePopup {
 

@@ -56,6 +56,8 @@ import com.vividsolutions.jts.util.Stopwatch;
  * inside another complex attribute.
  * 
  * @author Rini Angreani, Curtin University of Technology
+ *
+ * @source $URL$
  */
 public class FeatureChainingTest {
     static final String GSMLNS = "http://www.cgi-iugs.org/xml/GeoSciML/2";

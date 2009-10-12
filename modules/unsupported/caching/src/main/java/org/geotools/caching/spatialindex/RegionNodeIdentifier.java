@@ -22,6 +22,8 @@ package org.geotools.caching.spatialindex;
  *
  * @author crousson
  *
+ *
+ * @source $URL$
  */
 public final class RegionNodeIdentifier extends NodeIdentifier {
     private static final long serialVersionUID = 6630434291791608926L;

@@ -42,6 +42,8 @@ import org.opengis.feature.simple.SimpleFeatureType;
  * PostGIS databaseChooser
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class JPostGISDataPanel extends javax.swing.JPanel implements DataPanel {
 

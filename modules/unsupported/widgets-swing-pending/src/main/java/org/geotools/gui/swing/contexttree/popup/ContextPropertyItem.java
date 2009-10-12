@@ -35,6 +35,8 @@ import org.geotools.map.MapContext;
  * Default popup control for property page of MapContext, use for JContextTreePopup 
  * 
  * @author Johann Sorel 
+ *
+ * @source $URL$
  */
 public class ContextPropertyItem extends JMenuItem implements TreePopupItem{
     

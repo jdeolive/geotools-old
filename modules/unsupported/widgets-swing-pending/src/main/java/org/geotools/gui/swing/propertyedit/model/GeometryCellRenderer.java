@@ -37,6 +37,8 @@ import org.geotools.gui.swing.icon.IconBundle;
  * Cell Renderer for JXMapContextTree
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class GeometryCellRenderer extends JPanel implements TableCellRenderer{
     

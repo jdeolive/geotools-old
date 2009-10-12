@@ -25,6 +25,8 @@ import org.geotools.map.MapLayer;
  * CQL property panel
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class JCQLPropertyPanel extends JCQLFilterPanel implements PropertyPane{
 

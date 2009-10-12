@@ -33,6 +33,8 @@ import org.opengis.referencing.NoSuchAuthorityCodeException;
  * @author Daniele Romagnoli, GeoSolutions
  * @author Simone Giannecchini (simboss), GeoSolutions
  *
+ *
+ * @source $URL$
  */
 public class ServiceTest extends Assert {
     public ServiceTest() {

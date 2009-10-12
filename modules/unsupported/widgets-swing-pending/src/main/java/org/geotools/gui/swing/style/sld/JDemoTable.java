@@ -30,6 +30,8 @@ import org.geotools.styling.Symbolizer;
  * 
  * @param T 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class JDemoTable<T extends Symbolizer> extends org.jdesktop.swingx.JXTable {
 

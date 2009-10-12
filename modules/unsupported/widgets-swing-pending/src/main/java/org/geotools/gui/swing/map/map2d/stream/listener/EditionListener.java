@@ -24,6 +24,8 @@ import org.geotools.gui.swing.map.map2d.stream.event.EditionEvent;
  * EditableMap2DListener used to listen to Map2D edition events
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public interface EditionListener extends EventListener{
     

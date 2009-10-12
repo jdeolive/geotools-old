@@ -34,6 +34,8 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * only the
  * 
  * @author aaime
+ *
+ * @source $URL$
  */
 public class OGRFeatureReader implements FeatureReader {
 

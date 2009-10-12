@@ -31,6 +31,8 @@ import java.util.Set;
  * 
  * @author Russell Petty, GSV
  *
+ *
+ * @source $URL$
  */
 public class AttributeCreateOrderList {
 

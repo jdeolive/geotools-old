@@ -29,6 +29,8 @@ import org.geotools.geometry.iso.util.Assert;
  * the input coordinates have been made precise by scaling them to an integer
  * grid.)
  * 
+ *
+ * @source $URL$
  */
 public abstract class LineIntersector {
 

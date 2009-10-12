@@ -24,6 +24,8 @@ import javax.swing.JPanel;
  * Wizard page; will be created as needed.
  * @author Jody Garnett (LISAsoft)
  * @author Graham Davis (Refractions Research)
+ *
+ * @source $URL$
  */
 public abstract class JPage {
     /**

@@ -36,6 +36,8 @@ import org.geotools.geometry.iso.util.Assert;
  * basic accessor functions. Constructed coordinates will have a z-ordinate of
  * <code>NaN</code>. The standard comparison functions will ignore the
  * z-ordinate.
+ *
+ * @source $URL$
  */
 public class Coordinate implements Comparable, Cloneable, Serializable {
 

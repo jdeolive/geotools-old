@@ -22,6 +22,8 @@ import org.opengis.geometry.primitive.Bearing;
  * @UML datatype Bearing
  * @author ISO/DIS 19107
  * @author <A HREF="http://www.opengis.org">OpenGIS&reg; consortium</A>
+ *
+ * @source $URL$
  * @version 2.0
  *
  * @revisit Should we move this interface elsewhere (e.g. in some kind of units package)?

@@ -45,6 +45,8 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * required. A MaximalEdgeRing can be converted to a list of MinimalEdgeRings
  * using the {@link #buildMinimalRings() } method.
  * 
+ *
+ * @source $URL$
  */
 public class MaximalEdgeRing extends EdgeRing {
 

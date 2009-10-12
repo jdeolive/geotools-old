@@ -25,7 +25,7 @@ import java.io.IOException;
  * @author rpetty
  * @version $Id$
  * @since 2.6
- * @source $URL: http://svn.geotools.org/trunk/modules/unsupported/app-schema/webservice/src/main/java/org/geotools/data/wfs/protocol/wfs/WFSException.java $
+ * @source $URL$
  */
 public class WSException extends IOException {
 

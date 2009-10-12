@@ -35,6 +35,8 @@ import org.opengis.feature.type.AttributeDescriptor;
  * An implementation of SimpleFeature that has a more relaxed attitude about being valid.
  * 
  * @author Jesse Eichar
+ *
+ * @source $URL$
  */
 public class LenientFeature extends SimpleFeatureImpl {
     static Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.data.wfs");

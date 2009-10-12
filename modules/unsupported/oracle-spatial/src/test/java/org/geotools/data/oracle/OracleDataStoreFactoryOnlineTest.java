@@ -28,6 +28,8 @@ import org.geotools.test.OnlineTestCase;
  * Test the datastore factories
  * 
  * @author Andrea Aime
+ *
+ * @source $URL$
  */
 public class OracleDataStoreFactoryOnlineTest extends OnlineTestCase {
     /** The Oracle driver class name */

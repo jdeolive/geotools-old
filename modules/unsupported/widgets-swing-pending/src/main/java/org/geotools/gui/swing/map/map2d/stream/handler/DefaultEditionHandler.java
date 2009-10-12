@@ -47,6 +47,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * Default edition handler
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class DefaultEditionHandler extends AbstractEditionHandler {
 

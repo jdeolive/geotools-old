@@ -26,6 +26,8 @@ import org.geotools.styling.Symbolizer;
  * 
  * @param T 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public interface SymbolizerPane<T extends Symbolizer> extends StyleElementEditor<T>{
           

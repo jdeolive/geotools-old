@@ -36,6 +36,8 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * CRS list model
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class CRSListModel extends AbstractListModel{
 

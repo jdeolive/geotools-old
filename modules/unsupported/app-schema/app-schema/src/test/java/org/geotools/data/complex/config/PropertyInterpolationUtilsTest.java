@@ -29,6 +29,8 @@ import junit.framework.TestCase;
  * Tests for {@link PropertyInterpolationUtils}.
  * 
  * @author Ben Caradoc-Davies, CSIRO Exploration and Mining
+ *
+ * @source $URL$
  */
 public class PropertyInterpolationUtilsTest extends TestCase {
 

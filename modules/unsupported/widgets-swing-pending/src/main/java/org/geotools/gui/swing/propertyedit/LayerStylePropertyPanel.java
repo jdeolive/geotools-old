@@ -25,6 +25,8 @@ import org.geotools.gui.swing.icon.IconBundle;
  * layer style panel
  *
  * @author  Johann Sorel
+ *
+ * @source $URL$
  */
 public class LayerStylePropertyPanel extends MultiPropertyPanel {
 

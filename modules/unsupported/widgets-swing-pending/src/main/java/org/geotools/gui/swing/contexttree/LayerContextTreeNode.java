@@ -29,6 +29,8 @@ import org.geotools.map.MapLayer;
  * a specific mutabletreenode for jcontexttree
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public final class LayerContextTreeNode extends ContextTreeNode {
 

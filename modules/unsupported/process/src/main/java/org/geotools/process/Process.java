@@ -42,6 +42,8 @@ import org.opengis.util.ProgressListener;
  * Results are available after being run.
  *
  * @author gdavis
+ *
+ * @source $URL$
  */
 public interface Process {
 	/**

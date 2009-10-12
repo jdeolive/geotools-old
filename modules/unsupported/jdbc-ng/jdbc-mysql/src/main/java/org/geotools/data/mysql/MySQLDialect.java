@@ -47,6 +47,8 @@ import com.vividsolutions.jts.io.WKBReader;
  * 
  * @author Justin Deoliveira, OpenGEO
  *
+ *
+ * @source $URL$
  */
 public class MySQLDialect extends SQLDialect {
     /**

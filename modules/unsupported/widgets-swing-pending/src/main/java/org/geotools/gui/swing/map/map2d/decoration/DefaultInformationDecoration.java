@@ -42,6 +42,8 @@ import org.geotools.gui.swing.map.map2d.Map2D;
  * Default information decoration
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class DefaultInformationDecoration extends JComponent implements InformationDecoration {
 

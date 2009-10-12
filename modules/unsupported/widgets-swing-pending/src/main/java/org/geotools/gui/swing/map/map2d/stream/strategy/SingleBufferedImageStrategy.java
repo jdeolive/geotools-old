@@ -43,6 +43,8 @@ import java.awt.geom.AffineTransform;
  * Must repaint everything each time.
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class SingleBufferedImageStrategy extends AbstractRenderingStrategy {
 

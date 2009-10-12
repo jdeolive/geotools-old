@@ -45,6 +45,8 @@ import org.geotools.styling.TextSymbolizer;
  * Simple style panel
  * 
  * @author  Johann Sorel
+ *
+ * @source $URL$
  */
 public class JSimpleStylePanel extends javax.swing.JPanel implements PropertyPane {
 

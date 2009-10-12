@@ -38,6 +38,8 @@ import org.opengis.feature.type.FeatureType;
  * <p>To ensure all data has been written flush() should be called.</p>
  * 
  *
+ *
+ * @source $URL$
  */
 public class BufferedDiskStorage implements Storage {
     public final static String BUFFER_SIZE_PROPERTY = "BufferedDiskStorage.BufferSize";

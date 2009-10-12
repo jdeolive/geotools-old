@@ -34,6 +34,8 @@ import javax.swing.table.TableCellRenderer;
  * Styled header Renderer for JContextTree
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class DefaultHeaderRenderer implements TableCellRenderer{
 

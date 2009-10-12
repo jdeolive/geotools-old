@@ -38,6 +38,8 @@ import org.geotools.styling.Symbolizer;
  * Line symbolizer edition panel
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class JLineSymbolizerPane extends javax.swing.JPanel implements org.geotools.gui.swing.style.SymbolizerPane<LineSymbolizer> {
   

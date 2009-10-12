@@ -29,6 +29,8 @@ import org.jdesktop.swingx.JXTitledSeparator;
  * 
  * @author Johann Sorel
  * 
+ *
+ * @source $URL$
  */
 public abstract class TitledSeparatorItem extends JXTitledSeparator implements TreePopupItem{
        

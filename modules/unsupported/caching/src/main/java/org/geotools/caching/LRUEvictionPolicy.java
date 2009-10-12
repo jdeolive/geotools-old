@@ -28,6 +28,8 @@ import org.geotools.caching.spatialindex.NodeIdentifier;
  * <p>
  * Removes the oldest items from the cache.
  * </p>
+ *
+ * @source $URL$
  */
 public class LRUEvictionPolicy implements EvictionPolicy {
 	private Map<NodeIdentifier, Object> queue;

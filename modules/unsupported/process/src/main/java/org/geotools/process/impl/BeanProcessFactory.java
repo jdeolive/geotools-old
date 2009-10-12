@@ -34,6 +34,8 @@ import org.opengis.util.InternationalString;
  * Reflective implementation of a {@link SingleProcessFactory} that will embed in the
  * same entity both the process and the factory.
  * The process is supposed to take a bean as a parameter and return a bean as a result. 
+ *
+ * @source $URL$
  */
 public abstract class BeanProcessFactory implements ProcessFactory {
     

@@ -33,6 +33,8 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * CRSChooser component
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class JCRSChooser extends javax.swing.JDialog {
 

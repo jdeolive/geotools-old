@@ -37,6 +37,8 @@ import com.vividsolutions.jts.io.WKTWriter;
 
 /**
  *  Text field for filling in a Geometry parameter.
+ *
+ * @source $URL$
  */
 public class JGeometryField extends AbstractParamWidget {
     private JTextArea text;

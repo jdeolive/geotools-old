@@ -52,6 +52,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * Contains helpful static util methods for the WPS module
  * 
  * @author gdavis
+ *
+ * @source $URL$
  */
 public class WPSUtils {
 

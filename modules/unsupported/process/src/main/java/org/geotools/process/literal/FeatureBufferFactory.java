@@ -33,6 +33,8 @@ import org.opengis.util.InternationalString;
  * XXX Untested Factory for FeatureBuffer process
  *
  * @author Lucas Reed, Refractions Research Inc
+ *
+ * @source $URL$
  */
 public class FeatureBufferFactory extends SingleProcessFactory  {
 	static final Parameter<Feature> INPUT_A = new Parameter<Feature>("input_a",

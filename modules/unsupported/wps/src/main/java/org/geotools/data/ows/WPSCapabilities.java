@@ -20,6 +20,8 @@ package org.geotools.data.ows;
  * Represents a base object for a WMS getCapabilities response.
  *
  * @author gdavis
+ *
+ * @source $URL$
  */
 public class WPSCapabilities extends Capabilities {
     private WPSRequest request;

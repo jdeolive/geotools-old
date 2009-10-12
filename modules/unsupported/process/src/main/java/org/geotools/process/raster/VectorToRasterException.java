@@ -32,6 +32,8 @@ import org.geotools.process.ProcessException;
  * Exception class used by {@linkplain FeatureRasterizerProcess}
  * @author Steve Ansari, NOAA
  * @author Michael Bedward
+ *
+ * @source $URL$
  */
 public class VectorToRasterException extends ProcessException {
 

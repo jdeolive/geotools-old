@@ -39,6 +39,8 @@ import org.geotools.styling.ColorMapEntry;
  * Color map entry table.
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class JColorMapEntryTable extends javax.swing.JPanel implements StyleElementEditor<ColorMapEntry[]> {
 

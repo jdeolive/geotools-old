@@ -24,6 +24,8 @@ import org.geotools.gui.swing.map.map2d.stream.strategy.StreamingStrategy;
  * Map2D interface, used for mapcontext viewing
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public interface StreamingMap2D extends Map2D{
        

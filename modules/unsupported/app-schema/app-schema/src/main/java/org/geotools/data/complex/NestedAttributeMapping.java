@@ -47,6 +47,8 @@ import org.xml.sax.helpers.NamespaceSupport;
  * features are also stored for caching if a filter involving these nested features is run.
  * 
  * @author Rini Angreani, Curtin University of Technology
+ *
+ * @source $URL$
  */
 public class NestedAttributeMapping extends AttributeMapping {
     /**

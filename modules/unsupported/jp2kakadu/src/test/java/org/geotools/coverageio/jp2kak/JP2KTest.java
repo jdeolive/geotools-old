@@ -41,6 +41,8 @@ import org.opengis.parameter.ParameterValue;
  * @author Simone Giannecchini (simboss), GeoSolutions
  *
  * Testing {@link JP2KReader}
+ *
+ * @source $URL$
  */
 public final class JP2KTest extends Assert {
     private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(JP2KTest.class);

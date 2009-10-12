@@ -26,6 +26,8 @@ import org.geotools.styling.StyleBuilder;
  * Stroke panel
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class JStrokePane extends javax.swing.JPanel implements StyleElementEditor<Stroke>{
     

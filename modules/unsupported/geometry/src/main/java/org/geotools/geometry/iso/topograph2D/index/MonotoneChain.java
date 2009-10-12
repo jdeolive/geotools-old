@@ -31,6 +31,8 @@ package org.geotools.geometry.iso.topograph2D.index;
  * types of real-world data, these properties eliminate a large number of
  * segment comparisons, producing substantial speed gains.
  * 
+ *
+ * @source $URL$
  */
 public class MonotoneChain {
 

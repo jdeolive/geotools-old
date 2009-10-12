@@ -1,5 +1,5 @@
 /* 
- * $Id: SwingWorker.java,v 1.6 2008/07/25 19:32:29 idk Exp $
+ * $Id$
  * 
  * Copyright (c) 2005 Sun Microsystems, Inc. All rights
  * reserved. Use is subject to license terms.
@@ -193,6 +193,8 @@ import javax.swing.Timer;
  * {@link java.util.concurrent.Executor} for execution.
  *  
  * @author Igor Kushnirskiy
+ *
+ * @source $URL$
  * @version $Revision: 1.6 $ $Date: 2008/07/25 19:32:29 $
  * 
  * @param <T> the result type returned by this {@code SwingWorker's}

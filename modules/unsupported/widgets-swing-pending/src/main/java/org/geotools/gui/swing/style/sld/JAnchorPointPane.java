@@ -26,6 +26,8 @@ import org.geotools.styling.StyleBuilder;
  * Anchor point edition panel
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class JAnchorPointPane extends javax.swing.JPanel implements StyleElementEditor<AnchorPoint>{
     

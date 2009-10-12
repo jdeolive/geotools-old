@@ -26,6 +26,8 @@ import org.geotools.swing.wizard.JWizard.Controller;
  * Widget for double values
  * 
  * @author gdavis
+ *
+ * @source $URL$
  */
 public class JDoubleField extends ParamField {
 

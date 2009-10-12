@@ -36,6 +36,8 @@ import org.geotools.feature.SchemaException;
 
 /**
  * @author  crousson
+ *
+ * @source $URL$
  */
 public class DelayedDataStore implements DataStore {
     private final DataStore sourceDataStore;

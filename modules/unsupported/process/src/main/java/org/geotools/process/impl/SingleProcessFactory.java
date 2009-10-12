@@ -31,6 +31,8 @@ import org.opengis.util.InternationalString;
  * Helper class for a process factory that will return just a single process
  * 
  * @author Andrea Aime - OpenGeo
+ *
+ * @source $URL$
  */
 public abstract class SingleProcessFactory implements ProcessFactory {
 

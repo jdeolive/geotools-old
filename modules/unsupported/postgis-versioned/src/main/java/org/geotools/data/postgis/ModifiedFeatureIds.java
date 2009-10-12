@@ -26,6 +26,8 @@ import java.util.Set;
  * @author aaime
  * @since 2.4
  * 
+ *
+ * @source $URL$
  */
 public class ModifiedFeatureIds {
     RevisionInfo fromRevision;

@@ -22,6 +22,8 @@ import org.geotools.map.MapLayer;
  * Geometrie panel
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class JGeomPane extends javax.swing.JPanel {
      

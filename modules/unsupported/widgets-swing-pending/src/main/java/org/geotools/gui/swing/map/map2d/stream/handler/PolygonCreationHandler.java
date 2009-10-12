@@ -47,6 +47,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * polygon creation gandler
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class PolygonCreationHandler extends AbstractEditionHandler {
 

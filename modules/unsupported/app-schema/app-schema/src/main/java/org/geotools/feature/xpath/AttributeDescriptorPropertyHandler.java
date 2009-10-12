@@ -31,6 +31,8 @@ import org.opengis.feature.type.FeatureType;
  * JXPath property handler that works on AttributeDescriptor/type
  * 
  * @author Gabriel Roldan
+ *
+ * @source $URL$
  */
 public class AttributeDescriptorPropertyHandler implements DynamicPropertyHandler {
 

@@ -42,6 +42,8 @@ import org.opengis.feature.simple.SimpleFeatureType;
  * Oracle DatabaseChooser
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class JOracleDataPanel extends javax.swing.JPanel implements DataPanel {
 

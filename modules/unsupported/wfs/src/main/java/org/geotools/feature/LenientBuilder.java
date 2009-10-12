@@ -31,6 +31,8 @@ import org.opengis.feature.simple.SimpleFeatureType;
  * to the factory implementation). 
  * <p>
  * @author Jody Garnett
+ *
+ * @source $URL$
  */
 public class LenientBuilder {
     private SimpleFeatureType schema;

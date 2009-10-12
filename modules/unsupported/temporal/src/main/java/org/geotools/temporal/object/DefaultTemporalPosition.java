@@ -29,6 +29,8 @@ import org.opengis.temporal.TemporalReferenceSystem;
  * Used for describing temporal positions referenced to other temporal reference systems.
  * 
  * @author Mehdi Sidhoum (Geomatys)
+ *
+ * @source $URL$
  */
 public class DefaultTemporalPosition implements TemporalPosition {
 

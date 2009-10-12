@@ -83,6 +83,8 @@ import org.opengis.referencing.operation.TransformException;
  * except the last being the start point of the next segment in the segment
  * list.
  * 
+ *
+ * @source $URL$
  * @version <A HREF="http://www.opengis.org/docs/01-101.pdf">Abstract
  *          Specification V5</A>
  * @author Jackson Roehrig & Sanjay Jena

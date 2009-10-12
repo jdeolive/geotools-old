@@ -48,6 +48,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * multiline creation handler
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class MultiLineCreationHandler extends AbstractEditionHandler {
 

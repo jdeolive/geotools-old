@@ -59,6 +59,8 @@ import com.vividsolutions.jts.geom.Point;
  * Basic test for OGR data store capabilites against file data sources
  * 
  * @author aaime
+ *
+ * @source $URL$
  */
 public class OGRDataStoreTest extends TestCaseSupport {
 

@@ -25,6 +25,8 @@ import org.geotools.gui.swing.map.map2d.decoration.InformationDecoration;
  * Map2D interface, used for mapcontext viewing
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public interface Map2D {
         

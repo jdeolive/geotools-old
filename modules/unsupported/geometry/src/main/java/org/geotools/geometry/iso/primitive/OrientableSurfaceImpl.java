@@ -36,6 +36,8 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * implies (primitive.upNormal(p) = - self.upNormal(p))};
  * 
  * @author Jackson Roehrig & Sanjay Jena
+ *
+ * @source $URL$
  */
 public abstract class OrientableSurfaceImpl extends OrientablePrimitiveImpl
 		implements OrientablePrimitive {

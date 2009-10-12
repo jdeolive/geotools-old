@@ -34,6 +34,8 @@ import org.jdesktop.swingx.plaf.macosx.MacOSXLookAndFeelAddons;
  * Mark panel
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class JMarkPane extends javax.swing.JPanel implements StyleElementEditor<Mark> {
 

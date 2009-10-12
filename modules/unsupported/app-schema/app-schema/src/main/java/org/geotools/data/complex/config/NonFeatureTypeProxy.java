@@ -38,6 +38,8 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * as a feature since it would have a feature source.
  * 
  * @author Rini Angreani, Curtin University of Technology
+ *
+ * @source $URL$
  */
 public class NonFeatureTypeProxy extends ComplexTypeProxy implements FeatureType {
 

@@ -48,6 +48,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * extraData may be a filterfactory2
  * </p>
  * @author Jesse
+ *
+ * @source $URL$
  */
 public class FilterTransformer extends DuplicatingFilterVisitor {
     static final Logger LOGGER = Logging.getLogger(FilterTransformer.class);

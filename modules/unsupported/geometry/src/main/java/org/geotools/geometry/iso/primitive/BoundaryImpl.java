@@ -29,6 +29,8 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * cycles. Boundary: {isCycle() = TRUE}
  * 
  * @author Jackson Roehrig & Sanjay Jena
+ *
+ * @source $URL$
  */
 public abstract class BoundaryImpl extends ComplexImpl implements Boundary {
 

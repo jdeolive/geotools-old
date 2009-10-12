@@ -27,6 +27,8 @@ import org.geotools.xml.Configuration;
 
 /**
  * Tests for {@link CatalogApplicationSchemaConfiguration}.
+ *
+ * @source $URL$
  */
 public class CatalogApplicationSchemaConfigurationTest extends TestCase {
 

@@ -27,6 +27,8 @@ import org.geotools.map.MapLayer;
  * Default visibility column
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public final class VisibleTreeTableColumn extends TreeTableColumn {
     

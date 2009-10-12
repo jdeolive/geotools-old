@@ -26,6 +26,8 @@ import org.geotools.process.ProcessFactory;
  * This is a straight forward abstract process that has all the fields filled in.
  * </p>
  * @author gdavis
+ *
+ * @source $URL$
  */
 public abstract class AbstractProcess implements Process {   
     protected ProcessFactory factory;

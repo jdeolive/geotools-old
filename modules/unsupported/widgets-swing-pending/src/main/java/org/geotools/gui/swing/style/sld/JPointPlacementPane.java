@@ -26,6 +26,8 @@ import org.geotools.styling.StyleBuilder;
  * Point placement panel
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class JPointPlacementPane extends javax.swing.JPanel implements StyleElementEditor<PointPlacement>{
     

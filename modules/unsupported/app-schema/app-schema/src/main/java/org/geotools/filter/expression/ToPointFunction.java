@@ -53,6 +53,8 @@ import com.vividsolutions.jts.geom.PrecisionModel;
  * </ol>
  * 
  * @author Rini Angreani, Curtin University of Technology
+ *
+ * @source $URL$
  */
 public class ToPointFunction implements Function {
     private final List<Expression> parameters;

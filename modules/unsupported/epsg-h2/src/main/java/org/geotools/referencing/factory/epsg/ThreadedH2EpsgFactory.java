@@ -62,8 +62,8 @@ import org.h2.jdbcx.JdbcDataSource;
  * nammed {@value #DIRECTORY_KEY}.
  *
  * @since 2.6
- * @source $URL: http://svn.osgeo.org/geotools/trunk/modules/plugin/epsg-hsql/src/main/java/org/geotools/referencing/factory/epsg/ThreadedHsqlEpsgFactory.java $
- * @version $Id: ThreadedH2EpsgFactory.java 32612 2009-03-09 16:32:57Z aaime $
+ * @source $URL$
+ * @version $Id$
  * @author Martin Desruisseaux
  * @author Didier Richard
  * @author Andrea Aime

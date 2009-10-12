@@ -26,6 +26,8 @@ import org.geotools.gui.swing.map.map2d.Map2D;
  * Decoration exemples : minimap, scalebar, navigation buttons, image in background ...
  *
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public interface MapDecoration {
 

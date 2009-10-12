@@ -47,6 +47,8 @@ import com.vividsolutions.jts.geom.Point;
  * feature into a single action.
  * 
  * @author Jesse
+ *
+ * @source $URL$
  */
 public class ProcessEditsBeforeCommitTest extends TestCase {
 

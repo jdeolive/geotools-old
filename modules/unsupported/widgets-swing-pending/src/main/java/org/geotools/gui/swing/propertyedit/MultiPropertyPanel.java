@@ -36,6 +36,8 @@ import org.geotools.gui.swing.propertyedit.model.MultiTreeRenderer;
  * Multiproperty panel
  *
  * @author  Johann Sorel
+ *
+ * @source $URL$
  */
 public abstract class MultiPropertyPanel extends javax.swing.JPanel implements PropertyPane {
 

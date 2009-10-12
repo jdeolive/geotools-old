@@ -24,6 +24,8 @@ package org.geotools.geometry.iso.topograph2D;
  * HREF="http://www.opengis.org/techno/specs.htm">OpenGIS Simple Features
  * Specification for SQL</A> .
  * 
+ *
+ * @source $URL$
  */
 public class Location {
 	/**

@@ -25,6 +25,8 @@ import org.opengis.filter.Filter;
  * Filter panel interface
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public interface FilterPanel {
 

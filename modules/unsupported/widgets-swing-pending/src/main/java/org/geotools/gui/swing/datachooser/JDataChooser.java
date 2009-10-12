@@ -30,6 +30,8 @@ import org.geotools.map.MapLayer;
  * DataChooser Dialog
  *
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class JDataChooser extends javax.swing.JDialog {
 

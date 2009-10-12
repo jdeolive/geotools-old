@@ -30,6 +30,8 @@ import org.geotools.swing.wizard.JWizard;
 
 /**
  * Wizard prompting the user to enter or review connection parameters.
+ *
+ * @source $URL$
  */
 public class JParameterListWizard extends JWizard {
     private static final long serialVersionUID = -3961250234483352643L;

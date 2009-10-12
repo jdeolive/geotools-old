@@ -36,6 +36,8 @@ import org.xml.sax.SAXException;
  * has been issued.
  * 
  * @author gdavis
+ *
+ * @source $URL$
  */
 public class DescribeProcessResponse extends Response {
 

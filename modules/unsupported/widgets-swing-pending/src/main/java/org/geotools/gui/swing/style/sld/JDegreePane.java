@@ -24,6 +24,8 @@ import org.opengis.filter.expression.Expression;
  * Degree panel
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class JDegreePane extends javax.swing.JPanel {
 

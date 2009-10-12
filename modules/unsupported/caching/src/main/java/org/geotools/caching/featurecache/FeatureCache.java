@@ -27,6 +27,8 @@ import com.vividsolutions.jts.geom.Envelope;
 /**
  * Interface for a feature cache. 
  *
+ *
+ * @source $URL$
  */
 public interface FeatureCache extends FeatureSource {
     /**

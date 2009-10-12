@@ -41,6 +41,8 @@ import org.geotools.styling.StyleBuilder;
  * mark table
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class JMarkTable extends javax.swing.JPanel implements StyleElementEditor<Mark[]> {
 

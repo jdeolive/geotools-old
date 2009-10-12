@@ -45,6 +45,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * layer feature panel
  * 
  * @author  Johann Sorel
+ *
+ * @source $URL$
  */
 public class LayerFeaturePropertyPanel extends javax.swing.JPanel implements PropertyPane {
 

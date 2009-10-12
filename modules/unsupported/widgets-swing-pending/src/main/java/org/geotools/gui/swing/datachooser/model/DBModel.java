@@ -28,6 +28,8 @@ import org.jdesktop.swingx.JXTable;
  * DataBase model
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class DBModel implements TableModel{
     

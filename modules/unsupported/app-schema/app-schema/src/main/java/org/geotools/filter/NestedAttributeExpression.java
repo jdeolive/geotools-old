@@ -44,6 +44,8 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * feature.
  * 
  * @author Rini Angreani, Curtin University of Technology
+ *
+ * @source $URL$
  */
 public class NestedAttributeExpression extends AttributeExpressionImpl {
     /**

@@ -29,6 +29,8 @@ import javax.swing.ImageIcon;
  * IconBundle, manage icons and avoid double loading
  * 
  * @author Johann Sorel
+ *
+ * @source $URL$
  */
 public class IconBundle {
 

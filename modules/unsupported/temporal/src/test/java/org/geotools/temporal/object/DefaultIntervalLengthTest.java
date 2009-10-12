@@ -28,6 +28,8 @@ import static org.junit.Assert.*;
 /**
  *
  * @author Mehdi Sidhoum (Geomatys)
+ *
+ * @source $URL$
  */
 public class DefaultIntervalLengthTest {
 

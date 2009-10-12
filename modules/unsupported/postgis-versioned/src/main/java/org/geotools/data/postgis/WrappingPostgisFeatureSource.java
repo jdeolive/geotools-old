@@ -39,6 +39,8 @@ import org.opengis.filter.Filter;
  * @author aaime
  * @since 2.4
  * 
+ *
+ * @source $URL$
  */
 public class WrappingPostgisFeatureSource implements FeatureSource<SimpleFeatureType, SimpleFeature> {
     FeatureSource<SimpleFeatureType, SimpleFeature> wrapped;

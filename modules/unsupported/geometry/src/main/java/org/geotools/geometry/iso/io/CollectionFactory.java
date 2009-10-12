@@ -31,6 +31,8 @@ import org.geotools.geometry.iso.primitive.CurveImpl;
  * memory in cases of large geometries.
  * 
  * @author Sanjay Jena and Prof. Dr. Jackson Roehrig
+ *
+ * @source $URL$
  */
 public interface CollectionFactory {
 	
