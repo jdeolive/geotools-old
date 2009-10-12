@@ -375,7 +375,7 @@ public class GridCoverage2D extends AbstractGridCoverage implements RenderedCove
     }
 
     /**
-     * Returns the value vector for a given location (world coordinates).
+     * Returns the value vector for a given point in the coverage.
      * A value for each sample dimension is included in the vector.
      */
     public Object evaluate(final DirectPosition point) throws CannotEvaluateException {
@@ -392,9 +392,9 @@ public class GridCoverage2D extends AbstractGridCoverage implements RenderedCove
     }
 
     /**
-     * Returns a sequence of byte values for a given location (world coordinates).
+     * Returns a sequence of byte values for a given point in the coverage.
      *
-     * @param  coord World coordinates of the location to evaluate.
+     * @param  coord The coordinate point where to evaluate.
      * @param  dest  An array in which to store values, or {@code null}.
      * @return An array containing values.
      * @throws CannotEvaluateException if the values can't be computed at the specified coordinate.
@@ -416,9 +416,9 @@ public class GridCoverage2D extends AbstractGridCoverage implements RenderedCove
     }
 
     /**
-     * Returns a sequence of inteeger values for a given location (world coordinates).
+     * Returns a sequence of integer values for a given point in the coverage.
      *
-     * @param  coord World coordinates of the location to evaluate.
+     * @param  coord The coordinate point where to evaluate.
      * @param  dest  An array in which to store values, or {@code null}.
      * @return An array containing values.
      * @throws CannotEvaluateException if the values can't be computed at the specified coordinate.
@@ -433,9 +433,9 @@ public class GridCoverage2D extends AbstractGridCoverage implements RenderedCove
     }
 
     /**
-     * Returns a sequence of float values for a given location (world coordinates).
+     * Returns a sequence of float values for a given point in the coverage.
      *
-     * @param  coord World coordinates of the location to evaluate.
+     * @param  coord The coordinate point where to evaluate.
      * @param  dest  An array in which to store values, or {@code null}.
      * @return An array containing values.
      * @throws CannotEvaluateException if the values can't be computed at the specified coordinate.
@@ -450,9 +450,9 @@ public class GridCoverage2D extends AbstractGridCoverage implements RenderedCove
     }
 
     /**
-     * Returns a sequence of double values for a given location (world coordinates).
+     * Returns a sequence of double values for a given point in the coverage.
      *
-     * @param  coord World coordinates of the location to evaluate.
+     * @param  coord The coordinate point where to evaluate.
      * @param  dest  An array in which to store values, or {@code null}.
      * @return An array containing values.
      * @throws CannotEvaluateException if the values can't be computed at the specified coordinate.
@@ -467,9 +467,9 @@ public class GridCoverage2D extends AbstractGridCoverage implements RenderedCove
     }
 
     /**
-     * Returns a sequence of integer values for a given location (world coordinates).
+     * Returns a sequence of integer values for a given two-dimensional point in the coverage.
      *
-     * @param  coord World coordinates of the location to evaluate.
+     * @param  coord The coordinate point where to evaluate.
      * @param  dest  An array in which to store values, or {@code null}.
      * @return An array containing values.
      * @throws CannotEvaluateException if the values can't be computed at the specified coordinate.
@@ -493,9 +493,9 @@ public class GridCoverage2D extends AbstractGridCoverage implements RenderedCove
     }
 
     /**
-     * Returns a sequence of float values for a given location (world coordinates).
+     * Returns a sequence of float values for a given two-dimensional point in the coverage.
      *
-     * @param  coord World coordinates of the location to evaluate.
+     * @param  coord The coordinate point where to evaluate.
      * @param  dest  An array in which to store values, or {@code null}.
      * @return An array containing values.
      * @throws CannotEvaluateException if the values can't be computed at the specified coordinate.
@@ -519,9 +519,9 @@ public class GridCoverage2D extends AbstractGridCoverage implements RenderedCove
     }
 
     /**
-     * Returns a sequence of double values for a given location (world coordinates).
+     * Returns a sequence of double values for a given two-dimensional point in the coverage.
      *
-     * @param  coord World coordinates of the location to evaluate.
+     * @param  coord The coordinate point where to evaluate.
      * @param  dest  An array in which to store values, or {@code null}.
      * @return An array containing values.
      * @throws CannotEvaluateException if the values can't be computed at the specified coordinate.
@@ -541,78 +541,6 @@ public class GridCoverage2D extends AbstractGridCoverage implements RenderedCove
                 return image.getTile(image.XToTileX(x), image.YToTileY(y)).getPixel(x, y, dest);
             }
         }
-        throw new PointOutsideCoverageException(formatEvaluateError(coord, true));
-    }
-
-    /**
-     * Return sample dimension (band) values as an array of integers for the given
-     * <b>grid</b> location. The range of valid grid coordinates can be retrieved as
-     * in this example:
-     * <pre><code>
-     * GridEnvelope2D gridBounds = coverage.getGridGeometry2D().getGridRange();
-     * </code></pre>
-     * @param coord grid (ie. pixel) coordinates
-     * @param dest an optionally pre-allocated array; if non-null, its length should be
-     *        equal to the number of bands (sample dimensions)
-     *
-     * @return band values for the given grid (pixel) location
-     *
-     * @throws PointOutsideCoverageException if the supplied coords are outside the
-     *         grid bounds
-     */
-    public int[] evaluate(final GridCoordinates2D coord, final int[] dest) {
-        if (image.getBounds().contains(coord.x, coord.y)) {
-            return image.getTile(image.XToTileX(coord.x), image.YToTileY(coord.y)).getPixel(coord.x, coord.y, dest);
-        }
-
-        throw new PointOutsideCoverageException(formatEvaluateError(coord, true));
-    }
-
-    /**
-     * Return sample dimension (band) values as an array of floats for the given
-     * <b>grid</b> location. The range of valid grid coordinates can be retrieved as
-     * in this example:
-     * <pre><code>
-     * GridEnvelope2D gridBounds = coverage.getGridGeometry2D().getGridRange();
-     * </code></pre>
-     * @param coord grid (ie. pixel) coordinates
-     * @param dest an optionally pre-allocated array; if non-null, its length should be
-     *        equal to the number of bands (sample dimensions)
-     *
-     * @return band values for the given grid (pixel) location
-     *
-     * @throws PointOutsideCoverageException if the supplied coords are outside the
-     *         grid bounds
-     */
-    public float[] evaluate(final GridCoordinates2D coord, final float[] dest) {
-        if (image.getBounds().contains(coord.x, coord.y)) {
-            return image.getTile(image.XToTileX(coord.x), image.YToTileY(coord.y)).getPixel(coord.x, coord.y, dest);
-        }
-
-        throw new PointOutsideCoverageException(formatEvaluateError(coord, true));
-    }
-
-    /**
-     * Return sample dimension (band) values as an array of doubles for the given
-     * <b>grid</b> location. The range of valid grid coordinates can be retrieved as
-     * in this example:
-     * <pre><code>
-     * GridEnvelope2D gridBounds = coverage.getGridGeometry2D().getGridRange();
-     * </code></pre>
-     * @param coord grid (ie. pixel) coordinates
-     * @param dest an optionally pre-allocated array; if non-null, its length should be
-     *        equal to the number of bands (sample dimensions)
-     *
-     * @return band values for the given grid (pixel) location
-     *
-     * @throws PointOutsideCoverageException if the supplied coords are outside the
-     *         grid bounds
-     */
-    public double[] evaluate(final GridCoordinates2D coord, final double[] dest) {
-        if (image.getBounds().contains(coord.x, coord.y)) {
-            return image.getTile(image.XToTileX(coord.x), image.YToTileY(coord.y)).getPixel(coord.x, coord.y, dest);
-        }
-
         throw new PointOutsideCoverageException(formatEvaluateError(coord, true));
     }
 
