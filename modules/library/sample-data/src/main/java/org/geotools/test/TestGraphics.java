@@ -36,7 +36,7 @@ import java.util.Map;
  *  
  * @author Jody Garnett
  *
- * @source $URL: http://svn.somewhere.foo/org/geotools/trunk/modules/library/sample-data/src/main/java/org/geotools/test/TestGraphics.java $
+ * @source $URL$
  */
 public class TestGraphics extends Graphics2D{
     public Map<Key, ?> hints;

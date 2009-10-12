@@ -10,7 +10,7 @@ import org.opengis.style.StyleVisitor;
  * <p>
  * This facility is used to allow you to work on your "vendor specific" symbolizer.
  *
- * @source $URL: http://svn.somewhere.foo/org/geotools/trunk/modules/library/api/src/main/java/org/geotools/styling/ExtensionSymbolizer.java $
+ * @source $URL$
  */
 public interface ExtensionSymbolizer extends org.opengis.style.ExtensionSymbolizer, Symbolizer {
 

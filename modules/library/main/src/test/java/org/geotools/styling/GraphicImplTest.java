@@ -27,7 +27,7 @@ import junit.framework.TestCase;
  * This test case captures specific problems encountered with the GraphicImpl code.
  *
  *
- * @source $URL: http://svn.somewhere.foo/org/geotools/trunk/modules/library/main/src/test/java/org/geotools/styling/GraphicImplTest.java $
+ * @source $URL$
  */
 public class GraphicImplTest extends TestCase {
 

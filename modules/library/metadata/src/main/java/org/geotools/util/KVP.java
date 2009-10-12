@@ -11,7 +11,7 @@ import java.util.List;
  * 
  * @author jody
  *
- * @source $URL: http://svn.somewhere.foo/org/geotools/trunk/modules/library/metadata/src/main/java/org/geotools/util/KVP.java $
+ * @source $URL$
  */
 public class KVP extends LinkedHashMap<String, Object> {
     /**

@@ -11,7 +11,7 @@ import org.opengis.metadata.citation.OnLineResource;
  * into a preferred order with the most specific (say SVG) followed by common formats (PNG, GIF) and ending
  * with an appropriate WellKnownName.
  *
- * @source $URL: http://svn.somewhere.foo/org/geotools/trunk/modules/library/api/src/main/java/org/geotools/styling/ExternalMark.java $
+ * @source $URL$
  */
 public interface ExternalMark extends org.opengis.style.ExternalMark {
 

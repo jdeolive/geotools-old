@@ -22,7 +22,7 @@ package org.geotools.coverage.grid.io.imageio.geotiff.codes;
  * @since 2.3
  * 
  *
- * @source $URL: http://svn.somewhere.foo/org/geotools/trunk/modules/library/coverage/src/main/java/org/geotools/coverage/grid/io/imageio/geotiff/codes/GeoTiffVCSCodes.java $
+ * @source $URL$
  */
 public final class GeoTiffVCSCodes {
 

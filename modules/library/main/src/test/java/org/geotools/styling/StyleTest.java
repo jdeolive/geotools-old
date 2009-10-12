@@ -26,7 +26,7 @@ import org.opengis.style.StyleVisitor;
  * instances.
  * </ul>
  *
- * @source $URL: http://svn.somewhere.foo/org/geotools/trunk/modules/library/main/src/test/java/org/geotools/styling/StyleTest.java $
+ * @source $URL$
  */
 public class StyleTest {
     static FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);

@@ -86,7 +86,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * 
  * @author jesse
  *
- * @source $URL: http://svn.somewhere.foo/org/geotools/trunk/modules/library/main/src/main/java/org/geotools/filter/spatial/AbstractPreparedGeometryFilter.java $
+ * @source $URL$
  */
 public abstract class AbstractPreparedGeometryFilter extends GeometryFilterImpl {
 

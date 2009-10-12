@@ -10,7 +10,7 @@ import org.opengis.style.GraphicalSymbol;
  * 
  * @author Jody
  *
- * @source $URL: http://svn.somewhere.foo/org/geotools/trunk/modules/library/api/src/main/java/org/geotools/styling/GraphicLegend.java $
+ * @source $URL$
  */
 public interface GraphicLegend extends org.opengis.style.GraphicLegend {
 
