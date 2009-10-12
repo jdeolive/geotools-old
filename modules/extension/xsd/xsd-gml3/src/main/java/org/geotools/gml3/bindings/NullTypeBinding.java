@@ -56,7 +56,7 @@ import javax.xml.namespace.QName;
  * 
  * @generated
  *
- * @source $URL: http://svn.somewhere.foo/org/geotools/trunk/modules/extension/xsd/xsd-gml3/src/main/java/org/geotools/gml3/bindings/NullTypeBinding.java $
+ * @source $URL$
  */
 public class NullTypeBinding extends AbstractSimpleBinding {
 

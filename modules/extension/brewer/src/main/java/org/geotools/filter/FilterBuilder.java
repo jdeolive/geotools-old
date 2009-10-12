@@ -9,7 +9,7 @@ import org.opengis.filter.FilterFactory;
 /**
  * FitlerBuilder acting as a simple wrapper around an Expression.
  *
- * @source $URL: http://svn.somewhere.foo/org/geotools/trunk/modules/extension/brewer/src/main/java/org/geotools/filter/FilterBuilder.java $
+ * @source $URL$
  */
 public class FilterBuilder implements Builder<Filter> {
     protected Filter filter; // placeholder just to keep us going right now

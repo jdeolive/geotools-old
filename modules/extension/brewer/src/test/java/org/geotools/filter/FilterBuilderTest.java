@@ -18,7 +18,7 @@ import com.sun.org.apache.bcel.internal.util.ClassQueue;
  * FilterBuilder is a main entry from a fluent programming point of view. We will mostly test using
  * this as a starting point; and break out other test cases on an as needed basis.
  *
- * @source $URL: http://svn.somewhere.foo/org/geotools/trunk/modules/extension/brewer/src/test/java/org/geotools/filter/FilterBuilderTest.java $
+ * @source $URL$
  */
 public class FilterBuilderTest {
     protected FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);

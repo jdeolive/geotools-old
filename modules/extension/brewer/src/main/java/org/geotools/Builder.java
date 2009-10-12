@@ -6,7 +6,7 @@ package org.geotools;
  * @param <T>
  *            class of object under construction
  *
- * @source $URL: http://svn.somewhere.foo/org/geotools/trunk/modules/extension/brewer/src/main/java/org/geotools/Builder.java $
+ * @source $URL$
  */
 public interface Builder<T> {
     /**
