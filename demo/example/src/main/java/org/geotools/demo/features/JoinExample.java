@@ -34,6 +34,8 @@ import org.geotools.swing.data.JFileDataStoreChooser;
  * 
  * @author Jody
  *
+ *
+ * @source $URL$
  */
 public class JoinExample {
 

@@ -45,6 +45,8 @@ import com.vividsolutions.jts.geom.Point;
  * <p>
  * Note: to keep things simple in the code below the input file should not have
  * additional spaces or tabs between fields.
+ *
+ * @source $URL$
  */
 public class Csv2Shape {
 

@@ -19,6 +19,7 @@ package org.geotools.demo.swing;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,6 +47,7 @@ import org.geotools.styling.SLDParser;
 import org.geotools.styling.Style;
 import org.geotools.styling.StyleFactory;
 import org.geotools.swing.JMapFrame;
+import org.geotools.swing.JMapPane;
 import org.geotools.swing.styling.JSimpleStyleDialog;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -92,7 +94,6 @@ public class ShapefileViewer extends JMapFrame {
         this.title = title;
 
         enableLayerTable(true);
-        //enableMenuBar(true);
         enableStatusBar(true);
         enableToolBar(true);
         initComponents();
@@ -113,6 +114,25 @@ public class ShapefileViewer extends JMapFrame {
             }
         });
         menu.add(item);
+
+        item = new JMenuItem("Get scale");
+        item.addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                JMapPane mapPane = getMapPane();
+                if (mapPane != null) {
+                    AffineTransform tr = mapPane.getScreenToWorldTransform();
+                    if (tr != null) {
+                        System.out.println("x scale: " + tr.getScaleX());
+                        System.out.println("Y scale: " + tr.getScaleY());
+                        System.out.println("pane area: " + mapPane.getVisibleRect());
+                    }
+                }
+            }
+        });
+        menu.add(item);
+
+
         menuBar.add(menu);
     }
 

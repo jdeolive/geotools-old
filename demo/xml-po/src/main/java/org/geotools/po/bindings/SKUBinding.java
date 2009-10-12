@@ -33,6 +33,8 @@ import javax.xml.namespace.QName;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class SKUBinding extends AbstractSimpleBinding {
 

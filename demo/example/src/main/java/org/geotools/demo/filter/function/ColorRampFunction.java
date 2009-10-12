@@ -33,6 +33,8 @@ import org.opengis.filter.expression.Literal;
  * interface directly.
  *
  * @author Michael Bedward
+ *
+ * @source $URL$
  */
 public class ColorRampFunction implements Function {
 

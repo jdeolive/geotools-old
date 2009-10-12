@@ -26,6 +26,8 @@ import org.opengis.style.Graphic;
  * <p>
  * To view the context for these examples: http://docs.codehaus.org/display/GEOTDOC/04+Styling
  * 
+ *
+ * @source $URL$
  */
 public class StyleSnippets {
 

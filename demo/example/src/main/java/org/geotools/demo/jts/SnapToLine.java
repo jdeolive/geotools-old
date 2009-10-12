@@ -54,6 +54,8 @@ import com.vividsolutions.jts.linearref.LocationIndexedLine;
  * </p>
  * 
  * @author Jody Garnett (Refractions Research)
+ *
+ * @source $URL$
  */
 public class SnapToLine {
     

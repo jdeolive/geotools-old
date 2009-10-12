@@ -16,6 +16,8 @@ import org.eclipse.xsd.util.XSDSchemaLocationResolver;
 /**
  * 
  * @generated
+ *
+ * @source $URL$
  */
 public class POSchemaLocationResolver implements XSDSchemaLocationResolver {
 

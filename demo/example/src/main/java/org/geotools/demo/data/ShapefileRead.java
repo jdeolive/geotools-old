@@ -35,6 +35,8 @@ import org.geotools.swing.data.JFileDataStoreChooser;
  * 
  * @author Jody Garnett (Refractions Research)
  * 
+ *
+ * @source $URL$
  */
 public class ShapefileRead {
 

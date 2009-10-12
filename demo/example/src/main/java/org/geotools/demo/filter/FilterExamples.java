@@ -26,6 +26,8 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * >FilterExamples</a>.
  * 
  * @author Jody Garnett
+ *
+ * @source $URL$
  */
 public class FilterExamples {
     FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;

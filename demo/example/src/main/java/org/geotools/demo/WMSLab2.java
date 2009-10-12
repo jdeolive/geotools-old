@@ -57,6 +57,8 @@ import org.geotools.data.wms.request.GetMapRequest;
  * layers and styles supported by the server.
  * 
  * @author Jody Garnett
+ *
+ * @source $URL$
  */
 public class WMSLab2 extends JFrame {
     private static final long serialVersionUID = -3039255518595806472L;

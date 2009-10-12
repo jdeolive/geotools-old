@@ -51,6 +51,8 @@ import org.opengis.filter.Filter;
  * A nice swing app to connect to PostGIS an try out different queries.
  * 
  * @author Jody Garnett
+ *
+ * @source $URL$
  */
 public class PostGISLab {
     /**

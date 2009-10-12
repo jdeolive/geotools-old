@@ -41,6 +41,8 @@ import org.w3c.dom.Document;
  * 
  * @author Justin Deoliveira, OpenGeo
  *
+ *
+ * @source $URL$
  */
 public class GMLParsing {
 

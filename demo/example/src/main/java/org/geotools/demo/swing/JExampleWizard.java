@@ -27,6 +27,8 @@ import org.geotools.swing.wizard.JWizard;
  * <p>
  * 
  * @author Jody
+ *
+ * @source $URL$
  */
 public class JExampleWizard extends JWizard {    
     private static final long serialVersionUID = 2103905729508952829L;

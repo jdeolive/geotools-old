@@ -30,6 +30,8 @@ import org.opengis.feature.simple.SimpleFeature;
  * Csv2Shape on your own.
  * 
  * @author Jody Garnett (Refractions Research)
+ *
+ * @source $URL$
  */
 public class FeatureTypeExample {
 

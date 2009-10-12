@@ -57,6 +57,8 @@ import com.vividsolutions.jts.geom.Point;
  * to use keyword "new" (and instead make use of a Factory).
  * </p>
  * @author Jody Garnett
+ *
+ * @source $URL$
  */
 public class FeatureCollectionExampleTest extends TestCase {
     private FeatureCollection<SimpleFeatureType, SimpleFeature> features;

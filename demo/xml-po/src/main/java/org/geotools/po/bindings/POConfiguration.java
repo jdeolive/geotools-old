@@ -20,6 +20,8 @@ import org.picocontainer.MutablePicoContainer;
  * Parser configuration for the http://www.geotools.org/po schema.
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class POConfiguration extends Configuration {
 

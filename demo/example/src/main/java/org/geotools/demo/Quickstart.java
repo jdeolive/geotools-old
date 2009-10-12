@@ -22,6 +22,8 @@ import org.geotools.swing.data.JFileDataStoreChooser;
 /**
  * GeoTools Quickstart demo application. Prompts the user for a shapefile
  * and displays its contents on the screen in a map frame
+ *
+ * @source $URL$
  */
 public class Quickstart {
 

@@ -30,6 +30,8 @@ import org.opengis.feature.type.AttributeDescriptor;
  * a FactoryFinder. Only the "raw" example makes use of they keyword "new".
  * </p>
  * @author Jody Garnett
+ *
+ * @source $URL$
  */
 public class FeatureExampleTest extends TestCase {
 

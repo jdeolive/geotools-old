@@ -19,6 +19,8 @@ import org.geotools.xml.XSD;
  * attributes in the http://www.geotools.org/po schema.
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class PO extends XSD {
 

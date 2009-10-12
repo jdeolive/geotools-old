@@ -56,6 +56,8 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * re-display, in animated form, properly scaled to the map.
  *
  * @author Michael Bedward
+ *
+ * @source $URL$
  */
 public class AnimatedMapPane extends JMapPane {
 

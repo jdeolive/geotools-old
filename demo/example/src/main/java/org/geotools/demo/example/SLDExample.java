@@ -40,6 +40,8 @@ import org.opengis.filter.FilterFactory2;
  * This example also works against a local geoserver.
  * 
  * @author Jody Garnett
+ *
+ * @source $URL$
  */
 public class SLDExample {
 

@@ -35,6 +35,8 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * the log of population size as the value to base color on.
  *
  * @author Michael Bedward
+ *
+ * @source $URL$
  */
 public class DynamicFillColor {
 

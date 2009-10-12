@@ -42,6 +42,8 @@ import org.geotools.data.postgis.PostgisDataStoreFactory;
  * </p>
  * 
  * @author Jody Garnett
+ *
+ * @source $URL$
  */
 public class PostGISDialog extends JDialog implements ActionListener {
     private static final long serialVersionUID = -4773502007868922959L;

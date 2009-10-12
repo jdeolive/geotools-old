@@ -36,6 +36,8 @@ import com.vividsolutions.jts.io.WKTWriter;
  * Use JTS it works! Leave ISO Geometry for experimenta only.
  * 
  * @author Jody Garnett
+ *
+ * @source $URL$
  */
 public class GeometryExample {
 
