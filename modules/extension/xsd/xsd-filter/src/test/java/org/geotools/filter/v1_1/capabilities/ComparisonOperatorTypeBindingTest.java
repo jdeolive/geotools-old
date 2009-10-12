@@ -48,6 +48,8 @@ import org.geotools.xml.Binding;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class ComparisonOperatorTypeBindingTest extends OGCTestSupport {
     public void testType() {

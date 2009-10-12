@@ -51,6 +51,8 @@ import org.picocontainer.MutablePicoContainer;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class SLDParameterValueTypeBinding extends AbstractComplexBinding {
     FilterFactory filterFactory;

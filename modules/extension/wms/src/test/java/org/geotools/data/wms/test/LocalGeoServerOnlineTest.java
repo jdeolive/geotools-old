@@ -37,6 +37,8 @@ import org.geotools.referencing.crs.DefaultGeographicCRS;
  * on 127.0.0.1 (ie localhost).
  * 
  * @author Jody Garnett
+ *
+ * @source $URL$
  */
 public class LocalGeoServerOnlineTest extends TestCase {
     static private WebMapServer wms;

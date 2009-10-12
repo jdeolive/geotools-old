@@ -46,6 +46,8 @@ import java.util.logging.Logger;
  * </p>
  * @author Justin Deoliveira, The Open Planning Project
  *
+ *
+ * @source $URL$
  */
 public final class SchemaLocator implements XSDSchemaLocator {
     /**

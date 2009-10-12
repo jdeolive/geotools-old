@@ -41,6 +41,8 @@ import org.geotools.xml.Binding;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class _Filter_CapabilitiesTypeBindingTest extends OGCTestSupport {
     public void testType() {

@@ -52,6 +52,8 @@ import com.vividsolutions.jts.geom.MultiPoint;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class MultiPointPropertyTypeBinding extends AbstractComplexBinding {
     /**

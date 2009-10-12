@@ -58,6 +58,8 @@ import com.vividsolutions.jts.geom.LineString;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class CurvePropertyTypeBinding extends AbstractComplexBinding {
     /**

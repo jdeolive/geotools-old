@@ -17,6 +17,8 @@
 package org.geotools.xml.impl;
 
 /** <p>Utility class for xs:hexbinary.</p>
+ *
+ * @source $URL$
  */
 public class HexBinary {
 	/** Creates a clone of the given byte array.

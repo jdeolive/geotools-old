@@ -28,6 +28,8 @@ import org.geotools.xlink.XLINK;
  * attributes in the http://www.isotc211.org/2005/gco schema.
  *
  * @generated
+ *
+ * @source $URL$
  */
 public final class GCO extends StubbedGMLXSD {
 

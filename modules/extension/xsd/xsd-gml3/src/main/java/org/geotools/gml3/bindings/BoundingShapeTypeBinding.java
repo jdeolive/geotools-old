@@ -50,6 +50,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class BoundingShapeTypeBinding extends AbstractComplexBinding {
     /**

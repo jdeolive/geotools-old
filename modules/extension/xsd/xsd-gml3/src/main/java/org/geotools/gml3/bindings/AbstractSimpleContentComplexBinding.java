@@ -36,6 +36,8 @@ import org.w3c.dom.Text;
  * stored in the UserData map.
  * 
  * @author Ben Caradoc-Davies, CSIRO Exploration and Mining
+ *
+ * @source $URL$
  */
 public class AbstractSimpleContentComplexBinding extends AbstractComplexBinding {    
     /**

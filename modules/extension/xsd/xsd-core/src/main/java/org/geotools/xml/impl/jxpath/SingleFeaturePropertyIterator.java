@@ -29,6 +29,8 @@ import org.opengis.feature.simple.SimpleFeature;
  *
  * @author Justin Deoliveira, The Open Planning Project
  *
+ *
+ * @source $URL$
  */
 public class SingleFeaturePropertyIterator implements NodeIterator {
     /**

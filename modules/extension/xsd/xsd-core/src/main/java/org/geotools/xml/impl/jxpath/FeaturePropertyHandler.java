@@ -29,6 +29,8 @@ import org.geotools.feature.IllegalAttributeException;
  * </p>
  * @author Justin Deoliveira, The Open Planning Project
  *
+ *
+ * @source $URL$
  */
 public class FeaturePropertyHandler implements DynamicPropertyHandler {
     public String[] getPropertyNames(Object object) {

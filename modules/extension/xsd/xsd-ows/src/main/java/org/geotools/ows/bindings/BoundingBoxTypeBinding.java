@@ -65,6 +65,8 @@ import org.geotools.xml.*;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class BoundingBoxTypeBinding extends AbstractComplexEMFBinding {
     public BoundingBoxTypeBinding(Ows10Factory factory) {

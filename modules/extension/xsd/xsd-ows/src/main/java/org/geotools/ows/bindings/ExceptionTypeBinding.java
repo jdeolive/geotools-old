@@ -58,6 +58,8 @@ import org.geotools.xml.*;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class ExceptionTypeBinding extends AbstractComplexEMFBinding {
     public ExceptionTypeBinding(Ows10Factory factory) {

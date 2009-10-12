@@ -59,6 +59,8 @@ import org.geotools.xs.XS;
  *
  * @author Justin Deoliveira,Refractions Research Inc.,jdeolive@refractions.net
  *
+ *
+ * @source $URL$
  */
 public class ParserHandler extends DefaultHandler {
     /** execution stack **/

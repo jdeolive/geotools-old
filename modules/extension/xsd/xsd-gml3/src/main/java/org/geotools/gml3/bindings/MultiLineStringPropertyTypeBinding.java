@@ -53,6 +53,8 @@ import com.vividsolutions.jts.geom.MultiLineString;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class MultiLineStringPropertyTypeBinding extends AbstractComplexBinding {
     /**

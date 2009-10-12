@@ -49,6 +49,8 @@ import org.w3c.dom.Element;
  * 
  * @author Ben Caradoc-Davies, CSIRO Exploration and Mining
  * 
+ *
+ * @source $URL$
  */
 public class SubstitutionGroupXSAnyTypeBinding extends XSAnyTypeBinding {
 

@@ -30,6 +30,8 @@ import org.geotools.xml.XSD;
  * attributes in the http://www.isotc211.org/2005/gmd schema.
  *
  * @generated
+ *
+ * @source $URL$
  */
 public final class GMD extends XSD {
 

@@ -44,6 +44,8 @@ import org.geotools.xml.Node;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class SpatialOperatorsTypeBinding extends AbstractComplexBinding {
     FilterFactory factory;

@@ -45,6 +45,8 @@ import org.geotools.xml.impl.AttributeImpl;
  * </p>
  * 
  * @generated
+ *
+ * @source $URL$
  */
 public class AllSomeTypeBinding extends AbstractSimpleBinding {
     private final WfsFactory factory;

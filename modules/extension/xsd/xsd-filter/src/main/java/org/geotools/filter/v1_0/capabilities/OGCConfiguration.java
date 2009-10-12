@@ -26,6 +26,8 @@ import org.geotools.xml.Configuration;
  * Parser configuration for the http://www.opengis.net/ogc schema.
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class OGCConfiguration extends Configuration {
     /**

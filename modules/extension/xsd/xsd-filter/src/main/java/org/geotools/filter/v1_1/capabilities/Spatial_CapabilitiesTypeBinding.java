@@ -43,6 +43,8 @@ import org.geotools.xml.*;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class Spatial_CapabilitiesTypeBinding extends AbstractComplexBinding {
     FilterFactory factory;

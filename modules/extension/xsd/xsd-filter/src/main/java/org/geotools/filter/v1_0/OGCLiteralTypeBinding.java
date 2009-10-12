@@ -48,6 +48,8 @@ import org.geotools.xml.Node;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class OGCLiteralTypeBinding extends AbstractComplexBinding {
     private FilterFactory factory;

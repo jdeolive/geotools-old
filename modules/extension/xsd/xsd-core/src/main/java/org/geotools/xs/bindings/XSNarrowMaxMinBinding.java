@@ -70,6 +70,8 @@ import org.geotools.xs.XS;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class XSNarrowMaxMinBinding extends AbstractComplexBinding {
     /**

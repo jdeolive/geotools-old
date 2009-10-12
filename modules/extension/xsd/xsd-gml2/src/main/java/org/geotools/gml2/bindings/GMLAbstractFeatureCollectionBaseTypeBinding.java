@@ -55,6 +55,8 @@ import org.geotools.xml.Node;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class GMLAbstractFeatureCollectionBaseTypeBinding extends AbstractComplexBinding {
     FeatureCollections fcFactory;

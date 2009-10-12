@@ -23,6 +23,8 @@ import org.opengis.feature.type.Name;
 
 /**
  * Holds a cache of FeatureTypes by Name.
+ *
+ * @source $URL$
  */
 public class FeatureTypeCache {
     HashMap<Name, FeatureType> map = new HashMap<Name, FeatureType>();

@@ -57,6 +57,8 @@ import org.xml.sax.helpers.NamespaceSupport;
  * and includes.
  * </p>
  * @author Justin Deoliveira, The Open Planning Project
+ *
+ * @source $URL$
  */
 public class Parser {
     /** sax handler which maintains the element stack */

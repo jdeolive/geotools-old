@@ -41,6 +41,8 @@ import org.geotools.xs.XS;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class XSPublicBinding implements SimpleBinding {
     /**

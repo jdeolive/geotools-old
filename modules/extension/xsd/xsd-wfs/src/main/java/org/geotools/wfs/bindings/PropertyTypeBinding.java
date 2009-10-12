@@ -58,6 +58,8 @@ import org.geotools.xml.Node;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class PropertyTypeBinding extends AbstractComplexEMFBinding {
     public PropertyTypeBinding(WfsFactory factory) {

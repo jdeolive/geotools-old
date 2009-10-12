@@ -63,6 +63,8 @@ import org.geotools.xml.*;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class _ServiceIdentificationBinding extends AbstractComplexEMFBinding {
     public _ServiceIdentificationBinding(Ows10Factory factory) {

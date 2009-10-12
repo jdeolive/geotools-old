@@ -60,6 +60,8 @@ import com.vividsolutions.jts.geom.Envelope;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class GMLBoxTypeBinding extends AbstractComplexBinding {
     /**

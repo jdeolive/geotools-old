@@ -58,6 +58,8 @@ import org.geotools.xml.*;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class SLDPolygonSymbolizerBinding extends AbstractComplexBinding {
     StyleFactory styleFactory;

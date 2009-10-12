@@ -44,6 +44,8 @@ import org.geotools.xml.Node;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class OperationsTypeBinding extends AbstractComplexEMFBinding {
     public OperationsTypeBinding(WfsFactory factory) {

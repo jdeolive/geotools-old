@@ -40,6 +40,8 @@ import org.geotools.xml.impl.DatatypeConverterImpl;
  *
  * @author Justin Deoliveira, The Open Planning Project
  *
+ *
+ * @source $URL$
  */
 public class XmlConverterFactory implements ConverterFactory {
     

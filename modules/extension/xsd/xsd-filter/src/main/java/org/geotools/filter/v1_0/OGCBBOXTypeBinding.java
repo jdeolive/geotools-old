@@ -56,6 +56,8 @@ import org.geotools.xml.Node;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class OGCBBOXTypeBinding extends AbstractComplexBinding {
     private FilterFactory factory;

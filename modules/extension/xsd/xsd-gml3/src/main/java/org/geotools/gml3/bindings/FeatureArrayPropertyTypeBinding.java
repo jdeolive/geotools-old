@@ -47,6 +47,8 @@ import org.opengis.feature.simple.SimpleFeature;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class FeatureArrayPropertyTypeBinding extends AbstractComplexBinding {
     /**

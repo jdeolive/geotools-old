@@ -34,6 +34,8 @@ import org.geotools.feature.type.SchemaImpl;
  *
  * @author Justin Deoliveira, The Open Planning Project
  *
+ *
+ * @source $URL$
  */
 public class XSSchema extends SchemaImpl {
     /**

@@ -44,6 +44,8 @@ import org.geotools.xml.*;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class PositionType2DBinding extends AbstractSimpleBinding {
     public PositionType2DBinding(Ows10Factory factory) {

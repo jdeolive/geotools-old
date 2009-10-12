@@ -27,6 +27,8 @@ import org.geotools.xml.XSD;
  * attributes in the http://www.opengis.net/sld schema.
  *
  * @generated
+ *
+ * @source $URL$
  */
 public final class SLD extends XSD {
     /**

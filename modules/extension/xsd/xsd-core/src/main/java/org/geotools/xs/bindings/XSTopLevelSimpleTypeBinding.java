@@ -53,6 +53,8 @@ import org.geotools.xs.XS;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class XSTopLevelSimpleTypeBinding extends AbstractComplexBinding {
     /**

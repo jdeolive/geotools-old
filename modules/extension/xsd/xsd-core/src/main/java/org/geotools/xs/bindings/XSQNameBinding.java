@@ -56,6 +56,8 @@ import org.geotools.xs.XS;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class XSQNameBinding implements SimpleBinding {
     protected NamespaceContext namespaceContext;

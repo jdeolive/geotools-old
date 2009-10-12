@@ -27,6 +27,8 @@ import org.geotools.gml3.v3_2.gco.GCO;
  * attributes in the http://www.isotc211.org/2005/gts schema.
  *
  * @generated
+ *
+ * @source $URL$
  */
 public final class GTS extends StubbedGMLXSD {
 

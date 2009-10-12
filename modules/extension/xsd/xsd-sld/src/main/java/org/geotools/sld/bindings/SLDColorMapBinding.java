@@ -52,6 +52,8 @@ import org.geotools.xml.*;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class SLDColorMapBinding extends AbstractComplexBinding {
     StyleFactory styleFactory;

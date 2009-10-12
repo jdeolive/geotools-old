@@ -104,6 +104,8 @@ import org.geotools.xml.Node;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class InsertElementTypeBinding extends AbstractComplexEMFBinding {
     public InsertElementTypeBinding(WfsFactory factory) {

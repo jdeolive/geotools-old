@@ -87,6 +87,8 @@ import com.vividsolutions.jts.geom.Polygon;
  *
  * @author Justin Deoliveira, The Open Planning Project, jdeolive@openplans.org
  * @author Ben Caradoc-Davies, CSIRO Exploration and Mining
+ *
+ * @source $URL$
  */
 public class GML2EncodingUtils {
     

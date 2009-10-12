@@ -57,6 +57,8 @@ import org.geotools.xml.*;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class SLDFeatureTypeStyleBinding extends AbstractComplexBinding {
     StyleFactory styleFactory;

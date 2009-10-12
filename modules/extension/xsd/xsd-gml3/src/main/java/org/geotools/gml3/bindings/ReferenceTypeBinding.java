@@ -50,6 +50,8 @@ import org.w3c.dom.Element;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class ReferenceTypeBinding extends AbstractComplexBinding {
     /**

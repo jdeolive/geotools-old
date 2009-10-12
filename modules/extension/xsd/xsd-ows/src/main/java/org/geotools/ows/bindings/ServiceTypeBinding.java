@@ -40,6 +40,8 @@ import org.geotools.xml.*;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class ServiceTypeBinding extends AbstractSimpleBinding {
     public ServiceTypeBinding(Ows10Factory factory) {

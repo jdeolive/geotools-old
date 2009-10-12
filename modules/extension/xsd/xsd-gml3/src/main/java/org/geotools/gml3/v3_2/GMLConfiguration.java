@@ -60,6 +60,8 @@ import org.picocontainer.MutablePicoContainer;
  * Parser configuration for the http://www.opengis.net/gml/3.2 schema.
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class GMLConfiguration extends Configuration {
 

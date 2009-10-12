@@ -29,6 +29,8 @@ import org.geotools.xml.XSD;
  * <code>http://schemas.opengis.net/wfs/1.1.0/wfs.xsd</code> schema.
  *
  * @generated
+ *
+ * @source $URL$
  */
 public abstract class WFS extends XSD {
 

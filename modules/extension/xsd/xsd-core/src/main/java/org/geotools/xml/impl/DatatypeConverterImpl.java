@@ -29,6 +29,8 @@ import javax.xml.namespace.QName;
 
 /**
  * @author <a href="mailto:joe@ispsoft.de">Jochen Wiedmann</a>
+ *
+ * @source $URL$
  */
 public class DatatypeConverterImpl implements DatatypeConverterInterface {
     

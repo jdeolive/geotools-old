@@ -25,6 +25,8 @@ import org.geotools.xml.test.XMLTestSupport;
  * Base test class for the http://www.opengis.net/ogc schema.
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class OGCTestSupport extends XMLTestSupport {
     protected Configuration createConfiguration() {

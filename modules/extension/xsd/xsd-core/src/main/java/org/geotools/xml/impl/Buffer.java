@@ -22,6 +22,8 @@ package org.geotools.xml.impl;
  *
  * @author Justin Deoliveira, The Open Planning Project
  *
+ *
+ * @source $URL$
  */
 public class Buffer {
     static final int DEFAULT_SIZE = 1024;

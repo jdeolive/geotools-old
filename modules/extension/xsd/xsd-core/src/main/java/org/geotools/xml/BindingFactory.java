@@ -27,6 +27,8 @@ import javax.xml.namespace.QName;
  * </p>
  * @author Justin Deoliveira, The Open Planning Project
  *
+ *
+ * @source $URL$
  */
 public interface BindingFactory {
     /**

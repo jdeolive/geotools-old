@@ -28,6 +28,8 @@ import org.geotools.xml.XSD;
  * attributes in the http://www.opengis.net/gml/3.2 schema.
  *
  * @generated
+ *
+ * @source $URL$
  */
 public final class GML extends XSD {
 

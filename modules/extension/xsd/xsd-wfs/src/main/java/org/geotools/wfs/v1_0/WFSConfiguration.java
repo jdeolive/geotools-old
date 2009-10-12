@@ -22,6 +22,8 @@ import org.geotools.filter.v1_0.OGCConfiguration;
  * Parser configuration for the wfs 1.0 schema.
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class WFSConfiguration extends org.geotools.wfs.WFSConfiguration {
     /**

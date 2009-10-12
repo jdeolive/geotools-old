@@ -23,6 +23,8 @@ import java.util.HashSet;
  * 
  * @author Rini Angreani, Curtin University of Technology (with Gabriel Roldan and Justin
  *         Deoliveira's help)
+ *
+ * @source $URL$
  */
 public class XSDIdRegistry {
     HashSet<String> ids = new HashSet<String>();

@@ -43,6 +43,8 @@ import org.geotools.xml.*;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class AcceptFormatsTypeBinding extends AbstractComplexEMFBinding {
     public AcceptFormatsTypeBinding(Ows10Factory factory) {

@@ -24,6 +24,8 @@ import org.eclipse.xsd.XSDElementDeclaration;
  *
  * @author Justin Deoliveira,Refractions Research Inc.,jdeolive@refractions.net
  *
+ *
+ * @source $URL$
  */
 public interface ElementInstance extends InstanceComponent {
     /**

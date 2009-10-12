@@ -94,6 +94,8 @@ import org.opengis.feature.simple.SimpleFeatureType;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class FeatureCollectionTypeBinding extends AbstractComplexEMFBinding {
     public FeatureCollectionTypeBinding(WfsFactory factory) {

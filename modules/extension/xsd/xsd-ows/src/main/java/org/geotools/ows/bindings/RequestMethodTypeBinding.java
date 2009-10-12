@@ -52,6 +52,8 @@ import org.geotools.xml.*;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class RequestMethodTypeBinding extends AbstractComplexEMFBinding {
     public RequestMethodTypeBinding(Ows10Factory factory) {

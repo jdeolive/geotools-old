@@ -38,6 +38,8 @@ import org.geotools.xml.Node;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class OGCSubBinding extends AbstractComplexBinding {
     FilterFactory filterfactory;

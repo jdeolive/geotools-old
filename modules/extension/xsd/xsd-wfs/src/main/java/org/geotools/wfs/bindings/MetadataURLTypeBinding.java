@@ -77,6 +77,8 @@ import org.geotools.xml.Node;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class MetadataURLTypeBinding extends AbstractComplexEMFBinding {
     public MetadataURLTypeBinding(WfsFactory factory) {

@@ -57,6 +57,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class GMLAbstractGeometryTypeBinding extends AbstractComplexBinding {
     Logger logger;

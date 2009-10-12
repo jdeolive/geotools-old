@@ -79,6 +79,8 @@ import org.geotools.xml.AbstractComplexEMFBinding;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class LockTypeBinding extends AbstractComplexEMFBinding {
     public LockTypeBinding(WfsFactory factory) {

@@ -71,6 +71,8 @@ import javax.xml.namespace.QName;
  * </p>
  * 
  * @generated
+ *
+ * @source $URL$
  */
 public class PolygonPatchTypeBinding extends AbstractComplexBinding {
 

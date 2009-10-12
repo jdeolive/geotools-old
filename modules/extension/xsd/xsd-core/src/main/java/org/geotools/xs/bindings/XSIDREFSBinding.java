@@ -57,6 +57,8 @@ import org.geotools.xs.XS;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class XSIDREFSBinding implements SimpleBinding {
     /**

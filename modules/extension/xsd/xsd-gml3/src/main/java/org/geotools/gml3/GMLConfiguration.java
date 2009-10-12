@@ -87,6 +87,8 @@ import com.vividsolutions.jts.geom.impl.CoordinateArraySequenceFactory;
  *
  * @author Justin Deoliveira, The Open Planning Project
  *
+ *
+ * @source $URL$
  */
 public class GMLConfiguration extends Configuration {
     

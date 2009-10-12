@@ -20,6 +20,8 @@ package org.geotools.xml.impl;
  * and format <code>xs:dateTime</code> values.</p>
  *
  * @author <a href="mailto:joe@ispsoft.de">Jochen Wiedmann</a>
+ *
+ * @source $URL$
  */
 public class XsDateFormat extends XsDateTimeFormat {
     /** Creates a new instance.

@@ -22,6 +22,8 @@ package org.geotools.xml.impl;
  *
  * @author Justin Deoliveira,Refractions Research Inc.,jdeolive@refractions.net
  *TODO: kill this class
+ *
+ * @source $URL$
  */
 public class ParseHierarchy {
     //	XSDTypeDefinition bottom;

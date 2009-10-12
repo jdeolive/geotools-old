@@ -42,6 +42,8 @@ import org.geotools.xml.*;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class OnlineResourceTypeBinding extends AbstractComplexEMFBinding {
     public OnlineResourceTypeBinding(Ows10Factory factory) {

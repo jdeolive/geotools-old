@@ -48,6 +48,8 @@ import org.geotools.referencing.CRS;
  *
  * @author Justin Deoliveira, The Open Planning Project
  *
+ *
+ * @source $URL$
  */
 public class GML3MockData {
     static GeometryFactory gf = new GeometryFactory();

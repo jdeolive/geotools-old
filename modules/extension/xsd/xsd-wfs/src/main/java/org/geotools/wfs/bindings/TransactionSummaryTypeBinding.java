@@ -53,6 +53,8 @@ import org.geotools.xml.Node;
  * </p>
  * 
  * @generated
+ *
+ * @source $URL$
  */
 public class TransactionSummaryTypeBinding extends AbstractComplexEMFBinding {
     private WfsFactory factory;

@@ -30,6 +30,8 @@ import org.picocontainer.defaults.BasicComponentParameter;
  *
  * @author Justin Deoliveira, The Open Planning Project
  *
+ *
+ * @source $URL$
  */
 public class OptionalComponentParameter extends BasicComponentParameter {
     public OptionalComponentParameter() {

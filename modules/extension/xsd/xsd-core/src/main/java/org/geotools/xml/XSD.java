@@ -49,6 +49,8 @@ import org.opengis.feature.type.Schema;
  * </p>
  * @author Justin Deoliveira, The Open Planning Project
  * @since 2.5
+ *
+ * @source $URL$
  */
 public abstract class XSD {
     /**

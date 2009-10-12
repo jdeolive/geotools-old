@@ -39,6 +39,8 @@ import org.geotools.xml.*;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class Function_NamesTypeBinding extends AbstractComplexBinding {
     /**

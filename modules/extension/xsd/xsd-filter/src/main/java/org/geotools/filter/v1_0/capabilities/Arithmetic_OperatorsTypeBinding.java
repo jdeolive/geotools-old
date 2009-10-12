@@ -42,6 +42,8 @@ import org.geotools.xml.*;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class Arithmetic_OperatorsTypeBinding extends AbstractComplexBinding {
     FilterFactory factory;

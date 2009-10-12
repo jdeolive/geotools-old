@@ -56,6 +56,8 @@ import com.vividsolutions.jts.geom.LineString;
  *
  * @author Justin Deoliveira, The Open Planning Project, jdeolive@openplans.org
  * @author Ben Caradoc-Davies, CSIRO Exploration and Mining
+ *
+ * @source $URL$
  */
 public class GML3EncodingUtils {
     static DirectPosition[] positions(LineString line) {

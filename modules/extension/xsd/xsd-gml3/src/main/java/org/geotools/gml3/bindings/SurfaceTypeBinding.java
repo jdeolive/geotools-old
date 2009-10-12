@@ -75,6 +75,8 @@ import javax.xml.namespace.QName;
  * </p>
  * 
  * @generated
+ *
+ * @source $URL$
  */
 public class SurfaceTypeBinding extends AbstractComplexBinding implements Comparable {
 

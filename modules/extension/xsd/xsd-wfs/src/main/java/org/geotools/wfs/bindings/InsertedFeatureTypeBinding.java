@@ -62,6 +62,8 @@ import org.geotools.xml.AbstractComplexEMFBinding;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class InsertedFeatureTypeBinding extends AbstractComplexEMFBinding {
     public InsertedFeatureTypeBinding(WfsFactory factory) {

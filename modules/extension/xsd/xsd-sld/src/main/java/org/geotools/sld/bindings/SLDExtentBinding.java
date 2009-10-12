@@ -49,6 +49,8 @@ import org.geotools.xml.*;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class SLDExtentBinding extends AbstractComplexBinding {
     StyleFactory styleFactory;

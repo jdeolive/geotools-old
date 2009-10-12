@@ -46,6 +46,8 @@ import org.geotools.xml.*;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class DescriptionTypeBinding extends AbstractComplexEMFBinding {
     public DescriptionTypeBinding(Ows10Factory factory) {

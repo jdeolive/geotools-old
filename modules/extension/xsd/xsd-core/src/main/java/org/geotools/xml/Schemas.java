@@ -92,6 +92,8 @@ import org.geotools.xml.impl.TypeWalker.Visitor;
  *
  * @author Justin Deoliveira, The Open Planning Project
  *
+ *
+ * @source $URL$
  */
 public class Schemas {
     private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger(Schemas.class.getPackage()

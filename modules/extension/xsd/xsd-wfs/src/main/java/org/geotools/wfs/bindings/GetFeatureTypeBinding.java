@@ -141,6 +141,8 @@ import org.geotools.xml.AbstractComplexEMFBinding;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class GetFeatureTypeBinding extends AbstractComplexEMFBinding {
     public GetFeatureTypeBinding(WfsFactory factory) {

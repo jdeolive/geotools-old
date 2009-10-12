@@ -26,6 +26,8 @@ import org.geotools.xml.impl.BindingWalker;
  * @author Justin Deoliveira, The Open Planning Project
  *
  * TODO: rename, this isnt really a factory!!
+ *
+ * @source $URL$
  */
 public interface BindingWalkerFactory {
     /**

@@ -40,6 +40,8 @@ import org.geotools.xml.*;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class _DCPBinding extends AbstractComplexEMFBinding {
     public _DCPBinding(Ows10Factory factory) {

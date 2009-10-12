@@ -49,6 +49,8 @@ import org.geotools.xml.Node;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class OGCPropertyIsNullTypeBinding extends AbstractComplexBinding {
     private FilterFactory factory;

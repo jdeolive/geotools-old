@@ -10,6 +10,8 @@ import org.opengis.filter.expression.Expression;
 /**
  * ExpressionBuilder is the main entry point from a fluent programming point of view. We will mostly
  * test using this as a starting point; and break out other test cases on an as needed basis.
+ *
+ * @source $URL: http://svn.somewhere.foo/org/geotools/trunk/modules/extension/brewer/src/test/java/org/geotools/filter/expression/ExpressionBuilderTest.java $
  */
 public class ExpressionBuilderTest {
 

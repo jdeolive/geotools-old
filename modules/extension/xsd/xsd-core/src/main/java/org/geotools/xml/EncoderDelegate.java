@@ -11,6 +11,8 @@ import org.xml.sax.ContentHandler;
  *  
  * @author Justin Deoliveira, OpenGEO
  *
+ *
+ * @source $URL$
  */
 public interface EncoderDelegate {
 

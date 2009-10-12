@@ -39,6 +39,8 @@ import org.geotools.xml.Node;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class OGCTouchesBinding extends AbstractComplexBinding {
     FilterFactory2 filterFactory;

@@ -54,6 +54,8 @@ import org.geotools.xml.*;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class SLDImageOutlineBinding extends AbstractComplexBinding {
     StyleFactory styleFactory;

@@ -83,6 +83,8 @@ import org.geotools.xml.AbstractComplexEMFBinding;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class DeleteElementTypeBinding extends AbstractComplexEMFBinding {
     public DeleteElementTypeBinding(WfsFactory factory) {

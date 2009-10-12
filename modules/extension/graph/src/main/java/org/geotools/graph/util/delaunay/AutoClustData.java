@@ -21,6 +21,8 @@ import java.util.List;
 /**
  *
  * @author jfc173
+ *
+ * @source $URL$
  */
 public class AutoClustData {
     

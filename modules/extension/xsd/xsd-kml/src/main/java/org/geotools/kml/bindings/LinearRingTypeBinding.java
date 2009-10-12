@@ -49,6 +49,8 @@ import org.geotools.xml.Node;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class LinearRingTypeBinding extends AbstractComplexBinding {
     GeometryFactory geometryFactory;

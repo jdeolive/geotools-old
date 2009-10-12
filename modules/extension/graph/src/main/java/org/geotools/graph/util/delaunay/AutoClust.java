@@ -35,6 +35,8 @@ import org.geotools.graph.structure.basic.BasicGraph;
  *    from Delaunay Diagram" in Computers, Environment and Urban Systems, 26:315-334.
  *
  * @author jfc173
+ *
+ * @source $URL$
  */
 public class AutoClust {        
     

@@ -55,6 +55,8 @@ import java.util.Collection;
  * &lt;/simpleType>
  * </code></pre>
  * @author Jody Garnett
+ *
+ * @source $URL$
  */
 public abstract class Length {
     /**

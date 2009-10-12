@@ -68,6 +68,8 @@ import org.geotools.xml.*;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class ContactTypeBinding extends AbstractComplexEMFBinding {
     public ContactTypeBinding(Ows10Factory factory) {

@@ -41,6 +41,8 @@ import org.opengis.filter.spatial.BinarySpatialOperator;
  * </p>
  * @author Justin Deoliveira, OpenGEO
  *
+ *
+ * @source $URL$
  */
 public class FilterParsingUtils {
 

@@ -112,6 +112,8 @@ import org.geotools.xml.impl.TypeStreamingParserHandler;
  * </p>
  *
  * @author Justin Deoliveira, The Open Planning Project
+ *
+ * @source $URL$
  */
 public class StreamingParser {
     /**

@@ -51,6 +51,8 @@ import org.geotools.xml.*;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class SLDLayerFeatureConstraintsBinding extends AbstractComplexBinding {
     StyleFactory styleFactory;

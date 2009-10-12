@@ -67,6 +67,8 @@ import org.picocontainer.MutablePicoContainer;
  * Parser configuration for the http://www.opengis.net/wfs schema.
  *
  * @generated
+ *
+ * @source $URL$
  */
 public abstract class WFSConfiguration extends Configuration {
     /**

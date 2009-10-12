@@ -51,6 +51,8 @@ import org.geotools.xml.Node;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class FolderTypeBinding extends AbstractComplexBinding {
     static final SimpleFeatureType featureType;

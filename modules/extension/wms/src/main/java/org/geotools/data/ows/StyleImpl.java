@@ -25,6 +25,8 @@ import org.opengis.util.InternationalString;
  * 
  * @author Richard Gould
  *
+ *
+ * @source $URL$
  */
 public class StyleImpl {
 

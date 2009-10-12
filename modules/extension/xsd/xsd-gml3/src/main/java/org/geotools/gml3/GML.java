@@ -31,6 +31,8 @@ import org.opengis.feature.type.Schema;
  * attributes in the http://www.opengis.net/gml schema.
  *
  * @generated
+ *
+ * @source $URL$
  */
 public final class GML extends XSD {
     

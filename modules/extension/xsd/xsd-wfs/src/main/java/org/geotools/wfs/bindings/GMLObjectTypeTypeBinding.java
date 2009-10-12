@@ -73,6 +73,8 @@ import org.geotools.xml.AbstractComplexEMFBinding;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class GMLObjectTypeTypeBinding extends AbstractComplexEMFBinding {
     public GMLObjectTypeTypeBinding(WfsFactory factory) {

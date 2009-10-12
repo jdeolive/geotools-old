@@ -65,6 +65,8 @@ import org.picocontainer.MutablePicoContainer;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class SLDRuleBinding extends AbstractComplexBinding {
     StyleFactory styleFactory;

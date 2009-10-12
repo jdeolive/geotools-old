@@ -36,6 +36,8 @@ import org.geotools.xml.*;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class SLDGreenChannelBinding extends AbstractComplexBinding {
     /**

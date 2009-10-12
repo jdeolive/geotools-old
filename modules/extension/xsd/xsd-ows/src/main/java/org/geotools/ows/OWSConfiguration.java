@@ -61,6 +61,8 @@ import org.geotools.xml.Configuration;
  * Parser configuration for the http://www.opengis.net/ows schema.
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class OWSConfiguration extends Configuration {
     /**

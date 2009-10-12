@@ -42,6 +42,8 @@ import org.geotools.xml.InstanceComponent;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class SortOrderTypeBinding extends AbstractSimpleBinding {
     FilterFactory filterfactory;

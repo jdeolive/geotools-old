@@ -29,6 +29,8 @@ import org.geotools.xml.XSD;
  * attributes in the http://www.isotc211.org/2005/gmx schema.
  *
  * @generated
+ *
+ * @source $URL$
  */
 public final class GMX extends XSD {
 

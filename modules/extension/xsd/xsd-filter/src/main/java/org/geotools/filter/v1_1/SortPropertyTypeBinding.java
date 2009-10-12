@@ -44,6 +44,8 @@ import org.geotools.xml.Node;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class SortPropertyTypeBinding extends AbstractComplexBinding {
     FilterFactory filterfactory;

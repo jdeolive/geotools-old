@@ -47,6 +47,8 @@ import org.geotools.xml.*;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class ResponsiblePartySubsetTypeBinding extends AbstractComplexEMFBinding {
     public ResponsiblePartySubsetTypeBinding(Ows10Factory factory) {

@@ -54,6 +54,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class GMLPolygonMemberTypeBinding extends AbstractComplexBinding {
     /**

@@ -43,6 +43,8 @@ import org.geotools.xs.XS;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class XSNonPositiveIntegerBinding implements SimpleBinding {
     final BigInteger MIN_LONG = BigInteger.valueOf(Long.MIN_VALUE);

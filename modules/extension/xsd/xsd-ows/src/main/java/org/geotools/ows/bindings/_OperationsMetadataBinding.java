@@ -55,6 +55,8 @@ import org.geotools.xml.*;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class _OperationsMetadataBinding extends AbstractComplexEMFBinding {
     public _OperationsMetadataBinding(Ows10Factory factory) {

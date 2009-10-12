@@ -41,6 +41,8 @@ import org.geotools.xml.*;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class Id_CapabilitiesTypeBinding extends AbstractComplexBinding {
     FilterFactory factory;

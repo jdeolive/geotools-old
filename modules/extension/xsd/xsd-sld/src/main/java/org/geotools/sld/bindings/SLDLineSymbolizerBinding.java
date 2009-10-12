@@ -55,6 +55,8 @@ import org.geotools.xml.*;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class SLDLineSymbolizerBinding extends AbstractComplexBinding {
     StyleFactory styleFactory;

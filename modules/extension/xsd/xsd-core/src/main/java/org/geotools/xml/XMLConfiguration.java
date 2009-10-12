@@ -21,6 +21,8 @@ import org.picocontainer.MutablePicoContainer;
  * Parser configuration for the http://www.w3.org/XML/1998/namespace schema.
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class XMLConfiguration extends Configuration {
 

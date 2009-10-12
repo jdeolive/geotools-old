@@ -86,6 +86,8 @@ import org.geotools.xml.AbstractComplexEMFBinding;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class GetGmlObjectTypeBinding extends AbstractComplexEMFBinding {
     public GetGmlObjectTypeBinding(WfsFactory factory) {

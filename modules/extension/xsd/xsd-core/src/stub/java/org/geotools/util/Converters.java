@@ -21,6 +21,8 @@ package org.geotools.util;
  * 
  * @author Justin Deoliveira, The Open Planning Project
  *
+ *
+ * @source $URL$
  */
 public class Converters {
 

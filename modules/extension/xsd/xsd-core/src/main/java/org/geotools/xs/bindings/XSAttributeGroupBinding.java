@@ -44,6 +44,8 @@ import org.geotools.xs.XS;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class XSAttributeGroupBinding extends AbstractComplexBinding {
     /**

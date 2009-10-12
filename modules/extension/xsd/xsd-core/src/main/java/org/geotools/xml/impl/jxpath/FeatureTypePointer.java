@@ -31,6 +31,8 @@ import org.opengis.feature.simple.SimpleFeatureType;
  *
  * @author Justin Deoliveira, The Open Planning Project
  *
+ *
+ * @source $URL$
  */
 public class FeatureTypePointer extends NodePointer {
     /**

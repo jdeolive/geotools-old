@@ -63,6 +63,8 @@ import org.geotools.xml.InstanceComponent;
  * </p>
  * 
  * @generated
+ *
+ * @source $URL$
  */
 public class ResultTypeTypeBinding extends AbstractSimpleBinding {
     public ResultTypeTypeBinding(WfsFactory factory) {

@@ -62,6 +62,8 @@ import com.vividsolutions.jts.geom.CoordinateSequenceFactory;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class GMLCoordinatesTypeBinding extends AbstractComplexBinding {
     CoordinateSequenceFactory csFactory;

@@ -62,6 +62,8 @@ import org.geotools.xml.*;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class GetCapabilitiesTypeBinding extends AbstractComplexEMFBinding {
     public GetCapabilitiesTypeBinding(Ows10Factory factory) {

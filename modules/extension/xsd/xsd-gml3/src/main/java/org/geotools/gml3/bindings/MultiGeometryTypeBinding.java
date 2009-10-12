@@ -51,6 +51,8 @@ import javax.xml.namespace.QName;
  * </p>
  * 
  * @generated
+ *
+ * @source $URL$
  */
 public class MultiGeometryTypeBinding extends AbstractComplexBinding {
 

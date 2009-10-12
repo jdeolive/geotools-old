@@ -116,6 +116,8 @@ import org.geotools.xs.bindings.XSWildcardBinding;
  *
  * @author Justin Deoliveira, The Open Planning Project
  *
+ *
+ * @source $URL$
  */
 public class XSConfiguration extends Configuration {
     public XSConfiguration() {

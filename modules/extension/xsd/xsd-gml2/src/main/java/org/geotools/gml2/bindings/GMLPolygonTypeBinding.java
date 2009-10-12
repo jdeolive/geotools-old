@@ -58,6 +58,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class GMLPolygonTypeBinding extends AbstractComplexBinding {
     GeometryFactory gFactory;

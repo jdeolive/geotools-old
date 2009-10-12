@@ -52,6 +52,8 @@ import org.geotools.xml.Node;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class MultiGeometryTypeBinding extends AbstractComplexBinding {
     GeometryFactory geometryFactory;

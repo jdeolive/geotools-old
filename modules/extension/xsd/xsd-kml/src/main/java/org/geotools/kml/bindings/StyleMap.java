@@ -31,6 +31,8 @@ import org.geotools.styling.FeatureTypeStyle;
  * </p>
  * @author Justin Deoliveira, The Open Planning Project
  *
+ *
+ * @source $URL$
  */
 public class StyleMap {
     protected Map map = Collections.synchronizedMap(new HashMap());

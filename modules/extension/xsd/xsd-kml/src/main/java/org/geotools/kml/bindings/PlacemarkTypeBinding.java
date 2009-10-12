@@ -50,6 +50,8 @@ import org.geotools.xml.Node;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class PlacemarkTypeBinding extends AbstractComplexBinding {
     static final SimpleFeatureType featureType;

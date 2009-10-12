@@ -54,6 +54,8 @@ import com.vividsolutions.jts.geom.Envelope;
  * </p>
  *
  * @generated
+ *
+ * @source $URL$
  */
 public class GMLNullTypeBinding implements SimpleBinding {
     /**

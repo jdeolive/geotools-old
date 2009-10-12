@@ -25,6 +25,8 @@ import java.util.List;
  *
  * @author Justin Deoliveira, The Open Planning Project
  *
+ *
+ * @source $URL$
  */
 public interface PropertyExtractor {
     /**
