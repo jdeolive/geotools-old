@@ -89,9 +89,9 @@ We use one of GeoTools' data wizards, **JParameterListWizard**, to prompt for th
 
 Note the use of **Parameter** objects for each input file. The arguments passed to the Parameter constructor are:
 
-:key: a key an identifier for the Parameter
+:key: an identifier for the Parameter
 
-:type: the Class of the object that the Parameter refers to
+:type: the class of the object that the Parameter refers to
 
 :title: a title which the wizard will use to label the text field
 
@@ -99,7 +99,7 @@ Note the use of **Parameter** objects for each input file. The arguments passed 
 
 :metadata: a Map containing additional data for the Parameter - in our case this is one or more file extensions.
 
-**KVP** is a handy class for creating a Map of String key : Object value pairs:: 
+**KVP** is a handy class for creating a Map of String:Object pairs:: 
 
   // rather than doing this...
   Map<String, Object> map = new HashMap<String, Object>
@@ -125,7 +125,7 @@ by adding a menu to choose the image display mode.
 
 Note that we are creating a **Style** for each of the map layers...
 
-* A greyscale Style for the image, created with a method that we'll examine next
+* A greyscale Style for the initial image display, created with a method that we'll examine next
 * A simple outline style for the shapefile using the **SLD** utility class
 
 Creating a Style for the raster layer
@@ -137,8 +137,10 @@ We want the user to be able to choose between greyscale display of a selected im
 Creating a greyscale Style
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Two methods are involved here: the first to prompt the user for the image band; and the second to actually
-create the Style.
+Two methods are involved here: 
+
+ * **createGreyScaleStyle()**, prompts the user for the image band to display
+ * **createGreyScaleStyle(int band)** does the actual work of creating a new Style object
 
    .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/ImageLab.java
       :language: java
