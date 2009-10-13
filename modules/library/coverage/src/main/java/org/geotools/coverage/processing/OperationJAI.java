@@ -774,7 +774,7 @@ public class OperationJAI extends Operation2D {
                 sampleDim = allBands[allBands.length == 1 ? 0 : numBands];
                 final List<Category> categories = sampleDim.getCategories();
                 // GridSampleDimension may contain no categories
-                if (categories == null) {
+                if (categories == null || categories.isEmpty()) {
                     result[numBands] = sampleDim;
                     continue;
                 }
