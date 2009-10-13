@@ -31,22 +31,30 @@ public class MapPaneAdapter implements MapPaneListener {
 
     /**
      * Called by the map pane when a new map context has been set
+     *
+     * @param ev the event
      */
     public void onNewContext(MapPaneEvent ev) {}
 
     /**
      * Called by the map pane when a new renderer has been set
+     *
+     * @param ev the event
      */
     public void onNewRenderer(MapPaneEvent ev) {}
 
     /**
      * Called by the map pane when it has been resized
+     *
+     * @param ev the event
      */
     public void onResized(MapPaneEvent ev) {}
 
     /**
      * Called by the map pane when its display area has been
      * changed e.g. by zooming or panning
+     *
+     * @param ev the event
      */
     public void onDisplayAreaChanged(MapPaneEvent ev) {}
 }

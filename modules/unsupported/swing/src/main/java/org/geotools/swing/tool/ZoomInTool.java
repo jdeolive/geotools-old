@@ -49,10 +49,15 @@ public class ZoomInTool extends AbstractZoomTool {
     
     private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/swing/Text");
 
+    /** Tool name */
     public static final String TOOL_NAME = stringRes.getString("tool_name_zoom_in");
+    /** Tool tip text */
     public static final String TOOL_TIP = stringRes.getString("tool_tip_zoom_in");
+    /** Cursor */
     public static final String CURSOR_IMAGE = "/org/geotools/swing/icons/mActionZoomIn.png";
+    /** Cursor hotspot coordinates */
     public static final Point CURSOR_HOTSPOT = new Point(14, 9);
+    /** Icon for the control */
     public static final String ICON_IMAGE = "/org/geotools/swing/icons/mActionZoomIn.png";
     
     private Cursor cursor;
@@ -99,18 +104,22 @@ public class ZoomInTool extends AbstractZoomTool {
     /**
      * Records the map position of the mouse event in case this
      * button press is the beginning of a mouse drag
+     *
+     * @param ev the mouse event
      */
     @Override
-    public void onMousePressed(MapMouseEvent e) {
+    public void onMousePressed(MapMouseEvent ev) {
         startDragPos = new DirectPosition2D();
-        startDragPos.setLocation(e.getMapPosition());
+        startDragPos.setLocation(ev.getMapPosition());
     }
 
     /**
      * Records that the mouse is being dragged
+     *
+     * @param ev the mouse event
      */
     @Override
-    public void onMouseDragged(MapMouseEvent e) {
+    public void onMouseDragged(MapMouseEvent ev) {
         dragged = true;
     }
 
@@ -119,12 +128,14 @@ public class ZoomInTool extends AbstractZoomTool {
      * box that the user defined and passes this to the mapPane's
      * {@link org.geotools.swing.JMapPane#setDisplayArea(org.opengis.geometry.Envelope) }
      * method
+     *
+     * @param ev the mouse event
      */
     @Override
-    public void onMouseReleased(MapMouseEvent e) {
-        if (dragged && !e.getPoint().equals(startDragPos)) {
+    public void onMouseReleased(MapMouseEvent ev) {
+        if (dragged && !ev.getPoint().equals(startDragPos)) {
             Envelope2D env = new Envelope2D();
-            env.setFrameFromDiagonal(startDragPos, e.getMapPosition());
+            env.setFrameFromDiagonal(startDragPos, ev.getMapPosition());
             dragged = false;
             getMapPane().setDisplayArea(env);
         }

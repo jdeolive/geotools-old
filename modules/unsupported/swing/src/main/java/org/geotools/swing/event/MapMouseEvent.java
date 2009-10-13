@@ -51,7 +51,7 @@ public final class MapMouseEvent extends MouseEvent {
      *            the mouse event
      */
     public MapMouseEvent(JMapPane pane, MouseEvent event) {
-        super(event.getComponent(), event.getID(), event.getWhen(), event.getModifiers(), event
+        super(pane, event.getID(), event.getWhen(), event.getModifiers(), event
                 .getX(), event.getY(), event.getClickCount(), event.isPopupTrigger(), event
                 .getButton());
 
@@ -68,11 +68,11 @@ public final class MapMouseEvent extends MouseEvent {
      * <p>
      * @todo do we need to calculate map position for a mouse wheel event ?
      * 
-     * @param pane
-     * @param event
+     * @param pane the map pane
+     * @param event the mouse wheel event
      */
     public MapMouseEvent(JMapPane pane, MouseWheelEvent event) {        
-        super(event.getComponent(), event.getID(), event.getWhen(), event.getModifiers(), event
+        super(pane, event.getID(), event.getWhen(), event.getModifiers(), event
                 .getX(), event.getY(), event.getClickCount(), event.isPopupTrigger());
 
         isWheelEvent = true;
@@ -100,7 +100,7 @@ public final class MapMouseEvent extends MouseEvent {
     /**
      * Get the position, in map (world) coordinates of this mouse event
      * 
-     * @return
+     * @return a new DirectPosition2D object for the world coordinates
      */
     public DirectPosition2D getMapPosition() {
         return new DirectPosition2D(geoCoords.x, geoCoords.y);

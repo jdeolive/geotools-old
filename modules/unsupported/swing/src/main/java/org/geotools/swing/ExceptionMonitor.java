@@ -368,6 +368,7 @@ public final class ExceptionMonitor {
     /**
      * Display a dummy exception. This method is provided only as an easy
      * way to test the dialog appearance from the command line.
+     * @param args ignored
      */
     public static void main(final String[] args) {
         show(null, new Exception());

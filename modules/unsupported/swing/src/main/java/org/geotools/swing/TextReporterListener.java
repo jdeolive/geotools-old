@@ -30,5 +30,10 @@ import java.awt.event.WindowEvent;
  */
 public interface TextReporterListener {
 
+    /**
+     * Notify the listener that the text reporter is being closed
+     *
+     * @param ev the window event
+     */
     public void onReporterClosed(WindowEvent ev);
 }

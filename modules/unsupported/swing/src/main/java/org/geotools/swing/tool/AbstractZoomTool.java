@@ -29,8 +29,10 @@ package org.geotools.swing.tool;
  */
 
 public abstract class AbstractZoomTool extends CursorTool {
+    /** The default zoom increment */
     public static final double DEFAULT_ZOOM_FACTOR = 1.5;
-    
+
+    /** The working zoom increment */
     protected double zoom;
 
     /**

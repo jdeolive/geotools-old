@@ -23,7 +23,7 @@ import org.geotools.swing.JMapPane;
 import org.geotools.swing.event.MapMouseAdapter;
 
 /**
- * The base class for map mapPane cursor tools. Simply adds a getCursor
+ * The base class for map pane cursor tools. Simply adds a getCursor
  * method to the MapToolAdapter
  * 
  * @author Michael Bedward
@@ -38,8 +38,8 @@ public abstract class CursorTool extends MapMouseAdapter {
     private JMapPane mapPane;
 
     /**
-     * Set the map mapPane that this cursor tool is associated with
-     * @param mapPane the map mapPane
+     * Set the map pane that this cursor tool is associated with
+     * @param pane the map pane
      * @throws IllegalArgumentException if mapPane is null
      */
     public void setMapPane(JMapPane pane) {
@@ -60,7 +60,10 @@ public abstract class CursorTool extends MapMouseAdapter {
     }
 
     /**
-     * Get the cursor for this tool.
+     * Get the cursor for this tool. Sub-classes should override this
+     * method to provide a custom cursor.
+     *
+     * @return the default cursor
      */
     public Cursor getCursor() {
         return Cursor.getDefaultCursor();
@@ -69,6 +72,9 @@ public abstract class CursorTool extends MapMouseAdapter {
     /**
      * Query if the tool is one that draws a box on the map display
      * when the mouse is being dragged (eg. to indicate a zoom area).
+     *
+     * @return true if this tool supports drawing a drag-box on the
+     * map; false otherwise
      */
     public boolean drawDragBox() {
         return false;

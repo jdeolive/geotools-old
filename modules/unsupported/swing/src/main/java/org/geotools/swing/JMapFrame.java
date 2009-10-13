@@ -65,7 +65,7 @@ public class JMapFrame extends JFrame {
 
     /**
      * Constants for available toolbar buttons used with the
-     * {@linkplain #enableTool(int)} method.
+     * {@linkplain #enableTool} method.
      */
     public enum Tool {
         /**
@@ -113,6 +113,8 @@ public class JMapFrame extends JFrame {
      * bar; sets the supplied {@code MapContext}; and displays the frame on the
      * AWT event dispatching thread. The context's title is used as the frame's
      * title.
+     *
+     * @param context the map context containing the layers to display
      */
     public static void showMap(MapContext context) {
         final JMapFrame frame = new JMapFrame(context);

@@ -30,6 +30,26 @@ import org.geotools.swing.wizard.JWizard;
 
 /**
  * Wizard prompting the user to enter or review connection parameters.
+ * <p>
+ * Example of use (from the GeoTools example project):
+ * <pre><code>
+        List<Parameter<?>> list = new ArrayList<Parameter<?>>();
+        list.add(new Parameter<File>("image", File.class, "Image",
+                "GeoTiff or World+Image to display as basemap",
+                new KVP( Parameter.EXT, "tif", Parameter.EXT, "jpg")));
+        list.add(new Parameter<File>("shape", File.class, "Shapefile",
+                "Shapefile contents to display", new KVP(Parameter.EXT, "shp")));
+
+        JParameterListWizard wizard = new JParameterListWizard("Image Lab",
+                "Fill in the following layers", list);
+        int finish = wizard.showModalDialog();
+
+        if (finish != JWizard.FINISH) {
+            System.exit(0);
+        }
+        File imageFile = (File) wizard.getConnectionParameters().get("image");
+        File shapeFile = (File) wizard.getConnectionParameters().get("shape");
+ * </pre></code>
  *
  * @source $URL$
  */
@@ -52,16 +72,17 @@ public class JParameterListWizard extends JWizard {
     protected Map<String, Object> connectionParameters;
 
     /**
-     * Quick transition from JFileDataStoreChooser; allowing applications to migrate to connection
-     * parameters.
-     * 
-     * @param extension
-     *            Extension used to look up FileDataStoreFactory
+     * Constructor.
+     *
+     * @param title title for the dialog
+     * @param description brief description to be displayed on the page
+     * @param contents a {@code List} of {@code Parameter} objects defining the data being requested
+     * @param connectionParams an optional {@code Map} of initial parameter values
      */
     public JParameterListWizard(String title, String description, List<Parameter<?>> contents,
-            Map<String, Object> params) {
+            Map<String, Object> connectionParams) {
         super(title);
-        this.connectionParameters = params == null ? new HashMap<String, Object>() : params;
+        this.connectionParameters = connectionParams == null ? new HashMap<String, Object>() : connectionParams;
         fillInDefaults(contents, this.connectionParameters);
 
         List<Parameter<?>> userContents = contentsForLevel(contents, "user");
@@ -85,6 +106,13 @@ public class JParameterListWizard extends JWizard {
         setCurrentPanel("userPage");
     }
 
+    /**
+     * Constructor.
+     *
+     * @param title title for the dialog
+     * @param description brief description to be displayed on the page
+     * @param contents a {@code List} of {@code Parameter} objects defining the data being requested
+     */
     public JParameterListWizard(String title, String description, List<Parameter<?>> contents) {
         this( title, description, contents, new HashMap<String,Object>() );
     }
@@ -92,17 +120,17 @@ public class JParameterListWizard extends JWizard {
     /**
      * Method used to fill in any required "programming" level defaults such as dbtype.
      * 
-     * @param format2
-     * @param params
+     * @param contents
+     * @param connectionParams a {@code Map} of initial parameter values
      */
-    private void fillInDefaults(List<Parameter<?>> contents,
-            Map<String, Object> connectionParameters) {
-        if (connectionParameters == null)
+    private void fillInDefaults(List<Parameter<?>> contents, Map<String, Object> connectionParams) {
+        if (connectionParams == null)
             return;
+
         for (Parameter<?> param : contents) {
             if (param.required && "program".equals(param.getLevel())) {
-                if (!connectionParameters.containsKey(param.key)) {
-                    connectionParameters.put(param.key, param.sample);
+                if (!connectionParams.containsKey(param.key)) {
+                    connectionParams.put(param.key, param.sample);
                 }
             }
         }
@@ -147,14 +175,24 @@ public class JParameterListWizard extends JWizard {
         return count;
     }
 
+    /**
+     * Retrieve the connection parameters entered
+     *
+     * @return the {@code Map} of connection parameters
+     */
     public Map<String, Object> getConnectionParameters() {
         return connectionParameters;
     }
 
     /**
-     * Helper method to check if for "url" parameter.
-     * 
-     * @return url parameters as a File, or null if not applicable
+     * Helper method that returns the "url" element of the connection
+     * parameters as a File, if present. Equivalent to:
+     * <pre><code>
+     *     URL url = (URL) myWizard.getConnectionParameters().get("url");
+     *     File file = DataUtilities.urlToFile(url);
+     * </code></pre>
+     *
+     * @return url parameter as a File, or null if not applicable
      */
     public File getFile() {
         URL url = (URL) connectionParameters.get("url");

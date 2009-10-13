@@ -44,11 +44,16 @@ import org.geotools.swing.event.MapMouseEvent;
 public class ZoomOutTool extends AbstractZoomTool {
 
     private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/swing/Text");
-    
+
+    /** Tool name */
     public static final String TOOL_NAME = stringRes.getString("tool_name_zoom_out");
+    /** Tool tip text */
     public static final String TOOL_TIP = stringRes.getString("tool_tip_zoom_out");
+    /** Cursor */
     public static final String CURSOR_IMAGE = "/org/geotools/swing/icons/mActionZoomOut.png";
+    /** Cursor hotspot coordinates */
     public static final Point CURSOR_HOTSPOT = new Point(14, 9);
+    /** Icon for the control */
     public static final String ICON_IMAGE = "/org/geotools/swing/icons/mActionZoomOut.png";
     
     private Cursor cursor;
@@ -66,6 +71,8 @@ public class ZoomOutTool extends AbstractZoomTool {
      * Zoom out by the currently set increment, with the map
      * centred at the location (in world coords) of the mouse
      * click
+     *
+     * @param ev the mouse event
      */
     @Override
     public void onMouseClicked(MapMouseEvent ev) {

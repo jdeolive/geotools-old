@@ -56,8 +56,10 @@ public class PanAction extends MapAction {
     /**
      * Called when the associated control is activated. Leads to the
      * map pane's cursor tool being set to a PanTool object
+     *
+     * @param ev the event (not used)
      */
-    public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(ActionEvent ev) {
         getMapPane().setCursorTool(new PanTool());
     }
 

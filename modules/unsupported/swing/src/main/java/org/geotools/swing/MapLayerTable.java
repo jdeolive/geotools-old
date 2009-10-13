@@ -82,6 +82,8 @@ public class MapLayerTable extends JPanel {
 
     /**
      * Set the map pane that this MapLayerTable will service.
+     *
+     * @param pane the map pane
      */
     public void setMapPane(JMapPane pane) {
         this.pane = pane;
@@ -92,6 +94,8 @@ public class MapLayerTable extends JPanel {
      * Add a new layer to those listed in the table. This method will be called
      * by the associated map pane automatically as part of the event sequence
      * when a new MapLayer is added to the pane's MapContext.
+     *
+     * @param layer the map layer
      */
     public void addLayer(MapLayer layer) {
         listModel.insertItem(0, layer);
@@ -101,6 +105,8 @@ public class MapLayerTable extends JPanel {
      * Remove a layer from those listed in the table. This method will be called
      * by the associated map pane automatically as part of the event sequence
      * when a new MapLayer is removed from the pane's MapContext.
+     *
+     * @param layer the map layer
      */
     void removeLayer(MapLayer layer) {
         listModel.removeItem(layer);
@@ -108,6 +114,8 @@ public class MapLayerTable extends JPanel {
 
     /**
      * Repaint the list item associated with the specified MapLayer object
+     *
+     * @param layer the map layer
      */
     public void repaint(MapLayer layer) {
         int index = listModel.indexOf(layer);
@@ -236,15 +244,17 @@ public class MapLayerTable extends JPanel {
     /**
      * Handle a mouse click on a cell in the JList that displays
      * layer names and states.
+     *
+     * @param ev the mouse event
      */
-    private void onLayerItemClicked(MouseEvent e) {
-        int item = list.locationToIndex(e.getPoint());
+    private void onLayerItemClicked(MouseEvent ev) {
+        int item = list.locationToIndex(ev.getPoint());
 
         if (item >= 0) {
             Rectangle r = list.getCellBounds(item, item);
-            if (r.contains(e.getPoint())) {
+            if (r.contains(ev.getPoint())) {
                 MapLayer layer = listModel.getElementAt(item);
-                Point p = new Point(e.getPoint().x, e.getPoint().y - r.y);
+                Point p = new Point(ev.getPoint().x, ev.getPoint().y - r.y);
 
                 if (MapLayerTableCellRenderer.hitSelectionLabel(p)) {
                     layer.setSelected(!layer.isSelected());
@@ -263,6 +273,8 @@ public class MapLayerTable extends JPanel {
      * Handle a ListDataEvent signallying a drag-reordering of the map layers.
      * The event is published by the list model after the layers have been
      * reordered there.
+     *
+     * @param ev the event
      */
     private void onReorderLayers(ListDataEvent ev) {
         pane.setRepaint(false);

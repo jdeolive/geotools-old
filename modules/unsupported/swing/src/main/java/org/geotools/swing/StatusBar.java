@@ -51,10 +51,16 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 public class StatusBar extends JPanel {
     private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/swing/Text");
 
+    /** Number of status bar spaces (text areas) */
     public static final int NUM_SPACES = 3;
 
+    /** Index of the space used for mouse coordinates */
     public static final int COORDS_SPACE = 0;
+
+    /** Index of the space used for map bounds */
     public static final int BOUNDS_SPACE = 1;
+
+    /** Index of teh space used for the CRS */
     public static final int CRS_SPACE = 2;
 
     private JMapPane mapPane;
@@ -92,7 +98,7 @@ public class StatusBar extends JPanel {
      * Register this status bar to receive mouse events from
      * the given map pane
      *
-     * @param pane the map pane
+     * @param newPane the map pane
      * @throws IllegalArgumentException if pane is null
      */
     public void setMapPane(final JMapPane newPane) {
@@ -139,6 +145,7 @@ public class StatusBar extends JPanel {
 
     /**
      * Display the bounding coordinates of the given envelope
+     * @param bounds the bounds to display
      */
     public void displayBounds(Envelope bounds) {
         if (bounds != null) {
@@ -150,6 +157,10 @@ public class StatusBar extends JPanel {
         }
     }
 
+    /**
+     * Display the name of the coordinate reference system
+     * @param crs the CRS to display
+     */
     public void displayCRS(CoordinateReferenceSystem crs) {
         if (crs == null) {
             spaces[CRS_SPACE].setText("Undefined");

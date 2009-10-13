@@ -37,11 +37,15 @@ public class PanTool extends CursorTool {
     
     private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/swing/Text");
 
+    /** Tool name */
     public static final String TOOL_NAME = stringRes.getString("tool_name_pan");
+    /** Tool tip text */
     public static final String TOOL_TIP = stringRes.getString("tool_tip_pan");
+    /** Cursor */
     public static final String CURSOR_IMAGE = "/org/geotools/swing/icons/mActionPan.png";
+    /** Cursor hotspot coordinates */
     public static final Point CURSOR_HOTSPOT = new Point(15, 15);
-
+    /** Icon for the control */
     public static final String ICON_IMAGE = "/org/geotools/swing/icons/mActionPan.png";
     
     private Cursor cursor;
@@ -63,6 +67,7 @@ public class PanTool extends CursorTool {
     /**
      * Respond to a mouse button press event from the map mapPane. This may
      * signal the start of a mouse drag. Records the event's window position.
+     * @param ev the mouse event
      */
     @Override
     public void onMousePressed(MapMouseEvent ev) {
@@ -72,6 +77,7 @@ public class PanTool extends CursorTool {
 
     /**
      * Respond to a mouse dragged event. Calls {@link org.geotools.swing.JMapPane#moveImage()}
+     * @param ev the mouse event
      */
     @Override
     public void onMouseDragged(MapMouseEvent ev) {
@@ -87,6 +93,7 @@ public class PanTool extends CursorTool {
     /**
      * If this button release is the end of a mouse dragged event, requests the
      * map mapPane to repaint the display
+     * @param ev the mouse event
      */
     @Override
     public void onMouseReleased(MapMouseEvent ev) {

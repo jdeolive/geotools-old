@@ -32,8 +32,11 @@ import org.geotools.swing.JMapPane;
  * @version $Id$
  */
 public class ResetAction extends MapAction {
+    /** Name for this tool */
     public static final String TOOL_NAME = java.util.ResourceBundle.getBundle("org/geotools/swing/Text").getString("tool_name_reset");
+    /** Tool tip text */
     public static final String TOOL_TIP = java.util.ResourceBundle.getBundle("org/geotools/swing/Text").getString("tool_tip_reset");
+    /** Icon for the control */
     public static final String ICON_IMAGE = "/org/geotools/swing/icons/mActionZoomFullExtent.png";
     
     /**
@@ -62,8 +65,10 @@ public class ResetAction extends MapAction {
     /**
      * Called when the control is activated. Calls the map pane to reset the 
      * display 
+     *
+     * @param ev the event (not used)
      */
-    public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(ActionEvent ev) {
         getMapPane().reset();
     }
 

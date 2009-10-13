@@ -75,6 +75,7 @@ public class MapPaneEvent extends EventObject {
 
     /**
      * Get the type of this event
+     * @return event type 
      */
     public Type getType() {
         return type;

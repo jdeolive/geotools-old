@@ -219,6 +219,8 @@ public class ProgressWindow implements ProgressListener {
 
     /**
      * Returns a localized string for the specified key.
+     * @param key an integer key
+     * @return the associated string
      */
     private String getString(final int key) {
         return Vocabulary.getResources(window.getLocale()).getString(key);
@@ -226,6 +228,7 @@ public class ProgressWindow implements ProgressListener {
 
     /**
      * Returns the window title. The default title is "Progress" localized in current locale.
+     * @return the window title
      */
     public String getTitle() {
         return (String) get(Caller.TITLE);
@@ -233,26 +236,28 @@ public class ProgressWindow implements ProgressListener {
 
     /**
      * Set the window title. A {@code null} value reset the default title.
+     *
+     * @param title the window title
      */
-    public void setTitle(String name) {
-        if (name == null) {
-            name = getString(VocabularyKeys.PROGRESSION);
+    public void setTitle(String title) {
+        if (title == null) {
+            title = getString(VocabularyKeys.PROGRESSION);
         }
-        set(Caller.TITLE, name);
+        set(Caller.TITLE, title);
     }
 
     /**
      * {@inheritDoc}
+     * @deprecated
      */
-    @Deprecated
     public String getDescription() {
         return (String) get(Caller.LABEL);
     }
 
     /**
      * {@inheritDoc}
+     * @deprecated
      */
-    @Deprecated
     public void setDescription(final String description) {
         set(Caller.LABEL, description);
     }
@@ -307,6 +312,7 @@ public class ProgressWindow implements ProgressListener {
 
     /**
      * {@inheritDoc}
+     * @param stop true to stop; false otherwise
      */
     public void setCanceled(final boolean stop) {
         canceled = stop;
@@ -314,7 +320,11 @@ public class ProgressWindow implements ProgressListener {
 
     /**
      * Display a warning message under the progress bar. The text area for warning messages
-     * will appears only the first time this method is invoked.
+     * appears only the first time this method is invoked.
+     *
+     * @param source DOCUMENT ME
+     * @param margin DOCUMENT ME
+     * @param warning DOCUMENT ME
      */
     public synchronized void warningOccurred(final String source, String margin,
                                              final String warning)
@@ -354,6 +364,8 @@ public class ProgressWindow implements ProgressListener {
 
     /**
      * Display an exception stack trace.
+     *
+     * @param exception the exception to display
      */
     public void exceptionOccurred(final Throwable exception) {
         ExceptionMonitor.show(window, exception);
@@ -361,6 +373,8 @@ public class ProgressWindow implements ProgressListener {
 
     /**
      * Returns the string {@code margin} without the parenthesis (if any).
+     * @param margin DOCUMENT ME
+     * @return DOCUMENT ME
      */
     private static String trim(String margin) {
         margin = margin.trim();
@@ -452,6 +466,8 @@ public class ProgressWindow implements ProgressListener {
         /**
          * Creates an action. {@code task} must be one of {@link #TITLE}, {@link #LABEL}
          * <cite>etc.</cite> constants or their negative counterpart.
+         *
+         * @param task the task key
          */
         public Caller(final int task) {
             this.task = task;

@@ -65,7 +65,7 @@ public class JCRSChooser {
      * @param initialSelection the initial selection for the dialog to display
      *        (e.g. "EPSG:4326")
      *
-     * @return a {@code CoordinateReferenceSystem} object or {@null} if the user
+     * @return a {@code CoordinateReferenceSystem} object or {@code null} if the user
      *         cancelled the dialog or a problem occurred
      */
     public static CoordinateReferenceSystem showDialog(

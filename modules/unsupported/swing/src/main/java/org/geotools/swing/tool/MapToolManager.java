@@ -96,6 +96,7 @@ public class MapToolManager implements MouseInputListener, MouseWheelListener {
     /**
      * Add a listener for JMapPaneMouseEvents
      *
+     * @param listener the listener to add
      * @return true if successful; false otherwise
      * @throws IllegalArgumentException if the tool argument is null
      */
@@ -110,6 +111,7 @@ public class MapToolManager implements MouseInputListener, MouseWheelListener {
     /**
      * Remove a MapMouseListener from the active listeners
      *
+     * @param listener the listener to remove
      * @return true if successful; false otherwise
      * @throws IllegalArgumentException if the tool argument is null
      */

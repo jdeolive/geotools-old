@@ -66,10 +66,15 @@ public class InfoTool extends CursorTool implements TextReporterListener {
 
     private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/swing/Text");
 
+    /** The tool name */
     public static final String TOOL_NAME = stringRes.getString("tool_name_info");
+    /** Tool tip text */
     public static final String TOOL_TIP = stringRes.getString("tool_tip_info");
+    /** Cursor */
     public static final String CURSOR_IMAGE = "/org/geotools/swing/icons/mActionIdentify.png";
+    /** Cursor hotspot coordinates */
     public static final Point CURSOR_HOTSPOT = new Point(0, 0);
+    /** Icon for the control */
     public static final String ICON_IMAGE = "/org/geotools/swing/icons/mActionIdentify.png";
 
     /**
@@ -97,8 +102,6 @@ public class InfoTool extends CursorTool implements TextReporterListener {
 
     /**
      * Constructor
-     *
-     * @param pane the map pane that this tool is to work with
      */
     public InfoTool() {
         Toolkit tk = Toolkit.getDefaultToolkit();
@@ -224,6 +227,7 @@ public class InfoTool extends CursorTool implements TextReporterListener {
      * Write the feature attribute names and values to a
      * {@code JTextReporter}
      *
+     * @param layerName name of the map layer that contains this feature
      * @param feature the feature to report on
      */
     private void report(String layerName, Feature feature) {

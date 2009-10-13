@@ -99,6 +99,7 @@ public class MapLayerTableCellRenderer extends JPanel implements ListCellRendere
 
         /**
          * Get the icon used to signify the 'on' state
+         * @return the icon
          */
         public Icon getOnIcon() {
             return onIcon;
@@ -106,6 +107,7 @@ public class MapLayerTableCellRenderer extends JPanel implements ListCellRendere
 
         /**
          * Get the icon used to signify the 'off' state
+         * @return the icon
          */
         public Icon getOffIcon() {
             return offIcon;
@@ -148,6 +150,7 @@ public class MapLayerTableCellRenderer extends JPanel implements ListCellRendere
 
     /**
      * Get the constant height that will be used for list cells
+     * @return cell height in pixels
      */
     public static int getCellHeight() {
         return CELL_HEIGHT;

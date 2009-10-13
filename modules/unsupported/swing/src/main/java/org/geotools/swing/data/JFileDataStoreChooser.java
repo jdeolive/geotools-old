@@ -216,7 +216,7 @@ public class JFileDataStoreChooser extends JFileChooser {
     /**
      * Show a file open dialog that filters for files with the given extensions.
      *
-     * @param extension array of file extension, with or without leading '.'
+     * @param extensions array of file extension, with or without leading '.'
      * @param parent parent GUI component (may be null)
      *
      * @return the selected file or null if the user cancelled the selection
@@ -265,11 +265,11 @@ public class JFileDataStoreChooser extends JFileChooser {
         }
     }
     /**
-     * Consider the provided file as a candidate for
-     * a new filename; will append a number if there is a
+     * Consider the provided file as a candidate for a new filename. 
+     * A number will be appended to the filename if there is a
      * conflict.
      * 
-     * @param origional
+     * @param file the candidate file name
      */
     public void setSaveFile(File file) {
         String path = file.getAbsolutePath();

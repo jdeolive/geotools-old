@@ -74,6 +74,7 @@ public class JTextReporter extends JDialog {
      */
     public JTextReporter(String title) throws HeadlessException {
 
+        setTitle(title);
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         setAlwaysOnTop(true);
         setModal(false);

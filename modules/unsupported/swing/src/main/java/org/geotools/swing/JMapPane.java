@@ -310,10 +310,12 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
     }
 
     /**
-     * Register an object that wishes to receive MapMouseEvents
+     * Register an object that wishes to receive {@code MapMouseEvent}s
      * such as a {@linkplain org.geotools.swing.StatusBar}
      *
+     * @param listener an object that implements {@code MapMouseListener}
      * @throws IllegalArgumentException if listener is null
+     * @see MapMouseListener
      */
     public void addMouseListener(MapMouseListener listener) {
         if (listener == null) {
@@ -324,8 +326,9 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
     }
 
     /**
-     * Unregister the specified MapMouseListener object.
+     * Unregister the {@code MapMouseListener} object.
      *
+     * @param listener the listener to remove
      * @throws IllegalArgumentException if listener is null
      */
     public void removeMouseListener(MapMouseListener listener) {
@@ -336,6 +339,12 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
         toolManager.removeMouseListener(listener);
     }
 
+    /**
+     * Register an object that wishes to receive {@code MapPaneEvent}s
+     * 
+     * @param listener an object that implements {@code MapPaneListener}
+     * @see MapPaneListener
+     */
     public void addMapPaneListener(MapPaneListener listener) {
         if (listener == null) {
             throw new IllegalArgumentException(stringRes.getString("arg_null_error"));
@@ -362,16 +371,18 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
     }
 
     /**
-     * Get the current renderer used by this map pane
+     * Get the renderer being used by this map pane
+     *
+     * @return live reference to the renderer being used
      */
     public GTRenderer getRenderer() {
         return renderer;
     }
 
     /**
-     * Set the renderer for this map pane. If faster raster rendering was previously
-     * requested with the {@linkplain #setRasterRendering} method, this will be set
-     * for the new renderer.
+     * Set the renderer for this map pane. 
+     *
+     * @param renderer the renderer to use
      */
     public void setRenderer(GTRenderer renderer) {
         Map<Object, Object> hints;
@@ -398,13 +409,15 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
 
     /**
      * Get the map context associated with this map pane
+     * @return a live reference to the current map context
      */
     public MapContext getMapContext() {
         return context;
     }
 
     /**
-     * Set the map context for this map pane
+     * Set the map context for this map pane to display
+     * @param context the map context
      */
     public void setMapContext(MapContext context) {
         if (this.context != context) {
@@ -453,6 +466,8 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
      * {@code MapContext.getAreaOfInterest()} will return the union of the
      * layer bounds while this method will return an evnelope that can
      * included extra space beyond the bounds of the layers.
+     *
+     * @return the display area in world coordinates as a new {@code ReferencedEnvelope}
      */
     public ReferencedEnvelope getDisplayArea() {
         ReferencedEnvelope aoi = null;
@@ -628,6 +643,8 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
     /**
      * Get a (copy of) the screen to world coordinate transform
      * being used by this map pane.
+     *
+     * @return a copy of the screen to world coordinate transform
      */
     public AffineTransform getScreenToWorldTransform() {
         if (screenToWorld != null) {
@@ -644,6 +661,7 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
      * <pre>{@code
      * double scale = mapPane.getWorldToScreenTransform().getScaleX();
      * }</pre>
+     * @return a copy of the world to screen coordinate transform
      */
     public AffineTransform getWorldToScreenTransform() {
         if (worldToScreen != null) {
@@ -718,8 +736,8 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
     /**
      * Called after the base image has been dragged. Sets the new map area and
      * transforms
-     * @param mapAOI pre-move map area
-     * @param paintArea drawing area
+     * @param env the display area (world coordinates) prior to the image being moved
+     * @param paintArea the current drawing area (screen units)
      */
     protected void afterImageMove(ReferencedEnvelope env, Rectangle paintArea) {
         int dx = imageOrigin.x;
@@ -844,12 +862,8 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
      * Tne transform is calculated such that {@code envelope} will
      * be centred in the display
      * 
-     * @param mapEnv the current map extent (map units)
-     * @param paintArea the current map pane extent (pixels)
-     *
-     * @return a new ReferencedEnvelope that contains the input
-     *         envelope and has the same width/height ratio as
-     *         the pane's current paint area
+     * @param envelope the current map extent (world coordinates)
+     * @param paintArea the current map pane extent (screen units)
      */
     private void setTransforms(final Envelope envelope, final Rectangle paintArea) {
         ReferencedEnvelope refEnv = new ReferencedEnvelope(envelope);
@@ -885,7 +899,10 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
     }
 
     /**
-     * Publish a MapPaneEvent to listening objects
+     * Publish a MapPaneEvent to registered listeners
+     * 
+     * @param ev the event to publish
+     * @see MapPaneListener
      */
     private void publishEvent(MapPaneEvent ev) {
         for (MapPaneListener listener : listeners) {

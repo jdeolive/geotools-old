@@ -20,12 +20,28 @@ import org.geotools.swing.ExceptionMonitor;
 public abstract class SafeAction extends AbstractAction {
     private static final long serialVersionUID = 1118122797759176800L;
 
+    /**
+     * Constructor
+     * @param name name for the associated control
+     */
     public SafeAction(String name) {
         super(name);
     }
 
+    /**
+     * Sub-classes (usually anonymous) must override this method instead
+     * of the usual {@linkplain javax.swing.Action#actionPerformed}
+     *
+     * @param e the action event
+     * @throws Throwable on error
+     */
     public abstract void action( ActionEvent e ) throws Throwable;
-    
+
+    /**
+     * Calls the {@linkplain #action } method
+     *
+     * @param e the action event
+     */
     public void actionPerformed(ActionEvent e) {
         try {
             action( e );
