@@ -191,28 +191,42 @@ public final class Source implements Taglet {
                 continue;
             }
 
-            final String group, category, modulePath, module;
+            final String modulePath = matchModule.group(6);
+            int pos = modulePath.indexOf('/');
+            final String module;
+            if (pos == -1) {
+                module = modulePath;
+            } else {
+                module = modulePath.substring(pos+1);
+            }
+
+            final String group, category;
             if (matchModule.group(2).equals("demo")) {
                 group = matchModule.group(2);
                 category = null;
-                modulePath = matchModule.group(6);
-                module = modulePath.replaceAll("\\/", "-");
 
             } else {
                 group = matchModule.group(4);
                 category = matchModule.group(5);
-                modulePath = matchModule.group(6);
-                module = modulePath.replaceAll("\\/", "-");
             }
 
-            buffer.append('\n').append(i == 0 ? "<DD>" : "    ").append("<CODE><B>")
-                    .append(group).append('/');
+            /*
+             * Module path e.g. modules/library/main
+             */
+            buffer.append('\n').append(i == 0 ? "<DD>" : "    ").append("<CODE><B>");
 
+            buffer.append(group).append('/');
             if (category != null) {
                 buffer.append(category).append('/');
             }
+            buffer.append(module);
 
-            buffer.append(module).append("</B></CODE>");
+            /*
+             * Jar name in brackets e.g. (gt-main.jar)
+             */
+            buffer.append(" (gt-").append(module).append(".jar)");
+            
+            buffer.append("</B></CODE>");
         }
 
         return buffer.append("</DD>\n").toString();
