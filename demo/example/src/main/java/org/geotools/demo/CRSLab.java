@@ -29,13 +29,18 @@ import org.geotools.data.DefaultQuery;
 import org.geotools.data.DefaultTransaction;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureStore;
+import org.geotools.data.FeatureWriter;
 import org.geotools.data.FileDataStore;
 import org.geotools.data.FileDataStoreFinder;
 import org.geotools.data.Transaction;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
 import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureIterator;
+import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
+import org.geotools.geometry.jts.JTS;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.map.MapContext;
+import org.geotools.referencing.CRS;
 import org.geotools.swing.JCRSChooser;
 import org.geotools.swing.JMapFrame;
 import org.geotools.swing.ProgressWindow;
@@ -48,6 +53,7 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.MathTransform;
 
 /**
  * This is a visual example of changing the coordinate reference
@@ -58,7 +64,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 public class CRSLab {
 
     private File sourceFile;
-    private FeatureSource featureSource;
+    private FeatureSource<SimpleFeatureType,SimpleFeature> featureSource;
     private MapContext map;
     private int numInvalidGeometries = 0;
 
@@ -120,6 +126,74 @@ public class CRSLab {
      * they are currently displayed
      */
     private void exportToShapefile() throws Exception {
+        SimpleFeatureType schema = featureSource.getSchema();
+        JFileDataStoreChooser chooser = new JFileDataStoreChooser("shp");
+        chooser.setDialogTitle("Save reprojected shapefile");
+        chooser.setSaveFile(sourceFile);
+        int returnVal = chooser.showSaveDialog(null);
+        if (returnVal != JFileDataStoreChooser.APPROVE_OPTION) {
+            return;
+        }
+        File file = chooser.getSelectedFile();
+        if (file.equals(sourceFile)) {
+            JOptionPane.showMessageDialog(null, "Cannot replace " + file );
+            return;
+        }
+
+        // set up the math transform used to process the data
+        CoordinateReferenceSystem dataCRS = schema.getCoordinateReferenceSystem();
+        CoordinateReferenceSystem worldCRS = map.getCoordinateReferenceSystem();
+        boolean leient = true; // allow for some error due to different datums
+        MathTransform transform = CRS.findMathTransform( dataCRS, worldCRS, leient );
+
+        // grab all features
+        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = featureSource.getFeatures();
+
+        // And create a new Shapefile with a slight modified schema
+        DataStoreFactorySpi factory = new ShapefileDataStoreFactory();
+        Map<String, Serializable> create = new HashMap<String, Serializable>();
+        create.put("url", file.toURI().toURL());
+        create.put("create spatial index", Boolean.TRUE);        
+        DataStore newDataStore = factory.createNewDataStore(create);
+        SimpleFeatureType featureType = SimpleFeatureTypeBuilder.retype( schema, worldCRS );
+        newDataStore.createSchema( featureType );
+        
+
+        // carefully open an iterator and writer to process the results
+        Transaction transaction = new DefaultTransaction("Reproject");
+        FeatureWriter<SimpleFeatureType, SimpleFeature> writer = newDataStore.getFeatureWriterAppend( featureType.getTypeName(), transaction);
+        FeatureIterator<SimpleFeature> iterator = featureCollection.features();                
+        try {
+            while( iterator.hasNext() ){
+                // copy the contents of each feature and transform the geometry
+                SimpleFeature feature = iterator.next();
+                SimpleFeature copy = writer.next();
+                copy.setAttributes( feature.getAttributes() );
+                
+                Geometry geometry = (Geometry) feature.getDefaultGeometry();
+                Geometry geometry2 = JTS.transform(geometry, transform);
+                
+                copy.setDefaultGeometry( geometry2 );                
+                writer.write();
+            }
+            transaction.commit();
+            JOptionPane.showMessageDialog(null, "Export to shapefile complete" );
+        } catch (Exception problem) {
+            problem.printStackTrace();
+            transaction.rollback();
+            JOptionPane.showMessageDialog(null, "Export to shapefile failed" );
+        } finally {
+            writer.close();
+            iterator.close();
+            transaction.close();
+        }
+    }
+
+    /**
+     * Export features to a new shapefile using the map projection in which
+     * they are currently displayed
+     */
+    private void exportToShapefile2() throws Exception {
         FeatureType schema = featureSource.getSchema();
         String typeName = schema.getName().getLocalPart();
         JFileDataStoreChooser chooser = new JFileDataStoreChooser("shp");
@@ -139,7 +213,7 @@ public class CRSLab {
         }
 
         // We can now query to retrieve a FeatureCollection
-        // in the desired coordiante reference system
+        // in the desired coordinate reference system
         DefaultQuery query = new DefaultQuery();
         query.setTypeName(typeName);
         query.setCoordinateSystemReproject(map.getCoordinateReferenceSystem());
@@ -173,7 +247,7 @@ public class CRSLab {
             transaction.close();
         }
     }
-
+    
     // docs end export
 
     // docs start validate

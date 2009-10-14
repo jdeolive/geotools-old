@@ -961,10 +961,10 @@ public class SimpleFeatureTypeBuilder {
 	}
 	
 	/**
-	 * H
-	 * @param original
-	 * @param types
-	 * @return
+	 * Create a SimpleFeatureType containing just the descriptors indicated.
+	 * @param original SimpleFeatureType
+	 * @param types name of types to include in result
+	 * @return SimpleFeatureType containing just the types indicated by name
 	 */
 	public static SimpleFeatureType retype( SimpleFeatureType original, String[] types ) {
 	    SimpleFeatureTypeBuilder b = new SimpleFeatureTypeBuilder();
@@ -982,4 +982,35 @@ public class SimpleFeatureTypeBuilder {
 	    
 	    return b.buildFeatureType();
 	}
+	
+	/**
+         * Create a SimpleFeatureType with the same content; just updating the geometry
+         * attribute to match the provided coordinate reference system.
+         * @param original SimpleFeatureType
+         * @param crs CoordianteReferenceSystem of result
+         * @return SimpleFeatureType updated with the provided CoordinateReferenceSystem
+         */
+        public static SimpleFeatureType retype( SimpleFeatureType original,CoordinateReferenceSystem crs ) {
+            SimpleFeatureTypeBuilder b = new SimpleFeatureTypeBuilder();
+            
+            //initialize the builder
+            b.init( original );
+            
+            //clear the attributes
+            b.attributes().clear();
+            
+            //add attributes in order
+            for( AttributeDescriptor descriptor : original.getAttributeDescriptors() ){
+                if( descriptor instanceof GeometryDescriptor ){
+                    GeometryDescriptor geometryDescriptor = (GeometryDescriptor) descriptor;
+                    AttributeTypeBuilder adjust = new AttributeTypeBuilder( b.factory );
+                    adjust.init( geometryDescriptor );
+                    adjust.setCRS( crs );
+                    b.add( adjust.buildDescriptor( geometryDescriptor.getLocalName() ));
+                    continue;
+                }
+                b.add( (AttributeDescriptor) descriptor );
+            }            
+            return b.buildFeatureType();
+        }
 }
