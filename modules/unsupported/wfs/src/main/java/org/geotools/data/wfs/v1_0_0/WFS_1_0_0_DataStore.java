@@ -72,6 +72,7 @@ import org.geotools.filter.FilterType;
 import org.geotools.filter.Filters;
 import org.geotools.filter.GeometryFilter;
 import org.geotools.filter.LiteralExpression;
+import org.geotools.filter.visitor.DuplicatingFilterVisitor;
 import org.geotools.filter.visitor.PostPreProcessFilterSplittingVisitor;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
@@ -89,6 +90,7 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
+import org.opengis.filter.spatial.BBOX;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.NoSuchAuthorityCodeException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -726,6 +728,22 @@ public class WFS_1_0_0_DataStore extends AbstractDataStore implements WFSDataSto
      */
     public FeatureReader<SimpleFeatureType, SimpleFeature> getFeatureReader(Query query,
             Transaction transaction) throws IOException {
+        /**
+         * @HACK: This is a hack to overcome the fact that WFS 1.0 support has not yet been ported
+         *        to the new GeoAPI Filter interfaces and the renderer might be sending an
+         *        org.geotools.renderer.lite.FastBBOX that makes Filters.accept(Filer) fail with a
+         *        ClassCastException, and I don't want to pollute FastBBOX by implementing the
+         *        deprecated geotools FilterVisitor interface, as this module is the one that should
+         *        be upgraded. NOTE: it is good enough to check for the outer filter to be a BBOX
+         *        because FastBBOX won't clone itself if the result of the visitor is not a BBOX
+         */
+        if (query.getFilter() instanceof BBOX) {
+            DuplicatingFilterVisitor dfv = new DuplicatingFilterVisitor();
+            Filter filter = (Filter) dfv.visit((BBOX)query.getFilter(), null);
+            DefaultQuery q = new DefaultQuery(query);
+            q.setFilter(filter);
+            query = q;
+        }
         return strategy.getFeatureReader(query, transaction);
     }
 
