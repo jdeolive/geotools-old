@@ -1,3 +1,4 @@
+// docs start source
 /*
  *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
@@ -7,7 +8,6 @@
  *    This file is hereby placed into the Public Domain. This means anyone is
  *    free to do whatever they wish with this file. Use it well and enjoy!
  */
-// start source
 package org.geotools.demo;
 
 import java.io.File;
@@ -15,7 +15,6 @@ import java.io.File;
 import javax.swing.JOptionPane;
 
 import org.geotools.data.FeatureSource;
-import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.map.MapContext;
@@ -28,20 +27,22 @@ import org.geotools.styling.Rule;
 import org.geotools.styling.SLDParser;
 import org.geotools.styling.Style;
 import org.geotools.styling.StyleFactory;
-import org.opengis.feature.type.FeatureType;
 import org.opengis.filter.FilterFactory;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 import java.awt.Color;
+import org.geotools.data.FileDataStore;
+import org.geotools.data.FileDataStoreFinder;
 import org.geotools.styling.Graphic;
 import org.geotools.styling.LineSymbolizer;
 import org.geotools.styling.Stroke;
 import org.geotools.swing.JMapFrame;
 import org.geotools.swing.data.JFileDataStoreChooser;
+import org.geotools.swing.styling.JSimpleStyleDialog;
+import org.opengis.feature.simple.SimpleFeatureType;
 
 public class StyleLab {
 
@@ -57,26 +58,21 @@ public class StyleLab {
      *        for a file
      */
     public static void main(String[] args) throws Exception {
-        File file = promptShapeFile(args);
-
+        File file = JFileDataStoreChooser.showOpenFile("shp", null);
         if (file == null) {
             return;
         }
 
-        ShapefileDataStore shapefile = new ShapefileDataStore(file.toURI().toURL());
-        String typeName = shapefile.getTypeNames()[0];
-        FeatureSource featureSource = shapefile.getFeatureSource();
-        FeatureType schema = featureSource.getSchema();
+        FileDataStore store = FileDataStoreFinder.getDataStore(file);
+        FeatureSource featureSource = store.getFeatureSource();
 
-        // Get the coordinate system from the shapefile and create a 
-        // MapContext
-        CoordinateReferenceSystem crs = schema.getGeometryDescriptor()
-                .getCoordinateReferenceSystem();
-
-        MapContext map = new DefaultMapContext(crs);
+        // Create a map context and add our shapefile to it
+        MapContext map = new DefaultMapContext();
+        map.setTitle("StyleLab");
+        map.addLayer(featureSource, null);
 
         // Create a basic Style to render the features
-        Style style = createStyle(file, schema);
+        Style style = createStyle(file, featureSource);
 
         // Add the features and the associated Style object to
         // the MapContext as a new MapLayer
@@ -85,49 +81,75 @@ public class StyleLab {
         // Now display the map
         JMapFrame.showMap(map);
     }
-// end main method
 
-// start promptShapeFile
+    // end main
+
+    // docs start create style
     /**
-     * Takes the command line arguments and examines the first argument
-     * for an input filename. If no filename was provided, prompts user
-     * for a shapefile using a {@code JFileDataStoreChooser} dialog.
-     *
-     * @param args command line args (only the first is examined)
-     *
-     * @return a File object for the shapefile or null if none is
-     *         selected
+     * Create a Style to display the features. If an SLD file is in the same
+     * directory as the shapefile then we will create the Style by processing
+     * this. Otherwise we display a JSimpleStyleDialog to prompt the user for
+     * preferences.
      */
-    private static File promptShapeFile(String[] args) {
-        File file = null;
-
-        // check if the filename was provided on the command line
-        if (args.length > 0) {
-            file = new File(args[0]);
-            if (file.exists()) {
-                return file;
-            }
-
-            // file didn't exist - see if the user wants to continue
-            int rtnVal = JOptionPane.showConfirmDialog(null,
-                    "Can't find " + file.getName() + ". Choose another ?",
-                    "Input shapefile", JOptionPane.YES_NO_OPTION);
-            if (rtnVal != JOptionPane.YES_OPTION) {
-                return null;
-            }
-        }
-
-        // display a data store file chooser dialog for shapefiles
-        return JFileDataStoreChooser.showOpenFile("shp", null);
-    }
-// end promptShapeFile
-    
-// start createStyle
-    private static Style createStyle(File file, FeatureType schema) {
+    private static Style createStyle(File file, FeatureSource featureSource) {
         File sld = toSLDFile(file);
         if (sld.exists()) {
             return createFromSLD(sld);
         }
+
+        SimpleFeatureType schema = (SimpleFeatureType)featureSource.getSchema();
+        return JSimpleStyleDialog.showDialog(null, schema);
+    }
+
+    // docs end create style
+
+    // docs start sld
+    /**
+     * Figure out the URL for the SLD file associated with
+     * the shapefile
+     */
+    public static File toSLDFile(File file)  {
+        String filename = file.getAbsolutePath();
+        if (filename.endsWith(".shp") || filename.endsWith(".dbf")
+                || filename.endsWith(".shx")) {
+            filename = filename.substring(0, filename.length() - 4);
+            filename += ".sld";
+        } else if (filename.endsWith(".SLD") || filename.endsWith(".SLD")
+                || filename.endsWith(".SLD")) {
+            filename = filename.substring(0, filename.length() - 4);
+            filename += ".SLD";
+        }
+        return new File(filename);
+    }
+
+    /**
+     * Create a Style object from a definition in a SLD document
+     */
+    private static Style createFromSLD(File sld) {
+        SLDParser stylereader;
+        try {
+            stylereader = new SLDParser(styleFactory, sld.toURI().toURL());
+            Style[] style = stylereader.readXML();
+            return style[0];
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+            System.exit(0);
+        }
+        return null;
+    }
+
+    // docs end sld
+
+
+    // docs start alternative
+    /**
+     * Here is a programmatic alternative to using JSimpleStyleDialog to
+     * get a Style. This methods works out what sort of feature geometry
+     * we have in the shapefile and then delegates to an appropriate style
+     * creating method.
+     */
+    private static Style createStyle2(FeatureSource featureSource) {
+        SimpleFeatureType schema = (SimpleFeatureType)featureSource.getSchema();
         Class geomType = schema.getGeometryDescriptor().getType().getBinding();
 
         if (Polygon.class.isAssignableFrom(geomType)
@@ -142,30 +164,7 @@ public class StyleLab {
             return createPointStyle();
         }
     }
-// end createStyle
 
-// start createFromSLD
-    /**
-     * Create a Style object from a definition in a SLD document
-     *
-     * @param sld path and filename of the SLD document
-     * @return a new Style instance
-     */
-    private static Style createFromSLD(File sld) {
-        SLDParser stylereader;
-        try {
-            stylereader = new SLDParser(styleFactory, sld.toURI().toURL());
-            Style[] style = stylereader.readXML();
-            return style[0];
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
-            System.exit(0);
-        }
-        return null;
-    }
-// end createFromSLD
-
-// start createPolygonStyle
     /**
      * Create a Style to draw polygon features with a thin blue outline and
      * a cyan fill
@@ -183,8 +182,6 @@ public class StyleLab {
                 filterFactory.literal(Color.CYAN),
                 filterFactory.literal(0.5));
 
-// mid createPolygonStyle
-
         /*
          * Setting the geometryPropertyName arg to null signals that we want to
          * draw the default geomettry of features
@@ -200,8 +197,6 @@ public class StyleLab {
         return style;
     }
     
-// end createPolygonStyle
-
     /**
      * Create a Style to draw line features as thin blue lines
      */
@@ -258,20 +253,7 @@ public class StyleLab {
 
         return style;
     }
-// end createPointStyle
 
-    /** Figure out the URL for the "sld" file */
-    public static File toSLDFile(File file)  {
-        String filename = file.getAbsolutePath();
-        if (filename.endsWith(".shp") || filename.endsWith(".dbf")
-                || filename.endsWith(".shx")) {
-            filename = filename.substring(0, filename.length() - 4);
-            filename += ".sld";
-        } else if (filename.endsWith(".SLD") || filename.endsWith(".SLD")
-                || filename.endsWith(".SLD")) {
-            filename = filename.substring(0, filename.length() - 4);
-            filename += ".SLD";
-        }
-        return new File(filename);
-    }
 }
+
+// docs end source
