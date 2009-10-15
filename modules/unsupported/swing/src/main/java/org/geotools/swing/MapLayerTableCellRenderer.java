@@ -45,16 +45,16 @@ public class MapLayerTableCellRenderer extends JPanel implements ListCellRendere
     private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/swing/Text");
 
     /**
-     * Constants for icons used to display layer states. Each constant has
-     * an associated tool-tip string, and icons for 'on' and 'off' states.
+     * Items used to display layer states and controls. Each item has
+     * one or two icons associated with it: one for simple controls,
+     * two for toggle controls.
      */
-    public static enum LayerState {
+    public static enum LayerControlItem {
         /**
          * Layer visibility - whether the layer will be shown or hidden
          * when the map display is drawn
          */
         VISIBLE(
-            stringRes.getString("show_layer"),
             new ImageIcon(MapLayerTableCellRenderer.class.getResource(
                 "/org/geotools/swing/icons/eye_open.png")),
             new ImageIcon(MapLayerTableCellRenderer.class.getResource(
@@ -66,84 +66,107 @@ public class MapLayerTableCellRenderer extends JPanel implements ListCellRendere
          * to include or exclude them in map queries etc.
          */
         SELECTED(
-            stringRes.getString("select_layer"),
             new ImageIcon(MapLayerTableCellRenderer.class.getResource(
                 "/org/geotools/swing/icons/tick.png")),
             new ImageIcon(MapLayerTableCellRenderer.class.getResource(
                 "/org/geotools/swing/icons/cross.png"))
+        ),
+
+        /**
+         * Layer style - to open a style dialog for the layer
+         */
+        STYLE(
+            new ImageIcon(MapLayerTableCellRenderer.class.getResource(
+                "/org/geotools/swing/icons/style_layer.png")),
+            null // no off state for this label
+        ),
+
+        REMOVE(
+            new ImageIcon(MapLayerTableCellRenderer.class.getResource(
+                "/org/geotools/swing/icons/remove_layer.png")),
+            null // no off state for this label
         );
-    
-        private String desc;
+
         private ImageIcon onIcon;
         private ImageIcon offIcon;
 
         /**
          * Private constructor
-         * @param desc a brief description for a tool-tip
          * @param onIcon icon for the 'on' state
          * @param offIcon icon for the 'off' state
          */
-        private LayerState(String desc, ImageIcon onIcon, ImageIcon offIcon) {
-            this.desc = desc;
+        private LayerControlItem(ImageIcon onIcon, ImageIcon offIcon) {
             this.onIcon = onIcon;
             this.offIcon = offIcon;
         }
 
         /**
-         * Get the tool-tip string
-         */
-        @Override
-        public String toString() {
-            return desc;
-        }
-
-        /**
-         * Get the icon used to signify the 'on' state
+         * Get the icon used to signify the 'on' state for toggle controls
+         * or the single icon for non-toggle controls
+         *
          * @return the icon
          */
-        public Icon getOnIcon() {
+        public Icon getIcon() {
             return onIcon;
         }
 
         /**
-         * Get the icon used to signify the 'off' state
+         * Get the icon used to signify the 'off' state. If called for a non-toggle
+         * control this returns the single icon.
+         *
          * @return the icon
          */
         public Icon getOffIcon() {
-            return offIcon;
+            if (offIcon != null) {
+                return offIcon;
+            } else {
+                return onIcon;
+            }
         }
     }
 
-    private static Icon REMOVE_LAYER_ICON = new ImageIcon(
-            MapLayerTableCellRenderer.class.getResource("/org/geotools/swing/icons/remove_layer.png"));
-
     private final static int CELL_PADDING = 5;
     private final static int CELL_HEIGHT;
-    private final static Rectangle SEL_RECT;
-    private final static Rectangle VIS_RECT;
-    private final static Rectangle REM_RECT;
+    private final static Rectangle SELECT_LABEL_BOUNDS;
+    private final static Rectangle VISIBLE_LABEL_BOUNDS;
+    private final static Rectangle STYLE_LABEL_BOUNDS;
+    private final static Rectangle REMOVE_LABEL_BOUNDS;
+    private final static Rectangle NAME_LABEL_BOUNDS;
 
     static {
+        int maxIconHeight = 0;
+        for (LayerControlItem state : LayerControlItem.values()) {
+            maxIconHeight = Math.max(maxIconHeight, state.getIcon().getIconHeight());
+        }
+        CELL_HEIGHT = maxIconHeight + 2*CELL_PADDING;
+
         int x = CELL_PADDING;
-        int h = LayerState.SELECTED.getOnIcon().getIconHeight();
-        int w = LayerState.SELECTED.getOnIcon().getIconWidth();
-        CELL_HEIGHT = h + 2*CELL_PADDING;
-
-        VIS_RECT = new Rectangle(x, CELL_PADDING, w, h);
+        int h = LayerControlItem.VISIBLE.getIcon().getIconHeight();
+        int w = LayerControlItem.VISIBLE.getIcon().getIconWidth();
+        VISIBLE_LABEL_BOUNDS = new Rectangle(x, CELL_PADDING, w, h);
         x += w + CELL_PADDING;
 
-        h = LayerState.VISIBLE.getOnIcon().getIconHeight();
-        w = LayerState.VISIBLE.getOnIcon().getIconWidth();
-        SEL_RECT = new Rectangle(x, CELL_PADDING, w, h);
+        h = LayerControlItem.SELECTED.getIcon().getIconHeight();
+        w = LayerControlItem.SELECTED.getIcon().getIconWidth();
+        SELECT_LABEL_BOUNDS = new Rectangle(x, CELL_PADDING, w, h);
         x += w + CELL_PADDING;
 
-        h = REMOVE_LAYER_ICON.getIconHeight();
-        w = REMOVE_LAYER_ICON.getIconWidth();
-        REM_RECT = new Rectangle(x, CELL_PADDING, w, h);
+        h = LayerControlItem.STYLE.getIcon().getIconHeight();
+        w = LayerControlItem.STYLE.getIcon().getIconWidth();
+        STYLE_LABEL_BOUNDS = new Rectangle(x, CELL_PADDING, w, h);
+        x += w + CELL_PADDING;
+
+        h = LayerControlItem.REMOVE.getIcon().getIconHeight();
+        w = LayerControlItem.REMOVE.getIcon().getIconWidth();
+        REMOVE_LABEL_BOUNDS = new Rectangle(x, CELL_PADDING, w, h);
+        x += w + CELL_PADDING;
+
+        NAME_LABEL_BOUNDS = new Rectangle(x, CELL_PADDING, 1000, CELL_HEIGHT - 2*CELL_PADDING);
     }
 
     private JLabel visibleLabel;
     private JLabel selectedLabel;
+    private JLabel styleLabel;
     private JLabel removeLayerLabel;
     private JLabel nameLabel;
 
@@ -163,7 +186,7 @@ public class MapLayerTableCellRenderer extends JPanel implements ListCellRendere
      * @return true if the point is within the label bounds; false otherwise
      */
     public static boolean hitVisibilityLabel(Point p) {
-        return VIS_RECT.contains(p);
+        return VISIBLE_LABEL_BOUNDS.contains(p);
     }
 
     /**
@@ -173,7 +196,17 @@ public class MapLayerTableCellRenderer extends JPanel implements ListCellRendere
      * @return true if the point is within the label bounds; false otherwise
      */
     public static boolean hitSelectionLabel(Point p) {
-        return SEL_RECT.contains(p);
+        return SELECT_LABEL_BOUNDS.contains(p);
+    }
+
+    /**
+     * Check if a point representing a mouse click location lies within
+     * the bounds of the layer style label
+     * @param p coords of the mouse click; relative to this cell's origin
+     * @return true if the point is within the label bounds; false otherwise
+     */
+    public static boolean hitStyleLabel(Point p) {
+        return STYLE_LABEL_BOUNDS.contains(p);
     }
 
     /**
@@ -183,7 +216,11 @@ public class MapLayerTableCellRenderer extends JPanel implements ListCellRendere
      * @return true if the point is within the label bounds; false otherwise
      */
     public static boolean hitRemoveLabel(Point p) {
-        return REM_RECT.contains(p);
+        return REMOVE_LABEL_BOUNDS.contains(p);
+    }
+
+    public static boolean hitNameLabel(Point p) {
+        return NAME_LABEL_BOUNDS.contains(p);
     }
 
 
@@ -199,11 +236,13 @@ public class MapLayerTableCellRenderer extends JPanel implements ListCellRendere
         selectedLabel = new JLabel();
         add(selectedLabel);
 
-        removeLayerLabel = new JLabel();
-        removeLayerLabel.setIcon(REMOVE_LAYER_ICON);
+        styleLabel = new JLabel(LayerControlItem.STYLE.getIcon());
+        add(styleLabel);
+
+        removeLayerLabel = new JLabel(LayerControlItem.REMOVE.getIcon());
         add(removeLayerLabel);
 
-        this.nameLabel = new JLabel();
+        nameLabel = new JLabel();
         add(nameLabel);
     }
 
@@ -215,16 +254,19 @@ public class MapLayerTableCellRenderer extends JPanel implements ListCellRendere
             boolean cellHasFocus) // the list and the cell have the focus
     {
         MapLayer layer = (MapLayer)value;
-        String s = layer.getFeatureSource().getName().getLocalPart();
-        nameLabel.setText(s);
+        String name = layer.getTitle();
+        if (name == null || name.trim().length() == 0) {
+            name = layer.getFeatureSource().getName().getLocalPart();
+        }
+        nameLabel.setText(name);
 
         visibleLabel.setIcon(
                 layer.isVisible() ? 
-                    LayerState.VISIBLE.getOnIcon() : LayerState.VISIBLE.getOffIcon());
+                    LayerControlItem.VISIBLE.getIcon() : LayerControlItem.VISIBLE.getOffIcon());
 
         selectedLabel.setIcon(
                 layer.isSelected() ?
-                    LayerState.SELECTED.getOnIcon() : LayerState.SELECTED.getOffIcon());
+                    LayerControlItem.SELECTED.getIcon() : LayerControlItem.SELECTED.getOffIcon());
 
         if (isSelected) {
             setBackground(list.getSelectionBackground());

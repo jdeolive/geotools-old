@@ -26,50 +26,73 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dialog;
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
-import javax.swing.ComboBoxModel;
+import java.util.Set;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.MutableComboBoxModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import net.miginfocom.swing.MigLayout;
 import org.geotools.data.AbstractDataStore;
 import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.map.MapLayer;
+import org.geotools.styling.FeatureTypeStyle;
 import org.geotools.styling.Font;
+import org.geotools.styling.LineSymbolizer;
+import org.geotools.styling.PointSymbolizer;
+import org.geotools.styling.PolygonSymbolizer;
+import org.geotools.styling.Rule;
 import org.geotools.styling.SLD;
 import org.geotools.styling.Style;
 import org.geotools.styling.StyleFactory;
+import org.geotools.styling.Symbolizer;
+import org.geotools.swing.utils.MapLayerUtils;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.GeometryDescriptor;
+import org.opengis.filter.expression.Expression;
 
 /**
- * A dialog to prompt the user for feature style choices. It has a static
- * method to display the dialog and then create a new {@code Style} instance
- * using the {@code SLD} helper class.
+ * A dialog to prompt the user for feature style choices. It has a number of static
+ * {@code showDialog} methods to work with different sources ({@code SimpleFeatureType},
+ * {@code MapLayer}, {@code DataStore}. Each of these displays a dialog and then creates
+ * a new {@code Style} instance.
  * <p>
- * Example of use:
+ * Examples of use:
  * <pre><code>
+ * // Use with a shapefile
+ * Component parentGUIComponent = null;
  * ShapefileDataStore shapefile = ...
- * Style style = JSimpleStyleDialog.showDialog(shapefile, null);
+ * Style style = JSimpleStyleDialog.showDialog(parentGUIComponent, shapefile);
  * if (style != null) {
  *    // create a map layer using this style
  * }
+ *
+ * // Use with an existing MapLayer
+ * MapLayer layer = ...
+ * Style style = JSimpleStyleDialog.showDialog(parentGUIComponent, layer);
+ * if (style != null) {
+ *     layer.setStyle( style );
+ * }
  * </code></pre>
  *
- * @see SLD
+ * @see SLD SLD style helper class
  *
  * @author Michael Bedward
  * @since 2.6
@@ -80,6 +103,12 @@ public class JSimpleStyleDialog extends JDialog {
 
     private static StyleFactory sf = CommonFactoryFinder.getStyleFactory(null);
 
+    /**
+     * Well known text names for symbol options
+     * @todo these must be defined somwhere else ?
+     */
+    public static final String WELL_KNOWN_SYMBOL_NAMES[] = {"Circle", "Square", "Cross", "X", "Triangle", "Star"};
+
     public static final Color DEFAULT_LINE_COLOR = Color.BLACK;
     public static final Color DEFAULT_FILL_COLOR = Color.WHITE;
     public static final float DEFAULT_LINE_WIDTH = 1.0f;
@@ -89,15 +118,55 @@ public class JSimpleStyleDialog extends JDialog {
     
     private static int COLOR_ICON_SIZE = 16;
 
-
     /**
      * Constants for the geometry type that the style
      * preferences apply to
      */
     public static enum GeomType {
-        UNDEFINED, POINT, LINE, POLYGON;
+        UNDEFINED("undefined type", (Class<? extends Geometry>)null),
+        POINT("point", Point.class), 
+        LINE("line", LineString.class, MultiLineString.class),
+        POLYGON("polygon", Polygon.class, MultiPolygon.class);
+
+        private String desc;
+        private Set<Class<? extends Geometry>> classes;
+
+        /**
+         * Private constructor.
+         *
+         * @param desc brief description for {@code toString} method
+         * @param classes {@code Geometry} classes that this type corresponds to
+         */
+        private GeomType(String desc, Class<? extends Geometry> ...classes) {
+            this.desc = desc;
+
+            this.classes = new HashSet< Class<? extends Geometry> >();
+            if (classes != null) {
+                for (Class<? extends Geometry> clazz : classes) {
+                    this.classes.add(clazz);
+                }
+            }
+        }
+
+        /**
+         * Get the {@code Geometry} classes that correspond to this type
+         * @return an unmodifiable set of classes
+         */
+        public Set<Class<? extends Geometry>> getClasses() {
+            return Collections.unmodifiableSet(classes);
+        }
+
+        @Override
+        public String toString() {
+            return desc;
+        }
     }
     private GeomType geomType;
+
+    private static enum SourceType {
+        DATA_STORE,
+        MAP_LAYER;
+    }
 
     private Color lineColor;
     private Color fillColor;
@@ -113,7 +182,10 @@ public class JSimpleStyleDialog extends JDialog {
     private JLabel lineColorLabel;
     private JColorIcon fillColorIcon;
     private JLabel fillColorLabel;
-    private JLabel geomTypeLabel;
+    private JSlider fillOpacitySlider;
+    private JComboBox pointSizeCBox;
+    private JComboBox pointSymbolCBox;
+    private JLabel typeLabel;
     private JComboBox labelCBox;
 
     private static enum ControlCategory {
@@ -121,27 +193,119 @@ public class JSimpleStyleDialog extends JDialog {
     }
     private Map<Component, ControlCategory> controls;
 
-    private final AbstractDataStore store;
-    private String[] typeNames;
-    private int typeIndex;
+    private final SimpleFeatureType schema;
     private String[] fieldsForLabels;
 
     private boolean completed;
 
-
     /**
-     * Static convenience method: displays a {@code JSimpleStyleDialog} to get
-     * user choices and then creates a new {@code Style} instance.
+     * Static convenience method: displays a {@code JSimpleStyleDialog} to prompt
+     * the user for style preferences to use with the given {@code MapLayer}. The
+     * layer's existing style, if any, will be used to initialize the dialog.
      *
-     * @param store data store with the features to be rendered
-     * @param parent parent JFrame (may be null)
+     * @param parent parent component (may be null)
+     * @param layer the map layer
      *
      * @return a new Style instance or null if the user cancels the dialog
      */
-    public static Style showDialog(AbstractDataStore store, JFrame parent) {
-        Style style = null;
+    public static Style showDialog(Component parent, MapLayer layer) {
+        /*
+         * Grid coverages and readers are not supported yet...
+         */
+        if ((Boolean)MapLayerUtils.isGridLayer(layer).get(MapLayerUtils.IS_GRID_KEY)) {
+            JOptionPane.showMessageDialog(null,
+                    "Sorry, styling for for grid coverages is not working yet",
+                    "Style dialog",
+                    JOptionPane.WARNING_MESSAGE);
 
-        JSimpleStyleDialog dialog = new JSimpleStyleDialog(store, parent);
+            return null;
+        }
+
+        SimpleFeatureType type = (SimpleFeatureType) layer.getFeatureSource().getSchema();
+        return showDialog(parent, type, layer.getStyle());
+    }
+
+    /**
+     * Static convenience method: displays a {@code JSimpleStyleDialog} to prompt
+     * the user for style preferences to use with the first feature type in
+     * the {@code dataStore}.
+     *
+     * @param parent parent JFrame (may be null)
+     * @param dataStore data store with the features to be rendered
+     *
+     * @return a new Style instance or null if the user cancels the dialog
+     */
+    public static Style showDialog(Component parent, AbstractDataStore dataStore) {
+        return showDialog(parent, dataStore, (Style) null);
+    }
+    
+    /**
+     * Static convenience method: displays a {@code JSimpleStyleDialog} to prompt
+     * the user for style preferences to use with the first feature type in
+     * the {@code dataStore}.
+     *
+     * @param parent parent JFrame (may be null)
+     * @param dataStore data store with the features to be rendered
+     * @param initialStyle an optional Style object to initialize the dialog
+     *        (may be {@code null})
+     *
+     * @return a new Style instance or null if the user cancels the dialog
+     */
+    public static Style showDialog(Component parent, AbstractDataStore dataStore, Style initialStyle) {
+        SimpleFeatureType type = null;
+        try {
+            String typeName = dataStore.getTypeNames()[0];
+            type = dataStore.getSchema(typeName);
+
+        } catch (Exception ex) {
+            throw new IllegalStateException(ex);
+        }
+
+        return showDialog(parent, type, initialStyle);
+    }
+
+    /**
+     * Static convenience method: displays a {@code JSimpleStyleDialog} to prompt
+     * the user for style preferences to use with the given feature type.
+     *
+     * @param parent parent component (may be null)
+     * @param featureType the feature type that the Style will be used to display
+     *
+     * @return a new Style instance or null if the user cancels the dialog
+     */
+    public static Style showDialog(Component parent, SimpleFeatureType featureType) {
+        return showDialog(parent, featureType, (Style) null);
+    }
+
+    /**
+     * Static convenience method: displays a {@code JSimpleStyleDialog} to prompt
+     * the user for style preferences to use with the given feature type.
+     *
+     * @param parent parent component (may be null)
+     * @param featureType the feature type that the Style will be used to display
+     * @param initialStyle an optional Style object to initialize the dialog
+     *        (may be {@code null})
+     *
+     * @return a new Style instance or null if the user cancels the dialog
+     */
+    public static Style showDialog(Component parent, 
+            SimpleFeatureType featureType, Style initialStyle) {
+        
+        Style style = null;
+        JSimpleStyleDialog dialog = null;
+        if (parent != null) {
+            if (parent instanceof Frame) {
+                dialog = new JSimpleStyleDialog((Frame) parent, featureType, initialStyle);
+
+            } else if (parent instanceof Dialog) {
+                dialog = new JSimpleStyleDialog((Dialog) parent, featureType, initialStyle);
+            }
+        }
+
+        if (dialog == null) {
+            dialog = new JSimpleStyleDialog((Frame)null, featureType, initialStyle);
+        }
+
         dialog.setVisible(true);
 
         if (dialog.completed()) {
@@ -182,24 +346,46 @@ public class JSimpleStyleDialog extends JDialog {
 
 
     /**
-     * Constructor. Creates a new dialog object initialized on attributes
-     * read from the given data store.
+     * Constructor.
      *
-     * @param store the data store
-     * @param parent the parent JFrame (may be null)
+     * @param owner the parent Frame (may be null)
+     * @param schema the feature type for which the style is being created
+     * @param initialStyle an optional Style object to initialize the dialog
+     *        (may be {@code null})
      *
      * @throws IllegalStateException if the data store cannot be accessed
      */
-    public JSimpleStyleDialog(AbstractDataStore store, JFrame parent) {
-        super(parent, "Simple style maker", true);
+    public JSimpleStyleDialog(Frame owner, SimpleFeatureType schema, Style initialStyle) {
+        super(owner, "Simple style maker", true);
         setResizable(false);
+        this.schema = schema;
+        init(initialStyle);
+    }
 
-        this.store = store;
-        try {
-            this.typeNames = store.getTypeNames();
-        } catch (IOException ex) {
-            throw new IllegalStateException(ex);
-        }
+    /**
+     * Constructor.
+     *
+     * @param owner the parent Dialog (may be null)
+     * @param schema the feature type for which the style is being created
+     * @param initialStyle an optional Style object to initialize the dialog
+     *        (may be {@code null})
+     *
+     * @throws IllegalStateException if the data store cannot be accessed
+     */
+    public JSimpleStyleDialog(Dialog owner, SimpleFeatureType schema, Style initialStyle) {
+        super(owner, "Simple style maker", true);
+        setResizable(false);
+        this.schema = schema;
+        init(initialStyle);
+    }
+
+    /**
+     * Helper for constructors
+     *
+     * @param initialStyle an optional Style object to initialize the dialog
+     *        (may be {@code null})
+     */
+    private void init(Style initialStyle) {
 
         lineColor = DEFAULT_LINE_COLOR;
         fillColor = DEFAULT_FILL_COLOR;
@@ -216,7 +402,9 @@ public class JSimpleStyleDialog extends JDialog {
 
         try {
             initComponents();
-            setType(0);
+            setType();
+            setStyle(initialStyle);
+
         } catch (Exception ex) {
             throw new IllegalStateException(ex);
         }
@@ -333,22 +521,8 @@ public class JSimpleStyleDialog extends JDialog {
         label.setForeground(Color.BLUE);
         panel.add(label, "wrap");
 
-        ComboBoxModel model = new DefaultComboBoxModel(typeNames);
-
-        final JComboBox typeCBox = new JComboBox(model);
-        typeCBox.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    setType(typeCBox.getSelectedIndex());
-                } catch (IOException ex) {
-                    throw new IllegalStateException(ex);
-                }
-            }
-        });
-        panel.add(typeCBox, "gapbefore indent");
-
-        geomTypeLabel = new JLabel();
-        panel.add(geomTypeLabel, "span, wrap");
+        typeLabel = new JLabel();
+        panel.add(typeLabel, "gapbefore indent, span, wrap");
 
         /*
          * Line style items
@@ -408,17 +582,17 @@ public class JSimpleStyleDialog extends JDialog {
         label = new JLabel("% opacity");
         panel.add(label, "split 2");
 
-        final JSlider slider = new JSlider(0, 100, 100);
-        slider.setPaintLabels(true);
-        slider.setMajorTickSpacing(20);
-        slider.addChangeListener(new ChangeListener() {
+        fillOpacitySlider = new JSlider(0, 100, 100);
+        fillOpacitySlider.setPaintLabels(true);
+        fillOpacitySlider.setMajorTickSpacing(20);
+        fillOpacitySlider.addChangeListener(new ChangeListener() {
 
             public void stateChanged(ChangeEvent e) {
-                opacity = (float)slider.getValue() / 100;
+                opacity = (float)fillOpacitySlider.getValue() / 100;
             }
         });
-        panel.add(slider, "span, wrap");
-        controls.put(slider, ControlCategory.FILL);
+        panel.add(fillOpacitySlider, "span, wrap");
+        controls.put(fillOpacitySlider, ControlCategory.FILL);
 
 
         /*
@@ -433,7 +607,7 @@ public class JSimpleStyleDialog extends JDialog {
 
         Object[] sizes = new Object[10];
         for (int i = 1; i <= sizes.length; i++) { sizes[i-1] = Integer.valueOf(i*5); }
-        final JComboBox pointSizeCBox = new JComboBox(sizes);
+        pointSizeCBox = new JComboBox(sizes);
         pointSizeCBox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 pointSize = ((Number)pointSizeCBox.getModel().getSelectedItem()).intValue();
@@ -445,8 +619,9 @@ public class JSimpleStyleDialog extends JDialog {
         label = new JLabel("Symbol");
         panel.add(label, "skip, split 2");
 
-        final Object[] marks = {"Circle", "Square", "Cross", "X", "Triangle", "Star"};
-        final JComboBox pointSymbolCBox = new JComboBox(marks);
+        final Object[] marks = new Object[ WELL_KNOWN_SYMBOL_NAMES.length ];
+        for (int i = 0; i < marks.length; i++) { marks[i] = WELL_KNOWN_SYMBOL_NAMES[i]; }
+        pointSymbolCBox = new JComboBox(marks);
         pointSymbolCBox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 pointSymbolName = marks[pointSymbolCBox.getSelectedIndex()].toString();
@@ -521,35 +696,34 @@ public class JSimpleStyleDialog extends JDialog {
 
     /**
      * Set up the dialog to work with a given feature type
-     *
-     * @param typeIndex index into the typeNames member field
      */
-    private void setType(int index) throws IOException {
-        SimpleFeatureType type = null;
-        typeIndex = index;
-        type = store.getSchema(typeNames[index]);
+    private void setType() {
 
-        GeometryDescriptor desc = type.getGeometryDescriptor();
+        GeometryDescriptor desc = schema.getGeometryDescriptor();
         Class<?> clazz = desc.getType().getBinding();
+
+        String labelText = schema.getTypeName();
 
         if (Polygon.class.isAssignableFrom(clazz) ||
                 MultiPolygon.class.isAssignableFrom(clazz)) {
             geomType = GeomType.POLYGON;
-            geomTypeLabel.setText("Geometry: polygon");
+            labelText = labelText + " (polygon)";
 
         } else if (LineString.class.isAssignableFrom(clazz) ||
                 MultiLineString.class.isAssignableFrom(clazz)) {
             geomType = GeomType.LINE;
-            geomTypeLabel.setText("Geometry: line");
+            labelText = labelText + " (line)";
 
         } else if (Point.class.isAssignableFrom(clazz) ||
                 MultiPoint.class.isAssignableFrom(clazz)) {
             geomType = GeomType.POINT;
-            geomTypeLabel.setText("Geometry: point");
+            labelText = labelText + " (point)";
 
         } else {
             throw new UnsupportedOperationException("No style method for " + clazz.getName());
         }
+
+        typeLabel.setText(labelText);
 
         // enable relevant components
         for (Component c : controls.keySet()) {
@@ -569,7 +743,6 @@ public class JSimpleStyleDialog extends JDialog {
         }
 
         // set the fields available for labels
-        SimpleFeatureType schema = store.getSchema(typeNames[typeIndex]);
         fieldsForLabels = new String[schema.getAttributeCount() - 1];
 
         int k = 0;
@@ -585,26 +758,211 @@ public class JSimpleStyleDialog extends JDialog {
     }
 
     /**
+     * Set dialog items to show the contents of the given style
+     *
+     * @param style style to display
+     */
+    private void setStyle(Style style) {
+        assert(geomType != GeomType.UNDEFINED);
+
+        FeatureTypeStyle featureTypeStyle = null;
+        Rule rule = null;
+        Symbolizer symbolizer = null;
+
+        if (style != null) {
+            featureTypeStyle = SLD.featureTypeStyle(style, schema);
+
+            if (featureTypeStyle != null) {
+                /*
+                 * At present this dialog just examines the very first rule and symbolizer
+                 */
+                if (featureTypeStyle.rules() == null || featureTypeStyle.rules().isEmpty()) {
+                    return;
+                }
+                rule = featureTypeStyle.rules().get(0);
+
+                if (rule.symbolizers() == null) {
+                    return;
+                }
+                for (Symbolizer sym : rule.symbolizers()) {
+                    if (isValidSymbolizer(sym, geomType)) {
+                        symbolizer = sym;
+                        break;
+                    }
+                }
+                if (symbolizer == null) {
+                    return;
+                }
+
+            } else {
+                /*
+                 * Just grap the first feature type style that contains the
+                 * right sort of symbolizer
+                 */
+                for (int ifts = 0; featureTypeStyle == null && ifts < style.featureTypeStyles().size(); ifts++) {
+                    FeatureTypeStyle fts = style.featureTypeStyles().get(ifts);
+                    for (int irule = 0; featureTypeStyle == null && irule < fts.rules().size(); irule++) {
+                        Rule r = fts.rules().get(irule);
+                        for (Symbolizer sym : r.symbolizers()) {
+                            if (isValidSymbolizer(sym, geomType)) {
+                                featureTypeStyle = fts;
+                                rule = r;
+                                symbolizer = sym;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (featureTypeStyle != null && rule != null && symbolizer != null) {
+                initControls(featureTypeStyle, rule, symbolizer);
+            }
+        }
+    }
+
+    /**
+     * Initialize the control states based on the given style objects
+     *
+     * @param fts a {@code FeatureTypeStyle}
+     * @param rule a {@code Rule}
+     * @param sym a {@code Symbolizer}
+     */
+    private void initControls(FeatureTypeStyle fts, Rule rule, Symbolizer sym) {
+        Expression exp = null;
+
+        switch (geomType) {
+            case POLYGON:
+                PolygonSymbolizer polySym = (PolygonSymbolizer) sym;
+                setLineColorItems( SLD.color(polySym.getStroke()) );
+                setFillColorItems( SLD.color(polySym.getFill()) );
+                setFillOpacityItems( SLD.opacity(polySym.getFill()) );
+                break;
+
+            case LINE:
+                LineSymbolizer lineSym = (LineSymbolizer) sym;
+                setLineColorItems( SLD.color(lineSym) );
+                break;
+
+            case POINT:
+                PointSymbolizer pointSym = (PointSymbolizer) sym;
+                setLineColorItems( SLD.pointColor(pointSym) );
+                setFillColorItems( SLD.pointFill(pointSym) );
+                setFillOpacityItems( SLD.pointOpacity(pointSym) );
+                setPointSizeItems( SLD.pointSize(pointSym) );
+                setPointSymbolItems( SLD.pointWellKnownName(pointSym) );
+        }
+    }
+
+    private boolean isValidSymbolizer(Symbolizer sym, GeomType type) {
+        if (sym != null) {
+            if (sym instanceof PolygonSymbolizer) {
+                return type == GeomType.POLYGON;
+            } else if (sym instanceof LineSymbolizer) {
+                return type == GeomType.LINE;
+            } else if (sym instanceof PointSymbolizer) {
+                return type == GeomType.POINT;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Display a color chooser dialog to set the line color
      */
     private void chooseLineColor() {
         Color color = JColorChooser.showDialog(this, "Choose line color", lineColor);
+        setLineColorItems(color);
+    }
+
+    /**
+     * Set the line color items to show the given color choice
+     * @param color current color
+     */
+    private void setLineColorItems(Color color) {
         if (color != null) {
             lineColor = color;
             lineColorIcon.setColor(color);
             lineColorLabel.repaint();
         }
     }
-
+    
     /**
      * Display a color chooser dialog to set the fill color
      */
     private void chooseFillColor() {
         Color color = JColorChooser.showDialog(this, "Choose fill color", fillColor);
+        setFillColorItems(color);
+    }
+
+    /**
+     * Set the fill color items to show the given color choice
+     * @param color current color
+     */
+    private void setFillColorItems(Color color) {
         if (color != null) {
             fillColor = color;
             fillColorIcon.setColor(color);
             fillColorLabel.repaint();
+        }
+    }
+
+    /**
+     * Set the fill opacity items to the given value
+     * @param value opacity value between 0 and 1
+     */
+    private void setFillOpacityItems(double value) {
+        opacity = (float) Math.min(1.0, Math.max(0.0, value));
+        fillOpacitySlider.setValue((int)(opacity * 100));
+    }
+
+    /**
+     * Set items for the given point size
+     *
+     * @param value point size
+     */
+    private void setPointSizeItems(double value) {
+        pointSize = (float) Math.max(0.0, value);
+        int newValue = (int)pointSize;
+
+        MutableComboBoxModel model = (MutableComboBoxModel) pointSizeCBox.getModel();
+        int insert = -1;
+        for (int i = 0; i < model.getSize(); i++) {
+            int elValue = ((Number)model.getElementAt(i)).intValue();
+            if (elValue == newValue) {
+                pointSizeCBox.setSelectedIndex(i);
+                return;
+
+            } else if (elValue > newValue) {
+                insert = i;
+                break;
+            }
+        }
+
+        if (insert < 0) {
+            insert = model.getSize();
+            model.addElement(Integer.valueOf(newValue));
+        } else {
+            model.insertElementAt(Integer.valueOf(newValue), insert);
+        }
+        pointSizeCBox.setSelectedIndex(insert);
+    }
+
+    /**
+     * Set items for the given point symbol, identified by its 'well known name'
+     *
+     * @param wellKnownName name of the symbol
+     */
+    private void setPointSymbolItems(String wellKnownName) {
+        if (wellKnownName != null) {
+            for (int i = 0; i < WELL_KNOWN_SYMBOL_NAMES.length; i++) {
+                if (WELL_KNOWN_SYMBOL_NAMES[i].equalsIgnoreCase(wellKnownName)) {
+                    pointSymbolName = WELL_KNOWN_SYMBOL_NAMES[i];
+                    pointSymbolCBox.setSelectedIndex(i);
+                    break;
+                }
+            }
         }
     }
 

@@ -36,6 +36,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.RenderedImage;
 import java.util.HashSet;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -632,12 +633,76 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
      *
      * @param repaint if true, paint requests will be handled normally;
      * if false, paint requests will be deferred.
+     *
+     * @see #isAcceptingRepaints()
      */
-    void setRepaint(boolean repaint) {
+    public void setRepaint(boolean repaint) {
         acceptRepaintRequests = repaint;
 
         // we also want to accept / ignore system requests for repainting
         setIgnoreRepaint(!repaint);
+    }
+
+    /**
+     * Query whether the map pane is currently accepting or ignoring
+     * repaint requests from other GUI components and the system.
+     *
+     * @return true if the pane is currently accepting repaint requests;
+     *         false if it is ignoring them
+     *
+     * @see #setRepaint(boolean)
+     */
+    public boolean isAcceptingRepaints() {
+        return acceptRepaintRequests;
+    }
+
+    /**
+     * Retrieve the map pane's current base image.
+     * <p>
+     * The map pane caches the most recent rendering of map layers
+     * as an image to avoid time-consuming rendering requests whenever
+     * possible. The base image will be re-drawn whenever there is a
+     * change to map layer data, style or visibility; and it will be
+     * replaced by a new image when the pane is resized.
+     * <p>
+     * This method returns a <b>live</b> reference to the current
+     * base image. Use with caution.
+     *
+     * @return a live reference to the current base image
+     */
+    public RenderedImage getBaseImage() {
+        return this.baseImage;
+    }
+
+    /**
+     * Get the length of the delay period between the pane being
+     * resized and the next repaint.
+     * <p>
+     * The map pane imposes a delay between resize events and repainting
+     * to avoid flickering of the display during drag-resizing.
+     *
+     * @return delay in milliseconds
+     */
+    public int getResizeDelay() {
+        return resizingPaintDelay;
+    }
+
+    /**
+     * Set the length of the delay period between the pane being
+     * resized and the next repaint.
+     * <p>
+     * The map pane imposes a delay between resize events and repainting
+     * to avoid flickering of the display during drag-resizing.
+     *
+     * @param delay the delay in milliseconds; if {@code <} 0 the default delay
+     *        period will be set
+     */
+    public void setResizeDelay(int delay) {
+        if (delay < 0) {
+            resizingPaintDelay = DEFAULT_RESIZING_PAINT_DELAY;
+        } else {
+            resizingPaintDelay = delay;
+        }
     }
 
     /**
@@ -757,7 +822,7 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
      */
     public void layerAdded(MapLayerListEvent event) {
         if (layerTable != null) {
-            layerTable.addLayer(event.getLayer());
+            layerTable.onAddLayer(event.getLayer());
         }
         MapLayer layer = event.getLayer();
         layer.setSelected(true);
@@ -780,7 +845,7 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
     public void layerRemoved(MapLayerListEvent event) {
         MapLayer layer = event.getLayer();
         if (layerTable != null) {
-            layerTable.removeLayer(layer);
+            layerTable.onRemoveLayer(layer);
         }
 
         if( layer instanceof ComponentListener ){

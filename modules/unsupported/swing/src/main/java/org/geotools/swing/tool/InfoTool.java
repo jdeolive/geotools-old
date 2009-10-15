@@ -29,6 +29,7 @@ import java.awt.Toolkit;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Map;
 import java.util.ResourceBundle;
 import javax.measure.unit.Unit;
 import javax.swing.ImageIcon;
@@ -44,12 +45,12 @@ import org.geotools.map.MapLayer;
 import org.geotools.swing.JTextReporter;
 import org.geotools.swing.TextReporterListener;
 import org.geotools.swing.event.MapMouseEvent;
+import org.geotools.swing.utils.MapLayerUtils;
 import org.opengis.coverage.CannotEvaluateException;
 import org.opengis.feature.Feature;
 import org.opengis.feature.Property;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
-import org.opengis.feature.type.PropertyDescriptor;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory2;
 
@@ -84,15 +85,6 @@ public class InfoTool extends CursorTool implements TextReporterListener {
      * as the maximum map side length multiplied by the distance fraction.
      */
     public static final double DEFAULT_DISTANCE_FRACTION = 0.04d;
-
-    /*
-     * Used by the isGridLayer method to return its results
-     */
-    private class IsGridLayerResult {
-        boolean isGridLayer = false;
-        private boolean isReader = false;
-        String gridAttrName = null;
-    }
 
     private Cursor cursor;
     private FilterFactory2 filterFactory;
@@ -143,16 +135,17 @@ public class InfoTool extends CursorTool implements TextReporterListener {
                 }
 
                 try {
-                    IsGridLayerResult result = isGridLayer(layer);
-                    if (result.isGridLayer) {
+                    Map<String, Object> result = MapLayerUtils.isGridLayer(layer);
+                    if ((Boolean)result.get(MapLayerUtils.IS_GRID_KEY)) {
                         /*
                          * For grid coverages we directly evaluate the band values
                          */
                         iter = layer.getFeatureSource().getFeatures().features();
-                        Object obj = iter.next().getProperty(result.gridAttrName).getValue();
+                        String gridAttr = (String) result.get(MapLayerUtils.GRID_ATTR_KEY);
+                        Object obj = iter.next().getProperty(gridAttr).getValue();
                         GridCoverage2D cov = null;
 
-                        if (result.isReader) {
+                        if ((Boolean)result.get(MapLayerUtils.IS_GRID_READER_KEY)) {
                             AbstractGridCoverage2DReader reader = (AbstractGridCoverage2DReader) obj;
                             cov = reader.read(null);
                         } else {
@@ -307,35 +300,6 @@ public class InfoTool extends CursorTool implements TextReporterListener {
      */
     public void onReporterClosed(WindowEvent ev) {
         reporter = null;
-    }
-
-    /**
-     * Check if the given map layer contains a grid coverage or a grid coverage reader
-     * @param layer theh map layer
-     * @return a new instance of {@linkplain InfoTool.IsGridLayerResult}
-     */
-    private IsGridLayerResult isGridLayer(MapLayer layer) {
-        IsGridLayerResult info = new IsGridLayerResult();
-
-        Collection<PropertyDescriptor> descriptors = layer.getFeatureSource().getSchema().getDescriptors();
-        for (PropertyDescriptor desc : descriptors) {
-            Class<?> clazz = desc.getType().getBinding();
-            
-            if (GridCoverage2D.class.isAssignableFrom(clazz)) {
-                info.isGridLayer = true;
-                info.isReader = false;
-                info.gridAttrName = desc.getName().getLocalPart();
-                break;
-
-            } else if (AbstractGridCoverage2DReader.class.isAssignableFrom(clazz)) {
-                info.isGridLayer = true;
-                info.isReader = true;
-                info.gridAttrName = desc.getName().getLocalPart();
-                break;
-            }
-        }
-
-        return info;
     }
 
     /**

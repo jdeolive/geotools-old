@@ -30,20 +30,23 @@ import java.awt.event.MouseAdapter;
 import java.util.ResourceBundle;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.event.ListDataListener;
 import org.geotools.swing.dndlist.DnDListModel;
 import org.geotools.map.MapLayer;
+import org.geotools.styling.Style;
+import org.geotools.swing.styling.JSimpleStyleDialog;
 
 /**
  * Displays a list of the map layers in an associated {@linkplain JMapPane} and
- * provides controls to set the visibility and selection of each layer.
+ * provides controls to set the visibility, selection and style of each layer.
  * <p>
  * Implementation note: DefaultMapContext stores its list of MapLayer objects
  * in rendering order, ie. the layer at index 0 is rendererd first, followed by
  * index 1 etc. MapLayerTable stores its layers in the reverse order since it
- * is more intuitive for the user to think of layers being 'on top' of other
+ * is more intuitive for the user to think of a layer being 'on top' of other
  * layers.
  *
  * @author Michael Bedward
@@ -56,12 +59,20 @@ public class MapLayerTable extends JPanel {
 
     private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/swing/Text");
 
-    //rivate static final int BORDER = 10;
-
     private JMapPane pane;
     private DnDListModel<MapLayer> listModel;
     private DnDList<MapLayer> list;
     private JScrollPane scrollPane;
+    
+    /* For detecting mouse double-clicks */
+    private static final long DOUBLE_CLICK_TIME = 500;
+    private long lastClickTime = 0;
+
+    /*
+     * Whether to prompt for confirmation before removing a layer.
+     * @todo introduce a setter or property for this
+     */
+    private boolean confirmRemove = true;
 
     /**
      * Default constructor. A subsequent call to {@linkplain #setMapPane}
@@ -97,7 +108,7 @@ public class MapLayerTable extends JPanel {
      *
      * @param layer the map layer
      */
-    public void addLayer(MapLayer layer) {
+    public void onAddLayer(MapLayer layer) {
         listModel.insertItem(0, layer);
     }
 
@@ -108,7 +119,7 @@ public class MapLayerTable extends JPanel {
      *
      * @param layer the map layer
      */
-    void removeLayer(MapLayer layer) {
+    void onRemoveLayer(MapLayer layer) {
         listModel.removeItem(layer);
     }
 
@@ -149,8 +160,14 @@ public class MapLayerTable extends JPanel {
                         } else if (MapLayerTableCellRenderer.hitVisibilityLabel(p)) {
                             return stringRes.getString("show_layer");
 
+                        } else if (MapLayerTableCellRenderer.hitStyleLabel(p)) {
+                            return stringRes.getString("style_layer");
+
                         } else if (MapLayerTableCellRenderer.hitRemoveLabel(p)) {
                             return stringRes.getString("remove_layer");
+
+                        } else if (MapLayerTableCellRenderer.hitNameLabel(p)) {
+                            return stringRes.getString("rename_layer");
                         }
                     }
                 }
@@ -178,11 +195,14 @@ public class MapLayerTable extends JPanel {
         list.setFixedCellHeight(MapLayerTableCellRenderer.getCellHeight());
 
         list.addMouseListener(new MouseAdapter() {
-
             @Override
             public void mouseClicked(MouseEvent e) {
-                onLayerItemClicked(e);
+                long clickTime = System.currentTimeMillis();
+                boolean doubleClick = clickTime - lastClickTime < DOUBLE_CLICK_TIME;
+                lastClickTime = clickTime;
+                onLayerItemClicked(e, doubleClick);
             }
+
         });
 
         scrollPane = new JScrollPane(list,
@@ -192,7 +212,7 @@ public class MapLayerTable extends JPanel {
         scrollPane.setBorder(BorderFactory.createTitledBorder(stringRes.getString("layers_list_title")));
 
         JPanel btnPanel = new JPanel();
-        Icon showIcon = MapLayerTableCellRenderer.LayerState.VISIBLE.getOnIcon();
+        Icon showIcon = MapLayerTableCellRenderer.LayerControlItem.VISIBLE.getIcon();
         JButton showAllBtn = new JButton(showIcon);
         showAllBtn.setToolTipText(stringRes.getString("show_all_layers"));
         showAllBtn.addActionListener(new ActionListener() {
@@ -203,7 +223,7 @@ public class MapLayerTable extends JPanel {
         });
         btnPanel.add(showAllBtn);
 
-        Icon hideIcon = MapLayerTableCellRenderer.LayerState.VISIBLE.getOffIcon();
+        Icon hideIcon = MapLayerTableCellRenderer.LayerControlItem.VISIBLE.getOffIcon();
         JButton hideAllBtn = new JButton(hideIcon);
         hideAllBtn.setToolTipText(stringRes.getString("hide_all_layers"));
         hideAllBtn.addActionListener(new ActionListener() {
@@ -214,7 +234,7 @@ public class MapLayerTable extends JPanel {
         });
         btnPanel.add(hideAllBtn);
 
-        Icon onIcon = MapLayerTableCellRenderer.LayerState.SELECTED.getOnIcon();
+        Icon onIcon = MapLayerTableCellRenderer.LayerControlItem.SELECTED.getIcon();
         JButton selAllBtn = new JButton(onIcon);
         selAllBtn.setToolTipText(stringRes.getString("select_all_layers"));
         selAllBtn.addActionListener(new ActionListener() {
@@ -225,7 +245,7 @@ public class MapLayerTable extends JPanel {
         });
         btnPanel.add(selAllBtn);
 
-        Icon offIcon = MapLayerTableCellRenderer.LayerState.SELECTED.getOffIcon();
+        Icon offIcon = MapLayerTableCellRenderer.LayerControlItem.SELECTED.getOffIcon();
         JButton unselAllBtn = new JButton(offIcon);
         unselAllBtn.setToolTipText(stringRes.getString("unselect_all_layers"));
         unselAllBtn.addActionListener(new ActionListener() {
@@ -246,8 +266,9 @@ public class MapLayerTable extends JPanel {
      * layer names and states.
      *
      * @param ev the mouse event
+     * @param doubleClick true if this is the second click of a double-click; false otherwise
      */
-    private void onLayerItemClicked(MouseEvent ev) {
+    private void onLayerItemClicked(MouseEvent ev, boolean doubleClick) {
         int item = list.locationToIndex(ev.getPoint());
 
         if (item >= 0) {
@@ -261,12 +282,64 @@ public class MapLayerTable extends JPanel {
 
                 } else if (MapLayerTableCellRenderer.hitVisibilityLabel(p)) {
                     layer.setVisible(!layer.isVisible());
+
+                } else if (MapLayerTableCellRenderer.hitStyleLabel(p)) {
+                    doSetStyle(layer);
                 
                 } else if (MapLayerTableCellRenderer.hitRemoveLabel(p)) {
-                    pane.getMapContext().removeLayer(layer);
+                    doRemoveLayer(layer);
+
+                } else if (MapLayerTableCellRenderer.hitNameLabel(p)) {
+                    if (doubleClick) {
+                        doSetLayerName(layer);
+                    }
                 }
             }
         }
+    }
+
+    /**
+     * Show a style dialog to create a new Style for the layer
+     *
+     * @param layer the layer to be styled
+     */
+    private void doSetStyle(MapLayer layer) {
+        Style style = JSimpleStyleDialog.showDialog(this, layer);
+        if (style != null) {
+            layer.setStyle(style);
+        }
+    }
+
+    /**
+     * Prompt for a new title for the layer
+     *
+     * @param layer the layer to be renamed
+     */
+    private void doSetLayerName(MapLayer layer) {
+        String name = JOptionPane.showInputDialog(stringRes.getString("new_layer_name_message"));
+        if (name != null && name.trim().length() > 0) {
+            layer.setTitle(name.trim());
+        }
+    }
+
+    /**
+     * Called when the user has clicked on the remove layer item.
+     *
+     * @param layer the layer to remove
+     */
+    private void doRemoveLayer(MapLayer layer) {
+        if (confirmRemove) {
+            int confirm = JOptionPane.showConfirmDialog(null,
+                    stringRes.getString("confirm_remove_layer_message"),
+                    stringRes.getString("confirm_remove_layer_title"),
+                    JOptionPane.YES_NO_OPTION);
+
+            if (confirm != JOptionPane.YES_OPTION) {
+                return;
+            }
+        }
+
+        pane.getMapContext().removeLayer(layer);
     }
 
     /**
@@ -336,4 +409,5 @@ public class MapLayerTable extends JPanel {
             }
         }
     }
+
 }
