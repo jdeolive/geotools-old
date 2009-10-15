@@ -162,6 +162,20 @@ to use. If not, we just use the first three bands and hope for the best !
 Running the application
 -----------------------
 
+If you need some sample data to display you can download the uDig sample dataset from http://udig.refractions.net/docs/data-v1_2.zip
+which contains a geotiff global image: **bluemarble.tif** and a shapefile of country borders: **countries.shp**
+
+When you run the program you will first see the wizard dialog prompting your for the image and shapefile...
+
+.. image:: ImageLab_dialog.gif
+
+The initial map display shows the image as a greyscale, single-band view...
+
+.. image:: ImageLab_display.gif
+
+Experiment with displaying different bands in greyscale and swapping to the RGB display.
+
+
 Extra things to try
 -------------------
 
