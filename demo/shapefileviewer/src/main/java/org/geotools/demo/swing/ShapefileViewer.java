@@ -265,7 +265,7 @@ public class ShapefileViewer extends JMapFrame {
              * There was no associated SLD file so we attempt to create
              * a minimal style to display the layer
              */
-            style = JSimpleStyleDialog.showDialog(dstore, this);
+            style = JSimpleStyleDialog.showDialog(this, dstore);
             if (style == null) {
                 return false;
             }
