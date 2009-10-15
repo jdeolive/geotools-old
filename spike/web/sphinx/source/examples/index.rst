@@ -9,5 +9,6 @@ Examples
    csv2shp
    crslab
    querylab
+   stylelab
    imagelab
    displaylab
