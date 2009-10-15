@@ -12,7 +12,6 @@ package org.geotools.demo;
 
 import java.io.File;
 
-import javax.swing.JOptionPane;
 
 import org.geotools.data.FeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
@@ -39,6 +38,7 @@ import org.geotools.data.FileDataStoreFinder;
 import org.geotools.styling.Graphic;
 import org.geotools.styling.LineSymbolizer;
 import org.geotools.styling.Stroke;
+import org.geotools.swing.ExceptionMonitor;
 import org.geotools.swing.JMapFrame;
 import org.geotools.swing.data.JFileDataStoreChooser;
 import org.geotools.swing.styling.JSimpleStyleDialog;
@@ -49,15 +49,20 @@ public class StyleLab {
     static StyleFactory styleFactory = CommonFactoryFinder.getStyleFactory(null);
     static FilterFactory filterFactory = CommonFactoryFinder.getFilterFactory(null);
 
+    public static void main(String[] args) throws Exception {
+        StyleLab me = new StyleLab();
+        me.displayShapefile();
+    }
+
+    // docs end main
+
+    // docs start display
     /**
      * Prompts the user for a shapefile (unless a filename is provided
-     * on the command line; then creates an appropriate simple {@code Style}
-     * and displays the shapefile using a {@code JMapFrame}.
-     * 
-     * @param args shapefile name; if not provided the user will be prompted
-     *        for a file
+     * on the command line; then creates a simple Style and displays
+     * the shapefile on screen
      */
-    public static void main(String[] args) throws Exception {
+    private void displayShapefile() throws Exception {
         File file = JFileDataStoreChooser.showOpenFile("shp", null);
         if (file == null) {
             return;
@@ -69,7 +74,6 @@ public class StyleLab {
         // Create a map context and add our shapefile to it
         MapContext map = new DefaultMapContext();
         map.setTitle("StyleLab");
-        map.addLayer(featureSource, null);
 
         // Create a basic Style to render the features
         Style style = createStyle(file, featureSource);
@@ -82,7 +86,7 @@ public class StyleLab {
         JMapFrame.showMap(map);
     }
 
-    // end main
+    // docs end display
 
     // docs start create style
     /**
@@ -91,7 +95,7 @@ public class StyleLab {
      * this. Otherwise we display a JSimpleStyleDialog to prompt the user for
      * preferences.
      */
-    private static Style createStyle(File file, FeatureSource featureSource) {
+    private Style createStyle(File file, FeatureSource featureSource) {
         File sld = toSLDFile(file);
         if (sld.exists()) {
             return createFromSLD(sld);
@@ -108,7 +112,7 @@ public class StyleLab {
      * Figure out the URL for the SLD file associated with
      * the shapefile
      */
-    public static File toSLDFile(File file)  {
+    public File toSLDFile(File file)  {
         String filename = file.getAbsolutePath();
         if (filename.endsWith(".shp") || filename.endsWith(".dbf")
                 || filename.endsWith(".shx")) {
@@ -125,15 +129,14 @@ public class StyleLab {
     /**
      * Create a Style object from a definition in a SLD document
      */
-    private static Style createFromSLD(File sld) {
-        SLDParser stylereader;
+    private Style createFromSLD(File sld) {
         try {
-            stylereader = new SLDParser(styleFactory, sld.toURI().toURL());
+            SLDParser stylereader = new SLDParser(styleFactory, sld.toURI().toURL());
             Style[] style = stylereader.readXML();
             return style[0];
+            
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
-            System.exit(0);
+            ExceptionMonitor.show(null, e, "Problem creating style");
         }
         return null;
     }
@@ -148,7 +151,7 @@ public class StyleLab {
      * we have in the shapefile and then delegates to an appropriate style
      * creating method.
      */
-    private static Style createStyle2(FeatureSource featureSource) {
+    private Style createStyle2(FeatureSource featureSource) {
         SimpleFeatureType schema = (SimpleFeatureType)featureSource.getSchema();
         Class geomType = schema.getGeometryDescriptor().getType().getBinding();
 
@@ -169,7 +172,7 @@ public class StyleLab {
      * Create a Style to draw polygon features with a thin blue outline and
      * a cyan fill
      */
-    private static Style createPolygonStyle() {
+    private Style createPolygonStyle() {
 
         // create a partially opaque outline stroke
         Stroke stroke = styleFactory.createStroke(
@@ -200,7 +203,7 @@ public class StyleLab {
     /**
      * Create a Style to draw line features as thin blue lines
      */
-    private static Style createLineStyle() {
+    private Style createLineStyle() {
         Stroke stroke = styleFactory.createStroke(
                 filterFactory.literal(Color.BLUE),
                 filterFactory.literal(1));
@@ -224,7 +227,7 @@ public class StyleLab {
      * Create a Style to draw point features as circles with blue outlines
      * and cyan fill
      */
-    private static Style createPointStyle() {
+    private Style createPointStyle() {
         Graphic gr = styleFactory.createDefaultGraphic();
 
         Mark mark = styleFactory.getCircleMark();
