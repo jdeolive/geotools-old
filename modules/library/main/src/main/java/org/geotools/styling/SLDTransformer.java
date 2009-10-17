@@ -358,9 +358,9 @@ public class SLDTransformer extends TransformerBase {
             }
             
             if (text.getPriority() != null) {
-                start("Priority");
-                element("PropertyName", text.getPriority());
-                end("Priority");
+//                start("Priority");
+                element("Priority", text.getPriority());
+//                end("Priority");
             }
             
             end("TextSymbolizer");

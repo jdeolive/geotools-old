@@ -31,6 +31,7 @@ import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
 import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.expression.Expression;
+import org.opengis.filter.expression.PropertyName;
 import org.opengis.style.GraphicalSymbol;
 import org.opengis.style.Rule;
 import org.opengis.style.Symbolizer;
@@ -660,5 +661,51 @@ public class SLDTransformerTest extends TestCase {
         // NPE here
         String secondExport = st.transform(firstImport);
 
+    }
+    
+
+    /**                 
+     * Checks whether the "Priority" parameter of a TextSymbolizer is correctly stored and loaded
+     */
+    public void testPriorityTransformOutAndIn() throws Exception {
+        StyleBuilder sb = new StyleBuilder();
+
+        TextSymbolizer ts = sb.createTextSymbolizer();
+        PropertyName literalPrio = CommonFactoryFinder.getFilterFactory2(null).property(
+                "quantVariable");
+        ts.setPriority(literalPrio);
+        Style style = sb.createStyle(ts);
+
+        SLDTransformer st = new SLDTransformer();
+        String firstExport = st.transform(style);
+        SLDParser sldp = new SLDParser(CommonFactoryFinder.getStyleFactory(null));
+        sldp.setInput(new StringReader(firstExport));
+        Style[] firstImport = sldp.readXML();
+
+        assertNotNull(firstImport[0]);
+
+        {
+            Style reimportedStyle = firstImport[0];
+            TextSymbolizer reimportedTs = (TextSymbolizer) reimportedStyle.featureTypeStyles().get(
+                    0).rules().get(0).symbolizers().get(0);
+            assertNotNull(reimportedTs.getPriority());
+            assertEquals("quantVariable", reimportedTs.getPriority().toString());
+        }
+
+        // Just for the fun do it again... we had a case where this threw NPE                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+        {
+            // NPE here??
+            String secondExport = st.transform(firstImport);
+            SLDParser sldp2 = new SLDParser(CommonFactoryFinder.getStyleFactory(null));
+            sldp2.setInput(new StringReader(secondExport));
+            Style[] readXML = sldp2.readXML();
+
+            Style reimportedStyle = readXML[0];
+            TextSymbolizer reimportedTs = (TextSymbolizer) reimportedStyle.featureTypeStyles().get(
+                    0).rules().get(0).symbolizers().get(0);
+            assertNotNull(reimportedTs.getPriority());
+            assertEquals("quantVariable", reimportedTs.getPriority().toString());
+
+        }
     }
 }
