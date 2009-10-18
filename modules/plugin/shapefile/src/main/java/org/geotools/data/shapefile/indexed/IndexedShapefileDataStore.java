@@ -292,7 +292,7 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
             FilterAttributeExtractor fae = new FilterAttributeExtractor();
             query.getFilter().accept(fae, null);
     
-            Set attributes = new LinkedHashSet(Arrays.asList(propertyNames));
+            Set<String> attributes = new LinkedHashSet<String>(Arrays.asList(propertyNames));
             attributes.addAll(fae.getAttributeNameSet());
     
             propertyNames = (String[]) attributes.toArray(new String[attributes
@@ -313,8 +313,13 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
                 readDbf = false;
                 readGeometry = false;
                 newSchema = createSubType( propertyNames);
-            } else if(propertyNames.length > 0) {
-                newSchema = createSubType( propertyNames);
+            }
+            else if( propertyNames.length > 0 && !propertyNames[0].equals(defaultGeomName) ){
+                readGeometry = false;
+                newSchema = createSubType(propertyNames);
+            }
+            else if(propertyNames.length > 0) {
+                newSchema = createSubType(propertyNames);
             }
 
             return createFeatureReader(typeName, getAttributesReader(readDbf,

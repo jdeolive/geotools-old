@@ -47,10 +47,10 @@ public class ShapefileAttributeReader extends AbstractAttributeIO implements
     protected DbaseFileReader.Row row;
     protected ShapefileReader.Record record;
     int cnt;
-    int[] dbfindexes;
+    protected int[] dbfindexes;
     protected Envelope targetBBox;
     double simplificationDistance;
-    Object geometry;
+    protected Object geometry;
 
     public ShapefileAttributeReader(List<AttributeDescriptor> atts,
             ShapefileReader shp, DbaseFileReader dbf) {
@@ -90,12 +90,15 @@ public class ShapefileAttributeReader extends AbstractAttributeIO implements
         if(dbf != null) {
             dbfindexes = new int[atts.length];
             DbaseFileHeader head = dbf.getHeader();
-            for (int i = 1; i < atts.length; i++) {
+            AT: for (int i = 0; i < atts.length; i++) {
                 String attName = atts[i].getLocalName();
                 for(int j = 0; j < head.getNumFields(); j++) {
-                    if(head.getFieldName(j).equals(attName))
+                    if(head.getFieldName(j).equals(attName)){
                         dbfindexes[i] = j;
+                        continue AT;
+                    }
                 }
+                dbfindexes[i] = -1; // geometry
             }
         }
     }
@@ -169,15 +172,16 @@ public class ShapefileAttributeReader extends AbstractAttributeIO implements
 
     public Object read(int param) throws IOException,
             java.lang.ArrayIndexOutOfBoundsException {
-        switch (param) {
-        case 0:
-            return geometry;
+        int index = dbfindexes[param];
+                   
+        switch (index) {
+        case -1:
+            return geometry; // geometry is considered dbf index -1
 
         default:
             if (row != null) {
-                return row.read(dbfindexes[param]);
+                return row.read( index );
             }
-
             return null;
         }
     }
