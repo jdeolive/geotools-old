@@ -75,11 +75,6 @@ class Session implements ISession {
     private static final Logger LOGGER = Logger.getLogger("org.geotools.arcsde.pool");
 
     /**
-     * Session is disposed only when reference count is zero
-     */
-    private int referenceCount;
-
-    /**
      * How many seconds must have elapsed since the last connection round trip to the server for
      * {@link #testServer()} to actually check the connection's validity
      */
@@ -300,7 +295,6 @@ class Session implements ISession {
      * @see #checkActive()
      */
     void markActive() {
-        this.referenceCount = this.referenceCount ++;
         this.isPassivated = false;
     }
 
@@ -519,20 +513,14 @@ class Session implements ISession {
             throw new IllegalStateException(
                     "Transaction is in progress, should commit or rollback before closing");
         }
-        final int refCount = --referenceCount;
-        if (refCount == 0) {
-            try {
-                this.pool.returnObject(this);
-                if (LOGGER.isLoggable(Level.FINER)) {
-                    LOGGER.finer("<-- " + toString() + " retured to pool. Active: "
-                            + pool.getNumActive() + ", idle: " + pool.getNumIdle());
-                }
-            } catch (Exception e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        try {
+            this.pool.returnObject(this);
+            if (LOGGER.isLoggable(Level.FINER)) {
+                LOGGER.finer("<-- " + toString() + " retured to pool. Active: "
+                        + pool.getNumActive() + ", idle: " + pool.getNumIdle());
             }
-        } else {
-            System.err.println("Ignoring disposal of " + this + ". Still " + refCount
-                    + " references active");
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 
