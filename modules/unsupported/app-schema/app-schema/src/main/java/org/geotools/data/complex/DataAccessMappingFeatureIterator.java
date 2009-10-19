@@ -294,8 +294,8 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
             // nested feature type could have multiple instances as the whole purpose
             // of feature chaining is to cater for multi-valued properties
             for (Object singleVal : (Collection) value) {
-                ArrayList<Property> valueList = new ArrayList<Property>();
-                valueList.add((Property) singleVal);
+                ArrayList valueList = new ArrayList();
+                valueList.add(singleVal);
                 Attribute instance = xpathAttributeBuilder.set(target, xpath, valueList, id,
                         targetNodeType, false);
                 setClientProperties(instance, source, clientPropsMappings);
