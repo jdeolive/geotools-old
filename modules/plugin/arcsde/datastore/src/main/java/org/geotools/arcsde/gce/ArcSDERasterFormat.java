@@ -337,11 +337,158 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
         }
 
         ISessionPool sessionPool;
-        sessionPool = SharedSessionPool.getInstance(sdeConfig, SessionPoolFactory.getInstance());
+        sessionPool = SharedSessionPool.getInstance(sdeConfig, ReusableSessionPoolFactory.INSTANCE);
 
         return sessionPool;
     }
 
+    /**
+     * A {@link ISessionPoolFactory} that produces {@link ReusableSessionPool} in order for the
+     * sessions to handle more than one stream in read only mode.
+     * 
+     * @author Gabriel Roldan (OpenGeo)
+     * @since 2.5.9
+     */
+    private static final class ReusableSessionPoolFactory implements ISessionPoolFactory {
+        public static final ReusableSessionPoolFactory INSTANCE = new ReusableSessionPoolFactory();
+
+        public ISessionPool createPool(ArcSDEConnectionConfig config) throws IOException {
+            ISessionPool nonReusable = SessionPoolFactory.getInstance().createPool(config);
+            return new ReusableSessionPool(nonReusable);
+        }
+
+    }
+
+    /**
+     * An {@link ISessionPool} that queues {@link ISession}s for increased concurrency by allowing a
+     * single session to take on more than one request, thus opening more than one stream at a time.
+     * 
+     * @author Gabriel Roldan (OpenGeo)
+     * @since 2.5.9
+     */
+    private static final class ReusableSessionPool implements ISessionPool {
+
+        private ISessionPool nonReusable;
+
+        private final LinkedList<QueuedSession> inUse = new LinkedList<QueuedSession>();
+
+        private final ReadWriteLock queueLock = new ReentrantReadWriteLock();
+
+        public ReusableSessionPool(final ISessionPool nonReusable) {
+            this.nonReusable = nonReusable;
+        }
+
+        public ISession getSession() throws IOException, UnavailableConnectionException {
+            queueLock.readLock().lock();
+            final QueuedSession returnSession;
+            int used = nonReusable.getInUseCount();
+            int limit = nonReusable.getPoolSize();
+            queueLock.readLock().unlock();
+
+            if (used < limit) {
+                queueLock.writeLock().lock();
+                ISession session = nonReusable.getSession();
+                queueLock.writeLock().unlock();
+
+                returnSession = new QueuedSession(session);
+                inUse.add(returnSession);
+            } else {
+                queueLock.writeLock().lock();
+                returnSession = inUse.removeFirst();
+                inUse.addLast(returnSession);
+                queueLock.writeLock().unlock();
+            }
+
+            returnSession.markUsed();
+
+            return returnSession;
+        }
+
+        /**
+         * An {@link ISession} that's queued and allows to be reused by concurrent threads by
+         * maintaining a reference count to itself in order to actually {@link #dispose() dispose}
+         * the session when there are no more open references.
+         * 
+         * @author Gabriel Roldan (OpenGeo)
+         * @since 2.5.9
+         */
+        private final class QueuedSession extends SessionWrapper {
+
+            private int referenceCount;
+
+            public QueuedSession(final ISession wrapped) {
+                super(wrapped);
+            }
+
+            public void markUsed() {
+                this.referenceCount = referenceCount++;
+            }
+
+            /**
+             * Removes itself
+             * 
+             * @see org.geotools.arcsde.session.ISession#dispose()
+             */
+            @Override
+            public void dispose() throws IllegalStateException {
+                final int refCount = --referenceCount;
+                this.referenceCount = refCount;
+                if (refCount == 0) {
+                    queueLock.writeLock().lock();
+                    inUse.remove(this);
+                    queueLock.writeLock().unlock();
+                    super.dispose();
+                }
+            }
+
+            @Override
+            public String toString() {
+                return new StringBuilder("QueuedSession[").append(wrapped).append(']').toString();
+            }
+        }
+
+        /**
+         * @see org.geotools.arcsde.session.ISessionPool#close()
+         */
+        public void close() {
+            nonReusable.close();
+        }
+
+        /**
+         * @see org.geotools.arcsde.session.ISessionPool#getAvailableCount()
+         */
+        public int getAvailableCount() {
+            return nonReusable.getAvailableCount();
+        }
+
+        /**
+         * @see org.geotools.arcsde.session.ISessionPool#getConfig()
+         */
+        public ArcSDEConnectionConfig getConfig() {
+            return nonReusable.getConfig();
+        }
+
+        /**
+         * @see org.geotools.arcsde.session.ISessionPool#getInUseCount()
+         */
+        public int getInUseCount() {
+            return nonReusable.getInUseCount();
+        }
+
+        /**
+         * @see org.geotools.arcsde.session.ISessionPool#getPoolSize()
+         */
+        public int getPoolSize() {
+            return nonReusable.getPoolSize();
+        }
+
+        /**
+         * @see org.geotools.arcsde.session.ISessionPool#isClosed()
+         */
+        public boolean isClosed() {
+            return nonReusable.isClosed();
+        }
+    }
 
     /**
      * @param sdeUrl
