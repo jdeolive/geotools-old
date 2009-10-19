@@ -26,3 +26,8 @@ The :ref:`userguide` is a comprehensive reference for the entire library.
    quickstart
    examples/index
 
+GeoTools API
+------------
+
+`Browse <http://geotools.org/javadocs/>`_ the GeoTools API javadocs online or `download <http://sourceforge.net/projects/geotools/files/>`_ them as a zip file.
+
