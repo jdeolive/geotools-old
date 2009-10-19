@@ -120,10 +120,17 @@ public final class SharedSessionPool implements ISessionPool {
     }
 
     /**
-     * @see ISessionPool#getSession()
+     * @see org.geotools.arcsde.session.ISessionPool#getSession()
      */
     public ISession getSession() throws IOException, UnavailableConnectionException {
-        return delegate.getSession();
+        return getSession(true);
+    }
+
+    /**
+     * @see ISessionPool#getSession(boolean)
+     */
+    public ISession getSession(final boolean transactional) throws IOException, UnavailableConnectionException {
+        return delegate.getSession(transactional);
     }
 
     /**

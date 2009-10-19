@@ -270,7 +270,7 @@ public final class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
         ArcSDEDataStore sdeDStore;
         ISession session;
         try {
-            session = connPool.getSession();
+            session = connPool.getSession(false);
         } catch (UnavailableConnectionException e) {
             throw new RuntimeException(e);
         }

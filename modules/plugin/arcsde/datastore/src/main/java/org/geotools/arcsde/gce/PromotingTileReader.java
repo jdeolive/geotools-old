@@ -186,4 +186,11 @@ final class PromotingTileReader implements TileReader {
             tileData[pixArrayOffset + 1] = (byte) ((nativeTileData[sampleN] >>> 0) & 0xFF);
         }
     }
+
+    /**
+     * @see org.geotools.arcsde.gce.TileReader#dispose()
+     */
+    public void dispose() {
+        this.nativeReader.dispose();
+    }
 }

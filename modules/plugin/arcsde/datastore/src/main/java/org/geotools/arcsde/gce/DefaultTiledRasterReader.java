@@ -152,16 +152,18 @@ class DefaultTiledRasterReader implements TiledRasterReader {
      */
     public Long nextRaster() throws IOException {
         this.rasterId = session.issue(fetchCommand);
-        if (this.rasterId == null) {
-            dispose();
-        }
+//        if (this.rasterId == null) {
+//            dispose();
+//        }
         return this.rasterId;
     }
 
     /**
+     * Disposes in case of an error
+     * 
      * @see org.geotools.arcsde.gce.TiledRasterReader#dispose()
      */
-    public void dispose() {
+    private void dispose() {
         if (session != null) {
             try {
                 session.close(preparedQuery);
@@ -228,12 +230,12 @@ class DefaultTiledRasterReader implements TiledRasterReader {
          * GCE api having a very clear usage workflow that ensures close() is always being called to
          * the underlying ImageInputStream so we could let it close the SeQuery when done.
          */
-        try {
-            LOGGER.info("Forcing loading data for " + rasterInfo.getRasterTable() + "#" + rasterId);
-            fullTilesRaster.getData();
-        } catch (RuntimeException e) {
-            throw new DataSourceException("Error fetching arcsde raster", e);
-        }
+        // try {
+        // LOGGER.info("Forcing loading data for " + rasterInfo.getRasterTable() + "#" + rasterId);
+        // fullTilesRaster.getData();
+        // } catch (RuntimeException e) {
+        // throw new DataSourceException("Error fetching arcsde raster", e);
+        // }
         return fullTilesRaster;
     }
 
@@ -307,7 +309,7 @@ class DefaultTiledRasterReader implements TiledRasterReader {
         {
             final Dimension tileSize = new Dimension(tileWidth, tileHeight);
             final SeRow row = fetchCommand.getSeRow();
-            tileReader = TileReaderFactory.getInstance(session, row, rasterInfo, rasterIndex,
+            tileReader = TileReaderFactory.getInstance(session, preparedQuery, row, rasterInfo, rasterIndex,
                     matchingTiles, tileSize);
         }
 

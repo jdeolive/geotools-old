@@ -223,7 +223,7 @@ final class FeatureTypeInfoCache {
 
         ISession session;
         try {
-            session = sessionPool.getSession();
+            session = sessionPool.getSession(false);
         } catch (UnavailableConnectionException e) {
             throw new RuntimeException("Can't get type info for " + typeName
                     + ". Connection pool exhausted", e);
@@ -346,7 +346,7 @@ final class FeatureTypeInfoCache {
 
         private List<String> fetchRegistrations() throws Exception {
             final List<String> typeNames;
-            final ISession session = sessionPool.getSession();
+            final ISession session = sessionPool.getSession(false);
             try {
                 typeNames = session.issue(new FetchRegistrationsCommand(allowNonSpatialTables));
             } finally {

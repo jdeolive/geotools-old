@@ -44,7 +44,7 @@ public class RasterReaderFactory {
 
         ISession conn;
         try {
-            conn = sessionPool.getSession();
+            conn = sessionPool.getSession(false);
         } catch (UnavailableConnectionException e) {
             throw new RuntimeException(e);
         }

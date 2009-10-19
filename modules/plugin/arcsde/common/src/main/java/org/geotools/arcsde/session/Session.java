@@ -32,7 +32,6 @@ import java.util.concurrent.FutureTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.commons.pool.ObjectPool;
 import org.geotools.arcsde.ArcSdeException;
 import org.geotools.arcsde.session.Commands.GetVersionCommand;
 
@@ -84,9 +83,9 @@ class Session implements ISession {
     private final SeConnection connection;
 
     /**
-     * ObjectPool used to manage open connections (shared).
+     * SessionPool used to manage open connections (shared).
      */
-    private final ObjectPool pool;
+    private final SessionPool pool;
 
     private final ArcSDEConnectionConfig config;
 
@@ -114,17 +113,19 @@ class Session implements ISession {
      */
     private Thread commandThread;
 
+    private int referenceCount;
+
     /**
      * Provides safe access to an SeConnection.
      * 
      * @param pool
-     *            ObjectPool used to manage SeConnection
+     *            SessionPool used to manage SeConnection
      * @param config
      *            Used to set up a SeConnection
      * @throws SeException
      *             If we cannot connect
      */
-    Session(final ObjectPool pool, final ArcSDEConnectionConfig config) throws IOException {
+    Session(final SessionPool pool, final ArcSDEConnectionConfig config) throws IOException {
         this.config = config;
         this.pool = pool;
         this.taskExecutor = Executors.newSingleThreadExecutor();
@@ -290,11 +291,13 @@ class Session implements ISession {
      * Shall be called just before being returned from the connection pool
      * </p>
      * 
-     * @see #markInactive()
      * @see #isPassivated
      * @see #checkActive()
      */
     void markActive() {
+        synchronized (this) {
+            referenceCount = referenceCount + 1;
+        }
         this.isPassivated = false;
     }
 
@@ -309,6 +312,9 @@ class Session implements ISession {
      * @see #checkActive()
      */
     void markInactive() {
+        if (referenceCount != 0) {
+            throw new IllegalStateException("referenceCount = " + referenceCount);
+        }
         this.isPassivated = true;
     }
 
@@ -509,16 +515,28 @@ class Session implements ISession {
      */
     public void dispose() throws IllegalStateException {
         checkActive();
+        final int refCount;
+        synchronized (this) {
+            refCount = referenceCount = referenceCount - 1;
+        }
+        if (refCount > 0) {
+            // ignore
+            if (LOGGER.isLoggable(Level.FINEST)) {
+                LOGGER.finest("---------> Ignoring disposal, ref count is still " + refCount
+                        + " for " + this);
+            }
+            return;
+        }
+
+        if (LOGGER.isLoggable(Level.FINEST)) {
+            LOGGER.finest("  -> RefCount is " + refCount + ". Disposing " + this);
+        }
         if (transactionInProgress) {
             throw new IllegalStateException(
                     "Transaction is in progress, should commit or rollback before closing");
         }
         try {
             this.pool.returnObject(this);
-            if (LOGGER.isLoggable(Level.FINER)) {
-                LOGGER.finer("<-- " + toString() + " retured to pool. Active: "
-                        + pool.getNumActive() + ", idle: " + pool.getNumIdle());
-            }
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }

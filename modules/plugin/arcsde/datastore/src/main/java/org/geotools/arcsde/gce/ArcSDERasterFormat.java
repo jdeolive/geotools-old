@@ -159,7 +159,7 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
                 if (rasterInfo == null) {
                     ISession scon;
                     try {
-                        scon = connectionPool.getSession();
+                        scon = connectionPool.getSession(false);
                     } catch (UnavailableConnectionException e) {
                         throw new RuntimeException(e);
                     }
@@ -337,7 +337,9 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
         }
 
         ISessionPool sessionPool;
-        sessionPool = SharedSessionPool.getInstance(sdeConfig, ReusableSessionPoolFactory.INSTANCE);
+        // sessionPool = SharedSessionPool.getInstance(sdeConfig,
+        // ReusableSessionPoolFactory.INSTANCE);
+        sessionPool = SharedSessionPool.getInstance(sdeConfig, SessionPoolFactory.getInstance());
 
         return sessionPool;
     }
@@ -379,24 +381,26 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
         }
 
         public ISession getSession() throws IOException, UnavailableConnectionException {
+            return getSession(true);
+        }
+
+        public ISession getSession(boolean transactional) throws IOException,
+                UnavailableConnectionException {
+
+            QueuedSession returnSession;
+
             queueLock.readLock().lock();
-            final QueuedSession returnSession;
-            int used = nonReusable.getInUseCount();
-            int limit = nonReusable.getPoolSize();
+            final int used = inUse.size();
             queueLock.readLock().unlock();
 
-            if (used < limit) {
-                queueLock.writeLock().lock();
-                ISession session = nonReusable.getSession();
-                queueLock.writeLock().unlock();
+            final int limit = getConfig().getMaxConnections();
 
+            if (used < limit) {
+                ISession session;
+                session = nonReusable.getSession(transactional);
                 returnSession = new QueuedSession(session);
-                inUse.add(returnSession);
             } else {
-                queueLock.writeLock().lock();
                 returnSession = inUse.removeFirst();
-                inUse.addLast(returnSession);
-                queueLock.writeLock().unlock();
             }
 
             returnSession.markUsed();
@@ -423,6 +427,7 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
             public void markUsed() {
                 queueLock.readLock().lock();
                 ++referenceCount;
+                inUse.offer(this);
                 queueLock.readLock().unlock();
             }
 
@@ -437,10 +442,10 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
                 final int refCount = --referenceCount;
                 queueLock.readLock().unlock();
                 if (refCount == 0) {
+                    super.dispose();
                     queueLock.writeLock().lock();
                     inUse.remove(this);
                     queueLock.writeLock().unlock();
-                    super.dispose();
                 }
             }
 
@@ -575,7 +580,7 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
         params.put(ArcSDEConnectionConfig.PASSWORD_PARAM_NAME, sdePass);
         params.put(ArcSDEConnectionConfig.MIN_CONNECTIONS_PARAM_NAME, "1");
         params.put(ArcSDEConnectionConfig.MAX_CONNECTIONS_PARAM_NAME, "10");
-        params.put(ArcSDEConnectionConfig.CONNECTION_TIMEOUT_PARAM_NAME, "2000");
+        params.put(ArcSDEConnectionConfig.CONNECTION_TIMEOUT_PARAM_NAME, "-1");//do not wait
 
         ArcSDEConnectionConfig config = ArcSDEConnectionConfig.fromMap(params);
         return config;

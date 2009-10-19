@@ -19,6 +19,10 @@ package org.geotools.arcsde.session;
 
 import java.io.IOException;
 import java.util.NoSuchElementException;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -69,7 +73,9 @@ class SessionPool implements ISessionPool {
     protected ArcSDEConnectionConfig config;
 
     /** Apache commons-pool used to pool arcsde connections */
-    protected GenericObjectPool pool;
+    private GenericObjectPool pool;
+
+    private final Queue<Session> openSessionsNonTransactional = new ConcurrentLinkedQueue<Session>();
 
     /**
      * Creates a new SdeConnectionPool object with the connection parameters holded by
@@ -117,7 +123,11 @@ class SessionPool implements ISessionPool {
             // When reached the pool upper limit, block and wait for an idle connection for maxWait
             // milliseconds before failing
             poolCfg.maxWait = config.getConnTimeOut().longValue();
-            poolCfg.whenExhaustedAction = GenericObjectPool.WHEN_EXHAUSTED_BLOCK;
+            if (poolCfg.maxWait > 0) {
+                poolCfg.whenExhaustedAction = GenericObjectPool.WHEN_EXHAUSTED_BLOCK;
+            } else {
+                poolCfg.whenExhaustedAction = GenericObjectPool.WHEN_EXHAUSTED_FAIL;
+            }
 
             // check connection health at borrowObject()?
             poolCfg.testOnBorrow = true;
@@ -185,9 +195,7 @@ class SessionPool implements ISessionPool {
      */
     public int getPoolSize() {
         checkOpen();
-        synchronized (this.pool) {
-            return this.pool.getMaxActive();
-        }
+        return pool.getMaxActive();
     }
 
     /*
@@ -198,7 +206,7 @@ class SessionPool implements ISessionPool {
     public void close() {
         if (pool != null) {
             try {
-                this.pool.close();
+                pool.close();
                 pool = null;
                 LOGGER.fine("SDE connection pool closed. ");
             } catch (Exception e) {
@@ -230,47 +238,79 @@ class SessionPool implements ISessionPool {
         close();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.geotools.arcsde.session.ISessionPool#getAvailableCount()
      */
     public synchronized int getAvailableCount() {
         checkOpen();
-        return this.pool.getNumIdle();
+        return pool.getMaxActive() - pool.getNumActive();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.geotools.arcsde.session.ISessionPool#getInUseCount()
      */
-    public synchronized int getInUseCount() {
+    public int getInUseCount() {
         checkOpen();
-        return this.pool.getNumActive();
+        return pool.getNumActive();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.geotools.arcsde.session.ISessionPool#getSession()
      */
     public ISession getSession() throws IOException, UnavailableConnectionException {
+        return getSession(true);
+    }
+
+    private Lock poolLock = new ReentrantLock();
+
+    public void returnObject(Session session) throws Exception {
+        openSessionsNonTransactional.remove(session);
+        pool.returnObject(session);
+    }
+
+    /**
+     * @see org.geotools.arcsde.session.ISessionPool#getSession(boolean)
+     */
+    public ISession getSession(final boolean transactional) throws IOException,
+            UnavailableConnectionException {
         checkOpen();
         try {
-            Session connection = (Session) this.pool.borrowObject();
-
-            if (LOGGER.isLoggable(Level.FINER)) {
-                LOGGER.finer("-->" + connection + " out of connection pool. Active: "
-                        + pool.getNumActive() + ", idle: " + pool.getNumIdle());
+            Session connection;
+            if (transactional) {
+                connection = (Session) pool.borrowObject();
+                connection.markActive();
+                return connection;
+            } else {
+                final int limit = config.getMaxConnections();
+                poolLock.lock();
+                final int used = pool.getNumActive();
+                if (used < limit) {
+                    try {
+                        connection = (Session) pool.borrowObject();
+                    } catch (NoSuchElementException e) {
+                        if (LOGGER.isLoggable(Level.FINEST)) {
+                            LOGGER.finest("Falling back to queued session");
+                        }
+                        connection = openSessionsNonTransactional.remove();
+                    }
+                    openSessionsNonTransactional.add(connection);
+                } else {
+                    connection = openSessionsNonTransactional.remove();
+                    openSessionsNonTransactional.add(connection);
+                }
+                poolLock.unlock();
+                connection.markActive();
+                return connection;
             }
 
-            connection.markActive();
-            return connection;
+            // if (LOGGER.isLoggable(Level.FINER)) {
+            // LOGGER.finer("-->" + connection + " out of connection pool. Active: "
+            // + pool.getNumActive() + ", idle: " + pool.getNumIdle());
+            // }
         } catch (NoSuchElementException e) {
             LOGGER.log(Level.WARNING, "Out of connections: " + e.getMessage() + ". Config: "
                     + this.config);
-            throw new UnavailableConnectionException(this.pool.getNumActive(), this.config);
+            throw new UnavailableConnectionException(config.getMaxConnections(), this.config);
         } catch (SeException se) {
             ArcSdeException sdee = new ArcSdeException(se);
             LOGGER.log(Level.WARNING, "ArcSDE error getting connection for " + config, sdee);
@@ -324,7 +364,7 @@ class SessionPool implements ISessionPool {
             NegativeArraySizeException cause = null;
             for (int i = 0; i < 3; i++) {
                 try {
-                    ISession seConn = new Session(SessionPool.this.pool, config);
+                    ISession seConn = new Session(SessionPool.this, config);
                     return seConn;
                 } catch (NegativeArraySizeException nase) {
                     LOGGER.warning("Strange failed ArcSDE connection error.  Trying again (try "
@@ -335,18 +375,6 @@ class SessionPool implements ISessionPool {
             throw (IOException) new IOException(
                     "Couldn't create ArcSDE Session because of strange SDE internal exception. "
                             + " Tried 3 times, giving up.").initCause(cause);
-        }
-
-        /**
-         * is invoked on every instance before it is returned from the pool.
-         * 
-         * @param obj
-         */
-        @Override
-        public void activateObject(Object obj) {
-            final Session conn = (Session) obj;
-            conn.markActive();
-            LOGGER.finest("    activating connection " + obj);
         }
 
         @Override
@@ -419,5 +447,4 @@ class SessionPool implements ISessionPool {
         ret.append("]");
         return ret.toString();
     }
-
 }

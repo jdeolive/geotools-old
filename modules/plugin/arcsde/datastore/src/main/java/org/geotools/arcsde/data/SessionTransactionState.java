@@ -264,7 +264,7 @@ final class SessionTransactionState implements Transaction.State {
                 // start a transaction
                 ISession session;
                 try {
-                    session = pool.getSession();
+                    session = pool.getSession(true);
                 } catch (UnavailableConnectionException e) {
                     throw new RuntimeException(
                             "Can't create a transaction state, connection pool exhausted", e);

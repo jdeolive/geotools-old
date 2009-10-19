@@ -18,8 +18,10 @@ import java.io.IOException;
  * </p>
  * 
  * @author Gabriel Roldan
- *
- * @source $URL$
+ * 
+ * @source $URL:
+ *         http://svn.osgeo.org/geotools/trunk/modules/plugin/arcsde/common/src/main/java/org/geotools
+ *         /arcsde/session/ISessionPool.java $
  * @version $Id$
  */
 public interface ISessionPool {
@@ -60,6 +62,9 @@ public interface ISessionPool {
      * Grab a session from the pool, this session is the responsibility of the calling code and must
      * be closed after use.
      * 
+     * @param transactional
+     *            whether the session is intended to be used on a transaction, so the pool may
+     *            choose to reuse or not a connection.
      * @return A Session, when close() is called it will be recycled into the pool
      * @throws IOException
      *             If we could not get a connection
@@ -67,6 +72,14 @@ public interface ISessionPool {
      *             If we are out of connections
      * @throws IllegalStateException
      *             If pool has been closed.
+     */
+    ISession getSession(final boolean transactional) throws IOException,
+            UnavailableConnectionException;
+
+    /**
+     * Shortcut for {@code getSession(true)}
+     * 
+     * @see #getSession(boolean)
      */
     ISession getSession() throws IOException, UnavailableConnectionException;
 

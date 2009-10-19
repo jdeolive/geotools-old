@@ -207,7 +207,7 @@ public class ArcSDEDataStoreFactoryTest {
      */
     @Test
     public void testCreateDataStoreWithInProcessViews() throws IOException, SeException, UnavailableConnectionException {
-        ISession session = testData.getConnectionPool().getSession();
+        ISession session = testData.getConnectionPool().getSession(true);
         try {
             InProcessViewSupportTestData.setUp(session, testData);
         } finally {
@@ -228,7 +228,7 @@ public class ArcSDEDataStoreFactoryTest {
 
     @Test
     public void testVersionParamCheck() throws IOException, UnavailableConnectionException {
-        ISession session = testData.getConnectionPool().getSession();
+        ISession session = testData.getConnectionPool().getSession(true);
         final String versionName = "testVersionParamCheck";
         try {
             testData.createVersion(session, versionName,
@@ -249,7 +249,7 @@ public class ArcSDEDataStoreFactoryTest {
 
     @Test
     public void testVersioned() throws IOException, UnavailableConnectionException {
-        ISession session = testData.getConnectionPool().getSession();
+        ISession session = testData.getConnectionPool().getSession(true);
         final String versionName = "testVersioned";
         try {
             testData.createVersion(session, versionName,

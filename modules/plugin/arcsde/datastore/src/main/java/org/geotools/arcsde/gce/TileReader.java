@@ -25,7 +25,9 @@ import java.io.IOException;
  * @author Gabriel Roldan (OpenGeo)
  * @since 2.5.4
  * @version $Id$
- * @source $URL$
+ * @source $URL:
+ *         http://svn.osgeo.org/geotools/trunk/modules/plugin/arcsde/datastore/src/main/java/org
+ *         /geotools/arcsde/gce/TileReader.java $
  */
 interface TileReader {
 
@@ -116,5 +118,11 @@ interface TileReader {
      *         {@link #getBytesPerTile()}
      */
     public abstract TileInfo next(byte[] tileData) throws IOException;
+
+    /**
+     * Disposes any resource being held by this TileReader, making the TileReader unusable and the
+     * behaviour of {@link #hasNext()} and {@link #next(byte[])} unpredictable
+     */
+    public abstract void dispose();
 
 }

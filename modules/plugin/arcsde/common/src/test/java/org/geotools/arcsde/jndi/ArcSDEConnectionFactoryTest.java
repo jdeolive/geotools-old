@@ -225,31 +225,29 @@ public class ArcSDEConnectionFactoryTest {
         }
 
         public void close() {
-            // TODO Auto-generated method stub
         }
 
         public int getAvailableCount() {
-            // TODO Auto-generated method stub
             return 0;
         }
 
         public int getInUseCount() {
-            // TODO Auto-generated method stub
             return 0;
         }
 
         public int getPoolSize() {
-            // TODO Auto-generated method stub
             return 0;
         }
 
         public ISession getSession() throws IOException, UnavailableConnectionException {
-            // TODO Auto-generated method stub
+            return null;
+        }
+
+        public ISession getSession(boolean transactional) throws IOException, UnavailableConnectionException {
             return null;
         }
 
         public boolean isClosed() {
-            // TODO Auto-generated method stub
             return false;
         }
     }

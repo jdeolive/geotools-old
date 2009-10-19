@@ -30,6 +30,7 @@ import org.geotools.util.logging.Logging;
 
 import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeException;
+import com.esri.sde.sdk.client.SeQuery;
 import com.esri.sde.sdk.client.SeRasterTile;
 import com.esri.sde.sdk.client.SeRow;
 
@@ -72,6 +73,8 @@ final class NativeTileReader implements TileReader {
 
     private final TileFetchCommand tileFetchCommand;
 
+    private final SeQuery preparedQuery;
+
     private static class TileFetchCommand extends Command<SeRasterTile> {
 
         private final SeRow row;
@@ -90,6 +93,8 @@ final class NativeTileReader implements TileReader {
 
     /**
      * 
+     * @param preparedQuery
+     *            the query stream to close when done
      * @param row
      * @param imageDimensions
      *            the image size, x and y are the offsets, width and height the actual width and
@@ -99,10 +104,11 @@ final class NativeTileReader implements TileReader {
      * @param numberOfBands2
      * @param requestedTiles
      */
-    NativeTileReader(final ISession session, final SeRow row, final int bitsPerSample,
-            int numberOfBands, final Rectangle requestedTiles, Dimension tileSize,
-            final BitmaskToNoDataConverter noData) {
+    NativeTileReader(final ISession session, final SeQuery preparedQuery, final SeRow row,
+            final int bitsPerSample, int numberOfBands, final Rectangle requestedTiles,
+            Dimension tileSize, final BitmaskToNoDataConverter noData) {
         this.session = session;
+        this.preparedQuery = preparedQuery;
         this.tileFetchCommand = new TileFetchCommand(row);
         this.bitsPerSample = bitsPerSample;
         this.numberOfBands = numberOfBands;
@@ -176,9 +182,18 @@ final class NativeTileReader implements TileReader {
      */
     public boolean hasNext() throws IOException {
         if (!started) {
-            nextTile = session.issue(tileFetchCommand);
+            try {
+                nextTile = session.issue(tileFetchCommand);
+            } catch (IOException e) {
+                dispose();
+                throw e;
+            } catch (RuntimeException e) {
+                dispose();
+                throw e;
+            }
             started = true;
             if (nextTile == null) {
+                dispose();
                 LOGGER.fine("No tiles to fetch at all, releasing connection");
             }
         }
@@ -190,6 +205,7 @@ final class NativeTileReader implements TileReader {
      */
     public TileInfo next(byte[] tileData) throws IOException {
         if (tileData == null) {
+            dispose();
             throw new IllegalArgumentException("tileData is null");
         }
 
@@ -235,6 +251,7 @@ final class NativeTileReader implements TileReader {
                         + tile.getRowIndex() + "]");
             }
         } else {
+            dispose();
             throw new IllegalStateException("Expected pixels per tile == " + pixelsPerTile
                     + " but got " + numPixels + ": " + tile);
         }
@@ -244,16 +261,41 @@ final class NativeTileReader implements TileReader {
 
     private SeRasterTile nextTile() throws IOException {
         if (nextTile == null) {
+            dispose();
             throw new EOFException("No more tiles to read");
         }
         SeRasterTile curr = nextTile;
 
-        nextTile = session.issue(tileFetchCommand);
+        try {
+            nextTile = session.issue(tileFetchCommand);
+        } catch (IOException e) {
+            dispose();
+            throw e;
+        } catch (RuntimeException e) {
+            dispose();
+            throw e;
+        }
         if (nextTile == null) {
+            dispose();
             LOGGER.finer("There're no more tiles to fetch");
         }
 
         return curr;
+    }
+
+    /**
+     * @see org.geotools.arcsde.gce.TileReader#dispose()
+     */
+    public void dispose() {
+        if (session != null) {
+            try {
+                session.close(this.preparedQuery);
+            } catch (Exception e) {
+                LOGGER.log(Level.WARNING, "Closing tile reader's prepared Query", e);
+            }
+            session.dispose();
+            session = null;
+        }
     }
 
 }

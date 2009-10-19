@@ -174,7 +174,7 @@ public class ArcSDEDataStore implements DataStore {
         final ISession session;
         if (Transaction.AUTO_COMMIT.equals(transaction)) {
             try {
-                session = connectionPool.getSession();
+                session = connectionPool.getSession(false);
             } catch (UnavailableConnectionException e) {
                 throw new RuntimeException("Session pool exhausted", e);
             }

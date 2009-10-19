@@ -63,7 +63,7 @@ interface TiledRasterReader {
      * Disposes any resource being held by this reader, whether it's a connection to the ArcSDE
      * server, opened streams, etc.
      */
-    void dispose();
+    //void dispose();
 
     /**
      * Advances to the next available raster in the raster dataset this reader works upon and

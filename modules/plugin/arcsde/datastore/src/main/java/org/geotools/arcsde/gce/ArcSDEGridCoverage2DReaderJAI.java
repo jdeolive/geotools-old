@@ -221,7 +221,7 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
         try {
             readAllTiledRasters(byRasterIdQueries, rasterReader, log);
         } finally {
-            rasterReader.dispose();
+            //rasterReader.dispose();
         }
 
         log.log(LoggingHelper.REQ_ENV);

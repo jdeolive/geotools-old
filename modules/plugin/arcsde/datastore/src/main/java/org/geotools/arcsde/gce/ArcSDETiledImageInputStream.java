@@ -117,6 +117,7 @@ final class ArcSDETiledImageInputStream extends ImageInputStreamImpl implements 
 
     @Override
     public void close() throws IOException {
+        tileReader.dispose();
         super.close();
     }
 }
