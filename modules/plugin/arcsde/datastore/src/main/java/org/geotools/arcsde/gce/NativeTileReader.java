@@ -298,4 +298,15 @@ final class NativeTileReader implements TileReader {
         }
     }
 
+    /**
+     * Disposes as to make sure the {@link ISession session} is returned to the pool even if a
+     * failing or non careful client left this object hanging around
+     * 
+     * @see #dispose()
+     * @see java.lang.Object#finalize()
+     */
+    @Override
+    protected void finalize() {
+        dispose();
+    }
 }
