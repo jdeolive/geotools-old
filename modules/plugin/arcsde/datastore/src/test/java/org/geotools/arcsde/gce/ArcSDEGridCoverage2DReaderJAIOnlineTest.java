@@ -29,6 +29,7 @@ import java.awt.image.IndexColorModel;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.io.File;
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -44,7 +45,6 @@ import org.geotools.coverage.grid.ViewType;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.OverviewPolicy;
-import org.geotools.data.DataSourceException;
 import org.geotools.gce.geotiff.GeoTiffWriter;
 import org.geotools.geometry.Envelope2D;
 import org.geotools.geometry.GeneralEnvelope;
@@ -162,7 +162,7 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
 
     @Test
     public void testRead_08bit_U_1Band() throws Exception {
-        testReadFullLevel0(TYPE_8BIT_U, 1);
+        testReadFullLevel0(TYPE_8BIT_U, 1, TYPE_16BIT_U);
     }
 
     @Test
@@ -201,7 +201,7 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
     @Test
     public void testRead_08bitU_ColorMapped() throws Exception {
         tableName = rasterTestData.loadRGBColorMappedRaster();
-        testReadFullLevel0(TYPE_8BIT_U, 1, "testRead_8bitU_RGBColorMappedRaster");
+        testReadFullLevel0(TYPE_8BIT_U, 1, TYPE_8BIT_U, "testRead_8bitU_RGBColorMappedRaster");
     }
 
     @Test
@@ -241,7 +241,7 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
         IndexColorModel colorModel = ColorUtilities.getIndexColorModel(ARGB);
         tableName = rasterTestData.getRasterTableName(TYPE_16BIT_U, 1, true);
         rasterTestData.loadTestRaster(tableName, 1, TYPE_16BIT_U, colorModel);
-        testReadFullLevel0(TYPE_16BIT_U, 1, "testRead_16bit_U_ColorMapped");
+        testReadFullLevel0(TYPE_16BIT_U, 1, TYPE_16BIT_U, "testRead_16bit_U_ColorMapped");
     }
 
     @Test
@@ -304,13 +304,13 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
     @Test
     public void testReadSampleRGB() throws Exception {
         tableName = rasterTestData.loadRGBRaster();
-        testReadFullLevel0(TYPE_8BIT_U, 3, "sampleRGB");
+        testReadFullLevel0(TYPE_8BIT_U, 3, TYPE_8BIT_U, "sampleRGB");
     }
 
     @Test
     public void testReadRasterCatalogFull() throws Exception {
         tableName = rasterTestData.loadRasterCatalog();
-        GridCoverage2D coverage = testReadFullLevel0(TYPE_8BIT_U, 3, "RasterCatalog");
+        GridCoverage2D coverage = testReadFullLevel0(TYPE_8BIT_U, 3, TYPE_8BIT_U, "RasterCatalog");
 
         GridGeometry2D gridGeometry = coverage.getGridGeometry();
         Envelope2D envelope2D = gridGeometry.getEnvelope2D();
@@ -386,14 +386,20 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
 
     private GridCoverage2D testReadFullLevel0(final RasterCellType cellType, final int numBands)
             throws Exception {
-
-        tableName = rasterTestData.getRasterTableName(cellType, numBands, false);
-        rasterTestData.loadTestRaster(tableName, numBands, cellType, null);
-        return testReadFullLevel0(cellType, numBands, tableName + "_" + numBands + "-Band");
+        return testReadFullLevel0(cellType, numBands, cellType);
     }
 
     private GridCoverage2D testReadFullLevel0(final RasterCellType cellType, final int numBands,
-            final String fileNamePostFix) throws Exception {
+            final RasterCellType resultingCellType) throws Exception {
+
+        tableName = rasterTestData.getRasterTableName(cellType, numBands, false);
+        rasterTestData.loadTestRaster(tableName, numBands, cellType, null);
+        return testReadFullLevel0(cellType, numBands, resultingCellType, tableName + "_" + numBands
+                + "-Band");
+    }
+
+    private GridCoverage2D testReadFullLevel0(final RasterCellType cellType, final int numBands,
+            final RasterCellType resultingCellType, final String fileNamePostFix) throws Exception {
 
         final AbstractGridCoverage2DReader reader = getReader();
         assertNotNull("Couldn't obtain a reader for " + fileNamePostFix, reader);
@@ -425,7 +431,7 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
         // ///////////////////////////////////////////////////////////assertEquals(originalGridRange,
         // gridGeometry.getGridRange());
 
-        final RenderedImage geophysics = coverage.view(ViewType.GEOPHYSICS).getRenderedImage();
+        final RenderedImage geophysics = coverage.view(ViewType.NATIVE).getRenderedImage();
         assertNotNull(geophysics);
 
         final String fileName = "testReadFullLevel0_" + fileNamePostFix;
@@ -439,10 +445,11 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
         // ////assertEquals(cellType.getDataBufferType(), image.getSampleModel().getDataType());
         final int[] sampleSize = geophysics.getSampleModel().getSampleSize();
         final ColorModel colorModel = geophysics.getColorModel();
+
         if (colorModel instanceof IndexColorModel) {
             switch (cellType) {
             case TYPE_1BIT:
-                assertEquals(1, sampleSize[0]);
+                assertEquals("1-bit image should have been promoted to 8-bit", 8, sampleSize[0]);
                 break;
             case TYPE_8BIT_U:
                 assertEquals("8-bit indexed image should have been "
@@ -456,7 +463,7 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
             }
         } else {
             for (int band = 0; band < numBands; band++) {
-                assertEquals(cellType.getBitsPerSample(), sampleSize[band]);
+                assertEquals(resultingCellType.getBitsPerSample(), sampleSize[band]);
             }
         }
 
@@ -694,7 +701,7 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
         return coverage;
     }
 
-    private AbstractGridCoverage2DReader getReader() throws DataSourceException {
+    private AbstractGridCoverage2DReader getReader() throws IOException {
         final ArcSDEConnectionConfig config = rasterTestData.getConnectionPool().getConfig();
 
         final String rgbUrl = "sde://" + config.getUserName() + ":" + config.getPassword() + "@"

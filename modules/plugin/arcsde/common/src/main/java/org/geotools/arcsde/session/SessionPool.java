@@ -186,7 +186,7 @@ class SessionPool implements ISessionPool {
     public int getPoolSize() {
         checkOpen();
         synchronized (this.pool) {
-            return this.pool.getNumActive() + this.pool.getNumIdle();
+            return this.pool.getMaxActive();
         }
     }
 

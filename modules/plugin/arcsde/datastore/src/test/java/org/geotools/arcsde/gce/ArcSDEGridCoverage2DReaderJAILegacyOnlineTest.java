@@ -14,6 +14,7 @@ import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.awt.image.renderable.ParameterBlock;
 import java.io.File;
+import java.io.IOException;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
@@ -113,7 +114,7 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
 
     @Test
     public void testIMG_USGSQUAD_SGBASE() throws Exception {
-        tableName = "SDE.IMG_USGSQUAD_SGBASE";
+        tableName = "SDE.RASTER.IMG_USGSQUAD_SGBASE";
         final AbstractGridCoverage2DReader reader = getReader();
         assertNotNull("Couldn't obtain a reader for " + tableName, reader);
 
@@ -140,7 +141,7 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         assertNotNull("read coverage returned null", coverage);
 
         RenderedImage image = coverage.getRenderedImage();
-        writeToDisk(coverage, "testRead_" + tableName);
+       // writeToDisk(coverage, "testRead_" + tableName);
     }
 
     @Test
@@ -167,12 +168,12 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         writeToDisk(coverage, "testRead_" + tableName);
 
         RenderedImage image = coverage.view(ViewType.RENDERED).getRenderedImage();
-        writeToDisk(image, tableName);
+        //writeToDisk(image, tableName);
     }
 
     @Test
     public void testReadRaster() throws Exception {
-        tableName = "SDE.IMG_USGSQUADM";
+        tableName = "SDE.RASTER.IMG_USGSQUADM";
         final AbstractGridCoverage2DReader reader = getReader();
         assertNotNull("Couldn't obtain a reader for " + tableName, reader);
 
@@ -186,12 +187,12 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         assertNotNull("read coverage returned null", coverage);
 
         // RenderedImage image = coverage.getRenderedImage();
-        writeToDisk(coverage, "testRead_" + tableName);
+        //writeToDisk(coverage, "testRead_" + tableName);
     }
 
     @Test
     public void testReadIMGCOQ_2005() throws Exception {
-        tableName = "SDE.IMG_COQ2005_CLIP_BOS";
+        tableName = "SDE.RASTER.IMG_COQ2005_CLIP_BOS";
 
         final AbstractGridCoverage2DReader reader = getReader();
         assertNotNull("Couldn't obtain a reader for " + tableName, reader);
@@ -219,7 +220,7 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         System.out.println("result envelope   : " + envelope2D);
 
         // RenderedImage image = coverage.getRenderedImage();
-        writeToDisk(coverage, "testRead_" + tableName);
+        //writeToDisk(coverage, "testRead_" + tableName);
 
         RenderedImage image = coverage.view(ViewType.RENDERED).getRenderedImage();
         // writeToDisk(image, tableName);
@@ -262,7 +263,7 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
 
         System.out.println("result envelope   : " + envelope2D);
 
-        writeToDisk(coverage, "testRead_" + tableName);
+       // writeToDisk(coverage, "testRead_" + tableName);
     }
 
     @Test
@@ -337,7 +338,7 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
 
     @Test
     public void testReadIMGCOQ_2001() throws Exception {
-        tableName = "SDE.IMG_COQ2001_CLIP_BOS_1";
+        tableName = "SDE.RASTER.IMG_COQ2001_CLIP_BOS_1";
         final AbstractGridCoverage2DReader reader = getReader();
         assertNotNull("Couldn't obtain a reader for " + tableName, reader);
 
@@ -373,7 +374,7 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         System.out.println("result envelope   : " + envelope2D);
 
         // RenderedImage image = coverage.getRenderedImage();
-        writeToDisk(coverage, "testRead_" + tableName);
+       // writeToDisk(coverage, "testRead_" + tableName);
     }
 
     private void writeToDisk(GridCoverage2D coverage, String fileName) throws Exception {
@@ -440,7 +441,7 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         return coverage;
     }
 
-    private AbstractGridCoverage2DReader getReader() throws DataSourceException {
+    private AbstractGridCoverage2DReader getReader() throws IOException {
         final ArcSDEConnectionConfig config = rasterTestData.getConnectionPool().getConfig();
 
         final String rgbUrl = "sde://" + config.getUserName() + ":" + config.getPassword() + "@"
@@ -483,10 +484,10 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         System.out.println("result envelope   : " + envelope2D);
 
         // RenderedImage image = coverage.getRenderedImage();
-        writeToDisk(coverage, "testRead_" + tableName);
+       // writeToDisk(coverage, "testRead_" + tableName);
 
         RenderedImage image = coverage.view(ViewType.RENDERED).getRenderedImage();
-        writeToDisk(image, tableName);
+       // writeToDisk(image, tableName);
 
         // writeBand(image, new int[] { 0 }, "band1");
     }

@@ -39,7 +39,7 @@ import org.geotools.arcsde.session.UnavailableConnectionException;
  * @since 2.5.7
  * 
  */
-final class SharedSessionPool implements ISessionPool {
+public final class SharedSessionPool implements ISessionPool {
 
     private static final Logger LOGGER = Logger.getLogger("org.geotools.arcsde.session");
 

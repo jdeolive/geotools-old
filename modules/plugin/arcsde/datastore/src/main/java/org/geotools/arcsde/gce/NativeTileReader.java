@@ -24,9 +24,11 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.geotools.arcsde.ArcSdeException;
+import org.geotools.arcsde.session.Command;
+import org.geotools.arcsde.session.ISession;
 import org.geotools.util.logging.Logging;
 
+import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeException;
 import com.esri.sde.sdk.client.SeRasterTile;
 import com.esri.sde.sdk.client.SeRow;
@@ -37,7 +39,9 @@ import com.esri.sde.sdk.client.SeRow;
  * @author Gabriel Roldan (OpenGeo)
  * @since 2.5.4
  * @version $Id$
- * @source $URL$
+ * @source $URL:
+ *         http://svn.osgeo.org/geotools/trunk/modules/plugin/arcsde/datastore/src/main/java/org
+ *         /geotools/arcsde/gce/NativeTileReader.java $
  */
 @SuppressWarnings( { "nls" })
 final class NativeTileReader implements TileReader {
@@ -52,8 +56,6 @@ final class NativeTileReader implements TileReader {
 
     private final int tileDataLength;
 
-    private final SeRow row;
-
     private final int pixelsPerTile;
 
     private final int numberOfBands;
@@ -66,6 +68,26 @@ final class NativeTileReader implements TileReader {
 
     private final BitmaskToNoDataConverter noData;
 
+    private ISession session;
+
+    private final TileFetchCommand tileFetchCommand;
+
+    private static class TileFetchCommand extends Command<SeRasterTile> {
+
+        private final SeRow row;
+
+        public TileFetchCommand(final SeRow row) {
+            this.row = row;
+        }
+
+        @Override
+        public SeRasterTile execute(ISession session, SeConnection connection) throws SeException,
+                IOException {
+            return row.getRasterTile();
+        }
+
+    }
+
     /**
      * 
      * @param row
@@ -77,10 +99,11 @@ final class NativeTileReader implements TileReader {
      * @param numberOfBands2
      * @param requestedTiles
      */
-    NativeTileReader(final SeRow row, final int bitsPerSample, int numberOfBands,
-            final Rectangle requestedTiles, Dimension tileSize,
+    NativeTileReader(final ISession session, final SeRow row, final int bitsPerSample,
+            int numberOfBands, final Rectangle requestedTiles, Dimension tileSize,
             final BitmaskToNoDataConverter noData) {
-        this.row = row;
+        this.session = session;
+        this.tileFetchCommand = new TileFetchCommand(row);
         this.bitsPerSample = bitsPerSample;
         this.numberOfBands = numberOfBands;
         this.requestedTiles = requestedTiles;
@@ -153,14 +176,10 @@ final class NativeTileReader implements TileReader {
      */
     public boolean hasNext() throws IOException {
         if (!started) {
-            try {
-                nextTile = row.getRasterTile();
-                started = true;
-                if (nextTile == null) {
-                    LOGGER.fine("No tiles to fetch at all, releasing connection");
-                }
-            } catch (SeException e) {
-                throw new ArcSdeException(e);
+            nextTile = session.issue(tileFetchCommand);
+            started = true;
+            if (nextTile == null) {
+                LOGGER.fine("No tiles to fetch at all, releasing connection");
             }
         }
         return nextTile != null;
@@ -228,14 +247,12 @@ final class NativeTileReader implements TileReader {
             throw new EOFException("No more tiles to read");
         }
         SeRasterTile curr = nextTile;
-        try {
-            nextTile = row.getRasterTile();
-            if (nextTile == null) {
-                LOGGER.finer("There're no more tiles to fetch");
-            }
-        } catch (SeException e) {
-            throw new ArcSdeException(e);
+
+        nextTile = session.issue(tileFetchCommand);
+        if (nextTile == null) {
+            LOGGER.finer("There're no more tiles to fetch");
         }
+
         return curr;
     }
 

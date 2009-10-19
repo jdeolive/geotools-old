@@ -36,10 +36,12 @@ import javax.media.jai.JAI;
 import javax.media.jai.RenderedOp;
 
 import org.geotools.arcsde.ArcSdeException;
-import org.geotools.arcsde.session.ArcSDEPooledConnection;
+import org.geotools.arcsde.session.Command;
+import org.geotools.arcsde.session.ISession;
 import org.geotools.data.DataSourceException;
 import org.geotools.util.logging.Logging;
 
+import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeException;
 import com.esri.sde.sdk.client.SeQuery;
 import com.esri.sde.sdk.client.SeRaster;
@@ -65,17 +67,54 @@ class DefaultTiledRasterReader implements TiledRasterReader {
 
     private static final Logger LOGGER = Logging.getLogger("org.geotools.arcsde.gce");
 
-    private ArcSDEPooledConnection conn;
+    private ISession session;
 
     private RasterDatasetInfo rasterInfo;
 
     private final SeQuery preparedQuery;
 
-    private SeRow row;
-
-    private SeRasterAttr rAttr;
-
     private Long rasterId;
+
+    private final FetchRasterCommand fetchCommand;
+
+    /**
+     * @see DefaultTiledRasterReader#nextRaster()
+     */
+    private static class FetchRasterCommand extends Command<Long> {
+
+        private SeQuery preparedQuery;
+
+        private SeRow row;
+
+        private SeRasterAttr rAttr;
+
+        public FetchRasterCommand(final SeQuery preparedQuery) {
+            this.preparedQuery = preparedQuery;
+        }
+
+        @Override
+        public Long execute(ISession session, SeConnection connection) throws SeException,
+                IOException {
+            this.row = preparedQuery.fetch();
+            if (row == null) {
+                return null;
+            }
+
+            // we don't work with datasets with more than one raster column
+            final int rasterColumnIndex = 0;
+            this.rAttr = row.getRaster(rasterColumnIndex);
+            Long rasterId = Long.valueOf(rAttr.getRasterId().longValue());
+            return rasterId;
+        }
+
+        public SeRasterAttr getRasterAttribute() {
+            return rAttr;
+        }
+
+        public SeRow getSeRow() {
+            return row;
+        }
+    }
 
     /**
      * Creates an {@link DefaultTiledRasterReader} that uses the given connection to fetch raster
@@ -87,55 +126,51 @@ class DefaultTiledRasterReader implements TiledRasterReader {
      * @param rasterInfo
      * @throws IOException
      */
-    public DefaultTiledRasterReader(final ArcSDEPooledConnection conn,
-            final RasterDatasetInfo rasterInfo) throws IOException {
-        this.conn = conn;
+    public DefaultTiledRasterReader(final ISession conn, final RasterDatasetInfo rasterInfo)
+            throws IOException {
+        this.session = conn;
         this.rasterInfo = rasterInfo;
 
-        preparedQuery = createSeQuery(conn);
-
         try {
-            preparedQuery.execute();
-        } catch (SeException e) {
+            preparedQuery = createAndExecuteSeQuery(conn);
+        } catch (IOException e) {
             dispose();
-            throw new ArcSdeException(e);
+            throw e;
+        } catch (RuntimeException e) {
+            dispose();
+            throw e;
+        } catch (Exception e) {
+            dispose();
+            throw new DataSourceException(e);
         }
-    }
 
-    /**
-     * @see org.geotools.arcsde.gce.TiledRasterReader#dispose()
-     */
-    public void dispose() {
-        if (conn != null) {
-            try {
-                preparedQuery.close();
-            } catch (SeException e) {
-                e.printStackTrace();
-            }
-            conn.close();
-            conn = null;
-        }
+        this.fetchCommand = new FetchRasterCommand(preparedQuery);
     }
 
     /**
      * @see org.geotools.arcsde.gce.TiledRasterReader#nextRaster()
      */
     public Long nextRaster() throws IOException {
-        try {
-            this.row = preparedQuery.fetch();
-            if (row == null) {
-                dispose();
-                return null;
-            }
-
-            // we don't work with datasets with more than one raster column
-            final int rasterColumnIndex = 0;
-            this.rAttr = row.getRaster(rasterColumnIndex);
-            this.rasterId = Long.valueOf(rAttr.getRasterId().longValue());
-        } catch (SeException e) {
-            throw new ArcSdeException(e);
+        this.rasterId = session.issue(fetchCommand);
+        if (this.rasterId == null) {
+            dispose();
         }
         return this.rasterId;
+    }
+
+    /**
+     * @see org.geotools.arcsde.gce.TiledRasterReader#dispose()
+     */
+    public void dispose() {
+        if (session != null) {
+            try {
+                session.close(preparedQuery);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            session.dispose();
+            session = null;
+        }
     }
 
     /**
@@ -162,16 +197,12 @@ class DefaultTiledRasterReader implements TiledRasterReader {
      * Creates a prepared query for the coverage's table, does not set any constraint nor executes
      * it.
      */
-    private SeQuery createSeQuery(final ArcSDEPooledConnection conn) throws IOException {
+    private SeQuery createAndExecuteSeQuery(final ISession session) throws IOException {
         final SeQuery seQuery;
         final String[] rasterColumns = rasterInfo.getRasterColumns();
         final String tableName = rasterInfo.getRasterTable();
-        try {
-            seQuery = new SeQuery(conn, rasterColumns, new SeSqlConstruct(tableName));
-            seQuery.prepareQuery();
-        } catch (SeException e) {
-            throw new ArcSdeException(e);
-        }
+
+        seQuery = session.createAndExecuteQuery(rasterColumns, new SeSqlConstruct(tableName));
         return seQuery;
     }
 
@@ -206,15 +237,24 @@ class DefaultTiledRasterReader implements TiledRasterReader {
         return fullTilesRaster;
     }
 
+    /**
+     * 
+     * @param pyramidLevel
+     * @param matchingTiles
+     * @return
+     * @throws IOException
+     */
     private RenderedOp createTiledRaster(final int pyramidLevel, final Rectangle matchingTiles)
             throws IOException {
 
         final int rasterIndex = rasterInfo.getRasterIndex(rasterId);
+        final SeRasterAttr rAttr = fetchCommand.getRasterAttribute();
 
         final int tileWidth;
         final int tileHeight;
-        final int numberOfBands;
+        final SeRasterConstraint rConstraint;
         try {
+            final int numberOfBands;
             numberOfBands = rAttr.getNumBands();
             tileWidth = rAttr.getTileWidth();
             tileHeight = rAttr.getTileHeight();
@@ -245,23 +285,30 @@ class DefaultTiledRasterReader implements TiledRasterReader {
 
             final int interleaveType = SeRaster.SE_RASTER_INTERLEAVE_BIP;
 
-            SeRasterConstraint rConstraint = new SeRasterConstraint();
+            rConstraint = new SeRasterConstraint();
             rConstraint.setBands(bandsToQuery);
             rConstraint.setLevel(pyramidLevel);
             rConstraint.setEnvelope(minTileX, minTileY, maxTileX, maxTileY);
             rConstraint.setInterleave(interleaveType);
-
-            preparedQuery.queryRasterTile(rConstraint);
-
         } catch (SeException se) {
             throw new ArcSdeException(se);
         }
 
+        session.issue(new Command<Void>() {
+            @Override
+            public Void execute(ISession session, SeConnection connection) throws SeException,
+                    IOException {
+                preparedQuery.queryRasterTile(rConstraint);
+                return null;
+            }
+        });
+
         final TileReader tileReader;
         {
             final Dimension tileSize = new Dimension(tileWidth, tileHeight);
-            tileReader = TileReaderFactory.getInstance(row, rasterInfo, rasterIndex, matchingTiles,
-                    tileSize);
+            final SeRow row = fetchCommand.getSeRow();
+            tileReader = TileReaderFactory.getInstance(session, row, rasterInfo, rasterIndex,
+                    matchingTiles, tileSize);
         }
 
         // Prepare temporary colorModel and sample model, needed to build the final

@@ -17,70 +17,37 @@
  */
 package org.geotools.arcsde.gce;
 
-import static org.geotools.arcsde.data.ArcSDEDataStoreConfig.DBTYPE_PARAM_NAME;
-import static org.geotools.arcsde.data.ArcSDEDataStoreConfig.DBTYPE_PARAM_VALUE;
-import static org.geotools.arcsde.session.ArcSDEConnectionConfig.*;
-import static org.geotools.arcsde.session.ArcSDEConnectionConfig.PASSWORD_PARAM_NAME;
-import static org.geotools.arcsde.session.ArcSDEConnectionConfig.PORT_NUMBER_PARAM_NAME;
-import static org.geotools.arcsde.session.ArcSDEConnectionConfig.SERVER_NAME_PARAM_NAME;
-import static org.geotools.arcsde.session.ArcSDEConnectionConfig.USER_NAME_PARAM_NAME;
-
-import java.awt.geom.Point2D;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferByte;
-import java.awt.image.DataBufferUShort;
-import java.awt.image.IndexColorModel;
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.geotools.arcsde.ArcSdeException;
-import org.geotools.arcsde.data.ArcSDEDataStoreConfig;
+import org.geotools.arcsde.jndi.SharedSessionPool;
 import org.geotools.arcsde.session.ArcSDEConnectionConfig;
-import org.geotools.arcsde.session.ArcSDEConnectionPool;
-import org.geotools.arcsde.session.ArcSDEConnectionPoolFactory;
-import org.geotools.arcsde.session.ArcSDEPooledConnection;
+import org.geotools.arcsde.session.ISession;
+import org.geotools.arcsde.session.ISessionPool;
+import org.geotools.arcsde.session.ISessionPoolFactory;
+import org.geotools.arcsde.session.SessionPoolFactory;
+import org.geotools.arcsde.session.SessionWrapper;
 import org.geotools.arcsde.session.UnavailableConnectionException;
-import org.geotools.arcsde.util.ArcSDEUtils;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.imageio.GeoToolsWriteParams;
 import org.geotools.data.DataSourceException;
 import org.geotools.factory.GeoTools;
 import org.geotools.factory.Hints;
-import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.parameter.DefaultParameterDescriptorGroup;
 import org.geotools.parameter.ParameterGroup;
-import org.geotools.referencing.crs.DefaultEngineeringCRS;
 import org.geotools.util.logging.Logging;
 import org.opengis.coverage.grid.Format;
 import org.opengis.coverage.grid.GridCoverageWriter;
 import org.opengis.parameter.GeneralParameterDescriptor;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-
-import com.esri.sde.sdk.client.SDEPoint;
-import com.esri.sde.sdk.client.SeColumnDefinition;
-import com.esri.sde.sdk.client.SeCoordinateReference;
-import com.esri.sde.sdk.client.SeException;
-import com.esri.sde.sdk.client.SeExtent;
-import com.esri.sde.sdk.client.SeQuery;
-import com.esri.sde.sdk.client.SeRaster;
-import com.esri.sde.sdk.client.SeRasterAttr;
-import com.esri.sde.sdk.client.SeRasterBand;
-import com.esri.sde.sdk.client.SeRasterColumn;
-import com.esri.sde.sdk.client.SeRow;
-import com.esri.sde.sdk.client.SeSqlConstruct;
-import com.esri.sde.sdk.client.SeTable;
 
 /**
  * An implementation of the ArcSDE Raster Format. Based on the ArcGrid module.
@@ -106,7 +73,7 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
      */
     private final Map<String, RasterDatasetInfo> rasterInfos = new WeakHashMap<String, RasterDatasetInfo>();
 
-    private final Map<String, ArcSDEDataStoreConfig> connectionConfigs = new WeakHashMap<String, ArcSDEDataStoreConfig>();
+    private final Map<String, ArcSDEConnectionConfig> connectionConfigs = new WeakHashMap<String, ArcSDEConnectionConfig>();
 
     private static final ArcSDERasterFormat instance = new ArcSDERasterFormat();
 
@@ -167,11 +134,11 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
 
             final ArcSDEConnectionConfig connectionConfig = getConnectionConfig(coverageUrl);
 
-            ArcSDEConnectionPool connectionPool = setupConnectionPool(connectionConfig);
+            ISessionPool sessionPool = setupConnectionPool(connectionConfig);
 
-            RasterDatasetInfo rasterInfo = getRasterInfo(coverageUrl, connectionPool);
+            RasterDatasetInfo rasterInfo = getRasterInfo(coverageUrl, sessionPool);
 
-            RasterReaderFactory rasterReaderFactory = new RasterReaderFactory(connectionPool);
+            RasterReaderFactory rasterReaderFactory = new RasterReaderFactory(sessionPool);
 
             return new ArcSDEGridCoverage2DReaderJAI(this, rasterReaderFactory, rasterInfo, hints);
         } catch (IOException dse) {
@@ -182,26 +149,45 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
         }
     }
 
-    private RasterDatasetInfo getRasterInfo(final String coverageUrl,
-            ArcSDEConnectionPool connectionPool) throws IOException {
+    private RasterDatasetInfo getRasterInfo(final String coverageUrl, ISessionPool connectionPool)
+            throws IOException {
 
         RasterDatasetInfo rasterInfo = rasterInfos.get(coverageUrl);
         if (rasterInfo == null) {
             synchronized (rasterInfos) {
                 rasterInfo = rasterInfos.get(coverageUrl);
                 if (rasterInfo == null) {
-                    ArcSDEPooledConnection scon;
+                    ISession scon;
                     try {
-                        scon = connectionPool.getConnection();
+                        scon = connectionPool.getSession();
                     } catch (UnavailableConnectionException e) {
-                        throw new DataSourceException(e);
+                        throw new RuntimeException(e);
                     }
                     try {
-                        rasterInfo = gatherCoverageMetadata(scon, coverageUrl);
+                        final String rasterTable;
+                        {
+                            String sdeUrl = coverageUrl;
+                            if (sdeUrl.indexOf(";") != -1) {
+                                /*
+                                 * We're not using any extra param anymore. Yet, be cautious cause a
+                                 * client may still be using urls with some old extra param, so just
+                                 * strip it
+                                 */
+                                sdeUrl = sdeUrl.substring(0, sdeUrl.indexOf(";"));
+                            }
+                            rasterTable = sdeUrl.substring(sdeUrl.indexOf("#") + 1);
+                            if (LOGGER.isLoggable(Level.FINE)) {
+                                LOGGER.fine("Building ArcSDEGridCoverageReader2D for "
+                                        + rasterTable);
+                            }
+                        }
+
+                        GatherCoverageMetadataCommand command = new GatherCoverageMetadataCommand(
+                                rasterTable, statisticsMandatory);
+                        rasterInfo = scon.issue(command);
                         rasterInfos.put(coverageUrl, rasterInfo);
                     } finally {
-                        if (!scon.isPassivated())
-                            scon.close();
+                        scon.dispose();
                     }
                 }
             }
@@ -210,7 +196,7 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
     }
 
     private ArcSDEConnectionConfig getConnectionConfig(final String coverageUrl) {
-        ArcSDEDataStoreConfig sdeConfig;
+        ArcSDEConnectionConfig sdeConfig;
         sdeConfig = connectionConfigs.get(coverageUrl);
         if (sdeConfig == null) {
             synchronized (connectionConfigs) {
@@ -221,7 +207,7 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
                 }
             }
         }
-        return sdeConfig.getSessionConfig();
+        return sdeConfig;
     }
 
     /**
@@ -344,17 +330,18 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
      *            to this {@link ArcSDERasterGridCoverage2DReader}.
      * @throws IOException
      */
-    private ArcSDEConnectionPool setupConnectionPool(ArcSDEConnectionConfig sdeConfig)
-            throws IOException {
+    private ISessionPool setupConnectionPool(ArcSDEConnectionConfig sdeConfig) throws IOException {
 
         if (LOGGER.isLoggable(Level.FINE)) {
             LOGGER.fine("Getting ArcSDE connection pool for " + sdeConfig);
         }
 
-        ArcSDEConnectionPool connectionPool;
-        connectionPool = ArcSDEConnectionPoolFactory.getInstance().createPool(sdeConfig);
-        return connectionPool;
+        ISessionPool sessionPool;
+        sessionPool = SharedSessionPool.getInstance(sdeConfig, SessionPoolFactory.getInstance());
+
+        return sessionPool;
     }
+
 
     /**
      * @param sdeUrl
@@ -362,7 +349,7 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
      *            'sde://user:pass@sdehost:[port]/[dbname]
      * @return a ConnectionConfig object representing these parameters
      */
-    public static ArcSDEDataStoreConfig sdeURLToConnectionConfig(StringBuffer sdeUrl) {
+    public static ArcSDEConnectionConfig sdeURLToConnectionConfig(StringBuffer sdeUrl) {
         // annoyingly, geoserver currently stores the user-entered SDE string as
         // a File, and passes us the
         // File object. The File object strips the 'sde://user...' into a
@@ -431,475 +418,17 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
         sdeUrl.delete(0, idx);
 
         Map<String, String> params = new HashMap<String, String>();
-        params.put(DBTYPE_PARAM_NAME, DBTYPE_PARAM_VALUE);
-        params.put(SERVER_NAME_PARAM_NAME, sdeHost);
-        params.put(PORT_NUMBER_PARAM_NAME, String.valueOf(sdePort));
-        params.put(INSTANCE_NAME_PARAM_NAME, sdeDBName);
-        params.put(USER_NAME_PARAM_NAME, sdeUser);
-        params.put(PASSWORD_PARAM_NAME, sdePass);
-        params.put(MIN_CONNECTIONS_PARAM_NAME, String.valueOf(ArcSDEConnectionPool.DEFAULT_CONNECTIONS));
-        params.put(MAX_CONNECTIONS_PARAM_NAME, String.valueOf(ArcSDEConnectionPool.DEFAULT_MAX_CONNECTIONS));
-        params.put(CONNECTION_TIMEOUT_PARAM_NAME, String.valueOf(ArcSDEConnectionPool.DEFAULT_MAX_WAIT_TIME));
+        params.put(ArcSDEConnectionConfig.SERVER_NAME_PARAM_NAME, sdeHost);
+        params.put(ArcSDEConnectionConfig.PORT_NUMBER_PARAM_NAME, String.valueOf(sdePort));
+        params.put(ArcSDEConnectionConfig.INSTANCE_NAME_PARAM_NAME, sdeDBName);
+        params.put(ArcSDEConnectionConfig.USER_NAME_PARAM_NAME, sdeUser);
+        params.put(ArcSDEConnectionConfig.PASSWORD_PARAM_NAME, sdePass);
+        params.put(ArcSDEConnectionConfig.MIN_CONNECTIONS_PARAM_NAME, "1");
+        params.put(ArcSDEConnectionConfig.MAX_CONNECTIONS_PARAM_NAME, "10");
+        params.put(ArcSDEConnectionConfig.CONNECTION_TIMEOUT_PARAM_NAME, "2000");
 
-        return new ArcSDEDataStoreConfig(params);
-    }
-
-    /**
-     * 
-     * @param scon
-     * @param coverageUrl
-     * @return
-     * @throws IOException
-     *             if an exception occurs accessing the raster metadata
-     * @throws IllegalArgumentException
-     *             if the raster has no CRS, contains no raster attributes, has no pyramids, no
-     *             bands or no statistics
-     */
-    private RasterDatasetInfo gatherCoverageMetadata(final ArcSDEPooledConnection scon,
-            final String coverageUrl) throws IOException {
-        LOGGER.fine("Gathering raster dataset metadata for " + coverageUrl);
-        String rasterTable;
-        {
-            String sdeUrl = coverageUrl;
-            if (sdeUrl.indexOf(";") != -1) {
-                /*
-                 * We're not using any extra param anymore. Yet, be cautious cause a client may
-                 * still be using urls with some old extra param, so just strip it
-                 */
-                sdeUrl = sdeUrl.substring(0, sdeUrl.indexOf(";"));
-            }
-            rasterTable = sdeUrl.substring(sdeUrl.indexOf("#") + 1);
-            if (LOGGER.isLoggable(Level.FINE)) {
-                LOGGER.fine("Building ArcSDEGridCoverageReader2D for " + rasterTable);
-            }
-        }
-
-        final String[] rasterColumns = getRasterColumns(scon, rasterTable);
-        final List<RasterInfo> rastersLayoutInfo = new ArrayList<RasterInfo>();
-        {
-            final List<SeRasterAttr> rasterAttributes;
-            rasterAttributes = getSeRasterAttr(scon, rasterTable, rasterColumns);
-
-            if (rasterAttributes.size() == 0) {
-                throw new IllegalArgumentException("Table " + rasterTable
-                        + " contains no raster datasets");
-            }
-
-            final CoordinateReferenceSystem coverageCrs;
-
-            /*
-             * by bandId map of colormaps. The dataset may be composed of more than one raster so we
-             * gather all the colormaps once and held them here by rasterband id
-             */
-            final Map<Long, IndexColorModel> rastersColorMaps;
-            {
-                final SeRasterColumn rasterColumn;
-                final SeRasterBand sampleBand;
-                final long rasterColumnId;
-                final int bitsPerSample;
-                try {
-                    SeRasterAttr ratt = rasterAttributes.get(0);
-                    rasterColumn = new SeRasterColumn(scon, ratt.getRasterColumnId());
-                    rasterColumnId = rasterColumn.getID().longValue();
-                    sampleBand = ratt.getBands()[0];
-                    bitsPerSample = RasterCellType.valueOf(ratt.getPixelType()).getBitsPerSample();
-                } catch (SeException e) {
-                    throw new ArcSdeException(e);
-                }
-                final SeCoordinateReference seCoordRef = rasterColumn.getCoordRef();
-                if (seCoordRef == null) {
-                    throw new IllegalArgumentException(rasterTable
-                            + " has no coordinate reference system set");
-                }
-                LOGGER.finer("Looking CRS for raster column " + rasterTable);
-                coverageCrs = ArcSDEUtils.findCompatibleCRS(seCoordRef);
-                if (DefaultEngineeringCRS.CARTESIAN_2D == coverageCrs) {
-                    LOGGER.warning("Raster " + rasterTable
-                            + " has not CRS set, using DefaultEngineeringCRS.CARTESIAN_2D");
-                }
-                if (sampleBand.hasColorMap()) {
-                    rastersColorMaps = loadColorMaps(rasterColumnId, bitsPerSample, scon);
-                } else {
-                    rastersColorMaps = Collections.emptyMap();
-                }
-
-            }
-            try {
-                for (SeRasterAttr rAtt : rasterAttributes) {
-                    LOGGER.fine("Gathering raster metadata for " + rasterTable + " raster "
-                            + rAtt.getRasterId().longValue());
-
-                    if (rAtt.getMaxLevel() == 0) {
-                        throw new IllegalArgumentException(
-                                "Raster cotains no pyramid levels, we don't support non pyramid rasters");
-                    }
-                    if (rAtt.getNumBands() == 0) {
-                        throw new IllegalArgumentException("Raster "
-                                + rAtt.getRasterId().longValue() + " in " + rasterTable
-                                + " contains no raster attribtues");
-                    }
-                    if (this.statisticsMandatory && !rAtt.getBandInfo(1).hasStats()) {
-                        throw new IllegalArgumentException(rasterTable
-                                + " has no statistics generated (or not all it's rasters have). "
-                                + "Please use sderaster -o stats to create them before use");
-                    }
-
-                    RasterInfo rasterInfo = new RasterInfo(rAtt, coverageCrs);
-                    rastersLayoutInfo.add(rasterInfo);
-
-                    final GeneralEnvelope originalEnvelope;
-                    originalEnvelope = calculateOriginalEnvelope(rAtt, coverageCrs);
-                    rasterInfo.setOriginalEnvelope(originalEnvelope);
-                    final List<RasterBandInfo> bands;
-                    bands = setUpBandInfo(scon, rAtt, rastersColorMaps);
-                    rasterInfo.setBands(bands);
-                    if (LOGGER.isLoggable(Level.FINER)) {
-                        LOGGER.finer("Gathered metadata for " + rasterTable + "#"
-                                + rAtt.getRasterId().longValue() + ":\n" + rasterInfo.toString());
-                    }
-                }
-            } catch (SeException e) {
-                throw new ArcSdeException("Gathering raster dataset information", e);
-            }
-        }
-
-        RasterDatasetInfo rasterInfo = new RasterDatasetInfo();
-        rasterInfo.setRasterTable(rasterTable);
-        rasterInfo.setRasterColumns(rasterColumns);
-        rasterInfo.setPyramidInfo(rastersLayoutInfo);
-
-        return rasterInfo;
-    }
-
-    private GeneralEnvelope calculateOriginalEnvelope(final SeRasterAttr rasterAttributes,
-            CoordinateReferenceSystem coverageCrs) throws IOException {
-        SeExtent sdeExtent;
-        try {
-            sdeExtent = rasterAttributes.getExtent();
-        } catch (SeException e) {
-            throw new ArcSdeException("Exception getting the raster extent", e);
-        }
-        GeneralEnvelope originalEnvelope = new GeneralEnvelope(coverageCrs);
-        originalEnvelope.setRange(0, sdeExtent.getMinX(), sdeExtent.getMaxX());
-        originalEnvelope.setRange(1, sdeExtent.getMinY(), sdeExtent.getMaxY());
-        return originalEnvelope;
-    }
-
-    private String[] getRasterColumns(final ArcSDEPooledConnection scon, final String rasterTable)
-            throws IOException {
-
-        String[] rasterColumns;
-        SeTable sTable = scon.getTable(rasterTable);
-        SeColumnDefinition[] cols;
-        try {
-            cols = sTable.describe();
-        } catch (SeException e) {
-            throw new ArcSdeException("Exception fetching the list of columns for table "
-                    + rasterTable, e);
-        }
-        List<String> fetchColumns = new ArrayList<String>(cols.length / 2);
-        for (int i = 0; i < cols.length; i++) {
-            if (cols[i].getType() == SeColumnDefinition.TYPE_RASTER)
-                fetchColumns.add(cols[i].getName());
-        }
-        if (fetchColumns.size() == 0) {
-            throw new DataSourceException("Couldn't find any TYPE_RASTER columns in ArcSDE table "
-                    + rasterTable);
-        }
-
-        rasterColumns = fetchColumns.toArray(new String[fetchColumns.size()]);
-        return rasterColumns;
-    }
-
-    private List<SeRasterAttr> getSeRasterAttr(ArcSDEPooledConnection scon, String rasterTable,
-            String[] rasterColumns) throws IOException {
-
-        LOGGER.fine("Gathering raster attributes for " + rasterTable);
-        SeRasterAttr rasterAttributes;
-        LinkedList<SeRasterAttr> rasterAttList = new LinkedList<SeRasterAttr>();
-        SeQuery query = null;
-        try {
-            query = new SeQuery(scon, rasterColumns, new SeSqlConstruct(rasterTable));
-            query.prepareQuery();
-            query.execute();
-
-            SeRow row = query.fetch();
-            while (row != null) {
-                rasterAttributes = row.getRaster(0);
-                rasterAttList.addFirst(rasterAttributes);
-                row = query.fetch();
-            }
-        } catch (SeException se) {
-            throw new ArcSdeException("Error fetching raster attributes for " + rasterTable, se);
-        } finally {
-            if (query != null) {
-                try {
-                    query.close();
-                } catch (SeException e) {
-                    throw new ArcSdeException(e);
-                }
-            }
-        }
-        LOGGER.fine("Found " + rasterAttList.size() + " raster attributes for " + rasterTable);
-        return rasterAttList;
-    }
-
-    private List<RasterBandInfo> setUpBandInfo(ArcSDEPooledConnection scon,
-            SeRasterAttr rasterAttributes, Map<Long, IndexColorModel> rastersColorMaps)
-            throws IOException {
-        final int numBands;
-        final SeRasterBand[] seBands;
-        final RasterCellType cellType;
-        try {
-            numBands = rasterAttributes.getNumBands();
-            seBands = rasterAttributes.getBands();
-            cellType = RasterCellType.valueOf(rasterAttributes.getPixelType());
-        } catch (SeException e) {
-            throw new ArcSdeException(e);
-        }
-
-        List<RasterBandInfo> detachedBandInfo = new ArrayList<RasterBandInfo>(numBands);
-
-        RasterBandInfo bandInfo;
-        SeRasterBand band;
-        for (int bandN = 0; bandN < numBands; bandN++) {
-            band = seBands[bandN];
-            bandInfo = new RasterBandInfo();
-            final int bitsPerSample = cellType.getBitsPerSample();
-            setBandInfo(numBands, bandInfo, band, scon, bitsPerSample, rastersColorMaps);
-            detachedBandInfo.add(bandInfo);
-        }
-        return detachedBandInfo;
-    }
-
-    /**
-     * 
-     * @param numBands
-     * @param bandInfo
-     * @param band
-     * @param scon
-     * @param bitsPerSample
-     *            only used if the band is colormapped to create the IndexColorModel
-     * @throws IOException
-     */
-    private void setBandInfo(final int numBands, final RasterBandInfo bandInfo,
-            final SeRasterBand band, final ArcSDEPooledConnection scon, int bitsPerSample,
-            final Map<Long, IndexColorModel> colorMaps) throws IOException {
-
-        bandInfo.bandId = band.getId().longValue();
-        bandInfo.bandNumber = band.getBandNumber();
-        bandInfo.bandName = "Band " + bandInfo.bandNumber;
-
-        final boolean hasColorMap = band.hasColorMap();
-        if (hasColorMap) {
-            IndexColorModel colorMap = colorMaps.get(Long.valueOf(bandInfo.bandId));
-            LOGGER.finest("Setting band's color map: " + colorMap);
-            bandInfo.nativeColorMap = colorMap;
-            bandInfo.colorMap = RasterUtils.ensureNoDataPixelIsAvailable(colorMap);
-        } else {
-            bandInfo.nativeColorMap = null;
-        }
-
-        bandInfo.compressionType = CompressionType.valueOf(band.getCompressionType());
-        bandInfo.cellType = RasterCellType.valueOf(band.getPixelType());
-        bandInfo.interleaveType = InterleaveType.valueOf(band.getInterleave());
-        bandInfo.interpolationType = InterpolationType.valueOf(band.getInterpolation());
-        bandInfo.hasStats = band.hasStats();
-        if (bandInfo.hasStats) {
-            try {
-                bandInfo.statsMin = band.getStatsMin();
-                bandInfo.statsMax = band.getStatsMax();
-                bandInfo.statsMean = band.getStatsMean();
-                bandInfo.statsStdDev = band.getStatsStdDev();
-            } catch (SeException e) {
-                throw new ArcSdeException(e);
-            }
-            // double noDataValue = 0;
-            // bandInfo.noDataValue = noDataValue;
-        } else {
-            bandInfo.statsMin = java.lang.Double.NaN;
-            bandInfo.statsMax = java.lang.Double.NaN;
-            bandInfo.statsMean = java.lang.Double.NaN;
-            bandInfo.statsStdDev = java.lang.Double.NaN;
-        }
-        if (bandInfo.getColorMap() != null) {
-            bandInfo.noDataValue = RasterUtils.determineNoDataValue(bandInfo.getColorMap());
-        } else {
-            double statsMin = bandInfo.getStatsMin();
-            double statsMax = bandInfo.getStatsMax();
-            RasterCellType nativeCellType = bandInfo.getCellType();
-            bandInfo.noDataValue = RasterUtils.determineNoDataValue(numBands, statsMin, statsMax,
-                    nativeCellType);
-        }
-        SDEPoint tOrigin;
-        try {
-            tOrigin = band.getTileOrigin();
-        } catch (SeException e) {
-            throw new ArcSdeException(e);
-        }
-        bandInfo.tileOrigin = new Point2D.Double(tOrigin.getX(), tOrigin.getY());
-    }
-
-    /**
-     * 
-     * @param band
-     * @param scon
-     * @return
-     * @throws ArcSdeException
-     */
-    private Map<Long, IndexColorModel> loadColorMaps(final long rasterColumnId,
-            final int bitsPerSample, ArcSDEPooledConnection scon) throws IOException {
-        LOGGER.fine("Reading colormap for raster column " + rasterColumnId);
-
-        final String auxTableName = getAuxTableName(rasterColumnId, scon);
-        LOGGER.fine("Quering auxiliary table " + auxTableName + " for color map data");
-
-        Map<Long, IndexColorModel> colorMaps = new HashMap<Long, IndexColorModel>();
-        SeQuery query = null;
-        try {
-            SeSqlConstruct sqlConstruct = new SeSqlConstruct();
-            sqlConstruct.setTables(new String[] { auxTableName });
-            String whereClause = "TYPE = 3";
-            sqlConstruct.setWhere(whereClause);
-
-            query = new SeQuery(scon, new String[] { "RASTERBAND_ID", "OBJECT" }, sqlConstruct);
-            query.prepareQuery();
-            query.execute();
-
-            long bandId;
-            ByteArrayInputStream colorMapIS;
-            DataBuffer colorMapData;
-            IndexColorModel colorModel;
-
-            SeRow row = query.fetch();
-            while (row != null) {
-                bandId = ((Number) row.getObject(0)).longValue();
-                colorMapIS = row.getBlob(1);
-
-                colorMapData = readColorMap(colorMapIS);
-                colorModel = RasterUtils.sdeColorMapToJavaColorModel(colorMapData, bitsPerSample);
-
-                colorMaps.put(Long.valueOf(bandId), colorModel);
-
-                row = query.fetch();
-            }
-        } catch (SeException e) {
-            throw new ArcSdeException("Error fetching colormap data for column " + rasterColumnId
-                    + " from table " + auxTableName, e);
-        } finally {
-            if (query != null) {
-                try {
-                    query.close();
-                } catch (SeException e) {
-                    LOGGER.log(Level.INFO, "ignoring exception when closing query to "
-                            + "fetch colormap data", e);
-                }
-            }
-        }
-        LOGGER.fine("Read color map data for " + colorMaps.size() + " rasters");
-        return colorMaps;
-    }
-
-    private String getAuxTableName(long rasterColumnId, ArcSDEPooledConnection scon)
-            throws IOException {
-
-        final String owner;
-        SeQuery query = null;
-        try {
-            final String dbaName = scon.getSdeDbaName();
-            String rastersColumnsTable = dbaName + ".SDE_RASTER_COLUMNS";
-
-            SeSqlConstruct sqlCons = new SeSqlConstruct(rastersColumnsTable);
-            sqlCons.setWhere("RASTERCOLUMN_ID = " + rasterColumnId);
-
-            try {
-                query = new SeQuery(scon, new String[] { "OWNER" }, sqlCons);
-                query.prepareQuery();
-            } catch (SeException e) {
-                // sde 9.3 calls it raster_columns, not sde_raster_columns...
-                rastersColumnsTable = dbaName + ".RASTER_COLUMNS";
-                sqlCons = new SeSqlConstruct(rastersColumnsTable);
-                sqlCons.setWhere("RASTERCOLUMN_ID = " + rasterColumnId);
-                query = new SeQuery(scon, new String[] { "OWNER" }, sqlCons);
-                query.prepareQuery();
-            }
-            query.execute();
-
-            SeRow row = query.fetch();
-            if (row == null) {
-                throw new IllegalArgumentException("No raster column registered with id "
-                        + rasterColumnId);
-            }
-            owner = row.getString(0);
-            query.close();
-        } catch (SeException e) {
-            throw new ArcSdeException("Error getting auxiliary table for raster column "
-                    + rasterColumnId, e);
-        } finally {
-            if (query != null) {
-                try {
-                    query.close();
-                } catch (SeException e) {
-                    LOGGER.log(Level.INFO, "ignoring exception when closing query to "
-                            + "fetch colormap data", e);
-                }
-            }
-        }
-
-        final String auxTableName = owner + ".SDE_AUX_" + rasterColumnId;
-
-        return auxTableName;
-    }
-
-    private DataBuffer readColorMap(final ByteArrayInputStream colorMapIS) throws IOException {
-
-        final DataInputStream dataIn = new DataInputStream(colorMapIS);
-        // discard unneeded data
-        dataIn.readInt();
-
-        final int colorSpaceType = dataIn.readInt();
-        final int numBanks;
-        if (colorSpaceType == SeRaster.SE_COLORMAP_RGB) {
-            numBanks = 3;
-        } else if (colorSpaceType == SeRaster.SE_COLORMAP_RGBA) {
-            numBanks = 4;
-        } else {
-            throw new IllegalStateException("Got unknown colormap type: " + colorSpaceType);
-        }
-        LOGGER.finest("Colormap has " + numBanks + " color components");
-
-        final int buffType = dataIn.readInt();
-        final int numElems = dataIn.readInt();
-        LOGGER.finest("ColorMap length: " + numElems);
-
-        final DataBuffer buff;
-        if (buffType == SeRaster.SE_COLORMAP_DATA_BYTE) {
-            LOGGER.finest("Creating Byte data buffer for " + numBanks + " banks and " + numElems
-                    + " elements per bank");
-            buff = new DataBufferByte(numElems, numBanks);
-            for (int elem = 0; elem < numElems; elem++) {
-                for (int bank = 0; bank < numBanks; bank++) {
-                    int val = dataIn.readUnsignedByte();
-                    buff.setElem(bank, elem, val);
-                }
-            }
-        } else if (buffType == SeRaster.SE_COLORMAP_DATA_SHORT) {
-            LOGGER.finest("Creating Short data buffer for " + numBanks + " banks and " + numElems
-                    + " elements per bank");
-            buff = new DataBufferUShort(numElems, numBanks);
-            for (int elem = 0; elem < numElems; elem++) {
-                for (int bank = 0; bank < numBanks; bank++) {
-                    int val = dataIn.readUnsignedShort();
-                    buff.setElem(bank, elem, val);
-                }
-            }
-        } else {
-            throw new IllegalStateException("Unknown databuffer type from colormap header: "
-                    + buffType + " expected one of TYPE_BYTE, TYPE_SHORT");
-        }
-
-        assert dataIn.read() == -1 : "color map data should have been exausted";
-        return buff;
+        ArcSDEConnectionConfig config = ArcSDEConnectionConfig.fromMap(params);
+        return config;
     }
 
     /**

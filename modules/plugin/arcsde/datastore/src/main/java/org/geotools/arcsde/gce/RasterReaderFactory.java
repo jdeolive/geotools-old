@@ -18,31 +18,33 @@ package org.geotools.arcsde.gce;
 
 import java.io.IOException;
 
-import org.geotools.arcsde.session.ArcSDEConnectionPool;
-import org.geotools.arcsde.session.ArcSDEPooledConnection;
+import org.geotools.arcsde.session.ISession;
+import org.geotools.arcsde.session.ISessionPool;
 import org.geotools.arcsde.session.UnavailableConnectionException;
 
 /**
  * 
  * @author Gabriel Roldan
- *
- * @source $URL$
+ * 
+ * @source $URL:
+ *         http://svn.osgeo.org/geotools/trunk/modules/plugin/arcsde/datastore/src/main/java/org
+ *         /geotools/arcsde/gce/RasterReaderFactory.java $
  * @version $Id$
  * @since 2.5.7
  */
 public class RasterReaderFactory {
 
-    private final ArcSDEConnectionPool connectionPool;
+    private final ISessionPool sessionPool;
 
-    public RasterReaderFactory(final ArcSDEConnectionPool connectionPool) {
-        this.connectionPool = connectionPool;
+    public RasterReaderFactory(final ISessionPool connectionPool) {
+        this.sessionPool = connectionPool;
     }
 
     public TiledRasterReader create(final RasterDatasetInfo rasterInfo) throws IOException {
 
-        ArcSDEPooledConnection conn;
+        ISession conn;
         try {
-            conn = connectionPool.getConnection();
+            conn = sessionPool.getSession();
         } catch (UnavailableConnectionException e) {
             throw new RuntimeException(e);
         }

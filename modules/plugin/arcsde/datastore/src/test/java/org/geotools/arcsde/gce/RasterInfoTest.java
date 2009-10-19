@@ -22,13 +22,16 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.awt.geom.Point2D.Double;
+import java.io.IOException;
 
-import org.geotools.arcsde.ArcSdeException;
-import org.geotools.arcsde.session.ArcSDEConnectionPool;
+import org.geotools.arcsde.session.Command;
+import org.geotools.arcsde.session.ISession;
+import org.geotools.arcsde.session.ISessionPool;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultEngineeringCRS;
 import org.junit.Test;
+import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.esri.sde.sdk.client.SeConnection;
@@ -127,29 +130,38 @@ public class RasterInfoTest {
         testData.loadTestRaster(tableName, 1, 1013, 1021, RasterCellType.TYPE_8BIT_U, null, true,
                 false, SeRaster.SE_INTERPOLATION_NEAREST, 9);
 
-        ArcSDEConnectionPool pool = testData.getConnectionPool();
-        SeConnection conn = pool.getConnection();
-        final SeRasterAttr rAttr;
-        try {
-            SeQuery q = new SeQuery(conn, new String[] { "RASTER" }, new SeSqlConstruct(tableName));
-            q.prepareQuery();
-            q.execute();
-            SeRow r = q.fetch();
-            rAttr = r.getRaster(0);
-        } catch (SeException se) {
-            conn.close();
-            throw new ArcSdeException(se);
-        }
+        ISessionPool pool = testData.getConnectionPool();
+        ISession conn = pool.getSession();
 
-        SeObjectId rasterColumnId = rAttr.getRasterColumnId();
-        SeRasterColumn rasterColumn = new SeRasterColumn(conn, rasterColumnId);
-        SeCoordinateReference coordRef = rasterColumn.getCoordRef();
-        String coordRefWKT = coordRef.getCoordSysDescription();
-        CoordinateReferenceSystem crs = CRS.parseWKT(coordRefWKT); // CRS.decode(testData.
-        // getRasterTestDataProperty
-        // ("tableCRS"));
-        pyramid = new RasterInfo(rAttr, crs);
-        conn.close();
+        final SeQuery q = conn.createAndExecuteQuery(new String[] { "RASTER" }, new SeSqlConstruct(
+                tableName));
+
+        try {
+            pyramid = conn.issue(new Command<RasterInfo>() {
+                @Override
+                public RasterInfo execute(ISession session, SeConnection connection)
+                        throws SeException, IOException {
+                    SeRow r = q.fetch();
+                    SeRasterAttr rAttr = r.getRaster(0);
+
+                    SeObjectId rasterColumnId = rAttr.getRasterColumnId();
+                    SeRasterColumn rasterColumn = new SeRasterColumn(connection, rasterColumnId);
+                    SeCoordinateReference coordRef = rasterColumn.getCoordRef();
+                    String coordRefWKT = coordRef.getCoordSysDescription();
+                    CoordinateReferenceSystem crs;
+                    try {
+                        crs = CRS.parseWKT(coordRefWKT);
+                    } catch (FactoryException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    RasterInfo pyramid = new RasterInfo(rAttr, crs);
+                    return pyramid;
+                }
+            });
+        } finally {
+            conn.dispose();
+        }
 
         System.out.println(pyramid);
 

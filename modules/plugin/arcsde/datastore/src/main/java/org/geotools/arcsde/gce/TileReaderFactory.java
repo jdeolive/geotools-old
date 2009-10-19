@@ -3,6 +3,8 @@ package org.geotools.arcsde.gce;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 
+import org.geotools.arcsde.session.ISession;
+
 import com.esri.sde.sdk.client.SeRow;
 
 public class TileReaderFactory {
@@ -18,8 +20,9 @@ public class TileReaderFactory {
      * @param tileSize
      * @return
      */
-    public static TileReader getInstance(final SeRow row, final RasterDatasetInfo rasterInfo,
-            final int rasterIndex, final Rectangle requestedTiles, Dimension tileSize) {
+    public static TileReader getInstance(final ISession session, final SeRow row,
+            final RasterDatasetInfo rasterInfo, final int rasterIndex,
+            final Rectangle requestedTiles, Dimension tileSize) {
 
         final TileReader tileReader;
 
@@ -34,7 +37,7 @@ public class TileReaderFactory {
 
         if (targetType == nativeType) {
 
-            TileReader nativeTileReader = new NativeTileReader(row, nativeBitsPerPixel,
+            TileReader nativeTileReader = new NativeTileReader(session, row, nativeBitsPerPixel,
                     numberOfBands, requestedTiles, tileSize, noData);
 
             tileReader = nativeTileReader;
@@ -42,8 +45,9 @@ public class TileReaderFactory {
         } else {
             // need to promote native to target sample depth
             TileReader nativeTileReader;
-            nativeTileReader = new NativeTileReader(row, nativeBitsPerPixel, numberOfBands,
-                    requestedTiles, tileSize, BitmaskToNoDataConverter.NO_ACTION_CONVERTER);
+            nativeTileReader = new NativeTileReader(session, row, nativeBitsPerPixel,
+                    numberOfBands, requestedTiles, tileSize,
+                    BitmaskToNoDataConverter.NO_ACTION_CONVERTER);
 
             TileReader promotingTileReader = new PromotingTileReader(nativeTileReader, nativeType,
                     targetType, noData);
