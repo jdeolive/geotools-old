@@ -421,7 +421,9 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
             }
 
             public void markUsed() {
-                this.referenceCount = referenceCount++;
+                queueLock.readLock().lock();
+                ++referenceCount;
+                queueLock.readLock().unlock();
             }
 
             /**
@@ -431,8 +433,9 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
              */
             @Override
             public void dispose() throws IllegalStateException {
+                queueLock.readLock().lock();
                 final int refCount = --referenceCount;
-                this.referenceCount = refCount;
+                queueLock.readLock().unlock();
                 if (refCount == 0) {
                     queueLock.writeLock().lock();
                     inUse.remove(this);
