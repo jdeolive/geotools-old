@@ -20,11 +20,8 @@ package org.geotools.arcsde.gce;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.WeakHashMap;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,9 +29,7 @@ import org.geotools.arcsde.jndi.SharedSessionPool;
 import org.geotools.arcsde.session.ArcSDEConnectionConfig;
 import org.geotools.arcsde.session.ISession;
 import org.geotools.arcsde.session.ISessionPool;
-import org.geotools.arcsde.session.ISessionPoolFactory;
 import org.geotools.arcsde.session.SessionPoolFactory;
-import org.geotools.arcsde.session.SessionWrapper;
 import org.geotools.arcsde.session.UnavailableConnectionException;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
@@ -337,165 +332,9 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
         }
 
         ISessionPool sessionPool;
-        // sessionPool = SharedSessionPool.getInstance(sdeConfig,
-        // ReusableSessionPoolFactory.INSTANCE);
         sessionPool = SharedSessionPool.getInstance(sdeConfig, SessionPoolFactory.getInstance());
 
         return sessionPool;
-    }
-
-    /**
-     * A {@link ISessionPoolFactory} that produces {@link ReusableSessionPool} in order for the
-     * sessions to handle more than one stream in read only mode.
-     * 
-     * @author Gabriel Roldan (OpenGeo)
-     * @since 2.5.9
-     */
-    private static final class ReusableSessionPoolFactory implements ISessionPoolFactory {
-        public static final ReusableSessionPoolFactory INSTANCE = new ReusableSessionPoolFactory();
-
-        public ISessionPool createPool(ArcSDEConnectionConfig config) throws IOException {
-            ISessionPool nonReusable = SessionPoolFactory.getInstance().createPool(config);
-            return new ReusableSessionPool(nonReusable);
-        }
-
-    }
-
-    /**
-     * An {@link ISessionPool} that queues {@link ISession}s for increased concurrency by allowing a
-     * single session to take on more than one request, thus opening more than one stream at a time.
-     * 
-     * @author Gabriel Roldan (OpenGeo)
-     * @since 2.5.9
-     */
-    private static final class ReusableSessionPool implements ISessionPool {
-
-        private ISessionPool nonReusable;
-
-        private final LinkedList<QueuedSession> inUse = new LinkedList<QueuedSession>();
-
-        private final ReadWriteLock queueLock = new ReentrantReadWriteLock();
-
-        public ReusableSessionPool(final ISessionPool nonReusable) {
-            this.nonReusable = nonReusable;
-        }
-
-        public ISession getSession() throws IOException, UnavailableConnectionException {
-            return getSession(true);
-        }
-
-        public ISession getSession(boolean transactional) throws IOException,
-                UnavailableConnectionException {
-
-            QueuedSession returnSession;
-
-            queueLock.readLock().lock();
-            final int used = inUse.size();
-            queueLock.readLock().unlock();
-
-            final int limit = getConfig().getMaxConnections();
-
-            if (used < limit) {
-                ISession session;
-                session = nonReusable.getSession(transactional);
-                returnSession = new QueuedSession(session);
-            } else {
-                returnSession = inUse.removeFirst();
-            }
-
-            returnSession.markUsed();
-
-            return returnSession;
-        }
-
-        /**
-         * An {@link ISession} that's queued and allows to be reused by concurrent threads by
-         * maintaining a reference count to itself in order to actually {@link #dispose() dispose}
-         * the session when there are no more open references.
-         * 
-         * @author Gabriel Roldan (OpenGeo)
-         * @since 2.5.9
-         */
-        private final class QueuedSession extends SessionWrapper {
-
-            private int referenceCount;
-
-            public QueuedSession(final ISession wrapped) {
-                super(wrapped);
-            }
-
-            public void markUsed() {
-                queueLock.readLock().lock();
-                ++referenceCount;
-                inUse.offer(this);
-                queueLock.readLock().unlock();
-            }
-
-            /**
-             * Removes itself
-             * 
-             * @see org.geotools.arcsde.session.ISession#dispose()
-             */
-            @Override
-            public void dispose() throws IllegalStateException {
-                queueLock.readLock().lock();
-                final int refCount = --referenceCount;
-                queueLock.readLock().unlock();
-                if (refCount == 0) {
-                    super.dispose();
-                    queueLock.writeLock().lock();
-                    inUse.remove(this);
-                    queueLock.writeLock().unlock();
-                }
-            }
-
-            @Override
-            public String toString() {
-                return new StringBuilder("QueuedSession[").append(wrapped).append(']').toString();
-            }
-        }
-
-        /**
-         * @see org.geotools.arcsde.session.ISessionPool#close()
-         */
-        public void close() {
-            nonReusable.close();
-        }
-
-        /**
-         * @see org.geotools.arcsde.session.ISessionPool#getAvailableCount()
-         */
-        public int getAvailableCount() {
-            return nonReusable.getAvailableCount();
-        }
-
-        /**
-         * @see org.geotools.arcsde.session.ISessionPool#getConfig()
-         */
-        public ArcSDEConnectionConfig getConfig() {
-            return nonReusable.getConfig();
-        }
-
-        /**
-         * @see org.geotools.arcsde.session.ISessionPool#getInUseCount()
-         */
-        public int getInUseCount() {
-            return nonReusable.getInUseCount();
-        }
-
-        /**
-         * @see org.geotools.arcsde.session.ISessionPool#getPoolSize()
-         */
-        public int getPoolSize() {
-            return nonReusable.getPoolSize();
-        }
-
-        /**
-         * @see org.geotools.arcsde.session.ISessionPool#isClosed()
-         */
-        public boolean isClosed() {
-            return nonReusable.isClosed();
-        }
     }
 
     /**
@@ -580,7 +419,7 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
         params.put(ArcSDEConnectionConfig.PASSWORD_PARAM_NAME, sdePass);
         params.put(ArcSDEConnectionConfig.MIN_CONNECTIONS_PARAM_NAME, "1");
         params.put(ArcSDEConnectionConfig.MAX_CONNECTIONS_PARAM_NAME, "10");
-        params.put(ArcSDEConnectionConfig.CONNECTION_TIMEOUT_PARAM_NAME, "-1");//do not wait
+        params.put(ArcSDEConnectionConfig.CONNECTION_TIMEOUT_PARAM_NAME, "-1");// do not wait
 
         ArcSDEConnectionConfig config = ArcSDEConnectionConfig.fromMap(params);
         return config;
