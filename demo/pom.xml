@@ -70,6 +70,7 @@
   <!--     Build Configuration                                     -->
   <!--         copies all JARs in a single directory.              -->
   <!-- =========================================================== -->
+  <!--
   <build>
     <plugins>
       <plugin>
@@ -86,14 +87,13 @@
       </plugin>
     </plugins>
   </build>
-  
+  -->
   
   <!-- =========================================================== -->
   <!--     Modules included in the build                           -->
   <!-- =========================================================== -->
   <modules>
     <module>example</module>
-    <module>shapefileviewer</module>
     <module>libraryJTS</module>
     <module>svgsupport</module>
     <module>gmlparsing</module>
