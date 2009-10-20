@@ -987,6 +987,10 @@ class Session implements ISession {
                         LOGGER.warning("Strange failed ArcSDE connection error.  "
                                 + "Trying again (try " + (i + 1) + " of 3)");
                         try {
+                            /*
+                             * This usually happen under high load, lets wait a little bit and see
+                             * if we can connect
+                             */
                             Thread.sleep(100);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
