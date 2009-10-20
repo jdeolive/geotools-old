@@ -361,20 +361,8 @@ class SessionPool implements ISessionPool {
          */
         @Override
         public Object makeObject() throws IOException {
-            NegativeArraySizeException cause = null;
-            for (int i = 0; i < 3; i++) {
-                try {
-                    ISession seConn = new Session(SessionPool.this, config);
-                    return seConn;
-                } catch (NegativeArraySizeException nase) {
-                    LOGGER.warning("Strange failed ArcSDE connection error.  Trying again (try "
-                            + (i + 1) + " of 3)");
-                    cause = nase;
-                }
-            }
-            throw (IOException) new IOException(
-                    "Couldn't create ArcSDE Session because of strange SDE internal exception. "
-                            + " Tried 3 times, giving up.").initCause(cause);
+            ISession seConn = new Session(SessionPool.this, config);
+            return seConn;
         }
 
         @Override

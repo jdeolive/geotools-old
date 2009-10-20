@@ -970,21 +970,41 @@ class Session implements ISession {
         @Override
         public SeConnection execute(final ISession session, final SeConnection connection)
                 throws SeException, IOException {
-            String serverName = config.getServerName();
-            int portNumber = config.getPortNumber().intValue();
-            String databaseName = config.getDatabaseName();
-            String userName = config.getUserName();
-            String userPassword = config.getPassword();
+            final String serverName = config.getServerName();
+            final int portNumber = config.getPortNumber().intValue();
+            final String databaseName = config.getDatabaseName();
+            final String userName = config.getUserName();
+            final String userPassword = config.getPassword();
 
-            SeConnection conn;
+            NegativeArraySizeException cause = null;
+            SeConnection conn = null;
             try {
-                conn = new SeConnection(serverName, portNumber, databaseName, userName,
-                        userPassword);
+                for (int i = 0; i < 3; i++) {
+                    try {
+                        conn = new SeConnection(serverName, portNumber, databaseName, userName,
+                                userPassword);
+                    } catch (NegativeArraySizeException nase) {
+                        LOGGER.warning("Strange failed ArcSDE connection error.  "
+                                + "Trying again (try " + (i + 1) + " of 3)");
+                        try {
+                            Thread.sleep(100);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                            // ignore
+                        }
+                        cause = nase;
+                    }
+                }
             } catch (SeException e) {
                 throw new ArcSdeException("Can't create connection to " + serverName, e);
             } catch (RuntimeException e) {
                 throw (IOException) new IOException("Can't create connection to " + serverName)
                         .initCause(e);
+            }
+            if (cause != null) {
+                throw (IOException) new IOException(
+                        "Couldn't create ArcSDE Session because of strange SDE internal exception. "
+                                + " Tried 3 times, giving up.").initCause(cause);
             }
             conn.setConcurrency(SeConnection.SE_ONE_THREAD_POLICY);
             return conn;
