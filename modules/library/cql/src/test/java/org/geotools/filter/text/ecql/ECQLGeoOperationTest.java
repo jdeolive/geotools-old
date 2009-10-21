@@ -90,10 +90,10 @@ public final class ECQLGeoOperationTest extends CQLGeoOperationTest{
 
     @Test
     public void Intersects() throws CQLException {
+
         Filter resultFilter = CompilerUtil.parseFilter(language,"INTERSECTS(the_geom, POINT(1 2))");
 
         Assert.assertTrue("Intersects was expected", resultFilter instanceof Intersects);
-        
     }
 
 
@@ -103,7 +103,8 @@ public final class ECQLGeoOperationTest extends CQLGeoOperationTest{
 
         Assert.assertTrue("Touches was expected", resultFilter instanceof Touches);
     }
-
+    
+    @Test
     public void crosses() throws CQLException {
         Filter resultFilter = CompilerUtil.parseFilter(language,"CROSSES(the_geom, POINT(1 2))");
 
@@ -133,11 +134,6 @@ public final class ECQLGeoOperationTest extends CQLGeoOperationTest{
         Filter resultFilter = CompilerUtil.parseFilter(language,"EQUALS(the_geom, POINT(1 2))");
 
         Assert.assertTrue("not an instance of Equals", resultFilter instanceof Equals);
-
-        resultFilter = CompilerUtil.parseFilter(language,"WITHIN(the_geom, POLYGON((1 2, 1 10, 5 10, 1 2)) )");
-
-        Assert.assertTrue("Within was expected", resultFilter instanceof Within);
-        
     }
     
 
