@@ -10,39 +10,38 @@
  */
 package org.geotools.demo;
 
+import java.awt.Color;
 import java.io.File;
 
-
 import org.geotools.data.FeatureSource;
+import org.geotools.data.FileDataStore;
+import org.geotools.data.FileDataStoreFinder;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.map.MapContext;
 import org.geotools.styling.FeatureTypeStyle;
 import org.geotools.styling.Fill;
+import org.geotools.styling.Graphic;
+import org.geotools.styling.LineSymbolizer;
 import org.geotools.styling.Mark;
 import org.geotools.styling.PointSymbolizer;
 import org.geotools.styling.PolygonSymbolizer;
 import org.geotools.styling.Rule;
 import org.geotools.styling.SLDParser;
+import org.geotools.styling.Stroke;
 import org.geotools.styling.Style;
 import org.geotools.styling.StyleFactory;
+import org.geotools.swing.ExceptionMonitor;
+import org.geotools.swing.JMapFrame;
+import org.geotools.swing.data.JFileDataStoreChooser;
+import org.geotools.swing.styling.JSimpleStyleDialog;
+import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.FilterFactory;
 
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
-import java.awt.Color;
-import org.geotools.data.FileDataStore;
-import org.geotools.data.FileDataStoreFinder;
-import org.geotools.styling.Graphic;
-import org.geotools.styling.LineSymbolizer;
-import org.geotools.styling.Stroke;
-import org.geotools.swing.ExceptionMonitor;
-import org.geotools.swing.JMapFrame;
-import org.geotools.swing.data.JFileDataStoreChooser;
-import org.geotools.swing.styling.JSimpleStyleDialog;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 public class StyleLab {
 
@@ -97,7 +96,7 @@ public class StyleLab {
      */
     private Style createStyle(File file, FeatureSource featureSource) {
         File sld = toSLDFile(file);
-        if (sld.exists()) {
+        if (sld != null) {
             return createFromSLD(sld);
         }
 
@@ -109,21 +108,22 @@ public class StyleLab {
 
     // docs start sld
     /**
-     * Figure out the URL for the SLD file associated with
-     * the shapefile
+     * Figure out if a valid SLD file is available.
      */
     public File toSLDFile(File file)  {
-        String filename = file.getAbsolutePath();
-        if (filename.endsWith(".shp") || filename.endsWith(".dbf")
-                || filename.endsWith(".shx")) {
-            filename = filename.substring(0, filename.length() - 4);
-            filename += ".sld";
-        } else if (filename.endsWith(".SLD") || filename.endsWith(".SLD")
-                || filename.endsWith(".SLD")) {
-            filename = filename.substring(0, filename.length() - 4);
-            filename += ".SLD";
+        String path = file.getAbsolutePath();
+        String base = path.substring(0,path.length()-4);
+        String newPath = base + ".sld";
+        File sld = new File( newPath );
+        if( sld.exists() ){
+            return sld;
         }
-        return new File(filename);
+        newPath = base + ".SLD";
+        sld = new File( newPath );
+        if( sld.exists() ){
+            return sld;
+        }
+        return null;
     }
 
     /**

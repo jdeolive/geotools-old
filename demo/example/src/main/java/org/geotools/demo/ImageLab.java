@@ -44,6 +44,7 @@ import org.geotools.styling.SelectedChannelType;
 import org.geotools.styling.Style;
 import org.geotools.styling.StyleFactory;
 import org.geotools.swing.JMapFrame;
+import org.geotools.swing.action.SafeAction;
 import org.geotools.swing.data.JParameterListWizard;
 import org.geotools.swing.wizard.JWizard;
 import org.geotools.util.KVP;
@@ -147,24 +148,11 @@ public class ImageLab {
 
         JMenuBar menuBar = new JMenuBar();
         frame.setJMenuBar(menuBar);
-
         JMenu menu = new JMenu("Raster");
+        menuBar.add(menu);
 
-        JMenuItem rgbItem = new JMenuItem("RGB display");
-        rgbItem.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                Style style = createRGBStyle();
-                if (style != null) {
-                    map.getLayer(0).setStyle(style);
-                    frame.repaint();
-                }
-            }
-        });
-        menu.add(rgbItem);
-
-        JMenuItem greyItem = new JMenuItem("Greyscale display");
-        greyItem.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+        menu.add( new SafeAction("Grayscale display") {
+            public void action(ActionEvent e) throws Throwable {
                 Style style = createGreyscaleStyle();
                 if (style != null) {
                     map.getLayer(0).setStyle(style);
@@ -172,10 +160,16 @@ public class ImageLab {
                 }
             }
         });
-        menu.add(greyItem);
 
-        menuBar.add(menu);
-
+        menu.add( new SafeAction("RGB display") {
+            public void action(ActionEvent e) throws Throwable {
+                Style style = createRGBStyle();
+                if (style != null) {
+                    map.getLayer(0).setStyle(style);
+                    frame.repaint();
+                }
+           }
+        });
         /*
          * Finally display the map frame.
          * When it is closed the app will exit.
@@ -200,7 +194,6 @@ public class ImageLab {
         } catch (IOException giveUp) {
             throw new RuntimeException(giveUp);
         }
-
         int numBands = cov.getNumSampleDimensions();
         Integer[] bandNumbers = new Integer[numBands];
         for (int i = 0; i < numBands; i++) { bandNumbers[i] = i+1; }
@@ -212,12 +205,10 @@ public class ImageLab {
                 null,
                 bandNumbers,
                 1);
-
         if (selection != null) {
             int band = ((Number)selection).intValue();
             return createGreyscaleStyle(band);
         }
-
         return null;
     }
 
@@ -262,65 +253,46 @@ public class ImageLab {
         } catch (IOException giveUp) {
             throw new RuntimeException(giveUp);
         }
-
-        /*
-         * We need at least three bands to create an RGB style
-         */
+        // We need at least three bands to create an RGB style
         int numBands = cov.getNumSampleDimensions();
         if (numBands < 3) {
             return null;
         }
-
-        /*
-         * Get the names of the bands
-         */
+        // Get the names of the bands
         String[] sampleDimensionNames = new String[numBands];
         for (int i = 0; i < numBands; i++) {
             GridSampleDimension dim = cov.getSampleDimension(i);
             sampleDimensionNames[i] = dim.getDescription().toString();
         }
-
         final int RED = 0, GREEN = 1, BLUE = 2;
-        int[] channelNum = {-1, -1, -1};
-
-        /*
-         * We examine the band names looking for "red...", "green...", "blue...".
-         * Note that the channel numbers we record are indexed from 1, not 0.
-         */
+        int[] channelNum = { -1, -1, -1 };
+        // We examine the band names looking for "red...", "green...", "blue...".
+        // Note that the channel numbers we record are indexed from 1, not 0.
         for (int i = 0; i < numBands; i++) {
             String name = sampleDimensionNames[i].toLowerCase();
             if (name != null) {
                 if (name.matches("red.*")) {
                     channelNum[RED] = i + 1;
-
                 } else if (name.matches("green.*")) {
                     channelNum[GREEN] = i + 1;
-
                 } else if (name.matches("blue.*")) {
                     channelNum[BLUE] = i + 1;
                 }
             }
         }
-
-        /*
-         * If we didn't find named bands "red...", "green...", "blue..."
-         * we fall back to using the first three bands in order
-         */
+        // If we didn't find named bands "red...", "green...", "blue..."
+        // we fall back to using the first three bands in order
         if (channelNum[RED] < 0 || channelNum[GREEN] < 0 || channelNum[BLUE] < 0) {
             channelNum[RED] = 1;
             channelNum[GREEN] = 2;
             channelNum[BLUE] = 3;
         }
-
-        /*
-         * Now we create a RasterSymbolizer using the selected channels
-         */
+        // Now we create a RasterSymbolizer using the selected channels
         SelectedChannelType[] sct = new SelectedChannelType[cov.getNumSampleDimensions()];
         ContrastEnhancement ce = sf.contrastEnhancement(ff.literal(1.0), ContrastMethod.NORMALIZE);
         for (int i = 0; i < 3; i++) {
             sct[i] = sf.createSelectedChannelType(String.valueOf(channelNum[i]), ce);
         }
-
         RasterSymbolizer sym = sf.getDefaultRasterSymbolizer();
         ChannelSelection sel = sf.channelSelection(sct[RED], sct[GREEN], sct[BLUE]);
         sym.setChannelSelection(sel);
