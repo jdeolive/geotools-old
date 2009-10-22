@@ -143,8 +143,8 @@ public class CRSLab {
         // set up the math transform used to process the data
         CoordinateReferenceSystem dataCRS = schema.getCoordinateReferenceSystem();
         CoordinateReferenceSystem worldCRS = map.getCoordinateReferenceSystem();
-        boolean leient = true; // allow for some error due to different datums
-        MathTransform transform = CRS.findMathTransform( dataCRS, worldCRS, leient );
+        boolean lenient = true; // allow for some error due to different datums
+        MathTransform transform = CRS.findMathTransform( dataCRS, worldCRS, lenient );
 
         // grab all features
         FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = featureSource.getFeatures();
@@ -189,6 +189,9 @@ public class CRSLab {
         }
     }
 
+    // docs end export
+
+    // docs start export2
     /**
      * Export features to a new shapefile using the map projection in which
      * they are currently displayed
@@ -248,7 +251,7 @@ public class CRSLab {
         }
     }
     
-    // docs end export
+    // docs end export2
 
     // docs start validate
     /**

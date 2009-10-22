@@ -54,15 +54,80 @@ Main Application
 
    .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/CRSLab.java
       :language: java
+      :start-after: // docs start source
+      :end-before: // docs end main
 
-This method opens and connects to a shapefile and uses a **JMapFrame** to display it. This should look familiar to you from 
+Displaying the shapefile
+------------------------
+
+This method opens and connects to a shapefile and uses a **JMapFrame** to display it. It should look familiar to you from 
 the :ref:`quickstart` example.
 
-Note how we are customizing the map frame:
+   .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/CRSLab.java
+      :language: java
+      :start-after: // docs start display
+      :end-before: // docs end display
 
-* ``mapFrame.enableTool(JMapFrame.Tool.NONE)`` requests that an empty toolbar be created
-* Next we create a JButton and add it to the toolbar
-* Finally we set an action for the button so that when it is clicked a chooser dialog will be displayed to select a new coordinate reference system which is then set as the new CRS of the map.
+Notice that we are customizing the JMapFrame by adding three buttons to its toolbar.
+
+The mapFrame.enableTool(JMapFrame.Tool.NONE) statement requests that an empty toolbar be initially created.
+
+Button actions
+--------------
+
+In the method above we initialized each of the toolbar buttons with an Action. Let's look at each of these now.
+
+Change CRS Action
+~~~~~~~~~~~~~~~~~
+
+The first two statements set the name (displayed on the button) and the tooltip.
+
+The important bit is where we display a JCRSChooser dialog to prompt the user for a new CRS which we pass to the MapContext. This has
+the effect of refreshing the map display.
+
+   .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/CRSLab.java
+      :language: java
+      :start-after: // docs start crs action
+      :end-before: // docs end crs action
+
+Export Action
+~~~~~~~~~~~~~
+
+This simply delegates to the exportToShapefile method which we'll look at shortly.
+
+   .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/CRSLab.java
+      :language: java
+      :start-after: // docs start export action
+      :end-before: // docs end export action
+
+Validate Action
+~~~~~~~~~~~~~~~
+
+This action also delegates to a helper method, validateFeatureGeometry, but it uses the SwingWorker
+utility class to run the validation process in a background thread in case we are dealing with a large
+shapefile.
+
+   .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/CRSLab.java
+      :language: java
+      :start-after: // docs start validate action
+      :end-before: // docs end validate action
+
+Exporting reprojected data to a shapefile
+-----------------------------------------
+
+   .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/CRSLab.java
+      :language: java
+      :start-after: // docs start export
+      :end-before: // docs end export
+
+Validating feature geometry
+---------------------------
+
+   .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/CRSLab.java
+      :language: java
+      :start-after: // docs start validate
+      :end-before: // docs end validate
+
 
 Running the application
 -----------------------
@@ -73,18 +138,13 @@ A good shapefile to use with this example is the **bc_border** map which can be 
 
 __ udigdata_
 
-Run the application and open the bc_border map.
+*To be continued...*
 
-.. image:: CRSLab_4326.gif
+An alternative export to shapefile method
+-----------------------------------------
 
-Now click the 'Change CRS' button and select the EPSG:3005 BC Albers projection. Hint: you can type 3005 rather than scrolling through the very long list.
-
-.. image:: CRSLab_chooser.gif
-
-When you click OK the map will be re-displayed in this new map projection. As well as the change in shape of the border, notice that the units in the status bar have changed from degrees to meters.
-
-.. image:: CRSLab_3005.gif
-
-If you want to return to the original map project choose EPSG:4326.
-
+   .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/CRSLab.java
+      :language: java
+      :start-after: // docs start export2
+      :end-before: // docs end export2
 
