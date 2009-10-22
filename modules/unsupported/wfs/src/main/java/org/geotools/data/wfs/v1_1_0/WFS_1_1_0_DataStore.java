@@ -498,9 +498,23 @@ public final class WFS_1_1_0_DataStore implements WFSDataStore {
         throw new UnsupportedOperationException("This is a read only DataStore");
     }
 
+    /**
+     * @see org.geotools.data.DataAccess#getFeatureSource(org.opengis.feature.type.Name)
+     */
     public FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSource(Name typeName)
             throws IOException {
-        throw new UnsupportedOperationException("Not yet implemented");
+        Set<QName> featureTypeNames = wfs.getFeatureTypeNames();
+
+        final String namespaceURI = typeName.getNamespaceURI();
+        final String localPart = typeName.getLocalPart();
+        for (QName qname : featureTypeNames) {
+            if (namespaceURI.equals(qname.getNamespaceURI())
+                    && localPart.equals(qname.getLocalPart())) {
+                String prefixedName = qname.getPrefix() + ":" + localPart;
+                return getFeatureSource(prefixedName);
+            }
+        }
+        throw new SchemaNotFoundException(typeName.getURI());
     }
 
     /**
