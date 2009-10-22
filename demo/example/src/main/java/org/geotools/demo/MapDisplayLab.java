@@ -10,20 +10,21 @@
  */
 package org.geotools.demo;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 import java.awt.Color;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
-import javax.measure.unit.Unit;
 import javax.swing.JButton;
 import javax.swing.JToolBar;
 import org.geotools.data.FeatureSource;
@@ -32,8 +33,8 @@ import org.geotools.data.FileDataStoreFinder;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
-import org.geotools.geometry.DirectPosition2D;
 import org.geotools.geometry.jts.JTSFactoryFinder;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.map.MapContext;
 import org.geotools.styling.FeatureTypeStyle;
@@ -84,6 +85,7 @@ public class MapDisplayLab {
     private static final Color SELECTED_COLOUR = Color.YELLOW;
     private static final float OPACITY = 1.0f;
     private static final float LINE_WIDTH = 1.0f;
+    private static final float SELECTED_LINE_WIDTH = 3.0F;
     private static final float POINT_SIZE = 10.0f;
 
     private JMapFrame mapFrame;
@@ -91,7 +93,6 @@ public class MapDisplayLab {
 
     private String geometryAttributeName;
     private GeomType geometryType;
-    private String distanceUnitName;
 
     /*
      * The application method
@@ -156,7 +157,7 @@ public class MapDisplayLab {
 
                             @Override
                             public void onMouseClicked(MapMouseEvent ev) {
-                                selectFeatures(ev.getMapPosition());
+                                selectFeatures(ev);
                             }
                         });
             }
@@ -178,34 +179,36 @@ public class MapDisplayLab {
      *
      * @param pos map (world) coordinates of the mouse cursor
      */
-    void selectFeatures(DirectPosition2D pos) {
+    void selectFeatures(MapMouseEvent ev) {
 
-        Filter filter = null;
-        String filterString = null;
-        Geometry point = geomFactory.createPoint(new Coordinate(pos.x, pos.y));
+        System.out.println("Mouse click at: " + ev.getMapPosition());
 
-        if (geometryType == GeomType.POLYGON) {
-            /*
-             * For polygons we create a filter to test if the mouse
-             * cursor position is contained within a polygon
-             */
-            filter = ff.contains(ff.property(geometryAttributeName), ff.literal(point));
+        /*
+         * Construct a 5x5 pixel rectangle centred on the mouse click position
+         */
+        Point screenPos = ev.getPoint();
+        Rectangle screenRect = new Rectangle(screenPos.x-2, screenPos.y-2, 5, 5);
+        
+        /*
+         * Transform the screen rectangle into bounding box in the coordinate
+         * reference system of our map context. Note: we are using a naive method
+         * here but GeoTools also offers other, more accurate methods.
+         */
+        AffineTransform screenToWorld = mapFrame.getMapPane().getScreenToWorldTransform();
+        Rectangle2D worldRect = screenToWorld.createTransformedShape(screenRect).getBounds2D();
+        ReferencedEnvelope bbox = new ReferencedEnvelope(
+                worldRect,
+                mapFrame.getMapContext().getCoordinateReferenceSystem());
 
-        } else {
-            /*
-             * For lines and points it is better to test if the
-             * mouse click was within a certain distance of the feature.
-             * We will use a threshold distance based on the current
-             * map display width.
-             */
-            double distance = mapFrame.getMapPane().getDisplayArea().getWidth() / 100;
+        /*
+         * Create a Filter to select features that intersect with
+         * the bounding box
+         */
+        Filter filter = ff.bbox(ff.property(geometryAttributeName), bbox);
 
-            filter = ff.dwithin(
-                    ff.property(geometryAttributeName),
-                    ff.literal(point),
-                    distance, distanceUnitName);
-        }
-
+        /*
+         * Use the filter to identify the selected features
+         */
         try {
             FeatureCollection<SimpleFeatureType, SimpleFeature> selectedFeatures =
                     featureSource.getFeatures(filter);
@@ -264,7 +267,7 @@ public class MapDisplayLab {
      * Create a default Style for feature display
      */
     private Style createDefaultStyle() {
-        Rule rule = createRule(LINE_COLOUR, FILL_COLOUR);
+        Rule rule = createRule(LINE_COLOUR, FILL_COLOUR, LINE_WIDTH);
 
         FeatureTypeStyle fts = sf.createFeatureTypeStyle();
         fts.rules().add(rule);
@@ -281,10 +284,10 @@ public class MapDisplayLab {
      * yellow, while others are painted with the default colors.
      */
     private Style createSelectedStyle(Set<FeatureId> IDs) {
-        Rule selectedRule = createRule(SELECTED_COLOUR, SELECTED_COLOUR);
+        Rule selectedRule = createRule(SELECTED_COLOUR, FILL_COLOUR, SELECTED_LINE_WIDTH);
         selectedRule.setFilter(ff.id(IDs));
 
-        Rule otherRule = createRule(LINE_COLOUR, FILL_COLOUR);
+        Rule otherRule = createRule(LINE_COLOUR, FILL_COLOUR, LINE_WIDTH);
         otherRule.setElseFilter(true);
 
         FeatureTypeStyle fts = sf.createFeatureTypeStyle();
@@ -303,10 +306,10 @@ public class MapDisplayLab {
      * a Symbolizer tailored to the geometry type of the features that
      * we are displaying.
      */
-    private Rule createRule(Color outlineColor, Color fillColor) {
+    private Rule createRule(Color outlineColor, Color fillColor, float lineWidth) {
         Symbolizer symbolizer = null;
         Fill fill = null;
-        Stroke stroke = sf.createStroke(ff.literal(outlineColor), ff.literal(LINE_WIDTH));
+        Stroke stroke = sf.createStroke(ff.literal(outlineColor), ff.literal(lineWidth));
 
         switch (geometryType) {
             case POLYGON:
@@ -362,8 +365,6 @@ public class MapDisplayLab {
             geometryType = GeomType.POINT;
         }
 
-        Unit<?> unit = geomDesc.getCoordinateReferenceSystem().getCoordinateSystem().getAxis(0).getUnit();
-        distanceUnitName = unit.toString();
     }
 // docs end set geometry
 
