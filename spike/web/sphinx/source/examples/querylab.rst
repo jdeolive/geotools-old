@@ -96,9 +96,11 @@ When you run this application it will prompt you for an input shapefile and then
 
 At first the query field will show 'include' which means select all features. Click the *Data->Get features* menu item and the table will display the feature data.
 
-The example queries below refer to the *cities* shapefile available from here: 
+The example queries below refer to the *cities* shapefile available as part of the `uDig sample dataset`__
 
-http://udig.refractions.net/docs/data.zip 
+.. _udigdata: http://udig.refractions.net/docs/data-v1_2.zip 
+
+__ udigdata_
 
 Simple attribute queries
 ~~~~~~~~~~~~~~~~~~~~~~~~

@@ -168,7 +168,7 @@ __ udigdata_
 .. image:: SelectionLab.gif
 
 Things to try
-=============
+-------------
 
 In :ref:`crslab` we saw how to change the Coordinate Reference System of a MapContext. Try the following:
 
