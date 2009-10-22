@@ -53,7 +53,10 @@ public class WFSFeatureTypeTransformer {
                 build.add(attributeType);
             }
         }
-        build.setDefaultGeometry(defaultGeometryType.getLocalName());
+        //Only try to set default geometry when there actually is a geometry type
+        if(defaultGeometryType!=null){
+           build.setDefaultGeometry(defaultGeometryType.getLocalName());  
+        }
         return build.buildFeatureType();
     }
 
