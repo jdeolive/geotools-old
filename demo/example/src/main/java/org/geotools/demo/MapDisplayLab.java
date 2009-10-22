@@ -10,7 +10,6 @@
  */
 package org.geotools.demo;
 
-import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPolygon;
@@ -33,7 +32,6 @@ import org.geotools.data.FileDataStoreFinder;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
-import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.map.MapContext;
@@ -70,7 +68,6 @@ public class MapDisplayLab {
      */
     private StyleFactory sf = CommonFactoryFinder.getStyleFactory(null);
     private FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
-    private GeometryFactory geomFactory = JTSFactoryFinder.getGeometryFactory(null);
 
     /*
      * Convenient constants for the type of feature geometry in the shapefile
@@ -85,7 +82,6 @@ public class MapDisplayLab {
     private static final Color SELECTED_COLOUR = Color.YELLOW;
     private static final float OPACITY = 1.0f;
     private static final float LINE_WIDTH = 1.0f;
-    private static final float SELECTED_LINE_WIDTH = 3.0F;
     private static final float POINT_SIZE = 10.0f;
 
     private JMapFrame mapFrame;
@@ -267,7 +263,7 @@ public class MapDisplayLab {
      * Create a default Style for feature display
      */
     private Style createDefaultStyle() {
-        Rule rule = createRule(LINE_COLOUR, FILL_COLOUR, LINE_WIDTH);
+        Rule rule = createRule(LINE_COLOUR, FILL_COLOUR);
 
         FeatureTypeStyle fts = sf.createFeatureTypeStyle();
         fts.rules().add(rule);
@@ -284,10 +280,10 @@ public class MapDisplayLab {
      * yellow, while others are painted with the default colors.
      */
     private Style createSelectedStyle(Set<FeatureId> IDs) {
-        Rule selectedRule = createRule(SELECTED_COLOUR, FILL_COLOUR, SELECTED_LINE_WIDTH);
+        Rule selectedRule = createRule(SELECTED_COLOUR, SELECTED_COLOUR);
         selectedRule.setFilter(ff.id(IDs));
 
-        Rule otherRule = createRule(LINE_COLOUR, FILL_COLOUR, LINE_WIDTH);
+        Rule otherRule = createRule(LINE_COLOUR, FILL_COLOUR);
         otherRule.setElseFilter(true);
 
         FeatureTypeStyle fts = sf.createFeatureTypeStyle();
@@ -306,10 +302,10 @@ public class MapDisplayLab {
      * a Symbolizer tailored to the geometry type of the features that
      * we are displaying.
      */
-    private Rule createRule(Color outlineColor, Color fillColor, float lineWidth) {
+    private Rule createRule(Color outlineColor, Color fillColor) {
         Symbolizer symbolizer = null;
         Fill fill = null;
-        Stroke stroke = sf.createStroke(ff.literal(outlineColor), ff.literal(lineWidth));
+        Stroke stroke = sf.createStroke(ff.literal(outlineColor), ff.literal(LINE_WIDTH));
 
         switch (geometryType) {
             case POLYGON:
