@@ -125,14 +125,14 @@ public class SelectionLab {
         Style style = createDefaultStyle();
         map.addLayer(featureSource, style);
         mapFrame = new JMapFrame(map);
+        mapFrame.enableToolBar(true);
+        mapFrame.enableStatusBar(true);
 
         /*
          * Before making the map frame visible we add a new button to its
          * toolbar for our custom feature selection tool
          */
-        mapFrame.enableToolBar(true);
         JToolBar toolBar = mapFrame.getToolBar();
-
         JButton btn = new JButton("Select");
         toolBar.addSeparator();
         toolBar.add(btn);
