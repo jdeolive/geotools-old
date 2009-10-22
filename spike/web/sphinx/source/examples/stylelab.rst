@@ -1,9 +1,5 @@
 .. _stylelab:
 
-.. admonition:: This is a new page 
-
-   We've only just added this page and it's still incomplete
-
 Style Lab
 ===========
 

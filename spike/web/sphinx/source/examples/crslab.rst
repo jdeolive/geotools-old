@@ -67,7 +67,11 @@ Note how we are customizing the map frame:
 Running the application
 -----------------------
 
-A good shapefile to use with this example is the **bc_border** map which can be downloaded from http://udig.refractions.net/docs/data.zip
+A good shapefile to use with this example is the **bc_border** map which can be downloaded as part of the `uDig sample data`__.
+
+.. _udigdata: http://udig.refractions.net/docs/data-v1_2.zip
+
+__ udigdata_
 
 Run the application and open the bc_border map.
 

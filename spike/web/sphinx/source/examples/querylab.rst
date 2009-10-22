@@ -1,9 +1,6 @@
-.. _querylab:
 .. include:: <isonum.txt>
 
-.. admonition:: This is a new page
-
-   We've only just added this page and it is still incomplete
+.. _querylab:
 
 Query Lab
 =========

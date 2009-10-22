@@ -11,4 +11,4 @@ Examples
    querylab
    stylelab
    imagelab
-   displaylab
+   selectionlab
