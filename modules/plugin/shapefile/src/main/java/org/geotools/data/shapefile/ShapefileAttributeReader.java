@@ -172,7 +172,7 @@ public class ShapefileAttributeReader extends AbstractAttributeIO implements
 
     public Object read(int param) throws IOException,
             java.lang.ArrayIndexOutOfBoundsException {
-        int index = dbfindexes[param];
+        int index = dbfindexes != null ? dbfindexes[param] : -1;
                    
         switch (index) {
         case -1:
