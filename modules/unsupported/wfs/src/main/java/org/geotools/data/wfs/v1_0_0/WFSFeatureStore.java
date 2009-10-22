@@ -137,17 +137,20 @@ public class WFSFeatureStore extends WFSFeatureSource implements FeatureStore<Si
                 for(int i=0;i<atrs.size();i++){
                     AttributeDescriptor att = atrs.get(i);
                     if(att instanceof GeometryDescriptor){
-                        Geometry g = (Geometry) newFeature.getAttribute(i);
-                        CoordinateReferenceSystem cs = ((GeometryDescriptor)att).getCoordinateReferenceSystem();
-                        if( g==null )
-                            continue;
-                        if( cs!=null && !cs.getIdentifiers().isEmpty() )
-                            g.setUserData(cs.getIdentifiers().iterator().next().toString());
-                        if( bounds==null ){
-                            bounds=new ReferencedEnvelope(g.getEnvelopeInternal(), schema.getCoordinateReferenceSystem() );
-                        }else{
-                            bounds.expandToInclude(g.getEnvelopeInternal());
-                        }
+                    	Object geom = newFeature.getAttribute(i);
+                    	if(geom instanceof Geometry){
+	                        Geometry g = (Geometry) geom;
+	                        CoordinateReferenceSystem cs = ((GeometryDescriptor)att).getCoordinateReferenceSystem();
+	                        if( g==null )
+	                            continue;
+	                        if( cs!=null && !cs.getIdentifiers().isEmpty() )
+	                            g.setUserData(cs.getIdentifiers().iterator().next().toString());
+	                        if( bounds==null ){
+	                            bounds=new ReferencedEnvelope(g.getEnvelopeInternal(), schema.getCoordinateReferenceSystem() );
+	                        }else{
+	                            bounds.expandToInclude(g.getEnvelopeInternal());
+	                        }
+                    	}
                     }
                 }
                 ts.addAction(schema.getTypeName(), new InsertAction(newFeature));
