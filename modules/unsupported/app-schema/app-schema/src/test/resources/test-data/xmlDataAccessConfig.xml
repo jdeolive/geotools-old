@@ -94,7 +94,12 @@
            	<name>codeSpace</name>
            	<value>'gsv:NameSpace'</value>
          	</ClientProperty>
-         </AttributeMapping>            
+         </AttributeMapping>    
+         
+         <AttributeMapping>
+            <parentLabel>gsml:GeologicUnit</parentLabel>          
+            <targetAttribute>gsml:observationMethod</targetAttribute>
+         </AttributeMapping>
 
          <AttributeMapping>
             <parentLabel>gsml:GeologicUnit</parentLabel>          
