@@ -20,8 +20,6 @@ import java.awt.Rectangle;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
 
-import com.esri.sde.sdk.client.SeRasterAttr;
-
 /**
  * An Iterator like interface to read ArcSDE rasters for a given ArcSDE raster dataset (whether it
  * is a single raster or a raster catalog).
@@ -63,7 +61,7 @@ interface TiledRasterReader {
      * Disposes any resource being held by this reader, whether it's a connection to the ArcSDE
      * server, opened streams, etc.
      */
-    //void dispose();
+    // void dispose();
 
     /**
      * Advances to the next available raster in the raster dataset this reader works upon and
@@ -74,7 +72,7 @@ interface TiledRasterReader {
      * @throws IOException
      *             for any problem occurred retrieving the next {@link SeRasterAttr} in the request
      */
-    Long nextRaster() throws IOException;
+    // Long nextRaster() throws IOException;
 
     /**
      * Reads the image subset determined by the given pyramid level and tile range for the currently
@@ -89,6 +87,7 @@ interface TiledRasterReader {
      * @throws IOException
      *             for any exception occurred while reading the image
      */
-    RenderedImage read(final int pyramidLevel, final Rectangle tileRange) throws IOException;
+    RenderedImage read(final long rasterId, final int pyramidLevel, final Rectangle tileRange)
+            throws IOException;
 
 }

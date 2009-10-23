@@ -87,8 +87,9 @@ class BitmaskToNoDataConverter {
      * @return
      */
     public static BitmaskToNoDataConverter getInstance(final RasterDatasetInfo rasterInfo,
-            final int rasterIndex) {
+            final long rasterId) {
 
+        final int rasterIndex = rasterInfo.getRasterIndex(rasterId);
         final int numBands = rasterInfo.getNumBands();
         final RasterCellType targetType = rasterInfo.getTargetCellType(rasterIndex);
 

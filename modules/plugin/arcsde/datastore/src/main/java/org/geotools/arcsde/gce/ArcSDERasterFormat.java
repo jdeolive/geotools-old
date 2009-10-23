@@ -129,11 +129,11 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
 
             final ArcSDEConnectionConfig connectionConfig = getConnectionConfig(coverageUrl);
 
-            ISessionPool sessionPool = setupConnectionPool(connectionConfig);
+            final ISessionPool sessionPool = setupConnectionPool(connectionConfig);
 
-            RasterDatasetInfo rasterInfo = getRasterInfo(coverageUrl, sessionPool);
+            final RasterDatasetInfo rasterInfo = getRasterInfo(coverageUrl, sessionPool);
 
-            RasterReaderFactory rasterReaderFactory = new RasterReaderFactory(sessionPool);
+            final RasterReaderFactory rasterReaderFactory = new RasterReaderFactory(sessionPool);
 
             return new ArcSDEGridCoverage2DReaderJAI(this, rasterReaderFactory, rasterInfo, hints);
         } catch (IOException dse) {

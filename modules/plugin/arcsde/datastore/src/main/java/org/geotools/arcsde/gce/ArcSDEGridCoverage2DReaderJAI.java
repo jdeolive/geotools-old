@@ -17,6 +17,7 @@
  */
 package org.geotools.arcsde.gce;
 
+import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
@@ -40,8 +41,10 @@ import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageTypeSpecifier;
+import javax.media.jai.ImageLayout;
 import javax.media.jai.InterpolationNearest;
 import javax.media.jai.JAI;
+import javax.media.jai.ParameterBlockJAI;
 import javax.media.jai.operator.FormatDescriptor;
 import javax.media.jai.operator.MosaicDescriptor;
 
@@ -68,7 +71,9 @@ import org.opengis.parameter.GeneralParameterValue;
  * @author Gabriel Roldan (OpenGeo)
  * @since 2.5.4
  * @version $Id$
- * @source $URL$
+ * @source $URL:
+ *         http://svn.osgeo.org/geotools/trunk/modules/plugin/arcsde/datastore/src/main/java/org
+ *         /geotools/arcsde/gce/ArcSDEGridCoverage2DReaderJAI.java $
  */
 @SuppressWarnings( { "deprecation", "nls" })
 final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
@@ -211,17 +216,12 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
         /*
          * Gather the rendered images for each of the rasters that match the requested envelope
          */
-        final Map<Long, RasterQueryInfo> byRasterIdQueries = new HashMap<Long, RasterQueryInfo>();
-        for (RasterQueryInfo queryInfo : queries) {
-            byRasterIdQueries.put(queryInfo.getRasterId(), queryInfo);
-        }
-
         final TiledRasterReader rasterReader = rasterReaderFactory.create(rasterInfo);
 
         try {
-            readAllTiledRasters(byRasterIdQueries, rasterReader, log);
+            readAllTiledRasters(queries, rasterReader, log);
         } finally {
-            //rasterReader.dispose();
+            // rasterReader.dispose();
         }
 
         log.log(LoggingHelper.REQ_ENV);
@@ -229,7 +229,7 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
         log.log(LoggingHelper.MOSAIC_ENV);
         log.log(LoggingHelper.MOSAIC_EXPECTED);
 
-        final RenderedImage coverageRaster = createMosaic(queries, log);
+        final RenderedImage coverageRaster = createMosaic(queries, mosaicGeometry, log);
         assert mosaicGeometry.getWidth() == coverageRaster.getWidth();
         assert mosaicGeometry.getHeight() == coverageRaster.getHeight();
 
@@ -273,23 +273,20 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
         return bands;
     }
 
-    private void readAllTiledRasters(final Map<Long, RasterQueryInfo> byRasterIdQueries,
+    private void readAllTiledRasters(final List<RasterQueryInfo> queries,
             final TiledRasterReader rasterReader, final LoggingHelper log) throws IOException {
 
-        Long currentRasterId;
+        for (RasterQueryInfo queryInfo : queries) {
 
-        while ((currentRasterId = rasterReader.nextRaster()) != null) {
-            if (!byRasterIdQueries.containsKey(currentRasterId)) {
-                continue;
-            }
-            final RasterQueryInfo queryInfo = byRasterIdQueries.get(currentRasterId);
+            final Long rasterId = queryInfo.getRasterId();
+
             final RenderedImage rasterImage;
 
             try {
                 final int pyramidLevel = queryInfo.getPyramidLevel();
                 final Rectangle matchingTiles = queryInfo.getMatchingTiles();
                 // final Point imageLocation = queryInfo.getTiledImageSize().getLocation();
-                rasterImage = rasterReader.read(pyramidLevel, matchingTiles);
+                rasterImage = rasterReader.read(rasterId, pyramidLevel, matchingTiles);
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, "Fetching data for " + queryInfo.toString(), e);
                 throw e;
@@ -384,11 +381,13 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
      * For each raster: crop->scale->translate->add to mosaic
      * 
      * @param queries
+     * @param mosaicGeometry
      * @return
      * @throws IOException
      */
-    private RenderedImage createMosaic(final List<RasterQueryInfo> queries, final LoggingHelper log)
-            throws IOException {
+    private RenderedImage createMosaic(final List<RasterQueryInfo> queries,
+            final Rectangle mosaicGeometry, final LoggingHelper log) throws IOException {
+
         List<RenderedImage> transformed = new ArrayList<RenderedImage>(queries.size());
 
         /*
@@ -478,7 +477,41 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
              */
             mosaic = transformed.get(0);
         } else {
-            ParameterBlock mosaicParams = new ParameterBlock();
+            // ParameterBlock mosaicParams = new ParameterBlock();
+            //
+            // for (RenderedImage img : transformed) {
+            // mosaicParams.addSource(img);
+            // log.appendLoggingGeometries(LoggingHelper.MOSAIC_RESULT, img);
+            // }
+            // log.log(LoggingHelper.MOSAIC_RESULT);
+            //
+            // mosaicParams.add(MosaicDescriptor.MOSAIC_TYPE_OVERLAY); // mosaic type
+            // mosaicParams.add(null); // alpha mask
+            // mosaicParams.add(null); // source ROI mask
+            // mosaicParams.add(null); // source threshold
+            // mosaicParams.add(null); // destination background value
+            //
+            // LOGGER.fine("Creating mosaic out of " + queries.size() + " raster tiles");
+            // mosaic = JAI.create("Mosaic", mosaicParams);
+            // log.log(mosaic, 0L, "05_mosaic_result");
+            /*
+             * adapted from RasterLayerResponse.java in the imagemosaic module
+             */
+            ParameterBlockJAI mosaicParams = new ParameterBlockJAI("Mosaic");
+
+            // TODO: set background values to raster's no-data
+            // mosaicParams.setParameter("backgroundValues",backgroundValues);
+
+            mosaicParams.setParameter("mosaicType", MosaicDescriptor.MOSAIC_TYPE_OVERLAY);
+
+            final ImageLayout layout = new ImageLayout(mosaicGeometry.x, mosaicGeometry.y,
+                    mosaicGeometry.width, mosaicGeometry.height);
+            // tiling
+//            final Dimension tileDimensions = request.getTileDimensions();
+//            if (tileDimensions != null) {
+//                layout.setTileHeight(tileDimensions.width).setTileWidth(tileDimensions.height);
+//            }
+            final RenderingHints hints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, layout);
 
             for (RenderedImage img : transformed) {
                 mosaicParams.addSource(img);
@@ -486,14 +519,8 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
             }
             log.log(LoggingHelper.MOSAIC_RESULT);
 
-            mosaicParams.add(MosaicDescriptor.MOSAIC_TYPE_OVERLAY); // mosaic type
-            mosaicParams.add(null); // alpha mask
-            mosaicParams.add(null); // source ROI mask
-            mosaicParams.add(null); // source threshold
-            mosaicParams.add(null); // destination background value
-
             LOGGER.fine("Creating mosaic out of " + queries.size() + " raster tiles");
-            mosaic = JAI.create("Mosaic", mosaicParams);
+            mosaic = JAI.create("Mosaic", mosaicParams, hints);
             log.log(mosaic, 0L, "05_mosaic_result");
         }
         return mosaic;

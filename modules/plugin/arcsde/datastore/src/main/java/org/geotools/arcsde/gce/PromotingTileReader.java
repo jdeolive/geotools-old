@@ -103,26 +103,31 @@ final class PromotingTileReader implements TileReader {
 
     public TileInfo next(byte[] tileData) throws IOException {
         final TileInfo tileInfo = nativeReader.next(nativeTileData);
-        final byte[] bitmaskData = tileInfo.getBitmaskData();
-        final boolean hasNoDataPixels = bitmaskData.length > 0;
-        final Long bandId = tileInfo.getBandId();
+        try {
+            final byte[] bitmaskData = tileInfo.getBitmaskData();
+            final boolean hasNoDataPixels = bitmaskData.length > 0;
+            final Long bandId = tileInfo.getBandId();
 
-        final int numPixelsRead = tileInfo.getNumPixelsRead();
-        if (numPixelsRead == 0) {
-            noData.setAll(bandId, tileData);
-        } else {
-            final int numSamples = getPixelsPerTile();
-            assert numPixelsRead == numSamples;
+            final int numPixelsRead = tileInfo.getNumPixelsRead();
+            if (numPixelsRead == 0) {
+                noData.setAll(bandId, tileData);
+            } else {
+                final int numSamples = getPixelsPerTile();
+                assert numPixelsRead == numSamples;
 
-            for (int sampleN = 0; sampleN < numSamples; sampleN++) {
-                if (hasNoDataPixels && noData.isNoData(sampleN, bitmaskData)) {
-                    noData.setNoData(bandId, sampleN, tileData);
-                } else {
-                    promoter.promote(sampleN, nativeTileData, tileData);
+                for (int sampleN = 0; sampleN < numSamples; sampleN++) {
+                    if (hasNoDataPixels && noData.isNoData(sampleN, bitmaskData)) {
+                        noData.setNoData(bandId, sampleN, tileData);
+                    } else {
+                        promoter.promote(sampleN, nativeTileData, tileData);
+                    }
                 }
             }
-        }
 
+        } catch (RuntimeException e) {
+            dispose();
+            throw e;
+        }
         return tileInfo;
     }
 

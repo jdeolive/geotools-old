@@ -18,9 +18,7 @@ package org.geotools.arcsde.gce;
 
 import java.io.IOException;
 
-import org.geotools.arcsde.session.ISession;
 import org.geotools.arcsde.session.ISessionPool;
-import org.geotools.arcsde.session.UnavailableConnectionException;
 
 /**
  * 
@@ -40,16 +38,17 @@ public class RasterReaderFactory {
         this.sessionPool = connectionPool;
     }
 
+    /**
+     * Creates a {@link TiledRasterReader} that's able to read one or more raster for the given
+     * {@link RasterDatasetInfo}, depending on if {@code rasterInfo} represents a single raster or a
+     * raster catalog.
+     * 
+     * @param rasterInfo
+     * @return
+     * @throws IOException
+     */
     public TiledRasterReader create(final RasterDatasetInfo rasterInfo) throws IOException {
-
-        ISession conn;
-        try {
-            conn = sessionPool.getSession(false);
-        } catch (UnavailableConnectionException e) {
-            throw new RuntimeException(e);
-        }
-
-        TiledRasterReader rasterReader = new DefaultTiledRasterReader(conn, rasterInfo);
+        TiledRasterReader rasterReader = new DefaultTiledRasterReader(sessionPool, rasterInfo);
 
         return rasterReader;
     }

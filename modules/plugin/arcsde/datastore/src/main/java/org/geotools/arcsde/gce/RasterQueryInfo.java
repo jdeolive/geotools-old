@@ -87,8 +87,8 @@ final class RasterQueryInfo {
         s.append("\n\tRequested dimension  : ").append(getRequestedDim());
         Rectangle mt = getMatchingTiles();
         Rectangle ltr = getLevelTileRange();
-        String matching = "x=" + mt.x + "-" + (mt.width - 1) + ", y=" + mt.y + "-"
-                + (mt.height - 1);
+        String matching = "x=" + mt.x + "-" + (mt.x + mt.width - 1) + ", y=" + mt.y + "-"
+                + (mt.y + mt.height - 1);
         String level = "x=" + ltr.x + "-" + (ltr.width - 1) + ", y=" + ltr.y + "-"
                 + (ltr.height - 1);
         s.append("\n\tMatching tiles       : ").append(matching).append(" out of ").append(level);

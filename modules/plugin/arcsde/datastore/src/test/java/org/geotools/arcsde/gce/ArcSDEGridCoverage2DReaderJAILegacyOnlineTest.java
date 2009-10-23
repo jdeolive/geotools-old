@@ -141,7 +141,7 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         assertNotNull("read coverage returned null", coverage);
 
         RenderedImage image = coverage.getRenderedImage();
-       // writeToDisk(coverage, "testRead_" + tableName);
+        writeToDisk(coverage, "testRead_" + tableName);
     }
 
     @Test
@@ -223,7 +223,7 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         //writeToDisk(coverage, "testRead_" + tableName);
 
         RenderedImage image = coverage.view(ViewType.RENDERED).getRenderedImage();
-        // writeToDisk(image, tableName);
+        writeToDisk(image, tableName);
 
         writeBand(image, new int[] { 0 }, "red");
         writeBand(image, new int[] { 1 }, "green");

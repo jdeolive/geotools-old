@@ -59,7 +59,9 @@ import org.opengis.referencing.operation.TransformException;
  * @author Gabriel Roldan (OpenGeo)
  * @since 2.5.4
  * @version $Id$
- * @source $URL$
+ * @source $URL:
+ *         http://svn.osgeo.org/geotools/trunk/modules/plugin/arcsde/datastore/src/main/java/org
+ *         /geotools/arcsde/gce/RasterDatasetInfo.java $
  */
 @SuppressWarnings( { "nls" })
 final class RasterDatasetInfo {
@@ -196,7 +198,7 @@ final class RasterDatasetInfo {
              * Category[] { valuesCat, nodataCat, catMin, catMax, catMean, catStdDev }; } else {
              * categories = new Category[] { valuesCat, nodataCat }; }
              */
-            
+
             // .geophysics(false) because our sample model always corresponds to the packed view
             // (whether it matches the underlying sample depth or we're promoting in order to make
             // room for the nodata value).
@@ -368,6 +370,20 @@ final class RasterDatasetInfo {
         return level.getNumTilesHigh();
     }
 
+    public int getTileWidth(final long rasterId) {
+        return getTileDimension(rasterId).width;
+    }
+
+    public int getTileHeight(final long rasterId) {
+        return getTileDimension(rasterId).height;
+    }
+
+    public Dimension getTileDimension(final long rasterId) {
+        final int rasterIndex = getRasterIndex(rasterId);
+        final RasterInfo rasterInfo = getRasterInfo(rasterIndex);
+        return rasterInfo.getTileDimension();
+    }
+
     public Dimension getTileDimension(int rasterIndex) {
         RasterInfo rasterInfo = getRasterInfo(rasterIndex);
         return rasterInfo.getTileDimension();
@@ -382,6 +398,11 @@ final class RasterDatasetInfo {
     private RasterInfo getRasterInfo(int rasterIndex) {
         RasterInfo rasterInfo = subRasterInfo.get(rasterIndex);
         return rasterInfo;
+    }
+
+    public ImageTypeSpecifier getRenderedImageSpec(final long rasterId) {
+        final int rasterIndex = getRasterIndex(rasterId);
+        return getRenderedImageSpec(rasterIndex);
     }
 
     public ImageTypeSpecifier getRenderedImageSpec(final int rasterIndex) {
@@ -416,6 +437,11 @@ final class RasterDatasetInfo {
     public RasterCellType getTargetCellType(final int rasterIndex) {
         RasterInfo rasterInfo = getRasterInfo(rasterIndex);
         return rasterInfo.getTargetCellType();
+    }
+
+    public RasterCellType getTargetCellType(final long rasterId) {
+        final int rasterIndex = getRasterIndex(rasterId);
+        return getTargetCellType(rasterIndex);
     }
 
     public Long getRasterId(final int rasterIndex) {

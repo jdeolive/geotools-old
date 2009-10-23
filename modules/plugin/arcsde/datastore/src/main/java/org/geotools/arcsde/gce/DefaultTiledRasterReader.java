@@ -24,7 +24,6 @@ import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.awt.image.renderable.ParameterBlock;
 import java.io.IOException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageReadParam;
@@ -35,18 +34,16 @@ import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
 import javax.media.jai.RenderedOp;
 
-import org.geotools.arcsde.ArcSdeException;
 import org.geotools.arcsde.session.Command;
 import org.geotools.arcsde.session.ISession;
+import org.geotools.arcsde.session.ISessionPool;
 import org.geotools.data.DataSourceException;
 import org.geotools.util.logging.Logging;
 
 import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeException;
 import com.esri.sde.sdk.client.SeQuery;
-import com.esri.sde.sdk.client.SeRaster;
 import com.esri.sde.sdk.client.SeRasterAttr;
-import com.esri.sde.sdk.client.SeRasterConstraint;
 import com.esri.sde.sdk.client.SeRow;
 import com.esri.sde.sdk.client.SeSqlConstruct;
 import com.sun.media.imageio.stream.RawImageInputStream;
@@ -67,15 +64,13 @@ class DefaultTiledRasterReader implements TiledRasterReader {
 
     private static final Logger LOGGER = Logging.getLogger("org.geotools.arcsde.gce");
 
-    private ISession session;
-
     private RasterDatasetInfo rasterInfo;
 
-    private final SeQuery preparedQuery;
+    // private final SeQuery preparedQuery;
 
-    private Long rasterId;
+    // private final FetchRasterCommand fetchCommand;
 
-    private final FetchRasterCommand fetchCommand;
+    private final ISessionPool sessionPool;
 
     /**
      * @see DefaultTiledRasterReader#nextRaster()
@@ -122,98 +117,114 @@ class DefaultTiledRasterReader implements TiledRasterReader {
      * <p>
      * </p>
      * 
-     * @param conn
+     * @param sessionPool
+     *            where to grab sessions from to query the rasters described by {@code rasterInfo}
      * @param rasterInfo
      * @throws IOException
      */
-    public DefaultTiledRasterReader(final ISession conn, final RasterDatasetInfo rasterInfo)
-            throws IOException {
-        this.session = conn;
+    public DefaultTiledRasterReader(final ISessionPool sessionPool,
+            final RasterDatasetInfo rasterInfo) throws IOException {
+        this.sessionPool = sessionPool;
         this.rasterInfo = rasterInfo;
+        //
+        // try {
+        // preparedQuery = createAndExecuteSeQuery(conn);
+        // } catch (IOException e) {
+        // dispose();
+        // throw e;
+        // } catch (RuntimeException e) {
+        // dispose();
+        // throw e;
+        // } catch (Exception e) {
+        // dispose();
+        // throw new DataSourceException(e);
+        // }
 
-        try {
-            preparedQuery = createAndExecuteSeQuery(conn);
-        } catch (IOException e) {
-            dispose();
-            throw e;
-        } catch (RuntimeException e) {
-            dispose();
-            throw e;
-        } catch (Exception e) {
-            dispose();
-            throw new DataSourceException(e);
-        }
-
-        this.fetchCommand = new FetchRasterCommand(preparedQuery);
+        // this.fetchCommand = new FetchRasterCommand(preparedQuery);
     }
 
     /**
      * @see org.geotools.arcsde.gce.TiledRasterReader#nextRaster()
      */
-    public Long nextRaster() throws IOException {
-        this.rasterId = session.issue(fetchCommand);
-//        if (this.rasterId == null) {
-//            dispose();
-//        }
-        return this.rasterId;
-    }
+    // public Long nextRaster() throws IOException {
+    // this.rasterId = session.issue(fetchCommand);
+    // // if (this.rasterId == null) {
+    // // dispose();
+    // // }
+    // return this.rasterId;
+    // }
 
     /**
      * Disposes in case of an error
      * 
      * @see org.geotools.arcsde.gce.TiledRasterReader#dispose()
      */
-    private void dispose() {
-        if (session != null) {
-            try {
-                session.close(preparedQuery);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            session.dispose();
-            session = null;
-        }
-    }
+    // private void dispose() {
+    // if (session != null) {
+    // try {
+    // session.close(preparedQuery);
+    // } catch (Exception e) {
+    // e.printStackTrace();
+    // }
+    // session.dispose();
+    // session = null;
+    // }
+    // }
 
     /**
-     * @see org.geotools.arcsde.gce.TiledRasterReader#read(int, java.awt.Rectangle)
+     * @see org.geotools.arcsde.gce.TiledRasterReader#read
      */
-    public RenderedImage read(final int pyramidLevel, final Rectangle tileRange) throws IOException {
+    public RenderedImage read(final long rasterId, final int pyramidLevel, final Rectangle tileRange)
+            throws IOException {
         final RenderedImage rasterImage;
 
         // final Point imageLocation = rasterQueryInfo.getTiledImageSize().getLocation();
 
-        try {
-            rasterImage = getRasterMatchingTileRange(pyramidLevel, tileRange);
-        } catch (IOException e) {
-            dispose();
-            throw e;
-        } catch (RuntimeException e) {
-            dispose();
-            throw e;
-        }
+        // try {
+        rasterImage = getRasterMatchingTileRange(rasterId, pyramidLevel, tileRange);
+        // } catch (IOException e) {
+        // dispose();
+        // throw e;
+        // } catch (RuntimeException e) {
+        // dispose();
+        // throw e;
+        // }
         return rasterImage;
     }
 
     /**
      * Creates a prepared query for the coverage's table, does not set any constraint nor executes
      * it.
+     * 
+     * @param the
+     *            id of the raster in the raster catalog to retrieve
+     * @param session
+     *            the session to use in querying the ArcSDE server
      */
-    private SeQuery createAndExecuteSeQuery(final ISession session) throws IOException {
+    private SeQuery createAndExecuteSeQuery(final long rasterId, final ISession session)
+            throws IOException {
         final SeQuery seQuery;
         final String[] rasterColumns = rasterInfo.getRasterColumns();
         final String tableName = rasterInfo.getRasterTable();
 
-        seQuery = session.createAndExecuteQuery(rasterColumns, new SeSqlConstruct(tableName));
+        final SeSqlConstruct sqlConstruct = new SeSqlConstruct(tableName);
+        /*
+         * Filter by the given raster id
+         */
+        final String rasterIdFilter = rasterColumns[0] + " = " + rasterId;
+        sqlConstruct.setWhere(rasterIdFilter);
+
+        seQuery = session.createAndExecuteQuery(rasterColumns, sqlConstruct);
+
         return seQuery;
     }
 
-    private RenderedImage getRasterMatchingTileRange(int pyramidLevel, final Rectangle matchingTiles)
-            throws IOException {
+    private RenderedImage getRasterMatchingTileRange(final long rasterId, int pyramidLevel,
+            final Rectangle matchingTiles) throws IOException {
 
-        /*
-         * Create the prepared query (not executed) stream to fetch the tiles from
-         */
+        final TileReader tileReader;
+        tileReader = TileReaderFactory.getInstance(sessionPool, rasterInfo, rasterId, pyramidLevel,
+                matchingTiles);
 
         // covers an area of full tiles
         final RenderedImage fullTilesRaster;
@@ -222,7 +233,7 @@ class DefaultTiledRasterReader implements TiledRasterReader {
          * Create the tiled raster covering the full area of the matching tiles
          */
 
-        fullTilesRaster = createTiledRaster(pyramidLevel, matchingTiles);
+        fullTilesRaster = createTiledRaster(tileReader, matchingTiles, rasterId);
 
         /*
          * REVISIT: This is odd, we need to force the data to be loaded so we're free to release the
@@ -240,79 +251,14 @@ class DefaultTiledRasterReader implements TiledRasterReader {
     }
 
     /**
-     * 
-     * @param pyramidLevel
+     * @param tileReader
      * @param matchingTiles
+     * @param rasterId
      * @return
      * @throws IOException
      */
-    private RenderedOp createTiledRaster(final int pyramidLevel, final Rectangle matchingTiles)
-            throws IOException {
-
-        final int rasterIndex = rasterInfo.getRasterIndex(rasterId);
-        final SeRasterAttr rAttr = fetchCommand.getRasterAttribute();
-
-        final int tileWidth;
-        final int tileHeight;
-        final SeRasterConstraint rConstraint;
-        try {
-            final int numberOfBands;
-            numberOfBands = rAttr.getNumBands();
-            tileWidth = rAttr.getTileWidth();
-            tileHeight = rAttr.getTileHeight();
-
-            int[] bandsToQuery = new int[numberOfBands];
-            for (int bandN = 1; bandN <= numberOfBands; bandN++) {
-                bandsToQuery[bandN - 1] = bandN;
-            }
-
-            int minTileX = matchingTiles.x;
-            int minTileY = matchingTiles.y;
-            int maxTileX = minTileX + matchingTiles.width - 1;
-            int maxTileY = minTileY + matchingTiles.height - 1;
-            if (LOGGER.isLoggable(Level.FINE)) {
-                LOGGER.fine("Requesting tiles [x=" + minTileX + "-" + maxTileX + ", y=" + minTileY
-                        + "-" + maxTileY + "] from tile range [x=0-"
-                        + (rAttr.getTilesPerRowByLevel(pyramidLevel) - 1) + ", y=0-"
-                        + (rAttr.getTilesPerColByLevel(pyramidLevel) - 1) + "]");
-            }
-            // SDEPoint tileOrigin = rAttr.getTileOrigin();
-
-            if (LOGGER.isLoggable(Level.FINE)) {
-                Rectangle tiledImageSize = new Rectangle(0, 0, tileWidth * matchingTiles.width,
-                        tileHeight * matchingTiles.height);
-
-                LOGGER.fine("Tiled image size: " + tiledImageSize);
-            }
-
-            final int interleaveType = SeRaster.SE_RASTER_INTERLEAVE_BIP;
-
-            rConstraint = new SeRasterConstraint();
-            rConstraint.setBands(bandsToQuery);
-            rConstraint.setLevel(pyramidLevel);
-            rConstraint.setEnvelope(minTileX, minTileY, maxTileX, maxTileY);
-            rConstraint.setInterleave(interleaveType);
-        } catch (SeException se) {
-            throw new ArcSdeException(se);
-        }
-
-        session.issue(new Command<Void>() {
-            @Override
-            public Void execute(ISession session, SeConnection connection) throws SeException,
-                    IOException {
-                preparedQuery.queryRasterTile(rConstraint);
-                return null;
-            }
-        });
-
-        final TileReader tileReader;
-        {
-            final Dimension tileSize = new Dimension(tileWidth, tileHeight);
-            final SeRow row = fetchCommand.getSeRow();
-            tileReader = TileReaderFactory.getInstance(session, preparedQuery, row, rasterInfo, rasterIndex,
-                    matchingTiles, tileSize);
-        }
-
+    private RenderedOp createTiledRaster(final TileReader tileReader,
+            final Rectangle matchingTiles, final long rasterId) throws IOException {
         // Prepare temporary colorModel and sample model, needed to build the final
         // ArcSDEPyramidLevel level;
         final Dimension tiledImageSize;
@@ -323,7 +269,7 @@ class DefaultTiledRasterReader implements TiledRasterReader {
             final int tiledImageHeight = tileReader.getTilesHigh() * tileReader.getTileHeight();
             tiledImageSize = new Dimension(tiledImageWidth, tiledImageHeight);
 
-            final ImageTypeSpecifier fullImageSpec = rasterInfo.getRenderedImageSpec(rasterIndex);
+            final ImageTypeSpecifier fullImageSpec = rasterInfo.getRenderedImageSpec(rasterId);
             colorModel = fullImageSpec.getColorModel();
             sampleModel = fullImageSpec.getSampleModel(tiledImageWidth, tiledImageHeight);
         }
@@ -341,6 +287,9 @@ class DefaultTiledRasterReader implements TiledRasterReader {
 
             raw = new RawImageInputStream(tiledImageInputStream, its, imageOffsets, imageDimensions);
         }
+
+        final int tileWidth = tileReader.getTileWidth();
+        final int tileHeight = tileReader.getTileHeight();
 
         // building the final image layout
         final ImageLayout imageLayout;

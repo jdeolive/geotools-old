@@ -1,0 +1,390 @@
+<class-diagram version="0.9.86" icons="true" always-add-relationships="false" generalizations="true" realizations="true" 
+  associations="true" dependencies="false" nesting-relationships="true">  
+  <class corner="BOTTOM_RIGHT" language="java" name="org.geotools.arcsde.gce.ArcSDERasterFormat" project="gt-arcsde" 
+    file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/ArcSDERasterFormat.java" binary="false">    
+    <position x="428" y="37" width="258" height="235"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="true" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class corner="BOTTOM_RIGHT" language="java" name="org.geotools.arcsde.gce.ArcSDEGridCoverage2DReaderJAI" 
+    project="gt-arcsde" file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/ArcSDEGridCoverage2DReaderJAI.java" 
+    binary="false">    
+    <position x="428" y="322" width="386" height="110"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="false" protected="false" private="false"/>      
+      <operations public="true" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <interface corner="BOTTOM_RIGHT" language="java" name="org.geotools.arcsde.gce.TiledRasterReader" project="gt-arcsde" 
+    file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/TiledRasterReader.java" binary="false">    
+    <position x="335" y="584" width="146" height="78"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="false" protected="false" private="false"/>      
+      <operations public="true" package="false" protected="false" private="false"/>    
+    </display>  
+  </interface>  
+  <class corner="BOTTOM_RIGHT" language="java" name="org.geotools.arcsde.gce.TileReaderFactory" project="gt-arcsde" 
+    file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/TileReaderFactory.java" binary="false">    
+    <position x="43" y="37" width="345" height="62"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="false" protected="false" private="false"/>      
+      <operations public="true" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class corner="BOTTOM_RIGHT" language="java" name="org.geotools.arcsde.gce.RasterReaderFactory" project="gt-arcsde" 
+    file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/RasterReaderFactory.java" binary="false">    
+    <position x="521" y="584" width="180" height="78"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="false" protected="false" private="false"/>      
+      <operations public="true" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class corner="BOTTOM_RIGHT" language="java" name="org.geotools.arcsde.gce.ArcSDETiledImageInputStream" 
+    project="gt-arcsde" file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/ArcSDETiledImageInputStream.java" 
+    binary="false">    
+    <position x="854" y="37" width="174" height="126"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="false" protected="false" private="false"/>      
+      <operations public="true" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class corner="BOTTOM_RIGHT" language="java" 
+    name="org.geotools.arcsde.gce.BitmaskToNoDataConverter.Unsigned8bitConverter" project="gt-arcsde" 
+    file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/BitmaskToNoDataConverter.java" binary="false">    
+    <position x="1472" y="584" width="188" height="94"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="false" protected="false" private="false"/>      
+      <operations public="true" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class corner="BOTTOM_RIGHT" language="java" name="org.geotools.arcsde.gce.BitmaskToNoDataConverter" 
+    project="gt-arcsde" file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/BitmaskToNoDataConverter.java" 
+    binary="false">    
+    <position x="1359" y="322" width="239" height="126"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="false" protected="false" private="false"/>      
+      <operations public="true" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class corner="BOTTOM_RIGHT" language="java" 
+    name="org.geotools.arcsde.gce.DefaultTiledRasterReader.FetchRasterCommand" project="gt-arcsde" 
+    file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/DefaultTiledRasterReader.java" binary="false">    
+    <position x="142" y="584" width="153" height="110"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="false" protected="false" private="false"/>      
+      <operations public="true" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class corner="BOTTOM_RIGHT" language="java" name="org.geotools.arcsde.gce.DefaultTiledRasterReader" 
+    project="gt-arcsde" file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/DefaultTiledRasterReader.java" 
+    binary="false">    
+    <position x="142" y="322" width="225" height="94"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="false" protected="false" private="false"/>      
+      <operations public="true" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class corner="BOTTOM_RIGHT" language="java" name="org.geotools.arcsde.gce.PromotingTileReader" project="gt-arcsde" 
+    file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/PromotingTileReader.java" binary="false">    
+    <position x="1068" y="37" width="178" height="40"/>    
+    <display autosize="false" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class corner="BOTTOM_RIGHT" language="java" name="org.geotools.arcsde.gce.PromotingTileReader.SampleDepthPromoter" 
+    project="gt-arcsde" file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/PromotingTileReader.java" binary="false">    
+    <position x="1023" y="322" width="254" height="78"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="false" protected="false" private="false"/>      
+      <operations public="true" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class corner="BOTTOM_RIGHT" language="java" name="org.geotools.arcsde.gce.PromotingTileReader.OneBitToUchar" 
+    project="gt-arcsde" file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/PromotingTileReader.java" binary="false">    
+    <position x="1146" y="584" width="123" height="62"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="false" protected="false" private="false"/>      
+      <operations public="true" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class corner="BOTTOM_RIGHT" language="java" name="org.geotools.arcsde.gce.PromotingTileReader.ShortToInt" 
+    project="gt-arcsde" file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/PromotingTileReader.java" binary="false">    
+    <position x="983" y="584" width="123" height="62"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="false" protected="false" private="false"/>      
+      <operations public="true" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class corner="BOTTOM_RIGHT" language="java" name="org.geotools.arcsde.gce.PromotingTileReader.UcharToUshort" 
+    project="gt-arcsde" file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/PromotingTileReader.java" binary="false">    
+    <position x="1309" y="584" width="123" height="62"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="false" protected="false" private="false"/>      
+      <operations public="true" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class corner="BOTTOM_RIGHT" language="java" name="org.geotools.arcsde.gce.NativeTileReader" project="gt-arcsde" 
+    file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/NativeTileReader.java" binary="false">    
+    <position x="1377" y="37" width="96" height="40"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class corner="BOTTOM_RIGHT" language="java" name="org.geotools.arcsde.gce.NativeTileReader.TileFetchCommand" 
+    project="gt-arcsde" file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/NativeTileReader.java" binary="false">    
+    <position x="1648" y="322" width="182" height="78"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="false" protected="false" private="false"/>      
+      <operations public="true" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <interface corner="BOTTOM_RIGHT" language="java" name="org.geotools.arcsde.gce.TileReader" project="gt-arcsde" 
+    file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/TileReader.java" binary="false">    
+    <position x="854" y="322" width="108" height="222"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="false" protected="false" private="false"/>      
+      <operations public="true" package="false" protected="false" private="false"/>    
+    </display>  
+  </interface>  
+  <class corner="BOTTOM_RIGHT" language="java" name="org.geotools.arcsde.gce.TileReader.TileInfo" project="gt-arcsde" 
+    file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/TileReader.java" binary="false">    
+    <position x="836" y="584" width="107" height="110"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="false" protected="false" private="false"/>      
+      <operations public="true" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <nesting>    
+    <source project="gt-arcsde" name="org.geotools.arcsde.gce.TileReader" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/TileReader.java" binary="false"/>    
+    <target project="gt-arcsde" name="org.geotools.arcsde.gce.TileReader.TileInfo" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/TileReader.java" binary="false"/>  
+  </nesting>  
+  <association>    
+    <source project="gt-arcsde" name="org.geotools.arcsde.gce.PromotingTileReader" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/PromotingTileReader.java" binary="false" navigable="false">      
+      <attribute name="noData"/>      
+      <multiplicity minimum="0" maximum="1"/>    
+    </source>    
+    <target project="gt-arcsde" name="org.geotools.arcsde.gce.BitmaskToNoDataConverter" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/BitmaskToNoDataConverter.java" binary="false" 
+      navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association>    
+    <source project="gt-arcsde" name="org.geotools.arcsde.gce.PromotingTileReader" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/PromotingTileReader.java" binary="false" navigable="false">      
+      <attribute name="nativeReader"/>      
+      <multiplicity minimum="0" maximum="1"/>    
+    </source>    
+    <target project="gt-arcsde" name="org.geotools.arcsde.gce.TileReader" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/TileReader.java" binary="false" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <realization>    
+    <source project="gt-arcsde" name="org.geotools.arcsde.gce.PromotingTileReader" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/PromotingTileReader.java" binary="false"/>    
+    <target project="gt-arcsde" name="org.geotools.arcsde.gce.TileReader" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/TileReader.java" binary="false"/>  
+  </realization>  
+  <realization>    
+    <source project="gt-arcsde" name="org.geotools.arcsde.gce.NativeTileReader" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/NativeTileReader.java" binary="false"/>    
+    <target project="gt-arcsde" name="org.geotools.arcsde.gce.TileReader" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/TileReader.java" binary="false"/>  
+  </realization>  
+  <nesting>    
+    <source project="gt-arcsde" name="org.geotools.arcsde.gce.PromotingTileReader" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/PromotingTileReader.java" binary="false"/>    
+    <target project="gt-arcsde" name="org.geotools.arcsde.gce.PromotingTileReader.SampleDepthPromoter" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/PromotingTileReader.java" binary="false"/>  
+  </nesting>  
+  <association>    
+    <source project="gt-arcsde" name="org.geotools.arcsde.gce.PromotingTileReader" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/PromotingTileReader.java" binary="false" navigable="false">      
+      <attribute name="promoter"/>      
+      <multiplicity minimum="0" maximum="1"/>    
+    </source>    
+    <target project="gt-arcsde" name="org.geotools.arcsde.gce.PromotingTileReader.SampleDepthPromoter" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/PromotingTileReader.java" binary="false" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <nesting>    
+    <source project="gt-arcsde" name="org.geotools.arcsde.gce.DefaultTiledRasterReader" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/DefaultTiledRasterReader.java" binary="false"/>    
+    <target project="gt-arcsde" name="org.geotools.arcsde.gce.DefaultTiledRasterReader.FetchRasterCommand" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/DefaultTiledRasterReader.java" binary="false"/>  
+  </nesting>  
+  <generalization>    
+    <source project="gt-arcsde" name="org.geotools.arcsde.gce.PromotingTileReader.UcharToUshort" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/PromotingTileReader.java" binary="false"/>    
+    <target project="gt-arcsde" name="org.geotools.arcsde.gce.PromotingTileReader.SampleDepthPromoter" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/PromotingTileReader.java" binary="false"/>  
+  </generalization>  
+  <nesting>    
+    <bendpoint x="1307" y="322"/>    
+    <source project="gt-arcsde" name="org.geotools.arcsde.gce.PromotingTileReader" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/PromotingTileReader.java" binary="false"/>    
+    <target project="gt-arcsde" name="org.geotools.arcsde.gce.PromotingTileReader.OneBitToUchar" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/PromotingTileReader.java" binary="false"/>  
+  </nesting>  
+  <nesting>    
+    <source project="gt-arcsde" name="org.geotools.arcsde.gce.BitmaskToNoDataConverter" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/BitmaskToNoDataConverter.java" binary="false"/>    
+    <target project="gt-arcsde" name="org.geotools.arcsde.gce.BitmaskToNoDataConverter.Unsigned8bitConverter" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/BitmaskToNoDataConverter.java" binary="false"/>  
+  </nesting>  
+  <nesting>    
+    <bendpoint x="992" y="322"/>    
+    <source project="gt-arcsde" name="org.geotools.arcsde.gce.PromotingTileReader" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/PromotingTileReader.java" binary="false"/>    
+    <target project="gt-arcsde" name="org.geotools.arcsde.gce.PromotingTileReader.ShortToInt" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/PromotingTileReader.java" binary="false"/>  
+  </nesting>  
+  <association>    
+    <source project="gt-arcsde" name="org.geotools.arcsde.gce.NativeTileReader" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/NativeTileReader.java" binary="false" navigable="false">      
+      <attribute name="noData"/>      
+      <multiplicity minimum="0" maximum="1"/>    
+    </source>    
+    <target project="gt-arcsde" name="org.geotools.arcsde.gce.BitmaskToNoDataConverter" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/BitmaskToNoDataConverter.java" binary="false" 
+      navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association>    
+    <source project="gt-arcsde" name="org.geotools.arcsde.gce.ArcSDETiledImageInputStream" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/ArcSDETiledImageInputStream.java" binary="false" 
+      navigable="false">      
+      <attribute name="tileReader"/>      
+      <multiplicity minimum="0" maximum="1"/>    
+    </source>    
+    <target project="gt-arcsde" name="org.geotools.arcsde.gce.TileReader" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/TileReader.java" binary="false" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <dependency>    
+    <source project="gt-arcsde" name="org.geotools.arcsde.gce.ArcSDEGridCoverage2DReaderJAI" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/ArcSDEGridCoverage2DReaderJAI.java" binary="false"/>    
+    <target project="gt-arcsde" name="org.geotools.arcsde.gce.TiledRasterReader" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/TiledRasterReader.java" binary="false"/>  
+  </dependency>  
+  <generalization>    
+    <source project="gt-arcsde" name="org.geotools.arcsde.gce.PromotingTileReader.OneBitToUchar" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/PromotingTileReader.java" binary="false"/>    
+    <target project="gt-arcsde" name="org.geotools.arcsde.gce.PromotingTileReader.SampleDepthPromoter" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/PromotingTileReader.java" binary="false"/>  
+  </generalization>  
+  <association>    
+    <source project="gt-arcsde" name="org.geotools.arcsde.gce.NativeTileReader" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/NativeTileReader.java" binary="false" navigable="false">      
+      <attribute name="tileFetchCommand"/>      
+      <multiplicity minimum="0" maximum="1"/>    
+    </source>    
+    <target project="gt-arcsde" name="org.geotools.arcsde.gce.NativeTileReader.TileFetchCommand" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/NativeTileReader.java" binary="false" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization>    
+    <source project="gt-arcsde" name="org.geotools.arcsde.gce.PromotingTileReader.ShortToInt" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/PromotingTileReader.java" binary="false"/>    
+    <target project="gt-arcsde" name="org.geotools.arcsde.gce.PromotingTileReader.SampleDepthPromoter" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/PromotingTileReader.java" binary="false"/>  
+  </generalization>  
+  <association>    
+    <source project="gt-arcsde" name="org.geotools.arcsde.gce.ArcSDERasterFormat" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/ArcSDERasterFormat.java" binary="false" navigable="false">      
+      <attribute name="instance"/>      
+      <multiplicity minimum="0" maximum="1"/>    
+    </source>    
+    <target project="gt-arcsde" name="org.geotools.arcsde.gce.ArcSDERasterFormat" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/ArcSDERasterFormat.java" binary="false" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <realization>    
+    <source project="gt-arcsde" name="org.geotools.arcsde.gce.DefaultTiledRasterReader" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/DefaultTiledRasterReader.java" binary="false"/>    
+    <target project="gt-arcsde" name="org.geotools.arcsde.gce.TiledRasterReader" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/TiledRasterReader.java" binary="false"/>  
+  </realization>  
+  <association>    
+    <source project="gt-arcsde" name="org.geotools.arcsde.gce.ArcSDEGridCoverage2DReaderJAI" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/ArcSDEGridCoverage2DReaderJAI.java" binary="false" 
+      navigable="false">      
+      <attribute name="rasterReaderFactory"/>      
+      <multiplicity minimum="0" maximum="1"/>    
+    </source>    
+    <target project="gt-arcsde" name="org.geotools.arcsde.gce.RasterReaderFactory" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/RasterReaderFactory.java" binary="false" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <nesting>    
+    <source project="gt-arcsde" name="org.geotools.arcsde.gce.NativeTileReader" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/NativeTileReader.java" binary="false"/>    
+    <target project="gt-arcsde" name="org.geotools.arcsde.gce.NativeTileReader.TileFetchCommand" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/NativeTileReader.java" binary="false"/>  
+  </nesting>  
+  <generalization>    
+    <source project="gt-arcsde" name="org.geotools.arcsde.gce.BitmaskToNoDataConverter.Unsigned8bitConverter" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/BitmaskToNoDataConverter.java" binary="false"/>    
+    <target project="gt-arcsde" name="org.geotools.arcsde.gce.BitmaskToNoDataConverter" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/BitmaskToNoDataConverter.java" binary="false"/>  
+  </generalization>  
+  <association>    
+    <source project="gt-arcsde" name="org.geotools.arcsde.gce.ArcSDEGridCoverage2DReaderJAI" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/ArcSDEGridCoverage2DReaderJAI.java" binary="false" 
+      navigable="false">      
+      <attribute name="parent"/>      
+      <multiplicity minimum="0" maximum="1"/>    
+    </source>    
+    <target project="gt-arcsde" name="org.geotools.arcsde.gce.ArcSDERasterFormat" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/ArcSDERasterFormat.java" binary="false" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <dependency>    
+    <source project="gt-arcsde" name="org.geotools.arcsde.gce.ArcSDERasterFormat" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/ArcSDERasterFormat.java" binary="false"/>    
+    <target project="gt-arcsde" name="org.geotools.arcsde.gce.ArcSDEGridCoverage2DReaderJAI" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/ArcSDEGridCoverage2DReaderJAI.java" binary="false"/>  
+  </dependency>  
+  <association>    
+    <source project="gt-arcsde" name="org.geotools.arcsde.gce.BitmaskToNoDataConverter" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/BitmaskToNoDataConverter.java" binary="false" 
+      navigable="false">      
+      <attribute name="NO_ACTION_CONVERTER"/>      
+      <multiplicity minimum="0" maximum="1"/>    
+    </source>    
+    <target project="gt-arcsde" name="org.geotools.arcsde.gce.BitmaskToNoDataConverter" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/BitmaskToNoDataConverter.java" binary="false" 
+      navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association>    
+    <source project="gt-arcsde" name="org.geotools.arcsde.gce.DefaultTiledRasterReader" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/DefaultTiledRasterReader.java" binary="false" 
+      navigable="false">      
+      <attribute name="fetchCommand"/>      
+      <multiplicity minimum="0" maximum="1"/>    
+    </source>    
+    <target project="gt-arcsde" name="org.geotools.arcsde.gce.DefaultTiledRasterReader.FetchRasterCommand" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/DefaultTiledRasterReader.java" binary="false" 
+      navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <nesting>    
+    <bendpoint x="1328" y="322"/>    
+    <source project="gt-arcsde" name="org.geotools.arcsde.gce.PromotingTileReader" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/PromotingTileReader.java" binary="false"/>    
+    <target project="gt-arcsde" name="org.geotools.arcsde.gce.PromotingTileReader.UcharToUshort" 
+      file="/gt-arcsde/src/main/java/org/geotools/arcsde/gce/PromotingTileReader.java" binary="false"/>  
+  </nesting>  
+  <classifier-display autosize="true" package="true" initial-value="false" signature="true" visibility="true">    
+    <attributes public="true" package="false" protected="false" private="false"/>    
+    <operations public="true" package="false" protected="false" private="false"/>  
+  </classifier-display>  
+  <association-display labels="true" multiplicity="true"/>
+</class-diagram>
