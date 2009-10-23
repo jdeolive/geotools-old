@@ -237,10 +237,9 @@ public class StyleLab {
 
         mark.setFill(styleFactory.createFill(filterFactory.literal(Color.CYAN)));
 
-        mark.setSize(filterFactory.literal(3));
-
         gr.graphicalSymbols().clear();
         gr.graphicalSymbols().add(mark);
+        gr.setSize(filterFactory.literal(5));
 
         /*
          * Setting the geometryPropertyName arg to null signals that we want to
