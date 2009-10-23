@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 import java.util.ResourceBundle;
-import javax.measure.unit.Unit;
 import javax.swing.ImageIcon;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
@@ -40,6 +39,7 @@ import org.geotools.factory.GeoTools;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.geometry.DirectPosition2D;
+import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.MapLayer;
 import org.geotools.swing.JTextReporter;
@@ -67,6 +67,8 @@ public class InfoTool extends CursorTool implements TextReporterListener {
 
     private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/swing/Text");
 
+    private static GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory(null);
+
     /** The tool name */
     public static final String TOOL_NAME = stringRes.getString("tool_name_info");
     /** Tool tip text */
@@ -79,12 +81,12 @@ public class InfoTool extends CursorTool implements TextReporterListener {
     public static final String ICON_IMAGE = "/org/geotools/swing/icons/mActionIdentify.png";
 
     /**
-     * Default distance fraction. When the user clicks on the map, this tool
-     * searches for point and line features that are within a given distance
-     * (in world units) of the mouse location. That threshold distance is set
-     * as the maximum map side length multiplied by the distance fraction.
+     * Default distance fraction used with line and point features.
+     * When the user clicks on the map, this tool searches for features within
+     * a rectangle of width w centred on the mouse location, where w is the
+     * average map side length multiplied by the value of this constant.
      */
-    public static final double DEFAULT_DISTANCE_FRACTION = 0.04d;
+    public static final double DEFAULT_DISTANCE_FRACTION = 0.01d;
 
     private Cursor cursor;
     private FilterFactory2 filterFactory;
@@ -112,15 +114,6 @@ public class InfoTool extends CursorTool implements TextReporterListener {
     @Override
     public void onMouseClicked(MapMouseEvent ev) {
         DirectPosition2D pos = ev.getMapPosition();
-        Unit<?> uom = getMapPane().getMapContext().getCoordinateReferenceSystem().getCoordinateSystem().getAxis(0).getUnit();
-
-        ReferencedEnvelope mapEnv = getMapPane().getDisplayArea();
-        double len = Math.max(mapEnv.getWidth(), mapEnv.getHeight());
-        double thresholdDistance = len * DEFAULT_DISTANCE_FRACTION;
-        String uomName = uom.toString();
-
-        Geometry posGeom = geomFactory.createPoint(new Coordinate(pos.x, pos.y));
-
         report(pos);
 
         for (MapLayer layer : getMapPane().getMapContext().getLayers()) {
@@ -162,6 +155,9 @@ public class InfoTool extends CursorTool implements TextReporterListener {
                         }
 
                     } else {
+                        /*
+                         * Handling a vector layer
+                         */
                         Filter filter = null;
                         GeometryDescriptor geomDesc = layer.getFeatureSource().getSchema().getGeometryDescriptor();
                         String attrName = geomDesc.getLocalName();
@@ -170,6 +166,10 @@ public class InfoTool extends CursorTool implements TextReporterListener {
                         if (Polygon.class.isAssignableFrom(geomClass) ||
                                 MultiPolygon.class.isAssignableFrom(geomClass)) {
                             /*
+                             * Polygon features - use an intersects filter
+                             */
+                            Geometry posGeom = geometryFactory.createPoint(new Coordinate(pos.x, pos.y));
+                            /*
                              * For polygons we test if they contain mouse location
                              */
                             filter = filterFactory.intersects(
@@ -177,15 +177,20 @@ public class InfoTool extends CursorTool implements TextReporterListener {
                                     filterFactory.literal(posGeom));
                         } else {
                             /*
-                             * For point and line features we test if the are near
-                             * the mouse location
+                             * Line or point features - use a bounding box filter
                              */
-                            filter = filterFactory.dwithin(
-                                    filterFactory.property(attrName),
-                                    filterFactory.literal(posGeom),
-                                    thresholdDistance, uomName);
-                        }
+                            ReferencedEnvelope mapEnv = getMapPane().getDisplayArea();
+                            double searchWidth =  DEFAULT_DISTANCE_FRACTION * (mapEnv.getWidth() + mapEnv.getHeight()) / 2;
 
+                            ReferencedEnvelope searchBounds = new ReferencedEnvelope(
+                                    pos.x - searchWidth,
+                                    pos.x + searchWidth,
+                                    pos.y - searchWidth,
+                                    pos.y + searchWidth,
+                                    getMapPane().getMapContext().getCoordinateReferenceSystem());
+
+                            filter = filterFactory.bbox(filterFactory.property(attrName), searchBounds);
+                        }
                         FeatureCollection<? extends FeatureType, ? extends Feature> selectedFeatures =
                                 layer.getFeatureSource().getFeatures(filter);
 
