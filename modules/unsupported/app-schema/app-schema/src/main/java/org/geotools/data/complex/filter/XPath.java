@@ -130,6 +130,21 @@ public class XPath {
             }
             return sb.toString();
         }
+        
+        public StepList subList(int fromIndex, int toIndex) {
+            if (fromIndex < 0)
+                throw new IndexOutOfBoundsException("fromIndex = " + fromIndex);
+            if (toIndex > size())
+                throw new IndexOutOfBoundsException("toIndex = " + toIndex);
+            if (fromIndex > toIndex)
+                throw new IllegalArgumentException("fromIndex(" + fromIndex +
+                                                   ") > toIndex(" + toIndex + ")");
+            StepList subList = new StepList();
+            for (int i = fromIndex; i < toIndex; i++) {
+                subList.add(this.get(i));
+            }
+            return subList;
+        }
 
         public StepList clone() {
             StepList copy = new StepList();
