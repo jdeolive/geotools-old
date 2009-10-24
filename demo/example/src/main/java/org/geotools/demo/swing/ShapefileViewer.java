@@ -26,12 +26,9 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ResourceBundle;
-import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.filechooser.FileFilter;
 
 import org.geotools.data.DataStore;
 import org.geotools.data.DefaultRepository;
@@ -48,6 +45,7 @@ import org.geotools.styling.Style;
 import org.geotools.styling.StyleFactory;
 import org.geotools.swing.JMapFrame;
 import org.geotools.swing.JMapPane;
+import org.geotools.swing.data.JFileDataStoreChooser;
 import org.geotools.swing.styling.JSimpleStyleDialog;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -64,8 +62,6 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  */
 public class ShapefileViewer extends JMapFrame {
 
-    private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/demo/mapwidget/MapWidget");
-
     private DefaultRepository repository = new DefaultRepository();
     private MapContext context;
     private String title;
@@ -77,13 +73,13 @@ public class ShapefileViewer extends JMapFrame {
      * @param args ignored presently
      */
     public static void main(String[] args) {
-        final ShapefileViewer widget = new ShapefileViewer(stringRes.getString("MapWidget_demo_title"));
+        final ShapefileViewer viewer = new ShapefileViewer("Shapefile viewer");
 
         File dataDir = new File(ShapefileViewer.class.getResource("/data").getPath());
-        widget.setWorkingDir(dataDir);
+        viewer.setWorkingDir(dataDir);
 
-        widget.setSize(800, 600);
-        widget.setVisible(true);
+        viewer.setSize(800, 600);
+        viewer.setVisible(true);
     }
 
     /**
@@ -144,7 +140,7 @@ public class ShapefileViewer extends JMapFrame {
      */
     public void setWorkingDir(File cwd) {
         if (!cwd.isDirectory()) {
-            throw new IllegalArgumentException(stringRes.getString("arg_not_dir_error"));
+            throw new IllegalArgumentException("The argument is not a directory: " + cwd.getAbsolutePath());
         }
 
         this.cwd = cwd;
@@ -157,43 +153,10 @@ public class ShapefileViewer extends JMapFrame {
      * argument of the latter method set to {@code true}.
      */
     public void loadShapefile() throws IOException {
-        File file = showOpenShapefileDialog();
+        File file = JFileDataStoreChooser.showOpenFile("shp", null);
         if (file != null) {
-        	addShapefile(file.toURL(), true);
+            addShapefile(file.toURL(), true);
             setWorkingDir(file.getParentFile());
-        }
-    }
-
-    /**
-     * Display an open file dialog for shapefiles.
-     *
-     * @return the selected file; or null if none was selected
-     */
-    public File showOpenShapefileDialog() {
-        // Note: cwd == NULL is safe here
-        JFileChooser chooser = new JFileChooser(cwd);
-        
-        chooser.setFileFilter(new FileFilter() {
-
-            @Override
-            public boolean accept(File f) {
-                if (f.isDirectory()) {
-                    return true;
-                }
-
-                return (f.getName().endsWith(".shp") || f.getName().endsWith(".SHP"));
-            }
-
-            @Override
-            public String getDescription() {
-                return stringRes.getString("shape_files");
-            }
-        });
-
-        if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            return chooser.getSelectedFile();
-        } else {
-            return null;
         }
     }
 
@@ -220,7 +183,7 @@ public class ShapefileViewer extends JMapFrame {
      */
     public boolean addShapefile(URL shapefileURL, boolean defaultStyle) throws IOException {
         if (shapefileURL == null) {
-            throw new IllegalArgumentException(stringRes.getString("null_arg_error"));
+            throw new IllegalArgumentException("shapefileURL must not me null");
         }
         ShapefileDataStore dstore = null;
         
@@ -297,7 +260,7 @@ public class ShapefileViewer extends JMapFrame {
      */
     public boolean addShapefile(URL shapefileURL, Style style) throws IOException {
         if (shapefileURL == null || style == null) {
-            throw new IllegalArgumentException(stringRes.getString("null_arg_error"));
+            throw new IllegalArgumentException("shapefileURL must not be null");
         }
         ShapefileDataStore dstore = null;
         
