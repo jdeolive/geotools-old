@@ -14,14 +14,9 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.data.postgis;
+package org.geotools.data.oracle;
 
-import static org.geotools.data.postgis.PostgisNGDataStoreFactory.PORT;
-import static org.geotools.jdbc.JDBCDataStoreFactory.DATABASE;
-import static org.geotools.jdbc.JDBCDataStoreFactory.DBTYPE;
-import static org.geotools.jdbc.JDBCDataStoreFactory.HOST;
-import static org.geotools.jdbc.JDBCDataStoreFactory.PASSWD;
-import static org.geotools.jdbc.JDBCDataStoreFactory.USER;
+import static org.geotools.jdbc.JDBCDataStoreFactory.*;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -32,24 +27,24 @@ import org.geotools.jdbc.JDBCDataStore;
 import org.geotools.jdbc.JDBCTestSetup;
 import org.geotools.jdbc.JDBCTestSupport;
 
-public class PostgisNGDataStoreFactoryTest extends JDBCTestSupport {
+public class OracleNGDataStoreFactoryTest extends JDBCTestSupport {
 
     @Override
     protected JDBCTestSetup createTestSetup() {
-        return new PostGISTestSetup();
+        return new OracleTestSetup();
     }
     
     public void testCreateConnection() throws Exception {
-        PostgisNGDataStoreFactory factory = new PostgisNGDataStoreFactory();
+        OracleNGDataStoreFactory factory = new OracleNGDataStoreFactory();
         checkCreateConnection(factory, factory.getDatabaseID());
     }
     
-    public void testCreateConnectionWithOldId() throws Exception {
-        PostgisNGDataStoreFactory factory = new PostgisNGDataStoreFactory();
-        checkCreateConnection(factory, "postgis");
+    public void testCaptureOldDatastoreConfig() throws Exception {
+        OracleNGDataStoreFactory factory = new OracleNGDataStoreFactory();
+        checkCreateConnection(factory, "oracle");
     }
-    
-    private void checkCreateConnection(PostgisNGDataStoreFactory factory, String dbtype) throws IOException {
+
+    private void checkCreateConnection(OracleNGDataStoreFactory factory, String dbtype) throws IOException {
         Properties db = new Properties();
         db.load(getClass().getResourceAsStream("factory.properties"));
         Map<String, Object> params = new HashMap<String, Object>();
@@ -66,7 +61,7 @@ public class PostgisNGDataStoreFactoryTest extends JDBCTestSupport {
         assertNotNull(store);
         try {
             // check dialect
-            assertTrue(store.getSQLDialect() instanceof PostGISDialect);
+            assertTrue(store.getSQLDialect() instanceof OracleDialect);
             // force connection usage
             assertNotNull(store.getSchema(tname("ft1")));
         } finally {

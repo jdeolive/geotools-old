@@ -27,7 +27,7 @@ import org.geotools.jdbc.SQLDialect;
 public class PostgisNGDataStoreFactory extends JDBCDataStoreFactory {
     
     /** parameter for database type */
-    public static final Param DBTYPE = new Param("dbtype", String.class, "Type", true, "postgisng");
+    public static final Param DBTYPE = new Param("dbtype", String.class, "Type", true, "postgis");
     
     /** parameter for namespace of the datastore */
     public static final Param LOOSEBBOX = new Param("Loose bbox", Boolean.class, "Perform only primary filter on bbox", false, Boolean.TRUE);
@@ -65,6 +65,27 @@ public class PostgisNGDataStoreFactory extends JDBCDataStoreFactory {
     @Override
     protected String getDriverClassName() {
         return "org.postgresql.Driver";
+    }
+    
+    @Override
+    protected boolean checkDBType(Map params) {
+        if (super.checkDBType(params)) {
+          //check for old factory
+            try {
+                Class.forName("org.geotools.data.postgis.PostgisDataStoreFactory");
+                
+                //old factory is around, let it handle the connection
+                return false;
+            } 
+            catch(ClassNotFoundException e) {
+                //old factory is not around, handle this connection
+                return true;
+            }
+        }
+        else {
+            //check for postgisng as well
+            return checkDBType(params, "postgisng");
+        }
     }
     
     protected JDBCDataStore createDataStoreInternal(JDBCDataStore dataStore, Map params)

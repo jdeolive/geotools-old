@@ -35,7 +35,7 @@ public class OracleNGDataStoreFactory extends JDBCDataStoreFactory {
     private static final String JDBC_PATH = "jdbc:oracle:thin:@";
     
     /** parameter for database type */
-    public static final Param DBTYPE = new Param("dbtype", String.class, "Type", true, "Oracle");
+    public static final Param DBTYPE = new Param("dbtype", String.class, "Type", true, "oracle");
 
     /** parameter for database port */
     public static final Param PORT = new Param("port", Integer.class, "Port", true, 1521);
@@ -65,6 +65,27 @@ public class OracleNGDataStoreFactory extends JDBCDataStoreFactory {
     @Override
     protected String getDriverClassName() {
         return "oracle.jdbc.driver.OracleDriver";
+    }
+    
+    @Override
+    protected boolean checkDBType(Map params) {
+        if (super.checkDBType(params)) {
+            try {
+                //check for old factory
+                Class.forName("org.geotools.data.oracle.OracleDataStoreFactory");
+                
+                //it is around, let it handle this connection
+                return false;
+            } 
+            catch(ClassNotFoundException e) {
+                //old factory not around, pick up the connection
+                return true;
+            }
+        }
+        else {
+            //check for the old id
+            return checkDBType(params, "Oracle");
+        }
     }
     
     protected JDBCDataStore createDataStoreInternal(JDBCDataStore dataStore, Map params)

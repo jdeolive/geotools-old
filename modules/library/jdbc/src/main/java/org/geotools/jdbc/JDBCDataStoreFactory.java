@@ -106,12 +106,20 @@ public abstract class JDBCDataStoreFactory extends AbstractDataStoreFactory {
             return false; // was not in agreement with getParametersInfo
         }
 
+        return checkDBType(params);
+    }
+    
+    protected boolean checkDBType(Map params) {
+        return checkDBType(params, getDatabaseID());
+    }
+    
+    protected final boolean checkDBType(Map params, String dbtype) {
         String type;
 
         try {
             type = (String) DBTYPE.lookUp(params);
 
-            if (getDatabaseID().equals(type)) {
+            if (dbtype.equals(type)) {
                 return true;
             }
 
