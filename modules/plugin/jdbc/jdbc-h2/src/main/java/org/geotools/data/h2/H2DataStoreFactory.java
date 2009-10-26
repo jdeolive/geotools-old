@@ -47,6 +47,10 @@ public class H2DataStoreFactory extends JDBCDataStoreFactory {
     public static final Param ASSOCIATIONS = new Param("Associations", Boolean.class,
             "Associations", false, Boolean.FALSE);
 
+    /** optional user parameter */
+    public static final Param USER = new Param(JDBCDataStoreFactory.USER.key, JDBCDataStoreFactory.USER.type, 
+            JDBCDataStoreFactory.USER.description, false, JDBCDataStoreFactory.USER.sample);
+    
     /**
      * base location to store h2 database files
      */
@@ -74,10 +78,16 @@ public class H2DataStoreFactory extends JDBCDataStoreFactory {
         //remove unneccessary parameters
         parameters.remove(HOST.key);
         parameters.remove(PORT.key);
-        parameters.remove(SCHEMA.key);
-        parameters.remove(USER.key);
+        
+        //remove user and password temporarily in order to make username optional
+        parameters.remove(JDBCDataStoreFactory.USER.key);
         parameters.remove(PASSWD.key);
-
+        
+        
+        parameters.put(USER.key, USER);
+        parameters.put(PASSWD.key, PASSWD);
+        
+        //add user 
         //add additional parameters
         parameters.put(ASSOCIATIONS.key, ASSOCIATIONS);
         parameters.put(DBTYPE.key, DBTYPE);
@@ -116,7 +126,16 @@ public class H2DataStoreFactory extends JDBCDataStoreFactory {
             String location = new File(baseDirectory, database).getAbsolutePath();
             dataSource.setUrl("jdbc:h2:file:" + location);
         }
-
+        
+        String username = (String) USER.lookUp(params);
+        if (username != null) {
+            dataSource.setUsername(username);
+        }
+        String password = (String) PASSWD.lookUp(params);
+        if (password != null) {
+            dataSource.setPassword(password);
+        }
+        
         dataSource.setDriverClassName("org.h2.Driver");
         dataSource.setPoolPreparedStatements(false);
 
