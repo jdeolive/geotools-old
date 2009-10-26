@@ -56,14 +56,34 @@ public class MapPaneEvent extends EventObject {
          * include both changes in bounds and in the
          * coordinate reference system.
          */
-        DISPLAY_AREA_CHANGED;
+        DISPLAY_AREA_CHANGED,
+
+        /**
+         * The map pane has started rendering features.
+         */
+        RENDERING_STARTED,
+
+        /**
+         * The map pane has stopped rendering features.
+         */
+        RENDERING_STOPPED,
+
+        /**
+         * The map pane is rendering features. The event
+         * will carry data that can be retrieved as a floating
+         * point value between 0 and 1.
+         */
+        RENDERING_PROGRESS;
     }
 
     /** Type of mappane event */
     private Type type;
 
+    /** Data associated with some event types */
+    private Object data;
+
     /**
-     * Constructor
+     * Constructor for an event with no associated data
      *
      * @param source the map pane issuing this event
      * @param type the type of event
@@ -74,6 +94,20 @@ public class MapPaneEvent extends EventObject {
     }
 
     /**
+     * Constructor for an event with associated data. The new event
+     * object takes ownership of the data object.
+     *
+     * @param source the map pane issuing this event
+     * @param type the type of event
+     * @param data the event data
+     */
+    public MapPaneEvent(JMapPane source, Type type, Object data) {
+        super(source);
+        this.type = type;
+        this.data = data;
+    }
+
+    /**
      * Get the type of this event
      * @return event type 
      */
@@ -81,4 +115,12 @@ public class MapPaneEvent extends EventObject {
         return type;
     }
 
+    /**
+     * Get the data associated with this event, if any
+     *
+     * @return event data or {@code null} if not applicable
+     */
+    public Object getData() {
+        return data;
+    }
 }

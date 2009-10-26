@@ -18,6 +18,7 @@ package org.geotools.swing;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Cursor;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -64,12 +65,18 @@ import org.geotools.renderer.lite.StreamingRenderer;
 import org.opengis.geometry.Envelope;
 
 /**
- * A simple map display container that works with a GTRenderer and
- * MapContext to display features. Supports the use of tool classes
+ * A map display pane that works with a GTRenderer and
+ * MapContext to display features. It supports the use of tool classes
  * to implement, for example, mouse-controlled zooming and panning.
- * 
- * Based on original code by Ian Turton. This version does not yet
- * support selection and highlighting of features.
+ * <p>
+ * Rendering is performed on a background thread and is managed by
+ * the {@linkplain RenderingExecutor} class.
+ * <p>
+ * Adapted from original code by Ian Turton.
+ *
+ * @see JMapFrame
+ * @see MapPaneListener
+ * @see CursorTool
  * 
  * @author Michael Bedward
  * @author Ian Turton
@@ -157,10 +164,12 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
             }
         }
     }
+
     private DragBox dragBox;
     private MapContext context;
     private GTRenderer renderer;
     private LabelCache labelCache;
+    private RenderingExecutor renderingExecutor;
     private MapToolManager toolManager;
     private MapLayerTable layerTable;
     private Set<MapPaneListener> listeners = new HashSet<MapPaneListener>();
@@ -168,10 +177,13 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
     private AffineTransform screenToWorld;
     private Rectangle curPaintArea;
     private BufferedImage baseImage;
+    private Graphics2D baseImageGraphics;
     private Point imageOrigin;
     private boolean redrawBaseImage;
     private boolean needNewBaseImage;
     private boolean baseImageMoved;
+    private boolean displayAreaChanged;
+
 
     /** 
      * Constructor - creates an instance of JMapPane with no map 
@@ -195,6 +207,7 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
         needNewBaseImage = true;
         redrawBaseImage = true;
         baseImageMoved = false;
+        displayAreaChanged = false;
 
         /*
          * We use a Timer object to avoid rendering delays and
@@ -216,6 +229,8 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
 
         setRenderer(renderer);
         setMapContext(context);
+
+        renderingExecutor = new RenderingExecutor(this);
 
         toolManager = new MapToolManager(this);
 
@@ -250,6 +265,7 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
             @Override
             public void componentResized(ComponentEvent ev) {
                 acceptRepaintRequests = false;
+                renderingExecutor.cancelTask();
                 resizeTimer.restart();
             }
         });
@@ -386,26 +402,29 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
      * @param renderer the renderer to use
      */
     public void setRenderer(GTRenderer renderer) {
-        Map<Object, Object> hints;
-        if (renderer instanceof StreamingRenderer) {
-            hints = renderer.getRendererHints();
-            if (hints == null) {
-                hints = new HashMap<Object, Object>();
+        if (renderer != null) {
+            Map<Object, Object> hints;
+            if (renderer instanceof StreamingRenderer) {
+                hints = renderer.getRendererHints();
+                if (hints == null) {
+                    hints = new HashMap<Object, Object>();
+                }
+                if (hints.containsKey(StreamingRenderer.LABEL_CACHE_KEY)) {
+                    labelCache = (LabelCache) hints.get(StreamingRenderer.LABEL_CACHE_KEY);
+                } else {
+                    labelCache = new LabelCacheImpl();
+                    hints.put(StreamingRenderer.LABEL_CACHE_KEY, labelCache);
+                }
+                renderer.setRendererHints(hints);
+
+                if (this.context != null) {
+                    renderer.setContext(this.context);
+                }
+
             }
-            if (hints.containsKey(StreamingRenderer.LABEL_CACHE_KEY)) {
-                labelCache = (LabelCache) hints.get(StreamingRenderer.LABEL_CACHE_KEY);
-            } else {
-                labelCache = new LabelCacheImpl();
-                hints.put(StreamingRenderer.LABEL_CACHE_KEY, labelCache);
-            }
-            renderer.setRendererHints(hints);
         }
 
         this.renderer = renderer;
-
-        if (this.context != null) {
-            this.renderer.setContext(this.context);
-        }
     }
 
     /**
@@ -522,7 +541,7 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
                 pendingDisplayArea = new ReferencedEnvelope(envelope);
             } else {
                 doSetDisplayArea(envelope);
-                labelCache.clear();
+                displayAreaChanged = true;
                 repaint();
             }
             
@@ -760,6 +779,8 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
      */
     @Override
     protected void paintComponent(Graphics g) {
+        System.out.println("paintComponent");
+
         super.paintComponent(g);
 
         if (acceptRepaintRequests) {
@@ -767,17 +788,23 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
             if (context == null || renderer == null) {
                 return;
             }
-            if (curPaintArea == null ){
+
+            if (curPaintArea == null ) {
                 return;
             }
+
             if (needNewBaseImage) {
                 baseImage = new BufferedImage(curPaintArea.width + 1, curPaintArea.height + 1, BufferedImage.TYPE_INT_ARGB);
+                if (baseImageGraphics != null) {
+                    baseImageGraphics.dispose();
+                }
+                baseImageGraphics = baseImage.createGraphics();
                 needNewBaseImage = false;
                 redrawBaseImage = true;
                 labelCache.clear();
             }
 
-            ReferencedEnvelope mapAOI = context.getAreaOfInterest();
+            final ReferencedEnvelope mapAOI = context.getAreaOfInterest();
             if (mapAOI == null) {
                 return;
             }
@@ -788,14 +815,77 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
                     baseImageMoved = false;
                     labelCache.clear();
                 }
-                clearBaseImage();
-                Graphics2D baseGr = baseImage.createGraphics();
-                renderer.paint(baseGr, curPaintArea, mapAOI, worldToScreen);
+
+                if (renderingExecutor.submit(mapAOI, curPaintArea, baseImageGraphics)) {
+                    MapPaneEvent ev = new MapPaneEvent(this, MapPaneEvent.Type.RENDERING_STARTED);
+                    publishEvent(ev);
+
+                    clearBaseImage();
+
+                } else {
+                    onRenderingRejected();
+                }
+
             }
 
-            ((Graphics2D) g).drawImage(baseImage, imageOrigin.x, imageOrigin.y, this);
+            Graphics2D g2 = (Graphics2D) g;
+            g2.drawImage(baseImage, imageOrigin.x, imageOrigin.y, this);
             redrawBaseImage = true;
         }
+    }
+
+    /**
+     * Called by the {@linkplain JMapPane.RenderingTask} when rendering has been completed
+     * Publishes a {@linkplain MapPaneEvent} of type
+     * {@code MapPaneEvent.Type.RENDERING_STOPPED} to listeners.
+     *
+     * @see MapPaneListener#onRenderingStopped(org.geotools.swing.event.MapPaneEvent)
+     */
+    public void onRenderingCompleted() {
+        System.out.println("onRenderingCompleted");
+
+        if (displayAreaChanged) {
+            labelCache.clear();
+        }
+
+        Graphics2D paneGr = (Graphics2D) this.getGraphics();
+        paneGr.drawImage(baseImage, imageOrigin.x, imageOrigin.y, this);
+
+        MapPaneEvent ev = new MapPaneEvent(this, MapPaneEvent.Type.RENDERING_STOPPED);
+        publishEvent(ev);
+    }
+
+    /**
+     * Called by the {@linkplain JMapPane.RenderingTask} when rendering was cancelled.
+     * Publishes a {@linkplain MapPaneEvent} of type
+     * {@code MapPaneEvent.Type.RENDERING_STOPPED} to listeners.
+     *
+     * @see MapPaneListener#onRenderingStopped(org.geotools.swing.event.MapPaneEvent)
+     */
+    public void onRenderingCancelled() {
+        MapPaneEvent ev = new MapPaneEvent(this, MapPaneEvent.Type.RENDERING_STOPPED);
+        publishEvent(ev);
+    }
+
+    /**
+     * Called by the {@linkplain JMapPane.RenderingTask} when rendering failed.
+     * Publishes a {@linkplain MapPaneEvent} of type
+     * {@code MapPaneEvent.Type.RENDERING_STOPPED} to listeners.
+     *
+     * @see MapPaneListener#onRenderingStopped(org.geotools.swing.event.MapPaneEvent)
+     */
+    public void onRenderingFailed() {
+        MapPaneEvent ev = new MapPaneEvent(this, MapPaneEvent.Type.RENDERING_STOPPED);
+        publishEvent(ev);
+    }
+
+    /**
+     * Called when a rendering request has been rejected. This will be common, such as
+     * when the user pauses during drag-resizing fo the map pane. The base implementation
+     * does nothing. It is provided for sub-classes to override if required.
+     */
+    public void onRenderingRejected() {
+        // do nothing
     }
 
     /**
@@ -955,12 +1045,13 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
      * object each time we need to redraw the image
      */
     private void clearBaseImage() {
-        assert(baseImage != null);
-        Graphics2D g2D = baseImage.createGraphics();
-        g2D.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR, 0.0f));
+        assert(baseImage != null && baseImageGraphics != null);
+        Composite composite = baseImageGraphics.getComposite();
+        baseImageGraphics.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR, 0.0f));
         Rectangle2D.Double rect = new Rectangle2D.Double(
                 0, 0, baseImage.getWidth(), baseImage.getHeight());
-        g2D.fill(rect);
+        baseImageGraphics.fill(rect);
+        baseImageGraphics.setComposite(composite);
     }
 
     /**
@@ -986,6 +1077,18 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
 
                 case DISPLAY_AREA_CHANGED:
                     listener.onDisplayAreaChanged(ev);
+                    break;
+
+                case RENDERING_STARTED:
+                    listener.onRenderingStarted(ev);
+                    break;
+
+                case RENDERING_STOPPED:
+                    listener.onRenderingStopped(ev);
+                    break;
+
+                case RENDERING_PROGRESS:
+                    listener.onRenderingProgress(ev);
                     break;
             }
         }

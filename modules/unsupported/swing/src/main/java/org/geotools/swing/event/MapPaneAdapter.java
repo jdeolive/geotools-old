@@ -57,4 +57,28 @@ public class MapPaneAdapter implements MapPaneListener {
      * @param ev the event
      */
     public void onDisplayAreaChanged(MapPaneEvent ev) {}
+
+    /**
+     * Called by the map pane when it has started rendering features
+     *
+     * @param ev the event
+     */
+    public void onRenderingStarted(MapPaneEvent ev) {}
+
+    /**
+     * Called by the map pane when it has stopped rendering features
+     *
+     * @param ev the event
+     */
+    public void onRenderingStopped(MapPaneEvent ev) {}
+
+    /**
+     * Called by the map pane when it is rendering features. The
+     * event will be carrying data: a floating point value between
+     * 0 and 1 indicating rendering progress.
+     *
+     * @param ev the event
+     */
+    public void onRenderingProgress(MapPaneEvent ev) {}
+
 }

@@ -52,7 +52,7 @@ public class StatusBar extends JPanel {
     private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/swing/Text");
 
     /** Number of status bar spaces (text areas) */
-    public static final int NUM_SPACES = 3;
+    public static final int NUM_SPACES = 4;
 
     /** Index of the space used for mouse coordinates */
     public static final int COORDS_SPACE = 0;
@@ -60,7 +60,7 @@ public class StatusBar extends JPanel {
     /** Index of the space used for map bounds */
     public static final int BOUNDS_SPACE = 1;
 
-    /** Index of teh space used for the CRS */
+    /** Index of the space used for the CRS */
     public static final int CRS_SPACE = 2;
 
     private JMapPane mapPane;
@@ -69,6 +69,7 @@ public class StatusBar extends JPanel {
     private MapPaneAdapter mapPaneListener;
 
     private JLabel[] spaces;
+    private JLabel renderLabel;
 
     /**
      * Default constructor.
@@ -174,39 +175,56 @@ public class StatusBar extends JPanel {
      * the first space for map coordinates.
      */
     private void init() {
-        LayoutManager lm = new MigLayout("insets 0");
-        this.setLayout(lm);
-
-        spaces = new JLabel[NUM_SPACES];
-        Font font = Font.decode("Courier-12");
-
-        int fontH = getFontMetrics(font).getHeight();
-
         Rectangle2D rect;
         String constraint;
 
-        spaces[COORDS_SPACE] = new JLabel();
-        spaces[COORDS_SPACE].setFont(font);
+        LayoutManager lm = new MigLayout("insets 0");
+        this.setLayout(lm);
+
+        Font font = Font.decode("Courier-12");
+
+        renderLabel = new JLabel();
         rect = getFontMetrics(font).getStringBounds(
-                "  00000000.000 00000000.000", spaces[0].getGraphics());
+                "Rendering... ", renderLabel.getGraphics());
+
         constraint = String.format("width %d!, height %d!",
                 (int)rect.getWidth() + 10, (int)rect.getHeight() + 6);
+
+        add(renderLabel, constraint);
+
+        spaces = new JLabel[NUM_SPACES];
+
+        spaces[COORDS_SPACE] = new JLabel();
+        spaces[COORDS_SPACE].setFont(font);
+
+        rect = getFontMetrics(font).getStringBounds(
+                "  00000000.000 00000000.000", spaces[0].getGraphics());
+
+        constraint = String.format("width %d!, height %d!",
+                (int)rect.getWidth() + 10, (int)rect.getHeight() + 6);
+
         add(spaces[COORDS_SPACE], constraint);
 
         spaces[BOUNDS_SPACE] = new JLabel();
         spaces[BOUNDS_SPACE].setFont(font);
+
         rect = getFontMetrics(font).getStringBounds(
                 "Min: 00000000.000 00000000.000 Span: 00000000.000 00000000.000", spaces[0].getGraphics());
+
         constraint = String.format("width %d!, height %d!",
                 (int)rect.getWidth() + 10, (int)rect.getHeight() + 6);
+
         add(spaces[BOUNDS_SPACE], constraint);
 
         spaces[CRS_SPACE] = new JLabel();
         spaces[CRS_SPACE].setFont(font);
+
         rect = getFontMetrics(font).getStringBounds(
                 "The name of a CRS might be this long", spaces[0].getGraphics());
+
         constraint = String.format("width %d!, height %d!",
                 (int)rect.getWidth() + 20, (int)rect.getHeight() + 6);
+
         add(spaces[CRS_SPACE], constraint);
     }
 
@@ -245,6 +263,22 @@ public class StatusBar extends JPanel {
                     displayBounds(env);
                     displayCRS(env.getCoordinateReferenceSystem());
                 }
+            }
+
+            @Override
+            public void onRenderingStarted(MapPaneEvent ev) {
+                renderLabel.setText("Rendering...");
+            }
+
+            @Override
+            public void onRenderingStopped(MapPaneEvent ev) {
+                renderLabel.setText("");
+            }
+
+            @Override
+            public void onRenderingProgress(MapPaneEvent ev) {
+                float progress = ((Number) ev.getData()).floatValue();
+                System.out.println("render progress: " + progress);
             }
 
         };
