@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -56,6 +57,8 @@ import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.filter.IllegalFilterException;
 import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.opengis.feature.Feature;
+import org.opengis.feature.FeatureVisitor;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -320,6 +323,31 @@ public class IndexedShapefileDataStoreTest extends TestCaseSupport {
         ds2.dispose();
     }
 
+    /**
+     * A FeatureCollection that only has FeatureIds (ie no geometry no attributes)
+     * is used to model "selection" in uDig.
+     */
+    public void testSelectionQuery() throws Exception {
+        File shpFile = copyShapefiles(STATE_POP);
+        URL url = shpFile.toURI().toURL();
+        IndexedShapefileDataStore ds = new IndexedShapefileDataStore(url, null, true, true,
+                IndexType.NONE);
+        FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = ds.getFeatureSource();
+        SimpleFeatureType schema = featureSource.getSchema();
+        DefaultQuery query = new DefaultQuery( schema.getTypeName() );
+        query.setPropertyNames(new String[0]);
+        FeatureCollection<SimpleFeatureType, SimpleFeature> features = featureSource.getFeatures( query );
+        
+        assertNotNull( "selection query worked", features );
+        assertTrue( "selection non empty", features.size() > 0 );
+        final Set<FeatureId> selection = new LinkedHashSet<FeatureId>();
+        features.accepts( new FeatureVisitor() {            
+            public void visit(Feature feature) {
+                selection.add( feature.getIdentifier() );
+            }
+        }, null );
+        
+    }
     public void testFidFilter() throws Exception {
         File shpFile = copyShapefiles(STATE_POP);
         URL url = shpFile.toURI().toURL();
