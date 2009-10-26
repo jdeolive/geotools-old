@@ -68,6 +68,29 @@ public class DB2NGDataStoreFactory extends JDBCDataStoreFactory {
     }
     
     @Override
+    protected boolean checkDBType(Map params) {
+        if (super.checkDBType(params)) {
+            return true;
+        }
+        
+        //check also for "DB2" which is iold db type, but only when the old
+        // factory is not on the classpath
+        if (checkDBType(params, "DB2")) {
+            try {
+                Class.forName("org.geotools.data.db2.DB2DataStoreFactory");
+                
+                //old factory is around, let it handle the connection
+                return false;
+            } 
+            catch (ClassNotFoundException e) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    @Override
     protected String getJDBCUrl(Map params) throws IOException {
         // jdbc url
     	String host=null;
