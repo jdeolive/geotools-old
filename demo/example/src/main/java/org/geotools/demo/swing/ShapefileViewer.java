@@ -153,7 +153,7 @@ public class ShapefileViewer extends JMapFrame {
      * argument of the latter method set to {@code true}.
      */
     public void loadShapefile() throws IOException {
-        File file = JFileDataStoreChooser.showOpenFile("shp", null);
+        File file = JFileDataStoreChooser.showOpenFile("shp", cwd, null);
         if (file != null) {
             addShapefile(file.toURL(), true);
             setWorkingDir(file.getParentFile());

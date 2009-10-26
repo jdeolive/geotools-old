@@ -17,6 +17,8 @@
 
 package org.geotools.swing;
 
+import java.awt.AlphaComposite;
+import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.util.concurrent.Callable;
@@ -80,7 +82,7 @@ public class RenderingExecutor {
     /**
      * Constants to indicate the result of a rendering task
      */
-    private enum TaskResult {
+    public enum TaskResult {
         PENDING,
         COMPLETED,
         CANCELLED,
@@ -98,6 +100,13 @@ public class RenderingExecutor {
         private boolean cancelled;
         private boolean failed;
 
+        /**
+         * Constructor. Creates a new rendering task
+         *
+         * @param envelope map area to render (world coordinates)
+         * @param paintArea drawing area (image or display coordinates)
+         * @param graphics graphics object used to draw into the image or display
+         */
         public Task(final ReferencedEnvelope envelope, final Rectangle paintArea, final Graphics2D graphics) {
             this.envelope = envelope;
             this.paintArea = paintArea;
@@ -106,13 +115,29 @@ public class RenderingExecutor {
             failed = false;
         }
 
+        /**
+         * Called by the executor to run this rendering task.
+         *
+         * @return result of the task: completed, cancelled or failed
+         * @throws Exception
+         */
         public TaskResult call() throws Exception {
-            GTRenderer renderer = mapPane.getRenderer();
-            renderer.addRenderListener(this);
+            if (!cancelled) {
+                GTRenderer renderer = mapPane.getRenderer();
+                renderer.addRenderListener(this);
 
-            renderer.paint(graphics, mapPane.getVisibleRect(), envelope, mapPane.getWorldToScreenTransform());
+                /*
+                 * Clear the paint area
+                 */
+                Composite composite = graphics.getComposite();
+                graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR, 0.0f));
+                graphics.fill(paintArea);
+                graphics.setComposite(composite);
 
-            renderer.removeRenderListener(this);
+                renderer.paint(graphics, mapPane.getVisibleRect(), envelope, mapPane.getWorldToScreenTransform());
+
+                renderer.removeRenderListener(this);
+            }
 
             if (cancelled) {
                 return TaskResult.CANCELLED;
@@ -123,6 +148,10 @@ public class RenderingExecutor {
             }
         }
 
+        /**
+         * Cancel the rendering task if it is running. If called before
+         * being run the task will be abandoned.
+         */
         public synchronized void cancel() {
             if (isRunning()) {
                 cancelled = true;
@@ -130,13 +159,24 @@ public class RenderingExecutor {
             }
         }
 
+        /**
+         * Called by the renderer when each feature is drawn.
+         *
+         * @param feature the feature just drawn
+         */
         public void featureRenderer(SimpleFeature feature) {
             // @todo update a progress listener
             }
 
+        /**
+         * Called by the renderer on error
+         *
+         * @param e cause of the error
+         */
         public void errorOccurred(Exception e) {
             failed = true;
         }
+
     }
 
     private AtomicBoolean taskRunning;
@@ -145,9 +185,9 @@ public class RenderingExecutor {
     private ScheduledFuture<?> watcher;
 
     /**
-     * Constructor
+     * Constructor. Creates a new executor to service the specified map pane.
      *
-     * @param mapPane the map pane to be serviced by this rendering executor
+     * @param mapPane the map pane to be serviced
      */
     public RenderingExecutor(final JMapPane mapPane) {
         taskRunning = new AtomicBoolean(false);

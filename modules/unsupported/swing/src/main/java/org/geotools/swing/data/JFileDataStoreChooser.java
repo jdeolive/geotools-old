@@ -198,13 +198,37 @@ public class JFileDataStoreChooser extends JFileChooser {
      * Show a file open dialog that filters for files with the given extension.
      *
      * @param extension file extension, with or without leading '.'
-     * @param parent parent GUI component (may be null)
+     * @param parent parent GUI component (may be {@code null})
      *
      * @return the selected file or null if the user cancelled the selection
      * @throws java.awt.HeadlessException if run in an unsupported environment
      */
-    public static File showOpenFile(String extension, Component parent) throws HeadlessException {
+    public static File showOpenFile(String extension, Component parent)
+            throws HeadlessException {
+        return showOpenFile(extension, null, parent);
+    }
+
+    /**
+     * Show a file open dialog that filters for files with the given extension.
+     *
+     * @param extension file extension, with or without leading '.'
+     * @param initialDir initial directory to display; if {@code null} the initial directory
+     *        will be the user's default directory
+     * @param parent parent GUI component (may be {@code null})
+     *
+     * @return the selected file or null if the user cancelled the selection
+     * @throws java.awt.HeadlessException if run in an unsupported environment
+     */
+    public static File showOpenFile(String extension, File initialDir, Component parent)
+            throws HeadlessException {
         JFileDataStoreChooser dialog = new JFileDataStoreChooser(extension);
+        if (initialDir != null) {
+            if (initialDir.isDirectory()) {
+                dialog.setCurrentDirectory(initialDir);
+            } else {
+                dialog.setCurrentDirectory(initialDir.getParentFile());
+            }
+        }
         
         if (dialog.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION) {
             return dialog.getSelectedFile();
@@ -222,8 +246,33 @@ public class JFileDataStoreChooser extends JFileChooser {
      * @return the selected file or null if the user cancelled the selection
      * @throws java.awt.HeadlessException if run in an unsupported environment
      */
-    public static File showOpenFile(String[] extensions, Component parent) throws HeadlessException {
+    public static File showOpenFile(String[] extensions, Component parent)
+            throws HeadlessException {
+        return showOpenFile(extensions, null, parent);
+    }
+
+    /**
+     * Show a file open dialog that filters for files with the given extensions.
+     *
+     * @param extensions array of file extension, with or without leading '.'
+     * @param initialDir initial directory to display; if {@code null} the initial directory
+     *        will be the user's default directory
+     * @param parent parent GUI component (may be null)
+     *
+     * @return the selected file or null if the user cancelled the selection
+     * @throws java.awt.HeadlessException if run in an unsupported environment
+     */
+    public static File showOpenFile(String[] extensions, File initialDir, Component parent)
+            throws HeadlessException {
+
         JFileDataStoreChooser dialog = new JFileDataStoreChooser(extensions);
+        if (initialDir != null) {
+            if (initialDir.isDirectory()) {
+                dialog.setCurrentDirectory(initialDir);
+            } else {
+                dialog.setCurrentDirectory(initialDir.getParentFile());
+            }
+        }
 
         if (dialog.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION) {
             return dialog.getSelectedFile();
@@ -242,8 +291,35 @@ public class JFileDataStoreChooser extends JFileChooser {
      * @return the selected file or null if the user cancelled the selection
      * @throws java.awt.HeadlessException if run in an unsupported environment
      */
-    public static File showOpenFile(FileDataStoreFactorySpi format, Component parent) throws HeadlessException {
+    public static File showOpenFile(FileDataStoreFactorySpi format, Component parent)
+            throws HeadlessException {
+        return showOpenFile(format, null, parent);
+    }
+
+    /**
+     * Show a file open dialog that filters for files that match a given file
+     * data store format
+     *
+     * @param format the file data store format
+     * @param initialDir initial directory to display; if {@code null} the initial directory
+     *        will be the user's default directory
+     * @param parent parent GUI component (may be null)
+     *
+     * @return the selected file or null if the user cancelled the selection
+     * @throws java.awt.HeadlessException if run in an unsupported environment
+     */
+    public static File showOpenFile(FileDataStoreFactorySpi format, File initialDir, Component parent)
+            throws HeadlessException {
+
         JFileDataStoreChooser dialog = new JFileDataStoreChooser(format);
+        if (initialDir != null) {
+            if (initialDir.isDirectory()) {
+                dialog.setCurrentDirectory(initialDir);
+            } else {
+                dialog.setCurrentDirectory(initialDir.getParentFile());
+            }
+        }
+
 
         if (dialog.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION) {
             return dialog.getSelectedFile();
@@ -252,7 +328,7 @@ public class JFileDataStoreChooser extends JFileChooser {
     }
 
     /**
-     * Deomonstrates the file data store dialog by prompting for a shapefile
+     * Demonstrates the file data store dialog by prompting for a shapefile
      *
      * @param arg ignored
      */

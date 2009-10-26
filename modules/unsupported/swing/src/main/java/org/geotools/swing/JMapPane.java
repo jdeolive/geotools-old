@@ -820,16 +820,15 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
                     MapPaneEvent ev = new MapPaneEvent(this, MapPaneEvent.Type.RENDERING_STARTED);
                     publishEvent(ev);
 
-                    clearBaseImage();
-
                 } else {
                     onRenderingRejected();
                 }
 
+            } else {
+                Graphics2D g2 = (Graphics2D) g;
+                g2.drawImage(baseImage, imageOrigin.x, imageOrigin.y, null);
             }
-
-            Graphics2D g2 = (Graphics2D) g;
-            g2.drawImage(baseImage, imageOrigin.x, imageOrigin.y, this);
+            
             redrawBaseImage = true;
         }
     }
@@ -849,7 +848,7 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
         }
 
         Graphics2D paneGr = (Graphics2D) this.getGraphics();
-        paneGr.drawImage(baseImage, imageOrigin.x, imageOrigin.y, this);
+        paneGr.drawImage(baseImage, imageOrigin.x, imageOrigin.y, null);
 
         MapPaneEvent ev = new MapPaneEvent(this, MapPaneEvent.Type.RENDERING_STOPPED);
         publishEvent(ev);
