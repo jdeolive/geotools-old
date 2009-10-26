@@ -111,9 +111,6 @@ public class ContentFeatureCollection implements FeatureCollection<SimpleFeature
         this.featureSource = featureSource;
         this.query = query;
         
-        //add the feautre source listener
-        featureSource.addFeatureListener(listener);
-        
         //retype feature type if necessary
         if ( query.getPropertyNames() != Query.ALL_NAMES ) {
             this.featureType = 
@@ -151,7 +148,14 @@ public class ContentFeatureCollection implements FeatureCollection<SimpleFeature
      * @param listener The listener to add
      */
     public void addListener(CollectionListener listener) {
-        listeners.add(listener);
+        // create the bridge only if we have collection listeners around
+        synchronized (listeners) {
+            if(listeners.size() == 0) {
+                featureSource.addFeatureListener(this.listener);
+            }
+            
+            listeners.add(listener);
+        }
     }
 
     /**
@@ -160,7 +164,13 @@ public class ContentFeatureCollection implements FeatureCollection<SimpleFeature
      * @param listener The listener to remove
      */
     public void removeListener(CollectionListener listener) {
-        listeners.remove(listener);
+        // as soon as the listeners are out we clean up
+        synchronized (listeners) {
+            listeners.remove(listener);
+        
+            if(listeners.size() == 0)
+                featureSource.removeFeatureListener(this.listener);
+        }
     }
     
     // Iterators
