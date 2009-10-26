@@ -77,6 +77,13 @@ public class OracleDialect extends PreparedStatementSQLDialect {
     private static final int DEFAULT_AXIS_MAX = 1000000;
 
     private static final int DEFAULT_AXIS_MIN = -10000000;
+    
+    /**
+     * Marks a geometry column as geodetic
+     */
+    public static final String GEODETIC = "geodetic";
+    
+    UnWrapper uw;
 
     /**
      * A map from JTS Geometry type to Oracle geometry type. See Oracle Spatial documentation,
@@ -443,7 +450,8 @@ public class OracleDialect extends PreparedStatementSQLDialect {
         }
         
         try {
-            UnWrapper uw = DataSourceFinder.getUnWrapper( cx );
+            if(uw == null)
+                uw = DataSourceFinder.getUnWrapper( cx );
             if ( uw != null ) {
                 Connection uwcx = uw.unwrap( cx );
                 if ( uwcx != null && uwcx instanceof OracleConnection ) {
@@ -732,22 +740,11 @@ public class OracleDialect extends PreparedStatementSQLDialect {
         
     }
 
-    protected boolean isGeodeticSrid(Integer srid) {
-        Connection cx = null;
-        try {
-            cx = dataStore.getDataSource().getConnection();
-            return isGeodeticSrid(srid, cx);
-        } catch (SQLException e) {
-            LOGGER.warning("Could not evaluate if SRID is Geodetic. Wrong results may occur.");
-        } finally {
-            if (cx != null)
-                dataStore.closeSafe(cx);
-        }
-        
-        return false;
-    }
-
-    protected boolean isGeodeticSrid(Integer srid, Connection cx) throws SQLException {
+    /**
+     * Checks if the specified srid is geodetic or not
+     * @throws SQLException
+     */
+    protected boolean isGeodeticSrid(Integer srid, Connection cx) {
         if (srid == null)
             return false;
         
@@ -755,18 +752,26 @@ public class OracleDialect extends PreparedStatementSQLDialect {
         
         if(geodetic == null) { 
             synchronized (this) {
+                geodetic = geodeticCache.get(srid);
+                
                 if(geodetic == null) {
                     PreparedStatement ps = null;
                     ResultSet rs = null;
+                    boolean closeConnection = false;
                     try {
                         ps = cx.prepareStatement("SELECT COUNT(*) FROM MDSYS.GEODETIC_SRIDS WHERE SRID = ?");
                         ps.setInt(1, srid);
                         rs = ps.executeQuery();
                         rs.next();
                         geodetic = rs.getInt(1) > 0;
+                        geodeticCache.put(srid, geodetic);
+                    } catch(SQLException e) {
+                        LOGGER.log(Level.WARNING, "Could not evaluate if the SRID " + srid + " is geodetic", e);
                     } finally {
                         dataStore.closeSafe(rs);
                         dataStore.closeSafe(ps);
+                        if(closeConnection)
+                            dataStore.closeSafe(cx);
                     }
                 }
             }
@@ -818,6 +823,18 @@ public class OracleDialect extends PreparedStatementSQLDialect {
     	overrides.put(Types.REAL, "DOUBLE PRECISION");
     	overrides.put(Types.DOUBLE, "DOUBLE PRECISION");
     	overrides.put(Types.FLOAT, "FLOAT");
+    }
+    
+    @Override
+    public void postCreateAttribute(AttributeDescriptor att, ResultSet columnMetadata,
+            String tableName, String schemaName, Connection cx) throws SQLException {
+        super.postCreateAttribute(att, columnMetadata, tableName, schemaName, cx);
+        
+        if(att instanceof GeometryDescriptor) {
+            Integer srid = (Integer) att.getUserData().get(JDBCDataStore.JDBC_NATIVE_SRID);
+            boolean geodetic = isGeodeticSrid(srid, cx);
+            att.getUserData().put(GEODETIC, geodetic);
+        }
     }
 
 }

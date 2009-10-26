@@ -50,7 +50,6 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.MultiPolygon;
@@ -156,7 +155,7 @@ public class OracleFilterToSQL extends PreparedFilterToSQL {
             Geometry eval = geometry.evaluate(filter, Geometry.class);
             // Oracle cannot deal with filters using geometries that span beyond the whole world
             // in case the 
-            if (dialect != null && ((OracleDialect)dialect).isGeodeticSrid(currentSRID) &&
+            if (dialect != null && isCurrentGeometryGeodetic() &&
                     !WORLD.contains(eval.getEnvelopeInternal())) {
                 Geometry result = eval.intersection(JTS.toGeometry(WORLD));
                 
@@ -180,6 +179,18 @@ public class OracleFilterToSQL extends PreparedFilterToSQL {
         return extraData;
     }
     
+    /**
+     * Returns true if the current geometry has the geodetic marker raised
+     * @return
+     */
+    boolean isCurrentGeometryGeodetic() {
+        if(currentGeometry != null) {
+            Boolean geodetic = (Boolean) currentGeometry.getUserData().get(OracleDialect.GEODETIC);
+            return geodetic != null && geodetic;
+        }
+        return false;    
+    }
+
     protected Geometry distillSameTypeGeometries(GeometryCollection coll, Geometry original) {
         if(original instanceof Polygon || original instanceof MultiPolygon) {
             List<Polygon> polys = new ArrayList<Polygon>();
