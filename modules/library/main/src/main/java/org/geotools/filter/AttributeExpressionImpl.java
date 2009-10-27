@@ -228,6 +228,9 @@ public class AttributeExpressionImpl extends DefaultExpression
      * @return true if specified object is equal to this filter; else false
      */
     public boolean equals(Object obj) {
+        if(obj == null)
+            return false;
+        
         if (obj.getClass() == this.getClass()) {
             AttributeExpressionImpl expAttr = (AttributeExpressionImpl) obj;
 
