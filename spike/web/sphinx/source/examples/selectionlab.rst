@@ -19,30 +19,35 @@ Dependencies
 Please ensure your pom.xml includes the following::
 
   <dependencies>
-    <dependency>
-      <groupId>org.geotools</groupId>
-      <artifactId>gt-swing</artifactId>
-      <version>${geotools.version}</version>
-      <!-- For this module we explicitly exclude some of its own -->
-      <!-- dependencies from being downloaded because they are   -->
-      <!-- big and we don't need them                            -->
-      <exclusions>
-        <exclusion>
-          <groupId>org.apache.xmlgraphics</groupId>
-          <artifactId>batik-transcoder</artifactId>
-          </exclusion>
-        </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.geotools</groupId>
-      <artifactId>gt-shapefile</artifactId>
-      <version>${geotools.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.geotools</groupId>
-      <artifactId>gt-epsg-hsql</artifactId>
-      <version>${geotools.version}</version>
-    </dependency>
+      <dependency>
+          <groupId>org.geotools</groupId>
+          <artifactId>gt-shapefile</artifactId>
+          <version>${geotools.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.geotools</groupId>
+          <artifactId>gt-epsg-hsql</artifactId>
+          <version>${geotools.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.geotools</groupId>
+          <artifactId>gt-swing</artifactId>
+          <version>${geotools.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.geotools</groupId>
+          <artifactId>gt-render</artifactId>
+          <version>${geotools.version}</version>
+          <!-- For this module we explicitly exclude some of its own -->
+          <!-- dependencies from being downloaded because they are   -->
+          <!-- big and we don't need them                            -->
+          <exclusions>
+              <exclusion>
+                  <groupId>org.apache.xmlgraphics</groupId>
+                  <artifactId>batik-transcoder</artifactId>
+              </exclusion>
+          </exclusions>
+      </dependency>
   </dependencies>
 
 Example

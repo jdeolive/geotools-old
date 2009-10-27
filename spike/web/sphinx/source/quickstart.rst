@@ -193,38 +193,38 @@ Let's open up your App:
 
 .. sourcecode:: java
 
-	 package org.geotools.demo.example;
+         package org.geotools.demo.example;
 
-	 /**
-	  * Hello world!
-	  *
-	  */
-	 public class App
-	 {
-	     public static void main( String[] args )
-	     {
-		 System.out.println( "Hello World!" );
-	     }
-	 }
+         /**
+          * Hello world!
+          *
+          */
+         public class App
+         {
+             public static void main( String[] args )
+             {
+                 System.out.println( "Hello World!" );
+             }
+         }
 
 And add some GeoTools code to it:
 
 .. sourcecode:: java
 
-	 package org.geotools.demo.example;
+         package org.geotools.demo.example;
 
-	 import org.geotools.factory.GeoTools;
-	 /**
-	  * Hello world!
-	  *
-	  */
-	 public class App
-	 {
-	     public static void main( String[] args )
-	     {
-		 System.out.println( "Hello GeoTools:" + GeoTools.getVersion() );
-	     }
-	 }
+         import org.geotools.factory.GeoTools;
+         /**
+          * Hello world!
+          *
+          */
+         public class App
+         {
+             public static void main( String[] args )
+             {
+                 System.out.println( "Hello GeoTools:" + GeoTools.getVersion() );
+             }
+         }
 
 You can build and run the application from within your IDE or from the command line.
 
@@ -294,38 +294,40 @@ We are going to start by adding two plugins to our GeoTools application. Plugins
 
 Here are the plugins we will be using to to read a shapefile.
 
-* **gt2-shape** used to reads file.shp, file.dbf, file.shx etc...
-* **gt2-epsg-hsql** used to read file.prj (map projection)
+* **gt-shapefile** used to reads file.shp, file.dbf, file.shx etc...
+* **gt-epsg-hsql** used to read file.prj (map projection)
+* **gt-swing** a collection of Swing GUI classes for GeoTools
+* **gt-render** classes to draw map features
 
 .. sourcecode:: xml
 
-     <dependency>
-       <groupId>org.geotools</groupId>
-       <artifactId>gt-main</artifactId>
-       <version>${geotools.version}</version>
-     </dependency>
     <dependency>
-      <groupId>org.geotools</groupId>
-      <artifactId>gt-shapefile</artifactId>
-       <version>${geotools.version}</version>
+        <groupId>org.geotools</groupId>
+        <artifactId>gt-shapefile</artifactId>
+        <version>${geotools.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.geotools</groupId>
-      <artifactId>gt-epsg-hsql</artifactId>
-       <version>${geotools.version}</version>
+        <groupId>org.geotools</groupId>
+        <artifactId>gt-epsg-hsql</artifactId>
+        <version>${geotools.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.geotools</groupId>
-      <artifactId>gt-swing</artifactId>
-      <version>${geotools.version}</version>
-      <!-- For this module we explicitly exclude some of its own -->
-      <!-- dependencies from being downloaded because they are   -->
-      <!-- big and we don't need them                            -->
-      <exclusions>
-        <exclusion>
-          <groupId>org.apache.xmlgraphics</groupId>
-          <artifactId>batik-transcoder</artifactId>
-          </exclusion>
+        <groupId>org.geotools</groupId>
+        <artifactId>gt-swing</artifactId>
+        <version>${geotools.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>org.geotools</groupId>
+        <artifactId>gt-render</artifactId>
+        <version>${geotools.version}</version>
+        <!-- For this module we explicitly exclude some of its own -->
+        <!-- dependencies from being downloaded because they are   -->
+        <!-- big and we don't need them                            -->
+        <exclusions>
+            <exclusion>
+                <groupId>org.apache.xmlgraphics</groupId>
+                <artifactId>batik-transcoder</artifactId>
+            </exclusion>
         </exclusions>
     </dependency>
 

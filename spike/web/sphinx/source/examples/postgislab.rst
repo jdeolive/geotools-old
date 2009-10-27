@@ -20,30 +20,35 @@ Dependencies
 We are going to add another couple dependencies here::
  
   <dependencies>
-    <dependency>
-      <groupId>org.geotools</groupId>
-      <artifactId>gt-postgis</artifactId>
-      <version>{gt-version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.geotools</groupId>
-      <artifactId>gt-epsg-hsql</artifactId>
-      <version>{gt-version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.geotools</groupId>
-      <artifactId>gt-swing</artifactId>
-      <version>{gt-version}</version>
-      <!-- For this module we explicitly exclude some of its own -->
-      <!-- dependencies from being downloaded because they are   -->
-      <!-- big and we don't need them                            -->
-      <exclusions>
-        <exclusion>
-          <groupId>org.apache.xmlgraphics</groupId>
-          <artifactId>batik-transcoder</artifactId>
-          </exclusion>
-        </exclusions>
-    </dependency>
+      <dependency>
+          <groupId>org.geotools</groupId>
+          <artifactId>gt-postgis</artifactId>
+          <version>{gt-version}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.geotools</groupId>
+          <artifactId>gt-epsg-hsql</artifactId>
+          <version>{gt-version}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.geotools</groupId>
+          <artifactId>gt-swing</artifactId>
+          <version>${geotools.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.geotools</groupId>
+          <artifactId>gt-render</artifactId>
+          <version>${geotools.version}</version>
+          <!-- For this module we explicitly exclude some of its own -->
+          <!-- dependencies from being downloaded because they are   -->
+          <!-- big and we don't need them                            -->
+          <exclusions>
+              <exclusion>
+                  <groupId>org.apache.xmlgraphics</groupId>
+                  <artifactId>batik-transcoder</artifactId>
+              </exclusion>
+          </exclusions>
+      </dependency>
   </dependencies>
 
 Please add these dependencies to your pom.xml and update your IDE as required.

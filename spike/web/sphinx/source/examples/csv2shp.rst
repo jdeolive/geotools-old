@@ -30,12 +30,6 @@ Please ensure your pom.xml includes the following::
 
   <dependencies>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-shapefile</artifactId>
       <version>${geotools.version}</version>
