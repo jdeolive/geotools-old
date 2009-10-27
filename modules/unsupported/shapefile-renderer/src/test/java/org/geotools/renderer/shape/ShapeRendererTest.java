@@ -28,6 +28,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 import java.util.logging.Level;
 
 import junit.framework.TestCase;
@@ -35,6 +38,7 @@ import junit.framework.TestCase;
 import org.geotools.TestData;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultTransaction;
+import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureStore;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
@@ -42,14 +46,19 @@ import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.data.shapefile.ShapefileRendererUtil;
 import org.geotools.data.shapefile.dbf.IndexedDbaseFileReader;
 import org.geotools.data.shapefile.shp.ShapefileReader;
+import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.filter.Filter;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.DefaultMapContext;
+import org.geotools.map.DefaultMapLayer;
 import org.geotools.map.MapContext;
 import org.geotools.referencing.operation.transform.IdentityTransform;
+import org.geotools.renderer.GTRenderer;
 import org.geotools.renderer.RenderListener;
+import org.geotools.styling.Rule;
 import org.geotools.styling.Style;
 import org.geotools.styling.StyleBuilder;
 import org.geotools.styling.TextSymbolizer;
@@ -175,6 +184,127 @@ public class ShapeRendererTest extends TestCase {
             }
         }
     }
+    
+    
+
+    /**
+     * What an ugly bug! It only happens if the DefaultMapLayer has been created with a
+     * FeatureSource (not a FeatureCollection) in combination with ShapefileRenderer. With
+     * StramingRenderer it works. Also works with ShapefileRenderer, if the MapLayer is created with
+     * a FeatureCollection.
+     * 
+     * How does this test work: <br/>
+     * 1. Using countries.shp which is not standard in this test package. But it's hard to show the
+     * bug with lakes. <br/>
+     * 2. Putting every third feature into a FidFilter 3. Creating a Style with two rules: First
+     * rule paints red borders for all countries. Second rule is filtered by FidS and paints the
+     * polygons with a red fill.<br/>
+     * 3. Moving the BBOX 20 degree east, so the center is above a feature.<br/>
+     * 4. Rendering the image once (this is the correct image!), and remembering the color of the
+     * center point.<br/>
+     * 5. Zooming in iteratively.. We expect the center point color not to change.<br/>
+     * <br/>
+     * But it changes with FeatureSource + ShapefileRenderer. Run the test interactively to see how
+     * messy it is! <br/>
+     * <br/>
+     * It happens with lines, points and polygons. For questions contact alfonx on #geotools
+     */
+    public void testFidFilterWithFeatureSource() throws Exception {
+        TestUtilites.INTERACTIVE = INTERACTIVE;
+
+        // Sorry! Not part of this testing resources, but too hard to show it with lakes.
+        ShapefileDataStore dataStore = TestUtilites.getDataStore("countries.shp");
+
+        final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = dataStore
+                .getFeatureSource(dataStore.getTypeNames()[0]);
+        FeatureCollection<SimpleFeatureType, SimpleFeature> features = featureSource.getFeatures();
+
+        // Preparing the Filter
+        Set<FeatureId> selectedFids = new HashSet<FeatureId>();
+        {
+            Iterator<SimpleFeature> fIt = features.iterator();
+
+            int count = 0;
+            while (fIt.hasNext()) {
+                SimpleFeature sf = fIt.next();
+
+                // Add every third to the filter
+                if (count++ % 3 != 0)
+                    continue;
+
+                selectedFids.add(sf.getIdentifier());
+            }
+
+            features.close(fIt);
+        }
+        assertEquals(84, selectedFids.size());
+        Id filter = CommonFactoryFinder.getFilterFactory2(null).id(selectedFids);
+
+        // Preparing the Style
+        final StyleBuilder SB = new StyleBuilder();
+        org.geotools.styling.Rule rule1 = SB.createRule(SB.createLineSymbolizer(Color.red));
+        org.geotools.styling.Rule rule2 = SB.createRule(SB.createPolygonSymbolizer(Color.red));
+        rule2.setFilter(filter);
+
+        Style style = SB.createStyle();
+        assertEquals(0, style.featureTypeStyles().size());
+
+        style.featureTypeStyles().add(
+                SB.createFeatureTypeStyle("Feature", new Rule[] { rule1, rule2 }));
+
+        // One featuretypes, two rules
+        assertEquals(1, style.featureTypeStyles().size());
+        assertEquals(2, style.featureTypeStyles().get(0).rules().size());
+        // second rule has a FID filter
+        assertTrue(style.featureTypeStyles().get(0).rules().get(1).getFilter() instanceof Id);
+
+        // WORKS: DefaultMapLayer layer = new DefaultMapLayer(featureSource.getFeatures(), style);
+        DefaultMapLayer layer = new DefaultMapLayer(featureSource, style);
+        MapContext mapContext = new DefaultMapContext();
+        mapContext.addLayer(layer);
+
+//        GTRenderer renderer = new StreamingRenderer();
+        GTRenderer renderer = new ShapefileRenderer();
+        renderer.setContext(mapContext);
+
+        // Moving the bounds "over afrika".
+        ReferencedEnvelope fullBounds = features.getBounds();
+        fullBounds.translate(20, 0);
+        fullBounds = zoomIn(fullBounds);
+
+        BufferedImage correctImage = TestUtilites.showRender("full", renderer, 4000, fullBounds);
+        int correctRgb = correctImage.getRGB(150, 150);
+        assertEquals(-1, correctRgb);
+        {
+            ReferencedEnvelope zoomIn = fullBounds;
+            for (int i = 1; i < 5; i++) {
+                zoomIn = zoomIn(zoomIn);
+                BufferedImage testImage = TestUtilites.showRender("zomming in step " + i, renderer,
+                        4000, zoomIn);
+                int testRgb = testImage.getRGB(150, 150);
+
+                // Because we are zooming "into" the center, the color shouldn't change
+                assertEquals(
+                        "Just zooming into the mapContext, should not change the color of the center point in this test:",
+                        correctRgb, testRgb);
+            }
+        }
+    }
+
+    /**
+     * Zooms into the center. Helper-method for #testFidFilterWithFeatureSource
+     * 
+     * @param bounds
+     * @return
+     */
+    private ReferencedEnvelope zoomIn(ReferencedEnvelope bounds) {
+        ReferencedEnvelope b2 = new ReferencedEnvelope(bounds);
+        double c = 1. / 8.;
+        b2.expandBy(-b2.getSpan(0) * c, -b2.getSpan(1) * c);
+        return b2;
+    }
+
+    
 
     public void testCreateFeature() throws Exception {
         ShapefileRenderer renderer = new ShapefileRenderer(null);
@@ -310,6 +440,7 @@ public class ShapeRendererTest extends TestCase {
             }
 
             public void errorOccurred(Exception e) {
+                e.printStackTrace();
                 assertFalse(true);
             }
 

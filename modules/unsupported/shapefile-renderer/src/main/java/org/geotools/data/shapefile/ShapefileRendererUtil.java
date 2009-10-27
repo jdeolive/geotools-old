@@ -124,7 +124,7 @@ public class ShapefileRendererUtil {
             if( !ids.indexUseable(ShpFileType.FIX) )
                 return createBasicFidReader(datastore, tracker);
             try{
-                return new IndexedFidReader(ids.shpFiles);
+                return new IndexedFidReader(ids.shpFiles, tracker);
             }catch (Exception e) {
                 return createBasicFidReader(datastore,tracker);
             }

@@ -357,6 +357,10 @@ public class ShapefileReader implements FileReader {
      *                 If errors occur while closing the channel.
      */
     public void close() throws IOException {
+        // don't throw NPE on double close
+        if(channel == null)
+            return;
+        
         if (channel.isOpen()) {
             channel.close();
             streamLogger.close();
