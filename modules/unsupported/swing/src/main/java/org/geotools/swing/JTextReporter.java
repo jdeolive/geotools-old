@@ -18,6 +18,7 @@
 package org.geotools.swing;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
@@ -44,7 +45,7 @@ import javax.swing.text.BadLocationException;
 import net.miginfocom.swing.MigLayout;
 
 /**
- * A non-modal dialog to display text reports to the user and, if required,
+ * A dialog to display text reports to the user and, if requested,
  * save them to file.
  *
  * @author Michael Bedward
@@ -54,8 +55,20 @@ import net.miginfocom.swing.MigLayout;
  */
 public class JTextReporter extends JDialog {
 
-    private static final int DEFAULT_ROWS = 20;
-    private static final int DEFAULT_COLS = 80;
+    /**
+     * Default number of rows shown in the text display area's
+     * preferred size
+     */
+    public static final int DEFAULT_ROWS = 20;
+
+    /**
+     * Default number of columns shown in the text display area's
+     * preferred size
+     */
+    public static final int DEFAULT_COLS = 50;
+
+    private int rows;
+    private int cols;
 
     private JTextArea textArea;
 
@@ -68,13 +81,42 @@ public class JTextReporter extends JDialog {
     private List<TextReporterListener> listeners;
 
     /**
-     * Constructor
-     * @param title caption for the frame
+     * Creates a new JTextReporter with the following default options:
+     * <ul>
+     * <li> Remains on top of other application windows
+     * <li> Is not modal
+     * <li> Will be disposed of when closed
+     * </ul>
+     *
+     * @param title title for the dialog (may be {@code null})
+     *
      * @throws java.awt.HeadlessException
      */
     public JTextReporter(String title) throws HeadlessException {
+        this(title, -1, -1);
+    }
 
+    /**
+     * Creates a new JTextReporter with the following default options:
+     * <ul>
+     * <li> Remains on top of other application windows
+     * <li> Is not modal
+     * <li> Will be disposed of when closed
+     * </ul>
+     *
+     * @param title title for the dialog (may be {@code null})
+     * @param rows number of text rows displayed without scrolling
+     *        (if zero or negative, the default is used)
+     * @param cols number of text columns displayed without scrolling
+     *        (if zero or negative the default is used)
+     *
+     * @throws java.awt.HeadlessException
+     */
+    public JTextReporter(String title, int rows, int cols) throws HeadlessException {
         setTitle(title);
+        this.rows = (rows >= 0 ? rows : DEFAULT_ROWS);
+        this.cols = (cols >= 0 ? cols : DEFAULT_COLS);
+
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         setAlwaysOnTop(true);
         setModal(false);
@@ -102,6 +144,8 @@ public class JTextReporter extends JDialog {
      *
      * @return true if successfully registered; false otherwise (listener
      * already registered)
+     *
+     * @see TextReporterListener
      */
     public boolean addListener(TextReporterListener listener) {
         return listeners.add(listener);
@@ -143,7 +187,7 @@ public class JTextReporter extends JDialog {
      * Create and layout the components
      */
     private void initComponents() {
-        textArea = new JTextArea(DEFAULT_ROWS, DEFAULT_COLS);
+        textArea = new JTextArea(rows, cols);
         textArea.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         textArea.setEditable(false);
         textArea.setLineWrap(true);
@@ -152,8 +196,11 @@ public class JTextReporter extends JDialog {
 
         MigLayout layout = new MigLayout("wrap 1", "[grow]", "[grow][]");
         JPanel panel = new JPanel(layout);
+        //Dimension size = textArea.getPreferredScrollableViewportSize();
+        //System.out.println("preferred size" + size);
+        //panel.add(scrollPane, String.format("grow, width %d, height %d", size.width, size.height));
         panel.add(scrollPane, "grow");
-
+        
         JPanel btnPanel = new JPanel();
 
         JButton saveBtn = new JButton("Save");
@@ -175,6 +222,7 @@ public class JTextReporter extends JDialog {
 
         panel.add(btnPanel);
         getContentPane().add(panel);
+        pack();
     }
 
     /**
@@ -183,9 +231,14 @@ public class JTextReporter extends JDialog {
      * @param text the text to be appended
      */
     private void doAppend(final String text) {
+        int startLine = textArea.getLineCount();
+
         textArea.append(text);
-        
         textArea.setCaretPosition(textArea.getDocument().getLength());
+
+        for (TextReporterListener listener : listeners) {
+            listener.onReporterUpdated(startLine);
+        }
     }
 
     /**

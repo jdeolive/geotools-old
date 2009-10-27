@@ -18,9 +18,14 @@
 package org.geotools.swing;
 
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.LayoutManager;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.geom.Rectangle2D;
 import java.util.ResourceBundle;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import net.miginfocom.swing.MigLayout;
@@ -32,16 +37,21 @@ import org.geotools.swing.event.MapMouseListener;
 import org.geotools.map.MapContext;
 import org.geotools.swing.event.MapPaneAdapter;
 import org.geotools.swing.event.MapPaneEvent;
+import org.geotools.swing.menu.CRSPopupMenu;
 import org.opengis.geometry.Envelope;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 /**
- * A status bar that displays the mouse cursor position in
- * world coordinates.
+ * A status bar to work with JMapPane. It displays the following:
+ * <ul>
+ * <li> Mouse cursor position (world coordinates)
+ * <li> Current display area (world coordinates)
+ * <li> Coordinate reference system name
+ * <li> Rendering busy indicator
+ * </ul>
  *
- * @todo Add the facility to display additional information in
- * the status bar. The notion of 'spaces' is in the present code
- * looking ahead to this facility.
+ * The CRS name is displayed on a JButton which displays a pop-up menu
+ * of CRS options for the map.
  *
  * @author Michael Bedward
  * @since 2.6
@@ -51,25 +61,20 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 public class StatusBar extends JPanel {
     private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/swing/Text");
 
-    /** Number of status bar spaces (text areas) */
-    public static final int NUM_SPACES = 4;
-
-    /** Index of the space used for mouse coordinates */
-    public static final int COORDS_SPACE = 0;
-
-    /** Index of the space used for map bounds */
-    public static final int BOUNDS_SPACE = 1;
-
-    /** Index of the space used for the CRS */
-    public static final int CRS_SPACE = 2;
-
     private JMapPane mapPane;
     private MapContext context;
     private MapMouseListener mouseListener;
     private MapPaneAdapter mapPaneListener;
 
-    private JLabel[] spaces;
     private JLabel renderLabel;
+    private JLabel coordsLabel;
+    private JLabel boundsLabel;
+    private JButton crsBtn;
+    private CRSPopupMenu crsMenu;
+
+    private ImageIcon busyIcon;
+    private static final String BUSY_ICON_IMAGE = "/org/geotools/swing/icons/busy_16.gif";
+
 
     /**
      * Default constructor.
@@ -88,7 +93,7 @@ public class StatusBar extends JPanel {
      */
     public StatusBar(JMapPane pane) {
         createListeners();
-        init();
+        initComponents();
 
         if (pane != null) {
             setMapPane(pane);
@@ -116,6 +121,8 @@ public class StatusBar extends JPanel {
             newPane.addMapPaneListener(mapPaneListener);
             context = newPane.getMapContext();
             mapPane = newPane;
+
+            crsMenu.setMapPane(mapPane);
         }
     }
 
@@ -123,14 +130,14 @@ public class StatusBar extends JPanel {
      * Clear the map coordinate display
      */
     public void clearCoords() {
-        spaces[COORDS_SPACE].setText("");
+        coordsLabel.setText("");
     }
 
     /**
      * Clear the map bounds display
      */
     public void clearBounds() {
-        spaces[BOUNDS_SPACE].setText("");
+        boundsLabel.setText("");
     }
 
     /**
@@ -140,7 +147,7 @@ public class StatusBar extends JPanel {
      */
     public void displayCoords(DirectPosition2D mapPos) {
         if (mapPos != null) {
-            spaces[COORDS_SPACE].setText(String.format("  %.2f %.2f", mapPos.x, mapPos.y));
+            coordsLabel.setText(String.format("  %.2f %.2f", mapPos.x, mapPos.y));
         }
     }
 
@@ -150,7 +157,7 @@ public class StatusBar extends JPanel {
      */
     public void displayBounds(Envelope bounds) {
         if (bounds != null) {
-            spaces[BOUNDS_SPACE].setText(String.format("Min:%.2f %.2f Span:%.2f %.2f",
+            boundsLabel.setText(String.format("Min:%.2f %.2f Span:%.2f %.2f",
                     bounds.getMinimum(0),
                     bounds.getMinimum(1),
                     bounds.getSpan(0),
@@ -164,17 +171,16 @@ public class StatusBar extends JPanel {
      */
     public void displayCRS(CoordinateReferenceSystem crs) {
         if (crs == null) {
-            spaces[CRS_SPACE].setText("Undefined");
+            crsBtn.setText(stringRes.getString("crs_undefined"));
         } else {
-            spaces[CRS_SPACE].setText(crs.getName().toString());
+            crsBtn.setText(crs.getName().toString());
         }
     }
 
     /**
-     * Helper for constructors. Sets basic layout and creates
-     * the first space for map coordinates.
+     * Creates and sets the layout of components
      */
-    private void init() {
+    private void initComponents() {
         Rectangle2D rect;
         String constraint;
 
@@ -183,49 +189,57 @@ public class StatusBar extends JPanel {
 
         Font font = Font.decode("Courier-12");
 
+        busyIcon = new ImageIcon(StatusBar.class.getResource(BUSY_ICON_IMAGE));
         renderLabel = new JLabel();
+        renderLabel.setHorizontalTextPosition(JLabel.LEADING);
         rect = getFontMetrics(font).getStringBounds(
-                "Rendering... ", renderLabel.getGraphics());
+                "rendering", renderLabel.getGraphics());
 
-        constraint = String.format("width %d!, height %d!",
-                (int)rect.getWidth() + 10, (int)rect.getHeight() + 6);
+        constraint = String.format("gapx 5, width %d!, height %d!",
+                (int)rect.getWidth() + busyIcon.getIconWidth() + renderLabel.getIconTextGap(),
+                (int)Math.max(rect.getHeight(), busyIcon.getIconHeight()) + 6);
 
         add(renderLabel, constraint);
 
-        spaces = new JLabel[NUM_SPACES];
-
-        spaces[COORDS_SPACE] = new JLabel();
-        spaces[COORDS_SPACE].setFont(font);
+        coordsLabel = new JLabel();
+        Graphics graphics = coordsLabel.getGraphics();
+        coordsLabel.setFont(font);
 
         rect = getFontMetrics(font).getStringBounds(
-                "  00000000.000 00000000.000", spaces[0].getGraphics());
+                "  00000000.000 00000000.000", graphics);
 
         constraint = String.format("width %d!, height %d!",
                 (int)rect.getWidth() + 10, (int)rect.getHeight() + 6);
 
-        add(spaces[COORDS_SPACE], constraint);
+        add(coordsLabel, constraint);
 
-        spaces[BOUNDS_SPACE] = new JLabel();
-        spaces[BOUNDS_SPACE].setFont(font);
+        boundsLabel = new JLabel();
+        boundsLabel.setFont(font);
 
         rect = getFontMetrics(font).getStringBounds(
-                "Min: 00000000.000 00000000.000 Span: 00000000.000 00000000.000", spaces[0].getGraphics());
+                "Min: 00000000.000 00000000.000 Span: 00000000.000 00000000.000", graphics);
 
         constraint = String.format("width %d!, height %d!",
                 (int)rect.getWidth() + 10, (int)rect.getHeight() + 6);
 
-        add(spaces[BOUNDS_SPACE], constraint);
+        add(boundsLabel, constraint);
 
-        spaces[CRS_SPACE] = new JLabel();
-        spaces[CRS_SPACE].setFont(font);
+        crsBtn = new JButton(stringRes.getString("crs_undefined"));
+        crsBtn.setFont(font);
 
-        rect = getFontMetrics(font).getStringBounds(
-                "The name of a CRS might be this long", spaces[0].getGraphics());
+        rect = getFontMetrics(font).getStringBounds("X", graphics);
 
-        constraint = String.format("width %d!, height %d!",
-                (int)rect.getWidth() + 20, (int)rect.getHeight() + 6);
+        constraint = String.format("height %d!", (int)rect.getHeight() + 6);
 
-        add(spaces[CRS_SPACE], constraint);
+        crsBtn.setToolTipText(stringRes.getString("tool_tip_statusbar_crs"));
+        crsMenu = new CRSPopupMenu();
+        crsBtn.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                crsMenu.show(crsBtn, 0, 0);
+            }
+        });
+
+        add(crsBtn, constraint);
     }
 
     /**
@@ -267,12 +281,14 @@ public class StatusBar extends JPanel {
 
             @Override
             public void onRenderingStarted(MapPaneEvent ev) {
-                renderLabel.setText("Rendering...");
+                renderLabel.setText("rendering");
+                renderLabel.setIcon(busyIcon);
             }
 
             @Override
             public void onRenderingStopped(MapPaneEvent ev) {
                 renderLabel.setText("");
+                renderLabel.setIcon(null);
             }
 
             @Override

@@ -279,10 +279,9 @@ public class InfoTool extends CursorTool implements TextReporterListener {
      */
     private void createReporter() {
         if (reporter == null) {
-            reporter = new JTextReporter("Feature info");
+            reporter = new JTextReporter("Feature info", 20, 30);
             reporter.addListener(this);
 
-            reporter.setSize(400, 400);
             reporter.setVisible(true);
         }
     }
@@ -305,6 +304,14 @@ public class InfoTool extends CursorTool implements TextReporterListener {
      */
     public void onReporterClosed(WindowEvent ev) {
         reporter = null;
+    }
+
+    /**
+     * Empty method. Defined to satisfy the {@code TextReporterListener} interface.
+     * @param newTextStartLine
+     */
+    public void onReporterUpdated(int newTextStartLine) {
+        // no action
     }
 
     /**

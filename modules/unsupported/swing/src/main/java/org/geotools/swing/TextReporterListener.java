@@ -31,9 +31,17 @@ import java.awt.event.WindowEvent;
 public interface TextReporterListener {
 
     /**
-     * Notify the listener that the text reporter is being closed
+     * Called by the reporter when it is being closed
      *
-     * @param ev the window event
+     * @param ev the window event issued by the system
      */
     public void onReporterClosed(WindowEvent ev);
+
+    /**
+     * Called by the text reporter when text has been appended
+     *
+     * @param newTextStartLine the line number at which the newly
+     *        appended text begins
+     */
+    public void onReporterUpdated(int newTextStartLine);
 }
