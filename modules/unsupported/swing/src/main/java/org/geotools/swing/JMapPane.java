@@ -182,7 +182,7 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
     private boolean redrawBaseImage;
     private boolean needNewBaseImage;
     private boolean baseImageMoved;
-    private boolean displayAreaChanged;
+    private boolean clearLabelCache;
 
 
     /** 
@@ -207,7 +207,7 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
         needNewBaseImage = true;
         redrawBaseImage = true;
         baseImageMoved = false;
-        displayAreaChanged = false;
+        clearLabelCache = false;
 
         /*
          * We use a Timer object to avoid rendering delays and
@@ -269,7 +269,6 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
                 resizeTimer.restart();
             }
         });
-
     }
 
     /**
@@ -306,6 +305,7 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
             MapPaneEvent ev = new MapPaneEvent(this, MapPaneEvent.Type.PANE_RESIZED);
             publishEvent(ev);
         }
+
     }
 
     /**
@@ -541,7 +541,7 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
                 pendingDisplayArea = new ReferencedEnvelope(envelope);
             } else {
                 doSetDisplayArea(envelope);
-                displayAreaChanged = true;
+                clearLabelCache = true;
                 repaint();
             }
             
@@ -785,11 +785,11 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
 
         if (acceptRepaintRequests) {
 
-            if (context == null || renderer == null) {
-                return;
-            }
-
-            if (curPaintArea == null ) {
+            if (curPaintArea == null || 
+                context == null ||
+                context.getLayerCount() == 0 ||
+                renderer == null) {
+                
                 return;
             }
 
@@ -801,7 +801,7 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
                 baseImageGraphics = baseImage.createGraphics();
                 needNewBaseImage = false;
                 redrawBaseImage = true;
-                labelCache.clear();
+                clearLabelCache = true;
             }
 
             final ReferencedEnvelope mapAOI = context.getAreaOfInterest();
@@ -813,7 +813,7 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
                 if (baseImageMoved) {
                     afterImageMove(mapAOI, curPaintArea);
                     baseImageMoved = false;
-                    labelCache.clear();
+                    clearLabelCache = true;
                 }
 
                 if (renderingExecutor.submit(mapAOI, curPaintArea, baseImageGraphics)) {
@@ -821,6 +821,7 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
                     publishEvent(ev);
 
                 } else {
+                    System.out.println("task rejected");
                     onRenderingRejected();
                 }
 
@@ -843,9 +844,10 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
     public void onRenderingCompleted() {
         System.out.println("onRenderingCompleted");
 
-        if (displayAreaChanged) {
+        if (clearLabelCache) {
             labelCache.clear();
         }
+        clearLabelCache = false;
 
         Graphics2D paneGr = (Graphics2D) this.getGraphics();
         paneGr.drawImage(baseImage, imageOrigin.x, imageOrigin.y, null);

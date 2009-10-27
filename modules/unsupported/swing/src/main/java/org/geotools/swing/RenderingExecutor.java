@@ -25,6 +25,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -79,6 +80,12 @@ public class RenderingExecutor {
 
     private long pollingInterval;
 
+    /*
+     * This latch is used to avoid a race between the cancellation of
+     * a current task and the submittal of a new task
+     */
+    private CountDownLatch cancelLatch;
+
     /**
      * Constants to indicate the result of a rendering task
      */
@@ -89,6 +96,8 @@ public class RenderingExecutor {
         FAILED;
     }
 
+    private long numFeatures;
+
     /**
      * A rendering task
      */
@@ -97,6 +106,7 @@ public class RenderingExecutor {
         private final ReferencedEnvelope envelope;
         private final Rectangle paintArea;
         private final Graphics2D graphics;
+
         private boolean cancelled;
         private boolean failed;
 
@@ -111,7 +121,7 @@ public class RenderingExecutor {
             this.envelope = envelope;
             this.paintArea = paintArea;
             this.graphics = graphics;
-            cancelled = false;
+            this.cancelled = false;
             failed = false;
         }
 
@@ -124,19 +134,23 @@ public class RenderingExecutor {
         public TaskResult call() throws Exception {
             if (!cancelled) {
                 GTRenderer renderer = mapPane.getRenderer();
-                renderer.addRenderListener(this);
+                try {
+                    renderer.addRenderListener(this);
 
-                /*
-                 * Clear the paint area
-                 */
-                Composite composite = graphics.getComposite();
-                graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR, 0.0f));
-                graphics.fill(paintArea);
-                graphics.setComposite(composite);
+                    /*
+                     * Clear the paint area
+                     */
+                    Composite composite = graphics.getComposite();
+                    graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR, 0.0f));
+                    graphics.fill(paintArea);
+                    graphics.setComposite(composite);
 
-                renderer.paint(graphics, mapPane.getVisibleRect(), envelope, mapPane.getWorldToScreenTransform());
-
-                renderer.removeRenderListener(this);
+                    numFeatures = 0;
+                    renderer.paint(graphics, mapPane.getVisibleRect(), envelope, mapPane.getWorldToScreenTransform());
+                    
+                } finally {
+                    renderer.removeRenderListener(this);
+                }
             }
 
             if (cancelled) {
@@ -166,7 +180,8 @@ public class RenderingExecutor {
          */
         public void featureRenderer(SimpleFeature feature) {
             // @todo update a progress listener
-            }
+            numFeatures++ ;
+        }
 
         /**
          * Called by the renderer on error
@@ -195,6 +210,7 @@ public class RenderingExecutor {
         taskExecutor = Executors.newSingleThreadExecutor();
         watchExecutor = Executors.newSingleThreadScheduledExecutor();
         pollingInterval = DEFAULT_POLLING_INTERVAL;
+        cancelLatch = new CountDownLatch(0);
     }
 
     /**
@@ -229,7 +245,14 @@ public class RenderingExecutor {
      *         rejected
      */
     public synchronized boolean submit(ReferencedEnvelope envelope, Rectangle paintArea, Graphics2D graphics) {
-        if (!isRunning()) {
+        if (!isRunning() || cancelLatch.getCount() > 0) {
+            try {
+                // wait for any cancelled task to finish its shutdown
+                cancelLatch.await();
+            } catch (InterruptedException ex) {
+                return false;
+            }
+
             task = new Task(envelope, paintArea, graphics);
             taskRunning.set(true);
             taskResult = taskExecutor.submit(task);
@@ -249,16 +272,24 @@ public class RenderingExecutor {
     /**
      * Cancel the current rendering task if one is running
      */
-    public void cancelTask() {
+    public synchronized void cancelTask() {
         if (isRunning()) {
             task.cancel();
+            cancelLatch = new CountDownLatch(1);
         }
     }
 
     private void pollTaskResult() {
+        System.out.println("polling");
+        System.out.flush();
+
         if (!taskResult.isDone()) {
             return;
         }
+
+        System.out.println("task finished");
+        System.out.println("num features: " + numFeatures);
+        System.out.flush();
 
         TaskResult result = TaskResult.PENDING;
 
@@ -273,16 +304,23 @@ public class RenderingExecutor {
 
         switch (result) {
             case CANCELLED:
+                cancelLatch.countDown();
+                System.out.println("cancelled");
                 mapPane.onRenderingCancelled();
                 break;
 
             case COMPLETED:
+                System.out.println("completed");
                 mapPane.onRenderingCompleted();
                 break;
 
             case FAILED:
+                System.out.println("failed");
                 mapPane.onRenderingFailed();
                 break;
+
+            default:
+                System.out.println("undefined result");
         }
     }
 
