@@ -147,7 +147,7 @@ public class RenderingExecutor {
 
                     numFeatures = 0;
                     renderer.paint(graphics, mapPane.getVisibleRect(), envelope, mapPane.getWorldToScreenTransform());
-                    
+
                 } finally {
                     renderer.removeRenderListener(this);
                 }
