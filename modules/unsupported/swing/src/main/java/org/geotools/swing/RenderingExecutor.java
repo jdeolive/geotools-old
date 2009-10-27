@@ -280,16 +280,9 @@ public class RenderingExecutor {
     }
 
     private void pollTaskResult() {
-        System.out.println("polling");
-        System.out.flush();
-
         if (!taskResult.isDone()) {
             return;
         }
-
-        System.out.println("task finished");
-        System.out.println("num features: " + numFeatures);
-        System.out.flush();
 
         TaskResult result = TaskResult.PENDING;
 
@@ -305,22 +298,16 @@ public class RenderingExecutor {
         switch (result) {
             case CANCELLED:
                 cancelLatch.countDown();
-                System.out.println("cancelled");
                 mapPane.onRenderingCancelled();
                 break;
 
             case COMPLETED:
-                System.out.println("completed");
                 mapPane.onRenderingCompleted();
                 break;
 
             case FAILED:
-                System.out.println("failed");
                 mapPane.onRenderingFailed();
                 break;
-
-            default:
-                System.out.println("undefined result");
         }
     }
 

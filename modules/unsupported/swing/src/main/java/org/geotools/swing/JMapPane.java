@@ -779,8 +779,6 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
      */
     @Override
     protected void paintComponent(Graphics g) {
-        System.out.println("paintComponent");
-
         super.paintComponent(g);
 
         if (acceptRepaintRequests) {
@@ -821,7 +819,6 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
                     publishEvent(ev);
 
                 } else {
-                    System.out.println("task rejected");
                     onRenderingRejected();
                 }
 
@@ -842,8 +839,6 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
      * @see MapPaneListener#onRenderingStopped(org.geotools.swing.event.MapPaneEvent)
      */
     public void onRenderingCompleted() {
-        System.out.println("onRenderingCompleted");
-
         if (clearLabelCache) {
             labelCache.clear();
         }
