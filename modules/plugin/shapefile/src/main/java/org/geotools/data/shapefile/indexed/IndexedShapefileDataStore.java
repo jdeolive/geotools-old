@@ -288,7 +288,8 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
         String defaultGeomName = schema.getGeometryDescriptor().getLocalName();
 
 
-        if(propertyNames.length > 0) {
+        // add the attributes we need to read to keep the filtering going
+        if(propertyNames.length  > 0) {
             FilterAttributeExtractor fae = new FilterAttributeExtractor();
             query.getFilter().accept(fae, null);
     
@@ -299,26 +300,25 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
                     .size()]);
         }
 
+        // check what we actually have to read
         SimpleFeatureType newSchema = schema;
         boolean readDbf = true;
         boolean readGeometry = true;
         try {
-            if (((query.getPropertyNames() != null)
+            if (((query.getPropertyNames() != Query.NO_NAMES)
                     && (propertyNames.length == 1) && propertyNames[0]
                     .equals(defaultGeomName))) {
                 readDbf = false;
                 newSchema = createSubType( propertyNames);
-            } else if ((query.getPropertyNames() != null)
+            } else if ((query.getPropertyNames() == Query.NO_NAMES)
                     && (propertyNames.length == 0)) {
                 readDbf = false;
                 readGeometry = false;
                 newSchema = createSubType( propertyNames);
-            }
-            else if( propertyNames.length > 0 && !propertyNames[0].equals(defaultGeomName) ){
+            } else if( propertyNames.length > 0 && !propertyNames[0].equals(defaultGeomName) ){
                 readGeometry = false;
                 newSchema = createSubType(propertyNames);
-            }
-            else if(propertyNames.length > 0) {
+            } else if(propertyNames.length > 0) {
                 newSchema = createSubType(propertyNames);
             }
 

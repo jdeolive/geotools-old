@@ -323,10 +323,6 @@ public class IndexedShapefileDataStoreTest extends TestCaseSupport {
         ds2.dispose();
     }
 
-    /**
-     * A FeatureCollection that only has FeatureIds (ie no geometry no attributes)
-     * is used to model "selection" in uDig.
-     */
     public void testSelectionQuery() throws Exception {
         File shpFile = copyShapefiles(STATE_POP);
         URL url = shpFile.toURI().toURL();
@@ -340,14 +336,27 @@ public class IndexedShapefileDataStoreTest extends TestCaseSupport {
         
         assertNotNull( "selection query worked", features );
         assertTrue( "selection non empty", features.size() > 0 );
+        ReferencedEnvelope bounds = features.getBounds();
+        
         final Set<FeatureId> selection = new LinkedHashSet<FeatureId>();
-        features.accepts( new FeatureVisitor() {            
+        features.accepts( new FeatureVisitor() {
             public void visit(Feature feature) {
                 selection.add( feature.getIdentifier() );
             }
         }, null );
+        assertFalse( selection.isEmpty() );
         
+        // try with filter and no attributes
+        FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
+        String geomName = schema.getGeometryDescriptor().getName().getLocalPart();
+        
+        query.setFilter( ff.bbox( ff.property(geomName), bounds) );
+        features = featureSource.getFeatures( query );
+        
+        assertNotNull( "selection query worked", features );
+        assertTrue( "selection non empty", features.size() > 0 );
     }
+
     public void testFidFilter() throws Exception {
         File shpFile = copyShapefiles(STATE_POP);
         URL url = shpFile.toURI().toURL();
