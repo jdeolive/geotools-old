@@ -110,6 +110,20 @@ public class XmlFeatureTypeMapping extends FeatureTypeMapping {
                 mappings.add(mapping.get(listPath)); 
             }
         }
+        
+        if (mappings.isEmpty()) {
+            // look in the setter attributes
+            Iterator<TreeAttributeMapping> leafAtts = setterAttributes.iterator();
+            while (leafAtts.hasNext()) {
+                TreeAttributeMapping att = leafAtts.next();
+                String listPath = att.getTargetXPath().toString();
+                String unindexedListPath = removeIndexFromPath(listPath);
+                if (path.equals(unindexedListPath)) {
+                    mappings.add(att.getSourceExpression().toString());
+                }
+            }
+
+        }
         return mappings;
     }
 

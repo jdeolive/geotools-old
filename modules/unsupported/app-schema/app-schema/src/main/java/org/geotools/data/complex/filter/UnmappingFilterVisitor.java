@@ -30,6 +30,8 @@ import java.util.logging.Logger;
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
+import org.geotools.data.DataAccess;
+import org.geotools.data.complex.AppSchemaDataAccess;
 import org.geotools.data.complex.AppSchemaDataAccessRegistry;
 import org.geotools.data.complex.AttributeMapping;
 import org.geotools.data.complex.FeatureTypeMapping;
@@ -39,6 +41,7 @@ import org.geotools.data.complex.filter.XPath.StepList;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.NameImpl;
 import org.geotools.feature.Types;
+import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.NestedAttributeExpression;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.Name;
@@ -893,26 +896,48 @@ public class UnmappingFilterVisitor implements org.opengis.filter.FilterVisitor,
                                         "Can't find source expression for: " + targetXPath);
                             }
                         }
-                        Expression srcExpression = matchedExpressions.get(0);
-                        if (!srcExpression.equals(Expression.NIL)) {
-                            if (isNestedMapping) {
+                        if (isNestedMapping) {
+                            if (!matchedExpressions.get(0).equals(Expression.NIL)) {
                                 nestedMappings.add(ff.literal(featureTypeName));
-                                nestedMappings.add(srcExpression);
-                                if (isLast) {
-                                    break;
-                                }
+                                nestedMappings.add(matchedExpressions.get(0));
                                 nextRootIndex++;
                                 stepIncrement = 0;
                                 isNestedMapping = false;
-                            } else {
-                                // mapping found
-                                matchingMappings.add(srcExpression);
-                                break;
                             }
+                        } else if (isLast) {
+                            // must be it
+                            matchingMappings.add(matchedExpressions.get(0));
                         } else {
-                            // NIL expression.. so this is just the header, keep looking
-                            incrementStep = true;
+                            // not the last.. check if the leaf attributes are mapped in the back
+                            // end
+                            DataAccess da = this.mappings.getSource().getDataStore();
+                            if (da instanceof AppSchemaDataAccess) {
+                                // check if the leaf attributes are mapped in the
+                                // back end complex features mapping
+                                FeatureTypeMapping backEndMappings;
+                                try {
+                                    backEndMappings = ((AppSchemaDataAccess) da)
+                                            .getMapping(featureTypeName);
+                                } catch (IOException e) {
+                                    throw new UnsupportedOperationException("Mapping for '"
+                                            + featureTypeName + "' not found!!");
+                                }
+                                AttributeMapping wrappedMapping = backEndMappings
+                                        .getAttributeMapping(simplifiedSteps.subList(nextRootIndex,
+                                                simplifiedSteps.size()));
+                                if (wrappedMapping != null) {
+                                    // it is mapped, but in the back end
+                                    matchingMappings.add(new AttributeExpressionImpl(wrappedMapping
+                                            .getTargetXPath().toString()));
+                                    break;
+                                }
+                            }
                         }
+                        if (isLast) {
+                            break;
+                        }
+                        // not last, keep going
+                        incrementStep = true;
                     }
                 }
                 if (incrementStep || mapping == null) {
