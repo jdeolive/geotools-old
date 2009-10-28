@@ -13,7 +13,6 @@ package org.geotools.demo;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,7 +20,6 @@ import java.util.List;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
 import org.geotools.coverage.GridSampleDimension;
@@ -104,7 +102,7 @@ public class ImageLab {
      *            the Shapefile
      */
     private void displayLayers(File rasterFile, File shpFile) throws Exception {
-        // AbstractGridFormat format = GridFormatFinder.findFormat( rasterFile );        
+        AbstractGridFormat format = GridFormatFinder.findFormat( rasterFile );        
         reader = format.getReader(rasterFile);
 
         // Initially display the raster in greyscale using the
