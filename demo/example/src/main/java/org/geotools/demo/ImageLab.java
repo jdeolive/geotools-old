@@ -104,42 +104,28 @@ public class ImageLab {
      *            the Shapefile
      */
     private void displayLayers(File rasterFile, File shpFile) throws Exception {
-        /*
-         * Use GridFormatFinder to obtain a grid coverage reader
-         */
-        AbstractGridFormat format = GridFormatFinder.findFormat( rasterFile );        
+        // AbstractGridFormat format = GridFormatFinder.findFormat( rasterFile );        
         reader = format.getReader(rasterFile);
 
-        /*
-         * Initially display the raster in greyscale using the
-         * data from the first image band
-         */
+        // Initially display the raster in greyscale using the
+        // data from the first image band
         Style rasterStyle = createGreyscaleStyle(1);
 
-        /*
-         * Connect to the shapefile
-         */
+        // Connect to the shapefile
         FileDataStore dataStore = FileDataStoreFinder.getDataStore(shpFile);
         FeatureSource<SimpleFeatureType, SimpleFeature> shapefileSource = dataStore
                 .getFeatureSource();
 
-        /*
-         * Create a basic style with yellow lines and no fill
-         */
+        // Create a basic style with yellow lines and no fill
         Style shpStyle = SLD.createPolygonStyle(Color.YELLOW, null, 0.0f);
 
-        /*
-         * Set up a MapContext with the two layers
-         */
+        // Set up a MapContext with the two layers
         final MapContext map = new DefaultMapContext();
         map.setTitle("ImageLab");
         map.addLayer(reader, rasterStyle);
         map.addLayer(shapefileSource, shpStyle);
 
-        /*
-         * Create a JMapFrame with a menu to choose the display style for the
-         * GeoTIFF image
-         */
+        // Create a JMapFrame with a menu to choose the display style for the
         frame = new JMapFrame(map);
         frame.setSize(800, 600);
         frame.enableStatusBar(true);
@@ -170,10 +156,8 @@ public class ImageLab {
                 }
            }
         });
-        /*
-         * Finally display the map frame.
-         * When it is closed the app will exit.
-         */
+        // Finally display the map frame.
+        // When it is closed the app will exit.
         frame.setVisible(true);
     }
     
