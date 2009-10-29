@@ -7,7 +7,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.IndexColorModel;
 import java.awt.image.RenderedImage;
@@ -30,7 +34,6 @@ import org.geotools.coverage.grid.ViewType;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.OverviewPolicy;
-import org.geotools.data.DataSourceException;
 import org.geotools.gce.geotiff.GeoTiffWriter;
 import org.geotools.geometry.Envelope2D;
 import org.geotools.geometry.GeneralEnvelope;
@@ -118,30 +121,51 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         final AbstractGridCoverage2DReader reader = getReader();
         assertNotNull("Couldn't obtain a reader for " + tableName, reader);
 
+        // http://localhost:8080/geoserver/wms?WIDTH=256&LAYERS=sde%3AIMG_USGSQUAD_SGBASE&STYLES=&SRS=EPSG%3A26986&HEIGHT=256&FORMAT=image%2Fjpeg&TILED=true&TILESORIGIN=169118.35%2C874964.388&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&EXCEPTIONS=application%2Fvnd.ogc.se_inimage&BBOX=239038.74625,916916.62575,253022.8255,930900.705
+
         final GeneralEnvelope originalEnvelope = reader.getOriginalEnvelope();
-        final GridEnvelope originalGridRange = reader.getOriginalGridRange();
 
-        final int reqWidth = originalGridRange.getSpan(0) / 50;
-        final int reqHeight = originalGridRange.getSpan(1) / 50;
+        final int reqWidth = 256;
+        final int reqHeight = 256;
 
-        GeneralEnvelope reqEnvelope = new GeneralEnvelope(originalEnvelope
-                .getCoordinateReferenceSystem());
-        double deltaX = originalEnvelope.getSpan(0) / 1;
-        double deltaY = originalEnvelope.getSpan(1) / 1;
-
-        double minx = originalEnvelope.getMedian(0) - deltaX;
-        double miny = originalEnvelope.getMedian(1) - deltaY;
-        double maxx = minx + 2 * deltaX;
-        double maxy = miny + 2 * deltaY;
-        reqEnvelope.setEnvelope(minx, miny, maxx, maxy);
-
-        assertTrue(originalEnvelope.intersects(reqEnvelope, true));
+        GeneralEnvelope reqEnvelope = new GeneralEnvelope(originalEnvelope);
+        reqEnvelope.setEnvelope(239038.74625, 916916.62575, 253022.8255, 930900.705);
 
         final GridCoverage2D coverage = readCoverage(reader, reqWidth, reqHeight, reqEnvelope);
         assertNotNull("read coverage returned null", coverage);
 
         RenderedImage image = coverage.getRenderedImage();
-        writeToDisk(coverage, "testRead_" + tableName);
+        writeToDisk(image, "testRead_" + tableName);
+
+        BufferedImage bi = new BufferedImage(256, 256, BufferedImage.TYPE_4BYTE_ABGR);
+        Graphics2D g = bi.createGraphics();
+        double sx = image.getWidth() / bi.getWidth();
+        double sy = image.getHeight() / bi.getHeight();
+        AffineTransform xform = AffineTransform.getScaleInstance(sx, sy);
+        g.drawRenderedImage(image, xform);
+        
+        writeToDisk(bi, "testRead_" + tableName + "_renderedToBI");
+    }
+
+    @Test
+    public void testIMG_USGSQUAD_SGBASE2() throws Exception {
+        tableName = "SDE.RASTER.IMG_USGSQUAD_SGBASE";
+        final AbstractGridCoverage2DReader reader = getReader();
+        assertNotNull("Couldn't obtain a reader for " + tableName, reader);
+
+        // http://localhost:8080/geoserver/wms?WIDTH=256&LAYERS=sde%3AIMG_USGSQUAD_SGBASE&STYLES=&SRS=EPSG%3A26986&HEIGHT=256&FORMAT=image%2Fjpeg&TILED=true&TILESORIGIN=169118.35%2C874964.388&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&EXCEPTIONS=application%2Fvnd.ogc.se_inimage&BBOX=239038.74625,916916.62575,253022.8255,930900.705
+
+        final GeneralEnvelope originalEnvelope = reader.getOriginalEnvelope();
+        final GridEnvelope originalGridRange = reader.getOriginalGridRange();
+
+        final int reqWidth = originalGridRange.getSpan(0) / 30;
+        final int reqHeight = originalGridRange.getSpan(1) / 30;
+
+        final GridCoverage2D coverage = readCoverage(reader, reqWidth, reqHeight, originalEnvelope);
+        assertNotNull("read coverage returned null", coverage);
+
+        RenderedImage image = coverage.getRenderedImage();
+        writeToDisk(image, "testRead_" + tableName);
     }
 
     @Test
@@ -168,7 +192,7 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         writeToDisk(coverage, "testRead_" + tableName);
 
         RenderedImage image = coverage.view(ViewType.RENDERED).getRenderedImage();
-        //writeToDisk(image, tableName);
+        // writeToDisk(image, tableName);
     }
 
     @Test
@@ -186,8 +210,8 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         final GridCoverage2D coverage = readCoverage(reader, reqWidth, reqHeight, originalEnvelope);
         assertNotNull("read coverage returned null", coverage);
 
-        // RenderedImage image = coverage.getRenderedImage();
-        //writeToDisk(coverage, "testRead_" + tableName);
+        RenderedImage image = coverage.getRenderedImage();
+        writeToDisk(image, "testRead_" + tableName);
     }
 
     @Test
@@ -220,7 +244,7 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         System.out.println("result envelope   : " + envelope2D);
 
         // RenderedImage image = coverage.getRenderedImage();
-        //writeToDisk(coverage, "testRead_" + tableName);
+        // writeToDisk(coverage, "testRead_" + tableName);
 
         RenderedImage image = coverage.view(ViewType.RENDERED).getRenderedImage();
         writeToDisk(image, tableName);
@@ -263,7 +287,7 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
 
         System.out.println("result envelope   : " + envelope2D);
 
-       // writeToDisk(coverage, "testRead_" + tableName);
+        // writeToDisk(coverage, "testRead_" + tableName);
     }
 
     @Test
@@ -276,8 +300,8 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         final GeneralEnvelope originalEnvelope = reader.getOriginalEnvelope();
         GridEnvelope originalGridRange = reader.getOriginalGridRange();
 
-        final int reqWidth = 800;// originalGridRange.getSpan(0) / 8;
-        final int reqHeight = 595;// originalGridRange.getSpan(1) / 8;
+        final int reqWidth = 100;// 800;// originalGridRange.getSpan(0) / 8;
+        final int reqHeight = 75;// 595;// originalGridRange.getSpan(1) / 8;
 
         GeneralEnvelope reqEnvelope = new GeneralEnvelope(new double[] { 274059, 837434 },
                 new double[] { 355782, 898216 });
@@ -374,7 +398,7 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         System.out.println("result envelope   : " + envelope2D);
 
         // RenderedImage image = coverage.getRenderedImage();
-       // writeToDisk(coverage, "testRead_" + tableName);
+        // writeToDisk(coverage, "testRead_" + tableName);
     }
 
     private void writeToDisk(GridCoverage2D coverage, String fileName) throws Exception {
@@ -484,10 +508,10 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         System.out.println("result envelope   : " + envelope2D);
 
         // RenderedImage image = coverage.getRenderedImage();
-       // writeToDisk(coverage, "testRead_" + tableName);
+        // writeToDisk(coverage, "testRead_" + tableName);
 
         RenderedImage image = coverage.view(ViewType.RENDERED).getRenderedImage();
-       // writeToDisk(image, tableName);
+        // writeToDisk(image, tableName);
 
         // writeBand(image, new int[] { 0 }, "band1");
     }

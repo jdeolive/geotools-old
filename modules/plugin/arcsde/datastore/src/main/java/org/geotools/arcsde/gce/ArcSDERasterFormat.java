@@ -418,7 +418,7 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
         params.put(ArcSDEConnectionConfig.USER_NAME_PARAM_NAME, sdeUser);
         params.put(ArcSDEConnectionConfig.PASSWORD_PARAM_NAME, sdePass);
         params.put(ArcSDEConnectionConfig.MIN_CONNECTIONS_PARAM_NAME, "1");
-        params.put(ArcSDEConnectionConfig.MAX_CONNECTIONS_PARAM_NAME, "10");
+        params.put(ArcSDEConnectionConfig.MAX_CONNECTIONS_PARAM_NAME, "20");
         params.put(ArcSDEConnectionConfig.CONNECTION_TIMEOUT_PARAM_NAME, "-1");// do not wait
 
         ArcSDEConnectionConfig config = ArcSDEConnectionConfig.fromMap(params);

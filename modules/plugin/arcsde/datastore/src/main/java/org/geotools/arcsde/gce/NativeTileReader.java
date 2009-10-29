@@ -363,10 +363,13 @@ final class NativeTileReader implements TileReader {
         /*
          * Obtain the ISession this tile reader will work with until exhausted
          */
-
-        final boolean transactional = false;
         try {
+            // lets share connections as we're going to do read only operations
+            final boolean transactional = false;
             this.session = sessionPool.getSession(transactional);
+            System.err.println("----> Using " + session + " to read raster #" + rasterId
+                    + " on Thread " + Thread.currentThread().getName() + ". Tile set: "
+                    + requestedTiles);
             if (LOGGER.isLoggable(Level.FINER)) {
                 LOGGER.finer("Using " + session + " to read raster #" + rasterId + " on Thread "
                         + Thread.currentThread().getName() + ". Tile set: " + requestedTiles);
@@ -426,9 +429,15 @@ final class NativeTileReader implements TileReader {
                 noData.setAll(bandId, tileData);
             } else if (pixelsPerTile == numPixels) {
 
+                // try {
+                // tile.getPixels(tileData);
+                // } catch (Exception e) {
+                // e.printStackTrace();
+                // throw new RuntimeException(e);
+                // }
+
                 final byte[] rawTileData = tile.getPixelData();
-                //System.out.println("got raw tile data " + rawTileData);
-                
+
                 System.arraycopy(rawTileData, 0, tileData, 0, tileDataLength);
 
                 if (bitMaskData.length > 0) {
@@ -482,13 +491,15 @@ final class NativeTileReader implements TileReader {
      */
     public void dispose() {
         if (session != null) {
+            System.err.println("TileReader disposing " + session + " on Thread "
+                    + Thread.currentThread().getName());
             if (LOGGER.isLoggable(Level.FINER)) {
                 LOGGER.finer("TileReader disposing " + session + " on Thread "
                         + Thread.currentThread().getName());
             }
             try {
                 session.close(this.preparedQuery);
-            } catch (Exception e) { 
+            } catch (Exception e) {
                 LOGGER.log(Level.WARNING, "Closing tile reader's prepared Query", e);
             }
             session.dispose();

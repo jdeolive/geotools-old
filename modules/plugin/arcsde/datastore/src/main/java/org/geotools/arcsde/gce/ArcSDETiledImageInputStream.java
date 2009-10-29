@@ -28,7 +28,9 @@ import javax.imageio.stream.ImageInputStreamImpl;
  * @author Gabriel Roldan (OpenGeo)
  * @since 2.5.4
  * @version $Id$
- * @source $URL$
+ * @source $URL:
+ *         http://svn.osgeo.org/geotools/trunk/modules/plugin/arcsde/datastore/src/main/java/org
+ *         /geotools/arcsde/gce/ArcSDETiledImageInputStream.java $
  */
 final class ArcSDETiledImageInputStream extends ImageInputStreamImpl implements ImageInputStream {
 
@@ -40,6 +42,10 @@ final class ArcSDETiledImageInputStream extends ImageInputStreamImpl implements 
 
     private int currTileDataIndex;
 
+    private int currTileIndex = -1;
+
+    private final int length;
+
     public ArcSDETiledImageInputStream(final TileReader tileReader) {
         super();
         this.tileReader = tileReader;
@@ -48,6 +54,12 @@ final class ArcSDETiledImageInputStream extends ImageInputStreamImpl implements 
         this.currTileData = new byte[bytesPerTile];
         // force load at the first read invocation
         this.currTileDataIndex = tileDataLength;
+
+        final int tilesWide = tileReader.getTilesWide();
+        final int tilesHigh = tileReader.getTilesHigh();
+        final int numberOfBands = tileReader.getNumberOfBands();
+
+        length = bytesPerTile * tilesWide * tilesHigh * numberOfBands;
     }
 
     /**
@@ -56,14 +68,6 @@ final class ArcSDETiledImageInputStream extends ImageInputStreamImpl implements 
      */
     @Override
     public long length() {
-        final int bytesPerTile = tileReader.getBytesPerTile();
-        final int tilesWide = tileReader.getTilesWide();
-        final int tilesHigh = tileReader.getTilesHigh();
-        final int numberOfBands = tileReader.getNumberOfBands();
-        // final int bitsPerSample = tileReader.getBitsPerSample();
-
-        int length = bytesPerTile * tilesWide * tilesHigh * numberOfBands;
-
         return length;
     }
 
@@ -74,7 +78,8 @@ final class ArcSDETiledImageInputStream extends ImageInputStreamImpl implements 
             return -1;
         }
         byte b = data[currTileDataIndex];
-        currTileDataIndex++;
+        ++currTileDataIndex;
+        ++streamPos;
         return b;
     }
 
@@ -88,6 +93,7 @@ final class ArcSDETiledImageInputStream extends ImageInputStreamImpl implements 
         final int count = Math.min(available, len);
         System.arraycopy(data, currTileDataIndex, buff, off, count);
         currTileDataIndex += count;
+        streamPos += count;
         return count;
     }
 
@@ -110,6 +116,7 @@ final class ArcSDETiledImageInputStream extends ImageInputStreamImpl implements 
             }
 
             currTileDataIndex = 0;
+            ++currTileIndex;
             tileReader.next(currTileData);
         }
         return currTileData;
@@ -119,5 +126,51 @@ final class ArcSDETiledImageInputStream extends ImageInputStreamImpl implements 
     public void close() throws IOException {
         tileReader.dispose();
         super.close();
+    }
+
+    // @Override
+    public void _seek(final long newPos) throws IOException {
+        if (newPos == streamPos) {
+            //System.err.println("seek to currPos " + newPos + ". currPos = " + streamPos);
+            return;
+        }
+//        if (newPos < streamPos) {
+//            System.err.println("back seek to " + newPos + ". currPos = " + streamPos);
+//        }else{
+//            System.err.println("Forward seek to " + newPos + ". currPos = " + streamPos);
+//        }
+        super.seek(newPos);
+//        if (newPos >= length) {
+//            //System.err.println("---> seek to " + newPos + " > length: " + length);
+//            return;
+//        }
+//
+//        // force tile for newPos to be loaded
+//        //this.currTileDataIndex = tileDataLength;
+//        
+//        
+//        final long actualPos = ((long)tileDataLength * currTileIndex) + currTileDataIndex;
+//        if(newPos > actualPos){
+//            System.err.println("---> seek to " + newPos + " > actualPos: " + actualPos);
+//            int delta = (int) (newPos - actualPos);
+//            int newDataIndex = currTileDataIndex + delta;
+//            while(newDataIndex > tileDataLength){
+//                // force tile for newPos to be loaded
+//                this.currTileDataIndex = tileDataLength;
+//                getTileData();
+//                newDataIndex -= tileDataLength;
+//            }
+//            this.currTileDataIndex = newDataIndex;
+//        }
+    }
+
+    @Override
+    public boolean isCached() {
+        return true;
+    }
+
+    @Override
+    public boolean isCachedMemory() {
+        return true;
     }
 }
