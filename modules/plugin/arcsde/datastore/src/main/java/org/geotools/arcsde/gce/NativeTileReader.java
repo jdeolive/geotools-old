@@ -367,9 +367,9 @@ final class NativeTileReader implements TileReader {
             // lets share connections as we're going to do read only operations
             final boolean transactional = false;
             this.session = sessionPool.getSession(transactional);
-            System.err.println("----> Using " + session + " to read raster #" + rasterId
-                    + " on Thread " + Thread.currentThread().getName() + ". Tile set: "
-                    + requestedTiles);
+            // System.err.println("----> Using " + session + " to read raster #" + rasterId
+            // + " on Thread " + Thread.currentThread().getName() + ". Tile set: "
+            // + requestedTiles);
             if (LOGGER.isLoggable(Level.FINER)) {
                 LOGGER.finer("Using " + session + " to read raster #" + rasterId + " on Thread "
                         + Thread.currentThread().getName() + ". Tile set: " + requestedTiles);
@@ -491,8 +491,8 @@ final class NativeTileReader implements TileReader {
      */
     public void dispose() {
         if (session != null) {
-            System.err.println("TileReader disposing " + session + " on Thread "
-                    + Thread.currentThread().getName());
+            // System.err.println("TileReader disposing " + session + " on Thread "
+            // + Thread.currentThread().getName());
             if (LOGGER.isLoggable(Level.FINER)) {
                 LOGGER.finer("TileReader disposing " + session + " on Thread "
                         + Thread.currentThread().getName());
