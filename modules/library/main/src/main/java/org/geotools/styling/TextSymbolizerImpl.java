@@ -417,10 +417,7 @@ public class TextSymbolizerImpl implements TextSymbolizer2, Cloneable {
     }
 
     public void addToOptions(String key, String value) {
-        if (optionsMap == null) {
-            optionsMap = new HashMap<String,String>();
-        }
-        optionsMap.put(key, value.trim());
+        getOptions().put(key, value.trim());
     }
 
     public String getOption(String key) {
@@ -432,6 +429,9 @@ public class TextSymbolizerImpl implements TextSymbolizer2, Cloneable {
     }
 
     public Map<String,String> getOptions() {
+        if (optionsMap == null) {
+            optionsMap = new HashMap<String,String>();
+        }
         return optionsMap;
     }
 

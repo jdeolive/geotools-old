@@ -760,6 +760,7 @@ public class DuplicatingStyleVisitor implements StyleVisitor {
         copy.setLabel( copy( text.getLabel()));
         copy.setLabelPlacement( copy( text.getLabelPlacement()));
         copy.setPriority( copy( text.getPriority()));
+        copy.getOptions().putAll(text.getOptions());
         
         if( STRICT && !copy.equals( text )){
             throw new IllegalStateException("Was unable to duplicate provided TextSymbolizer:"+text );
