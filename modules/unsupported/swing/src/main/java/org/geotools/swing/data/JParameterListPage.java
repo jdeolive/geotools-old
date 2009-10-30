@@ -66,13 +66,13 @@ public class JParameterListPage extends JPage {
     public JPanel createPanel() {
         final JPanel page = super.createPanel();
         page.setLayout(new MigLayout());
-        JLabel title = new JLabel(this.title);
+        JLabel titleLabel = new JLabel(this.title);
         Font titleFont = new Font("Arial", Font.BOLD, 14);
-        title.setFont(titleFont);
-        page.add(title, "span");
+        titleLabel.setFont(titleFont);
+        page.add(titleLabel, "span");
         if( this.description != null ){
-            JLabel description = new JLabel( this.description);
-            page.add(description, "grow, span");
+            JLabel descLabel = new JLabel( this.description);
+            page.add(descLabel, "grow, span");
         }
         for (Parameter<?> param : contents ){            
             String txt = param.title.toString();

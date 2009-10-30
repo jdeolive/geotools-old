@@ -792,10 +792,14 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
             }
 
             if (needNewBaseImage) {
-                baseImage = new BufferedImage(curPaintArea.width + 1, curPaintArea.height + 1, BufferedImage.TYPE_INT_ARGB);
+                baseImage = new BufferedImage(
+                        curPaintArea.width + 1, curPaintArea.height + 1,
+                        BufferedImage.TYPE_INT_ARGB);
+
                 if (baseImageGraphics != null) {
                     baseImageGraphics.dispose();
                 }
+                
                 baseImageGraphics = baseImage.createGraphics();
                 needNewBaseImage = false;
                 redrawBaseImage = true;

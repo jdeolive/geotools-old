@@ -17,6 +17,7 @@
 
 package org.geotools.swing.dndlist;
 
+import org.geotools.swing.controls.DnDListModel;
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
