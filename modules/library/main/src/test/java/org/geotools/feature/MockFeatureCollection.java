@@ -24,9 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.geotools.feature.visitor.FeatureVisitor;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.util.ProgressListener;
 import org.opengis.feature.GeometryAttribute;
 import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
@@ -50,9 +48,6 @@ public class MockFeatureCollection implements FeatureCollection<SimpleFeatureTyp
     public MockFeatureCollection() {
     }
 
-    public void accepts(FeatureVisitor visitor, ProgressListener progress)
-            throws IOException {
-    }
     
     public void accepts(org.opengis.feature.FeatureVisitor visitor,
             org.opengis.util.ProgressListener progress) {

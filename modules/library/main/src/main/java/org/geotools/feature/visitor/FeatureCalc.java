@@ -16,6 +16,8 @@
  */
 package org.geotools.feature.visitor;
 
+import org.opengis.feature.FeatureVisitor;
+
 /**
  * A visitor which performs a calculation on a FeatureCollection. A FeatureCalc
  * will not modify the features visited.

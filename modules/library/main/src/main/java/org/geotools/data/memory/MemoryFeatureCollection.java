@@ -135,10 +135,7 @@ public class MemoryFeatureCollection extends AbstractFeatureCollection implement
     @Override
     public ReferencedEnvelope getBounds() {
         BoundsVisitor bounds = new BoundsVisitor();
-        try {
-            accepts(bounds, new NullProgressListener());
-        } catch (IOException e) {
-        }
+        accepts(bounds, new NullProgressListener());
         return bounds.getBounds();
     }
 

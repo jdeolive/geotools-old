@@ -27,7 +27,6 @@ import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 
 import org.geotools.feature.IllegalAttributeException;
-import org.geotools.feature.visitor.FeatureVisitor;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.util.ProgressListener;
 import org.opengis.feature.Feature;
@@ -67,11 +66,6 @@ public class DecoratingFeatureCollection<T extends FeatureType, F extends Featur
 	protected DecoratingFeatureCollection(FeatureCollection<T, F> delegate) {
 		this.delegate = delegate;
 	}
-
-    public void accepts(FeatureVisitor visitor, ProgressListener progress)
-            throws IOException {
-        delegate.accepts(visitor, progress);
-    }
 
     public void accepts(org.opengis.feature.FeatureVisitor visitor,
             org.opengis.util.ProgressListener progress) throws IOException {

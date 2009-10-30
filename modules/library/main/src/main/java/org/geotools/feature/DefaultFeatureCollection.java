@@ -36,7 +36,6 @@ import org.geotools.feature.collection.FeatureIteratorImpl;
 import org.geotools.feature.collection.SubFeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeImpl;
-import org.geotools.feature.visitor.FeatureVisitor;
 import org.geotools.filter.SortBy2;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.util.NullProgressListener;
@@ -764,10 +763,6 @@ public class DefaultFeatureCollection implements FeatureCollection<SimpleFeature
             throws NullPointerException {
             	listeners.remove(listener);
             }
-
-    public final void accepts(FeatureVisitor visitor, ProgressListener progress) throws IOException {
-        accepts( (org.opengis.feature.FeatureVisitor)visitor, (org.opengis.util.ProgressListener)progress);
-    }
 
     public SimpleFeatureType getSchema() {
     	return schema;

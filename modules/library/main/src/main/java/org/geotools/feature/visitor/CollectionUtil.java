@@ -17,6 +17,7 @@
 package org.geotools.feature.visitor;
 
 import org.geotools.feature.FeatureCollection;
+import org.opengis.feature.FeatureVisitor;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 

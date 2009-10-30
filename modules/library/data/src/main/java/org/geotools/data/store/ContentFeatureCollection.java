@@ -37,7 +37,6 @@ import org.geotools.feature.CollectionListener;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
-import org.geotools.feature.visitor.FeatureVisitor;
 import org.geotools.filter.SortBy;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.util.NullProgressListener;
@@ -126,15 +125,6 @@ public class ContentFeatureCollection implements FeatureCollection<SimpleFeature
     }
     
     //Visitors
-    /**
-     * Accepts a visitor, which then visits each feature in the collection.
-     * @throws IOException 
-     */
-    public void accepts(FeatureVisitor visitor, ProgressListener progress ) throws IOException {
-        accepts( (org.opengis.feature.FeatureVisitor) visitor, 
-            (org.opengis.util.ProgressListener) progress );
-    }
-
     public void accepts(org.opengis.feature.FeatureVisitor visitor,
             org.opengis.util.ProgressListener progress) throws IOException {
         featureSource.accepts( query, visitor, progress);

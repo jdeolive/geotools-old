@@ -35,11 +35,7 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 public class BoundsVisitor implements FeatureCalc {
     ReferencedEnvelope bounds = new ReferencedEnvelope();    
-    
-    public void visit(SimpleFeature feature) {
-       visit((org.opengis.feature.Feature)feature);
-    }
-    
+        
     public void visit(org.opengis.feature.Feature feature) {
         bounds.include( feature.getBounds() );
     }

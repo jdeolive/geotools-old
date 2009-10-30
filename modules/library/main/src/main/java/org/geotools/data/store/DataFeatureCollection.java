@@ -38,7 +38,6 @@ import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.collection.DelegateFeatureIterator;
 import org.geotools.feature.collection.SubFeatureCollection;
-import org.geotools.feature.visitor.FeatureVisitor;
 import org.geotools.filter.SortBy2;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.util.NullProgressListener;
@@ -538,9 +537,6 @@ public abstract class DataFeatureCollection implements FeatureCollection<SimpleF
             throws NullPointerException {
             	listeners.remove(listener);
             }
-    public final void accepts(FeatureVisitor visitor, ProgressListener progress) throws IOException {
-        accepts( (org.opengis.feature.FeatureVisitor)visitor, (org.opengis.util.ProgressListener)progress);
-    }
     public SimpleFeatureType getSchema() {
     	return schema;
     }

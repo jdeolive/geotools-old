@@ -27,7 +27,6 @@ import java.util.Set;
 import org.geotools.feature.CollectionListener;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
-import org.geotools.feature.visitor.FeatureVisitor;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.util.NullProgressListener;
 import org.geotools.util.ProgressListener;
@@ -546,10 +545,6 @@ public abstract class AbstractFeatureCollection implements FeatureCollection<Sim
             throws NullPointerException {
             	listeners.remove(listener);
             }
-
-    public final void accepts(FeatureVisitor visitor, ProgressListener progress) throws IOException {
-        accepts( (org.opengis.feature.FeatureVisitor)visitor, (org.opengis.util.ProgressListener)progress);
-    }
 
     public SimpleFeatureType getSchema() {
     	return schema;
