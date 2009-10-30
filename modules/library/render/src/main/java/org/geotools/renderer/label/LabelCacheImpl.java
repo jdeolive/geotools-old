@@ -129,8 +129,11 @@ public final class LabelCacheImpl implements LabelCache {
     // by default, don't add space around labels
     public int DEFAULT_SPACE_AROUND = 0;
 
-    // default max displacement when labeling lines
-    public int DEFAULT_MAX_DISPLACEMENT = 50;
+    // default max displacement
+    public int DEFAULT_MAX_DISPLACEMENT = 0;
+    
+    // default max displacement when labeling points
+    public int DEFAULT_MAX_DISPLACEMENT_POINT = 0;
 
     // default min distance between labels in the same group (-1 means no min
     // distance)
@@ -174,6 +177,11 @@ public final class LabelCacheImpl implements LabelCache {
     
     // Default value for the goodness of fit threshold
     static final double DEFAULT_GOODNESS_OF_FIT = 0.7;
+    
+    // Anchor candidate values used when looping to find a point label that can be drawn
+    static final double[] RIGHT_ANCHOR_CANDIDATES = new double[] {0,0.5, 0,0, 0,1};
+    static final double[] MID_ANCHOR_CANDIDATES = new double[] {0.5,0.5, 0,0.5, 1,0.5};
+    static final double[] LEFT_ANCHOR_CANDIDATES = new double[] {1,0.5, 1,0, 1,1};
 
     /**
      * When true, the text is rendered as its GlyphVector outline (as a
@@ -396,6 +404,8 @@ public final class LabelCacheImpl implements LabelCache {
         item.setGoodnessOfFit(getDoubleOption(symbolizer, "goodnessOfFit", DEFAULT_GOODNESS_OF_FIT));
         return item;
     }
+    
+    
 
     private int getIntOption(TextSymbolizer symbolizer, String optionName, int defaultValue) {
         String value = symbolizer.getOption(optionName);
@@ -914,13 +924,6 @@ public final class LabelCacheImpl implements LabelCache {
                 + textStyle.getDisplacementX();
         double displacementY = (textStyle.getAnchorY() * (textBounds.getHeight()))
                 - textStyle.getDisplacementY() - textBounds.getHeight() + painter.getLineHeight();
-        if (!textStyle.isPointPlacement()) {
-            // lineplacement. We're cheating here, since we've reduced the
-            // polygon to a point, when we should be trying to do something
-            // a little smarter (like find its median axis!)
-            // just move it up (yes, its cheating)
-            displacementY -= textStyle.getPerpendicularOffset();
-        }
         tempTransform.translate(displacementX, displacementY);
     }
 
@@ -971,9 +974,10 @@ public final class LabelCacheImpl implements LabelCache {
     }
 
     /**
-     * Simple to paint a point (or set of points) Just choose the first one and
-     * paint it!
-     * 
+     * Gets a representative point and tries to place the label according to SLD.
+     * If a maxDisplacement has been set and the default position does not work
+     * a search for a better position is tried on concentric circles around the label
+     * up until the radius of the circle becomes bigger than the max displacement
      */
     private boolean paintPointLabel(LabelPainter painter, AffineTransform tempTransform,
             Rectangle displayArea, LabelIndex glyphs) throws Exception {
@@ -983,7 +987,100 @@ public final class LabelCacheImpl implements LabelCache {
         if (point == null)
             return false;
 
-        TextStyle2D textStyle = labelItem.getTextStyle();
+        // prepare for the search loop
+        TextStyle2D ts = labelItem.getTextStyle();
+        // ... use at least a 2 pixel step, no matter what the label length is
+        final double step = painter.getAscent() > 2 ? painter.getAscent() : 2;
+        double radius = Math.sqrt(ts.getDisplacementX() * ts.getDisplacementX() 
+            + ts.getDisplacementY() * ts.getDisplacementY());
+        AffineTransform tx = new AffineTransform(tempTransform);
+        
+        // if straight paint works we're good
+        if(paintPointLabelInternal(painter, tx, displayArea, glyphs, labelItem, point, ts))
+            return true;
+        
+        // get a cloned text style that we can modify without issues
+        TextStyle2D cloned = new TextStyle2D(ts);
+        // ... and the closest quadrant angle that we'll use to start the search from
+        int startAngle = getClosestStandardAngle(ts.getDisplacementX(), ts.getDisplacementY());
+        int angle = startAngle;
+        while(radius <= labelItem.maxDisplacement) {
+            // the offset is used to generate a x, -x, 2x, -2x, 3x, -3x sequence
+            for (int offset = 45; offset <= 360; offset = offset + 45) {
+                double dx = radius * Math.cos(Math.toRadians(angle));
+                double dy = radius * Math.sin(Math.toRadians(angle));
+                
+                // using dx and dy would be easy but due to numeric approximations, 
+                // it's actually very hard to get it right so we use the angle
+                double[] anchorPointCandidates;
+                // normalize the angle so that it's between 0 and 360
+                int normAngle = angle % 360;
+                if(normAngle < 0)
+                    normAngle = 360 + normAngle;
+                if(normAngle < 90 || normAngle > 270) {
+                    anchorPointCandidates = RIGHT_ANCHOR_CANDIDATES;
+                } else if(normAngle > 90 && normAngle < 270) {
+                    anchorPointCandidates = LEFT_ANCHOR_CANDIDATES;
+                } else {
+                    anchorPointCandidates = MID_ANCHOR_CANDIDATES;
+                }
+                
+                // try out various anchor point positions
+                for (int i = 0; i < anchorPointCandidates.length; i +=2) {
+                    double ax = anchorPointCandidates[i];
+                    double ay = anchorPointCandidates[i + 1];
+                    cloned.setAnchorX(ax);
+                    cloned.setAnchorY(ay);
+                    cloned.setDisplacementX(dx);
+                    cloned.setDisplacementY(dy);
+                    
+                    tx = new AffineTransform(tempTransform);
+                    if(paintPointLabelInternal(painter, tx, displayArea, glyphs, labelItem, point, cloned))
+                        return true;
+                }
+                
+                // make sure we do the jumps back and forth to generate the proper sequence
+                if(angle <= startAngle)
+                    angle = angle + offset;
+                else
+                    angle = angle - offset;
+            }
+            
+            // increase the radius and move forward
+            radius += step;
+        }
+        
+        // we tried, we failed...
+        return false;
+    }
+    
+    /**
+     * Returns the closest angle that is a multiple of 45°
+     * @param x
+     * @param y
+     * @return an angle in degrees
+     */
+    int getClosestStandardAngle(double x, double y) {
+        double angle = Math.toDegrees(Math.atan2(y, x));
+        return (int) Math.round(angle / 45.0) * 45;
+    }
+
+    /**
+     * Actually try to paint the label by setting up transformations, checking for
+     * conflicts and so on
+     * @param painter
+     * @param tempTransform
+     * @param displayArea
+     * @param glyphs
+     * @param labelItem
+     * @param point
+     * @param textStyle
+     * @return
+     * @throws Exception
+     */
+    private boolean paintPointLabelInternal(LabelPainter painter, AffineTransform tempTransform,
+            Rectangle displayArea, LabelIndex glyphs, LabelCacheItem labelItem, Point point,
+            TextStyle2D textStyle) throws Exception {
         setupPointTransform(tempTransform, point, textStyle, painter);
 
         // check for overlaps and paint
