@@ -15,7 +15,7 @@
  *    Lesser General Public License for more details.
  */
 
-package org.geotools.swing.controls;
+package org.geotools.swing.control;
 
 import java.awt.Component;
 

@@ -16,7 +16,7 @@
  */
 
 /**
- * A small collection of Swing controls including type-specific text fields and a list
- * class with drag and drop item re-ordering.
+ * General dialog classes
  */
-package org.geotools.swing.controls;
+package org.geotools.swing.dialog;
+

@@ -17,8 +17,8 @@
 
 package org.geotools.swing.dndlist;
 
-import org.geotools.swing.controls.DnDListModel;
-import org.geotools.swing.controls.DnDList;
+import org.geotools.swing.control.DnDListModel;
+import org.geotools.swing.control.DnDList;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;

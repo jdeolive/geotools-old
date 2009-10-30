@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package org.geotools.swing.controls;
+package org.geotools.swing.control;
 
 import java.util.HashSet;
 import java.util.Set;

@@ -15,7 +15,7 @@
  *    Lesser General Public License for more details.
  */
 
-package org.geotools.swing.controls;
+package org.geotools.swing.control;
 
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;

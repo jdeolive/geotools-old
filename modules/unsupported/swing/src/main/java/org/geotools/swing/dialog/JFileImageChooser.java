@@ -15,7 +15,7 @@
  *    Lesser General Public License for more details.
  */
 
-package org.geotools.swing.dialogs;
+package org.geotools.swing.dialog;
 
 import java.awt.Component;
 import java.io.File;

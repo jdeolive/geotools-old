@@ -2,7 +2,7 @@
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
  *
- *    (C) 2009, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -15,8 +15,26 @@
  *    Lesser General Public License for more details.
  */
 
-/**
- * General dialog classes
- */
-package org.geotools.swing.dialogs;
+package org.geotools.swing.control;
 
+/**
+ * A listener to work with controls derived from {@code JValueTextField}.
+ *
+ * @see JValueField
+ * @see ValueChangedEvent
+ * 
+ * @author Michael Bedward
+ * @since 2.6.1
+ * @source $URL$
+ * @version $Id$
+ */
+public interface ValueChangedListener {
+
+    /**
+     * Called by the control whose value has just changed
+     *
+     * @param ev the event
+     */
+    public void onValueChanged( ValueChangedEvent ev );
+
+}

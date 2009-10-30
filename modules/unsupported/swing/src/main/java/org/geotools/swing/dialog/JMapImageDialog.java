@@ -15,7 +15,7 @@
  *    Lesser General Public License for more details.
  */
 
-package org.geotools.swing.dialogs;
+package org.geotools.swing.dialog;
 
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -32,9 +32,9 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import net.miginfocom.swing.MigLayout;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.swing.controls.JIntegerField;
-import org.geotools.swing.controls.ValueChangedEvent;
-import org.geotools.swing.controls.ValueChangedListener;
+import org.geotools.swing.control.JIntegerField;
+import org.geotools.swing.control.ValueChangedEvent;
+import org.geotools.swing.control.ValueChangedListener;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.cs.AxisDirection;
 import org.opengis.referencing.cs.CoordinateSystem;
