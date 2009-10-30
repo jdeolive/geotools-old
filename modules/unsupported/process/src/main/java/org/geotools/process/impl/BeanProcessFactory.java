@@ -16,11 +16,13 @@
  */
 package org.geotools.process.impl;
 
+import java.awt.RenderingHints.Key;
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -146,6 +148,20 @@ public abstract class BeanProcessFactory implements ProcessFactory {
                 }
             }
         }
+    }
+    
+    /** 
+     * Default Implementation return true
+     */
+    public boolean isAvailable() {
+        return true;
+    }
+
+    /**
+     * The default implementation returns an empty map.
+     */
+    public Map<Key, ?> getImplementationHints() {
+        return Collections.emptyMap();
     }
 
     /** 

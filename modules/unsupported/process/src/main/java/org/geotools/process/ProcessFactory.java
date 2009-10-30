@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.geotools.data.Parameter;
+import org.geotools.factory.OptionalFactory;
 import org.opengis.feature.type.Name;
 import org.opengis.util.InternationalString;
 
@@ -31,7 +32,7 @@ import org.opengis.util.InternationalString;
  *
  * @source $URL$
  */
-public interface ProcessFactory {
+public interface ProcessFactory extends OptionalFactory {
     public static final String GT_NAMESPACE = "gt";
 	
     /**

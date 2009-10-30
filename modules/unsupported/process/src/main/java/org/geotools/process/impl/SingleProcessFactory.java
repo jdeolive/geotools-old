@@ -16,6 +16,7 @@
  */
 package org.geotools.process.impl;
 
+import java.awt.RenderingHints.Key;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -116,6 +117,20 @@ public abstract class SingleProcessFactory implements ProcessFactory {
     public boolean supportsProgress(Name name) {
         checkName(name);
         return supportsProgress();
+    }
+    
+    /** 
+     * Default Implementation return true
+     */
+    public boolean isAvailable() {
+        return true;
+    }
+
+    /**
+     * The default implementation returns an empty map.
+     */
+    public Map<Key, ?> getImplementationHints() {
+        return Collections.emptyMap();
     }
 
     protected abstract Process create();
