@@ -134,7 +134,7 @@ To make use of GeoTools we are going to add two things to your pom.xml file:
       <name>example</name>
       <url>http://maven.apache.org</url>
       <properties>
-        <geotools.version>2.6-SNAPSHOT</geotools.version>
+        <geotools.version>2.6.0</geotools.version>
       </properties>
       <dependencies>
         <dependency>
@@ -159,15 +159,6 @@ To make use of GeoTools we are going to add two things to your pom.xml file:
           <name>Open Source Geospatial Foundation Repository</name>
           <url>http://download.osgeo.org/webdav/geotools/</url>
         </repository>
-        <repository>
-          <id>osgeo-snapshots</id>
-          <name>OSGeo snapshots repository</name>
-          <snapshots>
-            <enabled>true</enabled>
-          </snapshots>
-          <url>http://repo.osgeo.org/</url>
-        </repository>
-      </repositories>
     </project>
 
 Note how we use the *geotools.version* property with our ``gt-main`` dependency. 
@@ -422,28 +413,36 @@ Now build the application, either from within your IDE or from the command line 
 
 If the application compiled you can now run it. Once again, you can do this from within your IDE or from the command line. The program should display a dialog prompting you for a shapefile and then display it in a simple map viewer.
 
-.. image:: examples/JMapFrame.gif
+.. image:: quickstart.gif
 
 Questions
 =========
 
-How to use a SNAPSHOT?
-----------------------
+What is a GeoTools SNAPSHOT version and how do I use it ?
+---------------------------------------------------------
 
-A snapshot release is a nightly release made by the geotools team; to make use of a SNAPSHOT please add the following to your pom.xml
+A snapshot is the bleeding edge GeoTools code that the developers are actively working on. Usually there will be two active snapshots: one associated with the most recent formal release (e.g GeoTools 2.6-SNAPSHOT) and a second for work that is continuing on a earlier version that is being widely used (e.g. GeoTools 2.5-SNAPSHOT).
+
+New snapshot jars are built nightly and deployed to a repository separate from the one used for formal releases. To work with the snapshot code in your own applications you will need to add this repository to your pom.xml:
 
 .. sourcecode:: xml
 
     <repository>
+      <id>opengeo</id>
+      <name>OpenGeo Maven Repository</name>
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
-      <id>opengeo</id>
-      <name>OpenGeo Maven Repository</name>
-      <url>http://repo.opengeo.org</url>
+      <url>http://repo.opengeo.org/</url>
     </repository>
 
-You can now refer to 2.6-SNAPSHOT
+You can now refer to 2.6-SNAPSHOT with your version property:
+
+.. sourcecode:: xml
+
+    <properties>
+      <geotools.version>2.6-SNAPSHOT</geotools.version>
+    </properties>
 
 What are FileDataStore and FeatureSource ?
 ------------------------------------------
