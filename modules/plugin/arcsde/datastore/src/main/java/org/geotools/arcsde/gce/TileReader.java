@@ -32,16 +32,26 @@ import java.io.IOException;
 interface TileReader {
 
     public class TileInfo {
-        private Long bandId;
+        private final long bandId;
 
-        private byte[] bitmaskData;
+        private final byte[] bitmaskData;
 
-        private int numPixelsRead;
+        private final int numPixelsRead;
 
-        public TileInfo(Long bandId, byte[] bitMaskData, int numPixelsRead) {
+        private final byte[] tileDta;
+
+        private final int columnIndex;
+
+        private final int rowIndex;
+
+        public TileInfo(long bandId, int colIndex, int rowIndex, int numPixelsRead,
+                byte[] tileData, byte[] bitMaskData) {
             this.bandId = bandId;
-            this.bitmaskData = bitMaskData;
+            this.columnIndex = colIndex;
+            this.rowIndex = rowIndex;
             this.numPixelsRead = numPixelsRead;
+            this.tileDta = tileData;
+            this.bitmaskData = bitMaskData;
         }
 
         public Long getBandId() {
@@ -54,6 +64,18 @@ interface TileReader {
 
         public int getNumPixelsRead() {
             return numPixelsRead;
+        }
+
+        public byte[] getTileData() {
+            return tileDta;
+        }
+
+        public int getColumnIndex() {
+            return columnIndex;
+        }
+
+        public int getRowIndex() {
+            return rowIndex;
         }
     }
 
@@ -117,11 +139,11 @@ interface TileReader {
      * @throws {@link IllegalArgumentException} if tileData is not null and its size is less than
      *         {@link #getBytesPerTile()}
      */
-    public abstract TileInfo next(byte[] tileData) throws IOException;
+    public abstract TileInfo next() throws IOException;
 
     /**
      * Disposes any resource being held by this TileReader, making the TileReader unusable and the
-     * behaviour of {@link #hasNext()} and {@link #next(byte[])} unpredictable
+     * behaviour of {@link #hasNext()} and {@link #next} unpredictable
      */
     public abstract void dispose();
 

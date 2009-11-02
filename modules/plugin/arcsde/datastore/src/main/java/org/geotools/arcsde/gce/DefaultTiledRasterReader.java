@@ -29,12 +29,12 @@ import java.util.logging.Logger;
 import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
 import javax.imageio.ImageTypeSpecifier;
+import javax.imageio.spi.ImageReaderSpi;
 import javax.imageio.stream.ImageInputStream;
 import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
 
 import org.geotools.arcsde.session.ISessionPool;
-import org.geotools.data.DataSourceException;
 import org.geotools.util.logging.Logging;
 
 import com.esri.sde.sdk.client.SeQuery;
@@ -104,7 +104,7 @@ class DefaultTiledRasterReader implements TiledRasterReader {
          */
 
         fullTilesRaster = createTiledRaster(tileReader, matchingTiles, rasterId);
-        
+
         return fullTilesRaster;
     }
 
@@ -132,20 +132,6 @@ class DefaultTiledRasterReader implements TiledRasterReader {
             sampleModel = fullImageSpec.getSampleModel(tiledImageWidth, tiledImageHeight);
         }
 
-        // Finally, build the image input stream
-        final ImageInputStream raw;
-        {
-            final long[] imageOffsets = new long[] { 0 };
-            final Dimension[] imageDimensions = new Dimension[] { tiledImageSize };
-
-            final ImageTypeSpecifier its = new ImageTypeSpecifier(colorModel, sampleModel);
-
-            final ImageInputStream tiledImageInputStream;
-            tiledImageInputStream = new ArcSDETiledImageInputStream(tileReader);
-
-            raw = new RawImageInputStream(tiledImageInputStream, its, imageOffsets, imageDimensions);
-        }
-
         final int tileWidth = tileReader.getTileWidth();
         final int tileHeight = tileReader.getTileHeight();
 
@@ -169,10 +155,33 @@ class DefaultTiledRasterReader implements TiledRasterReader {
                     sampleModel, colorModel);
         }
 
+        // Finally, build the image input stream
+        final ImageInputStream raw;
+        final ImageReader readerInstance;
+        {
+            final long[] imageOffsets = new long[] { 0 };
+            final Dimension[] imageDimensions = new Dimension[] { tiledImageSize };
+
+            final ImageTypeSpecifier its = new ImageTypeSpecifier(colorModel, sampleModel);
+
+            final ImageInputStream tiledImageInputStream;
+            tiledImageInputStream = new ArcSDETiledImageInputStream(tileReader);
+            raw = new RawImageInputStream(tiledImageInputStream, its, imageOffsets, imageDimensions);
+            ImageReaderSpi imageIOSPI = new RawImageReaderSpi();
+            readerInstance = imageIOSPI.createReaderInstance();
+
+            // final ImageInputStream tiledImageInputStream;
+            // tiledImageInputStream = new MemoryCacheImageInputStream(new RasterInputStream(
+            // tileReader));
+            // raw = new RawImageInputStream(tiledImageInputStream, its, imageOffsets,
+            // imageDimensions);
+            // ImageReaderSpi imageIOSPI = new RawImageReaderSpi();
+            // readerInstance = imageIOSPI.createReaderInstance();
+        }
+
         // First operator: read the image
         final RenderingHints hints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, imageLayout);
-        hints.put(JAI.KEY_SERIALIZE_DEEP_COPY, Boolean.TRUE);
-        
+
         ParameterBlock pb = new ParameterBlock();
         pb.add(raw);// Input
         /*
@@ -186,23 +195,20 @@ class DefaultTiledRasterReader implements TiledRasterReader {
         pb.add(null);// Locale
         final ImageReadParam rParam = new ImageReadParam();
         pb.add(rParam);// ReadParam
-        RawImageReaderSpi imageIOSPI = new RawImageReaderSpi();
-        ImageReader readerInstance = imageIOSPI.createReaderInstance();
-        //readerInstance = new ArcSDEImageReader(imageIOSPI);
         pb.add(readerInstance);// Reader
 
         RenderedImage image = JAI.create("ImageRead", pb, hints);
 
-//        // translate
-//        int minX = (matchingTiles.x * tileWidth);
-//        int minY = (matchingTiles.y * tileHeight);
-//        pb = new ParameterBlock();
-//        pb.addSource(image);
-//        pb.add(Float.valueOf(minX));
-//        pb.add(Float.valueOf(minY));
-//        pb.add(null);
-//
-//        image = JAI.create("translate", pb);
+        // // translate
+        // int minX = (matchingTiles.x * tileWidth);
+        // int minY = (matchingTiles.y * tileHeight);
+        // pb = new ParameterBlock();
+        // pb.addSource(image);
+        // pb.add(Float.valueOf(minX));
+        // pb.add(Float.valueOf(minY));
+        // pb.add(null);
+        //
+        // image = JAI.create("translate", pb);
 
         return image;
     }

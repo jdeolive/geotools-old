@@ -18,9 +18,9 @@
 package org.geotools.arcsde.gce;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import javax.imageio.stream.ImageInputStream;
-import javax.imageio.stream.ImageInputStreamImpl;
 
 import org.geotools.arcsde.gce.TileReader.TileInfo;
 
@@ -34,7 +34,7 @@ import org.geotools.arcsde.gce.TileReader.TileInfo;
  *         http://svn.osgeo.org/geotools/trunk/modules/plugin/arcsde/datastore/src/main/java/org
  *         /geotools/arcsde/gce/ArcSDETiledImageInputStream.java $
  */
-final class ArcSDETiledImageInputStream extends ImageInputStreamImpl implements ImageInputStream {
+final class RasterInputStream extends InputStream {
 
     private final TileReader tileReader;
 
@@ -44,11 +44,9 @@ final class ArcSDETiledImageInputStream extends ImageInputStreamImpl implements 
 
     private int currTileDataIndex;
 
-    private int currTileIndex = -1;
-
     private final int length;
 
-    public ArcSDETiledImageInputStream(final TileReader tileReader) {
+    public RasterInputStream(final TileReader tileReader) {
         super();
         this.tileReader = tileReader;
         final int bytesPerTile = tileReader.getBytesPerTile();
@@ -64,15 +62,6 @@ final class ArcSDETiledImageInputStream extends ImageInputStreamImpl implements 
         length = bytesPerTile * tilesWide * tilesHigh * numberOfBands;
     }
 
-    /**
-     * Returns the computed lenght of the stream based on the tile dimensions, number of tiles,
-     * number of bands, and bits per sample
-     */
-    @Override
-    public long length() {
-        return length;
-    }
-
     @Override
     public int read() throws IOException {
         final byte[] data = getTileData();
@@ -81,7 +70,6 @@ final class ArcSDETiledImageInputStream extends ImageInputStreamImpl implements 
         }
         byte b = data[currTileDataIndex];
         ++currTileDataIndex;
-        ++streamPos;
         return b;
     }
 
@@ -95,7 +83,6 @@ final class ArcSDETiledImageInputStream extends ImageInputStreamImpl implements 
         final int count = Math.min(available, len);
         System.arraycopy(data, currTileDataIndex, buff, off, count);
         currTileDataIndex += count;
-        streamPos += count;
         return count;
     }
 
@@ -118,9 +105,8 @@ final class ArcSDETiledImageInputStream extends ImageInputStreamImpl implements 
             }
 
             currTileDataIndex = 0;
-            ++currTileIndex;
-            TileInfo tile = tileReader.next();
-            currTileData = tile.getTileData(); 
+            TileInfo tileInfo = tileReader.next();
+            currTileData = tileInfo.getTileData();
         }
         return currTileData;
     }
@@ -128,7 +114,25 @@ final class ArcSDETiledImageInputStream extends ImageInputStreamImpl implements 
     @Override
     public void close() throws IOException {
         tileReader.dispose();
-        super.close();
     }
 
+    @Override
+    public int available() throws IOException {
+        return tileDataLength - currTileDataIndex;
+    }
+
+    @Override
+    public synchronized void mark(int readlimit) {
+        System.err.println("mark at " + readlimit);
+    }
+
+    @Override
+    public boolean markSupported() {
+        return false;
+    }
+
+    @Override
+    public long skip(long n) throws IOException {
+        return super.skip(n);
+    }
 }

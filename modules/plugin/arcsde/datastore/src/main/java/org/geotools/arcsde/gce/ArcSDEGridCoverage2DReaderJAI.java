@@ -19,7 +19,6 @@ package org.geotools.arcsde.gce;
 
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
-import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
@@ -45,8 +44,6 @@ import javax.media.jai.ImageLayout;
 import javax.media.jai.InterpolationNearest;
 import javax.media.jai.JAI;
 import javax.media.jai.ParameterBlockJAI;
-import javax.media.jai.RenderedOp;
-import javax.media.jai.operator.AffineDescriptor;
 import javax.media.jai.operator.FormatDescriptor;
 import javax.media.jai.operator.MosaicDescriptor;
 
@@ -412,20 +409,6 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
                     .getResultDimensionInsideTiledImage());
             log.log(image, query.getRasterId(), "02_crop");
 
-            // final Rectangle mosaicLocation = query.getMosaicLocation();
-            // double sx = (float)mosaicLocation.getWidth() / image.getWidth();
-            // double sy = (float)mosaicLocation.getHeight() / image.getHeight();
-            // double tx = mosaicLocation.x - image.getMinX();
-            // double ty = mosaicLocation.y - image.getMinY();
-            //            
-            // AffineTransform sc = AffineTransform.getScaleInstance(sx, sy);
-            // AffineTransform tr = AffineTransform.getTranslateInstance(tx, ty);
-            // sc.concatenate(tr);
-            //
-            // double[] bgvalues = null;//{255,255,255,255};
-            // image = AffineDescriptor.create(image, sc, new InterpolationNearest(), bgvalues,
-            // hints);
-
             final Rectangle mosaicLocation = query.getMosaicLocation();
             // scale
             Float scaleX = Float.valueOf((float) (mosaicLocation.getWidth() / image.getWidth()));
@@ -444,7 +427,7 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
 
                 try {
                     LOGGER.info("Forcing loading data for mosaic as per GEOT-");
-                    image.getData();
+                   image.getData();
                 } catch (RuntimeException e) {
                     throw new DataSourceException("Error fetching arcsde raster", e);
                 }
@@ -517,13 +500,9 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
 
             final ImageLayout layout = new ImageLayout(mosaicGeometry.x, mosaicGeometry.y,
                     mosaicGeometry.width, mosaicGeometry.height);
-            // tiling
-            // final Dimension tileDimensions = request.getTileDimensions();
-            // if (tileDimensions != null) {
-            // layout.setTileHeight(tileDimensions.width).setTileWidth(tileDimensions.height);
-            // }
+
             final RenderingHints hints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, layout);
-            hints.put(JAI.KEY_SERIALIZE_DEEP_COPY, Boolean.TRUE);
+            //hints.put(JAI.KEY_SERIALIZE_DEEP_COPY, Boolean.TRUE);
 
             for (RenderedImage img : transformed) {
                 mosaicParams.addSource(img);
@@ -539,6 +518,15 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
         return mosaic;
     }
 
+    /**
+     * Crops the image representing a full tile set to the required dimension and returns it, but
+     * keeps minx and miny being zero.
+     * 
+     * @param fullTilesRaster
+     * @param tiledImageGridRagne
+     * @param cropTo
+     * @return
+     */
     private RenderedImage cropToRequiredDimension(final RenderedImage fullTilesRaster,
             final Rectangle tiledImageGridRagne, final Rectangle cropTo) {
 

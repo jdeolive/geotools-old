@@ -7,11 +7,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.geom.AffineTransform;
-import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.IndexColorModel;
 import java.awt.image.RenderedImage;
@@ -49,6 +45,8 @@ import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.geometry.Envelope;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+
+import com.vividsolutions.jts.util.Stopwatch;
 
 /**
  * Tests over legacy data that should not be deleted
@@ -121,6 +119,18 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         final AbstractGridCoverage2DReader reader = getReader();
         assertNotNull("Couldn't obtain a reader for " + tableName, reader);
 
+        final int count = 10;
+        long time = 0;
+        //warm up
+        _testIMG_USGSQUAD_SGBASE(reader);
+        for (int i = 0; i < count; i++) {
+            time += _testIMG_USGSQUAD_SGBASE(reader);
+        }
+        System.err.println(count + " reads in " + time + "ms");
+    }
+
+    public long _testIMG_USGSQUAD_SGBASE(AbstractGridCoverage2DReader reader) throws Exception {
+
         // http://localhost:8080/geoserver/wms?WIDTH=256&LAYERS=sde%3AIMG_USGSQUAD_SGBASE&STYLES=&SRS=EPSG%3A26986&HEIGHT=256&FORMAT=image%2Fjpeg&TILED=true&TILESORIGIN=169118.35%2C874964.388&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&EXCEPTIONS=application%2Fvnd.ogc.se_inimage&BBOX=239038.74625,916916.62575,253022.8255,930900.705
 
         final GeneralEnvelope originalEnvelope = reader.getOriginalEnvelope();
@@ -131,20 +141,16 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         GeneralEnvelope reqEnvelope = new GeneralEnvelope(originalEnvelope);
         reqEnvelope.setEnvelope(239038.74625, 916916.62575, 253022.8255, 930900.705);
 
+        Stopwatch sw = new Stopwatch();
+        sw.start();
+
         final GridCoverage2D coverage = readCoverage(reader, reqWidth, reqHeight, reqEnvelope);
         assertNotNull("read coverage returned null", coverage);
 
         RenderedImage image = coverage.getRenderedImage();
         writeToDisk(image, "testRead_" + tableName);
-
-        BufferedImage bi = new BufferedImage(256, 256, BufferedImage.TYPE_4BYTE_ABGR);
-        Graphics2D g = bi.createGraphics();
-        double sx = image.getWidth() / bi.getWidth();
-        double sy = image.getHeight() / bi.getHeight();
-        AffineTransform xform = AffineTransform.getScaleInstance(sx, sy);
-        g.drawRenderedImage(image, xform);
-        
-        writeToDisk(bi, "testRead_" + tableName + "_renderedToBI");
+        sw.stop();
+        return sw.getTime();
     }
 
     @Test

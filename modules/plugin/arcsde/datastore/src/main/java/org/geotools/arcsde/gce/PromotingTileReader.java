@@ -48,15 +48,12 @@ final class PromotingTileReader implements TileReader {
 
     private final BitmaskToNoDataConverter noData;
 
-    private final byte[] nativeTileData;
-
     public PromotingTileReader(final TileReader nativeTileReader, final RasterCellType sourceType,
             final RasterCellType targetType, final BitmaskToNoDataConverter noData) {
 
         this.nativeReader = nativeTileReader;
         this.targetType = targetType;
         this.noData = noData;
-        this.nativeTileData = new byte[nativeTileReader.getBytesPerTile()];
         this.promoter = SampleDepthPromoter.createFor(sourceType, targetType);
         LOGGER.fine("Using sample depth promoting tile reader, from " + sourceType + " to "
                 + targetType);
@@ -101,8 +98,10 @@ final class PromotingTileReader implements TileReader {
         return nativeReader.hasNext();
     }
 
-    public TileInfo next(byte[] tileData) throws IOException {
-        final TileInfo tileInfo = nativeReader.next(nativeTileData);
+    public TileInfo next() throws IOException {
+        final TileInfo tileInfo = nativeReader.next();
+        final byte[] nativeTileData = tileInfo.getTileData();
+        final byte[] tileData = new byte[getBytesPerTile()];
         try {
             final byte[] bitmaskData = tileInfo.getBitmaskData();
             final boolean hasNoDataPixels = bitmaskData.length > 0;
@@ -128,7 +127,11 @@ final class PromotingTileReader implements TileReader {
             dispose();
             throw e;
         }
-        return tileInfo;
+
+        TileInfo promotedTileInfo = new TileInfo(tileInfo.getBandId(), tileInfo.getColumnIndex(),
+                tileInfo.getRowIndex(), tileInfo.getNumPixelsRead(), tileData, tileInfo
+                        .getBitmaskData());
+        return promotedTileInfo;
     }
 
     /**
@@ -157,7 +160,7 @@ final class PromotingTileReader implements TileReader {
         }
     }
 
-    private static class UcharToUshort extends SampleDepthPromoter {
+    private static final class UcharToUshort extends SampleDepthPromoter {
 
         @Override
         public void promote(int sampleN, byte[] nativeTileData, byte[] tileData) {
@@ -167,7 +170,7 @@ final class PromotingTileReader implements TileReader {
         }
     }
 
-    private static class OneBitToUchar extends SampleDepthPromoter {
+    private static final class OneBitToUchar extends SampleDepthPromoter {
 
         @Override
         public void promote(int sampleN, byte[] nativeTileData, byte[] tileData) {
@@ -179,7 +182,7 @@ final class PromotingTileReader implements TileReader {
         }
     }
 
-    private static class ShortToInt extends SampleDepthPromoter {
+    private static final class ShortToInt extends SampleDepthPromoter {
 
         @Override
         public void promote(int sampleN, byte[] nativeTileData, byte[] tileData) {
