@@ -153,3 +153,15 @@ An alternative export to shapefile method
       :start-after: // docs start export2
       :end-before: // docs end export2
 
+Some useful links
+-----------------
+
+`EPSG registry <http://www.epsg-registry.org/>`_ 
+  This is *the* place to go to look up map projections. You can search by geographic area, name and type (and, of course, by EPSG code !).
+
+`Online coordinate conversion tool <http://gist.fsv.cvut.cz:8080/webref/>`_
+  Produced by Jan Jezek and powered by GeoTools.
+
+`Wikibook: Coordinate Reference Systems and Positioning <http://en.wikibooks.org/wiki/Coordinate_Reference_Systems_and_Positioning>`_
+  A summary page with some useful definition and links to more detailed information
+
