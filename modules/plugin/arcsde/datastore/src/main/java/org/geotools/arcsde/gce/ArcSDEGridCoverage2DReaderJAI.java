@@ -44,8 +44,10 @@ import javax.media.jai.ImageLayout;
 import javax.media.jai.InterpolationNearest;
 import javax.media.jai.JAI;
 import javax.media.jai.ParameterBlockJAI;
+import javax.media.jai.PlanarImage;
 import javax.media.jai.operator.FormatDescriptor;
 import javax.media.jai.operator.MosaicDescriptor;
+import javax.media.jai.operator.TranslateDescriptor;
 
 import org.geotools.coverage.CoverageFactoryFinder;
 import org.geotools.coverage.GridSampleDimension;
@@ -409,13 +411,15 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
                     .getResultDimensionInsideTiledImage());
             log.log(image, query.getRasterId(), "02_crop");
 
+            image = PlanarImage.wrapRenderedImage(image);
+            
             final Rectangle mosaicLocation = query.getMosaicLocation();
             // scale
             Float scaleX = Float.valueOf((float) (mosaicLocation.getWidth() / image.getWidth()));
             Float scaleY = Float.valueOf((float) (mosaicLocation.getHeight() / image.getHeight()));
             Float translateX = Float.valueOf(0);
             Float translateY = Float.valueOf(0);
-
+            // image.getData();
             if (!(Float.valueOf(1.0F).equals(scaleX) && Float.valueOf(1.0F).equals(scaleY))) {
                 ParameterBlock pb = new ParameterBlock();
                 pb.addSource(image);
@@ -425,11 +429,13 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
                 pb.add(translateY);
                 pb.add(new InterpolationNearest());
 
-                try {
-                    LOGGER.info("Forcing loading data for mosaic as per GEOT-");
-                   image.getData();
-                } catch (RuntimeException e) {
-                    throw new DataSourceException("Error fetching arcsde raster", e);
+                if (queries.size() > 0) {
+                    try {
+                        LOGGER.info("Forcing loading data for mosaic as per GEOT-");
+                        //image.getData();
+                    } catch (RuntimeException e) {
+                        throw new DataSourceException("Error fetching arcsde raster", e);
+                    }
                 }
 
                 image = JAI.create("scale", pb);
@@ -500,9 +506,10 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
 
             final ImageLayout layout = new ImageLayout(mosaicGeometry.x, mosaicGeometry.y,
                     mosaicGeometry.width, mosaicGeometry.height);
-
+            layout.setTileWidth(mosaicGeometry.width);
+            layout.setTileHeight(mosaicGeometry.height);
             final RenderingHints hints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, layout);
-            //hints.put(JAI.KEY_SERIALIZE_DEEP_COPY, Boolean.TRUE);
+            // hints.put(JAI.KEY_SERIALIZE_DEEP_COPY, Boolean.TRUE);
 
             for (RenderedImage img : transformed) {
                 mosaicParams.addSource(img);

@@ -46,6 +46,8 @@ final class RasterInputStream extends InputStream {
 
     private final int length;
 
+    private long streamPos;
+    
     public RasterInputStream(final TileReader tileReader) {
         super();
         this.tileReader = tileReader;
@@ -75,6 +77,7 @@ final class RasterInputStream extends InputStream {
 
     @Override
     public int read(byte[] buff, int off, int len) throws IOException {
+        //System.err.println("read " + len + ", pos = " + streamPos + ", length = " + length);
         final byte[] data = getTileData();
         if (data == null) {
             return -1;
@@ -83,6 +86,10 @@ final class RasterInputStream extends InputStream {
         final int count = Math.min(available, len);
         System.arraycopy(data, currTileDataIndex, buff, off, count);
         currTileDataIndex += count;
+        streamPos += count;
+        if(streamPos == length){
+            close();
+        }
         return count;
     }
 

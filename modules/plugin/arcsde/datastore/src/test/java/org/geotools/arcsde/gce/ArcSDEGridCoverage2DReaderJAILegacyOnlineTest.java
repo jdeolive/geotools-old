@@ -119,9 +119,9 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         final AbstractGridCoverage2DReader reader = getReader();
         assertNotNull("Couldn't obtain a reader for " + tableName, reader);
 
-        final int count = 10;
+        final int count = 0;
         long time = 0;
-        //warm up
+        // warm up
         _testIMG_USGSQUAD_SGBASE(reader);
         for (int i = 0; i < count; i++) {
             time += _testIMG_USGSQUAD_SGBASE(reader);
@@ -129,7 +129,7 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         System.err.println(count + " reads in " + time + "ms");
     }
 
-    public long _testIMG_USGSQUAD_SGBASE(AbstractGridCoverage2DReader reader) throws Exception {
+    private long _testIMG_USGSQUAD_SGBASE(AbstractGridCoverage2DReader reader) throws Exception {
 
         // http://localhost:8080/geoserver/wms?WIDTH=256&LAYERS=sde%3AIMG_USGSQUAD_SGBASE&STYLES=&SRS=EPSG%3A26986&HEIGHT=256&FORMAT=image%2Fjpeg&TILED=true&TILESORIGIN=169118.35%2C874964.388&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&EXCEPTIONS=application%2Fvnd.ogc.se_inimage&BBOX=239038.74625,916916.62575,253022.8255,930900.705
 
@@ -202,7 +202,28 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
     }
 
     @Test
-    public void testReadRaster() throws Exception {
+    public void testReadIMG_USGSQUADM_Buggy() throws Exception {
+        // http://localhost:8080/geoserver/wms?HEIGHT=500&WIDTH=1200&LAYERS=sde:IMG_USGSQUADM&STYLES=&SRS=EPSG%3A26986&FORMAT=image%2Fjpeg&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&EXCEPTIONS=application%2Fvnd.ogc.se_inimage&BBOX=253178.45971681,872419.13604732,253521.78247071,872562.18719478
+        tableName = "SDE.RASTER.IMG_USGSQUADM";
+        final AbstractGridCoverage2DReader reader = getReader();
+        assertNotNull("Couldn't obtain a reader for " + tableName, reader);
+
+        final GeneralEnvelope requestEnvelope = new GeneralEnvelope(reader.getOriginalEnvelope());
+        requestEnvelope.setEnvelope(253178.45971681, 872419.13604732, 253521.78247071,
+                872562.18719478);
+
+        final int reqWidth = 1200;
+        final int reqHeight = 500;
+
+        final GridCoverage2D coverage = readCoverage(reader, reqWidth, reqHeight, requestEnvelope);
+        assertNotNull("read coverage returned null", coverage);
+
+        RenderedImage image = coverage.view(ViewType.PHOTOGRAPHIC).getRenderedImage();
+        writeToDisk(image, "testRead_" + tableName);
+    }
+
+    @Test
+    public void testReadIMG_USGSQUADM() throws Exception {
         tableName = "SDE.RASTER.IMG_USGSQUADM";
         final AbstractGridCoverage2DReader reader = getReader();
         assertNotNull("Couldn't obtain a reader for " + tableName, reader);
@@ -216,7 +237,7 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         final GridCoverage2D coverage = readCoverage(reader, reqWidth, reqHeight, originalEnvelope);
         assertNotNull("read coverage returned null", coverage);
 
-        RenderedImage image = coverage.getRenderedImage();
+        RenderedImage image = coverage.view(ViewType.PHOTOGRAPHIC).getRenderedImage();
         writeToDisk(image, "testRead_" + tableName);
     }
 

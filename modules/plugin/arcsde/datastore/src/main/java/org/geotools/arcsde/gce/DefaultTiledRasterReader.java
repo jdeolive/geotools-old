@@ -170,9 +170,10 @@ class DefaultTiledRasterReader implements TiledRasterReader {
             ImageReaderSpi imageIOSPI = new RawImageReaderSpi();
             readerInstance = imageIOSPI.createReaderInstance();
 
+            // final InputStream is = new RasterInputStream(tileReader);
             // final ImageInputStream tiledImageInputStream;
-            // tiledImageInputStream = new MemoryCacheImageInputStream(new RasterInputStream(
-            // tileReader));
+            // tiledImageInputStream = ImageIO.createImageInputStream(is);
+            //
             // raw = new RawImageInputStream(tiledImageInputStream, its, imageOffsets,
             // imageDimensions);
             // ImageReaderSpi imageIOSPI = new RawImageReaderSpi();
