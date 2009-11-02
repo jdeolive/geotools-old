@@ -84,7 +84,7 @@ public class MemoryDataStore extends AbstractDataStore {
      * @param schema An empty feature collection of this type will be made available
      */
     public MemoryDataStore(SimpleFeatureType featureType) {
-        Map<String,SimpleFeature> featureMap = new HashMap<String,SimpleFeature>();
+        Map<String,SimpleFeature> featureMap = new LinkedHashMap<String,SimpleFeature>();
         String typeName = featureType.getTypeName();
         schema.put(typeName, featureType);
         memory.put(typeName, featureMap);
