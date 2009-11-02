@@ -77,6 +77,7 @@ final class ArcSDETiledImageInputStream extends ImageInputStreamImpl implements 
     public int read() throws IOException {
         final byte[] data = getTileData();
         if (data == null) {
+            close();
             return -1;
         }
         byte b = data[currTileDataIndex];
@@ -89,6 +90,7 @@ final class ArcSDETiledImageInputStream extends ImageInputStreamImpl implements 
     public int read(byte[] buff, int off, int len) throws IOException {
         final byte[] data = getTileData();
         if (data == null) {
+            close();
             return -1;
         }
         final int available = data.length - currTileDataIndex;
@@ -120,7 +122,11 @@ final class ArcSDETiledImageInputStream extends ImageInputStreamImpl implements 
             currTileDataIndex = 0;
             ++currTileIndex;
             TileInfo tile = tileReader.next();
-            currTileData = tile.getTileData(); 
+            currTileData = tile.getTileData();
+
+            if (!tileReader.hasNext()) {
+                tileReader.dispose();
+            }
         }
         return currTileData;
     }
@@ -130,5 +136,4 @@ final class ArcSDETiledImageInputStream extends ImageInputStreamImpl implements 
         tileReader.dispose();
         super.close();
     }
-
 }
