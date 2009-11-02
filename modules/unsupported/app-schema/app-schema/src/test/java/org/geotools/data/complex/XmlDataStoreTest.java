@@ -132,8 +132,8 @@ public class XmlDataStoreTest extends TestCase {
         assertNotNull(mappedFeatureType);
     }
 
-    public void XtestFilterTranslation() throws Exception {
-        final String expectedTranslatedFilter = getExpectedFilter();
+    public void testFilterTranslation() throws Exception {
+      //tests that the translation of the filter from GeoSciML to the xml datasorce works.
         Filter inputFilter = ff.equals(ff.property("gml:name"), ff
                 .literal("Unit Name1233811724109 UC1233811724109 description name"));
         
@@ -149,7 +149,8 @@ public class XmlDataStoreTest extends TestCase {
 
         assertEquals(MAX_FEATURES, query.getMaxFeatures());
         String translatedFilter = query.getFilter().toString();
-        assertEquals(expectedTranslatedFilter, translatedFilter);
+        assertTrue(getExpectedFilter().equals(translatedFilter) ||
+                getReversedExpectedFilter().equals(translatedFilter));
     }
 
     public void testFeatureCounting() throws Exception {
@@ -166,7 +167,7 @@ public class XmlDataStoreTest extends TestCase {
         assertEquals(ls.size(), size);
     }
 
-    public void XtestNoElementsReturned() throws Exception {
+    public void testNoElementsReturned() throws Exception {
         final Filter filter = ff.equals(ff.property("gml:name"), ff
                 .literal("Unit Name1233811724109 UC1233811724109 description name"));
 
@@ -187,7 +188,7 @@ public class XmlDataStoreTest extends TestCase {
         assertEquals(ls.size(), results.size());
     }
 
-    public void XtestFeaturesCreatedCorrectly() throws Exception {
+    public void testFeaturesCreatedCorrectly() throws Exception {
         final Name GeologicUnitName = new NameImpl(GSMLNS, "GeologicUnit");
         final Name GeologicUnitType = new NameImpl(GSMLNS, "GeologicUnitType");
         final Filter filter = ff.equals(ff.property("gml:name"), ff
@@ -646,6 +647,16 @@ public class XmlDataStoreTest extends TestCase {
                 + "gss:urn[@domain='GSV'] = Unit Name1233811724109 UC1233811724109 description name ]]";
     }
 
+    private String getReversedExpectedFilter() {
+        final String prefix = "/soapenv:Envelope/soapenv:Body/qaz:getGeologicalFeaturesByFilterStringResponse/qaz:out/qaz:item/";
+        return "[[ "
+                + prefix
+                + "gss:urn[@domain='GSV'] = Unit Name1233811724109 UC1233811724109 description name ] OR "
+                + "[ "
+                + prefix
+                + "gss:formattedName = Unit Name1233811724109 UC1233811724109 description name ]]";
+    }
+    
     private FeatureCollection getFeatures(final int maxFeatures, Filter inputFilter)
             throws Exception {
         FeatureSource fSource = (FeatureSource) mappingDataStore.getFeatureSource(typeName);
