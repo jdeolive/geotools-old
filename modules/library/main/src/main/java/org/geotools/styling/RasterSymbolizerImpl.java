@@ -49,7 +49,7 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
     private ColorMapImpl colorMap = new ColorMapImpl();
     private ContrastEnhancementImpl contrastEnhancement = new ContrastEnhancementImpl();
     private ShadedReliefImpl shadedRelief = new ShadedReliefImpl();
-    private String geometryName = "raster";
+    private String geometryName = "geom";
     private Symbolizer symbolizer;
     private Expression opacity;
     private Expression overlap;

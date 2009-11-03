@@ -16,6 +16,7 @@
  */
 package org.geotools.styling.visitor;
 
+import java.awt.Color;
 import java.net.URL;
 import java.util.Collections;
 
@@ -27,6 +28,7 @@ import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.filter.IllegalFilterException;
 import org.geotools.resources.Utilities;
 import org.geotools.styling.AnchorPoint;
+import org.geotools.styling.ColorMapEntry;
 import org.geotools.styling.Displacement;
 import org.geotools.styling.ExternalGraphic;
 import org.geotools.styling.FeatureTypeConstraint;
@@ -598,6 +600,28 @@ public class DuplicatorStyleVisitorTest extends TestCase {
         int controlEqHash = controlEqual.hashCode();
         int testHash = test.hashCode();
         assertTrue("Equal objects should return equal hashcodes",controlEqHash == testHash);
+    }
+    
+    public void testColorMapEntryDuplication() throws Exception {
+
+        ColorMapEntry cme = sf.createColorMapEntry();
+        cme.setColor(sb.colorExpression(Color.YELLOW));
+        cme.setLabel("thelabel");
+        cme.setQuantity(sb.literalExpression(66.66));
+        cme.setOpacity(sb.literalExpression(0.77));
+
+        cme.accept(visitor);
+
+        ColorMapEntry cme2 = (ColorMapEntry) visitor.getCopy();
+
+        assertEquals("Colormaps LABEL must be equal after duplication ", cme.getLabel(), cme2
+                .getLabel());
+        assertEquals("Colormaps QUANTITY must be equal after duplication ", cme.getQuantity(), cme2
+                .getQuantity());
+        assertEquals("Colormaps COLOR must be equal after duplication ", cme.getColor(), cme2
+                .getColor());
+        assertEquals("Colormaps OPACITY must be equal after duplication ", cme.getOpacity(), cme2
+                .getOpacity());
     }
     
 }
