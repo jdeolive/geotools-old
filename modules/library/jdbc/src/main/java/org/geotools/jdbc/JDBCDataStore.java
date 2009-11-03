@@ -61,9 +61,6 @@ import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.NameImpl;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.visitor.CountVisitor;
-import org.geotools.feature.visitor.MaxVisitor;
-import org.geotools.feature.visitor.MinVisitor;
-import org.geotools.feature.visitor.SumVisitor;
 import org.geotools.filter.FilterCapabilities;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
@@ -540,9 +537,6 @@ public final class JDBCDataStore extends ContentDataStore
         } finally {
             closeSafe(cx);
         }
-
-        // reset the type name cache, there's a new type name in town
-        typeNameCache = null;
     }
 
     /**
@@ -678,21 +672,12 @@ public final class JDBCDataStore extends ContentDataStore
     }
     
     /**
-     * TODO: this must be removed and replaced by a more configurable 
-     * cache
-     */
-    List typeNameCache = null;
-
-    /**
      * Generates the list of type names provided by the database.
      * <p>
      * The list is generated from the underlying database metadata.
      * </p>
      */
     protected List createTypeNames() throws IOException {
-        if(typeNameCache != null)
-            return typeNameCache;
-        
         Connection cx = createConnection();
 
         /*
@@ -740,7 +725,6 @@ public final class JDBCDataStore extends ContentDataStore
             closeSafe(cx);
         }
 
-        typeNameCache = typeNames;
         return typeNames;
     }
 
