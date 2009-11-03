@@ -125,12 +125,14 @@ public class ClobTestData {
         }
     }
 
-    public SeTable getTempTable(ISession session) throws IOException, UnavailableConnectionException {
+    public SeTable getTempTable(ISession session) throws IOException,
+            UnavailableConnectionException {
         final String tempTableName = getTempTableName();
         return session.getTable(tempTableName);
     }
 
-    public SeLayer getTempLayer(ISession session) throws IOException, UnavailableConnectionException {
+    public SeLayer getTempLayer(ISession session) throws IOException,
+            UnavailableConnectionException {
         final String tempTableName = getTempTableName();
         return session.getLayer(tempTableName);
     }

@@ -40,10 +40,10 @@ import org.geotools.data.FeatureWriter;
 import org.geotools.data.jdbc.MutableFIDFeature;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
-import org.geotools.feature.type.Types;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.util.Converters;
 import org.geotools.util.logging.Logging;
+import org.hsqldb.Session;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -365,10 +365,10 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
      * @see FeatureWriter#write()
      */
     public void write() throws IOException {
-        
-        //make the feature validate against its schema before inserting/updating
+
+        // make the feature validate against its schema before inserting/updating
         feature.validate();
-        
+
         if (isNewlyCreated(feature)) {
             Number newId;
             try {

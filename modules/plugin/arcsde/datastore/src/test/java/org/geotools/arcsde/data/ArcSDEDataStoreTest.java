@@ -327,7 +327,8 @@ public class ArcSDEDataStoreTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testCreateNillableShapeSchema() throws IOException, SchemaException, SeException, UnavailableConnectionException {
+    public void testCreateNillableShapeSchema() throws IOException, SchemaException, SeException,
+            UnavailableConnectionException {
         SimpleFeatureType type;
         final String typeName = "GT_TEST_CREATE";
         SimpleFeatureTypeBuilder b = new SimpleFeatureTypeBuilder();
@@ -348,7 +349,7 @@ public class ArcSDEDataStoreTest {
         ds.createSchema(type, hints);
         testData.deleteTable(typeName);
     }
-    
+
     // ///////////////// HELPER FUNCTIONS ////////////////////////
 
     /**

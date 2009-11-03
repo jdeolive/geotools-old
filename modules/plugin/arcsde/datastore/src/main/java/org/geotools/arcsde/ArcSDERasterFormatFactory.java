@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.geotools.arcsde.gce.ArcSDERasterFormat;
+import org.geotools.arcsde.raster.gce.ArcSDERasterFormat;
 import org.geotools.coverage.grid.io.GridFormatFactorySpi;
 import org.geotools.util.logging.Logging;
 

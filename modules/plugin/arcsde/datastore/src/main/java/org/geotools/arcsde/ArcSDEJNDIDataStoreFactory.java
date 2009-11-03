@@ -64,8 +64,10 @@ import org.geotools.util.logging.Logging;
  * </p>
  * 
  * @author Gabriel Roldan (OpenGeo)
- *
- * @source $URL$
+ * 
+ * @source $URL:
+ *         http://svn.osgeo.org/geotools/trunk/modules/plugin/arcsde/datastore/src/main/java/org
+ *         /geotools/arcsde/ArcSDEJNDIDataStoreFactory.java $
  * @version $Id$
  * @since 2.5.7
  */

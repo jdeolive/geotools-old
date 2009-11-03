@@ -39,7 +39,6 @@ import org.geotools.arcsde.session.ISession;
 import org.geotools.arcsde.session.UnavailableConnectionException;
 import org.geotools.data.DataAccessFactory;
 import org.geotools.data.DataAccessFinder;
-import org.geotools.data.DataSourceException;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFactorySpi;
 import org.geotools.data.DataStoreFinder;
@@ -206,7 +205,8 @@ public class ArcSDEDataStoreFactoryTest {
      * @throws UnavailableConnectionException
      */
     @Test
-    public void testCreateDataStoreWithInProcessViews() throws IOException, SeException, UnavailableConnectionException {
+    public void testCreateDataStoreWithInProcessViews() throws IOException, SeException,
+            UnavailableConnectionException {
         ISession session = testData.getConnectionPool().getSession(true);
         try {
             InProcessViewSupportTestData.setUp(session, testData);

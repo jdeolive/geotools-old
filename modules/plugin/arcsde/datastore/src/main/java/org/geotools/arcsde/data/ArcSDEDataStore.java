@@ -64,6 +64,7 @@ import org.geotools.feature.FeatureTypes;
 import org.geotools.feature.SchemaException;
 import org.geotools.geometry.jts.LiteCoordinateSequenceFactory;
 import org.geotools.util.logging.Logging;
+import org.hsqldb.Session;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -378,7 +379,7 @@ public class ArcSDEDataStore implements DataStore {
         // this is the one which's gonna close the connection when done
         final ArcSDEAttributeReader attReader;
         attReader = new ArcSDEAttributeReader(sdeQuery, geometryFactory, session);
-        
+
         FeatureReader<SimpleFeatureType, SimpleFeature> reader;
         try {
             reader = new ArcSDEFeatureReader(attReader);

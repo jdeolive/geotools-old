@@ -51,8 +51,10 @@ import org.junit.Test;
 
 /**
  * @author Gabriel Roldan (OpenGeo)
- *
- * @source $URL$
+ * 
+ * @source $URL:
+ *         http://svn.osgeo.org/geotools/trunk/modules/plugin/arcsde/datastore/src/test/java/org
+ *         /geotools/arcsde/ArcSDEJNDIDataStoreFactoryTest.java $
  * @version $Id$
  * @since 2.5.7
  */

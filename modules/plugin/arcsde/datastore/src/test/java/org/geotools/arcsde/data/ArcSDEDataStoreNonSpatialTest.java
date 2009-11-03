@@ -67,8 +67,10 @@ import com.esri.sde.sdk.client.SeRegistration;
  * required by the new feature <a href="http://jira.codehaus.org/browse/GEOT-2548">GEOT-2548</a>
  * 
  * @author Gabriel Roldan, OpenGeo
- *
- * @source $URL$
+ * 
+ * @source $URL:
+ *         http://svn.osgeo.org/geotools/trunk/modules/plugin/arcsde/datastore/src/test/java/org
+ *         /geotools/arcsde/data/ArcSDEDataStoreNonSpatialTest.java $
  * @version $Id$
  * @since 2.5.6
  */

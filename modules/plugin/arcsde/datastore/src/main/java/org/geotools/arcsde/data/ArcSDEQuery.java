@@ -52,6 +52,7 @@ import org.geotools.filter.visitor.PostPreProcessFilterSplittingVisitor;
 import org.geotools.filter.visitor.SimplifyingFilterVisitor;
 import org.geotools.filter.visitor.SimplifyingFilterVisitor.FIDValidator;
 import org.geotools.util.logging.Logging;
+import org.hsqldb.Session;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.GeometryDescriptor;
@@ -69,7 +70,6 @@ import com.esri.sde.sdk.client.SeQuery;
 import com.esri.sde.sdk.client.SeQueryInfo;
 import com.esri.sde.sdk.client.SeSqlConstruct;
 import com.esri.sde.sdk.client.SeTable;
-import com.esri.sde.sdk.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Envelope;
 
 /**
@@ -881,8 +881,10 @@ class ArcSDEQuery {
      * DOCUMENT ME!
      * 
      * @author $author$
- *
- * @source $URL$
+     * 
+     * @source $URL:
+     *         http://svn.osgeo.org/geotools/trunk/modules/plugin/arcsde/datastore/src/main/java
+     *         /org/geotools/arcsde/data/ArcSDEQuery.java $
      * @version $Revision: 1.9 $
      */
     public static class FilterSet {

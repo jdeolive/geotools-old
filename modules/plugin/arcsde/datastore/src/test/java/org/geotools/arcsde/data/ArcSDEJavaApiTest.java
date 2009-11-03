@@ -1034,8 +1034,7 @@ public class ArcSDEJavaApiTest {
     } // End method createBaseTable
 
     @Test
-    public void testDeleteById() throws IOException, UnavailableConnectionException,
-            SeException {
+    public void testDeleteById() throws IOException, UnavailableConnectionException, SeException {
 
         final String typeName = testData.getTempTableName();
         final SeQuery query = session.createAndExecuteQuery(new String[] { "ROW_ID", "INT32_COL" },
