@@ -349,7 +349,7 @@ public class ShapefileDataStore extends AbstractFileDataStore {
 
         // gather attributes needed by the query tool, they will be used by the
         // query filter
-        FilterAttributeExtractor extractor = new FilterAttributeExtractor();
+        FilterAttributeExtractor extractor = new FilterAttributeExtractor(schema);
         Filter filter = query.getFilter();
         filter.accept(extractor, null);
         String[] filterAttnames = extractor.getAttributeNames();
