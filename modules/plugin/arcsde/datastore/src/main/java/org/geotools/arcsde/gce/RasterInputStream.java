@@ -17,6 +17,8 @@
  */
 package org.geotools.arcsde.gce;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -47,7 +49,10 @@ final class RasterInputStream extends InputStream {
     private final int length;
 
     private long streamPos;
-    
+
+    ByteArrayInputStream in;
+    byte[] buf;
+
     public RasterInputStream(final TileReader tileReader) {
         super();
         this.tileReader = tileReader;
@@ -62,35 +67,56 @@ final class RasterInputStream extends InputStream {
         final int numberOfBands = tileReader.getNumberOfBands();
 
         length = bytesPerTile * tilesWide * tilesHigh * numberOfBands;
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            while (tileReader.hasNext()) {
+                TileInfo next = tileReader.next();
+                out.write(next.getTileData());
+            }
+            out.flush();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        buf = out.toByteArray();
+        this.in = new ByteArrayInputStream(buf);
+
+        if (length != buf.length) {
+            throw new IllegalStateException(length + " != " + buf.length);
+        }
     }
 
     @Override
     public int read() throws IOException {
-        final byte[] data = getTileData();
-        if (data == null) {
-            return -1;
-        }
-        byte b = data[currTileDataIndex];
-        ++currTileDataIndex;
-        return b;
+        return in.read();
+        // final byte[] data = getTileData();
+        // if (data == null) {
+        // return -1;
+        // }
+        // byte b = data[currTileDataIndex];
+        // ++currTileDataIndex;
+        // return b;
     }
 
     @Override
     public int read(byte[] buff, int off, int len) throws IOException {
-        //System.err.println("read " + len + ", pos = " + streamPos + ", length = " + length);
-        final byte[] data = getTileData();
-        if (data == null) {
-            return -1;
-        }
-        final int available = data.length - currTileDataIndex;
-        final int count = Math.min(available, len);
-        System.arraycopy(data, currTileDataIndex, buff, off, count);
-        currTileDataIndex += count;
-        streamPos += count;
-        if(streamPos == length){
-            close();
-        }
-        return count;
+        return in.read(buff, off, len);
+        // // System.err.println("read " + len + ", pos = " + streamPos + ", length = " + length);
+        // final byte[] data = getTileData();
+        // if (data == null) {
+        // return -1;
+        // }
+        // final int available = data.length - currTileDataIndex;
+        // final int count = Math.min(available, len);
+        // System.arraycopy(data, currTileDataIndex, buff, off, count);
+        // currTileDataIndex += count;
+        // streamPos += count;
+        // if (streamPos == length) {
+        // close();
+        // }
+        // return count;
     }
 
     /**
@@ -125,21 +151,25 @@ final class RasterInputStream extends InputStream {
 
     @Override
     public int available() throws IOException {
-        return tileDataLength - currTileDataIndex;
+        return in.available();
+        // return tileDataLength - currTileDataIndex;
     }
 
     @Override
     public synchronized void mark(int readlimit) {
-        System.err.println("mark at " + readlimit);
+        in.mark(readlimit);
+        // System.err.println("mark at " + readlimit);
     }
 
     @Override
     public boolean markSupported() {
-        return false;
+        return in.markSupported();
+        // return false;
     }
 
     @Override
     public long skip(long n) throws IOException {
-        return super.skip(n);
+        return in.skip(n);
+        // return super.skip(n);
     }
 }

@@ -44,10 +44,8 @@ import javax.media.jai.ImageLayout;
 import javax.media.jai.InterpolationNearest;
 import javax.media.jai.JAI;
 import javax.media.jai.ParameterBlockJAI;
-import javax.media.jai.PlanarImage;
 import javax.media.jai.operator.FormatDescriptor;
 import javax.media.jai.operator.MosaicDescriptor;
-import javax.media.jai.operator.TranslateDescriptor;
 
 import org.geotools.coverage.CoverageFactoryFinder;
 import org.geotools.coverage.GridSampleDimension;
@@ -411,8 +409,6 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
                     .getResultDimensionInsideTiledImage());
             log.log(image, query.getRasterId(), "02_crop");
 
-            image = PlanarImage.wrapRenderedImage(image);
-            
             final Rectangle mosaicLocation = query.getMosaicLocation();
             // scale
             Float scaleX = Float.valueOf((float) (mosaicLocation.getWidth() / image.getWidth()));
@@ -432,7 +428,7 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
                 if (queries.size() > 0) {
                     try {
                         LOGGER.info("Forcing loading data for mosaic as per GEOT-");
-                        //image.getData();
+                        // image.getData();
                     } catch (RuntimeException e) {
                         throw new DataSourceException("Error fetching arcsde raster", e);
                     }

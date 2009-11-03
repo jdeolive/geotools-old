@@ -38,8 +38,6 @@ import org.geotools.arcsde.session.ISessionPool;
 import org.geotools.util.logging.Logging;
 
 import com.esri.sde.sdk.client.SeQuery;
-import com.sun.media.imageio.stream.RawImageInputStream;
-import com.sun.media.imageioimpl.plugins.raw.RawImageReaderSpi;
 
 /**
  * The default implementation for {@link TiledRasterReader}.
@@ -163,12 +161,12 @@ class DefaultTiledRasterReader implements TiledRasterReader {
             final Dimension[] imageDimensions = new Dimension[] { tiledImageSize };
 
             final ImageTypeSpecifier its = new ImageTypeSpecifier(colorModel, sampleModel);
-
-            final ImageInputStream tiledImageInputStream;
-            tiledImageInputStream = new ArcSDETiledImageInputStream(tileReader);
-            raw = new RawImageInputStream(tiledImageInputStream, its, imageOffsets, imageDimensions);
-            ImageReaderSpi imageIOSPI = new RawImageReaderSpi();
-            readerInstance = imageIOSPI.createReaderInstance();
+//
+//            final ImageInputStream tiledImageInputStream;
+//            tiledImageInputStream = new ArcSDETiledImageInputStream(tileReader);
+//            raw = new RawImageInputStream(tiledImageInputStream, its, imageOffsets, imageDimensions);
+//            ImageReaderSpi imageIOSPI = new RawImageReaderSpi();
+//            readerInstance = imageIOSPI.createReaderInstance();
 
             // final InputStream is = new RasterInputStream(tileReader);
             // final ImageInputStream tiledImageInputStream;
@@ -178,40 +176,49 @@ class DefaultTiledRasterReader implements TiledRasterReader {
             // imageDimensions);
             // ImageReaderSpi imageIOSPI = new RawImageReaderSpi();
             // readerInstance = imageIOSPI.createReaderInstance();
+
+        
+            ArcSDEImageReader reader = new ArcSDEImageReader((ImageReaderSpi)null, its);
+            reader.setInput(tileReader, true, true);
+            
+            RenderedImage image = reader.readAsRenderedImage(0, null);
+            //image.getData();
+            return image;
         }
 
         // First operator: read the image
-        final RenderingHints hints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, imageLayout);
-
-        ParameterBlock pb = new ParameterBlock();
-        pb.add(raw);// Input
-        /*
-         * image index, always 0 since we're already fetching the required pyramid level
-         */
-        pb.add(Integer.valueOf(0)); // Image index
-        pb.add(Boolean.FALSE); // Read metadata
-        pb.add(Boolean.FALSE);// Read thumbnails
-        pb.add(Boolean.FALSE);// Verify input
-        pb.add(null);// Listeners
-        pb.add(null);// Locale
-        final ImageReadParam rParam = new ImageReadParam();
-        pb.add(rParam);// ReadParam
-        pb.add(readerInstance);// Reader
-
-        RenderedImage image = JAI.create("ImageRead", pb, hints);
-
-        // // translate
-        // int minX = (matchingTiles.x * tileWidth);
-        // int minY = (matchingTiles.y * tileHeight);
-        // pb = new ParameterBlock();
-        // pb.addSource(image);
-        // pb.add(Float.valueOf(minX));
-        // pb.add(Float.valueOf(minY));
-        // pb.add(null);
-        //
-        // image = JAI.create("translate", pb);
-
-        return image;
+//        final RenderingHints hints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, imageLayout);
+//
+//        ParameterBlock pb = new ParameterBlock();
+//        pb.add(raw);// Input
+//        /*
+//         * image index, always 0 since we're already fetching the required pyramid level
+//         */
+//        pb.add(Integer.valueOf(0)); // Image index
+//        pb.add(Boolean.FALSE); // Read metadata
+//        pb.add(Boolean.FALSE);// Read thumbnails
+//        pb.add(Boolean.FALSE);// Verify input
+//        pb.add(null);// Listeners
+//        pb.add(null);// Locale
+//        final ImageReadParam rParam = new ImageReadParam();
+//        pb.add(rParam);// ReadParam
+//        pb.add(readerInstance);// Reader
+//
+//        RenderedImage image = JAI.create("ImageRead", pb, hints);
+//        // image.getData();
+//        // // translate
+//        // int minX = (matchingTiles.x * tileWidth);
+//        // int minY = (matchingTiles.y * tileHeight);
+//        // pb = new ParameterBlock();
+//        // pb.addSource(image);
+//        // pb.add(Float.valueOf(minX));
+//        // pb.add(Float.valueOf(minY));
+//        // pb.add(null);
+//        //
+//        // image = JAI.create("translate", pb);
+//
+//        return image;
+        
     }
 
 }

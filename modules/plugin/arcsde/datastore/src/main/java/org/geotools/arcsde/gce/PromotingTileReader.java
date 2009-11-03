@@ -29,6 +29,8 @@ import java.util.logging.Logger;
 
 import org.geotools.util.logging.Logging;
 
+import com.esri.sde.sdk.client.SeRasterTile;
+
 /**
  * A {@link TileReader} decorator
  * 
