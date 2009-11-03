@@ -307,6 +307,7 @@ public class DbaseFileReader implements FileReader {
                 foundRecord = true;
             }
         }
+        cnt++;
     }
 
     /**

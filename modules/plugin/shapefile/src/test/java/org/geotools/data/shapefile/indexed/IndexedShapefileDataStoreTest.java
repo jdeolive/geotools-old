@@ -356,6 +356,26 @@ public class IndexedShapefileDataStoreTest extends TestCaseSupport {
         assertNotNull( "selection query worked", features );
         assertTrue( "selection non empty", features.size() > 0 );
     }
+    
+    public void testQueryBboxNonGeomAttributes() throws Exception {
+        File shpFile = copyShapefiles(STATE_POP);
+        URL url = shpFile.toURI().toURL();
+        IndexedShapefileDataStore ds = new IndexedShapefileDataStore(url, null, true, true,
+                IndexType.NONE);
+        FeatureSource<SimpleFeatureType, SimpleFeature> fs = ds.getFeatureSource();
+        
+        // build a query that extracts no geom but uses a bbox filter
+        FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
+        DefaultQuery q = new DefaultQuery();
+        q.setPropertyNames(new String[] {"STATE_NAME", "PERSONS"});
+        ReferencedEnvelope queryBounds = new ReferencedEnvelope(-75.102613, -72.361859, 40.212597,
+                41.512517, null);
+        q.setFilter(ff.bbox(ff.property(""), queryBounds));
+        
+        // grab the features
+        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = fs.getFeatures(q);
+        assertTrue(fc.size() > 0);
+    }
 
     public void testFidFilter() throws Exception {
         File shpFile = copyShapefiles(STATE_POP);

@@ -290,7 +290,7 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
 
         // add the attributes we need to read to keep the filtering going
         if(propertyNames.length  > 0) {
-            FilterAttributeExtractor fae = new FilterAttributeExtractor();
+            FilterAttributeExtractor fae = new FilterAttributeExtractor(schema);
             query.getFilter().accept(fae, null);
     
             Set<String> attributes = new LinkedHashSet<String>(Arrays.asList(propertyNames));
