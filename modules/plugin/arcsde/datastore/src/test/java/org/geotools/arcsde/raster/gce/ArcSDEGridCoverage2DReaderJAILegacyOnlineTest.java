@@ -120,7 +120,7 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         final AbstractGridCoverage2DReader reader = getReader();
         assertNotNull("Couldn't obtain a reader for " + tableName, reader);
 
-        final int count = 10;
+        final int count = 0;
         long time = 0;
         // warm up
         _testIMG_USGSQUAD_SGBASE(reader);

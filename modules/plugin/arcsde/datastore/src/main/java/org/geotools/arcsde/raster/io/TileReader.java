@@ -31,54 +31,6 @@ import java.io.IOException;
  */
 public interface TileReader {
 
-    public class TileInfo {
-        private final long bandId;
-
-        private final byte[] bitmaskData;
-
-        private final int numPixelsRead;
-
-        private final byte[] tileDta;
-
-        private final int columnIndex;
-
-        private final int rowIndex;
-
-        public TileInfo(long bandId, int colIndex, int rowIndex, int numPixelsRead,
-                byte[] tileData, byte[] bitMaskData) {
-            this.bandId = bandId;
-            this.columnIndex = colIndex;
-            this.rowIndex = rowIndex;
-            this.numPixelsRead = numPixelsRead;
-            this.tileDta = tileData;
-            this.bitmaskData = bitMaskData;
-        }
-
-        public Long getBandId() {
-            return bandId;
-        }
-
-        public byte[] getBitmaskData() {
-            return bitmaskData;
-        }
-
-        public int getNumPixelsRead() {
-            return numPixelsRead;
-        }
-
-        public byte[] getTileData() {
-            return tileDta;
-        }
-
-        public int getColumnIndex() {
-            return columnIndex;
-        }
-
-        public int getRowIndex() {
-            return rowIndex;
-        }
-    }
-
     /**
      * @return number of bits per sample
      */
@@ -139,7 +91,7 @@ public interface TileReader {
      * @throws {@link IllegalArgumentException} if tileData is not null and its size is less than
      *         {@link #getBytesPerTile()}
      */
-    public abstract TileInfo next() throws IOException;
+    public abstract TileInfo[] next() throws IOException;
 
     /**
      * Disposes any resource being held by this TileReader, making the TileReader unusable and the

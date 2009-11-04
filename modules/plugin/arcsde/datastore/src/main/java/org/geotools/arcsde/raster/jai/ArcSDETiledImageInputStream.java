@@ -22,8 +22,8 @@ import java.io.IOException;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.ImageInputStreamImpl;
 
+import org.geotools.arcsde.raster.io.TileInfo;
 import org.geotools.arcsde.raster.io.TileReader;
-import org.geotools.arcsde.raster.io.TileReader.TileInfo;
 
 /**
  * An {@link ImageInputStream} that reads ArcSDE raster tiles in a band interleaved order.
@@ -116,20 +116,20 @@ final class ArcSDETiledImageInputStream extends ImageInputStreamImpl implements 
      * @throws IOException
      */
     private byte[] getTileData() throws IOException {
-        if (currTileDataIndex == tileDataLength) {
-            if (!tileReader.hasNext()) {
-                return null;
-            }
-
-            currTileDataIndex = 0;
-            ++currTileIndex;
-            TileInfo tile = tileReader.next();
-            currTileData = tile.getTileData();
-
-            if (!tileReader.hasNext()) {
-                tileReader.dispose();
-            }
-        }
+//        if (currTileDataIndex == tileDataLength) {
+//            if (!tileReader.hasNext()) {
+//                return null;
+//            }
+//
+//            currTileDataIndex = 0;
+//            ++currTileIndex;
+//            TileInfo tile = tileReader.next();
+//            currTileData = tile.getTileData();
+//
+//            if (!tileReader.hasNext()) {
+//                tileReader.dispose();
+//            }
+//        }
         return currTileData;
     }
 

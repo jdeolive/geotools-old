@@ -17,8 +17,8 @@ import javax.imageio.ImageTypeSpecifier;
 import javax.imageio.metadata.IIOMetadata;
 import javax.media.jai.PlanarImage;
 
+import org.geotools.arcsde.raster.io.TileInfo;
 import org.geotools.arcsde.raster.io.TileReader;
-import org.geotools.arcsde.raster.io.TileReader.TileInfo;
 
 import com.sun.media.imageioimpl.common.SimpleRenderedImage;
 
@@ -101,7 +101,6 @@ public class ArcSDEImageReader extends ImageReader {
         private TileReader tileReader;
 
         public ArcSDETiledRenderedImage(TileReader tileReader, ImageTypeSpecifier typeSpec) {
-            System.err.println(tileReader);
             this.tileReader = tileReader;
             super.colorModel = typeSpec.getColorModel();
             super.sampleModel = typeSpec.getSampleModel();
@@ -121,7 +120,7 @@ public class ArcSDEImageReader extends ImageReader {
          * @see java.awt.image.RenderedImage#getTile(int, int)
          */
         public Raster getTile(final int tileX, final int tileY) {
-            // System.err.printf("getTile(%d, %d)\n", tileX, tileY);
+            System.err.printf("getTile(%d, %d) %s\n", tileX, tileY, this.toString());
             if (tileCache == null) {
                 tileCache = new WritableRaster[tileReader.getTilesWide()][tileReader.getTilesHigh()];
             }
@@ -160,21 +159,23 @@ public class ArcSDEImageReader extends ImageReader {
                     tileWidth, tileHeight);
 
             DataBuffer dataBuffer = sampleModel.createDataBuffer();
+            TileInfo[] tileInfo;
+            try {
+                tileInfo = tileReader.next();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            
             for (int bandN = 0; bandN < numBands; bandN++) {
-                TileInfo tileInfo;
-                try {
-                    tileInfo = tileReader.next();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-
-                byte[] rawBandData = tileInfo.getTileData();
-
-                final int numPixels = tileWidth * tileHeight;
-                for (int pixelN = 0; pixelN < numPixels; pixelN++) {
-                    int val = rawBandData[2 * pixelN + 1] & 0xFF;
-                    dataBuffer.setElem(bandN, pixelN, val);
-                }
+                TileInfo bandData = tileInfo[bandN];
+                bandData.fill(dataBuffer, bandN);
+//                byte[] rawBandData = tileInfo.getTileData();
+//
+//                final int numPixels = tileWidth * tileHeight;
+//                for (int pixelN = 0; pixelN < numPixels; pixelN++) {
+//                    int val = rawBandData[2 * pixelN + 1] & 0xFF;
+//                    dataBuffer.setElem(bandN, pixelN, val);
+//                }
             }
 
             WritableRaster currentTile;

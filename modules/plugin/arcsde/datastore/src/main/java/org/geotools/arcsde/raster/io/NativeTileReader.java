@@ -38,7 +38,6 @@ import com.esri.sde.sdk.client.SeException;
 import com.esri.sde.sdk.client.SeQuery;
 import com.esri.sde.sdk.client.SeRaster;
 import com.esri.sde.sdk.client.SeRasterConstraint;
-import com.esri.sde.sdk.client.SeRasterTile;
 import com.esri.sde.sdk.client.SeRow;
 import com.esri.sde.sdk.client.SeSqlConstruct;
 import com.esri.sde.sdk.client.SeStreamOp;
@@ -79,7 +78,7 @@ final class NativeTileReader implements TileReader {
      */
     private SeQuery preparedQuery;
 
-    private TileInfo nextTile;
+    private TileInfo[] nextTile;
 
     private boolean started;
 
@@ -92,46 +91,6 @@ final class NativeTileReader implements TileReader {
     private final int tileDataLength;
 
     private int bitsPerSample;
-
-    /**
-     * Command to fetch an {@link SeRasterTile tile}
-     */
-    private static class TileFetchCommand extends Command<TileInfo> {
-
-        private final SeRow row;
-
-        private final int tileDataLength;
-
-        public TileFetchCommand(final SeRow row, final int tileDataLength) {
-            this.row = row;
-            this.tileDataLength = tileDataLength;
-        }
-
-        @Override
-        public TileInfo execute(ISession session, SeConnection connection) throws SeException,
-                IOException {
-            SeRasterTile tile = row.getRasterTile();
-            final TileInfo tileInfo;
-            if (tile == null) {
-                tileInfo = null;
-            } else {
-                byte[] bitMaskData = tile.getBitMaskData();
-                int numPixelsRead = tile.getNumPixels();
-                byte[] tileData;
-                if (numPixelsRead == 0) {
-                    tileData = new byte[tileDataLength];
-                } else {
-                    tileData = tile.getPixelData();
-                }
-                long bandId = tile.getBandId().longValue();
-                int colIndex = tile.getColumnIndex();
-                int rowIndex = tile.getRowIndex();
-                tileInfo = new TileInfo(bandId, colIndex, rowIndex, numPixelsRead, tileData,
-                        bitMaskData);
-            }
-            return tileInfo;
-        }
-    }
 
     /**
      * @see DefaultTiledRasterReader#nextRaster()
@@ -411,72 +370,73 @@ final class NativeTileReader implements TileReader {
 
         final SeRow row = queryCommand.getSeRow();
 
-        this.tileFetchCommand = new TileFetchCommand(row, tileDataLength);
+        final int numberOfBands = getNumberOfBands();
+        this.tileFetchCommand = new TileFetchCommand(row, pixelsPerTile, numberOfBands);
         this.preparedQuery = queryCommand.getPreparedQuery();
     }
 
     /**
      * @see org.geotools.arcsde.raster.io.TileReader#next()
      */
-    public TileInfo next() throws IOException {
-        final TileInfo tile;
+    public TileInfo[] next() throws IOException {
+        final TileInfo[] bandTiles;
         final boolean hasNext = hasNext();
         if (hasNext) {
-            tile = nextTile();
+            bandTiles = nextTile();
         } else {
             throw new IllegalStateException("There're no more tiles to fetch");
         }
 
         try {
-            final byte[] bitMaskData = tile.getBitmaskData();
-
-            if (LOGGER.isLoggable(Level.FINEST)) {
-                LOGGER.finest(" >> Fetching " + tile + " - bitmask: " + bitMaskData.length);
-            }
-
-            assert bitMaskData.length == 0 ? true : bitmaskDataLength == bitMaskData.length;
-
-            final int numPixels = tile.getNumPixelsRead();
-            final byte[] rawTileData = tile.getTileData();
-
-            final Long bandId = tile.getBandId();
-
-            if (0 == numPixels) {
-                if (LOGGER.isLoggable(Level.FINER)) {
-                    LOGGER.finer("tile contains no pixel data, skipping: " + tile);
-                }
-                noData.setAll(bandId, rawTileData);
-            } else if (pixelsPerTile == numPixels) {
-
-                if (bitMaskData.length > 0) {
-                    noData.setNoData(bandId, rawTileData, bitMaskData);
-                }
+            final int numberOfBands = getNumberOfBands();
+            for (int bandN = 0; bandN < numberOfBands; bandN++) {
+                final TileInfo tile = bandTiles[bandN];
+                final byte[] bitMaskData = tile.getBitmaskData();
 
                 if (LOGGER.isLoggable(Level.FINEST)) {
-                    LOGGER.finest("returning " + numPixels + " pixels data packaged into "
-                            + tileDataLength + " bytes for tile [" + tile.getColumnIndex() + ","
-                            + tile.getRowIndex() + "]");
+                    LOGGER.finest(" >> Fetching " + tile + " - bitmask: " + bitMaskData.length);
                 }
-            } else {
-                throw new IllegalStateException("Expected pixels per tile == " + pixelsPerTile
-                        + " but got " + numPixels + ": " + tile);
-            }
 
-            // return new TileInfo(bandId, bitMaskData, numPixels);
-            return tile;
+                assert bitMaskData.length == 0 ? true : bitmaskDataLength == bitMaskData.length;
+
+                final int numPixels = tile.getNumPixelsRead();
+
+                if (0 == numPixels) {
+                    if (LOGGER.isLoggable(Level.FINER)) {
+                        LOGGER.finer("tile contains no pixel data, skipping: " + tile);
+                    }
+                    noData.setAll(tile);
+                } else if (pixelsPerTile == numPixels) {
+
+                    if (bitMaskData.length > 0) {
+                        noData.setNoData(tile);
+                    }
+
+                    if (LOGGER.isLoggable(Level.FINEST)) {
+                        LOGGER.finest("returning " + numPixels + " pixels data packaged into "
+                                + tileDataLength + " bytes for tile [" + tile.getColumnIndex()
+                                + "," + tile.getRowIndex() + "]");
+                    }
+                } else {
+                    throw new IllegalStateException("Expected pixels per tile == " + pixelsPerTile
+                            + " but got " + numPixels + ": " + tile);
+                }
+            }
 
         } catch (RuntimeException e) {
             dispose();
             throw e;
         }
+
+        return bandTiles;
     }
 
-    private TileInfo nextTile() throws IOException {
+    private TileInfo[] nextTile() throws IOException {
         if (nextTile == null) {
             dispose();
             throw new EOFException("No more tiles to read");
         }
-        TileInfo curr = nextTile;
+        TileInfo[] curr = nextTile;
 
         try {
             nextTile = session.issue(tileFetchCommand);

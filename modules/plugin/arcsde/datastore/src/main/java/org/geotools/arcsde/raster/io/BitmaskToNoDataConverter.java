@@ -44,17 +44,17 @@ class BitmaskToNoDataConverter {
             0, 0, null) {
 
         @Override
-        public void setNoData(Long bandId, byte[] tileData, byte[] bitMaskData) {
+        public void setNoData(int sampleN, TileInfo tile) {
             // no action
         }
 
         @Override
-        public void setAll(Long bandId, byte[] tileData) {
+        public void setAll(TileInfo tile) {
             // no action
         }
 
         @Override
-        public void setNoData(Long bandId, int sampleN, byte[] tileData) {
+        public void setNoData(TileInfo tile) {
             // no action
         }
 
@@ -62,7 +62,7 @@ class BitmaskToNoDataConverter {
 
     protected final int pixelsPerTile;
 
-    protected final Map<Long, byte[]> byBandIdNoDataValues;
+    protected final Map<Long, Number> byBandIdNoDataValues;
 
     protected final int bitsPerSample;
 
@@ -73,7 +73,7 @@ class BitmaskToNoDataConverter {
      * @param byBandIdNoDataValues
      */
     private BitmaskToNoDataConverter(final int pixelsPerTile, final int bitsPerSample,
-            final Map<Long, byte[]> byBandIdNoDataValues) {
+            final Map<Long, Number> byBandIdNoDataValues) {
 
         this.pixelsPerTile = pixelsPerTile;
         this.bitsPerSample = bitsPerSample;
@@ -96,7 +96,8 @@ class BitmaskToNoDataConverter {
         final int numBands = rasterInfo.getNumBands();
         final RasterCellType targetType = rasterInfo.getTargetCellType(rasterIndex);
 
-        Map<Long, byte[]> byBandIdNoDataValues = new HashMap<Long, byte[]>();
+        // Map<Long, byte[]> byBandIdNoDataValues = new HashMap<Long, byte[]>();
+        Map<Long, Number> byBandIdNoDataValues = new HashMap<Long, Number>();
 
         Dimension tileDimension = rasterInfo.getTileDimension(rasterIndex);
         final int samplesPerTile = tileDimension.width * tileDimension.height;
@@ -104,8 +105,8 @@ class BitmaskToNoDataConverter {
         for (int bandN = 0; bandN < numBands; bandN++) {
             long bandId = rasterInfo.getBand(rasterIndex, bandN).getBandId();
             Number noDataValue = rasterInfo.getNoDataValue(rasterIndex, bandN);
-            byte[] noDataValueBytes = toBytes(noDataValue, targetType);
-            byBandIdNoDataValues.put(Long.valueOf(bandId), noDataValueBytes);
+            // byte[] noDataValueBytes = toBytes(noDataValue, targetType);
+            byBandIdNoDataValues.put(Long.valueOf(bandId), noDataValue);
         }
 
         final int bitsPerSample = targetType.getBitsPerSample();
@@ -176,10 +177,11 @@ class BitmaskToNoDataConverter {
      * Sets all the samples of {@code tileData} marked as no-data pixel in {@code bitmaskData} to
      * the no-data value for band {@code bandId}
      */
-    public void setNoData(final Long bandId, final byte[] tileData, final byte[] bitmaskData) {
+    public void setNoData(final TileInfo tileData) {
+        final byte[] bitmaskData = tileData.getBitmaskData();
         for (int sampleN = 0; sampleN < pixelsPerTile; sampleN++) {
             if (isNoData(sampleN, bitmaskData)) {
-                setNoData(bandId, sampleN, tileData);
+                setNoData(sampleN, tileData);
             }
         }
     }
@@ -191,19 +193,22 @@ class BitmaskToNoDataConverter {
      * number of samples in a tile. Subclasses may override to optimize.
      * </p>
      */
-    public void setAll(final Long bandId, final byte[] tileData) {
+    public void setAll(final TileInfo tile) {
         for (int sampleN = 0; sampleN < pixelsPerTile; sampleN++) {
-            setNoData(bandId, sampleN, tileData);
+            setNoData(sampleN, tile);
         }
     }
 
     /**
      * Sets the sample N for the band {@code bandId} on {@code tileData} to the no-data value
      */
-    public void setNoData(final Long bandId, final int sampleN, final byte[] tileData) {
-        byte[] noData = byBandIdNoDataValues.get(bandId);
-        int pixArrayOffset = (sampleN * bitsPerSample) / 8;
-        System.arraycopy(noData, 0, tileData, pixArrayOffset, noData.length);
+    public void setNoData(final int sampleN, final TileInfo tileData) {
+        final Long bandId = tileData.getBandId();
+        // byte[] noData = byBandIdNoDataValues.get(bandId);
+        Number noData = byBandIdNoDataValues.get(bandId);
+        // int pixArrayOffset = (sampleN * bitsPerSample) / 8;
+        // System.arraycopy(noData, 0, tileData, pixArrayOffset, noData.length);
+        tileData.setValue(sampleN, noData);
     }
 
     /**
@@ -213,7 +218,7 @@ class BitmaskToNoDataConverter {
     static final class Unsigned8bitConverter extends BitmaskToNoDataConverter {
 
         public Unsigned8bitConverter(final int samplesPerTile, final int bitsPerSample,
-                final Map<Long, byte[]> byBandIdNoDataValues) {
+                final Map<Long, Number> byBandIdNoDataValues) {
             super(samplesPerTile, bitsPerSample, byBandIdNoDataValues);
         }
 
@@ -222,15 +227,19 @@ class BitmaskToNoDataConverter {
          * {@link #setNoData(Long, int, byte[])} {@code samplesPerTile} times
          */
         @Override
-        public void setAll(Long bandId, byte[] tileData) {
-            byte noDataValue = byBandIdNoDataValues.get(bandId)[0];
-            Arrays.fill(tileData, noDataValue);
+        public void setAll(final TileInfo tileData) {
+            final Long bandId = tileData.getBandId();
+            byte noDataValue = byBandIdNoDataValues.get(bandId).byteValue();
+            byte[] data = tileData.getTileDataAsBytes();
+            Arrays.fill(data, noDataValue);
         }
 
         @Override
-        public void setNoData(Long bandId, int sampleN, byte[] tileData) {
-            byte noDataValue = byBandIdNoDataValues.get(bandId)[0];
-            tileData[sampleN] = noDataValue;
+        public void setNoData(int sampleN, TileInfo tileData) {
+            final Long bandId = tileData.getBandId();
+            final byte noDataValue = byBandIdNoDataValues.get(bandId).byteValue();
+            byte[] data = tileData.getTileDataAsBytes();
+            data[sampleN] = noDataValue;
         }
     }
 
