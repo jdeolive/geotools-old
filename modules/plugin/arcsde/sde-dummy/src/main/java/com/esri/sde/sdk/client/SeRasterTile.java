@@ -14,5 +14,9 @@ public class SeRasterTile {
         // TODO Auto-generated method stub
         return null;
     }
+    public int getPixelType() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 
 }
