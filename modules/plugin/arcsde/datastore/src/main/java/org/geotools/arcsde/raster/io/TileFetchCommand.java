@@ -87,13 +87,12 @@ class TileFetchCommand extends Command<TileInfo[]> {
 
     private static Map<RasterCellType, TileDataFetcher> tileDataSetters = new HashMap<RasterCellType, TileDataFetcher>();
     static {
-        {
-            ByteTileSetter byteTileSetter = new ByteTileSetter();
-            tileDataSetters.put(TYPE_1BIT, byteTileSetter);
-            tileDataSetters.put(TYPE_4BIT, byteTileSetter);
-            tileDataSetters.put(TYPE_8BIT_S, byteTileSetter);
-            tileDataSetters.put(TYPE_8BIT_U, byteTileSetter);
-        }
+        final ByteTileSetter byteTileSetter = new ByteTileSetter();
+        tileDataSetters.put(TYPE_1BIT, new OneBitTileSetter());
+        tileDataSetters.put(TYPE_4BIT, byteTileSetter);
+        tileDataSetters.put(TYPE_8BIT_S, byteTileSetter);
+        tileDataSetters.put(TYPE_8BIT_U, byteTileSetter);
+        // tileDataSetters.put(RasterCellType.TYPE_16BIT_U, value)
     }
 
     private TileDataFetcher getTileDataFetcher(final RasterCellType pixelType) {
@@ -113,6 +112,45 @@ class TileFetchCommand extends Command<TileInfo[]> {
         public abstract void setTileData(int numPixels, SeRasterTile tile, TileInfo tileInfo);
     }
 
+    /**
+     *
+     */
+    private static final class OneBitTileSetter extends TileDataFetcher {
+
+        @Override
+        public void setTileData(final int numPixels, final SeRasterTile tile, TileInfo tileInfo) {
+
+            byte[] tileData = new byte[numPixels];
+
+            final int numPixelsRead = tile.getNumPixels();
+
+            if (numPixelsRead > 0) {
+                if (numPixelsRead != numPixels) {
+                    throw new IllegalStateException("Expected num pixels read to be " + numPixels
+                            + " but got " + numPixelsRead);
+                }
+                try {
+                    tile.getPixels(tileData);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                // getPixels(byte[]) for a 1-bit raster sets set bits to 255 instead of 1, we want
+                // them to be 1
+                final byte bitSet = (byte) 0xFF;
+                for (int i = 0; i < numPixels; i++) {
+                    if (bitSet == tileData[i]) {
+                        tileData[i] = 1;
+                    }
+                }
+            }
+
+            tileInfo.setTileData(tileData);
+        }
+    }
+
+    /**
+     *
+     */
     private static final class ByteTileSetter extends TileDataFetcher {
         @Override
         public void setTileData(final int numPixels, final SeRasterTile tile, TileInfo tileInfo) {
@@ -129,8 +167,7 @@ class TileFetchCommand extends Command<TileInfo[]> {
                 try {
                     tile.getPixels(tileData);
                 } catch (Exception e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    throw new RuntimeException(e);
                 }
             }
 
