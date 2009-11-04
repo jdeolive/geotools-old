@@ -18,7 +18,7 @@
 package org.geotools.swing;
 
 import java.awt.AlphaComposite;
-import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.util.concurrent.Callable;
@@ -137,9 +137,12 @@ public class RenderingExecutor {
                 try {
                     renderer.addRenderListener(this);
 
-                    graphics.setComposite(AlphaComposite.Src);
-                    graphics.setBackground(Color.WHITE);
+                    Composite composite = graphics.getComposite();
+                    //graphics.setComposite(AlphaComposite.Src);
+                    //graphics.setBackground(Color.WHITE);
+                    graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR, 0.0f));
                     graphics.fill(paintArea);
+                    graphics.setComposite(composite);
 
                     numFeatures = 0;
                     renderer.paint(graphics, mapPane.getVisibleRect(), envelope, mapPane.getWorldToScreenTransform());
