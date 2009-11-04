@@ -10,5 +10,6 @@ Examples
    crslab
    querylab
    stylelab
+   stylefunctionlab
    imagelab
    selectionlab
