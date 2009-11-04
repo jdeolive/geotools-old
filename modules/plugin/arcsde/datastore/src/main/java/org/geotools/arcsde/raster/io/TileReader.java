@@ -20,7 +20,13 @@ package org.geotools.arcsde.raster.io;
 import java.io.IOException;
 
 /**
- * Offers an iterator like interface to read ArcSDE raster tiles into a {@code byte[]}
+ * Offers a random access interface to the tile data for a raster request.
+ * <p>
+ * Implementations are expected to perform better when the tiles are requested in sequential x/y
+ * order (e.g., 0,0; 1,0; 2,0; 0,1; 1,1; 2,1 for 3x2 tile set), though they're required to be able
+ * to return any randomly requested tile, probably by being forced to issue a separate request to
+ * the server or do some cacheing.
+ * </p>
  * 
  * @author Gabriel Roldan (OpenGeo)
  * @since 2.5.4
@@ -73,12 +79,6 @@ public interface TileReader {
     public abstract int getBytesPerTile();
 
     /**
-     * @return whether there are more tiles to fetch
-     * @throws IOException
-     */
-    public abstract boolean hasNext() throws IOException;
-
-    /**
      * Fetches a tile and fills {@code tileData} with its raw pixel data packaged as bytes according
      * to the number of bits per sample
      * 
@@ -91,12 +91,20 @@ public interface TileReader {
      * @throws {@link IllegalArgumentException} if tileData is not null and its size is less than
      *         {@link #getBytesPerTile()}
      */
-    public abstract TileInfo[] next() throws IOException;
+    public abstract TileInfo[] getTile(int tileX, int tileY) throws IOException;
 
     /**
      * Disposes any resource being held by this TileReader, making the TileReader unusable and the
      * behaviour of {@link #hasNext()} and {@link #next} unpredictable
      */
     public abstract void dispose();
+
+    public abstract long getRasterId();
+
+    public abstract int getPyramidLevel();
+
+    public abstract int getMinTileX();
+
+    public abstract int getMinTileY();
 
 }

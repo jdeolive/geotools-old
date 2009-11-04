@@ -62,7 +62,6 @@ import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.OverviewPolicy;
-import org.geotools.data.DataSourceException;
 import org.geotools.data.DefaultServiceInfo;
 import org.geotools.data.ServiceInfo;
 import org.geotools.factory.Hints;
@@ -438,15 +437,6 @@ public final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DR
                 pb.add(translateX);
                 pb.add(translateY);
                 pb.add(new InterpolationNearest());
-
-                if (queries.size() > 0) {
-                    try {
-                        LOGGER.info("Forcing loading data for mosaic as per GEOT-");
-                        // image.getData();
-                    } catch (RuntimeException e) {
-                        throw new DataSourceException("Error fetching arcsde raster", e);
-                    }
-                }
 
                 image = JAI.create("scale", pb);
                 log.log(image, query.getRasterId(), "03_scale");

@@ -95,16 +95,15 @@ final class PromotingTileReader implements TileReader {
         return nativeReader.getTilesWide();
     }
 
-    public boolean hasNext() throws IOException {
-        return nativeReader.hasNext();
-    }
-
-    public TileInfo[] next() throws IOException {
+    /**
+     * @see org.geotools.arcsde.raster.io.TileReader#getTile(int, int)
+     */
+    public TileInfo[] getTile(final int tileX, final int tileY) throws IOException {
         final int numberOfBands = getNumberOfBands();
         final TileInfo[] promotedBandInfo = new TileInfo[numberOfBands];
 
         try {
-            final TileInfo[] nativeBandInfo = nativeReader.next();
+            final TileInfo[] nativeBandInfo = nativeReader.getTile(tileX, tileY);
 
             for (int bandN = 0; bandN < numberOfBands; bandN++) {
                 TileInfo nativeData = nativeBandInfo[bandN];
@@ -276,5 +275,21 @@ final class PromotingTileReader implements TileReader {
      */
     public void dispose() {
         this.nativeReader.dispose();
+    }
+
+    public int getMinTileX() {
+        return nativeReader.getMinTileX();
+    }
+
+    public int getMinTileY() {
+        return nativeReader.getMinTileY();
+    }
+
+    public int getPyramidLevel() {
+        return nativeReader.getPyramidLevel();
+    }
+
+    public long getRasterId() {
+        return nativeReader.getRasterId();
     }
 }

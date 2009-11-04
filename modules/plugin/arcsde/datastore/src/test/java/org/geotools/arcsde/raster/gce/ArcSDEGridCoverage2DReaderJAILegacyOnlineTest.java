@@ -120,7 +120,7 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         final AbstractGridCoverage2DReader reader = getReader();
         assertNotNull("Couldn't obtain a reader for " + tableName, reader);
 
-        final int count = 0;
+        final int count = 10;
         long time = 0;
         // warm up
         _testIMG_USGSQUAD_SGBASE(reader);
@@ -239,7 +239,11 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         assertNotNull("read coverage returned null", coverage);
 
         RenderedImage image = coverage.view(ViewType.PHOTOGRAPHIC).getRenderedImage();
+        Stopwatch sw = new Stopwatch();
+        sw.start();
         writeToDisk(image, "testRead_" + tableName);
+        sw.stop();
+        LOGGER.info("wrote in " + sw.getTimeString());
     }
 
     @Test

@@ -9,6 +9,7 @@ import org.geotools.arcsde.session.ISession;
 
 import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeException;
+import com.esri.sde.sdk.client.SeQuery;
 import com.esri.sde.sdk.client.SeRaster;
 import com.esri.sde.sdk.client.SeRasterTile;
 import com.esri.sde.sdk.client.SeRow;
@@ -18,22 +19,32 @@ import com.esri.sde.sdk.client.SeRow;
  * 
  * @author Gabriel Roldan (OpenGeo)
  * @since 2.5.8
- * @source $URL$
+ * @source $URL:
+ *         http://svn.osgeo.org/geotools/trunk/modules/plugin/arcsde/datastore/src/main/java/org
+ *         /geotools/arcsde/raster/io/TileFetchCommand.java $
  */
 class TileFetchCommand extends Command<TileInfo[]> {
+
+    private final SeQuery preparedQuery;
 
     private final SeRow row;
 
     private final int pixelsPerTile;
 
-    private int numberOfBands;
+    private final int numberOfBands;
 
     private TileDataFetcher dataFetcher;
 
-    public TileFetchCommand(final SeRow row, final int pixelsPerTile, final int numberOfBands) {
+    public TileFetchCommand(final SeQuery preparedQuery, final SeRow row, final int pixelsPerTile,
+            final int numberOfBands) {
+        this.preparedQuery = preparedQuery;
         this.row = row;
         this.pixelsPerTile = pixelsPerTile;
         this.numberOfBands = numberOfBands;
+    }
+
+    public SeQuery getQuery() {
+        return preparedQuery;
     }
 
     @Override
