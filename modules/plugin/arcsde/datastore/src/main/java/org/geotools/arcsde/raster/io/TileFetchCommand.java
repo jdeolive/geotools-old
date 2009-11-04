@@ -75,7 +75,8 @@ class TileFetchCommand extends Command<TileInfo[]> {
             int colIndex = tile.getColumnIndex();
             int rowIndex = tile.getRowIndex();
 
-            TileInfo tileInfo = new TileInfo(bandId, colIndex, rowIndex, numPixelsRead, bitMaskData);
+            TileInfo tileInfo = new TileInfo(bandId, colIndex, rowIndex, pixelsPerTile,
+                    numPixelsRead, bitMaskData);
 
             dataFetcher.setTileData(pixelsPerTile, tile, tileInfo);
 

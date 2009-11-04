@@ -120,7 +120,7 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         final AbstractGridCoverage2DReader reader = getReader();
         assertNotNull("Couldn't obtain a reader for " + tableName, reader);
 
-        final int count = 10;
+        final int count = 0;
         long time = 0;
         // warm up
         _testIMG_USGSQUAD_SGBASE(reader);
@@ -205,16 +205,16 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
     @Test
     public void testReadIMG_USGSQUADM_Buggy() throws Exception {
         // http://localhost:8080/geoserver/wms?HEIGHT=500&WIDTH=1200&LAYERS=sde:IMG_USGSQUADM&STYLES=&SRS=EPSG%3A26986&FORMAT=image%2Fjpeg&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&EXCEPTIONS=application%2Fvnd.ogc.se_inimage&BBOX=253178.45971681,872419.13604732,253521.78247071,872562.18719478
+        //http://arcy.opengeo.org:8080/geoserver/wms?SRS=EPSG%3A26986&WIDTH=950&STYLES=&HEIGHT=400&LAYERS=massgis%3ASDE.IMG_USGSQUADM&FORMAT=image%2Fpng&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&EXCEPTIONS=application%2Fvnd.ogc.se_inimage&BBOX=290557.15234375,932233.3984375,325347.19140625,946881.8359375
         tableName = "SDE.RASTER.IMG_USGSQUADM";
         final AbstractGridCoverage2DReader reader = getReader();
         assertNotNull("Couldn't obtain a reader for " + tableName, reader);
 
         final GeneralEnvelope requestEnvelope = new GeneralEnvelope(reader.getOriginalEnvelope());
-        requestEnvelope.setEnvelope(253178.45971681, 872419.13604732, 253521.78247071,
-                872562.18719478);
+        requestEnvelope.setEnvelope(290557.15234375,932233.3984375,325347.19140625,946881.8359375);
 
-        final int reqWidth = 1200;
-        final int reqHeight = 500;
+        final int reqWidth = 950;
+        final int reqHeight = 400;
 
         final GridCoverage2D coverage = readCoverage(reader, reqWidth, reqHeight, requestEnvelope);
         assertNotNull("read coverage returned null", coverage);

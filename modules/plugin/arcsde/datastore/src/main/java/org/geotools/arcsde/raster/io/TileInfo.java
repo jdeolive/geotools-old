@@ -26,10 +26,14 @@ public final class TileInfo {
 
     private double[] tileDataDoubles;
 
-    public TileInfo(long bandId, int colIndex, int rowIndex, int numPixelsRead, byte[] bitMaskData) {
+    private final int numPixels;
+
+    public TileInfo(long bandId, int colIndex, int rowIndex, int numPixels, int numPixelsRead,
+            byte[] bitMaskData) {
         this.bandId = bandId;
         this.columnIndex = colIndex;
         this.rowIndex = rowIndex;
+        this.numPixels = numPixels;
         this.numPixelsRead = numPixelsRead;
         this.bitmaskData = bitMaskData;
     }
@@ -42,6 +46,17 @@ public final class TileInfo {
         return bitmaskData;
     }
 
+    /**
+     * @return number of pixels in the tile data
+     */
+    public int getNumPixels() {
+        return numPixels;
+    }
+
+    /**
+     * @return number of pixels actually read. It shall be either {@code 0} or equal to
+     *         {@link #getNumPixels()}
+     */
     public int getNumPixelsRead() {
         return numPixelsRead;
     }

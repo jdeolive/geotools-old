@@ -168,7 +168,7 @@ class BitmaskToNoDataConverter {
     /**
      * Returns whether the sample N in the bitmask byte array is marked as a no-data pixel
      */
-    public final boolean isNoData(int sampleN, byte[] bitmaskData) {
+    protected final boolean isNoData(int sampleN, byte[] bitmaskData) {
         boolean isNoData = ((bitmaskData[sampleN / 8] >> (7 - (sampleN % 8))) & 0x01) == 0x00;
         return isNoData;
     }
@@ -177,11 +177,21 @@ class BitmaskToNoDataConverter {
      * Sets all the samples of {@code tileData} marked as no-data pixel in {@code bitmaskData} to
      * the no-data value for band {@code bandId}
      */
-    public void setNoData(final TileInfo tileData) {
-        final byte[] bitmaskData = tileData.getBitmaskData();
-        for (int sampleN = 0; sampleN < pixelsPerTile; sampleN++) {
-            if (isNoData(sampleN, bitmaskData)) {
-                setNoData(sampleN, tileData);
+    public void setNoData(final TileInfo tileInfo) {
+        final byte[] bitmaskData = tileInfo.getBitmaskData();
+        final int numPixelsRead = tileInfo.getNumPixelsRead();
+        final boolean hasNoDataPixels = bitmaskData.length > 0;
+
+        if (numPixelsRead == 0) {
+            setAll(tileInfo);
+        } else if (hasNoDataPixels) {
+            final int numSamples = tileInfo.getNumPixels();
+            assert numPixelsRead == numSamples;
+
+            for (int sampleN = 0; sampleN < numSamples; sampleN++) {
+                if (isNoData(sampleN, bitmaskData)) {
+                    setNoData(sampleN, tileInfo);
+                }
             }
         }
     }
@@ -193,7 +203,7 @@ class BitmaskToNoDataConverter {
      * number of samples in a tile. Subclasses may override to optimize.
      * </p>
      */
-    public void setAll(final TileInfo tile) {
+    protected void setAll(final TileInfo tile) {
         for (int sampleN = 0; sampleN < pixelsPerTile; sampleN++) {
             setNoData(sampleN, tile);
         }
@@ -202,7 +212,7 @@ class BitmaskToNoDataConverter {
     /**
      * Sets the sample N for the band {@code bandId} on {@code tileData} to the no-data value
      */
-    public void setNoData(final int sampleN, final TileInfo tileData) {
+    protected void setNoData(final int sampleN, final TileInfo tileData) {
         final Long bandId = tileData.getBandId();
         // byte[] noData = byBandIdNoDataValues.get(bandId);
         Number noData = byBandIdNoDataValues.get(bandId);

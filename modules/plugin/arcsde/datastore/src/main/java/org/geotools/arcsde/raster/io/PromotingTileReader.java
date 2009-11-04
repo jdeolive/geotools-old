@@ -107,8 +107,12 @@ final class PromotingTileReader implements TileReader {
 
             for (int bandN = 0; bandN < numberOfBands; bandN++) {
                 TileInfo nativeData = nativeBandInfo[bandN];
+
                 TileInfo promotedData = promoter.promote(nativeData);
-                setNoData(promotedData);
+
+                nativeBandInfo[bandN] = null;// release early release often...
+
+                noData.setNoData(promotedData);
                 promotedBandInfo[bandN] = promotedData;
             }
         } catch (IOException e) {
@@ -154,27 +158,6 @@ final class PromotingTileReader implements TileReader {
         // return promotedTileInfo;
     }
 
-    private void setNoData(TileInfo tileInfo) {
-        final byte[] bitmaskData = tileInfo.getBitmaskData();
-        final boolean hasNoDataPixels = bitmaskData.length > 0;
-
-        if (hasNoDataPixels) {
-            final int numPixelsRead = tileInfo.getNumPixelsRead();
-            if (numPixelsRead == 0) {
-                noData.setAll(tileInfo);
-            } else {
-                final int numSamples = getPixelsPerTile();
-                assert numPixelsRead == numSamples;
-
-                for (int sampleN = 0; sampleN < numSamples; sampleN++) {
-                    if (noData.isNoData(sampleN, bitmaskData)) {
-                        noData.setNoData(sampleN, tileInfo);
-                    }
-                }
-            }
-        }
-    }
-
     /**
      * 
      * @author Gabriel Roldan
@@ -216,8 +199,8 @@ final class PromotingTileReader implements TileReader {
             short[] promotedPixels = nativeData.getTileDataAsUnsignedShorts();
 
             TileInfo promotedTileInfo = new TileInfo(nativeData.getBandId(), nativeData
-                    .getColumnIndex(), nativeData.getRowIndex(), nativeData.getNumPixelsRead(),
-                    nativeData.getBitmaskData());
+                    .getColumnIndex(), nativeData.getRowIndex(), nativeData.getNumPixels(),
+                    nativeData.getNumPixelsRead(), nativeData.getBitmaskData());
 
             promotedTileInfo.setTileData(promotedPixels);
 
@@ -261,8 +244,8 @@ final class PromotingTileReader implements TileReader {
             int[] promotedPixels = nativeData.getTileDataAsIntegers();
 
             TileInfo promotedTileInfo = new TileInfo(nativeData.getBandId(), nativeData
-                    .getColumnIndex(), nativeData.getRowIndex(), nativeData.getNumPixelsRead(),
-                    nativeData.getBitmaskData());
+                    .getColumnIndex(), nativeData.getRowIndex(), nativeData.getNumPixels(),
+                    nativeData.getNumPixelsRead(), nativeData.getBitmaskData());
 
             promotedTileInfo.setTileData(promotedPixels);
 

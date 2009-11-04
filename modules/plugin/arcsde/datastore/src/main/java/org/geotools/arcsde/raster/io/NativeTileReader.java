@@ -360,36 +360,7 @@ final class NativeTileReader implements TileReader {
             final int numberOfBands = getNumberOfBands();
             for (int bandN = 0; bandN < numberOfBands; bandN++) {
                 final TileInfo tile = bandTiles[bandN];
-                final byte[] bitMaskData = tile.getBitmaskData();
-
-                if (LOGGER.isLoggable(Level.FINEST)) {
-                    LOGGER.finest(" >> Fetching " + tile + " - bitmask: " + bitMaskData.length);
-                }
-
-                assert bitMaskData.length == 0 ? true : bitmaskDataLength == bitMaskData.length;
-
-                final int numPixels = tile.getNumPixelsRead();
-
-                if (0 == numPixels) {
-                    if (LOGGER.isLoggable(Level.FINER)) {
-                        LOGGER.finer("tile contains no pixel data, skipping: " + tile);
-                    }
-                    noData.setAll(tile);
-                } else if (pixelsPerTile == numPixels) {
-
-                    if (bitMaskData.length > 0) {
-                        noData.setNoData(tile);
-                    }
-
-                    if (LOGGER.isLoggable(Level.FINEST)) {
-                        LOGGER.finest("returning " + numPixels + " pixels data packaged into "
-                                + tileDataLength + " bytes for tile [" + tile.getColumnIndex()
-                                + "," + tile.getRowIndex() + "]");
-                    }
-                } else {
-                    throw new IllegalStateException("Expected pixels per tile == " + pixelsPerTile
-                            + " but got " + numPixels + ": " + tile);
-                }
+                noData.setNoData(tile);
             }
 
         } catch (RuntimeException e) {
