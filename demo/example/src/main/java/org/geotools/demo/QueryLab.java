@@ -137,8 +137,8 @@ public class QueryLab extends JFrame {
          * To modify this example to work with a PostGIS database instead just replace 'new
          * ShapefileDataStoreFactory()' in the line below with 'new PostgisDataStoreFactory()'
          */
-        //JDataStoreWizard wizard = new JDataStoreWizard(new ShapefileDataStoreFactory());
-        JDataStoreWizard wizard = new JDataStoreWizard(new PostgisDataStoreFactory());
+        JDataStoreWizard wizard = new JDataStoreWizard(new ShapefileDataStoreFactory());
+        //JDataStoreWizard wizard = new JDataStoreWizard(new PostgisDataStoreFactory());
         int result = wizard.showModalDialog();
         if (result != JWizard.FINISH) {
             System.exit(0);

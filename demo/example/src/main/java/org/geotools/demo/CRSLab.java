@@ -18,7 +18,6 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
@@ -41,7 +40,6 @@ import org.geotools.geometry.jts.JTS;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.map.MapContext;
 import org.geotools.referencing.CRS;
-import org.geotools.swing.JCRSChooser;
 import org.geotools.swing.JMapFrame;
 import org.geotools.swing.ProgressWindow;
 import org.geotools.swing.action.SafeAction;
@@ -106,9 +104,8 @@ public class CRSLab {
         mapFrame.enableStatusBar(true);
 
         JToolBar toolbar = mapFrame.getToolBar();
-        toolbar.add( new JButton( new ChangeCRSAction() ) );
-        toolbar.add( new JButton( new ExportShapefileAction() ) );
         toolbar.add( new JButton( new ValidateGeometryAction() ) );
+        toolbar.add( new JButton( new ExportShapefileAction() ) );
 
         /*
          * Display the map frame. When it is closed the application
@@ -296,34 +293,6 @@ public class CRSLab {
     }
 
     // docs end validate
-
-    // docs start crs action
-    /**
-     * This class performs the task of changing the CRS of the map display
-     * when the toolbar button is pressed. It also supplies the name and
-     * tool tip for the button.
-     */
-    class ChangeCRSAction extends AbstractAction {
-
-        ChangeCRSAction() {
-            super("Reproject...");
-            putValue(Action.SHORT_DESCRIPTION, "Display features with in a new CRS");
-        }
-
-        public void actionPerformed(ActionEvent arg0) {
-            try {
-                CoordinateReferenceSystem crs = JCRSChooser.showDialog(
-                        null, "Coordinate Reference System", "Choose a new projection:", null);
-                if (crs != null) {
-                    map.setCoordinateReferenceSystem(crs);
-                }
-            } catch (Exception ex) {
-                System.out.println("Could not use crs " + ex);
-            }
-        }
-    }
-
-    // docs end crs action
 
     // docs start export action
     /**

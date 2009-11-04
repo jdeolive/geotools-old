@@ -1,3 +1,4 @@
+// docs start source
 /*
  *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
@@ -59,9 +60,9 @@ public class StyleFunctionLab {
     }
 
     /**
-     * Display
-     * @param file
-     * @throws Exception
+     * Connect to the shapefile and prompt the user to choose a feature
+     * attribute to base line and fill colours on. A colour will be
+     * generated for each unique value of the chosen attribute.
      */
     private void displayShapefile(File file) throws Exception {
         FileDataStore store = FileDataStoreFinder.getDataStore(file);
@@ -71,6 +72,10 @@ public class StyleFunctionLab {
         MapContext map = new DefaultMapContext();
         map.setTitle("Filter Function Lab");
 
+        /*
+         * Prompt the user for the feature attribute used to
+         * determine the line and fill colour for each feature
+         */
         FeatureType type = featureSource.getSchema();
         PropertyDescriptor geomDesc = type.getGeometryDescriptor();
         List<String> attributeNames = new ArrayList<String>();
@@ -86,6 +91,9 @@ public class StyleFunctionLab {
                 JOptionPane.PLAIN_MESSAGE, null,
                 attributeNames.toArray(), null);
 
+        /**
+         * Create the Style and display the shapefile
+         */
         if (selection != null) {
             Style style = createStyle(featureSource, (String)selection);
             map.addLayer(featureSource, style);
@@ -94,7 +102,10 @@ public class StyleFunctionLab {
             JMapFrame.showMap(map);
         }
     }
+    
+    // docs end display
 
+    // docs start create style
     /**
      * Create a rendering style to display features from the given feature source
      * by matching unique values of the specified feature attribute to colours
@@ -105,47 +116,56 @@ public class StyleFunctionLab {
     private Style createStyle(FeatureSource featureSource, String attributeName) 
             throws Exception {
 
-        FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
-        StyleFactory sf = CommonFactoryFinder.getStyleFactory(null);
+        FilterFactory2 filterFactory = CommonFactoryFinder.getFilterFactory2(null);
+        StyleFactory styleFactory = CommonFactoryFinder.getStyleFactory(null);
 
-        UniqueColourFunction colourFn = new UniqueColourFunction(
-                featureSource.getFeatures(), ff.property(attributeName));
-        Fill fill = sf.createFill(colourFn);
-        Stroke stroke = sf.createStroke(colourFn, ff.literal(1.0f));
+        ColorLookupFunction colourFn = new ColorLookupFunction(
+                featureSource.getFeatures(), filterFactory.property(attributeName));
+
+        Stroke stroke = styleFactory.createStroke(
+                colourFn,                      // function to choose feature colour
+                filterFactory.literal(1.0f),   // line width
+                filterFactory.literal(1.0f));  // opacity
+
+        Fill fill = styleFactory.createFill(
+                colourFn,                      // function to choose feature colour
+                filterFactory.literal(1.0f));  // opacity
 
         Class<?> geomClass = featureSource.getSchema().getGeometryDescriptor().getType().getBinding();
         Symbolizer sym = null;
         if (Polygon.class.isAssignableFrom(geomClass) ||
             MultiPolygon.class.isAssignableFrom(geomClass)) {
 
-            sym = sf.createPolygonSymbolizer(stroke, fill, null);
+            sym = styleFactory.createPolygonSymbolizer(stroke, fill, null);
 
         } else if (LineString.class.isAssignableFrom(geomClass) ||
                    MultiLineString.class.isAssignableFrom(geomClass)) {
-            sym = sf.createLineSymbolizer(stroke, null);
+            sym = styleFactory.createLineSymbolizer(stroke, null);
 
         } else {
-            Graphic gr = sf.createDefaultGraphic();
+            Graphic gr = styleFactory.createDefaultGraphic();
             gr.graphicalSymbols().clear();
-            Mark mark = sf.getCircleMark();
+            Mark mark = styleFactory.getCircleMark();
             mark.setFill(fill);
             mark.setStroke(stroke);
             gr.graphicalSymbols().add(mark);
-            gr.setSize(ff.literal(10.0f));
-            sym = sf.createPointSymbolizer(gr, null);
+            gr.setSize(filterFactory.literal(10.0f));
+            sym = styleFactory.createPointSymbolizer(gr, null);
         }
 
         Style style = SLD.wrapSymbolizers(sym);
         return style;
     }
 
+    // docs end create style:w
 
+    // docs start function
     /**
      * A function to dynamically allocate colours to features. It works with a lookup table
      * where the key is a user-specified feature attribute. Colours are generated using
      * a simple colour ramp algorithm.
      */
-    static class UniqueColourFunction extends FunctionExpressionImpl {
+    static class ColorLookupFunction extends FunctionExpressionImpl {
 
         private static final float INITIAL_HUE = 0.1f;
         private final FeatureCollection collection;
@@ -169,7 +189,7 @@ public class StyleFunctionLab {
          * @param colourAttribute a literal expression that specifies the feature attribute
          *        to use for colour lookup
          */
-        public UniqueColourFunction(FeatureCollection collection, Expression colourAttribute) {
+        public ColorLookupFunction(FeatureCollection collection, Expression colourAttribute) {
             super("UniqueColour");
             this.collection = collection;
 
@@ -236,3 +256,4 @@ public class StyleFunctionLab {
     }
 }
 
+// docs end source
