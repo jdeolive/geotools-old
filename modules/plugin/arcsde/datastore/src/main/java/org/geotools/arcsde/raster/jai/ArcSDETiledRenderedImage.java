@@ -88,8 +88,8 @@ class ArcSDETiledRenderedImage extends SimpleRenderedImage {
         return tileKey;
     }
 
-    private static final LRUMap cache = new LRUMap(5);
-
+    private final LRUMap cache = new LRUMap(5);
+    
     private void cache(TileKey key, WritableRaster tile) {
         cache.put(key, tile);
     }
