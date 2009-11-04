@@ -1,5 +1,7 @@
 package org.geotools.arcsde.raster.jai;
 
+import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
@@ -13,7 +15,6 @@ import javax.imageio.metadata.IIOMetadata;
 import javax.media.jai.PlanarImage;
 
 import org.geotools.arcsde.raster.io.TileReader;
-
 
 public class ArcSDEImageReader extends ImageReader {
 
@@ -63,10 +64,17 @@ public class ArcSDEImageReader extends ImageReader {
             throws IOException {
         // return read(imageIndex, param);
 
+        checkIndex(imageIndex);
+        clearAbortRequest();
+        processImageStarted(0);
+
         RenderedImage image = new ArcSDETiledRenderedImage(tileReader, typeSpec);
 
-        // BufferedImage bufferedImage = PlanarImage.wrapRenderedImage(image).getAsBufferedImage();
-        // return bufferedImage;
+        if (abortRequested())
+            processReadAborted();
+        else
+            processImageComplete();
+
         return image;
     }
 
@@ -76,11 +84,31 @@ public class ArcSDEImageReader extends ImageReader {
             param = getDefaultReadParam();
         }
 
+        checkIndex(imageIndex);
+        clearAbortRequest();
+        processImageStarted(imageIndex);
+
+        BufferedImage bi = param.getDestination();
+
         RenderedImage rendered = readAsRenderedImage(imageIndex, param);
-
-        BufferedImage bufferedImage = PlanarImage.wrapRenderedImage(rendered).getAsBufferedImage();
-
+        final BufferedImage bufferedImage;
+        if (bi == null) {
+            bufferedImage = PlanarImage.wrapRenderedImage(rendered).getAsBufferedImage();
+        } else {
+            // REVISIT: this is too naive, though it doesn't look like being used
+            AffineTransform identity = new AffineTransform();
+            Graphics2D graphics = (Graphics2D) bi.getGraphics();
+            graphics.drawRenderedImage(rendered, identity);
+            graphics.dispose();
+            bufferedImage = bi;
+        }
         return bufferedImage;
+    }
+
+    private void checkIndex(int imageIndex) throws IOException {
+        if (imageIndex < 0 || imageIndex >= getNumImages(true)) {
+            throw new IndexOutOfBoundsException("Image index: " + imageIndex);
+        }
     }
 
     @Override
