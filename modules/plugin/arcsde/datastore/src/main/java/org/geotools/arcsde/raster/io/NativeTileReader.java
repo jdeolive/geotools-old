@@ -81,6 +81,8 @@ final class NativeTileReader implements TileReader {
 
     private int bitsPerSample;
 
+    private final RasterCellType nativeCellType;
+
     /**
      * @see DefaultTiledRasterReader#nextRaster()
      */
@@ -187,7 +189,7 @@ final class NativeTileReader implements TileReader {
 
         this.pixelsPerTile = tileSize.width * tileSize.height;
 
-        final RasterCellType nativeCellType = rasterInfo.getNativeCellType();
+        this.nativeCellType = rasterInfo.getNativeCellType();
         this.bitsPerSample = nativeCellType.getBitsPerSample();
         this.tileDataLength = (int) Math
                 .ceil(((double) pixelsPerTile * (double) bitsPerSample) / 8D);
@@ -343,7 +345,7 @@ final class NativeTileReader implements TileReader {
         final int numberOfBands = getNumberOfBands();
         final SeQuery preparedQuery = queryCommand.getPreparedQuery();
         TileFetchCommand fetchCommand = new TileFetchCommand(preparedQuery, row, pixelsPerTile,
-                numberOfBands);
+                numberOfBands, nativeCellType);
         return fetchCommand;
     }
 

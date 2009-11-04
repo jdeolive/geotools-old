@@ -63,6 +63,7 @@ class ArcSDETiledRenderedImage extends SimpleRenderedImage {
         try {
             tileInfo = tileReader.getTile(tileX, tileY);
         } catch (IOException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
 

@@ -1,16 +1,21 @@
 package org.geotools.arcsde.raster.io;
 
+import static org.geotools.arcsde.raster.info.RasterCellType.TYPE_1BIT;
+import static org.geotools.arcsde.raster.info.RasterCellType.TYPE_4BIT;
+import static org.geotools.arcsde.raster.info.RasterCellType.TYPE_8BIT_S;
+import static org.geotools.arcsde.raster.info.RasterCellType.TYPE_8BIT_U;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.geotools.arcsde.raster.info.RasterCellType;
 import org.geotools.arcsde.session.Command;
 import org.geotools.arcsde.session.ISession;
 
 import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeException;
 import com.esri.sde.sdk.client.SeQuery;
-import com.esri.sde.sdk.client.SeRaster;
 import com.esri.sde.sdk.client.SeRasterTile;
 import com.esri.sde.sdk.client.SeRow;
 
@@ -33,14 +38,18 @@ class TileFetchCommand extends Command<TileInfo[]> {
 
     private final int numberOfBands;
 
-    private TileDataFetcher dataFetcher;
+    private final TileDataFetcher dataFetcher;
+
+    private final RasterCellType nativeType;
 
     public TileFetchCommand(final SeQuery preparedQuery, final SeRow row, final int pixelsPerTile,
-            final int numberOfBands) {
+            final int numberOfBands, final RasterCellType nativeType) {
         this.preparedQuery = preparedQuery;
         this.row = row;
         this.pixelsPerTile = pixelsPerTile;
         this.numberOfBands = numberOfBands;
+        this.nativeType = nativeType;
+        this.dataFetcher = getTileDataFetcher(nativeType);
     }
 
     public SeQuery getQuery() {
@@ -68,11 +77,6 @@ class TileFetchCommand extends Command<TileInfo[]> {
 
             TileInfo tileInfo = new TileInfo(bandId, colIndex, rowIndex, numPixelsRead, bitMaskData);
 
-            if (dataFetcher == null) {
-                final int sePixelType = tile.getPixelType();
-                dataFetcher = getTileDataFetcher(sePixelType);
-            }
-
             dataFetcher.setTileData(pixelsPerTile, tile, tileInfo);
 
             tilesPerBand[bandN] = tileInfo;
@@ -80,22 +84,22 @@ class TileFetchCommand extends Command<TileInfo[]> {
         return tilesPerBand;
     }
 
-    private static Map<Integer, TileDataFetcher> tileDataSetters = new HashMap<Integer, TileDataFetcher>();
+    private static Map<RasterCellType, TileDataFetcher> tileDataSetters = new HashMap<RasterCellType, TileDataFetcher>();
     static {
         {
             ByteTileSetter byteTileSetter = new ByteTileSetter();
-            tileDataSetters.put(SeRaster.SE_PIXEL_TYPE_1BIT, byteTileSetter);
-            tileDataSetters.put(SeRaster.SE_PIXEL_TYPE_4BIT, byteTileSetter);
-            tileDataSetters.put(SeRaster.SE_PIXEL_TYPE_8BIT_S, byteTileSetter);
-            tileDataSetters.put(SeRaster.SE_PIXEL_TYPE_8BIT_U, byteTileSetter);
+            tileDataSetters.put(TYPE_1BIT, byteTileSetter);
+            tileDataSetters.put(TYPE_4BIT, byteTileSetter);
+            tileDataSetters.put(TYPE_8BIT_S, byteTileSetter);
+            tileDataSetters.put(TYPE_8BIT_U, byteTileSetter);
         }
     }
 
-    private TileDataFetcher getTileDataFetcher(final int sePixelType) {
-        TileDataFetcher tileDataFetcher = tileDataSetters.get(Integer.valueOf(sePixelType));
+    private TileDataFetcher getTileDataFetcher(final RasterCellType pixelType) {
+        TileDataFetcher tileDataFetcher = tileDataSetters.get(pixelType);
         if (tileDataFetcher == null) {
             throw new IllegalArgumentException("No registered TileDataFetcher for pixel type "
-                    + sePixelType);
+                    + pixelType);
         }
         return tileDataFetcher;
     }
