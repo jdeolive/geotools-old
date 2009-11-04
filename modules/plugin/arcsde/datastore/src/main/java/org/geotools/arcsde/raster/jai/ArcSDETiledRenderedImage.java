@@ -21,7 +21,9 @@ import com.sun.media.imageioimpl.common.SimpleRenderedImage;
 @SuppressWarnings("unchecked")
 class ArcSDETiledRenderedImage extends SimpleRenderedImage {
 
-    private TileReader tileReader;
+    private final TileReader tileReader;
+
+    private final SampleModel tileSampleModel;
 
     public ArcSDETiledRenderedImage(final TileReader tileReader, final ImageTypeSpecifier typeSpec) {
         this.tileReader = tileReader;
@@ -35,6 +37,8 @@ class ArcSDETiledRenderedImage extends SimpleRenderedImage {
         super.tileGridYOffset = 0;
         super.tileHeight = tileReader.getTileHeight();
         super.tileWidth = tileReader.getTileWidth();
+        this.tileSampleModel = super.sampleModel.createCompatibleSampleModel(tileWidth, tileHeight);
+
     }
 
     /**
@@ -52,12 +56,9 @@ class ArcSDETiledRenderedImage extends SimpleRenderedImage {
         final int xOrigin = tileXToX(tileX);
         final int yOrigin = tileYToY(tileY);
 
-        final int numBands = sampleModel.getNumBands();
+        final int numBands = tileSampleModel.getNumBands();
 
-        final SampleModel tileSampleModel = super.sampleModel.createCompatibleSampleModel(
-                tileWidth, tileHeight);
-
-        DataBuffer dataBuffer = sampleModel.createDataBuffer();
+        DataBuffer dataBuffer = tileSampleModel.createDataBuffer();
         TileInfo[] tileInfo;
         try {
             tileInfo = tileReader.getTile(tileX, tileY);
@@ -89,7 +90,7 @@ class ArcSDETiledRenderedImage extends SimpleRenderedImage {
     }
 
     private final LRUMap cache = new LRUMap(5);
-    
+
     private void cache(TileKey key, WritableRaster tile) {
         cache.put(key, tile);
     }
