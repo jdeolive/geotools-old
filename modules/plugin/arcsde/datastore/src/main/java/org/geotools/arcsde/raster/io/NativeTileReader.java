@@ -262,6 +262,8 @@ final class NativeTileReader implements TileReader {
     private void execute() throws IOException {
         final Rectangle requestedTiles = this.requestedTiles;
         this.tileFetchCommand = execute(requestedTiles);
+        this.started = true;
+        this.lastTileX = this.lastTileY = -1;
     }
 
     private TileFetchCommand execute(final Rectangle rasterTiles) throws IOException {
@@ -376,7 +378,9 @@ final class NativeTileReader implements TileReader {
     private int lastTileY = -1;
 
     private TileInfo[] fetchTile(final int tileX, final int tileY) throws IOException {
-
+        if(!started){
+            execute();
+        }
         TileInfo[] tileInfo = null;
 
         if (isConsecutive(tileX, tileY)) {
@@ -438,11 +442,6 @@ final class NativeTileReader implements TileReader {
     }
 
     private TileInfo[] nextTile() throws IOException {
-        if (!started) {
-            execute();
-            started = true;
-        }
-
         TileInfo[] nextTile;
         try {
             nextTile = session.issue(tileFetchCommand);
@@ -492,13 +491,15 @@ final class NativeTileReader implements TileReader {
                     LOGGER.log(Level.WARNING, "Closing tile reader's prepared Query", e);
                 }
             }
-            tileFetchCommand = null;
             if (LOGGER.isLoggable(Level.FINER)) {
                 LOGGER.finer("Disposing " + session + " on thread "
                         + Thread.currentThread().getName());
             }
             session.dispose();
             session = null;
+
+            // get ready for more invocations
+            tileFetchCommand = null;
             started = false;
         }
     }
