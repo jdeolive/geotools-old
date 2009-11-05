@@ -226,6 +226,11 @@ public final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DR
         final Rectangle mosaicGeometry;
         mosaicGeometry = RasterUtils.setMosaicLocations(rasterInfo, resultEnvelope, queries);
 
+        if (mosaicGeometry.width == 0 || mosaicGeometry.height == 0) {
+            LOGGER.finer("Mosaic geometry width or height is zero,"
+                    + " returning fake coverage for pixels " + mosaicGeometry);
+            return createFakeCoverage(requestedEnvelope, requestedDim);
+        }
         /*
          * Gather the rendered images for each of the rasters that match the requested envelope
          */
