@@ -195,9 +195,7 @@ public final class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
      */
     public ArcSDEDataStoreFactory() {
         if (!isAvailable()) {
-            // This is not the correct place to annoy people; as it will be hit by each call
-            // to DataStoreFinder
-            LOGGER.fine("The ESRI ArcSDE Java API seems to not be on your classpath. Please"
+            LOGGER.finest("The ESRI ArcSDE Java API seems to not be on your classpath. Please"
                     + " verify that all needed jars are. ArcSDE data stores"
                     + " will not be available.");
         }
