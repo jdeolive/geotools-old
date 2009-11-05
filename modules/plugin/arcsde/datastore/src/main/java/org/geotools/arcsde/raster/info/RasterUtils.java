@@ -336,8 +336,8 @@ public class RasterUtils {
         assert noDataValue == 2;
 
         final int FALSE = ColorUtilities.getIntFromColor(255, 255, 255, 255);
-        final int TRUE = ColorUtilities.getIntFromColor(255, 0, 0, 255);
-        final int NODATA = ColorUtilities.getIntFromColor(0, 255, 0, 255);
+        final int TRUE = ColorUtilities.getIntFromColor(0, 0, 0, 255);
+        final int NODATA = ColorUtilities.getIntFromColor(255, 255, 255, 0);
 
         final int mapSize = 3;
         int[] cmap = new int[mapSize];
