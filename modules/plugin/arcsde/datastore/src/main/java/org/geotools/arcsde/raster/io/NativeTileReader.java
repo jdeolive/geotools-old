@@ -67,7 +67,7 @@ final class NativeTileReader implements TileReader {
 
     private ISession session;
 
-    private TileFetchCommand tileFetchCommand;
+    // private TileFetchCommand tileFetchCommand;
 
     private boolean started;
 
@@ -82,6 +82,8 @@ final class NativeTileReader implements TileReader {
     private int bitsPerSample;
 
     private final RasterCellType nativeCellType;
+
+    private QueryObjects queryObjects;
 
     /**
      * @see DefaultTiledRasterReader#nextRaster()
@@ -261,12 +263,12 @@ final class NativeTileReader implements TileReader {
      */
     private void execute() throws IOException {
         final Rectangle requestedTiles = this.requestedTiles;
-        this.tileFetchCommand = execute(requestedTiles);
+        this.queryObjects = execute(requestedTiles);
         this.started = true;
         this.lastTileX = this.lastTileY = -1;
     }
 
-    private TileFetchCommand execute(final Rectangle rasterTiles) throws IOException {
+    private QueryObjects execute(final Rectangle rasterTiles) throws IOException {
 
         final int rasterIndex = rasterInfo.getRasterIndex(rasterId);
         final int tileWidth = rasterInfo.getTileWidth(rasterId);
@@ -344,19 +346,147 @@ final class NativeTileReader implements TileReader {
 
         final SeRow row = queryCommand.getSeRow();
 
-        final int numberOfBands = getNumberOfBands();
         final SeQuery preparedQuery = queryCommand.getPreparedQuery();
-        TileFetchCommand fetchCommand = new TileFetchCommand(preparedQuery, row, pixelsPerTile,
-                numberOfBands, nativeCellType);
-        return fetchCommand;
+
+        return new QueryObjects(preparedQuery, row);
+    }
+
+    private static class QueryObjects {
+        SeQuery preparedQuery;
+
+        SeRow row;
+
+        public QueryObjects(SeQuery preparedQuery, SeRow row) {
+            this.preparedQuery = preparedQuery;
+            this.row = row;
+        }
     }
 
     /**
      * @see org.geotools.arcsde.raster.io.TileReader#getTile(int, int)
      */
-    public TileInfo[] getTile(final int tileX, final int tileY) throws IOException {
+    // public TileInfo[] getTile(final int tileX, final int tileY) throws IOException {
+    // // System.err.println("getTile " + tileX + ", " + tileY);
+    // final TileInfo[] bandTiles = fetchTile(tileX, tileY);
+    //
+    // try {
+    // final int numberOfBands = getNumberOfBands();
+    // for (int bandN = 0; bandN < numberOfBands; bandN++) {
+    // final TileInfo tile = bandTiles[bandN];
+    // noData.setNoData(tile);
+    // }
+    //
+    // } catch (RuntimeException e) {
+    // dispose();
+    // throw e;
+    // }
+    //
+    // return bandTiles;
+    // }
 
-        final TileInfo[] bandTiles = fetchTile(tileX, tileY);
+    public TileInfo[] getTile(final int tileX, final int tileY, byte[][] data) throws IOException {
+        final int numberOfBands = getNumberOfBands();
+        if (data == null) {
+            data = new byte[numberOfBands][getPixelsPerTile()];
+        } else if (data.length != numberOfBands) {
+            throw new IllegalArgumentException("data shall be byte[" + numberOfBands + "],["
+                    + getPixelsPerTile() + "]");
+        }
+        TileInfo[] tileInfo = new TileInfo[numberOfBands];
+        TileInfo t;
+        for (int b = 0; b < numberOfBands; b++) {
+            t = new TileInfo(getPixelsPerTile());
+            t.setTileData(data[b]);
+            tileInfo[b] = t;
+        }
+
+        getTile(tileX, tileY, tileInfo);
+        return tileInfo;
+    }
+
+    public TileInfo[] getTile(int tileX, int tileY, short[][] data) throws IOException {
+        final int numberOfBands = getNumberOfBands();
+        if (data == null) {
+            data = new short[numberOfBands][getPixelsPerTile()];
+        } else if (data.length != numberOfBands) {
+            throw new IllegalArgumentException("data shall be byte[" + numberOfBands + "],["
+                    + getPixelsPerTile() + "]");
+        }
+        TileInfo[] tileInfo = new TileInfo[numberOfBands];
+        TileInfo t;
+        for (int b = 0; b < numberOfBands; b++) {
+            t = new TileInfo(getPixelsPerTile());
+            t.setTileData(data[b]);
+            tileInfo[b] = t;
+        }
+
+        getTile(tileX, tileY, tileInfo);
+        return tileInfo;
+    }
+
+    public TileInfo[] getTile(int tileX, int tileY, int[][] data) throws IOException {
+        final int numberOfBands = getNumberOfBands();
+        if (data == null) {
+            data = new int[numberOfBands][getPixelsPerTile()];
+        } else if (data.length != numberOfBands) {
+            throw new IllegalArgumentException("data shall be byte[" + numberOfBands + "],["
+                    + getPixelsPerTile() + "]");
+        }
+        TileInfo[] tileInfo = new TileInfo[numberOfBands];
+        TileInfo t;
+        for (int b = 0; b < numberOfBands; b++) {
+            t = new TileInfo(getPixelsPerTile());
+            t.setTileData(data[b]);
+            tileInfo[b] = t;
+        }
+
+        getTile(tileX, tileY, tileInfo);
+        return tileInfo;
+    }
+
+    public TileInfo[] getTile(int tileX, int tileY, float[][] data) throws IOException {
+        final int numberOfBands = getNumberOfBands();
+        if (data == null) {
+            data = new float[numberOfBands][getPixelsPerTile()];
+        } else if (data.length != numberOfBands) {
+            throw new IllegalArgumentException("data shall be byte[" + numberOfBands + "],["
+                    + getPixelsPerTile() + "]");
+        }
+        TileInfo[] tileInfo = new TileInfo[numberOfBands];
+        TileInfo t;
+        for (int b = 0; b < numberOfBands; b++) {
+            t = new TileInfo(getPixelsPerTile());
+            t.setTileData(data[b]);
+            tileInfo[b] = t;
+        }
+
+        getTile(tileX, tileY, tileInfo);
+        return tileInfo;
+    }
+
+    public TileInfo[] getTile(int tileX, int tileY, double[][] data) throws IOException {
+        final int numberOfBands = getNumberOfBands();
+        if (data == null) {
+            data = new double[numberOfBands][getPixelsPerTile()];
+        } else if (data.length != numberOfBands) {
+            throw new IllegalArgumentException("data shall be byte[" + numberOfBands + "],["
+                    + getPixelsPerTile() + "]");
+        }
+        TileInfo[] tileInfo = new TileInfo[numberOfBands];
+        TileInfo t;
+        for (int b = 0; b < numberOfBands; b++) {
+            t = new TileInfo(getPixelsPerTile());
+            t.setTileData(data[b]);
+            tileInfo[b] = t;
+        }
+
+        getTile(tileX, tileY, tileInfo);
+        return tileInfo;
+    }
+
+    private void getTile(final int tileX, final int tileY, TileInfo[] target) throws IOException {
+
+        final TileInfo[] bandTiles = fetchTile(tileX, tileY, target);
 
         try {
             final int numberOfBands = getNumberOfBands();
@@ -369,28 +499,49 @@ final class NativeTileReader implements TileReader {
             dispose();
             throw e;
         }
-
-        return bandTiles;
     }
 
     private int lastTileX = -1;
 
     private int lastTileY = -1;
 
-    private TileInfo[] fetchTile(final int tileX, final int tileY) throws IOException {
-        if(!started){
-            execute();
-        }
+    /**
+     * How many random tiles requested (ie, not consecutive) before re executing the original
+     * request as a rewind
+     */
+    private static final int RANDOM_THRESHOLD = 2;
+
+    private int nonConsecutiveCallCount;
+
+    private TileInfo[] fetchTile(final int tileX, final int tileY, TileInfo[] target)
+            throws IOException {
+
         TileInfo[] tileInfo = null;
 
         if (isConsecutive(tileX, tileY)) {
             while (lastTileX != tileX || lastTileY != tileY) {
-                tileInfo = nextTile();
+                tileInfo = nextTile(target);
             }
         } else {
-            tileInfo = fetchSingleTile(tileX, tileY);
+            if (nonConsecutiveCallCount == RANDOM_THRESHOLD) {
+                nonConsecutiveCallCount = 0;
+                if (LOGGER.isLoggable(Level.FINEST)) {
+                    LOGGER.finest("Number of random (non consecutive) tile request exceeded"
+                            + " predefined threshold. Rewind by executing original request again");
+                }
+                dispose();
+                return fetchTile(tileX, tileY, target);
+            } else {
+                nonConsecutiveCallCount++;
+                tileInfo = fetchSingleTile(tileX, tileY, target);
+            }
         }
 
+        if (lastTileX == getTilesWide() - 1 && lastTileY == getTilesHigh() - 1) {
+            dispose();
+            lastTileX = -1;
+            lastTileY = -1;
+        }
         return tileInfo;
     }
 
@@ -399,16 +550,22 @@ final class NativeTileReader implements TileReader {
      * 
      * @throws IOException
      */
-    private TileInfo[] fetchSingleTile(final int tileX, final int tileY) throws IOException {
-        LOGGER.info("fetchSingleTile " + tileX + ", " + tileY);
+    private TileInfo[] fetchSingleTile(final int tileX, final int tileY, TileInfo[] target)
+            throws IOException {
+        if (LOGGER.isLoggable(Level.FINEST)) {
+            LOGGER.finest("fetchSingleTile " + tileX + ", " + tileY);
+        }
+        // System.err.println("->fetchSingleTile " + tileX + ", " + tileY);
         final int rasterTileX = requestedTiles.x + tileX;
         final int rasterTileY = requestedTiles.y + tileY;
         final int width = 1;
         final int height = 1;
         final Rectangle requestTiles = new Rectangle(rasterTileX, rasterTileY, width, height);
 
-        final TileFetchCommand command = execute(requestTiles);
-        final SeQuery query = command.getQuery();
+        final QueryObjects singleTileQueryObjects = execute(requestTiles);
+        final SeQuery query = singleTileQueryObjects.preparedQuery;
+        final SeRow row = singleTileQueryObjects.row;
+        final TileFetchCommand command = new TileFetchCommand(row, nativeCellType, target);
         final TileInfo[] tile;
         try {
             tile = session.issue(command);
@@ -441,9 +598,15 @@ final class NativeTileReader implements TileReader {
         return false;
     }
 
-    private TileInfo[] nextTile() throws IOException {
+    private TileInfo[] nextTile(final TileInfo[] target) throws IOException {
+        if (!started) {
+            execute();
+        }
         TileInfo[] nextTile;
         try {
+            SeRow row = queryObjects.row;
+            RasterCellType nativeType = nativeCellType;
+            TileFetchCommand tileFetchCommand = new TileFetchCommand(row, nativeType, target);
             nextTile = session.issue(tileFetchCommand);
         } catch (IOException e) {
             dispose();
@@ -466,9 +629,6 @@ final class NativeTileReader implements TileReader {
             lastTileY++;
         }
 
-        if (lastTileX == getTilesWide() - 1 && lastTileY == getTilesHigh() - 1) {
-            dispose();
-        }
         return nextTile;
     }
 
@@ -483,9 +643,9 @@ final class NativeTileReader implements TileReader {
                 LOGGER.finer("TileReader disposing " + session + " on Thread "
                         + Thread.currentThread().getName());
             }
-            if (tileFetchCommand != null) {
+            if (queryObjects != null) {
                 try {
-                    SeQuery preparedQuery = this.tileFetchCommand.getQuery();
+                    SeQuery preparedQuery = queryObjects.preparedQuery;
                     session.close(preparedQuery);
                 } catch (Exception e) {
                     LOGGER.log(Level.WARNING, "Closing tile reader's prepared Query", e);
@@ -499,7 +659,7 @@ final class NativeTileReader implements TileReader {
             session = null;
 
             // get ready for more invocations
-            tileFetchCommand = null;
+            queryObjects = null;
             started = false;
         }
     }

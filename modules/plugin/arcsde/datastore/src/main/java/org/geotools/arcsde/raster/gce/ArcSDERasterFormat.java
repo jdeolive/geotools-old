@@ -19,10 +19,8 @@ package org.geotools.arcsde.raster.gce;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -314,7 +312,7 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
             }
         } else if (input instanceof File) {
             String path = ((File) input).getPath();
-            while(path.indexOf('\\') > -1){
+            while (path.indexOf('\\') > -1) {
                 path = path.replace('\\', '/');
             }
             URI uri;
@@ -322,7 +320,7 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
                 uri = new URI(path);
             } catch (URISyntaxException e) {
                 throw new IllegalArgumentException(path);
-            } 
+            }
             coverageUrl = uri.toString();
             if (LOGGER.isLoggable(Level.FINE)) {
                 LOGGER.fine("connectiong via file-hack to ArcSDE Raster: " + coverageUrl);

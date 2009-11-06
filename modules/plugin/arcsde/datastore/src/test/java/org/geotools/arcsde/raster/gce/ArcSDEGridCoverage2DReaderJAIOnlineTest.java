@@ -34,7 +34,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
-import javax.media.jai.operator.FormatDescriptor;
 
 import org.geotools.arcsde.ArcSDERasterFormatFactory;
 import org.geotools.arcsde.raster.info.RasterCellType;
@@ -88,6 +87,7 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
+        LOGGER.setLevel(Level.FINEST);
         // rasterTestData = new RasterTestData();
         // rasterTestData.setUp();
         // DEBUG = Boolean
@@ -148,7 +148,7 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
     @Test
     @Ignore
     public void testRead_04bit_1Band() throws Exception {
-        testReadFullLevel0(TYPE_4BIT, 1);
+        testReadFullLevel0(TYPE_4BIT, 1, TYPE_8BIT_U);
     }
 
     @Test
@@ -196,7 +196,8 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
 
     @Test
     public void testRead_08bit_U_7Band() throws Exception {
-        testReadFullLevel0(TYPE_8BIT_U, 7);
+        // type promotion caused becuase test data has no statistics...
+        testReadFullLevel0(TYPE_8BIT_U, 7, TYPE_16BIT_U);
     }
 
     @Test
@@ -207,32 +208,32 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
 
     @Test
     public void testRead_08bit_S_1Band() throws Exception {
-        testReadFullLevel0(TYPE_8BIT_S, 1);
+        testReadFullLevel0(TYPE_8BIT_S, 1, TYPE_16BIT_S);
     }
 
     @Test
     public void testRead_08bit_S_7Band() throws Exception {
-        testReadFullLevel0(TYPE_8BIT_S, 7);
+        testReadFullLevel0(TYPE_8BIT_S, 7, TYPE_16BIT_S);
     }
 
     @Test
     public void testRead_16bit_S_1Band() throws Exception {
-        testReadFullLevel0(TYPE_16BIT_S, 1);
+        testReadFullLevel0(TYPE_16BIT_S, 1, TYPE_32BIT_S);
     }
 
     @Test
     public void testRead_16bit_S_7Band() throws Exception {
-        testReadFullLevel0(TYPE_16BIT_S, 7);
+        testReadFullLevel0(TYPE_16BIT_S, 7, TYPE_32BIT_S);
     }
 
     @Test
     public void testRead_16bit_U_1Band() throws Exception {
-        testReadFullLevel0(TYPE_16BIT_U, 1);
+        testReadFullLevel0(TYPE_16BIT_U, 1, TYPE_32BIT_U);
     }
 
     @Test
     public void testRead_16bit_U_7Band() throws Exception {
-        testReadFullLevel0(TYPE_16BIT_U, 7);
+        testReadFullLevel0(TYPE_16BIT_U, 7, TYPE_32BIT_U);
     }
 
     @Test
@@ -432,20 +433,15 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
         // ///////////////////////////////////////////////////////////assertEquals(originalGridRange,
         // gridGeometry.getGridRange());
 
-        final RenderedImage geophysics = coverage.view(ViewType.NATIVE).getRenderedImage();
-        assertNotNull(geophysics);
-
         final String fileName = "testReadFullLevel0_" + fileNamePostFix;
 
-        if (!(geophysics.getColorModel() instanceof IndexColorModel)) {
-            // not sure why, but the geotiff writer goes OOM if it's an indexed image
-            writeToDisk(coverage, fileName);
-        }
-        writeToDisk(geophysics, fileName);
+        writeToDisk(coverage, fileName);
 
         // ////assertEquals(cellType.getDataBufferType(), image.getSampleModel().getDataType());
-        final int[] sampleSize = geophysics.getSampleModel().getSampleSize();
-        final ColorModel colorModel = geophysics.getColorModel();
+
+        RenderedImage nativeImage = coverage.view(ViewType.NATIVE).getRenderedImage();
+        final int[] sampleSize = nativeImage.getSampleModel().getSampleSize();
+        final ColorModel colorModel = nativeImage.getColorModel();
 
         if (colorModel instanceof IndexColorModel) {
             switch (cellType) {
@@ -640,23 +636,34 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
     private void writeToDisk(GridCoverage2D coverage, String fileName) throws Exception {
         Object destination;
         {
-            String file = System.getProperty("user.home");
-            file += File.separator + "arcsde_test" + File.separator + fileName + ".tiff";
-            File path = new File(file);
+            String directory = System.getProperty("user.home");
+            directory += File.separator + "arcsde_test" + File.separator + fileName
+                    + "_native.tiff";
+            File path = new File(directory);
             path.getParentFile().mkdirs();
             destination = path;
         }
-        GeoTiffWriter writer = new GeoTiffWriter(destination);
-
-        System.out.println("\n --- Writing to " + destination);
-        try {
-            long t = System.currentTimeMillis();
-            writer.write(coverage, null);
-            System.out.println(" - wrote in " + t + "ms" + destination);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
+        if (coverage.getRenderedImage().getColorModel() instanceof IndexColorModel) {
+            LOGGER.info("not writing GeoTiff for " + fileName
+                    + " because it fails with IndexColorModel. Don't know why");
+        } else {
+            GeoTiffWriter writer = new GeoTiffWriter(destination);
+            System.out.println("\n --- Writing to " + destination);
+            try {
+                long t = System.currentTimeMillis();
+                writer.write(coverage, null);
+                System.out.println(" - wrote in " + t + "ms" + destination);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw e;
+            }
         }
+        RenderedImage rendered = coverage.view(ViewType.RENDERED).getRenderedImage();
+        writeToDisk(rendered, fileName + "_rendered");
+        RenderedImage geophysics = coverage.view(ViewType.GEOPHYSICS).getRenderedImage();
+        writeToDisk(geophysics, fileName + "_geophysics");
+        RenderedImage photographic = coverage.view(ViewType.PHOTOGRAPHIC).getRenderedImage();
+        writeToDisk(photographic, fileName + "_photographic");
     }
 
     private void writeToDisk(final RenderedImage image, String fileName) throws Exception {
@@ -666,16 +673,12 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
         }
         String file = System.getProperty("user.home");
         file += File.separator + "arcsde_test" + File.separator + fileName;
-        File geophysics = new File(file + "_geophysics.tiff");
-        File rendered = new File(file + "_rendered.tiff");
-        geophysics.getParentFile().mkdirs();
+        File targetFile = new File(file + ".tiff");
+        targetFile.getParentFile().mkdirs();
         System.out.println("\n --- Writing to " + file);
 
         try {
-            ImageIO.write(image, "TIFF", geophysics);
-
-            ImageIO.write(FormatDescriptor.create(image, Integer.valueOf(DataBuffer.TYPE_BYTE),
-                    null), "TIFF", rendered);
+            ImageIO.write(image, "TIFF", targetFile);
         } catch (Exception e) {
             e.printStackTrace();
             throw e;

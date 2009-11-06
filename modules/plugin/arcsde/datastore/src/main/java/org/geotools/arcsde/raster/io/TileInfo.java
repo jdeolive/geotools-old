@@ -6,15 +6,15 @@ package org.geotools.arcsde.raster.io;
 import java.awt.image.DataBuffer;
 
 public final class TileInfo {
-    private final long bandId;
+    private long bandId;
 
-    private final byte[] bitmaskData;
+    private byte[] bitmaskData;
 
-    private final int numPixelsRead;
+    private int numPixelsRead;
 
-    private final int columnIndex;
+    private int columnIndex;
 
-    private final int rowIndex;
+    private int rowIndex;
 
     private byte[] tileDataBytes;
 
@@ -28,14 +28,8 @@ public final class TileInfo {
 
     private final int numPixels;
 
-    public TileInfo(long bandId, int colIndex, int rowIndex, int numPixels, int numPixelsRead,
-            byte[] bitMaskData) {
-        this.bandId = bandId;
-        this.columnIndex = colIndex;
-        this.rowIndex = rowIndex;
-        this.numPixels = numPixels;
-        this.numPixelsRead = numPixelsRead;
-        this.bitmaskData = bitMaskData;
+    public TileInfo(int pixelsPerTile) {
+        this.numPixels = pixelsPerTile;
     }
 
     public Long getBandId() {
@@ -75,6 +69,7 @@ public final class TileInfo {
 
     public void setTileData(short[] pixelData) {
         this.tileDataShorts = pixelData;
+        this.tileDataBytes = null;
     }
 
     public void setTileData(int[] pixelData) {
@@ -90,54 +85,118 @@ public final class TileInfo {
     }
 
     public byte[] getTileDataAsBytes() {
-        if (tileDataBytes != null) {
-            return tileDataBytes;
+        if (tileDataBytes == null) {
+            tileDataBytes = new byte[numPixels];
         }
-        throw new UnsupportedOperationException();
+        return tileDataBytes;
     }
 
     public short[] getTileDataAsUnsignedShorts() {
-        if (tileDataShorts != null) {
-            return tileDataShorts;
+        if (tileDataShorts == null) {
+            tileDataShorts = new short[numPixels];
         }
+
+        // promote if necessary
         if (tileDataBytes != null) {
             final int length = tileDataBytes.length;
-            short[] data = new short[length];
             short val;
             for (int i = 0; i < length; i++) {
                 val = (short) (tileDataBytes[i] & 0xFF);
-                data[i] = val;
+                tileDataShorts[i] = val;
             }
-            tileDataShorts = data;
-            return tileDataShorts;
         }
-        throw new UnsupportedOperationException();
+        return tileDataShorts;
+    }
+
+    public short[] getTileDataAsShorts() {
+        if (tileDataShorts == null) {
+            tileDataShorts = new short[numPixels];
+        }
+        // promote if necessary
+        if (tileDataBytes != null) {
+            final int length = tileDataBytes.length;
+            short val;
+            for (int i = 0; i < length; i++) {
+                val = (short) tileDataBytes[i];
+                tileDataShorts[i] = val;
+            }
+        }
+
+        return tileDataShorts;
     }
 
     public int[] getTileDataAsIntegers() {
-        if (tileDataInts != null) {
-            return tileDataInts;
+        if (tileDataInts == null) {
+            tileDataInts = new int[numPixels];
         }
-        if (tileDataBytes != null) {
-            final int length = tileDataBytes.length;
-            int[] data = new int[length];
-            for (int i = 0; i < length; i++) {
-                data[i] = tileDataBytes[i];
-            }
-            tileDataInts = data;
-        }
+        // promote if necessary
         if (tileDataShorts != null) {
             final int length = tileDataShorts.length;
-            int[] data = new int[length];
             for (int i = 0; i < length; i++) {
-                data[i] = tileDataShorts[i];
+                tileDataInts[i] = tileDataShorts[i];
             }
-            tileDataInts = data;
-        }
-        if (tileDataInts == null) {
-            throw new UnsupportedOperationException();
+        } else if (tileDataBytes != null) {
+            final int length = tileDataBytes.length;
+            for (int i = 0; i < length; i++) {
+                tileDataInts[i] = tileDataBytes[i];
+            }
         }
         return tileDataInts;
+    }
+
+    public float[] getTileDataAsFloats() {
+        if (tileDataFloats == null) {
+            tileDataFloats = new float[numPixels];
+        }
+        // promote if necessary
+        if (tileDataInts != null) {
+            final int length = tileDataInts.length;
+            for (int i = 0; i < length; i++) {
+                tileDataFloats[i] = tileDataInts[i];
+            }
+        } else if (tileDataShorts != null) {
+            final int length = tileDataShorts.length;
+            for (int i = 0; i < length; i++) {
+                tileDataFloats[i] = tileDataShorts[i];
+            }
+        } else if (tileDataBytes != null) {
+            final int length = tileDataBytes.length;
+            for (int i = 0; i < length; i++) {
+                tileDataFloats[i] = tileDataBytes[i];
+            }
+        }
+
+        return tileDataFloats;
+    }
+
+    public double[] getTileDataAsDoubles() {
+        if (tileDataDoubles == null) {
+            tileDataDoubles = new double[numPixels];
+        }
+        // promote if necessary
+        if (tileDataFloats != null) {
+            final int length = tileDataFloats.length;
+            for (int i = 0; i < length; i++) {
+                tileDataDoubles[i] = tileDataFloats[i];
+            }
+        } else if (tileDataInts != null) {
+            final int length = tileDataInts.length;
+            for (int i = 0; i < length; i++) {
+                tileDataDoubles[i] = tileDataInts[i];
+            }
+        } else if (tileDataShorts != null) {
+            final int length = tileDataShorts.length;
+            for (int i = 0; i < length; i++) {
+                tileDataDoubles[i] = tileDataShorts[i];
+            }
+        } else if (tileDataBytes != null) {
+            final int length = tileDataBytes.length;
+            for (int i = 0; i < length; i++) {
+                tileDataDoubles[i] = tileDataBytes[i];
+            }
+        }
+
+        return tileDataDoubles;
     }
 
     public void setValue(int sampleN, Number value) {
@@ -195,5 +254,25 @@ public final class TileInfo {
                 dataBuffer.setElem(bank, i, val);
             }
         }
+    }
+
+    public void setBandId(final long bandId) {
+        this.bandId = bandId;
+    }
+
+    public void setColumnIndex(final int colIndex) {
+        this.columnIndex = colIndex;
+    }
+
+    public void setRowIndex(final int rowIndex) {
+        this.rowIndex = rowIndex;
+    }
+
+    public void setNumPixelsRead(final int numPixelsRead) {
+        this.numPixelsRead = numPixelsRead;
+    }
+
+    public void setBitmaskData(final byte[] bitMaskData) {
+        this.bitmaskData = bitMaskData;
     }
 }

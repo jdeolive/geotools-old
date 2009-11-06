@@ -71,7 +71,6 @@ import org.geotools.arcsde.session.ArcSDEConnectionConfig;
 import org.geotools.arcsde.session.Command;
 import org.geotools.arcsde.session.ISession;
 import org.geotools.arcsde.session.ISessionPool;
-import org.geotools.arcsde.session.UnavailableConnectionException;
 import org.geotools.util.logging.Logging;
 
 import com.esri.sde.sdk.client.SDEPoint;
@@ -426,7 +425,7 @@ public class RasterTestData {
 
                 // if there's a colormap to insert, let's add that too
                 if (indexCM != null) {
-                    attr = getRasterAttributes(tableName, new Rectangle(0, 0, 0, 0), 0,
+                    attr = getRasterAttributes(connection, tableName, new Rectangle(0, 0, 0, 0), 0,
                             new int[] { 1 });
                     final int numEntries = indexCM.getMapSize();
                     // number of colors, including alpha, if any
@@ -1031,48 +1030,35 @@ public class RasterTestData {
         return true;
     }
 
-    public SeRasterAttr getRasterAttributes(final String rasterName, final Rectangle tiles,
-            final int level, final int[] bands) throws IOException {
-
-        ISession conn;
-        try {
-            conn = getConnectionPool().getSession();
-        } catch (UnavailableConnectionException e) {
-            throw new RuntimeException(e);
-        }
+    public SeRasterAttr getRasterAttributes(SeConnection conn, final String rasterName,
+            final Rectangle tiles, final int level, final int[] bands) throws IOException {
 
         try {
-            final SeQuery query = conn.createAndExecuteQuery(new String[] { conn.getRasterColumn(
-                    rasterName).getName() }, new SeSqlConstruct(rasterName));
+            final SeQuery query = new SeQuery(conn, new String[] { "RASTER" }, new SeSqlConstruct(
+                    rasterName));
+            query.prepareQuery();
+            query.execute();
+            final SeRow r = query.fetch();
 
-            return conn.issue(new Command<SeRasterAttr>() {
+            // Now build a SeRasterConstraint object which queries the db for
+            // the right tiles/bands/pyramid level
+            SeRasterConstraint rConstraint = new SeRasterConstraint();
+            rConstraint.setEnvelope((int) tiles.getMinX(), (int) tiles.getMinY(), (int) tiles
+                    .getMaxX(), (int) tiles.getMaxY());
+            rConstraint.setLevel(level);
+            rConstraint.setBands(bands);
 
-                @Override
-                public SeRasterAttr execute(ISession session, SeConnection connection)
-                        throws SeException, IOException {
-                    final SeRow r = query.fetch();
+            // Finally, execute the raster query aganist the already-opened
+            // SeQuery object which already has an SeRow fetched against it.
 
-                    // Now build a SeRasterConstraint object which queries the db for
-                    // the right tiles/bands/pyramid level
-                    SeRasterConstraint rConstraint = new SeRasterConstraint();
-                    rConstraint.setEnvelope((int) tiles.getMinX(), (int) tiles.getMinY(),
-                            (int) tiles.getMaxX(), (int) tiles.getMaxY());
-                    rConstraint.setLevel(level);
-                    rConstraint.setBands(bands);
+            query.queryRasterTile(rConstraint);
+            final SeRasterAttr rattr = r.getRaster(0);
 
-                    // Finally, execute the raster query aganist the already-opened
-                    // SeQuery object which already has an SeRow fetched against it.
+            query.close();
 
-                    query.queryRasterTile(rConstraint);
-                    final SeRasterAttr rattr = r.getRaster(0);
-
-                    query.close();
-
-                    return rattr;
-                }
-            });
-        } finally {
-            conn.dispose();
+            return rattr;
+        } catch (SeException e) {
+            throw new ArcSdeException(e);
         }
     }
 

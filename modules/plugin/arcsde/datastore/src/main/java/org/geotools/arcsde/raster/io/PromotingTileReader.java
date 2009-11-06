@@ -21,6 +21,9 @@ import static org.geotools.arcsde.raster.info.RasterCellType.TYPE_16BIT_S;
 import static org.geotools.arcsde.raster.info.RasterCellType.TYPE_16BIT_U;
 import static org.geotools.arcsde.raster.info.RasterCellType.TYPE_1BIT;
 import static org.geotools.arcsde.raster.info.RasterCellType.TYPE_32BIT_S;
+import static org.geotools.arcsde.raster.info.RasterCellType.TYPE_32BIT_U;
+import static org.geotools.arcsde.raster.info.RasterCellType.TYPE_64BIT_REAL;
+import static org.geotools.arcsde.raster.info.RasterCellType.TYPE_8BIT_S;
 import static org.geotools.arcsde.raster.info.RasterCellType.TYPE_8BIT_U;
 
 import java.io.IOException;
@@ -98,64 +101,73 @@ final class PromotingTileReader implements TileReader {
     /**
      * @see org.geotools.arcsde.raster.io.TileReader#getTile(int, int)
      */
-    public TileInfo[] getTile(final int tileX, final int tileY) throws IOException {
+    // public TileInfo[] getTile(final int tileX, final int tileY) throws IOException {
+    // final int numberOfBands = getNumberOfBands();
+    // final TileInfo[] promotedBandInfo = new TileInfo[numberOfBands];
+    //
+    // try {
+    // final TileInfo[] nativeBandInfo = nativeReader.getTile(tileX, tileY);
+    //
+    // for (int bandN = 0; bandN < numberOfBands; bandN++) {
+    // TileInfo nativeData = nativeBandInfo[bandN];
+    //
+    // TileInfo promotedData = promoter.promote(nativeData);
+    //
+    // nativeBandInfo[bandN] = null;// release early release often...
+    //
+    // noData.setNoData(promotedData);
+    // promotedBandInfo[bandN] = promotedData;
+    // }
+    // } catch (IOException e) {
+    // dispose();
+    // throw e;
+    // } catch (RuntimeException e) {
+    // dispose();
+    // throw e;
+    // }
+    // return promotedBandInfo;
+    // }
+
+    private TileInfo[] setNoData(TileInfo[] tileInfos) {
         final int numberOfBands = getNumberOfBands();
         final TileInfo[] promotedBandInfo = new TileInfo[numberOfBands];
-
         try {
-            final TileInfo[] nativeBandInfo = nativeReader.getTile(tileX, tileY);
-
             for (int bandN = 0; bandN < numberOfBands; bandN++) {
-                TileInfo nativeData = nativeBandInfo[bandN];
-
+                TileInfo nativeData = tileInfos[bandN];
                 TileInfo promotedData = promoter.promote(nativeData);
-
-                nativeBandInfo[bandN] = null;// release early release often...
-
                 noData.setNoData(promotedData);
                 promotedBandInfo[bandN] = promotedData;
             }
-        } catch (IOException e) {
-            dispose();
-            throw e;
         } catch (RuntimeException e) {
             dispose();
             throw e;
         }
         return promotedBandInfo;
-        //
-        // final byte[] nativeTileData = tileInfo.getTileData();
-        // final byte[] tileData = new byte[getBytesPerTile()];
-        // try {
-        // final byte[] bitmaskData = tileInfo.getBitmaskData();
-        // final boolean hasNoDataPixels = bitmaskData.length > 0;
-        // final Long bandId = tileInfo.getBandId();
-        //
-        // final int numPixelsRead = tileInfo.getNumPixelsRead();
-        // if (numPixelsRead == 0) {
-        // noData.setAll(bandId, tileData);
-        // } else {
-        // final int numSamples = getPixelsPerTile();
-        // assert numPixelsRead == numSamples;
-        //
-        // for (int sampleN = 0; sampleN < numSamples; sampleN++) {
-        // if (hasNoDataPixels && noData.isNoData(sampleN, bitmaskData)) {
-        // noData.setNoData(bandId, sampleN, tileData);
-        // } else {
-        // promoter.promote(sampleN, nativeTileData, tileData);
-        // }
-        // }
-        // }
-        //
-        // } catch (RuntimeException e) {
-        // dispose();
-        // throw e;
-        // }
-        //
-        // TileInfo promotedTileInfo = new TileInfo(tileInfo.getBandId(), tileInfo.getColumnIndex(),
-        // tileInfo.getRowIndex(), tileInfo.getNumPixelsRead(), tileData, tileInfo
-        // .getBitmaskData());
-        // return promotedTileInfo;
+    }
+
+    public TileInfo[] getTile(int tileX, int tileY, byte[][] data) throws IOException {
+        TileInfo[] tileInfos = nativeReader.getTile(tileX, tileY, data);
+        return setNoData(tileInfos);
+    }
+
+    public TileInfo[] getTile(int tileX, int tileY, short[][] data) throws IOException {
+        TileInfo[] tileInfos = nativeReader.getTile(tileX, tileY, data);
+        return setNoData(tileInfos);
+    }
+
+    public TileInfo[] getTile(int tileX, int tileY, int[][] data) throws IOException {
+        TileInfo[] tileInfos = nativeReader.getTile(tileX, tileY, data);
+        return setNoData(tileInfos);
+    }
+
+    public TileInfo[] getTile(int tileX, int tileY, float[][] data) throws IOException {
+        TileInfo[] tileInfos = nativeReader.getTile(tileX, tileY, data);
+        return setNoData(tileInfos);
+    }
+
+    public TileInfo[] getTile(int tileX, int tileY, double[][] data) throws IOException {
+        TileInfo[] tileInfos = nativeReader.getTile(tileX, tileY, data);
+        return setNoData(tileInfos);
     }
 
     /**
@@ -175,6 +187,14 @@ final class PromotingTileReader implements TileReader {
                 return new UcharToUshort();
             } else if (source == TYPE_16BIT_S && target == TYPE_32BIT_S) {
                 return new ShortToInt();
+            } else if (source == TYPE_8BIT_S && target == TYPE_16BIT_S) {
+                return new ByteToShort();
+            } else if (source == TYPE_16BIT_U && target == TYPE_32BIT_U) {
+                return new UShortToUInt();
+            } else if (source == TYPE_32BIT_U && target == TYPE_64BIT_REAL) {
+                return new UIntToDouble();
+            } else if (source == TYPE_32BIT_S && target == TYPE_64BIT_REAL) {
+                return new IntToDouble();
             }
 
             UnsupportedOperationException exception = new UnsupportedOperationException(
@@ -185,39 +205,17 @@ final class PromotingTileReader implements TileReader {
     }
 
     private static final class UcharToUshort extends SampleDepthPromoter {
-
-        // @Override
-        // public void promote(int sampleN, byte[] nativeTileData, byte[] tileData) {
-        // int pixArrayOffset = 2 * sampleN;
-        // tileData[pixArrayOffset] = 0;
-        // tileData[pixArrayOffset + 1] = (byte) ((nativeTileData[sampleN] >>> 0) & 0xFF);
-        // }
-
         @Override
         public TileInfo promote(final TileInfo nativeData) {
 
             short[] promotedPixels = nativeData.getTileDataAsUnsignedShorts();
+            nativeData.setTileData(promotedPixels);
 
-            TileInfo promotedTileInfo = new TileInfo(nativeData.getBandId(), nativeData
-                    .getColumnIndex(), nativeData.getRowIndex(), nativeData.getNumPixels(),
-                    nativeData.getNumPixelsRead(), nativeData.getBitmaskData());
-
-            promotedTileInfo.setTileData(promotedPixels);
-
-            return promotedTileInfo;
+            return nativeData;
         }
     }
 
     private static final class OneBitToUchar extends SampleDepthPromoter {
-
-        // @Override
-        // public void promote(int sampleN, byte[] nativeTileData, byte[] tileData) {
-        // int pixArrayOffset = sampleN / 8;
-        // int bit = sampleN % 8;
-        // int _byte = nativeTileData[pixArrayOffset];
-        // byte ucharvalue = (byte) ((_byte >> (7 - bit)) & 0x01);
-        // tileData[sampleN] = ucharvalue;
-        // }
 
         @Override
         public TileInfo promote(TileInfo nativeData) {
@@ -228,28 +226,76 @@ final class PromotingTileReader implements TileReader {
 
     private static final class ShortToInt extends SampleDepthPromoter {
 
-        // @Override
-        // public void promote(int sampleN, byte[] nativeTileData, byte[] tileData) {
-        // int pixArrayOffset = 4 * sampleN;
-        //
-        // tileData[pixArrayOffset] = 0;
-        // tileData[pixArrayOffset + 1] = 0;
-        // tileData[pixArrayOffset + 1] = (byte) ((nativeTileData[sampleN] >>> 8) & 0xFF);
-        // tileData[pixArrayOffset + 1] = (byte) ((nativeTileData[sampleN] >>> 0) & 0xFF);
-        // }
-
         @Override
         public TileInfo promote(TileInfo nativeData) {
 
             int[] promotedPixels = nativeData.getTileDataAsIntegers();
+            nativeData.setTileData(promotedPixels);
 
-            TileInfo promotedTileInfo = new TileInfo(nativeData.getBandId(), nativeData
-                    .getColumnIndex(), nativeData.getRowIndex(), nativeData.getNumPixels(),
-                    nativeData.getNumPixelsRead(), nativeData.getBitmaskData());
+            return nativeData;
+        }
+    }
 
-            promotedTileInfo.setTileData(promotedPixels);
+    /**
+     * Promotes signed byte to signed short tile data
+     * 
+     * @author Gabriel Roldan
+     */
+    private static final class ByteToShort extends SampleDepthPromoter {
+        @Override
+        public TileInfo promote(TileInfo nativeData) {
 
-            return promotedTileInfo;
+            short[] promotedPixels = nativeData.getTileDataAsShorts();
+            nativeData.setTileData(promotedPixels);
+            return nativeData;
+        }
+    }
+
+    /**
+     * Promotes unsigned short to unsigned int tile data
+     * 
+     * @author Gabriel Roldan
+     */
+    private static final class UShortToUInt extends SampleDepthPromoter {
+        @Override
+        public TileInfo promote(TileInfo nativeData) {
+
+            int[] promotedPixels = nativeData.getTileDataAsIntegers();
+            nativeData.setTileData(promotedPixels);
+
+            return nativeData;
+        }
+    }
+
+    /**
+     * Promotes unsigned int to double tile data
+     * 
+     * @author Gabriel Roldan
+     */
+    private static final class UIntToDouble extends SampleDepthPromoter {
+        @Override
+        public TileInfo promote(TileInfo nativeData) {
+
+            double[] promotedPixels = nativeData.getTileDataAsDoubles();
+            nativeData.setTileData(promotedPixels);
+
+            return nativeData;
+        }
+    }
+
+    /**
+     * Promotes int to double tile data
+     * 
+     * @author Gabriel Roldan
+     */
+    private static final class IntToDouble extends SampleDepthPromoter {
+        @Override
+        public TileInfo promote(TileInfo nativeData) {
+
+            double[] promotedPixels = nativeData.getTileDataAsDoubles();
+            nativeData.setTileData(promotedPixels);
+
+            return nativeData;
         }
     }
 

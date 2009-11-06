@@ -5,6 +5,11 @@ package org.geotools.arcsde.raster.jai;
 
 import java.awt.Point;
 import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferByte;
+import java.awt.image.DataBufferFloat;
+import java.awt.image.DataBufferInt;
+import java.awt.image.DataBufferShort;
+import java.awt.image.DataBufferUShort;
 import java.awt.image.Raster;
 import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
@@ -13,10 +18,10 @@ import java.io.IOException;
 import javax.imageio.ImageTypeSpecifier;
 
 import org.apache.commons.collections.map.LRUMap;
-import org.geotools.arcsde.raster.io.TileInfo;
 import org.geotools.arcsde.raster.io.TileReader;
 
 import com.sun.media.imageioimpl.common.SimpleRenderedImage;
+import com.sun.media.jai.codecimpl.util.DataBufferDouble;
 
 @SuppressWarnings("unchecked")
 class ArcSDETiledRenderedImage extends SimpleRenderedImage {
@@ -56,70 +61,96 @@ class ArcSDETiledRenderedImage extends SimpleRenderedImage {
         final int xOrigin = tileXToX(tileX);
         final int yOrigin = tileYToY(tileY);
 
-        final int numBands = tileSampleModel.getNumBands();
+        // final int numBands = tileSampleModel.getNumBands();
 
-        DataBuffer dataBuffer = tileSampleModel.createDataBuffer();
-        TileInfo[] tileInfo;
+        currentTile = Raster.createWritableRaster(tileSampleModel, new Point(xOrigin, yOrigin));
+        final DataBuffer dataBuffer = currentTile.getDataBuffer();
         try {
-            tileInfo = tileReader.getTile(tileX, tileY);
+            switch (tileSampleModel.getDataType()) {
+            case DataBuffer.TYPE_BYTE: {
+                byte[][] data = ((DataBufferByte) dataBuffer).getBankData();
+                tileReader.getTile(tileX, tileY, data);
+            }
+                break;
+            case DataBuffer.TYPE_USHORT: {
+                short[][] data = ((DataBufferUShort) dataBuffer).getBankData();
+                tileReader.getTile(tileX, tileY, data);
+            }
+                break;
+            case DataBuffer.TYPE_SHORT: {
+                short[][] data = ((DataBufferShort) dataBuffer).getBankData();
+                tileReader.getTile(tileX, tileY, data);
+            }
+                break;
+            case DataBuffer.TYPE_INT: {
+                int[][] data = ((DataBufferInt) dataBuffer).getBankData();
+                tileReader.getTile(tileX, tileY, data);
+            }
+                break;
+            case DataBuffer.TYPE_FLOAT: {
+                float[][] data = ((DataBufferFloat) dataBuffer).getBankData();
+                tileReader.getTile(tileX, tileY, data);
+            }
+                break;
+            case DataBuffer.TYPE_DOUBLE: {
+                double[][] data = ((DataBufferDouble) dataBuffer).getBankData();
+                tileReader.getTile(tileX, tileY, data);
+            }
+                break;
+            default:
+                throw new IllegalStateException("Unrecognized DataBuffer type: "
+                        + dataBuffer.getDataType());
+            }
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
 
-        for (int bandN = 0; bandN < numBands; bandN++) {
-            TileInfo bandData = tileInfo[bandN];
-            bandData.fill(dataBuffer, bandN);
-        }
+        // TileInfo[] tileInfo;
+        // try {
+        // tileInfo = tileReader.getTile(tileX, tileY);
+        // } catch (IOException e) {
+        // e.printStackTrace();
+        // throw new RuntimeException(e);
+        // }
 
-        currentTile = Raster.createWritableRaster(tileSampleModel, dataBuffer, new Point(xOrigin,
-                yOrigin));
+        // for (int bandN = 0; bandN < numBands; bandN++) {
+        // TileInfo bandData = tileInfo[bandN];
+        // bandData.fill(dataBuffer, bandN);
+        // }
+
         cache(key, currentTile);
 
         return currentTile;
     }
 
     private TileKey newKey(final int tileX, final int tileY) {
-        final long rasterId = tileReader.getRasterId();
-        final int pyramidLevel = tileReader.getPyramidLevel();
-        final int rasterTileX = tileReader.getMinTileX() + tileX;
-        final int rasterTileY = tileReader.getMinTileY() + tileY;
-
-        TileKey tileKey = new TileKey(rasterId, pyramidLevel, tileX, tileY, rasterTileX,
-                rasterTileY);
+        TileKey tileKey = new TileKey(tileX, tileY);
         return tileKey;
     }
 
-    private final LRUMap cache = new LRUMap(5);
+    private LRUMap cache;
 
     private void cache(TileKey key, WritableRaster tile) {
+        if (cache == null) {
+            // int tilesWide = tileReader.getTilesWide();
+            // int maxCacheSize = Math.min(10, tilesWide);
+            cache = new LRUMap(5);
+        }
         cache.put(key, tile);
     }
 
     private WritableRaster getCached(TileKey key) {
-        WritableRaster tile = (WritableRaster) cache.get(key);
+        WritableRaster tile = cache == null ? null : (WritableRaster) cache.get(key);
         return tile;
     }
 
     private static class TileKey {
         private int tileX, tileY;
 
-        private long rasterId;
-
-        private int pyramidLevel;
-
-        private int rasterTileX;
-
-        private int rasterTileY;
-
-        public TileKey(long rasterId, int pyramidLevel, int tileX, int tileY, int rasterTileX,
-                int rasterTileY) {
-            this.rasterId = rasterId;
-            this.pyramidLevel = pyramidLevel;
+        public TileKey(int tileX, int tileY) {
             this.tileX = tileX;
             this.tileY = tileY;
-            this.rasterTileX = rasterTileX;
-            this.rasterTileY = rasterTileY;
         }
 
         @Override
@@ -128,13 +159,12 @@ class ArcSDETiledRenderedImage extends SimpleRenderedImage {
                 return false;
             }
             TileKey t = (TileKey) o;
-            return rasterId == t.rasterId && pyramidLevel == t.pyramidLevel
-                    && rasterTileX == t.rasterTileX && rasterTileY == t.rasterTileY;
+            return tileX == t.tileX && tileY == t.tileY;
         }
 
         @Override
         public int hashCode() {
-            return (17 ^ pyramidLevel) + rasterTileX * rasterTileY;
+            return 17 ^ tileX * tileY;
         }
 
         public int getTileX() {

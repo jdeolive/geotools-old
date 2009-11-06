@@ -44,7 +44,8 @@ public enum RasterCellType {
             Float.MAX_VALUE)), //
     TYPE_32BIT_S(32, DataBuffer.TYPE_INT, true, NumberRange.create(Integer.MIN_VALUE,
             Integer.MAX_VALUE)), //
-    TYPE_32BIT_U(32, DataBuffer.TYPE_INT, false, NumberRange.create(0L, (long) Math.pow(2, 32) - 1)), //
+    TYPE_32BIT_U(64, DataBuffer.TYPE_DOUBLE, false, NumberRange.create(0D,
+            (double) Math.pow(2, 32) - 1)), //
     TYPE_4BIT(4, DataBuffer.TYPE_BYTE, false, NumberRange.create((byte) 0,
             (byte) Math.pow(2, 4) - 1)), //
     TYPE_64BIT_REAL(64, DataBuffer.TYPE_DOUBLE, true, NumberRange.create(Double.MIN_VALUE,

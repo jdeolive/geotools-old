@@ -15,7 +15,6 @@ import org.geotools.arcsde.session.ISession;
 
 import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeException;
-import com.esri.sde.sdk.client.SeQuery;
 import com.esri.sde.sdk.client.SeRasterTile;
 import com.esri.sde.sdk.client.SeRow;
 
@@ -30,37 +29,23 @@ import com.esri.sde.sdk.client.SeRow;
  */
 class TileFetchCommand extends Command<TileInfo[]> {
 
-    private final SeQuery preparedQuery;
-
     private final SeRow row;
-
-    private final int pixelsPerTile;
-
-    private final int numberOfBands;
 
     private final TileDataFetcher dataFetcher;
 
-    private final RasterCellType nativeType;
+    private TileInfo[] target;
 
-    public TileFetchCommand(final SeQuery preparedQuery, final SeRow row, final int pixelsPerTile,
-            final int numberOfBands, final RasterCellType nativeType) {
-        this.preparedQuery = preparedQuery;
+    public TileFetchCommand(final SeRow row, final RasterCellType nativeType, TileInfo[] target) {
         this.row = row;
-        this.pixelsPerTile = pixelsPerTile;
-        this.numberOfBands = numberOfBands;
-        this.nativeType = nativeType;
+        this.target = target;
         this.dataFetcher = getTileDataFetcher(nativeType);
-    }
-
-    public SeQuery getQuery() {
-        return preparedQuery;
     }
 
     @Override
     public TileInfo[] execute(ISession session, SeConnection connection) throws SeException,
             IOException {
 
-        TileInfo[] tilesPerBand = new TileInfo[numberOfBands];
+        final int numberOfBands = target.length;
 
         for (int bandN = 0; bandN < numberOfBands; bandN++) {
             SeRasterTile tile = row.getRasterTile();
@@ -70,19 +55,21 @@ class TileFetchCommand extends Command<TileInfo[]> {
             }
             final byte[] bitMaskData = tile.getBitMaskData();
             final int numPixelsRead = tile.getNumPixels();
+            final long bandId = tile.getBandId().longValue();
+            final int colIndex = tile.getColumnIndex();
+            final int rowIndex = tile.getRowIndex();
 
-            long bandId = tile.getBandId().longValue();
-            int colIndex = tile.getColumnIndex();
-            int rowIndex = tile.getRowIndex();
+            TileInfo bandData = target[bandN];
+            bandData.setBandId(bandId);
+            bandData.setColumnIndex(colIndex);
+            bandData.setRowIndex(rowIndex);
+            bandData.setNumPixelsRead(numPixelsRead);
+            bandData.setBitmaskData(bitMaskData);
 
-            TileInfo tileInfo = new TileInfo(bandId, colIndex, rowIndex, pixelsPerTile,
-                    numPixelsRead, bitMaskData);
-
-            dataFetcher.setTileData(pixelsPerTile, tile, tileInfo);
-
-            tilesPerBand[bandN] = tileInfo;
+            final int pixelsPerTile = bandData.getNumPixels();
+            dataFetcher.setTileData(pixelsPerTile, tile, bandData);
         }
-        return tilesPerBand;
+        return target;
     }
 
     private static Map<RasterCellType, TileDataFetcher> tileDataSetters = new HashMap<RasterCellType, TileDataFetcher>();
@@ -92,7 +79,14 @@ class TileFetchCommand extends Command<TileInfo[]> {
         tileDataSetters.put(TYPE_4BIT, byteTileSetter);
         tileDataSetters.put(TYPE_8BIT_S, byteTileSetter);
         tileDataSetters.put(TYPE_8BIT_U, byteTileSetter);
-        // tileDataSetters.put(RasterCellType.TYPE_16BIT_U, value)
+        tileDataSetters.put(RasterCellType.TYPE_16BIT_U, new UShortTileSetter());
+        tileDataSetters.put(RasterCellType.TYPE_16BIT_S, new ShortTileSetter());
+
+        tileDataSetters.put(RasterCellType.TYPE_32BIT_S, new IntegerTileSetter());
+        tileDataSetters.put(RasterCellType.TYPE_32BIT_U, new UnsignedIntegerTileSetter());
+
+        tileDataSetters.put(RasterCellType.TYPE_32BIT_REAL, new FloatTileSetter());
+        tileDataSetters.put(RasterCellType.TYPE_64BIT_REAL, new DoubleTileSetter());
     }
 
     private TileDataFetcher getTileDataFetcher(final RasterCellType pixelType) {
@@ -120,7 +114,7 @@ class TileFetchCommand extends Command<TileInfo[]> {
         @Override
         public void setTileData(final int numPixels, final SeRasterTile tile, TileInfo tileInfo) {
 
-            byte[] tileData = new byte[numPixels];
+            byte[] tileData = tileInfo.getTileDataAsBytes();
 
             final int numPixelsRead = tile.getNumPixels();
 
@@ -143,8 +137,6 @@ class TileFetchCommand extends Command<TileInfo[]> {
                     }
                 }
             }
-
-            tileInfo.setTileData(tileData);
         }
     }
 
@@ -155,7 +147,7 @@ class TileFetchCommand extends Command<TileInfo[]> {
         @Override
         public void setTileData(final int numPixels, final SeRasterTile tile, TileInfo tileInfo) {
 
-            byte[] tileData = new byte[numPixels];
+            byte[] tileData = tileInfo.getTileDataAsBytes();
 
             final int numPixelsRead = tile.getNumPixels();
 
@@ -170,8 +162,146 @@ class TileFetchCommand extends Command<TileInfo[]> {
                     throw new RuntimeException(e);
                 }
             }
+        }
+    }
 
-            tileInfo.setTileData(tileData);
+    private static final class UShortTileSetter extends TileDataFetcher {
+        @Override
+        public void setTileData(final int numPixels, final SeRasterTile tile, TileInfo tileInfo) {
+
+            short[] tileData = tileInfo.getTileDataAsUnsignedShorts();
+
+            final int numPixelsRead = tile.getNumPixels();
+
+            if (numPixelsRead > 0) {
+                if (numPixelsRead != numPixels) {
+                    throw new IllegalStateException("Expected num pixels read to be " + numPixels
+                            + " but got " + numPixelsRead);
+                }
+                try {
+                    int[] ints = new int[numPixels];
+                    tile.getPixels(ints);
+                    for (int i = 0; i < numPixels; i++) {
+                        tileData[i] = (short) ints[i];
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
+
+    private static final class ShortTileSetter extends TileDataFetcher {
+        @Override
+        public void setTileData(final int numPixels, final SeRasterTile tile, TileInfo tileInfo) {
+
+            short[] tileData = tileInfo.getTileDataAsShorts();
+
+            final int numPixelsRead = tile.getNumPixels();
+
+            if (numPixelsRead > 0) {
+                if (numPixelsRead != numPixels) {
+                    throw new IllegalStateException("Expected num pixels read to be " + numPixels
+                            + " but got " + numPixelsRead);
+                }
+                try {
+                    int[] ints = new int[numPixels];
+                    tile.getPixels(ints);
+                    for (int i = 0; i < numPixels; i++) {
+                        tileData[i] = (short) ints[i];
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
+
+    private static final class IntegerTileSetter extends TileDataFetcher {
+        @Override
+        public void setTileData(final int numPixels, final SeRasterTile tile, TileInfo tileInfo) {
+
+            int[] tileData = tileInfo.getTileDataAsIntegers();
+
+            final int numPixelsRead = tile.getNumPixels();
+
+            if (numPixelsRead > 0) {
+                if (numPixelsRead != numPixels) {
+                    throw new IllegalStateException("Expected num pixels read to be " + numPixels
+                            + " but got " + numPixelsRead);
+                }
+                try {
+                    tile.getPixels(tileData);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
+
+    private static final class UnsignedIntegerTileSetter extends TileDataFetcher {
+        @Override
+        public void setTileData(final int numPixels, final SeRasterTile tile, TileInfo tileInfo) {
+
+            double[] tileData = tileInfo.getTileDataAsDoubles();
+
+            final int numPixelsRead = tile.getNumPixels();
+
+            if (numPixelsRead > 0) {
+                if (numPixelsRead != numPixels) {
+                    throw new IllegalStateException("Expected num pixels read to be " + numPixels
+                            + " but got " + numPixelsRead);
+                }
+                try {
+                    tile.getPixels(tileData);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
+
+    private static final class FloatTileSetter extends TileDataFetcher {
+        @Override
+        public void setTileData(final int numPixels, final SeRasterTile tile, TileInfo tileInfo) {
+
+            float[] tileData = tileInfo.getTileDataAsFloats();
+
+            final int numPixelsRead = tile.getNumPixels();
+
+            if (numPixelsRead > 0) {
+                if (numPixelsRead != numPixels) {
+                    throw new IllegalStateException("Expected num pixels read to be " + numPixels
+                            + " but got " + numPixelsRead);
+                }
+                try {
+                    tile.getPixels(tileData);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
+
+    private static final class DoubleTileSetter extends TileDataFetcher {
+        @Override
+        public void setTileData(final int numPixels, final SeRasterTile tile, TileInfo tileInfo) {
+
+            double[] tileData = tileInfo.getTileDataAsDoubles();
+
+            final int numPixelsRead = tile.getNumPixels();
+
+            if (numPixelsRead > 0) {
+                if (numPixelsRead != numPixels) {
+                    throw new IllegalStateException("Expected num pixels read to be " + numPixels
+                            + " but got " + numPixelsRead);
+                }
+                try {
+                    tile.getPixels(tileData);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
     }
 }

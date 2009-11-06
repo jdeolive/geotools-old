@@ -55,6 +55,7 @@ import org.geotools.arcsde.raster.io.TiledRasterReader;
 import org.geotools.coverage.CoverageFactoryFinder;
 import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.TypeMap;
+//import org.geotools.coverage.grid.GeneralGridRange;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridEnvelope2D;
@@ -129,6 +130,7 @@ public final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DR
         super.originalEnvelope = rasterInfo.getOriginalEnvelope();
 
         GeneralGridEnvelope gridRange = rasterInfo.getOriginalGridRange();
+        //super.originalGridRange = new GeneralGridRange(gridRange.toRectangle());
         super.originalGridRange = new GridEnvelope2D(gridRange.toRectangle());
 
         super.coverageName = rasterInfo.getRasterTable();

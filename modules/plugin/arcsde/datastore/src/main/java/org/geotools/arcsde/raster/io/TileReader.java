@@ -91,7 +91,7 @@ public interface TileReader {
      * @throws {@link IllegalArgumentException} if tileData is not null and its size is less than
      *         {@link #getBytesPerTile()}
      */
-    public abstract TileInfo[] getTile(int tileX, int tileY) throws IOException;
+    //public abstract TileInfo[] getTile(int tileX, int tileY) throws IOException;
 
     /**
      * Disposes any resource being held by this TileReader, making the TileReader unusable and the
@@ -106,5 +106,15 @@ public interface TileReader {
     public abstract int getMinTileX();
 
     public abstract int getMinTileY();
+
+    public abstract TileInfo[] getTile(int tileX, int tileY, byte[][] data) throws IOException;
+
+    public abstract TileInfo[] getTile(int tileX, int tileY, short[][] data) throws IOException;
+
+    public abstract TileInfo[] getTile(int tileX, int tileY, int[][] data) throws IOException;
+
+    public abstract TileInfo[] getTile(int tileX, int tileY, float[][] data) throws IOException;
+
+    public abstract TileInfo[] getTile(int tileX, int tileY, double[][] data) throws IOException;
 
 }
