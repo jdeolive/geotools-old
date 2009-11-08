@@ -54,6 +54,8 @@ import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.prep.PreparedGeometry;
+import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
 import com.vividsolutions.jts.operation.linemerge.LineMerger;
 import com.vividsolutions.jts.precision.EnhancedPrecisionOp;
 
@@ -176,7 +178,7 @@ public final class LabelCacheImpl implements LabelCache {
     static final boolean DEFAULT_CONFLICT_RESOLUTION = true;
     
     // Default value for the goodness of fit threshold
-    static final double DEFAULT_GOODNESS_OF_FIT = 0.7;
+    static final double DEFAULT_GOODNESS_OF_FIT = 0.5;
     
     // Anchor candidate values used when looping to find a point label that can be drawn
     static final double[] RIGHT_ANCHOR_CANDIDATES = new double[] {0,0.5, 0,0, 0,1};
@@ -615,21 +617,19 @@ public final class LabelCacheImpl implements LabelCache {
      * @return
      */
     private double goodnessOfFit(LabelPainter painter, Rectangle2D glyphBounds,
-            Geometry representativeGeom) {
-        if (representativeGeom instanceof Point) {
+            PreparedGeometry representativeGeom) {
+        if (representativeGeom.getGeometry() instanceof Point) {
             return 1.0;
         }
-        if (representativeGeom instanceof LineString) {
+        if (representativeGeom.getGeometry() instanceof LineString) {
             return 1.0;
         }
-        if (representativeGeom instanceof Polygon) {
+        if (representativeGeom.getGeometry() instanceof Polygon) {
             try {
                 // do a sampling, how many points sitting on the labels are also
                 // within a certain distance of the polygon?
-                Polygon p = simplifyPoly((Polygon) representativeGeom);
                 int count = 0;
                 int n = 10;
-                double mindistance = painter.getLineHeight();
                 Coordinate c = new Coordinate();
                 Point pp = gf.createPoint(c);
                 for (int i = 1; i < (painter.getLineCount() + 1); i++) {
@@ -640,16 +640,15 @@ public final class LabelCacheImpl implements LabelCache {
                                 * (((double) j) / (n + 1));
                         c.y = y;
                         pp.geometryChanged();
-                        if (p.distance(pp) < mindistance)
+                        if (representativeGeom.contains(pp))
                             count++;
                     }
                 }
                 return ((double) count) / (n * painter.getLineCount());
             } catch (Exception e) {
-                representativeGeom.geometryChanged(); // djb -- jessie should
-                // do this during
-                // generalization
-                Envelope ePoly = representativeGeom.getEnvelopeInternal();
+                Geometry g = representativeGeom.getGeometry();
+                g.geometryChanged();
+                Envelope ePoly = g.getEnvelopeInternal();
                 Envelope eglyph = toEnvelope(glyphBounds);
                 Envelope inter = intersection(ePoly, eglyph);
                 if (inter != null)
@@ -659,28 +658,6 @@ public final class LabelCacheImpl implements LabelCache {
             }
         }
         return 0.0;
-    }
-
-    /**
-     * Remove holes from a polygon
-     * 
-     * @param polygon
-     */
-    private Polygon simplifyPoly(Polygon polygon) {
-        if (polygon.getNumInteriorRing() == 0)
-            return polygon;
-
-        LineString outer = polygon.getExteriorRing();
-        if (outer.getStartPoint().distance(outer.getEndPoint()) != 0) {
-            List<Coordinate> clist = new ArrayList<Coordinate>(Arrays
-                    .asList(outer.getCoordinates()));
-            clist.add(outer.getStartPoint().getCoordinate());
-            outer = outer.getFactory().createLinearRing(
-                    (Coordinate[]) clist.toArray(new Coordinate[clist.size()]));
-        }
-        LinearRing r = (LinearRing) outer;
-
-        return outer.getFactory().createPolygon(r, null);
     }
 
     private boolean paintLineLabels(LabelPainter painter, AffineTransform originalTransform,
@@ -1113,14 +1090,14 @@ public final class LabelCacheImpl implements LabelCache {
         Polygon geom = getPolySetRepresentativeLocation(labelItem.getGeoms(), displayArea);
         if (geom == null)
             return false;
-
+        
         Point centroid;
 
         try {
             centroid = geom.getCentroid();
-        } catch (Exception e) // generalized polygons causes problems - this
-        // tries to hid them.
-        {
+        } catch (Exception e) {
+            // generalized polygons causes problems - this
+            // tries to hid them.
             try {
                 centroid = geom.getExteriorRing().getCentroid();
             } catch (Exception ee) {
@@ -1131,9 +1108,70 @@ public final class LabelCacheImpl implements LabelCache {
                 }
             }
         }
+        
+        // check we're inside, if not, use a different approach
+        PreparedGeometry pg = PreparedGeometryFactory.prepare(geom);
+        if(!pg.contains(centroid)) {
+            Envelope env = geom.getEnvelopeInternal();
+            LineString bisector = geom.getFactory().createLineString(new Coordinate[] { 
+                new Coordinate(env.getMinX(), centroid.getY()),
+                new Coordinate(env.getMaxX(), centroid.getY()) });
+            Geometry intersection = bisector.intersection(geom);
+            Envelope widestEnv = widestGeometry(intersection).getEnvelopeInternal();
+            double midX = (widestEnv.getMinX() + widestEnv.getMaxX()) / 2;
+            centroid = geom.getFactory().createPoint(new Coordinate(midX, centroid.getY()));
+        }
 
         // compute the transformation used to position the label
-        TextStyle2D textStyle = labelItem.getTextStyle();
+        TextStyle2D textStyle = new TextStyle2D(labelItem.getTextStyle());
+        if(labelItem.getMaxDisplacement() > 0) {
+            textStyle.setDisplacementX(0);
+            textStyle.setDisplacementY(0);
+            textStyle.setAnchorX(0.5);
+            textStyle.setAnchorY(0.5);
+        }
+        AffineTransform tx = new AffineTransform(tempTransform);
+        if(paintPolygonLabelInternal(painter, tx, displayArea, glyphs, labelItem,
+                pg, centroid, textStyle))
+            return true;
+        
+        // candidate position was busy, let's circle out and find a good position
+        // ... use at least a 2 pixel step, no matter what the label length is
+        final double step = painter.getAscent() > 2 ? painter.getAscent() : 2;
+        double radius = step;
+        Coordinate c = new Coordinate(centroid.getCoordinate());
+        Coordinate cc = centroid.getCoordinate();
+        Point testPoint = centroid.getFactory().createPoint(c);
+        while(radius < labelItem.getMaxDisplacement()) {
+            for(int angle = 0; angle < 360; angle += 45) {
+                double dx = Math.cos(Math.toRadians(angle)) * radius;
+                double dy = Math.sin(Math.toRadians(angle)) * radius;
+                
+                c.x = cc.x + dx;
+                c.y = cc.y + dy;
+                testPoint.geometryChanged();
+                if(!pg.contains(testPoint))
+                    continue;
+                
+                textStyle.setDisplacementX(dx);
+                textStyle.setDisplacementY(dy);
+                
+                tx = new AffineTransform(tempTransform);
+                if(paintPolygonLabelInternal(painter, tx, displayArea, glyphs, labelItem,
+                        pg, centroid, textStyle))
+                    return true;
+            }
+            
+            radius += step;
+        }
+        
+        return false;
+        
+    }
+
+    private boolean paintPolygonLabelInternal(LabelPainter painter, AffineTransform tempTransform,
+            Rectangle displayArea, LabelIndex glyphs, LabelCacheItem labelItem, PreparedGeometry pg,
+            Point centroid, TextStyle2D textStyle) throws Exception {
         setupPointTransform(tempTransform, centroid, textStyle, painter);
 
         Rectangle2D transformed = tempTransform
@@ -1141,19 +1179,35 @@ public final class LabelCacheImpl implements LabelCache {
         if (!displayArea.contains(transformed)
                 || (labelItem.isConflictResolutionEnabled() 
                         && glyphs.labelsWithinDistance(transformed, labelItem.getSpaceAround()))
-                || goodnessOfFit(painter, transformed, geom) < painter.getLabel().getGoodnessOfFit())
+                || goodnessOfFit(painter, transformed, pg) < painter.getLabel().getGoodnessOfFit())
             return false;
 
-        // painter.graphics.setStroke(new BasicStroke(2));
-        // painter.graphics.setColor(Color.BLACK);
-        // painter.graphics.draw(tempTransform.createTransformedShape(painter.getFullLabelBounds()));
-        // painter.graphics.setColor(Color.WHITE);
-        // painter.graphics.draw(new Line2D.Double(centroid.getX(),
-        // centroid.getY(), centroid.getX(), centroid.getY()));
         painter.paintStraightLabel(tempTransform);
         if(labelItem.isConflictResolutionEnabled())
             glyphs.addLabel(labelItem, transformed);
         return true;
+    }
+    
+    Geometry widestGeometry(Geometry geometry) {
+        if (!(geometry instanceof GeometryCollection)) {
+            return geometry;
+        }
+        return widestGeometry((GeometryCollection) geometry);
+    }
+
+    Geometry widestGeometry(GeometryCollection gc) {
+        if (gc.isEmpty()) {
+            return gc;
+        }
+
+        Geometry widest = gc.getGeometryN(0);
+        for (int i = 1; i < gc.getNumGeometries(); i++) {
+            Geometry curr = gc.getGeometryN(i);
+            if (curr.getEnvelopeInternal().getWidth() > widest.getEnvelopeInternal().getWidth()) {
+                widest = curr;
+            }
+        }
+        return widest;
     }
 
     /**
