@@ -769,7 +769,7 @@ public final class LabelCacheImpl implements LabelCache {
 
                 // label displacement loop
                 boolean painted = false;
-                while (Math.abs(currOffset) < labelOffset * 2 && !painted) {
+                while (Math.abs(currOffset) <= labelOffset * 2 && !painted) {
                     // reset transform and other computation parameters
                     tx.setToIdentity();
                     Rectangle2D labelEnvelope;
