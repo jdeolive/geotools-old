@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<genmodel:GenModel xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/emf-wcs-10/src/main/java"
+    modelPluginID="emf_wcs_10" modelName="Wcs10" importerID="org.eclipse.xsd.ecore.importer"
+    copyrightFields="false" usedGenPackages="gml4wcs.genmodel#//gml ../org.w3.xlink/xlink.genmodel#//xlink platform:/plugin/org.eclipse.emf.ecore/model/Ecore.genmodel#//ecore platform:/plugin/org.eclipse.emf.ecore/model/XMLType.genmodel#//type">
+  <foreignModel>src/main/xsd/wcs/1.0.0/getCoverage.xsd</foreignModel>
+  <genPackages prefix="Wcs10" basePackage="net.opengis" resource="XML" disposableProviderFactory="true"
+      ecorePackage="wcs10.ecore#/">
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="wcs10.ecore#//CapabilitiesSectionType">
+      <genEnumLiterals ecoreEnumLiteral="wcs10.ecore#//CapabilitiesSectionType/_"/>
+      <genEnumLiterals ecoreEnumLiteral="wcs10.ecore#//CapabilitiesSectionType/WCSCapabilitiesService"/>
+      <genEnumLiterals ecoreEnumLiteral="wcs10.ecore#//CapabilitiesSectionType/WCSCapabilitiesCapability"/>
+      <genEnumLiterals ecoreEnumLiteral="wcs10.ecore#//CapabilitiesSectionType/WCSCapabilitiesContentMetadata"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="wcs10.ecore#//ClosureType">
+      <genEnumLiterals ecoreEnumLiteral="wcs10.ecore#//ClosureType/closed"/>
+      <genEnumLiterals ecoreEnumLiteral="wcs10.ecore#//ClosureType/open"/>
+      <genEnumLiterals ecoreEnumLiteral="wcs10.ecore#//ClosureType/openClosed"/>
+      <genEnumLiterals ecoreEnumLiteral="wcs10.ecore#//ClosureType/closedOpen"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="wcs10.ecore#//InterpolationMethodType">
+      <genEnumLiterals ecoreEnumLiteral="wcs10.ecore#//InterpolationMethodType/nearestNeighbor"/>
+      <genEnumLiterals ecoreEnumLiteral="wcs10.ecore#//InterpolationMethodType/bilinear"/>
+      <genEnumLiterals ecoreEnumLiteral="wcs10.ecore#//InterpolationMethodType/bicubic"/>
+      <genEnumLiterals ecoreEnumLiteral="wcs10.ecore#//InterpolationMethodType/lostArea"/>
+      <genEnumLiterals ecoreEnumLiteral="wcs10.ecore#//InterpolationMethodType/barycentric"/>
+      <genEnumLiterals ecoreEnumLiteral="wcs10.ecore#//InterpolationMethodType/none"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="wcs10.ecore#//MetadataTypeType">
+      <genEnumLiterals ecoreEnumLiteral="wcs10.ecore#//MetadataTypeType/TC211"/>
+      <genEnumLiterals ecoreEnumLiteral="wcs10.ecore#//MetadataTypeType/FGDC"/>
+      <genEnumLiterals ecoreEnumLiteral="wcs10.ecore#//MetadataTypeType/other"/>
+    </genEnums>
+    <genDataTypes ecoreDataType="wcs10.ecore#//CapabilitiesSectionTypeObject"/>
+    <genDataTypes ecoreDataType="wcs10.ecore#//ClosureTypeObject"/>
+    <genDataTypes ecoreDataType="wcs10.ecore#//InterpolationMethodTypeObject"/>
+    <genDataTypes ecoreDataType="wcs10.ecore#//MetadataTypeTypeObject"/>
+    <genClasses image="false" ecoreClass="wcs10.ecore#//AbstractDescriptionBaseType"/>
+    <genClasses image="false" ecoreClass="wcs10.ecore#//AbstractDescriptionType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//AbstractDescriptionType/metadataLink"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//AbstractDescriptionType/description1"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//AbstractDescriptionType/name1"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//AbstractDescriptionType/label"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//AddressType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//AddressType/deliveryPoint"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//AddressType/city"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//AddressType/administrativeArea"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//AddressType/postalCode"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//AddressType/country"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//AddressType/electronicMailAddress"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//AxisDescriptionType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//AxisDescriptionType/values"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//AxisDescriptionType/refSys"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//AxisDescriptionType/refSysLabel"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//AxisDescriptionType/semantic"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//AxisDescriptionType1">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//AxisDescriptionType1/axisDescription"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//AxisSubsetType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//AxisSubsetType/name"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//ContactType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//ContactType/phone"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//ContactType/address"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//ContactType/onlineResource"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//ContentMetadataType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//ContentMetadataType/coverageOfferingBrief"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//ContentMetadataType/actuate"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//ContentMetadataType/arcrole"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//ContentMetadataType/href"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//ContentMetadataType/remoteSchema"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//ContentMetadataType/role"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//ContentMetadataType/show"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//ContentMetadataType/title"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//ContentMetadataType/type"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//ContentMetadataType/updateSequence"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//ContentMetadataType/version"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//CoverageDescriptionType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//CoverageDescriptionType/coverageOffering"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//CoverageDescriptionType/updateSequence"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//CoverageDescriptionType/version"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//CoverageOfferingBriefType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//CoverageOfferingBriefType/lonLatEnvelope"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//CoverageOfferingBriefType/keywords"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//CoverageOfferingType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//CoverageOfferingType/domainSet"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//CoverageOfferingType/rangeSet"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//CoverageOfferingType/supportedCRSs"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//CoverageOfferingType/supportedFormats"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//CoverageOfferingType/supportedInterpolations"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//DCPTypeType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//DCPTypeType/hTTP"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//DescribeCoverageType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//DescribeCoverageType/coverage"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//DescribeCoverageType/service"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//DescribeCoverageType/version"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//DescribeCoverageType1">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//DescribeCoverageType1/dCPType"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//DocumentRoot">
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//DocumentRoot/mixed"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference wcs10.ecore#//DocumentRoot/xMLNSPrefixMap"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference wcs10.ecore#//DocumentRoot/xSISchemaLocation"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//DocumentRoot/axisDescription"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//DocumentRoot/axisDescription1"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//DocumentRoot/capability"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//DocumentRoot/contentMetadata"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//DocumentRoot/coverageDescription"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//DocumentRoot/coverageOffering"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//DocumentRoot/coverageOfferingBrief"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//DocumentRoot/describeCoverage"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//DocumentRoot/description"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//DocumentRoot/domainSet"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//DocumentRoot/formats"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//DocumentRoot/getCapabilities"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//DocumentRoot/getCoverage"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//DocumentRoot/interpolationMethod"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//DocumentRoot/interval"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//DocumentRoot/keywords"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//DocumentRoot/lonLatEnvelope"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//DocumentRoot/metadataLink"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//DocumentRoot/name"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//DocumentRoot/rangeSet"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//DocumentRoot/rangeSet1"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//DocumentRoot/service"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//DocumentRoot/singleValue"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//DocumentRoot/spatialDomain"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//DocumentRoot/spatialSubset"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//DocumentRoot/supportedCRSs"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//DocumentRoot/supportedFormats"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//DocumentRoot/supportedInterpolations"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//DocumentRoot/temporalDomain"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//DocumentRoot/temporalSubset"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//DocumentRoot/timePeriod"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//DocumentRoot/timeSequence"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//DocumentRoot/wCSCapabilities"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//DocumentRoot/closure"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//DocumentRoot/semantic"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//DocumentRoot/type"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//DomainSetType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//DomainSetType/spatialDomain"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//DomainSetType/temporalDomain"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//DomainSetType/temporalDomain1"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//DomainSubsetType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//DomainSubsetType/spatialSubset"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//DomainSubsetType/temporalSubset"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//DomainSubsetType/temporalSubset1"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//ExceptionType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//ExceptionType/format"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//GetCapabilitiesType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//GetCapabilitiesType/section"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//GetCapabilitiesType/service"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//GetCapabilitiesType/updateSequence"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//GetCapabilitiesType/version"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//GetCapabilitiesType1">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//GetCapabilitiesType1/dCPType"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//GetCoverageType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//GetCoverageType/sourceCoverage"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//GetCoverageType/domainSubset"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//GetCoverageType/rangeSubset"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//GetCoverageType/interpolationMethod"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//GetCoverageType/output"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//GetCoverageType/service"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//GetCoverageType/version"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//GetCoverageType1">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//GetCoverageType1/dCPType"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//GetType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//GetType/onlineResource"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//HTTPType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute wcs10.ecore#//HTTPType/group"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference wcs10.ecore#//HTTPType/get"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference wcs10.ecore#//HTTPType/post"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//IntervalType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//IntervalType/res"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//KeywordsType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//KeywordsType/keyword"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//KeywordsType/type"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//LonLatEnvelopeBaseType"/>
+    <genClasses ecoreClass="wcs10.ecore#//LonLatEnvelopeType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//LonLatEnvelopeType/timePosition"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//MetadataAssociationType"/>
+    <genClasses ecoreClass="wcs10.ecore#//MetadataLinkType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//MetadataLinkType/metadataType"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//OnlineResourceType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//OnlineResourceType/actuate"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//OnlineResourceType/arcrole"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//OnlineResourceType/href"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//OnlineResourceType/role"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//OnlineResourceType/show"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//OnlineResourceType/title"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//OnlineResourceType/type"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//OutputType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//OutputType/crs"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//OutputType/format"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//PostType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//PostType/onlineResource"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//RangeSetType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//RangeSetType/axisDescription"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//RangeSetType/nullValues"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//RangeSetType/refSys"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//RangeSetType/refSysLabel"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//RangeSetType/semantic"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//RangeSetType1">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//RangeSetType1/rangeSet"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//RangeSubsetType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//RangeSubsetType/axisSubset"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//RequestType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//RequestType/getCapabilities"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//RequestType/describeCoverage"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//RequestType/getCoverage"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//ResponsiblePartyType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//ResponsiblePartyType/individualName"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//ResponsiblePartyType/organisationName"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//ResponsiblePartyType/organisationName1"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//ResponsiblePartyType/positionName"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//ResponsiblePartyType/contactInfo"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//ServiceType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//ServiceType/keywords"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//ServiceType/responsibleParty"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//ServiceType/fees"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//ServiceType/accessConstraints"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//ServiceType/updateSequence"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//ServiceType/version"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//SpatialDomainType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute wcs10.ecore#//SpatialDomainType/envelopeGroup"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference wcs10.ecore#//SpatialDomainType/envelope"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute wcs10.ecore#//SpatialDomainType/gridGroup"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference wcs10.ecore#//SpatialDomainType/grid"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//SpatialDomainType/polygon"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//SpatialSubsetType"/>
+    <genClasses ecoreClass="wcs10.ecore#//SupportedCRSsType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//SupportedCRSsType/requestResponseCRSs"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//SupportedCRSsType/requestCRSs"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//SupportedCRSsType/responseCRSs"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//SupportedCRSsType/nativeCRSs"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//SupportedFormatsType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//SupportedFormatsType/formats"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//SupportedFormatsType/nativeFormat"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//SupportedInterpolationsType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//SupportedInterpolationsType/interpolationMethod"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//SupportedInterpolationsType/default"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//TelephoneType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//TelephoneType/voice"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//TelephoneType/facsimile"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//TimePeriodType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//TimePeriodType/beginPosition"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//TimePeriodType/endPosition"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//TimePeriodType/timeResolution"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//TimePeriodType/frame"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//TimeSequenceType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute wcs10.ecore#//TimeSequenceType/group"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference wcs10.ecore#//TimeSequenceType/timePosition"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference wcs10.ecore#//TimeSequenceType/timePeriod"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//TypedLiteralType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//TypedLiteralType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//TypedLiteralType/type"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//ValueEnumBaseType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute wcs10.ecore#//ValueEnumBaseType/group"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference wcs10.ecore#//ValueEnumBaseType/interval"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference wcs10.ecore#//ValueEnumBaseType/singleValue"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//ValueEnumType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//ValueEnumType/semantic"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//ValueEnumType/type"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//ValueRangeType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//ValueRangeType/min"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//ValueRangeType/max"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//ValueRangeType/atomic"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//ValueRangeType/closure"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//ValueRangeType/semantic"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//ValueRangeType/type"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//ValuesType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//ValuesType/default"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//VendorSpecificCapabilitiesType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute wcs10.ecore#//VendorSpecificCapabilitiesType/any"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//WCSCapabilitiesType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//WCSCapabilitiesType/service"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//WCSCapabilitiesType/capability"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//WCSCapabilitiesType/contentMetadata"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//WCSCapabilitiesType/updateSequence"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//WCSCapabilitiesType/version"/>
+    </genClasses>
+    <genClasses ecoreClass="wcs10.ecore#//WCSCapabilityType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//WCSCapabilityType/request"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//WCSCapabilityType/exception"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//WCSCapabilityType/vendorSpecificCapabilities"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//WCSCapabilityType/updateSequence"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//WCSCapabilityType/version"/>
+    </genClasses>
+  </genPackages>
+</genmodel:GenModel>
