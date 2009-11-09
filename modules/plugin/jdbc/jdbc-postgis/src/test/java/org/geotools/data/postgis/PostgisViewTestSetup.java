@@ -29,7 +29,8 @@ public class PostgisViewTestSetup extends JDBCViewTestSetup {
     @Override
     protected void createLakesView() throws Exception {
         run("create view \"lakesview\" as select * from \"lakes\"");
-        run("INSERT INTO GEOMETRY_COLUMNS VALUES('', 'public', 'lakesview', 'geom', 2, '4326', 'POLYGON')");
+        // disabled insert to make sure views work even without geom column declarations
+        // run("INSERT INTO GEOMETRY_COLUMNS VALUES('', 'public', 'lakesview', 'geom', 2, '4326', 'POLYGON')");
     }
 
     @Override

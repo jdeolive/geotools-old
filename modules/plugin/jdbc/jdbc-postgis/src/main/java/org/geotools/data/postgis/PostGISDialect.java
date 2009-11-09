@@ -287,30 +287,23 @@ public class PostGISDialect extends BasicSQLDialect {
             if (result.next()) {
                 srid = result.getInt(1);
             }
+            dataStore.closeSafe(result);
+            
+            // fall back on inspection of the first geometry, assuming uniform srid (fair assumption
+            // an unpredictable srid makes the table un-queriable)
+            if(srid == null) {
+                sqlStatement = "SELECT SRID(\"" + columnName + "\") " +
+                               "FROM \"" + schemaName + "\".\"" + tableName + "\" " +
+                               "LIMIT 1";
+                result = statement.executeQuery(sqlStatement);
+                if (result.next()) {
+                    srid = result.getInt(1);
+                }
+            }
         } finally {
             dataStore.closeSafe(result);
             dataStore.closeSafe(statement);
         }
-
-        // TODO: implement inference from the first feature
-        // try asking the first feature for its srid
-        // sql = new StringBuffer();
-        // sql.append("SELECT SRID(\"");
-        // sql.append(geometryColumnName);
-        // sql.append("\") FROM \"");
-        // if (schemaEnabled && dbSchema != null && dbSchema.length() > 0) {
-        // sql.append(dbSchema);
-        // sql.append("\".\"");
-        // }
-        // sql.append(tableName);
-        // sql.append("\" LIMIT 1");
-        // sqlStatement = sql.toString();
-        // result = statement.executeQuery(sqlStatement);
-        // if (result.next()) {
-        // int retSrid = result.getInt(1);
-        // JDBCUtils.close(statement);
-        // return retSrid;
-        // }
 
         return srid;
     }
