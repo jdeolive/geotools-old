@@ -55,7 +55,7 @@ public class PostgisNGDataStoreFactory extends JDBCDataStoreFactory {
     
     @Override
     public String getDisplayName() {
-        return "PostGIS NG";
+        return "PostGIS";
     }
 
     public String getDescription() {
