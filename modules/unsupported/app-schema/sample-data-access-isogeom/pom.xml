@@ -11,7 +11,6 @@
 
   <groupId>org.geotools</groupId>
   <artifactId>gt-sample-data-access-isogeom</artifactId>
-  <version>2.7-SNAPSHOT</version>
   <name>Sample DataAccess for testing</name>
 
   <dependencies>
