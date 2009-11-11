@@ -702,18 +702,32 @@ public class OracleDialect extends PreparedStatementSQLDialect {
         String sequenceName = (tableName + "_" + columnName + "_SEQUENCE").toUpperCase();
         Statement st = cx.createStatement();
         try {
+            // check the user owned sequences
             ResultSet rs = st.executeQuery( "SELECT * FROM USER_SEQUENCES" +
                 " WHERE SEQUENCE_NAME = '" + sequenceName + "'");
             try {
                 if ( rs.next() ) {
                     return sequenceName; 
                 }    
-            }
-            finally {
+            } finally {
                 dataStore.closeSafe( rs );
             }
-        }
-        finally {
+            dataStore.closeSafe( rs );
+            
+            // that did not work, let's see if the sequence is available in someone else schema
+            rs = st.executeQuery( "SELECT * FROM ALL_SEQUENCES" +
+                    " WHERE SEQUENCE_NAME = '" + sequenceName + "'");
+            try {
+                if ( rs.next() ) {
+                    String schema = rs.getString("OWNER");
+                    return schema + "." + sequenceName;
+                }    
+            } finally {
+                dataStore.closeSafe( rs );
+            }
+            
+            
+        } finally {
             dataStore.closeSafe( st );
         }
         
