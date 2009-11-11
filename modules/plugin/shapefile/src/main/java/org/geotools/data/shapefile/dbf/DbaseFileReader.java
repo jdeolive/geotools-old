@@ -26,7 +26,6 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
-import java.nio.charset.CharsetEncoder;
 import java.util.Calendar;
 
 import org.geotools.data.shapefile.FileReader;
@@ -185,9 +184,9 @@ public class DbaseFileReader implements FileReader {
         bytes = new byte[header.getRecordLength() - 1];
         
 
-        // check if we working with a 1 byte == 1 char Charset
-        final CharsetEncoder encoder = stringCharset.newEncoder();
-        oneBytePerChar = encoder.maxBytesPerChar() == 1.0f;
+        // check if we working with a latin-1 char Charset
+        final String cname = stringCharset.name();
+        oneBytePerChar = "ISO-8869-1".equals(cname) || "US-ASCII".equals(cname);
         
         row = new Row();
     }

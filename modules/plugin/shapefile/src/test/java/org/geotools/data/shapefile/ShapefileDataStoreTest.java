@@ -78,6 +78,7 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
     final static String STREAM = "shapes/stream.shp";
     final static String DANISH = "shapes/danish_point.shp";
     final static String CHINESE = "shapes/chinese_poly.shp";
+    final static String RUSSIAN = "shapes/rus-windows-1251.shp";
     final static FilterFactory2 ff = CommonFactoryFinder
             .getFilterFactory2(null);
 
@@ -137,15 +138,31 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
             SimpleFeature first = firstFeature(fc);
             String s = (String) first.getAttribute("NAME");
             assertEquals("\u9ed1\u9f99\u6c5f\u7701", s);
-        } catch (UnsupportedCharsetException notInstalledInJRE){
-                // this just means you have not installed
-                // chinese support into your JRE
-                // (as such it represents a bad configuration
-                //  rather than a test failure)
-                // we only wanted to ensure that if you have Chinese support
-                // available - GeoTools can use it
-            }
+        } catch (UnsupportedCharsetException notInstalledInJRE) {
+            // this just means you have not installed
+            // chinese support into your JRE
+            // (as such it represents a bad configuration
+            // rather than a test failure)
+            // we only wanted to ensure that if you have Chinese support
+            // available - GeoTools can use it
         }
+    }
+    
+    public void testLoadRussianChars() throws Exception {
+        try {
+            FeatureCollection<SimpleFeatureType, SimpleFeature> fc = loadFeatures(RUSSIAN, Charset
+                    .forName("CP1251"), null);
+            FeatureIterator<SimpleFeature> features = fc.features();
+            SimpleFeature f = features.next();
+            assertEquals("\u041A\u0438\u0440\u0438\u043B\u043B\u0438\u0446\u0430", f.getAttribute("TEXT"));
+            f = features.next();
+            assertEquals("\u0421\u043C\u0435\u0448\u0430\u043D\u044B\u0439 12345", f.getAttribute("TEXT"));
+            features.close();
+        } catch (UnsupportedCharsetException notInstalledInJRE) {
+            // this just means you have not installed Russian support into your JRE
+            // (as such it represents a bad configuration rather than a test failure)
+        }
+    }
     
 
     public void testNamespace() throws Exception {
