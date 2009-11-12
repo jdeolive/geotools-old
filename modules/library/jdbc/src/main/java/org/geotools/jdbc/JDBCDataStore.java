@@ -32,11 +32,13 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 
 import javax.sql.DataSource;
@@ -487,6 +489,41 @@ public final class JDBCDataStore extends ContentDataStore
     public Integer getMapping(Class<?> clazz) {
         Integer mapping = getClassToSqlTypeMappings().get(clazz);
 
+        if (mapping == null) {
+            //no match, try a "fuzzy" match in which we find the super class which matches best 
+            List<Map.Entry<Class<?>, Integer>> matches = new ArrayList();
+            for (Map.Entry<Class<?>, Integer> e : getClassToSqlTypeMappings().entrySet()) {
+                if (e.getKey().isAssignableFrom(clazz) ) {
+                    matches.add(e);
+                }
+            }
+            if (!matches.isEmpty()) {
+                if (matches.size() == 1) {
+                    //single match, great, use it
+                    mapping = matches.get(0).getValue();
+                }
+                else {
+                    // sort to match lowest class in type hierarchy, if we end up with a list like:
+                    // A, B where B is a super class of A, then chose A since it is the closest 
+                    // subclass to match
+                    
+                    Collections.sort(matches, new Comparator<Map.Entry<Class<?>, Integer>>() {
+                        public int compare(Entry<Class<?>, Integer> o1, Entry<Class<?>, Integer> o2) {
+                            if (o1.getKey().isAssignableFrom(o2.getKey())) {
+                                return 1;
+                            }
+                            if (o2.getKey().isAssignableFrom(o1.getKey())) {
+                                return -1;
+                            }
+                            return 0;
+                        }
+                    });
+                    if (matches.get(1).getKey().isAssignableFrom(matches.get(0).getKey())) {
+                        mapping = matches.get(0).getValue();
+                    }
+                }
+            }
+        }
         if (mapping == null) {
             mapping = Types.OTHER;
             LOGGER.warning("No mapping for " + clazz.getName());
