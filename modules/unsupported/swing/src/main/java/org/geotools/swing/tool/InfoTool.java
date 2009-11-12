@@ -17,25 +17,19 @@
 
 package org.geotools.swing.tool;
 
-import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Polygon;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.WindowEvent;
-import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.util.Collection;
-import java.util.Map;
+import java.util.List;
 import java.util.ResourceBundle;
+import java.util.WeakHashMap;
 import javax.swing.ImageIcon;
-import org.geotools.coverage.grid.GridCoverage2D;
-import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
-import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.factory.GeoTools;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.geometry.DirectPosition2D;
@@ -46,17 +40,19 @@ import org.geotools.swing.JTextReporter;
 import org.geotools.swing.TextReporterListener;
 import org.geotools.swing.event.MapMouseEvent;
 import org.geotools.swing.utils.MapLayerUtils;
-import org.opengis.coverage.CannotEvaluateException;
 import org.opengis.feature.Feature;
 import org.opengis.feature.Property;
-import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
-import org.opengis.filter.Filter;
-import org.opengis.filter.FilterFactory2;
 
 /**
  * A cursor tool to retrieve information about features that the user clicks
- * on with the mouse.
+ * on with the mouse. It works with {@code InfoToolHelper} objects which do
+ * the work of querying feature data. The primary reason for this design
+ * is to shield this class from the grid coverage classes so that
+ * users who are working purely with vector data are not forced to have
+ * JAI in the classpath.
+ *
+ * @see InfoToolHelper
  *
  * @author Michael Bedward
  * @since 2.6
@@ -89,10 +85,10 @@ public class InfoTool extends CursorTool implements TextReporterListener {
     public static final double DEFAULT_DISTANCE_FRACTION = 0.01d;
 
     private Cursor cursor;
-    private FilterFactory2 filterFactory;
-    private GeometryFactory geomFactory;
 
     private JTextReporter reporter;
+
+    private WeakHashMap<MapLayer, InfoToolHelper> helperTable;
 
     /**
      * Constructor
@@ -107,8 +103,8 @@ public class InfoTool extends CursorTool implements TextReporterListener {
         Dimension bestCursorSize = tk.getBestCursorSize(cursorIcon.getIconWidth(), cursorIcon.getIconHeight());
 
         cursor = tk.createCustomCursor(cursorIcon.getImage(), CURSOR_HOTSPOT, TOOL_TIP);
-        filterFactory = CommonFactoryFinder.getFilterFactory2(GeoTools.getDefaultHints());
-        geomFactory = new GeometryFactory();
+
+        helperTable = new WeakHashMap<MapLayer, InfoToolHelper>();
     }
 
     @Override
@@ -116,9 +112,12 @@ public class InfoTool extends CursorTool implements TextReporterListener {
         DirectPosition2D pos = ev.getMapPosition();
         report(pos);
 
+        FeatureIterator<? extends Feature> iter = null;
+
         for (MapLayer layer : getMapPane().getMapContext().getLayers()) {
-            FeatureIterator<? extends Feature> iter = null;
             if (layer.isSelected()) {
+                InfoToolHelper helper = null;
+
                 String layerName = layer.getTitle();
                 if (layerName == null || layerName.length() == 0) {
                     layerName = layer.getFeatureSource().getName().getLocalPart();
@@ -127,83 +126,84 @@ public class InfoTool extends CursorTool implements TextReporterListener {
                     layerName = layer.getFeatureSource().getSchema().getName().getLocalPart();
                 }
 
-                try {
-                    Map<String, Object> result = MapLayerUtils.isGridLayer(layer);
-                    if ((Boolean)result.get(MapLayerUtils.IS_GRID_KEY)) {
-                        /*
-                         * For grid coverages we directly evaluate the band values
-                         */
-                        iter = layer.getFeatureSource().getFeatures().features();
-                        String gridAttr = (String) result.get(MapLayerUtils.GRID_ATTR_KEY);
-                        Object obj = iter.next().getProperty(gridAttr).getValue();
-                        GridCoverage2D cov = null;
-
-                        if ((Boolean)result.get(MapLayerUtils.IS_GRID_READER_KEY)) {
-                            AbstractGridCoverage2DReader reader = (AbstractGridCoverage2DReader) obj;
-                            cov = reader.read(null);
-                        } else {
-                            cov = (GridCoverage2D) obj;
-                        }
-
+                
+                helper = helperTable.get(layer);
+                if (helper == null) {
+                    if (MapLayerUtils.isGridLayer(layer)) {
+                        String gridAttrName = MapLayerUtils.getGridAttributeName(layer);
                         try {
-                            Object objArray = cov.evaluate(pos);
-                            Number[] bandValues = asNumberArray(objArray);
-                            report(layerName, bandValues);
+                            iter = layer.getFeatureSource().getFeatures().features();
+                            Object rasterSource = iter.next().getProperty(gridAttrName).getValue();
+                            Class<?> clazz = Class.forName("org.geotools.swing.tool.GridLayerHelper");
+                            Constructor<?> ctor = clazz.getConstructor(Object.class);
+                            helper = (InfoToolHelper) ctor.newInstance(rasterSource);
+                            helperTable.put(layer, helper);
 
-                        } catch (CannotEvaluateException ex) {
-                            // do nothing - point outside coverage
+                        } catch (Exception ex) {
+                            throw new IllegalStateException("Failed to create InfoToolHelper for grid layer", ex);
+                        
+                        } finally {
+                            iter.close();
                         }
 
                     } else {
-                        /*
-                         * Handling a vector layer
-                         */
-                        Filter filter = null;
                         GeometryDescriptor geomDesc = layer.getFeatureSource().getSchema().getGeometryDescriptor();
                         String attrName = geomDesc.getLocalName();
                         Class<?> geomClass = geomDesc.getType().getBinding();
 
-                        if (Polygon.class.isAssignableFrom(geomClass) ||
-                                MultiPolygon.class.isAssignableFrom(geomClass)) {
-                            /*
-                             * Polygon features - use an intersects filter
-                             */
-                            Geometry posGeom = geometryFactory.createPoint(new Coordinate(pos.x, pos.y));
-                            /*
-                             * For polygons we test if they contain mouse location
-                             */
-                            filter = filterFactory.intersects(
-                                    filterFactory.property(attrName),
-                                    filterFactory.literal(posGeom));
-                        } else {
-                            /*
-                             * Line or point features - use a bounding box filter
-                             */
-                            ReferencedEnvelope mapEnv = getMapPane().getDisplayArea();
-                            double searchWidth =  DEFAULT_DISTANCE_FRACTION * (mapEnv.getWidth() + mapEnv.getHeight()) / 2;
+                        try {
+                            Class<?> clazz = Class.forName("org.geotools.swing.tool.VectorLayerHelper");
+                            Constructor<?> ctor = clazz.getConstructor(MapLayer.class, String.class, Class.class);
+                            helper = (InfoToolHelper) ctor.newInstance(layer, attrName, geomClass);
+                            helperTable.put(layer, helper);
 
-                            ReferencedEnvelope searchBounds = new ReferencedEnvelope(
-                                    pos.x - searchWidth,
-                                    pos.x + searchWidth,
-                                    pos.y - searchWidth,
-                                    pos.y + searchWidth,
-                                    getMapPane().getMapContext().getCoordinateReferenceSystem());
-
-                            filter = filterFactory.bbox(filterFactory.property(attrName), searchBounds);
+                        } catch (Exception ex) {
+                            throw new IllegalStateException("Failed to create InfoToolHelper for vector layer", ex);
                         }
-                        FeatureCollection<? extends FeatureType, ? extends Feature> selectedFeatures =
-                                layer.getFeatureSource().getFeatures(filter);
-
-                        iter = selectedFeatures.features();
-                        while (iter.hasNext()) {
-                            report(layerName, iter.next());
-                        }
-
                     }
-                } catch (IOException ioEx) {
-                } finally {
-                    if (iter != null) {
-                        iter.close();
+                }
+
+                Object info = null;
+
+                if (helper.getType() == InfoToolHelper.Type.VECTOR_HELPER) {
+                    ReferencedEnvelope mapEnv = getMapPane().getDisplayArea();
+                    double searchWidth = DEFAULT_DISTANCE_FRACTION * (mapEnv.getWidth() + mapEnv.getHeight()) / 2;
+                    try {
+                        info = helper.getInfo(pos, Double.valueOf(searchWidth));
+                    } catch (Exception ex) {
+                        throw new IllegalStateException(ex);
+                    }
+
+                    if (info != null) {
+                        FeatureCollection selectedFeatures = (FeatureCollection) info;
+                        try {
+                            iter = selectedFeatures.features();
+                            while (iter.hasNext()) {
+                                report(layerName, iter.next());
+                            }
+
+                        } catch (Exception ex) {
+                            throw new IllegalStateException(ex);
+
+                        } finally {
+                            if (iter != null) {
+                                iter.close();
+                            }
+                        }
+                    }
+
+                } else {
+                    try {
+                        info = helper.getInfo(pos);
+                    } catch (Exception ex) {
+                        throw new IllegalStateException(ex);
+                    }
+
+                    if (info != null) {
+                        List<Number> bandValues = (List<Number>) info;
+                        if (!bandValues.isEmpty()) {
+                            report(layerName, bandValues);
+                        }
                     }
                 }
             }
@@ -261,14 +261,15 @@ public class InfoTool extends CursorTool implements TextReporterListener {
      * @param layerName name of the map layer that contains the grid coverage
      * @param bandValues array of values
      */
-    private void report(String layerName, Number[] bandValues) {
+    private void report(String layerName, List<Number> bandValues) {
         createReporter();
 
         reporter.append(layerName);
         reporter.append("\n");
 
-        for (int i = 0; i < bandValues.length; i++) {
-            reporter.append(String.format("  Band %d: %s\n", (i+1), bandValues[i].toString()));
+        int k = 1;
+        for (Number value : bandValues) {
+            reporter.append(String.format("  Band %d: %s\n", k++, value.toString()));
         }
         reporter.append("\n");
     }
@@ -314,45 +315,4 @@ public class InfoTool extends CursorTool implements TextReporterListener {
         // no action
     }
 
-    /**
-     * Convert the Object returned by {@linkplain GridCoverage2D#evaluate(DirectPosition)} into
-     * an array of Numbers
-     *
-     * @param objArray an Object representing a primitive array
-     *
-     * @return a new array of Numbers
-     */
-    private Number[] asNumberArray(Object objArray) {
-        Number[] numbers = null;
-
-        if (objArray instanceof byte[]) {
-            byte[] values = (byte[]) objArray;
-            numbers = new Number[values.length];
-            for (int i = 0; i < values.length; i++) {
-                numbers[i] = ((int)values[i]) & 0xff;
-            }
-
-        } else if (objArray instanceof int[]) {
-            int[] values = (int[]) objArray;
-            numbers = new Number[values.length];
-            for (int i = 0; i < values.length; i++) {
-                numbers[i] = values[i];
-            }
-
-        } else if (objArray instanceof float[]) {
-            float[] values = (float[]) objArray;
-            numbers = new Number[values.length];
-            for (int i = 0; i < values.length; i++) {
-                numbers[i] = values[i];
-            }
-        } else if (objArray instanceof double[]) {
-            double[] values = (double[]) objArray;
-            numbers = new Number[values.length];
-            for (int i = 0; i < values.length; i++) {
-                numbers[i] = values[i];
-            }
-        }
-
-        return numbers;
-    }
 }

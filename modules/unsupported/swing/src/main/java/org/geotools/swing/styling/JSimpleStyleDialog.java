@@ -212,7 +212,7 @@ public class JSimpleStyleDialog extends JDialog {
         /*
          * Grid coverages and readers are not supported yet...
          */
-        if ((Boolean)MapLayerUtils.isGridLayer(layer).get(MapLayerUtils.IS_GRID_KEY)) {
+        if (MapLayerUtils.isGridLayer(layer)) {
             JOptionPane.showMessageDialog(null,
                     "Sorry, styling for for grid coverages is not working yet",
                     "Style dialog",

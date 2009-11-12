@@ -17,11 +17,7 @@
 package org.geotools.swing.utils;
 
 import java.util.Collection;
-import java.util.Map;
-import org.geotools.coverage.grid.GridCoverage2D;
-import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.map.MapLayer;
-import org.geotools.util.KVP;
 import org.opengis.feature.type.PropertyDescriptor;
 
 /**
@@ -36,63 +32,46 @@ import org.opengis.feature.type.PropertyDescriptor;
  */
 public class MapLayerUtils {
 
-    /**
-     * Key for the boolean value in the {@code Map} returned by {@linkplain #isGridLayer}
-     * that indicates whether the layer contained a grid (or grid reader)
-     */
-    public static final String IS_GRID_KEY = "is_grid";
-
-    /**
-     * Key for the boolean value in the {@code Map} returned by {@linkplain #isGridLayer}
-     * that indicates whether the layer contained a grid reader
-     */
-    public static final String IS_GRID_READER_KEY = "is_grid_reader";
-    
-    /** 
-     * Key for the String value in the {@code Map} returned by {@linkplain #isGridLayer}
-     * that has the name of the grid attribute in the layer's feature collection; or an
-     * empty string if there is no grid attribute
-     */ 
-    public static final String GRID_ATTR_KEY = "grid_attr";
+    private static final String GRID_PACKAGE = "org.geotools.coverage.grid";
 
     /**
      * Check if the given map layer contains a grid coverage or a grid coverage reader.
+     * <p>
+     * Implementation note: we avoid referencing org.geotools.coverage.grid classes
+     * directly here so that applications dealing only with other data types are not
+     * forced to have JAI in the classpath.
      *
      * @param layer the map layer
-     * @return a {@code Map} containing:
-     * <ul>
-     * <li> {@linkplain #IS_GRID_KEY}: (Boolean) true if the layer has a grid coverage
-     *      or grid coverage reader
-     * <li> {@linkplain #IS_GRID_READER_KEY}: (Boolean) true if the layer has a grid
-     *      coverage reader
-     * <li> {@linkplain #GRID_ATTR_KEY}: (String) the name of the attribute in the layer's
-     *      feature collection that contains the grid coverage or reader
-     * </ul>
+     *
+     * @return true if this is a grid layer; false otherwise
      */
-    public static Map<String, Object> isGridLayer(MapLayer layer) {
-        KVP info = new KVP(
-                IS_GRID_KEY, Boolean.FALSE,
-                IS_GRID_READER_KEY, Boolean.FALSE,
-                GRID_ATTR_KEY, "");
+    public static boolean isGridLayer(MapLayer layer) {
 
         Collection<PropertyDescriptor> descriptors = layer.getFeatureSource().getSchema().getDescriptors();
         for (PropertyDescriptor desc : descriptors) {
-            Class<?> clazz = desc.getType().getBinding();
+            String className = desc.getType().getBinding().getName();
 
-            if (GridCoverage2D.class.isAssignableFrom(clazz)) {
-                info.put(IS_GRID_KEY, Boolean.TRUE);
-                info.put(GRID_ATTR_KEY, desc.getName().getLocalPart());
-                break;
+            if (className.contains(GRID_PACKAGE)) {
+                return true;
+            }
+        }
 
-            } else if (AbstractGridCoverage2DReader.class.isAssignableFrom(clazz)) {
-                info.put(IS_GRID_KEY, Boolean.TRUE);
-                info.put(IS_GRID_READER_KEY, Boolean.TRUE);
-                info.put(GRID_ATTR_KEY, desc.getName().getLocalPart());
+        return false;
+    }
+
+    public static String getGridAttributeName(MapLayer layer) {
+        String attrName = null;
+
+        Collection<PropertyDescriptor> descriptors = layer.getFeatureSource().getSchema().getDescriptors();
+        for (PropertyDescriptor desc : descriptors) {
+            String className = desc.getType().getBinding().getName();
+
+            if (className.contains(GRID_PACKAGE)) {
+                attrName = desc.getName().getLocalPart();
                 break;
             }
         }
 
-        return info;
+        return attrName;
     }
-
 }
