@@ -24,8 +24,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.geotools.data.CollectionFeatureReader;
+import org.geotools.data.DefaultTransaction;
 import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureSource;
+import org.geotools.data.Transaction;
 import org.geotools.data.FeatureEvent.Type;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.AttributeTypeBuilder;
@@ -61,16 +62,16 @@ public abstract class JDBCFeatureStoreTest extends JDBCTestSupport {
         DefaultFeatureCollection collection = new DefaultFeatureCollection(null,
                 featureStore.getSchema());
         
-        //Watcher watcher = new Watcher();
+        FeatureEventWatcher watcher = new FeatureEventWatcher();
         
         for (int i = 3; i < 6; i++) {
             b.set(aname("intProperty"), new Integer(i));
             b.set(aname("geometry"), new GeometryFactory().createPoint(new Coordinate(i, i)));
             collection.add(b.buildFeature(null));
         }
-        //featureStore.addFeatureListener( watcher );
+        featureStore.addFeatureListener( watcher );
         List<FeatureId> fids = featureStore.addFeatures(collection);
-        //assertEquals( watcher.bounds, collection.getBounds() );
+        assertEquals( watcher.bounds, collection.getBounds() );
         
         assertEquals(3, fids.size());
 
@@ -96,6 +97,36 @@ public abstract class JDBCFeatureStoreTest extends JDBCTestSupport {
 
             features.close(iterator);
         }
+    }
+    
+    public void testAddInTransaction() throws IOException {
+        SimpleFeatureBuilder b = new SimpleFeatureBuilder(featureStore.getSchema());
+        DefaultFeatureCollection collection = new DefaultFeatureCollection(null,
+                featureStore.getSchema());
+        
+        b.set(aname("intProperty"), new Integer(3));
+        b.set(aname("geometry"), new GeometryFactory().createPoint(new Coordinate(3, 3)));
+        collection.add(b.buildFeature(null));
+
+        FeatureEventWatcher watcher = new FeatureEventWatcher();
+        Transaction t = new DefaultTransaction();
+        featureStore.setTransaction(t);
+        featureStore.addFeatureListener(watcher);
+        JDBCFeatureStore featureStore2 = (JDBCFeatureStore) dataStore.getFeatureSource(featureStore.getName().getLocalPart()); 
+        List<FeatureId> fids = featureStore.addFeatures(collection);
+        
+        assertEquals(1, fids.size());
+
+        // check the store with the transaction sees the new features, but the other store does not
+        assertEquals(4, featureStore.getFeatures().size());
+        assertEquals(3, featureStore2.getFeatures().size());
+        
+        // check that after the commit everybody sees 4
+        t.commit();
+        assertEquals(4, featureStore.getFeatures().size());
+        assertEquals(4, featureStore2.getFeatures().size());
+        
+        t.close();
     }
     
     /**

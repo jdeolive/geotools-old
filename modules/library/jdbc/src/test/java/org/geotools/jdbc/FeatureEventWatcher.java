@@ -38,7 +38,7 @@ public class FeatureEventWatcher implements FeatureListener {
     public FeatureSource<? extends FeatureType, ? extends Feature> source;
 
     /** Total bounds since last reset*/
-    public ReferencedEnvelope bounds = new ReferencedEnvelope();
+    public ReferencedEnvelope bounds;
 
     /** number of events since last reset */
     public int count = 0;
