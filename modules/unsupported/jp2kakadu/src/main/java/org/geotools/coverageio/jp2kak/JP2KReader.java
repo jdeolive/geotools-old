@@ -32,6 +32,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.Collection;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -41,9 +42,9 @@ import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.metadata.IIOMetadataNode;
 
 import org.geotools.coverage.CoverageFactoryFinder;
-import org.geotools.coverage.grid.GeneralGridRange;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
+import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.imageio.geotiff.GeoTiffIIOMetadataDecoder;
@@ -60,6 +61,7 @@ import org.geotools.resources.coverage.CoverageUtilities;
 import org.opengis.coverage.grid.Format;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.coverage.grid.GridCoverageReader;
+import org.opengis.coverage.grid.GridRange;
 import org.opengis.geometry.Envelope;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.referencing.FactoryException;
@@ -89,10 +91,21 @@ public final class JP2KReader extends AbstractGridCoverage2DReader implements
 	/** The system-dependent default name-separator character. */
     private final static char SEPARATOR = File.separatorChar;
 	
-    private final static short[] geoJp2UUID = new short[] { 0xb1, 0x4b, 0xf8,
-            0xbd, 0x08, 0x3d, 0x4b, 0x43, 0xa5, 0xae, 0x8c, 0xd7, 0xd5, 0xa6,
-            0xce, 0x03 };
+    private final static short[] GEOJP2_UUID = new short[] { 0xb1, 0x4b, 0xf8, 0xbd, 0x08, 
+        0x3d, 0x4b, 0x43, 0xa5, 0xae, 0x8c, 0xd7, 0xd5, 0xa6, 0xce, 0x03 };
+    
+    private final static short[] MSIG_WORLDFILEBOX_UUID = new short[] { 0x96, 0xa9, 0xf1, 0xf1,
+        0xdc, 0x98, 0x40, 0x2d, 0xa7, 0xae, 0xd6, 0x8e, 0x34, 0x45, 0x18, 0x09 };
 
+    private final static int WORLD_FILE_INTERPRETATION_PIXEL_CORNER = 1;
+    
+    /**
+     * The base {@link GridRange} for the {@link GridCoverage2D} of this reader.
+     */
+    private GridEnvelope2D nativeGridRange = null;
+    
+    private GeneralEnvelope nativeEnvelope = null;
+    
     /**
      * Creates a new instance of a {@link JP2KReader}. I assume nothing about
      * file extension.
@@ -122,43 +135,87 @@ public final class JP2KReader extends AbstractGridCoverage2DReader implements
         final IIOMetadata metadata = reader.getStreamMetadata();
         int hrWidth = reader.getWidth(0);
         int hrHeight = reader.getHeight(0);
-        final Rectangle actualDim = new Rectangle(0, 0, hrWidth,
-                hrHeight);
-        this.originalGridRange = new GeneralGridRange(actualDim);
+        final Rectangle actualDim = new Rectangle(0, 0, hrWidth, hrHeight);
+        this.nativeGridRange = new GridEnvelope2D(actualDim);
         if (this.crs == null) {
             parsePRJFile();
         }
-        if (this.originalEnvelope == null)
+        if (this.nativeEnvelope == null)
         	parseWorldFile();
 
-        if (this.crs == null || this.originalEnvelope == null)
-        	checkGeoJP2CRS(metadata);	
+        if (this.crs == null || this.nativeEnvelope == null)
+        	checkUUIDBoxes(metadata);	
         // //
         //
         // If no sufficient information have been found to set the
         // envelope, try other ways, such as looking for a WorldFile
         //
         // //
-        if (this.originalEnvelope == null) {
+        if (this.nativeEnvelope == null) {
                 throw new DataSourceException(
                         "Unavailable envelope for this coverage");
         }
 
         // setting the coordinate reference system for the envelope
+        originalEnvelope = getCoverageEnvelope();
         originalEnvelope.setCoordinateReferenceSystem(crs);
+        originalGridRange = getCoverageGridRange();
 
         // Additional settings due to "final" methods getOriginalXXX
     }
 
-    private boolean isGeoJP2(byte[] id) {
-        for (int i = 0; i < geoJp2UUID.length; i++) {
-            if ((id[i] & 0xFF) != geoJp2UUID[i])
+    /**
+     * @param nativeEnvelope
+     *                the nativeEnvelope to set
+     */
+    protected void setCoverageEnvelope(GeneralEnvelope coverageEnvelope) {
+        this.nativeEnvelope = coverageEnvelope;
+    }
+
+    /**
+     * @return the nativeEnvelope
+     */
+    protected GeneralEnvelope getCoverageEnvelope() {
+        return nativeEnvelope;
+    }
+
+    /**
+     * @param nativeGridRange
+     *                the nativeGridRange to set
+     */
+    protected void setCoverageGridRange(GridEnvelope2D coverageGridRange) {
+        this.nativeGridRange = coverageGridRange;
+    }
+
+    /**
+     * @return the nativeGridRange
+     */
+    protected GridEnvelope2D getCoverageGridRange() {
+        return nativeGridRange;
+    }
+    
+    private boolean isGeoJP2(final byte[] id) {
+    	return isSameUUID(id, GEOJP2_UUID);
+    }
+    
+    private boolean isWorldBox(final byte[] id) {
+    	return isSameUUID(id, MSIG_WORLDFILEBOX_UUID);
+    }
+    
+    private boolean isSameUUID(final byte[] id, final short[] uuid) {
+        for (int i = 0; i < uuid.length; i++) {
+            if ((id[i] & 0xFF) != uuid[i])
                 return false;
         }
         return true;
     }
     
-    private void checkGeoJP2CRS(final IIOMetadata metadata) throws IOException{
+    /**
+     * Look for UUID boxes containing GeoJP2 Boxes / MSIG World Box
+     * @param metadata 
+     * @throws IOException
+     */
+    private void checkUUIDBoxes(final IIOMetadata metadata) throws IOException{
     	if (!(metadata instanceof JP2KStreamMetadata)) {
             if (LOGGER.isLoggable(Level.WARNING))
             		LOGGER.warning("Unexpected error! Metadata should be an instance of the expected class:"
@@ -169,74 +226,184 @@ public final class JP2KReader extends AbstractGridCoverage2DReader implements
         // Looking for the UUIDBoxMetadataNode
         //
         // //
-        CoordinateReferenceSystem coordinateReferenceSystem = null;
-        IIOMetadataNode uuidBoxMetadataNode = ((JP2KStreamMetadata) metadata)
-                .searchFirstOccurrenceNode(UUIDBox.BOX_TYPE);
-        if (uuidBoxMetadataNode != null
-                && uuidBoxMetadataNode instanceof UUIDBoxMetadataNode) {
-            UUIDBoxMetadataNode uuid = (UUIDBoxMetadataNode) uuidBoxMetadataNode;
-            final byte[] id = uuid.getUuid();
-            final boolean isGeoJP2 = isGeoJP2(id);
-
-            if (isGeoJP2) {
-                final ByteArrayInputStream inputStream = new ByteArrayInputStream(
-                        uuid.getData());
-                final TIFFImageReader tiffreader = (TIFFImageReader) new TIFFImageReaderSpi()
-                        .createReaderInstance();
-                tiffreader
-                        .setInput(ImageIO.createImageInputStream(inputStream));
-                final IIOMetadata tiffmetadata = tiffreader.getImageMetadata(0);
-                final GeoTiffIIOMetadataDecoder metadataDecoder = new GeoTiffIIOMetadataDecoder(
-                        tiffmetadata);
-                final GeoTiffMetadata2CRSAdapter adapter = new GeoTiffMetadata2CRSAdapter(
-                        null);
-                try {
-                    coordinateReferenceSystem = adapter
-                            .createCoordinateSystem(metadataDecoder);
-                    if (coordinateReferenceSystem != null) {
-                    	if (this.crs == null)
-                    		this.crs = coordinateReferenceSystem;
+        final List<IIOMetadataNode> uuidBoxMetadataNodes = ((JP2KStreamMetadata) metadata)
+                .searchOccurrencesNode(UUIDBox.BOX_TYPE);
+        UUIDBoxMetadataNode geoJP2uuid = null;
+        UUIDBoxMetadataNode worldBoxuuid = null;
+        if (uuidBoxMetadataNodes != null && !uuidBoxMetadataNodes.isEmpty()){
+        	for (IIOMetadataNode node: uuidBoxMetadataNodes){
+        		if (node instanceof UUIDBoxMetadataNode) {
+                    final UUIDBoxMetadataNode uuid = (UUIDBoxMetadataNode) node;
+                    final byte[] id = uuid.getUuid();
+                    if (isGeoJP2(id)) {
+                       geoJP2uuid = uuid;
+                       continue;
                     }
-                    if (this.raster2Model == null){
-	                    this.raster2Model = adapter
-	                            .getRasterToModel(metadataDecoder);
-	                    final AffineTransform tempTransform = new AffineTransform(
-	                            (AffineTransform) raster2Model);
-	                    tempTransform.translate(-0.5, -0.5);
-	                    GeneralEnvelope envelope = CRS.transform(
-	                            ProjectiveTransform.create(tempTransform),
-	                            new GeneralEnvelope(originalGridRange.toRectangle()));
-	                    envelope
-	                            .setCoordinateReferenceSystem(crs);
-	                    this.originalEnvelope = envelope;
+                    
+                	if (isWorldBox(id)){
+                    	worldBoxuuid = uuid;
                     }
-
-                } catch (FactoryException e) {
-                    if (LOGGER.isLoggable(Level.FINE))
-                        LOGGER.log(Level.FINE,
-                                "Unable to parse CRS from underlying TIFF", e);
-                    coordinateReferenceSystem = null;
-                } catch (TransformException e) {
-                    if (LOGGER.isLoggable(Level.FINE))
-                        LOGGER.log(Level.FINE,
-                                "Unable to parse CRS from underlying TIFF", e);
-                    coordinateReferenceSystem = null;
-                } catch (UnsupportedOperationException e) {
-                    if (LOGGER.isLoggable(Level.FINE))
-                        LOGGER.log(Level.FINE,
-                                "Unable to parse CRS from underlying TIFF due to an unsupported CRS", e);
-                    coordinateReferenceSystem = null;
-                } finally {
-                    if (inputStream != null)
-                        try {
-                            inputStream.close();
-                        } catch (IOException ioe) {
-                            // Eat exception.
-                        }
                 }
-            }
+        	}
         }
+
+        if (geoJP2uuid!=null)
+        	getGeoJP2(geoJP2uuid);
+        
+        // //
+        //
+        // Without a proper crs, the World Box is useless 
+        //
+        // //
+        if (worldBoxuuid!=null && crs != null){
+        	getWorldBox(worldBoxuuid);
+        }
+        
     }
+    
+    private void getWorldBox(final UUIDBoxMetadataNode uuid) throws IOException {
+		
+    	// //
+    	//
+    	// Parsing Header 
+    	//
+    	// //
+    	final byte[] bb = uuid.getData();
+        if (bb[0]!='M'||bb[1]!='S'||bb[2]!='I'||bb[3]!='G')
+			 return;
+		
+        // Version number: useless
+        // bb[4] bb[5]
+        
+        final int worldFileInterpretation = bb[6]; 
+        final int chunkNumber = bb[14];
+        
+        // //
+        //
+        // Parsing Chunk
+        //
+        // //
+        final int ckIndex = 16;
+        final int chunkIndex = bb[ckIndex];
+        final long chunkLength = Utils.bytes2long(bb, ckIndex+2);
+        
+        if (chunkIndex!=0 && chunkLength!=48)
+        	return;
+        
+        // //
+        // Parsing the Grid to World transformation
+        // //
+        final double xScale = Utils.bytes2double(bb,ckIndex+6);
+        final double xRotation = Utils.bytes2double(bb,ckIndex+14);
+        final double yRotation = Utils.bytes2double(bb,ckIndex+22);
+        final double yScale = Utils.bytes2double(bb,ckIndex+30);
+        final double xUpperLeft = Utils.bytes2double(bb,ckIndex+38);
+        final double yUpperLeft = Utils.bytes2double(bb,ckIndex+46);
+        
+        final boolean footerOk = (bb[ckIndex + 54] == (byte)0xFF) && (bb[ckIndex + 55] == (byte)0x00);
+
+        // //
+        // Setting up the grid to world transformation
+        // // 
+        final AffineTransform tempTransform = new AffineTransform(
+        		xScale, yRotation, xRotation,
+        		yScale, xUpperLeft, yUpperLeft);
+        this.raster2Model = ProjectiveTransform.create(tempTransform);
+
+        // ////////////////////////////////////////////////////////////////////
+        //
+        // Quoting from 3.2.2.1 at:
+        // http://www.lizardtech.com/support/kb/docs/geotiff_box.txt
+        //
+        // "This was instituted with version 1.03.11 (May 15, 2003) to signify that we
+        //	clarified the definition of the georeferencing data and found out that that
+        //	data represents the upper left corner of the upper left pixel, not the
+        //	center as we had thought, so the [world chunk values are] not equal to the
+        //	geotiff data, but is shifted by 0.5*scale to the center of the pixel."
+        //
+        // Finally note that:
+        // If the world chunk is present, these values should override 
+        // the corresponding values in the GeoTIFF box.
+        //
+        // ////////////////////////////////////////////////////////////////////
+        if (worldFileInterpretation == WORLD_FILE_INTERPRETATION_PIXEL_CORNER)
+        	tempTransform.translate(-0.5, -0.5);
+       
+        try {
+        	final GeneralEnvelope envelope = CRS.transform(ProjectiveTransform.create(tempTransform),
+        			new GeneralEnvelope(nativeGridRange));
+        	envelope.setCoordinateReferenceSystem(crs);
+        	this.nativeEnvelope = envelope;
+        } catch (TransformException e) {
+            if (LOGGER.isLoggable(Level.FINE))
+                LOGGER.log(Level.FINE,"Unable to parse CRS from underlying TIFF", e);
+        } catch (UnsupportedOperationException e) {
+            if (LOGGER.isLoggable(Level.FINE))
+                LOGGER.log(Level.FINE,"Unable to parse CRS from underlying TIFF due to an unsupported CRS", e);
+        } 
+        
+    }
+
+    /**
+     * Get the degenerate GeoTIFF to obtain the related CoordinateReferenceSystem tags
+     * @param uuid
+     * @throws IOException
+     */
+	private void getGeoJP2(final UUIDBoxMetadataNode uuid) throws IOException {
+		
+		 CoordinateReferenceSystem coordinateReferenceSystem = null;
+		 final ByteArrayInputStream inputStream = new ByteArrayInputStream(uuid.getData());
+         final TIFFImageReader tiffreader = (TIFFImageReader) new TIFFImageReaderSpi().createReaderInstance();
+         tiffreader.setInput(ImageIO.createImageInputStream(inputStream));
+         final IIOMetadata tiffmetadata = tiffreader.getImageMetadata(0);
+         try {
+        	 final GeoTiffIIOMetadataDecoder metadataDecoder = new GeoTiffIIOMetadataDecoder(tiffmetadata);
+        	 final GeoTiffMetadata2CRSAdapter adapter = new GeoTiffMetadata2CRSAdapter(null);
+             coordinateReferenceSystem = adapter.createCoordinateSystem(metadataDecoder);
+             if (coordinateReferenceSystem != null) {
+             	if (this.crs == null)
+             		this.crs = coordinateReferenceSystem;
+             }
+             if (this.raster2Model == null){
+                 this.raster2Model = adapter.getRasterToModel(metadataDecoder);
+                 final AffineTransform tempTransform = new AffineTransform((AffineTransform) raster2Model);
+                 tempTransform.translate(-0.5, -0.5);
+                 GeneralEnvelope envelope = CRS.transform(ProjectiveTransform.create(tempTransform),
+                         new GeneralEnvelope(nativeGridRange));
+                 envelope.setCoordinateReferenceSystem(crs);
+                 this.nativeEnvelope = envelope;
+             }
+
+         } catch (FactoryException e) {
+             if (LOGGER.isLoggable(Level.FINE))
+                 LOGGER.log(Level.FINE,
+                         "Unable to parse CRS from underlying TIFF", e);
+             coordinateReferenceSystem = null;
+         } catch (TransformException e) {
+             if (LOGGER.isLoggable(Level.FINE))
+                 LOGGER.log(Level.FINE,
+                         "Unable to parse CRS from underlying TIFF", e);
+             coordinateReferenceSystem = null;
+         } catch (UnsupportedOperationException e) {
+             if (LOGGER.isLoggable(Level.FINE))
+                 LOGGER.log(Level.FINE,
+                         "Unable to parse CRS from underlying TIFF", e);
+             coordinateReferenceSystem = null;
+         } catch (IllegalArgumentException e) {
+             if (LOGGER.isLoggable(Level.FINE))
+                 LOGGER.log(Level.FINE,
+                         "Unable to parse CRS from underlying TIFF", e);
+             coordinateReferenceSystem = null;
+         } finally {
+             if (inputStream != null)
+                 try {
+                     inputStream.close();
+                 } catch (IOException ioe) {
+                     // Eat exception.
+                 }
+         }
+		
+	}
 
 	/**
 	 * Number of coverages for this reader is 1
@@ -360,7 +527,7 @@ public final class JP2KReader extends AbstractGridCoverage2DReader implements
 	/**
 	 * @see org.opengis.coverage.grid.GridCoverageReader#read(org.opengis.parameter.GeneralParameterValue[])
 	 */
-	public GridCoverage read(GeneralParameterValue[] params) throws IOException {
+	public GridCoverage2D read(GeneralParameterValue[] params) throws IOException {
 
 		if (LOGGER.isLoggable(Level.FINE)) {
 			LOGGER.fine("Reading image from " + sourceURL.toString());
@@ -370,7 +537,7 @@ public final class JP2KReader extends AbstractGridCoverage2DReader implements
 
 		final Collection<GridCoverage2D> response = rasterManager.read(params);
 		if(response.isEmpty())
-			throw new DataSourceException("Unable to create a coverage for this request ");
+			return null;
 		else
 			return response.iterator().next();
 	}
@@ -518,13 +685,12 @@ public final class JP2KReader extends AbstractGridCoverage2DReader implements
             //
             // //
             
-            MathTransform tempTransform =PixelTranslation.translate(raster2Model, PixelInCell.CELL_CENTER, PixelInCell.CELL_CORNER);
+            MathTransform tempTransform = PixelTranslation.translate(raster2Model, PixelInCell.CELL_CENTER, PixelInCell.CELL_CORNER);
             try {
-                final Envelope gridRange = new GeneralEnvelope(
-                        originalGridRange.toRectangle());
+                final Envelope gridRange = new GeneralEnvelope(nativeGridRange);
                 final GeneralEnvelope coverageEnvelope = CRS.transform(
                 		tempTransform, gridRange);
-                originalEnvelope = coverageEnvelope;
+                nativeEnvelope = coverageEnvelope;
             } catch (TransformException e) {
                 if (LOGGER.isLoggable(Level.WARNING)) {
                     LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);
@@ -557,8 +723,8 @@ public final class JP2KReader extends AbstractGridCoverage2DReader implements
         final Rectangle originalDim = new Rectangle(0, 0, reader.getWidth(0),
                 reader.getHeight(0));
 
-        if (originalGridRange == null) {
-        	originalGridRange = new GeneralGridRange(originalDim);
+        if (nativeGridRange == null) {
+        	nativeGridRange = new GridEnvelope2D(originalDim);
         }
 
         // ///
@@ -573,17 +739,7 @@ public final class JP2KReader extends AbstractGridCoverage2DReader implements
                             highestRes[0]).append(",").append(highestRes[1])
                             .toString());
         numOverviews = 0;
-//		final double[][] resolutions = configuration.getLevels();
 		overViewResolutions = numOverviews >= 1 ? new double[numOverviews][2]: null;
-//		highestRes = new double[2];
-//		highestRes[0] = resolutions[0][0];
-//		highestRes[1] =resolutions[0][1];
-//		if(numOverviews>0){
-//	   		for (int i = 0; i < numOverviews; i++) {     			
-//				overViewResolutions[i][0] = resolutions[i+1][0];
-//				overViewResolutions[i][1] = resolutions[i+1][1];
-//	   		}	
-//		}
         
 
     }

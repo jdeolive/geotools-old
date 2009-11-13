@@ -6,13 +6,14 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageReadParam;
 
-import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
+import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.data.DataSourceException;
 import org.geotools.factory.Hints;
@@ -77,7 +78,6 @@ class RasterManager {
 	        return "OverviewLevel[Choice=" + imageChoice + ",scaleFactor=" + scaleFactor + "]";
 	    }
 	    
-
 		@Override
 		public int hashCode() {
 			int hash= Utilities.hash(imageChoice, 31);
@@ -86,8 +86,6 @@ class RasterManager {
 			hash=Utilities.hash(scaleFactor, hash);
 			return hash;
 		}	    
-	    
-	    
 	}
 	
 	class OverviewsController  {
@@ -101,7 +99,7 @@ class RasterManager {
 			// -the aspect ratio for the overviews is constant
 			// -the provided resolutions are taken directly from the grid
 			resolutionsLevels.add(new OverviewLevel(1, highestRes[0],highestRes[1], 0));
-			if (numberOfOvervies > 0) {
+			if (numberOfOverviews > 0) {
 				for (int i = 0; i < overviewsResolution.length; i++)
 					resolutionsLevels.add(
 								new OverviewLevel(
@@ -147,13 +145,14 @@ class RasterManager {
 				requestedScaleFactorY = reqy / max.resolutionY;		        
 			}
 			else
-			{
-				final double[] scaleFactors = request.getRequestedRasterScaleFactors();
-				if(scaleFactors==null)
-					return 0;
-				requestedScaleFactorX=scaleFactors[0];
-				requestedScaleFactorY=scaleFactors[1];
-			}
+				return 0;
+//			{
+//				final double[] scaleFactors = request.getRequestedRasterScaleFactors();
+//				if(scaleFactors==null)
+//					return 0;
+//				requestedScaleFactorX=scaleFactors[0];
+//				requestedScaleFactorY=scaleFactors[1];
+//			}
 			final int leastReduceAxis = requestedScaleFactorX <= requestedScaleFactorY ? 0: 1;
 			final double requestedScaleFactor = leastReduceAxis == 0 ? requestedScaleFactorX: requestedScaleFactorY;
 	        
@@ -221,70 +220,64 @@ class RasterManager {
 		 * @param requestedRes
 		 */
 		void performDecimation(
-				final int imageIndex,
-				final ImageReadParam readParameters, 
-				final RasterLayerRequest request) {
+			final int imageIndex,
+			final ImageReadParam readParameters, 
+			final RasterLayerRequest request) {
+	
+			// the read parameters cannot be null
+			Utils.ensureNonNull("readParameters", readParameters);
+			Utils.ensureNonNull("request", request);
+			
+			//get the requested resolution
+			final double[] requestedRes=request.getRequestedResolution();
+			if(requestedRes==null)
 			{
-		
-				// the read parameters cannot be null
-				Utils.ensureNonNull("readParameters", readParameters);
-				Utils.ensureNonNull("request", request);
-				
-				//get the requested resolution
-				final double[] requestedRes=request.getRequestedResolution();
-				if(requestedRes==null)
-				{
-					// if there is no requested resolution we don't do any subsampling
-					readParameters.setSourceSubsampling(1, 1, 0, 0);
-					return;
-				}
-				final int rasterWidth, rasterHeight;
-				double selectedRes[] = new double[2];
-				if (imageIndex == 0) {
-					// highest resolution
-					rasterWidth = spatialDomainManager.coverageRasterArea.width;
-					rasterHeight = spatialDomainManager.coverageRasterArea.height;
-					selectedRes[0] = spatialDomainManager.coverageFullResolution[0];
-					selectedRes[1] = spatialDomainManager.coverageFullResolution[1];
-				} else {
-					// work on overviews
-					final OverviewLevel level=overviewsController.resolutionsLevels.get(imageIndex - 1);
-					selectedRes[0] = level.resolutionX;
-					selectedRes[1] = level.resolutionY;
-					//TODO this is bad side effect of how the Overviews are managed right now. There are two problems here,
-					// first we are assuming that we are working with LON/LAT, second is that we are getting just an approximation of 
-					// raster dimensions. The solution is to have the rater dimensions on each level and to confront raster dimensions,
-					//which means working
-					rasterWidth = (int) Math.round(spatialDomainManager.coverageBBox.getSpan(0)/ selectedRes[0]);
-					rasterHeight = (int) Math.round(spatialDomainManager.coverageBBox.getSpan(1)/ selectedRes[1]);
-		
-				}
-				// /////////////////////////////////////////////////////////////////////
-				// DECIMATION ON READING
-				// Setting subsampling factors with some checks
-				// 1) the subsampling factors cannot be zero
-				// 2) the subsampling factors cannot be such that the w or h are
-				// zero
-				// /////////////////////////////////////////////////////////////////////
-				int subSamplingFactorX = (int) Math.floor(requestedRes[0]/ selectedRes[0]);
-				subSamplingFactorX = subSamplingFactorX == 0 ? 1: subSamplingFactorX;
-	
-				while (rasterWidth / subSamplingFactorX <= 0 && subSamplingFactorX >= 0)
-					subSamplingFactorX--;
-				subSamplingFactorX = subSamplingFactorX <= 0 ? 1: subSamplingFactorX;
-	
-				int subSamplingFactorY = (int) Math.floor(requestedRes[1]/ selectedRes[1]);
-				subSamplingFactorY = subSamplingFactorY == 0 ? 1: subSamplingFactorY;
-	
-				while (rasterHeight / subSamplingFactorY <= 0 && subSamplingFactorY >= 0)subSamplingFactorY--;
-				subSamplingFactorY = subSamplingFactorY <= 0 ? 1: subSamplingFactorY;
-	
-				readParameters.setSourceSubsampling(subSamplingFactorX,subSamplingFactorY, 0, 0);
-				
-		
+				// if there is no requested resolution we don't do any subsampling
+				readParameters.setSourceSubsampling(1, 1, 0, 0);
+				return;
 			}
+
+			double selectedRes[] = new double[2];
+			final OverviewLevel level=overviewsController.resolutionsLevels.get(imageIndex);
+			selectedRes[0] = level.resolutionX;
+			selectedRes[1] = level.resolutionY;
+			
+			final int rasterWidth, rasterHeight;
+			if (imageIndex == 0) {
+				// highest resolution
+				rasterWidth = spatialDomainManager.coverageRasterArea.width;
+				rasterHeight = spatialDomainManager.coverageRasterArea.height;
+			} else {
+				// work on overviews
+				//TODO this is bad side effect of how the Overviews are managed right now. There are two problems here,
+				// first we are assuming that we are working with LON/LAT, second is that we are getting just an approximation of 
+				// raster dimensions. The solution is to have the rater dimensions on each level and to confront raster dimensions,
+				//which means working
+				rasterWidth = (int) Math.round(spatialDomainManager.coverageBBox.getSpan(0)/ selectedRes[0]);
+				rasterHeight = (int) Math.round(spatialDomainManager.coverageBBox.getSpan(1)/ selectedRes[1]);
+	
+			}
+			// /////////////////////////////////////////////////////////////////////
+			// DECIMATION ON READING
+			// Setting subsampling factors with some checks
+			// 1) the subsampling factors cannot be zero
+			// 2) the subsampling factors cannot be such that the w or h are zero
+			// /////////////////////////////////////////////////////////////////////
+			int subSamplingFactorX = (int) Math.floor(requestedRes[0]/ selectedRes[0]);
+			subSamplingFactorX = subSamplingFactorX == 0 ? 1: subSamplingFactorX;
+
+			while (rasterWidth / subSamplingFactorX <= 0 && subSamplingFactorX >= 0)
+				subSamplingFactorX--;
+			subSamplingFactorX = subSamplingFactorX <= 0 ? 1: subSamplingFactorX;
+
+			int subSamplingFactorY = (int) Math.floor(requestedRes[1]/ selectedRes[1]);
+			subSamplingFactorY = subSamplingFactorY == 0 ? 1: subSamplingFactorY;
+
+			while (rasterHeight / subSamplingFactorY <= 0 && subSamplingFactorY >= 0)subSamplingFactorY--;
+			subSamplingFactorY = subSamplingFactorY <= 0 ? 1: subSamplingFactorY;
+
+			readParameters.setSourceSubsampling(subSamplingFactorX, subSamplingFactorY, 0, 0);
 		}
-		
 	}
 
 	/**
@@ -360,7 +353,7 @@ class RasterManager {
 		 */
 		private void setBaseParameters() {
 		    this.coverageEnvelope = RasterManager.this.getCoverageEnvelope().clone();
-		    this.coverageRasterArea =(( GeneralGridEnvelope)RasterManager.this.getCoverageGridrange()).toRectangle();
+		    this.coverageRasterArea =((GridEnvelope2D)RasterManager.this.getCoverageGridrange());
 		    this.coverageCRS = RasterManager.this.getCoverageCRS();
 		    this.coverageGridToWorld2D = (MathTransform2D) RasterManager.this.getRaster2Model();
 		    this.coverageFullResolution = new double[2];
@@ -390,7 +383,7 @@ class RasterManager {
 	/** The hints to be used to produce this coverage */
 	private Hints hints;
 	private URL inputURL;
-	private int numberOfOvervies;
+	private int numberOfOverviews;
 	private double[][] overviewsResolution;
 	// ////////////////////////////////////////////////////////////////////////
 	//
@@ -425,7 +418,7 @@ class RasterManager {
         
         //resolution values
         highestRes= reader.getHighestRes();
-        numberOfOvervies=reader.getNumberOfOvervies();
+        numberOfOverviews=reader.getNumberOfOvervies();
         overviewsResolution=reader.getOverviewsResolution();
         
         //instantiating controller for subsampling and overviews
@@ -453,22 +446,16 @@ class RasterManager {
 	 *         {@link Hints#VALUE_OVERVIEW_POLICY_SPEED}, {@link Hints#VALUE_OVERVIEW_POLICY_QUALITY}.
 	 *         Default is {@link Hints#VALUE_OVERVIEW_POLICY_NEAREST}.
 	 */
-	@SuppressWarnings("deprecation")
 	private OverviewPolicy extractOverviewPolicy() {
 		
-		// check if a policy was provided using hints (check even the
-		// deprecated one)
 		if (this.hints != null)
 			if (this.hints.containsKey(Hints.OVERVIEW_POLICY))
 				overviewPolicy = (OverviewPolicy) this.hints.get(Hints.OVERVIEW_POLICY);
-			else if (this.hints.containsKey(Hints.IGNORE_COVERAGE_OVERVIEW))
-				overviewPolicy = ((Boolean) this.hints
-						.get(Hints.IGNORE_COVERAGE_OVERVIEW)).booleanValue() ? OverviewPolicy.IGNORE
-						: OverviewPolicy.QUALITY;
 	
 		// use default if not provided. Default is nearest
 		if (overviewPolicy == null)
-			overviewPolicy = OverviewPolicy.NEAREST;
+			overviewPolicy = OverviewPolicy.getDefaultPolicy();
+	
 		assert overviewPolicy != null;
 		return overviewPolicy;
 	}
@@ -480,7 +467,9 @@ class RasterManager {
 		// create a request
 		final RasterLayerRequest request= new RasterLayerRequest(params,this);
 		if(request.isEmpty()){
-			throw new DataSourceException("The provided request resulted in no area to load");
+			if(LOGGER.isLoggable(Level.FINE))
+				LOGGER.log(Level.FINE,"Request is empty: "+request.toString());
+			return Collections.emptyList();		
 		}
 		
 		// create a response for the provided request

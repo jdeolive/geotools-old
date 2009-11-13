@@ -413,4 +413,40 @@ class Utils {
 			return false;
 		return true;
 	}
+	
+	public static double bytes2double (final byte[] bytes, final int start) {
+		int i = 0;
+		final int length = 8;
+		int count = 0;
+		final byte[] tmp = new byte[length];
+		for (i = start; i < (start + length); i++) {
+			tmp[count] = bytes[i];
+			count++;
+		}
+		long accum = 0;
+		i = 0;
+		for ( int shiftBy = 0; shiftBy < 64; shiftBy += 8 ) {
+			accum |= ( (long)( tmp[i] & 0xff ) ) << shiftBy;
+			i++;
+		}
+		return Double.longBitsToDouble(accum);
+	}
+	
+	public static long bytes2long (final byte[] bytes, final int start) {
+		int i = 0;
+		final int length = 4;
+		int count = 0;
+		final byte[] tmp = new byte[length];
+		for (i = start; i < (start + length); i++) {
+			tmp[count] = bytes[i];
+			count++;
+		}
+		long accum = 0;
+		i = 0;
+		for ( int shiftBy = 0; shiftBy < 32; shiftBy += 8 ) {
+			accum |= ( (long)( tmp[i] & 0xff ) ) << shiftBy;
+			i++;
+		}
+		return accum;
+	}
 }

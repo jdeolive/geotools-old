@@ -19,6 +19,7 @@ package org.geotools.coverageio.jp2kak;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
 import java.awt.image.ColorModel;
 import java.awt.image.IndexColorModel;
 import java.awt.image.MultiPixelPackedSampleModel;
@@ -61,6 +62,7 @@ import org.opengis.coverage.ColorInterpretation;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.geometry.BoundingBox;
 import org.opengis.referencing.datum.PixelInCell;
+import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.MathTransform2D;
 import org.opengis.referencing.operation.TransformException;
 
@@ -193,10 +195,7 @@ class RasterLayerResponse{
 			//
 			//create a granule loader
 			final GranuleLoader loader = new GranuleLoader(baseReadParameters, imageChoice, bbox, finalWorldToGridCorner,granule,request.getTileDimensions());
-//			if(!multithreadingAllowed)
-				tasks.add(new FutureTask<RenderedImage>(loader));
-//			else
-//				tasks.add(JP2KReader.multiThreadedLoader.submit(loader));
+			tasks.add(new FutureTask<RenderedImage>(loader));
 			
 			granulesNumber++;
 		}
@@ -352,6 +351,8 @@ class RasterLayerResponse{
 
 	private String location;
 
+	private MathTransform baseGridToWorld;
+
 	/**
 	 * Construct a {@code RasterLayerResponse} given a specific
 	 * {@link RasterLayerRequest}, a {@code GridCoverageFactory} to produce
@@ -386,6 +387,7 @@ class RasterLayerResponse{
 		coverageEnvelope = rasterManager.getCoverageEnvelope();
 		this.coverageFactory = rasterManager.getCoverageFactory();
 		this.rasterManager = rasterManager;
+		baseGridToWorld=rasterManager.getRaster2Model();
 		transparentColor=request.getInputTransparentColor();
 		useMultithreading = request.isUseMultithreading();
 
@@ -474,6 +476,7 @@ class RasterLayerResponse{
 			// level dimension and envelope. The grid to world transforms for
 			// the other levels can be computed accordingly knowning the scale
 			// factors.
+			
 			if (request.getRequestedBBox() != null&& request.getRequestedRasterArea() != null)
 				imageChoice = setReadParams(request.getOverviewPolicy(), baseReadParameters,request);
 			else
@@ -492,28 +495,36 @@ class RasterLayerResponse{
 			else
 				bbox = new ReferencedEnvelope(coverageEnvelope);
 			
-			
 			//compute final world to grid
-			OverviewLevel level = rasterManager.overviewsController.resolutionsLevels.get(imageChoice);
-			finalGridToWorldCorner = new AffineTransform2D(
-					level.resolutionX*baseReadParameters.getSourceXSubsampling(),
+			// base grid to world for the center of pixels
+			final AffineTransform g2w = new AffineTransform((AffineTransform) baseGridToWorld);
+			// move it to the corner
+			g2w.concatenate(Utils.CENTER_TO_CORNER);
+			
+			//keep into account overviews and subsampling
+			final OverviewLevel level = rasterManager.overviewsController.resolutionsLevels.get(imageChoice);
+			final OverviewLevel baseLevel = rasterManager.overviewsController.resolutionsLevels.get(0);
+			final AffineTransform2D adjustments = new AffineTransform2D(
+					(level.resolutionX/baseLevel.resolutionX)*baseReadParameters.getSourceXSubsampling(),
 					0,
 					0,
-					-level.resolutionY*baseReadParameters.getSourceYSubsampling(),
-					bbox.getLowerCorner().getOrdinate(0),
-					bbox.getUpperCorner().getOrdinate(1));
+					(level.resolutionY/baseLevel.resolutionY)*baseReadParameters.getSourceYSubsampling(),
+					0,
+					0);
+			g2w.concatenate(adjustments);
+			finalGridToWorldCorner = new AffineTransform2D(g2w);
 			finalWorldToGridCorner = finalGridToWorldCorner.inverse();// compute raster bounds
 			rasterBounds=new GeneralGridEnvelope(CRS.transform(finalWorldToGridCorner, bbox),PixelInCell.CELL_CORNER,false).toRectangle();
 			
 			
-			// create the index visitor and visit the feature
+			// create Init the granuleWorker
 			final GranuleWorker worker = new GranuleWorker();
-			worker.init(bbox);
+			worker.init(new ReferencedEnvelope(coverageEnvelope));
 			worker.produce();
 			
 			//
 			// Did we actually load anything?? Notice that it might happen that
-			// either we have wholes inside the definition area for the mosaic
+			// either we have holes inside the definition area for the mosaic
 			// or we had some problem with missing tiles, therefore it might
 			// happen that for some bboxes we don't have anything to load.
 			//

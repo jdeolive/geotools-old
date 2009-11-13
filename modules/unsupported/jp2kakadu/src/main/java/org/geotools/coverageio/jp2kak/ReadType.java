@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 
 import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
+import javax.imageio.spi.ImageReaderSpi;
 import javax.imageio.stream.ImageInputStream;
 import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
@@ -38,7 +39,8 @@ enum ReadType {
     			final int imageIndex, 
     			final File rasterFile,
     			final Rectangle readDimension,
-    			final Dimension tileDimension // we just ignore in this case
+    			final Dimension tileDimension, // we just ignore in this case
+    			final ImageReaderSpi spi
     			)throws IOException{
     		//
     		// Using ImageReader to load the data directly
@@ -50,7 +52,7 @@ enum ReadType {
     			if(inStream==null)
     				return null;
     	
-    			reader=Utils.getReader( inStream);
+    			reader=spi.createReaderInstance();
     			if(reader==null)
     			{
     				if (LOGGER.isLoggable(Level.WARNING))
@@ -103,7 +105,8 @@ enum ReadType {
     			final int imageIndex, 
     			final File rasterFile,
     			final Rectangle readDimension,
-    			final Dimension tileDimension
+    			final Dimension tileDimension,
+    			final ImageReaderSpi spi
     			) throws IOException{
     		
       		///
@@ -117,7 +120,7 @@ enum ReadType {
     			if(inStream==null)
     				return null;
     			// get a reader
-    			reader = Utils.getReader(inStream);
+    			reader=spi.createReaderInstance();
     			if(reader==null)
     			{
     				if (LOGGER.isLoggable(Level.WARNING))
@@ -169,7 +172,7 @@ enum ReadType {
 			pbjImageRead.add(null);
 			pbjImageRead.add(null);
 			pbjImageRead.add(readP);
-			pbjImageRead.add(null);
+			pbjImageRead.add(spi.createReaderInstance());
 			final RenderedOp raster;
 			if(tileDimension!=null){
 				//build a proper layout
@@ -193,7 +196,8 @@ enum ReadType {
     			final int imageIndex, 
     			final File rasterFile,
     			final Rectangle readDimension,
-    			final Dimension tileDimension
+    			final Dimension tileDimension,
+    			final ImageReaderSpi spi
     			) throws IOException{
     		
       		///
@@ -207,7 +211,7 @@ enum ReadType {
     			if(inStream==null)
     				return null;
     			// get a reader
-    			reader = Utils.getReader(inStream);
+    			reader=spi.createReaderInstance();
     			if(reader==null)
     			{
     				if (LOGGER.isLoggable(Level.WARNING))
@@ -259,7 +263,7 @@ enum ReadType {
 			pbjImageRead.add(null);
 			pbjImageRead.add(null);
 			pbjImageRead.add(readP);
-			pbjImageRead.add(null);
+			pbjImageRead.add(spi.createReaderInstance());
 			final RenderedOp raster;
 			if(tileDimension!=null){
 				//build a proper layout
@@ -284,7 +288,8 @@ enum ReadType {
     			final int imageIndex, 
     			final File rasterFile,
     			final Rectangle readDimension,
-    			final Dimension tileDimension
+    			final Dimension tileDimension,
+    			final ImageReaderSpi spi
     			)throws IOException{
     		throw new UnsupportedOperationException(Errors.format(ErrorKeys.UNSUPPORTED_OPERATION_$1,"read"));
     	}
@@ -329,7 +334,8 @@ enum ReadType {
 			final int imageIndex, 
 			final File rasterFile,
 			final Rectangle readDimension, 
-			final Dimension tileDimension
+			final Dimension tileDimension,
+			final ImageReaderSpi spi
 			) throws IOException;
 	
 };
