@@ -49,6 +49,17 @@ public class SchemaGeneratorMojo extends AbstractGeneratorMojo {
 	 * @parameter
 	 */
 	String[] imports;
+	/**
+         * Flag controlling wether paths are printed out as the generator recurses 
+         * through the schema.
+         * @parameter expression="false"
+         */
+	boolean printRecursionPaths;
+	/**
+	 * Controls how far the generator will recurse into the schema.
+	 * @parameter
+	 */
+	int maxRecursionDepth;
 	
 	public void execute() throws MojoExecutionException, MojoFailureException {
     	XSDSchema schema = schema();
@@ -66,6 +77,8 @@ public class SchemaGeneratorMojo extends AbstractGeneratorMojo {
         generator.setResourceLocation(((Resource)project.getBuild().getResources().get( 0 )).getDirectory());
 		generator.setFollowComplexTypes(followComplexTypes);
 		generator.setIncludes( includes );
+        generator.setMaxRecursionDepth(maxRecursionDepth);
+        generator.setPrintRecursionPaths(printRecursionPaths);
 		
 		if (imports != null) {
 		    //build a url classload from dependencies
