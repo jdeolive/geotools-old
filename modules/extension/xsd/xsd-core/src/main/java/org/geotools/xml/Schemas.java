@@ -1000,6 +1000,20 @@ public class Schemas {
      * attribute of the element.
      */
     public static final List getAttributeDeclarations(XSDTypeDefinition type) {
+        return getAttributeDeclarations(type,true);
+    }
+    
+    /**
+     * Returns a list of all attribute declarations declared in the type (and optionally
+     * any base type) of the specified element.
+     *
+     * @param element The element.
+     * @param includeParents Wether to include parent types.
+     *
+     * @return A list of @link XSDAttributeDeclaration objects, one for each
+     * attribute of the element.
+     */
+    public static final List getAttributeDeclarations(XSDTypeDefinition type, boolean includeParents) {
         final ArrayList attributes = new ArrayList();
 
         //walk up the type hierarchy of the element to generate a list of atts
@@ -1043,7 +1057,15 @@ public class Schemas {
                 }
             };
 
-        new TypeWalker().walk(type, visitor);
+        if (includeParents) {
+            //walk up the type hierarchy of the element to generate a list of 
+            // possible elements
+            new TypeWalker().walk(type, visitor);
+        } else {
+            //just visit this type
+            visitor.visit(type);
+        }
+        
 
         return attributes;
     }
