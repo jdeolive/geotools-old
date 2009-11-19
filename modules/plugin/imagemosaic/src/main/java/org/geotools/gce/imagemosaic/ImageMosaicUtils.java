@@ -105,6 +105,23 @@ class ImageMosaicUtils {
 		/** location attribute name*/
 		private String locationAttribute;
 		
+		/**Suggested SPI for the various tiles. May be null.**/
+		private String suggestedSPI;
+		
+
+		/**
+		 * @return the suggestedSPI
+		 */
+		public String getSuggestedSPI() {
+			return suggestedSPI;
+		}
+		/**
+		 * @param suggestedSPI the suggestedSPI to set
+		 */
+		public void setSuggestedSPI(String suggestedSPI) {
+			this.suggestedSPI = suggestedSPI;
+		}
+		
 		public boolean isAbsolutePath() {
 			return absolutePath;
 		}
@@ -437,31 +454,7 @@ class ImageMosaicUtils {
 	static MosaicConfigurationBean loadPropertiesFile(final URL sourceURL, final CoordinateReferenceSystem crs, final String defaultLocationAttribute){
 			//ret value
 		    final MosaicConfigurationBean retValue= new MosaicConfigurationBean();
-		    
-//		    //
-//		    //  file path
-//		    //		    
-//			String path;
-//			String name;
-//			try {
-//				String temp = DataUtilities.urlToFile(sourceURL.toURI().toURL()).getAbsolutePath();
-//				path=FilenameUtils.getFullPath(temp);
-//				name=FilenameUtils.getBaseName(temp);
-//			}  catch (URISyntaxException e) {
-//				if(LOGGER.isLoggable(Level.SEVERE))
-//					LOGGER.log(Level.SEVERE,e.getLocalizedMessage(),e);
-//				return null;
-//			} catch (MalformedURLException e) {
-//				if(LOGGER.isLoggable(Level.SEVERE))
-//					LOGGER.log(Level.SEVERE,e.getLocalizedMessage(),e);
-//				return null;
-//			}
-//			final File propertiesFile = new File(path,name+".properties");
-//			if( !propertiesFile.exists() || !propertiesFile.isFile() ){
-//			    if(LOGGER.isLoggable(Level.SEVERE))
-//			    	LOGGER.severe("Properties file, describing the ImageMoasic, does not exist:"+propertiesFile);
-//			    return null;
-//			}
+
 			
 			//
 			// load the properties file
@@ -549,6 +542,14 @@ class ImageMosaicUtils {
        		}
        		retValue.setLevels(resolutions);
 
+       		//
+			// suggested spi is optional
+			//
+			if(properties.containsKey("SuggestedSPI"))
+			{
+				String suggestedSPI = properties.getProperty("SuggestedSPI").trim();
+				retValue.setSuggestedSPI(suggestedSPI);
+			}			
 
 			//
 			// name is not optional

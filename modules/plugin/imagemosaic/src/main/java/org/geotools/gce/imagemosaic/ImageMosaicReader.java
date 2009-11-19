@@ -28,6 +28,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.imageio.spi.ImageReaderSpi;
+
 import org.geotools.coverage.CoverageFactoryFinder;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
@@ -123,6 +125,9 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 	private RasterManager rasterManager;
 
 	int maxAllowedTiles=ImageMosaicFormat.MAX_ALLOWED_TILES.getDefaultValue();
+
+	/** The suggested SPI to avoid SPI lookup*/
+	ImageReaderSpi suggestedSPI;
 	/**
 	 * Constructor.
 	 * 
@@ -315,6 +320,29 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 		//
 		locationAttributeName=configuration.getLocationAttribute();
 		
+		// suggested SPI
+		final String suggestedSPIClass= configuration.getSuggestedSPI();
+		if(suggestedSPIClass!=null){
+			try {
+				final Class<?> clazz=Class.forName(suggestedSPIClass);
+				if(clazz.newInstance() instanceof ImageReaderSpi)
+					suggestedSPI=(ImageReaderSpi)clazz.newInstance();
+				else
+					suggestedSPI=null;
+			} catch (ClassNotFoundException e) {
+				if(LOGGER.isLoggable(Level.FINE))
+					LOGGER.log(Level.FINE,e.getLocalizedMessage(),e);
+				suggestedSPI=null;
+			} catch (InstantiationException e) {
+				if(LOGGER.isLoggable(Level.FINE))
+					LOGGER.log(Level.FINE,e.getLocalizedMessage(),e);
+				suggestedSPI=null;
+			} catch (IllegalAccessException e) {
+				if(LOGGER.isLoggable(Level.FINE))
+					LOGGER.log(Level.FINE,e.getLocalizedMessage(),e);
+				suggestedSPI=null;
+			}
+		}
 		
 		return true;
 	}

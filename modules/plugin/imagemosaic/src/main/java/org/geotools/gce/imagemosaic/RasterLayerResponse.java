@@ -58,7 +58,6 @@ import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataUtilities;
-import org.geotools.factory.FactoryRegistryException;
 import org.geotools.factory.Hints;
 import org.geotools.gce.imagemosaic.RasterManager.OverviewLevel;
 import org.geotools.geometry.GeneralEnvelope;
@@ -125,28 +124,23 @@ class RasterLayerResponse{
 			return cropBBox;
 		}
 
-
 		public MathTransform2D getMosaicWorldToGrid() {
 			return mosaicWorldToGrid;
 		}
-
 
 		public Granule getGranule() {
 			return granule;
 		}
 
-
 		public ImageReadParam getReadParameters() {
 			return readParameters;
 		}
-
 
 		public int getImageIndex() {
 			return imageIndex;
 		}
 		
 		public RenderedImage call() throws Exception {
-			
 			return granule.loadRaster(readParameters, imageIndex, cropBBox, mosaicWorldToGrid, request,tilesDimension);
 		}
 
@@ -202,7 +196,7 @@ class RasterLayerResponse{
 				}
 				else
 				{
-					granule=new Granule(granuleBBox,rasterFile);
+					granule=new Granule(granuleBBox,rasterFile,rasterManager.parent.suggestedSPI);
 					rasterManager.granulesCache.put(rasterFile.toString(),granule);
 				}
 			}
@@ -211,7 +205,7 @@ class RasterLayerResponse{
 			// load raster data
 			//
 			//create a granule loader
-			final GranuleLoader loader = new GranuleLoader(baseReadParameters, imageChoice, mosaicBBox, finalWorldToGridCorner,granule,request.getTileDimensions());
+			final GranuleLoader loader = new GranuleLoader(baseReadParameters, imageChoice, mosaicBBox, finalWorldToGridCorner, granule, request.getTileDimensions());
 			if(!multithreadingAllowed)
 				tasks.add(new FutureTask<RenderedImage>(loader));
 			else
@@ -433,12 +427,7 @@ class RasterLayerResponse{
 			final RasterManager rasterManager) {
 		this.request = request;
 		inputURL = rasterManager.getInputURL();
-//		File tempFile;
-//		try {
-//			tempFile = new File(this.inputURL.toURI());
-//		} catch (URISyntaxException e) {
-//			throw new IllegalArgumentException(e);
-//		}// TODO improve me
+
 		try {
 			parentLocation = DataUtilities.getParentUrl(inputURL).toExternalForm();
 		} catch (MalformedURLException e) {
@@ -561,7 +550,7 @@ class RasterLayerResponse{
 			pbjMosaic = new ParameterBlockJAI("Mosaic");
 			pbjMosaic.setParameter("backgroundValues",backgroundValues);
 			// It might important to set the mosaic type to blend otherwise
-			// sometimes strange results jhttp://developer.yahoo.com/yui/slider/ump in.
+			// sometimes strange results jump in.
 			if (request.isBlend()) 
 				pbjMosaic.setParameter("mosaicType",MosaicDescriptor.MOSAIC_TYPE_BLEND);
 			else
@@ -577,7 +566,7 @@ class RasterLayerResponse{
 			// the other levels can be computed accordingly knowning the scale
 			// factors.
 			if (request.getRequestedBBox() != null&& request.getRequestedRasterArea() != null)
-				imageChoice = setReadParams(request.getOverviewPolicy(), baseReadParameters,request);
+				imageChoice = setReadParams(request.getOverviewPolicy(), baseReadParameters, request);
 			else
 				imageChoice = 0;
 			assert imageChoice>=0;
@@ -721,7 +710,6 @@ class RasterLayerResponse{
 		//
 		// TRANSPARENT COLOR MANAGEMENT
 		//
-		//
 		if (doTransparentColor) {
 			if (LOGGER.isLoggable(Level.FINE))
 				LOGGER.fine("Support for alpha on input image number "+ granuleIndex);
@@ -756,34 +744,10 @@ class RasterLayerResponse{
 
 	/**
 	 * Once we reach this method it means that we have loaded all the images
-	 * which were intersecting the requested nevelope. Next step is to create
+	 * which were intersecting the requested envelope. Next step is to create
 	 * the final mosaic image and cropping it to the exact requested envelope.
 	 * 
-	 * @param location
-	 * 
-	 * @param envelope
-	 * @param requestedEnvelope
-	 * @param intersectionEnvelope
-	 * @param res
-	 * @param mosaicBBOx
-	 * @param pbjMosaic
-	 * @param finalTransparentColor
-	 * @param doAlpha
-	 * @param doTransparentColor
-	 * @param loadedRasterArea
-	 * @param rasterBounds
-	 * @param currentWorldToGrid
-	 * @param currentGridToWorld
-	 * @param outputTransparentColor
-	 * @param outputTransparentColor
-	 * @param rasterBounds 
-	 * @param singleImageROI
-	 * @return 
-	 * @return A {@link GridCoverage}, wewll actually a {@link GridCoverage2D}.
-	 * @throws IOException 
-	 * @throws IllegalArgumentException
-	 * @throws FactoryRegistryException
-	 * @throws DataSourceException
+	 * @return A {@link RenderedImage}}.
 	 */
 	private RenderedImage buildMosaic() throws IOException  {
 
@@ -797,7 +761,7 @@ class RasterLayerResponse{
 		if(tileDimensions!=null)
 			layout.setTileHeight(tileDimensions.width).setTileWidth(tileDimensions.height);
 		final RenderingHints hints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT,layout);
-		RenderedImage mosaic = JAI.create("Mosaic", pbjMosaic ,hints);
+		RenderedImage mosaic = JAI.create("Mosaic", pbjMosaic, hints);
 
 		if (LOGGER.isLoggable(Level.FINE))
 			LOGGER.fine(new StringBuffer("Mosaic created ").toString());
@@ -808,8 +772,7 @@ class RasterLayerResponse{
 
 	}
 	
-	private GridCoverage2D prepareCoverage(
-			RenderedImage image) throws IOException {
+	private GridCoverage2D prepareCoverage(RenderedImage image) throws IOException {
 		// creating bands
         final SampleModel sm=image.getSampleModel();
         final ColorModel cm=image.getColorModel();
@@ -884,11 +847,11 @@ class RasterLayerResponse{
 			return imageChoice;
 
 		// overviews and decimation
-		imageChoice = rasterManager.overviewsController.pickOverviewLevel(overviewPolicy,request);
+		imageChoice = rasterManager.overviewsController.pickOverviewLevel(overviewPolicy, request);
 
 
 		// DECIMATION ON READING
-		rasterManager.decimationController.performDecimation(imageChoice,readParams, request);
+		rasterManager.decimationController.performDecimation(imageChoice, readParams, request);
 		return imageChoice;
 
 	}

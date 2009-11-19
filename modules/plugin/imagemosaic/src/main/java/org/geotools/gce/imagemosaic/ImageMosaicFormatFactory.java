@@ -22,6 +22,8 @@ import it.geosolutions.imageio.plugins.jp2mrsid.JP2GDALMrSidImageReaderSpi;
 import it.geosolutions.imageio.utilities.ImageIOUtilities;
 
 import java.awt.RenderingHints;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Map;
 import java.util.logging.Level;
@@ -33,7 +35,6 @@ import org.geotools.coverage.grid.io.GridFormatFactorySpi;
 import org.geotools.coverageio.gdal.jp2ecw.JP2ECWFormatFactory;
 import org.geotools.coverageio.gdal.jp2kak.JP2KFormatFactory;
 import org.geotools.coverageio.gdal.jp2mrsid.JP2MrSIDFormatFactory;
-import org.opengis.coverage.grid.Format;
 
 import com.sun.media.imageioimpl.common.PackageUtil;
 import com.sun.media.imageioimpl.plugins.jpeg2000.J2KImageReaderCodecLibSpi;
@@ -52,32 +53,25 @@ import com.sun.media.imageioimpl.plugins.tiff.TIFFImageReaderSpi;
 public final class ImageMosaicFormatFactory implements GridFormatFactorySpi {
 	/** Logger. */
 	private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(ImageMosaicFormatFactory.class);
+	private static final String KAKADU_SPI = "it.geosolutions.imageio.plugins.jp2k.JP2KKakaduImageReaderSpi";
 
-//	private final static Logger LOGGER= Logging.getLogger(ImageMosaicFormatFactory.class);
-//	static{
-//		try{
-//			// register the index builder
-//			final MBeanServer server = ManagementFactory.getPlatformMBeanServer();
-//			final ObjectName name= new ObjectName("geotools:name=MosaicIndexBuilder");
-//			server.registerMBean(new JMXIndexBuilder(),name);
-//		}
-//		catch (Exception e) {
-//			if(LOGGER.isLoggable(Level.SEVERE))
-//				LOGGER.log(Level.SEVERE,e.getLocalizedMessage(),e);
-//		}
-//		
-//	}
 	static{
 		replaceTIFF();
 		
-		if(JP2ECW()){
-			replaceECW();
+		if(JP2KAK()){
+			replaceJP2KAK();
 		}
-		if(JP2MRSID()){
-			replaceMRSID();
-		}
-		if(JP2GDALKAK()){
-			replaceGDALKAK();
+		
+		else{
+			if(JP2ECW()){
+				replaceECW();
+			}
+			if(JP2MRSID()){
+				replaceMRSID();
+			}
+			if(JP2GDALKAK()){
+				replaceGDALKAK();
+			}
 		}
 	}
 	/**
@@ -104,6 +98,66 @@ public final class ImageMosaicFormatFactory implements GridFormatFactorySpi {
 		return available;
 	}
 
+	private static boolean JP2KAK() {
+		try{
+			@SuppressWarnings("unused")
+			Class<?> cl = Class.forName(KAKADU_SPI);
+			Class<?> utilityClass = Class.forName("it.geosolutions.util.KakaduUtilities");
+			final Method method = utilityClass.getDeclaredMethod("isKakaduAvailable", (Class[])null);
+			if (method != null){
+				Boolean isAvailable = (Boolean) method.invoke(null, null);
+				return isAvailable.booleanValue();
+			}
+		} catch (ClassNotFoundException e) {
+			if (LOGGER.isLoggable(Level.FINE))
+				LOGGER.log(Level.FINE, "Unable to load kakadu JPEG2000 reader spi",e);
+		} catch (SecurityException e) {
+			if (LOGGER.isLoggable(Level.FINE))
+				LOGGER.log(Level.FINE, "Unable to load kakadu JPEG2000 reader spi",e);
+		} catch (NoSuchMethodException e) {
+			if (LOGGER.isLoggable(Level.FINE))
+				LOGGER.log(Level.FINE, "Unable to load kakadu JPEG2000 reader spi",e);
+		} catch (IllegalArgumentException e) {
+			if (LOGGER.isLoggable(Level.FINE))
+				LOGGER.log(Level.FINE, "Unable to load kakadu JPEG2000 reader spi",e);
+		} catch (IllegalAccessException e) {
+			if (LOGGER.isLoggable(Level.FINE))
+				LOGGER.log(Level.FINE, "Unable to load kakadu JPEG2000 reader spi",e);
+		} catch (InvocationTargetException e) {
+			if (LOGGER.isLoggable(Level.FINE))
+				LOGGER.log(Level.FINE, "Unable to load kakadu JPEG2000 reader spi",e);
+		} 
+		return false;
+	}
+
+	private static void replaceJP2KAK() {
+		try{
+			Class.forName(KAKADU_SPI);
+
+			// imageio kakJP2 reader
+			final String imageioJ2KImageReaderCodecName=J2KImageReaderCodecLibSpi.class.getName();
+			
+			if(PackageUtil.isCodecLibAvailable()){
+				boolean succeeded=ImageIOUtilities.replaceProvider(ImageReaderSpi.class, KAKADU_SPI, imageioJ2KImageReaderCodecName, "JPEG 2000");
+	        	if(!succeeded)
+	        		if (LOGGER.isLoggable(Level.WARNING))
+	        			LOGGER.warning("Unable to set ordering between jp2 readers spi-"+KAKADU_SPI+":"+imageioJ2KImageReaderCodecName);	
+			}
+        	
+			// imageio kakJP2 reader
+			final String imageioJ2KImageReaderName=J2KImageReaderSpi.class.getName();
+			
+			final boolean succeeded=ImageIOUtilities.replaceProvider(ImageReaderSpi.class, KAKADU_SPI, imageioJ2KImageReaderName, "JPEG 2000");
+        	if(!succeeded)
+        		if (LOGGER.isLoggable(Level.WARNING))
+        			LOGGER.warning("Unable to set ordering between jp2 readers spi-"+KAKADU_SPI+":"+imageioJ2KImageReaderName);	
+	        
+		} catch (ClassNotFoundException e) {
+			if (LOGGER.isLoggable(Level.WARNING))
+				LOGGER.log(Level.WARNING, "Unable to load specific JPEG2000 reader spi",e);
+		} 
+	}
+
 	private static void replaceTIFF() {
 		try{
 			//check if our tiff plugin is in the path
@@ -113,13 +167,14 @@ public final class ImageMosaicFormatFactory implements GridFormatFactorySpi {
 			// imageio tiff reader
 			final String imageioTiffName=TIFFImageReaderSpi.class.getName();
 			
-			
 			final boolean succeeded=ImageIOUtilities.replaceProvider(ImageReaderSpi.class, customTiffName, imageioTiffName, "tiff");
         	if(!succeeded)
-        		LOGGER.warning("Unable to set ordering between tiff readers spi");	
+        		if (LOGGER.isLoggable(Level.WARNING))
+        			LOGGER.warning("Unable to set ordering between tiff readers spi");	
 	        
 		} catch (ClassNotFoundException e) {
-			LOGGER.log(Level.SEVERE,"Unable to load specific TIFF reader spi",e);
+			if (LOGGER.isLoggable(Level.WARNING))
+				LOGGER.log(Level.WARNING,"Unable to load specific TIFF reader spi",e);
 		} 
 		
 	}
@@ -130,36 +185,39 @@ public final class ImageMosaicFormatFactory implements GridFormatFactorySpi {
 
 	private static void replaceGDALKAK() {
 		try{
-			//check if our tiff plugin is in the path
+			//check if our kakJP2 plugin is in the path
 			final String kakJP2=JP2GDALKakaduImageReaderSpi.class.getName();
 			Class.forName(kakJP2);
 
-			// imageio tiff reader
+			// imageio kakJP2 reader
 			final String imageioJ2KImageReaderCodecName=J2KImageReaderCodecLibSpi.class.getName();
 			
 			if(PackageUtil.isCodecLibAvailable()){
 				boolean succeeded=ImageIOUtilities.replaceProvider(ImageReaderSpi.class, kakJP2, imageioJ2KImageReaderCodecName, "JPEG 2000");
 	        	if(!succeeded)
-	        		LOGGER.warning("Unable to set ordering between jp2 readers spi-"+kakJP2+":"+imageioJ2KImageReaderCodecName);	
+	        		if (LOGGER.isLoggable(Level.WARNING))
+	        			LOGGER.warning("Unable to set ordering between jp2 readers spi-"+kakJP2+":"+imageioJ2KImageReaderCodecName);	
 			}
         	
-			// imageio tiff reader
+			// imageio kakJP2 reader
 			final String imageioJ2KImageReaderName=J2KImageReaderSpi.class.getName();
 			
 			
 			final boolean succeeded=ImageIOUtilities.replaceProvider(ImageReaderSpi.class, kakJP2, imageioJ2KImageReaderName, "JPEG 2000");
         	if(!succeeded)
-        		LOGGER.warning("Unable to set ordering between jp2 readers spi-"+kakJP2+":"+imageioJ2KImageReaderName);	
+        		if (LOGGER.isLoggable(Level.WARNING))
+        			LOGGER.warning("Unable to set ordering between jp2 readers spi-"+kakJP2+":"+imageioJ2KImageReaderName);	
 	        
 		} catch (ClassNotFoundException e) {
-			LOGGER.log(Level.SEVERE,"Unable to load specific JPEG2000 reader spi",e);
+			if (LOGGER.isLoggable(Level.WARNING))
+				LOGGER.log(Level.WARNING, "Unable to load specific JPEG2000 reader spi",e);
 		} 
 		
 	}
 
 	private static void replaceMRSID() {
 		try{
-			//check if our tiff plugin is in the path
+			//check if our mrsidJP2 plugin is in the path
 			final String mrsidJP2=JP2GDALMrSidImageReaderSpi.class.getName();
 			Class.forName(mrsidJP2);
 
@@ -169,19 +227,22 @@ public final class ImageMosaicFormatFactory implements GridFormatFactorySpi {
 			if(PackageUtil.isCodecLibAvailable()){
 				boolean succeeded=ImageIOUtilities.replaceProvider(ImageReaderSpi.class, mrsidJP2, imageioJ2KImageReaderCodecName, "JPEG 2000");
 	        	if(!succeeded)
-	        		LOGGER.warning("Unable to set ordering between jp2 readers spi-"+mrsidJP2+":"+imageioJ2KImageReaderCodecName);	
+	        		if (LOGGER.isLoggable(Level.WARNING))
+	        			LOGGER.warning("Unable to set ordering between jp2 readers spi-"+mrsidJP2+":"+imageioJ2KImageReaderCodecName);	
 			}
         	
-			// imageio tiff reader
+			// imageio mrsidJP2 reader
 			final String imageioJ2KImageReaderName=J2KImageReaderSpi.class.getName();
 			
 			
 			final boolean succeeded=ImageIOUtilities.replaceProvider(ImageReaderSpi.class, mrsidJP2, imageioJ2KImageReaderName, "JPEG 2000");
         	if(!succeeded)
-        		LOGGER.warning("Unable to set ordering between jp2 readers spi-"+mrsidJP2+":"+imageioJ2KImageReaderName);	
+        		if (LOGGER.isLoggable(Level.WARNING))
+        			LOGGER.warning("Unable to set ordering between jp2 readers spi-"+mrsidJP2+":"+imageioJ2KImageReaderName);	
 	        
 		} catch (ClassNotFoundException e) {
-			LOGGER.log(Level.SEVERE,"Unable to load specific JPEG2000 reader spi",e);
+			if (LOGGER.isLoggable(Level.WARNING))
+				LOGGER.log(Level.WARNING, "Unable to load specific JPEG2000 reader spi",e);
 		} 
 		
 	}
@@ -192,29 +253,31 @@ public final class ImageMosaicFormatFactory implements GridFormatFactorySpi {
 
 	private static void replaceECW() {
 		try{
-			//check if our tiff plugin is in the path
+			//check if our ecwJP2 plugin is in the path
 			final String ecwJP2=JP2GDALEcwImageReaderSpi.class.getName();
 			Class.forName(ecwJP2);
 
-			// imageio tiff reader
+			// imageio ecwJP2 reader
 			final String imageioJ2KImageReaderCodecName=J2KImageReaderCodecLibSpi.class.getName();
 			
 			if(PackageUtil.isCodecLibAvailable()){
 				boolean succeeded=ImageIOUtilities.replaceProvider(ImageReaderSpi.class, ecwJP2, imageioJ2KImageReaderCodecName, "JPEG 2000");
 	        	if(!succeeded)
-	        		LOGGER.warning("Unable to set ordering between jp2 readers spi-"+ecwJP2+":"+imageioJ2KImageReaderCodecName);	
+	        		if (LOGGER.isLoggable(Level.WARNING))
+	        			LOGGER.warning("Unable to set ordering between jp2 readers spi-"+ecwJP2+":"+imageioJ2KImageReaderCodecName);	
 			}
         	
-			// imageio tiff reader
+			// imageio ecwJP2 reader
 			final String imageioJ2KImageReaderName=J2KImageReaderSpi.class.getName();
-			
 			
 			final boolean succeeded=ImageIOUtilities.replaceProvider(ImageReaderSpi.class, ecwJP2, imageioJ2KImageReaderName, "JPEG 2000");
         	if(!succeeded)
-        		LOGGER.warning("Unable to set ordering between jp2 readers spi-"+ecwJP2+":"+imageioJ2KImageReaderName);	
+        		if (LOGGER.isLoggable(Level.WARNING))
+        			LOGGER.warning("Unable to set ordering between jp2 readers spi-"+ecwJP2+":"+imageioJ2KImageReaderName);	
 	        
 		} catch (ClassNotFoundException e) {
-			LOGGER.log(Level.SEVERE,"Unable to load specific JPEG2000 reader spi",e);
+			if (LOGGER.isLoggable(Level.WARNING))
+				LOGGER.log(Level.WARNING, "Unable to load specific JPEG2000 reader spi",e);
 		} 
 		
 	}
@@ -231,7 +294,7 @@ public final class ImageMosaicFormatFactory implements GridFormatFactorySpi {
 	}
 
 	/**
-	 * Returns the implementation hints. The default implementation returns en
+	 * Returns the implementation hints. The default implementation returns an
 	 * empty map.
 	 * 
 	 * @return An empty map.

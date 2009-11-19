@@ -479,7 +479,6 @@ final class IndexBuilder implements Runnable {
 	 */
 	final class MosaicDirectoryWalker  extends DirectoryWalker{
 
-		private ImageReaderSpi cachedSPI;
 		private AbstractGridFormat cachedFormat;
 		
 		@Override
@@ -592,7 +591,6 @@ final class IndexBuilder implements Runnable {
 				if(cachedFormat==null)
 				{
 					format= (AbstractGridFormat) GridFormatFinder.findFormat(fileBeingProcessed);
-//					cachedFormat=format;
 				}
 				else
 					if(cachedFormat.accepts(fileBeingProcessed))
@@ -1029,6 +1027,8 @@ final class IndexBuilder implements Runnable {
 
 	private IndexBuilderConfiguration runConfiguration;
 
+	private ImageReaderSpi cachedSPI;
+
 
 	/* (non-Javadoc)
 	 * @see org.geotools.gce.imagemosaic.JMXIndexBuilderMBean#run()
@@ -1440,6 +1440,12 @@ final class IndexBuilder implements Runnable {
 		properties.setProperty("Levels", levels.toString());
 		properties.setProperty("Name", runConfiguration.indexName);
 		properties.setProperty("ExpandToRGB", Boolean.toString(mustConvertToRGB));
+		
+		if(cachedSPI!=null){
+			// suggested spi
+			properties.setProperty("SuggestedSPI", cachedSPI.getClass().getName());
+		}
+		
 		OutputStream outStream=null;
 		try {
 			outStream=new BufferedOutputStream(new FileOutputStream(runConfiguration.rootMosaicDirectory + "/" + runConfiguration.indexName + ".properties"));

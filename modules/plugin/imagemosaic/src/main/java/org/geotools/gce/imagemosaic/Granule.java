@@ -1,5 +1,7 @@
 package org.geotools.gce.imagemosaic;
 
+import it.geosolutions.imageio.utilities.Utilities;
+
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
@@ -60,6 +62,8 @@ import com.sun.media.jai.util.Rational;
  */
 class Granule {
 	
+	private static final String DIRECT_KAKADU_PLUGIN="it.geosolutions.imageio.plugins.jp2k.JP2KKakaduImageReader";
+
 	/** Logger. */
 	private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(Granule.class); 
 	   
@@ -330,14 +334,17 @@ class Granule {
 	
 	ImageReaderSpi cachedSPI;
 
-	public Granule(BoundingBox granuleBBOX, URL granuleUrl) {
-		super();
+	public Granule(final BoundingBox granuleBBOX,final URL granuleUrl) {
+		this(granuleBBOX, granuleUrl, null);
+	}
+	
+	public Granule(final BoundingBox granuleBBOX,final URL granuleUrl, final ImageReaderSpi suggestedSPI) {
 		this.granuleBBOX = ReferencedEnvelope.reference(granuleBBOX);
 		this.granuleUrl = granuleUrl;
 		
 		// create the base grid to world transformation
-		ImageInputStream inStream=null;
-		ImageReader reader=null;
+		ImageInputStream inStream = null;
+		ImageReader reader = null;
 		try {
 			//
 			//get info about the raster we have to read
@@ -345,18 +352,28 @@ class Granule {
 			
 			// get a stream
 			inStream = ImageMosaicUtils.getInputStream(granuleUrl);
-			if(inStream==null)
+			if(inStream == null)
 				throw new IllegalArgumentException("Unable to get an input stream for the provided file "+granuleUrl.toString());
 			
-			// get a reader and try to cache the relevant SPI
-			if(cachedSPI==null){
-				reader = ImageMosaicUtils.getReader( inStream);
-				if(reader!=null)
-					cachedSPI=reader.getOriginatingProvider();
+			// get a reader and try to cache the suggested SPI first
+			if(cachedSPI == null){
+				inStream.mark();
+				if(suggestedSPI!=null && suggestedSPI.canDecodeInput(inStream))
+				{
+					cachedSPI=suggestedSPI;
+					inStream.reset();
+				}
+				else{
+					inStream.mark();
+					reader = ImageMosaicUtils.getReader(inStream);
+					if(reader != null)
+						cachedSPI = reader.getOriginatingProvider();
+					inStream.reset();
+				}
+				
 			}
-			else
-				reader=cachedSPI.createReaderInstance();
-			if(reader==null)
+			reader = cachedSPI.createReaderInstance();
+			if(reader == null)
 				throw new IllegalArgumentException("Unable to get an ImageReader for the provided file "+granuleUrl.toString());
 			
 			//get selected level and base level dimensions
@@ -366,16 +383,12 @@ class Granule {
 			// somehow from the tile itself or from the index, but at the moment
 			// we do not have such info, hence we assume that it is a simple
 			// scale and translate
-			final GridToEnvelopeMapper geMapper= new GridToEnvelopeMapper(
-					new GridEnvelope2D(originalDimension),
-					granuleBBOX
-					);
+			final GridToEnvelopeMapper geMapper= new GridToEnvelopeMapper(new GridEnvelope2D(originalDimension), granuleBBOX);
 			geMapper.setPixelAnchor(PixelInCell.CELL_CENTER);//this is the default behavior but it is nice to write it down anyway
-			this.baseGridToWorld=geMapper.createAffineTransform();
-			
+			this.baseGridToWorld = geMapper.createAffineTransform();
 			
 			// add the base level
-			this.granuleLevels.put(Integer.valueOf(0),new Level(1,1,originalDimension.width,originalDimension.height));
+			this.granuleLevels.put(Integer.valueOf(0), new Level(1, 1, originalDimension.width, originalDimension.height));
 
 		} catch (IllegalStateException e) {
 			throw new IllegalArgumentException(e);
@@ -385,19 +398,18 @@ class Granule {
 		} 
 		finally{
 			try{
-				if(inStream!=null)
+				if(inStream != null)
 					inStream.close();
 			}
 			catch (Throwable e) {
 				throw new IllegalArgumentException(e);
 			}
 			finally{
-				if(reader!=null)
+				if(reader != null)
 					reader.dispose();
 			}
 		}	
 	}
-	
 	
 	public RenderedImage loadRaster(
 			final ImageReadParam readParameters,
@@ -451,7 +463,7 @@ class Granule {
 			// level together with the base level grid to world transformation
 			MathTransform2D cropWorldToGrid=(MathTransform2D) PixelTranslation.translate(ProjectiveTransform.create(selectedlevel.gridToWorldTransform), PixelInCell.CELL_CENTER, PixelInCell.CELL_CORNER).inverse();		
 			
-			// computing the crop source area which leaves straight into the
+			// computing the crop source area which lives into the
 			// selected level raster space, NOTICE that at the end we need to
 			// take into account the fact that we might also decimate therefore
 			// we cannot just use the crop grid to world but we need to correct
@@ -468,6 +480,18 @@ class Granule {
 				LOGGER.fine((new StringBuffer("Loading level ").append(
 						imageIndex).append(" with source region ").append(
 						sourceArea).toString()));
+
+			// Setting subsampling 
+			int newSubSamplingFactor = 0;
+			final String pluginName = cachedSPI.getPluginClassName();
+			if (pluginName != null && pluginName.equals(DIRECT_KAKADU_PLUGIN)){
+				final int ssx = readParameters.getSourceXSubsampling();
+				final int ssy = readParameters.getSourceYSubsampling();
+				newSubSamplingFactor = Utilities.getSubSamplingFactor2(ssx , ssy);
+				if (newSubSamplingFactor != 0)
+					readParameters.setSourceSubsampling(newSubSamplingFactor, newSubSamplingFactor,0,0);
+			}
+			
 			// set the source region
 			readParameters.setSourceRegion(sourceArea);
 			final RenderedImage raster;
@@ -484,7 +508,6 @@ class Granule {
 
 			// use fixed source area
 			sourceArea.setRect(readParameters.getSourceRegion());
-			
 
 			//
 			// setting new coefficients to define a new affineTransformation
@@ -504,10 +527,8 @@ class Granule {
 			// keep into account translation  to work into the selected level raster space
 			final AffineTransform afterDecimationTranslateTranform =XAffineTransform.getTranslateInstance(sourceArea.x, sourceArea.y);
 			
-
 			// now we need to go back to the base level raster space
 			final AffineTransform backToBaseLevelScaleTransform =selectedlevel.baseToLevelTransform;
-			
 			
 			// now create the overall transform
 			final AffineTransform finalRaster2Model = new AffineTransform(baseGridToWorld);
@@ -538,9 +559,6 @@ class Granule {
 				return null;
 			}
 			
-			
-			
-
 			// apply the affine transform  conserving indexed color model
 			final RenderingHints localHints = new RenderingHints(JAI.KEY_REPLACE_INDEX_COLOR_MODEL, Boolean.FALSE);
 			if(XAffineTransform.isIdentity(finalRaster2Model,10E-6))
@@ -589,7 +607,6 @@ class Granule {
 					reader.dispose();
 			}
 		}
-
 	}
 
 
@@ -659,10 +676,8 @@ class Granule {
 					}
 				}	
 			}			
-			
 		}
 	}
-
 
 	@Override
 	public String toString() {
