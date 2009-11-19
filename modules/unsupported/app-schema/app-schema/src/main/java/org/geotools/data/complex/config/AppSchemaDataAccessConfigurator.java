@@ -548,6 +548,8 @@ public class AppSchemaDataAccessConfigurator {
             DataAccess dataStore = DataAccessFinder.getDataStore(datastoreParams);
 
             if (dataStore == null) {
+                AppSchemaDataAccessConfigurator.LOGGER.log(Level.SEVERE,
+                        "Cannot find a DataAccess for parameters " + datastoreParams);
                 throw new DataSourceException("Cannot find a DataAccess for parameters "
                         + "(some not shown) "
                         + filterDatastoreParams(datastoreParams));
