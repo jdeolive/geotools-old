@@ -25,7 +25,7 @@ import org.opengis.feature.Feature;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.Name;
 
-import com.sun.org.apache.xml.internal.utils.UnImplNode;
+
 
 /**
  * Sample implementation of {@link DataAccess} for testing. Create with
