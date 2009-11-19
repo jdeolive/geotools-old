@@ -12,7 +12,6 @@ import org.opengis.filter.expression.Add;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.spatial.Equals;
 
-import com.sun.org.apache.bcel.internal.util.ClassQueue;
 
 /**
  * FilterBuilder is a main entry from a fluent programming point of view. We will mostly test using
