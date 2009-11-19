@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -548,7 +549,8 @@ public class AppSchemaDataAccessConfigurator {
 
             if (dataStore == null) {
                 throw new DataSourceException("Cannot find a DataAccess for parameters "
-                        + datastoreParams);
+                        + "(some not shown) "
+                        + filterDatastoreParams(datastoreParams));
             }
 
             AppSchemaDataAccessConfigurator.LOGGER.fine("got datastore " + dataStore);
@@ -556,6 +558,46 @@ public class AppSchemaDataAccessConfigurator {
         }
 
         return datastores;
+    }
+    
+    /**
+     * Database connection parameters that are probably safe to report to the end user.
+     * (Things we can be pretty sure are not passwords.)
+     */
+    @SuppressWarnings("serial")
+    private static final List<String> SAFE_DATASTORE_PARAMS = Collections
+            .unmodifiableList(new ArrayList<String>() {
+                {
+                    add("url"); // shapefile
+                    add("directory"); // propertyfile
+                    add("namespace"); // just about everything
+                    add("dbtype"); // jdbc
+                    add("jndiReferenceName"); // jdni
+                    // these are all various jdbc options
+                    add("host");
+                    add("port");
+                    add("database");
+                    add("schema");
+                    add("user");
+                }
+            });
+    
+    /**
+     * Return datastore params filtered to include only known-safe parameters.
+     * We cannot try to find passwords, because even dbtype could be misspelled.
+     * 
+     * @param datastoreParams
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    private Map filterDatastoreParams(Map datastoreParams) {
+        Map filteredDatastoreParams = new LinkedHashMap();
+        for (String key : SAFE_DATASTORE_PARAMS) {
+            if (datastoreParams.containsKey(key)) {
+                filteredDatastoreParams.put(key, datastoreParams.get(key));
+            }
+        }
+        return filteredDatastoreParams;
     }
 
     /**
