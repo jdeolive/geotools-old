@@ -501,8 +501,14 @@ public class UnmappingFilterVisitor implements org.opengis.filter.FilterVisitor,
 
     public Object visit(BBOX filter, Object arg1) {
         String propertyName = filter.getPropertyName();
+        if (propertyName.length() < 1) {
+            // see GetFeatureKvpRequestReader bboxFilter()
+            // propertyName is meant to be empty, and it will get it from the feature
+            // later (if not available, it will use feature's default geometry)
+            // instead of always use the default geometry from the feature type
+            return filter;
+        }
         Expression name = ff.property(propertyName);
-
         final List sourceNames = (List) name.accept(this, null);
 
         final List combined = new ArrayList(sourceNames.size());
