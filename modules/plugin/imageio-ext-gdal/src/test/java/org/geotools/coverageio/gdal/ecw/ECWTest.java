@@ -21,6 +21,8 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URL;
 import java.util.Iterator;
 
@@ -84,7 +86,16 @@ public final class ECWTest extends GDALTestCase {
 		hints.add(new RenderingHints(JAI.KEY_IMAGE_LAYOUT, l));
 
 		// get a reader
-		final File file =new File("/media/disk/Canada_2000_Mosaic_25.ecw");
+	    File file =null;
+        try {
+            file = TestData.file(this, fileName);
+        }catch (FileNotFoundException fnfe){
+            LOGGER.warning("test-data not found: " + fileName + "\nTests are skipped");
+            return;
+        } catch (IOException ioe) {
+            LOGGER.warning("test-data not found: " + fileName + "\nTests are skipped");
+            return;
+        }
 		final URL url = file.toURI().toURL();
 		final Object source = url;
 		final BaseGDALGridCoverage2DReader reader = new ECWReader(source, hints);

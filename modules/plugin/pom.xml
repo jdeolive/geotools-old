@@ -60,6 +60,7 @@
     <module>imagepyramid</module>
     <module>imagemosaic-jdbc</module>
     <module>jdbc</module>
+    <module>jp2k</module>
     <module>postgis</module>
     <module>property</module>
     <module>referencing3D</module>
