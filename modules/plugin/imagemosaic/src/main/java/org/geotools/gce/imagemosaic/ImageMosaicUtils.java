@@ -960,4 +960,10 @@ class ImageMosaicUtils {
 		}
 		return true;
 	}
+
+
+
+
+
+	static final String DIRECT_KAKADU_PLUGIN="it.geosolutions.imageio.plugins.jp2k.JP2KKakaduImageReader";
 }

@@ -62,8 +62,6 @@ import com.sun.media.jai.util.Rational;
  */
 class Granule {
 	
-	private static final String DIRECT_KAKADU_PLUGIN="it.geosolutions.imageio.plugins.jp2k.JP2KKakaduImageReader";
-
 	/** Logger. */
 	private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(Granule.class); 
 	   
@@ -484,7 +482,7 @@ class Granule {
 			// Setting subsampling 
 			int newSubSamplingFactor = 0;
 			final String pluginName = cachedSPI.getPluginClassName();
-			if (pluginName != null && pluginName.equals(DIRECT_KAKADU_PLUGIN)){
+			if (pluginName != null && pluginName.equals(ImageMosaicUtils.DIRECT_KAKADU_PLUGIN)){
 				final int ssx = readParameters.getSourceXSubsampling();
 				final int ssy = readParameters.getSourceYSubsampling();
 				newSubSamplingFactor = Utilities.getSubSamplingFactor2(ssx , ssy);
