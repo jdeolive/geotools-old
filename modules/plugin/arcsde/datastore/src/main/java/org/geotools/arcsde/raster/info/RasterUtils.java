@@ -688,8 +688,14 @@ public class RasterUtils {
                  */
                 significantBits = colorMap.getPixelSize();
                 newTransferType = DataBuffer.TYPE_BYTE;
+            } else if (DataBuffer.TYPE_BYTE == transferType && newMapSize == 257) {
+                // it's being promoted. significantBits = 9 makes for a 512 color model instead of a
+                // 65535 one saving a good bit of memory, specially for color mapped raster catalogs
+                // where the colormodel for each raster in the catalog is to be held in memory
+                significantBits = 9;
+                newTransferType = DataBuffer.TYPE_USHORT;
             } else {
-                // it's either being promoted or was already 16-bit
+                // already was 16-bit
                 significantBits = 16;
                 newTransferType = DataBuffer.TYPE_USHORT;
             }
