@@ -98,7 +98,7 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
 
         info.put("name", "ArcSDE Raster");
         info.put("description", "ArcSDE Raster Format");
-        info.put("vendor", "Geotools");
+        info.put("vendor", "Geotools ");
         info.put("docURL", "");
         info.put("version", GeoTools.getVersion().toString());
         mInfo = info;
@@ -117,13 +117,16 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
         return getReader(source, null);
     }
 
+    private static final WeakHashMap<String, ArcSDEGridCoverage2DReaderJAI> readerCache = new WeakHashMap<String, ArcSDEGridCoverage2DReaderJAI>();
+
     /**
      * @param source
      *            either a {@link String} or {@link File} instance representing the connection URL
      * @see AbstractGridFormat#getReader(Object, Hints)
      */
     @Override
-    public AbstractGridCoverage2DReader getReader(final Object source, final Hints hints) {
+    public synchronized AbstractGridCoverage2DReader getReader(final Object source,
+            final Hints hints) {
         try {
             if (source == null) {
                 throw new DataSourceException("No source set to read this coverage.");
@@ -132,15 +135,22 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
             // this will be our connection string
             final String coverageUrl = parseCoverageUrl(source);
 
-            final ArcSDEConnectionConfig connectionConfig = getConnectionConfig(coverageUrl);
+            ArcSDEGridCoverage2DReaderJAI reader = readerCache.get(coverageUrl);
 
-            final ISessionPool sessionPool = setupConnectionPool(connectionConfig);
+            if (reader == null) {
+                final ArcSDEConnectionConfig connectionConfig = getConnectionConfig(coverageUrl);
 
-            final RasterDatasetInfo rasterInfo = getRasterInfo(coverageUrl, sessionPool);
+                final ISessionPool sessionPool = setupConnectionPool(connectionConfig);
 
-            final RasterReaderFactory rasterReaderFactory = new RasterReaderFactory(sessionPool);
+                final RasterDatasetInfo rasterInfo = getRasterInfo(coverageUrl, sessionPool);
 
-            return new ArcSDEGridCoverage2DReaderJAI(this, rasterReaderFactory, rasterInfo, hints);
+                final RasterReaderFactory rasterReaderFactory = new RasterReaderFactory(sessionPool);
+
+                reader = new ArcSDEGridCoverage2DReaderJAI(this, rasterReaderFactory, rasterInfo,
+                        hints);
+                readerCache.put(coverageUrl, reader);
+            }
+            return reader;
         } catch (IOException dse) {
             LOGGER
                     .log(Level.SEVERE, "Unable to creata ArcSDERasterReader for " + source + ".",
