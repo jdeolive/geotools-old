@@ -24,6 +24,8 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -64,14 +66,6 @@ import org.opengis.parameter.GeneralParameterDescriptor;
 public final class ArcSDERasterFormat extends AbstractGridFormat implements Format {
 
     protected static final Logger LOGGER = Logging.getLogger("org.geotools.arcsde.gce");
-
-    /**
-     * Cache of raster metadata objects, where the keys are the URL's representing the full
-     * connection properties to a given ArcSDE raster, and the value the
-     * {@link ArcSDERasterGridCoverage2DReader}'s externalized state, so it is not needed to gather
-     * the raster properties each time.
-     */
-    private final Map<String, RasterDatasetInfo> rasterInfos = new WeakHashMap<String, RasterDatasetInfo>();
 
     private final Map<String, ArcSDEConnectionConfig> connectionConfigs = new WeakHashMap<String, ArcSDEConnectionConfig>();
 
@@ -119,14 +113,15 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
 
     private static final WeakHashMap<String, ArcSDEGridCoverage2DReaderJAI> readerCache = new WeakHashMap<String, ArcSDEGridCoverage2DReaderJAI>();
 
+    private static final ReadWriteLock readersLock = new ReentrantReadWriteLock();
+
     /**
      * @param source
      *            either a {@link String} or {@link File} instance representing the connection URL
      * @see AbstractGridFormat#getReader(Object, Hints)
      */
     @Override
-    public synchronized AbstractGridCoverage2DReader getReader(final Object source,
-            final Hints hints) {
+    public AbstractGridCoverage2DReader getReader(final Object source, final Hints hints) {
         try {
             if (source == null) {
                 throw new DataSourceException("No source set to read this coverage.");
@@ -135,20 +130,34 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
             // this will be our connection string
             final String coverageUrl = parseCoverageUrl(source);
 
+            readersLock.readLock().lock();
+
             ArcSDEGridCoverage2DReaderJAI reader = readerCache.get(coverageUrl);
 
+            readersLock.readLock().unlock();
+
             if (reader == null) {
-                final ArcSDEConnectionConfig connectionConfig = getConnectionConfig(coverageUrl);
+                readersLock.writeLock().lock();
+                try {
+                    reader = readerCache.get(coverageUrl);
+                    if (reader == null) {
+                        final ArcSDEConnectionConfig connectionConfig = getConnectionConfig(coverageUrl);
 
-                final ISessionPool sessionPool = setupConnectionPool(connectionConfig);
+                        final ISessionPool sessionPool = setupConnectionPool(connectionConfig);
 
-                final RasterDatasetInfo rasterInfo = getRasterInfo(coverageUrl, sessionPool);
+                        final RasterDatasetInfo rasterInfo = loadRasterInfo(coverageUrl,
+                                sessionPool);
 
-                final RasterReaderFactory rasterReaderFactory = new RasterReaderFactory(sessionPool);
+                        final RasterReaderFactory rasterReaderFactory = new RasterReaderFactory(
+                                sessionPool);
 
-                reader = new ArcSDEGridCoverage2DReaderJAI(this, rasterReaderFactory, rasterInfo,
-                        hints);
-                readerCache.put(coverageUrl, reader);
+                        reader = new ArcSDEGridCoverage2DReaderJAI(this, rasterReaderFactory,
+                                rasterInfo, hints);
+                        readerCache.put(coverageUrl, reader);
+                    }
+                } finally {
+                    readersLock.writeLock().unlock();
+                }
             }
             return reader;
         } catch (IOException dse) {
@@ -159,48 +168,40 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
         }
     }
 
-    private RasterDatasetInfo getRasterInfo(final String coverageUrl, ISessionPool connectionPool)
+    private RasterDatasetInfo loadRasterInfo(final String coverageUrl, ISessionPool connectionPool)
             throws IOException {
 
-        RasterDatasetInfo rasterInfo = rasterInfos.get(coverageUrl);
-        if (rasterInfo == null) {
-            synchronized (rasterInfos) {
-                rasterInfo = rasterInfos.get(coverageUrl);
-                if (rasterInfo == null) {
-                    ISession scon;
-                    try {
-                        scon = connectionPool.getSession(false);
-                    } catch (UnavailableConnectionException e) {
-                        throw new RuntimeException(e);
-                    }
-                    try {
-                        final String rasterTable;
-                        {
-                            String sdeUrl = coverageUrl;
-                            if (sdeUrl.indexOf(";") != -1) {
-                                /*
-                                 * We're not using any extra param anymore. Yet, be cautious cause a
-                                 * client may still be using urls with some old extra param, so just
-                                 * strip it
-                                 */
-                                sdeUrl = sdeUrl.substring(0, sdeUrl.indexOf(";"));
-                            }
-                            rasterTable = sdeUrl.substring(sdeUrl.indexOf("#") + 1);
-                            if (LOGGER.isLoggable(Level.FINE)) {
-                                LOGGER.fine("Building ArcSDEGridCoverageReader2D for "
-                                        + rasterTable);
-                            }
-                        }
-
-                        GatherCoverageMetadataCommand command = new GatherCoverageMetadataCommand(
-                                rasterTable, statisticsMandatory);
-                        rasterInfo = scon.issue(command);
-                        rasterInfos.put(coverageUrl, rasterInfo);
-                    } finally {
-                        scon.dispose();
-                    }
-                }
+        final String rasterTable;
+        {
+            String sdeUrl = coverageUrl;
+            if (sdeUrl.indexOf(";") != -1) {
+                /*
+                 * We're not using any extra param anymore. Yet, be cautious cause a client may
+                 * still be using urls with some old extra param, so just strip it
+                 */
+                sdeUrl = sdeUrl.substring(0, sdeUrl.indexOf(";"));
             }
+            rasterTable = sdeUrl.substring(sdeUrl.indexOf("#") + 1);
+            if (LOGGER.isLoggable(Level.FINE)) {
+                LOGGER.fine("Building ArcSDEGridCoverageReader2D for " + rasterTable);
+            }
+        }
+
+        ISession scon;
+        try {
+            scon = connectionPool.getSession(false);
+        } catch (UnavailableConnectionException e) {
+            throw new RuntimeException(e);
+        }
+
+        RasterDatasetInfo rasterInfo;
+
+        try {
+            GatherCoverageMetadataCommand command = new GatherCoverageMetadataCommand(rasterTable,
+                    statisticsMandatory);
+            rasterInfo = scon.issue(command);
+        } finally {
+            scon.dispose();
         }
         return rasterInfo;
     }

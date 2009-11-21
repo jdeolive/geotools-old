@@ -81,6 +81,8 @@ class DefaultTiledRasterReader implements TiledRasterReader {
 
         rasterImage = getRasterMatchingTileRange(rasterId, pyramidLevel, tileRange);
 
+        //rasterImage.getData();
+        
         return rasterImage;
     }
 
