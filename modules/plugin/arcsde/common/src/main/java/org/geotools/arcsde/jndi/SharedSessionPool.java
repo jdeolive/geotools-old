@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
 import org.geotools.arcsde.session.ArcSDEConnectionConfig;
@@ -43,7 +44,7 @@ public final class SharedSessionPool implements ISessionPool {
 
     private static final Logger LOGGER = Logger.getLogger("org.geotools.arcsde.session");
 
-    private static int instanceCounter;
+    private static final AtomicInteger instanceCounter = new AtomicInteger();
 
     private final int instanceNumber;
 
@@ -54,7 +55,7 @@ public final class SharedSessionPool implements ISessionPool {
 
     protected SharedSessionPool(final ISessionPool delegate) throws IOException {
         this.delegate = delegate;
-        this.instanceNumber = ++instanceCounter;
+        this.instanceNumber = instanceCounter.incrementAndGet();
     }
 
     public static ISessionPool getInstance(final ArcSDEConnectionConfig config,

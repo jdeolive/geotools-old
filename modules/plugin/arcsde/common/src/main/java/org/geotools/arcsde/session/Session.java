@@ -29,6 +29,10 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -79,6 +83,22 @@ class Session implements ISession {
      */
     protected static final long TEST_SERVER_ROUNDTRIP_INTERVAL_SECONDS = 5;
 
+    /**
+     * Lock to serialize the creation of {@link SeConnection} objects.
+     * <p>
+     * When running on a server environment, if the server needs to serve multiple concurrent
+     * requests at a time, SeConnections might end up being created by multiple concurrent threads.
+     * If you try to create multiple SeConnection object at the same time they often fail,
+     * presumably by some bad concurrency code in the ArcSDE Java API. By synchronizing the creation
+     * of SeConnections this way we make sure a single SeConnection is created at a time,
+     * eliminating the error condition. Though the creation of a connection is quite slow, the
+     * performance penalty of this synchronization is minimal in the long run since once created
+     * they're in the pool and reused until the pool decides they've been idle enough to discard
+     * them.
+     * </p>
+     */
+    private static final Lock connectionCreationLock = new ReentrantLock();
+
     /** Actual SeConnection being protected */
     private final SeConnection connection;
 
@@ -89,7 +109,7 @@ class Session implements ISession {
 
     private final ArcSDEConnectionConfig config;
 
-    private static int sessionCounter;
+    private static final AtomicInteger sessionCounter = new AtomicInteger();
 
     private final int sessionId;
 
@@ -115,6 +135,26 @@ class Session implements ISession {
 
     private int referenceCount;
 
+    private static class SessionThreadFactory implements ThreadFactory {
+
+        private final int sessionId;
+
+        private static final ThreadGroup group = new ThreadGroup("ArcSDE Session threads");
+
+        public SessionThreadFactory(final int sessionId) {
+            this.sessionId = sessionId;
+        }
+
+        /**
+         * @see java.util.concurrent.ThreadFactory#newThread(java.lang.Runnable)
+         */
+        public Thread newThread(final Runnable r) {
+            Thread t = new Thread(group, r, "ArcSDE Session " + sessionId);
+            t.setDaemon(false);
+            return t;
+        }
+    }
+
     /**
      * Provides safe access to an SeConnection.
      * 
@@ -126,9 +166,10 @@ class Session implements ISession {
      *             If we cannot connect
      */
     Session(final SessionPool pool, final ArcSDEConnectionConfig config) throws IOException {
+        this.sessionId = sessionCounter.incrementAndGet();
         this.config = config;
         this.pool = pool;
-        this.taskExecutor = Executors.newSingleThreadExecutor();
+        this.taskExecutor = Executors.newSingleThreadExecutor(new SessionThreadFactory(sessionId));
 
         // grab command thread, held by taskExecutor
         updateCommandThread();
@@ -137,8 +178,11 @@ class Session implements ISession {
          * This ensures the connection runs always on the same thread. Will fail if its accessed by
          * different threads
          */
+        final CreateSeConnectionCommand connectionCommand;
+        connectionCommand = new CreateSeConnectionCommand(config, sessionId);
+        connectionCreationLock.lock();
         try {
-            this.connection = issue(new CreateSessionCommand(config));
+            this.connection = issue(connectionCommand);
         } catch (IOException e) {
             // make sure a connection creation failure does not leave a stale thread
             this.taskExecutor.shutdownNow();
@@ -146,11 +190,8 @@ class Session implements ISession {
         } catch (RuntimeException shouldntHappen) {
             this.taskExecutor.shutdownNow();
             throw shouldntHappen;
-        }
-
-        synchronized (Session.class) {
-            sessionCounter++;
-            sessionId = sessionCounter;
+        } finally {
+            connectionCreationLock.unlock();
         }
     }
 
@@ -960,11 +1001,21 @@ class Session implements ISession {
         });
     }
 
-    private static final class CreateSessionCommand extends Command<SeConnection> {
+    private static final class CreateSeConnectionCommand extends Command<SeConnection> {
         private final ArcSDEConnectionConfig config;
 
-        private CreateSessionCommand(final ArcSDEConnectionConfig config) {
+        private final int sessionId;
+
+        /**
+         * 
+         * @param config
+         * @param sessionId
+         *            the session id the connection is to be created for. For exception reporting
+         *            purposes only
+         */
+        private CreateSeConnectionCommand(final ArcSDEConnectionConfig config, final int sessionId) {
             this.config = config;
+            this.sessionId = sessionId;
         }
 
         @Override
@@ -981,17 +1032,25 @@ class Session implements ISession {
             try {
                 for (int i = 0; i < 3; i++) {
                     try {
+                        System.err.println("Creating connection for session #" + sessionId
+                                + "(try " + (i + 1) + " of 3)");
                         conn = new SeConnection(serverName, portNumber, databaseName, userName,
                                 userPassword);
+                        conn.setConcurrency(SeConnection.SE_ONE_THREAD_POLICY);
+                        // conn.setConcurrency(SeConnection.SE_UNPROTECTED_POLICY);
+                        break;
                     } catch (NegativeArraySizeException nase) {
+                        System.err.println("ERROR creating connection for session #" + sessionId
+                                + "(try " + (i + 1) + " of 3)");
                         LOGGER.warning("Strange failed ArcSDE connection error.  "
-                                + "Trying again (try " + (i + 1) + " of 3)");
+                                + "Trying again (try " + (i + 1) + " of 3). SessionId: "
+                                + sessionId);
                         try {
                             /*
-                             * This usually happen under high load, lets wait a little bit and see
+                             * This usually happens under high load, lets wait a little bit and see
                              * if we can connect
                              */
-                            Thread.sleep(100);
+                            Thread.sleep(500);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                             // ignore
@@ -1000,17 +1059,19 @@ class Session implements ISession {
                     }
                 }
             } catch (SeException e) {
-                throw new ArcSdeException("Can't create connection to " + serverName, e);
+                throw new ArcSdeException("Can't create connection to " + serverName
+                        + " for Session #" + sessionId, e);
             } catch (RuntimeException e) {
-                throw (IOException) new IOException("Can't create connection to " + serverName)
-                        .initCause(e);
+                throw (IOException) new IOException("Can't create connection to " + serverName
+                        + " for Session #" + sessionId).initCause(e);
             }
+
             if (cause != null) {
-                throw (IOException) new IOException(
-                        "Couldn't create ArcSDE Session because of strange SDE internal exception. "
-                                + " Tried 3 times, giving up.").initCause(cause);
+                throw (IOException) new IOException("Couldn't create ArcSDE connection to "
+                        + serverName + " for Session #" + sessionId
+                        + " because of strange SDE internal exception. "
+                        + " Tried 3 times, giving up.").initCause(cause);
             }
-            conn.setConcurrency(SeConnection.SE_ONE_THREAD_POLICY);
             return conn;
         }
     }

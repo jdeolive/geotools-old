@@ -283,22 +283,25 @@ class SessionPool implements ISessionPool {
             } else {
                 final int limit = config.getMaxConnections();
                 poolLock.lock();
-                final int used = pool.getNumActive();
-                if (used < limit) {
-                    try {
-                        connection = (Session) pool.borrowObject();
-                    } catch (NoSuchElementException e) {
-                        if (LOGGER.isLoggable(Level.FINEST)) {
-                            LOGGER.finest("Falling back to queued session");
+                try {
+                    final int used = pool.getNumActive();
+                    if (used < limit) {
+                        try {
+                            connection = (Session) pool.borrowObject();
+                        } catch (NoSuchElementException e) {
+                            if (LOGGER.isLoggable(Level.FINEST)) {
+                                LOGGER.finest("Falling back to queued session");
+                            }
+                            connection = openSessionsNonTransactional.remove();
                         }
+                        openSessionsNonTransactional.add(connection);
+                    } else {
                         connection = openSessionsNonTransactional.remove();
+                        openSessionsNonTransactional.add(connection);
                     }
-                    openSessionsNonTransactional.add(connection);
-                } else {
-                    connection = openSessionsNonTransactional.remove();
-                    openSessionsNonTransactional.add(connection);
+                } finally {
+                    poolLock.unlock();
                 }
-                poolLock.unlock();
                 connection.markActive();
                 return connection;
             }
@@ -338,7 +341,7 @@ class SessionPool implements ISessionPool {
      * @author Gabriel Roldan, Axios Engineering
      * @version $Id$
      */
-    protected final class SeConnectionFactory extends BasePoolableObjectFactory {
+    private class SeConnectionFactory extends BasePoolableObjectFactory {
 
         private ArcSDEConnectionConfig config;
 
@@ -362,20 +365,7 @@ class SessionPool implements ISessionPool {
         @Override
         public Object makeObject() throws IOException {
             ISession seConn;
-            /*
-             * When running on a server environment, if the server needs to serve multiple
-             * concurrent requests at a time this method might end up being called by multiple
-             * concurrent threads. If you try to create multiple SeConnection object at the same
-             * time they fail often, presumably by some bad concurrency code in the ArcSDE Java API.
-             * By synchronizing the creation of SeConnections this way we make sure a single
-             * SeConnection is created at a time, eliminating the error condition. Though the
-             * creation of a connection is quite slow, the performance penalty of this
-             * synchronization is minimal in the long run since once created they're in the pool and
-             * reused until the pool decides they've been idle enough to discard them.
-             */
-            synchronized (this) {
-                seConn = new Session(SessionPool.this, config);
-            }
+            seConn = new Session(SessionPool.this, config);
             return seConn;
         }
 
