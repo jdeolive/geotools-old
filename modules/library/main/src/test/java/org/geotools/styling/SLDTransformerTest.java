@@ -708,4 +708,26 @@ public class SLDTransformerTest extends TestCase {
 
         }
     }
+    
+    
+    /**
+     * SLD Transformer did't save the type of the colormap
+     */
+    public void testColorMap() throws Exception {
+    	SLDTransformer st = new SLDTransformer();
+      ColorMap cm = sf.createColorMap();
+      
+      // Test type = values
+      cm.setType(ColorMap.TYPE_VALUES);
+      assertTrue("parsed xml must contain attribbute type with correct value", st.transform(cm).contains("type=\"values\""));
+      
+      // Test type = intervals
+      cm.setType(ColorMap.TYPE_INTERVALS);
+      assertTrue("parsed xml must contain attribbute type with correct value", st.transform(cm).contains("type=\"intervals\""));
+      
+      // Test type = ramp
+      cm.setType(ColorMap.TYPE_RAMP);
+      assertTrue("parsed xml must contain attribbute type with correct value", st.transform(cm).contains("type=\"ramp\""));
+    }
+
 }

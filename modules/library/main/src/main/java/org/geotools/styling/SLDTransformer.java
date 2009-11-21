@@ -16,6 +16,7 @@
  */
 package org.geotools.styling;
 
+import java.awt.Color;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
@@ -457,15 +458,27 @@ public class SLDTransformer extends TransformerBase {
 			end("RasterSymbolizer");
 		}
 
-        public void visit(ColorMap colorMap) {
-        	ColorMapEntry[] mapEntries = colorMap.getColorMapEntries();
-    		start("ColorMap");
-    		for (int i = 0; i < mapEntries.length; i++) {
-    			mapEntries[i].accept(this);
-    		}
-    		end("ColorMap");
+         public void visit(ColorMap colorMap) {
+                // The type of the ColorMap is stored in an attribute "type" and may store
+                // string-values: "ramp", "intervals" or "values".
+                AttributesImpl atts = new AttributesImpl();
+                String typeString;
+                if (colorMap.getType() == ColorMap.TYPE_INTERVALS)
+                	typeString = "intervals";
+                else if (colorMap.getType() == ColorMap.TYPE_VALUES)
+                	typeString = "values";
+                else
+                	typeString = "ramp"; // Also the default in the parser
+                atts.addAttribute("", "type", "type", "", typeString);
+
+                start("ColorMap", atts);
+                ColorMapEntry[] mapEntries = colorMap.getColorMapEntries();
+                for (int i = 0; i < mapEntries.length; i++) {
+                	mapEntries[i].accept(this);
+                }
+                end("ColorMap");
         }
-        
+
         public void visit(ColorMapEntry colorEntry) {
         	if (colorEntry != null) {
                 AttributesImpl atts = new AttributesImpl();
