@@ -589,7 +589,7 @@ public final class LiteShape2 implements Shape, Cloneable {
 	public PathIterator getPathIterator(AffineTransform at) {
 		PathIterator pi = null;
         
-        if(this.geometry.isEmpty())
+        if(this.geometry == null || this.geometry.isEmpty())
             return emptyiterator;
 
 		// return iterator according to the kind of geometry we include
