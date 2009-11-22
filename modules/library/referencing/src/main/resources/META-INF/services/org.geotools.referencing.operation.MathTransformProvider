@@ -36,3 +36,4 @@ org.geotools.referencing.operation.projection.PolarStereographic$ProviderNorth
 org.geotools.referencing.operation.projection.PolarStereographic$ProviderSouth
 org.geotools.referencing.operation.projection.NewZealandMapGrid$Provider
 org.geotools.referencing.operation.projection.Krovak$Provider
+org.geotools.referencing.operation.projection.CassiniSoldner$Provider

@@ -122,6 +122,11 @@ public final class VocabularyKeys {
     public static final int CARTESIAN_3D = 200;
 
     /**
+     * Cassini-Soldner projection
+     */
+    public static final int CASSINI_SOLDNER_PROJECTION = 243;
+
+    /**
      * Category
      */
     public static final int CATEGORY = 11;
