@@ -1287,4 +1287,9 @@ public final class VocabularyKeys {
      * Zoom out
      */
     public static final int ZOOM_OUT = 192;
+
+    /**
+     * Equidistant Conic
+     */
+    public static final int EQUIDISTANT_CONIC_PROJECTION = 193;
 }

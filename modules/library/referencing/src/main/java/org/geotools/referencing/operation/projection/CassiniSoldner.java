@@ -28,19 +28,13 @@ import java.awt.geom.Point2D;
 
 import org.geotools.metadata.iso.citation.Citations;
 import org.geotools.referencing.NamedIdentifier;
-import org.geotools.referencing.operation.projection.MapProjection.AbstractProvider;
-import org.geotools.referencing.operation.projection.TransverseMercator.Provider;
-import org.geotools.resources.i18n.ErrorKeys;
-import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.Vocabulary;
 import org.geotools.resources.i18n.VocabularyKeys;
-import org.opengis.metadata.Identifier;
 import org.opengis.parameter.ParameterDescriptor;
 import org.opengis.parameter.ParameterDescriptorGroup;
 import org.opengis.parameter.ParameterNotFoundException;
 import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.ReferenceIdentifier;
-import org.opengis.referencing.operation.CylindricalProjection;
 import org.opengis.referencing.operation.MathTransform;
 /**
  * Cassini-Soldner Projection (EPSG code 9806).
@@ -66,29 +60,7 @@ public class CassiniSoldner extends MapProjection {
      */
     private final double ml0;
 	
-	 /**
-     * Constant needed for the <code>mlfn<code> method.
-     * Setup at construction time.
-     */
-    private final double en0,en1,en2,en3,en4;
     
-    /**
-     * Constants used to calculate {@link #en0}, {@link #en1},
-     * {@link #en2}, {@link #en3}, {@link #en4}.
-     */
-    private static final double C00= 1.0,
-                                C02= 0.25,
-                                C04= 0.046875,
-                                C06= 0.01953125,
-                                C08= 0.01068115234375,
-                                C22= 0.75,
-                                C44= 0.46875,
-                                C46= 0.01302083333333333333,
-                                C48= 0.00712076822916666666,
-                                C66= 0.36458333333333333333,
-                                C68= 0.00569661458333333333,
-                                C88= 0.3076171875;
-	
     /**
      * Contants used for the forward and inverse transform for the eliptical
      * case of the Cassini-Soldner.
@@ -100,25 +72,9 @@ public class CassiniSoldner extends MapProjection {
     							 C5= 0.66666666666666666666;
     
     
-    /**
-     * Relative iteration precision used in the <code>mlfn<code> method. This 
-     * overrides the value in the MapProjection class.
-     */
-    private static final double TOL = 1E-11;
-    
 	protected CassiniSoldner(ParameterValueGroup values)
 			throws ParameterNotFoundException {
 		super(values);
-		//  Compute constants
-		double t;
-		en0 = C00 - excentricitySquared  *  (C02 + excentricitySquared  * 
-	             (C04 + excentricitySquared  *  (C06 + excentricitySquared  * C08)));
-        en1 =       excentricitySquared  *  (C22 - excentricitySquared  *
-             (C04 + excentricitySquared  *  (C06 + excentricitySquared  * C08)));
-        en2 =  (t = excentricitySquared  *         excentricitySquared) * 
-             (C44 - excentricitySquared  *  (C46 + excentricitySquared  * C48));
-        en3 = (t *= excentricitySquared) *  (C66 - excentricitySquared  * C68);
-        en4 =   t * excentricitySquared  *  C88;
         ml0 = mlfn(latitudeOfOrigin, Math.sin(latitudeOfOrigin), Math.cos(latitudeOfOrigin));
 	}
 	
@@ -177,52 +133,6 @@ public class CassiniSoldner extends MapProjection {
         }
         return new Point2D.Double(x,y);
 	}
-	
-	/**
-     * Calculates the meridian distance. This is the distance along the central 
-     * meridian from the equator to {@code phi}. Accurate to < 1e-5 meters 
-     * when used in conjuction with typical major axis values.
-     *
-     * @param phi latitude to calculate meridian distance for.
-     * @param sphi sin(phi).
-     * @param cphi cos(phi).
-     * @return meridian distance for the given latitude.
-     */
-    private final double mlfn(final double phi, double sphi, double cphi) {        
-        cphi *= sphi;
-        sphi *= sphi;
-        return en0 * phi - cphi *
-              (en1 + sphi *
-              (en2 + sphi *
-              (en3 + sphi *
-              (en4))));
-    }
-    
-    /**
-     * Calculates the latitude ({@code phi}) from a meridian distance.
-     * Determines phi to TOL (1e-11) radians, about 1e-6 seconds.
-     * 
-     * @param arg meridian distance to calulate latitude for.
-     * @return the latitude of the meridian distance.
-     * @throws ProjectionException if the itteration does not converge.
-     */
-    private final double inv_mlfn(double arg) throws ProjectionException {
-        double s, t, phi, k = 1.0/(1.0 - excentricitySquared);
-        int i;
-        phi = arg;
-        for (i=MAXIMUM_ITERATIONS; true;) { // rarely goes over 5 iterations
-            if (--i < 0) {
-                throw new ProjectionException(Errors.format(ErrorKeys.NO_CONVERGENCE));
-            }
-            s = Math.sin(phi);
-            t = 1.0 - excentricitySquared * s * s;
-            t = (mlfn(phi, s, Math.cos(phi)) - arg) * (t * Math.sqrt(t)) * k;
-            phi -= t;
-            if (Math.abs(t) < TOL) {
-                return phi;
-            }
-        }
-    }
 	
 	/**
      * Provides the transform equations for the spherical case of the

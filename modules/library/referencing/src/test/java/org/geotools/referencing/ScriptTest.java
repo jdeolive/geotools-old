@@ -191,6 +191,11 @@ public final class ScriptTest {
     public void testKrovak() throws Exception {
     	runScript("scripts/Krovak.txt");
     }
+    
+    @Test
+    public void testEquidistantConic() throws Exception {
+        runScript("scripts/EquidistantConic.txt");
+    }
 
     /**
      * Run "OpenGIS.txt".
