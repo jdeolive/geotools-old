@@ -2,11 +2,7 @@
  *    GeoTools - OpenSource mapping toolkit
  *    http://geotools.org
  *
- *   (C) 2003-2006, Geotools Project Managment Committee (PMC)
- *   (C) 2002, Centre for Computational Geography
- *   (C) 2001, Institut de Recherche pour le D�veloppement
- *   (C) 2000, Frank Warmerdam
- *   (C) 1999, Fisheries and Oceans Canada
+ *   (C) 2000-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
