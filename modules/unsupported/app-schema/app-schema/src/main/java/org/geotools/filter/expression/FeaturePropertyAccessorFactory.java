@@ -39,6 +39,7 @@ import org.opengis.feature.Attribute;
 import org.opengis.feature.ComplexAttribute;
 import org.opengis.feature.Feature;
 import org.opengis.feature.GeometryAttribute;
+import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.ComplexType;
@@ -91,6 +92,15 @@ public class FeaturePropertyAccessorFactory implements PropertyAccessorFactory {
 
     public PropertyAccessor createPropertyAccessor(Class type, String xpath, Class target,
             Hints hints) {
+        
+        if (SimpleFeature.class.isAssignableFrom(type)) {
+            /*
+             * This class is not intended for use with SimpleFeature and causes problems when
+             * discovered via SPI and used by code expecting SimpleFeature behaviour. In particular
+             * WMS styling code may fail when this class is present. See GEOS-3525.
+             */
+            return null;
+        }
 
         if (xpath == null)
             return null;
@@ -98,7 +108,7 @@ public class FeaturePropertyAccessorFactory implements PropertyAccessorFactory {
         if (!ComplexAttribute.class.isAssignableFrom(type)
                 && !ComplexType.class.isAssignableFrom(type)
                 && !AttributeDescriptor.class.isAssignableFrom(type))
-            return null; // we only work with simple feature
+            return null;
 
         if ("".equals(xpath) && target == Geometry.class)
             return DEFAULT_GEOMETRY_ACCESS;
