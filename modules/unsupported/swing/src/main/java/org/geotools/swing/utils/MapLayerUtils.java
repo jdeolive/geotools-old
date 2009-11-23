@@ -32,7 +32,10 @@ import org.opengis.feature.type.PropertyDescriptor;
  */
 public class MapLayerUtils {
 
-    private static final String GRID_PACKAGE = "org.geotools.coverage.grid";
+    private static final Class<?> BASE_GRID_CLASS = org.opengis.coverage.grid.GridCoverage.class;
+
+    @SuppressWarnings("deprecation")
+    private static final Class<?> BASE_READER_CLASS = org.opengis.coverage.grid.GridCoverageReader.class;
 
     /**
      * Check if the given map layer contains a grid coverage or a grid coverage reader.
@@ -49,9 +52,9 @@ public class MapLayerUtils {
 
         Collection<PropertyDescriptor> descriptors = layer.getFeatureSource().getSchema().getDescriptors();
         for (PropertyDescriptor desc : descriptors) {
-            String className = desc.getType().getBinding().getName();
+            Class<?> binding = desc.getType().getBinding();
 
-            if (className.contains(GRID_PACKAGE)) {
+            if (BASE_GRID_CLASS.isAssignableFrom(binding) || BASE_READER_CLASS.isAssignableFrom(binding)) {
                 return true;
             }
         }
@@ -64,9 +67,9 @@ public class MapLayerUtils {
 
         Collection<PropertyDescriptor> descriptors = layer.getFeatureSource().getSchema().getDescriptors();
         for (PropertyDescriptor desc : descriptors) {
-            String className = desc.getType().getBinding().getName();
+            Class<?> binding = desc.getType().getBinding();
 
-            if (className.contains(GRID_PACKAGE)) {
+            if (BASE_GRID_CLASS.isAssignableFrom(binding) || BASE_READER_CLASS.isAssignableFrom(binding)) {
                 attrName = desc.getName().getLocalPart();
                 break;
             }
