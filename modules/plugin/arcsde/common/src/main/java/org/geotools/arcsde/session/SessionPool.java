@@ -21,8 +21,6 @@ import java.io.IOException;
 import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -135,13 +133,13 @@ class SessionPool implements ISessionPool {
             poolCfg.testOnReturn = false;
             // check periodically the health of idle connections and discard them if can't be
             // validated?
-            poolCfg.testWhileIdle = true;
+            poolCfg.testWhileIdle = false;
 
             // check health of idle connections every 30 seconds
-            poolCfg.timeBetweenEvictionRunsMillis = 30000;
+            // /poolCfg.timeBetweenEvictionRunsMillis = 30000;
 
-            // drop connections that have been idle for at least one minute
-            poolCfg.minEvictableIdleTimeMillis = 60000;
+            // drop connections that have been idle for at least 5 minutes
+            poolCfg.minEvictableIdleTimeMillis = 5 * 60 * 1000;
 
             pool = new GenericObjectPool(seConnectionFactory, poolCfg);
 
@@ -261,8 +259,6 @@ class SessionPool implements ISessionPool {
         return getSession(true);
     }
 
-    private Lock poolLock = new ReentrantLock();
-
     public void returnObject(Session session) throws Exception {
         openSessionsNonTransactional.remove(session);
         pool.returnObject(session);
@@ -278,38 +274,21 @@ class SessionPool implements ISessionPool {
             Session connection;
             if (transactional) {
                 connection = (Session) pool.borrowObject();
-                connection.markActive();
-                return connection;
             } else {
-                final int limit = config.getMaxConnections();
-                poolLock.lock();
                 try {
-                    final int used = pool.getNumActive();
-                    if (used < limit) {
-                        try {
-                            connection = (Session) pool.borrowObject();
-                        } catch (NoSuchElementException e) {
-                            if (LOGGER.isLoggable(Level.FINEST)) {
-                                LOGGER.finest("Falling back to queued session");
-                            }
-                            connection = openSessionsNonTransactional.remove();
-                        }
-                        openSessionsNonTransactional.add(connection);
-                    } else {
-                        connection = openSessionsNonTransactional.remove();
-                        openSessionsNonTransactional.add(connection);
+                    connection = (Session) pool.borrowObject();
+                } catch (NoSuchElementException e) {
+                    if (LOGGER.isLoggable(Level.FINEST)) {
+                        LOGGER.finest("Falling back to queued session");
                     }
-                } finally {
-                    poolLock.unlock();
+                    connection = openSessionsNonTransactional.remove();
                 }
-                connection.markActive();
-                return connection;
+                openSessionsNonTransactional.add(connection);
             }
 
-            // if (LOGGER.isLoggable(Level.FINER)) {
-            // LOGGER.finer("-->" + connection + " out of connection pool. Active: "
-            // + pool.getNumActive() + ", idle: " + pool.getNumIdle());
-            // }
+            connection.markActive();
+            return connection;
+
         } catch (NoSuchElementException e) {
             LOGGER.log(Level.WARNING, "Out of connections: " + e.getMessage() + ". Config: "
                     + this.config);
@@ -357,13 +336,19 @@ class SessionPool implements ISessionPool {
 
         /**
          * Called whenever a new instance is needed.
+         * <p>
+         * The implementation for this method needs to be synchronized in order to make sure no two
+         * {@code SeConnection} instances are created at the same time. Otherwise, when that happens
+         * under load, SeConnection's constructor uses to throw a nasty {@code
+         * NegativeArraySizeException}.
+         * </p>
          * 
          * @return a newly created <code>SeConnection</code>
          * @throws SeException
          *             if the connection can't be created
          */
         @Override
-        public Object makeObject() throws IOException {
+        public synchronized Object makeObject() throws IOException {
             ISession seConn;
             seConn = new Session(SessionPool.this, config);
             return seConn;
