@@ -391,7 +391,7 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
         int idx = sdeUrl.indexOf(":");
         if (idx == -1) {
             throw new IllegalArgumentException(
-                    "ArcSDE Raster URL must be of the form sde://user:pass@sdehost:port/[dbname]#rasterTableName");
+                    "ArcSDE Raster URL must be of the form sde://user:pass@sdehost:port/[dbname]#rasterTableName[;pool.minConnections=<int>][;pool.maxConnections=<int>]");
         }
         sdeUser = sdeUrl.substring(0, idx);
         sdeUrl.delete(0, idx);
@@ -399,7 +399,7 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
         idx = sdeUrl.indexOf("@");
         if (idx == -1) {
             throw new IllegalArgumentException(
-                    "ArcSDE Raster URL must be of the form sde://user:pass@sdehost:port/[dbname]#rasterTableName");
+                    "ArcSDE Raster URL must be of the form sde://user:pass@sdehost:port/[dbname]#rasterTableName[;pool.minConnections=<int>][;pool.maxConnections=<int>]");
         }
         sdePass = sdeUrl.substring(1, idx);
         sdeUrl.delete(0, idx);
