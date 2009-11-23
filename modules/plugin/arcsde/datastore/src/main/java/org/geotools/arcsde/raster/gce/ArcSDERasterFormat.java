@@ -437,14 +437,45 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
         sdeDBName = sdeUrl.substring(1, idx).toString();
         sdeUrl.delete(0, idx);
 
+        String minConnections = "1";
+        String maxConnections = "10";
+        if (sdeUrl.indexOf(";") > 0) {
+            String optionals = sdeUrl.substring(sdeUrl.indexOf(";") + 1);
+            String[] options = optionals.split(";");
+            for (String option : options) {
+                String[] pair = option.split("=");
+                if (pair.length != 2) {
+                    LOGGER.info("Ignoring malformed optional param '" + option + "'");
+                    continue;
+                }
+                String name = pair[0];
+                String value = pair[1];
+                if ("pool.minConnections".equals(name)) {
+                    try {
+                        minConnections = Integer.valueOf(value).toString();
+                    } catch (NumberFormatException e) {
+                        LOGGER.warning("Wrong pool.minConnections parameter: " + value);
+                    }
+                } else if ("pool.maxConnections".equals(name)) {
+                    try {
+                        maxConnections = Integer.valueOf(value).toString();
+                    } catch (NumberFormatException e) {
+                        LOGGER.warning("Wrong pool.maxConnections parameter: " + value);
+                    }
+                } else {
+                    LOGGER.info("Ignoring unrecognized optional parameter '" + option
+                            + "'. Must be one of [pool.minConnections, pool.maxConnections]");
+                }
+            }
+        }
         Map<String, String> params = new HashMap<String, String>();
         params.put(ArcSDEConnectionConfig.SERVER_NAME_PARAM_NAME, sdeHost);
         params.put(ArcSDEConnectionConfig.PORT_NUMBER_PARAM_NAME, String.valueOf(sdePort));
         params.put(ArcSDEConnectionConfig.INSTANCE_NAME_PARAM_NAME, sdeDBName);
         params.put(ArcSDEConnectionConfig.USER_NAME_PARAM_NAME, sdeUser);
         params.put(ArcSDEConnectionConfig.PASSWORD_PARAM_NAME, sdePass);
-        params.put(ArcSDEConnectionConfig.MIN_CONNECTIONS_PARAM_NAME, "1");
-        params.put(ArcSDEConnectionConfig.MAX_CONNECTIONS_PARAM_NAME, "20");
+        params.put(ArcSDEConnectionConfig.MIN_CONNECTIONS_PARAM_NAME, minConnections);
+        params.put(ArcSDEConnectionConfig.MAX_CONNECTIONS_PARAM_NAME, maxConnections);
         params.put(ArcSDEConnectionConfig.CONNECTION_TIMEOUT_PARAM_NAME, "-1");// do not wait
 
         ArcSDEConnectionConfig config = ArcSDEConnectionConfig.fromMap(params);
