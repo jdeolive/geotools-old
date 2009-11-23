@@ -13,6 +13,9 @@ public class SeConnection {
 	    throw new UnsupportedOperationException("this is the dummy api");
 	}
 	
+	public SeConnection(String a, String i, String b, String c, String d) throws SeException{
+	    throw new UnsupportedOperationException("this is the dummy api");
+	}
 	public String getDatabaseName() throws SeException { return null; }
 	public String getUser() throws SeException { return null; }
 	public java.util.Vector getLayers() throws SeException { return null; }
