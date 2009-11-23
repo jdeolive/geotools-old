@@ -109,6 +109,8 @@ public class PostGISDialect extends BasicSQLDialect {
             return false;
         } else if (tableName.startsWith("spatial_ref_sys")) {
             return false;
+        } else if (tableName.equals("geography_columns")) {
+            return false;
         }
 
         // others?
