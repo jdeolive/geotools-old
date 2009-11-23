@@ -47,7 +47,7 @@ import java.util.Map;
  *
  * Instead you can do this...
  * <pre><code>
- * GeometryType geomType = GeometryType.get(myObject);
+ * Geometries geomType = Geometries.get(myObject);
  * switch (geomType) {
  *     case POLYGON:
  *     case MULTIPOLYGON:
@@ -77,7 +77,7 @@ import java.util.Map;
  * @source $URL$
  * @version $Id$
  */
-public enum GeometryType {
+public enum Geometries {
     POINT(Point.class, 2001),
 
     LINESTRING(LineString.class, 2002),
@@ -95,10 +95,10 @@ public enum GeometryType {
     GEOMETRYCOLLECTION(GeometryCollection.class, 2008);
 
     /* For quick look-up by binding */
-    private static final Map<Class<? extends Geometry>, GeometryType> bindingLookup;
+    private static final Map<Class<? extends Geometry>, Geometries> bindingLookup;
     static {
-        bindingLookup = new HashMap<Class<? extends Geometry>, GeometryType>();
-        for (GeometryType gt : GeometryType.values()) {
+        bindingLookup = new HashMap<Class<? extends Geometry>, Geometries>();
+        for (Geometries gt : Geometries.values()) {
             bindingLookup.put(gt.binding, gt);
         }
     }
@@ -108,7 +108,7 @@ public enum GeometryType {
     private final String name;
     private final String simpleName;
 
-    private GeometryType(Class<? extends Geometry> type, int sqlType) {
+    private Geometries(Class<? extends Geometry> type, int sqlType) {
         this.binding = type;
         this.sqlType = sqlType;
         this.name = type.getSimpleName();
@@ -164,14 +164,14 @@ public enum GeometryType {
     }
 
     /**
-     * Get the {@code GeometryType} for the given object. 
+     * Get the {@code Geometries} for the given object.
      *
      * @param geom a JTS Geometry object
      *
-     * @return the {@code GeometryType} for the argument's class, or {@code null}
+     * @return the {@code Geometries} for the argument's class, or {@code null}
      *         if the argument is {@code null}
      */
-    public static GeometryType get(Geometry geom) {
+    public static Geometries get(Geometry geom) {
         if (geom != null) {
             return bindingLookup.get(geom.getClass());
         }
@@ -180,25 +180,25 @@ public enum GeometryType {
     }
 
     /**
-     * Get the {@code GeometryType} for the given {@code Geometry} class.
+     * Get the {@code Geometries} for the given {@code Geometry} class.
      *
      * @param geomClass the class
      *
      * @return the constant for this class
      */
-    public static GeometryType get(Class<? extends Geometry> geomClass) {
+    public static Geometries get(Class<? extends Geometry> geomClass) {
         return bindingLookup.get(geomClass);
     }
 
     /**
-     * Get the {@code GeometryType} with the given integer SQL type code.
+     * Get the {@code Geometries} with the given integer SQL type code.
      *
      * @param sqlType the code to look up.
      *
      * @return the matching type or {@code null} if no match was found
      */
-    public static GeometryType getForSQLType(int sqlType) {
-        for (GeometryType gt : GeometryType.values()) {
+    public static Geometries getForSQLType(int sqlType) {
+        for (Geometries gt : Geometries.values()) {
             if (gt.sqlType == sqlType) {
                 return gt;
             }
