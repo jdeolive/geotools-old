@@ -50,9 +50,6 @@ import com.vividsolutions.jts.geom.Geometry;
  * @source $URL$
  */
 public class PreparedFilterToSQL extends FilterToSQL {
-    protected GeometryDescriptor currentGeometry;
-    protected Integer currentSRID;
-
     /**
      * ordered list of literal values encountered and their types
      */
@@ -213,62 +210,6 @@ public class PreparedFilterToSQL extends FilterToSQL {
      */
     public List<Integer> getSRIDs() {
         return SRIDs;
-    }
-    
-    @Override
-    protected Object visitBinarySpatialOperator(BinarySpatialOperator filter,
-            Object extraData) {
-        // basic checks
-        if(filter == null)
-            throw new NullPointerException("Filter to be encoded cannot be null");
-        if(!(filter instanceof BinaryComparisonOperator))
-            throw new IllegalArgumentException("This filter is not a binary comparison, " +
-                    "can't do SDO relate against it: " + filter.getClass());
-        
-        // extract the property name and the geometry literal
-        PropertyName property;
-        Literal geometry;
-        BinaryComparisonOperator op = (BinaryComparisonOperator) filter;
-        if(op.getExpression1() instanceof PropertyName && op.getExpression2() instanceof Literal) {
-            property = (PropertyName) op.getExpression1();
-            geometry = (Literal) op.getExpression2();
-        } else if(op.getExpression2() instanceof PropertyName && op.getExpression1() instanceof Literal) {
-            property = (PropertyName) op.getExpression2();
-            geometry = (Literal) op.getExpression1();
-        } else {
-            throw new IllegalArgumentException("Can only encode spatial filters that do " +
-                    "compare a property name and a geometry");
-        }
-        
-        // handle native srid
-        currentGeometry = null;
-        currentSRID = null;
-        if(featureType != null) {
-            // going thru evaluate ensures we get the proper result even if the name has 
-            // not been specified (convention -> the default geometry)
-            AttributeDescriptor descriptor = (AttributeDescriptor) property.evaluate(featureType);
-            if(descriptor instanceof GeometryDescriptor) {
-                currentGeometry = (GeometryDescriptor) descriptor;
-                currentSRID = (Integer) descriptor.getUserData().get(JDBCDataStore.JDBC_NATIVE_SRID);
-            }
-        }
-        
-        return visitBinarySpatialOperator(filter, property, geometry, 
-                filter.getExpression1() instanceof Literal, extraData);
-    }
-
-    /**
-     * Subclasses should override this, the property and the geometry have already been separated out
-     * @param filter the original filter to be encoded
-     * @param property the property name
-     * @param geometry the geometry name
-     * @param swapped if true, the operation is <code>literal op name</code>, if false it's the normal
-     *        <code>name op literal</code>
-     * @param extraData the context
-     */
-    protected Object visitBinarySpatialOperator(BinarySpatialOperator filter, PropertyName property,
-            Literal geometry, boolean swapped, Object extraData) {
-        return super.visitBinarySpatialOperator(filter, extraData);
     }
 
 }
