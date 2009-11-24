@@ -180,16 +180,40 @@ public enum Geometries {
     }
 
     /**
+     * @deprecated use {@link #getForBinding(Class)} 
+     * 
+     */
+    public static Geometries get(Class<? extends Geometry> geomClass) {
+        return getForBinding(geomClass);
+    }
+    
+    /**
      * Get the {@code Geometries} for the given {@code Geometry} class.
      *
      * @param geomClass the class
      *
      * @return the constant for this class
      */
-    public static Geometries get(Class<? extends Geometry> geomClass) {
+    public static Geometries getForBinding(Class<? extends Geometry> geomClass) {
         return bindingLookup.get(geomClass);
     }
 
+    /**
+     * Get the {@code Geometries} for the specified name.
+     * 
+     * @param name The name of the geometry, eg: "POINT"
+     * 
+     * @return The constant for the name.
+     */
+    public static Geometries getForName(String name) {
+        for (Geometries gt : Geometries.values()) {
+            if (gt.getName().equals(name)) {
+                return gt;
+            }
+        }
+        return null;
+    }
+    
     /**
      * Get the {@code Geometries} with the given integer SQL type code.
      *
