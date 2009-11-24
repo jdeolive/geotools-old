@@ -500,19 +500,24 @@ public class DB2SQLDialect extends SQLDialect  {
 
 
     private void setIsRowNumberSupported() {
-    	
+        Connection con = null;
+        PreparedStatement ps = null; 
+        ResultSet rs = null;
+        
     	try {
-    		Connection con = dataStore.getDataSource().getConnection();
-    		PreparedStatement ps = con.prepareStatement(SELECT_ROWNUMBER); 
-    		ResultSet rs = ps.executeQuery();
+    		con = dataStore.getDataSource().getConnection();
+    		ps = con.prepareStatement(SELECT_ROWNUMBER); 
+    		rs = ps.executeQuery();
     		if (rs.next()) isRowNumberSupported=Boolean.TRUE;    		
-    		rs.close();
-    		ps.close();
-    		con.close();
     	}
     	catch (SQLException ex) {
     		LOGGER.warning(ROWNUMBER_MESSAGE);
-    		isRowNumberSupported=Boolean.FALSE;
+    		isRowNumberSupported=Boolean.FALSE;    		
+    	}
+    	finally {
+            try {if (rs!=null) rs.close(); } catch (SQLException ex1) {};
+            try {if (ps!=null) ps.close();} catch (SQLException ex1) {};
+            try {if (con!=null) con.close();} catch (SQLException ex1) {};
     	}
     }
     
