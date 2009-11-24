@@ -40,9 +40,13 @@ public class MySQLDataStoreFactory extends JDBCDataStoreFactory {
     public static final Param DBTYPE = new Param("dbtype", String.class, "Type", true,"mysql");
     /** Default port number for MYSQL */
     public static final Param PORT = new Param("port", Integer.class, "Port", true, 3306);
+    /** Storage engine to use when creating tables */
+    public static final Param STORAGE_ENGINE = 
+        new Param("storage engine", String.class, "Storage Engine", false, "MyISAM" );
     
     protected SQLDialect createSQLDialect(JDBCDataStore dataStore) {
-        return new MySQLDialectPrepared(dataStore);
+        //return new MySQLDialectPrepared(dataStore);
+        return new MySQLDialectBasic(dataStore);
     }
 
     public String getDisplayName() {
@@ -71,7 +75,26 @@ public class MySQLDataStoreFactory extends JDBCDataStoreFactory {
         super.setupParameters(parameters);
         parameters.put(DBTYPE.key, DBTYPE);
         parameters.put(PORT.key, PORT);
+        parameters.put(STORAGE_ENGINE.key, STORAGE_ENGINE);
         
         parameters.remove(SCHEMA.key);
+    }
+    
+    @Override
+    protected JDBCDataStore createDataStoreInternal(JDBCDataStore dataStore, Map params)
+            throws IOException {
+        String storageEngine = (String) STORAGE_ENGINE.lookUp( params );
+        if (storageEngine == null) {
+            storageEngine = (String) STORAGE_ENGINE.sample;
+        }
+        SQLDialect dialect = dataStore.getSQLDialect();
+        if (dialect instanceof MySQLDialectBasic) {
+            ((MySQLDialectBasic)dialect).setStorageEngine(storageEngine);
+        }
+        else {
+            ((MySQLDialectPrepared)dialect).setStorageEngine(storageEngine);
+        }
+        
+        return dataStore;
     }
 }

@@ -22,8 +22,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 
+import org.geotools.data.jdbc.FilterToSQL;
 import org.geotools.jdbc.BasicSQLDialect;
 import org.geotools.jdbc.JDBCDataStore;
+import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.GeometryDescriptor;
 
 import com.vividsolutions.jts.geom.Envelope;
@@ -51,6 +54,10 @@ public class MySQLDialectBasic extends BasicSQLDialect {
         delegate = new MySQLDialect(dataStore);
     }
     
+    public void setStorageEngine(String storageEngine) {
+        delegate.setStorageEngine(storageEngine);
+    }
+    
     @Override
     public String getNameEscape() {
         return delegate.getNameEscape();
@@ -70,6 +77,11 @@ public class MySQLDialectBasic extends BasicSQLDialect {
     @Override
     public void encodeColumnName(String raw, StringBuffer sql) {
         delegate.encodeColumnName(raw, sql);
+    }
+    
+    @Override
+    public void encodeGeometryColumn(GeometryDescriptor gatt, int srid, StringBuffer sql) {
+        delegate.encodeGeometryColumn(gatt, srid, sql);
     }
     
     @Override
@@ -103,6 +115,17 @@ public class MySQLDialectBasic extends BasicSQLDialect {
         delegate.encodePostCreateTable(tableName, sql);
     }
 
+    @Override
+    public void encodePostColumnCreateTable(AttributeDescriptor att, StringBuffer sql) {
+        delegate.encodePostColumnCreateTable(att, sql);
+    }
+    
+    @Override
+    public void postCreateTable(String schemaName, SimpleFeatureType featureType, Connection cx)
+            throws SQLException, IOException {
+        delegate.postCreateTable(schemaName, featureType, cx);
+    }
+    
     @Override
     public void encodePrimaryKey(String column, StringBuffer sql) {
         delegate.encodePrimaryKey(column, sql);
@@ -186,4 +209,8 @@ public class MySQLDialectBasic extends BasicSQLDialect {
         delegate.applyLimitOffset(sql, limit, offset);
     }
 
+    @Override
+    public FilterToSQL createFilterToSQL() {
+        return new MySQLFilterToSQL();
+    }
 }

@@ -26,6 +26,8 @@ import java.util.Map;
 
 import org.geotools.jdbc.JDBCDataStore;
 import org.geotools.jdbc.PreparedStatementSQLDialect;
+import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.GeometryDescriptor;
 
 import com.vividsolutions.jts.geom.Envelope;
@@ -48,6 +50,10 @@ public class MySQLDialectPrepared extends PreparedStatementSQLDialect {
     public MySQLDialectPrepared(JDBCDataStore dataStore) {
         super( dataStore );
         delegate = new MySQLDialect( dataStore );
+    }
+    
+    public void setStorageEngine(String storageEngine) {
+        delegate.setStorageEngine(storageEngine);
     }
     
     @Override
@@ -108,6 +114,17 @@ public class MySQLDialectPrepared extends PreparedStatementSQLDialect {
         delegate.encodePostCreateTable(tableName, sql);
     }
 
+    @Override
+    public void encodePostColumnCreateTable(AttributeDescriptor att, StringBuffer sql) {
+        delegate.encodePostColumnCreateTable(att, sql);
+    }
+
+    @Override
+    public void postCreateTable(String schemaName, SimpleFeatureType featureType, Connection cx)
+            throws SQLException, IOException {
+        delegate.postCreateTable(schemaName, featureType, cx);
+    }
+    
     @Override
     public void encodePrimaryKey(String column, StringBuffer sql) {
         delegate.encodePrimaryKey(column, sql);

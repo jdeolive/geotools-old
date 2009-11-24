@@ -26,6 +26,8 @@ import java.util.Map;
 
 import org.geotools.jdbc.JDBCDataStore;
 import org.geotools.jdbc.SQLDialect;
+import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.GeometryDescriptor;
 
 import com.vividsolutions.jts.geom.Envelope;
@@ -62,11 +64,24 @@ public class MySQLDialect extends SQLDialect {
     protected Integer MULTIPOLYGON = new Integer(2006);
     protected Integer GEOMETRY = new Integer(2007);
 
+    /**
+     * the storage engine to use when creating tables, one of MyISAM, InnoDB
+     */
+    protected String storageEngine;
+    
     
     public MySQLDialect(JDBCDataStore dataStore) {
         super(dataStore);
     }
 
+    public void setStorageEngine(String storageEngine) {
+        this.storageEngine = storageEngine;
+    }
+    
+    public String getStorageEngine() {
+        return storageEngine;
+    }
+    
     public String getNameEscape() {
         return "";
     }
@@ -232,7 +247,47 @@ public class MySQLDialect extends SQLDialect {
     
     public void encodePostCreateTable(String tableName, StringBuffer sql) {
         //TODO: make this configurable
-        sql.append("ENGINE=InnoDB");
+        sql.append("ENGINE="+storageEngine);
+    }
+    
+    @Override
+    public void encodePostColumnCreateTable(AttributeDescriptor att, StringBuffer sql) {
+        //make geometry columns non null in order to be able to index them
+        if (att instanceof GeometryDescriptor && !att.isNillable()) {
+            sql.append( " NOT NULL");
+        }
+    }
+    
+    @Override
+    public void postCreateTable(String schemaName, SimpleFeatureType featureType, Connection cx)
+            throws SQLException, IOException {
+        
+        //create spatial index for all geometry columns
+        for (AttributeDescriptor ad : featureType.getAttributeDescriptors()) {
+            if (!(ad instanceof GeometryDescriptor)) {
+                continue;
+            }
+            if (ad.isNillable()) {
+                //cannot index null columns
+                continue;
+            }
+            GeometryDescriptor gd = (GeometryDescriptor) ad;
+            StringBuffer sql = new StringBuffer("ALTER TABLE ");
+            encodeTableName(featureType.getTypeName(), sql);
+            sql.append(" ADD SPATIAL INDEX (");
+            encodeColumnName(gd.getLocalName(), sql);
+            sql.append(")");
+            
+            LOGGER.fine( sql.toString() );
+            Statement st = cx.createStatement();
+            try {
+                st.execute(sql.toString());
+            }
+            finally {
+                dataStore.closeSafe(st);
+            }
+        }
+        
     }
 
     public void encodePrimaryKey(String column, StringBuffer sql) {
