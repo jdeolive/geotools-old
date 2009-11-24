@@ -26,12 +26,17 @@ import java.sql.Time;
 import java.sql.Types;
 import java.util.Map;
 
+import org.geotools.data.jdbc.FilterToSQL;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.jdbc.BasicSQLDialect;
 import org.geotools.jdbc.JDBCDataStore;
 import org.geotools.referencing.CRS;
+import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.crs.ProjectedCRS;
+import org.opengis.referencing.cs.CoordinateSystem;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
@@ -89,6 +94,54 @@ public class SQLServerDialect extends BasicSQLDialect {
         
         //force varchar, if not it will default to nvarchar which won't support length restrictions
         overrides.put( Types.VARCHAR, "varchar");
+    }
+    
+    @Override
+    public void postCreateTable(String schemaName, SimpleFeatureType featureType, Connection cx)
+            throws SQLException, IOException {
+        
+        Statement st = cx.createStatement();
+        try {
+            //create spatial indexes for all geometry columns
+            for (AttributeDescriptor ad : featureType.getAttributeDescriptors()) {
+                if (ad instanceof GeometryDescriptor) {
+                    String bbox = null;
+                    GeometryDescriptor gd = (GeometryDescriptor) ad;
+                    
+                    //get the crs, and derive a bounds
+                    //TODO: stop being lame and properly figure out the dimension and bounds, see 
+                    // oracle dialect for the proper way to do it
+                    if (gd.getCoordinateReferenceSystem() != null) { 
+                        CoordinateReferenceSystem crs = gd.getCoordinateReferenceSystem();
+                        CoordinateSystem cs = crs.getCoordinateSystem();
+                        if (cs.getDimension() == 2) {
+                            bbox = "("+cs.getAxis(0).getMinimumValue()+", "+cs.getAxis(1).getMinimumValue();
+                            bbox += ", "+cs.getAxis(0).getMaximumValue()+", "+cs.getAxis(1).getMaximumValue()+")";
+                            
+                        }
+                    }
+                    
+                    if (bbox == null) {
+                        //no crs or could not figure out bounds
+                        continue;
+                    }
+                    StringBuffer sql = new StringBuffer("CREATE SPATIAL INDEX ");
+                    encodeTableName(featureType.getTypeName()+"_"+gd.getLocalName()+"_index", sql);
+                    sql.append( " ON ");
+                    encodeTableName(featureType.getTypeName(), sql);
+                    sql.append("(");
+                    encodeColumnName(gd.getLocalName(), sql);
+                    sql.append(")");
+                    sql.append( " WITH ( BOUNDING_BOX = ").append(bbox).append(")");
+                    
+                    LOGGER.fine(sql.toString());
+                    st.execute(sql.toString());
+                }
+            }
+        }
+        finally {
+            dataStore.closeSafe(st);
+        }
     }
     
     @Override
@@ -246,5 +299,10 @@ public class SQLServerDialect extends BasicSQLDialect {
             dataStore.closeSafe( st );
         }
          
+    }
+    
+    @Override
+    public FilterToSQL createFilterToSQL() {
+        return new SQLServerFilterToSQL();
     }
 }

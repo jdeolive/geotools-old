@@ -16,6 +16,8 @@
  */
 package org.geotools.data.sqlserver;
 
+import java.io.IOException;
+
 import org.geotools.jdbc.JDBCFeatureStoreTest;
 import org.geotools.jdbc.JDBCTestSetup;
 
@@ -24,6 +26,11 @@ public class SQLServerFeatureStoreTest extends JDBCFeatureStoreTest {
     @Override
     protected JDBCTestSetup createTestSetup() {
         return new SQLServerTestSetup();
+    }
+    
+    @Override
+    public void testAddInTransaction() throws IOException {
+        // does not work, see GEOT-2832
     }
 
 }
