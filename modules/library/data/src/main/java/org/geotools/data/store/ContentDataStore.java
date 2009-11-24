@@ -26,6 +26,7 @@ import java.util.logging.Logger;
 
 import org.geotools.data.DataAccess;
 import org.geotools.data.DataStore;
+import org.geotools.data.DataStoreFactorySpi;
 import org.geotools.data.DefaultServiceInfo;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureSource;
@@ -145,6 +146,11 @@ public abstract class ContentDataStore implements DataStore {
      */
     protected LockingManager lockingManager = new InProcessLockingManager();
     
+    /**
+     * factory used to create the datastore
+     */
+    protected DataStoreFactorySpi dataStoreFactory;
+    
     public ContentDataStore() {
         // get a concurrent map so that we can do reads in parallel with writes (writes vs writes
         // are actually synchronized to prevent double work, see getEntry()).
@@ -219,6 +225,27 @@ public abstract class ContentDataStore implements DataStore {
         this.geometryFactory = geometryFactory;
     }
 
+    /**
+     * Returns the factory used to create the data store.
+     * 
+     * @return The data store factory, possibly <code>null</code>. 
+     */
+    public DataStoreFactorySpi getDataStoreFactory() {
+        return dataStoreFactory;
+    }
+    
+    /**
+     * Sets the data store factory used to create the datastore.
+     * <p>
+     * WARNING: This property should only be set in cases where the datastore factory is 
+     * stateless and does not maintain any references to created datastores. Setting this 
+     * property in such a case will result in a memory leak. 
+     * </p>
+     */
+    public void setDataStoreFactory(DataStoreFactorySpi dataStoreFactory) {
+        this.dataStoreFactory = dataStoreFactory;
+    }
+    
     /**
      * The namespace uri of the datastore.
      * 

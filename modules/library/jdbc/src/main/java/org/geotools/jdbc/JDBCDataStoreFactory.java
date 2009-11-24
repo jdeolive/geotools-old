@@ -171,7 +171,8 @@ public abstract class JDBCDataStoreFactory extends AbstractDataStoreFactory {
         dataStore.setGeometryFactory(new GeometryFactory());
         dataStore.setFeatureTypeFactory(new FeatureTypeFactoryImpl());
         dataStore.setFeatureFactory(CommonFactoryFinder.getFeatureFactory(null));
-
+        dataStore.setDataStoreFactory(this);
+        
         //call subclass hook and return
         return createDataStoreInternal(dataStore, params);
     }
