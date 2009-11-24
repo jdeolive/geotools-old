@@ -32,6 +32,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -61,6 +62,7 @@ import org.geotools.feature.IllegalAttributeException;
 import org.geotools.filter.IllegalFilterException;
 import org.geotools.filter.visitor.SimplifyingFilterVisitor;
 import org.geotools.geometry.jts.Decimator;
+import org.geotools.geometry.jts.LiteCoordinateSequence;
 import org.geotools.geometry.jts.LiteCoordinateSequenceFactory;
 import org.geotools.geometry.jts.LiteShape2;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -73,6 +75,8 @@ import org.geotools.referencing.operation.transform.ConcatenatedTransform;
 import org.geotools.referencing.operation.transform.ProjectiveTransform;
 import org.geotools.renderer.GTRenderer;
 import org.geotools.renderer.RenderListener;
+import org.geotools.renderer.crs.ProjectionHandler;
+import org.geotools.renderer.crs.ProjectionHandlerFinder;
 import org.geotools.renderer.label.LabelCacheImpl;
 import org.geotools.renderer.lite.gridcoverage2d.GridCoverageRenderer;
 import org.geotools.renderer.style.SLDStyleFactory;
@@ -97,7 +101,6 @@ import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.PropertyName;
-import org.opengis.filter.spatial.BBOX;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -199,6 +202,12 @@ public final class StreamingRenderer implements GTRenderer {
 	
 	/** Geographic map extent, as provided by the caller */
     private ReferencedEnvelope originalMapExtent;
+    
+    /**
+     * The handler that will be called to process the geometries to deal with projections 
+     * singularities and dateline wrapping
+     */
+    private ProjectionHandler projectionHandler;
 
 	/** The size of the output area in output units. */
 	private Rectangle screenSize;
@@ -285,6 +294,15 @@ public final class StreamingRenderer implements GTRenderer {
      * declared against it</p>
      */
     public static final String OPTIMIZE_FTS_RENDERING_KEY = "optimizeFTSRendering";
+    
+    
+    /**
+     * Enables advanced reprojection handling. Geometries will be sliced to fit into the
+     * area of definition of the rendering projection, and for projections that can wrap
+     * the world in a continuous way (e.g., Mercator) a Google Maps like effect will be
+     * generated (continuous horizontal map).
+     */
+    public static final String ADVANCED_PROJECTION_HANDLING_KEY = "advancedProjectionHandling";
 
 	public static final String LABEL_CACHE_KEY = "labelCache";
 	public static final String DPI_KEY = "dpi";
@@ -292,8 +310,6 @@ public final class StreamingRenderer implements GTRenderer {
 	public static final String MEMORY_PRE_LOADING_KEY = "memoryPreloadingEnabled";
 	public static final String OPTIMIZED_DATA_LOADING_KEY = "optimizedDataLoadingEnabled";
 	public static final String SCALE_COMPUTATION_METHOD_KEY = "scaleComputationMethod";
-	
-    
     
     /**
      * "optimizedDataLoadingEnabled" - Boolean  yes/no (see default optimizedDataLoadingEnabledDEFAULT)
@@ -621,6 +637,8 @@ public final class StreamingRenderer implements GTRenderer {
 			worldToScreenTransform = atg;
 			graphics.setTransform(worldToScreenTransform);
 		}
+		if(isAdvancedProjectionHandlingEnabled())
+		    projectionHandler = ProjectionHandlerFinder.getHandler(mapExtent);
 
         // compute scale according to the user specified method
         scaleDenominator = computeScale(mapArea, paintArea,worldToScreenTransform, rendererHints);
@@ -860,15 +878,21 @@ public final class StreamingRenderer implements GTRenderer {
 				// each geometric attribute used during the rendering as the
 				// feature may have more than one and the styles could use non
 				// default geometric ones
-				if (mapCRS != null && featCrs != null
-						&& !CRS.equalsIgnoreMetadata(featCrs, mapCRS)) {
-					envelope = envelope.transform(featCrs, true, 10);
+				List<ReferencedEnvelope> envelopes;
+				if (projectionHandler != null) {
+                    envelopes = projectionHandler.getQueryEnvelopes(featCrs);
+				} else {
+    				if (mapCRS != null && featCrs != null && !CRS.equalsIgnoreMetadata(featCrs, mapCRS)) {
+    						envelopes = Collections.singletonList(envelope.transform(featCrs, true, 10));
+    				} else {
+    					envelopes = Collections.singletonList(envelope);
+    				}
 				}
 
 				if (!isMemoryPreloadingEnabled()) {
                     if(LOGGER.isLoggable(Level.FINE))
                         LOGGER.fine("Querying layer " + schema.getTypeName() +  " with bbox: " + envelope);
-					filter = createBBoxFilters(schema, attributes, envelope);
+					filter = createBBoxFilters(schema, attributes, envelopes);
 				} else {
 					filter = Filter.INCLUDE;
 				}
@@ -890,7 +914,7 @@ public final class StreamingRenderer implements GTRenderer {
 					LOGGER.log(Level.WARNING, "Got a tranform exception while trying to de-project the current " +
 											"envelope, bboxs intersect therefore using envelope)", e);
 					filter = null;					
-					filter = createBBoxFilters(schema, attributes, envelope);
+					filter = createBBoxFilters(schema, attributes, Collections.singletonList(envelope));
 					query.setFilter(filter);
 				} else {
 					LOGGER.log(Level.WARNING, "Got a tranform exception while trying to de-project the current " +
@@ -980,13 +1004,7 @@ public final class StreamingRenderer implements GTRenderer {
     private MathTransform2D buildFullTransform(CoordinateReferenceSystem sourceCRS,
             CoordinateReferenceSystem destCRS, AffineTransform worldToScreenTransform)
             throws FactoryException {
-        // the basic crs transformation, if any
-        MathTransform2D mt;
-        if (sourceCRS == null || destCRS == null || CRS.equalsIgnoreMetadata(sourceCRS,
-                destCRS))
-            mt = null;
-        else
-            mt = (MathTransform2D) CRS.findMathTransform(sourceCRS, destCRS, true);
+        MathTransform2D mt = buildTransform(sourceCRS, destCRS);
         
         // concatenate from world to screen
         if (mt != null && !mt.isIdentity()) {
@@ -998,6 +1016,25 @@ public final class StreamingRenderer implements GTRenderer {
         
         return mt;
     }
+
+    /**
+     * Builds the transform from sourceCRS to destCRS
+     * @param sourceCRS
+     * @param destCRS
+     * @return the transform, or null if any of the crs is null, or if the the two crs are equal
+     * @throws FactoryException
+     */
+	private MathTransform2D buildTransform(CoordinateReferenceSystem sourceCRS,
+			CoordinateReferenceSystem destCRS) throws FactoryException {
+		// the basic crs transformation, if any
+        MathTransform2D mt;
+        if (sourceCRS == null || destCRS == null || CRS.equalsIgnoreMetadata(sourceCRS,
+                destCRS))
+            mt = null;
+        else
+            mt = (MathTransform2D) CRS.findMathTransform(sourceCRS, destCRS, true);
+		return mt;
+	}
 
     /**
      * Scans the schema for the specified attributes are returns a single CRS
@@ -1159,6 +1196,19 @@ public final class StreamingRenderer implements GTRenderer {
     }
     
     /**
+     * Checks if the advanced projection handling is enabled
+     * @return
+     */
+    private boolean isAdvancedProjectionHandlingEnabled() {
+        if (rendererHints == null)
+            return false;
+        Object result = rendererHints.get(ADVANCED_PROJECTION_HANDLING_KEY);
+        if (result == null)
+            return false;
+        return Boolean.TRUE.equals(result);
+    }
+    
+    /**
      * Returns an estimate of the rendering buffer needed to properly display this
      * layer taking into consideration the constant stroke sizes in the feature type
      * styles.
@@ -1306,7 +1356,7 @@ public final class StreamingRenderer implements GTRenderer {
 	 *             if something goes wrong creating the filter
 	 */
 	private Filter createBBoxFilters(SimpleFeatureType schema, String[] attributes,
-			Envelope bbox) throws IllegalFilterException {
+			List<ReferencedEnvelope> bboxes) throws IllegalFilterException {
 		Filter filter = Filter.INCLUDE;
 		final int length = attributes.length;
 		AttributeDescriptor attType;
@@ -1327,13 +1377,19 @@ public final class StreamingRenderer implements GTRenderer {
 						schema.getTypeName()).append(")").toString());
 			}
 
-			if (attType instanceof GeometryDescriptor) {                                
-			    BBOX gfilter = new FastBBOX(attType.getLocalName(), bbox);
+			if (attType instanceof GeometryDescriptor) {
+				Filter gfilter = new FastBBOX(attType.getLocalName(), bboxes.get(0));
                 
 				if (filter == Filter.INCLUDE) {
 					filter = gfilter;
 				} else {
 					filter = filterFactory.or( filter, gfilter );
+				}
+				
+				if(bboxes.size() > 0) {
+					for (int k = 1; k < bboxes.size(); k++) {
+						filter = filterFactory.or( filter, new FastBBOX(attType.getLocalName(), bboxes.get(k)) );
+					}
 				}
 			}
 		}
@@ -2408,18 +2464,36 @@ public final class StreamingRenderer implements GTRenderer {
 			
 			SymbolizerAssociation sa = (SymbolizerAssociation) symbolizerAssociationHT
 					.get(symbolizer);
-			MathTransform2D transform = null;
+			MathTransform2D crsTransform = null;
+			MathTransform2D atTransform = null;
+			MathTransform2D fullTransform = null;
 			if (sa == null) {
 				sa = new SymbolizerAssociation();
-				sa.setCRS(findGeometryCS(layer, content, symbolizer));
+				sa.crs = (findGeometryCS(layer, content, symbolizer));
 				try {
-				    transform = buildFullTransform(sa.crs, destinationCrs, at);
+					crsTransform = buildTransform(sa.crs, destinationCrs);
+					atTransform = (MathTransform2D) ProjectiveTransform.create(worldToScreenTransform);
+				    fullTransform = buildFullTransform(sa.crs, destinationCrs, at);
 				} catch (Exception e) {
 					// fall through
 					LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);
 				}
-				sa.setXform(transform);
+				sa.xform = fullTransform;
+				sa.crsxform = crsTransform;
+				sa.axform = atTransform;
+				
 				symbolizerAssociationHT.put(symbolizer, sa);
+			}
+			
+			if(projectionHandler != null && projectionHandler.requiresProcessing(sa.crs, g)) {
+			    try {
+			        g = projectionHandler.preProcess(sa.crs, g);
+    				if(g == null)
+    					return null;
+    			    } catch(Exception e) {
+    			        LOGGER.log(Level.FINE, "Skipping geometry due to pre-processing issues", e);
+    			        return null;
+    			    }
 			}
 
 			// some shapes may be too close to projection boundaries to
@@ -2434,13 +2508,13 @@ public final class StreamingRenderer implements GTRenderer {
                         // fact we're modifing the geometry coordinates directly, if we don't get
                         // the reprojected and decimated geometry we risk of transforming it twice
                         // when computing the centroid
-                        getTransformedShape(g, sa.getXform());
+                        getTransformedShape(g, sa);
                         return getTransformedShape(RendererUtilities.getCentroid(g), null);
                     } else {
-                        return getTransformedShape(RendererUtilities.getCentroid(g), sa.getXform());
+                        return getTransformedShape(RendererUtilities.getCentroid(g), sa);
                     }
                 } else {
-                    return getTransformedShape(g, sa.getXform());
+                    return getTransformedShape(g, sa);
                 }
 			} catch (TransformException te) {
                                     LOGGER.log(Level.FINE, te.getLocalizedMessage(), te);
@@ -2453,13 +2527,36 @@ public final class StreamingRenderer implements GTRenderer {
 			}
 		}
 		
-		private final LiteShape2 getTransformedShape(Geometry g, MathTransform2D transform) throws TransformException,
+		private final LiteShape2 getTransformedShape(Geometry g, SymbolizerAssociation sa) throws TransformException,
 				FactoryException {
 				for (int i = 0; i < geometries.size(); i++) {
 					if(geometries.get(i) == g)
 						return (LiteShape2) shapes.get(i);
 				}
-				LiteShape2 shape = new LiteShape2(g, transform, getDecimator(transform), false, clone);
+				
+				LiteShape2 shape;
+				if(projectionHandler != null) {
+				    // first generalize and transform the geometry into the rendering CRS
+					Decimator d = getDecimator(sa.xform);
+					if(clone || !(g.getFactory().getCoordinateSequenceFactory() instanceof LiteCoordinateSequenceFactory)) {
+					    g = LiteCoordinateSequence.cloneGeometry(g);
+					}
+					d.decimateTransformGeneralize(g, sa.crsxform);
+					g.geometryChanged();
+					
+					// then post process it					
+					g = projectionHandler.postProcess(g);
+					
+					// apply the affine transform turning the coordinates into pixels
+					d = new Decimator(-1, -1);
+					d.decimateTransformGeneralize(g, sa.axform);
+					
+					// wrap into a lite shape
+					shape = new LiteShape2(g, null, null, false, false);
+				} else {
+					shape = new LiteShape2(g, sa.xform, getDecimator(sa.xform), false, clone);
+				}
+				
 				geometries.add(g);
 				shapes.add(shape);
 				return shape;

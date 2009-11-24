@@ -698,6 +698,24 @@ search:             if (DefaultCoordinateSystemAxis.isCompassDirection(axis.getD
     }
 
     /**
+     * Returns the {@link MapProjection} driving the specified crs, or {@code null} if none could
+     * be found.
+     * @param crs The coordinate reference system, or {@code null}.
+     * @return The {@link MapProjection}, or {@code null} if none.
+     */
+    public static MapProjection getMapProjection(final CoordinateReferenceSystem crs) {
+        ProjectedCRS projectedCRS = CRS.getProjectedCRS(crs);
+        if(projectedCRS == null)
+            return null;
+        
+        MathTransform mt = projectedCRS.getConversionFromBase().getMathTransform();
+        if(mt instanceof MapProjection)
+            return (MapProjection) mt;
+        
+        return null;
+    }
+
+    /**
      * Returns the first vertical coordinate reference system found in a the given CRS,
      * or {@code null} if there is none.
      *

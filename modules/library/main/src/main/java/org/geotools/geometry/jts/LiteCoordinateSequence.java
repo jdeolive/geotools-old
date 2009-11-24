@@ -16,8 +16,17 @@
  */
 package org.geotools.geometry.jts;
 
+import java.util.ArrayList;
+
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.impl.PackedCoordinateSequence;
 
 /**
@@ -27,7 +36,9 @@ import com.vividsolutions.jts.geom.impl.PackedCoordinateSequence;
  * @since 2.1.x
  * @source $URL$
  */
-public class LiteCoordinateSequence extends PackedCoordinateSequence{
+public class LiteCoordinateSequence extends PackedCoordinateSequence {
+    
+    private static final GeometryFactory geomFac = new GeometryFactory(new LiteCoordinateSequenceFactory());
 
     /**
      * The packed coordinate array
@@ -269,5 +280,121 @@ public class LiteCoordinateSequence extends PackedCoordinateSequence{
 		}
 		return result;
 	}
+	
+	/**
+	 * Clones the specified geometry using {@link LiteCoordinateSequence} in the result
+	 * @param geom
+	 * @return
+	 */
+    public static final Geometry cloneGeometry(Geometry geom) {
+        if(geom == null)
+            return null;
+        
+        if (geom.getFactory().getCoordinateSequenceFactory() instanceof LiteCoordinateSequenceFactory) {
+            if (geom instanceof LineString)
+                return cloneGeometryLCS((LineString) geom);
+            else if (geom instanceof Polygon)
+                return cloneGeometryLCS((Polygon) geom);
+            else if (geom instanceof Point)
+                return cloneGeometryLCS((Point) geom);
+            else
+                return cloneGeometryLCS((GeometryCollection) geom);
+        } else {
+            if (geom instanceof LineString)
+                return cloneGeometry((LineString) geom);
+            else if (geom instanceof Polygon)
+                return cloneGeometry((Polygon) geom);
+            else if (geom instanceof Point)
+                return cloneGeometry((Point) geom);
+            else
+                return cloneGeometry((GeometryCollection) geom);
+        }
+    }
+
+    /**
+     * changes this to a new CSF -- more efficient than the JTS way
+     * 
+     * @param geom
+     */
+    private static final Geometry cloneGeometryLCS(Polygon geom) {
+        LinearRing lr = (LinearRing) cloneGeometryLCS((LinearRing) geom.getExteriorRing());
+        LinearRing[] rings = new LinearRing[geom.getNumInteriorRing()];
+        for (int t = 0; t < rings.length; t++) {
+            rings[t] = (LinearRing) cloneGeometryLCS((LinearRing) geom.getInteriorRingN(t));
+        }
+        return geomFac.createPolygon(lr, rings);
+    }
+
+    private static final Geometry cloneGeometryLCS(Point geom) {
+        return geomFac.createPoint(new LiteCoordinateSequence((LiteCoordinateSequence) geom
+                .getCoordinateSequence()));
+    }
+
+    private static final Geometry cloneGeometryLCS(LineString geom) {
+        return geomFac.createLineString(new LiteCoordinateSequence((LiteCoordinateSequence) geom
+                .getCoordinateSequence()));
+    }
+
+    private static final Geometry cloneGeometryLCS(LinearRing geom) {
+        return geomFac.createLinearRing(new LiteCoordinateSequence((LiteCoordinateSequence) geom
+                .getCoordinateSequence()));
+    }
+
+    private static final Geometry cloneGeometryLCS(GeometryCollection geom) {
+        if (geom.getNumGeometries() == 0) {
+            Geometry[] gs = new Geometry[0];
+            return geomFac.createGeometryCollection(gs);
+        }
+
+        ArrayList gs = new ArrayList(geom.getNumGeometries());
+        int n = geom.getNumGeometries();
+        for (int t = 0; t < n; t++) {
+            gs.add(t, cloneGeometry(geom.getGeometryN(t)));
+        }
+        return geomFac.buildGeometry(gs);
+    }
+
+    /**
+     * changes this to a new CSF -- more efficient than the JTS way
+     * 
+     * @param geom
+     */
+    private static final Geometry cloneGeometry(Polygon geom) {
+        LinearRing lr = (LinearRing) cloneGeometry((LinearRing) geom.getExteriorRing());
+        LinearRing[] rings = new LinearRing[geom.getNumInteriorRing()];
+        for (int t = 0; t < rings.length; t++) {
+            rings[t] = (LinearRing) cloneGeometry((LinearRing) geom.getInteriorRingN(t));
+        }
+        return geomFac.createPolygon(lr, rings);
+    }
+
+    private static final Geometry cloneGeometry(Point geom) {
+        return geomFac
+                .createPoint(new LiteCoordinateSequence((Coordinate[]) geom.getCoordinates()));
+    }
+
+    private static final Geometry cloneGeometry(LineString geom) {
+        return geomFac.createLineString(new LiteCoordinateSequence((Coordinate[]) geom
+                .getCoordinates()));
+    }
+
+    private static final Geometry cloneGeometry(LinearRing geom) {
+        return geomFac.createLinearRing(new LiteCoordinateSequence((Coordinate[]) geom
+                .getCoordinates()));
+    }
+
+    private static final Geometry cloneGeometry(GeometryCollection geom) {
+        if (geom.getNumGeometries() == 0) {
+            Geometry[] gs = new Geometry[0];
+            return geomFac.createGeometryCollection(gs);
+        }
+
+        ArrayList gs = new ArrayList(geom.getNumGeometries());
+        int n = geom.getNumGeometries();
+        for (int t = 0; t < n; t++) {
+            gs.add(cloneGeometry(geom.getGeometryN(t)));
+        }
+        return geomFac.buildGeometry(gs);
+    }
 	
 }

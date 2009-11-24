@@ -309,6 +309,8 @@ public final class Decimator {
 				actualCoords++;
 			}
 		}
+		
+		// handle rings
 		if(ring && actualCoords <= 3) {
 			coords[2] = coords[2];
 			coords[3] = coords[3];
@@ -316,6 +318,7 @@ public final class Decimator {
 			coords[5] = coords[5];
 			actualCoords = 3;
 		}
+		
 		// always have last one
 		coords[actualCoords * 2] = coords[(ncoords - 1) * 2];
 		coords[actualCoords * 2 + 1] = coords[(ncoords - 1) * 2 + 1];
@@ -328,36 +331,10 @@ public final class Decimator {
 		    transform.transform(coords, 0, coords, 0, actualCoords);
 		}
 
-		int actualCoordsGen = 1;
-//		if(!(transform instanceof AffineTransform2D)) {
-//        		// GENERALIZE again -- we should be in screen space so spanx=spany=1.0
-//        		for (int t = 1; t < (actualCoords - 1); t++) {
-//        			// see if this one should be added
-//        			double x = coords[t * 2];
-//        			double y = coords[t * 2 + 1];
-//        			if ((Math.abs(x - lastX) > 0.75) || (Math.abs(y - lastY)) > 0.75) // 0.75
-//        			// instead of 1 just because it tends to look nicer for slightly
-//        			// more work. magic number.
-//        			{
-//        			    coords[actualCoordsGen * 2] = x;
-//        			    coords[actualCoordsGen * 2 + 1] = y;
-//        				lastX = x;
-//        				lastY = y;
-//        				actualCoordsGen++;
-//        			}
-//        		}
-//        		// always have last one
-//        		coords[actualCoordsGen * 2] = coords[(actualCoords - 1) * 2];
-//        		coords[actualCoordsGen * 2 + 1] = coords[(actualCoords - 1) * 2 + 1];
-//        		actualCoordsGen++;
-//		} else {
-		    actualCoordsGen = actualCoords;
-//		}
-
-		// stick back in
-		if(actualCoordsGen * 2 < coords.length) {
-		    double[] seqDouble = new double[2 * actualCoordsGen];
-		    System.arraycopy(coords, 0, seqDouble, 0, actualCoordsGen * 2);
+		// stick back into the coordinate sequence
+		if(actualCoords * 2 < coords.length) {
+		    double[] seqDouble = new double[2 * actualCoords];
+		    System.arraycopy(coords, 0, seqDouble, 0, actualCoords * 2);
 		    seq.setArray(seqDouble, 2);
 		} else {
 		    seq.setArray(coords, 2);
