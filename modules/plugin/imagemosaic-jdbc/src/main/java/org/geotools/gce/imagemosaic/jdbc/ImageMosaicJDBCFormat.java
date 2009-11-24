@@ -169,6 +169,9 @@ public class ImageMosaicJDBCFormat extends AbstractGridFormat implements Format 
 		if (sourceUrl == null) {
 			return false;
 		}
+		
+		if ((sourceUrl.getPath().endsWith(".xml")== false) 
+		        &&  (sourceUrl.getPath().endsWith(".XML")==false)) return false;
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 
