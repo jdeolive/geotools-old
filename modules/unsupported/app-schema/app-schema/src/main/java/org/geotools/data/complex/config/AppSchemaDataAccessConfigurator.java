@@ -45,6 +45,7 @@ import org.geotools.data.DataAccessFinder;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.FeatureSource;
+import org.geotools.data.complex.AppSchemaDataAccess;
 import org.geotools.data.complex.AttributeMapping;
 import org.geotools.data.complex.DataAccessRegistry;
 import org.geotools.data.complex.FeatureTypeMapping;
@@ -192,7 +193,12 @@ public class AppSchemaDataAccessConfigurator {
         for (Iterator it = mappingsConfigs.iterator(); it.hasNext();) {
             TypeMapping dto = (TypeMapping) it.next();
 
-            FeatureSource featureSource = getFeatureSource(dto);
+            String dsId = dto.getSourceDataStore();
+            // check if this is a special data access with another comples feature data access
+            // as a source, instead of a simple feature data store
+            boolean hasInputDA = inputDataAccessIds.contains(dsId);
+            FeatureSource featureSource = getFeatureSource(dto, dsId, hasInputDA);
+            
             GeometryType geomType = null;
             // get default geometry from underlying feature source and pass it on
             GeometryDescriptor defaultGeom = featureSource.getSchema().getGeometryDescriptor();
@@ -209,7 +215,18 @@ public class AppSchemaDataAccessConfigurator {
                     target.getType().getUserData().put("schemaURI", schemaURI);
                 }
             }
-            List attMappings = getAttributeMappings(target, dto.getAttributeMappings(), dto.getItemXpath());
+            // need to copy client properties from the underlying data access across
+            FeatureTypeMapping inputDAMapping = null;
+            if (hasInputDA) {
+                DataAccess inputDA = featureSource.getDataStore();
+                if (inputDA instanceof AppSchemaDataAccess) {
+                    inputDAMapping = ((AppSchemaDataAccess) inputDA).getMapping(featureSource
+                            .getName());
+                }
+
+            }
+            List attMappings = getAttributeMappings(target, dto.getAttributeMappings(), dto
+                    .getItemXpath(), inputDAMapping);
 
             FeatureTypeMapping mapping;
 
@@ -241,11 +258,14 @@ public class AppSchemaDataAccessConfigurator {
      * 
      * @param root
      * @param attDtos
+     * @param itemXpath
+     * @param inputDAMapping
+     *            mappings from underlying data access if this is a wrapper data access
      * 
      * @return
      */
     private List getAttributeMappings(final AttributeDescriptor root, final List attDtos,
-            String itemXpath) throws IOException {
+            String itemXpath, FeatureTypeMapping inputDAMapping) throws IOException {
         List attMappings = new LinkedList();
 
         for (Iterator it = attDtos.iterator(); it.hasNext();) {
@@ -295,7 +315,7 @@ public class AppSchemaDataAccessConfigurator {
 
             final AttributeType expectedInstanceOf;
 
-            final Map clientProperties = getClientProperties(attDto, itemXpath);
+            final Map clientProperties = getClientProperties(attDto, itemXpath, inputDAMapping);
 
             if (expectedInstanceTypeName != null) {
                 Name expectedNodeTypeName = degloseTypeName(expectedInstanceTypeName);
@@ -384,37 +404,47 @@ public class AppSchemaDataAccessConfigurator {
      *         mapping)
      * @throws DataSourceException
      */
-    private Map getClientProperties(org.geotools.data.complex.config.AttributeMapping dto, String inputXPath)
-            throws DataSourceException {
-
-        if (dto.getClientProperties().size() == 0) {
-            return Collections.EMPTY_MAP;
-        }
+    private Map getClientProperties(org.geotools.data.complex.config.AttributeMapping dto,
+            String inputXPath, FeatureTypeMapping inputDAMapping) throws DataSourceException {
 
         Map clientProperties = new HashMap();
-        for (Iterator it = dto.getClientProperties().entrySet().iterator(); it.hasNext();) {
-            Map.Entry entry = (Map.Entry) it.next();
-            String name = (String) entry.getKey();
-            Name qName = degloseName(name);
-            String cqlExpression = (String) entry.getValue();
-            
-            final Expression expression;
-            if (inputXPath == null) {
-                expression =  parseOgcCqlExpression(cqlExpression);
-            } else if(cqlExpression.startsWith("'")) {
-                expression = new AttributeExpressionImpl(cqlExpression, null);
-            } else {
-                expression =  new AttributeExpressionImpl(cqlExpression, new Hints(
-                        FeaturePropertyAccessorFactory.NAMESPACE_CONTEXT, this.namespaces));
+        
+        if (!dto.getClientProperties().isEmpty()) {
+            for (Iterator it = dto.getClientProperties().entrySet().iterator(); it.hasNext();) {
+                Map.Entry entry = (Map.Entry) it.next();
+                String name = (String) entry.getKey();
+                Name qName = degloseName(name);
+                String cqlExpression = (String) entry.getValue();
+
+                final Expression expression;
+                if (inputXPath == null) {
+                    expression = parseOgcCqlExpression(cqlExpression);
+                } else if (cqlExpression.startsWith("'")) {
+                    expression = new AttributeExpressionImpl(cqlExpression, null);
+                } else {
+                    expression = new AttributeExpressionImpl(cqlExpression, new Hints(
+                            FeaturePropertyAccessorFactory.NAMESPACE_CONTEXT, this.namespaces));
+                }
+
+                clientProperties.put(qName, expression);
             }
-                        
-            clientProperties.put(qName, expression);
+        }
+        if (inputDAMapping != null) {
+            String sourceExpression = dto.getSourceExpression();
+            if (sourceExpression != null) {
+                AttributeMapping inputDto = inputDAMapping.getAttributeMapping(XPath.steps(
+                        inputDAMapping.getTargetFeature(), sourceExpression, namespaces));
+                if (inputDto != null) {
+                    clientProperties.putAll(inputDto.getClientProperties());
+                }
+            }
         }
         return clientProperties;
     }
 
-    private FeatureSource getFeatureSource(TypeMapping dto) throws IOException {
-        String dsId = dto.getSourceDataStore();
+    private FeatureSource getFeatureSource(TypeMapping dto, String dsId, boolean hasInputDA)
+            throws IOException {
+
         String typeName = dto.getSourceTypeName();
 
         DataAccess sourceDataStore = (DataAccess) sourceDataStores.get(dsId);
@@ -427,8 +457,8 @@ public class AppSchemaDataAccessConfigurator {
                 + " for source type " + typeName);
         Name name = degloseName(typeName);
         FeatureSource fSource = (FeatureSource) sourceDataStore.getFeatureSource(name);
-
-        if (inputDataAccessIds.contains(dsId)) {
+        
+        if (hasInputDA) {
             // reassign with complex feature source
             // since the dsId actually is the parameters for the underlying
             // data store.. but we want to connect to the data access
