@@ -137,6 +137,10 @@ class MappingFeatureSource implements FeatureSource<FeatureType, Feature> {
         return (FeatureType) mapping.getTargetFeature().getType();
     }
 
+    protected FeatureTypeMapping getMapping() {
+        return mapping;
+    }
+    
     public FeatureCollection<FeatureType, Feature> getFeatures(Query query) throws IOException {
         return new MappingFeatureCollection(store, mapping, namedQuery(query));
     }

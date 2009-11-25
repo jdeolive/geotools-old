@@ -27,6 +27,7 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
+import org.geotools.data.DataSourceException;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
 import org.geotools.data.complex.filter.XPath;
@@ -208,22 +209,9 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
             String xpath = attribExpression.getPropertyName();
             ComplexAttribute sourceFeature = (ComplexAttribute) sourceFeatureInput;
             StepList xpathSteps = XPath.steps(sourceFeature.getDescriptor(), xpath, namespaces);
-
-            ArrayList<Object> values = new ArrayList<Object>();
-            Collection<Property> properties = getProperties(sourceFeature, xpathSteps);
-            for (Property property : properties) {
-                Object value = property.getValue();
-                if (value != null) {
-                    if (value instanceof Collection) {
-                        values.addAll((Collection) property.getValue());
-                    } else {
-                        values.add(property.getValue());
-                    }
-                }
-            }
-            return values;
+            return getProperties(sourceFeature, xpathSteps);
         }
-        return getValue(expression, sourceFeatureInput);
+        return expression.evaluate(sourceFeatureInput);
     }
 
     /**
@@ -252,8 +240,14 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
                 ArrayList<Feature> nestedFeatures = new ArrayList<Feature>(((Collection) value)
                         .size());
                 for (Object val : (Collection) value) {
-                    while (val instanceof Attribute) {
+                    if (val instanceof Attribute) {
                         val = ((Attribute) val).getValue();
+                        if (val instanceof Collection) {
+                            val = ((Collection) val).iterator().next();
+                        }
+                        while (val instanceof Attribute) {
+                            val = ((Attribute) val).getValue();
+                        }
                     }
                     if (isHRefLink) {
                         // get the input features to avoid infinite loop in case the nested
@@ -293,14 +287,47 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
         if (value instanceof Collection) {
             // nested feature type could have multiple instances as the whole purpose
             // of feature chaining is to cater for multi-valued properties
+            Map<Object, Object> userData;
+            Map<Name, Expression> valueProperties = new HashMap<Name, Expression>();
             for (Object singleVal : (Collection) value) {
                 ArrayList valueList = new ArrayList();
-                valueList.add(singleVal);
+                // copy client properties from input features if they're complex features
+                // wrapped in app-schema data access
+                if (singleVal instanceof Attribute) {
+                    // copy client properties from input features if they're complex features
+                    // wrapped in app-schema data access
+                    valueProperties = getClientProperties((Attribute) singleVal);
+                    if (!valueProperties.isEmpty()) {
+                        valueProperties.putAll(clientPropsMappings);
+                    }
+                }
+                if (!isNestedFeature) {
+                    if (singleVal instanceof Attribute) {
+                        singleVal = ((Attribute) singleVal).getValue();
+                        if (singleVal instanceof Collection) {
+                            valueList.addAll((Collection) singleVal);
+                        } else {
+                            valueList.add(singleVal);
+                        }
+                    }
+                } else {
+                    valueList.add(singleVal);
+                }
                 Attribute instance = xpathAttributeBuilder.set(target, xpath, valueList, id,
                         targetNodeType, false);
-                setClientProperties(instance, source, clientPropsMappings);
+                setClientProperties(instance, source, valueProperties);
             }
         } else {
+            if (value instanceof Attribute) {
+                // copy client properties from input features if they're complex features
+                // wrapped in app-schema data access
+                Map<Name, Expression> newClientProps = getClientProperties((Attribute) value);
+                if (!newClientProps.isEmpty()) {
+                    newClientProps.putAll(clientPropsMappings);
+                    clientPropsMappings = newClientProps;
+                }
+                value = ((Attribute) value).getValue();
+            }
             Attribute instance = xpathAttributeBuilder.set(target, xpath, value, id,
                     targetNodeType, false);
             setClientProperties(instance, source, clientPropsMappings);
@@ -368,14 +395,31 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
         final Map<Name, Object> targetAttributes = new HashMap<Name, Object>();
         for (Map.Entry<Name, Expression> entry : clientProperties.entrySet()) {
             Name propName = entry.getKey();
-            Expression propExpr = entry.getValue();
-            Object propValue = getValue(propExpr, source);
+            Object propExpr = entry.getValue();
+            Object propValue;
+            if (propExpr instanceof Expression) {
+                propValue = getValue((Expression) propExpr, source);
+            } else {
+                propValue = propExpr;
+            }
             targetAttributes.put(propName, propValue);
         }
         // FIXME should set a child Property
         target.getUserData().put(Attributes.class, targetAttributes);
     }
- 
+
+    private Map getClientProperties(Attribute attribute) throws DataSourceException {
+        Map<Object, Object> userData = attribute.getUserData();
+        Map clientProperties = new HashMap<Name, Expression>();
+        if (userData != null && userData.containsKey(Attributes.class)) {
+            Map props = (Map) userData.get(Attributes.class);
+            if (!props.isEmpty()) {
+                clientProperties.putAll(props);
+            }
+        }
+        return clientProperties;
+    }
+
     protected Feature computeNext() throws IOException {
         assert this.curSrcFeature != null : "hasNext not called?";       
 
@@ -388,8 +432,6 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
             if (extractIdForFeature(next).equals(id)) {
                 sources.add(next);
                 curSrcFeature = null;
-//                // ensure the next in the stream is called next time
-//                hasNextCalled = false;
             } else {
                 curSrcFeature = next;
                 // ensure curSrcFeature is returned when next() is called

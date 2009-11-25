@@ -173,5 +173,12 @@ public class FeatureTypeMapping {
     public FeatureSource getSource() {
         return this.source;
     }
+    
+    public FeatureTypeMapping getUnderlyingComplexMapping() {
+        if (source instanceof MappingFeatureSource) {
+            return ((MappingFeatureSource) source).getMapping();
+        }
+        return null;
+    }
 
 }
