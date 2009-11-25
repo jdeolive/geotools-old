@@ -2373,34 +2373,49 @@ public class ImageWorker {
         if(LOGGER.isLoggable(Level.FINER))
         	LOGGER.finer("Writing out...");
         
-        // the JDK writer has problems with images that do not  start at minx==miny==0
-        if (!nativeAcc&&image.getMinX()!=0 || image.getMinY()!=0) {
-      
-                  
-//                 final WritableRaster raster= RasterFactory.createWritableRaster(
-//                 		image.getSampleModel().createCompatibleSampleModel(image.getWidth(), image.getHeight()), 
-//                 		new Point(0,0)); 
-             	final BufferedImage finalImage= new BufferedImage(
-             			image.getColorModel(),
-//             			raster,
-             			((WritableRaster)image.getData()).createWritableTranslatedChild(0,0),
-             			image.getColorModel().isAlphaPremultiplied(),null);
-//             	final Graphics2D g2D= finalImage.createGraphics();
-//             	g2D.drawRenderedImage(image, AffineTransform.getTranslateInstance());
-//             	g2D.dispose();
-             	
-                writer.write(null, new IIOImage(finalImage, null, null), iwp);
-                outStream.flush();
-                writer.dispose();
-                outStream.close();
-         }       
-        else
-        {
-            writer.write(null, new IIOImage(image, null, null), iwp);
-            outStream.flush();
-            writer.dispose();
-            outStream.close();
+        try{
+        	 // the JDK writer has problems with images that do not  start at minx==miny==0
+            if (!nativeAcc&&(image.getMinX()!=0 || image.getMinY()!=0)) {
+          
+                      
+//                     final WritableRaster raster= RasterFactory.createWritableRaster(
+//                     		image.getSampleModel().createCompatibleSampleModel(image.getWidth(), image.getHeight()), 
+//                     		new Point(0,0)); 
+                 	final BufferedImage finalImage= new BufferedImage(
+                 			image.getColorModel(),
+//                 			raster,
+                 			((WritableRaster)image.getData()).createWritableTranslatedChild(0,0),
+                 			image.getColorModel().isAlphaPremultiplied(),null);
+//                 	final Graphics2D g2D= finalImage.createGraphics();
+//                 	g2D.drawRenderedImage(image, AffineTransform.getTranslateInstance());
+//                 	g2D.dispose();
+                 	
+                    writer.write(null, new IIOImage(finalImage, null, null), iwp);
+
+             }       
+            else
+            	writer.write(null, new IIOImage(image, null, null), iwp);
         }
+        finally{
+        	try{
+        		outStream.flush();
+        	}catch (Throwable e) {
+				// eat me
+			}
+        	try{
+        		writer.dispose();
+        	}catch (Throwable e) {
+				// eat me
+			}
+        	try{
+        		outStream.close();
+        	}catch (Throwable e) {
+				// eat me
+			}        	
+            
+            
+        }
+       
 
     }
 
