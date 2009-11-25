@@ -29,6 +29,7 @@ import java.util.logging.Logger;
 
 import org.geotools.arcsde.ArcSdeException;
 import org.geotools.arcsde.session.Command;
+import org.geotools.arcsde.session.Commands;
 import org.geotools.arcsde.session.ISession;
 import org.geotools.arcsde.session.ISessionPool;
 import org.geotools.arcsde.session.SdeRow;
@@ -1181,7 +1182,8 @@ public class ArcSDEJavaApiTest {
         final SeVersion defaultVersion;
         final SeVersion newVersion;
         {
-            defaultVersion = session.getDefaultVersion();
+            defaultVersion = session.issue(new Commands.GetVersionCommand(
+                    SeVersion.SE_QUALIFIED_DEFAULT_VERSION_NAME));
 
             newVersion = session.issue(new Command<SeVersion>() {
 
@@ -1285,16 +1287,16 @@ public class ArcSDEJavaApiTest {
         assertEquals(0, newVersionCount);
     }
 
-    private void insertIntoDifferentTransactionsAndMerge(ISession session) throws IOException {
-        SeVersion defaultVersion = session.getDefaultVersion();
-        SeState currentState = session.createState(defaultVersion.getStateId());
-        if (currentState.isOpen()) {
-            try {
-                currentState.close();
-            } catch (SeException e) {
-
-            }
-        }
-        // SeState newState1 = session.createchi
-    }
+    // private void insertIntoDifferentTransactionsAndMerge(ISession session) throws IOException {
+    // SeVersion defaultVersion = session.getDefaultVersion();
+    // SeState currentState = session.createState(defaultVersion.getStateId());
+    // if (currentState.isOpen()) {
+    // try {
+    // currentState.close();
+    // } catch (SeException e) {
+    //
+    // }
+    // }
+    // // SeState newState1 = session.createchi
+    // }
 }

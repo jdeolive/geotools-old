@@ -35,7 +35,6 @@ import com.esri.sde.sdk.client.SeState;
 import com.esri.sde.sdk.client.SeStreamOp;
 import com.esri.sde.sdk.client.SeTable;
 import com.esri.sde.sdk.client.SeUpdate;
-import com.esri.sde.sdk.client.SeVersion;
 
 /**
  * A pure session wrapper to aid in creating session decorators by extending this class.
@@ -104,42 +103,6 @@ public class SessionWrapper implements ISession {
      */
     public SeInsert createSeInsert() throws IOException {
         return wrapped.createSeInsert();
-    }
-
-    /**
-     * @see org.geotools.arcsde.session.ISession#createSeLayer()
-     */
-    public SeLayer createSeLayer() throws IOException {
-        return wrapped.createSeLayer();
-    }
-
-    /**
-     * @see org.geotools.arcsde.session.ISession#createSeQuery()
-     */
-    public SeQuery createSeQuery() throws IOException {
-        return wrapped.createSeQuery();
-    }
-
-    /**
-     * @see org.geotools.arcsde.session.ISession#createSeQuery(java.lang.String[],
-     *      com.esri.sde.sdk.client.SeSqlConstruct)
-     */
-    public SeQuery createSeQuery(String[] propertyNames, SeSqlConstruct sql) throws IOException {
-        return wrapped.createSeQuery(propertyNames, sql);
-    }
-
-    /**
-     * @see org.geotools.arcsde.session.ISession#createSeRasterColumn()
-     */
-    public SeRasterColumn createSeRasterColumn() throws IOException {
-        return wrapped.createSeRasterColumn();
-    }
-
-    /**
-     * @see org.geotools.arcsde.session.ISession#createSeRasterColumn(com.esri.sde.sdk.client.SeObjectId)
-     */
-    public SeRasterColumn createSeRasterColumn(SeObjectId rasterColumnId) throws IOException {
-        return wrapped.createSeRasterColumn(rasterColumnId);
     }
 
     /**
@@ -308,13 +271,6 @@ public class SessionWrapper implements ISession {
      */
     public void startTransaction() throws IOException {
         wrapped.startTransaction();
-    }
-
-    /**
-     * @see ISession#getDefaultVersion()
-     */
-    public SeVersion getDefaultVersion() throws IOException {
-        return wrapped.getDefaultVersion();
     }
 
     public SeState createChildState(long parentStateId) throws IOException {

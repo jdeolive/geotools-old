@@ -17,12 +17,13 @@
  */
 package org.geotools.arcsde.session;
 
+import static org.geotools.arcsde.session.Session.LOGGER;
+
 import java.io.IOException;
 import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.apache.commons.pool.BasePoolableObjectFactory;
 import org.apache.commons.pool.impl.GenericObjectPool;
@@ -60,8 +61,6 @@ import com.esri.sde.sdk.client.SeRelease;
  * @version $Id$
  */
 class SessionPool implements ISessionPool {
-    /** package's logger */
-    private static final Logger LOGGER = Logger.getLogger("org.geotools.arcsde.pool");
 
     protected static final Level INFO_LOG_LEVEL = Level.WARNING;
 
@@ -76,8 +75,7 @@ class SessionPool implements ISessionPool {
     private final Queue<Session> openSessionsNonTransactional = new ConcurrentLinkedQueue<Session>();
 
     /**
-     * Creates a new SdeConnectionPool object with the connection parameters holded by
-     * <code>config</code>
+     * Creates a new SessionPool object for the given config.
      * 
      * @param config
      *            holds connection options such as server, user and password, as well as tuning
@@ -273,6 +271,7 @@ class SessionPool implements ISessionPool {
         try {
             Session connection;
             if (transactional) {
+                LOGGER.finest("Borrowing session from pool for transactional access");
                 connection = (Session) pool.borrowObject();
             } else {
                 try {

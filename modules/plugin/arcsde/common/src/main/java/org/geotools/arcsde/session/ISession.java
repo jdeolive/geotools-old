@@ -37,7 +37,6 @@ import com.esri.sde.sdk.client.SeState;
 import com.esri.sde.sdk.client.SeStreamOp;
 import com.esri.sde.sdk.client.SeTable;
 import com.esri.sde.sdk.client.SeUpdate;
-import com.esri.sde.sdk.client.SeVersion;
 
 public interface ISession {
 
@@ -151,13 +150,6 @@ public interface ISession {
 
     public abstract SeDBMSInfo getDBMSInfo() throws IOException;
 
-    //
-    // Factory methods that make use of internal connection
-    // Q: How "long" are these objects good for? until the connection closes -
-    // or longer...
-    //
-    public abstract SeLayer createSeLayer() throws IOException;
-
     public abstract SeRegistration createSeRegistration(final String typeName) throws IOException;
 
     /**
@@ -175,11 +167,6 @@ public interface ISession {
     public abstract SeUpdate createSeUpdate() throws IOException;
 
     public abstract SeDelete createSeDelete() throws IOException;
-
-    public abstract SeRasterColumn createSeRasterColumn() throws IOException;
-
-    public abstract SeRasterColumn createSeRasterColumn(final SeObjectId rasterColumnId)
-            throws IOException;
 
     public abstract SeColumnDefinition[] describe(final String tableName) throws IOException;
 
@@ -209,30 +196,8 @@ public interface ISession {
 
     public abstract SeState createState(final SeObjectId stateId) throws IOException;
 
-    public abstract SeQuery createSeQuery() throws IOException;
-
-    /**
-     * Creates an SeQuery to fetch the given propertyNames with the provided attribute based
-     * restrictions
-     * <p>
-     * This method shall only be called from inside a {@link Command}
-     * </p>
-     * 
-     * @param propertyNames
-     * @param sql
-     * @return
-     * @throws IOException
-     */
-    public abstract SeQuery createSeQuery(final String[] propertyNames, final SeSqlConstruct sql)
-            throws IOException;
-
     public abstract SeQuery createAndExecuteQuery(final String[] propertyNames,
             final SeSqlConstruct sql) throws IOException;
-
-    /**
-     * Returns the up to date information about the database default version
-     */
-    public abstract SeVersion getDefaultVersion() throws IOException;
 
     public SeState createChildState(long parentStateId) throws IOException;
 

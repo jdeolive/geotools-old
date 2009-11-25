@@ -17,12 +17,13 @@
  */
 package org.geotools.arcsde.session;
 
+import static org.geotools.arcsde.session.Session.LOGGER;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.geotools.arcsde.ArcSdeException;
 
@@ -43,8 +44,6 @@ import com.esri.sde.sdk.geom.GeometryFactory;
  * @since 2.4.0
  */
 public class SdeRow {
-    /** Logger for ths class' package */
-    private static final Logger LOGGER = Logger.getLogger(SdeRow.class.getName());
 
     /** cached SeRow values */
     private Object[] values;
