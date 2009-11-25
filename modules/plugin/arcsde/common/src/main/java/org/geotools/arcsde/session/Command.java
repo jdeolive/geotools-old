@@ -25,13 +25,17 @@ import com.esri.sde.sdk.client.SeException;
 /**
  * Runnable used to interact with an ArcSDEConnection.
  * <p>
- * Instances of this class can the sent to {@link Session#issue(Command)} in order to be executed.
- * An ArcSDERunnable has exclusive access to the Connection for the duration. This facility is used
- * to prevent a series of complicated locks and try/catch/finally code.
+ * Instances of this class can be sent to {@link Session#issue(Command)} in order to be executed. A
+ * {@code Command} has exclusive access to the {@link SeConnection connection} for the duration of
+ * its {@code execute} method.
+ * This facility is used to prevent a series of complicated locks and try/catch/finally code.
+ * </p>
  * 
  * @author Jody Garnett
- *
- * @source $URL$
+ * 
+ * @source $URL:
+ *         http://svn.osgeo.org/geotools/trunk/modules/plugin/arcsde/common/src/main/java/org/geotools
+ *         /arcsde/session/Command.java $
  */
 public abstract class Command<R> {
     /**
