@@ -16,19 +16,14 @@
  */
 package org.geotools.data.spatialite;
 
-import org.geotools.jdbc.JDBCGeometryTest;
-import org.geotools.jdbc.JDBCGeometryTestSetup;
+import org.geotools.jdbc.JDBCAggregateFunctionTest;
+import org.geotools.jdbc.JDBCTestSetup;
 
-public class SpatiaLiteGeometryTest extends JDBCGeometryTest {
+public class SpatiaLiteAggregateFunctionTest extends JDBCAggregateFunctionTest {
 
     @Override
-    protected JDBCGeometryTestSetup createTestSetup() {
-        return new SpatiaLiteGeometryTestSetup();
-    }
-    
-    @Override
-    public void testLinearRing() throws Exception {
-        //JD: spatialite does not do linear rings
+    protected JDBCTestSetup createTestSetup() {
+        return new SpatiaLiteTestSetup();
     }
 
 }

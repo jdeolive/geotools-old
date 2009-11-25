@@ -1,3 +1,19 @@
+/*
+ *    GeoTools - The Open Source Java GIS Toolkit
+ *    http://geotools.org
+ *
+ *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ */
 package org.geotools.data.spatialite;
 
 import java.sql.Connection;
@@ -24,6 +40,8 @@ public class SpatiaLiteTestSetup extends JDBCTestSetup {
     @Override
     protected void initializeDataSource(BasicDataSource ds, Properties db) {
         super.initializeDataSource(ds, db);
+        ds.addConnectionProperty("enable_load_extension", "true");
+        ds.addConnectionProperty("shared_cache", "true");
         ds.setDefaultTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
     }
     
@@ -32,7 +50,7 @@ public class SpatiaLiteTestSetup extends JDBCTestSetup {
         //drop old data
         runSafe("DROP TABLE ft1");
         runSafe("DROP TABLE ft2");
-        runSafe("DELETE FROM geometry_columns");
+        runSafe("DELETE FROM geometry_columns where f_table_name in ('ft1','ft2')");
         
         //create some data
         String sql = "CREATE TABLE ft1 (id INTEGER PRIMARY KEY)";

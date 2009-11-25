@@ -1,34 +1,47 @@
+/*
+ *    GeoTools - The Open Source Java GIS Toolkit
+ *    http://geotools.org
+ *
+ *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ */
 package org.geotools.data.spatialite;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.Map;
 
-import javax.media.jai.NullOpImage;
-
+import org.geotools.data.jdbc.FilterToSQL;
+import org.geotools.geometry.jts.Geometries;
 import org.geotools.jdbc.BasicSQLDialect;
 import org.geotools.jdbc.JDBCDataStore;
-import org.geotools.jdbc.JDBCDataStore.GeometryType;
 import org.geotools.referencing.CRS;
-//import org.geotools.jdbc.JDBCDataStore.GeometryType;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.GeometryDescriptor;
-import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import SQLite.Callback;
-import SQLite.Database;
-import SQLite.JDBC2y.JDBCConnection;
-
-import com.sun.org.omg.CORBA.AttributeDescription;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -46,24 +59,31 @@ import com.vividsolutions.jts.io.WKTWriter;
  */
 public class SpatiaLiteDialect extends BasicSQLDialect {
 
+    public static String SPATIALITE_SPATIAL_INDEX = "org.geotools.data.spatialite.spatialIndex";
+    
     public SpatiaLiteDialect(JDBCDataStore dataStore) {
         super(dataStore);
     }
 
     @Override
     public void initializeConnection(Connection cx) throws SQLException {
-        PrintStream out = System.out;
-        System.setOut( new PrintStream( new OutputStream() {
-            @Override
-            public void write(int b) throws IOException {
-            }
-            
-        }));
-        
         Statement st = cx.createStatement();
         try {
             //load the spatial extensions
-            st.execute( "SELECT load_extension('libspatialite.dylib')" );
+            String libspatialite = System.mapLibraryName("spatialite");
+            if (libspatialite.endsWith("jnilib")) {
+                libspatialite = libspatialite.replaceAll("dylib", "jnilib");
+            }
+            
+            try {
+                st.execute( "SELECT load_extension('"+libspatialite+"')" );
+            }
+            catch(SQLException e) {
+                LOGGER.warning("libspatialite not found, attempting to load internal library" );
+                loadSpatiaLiteLib(libspatialite);
+                
+                st.execute( "SELECT load_extension('"+libspatialite+"')" );
+            }
             st.close();
             
             st = cx.createStatement();
@@ -111,8 +131,31 @@ public class SpatiaLiteDialect extends BasicSQLDialect {
         finally {
             dataStore.closeSafe( st );
         }
+    }
+    
+    void loadSpatiaLiteLib(String lib) {
+        //copy the local lib into a temp file and load directly
+        InputStream libstream = SpatiaLiteDataStoreFactory.class.getResourceAsStream(lib);
+        if (libstream == null) {
+            throw new RuntimeException("No library " + lib); 
+        }
         
-        System.setOut( out );
+        File libfile = new File(System.getProperty("user.dir"), lib);
+        try {
+            BufferedInputStream in = new BufferedInputStream(libstream);
+            BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(libfile));
+            
+            int c = -1;
+            while( (c = in.read()) != -1 ) {
+                out.write(c);
+            }
+            out.flush();
+            out.close();
+            in.close();
+        }
+        catch(IOException ioe) {
+            throw new RuntimeException(ioe);
+        }
     }
     
     @Override
@@ -133,11 +176,11 @@ public class SpatiaLiteDialect extends BasicSQLDialect {
             try {
                 if ( rs.next() ) {
                     String type = rs.getString( "type" );
-                    return GeometryType.type( type );
+                    return Geometries.getForName( type ).getBinding();
                 }
             }
             finally {
-                dataStore.closeSafe( rs );
+                dataStore.closeSafe( rs ); 
             }
         }
         finally {
@@ -150,19 +193,23 @@ public class SpatiaLiteDialect extends BasicSQLDialect {
     @Override
     public void registerClassToSqlMappings(Map<Class<?>, Integer> mappings) {
         super.registerClassToSqlMappings(mappings);
-        mappings.put( GeometryType.POINT.getType(), GeometryType.POINT.getSQLType() );
-        mappings.put( GeometryType.LINESTRING.getType(), GeometryType.LINESTRING.getSQLType() );
-        mappings.put( GeometryType.POLYGON.getType(), GeometryType.POLYGON.getSQLType() );
-        mappings.put( GeometryType.MULTIPOINT.getType(), GeometryType.MULTIPOINT.getSQLType() );
-        mappings.put( GeometryType.MULTILINESTRING.getType(), GeometryType.MULTILINESTRING.getSQLType() );
-        mappings.put( GeometryType.MULTIPOLYGON.getType(), GeometryType.MULTIPOLYGON.getSQLType() );
-        mappings.put( GeometryType.GEOMETRY.getType(), GeometryType.GEOMETRY.getSQLType() );
-        mappings.put( GeometryType.GEOMETRYCOLLECTION.getType(), GeometryType.GEOMETRYCOLLECTION.getSQLType() );
+        mappings.put( Geometries.POINT.getBinding(), Geometries.POINT.getSQLType() );
+        mappings.put( Geometries.LINESTRING.getBinding(), Geometries.LINESTRING.getSQLType() );
+        mappings.put( Geometries.POLYGON.getBinding(), Geometries.POLYGON.getSQLType() );
+        mappings.put( Geometries.MULTIPOINT.getBinding(), Geometries.MULTIPOINT.getSQLType() );
+        mappings.put( Geometries.MULTILINESTRING.getBinding(), Geometries.MULTILINESTRING.getSQLType() );
+        mappings.put( Geometries.MULTIPOLYGON.getBinding(), Geometries.MULTIPOLYGON.getSQLType() );
+        mappings.put( Geometries.GEOMETRY.getBinding(), Geometries.GEOMETRY.getSQLType() );
+        mappings.put( Geometries.GEOMETRYCOLLECTION.getBinding(), Geometries.GEOMETRYCOLLECTION.getSQLType() );
+        
+        //override some internal defaults
+        mappings.put(Long.class, Types.INTEGER);
+        mappings.put(Double.class, Types.REAL);
     }
     
     @Override
     public String getGeometryTypeName(Integer type) {
-        return GeometryType.string( type );
+        return Geometries.getForSQLType( type ).getName();
     }
     
     @Override
@@ -255,6 +302,7 @@ public class SpatiaLiteDialect extends BasicSQLDialect {
     @Override
     public void postCreateTable(String schemaName, SimpleFeatureType featureType, Connection cx)
             throws SQLException, IOException {
+        
         //create any geometry columns entries after the fact
         for ( AttributeDescriptor ad : featureType.getAttributeDescriptors() ) {
             if ( ad instanceof GeometryDescriptor ) {
@@ -268,7 +316,7 @@ public class SpatiaLiteDialect extends BasicSQLDialect {
                 sql.append( "'").append( gd.getLocalName() ).append( "',");
                 
                 //type
-                String gType = GeometryType.string( gd.getType().getBinding() ) ;
+                String gType = Geometries.getForBinding((Class<? extends Geometry>) gd.getType().getBinding() ).getName();
                 if ( gType == null ) {
                     throw new IOException( "Unknown geometry type: " + gd.getType().getBinding() );
                 }
@@ -304,5 +352,79 @@ public class SpatiaLiteDialect extends BasicSQLDialect {
                 }
             }
         }
+    }
+    
+    @Override
+    public void postCreateFeatureType(SimpleFeatureType featureType, DatabaseMetaData metadata,
+            String schemaName, Connection cx) throws SQLException {
+        //figure out if the table has a spatial index and mark the feature type as so
+        for (AttributeDescriptor ad : featureType.getAttributeDescriptors()) {
+            if (!(ad instanceof GeometryDescriptor)) {
+                continue;
+            }
+            
+            GeometryDescriptor gd = (GeometryDescriptor) ad;
+            String idxTableName = "idx_" + featureType.getTypeName() + "_" + gd.getLocalName();
+            
+            ResultSet rs = metadata.getTables(null, schemaName, idxTableName, new String[]{"TABLE"});
+            try {
+                if (rs.next()) {
+                    gd.getUserData().put(SPATIALITE_SPATIAL_INDEX, idxTableName);
+                }
+            }
+            finally {
+                dataStore.closeSafe(rs);
+            }
+        }
+    }
+    
+    @Override
+    public boolean lookupGeneratedValuesPostInsert() {
+        return true;
+    }
+    
+    @Override
+    public Object getLastAutoGeneratedValue(String schemaName, String tableName, String columnName,
+            Connection cx) throws SQLException {
+        Statement st = cx.createStatement();
+        try {
+            ResultSet rs = st.executeQuery( "SELECT last_insert_rowid();");
+            try {
+                if (rs.next()) {
+                    return rs.getInt( 1 );
+                }
+            }
+            finally {
+                dataStore.closeSafe(rs);
+            }
+        }
+        finally {
+            dataStore.closeSafe(st);
+        }
+        
+        return null;
+    }
+    
+    @Override
+    public boolean isLimitOffsetSupported() {
+        //TODO: figure out why aggregate functions don't work with limit offset applied 
+        return false;
+    }
+    
+    @Override
+    public void applyLimitOffset(StringBuffer sql, int limit, int offset) {
+        if(limit > 0 && limit < Integer.MAX_VALUE) {
+            sql.append(" LIMIT " + limit);
+            if(offset > 0) {
+                sql.append(" OFFSET " + offset);
+            }
+        } else if(offset > 0) {
+            sql.append(" OFFSET " + offset);
+        }
+    }
+    
+    @Override
+    public FilterToSQL createFilterToSQL() {
+        return new SpatiaLiteFilterToSQL();
     }
 }
