@@ -72,7 +72,7 @@ public class SpatiaLiteDialect extends BasicSQLDialect {
             //load the spatial extensions
             String libspatialite = System.mapLibraryName("spatialite");
             if (libspatialite.endsWith("jnilib")) {
-                libspatialite = libspatialite.replaceAll("dylib", "jnilib");
+                libspatialite = libspatialite.replaceAll("jnilib", "dylib");
             }
             
             try {
