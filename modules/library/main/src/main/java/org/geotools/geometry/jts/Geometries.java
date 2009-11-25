@@ -207,7 +207,7 @@ public enum Geometries {
      */
     public static Geometries getForName(String name) {
         for (Geometries gt : Geometries.values()) {
-            if (gt.getName().equals(name)) {
+            if (gt.getName().equalsIgnoreCase(name)) {
                 return gt;
             }
         }
