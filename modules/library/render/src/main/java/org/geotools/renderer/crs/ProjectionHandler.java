@@ -16,7 +16,7 @@
  */
 package org.geotools.renderer.crs;
 
-import static org.geotools.referencing.crs.DefaultGeographicCRS.WGS84;
+import static org.geotools.referencing.crs.DefaultGeographicCRS.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,6 +42,7 @@ import com.vividsolutions.jts.geom.GeometryCollection;
  * This basic implementation will cut the geometries that get outside of the area of validity of the
  * projection (as provided by the constructor)
  * 
+ * WARNING: this API is not finalized and is meant to be used by StreamingRenderer only
  * @author Andrea Aime - OpenGeo
  */
 public class ProjectionHandler {
@@ -173,4 +174,5 @@ public class ProjectionHandler {
     public Geometry postProcess(Geometry geometry) {
         return geometry;
     }
+    
 }

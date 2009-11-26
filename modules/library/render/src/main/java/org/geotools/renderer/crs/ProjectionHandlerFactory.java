@@ -20,6 +20,7 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 
 /**
  * Builds {@link ProjectionHandler} instances
+ * WARNING: this API is not finalized and is meant to be used by StreamingRenderer only
  * 
  * @author Andrea Aime - OpenGeo
  */

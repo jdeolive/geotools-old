@@ -22,7 +22,8 @@ import java.util.List;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 
 /**
- * Looks up the {@link ProjectionHandler} for the specified rendering area
+ * Looks up the {@link ProjectionHandler} for the specified rendering area.
+ * WARNING: this API is not finalized and is meant to be used by StreamingRenderer only 
  * 
  * @author Andrea Aime - OpenGeo
  */
@@ -34,6 +35,7 @@ public class ProjectionHandlerFinder {
         factories.add(new GeographicHandlerFactory());
         factories.add(new MercatorHandlerFactory());
         factories.add(new TransverseMercatorHandlerFactory());
+        factories.add(new PolarStereographicHandlerFactory());
     }
 
     /**
