@@ -739,6 +739,11 @@ public class XPath {
                 return list;
             } 
         }
+        if (binding == String.class && value instanceof Collection) {
+            // if it's a single value in a collection, strip the square brackets
+            String collectionString = value.toString();
+            return collectionString.substring(1, collectionString.length() - 1);
+        }
         return FF.literal(value).evaluate(value, binding);
     }
 

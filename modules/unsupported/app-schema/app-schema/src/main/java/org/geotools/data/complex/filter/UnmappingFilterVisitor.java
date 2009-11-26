@@ -1065,12 +1065,8 @@ public class UnmappingFilterVisitor implements org.opengis.filter.FilterVisitor,
                 // look for the client properties there
                 FeatureTypeMapping inputMapping = mappings.getUnderlyingComplexMapping();
                 if (inputMapping != null) {
-                    AttributeMapping attMapping = inputMapping.getAttributeMapping(parentPath);
-                    if (attMapping != null) {
-                        candidates.clear();
-                        candidates.add(attMapping);
-                    }
-                    return getClientPropertyExpressions(candidates, clientPropertyName);
+                    return getClientPropertyExpressions(inputMapping
+                            .getAttributeMappingsIgnoreIndex(parentPath), clientPropertyName);
                 }
             }
         }
