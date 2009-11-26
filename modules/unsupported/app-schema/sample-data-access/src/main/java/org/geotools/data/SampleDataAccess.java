@@ -25,8 +25,6 @@ import org.opengis.feature.Feature;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.Name;
 
-
-
 /**
  * Sample implementation of {@link DataAccess} for testing. Create with
  * {@link SampleDataAccessFactory}.
