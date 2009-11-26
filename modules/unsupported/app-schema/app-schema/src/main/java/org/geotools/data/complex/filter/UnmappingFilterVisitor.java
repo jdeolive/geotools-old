@@ -298,17 +298,16 @@ public class UnmappingFilterVisitor implements org.opengis.filter.FilterVisitor,
             return filter;
         }
 
-        Filter unrolled = null;
-
         if (fidExpression instanceof Function) {
             Function fe = (Function) fidExpression;
             if ("getID".equalsIgnoreCase(fe.getName())) {
                 LOGGER.finest("Fid mapping points to same ID as source");
-                return unrolled;
+                return filter;
             }
         }
 
         UnmappingFilterVisitor.LOGGER.finest("fid mapping expression is " + fidExpression);
+        Filter unrolled = null;
         try {
             for (Iterator it = fids.iterator(); it.hasNext();) {
                 Identifier fid = (Identifier) it.next();

@@ -230,9 +230,28 @@ public class UnmappingFilterVisitorTest {
      */
     @Test
     public void testUnrollFidToFid() throws Exception {
+        checkUnrollIdExpression(Expression.NIL);
+    }
 
+    /**
+     * If a getId() idExpression is used for the for the mapping, the same feature id from the
+     * originating feature source is used. In such a case, an unrolled FidFilter should stay being a
+     * FidFilter.
+     */
+    @Test
+    public void testUnrollGetidToGetid() throws Exception {
+        checkUnrollIdExpression(CommonFactoryFinder.getFilterFactory(null).function("getID",
+                new org.opengis.filter.expression.Expression[0]));
+    }
+    
+    /**
+     * Implementation for tests of fid -> fid unmapping.
+     * 
+     * @param idExpression
+     * @throws Exception
+     */
+    private void checkUnrollIdExpression(Expression idExpression) throws Exception {
         AttributeMapping featureMapping = null;
-
         Name featurePath = mapping.getTargetFeature().getName();
         QName featureName = Types.toQName(featurePath);
         for (Iterator it = mapping.getAttributeMappings().iterator(); it.hasNext();) {
@@ -247,21 +266,15 @@ public class UnmappingFilterVisitorTest {
                 break;
             }
         }
-
-        featureMapping.setIdentifierExpression(Expression.NIL);
-
+        featureMapping.setIdentifierExpression(idExpression);
         this.visitor = new UnmappingFilterVisitor(this.mapping);
-
         FeatureCollection<SimpleFeatureType, SimpleFeature> content = mapping.getSource()
                 .getFeatures();
         Iterator iterator = content.iterator();
         Feature sourceFeature = (Feature) iterator.next();
         content.close(iterator);
-
         String fid = sourceFeature.getIdentifier().toString();
-
         Id fidFilter = ff.id(Collections.singleton(ff.featureId(fid)));
-
         Filter unrolled = (Filter) fidFilter.accept(visitor, null);
         assertNotNull(unrolled);
         assertTrue(unrolled instanceof Id);
@@ -274,7 +287,7 @@ public class UnmappingFilterVisitorTest {
         results.close(iterator);
         assertEquals(fid, unmappedFeature.getID());
     }
-
+    
     @Test
     public void testPropertyName() throws Exception {
         PropertyName ae = ff.property("/wq_plus/measurement/result");
