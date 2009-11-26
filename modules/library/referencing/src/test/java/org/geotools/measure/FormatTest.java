@@ -44,6 +44,12 @@ import static org.junit.Assert.*;
  * @author Martin Desruisseaux (IRD)
  */
 public final class FormatTest {
+
+    @After
+    public void tearDown() {
+        AngleFormat.setDefaultRoundingMethod(AngleFormat.DEFAULT_ROUNDING_METHOD);
+    }
+
     /**
      * Test {@link AngleFormat}.
      *
@@ -129,5 +135,68 @@ public final class FormatTest {
         format.setSeparator("; ");
         format.setDatePattern("dd MM yyyy");        
         assertEquals("23°46,8'E; 12°44,4'S; 127,9\u00A0m; 04 01 2003", format.format(position));
+     }
+
+     @Test
+     public void testInstanceRoundingMethod() {
+         double value = 2.5d;
+         AngleFormat af = new AngleFormat("D");
+         assertEquals("2", af.format(value));
+
+         af.setRoundingMethod(AngleFormat.RoundingMethod.ROUND_HALF_UP);
+         assertEquals("3", af.format(value));
+         
+         af.setRoundingMethod(AngleFormat.RoundingMethod.ROUND_HALF_DOWN);
+         assertEquals("2", af.format(value));
+
+         value = 3.5d;
+         af.setRoundingMethod(AngleFormat.RoundingMethod.ROUND_HALF_EVEN);
+         assertEquals("4", af.format(value));
+
+         af = new AngleFormat("D M.m");
+         value = 30.45d / 60d ;
+         assertEquals("0 30.4", af.format(value));
+
+         af.setRoundingMethod(AngleFormat.RoundingMethod.ROUND_HALF_UP);
+         assertEquals("0 30.5", af.format(value));
+
+         af.setRoundingMethod(AngleFormat.RoundingMethod.ROUND_HALF_DOWN);
+         assertEquals("0 30.4", af.format(value));
+
+         value = 30.55d / 60d;
+         af.setRoundingMethod(AngleFormat.RoundingMethod.ROUND_HALF_EVEN);
+         assertEquals("0 30.6", af.format(value));
+         
+         af = new AngleFormat("D M S.s");
+         value = 3661.45d / 3600d;
+         assertEquals("1 1 1.4", af.format(value));
+
+         af.setRoundingMethod(AngleFormat.RoundingMethod.ROUND_HALF_UP);
+         assertEquals("1 1 1.5", af.format(value));
+
+         af.setRoundingMethod(AngleFormat.RoundingMethod.ROUND_HALF_DOWN);
+         assertEquals("1 1 1.4", af.format(value));
+
+         value = 3661.55d / 3600d;
+         af.setRoundingMethod(AngleFormat.RoundingMethod.ROUND_HALF_EVEN);
+         assertEquals("1 1 1.6", af.format(value));
+     }
+
+     @Test
+     public void testSetGlobalRoundingMethod() {
+         double value = 3.5d;
+         AngleFormat af1 = new AngleFormat("D");
+         // set the instance rounding method for af1
+         af1.setRoundingMethod(AngleFormat.RoundingMethod.ROUND_HALF_DOWN);
+
+         // set the default rounding method for all future instances
+         AngleFormat.setDefaultRoundingMethod(AngleFormat.RoundingMethod.ROUND_HALF_UP);
+         AngleFormat af2 = new AngleFormat("D");
+
+         // af1 should still be using ROUND_HALF_DOWN
+         assertEquals("3", af1.format(value));
+
+         // af2 should be using ROUND_HALF_UP
+         assertEquals("4", af2.format(value));
      }
 }
