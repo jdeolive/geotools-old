@@ -44,7 +44,9 @@ import org.geotools.gce.imagemosaic.ImageMosaicUtils.MosaicConfigurationBean;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
 import org.opengis.coverage.grid.Format;
+import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.coverage.grid.GridCoverageReader;
+import org.opengis.coverage.grid.GridCoverageWriter;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -80,7 +82,7 @@ import org.opengis.referencing.operation.MathTransform;
  * 
  */
 @SuppressWarnings("deprecation")
-public final class ImageMosaicReader extends AbstractGridCoverage2DReader implements GridCoverageReader {
+public final class ImageMosaicReader extends AbstractGridCoverage2DReader implements GridCoverageReader, GridCoverageWriter {
 
 	/** Logger. */
 	private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(ImageMosaicReader.class);
@@ -479,5 +481,25 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 
 	String getName() {
 		return super.coverageName;
+	}
+
+	public Object getDestination() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void setCurrentSubname(String arg0) throws IOException {
+		throw new UnsupportedOperationException("Unsupported method");
+		
+	}
+
+	public void setMetadataValue(String arg0, String arg1) throws IOException {
+		throw new UnsupportedOperationException("Unsupported method");
+		
+	}
+
+	public void write(GridCoverage arg0, GeneralParameterValue[] arg1)throws IllegalArgumentException, IOException {
+		throw new UnsupportedOperationException("Unsupported method");
+		
 	}
 }

@@ -1,17 +1,12 @@
 package org.geotools.gce.imagemosaic;
 
 import java.awt.Rectangle;
-import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.lang.ref.SoftReference;
 import java.net.URL;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,12 +18,8 @@ import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.data.DataSourceException;
-import org.geotools.data.DataUtilities;
-import org.geotools.data.FeatureSource;
-import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.factory.Hints;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
+import org.geotools.gce.imagemosaic.GranuleIndex.GranuleIndexVisitor;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.metadata.iso.extent.GeographicBoundingBoxImpl;
@@ -37,9 +28,8 @@ import org.geotools.util.SoftValueHashMap;
 import org.geotools.util.Utilities;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.coverage.grid.GridEnvelope;
-import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.geometry.BoundingBox;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -47,273 +37,14 @@ import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.MathTransform2D;
 import org.opengis.referencing.operation.TransformException;
-
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.index.ItemVisitor;
-import com.vividsolutions.jts.index.SpatialIndex;
-import com.vividsolutions.jts.index.strtree.STRtree;
 class RasterManager {
 	/** Logger. */
 	private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(RasterManager.class);
 	
 	final SoftValueHashMap<String, Granule> granulesCache= new SoftValueHashMap<String, Granule>();
 	
-	/**
-	 * This class simply builds an SRTREE spatial index in memory for fast indexed
-	 * geometric queries.
-	 * 
-	 * <p>
-	 * Since the {@link ImageMosaicReader} heavily uses spatial queries to find out
-	 * which are the involved tiles during mosaic creation, it is better to do some
-	 * caching and keep the index in memory as much as possible, hence we came up
-	 * with this index.
-	 * 
-	 * @author Simone Giannecchini, S.A.S.
-     * @author Stefan Alfons Krueger (alfonx), Wikisquare.de : Support for jar:file:foo.jar/bar.properties URLs
-	 * @since 2.5
- *
- * @source $URL$
-	 */
-	public class GranuleIndex {
-		
-		private long lastModified=-1;
-		
-		/** The {@link STRtree} index. */
-		private SoftReference<STRtree> index= new SoftReference<STRtree>(null);
-
-		/**
-		 * Constructs a {@link GranuleIndex} out of a {@link FeatureCollection}.
-		 * 
-		 * @param features
-		 * @throws IOException
-		 */
-		private synchronized SpatialIndex getIndex() throws IOException {
-
-			/**
-			 * Comment by Stefan Krueger while patching the stuff to deal with
-			 * URLs instead of Files: If it is not a URL to a file, we don't
-			 * need locks, because no one can change to the index.
-			 */
-
-			STRtree tree = null;
-
-			if (parent.sourceURL.getProtocol().equals("file")) {
-
-				FileLock lock = null;
-				FileChannel channel = null;
-				try {
-
-					//  Get a file channel for the file
-					File file = DataUtilities.urlToFile(parent.sourceURL);
-					if(file.canWrite()){
-						channel = new RandomAccessFile(file, "rw").getChannel();
-	
-						// Create a shared lock on the file.
-						// This method blocks until it can retrieve the lock.
-						lock = channel.lock(0, Long.MAX_VALUE, true);
-					}
-
-					// now check the modified time and rebuild the index as
-					// needed
-					final long lastMod = file.lastModified();
-					if (lastMod > this.lastModified) {
-						// the underlying files has been modified, let's clean
-						// up the index
-						index.clear();
-						tree = null;
-					} else
-						tree = index.get();
-					if (tree == null) {
-
-						if (LOGGER.isLoggable(Level.FINE))
-							LOGGER.fine("Index needs to be recreated...");
-						createIndex();
-						tree = index.get();
-						assert tree != null;
-					} else if (LOGGER.isLoggable(Level.FINE))
-						LOGGER.fine("Index does not need to be created...");
-					return tree;
-				} finally {
-
-					try {
-						if (lock != null)
-							// Release the lock
-							lock.release();
-					} catch (Throwable e) {
-						if (LOGGER.isLoggable(Level.FINE))
-							LOGGER.log(Level.FINE, e.getLocalizedMessage(), e);
-					} finally {
-						lock = null;
-					}
-
-					try {
-						if (channel != null)
-							// Close the file
-							channel.close();
-					} catch (Throwable e) {
-						if (LOGGER.isLoggable(Level.FINE))
-							LOGGER.log(Level.FINE, e.getLocalizedMessage(), e);
-					} finally {
-						channel = null;
-					}
-				}
-
-			} else {
-				// The URL is not a file. So no locks are needed, and no index
-				// can be created. Use an index if it is there.
-
-				tree = index.get();
-				if (tree == null) {
-					if (LOGGER.isLoggable(Level.FINE))
-						LOGGER.fine("No index exits and we create a new one.");
-					createIndex();
-					tree = index.get();
-				} else if (LOGGER.isLoggable(Level.FINE))
-					LOGGER.fine("Index does not need to be created...");
-				
-				return tree;
-			}
-
-		}
-
-		/**
-		 * This method shall only be called when the <code>parent.sourceURL</code> is of protocol <code>file:</code>
-		 */
-		private void createIndex() {
-			// check that we holds a lock 
-			assert Thread.holdsLock(this);
-			
 
 
-			ShapefileDataStore tileIndexStore=null;
-			FeatureIterator<SimpleFeature> it=null;
-			FeatureCollection<SimpleFeatureType, SimpleFeature> features=null;
-			//
-			// Load tiles informations, especially the bounds, which will be
-			// reused
-			//
-			try{
-
-				// creating a store
-				tileIndexStore = new ShapefileDataStore(parent.sourceURL);
-				if (LOGGER.isLoggable(Level.FINE))
-					LOGGER.fine("Connected mosaic reader to its data store "
-							+ parent.sourceURL.toString());
-				final String[] typeNames = tileIndexStore.getTypeNames();
-				if (typeNames.length <= 0)
-					throw new IllegalArgumentException(
-							"Problems when opening the index, no typenames for the schema are defined");
-		
-				// loading all the features into memory to build an in-memory index.
-				String typeName = typeNames[0];
-				final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = tileIndexStore.getFeatureSource(typeName);
-				if (featureSource == null) 
-					throw new NullPointerException(
-							"The provided FeatureSource<SimpleFeatureType, SimpleFeature> is null, it's impossible to create an index!");
-				features = featureSource.getFeatures();
-				if (features == null) 
-					throw new NullPointerException(
-							"The provided FeatureCollection<SimpleFeatureType, SimpleFeature> is null, it's impossible to create an index!");
-		
-				if (LOGGER.isLoggable(Level.FINE))
-					LOGGER.fine("Index Loaded");
-				
-				//load the feature from the shapefile and create JTS index
-				it = features.features();
-				if (!it.hasNext()) 
-					throw new IllegalArgumentException(
-							"The provided FeatureCollection<SimpleFeatureType, SimpleFeature>  or empty, it's impossible to create an index!");
-				
-				// now build the index
-				// TODO make it configurable as far the index is involved
-				STRtree tree = new STRtree();
-				while (it.hasNext()) {
-					final SimpleFeature feature = it.next();
-					final Geometry g = (Geometry) feature.getDefaultGeometry();
-					tree.insert(g.getEnvelopeInternal(), feature);
-				}
-				
-				// force index construction --> STRTrees are build on first call to
-				// query
-				tree.build();
-				
-				// save the soft reference
-				index= new SoftReference<STRtree>(tree);
-
-				// IF this the sourceURL points to a File, THEN we are using the
-				// last modified time to determine whether we have to recreate the
-				// index. Otherwise now used.
-				if(parent.sourceURL.getProtocol().equals("file")) {
-					this.lastModified = DataUtilities.urlToFile(parent.sourceURL).lastModified();
-				} else {
-					this.lastModified = new Date().getTime();
-				}
-
-			}
-			catch (Throwable e) {
-				throw new  IllegalArgumentException(e);
-			}
-			finally{
-				try {
-					if(tileIndexStore!=null)
-						tileIndexStore.dispose();
-				} catch (Throwable e) {
-					if (LOGGER.isLoggable(Level.FINE))
-						LOGGER.log(Level.FINE, e.getLocalizedMessage(), e);
-				}
-				finally{
-					tileIndexStore=null;
-				}
-				
-				if(it!=null)
-					// closing he iterator to free some resources.
-					if(features!=null)
-						features.close(it);
-
-			}
-			
-		}
-
-		/**
-		 * Finds the features that intersects the provided {@link Envelope}:
-		 * 
-		 * @param envelope
-		 *            The {@link Envelope} to test for intersection.
-		 * @return List of {@link Feature} that intersect the providede
-		 *         {@link Envelope}.
-		 * @throws IOException 
-		 */
-		@SuppressWarnings("unchecked")
-		public List<SimpleFeature> findFeatures(final Envelope envelope) throws IOException {
-			ImageMosaicUtils.ensureNonNull("envelope",envelope);
-			return getIndex().query(envelope);
-
-		}
-		
-		/**
-		 * Finds the features that intersects the provided {@link Envelope}:
-		 * 
-		 * @param envelope
-		 *            The {@link Envelope} to test for intersection.
-		 * @return List of {@link Feature} that intersect the providede
-		 *         {@link Envelope}.
-		 * @throws IOException 
-		 */
-		public void findFeatures(final Envelope envelope, final ItemVisitor visitor) throws IOException {
-			ImageMosaicUtils.ensureNonNull("envelope",envelope);
-			ImageMosaicUtils.ensureNonNull("visitor",visitor);
-			getIndex().query(envelope, visitor);
-
-		}
-		
-		
-		public synchronized void dispose()throws IOException{
-			index.clear();
-		}
-
-	}
-	
 	/**
 	 * Simple support class for sorting overview resolutions
 	 * @author Andrea Aime
@@ -687,12 +418,13 @@ class RasterManager {
 	SpatialDomainManager spatialDomainManager;
 
 	/** {@link SoftReference} to the index holding the tiles' envelopes. */
-	private final GranuleIndex index=  new GranuleIndex();
+	private final GranuleIndex index;
 
 	public RasterManager(final ImageMosaicReader reader) throws DataSourceException {
 		
 		ImageMosaicUtils.ensureNonNull("ImageMosaicReader", reader);
 		this.parent=reader;
+		index= new MemoryCachedGranuleIndex(parent.sourceURL);		
 		this.expandMe=parent.expandMe;
         inputURL = reader.sourceURL;
         locationAttribute=parent.locationAttributeName;
@@ -791,8 +523,8 @@ class RasterManager {
 	 * @throws IOException
 	 *             In case loading the needed features failes.
 	 */
-	List<SimpleFeature> getFeaturesFromIndex(final Envelope envelope)throws IOException {
-		final List<SimpleFeature> features = index.findFeatures(envelope);
+	List<SimpleFeature> getGranules(final BoundingBox envelope)throws IOException {
+		final List<SimpleFeature> features = index.findGranules(envelope);
 		if (features != null)
 			return features;
 		else
@@ -809,12 +541,10 @@ class RasterManager {
 	 * @throws IOException
 	 *             In case loading the needed features failes.
 	 */
-	void getFeaturesFromIndex(final Envelope envelope,final ItemVisitor visitor)throws IOException {
-		index.findFeatures(envelope,visitor);
-
+	void getGranules(final BoundingBox envelope,final GranuleIndexVisitor visitor)throws IOException {
+		index.findGranules(envelope,visitor);
 	}
 
-	
 	public PathType getPathType() {
 		return pathType;
 	}

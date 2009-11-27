@@ -694,5 +694,23 @@ class Granule {
 		}
 		return super.toString();
 	}
+
+	public BoundingBox getGranuleBBOX() {
+		return granuleBBOX;
+	}
+
+	public void setGranuleBBOX(BoundingBox granuleBBOX) {
+		this.granuleBBOX = ReferencedEnvelope.reference(granuleBBOX);
+		if(this.granuleBBOX.getCoordinateReferenceSystem()==null)
+			throw new IllegalArgumentException("The provided boox has not CRS.");
+	}
+
+	public URL getGranuleUrl() {
+		return granuleUrl;
+	}
+
+	public void setGranuleUrl(URL granuleUrl) {
+		this.granuleUrl = granuleUrl;
+	}
 	
 }

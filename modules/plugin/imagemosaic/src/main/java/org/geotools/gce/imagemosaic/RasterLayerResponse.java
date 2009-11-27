@@ -32,7 +32,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
@@ -58,7 +57,9 @@ import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataUtilities;
+import org.geotools.data.Query;
 import org.geotools.factory.Hints;
+import org.geotools.gce.imagemosaic.GranuleIndex.GranuleIndexVisitor;
 import org.geotools.gce.imagemosaic.RasterManager.OverviewLevel;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -75,7 +76,6 @@ import org.opengis.referencing.operation.MathTransform2D;
 import org.opengis.referencing.operation.TransformException;
 
 import com.sun.media.jai.codecimpl.util.ImagingException;
-import com.vividsolutions.jts.index.ItemVisitor;
 /**
  * A RasterLayerResponse. An instance of this class is produced everytime a
  * requestCoverage is called to a reader.
@@ -86,74 +86,24 @@ import com.vividsolutions.jts.index.ItemVisitor;
 @SuppressWarnings("deprecation")
 class RasterLayerResponse{
 	
-	/**
-	 * 
-	 * @author Simone Giannecchini, GeoSolutions SAS
-	 *
-	 */
-	class GranuleLoader implements Callable<RenderedImage>{
-
-		final ReferencedEnvelope cropBBox;
-		
-		final MathTransform2D mosaicWorldToGrid;
-		
-		final Granule granule;
-		
-		final ImageReadParam readParameters;
-		
-		final int imageIndex;
-
-		final Dimension tilesDimension;
-		
-		GranuleLoader(
-				final ImageReadParam readParameters, 
-				final int imageIndex,
-				final ReferencedEnvelope cropBBox, 
-				final MathTransform2D mosaicWorldToGrid,
-				final Granule granule,
-				final Dimension tilesDimension) {
-			this.readParameters = ImageMosaicUtils.cloneImageReadParam(readParameters);
-			this.imageIndex = imageIndex;
-			this.cropBBox = cropBBox;
-			this.mosaicWorldToGrid = mosaicWorldToGrid;
-			this.granule = granule;
-			this.tilesDimension= tilesDimension!=null?(Dimension) tilesDimension.clone():null;
-		}
-		
-		public BoundingBox getCropBBox() {
-			return cropBBox;
-		}
-
-		public MathTransform2D getMosaicWorldToGrid() {
-			return mosaicWorldToGrid;
-		}
-
-		public Granule getGranule() {
-			return granule;
-		}
-
-		public ImageReadParam getReadParameters() {
-			return readParameters;
-		}
-
-		public int getImageIndex() {
-			return imageIndex;
-		}
-		
-		public RenderedImage call() throws Exception {
-			return granule.loadRaster(readParameters, imageIndex, cropBBox, mosaicWorldToGrid, request,tilesDimension);
-		}
-
-	}
 	
-	class GranuleIndexVisitor implements ItemVisitor{
+	
+	class GranuleVisitor implements GranuleIndexVisitor{
 
+		private Query query;
+
+		/**
+		 * Default {@link Constructor}
+		 */
+		public GranuleVisitor() {
+			this(Query.ALL);
+		}
 		
 		/**
 		 * Default {@link Constructor}
 		 */
-		public GranuleIndexVisitor() {
-
+		public GranuleVisitor(final Query q) {
+			this.query=q;
 		}
 
 		private final List<Future<RenderedImage>> tasks= new ArrayList<Future<RenderedImage>>();
@@ -163,10 +113,12 @@ class RasterLayerResponse{
 		private Color inputTransparentColor;
 		private PlanarImage[] alphaChannels;
 
-		public void visitItem(final Object item) {
+		public void visit(SimpleFeature item, Object o) {
 
 			// Get location and envelope of the image to load.
 			final SimpleFeature feature = (SimpleFeature) item;
+			if(!this.query.getFilter().evaluate(item))
+				return;
 			final String granuleLocation = (String) feature.getAttribute(rasterManager.getLocationAttribute());
 			final ReferencedEnvelope granuleBBox = ReferencedEnvelope.reference(feature.getBounds());
 			
@@ -188,7 +140,7 @@ class RasterLayerResponse{
 			synchronized (rasterManager.granulesCache) {
 				
 				// Comment by Stefan Krueger
-				// Before the File.toURI().toString was jused as the cache key. For URL that potentially throws an URISystaxException and i used just toString()  
+				// Before the File.toURI().toString was used as the cache key. For URL that potentially throws an URISystaxException and i used just toString()  
 				
 				if(rasterManager.granulesCache.containsKey(rasterFile.toString()))
 				{
@@ -205,7 +157,7 @@ class RasterLayerResponse{
 			// load raster data
 			//
 			//create a granule loader
-			final GranuleLoader loader = new GranuleLoader(baseReadParameters, imageChoice, mosaicBBox, finalWorldToGridCorner, granule, request.getTileDimensions());
+			final GranuleLoader loader = new GranuleLoader(baseReadParameters, imageChoice, mosaicBBox, finalWorldToGridCorner, granule, request);
 			if(!multithreadingAllowed)
 				tasks.add(new FutureTask<RenderedImage>(loader));
 			else
@@ -356,6 +308,8 @@ class RasterLayerResponse{
 			pbjMosaic.setParameter("sourceROI", rois.toArray(new ROI[rois.size()]));			
 			
 		}
+
+
 		
 	}
 
@@ -525,20 +479,8 @@ class RasterLayerResponse{
 	 * This method loads the granules which overlap the requested
 	 * {@link GeneralEnvelope} using the provided values for alpha and input
 	 * ROI.
-	 * 
-	 * @param requestedOriginalEnvelope
-	 * @param intersectionEnvelope
-	 * @param finalTransparentColor
-	 * @param outputTransparentColor
-	 * @param requestedJTSEnvelope
-	 * @param inputImageThresholdValue
-	 * @param dim
-	 * @param blend
-	 * @param overviewPolicy
-	 * @param useJAIImageRead
 	 * @return
 	 * @throws DataSourceException
-	 * @throws TransformException
 	 */
 	private RenderedImage prepareResponse() throws DataSourceException {
 
@@ -607,8 +549,8 @@ class RasterLayerResponse{
 			
 			
 			// create the index visitor and visit the feature
-			final GranuleIndexVisitor visitor = new GranuleIndexVisitor();
-			rasterManager.getFeaturesFromIndex(mosaicBBox, visitor);
+			final GranuleVisitor visitor = new GranuleVisitor();
+			rasterManager.getGranules(mosaicBBox, visitor);
 			visitor.produce();
 			
 			//
