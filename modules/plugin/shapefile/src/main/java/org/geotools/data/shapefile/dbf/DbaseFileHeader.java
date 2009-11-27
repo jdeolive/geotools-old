@@ -112,7 +112,7 @@ public class DbaseFileHeader {
      * <PRE>
      * All packages are java.lang unless otherwise specified.
      * C (Character) -&gt; String
-     * N (Numeric)   -&gt; Integer or Double (depends on field's decimal count)
+     * N (Numeric)   -&gt; Integer or Long or Double (depends on field's decimal count and fieldLength)
      * F (Floating)  -&gt; Double
      * L (Logical)   -&gt; Boolean
      * D (Date)      -&gt; java.util.Date

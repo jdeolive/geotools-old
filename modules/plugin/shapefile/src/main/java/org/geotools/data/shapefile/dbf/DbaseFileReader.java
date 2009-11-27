@@ -470,37 +470,38 @@ public class DbaseFileReader implements FileReader {
                 }
                 break;
 
-            // (F)floating (Double)
+            // (N)umeric (Integer, Long or Fallthrough to Double)
             case 'n':
             case 'N':
                 final String string = fastParse(bytes,fieldOffset,fieldLen);
-                try {
-                    final Class clazz = header.getFieldClass(fieldNum);
+                    Class clazz = header.getFieldClass(fieldNum);
                     if (clazz == Integer.class) {
-                        object = Integer.parseInt(string);
-                        break;
-                    } else if (clazz == Long.class) {
-                        object = Long.parseLong(string);
-                        break;
+                        try {
+                            object = Integer.parseInt(string);
+                            break;
+                        } catch (NumberFormatException e) {
+                            // try to parse as long... 
+                            clazz = Long.class; 
+                        }
+                    } 
+                    if (clazz == Long.class) {
+                        try {
+                            object = Long.parseLong(string);
+                            break;
+                        } catch (final NumberFormatException e2) {
+                            // fall through to the floating point number
+                        }
                     }
                     // else will fall through to the floating point number
-                } catch (final NumberFormatException e) {
-                    // Lets try parsing a long instead...
-                    try {
-                        object = Long.parseLong(string);
-                        break;
-                    } catch (final NumberFormatException e2) {
 
-                    }
-                }
-
+            // (F)loating point number
             case 'f':
-            case 'F': // floating point number
+            case 'F': 
                 try {
 
                         object = Double.parseDouble(fastParse(bytes,fieldOffset,fieldLen));
                 } catch (final NumberFormatException e) {
-                    // okay, now whatever we got was truly undigestable. Lets go
+                    // okay, now whatever we got was truly indigestible. Lets go
                     // with a zero Double.
                     object = new Double(0.0);
                 }
