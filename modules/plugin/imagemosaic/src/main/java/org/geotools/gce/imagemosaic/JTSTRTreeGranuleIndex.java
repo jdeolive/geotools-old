@@ -47,10 +47,10 @@ import com.vividsolutions.jts.index.strtree.STRtree;
  *
 	 * @source $URL: http://svn.osgeo.org/geotools/trunk/modules/plugin/imagemosaic/src/main/java/org/geotools/gce/imagemosaic/RasterManager.java $
  */
-class MemoryCachedGranuleIndex implements GranuleIndex {
+class JTSTRTreeGranuleIndex implements GranuleIndex {
 	
 	/** Logger. */
-	private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(MemoryCachedGranuleIndex.class);
+	final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(JTSTRTreeGranuleIndex.class);
 
 	private static class JTSIndexVisitorAdapter  implements ItemVisitor {
 
@@ -81,8 +81,6 @@ class MemoryCachedGranuleIndex implements GranuleIndex {
 
 	}
 
-	private final ReadWriteLock rwLock= new ReentrantReadWriteLock(true);
-	
 	private final URL indexLocation;
 
 	private ShapefileDataStore tileIndexStore;
@@ -93,7 +91,7 @@ class MemoryCachedGranuleIndex implements GranuleIndex {
 
 	private FileLock lock;
 
-	public MemoryCachedGranuleIndex(final URL indexLocation) {
+	public JTSTRTreeGranuleIndex(final URL indexLocation) {
 		ImageMosaicUtils.ensureNonNull("indexLocation",indexLocation);
 		this.indexLocation=indexLocation;
 		
@@ -166,8 +164,10 @@ class MemoryCachedGranuleIndex implements GranuleIndex {
 	/** The {@link STRtree} index. */
 	private SoftReference<STRtree> index= new SoftReference<STRtree>(null);
 
+	protected final ReadWriteLock rwLock= new ReentrantReadWriteLock(true);
+
 	/**
-	 * Constructs a {@link MemoryCachedGranuleIndex} out of a {@link FeatureCollection}.
+	 * Constructs a {@link JTSTRTreeGranuleIndex} out of a {@link FeatureCollection}.
 	 * 
 	 * @param features
 	 * @throws IOException
@@ -292,18 +292,14 @@ class MemoryCachedGranuleIndex implements GranuleIndex {
 		
 
 	}
-	
-	
-	/* (non-Javadoc)
-	 * @see org.geotools.gce.imagemosaic.FeatureIndex#dispose()
-	 */
-	public void dispose()throws IOException{
+
+	public void dispose() throws IOException {
 		final Lock l=rwLock.writeLock();
 		try{
 			if(index!=null)
 				index.clear();
-
-
+	
+	
 			try {
 				if(tileIndexStore!=null)
 					tileIndexStore.dispose();
@@ -326,7 +322,7 @@ class MemoryCachedGranuleIndex implements GranuleIndex {
 			} finally {
 				lock = null;
 			}
-
+	
 			try {
 				if (channel != null)
 					// Close the file
@@ -347,46 +343,47 @@ class MemoryCachedGranuleIndex implements GranuleIndex {
 		
 	}
 
-	public void addGranule(final Granule granule) {
-		ImageMosaicUtils.ensureNonNull("granuleMetadata",granule);
-		final Lock lock=rwLock.writeLock();
-		try{
-			lock.lock();
-			// check if the index has been cleared
-			if(index==null)
-				throw new IllegalStateException();
-			
-			// do your thing
-		}finally{
-			lock.unlock();
-		}	
-		
-	}
-
 	public int removeGranules(final Query query) {
-		ImageMosaicUtils.ensureNonNull("query",query);
-		final Lock lock=rwLock.writeLock();
-		try{
-			//
-			lock.lock();
-		}finally{
-			lock.unlock();
-		}
-	
-		return 0;
+		throw new UnsupportedOperationException("removeGranules is not supported, this ia read only index");
+//		ImageMosaicUtils.ensureNonNull("query",query);
+//		final Lock lock=rwLock.writeLock();
+//		try{
+//			//
+//			lock.lock();
+//		}finally{
+//			lock.unlock();
+//		}
+//	
+//		return 0;
 		
 	}
 
-	public List<SimpleFeature> findGranules(BoundingBox envelope, Query q)
-			throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+	public void addGranule(final Granule granule) {
+		throw new UnsupportedOperationException("addGranule is not supported, this ia read only index");
+//		ImageMosaicUtils.ensureNonNull("granuleMetadata",granule);
+//		final Lock lock=rwLock.writeLock();
+//		try{
+//			lock.lock();
+//			// check if the index has been cleared
+//			if(index==null)
+//				throw new IllegalStateException();
+//			
+//			// do your thing
+//		}finally{
+//			lock.unlock();
+//		}	
+//		
 	}
 
 	public void findGranules(BoundingBox envelope, GranuleIndexVisitor visitor, Query q)
-			throws IOException {
+	throws IOException {
 		// TODO Auto-generated method stub
 		
+	}
+
+	public List<SimpleFeature> findGranules(BoundingBox envelope, Query q) throws IOException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
