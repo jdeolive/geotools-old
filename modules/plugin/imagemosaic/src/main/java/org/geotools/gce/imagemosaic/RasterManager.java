@@ -523,8 +523,8 @@ class RasterManager {
 	 * @throws IOException
 	 *             In case loading the needed features failes.
 	 */
-	List<SimpleFeature> getGranules(final BoundingBox envelope)throws IOException {
-		final List<SimpleFeature> features = index.findGranules(envelope);
+	Collection<SimpleFeature> getGranules(final BoundingBox envelope)throws IOException {
+		final Collection<SimpleFeature> features = index.findGranules(envelope);
 		if (features != null)
 			return features;
 		else

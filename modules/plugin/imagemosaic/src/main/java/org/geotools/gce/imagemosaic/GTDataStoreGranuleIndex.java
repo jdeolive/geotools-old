@@ -3,12 +3,11 @@ package org.geotools.gce.imagemosaic;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.lang.ref.SoftReference;
 import java.net.URL;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -21,18 +20,20 @@ import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
 import org.geotools.data.shapefile.ShapefileDataStore;
+import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.factory.GeoTools;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
+import org.geotools.feature.collection.AbstractFeatureVisitor;
 import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.util.NullProgressListener;
+import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.FeatureType;
 import org.opengis.filter.Filter;
+import org.opengis.filter.FilterFactory2;
 import org.opengis.geometry.BoundingBox;
-
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.index.ItemVisitor;
-import com.vividsolutions.jts.index.SpatialIndex;
-import com.vividsolutions.jts.index.strtree.STRtree;
 
 /**
  * This class simply builds an SRTREE spatial index in memory for fast indexed
@@ -50,54 +51,13 @@ import com.vividsolutions.jts.index.strtree.STRtree;
  *
 	 * @source $URL: http://svn.osgeo.org/geotools/trunk/modules/plugin/imagemosaic/src/main/java/org/geotools/gce/imagemosaic/RasterManager.java $
  */
-class JTSTRTreeGranuleIndex implements GranuleIndex {
+class GTDataStoreGranuleIndex implements GranuleIndex {
 	
 	/** Logger. */
-	final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(JTSTRTreeGranuleIndex.class);
+	final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(GTDataStoreGranuleIndex.class);
 
-	private static class JTSIndexVisitorAdapter  implements ItemVisitor {
-
-		private GranuleIndexVisitor adaptee;
-		private Filter filter;
-
-		/**
-		 * @param indexLocation
-		 */
-		public JTSIndexVisitorAdapter(final GranuleIndexVisitor adaptee) {
-			this(adaptee,(Query)null);
-		}
-		
-		public JTSIndexVisitorAdapter(final GranuleIndexVisitor adaptee, Query q) {
-			this.adaptee=adaptee;
-			this.filter=q==null?DefaultQuery.ALL.getFilter():q.getFilter();
-		}
-		/**
-		 * @param indexLocation
-		 */
-		public JTSIndexVisitorAdapter(final GranuleIndexVisitor adaptee, Filter filter) {
-			this.adaptee=adaptee;
-			this.filter=filter==null?DefaultQuery.ALL.getFilter():filter;
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see
-		 * com.vividsolutions.jts.index.ItemVisitor#visitItem(java.lang.Object)
-		 */
-		public void visitItem(Object o) {
-			if(o instanceof SimpleFeature){
-				final SimpleFeature f=(SimpleFeature) o;
-				if(filter.evaluate(f));
-				adaptee.visit(f,null);
-				return;
-			}
-			throw new IllegalArgumentException("Unable to visit provided item"+o);
-
-		}
-
-	}
-
+	final FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2( GeoTools.getDefaultHints() );
+	
 	private final URL indexLocation;
 
 	private ShapefileDataStore tileIndexStore;
@@ -108,9 +68,13 @@ class JTSTRTreeGranuleIndex implements GranuleIndex {
 
 	private FileLock lock;
 
+	private FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
+
+	private String geometryPropertyName;
+
 	private ReferencedEnvelope bounds;
 
-	public JTSTRTreeGranuleIndex(final URL indexLocation) {
+	public GTDataStoreGranuleIndex(final URL indexLocation) {
 		ImageMosaicUtils.ensureNonNull("indexLocation",indexLocation);
 		this.indexLocation=indexLocation;
 		
@@ -141,7 +105,15 @@ class JTSTRTreeGranuleIndex implements GranuleIndex {
 			// loading all the features into memory to build an in-memory index.
 			typeName = typeNames[0];
 			
-			bounds=tileIndexStore.getFeatureSource().getBounds();
+			featureSource = tileIndexStore.getFeatureSource(typeName);
+			if (featureSource == null) 
+				throw new NullPointerException(
+						"The provided FeatureSource<SimpleFeatureType, SimpleFeature> is null, it's impossible to create an index!");
+			bounds=featureSource.getBounds();
+			
+			
+		    final FeatureType schema = featureSource.getSchema();
+		    geometryPropertyName = schema.getGeometryDescriptor().getLocalName();			
 		}
 		catch (Throwable e) {
 			try {
@@ -182,133 +154,29 @@ class JTSTRTreeGranuleIndex implements GranuleIndex {
 		
 	}
 	
-	/** The {@link STRtree} index. */
-	private SoftReference<STRtree> index= new SoftReference<STRtree>(null);
-
 	protected final ReadWriteLock rwLock= new ReentrantReadWriteLock(true);
-
-	/**
-	 * Constructs a {@link JTSTRTreeGranuleIndex} out of a {@link FeatureCollection}.
-	 * 
-	 * @param features
-	 * @throws IOException
-	 */
-	private synchronized SpatialIndex getIndex() throws IOException {
-		// check if the index has been cleared
-		if(index==null)
-			throw new IllegalStateException();
-		
-		// do your thing
-
-		/**
-		 * Comment by Stefan Krueger while patching the stuff to deal with
-		 * URLs instead of Files: If it is not a URL to a file, we don't
-		 * need locks, because no one can change to the index.
-		 */
-
-		STRtree tree = index.get();
-		if (tree == null) {
-			if (LOGGER.isLoggable(Level.FINE))
-				LOGGER.fine("No index exits and we create a new one.");
-			createIndex();
-			tree = index.get();
-		} else if (LOGGER.isLoggable(Level.FINE))
-			LOGGER.fine("Index does not need to be created...");
-		
-		return tree;
-		
-
-	}
-
-	/**
-	 * This method shall only be called when the <code>indexLocation</code> is of protocol <code>file:</code>
-	 */
-	private void createIndex() {
-		
-		FeatureIterator<SimpleFeature> it=null;
-		FeatureCollection<SimpleFeatureType, SimpleFeature> features=null;
-		//
-		// Load tiles informations, especially the bounds, which will be
-		// reused
-		//
-		try{
-
-			final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = tileIndexStore.getFeatureSource(typeName);
-			if (featureSource == null) 
-				throw new NullPointerException(
-						"The provided FeatureSource<SimpleFeatureType, SimpleFeature> is null, it's impossible to create an index!");
-			features = featureSource.getFeatures();
-			if (features == null) 
-				throw new NullPointerException(
-						"The provided FeatureCollection<SimpleFeatureType, SimpleFeature> is null, it's impossible to create an index!");
-	
-			if (LOGGER.isLoggable(Level.FINE))
-				LOGGER.fine("Index Loaded");
-			
-			//load the feature from the shapefile and create JTS index
-			it = features.features();
-			if (!it.hasNext()) 
-				throw new IllegalArgumentException(
-						"The provided FeatureCollection<SimpleFeatureType, SimpleFeature>  or empty, it's impossible to create an index!");
-			
-			// now build the index
-			// TODO make it configurable as far the index is involved
-			STRtree tree = new STRtree();
-			while (it.hasNext()) {
-				final SimpleFeature feature = it.next();
-				final Geometry g = (Geometry) feature.getDefaultGeometry();
-				tree.insert(g.getEnvelopeInternal(), feature);
-			}
-			
-			// force index construction --> STRTrees are build on first call to
-			// query
-			tree.build();
-			
-			// save the soft reference
-			index= new SoftReference<STRtree>(tree);
-		}
-		catch (Throwable e) {
-			throw new  IllegalArgumentException(e);
-		}
-		finally{
-	
-			if(it!=null)
-				// closing he iterator to free some resources.
-				if(features!=null)
-					features.close(it);
-
-		}
-		
-	}
 
 	/* (non-Javadoc)
 	 * @see org.geotools.gce.imagemosaic.FeatureIndex#findFeatures(com.vividsolutions.jts.geom.Envelope)
 	 */
-	@SuppressWarnings("unchecked")
 	public List<SimpleFeature> findGranules(final BoundingBox envelope) throws IOException {
 		ImageMosaicUtils.ensureNonNull("envelope",envelope);
-		final Lock lock=rwLock.readLock();
-		try{
-			lock.lock();
-			return getIndex().query(ReferencedEnvelope.reference(envelope));
-		}finally{
-			lock.unlock();
-		}			
+		final DefaultQuery q= new DefaultQuery(typeName);
+		Filter filter = ff.bbox( ff.property( geometryPropertyName ), ReferencedEnvelope.reference(envelope) );
+		q.setFilter(filter);
+	    return findGranules(q);	
+		
 	}
 	
 	/* (non-Javadoc)
 	 * @see org.geotools.gce.imagemosaic.FeatureIndex#findFeatures(com.vividsolutions.jts.geom.Envelope, com.vividsolutions.jts.index.ItemVisitor)
 	 */
-	public void findGranules(final BoundingBox envelope, final GranuleIndexVisitor visitor) throws IOException {
+	public void  findGranules(final BoundingBox envelope, final GranuleIndexVisitor visitor) throws IOException {
 		ImageMosaicUtils.ensureNonNull("envelope",envelope);
-		ImageMosaicUtils.ensureNonNull("visitor",visitor);
-		final Lock lock=rwLock.readLock();
-		try{
-			lock.lock();
-			getIndex().query(ReferencedEnvelope.reference(envelope), new JTSIndexVisitorAdapter(visitor));
-		}finally{
-			lock.unlock();
-		}				
+		final DefaultQuery q= new DefaultQuery(typeName);
+		Filter filter = ff.bbox( ff.property( geometryPropertyName ), ReferencedEnvelope.reference(envelope) );
+		q.setFilter(filter);
+	    findGranules(q,visitor);			
 		
 
 	}
@@ -317,10 +185,6 @@ class JTSTRTreeGranuleIndex implements GranuleIndex {
 		final Lock l=rwLock.writeLock();
 		try{
 			l.lock();
-			if(index!=null)
-				index.clear();
-	
-	
 			try {
 				if(tileIndexStore!=null)
 					tileIndexStore.dispose();
@@ -356,7 +220,6 @@ class JTSTRTreeGranuleIndex implements GranuleIndex {
 			}			
 		}finally{
 			
-			index= null;
 			l.unlock();
 		
 		}
@@ -396,51 +259,118 @@ class JTSTRTreeGranuleIndex implements GranuleIndex {
 //		
 	}
 
-
-	@SuppressWarnings("unchecked")
-	public List<SimpleFeature> findGranules(Query q) throws IOException {
+	public void  findGranules(final Query q,final GranuleIndexVisitor visitor)
+	throws IOException {
 		ImageMosaicUtils.ensureNonNull("q",q);
+
+		FeatureIterator<SimpleFeature> it=null;
+		FeatureCollection<SimpleFeatureType, SimpleFeature> features=null;
 		final Lock lock=rwLock.readLock();
 		try{
-			lock.lock();
+			lock.lock();		
+			//
+			// Load tiles informations, especially the bounds, which will be
+			// reused
+			//
+
 			
-			// get filter and check bbox
-			final Filter filter= q.getFilter();
+			features = featureSource.getFeatures( q );
+		
+			if (features == null) 
+				throw new NullPointerException(
+						"The provided FeatureCollection<SimpleFeatureType, SimpleFeature> is null, it's impossible to create an index!");
+	
+			if (LOGGER.isLoggable(Level.FINE))
+				LOGGER.fine("Index Loaded");
+						
 			
-			final List<SimpleFeature> features= getIndex().query(bounds);
-			if(q.equals(DefaultQuery.ALL))
-				return features;
+			//load the feature from the shapefile and create JTS index
+			if (features.size()<=0) 
+				throw new IllegalArgumentException(
+						"The provided FeatureCollection<SimpleFeatureType, SimpleFeature>  or empty, it's impossible to create an index!");
 			
-			final List<SimpleFeature> retVal= new ArrayList<SimpleFeature>();
-			for (Iterator<SimpleFeature> it = features.iterator();it.hasNext();)
-			{
-				SimpleFeature f= it.next();
-				if(filter.evaluate(f))
-					retVal.add(f);
+			features.accepts( new AbstractFeatureVisitor(){
+			    public void visit( Feature feature ) {
+			        if(feature instanceof SimpleFeature)
+			        {
+			        	final SimpleFeature sf= (SimpleFeature) feature;
+			        	visitor.visit(sf, null);
+			        }
+			    }            
+			}, new NullProgressListener() );
+			
+
+		}
+		catch (Throwable e) {
+			throw new  IllegalArgumentException(e);
+		}
+		finally{
+			lock.unlock();
+			if(it!=null)
+				// closing he iterator to free some resources.
+				if(features!=null)
+					features.close(it);
+
+		}
+				
+		
+	}
+
+	public List<SimpleFeature> findGranules(final Query q) throws IOException {
+		ImageMosaicUtils.ensureNonNull("q",q);
+
+		FeatureIterator<SimpleFeature> it=null;
+		FeatureCollection<SimpleFeatureType, SimpleFeature> features=null;
+		final Lock lock=rwLock.readLock();
+		try{
+			lock.lock();		
+			//
+			// Load tiles informations, especially the bounds, which will be
+			// reused
+			//
+
+			
+			features = featureSource.getFeatures( q );
+		
+			if (features == null) 
+				throw new NullPointerException(
+						"The provided FeatureCollection<SimpleFeatureType, SimpleFeature> is null, it's impossible to create an index!");
+	
+			if (LOGGER.isLoggable(Level.FINE))
+				LOGGER.fine("Index Loaded");
+						
+			
+			//load the feature from the shapefile and create JTS index
+			it = features.features();
+			if (!it.hasNext()) 
+				throw new IllegalArgumentException(
+						"The provided FeatureCollection<SimpleFeatureType, SimpleFeature>  or empty, it's impossible to create an index!");
+			
+			// now build the index
+			// TODO make it configurable as far the index is involved
+			final ArrayList<SimpleFeature> retVal= new ArrayList<SimpleFeature>(features.size());
+			while (it.hasNext()) {
+				final SimpleFeature feature = it.next();
+				retVal.add(feature);
 			}
 			return retVal;
-		}finally{
+
+		}
+		catch (Throwable e) {
+			throw new  IllegalArgumentException(e);
+		}
+		finally{
 			lock.unlock();
-		}	
+			if(it!=null)
+				// closing he iterator to free some resources.
+				if(features!=null)
+					features.close(it);
+
+		}
 	}
 
-	public List<SimpleFeature> findGranules() {
-		throw new UnsupportedOperationException("findGranules is not supported"); 
-	}
-
-	public void findGranules(Query q, GranuleIndexVisitor visitor)
-			throws IOException {
-		ImageMosaicUtils.ensureNonNull("q",q);
-		final Lock lock=rwLock.readLock();
-		try{
-			lock.lock();
-			
-			// get filter and check bbox
-			getIndex().query(bounds,new JTSIndexVisitorAdapter(visitor,q));
-			
-		}finally{
-			lock.unlock();
-		}	
+	public Collection<SimpleFeature> findGranules()throws IOException {
+		return findGranules((BoundingBox)null);
 	}
 
 }
