@@ -19,13 +19,10 @@ package org.geotools.data.mysql;
 import java.sql.Connection;
 import java.util.Properties;
 
-import javax.sql.DataSource;
-
 import org.apache.commons.dbcp.BasicDataSource;
 import org.geotools.jdbc.JDBCDataStore;
 import org.geotools.jdbc.JDBCDataStoreFactory;
 import org.geotools.jdbc.JDBCTestSetup;
-import org.geotools.jdbc.SQLDialect;
 
 
 /**
@@ -53,13 +50,13 @@ public class MySQLTestSetup extends JDBCTestSetup {
     protected void setUpData() throws Exception {
         //drop old data
         try {
-            run("DROP TABLE geotools.ft1;");
+            run("DROP TABLE ft1;");
         } catch (Exception e) {
             //e.printStackTrace();
         }
 
         try {
-            run("DROP TABLE geotools.ft2;");
+            run("DROP TABLE ft2;");
         } catch (Exception e) {
             //e.printStackTrace();
         }
@@ -67,24 +64,29 @@ public class MySQLTestSetup extends JDBCTestSetup {
         //create some data
         StringBuffer sb = new StringBuffer();
         //JD: COLLATE latin1_general_cs is neccesary to ensure case-sensitive string comparisons
-        sb.append("CREATE TABLE geotools.ft1 ").append("(id int AUTO_INCREMENT PRIMARY KEY , ")
+        sb.append("CREATE TABLE ft1 ").append("(id int AUTO_INCREMENT PRIMARY KEY , ")
           .append("geometry POINT, intProperty int, ")
           .append("doubleProperty double, stringProperty varchar(255) COLLATE latin1_general_cs) ENGINE=InnoDB;");
         run(sb.toString());
 
         sb = new StringBuffer();
-        sb.append("INSERT INTO geotools.ft1 VALUES (")
+        sb.append("INSERT INTO ft1 VALUES (")
           .append("0,GeometryFromText('POINT(0 0)',4326), 0, 0.0,'zero');");
         run(sb.toString());
 
         sb = new StringBuffer();
-        sb.append("INSERT INTO geotools.ft1 VALUES (")
+        sb.append("INSERT INTO ft1 VALUES (")
           .append("0,GeometryFromText('POINT(1 1)',4326), 1, 1.1,'one');");
         run(sb.toString());
 
         sb = new StringBuffer();
-        sb.append("INSERT INTO geotools.ft1 VALUES (")
+        sb.append("INSERT INTO ft1 VALUES (")
           .append("0,GeometryFromText('POINT(2 2)',4326), 2, 2.2,'two');");
         run(sb.toString());
+    }
+    
+    @Override
+    protected void setUpDataStore(JDBCDataStore dataStore) {
+        dataStore.setDatabaseSchema(null);
     }
 }
