@@ -30,8 +30,6 @@ import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.TexturePaint;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Line2D;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
@@ -44,14 +42,12 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.imageio.ImageIO;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.renderer.lite.CustomGlyphRenderer;
 import org.geotools.renderer.lite.GlyphRenderer;
-import org.geotools.renderer.lite.SVGGlyphRenderer;
 import org.geotools.styling.ExternalGraphic;
 import org.geotools.styling.Fill;
 import org.geotools.styling.Font;
@@ -66,7 +62,6 @@ import org.geotools.styling.PointSymbolizer;
 import org.geotools.styling.PolygonSymbolizer;
 import org.geotools.styling.StyleAttributeExtractorTruncated;
 import org.geotools.styling.StyleFactoryFinder;
-import org.geotools.styling.Symbol;
 import org.geotools.styling.Symbolizer;
 import org.geotools.styling.TextMark;
 import org.geotools.styling.TextSymbolizer;
@@ -166,12 +161,6 @@ public class SLDStyleFactory {
          * Initialize the gliph renderers array with the default ones
          */
         glyphRenderers.add(new CustomGlyphRenderer());
-
-        try {
-            glyphRenderers.add(new SVGGlyphRenderer());
-        } catch (Exception e) {
-            LOGGER.warning("Will not support SVG External Graphics " + e);
-        }
     }
 
     /** Symbolizers that depend on attributes */

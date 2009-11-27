@@ -27,21 +27,14 @@ import junit.framework.TestCase;
  * @author Andrea Aime - TOPP
  *
  *
- * @source $URL$
+ * @source $URL: http://svn.osgeo.org/geotools/trunk/modules/library/render/src/test/java/org/geotools/renderer/style/DynamicSymbolFactoryFinderTest.java $
  */
-public class DynamicSymbolFactoryFinderTest extends TestCase {
+public class SVGFactoryFinderTest extends TestCase {
 
-    public void testLookupMarkFactories() {
-        List<MarkFactory> result = loadIterator(DynamicSymbolFactoryFinder.getMarkFactories());
-        assertTrue(result.size() >= 2);
-        assertContainsClassInstance(result, WellKnownMarkFactory.class);
-        assertContainsClassInstance(result, TTFMarkFactory.class);
-    }
-    
     public void testLookupExternalGraphicFactories() {
         List<ExternalGraphicFactory> result = loadIterator(DynamicSymbolFactoryFinder.getExternalGraphicFactories());
         assertTrue(result.size() >= 1);
-        assertContainsClassInstance(result, ImageGraphicFactory.class);
+        assertContainsClassInstance(result, SVGGraphicFactory.class);
     }
     
     public void assertContainsClassInstance(List list, Class clazz) {

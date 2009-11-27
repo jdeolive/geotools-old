@@ -19,14 +19,10 @@ package org.geotools.renderer.style;
 import java.net.URL;
 
 import javax.swing.Icon;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.WindowConstants;
 
 import junit.framework.TestCase;
 
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.renderer.lite.StreamingRenderer;
 import org.opengis.filter.FilterFactory;
 
 public class SVGGraphicFactoryTest extends TestCase {
@@ -40,6 +36,10 @@ public class SVGGraphicFactoryTest extends TestCase {
         ff = CommonFactoryFinder.getFilterFactory(null);
     }
     
+    public void testNull() throws Exception {
+        assertNull(svg.getIcon(null, ff.literal("http://www.nowhere.com"), null, 20));
+    }
+    
     public void testInvalidPaths() throws Exception {
         assertNull(svg.getIcon(null, ff.literal("http://www.nowhere.com"), "image/svg+not!", 20));
         try {
@@ -50,7 +50,7 @@ public class SVGGraphicFactoryTest extends TestCase {
     }
     
     public void testLocalURL() throws Exception {
-        URL url = StreamingRenderer.class.getResource("test-data/gradient.svg");
+        URL url = SVGGraphicFactory.class.getResource("gradient.svg");
         assertNotNull(url);
         // first call, non cached path
         Icon icon = svg.getIcon(null, ff.literal(url), "image/svg", 20);
@@ -66,7 +66,7 @@ public class SVGGraphicFactoryTest extends TestCase {
     }
     
     public void testNaturalSize() throws Exception {
-        URL url = StreamingRenderer.class.getResource("test-data/gradient.svg");
+        URL url = SVGGraphicFactory.class.getResource("gradient.svg");
         assertNotNull(url);
         // first call, non cached path
         Icon icon = svg.getIcon(null, ff.literal(url), "image/svg", -1);
