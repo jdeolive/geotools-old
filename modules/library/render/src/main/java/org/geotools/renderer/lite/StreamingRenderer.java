@@ -2535,7 +2535,7 @@ public final class StreamingRenderer implements GTRenderer {
 				}
 				
 				LiteShape2 shape;
-				if(projectionHandler != null) {
+				if(projectionHandler != null && sa != null) {
 				    // first generalize and transform the geometry into the rendering CRS
 					Decimator d = getDecimator(sa.xform);
 					if(clone || !(g.getFactory().getCoordinateSequenceFactory() instanceof LiteCoordinateSequenceFactory)) {
@@ -2554,7 +2554,10 @@ public final class StreamingRenderer implements GTRenderer {
 					// wrap into a lite shape
 					shape = new LiteShape2(g, null, null, false, false);
 				} else {
-					shape = new LiteShape2(g, sa.xform, getDecimator(sa.xform), false, clone);
+				    MathTransform2D xform = null;
+				    if(sa != null)
+				        xform = sa.xform;
+					shape = new LiteShape2(g, xform, getDecimator(xform), false, clone);
 				}
 				
 				geometries.add(g);
