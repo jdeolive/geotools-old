@@ -109,15 +109,6 @@
        </modules>
      </profile>
      <profile>
-       <id>temporal</id>
-       <activation>
-         <property><name>all</name></property>
-       </activation>
-       <modules>
-         <module>temporal</module>
-       </modules>
-     </profile>
-     <profile>
        <id>workflow</id>
        <activation>
          <property><name>all</name></property>
