@@ -15,7 +15,7 @@
 
   <parent>
     <groupId>org.geotools</groupId>
-    <artifactId>unsupported</artifactId>
+    <artifactId>library</artifactId>
     <version>2.7-SNAPSHOT</version>
   </parent>
   
@@ -60,12 +60,33 @@
       </roles>
     </developer>
     <developer>
+      <name>Alessio Fabiani</name>
+      <id>afabiani</id>
+      <email>alessio.fabiani@geo-solutions.it</email>
+      <organization>GeoSolutions</organization>
+      <organizationUrl>http://www.geo-solutions.it/</organizationUrl>
+      <roles>
+        <role>Module Maintainer</role>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
+    <developer>
+      <name>Simone Giannecchini</name>
+      <id>simboss</id>
+      <email>simone.giannecchini@geo-solutions.it</email>
+      <organization>GeoSolutions</organization>
+      <organizationUrl>http://www.geo-solutions.it/</organizationUrl>
+      <roles>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
+    <developer>
       <name>Daniele Romagnoli</name>
       <id>danieler</id>
       <email>daniele.romagnoli@geo-solutions.it</email>
       <organization>GeoSolutions</organization>
+      <organizationUrl>http://www.geo-solutions.it/</organizationUrl>
       <roles>
-        <role>Module Maintainer</role>
         <role>Java Developer</role>
       </roles>
     </developer>

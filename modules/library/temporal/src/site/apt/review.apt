@@ -1,7 +1,8 @@
 MODULE TEMPORAL
 ~~~~~~~~~~~~~~~
 
-  Module Maintainer: Mehdi Sidhoum
+  Module Creator: Mehdi Sidhoum
+  Module Maintainer: Alessio Fabiani
 
   IP Review:
  
@@ -12,6 +13,8 @@ MODULE TEMPORAL
 
   Work done up to now by Mehdi, and his copyright assigned to OSGeo under 
   Geomatys' assignment document.
+  
+  Code review, code coverage and tests fixed by Alessio Fabiani of GeoSolutions.
 
 
 * org.geotools.temporal.object [(test)]
