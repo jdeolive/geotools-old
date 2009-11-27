@@ -44,6 +44,11 @@ import static org.junit.Assert.*;
  * @author Martin Desruisseaux (IRD)
  */
 public final class FormatTest {
+    
+    @Before
+    public void setUp() {
+        Locale.setDefault(Locale.ENGLISH);
+    }
 
     @After
     public void tearDown() {
