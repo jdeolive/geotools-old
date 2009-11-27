@@ -424,7 +424,7 @@ class RasterManager {
 		
 		ImageMosaicUtils.ensureNonNull("ImageMosaicReader", reader);
 		this.parent=reader;
-		index= new MemoryCachedGranuleIndex(parent.sourceURL);		
+		index= new JTSTRTreeGranuleIndex(parent.sourceURL);		
 		this.expandMe=parent.expandMe;
         inputURL = reader.sourceURL;
         locationAttribute=parent.locationAttributeName;
