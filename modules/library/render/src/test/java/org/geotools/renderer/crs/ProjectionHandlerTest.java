@@ -164,12 +164,12 @@ public class ProjectionHandlerTest {
 
     @Test
     public void testDuplicateGeometryMercator() throws Exception {
-        ReferencedEnvelope world = new ReferencedEnvelope(-180, 180, -40, 40, WGS84);
+        ReferencedEnvelope world = new ReferencedEnvelope(-180, 180, -50, 50, WGS84);
         ReferencedEnvelope mercatorEnvelope = world.transform(MERCATOR, true);
 
         // a geometry that will cross the dateline and sitting in the same area as the
         // rendering envelope
-        Geometry g = new WKTReader().read("LINESTRING(170 -40, 190 40)");
+        Geometry g = new WKTReader().read("LINESTRING(170 -50, 190 50)");
 
         // make sure the geometry is not wrapped
         ProjectionHandler handler = ProjectionHandlerFinder.getHandler(mercatorEnvelope);
