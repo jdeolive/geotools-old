@@ -25,6 +25,7 @@ import org.geotools.factory.GeoTools;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.collection.AbstractFeatureVisitor;
+import org.geotools.filter.visitor.DefaultFilterVisitor;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.util.NullProgressListener;
 import org.opengis.feature.Feature;
@@ -33,6 +34,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory2;
+import org.opengis.filter.spatial.BBOX;
 import org.opengis.geometry.BoundingBox;
 
 /**
@@ -56,8 +58,40 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 	/** Logger. */
 	final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(GTDataStoreGranuleIndex.class);
 
-	final FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2( GeoTools.getDefaultHints() );
+	final static FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2( GeoTools.getDefaultHints() );
 	
+	/**
+	 * Extracts a bbox from a filter in case there is at least one.
+	 * 
+	 * I am simply looking for the BBOX filter but I am sure we could
+	 * use other filters as well. I will leave this as a todo for the moment.
+	 * 
+	 * @author Simone Giannecchini, GeoSolutions SAS.
+	 * @todo TODO use other spatial filters as well
+	 */
+	@SuppressWarnings("deprecation")
+	static class BBOXFilterExtractor extends DefaultFilterVisitor{
+
+		public ReferencedEnvelope getBBox() {
+			return bbox;
+		}
+		private ReferencedEnvelope bbox;
+		@Override
+		public Object visit(BBOX filter, Object data) {
+			final ReferencedEnvelope bbox= new ReferencedEnvelope(
+					filter.getMinX(),
+					filter.getMinY(),
+					filter.getMaxX(),
+					filter.getMaxY(),
+					null);
+			if(this.bbox!=null)
+				this.bbox=(ReferencedEnvelope) this.bbox.intersection(bbox);
+			else
+				this.bbox=null;
+			return super.visit(filter, data);
+		}
+		
+	}
 	private final URL indexLocation;
 
 	private ShapefileDataStore tileIndexStore;
@@ -178,7 +212,7 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 
 	}
 
-	public void dispose() throws IOException {
+	public void dispose() {
 		final Lock l=rwLock.writeLock();
 		try{
 			l.lock();
@@ -367,10 +401,10 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 	}
 
 	public Collection<SimpleFeature> findGranules()throws IOException {
-		return findGranules((BoundingBox)null);
+		return findGranules(getBounds());
 	}
 
-	public ReferencedEnvelope getBounds() {
+	public BoundingBox getBounds() {
 		return bounds;
 	}
 

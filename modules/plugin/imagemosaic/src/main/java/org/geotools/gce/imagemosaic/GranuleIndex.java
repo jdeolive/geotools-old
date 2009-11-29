@@ -41,11 +41,12 @@ interface GranuleIndex {
 	
 	public abstract void  findGranules( final Query q,final GranuleIndexVisitor visitor) throws IOException;	
 
-	public abstract void dispose() throws IOException;
+	public abstract void dispose();
 	
 	
 	public void addGranule(final Granule granuleMetadata);
 	
 	public int removeGranules(final Query query);
 
+	public BoundingBox getBounds();
 }

@@ -1,13 +1,10 @@
 package org.geotools.gce.imagemosaic;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.lang.ref.SoftReference;
 import java.net.URL;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
@@ -16,16 +13,12 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultQuery;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
-import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
+import org.geotools.gce.imagemosaic.GTDataStoreGranuleIndex.BBOXFilterExtractor;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
 import org.opengis.geometry.BoundingBox;
 
@@ -98,84 +91,25 @@ class JTSTRTreeGranuleIndex implements GranuleIndex {
 
 	}
 
+	private GranuleIndex originalIndex;
+	
 	private final URL indexLocation;
-
-	private ShapefileDataStore tileIndexStore;
-
-	private String typeName;
-
-	private FileChannel channel;
-
-	private FileLock lock;
-
-	private ReferencedEnvelope bounds;
 
 	public JTSTRTreeGranuleIndex(final URL indexLocation) {
 		ImageMosaicUtils.ensureNonNull("indexLocation",indexLocation);
 		this.indexLocation=indexLocation;
-		
-		
 		try{
-			// lock the underlying file
-			if (indexLocation.getProtocol().equals("file")) {
-
-				//  Get a file channel for the file
-				File file = DataUtilities.urlToFile(indexLocation);
-				if(file.canWrite()){
-					channel = new RandomAccessFile(file, "rw").getChannel();
-
-					// Create a shared lock on the file.
-					// This method blocks until it can retrieve the lock.
-					lock = channel.lock(0, Long.MAX_VALUE, true);
-				}
-			}				
-			// creating a store
-			tileIndexStore = new ShapefileDataStore(this.indexLocation);
-			if (LOGGER.isLoggable(Level.FINE))
-				LOGGER.fine("Connected mosaic reader to its data store "+ indexLocation.toString());
-			final String[] typeNames = tileIndexStore.getTypeNames();
-			if (typeNames.length <= 0)
-				throw new IllegalArgumentException(
-						"Problems when opening the index, no typenames for the schema are defined");
-	
-			// loading all the features into memory to build an in-memory index.
-			typeName = typeNames[0];
-			
-			bounds=tileIndexStore.getFeatureSource().getBounds();
+			originalIndex= new GTDataStoreGranuleIndex(this.indexLocation);
 		}
 		catch (Throwable e) {
 			try {
-				if(tileIndexStore!=null)
-					tileIndexStore.dispose();
-			} catch (Throwable e1) {
-				if (LOGGER.isLoggable(Level.FINE))
-					LOGGER.log(Level.FINE, e1.getLocalizedMessage(), e1);
-			}
-			finally{
-				tileIndexStore=null;
-			}	
-			
-			try {
-				if (lock != null)
-					// Release the lock
-					lock.release();
+				if (originalIndex != null)
+					originalIndex.dispose();
 			} catch (Throwable e2) {
 				if (LOGGER.isLoggable(Level.FINE))
 					LOGGER.log(Level.FINE, e2.getLocalizedMessage(), e2);
-			} finally {
-				lock = null;
-			}
+			} 
 
-			try {
-				if (channel != null)
-					// Close the file
-					channel.close();
-			} catch (Throwable e3) {
-				if (LOGGER.isLoggable(Level.FINE))
-					LOGGER.log(Level.FINE, e3.getLocalizedMessage(), e3);
-			} finally {
-				channel = null	;
-			}
 			
 			throw new  IllegalArgumentException(e);
 		}
@@ -225,19 +159,15 @@ class JTSTRTreeGranuleIndex implements GranuleIndex {
 	 */
 	private void createIndex() {
 		
-		FeatureIterator<SimpleFeature> it=null;
-		FeatureCollection<SimpleFeatureType, SimpleFeature> features=null;
+		Iterator<SimpleFeature> it=null;
+		Collection<SimpleFeature> features=null;
 		//
 		// Load tiles informations, especially the bounds, which will be
 		// reused
 		//
 		try{
 
-			final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = tileIndexStore.getFeatureSource(typeName);
-			if (featureSource == null) 
-				throw new NullPointerException(
-						"The provided FeatureSource<SimpleFeatureType, SimpleFeature> is null, it's impossible to create an index!");
-			features = featureSource.getFeatures();
+			features = originalIndex.findGranules();
 			if (features == null) 
 				throw new NullPointerException(
 						"The provided FeatureCollection<SimpleFeatureType, SimpleFeature> is null, it's impossible to create an index!");
@@ -246,7 +176,7 @@ class JTSTRTreeGranuleIndex implements GranuleIndex {
 				LOGGER.fine("Index Loaded");
 			
 			//load the feature from the shapefile and create JTS index
-			it = features.features();
+			it = features.iterator();
 			if (!it.hasNext()) 
 				throw new IllegalArgumentException(
 						"The provided FeatureCollection<SimpleFeatureType, SimpleFeature>  or empty, it's impossible to create an index!");
@@ -269,14 +199,6 @@ class JTSTRTreeGranuleIndex implements GranuleIndex {
 		}
 		catch (Throwable e) {
 			throw new  IllegalArgumentException(e);
-		}
-		finally{
-	
-			if(it!=null)
-				// closing he iterator to free some resources.
-				if(features!=null)
-					features.close(it);
-
 		}
 		
 	}
@@ -313,49 +235,19 @@ class JTSTRTreeGranuleIndex implements GranuleIndex {
 
 	}
 
-	public void dispose() throws IOException {
+	public void dispose() {
 		final Lock l=rwLock.writeLock();
 		try{
 			l.lock();
 			if(index!=null)
 				index.clear();
+			 
+			// original index
+			originalIndex.dispose();
 	
-	
-			try {
-				if(tileIndexStore!=null)
-					tileIndexStore.dispose();
-			} catch (Throwable e) {
-				if (LOGGER.isLoggable(Level.FINE))
-					LOGGER.log(Level.FINE, e.getLocalizedMessage(), e);
-			}
-			finally{
-				tileIndexStore=null;
-			}	
-				
 			
-			try {
-				if (lock != null)
-					// Release the lock
-					lock.release();
-			} catch (Throwable e2) {
-				if (LOGGER.isLoggable(Level.FINE))
-					LOGGER.log(Level.FINE, e2.getLocalizedMessage(), e2);
-			} finally {
-				lock = null;
-			}
-	
-			try {
-				if (channel != null)
-					// Close the file
-					channel.close();
-			} catch (Throwable e3) {
-				if (LOGGER.isLoggable(Level.FINE))
-					LOGGER.log(Level.FINE, e3.getLocalizedMessage(), e3);
-			} finally {
-				channel = null	;
-			}			
 		}finally{
-			
+			originalIndex=null;
 			index= null;
 			l.unlock();
 		
@@ -405,9 +297,12 @@ class JTSTRTreeGranuleIndex implements GranuleIndex {
 			lock.lock();
 			
 			// get filter and check bbox
-			final Filter filter= q.getFilter();
+			final Filter filter= q.getFilter();	
+			// try to combine the index bbox with the one that may come from the query.
+			ReferencedEnvelope requestedBBox=extractAndCombineBBox(filter);
 			
-			final List<SimpleFeature> features= getIndex().query(bounds);
+			// load what we need to load
+			final List<SimpleFeature> features= getIndex().query(requestedBBox);
 			if(q.equals(DefaultQuery.ALL))
 				return features;
 			
@@ -424,6 +319,21 @@ class JTSTRTreeGranuleIndex implements GranuleIndex {
 		}	
 	}
 
+	private ReferencedEnvelope extractAndCombineBBox(Filter filter) {
+		// TODO extract eventual bbox from query here
+		final BBOXFilterExtractor bboxExtractor = new GTDataStoreGranuleIndex.BBOXFilterExtractor();
+		filter.accept(bboxExtractor, null);
+		ReferencedEnvelope requestedBBox=bboxExtractor.getBBox();
+		
+		// add eventual bbox from the underlying index to constrain search
+		if(requestedBBox!=null){
+			requestedBBox=(ReferencedEnvelope) requestedBBox.intersection(ReferencedEnvelope.reference(originalIndex.getBounds()));
+		}
+		else
+			ReferencedEnvelope.reference(originalIndex.getBounds());
+		return requestedBBox;
+	}
+
 	public List<SimpleFeature> findGranules() {
 		throw new UnsupportedOperationException("findGranules is not supported"); 
 	}
@@ -436,11 +346,19 @@ class JTSTRTreeGranuleIndex implements GranuleIndex {
 			lock.lock();
 			
 			// get filter and check bbox
-			getIndex().query(bounds,new JTSIndexVisitorAdapter(visitor,q));
+			final Filter filter= q.getFilter();			
+			ReferencedEnvelope requestedBBox=extractAndCombineBBox(filter);
+			
+			// get filter and check bbox
+			getIndex().query(requestedBBox,new JTSIndexVisitorAdapter(visitor,q));
 			
 		}finally{
 			lock.unlock();
 		}	
+	}
+
+	public BoundingBox getBounds() {
+		return originalIndex.getBounds();
 	}
 
 }
