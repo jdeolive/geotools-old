@@ -77,8 +77,6 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 	public GTDataStoreGranuleIndex(final URL indexLocation) {
 		ImageMosaicUtils.ensureNonNull("indexLocation",indexLocation);
 		this.indexLocation=indexLocation;
-		
-		
 		try{
 			// lock the underlying file
 			if (indexLocation.getProtocol().equals("file")) {
@@ -99,8 +97,7 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 				LOGGER.fine("Connected mosaic reader to its data store "+ indexLocation.toString());
 			final String[] typeNames = tileIndexStore.getTypeNames();
 			if (typeNames.length <= 0)
-				throw new IllegalArgumentException(
-						"Problems when opening the index, no typenames for the schema are defined");
+				throw new IllegalArgumentException("Problems when opening the index, no typenames for the schema are defined");
 	
 			// loading all the features into memory to build an in-memory index.
 			typeName = typeNames[0];
@@ -371,6 +368,10 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 
 	public Collection<SimpleFeature> findGranules()throws IOException {
 		return findGranules((BoundingBox)null);
+	}
+
+	public ReferencedEnvelope getBounds() {
+		return bounds;
 	}
 
 }
