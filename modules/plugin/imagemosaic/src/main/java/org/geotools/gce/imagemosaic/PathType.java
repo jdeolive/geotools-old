@@ -25,8 +25,8 @@ enum PathType {
 		@Override
 		URL resolvePath(final String parentLocation,final  String location) {
 			// initial checks
-			ImageMosaicUtils.ensureNonNull("parentLocation", parentLocation);
-			ImageMosaicUtils.ensureNonNull("location", location);
+			Utils.ensureNonNull("parentLocation", parentLocation);
+			Utils.ensureNonNull("location", location);
 			if(LOGGER.isLoggable(Level.FINE))
 			{
 				final StringBuilder builder = new StringBuilder();
@@ -39,7 +39,7 @@ enum PathType {
 			// create a URL for the provided location, relative to parent location
 			try {
 				URL rasterURL= DataUtilities.extendURL(new URL(parentLocation), location);
-			if(!ImageMosaicUtils.checkURLReadable(rasterURL))
+			if(!Utils.checkURLReadable(rasterURL))
 			{		
 				if (LOGGER.isLoggable(Level.INFO))
 					LOGGER.info("Unable to read image for file "+ rasterURL);
@@ -73,7 +73,7 @@ enum PathType {
 		@Override
 		URL resolvePath(final String parentLocation,final  String location) {
 
-			ImageMosaicUtils.ensureNonNull("location", location);
+			Utils.ensureNonNull("location", location);
 			if(LOGGER.isLoggable(Level.FINE))
 			{
 				final StringBuilder builder = new StringBuilder();
@@ -88,7 +88,7 @@ enum PathType {
 			try {
 				
 			URL rasterURL= new URL(location);
-			if(!ImageMosaicUtils.checkURLReadable(rasterURL))
+			if(!Utils.checkURLReadable(rasterURL))
 			{		
 				if (LOGGER.isLoggable(Level.INFO))
 					LOGGER.info("Unable to read image for file "+ rasterURL);

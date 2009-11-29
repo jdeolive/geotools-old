@@ -18,7 +18,9 @@ import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.data.DataSourceException;
 import org.geotools.factory.Hints;
-import org.geotools.gce.imagemosaic.GranuleIndex.GranuleIndexVisitor;
+import org.geotools.gce.imagemosaic.index.GranuleIndex;
+import org.geotools.gce.imagemosaic.index.GranuleIndexFactory;
+import org.geotools.gce.imagemosaic.index.GranuleIndex.GranuleIndexVisitor;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.metadata.iso.extent.GeographicBoundingBoxImpl;
@@ -234,8 +236,8 @@ class RasterManager {
 			{
 		
 				// the read parameters cannot be null
-				ImageMosaicUtils.ensureNonNull("readParameters", readParameters);
-				ImageMosaicUtils.ensureNonNull("request", request);
+				Utils.ensureNonNull("readParameters", readParameters);
+				Utils.ensureNonNull("request", request);
 				
 				//get the requested resolution
 				final double[] requestedRes=request.getRequestedResolution();
@@ -342,7 +344,7 @@ class RasterManager {
 			//
 			// basic initialization
 			//
-			coverageGeographicBBox =ImageMosaicUtils.getReferencedEnvelopeFromGeographicBoundingBox(new GeographicBoundingBoxImpl(coverageEnvelope));
+			coverageGeographicBBox =Utils.getReferencedEnvelopeFromGeographicBoundingBox(new GeographicBoundingBoxImpl(coverageEnvelope));
 			coverageGeographicCRS2D=coverageGeographicBBox.getCoordinateReferenceSystem();
 		    
 		    //
@@ -421,11 +423,12 @@ class RasterManager {
 
 	public RasterManager(final ImageMosaicReader reader) throws DataSourceException {
 		
-		ImageMosaicUtils.ensureNonNull("ImageMosaicReader", reader);
+		Utils.ensureNonNull("ImageMosaicReader", reader);
+		
 		this.parent=reader;
-		index= new JTSTRTreeGranuleIndex(parent.sourceURL);		
 		this.expandMe=parent.expandMe;
         inputURL = reader.sourceURL;
+		index= GranuleIndexFactory.createGranuleIndex(inputURL);	
         locationAttribute=parent.locationAttributeName;
         coverageIdentifier=reader.getName();
         hints = reader.getHints();

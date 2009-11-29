@@ -50,7 +50,7 @@ enum ReadType {
     		ImageInputStream inStream=null;
     		ImageReader reader=null;
     		try{
-    			inStream = ImageMosaicUtils.getInputStream(rasterURL);
+    			inStream = Utils.getInputStream(rasterURL);
     			if(inStream==null)
     				return null;
     	
@@ -67,7 +67,7 @@ enum ReadType {
     			reader.setInput(inStream);
     			
     			//check source regione
-    			if(ImageMosaicUtils.checkEmptySourceRegion(readP, readDimension))
+    			if(Utils.checkEmptySourceRegion(readP, readDimension))
     				return null;
     			
     			if (LOGGER.isLoggable(Level.FINE))
@@ -118,7 +118,7 @@ enum ReadType {
     		ImageReader reader=null;
     		try{
     			//get stream
-    			inStream = ImageMosaicUtils.getInputStream(rasterUrl);
+    			inStream = Utils.getInputStream(rasterUrl);
     			if(inStream==null)
     				return null;
     			// get a reader
@@ -136,7 +136,7 @@ enum ReadType {
 
     			
     			//check source regionepbjMosaic,
-    			if(ImageMosaicUtils.checkEmptySourceRegion(readP, readDimension))
+    			if(Utils.checkEmptySourceRegion(readP, readDimension))
     				return null;
     			
 
@@ -166,7 +166,7 @@ enum ReadType {
     		
 			// read data    	
 			final ParameterBlock pbjImageRead = new ParameterBlock();
-			pbjImageRead.add(ImageMosaicUtils.getInputStream(rasterUrl));
+			pbjImageRead.add(Utils.getInputStream(rasterUrl));
 			pbjImageRead.add(imageIndex);
 			pbjImageRead.add(false);
 			pbjImageRead.add(false);

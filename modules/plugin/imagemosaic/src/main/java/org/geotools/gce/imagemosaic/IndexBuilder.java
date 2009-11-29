@@ -68,7 +68,7 @@ import org.geotools.data.Transaction;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.gce.image.WorldImageFormat;
-import org.geotools.gce.imagemosaic.ImageMosaicUtils.MosaicConfigurationBean;
+import org.geotools.gce.imagemosaic.Utils.MosaicConfigurationBean;
 import org.geotools.geometry.Envelope2D;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -124,16 +124,16 @@ final class IndexBuilder implements Runnable {
 		}
 
 
-		private boolean absolute = ImageMosaicUtils.DEFAULT_PATH_BEHAVIOR;
+		private boolean absolute = Utils.DEFAULT_PATH_BEHAVIOR;
 		/**
 		 * Index file name. Default is index.
 		 */
-		private String indexName = ImageMosaicUtils.DEFAULT_INDEX_NAME;
-		private String locationAttribute = ImageMosaicUtils.DEFAULT_LOCATION_ATTRIBUTE;
+		private String indexName = Utils.DEFAULT_INDEX_NAME;
+		private String locationAttribute = Utils.DEFAULT_LOCATION_ATTRIBUTE;
 		@Option(description="Root directory where to place the index file",mandatory=true,name="rootDirectory")
 		private String rootMosaicDirectory;
 		@Option(description="Wildcard to use for building the index of this mosaic",mandatory=false,name="wildcard")
-		private String wildcardString = ImageMosaicUtils.DEFAULT_WILCARD;
+		private String wildcardString = Utils.DEFAULT_WILCARD;
 		private List<String> indexingDirectories;
 
 		public List<String> getIndexingDirectories() {
@@ -200,9 +200,9 @@ final class IndexBuilder implements Runnable {
 		 * @see org.geotools.gce.imagemosaic.JMXIndexBuilderMBean#setRootMosaicDirectory(java.lang.String)
 		 */
 		public void setRootMosaicDirectory(final String rootMosaicDirectory) {
-			 ImageMosaicUtils.ensureNonNull("rootMosaicDirectory", rootMosaicDirectory);
+			 Utils.ensureNonNull("rootMosaicDirectory", rootMosaicDirectory);
 			 String testingDirectory = rootMosaicDirectory;
-			 ImageMosaicUtils.checkInputDirectory(testingDirectory);
+			 Utils.checkInputDirectory(testingDirectory);
 			 this.rootMosaicDirectory=testingDirectory;
 
 		}		
@@ -286,17 +286,17 @@ final class IndexBuilder implements Runnable {
 		private String rootMosaicDirectory;
 		
 		@Option(description="Wildcard to use for building the index of this mosaic",mandatory=false,name="wildcard")
-		private String wildcardString = ImageMosaicUtils.DEFAULT_WILCARD;
+		private String wildcardString = Utils.DEFAULT_WILCARD;
 
 		@Option(description="Default location attribute for this index",mandatory=false,name="locationAttribute")
-		private String locationAttribute = ImageMosaicUtils.DEFAULT_LOCATION_ATTRIBUTE;
+		private String locationAttribute = Utils.DEFAULT_LOCATION_ATTRIBUTE;
 
 		public CommandLineIndexBuilderRunner(String[] args) {
 			super(args);
 			if(this.absolute==null)
-				this.absolute=ImageMosaicUtils.DEFAULT_PATH_BEHAVIOR;
+				this.absolute=Utils.DEFAULT_PATH_BEHAVIOR;
 			if(this.indexName==null)
-				this.indexName=ImageMosaicUtils.DEFAULT_INDEX_NAME;
+				this.indexName=Utils.DEFAULT_INDEX_NAME;
 		}
 
 
@@ -391,7 +391,7 @@ final class IndexBuilder implements Runnable {
 	    }
 
 	    public ExceptionEvent(Object source, Exception exception) {
-	        super(source, ImageMosaicUtils.getMessageFromException(exception), -1);
+	        super(source, Utils.getMessageFromException(exception), -1);
 	        this.exception = exception;
 	    }
 
@@ -1081,7 +1081,7 @@ final class IndexBuilder implements Runnable {
 		final IOFileFilter specialWildCardFileFilter= new WildcardFileFilter(runConfiguration.wildcardString,IOCase.INSENSITIVE);
 		IOFileFilter dirFilter = 
 		    FileFilterUtils.andFileFilter(FileFilterUtils.directoryFileFilter(),HiddenFileFilter.VISIBLE);
-		IOFileFilter fileFilter=ImageMosaicUtils.excludeFilters(
+		IOFileFilter fileFilter=Utils.excludeFilters(
 			FileFilterUtils.makeSVNAware(
 					FileFilterUtils.makeFileOnly(
 							FileFilterUtils.andFileFilter(
@@ -1152,19 +1152,19 @@ final class IndexBuilder implements Runnable {
 	 * @throws IllegalArgumentException 
 	 */
 	public IndexBuilder(final IndexBuilderConfiguration configuration)  {
-		ImageMosaicUtils.ensureNonNull("runConfiguration", configuration);
+		Utils.ensureNonNull("runConfiguration", configuration);
 		//check parameters
 		if(configuration.indexingDirectories==null||configuration.indexingDirectories.size()<=0)
 			throw new IllegalArgumentException("Indexing directories are empty");
 		final List<String> directories= new ArrayList<String>();
 		for(String dir:configuration.indexingDirectories)
-			directories.add(ImageMosaicUtils.checkInputDirectory(dir));
+			directories.add(Utils.checkInputDirectory(dir));
 		configuration.indexingDirectories=directories;
 		if(configuration.indexName==null||configuration.indexName.length()==0)
 			throw new IllegalArgumentException("Index name cannot be empty");
 		if(configuration.rootMosaicDirectory==null||configuration.rootMosaicDirectory.length()==0)
 			throw new IllegalArgumentException("RootMosaicDirectory name cannot be empty");
-		configuration.rootMosaicDirectory=ImageMosaicUtils.checkInputDirectory(configuration.rootMosaicDirectory);
+		configuration.rootMosaicDirectory=Utils.checkInputDirectory(configuration.rootMosaicDirectory);
 		if(configuration.wildcardString==null||configuration.wildcardString.length()==0)
 			throw new IllegalArgumentException("WildcardString name cannot be empty");		
 		this.runConfiguration = new IndexBuilderConfiguration(configuration);
@@ -1250,7 +1250,7 @@ final class IndexBuilder implements Runnable {
 	 */
 	private  void fireException(Exception ex) {
 		synchronized (notificationListeners) {
-			fireException(ImageMosaicUtils.getMessageFromException(ex), -1, ex);
+			fireException(Utils.getMessageFromException(ex), -1, ex);
 		}
 	}
 
@@ -1354,7 +1354,7 @@ final class IndexBuilder implements Runnable {
 		//
 		// creating a mosaic runConfiguration bean to store the properties file elements			
 		//
-		mosaicConfiguration= new ImageMosaicUtils.MosaicConfigurationBean();
+		mosaicConfiguration= new Utils.MosaicConfigurationBean();
 			
 	}
 

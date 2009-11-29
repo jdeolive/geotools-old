@@ -59,8 +59,8 @@ import org.geotools.data.DataSourceException;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.Query;
 import org.geotools.factory.Hints;
-import org.geotools.gce.imagemosaic.GranuleIndex.GranuleIndexVisitor;
 import org.geotools.gce.imagemosaic.RasterManager.OverviewLevel;
+import org.geotools.gce.imagemosaic.index.GranuleIndex.GranuleIndexVisitor;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.image.ImageWorker;
@@ -224,7 +224,7 @@ class RasterLayerResponse{
 //							pbjMosaic.setParameter("sourceThreshold", new double[][]{{request.getThreshold()}});
 //						else
 							pbjMosaic.setParameter("sourceThreshold",
-								new double[][] { { ImageMosaicUtils.getThreshold(loadedImage.getSampleModel().getDataType()) } });
+								new double[][] { { Utils.getThreshold(loadedImage.getSampleModel().getDataType()) } });
 						
 						
 						firstGranule=false;
@@ -469,7 +469,7 @@ class RasterLayerResponse{
 		if (finalTransparentColor != null) {
 			if (LOGGER.isLoggable(Level.FINE))
 				LOGGER.fine("Support for alpha on final mosaic");
-			return ImageMosaicUtils.makeColorTransparent(finalTransparentColor,mosaic);
+			return Utils.makeColorTransparent(finalTransparentColor,mosaic);
 
 		}
 		return mosaic;
@@ -530,7 +530,7 @@ class RasterLayerResponse{
 			// base grid to world for the center of pixels
 			final AffineTransform g2w = new AffineTransform((AffineTransform) baseGridToWorld);
 			// move it to the corner
-			g2w.concatenate(ImageMosaicUtils.CENTER_TO_CORNER);
+			g2w.concatenate(Utils.CENTER_TO_CORNER);
 			
 			//keep into account overviews and subsampling
 			final OverviewLevel level = rasterManager.overviewsController.resolutionsLevels.get(imageChoice);
@@ -655,7 +655,7 @@ class RasterLayerResponse{
 		if (doTransparentColor) {
 			if (LOGGER.isLoggable(Level.FINE))
 				LOGGER.fine("Support for alpha on input image number "+ granuleIndex);
-			granule = ImageMosaicUtils.makeColorTransparent(transparentColor, granule);
+			granule = Utils.makeColorTransparent(transparentColor, granule);
 			alphaIndex[0]= granule.getColorModel().getNumComponents() - 1 ;
 
 		}

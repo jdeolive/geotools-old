@@ -40,7 +40,7 @@ import org.geotools.data.DataSourceException;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.factory.Hints;
-import org.geotools.gce.imagemosaic.ImageMosaicUtils.MosaicConfigurationBean;
+import org.geotools.gce.imagemosaic.Utils.MosaicConfigurationBean;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
 import org.opengis.coverage.grid.Format;
@@ -170,7 +170,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 			throw new DataSourceException(ex);
 		}
 		this.source = source;		
-		this.sourceURL=ImageMosaicUtils.checkSource(source);
+		this.sourceURL=Utils.checkSource(source);
 		if(this.sourceURL==null)
 			throw new DataSourceException("This plugin accepts File, URL or String. The string may describe a File or an URL");
 		
@@ -269,7 +269,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 	 * @throws IOException
 	 */
 	private boolean loadProperties(){
-		final MosaicConfigurationBean configuration=ImageMosaicUtils.loadPropertiesFile(sourceURL, crs,this.locationAttributeName);
+		final MosaicConfigurationBean configuration=Utils.loadPropertiesFile(sourceURL, crs,this.locationAttributeName);
 		if(configuration==null)
 			return false;
 		

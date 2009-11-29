@@ -31,7 +31,7 @@ import org.geotools.data.DataUtilities;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.factory.Hints;
-import org.geotools.gce.imagemosaic.ImageMosaicUtils.MosaicConfigurationBean;
+import org.geotools.gce.imagemosaic.Utils.MosaicConfigurationBean;
 import org.geotools.parameter.DefaultParameterDescriptor;
 import org.geotools.parameter.DefaultParameterDescriptorGroup;
 import org.geotools.parameter.ParameterGroup;
@@ -193,7 +193,7 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
      */
     public boolean accepts( Object source ) {
         try {
-            URL sourceURL = ImageMosaicUtils.checkSource(source);
+            URL sourceURL = Utils.checkSource(source);
             if(sourceURL==null)
             	return false;
             // /////////////////////////////////////////////////////////////////////
@@ -227,7 +227,7 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
 				}
 	            
 	            //get the properties file
-	            final MosaicConfigurationBean props = ImageMosaicUtils.loadPropertiesFile(sourceURL, crs,"location");
+	            final MosaicConfigurationBean props = Utils.loadPropertiesFile(sourceURL, crs,"location");
 	            if(props==null)
 	            	return false;
 	            

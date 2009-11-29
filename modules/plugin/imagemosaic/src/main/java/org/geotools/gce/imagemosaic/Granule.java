@@ -60,7 +60,7 @@ import com.sun.media.jai.util.Rational;
  * @author Stefan Alfons Krueger (alfonx), Wikisquare.de : Support for jar:file:foo.jar/bar.properties URLs
  * @since 2.5.5
  */
-class Granule {
+public class Granule {
 	
 	/** Logger. */
 	private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(Granule.class); 
@@ -288,7 +288,7 @@ class Granule {
 			this.baseToLevelTransform=new AffineTransform2D( XAffineTransform.getScaleInstance(scaleX,scaleY,0,0));
 			
 			final AffineTransform gridToWorldTransform_ = new AffineTransform(baseToLevelTransform);
-			gridToWorldTransform_.preConcatenate(ImageMosaicUtils.CENTER_TO_CORNER);
+			gridToWorldTransform_.preConcatenate(Utils.CENTER_TO_CORNER);
 			gridToWorldTransform_.preConcatenate(baseGridToWorld);
 			this.gridToWorldTransform=new AffineTransform2D(gridToWorldTransform_);
 			this.width = width;
@@ -349,7 +349,7 @@ class Granule {
 			//
 			
 			// get a stream
-			inStream = ImageMosaicUtils.getInputStream(granuleUrl);
+			inStream = Utils.getInputStream(granuleUrl);
 			if(inStream == null)
 				throw new IllegalArgumentException("Unable to get an input stream for the provided file "+granuleUrl.toString());
 			
@@ -363,7 +363,7 @@ class Granule {
 				}
 				else{
 					inStream.mark();
-					reader = ImageMosaicUtils.getReader(inStream);
+					reader = Utils.getReader(inStream);
 					if(reader != null)
 						cachedSPI = reader.getOriginatingProvider();
 					inStream.reset();
@@ -375,7 +375,7 @@ class Granule {
 				throw new IllegalArgumentException("Unable to get an ImageReader for the provided file "+granuleUrl.toString());
 			
 			//get selected level and base level dimensions
-			final Rectangle originalDimension = ImageMosaicUtils.getDimension(0,inStream, reader);
+			final Rectangle originalDimension = Utils.getDimension(0,inStream, reader);
 			
 			// build the g2W for this tile, in principle we should get it
 			// somehow from the tile itself or from the index, but at the moment
@@ -432,13 +432,13 @@ class Granule {
 			//
 			
 			// get a stream
-			inStream = ImageMosaicUtils.getInputStream(granuleUrl);
+			inStream = Utils.getInputStream(granuleUrl);
 			if(inStream==null)
 				return null;
 	
 			// get a reader and try to cache the relevant SPI
 			if(cachedSPI==null){
-				reader = ImageMosaicUtils.getReader( inStream);
+				reader = Utils.getReader( inStream);
 				if(reader!=null)
 					cachedSPI=reader.getOriginatingProvider();
 			}
@@ -482,7 +482,7 @@ class Granule {
 			// Setting subsampling 
 			int newSubSamplingFactor = 0;
 			final String pluginName = cachedSPI.getPluginClassName();
-			if (pluginName != null && pluginName.equals(ImageMosaicUtils.DIRECT_KAKADU_PLUGIN)){
+			if (pluginName != null && pluginName.equals(Utils.DIRECT_KAKADU_PLUGIN)){
 				final int ssx = readParameters.getSourceXSubsampling();
 				final int ssy = readParameters.getSourceYSubsampling();
 				newSubSamplingFactor = Utilities.getSubSamplingFactor2(ssx , ssy);
@@ -530,7 +530,7 @@ class Granule {
 			
 			// now create the overall transform
 			final AffineTransform finalRaster2Model = new AffineTransform(baseGridToWorld);
-			finalRaster2Model.concatenate(ImageMosaicUtils.CENTER_TO_CORNER);
+			finalRaster2Model.concatenate(Utils.CENTER_TO_CORNER);
 			if(!XAffineTransform.isIdentity(backToBaseLevelScaleTransform,10E-6))
 				finalRaster2Model.concatenate(backToBaseLevelScaleTransform);
 			if(!XAffineTransform.isIdentity(afterDecimationTranslateTranform,10E-6))
@@ -624,13 +624,13 @@ class Granule {
 					//
 					
 					// get a stream
-					inStream = ImageMosaicUtils.getInputStream(granuleUrl);
+					inStream = Utils.getInputStream(granuleUrl);
 					if(inStream==null)
 						throw new IllegalArgumentException();
 			
 					// get a reader and try to cache the relevant SPI
 					if(cachedSPI==null){
-						reader = ImageMosaicUtils.getReader( inStream);
+						reader = Utils.getReader( inStream);
 						if(reader!=null)
 							cachedSPI=reader.getOriginatingProvider();
 					}
@@ -640,7 +640,7 @@ class Granule {
 						throw new IllegalArgumentException("Unable to get an ImageReader for the provided file "+granuleUrl.toString());					
 					
 					//get selected level and base level dimensions
-					final Rectangle levelDimension = ImageMosaicUtils.getDimension(index,inStream, reader);
+					final Rectangle levelDimension = Utils.getDimension(index,inStream, reader);
 					
 					
 					final Level baseLevel= granuleLevels.get(0);

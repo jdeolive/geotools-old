@@ -38,7 +38,7 @@ class GranuleLoader implements Callable<RenderedImage>{
 			final MathTransform2D mosaicWorldToGrid,
 			final Granule granule,
 			final RasterLayerRequest request) {
-		this.readParameters = ImageMosaicUtils.cloneImageReadParam(readParameters);
+		this.readParameters = Utils.cloneImageReadParam(readParameters);
 		this.imageIndex = imageIndex;
 		this.cropBBox = cropBBox;
 		this.mosaicWorldToGrid = mosaicWorldToGrid;
