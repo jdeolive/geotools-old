@@ -1,16 +1,21 @@
-package org.geotools.gce.imagemosaic;
+package org.geotools.gce.imagemosaic.index;
 
 import java.io.IOException;
 import java.util.Collection;
 
 import org.geotools.data.Query;
+import org.geotools.gce.imagemosaic.Granule;
 import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.geometry.BoundingBox;
-
-interface GranuleIndex {
+/**
+ * 
+ * @author Simone Giannecchini, GeoSolutions SAS
+ *
+ */
+public interface GranuleIndex {
 	
-	interface GranuleIndexVisitor{
+	public interface GranuleIndexVisitor{
 		public void visit(final SimpleFeature index, Object o);
 	}
 

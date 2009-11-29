@@ -1,4 +1,4 @@
-package org.geotools.gce.imagemosaic;
+package org.geotools.gce.imagemosaic.index;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,6 +26,8 @@ import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.collection.AbstractFeatureVisitor;
 import org.geotools.filter.visitor.DefaultFilterVisitor;
+import org.geotools.gce.imagemosaic.Granule;
+import org.geotools.gce.imagemosaic.ImageMosaicReader;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.util.NullProgressListener;
 import org.opengis.feature.Feature;
@@ -109,7 +111,7 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 	private ReferencedEnvelope bounds;
 
 	public GTDataStoreGranuleIndex(final URL indexLocation) {
-		ImageMosaicUtils.ensureNonNull("indexLocation",indexLocation);
+		Utils.ensureNonNull("indexLocation",indexLocation);
 		this.indexLocation=indexLocation;
 		try{
 			// lock the underlying file
@@ -191,7 +193,7 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 	 * @see org.geotools.gce.imagemosaic.FeatureIndex#findFeatures(com.vividsolutions.jts.geom.Envelope)
 	 */
 	public List<SimpleFeature> findGranules(final BoundingBox envelope) throws IOException {
-		ImageMosaicUtils.ensureNonNull("envelope",envelope);
+		Utils.ensureNonNull("envelope",envelope);
 		final DefaultQuery q= new DefaultQuery(typeName);
 		Filter filter = ff.bbox( ff.property( geometryPropertyName ), ReferencedEnvelope.reference(envelope) );
 		q.setFilter(filter);
@@ -203,7 +205,7 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 	 * @see org.geotools.gce.imagemosaic.FeatureIndex#findFeatures(com.vividsolutions.jts.geom.Envelope, com.vividsolutions.jts.index.ItemVisitor)
 	 */
 	public void  findGranules(final BoundingBox envelope, final GranuleIndexVisitor visitor) throws IOException {
-		ImageMosaicUtils.ensureNonNull("envelope",envelope);
+		Utils.ensureNonNull("envelope",envelope);
 		final DefaultQuery q= new DefaultQuery(typeName);
 		Filter filter = ff.bbox( ff.property( geometryPropertyName ), ReferencedEnvelope.reference(envelope) );
 		q.setFilter(filter);
@@ -292,7 +294,7 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 
 	public void  findGranules(final Query q,final GranuleIndexVisitor visitor)
 	throws IOException {
-		ImageMosaicUtils.ensureNonNull("q",q);
+		Utils.ensureNonNull("q",q);
 
 		FeatureIterator<SimpleFeature> it=null;
 		FeatureCollection<SimpleFeatureType, SimpleFeature> features=null;
@@ -348,7 +350,7 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 	}
 
 	public List<SimpleFeature> findGranules(final Query q) throws IOException {
-		ImageMosaicUtils.ensureNonNull("q",q);
+		Utils.ensureNonNull("q",q);
 
 		FeatureIterator<SimpleFeature> it=null;
 		FeatureCollection<SimpleFeatureType, SimpleFeature> features=null;

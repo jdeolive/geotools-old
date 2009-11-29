@@ -1,4 +1,4 @@
-package org.geotools.gce.imagemosaic;
+package org.geotools.gce.imagemosaic.index;
 
 import java.io.IOException;
 import java.lang.ref.SoftReference;
@@ -16,7 +16,9 @@ import java.util.logging.Logger;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.Query;
 import org.geotools.feature.FeatureCollection;
-import org.geotools.gce.imagemosaic.GTDataStoreGranuleIndex.BBOXFilterExtractor;
+import org.geotools.gce.imagemosaic.Granule;
+import org.geotools.gce.imagemosaic.ImageMosaicReader;
+import org.geotools.gce.imagemosaic.index.GTDataStoreGranuleIndex.BBOXFilterExtractor;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.filter.Filter;
@@ -96,7 +98,7 @@ class JTSTRTreeGranuleIndex implements GranuleIndex {
 	private final URL indexLocation;
 
 	public JTSTRTreeGranuleIndex(final URL indexLocation) {
-		ImageMosaicUtils.ensureNonNull("indexLocation",indexLocation);
+		Utils.ensureNonNull("indexLocation",indexLocation);
 		this.indexLocation=indexLocation;
 		try{
 			originalIndex= new GTDataStoreGranuleIndex(this.indexLocation);
@@ -208,7 +210,7 @@ class JTSTRTreeGranuleIndex implements GranuleIndex {
 	 */
 	@SuppressWarnings("unchecked")
 	public List<SimpleFeature> findGranules(final BoundingBox envelope) throws IOException {
-		ImageMosaicUtils.ensureNonNull("envelope",envelope);
+		Utils.ensureNonNull("envelope",envelope);
 		final Lock lock=rwLock.readLock();
 		try{
 			lock.lock();
@@ -222,8 +224,8 @@ class JTSTRTreeGranuleIndex implements GranuleIndex {
 	 * @see org.geotools.gce.imagemosaic.FeatureIndex#findFeatures(com.vividsolutions.jts.geom.Envelope, com.vividsolutions.jts.index.ItemVisitor)
 	 */
 	public void findGranules(final BoundingBox envelope, final GranuleIndexVisitor visitor) throws IOException {
-		ImageMosaicUtils.ensureNonNull("envelope",envelope);
-		ImageMosaicUtils.ensureNonNull("visitor",visitor);
+		Utils.ensureNonNull("envelope",envelope);
+		Utils.ensureNonNull("visitor",visitor);
 		final Lock lock=rwLock.readLock();
 		try{
 			lock.lock();
@@ -291,7 +293,7 @@ class JTSTRTreeGranuleIndex implements GranuleIndex {
 
 	@SuppressWarnings("unchecked")
 	public List<SimpleFeature> findGranules(Query q) throws IOException {
-		ImageMosaicUtils.ensureNonNull("q",q);
+		Utils.ensureNonNull("q",q);
 		final Lock lock=rwLock.readLock();
 		try{
 			lock.lock();
@@ -340,7 +342,7 @@ class JTSTRTreeGranuleIndex implements GranuleIndex {
 
 	public void findGranules(Query q, GranuleIndexVisitor visitor)
 			throws IOException {
-		ImageMosaicUtils.ensureNonNull("q",q);
+		Utils.ensureNonNull("q",q);
 		final Lock lock=rwLock.readLock();
 		try{
 			lock.lock();

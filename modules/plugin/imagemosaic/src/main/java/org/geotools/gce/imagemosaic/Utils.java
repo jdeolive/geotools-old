@@ -63,7 +63,7 @@ import org.opengis.referencing.datum.PixelInCell;
  * @author Simone Giannecchini, GeoSolutions S.A.S.
  *
  */
-class ImageMosaicUtils {
+class Utils {
 	/**{@link AffineTransform} that can be used to go from an image datum placed at the center of pixels to one that is placed at ULC.*/
 	final static AffineTransform CENTER_TO_CORNER= AffineTransform.getTranslateInstance(
 			PixelTranslation.getPixelTranslation(PixelInCell.CELL_CORNER),
@@ -175,7 +175,7 @@ class ImageMosaicUtils {
 	 * Logger. 
 	 */
 	private final static Logger LOGGER = org.geotools.util.logging.Logging
-			.getLogger(ImageMosaicUtils.class.toString());
+			.getLogger(Utils.class.toString());
 	/**
 	 * Default wildcard for creating mosaics.
 	 */
@@ -572,14 +572,14 @@ class ImageMosaicUtils {
 			//
 			// Absolute or relative path
 			//
-			boolean absolutePath = Boolean.parseBoolean(properties.getProperty("AbsolutePath", Boolean.toString(ImageMosaicUtils.DEFAULT_PATH_BEHAVIOR)).trim());
+			boolean absolutePath = Boolean.parseBoolean(properties.getProperty("AbsolutePath", Boolean.toString(Utils.DEFAULT_PATH_BEHAVIOR)).trim());
 			retValue.setAbsolutePath(absolutePath);
 			
 		
 		    //
 		    //  location
 		    //	
-			retValue.setLocationAttribute(properties.getProperty("LocationAttribute",ImageMosaicUtils.DEFAULT_LOCATION_ATTRIBUTE).trim());
+			retValue.setLocationAttribute(properties.getProperty("LocationAttribute",Utils.DEFAULT_LOCATION_ATTRIBUTE).trim());
 					
 			//retrn value
 			return retValue;			
@@ -635,7 +635,7 @@ class ImageMosaicUtils {
 	 */
 	static ReferencedEnvelope getReferencedEnvelopeFromGeographicBoundingBox(
 	        final GeographicBoundingBox geographicBBox) {
-	    ImageMosaicUtils.ensureNonNull("GeographicBoundingBox", geographicBBox);
+	    Utils.ensureNonNull("GeographicBoundingBox", geographicBBox);
 	    return new ReferencedEnvelope(geographicBBox.getEastBoundLongitude(),
 	            geographicBBox.getWestBoundLongitude(), geographicBBox
 	                    .getSouthBoundLatitude(), geographicBBox
