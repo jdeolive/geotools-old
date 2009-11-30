@@ -70,7 +70,7 @@ public class StyleFunctionLab {
 
         // Create a map context and add our shapefile to it
         MapContext map = new DefaultMapContext();
-        map.setTitle("Filter Function Lab");
+        map.setTitle("Style Function Lab");
 
         /*
          * Prompt the user for the feature attribute used to
