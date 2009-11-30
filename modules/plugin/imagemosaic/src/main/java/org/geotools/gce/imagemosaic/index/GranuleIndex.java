@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Collection;
 
 import org.geotools.data.Query;
+import org.geotools.data.Transaction;
 import org.geotools.feature.SchemaException;
 import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
@@ -49,15 +50,15 @@ public interface GranuleIndex {
 
 	public abstract void dispose();
 		
-	public void addGranule(final SimpleFeature granule) throws IOException;
+	public void addGranule(final SimpleFeature granule, final Transaction transaction) throws IOException;
 	
-	public void addGranules(final Collection<SimpleFeature> granules) throws IOException;
+	public void addGranules(final Collection<SimpleFeature> granules, final Transaction transaction) throws IOException;
 	
-	public void create(String namespace, String typeName, String typeSpec) throws IOException, SchemaException;
+	public void createType(String namespace, String typeName, String typeSpec) throws IOException, SchemaException;
 	
-	public void create(SimpleFeatureType featureType) throws IOException;
+	public void createType(SimpleFeatureType featureType) throws IOException;
 	
-	public void create(String identification, String typeSpec) throws SchemaException, IOException;
+	public void createType(String identification, String typeSpec) throws SchemaException, IOException;
 	
 	public SimpleFeatureType getType() throws IOException;
 	

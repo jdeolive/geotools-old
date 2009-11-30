@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.Query;
+import org.geotools.data.Transaction;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.SchemaException;
 import org.geotools.gce.imagemosaic.Granule;
@@ -104,7 +105,7 @@ class STRTreeGranuleIndex implements GranuleIndex {
 		Utils.ensureNonNull("indexLocation",indexLocation);
 		this.indexLocation=indexLocation;
 		try{
-			originalIndex= new GTDataStoreGranuleIndex(this.indexLocation);
+			originalIndex= new GTDataStoreGranuleIndex(this.indexLocation,false);
 		}
 		catch (Throwable e) {
 			try {
@@ -276,24 +277,6 @@ class STRTreeGranuleIndex implements GranuleIndex {
 		
 	}
 
-	public void addGranule(final Granule granule) {
-		throw new UnsupportedOperationException("addGranule is not supported, this ia read only index");
-//		ImageMosaicUtils.ensureNonNull("granuleMetadata",granule);
-//		final Lock lock=rwLock.writeLock();
-//		try{
-//			lock.lock();
-//			// check if the index has been cleared
-//			if(index==null)
-//				throw new IllegalStateException();
-//			
-//			// do your thing
-//		}finally{
-//			lock.unlock();
-//		}	
-//		
-	}
-
-
 	@SuppressWarnings("unchecked")
 	public List<SimpleFeature> findGranules(Query q) throws IOException {
 		Utils.ensureNonNull("q",q);
@@ -366,29 +349,29 @@ class STRTreeGranuleIndex implements GranuleIndex {
 		return originalIndex.getBounds();
 	}
 
-	public void addGranule(SimpleFeature granule) throws IOException {
+	public void addGranule(final SimpleFeature granule, final Transaction transaction) throws IOException {
 		// TODO Auto-generated method stub
 		
 	}
 
-	public void addGranules(Collection<SimpleFeature> granules)
+	public void addGranules(final Collection<SimpleFeature> granules, final Transaction transaction)
 			throws IOException {
 		// TODO Auto-generated method stub
 		
 	}
 
-	public void create(String namespace, String typeName, String typeSpec)
+	public void createType(String namespace, String typeName, String typeSpec)
 			throws IOException, SchemaException {
 		// TODO Auto-generated method stub
 		
 	}
 
-	public void create(SimpleFeatureType featureType) throws IOException {
+	public void createType(SimpleFeatureType featureType) throws IOException {
 		// TODO Auto-generated method stub
 		
 	}
 
-	public void create(String identification, String typeSpec)
+	public void createType(String identification, String typeSpec)
 			throws SchemaException, IOException {
 		// TODO Auto-generated method stub
 		

@@ -108,15 +108,6 @@ class Utils {
 		/**Suggested SPI for the various tiles. May be null.**/
 		private String suggestedSPI;
 	
-		/**Suggested SPI for the granule. May be null which means that we will use shapefile.**/
-		private String indexSPI;
-		
-		public String getIndexSPI() {
-			return indexSPI;
-		}
-		public void setIndexSPI(String indexSPI) {
-			this.indexSPI = indexSPI;
-		}
 		/**
 		 * @return the suggestedSPI
 		 */
@@ -560,14 +551,6 @@ class Utils {
 			}	
 			
 
-       		//
-			// index spi is optional
-			//
-			if(properties.containsKey("IndexSPI"))
-			{
-				String IndexSPI = properties.getProperty("IndexSPI").trim();
-				retValue.setIndexSPI(IndexSPI);
-			}		
 
 			//
 			// name is not optional

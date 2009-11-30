@@ -110,43 +110,21 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 
 	private ReferencedEnvelope bounds;
 
-	public GTDataStoreGranuleIndex(final URL indexLocation) {
+	public GTDataStoreGranuleIndex(final URL indexLocation, final boolean create) {
 		Utils.ensureNonNull("indexLocation",indexLocation);
 		this.indexLocation=indexLocation;
 		try{
-//			// lock the underlying file
-//			if (indexLocation.getProtocol().equals("file")) {
-//
-//				//  Get a file channel for the file
-//				File file = DataUtilities.urlToFile(indexLocation);
-//				if(file.canWrite()){
-//					channel = new RandomAccessFile(file, "rw").getChannel();
-//
-//					// Create a shared lock on the file.
-//					// This method blocks until it can retrieve the lock.
-//					lock = channel.lock(0, Long.MAX_VALUE, true);
-//				}
-//			}				
+		
 			// creating a store
-			tileIndexStore = new ShapefileDataStore(this.indexLocation);
+			tileIndexStore =new ShapefileDataStore(this.indexLocation,true);
 			if (LOGGER.isLoggable(Level.FINE))
 				LOGGER.fine("Connected mosaic reader to its data store "+ indexLocation.toString());
-			final String[] typeNames = tileIndexStore.getTypeNames();
-			if (typeNames.length <= 0)
-				throw new IllegalArgumentException("Problems when opening the index, no typenames for the schema are defined");
-	
-			// loading all the features into memory to build an in-memory index.
-			typeName = typeNames[0];
 			
-			featureSource = tileIndexStore.getFeatureSource(typeName);
-			if (featureSource == null) 
-				throw new NullPointerException(
-						"The provided FeatureSource<SimpleFeatureType, SimpleFeature> is null, it's impossible to create an index!");
-			bounds=featureSource.getBounds();
-			
-			
-		    final FeatureType schema = featureSource.getSchema();
-		    geometryPropertyName = schema.getGeometryDescriptor().getLocalName();			
+			// is this a new store?
+			if(create)
+				return;
+				
+			extractBasicProperties();			
 		}
 		catch (Throwable e) {
 			try {
@@ -159,32 +137,29 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 			finally{
 				tileIndexStore=null;
 			}	
-			
-//			try {
-//				if (lock != null)
-//					// Release the lock
-//					lock.release();
-//			} catch (Throwable e2) {
-//				if (LOGGER.isLoggable(Level.FINE))
-//					LOGGER.log(Level.FINE, e2.getLocalizedMessage(), e2);
-//			} finally {
-//				lock = null;
-//			}
-//
-//			try {
-//				if (channel != null)
-//					// Close the file
-//					channel.close();
-//			} catch (Throwable e3) {
-//				if (LOGGER.isLoggable(Level.FINE))
-//					LOGGER.log(Level.FINE, e3.getLocalizedMessage(), e3);
-//			} finally {
-//				channel = null	;
-//			}
-//			
+
 			throw new  IllegalArgumentException(e);
 		}
 		
+	}
+
+	private void extractBasicProperties() throws IOException {
+		final String[] typeNames = tileIndexStore.getTypeNames();
+		if (typeNames.length <= 0)
+			throw new IllegalArgumentException("Problems when opening the index, no typenames for the schema are defined");
+
+		// loading all the features into memory to build an in-memory index.
+		typeName = typeNames[0];
+		
+		featureSource = tileIndexStore.getFeatureSource(typeName);
+		if (featureSource == null) 
+			throw new NullPointerException(
+					"The provided FeatureSource<SimpleFeatureType, SimpleFeature> is null, it's impossible to create an index!");
+		bounds=featureSource.getBounds();
+		
+		
+		final FeatureType schema = featureSource.getSchema();
+		geometryPropertyName = schema.getGeometryDescriptor().getLocalName();
 	}
 	
 	protected final ReadWriteLock rwLock= new ReentrantReadWriteLock(true);
@@ -276,6 +251,10 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 				fs = (FeatureStore<SimpleFeatureType, SimpleFeature>) tileIndexStore.getFeatureSource(typeName);
 				final int retVal=tileIndexStore.getCount(query);
 				fs.removeFeatures(query.getFilter());
+				
+				//update bounds
+				bounds=tileIndexStore.getFeatureSource().getBounds();
+				
 				return retVal;
 				
 			}
@@ -290,11 +269,11 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 		}			
 	}
 
-	public void addGranule(final SimpleFeature granule) throws IOException {
-		addGranules(Collections.singleton(granule));
+	public void addGranule(final SimpleFeature granule, final Transaction transaction) throws IOException {
+		addGranules(Collections.singleton(granule),transaction);
 	}
 	
-	public void addGranules(final Collection<SimpleFeature> granules) throws IOException {
+	public void addGranules(final Collection<SimpleFeature> granules, final Transaction transaction) throws IOException {
 		Utils.ensureNonNull("granuleMetadata",granules);
 		final Lock lock=rwLock.writeLock();
 		try{
@@ -307,7 +286,7 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 			FeatureWriter<SimpleFeatureType, SimpleFeature> fw =null;
 			try{
 				// create a writer that appends this features
-				fw = tileIndexStore.getFeatureWriterAppend(Transaction.AUTO_COMMIT);
+				fw = tileIndexStore.getFeatureWriterAppend(transaction);
 
 				//add them all
 				for(SimpleFeature f:granules){
@@ -324,6 +303,9 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 					
 					//write down
 					fw.write();
+					
+					//update bounds
+					bounds=tileIndexStore.getFeatureSource().getBounds();
 				}
 			}
 			catch (Throwable e) {
@@ -457,25 +439,29 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 		return bounds;
 	}
 
-	public void create(String namespace, String typeName, String typeSpec) throws IOException, SchemaException {
+	public void createType(String namespace, String typeName, String typeSpec) throws IOException, SchemaException {
 		final SimpleFeatureType featureType= DataUtilities.createType(namespace, typeName, typeSpec);
 		tileIndexStore.createSchema(featureType);
+		extractBasicProperties();
 		
 	}
 
-	public void create(SimpleFeatureType featureType) throws IOException {
+	public void createType(SimpleFeatureType featureType) throws IOException {
 		tileIndexStore.createSchema(featureType);
+		extractBasicProperties();
 		
 	}
 
-	public void create(String identification, String typeSpec) throws SchemaException, IOException {
+	public void createType(String identification, String typeSpec) throws SchemaException, IOException {
 		final SimpleFeatureType featureType= DataUtilities.createType(identification, typeSpec);
 		tileIndexStore.createSchema(featureType);
+		extractBasicProperties();
 		
 	}
 
 	public SimpleFeatureType getType() throws IOException {
 		return tileIndexStore.getSchema();
+		
 	}
 
 }

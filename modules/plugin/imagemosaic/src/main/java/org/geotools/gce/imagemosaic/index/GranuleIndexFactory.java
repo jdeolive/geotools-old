@@ -21,8 +21,11 @@ public abstract class GranuleIndexFactory {
 	}
 	
 	public static GranuleIndex createGranuleIndex(final URL url){
+		return createGranuleIndex(url,true,false);
+	}
+	public static GranuleIndex createGranuleIndex(final URL url, final boolean caching, final boolean create){
 		//TODO @todo this is a temporary hack
-		return new STRTreeGranuleIndex(url);	
+		return caching?new STRTreeGranuleIndex(url):new GTDataStoreGranuleIndex(url,create);	
 	}
 
 }

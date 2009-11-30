@@ -28,7 +28,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -63,13 +62,13 @@ import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.GridFormatFinder;
 import org.geotools.coverage.grid.io.UnknownFormat;
-import org.geotools.data.FeatureWriter;
-import org.geotools.data.Transaction;
-import org.geotools.data.shapefile.ShapefileDataStore;
-import org.geotools.data.shapefile.ShapefileDataStoreFactory;
+import org.geotools.data.DataUtilities;
+import org.geotools.data.DefaultTransaction;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.gce.image.WorldImageFormat;
 import org.geotools.gce.imagemosaic.Utils.MosaicConfigurationBean;
+import org.geotools.gce.imagemosaic.index.GranuleIndex;
+import org.geotools.gce.imagemosaic.index.GranuleIndexFactory;
 import org.geotools.geometry.Envelope2D;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -481,17 +480,26 @@ final class IndexBuilder implements Runnable {
 	final class MosaicDirectoryWalker  extends DirectoryWalker{
 
 		private AbstractGridFormat cachedFormat;
+		private SimpleFeatureType indexSchema;
+		private DefaultTransaction transaction;
 		
 		@Override
 		protected void handleCancelled(File startDirectory, Collection results,
-				CancelException cancel) throws IOException {
+				CancelException cancel) throws IOException {			
+			super.handleCancelled(startDirectory, results, cancel);
+
 			// close things related to shapefiles
 			closeIndexObjects();
 			
-			//clean up objects
+			//clean up objects and rollback transaction
+			try{
+				transaction.rollback();
+			}
+			finally{
+				transaction.close();
+			}			
 			
-			
-			super.handleCancelled(startDirectory, results, cancel);
+			super.handleEnd(results);
 		}		
 
 		@Override
@@ -702,11 +710,10 @@ final class IndexBuilder implements Runnable {
 					featureBuilder.add(runConfiguration.getLocationAttribute(), String.class);
 					featureBuilder.add("the_geom", Polygon.class,actualCRS);
 					featureBuilder.setDefaultGeometry("the_geom");
-					final SimpleFeatureType simpleFeatureType = featureBuilder.buildFeatureType();
+					indexSchema = featureBuilder.buildFeatureType();
 					// create the schema for the new shape file
-					store.createSchema(simpleFeatureType);
-					// get a feature writer
-					fw = store.getFeatureWriter(store.getTypeNames()[0],Transaction.AUTO_COMMIT);
+					index.createType(indexSchema);
+					
 				} else {
 					// ////////////////////////////////////////////////////////
 					// 
@@ -761,10 +768,10 @@ final class IndexBuilder implements Runnable {
 				// create and store features
 				//
 				// ////////////////////////////////////////////////////////
-				final SimpleFeature feature = fw.next();
+				final SimpleFeature feature = DataUtilities.template(indexSchema);
 				feature.setAttribute(1, geomFactory.toGeometry(new ReferencedEnvelope((Envelope) envelope)));
 				feature.setAttribute(0, prepareLocation(fileBeingProcessed));
-				fw.write();
+				index.addGranule(feature,transaction);
 
 				// fire event
 				fireEvent(Level.FINE,"Done with file "+fileBeingProcessed, (((fileIndex + 1) * 99.0) / numFiles));
@@ -855,6 +862,7 @@ final class IndexBuilder implements Runnable {
 
 		public MosaicDirectoryWalker(final File root,final FileFilter filter) throws IOException {
 			super(filter,Integer.MAX_VALUE);
+			this.transaction= new DefaultTransaction("MosaicCreationTransaction"+System.nanoTime());
 			walk(root, null);
 		}
 
@@ -970,6 +978,27 @@ final class IndexBuilder implements Runnable {
 			//
 			return true;
 		}
+
+		@Override
+		protected void handleEnd(Collection results) throws IOException {
+			try{
+				transaction.commit();
+			}
+			finally{
+				transaction.close();
+			}		
+			indexingPostamble();
+			super.handleEnd(results);
+		}
+
+		@Override
+		protected void handleStart(File startDirectory, Collection results)
+				throws IOException {
+			indexingPreamble();
+			super.handleStart(startDirectory, results);
+			
+			
+		}
 		
 		
 	}
@@ -1002,9 +1031,7 @@ final class IndexBuilder implements Runnable {
 
 	private GeometryFactory geomFactory;
 
-	private ShapefileDataStore store;
-
-	private FeatureWriter<SimpleFeatureType, SimpleFeature> fw = null;
+	private GranuleIndex index;
 
 	private int numberOfProcessedFiles;
 
@@ -1030,8 +1057,6 @@ final class IndexBuilder implements Runnable {
 
 	private ImageReaderSpi cachedSPI;
 
-	private String storeSPI;
-
 
 	/* (non-Javadoc)
 	 * @see org.geotools.gce.imagemosaic.JMXIndexBuilderMBean#run()
@@ -1044,7 +1069,7 @@ final class IndexBuilder implements Runnable {
 			//
 			// creating the file filters for scanning for files to check and index
 			//
-			final IOFileFilter finalFilter = createIndexingFilter();
+			final IOFileFilter finalFilter = createGranuleFilterRules();
 			
 			//TODO we might want to remove this in the future for performance
 			numFiles=0;
@@ -1061,12 +1086,11 @@ final class IndexBuilder implements Runnable {
 			//
 			if(numFiles>0)
 			{
-				indexingPreamble();
+				
 				for(String indexingDirectory:runConfiguration.indexingDirectories){
 					@SuppressWarnings("unused")
 					final MosaicDirectoryWalker walker = new MosaicDirectoryWalker(new File(indexingDirectory),finalFilter);
 				}
-				indexingPostamble();
 			}
 				
 			
@@ -1080,7 +1104,7 @@ final class IndexBuilder implements Runnable {
 	/**
 	 * @return
 	 */
-	private IOFileFilter createIndexingFilter() {
+	private IOFileFilter createGranuleFilterRules() {
 		final IOFileFilter specialWildCardFileFilter= new WildcardFileFilter(runConfiguration.wildcardString,IOCase.INSENSITIVE);
 		IOFileFilter dirFilter = 
 		    FileFilterUtils.andFileFilter(FileFilterUtils.directoryFileFilter(),HiddenFileFilter.VISIBLE);
@@ -1344,16 +1368,10 @@ final class IndexBuilder implements Runnable {
 		//
 		final PrecisionModel precMod = new PrecisionModel(PrecisionModel.FLOATING);
 		geomFactory = new GeometryFactory(precMod);
-		try {
-			
-			store = new ShapefileDataStore(new File(runConfiguration.rootMosaicDirectory ,runConfiguration.indexName + ".shp").toURI().toURL());
-			storeSPI=ShapefileDataStoreFactory.class.getName();
-		} catch (MalformedURLException ex) {
-			if (LOGGER.isLoggable(Level.SEVERE))
-				LOGGER.log(Level.SEVERE, ex.getLocalizedMessage(), ex);
-			fireException(ex);
-			return;
-		}
+		
+		// create the index
+		index= GranuleIndexFactory.createGranuleIndex(new File(runConfiguration.rootMosaicDirectory ,runConfiguration.indexName + ".shp").toURI().toURL(),false,true);
+
 	
 		//
 		// creating a mosaic runConfiguration bean to store the properties file elements			
@@ -1385,23 +1403,16 @@ final class IndexBuilder implements Runnable {
 	}
 
 	private void closeIndexObjects() {
-		try {
-			if (fw != null)
-				fw.close();
-		} catch (IOException e) {
-			LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
-		}
-	
-		fw=null;
+
 		
 		try {
-			if(store!=null)
-				store.dispose();
+			if(index!=null)
+				index.dispose();
 		} catch (Throwable e) {
 			LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
 		}
 	
-		store=null;
+		index=null;
 		
 
 
@@ -1450,11 +1461,7 @@ final class IndexBuilder implements Runnable {
 			properties.setProperty("SuggestedSPI", cachedSPI.getClass().getName());
 		}
 		
-  		//
-		// index spi is optional
-		//
-		properties.setProperty("IndexSPI", storeSPI);
-		
+ 	
 		OutputStream outStream=null;
 		try {
 			outStream=new BufferedOutputStream(new FileOutputStream(runConfiguration.rootMosaicDirectory + "/" + runConfiguration.indexName + ".properties"));
