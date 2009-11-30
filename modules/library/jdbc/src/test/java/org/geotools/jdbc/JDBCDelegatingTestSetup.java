@@ -16,6 +16,8 @@
  */
 package org.geotools.jdbc;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Properties;
 
 import org.apache.commons.dbcp.BasicDataSource;
@@ -72,4 +74,8 @@ public class JDBCDelegatingTestSetup extends JDBCTestSetup {
         return delegate.attributeName(raw);
     }
     
+    @Override
+    public boolean shouldRunTests(Connection cx) throws SQLException {
+        return delegate.shouldRunTests(cx);
+    }
 }

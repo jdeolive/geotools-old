@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -215,5 +216,16 @@ public abstract class JDBCTestSetup {
     
     protected final SQLDialect createSQLDialect(JDBCDataStore dataStore) {
         return null;
+    }
+    
+    /**
+     * Called after a test case has determined that a connection to the data source
+     * can be obtained. 
+     * <p>This method is used for subclasses to make additional checks 
+     * that determine if the test case should be run or not. This method is only
+     * called if a connection can successfully be made to the database.</p>
+     */
+    public boolean shouldRunTests(Connection cx) throws SQLException{
+        return true;
     }
 }
