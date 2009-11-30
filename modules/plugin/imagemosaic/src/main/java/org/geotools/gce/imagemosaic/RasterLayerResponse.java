@@ -57,7 +57,6 @@ import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataUtilities;
-import org.geotools.data.Query;
 import org.geotools.factory.Hints;
 import org.geotools.gce.imagemosaic.RasterManager.OverviewLevel;
 import org.geotools.gce.imagemosaic.index.GranuleIndex.GranuleIndexVisitor;
@@ -90,21 +89,12 @@ class RasterLayerResponse{
 	
 	class GranuleVisitor implements GranuleIndexVisitor{
 
-		private Query query;
-
 		/**
 		 * Default {@link Constructor}
 		 */
 		public GranuleVisitor() {
-			this(Query.ALL);
 		}
 		
-		/**
-		 * Default {@link Constructor}
-		 */
-		public GranuleVisitor(final Query q) {
-			this.query=q;
-		}
 
 		private final List<Future<RenderedImage>> tasks= new ArrayList<Future<RenderedImage>>();
 		private int   granulesNumber;
@@ -117,8 +107,6 @@ class RasterLayerResponse{
 
 			// Get location and envelope of the image to load.
 			final SimpleFeature feature = (SimpleFeature) item;
-			if(!this.query.getFilter().evaluate(item))
-				return;
 			final String granuleLocation = (String) feature.getAttribute(rasterManager.getLocationAttribute());
 			final ReferencedEnvelope granuleBBox = ReferencedEnvelope.reference(feature.getBounds());
 			

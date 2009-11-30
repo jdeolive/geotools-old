@@ -22,7 +22,7 @@ public abstract class GranuleIndexFactory {
 	
 	public static GranuleIndex createGranuleIndex(final URL url){
 		//TODO @todo this is a temporary hack
-		return new JTSTRTreeGranuleIndex(url);	
+		return new STRTreeGranuleIndex(url);	
 	}
 
 }

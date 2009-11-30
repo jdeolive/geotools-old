@@ -1,11 +1,7 @@
 package org.geotools.gce.imagemosaic.index;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.net.URL;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -15,7 +11,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
@@ -100,9 +95,9 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 
 	private String typeName;
 
-	private FileChannel channel;
-
-	private FileLock lock;
+//	private FileChannel channel;
+//
+//	private FileLock lock;
 
 	private FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
 
@@ -114,19 +109,19 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 		Utils.ensureNonNull("indexLocation",indexLocation);
 		this.indexLocation=indexLocation;
 		try{
-			// lock the underlying file
-			if (indexLocation.getProtocol().equals("file")) {
-
-				//  Get a file channel for the file
-				File file = DataUtilities.urlToFile(indexLocation);
-				if(file.canWrite()){
-					channel = new RandomAccessFile(file, "rw").getChannel();
-
-					// Create a shared lock on the file.
-					// This method blocks until it can retrieve the lock.
-					lock = channel.lock(0, Long.MAX_VALUE, true);
-				}
-			}				
+//			// lock the underlying file
+//			if (indexLocation.getProtocol().equals("file")) {
+//
+//				//  Get a file channel for the file
+//				File file = DataUtilities.urlToFile(indexLocation);
+//				if(file.canWrite()){
+//					channel = new RandomAccessFile(file, "rw").getChannel();
+//
+//					// Create a shared lock on the file.
+//					// This method blocks until it can retrieve the lock.
+//					lock = channel.lock(0, Long.MAX_VALUE, true);
+//				}
+//			}				
 			// creating a store
 			tileIndexStore = new ShapefileDataStore(this.indexLocation);
 			if (LOGGER.isLoggable(Level.FINE))
@@ -160,28 +155,28 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 				tileIndexStore=null;
 			}	
 			
-			try {
-				if (lock != null)
-					// Release the lock
-					lock.release();
-			} catch (Throwable e2) {
-				if (LOGGER.isLoggable(Level.FINE))
-					LOGGER.log(Level.FINE, e2.getLocalizedMessage(), e2);
-			} finally {
-				lock = null;
-			}
-
-			try {
-				if (channel != null)
-					// Close the file
-					channel.close();
-			} catch (Throwable e3) {
-				if (LOGGER.isLoggable(Level.FINE))
-					LOGGER.log(Level.FINE, e3.getLocalizedMessage(), e3);
-			} finally {
-				channel = null	;
-			}
-			
+//			try {
+//				if (lock != null)
+//					// Release the lock
+//					lock.release();
+//			} catch (Throwable e2) {
+//				if (LOGGER.isLoggable(Level.FINE))
+//					LOGGER.log(Level.FINE, e2.getLocalizedMessage(), e2);
+//			} finally {
+//				lock = null;
+//			}
+//
+//			try {
+//				if (channel != null)
+//					// Close the file
+//					channel.close();
+//			} catch (Throwable e3) {
+//				if (LOGGER.isLoggable(Level.FINE))
+//					LOGGER.log(Level.FINE, e3.getLocalizedMessage(), e3);
+//			} finally {
+//				channel = null	;
+//			}
+//			
 			throw new  IllegalArgumentException(e);
 		}
 		
@@ -230,27 +225,27 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 			}	
 				
 			
-			try {
-				if (lock != null)
-					// Release the lock
-					lock.release();
-			} catch (Throwable e2) {
-				if (LOGGER.isLoggable(Level.FINE))
-					LOGGER.log(Level.FINE, e2.getLocalizedMessage(), e2);
-			} finally {
-				lock = null;
-			}
-	
-			try {
-				if (channel != null)
-					// Close the file
-					channel.close();
-			} catch (Throwable e3) {
-				if (LOGGER.isLoggable(Level.FINE))
-					LOGGER.log(Level.FINE, e3.getLocalizedMessage(), e3);
-			} finally {
-				channel = null	;
-			}			
+//			try {
+//				if (lock != null)
+//					// Release the lock
+//					lock.release();
+//			} catch (Throwable e2) {
+//				if (LOGGER.isLoggable(Level.FINE))
+//					LOGGER.log(Level.FINE, e2.getLocalizedMessage(), e2);
+//			} finally {
+//				lock = null;
+//			}
+//	
+//			try {
+//				if (channel != null)
+//					// Close the file
+//					channel.close();
+//			} catch (Throwable e3) {
+//				if (LOGGER.isLoggable(Level.FINE))
+//					LOGGER.log(Level.FINE, e3.getLocalizedMessage(), e3);
+//			} finally {
+//				channel = null	;
+//			}			
 		}finally{
 			
 			l.unlock();

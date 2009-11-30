@@ -45,10 +45,11 @@ import com.vividsolutions.jts.index.strtree.STRtree;
  *
 	 * @source $URL: http://svn.osgeo.org/geotools/trunk/modules/plugin/imagemosaic/src/main/java/org/geotools/gce/imagemosaic/RasterManager.java $
  */
-class JTSTRTreeGranuleIndex implements GranuleIndex {
+@SuppressWarnings("unused")
+class STRTreeGranuleIndex implements GranuleIndex {
 	
 	/** Logger. */
-	final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(JTSTRTreeGranuleIndex.class);
+	final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(STRTreeGranuleIndex.class);
 
 	private static class JTSIndexVisitorAdapter  implements ItemVisitor {
 
@@ -97,7 +98,7 @@ class JTSTRTreeGranuleIndex implements GranuleIndex {
 	
 	private final URL indexLocation;
 
-	public JTSTRTreeGranuleIndex(final URL indexLocation) {
+	public STRTreeGranuleIndex(final URL indexLocation) {
 		Utils.ensureNonNull("indexLocation",indexLocation);
 		this.indexLocation=indexLocation;
 		try{
@@ -124,7 +125,7 @@ class JTSTRTreeGranuleIndex implements GranuleIndex {
 	protected final ReadWriteLock rwLock= new ReentrantReadWriteLock(true);
 
 	/**
-	 * Constructs a {@link JTSTRTreeGranuleIndex} out of a {@link FeatureCollection}.
+	 * Constructs a {@link STRTreeGranuleIndex} out of a {@link FeatureCollection}.
 	 * 
 	 * @param features
 	 * @throws IOException

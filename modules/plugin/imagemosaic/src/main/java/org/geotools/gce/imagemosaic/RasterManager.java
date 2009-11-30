@@ -17,6 +17,7 @@ import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.data.DataSourceException;
+import org.geotools.data.Query;
 import org.geotools.factory.Hints;
 import org.geotools.gce.imagemosaic.index.GranuleIndex;
 import org.geotools.gce.imagemosaic.index.GranuleIndexFactory;
@@ -531,6 +532,19 @@ class RasterManager {
 			return features;
 		else
 			return Collections.emptyList();
+	}
+	
+	Collection<SimpleFeature> getGranules(final Query q)throws IOException {
+		final Collection<SimpleFeature> features = index.findGranules(q);
+		if (features != null)
+			return features;
+		else
+			return Collections.emptyList();
+	}
+	
+	void getGranules(final Query q,final GranuleIndexVisitor visitor)throws IOException {
+		index.findGranules(q,visitor);
+
 	}
 
 	/**
