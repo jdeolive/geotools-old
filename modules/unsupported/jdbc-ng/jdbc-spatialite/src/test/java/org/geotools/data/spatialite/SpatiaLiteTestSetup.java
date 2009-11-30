@@ -17,7 +17,11 @@
 package org.geotools.data.spatialite;
 
 import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Properties;
+
+import javax.sql.DataSource;
 
 import org.apache.commons.dbcp.BasicDataSource;
 import org.geotools.jdbc.JDBCDataStore;
@@ -81,4 +85,23 @@ public class SpatiaLiteTestSetup extends JDBCTestSetup {
         run(sql);
     }
 
+    @Override
+    public boolean shouldRunTests(Connection cx) throws SQLException {
+        if (true) throw new RuntimeException();
+        Statement st = cx.createStatement();
+        try {
+            String libsptialite = SpatiaLiteDialect.spatialiteLibFile();
+            try {
+                st.executeUpdate("SELECT load_extension('"+libsptialite+"')");
+            } 
+            catch (SQLException e) {
+                return false;
+            }
+        }
+        finally {
+            st.close();
+        }
+        
+        return true;
+    }
 }

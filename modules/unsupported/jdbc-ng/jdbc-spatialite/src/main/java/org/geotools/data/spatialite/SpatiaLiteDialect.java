@@ -61,6 +61,14 @@ public class SpatiaLiteDialect extends BasicSQLDialect {
 
     public static String SPATIALITE_SPATIAL_INDEX = "org.geotools.data.spatialite.spatialIndex";
     
+    static String spatialiteLibFile() {
+        String libspatialite = System.mapLibraryName("spatialite");
+        if (libspatialite.endsWith("jnilib")) {
+            libspatialite = libspatialite.replaceAll("jnilib", "dylib");
+        }
+        return libspatialite;
+    }
+    
     public SpatiaLiteDialect(JDBCDataStore dataStore) {
         super(dataStore);
     }
@@ -70,10 +78,7 @@ public class SpatiaLiteDialect extends BasicSQLDialect {
         Statement st = cx.createStatement();
         try {
             //load the spatial extensions
-            String libspatialite = System.mapLibraryName("spatialite");
-            if (libspatialite.endsWith("jnilib")) {
-                libspatialite = libspatialite.replaceAll("jnilib", "dylib");
-            }
+            String libspatialite = spatialiteLibFile();
             
             try {
                 st.execute( "SELECT load_extension('"+libspatialite+"')" );
