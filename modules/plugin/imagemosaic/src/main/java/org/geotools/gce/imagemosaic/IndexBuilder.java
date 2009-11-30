@@ -66,6 +66,7 @@ import org.geotools.coverage.grid.io.UnknownFormat;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.Transaction;
 import org.geotools.data.shapefile.ShapefileDataStore;
+import org.geotools.data.shapefile.ShapefileDataStoreFactory;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.gce.image.WorldImageFormat;
 import org.geotools.gce.imagemosaic.Utils.MosaicConfigurationBean;
@@ -485,7 +486,7 @@ final class IndexBuilder implements Runnable {
 		protected void handleCancelled(File startDirectory, Collection results,
 				CancelException cancel) throws IOException {
 			// close things related to shapefiles
-			closeShapefileObjects();
+			closeIndexObjects();
 			
 			//clean up objects
 			
@@ -1029,6 +1030,8 @@ final class IndexBuilder implements Runnable {
 
 	private ImageReaderSpi cachedSPI;
 
+	private String storeSPI;
+
 
 	/* (non-Javadoc)
 	 * @see org.geotools.gce.imagemosaic.JMXIndexBuilderMBean#run()
@@ -1197,7 +1200,7 @@ final class IndexBuilder implements Runnable {
 		// clear stop
 		stop=false;
 	
-		closeShapefileObjects();
+		closeIndexObjects();
 		
 		//clear other stuff
 		globalEnvelope=null;
@@ -1344,6 +1347,7 @@ final class IndexBuilder implements Runnable {
 		try {
 			
 			store = new ShapefileDataStore(new File(runConfiguration.rootMosaicDirectory ,runConfiguration.indexName + ".shp").toURI().toURL());
+			storeSPI=ShapefileDataStoreFactory.class.getName();
 		} catch (MalformedURLException ex) {
 			if (LOGGER.isLoggable(Level.SEVERE))
 				LOGGER.log(Level.SEVERE, ex.getLocalizedMessage(), ex);
@@ -1361,7 +1365,7 @@ final class IndexBuilder implements Runnable {
 	
 	private void indexingPostamble() throws IOException {
 		//close shapefile elements
-		closeShapefileObjects();
+		closeIndexObjects();
 		
 		// complete initialization of mosaic oconfiguration
 		if(numberOfProcessedFiles>0){
@@ -1380,7 +1384,7 @@ final class IndexBuilder implements Runnable {
 			fireEvent(Level.FINE,"Nothing to process!!!", 100);
 	}
 
-	private void closeShapefileObjects() {
+	private void closeIndexObjects() {
 		try {
 			if (fw != null)
 				fw.close();
@@ -1445,6 +1449,11 @@ final class IndexBuilder implements Runnable {
 			// suggested spi
 			properties.setProperty("SuggestedSPI", cachedSPI.getClass().getName());
 		}
+		
+  		//
+		// index spi is optional
+		//
+		properties.setProperty("IndexSPI", storeSPI);
 		
 		OutputStream outStream=null;
 		try {
