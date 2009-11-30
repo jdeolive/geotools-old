@@ -39,7 +39,7 @@ public class GeometryTransformationTest {
         bbounds = bfs.getBounds();
         bbounds.expandBy(3, 3);
         
-        System.setProperty("org.geotools.test.interactive", "true");
+        // System.setProperty("org.geotools.test.interactive", "true");
 
     }
 
