@@ -192,8 +192,8 @@ public class H2Dialect extends SQLDialect {
                         sql.append( " IS NULL OR");
                         sql.append( " GeometryType(");
                         encodeColumnName( propertyName, sql );
-                        sql.append( ") = '").append( Geometries.getForBinding(binding).getName() )
-                            .append( "'");
+                        sql.append( ") = '").append( Geometries.getForBinding(binding).getName()
+                                .toUpperCase() ).append( "'");
                             
                         LOGGER.fine( sql.toString() );
                         st.execute( sql.toString() );
