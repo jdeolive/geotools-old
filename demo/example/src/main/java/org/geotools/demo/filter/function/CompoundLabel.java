@@ -38,6 +38,9 @@ import org.opengis.feature.type.PropertyDescriptor;
 import org.opengis.filter.FilterFactory;
 
 /**
+ * Illustrates the use of a filter function to create compound feature labels
+ * from two feature attributes
+ *
  * @author Michael Bedward
  */
 public class CompoundLabel {
@@ -53,6 +56,11 @@ public class CompoundLabel {
         me.displayShapefile(file);
     }
 
+    /**
+     * Creates a style that includes labels formed from two feature
+     * attributes selected by the user, then displays the shapefile using
+     * this style.
+     */
     private void displayShapefile(File file) throws Exception {
         FileDataStore store = FileDataStoreFinder.getDataStore(file);
         FeatureSource featureSource = store.getFeatureSource();
@@ -60,13 +68,17 @@ public class CompoundLabel {
         Style style = createLabelStyle(featureSource);
         if (style != null) {
             MapContext map = new DefaultMapContext();
-            map.setTitle("Quickstart");
+            map.setTitle("Compound feature labels");
             map.addLayer(featureSource, style);
 
             JMapFrame.showMap(map);
         }
     }
 
+    /**
+     * Prompt the user to select the two feature attributes to use for
+     * labelling and create a new Style instance.
+     */
     private Style createLabelStyle(FeatureSource featureSource) {
         FeatureType schema = featureSource.getSchema();
         List<String> fieldNames = new ArrayList<String>();
@@ -85,27 +97,41 @@ public class CompoundLabel {
             return null;
         }
 
+        Style style = null;
         FieldWizard wizard = new FieldWizard(fieldNames);
+
         if (wizard.showModalDialog() == JWizard.FINISH) {
-            return createStyle((SimpleFeatureType) schema, wizard.getSelections());
+            String[] fields = wizard.getSelections();
+
+            style = SLD.createSimpleStyle((SimpleFeatureType) schema, Color.CYAN);
+
+            StyleFactory sf = CommonFactoryFinder.getStyleFactory(null);
+            FilterFactory ff = CommonFactoryFinder.getFilterFactory2(null);
+
+            TextSymbolizer sym = sf.createTextSymbolizer();
+            
+            /*
+             * Instead of setting the label to a feature property directly,
+             * we set it to a filter function ("concatenate") to form a
+             * compound label from two properties and a delimiter
+             */
+            sym.setLabel(ff.function("Concatenate",
+                    ff.property(fields[0]),
+                    ff.literal(":"),
+                    ff.property(fields[1])));
+
+            SLD.rules(style)[0].symbolizers().add(sym);
+
+            return style;
         }
-
-        return null;
-    }
-
-    private Style createStyle(SimpleFeatureType schema, String[] fields) {
-        Style style = SLD.createSimpleStyle(schema, Color.CYAN);
-
-        StyleFactory sf = CommonFactoryFinder.getStyleFactory(null);
-        FilterFactory ff = CommonFactoryFinder.getFilterFactory2(null);
-
-        TextSymbolizer sym = sf.createTextSymbolizer();
-        sym.setLabel(ff.function("Concatenate", ff.property(fields[0]), ff.literal(":"), ff.property(fields[1])));
-        SLD.rules(style)[0].symbolizers().add(sym);
 
         return style;
     }
 
+    /**
+     * A JWizard to prompt the user for the feature attributes to use
+     * for labelling
+     */
     class FieldWizard extends JWizard {
         JComboBox field1CB;
         JComboBox field2CB;
