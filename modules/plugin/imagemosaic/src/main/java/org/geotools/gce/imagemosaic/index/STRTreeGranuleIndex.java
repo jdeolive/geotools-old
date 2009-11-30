@@ -1,12 +1,13 @@
 package org.geotools.gce.imagemosaic.index;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.lang.ref.SoftReference;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -18,7 +19,6 @@ import org.geotools.data.Query;
 import org.geotools.data.Transaction;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.SchemaException;
-import org.geotools.gce.imagemosaic.Granule;
 import org.geotools.gce.imagemosaic.ImageMosaicReader;
 import org.geotools.gce.imagemosaic.index.GTDataStoreGranuleIndex.BBOXFilterExtractor;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -99,13 +99,10 @@ class STRTreeGranuleIndex implements GranuleIndex {
 
 	private GranuleIndex originalIndex;
 	
-	private final URL indexLocation;
-
-	public STRTreeGranuleIndex(final URL indexLocation) {
-		Utils.ensureNonNull("indexLocation",indexLocation);
-		this.indexLocation=indexLocation;
+	public STRTreeGranuleIndex(final Map<String,Serializable> params) {
+		Utils.ensureNonNull("params",params);
 		try{
-			originalIndex= new GTDataStoreGranuleIndex(this.indexLocation,false);
+			originalIndex= new GTDataStoreGranuleIndex(params,false,null);
 		}
 		catch (Throwable e) {
 			try {

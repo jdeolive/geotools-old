@@ -24,17 +24,22 @@ import java.awt.image.IndexColorModel;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Serializable;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EventListener;
 import java.util.EventObject;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Level;
@@ -51,6 +56,7 @@ import org.apache.commons.io.DirectoryWalker;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOCase;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.HiddenFileFilter;
 import org.apache.commons.io.filefilter.IOFileFilter;
@@ -62,8 +68,11 @@ import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.GridFormatFinder;
 import org.geotools.coverage.grid.io.UnknownFormat;
+import org.geotools.data.DataStoreFactorySpi;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultTransaction;
+import org.geotools.data.DataAccessFactory.Param;
+import org.geotools.data.shapefile.ShapefileDataStoreFactory;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.gce.image.WorldImageFormat;
 import org.geotools.gce.imagemosaic.Utils.MosaicConfigurationBean;
@@ -74,6 +83,7 @@ import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.resources.coverage.CoverageUtilities;
+import org.geotools.util.Converters;
 import org.geotools.util.Utilities;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -1185,15 +1195,19 @@ final class IndexBuilder implements Runnable {
 			throw new IllegalArgumentException("Indexing directories are empty");
 		final List<String> directories= new ArrayList<String>();
 		for(String dir:configuration.indexingDirectories)
-			directories.add(Utils.checkInputDirectory(dir));
+			directories.add(Utils.checkInputDirectory(dir));		
 		configuration.indexingDirectories=directories;
+		
 		if(configuration.indexName==null||configuration.indexName.length()==0)
 			throw new IllegalArgumentException("Index name cannot be empty");
+		
 		if(configuration.rootMosaicDirectory==null||configuration.rootMosaicDirectory.length()==0)
 			throw new IllegalArgumentException("RootMosaicDirectory name cannot be empty");
+		
 		configuration.rootMosaicDirectory=Utils.checkInputDirectory(configuration.rootMosaicDirectory);
 		if(configuration.wildcardString==null||configuration.wildcardString.length()==0)
-			throw new IllegalArgumentException("WildcardString name cannot be empty");		
+			throw new IllegalArgumentException("WildcardString name cannot be empty");	
+		
 		this.runConfiguration = new IndexBuilderConfiguration(configuration);
 
 	}
@@ -1369,9 +1383,65 @@ final class IndexBuilder implements Runnable {
 		final PrecisionModel precMod = new PrecisionModel(PrecisionModel.FLOATING);
 		geomFactory = new GeometryFactory(precMod);
 		
+		//
 		// create the index
-		index= GranuleIndexFactory.createGranuleIndex(new File(runConfiguration.rootMosaicDirectory ,runConfiguration.indexName + ".shp").toURI().toURL(),false,true);
+		//
+		// do we have a datastore.properties file?
+		final File parent=new File(runConfiguration.rootMosaicDirectory);
+		final File datastoreProperties= new File(parent,"datastore.properties");
+		if(Utils.checkFileReadable(datastoreProperties))
+		{
+			// read the properties file
+			Properties properties = new Properties();
+			final FileInputStream stream = new FileInputStream(datastoreProperties);
+		    try {
+		        properties.load(stream);
+		    }
+		    finally{
+		    	IOUtils.closeQuietly(stream);
+		    }
+		    // SPI
+		    final String SPIClass=properties.getProperty("SPI");
+		    try {
+		    	// create a datastore as instructed
+				final DataStoreFactorySpi spi= (DataStoreFactorySpi) Class.forName(SPIClass).newInstance();
+				
+				// get the params
+				final Map<String, Serializable> params = new HashMap<String, Serializable>();	
+				final Param[] paramsInfo = spi.getParametersInfo();
+				for(Param p:paramsInfo){
+					// search for this param and set the value if found
+					if(properties.containsKey(p.key))
+						params.put(p.key, (Serializable)Converters.convert(properties.getProperty(p.key), p.type));
+					else
+						if(p.required&& p.sample==null)
+							throw new IOException("Required parameter missing: "+p.toString());
+				}						
 
+				index= GranuleIndexFactory.createGranuleIndex(params,false,true, spi);
+			} catch (ClassNotFoundException e) {
+				final IOException ioe= new IOException();
+				throw (IOException) ioe.initCause(e);
+			} catch (InstantiationException e) {
+				final IOException ioe= new IOException();
+				throw (IOException) ioe.initCause(e);
+			} catch (IllegalAccessException e) {
+				final IOException ioe= new IOException();
+				throw (IOException) ioe.initCause(e);
+			}
+		    
+		}
+		else{
+			
+			// we do not have a datastore properties file therefore we continue with a shapefile datastore
+			final URL file= new File(parent ,runConfiguration.indexName + ".shp").toURI().toURL();
+			final Map<String, Serializable> params = new HashMap<String, Serializable>();			 
+			params.put(ShapefileDataStoreFactory.URLP.key,file);
+			if(file.getProtocol().equalsIgnoreCase("file"))
+				params.put(ShapefileDataStoreFactory.CREATE_SPATIAL_INDEX.key, Boolean.TRUE);
+			params.put(ShapefileDataStoreFactory.MEMORY_MAPPED.key, Boolean.TRUE);
+			index= GranuleIndexFactory.createGranuleIndex(params,false,true, Utils.SHAPE_SPI);
+		}
 	
 		//
 		// creating a mosaic runConfiguration bean to store the properties file elements			

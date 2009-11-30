@@ -259,8 +259,8 @@ public class ImageMosaicReaderTest{
 //		imageMosaicSimpleParamsTest(indexURL, null, null,baseTestName+indexURL.getFile(), false);
 //		imageMosaicSimpleParamsTest(grayURL, null, null,baseTestName+grayURL.getFile(), false);
 //		imageMosaicSimpleParamsTest(indexAlphaURL, null, null,baseTestName+indexAlphaURL.getFile(), false);
-
-		// And again with URL that points into a JAR
+//
+//		// And again with URL that points into a JAR
 //		imageMosaicSimpleParamsTest(rgbJarURL, null, null,baseTestName+rgbJarURL.getFile(), false);
 //		imageMosaicSimpleParamsTest(indexJarURL, null, null,baseTestName+indexJarURL.getFile(), false);
 //		imageMosaicSimpleParamsTest(grayJarURL, null, null,baseTestName+grayJarURL.getFile(), false);
@@ -573,7 +573,17 @@ public class ImageMosaicReaderTest{
 			if(interactive)
 				return;
 			File dir=TestData.file(this, "overview/");
-			File[] files = dir.listFiles((FilenameFilter)FileFilterUtils.notFileFilter(FileFilterUtils.suffixFileFilter("tif")));
+			File[] files = dir.listFiles(
+					(FilenameFilter)FileFilterUtils.notFileFilter(
+							FileFilterUtils.orFileFilter(
+									FileFilterUtils.orFileFilter(
+											FileFilterUtils.suffixFileFilter("tif"),
+											FileFilterUtils.suffixFileFilter("aux")
+									),
+									FileFilterUtils.nameFileFilter("datastore.properties")
+							)
+					)
+			);
 			for(File file:files){
 				file.delete();
 			}

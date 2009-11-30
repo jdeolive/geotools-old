@@ -1,17 +1,20 @@
 package org.geotools.gce.imagemosaic.index;
 
 import java.io.IOException;
-import java.net.URL;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.geotools.data.DataStore;
+import org.geotools.data.DataStoreFactorySpi;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureSource;
@@ -19,7 +22,6 @@ import org.geotools.data.FeatureStore;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
-import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
 import org.geotools.feature.FeatureCollection;
@@ -94,15 +96,9 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 		}
 		
 	}
-	private final URL indexLocation;
-
-	private ShapefileDataStore tileIndexStore;
+	private DataStore tileIndexStore;
 
 	private String typeName;
-
-//	private FileChannel channel;
-//
-//	private FileLock lock;
 
 	private FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
 
@@ -110,15 +106,17 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 
 	private ReferencedEnvelope bounds;
 
-	public GTDataStoreGranuleIndex(final URL indexLocation, final boolean create) {
-		Utils.ensureNonNull("indexLocation",indexLocation);
-		this.indexLocation=indexLocation;
+
+	public GTDataStoreGranuleIndex(final Map<String, Serializable> params, final boolean create, final DataStoreFactorySpi spi) {
+		Utils.ensureNonNull("params",params);
 		try{
 		
 			// creating a store
-			tileIndexStore =new ShapefileDataStore(this.indexLocation,true);
-			if (LOGGER.isLoggable(Level.FINE))
-				LOGGER.fine("Connected mosaic reader to its data store "+ indexLocation.toString());
+//			if(!create)
+				tileIndexStore =spi.createDataStore(params);
+//			else
+//				tileIndexStore =  spi.createNewDataStore(params);
+
 			
 			// is this a new store?
 			if(create)
@@ -249,11 +247,11 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 			try{
 				// create a writer that appends this features
 				fs = (FeatureStore<SimpleFeatureType, SimpleFeature>) tileIndexStore.getFeatureSource(typeName);
-				final int retVal=tileIndexStore.getCount(query);
+				final int retVal=fs.getCount(query);
 				fs.removeFeatures(query.getFilter());
 				
 				//update bounds
-				bounds=tileIndexStore.getFeatureSource().getBounds();
+				bounds=tileIndexStore.getFeatureSource(typeName).getBounds();
 				
 				return retVal;
 				
@@ -286,7 +284,7 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 			FeatureWriter<SimpleFeatureType, SimpleFeature> fw =null;
 			try{
 				// create a writer that appends this features
-				fw = tileIndexStore.getFeatureWriterAppend(transaction);
+				fw = tileIndexStore.getFeatureWriterAppend(typeName,transaction);
 
 				//add them all
 				for(SimpleFeature f:granules){
@@ -305,11 +303,12 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 					fw.write();
 					
 					//update bounds
-					bounds=tileIndexStore.getFeatureSource().getBounds();
+					bounds=tileIndexStore.getFeatureSource(typeName).getBounds();
 				}
 			}
 			catch (Throwable e) {
-				// TODO: handle exception
+				if(LOGGER.isLoggable(Level.SEVERE))
+					LOGGER.log(Level.SEVERE,e.getLocalizedMessage(),e);
 			}finally{
 				if(fw!=null)
 					fw.close();
@@ -460,7 +459,7 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 	}
 
 	public SimpleFeatureType getType() throws IOException {
-		return tileIndexStore.getSchema();
+		return tileIndexStore.getSchema(typeName);
 		
 	}
 

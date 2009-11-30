@@ -17,24 +17,37 @@
 package org.geotools.gce.imagemosaic;
 
 import java.awt.Color;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.imageio.GeoToolsWriteParams;
+import org.geotools.data.DataStore;
+import org.geotools.data.DataStoreFactorySpi;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.FeatureSource;
+import org.geotools.data.DataAccessFactory.Param;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.factory.Hints;
 import org.geotools.gce.imagemosaic.Utils.MosaicConfigurationBean;
 import org.geotools.parameter.DefaultParameterDescriptor;
 import org.geotools.parameter.DefaultParameterDescriptorGroup;
 import org.geotools.parameter.ParameterGroup;
+import org.geotools.util.Converters;
 import org.opengis.coverage.grid.Format;
 import org.opengis.coverage.grid.GridCoverageReader;
 import org.opengis.coverage.grid.GridCoverageWriter;
@@ -119,13 +132,6 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
     public static final ParameterDescriptor<Color> OUTPUT_TRANSPARENT_COLOR = new DefaultParameterDescriptor<Color>(
             "OutputTransparentColor", Color.class, null, null);
 
-    /** Control the thresholding on the input coverage.
-     * 
-     * @deprecated we don't use this param anymore, since it is confusing and interact badly with the transparency
-     */
-    public static final ParameterDescriptor<Double> INPUT_IMAGE_THRESHOLD_VALUE = new DefaultParameterDescriptor<Double>(
-            "InputImageThresholdValue", Double.class, null, new Double(Double.NaN));
-    
     /** Control the thresholding on the input coverage */
     public static final ParameterDescriptor<Integer> MAX_ALLOWED_TILES = new DefaultParameterDescriptor<Integer>(
             "MaxAllowedTiles", Integer.class, null, Integer.MAX_VALUE);
@@ -162,7 +168,6 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
                 new GeneralParameterDescriptor[]{
         		READ_GRIDGEOMETRY2D,
         		INPUT_TRANSPARENT_COLOR,
-                INPUT_IMAGE_THRESHOLD_VALUE, 
                 OUTPUT_TRANSPARENT_COLOR,
                 USE_JAI_IMAGEREAD,
                 BACKGROUND_VALUES,
@@ -202,32 +207,111 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
             // reused
             //
             // /////////////////////////////////////////////////////////////////////
-            ShapefileDataStore tileIndexStore = null;
+            DataStore tileIndexStore = null;
             CoordinateReferenceSystem crs=null;
+            boolean shapefile=true;
             try{
-            	tileIndexStore=new ShapefileDataStore(sourceURL);
+            	final File sourceF= DataUtilities.urlToFile(sourceURL);
+            	if(FilenameUtils.getName(sourceF.getAbsolutePath()).equalsIgnoreCase("datastore.properties"))
+            	{
+            		shapefile=false;
+            		// load spi anche check it
+            		// read the properties file
+        			final Properties properties = new Properties();
+        			final FileInputStream stream = new FileInputStream(sourceF);
+        		    try {
+        		        properties.load(stream);
+        		    }
+        		    finally{
+        		    	IOUtils.closeQuietly(stream);
+        		    }
+        		    
+        		    // SPI
+        		    final String SPIClass=properties.getProperty("SPI");
+    		    	// create a datastore as instructed
+    				final DataStoreFactorySpi spi= (DataStoreFactorySpi) Class.forName(SPIClass).newInstance();
+    				
+    				// get the params
+    				final Map<String, Serializable> params = new HashMap<String, Serializable>();	
+    				final Param[] paramsInfo = spi.getParametersInfo();
+    				for(Param p:paramsInfo){
+    					// search for this param and set the value if found
+    					if(properties.containsKey(p.key))
+    						params.put(p.key, (Serializable)Converters.convert(properties.getProperty(p.key), p.type));
+    					else
+    						if(p.required&& p.sample==null)
+    						{
+    			     			if (LOGGER.isLoggable(Level.FINE))
+    		        				LOGGER.fine("Required parameter missing: "+p.toString());
+    							return false;
+    						}
+    				}						
+    				tileIndexStore=spi.createDataStore(params);
+        			if(tileIndexStore==null)
+        				return false;
+              		
+            	}
+            	else
+            		tileIndexStore=new ShapefileDataStore(sourceURL);
                 final String[] typeNames = tileIndexStore.getTypeNames();
                 if (typeNames.length <= 0)
                     return false;
                 final String typeName = typeNames[0];
+                if(typeName==null)
+    				return false;
+                
                 final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = tileIndexStore.getFeatureSource(typeName);
+                if(featureSource==null)
+    				return false;
+                
                 final SimpleFeatureType schema = featureSource.getSchema();
+                if(schema==null)
+    				return false;
+                
                 crs = featureSource.getSchema().getGeometryDescriptor().getCoordinateReferenceSystem();
+                if(crs==null)
+    				return false;
    
 	            // /////////////////////////////////////////////////////////////////////
 	            //
 	            // Now look for the properties file and try to parse relevant fields
 	            //
 	            // /////////////////////////////////////////////////////////////////////            
-                URL propsUrl = DataUtilities.changeUrlExt(sourceURL, "properties");
+                URL propsUrl = null;
+                if(shapefile)
+                	propsUrl=DataUtilities.changeUrlExt(sourceURL, "properties");
+                else
+                {
+        			//
+					// do we have a datastore properties file? It will preempt on the shapefile
+					//
+                	final File parent=DataUtilities.urlToFile(sourceURL).getParentFile();
+					
+					// this can be used to look for properties files that do NOT define a datastore
+					final File[] properties = parent.listFiles(
+							(FilenameFilter)
+							FileFilterUtils.andFileFilter(
+									FileFilterUtils.notFileFilter(FileFilterUtils.nameFileFilter("datastore.properties")),
+									FileFilterUtils.makeFileOnly(FileFilterUtils.suffixFileFilter(".properties")
+							)
+					));
+					
+					// do we have a valid datastore + mosaic properties pair?
+					for(File propFile:properties)
+						if(Utils.checkFileReadable(propFile))
+						{
+							propsUrl=DataUtilities.fileToURL(propFile);
+							break;
+						}               	
+                }
                 try {
                 	propsUrl.openStream().close();
                 } catch (Exception e) {
-	                throw new FileNotFoundException(".properties file, descibing the ImageMoasic, cant be opened:"+propsUrl);
+	                throw new FileNotFoundException(".properties file, descibing the ImageMosaic, cant be opened:"+propsUrl);
 				}
 	            
 	            //get the properties file
-	            final MosaicConfigurationBean props = Utils.loadPropertiesFile(sourceURL, crs,"location");
+	            final MosaicConfigurationBean props = Utils.loadPropertiesFile(propsUrl, crs,"location");
 	            if(props==null)
 	            	return false;
 	            
