@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -11,17 +12,21 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureSource;
+import org.geotools.data.FeatureStore;
+import org.geotools.data.FeatureWriter;
 import org.geotools.data.Query;
+import org.geotools.data.Transaction;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
+import org.geotools.feature.SchemaException;
 import org.geotools.feature.collection.AbstractFeatureVisitor;
 import org.geotools.filter.visitor.DefaultFilterVisitor;
-import org.geotools.gce.imagemosaic.Granule;
 import org.geotools.gce.imagemosaic.ImageMosaicReader;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.util.NullProgressListener;
@@ -256,35 +261,82 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 	}
 
 	public int removeGranules(final Query query) {
-		throw new UnsupportedOperationException("removeGranules is not supported, this ia read only index");
-//		ImageMosaicUtils.ensureNonNull("query",query);
-//		final Lock lock=rwLock.writeLock();
-//		try{
-//			//
-//			lock.lock();
-//		}finally{
-//			lock.unlock();
-//		}
-//	
-//		return 0;
-		
+		Utils.ensureNonNull("query",query);
+		final Lock lock=rwLock.writeLock();
+		try{
+			lock.lock();
+			// check if the index has been cleared
+			if(tileIndexStore==null)
+				throw new IllegalStateException("Unable to proceed, underlying stre is null");
+			
+			
+			FeatureStore<SimpleFeatureType, SimpleFeature> fs=null;
+			try{
+				// create a writer that appends this features
+				fs = (FeatureStore<SimpleFeatureType, SimpleFeature>) tileIndexStore.getFeatureSource(typeName);
+				final int retVal=tileIndexStore.getCount(query);
+				fs.removeFeatures(query.getFilter());
+				return retVal;
+				
+			}
+			catch (Throwable e) {
+				if(LOGGER.isLoggable(Level.SEVERE))
+					LOGGER.log(Level.SEVERE,e.getLocalizedMessage(),e);
+				return -1;
+			}
+			// do your thing
+		}finally{
+			lock.unlock();
+		}			
 	}
 
-	public void addGranule(final Granule granule) {
-		throw new UnsupportedOperationException("addGranule is not supported, this ia read only index");
-//		ImageMosaicUtils.ensureNonNull("granuleMetadata",granule);
-//		final Lock lock=rwLock.writeLock();
-//		try{
-//			lock.lock();
-//			// check if the index has been cleared
-//			if(index==null)
-//				throw new IllegalStateException();
-//			
-//			// do your thing
-//		}finally{
-//			lock.unlock();
-//		}	
-//		
+	public void addGranule(final SimpleFeature granule) throws IOException {
+		addGranules(Collections.singleton(granule));
+	}
+	
+	public void addGranules(final Collection<SimpleFeature> granules) throws IOException {
+		Utils.ensureNonNull("granuleMetadata",granules);
+		final Lock lock=rwLock.writeLock();
+		try{
+			lock.lock();
+			// check if the index has been cleared
+			if(tileIndexStore==null)
+				throw new IllegalStateException("Unable to proceed, underlying stre is null");
+			
+			
+			FeatureWriter<SimpleFeatureType, SimpleFeature> fw =null;
+			try{
+				// create a writer that appends this features
+				fw = tileIndexStore.getFeatureWriterAppend(Transaction.AUTO_COMMIT);
+
+				//add them all
+				for(SimpleFeature f:granules){
+					
+					// create a new feature
+					final SimpleFeature feature = fw.next();
+					
+					// get attributes and copy them over
+					for(int i=f.getAttributeCount()-1;i>=0;i--){
+						final Object attribute = f.getAttribute(i);
+						
+						feature.setAttribute(i, attribute);
+					}
+					
+					//write down
+					fw.write();
+				}
+			}
+			catch (Throwable e) {
+				// TODO: handle exception
+			}finally{
+				if(fw!=null)
+					fw.close();
+			}
+			// do your thing
+		}finally{
+			lock.unlock();
+		}	
+		
 	}
 
 	public void  findGranules(final Query q,final GranuleIndexVisitor visitor)
@@ -403,6 +455,27 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 
 	public BoundingBox getBounds() {
 		return bounds;
+	}
+
+	public void create(String namespace, String typeName, String typeSpec) throws IOException, SchemaException {
+		final SimpleFeatureType featureType= DataUtilities.createType(namespace, typeName, typeSpec);
+		tileIndexStore.createSchema(featureType);
+		
+	}
+
+	public void create(SimpleFeatureType featureType) throws IOException {
+		tileIndexStore.createSchema(featureType);
+		
+	}
+
+	public void create(String identification, String typeSpec) throws SchemaException, IOException {
+		final SimpleFeatureType featureType= DataUtilities.createType(identification, typeSpec);
+		tileIndexStore.createSchema(featureType);
+		
+	}
+
+	public SimpleFeatureType getType() throws IOException {
+		return tileIndexStore.getSchema();
 	}
 
 }

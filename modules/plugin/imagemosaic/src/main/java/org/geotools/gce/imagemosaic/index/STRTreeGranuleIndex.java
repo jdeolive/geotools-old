@@ -16,11 +16,13 @@ import java.util.logging.Logger;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.Query;
 import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.SchemaException;
 import org.geotools.gce.imagemosaic.Granule;
 import org.geotools.gce.imagemosaic.ImageMosaicReader;
 import org.geotools.gce.imagemosaic.index.GTDataStoreGranuleIndex.BBOXFilterExtractor;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
 import org.opengis.geometry.BoundingBox;
 
@@ -337,8 +339,8 @@ class STRTreeGranuleIndex implements GranuleIndex {
 		return requestedBBox;
 	}
 
-	public List<SimpleFeature> findGranules() {
-		throw new UnsupportedOperationException("findGranules is not supported"); 
+	public List<SimpleFeature> findGranules() throws IOException {
+		return findGranules(this.getBounds());
 	}
 
 	public void findGranules(Query q, GranuleIndexVisitor visitor)
@@ -362,6 +364,38 @@ class STRTreeGranuleIndex implements GranuleIndex {
 
 	public BoundingBox getBounds() {
 		return originalIndex.getBounds();
+	}
+
+	public void addGranule(SimpleFeature granule) throws IOException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void addGranules(Collection<SimpleFeature> granules)
+			throws IOException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void create(String namespace, String typeName, String typeSpec)
+			throws IOException, SchemaException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void create(SimpleFeatureType featureType) throws IOException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void create(String identification, String typeSpec)
+			throws SchemaException, IOException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public SimpleFeatureType getType() throws IOException {
+		return this.originalIndex.getType();
 	}
 
 }

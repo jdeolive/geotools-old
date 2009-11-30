@@ -4,9 +4,10 @@ import java.io.IOException;
 import java.util.Collection;
 
 import org.geotools.data.Query;
-import org.geotools.gce.imagemosaic.Granule;
+import org.geotools.feature.SchemaException;
 import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.geometry.BoundingBox;
 /**
  * 
@@ -47,9 +48,18 @@ public interface GranuleIndex {
 	public abstract void  findGranules( final Query q,final GranuleIndexVisitor visitor) throws IOException;	
 
 	public abstract void dispose();
+		
+	public void addGranule(final SimpleFeature granule) throws IOException;
 	
+	public void addGranules(final Collection<SimpleFeature> granules) throws IOException;
 	
-	public void addGranule(final Granule granuleMetadata);
+	public void create(String namespace, String typeName, String typeSpec) throws IOException, SchemaException;
+	
+	public void create(SimpleFeatureType featureType) throws IOException;
+	
+	public void create(String identification, String typeSpec) throws SchemaException, IOException;
+	
+	public SimpleFeatureType getType() throws IOException;
 	
 	public int removeGranules(final Query query);
 
