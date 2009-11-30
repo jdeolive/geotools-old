@@ -7,12 +7,14 @@ In :ref:`stylelab` we showed how to create simple rendering styles for features.
 look at a slightly more complex example: displaying a shapfile with a style that uses a colour lookup table indexed 
 by the values of a chosen feature attribute.
 
-This lab uses GeoTools version 2.6.0
-
 Dependencies
 ------------
  
 Please ensure your pom.xml includes the following::
+
+    <properties>
+        <geotools.version>2.6.0</geotools.version>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -29,20 +31,6 @@ Please ensure your pom.xml includes the following::
             <groupId>org.geotools</groupId>
             <artifactId>gt-swing</artifactId>
             <version>${geotools.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-render</artifactId>
-            <version>${geotools.version}</version>
-            <!-- For this module we explicitly exclude some of its own -->
-            <!-- dependencies from being downloaded because they are   -->
-            <!-- big and we don't need them                            -->
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.xmlgraphics</groupId>
-                    <artifactId>batik-transcoder</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
     </dependencies>
 
