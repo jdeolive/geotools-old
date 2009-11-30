@@ -96,7 +96,5 @@
   </build-->
 
   <modules>
-    <module>jdbc-mysql</module>
-    <module>jdbc-sqlserver</module>
   </modules>
 </project>

@@ -122,5 +122,8 @@
     <module>jdbc-oracle</module>
     <module>jdbc-postgis</module>
     <module>jdbc-db2</module>
+    <module>jdbc-mysql</module>
+    <module>jdbc-sqlserver</module>
+    <module>jdbc-spatialite</module>
   </modules>
 </project>
