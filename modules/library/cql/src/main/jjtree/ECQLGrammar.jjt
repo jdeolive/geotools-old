@@ -407,7 +407,9 @@ void IdList() #void:
 void IdValue() #FEATURE_ID_NODE:
 {}
 {
-	<STRING_LITERAL>	
+		<STRING_LITERAL>	
+	| 	<INTEGER_LITERAL>
+
 }
 
 /* ---------------------------------------- *

@@ -38,6 +38,7 @@ import org.opengis.filter.PropertyIsLessThan;
 import org.opengis.filter.PropertyIsLike;
 import org.opengis.filter.expression.Add;
 import org.opengis.filter.expression.Expression;
+import org.opengis.filter.expression.Function;
 import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.spatial.DistanceBufferOperator;
 import org.opengis.filter.spatial.Intersects;
@@ -237,9 +238,19 @@ public final class ECQLTest  {
     @Test 
     public void likePredicate() throws Exception{
         
+        // using a property as expression
         Filter filter = ECQL.toFilter("aProperty like '%bb%'");
         
         Assert.assertTrue(filter instanceof PropertyIsLike);
+           
+        // using function as expression
+        filter = ECQL.toFilter( "strToUpperCase(anAttribute) like '%BB%'");
+        
+        Assert.assertTrue(filter instanceof PropertyIsLike);
+
+        PropertyIsLike like = (PropertyIsLike) filter;
+        
+        Assert.assertTrue(like.getExpression() instanceof Function );
     }
     
     /**

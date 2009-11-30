@@ -178,6 +178,8 @@ public class CQLTest {
         Filter filter = CQL.toFilter("NAME like '%new%'");
         
         Assert.assertTrue(filter instanceof PropertyIsLike);
+        
+        
     }
     
     /**

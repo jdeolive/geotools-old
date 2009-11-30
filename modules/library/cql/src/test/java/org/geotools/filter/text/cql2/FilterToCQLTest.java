@@ -65,13 +65,18 @@ public class FilterToCQLTest extends TestCase {
     public void testOR() throws Exception {
         cqlTest( "(ATTR1 > 10 OR ATTR2 < 2)" );
     }
+
+    public void testLike() throws Exception {
+        cqlTest( "ATTR1 LIKE '%ABC%'" );
+    }
+    
     protected void cqlTest( String cql ) throws Exception {
         Filter filter = CQL.toFilter(cql);
         assertNotNull( cql + " parse", filter );
         
         String output = filter.accept( toCQL, null ).toString();
         assertNotNull( cql + " encode", output );
-        assertEquals( cql, cql, output );        
+        assertEquals( cql, cql,output );        
     }
     /*
     public static Test suite(){

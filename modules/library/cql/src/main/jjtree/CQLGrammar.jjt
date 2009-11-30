@@ -928,7 +928,7 @@ void Function() #Function_Node:
  * <argument>  ::= 
  *      <literal>  
  *  |   <attribute name>                                            
- * 	|	<expression> (*extension: expresion inclue literal and attributes*) 
+ * 	|	<expression> (*extension: expression includes literal and attributes*) 
  */
 void FunctionArg() #FunctionArg_Node:
 {}
