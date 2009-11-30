@@ -27,6 +27,7 @@ import java.sql.Statement;
 import java.sql.Types;
 import java.util.Map;
 
+import org.geotools.geometry.jts.Geometries;
 import org.geotools.jdbc.JDBCDataStore;
 import org.geotools.jdbc.SQLDialect;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -191,7 +192,7 @@ public class H2Dialect extends SQLDialect {
                         sql.append( " IS NULL OR");
                         sql.append( " GeometryType(");
                         encodeColumnName( propertyName, sql );
-                        sql.append( ") = '").append( binding.getSimpleName().toUpperCase() )
+                        sql.append( ") = '").append( Geometries.getForBinding(binding).getName() )
                             .append( "'");
                             
                         LOGGER.fine( sql.toString() );
