@@ -154,7 +154,7 @@ public class MySQLDialectBasic extends BasicSQLDialect {
             throws IOException {
         sql.append("GeomFromText('");
         sql.append(new WKTWriter().write(value));
-        sql.append("')");
+        sql.append("', ").append(srid).append(")");
     }
 
     @Override
