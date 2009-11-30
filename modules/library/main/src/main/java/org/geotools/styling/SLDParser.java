@@ -38,6 +38,7 @@ import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Function;
 import org.opengis.filter.expression.Literal;
+import org.opengis.filter.expression.PropertyName;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -64,7 +65,7 @@ public class SLDParser {
     private static final String graphicSt = "Graphic"; // to make pmd to shut up
 
     private static final String geomString = "Geometry"; // to make pmd to shut up
-
+    
     private static final String fillSt = "Fill";
 
     private static final String opacityString = "Opacity";
@@ -888,7 +889,7 @@ public class SLDParser {
                 childName = child.getNodeName();
             }
             if (childName.equalsIgnoreCase(geomString)) {
-                symbol.setGeometryPropertyName(parseGeometryName(child));
+                symbol.setGeometry(parseGeometry(child));
             } else if (childName.equalsIgnoreCase(strokeString)) {
                 symbol.setStroke(parseStroke(child));
             }
@@ -931,7 +932,7 @@ public class SLDParser {
                 childName = child.getNodeName();
             }
             if (childName.equalsIgnoreCase(geomString)) {
-                symbol.setGeometryPropertyName(parseGeometryName(child));
+                symbol.setGeometry(parseGeometry(child));
             } else if (childName.equalsIgnoreCase(strokeString)) {
                 symbol.setStroke(parseStroke(child));
             } else if (childName.equalsIgnoreCase(fillSt)) {
@@ -976,7 +977,7 @@ public class SLDParser {
                 childName = child.getNodeName();
             }
             if (childName.equalsIgnoreCase(geomString)) {
-                symbol.setGeometryPropertyName(parseGeometryName(child));
+                symbol.setGeometry(parseGeometry(child));
             } else if (childName.equalsIgnoreCase(fillSt)) {
                 symbol.setFill(parseFill(child));
             } else if (childName.equalsIgnoreCase("Label")) {
@@ -1092,7 +1093,7 @@ public class SLDParser {
                 childName = child.getNodeName();
             }
             if (childName.equalsIgnoreCase(geomString)) {
-                symbol.setGeometryPropertyName(parseGeometryName(child));
+                symbol.setGeometry(parseGeometry(child));
             }
             if (childName.equalsIgnoreCase(opacityString)) {
                 try {
@@ -1422,7 +1423,7 @@ public class SLDParser {
             }
 
             if (childName.equalsIgnoreCase(geomString)) {
-                symbol.setGeometryPropertyName(parseGeometryName(child));
+                symbol.setGeometry(parseGeometry(child));
             } else if (childName.equalsIgnoreCase(graphicSt)) {
                 symbol.setGraphic(parseGraphic(child));
             }
@@ -1476,24 +1477,21 @@ public class SLDParser {
 
     /** Internal parse method - made protected for unit testing */
     protected String parseGeometryName(Node root) {
+        Expression result = parseGeometry(root);
+        if(result instanceof PropertyName) {
+            return ((PropertyName) result).getPropertyName();
+        }
+        return null;
+    }
+    
+    /** Internal parse method - made protected for unit testing */
+    protected Expression parseGeometry(Node root) {
         if (LOGGER.isLoggable(Level.FINEST)) {
             if (LOGGER.isLoggable(Level.FINEST))
-                LOGGER.finest("parsing GeometryName");
+                LOGGER.finest("parsing GeometryExpression");
         }
 
-        String ret = null;
-        NodeList children = root.getChildNodes();
-        final int length = children.getLength();
-        for (int i = 0; i < length; i++) {
-            Node child = children.item(i);
-
-            if ((child == null) || (child.getNodeType() != Node.ELEMENT_NODE)) {
-                continue;
-            }
-            ret = parseCssParameter(child).toString();
-        }
-
-        return ret;
+        return parseCssParameter(root);
     }
 
     /** Internal parse method - made protected for unit testing */

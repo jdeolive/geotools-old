@@ -94,29 +94,5 @@ public interface PointSymbolizer extends org.opengis.style.PointSymbolizer, Symb
      */
     void setGraphic(org.opengis.style.Graphic graphic);
 
-    /**
-     * This property defines the geometry to be used for styling.<br>
-     * The property is optional and if it is absent (null) then the "default"
-     * geometry property of the feature should be used.  Geometry types other
-     * than inherently point types can be used.  The geometryPropertyName is
-     * the name of a geometry property in the Feature being styled.
-     * Typically, features only have one geometry so, in general, the need to
-     * select one is not required. Note: this moves a little away from the SLD
-     * spec which provides an XPath reference to a Geometry object, but does
-     * follow it in spirit.
-     */
-    String getGeometryPropertyName();
-
-    /**
-     * This property defines the geometry to be used for styling.<br>
-     * The property is optional and if it is absent (null) then the "default"
-     * geometry property of the feature should be used.  Geometry types other
-     * than inherently point types can be used.  The geometryPropertyName is
-     * the name of a geometry property in the Feature being styled.
-     * Typically, features only have one geometry so, in general, the need to
-     * select one is not required. Note: this moves a little away from the SLD
-     * spec which provides an XPath reference to a Geometry object, but does
-     * follow it in spirit.
-     */
-    void setGeometryPropertyName(String geometryPropertyName);
+    
 }

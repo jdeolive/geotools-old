@@ -21,8 +21,6 @@ import javax.measure.quantity.Length;
 import javax.measure.unit.Unit;
 
 import org.geotools.util.SimpleInternationalString;
-import org.geotools.util.Utilities;
-
 import org.opengis.style.StyleVisitor;
 import org.opengis.util.Cloneable;
 
@@ -36,12 +34,8 @@ import org.opengis.util.Cloneable;
  * @source $URL$
  * @version $Id$
  */
-public class PointSymbolizerImpl implements PointSymbolizer, Cloneable {
+public class PointSymbolizerImpl extends AbstractSymbolizer implements PointSymbolizer, Cloneable {
     
-    private Description description;
-    private String name;
-    private Unit<Length> uom;
-    private String geometryPropertyName = null;
     private GraphicImpl graphic = new GraphicImpl();
 
     /**
@@ -58,62 +52,9 @@ public class PointSymbolizerImpl implements PointSymbolizer, Cloneable {
     }
 
     protected PointSymbolizerImpl(Graphic graphic, Unit<Length> uom, String geom, String name, Description desc){
+        super(name, desc, geom, uom);
         this.graphic = GraphicImpl.cast(graphic);
-        this.uom = uom;
-        this.geometryPropertyName = geom;
-        this.name = name;
-        this.description = desc;
     }
-    
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-    
-    public Description getDescription() {
-        return description;
-    }
-    
-    public void setDescription(org.opengis.style.Description description) {
-        this.description = DescriptionImpl.cast(description);
-    }
-    
-    /**
-     * This property defines the geometry to be used for styling.<br>
-     * The property is optional and if it is absent (null) then the "default"
-     * geometry property of the feature should be used.  Geometry types other
-     * than inherently linear types can be used.  If a point geometry is used,
-     * it should be interpreted as a line of zero length and two end caps.  If
-     * a polygon is used (or other "area" type) then its closed outline should
-     * be used as the line string (with no end caps). The geometryPropertyName
-     * is the name of a geometry property in the Feature being styled.
-     * Typically, features only have one geometry so, in general, the need to
-     * select one is not required. Note: this moves a little away from the SLD
-     * spec which provides an XPath reference to a Geometry object, but does
-     * follow it in spirit.
-     *
-     * @return The name of the attribute in the feature being styled  that
-     *         should be used.  If null then the default geometry should be
-     *         used.
-     */
-    public String getGeometryPropertyName() {
-        return geometryPropertyName;
-    }
-
-    public void setGeometryPropertyName(String name) {
-        geometryPropertyName = name;
-    }
-
-    public Unit<Length> getUnitOfMeasure() {
-        return uom;
-    }
-
-    public void setUnitOfMeasure(Unit<Length> uom) {
-    	this.uom = uom;
-	}
 
     /**
      * Provides the graphical-symbolization parameter to use for the point
@@ -170,71 +111,29 @@ public class PointSymbolizerImpl implements PointSymbolizer, Cloneable {
         return clone;
     }
 
-    /**
-     * Generates the hashcode for the PointSymbolizer
-     *
-     * @return the hashcode
-     */
+    @Override
     public int hashCode() {
-        final int PRIME = 1000003;
-        int result = 0;
-
-        if (geometryPropertyName != null) {
-            result = (PRIME * result) + geometryPropertyName.hashCode();
-        }
-
-        if (graphic != null) {
-            result = (PRIME * result) + graphic.hashCode();
-        }
-        
-        if(name != null){
-            result = (PRIME * result) + name.hashCode();
-        }
-        
-        if(uom != null){
-            result = (PRIME * result) + uom.hashCode();
-        }
-        
-        if(description != null){
-            result = (PRIME * result) + description.hashCode();
-        }
-
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((graphic == null) ? 0 : graphic.hashCode());
         return result;
     }
 
-    /**
-     * Checks this PointSymbolizerImpl with another for equality.
-     * 
-     * <p>
-     * Two PointSymbolizers are equal if the have the same geometry property
-     * name and their graphic object is equal.
-     * </p>
-     * 
-     * <p>
-     * Note: this method only works for other instances of PointSymbolizerImpl,
-     * not other implementors of PointSymbolizer
-     * </p>
-     *
-     * @param oth The object to compare with this PointSymbolizerImpl for
-     *        equality.
-     *
-     * @return True of oth is a PointSymbolizerImpl that is equal.
-     */
-    public boolean equals(Object oth) {
-        if (this == oth) {
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
             return true;
-        }
-
-        if (oth instanceof PointSymbolizerImpl) {
-            PointSymbolizerImpl other = (PointSymbolizerImpl) oth;
-
-            return Utilities.equals(geometryPropertyName,other.geometryPropertyName)
-            && Utilities.equals(graphic, other.graphic)
-            && Utilities.equals(uom, other.uom)
-            && Utilities.equals(description, other.description);
-        }
-
-        return false;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        PointSymbolizerImpl other = (PointSymbolizerImpl) obj;
+        if (graphic == null) {
+            if (other.graphic != null)
+                return false;
+        } else if (!graphic.equals(other.graphic))
+            return false;
+        return true;
     }
 
     static PointSymbolizerImpl cast(org.opengis.style.Symbolizer symbolizer) {

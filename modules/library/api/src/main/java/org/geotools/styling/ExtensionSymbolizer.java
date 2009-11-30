@@ -3,7 +3,6 @@ package org.geotools.styling;
 import java.util.Map;
 
 import org.opengis.filter.expression.Expression;
-import org.opengis.style.StyleVisitor;
 
 /**
  * Custom symbolizer support.

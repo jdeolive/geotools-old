@@ -20,8 +20,6 @@ package org.geotools.renderer.lite;
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Canvas;
-import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Paint;
@@ -30,7 +28,6 @@ import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.TexturePaint;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Line2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -48,6 +45,8 @@ import org.geotools.renderer.style.Style2D;
 
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Polygon;
 
 /**
  * A simple class that knows how to paint a Shape object onto a Graphic given a
@@ -92,8 +91,7 @@ public final class StyledShapePainter {
 			final Style2D style, final double scale) {
 		if (style == null) {
 			// TODO: what's going on? Should not be reached...
-			LOGGER
-					.severe("ShapePainter has been asked to paint a null style!!");
+			LOGGER.severe("ShapePainter has been asked to paint a null style!!");
 
 			return;
 		}
@@ -167,25 +165,12 @@ public final class StyledShapePainter {
 					Paint paint = ps2d.getFill();
 
 					if (paint instanceof TexturePaint) {
-//						TexturePaint tp = (TexturePaint) paint;
-//						BufferedImage image = tp.getImage();
-//						Rectangle2D rect = tp.getAnchorRect();
-//						AffineTransform at = graphics.getTransform();
-//						double width = rect.getWidth() * at.getScaleX();
-//						double height = -1.0 * rect.getHeight()
-//								* at.getScaleY();// DJB: -1 because its
-//						// flipped upside down by
-//						// default. This flips it
-//						// up.
-//						Rectangle2D scaledRect = new Rectangle2D.Double(0, 0,
-//								width, height);
-//						paint = new TexturePaint(image, scaledRect);
 					    paint = (TexturePaint) paint;
 					}
 
 					graphics.setPaint(paint);
 					graphics.setComposite(ps2d.getFillComposite());
-					graphics.fill(shape);
+					fillLiteShape(graphics, shape);
 				}
 			}
 
@@ -451,6 +436,30 @@ public final class StyledShapePainter {
 		graphics.setTransform(temp);
 
 		return;
+	}
+	
+	/**
+	 * Filling multipolygons might result in holes where two polygons overlap. In this method we
+	 * work around that by drawing each polygon as a separate shape
+	 * @param g
+	 * @param shape
+	 */
+	void fillLiteShape(Graphics2D g, LiteShape2 shape) {
+	    if(shape.getGeometry() instanceof MultiPolygon && shape.getGeometry().getNumGeometries() > 1) {
+	        MultiPolygon mp = (MultiPolygon) shape.getGeometry();
+	        for (int i = 0; i < mp.getNumGeometries(); i++) {
+                Polygon p = (Polygon) mp.getGeometryN(i);
+                try {
+                    g.fill(new LiteShape2(p, null, null, false, false));
+                } catch(Exception e) {
+                    // should not really happen, but anyways
+                    throw new RuntimeException("Unexpected error occurred while rendering a multipolygon", e);
+                }
+            }
+	    } else {
+	        g.fill(shape);
+	    }
+	    
 	}
 
 }

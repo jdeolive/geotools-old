@@ -20,10 +20,6 @@ package org.geotools.styling;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.measure.quantity.Length;
-import javax.measure.unit.Unit;
-
-import org.geotools.util.Utilities;
 import org.opengis.filter.expression.Expression;
 import org.opengis.style.StyleVisitor;
 
@@ -39,12 +35,8 @@ import org.opengis.style.StyleVisitor;
  * @source $URL: http://svn.osgeo.org/geotools/trunk/modules/library/main/src/main/java/org/geotools/styling/PolygonSymbolizerImpl.java $
  * @version $Id: PolygonSymbolizerImpl.java 33833 2009-09-04 12:26:28Z jive $
  */
-public class VendorSymbolizerImpl implements ExtensionSymbolizer {
+public class VendorSymbolizerImpl extends AbstractSymbolizer implements ExtensionSymbolizer {
     
-    private DescriptionImpl description;
-    private String name;
-    private Unit<Length> uom;
-    private String geometryName = null;
     private String extensionName;
     private Map<String, Expression> parameters = new HashMap<String, Expression>();
 
@@ -54,114 +46,42 @@ public class VendorSymbolizerImpl implements ExtensionSymbolizer {
     protected VendorSymbolizerImpl() {
     }
     
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
     
-    public Description getDescription() {
-        return description;
-    }
     
-    public void setDescription(org.opengis.style.Description description) {
-        this.description = DescriptionImpl.cast( description );
-    }
-    
-    /**
-     * This property defines the geometry to be used for styling.<br>
-     * The property is optional and if it is absent (null) then the "default"
-     * geometry property of the feature should be used. Geometry types other
-     * than inherently area types can be used. If a line is used then the line
-     * string is closed for filling (only) by connecting its end point to its
-     * start point. The geometryPropertyName is the name of a geometry
-     * property in the Feature being styled.  Typically, features only have
-     * one geometry so, in general, the need to select one is not required.
-     * Note: this moves a little away from the SLD spec which provides an
-     * XPath reference to a Geometry object, but does follow it in spirit.
-     *
-     * @return The name of the attribute in the feature being styled  that
-     *         should be used.  If null then the default geometry should be
-     *         used.
-     */
-    public String getGeometryPropertyName() {
-        return geometryName;
-    }
-
-    /**
-     * Sets the GeometryPropertyName.
-     *
-     * @param name The name of the GeometryProperty.
-     *
-     * @see #PolygonSymbolizerImpl.geometryPropertyName()
-     */
-    public void setGeometryPropertyName(String name) {
-        geometryName = name;
-    }
-
-    public Unit<Length> getUnitOfMeasure() {
-        return uom;
-    }
-
-    public void setUnitOfMeasure(Unit<Length> uom) {
-        this.uom = uom;
-    }
-
-
-    /**
-     * Generates a hashcode for the PolygonSymbolizerImpl.
-     *
-     * @return A hashcode.
-     */
+    @Override
     public int hashCode() {
-        final int PRIME = 1000003;
-        int result = 0;
-
-        if (geometryName != null) {
-            result = (PRIME * result) + geometryName.hashCode();
-        }
-        
-        if (description != null) {
-            result = (PRIME * result) + description.hashCode();
-        }
-        
-        if (uom != null) {
-            result = (PRIME * result) + uom.hashCode();
-        }
-                
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((extensionName == null) ? 0 : extensionName.hashCode());
+        result = prime * result + ((parameters == null) ? 0 : parameters.hashCode());
         return result;
     }
 
-    /**
-     * Compares this PolygonSymbolizerImpl with another.
-     * 
-     * <p>
-     * Two PolygonSymbolizerImpls are equal if they have the same
-     * geometryProperty, fill and stroke.
-     * </p>
-     *
-     * @param oth the object to compare against.
-     *
-     * @return true if oth is equal to this object.
-     */
-    public boolean equals(Object oth) {
-        if (this == oth) {
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
             return true;
-        }
-
-        if (oth instanceof VendorSymbolizerImpl) {
-            VendorSymbolizerImpl other = (VendorSymbolizerImpl) oth;
-
-            return Utilities.equals(this.geometryName,
-                other.geometryName)
-            && Utilities.equals(description, other.description)
-            && Utilities.equals(uom, other.uom);
-        }
-
-        return false;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        VendorSymbolizerImpl other = (VendorSymbolizerImpl) obj;
+        if (extensionName == null) {
+            if (other.extensionName != null)
+                return false;
+        } else if (!extensionName.equals(other.extensionName))
+            return false;
+        if (parameters == null) {
+            if (other.parameters != null)
+                return false;
+        } else if (!parameters.equals(other.parameters))
+            return false;
+        return true;
     }
+
+
 
     static VendorSymbolizerImpl cast(org.opengis.style.Symbolizer symbolizer) {
         if( symbolizer == null ){

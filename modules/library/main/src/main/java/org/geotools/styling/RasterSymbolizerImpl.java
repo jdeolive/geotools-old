@@ -36,11 +36,8 @@ import org.opengis.style.StyleVisitor;
  * @author Johann Sorel (Geomatys)
  * @source $URL$
  */
-public class RasterSymbolizerImpl implements RasterSymbolizer {
+public class RasterSymbolizerImpl extends AbstractSymbolizer implements RasterSymbolizer {
     
-    private DescriptionImpl description;
-    private String name;
-    private Unit<Length> uom;
     private OverlapBehavior behavior;
     
     // TODO: make container ready
@@ -63,104 +60,86 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
     }
     
     public RasterSymbolizerImpl(FilterFactory factory, Description desc, String name, Unit<Length> uom, OverlapBehavior behavior) {
+        super(name, desc, "raster", uom);
         this.filterFactory = factory;
         this.opacity = filterFactory.literal(1.0);
         this.overlap = filterFactory.literal(OverlapBehavior.RANDOM);
-        this.description = DescriptionImpl.cast(desc);
-        this.name = name;
-        this.uom = uom;
         this.behavior = behavior;
     }
     
 
-    public String getName() {
-        return name;
-    }
-    
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public DescriptionImpl getDescription() {
-        return description;
-    }
-    
-    public void setDescription(org.opengis.style.Description description) {
-        this.description = DescriptionImpl.cast(description);
-    }
-    public Unit<Length> getUnitOfMeasure() {
-        return uom;
-    }
-    
-    public void setUnitOfMeasure(Unit<Length> uom) {
-    	this.uom = uom;
-	}
-
     @Override
     public int hashCode() {
-        final int PRIME = 1000003;
-        int result = 0;
-
-        if (geometryName != null){
-            result = (PRIME * result) +  geometryName.hashCode();
-        }
-
-        if (channelSelection != null) {
-            result = (PRIME * result) + channelSelection.hashCode();
-        }
-        
-        if (colorMap != null) {
-            result = (PRIME * result) + colorMap.hashCode();
-        }
-
-        if (contrastEnhancement != null) {
-            result = (PRIME * result) + contrastEnhancement.hashCode();
-        }
-
-        if(shadedRelief != null){
-            result = (PRIME * result) +  shadedRelief.hashCode();
-        }
-        
-        if(opacity != null){
-            result = (PRIME * result) +  opacity.hashCode();
-        }
-        
-        if(overlap != null){
-            result = (PRIME * result) +  overlap.hashCode();
-        }
-        
-        if(description != null){
-            result = (PRIME * result) +  description.hashCode();
-        }
-        
-        if(uom != null){
-            result = (PRIME * result) +  uom.hashCode();
-        }
-        
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((behavior == null) ? 0 : behavior.hashCode());
+        result = prime * result + ((channelSelection == null) ? 0 : channelSelection.hashCode());
+        result = prime * result + ((colorMap == null) ? 0 : colorMap.hashCode());
+        result = prime * result
+                + ((contrastEnhancement == null) ? 0 : contrastEnhancement.hashCode());
+        result = prime * result + ((filterFactory == null) ? 0 : filterFactory.hashCode());
+        result = prime * result + ((opacity == null) ? 0 : opacity.hashCode());
+        result = prime * result + ((overlap == null) ? 0 : overlap.hashCode());
+        result = prime * result + ((shadedRelief == null) ? 0 : shadedRelief.hashCode());
+        result = prime * result + ((symbolizer == null) ? 0 : symbolizer.hashCode());
         return result;
     }
-    
+
     @Override
     public boolean equals(Object obj) {
-    	if (this == obj) {
+        if (this == obj)
             return true;
-        }
-
-        if (obj instanceof RasterSymbolizerImpl) {
-        	RasterSymbolizerImpl other = (RasterSymbolizerImpl) obj;
-
-            return Utilities.equals(this.geometryName, other.geometryName)
-            && Utilities.equals(channelSelection, other.channelSelection)
-            && Utilities.equals(colorMap, other.colorMap)
-            && Utilities.equals(contrastEnhancement, other.contrastEnhancement)
-            && Utilities.equals(shadedRelief, other.shadedRelief)
-            && Utilities.equals(opacity, other.opacity)
-            && Utilities.equals(overlap, other.overlap)
-            && Utilities.equals(description, other.description)
-            && Utilities.equals(uom, other.uom);
-        }
-
-        return false;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        RasterSymbolizerImpl other = (RasterSymbolizerImpl) obj;
+        if (behavior == null) {
+            if (other.behavior != null)
+                return false;
+        } else if (!behavior.equals(other.behavior))
+            return false;
+        if (channelSelection == null) {
+            if (other.channelSelection != null)
+                return false;
+        } else if (!channelSelection.equals(other.channelSelection))
+            return false;
+        if (colorMap == null) {
+            if (other.colorMap != null)
+                return false;
+        } else if (!colorMap.equals(other.colorMap))
+            return false;
+        if (contrastEnhancement == null) {
+            if (other.contrastEnhancement != null)
+                return false;
+        } else if (!contrastEnhancement.equals(other.contrastEnhancement))
+            return false;
+        if (filterFactory == null) {
+            if (other.filterFactory != null)
+                return false;
+        } else if (!filterFactory.equals(other.filterFactory))
+            return false;
+        if (opacity == null) {
+            if (other.opacity != null)
+                return false;
+        } else if (!opacity.equals(other.opacity))
+            return false;
+        if (overlap == null) {
+            if (other.overlap != null)
+                return false;
+        } else if (!overlap.equals(other.overlap))
+            return false;
+        if (shadedRelief == null) {
+            if (other.shadedRelief != null)
+                return false;
+        } else if (!shadedRelief.equals(other.shadedRelief))
+            return false;
+        if (symbolizer == null) {
+            if (other.symbolizer != null)
+                return false;
+        } else if (!symbolizer.equals(other.symbolizer))
+            return false;
+        return true;
     }
 
     /**
@@ -222,18 +201,6 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
         return contrastEnhancement;
     }
 
-    /**
-     * The interpretation of Geometry is system-dependent, as raster data may
-     * be organized differently from feature data, though omitting this
-     * element selects the default raster-data source.  Geometry-type
-     * transformations are also system-dependent and it is assumed that this
-     * capability will be little used.
-     *
-     * @return the name of the geometry
-     */
-    public String getGeometryPropertyName() {
-        return geometryName;
-    }
 
     /**
      * The ImageOutline element specifies that individual source rasters in a
@@ -384,22 +351,6 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
             return;
         }
         this.contrastEnhancement = ContrastEnhancementImpl.cast( contrastEnhancement );
-    }
-
-    /**
-     * The interpretation of Geometry is system-dependent, as raster data may
-     * be organized differently from feature data, though omitting this
-     * element selects the default raster-data source.  Geometry-type
-     * transformations are also system-dependent and it is assumed that this
-     * capability will be little used.
-     *
-     * @param geometryName the name of the Geometry
-     */
-    public void setGeometryPropertyName(String geometryName) {
-        if (this.geometryName == geometryName) {
-            return;
-        }
-        this.geometryName = geometryName;
     }
 
     /**

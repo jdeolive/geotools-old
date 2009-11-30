@@ -20,8 +20,6 @@ package org.geotools.styling;
 import javax.measure.quantity.Length;
 import javax.measure.unit.Unit;
 
-import org.geotools.util.Utilities;
-
 import org.opengis.filter.expression.Expression;
 import org.opengis.style.StyleVisitor;
 import org.opengis.util.Cloneable;
@@ -36,17 +34,13 @@ import org.opengis.util.Cloneable;
  * @source $URL$
  * @version $Id$
  */
-public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
+public class PolygonSymbolizerImpl extends AbstractSymbolizer implements PolygonSymbolizer, Cloneable {
     
-    private DescriptionImpl description;
-    private String name;
     private Expression offset;
-    private Unit<Length> uom;
     private DisplacementImpl disp;
     
     private Fill fill = new FillImpl();
     private StrokeImpl stroke = new StrokeImpl();
-    private String geometryName = null;
 
     /**
      * Creates a new instance of DefaultPolygonStyler
@@ -62,72 +56,14 @@ public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
             Unit<Length> uom, 
             String geom, 
             String name, 
-            Description desc){
+            Description desc) {
+        super(name, desc, geom, uom);
         this.stroke = StrokeImpl.cast( stroke );
         this.fill = fill;
         this.disp = DisplacementImpl.cast( disp );
         this.offset = offset;
-        this.uom = uom;
-        this.geometryName = geom;
-        this.name = name;
-        this.description = DescriptionImpl.cast( desc );
     }
     
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-    
-    public Description getDescription() {
-        return description;
-    }
-    
-    public void setDescription(org.opengis.style.Description description) {
-        this.description = DescriptionImpl.cast( description );
-    }
-    
-    /**
-     * This property defines the geometry to be used for styling.<br>
-     * The property is optional and if it is absent (null) then the "default"
-     * geometry property of the feature should be used. Geometry types other
-     * than inherently area types can be used. If a line is used then the line
-     * string is closed for filling (only) by connecting its end point to its
-     * start point. The geometryPropertyName is the name of a geometry
-     * property in the Feature being styled.  Typically, features only have
-     * one geometry so, in general, the need to select one is not required.
-     * Note: this moves a little away from the SLD spec which provides an
-     * XPath reference to a Geometry object, but does follow it in spirit.
-     *
-     * @return The name of the attribute in the feature being styled  that
-     *         should be used.  If null then the default geometry should be
-     *         used.
-     */
-    public String getGeometryPropertyName() {
-        return geometryName;
-    }
-
-    /**
-     * Sets the GeometryPropertyName.
-     *
-     * @param name The name of the GeometryProperty.
-     *
-     * @see #PolygonSymbolizerImpl.geometryPropertyName()
-     */
-    public void setGeometryPropertyName(String name) {
-        geometryName = name;
-    }
-
-    public Unit<Length> getUnitOfMeasure() {
-        return uom;
-    }
-
-    public void setUnitOfMeasure(Unit<Length> uom) {
-        this.uom = uom;
-    }
-
     public Expression getPerpendicularOffset() {
         return offset;
     }
@@ -230,77 +166,47 @@ public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
         return clone;
     }
 
-    /**
-     * Generates a hashcode for the PolygonSymbolizerImpl.
-     *
-     * @return A hashcode.
-     */
+    @Override
     public int hashCode() {
-        final int PRIME = 1000003;
-        int result = 0;
-
-        if (fill != null) {
-            result = (PRIME * result) + fill.hashCode();
-        }
-
-        if (stroke != null) {
-            result = (PRIME * result) + stroke.hashCode();
-        }
-
-        if (geometryName != null) {
-            result = (PRIME * result) + geometryName.hashCode();
-        }
-        
-        if (description != null) {
-            result = (PRIME * result) + description.hashCode();
-        }
-        
-        if (uom != null) {
-            result = (PRIME * result) + uom.hashCode();
-        }
-        
-        if (offset != null) {
-            result = (PRIME * result) + offset.hashCode();
-        }
-
-        if (disp != null) {
-            result = (PRIME * result) + disp.hashCode();
-        }
-        
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((disp == null) ? 0 : disp.hashCode());
+        result = prime * result + ((fill == null) ? 0 : fill.hashCode());
+        result = prime * result + ((offset == null) ? 0 : offset.hashCode());
+        result = prime * result + ((stroke == null) ? 0 : stroke.hashCode());
         return result;
     }
 
-    /**
-     * Compares this PolygonSymbolizerImpl with another.
-     * 
-     * <p>
-     * Two PolygonSymbolizerImpls are equal if they have the same
-     * geometryProperty, fill and stroke.
-     * </p>
-     *
-     * @param oth the object to compare against.
-     *
-     * @return true if oth is equal to this object.
-     */
-    public boolean equals(Object oth) {
-        if (this == oth) {
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
             return true;
-        }
-
-        if (oth instanceof PolygonSymbolizerImpl) {
-            PolygonSymbolizerImpl other = (PolygonSymbolizerImpl) oth;
-
-            return Utilities.equals(this.geometryName,
-                other.geometryName)
-            && Utilities.equals(fill, other.fill)
-            && Utilities.equals(stroke, other.stroke)
-            && Utilities.equals(description, other.description)
-            && Utilities.equals(disp, other.disp)
-            && Utilities.equals(offset, other.offset)
-            && Utilities.equals(uom, other.uom);
-        }
-
-        return false;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        PolygonSymbolizerImpl other = (PolygonSymbolizerImpl) obj;
+        if (disp == null) {
+            if (other.disp != null)
+                return false;
+        } else if (!disp.equals(other.disp))
+            return false;
+        if (fill == null) {
+            if (other.fill != null)
+                return false;
+        } else if (!fill.equals(other.fill))
+            return false;
+        if (offset == null) {
+            if (other.offset != null)
+                return false;
+        } else if (!offset.equals(other.offset))
+            return false;
+        if (stroke == null) {
+            if (other.stroke != null)
+                return false;
+        } else if (!stroke.equals(other.stroke))
+            return false;
+        return true;
     }
 
     static PolygonSymbolizerImpl cast(org.opengis.style.Symbolizer symbolizer) {

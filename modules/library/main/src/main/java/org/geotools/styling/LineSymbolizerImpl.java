@@ -20,8 +20,6 @@ package org.geotools.styling;
 import javax.measure.quantity.Length;
 import javax.measure.unit.Unit;
 
-import org.geotools.util.Utilities;
-
 import org.opengis.filter.expression.Expression;
 import org.opengis.style.StyleVisitor;
 import org.opengis.util.Cloneable;
@@ -36,15 +34,11 @@ import org.opengis.util.Cloneable;
  * @source $URL$
  * @version $Id$
  */
-public class LineSymbolizerImpl implements LineSymbolizer, Cloneable {
+public class LineSymbolizerImpl extends AbstractSymbolizer implements LineSymbolizer, Cloneable {
     
-    private Description description;
-    private String name;
     private Expression offset;
     
-    private Unit<Length> uom = null;
     private StrokeImpl stroke = null;
-    private String geometryName = null;
 
     /**
      * Creates a new instance of DefaultLineSymbolizer
@@ -53,67 +47,8 @@ public class LineSymbolizerImpl implements LineSymbolizer, Cloneable {
         this(null,null,null,null,null,null);
     }
     
-    protected LineSymbolizerImpl(Stroke stroke, Expression offset, Unit<Length> uom, String geom, String name, Description desc){
-        this.stroke = StrokeImpl.cast( stroke );
-        this.offset = offset;
-        this.uom = uom;
-        this.geometryName = geom;
-        this.name = name;
-        this.description = desc;
-    }
-
-    public String getName() {
-        return name;
-    }
-    public void setName(String name) {
-        this.name = name;
-    }
-    public Description getDescription() {
-        return description;
-    }
-    
-    public void setDescription(org.opengis.style.Description description) {
-        this.description = DescriptionImpl.cast( description );
-    }
-    /**
-     * This property defines the geometry to be used for styling.<br>
-     * The property is optional and if it is absent (null) then the "default"
-     * geometry property of the feature should be used.  Geometry types other
-     * than inherently linear types can be used.  If a point geometry is used,
-     * it should be interpreted as a line of zero length and two end caps.  If
-     * a polygon is used (or other "area" type) then its closed outline should
-     * be used as the line string (with no end caps). The geometryPropertyName
-     * is the name of a geometry property in the Feature being styled.
-     * Typically, features only have one geometry so, in general, the need to
-     * select one is not required. Note: this moves a little away from the SLD
-     * spec which provides an XPath reference to a Geometry object, but does
-     * follow it in spirit.
-     *
-     * @return The name of the attribute in the feature being styled  that
-     *         should be used.  If null then the default geometry should be
-     *         used.
-     */
-    public String getGeometryPropertyName() {
-        return geometryName;
-    }
-
-    /**
-     * Sets the GeometryPropertyName.
-     *
-     * @param name The name of the geometryProperty.
-     *
-     * @see #LineSymbolizerImpl.geometryPropertyName()
-     */
-    public void setGeometryPropertyName(String name) {
-        geometryName = name;
-    }
-
-    public Unit<Length> getUnitOfMeasure() {
-        return uom;
-    }
-
-    public void setUnitOfMeasure(Unit<Length> uom) {
-        this.uom = uom;
+    protected LineSymbolizerImpl(Stroke stroke, Expression offset, Unit<Length> uom, String geom, String name, Description desc) {
+        super(name, desc, geom, uom);
     }
 
     public Expression getPerpendicularOffset() {
@@ -184,108 +119,47 @@ public class LineSymbolizerImpl implements LineSymbolizer, Cloneable {
         return clone;
     }
 
-    /**
-     * Generates a hashcode for the LineSymbolizerImpl.
-     *
-     * @return A hashcode.
-     */
-    public int hashCode() {
-        final int PRIME = 1000003;
-        int result = 0;
-
-        if (name != null) {
-            result = (PRIME * result) + name.hashCode();
-        }
-        
-        if (stroke != null) {
-            result = (PRIME * result) + stroke.hashCode();
-        }
-
-        if (geometryName != null) {
-            result = (PRIME * result) + geometryName.hashCode();
-        }
-
-        if(uom != null){
-            result = (PRIME * result) +  uom.hashCode();
-        }
-        
-        if(description != null){
-            result = (PRIME * result) +  description.hashCode();
-        }
-        
-        if(offset != null){
-            result = (PRIME * result) +  offset.hashCode();
-        }
-        
-        return result;
-    }
-
-    /**
-     * Compares this LineSymbolizerImpl with another for  equality.
-     * 
-     * <p>
-     * Two LineSymbolizerImpls are equal if they have the same
-     * geometryPropertyName and the same stroke.
-     * </p>
-     *
-     * @param oth The other LineSymbolizerImpl
-     *
-     * @return True if this and oth are equal.
-     */
-    public boolean equals(Object oth) {
-        if (this == oth) {
-            return true;
-        }
-
-        if (oth == null) {
-            return false;
-        }
-
-        if (oth.getClass() != getClass()) {
-            return false;
-        }
-
-        LineSymbolizerImpl other = (LineSymbolizerImpl) oth;
-
-        if (this.geometryName == null) {
-            if (other.geometryName != null) {
-                return false;
-            }
-        } else {
-            if (!this.geometryName.equals(other.geometryName)) {
-                return false;
-            }
-        }
-
-        if(!Utilities.equals( getStroke(), other.getStroke())){
-            return false;
-        }
-        
-        if(!Utilities.equals( uom, other.uom)){
-            return false;
-        }
-        
-        if(!Utilities.equals( description, other.description)){
-            return false;
-        }
-        
-        if(!Utilities.equals( offset, other.offset)){
-            return false;
-        }
-        
-        return true;
-    }
-    
     public String toString() {
         StringBuffer buf = new StringBuffer();
         buf.append("<LineSymbolizerImp property=");
-        buf.append( geometryName );
+        buf.append( getGeometryPropertyName() );
         buf.append( " uom=");
-        buf.append( uom );
+        buf.append( unitOfMeasure );
         buf.append( " stroke=");
         buf.append( stroke );
         buf.append(">");
         return buf.toString();
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((offset == null) ? 0 : offset.hashCode());
+        result = prime * result + ((stroke == null) ? 0 : stroke.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        LineSymbolizerImpl other = (LineSymbolizerImpl) obj;
+        if (offset == null) {
+            if (other.offset != null)
+                return false;
+        } else if (!offset.equals(other.offset))
+            return false;
+        if (stroke == null) {
+            if (other.stroke != null)
+                return false;
+        } else if (!stroke.equals(other.stroke))
+            return false;
+        return true;
     }
 
     static LineSymbolizerImpl cast(org.opengis.style.Symbolizer symbolizer) {

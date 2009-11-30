@@ -323,6 +323,16 @@ public class DuplicatorStyleVisitorTest extends TestCase {
         assertEquals(1, clone.getOptions().size());
         assertEquals("100", clone.getOptions().get("autoWrap"));
     }
+    
+    public void testTextSymbolizerVendorOptions() {
+        TextSymbolizer textSymb = sf.createTextSymbolizer();
+        textSymb.getOptions().put("autoWrap", "100");
+
+        textSymb.accept(visitor);
+        TextSymbolizer clone = (TextSymbolizer) visitor.getCopy();
+        assertCopy(textSymb, clone);
+        assertEqualsContract(textSymb, clone);
+    }
 
     public void testTextSymbolizerWithUOM() {
         TextSymbolizer textSymb = sf.createTextSymbolizer();

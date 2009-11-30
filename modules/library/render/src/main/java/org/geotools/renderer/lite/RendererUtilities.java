@@ -51,6 +51,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
+import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
@@ -680,7 +681,9 @@ public final class RendererUtilities {
      * @param g
      */
     public static Geometry getCentroid(Geometry g) {
-        if (g instanceof GeometryCollection) {
+        if(g instanceof MultiPoint) {
+            return g;
+        } else if (g instanceof GeometryCollection) {
             final GeometryCollection gc = (GeometryCollection) g;
             final Coordinate[] pts = new Coordinate[gc.getNumGeometries()];
             final int length = gc.getNumGeometries();

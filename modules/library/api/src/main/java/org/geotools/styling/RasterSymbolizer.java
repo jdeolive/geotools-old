@@ -121,17 +121,6 @@ import org.opengis.style.OverlapBehavior;
  */
 public interface RasterSymbolizer extends org.opengis.style.RasterSymbolizer,Symbolizer {
     /**
-     * The interpretation of Geometry is system-dependent, as raster data may
-     * be organized differently from feature data, though omitting this
-     * element selects the default raster-data source.  Geometry-type
-     * transformations are also system-dependent and it is assumed that this
-     * capability will be little used.
-     *
-     * @param geometryPropertyName the name of the Geometry
-     */
-    void setGeometryPropertyName(String geometryPropertyName);
-
-    /**
      * sets the opacity for the coverage, it has the usual meaning.
      *
      * @param opacity An expression which evaluates to the the opacity (0-1)

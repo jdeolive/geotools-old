@@ -313,7 +313,7 @@ public class StyleFactoryImpl2 implements org.opengis.style.StyleFactory {
             Expression offset) {
         LineSymbolizerImpl copy = new LineSymbolizerImpl();
         copy.setDescription( description );
-        copy.setGeometryPropertyName(((PropertyName)geometry).getPropertyName() );
+        copy.setGeometry(geometry);
         copy.setName( name );
         copy.setPerpendicularOffset( offset );
         copy.setStroke( stroke );

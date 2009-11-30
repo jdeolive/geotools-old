@@ -20,6 +20,9 @@ package org.geotools.styling;
 import javax.measure.quantity.Length;
 import javax.measure.unit.Unit;
 
+import org.opengis.filter.expression.Expression;
+import org.opengis.filter.expression.PropertyName;
+
 
 
 /**
@@ -102,5 +105,43 @@ public interface Symbolizer extends org.opengis.style.Symbolizer{
      * @param name
      */
     void setName( String name );    
+    
+    /**
+     * A shortcut to get the geometry property name in the case the geometry
+     * expression is a PropertyName. In case the geometry expression is null,
+     * and in the case the geometry expression is not a PropertyName, this
+     * method will return null.
+     */
+    String getGeometryPropertyName();
+
+    /**
+     * A shortcut to define the geometry expression as a {@link PropertyName}
+     * Typically, features only have one geometry so, in general, the need to
+     * select one is not required. Note: this moves a little away from the SLD
+     * spec which provides an XPath reference to a Geometry object, but does
+     * follow it in spirit.
+     */
+    void setGeometryPropertyName(String geometryPropertyName);
+    
+    /**
+     * This defines the geometry to be used for styling.<br>
+     * The property is optional and if it is absent (null) then the "default"
+     * geometry property of the feature should be used.<br>
+     * Typically, features only have one geometry so, in general, the need to
+     * select one is not required.<br>
+     * The expression can also build a new geometry out of existing attributes 
+     * or transform an existing geometry. For geometry transformations that
+     * do change the geometry locations or that make up geometries out of
+     * non geometric attributes it is advised that the Expression implements
+     * the SpatialTransformationFunction interface
+     */
+    Expression getGeometry();
+    
+    /**
+     * Sets the expression used for styling. See {@link #getGeometry()} for further
+     * details.
+     * @param geometry
+     */
+    void setGeometry(Expression geometry);
     
 }

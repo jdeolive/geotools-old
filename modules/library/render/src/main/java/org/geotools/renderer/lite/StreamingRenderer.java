@@ -60,6 +60,7 @@ import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureTypes;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.filter.IllegalFilterException;
+import org.geotools.filter.function.GeometryTransformationVisitor;
 import org.geotools.filter.visitor.SimplifyingFilterVisitor;
 import org.geotools.geometry.jts.Decimator;
 import org.geotools.geometry.jts.LiteCoordinateSequence;
@@ -82,9 +83,7 @@ import org.geotools.renderer.lite.gridcoverage2d.GridCoverageRenderer;
 import org.geotools.renderer.style.SLDStyleFactory;
 import org.geotools.renderer.style.Style2D;
 import org.geotools.styling.FeatureTypeStyle;
-import org.geotools.styling.LineSymbolizer;
 import org.geotools.styling.PointSymbolizer;
-import org.geotools.styling.PolygonSymbolizer;
 import org.geotools.styling.RasterSymbolizer;
 import org.geotools.styling.Rule;
 import org.geotools.styling.StyleAttributeExtractor;
@@ -97,9 +96,11 @@ import org.opengis.coverage.processing.OperationNotFoundException;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
+import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
+import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.PropertyName;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.referencing.FactoryException;
@@ -241,10 +242,8 @@ public final class StreamingRenderer implements GTRenderer {
 
 	private RenderingHints java2dHints;
 
-	private boolean optimizedDataLoadingEnabledDEFAULT = false;
+	private boolean optimizedDataLoadingEnabledDEFAULT = true;
 
-	private boolean memoryPreloadingEnabledDEFAULT = false;
-    
     private int renderingBufferDEFAULT = 0;
     
     private String scaleComputationMethodDEFAULT = SCALE_OGC;
@@ -307,7 +306,6 @@ public final class StreamingRenderer implements GTRenderer {
 	public static final String LABEL_CACHE_KEY = "labelCache";
 	public static final String DPI_KEY = "dpi";
 	public static final String DECLARED_SCALE_DENOM_KEY = "declaredScaleDenominator";
-	public static final String MEMORY_PRE_LOADING_KEY = "memoryPreloadingEnabled";
 	public static final String OPTIMIZED_DATA_LOADING_KEY = "optimizedDataLoadingEnabled";
 	public static final String SCALE_COMPUTATION_METHOD_KEY = "scaleComputationMethod";
     
@@ -657,7 +655,6 @@ public final class StreamingRenderer implements GTRenderer {
             mapExtent = new ReferencedEnvelope(expandEnvelope(mapExtent, worldToScreen, buffer), 
                     mapExtent.getCoordinateReferenceSystem()); 
         }
-        
 
 		// ////////////////////////////////////////////////////////////////////
 		//
@@ -889,13 +886,9 @@ public final class StreamingRenderer implements GTRenderer {
     				}
 				}
 
-				if (!isMemoryPreloadingEnabled()) {
-                    if(LOGGER.isLoggable(Level.FINE))
-                        LOGGER.fine("Querying layer " + schema.getTypeName() +  " with bbox: " + envelope);
-					filter = createBBoxFilters(schema, attributes, envelopes);
-				} else {
-					filter = Filter.INCLUDE;
-				}
+                if(LOGGER.isLoggable(Level.FINE))
+                    LOGGER.fine("Querying layer " + schema.getTypeName() +  " with bbox: " + envelope);
+				filter = createBBoxFilters(schema, attributes, envelopes);
 
 				// now build the query using only the attributes and the
 				// bounding box needed
@@ -938,9 +931,6 @@ public final class StreamingRenderer implements GTRenderer {
 			} else {
 				query = new DefaultQuery(DataUtilities.mixQueries(
 						definitionQuery, query, "liteRenderer"));
-				SimplifyingFilterVisitor simplifier = new SimplifyingFilterVisitor();
-				Filter simplified = (Filter)query.getFilter().accept(simplifier, null);
-				query.setFilter(simplified);
 			}
 		}
 		query.setCoordinateSystem(featCrs);
@@ -979,23 +969,34 @@ public final class StreamingRenderer implements GTRenderer {
         Filter simplifiedFilter = (Filter) query.getFilter().accept(simplifier, null);
         query.setFilter(simplifiedFilter);
 		
-		if (isMemoryPreloadingEnabled()) {
-			// TODO: attache a feature listener, we must erase the memory cache
-			// if
-			// anything changes in the data store
-			if (indexedFeatureResults == null) {
-				indexedFeatureResults = new IndexedFeatureResults(source
-						.getFeatures(query));
-			}
-			indexedFeatureResults.setQueryBounds(envelope);
-			results = indexedFeatureResults;
-		} else { // insert a debug point here to check your query
-			results = source.getFeatures(query);
-		}
-		
-		
-		return results;
+		return source.getFeatures(query);
 	}
+
+    
+	/**
+	 * Takes care of eventual geometric transformations
+	 * @param styles
+	 * @param envelope
+	 * @return
+	 */
+    ReferencedEnvelope expandEnvelopeByTransformations(LiteFeatureTypeStyle[] styles,
+            ReferencedEnvelope envelope) {
+        GeometryTransformationVisitor visitor = new GeometryTransformationVisitor();
+        ReferencedEnvelope result = new ReferencedEnvelope(envelope);
+        for (LiteFeatureTypeStyle lts : styles) {
+            List<Rule> rules = new ArrayList<Rule>();
+            rules.addAll(Arrays.asList(lts.ruleList));
+            rules.addAll(Arrays.asList(lts.elseRules));
+            for (Rule r : rules) {
+                for (Symbolizer s : r.symbolizers()) {
+                    if(s.getGeometry() != null)
+                    result.expandToInclude((ReferencedEnvelope) s.getGeometry().accept(visitor, envelope));
+                }
+            }
+         }
+        
+        return result;
+    }
 
     /**
      * Builds a full transform going from the source CRS to the denstionan CRS
@@ -1165,23 +1166,6 @@ public final class StreamingRenderer implements GTRenderer {
 		}
 	}
 
-	/**
-	 * @deprecated this method shall be killed, its of no use
-	 */
-	private boolean isMemoryPreloadingEnabled() {
-		if (rendererHints == null)
-			return memoryPreloadingEnabledDEFAULT;
-		Object result = null;
-		try{
-			result =  rendererHints.get("memoryPreloadingEnabled");
-		}catch (ClassCastException e) {
-			
-		}
-		if (result == null)
-			return memoryPreloadingEnabledDEFAULT;
-		return ((Boolean)result).booleanValue();
-	}
-	
 	/**
      * Checks if optimized feature type style rendering is enabled, or not.
      * See {@link #OPTIMIZE_FTS_RENDERING_KEY} description for a full explanation.
@@ -1813,7 +1797,8 @@ public final class StreamingRenderer implements GTRenderer {
                 return; // nothing to do
 
             try {
-                RenderableFeature rf = new RenderableFeature(currLayer);
+                boolean clone = isCloningRequired(currLayer, fts_array);
+                RenderableFeature rf = new RenderableFeature(currLayer, clone);
                 // loop exit condition tested inside try catch
                 // make sure we test hasNext() outside of the try/cath that follows, as that
                 // one is there to make sure a single feature error does not ruin the rendering
@@ -1837,7 +1822,7 @@ public final class StreamingRenderer implements GTRenderer {
                 }
             }
         }
-	    }
+	}
 
 	/**
 	 * Performs rendering so that the collection is scanned only once even in presence
@@ -1857,7 +1842,8 @@ public final class StreamingRenderer implements GTRenderer {
 				.toArray(new LiteFeatureTypeStyle[lfts.size()]);
 
 		try {
-			RenderableFeature rf = new RenderableFeature(currLayer);
+		    boolean clone = isCloningRequired(currLayer, fts_array);
+			RenderableFeature rf = new RenderableFeature(currLayer, clone);
 			// loop exit condition tested inside try catch
             // make sure we test hasNext() outside of the try/cath that follows, as that
             // one is there to make sure a single feature error does not ruin the rendering
@@ -1897,8 +1883,58 @@ public final class StreamingRenderer implements GTRenderer {
 				fts_array[t].graphics.dispose();
 			}
 		}
-
 	}
+    
+    /**
+     * Tells if geometry cloning is required or not
+     */
+    private boolean isCloningRequired(MapLayer layer, LiteFeatureTypeStyle[] lfts) {
+        // check if the features are detached, we can thus modify the geometries in place
+        final Set<Key> hints = layer.getFeatureSource().getSupportedHints();
+        if(!hints.contains(Hints.FEATURE_DETACHED))
+            return true;
+        
+        // check if there is any conflicting geometry transformation.
+        // No geometry transformations -> we can modify geometries in place
+        // Just one geometry transformation over an attribute -> we can modify geometries in place
+        // Two tx over the same attribute, or straight usage and a tx -> we have to preserve the 
+        // original geometry as well, thus we need cloning
+        StyleAttributeExtractor extractor = new StyleAttributeExtractor();
+        FeatureType featureType = layer.getFeatureSource().getSchema();
+        Set<String> plainGeometries = new java.util.HashSet<String>();
+        Set<String> txGeometries = new java.util.HashSet<String>();
+        for (LiteFeatureTypeStyle lft : lfts) {
+            for(Rule r: lft.ruleList) {
+                for(Symbolizer s: r.symbolizers()) {
+                    if(s.getGeometry() == null) {
+                        String attribute = featureType.getGeometryDescriptor().getName().getLocalPart();
+                        if(txGeometries.contains(attribute))
+                            return true;
+                        plainGeometries.add(attribute);
+                    } else if(s.getGeometry() instanceof PropertyName) {
+                        String attribute = ((PropertyName) s.getGeometry()).getPropertyName();
+                        if(txGeometries.contains(attribute))
+                            return true;
+                        plainGeometries.add(attribute);
+                    } else {
+                        Expression g = s.getGeometry();
+                        extractor.clear();
+                        g.accept(extractor, null);
+                        Set<String> attributes = extractor.getAttributeNameSet();
+                        for (String attribute : attributes) {
+                            if(plainGeometries.contains(attribute))
+                                return true;
+                            if(txGeometries.contains(attribute))
+                                return true;
+                            txGeometries.add(attribute);
+                        }
+                    }
+                }
+            }
+        }
+        
+        return false;
+    }
 
 	/**
 	 * @param rf
@@ -2158,17 +2194,17 @@ public final class StreamingRenderer implements GTRenderer {
 	 */
 	private com.vividsolutions.jts.geom.Geometry findGeometry(Object drawMe,
 			Symbolizer s) {
-		PropertyName geomName = getGeometryPropertyName(s);
+		Expression geomExpr = s.getGeometry();
 
 		// get the geometry
 		Geometry geom;
-		if(geomName == null) {
+		if(geomExpr == null) {
 		    if(drawMe instanceof SimpleFeature)
 		        geom = (Geometry) ((SimpleFeature) drawMe).getDefaultGeometry();
 		    else
 		        geom = (Geometry) defaultGeometryPropertyName.evaluate(drawMe, Geometry.class);
 		} else {
-		    geom = (Geometry) geomName.evaluate(drawMe, Geometry.class);
+		    geom = (Geometry) geomExpr.evaluate(drawMe, Geometry.class);
 		}
 		    
 		return geom;    
@@ -2188,18 +2224,27 @@ public final class StreamingRenderer implements GTRenderer {
 
         if( drawMe instanceof SimpleFeature ){
             SimpleFeature f = (SimpleFeature) drawMe;
+            SimpleFeatureType schema = f.getFeatureType();
         
-            PropertyName propertyName = getGeometryPropertyName(s);
-            String geomName = propertyName != null ? propertyName.getPropertyName() : null;        
-            if (geomName == null || "".equals(geomName)) {
-                SimpleFeatureType schema = f.getFeatureType();
-                GeometryDescriptor geom = schema.getGeometryDescriptor();
-                return geom.getType().getCoordinateReferenceSystem();
+            Expression geometry = s.getGeometry();
+            
+            String geomName = null;
+            if(geometry instanceof PropertyName) {
+                geomName = ((PropertyName) geometry).getPropertyName();
+                return getAttributeCRS(geomName, schema);
+            } else if(geometry == null) {
+                return getAttributeCRS(null, schema);
             } else {
-                SimpleFeatureType schema = f.getFeatureType();
-                GeometryDescriptor geom = (GeometryDescriptor) schema.getDescriptor( geomName );
-                return geom.getType().getCoordinateReferenceSystem();
+                StyleAttributeExtractor attExtractor = new StyleAttributeExtractor();
+                geometry.accept(attExtractor, null);
+                for(String name : attExtractor.getAttributeNameSet()) {
+                    if(schema.getDescriptor(name) instanceof GeometryDescriptor) {
+                        return getAttributeCRS(name, schema);
+                    }
+                }
             }
+            
+            
         } else if ( currLayer.getSource() != null ) {
         	return currLayer.getSource().getCRS();
         }
@@ -2207,27 +2252,22 @@ public final class StreamingRenderer implements GTRenderer {
         return null;
 	}
 
-	private PropertyName getGeometryPropertyName(Symbolizer s) {
-		String geomName = null;
-
-		// TODO: fix the styles, the getGeometryPropertyName should probably be
-		// moved into an
-		// interface...
-		if (s instanceof PolygonSymbolizer) {
-			geomName = ((PolygonSymbolizer) s).getGeometryPropertyName();
-		} else if (s instanceof PointSymbolizer) {
-			geomName = ((PointSymbolizer) s).getGeometryPropertyName();
-		} else if (s instanceof LineSymbolizer) {
-			geomName = ((LineSymbolizer) s).getGeometryPropertyName();
-		} else if (s instanceof TextSymbolizer) {
-			geomName = ((TextSymbolizer) s).getGeometryPropertyName();
-		}
-                
-        if( geomName == null ){
-            return null;
+	/**
+	 * Finds the CRS of the specified attribute (or uses the default geometry instead)
+	 * @param geomName
+	 * @param schema
+	 * @return
+	 */
+    org.opengis.referencing.crs.CoordinateReferenceSystem getAttributeCRS(String geomName,
+            SimpleFeatureType schema) {
+        if (geomName == null || "".equals(geomName)) {
+            GeometryDescriptor geom = schema.getGeometryDescriptor();
+            return geom.getType().getCoordinateReferenceSystem();
+        } else {
+            GeometryDescriptor geom = (GeometryDescriptor) schema.getDescriptor( geomName );
+            return geom.getType().getCoordinateReferenceSystem();
         }
-		return filterFactory.property(geomName);
-	}
+    }
 
 	/**
 	 * Getter for property interactive.
@@ -2444,10 +2484,9 @@ public final class StreamingRenderer implements GTRenderer {
 		private IdentityHashMap decimators = new IdentityHashMap();
 
 		
-		public RenderableFeature(MapLayer layer) {
+		public RenderableFeature(MapLayer layer, boolean clone) {
 			this.layer = layer;
-			final Set<Key> hints = layer.getFeatureSource().getSupportedHints();
-            this.clone = !hints.contains(Hints.FEATURE_DETACHED);
+			this.clone = clone;
 		}
 		
 		public void setFeature(Object feature) {

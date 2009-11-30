@@ -98,11 +98,6 @@ public interface LineSymbolizer extends org.opengis.style.LineSymbolizer, Symbol
     void setStroke(org.opengis.style.Stroke stroke);
 
     /**
-     * @param geometry property name
-     */
-    void setGeometryPropertyName(String geometryPropertyName);
-
-    /**
      * Define an offset to draw lines in parallel to the original geometry.
      * 
      * @param offset

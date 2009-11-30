@@ -319,9 +319,7 @@ public class SLDTransformer extends TransformerBase {
 
             start("TextSymbolizer", atts);
 
-            if (text.getGeometryPropertyName() != null) {
-                encodeGeometryProperty(text.getGeometryPropertyName());
-            }
+            encodeGeometryExpression(text.getGeometry());
 
             if (text.getLabel() != null) {
                 element("Label", text.getLabel());
@@ -378,9 +376,7 @@ public class SLDTransformer extends TransformerBase {
 
 			start("RasterSymbolizer", atts);
 
-			if (raster.getGeometryPropertyName() != null) {
-				encodeGeometryProperty(raster.getGeometryPropertyName());
-			}
+			encodeGeometryExpression(raster.getGeometry());
 
 			if (raster.getOpacity() != null) {
 				element("Opacity", raster.getOpacity());
@@ -515,7 +511,7 @@ public class SLDTransformer extends TransformerBase {
 				atts.addAttribute("", "uom", "uom", "", UomOgcMapping.get(uom).getSEString());
 
             start("PolygonSymbolizer", atts);
-            encodeGeometryProperty(poly.getGeometryPropertyName());
+            encodeGeometryExpression(poly.getGeometry());
 
             if (poly.getFill() != null) {
                 poly.getFill().accept(this);
@@ -555,7 +551,7 @@ public class SLDTransformer extends TransformerBase {
 				atts.addAttribute("", "uom", "uom", "", UomOgcMapping.get(uom).getSEString());
 
         	start("LineSymbolizer", atts);
-            encodeGeometryProperty(line.getGeometryPropertyName());
+            encodeGeometryExpression(line.getGeometry());
 
             if( line.getStroke() != null ){
                 line.getStroke().accept(this);
@@ -654,7 +650,7 @@ public class SLDTransformer extends TransformerBase {
 
             start("PointSymbolizer", atts);
 
-            encodeGeometryProperty(ps.getGeometryPropertyName());
+            encodeGeometryExpression(ps.getGeometry());
 
             ps.getGraphic().accept(this);
             end("PointSymbolizer");
@@ -981,6 +977,17 @@ public class SLDTransformer extends TransformerBase {
             
             start("Geometry");
             filterTranslator.encode(expression);
+            end("Geometry");
+            
+        }
+        
+        void encodeGeometryExpression(Expression geom) {
+            if ((geom == null)) {
+                return;
+            }
+            
+            start("Geometry");
+            filterTranslator.encode(geom);
             end("Geometry");
             
         }
