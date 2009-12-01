@@ -2524,17 +2524,6 @@ public final class StreamingRenderer implements GTRenderer {
 				symbolizerAssociationHT.put(symbolizer, sa);
 			}
 			
-			if(projectionHandler != null && projectionHandler.requiresProcessing(sa.crs, g)) {
-			    try {
-			        g = projectionHandler.preProcess(sa.crs, g);
-    				if(g == null)
-    					return null;
-    			    } catch(Exception e) {
-    			        LOGGER.log(Level.FINE, "Skipping geometry due to pre-processing issues", e);
-    			        return null;
-    			    }
-			}
-
 			// some shapes may be too close to projection boundaries to
 			// get transformed, try to be lenient
 			try {
@@ -2566,40 +2555,50 @@ public final class StreamingRenderer implements GTRenderer {
 			}
 		}
 		
-		private final LiteShape2 getTransformedShape(Geometry g, SymbolizerAssociation sa) throws TransformException,
+		private final LiteShape2 getTransformedShape(Geometry originalGeom, SymbolizerAssociation sa) throws TransformException,
 				FactoryException {
 				for (int i = 0; i < geometries.size(); i++) {
-					if(geometries.get(i) == g)
+					if(geometries.get(i) == originalGeom)
 						return (LiteShape2) shapes.get(i);
 				}
+				
+				// we need to clone if the clone flag is high or if the coordinate sequence is not the one we asked for
+				Geometry geom = originalGeom;
+				if(clone || !(geom.getFactory().getCoordinateSequenceFactory() instanceof LiteCoordinateSequenceFactory)) {
+                    geom = LiteCoordinateSequence.cloneGeometry(geom);
+                }
 				
 				LiteShape2 shape;
 				if(projectionHandler != null && sa != null) {
 				    // first generalize and transform the geometry into the rendering CRS
-					Decimator d = getDecimator(sa.xform);
-					if(clone || !(g.getFactory().getCoordinateSequenceFactory() instanceof LiteCoordinateSequenceFactory)) {
-					    g = LiteCoordinateSequence.cloneGeometry(g);
-					}
-					d.decimateTransformGeneralize(g, sa.crsxform);
-					g.geometryChanged();
-					
-					// then post process it					
-					g = projectionHandler.postProcess(g);
-					
-					// apply the affine transform turning the coordinates into pixels
-					d = new Decimator(-1, -1);
-					d.decimateTransformGeneralize(g, sa.axform);
-					
-					// wrap into a lite shape
-					shape = new LiteShape2(g, null, null, false, false);
+				    geom = projectionHandler.preProcess(sa.crs, geom);
+                    if(geom == null) {
+                        shape = null;
+                    } else {
+    				    // first generalize and transform the geometry into the rendering CRS
+    					Decimator d = getDecimator(sa.xform);
+    					d.decimateTransformGeneralize(geom, sa.crsxform);
+    					geom.geometryChanged();
+    					
+    					// then post process it					
+    					geom = projectionHandler.postProcess(geom);
+    					
+    					// apply the affine transform turning the coordinates into pixels
+    					d = new Decimator(-1, -1);
+    					d.decimateTransformGeneralize(geom, sa.axform);
+    					
+    					// wrap into a lite shape
+    					shape = new LiteShape2(geom, null, null, false, false);
+                    } 
 				} else {
 				    MathTransform2D xform = null;
 				    if(sa != null)
 				        xform = sa.xform;
-					shape = new LiteShape2(g, xform, getDecimator(xform), false, clone);
+					shape = new LiteShape2(geom, xform, getDecimator(xform), false, false);
 				}
 				
-				geometries.add(g);
+				// cache the result
+				geometries.add(originalGeom);
 				shapes.add(shape);
 				return shape;
 		}
