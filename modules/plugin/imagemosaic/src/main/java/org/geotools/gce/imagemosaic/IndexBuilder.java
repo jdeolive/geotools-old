@@ -1391,44 +1391,7 @@ final class IndexBuilder implements Runnable {
 		final File datastoreProperties= new File(parent,"datastore.properties");
 		if(Utils.checkFileReadable(datastoreProperties))
 		{
-			// read the properties file
-			Properties properties = new Properties();
-			final FileInputStream stream = new FileInputStream(datastoreProperties);
-		    try {
-		        properties.load(stream);
-		    }
-		    finally{
-		    	IOUtils.closeQuietly(stream);
-		    }
-		    // SPI
-		    final String SPIClass=properties.getProperty("SPI");
-		    try {
-		    	// create a datastore as instructed
-				final DataStoreFactorySpi spi= (DataStoreFactorySpi) Class.forName(SPIClass).newInstance();
-				
-				// get the params
-				final Map<String, Serializable> params = new HashMap<String, Serializable>();	
-				final Param[] paramsInfo = spi.getParametersInfo();
-				for(Param p:paramsInfo){
-					// search for this param and set the value if found
-					if(properties.containsKey(p.key))
-						params.put(p.key, (Serializable)Converters.convert(properties.getProperty(p.key), p.type));
-					else
-						if(p.required&& p.sample==null)
-							throw new IOException("Required parameter missing: "+p.toString());
-				}						
-
-				index= GranuleIndexFactory.createGranuleIndex(params,false,true, spi);
-			} catch (ClassNotFoundException e) {
-				final IOException ioe= new IOException();
-				throw (IOException) ioe.initCause(e);
-			} catch (InstantiationException e) {
-				final IOException ioe= new IOException();
-				throw (IOException) ioe.initCause(e);
-			} catch (IllegalAccessException e) {
-				final IOException ioe= new IOException();
-				throw (IOException) ioe.initCause(e);
-			}
+			index=Utils.createDataStoreParamsFromPropertiesFile(datastoreProperties,false,true);
 		    
 		}
 		else{
@@ -1450,7 +1413,6 @@ final class IndexBuilder implements Runnable {
 			
 	}
 
-	
 	private void indexingPostamble() throws IOException {
 		//close shapefile elements
 		closeIndexObjects();

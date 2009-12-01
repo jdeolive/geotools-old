@@ -17,7 +17,7 @@ import org.geotools.data.DataStoreFactorySpi;
 public abstract class GranuleIndexFactory {
 
 	/**
-	 * 
+	 * Default private constructo to enfoce singleton
 	 */
 	private GranuleIndexFactory() {
 		// TODO Auto-generated constructor stub
@@ -28,7 +28,7 @@ public abstract class GranuleIndexFactory {
 	}
 	public static GranuleIndex createGranuleIndex(final  Map<String, Serializable> params, final boolean caching, final boolean create, final DataStoreFactorySpi spi){
 		//TODO @todo this is a temporary hack
-		return caching?new STRTreeGranuleIndex(params):new GTDataStoreGranuleIndex(params,create,spi);	
+		return caching?new STRTreeGranuleIndex(params,spi):new GTDataStoreGranuleIndex(params,create,spi);	
 	}
 
 }

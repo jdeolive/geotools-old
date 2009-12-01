@@ -1,16 +1,12 @@
 package org.geotools.gce.imagemosaic;
 
 import java.awt.Rectangle;
-import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.lang.ref.SoftReference;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,10 +18,8 @@ import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.Query;
-import org.geotools.data.shapefile.ShapefileDataStoreFactory;
 import org.geotools.factory.Hints;
 import org.geotools.gce.imagemosaic.index.GranuleIndex;
-import org.geotools.gce.imagemosaic.index.GranuleIndexFactory;
 import org.geotools.gce.imagemosaic.index.GranuleIndex.GranuleIndexVisitor;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -435,12 +429,10 @@ class RasterManager {
 		this.expandMe=parent.expandMe;
         inputURL = reader.sourceURL;
         
-		final Map<String, Serializable> params = new HashMap<String, Serializable>();			 
-		params.put(ShapefileDataStoreFactory.URLP.key,inputURL);
-		if(inputURL.getProtocol().equalsIgnoreCase("file"))
-			params.put(ShapefileDataStoreFactory.CREATE_SPATIAL_INDEX.key, Boolean.TRUE);
-		params.put(ShapefileDataStoreFactory.MEMORY_MAPPED.key, Boolean.TRUE);
-		index= GranuleIndexFactory.createGranuleIndex(params);	
+        //take ownership of the index
+		index= parent.index;
+		parent.index=null;
+		
         locationAttribute=parent.locationAttributeName;
         coverageIdentifier=reader.getName();
         hints = reader.getHints();

@@ -17,10 +17,14 @@
 package org.geotools.gce.imagemosaic;
 
 import java.awt.Rectangle;
+import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -30,6 +34,7 @@ import java.util.logging.Logger;
 
 import javax.imageio.spi.ImageReaderSpi;
 
+import org.apache.commons.io.FilenameUtils;
 import org.geotools.coverage.CoverageFactoryFinder;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
@@ -37,17 +42,18 @@ import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.data.DataSourceException;
-import org.geotools.data.FeatureSource;
-import org.geotools.data.shapefile.ShapefileDataStore;
+import org.geotools.data.DataUtilities;
+import org.geotools.data.shapefile.ShapefileDataStoreFactory;
 import org.geotools.factory.Hints;
 import org.geotools.gce.imagemosaic.Utils.MosaicConfigurationBean;
+import org.geotools.gce.imagemosaic.index.GranuleIndex;
+import org.geotools.gce.imagemosaic.index.GranuleIndexFactory;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
 import org.opengis.coverage.grid.Format;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.coverage.grid.GridCoverageReader;
 import org.opengis.coverage.grid.GridCoverageWriter;
-import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.parameter.GeneralParameterValue;
@@ -104,7 +110,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 	 * 
 	 */
 	@Override
-	public void dispose() {
+	public synchronized void dispose() {
 		super.dispose();
 		rasterManager.dispose();
 	}
@@ -130,6 +136,8 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 
 	/** The suggested SPI to avoid SPI lookup*/
 	ImageReaderSpi suggestedSPI;
+
+	GranuleIndex index;
 	/**
 	 * Constructor.
 	 * 
@@ -175,7 +183,6 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 			throw new DataSourceException("This plugin accepts File, URL or String. The string may describe a File or an URL");
 		
 
-		ShapefileDataStore tileIndexStore=null;
 		// /////////////////////////////////////////////////////////////////////
 		//
 		// Load tiles informations, especially the bounds, which will be
@@ -183,17 +190,30 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 		//
 		// /////////////////////////////////////////////////////////////////////
 		try{
-			tileIndexStore = new ShapefileDataStore(this.sourceURL);
+			final File sourceFile=DataUtilities.urlToFile(sourceURL);
+			final String extension= FilenameUtils.getExtension(sourceFile.getAbsolutePath());
+			if(extension.equalsIgnoreCase("shp"))
+			{
+				// shapefile
+				final Map<String, Serializable> params = new HashMap<String, Serializable>();			 
+				params.put(ShapefileDataStoreFactory.URLP.key,sourceURL);
+				if(sourceURL.getProtocol().equalsIgnoreCase("file"))
+					params.put(ShapefileDataStoreFactory.CREATE_SPATIAL_INDEX.key, Boolean.TRUE);
+				params.put(ShapefileDataStoreFactory.MEMORY_MAPPED.key, Boolean.TRUE);
+				index= GranuleIndexFactory.createGranuleIndex(params);
+			}
+			else
+			{
+				index=Utils.createDataStoreParamsFromPropertiesFile(sourceFile,true,false);
+			}
 			if (LOGGER.isLoggable(Level.FINE))
 				LOGGER.fine("Connected mosaic reader to its data store "
 						+ sourceURL.toString());
-			final String[] typeNames = tileIndexStore.getTypeNames();
-			if (typeNames.length <= 0)
+			final SimpleFeatureType type= index.getType();
+			if (type==null)
 				throw new IllegalArgumentException("Problems when opening the index, no typenames for the schema are defined");
 	
-			String typeName = typeNames[0];
-			FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = tileIndexStore.getFeatureSource(typeName);
-			final SimpleFeatureType schema = featureSource.getSchema();
+			
 			// //
 			//
 			// get the crs if able to
@@ -204,7 +224,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 				this.crs = (CoordinateReferenceSystem) tempCRS;
 				LOGGER.log(Level.WARNING, "Using forced coordinate reference system "+crs.toWKT().toString());
 			} else {
-				final CoordinateReferenceSystem tempcrs = featureSource.getSchema().getGeometryDescriptor().getCoordinateReferenceSystem();
+				final CoordinateReferenceSystem tempcrs = type.getGeometryDescriptor().getCoordinateReferenceSystem();
 				if (tempcrs == null) {
 					// use the default crs
 					crs = AbstractGridFormat.getDefaultCRS();
@@ -232,32 +252,32 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 			if(this.locationAttributeName==null)
 			{
 				//get the first string
-				for(AttributeDescriptor attribute: schema.getAttributeDescriptors()){
+				for(AttributeDescriptor attribute: type.getAttributeDescriptors()){
 					if(attribute.getType().getBinding().equals(String.class))
 						this.locationAttributeName=attribute.getName().toString();
 				}
 			}
-			if(schema.getDescriptor(this.locationAttributeName)==null)
+			if(type.getDescriptor(this.locationAttributeName)==null)
 				throw new DataSourceException("The provided name for the location attribute is invalid.");
 			
 			// creating the raster manager
 			rasterManager= new RasterManager(this);
 		}
 		catch (Throwable e) {
-			throw new  DataSourceException(e);
-		}
-		finally{
 			try {
-				if(tileIndexStore!=null)
-					tileIndexStore.dispose();
-			} catch (Throwable e) {
-				if (LOGGER.isLoggable(Level.FINE))
-					LOGGER.log(Level.FINE, e.getLocalizedMessage(), e);
+				if(index!=null)
+					index.dispose();
+			} catch (Throwable e1) {
+				if (LOGGER.isLoggable(Level.FINEST))
+					LOGGER.log(Level.FINEST, e1.getLocalizedMessage(), e1);
 			}
 			finally{
-				tileIndexStore=null;
+				index=null;
 			}
+			
+			throw new  DataSourceException(e);
 		}
+
 		
 	}
 

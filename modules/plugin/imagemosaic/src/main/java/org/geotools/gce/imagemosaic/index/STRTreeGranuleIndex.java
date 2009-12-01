@@ -14,6 +14,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.geotools.data.DataStoreFactorySpi;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
@@ -99,10 +100,10 @@ class STRTreeGranuleIndex implements GranuleIndex {
 
 	private GranuleIndex originalIndex;
 	
-	public STRTreeGranuleIndex(final Map<String,Serializable> params) {
+	public STRTreeGranuleIndex(final Map<String,Serializable> params, DataStoreFactorySpi spi) {
 		Utils.ensureNonNull("params",params);
 		try{
-			originalIndex= new GTDataStoreGranuleIndex(params,false,null);
+			originalIndex= new GTDataStoreGranuleIndex(params,false,spi);
 		}
 		catch (Throwable e) {
 			try {

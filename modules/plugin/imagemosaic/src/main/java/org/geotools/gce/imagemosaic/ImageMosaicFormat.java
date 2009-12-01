@@ -196,7 +196,8 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
     /**
      * @see org.geotools.data.coverage.grid.AbstractGridFormat#accepts(Object input)
      */
-    public boolean accepts( Object source ) {
+    @SuppressWarnings("unchecked")
+	public boolean accepts( Object source ) {
         try {
             URL sourceURL = Utils.checkSource(source);
             if(sourceURL==null)

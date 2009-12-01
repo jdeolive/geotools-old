@@ -14,15 +14,19 @@ import java.awt.image.MultiPixelPackedSampleModel;
 import java.awt.image.RenderedImage;
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Queue;
 import java.util.logging.Level;
@@ -41,11 +45,14 @@ import org.apache.commons.io.filefilter.IOFileFilter;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataStoreFactorySpi;
 import org.geotools.data.DataUtilities;
+import org.geotools.data.DataAccessFactory.Param;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
 import org.geotools.gce.imagemosaic.IndexBuilder.ExceptionEvent;
 import org.geotools.gce.imagemosaic.IndexBuilder.IndexBuilderConfiguration;
 import org.geotools.gce.imagemosaic.IndexBuilder.ProcessingEvent;
 import org.geotools.gce.imagemosaic.IndexBuilder.ProcessingEventListener;
+import org.geotools.gce.imagemosaic.index.GranuleIndex;
+import org.geotools.gce.imagemosaic.index.GranuleIndexFactory;
 import org.geotools.geometry.Envelope2D;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -54,6 +61,7 @@ import org.geotools.metadata.iso.spatial.PixelTranslation;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
+import org.geotools.util.Converters;
 import org.opengis.geometry.BoundingBox;
 import org.opengis.metadata.extent.GeographicBoundingBox;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -1042,4 +1050,54 @@ class Utils {
 	public static final DataStoreFactorySpi SHAPE_SPI = new ShapefileDataStoreFactory();
 
 	static final String DIRECT_KAKADU_PLUGIN="it.geosolutions.imageio.plugins.jp2k.JP2KKakaduImageReader";
+
+	/**
+	 * @param datastoreProperties
+	 * @param caching 
+	 * @param create 
+	 * @return 
+	 * @throws IOException
+	 */
+	@SuppressWarnings("unchecked")
+	static GranuleIndex createDataStoreParamsFromPropertiesFile(final File datastoreProperties, boolean caching, boolean create)
+			throws IOException {
+		// read the properties file
+		Properties properties = new Properties();
+		final FileInputStream stream = new FileInputStream(datastoreProperties);
+		try {
+		    properties.load(stream);
+		}
+		finally{
+			IOUtils.closeQuietly(stream);
+		}
+		// SPI
+		final String SPIClass=properties.getProperty("SPI");
+		try {
+			// create a datastore as instructed
+			final DataStoreFactorySpi spi= (DataStoreFactorySpi) Class.forName(SPIClass).newInstance();
+			
+			// get the params
+			final Map<String, Serializable> params = new HashMap<String, Serializable>();	
+			final Param[] paramsInfo = spi.getParametersInfo();
+			for(Param p:paramsInfo){
+				// search for this param and set the value if found
+				if(properties.containsKey(p.key))
+					params.put(p.key, (Serializable)Converters.convert(properties.getProperty(p.key), p.type));
+				else
+					if(p.required&& p.sample==null)
+						throw new IOException("Required parameter missing: "+p.toString());
+			}						
+	
+			return GranuleIndexFactory.createGranuleIndex(params,caching,create, spi);
+		} catch (ClassNotFoundException e) {
+			final IOException ioe= new IOException();
+			throw (IOException) ioe.initCause(e);
+		} catch (InstantiationException e) {
+			final IOException ioe= new IOException();
+			throw (IOException) ioe.initCause(e);
+		} catch (IllegalAccessException e) {
+			final IOException ioe= new IOException();
+			throw (IOException) ioe.initCause(e);
+		}
+	}
 }
