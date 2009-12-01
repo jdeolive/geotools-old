@@ -305,14 +305,9 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
 							break;
 						}               	
                 }
-                try {
-                	propsUrl.openStream().close();
-                } catch (Exception e) {
-	                throw new FileNotFoundException(".properties file, descibing the ImageMosaic, cant be opened:"+propsUrl);
-				}
 	            
 	            //get the properties file
-	            final MosaicConfigurationBean props = Utils.loadPropertiesFile(propsUrl, crs,"location");
+	            final MosaicConfigurationBean props = Utils.loadMosaicProperties(propsUrl, crs,"location");
 	            if(props==null)
 	            	return false;
 	            

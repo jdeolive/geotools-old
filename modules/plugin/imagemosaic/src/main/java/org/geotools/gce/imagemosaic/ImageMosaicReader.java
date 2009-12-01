@@ -18,13 +18,11 @@ package org.geotools.gce.imagemosaic;
 
 import java.awt.Rectangle;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -35,6 +33,7 @@ import java.util.logging.Logger;
 import javax.imageio.spi.ImageReaderSpi;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.geotools.coverage.CoverageFactoryFinder;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
@@ -43,11 +42,9 @@ import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataUtilities;
-import org.geotools.data.shapefile.ShapefileDataStoreFactory;
 import org.geotools.factory.Hints;
 import org.geotools.gce.imagemosaic.Utils.MosaicConfigurationBean;
 import org.geotools.gce.imagemosaic.index.GranuleIndex;
-import org.geotools.gce.imagemosaic.index.GranuleIndexFactory;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
 import org.opengis.coverage.grid.Format;
@@ -94,26 +91,6 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 	private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(ImageMosaicReader.class);
 
 	final static ExecutorService multiThreadedLoader= new ThreadPoolExecutor(4,8,30,TimeUnit.SECONDS,new LinkedBlockingQueue<Runnable>());
-	
-	/**
-	 * Number of coverages for this reader is 1
-	 * 
-	 * @return the number of coverages for this reader.
-	 */
-	@Override
-	public int getGridCoverageCount() {
-		return 1;
-	}
-
-	/**
-	 * Releases resources held by this reader.
-	 * 
-	 */
-	@Override
-	public synchronized void dispose() {
-		super.dispose();
-		rasterManager.dispose();
-	}
 
 
 	/**
@@ -172,7 +149,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 		//
 		// /////////////////////////////////////////////////////////////////////
 		if (source == null) {
-			final IOException ex = new IOException("ImageMosaicReader:No source set to read this coverage.");
+			final IOException ex = new DataSourceException("ImageMosaicReader:No source set to read this coverage.");
 			if (LOGGER.isLoggable(Level.WARNING))
 				LOGGER.log(Level.WARNING, ex.getLocalizedMessage(), ex);
 			throw new DataSourceException(ex);
@@ -183,24 +160,19 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 			throw new DataSourceException("This plugin accepts File, URL or String. The string may describe a File or an URL");
 		
 
-		// /////////////////////////////////////////////////////////////////////
+		// 
 		//
 		// Load tiles informations, especially the bounds, which will be
 		// reused
 		//
-		// /////////////////////////////////////////////////////////////////////
+		// 
 		try{
 			final File sourceFile=DataUtilities.urlToFile(sourceURL);
 			final String extension= FilenameUtils.getExtension(sourceFile.getAbsolutePath());
 			if(extension.equalsIgnoreCase("shp"))
 			{
 				// shapefile
-				final Map<String, Serializable> params = new HashMap<String, Serializable>();			 
-				params.put(ShapefileDataStoreFactory.URLP.key,sourceURL);
-				if(sourceURL.getProtocol().equalsIgnoreCase("file"))
-					params.put(ShapefileDataStoreFactory.CREATE_SPATIAL_INDEX.key, Boolean.TRUE);
-				params.put(ShapefileDataStoreFactory.MEMORY_MAPPED.key, Boolean.TRUE);
-				index= GranuleIndexFactory.createGranuleIndex(params);
+				index=Utils.createShapeFileStoreParamsFromURL(sourceURL,true,false);
 			}
 			else
 			{
@@ -239,9 +211,9 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 			//
 			// /////////////////////////////////////////////////////////////////////
 			// property file
-			final boolean retValue = loadProperties();
+			final boolean retValue = loadMosaicProperties();
 			if(!retValue)
-				throw new DataSourceException("Unable to create reader for this mosaic.");
+				throw new DataSourceException("Unable to create reader for this mosaicsince we could not parse the configuration.");
 			
 			//
 			// location attribute field checks
@@ -275,6 +247,18 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 				index=null;
 			}
 			
+			// dispose raster manager as well
+			try {
+				if(rasterManager!=null)
+					rasterManager.dispose();
+			} catch (Throwable e1) {
+				if (LOGGER.isLoggable(Level.FINEST))
+					LOGGER.log(Level.FINEST, e1.getLocalizedMessage(), e1);
+			}
+			finally{
+				rasterManager=null;
+			}
+			
 			throw new  DataSourceException(e);
 		}
 
@@ -288,11 +272,55 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 	 * @throws UnsupportedEncodingException
 	 * @throws IOException
 	 */
-	private boolean loadProperties(){
-		final MosaicConfigurationBean configuration=Utils.loadPropertiesFile(sourceURL, crs,this.locationAttributeName);
+	private boolean loadMosaicProperties(){
+		// discern if we have a shapefile based index or a datastore based index
+		final File sourceFile=DataUtilities.urlToFile(sourceURL);
+		final String extension= FilenameUtils.getExtension(sourceFile.getAbsolutePath());
+		MosaicConfigurationBean configuration=null;
+		if(extension.equalsIgnoreCase("shp"))
+		{
+			// shapefile
+			configuration=Utils.loadMosaicProperties(DataUtilities.changeUrlExt(sourceURL, "properties"), crs,this.locationAttributeName);
+		}
+		else
+		{
+			// we need to look for properties files that do NOT define a datastore
+			final File[] properties = sourceFile.getParentFile().listFiles(
+					(FilenameFilter)
+					FileFilterUtils.andFileFilter(
+							FileFilterUtils.notFileFilter(FileFilterUtils.nameFileFilter("datastore.properties")),
+							FileFilterUtils.makeFileOnly(FileFilterUtils.suffixFileFilter(".properties")
+					)
+			));
+			
+			
+			// check the valid mosaic properties files
+			for(File propFile:properties)
+				if(Utils.checkFileReadable(propFile))
+				{
+					// try to load the config
+					configuration=Utils.loadMosaicProperties(DataUtilities.fileToURL(propFile), crs,this.locationAttributeName);
+					if(configuration!=null)
+						break;
+					
+					// proceed with next prop file
+				}
+				
+							
+		}
+		// we did not find any good candidate for mosaic.properties file, this will signal it		
 		if(configuration==null)
+		{
+			if (LOGGER.isLoggable(Level.FINE))
+				LOGGER.fine("Unable to load configuration for this mosaic");
 			return false;
-		
+		}
+		// load config
+		return extractPropertiesFromConfiguration(configuration);
+	}
+
+	private boolean extractPropertiesFromConfiguration(
+			final MosaicConfigurationBean configuration) {
 		// set properties
 		this.originalEnvelope = new GeneralEnvelope((org.opengis.geometry.Envelope)configuration.getEnvelope2D());
 
@@ -305,7 +333,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 		highestRes[1] =resolutions[0][1];
 
 		if (LOGGER.isLoggable(Level.FINE))
-			LOGGER.fine(new StringBuffer("Highest res ").append(highestRes[0])
+			LOGGER.fine(new StringBuilder("Highest res ").append(highestRes[0])
 					.append(" ").append(highestRes[1]).toString());
 
 		if(numOverviews>0){
@@ -521,5 +549,26 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 	public void write(GridCoverage arg0, GeneralParameterValue[] arg1)throws IllegalArgumentException, IOException {
 		throw new UnsupportedOperationException("Unsupported method");
 		
+	}
+	
+	
+	/**
+	 * Number of coverages for this reader is 1
+	 * 
+	 * @return the number of coverages for this reader.
+	 */
+	@Override
+	public int getGridCoverageCount() {
+		return 1;
+	}
+
+	/**
+	 * Releases resources held by this reader.
+	 * 
+	 */
+	@Override
+	public synchronized void dispose() {
+		super.dispose();
+		rasterManager.dispose();
 	}
 }

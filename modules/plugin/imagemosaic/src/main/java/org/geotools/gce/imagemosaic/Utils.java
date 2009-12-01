@@ -14,7 +14,6 @@ import java.awt.image.MultiPixelPackedSampleModel;
 import java.awt.image.RenderedImage;
 import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -535,7 +534,7 @@ class Utils {
 
 
 
-	static MosaicConfigurationBean loadPropertiesFile(final URL sourceURL, final CoordinateReferenceSystem crs, final String defaultLocationAttribute){
+	static MosaicConfigurationBean loadMosaicProperties(final URL sourceURL, final CoordinateReferenceSystem crs, final String defaultLocationAttribute){
 			//ret value
 		    final MosaicConfigurationBean retValue= new MosaicConfigurationBean();
 
@@ -543,32 +542,15 @@ class Utils {
 			//
 			// load the properties file
 			//
-			final Properties properties = new Properties();
-			URL propsURL = DataUtilities.changeUrlExt(sourceURL, "properties");
-			
-			InputStream stream = null;
-			InputStream openStream = null;
-			try {
-				openStream =  propsURL.openStream();
-				stream = new BufferedInputStream(openStream);
-				properties.load(stream);
-			} catch (FileNotFoundException e) {
+			URL propsURL = sourceURL;
+			if(!sourceURL.toExternalForm().endsWith(".properties"))
+				propsURL=DataUtilities.changeUrlExt(sourceURL, "properties");
+			final Properties properties = loadPropertiesFromURL(propsURL);
+			if(properties==null)
+			{
 				if(LOGGER.isLoggable(Level.SEVERE))
-					LOGGER.log(Level.SEVERE,e.getLocalizedMessage(),e);				
+					LOGGER.severe("Unable to load mosaic properties file");		
 				return null;
-			} catch (IOException e) {
-				if(LOGGER.isLoggable(Level.SEVERE))
-					LOGGER.log(Level.SEVERE,e.getLocalizedMessage(),e);				
-				return null;
-			}
-			finally {
-				
-				if(stream!=null)
-					IOUtils.closeQuietly(stream);
-				
-				if (openStream != null)
-					IOUtils.closeQuietly(openStream);
-					
 			}
 			
 
@@ -670,6 +652,39 @@ class Utils {
 			//retrn value
 			return retValue;			
 		}
+
+
+
+
+
+	private static Properties loadPropertiesFromURL(URL propsURL) {
+		final Properties properties = new Properties();
+		InputStream stream = null;
+		InputStream openStream = null;
+		try {
+			openStream =  propsURL.openStream();
+			stream = new BufferedInputStream(openStream);
+			properties.load(stream);
+		} catch (FileNotFoundException e) {
+			if(LOGGER.isLoggable(Level.SEVERE))
+				LOGGER.log(Level.SEVERE,e.getLocalizedMessage(),e);				
+			return null;
+		} catch (IOException e) {
+			if(LOGGER.isLoggable(Level.SEVERE))
+				LOGGER.log(Level.SEVERE,e.getLocalizedMessage(),e);				
+			return null;
+		}
+		finally {
+			
+			if(stream!=null)
+				IOUtils.closeQuietly(stream);
+			
+			if (openStream != null)
+				IOUtils.closeQuietly(openStream);
+				
+		}
+		return properties;
+	}
 
 
 
@@ -1062,14 +1077,10 @@ class Utils {
 	static GranuleIndex createDataStoreParamsFromPropertiesFile(final File datastoreProperties, boolean caching, boolean create)
 			throws IOException {
 		// read the properties file
-		Properties properties = new Properties();
-		final FileInputStream stream = new FileInputStream(datastoreProperties);
-		try {
-		    properties.load(stream);
-		}
-		finally{
-			IOUtils.closeQuietly(stream);
-		}
+		Properties properties = loadPropertiesFromURL(DataUtilities.fileToURL(datastoreProperties));
+		if(properties==null)
+			return null;
+		
 		// SPI
 		final String SPIClass=properties.getProperty("SPI");
 		try {
@@ -1086,8 +1097,7 @@ class Utils {
 				else
 					if(p.required&& p.sample==null)
 						throw new IOException("Required parameter missing: "+p.toString());
-			}						
-	
+			}							
 			return GranuleIndexFactory.createGranuleIndex(params,caching,create, spi);
 		} catch (ClassNotFoundException e) {
 			final IOException ioe= new IOException();
@@ -1099,5 +1109,23 @@ class Utils {
 			final IOException ioe= new IOException();
 			throw (IOException) ioe.initCause(e);
 		}
+	}
+	
+	/**
+	 * 
+	 * @param url
+	 * @param caching
+	 * @param create
+	 * @return
+	 * @throws IOException
+	 */
+	static GranuleIndex createShapeFileStoreParamsFromURL(final URL url, boolean caching, boolean create)
+			throws IOException {
+		final Map<String, Serializable> params = new HashMap<String, Serializable>();			 
+		params.put(ShapefileDataStoreFactory.URLP.key,url);
+		if(url.getProtocol().equalsIgnoreCase("file"))
+			params.put(ShapefileDataStoreFactory.CREATE_SPATIAL_INDEX.key, Boolean.TRUE);
+		params.put(ShapefileDataStoreFactory.MEMORY_MAPPED.key, Boolean.TRUE);
+		return GranuleIndexFactory.createGranuleIndex(params,caching,create, SHAPE_SPI);
 	}
 }
