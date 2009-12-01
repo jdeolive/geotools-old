@@ -24,8 +24,7 @@ import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
-import java.util.HashMap;
-import java.util.Map;
+
 
 /**
  * Constants to identify JTS geometry types, reducing the need for boiler-plate
@@ -68,7 +67,11 @@ import java.util.Map;
  *         // e.g. unspecified Geometry, GeometryCollection
  *         break;
  * }
- *
+ * </code></pre>
+ * You can also work with {@code Class} objects...
+ * <pre><code>
+ * Class<? extends Geometry> aClass = ...
+ * Geometries type = Geometries.getForBinding( aClass );
  * </code></pre>
  *
  * @author Justin Deoliveira, The Open Planning Project
@@ -93,15 +96,6 @@ public enum Geometries {
     GEOMETRY(Geometry.class, 2007),
 
     GEOMETRYCOLLECTION(GeometryCollection.class, 2008);
-
-    /* For quick look-up by binding */
-    private static final Map<Class<? extends Geometry>, Geometries> bindingLookup;
-    static {
-        bindingLookup = new HashMap<Class<? extends Geometry>, Geometries>();
-        for (Geometries gt : Geometries.values()) {
-            bindingLookup.put(gt.binding, gt);
-        }
-    }
 
     private final Class<? extends Geometry> binding;
     private final int sqlType;
@@ -173,20 +167,12 @@ public enum Geometries {
      */
     public static Geometries get(Geometry geom) {
         if (geom != null) {
-            return bindingLookup.get(geom.getClass());
+            return getForBinding(geom.getClass());
         }
 
         return null;
     }
 
-    /**
-     * @deprecated use {@link #getForBinding(Class)} 
-     * 
-     */
-    public static Geometries get(Class<? extends Geometry> geomClass) {
-        return getForBinding(geomClass);
-    }
-    
     /**
      * Get the {@code Geometries} for the given {@code Geometry} class.
      *
@@ -195,7 +181,41 @@ public enum Geometries {
      * @return the constant for this class
      */
     public static Geometries getForBinding(Class<? extends Geometry> geomClass) {
-        return bindingLookup.get(geomClass);
+        for (Geometries gt : Geometries.values()) {
+            if (gt.binding == geomClass) {
+                return gt;
+            }
+        }
+        
+        //no direct match look for a subclass
+        Geometries match = null;
+
+        for (Geometries gt : Geometries.values()) {
+            if (gt == GEOMETRY || gt == GEOMETRYCOLLECTION) {
+                continue;
+            }
+            
+            if (gt.binding.isAssignableFrom(geomClass)) {
+                if (match == null) {
+                    match = gt;
+                } else {
+                    // more than one match
+                    return null;
+                }
+            }
+        }
+        
+        if (match == null) {
+            //no matches from concrete classes, try abstract classes
+            if (GeometryCollection.class.isAssignableFrom(geomClass)) {
+                return GEOMETRYCOLLECTION;
+            }
+            if (Geometry.class.isAssignableFrom(geomClass)) {
+                return GEOMETRY;
+            }
+        }
+        
+        return match;
     }
 
     /**
