@@ -40,8 +40,12 @@ public class FilterFunction_offset extends FunctionExpressionImpl implements Fun
 
     public Object evaluate(Object feature) {
         Geometry geom = (Geometry) getExpression(0).evaluate(feature, Geometry.class);
-        double offsetX = getExpression(1).evaluate(feature, Double.class);
-        double offsetY = getExpression(2).evaluate(feature, Double.class);
+        Double offsetX = getExpression(1).evaluate(feature, Double.class);
+        if(offsetX == null)
+            offsetX = 0d;
+        Double offsetY = getExpression(2).evaluate(feature, Double.class);
+        if(offsetY == null)
+            offsetY = 0d;
 
         if (geom != null) {
             Geometry offseted = (Geometry) geom.clone();
