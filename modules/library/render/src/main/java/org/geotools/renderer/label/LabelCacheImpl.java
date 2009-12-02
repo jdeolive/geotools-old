@@ -698,7 +698,7 @@ public final class LabelCacheImpl implements LabelCache {
             // we don't want very small segments to influence the character
             // orientation
             if (labelItem.isFollowLineEnabled())
-                line = decimateLineString(line, step / 2);
+                line = decimateLineString(line, step);
 
             // max distance between candidate label points, if any
             final double lineStringLength = line.getLength();

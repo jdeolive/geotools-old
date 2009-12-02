@@ -18,7 +18,6 @@ package org.geotools.geometry.jts;
 
 import java.awt.Rectangle;
 
-import org.geotools.referencing.operation.matrix.AffineTransform2D;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
@@ -41,6 +40,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * @source $URL$
  */
 public final class Decimator {
+    
+    private static final double EPS = 1e-9; 
 
 	private double spanx = -1;
 
@@ -161,9 +162,18 @@ public final class Decimator {
 						transform);
 			}
 		} else if (geometry instanceof LineString) {
-			LiteCoordinateSequence seq = (LiteCoordinateSequence) ((LineString) geometry)
-					.getCoordinateSequence();
-			decimateTransformGeneralize(seq, transform, geometry instanceof LinearRing);
+			LineString ls = (LineString) geometry;
+            LiteCoordinateSequence seq = (LiteCoordinateSequence) ls.getCoordinateSequence();
+            boolean loop = ls instanceof LinearRing;
+            if(!loop && seq.size() > 1) {
+                double x0 = seq.getOrdinate(0, 0);
+                double y0 = seq.getOrdinate(0, 1);
+                double x1 = seq.getOrdinate(seq.size() - 1, 0);
+                double y1 = seq.getOrdinate(seq.size() - 1, 1);
+                loop = Math.abs((x0 - x1) / x0) < EPS && 
+                               Math.abs((y0 - y1) / y0) < EPS;
+            }
+			decimateTransformGeneralize(seq, transform, loop);
 		}
 	}
 
