@@ -86,10 +86,11 @@ import org.opengis.util.ProgressListener;
  * FeatureCollection boundaries = (FeatureCollection) results.get(RasterToVectorFactory.RESULT_FEATURES.key);
  *}</pre>
  * 
- * @author Michael Bedward, Jody Garnett
+ * @author Jody Garnett
+ * @author Michael Bedward
  * @since 2.6
- *
  * @source $URL$
+ * @version $Id$
  */
 public class RasterToVectorProcess extends AbstractProcess {
 
