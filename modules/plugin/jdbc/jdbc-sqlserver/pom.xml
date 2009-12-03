@@ -23,7 +23,7 @@
   <!-- =========================================================== -->
   <!--     Module Description                                      -->
   <!-- =========================================================== -->
-  <groupId>org.geotools</groupId>
+  <groupId>org.geotools.jdbc</groupId>
   <artifactId>gt-jdbc-sqlserver</artifactId>
   <packaging>jar</packaging>
   <name>SQL Server DataStore</name>
