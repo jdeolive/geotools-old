@@ -34,6 +34,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.CancellationException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -128,8 +130,11 @@ public class RasterToVectorProcess extends AbstractProcess {
     private static final int CROSS = 6;
 
     // Precision of comparison in the function different(a, b)
-    private static final double EPSILON = 1.0e-10d;
+    private static final double EPSILON = 1.0e-8d;
 
+    // Set of values that indicate 'outside' or 'no data' areas in the raster
+    private SortedSet<Double> outside;
+    
     /*
      * array of Coor objects that store end-points of vertical lines under construction
      */
@@ -218,9 +223,10 @@ public class RasterToVectorProcess extends AbstractProcess {
      * @param cov the input coverage
      * @param band the index of the band to be vectorized
      * @param bounds bounds of the area (in world coordinates) to vectorize; if {@code null}
-     *            the whole coverage
-     * @param outsideValues a collection of one or more values which represent 'outside' or no data
-     * @param progress an optional ProgressListener (may be null)
+     *        the whole coverage
+     * @param outside a collection of one or more values which represent 'outside' or no data
+     *        (may be {@code null} or empty)
+     * @param progress an optional ProgressListener (may be {@code null})
      *
      * @return a FeatureCollection containing simple polygon features
      *
@@ -246,7 +252,8 @@ public class RasterToVectorProcess extends AbstractProcess {
      * @param band the index of the band to be vectorized
      * @param bounds of the area to vectorize in world coords (null means whole coverage)
      * @param outside a collection of one or more values which represent 'outside' or no data
-     * @param progress a progress listener (may be null)
+     *        (may be {@code null} or empty)
+     * @param progress a progress listener (may be {@code null})
      *
      * @return a FeatureCollection containing simple polygon features
      *
@@ -312,7 +319,7 @@ public class RasterToVectorProcess extends AbstractProcess {
      * @param grid the input grid coverage
      * @param band the band containing the data to vectorize
      * @param type feature type
-     * @param progress a progress listener (may be null)
+     * @param progress a progress listener (may be {@code null})
      * @return a new FeatureCollection containing the boundary polygons
      */
     private FeatureCollection<SimpleFeatureType,SimpleFeature> assembleFeatures(GridCoverage2D grid, int band,
@@ -365,10 +372,11 @@ public class RasterToVectorProcess extends AbstractProcess {
                 p.setLocation(c.x, c.y);
                 bandData = grid.evaluate(p, bandData);
 
-                builder.add(poly);
-                builder.add((int) bandData[band]);
-
-                features.add(builder.buildFeature(null));
+                if (!isOutside(bandData[band])) {
+                    builder.add(poly);
+                    builder.add((int) bandData[band]);
+                    features.add(builder.buildFeature(null));
+                }
             }
             return features;
         } finally {
@@ -380,7 +388,7 @@ public class RasterToVectorProcess extends AbstractProcess {
      * Set convenience data fields and create the data objects
      * @param coverage the input grid coverage
      * @param bounds bounds (world coords) of the area to be vectorized
-     * @param progress a progress listener (may be null)
+     * @param progress a progress listener (may be {@code null})
      */
     private void initialize(GridCoverage2D coverage, Envelope2D bounds, ProgressListener progress)
             throws TransformException, InvalidGridGeometryException {
@@ -427,8 +435,9 @@ public class RasterToVectorProcess extends AbstractProcess {
      * Vectorize the boundaries of regions of uniform value in the input grid coverage
      * and collect the boundaries as LineStrings
      * @param band index of the band which contains the data to be vectorized
-     * @param outside a double value indicating 'outside' or nodata
-     * @param progress a progress listener (may be null)
+     * @param outside a collection of one or more values which represent 'outside' or no data
+     *        (may be {@code null} or empty)
+     * @param progress a progress listener (may be {@code null})
      */
     private void vectorizeAndCollectBoundaries(int band, Collection<Double> outsideValues, ProgressListener progress) {
         if (progress == null)
@@ -439,7 +448,12 @@ public class RasterToVectorProcess extends AbstractProcess {
             double[] curData = new double[4];
             RandomIter imageIter = RandomIterFactory.create(image, null);
 
-            double defOutside = (Double) outsideValues.toArray()[0];
+            outside = new TreeSet<Double>();
+            if (outsideValues == null || outsideValues.isEmpty()) {
+                outside.add(Double.NaN);
+            } else {
+                outside.addAll(outsideValues);
+            }
 
             // we add a virtual border, one cell wide, coded as 'outside'
             // around the raster
@@ -449,7 +463,7 @@ public class RasterToVectorProcess extends AbstractProcess {
                 }
 
                 progress.progress(((float) row) / ((float) (imageBounds.y + imageBounds.height - 1)));
-                curData[TR] = curData[BR] = defOutside;
+                curData[TR] = curData[BR] = outside.first();
 
                 for (int col = imageBounds.x - 1; col < imageBounds.x + imageBounds.width; col++) {
                     boolean[] ok = inDataWindow(row, col);
@@ -457,14 +471,14 @@ public class RasterToVectorProcess extends AbstractProcess {
                     curData[TL] = curData[TR];
                     curData[BL] = curData[BR];
 
-                    curData[TR] = (ok[TR] ? imageIter.getSampleDouble(col + 1, row, band) : defOutside);
-                    if (outsideValues.contains(curData[TR])) {
-                        curData[TR] = defOutside;
+                    curData[TR] = (ok[TR] ? imageIter.getSampleDouble(col + 1, row, band) : outside.first());
+                    if (isOutside(curData[TR])) {
+                        curData[TR] = outside.first();
                     }
 
-                    curData[BR] = (ok[BR] ? imageIter.getSampleDouble(col + 1, row + 1, band) : defOutside);
-                    if (outsideValues.contains(curData[BR])) {
-                        curData[BR] = defOutside;
+                    curData[BR] = (ok[BR] ? imageIter.getSampleDouble(col + 1, row + 1, band) : outside.first());
+                    if (isOutside(curData[BR])) {
+                        curData[BR] = outside.first();
                     }
 
                     updateCoordList(row, col, curData);
@@ -645,12 +659,12 @@ public class RasterToVectorProcess extends AbstractProcess {
             vertLines.put(col, seg);
 
             int z = -1;
-            if (different(curData[TL], curData[BR])) {
-                if (!different(curData[TR], curData[BL])) {
+            if (isDifferent(curData[TL], curData[BR])) {
+                if (!isDifferent(curData[TR], curData[BL])) {
                     z = CROSS;
                 }
             } else {
-                if (different(curData[TR], curData[BL])) {
+                if (isDifferent(curData[TR], curData[BL])) {
                     z = TL_BR;
                 } else {
                     z = TR_BL;
@@ -686,24 +700,24 @@ public class RasterToVectorProcess extends AbstractProcess {
      * @return integer id of the matching configuration
      */
     private int nbrConfig(double[] curData) {
-        if (different(curData[TL], curData[TR])) { // 0, 4, 5, 6, 8, 9, 10
-            if (different(curData[TL], curData[BL])) { // 4, 6, 8, 10
-                if (different(curData[BL], curData[BR])) { // 8, 10
-                    if (different(curData[TR], curData[BR])) {
+        if (isDifferent(curData[TL], curData[TR])) { // 0, 4, 5, 6, 8, 9, 10
+            if (isDifferent(curData[TL], curData[BL])) { // 4, 6, 8, 10
+                if (isDifferent(curData[BL], curData[BR])) { // 8, 10
+                    if (isDifferent(curData[TR], curData[BR])) {
                         return 10;
                     } else {
                         return 8;
                     }
                 } else { // 4, 6
-                    if (different(curData[TR], curData[BR])) {
+                    if (isDifferent(curData[TR], curData[BR])) {
                         return 6;
                     } else {
                         return 4;
                     }
                 }
             } else { // 0, 5, 9
-                if (different(curData[BL], curData[BR])) { // 0, 9
-                    if (different(curData[TR], curData[BR])) {
+                if (isDifferent(curData[BL], curData[BR])) { // 0, 9
+                    if (isDifferent(curData[TR], curData[BR])) {
                         return 9;
                     } else {
                         return 0;
@@ -713,9 +727,9 @@ public class RasterToVectorProcess extends AbstractProcess {
                 }
             }
         } else { // 1, 2, 3, 7, 11
-            if (different(curData[TL], curData[BL])) { // 2, 3, 7
-                if (different(curData[BL], curData[BR])) { // 3, 7
-                    if (different(curData[TR], curData[BR])) {
+            if (isDifferent(curData[TL], curData[BL])) { // 2, 3, 7
+                if (isDifferent(curData[BL], curData[BR])) { // 3, 7
+                    if (isDifferent(curData[TR], curData[BR])) {
                         return 7;
                     } else {
                         return 3;
@@ -724,7 +738,7 @@ public class RasterToVectorProcess extends AbstractProcess {
                     return 2;
                 }
             } else { // 1, 11
-                if (different(curData[TR], curData[BR])) {
+                if (isDifferent(curData[TR], curData[BR])) {
                     return 1;
                 } else {
                     return 11;
@@ -780,13 +794,30 @@ public class RasterToVectorProcess extends AbstractProcess {
         lines.add(gf.createLineString(coords));
     }
 
+    private boolean isOutside(double value) {
+        for (Double d : outside) {
+            if (!isDifferent(d, value)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
-     * Check for difference between two double values within a set tolerance
+     * Test if two double values are different. Uses an absolute tolerance and
+     * checks for NaN values.
+     *
      * @param a first value
      * @param b second value
      * @return true if the values are different; false otherwise
      */
-    private boolean different(double a, double b) {
+    private boolean isDifferent(double a, double b) {
+        if (Double.isNaN(a) ^ Double.isNaN(b)) {
+            return true;
+        } else if (Double.isNaN(a) && Double.isNaN(b)) {
+            return false;
+        }
+
         if (Math.abs(a - b) > EPSILON) {
             return true;
         } else {

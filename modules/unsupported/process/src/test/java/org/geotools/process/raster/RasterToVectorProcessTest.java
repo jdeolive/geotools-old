@@ -21,11 +21,9 @@ import com.vividsolutions.jts.geom.Polygon;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
-import java.io.IOException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import javax.imageio.ImageIO;
@@ -35,7 +33,6 @@ import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.process.ProcessException;
 import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -69,19 +66,16 @@ public class RasterToVectorProcessTest {
             {1, 0, 0, 1}
         };
 
-        final int DATA_WIDTH = 4;
-        final int CELL_WIDTH = 100;
-        final int PERIMETER = 2400;
-        final int AREA = 90000;
+        final int PERIMETER = 24;
+        final int AREA = 9;
 
         GridCoverage2D cov = covFactory.create(
                 "coverage",
                 DATA,
-                new ReferencedEnvelope(0, DATA_WIDTH * CELL_WIDTH, 0, DATA_WIDTH * CELL_WIDTH, null));
+                new ReferencedEnvelope(0, DATA[0].length, 0, DATA.length, null));
 
         int band = 0;
-        Set<Double> outsideValues = new HashSet<Double>();
-        outsideValues.add(0d);
+        Set<Double> outsideValues = Collections.singleton(0D);
 
         ProgressListener progress = null;
         FeatureCollection<SimpleFeatureType, SimpleFeature> fc =
@@ -106,10 +100,82 @@ public class RasterToVectorProcessTest {
     }
 
     /**
+     * Test that enclosed 'outside' value areas are treated as holes
+     */
+    @Test
+    public void testHoles() throws Exception {
+        System.out.println("   test conversion with holes");
+
+        final float[][] DATA = {
+            {1, 1, 1, 1, 0, 1, 1, 1, 1},
+            {1, 0, 0, 1, 0, 1, 0, 0, 1},
+            {1, 0, 0, 1, 0, 1, 0, 0, 1},
+            {1, 1, 1, 1, 0, 1, 1, 1, 1}
+        };
+
+        final int NUM_POLYS = 2;
+
+        GridCoverage2D cov = covFactory.create(
+                "coverage",
+                DATA,
+                new ReferencedEnvelope(0, DATA[0].length, 0, DATA.length, null));
+
+        int band = 0;
+        Set<Double> outsideValues = Collections.singleton(0D);
+
+        ProgressListener progress = null;
+        FeatureCollection<SimpleFeatureType, SimpleFeature> fc =
+                RasterToVectorProcess.process(cov, band, null, outsideValues, progress);
+
+        assertEquals(NUM_POLYS, fc.size());
+
+        FeatureIterator<SimpleFeature> iter = fc.features();
+        try {
+            while (iter.hasNext()) {
+                Polygon poly = (Polygon) iter.next().getDefaultGeometry();
+                assertEquals(1, poly.getNumInteriorRing());
+            }
+
+        } finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test that enclosed 'outside' value areas are treated as holes
+     */
+    @Test
+    public void testNoOutside() throws Exception {
+        System.out.println("   test conversion with no outside values");
+
+        final float[][] DATA = {
+            {1, 1, 1, 1, 0, 1, 1, 1, 1},
+            {1, 0, 0, 1, 0, 1, 0, 0, 1},
+            {1, 0, 0, 1, 0, 1, 0, 0, 1},
+            {1, 1, 1, 1, 0, 1, 1, 1, 1}
+        };
+
+        final int NUM_POLYS = 5;
+
+        GridCoverage2D cov = covFactory.create(
+                "coverage",
+                DATA,
+                new ReferencedEnvelope(0, DATA[0].length, 0, DATA.length, null));
+
+        int band = 0;
+
+        ProgressListener progress = null;
+        FeatureCollection<SimpleFeatureType, SimpleFeature> fc =
+                RasterToVectorProcess.process(cov, band, null, null, progress);
+
+        assertEquals(NUM_POLYS, fc.size());
+    }
+
+    /**
      * Test conversion with an image that gave problems at one stage
      */
     @Test
-    public void testProblemTiff() throws IOException, ProcessException {
+    public void testProblemTiff() throws Exception {
         System.out.println("   convert problem image");
 
         final double ROUND_OFF_TOLERANCE = 1.0e-4D;
