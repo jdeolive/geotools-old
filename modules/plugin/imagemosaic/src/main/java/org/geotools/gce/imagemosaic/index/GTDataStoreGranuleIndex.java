@@ -301,9 +301,7 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 					
 					//write down
 					fw.write();
-					
-					//update bounds
-					bounds=tileIndexStore.getFeatureSource(typeName).getBounds();
+
 				}
 			}
 			catch (Throwable e) {
@@ -313,7 +311,11 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 				if(fw!=null)
 					fw.close();
 			}
+			
 			// do your thing
+			
+			//update bounds
+			bounds=tileIndexStore.getFeatureSource(typeName).getBounds();
 		}finally{
 			lock.unlock();
 		}	
