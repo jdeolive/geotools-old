@@ -17,6 +17,11 @@ import org.opengis.geometry.BoundingBox;
  */
 public interface GranuleIndex {
 	
+	/**
+	 * 
+	 * @author Simone Giannecchini, GeoSolutions SAS
+	 *
+	 */
 	public interface GranuleIndexVisitor{
 		public void visit(final SimpleFeature index, Object o);
 	}
@@ -34,7 +39,8 @@ public interface GranuleIndex {
 	
 	public abstract Collection<SimpleFeature> findGranules(final Query q) throws IOException;
 
-	public abstract Collection<SimpleFeature> findGranules()throws IOException;;
+	public abstract Collection<SimpleFeature> findGranules()throws IOException;
+	
 	/**
 	 * Finds the features that intersects the provided {@link BoundingBox}:
 	 * 

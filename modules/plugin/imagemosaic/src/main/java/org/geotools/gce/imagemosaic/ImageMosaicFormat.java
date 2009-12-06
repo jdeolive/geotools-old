@@ -19,7 +19,6 @@ package org.geotools.gce.imagemosaic;
 import java.awt.Color;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.Serializable;

@@ -15,6 +15,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geotools.data.DataStoreFactorySpi;
+import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
@@ -58,6 +59,7 @@ class STRTreeGranuleIndex implements GranuleIndex {
 	private static class JTSIndexVisitorAdapter  implements ItemVisitor {
 
 		private GranuleIndexVisitor adaptee;
+		
 		private Filter filter;
 
 		/**
@@ -123,38 +125,43 @@ class STRTreeGranuleIndex implements GranuleIndex {
 	/** The {@link STRtree} index. */
 	private SoftReference<STRtree> index= new SoftReference<STRtree>(null);
 
-	protected final ReadWriteLock rwLock= new ReentrantReadWriteLock(true);
+	private final ReadWriteLock rwLock= new ReentrantReadWriteLock(true);
 
 	/**
 	 * Constructs a {@link STRTreeGranuleIndex} out of a {@link FeatureCollection}.
+	 * @param readLock 
 	 * 
 	 * @param features
 	 * @throws IOException
 	 */
-	private synchronized SpatialIndex getIndex() throws IOException {
-		// check if the index has been cleared
-		if(index==null)
-			throw new IllegalStateException();
-		
-		// do your thing
-
-		/**
-		 * Comment by Stefan Krueger while patching the stuff to deal with
-		 * URLs instead of Files: If it is not a URL to a file, we don't
-		 * need locks, because no one can change to the index.
-		 */
-
-		STRtree tree = index.get();
-		if (tree == null) {
-			if (LOGGER.isLoggable(Level.FINE))
-				LOGGER.fine("No index exits and we create a new one.");
-			createIndex();
-			tree = index.get();
-		} else if (LOGGER.isLoggable(Level.FINE))
-			LOGGER.fine("Index does not need to be created...");
-		
-		return tree;
-		
+	private SpatialIndex getIndex(Lock readLock) throws IOException {
+		final Lock writeLock=rwLock.writeLock();
+		try{
+			// upgrade the read lock to write lock
+			readLock.unlock();
+			writeLock.lock();
+					
+			// check if the index has been cleared
+			checkStore();
+			
+			// do your thing
+			STRtree tree = index.get();
+			if (tree == null) {
+				if (LOGGER.isLoggable(Level.FINE))
+					LOGGER.fine("No index exits and we create a new one.");
+				createIndex();
+				tree = index.get();
+			} else if (LOGGER.isLoggable(Level.FINE))
+				LOGGER.fine("Index does not need to be created...");
+			
+			return tree;
+		}finally{
+			// get read lock again
+			readLock.lock();
+			// leave write lock
+			writeLock.unlock();
+			
+		}
 
 	}
 
@@ -216,7 +223,9 @@ class STRTreeGranuleIndex implements GranuleIndex {
 		final Lock lock=rwLock.readLock();
 		try{
 			lock.lock();
-			return getIndex().query(ReferencedEnvelope.reference(envelope));
+			checkStore();
+			
+			return getIndex(lock).query(ReferencedEnvelope.reference(envelope));
 		}finally{
 			lock.unlock();
 		}			
@@ -231,7 +240,9 @@ class STRTreeGranuleIndex implements GranuleIndex {
 		final Lock lock=rwLock.readLock();
 		try{
 			lock.lock();
-			getIndex().query(ReferencedEnvelope.reference(envelope), new JTSIndexVisitorAdapter(visitor));
+			checkStore();
+			
+			getIndex(lock).query(ReferencedEnvelope.reference(envelope), new JTSIndexVisitorAdapter(visitor));
 		}finally{
 			lock.unlock();
 		}				
@@ -262,17 +273,7 @@ class STRTreeGranuleIndex implements GranuleIndex {
 
 	public int removeGranules(final Query query) {
 		throw new UnsupportedOperationException("removeGranules is not supported, this ia read only index");
-//		ImageMosaicUtils.ensureNonNull("query",query);
-//		final Lock lock=rwLock.writeLock();
-//		try{
-//			//
-//			lock.lock();
-//		}finally{
-//			lock.unlock();
-//		}
-//	
-//		return 0;
-		
+
 	}
 
 	@SuppressWarnings("unchecked")
@@ -281,6 +282,7 @@ class STRTreeGranuleIndex implements GranuleIndex {
 		final Lock lock=rwLock.readLock();
 		try{
 			lock.lock();
+			checkStore();
 			
 			// get filter and check bbox
 			final Filter filter= q.getFilter();	
@@ -288,7 +290,7 @@ class STRTreeGranuleIndex implements GranuleIndex {
 			ReferencedEnvelope requestedBBox=extractAndCombineBBox(filter);
 			
 			// load what we need to load
-			final List<SimpleFeature> features= getIndex().query(requestedBBox);
+			final List<SimpleFeature> features= getIndex(lock).query(requestedBBox);
 			if(q.equals(DefaultQuery.ALL))
 				return features;
 			
@@ -330,13 +332,14 @@ class STRTreeGranuleIndex implements GranuleIndex {
 		final Lock lock=rwLock.readLock();
 		try{
 			lock.lock();
+			checkStore();
 			
 			// get filter and check bbox
 			final Filter filter= q.getFilter();			
 			ReferencedEnvelope requestedBBox=extractAndCombineBBox(filter);
 			
 			// get filter and check bbox
-			getIndex().query(requestedBBox,new JTSIndexVisitorAdapter(visitor,q));
+			getIndex(lock).query(requestedBBox,new JTSIndexVisitorAdapter(visitor,q));
 			
 		}finally{
 			lock.unlock();
@@ -344,39 +347,63 @@ class STRTreeGranuleIndex implements GranuleIndex {
 	}
 
 	public BoundingBox getBounds() {
-		return originalIndex.getBounds();
+		final Lock lock=rwLock.readLock();
+		try{
+			lock.lock();
+			checkStore();
+			
+			return originalIndex.getBounds();
+			
+		}finally{
+			lock.unlock();
+		}			
+	}
+
+	/**
+	 * @throws IllegalStateException
+	 */
+	private void checkStore() throws IllegalStateException {
+		if(originalIndex==null)
+			throw new IllegalStateException("The underlying store has already been disposed!");
 	}
 
 	public void addGranule(final SimpleFeature granule, final Transaction transaction) throws IOException {
-		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Operation unsupported for this index class:"+this.getClass().getName());
 		
 	}
 
 	public void addGranules(final Collection<SimpleFeature> granules, final Transaction transaction)
 			throws IOException {
-		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Operation unsupported for this index class:"+this.getClass().getName());
 		
 	}
 
 	public void createType(String namespace, String typeName, String typeSpec)
 			throws IOException, SchemaException {
-		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Operation unsupported for this index class:"+this.getClass().getName());
 		
 	}
 
 	public void createType(SimpleFeatureType featureType) throws IOException {
-		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Operation unsupported for this index class:"+this.getClass().getName());
 		
 	}
 
 	public void createType(String identification, String typeSpec)
 			throws SchemaException, IOException {
-		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Operation unsupported for this index class:"+this.getClass().getName());
 		
 	}
 
 	public SimpleFeatureType getType() throws IOException {
-		return this.originalIndex.getType();
+		final Lock lock=rwLock.readLock();
+		try{
+			lock.lock();
+			checkStore();
+			return this.originalIndex.getType();
+		}finally{
+			lock.unlock();
+		}
 	}
 
 }

@@ -14,20 +14,19 @@ import org.geotools.data.DataStoreFactorySpi;
  * @author Simone Giannecchini, GeoSolutions SAS
  *
  */
-public abstract class GranuleIndexFactory {
+public abstract class GranuleIndexFactory {	
 
 	/**
-	 * Default private constructo to enfoce singleton
+	 * Default private constructor to enforce singleton
 	 */
 	private GranuleIndexFactory() {
-		// TODO Auto-generated constructor stub
 	}
 	
 	public static GranuleIndex createGranuleIndex(final  Map<String, Serializable> params){
 		return createGranuleIndex(params,true,false, null);
 	}
 	public static GranuleIndex createGranuleIndex(final  Map<String, Serializable> params, final boolean caching, final boolean create, final DataStoreFactorySpi spi){
-		//TODO @todo this is a temporary hack
+		//TODO @todo this is a temporary hack before we have an even stupid SPI mechanism here
 		return caching?new STRTreeGranuleIndex(params,spi):new GTDataStoreGranuleIndex(params,create,spi);	
 	}
 

@@ -107,21 +107,34 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 	private ReferencedEnvelope bounds;
 
 
-	public GTDataStoreGranuleIndex(final Map<String, Serializable> params, final boolean create, final DataStoreFactorySpi spi) {
+	public GTDataStoreGranuleIndex(
+			final Map<String, Serializable> params, 
+			final boolean create, 
+			final DataStoreFactorySpi spi) {
 		Utils.ensureNonNull("params",params);
 		try{
 		
-			// creating a store
-//			if(!create)
+			// creating a store, this might imply creating it for an existing underlying store or 
+			// creating a brand new one
+			if(!create)
 				tileIndexStore =spi.createDataStore(params);
-//			else
-//				tileIndexStore =  spi.createNewDataStore(params);
+			else
+			{
+				// this works only with the shapefile datastore, not with the others
+				// therefore I try to catch the error to try and use themethdo without *New*
+				try{
+					tileIndexStore =  spi.createNewDataStore(params);
+				}catch (UnsupportedOperationException e) {
+					tileIndexStore =  spi.createDataStore(params);
+				}
+			}
 
 			
-			// is this a new store?
+			// is this a new store? If so we do not set any properties
 			if(create)
 				return;
 				
+			// if this is not a new store let's extract basic properties from it
 			extractBasicProperties();			
 		}
 		catch (Throwable e) {
@@ -141,6 +154,16 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 		
 	}
 
+	/**
+	 * If the underlying store has been disposed we throw an {@link IllegalStateException}.
+	 * <p>
+	 * We need to arrive here with at least a read lock!
+	 * @throws IllegalStateException in case the underlying store has been disposed. 
+	 */
+	private void checkStore()throws IllegalStateException{
+		if(tileIndexStore==null)
+			throw new IllegalStateException("The index sore has been disposed already.");
+	}
 	private void extractBasicProperties() throws IOException {
 		final String[] typeNames = tileIndexStore.getTypeNames();
 		if (typeNames.length <= 0)
@@ -160,7 +183,7 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 		geometryPropertyName = schema.getGeometryDescriptor().getLocalName();
 	}
 	
-	protected final ReadWriteLock rwLock= new ReentrantReadWriteLock(true);
+	private final ReadWriteLock rwLock= new ReentrantReadWriteLock(true);
 
 	/* (non-Javadoc)
 	 * @see org.geotools.gce.imagemosaic.FeatureIndex#findFeatures(com.vividsolutions.jts.geom.Envelope)
@@ -201,29 +224,7 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 			finally{
 				tileIndexStore=null;
 			}	
-				
-			
-//			try {
-//				if (lock != null)
-//					// Release the lock
-//					lock.release();
-//			} catch (Throwable e2) {
-//				if (LOGGER.isLoggable(Level.FINE))
-//					LOGGER.log(Level.FINE, e2.getLocalizedMessage(), e2);
-//			} finally {
-//				lock = null;
-//			}
-//	
-//			try {
-//				if (channel != null)
-//					// Close the file
-//					channel.close();
-//			} catch (Throwable e3) {
-//				if (LOGGER.isLoggable(Level.FINE))
-//					LOGGER.log(Level.FINE, e3.getLocalizedMessage(), e3);
-//			} finally {
-//				channel = null	;
-//			}			
+						
 		}finally{
 			
 			l.unlock();
@@ -239,9 +240,7 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 		try{
 			lock.lock();
 			// check if the index has been cleared
-			if(tileIndexStore==null)
-				throw new IllegalStateException("Unable to proceed, underlying stre is null");
-			
+			checkStore();		
 			
 			FeatureStore<SimpleFeatureType, SimpleFeature> fs=null;
 			try{
@@ -277,8 +276,7 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 		try{
 			lock.lock();
 			// check if the index has been cleared
-			if(tileIndexStore==null)
-				throw new IllegalStateException("Unable to proceed, underlying stre is null");
+			checkStore();
 			
 			
 			FeatureWriter<SimpleFeatureType, SimpleFeature> fw =null;
@@ -331,12 +329,12 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 		final Lock lock=rwLock.readLock();
 		try{
 			lock.lock();		
+			checkStore();
+			
 			//
 			// Load tiles informations, especially the bounds, which will be
 			// reused
 			//
-
-			
 			features = featureSource.getFeatures( q );
 		
 			if (features == null) 
@@ -387,12 +385,12 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 		final Lock lock=rwLock.readLock();
 		try{
 			lock.lock();		
+			checkStore();
+			
 			//
 			// Load tiles informations, especially the bounds, which will be
 			// reused
 			//
-
-			
 			features = featureSource.getFeatures( q );
 		
 			if (features == null) 
@@ -437,31 +435,79 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 	}
 
 	public BoundingBox getBounds() {
-		return bounds;
+		final Lock lock=rwLock.readLock();
+		try{
+			lock.lock();
+			checkStore();
+				
+			return bounds;
+		}finally{
+			lock.unlock();
+		}
 	}
 
 	public void createType(String namespace, String typeName, String typeSpec) throws IOException, SchemaException {
-		final SimpleFeatureType featureType= DataUtilities.createType(namespace, typeName, typeSpec);
-		tileIndexStore.createSchema(featureType);
-		extractBasicProperties();
+		Utils.ensureNonNull("typeName",typeName);
+		Utils.ensureNonNull("typeSpec",typeSpec);
+		final Lock lock=rwLock.writeLock();
+		try{
+			lock.lock();
+			checkStore();
+			
+			final SimpleFeatureType featureType= DataUtilities.createType(namespace, typeName, typeSpec);
+			tileIndexStore.createSchema(featureType);
+			extractBasicProperties();
+			
+		}finally{
+			lock.unlock();
+		}			
+
 		
 	}
 
 	public void createType(SimpleFeatureType featureType) throws IOException {
-		tileIndexStore.createSchema(featureType);
-		extractBasicProperties();
+		Utils.ensureNonNull("featureType",featureType);
+		final Lock lock=rwLock.writeLock();
+		try{
+			lock.lock();
+			checkStore();
+
+			tileIndexStore.createSchema(featureType);
+			extractBasicProperties();
+			
+		}finally{
+			lock.unlock();
+		}				
 		
 	}
 
 	public void createType(String identification, String typeSpec) throws SchemaException, IOException {
-		final SimpleFeatureType featureType= DataUtilities.createType(identification, typeSpec);
-		tileIndexStore.createSchema(featureType);
-		extractBasicProperties();
+		Utils.ensureNonNull("typeSpec",typeSpec);
+		Utils.ensureNonNull("identification",identification);
+		final Lock lock=rwLock.writeLock();
+		try{
+			lock.lock();
+			checkStore();
+			final SimpleFeatureType featureType= DataUtilities.createType(identification, typeSpec);
+			tileIndexStore.createSchema(featureType);
+			extractBasicProperties();
+			
+		}finally{
+			lock.unlock();
+		}			
 		
 	}
 
 	public SimpleFeatureType getType() throws IOException {
-		return tileIndexStore.getSchema(typeName);
+		final Lock lock=rwLock.readLock();
+		try{
+			lock.lock();
+			checkStore();
+			
+			return tileIndexStore.getSchema(typeName);
+		}finally{
+			lock.unlock();
+		}			
 		
 	}
 

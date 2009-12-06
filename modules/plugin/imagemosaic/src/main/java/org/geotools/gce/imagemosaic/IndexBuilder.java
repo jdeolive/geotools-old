@@ -597,7 +597,7 @@ final class IndexBuilder implements Runnable {
 				}
 
 
-				//
+				//Append
 				// STEP 2
 				// Getting a coverage reader for this coverage.
 				//
