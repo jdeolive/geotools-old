@@ -120,8 +120,8 @@ public class RenderingBufferExtractorTest extends TestCase {
                 .colorExpression(Color.BLACK), sb.literalExpression(null))));
         MetaBufferEstimator rbe = new MetaBufferEstimator();
         rbe.visit(style);
-        assertEquals(0, rbe.getBuffer());
-        assertFalse(rbe.isEstimateAccurate());
+        assertEquals(1, rbe.getBuffer());
+        assertTrue(rbe.isEstimateAccurate());
     }
     
     public void testLiteralParseGraphics() {
