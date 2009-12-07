@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.Collection;
+import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -43,7 +44,6 @@ import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataUtilities;
 import org.geotools.factory.Hints;
-import org.geotools.gce.imagemosaic.Utils.MosaicConfigurationBean;
 import org.geotools.gce.imagemosaic.index.GranuleIndex;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
@@ -115,6 +115,9 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 	ImageReaderSpi suggestedSPI;
 
 	GranuleIndex index;
+
+	String timeAttribute;
+	
 	/**
 	 * Constructor.
 	 * 
@@ -232,6 +235,21 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 			if(type.getDescriptor(this.locationAttributeName)==null)
 				throw new DataSourceException("The provided name for the location attribute is invalid.");
 			
+			//
+			// time attribute field checks
+			//
+			//time attribute override
+			if(this.timeAttribute==null)
+			{
+				//get the first string
+				for(AttributeDescriptor attribute: type.getAttributeDescriptors()){
+					if(attribute.getType().getBinding().equals(Date.class))
+						this.timeAttribute=attribute.getName().toString();
+				}
+			}
+			if(type.getDescriptor(this.timeAttribute)==null)
+				throw new DataSourceException("The provided name for the timeAttribute attribute is invalid.");			
+			
 			// creating the raster manager
 			rasterManager= new RasterManager(this);
 		}
@@ -316,10 +334,10 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 			return false;
 		}
 		// load config
-		return extractPropertiesFromConfiguration(configuration);
+		return extractProperties(configuration);
 	}
 
-	private boolean extractPropertiesFromConfiguration(
+	private boolean extractProperties(
 			final MosaicConfigurationBean configuration) {
 		// set properties
 		this.originalEnvelope = new GeneralEnvelope((org.opengis.geometry.Envelope)configuration.getEnvelope2D());
@@ -393,6 +411,11 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 				suggestedSPI=null;
 			}
 		}
+		
+		// time param
+		final String timeAttribute= configuration.getTimeAttribute();
+		if(timeAttribute!=null)
+			this.timeAttribute=timeAttribute;
 		
 		return true;
 	}

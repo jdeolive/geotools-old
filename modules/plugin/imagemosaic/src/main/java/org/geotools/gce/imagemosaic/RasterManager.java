@@ -419,7 +419,9 @@ class RasterManager {
 	SpatialDomainManager spatialDomainManager;
 
 	/** {@link SoftReference} to the index holding the tiles' envelopes. */
-	private final GranuleIndex index;
+	final GranuleIndex index;
+
+	String timeAttribute;
 
 	public RasterManager(final ImageMosaicReader reader) throws DataSourceException {
 		
@@ -434,6 +436,7 @@ class RasterManager {
 		parent.index=null;
 		
         locationAttribute=parent.locationAttributeName;
+        timeAttribute=parent.timeAttribute;
         coverageIdentifier=reader.getName();
         hints = reader.getHints();
         coverageEnvelope = reader.getOriginalEnvelope();

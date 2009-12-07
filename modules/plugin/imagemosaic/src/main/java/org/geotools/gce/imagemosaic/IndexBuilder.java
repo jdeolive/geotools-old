@@ -71,7 +71,6 @@ import org.geotools.data.DefaultTransaction;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.gce.image.WorldImageFormat;
-import org.geotools.gce.imagemosaic.Utils.MosaicConfigurationBean;
 import org.geotools.gce.imagemosaic.index.GranuleIndex;
 import org.geotools.gce.imagemosaic.index.GranuleIndexFactory;
 import org.geotools.geometry.Envelope2D;
@@ -710,7 +709,7 @@ final class IndexBuilder implements Runnable {
 					//
 					// /////////////////////////////////////////////////////////////////////
 					final SimpleFeatureTypeBuilder featureBuilder = new SimpleFeatureTypeBuilder();
-					featureBuilder.setName("mosaic_index");
+					featureBuilder.setName(mosaicConfiguration.getName());
 					featureBuilder.setNamespaceURI("http://www.geo-solutions.it/");
 					featureBuilder.add(runConfiguration.getLocationAttribute(), String.class);
 					featureBuilder.add("the_geom", Polygon.class,actualCRS);
@@ -1404,7 +1403,8 @@ final class IndexBuilder implements Runnable {
 		//
 		// creating a mosaic runConfiguration bean to store the properties file elements			
 		//
-		mosaicConfiguration= new Utils.MosaicConfigurationBean();
+		mosaicConfiguration= new MosaicConfigurationBean();
+		mosaicConfiguration.setName(runConfiguration.indexName);
 			
 	}
 

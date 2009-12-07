@@ -20,6 +20,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -130,6 +131,12 @@ class RasterLayerRequest {
 	private Dimension tileDimensions;
 
 	private boolean multithreadingAllowed;
+
+	private List<Date> requestedTimes;
+
+	public List<Date> getRequestedTimes() {
+		return requestedTimes;
+	}
 
 	public boolean isMultithreadingAllowed() {
 		return multithreadingAllowed;
@@ -347,7 +354,8 @@ class RasterLayerRequest {
      * @param name
      *                the name of the parameter
      */
-    private void extractParameter(ParameterValue<?> param, Identifier name) {
+    @SuppressWarnings("unchecked")
+	private void extractParameter(ParameterValue<?> param, Identifier name) {
 
         // //
         //
@@ -494,6 +502,24 @@ class RasterLayerRequest {
                 }
             }
         }		
+        
+        // //
+        //
+        // Time parameter
+        //
+        // //
+        if (name.equals(ImageMosaicFormat.TIME.getName())) {
+        	final Object value = param.getValue();
+        	if(value==null)
+        		return;
+            final List dates = (List) param.getValue();
+            if (dates==null|| dates.size()<=0) {
+                return;
+            }
+
+            requestedTimes=dates;
+            return;
+        }        
     }
 
     /**

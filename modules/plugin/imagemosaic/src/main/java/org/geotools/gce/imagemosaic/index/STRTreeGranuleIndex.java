@@ -29,6 +29,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
 import org.opengis.geometry.BoundingBox;
 
+import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.index.ItemVisitor;
 import com.vividsolutions.jts.index.SpatialIndex;
@@ -90,8 +91,8 @@ class STRTreeGranuleIndex implements GranuleIndex {
 		public void visitItem(Object o) {
 			if(o instanceof SimpleFeature){
 				final SimpleFeature f=(SimpleFeature) o;
-				if(filter.evaluate(f));
-				adaptee.visit(f,null);
+				if(filter.evaluate(f))
+					adaptee.visit(f,null);
 				return;
 			}
 			throw new IllegalArgumentException("Unable to visit provided item"+o);
@@ -315,7 +316,11 @@ class STRTreeGranuleIndex implements GranuleIndex {
 		
 		// add eventual bbox from the underlying index to constrain search
 		if(requestedBBox!=null){
-			requestedBBox=(ReferencedEnvelope) requestedBBox.intersection(ReferencedEnvelope.reference(originalIndex.getBounds()));
+			// intersection
+			final Envelope intersection = requestedBBox.intersection(ReferencedEnvelope.reference(originalIndex.getBounds()));
+			
+			// create intersection
+			final ReferencedEnvelope referencedEnvelope= new ReferencedEnvelope(intersection,originalIndex.getBounds().getCoordinateReferenceSystem());
 		}
 		else
 			ReferencedEnvelope.reference(originalIndex.getBounds());

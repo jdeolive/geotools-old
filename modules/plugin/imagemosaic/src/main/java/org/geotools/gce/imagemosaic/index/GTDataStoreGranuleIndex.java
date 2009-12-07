@@ -91,7 +91,7 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 			if(this.bbox!=null)
 				this.bbox=(ReferencedEnvelope) this.bbox.intersection(bbox);
 			else
-				this.bbox=null;
+				this.bbox=bbox;
 			return super.visit(filter, data);
 		}
 		

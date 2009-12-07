@@ -142,7 +142,7 @@ public class DataStoreTimeTest{
 		
 		
 		// now read it back with filtering
-		final FilterFactory2 FACTORY = CommonFactoryFinder.getFilterFactory2((Hints) null);
+		
 		
 		// equality 
 //		final Filter temporal=FACTORY.equal(FACTORY.property("ingestion"), FACTORY.literal(days.get(0)),true);

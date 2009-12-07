@@ -25,6 +25,7 @@ import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -42,7 +43,6 @@ import org.geotools.data.FeatureSource;
 import org.geotools.data.DataAccessFactory.Param;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.factory.Hints;
-import org.geotools.gce.imagemosaic.Utils.MosaicConfigurationBean;
 import org.geotools.parameter.DefaultParameterDescriptor;
 import org.geotools.parameter.DefaultParameterDescriptorGroup;
 import org.geotools.parameter.ParameterGroup;
@@ -52,6 +52,7 @@ import org.opengis.coverage.grid.GridCoverageReader;
 import org.opengis.coverage.grid.GridCoverageWriter;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.filter.Filter;
 import org.opengis.parameter.GeneralParameterDescriptor;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.parameter.ParameterDescriptor;
@@ -120,8 +121,15 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
     public static final String TILE_SIZE_SEPARATOR = ",";
     
     /** Control the type of the final mosaic. */
-    public static final ParameterDescriptor<Boolean> FADING = new DefaultParameterDescriptor<Boolean>(
-            "Fading", Boolean.class, new Boolean[]{Boolean.TRUE,Boolean.FALSE}, Boolean.FALSE);
+    @SuppressWarnings("unchecked")
+	public static final ParameterDescriptor<List> TIME = DefaultParameterDescriptor.create("TIME", "A list of time objects",List.class, null,false);    
+    
+    /** Filter tiles based on attributes from the input coverage*/
+    public static ParameterDescriptor<Filter> FILTER = new DefaultParameterDescriptor<Filter>("Filter", Filter.class, null, Filter.INCLUDE);
+    
+    
+    /** Control the type of the final mosaic. */
+    public static final ParameterDescriptor<Boolean> FADING = new DefaultParameterDescriptor<Boolean>("Fading", Boolean.class, new Boolean[]{Boolean.TRUE,Boolean.FALSE}, Boolean.FALSE);
 
     /** Control the transparency of the input coverages. */
     public static final ParameterDescriptor<Color> INPUT_TRANSPARENT_COLOR = new DefaultParameterDescriptor<Color>(
@@ -172,7 +180,8 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
                 BACKGROUND_VALUES,
                 SUGGESTED_TILE_SIZE,
                 ALLOW_MULTITHREADING,
-                MAX_ALLOWED_TILES}));
+                MAX_ALLOWED_TILES,
+                TIME}));
 
         // reading parameters
         writeParameters = null;

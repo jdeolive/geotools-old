@@ -31,6 +31,7 @@ import java.lang.reflect.Constructor;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -57,6 +58,8 @@ import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataUtilities;
+import org.geotools.data.DefaultQuery;
+import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.Hints;
 import org.geotools.gce.imagemosaic.RasterManager.OverviewLevel;
 import org.geotools.gce.imagemosaic.index.GranuleIndex.GranuleIndexVisitor;
@@ -68,6 +71,8 @@ import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.opengis.coverage.ColorInterpretation;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.filter.Filter;
+import org.opengis.filter.FilterFactory2;
 import org.opengis.geometry.BoundingBox;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
@@ -538,7 +543,21 @@ class RasterLayerResponse{
 			
 			// create the index visitor and visit the feature
 			final GranuleVisitor visitor = new GranuleVisitor();
-			rasterManager.getGranules(mosaicBBox, visitor);
+			final List<Date> times = request.getRequestedTimes();
+			if(times!=null&& times.size()>0)
+			{
+				// fuse time query with the bbox query
+				DefaultQuery query= new DefaultQuery(rasterManager.index.getType().getTypeName());
+				final FilterFactory2 FACTORY = CommonFactoryFinder.getFilterFactory2((Hints) null);
+				final Filter temporal=FACTORY.equal(FACTORY.property(rasterManager.timeAttribute), FACTORY.literal(times.get(0)),true);
+				final Filter bbox=FACTORY.bbox(FACTORY.property("the_geom"),mosaicBBox);
+				query.setFilter(FACTORY.and(temporal, bbox));
+				
+				// get those granules
+				rasterManager.getGranules(query, visitor);
+			}
+			else
+				rasterManager.getGranules(mosaicBBox, visitor);
 			visitor.produce();
 			
 			//

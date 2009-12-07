@@ -9,7 +9,6 @@ import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.image.DataBuffer;
-import java.awt.image.IndexColorModel;
 import java.awt.image.MultiPixelPackedSampleModel;
 import java.awt.image.RenderedImage;
 import java.io.BufferedInputStream;
@@ -81,104 +80,6 @@ class Utils {
 	final static AffineTransform CORNER_TO_CENTER= AffineTransform.getTranslateInstance(
 			-PixelTranslation.getPixelTranslation(PixelInCell.CELL_CORNER),
 			-PixelTranslation.getPixelTranslation(PixelInCell.CELL_CORNER));
-	/**
-	 * Very simple bean to hold the configuration of the mosaic.
-	 * 
-	 * @author Simone Giannecchini, GeoSolutions S.A.S.
-	 * @author Stefan Alfons Krueger (alfonx), Wikisquare.de : Support for jar:file:foo.jar/bar.properties URLs
-	 */
-	static final class MosaicConfigurationBean {
-
-		/**
-		 * <code>true</code> it tells us if the mosaic points to absolute paths or to relative ones. (in case of <code>false</code>).
-		 */
-		private boolean absolutePath;
-		
-		/**
-		 * <code>true</code> if we need to expand to RGB(A) the single tiles in case they use a different {@link IndexColorModel}.
-		 */
-		private boolean expandToRGB;
-		
-		/** The envelope for the whole mosaic.**/
-		private Envelope2D envelope2D;
-		
-		/** OverviewLevel levels */
-		private double[][] levels;
-		
-		/** name for the mosaic.*/
-		private String name;
-		
-		/** number of levels*/
-		private int levelsNum;
-		
-		/** location attribute name*/
-		private String locationAttribute;
-		
-		/**Suggested SPI for the various tiles. May be null.**/
-		private String suggestedSPI;
-	
-		/**
-		 * @return the suggestedSPI
-		 */
-		public String getSuggestedSPI() {
-			return suggestedSPI;
-		}
-		/**
-		 * @param suggestedSPI the suggestedSPI to set
-		 */
-		public void setSuggestedSPI(String suggestedSPI) {
-			this.suggestedSPI = suggestedSPI;
-		}
-		
-		public boolean isAbsolutePath() {
-			return absolutePath;
-		}
-		public void setAbsolutePath(boolean absolutePath) {
-			this.absolutePath = absolutePath;
-		}
-		public boolean isExpandToRGB() {
-			return expandToRGB;
-		}
-		public void setExpandToRGB(boolean expandToRGB) {
-			this.expandToRGB = expandToRGB;
-		}
-		public Envelope2D getEnvelope2D() {
-			return envelope2D;
-		}
-		public void setEnvelope2D(Envelope2D envelope2D) {
-			this.envelope2D = envelope2D;
-		}
-
-		public String getName() {
-			return name;
-		}
-		public void setName(String name) {
-			this.name = name;
-		}
-		public int getLevelsNum() {
-			return levelsNum;
-		}
-		public void setLevelsNum(int levelsNum) {
-			this.levelsNum = levelsNum;
-		}
-		public double[][] getLevels() {
-			return levels.clone();
-		}
-		public void setLevels(double[][] levels) {
-			this.levels = levels.clone();
-		}
-		public String getLocationAttribute() {
-			return locationAttribute;
-		}
-		public void setLocationAttribute(String locationAttribute) {
-			this.locationAttribute = locationAttribute;
-		}
-		
-		
-
-
-	}
-	
 	/**
 	 * Logger. 
 	 */
@@ -534,7 +435,10 @@ class Utils {
 
 
 
-	static MosaicConfigurationBean loadMosaicProperties(final URL sourceURL, final CoordinateReferenceSystem crs, final String defaultLocationAttribute){
+	static MosaicConfigurationBean loadMosaicProperties(
+			final URL sourceURL, 
+			final CoordinateReferenceSystem crs, 
+			final String defaultLocationAttribute){
 			//ret value
 		    final MosaicConfigurationBean retValue= new MosaicConfigurationBean();
 
@@ -565,14 +469,14 @@ class Utils {
 			}
 			final String envelope = properties.getProperty("Envelope2D").trim();
 			String[] pairs = envelope.split(" ");
-			final double cornersV[][] = new double[2][2];
+			final double corners[][] = new double[2][2];
 			String pair[];
 			for (int i = 0; i < 2; i++) {
 				pair = pairs[i].split(",");
-				cornersV[i][0] = Double.parseDouble(pair[0]);
-				cornersV[i][1] = Double.parseDouble(pair[1]);
+				corners[i][0] = Double.parseDouble(pair[0]);
+				corners[i][1] = Double.parseDouble(pair[1]);
 			}
-			final GeneralEnvelope originalEnvelope = new GeneralEnvelope(cornersV[0], cornersV[1]);
+			final GeneralEnvelope originalEnvelope = new GeneralEnvelope(corners[0], corners[1]);
 			originalEnvelope.setCoordinateReferenceSystem(crs);
 			retValue.setEnvelope2D(new Envelope2D(originalEnvelope));
 		
@@ -616,6 +520,16 @@ class Utils {
 				String suggestedSPI = properties.getProperty("SuggestedSPI").trim();
 				retValue.setSuggestedSPI(suggestedSPI);
 			}	
+			
+       		//
+			// time attribute is optional
+			//
+			if(properties.containsKey("TimeAttribute"))
+			{
+				String timeAttribute = properties.getProperty("TimeAttribute").trim();
+				retValue.setTimeAttribute(timeAttribute);
+			}				
+			
 			
 
 
