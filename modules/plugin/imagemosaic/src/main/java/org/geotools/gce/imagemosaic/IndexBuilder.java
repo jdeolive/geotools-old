@@ -73,7 +73,6 @@ import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.gce.image.WorldImageFormat;
 import org.geotools.gce.imagemosaic.index.GranuleIndex;
 import org.geotools.gce.imagemosaic.index.GranuleIndexFactory;
-import org.geotools.geometry.Envelope2D;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
@@ -649,7 +648,6 @@ final class IndexBuilder implements Runnable {
 
 					}
 					defaultCRS = actualCRS;
-					globalEnvelope = new GeneralEnvelope(envelope);
 
 					// /////////////////////////////////////////////////////////////////////
 					//
@@ -725,7 +723,6 @@ final class IndexBuilder implements Runnable {
 					// comparing SampeModel
 					// comparing CRSs
 					// ////////////////////////////////////////////////////////
-					globalEnvelope.add(envelope);
 					ColorModel actualCM = its.getColorModel();
 					if((fileIndex > 0 ? !(CRS.equalsIgnoreMetadata(defaultCRS, actualCRS)) : false)){
 						fireEvent(
@@ -1047,8 +1044,6 @@ final class IndexBuilder implements Runnable {
 	 */
 	private boolean mustConvertToRGB = false;
 
-	private GeneralEnvelope globalEnvelope = null;
-
 	private int fileIndex=0;
 
 	private ColorModel defaultCM = null;
@@ -1235,7 +1230,6 @@ final class IndexBuilder implements Runnable {
 		closeIndexObjects();
 		
 		//clear other stuff
-		globalEnvelope=null;
 		defaultCM=null;
 		defaultCRS=null;
 		defaultPalette=null;
@@ -1385,7 +1379,7 @@ final class IndexBuilder implements Runnable {
 		final File datastoreProperties= new File(parent,"datastore.properties");
 		if(Utils.checkFileReadable(datastoreProperties))
 		{
-			index=Utils.createDataStoreParamsFromPropertiesFile(datastoreProperties,false,true);
+			index=Utils.createDataStoreParamsFromPropertiesFile(DataUtilities.fileToURL(datastoreProperties),false,true);
 		    
 		}
 		else{
@@ -1418,7 +1412,6 @@ final class IndexBuilder implements Runnable {
 			mosaicConfiguration.setExpandToRGB(mustConvertToRGB);
 			mosaicConfiguration.setAbsolutePath(runConfiguration.absolute);
 			mosaicConfiguration.setLocationAttribute(runConfiguration.locationAttribute);
-			mosaicConfiguration.setEnvelope2D(new Envelope2D(globalEnvelope));
 			createPropertiesFiles();
 			
 			// processing information
@@ -1463,12 +1456,7 @@ final class IndexBuilder implements Runnable {
 		final Properties properties = new Properties();
 		properties.setProperty("AbsolutePath", Boolean.toString(mosaicConfiguration.isAbsolutePath()));
 		properties.setProperty("LocationAttribute", mosaicConfiguration.getLocationAttribute());
-		properties.setProperty("Envelope2D", new StringBuilder(Double.toString(globalEnvelope.getMinimum(0))).append(",").append(
-				Double.toString(globalEnvelope.getMinimum(1))).append(" ")
-				.append(Double.toString(globalEnvelope.getMaximum(0)))
-				.append(",").append(Double.toString(globalEnvelope.getMaximum(1)))
-				.toString());
-		
+
 		
 		final int numberOfLevels=mosaicConfiguration.getLevelsNum();
 		final double[][] resolutionLevels=mosaicConfiguration.getLevels();

@@ -91,13 +91,18 @@ import com.sun.media.jai.codecimpl.util.ImagingException;
 class RasterLayerResponse{
 	
 	
-	
-	class GranuleVisitor implements GranuleIndexVisitor{
+	/**
+	 * This class is responsible for putting together the granules for the final mosaic.
+	 * 
+	 * @author Simone Giannecchini, GeoSolutions SAS
+	 *
+	 */
+	class MosaicBuilder implements GranuleIndexVisitor{
 
 		/**
 		 * Default {@link Constructor}
 		 */
-		public GranuleVisitor() {
+		public MosaicBuilder() {
 		}
 		
 
@@ -542,7 +547,7 @@ class RasterLayerResponse{
 			
 			
 			// create the index visitor and visit the feature
-			final GranuleVisitor visitor = new GranuleVisitor();
+			final MosaicBuilder visitor = new MosaicBuilder();
 			final List<Date> times = request.getRequestedTimes();
 			if(times!=null&& times.size()>0)
 			{

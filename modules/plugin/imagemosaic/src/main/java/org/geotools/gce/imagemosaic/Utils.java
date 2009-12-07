@@ -51,8 +51,6 @@ import org.geotools.gce.imagemosaic.IndexBuilder.ProcessingEvent;
 import org.geotools.gce.imagemosaic.IndexBuilder.ProcessingEventListener;
 import org.geotools.gce.imagemosaic.index.GranuleIndex;
 import org.geotools.gce.imagemosaic.index.GranuleIndexFactory;
-import org.geotools.geometry.Envelope2D;
-import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.image.ImageWorker;
 import org.geotools.metadata.iso.spatial.PixelTranslation;
@@ -62,7 +60,6 @@ import org.geotools.resources.i18n.Errors;
 import org.geotools.util.Converters;
 import org.opengis.geometry.BoundingBox;
 import org.opengis.metadata.extent.GeographicBoundingBox;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.datum.PixelInCell;
 
 /**
@@ -94,6 +91,11 @@ class Utils {
 	 * Default path behavior with respect to absolute paths.
 	 */
 	static final boolean DEFAULT_PATH_BEHAVIOR = false;
+	
+	/**
+	 * Default path behavior with respect to index caching.
+	 */
+	private static final boolean DEFAULT_CACHING_BEHAVIOR = false;
 	
 	/**
 	 * Cached instance of {@link URLImageInputStreamSpi} for creating {@link ImageInputStream} instances.
@@ -437,7 +439,6 @@ class Utils {
 
 	static MosaicConfigurationBean loadMosaicProperties(
 			final URL sourceURL, 
-			final CoordinateReferenceSystem crs, 
 			final String defaultLocationAttribute){
 			//ret value
 		    final MosaicConfigurationBean retValue= new MosaicConfigurationBean();
@@ -456,29 +457,7 @@ class Utils {
 					LOGGER.severe("Unable to load mosaic properties file");		
 				return null;
 			}
-			
-
-			//
-			// load the envelope
-			//
-			if(!properties.containsKey("Envelope2D"))
-			{
-				if(LOGGER.isLoggable(Level.SEVERE))
-					LOGGER.severe("Required key Envelope2D not found.");		
-				return  null;
-			}
-			final String envelope = properties.getProperty("Envelope2D").trim();
-			String[] pairs = envelope.split(" ");
-			final double corners[][] = new double[2][2];
-			String pair[];
-			for (int i = 0; i < 2; i++) {
-				pair = pairs[i].split(",");
-				corners[i][0] = Double.parseDouble(pair[0]);
-				corners[i][1] = Double.parseDouble(pair[1]);
-			}
-			final GeneralEnvelope originalEnvelope = new GeneralEnvelope(corners[0], corners[1]);
-			originalEnvelope.setCoordinateReferenceSystem(crs);
-			retValue.setEnvelope2D(new Envelope2D(originalEnvelope));
+	
 		
 		
 			//
@@ -493,7 +472,7 @@ class Utils {
 				return  null;
 			}			
 			final String levels = properties.getProperty("Levels").trim();
-			pairs = levels.split(" ");
+			String[] pairs = levels.split(" ");
 			if(pairs==null||pairs.length!=levelsNumber)
 			{
 				LOGGER.severe("Levels number is different from the provided number of levels resoltion.");
@@ -501,7 +480,7 @@ class Utils {
 			}
 			final double[][] resolutions = new double[levelsNumber][2];
        		for (int i = 0; i < levelsNumber; i++) {
-       			pair = pairs[i].split(",");
+       			String pair[] = pairs[i].split(",");
     			if(pair==null||pair.length!=2)
     			{
     				LOGGER.severe("OverviewLevel number is different from the provided number of levels resoltion.");
@@ -531,7 +510,19 @@ class Utils {
 			}				
 			
 			
-
+       		//
+			// caching
+			//
+			if(properties.containsKey("Caching"))
+			{
+				String caching = properties.getProperty("Caching").trim();
+				try{
+					retValue.setCaching(Boolean.valueOf(caching));
+				}catch (Throwable e) {
+					retValue.setCaching(Boolean.valueOf(Utils.DEFAULT_CACHING_BEHAVIOR));
+				}
+			}				
+			
 
 			//
 			// name is not optional
@@ -977,6 +968,8 @@ class Utils {
 	}
 
 	public static final DataStoreFactorySpi SHAPE_SPI = new ShapefileDataStoreFactory();
+	
+	public static final DataStoreFactorySpi INDEXED_SHAPE_SPI = new ShapefileDataStoreFactory();
 
 	static final String DIRECT_KAKADU_PLUGIN="it.geosolutions.imageio.plugins.jp2k.JP2KKakaduImageReader";
 
@@ -988,10 +981,10 @@ class Utils {
 	 * @throws IOException
 	 */
 	@SuppressWarnings("unchecked")
-	static GranuleIndex createDataStoreParamsFromPropertiesFile(final File datastoreProperties, boolean caching, boolean create)
+	static GranuleIndex createDataStoreParamsFromPropertiesFile(final URL datastoreProperties, boolean caching, boolean create)
 			throws IOException {
 		// read the properties file
-		Properties properties = loadPropertiesFromURL(DataUtilities.fileToURL(datastoreProperties));
+		Properties properties = loadPropertiesFromURL(datastoreProperties);
 		if(properties==null)
 			return null;
 		
@@ -1040,6 +1033,6 @@ class Utils {
 		if(url.getProtocol().equalsIgnoreCase("file"))
 			params.put(ShapefileDataStoreFactory.CREATE_SPATIAL_INDEX.key, Boolean.TRUE);
 		params.put(ShapefileDataStoreFactory.MEMORY_MAPPED.key, Boolean.TRUE);
-		return GranuleIndexFactory.createGranuleIndex(params,caching,create, SHAPE_SPI);
+		return GranuleIndexFactory.createGranuleIndex(params,caching,create, caching?SHAPE_SPI:INDEXED_SHAPE_SPI);
 	}
 }

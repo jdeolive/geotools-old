@@ -2,8 +2,6 @@ package org.geotools.gce.imagemosaic;
 
 import java.awt.image.IndexColorModel;
 
-import org.geotools.geometry.Envelope2D;
-
 
 /**
  * Very simple bean to hold the configuration of the mosaic.
@@ -23,9 +21,6 @@ public class MosaicConfigurationBean {
 	 */
 	private boolean expandToRGB;
 	
-	/** The envelope for the whole mosaic.**/
-	private Envelope2D envelope2D;
-	
 	/** OverviewLevel levels */
 	private double[][] levels;
 	
@@ -43,6 +38,9 @@ public class MosaicConfigurationBean {
 	
 	/** time attribute name. <code>null</code> if absent.*/
 	private String timeAttribute;
+	
+	/** do we want to use caching for our index.*/
+	private boolean caching=false;
 
 	public String getTimeAttribute() {
 		return timeAttribute;
@@ -75,13 +73,6 @@ public class MosaicConfigurationBean {
 	public void setExpandToRGB(boolean expandToRGB) {
 		this.expandToRGB = expandToRGB;
 	}
-	public Envelope2D getEnvelope2D() {
-		return envelope2D;
-	}
-	public void setEnvelope2D(Envelope2D envelope2D) {
-		this.envelope2D = envelope2D;
-	}
-
 	public String getName() {
 		return name;
 	}
@@ -105,6 +96,12 @@ public class MosaicConfigurationBean {
 	}
 	public void setLocationAttribute(String locationAttribute) {
 		this.locationAttribute = locationAttribute;
+	}
+	public boolean isCaching() {
+		return caching;
+	}
+	public void setCaching(boolean caching) {
+		this.caching = caching;
 	}
 	
 	

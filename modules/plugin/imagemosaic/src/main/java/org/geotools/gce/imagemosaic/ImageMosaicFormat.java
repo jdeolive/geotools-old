@@ -315,7 +315,7 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
                 }
 	            
 	            //get the properties file
-	            final MosaicConfigurationBean props = Utils.loadMosaicProperties(propsUrl, crs,"location");
+	            final MosaicConfigurationBean props = Utils.loadMosaicProperties(propsUrl, "location");
 	            if(props==null)
 	            	return false;
 	            

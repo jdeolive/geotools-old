@@ -22,6 +22,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Date;
 import java.util.concurrent.ExecutorService;
@@ -117,6 +118,8 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 	GranuleIndex index;
 
 	String timeAttribute;
+
+	boolean cachingIndex;
 	
 	/**
 	 * Constructor.
@@ -140,9 +143,8 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 		}
 		this.coverageFactory= CoverageFactoryFinder.getGridCoverageFactory(this.hints);
 		if(this.hints.containsKey(Hints.MAX_ALLOWED_TILES))
-		{
 			this.maxAllowedTiles= ((Integer)this.hints.get(Hints.MAX_ALLOWED_TILES));		
-		}
+
 
 		
 
@@ -162,7 +164,14 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 		if(this.sourceURL==null)
 			throw new DataSourceException("This plugin accepts File, URL or String. The string may describe a File or an URL");
 		
-
+		//
+		// Load properties file with information about levels and envelope
+		//
+		final boolean retValue = loadMosaicProperties();
+		if(!retValue)
+			throw new DataSourceException("Unable to create reader for this mosaicsince we could not parse the configuration.");
+		
+		
 		// 
 		//
 		// Load tiles informations, especially the bounds, which will be
@@ -174,26 +183,44 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 			final String extension= FilenameUtils.getExtension(sourceFile.getAbsolutePath());
 			if(extension.equalsIgnoreCase("shp"))
 			{
-				// shapefile
-				index=Utils.createShapeFileStoreParamsFromURL(sourceURL,true,false);
+				// shapefile, caching is always true by default
+				index=Utils.createShapeFileStoreParamsFromURL(sourceURL,cachingIndex,false);
 			}
 			else
 			{
-				index=Utils.createDataStoreParamsFromPropertiesFile(sourceFile,true,false);
+				index=Utils.createDataStoreParamsFromPropertiesFile(sourceURL,cachingIndex,false);
 			}
+			
+			// error
+			if(index==null)
+				throw new DataSourceException("Unable to create index for this URL "+sourceURL);
+			
+			// everything is fine
 			if (LOGGER.isLoggable(Level.FINE))
-				LOGGER.fine("Connected mosaic reader to its data store "
+				LOGGER.fine("Connected mosaic reader to its index "
 						+ sourceURL.toString());
 			final SimpleFeatureType type= index.getType();
 			if (type==null)
 				throw new IllegalArgumentException("Problems when opening the index, no typenames for the schema are defined");
-	
 			
-			// //
+			//
+			// save the bbox and prepare otherinfo
+			//
+			this.originalEnvelope=new GeneralEnvelope(index.getBounds());
+			// original gridrange (estimated)
+			originalGridRange = new GridEnvelope2D(
+					new Rectangle(
+							(int) Math.round(originalEnvelope.getSpan(0)/ highestRes[0]), 
+							(int) Math.round(originalEnvelope.getSpan(1)/ highestRes[1])
+							)
+					);
+			final GridToEnvelopeMapper geMapper= new GridToEnvelopeMapper(originalGridRange,originalEnvelope);
+			geMapper.setPixelAnchor(PixelInCell.CELL_CENTER);
+			raster2Model= geMapper.createTransform();			
+
 			//
 			// get the crs if able to
 			//
-			// //
 			final Object tempCRS = this.hints.get(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM);
 			if (tempCRS != null) {
 				this.crs = (CoordinateReferenceSystem) tempCRS;
@@ -208,16 +235,8 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 					crs = tempcrs;
 			}
 	
-			// /////////////////////////////////////////////////////////////////////
-			//
-			// Load properties file with information about levels and envelope
-			//
-			// /////////////////////////////////////////////////////////////////////
-			// property file
-			final boolean retValue = loadMosaicProperties();
-			if(!retValue)
-				throw new DataSourceException("Unable to create reader for this mosaicsince we could not parse the configuration.");
-			
+
+
 			//
 			// location attribute field checks
 			//
@@ -241,10 +260,24 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 			//time attribute override
 			if(this.timeAttribute==null)
 			{
-				//get the first string
+				//get the first attribute that can be use as date
 				for(AttributeDescriptor attribute: type.getAttributeDescriptors()){
+					// TODO improve this code
 					if(attribute.getType().getBinding().equals(Date.class))
+					{
 						this.timeAttribute=attribute.getName().toString();
+						break;
+					}
+					if(attribute.getType().getBinding().equals(Timestamp.class))
+					{
+						this.timeAttribute=attribute.getName().toString();
+						break;
+					}
+					if(attribute.getType().getBinding().equals(java.sql.Date.class))
+					{
+						this.timeAttribute=attribute.getName().toString();
+						break;
+					}						
 				}
 			}
 			if(type.getDescriptor(this.timeAttribute)==null)
@@ -298,7 +331,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 		if(extension.equalsIgnoreCase("shp"))
 		{
 			// shapefile
-			configuration=Utils.loadMosaicProperties(DataUtilities.changeUrlExt(sourceURL, "properties"), crs,this.locationAttributeName);
+			configuration=Utils.loadMosaicProperties(DataUtilities.changeUrlExt(sourceURL, "properties"),this.locationAttributeName);
 		}
 		else
 		{
@@ -317,7 +350,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 				if(Utils.checkFileReadable(propFile))
 				{
 					// try to load the config
-					configuration=Utils.loadMosaicProperties(DataUtilities.fileToURL(propFile), crs,this.locationAttributeName);
+					configuration=Utils.loadMosaicProperties(DataUtilities.fileToURL(propFile), this.locationAttributeName);
 					if(configuration!=null)
 						break;
 					
@@ -339,8 +372,6 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 
 	private boolean extractProperties(
 			final MosaicConfigurationBean configuration) {
-		// set properties
-		this.originalEnvelope = new GeneralEnvelope((org.opengis.geometry.Envelope)configuration.getEnvelope2D());
 
 		// resolutions levels
 		numOverviews = configuration.getLevelsNum()-1;
@@ -369,16 +400,6 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 		// we do not find it.
 		expandMe = configuration.isExpandToRGB();
 
-		// original gridrange (estimated)
-		originalGridRange = new GridEnvelope2D(
-				new Rectangle(
-						(int) Math.round(originalEnvelope.getSpan(0)/ highestRes[0]), 
-						(int) Math.round(originalEnvelope.getSpan(1)/ highestRes[1])
-						)
-				);
-		final GridToEnvelopeMapper geMapper= new GridToEnvelopeMapper(originalGridRange,originalEnvelope);
-		geMapper.setPixelAnchor(PixelInCell.CELL_CENTER);
-		raster2Model= geMapper.createTransform();
 
 		// absolute or relative path
 		pathType =configuration.isAbsolutePath()?PathType.ABSOLUTE:PathType.RELATIVE;
@@ -387,6 +408,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 		// location attribute
 		//
 		locationAttributeName=configuration.getLocationAttribute();
+		
 		
 		// suggested SPI
 		final String suggestedSPIClass= configuration.getSuggestedSPI();
@@ -416,6 +438,10 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 		final String timeAttribute= configuration.getTimeAttribute();
 		if(timeAttribute!=null)
 			this.timeAttribute=timeAttribute;
+		
+
+		// caching for the index
+		cachingIndex=configuration.isCaching();
 		
 		return true;
 	}
