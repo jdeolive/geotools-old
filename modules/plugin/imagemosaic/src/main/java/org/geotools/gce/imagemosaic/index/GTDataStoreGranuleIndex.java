@@ -22,6 +22,8 @@ import org.geotools.data.FeatureStore;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
+import org.geotools.data.postgis.PostgisNGDataStoreFactory;
+import org.geotools.data.postgis.PostgisNGJNDIDataStoreFactory;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
 import org.geotools.feature.FeatureCollection;
@@ -35,6 +37,7 @@ import org.geotools.util.NullProgressListener;
 import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory2;
@@ -106,12 +109,16 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 
 	private ReferencedEnvelope bounds;
 
+	private DataStoreFactorySpi spi;
+
 
 	public GTDataStoreGranuleIndex(
 			final Map<String, Serializable> params, 
 			final boolean create, 
 			final DataStoreFactorySpi spi) {
 		Utils.ensureNonNull("params",params);
+		Utils.ensureNonNull("spi",spi);
+		this.spi=spi;
 		try{
 		
 			// creating a store, this might imply creating it for an existing underlying store or 
@@ -292,7 +299,21 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 					
 					// get attributes and copy them over
 					for(int i=f.getAttributeCount()-1;i>=0;i--){
-						final Object attribute = f.getAttribute(i);
+						Object attribute = f.getAttribute(i);
+						
+						
+						// special case for postgis
+						if(spi instanceof PostgisNGJNDIDataStoreFactory||spi instanceof PostgisNGDataStoreFactory)
+						{
+							final AttributeDescriptor descriptor = tileIndexStore.getSchema(typeName).getDescriptor(i);
+							if(descriptor.getType().getBinding().equals(String.class))
+							{
+								// escape the string correctly
+//								String clone = new String((String) attribute);
+								attribute=((String) attribute).replace("\\", "\\\\");
+							}
+							
+						}
 						
 						feature.setAttribute(i, attribute);
 					}

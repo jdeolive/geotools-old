@@ -280,7 +280,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 					}						
 				}
 			}
-			if(type.getDescriptor(this.timeAttribute)==null)
+			if(this.timeAttribute!=null&&this.timeAttribute.length()>0&&type.getDescriptor(this.timeAttribute)==null)
 				throw new DataSourceException("The provided name for the timeAttribute attribute is invalid.");			
 			
 			// creating the raster manager
