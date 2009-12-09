@@ -179,7 +179,7 @@ class STRTreeGranuleIndex implements GranuleIndex {
 		//
 		try{
 
-			features = originalIndex.findGranules();
+			features = originalIndex.getGranules();
 			if (features == null) 
 				throw new NullPointerException(
 						"The provided FeatureCollection<SimpleFeatureType, SimpleFeature> is null, it's impossible to create an index!");
@@ -219,7 +219,7 @@ class STRTreeGranuleIndex implements GranuleIndex {
 	 * @see org.geotools.gce.imagemosaic.FeatureIndex#findFeatures(com.vividsolutions.jts.geom.Envelope)
 	 */
 	@SuppressWarnings("unchecked")
-	public List<SimpleFeature> findGranules(final BoundingBox envelope) throws IOException {
+	public List<SimpleFeature> getGranules(final BoundingBox envelope) throws IOException {
 		Utils.ensureNonNull("envelope",envelope);
 		final Lock lock=rwLock.readLock();
 		try{
@@ -235,7 +235,7 @@ class STRTreeGranuleIndex implements GranuleIndex {
 	/* (non-Javadoc)
 	 * @see org.geotools.gce.imagemosaic.FeatureIndex#findFeatures(com.vividsolutions.jts.geom.Envelope, com.vividsolutions.jts.index.ItemVisitor)
 	 */
-	public void findGranules(final BoundingBox envelope, final GranuleIndexVisitor visitor) throws IOException {
+	public void getGranules(final BoundingBox envelope, final GranuleIndexVisitor visitor) throws IOException {
 		Utils.ensureNonNull("envelope",envelope);
 		Utils.ensureNonNull("visitor",visitor);
 		final Lock lock=rwLock.readLock();
@@ -278,7 +278,7 @@ class STRTreeGranuleIndex implements GranuleIndex {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<SimpleFeature> findGranules(Query q) throws IOException {
+	public List<SimpleFeature> getGranules(Query q) throws IOException {
 		Utils.ensureNonNull("q",q);
 		final Lock lock=rwLock.readLock();
 		try{
@@ -327,11 +327,11 @@ class STRTreeGranuleIndex implements GranuleIndex {
 		return requestedBBox;
 	}
 
-	public List<SimpleFeature> findGranules() throws IOException {
-		return findGranules(this.getBounds());
+	public List<SimpleFeature> getGranules() throws IOException {
+		return getGranules(this.getBounds());
 	}
 
-	public void findGranules(Query q, GranuleIndexVisitor visitor)
+	public void getGranules(Query q, GranuleIndexVisitor visitor)
 			throws IOException {
 		Utils.ensureNonNull("q",q);
 		final Lock lock=rwLock.readLock();

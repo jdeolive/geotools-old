@@ -35,11 +35,11 @@ public interface GranuleIndex {
 	 *         {@link BoundingBox}.
 	 * @throws IOException 
 	 */
-	public abstract Collection<SimpleFeature> findGranules(final BoundingBox envelope)throws IOException;
+	public abstract Collection<SimpleFeature> getGranules(final BoundingBox envelope)throws IOException;
 	
-	public abstract Collection<SimpleFeature> findGranules(final Query q) throws IOException;
+	public abstract Collection<SimpleFeature> getGranules(final Query q) throws IOException;
 
-	public abstract Collection<SimpleFeature> findGranules()throws IOException;
+	public abstract Collection<SimpleFeature> getGranules()throws IOException;
 	
 	/**
 	 * Finds the features that intersects the provided {@link BoundingBox}:
@@ -50,9 +50,9 @@ public interface GranuleIndex {
 	 *         {@link BoundingBox}.
 	 * @throws IOException 
 	 */
-	public abstract void  findGranules(final BoundingBox envelope,final  GranuleIndexVisitor visitor) throws IOException;
+	public abstract void  getGranules(final BoundingBox envelope,final  GranuleIndexVisitor visitor) throws IOException;
 	
-	public abstract void  findGranules( final Query q,final GranuleIndexVisitor visitor) throws IOException;	
+	public abstract void  getGranules( final Query q,final GranuleIndexVisitor visitor) throws IOException;	
 
 	public abstract void dispose();
 		

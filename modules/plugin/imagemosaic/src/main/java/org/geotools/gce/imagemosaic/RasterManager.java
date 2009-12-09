@@ -533,7 +533,7 @@ class RasterManager {
 	 *             In case loading the needed features failes.
 	 */
 	Collection<SimpleFeature> getGranules(final BoundingBox envelope)throws IOException {
-		final Collection<SimpleFeature> features = index.findGranules(envelope);
+		final Collection<SimpleFeature> features = index.getGranules(envelope);
 		if (features != null)
 			return features;
 		else
@@ -541,7 +541,7 @@ class RasterManager {
 	}
 	
 	Collection<SimpleFeature> getGranules(final Query q)throws IOException {
-		final Collection<SimpleFeature> features = index.findGranules(q);
+		final Collection<SimpleFeature> features = index.getGranules(q);
 		if (features != null)
 			return features;
 		else
@@ -549,7 +549,7 @@ class RasterManager {
 	}
 	
 	void getGranules(final Query q,final GranuleIndexVisitor visitor)throws IOException {
-		index.findGranules(q,visitor);
+		index.getGranules(q,visitor);
 
 	}
 
@@ -564,7 +564,7 @@ class RasterManager {
 	 *             In case loading the needed features failes.
 	 */
 	void getGranules(final BoundingBox envelope,final GranuleIndexVisitor visitor)throws IOException {
-		index.findGranules(envelope,visitor);
+		index.getGranules(envelope,visitor);
 	}
 
 	public PathType getPathType() {

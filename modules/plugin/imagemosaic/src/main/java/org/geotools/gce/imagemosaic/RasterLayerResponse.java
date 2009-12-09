@@ -60,7 +60,9 @@ import org.geotools.data.DataSourceException;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultQuery;
 import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.factory.GeoTools;
 import org.geotools.factory.Hints;
+import org.geotools.filter.SortByImpl;
 import org.geotools.gce.imagemosaic.RasterManager.OverviewLevel;
 import org.geotools.gce.imagemosaic.index.GranuleIndex.GranuleIndexVisitor;
 import org.geotools.geometry.GeneralEnvelope;
@@ -73,6 +75,8 @@ import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory2;
+import org.opengis.filter.sort.SortBy;
+import org.opengis.filter.sort.SortOrder;
 import org.opengis.geometry.BoundingBox;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
@@ -90,6 +94,7 @@ import com.sun.media.jai.codecimpl.util.ImagingException;
 @SuppressWarnings("deprecation")
 class RasterLayerResponse{
 	
+	private static final FilterFactory2 FACTORY = CommonFactoryFinder.getFilterFactory2(GeoTools.getDefaultHints());
 	
 	/**
 	 * This class is responsible for putting together the granules for the final mosaic.
@@ -549,15 +554,31 @@ class RasterLayerResponse{
 			// create the index visitor and visit the feature
 			final MosaicBuilder visitor = new MosaicBuilder();
 			final List<Date> times = request.getRequestedTimes();
-			if(times!=null&& times.size()>0)
+			if(times!=null&&times.size()>0)
 			{
 				// fuse time query with the bbox query
 				DefaultQuery query= new DefaultQuery(rasterManager.index.getType().getTypeName());
-				final FilterFactory2 FACTORY = CommonFactoryFinder.getFilterFactory2((Hints) null);
-				final Filter temporal=FACTORY.equal(FACTORY.property(rasterManager.timeAttribute), FACTORY.literal(times.get(0)),true);
-				final Filter bbox=FACTORY.bbox(FACTORY.property("the_geom"),mosaicBBox);
-				query.setFilter(FACTORY.and(temporal, bbox));
-				
+				final int size=times.size();
+				boolean current= size==1&&times.get(0)==null;
+				if( !current){
+					final Filter temporal=FACTORY.equal(FACTORY.property(rasterManager.timeAttribute), FACTORY.literal(times.get(0)),true);
+					final Filter bbox=FACTORY.bbox(FACTORY.property("the_geom"),mosaicBBox);
+					query.setFilter(FACTORY.and(temporal, bbox));
+				}
+				else{
+					// current management
+					query.setMaxFeatures(1);
+					query.setSortBy(
+							new SortBy[]{
+									new SortByImpl(
+											FACTORY.property(rasterManager.timeAttribute),
+											SortOrder.DESCENDING
+									)});
+//					final MaxVisitor max = new MaxVisitor("ingestion");
+//					datastore.getFeatureSource(datastore.getTypeNames()[0]).accepts(query,max, new NullProgressListener());
+//					System.out.println("max "+max.getResult().toString());
+					
+				}
 				// get those granules
 				rasterManager.getGranules(query, visitor);
 			}

@@ -195,24 +195,24 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 	/* (non-Javadoc)
 	 * @see org.geotools.gce.imagemosaic.FeatureIndex#findFeatures(com.vividsolutions.jts.geom.Envelope)
 	 */
-	public List<SimpleFeature> findGranules(final BoundingBox envelope) throws IOException {
+	public List<SimpleFeature> getGranules(final BoundingBox envelope) throws IOException {
 		Utils.ensureNonNull("envelope",envelope);
 		final DefaultQuery q= new DefaultQuery(typeName);
 		Filter filter = ff.bbox( ff.property( geometryPropertyName ), ReferencedEnvelope.reference(envelope) );
 		q.setFilter(filter);
-	    return findGranules(q);	
+	    return getGranules(q);	
 		
 	}
 	
 	/* (non-Javadoc)
 	 * @see org.geotools.gce.imagemosaic.FeatureIndex#findFeatures(com.vividsolutions.jts.geom.Envelope, com.vividsolutions.jts.index.ItemVisitor)
 	 */
-	public void  findGranules(final BoundingBox envelope, final GranuleIndexVisitor visitor) throws IOException {
+	public void  getGranules(final BoundingBox envelope, final GranuleIndexVisitor visitor) throws IOException {
 		Utils.ensureNonNull("envelope",envelope);
 		final DefaultQuery q= new DefaultQuery(typeName);
 		Filter filter = ff.bbox( ff.property( geometryPropertyName ), ReferencedEnvelope.reference(envelope) );
 		q.setFilter(filter);
-	    findGranules(q,visitor);			
+	    getGranules(q,visitor);			
 		
 
 	}
@@ -309,7 +309,6 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 							if(descriptor.getType().getBinding().equals(String.class))
 							{
 								// escape the string correctly
-//								String clone = new String((String) attribute);
 								attribute=((String) attribute).replace("\\", "\\\\");
 							}
 							
@@ -341,7 +340,7 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 		
 	}
 
-	public void  findGranules(final Query q,final GranuleIndexVisitor visitor)
+	public void  getGranules(final Query q,final GranuleIndexVisitor visitor)
 	throws IOException {
 		Utils.ensureNonNull("q",q);
 
@@ -398,7 +397,7 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 		
 	}
 
-	public List<SimpleFeature> findGranules(final Query q) throws IOException {
+	public List<SimpleFeature> getGranules(final Query q) throws IOException {
 		Utils.ensureNonNull("q",q);
 
 		FeatureIterator<SimpleFeature> it=null;
@@ -451,8 +450,8 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 		}
 	}
 
-	public Collection<SimpleFeature> findGranules()throws IOException {
-		return findGranules(getBounds());
+	public Collection<SimpleFeature> getGranules()throws IOException {
+		return getGranules(getBounds());
 	}
 
 	public BoundingBox getBounds() {

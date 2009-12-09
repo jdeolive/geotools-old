@@ -20,8 +20,10 @@ import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.media.jai.widget.ScrollingImagePanel;
@@ -33,15 +35,15 @@ import junit.textui.TestRunner;
 
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureReader;
+import org.geotools.data.FeatureWriter;
 import org.geotools.data.Transaction;
 import org.geotools.data.postgis.PostgisNGDataStoreFactory;
-import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.factory.Hints;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.feature.visitor.MaxVisitor;
 import org.geotools.feature.visitor.MinVisitor;
 import org.geotools.filter.text.cql2.CQL;
 import org.geotools.filter.text.cql2.CQLException;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.jdbc.JDBCDataStore;
 import org.geotools.referencing.CRS;
 import org.geotools.util.NullProgressListener;
@@ -49,7 +51,6 @@ import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
-import org.opengis.filter.FilterFactory2;
 import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -114,31 +115,37 @@ public class DataStoreTimeTest{
 		params.put(PostgisNGDataStoreFactory.SCHEMA.key,"public");
 		params.put(PostgisNGDataStoreFactory.DATABASE.key,"test");
 		params.put(PostgisNGDataStoreFactory.LOOSEBBOX.key,true);
-		params.put(PostgisNGDataStoreFactory.USER.key,"itt");
-		params.put(PostgisNGDataStoreFactory.PASSWD.key,"itttti");
+		params.put(PostgisNGDataStoreFactory.USER.key,"postgres");
+		params.put(PostgisNGDataStoreFactory.PASSWD.key,"fucktheworld");
 
 		// create schema
 		final JDBCDataStore datastore = spi.createDataStore(params);
-//		datastore.createSchema(schema);
-//		final ReferencedEnvelope envelope=new ReferencedEnvelope(-180,180,-90,90,actualCRS);
-//		
-//		// insert features
-//		final FeatureWriter<SimpleFeatureType, SimpleFeature> fw = datastore.getFeatureWriterAppend(datastore.getTypeNames()[0], Transaction.AUTO_COMMIT);
-//		final List<Date> days= new ArrayList<Date>();
-//		for (int i=0;i < 10;i++){
-//			
-//			// create feature
-//			final SimpleFeature feature = fw.next();
-//			feature.setAttribute("location", "");
-//			feature.setAttribute("the_geom", geomFactory.toGeometry(envelope));
-//			final Date day = new Date(109,11,i+1);
-//			days.add(day);
-//			feature.setAttribute("ingestion",day);
-//			fw.write();
-//			
-//			
-//		}
-//		fw.close();
+		try{
+			datastore.getSchema(schema.getTypeName());
+		}catch (Exception e) 
+		{
+			datastore.createSchema(schema);
+			final ReferencedEnvelope envelope=new ReferencedEnvelope(-180,180,-90,90,actualCRS);
+			
+			// insert features
+			final FeatureWriter<SimpleFeatureType, SimpleFeature> fw = datastore.getFeatureWriterAppend(datastore.getTypeNames()[0], Transaction.AUTO_COMMIT);
+			final List<Date> days= new ArrayList<Date>();
+			for (int i=0;i < 10;i++){
+				
+				// create feature
+				final SimpleFeature feature = fw.next();
+				feature.setAttribute("location", "\\\\192.168.1.12\\c\\emule\\incoming");
+				feature.setAttribute("the_geom", geomFactory.toGeometry(envelope));
+				final Date day = new Date(109,11,i+1);
+				days.add(day);
+				feature.setAttribute("ingestion",day);
+				fw.write();
+				
+				
+			}
+			fw.close();			
+		}
+		
 		
 		
 		// now read it back with filtering
@@ -169,7 +176,7 @@ public class DataStoreTimeTest{
 		else
 			System.out.println("max before "+max.getResult().toString());		
 		
-		final Filter after = CQL.toFilter("ingestion AFTER 2009-12-12T05:00:00Z");
+		final Filter after = CQL.toFilter("ingestion AFTER 2009-12-01T05:00:00Z");
 		query= new DefaultQuery(datastore.getTypeNames()[0],after);
 //		datastore.getFeatureSource(datastore.getTypeNames()[0]).accepts(query,min, new NullProgressListener());
 //		if(min.getResult().getValue()==null)
@@ -180,7 +187,7 @@ public class DataStoreTimeTest{
 		while(reader.hasNext())
 		{
 			final SimpleFeature elem = reader.next();
-			System.out.print(elem.getAttribute("ingestion"));
+			System.out.println(elem.toString());
 		}
 		reader.close();
 		
