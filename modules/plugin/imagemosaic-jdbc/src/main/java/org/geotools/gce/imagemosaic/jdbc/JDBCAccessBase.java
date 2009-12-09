@@ -32,7 +32,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -557,7 +560,8 @@ abstract class JDBCAccessBase implements JDBCAccess {
 		Date start = new Date();
 		Connection con = null;
 		List<ImageDecoderThread> threads = new ArrayList<ImageDecoderThread>();
-		;
+		ExecutorService pool =  getExecutorServivicePool ();
+		
 
 		String statementString = getGridSelectStatement(levelInfo);
 
@@ -585,8 +589,10 @@ abstract class JDBCAccessBase implements JDBCAccess {
 				ImageDecoderThread thread = new ImageDecoderThread(tileBytes,
 						location, tileGeneralEnvelope, pixelDimension,
 						requestEnvelope, levelInfo, tileQueue, config);
-				thread.start();
+//				thread.start();
 				threads.add(thread);
+				pool.execute(thread);
+
 			}
 
 			;
@@ -618,14 +624,21 @@ abstract class JDBCAccessBase implements JDBCAccess {
 							+ ((new Date()).getTime() - start.getTime())
 							+ " millisecs");
 
-		// wait for all threas dto finish and write end marker
-		for (AbstractThread thread : threads) {
-			try {
-				thread.join();
-			} catch (InterruptedException e) {
-				throw new RuntimeException(e.getLocalizedMessage());
-			}
-		}
+		// wait for all threads dto finish and write end marker
+		pool.shutdown();
+		try {
+		    pool.awaitTermination(3600, TimeUnit.SECONDS); // wait for one hour 
+                  } catch (InterruptedException e) {
+                           throw new RuntimeException(e.getLocalizedMessage());
+                }
+		
+//		for (AbstractThread thread : threads) {
+//			try {
+//				thread.join();
+//			} catch (InterruptedException e) {
+//				throw new RuntimeException(e.getLocalizedMessage());
+//			}
+//		}
 
 		tileQueue.add(TileQueueElement.ENDELEMENT);
 
@@ -805,4 +818,10 @@ abstract class JDBCAccessBase implements JDBCAccess {
 
 		return result;
 	}
+	
+       public ExecutorService getExecutorServivicePool () {
+           int availableProcessors = Runtime.getRuntime().availableProcessors();
+           LOGGER.info("Using "+ availableProcessors + " CPU(s)");
+           return Executors.newFixedThreadPool(availableProcessors);
+       }
 }
