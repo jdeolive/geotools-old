@@ -14,7 +14,7 @@ public class OracleViewTestSetup extends JDBCViewTestSetup {
         run("CREATE TABLE lakes (fid int primary key, id int, "
             + "geom MDSYS.SDO_GEOMETRY, name varchar(255))");
         run("INSERT INTO USER_SDO_GEOM_METADATA (TABLE_NAME, COLUMN_NAME, DIMINFO, SRID)" 
-                + " VALUES ('lakeS','geom',MDSYS.SDO_DIM_ARRAY(MDSYS.SDO_DIM_ELEMENT('X',-180,180,0.5), " 
+                + " VALUES ('lakes','geom',MDSYS.SDO_DIM_ARRAY(MDSYS.SDO_DIM_ELEMENT('X',-180,180,0.5), " 
                 + "MDSYS.SDO_DIM_ELEMENT('Y',-90,90,0.5)), 4326)");   
         run("CREATE INDEX LAKES_GEOM_IDX ON lakes(GEOM) INDEXTYPE IS MDSYS.SPATIAL_INDEX" //
                 + " PARAMETERS ('SDO_INDX_DIMS=2 LAYER_GTYPE=\"POLYGON\"')");
@@ -34,9 +34,9 @@ public class OracleViewTestSetup extends JDBCViewTestSetup {
 
     @Override
     protected void createLakesView() throws Exception {
-        run("CREATE VIEW LAKESVIEW AS SELECT * FROM LAKE");
+        run("CREATE VIEW LAKESVIEW AS SELECT * FROM LAKES");
         run("INSERT INTO USER_SDO_GEOM_METADATA (TABLE_NAME, COLUMN_NAME, DIMINFO, SRID)" 
-                + " VALUES ('lakesview','geom',MDSYS.SDO_DIM_ARRAY(MDSYS.SDO_DIM_ELEMENT('X',-180,180,0.5), " 
+                + " VALUES ('LAKESVIEW','geom',MDSYS.SDO_DIM_ARRAY(MDSYS.SDO_DIM_ELEMENT('X',-180,180,0.5), " 
                 + "MDSYS.SDO_DIM_ELEMENT('Y',-90,90,0.5)), 4326)");   
     }
 
