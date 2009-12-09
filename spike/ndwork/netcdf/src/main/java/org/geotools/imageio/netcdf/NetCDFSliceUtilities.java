@@ -308,7 +308,14 @@ class NetCDFSliceUtilities {
      * @return int
      */
     private static int getTimeUnits(String units, Double vd) {
-        if ("days".equalsIgnoreCase(units)) {
+         if ("months".equalsIgnoreCase(units)) {
+             if (vd == null || vd == 0.0)
+                 // if no day, it is the first day
+                 return 1;
+             else {
+                 //TODO: FIXME
+             }
+         } else if ("days".equalsIgnoreCase(units)) {
             if (vd == null || vd == 0.0)
                 return Calendar.DATE;
             else {

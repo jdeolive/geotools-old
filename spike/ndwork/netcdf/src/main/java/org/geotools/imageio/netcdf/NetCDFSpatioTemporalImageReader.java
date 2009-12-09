@@ -194,7 +194,7 @@ public class NetCDFSpatioTemporalImageReader extends SpatioTemporalImageReader {
 
     @Override
     public void dispose() {
-        directReader.reset();
+        directReader.dispose();
         directReader = null;
         metadataMap.clear();
         metadataMap = null;
