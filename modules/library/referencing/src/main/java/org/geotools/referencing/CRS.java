@@ -1663,12 +1663,17 @@ search:             if (DefaultCoordinateSystemAxis.isCompassDirection(axis.getD
             final String aspect = tokens.nextToken().trim();
             final boolean all = aspect.equalsIgnoreCase("all");
             if (all || aspect.equalsIgnoreCase("plugins")) {
+                ReferencingFactoryFinder.reset();
                 ReferencingFactoryFinder.scanForPlugins();
             }
             if (all || aspect.equalsIgnoreCase("warnings")) {
                 MapProjection.resetWarnings();
             }
         }
+        defaultFactory = null;
+        xyFactory = null;
+        strictFactory = null;
+        lenientFactory = null;
     }
 
     /**

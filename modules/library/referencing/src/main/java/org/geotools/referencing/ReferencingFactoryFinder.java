@@ -704,6 +704,13 @@ loop:       for (int i=0; ; i++) {
         final FactoryRegistry registry = getServiceRegistry();
         new FactoryPrinter().list(registry, out, locale);
     }
+    
+    /**
+     * Resets the factory finder and prepares for a new full scan of the SPI subsystems
+     */
+    public static void reset() {
+        registry = null;
+    }
 
     /**
      * Dump to the standard output stream a list of available factory implementations.
