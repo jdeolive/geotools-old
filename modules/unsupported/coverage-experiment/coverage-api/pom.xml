@@ -15,8 +15,8 @@
 
   <parent>
     <groupId>org.geotools</groupId>
-    <artifactId>ndplugins</artifactId>
-    <version>2.6-SNAPSHOT</version>
+    <artifactId>gt-coverage-experiment</artifactId>
+    <version>2.7-SNAPSHOT</version>
   </parent>
   
 
@@ -24,17 +24,15 @@
   <!--     Module Description                                      -->
   <!-- =========================================================== -->
   <groupId>org.geotools</groupId>
-  <artifactId>gt-coverage-api-old</artifactId>
+  <artifactId>gt-coverage-api</artifactId>
   <packaging>jar</packaging>
   <name>API interfaces</name>
-  <url>http://maven.geotools.fr/reports/modules/library/coverage-api/</url>
-
   <scm>
     <connection>
-      scm:svn:https://www.geo-solutions.it/svn/repo/geotoolsPlugins/gt-2.6.x/modules/unsupported/ndplugins/coverage-api/
+      scm:svn:https://svn.osgeo.org/geotools/trunk/modules/unsupported/coverage-experiment/coverage-api/
     </connection>
-    <url>https://www.geo-solutions.it/svn/repo/geotoolsPlugins/gt-2.6.x/modules/unsupported/ndplugins/coverage-api/</url>
-  </scm>
+  <url>https://svn.osgeo.org/geotools/trunk/modules/unsupported/coverage-experiment/coverage-api/</url>
+ </scm>
 
   <description>
   </description>

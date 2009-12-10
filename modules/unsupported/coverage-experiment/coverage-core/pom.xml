@@ -9,11 +9,12 @@
      ======================================================================= -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-    <parent>
-      <groupId>org.geotools</groupId>
-      <artifactId>ndplugins</artifactId>
-      <version>2.6-SNAPSHOT</version>
-  </parent>
+   <parent>
+    <groupId>org.geotools</groupId>
+    <artifactId>gt-coverage-experiment</artifactId>
+    <version>2.7-SNAPSHOT</version>
+   </parent>
+
 
   <!-- =========================================================== -->
   <!--     Module Description                                      -->
@@ -22,13 +23,11 @@
   <artifactId>gt-coverage-core</artifactId>
   <packaging>jar</packaging>
   <name>ND Coverage Core plugin</name>
-  <url>https://www.geo-solutions.it/svn/repo/geotoolsPlugins/gt-2.6.x/modules/unsupported/ndplugins/coverage-core</url>
- 
   <scm>
     <connection>
-      scm:svn:https://www.geo-solutions.it/svn/repo/geotoolsPlugins/gt-2.6.x/modules/unsupported/ndplugins/coverage-core/
+      scm:svn:https://svn.osgeo.org/geotools/trunk/modules/unsupported/coverage-experiment/coverage-core
     </connection>
-  <url>https://www.geo-solutions.it/svn/repo/geotoolsPlugins/gt-2.6.x/modules/unsupported/ndplugins/coverage-core/</url>
+  <url>https://svn.osgeo.org/geotools/trunk/modules/unsupported/coverage-experiment/coverage-core</url>
  </scm>
 
   <description>
@@ -97,7 +96,7 @@
     </dependency>
     <dependency>
       <groupId>org.geotools</groupId>
-      <artifactId>gt-coverage-api-old</artifactId>
+      <artifactId>gt-coverage-api</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

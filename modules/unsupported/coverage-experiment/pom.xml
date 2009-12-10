@@ -12,27 +12,26 @@
     <parent>
       <groupId>org.geotools</groupId>
       <artifactId>unsupported</artifactId>
-      <version>2.6-SNAPSHOT</version>
+      <version>2.7-SNAPSHOT</version>
   </parent>
 
   <!-- =========================================================== -->
   <!--     Module Description                                      -->
   <!-- =========================================================== -->
   <groupId>org.geotools</groupId>
-  <artifactId>ndplugins</artifactId>
+  <artifactId>gt-coverage-experiment</artifactId>
   <packaging>pom</packaging>
-  <name>ND plugin module</name>
-  <url>http://maven.geotools.fr/reports/modules/unsupported/ndplugins/</url>
- 
+  <name>Coverage Experiment Module</name>
+
   <scm>
     <connection>
-      scm:svn:https://www.geo-solutions.it/svn/repo/geotoolsPlugins/gt-2.6.x/modules/unsupported/ndplugins/
+      scm:svn:https://svn.osgeo.org/geotools/trunk/modules/unsupported/coverage-experiment/
     </connection>
-  <url>https://www.geo-solutions.it/svn/repo/geotoolsPlugins/gt-2.6.x/modules/unsupported/ndplugins/</url>
+  <url>https://svn.osgeo.org/geotools/trunk/modules/unsupported/coverage-experiment/</url>
  </scm>
 
   <description>
-    Core module for ND GeoTools plugins.
+    Module for Coverage experiment and ND GeoTools plugins.
   </description>
 
   <licenses>
@@ -65,6 +64,15 @@
       <organization>GeoSolutions</organization>
       <roles>
         <role>Boss</role>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
+ <developer>
+      <name>Alessio Fabiani</name>
+      <id>afabiani</id>
+      <email>alessio.fabiani@geo-solutions.it</email>
+      <organization>GeoSolutions</organization>
+      <roles>
         <role>Java Developer</role>
       </roles>
     </developer>
