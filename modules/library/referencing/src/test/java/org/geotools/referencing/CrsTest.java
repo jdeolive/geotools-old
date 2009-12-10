@@ -16,23 +16,26 @@
  */
 package org.geotools.referencing;
 
-import java.util.Set;
-import java.awt.geom.Rectangle2D;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
+import java.awt.geom.Rectangle2D;
+import java.util.Set;
+
+import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.referencing.crs.DefaultEngineeringCRS;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.geotools.resources.geometry.XRectangle2D;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.CoordinateOperation;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.MathTransform2D;
 import org.opengis.referencing.operation.TransformException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-
-import org.geotools.geometry.GeneralEnvelope;
-import org.geotools.resources.geometry.XRectangle2D;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.geotools.referencing.crs.DefaultEngineeringCRS;
-
-import org.junit.*;
-import static org.junit.Assert.*;
 
 
 /**

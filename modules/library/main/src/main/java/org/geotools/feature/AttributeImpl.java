@@ -18,9 +18,8 @@ package org.geotools.feature;
 
 import org.geotools.feature.type.AttributeDescriptorImpl;
 import org.geotools.feature.type.Types;
-import org.geotools.filter.identity.GmlObjectIdImpl;
-import org.geotools.resources.Utilities;
 import org.geotools.util.Converters;
+import org.geotools.util.Utilities;
 import org.opengis.feature.Attribute;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.AttributeType;

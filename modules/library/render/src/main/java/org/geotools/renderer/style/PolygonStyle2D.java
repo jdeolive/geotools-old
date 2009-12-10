@@ -20,7 +20,7 @@ package org.geotools.renderer.style;
 import java.awt.Composite;
 import java.awt.Paint;
 
-import org.geotools.resources.Utilities;
+import org.geotools.resources.Classes;
 
 
 /**
@@ -78,6 +78,6 @@ public class PolygonStyle2D extends LineStyle2D {
      * Returns a string representation of this style.
      */
     public String toString() {
-        return Utilities.getShortClassName(this) + '[' + fill + ']';
+        return Classes.getShortClassName(this) + '[' + fill + ']';
     }
 }

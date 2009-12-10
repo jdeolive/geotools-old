@@ -20,11 +20,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.geotools.resources.Classes;
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.opengis.feature.type.Name;
 import org.opengis.feature.type.PropertyDescriptor;
 import org.opengis.feature.type.PropertyType;
-import org.opengis.filter.Filter;
 
 public class PropertyDescriptorImpl implements PropertyDescriptor {
 

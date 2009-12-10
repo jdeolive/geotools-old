@@ -22,7 +22,7 @@ import java.awt.Paint;
 import java.awt.Stroke;
 import java.awt.image.BufferedImage;
 
-import org.geotools.resources.Utilities;
+import org.geotools.resources.Classes;
 
 
 /**
@@ -121,6 +121,6 @@ public class LineStyle2D extends Style2D {
      * Returns a string representation of this style.
      */
     public String toString() {
-        return Utilities.getShortClassName(this) + '[' + contour + ']';
+        return Classes.getShortClassName(this) + '[' + contour + ']';
     }
 }

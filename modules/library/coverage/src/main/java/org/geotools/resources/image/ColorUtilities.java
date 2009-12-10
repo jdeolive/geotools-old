@@ -18,8 +18,8 @@ package org.geotools.resources.image;
 
 import java.awt.Color;
 import java.awt.color.ColorSpace;
-import java.awt.image.DataBuffer;
 import java.awt.image.ColorModel;
+import java.awt.image.DataBuffer;
 import java.awt.image.IndexColorModel;
 import java.util.Arrays;
 
@@ -285,22 +285,22 @@ public final class ColorUtilities {
      * Reference: http://www.brucelindbloom.com/index.html?ColorDifferenceCalc.html
      */
     public static float colorDistance(final float[] lab1, final float[] lab2) {
-        if (false) {
-            // Compute distance using CIE94 formula.
-            // NOTE: this formula sometime fails because of negative
-            //       value in the first Math.sqrt(...) expression.
-            final double dL = (double)lab1[0] - lab2[0];
-            final double da = (double)lab1[1] - lab2[1];
-            final double db = (double)lab1[2] - lab2[2];
-            final double C1 = Math.hypot(lab1[1], lab1[2]);
-            final double C2 = Math.hypot(lab2[1], lab2[2]);
-            final double dC = C1 - C2;
-            final double dH = Math.sqrt(da*da + db*db - dC*dC);
-            final double sL = dL / 2;
-            final double sC = dC / (1 + 0.048*C1);
-            final double sH = dH / (1 + 0.014*C1);
-            return (float)Math.sqrt(sL*sL + sC*sC + sH*sH);
-        } else {
+//        if (false) {
+//            // Compute distance using CIE94 formula.
+//            // NOTE: this formula sometime fails because of negative
+//            //       value in the first Math.sqrt(...) expression.
+//            final double dL = (double)lab1[0] - lab2[0];
+//            final double da = (double)lab1[1] - lab2[1];
+//            final double db = (double)lab1[2] - lab2[2];
+//            final double C1 = Math.hypot(lab1[1], lab1[2]);
+//            final double C2 = Math.hypot(lab2[1], lab2[2]);
+//            final double dC = C1 - C2;
+//            final double dH = Math.sqrt(da*da + db*db - dC*dC);
+//            final double sL = dL / 2;
+//            final double sC = dC / (1 + 0.048*C1);
+//            final double sH = dH / (1 + 0.014*C1);
+//            return (float)Math.sqrt(sL*sL + sC*sC + sH*sH);
+//        } else {
             // Compute distance using delta E formula.
             double sum = 0;
             for (int i=Math.min(lab1.length, lab2.length); --i>=0;) {
@@ -308,7 +308,7 @@ public final class ColorUtilities {
                 sum += delta*delta;
             }
             return (float)Math.sqrt(sum);
-        }
+//        }
     }
 
     /**

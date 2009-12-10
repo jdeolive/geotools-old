@@ -18,6 +18,7 @@ package org.geotools.util;
 
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
+
 import org.geotools.util.logging.Logging;
 
 

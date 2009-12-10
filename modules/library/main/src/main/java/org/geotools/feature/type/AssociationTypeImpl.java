@@ -18,7 +18,7 @@ package org.geotools.feature.type;
 
 import java.util.List;
 
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.opengis.feature.type.AssociationType;
 import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.Name;

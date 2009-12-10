@@ -30,10 +30,11 @@ import java.util.NoSuchElementException;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
-
 import java.util.logging.Logger;
-import org.opengis.util.InternationalString;
+
+import org.geotools.util.Utilities;
 import org.geotools.util.logging.Logging;
+import org.opengis.util.InternationalString;
 
 
 /**

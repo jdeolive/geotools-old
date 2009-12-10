@@ -19,7 +19,7 @@ package org.geotools.feature.type;
 import java.util.Collection;
 import java.util.List;
 
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.GeometryDescriptor;

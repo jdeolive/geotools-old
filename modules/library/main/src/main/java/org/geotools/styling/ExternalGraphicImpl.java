@@ -26,7 +26,7 @@ import java.util.TreeSet;
 
 import javax.swing.Icon;
 
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.opengis.metadata.citation.OnLineResource;
 import org.opengis.style.ColorReplacement;
 import org.opengis.style.GraphicalSymbol;

@@ -53,7 +53,6 @@ import org.geotools.factory.OptionalFactory;
  * @author Simone Giannecchini, GeoSolutions
  * @source $URL$
  */
-@SuppressWarnings("deprecation")
 public interface GridFormatFactorySpi extends OptionalFactory {
     /**
      * Construct a live grid format.

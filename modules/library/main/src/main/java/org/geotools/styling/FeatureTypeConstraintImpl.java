@@ -18,7 +18,7 @@ package org.geotools.styling;
 
 import java.util.Arrays;
 
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.opengis.filter.Filter;
 
 

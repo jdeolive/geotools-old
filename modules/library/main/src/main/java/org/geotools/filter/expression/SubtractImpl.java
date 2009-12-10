@@ -18,7 +18,7 @@ package org.geotools.filter.expression;
 
 import org.geotools.filter.Filters;
 import org.geotools.filter.MathExpressionImpl;
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.ExpressionVisitor;
 import org.opengis.filter.expression.Subtract;

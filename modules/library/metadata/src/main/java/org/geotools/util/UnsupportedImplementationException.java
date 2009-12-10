@@ -62,7 +62,7 @@ public class UnsupportedImplementationException extends UnsupportedOperationExce
      * @param classe The unexpected implementation class.
      * @param cause The cause for the exception.
      */
-    public UnsupportedImplementationException(final Class classe, final Exception cause) {
+    public UnsupportedImplementationException(final Class<?>  classe, final Exception cause) {
         super(Errors.format(ErrorKeys.UNKNOW_TYPE_$1, classe), cause);
     }
 }

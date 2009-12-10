@@ -16,19 +16,25 @@
  */
 package org.geotools.image.io;
 
-import java.awt.image.*;
 import java.awt.Dimension;
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.IndexColorModel;
+import java.awt.image.RenderedImage;
+import java.awt.image.SampleModel;
+import java.awt.image.WritableRaster;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
-import java.io.IOException;
-import java.io.FileNotFoundException;
+
 import javax.imageio.IIOException;
 import javax.imageio.ImageTypeSpecifier;
 import javax.swing.JFrame;
 
-import org.geotools.resources.Utilities;
-import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
+import org.geotools.resources.i18n.Errors;
+import org.geotools.util.Utilities;
 
 
 /**

@@ -20,7 +20,7 @@ package org.geotools.factory;
 import java.util.Map;
 
 import org.geotools.referencing.ReferencingFactoryFinder;
-import org.geotools.resources.Utilities;
+import org.geotools.resources.Classes;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
 import org.opengis.feature.type.FeatureTypeFactory;
@@ -99,7 +99,7 @@ public class BasicFactories {
      * @param type The factory type requested by the users.
      */
     private static String unsupportedFactory(final Class type) {
-        return Errors.format(ErrorKeys.FACTORY_NOT_FOUND_$1, Utilities.getShortName(type));
+        return Errors.format(ErrorKeys.FACTORY_NOT_FOUND_$1, Classes.getShortName(type));
     }
 
     /**

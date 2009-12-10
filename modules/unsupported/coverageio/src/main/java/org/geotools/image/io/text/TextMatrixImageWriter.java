@@ -21,18 +21,19 @@ import java.io.IOException;
 import java.text.FieldPosition;
 import java.text.NumberFormat;
 import java.util.Locale;
+
 import javax.imageio.IIOImage;
-import javax.imageio.ImageWriter;
 import javax.imageio.ImageWriteParam;
-import javax.imageio.spi.ImageWriterSpi;
+import javax.imageio.ImageWriter;
 import javax.imageio.metadata.IIOMetadata;
+import javax.imageio.spi.ImageWriterSpi;
 import javax.media.jai.iterator.RectIter;
 
 import org.geotools.factory.GeoTools;
 import org.geotools.image.ImageDimension;
-import org.geotools.resources.Utilities;
-import org.geotools.resources.i18n.Descriptions;
 import org.geotools.resources.i18n.DescriptionKeys;
+import org.geotools.resources.i18n.Descriptions;
+import org.geotools.util.Utilities;
 
 
 /**

@@ -23,7 +23,6 @@ import java.awt.image.renderable.ParameterBlock;
 import java.util.List;
 import java.util.Vector;
 
-// JAI dependencies
 import javax.media.jai.CRIFImpl;
 
 

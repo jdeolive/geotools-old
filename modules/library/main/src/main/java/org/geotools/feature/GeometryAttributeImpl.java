@@ -18,9 +18,8 @@ package org.geotools.feature;
 
 
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.opengis.feature.GeometryAttribute;
-import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.feature.type.GeometryType;
 import org.opengis.filter.identity.Identifier;

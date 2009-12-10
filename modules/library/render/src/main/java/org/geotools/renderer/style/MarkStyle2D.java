@@ -21,7 +21,7 @@ import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 
 import org.geotools.geometry.jts.TransformedShape;
-import org.geotools.resources.Utilities;
+import org.geotools.resources.Classes;
 
 
 /**
@@ -119,6 +119,6 @@ public class MarkStyle2D extends PolygonStyle2D {
      * Returns a string representation of this style.
      */
     public String toString() {
-        return Utilities.getShortClassName(this) + '[' + shape + ']';
+        return Classes.getShortClassName(this) + '[' + shape + ']';
     }
 }

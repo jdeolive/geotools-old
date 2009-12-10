@@ -26,7 +26,6 @@ import junit.framework.TestCase;
 
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.filter.IllegalFilterException;
-import org.geotools.resources.Utilities;
 import org.geotools.styling.AnchorPoint;
 import org.geotools.styling.ColorMapEntry;
 import org.geotools.styling.Displacement;
@@ -56,6 +55,7 @@ import org.geotools.styling.Symbolizer;
 import org.geotools.styling.TextSymbolizer;
 import org.geotools.styling.UomOgcMapping;
 import org.geotools.styling.UserLayer;
+import org.geotools.util.Utilities;
 import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.expression.Expression;
 import org.opengis.util.Cloneable;

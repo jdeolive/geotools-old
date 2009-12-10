@@ -206,7 +206,6 @@ public class WeakValueHashMap<K,V> extends AbstractMap<K,V> {
      *
      * @todo Use the commented line instead if a future Java version supports generic arrays.
      */
-    @SuppressWarnings("unchecked")
     private void newEntryTable(final int size) {
 //      table = new Entry[size];
         table = (Entry[]) Array.newInstance(Entry.class, size);

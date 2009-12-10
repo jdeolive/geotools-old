@@ -28,7 +28,7 @@ import java.awt.font.GlyphVector;
 import java.awt.image.BufferedImage;
 import java.text.Bidi;
 
-import org.geotools.resources.Utilities;
+import org.geotools.resources.Classes;
 
 
 /**
@@ -362,7 +362,7 @@ public class TextStyle2D extends Style2D {
      * Returns a string representation of this style.
      */
     public String toString() {
-        return Utilities.getShortClassName(this) + "[\"" + label + "\"]";
+        return Classes.getShortClassName(this) + "[\"" + label + "\"]";
     }
     
         

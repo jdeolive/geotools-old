@@ -16,7 +16,6 @@
  */
 package org.geotools.util;
 
-import java.awt.geom.AffineTransform;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.AbstractQueue;

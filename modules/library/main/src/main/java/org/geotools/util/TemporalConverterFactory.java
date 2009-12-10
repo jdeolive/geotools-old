@@ -16,7 +16,6 @@
  */
 package org.geotools.util;
 
-import java.math.BigInteger;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;

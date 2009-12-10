@@ -19,26 +19,23 @@ package org.geotools.referencing.factory.epsg;
 // J2SE dependencies
 import java.util.Iterator;
 
-// OpenGIS dependencies
-import org.opengis.metadata.Identifier;
+import org.geotools.factory.Hints;
+import org.geotools.referencing.ReferencingFactoryFinder;
+import org.geotools.referencing.factory.epsg.oracle.OracleOnlineTestCase;
+import org.geotools.referencing.operation.AbstractCoordinateOperation;
+import org.geotools.referencing.operation.AuthorityBackedFactory;
+import org.geotools.referencing.operation.BufferedCoordinateOperationFactory;
+import org.geotools.resources.Classes;
+import org.geotools.util.Utilities;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.IdentifiedObject;
 import org.opengis.referencing.crs.CRSAuthorityFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.ConcatenatedOperation;
 import org.opengis.referencing.operation.Conversion;
-import org.opengis.referencing.operation.Transformation;
 import org.opengis.referencing.operation.CoordinateOperation;
 import org.opengis.referencing.operation.CoordinateOperationFactory;
-import org.opengis.referencing.operation.ConcatenatedOperation;
-
-// Geotools dependencies
-import org.geotools.referencing.factory.epsg.oracle.OracleOnlineTestCase;
-import org.geotools.referencing.operation.BufferedCoordinateOperationFactory;
-import org.geotools.referencing.operation.AbstractCoordinateOperation;
-import org.geotools.referencing.operation.AuthorityBackedFactory;
-import org.geotools.referencing.ReferencingFactoryFinder;
-import org.geotools.factory.Hints;
-import org.geotools.resources.Utilities;
+import org.opengis.referencing.operation.Transformation;
 
 
 /**
@@ -104,7 +101,7 @@ public class OperationFactoryOnlineTest extends OracleOnlineTestCase {
                 count++;
             } else {
                 assertTrue("Expected Conversion but got " + 
-                           Utilities.getShortName(AbstractCoordinateOperation.getType(op)) + ". ",
+                           Classes.getShortName(AbstractCoordinateOperation.getType(op)) + ". ",
                            (op instanceof Conversion));
             }
         }
