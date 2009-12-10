@@ -54,6 +54,7 @@ import org.opengis.coverage.grid.GridCoverageReader;
 import org.opengis.coverage.grid.GridCoverageWriter;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
+import org.opengis.geometry.BoundingBox;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.parameter.ParameterValue;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -206,7 +207,10 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 			//
 			// save the bbox and prepare otherinfo
 			//
-			this.originalEnvelope=new GeneralEnvelope(index.getBounds());
+			final BoundingBox bounds = index.getBounds();
+			if(bounds.isEmpty())
+				throw new IllegalArgumentException("Cannot create a mosaic out of an empty index");
+			this.originalEnvelope=new GeneralEnvelope(bounds);
 			// original gridrange (estimated)
 			originalGridRange = new GridEnvelope2D(
 					new Rectangle(

@@ -497,8 +497,8 @@ public class Utils {
 			final Properties properties = loadPropertiesFromURL(propsURL);
 			if(properties==null)
 			{
-				if(LOGGER.isLoggable(Level.SEVERE))
-					LOGGER.severe("Unable to load mosaic properties file");		
+				if(LOGGER.isLoggable(Level.INFO))
+					LOGGER.info("Unable to load mosaic properties file");		
 				return null;
 			}
 	
@@ -511,15 +511,16 @@ public class Utils {
 			retValue.setLevelsNum(levelsNumber);
 			if(!properties.containsKey("Levels"))
 			{
-				if(LOGGER.isLoggable(Level.SEVERE))
-					LOGGER.severe("Required key Levels not found.");		
+				if(LOGGER.isLoggable(Level.INFO))
+					LOGGER.info("Required key Levels not found.");		
 				return  null;
 			}			
 			final String levels = properties.getProperty("Levels").trim();
 			String[] pairs = levels.split(" ");
 			if(pairs==null||pairs.length!=levelsNumber)
 			{
-				LOGGER.severe("Levels number is different from the provided number of levels resoltion.");
+				if(LOGGER.isLoggable(Level.INFO))
+					LOGGER.info("Levels number is different from the provided number of levels resoltion.");
 				return null;
 			}
 			final double[][] resolutions = new double[levelsNumber][2];
@@ -527,7 +528,8 @@ public class Utils {
        			String pair[] = pairs[i].split(",");
     			if(pair==null||pair.length!=2)
     			{
-    				LOGGER.severe("OverviewLevel number is different from the provided number of levels resoltion.");
+    				if(LOGGER.isLoggable(Level.INFO))
+    					LOGGER.info("OverviewLevel number is different from the provided number of levels resoltion.");
     				return null;
     			}       			
        			resolutions[i][0] = Double.parseDouble(pair[0]);
@@ -573,8 +575,8 @@ public class Utils {
 			//
 			if(!properties.containsKey("Name"))
 			{
-				if(LOGGER.isLoggable(Level.SEVERE))
-					LOGGER.severe("Required key Name not found.");		
+				if(LOGGER.isLoggable(Level.INFO))
+					LOGGER.info("Required key Name not found.");		
 				return  null;
 			}			
 			String coverageName = properties.getProperty("Name").trim();

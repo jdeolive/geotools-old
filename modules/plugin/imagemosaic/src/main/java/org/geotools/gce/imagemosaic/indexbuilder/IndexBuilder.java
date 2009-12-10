@@ -91,6 +91,8 @@ import org.opengis.geometry.Envelope;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.datum.PixelInCell;
 
+import sun.misc.Timeable;
+
 import com.sun.media.imageioimpl.common.BogusColorSpace;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
@@ -1338,6 +1340,9 @@ public class IndexBuilder implements Runnable {
 			mosaicConfiguration.setExpandToRGB(mustConvertToRGB);
 			mosaicConfiguration.setAbsolutePath(runConfiguration.isAbsolute());
 			mosaicConfiguration.setLocationAttribute(runConfiguration.getLocationAttribute());
+			final String timeAttribute= runConfiguration.getTimeAttribute();
+			if(timeAttribute!=null)
+				mosaicConfiguration.setTimeAttribute(runConfiguration.getTimeAttribute());
 			createPropertiesFiles();
 			
 			// processing information

@@ -368,7 +368,7 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 			//load the feature from the shapefile and create JTS index
 			if (features.size()<=0) 
 				throw new IllegalArgumentException(
-						"The provided FeatureCollection<SimpleFeatureType, SimpleFeature>  or empty, it's impossible to create an index!");
+						"The provided FeatureCollection<SimpleFeatureType, SimpleFeature>  is empty, it's impossible to create an index!");
 			
 			features.accepts( new AbstractFeatureVisitor(){
 			    public void visit( Feature feature ) {
@@ -379,7 +379,6 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 			        }
 			    }            
 			}, new NullProgressListener() );
-			features.clear();
 
 		}
 		catch (Throwable e) {
