@@ -59,6 +59,10 @@ public class WrappingProjectionHandler extends ProjectionHandler {
             mt.transform(src, 0, dst, 0, 2);
 
             radius = Math.abs(dst[2] - dst[0]);
+            
+            if(radius <= 0) {
+                throw new RuntimeException("Computed Earth radius is 0, what is going on?");
+            }
         } catch (Exception e) {
             throw new RuntimeException("Unexpected error computing the Earth radius "
                     + "in the current projection", e);
