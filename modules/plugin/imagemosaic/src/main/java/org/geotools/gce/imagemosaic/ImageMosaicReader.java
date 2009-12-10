@@ -339,8 +339,11 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 			final File[] properties = sourceFile.getParentFile().listFiles(
 					(FilenameFilter)
 					FileFilterUtils.andFileFilter(
-							FileFilterUtils.notFileFilter(FileFilterUtils.nameFileFilter("datastore.properties")),
-							FileFilterUtils.makeFileOnly(FileFilterUtils.suffixFileFilter(".properties")
+							FileFilterUtils.notFileFilter(FileFilterUtils.nameFileFilter("indexer.properties")),
+						FileFilterUtils.andFileFilter(
+								FileFilterUtils.notFileFilter(FileFilterUtils.nameFileFilter("datastore.properties")),
+								FileFilterUtils.makeFileOnly(FileFilterUtils.suffixFileFilter(".properties")
+						)
 					)
 			));
 			
@@ -355,8 +358,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 						break;
 					
 					// proceed with next prop file
-				}
-				
+				}		
 							
 		}
 		// we did not find any good candidate for mosaic.properties file, this will signal it		

@@ -99,6 +99,8 @@ public class ImageMosaicReaderTest{
 	
 	private boolean interactive;
 
+	private URL timeURL;
+
 	/**
 	 * Testing crop capabilities.
 	 * 
@@ -241,6 +243,38 @@ public class ImageMosaicReaderTest{
 	}	
  
 	/**
+	 * 
+	 * @throws IOException
+	 * @throws MismatchedDimensionException
+	 * @throws NoSuchAuthorityCodeException
+	 */
+	@Test
+	public void time() throws IOException {
+		final AbstractGridFormat format = getFormat(timeURL);
+		final ImageMosaicReader reader = getReader(timeURL, format);
+
+		// limit yourself to reading just a bit of it
+		final ParameterValue<GridGeometry2D> gg =  ImageMosaicFormat.READ_GRIDGEOMETRY2D.createValue();
+		final GeneralEnvelope envelope = reader.getOriginalEnvelope();
+		final Dimension dim= new Dimension();
+		dim.setSize(reader.getOriginalGridRange().getSpan(0)/2.0, reader.getOriginalGridRange().getSpan(1)/2.0);
+		final Rectangle rasterArea=(( GridEnvelope2D)reader.getOriginalGridRange());
+		rasterArea.setSize(dim);
+		final GridEnvelope2D range= new GridEnvelope2D(rasterArea);
+		gg.setValue(new GridGeometry2D(range,envelope));
+		
+		// use imageio with defined tiles
+		final ParameterValue<Boolean> useJai = ImageMosaicFormat.USE_JAI_IMAGEREAD.createValue();
+		useJai.setValue(false);
+		
+		final ParameterValue<String> tileSize = ImageMosaicFormat.SUGGESTED_TILE_SIZE.createValue();
+		tileSize.setValue("128,128");
+		
+		// Test the output coverage
+		checkCoverage(reader, new GeneralParameterValue[] {gg,useJai ,tileSize}, "time test");
+	}	
+	
+	/**
 	 * Tests the {@link ImageMosaicReader} with default parameters for the
 	 * various input params.
 	 * 
@@ -249,6 +283,7 @@ public class ImageMosaicReaderTest{
 	 * @throws NoSuchAuthorityCodeException
 	 */
 	@Test
+	@Ignore
 	public void defaultParameterValue() throws IOException,	
 			MismatchedDimensionException, NoSuchAuthorityCodeException {
 
@@ -542,6 +577,7 @@ public class ImageMosaicReaderTest{
 		cleanUp();
 		
 		rgbURL = TestData.url(this, "rgb/mosaic.shp");
+		timeURL = TestData.url(this, "time_geotiff");
 		rgbJarURL = new URL("jar:"+TestData.url(this, "rgb.jar").toExternalForm()+"!/rgb/mosaic.shp");
 		
 		overviewURL = TestData.url(this, "overview/");

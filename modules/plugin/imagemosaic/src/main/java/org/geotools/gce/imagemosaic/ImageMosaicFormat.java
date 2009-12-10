@@ -300,14 +300,18 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
 					final File[] properties = parent.listFiles(
 							(FilenameFilter)
 							FileFilterUtils.andFileFilter(
-									FileFilterUtils.notFileFilter(FileFilterUtils.nameFileFilter("datastore.properties")),
-									FileFilterUtils.makeFileOnly(FileFilterUtils.suffixFileFilter(".properties")
+									FileFilterUtils.notFileFilter(FileFilterUtils.nameFileFilter("indexer.properties")),
+								FileFilterUtils.andFileFilter(
+										FileFilterUtils.notFileFilter(FileFilterUtils.nameFileFilter("datastore.properties")),
+										FileFilterUtils.makeFileOnly(FileFilterUtils.suffixFileFilter(".properties")
+								)
 							)
 					));
 					
 					// do we have a valid datastore + mosaic properties pair?
 					for(File propFile:properties)
-						if(Utils.checkFileReadable(propFile))
+						if(Utils.checkFileReadable(propFile)&&
+								Utils.loadMosaicProperties(DataUtilities.fileToURL(propFile), "")!=null)
 						{
 							propsUrl=DataUtilities.fileToURL(propFile);
 							break;

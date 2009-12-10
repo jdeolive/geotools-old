@@ -33,6 +33,7 @@ import javax.swing.SwingUtilities;
 import junit.framework.JUnit4TestAdapter;
 import junit.textui.TestRunner;
 
+import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureWriter;
@@ -104,6 +105,7 @@ public class DataStoreTimeTest{
 		featureBuilder.setDefaultGeometry("the_geom");
 		
 		final SimpleFeatureType schema = featureBuilder.buildFeatureType();
+		System.out.println(DataUtilities.spec(schema));
 		
 		
 		
@@ -115,8 +117,8 @@ public class DataStoreTimeTest{
 		params.put(PostgisNGDataStoreFactory.SCHEMA.key,"public");
 		params.put(PostgisNGDataStoreFactory.DATABASE.key,"test");
 		params.put(PostgisNGDataStoreFactory.LOOSEBBOX.key,true);
-		params.put(PostgisNGDataStoreFactory.USER.key,"postgres");
-		params.put(PostgisNGDataStoreFactory.PASSWD.key,"fucktheworld");
+		params.put(PostgisNGDataStoreFactory.USER.key,"itt");
+		params.put(PostgisNGDataStoreFactory.PASSWD.key,"itttti");
 
 		// create schema
 		final JDBCDataStore datastore = spi.createDataStore(params);
@@ -178,11 +180,11 @@ public class DataStoreTimeTest{
 		
 		final Filter after = CQL.toFilter("ingestion AFTER 2009-12-01T05:00:00Z");
 		query= new DefaultQuery(datastore.getTypeNames()[0],after);
-//		datastore.getFeatureSource(datastore.getTypeNames()[0]).accepts(query,min, new NullProgressListener());
-//		if(min.getResult().getValue()==null)
-//			System.out.println("We got no result for min after");
-//		else
-//			System.out.println("min after "+min.getResult().toString());			
+		datastore.getFeatureSource(datastore.getTypeNames()[0]).accepts(query,min, new NullProgressListener());
+		if(min.getResult().getValue()==null)
+			System.out.println("We got no result for min after");
+		else
+			System.out.println("min after "+min.getResult().toString());			
 		final FeatureReader<SimpleFeatureType, SimpleFeature> reader = datastore.getFeatureReader(query, Transaction.AUTO_COMMIT);
 		while(reader.hasNext())
 		{

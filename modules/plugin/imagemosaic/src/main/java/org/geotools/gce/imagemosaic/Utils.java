@@ -45,12 +45,12 @@ import org.geotools.data.DataStoreFactorySpi;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DataAccessFactory.Param;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
-import org.geotools.gce.imagemosaic.IndexBuilder.ExceptionEvent;
-import org.geotools.gce.imagemosaic.IndexBuilder.IndexBuilderConfiguration;
-import org.geotools.gce.imagemosaic.IndexBuilder.ProcessingEvent;
-import org.geotools.gce.imagemosaic.IndexBuilder.ProcessingEventListener;
 import org.geotools.gce.imagemosaic.index.GranuleIndex;
 import org.geotools.gce.imagemosaic.index.GranuleIndexFactory;
+import org.geotools.gce.imagemosaic.indexbuilder.IndexBuilder;
+import org.geotools.gce.imagemosaic.indexbuilder.IndexBuilderConfiguration;
+import org.geotools.gce.imagemosaic.indexbuilder.IndexBuilder.ExceptionEvent;
+import org.geotools.gce.imagemosaic.indexbuilder.IndexBuilder.ProcessingEvent;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.image.ImageWorker;
 import org.geotools.metadata.iso.spatial.PixelTranslation;
@@ -68,7 +68,7 @@ import org.opengis.referencing.datum.PixelInCell;
  * @author Simone Giannecchini, GeoSolutions S.A.S.
  *
  */
-class Utils {
+public class Utils {
 	/**{@link AffineTransform} that can be used to go from an image datum placed at the center of pixels to one that is placed at ULC.*/
 	final static AffineTransform CENTER_TO_CORNER= AffineTransform.getTranslateInstance(
 			PixelTranslation.getPixelTranslation(PixelInCell.CELL_CORNER),
@@ -85,12 +85,12 @@ class Utils {
 	/**
 	 * Default wildcard for creating mosaics.
 	 */
-	static final String DEFAULT_WILCARD = "*.*";
+	public static final String DEFAULT_WILCARD = "*.*";
 	
 	/**
 	 * Default path behavior with respect to absolute paths.
 	 */
-	static final boolean DEFAULT_PATH_BEHAVIOR = false;
+	public static final boolean DEFAULT_PATH_BEHAVIOR = false;
 	
 	/**
 	 * Default path behavior with respect to index caching.
@@ -122,14 +122,55 @@ class Utils {
 		configuration.setAbsolute(absolutePath);
 		configuration.setRootMosaicDirectory(location);
 		configuration.setIndexingDirectories(Arrays.asList(location));
-		configuration.setIndexName(indexName);		
+		configuration.setIndexName(indexName);	
+		
+		
+		// look for and indexed.properties file
+		final File parent=new File(location);
+		final File indexerProperties= new File(parent,"indexer.properties");
+		if(Utils.checkFileReadable(indexerProperties))
+		{
+			// load it and parse it
+			final Properties props= Utils.loadPropertiesFromURL(DataUtilities.fileToURL(indexerProperties));
+			
+			// name
+			if(props.containsKey("Name"))
+				configuration.setIndexName(props.getProperty("Name"));
+			
+			// absolute
+			if(props.containsKey("Absolute"))
+				configuration.setAbsolute(Boolean.getBoolean(props.getProperty("Absolute")));	
+			
+			
+			// recursive
+			if(props.containsKey("Recursive"))
+				configuration.setRecursive(Boolean.valueOf(props.getProperty("Recursive")));
+			
+			// wildcard
+			if(props.containsKey("Wildcard"))
+				configuration.setWildcard(props.getProperty("Wildcard"));		
+			
+			// schema
+			if(props.containsKey("Schema"))
+				configuration.setSchema(props.getProperty("Schema"));		
+			
+			// time attr
+			if(props.containsKey("TimeAttribute"))
+				configuration.setTimeAttribute(props.getProperty("TimeAttribute"));
+			
+			// collectors
+			if(props.containsKey("PropertyCollectors"))
+				configuration.setPropertyCollectors(props.getProperty("PropertyCollectors"));			
+		}
+		
+		// create the builder
 		final IndexBuilder indexBuilder= new IndexBuilder(configuration);
 		//this is going to help us with  catching exceptions and logging them
 		final Queue<Throwable> exceptions=new LinkedList<Throwable>();
 		try{
 
 
-			final IndexBuilder.ProcessingEventListener listener= new ProcessingEventListener(){
+			final IndexBuilder.ProcessingEventListener listener= new IndexBuilder.ProcessingEventListener(){
 		
 				@Override
 				public void exceptionOccurred(ExceptionEvent event) {
@@ -147,10 +188,6 @@ class Utils {
 					
 				}
 	
-				
-			
-				
-		
 				
 			};
 			indexBuilder.addProcessingEventListener(listener);
@@ -175,7 +212,7 @@ class Utils {
 
 
     
-    static String getMessageFromException(Exception exception) {
+	public static String getMessageFromException(Exception exception) {
         if(exception.getLocalizedMessage() != null)
             return exception.getLocalizedMessage();
         else
@@ -245,7 +282,6 @@ class Utils {
 				{
 					//it's a DIRECTORY, let's look for a possible properties files that we want to load
 					final String locationPath=sourceFile.getAbsolutePath();
-					final String defaultWildcardString=DEFAULT_WILCARD;
 					final String defaultIndexName=FilenameUtils.getName(locationPath);
 					boolean datastoreFound=false;
 					boolean buildMosaic=false;
@@ -275,8 +311,12 @@ class Utils {
 						for(File propFile:properties)
 							if(Utils.checkFileReadable(propFile))
 							{
-								found=true;
-								break;
+								// load it
+								if(null!=Utils.loadMosaicProperties(DataUtilities.fileToURL(propFile), "location"))
+								{
+									found=true;
+									break;
+								}
 							}
 							
 						// we did not find any good candidate for mosaic.properties file, this will signal it						
@@ -294,6 +334,10 @@ class Utils {
 					if(!datastoreFound){
 						for(File propFile:properties){
 	
+							// load properties
+							if(null==Utils.loadMosaicProperties(DataUtilities.fileToURL(propFile), "location"))
+								continue;
+							
 							// look for a couple shapefile, mosaic properties file
 							shapeFile= new File(locationPath,FilenameUtils.getBaseName(propFile.getName())+".shp");
 							if(!Utils.checkFileReadable(shapeFile)&&Utils.checkFileReadable(propFile))
@@ -311,7 +355,7 @@ class Utils {
 					if(buildMosaic)
 					{
 						//try to build a mosaic inside this directory and see what happens    	
-						createMosaic(locationPath, defaultIndexName,defaultWildcardString,DEFAULT_PATH_BEHAVIOR);
+						createMosaic(locationPath, defaultIndexName,DEFAULT_WILCARD,DEFAULT_PATH_BEHAVIOR);
 						
 						// check that the mosaic properties file was created
 						final File propertiesFile = new File(locationPath,defaultIndexName+".properties");
@@ -562,7 +606,7 @@ class Utils {
 
 
 
-	private static Properties loadPropertiesFromURL(URL propsURL) {
+	public static Properties loadPropertiesFromURL(URL propsURL) {
 		final Properties properties = new Properties();
 		InputStream stream = null;
 		InputStream openStream = null;
@@ -741,7 +785,7 @@ class Utils {
 	 * @throws IllegalArgumentException
 	 *                 if {@code object} is null.
 	 */
-	static void ensureNonNull(final String name, final Object object)
+	public static void ensureNonNull(final String name, final Object object)
 	        throws NullPointerException {
 	    if (object == null) {
 	        throw new NullPointerException(Errors.format(
@@ -753,7 +797,7 @@ class Utils {
 
 
 
-	static IOFileFilter excludeFilters(final IOFileFilter inputFilter,
+	public static IOFileFilter excludeFilters(final IOFileFilter inputFilter,
 			IOFileFilter ...filters) {
 		IOFileFilter retFilter=inputFilter;
 		for(IOFileFilter filter:filters){
@@ -902,7 +946,7 @@ class Utils {
 	 * 
 	 * @return <code>true</code> in case the file is a real file, exists and is readable; <code>false </code> otherwise.
 	 */
-	static boolean checkFileReadable(final File file){
+	public static boolean checkFileReadable(final File file){
 		if(LOGGER.isLoggable(Level.FINE))
 		{
 			final StringBuilder builder = new StringBuilder();
@@ -928,7 +972,7 @@ class Utils {
 	 * @throws IllegalArgumentException
 	 * @throws IOException 
 	 */
-	static String checkInputDirectory(String testingDirectory)
+	public static String checkDirectory(String testingDirectory)
 			throws IllegalArgumentException {
 		File inDir = new File(testingDirectory);
 		if (!inDir.isDirectory()||!inDir.canRead()) {
@@ -972,6 +1016,8 @@ class Utils {
 	public static final DataStoreFactorySpi INDEXED_SHAPE_SPI = new ShapefileDataStoreFactory();
 
 	static final String DIRECT_KAKADU_PLUGIN="it.geosolutions.imageio.plugins.jp2k.JP2KKakaduImageReader";
+	
+	public static final boolean DEFAULT_RECURSION_BEHAVIOR = true;
 
 	/**
 	 * @param datastoreProperties
@@ -981,7 +1027,7 @@ class Utils {
 	 * @throws IOException
 	 */
 	@SuppressWarnings("unchecked")
-	static GranuleIndex createDataStoreParamsFromPropertiesFile(final URL datastoreProperties, boolean caching, boolean create)
+	public static GranuleIndex createDataStoreParamsFromPropertiesFile(final URL datastoreProperties, boolean caching, boolean create)
 			throws IOException {
 		// read the properties file
 		Properties properties = loadPropertiesFromURL(datastoreProperties);
@@ -1026,7 +1072,7 @@ class Utils {
 	 * @return
 	 * @throws IOException
 	 */
-	static GranuleIndex createShapeFileStoreParamsFromURL(final URL url, boolean caching, boolean create)
+	public static GranuleIndex createShapeFileStoreParamsFromURL(final URL url, boolean caching, boolean create)
 			throws IOException {
 		final Map<String, Serializable> params = new HashMap<String, Serializable>();			 
 		params.put(ShapefileDataStoreFactory.URLP.key,url);

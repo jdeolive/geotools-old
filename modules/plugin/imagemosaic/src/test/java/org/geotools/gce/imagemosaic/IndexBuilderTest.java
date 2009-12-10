@@ -12,10 +12,11 @@ import javax.media.jai.PlanarImage;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.gce.imagemosaic.IndexBuilder.ExceptionEvent;
-import org.geotools.gce.imagemosaic.IndexBuilder.IndexBuilderConfiguration;
-import org.geotools.gce.imagemosaic.IndexBuilder.ProcessingEvent;
-import org.geotools.gce.imagemosaic.IndexBuilder.ProcessingEventListener;
+import org.geotools.gce.imagemosaic.indexbuilder.IndexBuilder;
+import org.geotools.gce.imagemosaic.indexbuilder.IndexBuilderConfiguration;
+import org.geotools.gce.imagemosaic.indexbuilder.IndexBuilder.ExceptionEvent;
+import org.geotools.gce.imagemosaic.indexbuilder.IndexBuilder.ProcessingEvent;
+import org.geotools.gce.imagemosaic.indexbuilder.IndexBuilder.ProcessingEventListener;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.test.TestData;
 import org.junit.Assert;
@@ -36,13 +37,13 @@ public class IndexBuilderTest extends Assert {
 	private final class IndexBuilderListener extends ProcessingEventListener{
 
 		@Override
-		void exceptionOccurred(ExceptionEvent event) {
+		public void exceptionOccurred(ExceptionEvent event) {
 			throw new RuntimeException(event.getException());
 			
 		}
 
 		@Override
-		void getNotification(ProcessingEvent event) {
+		public void getNotification(ProcessingEvent event) {
 			
 		}
 		

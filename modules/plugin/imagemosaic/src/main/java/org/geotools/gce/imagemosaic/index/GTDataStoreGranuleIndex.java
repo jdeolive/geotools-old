@@ -32,6 +32,7 @@ import org.geotools.feature.SchemaException;
 import org.geotools.feature.collection.AbstractFeatureVisitor;
 import org.geotools.filter.visitor.DefaultFilterVisitor;
 import org.geotools.gce.imagemosaic.ImageMosaicReader;
+import org.geotools.gce.imagemosaic.Utils;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.util.NullProgressListener;
 import org.opengis.feature.Feature;
@@ -344,7 +345,6 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 	throws IOException {
 		Utils.ensureNonNull("q",q);
 
-		FeatureIterator<SimpleFeature> it=null;
 		FeatureCollection<SimpleFeatureType, SimpleFeature> features=null;
 		final Lock lock=rwLock.readLock();
 		try{
@@ -379,7 +379,7 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 			        }
 			    }            
 			}, new NullProgressListener() );
-			
+			features.clear();
 
 		}
 		catch (Throwable e) {
@@ -387,10 +387,6 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 		}
 		finally{
 			lock.unlock();
-			if(it!=null)
-				// closing he iterator to free some resources.
-				if(features!=null)
-					features.close(it);
 
 		}
 				

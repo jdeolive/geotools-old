@@ -14,7 +14,7 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.gce.imagemosaic;
+package org.geotools.gce.imagemosaic.indexbuilder;
 
 import java.awt.color.ColorSpace;
 import java.awt.geom.AffineTransform;
@@ -31,8 +31,10 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.EventListener;
 import java.util.EventObject;
 import java.util.HashMap;
@@ -55,6 +57,7 @@ import org.apache.commons.io.DirectoryWalker;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOCase;
+import org.apache.commons.io.filefilter.FalseFileFilter;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.HiddenFileFilter;
 import org.apache.commons.io.filefilter.IOFileFilter;
@@ -71,13 +74,17 @@ import org.geotools.data.DefaultTransaction;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.gce.image.WorldImageFormat;
+import org.geotools.gce.imagemosaic.MosaicConfigurationBean;
+import org.geotools.gce.imagemosaic.Utils;
 import org.geotools.gce.imagemosaic.index.GranuleIndex;
 import org.geotools.gce.imagemosaic.index.GranuleIndexFactory;
+import org.geotools.gce.imagemosaic.properties.PropertiesCollector;
+import org.geotools.gce.imagemosaic.properties.PropertiesCollectorFinder;
+import org.geotools.gce.imagemosaic.properties.PropertiesCollectorSPI;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.resources.coverage.CoverageUtilities;
-import org.geotools.util.Utilities;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.geometry.Envelope;
@@ -97,181 +104,12 @@ import com.vividsolutions.jts.geom.PrecisionModel;
  * 
  */
 @SuppressWarnings("unchecked")
-final class IndexBuilder implements Runnable {
+public class IndexBuilder implements Runnable {
 
 
 	/** Default Logger * */
 	final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(IndexBuilder.class);
 	
-	/**
-	 * 
-	 * @author Simone Giannecchini, GeoSolutions SAS
-	 *
-	 */
-	static class IndexBuilderConfiguration{
-
-		public IndexBuilderConfiguration() {
-		}
-		
-		public IndexBuilderConfiguration(final IndexBuilderConfiguration that) {
-			this.absolute=that.absolute;
-			this.indexingDirectories=new ArrayList<String>(that.indexingDirectories);
-			this.indexName=that.indexName;
-			this.locationAttribute=that.locationAttribute;
-			this.rootMosaicDirectory=that.rootMosaicDirectory;
-			this.wildcardString=that.wildcardString;
-		}
-
-		public void setIndexingDirectories(List<String> indexingDirectories) {
-			this.indexingDirectories = indexingDirectories;
-		}
-
-
-		private boolean absolute = Utils.DEFAULT_PATH_BEHAVIOR;
-		/**
-		 * Index file name. Default is index.
-		 */
-		private String indexName = Utils.DEFAULT_INDEX_NAME;
-		private String locationAttribute = Utils.DEFAULT_LOCATION_ATTRIBUTE;
-		@Option(description="Root directory where to place the index file",mandatory=true,name="rootDirectory")
-		private String rootMosaicDirectory;
-		@Option(description="Wildcard to use for building the index of this mosaic",mandatory=false,name="wildcard")
-		private String wildcardString = Utils.DEFAULT_WILCARD;
-		private List<String> indexingDirectories;
-
-		public List<String> getIndexingDirectories() {
-			return indexingDirectories;
-		}
-
-		/* (non-Javadoc)
-		 * @see org.geotools.gce.imagemosaic.JMXIndexBuilderMBean#getIndexName()
-		 */
-		public String getIndexName() {
-			return indexName;
-		}
-
-		/* (non-Javadoc)
-		 * @see org.geotools.gce.imagemosaic.JMXIndexBuilderMBean#getLocationAttribute()
-		 */
-		public String getLocationAttribute() {
-			return locationAttribute;
-		}
-
-		/* (non-Javadoc)
-		 * @see org.geotools.gce.imagemosaic.JMXIndexBuilderMBean#getRootMosaicDirectory()
-		 */
-		public String getRootMosaicDirectory() {
-			return rootMosaicDirectory;
-		}
-
-		/* (non-Javadoc)
-		 * @see org.geotools.gce.imagemosaic.JMXIndexBuilderMBean#getWildcardString()
-		 */
-		public String getWildcardString() {
-			return wildcardString;
-		}
-
-		/* (non-Javadoc)
-		 * @see org.geotools.gce.imagemosaic.JMXIndexBuilderMBean#isAbsolute()
-		 */
-		public boolean isAbsolute() {
-			return absolute;
-		}
-
-		/* (non-Javadoc)
-		 * @see org.geotools.gce.imagemosaic.JMXIndexBuilderMBean#setAbsolute(boolean)
-		 */
-		public void setAbsolute(boolean absolute) {
-			this.absolute = absolute;
-		}
-
-		/* (non-Javadoc)
-		 * @see org.geotools.gce.imagemosaic.JMXIndexBuilderMBean#setIndexName(java.lang.String)
-		 */
-		public void setIndexName(String indexName) {
-			this.indexName = indexName;
-		}
-
-		/* (non-Javadoc)
-		 * @see org.geotools.gce.imagemosaic.JMXIndexBuilderMBean#setLocationAttribute(java.lang.String)
-		 */
-		public void setLocationAttribute(String locationAttribute) {
-			this.locationAttribute = locationAttribute;
-		}
-
-		/* (non-Javadoc)
-		 * @see org.geotools.gce.imagemosaic.JMXIndexBuilderMBean#setRootMosaicDirectory(java.lang.String)
-		 */
-		public void setRootMosaicDirectory(final String rootMosaicDirectory) {
-			 Utils.ensureNonNull("rootMosaicDirectory", rootMosaicDirectory);
-			 String testingDirectory = rootMosaicDirectory;
-			 Utils.checkInputDirectory(testingDirectory);
-			 this.rootMosaicDirectory=testingDirectory;
-
-		}		
-
-
-		/* (non-Javadoc)
-		 * @see org.geotools.gce.imagemosaic.JMXIndexBuilderMBean#setWildcardString(java.lang.String)
-		 */
-		public void setWildcardString(String wildcardString) {
-			this.wildcardString = wildcardString;
-		}
-
-		@Override
-		protected IndexBuilderConfiguration clone() throws CloneNotSupportedException {
-			return new IndexBuilderConfiguration(this);
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if(this==obj)
-				return true;
-			if(!(obj instanceof IndexBuilderConfiguration))
-				return false;
-			final IndexBuilderConfiguration that=(IndexBuilderConfiguration) obj;
-			
-			if(this.absolute!=that.absolute)
-				return false;
-			if(!(this.indexName==null&&that.indexName==null)&&!this.indexName.equals(that.indexName))
-				return false;	
-			if(!(this.locationAttribute==null&&that.locationAttribute==null)&&!this.locationAttribute.equals(that.locationAttribute))
-				return false;			
-			if(!(this.rootMosaicDirectory==null&&that.rootMosaicDirectory==null)&&!this.rootMosaicDirectory.equals(that.rootMosaicDirectory))
-				return false;		
-			if(!Utilities.deepEquals(this.indexingDirectories, that.indexingDirectories))
-				return false;
-			
-				
-			return true;
-		}
-
-		@Override
-		public int hashCode() {
-			int seed=37;
-			seed=Utilities.hash(absolute, seed);
-			seed=Utilities.hash(locationAttribute, seed);
-			seed=Utilities.hash(indexName, seed);
-			seed=Utilities.hash(wildcardString, seed);
-			seed=Utilities.hash(rootMosaicDirectory, seed);
-			seed=Utilities.hash(indexingDirectories, seed);
-			return seed;
-		}
-
-		@Override
-		public String toString() {
-			final StringBuilder builder= new StringBuilder();
-			builder.append("IndexBuilderConfiguration").append("\n");
-			builder.append("wildcardString:\t\t\t").append(wildcardString).append("\n");
-			builder.append("indexName:\t\t\t").append(indexName).append("\n");
-			builder.append("absolute:\t\t\t").append(absolute).append("\n");
-			builder.append("locationAttribute:\t\t\t").append(locationAttribute).append("\n");
-			builder.append("rootMosaicDirectory:\t\t\t").append(rootMosaicDirectory).append("\n");
-			builder.append("indexingDirectories:\t\t\t").append(Utilities.deepToString(indexingDirectories)).append("\n");
-			return builder.toString();
-		}
-		
-	}
 	static class CommandLineIndexBuilderRunner extends CommandLine {
 
 		@Option(description="This index must use absolute or relative path",mandatory=false,name="absolute")
@@ -279,6 +117,7 @@ final class IndexBuilder implements Runnable {
 		
 		@Option(description="Directories where to look for file to index",mandatory=true,name="indexingDirectories")
 		private String indexingDirectoriesString;
+		
 		/**
 		 * Index file name. Default is index.
 		 */
@@ -307,18 +146,18 @@ final class IndexBuilder implements Runnable {
 			final CommandLineIndexBuilderRunner runner = new CommandLineIndexBuilderRunner(args);
 			// prepare the configuration
 			final IndexBuilderConfiguration configuration= new IndexBuilderConfiguration();
-			configuration.absolute=runner.absolute;
-			configuration.indexName=runner.indexName;
-			configuration.rootMosaicDirectory=runner.rootMosaicDirectory;
-			configuration.wildcardString=runner.wildcardString;
-			configuration.locationAttribute=runner.locationAttribute;
+			configuration.setAbsolute(runner.absolute);
+			configuration.setIndexName(runner.indexName);
+			configuration.setRootMosaicDirectory(runner.rootMosaicDirectory);
+			configuration.setWildcard(runner.wildcardString);
+			configuration.setLocationAttribute(runner.locationAttribute);
 			
 			final String directories= runner.indexingDirectoriesString;
 			final String []dirs_=directories.split(",");
 			final List<String> dirs= new ArrayList<String>();
 			for(String dir:dirs_)
 				dirs.add(dir);
-			configuration.indexingDirectories=dirs;
+			configuration.setIndexingDirectories(dirs);
 			
 			//prepare and run the index builder
 			final IndexBuilder builder= new IndexBuilder(configuration);		
@@ -328,11 +167,11 @@ final class IndexBuilder implements Runnable {
 
 	}
 	
-	static abstract class ProcessingEventListener implements EventListener {
+	static abstract public class ProcessingEventListener implements EventListener {
 
-		abstract void getNotification(final ProcessingEvent event);
+		abstract public void getNotification(final ProcessingEvent event);
 
-		abstract void exceptionOccurred(final ExceptionEvent event);
+		abstract public void exceptionOccurred(final ExceptionEvent event);
 
 	}
 
@@ -340,7 +179,7 @@ final class IndexBuilder implements Runnable {
 	 * @author Simone Giannecchini, GeoSolutions.
 	 * 
 	 */
-	static class ProcessingEvent extends EventObject {
+	static public class ProcessingEvent extends EventObject {
 
 		/**
 		 * 
@@ -380,7 +219,7 @@ final class IndexBuilder implements Runnable {
 	 * @author aaime, TOPP.
 	 * 
 	 */
-	static final  class ExceptionEvent extends ProcessingEvent {
+	static public final  class ExceptionEvent extends ProcessingEvent {
 
 	    /**
 		 * 
@@ -590,7 +429,7 @@ final class IndexBuilder implements Runnable {
 				if(imageioReader==null)
 				{
 					// send a message
-					fireEvent(Level.INFO,new StringBuilder("Skipped file ").append(fileBeingProcessed).append(":No ImageIO readeres avalaible.").toString(), ((fileIndex * 99.0) / numFiles));
+					fireEvent(Level.INFO,new StringBuilder("Skipped file ").append(fileBeingProcessed).append(":No ImageIO reader	s availaible.").toString(), ((fileIndex * 99.0) / numFiles));
 					return;
 				}
 
@@ -706,13 +545,31 @@ final class IndexBuilder implements Runnable {
 					// creating the schema
 					//
 					// /////////////////////////////////////////////////////////////////////
-					final SimpleFeatureTypeBuilder featureBuilder = new SimpleFeatureTypeBuilder();
-					featureBuilder.setName(mosaicConfiguration.getName());
-					featureBuilder.setNamespaceURI("http://www.geo-solutions.it/");
-					featureBuilder.add(runConfiguration.getLocationAttribute(), String.class);
-					featureBuilder.add("the_geom", Polygon.class,actualCRS);
-					featureBuilder.setDefaultGeometry("the_geom");
-					indexSchema = featureBuilder.buildFeatureType();
+					final String schemaDef= runConfiguration.getSchema();
+					if(schemaDef!=null){
+						// get the schema
+						try{
+							indexSchema=DataUtilities.createType(mosaicConfiguration.getName(), runConfiguration.getSchema());
+							//override the crs in case the provided one was wrong or absent
+							indexSchema=DataUtilities.createSubType(indexSchema, DataUtilities.attributeNames(indexSchema), actualCRS);
+						}
+						catch (Throwable e) {
+							if(LOGGER.isLoggable(Level.FINE))
+								LOGGER.log(Level.FINE,e.getLocalizedMessage(),e);
+							indexSchema=null;
+						}
+					}
+					if(indexSchema==null){
+						final SimpleFeatureTypeBuilder featureBuilder = new SimpleFeatureTypeBuilder();
+						featureBuilder.setName(runConfiguration.getIndexName());
+						featureBuilder.setNamespaceURI("http://www.geo-solutions.it/");
+						featureBuilder.add(runConfiguration.getLocationAttribute(), String.class);
+						featureBuilder.add("the_geom", Polygon.class,actualCRS);
+						featureBuilder.setDefaultGeometry("the_geom");
+						if(runConfiguration.getTimeAttribute()!=null)
+							featureBuilder.add(runConfiguration.getTimeAttribute(), Date.class);
+						indexSchema = featureBuilder.buildFeatureType();
+					}
 					// create the schema for the new shape file
 					index.createType(indexSchema);
 					
@@ -770,8 +627,16 @@ final class IndexBuilder implements Runnable {
 				//
 				// ////////////////////////////////////////////////////////
 				final SimpleFeature feature = DataUtilities.template(indexSchema);
-				feature.setAttribute(1, geomFactory.toGeometry(new ReferencedEnvelope((Envelope) envelope)));
-				feature.setAttribute(0, prepareLocation(fileBeingProcessed));
+				feature.setAttribute(indexSchema.getGeometryDescriptor().getLocalName(), geomFactory.toGeometry(new ReferencedEnvelope((Envelope) envelope)));
+				feature.setAttribute(runConfiguration.getLocationAttribute(), prepareLocation(fileBeingProcessed));
+				
+				// collect and dump properties
+				for(PropertiesCollector pc: propertiesCollectors)
+				{
+					pc.collect(fileBeingProcessed).collect(coverageReader).collect(imageioReader).setProperties(feature);
+					pc.reset();
+				}
+
 				index.addGranule(feature,transaction);
 
 				// fire event
@@ -830,12 +695,12 @@ final class IndexBuilder implements Runnable {
 
 		private String prepareLocation(final File fileBeingProcessed) throws IOException {
 			//absolute
-			if(runConfiguration.absolute)
+			if(runConfiguration.isAbsolute())
 				return fileBeingProcessed.getAbsolutePath();
 			
 			// relative
 			String path=fileBeingProcessed.getCanonicalPath();
-			path=path.substring(runConfiguration.rootMosaicDirectory.length());
+			path=path.substring(runConfiguration.getRootMosaicDirectory().length());
 			return path;
 			
 		}
@@ -862,7 +727,7 @@ final class IndexBuilder implements Runnable {
 		}
 
 		public MosaicDirectoryWalker(final File root,final FileFilter filter) throws IOException {
-			super(filter,Integer.MAX_VALUE);
+			super(filter,Integer.MAX_VALUE);//runConfiguration.isRecursive()?Integer.MAX_VALUE:0);
 			this.transaction= new DefaultTransaction("MosaicCreationTransaction"+System.nanoTime());
 			walk(root, null);
 		}
@@ -1056,6 +921,8 @@ final class IndexBuilder implements Runnable {
 
 	private ImageReaderSpi cachedSPI;
 
+	private List<PropertiesCollector> propertiesCollectors;
+
 
 	/* (non-Javadoc)
 	 * @see org.geotools.gce.imagemosaic.JMXIndexBuilderMBean#run()
@@ -1072,12 +939,12 @@ final class IndexBuilder implements Runnable {
 			
 			//TODO we might want to remove this in the future for performance
 			numFiles=0;
-			for(String indexingDirectory:runConfiguration.indexingDirectories){
+			for(String indexingDirectory:runConfiguration.getIndexingDirectories()){
 				final File directoryToScan = new File(indexingDirectory);
 				final Collection files = FileUtils.listFiles(
 						directoryToScan,
 						finalFilter, 
-						TrueFileFilter.INSTANCE);
+						runConfiguration.isRecursive()?TrueFileFilter.INSTANCE:FalseFileFilter.INSTANCE);
 				numFiles += files.size();
 			}
 			//
@@ -1085,8 +952,8 @@ final class IndexBuilder implements Runnable {
 			//
 			if(numFiles>0)
 			{
-				
-				for(String indexingDirectory:runConfiguration.indexingDirectories){
+				final List<String> indexingDirectories = runConfiguration.getIndexingDirectories();
+				for(String indexingDirectory:indexingDirectories){
 					@SuppressWarnings("unused")
 					final MosaicDirectoryWalker walker = new MosaicDirectoryWalker(new File(indexingDirectory),finalFilter);
 				}
@@ -1104,7 +971,7 @@ final class IndexBuilder implements Runnable {
 	 * @return
 	 */
 	private IOFileFilter createGranuleFilterRules() {
-		final IOFileFilter specialWildCardFileFilter= new WildcardFileFilter(runConfiguration.wildcardString,IOCase.INSENSITIVE);
+		final IOFileFilter specialWildCardFileFilter= new WildcardFileFilter(runConfiguration.getWildcard(),IOCase.INSENSITIVE);
 		IOFileFilter dirFilter = 
 		    FileFilterUtils.andFileFilter(FileFilterUtils.directoryFileFilter(),HiddenFileFilter.VISIBLE);
 		IOFileFilter fileFilter=Utils.excludeFilters(
@@ -1179,23 +1046,8 @@ final class IndexBuilder implements Runnable {
 	 */
 	public IndexBuilder(final IndexBuilderConfiguration configuration)  {
 		Utils.ensureNonNull("runConfiguration", configuration);
-		//check parameters
-		if(configuration.indexingDirectories==null||configuration.indexingDirectories.size()<=0)
-			throw new IllegalArgumentException("Indexing directories are empty");
-		final List<String> directories= new ArrayList<String>();
-		for(String dir:configuration.indexingDirectories)
-			directories.add(Utils.checkInputDirectory(dir));		
-		configuration.indexingDirectories=directories;
-		
-		if(configuration.indexName==null||configuration.indexName.length()==0)
-			throw new IllegalArgumentException("Index name cannot be empty");
-		
-		if(configuration.rootMosaicDirectory==null||configuration.rootMosaicDirectory.length()==0)
-			throw new IllegalArgumentException("RootMosaicDirectory name cannot be empty");
-		
-		configuration.rootMosaicDirectory=Utils.checkInputDirectory(configuration.rootMosaicDirectory);
-		if(configuration.wildcardString==null||configuration.wildcardString.length()==0)
-			throw new IllegalArgumentException("WildcardString name cannot be empty");	
+		//check config
+		configuration.check();
 		
 		this.runConfiguration = new IndexBuilderConfiguration(configuration);
 
@@ -1375,7 +1227,7 @@ final class IndexBuilder implements Runnable {
 		// create the index
 		//
 		// do we have a datastore.properties file?
-		final File parent=new File(runConfiguration.rootMosaicDirectory);
+		final File parent=new File(runConfiguration.getRootMosaicDirectory());
 		final File datastoreProperties= new File(parent,"datastore.properties");
 		if(Utils.checkFileReadable(datastoreProperties))
 		{
@@ -1385,7 +1237,7 @@ final class IndexBuilder implements Runnable {
 		else{
 			
 			// we do not have a datastore properties file therefore we continue with a shapefile datastore
-			final URL file= new File(parent ,runConfiguration.indexName + ".shp").toURI().toURL();
+			final URL file= new File(parent ,runConfiguration.getIndexName() + ".shp").toURI().toURL();
 			final Map<String, Serializable> params = new HashMap<String, Serializable>();			 
 			params.put(ShapefileDataStoreFactory.URLP.key,file);
 			if(file.getProtocol().equalsIgnoreCase("file"))
@@ -1398,8 +1250,82 @@ final class IndexBuilder implements Runnable {
 		// creating a mosaic runConfiguration bean to store the properties file elements			
 		//
 		mosaicConfiguration= new MosaicConfigurationBean();
-		mosaicConfiguration.setName(runConfiguration.indexName);
+		mosaicConfiguration.setName(runConfiguration.getIndexName());
+		
+		//
+		// load property collectors
+		//
+		loadPropertyCollectors();
 			
+	}
+
+	private void loadPropertyCollectors() {
+		// load property collectors
+		final String pc=runConfiguration.getPropertyCollectors();
+		if(pc!=null&& pc.length()>0)
+		{
+			// load the SPI set
+			final Set<PropertiesCollectorSPI> pcSPIs = PropertiesCollectorFinder.getPropertiesCollectorSPI();
+			
+			// parse the string
+			final List<PropertiesCollector> pcs= new ArrayList<PropertiesCollector>();
+			final String[] pcsDefs=pc.split(",");
+			for(String pcDef: pcsDefs)
+			{
+				// parse this def as NAME[CONFIG_FILE](PROPERTY;PROPERTY;....;PROPERTY)
+				final int squareLPos=pcDef.indexOf("[");
+				final int squareRPos=pcDef.indexOf("]");
+				final int squareRPosLast= pcDef.lastIndexOf("]");
+				final int roundLPos=pcDef.indexOf("(");
+				final int roundRPos=pcDef.indexOf(")");
+				final int roundRPosLast= pcDef.lastIndexOf(")");				
+				if(squareRPos!=squareRPosLast)
+					continue;
+				if(squareLPos==-1 || squareRPos ==-1)
+					continue;
+				if(squareLPos==0)
+					continue;
+				
+				if(roundRPos!=roundRPosLast)
+					continue;
+				if(roundLPos==-1 || roundRPos ==-1)
+					continue;
+				if(roundLPos==0)
+					continue;	
+				if(roundLPos!=squareRPos+1)//]( or exit
+					continue;		
+				if(roundRPos!=(pcDef.length()-1))// end with )
+					continue;	
+				
+				// name
+				final String name=pcDef.substring(0,squareLPos);
+				PropertiesCollectorSPI selectedSPI=null;
+				for(PropertiesCollectorSPI spi:pcSPIs){
+					if(spi.getName().equalsIgnoreCase(name)&&spi.isAvailable())
+					{
+						selectedSPI=spi;
+						break;
+					}
+				}
+				if(selectedSPI==null)
+					continue;
+				
+				// config
+				final String config=squareLPos<squareRPos?pcDef.substring(squareLPos+1,squareRPos):"";
+				final File configFile= new File(runConfiguration.getRootMosaicDirectory(),config+".properties");
+				if(!Utils.checkFileReadable(configFile))
+					continue;
+				// it is readable
+				
+				// property names
+				final String propertyNames[]=pcDef.substring(roundLPos+1, roundRPos).split(",");
+				
+				// create the PropertiesCollector
+				pcs.add(selectedSPI.create(configFile, Arrays.asList(propertyNames)));
+				
+			}
+			this.propertiesCollectors=pcs;
+		}
 	}
 
 	private void indexingPostamble() throws IOException {
@@ -1408,10 +1334,10 @@ final class IndexBuilder implements Runnable {
 		
 		// complete initialization of mosaic oconfiguration
 		if(numberOfProcessedFiles>0){
-			mosaicConfiguration.setName(runConfiguration.indexName);
+			mosaicConfiguration.setName(runConfiguration.getIndexName());
 			mosaicConfiguration.setExpandToRGB(mustConvertToRGB);
-			mosaicConfiguration.setAbsolutePath(runConfiguration.absolute);
-			mosaicConfiguration.setLocationAttribute(runConfiguration.locationAttribute);
+			mosaicConfiguration.setAbsolutePath(runConfiguration.isAbsolute());
+			mosaicConfiguration.setLocationAttribute(runConfiguration.getLocationAttribute());
 			createPropertiesFiles();
 			
 			// processing information
@@ -1468,7 +1394,7 @@ final class IndexBuilder implements Runnable {
 				levels.append(" ");
 		}
 		properties.setProperty("Levels", levels.toString());
-		properties.setProperty("Name", runConfiguration.indexName);
+		properties.setProperty("Name", runConfiguration.getIndexName());
 		properties.setProperty("ExpandToRGB", Boolean.toString(mustConvertToRGB));
 		
 		if(cachedSPI!=null){
@@ -1479,7 +1405,7 @@ final class IndexBuilder implements Runnable {
  	
 		OutputStream outStream=null;
 		try {
-			outStream=new BufferedOutputStream(new FileOutputStream(runConfiguration.rootMosaicDirectory + "/" + runConfiguration.indexName + ".properties"));
+			outStream=new BufferedOutputStream(new FileOutputStream(runConfiguration.getRootMosaicDirectory() + "/" + runConfiguration.getIndexName() + ".properties"));
 			properties.store(outStream, "-Automagically created-");
 		} catch (FileNotFoundException e) {
 			fireEvent(Level.SEVERE,e.getLocalizedMessage(), 0);
