@@ -22,9 +22,13 @@ import org.geotools.geometry.DirectPosition2D;
 import org.geotools.geometry.Envelope2D;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.NoninvertibleTransformException;
+import org.opengis.referencing.operation.TransformException;
 import org.opengis.metadata.spatial.PixelOrientation;
 
 import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.metadata.iso.spatial.PixelTranslation;
+import org.geotools.referencing.CRS;
 import org.geotools.referencing.operation.transform.IdentityTransform;
 
 import org.junit.*;
@@ -81,16 +85,18 @@ public final class GridGeometryTest extends GridCoverageTestBase {
 
     /**
      * Tests the construction from an envelope.
+     * @throws TransformException 
+     * @throws NoninvertibleTransformException 
+     * @throws InvalidGridGeometryException 
      */
     @Test
-    public void testEnvelope() {
+    public void testEnvelope() throws InvalidGridGeometryException, NoninvertibleTransformException, TransformException {
         final int[]    lower   = new int[]    {   0,   0,  4};
         final int[]    upper   = new int[]    {  90,  45,  5};
         final double[] minimum = new double[] {-180, -90,  9};
         final double[] maximum = new double[] {+180, +90, 10};
-        final GridGeometry2D gg;
-        gg = new GridGeometry2D(new GeneralGridEnvelope(lower, upper, false),
-                                new GeneralEnvelope(minimum, maximum));
+        final GridGeometry2D gg= new GridGeometry2D(new GeneralGridEnvelope(lower, upper, false),
+                                 new GeneralEnvelope(minimum, maximum));
         final AffineTransform tr = (AffineTransform) gg.getGridToCRS2D();
         assertEquals(AffineTransform.TYPE_UNIFORM_SCALE |
                      AffineTransform.TYPE_TRANSLATION   |
@@ -100,6 +106,14 @@ public final class GridGeometryTest extends GridCoverageTestBase {
         assertEquals(  -4, tr.getScaleY(),     0);
         assertEquals(-178, tr.getTranslateX(), 0);
         assertEquals(  88, tr.getTranslateY(), 0);
+        
+        final MathTransform 		transform= PixelTranslation.translate(gg.getGridToCRS2D(), PixelInCell.CELL_CENTER, PixelInCell.CELL_CORNER);
+        final GeneralEnvelope		envelope=CRS.transform(transform.inverse(), gg.getEnvelope2D());
+        final GeneralGridEnvelope 	ge= new GeneralGridEnvelope(envelope,PixelInCell.CELL_CORNER,true);
+        assertEquals(   0, ge.getLow(0),     0);
+        assertEquals(   0, ge.getLow(1),     0);
+        assertEquals(   90, ge.getHigh(0),     0);
+        assertEquals(   45, ge.getHigh(1),     0);
     }
 
     /**

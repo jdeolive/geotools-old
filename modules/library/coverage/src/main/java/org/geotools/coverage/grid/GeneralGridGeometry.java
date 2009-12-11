@@ -296,6 +296,8 @@ public class GeneralGridGeometry implements GridGeometry, Serializable {
         if (PixelInCell.CELL_CORNER.equals(anchor)) {
             cornerToCRS = gridToCRS;
         }
+        else
+        	 cornerToCRS =PixelTranslation.translate(gridToCRS, anchor, PixelInCell.CELL_CORNER);
         if (envelope == null) {
             this.envelope  = null;
             this.gridRange = null;
@@ -308,12 +310,12 @@ public class GeneralGridGeometry implements GridGeometry, Serializable {
         }
         final GeneralEnvelope transformed;
         try {
-            transformed = org.geotools.referencing.CRS.transform(gridToCRS.inverse(), envelope);
+            transformed = org.geotools.referencing.CRS.transform(cornerToCRS.inverse(), envelope);
         } catch (TransformException exception) {
             throw new IllegalArgumentException(Errors.format(ErrorKeys.BAD_TRANSFORM_$1,
                     Classes.getClass(gridToCRS)), exception);
         }
-        gridRange = new GeneralGridEnvelope(transformed, anchor);
+        gridRange = new GeneralGridEnvelope(transformed, PixelInCell.CELL_CORNER,true);
     }
 
     /**

@@ -328,6 +328,7 @@ public class GeneralGridEnvelope implements GridEnvelope, Serializable {
                 index[i]++;
             }
         }
+        checkCoherence();
     }
 
     /**
