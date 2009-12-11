@@ -532,7 +532,51 @@ public class DB2SQLDialect extends SQLDialect  {
 
     @Override
     protected void addSupportedHints(Set<Key> hints) {
-    	hints.add(Hints.GEOMETRY_GENERALIZATION);
+     
+        if (isGeomGeneralizationSupported()) {
+            LOGGER.info("GEOMETRY_GENERALIZATION support: YES" );
+    	    hints.add(Hints.GEOMETRY_GENERALIZATION);
+        }
+        else {
+            LOGGER.info("GEOMETRY_GENERALIZATION support: NO" );
+        }
     }
 
+    private boolean isGeomGeneralizationSupported() {
+        
+        if (DB2NGDataStoreFactory.ProductVersion.startsWith("DSN"))
+            return false; // I have no idea about the version on z/OS            
+        if (DB2NGDataStoreFactory.ProductName.startsWith("Informix"))
+            return false; 
+        
+        if (DB2NGDataStoreFactory.ProductVersion.startsWith("SQL")==false) 
+            return false; // insist on DB2 on windows and linux
+
+        
+        
+        if (DB2NGDataStoreFactory.MajorVersion > 9 ) return true;
+        if (DB2NGDataStoreFactory.MajorVersion < 9 ) return false;
+        // major version 9
+        if (DB2NGDataStoreFactory.MinorVersion > 7 ) return true;
+        if (DB2NGDataStoreFactory.MinorVersion < 5 ) return false;
+        
+        // left 9.5 and 9.7, get FP number
+        if (DB2NGDataStoreFactory.ProductVersion.length() <8) return false;
+        String fp = DB2NGDataStoreFactory.ProductVersion.substring(7);
+        StringBuffer buff =new StringBuffer();
+        
+        for (int i = 0; i < fp.length();i++) {
+            if (Character.isDigit(fp.charAt(i)))
+                    buff.append(fp.charAt(i));
+            else 
+                break;
+        }
+        if (buff.length()==0) return false;
+        
+        int fpNumber = Integer.parseInt(buff.toString());
+        if (DB2NGDataStoreFactory.MinorVersion==5 && fpNumber>=5) return true;
+        if (DB2NGDataStoreFactory.MinorVersion==7 && fpNumber>=1) return true;
+        return false;
+    }
+    
 }

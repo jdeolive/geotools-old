@@ -17,7 +17,10 @@
 package org.geotools.data.db2;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.Driver;
+import java.sql.SQLException;
 import java.util.Map;
 
 import org.geotools.data.DataAccessFactory.Param;
@@ -37,6 +40,9 @@ import org.geotools.jdbc.SQLDialect;
  */
 public class DB2NGDataStoreFactory extends JDBCDataStoreFactory {
 
+    public static int MajorVersion,MinorVersion;
+    public static String ProductName,ProductVersion;
+    
     /** parameter for database type */
     public static final Param DBTYPE = new Param("dbtype", String.class, "Type", true, "db2");
     
@@ -114,5 +120,24 @@ public class DB2NGDataStoreFactory extends JDBCDataStoreFactory {
         super.setupParameters(parameters);
         parameters.put(DBTYPE.key, DBTYPE);
     }
+
+    @Override
+    protected JDBCDataStore createDataStoreInternal(JDBCDataStore dataStore, Map params)
+    throws IOException {
+    Connection con = null;
+    try {    
+    con = dataStore.getDataSource().getConnection();    
+    DatabaseMetaData md = con.getMetaData();
+    MajorVersion=md.getDatabaseMajorVersion();
+    MinorVersion=md.getDatabaseMinorVersion();
+    ProductName=md.getDatabaseProductName();
+    ProductVersion=md.getDatabaseProductVersion();
+    } catch (SQLException e) {
+        throw new IOException(e.getMessage());
+    }
+    dataStore.closeSafe(con);
+    return dataStore;
+}
+
     
 }
