@@ -65,7 +65,7 @@ import org.opengis.util.Cloneable;
  * @source $URL$
  * @version $Id$
  * @author Martin Desruisseaux (IRD)
- * @author Alessio Fabiani
+ * @author Simone Giannecchini, GeoSolutions SAS
  *
  * @see GridGeometry2D
  * @see ImageGeometry
@@ -232,7 +232,7 @@ public class GeneralGridGeometry implements GridGeometry, Serializable {
      *                  {@link PixelInCell#CELL_CORNER CELL_CORNER} for Java2D/JAI conventions.
      * @param gridToCRS The math transform which allows for the transformations from grid
      *                  coordinates to real world earth coordinates. May be {@code null},
-     *                  but this is not recommanded.
+     *                  but this is not recommended.
      * @param crs       The coordinate reference system for the "real world" coordinates, or
      *                  {@code null} if unknown. This CRS is given to the
      *                  {@linkplain #getEnvelope envelope}.
@@ -250,6 +250,7 @@ public class GeneralGridGeometry implements GridGeometry, Serializable {
                                final CoordinateReferenceSystem crs)
             throws MismatchedDimensionException, IllegalArgumentException
     {
+    	
         this.gridRange = clone(gridRange);
         this.gridToCRS = PixelTranslation.translate(gridToCRS, anchor, PixelInCell.CELL_CENTER);
         if (PixelInCell.CELL_CORNER.equals(anchor)) {
@@ -342,47 +343,6 @@ public class GeneralGridGeometry implements GridGeometry, Serializable {
             throws MismatchedDimensionException
     {
         this(gridRange, userRange, null, false, true);
-    }
-
-    /**
-     * Constructs a new grid geometry from an {@linkplain Envelope envelope}. This convenience
-     * constructor delegates the work to {@link GridToEnvelopeMapper}; see its javadoc for details.
-     * <p>
-     * If this convenience constructor do not provides suffisient control on axis order or reversal,
-     * then an affine transform shall be created explicitly and the grid geometry shall be created
-     * using the {@linkplain #GeneralGridGeometry(GridEnvelope,MathTransform,CoordinateReferenceSystem)
-     * constructor expecting a math transform} argument.
-     *
-     * @param gridRange The valid coordinate range of a grid coverage.
-     * @param userRange The corresponding coordinate range in user coordinate. This envelope must
-     *                  contains entirely all pixels, i.e. the envelope's upper left corner must
-     *                  coincide with the upper left corner of the first pixel and the envelope's
-     *                  lower right corner must coincide with the lower right corner of the last
-     *                  pixel.
-     * @param reverse   Tells for each axis in <cite>user</cite> space whatever or not its direction
-     *                  should be reversed. A {@code null} value reverse no axis. Callers will
-     *                  typically set {@code reverse[1]} to {@code true} in order to reverse the
-     *                  <var>y</var> axis direction.
-     * @param swapXY    If {@code true}, then the two first axis will be interchanged. Callers will
-     *                  typically set this argument to {@code true} when the geographic coordinate
-     *                  system has axis in the (<var>y</var>,<var>x</var>) order. The {@code reverse}
-     *                  parameter then apply to axis after the swap.
-     *
-     * @throws MismatchedDimensionException if the grid range and the envelope doesn't have
-     *         consistent dimensions.
-     *
-     * @since 2.2
-     *
-     * @deprecated Use {@link GridToEnvelopeMapper} instead, which provides more control.
-     */
-    @Deprecated
-    public GeneralGridGeometry(final GridEnvelope gridRange,
-                               final Envelope  userRange,
-                               final boolean[] reverse,
-                               final boolean   swapXY)
-            throws MismatchedDimensionException
-    {
-        this(gridRange, userRange, reverse, swapXY, false);
     }
 
     /**
@@ -633,4 +593,19 @@ public class GeneralGridGeometry implements GridGeometry, Serializable {
     public String toString() {
         return Classes.getShortClassName(this) + '[' + gridRange + ", " + gridToCRS + ']';
     }
+
+	/**
+	 * Makes sure that an argument is non-null.
+	 *
+	 * @param  name   Argument name.
+	 * @param  object User argument.
+	 * @throws IllegalArgumentException if {@code object} is null.
+	 */
+	static void ensureNonNull(final String name, final Object object)
+	    throws IllegalArgumentException
+	{
+	    if (object == null) {
+	        throw new IllegalArgumentException(Errors.format(ErrorKeys.NULL_ARGUMENT_$1, name));
+	    }
+	}
 }

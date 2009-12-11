@@ -146,4 +146,19 @@ public class GridCoordinates2D extends Point implements GridCoordinates {
     public GridCoordinates2D clone() {
         return (GridCoordinates2D) super.clone();
     }
+
+	/**
+	 * Makes sure that an argument is non-null.
+	 *
+	 * @param  name   Argument name.
+	 * @param  object User argument.
+	 * @throws IllegalArgumentException if {@code object} is null.
+	 */
+	static void ensureNonNull(final String name, final Object object)
+	    throws IllegalArgumentException
+	{
+	    if (object == null) {
+	        throw new IllegalArgumentException(Errors.format(ErrorKeys.NULL_ARGUMENT_$1, name));
+	    }
+	}
 }

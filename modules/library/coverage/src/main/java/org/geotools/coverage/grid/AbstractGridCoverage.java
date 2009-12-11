@@ -28,20 +28,19 @@ import java.util.logging.Logger;
 
 import javax.media.jai.PropertySource;
 
-import org.opengis.coverage.grid.GridCoverage;
-import org.opengis.coverage.grid.GridGeometry;
-import org.opengis.coverage.grid.GridPacking;
-import org.opengis.coverage.grid.GridRange;
-import org.opengis.coverage.grid.GridNotEditableException;
-import org.opengis.coverage.grid.InvalidRangeException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.geometry.DirectPosition;
-
 import org.geotools.coverage.AbstractCoverage;
 import org.geotools.geometry.DirectPosition2D;
-import org.geotools.util.logging.Logging;
-import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
+import org.geotools.resources.i18n.Errors;
+import org.geotools.util.logging.Logging;
+import org.opengis.coverage.grid.GridCoverage;
+import org.opengis.coverage.grid.GridGeometry;
+import org.opengis.coverage.grid.GridNotEditableException;
+import org.opengis.coverage.grid.GridPacking;
+import org.opengis.coverage.grid.GridRange;
+import org.opengis.coverage.grid.InvalidRangeException;
+import org.opengis.geometry.DirectPosition;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 
 /**

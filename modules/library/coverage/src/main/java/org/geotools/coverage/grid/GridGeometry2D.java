@@ -954,8 +954,7 @@ public class GridGeometry2D extends GeneralGridGeometry {
         if (gridToCRS == null) {
             throw new InvalidGridGeometryException(ErrorKeys.UNSPECIFIED_TRANSFORM);
         }
-        return PixelTranslation.translate(gridToCRS, PixelOrientation.CENTER, orientation,
-                gridDimensionX, gridDimensionY);
+        return PixelTranslation.translate(gridToCRS, PixelOrientation.CENTER, orientation,gridDimensionX, gridDimensionY);
     }
 
     /**

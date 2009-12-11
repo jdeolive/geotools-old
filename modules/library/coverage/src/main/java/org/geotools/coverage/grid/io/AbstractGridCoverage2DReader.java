@@ -249,7 +249,7 @@ public abstract class AbstractGridCoverage2DReader implements
 		// when policy is explictly provided it overrides the policy provided
 		// using hints.
 		if(overviewPolicy == null)
-		overviewPolicy = extractOverviewPolicy();
+			overviewPolicy = extractOverviewPolicy();
 		
 		
 		// //
@@ -282,8 +282,7 @@ public abstract class AbstractGridCoverage2DReader implements
 		// the user.
 		//
 		// //
-		double[] requestedRes = getResolution(requestedEnvelope, requestedDim,
-				crs);
+		double[] requestedRes = getResolution(requestedEnvelope, requestedDim,crs);
 		if (requestedRes == null)
 			return imageChoice;
 
@@ -352,7 +351,7 @@ public abstract class AbstractGridCoverage2DReader implements
         	 	Collections.sort(resolutionsLevels);
         	}
           }
-	}
+        }
        
 
         // Now search for the best matching resolution. 
@@ -484,10 +483,8 @@ public abstract class AbstractGridCoverage2DReader implements
 				// some overview
 				selectedRes[0] = overViewResolutions[choice - 1][0];
 				selectedRes[1] = overViewResolutions[choice - 1][1];
-				w = (int) Math.round(originalEnvelope.getSpan(0)
-						/ selectedRes[0]);
-				h = (int) Math.round(originalEnvelope.getSpan(1)
-						/ selectedRes[1]);
+				w = (int) Math.round(originalEnvelope.getSpan(0)/ selectedRes[0]);
+				h = (int) Math.round(originalEnvelope.getSpan(1)/ selectedRes[1]);
 
 			}
 			// /////////////////////////////////////////////////////////////////////
@@ -501,28 +498,20 @@ public abstract class AbstractGridCoverage2DReader implements
 				readP.setSourceSubsampling(1, 1, 0, 0);
 
 			} else {
-				int subSamplingFactorX = (int) Math.floor(requestedRes[0]
-						/ selectedRes[0]);
-				subSamplingFactorX = subSamplingFactorX == 0 ? 1
-						: subSamplingFactorX;
+				int subSamplingFactorX = (int) Math.floor(requestedRes[0]/ selectedRes[0]);
+				subSamplingFactorX = subSamplingFactorX == 0 ? 1: subSamplingFactorX;
 
-				while (w / subSamplingFactorX <= 0 && subSamplingFactorX >= 0)
-					subSamplingFactorX--;
-				subSamplingFactorX = subSamplingFactorX == 0 ? 1
-						: subSamplingFactorX;
+				while (w / subSamplingFactorX <= 0 && subSamplingFactorX >= 0)subSamplingFactorX--;
+				subSamplingFactorX = subSamplingFactorX == 0 ? 1: subSamplingFactorX;
 
-				int subSamplingFactorY = (int) Math.floor(requestedRes[1]
-						/ selectedRes[1]);
-				subSamplingFactorY = subSamplingFactorY == 0 ? 1
-						: subSamplingFactorY;
+				int subSamplingFactorY = (int) Math.floor(requestedRes[1]/ selectedRes[1]);
+				subSamplingFactorY = subSamplingFactorY == 0 ? 1: subSamplingFactorY;
 
 				while (h / subSamplingFactorY <= 0 && subSamplingFactorY >= 0)
 					subSamplingFactorY--;
-				subSamplingFactorY = subSamplingFactorY == 0 ? 1
-						: subSamplingFactorY;
+				subSamplingFactorY = subSamplingFactorY == 0 ? 1: subSamplingFactorY;
 
-				readP.setSourceSubsampling(subSamplingFactorX,
-						subSamplingFactorY, 0, 0);
+				readP.setSourceSubsampling(subSamplingFactorX,subSamplingFactorY, 0, 0);
 			}
 
 		}
