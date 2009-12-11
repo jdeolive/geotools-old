@@ -69,14 +69,20 @@ public abstract class AbstractGridCoverageWriter implements GridCoverageWriter {
 	public void dispose() {
 		if (outStream != null) {
 			try {
-				outStream.flush();
-				outStream.close();
+				outStream.flush();			
 
 			} catch (IOException e) {
-				if (LOGGER.isLoggable(Level.FINE))
-					LOGGER.log(Level.FINE, e.getLocalizedMessage(), e);
 
 			}
+			finally{
+				try {
+					outStream.close();
+				} catch (Throwable e) {
+
+				}
+			}
+			
+			
 		}
 
 	}
