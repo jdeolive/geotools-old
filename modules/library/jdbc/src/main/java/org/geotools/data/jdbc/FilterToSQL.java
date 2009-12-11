@@ -33,6 +33,7 @@ import org.geotools.filter.FilterCapabilities;
 import org.geotools.filter.FunctionImpl;
 import org.geotools.filter.LikeFilterImpl;
 import org.geotools.jdbc.JDBCDataStore;
+import org.geotools.jdbc.PrimaryKey;
 import org.geotools.util.Converters;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -141,9 +142,21 @@ public class FilterToSQL implements FilterVisitor, ExpressionVisitor {
     /** where to write the constructed string from visiting the filters. */
     protected Writer out;
 
-    /** the fid mapper used to encode the fid filters */
+    /** 
+     * the fid mapper used to encode the fid filters
+     * @deprecated use {@link #primaryKey}  
+     */
     protected FIDMapper mapper;
 
+    /**
+     * The primary key corresponding to the table the filter is being encoded
+     * against.  
+     */
+    protected PrimaryKey primaryKey;
+    
+    /** The schema that contains the table the filter being encoded against. */
+    protected String databaseSchema;
+    
     /** the schmema the encoder will be used to be encode sql for */
     protected SimpleFeatureType featureType;
 
@@ -152,6 +165,7 @@ public class FilterToSQL implements FilterVisitor, ExpressionVisitor {
     
     /** the geometry descriptor corresponding to the current binary spatial filter being encoded */
     protected GeometryDescriptor currentGeometry;
+    
     /** the srid corresponding to the current binary spatial filter being encoded */
     protected Integer currentSRID;
      
@@ -271,15 +285,35 @@ public class FilterToSQL implements FilterVisitor, ExpressionVisitor {
      * must be a FIDMapper in order to invoke the FIDFilter encoder.
      *
      * @param mapper
+     * @deprecated use {@link #setPrimaryKey(PrimaryKey)}
      */
     public void setFIDMapper(FIDMapper mapper) {
         this.mapper = mapper;
     }
 
+    /**
+     * @deprecated use {@link #getPrimaryKey()}
+     */
     public FIDMapper getFIDMapper() {
         return this.mapper;
     }
 
+    public PrimaryKey getPrimaryKey() {
+        return primaryKey;
+    }
+    
+    public void setPrimaryKey(PrimaryKey primaryKey) {
+        this.primaryKey = primaryKey;
+    }
+    
+    public String getDatabaseSchema() {
+        return databaseSchema;
+    }
+    
+    public void setDatabaseSchema(String databaseSchema) {
+        this.databaseSchema = databaseSchema;
+    }
+    
     /**
      * Sets the capabilities of this filter.
      *

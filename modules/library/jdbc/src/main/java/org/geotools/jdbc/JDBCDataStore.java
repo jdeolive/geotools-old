@@ -3610,7 +3610,9 @@ public final class JDBCDataStore extends ContentDataStore
                     }
                 };
             toSQL.setFeatureType(featureType);    
+            toSQL.setPrimaryKey(key);
             toSQL.setFIDMapper(mapper);
+            toSQL.setDatabaseSchema(databaseSchema);
         }
         
         return toSQL;
