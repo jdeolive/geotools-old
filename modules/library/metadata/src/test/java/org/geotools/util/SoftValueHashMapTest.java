@@ -123,9 +123,9 @@ public final class SoftValueHashMapTest {
                 assertTrue("containsAll:", softMap.entrySet().containsAll(strongMap.entrySet()));
             }
             // Do our best to lets GC finish its work.
-            for (int i=0; i<4; i++) {
-                Thread.sleep(50);
-                System.gc();
+            for (int i=0; i<20; i++) {
+                Runtime.getRuntime().gc();
+                Runtime.getRuntime().runFinalization();
             }
             assertTrue(softMap.isValid());
             assertTrue("size:", softMap.size() <= count);
