@@ -45,7 +45,7 @@ public final class GeocentricTranslationTest {
      */
     @Test
     public void testTranslation() throws FactoryException, TransformException {
-        final String        classification = "Geocentric translations";
+        final String        classification = "Geocentric translations (geog2d domain)";
         final MathTransformFactory factory = ReferencingFactoryFinder.getMathTransformFactory(null);
         final ParameterValueGroup    param = factory.getDefaultParameters(classification);
 
@@ -70,7 +70,7 @@ public final class GeocentricTranslationTest {
      */
     @Test
     public void testSevenParam() throws FactoryException, TransformException {
-        final String        classification = "Position Vector 7-param. transformation";
+        final String        classification = "Position Vector transformation (geog2d domain)";
         final MathTransformFactory factory = ReferencingFactoryFinder.getMathTransformFactory(null);
         final ParameterValueGroup    param = factory.getDefaultParameters(classification);
 
@@ -99,7 +99,7 @@ public final class GeocentricTranslationTest {
      */
     @Test
     public void testFrameRotation() throws FactoryException, TransformException {
-        final String        classification = "Coordinate Frame rotation";
+        final String        classification = "Coordinate Frame rotation (geog2d domain)";
         final MathTransformFactory factory = ReferencingFactoryFinder.getMathTransformFactory(null);
         final ParameterValueGroup    param = factory.getDefaultParameters(classification);
 
@@ -129,7 +129,7 @@ public final class GeocentricTranslationTest {
      */
     @Test
     public void testGeotoolsExtensions() throws FactoryException, TransformException {
-        final String        classification = "Coordinate Frame rotation";
+        final String        classification = "Coordinate Frame rotation (geog2d domain)";
         final MathTransformFactory factory = ReferencingFactoryFinder.getMathTransformFactory(null);
         final ParameterValueGroup    param = factory.getDefaultParameters(classification);
         final Ellipsoid    sourceEllipsoid = DefaultEllipsoid.INTERNATIONAL_1924;

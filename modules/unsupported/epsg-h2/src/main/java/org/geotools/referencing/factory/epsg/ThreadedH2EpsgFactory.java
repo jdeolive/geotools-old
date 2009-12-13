@@ -17,22 +17,25 @@
 package org.geotools.referencing.factory.epsg;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.sql.Connection;
-import java.sql.ResultSet;
+import java.io.RandomAccessFile;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.nio.channels.OverlappingFileLockException;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
-import java.util.zip.GZIPInputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import javax.sql.DataSource;
 
 import org.geotools.factory.Hints;
 import org.geotools.referencing.factory.AbstractAuthorityFactory;
+import org.geotools.resources.i18n.ErrorKeys;
+import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.LoggingKeys;
 import org.geotools.resources.i18n.Loggings;
 import org.geotools.util.Version;
@@ -75,7 +78,22 @@ public class ThreadedH2EpsgFactory extends ThreadedEpsgFactory {
      * additional minor version number if there is some changes related to the EPSG-H2
      * plugin rather then the EPSG database itself (for example additional database index).
      */
-    public static final Version VERSION = new Version("7.1.0");
+    public static final Version VERSION = new Version("7.4.0");
+    
+    /**
+     * The name of the ZIP file to read in order to create the cached database.
+     */
+    private static final String ZIP_FILE = "EPSG.zip";
+    
+    /**
+     * The successful database creation marker
+     */
+    static final String MARKER_FILE = "EPSG_creation_marker.txt";
+    
+    /**
+     * The database creation lock file
+     */
+    static final String LOCK_FILE = "EPSG_creation_lock.txt";
 
     /**
      * The key for fetching the database directory from {@linkplain System#getProperty(String)
@@ -91,7 +109,7 @@ public class ThreadedH2EpsgFactory extends ThreadedEpsgFactory {
     /**
      * The prefix to put in front of URL to the database.
      */
-    private static final String PREFIX = "jdbc:h2:";
+    static final String PREFIX = "jdbc:h2:";
 
     /**
      * The logger name.
@@ -241,7 +259,6 @@ public class ThreadedH2EpsgFactory extends ThreadedEpsgFactory {
             url.append(DATABASE_NAME);
             // no need for validation query, saves some work
             url.append(";AUTO_RECONNECT=TRUE;CACHE_SIZE=131072;CACHE_TYPE=TQ");
-            source.setURL("jdbc:h2:zip:/tmp/EPSG3.ZIP!/EPSG");
             source.setURL((url.toString()));
             source.setUser("sa");
             source.setPassword("");
@@ -260,12 +277,12 @@ public class ThreadedH2EpsgFactory extends ThreadedEpsgFactory {
      * Returns {@code true} if the database contains data. This method returns {@code false}
      * if an empty EPSG database has been automatically created by HSQL and not yet populated.
      */
-    private static boolean dataExists(final Connection connection) throws SQLException {
-        final ResultSet tables = connection.getMetaData().getTables(
-                null, null, "EPSG_%", new String[] {"TABLE"});
-        final boolean exists = tables.next();
-        tables.close();
-        return exists;
+    private static boolean dataExists(File directory) throws SQLException {
+        // check if the marker file is there, and all the other database files as well
+        // (as some windows cleanup tools delete the .data file only)
+        return new File(directory, MARKER_FILE).exists() &&
+               new File(directory, DATABASE_NAME + ".data.db").exists() &&
+               new File(directory, DATABASE_NAME + ".index.db").exists();
     }
 
     /**
@@ -279,48 +296,102 @@ public class ThreadedH2EpsgFactory extends ThreadedEpsgFactory {
     protected AbstractAuthorityFactory createBackingStore(final Hints hints) throws SQLException {
         final DataSource source = getDataSource();
         final File directory    = getDirectory(source);
-        Connection connection   = source.getConnection();
-        if (!dataExists(connection)) {
-            /*
-             * HSQL has created automatically an empty database. We need to populate it.
-             * Executes the SQL scripts bundled in the JAR. In theory, each line contains
-             * a full SQL statement. For this plugin however, we have compressed "INSERT
-             * INTO" statements using Compactor class in this package.
-             */
-            final Logger logger = Logging.getLogger(LOGGER);
-            final LogRecord record = Loggings.format(Level.INFO,
-                    LoggingKeys.CREATING_CACHED_EPSG_DATABASE_$1, VERSION);
-            record.setLoggerName(logger.getName());
-            logger.log(record);
-            final Statement statement = connection.createStatement();
+        directory.mkdirs();
+        if (!dataExists(directory)) {
+            FileLock lock = null;
             try {
-                // read and execute the scripts that make up the database
-                executeScript("EPSG_Tables_PostgreSQL.sql", statement);
-                executeScript("EPSG_Data_PostgreSQL.sql", statement);
-                executeScript("EPSG_FKeys_PostgreSQL.sql", statement);
-                executeScript("EPSG_Indexes_H2.sql", statement);
+                // get an exclusive lock
+                lock = acquireLock(directory);
+                
+                // if after getting the lock the database is still incomplete let's work on it
+                if(!dataExists(directory)) {
+                    /*
+                     * HSQL has created automatically an empty database. We need to populate it.
+                     * Executes the SQL scripts bundled in the JAR. In theory, each line contains
+                     * a full SQL statement. For this plugin however, we have compressed "INSERT
+                     * INTO" statements using Compactor class in this package.
+                     */
+                    final Logger logger = Logging.getLogger(LOGGER);
+                    final LogRecord record = Loggings.format(Level.INFO,
+                            LoggingKeys.CREATING_CACHED_EPSG_DATABASE_$1, VERSION);
+                    record.setLoggerName(logger.getName());
+                    logger.log(record);
+                
+                    ZipInputStream zin = new ZipInputStream(ThreadedH2EpsgFactory.class.getResourceAsStream(ZIP_FILE));
+                    ZipEntry ze = null;
+                    byte[] buf = new byte[1024];
+                    int read = 0;
+                    while ((ze = zin.getNextEntry()) != null) {
+                      FileOutputStream fout = new FileOutputStream(new File(directory, ze.getName()));
+                      while((read = zin.read(buf)) > 0) {
+                        fout.write(buf, 0, read);
+                      }
+                      zin.closeEntry();
+                      fout.close();
+                    }
+                    zin.close();
+                    
+                    // mark the successful creation
+                    new File(directory, MARKER_FILE).createNewFile();
+                    
+                    setReadOnly(directory);
+                }
             } catch (IOException exception) {
-                SQLException e = new SQLException("Error occurred while executing " +
-                		"the EPSG database creation scripts");
-                e.initCause(exception); 
+                SQLException e = new SQLException(Errors.format(ErrorKeys.CANT_READ_$1, ZIP_FILE));
+                e.initCause(exception); // TODO: inline cause when we will be allowed to target Java 6.
                 throw e;
             } finally {
-                statement.close();
+                if(lock != null) {
+                    try {
+                        lock.release();
+                        lock.channel().close();
+                        new File(directory, LOCK_FILE).delete();
+                    } catch(IOException e) {
+                        // does not matter, was just cleanup
+                    }
+                }
             }
-            statement.close();
-            connection.close();
             
-            // the database has been created, not make it read only
-            setReadOnly(directory);
-            
-            connection = source.getConnection();
-            assert dataExists(connection);
         }
-        // we should use AnsiDialectEpsgFactory but the finder is not properly implemented there
-        FactoryUsingAnsiSQL factory = new FactoryUsingAnsiSQL(hints, connection);
+        FactoryUsingAnsiSQL factory = new FactoryUsingAnsiSQL(hints, getDataSource().getConnection());
+        factory.setValidationQuery("CALL NOW()");
         return factory;
     }
 
+    /**
+     * 
+     * @param directory
+     * @return
+     * @throws IOException
+     */
+    FileLock acquireLock(File directory) throws IOException {
+        // Get a file channel for the file
+        File file = new File(directory, LOCK_FILE);
+        FileChannel channel = new RandomAccessFile(file, "rw").getChannel();
+    
+        // Use the file channel to create a lock on the file.
+        // This method blocks until it can retrieve the lock.
+        FileLock lock = channel.lock();
+    
+        // Try acquiring the lock without blocking. This method returns
+        // null or throws an exception if the file is already locked.
+        while(!lock.isValid()) {
+            try {
+                lock = channel.tryLock();
+            } catch (OverlappingFileLockException e) {
+                // File is already locked in this thread or virtual machine
+            }
+            // wait for the other process to unlock it, should take a couple of seconds
+            try {
+                Thread.sleep(500);
+            } catch(InterruptedException e) {
+                // someone waked us earlier, no problem
+            }
+        }
+        
+        return lock;
+    }
+    
     private void setReadOnly(final File directory) {
         if( directory == null ) return;
         for (File file : directory.listFiles()) {
@@ -330,21 +401,6 @@ public class ThreadedH2EpsgFactory extends ThreadedEpsgFactory {
                 file.delete();
             else
                 file.setReadOnly();
-        }
-    }
-    
-    void executeScript(String scriptName, Statement statement) throws IOException, SQLException {
-        SqlScriptReader reader = null;
-        try {
-            // first read in the tables
-            reader = new SqlScriptReader(new InputStreamReader(new GZIPInputStream(
-                    ThreadedH2EpsgFactory.class.getResourceAsStream(scriptName + ".gz")), "ISO-8859-15"));
-            while(reader.hasNext()) {
-                statement.execute(reader.next());
-            }
-        } finally {
-            if(reader != null) 
-                reader.dispose();
         }
     }
 }

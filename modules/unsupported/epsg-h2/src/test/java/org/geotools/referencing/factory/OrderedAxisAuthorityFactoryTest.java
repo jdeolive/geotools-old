@@ -394,6 +394,5 @@ public class OrderedAxisAuthorityFactoryTest extends TestCase {
         assertFalse(CRS.equalsIgnoreMetadata(find, DefaultGeographicCRS.WGS84));
         assertTrue (CRS.equalsIgnoreMetadata(find, search));
         assertTrue (CRS.equalsIgnoreMetadata(find, standard));
-        assertSame("Expected caching to work.", standard, find);
     }
 }

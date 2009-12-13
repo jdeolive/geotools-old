@@ -308,7 +308,7 @@ public class GeocentricTranslation extends ProjectiveTransform {
          * The parameters group.
          */
         static final ParameterDescriptorGroup PARAMETERS = createDescriptorGroup(new NamedIdentifier[] {
-                new NamedIdentifier(Citations.EPSG, "Geocentric translations"),
+                new NamedIdentifier(Citations.EPSG, "Geocentric translations (geog2D domain)"),
                 new NamedIdentifier(Citations.EPSG, "9603")
             }, new ParameterDescriptor[] {
                 DX, DY, DZ,
@@ -483,7 +483,7 @@ public class GeocentricTranslation extends ProjectiveTransform {
          * The parameters group.
          */
         static final ParameterDescriptorGroup PARAMETERS =
-                        createDescriptorGroup("Position Vector 7-param. transformation", "9606");
+                        createDescriptorGroup("Position Vector transformation (geog2D domain)", "9606");
 
         /**
          * Creates a parameters group.
@@ -546,7 +546,7 @@ public class GeocentricTranslation extends ProjectiveTransform {
          * The parameters group.
          */
         static final ParameterDescriptorGroup PARAMETERS =
-                        createDescriptorGroup("Coordinate Frame rotation", "9607");
+                        createDescriptorGroup("Coordinate Frame Rotation (geog2D domain)", "9607");
 
         /**
          * Constructs a default provider.

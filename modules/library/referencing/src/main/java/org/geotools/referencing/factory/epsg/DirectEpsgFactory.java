@@ -468,8 +468,9 @@ public abstract class DirectEpsgFactory extends DirectAuthorityFactory
      */
     public synchronized Citation getAuthority() {
         if (authority == null) try {
+            // we sort on version_number too since in v7.4 they had two entries with the same version date
             final String query = adaptSQL("SELECT VERSION_NUMBER, VERSION_DATE FROM [Version History]" +
-                                          " ORDER BY VERSION_DATE DESC");
+                                          " ORDER BY VERSION_DATE DESC, VERSION_NUMBER DESC");
             final DatabaseMetaData metadata  = getConnection().getMetaData();
             final Statement        statement = getConnection().createStatement();
             final ResultSet        result    = statement.executeQuery(query);

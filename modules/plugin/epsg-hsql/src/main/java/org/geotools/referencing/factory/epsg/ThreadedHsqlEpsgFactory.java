@@ -76,7 +76,7 @@ public class ThreadedHsqlEpsgFactory extends ThreadedEpsgFactory {
      * additional minor version number if there is some changes related to the EPSG-HSQL
      * plugin rather then the EPSG database itself (for example additional database index).
      */
-    public static final Version VERSION = new Version("7.1.0");
+    public static final Version VERSION = new Version("7.4.0");
 
     /**
      * The key for fetching the database directory from {@linkplain System#getProperty(String)
@@ -267,7 +267,7 @@ public class ThreadedHsqlEpsgFactory extends ThreadedEpsgFactory {
             FileLock lock = null;
             try {
                 // get an exclusive lock
-                 lock = acquireLock(directory);
+                lock = acquireLock(directory);
                 
                 // if after getting the lock the database is still incomplete let's work on it
                 if(!dataExists(directory)) {
