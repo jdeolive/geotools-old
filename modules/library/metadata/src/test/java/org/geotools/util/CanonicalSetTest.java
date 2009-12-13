@@ -121,9 +121,9 @@ public final class CanonicalSetTest {
                 assertTrue("containsAll:", weakSet.containsAll(strongSet));
             }
             // Do our best to lets GC finish its work.
-            for (int i=0; i<4; i++) {
-                Thread.sleep(50);
-                System.gc();
+            for (int i=0; i<20; i++) {
+                Runtime.getRuntime().gc();
+                Runtime.getRuntime().runFinalization();
             }
             assertEquals("equals:", strongSet, weakSet);
         }
