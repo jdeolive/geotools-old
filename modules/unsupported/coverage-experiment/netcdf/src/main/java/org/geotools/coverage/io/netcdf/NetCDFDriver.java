@@ -17,6 +17,8 @@
 package org.geotools.coverage.io.netcdf;
 
 import it.geosolutions.imageio.stream.input.FileImageInputStreamExtImpl;
+import it.geosolutions.imageio.stream.input.URIImageInputStream;
+import it.geosolutions.imageio.stream.input.URIImageInputStreamImpl;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,8 +42,6 @@ import org.geotools.coverage.io.driver.Driver;
 import org.geotools.factory.Hints;
 import org.geotools.imageio.netcdf.NetCDFSpatioTemporalImageReaderSpi;
 import org.opengis.util.ProgressListener;
-
-import ucar.nc2.dataset.NetcdfDataset;
 
 public class NetCDFDriver extends DefaultFileDriver implements Driver {
 
@@ -151,17 +151,18 @@ public class NetCDFDriver extends DefaultFileDriver implements Driver {
             }
 
             else {
-                if (url.getProtocol().equalsIgnoreCase("http")
-                		|| url.getProtocol().equalsIgnoreCase("dods")) {
-                	source = NetcdfDataset.openDataset(url.toExternalForm());
-                	if (!spi.canDecodeInput(source)){
-                		if (LOGGER.isLoggable(Level.FINE))
-                			LOGGER.fine("Unable to decode the inputStream");
-                			return false;
-                		}
-                	return true;
-                } else if (url.getProtocol().equalsIgnoreCase("ftp")) {
-                    source = url.openStream();
+            	if (url.getProtocol().toLowerCase().startsWith("http")
+            			  || url.getProtocol().equalsIgnoreCase("dods")) {
+            		URIImageInputStream uriInStream = new URIImageInputStreamImpl(url.toURI()); 
+            		source = uriInStream;
+            		if (!spi.canDecodeInput(source)){
+            			if (LOGGER.isLoggable(Level.FINE))
+            				LOGGER.fine("Unable to decode the inputStream");
+            			 return false;
+            		}
+            		return true;
+            	} else if (url.getProtocol().equalsIgnoreCase("ftp")) {
+            		source = url.openStream();
                 } else{
                     if (LOGGER.isLoggable(Level.FINE))
                         LOGGER.fine("Unsupported protocol");
