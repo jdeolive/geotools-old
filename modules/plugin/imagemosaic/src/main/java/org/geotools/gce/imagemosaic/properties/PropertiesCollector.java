@@ -57,7 +57,7 @@ public abstract class PropertiesCollector  {
 	}
 
 	protected List<String> getMatches() {
-		return matches;
+		return Collections.unmodifiableList(matches);
 	}
 	
 }

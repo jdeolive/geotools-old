@@ -120,9 +120,13 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
 
     public static final String TILE_SIZE_SEPARATOR = ",";
     
-    /** Control the type of the final mosaic. */
+    /** Optional Time value for this mosaic. */
     @SuppressWarnings("unchecked")
 	public static final ParameterDescriptor<List> TIME = DefaultParameterDescriptor.create("TIME", "A list of time objects",List.class, null,false);    
+    
+    /** Optional Elevation value for this mosaic. */
+	public static final ParameterDescriptor<Double> ELEVATION = DefaultParameterDescriptor.create("ELEVATION", "An elevation value",Double.class, Double.NaN,false);    
+    
     
     /** Filter tiles based on attributes from the input coverage*/
     public static ParameterDescriptor<Filter> FILTER = new DefaultParameterDescriptor<Filter>("Filter", Filter.class, null, Filter.INCLUDE);
@@ -132,8 +136,7 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
     public static final ParameterDescriptor<Boolean> FADING = new DefaultParameterDescriptor<Boolean>("Fading", Boolean.class, new Boolean[]{Boolean.TRUE,Boolean.FALSE}, Boolean.FALSE);
 
     /** Control the transparency of the input coverages. */
-    public static final ParameterDescriptor<Color> INPUT_TRANSPARENT_COLOR = new DefaultParameterDescriptor<Color>(
-            "InputTransparentColor", Color.class, null, null);
+    public static final ParameterDescriptor<Color> INPUT_TRANSPARENT_COLOR = new DefaultParameterDescriptor<Color>("InputTransparentColor", Color.class, null, null);
 
     /** Control the transparency of the output coverage. */
     public static final ParameterDescriptor<Color> OUTPUT_TRANSPARENT_COLOR = new DefaultParameterDescriptor<Color>(
@@ -181,7 +184,8 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
                 SUGGESTED_TILE_SIZE,
                 ALLOW_MULTITHREADING,
                 MAX_ALLOWED_TILES,
-                TIME}));
+                TIME,
+                ELEVATION}));
 
         // reading parameters
         writeParameters = null;

@@ -134,6 +134,12 @@ class RasterLayerRequest {
 
 	private List<Date> requestedTimes;
 
+	private double elevation=Double.NaN;
+
+	public double getElevation() {
+		return elevation;
+	}
+
 	public List<Date> getRequestedTimes() {
 		return requestedTimes;
 	}
@@ -519,7 +525,20 @@ class RasterLayerRequest {
 
             requestedTimes=dates;
             return;
-        }        
+        }      
+        
+        // //
+        //
+        // Elevation parameter
+        //
+        // //
+        if (name.equals(ImageMosaicFormat.ELEVATION.getName())) {
+        	final Object value = param.getValue();
+        	if(value==null)
+        		return;
+            elevation = (Double)param.getValue();
+            return;
+        }            
     }
 
     /**

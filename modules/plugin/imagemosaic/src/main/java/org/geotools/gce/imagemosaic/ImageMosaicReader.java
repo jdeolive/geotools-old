@@ -121,6 +121,8 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 	String timeAttribute;
 
 	boolean cachingIndex;
+
+	String elevationAttribute;
 	
 	/**
 	 * Constructor.
@@ -444,6 +446,12 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 		final String timeAttribute= configuration.getTimeAttribute();
 		if(timeAttribute!=null)
 			this.timeAttribute=timeAttribute;
+		
+		
+		// elevation param
+		final String elevationAttribute= configuration.getElevationAttribute();
+		if(elevationAttribute!=null)
+			this.elevationAttribute=elevationAttribute;		
 		
 
 		// caching for the index

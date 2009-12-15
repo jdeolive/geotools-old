@@ -1,6 +1,10 @@
 package org.geotools.gce.imagemosaic;
 
 import java.awt.Rectangle;
+import java.awt.image.ColorModel;
+import java.awt.image.RenderedImage;
+import java.awt.image.SampleModel;
+import java.io.File;
 import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.net.URL;
@@ -11,12 +15,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageReadParam;
+import javax.media.jai.ImageLayout;
 
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.data.DataSourceException;
+import org.geotools.data.DataUtilities;
 import org.geotools.data.Query;
 import org.geotools.factory.Hints;
 import org.geotools.gce.imagemosaic.index.GranuleIndex;
@@ -381,6 +387,13 @@ class RasterManager {
 		
 		
 	}
+	
+	/** Default {@link ColorModel}.*/
+	ColorModel defaultCM;
+	
+	/** Default {@link SampleModel}.*/
+	SampleModel defaultSM;
+	
 	/** The CRS of the input coverage */
 	private CoordinateReferenceSystem coverageCRS;
 	/** The base envelope related to the input coverage */
@@ -422,6 +435,10 @@ class RasterManager {
 	final GranuleIndex index;
 
 	String timeAttribute;
+	
+	String elevationAttribute;
+
+	ImageLayout defaultImageLayout;
 
 	public RasterManager(final ImageMosaicReader reader) throws DataSourceException {
 		
@@ -437,6 +454,7 @@ class RasterManager {
 		
         locationAttribute=parent.locationAttributeName;
         timeAttribute=parent.timeAttribute;
+        elevationAttribute=parent.elevationAttribute;
         coverageIdentifier=reader.getName();
         hints = reader.getHints();
         coverageEnvelope = reader.getOriginalEnvelope();
@@ -464,7 +482,40 @@ class RasterManager {
 		}
         extractOverviewPolicy();
         
+        // load defaultSM and defaultCM by using the sample_image if it was provided
+        loadSampleImage();        
 		
+	}
+
+ 	/**
+	 * This code tries to load the sample image from which we can extract SM and CM to use when answering to requests
+	 * that falls within a hole in the mosaic.
+	 */
+	private void loadSampleImage() {
+
+		
+			final URL baseURL=this.parent.sourceURL;
+			final File baseFile= DataUtilities.urlToFile(baseURL);
+			// in case we do not manage to convert the source URL we leave right awaycd sr
+			if(baseFile==null){
+				if(LOGGER.isLoggable(Level.FINE))
+					LOGGER.fine("Unable to find sample image for path "+baseURL);
+				return;
+			}
+			final File sampleImageFile= new File(baseFile.getParent() + "/sample_image");			
+			final RenderedImage sampleImage = Utils.loadSampleImage(sampleImageFile);
+			if(sampleImage!=null){
+				
+				// load SM and CM
+				defaultCM= sampleImage.getColorModel();
+				defaultSM= sampleImage.getSampleModel();
+				
+				// default ImageLayout
+				defaultImageLayout= new ImageLayout().setColorModel(defaultCM).setSampleModel(defaultSM);
+			}
+			else
+				if(LOGGER.isLoggable(Level.WARNING))
+					LOGGER.warning("Unable to find sample image for path "+baseURL);
 	}
 
 	/**

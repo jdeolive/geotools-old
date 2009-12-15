@@ -26,7 +26,6 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URL;
 
-import javax.media.jai.PlanarImage;
 import javax.media.jai.widget.ScrollingImagePanel;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
@@ -44,7 +43,6 @@ import org.geotools.coverage.grid.io.GridFormatFinder;
 import org.geotools.coverage.grid.io.UnknownFormat;
 import org.geotools.factory.Hints;
 import org.geotools.geometry.GeneralEnvelope;
-import org.geotools.parameter.Parameter;
 import org.geotools.test.TestData;
 import org.junit.After;
 import org.junit.Assert;
@@ -100,6 +98,8 @@ public class ImageMosaicReaderTest{
 	private boolean interactive;
 
 	private URL timeURL;
+	
+	private URL timeElevURL;
 
 	/**
 	 * Testing crop capabilities.
@@ -241,7 +241,6 @@ public class ImageMosaicReaderTest{
 		// Test the output coverage
 		checkCoverage(reader, new GeneralParameterValue[] {gg,useJai ,tileSize}, "overviews test");
 	}	
- 
 	/**
 	 * 
 	 * @throws IOException
@@ -249,6 +248,40 @@ public class ImageMosaicReaderTest{
 	 * @throws NoSuchAuthorityCodeException
 	 */
 	@Test
+	public void timeElevation() throws IOException {
+		final AbstractGridFormat format = getFormat(timeElevURL);
+		final ImageMosaicReader reader = getReader(timeElevURL, format);
+
+		// limit yourself to reading just a bit of it
+		final ParameterValue<GridGeometry2D> gg =  ImageMosaicFormat.READ_GRIDGEOMETRY2D.createValue();
+		final GeneralEnvelope envelope = reader.getOriginalEnvelope();
+		final Dimension dim= new Dimension();
+		dim.setSize(reader.getOriginalGridRange().getSpan(0)/2.0, reader.getOriginalGridRange().getSpan(1)/2.0);
+		final Rectangle rasterArea=(( GridEnvelope2D)reader.getOriginalGridRange());
+		rasterArea.setSize(dim);
+		final GridEnvelope2D range= new GridEnvelope2D(rasterArea);
+		gg.setValue(new GridGeometry2D(range,envelope));
+		
+		// use imageio with defined tiles
+		final ParameterValue<Boolean> useJai = ImageMosaicFormat.USE_JAI_IMAGEREAD.createValue();
+		useJai.setValue(false);
+		
+		final ParameterValue<String> tileSize = ImageMosaicFormat.SUGGESTED_TILE_SIZE.createValue();
+		tileSize.setValue("128,128");
+		
+		// Test the output coverage
+		//checkCoverage(reader, new GeneralParameterValue[] {gg,useJai ,tileSize}, "time test");
+		checkCoverage(reader,null, "time test");
+	}	
+	
+	/**
+	 * 
+	 * @throws IOException
+	 * @throws MismatchedDimensionException
+	 * @throws NoSuchAuthorityCodeException
+	 */
+	@Test
+	@Ignore
 	public void time() throws IOException {
 		final AbstractGridFormat format = getFormat(timeURL);
 		final ImageMosaicReader reader = getReader(timeURL, format);
@@ -579,6 +612,7 @@ public class ImageMosaicReaderTest{
 		
 		rgbURL = TestData.url(this, "rgb/mosaic.shp");
 		timeURL = TestData.url(this, "time_geotiff");
+		timeElevURL = TestData.url(this, "time_elevation_geotiff");
 		rgbJarURL = new URL("jar:"+TestData.url(this, "rgb.jar").toExternalForm()+"!/rgb/mosaic.shp");
 		
 		overviewURL = TestData.url(this, "overview/");

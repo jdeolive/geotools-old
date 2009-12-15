@@ -21,6 +21,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.ColorModel;
 import java.awt.image.ComponentColorModel;
 import java.awt.image.IndexColorModel;
+import java.awt.image.SampleModel;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileFilter;
@@ -90,8 +91,6 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.geometry.Envelope;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.datum.PixelInCell;
-
-import sun.misc.Timeable;
 
 import com.sun.media.imageioimpl.common.BogusColorSpace;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -326,7 +325,6 @@ public class IndexBuilder implements Runnable {
 		private AbstractGridFormat cachedFormat;
 		private SimpleFeatureType indexSchema;
 		private DefaultTransaction transaction;
-		
 		@Override
 		protected void handleCancelled(File startDirectory, Collection results,
 				CancelException cancel) throws IOException {			
@@ -475,8 +473,8 @@ public class IndexBuilder implements Runnable {
 					// models, crs, etc....
 					//
 					// /////////////////////////////////////////////////////////////////////
-					
 					defaultCM = its.getColorModel();
+					defaultSM = its.getSampleModel();
 					if (defaultCM instanceof IndexColorModel) {
 						IndexColorModel icm = (IndexColorModel) defaultCM;
 						int numBands = defaultCM.getNumColorComponents();
@@ -925,6 +923,8 @@ public class IndexBuilder implements Runnable {
 
 	private List<PropertiesCollector> propertiesCollectors;
 
+	private SampleModel defaultSM;
+
 
 	/* (non-Javadoc)
 	 * @see org.geotools.gce.imagemosaic.JMXIndexBuilderMBean#run()
@@ -1334,6 +1334,9 @@ public class IndexBuilder implements Runnable {
 		//close shapefile elements
 		closeIndexObjects();
 		
+		// create sample image if the needed elements are available
+		createSampleImage();
+		
 		// complete initialization of mosaic oconfiguration
 		if(numberOfProcessedFiles>0){
 			mosaicConfiguration.setName(runConfiguration.getIndexName());
@@ -1343,6 +1346,9 @@ public class IndexBuilder implements Runnable {
 			final String timeAttribute= runConfiguration.getTimeAttribute();
 			if(timeAttribute!=null)
 				mosaicConfiguration.setTimeAttribute(runConfiguration.getTimeAttribute());
+			final String elevationAttribute= runConfiguration.getElevationAttribute();
+			if(elevationAttribute!=null)
+				mosaicConfiguration.setElevationAttribute(runConfiguration.getElevationAttribute());			
 			createPropertiesFiles();
 			
 			// processing information
@@ -1352,6 +1358,27 @@ public class IndexBuilder implements Runnable {
 			//	processing information
 			fireEvent(Level.FINE,"Nothing to process!!!", 100);
 	}
+	
+
+	/**
+	 * Store a sample image frmo which we can derive the default SM and CM
+	 */
+	private void createSampleImage() {
+		// create a sample image to store SM and CM
+		if(defaultCM !=null && defaultSM!=null){
+			
+			// sample image file
+			final File sampleImageFile= new File(runConfiguration.getRootMosaicDirectory() + "/sample_image");
+			try {
+				Utils.storeSampleImage(sampleImageFile,defaultSM,defaultCM);
+			} catch (IOException e) {
+				fireEvent(Level.SEVERE,e.getLocalizedMessage(), 0);
+			}			
+		}
+		
+	}
+	
+	
 
 	private void closeIndexObjects() {
 
@@ -1387,6 +1414,8 @@ public class IndexBuilder implements Runnable {
 		final Properties properties = new Properties();
 		properties.setProperty("AbsolutePath", Boolean.toString(mosaicConfiguration.isAbsolutePath()));
 		properties.setProperty("LocationAttribute", mosaicConfiguration.getLocationAttribute());
+		properties.setProperty("TimeAttribute", mosaicConfiguration.getTimeAttribute());
+		properties.setProperty("ElevationAttribute", mosaicConfiguration.getElevationAttribute());
 
 		
 		final int numberOfLevels=mosaicConfiguration.getLevelsNum();

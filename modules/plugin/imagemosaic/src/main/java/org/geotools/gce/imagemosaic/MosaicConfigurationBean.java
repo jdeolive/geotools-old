@@ -39,6 +39,15 @@ public class MosaicConfigurationBean {
 	/** time attribute name. <code>null</code> if absent.*/
 	private String timeAttribute;
 	
+	/** elevation attribute name. <code>null</code> if absent.*/
+	private String elevationAttribute;
+	
+	public String getElevationAttribute() {
+		return elevationAttribute;
+	}
+	public void setElevationAttribute(String elevationAttribute) {
+		this.elevationAttribute = elevationAttribute;
+	}
 	/** do we want to use caching for our index.*/
 	private boolean caching=false;
 

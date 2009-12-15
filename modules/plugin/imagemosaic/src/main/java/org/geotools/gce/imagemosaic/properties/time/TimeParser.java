@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 
 /**
@@ -26,19 +25,46 @@ class TimeParser {
      */
     private static final String[] PATTERNS = {
         "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
-        "yyyy-MM-dd'T'HH:mm:ss'Z'",
-        "yyyy-MM-dd'T'HH:mm'Z'",
-        "yyyy-MM-dd'T'HH'Z'",
-        "yyyy-MM-dd",
-        "yyyy-MM",
-        "yyyy",
+        "yyyy-MM-dd'T'HHmmssSSS'Z'",
         "yyyyMMdd'T'HH:mm:ss.SSS'Z'",
+        "yyyyMMdd'T'HHmmssSSS'Z'",
+        "yyyy-MM-dd'T'HH:mm:ss.SSS",
+        "yyyy-MM-dd'T'HHmmssSSS",
+        "yyyyMMdd'T'HH:mm:ss.SSS",
+        "yyyyMMdd'T'HHmmssSSS",        
+        
+        "yyyy-MM-dd'T'HH:mm:ss'Z'",
+        "yyyy-MM-dd'T'HHmmss'Z'",
         "yyyyMMdd'T'HH:mm:ss'Z'",
+        "yyyyMMdd'T'HHmmss'Z'",
+        "yyyy-MM-dd'T'HH:mm:ss",
+        "yyyy-MM-dd'T'HHmmss",
+        "yyyyMMdd'T'HH:mm:ss",
+        "yyyyMMdd'T'HHmmss",
+        
+        
+        "yyyy-MM-dd'T'HH:mm'Z'",
+        "yyyy-MM-dd'T'HHmm'Z'",
         "yyyyMMdd'T'HH:mm'Z'",
+        "yyyyMMdd'T'HHmm'Z'",
+        "yyyy-MM-dd'T'HH:mm",
+        "yyyy-MM-dd'T'HHmm",
+        "yyyyMMdd'T'HH:mm",
+        "yyyyMMdd'T'HHmm",
+        
+        
+        "yyyy-MM-dd'T'HH'Z'",
         "yyyyMMdd'T'HH'Z'",
+        "yyyy-MM-dd'T'HH",
+        "yyyyMMdd'T'HH",        
+        
+        "yyyy-MM-dd",
         "yyyyMMdd",
+        
+        "yyyy-MM",
         "yyyyMM",
-        "yyyy"        
+        
+        "yyyy"     
     };
 
     /**
@@ -122,7 +148,7 @@ class TimeParser {
     private Date getDate(final String value) throws ParseException {
         for (int i=0; i<PATTERNS.length; i++) {
             // rebuild formats at each parse, date formats are not thread safe
-            SimpleDateFormat format = new SimpleDateFormat(PATTERNS[i], Locale.CANADA);
+            SimpleDateFormat format = new SimpleDateFormat(PATTERNS[i]);
 
             /* We do not use the standard method DateFormat.parse(String), because if the parsing
              * stops before the end of the string, the remaining characters are just ignored and

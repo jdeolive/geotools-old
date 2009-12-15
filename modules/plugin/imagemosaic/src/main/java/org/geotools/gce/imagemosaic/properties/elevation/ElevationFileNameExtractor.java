@@ -1,8 +1,6 @@
-package org.geotools.gce.imagemosaic.properties.time;
+package org.geotools.gce.imagemosaic.properties.elevation;
 
-import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -12,13 +10,11 @@ import org.geotools.gce.imagemosaic.properties.RegExPropertiesCollector;
 import org.geotools.util.logging.Logging;
 import org.opengis.feature.simple.SimpleFeature;
 
-class TimestampFileNameExtractor extends RegExPropertiesCollector {
-	private final static Logger LOGGER= Logging.getLogger(TimestampFileNameExtractor.class);
-	
-	private static final TimeParser parser= new TimeParser();
+class ElevationFileNameExtractor extends RegExPropertiesCollector {
+	private final static Logger LOGGER= Logging.getLogger(ElevationFileNameExtractor.class);
 
 
-	public TimestampFileNameExtractor(
+	public ElevationFileNameExtractor(
 			PropertiesCollectorSPI spi,
 			List<String> propertyNames,
 			String regex) {
@@ -30,12 +26,12 @@ class TimestampFileNameExtractor extends RegExPropertiesCollector {
 	public void setProperties(SimpleFeature feature) {
 		
 		// get all the matches and convert them in times
-		final List<Date> dates= new ArrayList<Date>();
+		final List<Double> values= new ArrayList<Double>();
 		for(String match:getMatches()){
 			// try to convert to date
 			try {
-				dates.addAll(parser.parse(match));
-			} catch (ParseException e) {
+				values.add(Double.valueOf(match));
+			} catch (NumberFormatException e) {
 				if(LOGGER.isLoggable(Level.FINE))
 					LOGGER.log(Level.FINE,e.getLocalizedMessage(),e);
 			}
@@ -46,10 +42,10 @@ class TimestampFileNameExtractor extends RegExPropertiesCollector {
 		int index=0;
 		for(String propertyName:getPropertyNames()){
 			// set the property
-			feature.setAttribute(propertyName, dates.get(index++));
+			feature.setAttribute(propertyName, values.get(index++));
 			
 			// do we have more dates?
-			if(index>=dates.size())
+			if(index>=values.size())
 				return;
 		}
 	}

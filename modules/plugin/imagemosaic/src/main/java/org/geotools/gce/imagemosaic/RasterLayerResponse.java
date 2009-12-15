@@ -75,6 +75,7 @@ import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory2;
+import org.opengis.filter.PropertyIsEqualTo;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
 import org.opengis.geometry.BoundingBox;
@@ -554,30 +555,44 @@ class RasterLayerResponse{
 			// create the index visitor and visit the feature
 			final MosaicBuilder visitor = new MosaicBuilder();
 			final List<Date> times = request.getRequestedTimes();
-			if(times!=null&&times.size()>0)
+			final double elevation=request.getElevation();
+			final boolean hasTime=(times!=null&&times.size()>0);
+			final boolean hasElevation=!Double.isNaN(elevation);
+
+			DefaultQuery query= new DefaultQuery(rasterManager.index.getType().getTypeName());
+			final Filter bbox=FACTORY.bbox(FACTORY.property(rasterManager.index.getType().getGeometryDescriptor().getName()),mosaicBBox);
+			query.setFilter( bbox);
+			
+			if(hasTime||hasElevation)
 			{
 				// fuse time query with the bbox query
-				DefaultQuery query= new DefaultQuery(rasterManager.index.getType().getTypeName());
-				final int size=times.size();
-				boolean current= size==1&&times.get(0)==null;
-				if( !current){
-					final Filter temporal=FACTORY.equal(FACTORY.property(rasterManager.timeAttribute), FACTORY.literal(times.get(0)),true);
-					final Filter bbox=FACTORY.bbox(FACTORY.property("the_geom"),mosaicBBox);
-					query.setFilter(FACTORY.and(temporal, bbox));
+				if(hasTime){
+					final int size=times.size();
+					boolean current= size==1&&times.get(0)==null;
+					if( !current){
+						final PropertyIsEqualTo temporal = FACTORY.equal(FACTORY.property(rasterManager.timeAttribute), FACTORY.literal(times.get(0)),true);
+						query.setFilter(FACTORY.and(temporal, bbox));
+					}
+					else{
+						// current management
+						query.setMaxFeatures(1);
+						query.setSortBy(
+								new SortBy[]{
+										new SortByImpl(
+												FACTORY.property(rasterManager.timeAttribute),
+												SortOrder.DESCENDING
+										)});
+	//					final MaxVisitor max = new MaxVisitor("ingestion");
+	//					datastore.getFeatureSource(datastore.getTypeNames()[0]).accepts(query,max, new NullProgressListener());
+	//					System.out.println("max "+max.getResult().toString());
+						
+					}
 				}
-				else{
-					// current management
-					query.setMaxFeatures(1);
-					query.setSortBy(
-							new SortBy[]{
-									new SortByImpl(
-											FACTORY.property(rasterManager.timeAttribute),
-											SortOrder.DESCENDING
-									)});
-//					final MaxVisitor max = new MaxVisitor("ingestion");
-//					datastore.getFeatureSource(datastore.getTypeNames()[0]).accepts(query,max, new NullProgressListener());
-//					System.out.println("max "+max.getResult().toString());
-					
+				
+				if(hasElevation){
+					final Filter oldFilter = query.getFilter();
+					final PropertyIsEqualTo elevationF = FACTORY.equal(FACTORY.property(rasterManager.elevationAttribute), FACTORY.literal(elevation),true);
+					query.setFilter(FACTORY.and(oldFilter, elevationF));					
 				}
 				// get those granules
 				rasterManager.getGranules(query, visitor);
@@ -617,27 +632,24 @@ class RasterLayerResponse{
 				// if provided (defaulting to 0), as well as the compute raster
 				// bounds, envelope and grid to world.
 				
-	
+				final Double[] values;
 				if (backgroundValues == null)
-					
-					//we don't have background values available
-					return ConstantDescriptor.create(
-									Float.valueOf(rasterBounds.width), 
-									Float.valueOf(rasterBounds.height),
-									new Byte[] { 0 },
-									this.rasterManager.getHints());
+					values= new Double[] { 0.0 };
 				else {
 					
 					//we have background values available
-					final Double[] values = new Double[backgroundValues.length];
+					values = new Double[backgroundValues.length];
 					for (int i = 0; i < values.length; i++)
 						values[i] = backgroundValues[i];
-					return ConstantDescriptor.create(
-									Float.valueOf(rasterBounds.width), 
-									Float.valueOf(rasterBounds.height),
-									values, 
-									this.rasterManager.getHints());
 				}
+				
+				
+				// create a constant image with a proper layout
+				return ConstantDescriptor.create(
+						Float.valueOf(rasterBounds.width), 
+						Float.valueOf(rasterBounds.height),
+						values,
+						rasterManager.defaultImageLayout!=null?new RenderingHints(JAI.KEY_IMAGE_LAYOUT,rasterManager.defaultImageLayout):null);
 			}
 
 		} catch (IOException e) {

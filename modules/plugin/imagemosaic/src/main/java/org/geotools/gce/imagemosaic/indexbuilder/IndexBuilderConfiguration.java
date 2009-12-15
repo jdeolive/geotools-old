@@ -29,6 +29,7 @@ public class IndexBuilderConfiguration{
 		this.schema=that.schema;
 		this.timeAttribute=that.timeAttribute;
 		this.recursive=that.recursive;
+		this.elevationAttribute=that.elevationAttribute;
 		
 	}
 
@@ -92,7 +93,17 @@ public class IndexBuilderConfiguration{
 
 	private String timeAttribute;
 	
+	private String elevationAttribute;
 	
+	
+	public String getElevationAttribute() {
+		return elevationAttribute;
+	}
+
+	public void setElevationAttribute(String elevationAttribute) {
+		this.elevationAttribute = elevationAttribute;
+	}
+
 	private List<String> indexingDirectories;
 
 	public List<String> getIndexingDirectories() {
