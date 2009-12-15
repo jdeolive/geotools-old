@@ -1414,8 +1414,12 @@ public class IndexBuilder implements Runnable {
 		final Properties properties = new Properties();
 		properties.setProperty("AbsolutePath", Boolean.toString(mosaicConfiguration.isAbsolutePath()));
 		properties.setProperty("LocationAttribute", mosaicConfiguration.getLocationAttribute());
-		properties.setProperty("TimeAttribute", mosaicConfiguration.getTimeAttribute());
-		properties.setProperty("ElevationAttribute", mosaicConfiguration.getElevationAttribute());
+		final String timeAttribute=mosaicConfiguration.getTimeAttribute();
+		if(timeAttribute!=null)
+			properties.setProperty("TimeAttribute", mosaicConfiguration.getTimeAttribute());
+		final String elevationAttribute=mosaicConfiguration.getElevationAttribute();
+		if(elevationAttribute!=null)
+			properties.setProperty("ElevationAttribute", mosaicConfiguration.getElevationAttribute());
 
 		
 		final int numberOfLevels=mosaicConfiguration.getLevelsNum();
