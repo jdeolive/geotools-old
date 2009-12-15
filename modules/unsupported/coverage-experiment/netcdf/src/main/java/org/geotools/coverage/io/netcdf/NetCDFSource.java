@@ -128,7 +128,7 @@ public class NetCDFSource implements CoverageSource {
 				if(listener!=null&&listener.isCanceled())
 					return new TreeSet<NumberRange<Double>>();
 				try{
-					final TreeSet<NumberRange<Double>> retVal = new TreeSet<NumberRange<Double>>(access.verticalExtentMap.get(name));
+					final TreeSet<NumberRange<Double>> retVal = (TreeSet<NumberRange<Double>>) access.verticalExtentMap.get(name);
 					return retVal;
 				}catch (Throwable e) {
 					listener.exceptionOccurred(e);

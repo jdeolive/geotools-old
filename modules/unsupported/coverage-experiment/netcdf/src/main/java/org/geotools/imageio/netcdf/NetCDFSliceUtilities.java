@@ -20,17 +20,11 @@ package org.geotools.imageio.netcdf;
 import it.geosolutions.imageio.plugins.netcdf.NetCDFUtilities;
 
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.Format;
-import java.text.NumberFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.Locale;
-import java.util.TimeZone;
 import java.util.logging.Logger;
 
 import org.geotools.temporal.object.DefaultInstant;
@@ -250,6 +244,9 @@ class NetCDFSliceUtilities {
                 }
                 if (origin != null) {
                     origin = NetCDFUtilities.trimFractionalPart(origin);
+                    // add 0 digits if absent
+                    origin = checkDateDigits(origin);
+                    
                     try {
                         epoch = (Date) NetCDFUtilities.getAxisFormat(type, origin).parseObject(
                                 origin);
@@ -478,4 +475,44 @@ class NetCDFSliceUtilities {
         // Calendar Months are 0 based
         return new GregorianCalendar(year, month - 1, day);
     }
+
+    /**
+	 * @param origin
+	 */
+	public static String checkDateDigits(String origin) {
+		String digitsCheckedOrigin = "";
+		if (origin.indexOf("-") > 0) {
+			String tmp = (origin.indexOf(" ") > 0 ? origin.substring(0, origin.indexOf(" ")) : origin);
+			String[] originDateParts = tmp.split("-");
+			for (int l=0; l<originDateParts.length; l++) {
+				String datePart = originDateParts[l];
+				while (datePart.length() % 2 != 0) {
+					datePart = "0" + datePart;
+				}
+				
+				digitsCheckedOrigin += datePart;
+				digitsCheckedOrigin += (l<(originDateParts.length-1) ? "-" : "");
+			}
+		}
+
+		if (origin.indexOf(":") > 0) {
+			digitsCheckedOrigin += " ";
+			String tmp = (origin.indexOf(" ") > 0 ? origin.substring(origin.indexOf(" ")+1) : origin);
+			String[] originDateParts = tmp.split(":");
+			for (int l=0; l<originDateParts.length; l++) {
+				String datePart = originDateParts[l];
+				while (datePart.length() % 2 != 0) {
+					datePart = "0" + datePart;
+				}
+				
+				digitsCheckedOrigin += datePart;
+				digitsCheckedOrigin += (l<(originDateParts.length-1) ? ":" : "");
+			}
+		}
+		
+		if (digitsCheckedOrigin.length() > 0)
+			return digitsCheckedOrigin;
+		
+		return origin;
+	}
 }

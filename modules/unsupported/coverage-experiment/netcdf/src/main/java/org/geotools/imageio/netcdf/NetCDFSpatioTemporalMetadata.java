@@ -302,6 +302,9 @@ public class NetCDFSpatioTemporalMetadata extends SpatioTemporalMetadata {
             }
             if (origin != null) {
                 origin = NetCDFUtilities.trimFractionalPart(origin);
+                // add 0 digits if absent
+                origin = NetCDFSliceUtilities.checkDateDigits(origin);
+
                 try {
                     epoch = (Date) NetCDFUtilities.getAxisFormat(type, origin).parseObject(origin);
                     if (crs instanceof TemporalCRS) {
