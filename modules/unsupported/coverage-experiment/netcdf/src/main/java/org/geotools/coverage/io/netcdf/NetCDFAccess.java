@@ -199,7 +199,10 @@ public class NetCDFAccess extends DefaultCoverageAccess {
 
             // initialize
             this.init();
-
+        } else if(protocol.equalsIgnoreCase("http") || protocol.equalsIgnoreCase("dods")){
+        	this.input = source;
+            // initialize
+            this.init();
         }
     }
 

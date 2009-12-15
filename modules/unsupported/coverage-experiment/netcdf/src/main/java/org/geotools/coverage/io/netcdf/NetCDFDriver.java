@@ -41,6 +41,8 @@ import org.geotools.factory.Hints;
 import org.geotools.imageio.netcdf.NetCDFSpatioTemporalImageReaderSpi;
 import org.opengis.util.ProgressListener;
 
+import ucar.nc2.dataset.NetcdfDataset;
+
 public class NetCDFDriver extends DefaultFileDriver implements Driver {
 
     /** Logger. */
@@ -150,9 +152,16 @@ public class NetCDFDriver extends DefaultFileDriver implements Driver {
 
             else {
                 if (url.getProtocol().equalsIgnoreCase("http")
-                        || url.getProtocol().equalsIgnoreCase("ftp")) {
+                		|| url.getProtocol().equalsIgnoreCase("dods")) {
+                	source = NetcdfDataset.openDataset(url.toExternalForm());
+                	if (!spi.canDecodeInput(source)){
+                		if (LOGGER.isLoggable(Level.FINE))
+                			LOGGER.fine("Unable to decode the inputStream");
+                			return false;
+                		}
+                	return true;
+                } else if (url.getProtocol().equalsIgnoreCase("ftp")) {
                     source = url.openStream();
-
                 } else{
                     if (LOGGER.isLoggable(Level.FINE))
                         LOGGER.fine("Unsupported protocol");
