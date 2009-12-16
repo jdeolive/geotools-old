@@ -19,6 +19,7 @@ package org.geotools.coverage.io.util;
 import it.geosolutions.imageio.stream.input.FileImageInputStreamExt;
 import it.geosolutions.imageio.stream.input.FileImageInputStreamExtImpl;
 import it.geosolutions.imageio.stream.input.URIImageInputStream;
+import it.geosolutions.imageio.stream.input.URIImageInputStreamImpl;
 
 import java.awt.Color;
 import java.awt.Rectangle;
@@ -27,6 +28,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.renderable.ParameterBlock;
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
@@ -1098,14 +1100,22 @@ public class Utilities {
         	paramInput = (URIImageInputStream) input;
         } else if (input instanceof URL){
         	 final URL tempURL = (URL) input;
-             if (tempURL.getProtocol().equalsIgnoreCase("file")) {
+             String protocol = tempURL.getProtocol();
+            if (protocol.equalsIgnoreCase("file")) {
                  try {
                 	 File file = it.geosolutions.imageio.utilities.Utilities.urlToFile(tempURL);
                      paramInput = new FileImageInputStreamExtImpl(file);
                  } catch (IOException e) {
-                     throw new RuntimeException("Failed to create a valid input stream ", e);
-                 }
-             }	
+                    throw new RuntimeException("Failed to create a valid input stream ", e);
+                }
+            } else if (tempURL.getProtocol().toLowerCase().startsWith("http")
+                    || tempURL.getProtocol().equalsIgnoreCase("dods")) {
+                try {
+                    paramInput = new URIImageInputStreamImpl(tempURL.toURI());
+                } catch (URISyntaxException e) {
+                    throw new RuntimeException("Failed to create a valid input stream ", e);
+                }
+            }
         }
         else
         	throw new IllegalArgumentException("Unsupported Input type:" + input);
