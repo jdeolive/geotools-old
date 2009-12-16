@@ -87,7 +87,6 @@ public class SpatiaLiteTestSetup extends JDBCTestSetup {
 
     @Override
     public boolean shouldRunTests(Connection cx) throws SQLException {
-        if (true) throw new RuntimeException();
         Statement st = cx.createStatement();
         try {
             String libsptialite = SpatiaLiteDialect.spatialiteLibFile();
