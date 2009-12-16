@@ -39,7 +39,6 @@ import org.opengis.feature.type.FeatureTypeFactory;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.feature.type.GeometryType;
 import org.opengis.feature.type.Name;
-import org.opengis.feature.type.PropertyDescriptor;
 import org.opengis.feature.type.Schema;
 import org.opengis.filter.Filter;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -94,7 +93,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * 	<pre>
  *  builder.add( "pointProperty", Point.class );
  *  builder.add( "lineProperty", LineString.class );
- *  builder.add( "polygonProperty", "polygonProperty" );
+ *  builder.add( "polygonProperty", Polygon.class );
  *  
  *  builder.setDefaultGeometry( "lineProperty" );
  * 	</pre>
@@ -320,12 +319,17 @@ public class SimpleFeatureTypeBuilder {
 	
 	/**
 	 * Sets the coordinate reference system of the built type.
+         * The supplied coordinate reference system is only used if 
+         * geometric attributes are later added to the type without
+         * specifying their coordinate reference system.
 	 */
 	public void setCRS(CoordinateReferenceSystem crs) {
 		this.crs = crs;
 	}
 	/**
-	 * The coordinate reference system of the built type.
+	 * The fallback coordinate reference system that will be applied to
+         * any geometric attributes added to the type without their own
+         * coordinate reference system specified.
 	 */
 	public CoordinateReferenceSystem getCRS() {
 		return crs;
@@ -812,13 +816,13 @@ public class SimpleFeatureTypeBuilder {
 	 * @return The built feature type.
 	 */
 	public SimpleFeatureType buildFeatureType() {
-	    GeometryDescriptor defaultGeometry = null;
+	    GeometryDescriptor defGeom = null;
 		
 		//was a default geometry set?
 		if ( this.defaultGeometry != null ) {
 			List<AttributeDescriptor> atts = attributes();
 			for ( int i = 0; i < atts.size(); i++) {
-				AttributeDescriptor att = (AttributeDescriptor) atts.get(i);
+				AttributeDescriptor att = atts.get(i);
 				if ( this.defaultGeometry.equals( att.getName().getLocalPart() ) ) {
 					//ensure the attribute is a geometry attribute
 					if ( !(att instanceof GeometryDescriptor ) ) {
@@ -828,30 +832,30 @@ public class SimpleFeatureTypeBuilder {
 						att = attributeBuilder.buildDescriptor(att.getName(),type);
 						atts.set( i, att );
 					}
-					defaultGeometry = (GeometryDescriptor)att;
+					defGeom = (GeometryDescriptor)att;
 					break;
 				}
 			}
 			
-			if (defaultGeometry == null) {
+			if (defGeom == null) {
 			    String msg = "'" + this.defaultGeometry + " specified as default" +
 		    		" but could find no such attribute.";
 			    throw new IllegalArgumentException( msg );
 			}
 		}
 		
-		if ( defaultGeometry == null ) {
+		if ( defGeom == null ) {
 			//none was set by name, look for first geometric type
 			for ( AttributeDescriptor att : attributes() ) {
 				if ( att instanceof GeometryDescriptor ) {
-					defaultGeometry = (GeometryDescriptor) att;
+					defGeom = (GeometryDescriptor) att;
 					break;
 				}
 			}
 		}
 		
 		SimpleFeatureType built = factory.createSimpleFeatureType(
-			name(), attributes(), defaultGeometry, isAbstract, 
+			name(), attributes(), defGeom, isAbstract,
 			restrictions(), superType, description);
 		
 		init();
@@ -1009,7 +1013,7 @@ public class SimpleFeatureTypeBuilder {
                     b.add( adjust.buildDescriptor( geometryDescriptor.getLocalName() ));
                     continue;
                 }
-                b.add( (AttributeDescriptor) descriptor );
+                b.add( descriptor);
             }            
             return b.buildFeatureType();
         }
