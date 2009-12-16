@@ -26,13 +26,13 @@ public class SQLServerPrimaryKeyFinderTestSetup extends JDBCPrimaryKeyFinderTest
 
     @Override
     protected void createMetadataTable() throws Exception {
-        run("CREATE TABLE gt_pk_metadata_table (table_schema varchar(255), table_name varchar(255), pk_column varchar(255), " +
+        run("CREATE TABLE gt_pk_metadata (table_schema varchar(255), table_name varchar(255), pk_column varchar(255), " +
             "pk_column_idx int, pk_policy varchar(255), pk_sequence varchar(255))");
     }
     
     @Override
     protected void dropMetadataTable() throws Exception {
-        runSafe("DROP TABLE gt_pk_metadata_table");
+        runSafe("DROP TABLE gt_pk_metadata");
     }
 
     @Override
@@ -51,7 +51,7 @@ public class SQLServerPrimaryKeyFinderTestSetup extends JDBCPrimaryKeyFinderTest
     @Override
     protected void createAssignedSinglePkView() throws Exception {
         run("CREATE VIEW assignedsinglepk as SELECT * from plaintable");
-        run("INSERT INTO gt_pk_metadata_table VALUES"
+        run("INSERT INTO gt_pk_metadata VALUES"
                 + "(NULL, 'assignedsinglepk', 'key1', 0, 'assigned', NULL)");
     }
     
@@ -63,9 +63,9 @@ public class SQLServerPrimaryKeyFinderTestSetup extends JDBCPrimaryKeyFinderTest
     @Override
     protected void createAssignedMultiPkView() throws Exception {
         run("CREATE VIEW assignedmultipk as SELECT * from plaintable");
-        run("INSERT INTO gt_pk_metadata_table VALUES"
+        run("INSERT INTO gt_pk_metadata VALUES"
                 + "(NULL, 'assignedmultipk', 'key1', 0, 'assigned', NULL)");
-        run("INSERT INTO gt_pk_metadata_table VALUES"
+        run("INSERT INTO gt_pk_metadata VALUES"
                 + "(NULL, 'assignedmultipk', 'key2', 1, 'assigned', NULL)");
     }
     

@@ -83,7 +83,11 @@ public abstract class JDBCPrimaryKeyFinderTestSetup extends JDBCDelegatingTestSe
 
     /**
      * Creates the default geotools metadata table, empty.
-     * See {@link MetadataTablePrimaryKeyFinder} javadoc for the expected table structure
+     * <p>
+     * The table is named "gt_pk_metdata". See {@link MetadataTablePrimaryKeyFinder} javadoc for the 
+     * expected table structure
+     * </p>
+     * 
      */
     protected abstract void createMetadataTable() throws Exception;
     

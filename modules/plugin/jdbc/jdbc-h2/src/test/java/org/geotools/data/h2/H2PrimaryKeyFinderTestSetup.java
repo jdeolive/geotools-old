@@ -26,14 +26,14 @@ public class H2PrimaryKeyFinderTestSetup extends JDBCPrimaryKeyFinderTestSetup {
 
     @Override
     protected void createMetadataTable() throws Exception {
-        run("CREATE TABLE gt_pk_metadata_table ( " + "table_schema VARCHAR, "
+        run("CREATE TABLE gt_pk_metadata ( " + "table_schema VARCHAR, "
                 + "table_name VARCHAR NOT NULL, " + "pk_column VARCHAR NOT NULL, "
                 + "pk_column_idx INTEGER, " + "pk_policy VARCHAR, " + "pk_sequence VARCHAR)");
     }
 
     @Override
     protected void dropMetadataTable() throws Exception {
-        runSafe("DROP TABLE gt_pk_metadata_table");
+        runSafe("DROP TABLE gt_pk_metadata");
     }
 
     @Override
@@ -49,7 +49,7 @@ public class H2PrimaryKeyFinderTestSetup extends JDBCPrimaryKeyFinderTestSetup {
         run("INSERT INTO \"seqtable\" (\"key\", \"name\",\"geom\" ) VALUES ("
                 + "(SELECT NEXTVAL('pksequence')),'three',NULL)");
 
-        run("INSERT INTO gt_pk_metadata_table VALUES"
+        run("INSERT INTO gt_pk_metadata VALUES"
                 + "(NULL, 'seqtable', 'key', 0, 'sequence', 'pksequence')");
     }
 
@@ -77,7 +77,7 @@ public class H2PrimaryKeyFinderTestSetup extends JDBCPrimaryKeyFinderTestSetup {
     @Override
     protected void createAssignedSinglePkView() throws Exception {
         run("CREATE VIEW \"assignedsinglepk\" AS SELECT * FROM \"plaintable\"");
-        run("INSERT INTO gt_pk_metadata_table VALUES"
+        run("INSERT INTO gt_pk_metadata VALUES"
                 + "(NULL, 'assignedsinglepk', 'key1', 0, 'assigned', NULL)");
     }
 
@@ -89,9 +89,9 @@ public class H2PrimaryKeyFinderTestSetup extends JDBCPrimaryKeyFinderTestSetup {
     @Override
     protected void createAssignedMultiPkView() throws Exception {
         run("CREATE VIEW \"assignedmultipk\" AS SELECT * FROM \"plaintable\"");
-        run("INSERT INTO gt_pk_metadata_table VALUES"
+        run("INSERT INTO gt_pk_metadata VALUES"
                 + "(NULL, 'assignedmultipk', 'key1', 0, 'assigned', NULL)");
-        run("INSERT INTO gt_pk_metadata_table VALUES"
+        run("INSERT INTO gt_pk_metadata VALUES"
                 + "(NULL, 'assignedmultipk', 'key2', 1, 'assigned', NULL)");
 
     }

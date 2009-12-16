@@ -57,7 +57,7 @@ public class MetadataTablePrimaryKeyFinder extends PrimaryKeyFinder {
      * The default metadata table name
      */
     //  gt_pk_metadata_table
-    public static final String DEFAULT_TABLE = "GT_PK_METADATA_TABLE";
+    public static final String DEFAULT_TABLE = "GT_PK_METADATA";
 
     /**
      * Known policies pk column treatment policies
