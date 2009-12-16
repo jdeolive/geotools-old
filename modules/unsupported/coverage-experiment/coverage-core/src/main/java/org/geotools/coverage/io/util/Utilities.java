@@ -16,7 +16,9 @@
  */
 package org.geotools.coverage.io.util;
 
+import it.geosolutions.imageio.stream.input.FileImageInputStreamExt;
 import it.geosolutions.imageio.stream.input.FileImageInputStreamExtImpl;
+import it.geosolutions.imageio.stream.input.URIImageInputStream;
 
 import java.awt.Color;
 import java.awt.Rectangle;
@@ -36,6 +38,7 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
 import javax.imageio.spi.ImageReaderSpi;
+import javax.imageio.stream.ImageInputStream;
 import javax.measure.quantity.Quantity;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
@@ -997,7 +1000,7 @@ public class Utilities {
      * 
      * @throws java.io.IOException
      */
-    public static GridCoverage createCoverage(ImageReaderSpi spi, File input,
+    public static GridCoverage createCoverage(ImageReaderSpi spi, Object input,
             final int imageIndex, ImageReadParam imageReadParam,
             final boolean useJAI, final boolean useMultithreading,
             final boolean newTransform,
@@ -1083,15 +1086,36 @@ public class Utilities {
      * @throws IOException
      */
     public static PlanarImage readImage(final ImageReaderSpi spi,
-            final File input, final int imageIndex, final boolean useJAI,
+            final Object input, final int imageIndex, final boolean useJAI,
             final ImageReadParam imageReadParam, final boolean useMultithreading)
             throws IOException {
+        ImageInputStream paramInput = null;
+        if (input instanceof File) {
+            paramInput = new FileImageInputStreamExtImpl((File) input);
+        } else if (input instanceof FileImageInputStreamExt){
+        	paramInput = (FileImageInputStreamExt) input;
+        } else if (input instanceof URIImageInputStream){
+        	paramInput = (URIImageInputStream) input;
+        } else if (input instanceof URL){
+        	 final URL tempURL = (URL) input;
+             if (tempURL.getProtocol().equalsIgnoreCase("file")) {
+                 try {
+                	 File file = it.geosolutions.imageio.utilities.Utilities.urlToFile(tempURL);
+                     paramInput = new FileImageInputStreamExtImpl(file);
+                 } catch (IOException e) {
+                     throw new RuntimeException("Failed to create a valid input stream ", e);
+                 }
+             }	
+        }
+        else
+        	throw new IllegalArgumentException("Unsupported Input type:" + input);
+        
         PlanarImage planarImage;
         ImageReader reader;
         ImageReaderSpi readerSpi = spi;
         if (useJAI) {
             final ParameterBlock pbjImageRead = new ParameterBlock();
-            pbjImageRead.add(new FileImageInputStreamExtImpl(input));
+            pbjImageRead.add(paramInput);
             pbjImageRead.add(imageIndex);
             pbjImageRead.add(Boolean.FALSE);
             pbjImageRead.add(Boolean.FALSE);
@@ -1110,7 +1134,7 @@ public class Utilities {
             planarImage = JAI.create(jaiOperation, pbjImageRead, null);
         } else {
             reader = readerSpi.createReaderInstance();
-            reader.setInput(new FileImageInputStreamExtImpl(input), true, true);
+            reader.setInput(paramInput, true, true);
             planarImage = PlanarImage.wrapRenderedImage(reader.read(imageIndex, imageReadParam));
             reader.dispose();
         }
@@ -1136,7 +1160,7 @@ public class Utilities {
      * @TODO: handle more input types
      */
     public static GridCoverage compute(
-    		File input, 
+    		Object input, 
     		final int imageIndex,
             final boolean needTransformation, 
             final boolean isEmptyRequest,

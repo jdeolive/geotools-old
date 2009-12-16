@@ -471,8 +471,7 @@ public class NetCDFSource implements CoverageSource {
                     final NumberRange<Double> veRange= NumberRange.create(ve.getMinimumValue().doubleValue(), ve.getMaximumValue().doubleValue());
                     if (veRange.contains(level)) { // TODO this is not correct, we should use inclusion
                         final int imageIndex = ((AbstractSliceDescriptor) sd).getImageIndex();
-                        GridCoverage gc = Utilities.compute(BaseFileDriver
-                                .urlToFile(access.getInput()), imageIndex,
+                        GridCoverage gc = Utilities.compute(access.getInput(), imageIndex,
                                 needTransformation, emptyRequest, useJAI,
                                 imageReadParam, false, sampleDimensions, NetCDFDriver.spi, this.name.toString(), coverageFactory, access.raster2ModelMap.get(this.name),
                                 access.spatialReferenceSystem2DMap.get(this.name), access.coverageEnvelope2DMap.get(this.name));
@@ -484,8 +483,8 @@ public class NetCDFSource implements CoverageSource {
         } else {
             final int imageIndex = ((AbstractSliceDescriptor) sd)
                     .getImageIndex();
-            GridCoverage gc = Utilities.compute(BaseFileDriver.urlToFile(access
-                    .getInput()), imageIndex, needTransformation, emptyRequest,
+            GridCoverage gc = Utilities.compute(access
+                    .getInput(), imageIndex, needTransformation, emptyRequest,
                     useJAI, imageReadParam, false, sampleDimensions, NetCDFDriver.spi, this.name.toString(), coverageFactory, access.raster2ModelMap.get(this.name),
                     access.spatialReferenceSystem2DMap.get(this.name), access.coverageEnvelope2DMap.get(this.name));
             if (gc != null)
