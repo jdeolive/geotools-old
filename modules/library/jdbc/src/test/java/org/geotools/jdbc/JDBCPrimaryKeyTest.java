@@ -18,7 +18,6 @@ package org.geotools.jdbc;
 
 import java.util.Collections;
 
-import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureStore;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;

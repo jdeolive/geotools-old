@@ -32,6 +32,7 @@ import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.type.FeatureTypeFactoryImpl;
 import org.geotools.util.SimpleInternationalString;
 
+import com.sun.swing.internal.plaf.metal.resources.metal;
 import com.vividsolutions.jts.geom.GeometryFactory;
 
 
@@ -95,6 +96,10 @@ public abstract class JDBCDataStoreFactory extends AbstractDataStoreFactory {
     /** Maximum amount of time the pool will wait when trying to grab a new connection **/
     public static final Param MAXWAIT = new Param("Connection timeout", Integer.class,
             "number of seconds the connection pool will wait before timing out attempting to get a new connection (default, 20 seconds)", false, 20);
+    
+    /** ... **/
+    public static final Param PK_METADATA_TABLE = new Param("Primary key metadata table", String.class,
+            "The optional table containing primary key structure and sequence associations. Can be expressed as 'schema.name' or just 'name'", false);
     
     @Override
     public String getDisplayName() {
@@ -164,6 +169,24 @@ public abstract class JDBCDataStoreFactory extends AbstractDataStoreFactory {
 
         if (schema != null) {
             dataStore.setDatabaseSchema(schema);
+        }
+        
+        // primary key finder lookup table location, if any
+        String metadataTable = (String) PK_METADATA_TABLE.lookUp(params);
+        if(metadataTable != null)  {
+            MetadataTablePrimaryKeyFinder tableFinder = new MetadataTablePrimaryKeyFinder();
+            if(metadataTable.contains(".")) {
+                String[] parts = metadataTable.split("\\.");
+                if(parts.length > 2) 
+                    throw new IllegalArgumentException("The primary key metadata table format " +
+                    		"is either 'name' or 'schema.name'");
+                tableFinder.setTableSchema(parts[0]);
+                tableFinder.setTableName(parts[1]);
+            } else {
+                tableFinder.setTableSchema(metadataTable);
+            }
+            dataStore.setPrimaryKeyFinder(new CompositePrimaryKeyFinder(tableFinder, 
+                    new HeuristicPrimaryKeyFinder()));
         }
 
         // factories
@@ -247,6 +270,7 @@ public abstract class JDBCDataStoreFactory extends AbstractDataStoreFactory {
         parameters.put(MAXWAIT.key, MAXWAIT);
         if(getValidationQuery() != null)
             parameters.put(VALIDATECONN.key, VALIDATECONN);
+        parameters.put(PK_METADATA_TABLE.key, PK_METADATA_TABLE);
     }
 
     /**

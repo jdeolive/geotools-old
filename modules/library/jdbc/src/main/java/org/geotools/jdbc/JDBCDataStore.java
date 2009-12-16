@@ -176,6 +176,12 @@ public final class JDBCDataStore extends ContentDataStore
     protected static final String FEATURE_ASSOCIATION_TABLE = "feature_associations";
     
     /**
+     * The default primary key finder, looks in the default metadata table first, uses heuristics later
+     */
+    protected static final PrimaryKeyFinder DEFAULT_PRIMARY_KEY_FINDER = new CompositePrimaryKeyFinder(
+            new MetadataTablePrimaryKeyFinder(), new HeuristicPrimaryKeyFinder());
+    
+    /**
      * The envelope returned when bounds is called against a geometryless feature type
      */
     protected static final ReferencedEnvelope EMPTY_ENVELOPE = new ReferencedEnvelope();  
@@ -233,10 +239,31 @@ public final class JDBCDataStore extends ContentDataStore
     protected int fetchSize;
     
     /**
-     * flag controlling wether primary key columns of a table are exposed via the 
+     * flag controlling whether primary key columns of a table are exposed via the 
      * feature type.
      */
     protected boolean exposePrimaryKeyColumns = false;
+    
+    /**
+     * Finds the primary key definitions
+     */
+    protected PrimaryKeyFinder primaryKeyFinder = DEFAULT_PRIMARY_KEY_FINDER;
+
+    /**
+     * Returns the finder used to build {@link PrimaryKey} representations
+     * @return
+     */
+    public PrimaryKeyFinder getPrimaryKeyFinder() {
+        return primaryKeyFinder;
+    }
+
+    /**
+     * Sets the finder used to build {@link PrimaryKey} representations
+     * @param primaryKeyFinder
+     */
+    public void setPrimaryKeyFinder(PrimaryKeyFinder primaryKeyFinder) {
+        this.primaryKeyFinder = primaryKeyFinder;
+    }
 
     /**
      * The current fetch size. The fetch size influences how many records are read from the
@@ -782,51 +809,16 @@ public final class JDBCDataStore extends ContentDataStore
 
                     try {
                         String tableName = entry.getName().getLocalPart();
-                        DatabaseMetaData metaData = cx.getMetaData();
-                        LOGGER.log(Level.FINE, "Getting information about primary keys of {0}", tableName);
-                        ResultSet primaryKey = metaData.getPrimaryKeys(null, databaseSchema,
-                                tableName);
-
-                        try {
-                            /*
-                             *        <LI><B>TABLE_CAT</B> String => table catalog (may be <code>null</code>)
-                             *        <LI><B>TABLE_SCHEM</B> String => table schema (may be <code>null</code>)
-                             *        <LI><B>TABLE_NAME</B> String => table name
-                             *        <LI><B>COLUMN_NAME</B> String => column name
-                             *        <LI><B>KEY_SEQ</B> short => sequence number within primary key
-                             *        <LI><B>PK_NAME</B> String => primary key name (may be <code>null</code>)
-                             */
-                            PrimaryKey pkey = createPrimaryKey(primaryKey, metaData, tableName, cx);
-                            if ( pkey == null ) {
-                                String msg = "No primary key found for " + tableName;
-                                LOGGER.info(msg);
-
-                                // No known database supports unique indexes on views and this check
-                                // causes problems with Oracle, so we skip it
-                                if(!isView(metaData, databaseSchema, tableName)) {
-                                    //no primary key, check for a unique index
-                                    LOGGER.log(Level.FINE, "Getting information about unique indexes of {0}", tableName);
-                                    ResultSet uniqueIndex =  metaData.getIndexInfo(null, databaseSchema, tableName, true, true);
-                                    try {
-                                        pkey = createPrimaryKey(uniqueIndex, metaData, tableName, cx);
-                                    }
-                                    finally {
-                                        closeSafe(uniqueIndex);
-                                    }
-                                }
-                            }
+                        PrimaryKey pkey = primaryKeyFinder.getPrimaryKey(this, databaseSchema, tableName, cx);
                             
-                            if ( pkey == null ) {
-                                String msg = "No primary key or unique index found for " + tableName + ".";
-                                LOGGER.warning(msg);
+                        if ( pkey == null ) {
+                            String msg = "No primary key or unique index found for " + tableName + ".";
+                            LOGGER.warning(msg);
 
-                                pkey = new NullPrimaryKey( tableName );
-                            }
-                            
-                            state.setPrimaryKey(pkey);
-                        } finally {
-                            closeSafe(primaryKey);
+                            pkey = new NullPrimaryKey( tableName );
                         }
+                        
+                        state.setPrimaryKey(pkey);
                     } catch (SQLException e) {
                         String msg = "Error looking up primary key";
                         throw (IOException) new IOException(msg).initCause(e);
@@ -871,17 +863,8 @@ public final class JDBCDataStore extends ContentDataStore
             }
             
             //look up the type ( should only be one row )
-            ResultSet columns = metaData.getColumns(null, databaseSchema,
-                    tableName, columnName);
-            columns.next();
-    
-            int binding = columns.getInt("DATA_TYPE");
-            Class columnType = getMapping(binding);
-    
-            if (columnType == null) {
-                LOGGER.warning("No class for sql type " + binding);
-                columnType = Object.class;
-            }
+            Class columnType = getColumnType(metaData, databaseSchema, tableName, columnName);
+            
     
             //determine which type of primary key we have
             PrimaryKeyColumn col = null;
@@ -945,6 +928,32 @@ public final class JDBCDataStore extends ContentDataStore
         return null; 
     }
     
+    /**
+     * Returns the type of the column by inspecting the metadata, with the collaboration
+     * of the dialect
+     */
+    protected Class getColumnType(DatabaseMetaData metaData, String databaseSchema2,
+            String tableName, String columnName) throws SQLException {
+        ResultSet columns =  null;
+        try {
+            columns = metaData.getColumns(null, databaseSchema,
+                    tableName, columnName);
+            columns.next();
+    
+            int binding = columns.getInt("DATA_TYPE");
+            Class columnType = getMapping(binding);
+    
+            if (columnType == null) {
+                LOGGER.warning("No class for sql type " + binding);
+                columnType = Object.class;
+            }
+            
+            return columnType;
+        } finally {
+            columns.close();
+        }
+    }
+
     /**
      * Returns the primary key object for a particular feature type / table,
      * deriving it from the underlying database metadata.

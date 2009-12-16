@@ -82,6 +82,7 @@ public class OracleNGOCIDataStoreFactory extends OracleNGDataStoreFactory {
         parameters.put(MAXWAIT.key, MAXWAIT);
         if (getValidationQuery() != null)
             parameters.put(VALIDATECONN.key, VALIDATECONN);
+        parameters.put(PK_METADATA_TABLE.key, PK_METADATA_TABLE);
         
         parameters.put(LOOSEBBOX.key, LOOSEBBOX);
     }
