@@ -6,6 +6,8 @@
  */
 package net.opengis.gml;
 
+import java.util.List;
+
 import org.eclipse.emf.common.util.EList;
 
 /**
@@ -73,5 +75,10 @@ public interface RectifiedGridType extends GridType {
      * @generated
      */
     EList getOffsetVector();
+    
+    /**
+     * 
+     */
+    void setOffsetVector(List offsetVector);
 
 } // RectifiedGridType

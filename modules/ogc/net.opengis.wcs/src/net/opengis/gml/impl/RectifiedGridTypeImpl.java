@@ -7,6 +7,7 @@
 package net.opengis.gml.impl;
 
 import java.util.Collection;
+import java.util.List;
 
 import net.opengis.gml.Gml4wcsPackage;
 import net.opengis.gml.PointType;
@@ -15,14 +16,10 @@ import net.opengis.gml.VectorType;
 
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
-
 import org.eclipse.emf.common.util.EList;
-
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.InternalEObject;
-
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
-
 import org.eclipse.emf.ecore.util.EObjectContainmentEList;
 import org.eclipse.emf.ecore.util.InternalEList;
 
@@ -212,6 +209,16 @@ public class RectifiedGridTypeImpl extends GridTypeImpl implements RectifiedGrid
                 return offsetVector != null && !offsetVector.isEmpty();
         }
         return super.eIsSet(featureID);
+    }
+
+    public void setOffsetVector(List offsetVector) {
+        if (this.offsetVector == null)
+            offsetVector = new EObjectContainmentEList(VectorType.class, this, Gml4wcsPackage.RECTIFIED_GRID_TYPE__OFFSET_VECTOR);
+        this.offsetVector.clear();
+        
+        for (Object o : offsetVector) {
+            this.offsetVector.add(o);
+        }
     }
 
 } //RectifiedGridTypeImpl
