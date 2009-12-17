@@ -2,14 +2,13 @@ package org.geotools.gml4wcs.bindings;
 
 import javax.xml.namespace.QName;
 
+import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.gml4wcs.GML;
 import org.geotools.xml.AbstractComplexBinding;
 import org.geotools.xml.ElementInstance;
 import org.geotools.xml.Node;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import com.vividsolutions.jts.geom.Envelope;
 
 /**
  * Binding object for the type http://www.opengis.net/gml:GridEnvelopeType.
@@ -50,7 +49,7 @@ public class GridEnvelopeTypeBinding extends AbstractComplexBinding {
      * @generated modifiable
      */
     public Class getType() {
-        return Envelope.class;
+        return GeneralEnvelope.class;
     }
 
     /**
@@ -64,7 +63,12 @@ public class GridEnvelopeTypeBinding extends AbstractComplexBinding {
             int[] l = (int[]) node.getChildValue("low");
             int[] h = (int[]) node.getChildValue("high");
 
-            return new Envelope(l[0], h[0], l[1], h[1]);
+            GeneralEnvelope envelope = new GeneralEnvelope(l.length);
+            if (l.length == 2)
+                envelope.setEnvelope(l[0], l[1], h[0], h[1]);
+            else if (l.length == 3)
+                envelope.setEnvelope(l[0], l[1], l[2], h[0], h[1], h[2]);
+            return envelope;
         }
 
         return null;
@@ -72,7 +76,7 @@ public class GridEnvelopeTypeBinding extends AbstractComplexBinding {
 
     public Element encode(Object object, Document document, Element value)
             throws Exception {
-        Envelope envelope = (Envelope) object;
+        GeneralEnvelope envelope = (GeneralEnvelope) object;
 
         if (envelope.isNull()) {
             value.appendChild(document.createElementNS(GML.NAMESPACE, org.geotools.gml3.GML.Null.getLocalPart()));
@@ -82,18 +86,18 @@ public class GridEnvelopeTypeBinding extends AbstractComplexBinding {
     }
 
     public Object getProperty(Object object, QName name) {
-        Envelope envelope = (Envelope) object;
+        GeneralEnvelope envelope = (GeneralEnvelope) object;
 
         if (envelope.isNull()) {
             return null;
         }
 
         if (name.getLocalPart().equals("low")) {
-            return new int[] {(int) envelope.getMinX(), (int) envelope.getMinY()};
+            return envelope.getLowerCorner().getCoordinate();
         }
 
         if (name.getLocalPart().equals("high")) {
-            return new int[] {(int) envelope.getMaxX(), (int) envelope.getMaxY()};
+            return envelope.getUpperCorner().getCoordinate();
         }
 
         return null;

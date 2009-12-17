@@ -1,20 +1,12 @@
 package org.geotools.gml4wcs.bindings;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.xml.namespace.QName;
 
-import net.opengis.gml.Gml4wcsFactory;
-import net.opengis.gml.GridEnvelopeType;
-import net.opengis.gml.GridLimitsType;
-
+import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.gml4wcs.GML;
 import org.geotools.xml.AbstractComplexBinding;
 import org.geotools.xml.ElementInstance;
 import org.geotools.xml.Node;
-
-import com.vividsolutions.jts.geom.Envelope;
 
 /**
  * Binding object for the type http://www.opengis.net/gml:GridLimitsType.
@@ -51,7 +43,7 @@ public class GridLimitsTypeBinding extends AbstractComplexBinding {
      * @generated modifiable
      */
     public Class getType() {
-        return Envelope.class;
+        return GeneralEnvelope.class;
     }
 
     /**
@@ -61,7 +53,7 @@ public class GridLimitsTypeBinding extends AbstractComplexBinding {
      */
     public Object parse(ElementInstance instance, Node node, Object value)
             throws Exception {
-        Envelope envelope = (Envelope) node.getChildValue("GridEnvelope");
+        GeneralEnvelope envelope = (GeneralEnvelope) node.getChildValue("GridEnvelope");
         
         return envelope;
     }

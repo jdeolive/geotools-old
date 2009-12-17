@@ -73,11 +73,9 @@ public class TimePeriodTypeBinding extends AbstractComplexBinding {
     public Object parse(ElementInstance instance, Node node, Object value)
             throws Exception {
 
-        String frameName = (String) node
-                .getAttributeValue("frame", "#ISO-8601");
+        String frameName = (String) node.getAttributeValue("frame", "#ISO-8601");
         NamedIdentifier frameID = new NamedIdentifier(Citations.CRS, frameName);
-        TemporalReferenceSystem frame = new DefaultTemporalReferenceSystem(
-                frameID, null);
+        TemporalReferenceSystem frame = new DefaultTemporalReferenceSystem(frameID, null);
 
         Instant begining = new DefaultInstant((Position) node.getChild("beginPosition").getValue());
         Instant ending = new DefaultInstant((Position) node.getChild("endPosition").getValue());

@@ -1,15 +1,20 @@
 package org.geotools.wcs.bindings;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.xml.namespace.QName;
 
+import net.opengis.gml.Gml4wcsFactory;
+import net.opengis.gml.TimePositionType;
+import net.opengis.wcs10.TimePeriodType;
+import net.opengis.wcs10.TimeSequenceType;
+import net.opengis.wcs10.Wcs10Factory;
+
 import org.geotools.gml3.GML;
 import org.geotools.temporal.object.DefaultInstant;
-import org.geotools.temporal.object.DefaultPeriod;
-import org.geotools.temporal.object.DefaultPosition;
-import org.geotools.util.SimpleInternationalString;
 import org.geotools.wcs.WCS;
 import org.geotools.xml.AbstractComplexBinding;
 import org.geotools.xml.ElementInstance;
@@ -59,7 +64,7 @@ public class TimeSequenceTypeBinding extends AbstractComplexBinding {
      * @generated modifiable
      */
     public Class getType() {
-        return List.class;
+        return TimeSequenceType.class;
     }
 
     /**
@@ -70,25 +75,36 @@ public class TimeSequenceTypeBinding extends AbstractComplexBinding {
     public Object parse(ElementInstance instance, Node node, Object value)
             throws Exception {
         List<Node> timePositions = node.getChildren("timePosition");
-
+        TimeSequenceType results = Wcs10Factory.eINSTANCE.createTimeSequenceType();
+        
         if (timePositions != null && !timePositions.isEmpty()) {
-            List<Position> results = new LinkedList<Position>();
             for (Node timePositionNode : timePositions) {
-                results.add((Position) timePositionNode.getValue());
+                TimePositionType timePosition = Gml4wcsFactory.eINSTANCE.createTimePositionType();
+                Date positionDate = ((Position) timePositionNode.getValue()).getDate();
+                timePosition.setValue(cvtToGmt(positionDate));
+                results.getTimePosition().add(timePosition);
             }
 
             return results;
         } else {
             List<Node> timePeriods = node.getChildren("timePeriod");
             if (timePeriods != null && !timePeriods.isEmpty()) {
-                List<Period> results = new LinkedList<Period>();
                 for (Node timePeriodNode : timePeriods) {
                     Instant begining = new DefaultInstant((Position) timePeriodNode.getChild("beginPosition").getValue());
                     Instant ending = new DefaultInstant((Position) timePeriodNode.getChild("endPosition").getValue());
 
-                    Period timePeriod = new DefaultPeriod(begining, ending);
+                    //Period timePeriod = new DefaultPeriod(begining, ending);
+                    TimePeriodType timePeriod = Wcs10Factory.eINSTANCE.createTimePeriodType();
+                    TimePositionType beginPosition = Gml4wcsFactory.eINSTANCE.createTimePositionType();
+                    TimePositionType endPosition = Gml4wcsFactory.eINSTANCE.createTimePositionType();
+                    
+                    beginPosition.setValue(cvtToGmt(begining.getPosition().getDate()));
+                    endPosition.setValue(cvtToGmt(ending.getPosition().getDate()));
+                    
+                    timePeriod.setBeginPosition(beginPosition);
+                    timePeriod.setEndPosition(endPosition);
 
-                    results.add(timePeriod);
+                    results.getTimePeriod().add(timePeriod);
                 }
 
                 return results;
@@ -138,5 +154,31 @@ public class TimeSequenceTypeBinding extends AbstractComplexBinding {
         }
 
         return null;
+    }
+    
+    /**
+     * 
+     * @param date
+     * @return
+     */
+    private static Date cvtToGmt( Date date )
+    {
+       TimeZone tz = TimeZone.getDefault();
+       Date ret = new Date( date.getTime() - tz.getRawOffset() );
+
+       // if we are now in DST, back off by the delta.  Note that we are checking the GMT date, this is the KEY.
+       if ( tz.inDaylightTime( ret ))
+       {
+          Date dstDate = new Date( ret.getTime() - tz.getDSTSavings() );
+
+          // check to make sure we have not crossed back into standard time
+          // this happens when we are on the cusp of DST (7pm the day before the change for PDT)
+          if ( tz.inDaylightTime( dstDate ))
+          {
+             ret = dstDate;
+          }
+       }
+
+       return ret;
     }
 }

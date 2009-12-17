@@ -7,26 +7,19 @@
 package net.opengis.gml.impl;
 
 import java.math.BigInteger;
-
 import java.util.Collection;
 
 import net.opengis.gml.Gml4wcsPackage;
-import net.opengis.gml.GridLimitsType;
 import net.opengis.gml.GridType;
 
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
-
 import org.eclipse.emf.common.util.EList;
-
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.InternalEObject;
-
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
-
 import org.eclipse.emf.ecore.util.EDataTypeEList;
-
-import com.vividsolutions.jts.geom.Envelope;
+import org.geotools.geometry.GeneralEnvelope;
 
 /**
  * <!-- begin-user-doc -->
@@ -52,7 +45,7 @@ public class GridTypeImpl extends AbstractGeometryTypeImpl implements GridType {
      * @generated
      * @ordered
      */
-    protected Envelope limits;
+    protected GeneralEnvelope limits;
 
     /**
      * The cached value of the '{@link #getAxisName() <em>Axis Name</em>}' attribute list.
@@ -107,7 +100,7 @@ public class GridTypeImpl extends AbstractGeometryTypeImpl implements GridType {
      * <!-- end-user-doc -->
      * @generated
      */
-    public Envelope getLimits() {
+    public GeneralEnvelope getLimits() {
         return limits;
     }
 
@@ -116,8 +109,8 @@ public class GridTypeImpl extends AbstractGeometryTypeImpl implements GridType {
      * <!-- end-user-doc -->
      * @generated
      */
-    public NotificationChain basicSetLimits(Envelope newLimits, NotificationChain msgs) {
-        Envelope oldLimits = limits;
+    public NotificationChain basicSetLimits(GeneralEnvelope newLimits, NotificationChain msgs) {
+        GeneralEnvelope oldLimits = limits;
         limits = newLimits;
         if (eNotificationRequired()) {
             ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, Gml4wcsPackage.GRID_TYPE__LIMITS, oldLimits, newLimits);
@@ -131,7 +124,7 @@ public class GridTypeImpl extends AbstractGeometryTypeImpl implements GridType {
      * <!-- end-user-doc -->
      * @generated
      */
-    public void setLimits(Envelope newLimits) {
+    public void setLimits(GeneralEnvelope newLimits) {
         if (newLimits != limits) {
             NotificationChain msgs = null;
 //            if (limits != null)
@@ -216,7 +209,7 @@ public class GridTypeImpl extends AbstractGeometryTypeImpl implements GridType {
     public void eSet(int featureID, Object newValue) {
         switch (featureID) {
             case Gml4wcsPackage.GRID_TYPE__LIMITS:
-                setLimits((Envelope)newValue);
+                setLimits((GeneralEnvelope)newValue);
                 return;
             case Gml4wcsPackage.GRID_TYPE__AXIS_NAME:
                 getAxisName().clear();
@@ -237,7 +230,7 @@ public class GridTypeImpl extends AbstractGeometryTypeImpl implements GridType {
     public void eUnset(int featureID) {
         switch (featureID) {
             case Gml4wcsPackage.GRID_TYPE__LIMITS:
-                setLimits((Envelope)null);
+                setLimits((GeneralEnvelope)null);
                 return;
             case Gml4wcsPackage.GRID_TYPE__AXIS_NAME:
                 getAxisName().clear();
