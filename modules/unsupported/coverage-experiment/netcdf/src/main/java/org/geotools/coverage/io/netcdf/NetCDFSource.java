@@ -98,8 +98,12 @@ public class NetCDFSource implements CoverageSource {
 				if(listener!=null&&listener.isCanceled())
 					return new TreeSet<TemporalGeometricPrimitive>();		
 				try{
-					final TreeSet<TemporalGeometricPrimitive> retVal = new TreeSet<TemporalGeometricPrimitive>(access.temporalExtentMap.get(name));
-					return retVal;
+					if (access.temporalExtentMap.containsKey(name)){
+						final Set<TemporalGeometricPrimitive> set = access.temporalExtentMap.get(name);
+						if(!set.isEmpty())
+							return new TreeSet<TemporalGeometricPrimitive>(set);
+					}
+					return new TreeSet<TemporalGeometricPrimitive>();
 				}catch (Throwable e) {
 					listener.exceptionOccurred(e);
 					return new TreeSet<TemporalGeometricPrimitive>();
@@ -128,8 +132,13 @@ public class NetCDFSource implements CoverageSource {
 				if(listener!=null&&listener.isCanceled())
 					return new TreeSet<NumberRange<Double>>();
 				try{
-					final TreeSet<NumberRange<Double>> retVal = (TreeSet<NumberRange<Double>>) access.verticalExtentMap.get(name);
-					return retVal;
+					
+					if (access.verticalExtentMap.containsKey(name)){
+						final Set<NumberRange<Double>> set = access.verticalExtentMap.get(name);
+						if(!set.isEmpty())
+							return (TreeSet<NumberRange<Double>>) set;
+					}
+					return new TreeSet<NumberRange<Double>>();
 				}catch (Throwable e) {
 					listener.exceptionOccurred(e);
 					return new TreeSet<NumberRange<Double>>();
