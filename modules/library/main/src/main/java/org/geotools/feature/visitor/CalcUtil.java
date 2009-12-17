@@ -253,7 +253,7 @@ public class CalcUtil {
             return new Double(0);
         } else if (bestClass == Float.class) {
             return new Float(0);
-        } else if (bestClass == Float.class) {
+        } else if (bestClass == Long.class) {
             return new Long(0);
         } else if (bestClass == Integer.class) {
             return new Integer(0);
