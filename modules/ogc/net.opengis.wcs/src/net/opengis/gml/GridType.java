@@ -9,7 +9,7 @@ package net.opengis.gml;
 import java.math.BigInteger;
 
 import org.eclipse.emf.common.util.EList;
-import org.geotools.geometry.GeneralEnvelope;
+import org.opengis.coverage.grid.GridEnvelope;
 
 /**
  * <!-- begin-user-doc -->
@@ -48,7 +48,7 @@ public interface GridType extends AbstractGeometryType {
      * @model type="com.vividsolutions.jts.geom.Envelope" containment="true" required="true"
      *        extendedMetaData="kind='element' name='limits' namespace='##targetNamespace'"
      */
-    GeneralEnvelope getLimits();
+    GridEnvelope getLimits();
 
     /**
      * Sets the value of the '{@link net.opengis.gml.GridType#getLimits <em>Limits</em>}' containment reference.
@@ -58,7 +58,7 @@ public interface GridType extends AbstractGeometryType {
      * @see #getLimits()
      * @generated
      */
-    void setLimits(GeneralEnvelope value);
+    void setLimits(GridEnvelope value);
 
     /**
      * Returns the value of the '<em><b>Axis Name</b></em>' attribute list.

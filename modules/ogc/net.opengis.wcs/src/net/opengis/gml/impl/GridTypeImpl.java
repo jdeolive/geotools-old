@@ -19,7 +19,7 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.util.EDataTypeEList;
-import org.geotools.geometry.GeneralEnvelope;
+import org.opengis.coverage.grid.GridEnvelope;
 
 /**
  * <!-- begin-user-doc -->
@@ -45,7 +45,7 @@ public class GridTypeImpl extends AbstractGeometryTypeImpl implements GridType {
      * @generated
      * @ordered
      */
-    protected GeneralEnvelope limits;
+    protected GridEnvelope limits;
 
     /**
      * The cached value of the '{@link #getAxisName() <em>Axis Name</em>}' attribute list.
@@ -100,7 +100,7 @@ public class GridTypeImpl extends AbstractGeometryTypeImpl implements GridType {
      * <!-- end-user-doc -->
      * @generated
      */
-    public GeneralEnvelope getLimits() {
+    public GridEnvelope getLimits() {
         return limits;
     }
 
@@ -109,8 +109,8 @@ public class GridTypeImpl extends AbstractGeometryTypeImpl implements GridType {
      * <!-- end-user-doc -->
      * @generated
      */
-    public NotificationChain basicSetLimits(GeneralEnvelope newLimits, NotificationChain msgs) {
-        GeneralEnvelope oldLimits = limits;
+    public NotificationChain basicSetLimits(GridEnvelope newLimits, NotificationChain msgs) {
+        GridEnvelope oldLimits = limits;
         limits = newLimits;
         if (eNotificationRequired()) {
             ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, Gml4wcsPackage.GRID_TYPE__LIMITS, oldLimits, newLimits);
@@ -124,7 +124,7 @@ public class GridTypeImpl extends AbstractGeometryTypeImpl implements GridType {
      * <!-- end-user-doc -->
      * @generated
      */
-    public void setLimits(GeneralEnvelope newLimits) {
+    public void setLimits(GridEnvelope newLimits) {
         if (newLimits != limits) {
             NotificationChain msgs = null;
 //            if (limits != null)
@@ -209,7 +209,7 @@ public class GridTypeImpl extends AbstractGeometryTypeImpl implements GridType {
     public void eSet(int featureID, Object newValue) {
         switch (featureID) {
             case Gml4wcsPackage.GRID_TYPE__LIMITS:
-                setLimits((GeneralEnvelope)newValue);
+                setLimits((GridEnvelope)newValue);
                 return;
             case Gml4wcsPackage.GRID_TYPE__AXIS_NAME:
                 getAxisName().clear();
@@ -230,7 +230,7 @@ public class GridTypeImpl extends AbstractGeometryTypeImpl implements GridType {
     public void eUnset(int featureID) {
         switch (featureID) {
             case Gml4wcsPackage.GRID_TYPE__LIMITS:
-                setLimits((GeneralEnvelope)null);
+                setLimits((GridEnvelope)null);
                 return;
             case Gml4wcsPackage.GRID_TYPE__AXIS_NAME:
                 getAxisName().clear();
