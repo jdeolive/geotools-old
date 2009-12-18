@@ -37,7 +37,7 @@ import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.filter.expression.PropertyAccessor;
 import org.geotools.filter.expression.PropertyAccessorFactory;
-import org.geotools.referencing.CRS;
+import org.junit.Assert;
 import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -53,6 +53,7 @@ import org.opengis.filter.PropertyIsLessThan;
 import org.opengis.filter.PropertyIsLessThanOrEqualTo;
 import org.opengis.filter.PropertyIsLike;
 import org.opengis.filter.PropertyIsNull;
+import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.ExpressionVisitor;
 import org.opengis.filter.expression.Function;
 import org.opengis.filter.expression.Literal;
@@ -1207,5 +1208,27 @@ public class FilterTest extends TestCase {
 
         Filter f2 = fac.less( i, d );
         assertTrue( f2.evaluate( null ) );
+    }
+    
+    public void testFilterEquality() {
+        Filter f1 = fac.less(fac.property("ATR"), fac.literal("32"));
+        Filter f2 = fac.notEqual(fac.property("ATR2"), fac.literal("1"));
+
+        Assert.assertTrue(f1.equals(f1));
+        Assert.assertFalse(f1.equals(f2));
+        Assert.assertFalse(f2.equals(f1));
+
+        Filter f4 = fac.notEqual(fac.property("BBB"), fac.literal("2"));
+        Assert.assertFalse(f2.equals(f4));
+        Assert.assertFalse(f4.equals(f2));
+
+        Filter f3 = fac.less(fac.property("ATR"), fac.literal("40"));
+        Assert.assertFalse(f1.equals(f3));
+        Assert.assertFalse(f3.equals(f1));
+
+        Expression l32 = fac.literal("32");
+        Expression l40 = fac.literal("40");
+        Assert.assertFalse(l32.equals(l40));
+        Assert.assertFalse(l40.equals(l32));
     }
 }
