@@ -32,7 +32,6 @@ import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.type.FeatureTypeFactoryImpl;
 import org.geotools.util.SimpleInternationalString;
 
-import com.sun.swing.internal.plaf.metal.resources.metal;
 import com.vividsolutions.jts.geom.GeometryFactory;
 
 
