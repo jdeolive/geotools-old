@@ -112,6 +112,7 @@ public class PostgisNGDataStoreFactory extends JDBCDataStoreFactory {
         parameters.put(LOOSEBBOX.key, LOOSEBBOX);
         parameters.put(PORT.key, PORT);
         parameters.put(PREPARED_STATEMENTS.key, PREPARED_STATEMENTS);
+        parameters.put(MAX_OPEN_PREPARED_STATEMENTS.key, MAX_OPEN_PREPARED_STATEMENTS);
     }
     
     @Override

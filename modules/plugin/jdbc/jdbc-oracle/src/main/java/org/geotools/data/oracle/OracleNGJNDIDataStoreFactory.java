@@ -16,6 +16,8 @@
  */
 package org.geotools.data.oracle;
 
+import java.util.Map;
+
 import org.geotools.jdbc.JDBCJNDIDataStoreFactory;
 
 /**
@@ -30,5 +32,13 @@ public class OracleNGJNDIDataStoreFactory extends JDBCJNDIDataStoreFactory {
 
     public OracleNGJNDIDataStoreFactory() {
         super(new OracleNGDataStoreFactory());
+    }
+    
+    @Override
+    protected void setupParameters(Map parameters) {
+        super.setupParameters(parameters);
+        
+        parameters.put(OracleNGDataStoreFactory.LOOSEBBOX.key, OracleNGDataStoreFactory.LOOSEBBOX);
+        parameters.put(MAX_OPEN_PREPARED_STATEMENTS.key, MAX_OPEN_PREPARED_STATEMENTS);
     }
 }

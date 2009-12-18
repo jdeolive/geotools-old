@@ -123,6 +123,7 @@ public class OracleNGDataStoreFactory extends JDBCDataStoreFactory {
     protected void setupParameters(Map parameters) {
         super.setupParameters(parameters);
         parameters.put(LOOSEBBOX.key, LOOSEBBOX);
+        parameters.put(MAX_OPEN_PREPARED_STATEMENTS.key, MAX_OPEN_PREPARED_STATEMENTS);
         parameters.put(PORT.key, PORT);
         parameters.put(DBTYPE.key, DBTYPE);
     }

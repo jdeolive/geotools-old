@@ -1408,11 +1408,11 @@ public final class JDBCDataStore extends ContentDataStore
             // isolation level is not set in the datastore, see 
             // http://jira.codehaus.org/browse/GEOT-2021 
 
-            //call dialect callback to iniitalie the connection
+            //call dialect callback to initialize the connection
             dialect.initializeConnection( cx );
             return cx;
         } catch (SQLException e) {
-            throw new RuntimeException("Unable to obtain connection", e);
+            throw new RuntimeException("Unable to obtain connection: " + e.getMessage(), e);
         }
     }
     

@@ -17,7 +17,9 @@
 package org.geotools.jdbc;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -96,9 +98,15 @@ public abstract class JDBCDataStoreFactory extends AbstractDataStoreFactory {
     public static final Param MAXWAIT = new Param("Connection timeout", Integer.class,
             "number of seconds the connection pool will wait before timing out attempting to get a new connection (default, 20 seconds)", false, 20);
     
-    /** ... **/
+    /** Metadata table providing information about primary keys **/
     public static final Param PK_METADATA_TABLE = new Param("Primary key metadata table", String.class,
             "The optional table containing primary key structure and sequence associations. Can be expressed as 'schema.name' or just 'name'", false);
+    
+    /** Number of prepared statements cached per connection (this param is exposed only by factories supporting prepared statements **/
+    public static final Param MAX_OPEN_PREPARED_STATEMENTS = new Param("Max open prepared statements", Integer.class,
+            "Maximum number of prepared statements kept open and cached for each connection in the pool. " +
+            "Set to 0 to have unbounded caching, to -1 to disable caching", false, 50);
+    
     
     @Override
     public String getDisplayName() {
@@ -344,7 +352,22 @@ public abstract class JDBCDataStoreFactory extends AbstractDataStoreFactory {
         BasicDataSource dataSource = createDataSource(params);
 
         // some default data source behaviour
-        dataSource.setPoolPreparedStatements(dialect instanceof PreparedStatementSQLDialect);
+        if(dialect instanceof PreparedStatementSQLDialect) {
+            dataSource.setPoolPreparedStatements(true);
+            
+            // check if the dialect exposes the max prepared statements param 
+            Map<String, Serializable> testMap = new HashMap<String, Serializable>();
+            setupParameters(testMap);
+            if(testMap.containsKey(MAX_OPEN_PREPARED_STATEMENTS.key)) {
+                Integer maxPreparedStatements = (Integer) MAX_OPEN_PREPARED_STATEMENTS.lookUp(params);
+                // limit prepared statements
+                if(maxPreparedStatements != null && maxPreparedStatements > 0)
+                    dataSource.setMaxOpenPreparedStatements(maxPreparedStatements);
+                // disable statement caching fully if necessary
+                if(maxPreparedStatements != null && maxPreparedStatements < 0)
+                    dataSource.setPoolPreparedStatements(false);
+            }
+        }
 
         return new DBCPDataSource(dataSource);
     }

@@ -85,5 +85,6 @@ public class OracleNGOCIDataStoreFactory extends OracleNGDataStoreFactory {
         parameters.put(PK_METADATA_TABLE.key, PK_METADATA_TABLE);
         
         parameters.put(LOOSEBBOX.key, LOOSEBBOX);
+        parameters.put(MAX_OPEN_PREPARED_STATEMENTS.key, MAX_OPEN_PREPARED_STATEMENTS);
     }
 }
