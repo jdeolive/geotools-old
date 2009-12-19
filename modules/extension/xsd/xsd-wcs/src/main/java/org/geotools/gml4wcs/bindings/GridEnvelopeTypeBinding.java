@@ -2,11 +2,13 @@ package org.geotools.gml4wcs.bindings;
 
 import javax.xml.namespace.QName;
 
+import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.gml4wcs.GML;
 import org.geotools.xml.AbstractComplexBinding;
 import org.geotools.xml.ElementInstance;
 import org.geotools.xml.Node;
+import org.opengis.coverage.grid.GridEnvelope;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -49,7 +51,7 @@ public class GridEnvelopeTypeBinding extends AbstractComplexBinding {
      * @generated modifiable
      */
     public Class getType() {
-        return GeneralEnvelope.class;
+        return GridEnvelope.class;
     }
 
     /**
@@ -63,11 +65,7 @@ public class GridEnvelopeTypeBinding extends AbstractComplexBinding {
             int[] l = (int[]) node.getChildValue("low");
             int[] h = (int[]) node.getChildValue("high");
 
-            GeneralEnvelope envelope = new GeneralEnvelope(l.length);
-            if (l.length == 2)
-                envelope.setEnvelope(l[0], l[1], h[0], h[1]);
-            else if (l.length == 3)
-                envelope.setEnvelope(l[0], l[1], l[2], h[0], h[1], h[2]);
+            GridEnvelope envelope = new GeneralGridEnvelope(l, h, true);
             return envelope;
         }
 
@@ -86,18 +84,18 @@ public class GridEnvelopeTypeBinding extends AbstractComplexBinding {
     }
 
     public Object getProperty(Object object, QName name) {
-        GeneralEnvelope envelope = (GeneralEnvelope) object;
+        GridEnvelope envelope = (GridEnvelope) object;
 
-        if (envelope.isNull()) {
+        if (envelope == null) {
             return null;
         }
 
         if (name.getLocalPart().equals("low")) {
-            return envelope.getLowerCorner().getCoordinate();
+            return envelope.getLow().getCoordinateValues();
         }
 
         if (name.getLocalPart().equals("high")) {
-            return envelope.getUpperCorner().getCoordinate();
+            return envelope.getHigh().getCoordinateValues();
         }
 
         return null;
