@@ -22,19 +22,23 @@ import java.util.List;
 
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
+import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.FactoryRegistryException;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.SchemaException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
+import org.geotools.feature.type.FeatureTypeFactoryImpl;
 import org.geotools.referencing.CRS;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.feature.Feature;
+import org.opengis.feature.FeatureFactory;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.FeatureTypeFactory;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
@@ -60,10 +64,26 @@ import com.vividsolutions.jts.geom.PrecisionModel;
  * @author Simone Giannecchini
  */
 public final class FeatureUtilities {
+    
+    static FeatureTypeFactory typeFactory;
+    static FeatureFactory featureFactory;
+    
     /**
      * Do not allows instantiation of this class.
      */
     private FeatureUtilities() {
+    }
+    
+    private static FeatureTypeFactory getTypeFactory() {
+        if(typeFactory == null)
+            typeFactory = new FeatureTypeFactoryImpl();  // CommonFactoryFinder.getFeatureTypeFactory(null);
+        return typeFactory;
+    }
+    
+    private static FeatureFactory getFeatureFactory() {
+        if(featureFactory == null)
+            featureFactory = CommonFactoryFinder.getFeatureFactory(null);
+        return featureFactory;
     }
 
     /**
@@ -97,14 +117,17 @@ public final class FeatureUtilities {
         final Polygon bounds = getPolygon(coverage.getEnvelope2D());
         final CoordinateReferenceSystem sourceCRS = coverage.getCoordinateReferenceSystem2D();
 
-        SimpleFeatureTypeBuilder ftb = new SimpleFeatureTypeBuilder();
+        SimpleFeatureTypeBuilder ftb = new SimpleFeatureTypeBuilder(getTypeFactory());
         ftb.setName("GridCoverage");
         ftb.add("geom", Polygon.class, sourceCRS);
         ftb.add("grid", GridCoverage.class);
         SimpleFeatureType schema = ftb.buildFeatureType();
 
         // create the feature
-        SimpleFeature feature = SimpleFeatureBuilder.build(schema, new Object[] { bounds, coverage }, null);
+        SimpleFeatureBuilder fb = new SimpleFeatureBuilder(schema, getFeatureFactory());
+        fb.add(bounds);
+        fb.add(coverage);
+        SimpleFeature feature = fb.buildFeature(null);
 
         final FeatureCollection<SimpleFeatureType, SimpleFeature> collection = FeatureCollections.newCollection();
         collection.add(feature);
@@ -148,7 +171,7 @@ public final class FeatureUtilities {
 		final LinearRing ring = gf.createLinearRing(coord);
 		final Polygon bounds = new Polygon(ring, null, gf);
 
-		SimpleFeatureTypeBuilder ftb = new SimpleFeatureTypeBuilder();
+		SimpleFeatureTypeBuilder ftb = new SimpleFeatureTypeBuilder(getTypeFactory());
         ftb.setName("GridCoverage");
         ftb.add("geom", Polygon.class, sourceCrs);
         ftb.add("grid", AbstractGridCoverage2DReader.class);
@@ -156,7 +179,11 @@ public final class FeatureUtilities {
         SimpleFeatureType schema = ftb.buildFeatureType();
 
         // create the feature
-        SimpleFeature feature = SimpleFeatureBuilder.build(schema, new Object[] { bounds, gridCoverageReader, params }, null);
+        SimpleFeatureBuilder fb = new SimpleFeatureBuilder(schema, getFeatureFactory());
+        fb.add(bounds);
+        fb.add(gridCoverageReader);
+        fb.add(params);
+        SimpleFeature feature = fb.buildFeature(null);
 
 
 		final FeatureCollection<SimpleFeatureType, SimpleFeature> collection = FeatureCollections.newCollection();
