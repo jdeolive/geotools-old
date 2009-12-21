@@ -320,6 +320,12 @@ public class CRSTest extends TestCase {
         CoordinateReferenceSystem crs = CRS.decode("epsg:4269");
         assertNotNull(crs);
     }
+    
+    public void testWestDirection() throws FactoryException {
+        // see GEOT-2901
+        CoordinateReferenceSystem crs = CRS.decode("EPSG:3573");
+        assertNotNull(crs);
+    }
 
     /**
      * Tests {@link CRS#getHorizontalCRS} from a compound CRS.

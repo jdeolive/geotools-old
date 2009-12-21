@@ -163,7 +163,7 @@ final class DirectionAlongMeridian implements Comparable, Serializable {
                     return candidate;
                 if(candidate == AxisDirection.SOUTH && direction.equals("S"))
                     return candidate;
-                if(candidate == AxisDirection.WEST && direction.equals("w"))
+                if(candidate == AxisDirection.WEST && direction.equals("W"))
                     return candidate;
                 if(candidate == AxisDirection.EAST && direction.equals("E"))
                     return candidate;
