@@ -132,6 +132,7 @@ public class Mercator1SP extends Mercator {
         static final ParameterDescriptorGroup PARAMETERS = createDescriptorGroup(new NamedIdentifier[] {
                 new NamedIdentifier(Citations.OGC,      "Mercator_1SP"),
                 new NamedIdentifier(Citations.EPSG,     "Mercator (1SP)"),
+                new NamedIdentifier(Citations.EPSG,     "Mercator (1SP) (Spherical)"),
                 new NamedIdentifier(Citations.EPSG,     "9804"),
                 new NamedIdentifier(Citations.GEOTIFF,  "CT_Mercator"),
                 new NamedIdentifier(Citations.GEOTOOLS, Vocabulary.formatInternational(
