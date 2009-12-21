@@ -44,7 +44,7 @@ import org.opengis.coverage.grid.GridCoverageWriter;
 public abstract class AbstractGridCoverageWriter implements GridCoverageWriter {
 
 	/** The {@link Logger} for this {@link AbstractGridCoverageWriter}. */
-	private final static Logger LOGGER = Logging.getLogger("org.geotools.data.coverage.grid");
+	private final static Logger LOGGER = Logging.getLogger(AbstractGridCoverageWriter.class.toString());
 
 	/** the destination object where we will do the writing */
 	protected Object destination;
@@ -67,6 +67,9 @@ public abstract class AbstractGridCoverageWriter implements GridCoverageWriter {
 	 * Releases resources held by this {@link AbstractGridCoverageWriter}.
 	 */
 	public void dispose() {
+		if(LOGGER.isLoggable(Level.FINE))
+			LOGGER.fine("Disposing writer:"+destination);
+		
 		if (outStream != null) {
 			try {
 				outStream.flush();			
@@ -130,6 +133,7 @@ public abstract class AbstractGridCoverageWriter implements GridCoverageWriter {
 	 */
 	@Override
 	protected void finalize() throws Throwable {
+		dispose();
 		super.finalize();
 	}
 

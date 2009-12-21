@@ -721,49 +721,49 @@ public abstract class AbstractGridCoverage2DReader implements
 	 * @see org.opengis.coverage.grid.GridCoverageReader#skip()
 	 */
 	public void skip() {
-		throw new UnsupportedOperationException("Unsupported opertion.");
+		throw new UnsupportedOperationException("Unsupported operation.");
 	}
 
 	/**
 	 * @see org.opengis.coverage.grid.GridCoverageReader#hasMoreGridCoverages()
 	 */
 	public boolean hasMoreGridCoverages() {
-		throw new UnsupportedOperationException("Unsupported opertion.");
+		throw new UnsupportedOperationException("Unsupported operation.");
 	}
 
 	/**
 	 * @see org.opengis.coverage.grid.GridCoverageReader#listSubNames()
 	 */
 	public String[] listSubNames() {
-		throw new UnsupportedOperationException("Unsupported opertion.");
+		throw new UnsupportedOperationException("Unsupported operation.");
 	}
 
 	/**
 	 * @see org.opengis.coverage.grid.GridCoverageReader#getCurrentSubname()
 	 */
 	public String getCurrentSubname() {
-		throw new UnsupportedOperationException("Unsupported opertion.");
+		throw new UnsupportedOperationException("Unsupported operation.");
 	}
 
 	/**
 	 * @see org.opengis.coverage.grid.GridCoverageReader#getMetadataNames()
 	 */
 	public String[] getMetadataNames() {
-		throw new UnsupportedOperationException("Unsupported opertion.");
+		return null;
 	}
 
 	/**
 	 * @see org.opengis.coverage.grid.GridCoverageReader#getMetadataValue(java.lang.String)
 	 */
 	public String getMetadataValue(final String name) {
-		throw new UnsupportedOperationException("Unsupported opertion.");
+		return null;
 	}
 
 	/**
 	 * @see org.opengis.coverage.grid.GridCoverageReader#getGridCoverageCount()
 	 */
 	public int getGridCoverageCount() {
-		throw new UnsupportedOperationException("Unsupported opertion.");
+		throw new UnsupportedOperationException("Unsupported operation.");
 	}
 	
 	
