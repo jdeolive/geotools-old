@@ -16,25 +16,25 @@
  */
 package org.geotools.coverage.processing;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import java.awt.geom.AffineTransform;
 import java.awt.image.RenderedImage;
+
 import javax.media.jai.RenderedOp;
 
-import org.opengis.parameter.ParameterValueGroup;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-
-import org.geotools.test.TestData;
-import org.geotools.factory.Hints;
-import org.geotools.coverage.grid.Viewer;
-import org.geotools.coverage.grid.ViewType;
-import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageTestBase;
+import org.geotools.coverage.grid.GridGeometry2D;
+import org.geotools.coverage.grid.ViewType;
+import org.geotools.coverage.grid.Viewer;
+import org.geotools.factory.Hints;
 import org.geotools.referencing.crs.DefaultDerivedCRS;
 import org.geotools.referencing.operation.transform.ProjectiveTransform;
-
-import static org.junit.Assert.*;
+import org.opengis.parameter.ParameterValueGroup;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.MathTransform;
 
 
 /**

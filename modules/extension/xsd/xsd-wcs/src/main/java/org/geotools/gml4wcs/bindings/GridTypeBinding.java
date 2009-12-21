@@ -1,25 +1,11 @@
 package org.geotools.gml4wcs.bindings;
 
-import java.math.BigInteger;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.xml.namespace.QName;
 
-import net.opengis.gml.Gml4wcsFactory;
-import net.opengis.gml.GridEnvelopeType;
-import net.opengis.gml.GridLimitsType;
-import net.opengis.gml.GridType;
-
-import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.gml4wcs.GML;
 import org.geotools.xml.AbstractComplexBinding;
 import org.geotools.xml.ElementInstance;
 import org.geotools.xml.Node;
-import org.opengis.coverage.grid.GridEnvelope;
-
-import com.vividsolutions.jts.geom.Envelope;
 
 /**
  * Binding object for the type http://www.opengis.net/gml:GridType.

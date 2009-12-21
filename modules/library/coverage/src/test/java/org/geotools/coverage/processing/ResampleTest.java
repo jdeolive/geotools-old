@@ -16,15 +16,39 @@
  */
 package org.geotools.coverage.processing;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
+
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.image.RenderedImage;
 import java.awt.image.renderable.ParameterBlock;
+
 import javax.media.jai.JAI;
 
-import org.opengis.metadata.spatial.PixelOrientation;
+import org.geotools.coverage.CoverageFactoryFinder;
+import org.geotools.coverage.grid.GeneralGridEnvelope;
+import org.geotools.coverage.grid.GridCoverage2D;
+import org.geotools.coverage.grid.GridCoverageFactory;
+import org.geotools.coverage.grid.GridGeometry2D;
+import org.geotools.coverage.grid.ViewType;
+import org.geotools.factory.Hints;
+import org.geotools.metadata.iso.spatial.PixelTranslation;
+import org.geotools.referencing.CRS;
+import org.geotools.referencing.crs.DefaultProjectedCRS;
+import org.geotools.referencing.cs.DefaultCartesianCS;
+import org.geotools.referencing.operation.DefaultMathTransformFactory;
+import org.geotools.referencing.operation.transform.ProjectiveTransform;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.opengis.coverage.grid.GridGeometry;
 import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.NoSuchIdentifierException;
@@ -33,23 +57,6 @@ import org.opengis.referencing.crs.GeographicCRS;
 import org.opengis.referencing.datum.Ellipsoid;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
-
-import org.geotools.factory.Hints;
-import org.geotools.metadata.iso.spatial.PixelTranslation;
-import org.geotools.referencing.CRS;
-import org.geotools.referencing.cs.DefaultCartesianCS;
-import org.geotools.referencing.crs.DefaultProjectedCRS;
-import org.geotools.referencing.operation.DefaultMathTransformFactory;
-import org.geotools.referencing.operation.transform.ProjectiveTransform;
-import org.geotools.coverage.CoverageFactoryFinder;
-import org.geotools.coverage.grid.GridCoverage2D;
-import org.geotools.coverage.grid.GridCoverageFactory;
-import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.coverage.grid.GeneralGridEnvelope;
-import org.geotools.coverage.grid.ViewType;
-
-import org.junit.*;
-import static org.junit.Assert.*;
 
 
 /**
@@ -268,11 +275,10 @@ public final class ResampleTest extends GridProcessingTestBase {
         final MathTransform   tr = ProjectiveTransform.create(at);
         //account for the half pixel correction between the two spaces since we are talking raster here but the resample will talk model!
         final MathTransform correctedTransform = PixelTranslation.translate(tr, PixelInCell.CELL_CORNER,PixelInCell.CELL_CENTER);
-        final GridGeometry2D geometry = new GridGeometry2D(null, correctedTransform, null);
-        
-        grid = (GridCoverage2D) Operations.DEFAULT.resample(grid,grid.getCoordinateReferenceSystem(), geometry, null);
-        assertEquals(at, getAffineTransform(grid));
-        image = grid.getRenderedImage();
+        final GridGeometry2D geometry = new GridGeometry2D(null, correctedTransform, null);     
+        final GridCoverage2D newGrid = (GridCoverage2D) Operations.DEFAULT.resample(grid,grid.getCoordinateReferenceSystem(), geometry, null);
+        assertEquals(correctedTransform, getAffineTransform(newGrid));
+        image = newGrid.getRenderedImage();
         expected.preConcatenate(at.createInverse());
         final Point point = new Point(transX, transY);
         assertSame(point, expected.transform(point, point)); // Round toward neareast integer

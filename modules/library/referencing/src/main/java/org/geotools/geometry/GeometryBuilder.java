@@ -92,14 +92,6 @@ public class GeometryBuilder {
      */
     private CoordinateReferenceSystem crs;
     
-    /**
-     * Precision used to construct the next direct position.
-     * <p>
-     * This forms the core state of our builds, all other factories are created
-     * with this CoordinateReferenceSystem in mind.
-     */
-    private Precision precision;
-    
     private PositionFactory positionFactory;
     private PrimitiveFactory primitiveFactory;
     private AggregateFactory aggregateFactory;

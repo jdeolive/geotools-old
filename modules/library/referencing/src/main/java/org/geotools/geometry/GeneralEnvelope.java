@@ -517,21 +517,6 @@ public class GeneralEnvelope extends AbstractEnvelope implements Cloneable, Seri
      * A coordinate position consisting of all the {@linkplain #getCenter(int) middle ordinates}
      * for each dimension for all points within the {@code Envelope}.
      *
-     * @return The center coordinates.
-     *
-     * @since 2.3
-     *
-     * @deprecated Renamed as {@link #getMedian(}.
-     */
-    @Deprecated
-    public DirectPosition getCenter() {
-        return getMedian();
-    }
-
-    /**
-     * A coordinate position consisting of all the {@linkplain #getCenter(int) middle ordinates}
-     * for each dimension for all points within the {@code Envelope}.
-     *
      * @return The median coordinates.
      *
      * @since 2.5

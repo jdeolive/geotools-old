@@ -257,7 +257,7 @@ public class GeneralGridEnvelope implements GridEnvelope, Serializable {
     public GeneralGridEnvelope(final Envelope envelope, final PixelInCell anchor)
             throws IllegalArgumentException
     {
-        this(envelope,anchor,false);
+        this(envelope,anchor,true);
     }
     
     /**

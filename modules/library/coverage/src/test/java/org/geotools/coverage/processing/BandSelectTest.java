@@ -49,6 +49,7 @@ import org.opengis.referencing.operation.TransformException;
  *
  * @since 2.5
  */
+@SuppressWarnings("deprecation")
 public final class BandSelectTest extends GridProcessingTestBase {
 
     /**

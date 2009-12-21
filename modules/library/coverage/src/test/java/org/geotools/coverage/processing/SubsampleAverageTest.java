@@ -16,15 +16,20 @@
  */
 package org.geotools.coverage.processing;
 
-import java.awt.image.RenderedImage;
-import org.opengis.parameter.ParameterValueGroup;
-import org.geotools.factory.Hints;
-import org.geotools.coverage.grid.Viewer;
-import org.geotools.coverage.grid.GridCoverage2D;
-import static org.geotools.coverage.grid.ViewType.*;
+import static org.geotools.coverage.grid.ViewType.GEOPHYSICS;
+import static org.geotools.coverage.grid.ViewType.PACKED;
+import static org.geotools.coverage.grid.ViewType.PHOTOGRAPHIC;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
-import org.junit.*;
-import static org.junit.Assert.*;
+import java.awt.image.RenderedImage;
+
+import org.geotools.coverage.grid.GridCoverage2D;
+import org.geotools.coverage.grid.Viewer;
+import org.geotools.factory.Hints;
+import org.junit.Before;
+import org.junit.Test;
+import org.opengis.parameter.ParameterValueGroup;
 
 
 /**

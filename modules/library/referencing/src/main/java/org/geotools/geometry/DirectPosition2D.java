@@ -21,14 +21,12 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import static java.lang.Double.doubleToLongBits;
-
-import org.opengis.util.Cloneable;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.geometry.DirectPosition;
-import org.opengis.geometry.MismatchedDimensionException;
 
 import org.geotools.util.Utilities;
+import org.opengis.geometry.DirectPosition;
+import org.opengis.geometry.MismatchedDimensionException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.util.Cloneable;
 
 
 /**

@@ -19,18 +19,16 @@ package org.geotools.coverage.grid;
 import java.awt.Color;
 import java.awt.image.DataBuffer;
 import java.awt.image.WritableRaster;
+
 import javax.media.jai.RasterFactory;
 
+import org.geotools.coverage.CoverageFactoryFinder;
+import org.geotools.geometry.Envelope2D;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.junit.Test;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.geometry.Envelope;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-
-import org.geotools.geometry.Envelope2D;
-import org.geotools.coverage.CoverageFactoryFinder;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
-
-import org.junit.*;
-import static org.junit.Assert.*;
 
 
 /**

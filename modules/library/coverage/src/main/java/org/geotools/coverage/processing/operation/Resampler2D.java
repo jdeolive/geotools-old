@@ -223,7 +223,7 @@ final class Resampler2D extends GridCoverage2D {
          * be computed automatically, or if we should follow strictly what the user said. Note
          * that "automaticGG" implies "automaticGR" but the converse is not necessarly true.
          */
-        final boolean automaticGG, automaticGR;
+        final boolean automaticGG, automaticGR, envelopeMissing;
         /*
          * Grid range and "grid to CRS" transform are the only grid geometry informations used
          * by this method. If they are not available, this is equivalent to not providing grid
@@ -233,8 +233,10 @@ final class Resampler2D extends GridCoverage2D {
         if (targetGG == null) {
             automaticGG = true;
             automaticGR = true;
+            envelopeMissing = true;
         } else {
             automaticGR = !targetGG.isDefined(GridGeometry2D.GRID_RANGE_BITMASK);
+            envelopeMissing = !targetGG.isDefined(GridGeometry2D.ENVELOPE_BITMASK);
             if (!automaticGR || targetGG.isDefined(GridGeometry2D.GRID_TO_CRS_BITMASK)) {
                 automaticGG = false;
             } else {
@@ -344,15 +346,14 @@ final class Resampler2D extends GridCoverage2D {
                 allSteps = mtFactory.createConcatenatedTransform(step1, step3);
                 if (!targetGG.isDefined(GridGeometry2D.GRID_RANGE_BITMASK)) {
                     /*
-                     * If the target grid range was not explicitely specified, a grid range will be
+                     * If the target grid range was not explicitly specified, a grid range will be
                      * automatically computed in such a way that it will maps to the same envelope
                      * (at least approximatively).
                      */
                     Envelope gridRange;
                     gridRange = toEnvelope(sourceGG.getGridRange());
                     gridRange = CRS.transform(allSteps.inverse(), gridRange);
-                    targetGG  = new GridGeometry2D(new GeneralGridEnvelope(gridRange,
-                            PixelInCell.CELL_CORNER), step1, targetCRS);
+                    targetGG  = new GridGeometry2D(new GeneralGridEnvelope(gridRange,PixelInCell.CELL_CORNER), targetGG.getGridToCRS(PixelInCell.CELL_CENTER), targetCRS);
                 }
             }
         } else {
@@ -398,8 +399,7 @@ final class Resampler2D extends GridCoverage2D {
                 if (!targetGG.isDefined(GridGeometry2D.GRID_RANGE_BITMASK)) {
                     GeneralEnvelope gridRange = CRS.transform(step1.inverse(), targetEnvelope);
                     // According OpenGIS specification, GridGeometry maps pixel's center.
-                    targetGG = new GridGeometry2D(new GeneralGridEnvelope(gridRange,
-                            PixelInCell.CELL_CENTER), step1, targetCRS);
+                    targetGG = new GridGeometry2D(new GeneralGridEnvelope(gridRange, PixelInCell.CELL_CENTER), step1, targetCRS);
                 }
             }
             /*
@@ -652,9 +652,12 @@ final class Resampler2D extends GridCoverage2D {
         upper[targetGG.gridDimensionY] = targetImage.getMaxY();
         final GridEnvelope actualGR = new GeneralGridEnvelope(lower, upper);
         if (!targetGR.equals(actualGR)) {
-            targetGG = new GridGeometry2D(actualGR, targetGG.getEnvelope());
+        	if(!envelopeMissing)
+        		targetGG = new GridGeometry2D(actualGR, targetGG.getEnvelope());
+        	else
+        		targetGG = new GridGeometry2D(actualGR, targetGG.getGridToCRS(PixelInCell.CELL_CENTER),targetGG.getCoordinateReferenceSystem());
             if (!automaticGR) {
-                log(Loggings.getResources(locale).getLogRecord(Level.WARNING,
+                log(Loggings.getResources(locale).getLogRecord(Level.FINE,
                     LoggingKeys.ADJUSTED_GRID_GEOMETRY_$1, sourceCoverage.getName().toString(locale)));
             }
         }
@@ -896,25 +899,26 @@ final class Resampler2D extends GridCoverage2D {
             } else {
                 warp = WarpTransform2D.getWarp(name, transform);
             }
-            if (true) {
+//            if (true)
+//            {
                 return warp;
-            }
-            // remainder is disabled for now since it break Geoserver build.
-            if (sourceBB == null || targetBB == null) {
-                return warp;
-            }
-            actualBB = warp.mapSourceRect(sourceBB); // May be null
-            if (actualBB == null || targetBB.contains(sourceBB)) {
-                return warp;
-            }
-            actualBB = warp.mapDestRect(targetBB); // Should never be null.
-            if (sourceBB.contains(actualBB)) {
-                return warp;
-            }
+//            }
+//            // remainder is disabled for now since it break Geoserver build.
+//            if (sourceBB == null || targetBB == null) {
+//                return warp;
+//            }
+//            actualBB = warp.mapSourceRect(sourceBB); // May be null
+//            if (actualBB == null || targetBB.contains(sourceBB)) {
+//                return warp;
+//            }
+//            actualBB = warp.mapDestRect(targetBB); // Should never be null.
+//            if (sourceBB.contains(actualBB)) {
+//                return warp;
+//            }
             // The loop below intentionally tries one more iteration than the constant in case we need
             // to apply slightly more than the above scale and translation because of rounding errors.
         } while (step++ <= EMPIRICAL_ADJUSTMENT_STEPS);
-        throw new FactoryException(Errors.format(ErrorKeys.CANT_REPROJECT_$1, name));
+//        throw new FactoryException(Errors.format(ErrorKeys.CANT_REPROJECT_$1, name));
     }
 
     /**
