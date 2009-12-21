@@ -37,6 +37,7 @@ import org.opengis.referencing.operation.MathTransform;
 import org.geotools.factory.Hints;
 import org.geotools.factory.GeoTools;
 import org.geotools.metadata.iso.citation.Citations;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.factory.OrderedAxisAuthorityFactory;
 
 
@@ -321,10 +322,32 @@ public class CRSTest extends TestCase {
         assertNotNull(crs);
     }
     
+    /**
+     * Check that a code with a axis direction with a reference to W works
+     * @throws FactoryException
+     */
     public void testWestDirection() throws FactoryException {
         // see GEOT-2901
         CoordinateReferenceSystem crs = CRS.decode("EPSG:3573");
         assertNotNull(crs);
+    }
+    
+    /**
+     * Check we support Plate Carré projection
+     * @throws FactoryException
+     */
+    public void testPlateCarre() throws Exception {
+        CoordinateReferenceSystem crs = CRS.decode("EPSG:32662");
+        assertNotNull(crs);
+        
+        MathTransform mt = CRS.findMathTransform(DefaultGeographicCRS.WGS84, crs);
+        double[] source = new double[] {-20, 35};
+        double[] dest = new double[2];
+        mt.transform(source, 0, dest, 0, 1);
+        
+        // reference values computed using cs2cs +init=epsg:4326 +to +init=epsg:32662
+        assertEquals(-2226389.82, dest[0], 0.01);
+        assertEquals(3896182.18, dest[1], 0.01);
     }
 
     /**

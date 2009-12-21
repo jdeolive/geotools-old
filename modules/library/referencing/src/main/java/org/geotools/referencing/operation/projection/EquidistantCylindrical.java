@@ -1,4 +1,4 @@
-/*
+    /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
  *
@@ -16,25 +16,28 @@
  */
 package org.geotools.referencing.operation.projection;
 
+import static java.lang.Math.abs;
+import static java.lang.Math.cos;
+
 import java.awt.geom.Point2D;
 import java.util.Collection;
+
 import javax.measure.unit.NonSI;
+
+import org.geotools.metadata.iso.citation.Citations;
+import org.geotools.referencing.NamedIdentifier;
+import org.geotools.resources.i18n.ErrorKeys;
+import org.geotools.resources.i18n.Errors;
+import org.geotools.resources.i18n.Vocabulary;
+import org.geotools.resources.i18n.VocabularyKeys;
 import org.opengis.parameter.GeneralParameterDescriptor;
 import org.opengis.parameter.ParameterDescriptor;
 import org.opengis.parameter.ParameterDescriptorGroup;
 import org.opengis.parameter.ParameterNotFoundException;
 import org.opengis.parameter.ParameterValueGroup;
+import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.CylindricalProjection;
 import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.FactoryException;
-import org.geotools.metadata.iso.citation.Citations;
-import org.geotools.referencing.NamedIdentifier;
-import org.geotools.resources.i18n.VocabularyKeys;
-import org.geotools.resources.i18n.Vocabulary;
-import org.geotools.resources.i18n.ErrorKeys;
-import org.geotools.resources.i18n.Errors;
-
-import static java.lang.Math.*;
 
 
 /**
@@ -220,6 +223,7 @@ public class EquidistantCylindrical extends MapProjection {
                     new NamedIdentifier(Citations.OGC,     "latitude_of_origin"),
                     new NamedIdentifier(Citations.ESRI,    "standard_parallel_1"),
                     new NamedIdentifier(Citations.EPSG,    "Latitude of natural origin"),
+                    new NamedIdentifier(Citations.EPSG,    "Latitude of 1st standard parallel"),
                     new NamedIdentifier(Citations.GEOTIFF, "ProjCenterLat"),
                     new NamedIdentifier(Citations.GEOTIFF, "NatOriginLat")
                 },
@@ -273,6 +277,64 @@ public class EquidistantCylindrical extends MapProjection {
             } else {
                 throw new FactoryException(Errors.format(ErrorKeys.ELLIPTICAL_NOT_SUPPORTED));
             }
+        }
+    }
+    
+    
+    /**
+     * The {@linkplain org.geotools.referencing.operation.MathTransformProvider math transform
+     * provider} for an {@linkplain EquidistantCylindrical Equidistant Cylindrical} projection,
+     * spherical case
+     *
+     * @since 2.6
+     * @version $Id$
+     * @author John Grange
+     *
+     * @see org.geotools.referencing.operation.DefaultMathTransformFactory
+     */
+    public static class SphericalProvider extends AbstractProvider {
+        /**
+         * The parameters group. Note the EPSG includes a "Latitude of natural origin" parameter instead
+         * of "standard_parallel_1". I have sided with ESRI and Snyder in this case.
+         */
+        static final ParameterDescriptorGroup PARAMETERS = createDescriptorGroup(new NamedIdentifier[] {
+                new NamedIdentifier(Citations.EPSG,     "Equidistant Cylindrical (Spherical)"),
+                new NamedIdentifier(Citations.ESRI,     "Equidistant_Cylindrical"),
+                new NamedIdentifier(Citations.GEOTOOLS, Vocabulary.formatInternational(
+                                    VocabularyKeys.EQUIDISTANT_CYLINDRICAL_PROJECTION))
+            }, new ParameterDescriptor[] {
+                SEMI_MAJOR,       SEMI_MINOR,
+                CENTRAL_MERIDIAN, Provider.STANDARD_PARALLEL,
+                FALSE_EASTING,    FALSE_NORTHING
+            });
+
+        /**
+         * Constructs a new provider.
+         */
+        public SphericalProvider() {
+            super(PARAMETERS);
+        }
+
+        /**
+         * Returns the operation type for this map projection.
+         */
+        @Override
+        public Class<CylindricalProjection> getOperationType() {
+            return CylindricalProjection.class;
+        }
+
+        /**
+         * Creates a transform from the specified group of parameter values.
+         *
+         * @param  parameters The group of parameter values.
+         * @return The created math transform.
+         * @throws ParameterNotFoundException if a required parameter was not found.
+         * @throws FactoryException if the projection can not be created.
+         */
+        protected MathTransform createMathTransform(final ParameterValueGroup parameters)
+                throws ParameterNotFoundException, FactoryException
+        {
+            return new EquidistantCylindrical(parameters);
         }
     }
 }
