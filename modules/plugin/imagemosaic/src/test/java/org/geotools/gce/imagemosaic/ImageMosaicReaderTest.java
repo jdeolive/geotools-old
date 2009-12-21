@@ -65,7 +65,7 @@ import org.opengis.referencing.datum.PixelInCell;
  * 
  */
 @SuppressWarnings("deprecation")
-public class ImageMosaicReaderTest{
+public class ImageMosaicReaderTest extends Assert{
 
 	public static junit.framework.Test suite() { 
 	    return new JUnit4TestAdapter(ImageMosaicReaderTest.class); 
@@ -252,6 +252,19 @@ public class ImageMosaicReaderTest{
 		final AbstractGridFormat format = getFormat(timeElevURL);
 		final ImageMosaicReader reader = getReader(timeElevURL, format);
 
+		final String[] metadataNames = reader.getMetadataNames();
+		assertNotNull(metadataNames);
+		assertEquals(metadataNames.length,2);
+		
+		final String timeMetadata = reader.getMetadataValue("TIME_DOMAIN");
+		assertNotNull(timeMetadata);
+		assertEquals(3,timeMetadata.split(",").length);
+		
+		final String elevationMetadata = reader.getMetadataValue("ELEVATION_DOMAIN");
+		assertNotNull(elevationMetadata);
+		assertEquals(4,elevationMetadata.split(",").length);
+		
+		
 		// limit yourself to reading just a bit of it
 		final ParameterValue<GridGeometry2D> gg =  ImageMosaicFormat.READ_GRIDGEOMETRY2D.createValue();
 		final GeneralEnvelope envelope = reader.getOriginalEnvelope();
@@ -285,6 +298,10 @@ public class ImageMosaicReaderTest{
 	public void time() throws IOException {
 		final AbstractGridFormat format = getFormat(timeURL);
 		final ImageMosaicReader reader = getReader(timeURL, format);
+		
+		final String[] metadataNames = reader.getMetadataNames();
+		assertNotNull(metadataNames);
+		assertEquals(metadataNames.length,1);
 
 		// limit yourself to reading just a bit of it
 		final ParameterValue<GridGeometry2D> gg =  ImageMosaicFormat.READ_GRIDGEOMETRY2D.createValue();

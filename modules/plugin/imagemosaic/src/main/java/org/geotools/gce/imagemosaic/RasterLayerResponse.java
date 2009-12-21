@@ -59,8 +59,6 @@ import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultQuery;
-import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.factory.GeoTools;
 import org.geotools.factory.Hints;
 import org.geotools.filter.SortByImpl;
 import org.geotools.gce.imagemosaic.RasterManager.OverviewLevel;
@@ -74,7 +72,6 @@ import org.opengis.coverage.ColorInterpretation;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.filter.Filter;
-import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.PropertyIsEqualTo;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
@@ -94,8 +91,6 @@ import com.sun.media.jai.codecimpl.util.ImagingException;
  */
 @SuppressWarnings("deprecation")
 class RasterLayerResponse{
-	
-	private static final FilterFactory2 FACTORY = CommonFactoryFinder.getFilterFactory2(GeoTools.getDefaultHints());
 	
 	/**
 	 * This class is responsible for putting together the granules for the final mosaic.
@@ -560,7 +555,7 @@ class RasterLayerResponse{
 			final boolean hasElevation=!Double.isNaN(elevation);
 
 			DefaultQuery query= new DefaultQuery(rasterManager.index.getType().getTypeName());
-			final Filter bbox=FACTORY.bbox(FACTORY.property(rasterManager.index.getType().getGeometryDescriptor().getName()),mosaicBBox);
+			final Filter bbox=Utils.FACTORY.bbox(Utils.FACTORY.property(rasterManager.index.getType().getGeometryDescriptor().getName()),mosaicBBox);
 			query.setFilter( bbox);
 			
 			if(hasTime||hasElevation)
@@ -570,8 +565,8 @@ class RasterLayerResponse{
 					final int size=times.size();
 					boolean current= size==1&&times.get(0)==null;
 					if( !current){
-						final PropertyIsEqualTo temporal = FACTORY.equal(FACTORY.property(rasterManager.timeAttribute), FACTORY.literal(times.get(0)),true);
-						query.setFilter(FACTORY.and(temporal, bbox));
+						final PropertyIsEqualTo temporal = Utils.FACTORY.equal(Utils.FACTORY.property(rasterManager.timeAttribute), Utils.FACTORY.literal(times.get(0)),true);
+						query.setFilter(Utils.FACTORY.and(temporal, bbox));
 					}
 					else{
 						// current management
@@ -579,7 +574,7 @@ class RasterLayerResponse{
 						query.setSortBy(
 								new SortBy[]{
 										new SortByImpl(
-												FACTORY.property(rasterManager.timeAttribute),
+												Utils.FACTORY.property(rasterManager.timeAttribute),
 												SortOrder.DESCENDING
 										)});
 	//					final MaxVisitor max = new MaxVisitor("ingestion");
@@ -591,8 +586,8 @@ class RasterLayerResponse{
 				
 				if(hasElevation){
 					final Filter oldFilter = query.getFilter();
-					final PropertyIsEqualTo elevationF = FACTORY.equal(FACTORY.property(rasterManager.elevationAttribute), FACTORY.literal(elevation),true);
-					query.setFilter(FACTORY.and(oldFilter, elevationF));					
+					final PropertyIsEqualTo elevationF = Utils.FACTORY.equal(Utils.FACTORY.property(rasterManager.elevationAttribute), Utils.FACTORY.literal(elevation),true);
+					query.setFilter(Utils.FACTORY.and(oldFilter, elevationF));					
 				}
 				// get those granules
 				rasterManager.getGranules(query, visitor);

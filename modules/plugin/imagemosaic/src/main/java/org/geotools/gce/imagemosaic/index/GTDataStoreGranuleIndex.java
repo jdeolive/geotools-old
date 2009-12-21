@@ -21,15 +21,18 @@ import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureStore;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.Query;
+import org.geotools.data.QueryCapabilities;
 import org.geotools.data.Transaction;
 import org.geotools.data.postgis.PostgisNGDataStoreFactory;
 import org.geotools.data.postgis.PostgisNGJNDIDataStoreFactory;
+import org.geotools.data.store.ContentFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.SchemaException;
 import org.geotools.feature.collection.AbstractFeatureVisitor;
+import org.geotools.feature.visitor.FeatureCalc;
 import org.geotools.filter.visitor.DefaultFilterVisitor;
 import org.geotools.gce.imagemosaic.ImageMosaicReader;
 import org.geotools.gce.imagemosaic.Utils;
@@ -524,6 +527,43 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 			lock.unlock();
 		}			
 		
+	}
+
+	public void computeAggregateFunction(Query query, FeatureCalc function) throws IOException {
+		final Lock lock=rwLock.readLock();
+		try{
+			lock.lock();
+			checkStore();
+			FeatureSource<SimpleFeatureType, SimpleFeature> fs = tileIndexStore.getFeatureSource(tileIndexStore.getTypeNames()[0]);
+				
+			if(fs instanceof ContentFeatureSource)
+				((ContentFeatureSource)fs).accepts(query, function, null);
+			else
+			{
+				final FeatureCollection<SimpleFeatureType, SimpleFeature> collection = fs.getFeatures(query);
+				collection.accepts(function, null);
+				
+			}
+		}finally{
+			lock.unlock();
+		}		
+		
+	}
+
+	public QueryCapabilities getQueryCapabilities() {
+		final Lock lock=rwLock.readLock();
+		try{
+			lock.lock();
+			checkStore();
+			
+			return tileIndexStore.getFeatureSource(typeName).getQueryCapabilities();
+		} catch (IOException e) {
+			if(LOGGER.isLoggable(Level.INFO))
+				LOGGER.log(Level.INFO,"Unable to collect QueryCapabilities",e);
+			return null;
+		}finally{
+			lock.unlock();
+		}	
 	}
 
 }

@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.util.Collection;
 
 import org.geotools.data.Query;
+import org.geotools.data.QueryCapabilities;
 import org.geotools.data.Transaction;
 import org.geotools.feature.SchemaException;
+import org.geotools.feature.visitor.FeatureCalc;
 import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -71,4 +73,8 @@ public interface GranuleIndex {
 	public int removeGranules(final Query query);
 
 	public BoundingBox getBounds();
+	
+	public void computeAggregateFunction(final Query q,final FeatureCalc function) throws IOException;
+	
+	public QueryCapabilities getQueryCapabilities();
 }

@@ -23,8 +23,14 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -33,6 +39,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.imageio.spi.ImageReaderSpi;
+
+import jj2000.j2k.util.StringFormatException;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
@@ -44,7 +52,11 @@ import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataUtilities;
+import org.geotools.data.DefaultQuery;
+import org.geotools.data.QueryCapabilities;
 import org.geotools.factory.Hints;
+import org.geotools.feature.visitor.UniqueVisitor;
+import org.geotools.filter.SortByImpl;
 import org.geotools.gce.imagemosaic.index.GranuleIndex;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
@@ -54,6 +66,8 @@ import org.opengis.coverage.grid.GridCoverageReader;
 import org.opengis.coverage.grid.GridCoverageWriter;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
+import org.opengis.filter.sort.SortBy;
+import org.opengis.filter.sort.SortOrder;
 import org.opengis.geometry.BoundingBox;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.parameter.ParameterValue;
@@ -633,5 +647,103 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 	public synchronized void dispose() {
 		super.dispose();
 		rasterManager.dispose();
+	}
+
+	@Override
+	public String[] getMetadataNames() {
+		final boolean hasTimeAttribute=timeAttribute!=null;
+		final boolean hasElevationAttribute=elevationAttribute!=null;
+		if(hasElevationAttribute||hasTimeAttribute)
+		{
+			final List<String> metadataNames= new ArrayList<String>();
+			if(hasTimeAttribute)
+				metadataNames.add("TIME_DOMAIN");
+			if(hasElevationAttribute)
+				metadataNames.add("ELEVATION_DOMAIN");
+			return metadataNames.toArray(new String[metadataNames.size()]);
+		}
+		return super.getMetadataNames();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public String getMetadataValue(final String name) {
+		final boolean getTimeAttribute=(timeAttribute!=null&&name.equalsIgnoreCase("time_domain"));
+		final QueryCapabilities queryCapabilities = rasterManager.index.getQueryCapabilities();
+		boolean manualSort=false;
+		if(getTimeAttribute){
+			DefaultQuery query;
+			try {
+				query = new DefaultQuery(rasterManager.index.getType().getTypeName());
+				query.setPropertyNames(Arrays.asList(timeAttribute));
+				final SortBy[] sortBy=new SortBy[]{
+						new SortByImpl(
+								Utils.FACTORY.property(rasterManager.timeAttribute),
+								SortOrder.ASCENDING
+						)};
+				if(queryCapabilities.supportsSorting(sortBy))
+					query.setSortBy(sortBy);
+				else
+					manualSort=true;
+				final UniqueVisitor visitor= new UniqueVisitor(timeAttribute);
+				rasterManager.index.computeAggregateFunction(query, visitor);
+				
+				// check result
+				final Set<Date> result = manualSort?new TreeSet<Date>(visitor.getUnique()):visitor.getUnique();
+				if(result.size()<=0)
+					return null;				
+				final StringBuilder buff= new StringBuilder();
+				final SimpleDateFormat df= new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+				for(java.util.Iterator it=result.iterator();it.hasNext();){
+					final Date time= (Date) it.next();
+					buff.append(df.format(time)).append("Z");
+					if(it.hasNext())
+						buff.append(",");
+				}
+				return buff.toString();
+			} catch (IOException e) {
+				if(LOGGER.isLoggable(Level.WARNING))
+					LOGGER.log(Level.WARNING,"Unable to parse attribute:"+name,e);
+			}
+			
+		}
+
+		final boolean getElevationAttribute=(elevationAttribute!=null&&name.equalsIgnoreCase("elevation_domain"));
+		if(getElevationAttribute){
+			DefaultQuery query;
+			try {
+				query = new DefaultQuery(rasterManager.index.getType().getTypeName());
+				query.setPropertyNames(Arrays.asList(elevationAttribute));
+				final SortBy[] sortBy=new SortBy[]{
+						new SortByImpl(
+								Utils.FACTORY.property(rasterManager.elevationAttribute),
+								SortOrder.ASCENDING
+						)};
+				if(queryCapabilities.supportsSorting(sortBy))
+					query.setSortBy(sortBy);
+				else
+					manualSort=true;				
+				final UniqueVisitor visitor= new UniqueVisitor(elevationAttribute);
+				rasterManager.index.computeAggregateFunction(query, visitor);
+				
+				// check result
+				final Set<Double> result = manualSort?new TreeSet<Double>(visitor.getUnique()):visitor.getUnique();
+				if(result.size()<=0)
+					return null;
+				final StringBuilder buff= new StringBuilder();
+				for(java.util.Iterator it=result.iterator();it.hasNext();){
+					final double value= (Double) it.next();
+					buff.append(value);
+					if(it.hasNext())
+						buff.append(",");
+				}
+				return buff.toString();
+			} catch (IOException e) {
+				if(LOGGER.isLoggable(Level.WARNING))
+					LOGGER.log(Level.WARNING,"Unable to parse attribute:"+name,e);
+			}
+			
+		}
+		return super.getMetadataValue(name);
 	}
 }

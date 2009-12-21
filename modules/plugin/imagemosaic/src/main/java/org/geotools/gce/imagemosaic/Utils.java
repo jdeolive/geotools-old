@@ -57,6 +57,8 @@ import org.geotools.data.DataStoreFactorySpi;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DataAccessFactory.Param;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
+import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.factory.GeoTools;
 import org.geotools.gce.imagemosaic.index.GranuleIndex;
 import org.geotools.gce.imagemosaic.index.GranuleIndexFactory;
 import org.geotools.gce.imagemosaic.indexbuilder.IndexBuilder;
@@ -70,6 +72,7 @@ import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.util.Converters;
+import org.opengis.filter.FilterFactory2;
 import org.opengis.geometry.BoundingBox;
 import org.opengis.metadata.extent.GeographicBoundingBox;
 import org.opengis.referencing.datum.PixelInCell;
@@ -1181,4 +1184,6 @@ public class Utils {
 			}
 		}
 	}
+
+	static final FilterFactory2 FACTORY = CommonFactoryFinder.getFilterFactory2(GeoTools.getDefaultHints());
 }

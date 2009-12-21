@@ -16,10 +16,14 @@ import java.util.logging.Logger;
 
 import org.geotools.data.DataStoreFactorySpi;
 import org.geotools.data.DefaultQuery;
+import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
+import org.geotools.data.QueryCapabilities;
 import org.geotools.data.Transaction;
+import org.geotools.data.store.ContentFeatureSource;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.SchemaException;
+import org.geotools.feature.visitor.FeatureCalc;
 import org.geotools.gce.imagemosaic.ImageMosaicReader;
 import org.geotools.gce.imagemosaic.Utils;
 import org.geotools.gce.imagemosaic.index.GTDataStoreGranuleIndex.BBOXFilterExtractor;
@@ -411,5 +415,28 @@ class STRTreeGranuleIndex implements GranuleIndex {
 		}
 	}
 
+	public void computeAggregateFunction(Query query, FeatureCalc function) throws IOException {
+		final Lock lock=rwLock.readLock();
+		try{
+			lock.lock();
+			checkStore();
+			originalIndex.computeAggregateFunction(query, function);
+		}finally{
+			lock.unlock();
+		}		
+		
+	}
+	public QueryCapabilities getQueryCapabilities() {
+		final Lock lock=rwLock.readLock();
+		try{
+			lock.lock();
+			checkStore();
+			
+			return originalIndex.getQueryCapabilities();
+		
+		}finally{
+			lock.unlock();
+		}	
+	}
 }
 
