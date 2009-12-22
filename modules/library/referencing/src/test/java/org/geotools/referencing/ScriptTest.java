@@ -192,9 +192,22 @@ public final class ScriptTest {
     	runScript("scripts/Krovak.txt");
     }
     
+    /**
+     * Run "EquidistantConic.txt"
+     * @throws Exception
+     */
     @Test
     public void testEquidistantConic() throws Exception {
         runScript("scripts/EquidistantConic.txt");
+    }
+    
+    /**
+     * Run "Polyconic.txt"
+     * @throws Exception
+     */
+    @Test
+    public void testPolyconic() throws Exception {
+        runScript("scripts/Polyconic.txt");
     }
 
     /**

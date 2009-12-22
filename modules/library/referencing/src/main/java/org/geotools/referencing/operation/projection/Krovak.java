@@ -399,6 +399,7 @@ public class Krovak extends MapProjection {
                 new NamedIdentifier[] {
                     new NamedIdentifier(Citations.OGC,     "latitude_of_center"),
                     new NamedIdentifier(Citations.EPSG,    "Latitude of projection centre"),
+                    new NamedIdentifier(Citations.EPSG,    "Latitude of origin"),
                     new NamedIdentifier(Citations.GEOTIFF, "CenterLat")
                 }, 49.5, -90, 90, NonSI.DEGREE_ANGLE);
 
@@ -411,6 +412,7 @@ public class Krovak extends MapProjection {
                 new NamedIdentifier[] {
                     new NamedIdentifier(Citations.OGC,     "longitude_of_center"),
                     new NamedIdentifier(Citations.EPSG,    "Longitude of projection centre"),
+                    new NamedIdentifier(Citations.EPSG,    "Longitude of origin"),
                     new NamedIdentifier(Citations.GEOTIFF, "CenterLong")
                 }, 42.5-17.66666666666667, -180, 180, NonSI.DEGREE_ANGLE);
 

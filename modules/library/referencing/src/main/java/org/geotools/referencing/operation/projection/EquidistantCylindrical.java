@@ -294,12 +294,16 @@ public class EquidistantCylindrical extends MapProjection {
      */
     public static class SphericalProvider extends AbstractProvider {
         /**
+         * For cross-version compatibility.
+         */
+        private static final long serialVersionUID = 8929981563074475828L;
+        
+        /**
          * The parameters group. Note the EPSG includes a "Latitude of natural origin" parameter instead
          * of "standard_parallel_1". I have sided with ESRI and Snyder in this case.
          */
         static final ParameterDescriptorGroup PARAMETERS = createDescriptorGroup(new NamedIdentifier[] {
                 new NamedIdentifier(Citations.EPSG,     "Equidistant Cylindrical (Spherical)"),
-                new NamedIdentifier(Citations.ESRI,     "Equidistant_Cylindrical"),
                 new NamedIdentifier(Citations.GEOTOOLS, Vocabulary.formatInternational(
                                     VocabularyKeys.EQUIDISTANT_CYLINDRICAL_PROJECTION))
             }, new ParameterDescriptor[] {
@@ -334,7 +338,12 @@ public class EquidistantCylindrical extends MapProjection {
         protected MathTransform createMathTransform(final ParameterValueGroup parameters)
                 throws ParameterNotFoundException, FactoryException
         {
-            return new EquidistantCylindrical(parameters);
+            return new EquidistantCylindrical(parameters) {
+                @Override
+                public ParameterDescriptorGroup getParameterDescriptors() {
+                    return SphericalProvider.PARAMETERS;
+                }
+            };
         }
     }
 }
