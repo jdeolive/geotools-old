@@ -11,6 +11,9 @@ import java.awt.image.IndexColorModel;
  */
 public class MosaicConfigurationBean {
 
+	public MosaicConfigurationBean() {
+		
+	}
 	/**
 	 * <code>true</code> it tells us if the mosaic points to absolute paths or to relative ones. (in case of <code>false</code>).
 	 */

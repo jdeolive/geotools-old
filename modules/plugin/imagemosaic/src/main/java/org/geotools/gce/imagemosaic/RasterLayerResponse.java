@@ -652,16 +652,18 @@ class RasterLayerResponse{
 				if(hasElevation){
 					final Filter oldFilter = query.getFilter();
 					final PropertyIsEqualTo elevationF = Utils.FILTER_FACTORY.equal(Utils.FILTER_FACTORY.property(rasterManager.elevationAttribute), Utils.FILTER_FACTORY.literal(elevation),true);
-					query.setFilter(Utils.FILTER_FACTORY.and(oldFilter, elevationF));					
+					query.setFilter(Utils.FILTER_FACTORY.and(oldFilter, elevationF));	
+					
 				}
 				
 				// fuse time query with the bbox query
 				if(hasTime){
+					final Filter oldFilter = query.getFilter();
 					final int size=times.size();
 					boolean current= size==1&&times.get(0)==null;
 					if( !current){
 						final PropertyIsEqualTo temporal = Utils.FILTER_FACTORY.equal(Utils.FILTER_FACTORY.property(rasterManager.timeAttribute), Utils.FILTER_FACTORY.literal(times.get(0)),true);
-						query.setFilter(Utils.FILTER_FACTORY.and(temporal, bbox));
+						query.setFilter(Utils.FILTER_FACTORY.and(oldFilter, temporal));
 					}
 					else{
 						// current management
@@ -684,7 +686,7 @@ class RasterLayerResponse{
 							
 							// now let's get this feature by is fid
 							final Filter fidFilter=Utils.FILTER_FACTORY.id(Collections.singleton(fid));
-							query.setFilter(Utils.FILTER_FACTORY.and(fidFilter, bbox));
+							query.setFilter(Utils.FILTER_FACTORY.and(oldFilter, fidFilter));
 							
 						}
 						

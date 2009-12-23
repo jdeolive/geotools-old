@@ -1,9 +1,11 @@
 package org.geotools.gce.imagemosaic.indexbuilder;
 
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.geotools.console.Option;
 import org.geotools.gce.imagemosaic.Utils;
 import org.geotools.util.Utilities;
@@ -21,17 +23,26 @@ public class IndexBuilderConfiguration{
 	
 	public IndexBuilderConfiguration(final IndexBuilderConfiguration that) {
 		Utils.ensureNonNull("IndexBuilderConfiguration", that);
-		this.absolute=that.absolute;
-		this.indexingDirectories=new ArrayList<String>(that.indexingDirectories);
-		this.indexName=that.indexName;
-		this.locationAttribute=that.locationAttribute;
-		this.rootMosaicDirectory=that.rootMosaicDirectory;
-		this.wildcard=that.wildcard;
-		this.propertyCollectors=that.propertyCollectors;
-		this.schema=that.schema;
-		this.timeAttribute=that.timeAttribute;
-		this.recursive=that.recursive;
-		this.elevationAttribute=that.elevationAttribute;
+//		this.absolute=that.absolute;
+//		this.indexingDirectories=new ArrayList<String>(that.indexingDirectories);
+//		this.indexName=that.indexName;
+//		this.locationAttribute=that.locationAttribute;
+//		this.rootMosaicDirectory=that.rootMosaicDirectory;
+//		this.wildcard=that.wildcard;
+//		this.propertyCollectors=that.propertyCollectors;
+//		this.schema=that.schema;
+//		this.timeAttribute=that.timeAttribute;
+//		this.recursive=that.recursive;
+//		this.elevationAttribute=that.elevationAttribute;
+		try {
+			BeanUtils.copyProperties(this, that);
+		} catch (IllegalAccessException e) {
+			final IllegalArgumentException iae= new IllegalArgumentException(e);
+			throw iae;
+		} catch (InvocationTargetException e) {
+			final IllegalArgumentException iae= new IllegalArgumentException(e);
+			throw iae;
+		}
 		
 	}
 
