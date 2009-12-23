@@ -1424,7 +1424,29 @@ public final class GeoTiffMetadata2CRSAdapter {
 
 				return parameters;
 			}
-
+			
+			/**
+ 			 * Oblique Stereographic
+ 			 */
+ 			if(name.equalsIgnoreCase("oblique_stereographic") 
+ 					|| code == GeoTiffCoordinateTransformationsCodes.CT_ObliqueStereographic) {
+ 				parameters = mtFactory.getDefaultParameters("Oblique_Stereographic");
+ 				
+ 				parameters.parameter("central_meridian").setValue(
+ 						getOriginLong(metadata));
+ 				parameters.parameter("latitude_of_origin").setValue(
+ 						getOriginLat(metadata));
+ 				parameters.parameter("scale_factor").setValue(
+ 						this.getGeoKeyAsDouble(
+ 								GeoTiffPCSCodes.ProjScaleAtNatOriginGeoKey,
+ 								metadata));
+ 				parameters.parameter("false_easting").setValue(
+ 						getFalseEasting(metadata));
+ 				parameters.parameter("false_northing").setValue(
+ 						getFalseNorthing(metadata));
+ 				return parameters;
+ 			}
+			 			
 			/**
 			 * 
 			 * OBLIQUE_MERCATOR.
