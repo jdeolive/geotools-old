@@ -9,6 +9,7 @@ import org.geotools.gce.imagemosaic.Utils;
 import org.geotools.util.Utilities;
 
 /**
+ * Simple bean that conveys the information needed by the IndexBuilder to create an index
  * 
  * @author Simone Giannecchini, GeoSolutions SAS
  *
@@ -19,6 +20,7 @@ public class IndexBuilderConfiguration{
 	}
 	
 	public IndexBuilderConfiguration(final IndexBuilderConfiguration that) {
+		Utils.ensureNonNull("IndexBuilderConfiguration", that);
 		this.absolute=that.absolute;
 		this.indexingDirectories=new ArrayList<String>(that.indexingDirectories);
 		this.indexName=that.indexName;

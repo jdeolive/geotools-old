@@ -40,8 +40,6 @@ import java.util.logging.Logger;
 
 import javax.imageio.spi.ImageReaderSpi;
 
-import jj2000.j2k.util.StringFormatException;
-
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.geotools.coverage.CoverageFactoryFinder;
@@ -678,7 +676,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 				query.setPropertyNames(Arrays.asList(timeAttribute));
 				final SortBy[] sortBy=new SortBy[]{
 						new SortByImpl(
-								Utils.FACTORY.property(rasterManager.timeAttribute),
+								Utils.FILTER_FACTORY.property(rasterManager.timeAttribute),
 								SortOrder.ASCENDING
 						)};
 				if(queryCapabilities.supportsSorting(sortBy))
@@ -716,7 +714,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 				query.setPropertyNames(Arrays.asList(elevationAttribute));
 				final SortBy[] sortBy=new SortBy[]{
 						new SortByImpl(
-								Utils.FACTORY.property(rasterManager.elevationAttribute),
+								Utils.FILTER_FACTORY.property(rasterManager.elevationAttribute),
 								SortOrder.ASCENDING
 						)};
 				if(queryCapabilities.supportsSorting(sortBy))

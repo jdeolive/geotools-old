@@ -1185,5 +1185,5 @@ public class Utils {
 		}
 	}
 
-	static final FilterFactory2 FACTORY = CommonFactoryFinder.getFilterFactory2(GeoTools.getDefaultHints());
+	static final FilterFactory2 FILTER_FACTORY = CommonFactoryFinder.getFilterFactory2(GeoTools.getDefaultHints());
 }

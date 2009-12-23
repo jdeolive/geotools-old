@@ -25,6 +25,10 @@ import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 import javax.media.jai.widget.ScrollingImagePanel;
 import javax.swing.JFrame;
@@ -275,16 +279,18 @@ public class ImageMosaicReaderTest extends Assert{
 		final GridEnvelope2D range= new GridEnvelope2D(rasterArea);
 		gg.setValue(new GridGeometry2D(range,envelope));
 		
-		// use imageio with defined tiles
-		final ParameterValue<Boolean> useJai = ImageMosaicFormat.USE_JAI_IMAGEREAD.createValue();
-		useJai.setValue(false);
 		
-		final ParameterValue<String> tileSize = ImageMosaicFormat.SUGGESTED_TILE_SIZE.createValue();
-		tileSize.setValue("128,128");
+		// use imageio with defined tiles
+		final ParameterValue<List> time = ImageMosaicFormat.TIME.createValue();
+		final List<Date> timeValues= new ArrayList<Date>();
+		timeValues.add(null);
+		time.setValue(timeValues);
+		
+		final ParameterValue<Double> elevation = ImageMosaicFormat.ELEVATION.createValue();
+		elevation.setValue(0.0);
 		
 		// Test the output coverage
-		//checkCoverage(reader, new GeneralParameterValue[] {gg,useJai ,tileSize}, "time test");
-		checkCoverage(reader,null, "time test");
+		checkCoverage(reader, new GeneralParameterValue[] {gg,time }, "overviews test");
 	}	
 	
 	/**

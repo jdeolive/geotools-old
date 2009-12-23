@@ -631,11 +631,12 @@ public class IndexBuilder implements Runnable {
 				feature.setAttribute(runConfiguration.getLocationAttribute(), prepareLocation(fileBeingProcessed));
 				
 				// collect and dump properties
-				for(PropertiesCollector pc: propertiesCollectors)
-				{
-					pc.collect(fileBeingProcessed).collect(coverageReader).collect(imageioReader).setProperties(feature);
-					pc.reset();
-				}
+				if(propertiesCollectors!=null&&propertiesCollectors.size()>0)
+					for(PropertiesCollector pc: propertiesCollectors)
+					{
+						pc.collect(fileBeingProcessed).collect(coverageReader).collect(imageioReader).setProperties(feature);
+						pc.reset();
+					}
 
 				index.addGranule(feature,transaction);
 

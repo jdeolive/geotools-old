@@ -31,6 +31,7 @@ import java.lang.reflect.Constructor;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -59,7 +60,10 @@ import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultQuery;
+import org.geotools.data.QueryCapabilities;
 import org.geotools.factory.Hints;
+import org.geotools.feature.visitor.MaxVisitor;
+import org.geotools.filter.IllegalFilterException;
 import org.geotools.filter.SortByImpl;
 import org.geotools.gce.imagemosaic.RasterManager.OverviewLevel;
 import org.geotools.gce.imagemosaic.index.GranuleIndex.GranuleIndexVisitor;
@@ -70,9 +74,13 @@ import org.geotools.referencing.CRS;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.opengis.coverage.ColorInterpretation;
 import org.opengis.coverage.grid.GridCoverage;
+import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
 import org.opengis.filter.PropertyIsEqualTo;
+import org.opengis.filter.expression.Expression;
+import org.opengis.filter.identity.FeatureId;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
 import org.opengis.geometry.BoundingBox;
@@ -92,6 +100,86 @@ import com.sun.media.jai.codecimpl.util.ImagingException;
 @SuppressWarnings("deprecation")
 class RasterLayerResponse{
 	
+	/**
+	 * My specific {@link MaxVisitor} that keeps track of the feature used for the maximum.
+	 * @author Simone Giannecchini, GeoSolutions SAS
+	 *
+	 */
+	public static class MaxVisitor2 extends MaxVisitor{
+
+		@SuppressWarnings("unchecked")
+		private Comparable oldValue;
+		private int oldNanCount;
+		private int oldNullCount;
+		
+		private Feature targetFeature=null;
+		
+		public MaxVisitor2(Expression expr) throws IllegalFilterException {
+			super(expr);
+		}
+
+		public MaxVisitor2(int attributeTypeIndex, SimpleFeatureType type)
+				throws IllegalFilterException {
+			super(attributeTypeIndex, type);
+		}
+
+		public Feature getTargetFeature() {
+			return targetFeature;
+		}
+
+		public MaxVisitor2(String attrName, SimpleFeatureType type)
+				throws IllegalFilterException {
+			super(attrName, type);
+		}
+
+		public MaxVisitor2(String attributeTypeName) {
+			super(attributeTypeName);
+		}
+
+		@Override
+		public void reset() {
+			super.reset();
+			this.oldValue=null;
+			this.targetFeature=null;
+		}
+
+		@Override
+		public void setValue(Object result) {
+			super.setValue(result);
+			this.oldValue=null;
+			this.targetFeature=null;
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public void visit(Feature feature) {
+			super.visit(feature);
+			// if we got a NAN let's leave
+			final int nanCount=getNaNCount();
+			if(oldNanCount!=nanCount)
+			{
+				oldNanCount=nanCount;
+				return;
+			}
+			
+			// if we got a null let's leave			
+			final int nullCount=getNullCount();
+			if(oldNullCount!=nullCount)
+			{
+				oldNullCount=nullCount;
+				return;
+			}
+			
+			// check if we got a real value
+			final Comparable max=getMax();
+			if ( oldValue==null||max.compareTo(oldValue) != 0) {
+	        	targetFeature=feature;
+	        	oldValue=max;
+	        }			
+		}
+
+		
+	}
 	/**
 	 * This class is responsible for putting together the granules for the final mosaic.
 	 * 
@@ -555,40 +643,55 @@ class RasterLayerResponse{
 			final boolean hasElevation=!Double.isNaN(elevation);
 
 			DefaultQuery query= new DefaultQuery(rasterManager.index.getType().getTypeName());
-			final Filter bbox=Utils.FACTORY.bbox(Utils.FACTORY.property(rasterManager.index.getType().getGeometryDescriptor().getName()),mosaicBBox);
+			final Filter bbox=Utils.FILTER_FACTORY.bbox(Utils.FILTER_FACTORY.property(rasterManager.index.getType().getGeometryDescriptor().getName()),mosaicBBox);
 			query.setFilter( bbox);
 			
 			if(hasTime||hasElevation)
 			{
+				//handle elevation indexing first since we then combine this with the max in case we are asking for current in time
+				if(hasElevation){
+					final Filter oldFilter = query.getFilter();
+					final PropertyIsEqualTo elevationF = Utils.FILTER_FACTORY.equal(Utils.FILTER_FACTORY.property(rasterManager.elevationAttribute), Utils.FILTER_FACTORY.literal(elevation),true);
+					query.setFilter(Utils.FILTER_FACTORY.and(oldFilter, elevationF));					
+				}
+				
 				// fuse time query with the bbox query
 				if(hasTime){
 					final int size=times.size();
 					boolean current= size==1&&times.get(0)==null;
 					if( !current){
-						final PropertyIsEqualTo temporal = Utils.FACTORY.equal(Utils.FACTORY.property(rasterManager.timeAttribute), Utils.FACTORY.literal(times.get(0)),true);
-						query.setFilter(Utils.FACTORY.and(temporal, bbox));
+						final PropertyIsEqualTo temporal = Utils.FILTER_FACTORY.equal(Utils.FILTER_FACTORY.property(rasterManager.timeAttribute), Utils.FILTER_FACTORY.literal(times.get(0)),true);
+						query.setFilter(Utils.FILTER_FACTORY.and(temporal, bbox));
 					}
 					else{
 						// current management
-						query.setMaxFeatures(1);
-						query.setSortBy(
-								new SortBy[]{
-										new SortByImpl(
-												Utils.FACTORY.property(rasterManager.timeAttribute),
-												SortOrder.DESCENDING
-										)});
-	//					final MaxVisitor max = new MaxVisitor("ingestion");
-	//					datastore.getFeatureSource(datastore.getTypeNames()[0]).accepts(query,max, new NullProgressListener());
-	//					System.out.println("max "+max.getResult().toString());
+						final SortBy[] descendingSortOrder = new SortBy[]{
+								new SortByImpl(
+										Utils.FILTER_FACTORY.property(rasterManager.timeAttribute),
+										SortOrder.DESCENDING
+								)};
+						final QueryCapabilities queryCapabilities = rasterManager.index.getQueryCapabilities();
+						if(queryCapabilities.supportsSorting(descendingSortOrder))
+							query.setSortBy(descendingSortOrder);
+						else{
+							// the datastore does not support descending sortby, let's support the maximum
+							final MaxVisitor2 max = new MaxVisitor2(rasterManager.timeAttribute);
+							rasterManager.index.computeAggregateFunction(query,max);
+							final  Feature targetFeature=max.getTargetFeature();
+							if(targetFeature==null)
+								throw new IllegalStateException();
+							final FeatureId fid=targetFeature.getIdentifier();
+							
+							// now let's get this feature by is fid
+							final Filter fidFilter=Utils.FILTER_FACTORY.id(Collections.singleton(fid));
+							query.setFilter(Utils.FILTER_FACTORY.and(fidFilter, bbox));
+							
+						}
 						
 					}
 				}
 				
-				if(hasElevation){
-					final Filter oldFilter = query.getFilter();
-					final PropertyIsEqualTo elevationF = Utils.FACTORY.equal(Utils.FACTORY.property(rasterManager.elevationAttribute), Utils.FACTORY.literal(elevation),true);
-					query.setFilter(Utils.FACTORY.and(oldFilter, elevationF));					
-				}
+
 				// get those granules
 				rasterManager.getGranules(query, visitor);
 			}
