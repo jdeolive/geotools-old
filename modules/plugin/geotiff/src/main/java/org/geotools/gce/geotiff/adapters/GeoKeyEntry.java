@@ -162,12 +162,12 @@ public final class GeoKeyEntry implements Comparable<GeoKeyEntry>{
 	}
 
 	public void setValueOffset(int valueOffset) {
-		ensureNotNegative("ALUE_OFFSET", valueOffset);
+		ensureNotNegative("VALUE_OFFSET", valueOffset);
 		this.valueOffset = valueOffset;
 	}
 
 	public int[] getValues() {
-		return new int[] { keyID, tiffTagLocation, valueOffset, count };
+		return new int[] { keyID, tiffTagLocation, count, valueOffset};
 	}
 
 	/**

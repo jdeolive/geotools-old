@@ -298,7 +298,7 @@ public final class GeoTiffIIOMetadataEncoder {
 
 		final int numKeyEntries = numGeoTiffEntries;
 		geoTiffEntries.add(new Integer(keyID), new GeoKeyEntry(keyID, tag,
-				offset, count));
+				count, offset));
 		getGeoKeyEntryAt(0).setCount(numKeyEntries);
 		numGeoTiffEntries++;
 	}
