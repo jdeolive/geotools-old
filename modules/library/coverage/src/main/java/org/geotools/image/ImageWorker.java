@@ -2387,8 +2387,7 @@ public class ImageWorker {
         // Compression is available on both lib
         final ImageWriteParam iwp = writer.getDefaultWriteParam();
         final ImageOutputStream outStream = ImageIO.createImageOutputStream(destination);
-        final ImageOutputStream stream = ImageIO.createImageOutputStream(destination);
-        if(stream==null)
+        if(outStream==null)
         	throw new IIOException(Errors.format(ErrorKeys.NULL_ARGUMENT_$1,"stream"));
          
         iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
