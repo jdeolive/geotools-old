@@ -2191,6 +2191,8 @@ public class ImageWorker {
         LOGGER.finer("Setting write parameters for this writer");
         ImageWriteParam iwp = null;
         final ImageOutputStream memOutStream = ImageIO.createImageOutputStream(destination);
+        if(memOutStream==null)
+        	throw new IIOException(Errors.format(ErrorKeys.NULL_ARGUMENT_$1,"stream"));        
         if (nativeAcc && writer.getClass().getName().equals(
                 "com.sun.media.imageioimpl.plugins.png.CLibPNGImageWriter"))
         {
@@ -2220,12 +2222,33 @@ public class ImageWorker {
             iwp.setCompressionMode(ImageWriteParam.MODE_DEFAULT);
         }
         LOGGER.finer("About to write png image");
-        writer.setOutput(memOutStream);
-        writer.write(null, new IIOImage(image, null, null), iwp);
-        tileCacheEnabled(true);
-        memOutStream.flush();
-        writer.dispose();
-        memOutStream.close();
+        try{
+	        writer.setOutput(memOutStream);
+	        writer.write(null, new IIOImage(image, null, null), iwp);
+	        tileCacheEnabled(true);
+        }
+        finally{
+        	try{
+        		memOutStream.flush();
+        	}catch (Throwable e) {
+        		if(LOGGER.isLoggable(Level.FINEST))
+					LOGGER.log(Level.FINEST,e.getLocalizedMessage(),e);
+			}
+        	try{
+        		writer.dispose();
+        	}catch (Throwable e) {
+        		if(LOGGER.isLoggable(Level.FINEST))
+					LOGGER.log(Level.FINEST,e.getLocalizedMessage(),e);
+			}
+        	try{
+        		memOutStream.close();
+        	}catch (Throwable e) {
+        		if(LOGGER.isLoggable(Level.FINEST))
+					LOGGER.log(Level.FINEST,e.getLocalizedMessage(),e);
+			}        	
+            
+            
+        }
     }
 
     /**
@@ -2281,16 +2304,31 @@ public class ImageWorker {
             throw new IIOException(Errors.format(ErrorKeys.NO_IMAGE_WRITER));
         }
         final ImageOutputStream stream = ImageIO.createImageOutputStream(destination);
+        if(stream==null)
+        	throw new IIOException(Errors.format(ErrorKeys.NULL_ARGUMENT_$1,"stream"));
         final ImageWriter       writer = spi.createWriterInstance();
         final ImageWriteParam   param  = writer.getDefaultWriteParam();
         param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
         param.setCompressionType(compression);
         param.setCompressionQuality(compressionRate);
 
-        writer.setOutput(stream);
-        writer.write(null, new IIOImage(image, null, null), param);
-        stream.close();
-        writer.dispose();
+        try{
+	        writer.setOutput(stream);
+	        writer.write(null, new IIOImage(image, null, null), param);
+        }finally{
+        	try{
+        		stream.close();
+        	}catch (Throwable e) {
+				if(LOGGER.isLoggable(Level.FINEST))
+					LOGGER.log(Level.FINEST,e.getLocalizedMessage(),e);
+			}
+        	try{
+    	        writer.dispose();
+        	}catch (Throwable e) {
+				if(LOGGER.isLoggable(Level.FINEST))
+					LOGGER.log(Level.FINEST,e.getLocalizedMessage(),e);
+			}        	
+        }
         return this;
     }
 
@@ -2355,10 +2393,13 @@ public class ImageWorker {
         // Compression is available on both lib
         final ImageWriteParam iwp = writer.getDefaultWriteParam();
         final ImageOutputStream outStream = ImageIO.createImageOutputStream(destination);
+        final ImageOutputStream stream = ImageIO.createImageOutputStream(destination);
+        if(stream==null)
+        	throw new IIOException(Errors.format(ErrorKeys.NULL_ARGUMENT_$1,"stream"));
+         
         iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
         iwp.setCompressionType(compression);        // Lossy compression.
         iwp.setCompressionQuality(compressionRate); // We can control quality here.
-        writer.setOutput(outStream);
         if (iwp instanceof JPEGImageWriteParam) {
             final JPEGImageWriteParam param = (JPEGImageWriteParam) iwp;
             param.setOptimizeHuffmanTables(true);
@@ -2374,6 +2415,8 @@ public class ImageWorker {
         	LOGGER.finer("Writing out...");
         
         try{
+
+            writer.setOutput(outStream);
         	 // the JDK writer has problems with images that do not  start at minx==miny==0
             if (!nativeAcc&&(image.getMinX()!=0 || image.getMinY()!=0)) {
           
@@ -2400,17 +2443,20 @@ public class ImageWorker {
         	try{
         		outStream.flush();
         	}catch (Throwable e) {
-				// eat me
+        		if(LOGGER.isLoggable(Level.FINEST))
+					LOGGER.log(Level.FINEST,e.getLocalizedMessage(),e);
 			}
         	try{
         		writer.dispose();
         	}catch (Throwable e) {
-				// eat me
+        		if(LOGGER.isLoggable(Level.FINEST))
+					LOGGER.log(Level.FINEST,e.getLocalizedMessage(),e);
 			}
         	try{
         		outStream.close();
         	}catch (Throwable e) {
-				// eat me
+        		if(LOGGER.isLoggable(Level.FINEST))
+					LOGGER.log(Level.FINEST,e.getLocalizedMessage(),e);
 			}        	
             
             
