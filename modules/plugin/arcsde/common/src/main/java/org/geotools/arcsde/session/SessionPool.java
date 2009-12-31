@@ -20,9 +20,9 @@ package org.geotools.arcsde.session;
 import static org.geotools.arcsde.session.Session.LOGGER;
 
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 
 import org.apache.commons.pool.BasePoolableObjectFactory;
@@ -72,7 +72,9 @@ class SessionPool implements ISessionPool {
     /** Apache commons-pool used to pool arcsde connections */
     private GenericObjectPool pool;
 
-    private final Queue<Session> openSessionsNonTransactional = new ConcurrentLinkedQueue<Session>();
+    private final Queue<Session> openSessionsNonTransactional = new LinkedList<Session>();// new
+
+    // ConcurrentLinkedQueue<Session>();
 
     /**
      * Creates a new SessionPool object for the given config.
@@ -258,7 +260,9 @@ class SessionPool implements ISessionPool {
     }
 
     public void returnObject(Session session) throws Exception {
-        openSessionsNonTransactional.remove(session);
+        synchronized (openSessionsNonTransactional) {
+            openSessionsNonTransactional.remove(session);
+        }
         pool.returnObject(session);
     }
 
@@ -269,21 +273,45 @@ class SessionPool implements ISessionPool {
             UnavailableConnectionException {
         checkOpen();
         try {
-            Session connection;
+            Session connection = null;
             if (transactional) {
                 LOGGER.finest("Borrowing session from pool for transactional access");
                 connection = (Session) pool.borrowObject();
             } else {
-                try {
-                    connection = (Session) pool.borrowObject();
-                } catch (NoSuchElementException e) {
-                    if (LOGGER.isLoggable(Level.FINEST)) {
-                        LOGGER.finest("Falling back to queued session");
+//                if (pool.getNumActive() == config.getMaxConnections()) {
+//                    synchronized (openSessionsNonTransactional) {
+//                        connection = openSessionsNonTransactional.remove();
+//                    }
+//                } else {
+                    try {
+                        if (LOGGER.isLoggable(Level.FINER)) {
+                            LOGGER.finer("Grabbing session from pool on "
+                                    + Thread.currentThread().getName());
+                        }
+                        connection = (Session) pool.borrowObject();
+                        if (LOGGER.isLoggable(Level.FINER)) {
+                            LOGGER.finer("Got session from the pool on "
+                                    + Thread.currentThread().getName());
+                        }
+                    } catch (NoSuchElementException e) {
+                        if (LOGGER.isLoggable(Level.FINER)) {
+                            LOGGER
+                                    .finer("No available sessions in the pool, falling back to queued session");
+                        }
+                        synchronized (openSessionsNonTransactional) {
+                            connection = openSessionsNonTransactional.remove();
+                        }
+                        if (LOGGER.isLoggable(Level.FINER)) {
+                            LOGGER.finer("Got session from the in use queue on "
+                                    + Thread.currentThread().getName());
+                        }
                     }
-                    connection = openSessionsNonTransactional.remove();
                 }
-                openSessionsNonTransactional.add(connection);
-            }
+
+                synchronized (openSessionsNonTransactional) {
+                    openSessionsNonTransactional.add(connection);
+                }
+            //}
 
             connection.markActive();
             return connection;
