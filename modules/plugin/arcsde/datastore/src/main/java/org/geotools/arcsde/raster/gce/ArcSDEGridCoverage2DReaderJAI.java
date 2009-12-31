@@ -79,6 +79,8 @@ import org.opengis.parameter.ParameterNotFoundException;
 import org.opengis.parameter.ParameterValue;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.NoninvertibleTransformException;
 import org.opengis.referencing.operation.TransformException;
 
 /**
@@ -189,7 +191,6 @@ public final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DR
      * @see GridCoverageReader#read(GeneralParameterValue[])
      */
     public GridCoverage2D read(GeneralParameterValue[] params) throws IOException {
-
         final GeneralEnvelope requestedEnvelope;
         final Rectangle requestedDim;
         final OverviewPolicy overviewPolicy;
@@ -249,7 +250,19 @@ public final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DR
         log.log(LoggingHelper.MOSAIC_ENV);
         log.log(LoggingHelper.MOSAIC_EXPECTED);
 
-        final RenderedImage coverageRaster = createMosaic(queries, mosaicGeometry, log);
+        final RenderedImage coverageRaster;
+        if (queries.size() == -1) {
+//            MathTransform rasterToModel = rasterInfo.getRasterToModel();
+//            try {
+//                MathTransform modelToRaster = rasterToModel.inverse();
+//            } catch (NoninvertibleTransformException e) {
+//                throw new RuntimeException(e);
+//            }
+            RasterQueryInfo queryInfo = queries.get(0);
+            coverageRaster = queryInfo.getResultImage();
+        } else {
+            coverageRaster = createMosaic(queries, mosaicGeometry, log);
+        }
         assert mosaicGeometry.getWidth() == coverageRaster.getWidth();
         assert mosaicGeometry.getHeight() == coverageRaster.getHeight();
 
@@ -414,16 +427,31 @@ public final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DR
          * Do we need to expand to RGB color space and then create a new colormapped image with the
          * whole mosaic?
          */
-        boolean expandThenContractCM = queries.size() > 1 && rasterInfo.isColorMapped();
-        if (expandThenContractCM) {
-            LOGGER.info("Creating mosaic out of " + queries.size()
+        boolean expandCM = queries.size() > 1 && rasterInfo.isColorMapped();
+        if (expandCM) {
+            LOGGER.fine("Creating mosaic out of " + queries.size()
                     + " colormapped rasters. The mosaic tiles will be expanded to "
                     + "\nRGB space and the resulting mosaic reduced to a new IndexColorModel");
         }
 
         for (RasterQueryInfo query : queries) {
             RenderedImage image = query.getResultImage();
+
             log.log(image, query.getRasterId(), "01_original");
+
+            if (expandCM) {
+                if (LOGGER.isLoggable(Level.FINER)) {
+                    LOGGER.finer("Creating color expanded version of tile for raster #"
+                            + query.getRasterId());
+                }
+
+                /*
+                 * reformat the image as a 4 band rgba backed by byte data
+                 */
+                image = FormatDescriptor.create(image, Integer.valueOf(DataBuffer.TYPE_BYTE), null);
+
+                log.log(image, query.getRasterId(), "04_1_colorExpanded");
+            }
 
             image = cropToRequiredDimension(image, query.getTiledImageSize(), query
                     .getResultDimensionInsideTiledImage());
@@ -435,7 +463,7 @@ public final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DR
             Float scaleY = Float.valueOf((float) (mosaicLocation.getHeight() / image.getHeight()));
             Float translateX = Float.valueOf(0);
             Float translateY = Float.valueOf(0);
-            // image.getData();
+            
             if (!(Float.valueOf(1.0F).equals(scaleX) && Float.valueOf(1.0F).equals(scaleY))) {
                 ParameterBlock pb = new ParameterBlock();
                 pb.addSource(image);
@@ -454,6 +482,7 @@ public final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DR
                 assert mosaicLocation.width == width;
                 assert mosaicLocation.height == height;
             }
+            
             if (image.getMinX() != mosaicLocation.x || image.getMinY() != mosaicLocation.y) {
                 // translate
                 ParameterBlock pb = new ParameterBlock();
@@ -474,20 +503,7 @@ public final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DR
                 assert image.getHeight() == mosaicLocation.height : image.getHeight() + " != "
                         + mosaicLocation.height;
             }
-            if (expandThenContractCM) {
-                if (LOGGER.isLoggable(Level.FINER)) {
-                    LOGGER.finer("Creating color expanded version of tile for raster #"
-                            + query.getRasterId());
-                }
-
-                /*
-                 * reformat the image as a 4 band rgba backed by byte data
-                 */
-                image = FormatDescriptor.create(image, Integer.valueOf(DataBuffer.TYPE_BYTE), null);
-
-                log.log(image, query.getRasterId(), "04_1_colorExpanded");
-            }
-
+            
             transformed.add(image);
         }
 
@@ -625,7 +641,7 @@ public final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DR
                         .getCoordinateReferenceSystem();
                 CoordinateReferenceSystem requestCrs = reqEnvelope.getCoordinateReferenceSystem();
                 if (!CRS.equalsIgnoreMetadata(nativeCrs, requestCrs)) {
-                    LOGGER.info("Request CRS and native CRS differ, "
+                    LOGGER.fine("Request CRS and native CRS differ, "
                             + "reprojecting request envelope to native CRS");
                     ReferencedEnvelope nativeCrsEnv;
                     nativeCrsEnv = toNativeCrs(reqEnvelope, nativeCrs);
@@ -659,12 +675,12 @@ public final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DR
         }
 
         if (overviewPolicy == null) {
-            LOGGER.finer("No overview policy requested, defaulting to QUALITY");
             overviewPolicy = OverviewPolicy.QUALITY;
+            LOGGER.finer("No overview policy requested, defaulting to " + overviewPolicy);
         }
         LOGGER.fine("Overview policy is " + overviewPolicy);
 
-        LOGGER.info("Reading raster for " + dim.getWidth() + "x" + dim.getHeight()
+        LOGGER.fine("Reading raster for " + dim.getWidth() + "x" + dim.getHeight()
                 + " requested dim and " + reqEnvelope.getMinimum(0) + ","
                 + reqEnvelope.getMaximum(0) + " - " + reqEnvelope.getMinimum(1)
                 + reqEnvelope.getMaximum(1) + " requested extent");

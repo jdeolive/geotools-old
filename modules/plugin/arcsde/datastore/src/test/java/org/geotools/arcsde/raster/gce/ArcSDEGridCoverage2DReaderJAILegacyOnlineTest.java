@@ -15,11 +15,19 @@ import java.awt.image.SampleModel;
 import java.awt.image.renderable.ParameterBlock;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
+import javax.media.jai.RecyclingTileFactory;
 
 import org.geotools.arcsde.ArcSDERasterFormatFactory;
 import org.geotools.arcsde.session.ArcSDEConnectionConfig;
@@ -33,6 +41,7 @@ import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.gce.geotiff.GeoTiffWriter;
 import org.geotools.geometry.Envelope2D;
 import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.image.jai.Registry;
 import org.geotools.parameter.Parameter;
 import org.geotools.util.logging.Logging;
 import org.junit.After;
@@ -46,6 +55,7 @@ import org.opengis.geometry.Envelope;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import com.sun.media.jai.util.SunTileCache;
 import com.vividsolutions.jts.util.Stopwatch;
 
 /**
@@ -67,6 +77,12 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
     static RasterTestData rasterTestData;
 
     private static String tableName;
+
+    /**
+     * If false, {@link #writeToDisk(RenderedImage, String)} is gonna write to a NULL OutputStream
+     * instead of to a File
+     */
+    private boolean doWriteToDisk = true;
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -224,27 +240,152 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         writeToDisk(image, "testRead_" + tableName);
     }
 
+    private void initJAI() {
+        final boolean tileRecycling = true;
+        final double memoryFactor = 0.9;
+        final float memoryThreshold = 0.75f;
+        final boolean useImageIOCache = false;
+        final int tileThreads = 7;
+        final int tilePriority = 5;
+
+        JAI jaiDef = JAI.getDefaultInstance();
+
+        // setting JAI wide hints
+        jaiDef.setRenderingHint(JAI.KEY_CACHED_TILE_RECYCLING_ENABLED, tileRecycling);
+
+        // tile factory and recycler
+        final RecyclingTileFactory recyclingFactory = new RecyclingTileFactory();
+        jaiDef.setRenderingHint(JAI.KEY_TILE_FACTORY, recyclingFactory);
+        jaiDef.setRenderingHint(JAI.KEY_TILE_RECYCLER, recyclingFactory);
+
+        // Setting up Cache Capacity
+        SunTileCache jaiCache = (SunTileCache) jaiDef.getTileCache();
+
+        long jaiMemory = (long) (memoryFactor * Runtime.getRuntime().maxMemory());
+        jaiCache.setMemoryCapacity(jaiMemory);
+
+        // Setting up Cahce Threshold
+        jaiCache.setMemoryThreshold(memoryThreshold);
+
+        jaiDef.getTileScheduler().setParallelism(tileThreads);
+        jaiDef.getTileScheduler().setPrefetchParallelism(7);
+        jaiDef.getTileScheduler().setPriority(tilePriority);
+        jaiDef.getTileScheduler().setPrefetchPriority(5);
+
+        // ImageIO Caching
+        ImageIO.setUseCache(useImageIOCache);
+
+        ImageIO.setCacheDirectory(new File("/Users/groldan/tmp/cache"));
+
+        // Workaround for native mosaic BUG
+        Registry.setNativeAccelerationAllowed("Mosaic", false, jaiDef);
+    }
+
+    public static void main(String[] argv) {
+        try {
+            ArcSDEGridCoverage2DReaderJAILegacyOnlineTest.setUpBeforeClass();
+            ArcSDEGridCoverage2DReaderJAILegacyOnlineTest test = new ArcSDEGridCoverage2DReaderJAILegacyOnlineTest();
+            test.setUp();
+
+            test.testReadIMG_USGSQUADM();
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
+    }
+
     @Test
     public void testReadIMG_USGSQUADM() throws Exception {
+
+        initJAI();
+
+        doWriteToDisk = false;
+        
         tableName = "SDE.RASTER.IMG_USGSQUADM";
-        final AbstractGridCoverage2DReader reader = getReader();
-        assertNotNull("Couldn't obtain a reader for " + tableName, reader);
+        getReader();
 
-        final GeneralEnvelope originalEnvelope = reader.getOriginalEnvelope();
-        final GridEnvelope originalGridRange = reader.getOriginalGridRange();
-
-        final int reqWidth = originalGridRange.getSpan(0) / 200;
-        final int reqHeight = originalGridRange.getSpan(1) / 200;
-
-        final GridCoverage2D coverage = readCoverage(reader, reqWidth, reqHeight, originalEnvelope);
-        assertNotNull("read coverage returned null", coverage);
-
-        RenderedImage image = coverage.view(ViewType.PHOTOGRAPHIC).getRenderedImage();
+        final int count = 10;
+        final int threads = 10;
+        final AtomicInteger writeCount = new AtomicInteger();
         Stopwatch sw = new Stopwatch();
         sw.start();
-        writeToDisk(image, "testRead_" + tableName);
+
+        List<Callable<Object>> tasks = new ArrayList<Callable<Object>>(threads);
+
+        final long[] stats = { Long.MAX_VALUE, Long.MIN_VALUE, 0, 0 };// min/max/total/max mem
+
+        for (int t = 0; t < threads; t++) {
+            tasks.add(new Callable<Object>() {
+                public Object call() throws Exception {
+                    try {
+
+                        final AbstractGridCoverage2DReader reader = getReader();
+                        assertNotNull("Couldn't obtain a reader for " + tableName, reader);
+
+                        final GeneralEnvelope originalEnvelope = reader.getOriginalEnvelope();
+                        final GridEnvelope originalGridRange = reader.getOriginalGridRange();
+
+                        final int reqWidth = originalGridRange.getSpan(0) / 200;
+                        final int reqHeight = originalGridRange.getSpan(1) / 200;
+
+                        for (int i = 0; i < count; i++) {
+                            final GeneralEnvelope reqEnv = new GeneralEnvelope(originalEnvelope);
+                            {
+                                double dx = (originalEnvelope.getSpan(0) / 2) / (6 * i + 1);
+                                double dy = (originalEnvelope.getSpan(1) / 2) / (6 * i + 1);
+                                reqEnv.setEnvelope(originalEnvelope.getMedian(0) - dx,
+                                        originalEnvelope.getMedian(1) - dy, originalEnvelope
+                                                .getMedian(0)
+                                                + dx, originalEnvelope.getMedian(1) + dy);
+                            }
+
+                            final GridCoverage2D coverage = readCoverage(reader, reqWidth,
+                                    reqHeight, reqEnv);
+                            assertNotNull("read coverage returned null", coverage);
+
+                            RenderedImage image = coverage.view(ViewType.PHOTOGRAPHIC)
+                                    .getRenderedImage();
+                            Stopwatch sw = new Stopwatch();
+                            sw.start();
+                            writeToDisk(image, "testRead_" + tableName);
+                            // image.getData();
+                            sw.stop();
+                            long memMB = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime()
+                                    .freeMemory()) / 1024 / 1024;
+                            System.err.println("wrote #" + writeCount.incrementAndGet() + " in "
+                                    + sw.getTimeString() + ": Mem: " + memMB + "M. Thread: "
+                                    + Thread.currentThread().getName() + ", iteration #" + i);
+
+                            synchronized (stats) {
+                                stats[0] = Math.min(stats[0], sw.getTime());
+                                stats[1] = Math.max(stats[1], sw.getTime());
+                                stats[2] = stats[2] + sw.getTime();
+                                stats[3] = Math.max(stats[3], memMB);
+                            }
+                            Thread.yield();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        throw e;
+                    }
+                    return null;
+                }
+            });
+        }
+
+        ExecutorService threadPool = Executors.newFixedThreadPool(threads);
+        threadPool.invokeAll(tasks);
+
+        threadPool.shutdown();
+        while (!threadPool.isTerminated()) {
+            Thread.sleep(100);
+        }
         sw.stop();
-        LOGGER.info("wrote in " + sw.getTimeString());
+        System.err.println("____ Finished in " + sw.getTimeString() + ". Min: " + stats[0]
+                + ", Max: " + stats[1] + ", total execution time: " + stats[2] + ", Avg: "
+                + (stats[2] / (threads * count)) + ". Max mem: " + stats[3] + "MB");
+        System.err.println("__________________\n  SNAPSHOT!!!!!!!!");
+        // Thread.sleep(5000);
     }
 
     @Test
@@ -445,16 +586,18 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         }
         GeoTiffWriter writer = new GeoTiffWriter(destination);
 
-        System.out.println("\n --- Writing to " + destination);
+        // System.out.println("\n --- Writing to " + destination);
         try {
             long t = System.currentTimeMillis();
             writer.write(coverage, null);
-            System.out.println(" - wrote in " + t + "ms" + destination);
+            // System.out.println(" - wrote in " + t + "ms" + destination);
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
         }
     }
+
+    private static AtomicInteger wc = new AtomicInteger();
 
     private void writeToDisk(final RenderedImage image, String fileName) throws Exception {
         if (!DEBUG) {
@@ -462,16 +605,33 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
             return;
         }
         String file = System.getProperty("user.home");
-        file += File.separator + "arcsde_test" + File.separator + fileName + ".tiff";
+        file += File.separator + "arcsde_test" + File.separator + fileName + "_"
+                + wc.incrementAndGet() + ".tiff";
         File path = new File(file);
         path.getParentFile().mkdirs();
 
-        System.out.println("\n --- Writing to " + file);
+        // System.out.println("\n --- Writing to " + file);
         try {
             long t = System.currentTimeMillis();
-            ImageIO.write(image, "TIFF", path);
+            if (doWriteToDisk) {
+                ImageIO.write(image, "TIFF", path);
+            } else {
+                OutputStream destination = new OutputStream() {
+                    @Override
+                    public void write(byte[] b, int o, int l) throws IOException {
+                    }
+
+                    @Override
+                    public void write(int b) throws IOException {
+                    }
+                };
+                ImageIO.write(image, "TIFF", destination);
+            }
+
+            // new ImageWorker(image).writeJPEG(destination, "JPEG", 0.75f, true);
+
             t = System.currentTimeMillis() - t;
-            System.out.println(" - wrote in " + t + "ms" + file);
+            // System.out.println(" - wrote in " + t + "ms" + file);
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
@@ -503,7 +663,9 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
 
         final String rgbUrl = "sde://" + config.getUserName() + ":" + config.getPassword() + "@"
                 + config.getServerName() + ":" + config.getPortNumber() + "/"
-                + config.getDatabaseName() + "#" + tableName;
+                + config.getDatabaseName() + "#" + tableName
+                + ";pool.minConnections=5;pool.maxConnections=5";
+        // + config.getMinConnections() + ";pool.maxConnections=" + config.getMaxConnections();
 
         final ArcSDERasterFormat format = new ArcSDERasterFormatFactory().createFormat();
 

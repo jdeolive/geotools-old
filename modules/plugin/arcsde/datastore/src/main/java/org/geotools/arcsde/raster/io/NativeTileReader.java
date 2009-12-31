@@ -526,7 +526,7 @@ final class NativeTileReader implements TileReader {
             if (nonConsecutiveCallCount == RANDOM_THRESHOLD) {
                 nonConsecutiveCallCount = 0;
                 if (LOGGER.isLoggable(Level.FINEST)) {
-                    LOGGER.finest("Number of random (non consecutive) tile request exceeded"
+                    LOGGER.info("Number of random (non consecutive) tile request exceeded"
                             + " predefined threshold. Rewind by executing original request again");
                 }
                 dispose();
@@ -552,8 +552,8 @@ final class NativeTileReader implements TileReader {
      */
     private TileInfo[] fetchSingleTile(final int tileX, final int tileY, TileInfo[] target)
             throws IOException {
-        if (LOGGER.isLoggable(Level.FINEST)) {
-            LOGGER.finest("fetchSingleTile " + tileX + ", " + tileY);
+        if (LOGGER.isLoggable(Level.INFO)) {
+            LOGGER.info("fetchSingleTile " + tileX + ", " + tileY);
         }
         // System.err.println("->fetchSingleTile " + tileX + ", " + tileY);
         final int rasterTileX = requestedTiles.x + tileX;
@@ -690,5 +690,13 @@ final class NativeTileReader implements TileReader {
 
     public long getRasterId() {
         return rasterId;
+    }
+
+    public int toRealTileX(final int tileX) {
+        return requestedTiles.x + tileX;
+    }
+
+    public int toRealTileY(final int tileY) {
+        return requestedTiles.y + tileY;
     }
 }

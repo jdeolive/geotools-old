@@ -321,4 +321,12 @@ final class PromotingTileReader implements TileReader {
     public long getRasterId() {
         return nativeReader.getRasterId();
     }
+
+    public int toRealTileX(final int tileX) {
+        return nativeReader.toRealTileX(tileX);
+    }
+
+    public int toRealTileY(final int tileY) {
+        return nativeReader.toRealTileY(tileY);
+    }
 }

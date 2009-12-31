@@ -301,10 +301,6 @@ public class TestData {
     private static void deleteTable(final ISessionPool connPool, final String tableName,
             final boolean ignoreFailure) throws IOException, UnavailableConnectionException {
 
-        final ISession session = connPool.getSession();
-
-        // final SeTable layer = session.createSeTable(tableName);
-
         final Command<Void> deleteCmd = new Command<Void>() {
 
             @Override
@@ -332,8 +328,12 @@ public class TestData {
             }
         };
 
-        session.issue(deleteCmd);
-        session.dispose();
+        final ISession session = connPool.getSession();
+        try {
+            session.issue(deleteCmd);
+        } finally {
+            session.dispose();
+        }
     }
 
     /**

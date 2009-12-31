@@ -18,9 +18,11 @@ package org.geotools.arcsde.raster.io;
 
 import java.awt.Dimension;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.image.ColorModel;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
+import java.awt.image.renderable.ParameterBlock;
 import java.io.IOException;
 import java.util.logging.Logger;
 
@@ -28,9 +30,11 @@ import javax.imageio.ImageReader;
 import javax.imageio.ImageTypeSpecifier;
 import javax.imageio.stream.ImageInputStream;
 import javax.media.jai.ImageLayout;
+import javax.media.jai.JAI;
 
 import org.geotools.arcsde.raster.info.RasterDatasetInfo;
 import org.geotools.arcsde.raster.jai.ArcSDEImageReader;
+import org.geotools.arcsde.raster.jai.ArcSDEPlanarImage;
 import org.geotools.arcsde.session.ISessionPool;
 import org.geotools.util.logging.Logging;
 
@@ -81,8 +85,8 @@ class DefaultTiledRasterReader implements TiledRasterReader {
 
         rasterImage = getRasterMatchingTileRange(rasterId, pyramidLevel, tileRange);
 
-        //rasterImage.getData();
-        
+        // rasterImage.getData();
+
         return rasterImage;
     }
 
@@ -100,7 +104,7 @@ class DefaultTiledRasterReader implements TiledRasterReader {
          * Create the tiled raster covering the full area of the matching tiles
          */
 
-        fullTilesRaster = createTiledRaster(tileReader, matchingTiles, rasterId);
+        fullTilesRaster = createTiledRasterNew2(tileReader, matchingTiles, rasterId);
 
         return fullTilesRaster;
     }
@@ -112,7 +116,7 @@ class DefaultTiledRasterReader implements TiledRasterReader {
      * @return
      * @throws IOException
      */
-    private RenderedImage createTiledRaster(final TileReader tileReader,
+    private RenderedImage createTiledRasterOld(final TileReader tileReader,
             final Rectangle matchingTiles, final long rasterId) throws IOException {
         // Prepare temporary colorModel and sample model, needed to build the final
         // ArcSDEPyramidLevel level;
@@ -184,40 +188,131 @@ class DefaultTiledRasterReader implements TiledRasterReader {
             // image.getData();
             return image;
         }
-
-        // First operator: read the image
-        // final RenderingHints hints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, imageLayout);
-        //
-        // ParameterBlock pb = new ParameterBlock();
-        // pb.add(raw);// Input
-        // /*
-        // * image index, always 0 since we're already fetching the required pyramid level
-        // */
-        // pb.add(Integer.valueOf(0)); // Image index
-        // pb.add(Boolean.FALSE); // Read metadata
-        // pb.add(Boolean.FALSE);// Read thumbnails
-        // pb.add(Boolean.FALSE);// Verify input
-        // pb.add(null);// Listeners
-        // pb.add(null);// Locale
-        // final ImageReadParam rParam = new ImageReadParam();
-        // pb.add(rParam);// ReadParam
-        // pb.add(readerInstance);// Reader
-        //
-        // RenderedImage image = JAI.create("ImageRead", pb, hints);
-        // // image.getData();
-        // // // translate
-        // // int minX = (matchingTiles.x * tileWidth);
-        // // int minY = (matchingTiles.y * tileHeight);
-        // // pb = new ParameterBlock();
-        // // pb.addSource(image);
-        // // pb.add(Float.valueOf(minX));
-        // // pb.add(Float.valueOf(minY));
-        // // pb.add(null);
-        // //
-        // // image = JAI.create("translate", pb);
-        //
-        // return image;
-
     }
 
+    /**
+     * Creates an image representing the whole pyramid level but with a tile reader ready to read
+     * only the required tiles, and returns a crop over it
+     * 
+     * @param tileReader
+     * @param matchingTiles
+     * @param rasterId
+     * @return
+     * @throws IOException
+     */
+    private RenderedImage createTiledRasterNew(final TileReader tileReader,
+            final Rectangle matchingTiles, final long rasterId) throws IOException {
+        // Prepare temporary colorModel and sample model, needed to build the final
+        // ArcSDEPyramidLevel level;
+        final ColorModel colorModel;
+        final SampleModel sampleModel;
+        final int tileWidth = rasterInfo.getTileWidth(rasterId);
+        final int tileHeight = rasterInfo.getTileHeight(rasterId);
+        final int rasterIndex = rasterInfo.getRasterIndex(rasterId);
+        final int pyramidLevel = tileReader.getPyramidLevel();
+        final int numTilesWide = rasterInfo.getNumTilesWide(rasterIndex, pyramidLevel);
+        final int numTilesHigh = rasterInfo.getNumTilesHigh(rasterIndex, pyramidLevel);
+        int tiledImageWidth = numTilesWide * tileWidth;
+        int tiledImageHeight = numTilesHigh * tileHeight;
+        {
+            final ImageTypeSpecifier fullImageSpec = rasterInfo.getRenderedImageSpec(rasterId);
+            colorModel = fullImageSpec.getColorModel();
+
+            // sampleModel = fullImageSpec.getSampleModel(tiledImageWidth, tiledImageHeight);
+            sampleModel = fullImageSpec.getSampleModel().createCompatibleSampleModel(tileWidth,
+                    tileHeight);
+        }
+
+        {
+            // final ImageTypeSpecifier its = new ImageTypeSpecifier(colorModel, sampleModel);
+            // ArcSDEImageReader reader = new ArcSDEImageReader(its);
+            // reader.setInput(tileReader, true, true);
+            //
+            // RenderedImage image = reader.readAsRenderedImage(0, null);
+
+            RenderedImage image;
+            {
+                final Rectangle gridRange = rasterInfo.getGridRange(rasterIndex, pyramidLevel);
+                int minX = 0;// gridRange.x;
+                int minY = 0;// gridRange.y;
+                int width = tiledImageWidth;// gridRange.width;
+                int height = tiledImageHeight;// gridRange.height;
+                int tileGridXOffset = 0;
+                int tileGridYOffset = 0;
+                SampleModel tileSampleModel = sampleModel;
+
+                // image = new ArcSDETiledImage(tileReader, minX, minY, width, height,
+                // tileGridXOffset, tileGridYOffset, tileSampleModel, colorModel);
+
+                image = new ArcSDEPlanarImage(tileReader, minX, minY, width, height,
+                        tileGridXOffset, tileGridYOffset, tileSampleModel, colorModel);
+            }
+
+            /*
+             * Now crop it to the actual tiles subset
+             */
+            ParameterBlock cropParams = new ParameterBlock();
+            // int minX = (matchingTiles.x * tileWidth);
+            // int minY = (matchingTiles.y * tileHeight);
+            //
+            // int width = tiledImageSize.width;
+            // int height = tiledImageSize.height;
+
+            Float xOrigin = Float.valueOf(matchingTiles.x * tileWidth);
+            Float yOrigin = Float.valueOf(matchingTiles.y * tileHeight);
+            Float width = Float.valueOf(matchingTiles.width * tileWidth);
+            Float height = Float.valueOf(matchingTiles.height * tileHeight);
+
+            cropParams.addSource(image);// Source
+            cropParams.add(xOrigin); // x origin for each band
+            cropParams.add(yOrigin); // y origin for each band
+            cropParams.add(width);// width for each band
+            cropParams.add(height);// height for each band
+
+            // ImageLayout imageLayout = new ImageLayout(0, 0, width.intValue(), height.intValue(),
+            // 0,
+            // 0, tileWidth, tileHeight, sampleModel, colorModel);
+
+            final RenderingHints hints = null;
+            image = JAI.create("Crop", cropParams, hints);
+
+            return image;
+        }
+    }
+
+    private RenderedImage createTiledRasterNew2(final TileReader tileReader,
+            final Rectangle matchingTiles, final long rasterId) throws IOException {
+
+        final ColorModel colorModel;
+        final SampleModel sampleModel;
+        final int tileWidth = rasterInfo.getTileWidth(rasterId);
+        final int tileHeight = rasterInfo.getTileHeight(rasterId);
+        {
+            final ImageTypeSpecifier fullImageSpec = rasterInfo.getRenderedImageSpec(rasterId);
+            colorModel = fullImageSpec.getColorModel();
+
+            // sampleModel = fullImageSpec.getSampleModel(tiledImageWidth, tiledImageHeight);
+            sampleModel = fullImageSpec.getSampleModel().createCompatibleSampleModel(tileWidth,
+                    tileHeight);
+        }
+
+        RenderedImage image;
+        {
+            final int numTilesWide = matchingTiles.width;
+            final int numTilesHigh = matchingTiles.height;
+            final int tiledImageWidth = numTilesWide * tileWidth;
+            final int tiledImageHeight = numTilesHigh * tileHeight;
+            int minX = 0;// gridRange.x;
+            int minY = 0;// gridRange.y;
+            int tileGridXOffset = 0;
+            int tileGridYOffset = 0;
+            SampleModel tileSampleModel = sampleModel;
+
+            image = new ArcSDEPlanarImage(tileReader, minX, minY, tiledImageWidth,
+                    tiledImageHeight, tileGridXOffset, tileGridYOffset, tileSampleModel, colorModel);
+        }
+
+        //image.getData();
+        return image;
+    }
 }

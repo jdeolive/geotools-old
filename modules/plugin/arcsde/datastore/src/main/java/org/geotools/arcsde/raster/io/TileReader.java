@@ -117,4 +117,8 @@ public interface TileReader {
 
     public abstract TileInfo[] getTile(int tileX, int tileY, double[][] data) throws IOException;
 
+    public abstract int toRealTileX(int tileX);
+
+    public abstract int toRealTileY(int tileY);
+
 }
