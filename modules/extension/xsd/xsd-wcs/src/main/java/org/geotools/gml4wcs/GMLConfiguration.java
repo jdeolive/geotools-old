@@ -19,6 +19,7 @@ import org.geotools.gml4wcs.bindings.EnvelopeTypeBinding;
 import org.geotools.gml4wcs.bindings.EnvelopeWithTimePeriodTypeBinding;
 import org.geotools.gml4wcs.bindings.GridEnvelopeTypeBinding;
 import org.geotools.gml4wcs.bindings.GridLimitsTypeBinding;
+import org.geotools.gml4wcs.bindings.GridTypeBinding;
 import org.geotools.gml4wcs.bindings.IntegerListBinding;
 import org.geotools.gml4wcs.bindings.NameListBinding;
 import org.geotools.gml4wcs.bindings.TemporalPositionTypeBinding;
@@ -91,8 +92,10 @@ public class GMLConfiguration extends Configuration {
         // Grid
         bindings.put(GML.GridEnvelopeType, new GridEnvelopeTypeBinding());
         bindings.put(GML.GridLimitsType, new GridLimitsTypeBinding());
-        register(bindings, gmlFactory, GML.GridType);
-        register(bindings, gmlFactory, GML.RectifiedGridType);
+        
+        bindings.put(GML.GridType, new GridTypeBinding());
+        //register(bindings, gmlFactory, GML.RectifiedGridType);
+        //register(bindings, gmlFactory, GML.GridType);
     }
     
     private void register(Map bindings, EFactory factory, QName qname) {

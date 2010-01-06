@@ -1,7 +1,19 @@
 package org.geotools.gml4wcs.bindings;
 
+import java.math.BigInteger;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.xml.namespace.QName;
 
+import net.opengis.gml.Gml4wcsFactory;
+import net.opengis.gml.GridEnvelopeType;
+import net.opengis.gml.GridLimitsType;
+import net.opengis.gml.RectifiedGridType;
+
+import org.geotools.coverage.grid.GeneralGridEnvelope;
+import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.gml4wcs.GML;
 import org.geotools.xml.AbstractComplexBinding;
 import org.geotools.xml.ElementInstance;
@@ -42,7 +54,7 @@ public class GridTypeBinding extends AbstractComplexBinding {
      * @generated
      */
     public QName getTarget() {
-        return GML.GridType;
+        return GML.RectifiedGridType;
     }
 
     /**
@@ -61,35 +73,37 @@ public class GridTypeBinding extends AbstractComplexBinding {
      */
     public Object parse(ElementInstance instance, Node node, Object value)
             throws Exception {
-//        GridType grid = Gml4wcsFactory.eINSTANCE.createGridType();
-//
-//        grid.setSrsName(((URI) node.getAttribute("srsName").getValue()).toString());
-//        grid.setDimension((BigInteger) node.getAttribute("dimension").getValue());
-//
-//        Envelope limitsEnvelope = (Envelope) node.getChildValue("limits");
-//        
+        RectifiedGridType grid = Gml4wcsFactory.eINSTANCE.createRectifiedGridType();
+        
+        grid.setSrsName(((URI) node.getAttribute("srsName").getValue()).toString());
+        grid.setDimension((BigInteger) node.getAttribute("dimension").getValue());
+
+        GeneralGridEnvelope limitsEnvelope = (GeneralGridEnvelope) node.getChildValue("limits");
+        
 //        GridLimitsType limits = Gml4wcsFactory.eINSTANCE.createGridLimitsType();
 //        GridEnvelopeType gridEnelope = Gml4wcsFactory.eINSTANCE.createGridEnvelopeType();
 //        List l = new ArrayList();
-//             l.add(limitsEnvelope.getMinX());
-//             l.add(limitsEnvelope.getMinY());
+//             l.add(limitsEnvelope.getLow(0));
+//             l.add(limitsEnvelope.getLow(1));
 //        List h = new ArrayList();
-//             h.add(limitsEnvelope.getMaxX());
-//             h.add(limitsEnvelope.getMaxY());
-//        gridEnelope.setLow(l);
-//        gridEnelope.setHigh(h);
-//        limits.setGridEnvelope(gridEnelope);
-//        grid.setLimits(limits);
-//
-//        List<Node> axisNames = node.getChildren("axisName");
-//        if (axisNames != null && !axisNames.isEmpty()) {
-//            for (Node axisName : axisNames) {
-//                grid.getAxisName().add(axisName.getValue());
-//            }
-//        }
-//
-//        return grid;
-       return super.parse(instance, node, value);
+//             h.add(limitsEnvelope.getHigh(0));
+//             h.add(limitsEnvelope.getHigh(1));
+
+        grid.setDimension(BigInteger.valueOf(2));
+        grid.setLimits(new GridEnvelope2D(
+                (int)limitsEnvelope.getLow(0), (int)limitsEnvelope.getLow(1), 
+                (int)limitsEnvelope.getHigh(0), (int)limitsEnvelope.getHigh(1))
+        );
+        
+        List<Node> axisNames = node.getChildren("axisName");
+        if (axisNames != null && !axisNames.isEmpty()) {
+            for (Node axisName : axisNames) {
+                grid.getAxisName().add(axisName.getValue());
+            }
+        }
+
+        return grid;
+//       return super.parse(instance, node, value);
     }
 
 }
