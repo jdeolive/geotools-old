@@ -38,8 +38,10 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * as a feature since it would have a feature source.
  * 
  * @author Rini Angreani, Curtin University of Technology
- *
- * @source $URL$
+ * 
+ * @source $URL:
+ *         http://svn.osgeo.org/geotools/trunk/modules/unsupported/app-schema/app-schema/src/main
+ *         /java/org/geotools/data/complex/config/NonFeatureTypeProxy.java $
  */
 public class NonFeatureTypeProxy extends ComplexTypeProxy implements FeatureType {
 
@@ -64,16 +66,18 @@ public class NonFeatureTypeProxy extends ComplexTypeProxy implements FeatureType
 
         subject = type;
 
-        int maxOccurs = mapping.getTargetFeature().getMaxOccurs();
-        int minOccurs = mapping.getTargetFeature().getMinOccurs();
-        boolean nillable = mapping.getTargetFeature().isNillable();
-        Object defaultValue = mapping.getTargetFeature().getDefaultValue();
-        Name name = mapping.getTargetFeature().getName();
+        AttributeDescriptor originalTarget = mapping.getTargetFeature();
+        int maxOccurs = originalTarget.getMaxOccurs();
+        int minOccurs = originalTarget.getMinOccurs();
+        boolean nillable = originalTarget.isNillable();
+        Object defaultValue = originalTarget.getDefaultValue();
+        Name name = originalTarget.getName();
 
         // create a new descriptor with the wrapped type and set it to the mapping
         ComplexFeatureTypeFactoryImpl typeFactory = new ComplexFeatureTypeFactoryImpl();
-        AttributeDescriptor descriptor = typeFactory.createAttributeDescriptor(this,
-                name, minOccurs, maxOccurs, nillable, defaultValue);
+        AttributeDescriptor descriptor = typeFactory.createAttributeDescriptor(this, name,
+                minOccurs, maxOccurs, nillable, defaultValue);
+        descriptor.getUserData().putAll(originalTarget.getUserData());
         mapping.setTargetFeature(descriptor);
         // smuggle FEATURE_LINK descriptor
         descriptors = new ArrayList<PropertyDescriptor>(subject.getDescriptors()) {
@@ -106,6 +110,7 @@ public class NonFeatureTypeProxy extends ComplexTypeProxy implements FeatureType
 
     /**
      * Return only the schema descriptors
+     * 
      * @return
      */
     public Collection<PropertyDescriptor> getTypeDescriptors() {
