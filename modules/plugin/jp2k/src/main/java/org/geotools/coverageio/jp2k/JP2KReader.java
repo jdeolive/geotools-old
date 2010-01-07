@@ -313,7 +313,6 @@ public final class JP2KReader extends AbstractGridCoverage2DReader implements
         final AffineTransform tempTransform = new AffineTransform(
         		xScale, yRotation, xRotation,
         		yScale, xUpperLeft, yUpperLeft);
-        this.raster2Model = ProjectiveTransform.create(tempTransform);
 
         // ////////////////////////////////////////////////////////////////////
         //
@@ -331,8 +330,15 @@ public final class JP2KReader extends AbstractGridCoverage2DReader implements
         // the corresponding values in the GeoTIFF box.
         //
         // ////////////////////////////////////////////////////////////////////
-        if (worldFileInterpretation == WORLD_FILE_INTERPRETATION_PIXEL_CORNER)
+        if (worldFileInterpretation == WORLD_FILE_INTERPRETATION_PIXEL_CORNER){
+        	AffineTransform transform = (AffineTransform) ProjectiveTransform.create(tempTransform);
+        	final double tr = -PixelTranslation.getPixelTranslation(PixelInCell.CELL_CORNER);
+        	transform.translate(tr, tr);
+        	this.raster2Model = ProjectiveTransform.create(transform);
+        } else {
+        	this.raster2Model = ProjectiveTransform.create(tempTransform);
         	tempTransform.translate(-0.5, -0.5);
+        }
        
         try {
         	final GeneralEnvelope envelope = CRS.transform(ProjectiveTransform.create(tempTransform),

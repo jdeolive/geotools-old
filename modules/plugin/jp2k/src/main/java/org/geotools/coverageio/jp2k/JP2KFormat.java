@@ -17,6 +17,7 @@
 package org.geotools.coverageio.jp2k;
 
 import java.awt.Color;
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.logging.Level;
@@ -204,6 +205,13 @@ public final class JP2KFormat extends AbstractGridFormat implements Format {
     @Override
     public boolean accepts(Object input) {
         try {
+        	
+        	//Directories aren't accepted
+        	if (input != null && input instanceof File){
+        		final File directory = (File) input;
+        		if (!directory.exists() || directory.isDirectory())
+        			return false;
+        	}
         	final ImageInputStream stream = ImageIO.createImageInputStream(input);
         	if (spi == null){
 				ImageReader reader = Utils.getReader(stream);
