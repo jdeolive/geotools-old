@@ -16,7 +16,10 @@
  */
 package org.geotools.data.postgis;
 
+import java.util.Map;
+
 import org.geotools.jdbc.JDBCJNDIDataStoreFactory;
+import static org.geotools.data.postgis.PostgisNGDataStoreFactory.*;
 
 /**
  * JNDI DataStoreFactory  for Postgis database.
@@ -30,5 +33,14 @@ public class PostgisNGJNDIDataStoreFactory extends JDBCJNDIDataStoreFactory {
 
     public PostgisNGJNDIDataStoreFactory() {
         super(new PostgisNGDataStoreFactory());
+    }
+    
+    @Override
+    protected void setupParameters(Map parameters) {
+        super.setupParameters(parameters);
+        
+        parameters.put(LOOSEBBOX.key, LOOSEBBOX);
+        parameters.put(PREPARED_STATEMENTS.key, PREPARED_STATEMENTS);
+        parameters.put(MAX_OPEN_PREPARED_STATEMENTS.key, MAX_OPEN_PREPARED_STATEMENTS);
     }
 }

@@ -121,6 +121,9 @@ public class OracleNGDataStoreFactory extends JDBCDataStoreFactory {
     
     @Override
     protected void setupParameters(Map parameters) {
+        // NOTE: when adding parameters here remember to add them to OracleNGOCIDataStoreFactory and
+        // OracleNGJNDIDataStoreFactory
+        
         super.setupParameters(parameters);
         parameters.put(LOOSEBBOX.key, LOOSEBBOX);
         parameters.put(MAX_OPEN_PREPARED_STATEMENTS.key, MAX_OPEN_PREPARED_STATEMENTS);

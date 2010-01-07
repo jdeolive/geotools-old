@@ -106,6 +106,8 @@ public class PostgisNGDataStoreFactory extends JDBCDataStoreFactory {
     
     @Override
     protected void setupParameters(Map parameters) {
+        // NOTE: when adding parameters here remember to add them to PostgisNGJNDIDataStoreFactory
+        
         super.setupParameters(parameters);
         parameters.put(DBTYPE.key, DBTYPE);
         parameters.put(SCHEMA.key, SCHEMA);
