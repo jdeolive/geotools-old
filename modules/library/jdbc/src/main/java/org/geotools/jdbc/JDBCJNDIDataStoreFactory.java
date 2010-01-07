@@ -192,4 +192,9 @@ public abstract class JDBCJNDIDataStoreFactory extends JDBCDataStoreFactory {
         return delegate.createSQLDialect(dataStore);
     }
     
+    @Override
+    protected boolean checkDBType(Map params) {
+        return delegate.checkDBType(params);
+    }
+    
 }
