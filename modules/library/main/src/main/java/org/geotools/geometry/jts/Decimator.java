@@ -170,8 +170,8 @@ public final class Decimator {
                 double y0 = seq.getOrdinate(0, 1);
                 double x1 = seq.getOrdinate(seq.size() - 1, 0);
                 double y1 = seq.getOrdinate(seq.size() - 1, 1);
-                loop = Math.abs((x0 - x1) / x0) < EPS && 
-                               Math.abs((y0 - y1) / y0) < EPS;
+                loop = Math.abs(x0 - x1) < EPS && 
+                               Math.abs(y0 - y1) < EPS;
             }
 			decimateTransformGeneralize(seq, transform, loop);
 		}
@@ -321,7 +321,7 @@ public final class Decimator {
 		}
 		
 		// handle rings
-		if(ring && actualCoords <= 3) {
+		if(ring && actualCoords <= 3 && coords.length > 5) {
 			coords[2] = coords[2];
 			coords[3] = coords[3];
 			coords[4] = coords[4];

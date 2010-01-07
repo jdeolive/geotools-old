@@ -36,6 +36,18 @@ public class DecimatorTest {
         assertEquals(4, g.getCoordinateSequence().size());
     }
     
+    @Test
+    public void testDecimateOpenTriangle() throws Exception {
+        LineString g = gf.createLineString(csf.create(new double[] {0,0,0,2,2,2,0,0}));
+        assertTrue(g.isValid());
+        
+        Decimator d = new Decimator(3, 3);
+        d.decimateTransformGeneralize(g, new AffineTransform2D(new AffineTransform()));
+        g.geometryChanged();
+        assertTrue(g.isValid());
+        assertEquals(4, g.getCoordinateSequence().size());
+    }
+    
     /**
      * http://jira.codehaus.org/browse/GEOT-1923
      */
