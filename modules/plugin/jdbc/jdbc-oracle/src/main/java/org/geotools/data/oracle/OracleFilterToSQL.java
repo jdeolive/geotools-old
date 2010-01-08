@@ -255,11 +255,7 @@ public class OracleFilterToSQL extends PreparedFilterToSQL {
         geometry.accept(this, extraData);
         // for disjoint we ask for no interaction, anyinteract == false
         if(filter instanceof Disjoint) {
-            // yeah, I know, this sound totally idiotic, but try the tests with the other one 
-            // and you'll see. If you run select name, disjoint(geom, literal) from roads you'll
-            // get ("r2", "TRUE") among the results, if you run select * from roads where disjoint(geom, literal) = 'TRUE'
-            // you'll get an empty set in response!!!! With this encoding instead it works fine...
-            out.write(", 'mask=" + mask + " querytype=WINDOW') <> 'FALSE' ");
+            out.write(", 'mask=ANYINTERACT querytype=WINDOW') <> 'TRUE' ");
         } else {
             out.write(", 'mask=" + mask + " querytype=WINDOW') = 'TRUE' ");
         }
