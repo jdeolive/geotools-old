@@ -45,7 +45,7 @@ import org.geotools.data.DataAccessFactory.Param;
  */
 public class OracleNGOCIDataStoreFactory extends OracleNGDataStoreFactory {
     /** The alias parameter used to specify the database to connect to */
-    static final Param ALIAS = new Param("alias", String.class,
+    public static final Param ALIAS = new Param("alias", String.class,
             "The alias to the oracle server, as defined in the tnsnames.ora file", true);
 
     @Override
