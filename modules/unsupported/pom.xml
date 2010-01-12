@@ -159,6 +159,7 @@
          <module>vpf</module>
          <module>caching</module>
          <module>shapefile-renderer</module>
+         <module>matfile5</module>
        </modules>
      </profile>
   </profiles>
