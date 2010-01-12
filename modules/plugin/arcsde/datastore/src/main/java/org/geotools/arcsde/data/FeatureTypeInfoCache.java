@@ -377,6 +377,11 @@ final class FeatureTypeInfoCache {
              */
             final List<SeTable> registeredTables = connection.getTables(SeDefs.SE_SELECT_PRIVILEGE);
 
+            /*
+             * Get the list of raster tables so they're ignored as feature types
+             */
+            final List<String> rasterColumns = session.getRasterColumns();
+
             final List<String> typeNames = new ArrayList<String>(registeredTables.size());
             for (SeTable table : registeredTables) {
                 String tableName = table.getQualifiedName().toUpperCase();
@@ -422,7 +427,9 @@ final class FeatureTypeInfoCache {
 
                 }
 
-                typeNames.add(tableName);
+                if (!rasterColumns.contains(tableName)) {
+                    typeNames.add(tableName);
+                }
             }
 
             return typeNames;
