@@ -75,6 +75,13 @@
     </developer>
   </developers>
 
+ <repositories>
+    <repository>
+      <id>geosolutions</id>
+      <name>GeoSolutions libraries repository</name>
+      <url>http://mvn.geo-solutions.it/</url>
+    </repository>
+ </repositories>
 
   <!-- =========================================================== -->
   <!--     Dependency Management                                   -->
@@ -88,12 +95,12 @@
     <dependency>
       <groupId>it.geosolutions.imageio-ext</groupId>
       <artifactId>imageio-ext-mat-sas</artifactId>
-      <version>1.1-SNAPSHOT</version>
+      <version>1.1M012010</version>
     </dependency>
     <dependency>
       <groupId>it.geosolutions.imageio-ext</groupId>
       <artifactId>imageio-ext-imagereadmt</artifactId>
-      <version>1.1-SNAPSHOT</version>
+      <version>1.1M012010</version>
     </dependency>
     <dependency>
       <groupId>org.geotools</groupId>
@@ -123,7 +130,7 @@
       <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-geotiff</artifactId>
-      <version>2.6-SNAPSHOT</version>
+      <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
