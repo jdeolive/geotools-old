@@ -213,10 +213,6 @@
 					<artifactId>jpe_sdk</artifactId>
 					<version>${sde.version}</version>
 				</dependency>
-				<dependency>
-					<groupId>com.ibm.icu</groupId>
-					<artifactId>icu4j</artifactId>
-				</dependency>
 			</dependencies>
 			<build>
 				<plugins>
