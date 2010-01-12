@@ -2,7 +2,6 @@ package org.geotools.arcsde.raster.io;
 
 import java.awt.Rectangle;
 
-import org.geotools.arcsde.raster.info.RasterCellType;
 import org.geotools.arcsde.raster.info.RasterDatasetInfo;
 import org.geotools.arcsde.session.ISessionPool;
 
@@ -26,29 +25,11 @@ public class TileReaderFactory {
 
         final TileReader tileReader;
 
-        final RasterCellType nativeType = rasterInfo.getNativeCellType();
-        final RasterCellType targetType = rasterInfo.getTargetCellType(rasterId);
+        TileReader nativeTileReader = new NativeTileReader(sessionPool, rasterInfo, rasterId,
+                pyramidLevel, requestedTiles);
 
-        final BitmaskToNoDataConverter noData;
-        noData = BitmaskToNoDataConverter.getInstance(rasterInfo, rasterId);
+        tileReader = nativeTileReader;
 
-        if (targetType == nativeType) {
-
-            TileReader nativeTileReader = new NativeTileReader(sessionPool, rasterInfo, rasterId,
-                    pyramidLevel, requestedTiles, noData);
-
-            tileReader = nativeTileReader;
-
-        } else {
-            // need to promote native to target sample depth
-            TileReader nativeTileReader;
-            nativeTileReader = new NativeTileReader(sessionPool, rasterInfo, rasterId,
-                    pyramidLevel, requestedTiles, BitmaskToNoDataConverter.NO_ACTION_CONVERTER);
-
-            TileReader promotingTileReader = new PromotingTileReader(nativeTileReader, nativeType,
-                    targetType, noData);
-            tileReader = promotingTileReader;
-        }
         return tileReader;
     }
 }

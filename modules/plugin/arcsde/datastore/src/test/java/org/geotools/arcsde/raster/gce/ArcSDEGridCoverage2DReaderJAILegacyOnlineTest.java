@@ -28,6 +28,7 @@ import javax.imageio.ImageIO;
 import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.RecyclingTileFactory;
+import javax.media.jai.TileCache;
 
 import org.geotools.arcsde.ArcSDERasterFormatFactory;
 import org.geotools.arcsde.session.ArcSDEConnectionConfig;
@@ -55,14 +56,13 @@ import org.opengis.geometry.Envelope;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import com.sun.media.jai.util.SunTileCache;
 import com.vividsolutions.jts.util.Stopwatch;
 
 /**
  * Tests over legacy data that should not be deleted
  * 
  */
-@SuppressWarnings( { "deprecation", "nls" })
+@SuppressWarnings("nls")
 public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
 
     private static final String RASTER_TEST_DEBUG_TO_DISK = "raster.test.debugToDisk";
@@ -172,6 +172,7 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
 
     @Test
     public void testIMG_USGSQUAD_SGBASE2() throws Exception {
+        initJAI();
         tableName = "SDE.RASTER.IMG_USGSQUAD_SGBASE";
         final AbstractGridCoverage2DReader reader = getReader();
         assertNotNull("Couldn't obtain a reader for " + tableName, reader);
@@ -215,7 +216,7 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         writeToDisk(coverage, "testRead_" + tableName);
 
         RenderedImage image = coverage.view(ViewType.RENDERED).getRenderedImage();
-        // writeToDisk(image, tableName);
+        writeToDisk(image, tableName);
     }
 
     @Test
@@ -242,7 +243,7 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
 
     private void initJAI() {
         final boolean tileRecycling = true;
-        final double memoryFactor = 0.9;
+        final double memoryFactor = 0.5;
         final float memoryThreshold = 0.75f;
         final boolean useImageIOCache = false;
         final int tileThreads = 7;
@@ -259,7 +260,7 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         jaiDef.setRenderingHint(JAI.KEY_TILE_RECYCLER, recyclingFactory);
 
         // Setting up Cache Capacity
-        SunTileCache jaiCache = (SunTileCache) jaiDef.getTileCache();
+        TileCache jaiCache = jaiDef.getTileCache();
 
         long jaiMemory = (long) (memoryFactor * Runtime.getRuntime().maxMemory());
         jaiCache.setMemoryCapacity(jaiMemory);
@@ -300,12 +301,13 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         initJAI();
 
         doWriteToDisk = false;
-        
+
         tableName = "SDE.RASTER.IMG_USGSQUADM";
+        // tableName = "SDE.RASTER.IMG_USGSQUAD_SGBASE";
         getReader();
 
         final int count = 10;
-        final int threads = 10;
+        final int threads = 30;
         final AtomicInteger writeCount = new AtomicInteger();
         Stopwatch sw = new Stopwatch();
         sw.start();
@@ -331,8 +333,8 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
                         for (int i = 0; i < count; i++) {
                             final GeneralEnvelope reqEnv = new GeneralEnvelope(originalEnvelope);
                             {
-                                double dx = (originalEnvelope.getSpan(0) / 2) / (6 * i + 1);
-                                double dy = (originalEnvelope.getSpan(1) / 2) / (6 * i + 1);
+                                double dx = (originalEnvelope.getSpan(0) / 2) / (2 * i + 1);
+                                double dy = (originalEnvelope.getSpan(1) / 2) / (2 * i + 1);
                                 reqEnv.setEnvelope(originalEnvelope.getMedian(0) - dx,
                                         originalEnvelope.getMedian(1) - dy, originalEnvelope
                                                 .getMedian(0)
@@ -343,12 +345,12 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
                                     reqHeight, reqEnv);
                             assertNotNull("read coverage returned null", coverage);
 
-                            RenderedImage image = coverage.view(ViewType.PHOTOGRAPHIC)
-                                    .getRenderedImage();
+                            RenderedImage image = coverage.view(ViewType.PHOTOGRAPHIC).getRenderedImage();
+                            // RenderedImage image =
+                            // coverage.view(ViewType.NATIVE).getRenderedImage();
                             Stopwatch sw = new Stopwatch();
                             sw.start();
                             writeToDisk(image, "testRead_" + tableName);
-                            // image.getData();
                             sw.stop();
                             long memMB = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime()
                                     .freeMemory()) / 1024 / 1024;
@@ -362,7 +364,6 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
                                 stats[2] = stats[2] + sw.getTime();
                                 stats[3] = Math.max(stats[3], memMB);
                             }
-                            Thread.yield();
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -613,8 +614,12 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         // System.out.println("\n --- Writing to " + file);
         try {
             long t = System.currentTimeMillis();
+            Object output;
+
             if (doWriteToDisk) {
                 ImageIO.write(image, "TIFF", path);
+                // ImageWorker iw = new ImageWorker(image);
+                // iw.write(path);
             } else {
                 OutputStream destination = new OutputStream() {
                     @Override
@@ -627,8 +632,6 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
                 };
                 ImageIO.write(image, "TIFF", destination);
             }
-
-            // new ImageWorker(image).writeJPEG(destination, "JPEG", 0.75f, true);
 
             t = System.currentTimeMillis() - t;
             // System.out.println(" - wrote in " + t + "ms" + file);
@@ -664,7 +667,7 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         final String rgbUrl = "sde://" + config.getUserName() + ":" + config.getPassword() + "@"
                 + config.getServerName() + ":" + config.getPortNumber() + "/"
                 + config.getDatabaseName() + "#" + tableName
-                + ";pool.minConnections=5;pool.maxConnections=5";
+                + ";pool.minConnections=2;pool.maxConnections=2";
         // + config.getMinConnections() + ";pool.maxConnections=" + config.getMaxConnections();
 
         final ArcSDERasterFormat format = new ArcSDERasterFormatFactory().createFormat();

@@ -3,8 +3,6 @@
  */
 package org.geotools.arcsde.raster.io;
 
-import java.awt.image.DataBuffer;
-
 public final class TileInfo {
     private long bandId;
 
@@ -27,6 +25,8 @@ public final class TileInfo {
     private double[] tileDataDoubles;
 
     private final int numPixels;
+
+    private Number noData;
 
     public TileInfo(int pixelsPerTile) {
         this.numPixels = pixelsPerTile;
@@ -69,7 +69,6 @@ public final class TileInfo {
 
     public void setTileData(short[] pixelData) {
         this.tileDataShorts = pixelData;
-        this.tileDataBytes = null;
     }
 
     public void setTileData(int[] pixelData) {
@@ -95,31 +94,12 @@ public final class TileInfo {
         if (tileDataShorts == null) {
             tileDataShorts = new short[numPixels];
         }
-
-        // promote if necessary
-        if (tileDataBytes != null) {
-            final int length = tileDataBytes.length;
-            short val;
-            for (int i = 0; i < length; i++) {
-                val = (short) (tileDataBytes[i] & 0xFF);
-                tileDataShorts[i] = val;
-            }
-        }
         return tileDataShorts;
     }
 
     public short[] getTileDataAsShorts() {
         if (tileDataShorts == null) {
             tileDataShorts = new short[numPixels];
-        }
-        // promote if necessary
-        if (tileDataBytes != null) {
-            final int length = tileDataBytes.length;
-            short val;
-            for (int i = 0; i < length; i++) {
-                val = (short) tileDataBytes[i];
-                tileDataShorts[i] = val;
-            }
         }
 
         return tileDataShorts;
@@ -129,18 +109,6 @@ public final class TileInfo {
         if (tileDataInts == null) {
             tileDataInts = new int[numPixels];
         }
-        // promote if necessary
-        if (tileDataShorts != null) {
-            final int length = tileDataShorts.length;
-            for (int i = 0; i < length; i++) {
-                tileDataInts[i] = tileDataShorts[i];
-            }
-        } else if (tileDataBytes != null) {
-            final int length = tileDataBytes.length;
-            for (int i = 0; i < length; i++) {
-                tileDataInts[i] = tileDataBytes[i];
-            }
-        }
         return tileDataInts;
     }
 
@@ -148,24 +116,6 @@ public final class TileInfo {
         if (tileDataFloats == null) {
             tileDataFloats = new float[numPixels];
         }
-        // promote if necessary
-        if (tileDataInts != null) {
-            final int length = tileDataInts.length;
-            for (int i = 0; i < length; i++) {
-                tileDataFloats[i] = tileDataInts[i];
-            }
-        } else if (tileDataShorts != null) {
-            final int length = tileDataShorts.length;
-            for (int i = 0; i < length; i++) {
-                tileDataFloats[i] = tileDataShorts[i];
-            }
-        } else if (tileDataBytes != null) {
-            final int length = tileDataBytes.length;
-            for (int i = 0; i < length; i++) {
-                tileDataFloats[i] = tileDataBytes[i];
-            }
-        }
-
         return tileDataFloats;
     }
 
@@ -173,87 +123,7 @@ public final class TileInfo {
         if (tileDataDoubles == null) {
             tileDataDoubles = new double[numPixels];
         }
-        // promote if necessary
-        if (tileDataFloats != null) {
-            final int length = tileDataFloats.length;
-            for (int i = 0; i < length; i++) {
-                tileDataDoubles[i] = tileDataFloats[i];
-            }
-        } else if (tileDataInts != null) {
-            final int length = tileDataInts.length;
-            for (int i = 0; i < length; i++) {
-                tileDataDoubles[i] = tileDataInts[i];
-            }
-        } else if (tileDataShorts != null) {
-            final int length = tileDataShorts.length;
-            for (int i = 0; i < length; i++) {
-                tileDataDoubles[i] = tileDataShorts[i];
-            }
-        } else if (tileDataBytes != null) {
-            final int length = tileDataBytes.length;
-            for (int i = 0; i < length; i++) {
-                tileDataDoubles[i] = tileDataBytes[i];
-            }
-        }
-
         return tileDataDoubles;
-    }
-
-    public void setValue(int sampleN, Number value) {
-        if (tileDataBytes != null) {
-            tileDataBytes[sampleN] = value.byteValue();
-        }
-        if (tileDataShorts != null) {
-            tileDataShorts[sampleN] = value.shortValue();
-        }
-        if (tileDataInts != null) {
-            tileDataInts[sampleN] = value.intValue();
-        }
-        if (tileDataFloats != null) {
-            tileDataFloats[sampleN] = value.floatValue();
-        }
-        if (tileDataDoubles != null) {
-            tileDataDoubles[sampleN] = value.doubleValue();
-        }
-    }
-
-    public void fill(DataBuffer dataBuffer, final int bank) {
-        if (tileDataDoubles != null) {
-            final int length = tileDataDoubles.length;
-            double val;
-            for (int i = 0; i < length; i++) {
-                val = tileDataDoubles[i];
-                dataBuffer.setElemDouble(bank, i, val);
-            }
-        } else if (tileDataFloats != null) {
-            final int length = tileDataFloats.length;
-            float val;
-            for (int i = 0; i < length; i++) {
-                val = tileDataFloats[i];
-                dataBuffer.setElemFloat(bank, i, val);
-            }
-        } else if (tileDataInts != null) {
-            final int length = tileDataInts.length;
-            int val;
-            for (int i = 0; i < length; i++) {
-                val = tileDataInts[i];
-                dataBuffer.setElem(bank, i, val);
-            }
-        } else if (tileDataShorts != null) {
-            final int length = tileDataShorts.length;
-            int val;
-            for (int i = 0; i < length; i++) {
-                val = tileDataShorts[i];
-                dataBuffer.setElem(bank, i, val);
-            }
-        } else if (tileDataBytes != null) {
-            final int length = tileDataBytes.length;
-            int val;
-            for (int i = 0; i < length; i++) {
-                val = tileDataBytes[i];
-                dataBuffer.setElem(bank, i, val);
-            }
-        }
     }
 
     public void setBandId(final long bandId) {
@@ -274,5 +144,17 @@ public final class TileInfo {
 
     public void setBitmaskData(final byte[] bitMaskData) {
         this.bitmaskData = bitMaskData;
+    }
+
+    public void setNoDataValue(final Number noData) {
+        this.noData = noData;
+    }
+
+    public Number getNoDataValue() {
+        return this.noData;
+    }
+
+    public boolean hasNoDataPixels() {
+        return bitmaskData.length > 0;
     }
 }

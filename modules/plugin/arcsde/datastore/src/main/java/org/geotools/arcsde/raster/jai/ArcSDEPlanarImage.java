@@ -19,8 +19,10 @@ import java.util.logging.Logger;
 import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.TileCache;
+import javax.media.jai.TileFactory;
 
 import org.geotools.arcsde.raster.io.TileReader;
+import org.geotools.util.Utilities;
 import org.geotools.util.logging.Logging;
 
 import com.sun.media.jai.codecimpl.util.DataBufferDouble;
@@ -36,6 +38,8 @@ public class ArcSDEPlanarImage extends PlanarImage {
     private final SampleModel tileSampleModel;
 
     private final BigInteger UID;
+
+    private final int hashCode;
 
     public ArcSDEPlanarImage(TileReader tileReader, int minX, int minY, int width, int height,
             int tileGridXOffset, int tileGridYOffset, SampleModel tileSampleModel,
@@ -55,13 +59,23 @@ public class ArcSDEPlanarImage extends PlanarImage {
 
         super.colorModel = colorModel;
         super.sampleModel = tileSampleModel;
+
+        {
+            int result = 17;
+            // collect the contributions of various fields
+            result = Utilities.hash(tileReader.getServerName(), result);
+            result = Utilities.hash(tileReader.getRasterTableName(), result);
+            result = Utilities.hash(tileReader.getRasterId(), result);
+            result = Utilities.hash(tileReader.getPyramidLevel(), result);
+            this.hashCode = result;
+        }
         this.UID = (BigInteger) ImageUtil.generateID(this);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        return super.equals(o);
-    }
+    // @Override
+    // public boolean equals(Object o) {
+    // return super.equals(o);
+    // }
 
     @Override
     public SampleModel getSampleModel() {
@@ -70,9 +84,7 @@ public class ArcSDEPlanarImage extends PlanarImage {
 
     @Override
     public int hashCode() {
-        final int pyramidLevel = tileReader == null ? 1 : tileReader.getPyramidLevel();
-        final int rasterId = tileReader == null ? 1 : (int) tileReader.getRasterId();
-        return 17 * pyramidLevel + rasterId;
+        return hashCode;
     }
 
     @Override
@@ -81,17 +93,19 @@ public class ArcSDEPlanarImage extends PlanarImage {
     }
 
     private int lastTileX, lastTileY;
-    private WritableRaster lastTile;
-    
+
+    private WritableRaster currentTile;
+
     /**
      * @see java.awt.image.RenderedImage#getTile(int, int)
      */
     @Override
-    public Raster getTile(final int tileX, final int tileY) {
-        if(lastTileX == tileX && lastTileY == tileY && lastTile != null){
-            return lastTile;
+    public synchronized Raster getTile(final int tileX, final int tileY) {
+        if (tileX == lastTileX && tileY == lastTileY && currentTile != null) {
+            return currentTile;
         }
-        
+
+        // System.err.printf("getTile(%d, %d) %s\n", tileX, tileY, this.toString());
         final boolean useCache = false;
         final JAI jai = JAI.getDefaultInstance();
         final TileCache jaiCache = jai.getTileCache();
@@ -99,80 +113,80 @@ public class ArcSDEPlanarImage extends PlanarImage {
         if (useCache && jaiCache != null) {
             Raster tile = jaiCache.getTile(this, tileX, tileY);
             if (tile != null) {
-                if (LOGGER.isLoggable(Level.FINER)) {
-                    LOGGER.finer("! GOT TILE FROM TileCache " + tileX + ", " + tileY + ", plevel "
+                if (LOGGER.isLoggable(Level.INFO)) {
+                    LOGGER.info("! GOT TILE FROM TileCache " + tileX + ", " + tileY + ", plevel "
                             + tileReader.getPyramidLevel());
                 }
                 return tile;
             }
         }
-
-        // System.err.printf("getTile(%d, %d) %s\n", tileX, tileY, this.toString());
+        if (super.tileFactory == null) {
+            TileFactory tileFactory = (TileFactory) jai.getRenderingHint(JAI.KEY_TILE_FACTORY);
+            if (tileFactory != null) {
+                super.tileFactory = tileFactory;
+            }
+        }
 
         final int xOrigin = tileXToX(tileX);
         final int yOrigin = tileYToY(tileY);
 
-//        if (shallIgnoreTile(tileX, tileY)) {
-//            // not a requested tile
-//            return createWritableRaster(tileSampleModel, new Point(xOrigin, yOrigin));
-//        }
-        // final int numBands = tileSampleModel.getNumBands();
+        if (currentTile == null) {
+            currentTile = Raster.createWritableRaster(tileSampleModel, new Point(xOrigin, yOrigin));
+        } else {
+            DataBuffer db = currentTile.getDataBuffer();
+            currentTile = Raster.createWritableRaster(tileSampleModel, db, new Point(xOrigin,
+                    yOrigin));
+        }
 
-        final WritableRaster currentTile;
-        currentTile = createWritableRaster(tileSampleModel, new Point(xOrigin, yOrigin));
+        if (shallIgnoreTile(tileX, tileY)) {
+            // not a requested tile
+            return currentTile;
+        }
 
         final int readerTileX = tileX - tileReader.getMinTileX();
         final int readerTileY = tileY - tileReader.getMinTileY();
 
-        DataBuffer dataBuffer = currentTile.getDataBuffer();
         try {
             switch (tileSampleModel.getDataType()) {
             case DataBuffer.TYPE_BYTE: {
-                byte[][] data = ((DataBufferByte) dataBuffer).getBankData();
-                tileReader.getTile(tileX, tileY, data);
+                DataBufferByte dataBuffer = (DataBufferByte) currentTile.getDataBuffer();
+                byte[][] bankData = dataBuffer.getBankData();
+                tileReader.getTile(readerTileX, readerTileY, bankData);
             }
                 break;
             case DataBuffer.TYPE_USHORT: {
-                short[][] data = ((DataBufferUShort) dataBuffer).getBankData();
-                //tileReader.getTile(readerTileX, readerTileY, data);
-                
-                tileReader.getTile(tileX, tileY, data);
-                
-                // TileInfo[] tile = tileReader.getTile(readerTileX, readerTileY, (short[][]) null);
-                // short[][] data = new short[tile.length][];
-                // int size = 0;
-                // for (int i = 0; i < tile.length; i++) {
-                // size = tile[i].getNumPixels();
-                // data[i] = tile[i].getTileDataAsUnsignedShorts();
-                // }
-                // dataBuffer = new DataBufferUShort(data, size);
-                // currentTile = Raster.createWritableRaster(tileSampleModel, dataBuffer, new Point(
-                // xOrigin, yOrigin));
+                DataBufferUShort dataBuffer = (DataBufferUShort) currentTile.getDataBuffer();
+                short[][] bankData = dataBuffer.getBankData();
+                tileReader.getTile(readerTileX, readerTileY, bankData);
             }
                 break;
             case DataBuffer.TYPE_SHORT: {
-                short[][] data = ((DataBufferShort) dataBuffer).getBankData();
-                tileReader.getTile(tileX, tileY, data);
+                DataBufferShort dataBuffer = (DataBufferShort) currentTile.getDataBuffer();
+                short[][] bankData = dataBuffer.getBankData();
+                tileReader.getTile(readerTileX, readerTileY, bankData);
             }
                 break;
             case DataBuffer.TYPE_INT: {
-                int[][] data = ((DataBufferInt) dataBuffer).getBankData();
-                tileReader.getTile(tileX, tileY, data);
+                DataBufferInt dataBuffer = (DataBufferInt) currentTile.getDataBuffer();
+                int[][] bankData = dataBuffer.getBankData();
+                tileReader.getTile(readerTileX, readerTileY, bankData);
             }
                 break;
             case DataBuffer.TYPE_FLOAT: {
-                float[][] data = ((DataBufferFloat) dataBuffer).getBankData();
-                tileReader.getTile(tileX, tileY, data);
+                DataBufferFloat dataBuffer = (DataBufferFloat) currentTile.getDataBuffer();
+                float[][] bankData = dataBuffer.getBankData();
+                tileReader.getTile(readerTileX, readerTileY, bankData);
             }
                 break;
             case DataBuffer.TYPE_DOUBLE: {
-                double[][] data = ((DataBufferDouble) dataBuffer).getBankData();
-                tileReader.getTile(tileX, tileY, data);
+                DataBufferDouble dataBuffer = (DataBufferDouble) currentTile.getDataBuffer();
+                double[][] bankData = dataBuffer.getBankData();
+                tileReader.getTile(readerTileX, readerTileY, bankData);
             }
                 break;
             default:
                 throw new IllegalStateException("Unrecognized DataBuffer type: "
-                        + dataBuffer.getDataType());
+                        + tileSampleModel.getDataType());
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -182,11 +196,10 @@ public class ArcSDEPlanarImage extends PlanarImage {
         if (useCache && jaiCache != null) {
             jaiCache.add(this, tileX, tileY, currentTile);
         }
-        
+
         lastTileX = tileX;
         lastTileY = tileY;
-        lastTile = currentTile;
-        
+
         return currentTile;
     }
 

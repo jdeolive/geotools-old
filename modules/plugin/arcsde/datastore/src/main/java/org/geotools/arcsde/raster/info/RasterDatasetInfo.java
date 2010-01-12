@@ -486,6 +486,11 @@ public final class RasterDatasetInfo {
         return new Point(level.getXOffset(), level.getYOffset());
     }
 
+    public Number getNoDataValue(final long rasterId, final int bandIndex) {
+        final int rasterIndex = getRasterIndex(rasterId);
+        return getNoDataValue(rasterIndex, bandIndex);
+    }
+
     public Number getNoDataValue(final int rasterIndex, final int bandIndex) {
         RasterBandInfo band = getBand(rasterIndex, bandIndex);
         Number noDataValue = band.getNoDataValue();

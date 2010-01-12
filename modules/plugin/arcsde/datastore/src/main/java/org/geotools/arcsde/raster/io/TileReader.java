@@ -79,25 +79,14 @@ public interface TileReader {
     public abstract int getBytesPerTile();
 
     /**
-     * Fetches a tile and fills {@code tileData} with its raw pixel data packaged as bytes according
-     * to the number of bits per sample
-     * 
-     * @param tileData
-     *            a possibly {@code null} array where to store the next tile data. If {@code null} a
-     *            new byte[] of length {@link #getBytesPerTile()} will be allocated and filled up
-     *            with the raw tile pixel data.
-     * @return the bitmask data, or an empty array if the tile is full
-     * @throws IOException
-     * @throws {@link IllegalArgumentException} if tileData is not null and its size is less than
-     *         {@link #getBytesPerTile()}
-     */
-    //public abstract TileInfo[] getTile(int tileX, int tileY) throws IOException;
-
-    /**
      * Disposes any resource being held by this TileReader, making the TileReader unusable and the
      * behaviour of {@link #hasNext()} and {@link #next} unpredictable
      */
     public abstract void dispose();
+
+    public String getServerName();
+
+    public String getRasterTableName();
 
     public abstract long getRasterId();
 
@@ -107,15 +96,15 @@ public interface TileReader {
 
     public abstract int getMinTileY();
 
-    public abstract TileInfo[] getTile(int tileX, int tileY, byte[][] data) throws IOException;
+    public abstract void getTile(int tileX, int tileY, byte[][] data) throws IOException;
 
-    public abstract TileInfo[] getTile(int tileX, int tileY, short[][] data) throws IOException;
+    public abstract void getTile(int tileX, int tileY, short[][] data) throws IOException;
 
-    public abstract TileInfo[] getTile(int tileX, int tileY, int[][] data) throws IOException;
+    public abstract void getTile(int tileX, int tileY, int[][] data) throws IOException;
 
-    public abstract TileInfo[] getTile(int tileX, int tileY, float[][] data) throws IOException;
+    public abstract void getTile(int tileX, int tileY, float[][] data) throws IOException;
 
-    public abstract TileInfo[] getTile(int tileX, int tileY, double[][] data) throws IOException;
+    public abstract void getTile(int tileX, int tileY, double[][] data) throws IOException;
 
     public abstract int toRealTileX(int tileX);
 

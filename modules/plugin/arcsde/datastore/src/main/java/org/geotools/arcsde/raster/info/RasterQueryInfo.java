@@ -170,12 +170,12 @@ public final class RasterQueryInfo {
 
     public void setResultImage(RenderedImage rasterImage) {
         this.resultImage = rasterImage;
-        if (rasterImage.getWidth() != tiledImageSize.width
-                || rasterImage.getHeight() != tiledImageSize.height) {
-            LOGGER.warning("Result image and expected dimensions don't match: image="
-                    + resultImage.getWidth() + "x" + resultImage.getHeight() + ", expected="
-                    + tiledImageSize.width + "x" + tiledImageSize.height);
-        }
+//        if (rasterImage.getWidth() != tiledImageSize.width
+//                || rasterImage.getHeight() != tiledImageSize.height) {
+//            LOGGER.warning("Result image and expected dimensions don't match: image="
+//                    + resultImage.getWidth() + "x" + resultImage.getHeight() + ", expected="
+//                    + tiledImageSize.width + "x" + tiledImageSize.height);
+//        }
     }
 
     public RenderedImage getResultImage() {
