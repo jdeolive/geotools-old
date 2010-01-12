@@ -158,7 +158,7 @@ public class ProjectionHandler {
         ReferencedEnvelope envInt = envIntWgs84.transform(geomCRS, true);
 
         // turn the envelope into a geometry and perform the intersection
-        Geometry result = JTS.toGeometry((Envelope) envInt).intersection(geometry);
+        Geometry result = geometry.intersection(JTS.toGeometry((Envelope) envInt));
 
         // handle in special way empty intersections
         if (result instanceof GeometryCollection && ((GeometryCollection) result).isEmpty())
