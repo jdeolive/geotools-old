@@ -24,12 +24,16 @@ import java.util.List;
 import org.eclipse.xsd.XSDElementDeclaration;
 import org.eclipse.xsd.XSDFactory;
 import org.eclipse.xsd.XSDParticle;
+import org.eclipse.xsd.XSDTypeDefinition;
 import org.geotools.feature.NameImpl;
 import org.geotools.xml.Schemas;
+import org.geotools.xs.XS;
 import org.geotools.xs.bindings.XSAnyTypeBinding;
+import org.opengis.feature.Attribute;
 import org.opengis.feature.ComplexAttribute;
 import org.opengis.feature.Property;
 import org.opengis.feature.type.Name;
+import org.opengis.feature.type.PropertyDescriptor;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -61,9 +65,47 @@ public class SubstitutionGroupXSAnyTypeBinding extends XSAnyTypeBinding {
     @SuppressWarnings("unchecked")
     @Override
     public List getProperties(Object object, XSDElementDeclaration element) throws Exception {
+        List<Object[/* 2 */]> properties = new ArrayList<Object[/* 2 */]>();
+        XSDTypeDefinition typeDef = element.getTypeDefinition();
+        boolean isAnyType = (typeDef.getName().equals(XS.ANYTYPE.getLocalPart()) && typeDef
+                .getTargetNamespace().equals(XS.NAMESPACE));
+        if (isAnyType) {
+            Collection complexAtts;
+            if (object instanceof Collection) {
+                // collection of features
+                complexAtts = (Collection) object;
+            } else if (object instanceof ComplexAttribute) {
+                // get collection of features from this attribute
+                complexAtts = ((ComplexAttribute) object).getProperties();
+            } else {
+                return null;
+            }
+            for (Object complex : complexAtts) {
+                if (complex instanceof ComplexAttribute) {
+                    PropertyDescriptor descriptor = ((Attribute) complex).getDescriptor();
+                    if (descriptor.getUserData() != null) {
+                        Object propertyElement = descriptor.getUserData().get(
+                                XSDElementDeclaration.class);
+                        if (propertyElement != null
+                                && propertyElement instanceof XSDElementDeclaration) {
+                            XSDParticle substitutedChildParticle = XSDFactory.eINSTANCE
+                                    .createXSDParticle();
+                            substitutedChildParticle.setMaxOccurs(descriptor.getMaxOccurs());
+                            substitutedChildParticle.setMinOccurs(descriptor.getMinOccurs());
+                            XSDElementDeclaration wrapper = XSDFactory.eINSTANCE
+                                    .createXSDElementDeclaration();
+                            wrapper
+                                    .setResolvedElementDeclaration((XSDElementDeclaration) propertyElement);
+                            substitutedChildParticle.setContent(wrapper);
+                            properties.add(new Object[] { substitutedChildParticle, complex });
+                        }
+                    }
+                }
+            }
+            return properties;
+        }
         if (object instanceof ComplexAttribute) {
             ComplexAttribute complex = (ComplexAttribute) object;
-            List<Object[/* 2 */]> properties = new ArrayList<Object[/* 2 */]>();
             for (XSDParticle childParticle : (List<XSDParticle>) Schemas.getChildElementParticles(
                     element.getTypeDefinition(), true)) {
                 XSDElementDeclaration childElement = (XSDElementDeclaration) childParticle

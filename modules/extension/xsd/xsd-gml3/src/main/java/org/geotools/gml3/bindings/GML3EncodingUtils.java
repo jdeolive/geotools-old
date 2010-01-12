@@ -31,6 +31,7 @@ import org.geotools.geometry.DirectPosition2D;
 import org.geotools.gml2.bindings.GML2EncodingUtils;
 import org.geotools.gml3.XSDIdRegistry;
 import org.geotools.gml3.GML;
+import org.geotools.util.Converters;
 import org.geotools.xlink.XLINK;
 import org.geotools.xml.ComplexBinding;
 import org.geotools.xml.Configuration;
@@ -225,9 +226,11 @@ public class GML3EncodingUtils {
             Element element) {
         Property simpleContent = complex.getProperty(new NameImpl("simpleContent"));
         if (simpleContent != null) {
-            // TODO: Better conversion to String. Use Converters?
-            Text text = document.createTextNode(simpleContent.getValue().toString());
-            element.appendChild(text);
+            Object value = simpleContent.getValue();
+            if (value != null) {
+                Text text = document.createTextNode(Converters.convert(value, String.class));
+                element.appendChild(text);
+            }
         }
     }
 
