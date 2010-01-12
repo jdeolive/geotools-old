@@ -304,7 +304,7 @@ final class FeatureTypeInfoCache {
             try {
                 typeNames = fetchRegistrations();
             } catch (Exception e) {
-                LOGGER.log(Level.INFO, "Updating TypeNameCache failed.", e);
+                LOGGER.log(Level.SEVERE, "Updating TypeNameCache failed.", e);
                 return;
             }
 
