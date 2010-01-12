@@ -278,11 +278,7 @@ class SessionPool implements ISessionPool {
                 LOGGER.finest("Borrowing session from pool for transactional access");
                 connection = (Session) pool.borrowObject();
             } else {
-//                if (pool.getNumActive() == config.getMaxConnections()) {
-//                    synchronized (openSessionsNonTransactional) {
-//                        connection = openSessionsNonTransactional.remove();
-//                    }
-//                } else {
+                synchronized (openSessionsNonTransactional) {
                     try {
                         if (LOGGER.isLoggable(Level.FINER)) {
                             LOGGER.finer("Grabbing session from pool on "
@@ -298,20 +294,17 @@ class SessionPool implements ISessionPool {
                             LOGGER
                                     .finer("No available sessions in the pool, falling back to queued session");
                         }
-                        synchronized (openSessionsNonTransactional) {
-                            connection = openSessionsNonTransactional.remove();
-                        }
-                        if (LOGGER.isLoggable(Level.FINER)) {
-                            LOGGER.finer("Got session from the in use queue on "
-                                    + Thread.currentThread().getName());
-                        }
+                        connection = openSessionsNonTransactional.remove();
+                    }
+                    
+                    openSessionsNonTransactional.add(connection);
+                    
+                    if (LOGGER.isLoggable(Level.FINER)) {
+                        LOGGER.finer("Got session from the in use queue on "
+                                + Thread.currentThread().getName());
                     }
                 }
-
-                synchronized (openSessionsNonTransactional) {
-                    openSessionsNonTransactional.add(connection);
-                }
-            //}
+            }
 
             connection.markActive();
             return connection;
