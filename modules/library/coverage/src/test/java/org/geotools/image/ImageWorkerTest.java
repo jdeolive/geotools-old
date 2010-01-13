@@ -57,6 +57,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.sun.media.imageioimpl.common.PackageUtil;
+
 
 /**
  * Tests the {@link ImageWorker} implementation.
@@ -275,12 +277,14 @@ public final class ImageWorkerTest {
 
         // /////////////////////////////////////////////////////////////////////
         // nativeJPEG  with compression JPEG-LS
-        // TODO: Disabled for now, because Continuum fails in this case.
-        // /////////////////////////////////////////////////////////////////////
+        // ////////////////////////////////////////////////////////////////////
         final File outFile = TestData.temp(this, "temp.jpeg");
-        worker.writeJPEG(outFile, "JPEG-LS", 0.75f, true);
-        ImageWorker readWorker = new ImageWorker(ImageIO.read(outFile));
-        show(readWorker, "Native JPEG LS");
+        ImageWorker readWorker;
+        if(PackageUtil.isCodecLibAvailable()){
+	        worker.writeJPEG(outFile, "JPEG-LS", 0.75f, true);
+	        readWorker = new ImageWorker(ImageIO.read(outFile));
+	        show(readWorker, "Native JPEG LS");
+        }
 
         // /////////////////////////////////////////////////////////////////////
         // native JPEG compression

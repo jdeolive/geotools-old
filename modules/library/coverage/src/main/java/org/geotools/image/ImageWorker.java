@@ -50,6 +50,8 @@ import java.lang.reflect.InvocationTargetException;
 import javax.media.jai.*;
 import javax.media.jai.operator.*;
 
+import com.sun.media.imageioimpl.common.PackageUtil;
+import com.sun.media.imageioimpl.plugins.jpeg.CLibJPEGImageWriterSpi;
 import com.sun.media.jai.util.ImageUtil;
 
 import org.geotools.factory.Hints;
@@ -2382,13 +2384,21 @@ public class ImageWorker {
                 "com.sun.media.imageioimpl.plugins.jpeg.CLibJPEGImageWriter"))
         {
             writer = it.next();
-        }
+        }     
+        if((!PackageUtil.isCodecLibAvailable()||!(writer.getOriginatingProvider() instanceof CLibJPEGImageWriterSpi))
+        		&&
+        		compression.equals("JPEG-LS")
+        	)
+        		throw new IllegalArgumentException(Errors.format(ErrorKeys.ILLEGAL_ARGUMENT_$2,"compression","JPEG-LS"));
+        
 
         // Compression is available on both lib
         final ImageWriteParam iwp = writer.getDefaultWriteParam();
         final ImageOutputStream outStream = ImageIO.createImageOutputStream(destination);
         if(outStream==null)
         	throw new IIOException(Errors.format(ErrorKeys.NULL_ARGUMENT_$1,"stream"));
+
+        	
          
         iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
         iwp.setCompressionType(compression);        // Lossy compression.
