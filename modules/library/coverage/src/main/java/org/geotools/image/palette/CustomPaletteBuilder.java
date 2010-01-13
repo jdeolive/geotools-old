@@ -31,8 +31,6 @@ import javax.imageio.ImageTypeSpecifier;
  * the "Graphics Gems" (ISBN 0-12-286166-3, Chapter 4, pages 297-293)
  * 
  * @author Simone Giannecchini - GeoSolutions
- *
- * @source $URL$
  */
 public final class CustomPaletteBuilder {
 	/**
@@ -404,6 +402,12 @@ public final class CustomPaletteBuilder {
 		if (transparency == Transparency.BITMASK) {
 			size++; // we need place for transparent color;
 		}
+		
+		// if the palette size happens to be just one (happens with a fully transparent image)
+		// then increase the size to two, otherwise the png encoders will go mad
+		if(size < 2)
+		    size = 2;
+
 
 		final byte[] red = new byte[size];
 		final byte[] green = new byte[size];
@@ -511,6 +515,8 @@ public final class CustomPaletteBuilder {
 		int leafChildCount = thisNode.getLeafChildCount();
 		thisNode.isLeaf = true;
 		currSize -= (leafChildCount - 1);
+
+		final int aDepth = thisNode.level;
 		for (int i = 0; i < 8; i++) {
 			thisNode.children[i] = freeTree(thisNode.children[i]);
 		}
