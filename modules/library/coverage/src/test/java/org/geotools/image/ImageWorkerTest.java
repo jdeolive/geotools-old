@@ -30,6 +30,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.ComponentColorModel;
 import java.awt.image.DataBuffer;
+import java.awt.image.DirectColorModel;
 import java.awt.image.IndexColorModel;
 import java.awt.image.RenderedImage;
 import java.awt.image.WritableRaster;
@@ -42,6 +43,8 @@ import java.io.OutputStream;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
+import javax.media.jai.ImageLayout;
+import javax.media.jai.JAI;
 import javax.media.jai.RasterFactory;
 import javax.media.jai.operator.BandMergeDescriptor;
 import javax.media.jai.operator.ConstantDescriptor;
@@ -73,6 +76,8 @@ public final class ImageWorkerTest {
      * {@code true} if the image should be visualized.
      */
     private static final boolean SHOW = TestData.isInteractiveTest();
+
+	private static BufferedImage worldDEMImage = null;
     
 	/**
 	 * Creates a simple 128x128 {@link RenderedImage} for testing purposes.
@@ -97,6 +102,28 @@ public final class ImageWorkerTest {
 		final BufferedImage image = new BufferedImage(cm, raster, false, null);
 		return image;
 	}    
+	/**
+	 * Creates a test image in RGB with either {@link ComponentColorModel} or {@link DirectColorModel}.
+	 * 
+	 * @param direct <code>true</code> when we request a {@link DirectColorModel}, <code>false</code> otherwise.
+	 * @return 
+	 */
+	private static BufferedImage getSyntheticRGB(final boolean direct) {
+		final int width = 128;
+		final int height = 128;
+		final BufferedImage image= 
+			direct?new BufferedImage(width, height, BufferedImage.TYPE_INT_BGR)
+					:
+				   new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
+		final WritableRaster raster =(WritableRaster) image.getData();
+		final Random random = new Random();
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				raster.setSample(x, y, 0,random.nextInt(256));
+			}
+		}
+		return image;
+	}   
 
     /**
      * Loads the image (if not already loaded) and creates the worker instance.
@@ -115,6 +142,11 @@ public final class ImageWorkerTest {
             worldImage = ImageIO.read(input);
             input.close();
         }
+        if (worldDEMImage == null) {
+            final InputStream input = TestData.openStream(GridCoverage2D.class, "world_dem.gif");
+            worldDEMImage = ImageIO.read(input);
+            input.close();
+        }        
         if (chlImage == null) {
             final InputStream input = TestData.openStream(GridCoverage2D.class, "CHL01195.png");
             chlImage = ImageIO.read(input);
@@ -145,6 +177,48 @@ public final class ImageWorkerTest {
         }          
     }
 
+
+    @Test
+    public void testBitmask(){
+        assertTrue("Assertions should be enabled.", ImageWorker.class.desiredAssertionStatus());
+        ImageWorker worker = new ImageWorker(sstImage);
+        
+        worker.forceBitmaskIndexColorModel();
+        assertEquals(  1, worker.getNumBands());
+        assertEquals( -1, worker.getTransparentPixel());
+        assertTrue  (     worker.isBytes());
+        assertFalse (     worker.isBinary());
+        assertTrue  (     worker.isIndexed());
+        assertTrue  (     worker.isColorSpaceRGB());
+        assertFalse (     worker.isColorSpaceGRAYScale());
+        assertFalse (     worker.isTranslucent());
+
+        final BufferedImage directRGB= getSyntheticRGB(true);
+        worker = new ImageWorker(directRGB);        
+        worker.forceBitmaskIndexColorModel();
+        assertEquals(  1, worker.getNumBands());
+        assertEquals( -1, worker.getTransparentPixel());
+        assertTrue  (     worker.isBytes());
+        assertFalse (     worker.isBinary());
+        assertTrue  (     worker.isIndexed());
+        assertTrue  (     worker.isColorSpaceRGB());
+        assertFalse (     worker.isColorSpaceGRAYScale());
+        assertFalse (     worker.isTranslucent());
+        
+        final BufferedImage componentRGB= getSyntheticRGB(false);
+        worker = new ImageWorker(componentRGB);        
+        worker.forceBitmaskIndexColorModel();
+        assertEquals(  1, worker.getNumBands());
+        assertEquals( -1, worker.getTransparentPixel());
+        assertTrue  (     worker.isBytes());
+        assertFalse (     worker.isBinary());
+        assertTrue  (     worker.isIndexed());
+        assertTrue  (     worker.isColorSpaceRGB());
+        assertFalse (     worker.isColorSpaceGRAYScale());
+        assertFalse (     worker.isTranslucent());
+        
+        
+    }
     /**
      * Tests capability to write GIF image.
      *
@@ -153,32 +227,25 @@ public final class ImageWorkerTest {
     @Test
     public void testGIFImageWrite() throws IOException {
         // Get the image of the world with transparency.
-        ImageWorker worker = new ImageWorker(worldImage);
+        ImageWorker worker = new ImageWorker(worldDEMImage);
         show(worker, "Input GIF");
-        if (false) {
-            final RenderedImage image = worker.getRenderedImage();
-            final ColorModel cm = image.getColorModel();
-            assertTrue("wrong color model", cm instanceof IndexColorModel);
-            assertEquals("wrong transparency model", Transparency.BITMASK, cm.getTransparency());
-            assertEquals("wrong transparency index", 255, ((IndexColorModel) cm).getTransparentPixel());
-        }
-        // Writes it out as GIF on a file using index color model with floyd stenberg algorithm.
+        RenderedImage image = worker.getRenderedImage();
+        ColorModel cm = image.getColorModel();
+        assertTrue("wrong color model", cm instanceof IndexColorModel);
+        assertEquals("wrong transparency model", Transparency.OPAQUE, cm.getTransparency());
+        // Writes it out as GIF on a file using index color model with 
         final File outFile = TestData.temp(this, "temp.gif");
-        worker.forceIndexColorModelForGIF(true);
         worker.writeGIF(outFile, "LZW", 0.75f);
 
         // Read it back
         final ImageWorker readWorker = new ImageWorker(ImageIO.read(outFile));
         show(readWorker, "GIF to file");
-        if (false) {
-            final RenderedImage image = readWorker.getRenderedImage();
-            final ColorModel cm = image.getColorModel();
-            assertTrue("wrong color model", cm instanceof IndexColorModel);
-            assertEquals("wrong transparency model", Transparency.BITMASK, cm);
-            assertEquals("wrong transparency index", 255, ((IndexColorModel) cm).getTransparentPixel());
-        }
+        image = readWorker.getRenderedImage();
+        cm = image.getColorModel();
+        assertTrue("wrong color model", cm instanceof IndexColorModel);
+        assertEquals("wrong transparency model", Transparency.OPAQUE, cm.getTransparency());
+
         // Write on an output streams.
-        ImageIO.setUseCache(true);
         final OutputStream os = new FileOutputStream(outFile);
         worker = new ImageWorker(worldImage);
         worker.forceIndexColorModelForGIF(true);
@@ -187,13 +254,11 @@ public final class ImageWorkerTest {
         // Read it back.
         readWorker.setImage(ImageIO.read(outFile));
         show(readWorker, "GIF to output stream");
-        if (false) {
-            final RenderedImage image = readWorker.getRenderedImage();
-            final ColorModel cm = image.getColorModel();
-            assertTrue("wrong color model", cm instanceof IndexColorModel);
-            assertEquals("wrong transparency model", Transparency.BITMASK, cm);
-            assertEquals("wrong transparency index", 255, ((IndexColorModel) cm).getTransparentPixel());
-        }
+        image = readWorker.getRenderedImage();
+        cm = image.getColorModel();
+        assertTrue("wrong color model", cm instanceof IndexColorModel);
+        assertEquals("wrong transparency model", Transparency.BITMASK, cm.getTransparency());
+        assertEquals("wrong transparent color index", 255, ((IndexColorModel)cm).getTransparentPixel());
         outFile.delete();
     }
 
@@ -213,18 +278,16 @@ public final class ImageWorkerTest {
         // TODO: Disabled for now, because Continuum fails in this case.
         // /////////////////////////////////////////////////////////////////////
         final File outFile = TestData.temp(this, "temp.jpeg");
-        if (false) {
-            worker.writeJPEG(outFile, "JPEG-LS", 0.75f, true);
-            final ImageWorker readWorker = new ImageWorker(ImageIO.read(outFile));
-            show(readWorker, "Native JPEG LS");
-        }
+        worker.writeJPEG(outFile, "JPEG-LS", 0.75f, true);
+        ImageWorker readWorker = new ImageWorker(ImageIO.read(outFile));
+        show(readWorker, "Native JPEG LS");
 
         // /////////////////////////////////////////////////////////////////////
         // native JPEG compression
         // /////////////////////////////////////////////////////////////////////
         worker.setImage(worldImage);
         worker.writeJPEG(outFile, "JPEG", 0.75f, true);
-        final ImageWorker readWorker = new ImageWorker(ImageIO.read(outFile));
+        readWorker = new ImageWorker(ImageIO.read(outFile));
         show(readWorker, "native JPEG");
 
         // /////////////////////////////////////////////////////////////////////
@@ -285,28 +348,27 @@ public final class ImageWorkerTest {
     /**
      * Tests the conversion between RGB and indexed color model.
      */
+    @Test
     public void testRGB2Palette(){
         final ImageWorker worker = new ImageWorker(worldImage);
         show(worker, "Input file");
         worker.forceIndexColorModelForGIF(true);
 
         // Convert to to index color bitmask
-        if (false) {
-            final ColorModel cm = worker.getRenderedImage().getColorModel();
-            assertTrue("wrong color model", cm instanceof IndexColorModel);
-            assertEquals("wrong transparency model", Transparency.BITMASK, cm.getTransparency());
-            assertEquals("wrong transparency index", 255, ((IndexColorModel) cm).getTransparentPixel());
-        }
+        ColorModel cm = worker.getRenderedImage().getColorModel();
+        assertTrue("wrong color model", cm instanceof IndexColorModel);
+        assertEquals("wrong transparency model", Transparency.BITMASK, cm.getTransparency());
+        assertEquals("wrong transparency index", 255, ((IndexColorModel) cm).getTransparentPixel());
         show(worker, "Paletted bitmask");
 
         // Go back to rgb.
         worker.forceComponentColorModel();
-        if (false) {
-            final ColorModel cm = worker.getRenderedImage().getColorModel();
-            assertTrue("wrong color model", cm instanceof ComponentColorModel);
-            assertEquals("wrong bands number", 4, cm.getNumComponents());
-            assertEquals("wrong transparency model", Transparency.TRANSLUCENT, cm.getTransparency());
-        }
+        cm = worker.getRenderedImage().getColorModel();
+        assertTrue("wrong color model", cm instanceof ComponentColorModel);
+        assertEquals("wrong bands number", 4, cm.getNumComponents());
+
+        show(worker, "RGB translucent");
+        assertEquals("wrong transparency model", Transparency.TRANSLUCENT, cm.getTransparency());
         show(worker, "RGB translucent");
     }
     
@@ -527,6 +589,39 @@ public final class ImageWorkerTest {
         assertTrue (     worker.isTranslucent());        
         image= worker.getRenderedImage();
         assertTrue  (     image.getColorModel() instanceof ComponentColorModel);         
+        
+        
+    }
+    
+    /**
+     * Tests the {@link ImageWorker#tile()} methods.
+     * Some trivial tests are performed before.
+     */
+    @Test
+    public void testReTile()  {
+        assertTrue("Assertions should be enabled.", ImageWorker.class.desiredAssertionStatus());
+        ImageWorker worker = new ImageWorker(worldImage);
+        
+        assertSame(worldImage, worker.getRenderedImage());
+        assertEquals(  4, worker.getNumBands());
+        assertEquals( -1, worker.getTransparentPixel());
+        assertTrue  (     worker.isBytes());
+        assertFalse (     worker.isBinary());
+        assertFalse  (     worker.isIndexed());
+        assertTrue  (     worker.isColorSpaceRGB());
+        assertFalse (     worker.isColorSpaceGRAYScale());
+        assertTrue (     worker.isTranslucent());
+
+        assertSame("Expected no operation.", worldImage, worker.rescaleToBytes()           .getRenderedImage());
+        assertSame("Expected no operation.", worldImage, worker.forceComponentColorModel().getRenderedImage());
+        assertSame("Expected no operation.", worldImage, worker.forceColorSpaceRGB()       .getRenderedImage());
+        assertSame("Expected no operation.", worldImage, worker.retainBands(4)             .getRenderedImage());
+
+        // Following will change image, so we need to test after the above assertions.
+        worker.setRenderingHint(JAI.KEY_IMAGE_LAYOUT, new ImageLayout().setTileGridXOffset(0).setTileGridYOffset(0).setTileHeight(64).setTileWidth(64));
+        worker.tile();    
+        assertSame("Expected 64.", 64, worker.getRenderedImage().getTileWidth());
+        assertSame("Expected 64.", 64, worker.getRenderedImage().getTileHeight());
         
         
     }
