@@ -450,7 +450,7 @@ public final class GTopo30Reader extends AbstractGridCoverage2DReader implements
 		// /////////////////////////////////////////////////////////////////////
 		// trying to create a channel to the file to read
 		final File file = DataUtilities.urlToFile(demURL);
-		final ImageInputStream iis = ImageIO.createImageOutputStream(file);
+		final ImageInputStream iis = ImageIO.createImageInputStream(file);
 		if (header.getByteOrder().compareToIgnoreCase("M") == 0) {
 			iis.setByteOrder(ByteOrder.BIG_ENDIAN);
 		} else {
