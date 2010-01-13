@@ -2357,7 +2357,7 @@ public class ImageWorker {
         	LOGGER.finer("Encoding input image to write out as JPEG.");
 
              	
-        tileCacheEnabled(false);
+        rescaleToBytes();
         final ColorModel cm = image.getColorModel();
         final boolean indexColorModel = image.getColorModel() instanceof IndexColorModel;
         final boolean hasAlpha = cm.hasAlpha();
@@ -2369,7 +2369,7 @@ public class ImageWorker {
         if (hasAlpha) {
             retainBands(numBands - 1);
         }
-        tileCacheEnabled(true);
+        
 
         // Getting a writer.
         if(LOGGER.isLoggable(Level.FINER))
