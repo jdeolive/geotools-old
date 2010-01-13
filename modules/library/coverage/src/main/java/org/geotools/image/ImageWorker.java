@@ -938,26 +938,33 @@ public class ImageWorker {
             hints.put(JAI.KEY_REPLACE_INDEX_COLOR_MODEL, Boolean.FALSE);
             image = LookupDescriptor.create(image, lookupTable, hints);
         } else {
-            /*
-             * The image is not indexed. Getting the alpha channel.
+        	// force component color model first
+        	forceComponentColorModel(true);
+			/*
+             * The image is not indexed. 
              */
-            RenderedImage alphaChannel = null;
             if (cm.hasAlpha()) {
+            	//Getting the alpha channel.
                 tileCacheEnabled(false);
                 int numBands = getNumBands();
                 final RenderingHints hints = getRenderingHints();
-                alphaChannel = BandSelectDescriptor.create(image,
+
+                final RenderedOp alphaChannel = BandSelectDescriptor.create(image,
                                 new int[] { --numBands }, hints);
                 retainBands(numBands);
                 forceIndexColorModel(errorDiffusion);
                 tileCacheEnabled(true);
+                
+
+                /*
+                 * Adding transparency if needed, which means using the alpha
+                 * channel to build a new color model. The method call below implies
+                 * 'forceColorSpaceRGB()' and 'forceIndexColorModel()' method calls.
+                 */
+                addTransparencyToIndexColorModel(alphaChannel, false, transparent, errorDiffusion);
             }
-            /*
-             * Adding transparency if needed, which means using the alpha
-             * channel to build a new color model. The method call below implies
-             * 'forceColorSpaceRGB()' and 'forceIndexColorModel()' method calls.
-             */
-            addTransparencyToIndexColorModel(alphaChannel, false, transparent, errorDiffusion);
+            else
+                forceIndexColorModel(errorDiffusion);
         }
         // All post conditions for this method contract.
         assert isIndexed();
@@ -1159,7 +1166,7 @@ public class ImageWorker {
             				bits,
                     		alpha,
                     		cm.isAlphaPremultiplied(),
-                    		cm.getTransparency(),
+                    		alpha?Transparency.TRANSLUCENT:Transparency.OPAQUE,
                     		datatype);
             final SampleModel destinationSampleModel=destinationColorModel.createCompatibleSampleModel(image.getWidth(), image.getHeight());
             layout.setColorModel(destinationColorModel);
@@ -1604,7 +1611,7 @@ public class ImageWorker {
         }
         final ColorModel cm = image.getColorModel();
         if (cm instanceof IndexColorModel) {
-            return maskIndexColorModelByte(transparentColor);
+            return maskIndexColorModel(transparentColor);
         } else if (cm instanceof ComponentColorModel) {
             switch (image.getSampleModel().getDataType()) {
                 case DataBuffer.TYPE_BYTE: {
@@ -1623,12 +1630,8 @@ public class ImageWorker {
      * @param transparentColor The color to make transparent.
      * @return this image worker.
      *
-     * @deprecated Use {@link #makeColorTransparent} instead. This method will be private in a
-     *             future version. The {@code Byte} suffix in the method name will be removed
-     *             since this method works for type USHORT as well.
      */
-    @Deprecated
-    public final ImageWorker maskIndexColorModelByte(final Color transparentColor) {
+    private final ImageWorker maskIndexColorModel(final Color transparentColor) {
         assert image.getColorModel() instanceof IndexColorModel;
 
         // Gets informations about the provided images.
@@ -1717,8 +1720,6 @@ public class ImageWorker {
      * @param transparentColor The color to make transparent.
      * @return this image worker.
      *
-     * @deprecated This method will be private (and maybe replaced) in a future version.
-     *             Use {@link #makeColorTransparent} instead.
      *
      * Current implementation invokes a lot of JAI operations:
      *
@@ -1730,8 +1731,7 @@ public class ImageWorker {
      * depends on statistics on pixel values) and avoid unwanted side-effect like turning black
      * color (RGB = 0,0,0) to transparent one. It would also be easier to maintain I believe.
      */
-    @Deprecated
-    public final ImageWorker maskComponentColorModelByte(final Color transparentColor) {
+    private final ImageWorker maskComponentColorModelByte(final Color transparentColor) {
         assert image.getColorModel() instanceof ComponentColorModel;
         assert image.getSampleModel().getDataType() == DataBuffer.TYPE_BYTE;
         /*
