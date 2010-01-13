@@ -2360,15 +2360,14 @@ public class ImageWorker {
         tileCacheEnabled(false);
         final ColorModel cm = image.getColorModel();
         final boolean indexColorModel = image.getColorModel() instanceof IndexColorModel;
-        final int numBands = image.getSampleModel().getNumBands();
         final boolean hasAlpha = cm.hasAlpha();
-        if (indexColorModel || hasAlpha) {
-            if (indexColorModel) {
+        if (indexColorModel) {
                 forceComponentColorModel();
-            }
-            if (hasAlpha) {
-                retainBands(numBands - 1);
-            }
+        }
+
+        final int numBands = image.getSampleModel().getNumBands();
+        if (hasAlpha) {
+            retainBands(numBands - 1);
         }
         tileCacheEnabled(true);
 
