@@ -16,6 +16,7 @@
  */
 package org.geotools.parameter;
 
+import java.text.MessageFormat;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -85,7 +86,8 @@ public class ImagingParameterDescriptors extends DefaultParameterDescriptorGroup
      */
     private static final Object[] AUTHORITIES = {
             "com.sun.media.jai", Citations.JAI,
-            "org.geotools",      Citations.GEOTOOLS
+            "org.geotools",      Citations.GEOTOOLS,
+            "jaitools.media.jai",Citations.JAI
     };
 
     /**
@@ -314,6 +316,14 @@ public class ImagingParameterDescriptors extends DefaultParameterDescriptorGroup
                         break;
                     }
                 }
+            }
+            if (authority == null) {
+                /*
+                 * jump off, since it will break the creation of CitationImpl
+                 * with a missleading "null source" message.
+                 */
+                throw new IllegalArgumentException(Errors.format(
+                        ErrorKeys.NO_SUCH_AUTHORITY_CODE_$2, "AUTHORITIES", vendor));
             }
             /*
              * If we are able to construct an URI, replaces the contact info for the first (and only

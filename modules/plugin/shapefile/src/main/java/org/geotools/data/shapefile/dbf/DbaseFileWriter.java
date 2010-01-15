@@ -28,7 +28,8 @@ import java.nio.charset.Charset;
 import java.text.FieldPosition;
 import java.text.NumberFormat;
 import java.util.Calendar;
-import java.util.Date;
+import java.util.GregorianCalendar;
+import java.sql.Date;
 import java.util.Locale;
 
 import org.geotools.data.shapefile.StreamLogging;
@@ -59,7 +60,9 @@ public class DbaseFileWriter {
     private ByteBuffer buffer;
     private final Number NULL_NUMBER = new Integer(0);
     private final String NULL_STRING = "";
-    private final Date NULL_DATE = new Date();
+    private final Date NULL_DATE =  new Date((new java.util.Date()).getTime());
+    private final java.util.Date NULL_TIMESTAMP = new java.util.Date();
+    
     private StreamLogging streamLogger = new StreamLogging("Dbase File Writer");
     private Charset charset;
     
@@ -115,6 +118,15 @@ public class DbaseFileWriter {
         }
     }
 
+    private static final byte[] intToByteArray(int value) {
+        byte[] out = new byte[] {
+                (byte)(value >>> 24),
+                (byte)(value >>> 16),
+                (byte)(value >>> 8),
+                (byte)value};
+        return out;
+    }
+ 
     /**
      * Write a single dbase record.
      * 
@@ -138,15 +150,25 @@ public class DbaseFileWriter {
         buffer.put((byte) ' ');
 
         for (int i = 0; i < header.getNumFields(); i++) {
+            char ft = header.getFieldType(i);
+            
+            if (ft != '@'){
             String fieldString = fieldString(record[i], i);
             if (header.getFieldLength(i) != fieldString.getBytes(charset.name()).length) {
                 // System.out.println(i + " : " + header.getFieldName(i)+" value
                 // = "+fieldString+"");
                 buffer.put(new byte[header.getFieldLength(i)]);
             } else {
-                buffer.put(fieldString.getBytes(charset.name()));
+            	byte[] tmp = fieldString.getBytes(charset.name());
+                buffer.put(tmp);
             }
-
+            }else{
+                Object obj = record[i];
+                byte[] bf = 
+                    formatter
+                       .getFieldString((java.util.Date) (obj == null ? NULL_TIMESTAMP : obj));
+                buffer.put(bf);
+            }
         }
 
         write();
@@ -155,7 +177,10 @@ public class DbaseFileWriter {
     private String fieldString(Object obj, final int col) {
         String o;
         final int fieldLen = header.getFieldLength(col);
-        switch (header.getFieldType(col)) {
+        
+        char ft = header.getFieldType(col);
+        
+        switch (ft) {
         case 'C':
         case 'c':
             o = formatter.getFieldString(fieldLen, obj == null ? NULL_STRING
@@ -192,8 +217,15 @@ public class DbaseFileWriter {
         case 'D':
         case 'd':
             o = formatter
-                    .getFieldString((Date) (obj == null ? NULL_DATE : obj));
+                    .getFieldString(new java.sql.Date( ((java.util.Date) (obj == null ? NULL_DATE : obj)).getTime()));
             break;
+        case '@':
+        	byte[] bf = 
+                 formatter
+                    .getFieldString((java.util.Date) (obj == null ? NULL_TIMESTAMP : obj));
+        	o = new String(bf);
+            break;                      
+            
         default:
             throw new RuntimeException("Unknown type "
                     + header.getFieldType(col));
@@ -330,6 +362,56 @@ public class DbaseFileWriter {
 
             buffer.setLength(8);
             return buffer.toString();
+        }
+        
+        public byte[] getFieldString(java.util.Date d) {
+        	byte[] tmpOut= {0, 0, 0, 0, 0, 0, 0, 0}; 
+        	
+        	if (d != null) {
+
+                calendar.setTime(d);
+
+                Calendar calendar0 = (Calendar) calendar.clone();
+                calendar0.set(Calendar.HOUR_OF_DAY, 0);
+                calendar0.set(Calendar.MINUTE, 0);
+                calendar0.set(Calendar.SECOND, 0);
+                calendar0.set(Calendar.MILLISECOND, 0);
+                         
+                Calendar calendar1 = (Calendar) new GregorianCalendar();
+                
+                calendar1.set(Calendar.ERA, GregorianCalendar.BC);
+                calendar1.set(Calendar.YEAR, 4713);
+                calendar1.set(Calendar.MONTH, 1);
+                calendar1.set(Calendar.DAY_OF_MONTH, 1);
+                
+                final long MILLISECS_PER_DAY = 24*60*60*1000;
+                /**
+                 * find the number of days from this date to the given end date.
+                 * later end dates result in positive values.
+                 * Note this is not the same as subtracting day numbers.
+                 * Just after midnight subtracted from just before
+                 * midnight is 0 days for this method while subtracting day numbers would yields 1 day.
+                 * Taken from http://www.xmission.com/~goodhill/dates/src/FAQCalendar.java
+                 */
+                 long endL   =  calendar0.getTimeInMillis()  
+                       + calendar0.getTimeZone().getOffset(calendar0.getTimeInMillis());
+                 long startL = calendar1.getTimeInMillis() 
+                       + calendar1.getTimeZone().getOffset(calendar1.getTimeInMillis());
+                 
+                 int days = (int) ((endL - startL) / MILLISECS_PER_DAY);
+                 
+                 byte[] tmp = intToByteArray(days);
+                 
+                 
+                 int todayTime = (int) (calendar.getTimeInMillis() - calendar0.getTimeInMillis()); 
+                 
+                 byte[] tmp1 = intToByteArray(todayTime);
+                
+                 byte[] tmpOut2 = {tmp[0], tmp[1], tmp[2], tmp[3] , tmp1[0], tmp1[1], tmp1[2], tmp1[3]};
+                 tmpOut = tmpOut2;
+            } 
+            
+            return tmpOut;
         }
 
         public String getFieldString(int size, int decimalPlaces, Number n) {

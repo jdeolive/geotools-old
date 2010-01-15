@@ -151,6 +151,10 @@ public abstract class Operation2D extends AbstractOperation {
         final boolean computeOnGeophysicsValues = computeOnGeophysicsValues(parameters);
         for (int i=0; i<sourceNames.length; i++) {
             Object candidate = parameters.parameter(sourceNames[i]).getValue();
+            if (candidate == null) {
+                // assume it is an optional parameter
+                continue;
+            }
             if (!(candidate instanceof GridCoverage2D)) {
                 throw new InvalidParameterValueException(Errors.format(ErrorKeys.ILLEGAL_CLASS_$2,
                         Classes.getClass(candidate), GridCoverage2D.class), sourceNames[i], candidate);

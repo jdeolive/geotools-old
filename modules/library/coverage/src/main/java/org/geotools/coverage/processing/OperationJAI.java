@@ -302,6 +302,7 @@ public class OperationJAI extends Operation2D {
         // TODO: remove the cast when we will be allowed to compile for J2SE 1.5.
         final MathTransform2D gridToCRS = coverage.getGridGeometry().getGridToCRS2D();
         for (int i=0; i<sources.length; i++) {
+            if (sources[i] == null) continue;
             final GridCoverage2D source = sources[i];
             if (!CRS.equalsIgnoreMetadata(crs, source.getCoordinateReferenceSystem2D()) ||
                 !CRS.equalsIgnoreMetadata(gridToCRS, source.getGridGeometry().getGridToCRS2D()))
@@ -448,6 +449,7 @@ public class OperationJAI extends Operation2D {
          */
         final AbstractProcessor processor = getProcessor(hints);
         for (int i=0; i<sources.length; i++) {
+            if( sources[i] == null ) continue;
             final GridCoverage2D            source    = sources[i];
             final GridGeometry2D            geometry  = source.getGridGeometry();
             final CoordinateReferenceSystem srcCrs2D  = source.getCoordinateReferenceSystem2D();
@@ -575,12 +577,13 @@ public class OperationJAI extends Operation2D {
          */
         final GridSampleDimension[][] list = new GridSampleDimension[sources.length][];
         for (int i=0; i<list.length; i++) {
+            if(sources[i]==null) continue;
             list[i] = sources[i].getSampleDimensions();
         }
         final GridSampleDimension[] sampleDims = deriveSampleDimension(list, parameters);
         int primarySourceIndex = -1;
         for (int i=0; i<list.length; i++) {
-            if (Arrays.equals(sampleDims, list[i])) {
+            if (list[i] != null && Arrays.equals(sampleDims, list[i])) {
                 primarySource = sources[i];
                 primarySourceIndex = i;
                 break;
@@ -741,6 +744,7 @@ public class OperationJAI extends Operation2D {
          */
         int numBands = 1;
         for (int i=0; i<bandLists.length; i++) {
+            if(bandLists[i] == null) continue;
             final int nb = bandLists[i].length;
             if (nb != 1) {
                 if (numBands!=1 && nb!=numBands) {
@@ -763,6 +767,7 @@ public class OperationJAI extends Operation2D {
             int       indexOfQuantitative = 0;
             assert PRIMARY_SOURCE_INDEX == 0; // See comment below.
             for (int i=bandLists.length; --i>=0;) {
+                if(bandLists[i] == null) continue;
                 /*
                  * Iterates among all sources (i) for the current band. We iterate
                  * sources in reverse order because the primary source MUST be the
@@ -915,7 +920,8 @@ public class OperationJAI extends Operation2D {
         } else {
             names = new InternationalString[sources.length];
             for (int i=0; i<names.length; i++) {
-                names[i] = sources[i].getName();
+                if(sources[i] != null)
+                    names[i] = sources[i].getName();
             }
         }
         return new Name(getName(), names);

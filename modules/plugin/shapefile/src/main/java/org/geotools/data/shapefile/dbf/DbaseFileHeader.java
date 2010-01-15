@@ -27,7 +27,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
+import java.sql.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -51,7 +51,7 @@ public class DbaseFileHeader {
     private static final int MINIMUM_HEADER = 33;
 
     // Date the file was last updated.
-    private Date date = new Date();
+    private Date date = new Date((new java.util.Date()).getTime());
 
     private int recordCnt = 0;
 
@@ -71,14 +71,14 @@ public class DbaseFileHeader {
             .getLogger("org.geotools.data.shapefile");
 
     /**
-     * Class for holding the information assicated with a record.
+     * Class for holding the information associated with a record.
      */
     class DbaseField {
 
         // Field Name
         String fieldName;
 
-        // Field Type (C N L D or M)
+        // Field Type (C N L D @ or M)
         char fieldType;
 
         // Field Data Address offset from the start of the record.
@@ -92,7 +92,7 @@ public class DbaseFileHeader {
 
     }
 
-    // collection of header records.
+    // Collection of header records.
     // lets start out with a zero-length array, just in case
     private DbaseField[] fields = new DbaseField[0];
 
@@ -115,7 +115,8 @@ public class DbaseFileHeader {
      * N (Numeric)   -&gt; Integer or Long or Double (depends on field's decimal count and fieldLength)
      * F (Floating)  -&gt; Double
      * L (Logical)   -&gt; Boolean
-     * D (Date)      -&gt; java.util.Date
+     * D (Date)      -&gt; java.sql.Date (Without time)
+     * @ (Timestamp) -&gt; java.util.Date (With time)
      * Unknown       -&gt; String
      * </PRE>
      * 
@@ -155,6 +156,10 @@ public class DbaseFileHeader {
         case 'D':
             typeClass = Date.class;
             break;
+            
+        case '@':
+            typeClass = java.util.Date.class;
+            break;
 
         default:
             typeClass = String.class;
@@ -177,6 +182,7 @@ public class DbaseFileHeader {
      * ---------- ---------
      * C          254
      * D          8
+     * @          8
      * F          20
      * N          18
      * </PRE>
@@ -237,12 +243,12 @@ public class DbaseFileHeader {
             tempFieldDescriptors[fields.length].fieldType = 'C';
             if (inFieldLength > 254) {
                 if (logger.isLoggable(Level.FINE)) {
-                    logger
-                            .fine("Field Length for "
-                                    + inFieldName
-                                    + " set to "
-                                    + inFieldLength
-                                    + " Which is longer than 254, not consistent with dbase III");
+                    logger.fine("Field Length for "
+                            + inFieldName
+                            + " set to "
+                            + inFieldLength
+                            + " Which is longer than 254, "
+                            + "not consistent with dbase III");
                 }
             }
         } else if ((inFieldType == 'S') || (inFieldType == 's')) {
@@ -251,7 +257,8 @@ public class DbaseFileHeader {
                 logger
                         .warning("Field type for "
                                 + inFieldName
-                                + " set to S which is flat out wrong people!, I am setting this to C, in the hopes you meant character.");
+                                + " set to S which is flat out wrong people!,"
+                                + "I am setting this to C, in the hopes you meant character.");
             }
             if (inFieldLength > 254) {
                 if (logger.isLoggable(Level.FINE)) {
@@ -269,32 +276,44 @@ public class DbaseFileHeader {
             if (inFieldLength != 8) {
                 if (logger.isLoggable(Level.FINE)) {
                     logger.fine("Field Length for " + inFieldName + " set to "
-                            + inFieldLength + " Setting to 8 digets YYYYMMDD");
+                            + inFieldLength + " Setting to 8 digits YYYYMMDD");
                 }
             }
             tempFieldDescriptors[fields.length].fieldLength = 8;
+        } else if (inFieldType == '@') {
+            tempFieldDescriptors[fields.length].fieldType = '@';
+            if (inFieldLength != 8) {
+                if (logger.isLoggable(Level.FINE)) {
+                    logger.fine("Field Length for " + inFieldName + " set to "
+                            + inFieldLength + " Setting to 8 digits - two longs,"
+                            + "one long for date and one long for time");
+                }
+            }
+            tempFieldDescriptors[fields.length].fieldLength = 8;
+   
         } else if ((inFieldType == 'F') || (inFieldType == 'f')) {
             tempFieldDescriptors[fields.length].fieldType = 'F';
             if (inFieldLength > 20) {
                 if (logger.isLoggable(Level.FINE)) {
-                    logger
-                            .fine("Field Length for "
-                                    + inFieldName
-                                    + " set to "
-                                    + inFieldLength
-                                    + " Preserving length, but should be set to Max of 20 not valid for dbase IV, and UP specification, not present in dbaseIII.");
+                    logger.fine("Field Length for "
+                                + inFieldName
+                                + " set to "
+                                + inFieldLength
+                                + " Preserving length, but should be set to Max of 20 " 
+                                + "not valid for dbase IV, and UP specification, not " 
+                                + "present in dbaseIII.");
                 }
             }
         } else if ((inFieldType == 'N') || (inFieldType == 'n')) {
             tempFieldDescriptors[fields.length].fieldType = 'N';
             if (inFieldLength > 18) {
                 if (logger.isLoggable(Level.FINE)) {
-                    logger
-                            .fine("Field Length for "
-                                    + inFieldName
-                                    + " set to "
-                                    + inFieldLength
-                                    + " Preserving length, but should be set to Max of 18 for dbase III specification.");
+                    logger.fine("Field Length for "
+                                + inFieldName
+                                + " set to "
+                                + inFieldLength
+                                + " Preserving length, but should be set to Max of 18"
+                                + " for dbase III specification.");
                 }
             }
             if (inDecimalCount < 0) {
@@ -342,7 +361,7 @@ public class DbaseFileHeader {
     /**
      * Remove a column from this DbaseFileHeader.
      * 
-     * @todo This is really ugly, don't know who wrote it, but it needs fixin...
+     * @todo This is really ugly, don't know who wrote it, but it needs fixing...
      * @param inFieldName
      *                The name of the field, will ignore case and trim.
      * @return index of the removed column, -1 if no found
@@ -516,7 +535,7 @@ public class DbaseFileHeader {
         c.set(Calendar.YEAR, tempUpdateYear);
         c.set(Calendar.MONTH, tempUpdateMonth - 1);
         c.set(Calendar.DATE, tempUpdateDay);
-        date = c.getTime();
+        date = new Date(c.getTimeInMillis());
 
         // read the number of records.
         recordCnt = in.getInt();
@@ -540,7 +559,7 @@ public class DbaseFileHeader {
         // ahhh.. unsigned little-endian shorts
         recordLength = (in.get() & 0xff) | ((in.get() & 0xff) << 8);
 
-        // skip / skip thesreserved bytes in the header.
+        // skip the reserved bytes in the header.
         in.position(in.position() + 20);
 
         // calculate the number of Fields in the header
@@ -582,7 +601,7 @@ public class DbaseFileHeader {
             // read the field decimal count in bytes
             field.decimalCount = (int) in.get();
 
-            // rreservedvededved bytes.
+            // reserved bytes.
             // in.skipBytes(14);
             in.position(in.position() + 14);
 
@@ -607,7 +626,7 @@ public class DbaseFileHeader {
     /**
      * Get the largest field size of this table.
      * 
-     * @return The largt field size iiin bytes.
+     * @return The largest field size in bytes.
      */
     public int getLargestFieldSize() {
         return largestFieldSize;
@@ -646,7 +665,7 @@ public class DbaseFileHeader {
 
         // write the date stuff
         Calendar c = Calendar.getInstance();
-        c.setTime(new Date());
+        c.setTime(new java.util.Date());
         buffer.put((byte) (c.get(Calendar.YEAR) % 100));
         buffer.put((byte) (c.get(Calendar.MONTH) + 1));
         buffer.put((byte) (c.get(Calendar.DAY_OF_MONTH)));
