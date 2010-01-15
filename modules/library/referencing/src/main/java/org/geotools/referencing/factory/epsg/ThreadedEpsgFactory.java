@@ -96,7 +96,7 @@ public class ThreadedEpsgFactory extends DeferredAuthorityFactory
      *
      * @see #createDataSource
      */
-    public static final String DATASOURCE_NAME = "jdbc/EPSG";
+    public static final String DATASOURCE_NAME = "java:comp/env/jdbc/EPSG";
 
     /**
      * {@code true} if automatic registration of {@link #datasourceName} is allowed.
@@ -301,15 +301,10 @@ public class ThreadedEpsgFactory extends DeferredAuthorityFactory
          // Fall back on 'return null' below.
         } catch (NoInitialContextException exception) {
             // Fall back on 'return null' below.
-        } catch (NameNotFoundException exception) {
+        } catch (NamingException exception) {
             registerInto = context;
             // Fall back on 'return null' below.
-        } catch (NamingException exception) {
-            SQLException e = new SQLException(Errors.format(
-                    ErrorKeys.CANT_GET_DATASOURCE_$1, datasourceName));
-            e.initCause(exception);
-            throw e;
-        }
+        } 
         return source;
     }
 
