@@ -1,4 +1,4 @@
-.. _crslab:
+. _crslab:
 
 CRS Lab
 =======
@@ -12,7 +12,7 @@ Dependencies
 Please ensure your pom.xml includes the following::
 
   <properties>
-      <geotools.version>2.6.0</geotools.version>
+      <geotools.version>2.6.1</geotools.version>
   </properties>
 
   <dependencies>

@@ -19,6 +19,10 @@ Dependencies
  
 We are going to add another couple dependencies here::
  
+  <properties>
+      <geotools.version>2.6.1</geotools.version>
+  </properties>
+
   <dependencies>
       <dependency>
           <groupId>org.geotools</groupId>
