@@ -28,6 +28,7 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 
 import org.geotools.data.DataSourceException;
+import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
 import org.geotools.data.complex.filter.XPath;
@@ -38,6 +39,7 @@ import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureImpl;
 import org.geotools.feature.Types;
 import org.geotools.filter.AttributeExpressionImpl;
+import org.geotools.filter.FidFilterImpl;
 import org.geotools.xlink.XLINK;
 import org.opengis.feature.Attribute;
 import org.opengis.feature.ComplexAttribute;
@@ -47,6 +49,7 @@ import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.Name;
+import org.opengis.filter.Filter;
 import org.opengis.filter.expression.Expression;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.xml.sax.Attributes;
@@ -93,6 +96,11 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
     private FeatureSource<FeatureType, Feature> mappedSource;
 
     private FeatureCollection<FeatureType, Feature> sourceFeatures;
+    /**
+     * Filter that has that attributes from nested features as parameter.
+     * To be applied per feature when computeNext() is called.
+     */
+    private Filter nestedAttributeFilter;
 
     /**
      * 
@@ -119,9 +127,17 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
         boolean exists = false;
 
         if (sourceFeatureIterator != null && featureCounter < maxFeatures) {
-            exists = sourceFeatureIterator.hasNext();
-            if (exists && this.curSrcFeature == null) {
+            boolean hasNextSrc = sourceFeatureIterator.hasNext();
+            while (hasNextSrc) {
                 this.curSrcFeature = sourceFeatureIterator.next();
+                if (nestedAttributeFilter != null && !nestedAttributeFilter.evaluate(curSrcFeature)) {
+                    // get the next one
+                    hasNextSrc = sourceFeatureIterator.hasNext();
+                } else {
+                    // either there's no filter or that it passed the filter, so return it
+                    exists = true;
+                    hasNextSrc = false;
+                }
             }
         }
 
@@ -145,10 +161,33 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
     protected void initialiseSourceFeatures(FeatureTypeMapping mapping, Query query)
             throws IOException {
         mappedSource = mapping.getSource();
-
-        sourceFeatures = mappedSource.getFeatures(query);
-        this.sourceFeatureIterator = sourceFeatures.iterator();
-        this.reprojection = query.getCoordinateSystemReproject();
+        this.reprojection = query.getCoordinateSystemReproject();       
+        try {
+            sourceFeatures = mappedSource.getFeatures(query);
+            this.sourceFeatureIterator = sourceFeatures.iterator();
+        } catch (IllegalArgumentException e) {
+            // HACK HACK HACK
+            // This is the only way we can check if the filter attributes are nested or not
+            // since there's no expression getter method for every implementation of filters.
+            // Remove the suspected filter from the query, and run it against each complex feature later
+            // because JDBCFeatureSource cannot handle nested queries, since it translates
+            // it to SQL first, then run the big query, but there's no way it can find the nested
+            // feature type name from there.
+            // Whereas with PropertyFeatureSource, it just runs the query first with no filters, then
+            // check every row against the filter, which is what we're trying to do here.
+            if (query instanceof DefaultQuery) {
+                Filter filter = ((DefaultQuery) query).getFilter();
+                if (filter != null && filter != Filter.INCLUDE
+                        && !(filter instanceof FidFilterImpl)) {
+                    ((DefaultQuery) query).setFilter(Filter.INCLUDE);
+                    nestedAttributeFilter = filter;
+                    sourceFeatures = mappedSource.getFeatures(query);
+                    this.sourceFeatureIterator = sourceFeatures.iterator();
+                    return;
+                }
+            }
+            throw e;
+        }
     }
 
     protected boolean unprocessedFeatureExists() {
@@ -421,22 +460,27 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
     }
 
     protected Feature computeNext() throws IOException {
-        assert this.curSrcFeature != null : "hasNext not called?";       
-
-        String id = extractIdForFeature(curSrcFeature);
+        assert this.curSrcFeature != null : "hasNext not called?";  
         
-        ArrayList<Feature> sources = new ArrayList<Feature>();   
+        ArrayList<Feature> sources = new ArrayList<Feature>();
         sources.add(curSrcFeature);
+        String id = extractIdForFeature(curSrcFeature);
         while (sourceFeatureIterator.hasNext()) {
             Feature next = sourceFeatureIterator.next();
-            if (extractIdForFeature(next).equals(id)) {
-                sources.add(next);
-                curSrcFeature = null;
-            } else {
-                curSrcFeature = next;
-                // ensure curSrcFeature is returned when next() is called
-                setHasNextCalled(true);
-                break;
+            // RA: apply filters that involve attributes from nested features here.
+            // Because for JDBCFeatureSource, if the filter is included in the feature source query,
+            // it will try to translate the filter to SQL form, which will fail because the
+            // attributes may come from a different table (for nested feature type).
+            if (nestedAttributeFilter == null || nestedAttributeFilter.evaluate(next)) {
+                if (extractIdForFeature(next).equals(id)) {
+                    sources.add(next);
+                    curSrcFeature = null;
+                } else {
+                    curSrcFeature = next;
+                    // ensure curSrcFeature is returned when next() is called
+                    setHasNextCalled(true);
+                    break;
+                }
             }
         }
         
@@ -461,8 +505,12 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
             }
             // extract the values from multiple source features of the same id
             // and set them to one built feature
-            for (Feature source : sources) {
-                setAttributeValue(target, source, attMapping);
+            if (attMapping.isMultiValued()) {
+                for (Feature source : sources) {
+                    setAttributeValue(target, source, attMapping);
+                }
+            } else {
+                setAttributeValue(target, sources.get(0), attMapping);
             }
         }
         featureCounter++;

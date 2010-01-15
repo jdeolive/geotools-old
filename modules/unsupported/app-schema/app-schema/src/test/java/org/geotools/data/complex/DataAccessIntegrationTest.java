@@ -333,7 +333,7 @@ public class DataAccessIntegrationTest {
         FeatureCollection<FeatureType, Feature> filteredResults = mfDataAccess.getFeatureSource(
                 MAPPED_FEATURE).getFeatures(filter);
 
-        assertEquals(FeatureChainingTest.getCount(filteredResults), 3);
+        assertEquals(filteredResults.size(), 3);
     }
 
     /**

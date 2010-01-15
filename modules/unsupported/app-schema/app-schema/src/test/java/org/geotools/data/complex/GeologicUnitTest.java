@@ -180,7 +180,7 @@ public class GeologicUnitTest {
 
         FeatureCollection guFeatures = (FeatureCollection) guSource.getFeatures();
 
-        int resultCount = getCount(guFeatures);
+        int resultCount = guFeatures.size();
         assertEquals(EXPECTED_RESULT_COUNT, resultCount);
 
         /*
@@ -191,7 +191,7 @@ public class GeologicUnitTest {
 
         FeatureCollection cpFeatures = (FeatureCollection) cpSource.getFeatures();
 
-        resultCount = getCount(cpFeatures);
+        resultCount = cpFeatures.size();
 
         assertEquals(EXPECTED_RESULT_COUNT, resultCount);
 
@@ -204,28 +204,8 @@ public class GeologicUnitTest {
                 .getFeatureSource(FeatureChainingTest.CGI_TERM_VALUE);
         FeatureCollection cgiFeatures = (FeatureCollection) cgiSource.getFeatures();
 
-        resultCount = getCount(cgiFeatures);
+        resultCount = cgiFeatures.size();
 
         assertEquals(EXPECTED_RESULT_COUNT, resultCount);
-    }
-
-    /**
-     * Return number of built features.
-     * 
-     * @param features
-     * @return number of features in the collection
-     */
-    private int getCount(FeatureCollection features) {
-        Iterator iterator = features.iterator();
-        int count = 0;
-        try {
-            while (iterator.hasNext()) {
-                iterator.next();
-                count++;
-            }
-        } finally {
-            features.close(iterator);
-        }
-        return count;
     }
 }

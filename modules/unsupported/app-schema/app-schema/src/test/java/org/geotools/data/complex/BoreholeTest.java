@@ -301,7 +301,7 @@ public class BoreholeTest {
         FeatureCollection<FeatureType, Feature> features = (FeatureCollection<FeatureType, Feature>) fSource
                 .getFeatures();
 
-        int resultCount = getCount(features);
+        int resultCount = features.size();
         String msg = "be sure difference in result count is not due to different dataset."
                 + " Query used should be min_time_d = 'carnian'";
         assertEquals(msg, EXPECTED_RESULT_COUNT, resultCount);
@@ -339,7 +339,7 @@ public class BoreholeTest {
                 .getFeatures(filter);
 
         // did the query work?
-        int resultCount = getCount(features);
+        int resultCount = features.size();
         assertEquals(1, resultCount);
 
         // the datastore performed the query by unmapping the client property
@@ -389,20 +389,6 @@ public class BoreholeTest {
                 traverse(att);
             }
         }
-    }
-
-    private int getCount(FeatureCollection features) {
-        Iterator iterator = features.iterator();
-        int count = 0;
-        try {
-            while (iterator.hasNext()) {
-                iterator.next();
-                count++;
-            }
-        } finally {
-            features.close(iterator);
-        }
-        return count;
     }
 
 }

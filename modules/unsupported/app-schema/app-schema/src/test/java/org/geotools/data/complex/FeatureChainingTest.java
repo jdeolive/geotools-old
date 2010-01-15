@@ -433,7 +433,7 @@ public class FeatureChainingTest {
         FeatureCollection features = (FeatureCollection) fSource.getFeatures();
 
         final int EXPECTED_RESULTS = 2;
-        assertEquals(getCount(features), EXPECTED_RESULTS);
+        assertEquals(features.size(), EXPECTED_RESULTS);
 
         Iterator<Feature> iterator = features.iterator();
         while (iterator.hasNext()) {
@@ -489,7 +489,7 @@ public class FeatureChainingTest {
 
         FeatureCollection<FeatureType, Feature> filteredResults = mfSource.getFeatures(filter);
 
-        assertEquals(getCount(filteredResults), 3);
+        assertEquals(filteredResults.size(), 3);
         
         /**
          * Test filtering on multi valued properties
@@ -505,7 +505,7 @@ public class FeatureChainingTest {
         function = ff.function(CONTAINS_TEXT, property, string);
         filter = ff.equals(function, ff.literal(1));
         filteredResults = guSource.getFeatures(filter);
-        assertEquals(getCount(filteredResults), 3);
+        assertEquals(filteredResults.size(), 3);
 
         /**
          * Test filtering client properties on chained features
@@ -514,7 +514,7 @@ public class FeatureChainingTest {
         string = ff.literal("urn:cgi:feature:MappedFeature:mf1");
         filter = ff.equals(property, string);
         filteredResults = mfSource.getFeatures(filter);
-        assertEquals(getCount(filteredResults), 1);       
+        assertEquals(filteredResults.size(), 1);       
 
     }
 
@@ -551,7 +551,7 @@ public class FeatureChainingTest {
         FeatureCollection features = (FeatureCollection) fSource.getFeatures();
 
         final int EXPECTED_RESULTS = 2;
-        assertEquals(getCount(features), EXPECTED_RESULTS);
+        assertEquals(features.size(), EXPECTED_RESULTS);
 
         Iterator<Feature> iterator = features.iterator();
         while (iterator.hasNext()) {
@@ -589,7 +589,7 @@ public class FeatureChainingTest {
         fSource = (FeatureSource) dataAccess.getFeatureSource(typeName);
         features = (FeatureCollection) fSource.getFeatures();
 
-        assertEquals(getCount(features), EXPECTED_RESULTS);
+        assertEquals(features.size(), EXPECTED_RESULTS);
 
         iterator = features.iterator();
         while (iterator.hasNext()) {
@@ -727,33 +727,19 @@ public class FeatureChainingTest {
 
         int EXPECTED_RESULT_COUNT = 4;
 
-        int resultCount = getCount(mfFeatures);
+        int resultCount = mfFeatures.size();
         assertEquals(EXPECTED_RESULT_COUNT, resultCount);
 
         EXPECTED_RESULT_COUNT = 3;
-        resultCount = getCount(guFeatures);
+        resultCount = guFeatures.size();
         assertEquals(EXPECTED_RESULT_COUNT, resultCount);
 
-        resultCount = getCount(cpFeatures);
+        resultCount = cpFeatures.size();
         assertEquals(EXPECTED_RESULT_COUNT, resultCount);
 
         EXPECTED_RESULT_COUNT = 8;
-        resultCount = getCount(cgiFeatures);
+        resultCount = cgiFeatures.size();
         assertEquals(EXPECTED_RESULT_COUNT, resultCount);
-    }
-
-    protected static int getCount(FeatureCollection<FeatureType, Feature> features) {
-        AbstractMappingFeatureIterator iterator = (AbstractMappingFeatureIterator) features.iterator();
-        int count = 0;
-        try {
-            while (iterator.hasNext()) {
-                iterator.next();
-                count++;
-            }
-        } finally {
-            features.close((Iterator<Feature>) iterator);
-        }
-        return count;
     }
 
     /**

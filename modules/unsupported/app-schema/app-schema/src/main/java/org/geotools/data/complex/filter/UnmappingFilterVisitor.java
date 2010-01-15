@@ -888,11 +888,6 @@ public class UnmappingFilterVisitor implements org.opengis.filter.FilterVisitor,
                     } else {
                         // find regular attribute mapping
                         List<Expression> matchedExpressions = findMappingsFor(fMapping, nextSteps);
-                        if (matchedExpressions.size() > 1) {
-                            throw new UnsupportedOperationException(
-                                    "Unmapping attributes that map "
-                                            + "to more than one source expressions is not supported yet");
-                        }
                         boolean isLast = (nextRootIndex + stepIncrement + 1) >= simplifiedSteps.size();
                         if (isLast) {
                             if (matchedExpressions.size() < 1) {

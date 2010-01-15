@@ -679,11 +679,6 @@ public class XPath {
         }
         if (leafAttribute == null) {
             AttributeBuilder builder = new AttributeBuilder(featureFactory);
-//            Object dummy = parent.getProperty("simpleContent");
-//            if ( dummy != null )
-//            	parent.getValue().remove(dummy);
-//            
-//            builder.init(parent);
             builder.setDescriptor(parent.getDescriptor());
             //check for mapped type override
 

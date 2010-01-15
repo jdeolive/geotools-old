@@ -290,24 +290,17 @@ public class MappingFeatureCollection implements FeatureCollection<FeatureType, 
      * @see org.geotools.feature.FeatureCollection#size()
      */
     public int size() {
-        try {
-            int count = store.getCount(query);
-            if (count >= 0) {
-                // normal case
-                return count;
-            } else {
-                // count < 0 indicates broken a datastore, such as PropertyDataStore.
-                // If the data store cannot count its own features, we have to do it.
-                int featureCount = 0;
-                for (FeatureIterator<Feature> features = features(); features.hasNext(); features
-                        .next()) {
-                    featureCount++;
-                }
-                return featureCount;
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        // RA: ensure when there are multiple entries of the same features from denormalised view,
+        // we regard them as 1 feature.
+        // This is also needed for oracle back end when filtered with nested attributes
+        // because directly counting the features from the db store with the raw query
+        // will result in IllegalArgumentException since it'll try to translate the nested
+        // attributes filter to SQL form
+        int featureCount = 0;
+        for (FeatureIterator<Feature> features = features(); features.hasNext(); features.next()) {
+            featureCount++;
         }
+        return featureCount;
     }
 
     /*
