@@ -290,7 +290,6 @@ public class FilterFactoryImpl implements FilterFactory {
     }
     
     public BBOX bbox(Expression e, double minx, double miny, double maxx, double maxy, String srs) {
-        
         PropertyName name = null;
         if ( e instanceof PropertyName ) {
             name = (PropertyName) e;
@@ -308,7 +307,12 @@ public class FilterFactoryImpl implements FilterFactory {
         }
         
         BBOXImpl box = new BBOXImpl(this,e,bbox);
-        box.setPropertyName( name.getPropertyName() );
+        if (e == null) {
+            // otherwise this line is redundant. Also complex
+            // features with bbox request would fail as this would remove the
+            // namespace from the property name
+            box.setPropertyName(name.getPropertyName());
+        }
         box.setSRS(srs);
         box.setMinX(minx);
         box.setMinY(miny);

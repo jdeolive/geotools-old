@@ -83,7 +83,7 @@ public class BBoxTest {
         dataAccess.dispose();
     }
 
-    // TODO: Activate this test when GEOT-2827 is fixed
+    @Test
     /*
      * Test BBox function with the property name specified.
      */
