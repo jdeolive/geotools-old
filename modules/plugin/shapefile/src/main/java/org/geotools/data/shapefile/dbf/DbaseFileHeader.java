@@ -27,7 +27,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.sql.Date;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -51,7 +51,7 @@ public class DbaseFileHeader {
     private static final int MINIMUM_HEADER = 33;
 
     // Date the file was last updated.
-    private Date date = new Date((new java.util.Date()).getTime());
+    private Date date = new Date();
 
     private int recordCnt = 0;
 
@@ -78,7 +78,7 @@ public class DbaseFileHeader {
         // Field Name
         String fieldName;
 
-        // Field Type (C N L D @ or M)
+        // Field Type (C N L D or M)
         char fieldType;
 
         // Field Data Address offset from the start of the record.
@@ -115,8 +115,7 @@ public class DbaseFileHeader {
      * N (Numeric)   -&gt; Integer or Long or Double (depends on field's decimal count and fieldLength)
      * F (Floating)  -&gt; Double
      * L (Logical)   -&gt; Boolean
-     * D (Date)      -&gt; java.sql.Date (Without time)
-     * @ (Timestamp) -&gt; java.util.Date (With time)
+     * D (Date)      -&gt; java.util.Date
      * Unknown       -&gt; String
      * </PRE>
      * 
@@ -156,10 +155,6 @@ public class DbaseFileHeader {
         case 'D':
             typeClass = Date.class;
             break;
-            
-        case '@':
-            typeClass = java.util.Date.class;
-            break;
 
         default:
             typeClass = String.class;
@@ -182,7 +177,6 @@ public class DbaseFileHeader {
      * ---------- ---------
      * C          254
      * D          8
-     * @          8
      * F          20
      * N          18
      * </PRE>
@@ -243,12 +237,12 @@ public class DbaseFileHeader {
             tempFieldDescriptors[fields.length].fieldType = 'C';
             if (inFieldLength > 254) {
                 if (logger.isLoggable(Level.FINE)) {
-                    logger.fine("Field Length for "
-                            + inFieldName
-                            + " set to "
-                            + inFieldLength
-                            + " Which is longer than 254, "
-                            + "not consistent with dbase III");
+                    logger
+                            .fine("Field Length for "
+                                    + inFieldName
+                                    + " set to "
+                                    + inFieldLength
+                                    + " Which is longer than 254, not consistent with dbase III");
                 }
             }
         } else if ((inFieldType == 'S') || (inFieldType == 's')) {
@@ -257,8 +251,7 @@ public class DbaseFileHeader {
                 logger
                         .warning("Field type for "
                                 + inFieldName
-                                + " set to S which is flat out wrong people!,"
-                                + "I am setting this to C, in the hopes you meant character.");
+                                + " set to S which is flat out wrong people!, I am setting this to C, in the hopes you meant character.");
             }
             if (inFieldLength > 254) {
                 if (logger.isLoggable(Level.FINE)) {
@@ -280,40 +273,28 @@ public class DbaseFileHeader {
                 }
             }
             tempFieldDescriptors[fields.length].fieldLength = 8;
-        } else if (inFieldType == '@') {
-            tempFieldDescriptors[fields.length].fieldType = '@';
-            if (inFieldLength != 8) {
-                if (logger.isLoggable(Level.FINE)) {
-                    logger.fine("Field Length for " + inFieldName + " set to "
-                            + inFieldLength + " Setting to 8 digits - two longs,"
-                            + "one long for date and one long for time");
-                }
-            }
-            tempFieldDescriptors[fields.length].fieldLength = 8;
-   
         } else if ((inFieldType == 'F') || (inFieldType == 'f')) {
             tempFieldDescriptors[fields.length].fieldType = 'F';
             if (inFieldLength > 20) {
                 if (logger.isLoggable(Level.FINE)) {
-                    logger.fine("Field Length for "
-                                + inFieldName
-                                + " set to "
-                                + inFieldLength
-                                + " Preserving length, but should be set to Max of 20 " 
-                                + "not valid for dbase IV, and UP specification, not " 
-                                + "present in dbaseIII.");
+                    logger
+                            .fine("Field Length for "
+                                    + inFieldName
+                                    + " set to "
+                                    + inFieldLength
+                                    + " Preserving length, but should be set to Max of 20 not valid for dbase IV, and UP specification, not present in dbaseIII.");
                 }
             }
         } else if ((inFieldType == 'N') || (inFieldType == 'n')) {
             tempFieldDescriptors[fields.length].fieldType = 'N';
             if (inFieldLength > 18) {
                 if (logger.isLoggable(Level.FINE)) {
-                    logger.fine("Field Length for "
-                                + inFieldName
-                                + " set to "
-                                + inFieldLength
-                                + " Preserving length, but should be set to Max of 18"
-                                + " for dbase III specification.");
+                    logger
+                            .fine("Field Length for "
+                                    + inFieldName
+                                    + " set to "
+                                    + inFieldLength
+                                    + " Preserving length, but should be set to Max of 18 for dbase III specification.");
                 }
             }
             if (inDecimalCount < 0) {
@@ -535,7 +516,7 @@ public class DbaseFileHeader {
         c.set(Calendar.YEAR, tempUpdateYear);
         c.set(Calendar.MONTH, tempUpdateMonth - 1);
         c.set(Calendar.DATE, tempUpdateDay);
-        date = new Date(c.getTimeInMillis());
+        date = c.getTime();
 
         // read the number of records.
         recordCnt = in.getInt();
@@ -665,7 +646,7 @@ public class DbaseFileHeader {
 
         // write the date stuff
         Calendar c = Calendar.getInstance();
-        c.setTime(new java.util.Date());
+        c.setTime(new Date());
         buffer.put((byte) (c.get(Calendar.YEAR) % 100));
         buffer.put((byte) (c.get(Calendar.MONTH) + 1));
         buffer.put((byte) (c.get(Calendar.DAY_OF_MONTH)));

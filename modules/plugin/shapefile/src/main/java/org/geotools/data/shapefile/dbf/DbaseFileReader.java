@@ -27,7 +27,6 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 
 import org.geotools.data.shapefile.FileReader;
 import org.geotools.data.shapefile.ShpFileType;
@@ -390,17 +389,7 @@ public class DbaseFileReader implements FileReader {
 
         cnt++;
     }
-    
-    private static final int byteArrayToInt(byte [] b) {
-        int value = (((b[0] & 0xFF) << 24 ) 
-                + ((b[1] & 0xFF) << 16)
-                + ((b[2] & 0xFF) << 8)
-                + (b[3] & 0xFF) );
-    	return value;
 
-    }
-
-    
     /**
      * Copy the next entry into the array.
      * 
@@ -475,34 +464,6 @@ public class DbaseFileReader implements FileReader {
                     cal.set(Calendar.YEAR, tempYear);
                     cal.set(Calendar.MONTH, tempMonth);
                     cal.set(Calendar.DAY_OF_MONTH, tempDay);
-                    object = cal.getTime();
-                } catch (final NumberFormatException nfe) {
-                    // todo: use progress listener, this isn't a grave error.
-                }
-                break;
-            // (@) Timestamp (Date)
-            case '@':
-                try {
-                	byte[] dayBytes = {bytes[fieldOffset], bytes[fieldOffset+1], bytes[fieldOffset+2], bytes[fieldOffset+3]};
-                	byte[] timeBytes = {bytes[fieldOffset+4], bytes[fieldOffset+5], bytes[fieldOffset+6], bytes[fieldOffset+7]};
-
-                	int tmpDay = byteArrayToInt(dayBytes);
-                	int tmpMillisecond = byteArrayToInt(timeBytes);
- 	
-                    final long MILLISECS_PER_DAY = 24*60*60*1000;
-                	long time = (tmpDay +1 ) * MILLISECS_PER_DAY + tmpMillisecond;
-                	
-                	final Calendar cal0 = new GregorianCalendar();
-                	cal0.clear();
-                    cal0.set(Calendar.ERA, GregorianCalendar.BC);
-                    cal0.set(Calendar.YEAR, 4713);
-                    cal0.set(Calendar.MONTH, 1);
-                    cal0.set(Calendar.DAY_OF_MONTH, 1);
-
-                	final Calendar cal = Calendar.getInstance();
-                    cal.clear();     
-                    cal.setTimeInMillis(cal0.getTimeInMillis() + time);
-                    
                     object = cal.getTime();
                 } catch (final NumberFormatException nfe) {
                     // todo: use progresslistener, this isn't a grave error.

@@ -49,7 +49,6 @@ import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.feature.type.BasicFeatureTypes;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
-import org.geotools.util.Utilities;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -302,58 +301,7 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
             file.deleteOnExit();
         }
     }
-
-   public void testReadWriteDate() throws Exception {
-      File file = org.geotools.test.TestData.temp(this, "timw.shp");
-      URL toURL = file.toURI().toURL();
-
-      ShapefileDataStore ds = new ShapefileDataStore(toURL);
-      ds.createSchema(DataUtilities.createType("test",
-                      "geom:Point,ingestion:java.util.Date,testing:java.sql.Date"));
-
-      final FeatureWriter<SimpleFeatureType, SimpleFeature> fw = ds
-              .getFeatureWriterAppend(Transaction.AUTO_COMMIT);
-      final SimpleFeature sf;
-      try {
-          sf = fw.next();
-          sf.setAttribute(0, new GeometryFactory()
-                 .createPoint(new Coordinate(1, -1)));
-          Date ingestionDate = new Date(108, 11, 12, 06, 10, 20);
-          java.sql.Date testingDate = new java.sql.Date(108, 11, 12);
-
-          sf.setAttribute(1, ingestionDate);
-          sf.setAttribute(2, testingDate);
-      } finally {
-    	  try {
-    		  fw.close();
-          }catch (Throwable e) {
-        	  // TODO: handle exception
-        	  e.printStackTrace();
-        	  }
-          }
-      final FeatureReader<SimpleFeatureType, SimpleFeature> fr = ds
-              .getFeatureReader();
-      try {
-    	  assertTrue(fr.hasNext());
-    	  final SimpleFeature sf1 = fr.next();  
-          Date ingestionDate = (java.util.Date) sf.getAttribute(1);
-          java.sql.Date testingDate = (java.sql.Date) sf.getAttribute(2);
-
-          Date ingestionDate1 = (java.util.Date) sf1.getAttribute(1);
-          java.sql.Date testingDate1 = (java.sql.Date) sf1.getAttribute(2);
-
-    	  assertEquals(ingestionDate , ingestionDate1);
-    	  assertEquals(testingDate, testingDate1);
-      } finally {
-         try {
-             fr.close();
-          } catch (Throwable e) {
-             // TODO: handle exception
-          }
-      }
-      ds.dispose();
-    }
-
+    
     public void testForceCRS() throws Exception {
         File file = new File("test.shp");
         URL toURL = file.toURI().toURL();

@@ -1047,10 +1047,8 @@ public class ShapefileDataStore extends AbstractFileDataStore {
                 int l = Math.min(fieldLen, 33);
                 int d = Math.max(l - 2, 0);
                 header.addColumn(colName, 'N', l, d);
-            } else if (java.sql.Date.class.isAssignableFrom(colType)) {
-                header.addColumn(colName, 'D', fieldLen, 0);
             } else if (java.util.Date.class.isAssignableFrom(colType)) {
-                header.addColumn(colName, '@', fieldLen, 0);
+                header.addColumn(colName, 'D', fieldLen, 0);
             } else if (colType == Boolean.class) {
                 header.addColumn(colName, 'L', 1, 0);
             } else if (CharSequence.class.isAssignableFrom(colType)) {
