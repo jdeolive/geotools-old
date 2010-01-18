@@ -59,7 +59,7 @@ import org.opengis.feature.simple.SimpleFeature;
  * applications:
  * <pre><code>
  *     RenderingExecutor re = new RenderingExecutor( mapPane );
- *     re.setPollingInterval( 150 );  // 150 milliseconds
+ *     re.setPollingInterval( 10 );  // 10 milliseconds
  * </code></pre>
  *
  * @author Michael Bedward
@@ -76,7 +76,7 @@ public class RenderingExecutor {
     private final ScheduledExecutorService watchExecutor;
 
     /** The default interval (milliseconds) for polling the result of a rendering task */
-    public static final long DEFAULT_POLLING_INTERVAL = 200L;
+    public static final long DEFAULT_POLLING_INTERVAL = 20L;
 
     private long pollingInterval;
 
