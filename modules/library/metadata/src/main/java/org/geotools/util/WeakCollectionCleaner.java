@@ -59,7 +59,7 @@ public final class WeakCollectionCleaner extends Thread {
         start();
     }
     
-    public ReferenceQueue<Object> getReferenceQueue() {
+    public synchronized ReferenceQueue<Object> getReferenceQueue() {
         return referenceQueue;
     }
 
@@ -68,10 +68,11 @@ public final class WeakCollectionCleaner extends Thread {
      */
     @Override
     public void run() {
-        while (referenceQueue != null) {
+        ReferenceQueue<Object> rq;
+        while ((rq = getReferenceQueue ()) != null) {
             try {
                 // Block until a reference is enqueded.
-                final Reference ref = referenceQueue.remove();
+                final Reference ref = rq.remove();
                 if (ref == null) {
                     /*
                      * Should never happen according Sun's Javadoc ("Removes the next reference
@@ -107,15 +108,17 @@ public final class WeakCollectionCleaner extends Thread {
      */
     public void exit() {
         // try to stop it gracefully
-        referenceQueue = null;
+        synchronized (this) {
+            referenceQueue = null;
+        }
         this.interrupt();
         try {
             this.join(500);
-        } catch(InterruptedException e) {
-            
+        } catch (InterruptedException e) {
+
         }
         // last resort tentative to kill the cleaner thread
-        if(this.isAlive())
+        if (this.isAlive())
             this.stop();
     }
 }
