@@ -41,8 +41,6 @@ import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import com.sun.medialib.mlib.Image;
-
 
 /**
  * Provides access to {@code test-data} directories associated with JUnit tests.
