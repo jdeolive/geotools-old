@@ -31,12 +31,16 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+
+import com.sun.medialib.mlib.Image;
 
 
 /**
@@ -77,6 +81,7 @@ import java.util.zip.ZipFile;
  *
  * @tutorial http://www.geotools.org/display/GEOT/5.8+Test+Data
  */
+@SuppressWarnings("unchecked")
 public class TestData implements Runnable {
     /**
      * The test data directory.
@@ -118,12 +123,44 @@ public class TestData implements Runnable {
      */
     private static final boolean mediaLibAvailable;
     static {
+
+        boolean mediaLib = false;
         Class mediaLibImage = null;
         try {
             mediaLibImage = Class.forName("com.sun.medialib.mlib.Image");
         } catch (ClassNotFoundException e) {
         }
-        mediaLibAvailable = (mediaLibImage != null);
+        mediaLib = (mediaLibImage != null);
+        if(mediaLib){
+        
+	        try {
+	            mediaLib =
+	                Boolean.getBoolean("com.sun.media.jai.disableMediaLib");
+	        } catch (java.security.AccessControlException e) {
+	            // Because the property com.sun.media.jai.disableMediaLib isn't
+	            // defined as public, the users shouldn't know it.  In most of
+	            // the cases, it isn't defined, and thus no access permission
+	            // is granted to it in the policy file.  When JAI is utilized in
+	            // a security environment, AccessControlException will be thrown.
+	            // In this case, we suppose that the users would like to use
+	            // medialib accelaration.  So, the medialib won't be disabled.
+	
+	            // The fix of 4531501
+	        }
+	        
+	        if(mediaLib)
+	        {
+	        	mediaLib = (Boolean)
+                AccessController.doPrivileged(new PrivilegedAction() {
+                     public Object run() {
+                         return new Boolean(Image.isAvailable());
+                     }
+                });
+	        }
+        }
+        
+
+        mediaLibAvailable=mediaLib;
     }
 
     /**
