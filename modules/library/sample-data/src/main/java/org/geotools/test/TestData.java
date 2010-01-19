@@ -27,6 +27,7 @@ import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.channels.Channels;
@@ -124,6 +125,7 @@ public class TestData implements Runnable {
     private static final boolean mediaLibAvailable;
     static {
 
+    	// do we wrappers at hand?
         boolean mediaLib = false;
         Class mediaLibImage = null;
         try {
@@ -131,12 +133,39 @@ public class TestData implements Runnable {
         } catch (ClassNotFoundException e) {
         }
         mediaLib = (mediaLibImage != null);
+        
+        
+        // npw check if we either wanted to disable explicitly and if we installed the native libs
         if(mediaLib){
         
 	        try {
+	        	// explicit disable
 	            mediaLib =
-	                Boolean.getBoolean("com.sun.media.jai.disableMediaLib");
-	        } catch (java.security.AccessControlException e) {
+	                !Boolean.getBoolean("com.sun.media.jai.disableMediaLib");
+	            
+	            //native libs installed
+		        if(mediaLib)
+		        {
+		        	final Class mImage=mediaLibImage;
+	                mediaLib=AccessController.doPrivileged(new PrivilegedAction<Boolean>() {
+	                     public Boolean run() {
+	                    	 try {
+	                    		//get the method
+	                    		final Class params[] = {};
+								Method method= mImage.getDeclaredMethod("isAvailable", params);
+
+								//invoke
+	                    		final Object paramsObj[] = {};
+
+	        		        	final Object o=mImage.newInstance();
+		                        return (Boolean) method.invoke(o, paramsObj);
+							} catch (Throwable e) {
+								return false;
+							}
+	                     }
+	                });
+		        }	            
+	        } catch (Throwable e) {
 	            // Because the property com.sun.media.jai.disableMediaLib isn't
 	            // defined as public, the users shouldn't know it.  In most of
 	            // the cases, it isn't defined, and thus no access permission
@@ -146,19 +175,13 @@ public class TestData implements Runnable {
 	            // medialib accelaration.  So, the medialib won't be disabled.
 	
 	            // The fix of 4531501
+	        	
+	        	mediaLib=false;
 	        }
 	        
-	        if(mediaLib)
-	        {
-	        	mediaLib = (Boolean)
-                AccessController.doPrivileged(new PrivilegedAction() {
-                     public Object run() {
-                         return new Boolean(Image.isAvailable());
-                     }
-                });
-	        }
+
         }
-        
+
 
         mediaLibAvailable=mediaLib;
     }
@@ -599,5 +622,9 @@ public class TestData implements Runnable {
                 }
             }
         }
+    }
+    
+    public static void main(String args[]){
+    	System.out.println(isMediaLibAvailable());
     }
 }
