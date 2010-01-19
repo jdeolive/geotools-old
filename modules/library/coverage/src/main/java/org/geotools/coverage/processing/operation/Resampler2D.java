@@ -223,7 +223,7 @@ final class Resampler2D extends GridCoverage2D {
          * be computed automatically, or if we should follow strictly what the user said. Note
          * that "automaticGG" implies "automaticGR" but the converse is not necessarly true.
          */
-        final boolean automaticGG, automaticGR, envelopeMissing;
+        final boolean automaticGG, automaticGR;
         /*
          * Grid range and "grid to CRS" transform are the only grid geometry informations used
          * by this method. If they are not available, this is equivalent to not providing grid
@@ -233,10 +233,8 @@ final class Resampler2D extends GridCoverage2D {
         if (targetGG == null) {
             automaticGG = true;
             automaticGR = true;
-            envelopeMissing = true;
         } else {
             automaticGR = !targetGG.isDefined(GridGeometry2D.GRID_RANGE_BITMASK);
-            envelopeMissing = !targetGG.isDefined(GridGeometry2D.ENVELOPE_BITMASK);
             if (!automaticGR || targetGG.isDefined(GridGeometry2D.GRID_TO_CRS_BITMASK)) {
                 automaticGG = false;
             } else {
@@ -652,10 +650,7 @@ final class Resampler2D extends GridCoverage2D {
         upper[targetGG.gridDimensionY] = targetImage.getMaxY();
         final GridEnvelope actualGR = new GeneralGridEnvelope(lower, upper);
         if (!targetGR.equals(actualGR)) {
-        	if(!envelopeMissing)
-        		targetGG = new GridGeometry2D(actualGR, targetGG.getEnvelope());
-        	else
-        		targetGG = new GridGeometry2D(actualGR, targetGG.getGridToCRS(PixelInCell.CELL_CENTER),targetGG.getCoordinateReferenceSystem());
+        	targetGG = new GridGeometry2D(actualGR, targetGG.getGridToCRS(PixelInCell.CELL_CENTER),targetCRS);
             if (!automaticGR) {
                 log(Loggings.getResources(locale).getLogRecord(Level.FINE,
                     LoggingKeys.ADJUSTED_GRID_GEOMETRY_$1, sourceCoverage.getName().toString(locale)));
