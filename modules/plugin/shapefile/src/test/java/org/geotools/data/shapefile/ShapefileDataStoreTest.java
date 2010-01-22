@@ -24,6 +24,9 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -791,6 +794,63 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
         FeatureWriter<SimpleFeatureType, SimpleFeature> writer = s.getFeatureWriter(s.getTypeNames()[0], t);
         SimpleFeature feature1 = writer.next();
     }
+    
+    public void testReadWriteDate() throws Exception {
+        
+        final boolean datetime_enabled = Boolean.getBoolean("org.geotools.shapefile.datetime");
+
+        File file = org.geotools.test.TestData.temp(this, "timestamp.shp");
+        URL toURL = file.toURI().toURL();
+        
+        ShapefileDataStore ds = new ShapefileDataStore(toURL);
+        ds.createSchema(DataUtilities.createType("test",
+                        "geom:Point,timestamp:java.sql.Timestamp,date:java.util.Date"));
+
+        final FeatureWriter<SimpleFeatureType, SimpleFeature> fw;
+        fw = ds.getFeatureWriterAppend(Transaction.AUTO_COMMIT);
+        final SimpleFeature sf;
+        
+        // This date is as good as any ...
+        String str_date="1984-09-16";
+        DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+        Date date = (Date) dateFormatter.parse(str_date); 
+        // Set timestamp to 1984-09-16 01:00:00
+        Timestamp timestamp = new Timestamp( date.getTime() + 60*60*1000 ); 
+        
+        // Write the values to the shapefile and close the datastore.
+        sf = fw.next();
+        sf.setAttribute(0, new GeometryFactory().createPoint(new Coordinate(1, -1)));
+        sf.setAttribute(1, timestamp);
+        sf.setAttribute(2, date);
+        // Cleanup
+        fw.close();
+        
+        // Open the shapefile for reading to verify it's contents.
+        final FeatureReader<SimpleFeatureType, SimpleFeature> fr;
+        fr =  ds.getFeatureReader();
+        
+        assertTrue(fr.hasNext());
+        final SimpleFeature sf1 = fr.next();  
+
+        // Check the read values match with the written ones.
+        
+        if (datetime_enabled){
+            // if datetime support is enabled, check for a timestamp
+            Timestamp timestamp_ = (Timestamp) sf1.getAttribute(1);
+            assertEquals(timestamp, timestamp_);
+        }else{
+            // if datetime support is not enabled, check a Date object is returned
+            Date timestamp_ = (Date) sf1.getAttribute(1);
+            assertEquals(date , timestamp_);
+        }
+        
+        Date date_ = (Date) sf1.getAttribute(2);
+        assertEquals(date , date_);
+        
+        // Cleanup
+        fr.close();
+        ds.dispose();
+      }
     
     /**
      * This is useful to dump a UTF16 character to an UT16 escape sequence,

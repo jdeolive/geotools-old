@@ -28,9 +28,11 @@ import java.nio.channels.WritableByteChannel;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.sql.Timestamp;
 
 import org.geotools.resources.NIOUtilities;
 
@@ -71,6 +73,19 @@ public class DbaseFileHeader {
             .getLogger("org.geotools.data.shapefile");
 
     /**
+     * Returns a Calendar a day before January 1st 4713 BC
+     * to be used in timestamps.
+     */
+    public static Calendar getReferenceCalendar(){
+        Calendar refCal = (Calendar) new GregorianCalendar();
+        refCal.set(Calendar.ERA, GregorianCalendar.BC);
+        refCal.set(Calendar.YEAR, 4714);
+        refCal.set(Calendar.MONTH, Calendar.DECEMBER);
+        refCal.set(Calendar.DAY_OF_MONTH, 31);
+        return refCal;
+    }
+    
+    /**
      * Class for holding the information associated with a record.
      */
     class DbaseField {
@@ -78,7 +93,7 @@ public class DbaseFileHeader {
         // Field Name
         String fieldName;
 
-        // Field Type (C N L D or M)
+        // Field Type (C N L D @ or M)
         char fieldType;
 
         // Field Data Address offset from the start of the record.
@@ -115,7 +130,8 @@ public class DbaseFileHeader {
      * N (Numeric)   -&gt; Integer or Long or Double (depends on field's decimal count and fieldLength)
      * F (Floating)  -&gt; Double
      * L (Logical)   -&gt; Boolean
-     * D (Date)      -&gt; java.util.Date
+     * D (Date)      -&gt; java.util.Date (Without time)
+     * @ (Timestamp) -&gt; java.sql.Timestamp (With time)
      * Unknown       -&gt; String
      * </PRE>
      * 
@@ -155,7 +171,11 @@ public class DbaseFileHeader {
         case 'D':
             typeClass = Date.class;
             break;
-
+            
+        case '@':
+            typeClass = Timestamp.class;
+            break;
+            
         default:
             typeClass = String.class;
             break;
@@ -177,6 +197,7 @@ public class DbaseFileHeader {
      * ---------- ---------
      * C          254
      * D          8
+     * @          8
      * F          20
      * N          18
      * </PRE>
@@ -273,6 +294,16 @@ public class DbaseFileHeader {
                 }
             }
             tempFieldDescriptors[fields.length].fieldLength = 8;
+        } else if (inFieldType == '@') {
+            tempFieldDescriptors[fields.length].fieldType = '@';
+            if (inFieldLength != 8) {
+                if (logger.isLoggable(Level.FINE)) {
+                    logger.fine("Field Length for " + inFieldName + " set to "
+                            + inFieldLength + " Setting to 8 digits - two longs,"
+                            + "one long for date and one long for time");
+                }
+            }
+            tempFieldDescriptors[fields.length].fieldLength = 8;   
         } else if ((inFieldType == 'F') || (inFieldType == 'f')) {
             tempFieldDescriptors[fields.length].fieldType = 'F';
             if (inFieldLength > 20) {

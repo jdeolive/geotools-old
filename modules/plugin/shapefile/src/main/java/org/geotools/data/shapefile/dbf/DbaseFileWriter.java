@@ -19,7 +19,15 @@
  */
 package org.geotools.data.shapefile.dbf;
 
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.CharArrayWriter;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
@@ -28,9 +36,10 @@ import java.nio.charset.Charset;
 import java.text.FieldPosition;
 import java.text.NumberFormat;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.Date;
 import java.util.Locale;
-
+import java.sql.Timestamp;
 import org.geotools.data.shapefile.StreamLogging;
 import org.geotools.resources.NIOUtilities;
 
@@ -140,8 +149,6 @@ public class DbaseFileWriter {
         for (int i = 0; i < header.getNumFields(); i++) {
             String fieldString = fieldString(record[i], i);
             if (header.getFieldLength(i) != fieldString.getBytes(charset.name()).length) {
-                // System.out.println(i + " : " + header.getFieldName(i)+" value
-                // = "+fieldString+"");
                 buffer.put(new byte[header.getFieldLength(i)]);
             } else {
                 buffer.put(fieldString.getBytes(charset.name()));
@@ -194,6 +201,12 @@ public class DbaseFileWriter {
             o = formatter
                     .getFieldString((Date) (obj == null ? NULL_DATE : obj));
             break;
+        case '@':
+               o = 
+                 formatter.getFieldString(
+                     (Timestamp) (obj == null ? new Timestamp(NULL_DATE.getTime()): obj)
+                 );
+            break;   
         default:
             throw new RuntimeException("Unknown type "
                     + header.getFieldType(col));
@@ -332,6 +345,50 @@ public class DbaseFileWriter {
             return buffer.toString();
         }
 
+        public String getFieldString(Timestamp d) {
+              
+            // Sanity check
+            if (d == null) return null;
+             
+            calendar.setTime(d);
+
+            Calendar cal = (Calendar) calendar.clone();
+            cal.set(Calendar.HOUR_OF_DAY, 0);
+            cal.set(Calendar.MINUTE, 0);
+            cal.set(Calendar.SECOND, 0);
+            cal.set(Calendar.MILLISECOND, 0);
+              
+            // Setup reference calendar 
+            Calendar refCal = DbaseFileHeader.getReferenceCalendar();
+            
+            final long MILLISECS_PER_DAY = 24*60*60*1000;
+
+            int days = (int)((cal.getTimeInMillis() - refCal.getTimeInMillis())/MILLISECS_PER_DAY);
+            int todayTime = (int) (calendar.getTimeInMillis() - cal.getTimeInMillis()); 
+ 
+            try{
+                ByteArrayOutputStream o_bytes = new ByteArrayOutputStream();
+                DataOutputStream o_stream;
+                o_stream = new DataOutputStream(new BufferedOutputStream(o_bytes));
+                o_stream.writeInt(days);
+                o_stream.writeInt(todayTime);
+                o_stream.flush();                       
+                byte[] bytes = o_bytes.toByteArray();
+                byte[] out = {
+                    // Days, after reverse.
+                    bytes[3], bytes[2], bytes[1], bytes[0], 
+                    // Time in millis, after reverse.
+                    bytes[7], bytes[6], bytes[5], bytes[4],
+                };
+                // Before returning, these bytes have to be reversed.
+                return new String(out);                     
+            }catch(IOException e){
+                // This is always just a int serialization, 
+                // there is no way to recover from here.
+                return null;
+            }       
+        }
+        
         public String getFieldString(int size, int decimalPlaces, Number n) {
             buffer.delete(0, buffer.length());
 

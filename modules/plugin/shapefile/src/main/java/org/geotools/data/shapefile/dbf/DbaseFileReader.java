@@ -20,13 +20,18 @@
 package org.geotools.data.shapefile.dbf;
 
 import java.io.IOException;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
+import java.sql.Timestamp;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 import org.geotools.data.shapefile.FileReader;
 import org.geotools.data.shapefile.ShpFileType;
@@ -469,6 +474,38 @@ public class DbaseFileReader implements FileReader {
                     // todo: use progresslistener, this isn't a grave error.
                 }
                 break;
+            // (@) Timestamp (Date)
+            case '@':
+                try {      
+                    //TODO: Find a smarter way to do this. 
+                    //timestampBytes = bytes[fieldOffset:fieldOffset+7]
+                    byte[] timestampBytes = {
+                        // Time in millis, after reverse.
+                        bytes[fieldOffset+7], bytes[fieldOffset+6], bytes[fieldOffset+5], bytes[fieldOffset+4],
+                        // Days, after reverse.
+                        bytes[fieldOffset+3], bytes[fieldOffset+2], bytes[fieldOffset+1], bytes[fieldOffset]                    
+                    };
+                       
+                    ByteArrayInputStream i_bytes = new ByteArrayInputStream(timestampBytes);
+                    DataInputStream i_stream = new DataInputStream(new BufferedInputStream(i_bytes));
+
+                    int tmpMillisecond = i_stream.readInt();
+                    int tmpDay = i_stream.readInt();
+       
+                    final long MILLISECS_PER_DAY = 24*60*60*1000;
+                    long time = (tmpDay +1 ) * MILLISECS_PER_DAY + tmpMillisecond;
+                       
+                    final Calendar cal0 = DbaseFileHeader.getReferenceCalendar();
+
+                    final Calendar cal = Calendar.getInstance();
+                    cal.clear();     
+                    cal.setTimeInMillis(cal0.getTimeInMillis() + time);
+                    
+                    object = new Timestamp(cal.getTime().getTime());
+                } catch (final NumberFormatException nfe) {
+                   // todo: use progresslistener, this isn't a grave error.
+                }
+                break;                
             // (N)umeric (Integer, Long or Fallthrough to Double)
             case 'n':
             case 'N':

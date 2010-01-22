@@ -1047,6 +1047,13 @@ public class ShapefileDataStore extends AbstractFileDataStore {
                 int l = Math.min(fieldLen, 33);
                 int d = Math.max(l - 2, 0);
                 header.addColumn(colName, 'N', l, d);
+            // This check has to come before the Date one or it is never reached
+            // also, this field is only activated with the following system property:
+            // org.geotools.shapefile.datetime=true
+            } else if (java.sql.Timestamp.class.isAssignableFrom(colType)
+                       && Boolean.getBoolean("org.geotools.shapefile.datetime"))
+            {
+                header.addColumn(colName, '@', fieldLen, 0);
             } else if (java.util.Date.class.isAssignableFrom(colType)) {
                 header.addColumn(colName, 'D', fieldLen, 0);
             } else if (colType == Boolean.class) {
