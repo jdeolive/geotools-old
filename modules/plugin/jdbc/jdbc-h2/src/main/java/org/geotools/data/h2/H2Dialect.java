@@ -16,11 +16,14 @@
  */
 package org.geotools.data.h2;
 
+import geodb.GeoDB;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -60,6 +63,8 @@ import com.vividsolutions.jts.io.WKTWriter;
  */
 public class H2Dialect extends SQLDialect {
     
+    public static String H2_SPATIAL_INDEX = "org.geotools.data.h2.spatialIndex";
+    
     public H2Dialect( JDBCDataStore dataStore ) {
         super( dataStore );
     }
@@ -94,36 +99,8 @@ public class H2Dialect extends SQLDialect {
 
     @Override
     public void initializeConnection(Connection cx) throws SQLException {
-        //spatialize this database (if neccessary)
-        Statement st = cx.createStatement();
-        try {
-            try {
-                st.execute( "SELECT GeoToolsVersion()");
-                
-                //db already spatialized
-                return;
-            }
-            catch( SQLException e ) {
-                //continue on, means database has not been spatialized
-            }
-            
-            BufferedReader r = new BufferedReader( 
-                    new InputStreamReader( getClass().getResourceAsStream( "h2.sql" ) ) );
-            
-            String line = null;
-            while( (line = r.readLine() ) != null ) {
-                st.execute( line );
-            }    
-            
-            r.close();
-        }
-        catch( IOException e ) {
-            throw new RuntimeException( e );
-        }
-        finally {
-            dataStore.closeSafe( st );
-        }
-        
+        //spatialize the database
+        GeoDB.InitGeoDB(cx);
     }
     
     @Override
@@ -133,23 +110,9 @@ public class H2Dialect extends SQLDialect {
         //do a check for a column remark which marks this as a geometry
         String remark = columnMetaData.getString( "REMARKS" );
         if ( remark != null ) {
-            if ( "POINT".equalsIgnoreCase( remark ) ) {
-                return Point.class;
-            }
-            if ( "LINESTRING".equalsIgnoreCase( remark ) ) {
-                return LineString.class;
-            }
-            if ( "POLYGON".equalsIgnoreCase( remark ) ) {
-                return Polygon.class;
-            }
-            if ( "MULTIPOINT".equalsIgnoreCase( remark ) ) {
-                return MultiPoint.class;
-            }
-            if ( "MULTILINESTRING".equalsIgnoreCase( remark ) ) {
-                return MultiLineString.class;
-            }
-            if ( "MULTIPOLYGON".equalsIgnoreCase( remark ) ) {
-                return MultiPolygon.class;
+            Geometries g = Geometries.getForName(remark);
+            if (g != null) {
+                return g.getBinding();
             }
         }
         
@@ -206,6 +169,25 @@ public class H2Dialect extends SQLDialect {
         }
     }
     
+    @Override
+    public void postCreateFeatureType(SimpleFeatureType featureType, DatabaseMetaData metadata,
+            String schemaName, Connection cx) throws SQLException {
+        //figure out if the table has a spatial index and mark the feature type as so
+        if (featureType.getGeometryDescriptor() == null) {
+            return;
+        }
+        String idxTableName = featureType.getTypeName() + "_HATBOX";
+        ResultSet rs = metadata.getTables(null, schemaName, idxTableName, new String[]{"TABLE"});
+        try {
+            if (rs.next()) {
+                featureType.getGeometryDescriptor().getUserData().put(H2_SPATIAL_INDEX, idxTableName);
+            }
+        }
+        finally {
+            dataStore.closeSafe(rs);
+        }
+    }
+    
     boolean isConcreteGeometry( Class binding ) {
         return Point.class.isAssignableFrom(binding) 
             || LineString.class.isAssignableFrom(binding)
@@ -217,9 +199,16 @@ public class H2Dialect extends SQLDialect {
     
     public Integer getGeometrySRID(String schemaName, String tableName, String columnName,
         Connection cx) throws SQLException {
-        //execute SELECT srid(<columnName>) FROM <tableName> LIMIT 1;
+        
+        //first try getting from table metadata
+        int srid = GeoDB.GetSRID(cx, schemaName, tableName);
+        if (srid > -1) {
+            return srid;
+        }
+        
+        //try grabbing directly from a geometry
         StringBuffer sql = new StringBuffer();
-        sql.append("SELECT getSRID(");
+        sql.append("SELECT ST_SRID(");
         encodeColumnName(columnName, sql);
         sql.append(") ");
         sql.append("FROM ");
@@ -244,8 +233,8 @@ public class H2Dialect extends SQLDialect {
                 if (rs.next()) {
                     return new Integer(rs.getInt(1));
                 } else {
-                    //could not find out
-                    return null;
+                    //could not find o
+           return null;
                 }
             } finally {
                 dataStore.closeSafe(rs);
@@ -257,7 +246,7 @@ public class H2Dialect extends SQLDialect {
 
     public void encodeGeometryEnvelope(String tableName, String geometryColumn, StringBuffer sql) {
         //TODO: change spatialdbbox to use envelope
-        sql.append("envelope(");
+        sql.append("ST_Envelope(");
         encodeColumnName(geometryColumn, sql);
         sql.append(")");
     }
@@ -272,7 +261,7 @@ public class H2Dialect extends SQLDialect {
 
     public void encodeGeometryValue(Geometry value, int srid, StringBuffer sql)
         throws IOException {
-        sql.append("GeomFromText ('");
+        sql.append("ST_GeomFromText ('");
         sql.append(new WKTWriter().write(value));
         sql.append("',");
         sql.append(srid);

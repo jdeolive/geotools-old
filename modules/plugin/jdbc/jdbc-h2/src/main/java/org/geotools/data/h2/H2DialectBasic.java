@@ -18,10 +18,12 @@ package org.geotools.data.h2;
 
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 
+import org.geotools.data.jdbc.FilterToSQL;
 import org.geotools.jdbc.BasicSQLDialect;
 import org.geotools.jdbc.JDBCDataStore;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -97,6 +99,12 @@ public class H2DialectBasic extends BasicSQLDialect {
     }
     
     @Override
+    public void postCreateFeatureType(SimpleFeatureType featureType, DatabaseMetaData metadata,
+            String schemaName, Connection cx) throws SQLException {
+        delegate.postCreateFeatureType(featureType, metadata, schemaName, cx);
+    }
+    
+    @Override
     public Integer getGeometrySRID(String schemaName, String tableName, String columnName,
         Connection cx) throws SQLException {
         return delegate.getGeometrySRID(schemaName, tableName, columnName, cx);
@@ -156,7 +164,7 @@ public class H2DialectBasic extends BasicSQLDialect {
     @Override
     public void encodeGeometryValue(Geometry value, int srid, StringBuffer sql)
             throws IOException {
-        sql.append("GeomFromText ('");
+        sql.append("ST_GeomFromText ('");
         sql.append(new WKTWriter().write(value));
         sql.append("',");
         sql.append(srid);
@@ -189,5 +197,10 @@ public class H2DialectBasic extends BasicSQLDialect {
     @Override
     public void applyLimitOffset(StringBuffer sql, int limit, int offset) {
         delegate.applyLimitOffset(sql, limit, offset);
+    }
+    
+    @Override
+    public FilterToSQL createFilterToSQL() {
+        return new H2FilterToSQL();
     }
 }

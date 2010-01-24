@@ -40,6 +40,10 @@ public class H2TestSetup extends JDBCTestSetup {
             run("DROP TABLE \"geotools\".\"ft1\"; COMMIT;");
         } catch (Exception e) {
         }
+        try {
+            run("DROP TABLE \"geotools\".\"ft1_HATBOX\"; COMMIT;");
+        } catch (Exception e) {
+        }
 
         try {
             run("DROP TABLE \"geotools\".\"ft2\"; COMMIT;");
@@ -60,15 +64,18 @@ public class H2TestSetup extends JDBCTestSetup {
             + "\"doubleProperty\" double, \"stringProperty\" varchar" + ")";
         run(sql);
         sql = "INSERT INTO \"geotools\".\"ft1\" VALUES ("
-            + "0,GeomFromText('POINT(0 0)',4326), 0, 0.0,'zero');";
+            + "0,ST_GeomFromText('POINT(0 0)',4326), 0, 0.0,'zero');";
         run(sql);
 
         sql = "INSERT INTO \"geotools\".\"ft1\" VALUES ("
-            + "1,GeomFromText('POINT(1 1)',4326), 1, 1.1,'one');";
+            + "1,ST_GeomFromText('POINT(1 1)',4326), 1, 1.1,'one');";
         run(sql);
 
         sql = "INSERT INTO \"geotools\".\"ft1\" VALUES ("
-            + "2,GeomFromText('POINT(2 2)',4326), 2, 2.2,'two');";
+            + "2,ST_GeomFromText('POINT(2 2)',4326), 2, 2.2,'two');";
+        run(sql);
+        
+        sql = "CALL CreateSpatialIndex('geotools', 'ft1', 'geometry', 4326)";
         run(sql);
     }
 

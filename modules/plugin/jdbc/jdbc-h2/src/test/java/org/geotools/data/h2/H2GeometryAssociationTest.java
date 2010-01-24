@@ -37,12 +37,12 @@ public class H2GeometryAssociationTest extends JDBCGeometryAssociationTestSuppor
                     run(sql);
 
                     sql = "INSERT INTO \"geotools\".\"geometry\" VALUES ("
-                        + "'0','name-0','description-0', 'POINT', GeomFromText('POINT(0 0)',4326) "
+                        + "'0','name-0','description-0', 'POINT', ST_GeomFromText('POINT(0 0)',4326) "
                         + ");";
                     run(sql);
 
                     sql = "INSERT INTO \"geotools\".\"geometry\" VALUES ("
-                        + "'1','name-1','description-1', 'POINT', GeomFromText('POINT(1 1)',4326) "
+                        + "'1','name-1','description-1', 'POINT', ST_GeomFromText('POINT(1 1)',4326) "
                         + ");";
                     run(sql);
 

@@ -60,7 +60,7 @@ public class H2ForeignKeyTest extends JDBCForeignKeyTest {
                     run(sql);
 
                     sql = "INSERT INTO \"geotools\".\"fk\" VALUES ("
-                        + "0,GeomFromText('POINT(0 0)',4326), 0, 0);";
+                        + "0,ST_GeomFromText('POINT(0 0)',4326), 0, 0);";
                     run(sql);
 
                     sql = "INSERT INTO \"geotools\".\"feature_relationships\" VALUES ("

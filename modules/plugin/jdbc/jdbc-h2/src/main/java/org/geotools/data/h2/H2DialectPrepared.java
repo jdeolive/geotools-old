@@ -16,9 +16,12 @@
  */
 package org.geotools.data.h2;
 
+import geodb.GeoDB;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -97,6 +100,12 @@ public class H2DialectPrepared extends PreparedStatementSQLDialect {
             SimpleFeatureType featureType, Connection cx) throws SQLException {
         delegate.postCreateTable(schemaName, featureType, cx);
     }
+    
+    @Override
+    public void postCreateFeatureType(SimpleFeatureType featureType, DatabaseMetaData metadata,
+            String schemaName, Connection cx) throws SQLException {
+        delegate.postCreateFeatureType(featureType, metadata, schemaName, cx);
+    }
         
     @Override
     public Integer getGeometrySRID(String schemaName, String tableName, String columnName,
@@ -163,24 +172,7 @@ public class H2DialectPrepared extends PreparedStatementSQLDialect {
             return;
         }
         
-        WKBWriter w = new WKBWriter();
-        
-        // write the geometry
-        try {
-            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-            w.write( g , new OutputStreamOutStream( bytes ) );
-       
-            //supplement it with the srid
-            bytes.write( (byte)(srid >>> 24) );
-            bytes.write( (byte)(srid >> 16 & 0xff) );
-            bytes.write( (byte)(srid >> 8 & 0xff) );
-            bytes.write( (byte)(srid & 0xff) );
-            
-            ps.setBytes( column, bytes.toByteArray() );
-        } catch(IOException e) {
-            throw (SQLException) new SQLException("A problem occurred " +
-                        "while serializing the geometry").initCause(e);
-        }
+        ps.setBytes( column, GeoDB.gToWKB(g) );
     }
     
     @Override
