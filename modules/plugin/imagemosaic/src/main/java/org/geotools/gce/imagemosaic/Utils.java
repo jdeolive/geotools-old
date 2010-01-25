@@ -1186,4 +1186,8 @@ public class Utils {
 	}
 
 	static final FilterFactory2 FILTER_FACTORY = CommonFactoryFinder.getFilterFactory2(GeoTools.getDefaultHints());
+	/**
+	 * A transparent color for missing data.
+	 */
+	static final Color TRANSPARENT = new Color(0,0,0,0);
 }
