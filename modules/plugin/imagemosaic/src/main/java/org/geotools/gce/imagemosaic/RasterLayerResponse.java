@@ -58,6 +58,7 @@ import org.geotools.coverage.TypeMap;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
+import org.geotools.coverage.grid.ViewType;
 import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataUtilities;
@@ -74,6 +75,8 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.image.ImageWorker;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
+import org.geotools.resources.i18n.Vocabulary;
+import org.geotools.resources.i18n.VocabularyKeys;
 import org.geotools.util.NumberRange;
 import org.geotools.util.SimpleInternationalString;
 import org.opengis.coverage.ColorInterpretation;
@@ -136,7 +139,12 @@ class RasterLayerResponse{
 				double scale, 
 				double offset,
 				Unit<?> unit) {
-			super(description);
+//			super(description,type,color,null,new String[]{Vocabulary
+//					.formatInternational(VocabularyKeys.NODATA).toString()},new double[]{nodata},minimum,maximum,scale,offset,unit);
+			super(description,new Category[]{new Category(Vocabulary
+	                            .formatInternational(VocabularyKeys.NODATA), new Color[]{new Color(0, 0, 0, 0)} , NumberRange
+	                            .create(nodata, nodata), NumberRange
+	                            .create(nodata, nodata))} ,null);
 			this.nodata=nodata;
 			this.minimum=minimum;
 			this.maximum=maximum;
@@ -145,8 +153,7 @@ class RasterLayerResponse{
 			this.unit=unit;
 			this.type=type;
 			this.color=color;
-			this.bkg=new Category(
-					"Background", Utils.TRANSPARENT, 0);
+			this.bkg=new Category("Background", Utils.TRANSPARENT, 0);
 		}
 
 
@@ -1064,17 +1071,21 @@ class RasterLayerResponse{
 	        	
 		        		     
 	        }
-	        bands[i] = new SimplifiedGridSampleDimension(
-	        		colorInterpretation.name(),
-	        		st,
-	        		colorInterpretation,
-	        		noData,
-	        		min,
-	        		max,
-	        		1,							//no scale 
-	        		0,							//no offset
-	        		null
-	        		).geophysics(true);
+	        bands[i] = new GridSampleDimension(colorInterpretation.name(),
+	                         new Category[]{	        new Category(Vocabulary
+	                               .formatInternational(VocabularyKeys.NODATA).toString(),
+	                               new Color(0, 0, 0, 0),NumberRange.create(noData, noData))}, null).geophysics(false);
+//	        bands[i] = new SimplifiedGridSampleDimension(
+//	        		colorInterpretation.name(),
+//	        		st,
+//	        		colorInterpretation,
+//	        		noData,
+//	        		min,
+//	        		max,
+//	        		1,							//no scale 
+//	        		0,							//no offset
+//	        		null
+//	        		).geophysics(true);
 		}
 
         return coverageFactory.create(rasterManager.getCoverageIdentifier(), image,new GeneralEnvelope(mosaicBBox), bands, null, null);		
