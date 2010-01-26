@@ -139,12 +139,11 @@ class RasterLayerResponse{
 				double scale, 
 				double offset,
 				Unit<?> unit) {
-//			super(description,type,color,null,new String[]{Vocabulary
-//					.formatInternational(VocabularyKeys.NODATA).toString()},new double[]{nodata},minimum,maximum,scale,offset,unit);
-			super(description,new Category[]{new Category(Vocabulary
-	                            .formatInternational(VocabularyKeys.NODATA), new Color[]{new Color(0, 0, 0, 0)} , NumberRange
-	                            .create(nodata, nodata), NumberRange
-	                            .create(nodata, nodata))} ,null);
+			super(description,!Double.isNaN(nodata)?
+					new Category[]{new Category(Vocabulary
+		                    .formatInternational(VocabularyKeys.NODATA), new Color[]{new Color(0, 0, 0, 0)} , NumberRange
+		                    .create(nodata, nodata), NumberRange
+		                    .create(nodata, nodata))}:null,unit);
 			this.nodata=nodata;
 			this.minimum=minimum;
 			this.maximum=maximum;
@@ -1071,21 +1070,17 @@ class RasterLayerResponse{
 	        	
 		        		     
 	        }
-	        bands[i] = new GridSampleDimension(colorInterpretation.name(),
-	                         new Category[]{	        new Category(Vocabulary
-	                               .formatInternational(VocabularyKeys.NODATA).toString(),
-	                               new Color(0, 0, 0, 0),NumberRange.create(noData, noData))}, null).geophysics(false);
-//	        bands[i] = new SimplifiedGridSampleDimension(
-//	        		colorInterpretation.name(),
-//	        		st,
-//	        		colorInterpretation,
-//	        		noData,
-//	        		min,
-//	        		max,
-//	        		1,							//no scale 
-//	        		0,							//no offset
-//	        		null
-//	        		).geophysics(true);
+	        bands[i] = new SimplifiedGridSampleDimension(
+	        		colorInterpretation.name(),
+	        		st,
+	        		colorInterpretation,
+	        		noData,
+	        		min,
+	        		max,
+	        		1,							//no scale 
+	        		0,							//no offset
+	        		null
+	        		).geophysics(true);
 		}
 
         return coverageFactory.create(rasterManager.getCoverageIdentifier(), image,new GeneralEnvelope(mosaicBBox), bands, null, null);		

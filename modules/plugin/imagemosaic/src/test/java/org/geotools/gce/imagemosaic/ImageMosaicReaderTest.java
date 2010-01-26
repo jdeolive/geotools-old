@@ -246,6 +246,7 @@ public class ImageMosaicReaderTest extends Assert{
 		// Test the output coverage
 		checkCoverage(reader, new GeneralParameterValue[] {gg,useJai ,tileSize}, "overviews test");
 	}	
+	
 	/**
 	 * 
 	 * @throws IOException
@@ -294,7 +295,7 @@ public class ImageMosaicReaderTest extends Assert{
 		
 		
 		final ParameterValue<double[]> bkg = ImageMosaicFormat.BACKGROUND_VALUES.createValue();
-		elevation.setValue(new double[]{Double.NaN});
+		bkg.setValue(new double[]{-30000.0});
 		
 		// Test the output coverage
 		final GridCoverage2D coverage = getCoverage(reader, new GeneralParameterValue[] {gg,time,bkg });
