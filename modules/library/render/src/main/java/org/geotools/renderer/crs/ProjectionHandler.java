@@ -155,6 +155,11 @@ public class ProjectionHandler {
         // be turned into it, and then turn back the intersection into
         // the origin SRS
         ReferencedEnvelope envIntWgs84 = new ReferencedEnvelope(validArea.intersection(geWGS84), WGS84);
+        
+        // if the intersection is empty the geometry is completely outside of the valid area, skip it
+        if(envIntWgs84.isEmpty())
+            return null;
+            
         ReferencedEnvelope envInt = envIntWgs84.transform(geomCRS, true);
 
         // turn the envelope into a geometry and perform the intersection
