@@ -110,6 +110,7 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
      * layers.
      */
     private ReferencedEnvelope fullExtent;
+    
 
     /**
      * Encapsulates XOR box drawing logic used with mouse dragging
@@ -297,7 +298,7 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
                 pendingDisplayArea = null;
 
             } else {
-                doSetDisplayArea(context.getAreaOfInterest());
+                doSetDisplayArea(fullExtent);
             }
 
             repaint();
@@ -1001,6 +1002,38 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
         if (context != null && context.getLayerCount() > 0) {
             try {
                 fullExtent = context.getLayerBounds();
+
+                /*
+                 * Guard agains degenerate envelopes (e.g. empty
+                 * map layer or single point feature)
+                 */
+                if (fullExtent == null ) {
+                    // set arbitrary bounds centred on 0,0
+                    fullExtent = new ReferencedEnvelope(-1, 1, -1, 1, context.getCoordinateReferenceSystem());
+
+                } else {
+                    double w = fullExtent.getWidth();
+                    double h = fullExtent.getHeight();
+                    double x = fullExtent.getMinimum(0);
+                    double y = fullExtent.getMinimum(1);
+
+                    double xmin = x;
+                    double xmax = x + w;
+                    if (w <= 0.0) {
+                        xmin = x - 1.0;
+                        xmax = x + 1.0;
+                    }
+
+                    double ymin = y;
+                    double ymax = y + h;
+                    if (h <= 0.0) {
+                        ymin = y - 1.0;
+                        ymax = y + 1.0;
+                    }
+
+                    fullExtent = new ReferencedEnvelope(xmin, xmax, ymin, ymax, context.getCoordinateReferenceSystem());
+                }
+
             } catch (Exception ex) {
                 throw new IllegalStateException(ex);
             }
