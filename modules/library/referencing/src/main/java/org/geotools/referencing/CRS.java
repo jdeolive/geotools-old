@@ -1082,6 +1082,10 @@ search:             if (DefaultCoordinateSystemAxis.isCompassDirection(axis.getD
                     }
                     if (!operation.getMathTransform().isIdentity()) {
                         envelope = transform(operation, envelope);
+                    } else if(!equalsIgnoreMetadata(envelope.getCoordinateReferenceSystem(), targetCRS)) {
+                        GeneralEnvelope tx = new GeneralEnvelope(envelope);
+                        tx.setCoordinateReferenceSystem(targetCRS);
+                        envelope = tx;
                     }
                 }
                 assert equalsIgnoreMetadata(envelope.getCoordinateReferenceSystem(), targetCRS);

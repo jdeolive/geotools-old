@@ -88,6 +88,18 @@ public final class WKT {
             "  UNIT[\"degree\", 0.017453292519943295],\n"+""        +
             "  AXIS[\"Longitude\",EAST],"                           +
             "  AXIS[\"Latitude\",NORTH]]";
+    
+    /**
+     * Geographic CRS (EPSG:4326) with a different datum name
+     */
+    public static final String WGS84_ALTERED =
+            "GEOGCS[\"WGS84\",\n"                                   +
+            "  DATUM[\"WGS84_altered\",\n"                          +
+            "    SPHEROID[\"WGS84\", 6378137.0, 298.257223563]],\n" +
+            "  PRIMEM[\"Greenwich\", 0.0],\n"                       +
+            "  UNIT[\"degree\", 0.017453292519943295],\n"+""        +
+            "  AXIS[\"Longitude\",EAST],"                           +
+            "  AXIS[\"Latitude\",NORTH]]";
 
     /**
      * Geographic CRS with DMHS units.

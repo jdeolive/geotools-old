@@ -16,10 +16,7 @@
  */
 package org.geotools.referencing;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.awt.geom.Rectangle2D;
 import java.util.Set;
@@ -30,6 +27,7 @@ import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.resources.geometry.XRectangle2D;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.opengis.geometry.Envelope;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.CoordinateOperation;
@@ -164,6 +162,33 @@ public final class CrsTest {
 
         assertTrue(oldEnvelope.contains(firstEnvelope, true));
         assertTrue(oldEnvelope.equals  (firstEnvelope, 0.02, true));
+    }
+    
+    /**
+     * Tests the transformations of an envelope when the two CRS have identify
+     * transforms but different datum names 
+     */
+    @Test
+    public void testEnvelopeTransformation2() throws FactoryException, TransformException {
+        final CoordinateReferenceSystem WGS84Altered = CRS.parseWKT(WKT.WGS84_ALTERED);
+        final CoordinateReferenceSystem WGS84  = DefaultGeographicCRS.WGS84;
+        final MathTransform crsTransform = CRS.findMathTransform(WGS84, WGS84Altered, true);
+        assertTrue(crsTransform.isIdentity());
+
+        final GeneralEnvelope firstEnvelope;
+        firstEnvelope = new GeneralEnvelope(new double[] {-124, 42}, new double[] {-122, 43});
+        firstEnvelope.setCoordinateReferenceSystem(WGS84);
+
+        // this triggered a assertion error in GEOT-2934
+        Envelope transformed = CRS.transform(firstEnvelope, WGS84Altered);
+        
+        // check the envelope is what we expect
+        assertEquals(transformed.getCoordinateReferenceSystem(), WGS84Altered);
+        double EPS = 1e-9;
+        assertEquals(transformed.getMinimum(0), firstEnvelope.getMinimum(0), EPS);
+        assertEquals(transformed.getMinimum(1), firstEnvelope.getMinimum(1), EPS);
+        assertEquals(transformed.getMaximum(0), firstEnvelope.getMaximum(0), EPS);
+        assertEquals(transformed.getMaximum(1), firstEnvelope.getMaximum(1), EPS);
     }
 
     /**
