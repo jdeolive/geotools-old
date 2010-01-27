@@ -31,6 +31,7 @@ import javax.media.jai.PlanarImage;
 import junit.framework.TestCase;
 
 import org.geotools.image.ImageWorker;
+import org.junit.Test;
 
 /**
  * Testing custom code for color reduction.
@@ -40,6 +41,7 @@ import org.geotools.image.ImageWorker;
  */
 public class CustomPaletteBuilderTest extends TestCase {
 
+	@Test
     public void testOneColorBug() {
         // build a transparent image
         BufferedImage image = new BufferedImage(256, 256,
@@ -56,6 +58,7 @@ public class CustomPaletteBuilderTest extends TestCase {
         assertEquals(2, icm.getMapSize());
     }
     
+    @Test
     public void testFourColor() {
         // build a transparent image
         BufferedImage image = new BufferedImage(256, 256,

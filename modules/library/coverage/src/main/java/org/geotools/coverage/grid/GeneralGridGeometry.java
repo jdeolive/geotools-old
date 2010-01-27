@@ -16,12 +16,19 @@
  */
 package org.geotools.coverage.grid;
 
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.RenderedImage;
 import java.io.Serializable;
 
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.metadata.iso.spatial.PixelTranslation;
+import org.geotools.referencing.CRS;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
+import org.geotools.referencing.operation.matrix.XAffineTransform;
+import org.geotools.referencing.operation.transform.ConcatenatedTransform;
+import org.geotools.referencing.operation.transform.ProjectiveTransform;
+import org.geotools.resources.CRSUtilities;
 import org.geotools.resources.Classes;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
@@ -33,6 +40,7 @@ import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.Matrix;
 import org.opengis.referencing.operation.TransformException;
 import org.opengis.util.Cloneable;
 
@@ -75,6 +83,11 @@ public class GeneralGridGeometry implements GridGeometry, Serializable {
      * Serial number for interoperability with different versions.
      */
     private static final long serialVersionUID = 124700383873732132L;
+    
+    private static boolean assertsEnabled=false;
+    static{
+        assert assertsEnabled = true;  // Intentional side-effect !!!
+    }
 
     /**
      * A bitmask to specify the validity of the {@linkplain #getCoordinateReferenceSystem
@@ -134,7 +147,7 @@ public class GeneralGridGeometry implements GridGeometry, Serializable {
      *
      * @since 2.2
      */
-    final GeneralEnvelope envelope;
+    GeneralEnvelope envelope;
 
     /**
      * The math transform (usually an affine transform), or {@code null} if none.
@@ -143,7 +156,7 @@ public class GeneralGridGeometry implements GridGeometry, Serializable {
      *
      * <pre>gridToCRS.transform(pixels, point);</pre>
      */
-    protected final MathTransform gridToCRS;
+    protected MathTransform gridToCRS;
 
     /**
      * Same as {@link #gridToCRS} but from {@linkplain PixelInCell#CELL_CORNER pixel corner}
@@ -265,7 +278,150 @@ public class GeneralGridGeometry implements GridGeometry, Serializable {
             envelope = null;
         }
     }
+    
+    /**
+     * Casts the specified grid range into an envelope. This is used before to transform
+     * the envelope using {@link CRSUtilities#transform(MathTransform, Envelope)}.
+     */
+    private static Envelope toEnvelope(final GridEnvelope gridRange) {
+        final int dimension = gridRange.getDimension();
+        final double[] lower = new double[dimension];
+        final double[] upper = new double[dimension];
+        for (int i=0; i<dimension; i++) {
+            lower[i] = gridRange.getLow(i);
+            upper[i] = gridRange.getHigh(i) + 1;
+        }
+        return new GeneralEnvelope(lower, upper);
+    }
+    
+    /**
+     * Constructs a new grid geometry from an envelope and a {@linkplain MathTransform math
+     * transform}. According OGC specification, the math transform should map {@linkplain
+     * PixelInCell#CELL_CENTER pixel center}. But in Java2D/JAI conventions, the transform
+     * is rather expected to maps {@linkplain PixelInCell#CELL_CORNER pixel corner}. The
+     * convention to follow can be specified by the {@code anchor} argument.
+     *
+     * <p>
+     * It is worth to point a few guidelines for the usage of the gridMaxInclusive parameter.
+     * In case we are using this contructor for a reprojection it might be worth using a <code>false</code>
+     * value for this parameter since we would not force to create a new raster that might be slightly bigger than 
+     * the original one, causing problems with black or nodata collars appearing after a resample.
+     * In case we are trying to build a source raster area to be used at reading time, in that case we may want to provide 
+     * <code>true</code> for gridMaxInclusive since we may want to read an area that is slightly bigger than what we need
+     * to be sure we actually reading something.
+     * 
+     * @param anchor    {@link PixelInCell#CELL_CENTER CELL_CENTER} for OGC conventions or
+     *                  {@link PixelInCell#CELL_CORNER CELL_CORNER} for Java2D/JAI conventions.
+     * @param gridToCRS The math transform which allows for the transformations from grid
+     *                  coordinates to real world earth coordinates. May be {@code null},
+     *                  but this is not recommended.
+     * @param envelope  The envelope (including CRS) of a grid coverage, or {@code null} if none.
+     * @param gridMaxInclusive Tells us whether or not the resulting gridRange max values should be
+     *                  inclusive or not. See notes above.
+     * @param preserveGridToCRS Tells us whether we should try to preserve the the gridToCRS or the envelope 
+     *                  most part of the time we won't be able to preserve both for our purposes.
+     *
+     * @throws MismatchedDimensionException if the math transform and the envelope doesn't have
+     *         consistent dimensions.
+     * @throws IllegalArgumentException if the math transform can't transform coordinates
+     *         in the domain of the grid range.
+     *
+     * @since 2.7
+     */
+    public GeneralGridGeometry(final PixelInCell   anchor,
+                               final MathTransform gridToCRS,
+                               final Envelope      envelope,
+                               final boolean 	   gridMaxInclusive,
+                               final boolean 	   preserveGridToCRS)
+            throws MismatchedDimensionException, IllegalArgumentException
+    {
+        this.gridToCRS = PixelTranslation.translate(gridToCRS, anchor, PixelInCell.CELL_CENTER);
+        if (PixelInCell.CELL_CORNER.equals(anchor)) {
+            cornerToCRS = gridToCRS;
+        }
+        else
+        	 cornerToCRS =PixelTranslation.translate(gridToCRS, anchor, PixelInCell.CELL_CORNER);
+        if (envelope == null) {
+            this.envelope  = null;
+            this.gridRange = null;
+            return;
+        }
+        this.envelope = new GeneralEnvelope(envelope);
+        if (gridToCRS == null) {
+            this.gridRange = null;
+            return;
+        }
+        final GeneralEnvelope transformed;
+        try {
+            transformed = org.geotools.referencing.CRS.transform(cornerToCRS.inverse(), envelope);
+        } catch (TransformException exception) {
+            throw new IllegalArgumentException(Errors.format(ErrorKeys.BAD_TRANSFORM_$1,
+                    Classes.getClass(gridToCRS)), exception);
+        }
+        
+        // making this inclusive may cause problems when we use for warping of something since we might try to include more data 
+        // than we actually havein the source imagery
+        gridRange = new GeneralGridEnvelope(transformed, PixelInCell.CELL_CORNER,gridMaxInclusive);
+        
+       
+        //
+        // CORRECTIONS
+        //
+        // do we need to ajust the gridToCRS or the envelope?
+        if(preserveGridToCRS)
+        {
+        	//preserve firdToCrs
+        	GeneralEnvelope tempEnvelope;
+			try {
+				tempEnvelope = CRS.transform(getGridToCRS(),toEnvelope(gridRange));
+			} catch (Throwable e) {
+				throw new RuntimeException(e);
+			} 
+			tempEnvelope.setCoordinateReferenceSystem(envelope.getCoordinateReferenceSystem());
+			this.envelope=tempEnvelope;
+        }else
+        {
+        	// preserve envelope
+        	if(gridToCRS!=null){
 
+                // all we need is a simple scale and translate to take care of the fact that we might have approximated a bit the 
+                // raster area
+                final double xScale=transformed.getSpan(0)/gridRange.getSpan(0);
+                final double yScale=transformed.getSpan(1)/gridRange.getSpan(1);    
+                final double xTrans=transformed.getMinimum(0)-xScale*gridRange.getLow(0);
+                final double yTrans=transformed.getMinimum(1)-yScale*gridRange.getLow(1);
+	        	final AffineTransform newTr=new AffineTransform(xScale,0,0,yScale,xTrans,yTrans);
+	        	newTr.preConcatenate((AffineTransform)this.cornerToCRS);
+				this.cornerToCRS=
+	        			ProjectiveTransform.create(
+	        					newTr
+	        			);
+	        	
+				
+	        	this.gridToCRS=PixelTranslation.translate(cornerToCRS, PixelInCell.CELL_CORNER, PixelInCell.CELL_CENTER);
+	        	
+		        // Now 'assertsEnabled' is set to the correct value
+		        if(assertsEnabled){
+			        try {
+			        	final MathTransform tr=cornerToCRS;
+			        	if(!(tr instanceof AffineTransform))
+			        		return;
+			        	final AffineTransform transform=(AffineTransform)tr;
+			        	final double scale= Math.min(XAffineTransform.getScaleX0(transform), XAffineTransform.getScaleY0(transform));
+						final GeneralEnvelope tempEnvelope = CRS.transform(tr,toEnvelope(gridRange));
+						tempEnvelope.setCoordinateReferenceSystem(envelope.getCoordinateReferenceSystem());
+						assert tempEnvelope.equals(envelope,scale*1E-3,true):"Unable to preserve the envelope for this GridGeometry";
+					} catch (Throwable e) {
+						throw new RuntimeException(e);
+					}
+		        }				
+				
+				
+        	}
+        }
+        
+
+    }
     /**
      * Constructs a new grid geometry from an envelope and a {@linkplain MathTransform math
      * transform}. According OGC specification, the math transform should map {@linkplain
@@ -292,30 +448,7 @@ public class GeneralGridGeometry implements GridGeometry, Serializable {
                                final Envelope      envelope)
             throws MismatchedDimensionException, IllegalArgumentException
     {
-        this.gridToCRS = PixelTranslation.translate(gridToCRS, anchor, PixelInCell.CELL_CENTER);
-        if (PixelInCell.CELL_CORNER.equals(anchor)) {
-            cornerToCRS = gridToCRS;
-        }
-        else
-        	 cornerToCRS =PixelTranslation.translate(gridToCRS, anchor, PixelInCell.CELL_CORNER);
-        if (envelope == null) {
-            this.envelope  = null;
-            this.gridRange = null;
-            return;
-        }
-        this.envelope = new GeneralEnvelope(envelope);
-        if (gridToCRS == null) {
-            this.gridRange = null;
-            return;
-        }
-        final GeneralEnvelope transformed;
-        try {
-            transformed = org.geotools.referencing.CRS.transform(cornerToCRS.inverse(), envelope);
-        } catch (TransformException exception) {
-            throw new IllegalArgumentException(Errors.format(ErrorKeys.BAD_TRANSFORM_$1,
-                    Classes.getClass(gridToCRS)), exception);
-        }
-        gridRange = new GeneralGridEnvelope(transformed, PixelInCell.CELL_CORNER,true);
+        this(anchor, gridToCRS, envelope, false,false);
     }
 
     /**

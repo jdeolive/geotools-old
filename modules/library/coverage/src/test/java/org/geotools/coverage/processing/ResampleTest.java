@@ -148,7 +148,6 @@ public final class ResampleTest extends GridProcessingTestBase {
      * @todo Investigate why we get a Lookup operation on the first coverage.
      */
     @Test
-    @Ignore
     public void testIdentity() {
         assertEquals("Lookup", showProjected(coverage));
         assertNull(showProjected(indexedCoverage));
@@ -160,7 +159,6 @@ public final class ResampleTest extends GridProcessingTestBase {
      * Tests the "Resample" operation with a "Crop" transform.
      */
     @Test
-    @Ignore
     public void testCrop() {
         final GridGeometry2D g1,g2;
         final MathTransform gridToCRS = null;
@@ -178,7 +176,6 @@ public final class ResampleTest extends GridProcessingTestBase {
      * Tests the "Resample" operation with a stereographic coordinate system.
      */
     @Test
-    @Ignore
     public void testStereographic() {
         assertEquals("Warp", showProjected(coverage,getProjectedCRS(coverage), null, null, true));
     }
@@ -189,7 +186,6 @@ public final class ResampleTest extends GridProcessingTestBase {
      * @throws FactoryException If the CRS can't not be created.
      */
     @Test
-    @Ignore
     public void testsNad83() throws FactoryException {
         final Hints photo = new Hints(Hints.COVERAGE_PROCESSING_VIEW, ViewType.PHOTOGRAPHIC);
         final CoordinateReferenceSystem crs = CRS.parseWKT(
@@ -211,7 +207,6 @@ public final class ResampleTest extends GridProcessingTestBase {
      * Tests the "Resample" operation with an "Affine" transform.
      */
     @Test
-    @Ignore
     public void testAffine() {
         final Hints photo = new Hints(Hints.COVERAGE_PROCESSING_VIEW, ViewType.PHOTOGRAPHIC);
         showTranslated(coverage,                        null, true,  "Lookup", "Affine");
