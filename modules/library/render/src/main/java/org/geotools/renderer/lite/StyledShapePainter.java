@@ -29,22 +29,30 @@ import java.awt.Stroke;
 import java.awt.TexturePaint;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.swing.Icon;
+
+import org.geotools.geometry.jts.Decimator;
 import org.geotools.geometry.jts.GeomCollectionIterator;
 import org.geotools.geometry.jts.LiteShape2;
+import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.geotools.renderer.style.GraphicStyle2D;
+import org.geotools.renderer.style.IconStyle2D;
 import org.geotools.renderer.style.LineStyle2D;
 import org.geotools.renderer.style.MarkStyle2D;
 import org.geotools.renderer.style.PolygonStyle2D;
 import org.geotools.renderer.style.Style2D;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.operation.TransformException;
 
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 
@@ -86,6 +94,8 @@ public final class StyledShapePainter {
 	 *            The style to apply, or <code>null</code> if none.
 	 * @param scale
 	 *            The scale denominator for the current zoom level
+	 * @throws FactoryException 
+	 * @throws TransformException 
 	 */
 	public void paint(final Graphics2D graphics, final LiteShape2 shape,
 			final Style2D style, final double scale) {
@@ -102,20 +112,38 @@ public final class StyledShapePainter {
 			return;
 		}
 
-		if (style instanceof MarkStyle2D) {
-			// DJB: changed this to handle multi* geometries and line and
-			// polygon geometries better
-			GeometryCollection gc;
-			if (shape.getGeometry() instanceof GeometryCollection)
-				gc = (GeometryCollection) shape.getGeometry();
-			else {
-				Geometry[] gs = new Geometry[1];
-				gs[0] = shape.getGeometry();
-				gc = shape.getGeometry().getFactory().createGeometryCollection(
-						gs); // make a Point,Line, or Poly into a GC
-			}
-			GeomCollectionIterator citer = new GeomCollectionIterator(gc,
-					IDENTITY_TRANSFORM, false, 1.0);
+		if(style instanceof IconStyle2D) {
+		    AffineTransform temp = graphics.getTransform();
+		    try {
+    		    IconStyle2D icoStyle = (IconStyle2D) style;
+    		    Icon icon = icoStyle.getIcon();
+    		    graphics.setComposite(icoStyle.getComposite());
+
+    		    // the displacement to be applied to all points, centers the icon and applies the 
+    		    // Graphic displacement as well
+                float dx = - (float) (icon.getIconWidth() / 2.0 + icoStyle.getDisplacementX()); 
+    			float dy = - (float) (icon.getIconHeight() / 2.0 + icoStyle.getDisplacementY());
+    			
+    			// iterate over all points
+    			float[] coords = new float[2];
+    			PathIterator citer = getPathIterator(shape);
+    			AffineTransform markAT = new AffineTransform(temp);
+                while (!(citer.isDone())) {
+                    citer.currentSegment(coords);
+                    
+                    markAT.setTransform(temp);
+                    markAT.translate(coords[0] + dx , coords[1] + dy);
+                    markAT.rotate(icoStyle.getRotation());
+                    graphics.setTransform(markAT);
+                    
+                    icon.paintIcon(null, graphics, 0, 0);
+                    citer.next();
+                }
+		    } finally {
+		        graphics.setTransform(temp);
+		    }
+		} else if (style instanceof MarkStyle2D) {
+			PathIterator citer = getPathIterator(shape);
 
 			// get the point onto the shape has to be painted
 			float[] coords = new float[2];
@@ -143,18 +171,19 @@ public final class StyledShapePainter {
 				}
 			}
 		} else if (style instanceof GraphicStyle2D) {
-			// DJB: TODO: almost certainly you want to do the same here as with
-			// the MarkStyle2D (above)
-			// get the point onto the shape has to be painted
 			float[] coords = new float[2];
-			PathIterator iter = shape.getPathIterator(IDENTITY_TRANSFORM);
+			PathIterator iter = getPathIterator(shape);
 			iter.currentSegment(coords);
 
 			GraphicStyle2D gs2d = (GraphicStyle2D) style;
 
-			renderImage(graphics, coords[0], coords[1],
-					(Image) gs2d.getImage(), gs2d.getRotation(), gs2d
-							.getOpacity(), false);
+			while (!(iter.isDone())) {
+                iter.currentSegment(coords);
+    			renderImage(graphics, coords[0], coords[1],
+    					(Image) gs2d.getImage(), gs2d.getRotation(), gs2d
+    							.getOpacity(), false);
+    			iter.next();
+			}
 		} else {
 			// if the style is a polygon one, process it even if the polyline is
 			// not closed (by SLD specification)
@@ -171,6 +200,9 @@ public final class StyledShapePainter {
 					graphics.setPaint(paint);
 					graphics.setComposite(ps2d.getFillComposite());
 					fillLiteShape(graphics, shape);
+				}
+				if (ps2d.getGraphicFill() != null) {
+					paintGraphicFill(graphics, shape, ps2d.getGraphicFill(), scale);
 				}
 			}
 
@@ -222,6 +254,28 @@ public final class StyledShapePainter {
 			}
 		}
 	}
+
+	/**
+	 * Extracts a ath iterator from the shape
+	 * @param shape
+	 * @return
+	 */
+    private PathIterator getPathIterator(final LiteShape2 shape) {
+        // DJB: changed this to handle multi* geometries and line and
+        // polygon geometries better
+        GeometryCollection gc;
+        if (shape.getGeometry() instanceof GeometryCollection)
+        	gc = (GeometryCollection) shape.getGeometry();
+        else {
+        	Geometry[] gs = new Geometry[1];
+        	gs[0] = shape.getGeometry();
+        	gc = shape.getGeometry().getFactory().createGeometryCollection(
+        			gs); // make a Point,Line, or Poly into a GC
+        }
+        GeomCollectionIterator citer = new GeomCollectionIterator(gc,
+        		IDENTITY_TRANSFORM, false, 1.0);
+        return citer;
+    }
 
 	public void debugShape(Shape shape) {
 		float[] pt = new float[2];
@@ -401,41 +455,28 @@ public final class StyledShapePainter {
 		if (LOGGER.isLoggable(Level.FINEST)) {
 			LOGGER.finest("drawing Image @" + x + "," + y);
 		}
-
+        
 		AffineTransform temp = graphics.getTransform();
-		AffineTransform markAT = new AffineTransform();
-		Point2D center = new java.awt.geom.Point2D.Double(x, y);
-		Point2D pointTx = new java.awt.geom.Point2D.Double();
-		temp.transform(center, pointTx);
-		markAT.translate(pointTx.getX(), pointTx.getY());
-
-		double shearY = temp.getShearY();
-		double scaleY = temp.getScaleY();
-
-		double originalRotation = Math.atan(shearY / scaleY);
-
-		if (LOGGER.isLoggable(Level.FINER)) {
-			LOGGER.finer("originalRotation " + originalRotation);
+		try {
+    		AffineTransform markAT = new AffineTransform(graphics.getTransform());
+    		markAT.translate(x, y);
+    		markAT.rotate(rotation);
+    		graphics.setTransform(markAT);
+    		graphics.setComposite(AlphaComposite.getInstance(
+    				AlphaComposite.SRC_OVER, opacity));
+    		
+    
+    		// we moved the origin to the middle of the image.
+    		if(leftMiddle) {
+    		    graphics.drawImage(image, 0, -image
+    	                .getHeight(imgObserver) / 2, imgObserver);
+    		} else {
+    		    graphics.drawImage(image, -image.getWidth(imgObserver) / 2, -image
+    				.getHeight(imgObserver) / 2, imgObserver);
+    		}
+		} finally {
+		    graphics.setTransform(temp);
 		}
-
-		markAT.rotate(rotation);
-		graphics.setTransform(markAT);
-		graphics.setComposite(AlphaComposite.getInstance(
-				AlphaComposite.SRC_OVER, opacity));
-		
-
-		// we moved the origin to the middle of the image.
-		if(leftMiddle) {
-		    graphics.drawImage(image, 0, -image
-	                .getHeight(imgObserver) / 2, imgObserver);
-		} else {
-		    graphics.drawImage(image, -image.getWidth(imgObserver) / 2, -image
-				.getHeight(imgObserver) / 2, imgObserver);
-		}
-
-		graphics.setTransform(temp);
-
-		return;
 	}
 	
 	/**
@@ -462,4 +503,99 @@ public final class StyledShapePainter {
 	    
 	}
 
+
+	/**
+	 * Paints a graphic fill for a given shape.
+	 * 
+	 * @param graphics Graphics2D on which to paint.
+	 * @param shape Shape whose fill is to be painted.
+	 * @param graphicFill a Style2D that specified the graphic fill.
+	 * @param scale the scale of the current render.
+	 * @throws TransformException
+	 * @throws FactoryException
+	 */
+    private void paintGraphicFill(Graphics2D graphics, Shape shape, Style2D graphicFill, double scale) 
+    {
+    	// retrieves the bounds of the provided shape
+    	Rectangle2D boundsShape = shape.getBounds2D();
+    	
+    	// retrieves the size of the stipple to be painted based on the provided graphic fill
+        Rectangle2D stippleSize = null;
+        if (graphicFill instanceof MarkStyle2D)
+        {
+        	Rectangle2D boundsFill = ((MarkStyle2D)graphicFill).getShape().getBounds2D();
+        	double size = ((MarkStyle2D)graphicFill).getSize();
+            double aspect = (boundsFill.getHeight() > 0 && boundsFill.getWidth() > 0) ? boundsFill.getWidth()/boundsFill.getHeight() : 1.0;
+        	stippleSize = new Rectangle2D.Double(0, 0, size*aspect, size);
+        } else if(graphicFill instanceof IconStyle2D) {
+            Icon icon = ((IconStyle2D)graphicFill).getIcon();
+            stippleSize = new Rectangle2D.Double(0, 0, icon.getIconWidth(), icon.getIconHeight());
+        } else {
+        	// if graphic fill does not provide bounds information, it is considered
+        	// to be unsupported for stipple painting
+        	return;
+        }
+
+        // computes the number of times the graphic will be painted as a stipple
+        int nStippleX = (int) Math.ceil(boundsShape.getWidth() / stippleSize.getWidth());
+        int nStippleY = (int) Math.ceil(boundsShape.getHeight() / stippleSize.getHeight());
+        
+        // creates a copy of the Graphics so that we can change it freely
+        Graphics2D g = (Graphics2D)graphics.create();
+        // adds the provided shape to the Graphics current clip region
+        g.clip(shape);
+        // retrieves the full clip region
+        Shape clipShape = g.getClip();
+        
+        // paints graphic fill as a stipple
+        for (int i = 0; i < nStippleX; i++)
+        {
+            for (int j = 0; j < nStippleY; j++)
+            {
+            	// computes this stipple's shift in the X and Y directions
+            	double translateX = boundsShape.getMinX() + i * stippleSize.getWidth();
+            	double translateY = boundsShape.getMinY() + j * stippleSize.getHeight();
+            	
+            	// only does anything if current stipple intersects the clip region
+                if (!clipShape.intersects(translateX, translateY, stippleSize.getWidth(), stippleSize.getHeight()))
+                	continue;
+                
+                // creates a LiteShape2 for the stipple and paints it 
+                LiteShape2 stippleShape = createStippleShape(stippleSize, translateX, translateY);
+                paint(g, stippleShape, graphicFill, scale);
+            }
+        }
+    }
+
+    /**
+     * Creates a stipple shape given a stipple size and a shift in the x and y directions.
+     * The returned shape should be appropriate for painting a stipple using a GraphicFill.
+     * 
+     * @param stippleSize a Rectangle whose width and height indicate the size of the stipple.
+     * @param translateX a translation value in the X dimension.
+     * @param translateY a translation value in the Y dimension.
+     * @return a LiteShape2 appropriate for painting a stipple using a GraphicFill.
+     * @throws TransformException
+     * @throws FactoryException
+     */
+    private LiteShape2 createStippleShape(Rectangle2D stippleSize, double translateX, double translateY)
+    {
+    	// builds the JTS geometry for the translated stipple
+        GeometryFactory geomFactory = new GeometryFactory();
+        Coordinate coord = new Coordinate(stippleSize.getCenterX() + translateX, stippleSize.getCenterY() + translateY);
+        Geometry geom = geomFactory.createPoint(coord);
+        
+    	// builds a LiteShape2 object from the JTS geometry
+        AffineTransform2D identityTransf = new AffineTransform2D(new AffineTransform());
+        Decimator nullDecimator = new Decimator(-1, -1);
+        LiteShape2 stippleShape;
+        try {
+            stippleShape = new LiteShape2(geom, identityTransf, nullDecimator, false);
+        } catch(Exception e) {
+            throw new RuntimeException("Unxpected exception building lite shape", e);
+        }
+        
+        return stippleShape;
+    }
+	
 }

@@ -64,7 +64,7 @@ public class MarkStyle2D extends PolygonStyle2D {
     public Shape getTransformedShape(float x, float y) {
         if (shape != null) {
             Rectangle2D bounds = shape.getBounds2D();
-            double shapeSize = Math.max(bounds.getWidth(), bounds.getHeight());
+            double shapeSize = bounds.getHeight();
             double scale = size / shapeSize;
             TransformedShape ts = new TransformedShape();
             ts.shape = shape;

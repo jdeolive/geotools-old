@@ -4,23 +4,16 @@
   xsi:schemaLocation="http://www.opengis.net/sld http://schemas.opengis.net/sld/1.0.0/StyledLayerDescriptor.xsd">
   <NamedLayer>
 
-    <Name>Grass</Name>
+    <Name>GrayLines</Name>
     <UserStyle>
       <FeatureTypeStyle>
         <Rule>
-          <PolygonSymbolizer>
-            <Fill>
-              <GraphicFill>
-                <Graphic>
-                  <ExternalGraphic>
-                    <OnlineResource xlink:type="simple" xlink:href="icon64.png" />
-                    <Format>image/png</Format>
-                  </ExternalGraphic>
-                </Graphic>
-              </GraphicFill>
-            </Fill>
-            <Stroke/>
-          </PolygonSymbolizer>
+          <LineSymbolizer>
+            <Stroke>
+              <CssParameter name="stroke">0x440000</CssParameter>
+              <CssParameter name="stroke-width">0.5</CssParameter>
+            </Stroke>
+          </LineSymbolizer>
         </Rule>
       </FeatureTypeStyle>
     </UserStyle>

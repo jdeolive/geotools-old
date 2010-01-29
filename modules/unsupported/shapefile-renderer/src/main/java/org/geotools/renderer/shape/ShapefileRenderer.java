@@ -518,6 +518,10 @@ public class ShapefileRenderer implements GTRenderer {
             List ruleList, List elseRuleList, Set modifiedFIDs, NumberRange scaleRange, String layerId )
             throws IOException {
         IndexedDbaseFileReader dbfreader = null;
+        
+		// clips Graphics to current drawing area before painting
+        graphics = (Graphics2D)graphics.create();
+        graphics.clip(screenSize);
 
         // don't waste time processing the dbf file if the only attribute loades is the geometry
         if(type.getAttributeCount() > 1) {
@@ -795,16 +799,16 @@ public class ShapefileRenderer implements GTRenderer {
                         + " does not exist. Maybe it has just been spelled wrongly?");
         } else {
             dbfheader = getDBFHeader(ds);
-            for (int i = 0; i < types.length; i++) {
+            for( int i = 0; i < types.length; i++ ) {
                 types[i] = schema.getDescriptor(attributes[i]);
-
+    
                 if (types[i] == null)
                     throw new IllegalArgumentException("Attribute " + attributes[i]
                             + " does not exist. Maybe it has just been spelled wrongly?");
-                for (int j = 0; j < dbfheader.getNumFields(); j++) {
+                for( int j = 0; j < dbfheader.getNumFields(); j++ ) {
                     if (dbfheader.getFieldName(j).equals(attributes[i])) {
                         attributeIndexing[i] = j;
-
+    
                         break;
                     }
                 }
@@ -1242,6 +1246,9 @@ public class ShapefileRenderer implements GTRenderer {
     	}
     	if(hints != null && hints.containsKey(StreamingRenderer.LINE_WIDTH_OPTIMIZATION_KEY)) {
             styleFactory.setLineOptimizationEnabled(Boolean.TRUE.equals(hints.get(StreamingRenderer.LINE_WIDTH_OPTIMIZATION_KEY)));
+        }
+    	if(hints != null && hints.containsKey(StreamingRenderer.VECTOR_RENDERING_KEY)) {
+            styleFactory.setVectorRenderingEnabled(Boolean.TRUE.equals(hints.get(StreamingRenderer.VECTOR_RENDERING_KEY)));
         }
         rendererHints = hints;
     }

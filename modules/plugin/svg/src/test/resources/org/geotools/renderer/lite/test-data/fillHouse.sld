@@ -13,9 +13,10 @@
               <GraphicFill>
                 <Graphic>
                   <ExternalGraphic>
-                    <OnlineResource xlink:type="simple" xlink:href="icon64.png" />
-                    <Format>image/png</Format>
+                    <OnlineResource xlink:type="simple" xlink:href="house.svg" />
+                    <Format>image/svg</Format>
                   </ExternalGraphic>
+                  <size>64</size>
                 </Graphic>
               </GraphicFill>
             </Fill>

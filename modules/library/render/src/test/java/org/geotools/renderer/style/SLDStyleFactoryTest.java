@@ -82,6 +82,11 @@ public class SLDStyleFactoryTest extends TestCase {
         feature = fb.buildFeature(null);
     }
     
+    @Override
+    protected void tearDown() throws Exception {
+        sld.setVectorRenderingEnabled(false);
+    }
+    
     /** This test created from Render2DTest.testSimplePointRender */
     public void testCreatePointStyle(){
         // The following is complex, and should be built from
@@ -184,6 +189,23 @@ public class SLDStyleFactoryTest extends TestCase {
         assertEquals(expected.getWidth(), img.getWidth());
         // the two images are equal, but they have different color models due to the
         // different ways they have been loaded
+    }
+    
+    public void testCreateDynamicExternalGraphicsVector() throws Exception {
+        URL url = StreamingRenderer.class.getResource("test-data/");
+        PointSymbolizer symb = sf.createPointSymbolizer();
+        ExternalGraphic eg = sf.createExternalGraphic(url + "${icon}", "image/png");
+        symb.getGraphic().addExternalGraphic(eg);
+        sld.setVectorRenderingEnabled(true);
+        
+        IconStyle2D gs = (IconStyle2D) sld.createStyle(feature, symb, range);
+        // make sure the style has been recognized as dynamic
+        SymbolizerKey key = new SymbolizerKey(symb, range);
+        assertTrue(sld.dynamicSymbolizers.containsKey(key));
+
+        BufferedImage expected = ImageIO.read(StreamingRenderer.class.getResource("test-data/draw.png"));
+        assertEquals(expected.getHeight(), gs.getIcon().getIconHeight());
+        assertEquals(expected.getWidth(), gs.getIcon().getIconWidth());
     }
     
     public void testDefaultSizeExternalGraphic() throws Exception {

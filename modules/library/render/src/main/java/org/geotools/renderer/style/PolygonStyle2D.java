@@ -32,7 +32,30 @@ import org.geotools.resources.Classes;
  */
 public class PolygonStyle2D extends LineStyle2D {
     protected Paint fill;
+    protected Style2D graphicFill;
     protected Composite fillComposite;
+
+
+    /**
+     * Returns a Style2D used for filling the {@linkplain org.geotools.renderer.geom.Polygon polygon}
+     * to be rendered, or <code>null</code> if none.
+     * 
+     * @return the current fill or null if none
+     */
+    public Style2D getGraphicFill()
+    {
+    	return graphicFill;
+    }
+    
+    /**
+     * Sets a Style2D for filling the {@linkplain org.geotools.renderer.geom.Polygon polygon} to be
+     * rendered. Set it to <code>null</code> if no Style2D filling is to be performed.
+     *
+     * @param graphicFill
+     */
+    public void setGraphicFill(Style2D graphicFill) {
+        this.graphicFill = graphicFill;
+    }
 
     /**
      * Returns the filling color for the {@linkplain org.geotools.renderer.geom.Polygon polygon} to

@@ -303,6 +303,14 @@ public final class StreamingRenderer implements GTRenderer {
      */
     public static final String ADVANCED_PROJECTION_HANDLING_KEY = "advancedProjectionHandling";
 
+	/**
+	 * Boolean flag indicating whether vector rendering should be preferred when
+	 * painting graphic fills. See {@link SLDStyleFactory#isVectorRenderingEnabled()}
+	 * for more details.  
+	 */
+	public static final String VECTOR_RENDERING_KEY = "vectorRenderingEnabled";
+	private static boolean VECTOR_RENDERING_ENABLED_DEFAULT = false;
+	
 	public static final String LABEL_CACHE_KEY = "labelCache";
 	public static final String DPI_KEY = "dpi";
 	public static final String DECLARED_SCALE_DENOM_KEY = "declaredScaleDenominator";
@@ -312,6 +320,7 @@ public final class StreamingRenderer implements GTRenderer {
     /**
      * "optimizedDataLoadingEnabled" - Boolean  yes/no (see default optimizedDataLoadingEnabledDEFAULT)
      * "memoryPreloadingEnabled"     - Boolean  yes/no (see default memoryPreloadingEnabledDEFAULT)
+     * "vectorRenderingEnabled"      - Boolean  yes/no (see default vectorRenderingEnabledDEFAULT)
      * "declaredScaleDenominator"    - Double   the value of the scale denominator to use by the renderer.  
      *                                          by default the value is calculated based on the screen size 
      *                                          and the displayed area of the map.
@@ -1193,6 +1202,19 @@ public final class StreamingRenderer implements GTRenderer {
     }
     
     /**
+     * Checks if vector rendering is enabled or not.
+     * See {@link SLDStyleFactory#isVectorRenderingEnabled()} for a full explanation.
+     */
+    private boolean isVectorRenderingEnabled() {
+        if (rendererHints == null)
+            return true;
+        Object result = rendererHints.get(VECTOR_RENDERING_KEY);
+        if (result == null)
+            return VECTOR_RENDERING_ENABLED_DEFAULT;
+		return ((Boolean)result).booleanValue();
+    }
+    
+    /**
      * Returns an estimate of the rendering buffer needed to properly display this
      * layer taking into consideration the constant stroke sizes in the feature type
      * styles.
@@ -2007,6 +2029,11 @@ public final class StreamingRenderer implements GTRenderer {
 			CoordinateReferenceSystem destinationCrs, String layerId)
 			throws TransformException, FactoryException {
 		final int length = symbolizers.length;
+		
+		// clips Graphics to current drawing area before painting
+		Graphics2D clippedGraphics = (Graphics2D)graphics.create();
+		clippedGraphics.clip(screenSize);
+		
 		for (int m = 0; m < length; m++) {
 
 			// /////////////////////////////////////////////////////////////////
@@ -2016,7 +2043,7 @@ public final class StreamingRenderer implements GTRenderer {
 			// /////////////////////////////////////////////////////////////////
 			final Symbolizer symbolizer = symbolizers[m];
 			if (symbolizer instanceof RasterSymbolizer) {
-				renderRaster(graphics, drawMe.content,
+				renderRaster(clippedGraphics, drawMe.content,
 						(RasterSymbolizer) symbolizer, destinationCrs,
 						scaleRange,at);
 
@@ -2036,7 +2063,7 @@ public final class StreamingRenderer implements GTRenderer {
 				} else {
 					Style2D style = styleFactory.createStyle(drawMe.content,
 							symbolizer, scaleRange);
-					painter.paint(graphics, shape, style, scaleDenominator);
+					painter.paint(clippedGraphics, shape, style, scaleDenominator);
 				}
 
 			}
@@ -2419,6 +2446,9 @@ public final class StreamingRenderer implements GTRenderer {
     	    styleFactory.setLineOptimizationEnabled(Boolean.TRUE.equals(hints.get(LINE_WIDTH_OPTIMIZATION_KEY)));
     	}
         rendererHints = hints;
+
+        // sets whether vector rendering is enabled in the SLDStyleFactory
+    	styleFactory.setVectorRenderingEnabled(isVectorRenderingEnabled());
     }
     
 	/*
@@ -2588,6 +2618,7 @@ public final class StreamingRenderer implements GTRenderer {
     					d.decimateTransformGeneralize(geom, sa.axform);
     					
     					// wrap into a lite shape
+    					geom.geometryChanged();
     					shape = new LiteShape2(geom, null, null, false, false);
                     } 
 				} else {
