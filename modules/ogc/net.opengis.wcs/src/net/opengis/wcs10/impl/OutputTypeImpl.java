@@ -36,206 +36,206 @@ import org.eclipse.emf.ecore.impl.EObjectImpl;
  */
 public class OutputTypeImpl extends EObjectImpl implements OutputType {
     /**
-     * The cached value of the '{@link #getCrs() <em>Crs</em>}' containment reference.
-     * <!-- begin-user-doc -->
+	 * The cached value of the '{@link #getCrs() <em>Crs</em>}' containment reference.
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @see #getCrs()
-     * @generated
-     * @ordered
-     */
+	 * @see #getCrs()
+	 * @generated
+	 * @ordered
+	 */
     protected CodeType crs;
 
     /**
-     * The cached value of the '{@link #getFormat() <em>Format</em>}' containment reference.
-     * <!-- begin-user-doc -->
+	 * The cached value of the '{@link #getFormat() <em>Format</em>}' containment reference.
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @see #getFormat()
-     * @generated
-     * @ordered
-     */
+	 * @see #getFormat()
+	 * @generated
+	 * @ordered
+	 */
     protected CodeType format;
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     protected OutputTypeImpl() {
-        super();
-    }
+		super();
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     protected EClass eStaticClass() {
-        return Wcs10Package.Literals.OUTPUT_TYPE;
-    }
+		return Wcs10Package.Literals.OUTPUT_TYPE;
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public CodeType getCrs() {
-        return crs;
-    }
+		return crs;
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public NotificationChain basicSetCrs(CodeType newCrs, NotificationChain msgs) {
-        CodeType oldCrs = crs;
-        crs = newCrs;
-        if (eNotificationRequired()) {
-            ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, Wcs10Package.OUTPUT_TYPE__CRS, oldCrs, newCrs);
-            if (msgs == null) msgs = notification; else msgs.add(notification);
-        }
-        return msgs;
-    }
+		CodeType oldCrs = crs;
+		crs = newCrs;
+		if (eNotificationRequired()) {
+			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, Wcs10Package.OUTPUT_TYPE__CRS, oldCrs, newCrs);
+			if (msgs == null) msgs = notification; else msgs.add(notification);
+		}
+		return msgs;
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public void setCrs(CodeType newCrs) {
-        if (newCrs != crs) {
-            NotificationChain msgs = null;
-            if (crs != null)
-                msgs = ((InternalEObject)crs).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - Wcs10Package.OUTPUT_TYPE__CRS, null, msgs);
-            if (newCrs != null)
-                msgs = ((InternalEObject)newCrs).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - Wcs10Package.OUTPUT_TYPE__CRS, null, msgs);
-            msgs = basicSetCrs(newCrs, msgs);
-            if (msgs != null) msgs.dispatch();
-        }
-        else if (eNotificationRequired())
-            eNotify(new ENotificationImpl(this, Notification.SET, Wcs10Package.OUTPUT_TYPE__CRS, newCrs, newCrs));
-    }
+		if (newCrs != crs) {
+			NotificationChain msgs = null;
+			if (crs != null)
+				msgs = ((InternalEObject)crs).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - Wcs10Package.OUTPUT_TYPE__CRS, null, msgs);
+			if (newCrs != null)
+				msgs = ((InternalEObject)newCrs).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - Wcs10Package.OUTPUT_TYPE__CRS, null, msgs);
+			msgs = basicSetCrs(newCrs, msgs);
+			if (msgs != null) msgs.dispatch();
+		}
+		else if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, Wcs10Package.OUTPUT_TYPE__CRS, newCrs, newCrs));
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public CodeType getFormat() {
-        return format;
-    }
+		return format;
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public NotificationChain basicSetFormat(CodeType newFormat, NotificationChain msgs) {
-        CodeType oldFormat = format;
-        format = newFormat;
-        if (eNotificationRequired()) {
-            ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, Wcs10Package.OUTPUT_TYPE__FORMAT, oldFormat, newFormat);
-            if (msgs == null) msgs = notification; else msgs.add(notification);
-        }
-        return msgs;
-    }
+		CodeType oldFormat = format;
+		format = newFormat;
+		if (eNotificationRequired()) {
+			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, Wcs10Package.OUTPUT_TYPE__FORMAT, oldFormat, newFormat);
+			if (msgs == null) msgs = notification; else msgs.add(notification);
+		}
+		return msgs;
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public void setFormat(CodeType newFormat) {
-        if (newFormat != format) {
-            NotificationChain msgs = null;
-            if (format != null)
-                msgs = ((InternalEObject)format).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - Wcs10Package.OUTPUT_TYPE__FORMAT, null, msgs);
-            if (newFormat != null)
-                msgs = ((InternalEObject)newFormat).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - Wcs10Package.OUTPUT_TYPE__FORMAT, null, msgs);
-            msgs = basicSetFormat(newFormat, msgs);
-            if (msgs != null) msgs.dispatch();
-        }
-        else if (eNotificationRequired())
-            eNotify(new ENotificationImpl(this, Notification.SET, Wcs10Package.OUTPUT_TYPE__FORMAT, newFormat, newFormat));
-    }
+		if (newFormat != format) {
+			NotificationChain msgs = null;
+			if (format != null)
+				msgs = ((InternalEObject)format).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - Wcs10Package.OUTPUT_TYPE__FORMAT, null, msgs);
+			if (newFormat != null)
+				msgs = ((InternalEObject)newFormat).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - Wcs10Package.OUTPUT_TYPE__FORMAT, null, msgs);
+			msgs = basicSetFormat(newFormat, msgs);
+			if (msgs != null) msgs.dispatch();
+		}
+		else if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, Wcs10Package.OUTPUT_TYPE__FORMAT, newFormat, newFormat));
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
-        switch (featureID) {
-            case Wcs10Package.OUTPUT_TYPE__CRS:
-                return basicSetCrs(null, msgs);
-            case Wcs10Package.OUTPUT_TYPE__FORMAT:
-                return basicSetFormat(null, msgs);
-        }
-        return super.eInverseRemove(otherEnd, featureID, msgs);
-    }
+		switch (featureID) {
+			case Wcs10Package.OUTPUT_TYPE__CRS:
+				return basicSetCrs(null, msgs);
+			case Wcs10Package.OUTPUT_TYPE__FORMAT:
+				return basicSetFormat(null, msgs);
+		}
+		return super.eInverseRemove(otherEnd, featureID, msgs);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public Object eGet(int featureID, boolean resolve, boolean coreType) {
-        switch (featureID) {
-            case Wcs10Package.OUTPUT_TYPE__CRS:
-                return getCrs();
-            case Wcs10Package.OUTPUT_TYPE__FORMAT:
-                return getFormat();
-        }
-        return super.eGet(featureID, resolve, coreType);
-    }
+		switch (featureID) {
+			case Wcs10Package.OUTPUT_TYPE__CRS:
+				return getCrs();
+			case Wcs10Package.OUTPUT_TYPE__FORMAT:
+				return getFormat();
+		}
+		return super.eGet(featureID, resolve, coreType);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public void eSet(int featureID, Object newValue) {
-        switch (featureID) {
-            case Wcs10Package.OUTPUT_TYPE__CRS:
-                setCrs((CodeType)newValue);
-                return;
-            case Wcs10Package.OUTPUT_TYPE__FORMAT:
-                setFormat((CodeType)newValue);
-                return;
-        }
-        super.eSet(featureID, newValue);
-    }
+		switch (featureID) {
+			case Wcs10Package.OUTPUT_TYPE__CRS:
+				setCrs((CodeType)newValue);
+				return;
+			case Wcs10Package.OUTPUT_TYPE__FORMAT:
+				setFormat((CodeType)newValue);
+				return;
+		}
+		super.eSet(featureID, newValue);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public void eUnset(int featureID) {
-        switch (featureID) {
-            case Wcs10Package.OUTPUT_TYPE__CRS:
-                setCrs((CodeType)null);
-                return;
-            case Wcs10Package.OUTPUT_TYPE__FORMAT:
-                setFormat((CodeType)null);
-                return;
-        }
-        super.eUnset(featureID);
-    }
+		switch (featureID) {
+			case Wcs10Package.OUTPUT_TYPE__CRS:
+				setCrs((CodeType)null);
+				return;
+			case Wcs10Package.OUTPUT_TYPE__FORMAT:
+				setFormat((CodeType)null);
+				return;
+		}
+		super.eUnset(featureID);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public boolean eIsSet(int featureID) {
-        switch (featureID) {
-            case Wcs10Package.OUTPUT_TYPE__CRS:
-                return crs != null;
-            case Wcs10Package.OUTPUT_TYPE__FORMAT:
-                return format != null;
-        }
-        return super.eIsSet(featureID);
-    }
+		switch (featureID) {
+			case Wcs10Package.OUTPUT_TYPE__CRS:
+				return crs != null;
+			case Wcs10Package.OUTPUT_TYPE__FORMAT:
+				return format != null;
+		}
+		return super.eIsSet(featureID);
+	}
 
 } //OutputTypeImpl

@@ -34,141 +34,141 @@ import org.eclipse.emf.ecore.impl.EObjectImpl;
  */
 public class PostTypeImpl extends EObjectImpl implements PostType {
     /**
-     * The cached value of the '{@link #getOnlineResource() <em>Online Resource</em>}' containment reference.
-     * <!-- begin-user-doc -->
+	 * The cached value of the '{@link #getOnlineResource() <em>Online Resource</em>}' containment reference.
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @see #getOnlineResource()
-     * @generated
-     * @ordered
-     */
+	 * @see #getOnlineResource()
+	 * @generated
+	 * @ordered
+	 */
     protected OnlineResourceType onlineResource;
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     protected PostTypeImpl() {
-        super();
-    }
+		super();
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     protected EClass eStaticClass() {
-        return Wcs10Package.Literals.POST_TYPE;
-    }
+		return Wcs10Package.Literals.POST_TYPE;
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public OnlineResourceType getOnlineResource() {
-        return onlineResource;
-    }
+		return onlineResource;
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public NotificationChain basicSetOnlineResource(OnlineResourceType newOnlineResource, NotificationChain msgs) {
-        OnlineResourceType oldOnlineResource = onlineResource;
-        onlineResource = newOnlineResource;
-        if (eNotificationRequired()) {
-            ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, Wcs10Package.POST_TYPE__ONLINE_RESOURCE, oldOnlineResource, newOnlineResource);
-            if (msgs == null) msgs = notification; else msgs.add(notification);
-        }
-        return msgs;
-    }
+		OnlineResourceType oldOnlineResource = onlineResource;
+		onlineResource = newOnlineResource;
+		if (eNotificationRequired()) {
+			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, Wcs10Package.POST_TYPE__ONLINE_RESOURCE, oldOnlineResource, newOnlineResource);
+			if (msgs == null) msgs = notification; else msgs.add(notification);
+		}
+		return msgs;
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public void setOnlineResource(OnlineResourceType newOnlineResource) {
-        if (newOnlineResource != onlineResource) {
-            NotificationChain msgs = null;
-            if (onlineResource != null)
-                msgs = ((InternalEObject)onlineResource).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - Wcs10Package.POST_TYPE__ONLINE_RESOURCE, null, msgs);
-            if (newOnlineResource != null)
-                msgs = ((InternalEObject)newOnlineResource).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - Wcs10Package.POST_TYPE__ONLINE_RESOURCE, null, msgs);
-            msgs = basicSetOnlineResource(newOnlineResource, msgs);
-            if (msgs != null) msgs.dispatch();
-        }
-        else if (eNotificationRequired())
-            eNotify(new ENotificationImpl(this, Notification.SET, Wcs10Package.POST_TYPE__ONLINE_RESOURCE, newOnlineResource, newOnlineResource));
-    }
+		if (newOnlineResource != onlineResource) {
+			NotificationChain msgs = null;
+			if (onlineResource != null)
+				msgs = ((InternalEObject)onlineResource).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - Wcs10Package.POST_TYPE__ONLINE_RESOURCE, null, msgs);
+			if (newOnlineResource != null)
+				msgs = ((InternalEObject)newOnlineResource).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - Wcs10Package.POST_TYPE__ONLINE_RESOURCE, null, msgs);
+			msgs = basicSetOnlineResource(newOnlineResource, msgs);
+			if (msgs != null) msgs.dispatch();
+		}
+		else if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, Wcs10Package.POST_TYPE__ONLINE_RESOURCE, newOnlineResource, newOnlineResource));
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
-        switch (featureID) {
-            case Wcs10Package.POST_TYPE__ONLINE_RESOURCE:
-                return basicSetOnlineResource(null, msgs);
-        }
-        return super.eInverseRemove(otherEnd, featureID, msgs);
-    }
+		switch (featureID) {
+			case Wcs10Package.POST_TYPE__ONLINE_RESOURCE:
+				return basicSetOnlineResource(null, msgs);
+		}
+		return super.eInverseRemove(otherEnd, featureID, msgs);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public Object eGet(int featureID, boolean resolve, boolean coreType) {
-        switch (featureID) {
-            case Wcs10Package.POST_TYPE__ONLINE_RESOURCE:
-                return getOnlineResource();
-        }
-        return super.eGet(featureID, resolve, coreType);
-    }
+		switch (featureID) {
+			case Wcs10Package.POST_TYPE__ONLINE_RESOURCE:
+				return getOnlineResource();
+		}
+		return super.eGet(featureID, resolve, coreType);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public void eSet(int featureID, Object newValue) {
-        switch (featureID) {
-            case Wcs10Package.POST_TYPE__ONLINE_RESOURCE:
-                setOnlineResource((OnlineResourceType)newValue);
-                return;
-        }
-        super.eSet(featureID, newValue);
-    }
+		switch (featureID) {
+			case Wcs10Package.POST_TYPE__ONLINE_RESOURCE:
+				setOnlineResource((OnlineResourceType)newValue);
+				return;
+		}
+		super.eSet(featureID, newValue);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public void eUnset(int featureID) {
-        switch (featureID) {
-            case Wcs10Package.POST_TYPE__ONLINE_RESOURCE:
-                setOnlineResource((OnlineResourceType)null);
-                return;
-        }
-        super.eUnset(featureID);
-    }
+		switch (featureID) {
+			case Wcs10Package.POST_TYPE__ONLINE_RESOURCE:
+				setOnlineResource((OnlineResourceType)null);
+				return;
+		}
+		super.eUnset(featureID);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public boolean eIsSet(int featureID) {
-        switch (featureID) {
-            case Wcs10Package.POST_TYPE__ONLINE_RESOURCE:
-                return onlineResource != null;
-        }
-        return super.eIsSet(featureID);
-    }
+		switch (featureID) {
+			case Wcs10Package.POST_TYPE__ONLINE_RESOURCE:
+				return onlineResource != null;
+		}
+		return super.eIsSet(featureID);
+	}
 
 } //PostTypeImpl

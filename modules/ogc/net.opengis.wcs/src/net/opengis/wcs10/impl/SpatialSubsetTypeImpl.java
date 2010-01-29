@@ -22,21 +22,21 @@ import org.eclipse.emf.ecore.EClass;
  */
 public class SpatialSubsetTypeImpl extends SpatialDomainTypeImpl implements SpatialSubsetType {
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     protected SpatialSubsetTypeImpl() {
-        super();
-    }
+		super();
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     protected EClass eStaticClass() {
-        return Wcs10Package.Literals.SPATIAL_SUBSET_TYPE;
-    }
+		return Wcs10Package.Literals.SPATIAL_SUBSET_TYPE;
+	}
 
 } //SpatialSubsetTypeImpl

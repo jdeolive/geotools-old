@@ -223,7 +223,9 @@ public class Ows11Validator extends EObjectValidator {
 				return validateVersionType((String)value, diagnostics, context);
 			case Ows11Package.VERSION_TYPE1:
 				return validateVersionType1((String)value, diagnostics, context);
-			default: 
+			case Ows11Package.MAP:
+				return validateMap((Map)value, diagnostics, context);
+			default:
 				return true;
 		}
 	}
@@ -743,9 +745,9 @@ public class Ows11Validator extends EObjectValidator {
 	 * @generated
 	 */
     public boolean validatePositionType2D_MinLength(List positionType2D, DiagnosticChain diagnostics, Map context) {
-		int length = positionType2D.size();  
+		int length = positionType2D.size();
 		boolean result = length >= 2;
-		if (!result && diagnostics != null) 
+		if (!result && diagnostics != null)
 			reportMinLengthViolation(Ows11Package.Literals.POSITION_TYPE2_D, positionType2D, length, 2, diagnostics, context);
 		return result;
 	}
@@ -757,9 +759,9 @@ public class Ows11Validator extends EObjectValidator {
 	 * @generated
 	 */
     public boolean validatePositionType2D_MaxLength(List positionType2D, DiagnosticChain diagnostics, Map context) {
-		int length = positionType2D.size();  
+		int length = positionType2D.size();
 		boolean result = length <= 2;
-		if (!result && diagnostics != null) 
+		if (!result && diagnostics != null)
 			reportMaxLengthViolation(Ows11Package.Literals.POSITION_TYPE2_D, positionType2D, length, 2, diagnostics, context);
 		return result;
 	}
@@ -855,6 +857,15 @@ public class Ows11Validator extends EObjectValidator {
 	 */
     public boolean validateVersionType1_Pattern(String versionType1, DiagnosticChain diagnostics, Map context) {
 		return validatePattern(Ows11Package.Literals.VERSION_TYPE1, versionType1, VERSION_TYPE1__PATTERN__VALUES, diagnostics, context);
+	}
+
+				/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public boolean validateMap(Map map, DiagnosticChain diagnostics, Map context) {
+		return true;
 	}
 
 } //Ows11Validator

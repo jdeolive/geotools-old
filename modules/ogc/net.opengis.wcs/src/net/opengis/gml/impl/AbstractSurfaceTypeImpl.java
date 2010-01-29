@@ -7,7 +7,8 @@
 package net.opengis.gml.impl;
 
 import net.opengis.gml.AbstractSurfaceType;
-import net.opengis.gml.Gml4wcsPackage;
+import net.opengis.gml.GmlPackage;
+
 
 import org.eclipse.emf.ecore.EClass;
 
@@ -22,21 +23,21 @@ import org.eclipse.emf.ecore.EClass;
  */
 public class AbstractSurfaceTypeImpl extends AbstractGeometricPrimitiveTypeImpl implements AbstractSurfaceType {
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     protected AbstractSurfaceTypeImpl() {
-        super();
-    }
+		super();
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     protected EClass eStaticClass() {
-        return Gml4wcsPackage.Literals.ABSTRACT_SURFACE_TYPE;
-    }
+		return GmlPackage.Literals.ABSTRACT_SURFACE_TYPE;
+	}
 
 } //AbstractSurfaceTypeImpl

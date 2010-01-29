@@ -24,21 +24,21 @@ import org.eclipse.emf.ecore.EClass;
  */
 public abstract class AbstractDescriptionBaseTypeImpl extends AbstractGMLTypeImpl implements AbstractDescriptionBaseType {
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     protected AbstractDescriptionBaseTypeImpl() {
-        super();
-    }
+		super();
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     protected EClass eStaticClass() {
-        return Wcs10Package.Literals.ABSTRACT_DESCRIPTION_BASE_TYPE;
-    }
+		return Wcs10Package.Literals.ABSTRACT_DESCRIPTION_BASE_TYPE;
+	}
 
 } //AbstractDescriptionBaseTypeImpl

@@ -6,7 +6,8 @@
  */
 package net.opengis.gml.impl;
 
-import net.opengis.gml.Gml4wcsPackage;
+import net.opengis.gml.GmlPackage;
+
 import net.opengis.gml.VectorType;
 
 import org.eclipse.emf.ecore.EClass;
@@ -22,21 +23,21 @@ import org.eclipse.emf.ecore.EClass;
  */
 public class VectorTypeImpl extends DirectPositionTypeImpl implements VectorType {
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     protected VectorTypeImpl() {
-        super();
-    }
+		super();
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     protected EClass eStaticClass() {
-        return Gml4wcsPackage.Literals.VECTOR_TYPE;
-    }
+		return GmlPackage.Literals.VECTOR_TYPE;
+	}
 
 } //VectorTypeImpl

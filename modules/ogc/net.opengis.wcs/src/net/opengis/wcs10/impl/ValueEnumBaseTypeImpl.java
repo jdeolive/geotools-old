@@ -41,170 +41,170 @@ import org.eclipse.emf.ecore.util.InternalEList;
  */
 public class ValueEnumBaseTypeImpl extends EObjectImpl implements ValueEnumBaseType {
     /**
-     * The cached value of the '{@link #getGroup() <em>Group</em>}' attribute list.
-     * <!-- begin-user-doc -->
+	 * The cached value of the '{@link #getGroup() <em>Group</em>}' attribute list.
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @see #getGroup()
-     * @generated
-     * @ordered
-     */
+	 * @see #getGroup()
+	 * @generated
+	 * @ordered
+	 */
     protected FeatureMap group;
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     protected ValueEnumBaseTypeImpl() {
-        super();
-    }
+		super();
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     protected EClass eStaticClass() {
-        return Wcs10Package.Literals.VALUE_ENUM_BASE_TYPE;
-    }
+		return Wcs10Package.Literals.VALUE_ENUM_BASE_TYPE;
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public FeatureMap getGroup() {
-        if (group == null) {
-            group = new BasicFeatureMap(this, Wcs10Package.VALUE_ENUM_BASE_TYPE__GROUP);
-        }
-        return group;
-    }
+		if (group == null) {
+			group = new BasicFeatureMap(this, Wcs10Package.VALUE_ENUM_BASE_TYPE__GROUP);
+		}
+		return group;
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public EList getInterval() {
-        return getGroup().list(Wcs10Package.Literals.VALUE_ENUM_BASE_TYPE__INTERVAL);
-    }
+		return getGroup().list(Wcs10Package.Literals.VALUE_ENUM_BASE_TYPE__INTERVAL);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public EList getSingleValue() {
-        return getGroup().list(Wcs10Package.Literals.VALUE_ENUM_BASE_TYPE__SINGLE_VALUE);
-    }
+		return getGroup().list(Wcs10Package.Literals.VALUE_ENUM_BASE_TYPE__SINGLE_VALUE);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
-        switch (featureID) {
-            case Wcs10Package.VALUE_ENUM_BASE_TYPE__GROUP:
-                return ((InternalEList)getGroup()).basicRemove(otherEnd, msgs);
-            case Wcs10Package.VALUE_ENUM_BASE_TYPE__INTERVAL:
-                return ((InternalEList)getInterval()).basicRemove(otherEnd, msgs);
-            case Wcs10Package.VALUE_ENUM_BASE_TYPE__SINGLE_VALUE:
-                return ((InternalEList)getSingleValue()).basicRemove(otherEnd, msgs);
-        }
-        return super.eInverseRemove(otherEnd, featureID, msgs);
-    }
+		switch (featureID) {
+			case Wcs10Package.VALUE_ENUM_BASE_TYPE__GROUP:
+				return ((InternalEList)getGroup()).basicRemove(otherEnd, msgs);
+			case Wcs10Package.VALUE_ENUM_BASE_TYPE__INTERVAL:
+				return ((InternalEList)getInterval()).basicRemove(otherEnd, msgs);
+			case Wcs10Package.VALUE_ENUM_BASE_TYPE__SINGLE_VALUE:
+				return ((InternalEList)getSingleValue()).basicRemove(otherEnd, msgs);
+		}
+		return super.eInverseRemove(otherEnd, featureID, msgs);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public Object eGet(int featureID, boolean resolve, boolean coreType) {
-        switch (featureID) {
-            case Wcs10Package.VALUE_ENUM_BASE_TYPE__GROUP:
-                if (coreType) return getGroup();
-                return ((FeatureMap.Internal)getGroup()).getWrapper();
-            case Wcs10Package.VALUE_ENUM_BASE_TYPE__INTERVAL:
-                return getInterval();
-            case Wcs10Package.VALUE_ENUM_BASE_TYPE__SINGLE_VALUE:
-                return getSingleValue();
-        }
-        return super.eGet(featureID, resolve, coreType);
-    }
+		switch (featureID) {
+			case Wcs10Package.VALUE_ENUM_BASE_TYPE__GROUP:
+				if (coreType) return getGroup();
+				return ((FeatureMap.Internal)getGroup()).getWrapper();
+			case Wcs10Package.VALUE_ENUM_BASE_TYPE__INTERVAL:
+				return getInterval();
+			case Wcs10Package.VALUE_ENUM_BASE_TYPE__SINGLE_VALUE:
+				return getSingleValue();
+		}
+		return super.eGet(featureID, resolve, coreType);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public void eSet(int featureID, Object newValue) {
-        switch (featureID) {
-            case Wcs10Package.VALUE_ENUM_BASE_TYPE__GROUP:
-                ((FeatureMap.Internal)getGroup()).set(newValue);
-                return;
-            case Wcs10Package.VALUE_ENUM_BASE_TYPE__INTERVAL:
-                getInterval().clear();
-                getInterval().addAll((Collection)newValue);
-                return;
-            case Wcs10Package.VALUE_ENUM_BASE_TYPE__SINGLE_VALUE:
-                getSingleValue().clear();
-                getSingleValue().addAll((Collection)newValue);
-                return;
-        }
-        super.eSet(featureID, newValue);
-    }
+		switch (featureID) {
+			case Wcs10Package.VALUE_ENUM_BASE_TYPE__GROUP:
+				((FeatureMap.Internal)getGroup()).set(newValue);
+				return;
+			case Wcs10Package.VALUE_ENUM_BASE_TYPE__INTERVAL:
+				getInterval().clear();
+				getInterval().addAll((Collection)newValue);
+				return;
+			case Wcs10Package.VALUE_ENUM_BASE_TYPE__SINGLE_VALUE:
+				getSingleValue().clear();
+				getSingleValue().addAll((Collection)newValue);
+				return;
+		}
+		super.eSet(featureID, newValue);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public void eUnset(int featureID) {
-        switch (featureID) {
-            case Wcs10Package.VALUE_ENUM_BASE_TYPE__GROUP:
-                getGroup().clear();
-                return;
-            case Wcs10Package.VALUE_ENUM_BASE_TYPE__INTERVAL:
-                getInterval().clear();
-                return;
-            case Wcs10Package.VALUE_ENUM_BASE_TYPE__SINGLE_VALUE:
-                getSingleValue().clear();
-                return;
-        }
-        super.eUnset(featureID);
-    }
+		switch (featureID) {
+			case Wcs10Package.VALUE_ENUM_BASE_TYPE__GROUP:
+				getGroup().clear();
+				return;
+			case Wcs10Package.VALUE_ENUM_BASE_TYPE__INTERVAL:
+				getInterval().clear();
+				return;
+			case Wcs10Package.VALUE_ENUM_BASE_TYPE__SINGLE_VALUE:
+				getSingleValue().clear();
+				return;
+		}
+		super.eUnset(featureID);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public boolean eIsSet(int featureID) {
-        switch (featureID) {
-            case Wcs10Package.VALUE_ENUM_BASE_TYPE__GROUP:
-                return group != null && !group.isEmpty();
-            case Wcs10Package.VALUE_ENUM_BASE_TYPE__INTERVAL:
-                return !getInterval().isEmpty();
-            case Wcs10Package.VALUE_ENUM_BASE_TYPE__SINGLE_VALUE:
-                return !getSingleValue().isEmpty();
-        }
-        return super.eIsSet(featureID);
-    }
+		switch (featureID) {
+			case Wcs10Package.VALUE_ENUM_BASE_TYPE__GROUP:
+				return group != null && !group.isEmpty();
+			case Wcs10Package.VALUE_ENUM_BASE_TYPE__INTERVAL:
+				return !getInterval().isEmpty();
+			case Wcs10Package.VALUE_ENUM_BASE_TYPE__SINGLE_VALUE:
+				return !getSingleValue().isEmpty();
+		}
+		return super.eIsSet(featureID);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public String toString() {
-        if (eIsProxy()) return super.toString();
+		if (eIsProxy()) return super.toString();
 
-        StringBuffer result = new StringBuffer(super.toString());
-        result.append(" (group: ");
-        result.append(group);
-        result.append(')');
-        return result.toString();
-    }
+		StringBuffer result = new StringBuffer(super.toString());
+		result.append(" (group: ");
+		result.append(group);
+		result.append(')');
+		return result.toString();
+	}
 
 } //ValueEnumBaseTypeImpl

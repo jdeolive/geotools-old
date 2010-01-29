@@ -1,12 +1,166 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <genmodel:GenModel xmi:version="2.0"
     xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
-    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/emf-wcs-10/src/main/java"
-    modelPluginID="emf_wcs_10" modelName="Wcs10" importerID="org.eclipse.xsd.ecore.importer"
-    copyrightFields="false" usedGenPackages="gml4wcs.genmodel#//gml ../org.w3.xlink/xlink.genmodel#//xlink platform:/plugin/org.eclipse.emf.ecore/model/Ecore.genmodel#//ecore platform:/plugin/org.eclipse.emf.ecore/model/XMLType.genmodel#//type">
-  <foreignModel>src/main/xsd/wcs/1.0.0/getCoverage.xsd</foreignModel>
-  <genPackages prefix="Wcs10" basePackage="net.opengis" resource="XML" disposableProviderFactory="true"
-      ecorePackage="wcs10.ecore#/">
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/net.opengis.wcs/src"
+    modelPluginID="net.opengis.wcs" modelName="Wcs10" importerID="org.eclipse.emf.importer.java"
+    copyrightFields="false" usedGenPackages="platform:/plugin/org.eclipse.emf.ecore/model/XMLType.genmodel#//type platform:/plugin/org.eclipse.emf.ecore/model/Ecore.genmodel#//ecore ../org.w3.xlink/xlink.genmodel#//xlink ../net.opengis.ows/ows11.genmodel#//ows11 platform:/plugin/org.eclipse.emf.ecore/model/XMLNamespace.genmodel#//namespace">
+  <foreignModel>@model</foreignModel>
+  <genPackages prefix="Gml" basePackage="net.opengis" disposableProviderFactory="true"
+      ecorePackage="gml.ecore#/">
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="gml.ecore#//TimeIndeterminateValueType">
+      <genEnumLiterals ecoreEnumLiteral="gml.ecore#//TimeIndeterminateValueType/after"/>
+      <genEnumLiterals ecoreEnumLiteral="gml.ecore#//TimeIndeterminateValueType/before"/>
+      <genEnumLiterals ecoreEnumLiteral="gml.ecore#//TimeIndeterminateValueType/now"/>
+      <genEnumLiterals ecoreEnumLiteral="gml.ecore#//TimeIndeterminateValueType/unknown"/>
+    </genEnums>
+    <genDataTypes ecoreDataType="gml.ecore#//DoubleList"/>
+    <genDataTypes ecoreDataType="gml.ecore#//IntegerList"/>
+    <genDataTypes ecoreDataType="gml.ecore#//NameList"/>
+    <genDataTypes ecoreDataType="gml.ecore#//TemporalPositionType"/>
+    <genDataTypes ecoreDataType="gml.ecore#//TimeDurationType"/>
+    <genDataTypes ecoreDataType="gml.ecore#//TimeIndeterminateValueTypeObject"/>
+    <genDataTypes ecoreDataType="gml.ecore#//VectorTypeBase"/>
+    <genDataTypes ecoreDataType="gml.ecore#//GridEnvelope"/>
+    <genClasses image="false" ecoreClass="gml.ecore#//AbstractGeometricPrimitiveType"/>
+    <genClasses image="false" ecoreClass="gml.ecore#//AbstractGeometryBaseType"/>
+    <genClasses image="false" ecoreClass="gml.ecore#//AbstractGeometryType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//AbstractGeometryType/srsName"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="gml.ecore#//AbstractGMLType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference gml.ecore#//AbstractGMLType/metaDataProperty"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference gml.ecore#//AbstractGMLType/description"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference gml.ecore#//AbstractGMLType/name"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="gml.ecore#//AbstractMetaDataType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute gml.ecore#//AbstractMetaDataType/mixed"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//AbstractMetaDataType/id"/>
+    </genClasses>
+    <genClasses ecoreClass="gml.ecore#//AbstractRingPropertyType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference gml.ecore#//AbstractRingPropertyType/linearRing"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="gml.ecore#//AbstractRingType"/>
+    <genClasses ecoreClass="gml.ecore#//AbstractSurfaceType"/>
+    <genClasses ecoreClass="gml.ecore#//BoundingShapeType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute gml.ecore#//BoundingShapeType/envelopeGroup"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference gml.ecore#//BoundingShapeType/envelope"/>
+    </genClasses>
+    <genClasses ecoreClass="gml.ecore#//CodeListType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//CodeListType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//CodeListType/codeSpace"/>
+    </genClasses>
+    <genClasses ecoreClass="gml.ecore#//CodeType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//CodeType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//CodeType/codeSpace"/>
+    </genClasses>
+    <genClasses ecoreClass="gml.ecore#//DirectPositionType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//DirectPositionType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//DirectPositionType/dimension"/>
+    </genClasses>
+    <genClasses ecoreClass="gml.ecore#//DocumentRoot">
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//DocumentRoot/mixed"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference gml.ecore#//DocumentRoot/xMLNSPrefixMap"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference gml.ecore#//DocumentRoot/xSISchemaLocation"/>
+      <genFeatures property="None" children="true" createChild="false" ecoreFeature="ecore:EReference gml.ecore#//DocumentRoot/geometricPrimitive"/>
+      <genFeatures property="None" children="true" createChild="false" ecoreFeature="ecore:EReference gml.ecore#//DocumentRoot/geometry"/>
+      <genFeatures property="None" children="true" createChild="false" ecoreFeature="ecore:EReference gml.ecore#//DocumentRoot/gML"/>
+      <genFeatures property="None" children="true" createChild="false" ecoreFeature="ecore:EReference gml.ecore#//DocumentRoot/object"/>
+      <genFeatures property="None" children="true" createChild="false" ecoreFeature="ecore:EReference gml.ecore#//DocumentRoot/metaData"/>
+      <genFeatures property="None" children="true" createChild="false" ecoreFeature="ecore:EReference gml.ecore#//DocumentRoot/ring"/>
+      <genFeatures property="None" children="true" createChild="false" ecoreFeature="ecore:EReference gml.ecore#//DocumentRoot/surface"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference gml.ecore#//DocumentRoot/boundedBy"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference gml.ecore#//DocumentRoot/description"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference gml.ecore#//DocumentRoot/envelope"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference gml.ecore#//DocumentRoot/envelopeWithTimePeriod"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference gml.ecore#//DocumentRoot/exterior"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference gml.ecore#//DocumentRoot/grid"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference gml.ecore#//DocumentRoot/interior"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference gml.ecore#//DocumentRoot/linearRing"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference gml.ecore#//DocumentRoot/metaDataProperty"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference gml.ecore#//DocumentRoot/name"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference gml.ecore#//DocumentRoot/polygon"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference gml.ecore#//DocumentRoot/pos"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference gml.ecore#//DocumentRoot/rectifiedGrid"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference gml.ecore#//DocumentRoot/timePosition"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//DocumentRoot/id"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//DocumentRoot/remoteSchema"/>
+    </genClasses>
+    <genClasses ecoreClass="gml.ecore#//EnvelopeType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference gml.ecore#//EnvelopeType/pos"/>
+    </genClasses>
+    <genClasses ecoreClass="gml.ecore#//EnvelopeWithTimePeriodType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference gml.ecore#//EnvelopeWithTimePeriodType/timePosition"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//EnvelopeWithTimePeriodType/frame"/>
+    </genClasses>
+    <genClasses ecoreClass="gml.ecore#//GridEnvelopeType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//GridEnvelopeType/low"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//GridEnvelopeType/high"/>
+    </genClasses>
+    <genClasses ecoreClass="gml.ecore#//GridLimitsType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference gml.ecore#//GridLimitsType/gridEnvelope"/>
+    </genClasses>
+    <genClasses ecoreClass="gml.ecore#//GridType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute gml.ecore#//GridType/limits"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//GridType/axisName"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//GridType/dimension"/>
+    </genClasses>
+    <genClasses ecoreClass="gml.ecore#//LinearRingType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference gml.ecore#//LinearRingType/pos"/>
+    </genClasses>
+    <genClasses ecoreClass="gml.ecore#//MetaDataPropertyType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute gml.ecore#//MetaDataPropertyType/metaDataGroup"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference gml.ecore#//MetaDataPropertyType/metaData"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//MetaDataPropertyType/about"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//MetaDataPropertyType/actuate"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//MetaDataPropertyType/arcrole"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//MetaDataPropertyType/href"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//MetaDataPropertyType/remoteSchema"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//MetaDataPropertyType/role"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//MetaDataPropertyType/show"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//MetaDataPropertyType/title"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//MetaDataPropertyType/type"/>
+    </genClasses>
+    <genClasses ecoreClass="gml.ecore#//PointType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference gml.ecore#//PointType/pos"/>
+    </genClasses>
+    <genClasses ecoreClass="gml.ecore#//PolygonType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference gml.ecore#//PolygonType/exterior"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference gml.ecore#//PolygonType/interior"/>
+    </genClasses>
+    <genClasses ecoreClass="gml.ecore#//RectifiedGridType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference gml.ecore#//RectifiedGridType/origin"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference gml.ecore#//RectifiedGridType/offsetVector"/>
+    </genClasses>
+    <genClasses ecoreClass="gml.ecore#//ReferenceType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//ReferenceType/actuate"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//ReferenceType/arcrole"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//ReferenceType/href"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//ReferenceType/remoteSchema"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//ReferenceType/role"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//ReferenceType/show"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//ReferenceType/title"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//ReferenceType/type"/>
+    </genClasses>
+    <genClasses ecoreClass="gml.ecore#//StringOrRefType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//StringOrRefType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//StringOrRefType/actuate"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//StringOrRefType/arcrole"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//StringOrRefType/href"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//StringOrRefType/remoteSchema"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//StringOrRefType/role"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//StringOrRefType/show"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//StringOrRefType/title"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//StringOrRefType/type"/>
+    </genClasses>
+    <genClasses ecoreClass="gml.ecore#//TimePositionType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//TimePositionType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//TimePositionType/calendarEraName"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//TimePositionType/frame"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute gml.ecore#//TimePositionType/indeterminatePosition"/>
+    </genClasses>
+    <genClasses ecoreClass="gml.ecore#//VectorType"/>
+  </genPackages>
+  <genPackages prefix="Wcs10" basePackage="net.opengis" disposableProviderFactory="true"
+      adapterFactory="false" ecorePackage="wcs10.ecore#/">
     <genEnums typeSafeEnumCompatible="false" ecoreEnum="wcs10.ecore#//CapabilitiesSectionType">
       <genEnumLiterals ecoreEnumLiteral="wcs10.ecore#//CapabilitiesSectionType/_"/>
       <genEnumLiterals ecoreEnumLiteral="wcs10.ecore#//CapabilitiesSectionType/WCSCapabilitiesService"/>
@@ -36,6 +190,7 @@
     <genDataTypes ecoreDataType="wcs10.ecore#//ClosureTypeObject"/>
     <genDataTypes ecoreDataType="wcs10.ecore#//InterpolationMethodTypeObject"/>
     <genDataTypes ecoreDataType="wcs10.ecore#//MetadataTypeTypeObject"/>
+    <genDataTypes ecoreDataType="wcs10.ecore#//Map"/>
     <genClasses image="false" ecoreClass="wcs10.ecore#//AbstractDescriptionBaseType"/>
     <genClasses image="false" ecoreClass="wcs10.ecore#//AbstractDescriptionType">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//AbstractDescriptionType/metadataLink"/>
@@ -104,6 +259,8 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//DescribeCoverageType/coverage"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//DescribeCoverageType/service"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//DescribeCoverageType/version"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//DescribeCoverageType/baseUrl"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//DescribeCoverageType/extendedProperties"/>
     </genClasses>
     <genClasses ecoreClass="wcs10.ecore#//DescribeCoverageType1">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//DescribeCoverageType1/dCPType"/>
@@ -167,6 +324,8 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//GetCapabilitiesType/service"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//GetCapabilitiesType/updateSequence"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//GetCapabilitiesType/version"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//GetCapabilitiesType/baseUrl"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//GetCapabilitiesType/extendedProperties"/>
     </genClasses>
     <genClasses ecoreClass="wcs10.ecore#//GetCapabilitiesType1">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//GetCapabilitiesType1/dCPType"/>
@@ -179,6 +338,8 @@
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//GetCoverageType/output"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//GetCoverageType/service"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//GetCoverageType/version"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//GetCoverageType/baseUrl"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//GetCoverageType/extendedProperties"/>
     </genClasses>
     <genClasses ecoreClass="wcs10.ecore#//GetCoverageType1">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wcs10.ecore#//GetCoverageType1/dCPType"/>
@@ -256,7 +417,6 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//ServiceType/version"/>
     </genClasses>
     <genClasses ecoreClass="wcs10.ecore#//SpatialDomainType">
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute wcs10.ecore#//SpatialDomainType/envelopeGroup"/>
       <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference wcs10.ecore#//SpatialDomainType/envelope"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute wcs10.ecore#//SpatialDomainType/gridGroup"/>
       <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference wcs10.ecore#//SpatialDomainType/grid"/>
@@ -333,5 +493,7 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//WCSCapabilityType/updateSequence"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wcs10.ecore#//WCSCapabilityType/version"/>
     </genClasses>
+    <genClasses image="false" ecoreClass="wcs10.ecore#//Envelope"/>
+    <genClasses image="false" ecoreClass="wcs10.ecore#//GeneralEnvelope"/>
   </genPackages>
 </genmodel:GenModel>

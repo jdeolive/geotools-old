@@ -8,7 +8,8 @@ package net.opengis.gml.impl;
 
 import net.opengis.gml.BoundingShapeType;
 import net.opengis.gml.EnvelopeType;
-import net.opengis.gml.Gml4wcsPackage;
+import net.opengis.gml.GmlPackage;
+
 
 import org.eclipse.emf.common.notify.NotificationChain;
 
@@ -37,165 +38,165 @@ import org.eclipse.emf.ecore.util.InternalEList;
  */
 public class BoundingShapeTypeImpl extends EObjectImpl implements BoundingShapeType {
     /**
-     * The cached value of the '{@link #getEnvelopeGroup() <em>Envelope Group</em>}' attribute list.
-     * <!-- begin-user-doc -->
+	 * The cached value of the '{@link #getEnvelopeGroup() <em>Envelope Group</em>}' attribute list.
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @see #getEnvelopeGroup()
-     * @generated
-     * @ordered
-     */
+	 * @see #getEnvelopeGroup()
+	 * @generated
+	 * @ordered
+	 */
     protected FeatureMap envelopeGroup;
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     protected BoundingShapeTypeImpl() {
-        super();
-    }
+		super();
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     protected EClass eStaticClass() {
-        return Gml4wcsPackage.Literals.BOUNDING_SHAPE_TYPE;
-    }
+		return GmlPackage.Literals.BOUNDING_SHAPE_TYPE;
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public FeatureMap getEnvelopeGroup() {
-        if (envelopeGroup == null) {
-            envelopeGroup = new BasicFeatureMap(this, Gml4wcsPackage.BOUNDING_SHAPE_TYPE__ENVELOPE_GROUP);
-        }
-        return envelopeGroup;
-    }
+		if (envelopeGroup == null) {
+			envelopeGroup = new BasicFeatureMap(this, GmlPackage.BOUNDING_SHAPE_TYPE__ENVELOPE_GROUP);
+		}
+		return envelopeGroup;
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public EnvelopeType getEnvelope() {
-        return (EnvelopeType)getEnvelopeGroup().get(Gml4wcsPackage.Literals.BOUNDING_SHAPE_TYPE__ENVELOPE, true);
-    }
+		return (EnvelopeType)getEnvelopeGroup().get(GmlPackage.Literals.BOUNDING_SHAPE_TYPE__ENVELOPE, true);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public NotificationChain basicSetEnvelope(EnvelopeType newEnvelope, NotificationChain msgs) {
-        return ((FeatureMap.Internal)getEnvelopeGroup()).basicAdd(Gml4wcsPackage.Literals.BOUNDING_SHAPE_TYPE__ENVELOPE, newEnvelope, msgs);
-    }
+		return ((FeatureMap.Internal)getEnvelopeGroup()).basicAdd(GmlPackage.Literals.BOUNDING_SHAPE_TYPE__ENVELOPE, newEnvelope, msgs);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public void setEnvelope(EnvelopeType newEnvelope) {
-        ((FeatureMap.Internal)getEnvelopeGroup()).set(Gml4wcsPackage.Literals.BOUNDING_SHAPE_TYPE__ENVELOPE, newEnvelope);
-    }
+		((FeatureMap.Internal)getEnvelopeGroup()).set(GmlPackage.Literals.BOUNDING_SHAPE_TYPE__ENVELOPE, newEnvelope);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
-        switch (featureID) {
-            case Gml4wcsPackage.BOUNDING_SHAPE_TYPE__ENVELOPE_GROUP:
-                return ((InternalEList)getEnvelopeGroup()).basicRemove(otherEnd, msgs);
-            case Gml4wcsPackage.BOUNDING_SHAPE_TYPE__ENVELOPE:
-                return basicSetEnvelope(null, msgs);
-        }
-        return super.eInverseRemove(otherEnd, featureID, msgs);
-    }
+		switch (featureID) {
+			case GmlPackage.BOUNDING_SHAPE_TYPE__ENVELOPE_GROUP:
+				return ((InternalEList)getEnvelopeGroup()).basicRemove(otherEnd, msgs);
+			case GmlPackage.BOUNDING_SHAPE_TYPE__ENVELOPE:
+				return basicSetEnvelope(null, msgs);
+		}
+		return super.eInverseRemove(otherEnd, featureID, msgs);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public Object eGet(int featureID, boolean resolve, boolean coreType) {
-        switch (featureID) {
-            case Gml4wcsPackage.BOUNDING_SHAPE_TYPE__ENVELOPE_GROUP:
-                if (coreType) return getEnvelopeGroup();
-                return ((FeatureMap.Internal)getEnvelopeGroup()).getWrapper();
-            case Gml4wcsPackage.BOUNDING_SHAPE_TYPE__ENVELOPE:
-                return getEnvelope();
-        }
-        return super.eGet(featureID, resolve, coreType);
-    }
+		switch (featureID) {
+			case GmlPackage.BOUNDING_SHAPE_TYPE__ENVELOPE_GROUP:
+				if (coreType) return getEnvelopeGroup();
+				return ((FeatureMap.Internal)getEnvelopeGroup()).getWrapper();
+			case GmlPackage.BOUNDING_SHAPE_TYPE__ENVELOPE:
+				return getEnvelope();
+		}
+		return super.eGet(featureID, resolve, coreType);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public void eSet(int featureID, Object newValue) {
-        switch (featureID) {
-            case Gml4wcsPackage.BOUNDING_SHAPE_TYPE__ENVELOPE_GROUP:
-                ((FeatureMap.Internal)getEnvelopeGroup()).set(newValue);
-                return;
-            case Gml4wcsPackage.BOUNDING_SHAPE_TYPE__ENVELOPE:
-                setEnvelope((EnvelopeType)newValue);
-                return;
-        }
-        super.eSet(featureID, newValue);
-    }
+		switch (featureID) {
+			case GmlPackage.BOUNDING_SHAPE_TYPE__ENVELOPE_GROUP:
+				((FeatureMap.Internal)getEnvelopeGroup()).set(newValue);
+				return;
+			case GmlPackage.BOUNDING_SHAPE_TYPE__ENVELOPE:
+				setEnvelope((EnvelopeType)newValue);
+				return;
+		}
+		super.eSet(featureID, newValue);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public void eUnset(int featureID) {
-        switch (featureID) {
-            case Gml4wcsPackage.BOUNDING_SHAPE_TYPE__ENVELOPE_GROUP:
-                getEnvelopeGroup().clear();
-                return;
-            case Gml4wcsPackage.BOUNDING_SHAPE_TYPE__ENVELOPE:
-                setEnvelope((EnvelopeType)null);
-                return;
-        }
-        super.eUnset(featureID);
-    }
+		switch (featureID) {
+			case GmlPackage.BOUNDING_SHAPE_TYPE__ENVELOPE_GROUP:
+				getEnvelopeGroup().clear();
+				return;
+			case GmlPackage.BOUNDING_SHAPE_TYPE__ENVELOPE:
+				setEnvelope((EnvelopeType)null);
+				return;
+		}
+		super.eUnset(featureID);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public boolean eIsSet(int featureID) {
-        switch (featureID) {
-            case Gml4wcsPackage.BOUNDING_SHAPE_TYPE__ENVELOPE_GROUP:
-                return envelopeGroup != null && !envelopeGroup.isEmpty();
-            case Gml4wcsPackage.BOUNDING_SHAPE_TYPE__ENVELOPE:
-                return getEnvelope() != null;
-        }
-        return super.eIsSet(featureID);
-    }
+		switch (featureID) {
+			case GmlPackage.BOUNDING_SHAPE_TYPE__ENVELOPE_GROUP:
+				return envelopeGroup != null && !envelopeGroup.isEmpty();
+			case GmlPackage.BOUNDING_SHAPE_TYPE__ENVELOPE:
+				return getEnvelope() != null;
+		}
+		return super.eIsSet(featureID);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public String toString() {
-        if (eIsProxy()) return super.toString();
+		if (eIsProxy()) return super.toString();
 
-        StringBuffer result = new StringBuffer(super.toString());
-        result.append(" (envelopeGroup: ");
-        result.append(envelopeGroup);
-        result.append(')');
-        return result.toString();
-    }
+		StringBuffer result = new StringBuffer(super.toString());
+		result.append(" (envelopeGroup: ");
+		result.append(envelopeGroup);
+		result.append(')');
+		return result.toString();
+	}
 
 } //BoundingShapeTypeImpl

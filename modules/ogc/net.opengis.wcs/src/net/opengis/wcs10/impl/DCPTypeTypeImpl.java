@@ -34,141 +34,141 @@ import org.eclipse.emf.ecore.impl.EObjectImpl;
  */
 public class DCPTypeTypeImpl extends EObjectImpl implements DCPTypeType {
     /**
-     * The cached value of the '{@link #getHTTP() <em>HTTP</em>}' containment reference.
-     * <!-- begin-user-doc -->
+	 * The cached value of the '{@link #getHTTP() <em>HTTP</em>}' containment reference.
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @see #getHTTP()
-     * @generated
-     * @ordered
-     */
+	 * @see #getHTTP()
+	 * @generated
+	 * @ordered
+	 */
     protected HTTPType hTTP;
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     protected DCPTypeTypeImpl() {
-        super();
-    }
+		super();
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     protected EClass eStaticClass() {
-        return Wcs10Package.Literals.DCP_TYPE_TYPE;
-    }
+		return Wcs10Package.Literals.DCP_TYPE_TYPE;
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public HTTPType getHTTP() {
-        return hTTP;
-    }
+		return hTTP;
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public NotificationChain basicSetHTTP(HTTPType newHTTP, NotificationChain msgs) {
-        HTTPType oldHTTP = hTTP;
-        hTTP = newHTTP;
-        if (eNotificationRequired()) {
-            ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, Wcs10Package.DCP_TYPE_TYPE__HTTP, oldHTTP, newHTTP);
-            if (msgs == null) msgs = notification; else msgs.add(notification);
-        }
-        return msgs;
-    }
+		HTTPType oldHTTP = hTTP;
+		hTTP = newHTTP;
+		if (eNotificationRequired()) {
+			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, Wcs10Package.DCP_TYPE_TYPE__HTTP, oldHTTP, newHTTP);
+			if (msgs == null) msgs = notification; else msgs.add(notification);
+		}
+		return msgs;
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public void setHTTP(HTTPType newHTTP) {
-        if (newHTTP != hTTP) {
-            NotificationChain msgs = null;
-            if (hTTP != null)
-                msgs = ((InternalEObject)hTTP).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - Wcs10Package.DCP_TYPE_TYPE__HTTP, null, msgs);
-            if (newHTTP != null)
-                msgs = ((InternalEObject)newHTTP).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - Wcs10Package.DCP_TYPE_TYPE__HTTP, null, msgs);
-            msgs = basicSetHTTP(newHTTP, msgs);
-            if (msgs != null) msgs.dispatch();
-        }
-        else if (eNotificationRequired())
-            eNotify(new ENotificationImpl(this, Notification.SET, Wcs10Package.DCP_TYPE_TYPE__HTTP, newHTTP, newHTTP));
-    }
+		if (newHTTP != hTTP) {
+			NotificationChain msgs = null;
+			if (hTTP != null)
+				msgs = ((InternalEObject)hTTP).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - Wcs10Package.DCP_TYPE_TYPE__HTTP, null, msgs);
+			if (newHTTP != null)
+				msgs = ((InternalEObject)newHTTP).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - Wcs10Package.DCP_TYPE_TYPE__HTTP, null, msgs);
+			msgs = basicSetHTTP(newHTTP, msgs);
+			if (msgs != null) msgs.dispatch();
+		}
+		else if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, Wcs10Package.DCP_TYPE_TYPE__HTTP, newHTTP, newHTTP));
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
-        switch (featureID) {
-            case Wcs10Package.DCP_TYPE_TYPE__HTTP:
-                return basicSetHTTP(null, msgs);
-        }
-        return super.eInverseRemove(otherEnd, featureID, msgs);
-    }
+		switch (featureID) {
+			case Wcs10Package.DCP_TYPE_TYPE__HTTP:
+				return basicSetHTTP(null, msgs);
+		}
+		return super.eInverseRemove(otherEnd, featureID, msgs);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public Object eGet(int featureID, boolean resolve, boolean coreType) {
-        switch (featureID) {
-            case Wcs10Package.DCP_TYPE_TYPE__HTTP:
-                return getHTTP();
-        }
-        return super.eGet(featureID, resolve, coreType);
-    }
+		switch (featureID) {
+			case Wcs10Package.DCP_TYPE_TYPE__HTTP:
+				return getHTTP();
+		}
+		return super.eGet(featureID, resolve, coreType);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public void eSet(int featureID, Object newValue) {
-        switch (featureID) {
-            case Wcs10Package.DCP_TYPE_TYPE__HTTP:
-                setHTTP((HTTPType)newValue);
-                return;
-        }
-        super.eSet(featureID, newValue);
-    }
+		switch (featureID) {
+			case Wcs10Package.DCP_TYPE_TYPE__HTTP:
+				setHTTP((HTTPType)newValue);
+				return;
+		}
+		super.eSet(featureID, newValue);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public void eUnset(int featureID) {
-        switch (featureID) {
-            case Wcs10Package.DCP_TYPE_TYPE__HTTP:
-                setHTTP((HTTPType)null);
-                return;
-        }
-        super.eUnset(featureID);
-    }
+		switch (featureID) {
+			case Wcs10Package.DCP_TYPE_TYPE__HTTP:
+				setHTTP((HTTPType)null);
+				return;
+		}
+		super.eUnset(featureID);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public boolean eIsSet(int featureID) {
-        switch (featureID) {
-            case Wcs10Package.DCP_TYPE_TYPE__HTTP:
-                return hTTP != null;
-        }
-        return super.eIsSet(featureID);
-    }
+		switch (featureID) {
+			case Wcs10Package.DCP_TYPE_TYPE__HTTP:
+				return hTTP != null;
+		}
+		return super.eIsSet(featureID);
+	}
 
 } //DCPTypeTypeImpl

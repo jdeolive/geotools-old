@@ -17,7 +17,7 @@ package net.opengis.gml;
  * <!-- end-model-doc -->
  *
  *
- * @see net.opengis.gml.Gml4wcsPackage#getAbstractGeometricPrimitiveType()
+ * @see net.opengis.gml.GmlPackage#getAbstractGeometricPrimitiveType()
  * @model abstract="true"
  *        extendedMetaData="name='AbstractGeometricPrimitiveType' kind='empty'"
  * @generated

@@ -13,6 +13,7 @@
     </genEnums>
     <genDataTypes ecoreDataType="wps10.ecore#//MethodTypeObject"/>
     <genDataTypes ecoreDataType="wps10.ecore#//PercentCompletedType"/>
+    <genDataTypes ecoreDataType="wps10.ecore#//Map"/>
     <genClasses ecoreClass="wps10.ecore#//BodyReferenceType">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wps10.ecore#//BodyReferenceType/href"/>
     </genClasses>
@@ -104,6 +105,7 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wps10.ecore#//GetCapabilitiesType/language"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wps10.ecore#//GetCapabilitiesType/service"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wps10.ecore#//GetCapabilitiesType/baseUrl"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wps10.ecore#//GetCapabilitiesType/extendedProperties"/>
     </genClasses>
     <genClasses ecoreClass="wps10.ecore#//HeaderType">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wps10.ecore#//HeaderType/key"/>
@@ -215,6 +217,7 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wps10.ecore#//RequestBaseType/service"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wps10.ecore#//RequestBaseType/version"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wps10.ecore#//RequestBaseType/baseUrl"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wps10.ecore#//RequestBaseType/extendedProperties"/>
     </genClasses>
     <genClasses ecoreClass="wps10.ecore#//ResponseBaseType">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wps10.ecore#//ResponseBaseType/lang"/>

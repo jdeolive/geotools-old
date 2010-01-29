@@ -42,189 +42,207 @@ import org.eclipse.emf.ecore.util.EDataTypeEList;
  */
 public class KeywordsTypeImpl extends EObjectImpl implements KeywordsType {
     /**
-     * The cached value of the '{@link #getKeyword() <em>Keyword</em>}' attribute list.
-     * <!-- begin-user-doc -->
+	 * The default value of the '{@link #getKeyword() <em>Keyword</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getKeyword()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String KEYWORD_EDEFAULT = null;
+
+				/**
+	 * The cached value of the '{@link #getKeyword() <em>Keyword</em>}' attribute.
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @see #getKeyword()
-     * @generated
-     * @ordered
-     */
-    protected EList keyword;
+	 * @see #getKeyword()
+	 * @generated
+	 * @ordered
+	 */
+    protected String keyword = KEYWORD_EDEFAULT;
 
     /**
-     * The cached value of the '{@link #getType() <em>Type</em>}' containment reference.
-     * <!-- begin-user-doc -->
+	 * The cached value of the '{@link #getType() <em>Type</em>}' containment reference.
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @see #getType()
-     * @generated
-     * @ordered
-     */
+	 * @see #getType()
+	 * @generated
+	 * @ordered
+	 */
     protected CodeType type;
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     protected KeywordsTypeImpl() {
-        super();
-    }
+		super();
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     protected EClass eStaticClass() {
-        return Wcs10Package.Literals.KEYWORDS_TYPE;
-    }
+		return Wcs10Package.Literals.KEYWORDS_TYPE;
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
-    public EList getKeyword() {
-        if (keyword == null) {
-            keyword = new EDataTypeEList(String.class, this, Wcs10Package.KEYWORDS_TYPE__KEYWORD);
-        }
-        return keyword;
-    }
+	 * @generated
+	 */
+    public String getKeyword() {
+		return keyword;
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setKeyword(String newKeyword) {
+		String oldKeyword = keyword;
+		keyword = newKeyword;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, Wcs10Package.KEYWORDS_TYPE__KEYWORD, oldKeyword, keyword));
+	}
+
+				/**
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public CodeType getType() {
-        return type;
-    }
+		return type;
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public NotificationChain basicSetType(CodeType newType, NotificationChain msgs) {
-        CodeType oldType = type;
-        type = newType;
-        if (eNotificationRequired()) {
-            ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, Wcs10Package.KEYWORDS_TYPE__TYPE, oldType, newType);
-            if (msgs == null) msgs = notification; else msgs.add(notification);
-        }
-        return msgs;
-    }
+		CodeType oldType = type;
+		type = newType;
+		if (eNotificationRequired()) {
+			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, Wcs10Package.KEYWORDS_TYPE__TYPE, oldType, newType);
+			if (msgs == null) msgs = notification; else msgs.add(notification);
+		}
+		return msgs;
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public void setType(CodeType newType) {
-        if (newType != type) {
-            NotificationChain msgs = null;
-            if (type != null)
-                msgs = ((InternalEObject)type).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - Wcs10Package.KEYWORDS_TYPE__TYPE, null, msgs);
-            if (newType != null)
-                msgs = ((InternalEObject)newType).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - Wcs10Package.KEYWORDS_TYPE__TYPE, null, msgs);
-            msgs = basicSetType(newType, msgs);
-            if (msgs != null) msgs.dispatch();
-        }
-        else if (eNotificationRequired())
-            eNotify(new ENotificationImpl(this, Notification.SET, Wcs10Package.KEYWORDS_TYPE__TYPE, newType, newType));
-    }
+		if (newType != type) {
+			NotificationChain msgs = null;
+			if (type != null)
+				msgs = ((InternalEObject)type).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - Wcs10Package.KEYWORDS_TYPE__TYPE, null, msgs);
+			if (newType != null)
+				msgs = ((InternalEObject)newType).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - Wcs10Package.KEYWORDS_TYPE__TYPE, null, msgs);
+			msgs = basicSetType(newType, msgs);
+			if (msgs != null) msgs.dispatch();
+		}
+		else if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, Wcs10Package.KEYWORDS_TYPE__TYPE, newType, newType));
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
-        switch (featureID) {
-            case Wcs10Package.KEYWORDS_TYPE__TYPE:
-                return basicSetType(null, msgs);
-        }
-        return super.eInverseRemove(otherEnd, featureID, msgs);
-    }
+		switch (featureID) {
+			case Wcs10Package.KEYWORDS_TYPE__TYPE:
+				return basicSetType(null, msgs);
+		}
+		return super.eInverseRemove(otherEnd, featureID, msgs);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public Object eGet(int featureID, boolean resolve, boolean coreType) {
-        switch (featureID) {
-            case Wcs10Package.KEYWORDS_TYPE__KEYWORD:
-                return getKeyword();
-            case Wcs10Package.KEYWORDS_TYPE__TYPE:
-                return getType();
-        }
-        return super.eGet(featureID, resolve, coreType);
-    }
+		switch (featureID) {
+			case Wcs10Package.KEYWORDS_TYPE__KEYWORD:
+				return getKeyword();
+			case Wcs10Package.KEYWORDS_TYPE__TYPE:
+				return getType();
+		}
+		return super.eGet(featureID, resolve, coreType);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public void eSet(int featureID, Object newValue) {
-        switch (featureID) {
-            case Wcs10Package.KEYWORDS_TYPE__KEYWORD:
-                getKeyword().clear();
-                getKeyword().addAll((Collection)newValue);
-                return;
-            case Wcs10Package.KEYWORDS_TYPE__TYPE:
-                setType((CodeType)newValue);
-                return;
-        }
-        super.eSet(featureID, newValue);
-    }
+		switch (featureID) {
+			case Wcs10Package.KEYWORDS_TYPE__KEYWORD:
+				setKeyword((String)newValue);
+				return;
+			case Wcs10Package.KEYWORDS_TYPE__TYPE:
+				setType((CodeType)newValue);
+				return;
+		}
+		super.eSet(featureID, newValue);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public void eUnset(int featureID) {
-        switch (featureID) {
-            case Wcs10Package.KEYWORDS_TYPE__KEYWORD:
-                getKeyword().clear();
-                return;
-            case Wcs10Package.KEYWORDS_TYPE__TYPE:
-                setType((CodeType)null);
-                return;
-        }
-        super.eUnset(featureID);
-    }
+		switch (featureID) {
+			case Wcs10Package.KEYWORDS_TYPE__KEYWORD:
+				setKeyword(KEYWORD_EDEFAULT);
+				return;
+			case Wcs10Package.KEYWORDS_TYPE__TYPE:
+				setType((CodeType)null);
+				return;
+		}
+		super.eUnset(featureID);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public boolean eIsSet(int featureID) {
-        switch (featureID) {
-            case Wcs10Package.KEYWORDS_TYPE__KEYWORD:
-                return keyword != null && !keyword.isEmpty();
-            case Wcs10Package.KEYWORDS_TYPE__TYPE:
-                return type != null;
-        }
-        return super.eIsSet(featureID);
-    }
+		switch (featureID) {
+			case Wcs10Package.KEYWORDS_TYPE__KEYWORD:
+				return KEYWORD_EDEFAULT == null ? keyword != null : !KEYWORD_EDEFAULT.equals(keyword);
+			case Wcs10Package.KEYWORDS_TYPE__TYPE:
+				return type != null;
+		}
+		return super.eIsSet(featureID);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public String toString() {
-        if (eIsProxy()) return super.toString();
+		if (eIsProxy()) return super.toString();
 
-        StringBuffer result = new StringBuffer(super.toString());
-        result.append(" (keyword: ");
-        result.append(keyword);
-        result.append(')');
-        return result.toString();
-    }
+		StringBuffer result = new StringBuffer(super.toString());
+		result.append(" (keyword: ");
+		result.append(keyword);
+		result.append(')');
+		return result.toString();
+	}
 
 } //KeywordsTypeImpl

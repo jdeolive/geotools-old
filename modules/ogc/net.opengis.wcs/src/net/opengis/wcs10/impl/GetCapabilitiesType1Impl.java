@@ -39,111 +39,111 @@ import org.eclipse.emf.ecore.util.InternalEList;
  */
 public class GetCapabilitiesType1Impl extends EObjectImpl implements GetCapabilitiesType1 {
     /**
-     * The cached value of the '{@link #getDCPType() <em>DCP Type</em>}' containment reference list.
-     * <!-- begin-user-doc -->
+	 * The cached value of the '{@link #getDCPType() <em>DCP Type</em>}' containment reference list.
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @see #getDCPType()
-     * @generated
-     * @ordered
-     */
+	 * @see #getDCPType()
+	 * @generated
+	 * @ordered
+	 */
     protected EList dCPType;
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     protected GetCapabilitiesType1Impl() {
-        super();
-    }
+		super();
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     protected EClass eStaticClass() {
-        return Wcs10Package.Literals.GET_CAPABILITIES_TYPE1;
-    }
+		return Wcs10Package.Literals.GET_CAPABILITIES_TYPE1;
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public EList getDCPType() {
-        if (dCPType == null) {
-            dCPType = new EObjectContainmentEList(DCPTypeType.class, this, Wcs10Package.GET_CAPABILITIES_TYPE1__DCP_TYPE);
-        }
-        return dCPType;
-    }
+		if (dCPType == null) {
+			dCPType = new EObjectContainmentEList(DCPTypeType.class, this, Wcs10Package.GET_CAPABILITIES_TYPE1__DCP_TYPE);
+		}
+		return dCPType;
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
-        switch (featureID) {
-            case Wcs10Package.GET_CAPABILITIES_TYPE1__DCP_TYPE:
-                return ((InternalEList)getDCPType()).basicRemove(otherEnd, msgs);
-        }
-        return super.eInverseRemove(otherEnd, featureID, msgs);
-    }
+		switch (featureID) {
+			case Wcs10Package.GET_CAPABILITIES_TYPE1__DCP_TYPE:
+				return ((InternalEList)getDCPType()).basicRemove(otherEnd, msgs);
+		}
+		return super.eInverseRemove(otherEnd, featureID, msgs);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public Object eGet(int featureID, boolean resolve, boolean coreType) {
-        switch (featureID) {
-            case Wcs10Package.GET_CAPABILITIES_TYPE1__DCP_TYPE:
-                return getDCPType();
-        }
-        return super.eGet(featureID, resolve, coreType);
-    }
+		switch (featureID) {
+			case Wcs10Package.GET_CAPABILITIES_TYPE1__DCP_TYPE:
+				return getDCPType();
+		}
+		return super.eGet(featureID, resolve, coreType);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public void eSet(int featureID, Object newValue) {
-        switch (featureID) {
-            case Wcs10Package.GET_CAPABILITIES_TYPE1__DCP_TYPE:
-                getDCPType().clear();
-                getDCPType().addAll((Collection)newValue);
-                return;
-        }
-        super.eSet(featureID, newValue);
-    }
+		switch (featureID) {
+			case Wcs10Package.GET_CAPABILITIES_TYPE1__DCP_TYPE:
+				getDCPType().clear();
+				getDCPType().addAll((Collection)newValue);
+				return;
+		}
+		super.eSet(featureID, newValue);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public void eUnset(int featureID) {
-        switch (featureID) {
-            case Wcs10Package.GET_CAPABILITIES_TYPE1__DCP_TYPE:
-                getDCPType().clear();
-                return;
-        }
-        super.eUnset(featureID);
-    }
+		switch (featureID) {
+			case Wcs10Package.GET_CAPABILITIES_TYPE1__DCP_TYPE:
+				getDCPType().clear();
+				return;
+		}
+		super.eUnset(featureID);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public boolean eIsSet(int featureID) {
-        switch (featureID) {
-            case Wcs10Package.GET_CAPABILITIES_TYPE1__DCP_TYPE:
-                return dCPType != null && !dCPType.isEmpty();
-        }
-        return super.eIsSet(featureID);
-    }
+		switch (featureID) {
+			case Wcs10Package.GET_CAPABILITIES_TYPE1__DCP_TYPE:
+				return dCPType != null && !dCPType.isEmpty();
+		}
+		return super.eIsSet(featureID);
+	}
 
 } //GetCapabilitiesType1Impl

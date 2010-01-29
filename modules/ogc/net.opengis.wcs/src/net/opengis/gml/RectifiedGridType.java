@@ -27,58 +27,51 @@ import org.eclipse.emf.common.util.EList;
  * </ul>
  * </p>
  *
- * @see net.opengis.gml.Gml4wcsPackage#getRectifiedGridType()
+ * @see net.opengis.gml.GmlPackage#getRectifiedGridType()
  * @model extendedMetaData="name='RectifiedGridType' kind='elementOnly'"
  * @generated
  */
 public interface RectifiedGridType extends GridType {
     /**
-     * Returns the value of the '<em><b>Origin</b></em>' containment reference.
-     * <!-- begin-user-doc -->
+	 * Returns the value of the '<em><b>Origin</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
      * <p>
      * If the meaning of the '<em>Origin</em>' containment reference isn't clear,
      * there really should be more of a description here...
      * </p>
      * <!-- end-user-doc -->
-     * @return the value of the '<em>Origin</em>' containment reference.
-     * @see #setOrigin(PointType)
-     * @see net.opengis.gml.Gml4wcsPackage#getRectifiedGridType_Origin()
-     * @model containment="true" required="true"
-     *        extendedMetaData="kind='element' name='origin' namespace='##targetNamespace'"
-     * @generated
-     */
+	 * @return the value of the '<em>Origin</em>' containment reference.
+	 * @see #setOrigin(PointType)
+	 * @see net.opengis.gml.GmlPackage#getRectifiedGridType_Origin()
+	 * @model containment="true" required="true"
+	 *        extendedMetaData="kind='element' name='origin' namespace='##targetNamespace'"
+	 * @generated
+	 */
     PointType getOrigin();
 
     /**
-     * Sets the value of the '{@link net.opengis.gml.RectifiedGridType#getOrigin <em>Origin</em>}' containment reference.
-     * <!-- begin-user-doc -->
+	 * Sets the value of the '{@link net.opengis.gml.RectifiedGridType#getOrigin <em>Origin</em>}' containment reference.
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @param value the new value of the '<em>Origin</em>' containment reference.
-     * @see #getOrigin()
-     * @generated
-     */
+	 * @param value the new value of the '<em>Origin</em>' containment reference.
+	 * @see #getOrigin()
+	 * @generated
+	 */
     void setOrigin(PointType value);
 
     /**
-     * Returns the value of the '<em><b>Offset Vector</b></em>' containment reference list.
-     * The list contents are of type {@link net.opengis.gml.VectorType}.
-     * <!-- begin-user-doc -->
+	 * Returns the value of the '<em><b>Offset Vector</b></em>' containment reference list.
+	 * The list contents are of type {@link net.opengis.gml.VectorType}.
+	 * <!-- begin-user-doc -->
      * <p>
      * If the meaning of the '<em>Offset Vector</em>' containment reference list isn't clear,
      * there really should be more of a description here...
      * </p>
      * <!-- end-user-doc -->
-     * @return the value of the '<em>Offset Vector</em>' containment reference list.
-     * @see net.opengis.gml.Gml4wcsPackage#getRectifiedGridType_OffsetVector()
-     * @model type="net.opengis.gml.VectorType" containment="true" required="true"
-     *        extendedMetaData="kind='element' name='offsetVector' namespace='##targetNamespace'"
-     * @generated
-     */
+	 * @return the value of the '<em>Offset Vector</em>' containment reference list.
+	 * @see net.opengis.gml.GmlPackage#getRectifiedGridType_OffsetVector()
+	 * @model type="net.opengis.gml.VectorType"
+	 */
     EList getOffsetVector();
-    
-    /**
-     * 
-     */
-    void setOffsetVector(List offsetVector);
 
 } // RectifiedGridType

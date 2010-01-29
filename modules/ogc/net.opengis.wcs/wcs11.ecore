@@ -362,8 +362,8 @@
       </eAnnotations>
     </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EReference" name="wGS84BoundingBox" upperBound="-1"
-        eType="ecore:EClass ../net.opengis.ows/ows11.ecore#//WGS84BoundingBoxType" containment="true"
-        resolveProxies="false">
+        eType="ecore:EClass ../net.opengis.ows/ows11.ecore#//WGS84BoundingBoxType"
+        containment="true" resolveProxies="false">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="element"/>
         <details key="name" value="WGS84BoundingBox"/>
@@ -766,7 +766,8 @@
       <details key="kind" value="elementOnly"/>
     </eAnnotations>
     <eStructuralFeatures xsi:type="ecore:EReference" name="identifier" lowerBound="1"
-        eType="ecore:EClass ../net.opengis.ows/ows11.ecore#//CodeType" containment="true" resolveProxies="false">
+        eType="ecore:EClass ../net.opengis.ows/ows11.ecore#//CodeType" containment="true"
+        resolveProxies="false">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="element"/>
         <details key="name" value="Identifier"/>
@@ -830,7 +831,8 @@
       </eAnnotations>
     </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EReference" name="nullValue" upperBound="-1"
-        eType="ecore:EClass ../net.opengis.ows/ows11.ecore#//CodeType" containment="true" resolveProxies="false">
+        eType="ecore:EClass ../net.opengis.ows/ows11.ecore#//CodeType" containment="true"
+        resolveProxies="false">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="element"/>
         <details key="name" value="NullValue"/>
@@ -883,7 +885,8 @@
       <details key="kind" value="elementOnly"/>
     </eAnnotations>
     <eStructuralFeatures xsi:type="ecore:EReference" name="identifier" lowerBound="1"
-        eType="ecore:EClass ../net.opengis.ows/ows11.ecore#//CodeType" containment="true" resolveProxies="false">
+        eType="ecore:EClass ../net.opengis.ows/ows11.ecore#//CodeType" containment="true"
+        resolveProxies="false">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="element"/>
         <details key="name" value="Identifier"/>
@@ -1179,6 +1182,7 @@
       </eAnnotations>
     </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="baseUrl" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//String"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="extendedProperties" eType="#//Map"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="SpatialDomainType">
     <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
@@ -1351,4 +1355,5 @@
       <details key="memberTypes" value="http://www.eclipse.org/emf/2003/XMLType#duration http://www.eclipse.org/emf/2003/XMLType#decimal"/>
     </eAnnotations>
   </eClassifiers>
+  <eClassifiers xsi:type="ecore:EDataType" name="Map" instanceClassName="java.util.Map"/>
 </ecore:EPackage>

@@ -24,21 +24,21 @@ import org.eclipse.emf.ecore.EClass;
  */
 public class MetadataAssociationTypeImpl extends MetaDataPropertyTypeImpl implements MetadataAssociationType {
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     protected MetadataAssociationTypeImpl() {
-        super();
-    }
+		super();
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     protected EClass eStaticClass() {
-        return Wcs10Package.Literals.METADATA_ASSOCIATION_TYPE;
-    }
+		return Wcs10Package.Literals.METADATA_ASSOCIATION_TYPE;
+	}
 
 } //MetadataAssociationTypeImpl

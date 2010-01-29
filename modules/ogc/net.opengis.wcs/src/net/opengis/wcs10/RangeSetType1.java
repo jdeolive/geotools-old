@@ -26,30 +26,30 @@ import org.eclipse.emf.ecore.EObject;
  */
 public interface RangeSetType1 extends EObject {
     /**
-     * Returns the value of the '<em><b>Range Set</b></em>' containment reference.
-     * <!-- begin-user-doc -->
+	 * Returns the value of the '<em><b>Range Set</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
      * <p>
      * If the meaning of the '<em>Range Set</em>' containment reference isn't clear,
      * there really should be more of a description here...
      * </p>
      * <!-- end-user-doc -->
-     * @return the value of the '<em>Range Set</em>' containment reference.
-     * @see #setRangeSet(RangeSetType)
-     * @see net.opengis.wcs10.Wcs10Package#getRangeSetType1_RangeSet()
-     * @model containment="true" required="true"
-     *        extendedMetaData="kind='element' name='RangeSet' namespace='##targetNamespace'"
-     * @generated
-     */
+	 * @return the value of the '<em>Range Set</em>' containment reference.
+	 * @see #setRangeSet(RangeSetType)
+	 * @see net.opengis.wcs10.Wcs10Package#getRangeSetType1_RangeSet()
+	 * @model containment="true" required="true"
+	 *        extendedMetaData="kind='element' name='RangeSet' namespace='##targetNamespace'"
+	 * @generated
+	 */
     RangeSetType getRangeSet();
 
     /**
-     * Sets the value of the '{@link net.opengis.wcs10.RangeSetType1#getRangeSet <em>Range Set</em>}' containment reference.
-     * <!-- begin-user-doc -->
+	 * Sets the value of the '{@link net.opengis.wcs10.RangeSetType1#getRangeSet <em>Range Set</em>}' containment reference.
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @param value the new value of the '<em>Range Set</em>' containment reference.
-     * @see #getRangeSet()
-     * @generated
-     */
+	 * @param value the new value of the '<em>Range Set</em>' containment reference.
+	 * @see #getRangeSet()
+	 * @generated
+	 */
     void setRangeSet(RangeSetType value);
 
 } // RangeSetType1

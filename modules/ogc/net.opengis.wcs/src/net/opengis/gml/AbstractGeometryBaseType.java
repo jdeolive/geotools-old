@@ -13,11 +13,11 @@ package net.opengis.gml;
  * <!-- end-user-doc -->
  *
  * <!-- begin-model-doc -->
- * Removes name, description, and metadataLink from AbstractGMLType. 
+ * Removes name, description, and metadataLink from AbstractGMLType.
  * <!-- end-model-doc -->
  *
  *
- * @see net.opengis.gml.Gml4wcsPackage#getAbstractGeometryBaseType()
+ * @see net.opengis.gml.GmlPackage#getAbstractGeometryBaseType()
  * @model abstract="true"
  *        extendedMetaData="name='AbstractGeometryBaseType' kind='elementOnly'"
  * @generated

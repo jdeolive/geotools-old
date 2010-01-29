@@ -28,20 +28,20 @@ import org.eclipse.emf.ecore.util.FeatureMap;
  */
 public interface VendorSpecificCapabilitiesType extends EObject {
     /**
-     * Returns the value of the '<em><b>Any</b></em>' attribute list.
-     * The list contents are of type {@link org.eclipse.emf.ecore.util.FeatureMap.Entry}.
-     * <!-- begin-user-doc -->
+	 * Returns the value of the '<em><b>Any</b></em>' attribute list.
+	 * The list contents are of type {@link org.eclipse.emf.ecore.util.FeatureMap.Entry}.
+	 * <!-- begin-user-doc -->
      * <p>
      * If the meaning of the '<em>Any</em>' attribute list isn't clear,
      * there really should be more of a description here...
      * </p>
      * <!-- end-user-doc -->
-     * @return the value of the '<em>Any</em>' attribute list.
-     * @see net.opengis.wcs10.Wcs10Package#getVendorSpecificCapabilitiesType_Any()
-     * @model dataType="org.eclipse.emf.ecore.EFeatureMapEntry" required="true" many="false"
-     *        extendedMetaData="kind='elementWildcard' wildcards='##any' name=':0' processing='strict'"
-     * @generated
-     */
+	 * @return the value of the '<em>Any</em>' attribute list.
+	 * @see net.opengis.wcs10.Wcs10Package#getVendorSpecificCapabilitiesType_Any()
+	 * @model dataType="org.eclipse.emf.ecore.EFeatureMapEntry" required="true" many="false"
+	 *        extendedMetaData="kind='elementWildcard' wildcards='##any' name=':0' processing='strict'"
+	 * @generated
+	 */
     FeatureMap getAny();
 
 } // VendorSpecificCapabilitiesType

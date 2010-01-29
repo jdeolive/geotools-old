@@ -16,7 +16,6 @@ import org.eclipse.emf.ecore.EObject;
  * <!-- begin-model-doc -->
  * 
  * 			        Encapsulates a ring to represent the surface boundary property of a surface.
- * 			
  * <!-- end-model-doc -->
  *
  * <p>
@@ -26,36 +25,36 @@ import org.eclipse.emf.ecore.EObject;
  * </ul>
  * </p>
  *
- * @see net.opengis.gml.Gml4wcsPackage#getAbstractRingPropertyType()
+ * @see net.opengis.gml.GmlPackage#getAbstractRingPropertyType()
  * @model extendedMetaData="name='AbstractRingPropertyType' kind='elementOnly'"
  * @generated
  */
 public interface AbstractRingPropertyType extends EObject {
     /**
-     * Returns the value of the '<em><b>Linear Ring</b></em>' containment reference.
-     * <!-- begin-user-doc -->
+	 * Returns the value of the '<em><b>Linear Ring</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
      * <p>
      * If the meaning of the '<em>Linear Ring</em>' containment reference isn't clear,
      * there really should be more of a description here...
      * </p>
      * <!-- end-user-doc -->
-     * @return the value of the '<em>Linear Ring</em>' containment reference.
-     * @see #setLinearRing(LinearRingType)
-     * @see net.opengis.gml.Gml4wcsPackage#getAbstractRingPropertyType_LinearRing()
-     * @model containment="true" required="true"
-     *        extendedMetaData="kind='element' name='LinearRing' namespace='##targetNamespace'"
-     * @generated
-     */
+	 * @return the value of the '<em>Linear Ring</em>' containment reference.
+	 * @see #setLinearRing(LinearRingType)
+	 * @see net.opengis.gml.GmlPackage#getAbstractRingPropertyType_LinearRing()
+	 * @model containment="true" required="true"
+	 *        extendedMetaData="kind='element' name='LinearRing' namespace='##targetNamespace'"
+	 * @generated
+	 */
     LinearRingType getLinearRing();
 
     /**
-     * Sets the value of the '{@link net.opengis.gml.AbstractRingPropertyType#getLinearRing <em>Linear Ring</em>}' containment reference.
-     * <!-- begin-user-doc -->
+	 * Sets the value of the '{@link net.opengis.gml.AbstractRingPropertyType#getLinearRing <em>Linear Ring</em>}' containment reference.
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @param value the new value of the '<em>Linear Ring</em>' containment reference.
-     * @see #getLinearRing()
-     * @generated
-     */
+	 * @param value the new value of the '<em>Linear Ring</em>' containment reference.
+	 * @see #getLinearRing()
+	 * @generated
+	 */
     void setLinearRing(LinearRingType value);
 
 } // AbstractRingPropertyType

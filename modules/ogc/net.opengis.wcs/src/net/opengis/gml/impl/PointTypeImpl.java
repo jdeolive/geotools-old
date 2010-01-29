@@ -7,7 +7,8 @@
 package net.opengis.gml.impl;
 
 import net.opengis.gml.DirectPositionType;
-import net.opengis.gml.Gml4wcsPackage;
+import net.opengis.gml.GmlPackage;
+
 import net.opengis.gml.PointType;
 
 import org.eclipse.emf.common.notify.Notification;
@@ -33,141 +34,141 @@ import org.eclipse.emf.ecore.impl.ENotificationImpl;
  */
 public class PointTypeImpl extends AbstractGeometryTypeImpl implements PointType {
     /**
-     * The cached value of the '{@link #getPos() <em>Pos</em>}' containment reference.
-     * <!-- begin-user-doc -->
+	 * The cached value of the '{@link #getPos() <em>Pos</em>}' containment reference.
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @see #getPos()
-     * @generated
-     * @ordered
-     */
+	 * @see #getPos()
+	 * @generated
+	 * @ordered
+	 */
     protected DirectPositionType pos;
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     protected PointTypeImpl() {
-        super();
-    }
+		super();
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     protected EClass eStaticClass() {
-        return Gml4wcsPackage.Literals.POINT_TYPE;
-    }
+		return GmlPackage.Literals.POINT_TYPE;
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public DirectPositionType getPos() {
-        return pos;
-    }
+		return pos;
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public NotificationChain basicSetPos(DirectPositionType newPos, NotificationChain msgs) {
-        DirectPositionType oldPos = pos;
-        pos = newPos;
-        if (eNotificationRequired()) {
-            ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, Gml4wcsPackage.POINT_TYPE__POS, oldPos, newPos);
-            if (msgs == null) msgs = notification; else msgs.add(notification);
-        }
-        return msgs;
-    }
+		DirectPositionType oldPos = pos;
+		pos = newPos;
+		if (eNotificationRequired()) {
+			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, GmlPackage.POINT_TYPE__POS, oldPos, newPos);
+			if (msgs == null) msgs = notification; else msgs.add(notification);
+		}
+		return msgs;
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public void setPos(DirectPositionType newPos) {
-        if (newPos != pos) {
-            NotificationChain msgs = null;
-            if (pos != null)
-                msgs = ((InternalEObject)pos).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - Gml4wcsPackage.POINT_TYPE__POS, null, msgs);
-            if (newPos != null)
-                msgs = ((InternalEObject)newPos).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - Gml4wcsPackage.POINT_TYPE__POS, null, msgs);
-            msgs = basicSetPos(newPos, msgs);
-            if (msgs != null) msgs.dispatch();
-        }
-        else if (eNotificationRequired())
-            eNotify(new ENotificationImpl(this, Notification.SET, Gml4wcsPackage.POINT_TYPE__POS, newPos, newPos));
-    }
+		if (newPos != pos) {
+			NotificationChain msgs = null;
+			if (pos != null)
+				msgs = ((InternalEObject)pos).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - GmlPackage.POINT_TYPE__POS, null, msgs);
+			if (newPos != null)
+				msgs = ((InternalEObject)newPos).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - GmlPackage.POINT_TYPE__POS, null, msgs);
+			msgs = basicSetPos(newPos, msgs);
+			if (msgs != null) msgs.dispatch();
+		}
+		else if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, GmlPackage.POINT_TYPE__POS, newPos, newPos));
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
-        switch (featureID) {
-            case Gml4wcsPackage.POINT_TYPE__POS:
-                return basicSetPos(null, msgs);
-        }
-        return super.eInverseRemove(otherEnd, featureID, msgs);
-    }
+		switch (featureID) {
+			case GmlPackage.POINT_TYPE__POS:
+				return basicSetPos(null, msgs);
+		}
+		return super.eInverseRemove(otherEnd, featureID, msgs);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public Object eGet(int featureID, boolean resolve, boolean coreType) {
-        switch (featureID) {
-            case Gml4wcsPackage.POINT_TYPE__POS:
-                return getPos();
-        }
-        return super.eGet(featureID, resolve, coreType);
-    }
+		switch (featureID) {
+			case GmlPackage.POINT_TYPE__POS:
+				return getPos();
+		}
+		return super.eGet(featureID, resolve, coreType);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public void eSet(int featureID, Object newValue) {
-        switch (featureID) {
-            case Gml4wcsPackage.POINT_TYPE__POS:
-                setPos((DirectPositionType)newValue);
-                return;
-        }
-        super.eSet(featureID, newValue);
-    }
+		switch (featureID) {
+			case GmlPackage.POINT_TYPE__POS:
+				setPos((DirectPositionType)newValue);
+				return;
+		}
+		super.eSet(featureID, newValue);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public void eUnset(int featureID) {
-        switch (featureID) {
-            case Gml4wcsPackage.POINT_TYPE__POS:
-                setPos((DirectPositionType)null);
-                return;
-        }
-        super.eUnset(featureID);
-    }
+		switch (featureID) {
+			case GmlPackage.POINT_TYPE__POS:
+				setPos((DirectPositionType)null);
+				return;
+		}
+		super.eUnset(featureID);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public boolean eIsSet(int featureID) {
-        switch (featureID) {
-            case Gml4wcsPackage.POINT_TYPE__POS:
-                return pos != null;
-        }
-        return super.eIsSet(featureID);
-    }
+		switch (featureID) {
+			case GmlPackage.POINT_TYPE__POS:
+				return pos != null;
+		}
+		return super.eIsSet(featureID);
+	}
 
 } //PointTypeImpl

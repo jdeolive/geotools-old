@@ -15,11 +15,10 @@ package net.opengis.gml;
  * <!-- begin-model-doc -->
  * 
  * 				An abstraction of a ring to support surface boundaries of different complexity.
- * 			
  * <!-- end-model-doc -->
  *
  *
- * @see net.opengis.gml.Gml4wcsPackage#getAbstractRingType()
+ * @see net.opengis.gml.GmlPackage#getAbstractRingType()
  * @model abstract="true"
  *        extendedMetaData="name='AbstractRingType' kind='empty'"
  * @generated

@@ -2,9 +2,9 @@
 <genmodel:GenModel xmi:version="2.0"
     xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
     xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/net.opengis.ows/src"
-    editDirectory="/net.opengis.ows.edit/src" editorDirectory="/net.opengi.ows.editor/src" modelPluginID="net.opengis.ows"
-    modelName="Ows10" updateClasspath="false" importerID="org.eclipse.emf.importer.java"
-    usedGenPackages="platform:/plugin/org.eclipse.emf.ecore/model/XMLType.genmodel#//type platform:/plugin/org.eclipse.emf.ecore/model/Ecore.genmodel#//ecore">
+    editDirectory="/net.opengis.ows.edit/src" editorDirectory="/net.opengi.ows.editor/src"
+    modelPluginID="net.opengis.ows" modelName="Ows10" updateClasspath="false" importerID="org.eclipse.emf.importer.java"
+    usedGenPackages="platform:/plugin/org.eclipse.emf.ecore/model/XMLType.genmodel#//type platform:/plugin/org.eclipse.emf.ecore/model/Ecore.genmodel#//ecore platform:/plugin/org.eclipse.emf.ecore/model/XMLNamespace.genmodel#//namespace">
   <foreignModel>@model</foreignModel>
   <genPackages prefix="Ows10" basePackage="net.opengis" disposableProviderFactory="true"
       adapterFactory="false" literalsInterface="false" ecorePackage="ows10.ecore#/">
@@ -12,6 +12,7 @@
     <genDataTypes ecoreDataType="ows10.ecore#//VersionType"/>
     <genDataTypes ecoreDataType="ows10.ecore#//PositionType"/>
     <genDataTypes ecoreDataType="ows10.ecore#//UpdateSequenceType"/>
+    <genDataTypes ecoreDataType="ows10.ecore#//Map"/>
     <genClasses ecoreClass="ows10.ecore#//AcceptFormatsType">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute ows10.ecore#//AcceptFormatsType/outputFormat"/>
     </genClasses>
@@ -114,6 +115,8 @@
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference ows10.ecore#//GetCapabilitiesType/acceptFormats"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute ows10.ecore#//GetCapabilitiesType/updateSequence"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute ows10.ecore#//GetCapabilitiesType/baseUrl"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute ows10.ecore#//GetCapabilitiesType/namespace"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute ows10.ecore#//GetCapabilitiesType/extendedProperties"/>
     </genClasses>
     <genClasses ecoreClass="ows10.ecore#//HTTPType">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute ows10.ecore#//HTTPType/group"/>

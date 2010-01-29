@@ -14,7 +14,7 @@ import org.eclipse.emf.common.util.EList;
  * <!-- end-user-doc -->
  *
  * <!-- begin-model-doc -->
- * Defines spatial extent by extending LonLatEnvelope with an optional time position pair. 
+ * Defines spatial extent by extending LonLatEnvelope with an optional time position pair.
  * <!-- end-model-doc -->
  *
  * <p>
@@ -30,19 +30,19 @@ import org.eclipse.emf.common.util.EList;
  */
 public interface LonLatEnvelopeType extends LonLatEnvelopeBaseType {
     /**
-     * Returns the value of the '<em><b>Time Position</b></em>' containment reference list.
-     * The list contents are of type {@link net.opengis.gml.TimePositionType}.
-     * <!-- begin-user-doc -->
+	 * Returns the value of the '<em><b>Time Position</b></em>' containment reference list.
+	 * The list contents are of type {@link net.opengis.gml.TimePositionType}.
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * <!-- begin-model-doc -->
-     * Direct representation of a temporal position. 
-     * <!-- end-model-doc -->
-     * @return the value of the '<em>Time Position</em>' containment reference list.
-     * @see net.opengis.wcs10.Wcs10Package#getLonLatEnvelopeType_TimePosition()
-     * @model type="net.opengis.gml.TimePositionType" containment="true" upper="2"
-     *        extendedMetaData="kind='element' name='timePosition' namespace='http://www.opengis.net/gml'"
-     * @generated
-     */
+	 * <!-- begin-model-doc -->
+	 * Direct representation of a temporal position.
+	 * <!-- end-model-doc -->
+	 * @return the value of the '<em>Time Position</em>' containment reference list.
+	 * @see net.opengis.wcs10.Wcs10Package#getLonLatEnvelopeType_TimePosition()
+	 * @model type="net.opengis.gml.TimePositionType" containment="true" upper="2"
+	 *        extendedMetaData="kind='element' name='timePosition' namespace='http://www.opengis.net/gml'"
+	 * @generated
+	 */
     EList getTimePosition();
 
 } // LonLatEnvelopeType

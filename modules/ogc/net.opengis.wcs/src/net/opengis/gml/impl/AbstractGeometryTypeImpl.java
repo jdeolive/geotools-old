@@ -7,7 +7,8 @@
 package net.opengis.gml.impl;
 
 import net.opengis.gml.AbstractGeometryType;
-import net.opengis.gml.Gml4wcsPackage;
+import net.opengis.gml.GmlPackage;
+
 
 import org.eclipse.emf.common.notify.Notification;
 
@@ -30,131 +31,131 @@ import org.eclipse.emf.ecore.impl.ENotificationImpl;
  */
 public abstract class AbstractGeometryTypeImpl extends AbstractGeometryBaseTypeImpl implements AbstractGeometryType {
     /**
-     * The default value of the '{@link #getSrsName() <em>Srs Name</em>}' attribute.
-     * <!-- begin-user-doc -->
+	 * The default value of the '{@link #getSrsName() <em>Srs Name</em>}' attribute.
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @see #getSrsName()
-     * @generated
-     * @ordered
-     */
+	 * @see #getSrsName()
+	 * @generated
+	 * @ordered
+	 */
     protected static final String SRS_NAME_EDEFAULT = null;
 
     /**
-     * The cached value of the '{@link #getSrsName() <em>Srs Name</em>}' attribute.
-     * <!-- begin-user-doc -->
+	 * The cached value of the '{@link #getSrsName() <em>Srs Name</em>}' attribute.
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @see #getSrsName()
-     * @generated
-     * @ordered
-     */
+	 * @see #getSrsName()
+	 * @generated
+	 * @ordered
+	 */
     protected String srsName = SRS_NAME_EDEFAULT;
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     protected AbstractGeometryTypeImpl() {
-        super();
-    }
+		super();
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     protected EClass eStaticClass() {
-        return Gml4wcsPackage.Literals.ABSTRACT_GEOMETRY_TYPE;
-    }
+		return GmlPackage.Literals.ABSTRACT_GEOMETRY_TYPE;
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public String getSrsName() {
-        return srsName;
-    }
+		return srsName;
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public void setSrsName(String newSrsName) {
-        String oldSrsName = srsName;
-        srsName = newSrsName;
-        if (eNotificationRequired())
-            eNotify(new ENotificationImpl(this, Notification.SET, Gml4wcsPackage.ABSTRACT_GEOMETRY_TYPE__SRS_NAME, oldSrsName, srsName));
-    }
+		String oldSrsName = srsName;
+		srsName = newSrsName;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, GmlPackage.ABSTRACT_GEOMETRY_TYPE__SRS_NAME, oldSrsName, srsName));
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public Object eGet(int featureID, boolean resolve, boolean coreType) {
-        switch (featureID) {
-            case Gml4wcsPackage.ABSTRACT_GEOMETRY_TYPE__SRS_NAME:
-                return getSrsName();
-        }
-        return super.eGet(featureID, resolve, coreType);
-    }
+		switch (featureID) {
+			case GmlPackage.ABSTRACT_GEOMETRY_TYPE__SRS_NAME:
+				return getSrsName();
+		}
+		return super.eGet(featureID, resolve, coreType);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public void eSet(int featureID, Object newValue) {
-        switch (featureID) {
-            case Gml4wcsPackage.ABSTRACT_GEOMETRY_TYPE__SRS_NAME:
-                setSrsName((String)newValue);
-                return;
-        }
-        super.eSet(featureID, newValue);
-    }
+		switch (featureID) {
+			case GmlPackage.ABSTRACT_GEOMETRY_TYPE__SRS_NAME:
+				setSrsName((String)newValue);
+				return;
+		}
+		super.eSet(featureID, newValue);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public void eUnset(int featureID) {
-        switch (featureID) {
-            case Gml4wcsPackage.ABSTRACT_GEOMETRY_TYPE__SRS_NAME:
-                setSrsName(SRS_NAME_EDEFAULT);
-                return;
-        }
-        super.eUnset(featureID);
-    }
+		switch (featureID) {
+			case GmlPackage.ABSTRACT_GEOMETRY_TYPE__SRS_NAME:
+				setSrsName(SRS_NAME_EDEFAULT);
+				return;
+		}
+		super.eUnset(featureID);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public boolean eIsSet(int featureID) {
-        switch (featureID) {
-            case Gml4wcsPackage.ABSTRACT_GEOMETRY_TYPE__SRS_NAME:
-                return SRS_NAME_EDEFAULT == null ? srsName != null : !SRS_NAME_EDEFAULT.equals(srsName);
-        }
-        return super.eIsSet(featureID);
-    }
+		switch (featureID) {
+			case GmlPackage.ABSTRACT_GEOMETRY_TYPE__SRS_NAME:
+				return SRS_NAME_EDEFAULT == null ? srsName != null : !SRS_NAME_EDEFAULT.equals(srsName);
+		}
+		return super.eIsSet(featureID);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public String toString() {
-        if (eIsProxy()) return super.toString();
+		if (eIsProxy()) return super.toString();
 
-        StringBuffer result = new StringBuffer(super.toString());
-        result.append(" (srsName: ");
-        result.append(srsName);
-        result.append(')');
-        return result.toString();
-    }
+		StringBuffer result = new StringBuffer(super.toString());
+		result.append(" (srsName: ");
+		result.append(srsName);
+		result.append(')');
+		return result.toString();
+	}
 
 } //AbstractGeometryTypeImpl

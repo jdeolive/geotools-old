@@ -29,62 +29,62 @@ import org.eclipse.emf.ecore.EObject;
  * </ul>
  * </p>
  *
- * @see net.opengis.gml.Gml4wcsPackage#getDirectPositionType()
+ * @see net.opengis.gml.GmlPackage#getDirectPositionType()
  * @model extendedMetaData="name='DirectPositionType' kind='simple'"
  * @generated
  */
 public interface DirectPositionType extends EObject {
     /**
-     * Returns the value of the '<em><b>Value</b></em>' attribute.
-     * <!-- begin-user-doc -->
+	 * Returns the value of the '<em><b>Value</b></em>' attribute.
+	 * <!-- begin-user-doc -->
      * <p>
      * If the meaning of the '<em>Value</em>' attribute isn't clear,
      * there really should be more of a description here...
      * </p>
      * <!-- end-user-doc -->
-     * @return the value of the '<em>Value</em>' attribute.
-     * @see #setValue(List)
-     * @see net.opengis.gml.Gml4wcsPackage#getDirectPositionType_Value()
-     * @model dataType="net.opengis.gml.DoubleList" many="false"
-     *        extendedMetaData="name=':0' kind='simple'"
-     * @generated
-     */
+	 * @return the value of the '<em>Value</em>' attribute.
+	 * @see #setValue(List)
+	 * @see net.opengis.gml.GmlPackage#getDirectPositionType_Value()
+	 * @model dataType="net.opengis.gml.DoubleList" many="false"
+	 *        extendedMetaData="name=':0' kind='simple'"
+	 * @generated
+	 */
     List getValue();
 
     /**
-     * Sets the value of the '{@link net.opengis.gml.DirectPositionType#getValue <em>Value</em>}' attribute.
-     * <!-- begin-user-doc -->
+	 * Sets the value of the '{@link net.opengis.gml.DirectPositionType#getValue <em>Value</em>}' attribute.
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @param value the new value of the '<em>Value</em>' attribute.
-     * @see #getValue()
-     * @generated
-     */
+	 * @param value the new value of the '<em>Value</em>' attribute.
+	 * @see #getValue()
+	 * @generated
+	 */
     void setValue(List value);
 
     /**
-     * Returns the value of the '<em><b>Dimension</b></em>' attribute.
-     * <!-- begin-user-doc -->
+	 * Returns the value of the '<em><b>Dimension</b></em>' attribute.
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * <!-- begin-model-doc -->
-     * The attribute "dimension" is the length of coordinate sequence (the number of entries in the list). This is determined by the coordinate reference system.
-     * <!-- end-model-doc -->
-     * @return the value of the '<em>Dimension</em>' attribute.
-     * @see #setDimension(BigInteger)
-     * @see net.opengis.gml.Gml4wcsPackage#getDirectPositionType_Dimension()
-     * @model dataType="org.eclipse.emf.ecore.xml.type.PositiveInteger"
-     *        extendedMetaData="kind='attribute' name='dimension'"
-     * @generated
-     */
+	 * <!-- begin-model-doc -->
+	 * The attribute "dimension" is the length of coordinate sequence (the number of entries in the list). This is determined by the coordinate reference system.
+	 * <!-- end-model-doc -->
+	 * @return the value of the '<em>Dimension</em>' attribute.
+	 * @see #setDimension(BigInteger)
+	 * @see net.opengis.gml.GmlPackage#getDirectPositionType_Dimension()
+	 * @model dataType="org.eclipse.emf.ecore.xml.type.PositiveInteger"
+	 *        extendedMetaData="kind='attribute' name='dimension'"
+	 * @generated
+	 */
     BigInteger getDimension();
 
     /**
-     * Sets the value of the '{@link net.opengis.gml.DirectPositionType#getDimension <em>Dimension</em>}' attribute.
-     * <!-- begin-user-doc -->
+	 * Sets the value of the '{@link net.opengis.gml.DirectPositionType#getDimension <em>Dimension</em>}' attribute.
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @param value the new value of the '<em>Dimension</em>' attribute.
-     * @see #getDimension()
-     * @generated
-     */
+	 * @param value the new value of the '<em>Dimension</em>' attribute.
+	 * @see #getDimension()
+	 * @generated
+	 */
     void setDimension(BigInteger value);
 
 } // DirectPositionType

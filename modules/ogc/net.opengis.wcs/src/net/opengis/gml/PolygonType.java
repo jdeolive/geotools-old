@@ -25,51 +25,51 @@ import org.eclipse.emf.common.util.EList;
  * </ul>
  * </p>
  *
- * @see net.opengis.gml.Gml4wcsPackage#getPolygonType()
+ * @see net.opengis.gml.GmlPackage#getPolygonType()
  * @model extendedMetaData="name='PolygonType' kind='elementOnly'"
  * @generated
  */
 public interface PolygonType extends AbstractSurfaceType {
     /**
-     * Returns the value of the '<em><b>Exterior</b></em>' containment reference.
-     * <!-- begin-user-doc -->
+	 * Returns the value of the '<em><b>Exterior</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * <!-- begin-model-doc -->
-     * A boundary of a surface consists of a number of rings. In the normal 2D case, one of these rings is distinguished as being the exterior boundary. In a general manifold this is not always possible, in which case all boundaries shall be listed as interior boundaries, and the exterior will be empty.
-     * <!-- end-model-doc -->
-     * @return the value of the '<em>Exterior</em>' containment reference.
-     * @see #setExterior(AbstractRingPropertyType)
-     * @see net.opengis.gml.Gml4wcsPackage#getPolygonType_Exterior()
-     * @model containment="true"
-     *        extendedMetaData="kind='element' name='exterior' namespace='##targetNamespace'"
-     * @generated
-     */
+	 * <!-- begin-model-doc -->
+	 * A boundary of a surface consists of a number of rings. In the normal 2D case, one of these rings is distinguished as being the exterior boundary. In a general manifold this is not always possible, in which case all boundaries shall be listed as interior boundaries, and the exterior will be empty.
+	 * <!-- end-model-doc -->
+	 * @return the value of the '<em>Exterior</em>' containment reference.
+	 * @see #setExterior(AbstractRingPropertyType)
+	 * @see net.opengis.gml.GmlPackage#getPolygonType_Exterior()
+	 * @model containment="true"
+	 *        extendedMetaData="kind='element' name='exterior' namespace='##targetNamespace'"
+	 * @generated
+	 */
     AbstractRingPropertyType getExterior();
 
     /**
-     * Sets the value of the '{@link net.opengis.gml.PolygonType#getExterior <em>Exterior</em>}' containment reference.
-     * <!-- begin-user-doc -->
+	 * Sets the value of the '{@link net.opengis.gml.PolygonType#getExterior <em>Exterior</em>}' containment reference.
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @param value the new value of the '<em>Exterior</em>' containment reference.
-     * @see #getExterior()
-     * @generated
-     */
+	 * @param value the new value of the '<em>Exterior</em>' containment reference.
+	 * @see #getExterior()
+	 * @generated
+	 */
     void setExterior(AbstractRingPropertyType value);
 
     /**
-     * Returns the value of the '<em><b>Interior</b></em>' containment reference list.
-     * The list contents are of type {@link net.opengis.gml.AbstractRingPropertyType}.
-     * <!-- begin-user-doc -->
+	 * Returns the value of the '<em><b>Interior</b></em>' containment reference list.
+	 * The list contents are of type {@link net.opengis.gml.AbstractRingPropertyType}.
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * <!-- begin-model-doc -->
-     * A boundary of a surface consists of a number of rings. The "interior" rings seperate the surface / surface patch from the area enclosed by the rings.
-     * <!-- end-model-doc -->
-     * @return the value of the '<em>Interior</em>' containment reference list.
-     * @see net.opengis.gml.Gml4wcsPackage#getPolygonType_Interior()
-     * @model type="net.opengis.gml.AbstractRingPropertyType" containment="true"
-     *        extendedMetaData="kind='element' name='interior' namespace='##targetNamespace'"
-     * @generated
-     */
+	 * <!-- begin-model-doc -->
+	 * A boundary of a surface consists of a number of rings. The "interior" rings seperate the surface / surface patch from the area enclosed by the rings.
+	 * <!-- end-model-doc -->
+	 * @return the value of the '<em>Interior</em>' containment reference list.
+	 * @see net.opengis.gml.GmlPackage#getPolygonType_Interior()
+	 * @model type="net.opengis.gml.AbstractRingPropertyType" containment="true"
+	 *        extendedMetaData="kind='element' name='interior' namespace='##targetNamespace'"
+	 * @generated
+	 */
     EList getInterior();
 
 } // PolygonType

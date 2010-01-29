@@ -54,6 +54,7 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs.ecore#//BaseRequestType/version"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs.ecore#//BaseRequestType/baseUrl"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs.ecore#//BaseRequestType/providedVersion"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs.ecore#//BaseRequestType/extendedProperties"/>
     </genClasses>
     <genClasses ecoreClass="wfs.ecore#//DeleteElementType">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs.ecore#//DeleteElementType/filter"/>

@@ -13,7 +13,7 @@ package net.opengis.wcs10;
  * <!-- end-user-doc -->
  *
  * <!-- begin-model-doc -->
- * Definition of a subset of a coverage spatial domain. Currently, only a grid subset of a coverage domain. 
+ * Definition of a subset of a coverage spatial domain. Currently, only a grid subset of a coverage domain.
  * <!-- end-model-doc -->
  *
  *

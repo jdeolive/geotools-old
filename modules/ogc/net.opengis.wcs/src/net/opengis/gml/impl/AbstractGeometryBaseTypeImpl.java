@@ -7,7 +7,8 @@
 package net.opengis.gml.impl;
 
 import net.opengis.gml.AbstractGeometryBaseType;
-import net.opengis.gml.Gml4wcsPackage;
+import net.opengis.gml.GmlPackage;
+
 
 import org.eclipse.emf.ecore.EClass;
 
@@ -22,21 +23,21 @@ import org.eclipse.emf.ecore.EClass;
  */
 public abstract class AbstractGeometryBaseTypeImpl extends AbstractGMLTypeImpl implements AbstractGeometryBaseType {
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     protected AbstractGeometryBaseTypeImpl() {
-        super();
-    }
+		super();
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     protected EClass eStaticClass() {
-        return Gml4wcsPackage.Literals.ABSTRACT_GEOMETRY_BASE_TYPE;
-    }
+		return GmlPackage.Literals.ABSTRACT_GEOMETRY_BASE_TYPE;
+	}
 
 } //AbstractGeometryBaseTypeImpl

@@ -24,21 +24,21 @@ import org.eclipse.emf.ecore.EClass;
  */
 public class LonLatEnvelopeBaseTypeImpl extends EnvelopeTypeImpl implements LonLatEnvelopeBaseType {
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     protected LonLatEnvelopeBaseTypeImpl() {
-        super();
-    }
+		super();
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     protected EClass eStaticClass() {
-        return Wcs10Package.Literals.LON_LAT_ENVELOPE_BASE_TYPE;
-    }
+		return Wcs10Package.Literals.LON_LAT_ENVELOPE_BASE_TYPE;
+	}
 
 } //LonLatEnvelopeBaseTypeImpl

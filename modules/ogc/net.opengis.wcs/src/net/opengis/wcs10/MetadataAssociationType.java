@@ -14,7 +14,7 @@ import net.opengis.gml.MetaDataPropertyType;
  * <!-- end-user-doc -->
  *
  * <!-- begin-model-doc -->
- * Refers to a metadata package that contains metadata properties for an object. 
+ * Refers to a metadata package that contains metadata properties for an object.
  * <!-- end-model-doc -->
  *
  *

@@ -9,7 +9,8 @@ package net.opengis.gml.impl;
 import java.util.Collection;
 
 import net.opengis.gml.EnvelopeWithTimePeriodType;
-import net.opengis.gml.Gml4wcsPackage;
+import net.opengis.gml.GmlPackage;
+
 import net.opengis.gml.TimePositionType;
 
 import org.eclipse.emf.common.notify.Notification;
@@ -41,211 +42,211 @@ import org.eclipse.emf.ecore.util.InternalEList;
  */
 public class EnvelopeWithTimePeriodTypeImpl extends EnvelopeTypeImpl implements EnvelopeWithTimePeriodType {
     /**
-     * The cached value of the '{@link #getTimePosition() <em>Time Position</em>}' containment reference list.
-     * <!-- begin-user-doc -->
+	 * The cached value of the '{@link #getTimePosition() <em>Time Position</em>}' containment reference list.
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @see #getTimePosition()
-     * @generated
-     * @ordered
-     */
+	 * @see #getTimePosition()
+	 * @generated
+	 * @ordered
+	 */
     protected EList timePosition;
 
     /**
-     * The default value of the '{@link #getFrame() <em>Frame</em>}' attribute.
-     * <!-- begin-user-doc -->
+	 * The default value of the '{@link #getFrame() <em>Frame</em>}' attribute.
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @see #getFrame()
-     * @generated
-     * @ordered
-     */
+	 * @see #getFrame()
+	 * @generated
+	 * @ordered
+	 */
     protected static final String FRAME_EDEFAULT = "#ISO-8601";
 
     /**
-     * The cached value of the '{@link #getFrame() <em>Frame</em>}' attribute.
-     * <!-- begin-user-doc -->
+	 * The cached value of the '{@link #getFrame() <em>Frame</em>}' attribute.
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @see #getFrame()
-     * @generated
-     * @ordered
-     */
+	 * @see #getFrame()
+	 * @generated
+	 * @ordered
+	 */
     protected String frame = FRAME_EDEFAULT;
 
     /**
-     * This is true if the Frame attribute has been set.
-     * <!-- begin-user-doc -->
+	 * This is true if the Frame attribute has been set.
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     * @ordered
-     */
+	 * @generated
+	 * @ordered
+	 */
     protected boolean frameESet;
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     protected EnvelopeWithTimePeriodTypeImpl() {
-        super();
-    }
+		super();
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     protected EClass eStaticClass() {
-        return Gml4wcsPackage.Literals.ENVELOPE_WITH_TIME_PERIOD_TYPE;
-    }
+		return GmlPackage.Literals.ENVELOPE_WITH_TIME_PERIOD_TYPE;
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public EList getTimePosition() {
-        if (timePosition == null) {
-            timePosition = new EObjectContainmentEList(TimePositionType.class, this, Gml4wcsPackage.ENVELOPE_WITH_TIME_PERIOD_TYPE__TIME_POSITION);
-        }
-        return timePosition;
-    }
+		if (timePosition == null) {
+			timePosition = new EObjectContainmentEList(TimePositionType.class, this, GmlPackage.ENVELOPE_WITH_TIME_PERIOD_TYPE__TIME_POSITION);
+		}
+		return timePosition;
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public String getFrame() {
-        return frame;
-    }
+		return frame;
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public void setFrame(String newFrame) {
-        String oldFrame = frame;
-        frame = newFrame;
-        boolean oldFrameESet = frameESet;
-        frameESet = true;
-        if (eNotificationRequired())
-            eNotify(new ENotificationImpl(this, Notification.SET, Gml4wcsPackage.ENVELOPE_WITH_TIME_PERIOD_TYPE__FRAME, oldFrame, frame, !oldFrameESet));
-    }
+		String oldFrame = frame;
+		frame = newFrame;
+		boolean oldFrameESet = frameESet;
+		frameESet = true;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, GmlPackage.ENVELOPE_WITH_TIME_PERIOD_TYPE__FRAME, oldFrame, frame, !oldFrameESet));
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public void unsetFrame() {
-        String oldFrame = frame;
-        boolean oldFrameESet = frameESet;
-        frame = FRAME_EDEFAULT;
-        frameESet = false;
-        if (eNotificationRequired())
-            eNotify(new ENotificationImpl(this, Notification.UNSET, Gml4wcsPackage.ENVELOPE_WITH_TIME_PERIOD_TYPE__FRAME, oldFrame, FRAME_EDEFAULT, oldFrameESet));
-    }
+		String oldFrame = frame;
+		boolean oldFrameESet = frameESet;
+		frame = FRAME_EDEFAULT;
+		frameESet = false;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.UNSET, GmlPackage.ENVELOPE_WITH_TIME_PERIOD_TYPE__FRAME, oldFrame, FRAME_EDEFAULT, oldFrameESet));
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public boolean isSetFrame() {
-        return frameESet;
-    }
+		return frameESet;
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
-        switch (featureID) {
-            case Gml4wcsPackage.ENVELOPE_WITH_TIME_PERIOD_TYPE__TIME_POSITION:
-                return ((InternalEList)getTimePosition()).basicRemove(otherEnd, msgs);
-        }
-        return super.eInverseRemove(otherEnd, featureID, msgs);
-    }
+		switch (featureID) {
+			case GmlPackage.ENVELOPE_WITH_TIME_PERIOD_TYPE__TIME_POSITION:
+				return ((InternalEList)getTimePosition()).basicRemove(otherEnd, msgs);
+		}
+		return super.eInverseRemove(otherEnd, featureID, msgs);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public Object eGet(int featureID, boolean resolve, boolean coreType) {
-        switch (featureID) {
-            case Gml4wcsPackage.ENVELOPE_WITH_TIME_PERIOD_TYPE__TIME_POSITION:
-                return getTimePosition();
-            case Gml4wcsPackage.ENVELOPE_WITH_TIME_PERIOD_TYPE__FRAME:
-                return getFrame();
-        }
-        return super.eGet(featureID, resolve, coreType);
-    }
+		switch (featureID) {
+			case GmlPackage.ENVELOPE_WITH_TIME_PERIOD_TYPE__TIME_POSITION:
+				return getTimePosition();
+			case GmlPackage.ENVELOPE_WITH_TIME_PERIOD_TYPE__FRAME:
+				return getFrame();
+		}
+		return super.eGet(featureID, resolve, coreType);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public void eSet(int featureID, Object newValue) {
-        switch (featureID) {
-            case Gml4wcsPackage.ENVELOPE_WITH_TIME_PERIOD_TYPE__TIME_POSITION:
-                getTimePosition().clear();
-                getTimePosition().addAll((Collection)newValue);
-                return;
-            case Gml4wcsPackage.ENVELOPE_WITH_TIME_PERIOD_TYPE__FRAME:
-                setFrame((String)newValue);
-                return;
-        }
-        super.eSet(featureID, newValue);
-    }
+		switch (featureID) {
+			case GmlPackage.ENVELOPE_WITH_TIME_PERIOD_TYPE__TIME_POSITION:
+				getTimePosition().clear();
+				getTimePosition().addAll((Collection)newValue);
+				return;
+			case GmlPackage.ENVELOPE_WITH_TIME_PERIOD_TYPE__FRAME:
+				setFrame((String)newValue);
+				return;
+		}
+		super.eSet(featureID, newValue);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public void eUnset(int featureID) {
-        switch (featureID) {
-            case Gml4wcsPackage.ENVELOPE_WITH_TIME_PERIOD_TYPE__TIME_POSITION:
-                getTimePosition().clear();
-                return;
-            case Gml4wcsPackage.ENVELOPE_WITH_TIME_PERIOD_TYPE__FRAME:
-                unsetFrame();
-                return;
-        }
-        super.eUnset(featureID);
-    }
+		switch (featureID) {
+			case GmlPackage.ENVELOPE_WITH_TIME_PERIOD_TYPE__TIME_POSITION:
+				getTimePosition().clear();
+				return;
+			case GmlPackage.ENVELOPE_WITH_TIME_PERIOD_TYPE__FRAME:
+				unsetFrame();
+				return;
+		}
+		super.eUnset(featureID);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public boolean eIsSet(int featureID) {
-        switch (featureID) {
-            case Gml4wcsPackage.ENVELOPE_WITH_TIME_PERIOD_TYPE__TIME_POSITION:
-                return timePosition != null && !timePosition.isEmpty();
-            case Gml4wcsPackage.ENVELOPE_WITH_TIME_PERIOD_TYPE__FRAME:
-                return isSetFrame();
-        }
-        return super.eIsSet(featureID);
-    }
+		switch (featureID) {
+			case GmlPackage.ENVELOPE_WITH_TIME_PERIOD_TYPE__TIME_POSITION:
+				return timePosition != null && !timePosition.isEmpty();
+			case GmlPackage.ENVELOPE_WITH_TIME_PERIOD_TYPE__FRAME:
+				return isSetFrame();
+		}
+		return super.eIsSet(featureID);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public String toString() {
-        if (eIsProxy()) return super.toString();
+		if (eIsProxy()) return super.toString();
 
-        StringBuffer result = new StringBuffer(super.toString());
-        result.append(" (frame: ");
-        if (frameESet) result.append(frame); else result.append("<unset>");
-        result.append(')');
-        return result.toString();
-    }
+		StringBuffer result = new StringBuffer(super.toString());
+		result.append(" (frame: ");
+		if (frameESet) result.append(frame); else result.append("<unset>");
+		result.append(')');
+		return result.toString();
+	}
 
 } //EnvelopeWithTimePeriodTypeImpl

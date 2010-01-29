@@ -27,63 +27,63 @@ import org.eclipse.emf.ecore.EObject;
  * </ul>
  * </p>
  *
- * @see net.opengis.gml.Gml4wcsPackage#getGridEnvelopeType()
+ * @see net.opengis.gml.GmlPackage#getGridEnvelopeType()
  * @model extendedMetaData="name='GridEnvelopeType' kind='elementOnly'"
  * @generated
  */
 public interface GridEnvelopeType extends EObject {
     /**
-     * Returns the value of the '<em><b>Low</b></em>' attribute.
-     * <!-- begin-user-doc -->
+	 * Returns the value of the '<em><b>Low</b></em>' attribute.
+	 * <!-- begin-user-doc -->
      * <p>
      * If the meaning of the '<em>Low</em>' attribute isn't clear,
      * there really should be more of a description here...
      * </p>
      * <!-- end-user-doc -->
-     * @return the value of the '<em>Low</em>' attribute.
-     * @see #setLow(List)
-     * @see net.opengis.gml.Gml4wcsPackage#getGridEnvelopeType_Low()
-     * @model dataType="net.opengis.gml.IntegerList" required="true" many="false"
-     *        extendedMetaData="kind='element' name='low' namespace='##targetNamespace'"
-     * @generated
-     */
+	 * @return the value of the '<em>Low</em>' attribute.
+	 * @see #setLow(List)
+	 * @see net.opengis.gml.GmlPackage#getGridEnvelopeType_Low()
+	 * @model dataType="net.opengis.gml.IntegerList" required="true" many="false"
+	 *        extendedMetaData="kind='element' name='low' namespace='##targetNamespace'"
+	 * @generated
+	 */
     List getLow();
 
     /**
-     * Sets the value of the '{@link net.opengis.gml.GridEnvelopeType#getLow <em>Low</em>}' attribute.
-     * <!-- begin-user-doc -->
+	 * Sets the value of the '{@link net.opengis.gml.GridEnvelopeType#getLow <em>Low</em>}' attribute.
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @param value the new value of the '<em>Low</em>' attribute.
-     * @see #getLow()
-     * @generated
-     */
+	 * @param value the new value of the '<em>Low</em>' attribute.
+	 * @see #getLow()
+	 * @generated
+	 */
     void setLow(List value);
 
     /**
-     * Returns the value of the '<em><b>High</b></em>' attribute.
-     * <!-- begin-user-doc -->
+	 * Returns the value of the '<em><b>High</b></em>' attribute.
+	 * <!-- begin-user-doc -->
      * <p>
      * If the meaning of the '<em>High</em>' attribute isn't clear,
      * there really should be more of a description here...
      * </p>
      * <!-- end-user-doc -->
-     * @return the value of the '<em>High</em>' attribute.
-     * @see #setHigh(List)
-     * @see net.opengis.gml.Gml4wcsPackage#getGridEnvelopeType_High()
-     * @model dataType="net.opengis.gml.IntegerList" required="true" many="false"
-     *        extendedMetaData="kind='element' name='high' namespace='##targetNamespace'"
-     * @generated
-     */
+	 * @return the value of the '<em>High</em>' attribute.
+	 * @see #setHigh(List)
+	 * @see net.opengis.gml.GmlPackage#getGridEnvelopeType_High()
+	 * @model dataType="net.opengis.gml.IntegerList" required="true" many="false"
+	 *        extendedMetaData="kind='element' name='high' namespace='##targetNamespace'"
+	 * @generated
+	 */
     List getHigh();
 
     /**
-     * Sets the value of the '{@link net.opengis.gml.GridEnvelopeType#getHigh <em>High</em>}' attribute.
-     * <!-- begin-user-doc -->
+	 * Sets the value of the '{@link net.opengis.gml.GridEnvelopeType#getHigh <em>High</em>}' attribute.
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @param value the new value of the '<em>High</em>' attribute.
-     * @see #getHigh()
-     * @generated
-     */
+	 * @param value the new value of the '<em>High</em>' attribute.
+	 * @see #getHigh()
+	 * @generated
+	 */
     void setHigh(List value);
 
 } // GridEnvelopeType

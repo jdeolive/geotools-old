@@ -31,165 +31,165 @@ import org.eclipse.emf.ecore.impl.ENotificationImpl;
  */
 public class MetadataLinkTypeImpl extends MetadataAssociationTypeImpl implements MetadataLinkType {
     /**
-     * The default value of the '{@link #getMetadataType() <em>Metadata Type</em>}' attribute.
-     * <!-- begin-user-doc -->
+	 * The default value of the '{@link #getMetadataType() <em>Metadata Type</em>}' attribute.
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @see #getMetadataType()
-     * @generated
-     * @ordered
-     */
+	 * @see #getMetadataType()
+	 * @generated
+	 * @ordered
+	 */
     protected static final MetadataTypeType METADATA_TYPE_EDEFAULT = MetadataTypeType.TC211_LITERAL;
 
     /**
-     * The cached value of the '{@link #getMetadataType() <em>Metadata Type</em>}' attribute.
-     * <!-- begin-user-doc -->
+	 * The cached value of the '{@link #getMetadataType() <em>Metadata Type</em>}' attribute.
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @see #getMetadataType()
-     * @generated
-     * @ordered
-     */
+	 * @see #getMetadataType()
+	 * @generated
+	 * @ordered
+	 */
     protected MetadataTypeType metadataType = METADATA_TYPE_EDEFAULT;
 
     /**
-     * This is true if the Metadata Type attribute has been set.
-     * <!-- begin-user-doc -->
+	 * This is true if the Metadata Type attribute has been set.
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     * @ordered
-     */
+	 * @generated
+	 * @ordered
+	 */
     protected boolean metadataTypeESet;
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     protected MetadataLinkTypeImpl() {
-        super();
-    }
+		super();
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     protected EClass eStaticClass() {
-        return Wcs10Package.Literals.METADATA_LINK_TYPE;
-    }
+		return Wcs10Package.Literals.METADATA_LINK_TYPE;
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public MetadataTypeType getMetadataType() {
-        return metadataType;
-    }
+		return metadataType;
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public void setMetadataType(MetadataTypeType newMetadataType) {
-        MetadataTypeType oldMetadataType = metadataType;
-        metadataType = newMetadataType == null ? METADATA_TYPE_EDEFAULT : newMetadataType;
-        boolean oldMetadataTypeESet = metadataTypeESet;
-        metadataTypeESet = true;
-        if (eNotificationRequired())
-            eNotify(new ENotificationImpl(this, Notification.SET, Wcs10Package.METADATA_LINK_TYPE__METADATA_TYPE, oldMetadataType, metadataType, !oldMetadataTypeESet));
-    }
+		MetadataTypeType oldMetadataType = metadataType;
+		metadataType = newMetadataType == null ? METADATA_TYPE_EDEFAULT : newMetadataType;
+		boolean oldMetadataTypeESet = metadataTypeESet;
+		metadataTypeESet = true;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, Wcs10Package.METADATA_LINK_TYPE__METADATA_TYPE, oldMetadataType, metadataType, !oldMetadataTypeESet));
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public void unsetMetadataType() {
-        MetadataTypeType oldMetadataType = metadataType;
-        boolean oldMetadataTypeESet = metadataTypeESet;
-        metadataType = METADATA_TYPE_EDEFAULT;
-        metadataTypeESet = false;
-        if (eNotificationRequired())
-            eNotify(new ENotificationImpl(this, Notification.UNSET, Wcs10Package.METADATA_LINK_TYPE__METADATA_TYPE, oldMetadataType, METADATA_TYPE_EDEFAULT, oldMetadataTypeESet));
-    }
+		MetadataTypeType oldMetadataType = metadataType;
+		boolean oldMetadataTypeESet = metadataTypeESet;
+		metadataType = METADATA_TYPE_EDEFAULT;
+		metadataTypeESet = false;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.UNSET, Wcs10Package.METADATA_LINK_TYPE__METADATA_TYPE, oldMetadataType, METADATA_TYPE_EDEFAULT, oldMetadataTypeESet));
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public boolean isSetMetadataType() {
-        return metadataTypeESet;
-    }
+		return metadataTypeESet;
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public Object eGet(int featureID, boolean resolve, boolean coreType) {
-        switch (featureID) {
-            case Wcs10Package.METADATA_LINK_TYPE__METADATA_TYPE:
-                return getMetadataType();
-        }
-        return super.eGet(featureID, resolve, coreType);
-    }
+		switch (featureID) {
+			case Wcs10Package.METADATA_LINK_TYPE__METADATA_TYPE:
+				return getMetadataType();
+		}
+		return super.eGet(featureID, resolve, coreType);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public void eSet(int featureID, Object newValue) {
-        switch (featureID) {
-            case Wcs10Package.METADATA_LINK_TYPE__METADATA_TYPE:
-                setMetadataType((MetadataTypeType)newValue);
-                return;
-        }
-        super.eSet(featureID, newValue);
-    }
+		switch (featureID) {
+			case Wcs10Package.METADATA_LINK_TYPE__METADATA_TYPE:
+				setMetadataType((MetadataTypeType)newValue);
+				return;
+		}
+		super.eSet(featureID, newValue);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public void eUnset(int featureID) {
-        switch (featureID) {
-            case Wcs10Package.METADATA_LINK_TYPE__METADATA_TYPE:
-                unsetMetadataType();
-                return;
-        }
-        super.eUnset(featureID);
-    }
+		switch (featureID) {
+			case Wcs10Package.METADATA_LINK_TYPE__METADATA_TYPE:
+				unsetMetadataType();
+				return;
+		}
+		super.eUnset(featureID);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public boolean eIsSet(int featureID) {
-        switch (featureID) {
-            case Wcs10Package.METADATA_LINK_TYPE__METADATA_TYPE:
-                return isSetMetadataType();
-        }
-        return super.eIsSet(featureID);
-    }
+		switch (featureID) {
+			case Wcs10Package.METADATA_LINK_TYPE__METADATA_TYPE:
+				return isSetMetadataType();
+		}
+		return super.eIsSet(featureID);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public String toString() {
-        if (eIsProxy()) return super.toString();
+		if (eIsProxy()) return super.toString();
 
-        StringBuffer result = new StringBuffer(super.toString());
-        result.append(" (metadataType: ");
-        if (metadataTypeESet) result.append(metadataType); else result.append("<unset>");
-        result.append(')');
-        return result.toString();
-    }
+		StringBuffer result = new StringBuffer(super.toString());
+		result.append(" (metadataType: ");
+		if (metadataTypeESet) result.append(metadataType); else result.append("<unset>");
+		result.append(')');
+		return result.toString();
+	}
 
 } //MetadataLinkTypeImpl

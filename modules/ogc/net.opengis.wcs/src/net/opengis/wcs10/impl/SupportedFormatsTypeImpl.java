@@ -43,177 +43,177 @@ import org.eclipse.emf.ecore.util.InternalEList;
  */
 public class SupportedFormatsTypeImpl extends EObjectImpl implements SupportedFormatsType {
     /**
-     * The cached value of the '{@link #getFormats() <em>Formats</em>}' containment reference list.
-     * <!-- begin-user-doc -->
+	 * The cached value of the '{@link #getFormats() <em>Formats</em>}' containment reference list.
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @see #getFormats()
-     * @generated
-     * @ordered
-     */
+	 * @see #getFormats()
+	 * @generated
+	 * @ordered
+	 */
     protected EList formats;
 
     /**
-     * The default value of the '{@link #getNativeFormat() <em>Native Format</em>}' attribute.
-     * <!-- begin-user-doc -->
+	 * The default value of the '{@link #getNativeFormat() <em>Native Format</em>}' attribute.
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @see #getNativeFormat()
-     * @generated
-     * @ordered
-     */
+	 * @see #getNativeFormat()
+	 * @generated
+	 * @ordered
+	 */
     protected static final String NATIVE_FORMAT_EDEFAULT = null;
 
     /**
-     * The cached value of the '{@link #getNativeFormat() <em>Native Format</em>}' attribute.
-     * <!-- begin-user-doc -->
+	 * The cached value of the '{@link #getNativeFormat() <em>Native Format</em>}' attribute.
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @see #getNativeFormat()
-     * @generated
-     * @ordered
-     */
+	 * @see #getNativeFormat()
+	 * @generated
+	 * @ordered
+	 */
     protected String nativeFormat = NATIVE_FORMAT_EDEFAULT;
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     protected SupportedFormatsTypeImpl() {
-        super();
-    }
+		super();
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     protected EClass eStaticClass() {
-        return Wcs10Package.Literals.SUPPORTED_FORMATS_TYPE;
-    }
+		return Wcs10Package.Literals.SUPPORTED_FORMATS_TYPE;
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public EList getFormats() {
-        if (formats == null) {
-            formats = new EObjectContainmentEList(CodeListType.class, this, Wcs10Package.SUPPORTED_FORMATS_TYPE__FORMATS);
-        }
-        return formats;
-    }
+		if (formats == null) {
+			formats = new EObjectContainmentEList(CodeListType.class, this, Wcs10Package.SUPPORTED_FORMATS_TYPE__FORMATS);
+		}
+		return formats;
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public String getNativeFormat() {
-        return nativeFormat;
-    }
+		return nativeFormat;
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public void setNativeFormat(String newNativeFormat) {
-        String oldNativeFormat = nativeFormat;
-        nativeFormat = newNativeFormat;
-        if (eNotificationRequired())
-            eNotify(new ENotificationImpl(this, Notification.SET, Wcs10Package.SUPPORTED_FORMATS_TYPE__NATIVE_FORMAT, oldNativeFormat, nativeFormat));
-    }
+		String oldNativeFormat = nativeFormat;
+		nativeFormat = newNativeFormat;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, Wcs10Package.SUPPORTED_FORMATS_TYPE__NATIVE_FORMAT, oldNativeFormat, nativeFormat));
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
-        switch (featureID) {
-            case Wcs10Package.SUPPORTED_FORMATS_TYPE__FORMATS:
-                return ((InternalEList)getFormats()).basicRemove(otherEnd, msgs);
-        }
-        return super.eInverseRemove(otherEnd, featureID, msgs);
-    }
+		switch (featureID) {
+			case Wcs10Package.SUPPORTED_FORMATS_TYPE__FORMATS:
+				return ((InternalEList)getFormats()).basicRemove(otherEnd, msgs);
+		}
+		return super.eInverseRemove(otherEnd, featureID, msgs);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public Object eGet(int featureID, boolean resolve, boolean coreType) {
-        switch (featureID) {
-            case Wcs10Package.SUPPORTED_FORMATS_TYPE__FORMATS:
-                return getFormats();
-            case Wcs10Package.SUPPORTED_FORMATS_TYPE__NATIVE_FORMAT:
-                return getNativeFormat();
-        }
-        return super.eGet(featureID, resolve, coreType);
-    }
+		switch (featureID) {
+			case Wcs10Package.SUPPORTED_FORMATS_TYPE__FORMATS:
+				return getFormats();
+			case Wcs10Package.SUPPORTED_FORMATS_TYPE__NATIVE_FORMAT:
+				return getNativeFormat();
+		}
+		return super.eGet(featureID, resolve, coreType);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public void eSet(int featureID, Object newValue) {
-        switch (featureID) {
-            case Wcs10Package.SUPPORTED_FORMATS_TYPE__FORMATS:
-                getFormats().clear();
-                getFormats().addAll((Collection)newValue);
-                return;
-            case Wcs10Package.SUPPORTED_FORMATS_TYPE__NATIVE_FORMAT:
-                setNativeFormat((String)newValue);
-                return;
-        }
-        super.eSet(featureID, newValue);
-    }
+		switch (featureID) {
+			case Wcs10Package.SUPPORTED_FORMATS_TYPE__FORMATS:
+				getFormats().clear();
+				getFormats().addAll((Collection)newValue);
+				return;
+			case Wcs10Package.SUPPORTED_FORMATS_TYPE__NATIVE_FORMAT:
+				setNativeFormat((String)newValue);
+				return;
+		}
+		super.eSet(featureID, newValue);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public void eUnset(int featureID) {
-        switch (featureID) {
-            case Wcs10Package.SUPPORTED_FORMATS_TYPE__FORMATS:
-                getFormats().clear();
-                return;
-            case Wcs10Package.SUPPORTED_FORMATS_TYPE__NATIVE_FORMAT:
-                setNativeFormat(NATIVE_FORMAT_EDEFAULT);
-                return;
-        }
-        super.eUnset(featureID);
-    }
+		switch (featureID) {
+			case Wcs10Package.SUPPORTED_FORMATS_TYPE__FORMATS:
+				getFormats().clear();
+				return;
+			case Wcs10Package.SUPPORTED_FORMATS_TYPE__NATIVE_FORMAT:
+				setNativeFormat(NATIVE_FORMAT_EDEFAULT);
+				return;
+		}
+		super.eUnset(featureID);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public boolean eIsSet(int featureID) {
-        switch (featureID) {
-            case Wcs10Package.SUPPORTED_FORMATS_TYPE__FORMATS:
-                return formats != null && !formats.isEmpty();
-            case Wcs10Package.SUPPORTED_FORMATS_TYPE__NATIVE_FORMAT:
-                return NATIVE_FORMAT_EDEFAULT == null ? nativeFormat != null : !NATIVE_FORMAT_EDEFAULT.equals(nativeFormat);
-        }
-        return super.eIsSet(featureID);
-    }
+		switch (featureID) {
+			case Wcs10Package.SUPPORTED_FORMATS_TYPE__FORMATS:
+				return formats != null && !formats.isEmpty();
+			case Wcs10Package.SUPPORTED_FORMATS_TYPE__NATIVE_FORMAT:
+				return NATIVE_FORMAT_EDEFAULT == null ? nativeFormat != null : !NATIVE_FORMAT_EDEFAULT.equals(nativeFormat);
+		}
+		return super.eIsSet(featureID);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public String toString() {
-        if (eIsProxy()) return super.toString();
+		if (eIsProxy()) return super.toString();
 
-        StringBuffer result = new StringBuffer(super.toString());
-        result.append(" (nativeFormat: ");
-        result.append(nativeFormat);
-        result.append(')');
-        return result.toString();
-    }
+		StringBuffer result = new StringBuffer(super.toString());
+		result.append(" (nativeFormat: ");
+		result.append(nativeFormat);
+		result.append(')');
+		return result.toString();
+	}
 
 } //SupportedFormatsTypeImpl

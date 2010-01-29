@@ -28,20 +28,20 @@ import org.eclipse.emf.ecore.EObject;
  */
 public interface DescribeCoverageType1 extends EObject {
     /**
-     * Returns the value of the '<em><b>DCP Type</b></em>' containment reference list.
-     * The list contents are of type {@link net.opengis.wcs10.DCPTypeType}.
-     * <!-- begin-user-doc -->
+	 * Returns the value of the '<em><b>DCP Type</b></em>' containment reference list.
+	 * The list contents are of type {@link net.opengis.wcs10.DCPTypeType}.
+	 * <!-- begin-user-doc -->
      * <p>
      * If the meaning of the '<em>DCP Type</em>' containment reference list isn't clear,
      * there really should be more of a description here...
      * </p>
      * <!-- end-user-doc -->
-     * @return the value of the '<em>DCP Type</em>' containment reference list.
-     * @see net.opengis.wcs10.Wcs10Package#getDescribeCoverageType1_DCPType()
-     * @model type="net.opengis.wcs10.DCPTypeType" containment="true" required="true"
-     *        extendedMetaData="kind='element' name='DCPType' namespace='##targetNamespace'"
-     * @generated
-     */
+	 * @return the value of the '<em>DCP Type</em>' containment reference list.
+	 * @see net.opengis.wcs10.Wcs10Package#getDescribeCoverageType1_DCPType()
+	 * @model type="net.opengis.wcs10.DCPTypeType" containment="true" required="true"
+	 *        extendedMetaData="kind='element' name='DCPType' namespace='##targetNamespace'"
+	 * @generated
+	 */
     EList getDCPType();
 
 } // DescribeCoverageType1

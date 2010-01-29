@@ -34,141 +34,141 @@ import org.eclipse.emf.ecore.impl.EObjectImpl;
  */
 public class RangeSetType1Impl extends EObjectImpl implements RangeSetType1 {
     /**
-     * The cached value of the '{@link #getRangeSet() <em>Range Set</em>}' containment reference.
-     * <!-- begin-user-doc -->
+	 * The cached value of the '{@link #getRangeSet() <em>Range Set</em>}' containment reference.
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @see #getRangeSet()
-     * @generated
-     * @ordered
-     */
+	 * @see #getRangeSet()
+	 * @generated
+	 * @ordered
+	 */
     protected RangeSetType rangeSet;
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     protected RangeSetType1Impl() {
-        super();
-    }
+		super();
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     protected EClass eStaticClass() {
-        return Wcs10Package.Literals.RANGE_SET_TYPE1;
-    }
+		return Wcs10Package.Literals.RANGE_SET_TYPE1;
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public RangeSetType getRangeSet() {
-        return rangeSet;
-    }
+		return rangeSet;
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public NotificationChain basicSetRangeSet(RangeSetType newRangeSet, NotificationChain msgs) {
-        RangeSetType oldRangeSet = rangeSet;
-        rangeSet = newRangeSet;
-        if (eNotificationRequired()) {
-            ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, Wcs10Package.RANGE_SET_TYPE1__RANGE_SET, oldRangeSet, newRangeSet);
-            if (msgs == null) msgs = notification; else msgs.add(notification);
-        }
-        return msgs;
-    }
+		RangeSetType oldRangeSet = rangeSet;
+		rangeSet = newRangeSet;
+		if (eNotificationRequired()) {
+			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, Wcs10Package.RANGE_SET_TYPE1__RANGE_SET, oldRangeSet, newRangeSet);
+			if (msgs == null) msgs = notification; else msgs.add(notification);
+		}
+		return msgs;
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public void setRangeSet(RangeSetType newRangeSet) {
-        if (newRangeSet != rangeSet) {
-            NotificationChain msgs = null;
-            if (rangeSet != null)
-                msgs = ((InternalEObject)rangeSet).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - Wcs10Package.RANGE_SET_TYPE1__RANGE_SET, null, msgs);
-            if (newRangeSet != null)
-                msgs = ((InternalEObject)newRangeSet).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - Wcs10Package.RANGE_SET_TYPE1__RANGE_SET, null, msgs);
-            msgs = basicSetRangeSet(newRangeSet, msgs);
-            if (msgs != null) msgs.dispatch();
-        }
-        else if (eNotificationRequired())
-            eNotify(new ENotificationImpl(this, Notification.SET, Wcs10Package.RANGE_SET_TYPE1__RANGE_SET, newRangeSet, newRangeSet));
-    }
+		if (newRangeSet != rangeSet) {
+			NotificationChain msgs = null;
+			if (rangeSet != null)
+				msgs = ((InternalEObject)rangeSet).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - Wcs10Package.RANGE_SET_TYPE1__RANGE_SET, null, msgs);
+			if (newRangeSet != null)
+				msgs = ((InternalEObject)newRangeSet).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - Wcs10Package.RANGE_SET_TYPE1__RANGE_SET, null, msgs);
+			msgs = basicSetRangeSet(newRangeSet, msgs);
+			if (msgs != null) msgs.dispatch();
+		}
+		else if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, Wcs10Package.RANGE_SET_TYPE1__RANGE_SET, newRangeSet, newRangeSet));
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
-        switch (featureID) {
-            case Wcs10Package.RANGE_SET_TYPE1__RANGE_SET:
-                return basicSetRangeSet(null, msgs);
-        }
-        return super.eInverseRemove(otherEnd, featureID, msgs);
-    }
+		switch (featureID) {
+			case Wcs10Package.RANGE_SET_TYPE1__RANGE_SET:
+				return basicSetRangeSet(null, msgs);
+		}
+		return super.eInverseRemove(otherEnd, featureID, msgs);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public Object eGet(int featureID, boolean resolve, boolean coreType) {
-        switch (featureID) {
-            case Wcs10Package.RANGE_SET_TYPE1__RANGE_SET:
-                return getRangeSet();
-        }
-        return super.eGet(featureID, resolve, coreType);
-    }
+		switch (featureID) {
+			case Wcs10Package.RANGE_SET_TYPE1__RANGE_SET:
+				return getRangeSet();
+		}
+		return super.eGet(featureID, resolve, coreType);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public void eSet(int featureID, Object newValue) {
-        switch (featureID) {
-            case Wcs10Package.RANGE_SET_TYPE1__RANGE_SET:
-                setRangeSet((RangeSetType)newValue);
-                return;
-        }
-        super.eSet(featureID, newValue);
-    }
+		switch (featureID) {
+			case Wcs10Package.RANGE_SET_TYPE1__RANGE_SET:
+				setRangeSet((RangeSetType)newValue);
+				return;
+		}
+		super.eSet(featureID, newValue);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public void eUnset(int featureID) {
-        switch (featureID) {
-            case Wcs10Package.RANGE_SET_TYPE1__RANGE_SET:
-                setRangeSet((RangeSetType)null);
-                return;
-        }
-        super.eUnset(featureID);
-    }
+		switch (featureID) {
+			case Wcs10Package.RANGE_SET_TYPE1__RANGE_SET:
+				setRangeSet((RangeSetType)null);
+				return;
+		}
+		super.eUnset(featureID);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public boolean eIsSet(int featureID) {
-        switch (featureID) {
-            case Wcs10Package.RANGE_SET_TYPE1__RANGE_SET:
-                return rangeSet != null;
-        }
-        return super.eIsSet(featureID);
-    }
+		switch (featureID) {
+			case Wcs10Package.RANGE_SET_TYPE1__RANGE_SET:
+				return rangeSet != null;
+		}
+		return super.eIsSet(featureID);
+	}
 
 } //RangeSetType1Impl

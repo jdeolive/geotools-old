@@ -17,7 +17,7 @@ package net.opengis.gml;
  * <!-- end-model-doc -->
  *
  *
- * @see net.opengis.gml.Gml4wcsPackage#getVectorType()
+ * @see net.opengis.gml.GmlPackage#getVectorType()
  * @model extendedMetaData="name='VectorType' kind='simple'"
  * @generated
  */

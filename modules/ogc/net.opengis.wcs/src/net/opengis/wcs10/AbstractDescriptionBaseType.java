@@ -14,7 +14,7 @@ import net.opengis.gml.AbstractGMLType;
  * <!-- end-user-doc -->
  *
  * <!-- begin-model-doc -->
- * Description of a WCS object. 
+ * Description of a WCS object.
  * <!-- end-model-doc -->
  *
  *

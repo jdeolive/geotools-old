@@ -42,176 +42,176 @@ import org.eclipse.emf.ecore.util.InternalEList;
  */
 public class CoverageOfferingBriefTypeImpl extends AbstractDescriptionTypeImpl implements CoverageOfferingBriefType {
     /**
-     * The cached value of the '{@link #getLonLatEnvelope() <em>Lon Lat Envelope</em>}' containment reference.
-     * <!-- begin-user-doc -->
+	 * The cached value of the '{@link #getLonLatEnvelope() <em>Lon Lat Envelope</em>}' containment reference.
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @see #getLonLatEnvelope()
-     * @generated
-     * @ordered
-     */
+	 * @see #getLonLatEnvelope()
+	 * @generated
+	 * @ordered
+	 */
     protected LonLatEnvelopeType lonLatEnvelope;
 
     /**
-     * The cached value of the '{@link #getKeywords() <em>Keywords</em>}' containment reference list.
-     * <!-- begin-user-doc -->
+	 * The cached value of the '{@link #getKeywords() <em>Keywords</em>}' containment reference list.
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @see #getKeywords()
-     * @generated
-     * @ordered
-     */
+	 * @see #getKeywords()
+	 * @generated
+	 * @ordered
+	 */
     protected EList keywords;
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     protected CoverageOfferingBriefTypeImpl() {
-        super();
-    }
+		super();
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     protected EClass eStaticClass() {
-        return Wcs10Package.Literals.COVERAGE_OFFERING_BRIEF_TYPE;
-    }
+		return Wcs10Package.Literals.COVERAGE_OFFERING_BRIEF_TYPE;
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public LonLatEnvelopeType getLonLatEnvelope() {
-        return lonLatEnvelope;
-    }
+		return lonLatEnvelope;
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public NotificationChain basicSetLonLatEnvelope(LonLatEnvelopeType newLonLatEnvelope, NotificationChain msgs) {
-        LonLatEnvelopeType oldLonLatEnvelope = lonLatEnvelope;
-        lonLatEnvelope = newLonLatEnvelope;
-        if (eNotificationRequired()) {
-            ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, Wcs10Package.COVERAGE_OFFERING_BRIEF_TYPE__LON_LAT_ENVELOPE, oldLonLatEnvelope, newLonLatEnvelope);
-            if (msgs == null) msgs = notification; else msgs.add(notification);
-        }
-        return msgs;
-    }
+		LonLatEnvelopeType oldLonLatEnvelope = lonLatEnvelope;
+		lonLatEnvelope = newLonLatEnvelope;
+		if (eNotificationRequired()) {
+			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, Wcs10Package.COVERAGE_OFFERING_BRIEF_TYPE__LON_LAT_ENVELOPE, oldLonLatEnvelope, newLonLatEnvelope);
+			if (msgs == null) msgs = notification; else msgs.add(notification);
+		}
+		return msgs;
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public void setLonLatEnvelope(LonLatEnvelopeType newLonLatEnvelope) {
-        if (newLonLatEnvelope != lonLatEnvelope) {
-            NotificationChain msgs = null;
-            if (lonLatEnvelope != null)
-                msgs = ((InternalEObject)lonLatEnvelope).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - Wcs10Package.COVERAGE_OFFERING_BRIEF_TYPE__LON_LAT_ENVELOPE, null, msgs);
-            if (newLonLatEnvelope != null)
-                msgs = ((InternalEObject)newLonLatEnvelope).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - Wcs10Package.COVERAGE_OFFERING_BRIEF_TYPE__LON_LAT_ENVELOPE, null, msgs);
-            msgs = basicSetLonLatEnvelope(newLonLatEnvelope, msgs);
-            if (msgs != null) msgs.dispatch();
-        }
-        else if (eNotificationRequired())
-            eNotify(new ENotificationImpl(this, Notification.SET, Wcs10Package.COVERAGE_OFFERING_BRIEF_TYPE__LON_LAT_ENVELOPE, newLonLatEnvelope, newLonLatEnvelope));
-    }
+		if (newLonLatEnvelope != lonLatEnvelope) {
+			NotificationChain msgs = null;
+			if (lonLatEnvelope != null)
+				msgs = ((InternalEObject)lonLatEnvelope).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - Wcs10Package.COVERAGE_OFFERING_BRIEF_TYPE__LON_LAT_ENVELOPE, null, msgs);
+			if (newLonLatEnvelope != null)
+				msgs = ((InternalEObject)newLonLatEnvelope).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - Wcs10Package.COVERAGE_OFFERING_BRIEF_TYPE__LON_LAT_ENVELOPE, null, msgs);
+			msgs = basicSetLonLatEnvelope(newLonLatEnvelope, msgs);
+			if (msgs != null) msgs.dispatch();
+		}
+		else if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, Wcs10Package.COVERAGE_OFFERING_BRIEF_TYPE__LON_LAT_ENVELOPE, newLonLatEnvelope, newLonLatEnvelope));
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public EList getKeywords() {
-        if (keywords == null) {
-            keywords = new EObjectContainmentEList(KeywordsType.class, this, Wcs10Package.COVERAGE_OFFERING_BRIEF_TYPE__KEYWORDS);
-        }
-        return keywords;
-    }
+		if (keywords == null) {
+			keywords = new EObjectContainmentEList(KeywordsType.class, this, Wcs10Package.COVERAGE_OFFERING_BRIEF_TYPE__KEYWORDS);
+		}
+		return keywords;
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
-        switch (featureID) {
-            case Wcs10Package.COVERAGE_OFFERING_BRIEF_TYPE__LON_LAT_ENVELOPE:
-                return basicSetLonLatEnvelope(null, msgs);
-            case Wcs10Package.COVERAGE_OFFERING_BRIEF_TYPE__KEYWORDS:
-                return ((InternalEList)getKeywords()).basicRemove(otherEnd, msgs);
-        }
-        return super.eInverseRemove(otherEnd, featureID, msgs);
-    }
+		switch (featureID) {
+			case Wcs10Package.COVERAGE_OFFERING_BRIEF_TYPE__LON_LAT_ENVELOPE:
+				return basicSetLonLatEnvelope(null, msgs);
+			case Wcs10Package.COVERAGE_OFFERING_BRIEF_TYPE__KEYWORDS:
+				return ((InternalEList)getKeywords()).basicRemove(otherEnd, msgs);
+		}
+		return super.eInverseRemove(otherEnd, featureID, msgs);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public Object eGet(int featureID, boolean resolve, boolean coreType) {
-        switch (featureID) {
-            case Wcs10Package.COVERAGE_OFFERING_BRIEF_TYPE__LON_LAT_ENVELOPE:
-                return getLonLatEnvelope();
-            case Wcs10Package.COVERAGE_OFFERING_BRIEF_TYPE__KEYWORDS:
-                return getKeywords();
-        }
-        return super.eGet(featureID, resolve, coreType);
-    }
+		switch (featureID) {
+			case Wcs10Package.COVERAGE_OFFERING_BRIEF_TYPE__LON_LAT_ENVELOPE:
+				return getLonLatEnvelope();
+			case Wcs10Package.COVERAGE_OFFERING_BRIEF_TYPE__KEYWORDS:
+				return getKeywords();
+		}
+		return super.eGet(featureID, resolve, coreType);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public void eSet(int featureID, Object newValue) {
-        switch (featureID) {
-            case Wcs10Package.COVERAGE_OFFERING_BRIEF_TYPE__LON_LAT_ENVELOPE:
-                setLonLatEnvelope((LonLatEnvelopeType)newValue);
-                return;
-            case Wcs10Package.COVERAGE_OFFERING_BRIEF_TYPE__KEYWORDS:
-                getKeywords().clear();
-                getKeywords().addAll((Collection)newValue);
-                return;
-        }
-        super.eSet(featureID, newValue);
-    }
+		switch (featureID) {
+			case Wcs10Package.COVERAGE_OFFERING_BRIEF_TYPE__LON_LAT_ENVELOPE:
+				setLonLatEnvelope((LonLatEnvelopeType)newValue);
+				return;
+			case Wcs10Package.COVERAGE_OFFERING_BRIEF_TYPE__KEYWORDS:
+				getKeywords().clear();
+				getKeywords().addAll((Collection)newValue);
+				return;
+		}
+		super.eSet(featureID, newValue);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public void eUnset(int featureID) {
-        switch (featureID) {
-            case Wcs10Package.COVERAGE_OFFERING_BRIEF_TYPE__LON_LAT_ENVELOPE:
-                setLonLatEnvelope((LonLatEnvelopeType)null);
-                return;
-            case Wcs10Package.COVERAGE_OFFERING_BRIEF_TYPE__KEYWORDS:
-                getKeywords().clear();
-                return;
-        }
-        super.eUnset(featureID);
-    }
+		switch (featureID) {
+			case Wcs10Package.COVERAGE_OFFERING_BRIEF_TYPE__LON_LAT_ENVELOPE:
+				setLonLatEnvelope((LonLatEnvelopeType)null);
+				return;
+			case Wcs10Package.COVERAGE_OFFERING_BRIEF_TYPE__KEYWORDS:
+				getKeywords().clear();
+				return;
+		}
+		super.eUnset(featureID);
+	}
 
     /**
-     * <!-- begin-user-doc -->
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
-     */
+	 * @generated
+	 */
     public boolean eIsSet(int featureID) {
-        switch (featureID) {
-            case Wcs10Package.COVERAGE_OFFERING_BRIEF_TYPE__LON_LAT_ENVELOPE:
-                return lonLatEnvelope != null;
-            case Wcs10Package.COVERAGE_OFFERING_BRIEF_TYPE__KEYWORDS:
-                return keywords != null && !keywords.isEmpty();
-        }
-        return super.eIsSet(featureID);
-    }
+		switch (featureID) {
+			case Wcs10Package.COVERAGE_OFFERING_BRIEF_TYPE__LON_LAT_ENVELOPE:
+				return lonLatEnvelope != null;
+			case Wcs10Package.COVERAGE_OFFERING_BRIEF_TYPE__KEYWORDS:
+				return keywords != null && !keywords.isEmpty();
+		}
+		return super.eIsSet(featureID);
+	}
 
 } //CoverageOfferingBriefTypeImpl
