@@ -2618,7 +2618,8 @@ public final class StreamingRenderer implements GTRenderer {
     					d.decimateTransformGeneralize(geom, sa.axform);
     					
     					// wrap into a lite shape
-    					geom.geometryChanged();
+    					if(geom != null)
+    					    geom.geometryChanged();
     					shape = new LiteShape2(geom, null, null, false, false);
                     } 
 				} else {
