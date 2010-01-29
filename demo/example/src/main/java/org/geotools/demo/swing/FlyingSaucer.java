@@ -42,7 +42,9 @@ import org.geotools.swing.JMapPane;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 /**
- * Animation of a sprite over a map.
+ * Simple example of an animated object (known as a 'sprite')
+ * moving over a map. The object is a flying saucer (actually
+ * the GeoTools logo) moving over a map of country boundaries.
  *
  * @author Michael Bedward
  */
@@ -50,21 +52,32 @@ public class FlyingSaucer extends JMapPane {
 
     private static final Random rand = new Random();
 
+    // Load the GeoTools logo image which will be our flying saucer
     private static final Image SPRITE_IMAGE;
     static {
         SPRITE_IMAGE = new ImageIcon(FlyingSaucer.class.getResource("/images/compass_100.png")).getImage();
     }
 
+    // Arbitrary distance to move at each step of the animation
+    // in world units.
     private double movementDistance = 3.0;
+
+    // X and Y direction of the flying saucer where a value of
+    // 1 indicates increasing ordinate and -1 is decreasing
     private int xdir = 1;
     private int ydir = 1;
 
+    // The rectangle (in world coordinates) that defines the flying
+    // saucer's current position
     private ReferencedEnvelope spriteEnv;
-    private Raster spriteBackground;
 
+    private Raster spriteBackground;
     private boolean firstDisplay = true;
 
 
+    // This animation will be driven by a timer which fires
+    // every 200 milliseconds. Each time it fires the drawSprite
+    // method is called to update the animation
     private Timer animationTimer = new Timer(200, new ActionListener() {
         public void actionPerformed(ActionEvent e) {
             drawSprite();
@@ -72,13 +85,17 @@ public class FlyingSaucer extends JMapPane {
     });
 
 
+    // We override the JMapPane paintComponent method so that when
+    // the map needs to be redrawn (e.g. after the frame has been
+    // resized) the animation is stopped until rendering is complete.
     @Override
     protected void paintComponent(Graphics g) {
         animationTimer.stop();
         super.paintComponent(g);
     }
 
-
+    // We override the JMapPane onRenderingCompleted method to
+    // restart the animation after the map has been drawn.
     @Override
     public void onRenderingCompleted() {
         super.onRenderingCompleted();
@@ -86,6 +103,9 @@ public class FlyingSaucer extends JMapPane {
         animationTimer.start();
     }
 
+    // This is the top-level animation method. It erases
+    // the sprite (if showing), updates its position and then
+    // draws it.
     private void drawSprite() {
         if (firstDisplay) {
             setSpritePosition();
@@ -98,6 +118,8 @@ public class FlyingSaucer extends JMapPane {
             paintSprite(gr2D);
     }
 
+    // Erase the sprite by replacing the background map section that
+    // was cached when the sprite was last drawn.
     private void eraseSprite(Graphics2D gr2D) {
         if (spriteBackground != null) {
             Rectangle rect = spriteBackground.getBounds();
@@ -117,6 +139,9 @@ public class FlyingSaucer extends JMapPane {
         }
     }
 
+    // Update the sprite's location. In this example we are simply
+    // moving at 45 degrees to the map edges and bouncing off when an
+    // edge is reached.
     private void moveSprite() {
         ReferencedEnvelope displayArea = getDisplayArea();
 
@@ -161,12 +186,16 @@ public class FlyingSaucer extends JMapPane {
         spriteEnv.translate(xdelta, ydelta);
     }
 
+    // Paint the sprite: before displaying the sprite image we
+    // cache that part of the background map image that will be
+    // covered by the sprite.
     private void paintSprite(Graphics2D gr2D) {
         Rectangle bounds = getSpriteScreenPos();
         spriteBackground = getBaseImage().getData(bounds);
         gr2D.drawImage(SPRITE_IMAGE, bounds.x, bounds.y, null);
     }
 
+    // Set the sprite's intial position
     private void setSpritePosition() {
         ReferencedEnvelope worldBounds = null;
         try {
@@ -191,6 +220,7 @@ public class FlyingSaucer extends JMapPane {
         spriteEnv = new ReferencedEnvelope(rworld, crs);
     }
 
+    // Get the position of the sprite as screen coordinates
     private Rectangle getSpriteScreenPos() {
         AffineTransform tr = getWorldToScreenTransform();
 
@@ -205,6 +235,7 @@ public class FlyingSaucer extends JMapPane {
         return r;
     }
 
+    // Main application method
     public static void main(String[] args) throws Exception {
         JFrame frame = new JFrame("Animation example");
         FlyingSaucer mapPane = new FlyingSaucer();
