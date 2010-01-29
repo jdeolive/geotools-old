@@ -321,12 +321,20 @@ public final class Decimator {
 		}
 		
 		// handle rings
-		if(ring && actualCoords <= 3 && coords.length > 5) {
-			coords[2] = coords[2];
-			coords[3] = coords[3];
-			coords[4] = coords[4];
-			coords[5] = coords[5];
-			actualCoords = 3;
+		if(ring && actualCoords <= 3) {
+		    if(coords.length > 6) {
+		        // normal rings
+    			coords[2] = coords[2];
+    			coords[3] = coords[3];
+    			coords[4] = coords[4];
+    			coords[5] = coords[5];
+    			actualCoords = 3;
+		    } else if(coords.length > 4){
+		        // invalid rings, they do A-B-A, that is, two overlapping lines
+		        coords[2] = coords[2];
+                coords[3] = coords[3];
+                actualCoords = 2;
+		    }
 		}
 		
 		// always have last one
