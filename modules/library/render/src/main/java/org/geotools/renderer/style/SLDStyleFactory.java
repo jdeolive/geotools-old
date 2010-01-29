@@ -1124,7 +1124,7 @@ public class SLDStyleFactory {
         BufferedImage result = new BufferedImage(icon.getIconWidth(), icon.getIconHeight(), 
                 BufferedImage.TYPE_4BYTE_ABGR);
         Graphics2D g = (Graphics2D) result.getGraphics();
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, true);
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         icon.paintIcon(null, g, 0, 0);
         g.dispose();
         return result;
