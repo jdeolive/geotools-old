@@ -92,10 +92,8 @@ public class AutoCRSFactory extends DirectAuthorityFactory implements CRSAuthori
         super(hints, NORMAL_PRIORITY);
         add(Auto42001.DEFAULT);
         add(Auto42002.DEFAULT);
-        // we don't support the elliptical case
-        // add(Auto42003.DEFAULT);
-        // we don't support the elliptical case
-        // add(Auto42004.DEFAULT);
+        add(Auto42003.DEFAULT);
+        add(Auto42004.DEFAULT);
         // We don't actually support the Mollweide projection
         // add(Auto42005.DEFAULT);
     }

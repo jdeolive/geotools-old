@@ -21,6 +21,7 @@ import static java.lang.Math.cos;
 
 import java.awt.geom.Point2D;
 import java.util.Collection;
+import java.util.logging.Level;
 
 import javax.measure.unit.NonSI;
 
@@ -212,24 +213,6 @@ public class EquidistantCylindrical extends MapProjection {
         private static final long serialVersionUID = -278288251842178001L;
 
         /**
-         * The operation parameter descriptor for the {@linkplain #standardParallel standard parallel}
-         * parameter value. Valid values range is from -90 to 90°. Default value is 0.
-         * <p>
-         * <b>Note:</b> EPSG includes a "<cite>Latitude of natural origin</cite>" parameter
-         * instead of {@code "standard_parallel_1"}. The EPSG name is declared as an alias.
-         */
-        public static final ParameterDescriptor STANDARD_PARALLEL = createDescriptor(
-                new NamedIdentifier[] {
-                    new NamedIdentifier(Citations.OGC,     "latitude_of_origin"),
-                    new NamedIdentifier(Citations.ESRI,    "standard_parallel_1"),
-                    new NamedIdentifier(Citations.EPSG,    "Latitude of natural origin"),
-                    new NamedIdentifier(Citations.EPSG,    "Latitude of 1st standard parallel"),
-                    new NamedIdentifier(Citations.GEOTIFF, "ProjCenterLat"),
-                    new NamedIdentifier(Citations.GEOTIFF, "NatOriginLat")
-                },
-                0, -90, 90, NonSI.DEGREE_ANGLE);
-
-        /**
          * The parameters group. Note the EPSG includes a "Latitude of natural origin" parameter instead
          * of "standard_parallel_1". I have sided with ESRI and Snyder in this case.
          */
@@ -242,7 +225,7 @@ public class EquidistantCylindrical extends MapProjection {
                                     VocabularyKeys.EQUIDISTANT_CYLINDRICAL_PROJECTION))
             }, new ParameterDescriptor[] {
                 SEMI_MAJOR,       SEMI_MINOR,
-                CENTRAL_MERIDIAN, STANDARD_PARALLEL,
+                CENTRAL_MERIDIAN, LATITUDE_OF_ORIGIN, STANDARD_PARALLEL_1,
                 FALSE_EASTING,    FALSE_NORTHING
             });
 
@@ -272,11 +255,11 @@ public class EquidistantCylindrical extends MapProjection {
         protected MathTransform createMathTransform(final ParameterValueGroup parameters)
                 throws ParameterNotFoundException, FactoryException
         {
-            if (isSpherical(parameters)) {
-                return new EquidistantCylindrical(parameters);
-            } else {
-                throw new FactoryException(Errors.format(ErrorKeys.ELLIPTICAL_NOT_SUPPORTED));
+            if (!isSpherical(parameters)) {
+                LOGGER.log(Level.FINE, "GeoTools EquidistantCylindrical is defined only on the sphere, " +
+                		"we're going to use spherical equations even if the projection is using an ellipsoid");
             }
+            return new EquidistantCylindrical(parameters);
         }
     }
     
@@ -308,7 +291,7 @@ public class EquidistantCylindrical extends MapProjection {
                                     VocabularyKeys.EQUIDISTANT_CYLINDRICAL_PROJECTION))
             }, new ParameterDescriptor[] {
                 SEMI_MAJOR,       SEMI_MINOR,
-                CENTRAL_MERIDIAN, Provider.STANDARD_PARALLEL,
+                CENTRAL_MERIDIAN, LATITUDE_OF_ORIGIN, STANDARD_PARALLEL_1,
                 FALSE_EASTING,    FALSE_NORTHING
             });
 

@@ -70,7 +70,6 @@ public class ObliqueOrthographic extends Orthographic {
         super(parameters);
         sinphi0 = sin(latitudeOfOrigin);
         cosphi0 = cos(latitudeOfOrigin);
-        ensureSpherical();
     }
 
     /**

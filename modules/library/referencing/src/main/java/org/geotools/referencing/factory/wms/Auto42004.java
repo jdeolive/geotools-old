@@ -83,7 +83,7 @@ final class Auto42004 extends Factlet {
      * {@inheritDoc}
      */
     public String getClassification() {
-        return "Equirectangular";
+        return "Equidistant_Cylindrical";
     }
 
     /**

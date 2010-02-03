@@ -20,6 +20,8 @@
  */
 package org.geotools.referencing.operation.projection;
 
+import java.util.logging.Level;
+
 import org.opengis.parameter.ParameterDescriptor;
 import org.opengis.parameter.ParameterDescriptorGroup;
 import org.opengis.parameter.ParameterNotFoundException;
@@ -181,21 +183,21 @@ public abstract class Orthographic extends MapProjection {
         {
             // Values here are in radians (the standard units for the map projection package)
             final double latitudeOfOrigin = abs(AbstractProvider.doubleValue(LATITUDE_OF_ORIGIN, parameters));
-            if (isSpherical(parameters)) {
-                // Polar case.
-                if (abs(latitudeOfOrigin - PI/2) < EPSILON) {
-                    return new PolarOrthographic(parameters);
-                }
-                // Equatorial case.
-                else if (latitudeOfOrigin < EPSILON) {
-                    return new EquatorialOrthographic(parameters);
-                }
-                // Generic (oblique) case.
-                else {
-                    return new ObliqueOrthographic(parameters);
-                }
-            } else {
-                throw new FactoryException(Errors.format(ErrorKeys.ELLIPTICAL_NOT_SUPPORTED));
+            if (!isSpherical(parameters)) {
+                LOGGER.log(Level.FINE, "GeoTools Orthographic is defined only on the sphere, " +
+                        "we're going to use spherical equations even if the projection is using an ellipsoid");
+            }
+            // Polar case.
+            if (abs(latitudeOfOrigin - PI/2) < EPSILON) {
+                return new PolarOrthographic(parameters);
+            }
+            // Equatorial case.
+            else if (latitudeOfOrigin < EPSILON) {
+                return new EquatorialOrthographic(parameters);
+            }
+            // Generic (oblique) case.
+            else {
+                return new ObliqueOrthographic(parameters);
             }
         }
     }

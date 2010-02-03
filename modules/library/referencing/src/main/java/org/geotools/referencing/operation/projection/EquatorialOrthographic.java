@@ -64,7 +64,6 @@ public class EquatorialOrthographic extends ObliqueOrthographic {
         super(parameters);
         ensureLatitudeEquals(Provider.LATITUDE_OF_ORIGIN, latitudeOfOrigin, 0);
         latitudeOfOrigin = 0.0;
-        ensureSpherical();
     }
 
     /**
