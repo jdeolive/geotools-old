@@ -84,10 +84,24 @@ public final class AUTOTest {
     public void test42001() throws FactoryException {
         final ProjectedCRS utm = factory.createProjectedCRS("AUTO:42001,0.0,0.0");
         assertNotNull("auto-utm", utm);
-        assertSame   (utm, factory.createObject("AUTO :42001, 0,0"));
-        assertSame   (utm, factory.createObject("AUTO2:42001, 0,0"));
-        assertSame   (utm, factory.createObject(      "42001, 0,0"));
-        assertNotSame(utm, factory.createObject("AUTO :42001,30,0"));
+        assertSame   (utm, factory.createObject("AUTO :42001 ,0,0"));
+        assertSame   (utm, factory.createObject("AUTO2:42001 ,0,0"));
+        assertSame   (utm, factory.createObject(      "42001 ,0,0"));
+        assertNotSame(utm, factory.createObject("AUTO :42001 ,30,0"));
+        assertEquals ("Transverse_Mercator", utm.getConversionFromBase().getMethod().getName().getCode());
+    }
+    
+    /**
+     * Check we can parse also the unit
+     */
+    @Test
+    public void test42001Units() throws FactoryException {
+        final ProjectedCRS utm = factory.createProjectedCRS("AUTO:42001,9001,0.0,0.0");
+        assertNotNull("auto-utm", utm);
+        assertSame   (utm, factory.createObject("AUTO :42001, 9001,0,0"));
+        assertSame   (utm, factory.createObject("AUTO2:42001, 9001,0,0"));
+        assertSame   (utm, factory.createObject(      "42001, 9001,0,0"));
+        assertNotSame(utm, factory.createObject("AUTO :42001, 9001,30,0"));
         assertEquals ("Transverse_Mercator", utm.getConversionFromBase().getMethod().getName().getCode());
     }
 }
