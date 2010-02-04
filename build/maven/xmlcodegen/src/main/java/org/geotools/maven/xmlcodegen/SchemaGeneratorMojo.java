@@ -60,6 +60,12 @@ public class SchemaGeneratorMojo extends AbstractGeneratorMojo {
 	 * @parameter
 	 */
 	int maxRecursionDepth;
+	/**
+	 * List of explicit bindings from XSD type to fully-qualified class name.
+	 * Namespace defaults to the target schema namespace.
+	 * @parameter
+	 */
+	private TypeBinding[] typeBindings;
 	
 	public void execute() throws MojoExecutionException, MojoFailureException {
     	XSDSchema schema = schema();
@@ -79,6 +85,7 @@ public class SchemaGeneratorMojo extends AbstractGeneratorMojo {
 		generator.setIncludes( includes );
         generator.setMaxRecursionDepth(maxRecursionDepth);
         generator.setPrintRecursionPaths(printRecursionPaths);
+        generator.setTypeBindings(typeBindings);
 		
 		if (imports != null) {
 		    //build a url classload from dependencies

@@ -16,7 +16,7 @@ public class BindingTestSupportClass
     return result;
   }
 
-  protected final String NL = nl == null ? (System.getProperties().getProperty("line.separator")) : nl;
+  public final String NL = nl == null ? (System.getProperties().getProperty("line.separator")) : nl;
   protected final String TEXT_1 = NL + "import org.geotools.xml.Configuration;" + NL + "import org.geotools.xml.test.XMLTestSupport;" + NL + "" + NL + "/**" + NL + " * Base test class for the ";
   protected final String TEXT_2 = " schema." + NL + " *" + NL + " * @generated" + NL + " */" + NL + "public class ";
   protected final String TEXT_3 = "TestSupport extends XMLTestSupport {" + NL + "" + NL + "    protected Configuration createConfiguration() {" + NL + "       return new ";

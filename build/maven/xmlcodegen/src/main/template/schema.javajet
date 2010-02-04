@@ -2,6 +2,7 @@
     imports="java.util.* java.io.* org.geotools.xml.* 
         org.geotools.maven.xmlcodegen.* org.opengis.feature.type.Schema 
         org.opengis.feature.type.AttributeType org.opengis.feature.type.Name
+        org.geotools.feature.NameImpl
         org.opengis.feature.type.ComplexType org.opengis.feature.type.AttributeDescriptor 
         org.opengis.feature.type.PropertyDescriptor org.opengis.feature.type.PropertyType 
         org.apache.xml.serialize.* org.eclipse.xsd.*" class="SchemaClassTemplate" %>
@@ -22,6 +23,8 @@ import java.util.List;
 
 import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.ComplexType;
+import org.opengis.feature.type.PropertyDescriptor;
+import org.opengis.filter.Filter;
 
 import org.geotools.feature.NameImpl;
 import org.geotools.feature.type.AttributeDescriptorImpl;
@@ -45,16 +48,9 @@ import <%=fullClassName%>;
 
 public class <%=prefix%>Schema extends SchemaImpl {
 
-    static <%=prefix%>Schema INSTANCE;
-    
-    public static <%=prefix%>Schema getInstance() {
-       if ( INSTANCE == null ) {
-          INSTANCE = new <%=prefix%>Schema();
-       }
-       return INSTANCE;
-    }
-    
 <%
+    Map<Name, String> typeBindings = sg.getTypeBindings();
+
     for (Iterator itr = types.iterator(); itr.hasNext();) {
         AttributeType type = (AttributeType) itr.next();
         Name name = type.getName();
@@ -95,37 +91,35 @@ public class <%=prefix%>Schema extends SchemaImpl {
      * @generated
      */
 <%
-        if (type instanceof ComplexType) {
+        if (type instanceof ComplexType && !typeBindings.containsKey(name)) {
 %>
-     public ComplexType <%=name.getLocalPart().toUpperCase()%>_TYPE;
-
+    public static final ComplexType <%=name.getLocalPart().toUpperCase()%>_TYPE = build_<%=name.getLocalPart().toUpperCase()%>_TYPE();
+    
+    private static ComplexType build_<%=name.getLocalPart().toUpperCase()%>_TYPE() {
+        ComplexType builtType;
 <%
         }
         else {
 %>
-     public AttributeType <%=name.getLocalPart().toUpperCase()%>_TYPE;
-
+    public static final AttributeType <%=name.getLocalPart().toUpperCase()%>_TYPE = build_<%=name.getLocalPart().toUpperCase()%>_TYPE();
+     
+    private static AttributeType build_<%=name.getLocalPart().toUpperCase()%>_TYPE() {
+        AttributeType builtType;
 <%      
         }
-	}
-%>
-
-    public <%=prefix%>Schema() {
-        super("<%=schema.getURI()%>");
-        
-<%
-    for (Iterator itr = types.iterator(); itr.hasNext();) {
-        AttributeType type = (AttributeType) itr.next();
-        Name name = type.getName();
-
         String uri = name.getNamespaceURI();
         String local = name.getLocalPart();
         
-        String binding = type.getBinding().getName() + ".class";
+        String binding;
+        if (typeBindings.containsKey(name)) {
+            binding = typeBindings.get(name) + ".class";
+        } else {
+            binding = type.getBinding().getName() + ".class";
+        }
         String isIdentified = type.isIdentified() ? "true" : "false";
         String isAbstract = type.isAbstract() ? "true" : "false";
         
-        String restrictions = "Collections.EMPTY_LIST";
+        String restrictions = "Collections.<Filter>emptyList()";
         String superType = "null";
         
         if (type.getSuper() != null) {
@@ -138,15 +132,12 @@ public class <%=prefix%>Schema extends SchemaImpl {
         }
         
         String description = "null";
-%>
-  
-<%
-        if (type instanceof ComplexType) {
+        if (type instanceof ComplexType && !typeBindings.containsKey(name)) {
             ComplexType cType = (ComplexType)type;
 
             if (!cType.getDescriptors().isEmpty()) {
 %>
-    List <%=local.toUpperCase()%>_TYPE_schema = new ArrayList();
+        List<PropertyDescriptor> schema = new ArrayList<PropertyDescriptor>();
 <%
                 for (Iterator adItr = cType.getDescriptors().iterator(); adItr.hasNext();) {
                     PropertyDescriptor pd = (PropertyDescriptor) adItr.next();
@@ -170,80 +161,72 @@ public class <%=prefix%>Schema extends SchemaImpl {
                     String max = ad.getMaxOccurs() + "";
                     String isNillable = ad.isNillable() ? "true" : "false";         
 %>
-    <%=local.toUpperCase()%>_TYPE_schema.add(
-        new AttributeDescriptorImpl(
-            <%=adTypeName%>,<%=adName%>,<%=min%>,<%=max%>,<%=isNillable%>,null
-        )
-    );
+        schema.add(
+            new AttributeDescriptorImpl(
+                <%=adTypeName%>, <%=adName%>, <%=min%>, <%=max%>, <%=isNillable%>, null
+            )
+        );
 <%
                 }
 %>
-
-    <%=local.toUpperCase()%>_TYPE = 
-        new ComplexTypeImpl(
-            new NameImpl("<%=uri%>","<%=local%>"), <%=local.toUpperCase()%>_TYPE_schema, <%=isIdentified%>,
-            <%=isAbstract%>,<%=restrictions%>,<%=superType%>, <%=description%>
+        builtType = new ComplexTypeImpl(
+            new NameImpl("<%=uri%>","<%=local%>"), schema, <%=isIdentified%>,
+            <%=isAbstract%>, <%=restrictions%>, <%=superType%>, <%=description%>
         );
 <%
             }
             else {
 %>
-    <%=local.toUpperCase()%>_TYPE = 
-        new ComplexTypeImpl(
-            new NameImpl("<%=uri%>","<%=local%>"), Collections.EMPTY_LIST, <%=isIdentified%>,
-            <%=isAbstract%>,<%=restrictions%>,<%=superType%>, <%=description%>
+        builtType = new ComplexTypeImpl(
+            new NameImpl("<%=uri%>","<%=local%>"), Collections.<PropertyDescriptor>emptyList(), <%=isIdentified%>,
+            <%=isAbstract%>, <%=restrictions%>, <%=superType%>, <%=description%>
         );
 <%          
             }
-%>
-    
-<%      
         }
         else {
 %>
-    <%=local.toUpperCase()%>_TYPE = 
-        new AttributeTypeImpl(
+        builtType = new AttributeTypeImpl(
             new NameImpl("<%=uri%>","<%=local%>"), <%=binding%>, <%=isIdentified%>,
-            <%=isAbstract%>,<%=restrictions%>,<%=superType%>, <%=description%>
+            <%=isAbstract%>, <%=restrictions%>, <%=superType%>, <%=description%>
         );
 <%      
         }
         
         if (!type.getUserData().isEmpty()) {
-%>
-    static {
-<%
-	        //attributes
-	        for (Iterator i = type.getUserData().entrySet().iterator(); i.hasNext(); ) {
-	           Map.Entry entry = (Map.Entry) i.next();
-	           Name n = (Name) entry.getKey();
-	           PropertyDescriptor pd = (PropertyDescriptor) entry.getValue();
-	           PropertyType pdType = pd.getType();
-	           
-	           String pdTypeName = pdType.getName().getLocalPart().toUpperCase() + 
-	                        "_TYPE";
-			   if (ns2import.containsKey(pdType.getName().getNamespaceURI())) {
-			   		String importClassName = (String) ns2import.get(pdType.getName().getNamespaceURI());
-					pdTypeName = importClassName + "." + pdTypeName;
-			   }
-			   String pdName = "new NameImpl(\"" + pd.getName().getNamespaceURI() + 
-	                        "\",\"" + pd.getName().getLocalPart() + "\")";
+            //attributes
+            for (Iterator i = type.getUserData().entrySet().iterator(); i.hasNext(); ) {
+               Map.Entry entry = (Map.Entry) i.next();
+               Name n = (Name) entry.getKey();
+               PropertyDescriptor pd = (PropertyDescriptor) entry.getValue();
+               PropertyType pdType = pd.getType();
+               
+               String pdTypeName = pdType.getName().getLocalPart().toUpperCase() + 
+                            "_TYPE";
+               if (ns2import.containsKey(pdType.getName().getNamespaceURI())) {
+                    String importClassName = (String) ns2import.get(pdType.getName().getNamespaceURI());
+                    pdTypeName = importClassName + "." + pdTypeName;
+               }
+               String pdName = "new NameImpl(\"" + pd.getName().getNamespaceURI() + 
+                            "\",\"" + pd.getName().getLocalPart() + "\")";
            
 %>
-    	<%=local.toUpperCase()%>_TYPE.getUserData().put(<%=pdName%>,<%=pdTypeName%>);
+           builtType.put(<%=pdName%>,<%=pdTypeName%>);
 <%
            
-        	}
-%>
-    }
-<%
-        	
+            }
         }
 %>
+        return builtType;
+    }
 
 <%
     }
 %>
+
+    public <%=prefix%>Schema() {
+        super("<%=schema.getURI()%>");
+
 <%
     for (Iterator itr = types.iterator(); itr.hasNext();) {
         AttributeType type = (AttributeType) itr.next();
@@ -256,4 +239,5 @@ public class <%=prefix%>Schema extends SchemaImpl {
     }
 %>
     }
+    
 }

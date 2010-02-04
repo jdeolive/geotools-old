@@ -126,6 +126,12 @@ public class SchemaGenerator extends AbstractGenerator {
     boolean printRecursionPaths = false;
     
     /**
+     * Bindings of XSD type names to class names. If defined, the generated schema will
+     * bind these complex types as if they were non-complex, bound the named classes.
+     */
+    private Map<Name, String> typeBindings;
+    
+    /**
      * Logger
      */
     Logger logger = org.geotools.util.logging.Logging.getLogger("org.geotools.xml");
@@ -238,6 +244,42 @@ public class SchemaGenerator extends AbstractGenerator {
             + "] not found");
     }
 
+    /**
+     * Add the explicit bindings of XSD types to fully-qualified class names.
+     * If a type has a binding, it will be treated as non-complex and bound to
+     * the named class.
+     * 
+     * @param typeBindings
+     */
+    public void setTypeBindings(TypeBinding[] typeBindings) {
+        Map<Name, String> bindings = new HashMap<Name, String>();
+        if (typeBindings != null) {
+            for (TypeBinding typeBinding : typeBindings) {
+                String namespace = typeBinding.getNamespace();
+                if (namespace == null) {
+                    namespace = schema.getTargetNamespace();
+                }
+                String name = typeBinding.getName();
+                if (name == null) {
+                    throw new IllegalArgumentException("Missing name for typeBinding");
+                }
+                String binding = typeBinding.getBinding();
+                if (binding == null) {
+                    throw new IllegalArgumentException("Missing binding for typeBinding for " + name);
+                }
+                bindings.put(new NameImpl(namespace, name), binding);
+            }
+        }
+        this.typeBindings = bindings;
+    }
+
+    /**
+     * @return the map of XSD type names to fully-qualified class names.
+     */
+    public Map<Name, String> getTypeBindings() {
+        return typeBindings;
+    }
+    
     /**
      * Adds an imported schema to be used for type lookups.
      */
@@ -652,4 +694,5 @@ public class SchemaGenerator extends AbstractGenerator {
 
         generator.generate();
     }
+
 }
