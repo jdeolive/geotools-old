@@ -18,14 +18,11 @@ package org.geotools.data.h2;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.Map;
 
 import javax.sql.DataSource;
 
 import org.apache.commons.dbcp.BasicDataSource;
-import org.geotools.data.DataStore;
-import org.geotools.data.DataAccessFactory.Param;
 import org.geotools.jdbc.JDBCDataStore;
 import org.geotools.jdbc.JDBCDataStoreFactory;
 import org.geotools.jdbc.SQLDialect;
@@ -50,7 +47,15 @@ public class H2DataStoreFactory extends JDBCDataStoreFactory {
     /** optional user parameter */
     public static final Param USER = new Param(JDBCDataStoreFactory.USER.key, JDBCDataStoreFactory.USER.type, 
             JDBCDataStoreFactory.USER.description, false, JDBCDataStoreFactory.USER.sample);
-    
+
+    /** optional host parameter */
+    public static final Param HOST = new Param(JDBCDataStoreFactory.HOST.key, JDBCDataStoreFactory.HOST.type, 
+            JDBCDataStoreFactory.HOST.description, false, JDBCDataStoreFactory.HOST.sample);
+
+    /** optional port parameter */
+    public static final Param PORT = new Param(JDBCDataStoreFactory.PORT.key, JDBCDataStoreFactory.PORT.type, 
+            JDBCDataStoreFactory.PORT.description, false, 9902);
+
     /**
      * base location to store h2 database files
      */
@@ -75,14 +80,16 @@ public class H2DataStoreFactory extends JDBCDataStoreFactory {
     protected void setupParameters(Map parameters) {
         super.setupParameters(parameters);
 
-        //remove unneccessary parameters
-        parameters.remove(HOST.key);
-        parameters.remove(PORT.key);
+        //remove host and port temporarily in order to make username optional
+        parameters.remove(JDBCDataStoreFactory.HOST.key);
+        parameters.remove(JDBCDataStoreFactory.PORT.key);
         
+        parameters.put(HOST.key, HOST);
+        parameters.put(PORT.key, PORT);
+
         //remove user and password temporarily in order to make username optional
         parameters.remove(JDBCDataStoreFactory.USER.key);
         parameters.remove(PASSWD.key);
-        
         
         parameters.put(USER.key, USER);
         parameters.put(PASSWD.key, PASSWD);
@@ -116,9 +123,18 @@ public class H2DataStoreFactory extends JDBCDataStoreFactory {
 
     protected DataSource createDataSource(Map params, SQLDialect dialect) throws IOException {
         String database = (String) DATABASE.lookUp(params);
+        String host = (String) HOST.lookUp(params);
         BasicDataSource dataSource = new BasicDataSource();
-
-        if (baseDirectory == null) {
+        
+        if (host != null && !host.equals("")) {
+            Integer port = (Integer) PORT.lookUp(params);
+            if (port != null && !port.equals("")) {
+                dataSource.setUrl("jdbc:h2:tcp://" + host + ":" + port + "/" + database);
+            }
+            else {
+                dataSource.setUrl("jdbc:h2:tcp://" + host + "/" + database);
+            }
+        } else if (baseDirectory == null) {
             //use current working directory
             dataSource.setUrl("jdbc:h2:" + database);
         } else {

@@ -21,8 +21,10 @@ import java.util.HashMap;
 
 import junit.framework.TestCase;
 
+import org.geotools.data.DataStore;
 import org.geotools.jdbc.JDBCDataStore;
 import org.geotools.jdbc.JDBCDataStoreFactory;
+import org.h2.tools.Server;
 
 
 public class H2DataStoreFactoryTest extends TestCase {
@@ -45,5 +47,32 @@ public class H2DataStoreFactoryTest extends TestCase {
     public void testCreateDataStore() throws Exception {
         JDBCDataStore ds = factory.createDataStore( params );
         assertNotNull( ds );
+    }
+    
+    public void testTCP() throws Exception {
+        HashMap params = new HashMap();
+        params.put(H2DataStoreFactory.HOST.key, "localhost");
+        params.put(H2DataStoreFactory.DATABASE.key, "geotools");
+        
+        DataStore ds = factory.createDataStore(params);
+        try {
+            ds.getTypeNames();
+            fail("Should not have made a connection.");
+        }
+        catch(Exception ok) {}
+        
+        Server server = Server.createTcpServer(new String[]{"-baseDir", "target"});
+        server.start();
+        try {
+            while(!server.isRunning(false)) {
+                Thread.sleep(100);
+            }
+            
+            ds = factory.createDataStore(params);
+            ds.getTypeNames();
+        }
+        finally {
+            server.shutdown();
+        }
     }
 }
