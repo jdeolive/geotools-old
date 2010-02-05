@@ -1,4 +1,4 @@
-. _crslab:
+.. _crslab:
 
 CRS Lab
 =======
@@ -127,16 +127,44 @@ Validating feature geometry
 Running the application
 -----------------------
 
-A good shapefile to use with this example is the **bc_border** map which can be downloaded as part of the `uDig sample data`__.
+Swapping between map projections
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When you start the application you will be prompted for a shapefile to display. In the screenshots below we are 
+using the **bc_border** map which can be downloaded as part of the `uDig sample data`__.
 
 .. _udigdata: http://udig.refractions.net/docs/data-v1_2.zip
 
 __ udigdata_
 
+.. image:: CRSLab_start.gif
+
+Click the CRS button at the right-hand end of the status bar and choose *Set the CRS...* from the pop-up menu to
+display this chooser dialog:
+
+.. image:: CRSLab_chooser.gif
+
+GeoTools includes a very extensive database of map projections drawn from the EPSG reference (see `Some useful links`_ below).
+For our example shapefile, an appropriate alternative map projection is *BC Albers* (tip: you can find this quickly in the
+chooser list by typing 3005).
+
+When you click OK the map is displayed in the new projection:
+
+.. image:: CRSLab_reprojected.gif
+
+Note that when you move the mouse over the map the coordinates are now displayed in metres (the unit of measurement that
+applies to the *BC Albers* projection) rather than degrees.
+
+To return to the original projection, open the CRS chooser again and type **4326** for the default geographic projection.
+Notice that the map coordinates are now expressed in degrees once again.
+
+Exporting the reprojected data
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 *To be continued...*
 
 An alternative export to shapefile method
------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
    .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/CRSLab.java
       :language: java
