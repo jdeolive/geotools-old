@@ -58,7 +58,6 @@ import org.geotools.coverage.TypeMap;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
-import org.geotools.coverage.grid.ViewType;
 import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataUtilities;

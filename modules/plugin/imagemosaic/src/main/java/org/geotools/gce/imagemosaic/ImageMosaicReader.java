@@ -30,6 +30,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -135,6 +136,11 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 	boolean cachingIndex;
 
 	String elevationAttribute;
+	
+	/**
+	 * UTC timezone to serve as reference
+	 */
+	static final TimeZone UTC_TZ = TimeZone.getTimeZone("UTC");
 	
 	/**
 	 * Constructor.
@@ -692,6 +698,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 					return null;				
 				final StringBuilder buff= new StringBuilder();
 				final SimpleDateFormat df= new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+				df.setTimeZone(UTC_TZ);
 				for(java.util.Iterator it=result.iterator();it.hasNext();){
 					final Date time= (Date) it.next();
 					buff.append(df.format(time)).append("Z");

@@ -255,6 +255,7 @@ public class ImageMosaicReaderTest extends Assert{
 	 */
 	@Test
 	public void timeElevation() throws IOException {
+	        System.setProperty("org.geotools.shapefile.datetime", "true");
 		final AbstractGridFormat format = getFormat(timeElevURL);
 		assertNotNull(format);
 		final ImageMosaicReader reader = getReader(timeElevURL, format);
@@ -266,11 +267,11 @@ public class ImageMosaicReaderTest extends Assert{
 		
 		final String timeMetadata = reader.getMetadataValue("TIME_DOMAIN");
 		assertNotNull(timeMetadata);
-//		assertEquals(3,timeMetadata.split(",").length);
+		assertEquals(3,timeMetadata.split(",").length);
 		
 		final String elevationMetadata = reader.getMetadataValue("ELEVATION_DOMAIN");
 		assertNotNull(elevationMetadata);
-//		assertEquals(4,elevationMetadata.split(",").length);
+		assertEquals(4,elevationMetadata.split(",").length);
 		
 		
 		// limit yourself to reading just a bit of it
@@ -657,7 +658,7 @@ public class ImageMosaicReaderTest extends Assert{
 		
 		rgbURL = TestData.url(this, "rgb/mosaic.shp");
 		timeURL = TestData.url(this, "time_geotiff");
-		timeElevURL = TestData.url(this, "time_elevation_geotiff");
+		timeElevURL = new File("/media/ext_hd_01/work/lscv08_INGVMFS-Forecast_wattemp_T1265368590625").toURI().toURL();
 		rgbJarURL = new URL("jar:"+TestData.url(this, "rgb.jar").toExternalForm()+"!/rgb/mosaic.shp");
 		
 		overviewURL = TestData.url(this, "overview/");

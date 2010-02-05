@@ -4,9 +4,11 @@ import java.text.ParseException;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 
 /**
@@ -64,6 +66,11 @@ class TimeParser {
     };
 
     /**
+     * UTC timezone to serve as reference
+     */
+    static final TimeZone UTC_TZ = TimeZone.getTimeZone("UTC");
+    
+    /**
      * Amount of milliseconds in a day.
      */
     static final long MILLIS_IN_DAY = 24*60*60*1000;
@@ -110,7 +117,7 @@ class TimeParser {
         // Only one date given.
         if (period.length == 1) {
         	if(value.equals("current"))
-        		dates.add(new Date());
+        		dates.add(Calendar.getInstance(UTC_TZ).getTime());
         	else
         		dates.add(getDate(value));
             return dates;
@@ -125,7 +132,9 @@ class TimeParser {
             long time;
             int j = 0;
             while ((time = j * millisIncrement + startTime) <= endTime) {
-                dates.add(new Date(time));
+                Calendar calendar = Calendar.getInstance(UTC_TZ);
+                calendar.setTimeInMillis(time);
+                dates.add(calendar.getTime());
                 j++;
             }
             return dates;
@@ -145,7 +154,8 @@ class TimeParser {
         for (int i=0; i<PATTERNS.length; i++) {
             // rebuild formats at each parse, date formats are not thread safe
             SimpleDateFormat format = new SimpleDateFormat(PATTERNS[i]);
-
+            format.setTimeZone(UTC_TZ);
+            
             /* We do not use the standard method DateFormat.parse(String), because if the parsing
              * stops before the end of the string, the remaining characters are just ignored and
              * no exception is thrown. So we have to ensure that the whole string is correct for
