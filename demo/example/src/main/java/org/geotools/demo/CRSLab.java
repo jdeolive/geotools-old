@@ -100,10 +100,11 @@ public class CRSLab {
          * Create a JMapFrame with custom toolbar buttons
          */
         JMapFrame mapFrame = new JMapFrame(map);
-        mapFrame.enableTool(JMapFrame.Tool.NONE);
+        mapFrame.enableToolBar(true);
         mapFrame.enableStatusBar(true);
 
         JToolBar toolbar = mapFrame.getToolBar();
+        toolbar.addSeparator();
         toolbar.add( new JButton( new ValidateGeometryAction() ) );
         toolbar.add( new JButton( new ExportShapefileAction() ) );
 
