@@ -63,9 +63,7 @@ the :ref:`quickstart` example.
       :start-after: // docs start display
       :end-before: // docs end display
 
-Notice that we are customizing the JMapFrame by adding three buttons to its toolbar.
-
-The mapFrame.enableTool(JMapFrame.Tool.NONE) statement requests that an empty toolbar be initially created.
+Notice that we are customizing the JMapFrame by adding two buttons to its toolbar.
 
 Button actions
 --------------
