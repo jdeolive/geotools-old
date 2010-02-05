@@ -484,17 +484,19 @@ public class ImageWorker {
          * Creates the new color model.
          */
         final ColorModel oldCm = image.getColorModel();
-        final ColorModel newCm= new ComponentColorModel(
-                oldCm.getColorSpace(),
-                oldCm.hasAlpha(),               // If true, supports transparency.
-                oldCm.isAlphaPremultiplied(),   // If true, alpha is premultiplied.
-                oldCm.getTransparency(),        // What alpha values can be represented.
-                type);                          // Type of primitive array used to represent pixel.
-        /*
-         * Creating the final image layout which should allow us to change color model.
-         */
-        layout.setColorModel(newCm);
-        layout.setSampleModel(newCm.createCompatibleSampleModel(image.getWidth(), image.getHeight()));
+        if(oldCm!=null){
+	        final ColorModel newCm= new ComponentColorModel(
+	                oldCm.getColorSpace(),
+	                oldCm.hasAlpha(),               // If true, supports transparency.
+	                oldCm.isAlphaPremultiplied(),   // If true, alpha is premultiplied.
+	                oldCm.getTransparency(),        // What alpha values can be represented.
+	                type);                          // Type of primitive array used to represent pixel.
+	        /*
+	         * Creating the final image layout which should allow us to change color model.
+	         */
+	        layout.setColorModel(newCm);
+	        layout.setSampleModel(newCm.createCompatibleSampleModel(image.getWidth(), image.getHeight()));
+        }
         hints.put(JAI.KEY_IMAGE_LAYOUT, layout);
         return hints;
     }
@@ -1049,7 +1051,7 @@ public class ImageWorker {
     public final ImageWorker forceComponentColorModel() {
         return forceComponentColorModel(false);
     }
-
+    
     /**
      * Reformats the {@linkplain ColorModel color model} to a
      * {@linkplain ComponentColorModel component color model} preserving
@@ -1060,15 +1062,14 @@ public class ImageWorker {
      * This code is adapted from jai-interests mailing list archive.
      *
      * @param checkTransparent
-     *            tells this method to not consider fully transparent pixels
-     *            when optimizing grayscale palettes.
-     *
+     * @param optimizeGray
+     * 
      * @return this {@link ImageWorker}.
      *
      * @see FormatDescriptor
      */
-    public final ImageWorker forceComponentColorModel(boolean checkTransparent) {
-        final ColorModel cm = image.getColorModel();
+    public final ImageWorker forceComponentColorModel(boolean checkTransparent,boolean optimizeGray) {
+    	final ColorModel cm = image.getColorModel();
         if (cm instanceof ComponentColorModel) {
             // Already an component color model - nothing to do.
             return this;
@@ -1078,7 +1079,7 @@ public class ImageWorker {
             final IndexColorModel icm = (IndexColorModel) cm;
             final SampleModel sm=this.image.getSampleModel();
             final int datatype =sm.getDataType();
-            final boolean gray     = ColorUtilities.isGrayPalette(icm, checkTransparent);
+            final boolean gray     = ColorUtilities.isGrayPalette(icm, checkTransparent)&optimizeGray;
             final boolean alpha    = icm.hasAlpha();
             /*
              * If the image is grayscale, retain only the needed bands.
@@ -1187,6 +1188,27 @@ public class ImageWorker {
         // All post conditions for this method contract.
         assert image.getColorModel() instanceof ComponentColorModel;
         return this;
+    }
+
+    /**
+     * Reformats the {@linkplain ColorModel color model} to a
+     * {@linkplain ComponentColorModel component color model} preserving
+     * transparency. This is used especially in order to go from
+     * {@link PackedColorModel} to {@link ComponentColorModel}, which seems to
+     * be well accepted from {@code PNGEncoder} and {@code TIFFEncoder}.
+     * <p>
+     * This code is adapted from jai-interests mailing list archive.
+     *
+     * @param checkTransparent
+     *            tells this method to not consider fully transparent pixels
+     *            when optimizing grayscale palettes.
+     *
+     * @return this {@link ImageWorker}.
+     *
+     * @see FormatDescriptor
+     */
+    public final ImageWorker forceComponentColorModel(boolean checkTransparent) {
+        return forceComponentColorModel(checkTransparent,true);
     }
 
     /**
