@@ -341,7 +341,7 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
             Feature moFeature = null;
             // find matching input MO feature to compare the values with
             for (Feature inputFeature : inputFeatures) {
-                if (iterator.featureFidMapping.evaluate(inputFeature).equals(fId)) {
+                if (iterator.featureFidMapping.evaluate(inputFeature).equals(fId.toString())) {
                     moFeature = inputFeature;
                 }
             }
@@ -499,9 +499,7 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
         // significant proportion value
         Expression property = ff
                 .property("gsml:composition/gsml:CompositionPart/gsml:proportion/gsml:CGI_TermValue/gsml:value");
-        Expression string = ff.literal("significant");
-        Expression function = ff.function(FeatureChainingTest.CONTAINS_TEXT, property, string);
-        Filter filter = ff.equals(function, ff.literal(1));
+        Filter filter = ff.like(property, "significant");
         FeatureCollection<FeatureType, Feature> filteredResults = guFeatureSource
                 .getFeatures(filter);
         // see CompositionPart.properties:
@@ -527,9 +525,7 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
                 .getFeatureSource(MAPPED_FEATURE);
         property = ff
                 .property("gsml:specification/gsml:GeologicUnit/gsml:bodyMorphology/gsml:CGI_TermValue/gsml:value");
-        string = ff.literal("vein");
-        function = ff.function(FeatureChainingTest.CONTAINS_TEXT, property, string);
-        filter = ff.equals(function, ff.literal(1));
+        filter = ff.like(property, "vein");
         filteredResults = mfSource.getFeatures(filter);
 
         // see EarthResource.properties file:

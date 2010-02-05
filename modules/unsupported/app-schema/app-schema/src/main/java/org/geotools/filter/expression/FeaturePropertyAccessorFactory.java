@@ -166,7 +166,7 @@ public class FeaturePropertyAccessorFactory implements PropertyAccessorFactory {
 
         public Object get(Object object, String xpath, Class target) {
             Attribute feature = (Attribute) object;
-            return feature.getIdentifier();
+            return feature.getIdentifier().toString();
         }
 
         public void set(Object object, String xpath, Object value, Class target) {

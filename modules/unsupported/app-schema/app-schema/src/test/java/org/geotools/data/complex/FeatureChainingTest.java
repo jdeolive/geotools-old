@@ -19,6 +19,7 @@ package org.geotools.data.complex;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -119,8 +120,6 @@ public class FeatureChainingTest {
         }
     };
 
-    public static final String CONTAINS_TEXT = "contains_text";
-
     /**
      * Map of out crop character values to geological unit objects based on geologicUnit.properties
      */
@@ -157,21 +156,20 @@ public class FeatureChainingTest {
      */
     private static FeatureCollection<FeatureType, Feature> ccFeatures;
 
-    
     @BeforeClass
-    public static void setUpBeforeClass() throws Exception{
+    public static void setUpBeforeClass() throws Exception {
         Stopwatch sw = new Stopwatch();
         sw.start();
         loadDataAccesses();
         sw.stop();
         System.out.println("Set up time: " + sw.getTimeString());
     }
-    
+
     @AfterClass
-    public static void tearDownAfterClass() throws Exception{
+    public static void tearDownAfterClass() throws Exception {
         DataAccessRegistry.unregisterAll();
     }
-    
+
     /**
      * Test that chaining works
      * 
@@ -298,7 +296,8 @@ public class FeatureChainingTest {
         final String LITHOLOGY = "lithology";
         final int EXPECTED_RESULT_COUNT = 2;
         // get controlled concept features on their own
-        AbstractMappingFeatureIterator iterator = (AbstractMappingFeatureIterator) ccFeatures.iterator();
+        AbstractMappingFeatureIterator iterator = (AbstractMappingFeatureIterator) ccFeatures
+                .iterator();
         int count = 0;
         Map<String, Feature> featureList = new HashMap<String, Feature>();
         try {
@@ -461,36 +460,28 @@ public class FeatureChainingTest {
         // make sure filter query can be made on MappedFeature based on GU properties
         //
         // <ogc:Filter>
-        // <ogc:PropertyIsEqualTo>
-        // <ogc:Function name="contains_text">
+        // <ogc:PropertyIsLike>
         // <ogc:PropertyName>
         // gsml:specification/gsml:GeologicUnit/gml:description
         // </ogc:PropertyName>
         // <ogc:Literal>Olivine basalt, tuff, microgabbro, minor sedimentary rocks</ogc:Literal>
-        // </ogc:Function>
-        // <ogc:Literal>1</ogc:Literal>
-        // </ogc:PropertyIsEqualTo>
+        // </ogc:PropertyIsLike>
         // </ogc:Filter>
 
-        // <ogc:PropertyName>
-        // gsml:specification/gsml:GeologicUnit/gml:description
         Expression property = ff.property("gsml:specification/gsml:GeologicUnit/gml:description");
-        // </ogc:PropertyName>
-        // <ogc:Literal>Olivine basalt, tuff, microgabbro, minor sedimentary rocks</ogc:Literal>
-        Expression string = ff
-                .literal("Olivine basalt, tuff, microgabbro, minor sedimentary rocks");
-        // <ogc:Function name="contains_text">
-        Expression function = ff.function(CONTAINS_TEXT, property, string);
-
-        // <ogc:PropertyIsEqualTo>
-        // <ogc:Literal>1</ogc:Literal>
-        // </ogc:PropertyIsEqualTo>
-        Filter filter = ff.equals(function, ff.literal(1));
-
+        Filter filter = ff.like(property,
+                "Olivine basalt, tuff, microgabbro, minor sedimentary rocks");
         FeatureCollection<FeatureType, Feature> filteredResults = mfSource.getFeatures(filter);
-
         assertEquals(filteredResults.size(), 3);
-        
+        Iterator<Feature> iterator = filteredResults.iterator();
+        Feature feature = iterator.next();
+        assertEquals(feature.getIdentifier().toString(), "mf1");
+        feature = iterator.next();
+        assertEquals(feature.getIdentifier().toString(), "mf2");
+        feature = iterator.next();
+        assertEquals(feature.getIdentifier().toString(), "mf3");
+        filteredResults.close(iterator);
+
         /**
          * Test filtering on multi valued properties
          */
@@ -501,21 +492,76 @@ public class FeatureChainingTest {
         // significant proportion value
         property = ff
                 .property("gsml:composition/gsml:CompositionPart/gsml:proportion/gsml:CGI_TermValue/gsml:value");
-        string = ff.literal("significant");
-        function = ff.function(CONTAINS_TEXT, property, string);
-        filter = ff.equals(function, ff.literal(1));
+        filter = ff.like(property, "significant");
         filteredResults = guSource.getFeatures(filter);
         assertEquals(filteredResults.size(), 3);
+        iterator = filteredResults.iterator();
+        feature = iterator.next();
+        assertEquals(feature.getIdentifier().toString(), "gu.25699");
+        feature = iterator.next();
+        assertEquals(feature.getIdentifier().toString(), "gu.25678");
+        feature = iterator.next();
+        assertEquals(feature.getIdentifier().toString(), "gu.25682");
+        filteredResults.close(iterator);
 
         /**
          * Test filtering client properties on chained features
          */
         property = ff.property("gsml:specification/gsml:GeologicUnit/gsml:occurence/@xlink:href");
-        string = ff.literal("urn:cgi:feature:MappedFeature:mf1");
-        filter = ff.equals(property, string);
+        filter = ff.like(property, "urn:cgi:feature:MappedFeature:mf1");
         filteredResults = mfSource.getFeatures(filter);
-        assertEquals(filteredResults.size(), 1);       
+        assertEquals(filteredResults.size(), 1);
+        feature = filteredResults.iterator().next();
+        assertEquals(feature.getIdentifier().toString(), "mf1");
 
+        /**
+         * Test filtering on denormalised view, see GEOT-2927
+         */
+        property = ff.property("gml:name");
+        filter = ff.equals(property, ff.literal("Yaugher Volcanic Group 2"));
+        filteredResults = guSource.getFeatures(filter);
+        assertEquals(filteredResults.size(), 1);
+        // There are 2 rows for 1 feature that matches this filter:
+        // gu.25678=-Py|Yaugher Volcanic Group 1
+        // gu.25678=-Py|Yaugher Volcanic Group 2
+        // Check that all 3 names are there:
+        // - Yaugher Volcanic Group 1, Yaugher Volcanic Group 2 and -Py
+        feature = filteredResults.iterator().next();
+        assertEquals(feature.getIdentifier().toString(), "gu.25678");
+        Collection<Property> properties = feature.getProperties(Types.typeName(GMLNS, "name"));
+        assertTrue(properties.size() == 3);
+        Iterator<Property> propIterator = properties.iterator();
+        Collection values = (Collection) propIterator.next().getValue();
+        assertEquals(values.size(), 1);
+        assertEquals(values.iterator().next().toString(), "Yaugher Volcanic Group 1");
+        values = (Collection) propIterator.next().getValue();
+        assertEquals(values.size(), 1);
+        assertEquals(values.iterator().next().toString(), "Yaugher Volcanic Group 2");
+        values = (Collection) propIterator.next().getValue();
+        assertEquals(values.size(), 1);
+        assertEquals(values.iterator().next().toString(), "-Py");
+        /**
+         * Same case as above, but the multi-valued property is feature chained
+         */
+        property = ff.property("gsml:exposureColor/gsml:CGI_TermValue/gsml:value");
+        filter = ff.equals(property, ff.literal("Yellow"));
+        filteredResults = guSource.getFeatures(filter);
+        assertEquals(filteredResults.size(), 1);
+        feature = filteredResults.iterator().next();
+        // ensure it's the right feature
+        assertEquals(feature.getIdentifier().toString(), "gu.25678");
+        properties = feature.getProperties(Types.typeName(GSMLNS, "exposureColor"));
+        assertTrue(properties.size() == 2);
+        propIterator = properties.iterator();
+        values = (Collection) propIterator.next().getValue();
+        assertEquals(values.size(), 1);
+        Feature cgiFeature = (Feature) values.iterator().next();
+        // and that both gsml:exposureColor values from 2 denormalised view rows are there
+        assertEquals(cgiFeature.getIdentifier().toString(), "Yellow");
+        values = (Collection) propIterator.next().getValue();
+        assertEquals(values.size(), 1);
+        cgiFeature = (Feature) values.iterator().next();
+        assertEquals(cgiFeature.getIdentifier().toString(), "Blue");
     }
 
     /**
@@ -651,7 +697,8 @@ public class FeatureChainingTest {
                 Object clientProps = property.getUserData().get(Attributes.class);
                 assertNotNull(clientProps);
                 assertEquals(clientProps instanceof HashMap, true);
-                Object hrefValue = ((Map) clientProps).get(AbstractMappingFeatureIterator.XLINK_HREF_NAME);
+                Object hrefValue = ((Map) clientProps)
+                        .get(AbstractMappingFeatureIterator.XLINK_HREF_NAME);
 
                 // ensure the right href:xlink is there
                 assertEquals(hrefValue, MF_PREFIX + mfIds[propertyIndex]);

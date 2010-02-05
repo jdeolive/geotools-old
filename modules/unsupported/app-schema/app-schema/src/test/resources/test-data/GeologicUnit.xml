@@ -94,7 +94,8 @@
   		            </targetAttribute>
 					<sourceExpression>
 						<OCQL>NAME</OCQL>
-					</sourceExpression>
+					</sourceExpression>					
+					<isMultiple>true</isMultiple>
 					<ClientProperty>
 						<name>codeSpace</name>
 						<value>'urn:ietf:rfc:2141'</value>

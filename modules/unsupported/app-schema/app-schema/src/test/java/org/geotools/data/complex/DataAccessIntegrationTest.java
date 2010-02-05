@@ -88,8 +88,10 @@ import org.xml.sax.helpers.NamespaceSupport;
  * app-schema data access can chain features from a non-app-schema data access.
  * 
  * @author Rini Angreani, Curtin University of Technology
- *
- * @source $URL$
+ * 
+ * @source $URL:
+ *         http://svn.osgeo.org/geotools/trunk/modules/unsupported/app-schema/app-schema/src/test
+ *         /java/org/geotools/data/complex/DataAccessIntegrationTest.java $
  */
 public class DataAccessIntegrationTest {
 
@@ -115,6 +117,7 @@ public class DataAccessIntegrationTest {
     protected static EmfAppSchemaReader reader;
 
     protected static FeatureTypeRegistry typeRegistry;
+
     /**
      * Mapped Feature data access in GSML form
      */
@@ -183,47 +186,82 @@ public class DataAccessIntegrationTest {
         AttributeDescriptor stringDescriptor = new AttributeDescriptorImpl(simpleContentType, name,
                 1, 1, true, (Object) null);
         Iterator<SimpleFeature> simpleFeatures = fCollection.iterator();
+        // keep track of the last feature, so we can group them as 1 if they're the same
+        Feature lastFeature = null;
         while (simpleFeatures.hasNext()) {
             SimpleFeature next = simpleFeatures.next();
-            Collection<Property> properties = new ArrayList<Property>();
-            // description
-            String propertyName = "TEXTDESCRIPTION";
+            String propertyName;
             ArrayList<Property> value = new ArrayList<Property>();
-            value.add(new AttributeImpl(next.getProperty(propertyName).getValue(),
-                    stringDescriptor, null));
-            properties.add(new ComplexAttributeImpl(value, descriptionDescriptor, null));
+            Collection<Property> properties = new ArrayList<Property>();
+            if (lastFeature != null && lastFeature.getIdentifier().equals(next.getIdentifier())) {
+                // ATTENTION: so far only NAME has different values in the properties file,
+                // if you edit the properties file involving other values, you have to add
+                // the code here accordingly.
+                Collection<Property> values = lastFeature.getProperties(Types.typeName(GMLNS,
+                        "name"));
+                Iterator<Property> iterator = values.iterator();
+                Object existingValue = ((Collection<Property>) iterator.next().getValue())
+                        .iterator().next().getValue();
+                Object nameValue = next.getProperty("NAME").getValue();
+                if (!existingValue.equals(nameValue)) {
+                    value.add(new AttributeImpl(nameValue, stringDescriptor, null));
+                    properties.addAll(lastFeature.getProperties());
+                    properties.add(new ComplexAttributeImpl(value, nameDescriptor, null));
+                    lastFeature = new FeatureImpl(properties, lastFeature.getDescriptor(),
+                            lastFeature.getIdentifier());
+                }
+                existingValue = ((Collection<Property>) iterator.next().getValue()).iterator()
+                        .next().getValue();
+                nameValue = next.getProperty("ABBREVIATION").getValue();
+                if (!existingValue.equals(nameValue)) {
+                    value.add(new AttributeImpl(nameValue, stringDescriptor, null));
+                    properties.addAll(lastFeature.getProperties());
+                    properties.add(new ComplexAttributeImpl(value, nameDescriptor, null));
+                    lastFeature = new FeatureImpl(properties, lastFeature.getDescriptor(),
+                            lastFeature.getIdentifier());
+                }
+            } else {
+                // description
+                propertyName = "TEXTDESCRIPTION";
+                value.add(new AttributeImpl(next.getProperty(propertyName).getValue(),
+                        stringDescriptor, null));
+                properties.add(new ComplexAttributeImpl(value, descriptionDescriptor, null));
 
-            // name 1
-            propertyName = "NAME";
-            value = new ArrayList<Property>();
-            value.add(new AttributeImpl(next.getProperty(propertyName).getValue(),
-                    stringDescriptor, null));
-            ComplexAttributeImpl name1 = new ComplexAttributeImpl(value, nameDescriptor, null);
-            properties.add(name1);
+                // name 1
+                propertyName = "NAME";
+                value = new ArrayList<Property>();
+                value.add(new AttributeImpl(next.getProperty(propertyName).getValue(),
+                        stringDescriptor, null));
+                ComplexAttributeImpl name1 = new ComplexAttributeImpl(value, nameDescriptor, null);
+                properties.add(name1);
 
-            // name 2
-            value = new ArrayList<Property>();
-            propertyName = "ABBREVIATION";
-            value.add(new AttributeImpl(next.getProperty(propertyName).getValue(),
-                    stringDescriptor, null));
-            properties.add(new ComplexAttributeImpl(value, nameDescriptor, null));
+                // name 2
+                value = new ArrayList<Property>();
+                propertyName = "ABBREVIATION";
+                value.add(new AttributeImpl(next.getProperty(propertyName).getValue(),
+                        stringDescriptor, null));
+                properties.add(new ComplexAttributeImpl(value, nameDescriptor, null));
 
-            // composition part
-            ComplexType cpType = (ComplexType) typeRegistry.getAttributeType(COMPOSITION_PART_TYPE);
+                // composition part
+                ComplexType cpType = (ComplexType) typeRegistry
+                        .getAttributeType(COMPOSITION_PART_TYPE);
 
-            ArrayList<Property> compositionParts = new ArrayList<Property>();
-            compositionParts.add(name1);
+                ArrayList<Property> compositionParts = new ArrayList<Property>();
+                compositionParts.add(name1);
 
-            value = new ArrayList<Property>();
-            value.add(new ComplexAttributeImpl(compositionParts, cpType, null));
-            properties.add(new ComplexAttributeImpl(value, (AttributeDescriptor) geologicUnitType
-                    .getDescriptor(Types.typeName(GSMLNS, "composition")), null));
+                value = new ArrayList<Property>();
+                value.add(new ComplexAttributeImpl(compositionParts, cpType, null));
+                properties.add(new ComplexAttributeImpl(value,
+                        (AttributeDescriptor) geologicUnitType.getDescriptor(Types.typeName(GSMLNS,
+                                "composition")), null));
 
-            // feature chaining link
-            properties.add(new AttributeImpl(next.getID(),
-                    (AttributeDescriptor) ComplexFeatureTypeImpl.FEATURE_CHAINING_LINK, null));
+                // feature chaining link
+                properties.add(new AttributeImpl(next.getID(),
+                        (AttributeDescriptor) ComplexFeatureTypeImpl.FEATURE_CHAINING_LINK, null));
 
-            features.add(new FeatureImpl(properties, featureDesc, next.getIdentifier()));
+                lastFeature = new FeatureImpl(properties, featureDesc, next.getIdentifier());
+                features.add(lastFeature);
+            }
         }
         fCollection.close(simpleFeatures);
 
@@ -304,31 +342,19 @@ public class DataAccessIntegrationTest {
         // make sure filter query can be made on MappedFeature based on GU properties
         //
         // <ogc:Filter>
-        // <ogc:PropertyIsEqualTo>
-        // <ogc:Function name="contains_text">
+        // <ogc:PropertyIsLike>
         // <ogc:PropertyName>
         // gsml:specification/gsml:GeologicUnit/gml:description
         // </ogc:PropertyName>
         // <ogc:Literal>Olivine basalt, tuff, microgabbro, minor sedimentary rocks</ogc:Literal>
-        // </ogc:Function>
-        // <ogc:Literal>1</ogc:Literal>
-        // </ogc:PropertyIsEqualTo>
+        // </ogc:PropertyIsLike>
         // </ogc:Filter>
 
         // <ogc:PropertyName>
         // gsml:specification/gsml:GeologicUnit/gml:description
         Expression property = ff.property("gsml:specification/gsml:GeologicUnit/gml:description");
-        // </ogc:PropertyName>
-        // <ogc:Literal>Olivine basalt, tuff, microgabbro, minor sedimentary rocks</ogc:Literal>
-        Expression string = ff
-                .literal("Olivine basalt, tuff, microgabbro, minor sedimentary rocks");
-        // <ogc:Function name="contains_text">
-        Expression function = ff.function(FeatureChainingTest.CONTAINS_TEXT, property, string);
-
-        // <ogc:PropertyIsEqualTo>
-        // <ogc:Literal>1</ogc:Literal>
-        // </ogc:PropertyIsEqualTo>
-        Filter filter = ff.equals(function, ff.literal(1));
+        Filter filter = ff.like(property,
+                "Olivine basalt, tuff, microgabbro, minor sedimentary rocks");
 
         FeatureCollection<FeatureType, Feature> filteredResults = mfDataAccess.getFeatureSource(
                 MAPPED_FEATURE).getFeatures(filter);
@@ -379,7 +405,7 @@ public class DataAccessIntegrationTest {
         while (mfIterator.hasNext()) {
             mfFeatures.add(mfIterator.next());
         }
-        mfCollection.close(mfIterator);      
+        mfCollection.close(mfIterator);
 
         /**
          * Load CGI Term Value data access
@@ -460,9 +486,10 @@ public class DataAccessIntegrationTest {
                     + "commonSchemas_new/GeoSciML/geologicUnit.xsd"), null);
             typeRegistry = new FeatureTypeRegistry();
             typeRegistry.addSchemas(schemaIndex);
-            
+
             // get simple features
-            FeatureType simpleType = (FeatureType) typeRegistry.getAttributeType(GEOLOGIC_UNIT_TYPE);
+            FeatureType simpleType = (FeatureType) typeRegistry
+                    .getAttributeType(GEOLOGIC_UNIT_TYPE);
             inputFeatures = getInputFeatures(fCollection, simpleType);
             // create complex feature type
             FeatureType guSchema = new FeatureTypeImpl(GEOLOGIC_UNIT, simpleType.getDescriptors(),
