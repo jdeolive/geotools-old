@@ -6,6 +6,8 @@ CRS Lab
 This tutorial gives a visual demonstration of coordinate reference systems by displaying
 a shapefile and showing how changing the map projection morphs the shape of the features.
 
+.. image:: CRSLab_animated.gif
+
 Dependencies
 ------------
  
@@ -69,19 +71,6 @@ Button actions
 --------------
 
 In the method above we initialized each of the toolbar buttons with an Action. Let's look at each of these now.
-
-Change CRS Action
-~~~~~~~~~~~~~~~~~
-
-The first two statements set the name (displayed on the button) and the tooltip.
-
-The important bit is where we display a JCRSChooser dialog to prompt the user for a new CRS which we pass to the MapContext. This has
-the effect of refreshing the map display.
-
-   .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/CRSLab.java
-      :language: java
-      :start-after: // docs start crs action
-      :end-before: // docs end crs action
 
 Export Action
 ~~~~~~~~~~~~~
