@@ -16,13 +16,6 @@
  */
 package org.geotools.utils.imageoverviews;
 
-import org.geotools.utils.CoverageToolsConstants;
-import org.geotools.utils.WriteProgressListenerAdapter;
-import org.geotools.utils.progress.BaseArgumentsManager;
-import org.geotools.utils.progress.ExceptionEvent;
-import org.geotools.utils.progress.ProcessingEvent;
-import org.geotools.utils.progress.ProcessingEventListener;
-
 import it.geosolutions.imageio.plugins.tiff.BaselineTIFFTagSet;
 import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageMetadata;
 import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageWriter;
@@ -35,10 +28,8 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -59,12 +50,19 @@ import javax.media.jai.InterpolationBilinear;
 import javax.media.jai.JAI;
 import javax.media.jai.ParameterBlockJAI;
 import javax.media.jai.RenderedOp;
+import javax.media.jai.TileCache;
 
 import org.apache.commons.cli2.Option;
 import org.apache.commons.cli2.validation.InvalidArgumentException;
 import org.apache.commons.cli2.validation.Validator;
-import org.apache.commons.io.filefilter.WildcardFilter;
+import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.geotools.resources.image.ImageUtilities;
+import org.geotools.utils.CoverageToolsConstants;
+import org.geotools.utils.WriteProgressListenerAdapter;
+import org.geotools.utils.progress.BaseArgumentsManager;
+import org.geotools.utils.progress.ExceptionEvent;
+import org.geotools.utils.progress.ProcessingEvent;
+import org.geotools.utils.progress.ProcessingEventListener;
 
 /**
  * <pre>
@@ -107,7 +105,7 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 		 */
 		public void imageComplete(ImageWriter source) {
 
-			OverviewsEmbedder.this.fireEvent(new StringBuffer(
+			OverviewsEmbedder.this.fireEvent(new StringBuilder(
 					"Started with writing out overview number ").append(
 					overviewInProcess + 1.0).toString(),
 					(overviewInProcess + 1 / numSteps) * 100.0);
@@ -120,7 +118,7 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 		 *      float)
 		 */
 		public void imageProgress(ImageWriter source, float percentageDone) {
-			OverviewsEmbedder.this.fireEvent(new StringBuffer(
+			OverviewsEmbedder.this.fireEvent(new StringBuilder(
 					"Writing out overview ").append(overviewInProcess + 1)
 					.toString(), (overviewInProcess / numSteps + percentageDone
 					/ (100 * numSteps)) * 100.0);
@@ -133,7 +131,7 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 		 *      int)
 		 */
 		public void imageStarted(ImageWriter source, int imageIndex) {
-			OverviewsEmbedder.this.fireEvent(new StringBuffer(
+			OverviewsEmbedder.this.fireEvent(new StringBuilder(
 					"Completed writing out overview number ").append(
 					overviewInProcess + 1).toString(), (overviewInProcess)
 					/ numSteps * 100.0);
@@ -147,7 +145,7 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 		 */
 		public void warningOccurred(ImageWriter source, int imageIndex,
 				String warning) {
-			OverviewsEmbedder.this.fireEvent(new StringBuffer(
+			OverviewsEmbedder.this.fireEvent(new StringBuilder(
 					"Warning at overview ").append((overviewInProcess + 1))
 					.toString(), 0);
 		}
@@ -158,7 +156,7 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 		 * @see it.geosolutions.pyramids.DefaultWriteProgressListener#writeAborted(javax.imageio.ImageWriter)
 		 */
 		public void writeAborted(ImageWriter source) {
-			OverviewsEmbedder.this.fireEvent(new StringBuffer(
+			OverviewsEmbedder.this.fireEvent(new StringBuilder(
 					"Aborted writing process.").toString(), 100.0);
 		}
 	}
@@ -245,7 +243,7 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 	 */
 	private Interpolation interp = CoverageToolsConstants.DEFAULT_INTERPOLATION;
 	
-	private String compressionScheme = CoverageToolsConstants.DEFAULT_COMPRESSION_SCHEME;
+	private String compressionScheme = null;
 
 	private double compressionRatio = CoverageToolsConstants.DEFAULT_COMPRESSION_RATIO;
 
@@ -287,7 +285,7 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 												(String) args.get(0));
 										if (!source.exists())
 											throw new InvalidArgumentException(
-													new StringBuffer(
+													new StringBuilder(
 															"The provided source is invalid! ")
 
 													.toString());
@@ -320,7 +318,7 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 												.parseInt((String) args.get(0));
 										if (factor <= 0)
 											throw new InvalidArgumentException(
-													new StringBuffer(
+													new StringBuilder(
 															"The provided scale factor is negative! ")
 
 													.toString());
@@ -357,7 +355,7 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 												.parseInt((String) args.get(0));
 										if (steps <= 0)
 											throw new InvalidArgumentException(
-													new StringBuffer(
+													new StringBuilder(
 															"The provided number of step is negative! ")
 
 													.toString());
@@ -383,7 +381,7 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 										if (!scalingAlgorithms.contains(args
 												.get(0)))
 											throw new InvalidArgumentException(
-													new StringBuffer(
+													new StringBuilder(
 															"The scaling algorithm ")
 															.append(args.get(0))
 															.append(
@@ -478,9 +476,11 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 	 * 
 	 * @return RenderedOp containing the chain to obtain the tiled image.
 	 */
-	private ImageLayout tile(final int tileWidth, final int tileHeight,
-			final int tileGrdiOffseX, final int tileGrdiOffseY,
-			final Interpolation interp) {
+	private static ImageLayout createTiledLayout(
+			final int tileWidth, 
+			final int tileHeight,
+			final int tileGrdiOffseX, 
+			final int tileGrdiOffseY) {
 
 		// //
 		//
@@ -520,6 +520,7 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 	 * 
 	 * @param src
 	 *            Image to subsample.
+	 * @param scaleTC 
 	 * @param scale
 	 *            Scale factor.
 	 * @param interp
@@ -529,7 +530,11 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 	 * 
 	 * @return The subsampled RenderedOp.
 	 */
-	private RenderedOp subsample(RenderedOp src) {
+	private RenderedOp subsample(RenderedOp src, TileCache scaleTC) {
+		final RenderingHints newHints = new RenderingHints(JAI.KEY_TILE_CACHE,scaleTC);
+		newHints.add(ImageUtilities.DONT_REPLACE_INDEX_COLOR_MODEL);
+		newHints.add(new RenderingHints(JAI.KEY_BORDER_EXTENDER, this.borderExtender));
+		
 		// using filtered subsample operator to do a subsampling
 		final ParameterBlockJAI pb = new ParameterBlockJAI("filteredsubsample");
 		pb.addSource(src);
@@ -541,10 +546,7 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 		// IndexColorModel
 		// in future versions we might want to make this parametrix XXX TODO
 		// @task
-		final RenderingHints hints = new RenderingHints(
-				JAI.KEY_BORDER_EXTENDER, this.borderExtender);
-		hints.add(ImageUtilities.DONT_REPLACE_INDEX_COLOR_MODEL);
-		return JAI.create("filteredsubsample", pb, hints);
+		return JAI.create("filteredsubsample", pb, newHints);
 	}
 
 	public int getDownsampleStep() {
@@ -590,6 +592,7 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 	 * 
 	 * @param src
 	 *            Source image to be scaled.
+	 * @param scaleTC 
 	 * @param factor
 	 *            Scale factor.
 	 * @param interpolation
@@ -599,7 +602,10 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 	 * 
 	 * @return The scaled image.
 	 */
-	private RenderedOp filteredSubsample(RenderedImage src) {
+	private RenderedOp filteredSubsample(RenderedImage src, TileCache scaleTC) {
+		final RenderingHints newHints = new RenderingHints(JAI.KEY_TILE_CACHE,scaleTC);
+		newHints.add(ImageUtilities.DONT_REPLACE_INDEX_COLOR_MODEL);
+		
 		// using filtered subsample operator to do a subsampling
 		final ParameterBlockJAI pb = new ParameterBlockJAI("filteredsubsample");
 		pb.addSource(src);
@@ -607,7 +613,7 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 		pb.setParameter("scaleY", new Integer(downsampleStep));
 		pb.setParameter("qsFilterArray", lowPassFilter);
 		pb.setParameter("Interpolation", interp);
-		return JAI.create("filteredsubsample", pb);
+		return JAI.create("filteredsubsample", pb,newHints);
 	}
 
 	/**
@@ -620,6 +626,7 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 	 * 
 	 * @param src
 	 *            Source image to be scaled.
+	 * @param scaleTC 
 	 * @param factor
 	 *            Scale factor.
 	 * @param interpolation
@@ -629,14 +636,16 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 	 * 
 	 * @return The scaled image.
 	 */
-	private RenderedOp scaleAverage(RenderedImage src) {
+	private RenderedOp scaleAverage(RenderedImage src, TileCache scaleTC) {
+		final RenderingHints newHints = new RenderingHints(JAI.KEY_TILE_CACHE,scaleTC);
+		newHints.add(ImageUtilities.DONT_REPLACE_INDEX_COLOR_MODEL);
+		newHints.add(new RenderingHints(JAI.KEY_BORDER_EXTENDER, this.borderExtender));
 		// using filtered subsample operator to do a subsampling
 		final ParameterBlockJAI pb = new ParameterBlockJAI("SubsampleAverage");
 		pb.addSource(src);
 		pb.setParameter("scaleX", new Double(1.0 / downsampleStep));
 		pb.setParameter("scaleY", new Double(1.0 / downsampleStep));
-		return JAI.create("SubsampleAverage", pb, new RenderingHints(
-				JAI.KEY_BORDER_EXTENDER, this.borderExtender));
+		return JAI.create("SubsampleAverage", pb, newHints);
 	}
 
 	public void setBorderExtender(BorderExtender borderExtender) {
@@ -662,13 +671,13 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 			final File dir = new File(sourcePath);
 			final File[] files;
 			int numFiles = 1;
-			StringBuffer message;
+			StringBuilder message;
 			if (dir.isDirectory()) {
-				final FileFilter fileFilter = new WildcardFilter(wildcardString);
+				final FileFilter fileFilter = new WildcardFileFilter(wildcardString);
 				files = dir.listFiles(fileFilter);
 				numFiles = files.length;
 				if (numFiles <= 0) {
-					message = new StringBuffer("No files to process!");
+					message = new StringBuilder("No files to process!");
 					if (LOGGER.isLoggable(Level.FINE)) {
 						LOGGER.fine(message.toString());
 					}
@@ -686,17 +695,14 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 			// /////////////////////////////////////////////////////////////////////
 			for (fileBeingProcessed = 0; fileBeingProcessed < numFiles; fileBeingProcessed++) {
 
-				message = new StringBuffer("Managing file  ").append(
-						fileBeingProcessed).append(" of ").append(
-						files[fileBeingProcessed]).append(" files");
+				message = new StringBuilder("Managing file  ").append(fileBeingProcessed).append(" of ").append(files[fileBeingProcessed]).append(" files");
 				if (LOGGER.isLoggable(Level.FINE)) {
 					LOGGER.fine(message.toString());
 				}
-				fireEvent(message.toString(),
-						((fileBeingProcessed * 100.0) / numFiles));
+				fireEvent(message.toString(),((fileBeingProcessed * 100.0) / numFiles));
 
 				if (getStopThread()) {
-					message = new StringBuffer("Stopping requested at file  ")
+					message = new StringBuilder("Stopping requested at file  ")
 							.append(fileBeingProcessed).append(" of ").append(
 									numFiles).append(" files");
 					if (LOGGER.isLoggable(Level.FINE)) {
@@ -713,8 +719,17 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 				//
 				//
 				// //
-				ImageInputStream stream = ImageIO
-						.createImageInputStream(files[fileBeingProcessed]);
+				ImageInputStream stream = ImageIO.createImageInputStream(files[fileBeingProcessed]);
+				if(stream==null)
+				{
+					
+					message = new StringBuilder("Unable to create an input stream for file").append(files[fileBeingProcessed]);
+					if (LOGGER.isLoggable(Level.SEVERE)) {
+						LOGGER.severe(message.toString());
+					}
+					fireEvent(message.toString(),((fileBeingProcessed * 100.0) / numFiles));
+					return;
+				}
 				stream.mark();
 
 				// //
@@ -723,8 +738,7 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 				//
 				//
 				// //
-				final Iterator<ImageReader> it = ImageIO
-						.getImageReaders(stream);
+				final Iterator<ImageReader> it = ImageIO.getImageReaders(stream);
 				if (!it.hasNext()) {
 
 					return;
@@ -744,17 +758,16 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 				int actualTileW = reader.getTileWidth(0);
 				int actualTileH = reader.getTileHeight(0);
 				final int numImages = reader.getNumImages(true);
-				if (reader.isImageTiled(0) && (actualTileH != tileH)
-						&& (actualTileW != tileW) && tileH != -1 && tileW != -1) {
+				if (!reader.isImageTiled(0)||
+						(reader.isImageTiled(0) && (actualTileH != tileH  && tileH != -1)|| (actualTileW != tileW && tileW != -1))) {
 
-					message = new StringBuffer("Retiling image  ")
-							.append(fileBeingProcessed);
+					message = new StringBuilder("Retiling image  ").append(fileBeingProcessed);
 					if (LOGGER.isLoggable(Level.FINE)) {
 						LOGGER.fine(message.toString());
 					}
 					fireEvent(message.toString(),
 							((fileBeingProcessed * 100.0) / numFiles));
-					layout = tile(tileW, tileH, 0, 0, interp);
+					layout = createTiledLayout(tileW, tileH, 0, 0);
 				}
 				stream.reset();
 				reader.dispose();
@@ -764,10 +777,9 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 				// output image stream
 				//
 				// //
-				ImageOutputStream streamOut = ImageIO
-						.createImageOutputStream(files[fileBeingProcessed]);
+				ImageOutputStream streamOut = ImageIO.createImageOutputStream(files[fileBeingProcessed]);
 				if (streamOut == null) {
-					message = new StringBuffer(
+					message = new StringBuilder(
 							"Unable to acquire an ImageOutputStream for the file ")
 							.append(files[fileBeingProcessed].toString());
 					if (LOGGER.isLoggable(Level.SEVERE)) {
@@ -793,25 +805,21 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 
 				// can we tile this image? (TIFF or JPEG2K)
 				if (!(param.canWriteTiles())) {
-					message = new StringBuffer(
-							"This format do not support tiling!");
+					message = new StringBuilder("This format do not support tiling!");
 					if (LOGGER.isLoggable(Level.SEVERE)) {
 						LOGGER.severe(message.toString());
 					}
-					fireEvent(message.toString(),
-							((fileBeingProcessed * 100.0) / numFiles));
+					fireEvent(message.toString(),((fileBeingProcessed * 100.0) / numFiles));
 					return;
 				}
 
 				// can we write a sequence for these images?
 				if (!(writer.canInsertImage(numImages))) {
-					message = new StringBuffer(
-							"This format do not support overviews!");
+					message = new StringBuilder("This format do not support overviews!");
 					if (LOGGER.isLoggable(Level.SEVERE)) {
 						LOGGER.severe(message.toString());
 					}
-					fireEvent(message.toString(),
-							((fileBeingProcessed * 100.0) / numFiles));
+					fireEvent(message.toString(),((fileBeingProcessed * 100.0) / numFiles));
 					return;
 
 				}
@@ -829,8 +837,7 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 					param.setTilingMode(ImageWriteParam.MODE_EXPLICIT);
 					param.setTiling(actualTileW, actualTileH, 0, 0);
 				}
-				if (this.compressionScheme != null
-						&& !Double.isNaN(compressionRatio)) {
+				if (this.compressionScheme != null && !Double.isNaN(compressionRatio)) {
 					param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
 					param.setCompressionType(compressionScheme);
 					param.setCompressionQuality((float) this.compressionRatio);
@@ -842,11 +849,20 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 				// subsampling
 				//
 				// //
-				final RenderingHints newHints = new RenderingHints(
-						JAI.KEY_IMAGE_LAYOUT, layout);
+				TileCache baseTC= JAI.createTileCache();
+				baseTC.setMemoryCapacity(128*1024*1024);
+//				final  TCTool tc = new TCTool((SunTileCache)baseTC);
+
+				
+				TileCache scaleTC= JAI.createTileCache();
+				scaleTC.setMemoryCapacity(128*1024*1024);
+//				final  TCTool tc1 = new TCTool((SunTileCache)scaleTC);
+				
+				final RenderingHints newHints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, layout);
+				newHints.add(new RenderingHints(JAI.KEY_TILE_CACHE,baseTC));
+				
 				ParameterBlock pbjRead = new ParameterBlock();
-				pbjRead.add(ImageIO
-						.createImageInputStream(files[fileBeingProcessed]));
+				pbjRead.add(ImageIO.createImageInputStream(files[fileBeingProcessed]));
 				pbjRead.add(new Integer(0));
 				pbjRead.add(Boolean.FALSE);
 				pbjRead.add(Boolean.FALSE);
@@ -855,87 +871,41 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 				pbjRead.add(null);
 				pbjRead.add(null);
 				pbjRead.add(null);
-				RenderedOp currentImage = JAI.create("ImageRead", pbjRead,
-						newHints);
-				message = new StringBuffer("Reaad original image  ")
-						.append(fileBeingProcessed);
+				RenderedOp currentImage = JAI.create("ImageRead", pbjRead,newHints);
+				message = new StringBuilder("Read original image  ").append(fileBeingProcessed);
 				if (LOGGER.isLoggable(Level.FINE)) {
 					LOGGER.fine(message.toString());
 				}
-				fireEvent(message.toString(),
-						((fileBeingProcessed * 100.0) / numFiles));
+				fireEvent(message.toString(),((fileBeingProcessed * 100.0) / numFiles));
+
+				RenderedOp newImage=null;
 				for (overviewInProcess = 0; overviewInProcess < numSteps; overviewInProcess++) {
 
-					// if (overviewInProcess > 0) {
-					//
-					// // re-instantiate the current image from disk
-					// stream = ImageIO
-					// .createImageInputStream(files[fileBeingProcessed]);
-					// pbjRead = new ParameterBlock();
-					// pbjRead.add(stream);
-					// pbjRead.add(new Integer(overviewInProcess));
-					// pbjRead.add(Boolean.FALSE);
-					// pbjRead.add(Boolean.FALSE);
-					// pbjRead.add(Boolean.FALSE);
-					// pbjRead.add(null);
-					// pbjRead.add(null);
-					// pbjRead.add(null);
-					// pbjRead.add(null);
-					// currentImage = JAI.create("ImageRead", pbjRead,
-					// newHints);
-					//
-					// // //
-					// //
-					// // output image stream
-					// //
-					// // //
-					// streamOut = ImageIO
-					// .createImageOutputStream(files[fileBeingProcessed]);
-					//
-					// // //
-					// //
-					// // Preparing to write the set of images. First of all I
-					// // write the first image `
-					// //
-					// // //
-					// // getting a writer for this reader
-					// writer.setOutput(streamOut);
-					// writer
-					// .addIIOWriteProgressListener(writeProgressListener);
-					//
-					// }
-
-					message = new StringBuffer("Subsampling step ").append(
-							overviewInProcess).append(" of image  ").append(
-							fileBeingProcessed);
+					message = new StringBuilder("Subsampling step ").append(overviewInProcess).append(" of image  ").append(fileBeingProcessed);
 					if (LOGGER.isLoggable(Level.FINE)) {
 						LOGGER.fine(message.toString());
 					}
-					fireEvent(message.toString(),
-							((fileBeingProcessed * 100.0) / numFiles));
+					fireEvent(message.toString(),((fileBeingProcessed * 100.0) / numFiles));
 
 					// paranoiac check
-					if (currentImage.getWidth() / downsampleStep <= 0
-							|| currentImage.getHeight() / downsampleStep <= 0)
+					if (currentImage.getWidth() / downsampleStep <= 0|| currentImage.getHeight() / downsampleStep <= 0)
 						break;
 
-					RenderedOp newImage;
 					// subsampling the input image using the chosen algorithm
 					if (scaleAlgorithm.equalsIgnoreCase("avg"))
-						newImage = scaleAverage(currentImage);
+						newImage = scaleAverage(currentImage,scaleTC);
 					else if (scaleAlgorithm.equalsIgnoreCase("filt"))
-						newImage = filteredSubsample(currentImage);
+						newImage = filteredSubsample(currentImage,scaleTC);
 					else if (scaleAlgorithm.equalsIgnoreCase("bil"))
-						newImage = bilinear(currentImage);
+						newImage = bilinear(currentImage,scaleTC);
 					else if (scaleAlgorithm.equalsIgnoreCase("nn"))
-						newImage = subsample(currentImage);
+						newImage = subsample(currentImage,scaleTC);
 					else if (scaleAlgorithm.equalsIgnoreCase("bic"))
-						newImage = bicubic(currentImage);
+						newImage = bicubic(currentImage,scaleTC);
 					else
-						throw new IllegalStateException();
+						throw new IllegalArgumentException("Invalid scaling algorithm "+scaleAlgorithm);
 
-					IIOMetadata imageMetadata = null;
-                                        
+					IIOMetadata imageMetadata = null;                                        
                     if (writer instanceof TIFFImageWriter){
                        imageMetadata = writer.getDefaultImageMetadata(new ImageTypeSpecifier(newImage), param);
                        if (imageMetadata != null)
@@ -944,7 +914,7 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
                     // write out
                     writer.writeInsert(-1, new IIOImage(newImage, null, imageMetadata), param);
 
-					message = new StringBuffer("Step ").append(
+					message = new StringBuilder("Step ").append(
 							overviewInProcess).append(" of image  ").append(
 							fileBeingProcessed).append(" done!");
 					if (LOGGER.isLoggable(Level.FINE)) {
@@ -954,19 +924,32 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 							((fileBeingProcessed * 100.0) / numFiles));
 
 					// flushing cache
-					JAI.getDefaultInstance().getTileCache().removeTiles(
-							currentImage);
+					baseTC.flush();
+					final TileCache appo= baseTC;
+					baseTC=scaleTC;
+					scaleTC=appo;
 					currentImage = newImage;
-					//
-					// // free everything
-					// streamOut.flush();
-					// streamOut.close();
-					// writer.reset();
-					// currentImage.dispose();
-					// stream.close();
+
 
 				}
-				message = new StringBuffer("Done with  image  ")
+				
+				// clean caches
+				baseTC.flush();
+				scaleTC.flush();
+				
+				//
+				// free everything
+				streamOut.flush();
+				streamOut.close();
+				writer.dispose();
+				currentImage.dispose();
+				if(newImage!=null)
+					newImage.dispose();
+
+				stream.close();
+				
+				// close message
+				message = new StringBuilder("Done with  image  ")
 						.append(fileBeingProcessed);
 				if (LOGGER.isLoggable(Level.FINE)) {
 					LOGGER.fine(message.toString());
@@ -990,9 +973,12 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 	 * 
 	 * @param src
 	 *            The source image.
+	 * @param scaleTC 
 	 * @return The subsampled image.
 	 */
-	private RenderedOp bilinear(RenderedOp src) {
+	private RenderedOp bilinear(RenderedOp src, TileCache scaleTC) {
+		final RenderingHints newHints = new RenderingHints(JAI.KEY_TILE_CACHE,scaleTC);
+		newHints.add(ImageUtilities.DONT_REPLACE_INDEX_COLOR_MODEL);
 		// using filtered subsample operator to do a subsampling
 		final ParameterBlockJAI pb = new ParameterBlockJAI("filteredsubsample");
 		pb.addSource(src);
@@ -1000,8 +986,7 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 		pb.setParameter("scaleY", new Integer(downsampleStep));
 		pb.setParameter("qsFilterArray", new float[] { 1.0f });
 		pb.setParameter("Interpolation", new InterpolationBilinear());
-		return JAI.create("filteredsubsample", pb,
-				ImageUtilities.DONT_REPLACE_INDEX_COLOR_MODEL);
+		return JAI.create("filteredsubsample", pb,newHints);
 	}
 
 	/**
@@ -1009,9 +994,14 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 	 * 
 	 * @param src
 	 *            The source image.
+	 * @param scaleTC 
 	 * @return The subsampled image.
 	 */
-	private RenderedOp bicubic(RenderedOp src) {
+	private RenderedOp bicubic(RenderedOp src, TileCache scaleTC) {
+		
+		
+		final RenderingHints newHints = new RenderingHints(JAI.KEY_TILE_CACHE,scaleTC);
+		newHints.add(ImageUtilities.DONT_REPLACE_INDEX_COLOR_MODEL);
 		// using filtered subsample operator to do a subsampling
 		final ParameterBlockJAI pb = new ParameterBlockJAI("filteredsubsample");
 		pb.addSource(src);
@@ -1019,8 +1009,7 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 		pb.setParameter("scaleY", new Integer(downsampleStep));
 		pb.setParameter("qsFilterArray", new float[] { 1.0f });
 		pb.setParameter("Interpolation", new InterpolationBicubic(2));
-		return JAI.create("filteredsubsample", pb,
-				ImageUtilities.DONT_REPLACE_INDEX_COLOR_MODEL);
+		return JAI.create("filteredsubsample", pb,newHints);
 	}
 
 	/*
@@ -1029,7 +1018,7 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 	 * @see it.geosolutions.utils.progress.ProcessingEventListener#getNotification(it.geosolutions.utils.progress.ProcessingEvent)
 	 */
 	public void getNotification(ProcessingEvent event) {
-		LOGGER.info(new StringBuffer("Progress is at ").append(
+		LOGGER.info(new StringBuilder("Progress is at ").append(
 				event.getPercentage()).append("\n").append(
 				"attached message is: ").append(event.getMessage()).toString());
 
@@ -1177,16 +1166,8 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 		this.compressionScheme = compressionScheme;
 	}
 
-	public int getTileW() {
-		return tileW;
-	}
-
 	public void setTileW(int tileW) {
 		this.tileW = tileW;
-	}
-
-	public int getTileH() {
-		return tileH;
 	}
 
 	public void setTileH(int tileH) {
