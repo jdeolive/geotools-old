@@ -499,18 +499,24 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
     private void setNextFilteredFeature(String fId, ArrayList<Feature> features) throws IOException {
         FeatureCollection<FeatureType, Feature> matchingFeatures;
         FeatureId featureId = namespaceAwareFilterFactory.featureId(fId);
+        DefaultQuery query = new DefaultQuery();
+        if (reprojection != null) {
+            query.setCoordinateSystemReproject(reprojection);
+        }
         if (featureFidMapping instanceof PropertyName
                 && ((PropertyName) featureFidMapping).getPropertyName().equals("@id")) {
             // no real feature id mapping,
             // so trying to find it when the filter's evaluated will result in exception
             Set<FeatureId> ids = new HashSet<FeatureId>();
             ids.add(featureId);
-            matchingFeatures = this.mappedSource.getFeatures(namespaceAwareFilterFactory.id(ids));
+            query.setFilter(namespaceAwareFilterFactory.id(ids));
+            matchingFeatures = this.mappedSource.getFeatures(query);
         } else {
             // in case the expression is wrapped in a function, eg. strConcat
             // that's why we don't always filter by id, but do a PropertyIsEqualTo
-            matchingFeatures = this.mappedSource.getFeatures(namespaceAwareFilterFactory.equals(
+            query.setFilter(namespaceAwareFilterFactory.equals(
                     featureFidMapping, namespaceAwareFilterFactory.literal(featureId)));
+            matchingFeatures = this.mappedSource.getFeatures(query);
         }
 
         Iterator<Feature> iterator = matchingFeatures.iterator();
