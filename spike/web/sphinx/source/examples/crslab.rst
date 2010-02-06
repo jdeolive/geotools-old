@@ -54,62 +54,72 @@ Main Application
       :start-after: // docs start source
       :end-before: // docs end main
 
+Customizing JMapFrame
+---------------------
+
 Displaying the shapefile
-------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 This method opens and connects to a shapefile and uses a **JMapFrame** to display it. It should look familiar to you from 
-the :ref:`quickstart` example.
+the :ref:`quickstart` example. Notice that we are customizing the JMapFrame by adding two buttons to its toolbar: one to
+check that feature geometries are valid (e.g. polygon boundaries are closed) and one to export reprojected feature data.
 
    .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/CRSLab.java
       :language: java
       :start-after: // docs start display
       :end-before: // docs end display
 
-Notice that we are customizing the JMapFrame by adding two buttons to its toolbar.
+Validate geometry button action
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Button actions
---------------
+This action is implemented as a nested class. Most of the work is done by a helper method in the parent class (see 
+`Validating feature geometry`_ below). 
 
-In the method above we initialized each of the toolbar buttons with an Action. Let's look at each of these now.
+Note the use of the SwingWorker utility class to run the validation in a background thread. This allows large shapefiles to 
+be checked without locking up the GUI.
 
-Export Action
-~~~~~~~~~~~~~
-
-This simply delegates to the exportToShapefile method which we'll look at shortly.
-
-   .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/CRSLab.java
-      :language: java
-      :start-after: // docs start export action
-      :end-before: // docs end export action
-
-Validate Action
-~~~~~~~~~~~~~~~
-
-This action also delegates to a helper method, validateFeatureGeometry, but it uses the SwingWorker
-utility class to run the validation process in a background thread in case we are dealing with a large
-shapefile.
-
-   .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/CRSLab.java
+  .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/CRSLab.java
       :language: java
       :start-after: // docs start validate action
       :end-before: // docs end validate action
 
-Exporting reprojected data to a shapefile
------------------------------------------
+..
 
-   .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/CRSLab.java
+      .. admonition:: The SwingWorker class
+
+         The SwingWorker class is part of Java 6. GeoTools also includes it in the **gt-swing** module for use in 
+         Java 5 applications.
+
+Export button action
+~~~~~~~~~~~~~~~~~~~~
+
+This is another nested class that simply delegates to the exportToShapefile method in the parent class.
+
+  .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/CRSLab.java
       :language: java
-      :start-after: // docs start export
-      :end-before: // docs end export
+      :start-after: // docs start export action
+      :end-before: // docs end export action
 
 Validating feature geometry
 ---------------------------
+
+This method checks the geometry associated with each feature in our shapefile for common problems (such as polygons
+not having closed boundaries).
+
 
    .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/CRSLab.java
       :language: java
       :start-after: // docs start validate
       :end-before: // docs end validate
 
+
+Exporting reprojected data to a shapefile
+-----------------------------------------
+
+  .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/CRSLab.java
+      :language: java
+      :start-after: // docs start export
+      :end-before: // docs end export
 
 Running the application
 -----------------------
@@ -118,7 +128,7 @@ Swapping between map projections
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When you start the application you will be prompted for a shapefile to display. In the screenshots below we are 
-using the **bc_border** map which can be downloaded as part of the `uDig sample data`__.
+using the *bc_border* map which can be downloaded as part of the `uDig sample data`__.
 
 .. _udigdata: http://udig.refractions.net/docs/data-v1_2.zip
 
@@ -148,10 +158,19 @@ Notice that the map coordinates are now expressed in degrees once again.
 Exporting the reprojected data
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-*To be continued...*
+When you change the map projection for the display the shapefile remains unchanged. With the *bc_border* shapefile, the
+feature data are still in degrees but when we select the *BC Albers* projection the features are reprojected on the fly 
+by GeoTools. To reproject the underlying data we need to export a new shapefile as follows:
+
+ * Set the display of reprojected data (e.g. 3005 BC Albers for the *bc_border* shapefile).
+ * Click the *Validate geometry* button to check feature geometries are ok.
+ * If there are no geometry problems, click the *Export* button and enter a name and path for the new shapefile.
 
 An alternative export to shapefile method
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------------------------
+
+This version of the export method shows how to use a **Query** object to retrieve reprojected features and write them to
+a new shapefile instead of transforming the features 'by hand' as we did above.
 
    .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/CRSLab.java
       :language: java
