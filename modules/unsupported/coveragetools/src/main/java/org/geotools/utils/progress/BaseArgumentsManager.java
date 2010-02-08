@@ -45,15 +45,14 @@ public abstract class BaseArgumentsManager extends ProgressManager {
 	/**
 	 * Default tile cache size.
 	 */
-	public static final long DEFAULT_TILE_CACHE_SIZE = 64 * 1024 * 1024;
+	public static final long DEFAULT_TILE_CACHE_SIZE = 128 * 1024 * 1024;
 
 	/**
 	 * Default priority for the underlying {@link Thread}.
 	 */
 	public static final int DEFAULT_PRIORITY = Thread.NORM_PRIORITY;
 
-	private final static Logger LOGGER = org.geotools.util.logging.Logging
-			.getLogger(BaseArgumentsManager.class.toString());
+	private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(BaseArgumentsManager.class.toString());
 
 	/**
 	 * Options for the command line.
@@ -310,6 +309,18 @@ public abstract class BaseArgumentsManager extends ProgressManager {
 		// //
 		ImageIO.setUseCache(useImageIOCache);
 
+	}
+
+	public boolean isUseImageIOCache() {
+		return useImageIOCache;
+	}
+
+	public void setTileCacheSize(long tileCacheSize) {
+		this.tileCacheSize = tileCacheSize;
+	}
+
+	public void setPriority(int priority) {
+		this.priority = priority;
 	}
 
 }

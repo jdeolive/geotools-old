@@ -199,14 +199,12 @@ public abstract class ProgressManager {
 	 *            the actual exception occurred
 	 */
 	public synchronized void fireException(final String string,
-			final double percentage, Exception ex) {
+			final double percentage, Throwable ex) {
 		final String newLine = System.getProperty("line.separator");
 		final StringBuffer message = new StringBuffer("Thread Name ");
 		message.append(Thread.currentThread().getName()).append(newLine);
-		message.append(this.getClass().toString()).append(newLine).append(
-				string);
-		final ExceptionEvent evt = new ExceptionEvent(this, string, percentage,
-				ex);
+		message.append(this.getClass().toString()).append(newLine).append(string);
+		final ExceptionEvent evt = new ExceptionEvent(this, string, percentage,ex);
 		ProgressEventDispatchThreadEventLauncher eventLauncher = new ProgressEventDispatchThreadEventLauncher();
 		eventLauncher.setEvent(evt, this.notificationListeners.toArray());
 		sendEvent(eventLauncher);
@@ -221,7 +219,7 @@ public abstract class ProgressManager {
 	 * @param ex
 	 *            the actual exception occurred
 	 */
-	public synchronized void fireException(Exception ex) {
+	public synchronized void fireException(Throwable ex) {
 		fireException(ExceptionEvent.getMessageFromException(ex), -1, ex);
 	}
 

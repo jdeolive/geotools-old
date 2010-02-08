@@ -35,8 +35,7 @@ public class CoverageToolsConstants {
 	/**
 	 * Default interpolation.
 	 */
-	public final static Interpolation DEFAULT_INTERPOLATION = Interpolation
-			.getInstance(Interpolation.INTERP_NEAREST);
+	public final static Interpolation DEFAULT_INTERPOLATION = Interpolation.getInstance(Interpolation.INTERP_NEAREST);
 	/** Default filter for subsampling averaged. */
 	public final static float[] DEFAULT_KERNEL_GAUSSIAN = new float[] { 0.5F,
 			1.0F / 3.0F, 0.0F, -1.0F / 12.0F };

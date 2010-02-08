@@ -31,23 +31,23 @@ public class ExceptionEvent extends ProcessingEvent {
 	 * 
 	 */
 	private static final long serialVersionUID = 2272452028229922551L;
-	private Exception exception;
+	private Throwable exception;
 
-    public ExceptionEvent(Object source, String message, double percentage, Exception exception) {
+    public ExceptionEvent(Object source, String message, double percentage, Throwable exception) {
         super(source, message, percentage);
         this.exception = exception;
     }
 
-    public ExceptionEvent(Object source, Exception exception) {
+    public ExceptionEvent(Object source, Throwable exception) {
         super(source, getMessageFromException(exception), -1);
         this.exception = exception;
     }
 
-    public Exception getException() {
+    public Throwable getException() {
         return exception;
     }
     
-    static String getMessageFromException(Exception exception) {
+    static String getMessageFromException(Throwable exception) {
         if(exception.getLocalizedMessage() != null)
             return exception.getLocalizedMessage();
         else

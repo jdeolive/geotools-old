@@ -19,6 +19,7 @@ package org.geotools.utils.imageoverviews;
 import it.geosolutions.imageio.plugins.tiff.BaselineTIFFTagSet;
 import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageMetadata;
 import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageWriter;
+import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageWriterSpi;
 
 import java.awt.RenderingHints;
 import java.awt.image.RenderedImage;
@@ -64,6 +65,7 @@ import org.geotools.utils.progress.ExceptionEvent;
 import org.geotools.utils.progress.ProcessingEvent;
 import org.geotools.utils.progress.ProcessingEventListener;
 
+
 /**
  * <pre>
  *  Example of usage:
@@ -81,13 +83,12 @@ import org.geotools.utils.progress.ProcessingEventListener;
  *  &#064;author Simone Giannecchini (GeoSolutions)
  *  &#064;author Alessio Fabiani (GeoSolutions)
  *  &#064;since 2.3.x
- *  &#064;version 0.3
+ *  &#064;version 0.4
  * 
  *
  * @source $URL$
  */
-public class OverviewsEmbedder extends BaseArgumentsManager implements
-		Runnable, ProcessingEventListener {
+public class OverviewsEmbedder extends BaseArgumentsManager implements Runnable, ProcessingEventListener {
 
 	/**
 	 * 
@@ -664,62 +665,85 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 		this.lowPassFilter = lowPassFilter;
 	}
 
-	public void run() {
-		try {
+public void run() {
 
-			// getting an image input stream to the file
-			final File dir = new File(sourcePath);
-			final File[] files;
-			int numFiles = 1;
-			StringBuilder message;
-			if (dir.isDirectory()) {
-				final FileFilter fileFilter = new WildcardFileFilter(wildcardString);
-				files = dir.listFiles(fileFilter);
-				numFiles = files.length;
-				if (numFiles <= 0) {
-					message = new StringBuilder("No files to process!");
-					if (LOGGER.isLoggable(Level.FINE)) {
-						LOGGER.fine(message.toString());
-					}
-					fireEvent(message.toString(), 100);
-
+		//
+		// CHECK INPUT DIRECTORIES/FILES
+		//
+		if(sourcePath==null)
+		{
+			fireEvent("Provided sourcePath is null", 0);
+			return;
+		}
+		// getting an image input stream to the file
+		final File file = new File(sourcePath);
+		final File[] files;
+		int numFiles = 1;
+		StringBuilder message;
+		if(!file.canRead()||!file.exists())
+		{
+			fireEvent("Provided file "+file.getAbsolutePath()+" cannot be read or does not exist", 0);
+			return;
+		}
+		if (file.isDirectory()) {
+			if(wildcardString==null){
+				fireEvent("Provided wildcardString is null", 0);
+				return;
+			}
+			final FileFilter fileFilter = new WildcardFileFilter(wildcardString);
+			files = file.listFiles(fileFilter);
+			numFiles = files.length;
+			if (numFiles <= 0) {
+				message = new StringBuilder("No files to process!");
+				if (LOGGER.isLoggable(Level.FINE)) {
+					LOGGER.fine(message.toString());
 				}
+				fireEvent(message.toString(), 100);
 
-			} else
-				files = new File[] { dir };
+			}
 
-			// /////////////////////////////////////////////////////////////////////
-			//
-			// Cycling over the features
-			//
-			// /////////////////////////////////////////////////////////////////////
-			for (fileBeingProcessed = 0; fileBeingProcessed < numFiles; fileBeingProcessed++) {
+		} else
+			files = new File[] { file };
+		
+		if(files==null||files.length==0)
+		{
+			fireEvent("Unable to find input files for the provided wildcard "+wildcardString+ " and input path "+sourcePath,0);
+			return;
+		}
 
-				message = new StringBuilder("Managing file  ").append(fileBeingProcessed).append(" of ").append(files[fileBeingProcessed]).append(" files");
+		//
+		// ADDING OVERVIEWS TO ALL FOUND FILES
+		//
+		for (fileBeingProcessed = 0; fileBeingProcessed < numFiles; fileBeingProcessed++) {
+
+			message = new StringBuilder("Managing file  ").append(fileBeingProcessed).append(" of ").append(files[fileBeingProcessed]).append(" files");
+			if (LOGGER.isLoggable(Level.FINE)) {
+				LOGGER.fine(message.toString());
+			}
+			fireEvent(message.toString(),((fileBeingProcessed * 100.0) / numFiles));
+
+			if (getStopThread()) {
+				message = new StringBuilder("Stopping requested at file  ").append(fileBeingProcessed).append(" of ").append(numFiles).append(" files");
 				if (LOGGER.isLoggable(Level.FINE)) {
 					LOGGER.fine(message.toString());
 				}
 				fireEvent(message.toString(),((fileBeingProcessed * 100.0) / numFiles));
+				return;
+			}
 
-				if (getStopThread()) {
-					message = new StringBuilder("Stopping requested at file  ")
-							.append(fileBeingProcessed).append(" of ").append(
-									numFiles).append(" files");
-					if (LOGGER.isLoggable(Level.FINE)) {
-						LOGGER.fine(message.toString());
-					}
-					fireEvent(message.toString(),
-							((fileBeingProcessed * 100.0) / numFiles));
-					return;
-				}
+			ImageInputStream stream=null;
+			ImageWriter writer =null;
+			ImageOutputStream streamOut=null;
+			TileCache baseTC= null;			
+			TileCache scaleTC=null;
+			RenderedOp currentImage = null;
+			RenderedOp newImage=null;				
+			try{
 
-				// //
 				//
 				// get a stream
 				//
-				//
-				// //
-				ImageInputStream stream = ImageIO.createImageInputStream(files[fileBeingProcessed]);
+				stream = ImageIO.createImageInputStream(files[fileBeingProcessed]);
 				if(stream==null)
 				{
 					
@@ -728,30 +752,31 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 						LOGGER.severe(message.toString());
 					}
 					fireEvent(message.toString(),((fileBeingProcessed * 100.0) / numFiles));
-					return;
+					break;
 				}
 				stream.mark();
 
-				// //
+	
 				//
 				// get a reader
 				//
-				//
-				// //
 				final Iterator<ImageReader> it = ImageIO.getImageReaders(stream);
 				if (!it.hasNext()) {
-
-					return;
+					message = new StringBuilder("Unable to find a reader for file").append(files[fileBeingProcessed]);
+					if (LOGGER.isLoggable(Level.SEVERE)) {
+						LOGGER.severe(message.toString());
+					}
+					fireEvent(message.toString(),((fileBeingProcessed * 100.0) / numFiles));
+					break;
 				}
 				final ImageReader reader = (ImageReader) it.next();
 				stream.reset();
 				stream.mark();
 
-				// //
+
 				//
 				// set input
 				//
-				// //
 				reader.setInput(stream);
 				ImageLayout layout = null;
 				// tiling the image if needed
@@ -770,14 +795,13 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 					layout = createTiledLayout(tileW, tileH, 0, 0);
 				}
 				stream.reset();
+				reader.reset();
 				reader.dispose();
 
-				// //
 				//
 				// output image stream
 				//
-				// //
-				ImageOutputStream streamOut = ImageIO.createImageOutputStream(files[fileBeingProcessed]);
+				streamOut = ImageIO.createImageOutputStream(files[fileBeingProcessed]);
 				if (streamOut == null) {
 					message = new StringBuilder(
 							"Unable to acquire an ImageOutputStream for the file ")
@@ -787,17 +811,16 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 					}
 					fireEvent(message.toString(),
 							((fileBeingProcessed * 100.0) / numFiles));
-					return;
+					break;
 				}
 
-				// //
+
 				//
 				// Preparing to write the set of images. First of all I write
 				// the first image `
 				//
-				// //
 				// getting a writer for this reader
-				ImageWriter writer = ImageIO.getImageWriter(reader);
+				writer = new TIFFImageWriterSpi().createWriterInstance();//ImageIO.getImageWriter(reader);
 				writer.setOutput(streamOut);
 				writer.addIIOWriteProgressListener(writeProgressListener);
 				writer.addIIOWriteWarningListener(writeProgressListener);
@@ -810,7 +833,7 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 						LOGGER.severe(message.toString());
 					}
 					fireEvent(message.toString(),((fileBeingProcessed * 100.0) / numFiles));
-					return;
+					break;
 				}
 
 				// can we write a sequence for these images?
@@ -820,15 +843,13 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 						LOGGER.severe(message.toString());
 					}
 					fireEvent(message.toString(),((fileBeingProcessed * 100.0) / numFiles));
-					return;
+					break;
 
 				}
 
-				// //
 				//
 				// setting tiling on the first image using writing parameters
 				//
-				// //
 				if (tileH != -1 & tileW != -1) {
 					param.setTilingMode(ImageWriteParam.MODE_EXPLICIT);
 					param.setTiling(tileW, tileH, 0, 0);
@@ -843,26 +864,28 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 					param.setCompressionQuality((float) this.compressionRatio);
 				}
 
-				// //
 				//
 				// creating the image to use for the successive
 				// subsampling
 				//
-				// //
-				TileCache baseTC= JAI.createTileCache();
-				baseTC.setMemoryCapacity(128*1024*1024);
-//				final  TCTool tc = new TCTool((SunTileCache)baseTC);
+				final long tilecacheSize=this.getTileCacheSize()<=0?DEFAULT_TILE_CACHE_SIZE:super.getTileCacheSize();
+				baseTC= JAI.createTileCache();
+				baseTC.setMemoryCapacity(tilecacheSize/2);
+				baseTC.setMemoryThreshold(1.0f);
+//				final TCTool tctool = new TCTool((SunTileCache)baseTC);
 
 				
-				TileCache scaleTC= JAI.createTileCache();
-				scaleTC.setMemoryCapacity(128*1024*1024);
-//				final  TCTool tc1 = new TCTool((SunTileCache)scaleTC);
+				scaleTC= JAI.createTileCache();
+				scaleTC.setMemoryCapacity(tilecacheSize/2);
+				scaleTC.setMemoryThreshold(1.0f);
+//				final TCTool tctool1 = new TCTool((SunTileCache)scaleTC);
 				
 				final RenderingHints newHints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, layout);
 				newHints.add(new RenderingHints(JAI.KEY_TILE_CACHE,baseTC));
 				
+				// read base image
 				ParameterBlock pbjRead = new ParameterBlock();
-				pbjRead.add(ImageIO.createImageInputStream(files[fileBeingProcessed]));
+				pbjRead.add(stream);
 				pbjRead.add(new Integer(0));
 				pbjRead.add(Boolean.FALSE);
 				pbjRead.add(Boolean.FALSE);
@@ -871,14 +894,12 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 				pbjRead.add(null);
 				pbjRead.add(null);
 				pbjRead.add(null);
-				RenderedOp currentImage = JAI.create("ImageRead", pbjRead,newHints);
+				currentImage = JAI.create("ImageRead", pbjRead,newHints);
 				message = new StringBuilder("Read original image  ").append(fileBeingProcessed);
 				if (LOGGER.isLoggable(Level.FINE)) {
 					LOGGER.fine(message.toString());
 				}
 				fireEvent(message.toString(),((fileBeingProcessed * 100.0) / numFiles));
-
-				RenderedOp newImage=null;
 				for (overviewInProcess = 0; overviewInProcess < numSteps; overviewInProcess++) {
 
 					message = new StringBuilder("Subsampling step ").append(overviewInProcess).append(" of image  ").append(fileBeingProcessed);
@@ -891,6 +912,8 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 					if (currentImage.getWidth() / downsampleStep <= 0|| currentImage.getHeight() / downsampleStep <= 0)
 						break;
 
+					// SCALE
+					
 					// subsampling the input image using the chosen algorithm
 					if (scaleAlgorithm.equalsIgnoreCase("avg"))
 						newImage = scaleAverage(currentImage,scaleTC);
@@ -904,7 +927,8 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 						newImage = bicubic(currentImage,scaleTC);
 					else
 						throw new IllegalArgumentException("Invalid scaling algorithm "+scaleAlgorithm);
-
+					
+					//set relevant metadata
 					IIOMetadata imageMetadata = null;                                        
                     if (writer instanceof TIFFImageWriter){
                        imageMetadata = writer.getDefaultImageMetadata(new ImageTypeSpecifier(newImage), param);
@@ -923,8 +947,10 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 					fireEvent(message.toString(),
 							((fileBeingProcessed * 100.0) / numFiles));
 
-					// flushing cache
+					// flushing cache on the old image which we are not going to use anymore
 					baseTC.flush();
+					
+					// switching caches and images
 					final TileCache appo= baseTC;
 					baseTC=scaleTC;
 					scaleTC=appo;
@@ -932,21 +958,6 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 
 
 				}
-				
-				// clean caches
-				baseTC.flush();
-				scaleTC.flush();
-				
-				//
-				// free everything
-				streamOut.flush();
-				streamOut.close();
-				writer.dispose();
-				currentImage.dispose();
-				if(newImage!=null)
-					newImage.dispose();
-
-				stream.close();
 				
 				// close message
 				message = new StringBuilder("Done with  image  ")
@@ -956,12 +967,51 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 				}
 				fireEvent(message.toString(),
 						(((fileBeingProcessed + 1) * 100.0) / numFiles));
-
+			}catch (Throwable e) {
+				fireException(e);
+			}finally{
+				// clean up
+				
+				// clean caches
+				baseTC.flush();
+				scaleTC.flush();
+				
+				//
+				// free everything
+				try {
+					streamOut.flush();
+				} catch (Throwable e) {
+					if(LOGGER.isLoggable(Level.FINE))
+						LOGGER.log(Level.FINE,e.getLocalizedMessage(),e);
+				}
+				try {
+					streamOut.close();
+				} catch (Throwable e) {
+					if(LOGGER.isLoggable(Level.FINE))
+						LOGGER.log(Level.FINE,e.getLocalizedMessage(),e);
+				}
+				
+				try {
+					writer.dispose();
+				} catch (Throwable e) {
+					if(LOGGER.isLoggable(Level.FINE))
+						LOGGER.log(Level.FINE,e.getLocalizedMessage(),e);
+				}
+				
+				currentImage.dispose();
+				if(newImage!=null)
+					newImage.dispose();
+				try {
+					stream.close();				
+					
+				} catch (Throwable e) {
+					if(LOGGER.isLoggable(Level.FINE))
+						LOGGER.log(Level.FINE,e.getLocalizedMessage(),e);
+				}
 			}
-
-		} catch (IOException e) {
-			fireException(e);
 		}
+
+	
 
 		if (LOGGER.isLoggable(Level.FINE))
 			LOGGER.fine("Done!!!");
@@ -1164,14 +1214,6 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 
 	public final void setCompressionScheme(String compressionScheme) {
 		this.compressionScheme = compressionScheme;
-	}
-
-	public void setTileW(int tileW) {
-		this.tileW = tileW;
-	}
-
-	public void setTileH(int tileH) {
-		this.tileH = tileH;
 	}
 
 	public String getScaleAlgorithm() {
