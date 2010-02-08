@@ -21,6 +21,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -29,6 +30,7 @@ import java.util.Map;
 import org.geotools.data.DataAccess;
 import org.geotools.data.DataAccessFinder;
 import org.geotools.data.FeatureSource;
+import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.Types;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -47,7 +49,7 @@ import org.xml.sax.helpers.NamespaceSupport;
 public class BBoxTest {
     private static FilterFactoryImpl ff;
 
-    private static DataAccess dataAccess;
+    private static DataAccess<FeatureType, Feature> dataAccess;
 
     private static FeatureSource<FeatureType, Feature> fSource;
 
@@ -68,14 +70,14 @@ public class BBoxTest {
          */
         final Name FEATURE_TYPE = Types.typeName(GSML_URI, "MappedFeature");
         final String schemaBase = "/test-data/";
-        Map dsParams = new HashMap();
+        Map<String, Serializable> dsParams = new HashMap<String, Serializable>();
         dsParams.put("dbtype", "app-schema");
         URL url = BBoxTest.class.getResource(schemaBase + "MappedFeatureAsOccurrence.xml");
         assertNotNull(url);
         dsParams.put("url", url.toExternalForm());
         dataAccess = DataAccessFinder.getDataStore(dsParams);
 
-        fSource = (FeatureSource) dataAccess.getFeatureSource(FEATURE_TYPE);
+        fSource = (FeatureSource<FeatureType, Feature>) dataAccess.getFeatureSource(FEATURE_TYPE);
     }
 
     @AfterClass
@@ -90,22 +92,18 @@ public class BBoxTest {
     public void testBBoxWithPropertyName() throws Exception {
         // property name exists and is a geometry attribute
         BBOX filter = ff.bbox(ff.property("gsml:shape"), -1.1, 52.5, -1.1, 52.6, null);
-        Iterator<Feature> features = fSource.getFeatures(filter).iterator();
-        int count = 0;
-        while (features.hasNext()) {
-            features.next();
-            count++;
-        }
-        assertEquals(count, 2);
+        FeatureCollection<FeatureType, Feature> features = fSource.getFeatures(filter);
+        assertEquals(features.size(), 2);
+        Iterator<Feature> iterator = features.iterator();
+        Feature f = iterator.next();
+        assertEquals(f.getIdentifier().toString(), "mf1");
+        f = iterator.next();
+        assertEquals(f.getIdentifier().toString(), "mf3");
+
         // prove that it would fail when property name is not a geometry attribute
         filter = ff.bbox(ff.property("gml:name[1]"), -1.2, 52.5, -1.1, 52.6, null);
-        count = 0;
-        features = fSource.getFeatures(filter).iterator();
-        while (features.hasNext()) {
-            features.next();
-            count++;
-        }
-        assertEquals(count, 0);
+        features = fSource.getFeatures(filter);
+        assertEquals(features.size(), 0);
     }
 
     @Test
@@ -119,12 +117,12 @@ public class BBoxTest {
         // but it wouldn't work until the bug in GeometryFilterImpl is fixed
         // and our test data only have 1 geometry, so it doesn't test multiple geometries case
         BBOX filter = ff.bbox(ff.property(""), -1.1, 52.5, -1.1, 52.6, null);
-        Iterator<Feature> features = fSource.getFeatures(filter).iterator();
-        int count = 0;
-        while (features.hasNext()) {
-            features.next();
-            count++;
-        }
-        assertEquals(count, 2);
+        FeatureCollection<FeatureType, Feature> features = fSource.getFeatures(filter);
+        assertEquals(features.size(), 2);
+        Iterator<Feature> iterator = features.iterator();
+        Feature f = iterator.next();
+        assertEquals(f.getIdentifier().toString(), "mf1");
+        f = iterator.next();
+        assertEquals(f.getIdentifier().toString(), "mf3");
     }
 }
