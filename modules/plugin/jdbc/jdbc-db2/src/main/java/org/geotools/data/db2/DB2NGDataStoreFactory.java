@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.Driver;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 
@@ -42,6 +44,7 @@ public class DB2NGDataStoreFactory extends JDBCDataStoreFactory {
 
     public static int MajorVersion,MinorVersion;
     public static String ProductName,ProductVersion;
+    public static String GetCurrentSchema = "select current sqlid from sysibm.sysdummy1";
     
     /** parameter for database type */
     public static final Param DBTYPE = new Param("dbtype", String.class, "Type", true, "db2");
@@ -132,6 +135,14 @@ public class DB2NGDataStoreFactory extends JDBCDataStoreFactory {
     MinorVersion=md.getDatabaseMinorVersion();
     ProductName=md.getDatabaseProductName();
     ProductVersion=md.getDatabaseProductVersion();
+    if (dataStore.getDatabaseSchema()==null) {
+        PreparedStatement ps = con.prepareStatement(GetCurrentSchema);
+        ResultSet  rs = ps.executeQuery();
+        rs.next();
+        dataStore.setDatabaseSchema(rs.getString(1));
+        rs.close();        
+        ps.close();
+    }
     } catch (SQLException e) {
         throw new IOException(e.getMessage());
     }

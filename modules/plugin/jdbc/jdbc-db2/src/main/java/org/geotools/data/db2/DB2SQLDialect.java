@@ -454,24 +454,24 @@ public class DB2SQLDialect extends SQLDialect  {
 
 	@Override
 	public boolean includeTable(String schemaName, String tableName, Connection cx) throws SQLException {
-		
-	
-				
-		PreparedStatement ps = null;
-		if (schemaName!=null && schemaName.trim().length()>0) { 
-			ps = cx.prepareStatement(SELECT_INCLUDE_WITH_SCHEMA); 
-			ps.setString(1,schemaName);
-			ps.setString(2,tableName);
-		}	else {
-			ps = cx.prepareStatement(SELECT_INCLUDE);
-			ps.setString(1,tableName);
-		}
-			
-		ResultSet rs = ps.executeQuery();
-		boolean isGeomTable = rs.next();
-		rs.close();
-		ps.close();		
-		return isGeomTable;
+			               
+            return true;
+                                					
+//		PreparedStatement ps = null;
+//		if (schemaName!=null && schemaName.trim().length()>0) { 
+//			ps = cx.prepareStatement(SELECT_INCLUDE_WITH_SCHEMA); 
+//			ps.setString(1,schemaName);
+//			ps.setString(2,tableName);
+//		}	else {
+//			ps = cx.prepareStatement(SELECT_INCLUDE);
+//			ps.setString(1,tableName);
+//		}
+//			
+//		ResultSet rs = ps.executeQuery();
+//		boolean isGeomTable = rs.next();
+//		rs.close();
+//		ps.close();		
+//		return isGeomTable;
 	}
 
     @Override   

@@ -210,6 +210,10 @@ public class DB2SQLDialectPrepared extends PreparedStatementSQLDialect {
     protected void addSupportedHints(Set<Key> hints) {
     	delegate.addSupportedHints(hints);
     }
+    @Override
+    public boolean includeTable(String schemaName, String tableName, Connection cx) throws SQLException {
+        return delegate.includeTable(schemaName, tableName, cx);
+    }
 
 
 }
