@@ -88,13 +88,6 @@ public final class ImagePyramidFormat extends AbstractGridFormat implements Form
     public static final ParameterDescriptor<Color> OUTPUT_TRANSPARENT_COLOR = new DefaultParameterDescriptor<Color>(
             "OutputTransparentColor", Color.class, null, null);
 
-    /** Control the thresholding on the input coverage.
-     * 
-     * @deprecated we don't use this param anymore, since it is confusing and interact badly with the transparency
-     */
-    public static final ParameterDescriptor<Double> INPUT_IMAGE_THRESHOLD_VALUE = new DefaultParameterDescriptor<Double>(
-            "InputImageThresholdValue", Double.class, null, new Double(Double.NaN));
-    
     /** Control the thresholding on the input coverage */
     public static final ParameterDescriptor<Integer> MAX_ALLOWED_TILES = new DefaultParameterDescriptor<Integer>(
             "MaxAllowedTiles", Integer.class, null, Integer.MAX_VALUE);
@@ -131,7 +124,6 @@ public final class ImagePyramidFormat extends AbstractGridFormat implements Form
                 new GeneralParameterDescriptor[]{
         		READ_GRIDGEOMETRY2D,
         		INPUT_TRANSPARENT_COLOR,
-                INPUT_IMAGE_THRESHOLD_VALUE, 
                 OUTPUT_TRANSPARENT_COLOR,
                 USE_JAI_IMAGEREAD,
                 BACKGROUND_VALUES,
@@ -172,41 +164,19 @@ public final class ImagePyramidFormat extends AbstractGridFormat implements Form
 	public boolean accepts(Object source) {
 		try {
 
-			URL sourceURL;
-			// /////////////////////////////////////////////////////////////////////
-			//
-			// Check source
-			//
-			// /////////////////////////////////////////////////////////////////////
-			if (source instanceof File)
-				sourceURL = DataUtilities.fileToURL((File) source);
-			else if (source instanceof URL) {
-				sourceURL = (URL) source;
-				
-				try {
-					sourceURL.openStream().close();
-				} catch (Throwable e) {
-					return false;
-				}
-
-			} else if (source instanceof String) {
-				/*
-				 * Now we first try to interpret the String as a File. If it doesn't exist, we interpret it as a URL
-				 */
-				final File tempFile = new File((String) source);
-				if (tempFile.exists()) {
-					sourceURL = DataUtilities.fileToURL(tempFile);
-				} else {
-					try {
-						// Testing if the URL is valid and reachable
-						sourceURL = new URL((String) source);
-						sourceURL.openStream().close(); 
-					} catch (Throwable e){
-						return false;
-					}
-				}
-			} else
-				return false;
+		    // /////////////////////////////////////////////////////////////////////
+            //
+            // Check source
+            //
+            // /////////////////////////////////////////////////////////////////////
+			URL sourceURL = Utils.checkSource(source);
+			if(sourceURL == null)
+			    return false;
+            try {
+                sourceURL.openStream().close();
+            } catch (Throwable e) {
+                return false;
+            }
 			
 			// ///////////////////////////////////////////////////////////////////
 			//

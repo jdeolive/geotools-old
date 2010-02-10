@@ -18,7 +18,6 @@ package org.geotools.gce.imagepyramid;
 
 import java.awt.Rectangle;
 import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -177,30 +176,12 @@ public final class ImagePyramidReader extends AbstractGridCoverage2DReader imple
 			throw new DataSourceException(ex);
 		}
 		this.source = source;
-		if (source instanceof File)
-			this.sourceURL = DataUtilities.fileToURL((File)source);
-		else if (source instanceof URL) {
-			this.sourceURL = (URL)source;
-		} else if (source instanceof String) {
-			/*
-			 * Now we first try to interpret the String as a File. If it doesn't exist, we interpret it as a URL
-			 */
-			final File tempFile = new File((String) source);
-			if (tempFile.exists()) {
-				this.sourceURL = DataUtilities.fileToURL(tempFile);
-			} else {
-				try {
-					// Testing if the URL is valid and reachable
-					sourceURL = new URL((String) source);
-					sourceURL.openStream().close(); 
-				} catch (Exception e){
-					throw new IllegalArgumentException(
-					"The given String can't be intereted as a File nor as an URL.",e);
-				}
-			}
-		} else
-			throw new IllegalArgumentException(
-					"This plugin accepts only File, URL and String pointing to a file");
+		this.sourceURL = Utils.checkSource(source);
+		if(sourceURL == null) {
+		    throw new IllegalArgumentException(
+                "This plugin accepts only File, URL and String pointing to a file");
+		} 
+		
 		//
 		// ///////////////////////////////////////////////////////////////////
 		//
