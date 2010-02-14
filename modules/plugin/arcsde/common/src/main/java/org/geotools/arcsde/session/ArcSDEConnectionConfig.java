@@ -17,14 +17,17 @@
  */
 package org.geotools.arcsde.session;
 
+import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Represents a set of ArcSDE database connection parameters.
  * 
  * @author Gabriel Roldan
- *
- * @source $URL$
+ * @source $URL:
+ *         http://svn.osgeo.org/geotools/trunk/modules/plugin/arcsde/common/src/main/java/org/geotools
+ *         /arcsde/session/ArcSDEConnectionConfig.java $
  * @version $Id$
  */
 public class ArcSDEConnectionConfig {
@@ -81,7 +84,7 @@ public class ArcSDEConnectionConfig {
         return serverName;
     }
 
-    public void setServerName(String serverName) {
+    public void setServerName( String serverName ) {
         this.serverName = serverName;
     }
 
@@ -89,7 +92,7 @@ public class ArcSDEConnectionConfig {
         return portNumber;
     }
 
-    public void setPortNumber(Integer portNumber) {
+    public void setPortNumber( Integer portNumber ) {
         this.portNumber = portNumber;
     }
 
@@ -97,7 +100,7 @@ public class ArcSDEConnectionConfig {
         return databaseName;
     }
 
-    public void setDatabaseName(String databaseName) {
+    public void setDatabaseName( String databaseName ) {
         this.databaseName = databaseName;
     }
 
@@ -105,7 +108,7 @@ public class ArcSDEConnectionConfig {
         return userName;
     }
 
-    public void setUserName(String userName) {
+    public void setUserName( String userName ) {
         this.userName = userName;
     }
 
@@ -113,7 +116,7 @@ public class ArcSDEConnectionConfig {
         return password;
     }
 
-    public void setPassword(String password) {
+    public void setPassword( String password ) {
         this.password = password;
     }
 
@@ -121,7 +124,7 @@ public class ArcSDEConnectionConfig {
         return minConnections;
     }
 
-    public void setMinConnections(Integer minConnections) {
+    public void setMinConnections( Integer minConnections ) {
         this.minConnections = minConnections;
     }
 
@@ -129,7 +132,7 @@ public class ArcSDEConnectionConfig {
         return maxConnections;
     }
 
-    public void setMaxConnections(Integer maxConnections) {
+    public void setMaxConnections( Integer maxConnections ) {
         this.maxConnections = maxConnections;
     }
 
@@ -137,7 +140,7 @@ public class ArcSDEConnectionConfig {
         return connTimeOut;
     }
 
-    public void setConnTimeOut(Integer connTimeOut) {
+    public void setConnTimeOut( Integer connTimeOut ) {
         this.connTimeOut = connTimeOut;
     }
 
@@ -157,7 +160,7 @@ public class ArcSDEConnectionConfig {
     }
 
     @Override
-    public boolean equals(final Object o) {
+    public boolean equals( final Object o ) {
         if (!(o instanceof ArcSDEConnectionConfig)) {
             return false;
         }
@@ -171,7 +174,7 @@ public class ArcSDEConnectionConfig {
         return equals;
     }
 
-    private static boolean equals(Object o1, Object o2) {
+    private static boolean equals( Object o1, Object o2 ) {
         return o1 == null ? (o2 == null) : o1.equals(o2);
     }
 
@@ -184,11 +187,11 @@ public class ArcSDEConnectionConfig {
         return hash;
     }
 
-    private static int hash(Object o) {
+    private static int hash( Object o ) {
         return o == null ? 1 : String.valueOf(o).hashCode();
     }
 
-    public static ArcSDEConnectionConfig fromMap(final Map<String, String> map) {
+    public static ArcSDEConnectionConfig fromMap( final Map<String, String> map ) {
         ArcSDEConnectionConfig config = new ArcSDEConnectionConfig();
         config.setDatabaseName(map.get(INSTANCE_NAME_PARAM_NAME));
         config.setPassword(map.get(PASSWORD_PARAM_NAME));
@@ -196,7 +199,6 @@ public class ArcSDEConnectionConfig {
         config.setServerName(map.get(SERVER_NAME_PARAM_NAME));
         config.setUserName(map.get(USER_NAME_PARAM_NAME));
 
-        
         config.setConnTimeOut(Integer.valueOf(String
                 .valueOf(map.get(CONNECTION_TIMEOUT_PARAM_NAME))));
         config.setMaxConnections(Integer.valueOf(String
@@ -205,5 +207,18 @@ public class ArcSDEConnectionConfig {
                 .valueOf(map.get(MIN_CONNECTIONS_PARAM_NAME))));
 
         return config;
+    }
+
+    public Map<String, Serializable> toMap() {
+        Map<String, Serializable> params = new HashMap<String, Serializable>();
+        params.put(INSTANCE_NAME_PARAM_NAME, getDatabaseName());
+        params.put(PASSWORD_PARAM_NAME, getPassword());
+        params.put(PORT_NUMBER_PARAM_NAME, getPortNumber());
+        params.put(SERVER_NAME_PARAM_NAME, getServerName());
+        params.put(USER_NAME_PARAM_NAME, getUserName());
+        params.put(CONNECTION_TIMEOUT_PARAM_NAME, getConnTimeOut());
+        params.put(MAX_CONNECTIONS_PARAM_NAME, getMaxConnections());
+        params.put(MIN_CONNECTIONS_PARAM_NAME, getMinConnections());
+        return params;
     }
 }

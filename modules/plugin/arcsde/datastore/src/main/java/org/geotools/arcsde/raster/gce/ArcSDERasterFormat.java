@@ -62,7 +62,7 @@ import org.opengis.parameter.GeneralParameterDescriptor;
  *         http://svn.geotools.org/geotools/trunk/gt/modules/plugin/arcsde/datastore/src/main/java
  *         /org/geotools/arcsde/gce/ArcSDERasterFormat.java $
  */
-@SuppressWarnings( { "nls", "deprecation" })
+@SuppressWarnings({"nls", "deprecation"})
 public final class ArcSDERasterFormat extends AbstractGridFormat implements Format {
 
     protected static final Logger LOGGER = Logging.getLogger("org.geotools.arcsde.gce");
@@ -98,16 +98,16 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
         mInfo = info;
 
         readParameters = new ParameterGroup(new DefaultParameterDescriptorGroup(mInfo,
-                new GeneralParameterDescriptor[] { READ_GRIDGEOMETRY2D, OVERVIEW_POLICY }));
+                new GeneralParameterDescriptor[]{READ_GRIDGEOMETRY2D, OVERVIEW_POLICY}));
     }
 
     /**
-     * @param source
-     *            either a {@link String} or {@link File} instance representing the connection URL
+     * @param source either a {@link String} or {@link File} instance representing the connection
+     *        URL
      * @see AbstractGridFormat#getReader(Object source)
      */
     @Override
-    public AbstractGridCoverage2DReader getReader(Object source) {
+    public AbstractGridCoverage2DReader getReader( Object source ) {
         return getReader(source, null);
     }
 
@@ -116,12 +116,12 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
     private static final ReadWriteLock readersLock = new ReentrantReadWriteLock();
 
     /**
-     * @param source
-     *            either a {@link String} or {@link File} instance representing the connection URL
+     * @param source either a {@link String} or {@link File} instance representing the connection
+     *        URL
      * @see AbstractGridFormat#getReader(Object, Hints)
      */
     @Override
-    public AbstractGridCoverage2DReader getReader(final Object source, final Hints hints) {
+    public AbstractGridCoverage2DReader getReader( final Object source, final Hints hints ) {
         try {
             if (source == null) {
                 throw new DataSourceException("No source set to read this coverage.");
@@ -168,7 +168,7 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
         }
     }
 
-    private RasterDatasetInfo loadRasterInfo(final String coverageUrl, ISessionPool connectionPool)
+    private RasterDatasetInfo loadRasterInfo( final String coverageUrl, ISessionPool connectionPool )
             throws IOException {
 
         final String rasterTable;
@@ -206,7 +206,7 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
         return rasterInfo;
     }
 
-    private ArcSDEConnectionConfig getConnectionConfig(final String coverageUrl) {
+    private ArcSDEConnectionConfig getConnectionConfig( final String coverageUrl ) {
         ArcSDEConnectionConfig sdeConfig;
         sdeConfig = connectionConfigs.get(coverageUrl);
         if (sdeConfig == null) {
@@ -225,18 +225,18 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
      * @see AbstractGridFormat#getWriter(Object)
      */
     @Override
-    public GridCoverageWriter getWriter(Object destination) {
+    public GridCoverageWriter getWriter( Object destination ) {
         // return new ArcGridWriter(destination);
         return null;
     }
 
     /**
-     * @param source
-     *            either a {@link String} or {@link File} instance representing the connection URL
+     * @param source either a {@link String} or {@link File} instance representing the connection
+     *        URL
      * @see AbstractGridFormat#accepts(Object input)
      */
     @Override
-    public boolean accepts(Object input) {
+    public boolean accepts( Object input ) {
         StringBuffer url;
         if (input instanceof File) {
             url = new StringBuffer(((File) input).getPath());
@@ -309,12 +309,11 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
     // ////////////////
 
     /**
-     * @param input
-     *            either a {@link String} or a {@link File} instance representing the connection URL
-     *            to a given coverage
+     * @param input either a {@link String} or a {@link File} instance representing the connection
+     *        URL to a given coverage
      * @return the connection URL as a string
      */
-    private String parseCoverageUrl(Object input) {
+    private String parseCoverageUrl( Object input ) {
         String coverageUrl;
         if (input instanceof String) {
             coverageUrl = (String) input;
@@ -323,7 +322,7 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
             }
         } else if (input instanceof File) {
             String path = ((File) input).getPath();
-            while (path.indexOf('\\') > -1) {
+            while( path.indexOf('\\') > -1 ) {
                 path = path.replace('\\', '/');
             }
             URI uri;
@@ -346,12 +345,11 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
      * Checks the input provided to this {@link ArcSDERasterGridCoverage2DReader} and sets all the
      * other objects and flags accordingly.
      * 
-     * @param sdeUrl
-     *            a url representing the connection parameters to an arcsde server instance provied
-     *            to this {@link ArcSDERasterGridCoverage2DReader}.
+     * @param sdeUrl a url representing the connection parameters to an arcsde server instance
+     *        provied to this {@link ArcSDERasterGridCoverage2DReader}.
      * @throws IOException
      */
-    private ISessionPool setupConnectionPool(ArcSDEConnectionConfig sdeConfig) throws IOException {
+    private ISessionPool setupConnectionPool( ArcSDEConnectionConfig sdeConfig ) throws IOException {
 
         if (LOGGER.isLoggable(Level.FINE)) {
             LOGGER.fine("Getting ArcSDE connection pool for " + sdeConfig);
@@ -363,13 +361,25 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
         return sessionPool;
     }
 
+    public static String createRasterURL( final ArcSDEConnectionConfig config,
+            final String rasterName ) {
+        StringBuilder sb = new StringBuilder("sde://");
+        sb.append(config.getUserName()).append(":").append(config.getPassword()).append("@");
+        sb.append(config.getServerName()).append(":");
+        sb.append(config.getPortNumber()).append("/");
+        sb.append(config.getDatabaseName() == null ? "" : config.getDatabaseName());
+        sb.append("#").append(rasterName);
+        sb.append(";pool.minConnections=").append(config.getMinConnections());
+        sb.append(";pool.maxConnections=").append(config.getMaxConnections());
+        return sb.toString();
+    }
+
     /**
-     * @param sdeUrl
-     *            - A StringBuffer containing a string of form
-     *            'sde://user:pass@sdehost:[port]/[dbname]
+     * @param sdeUrl - A StringBuffer containing a string of form
+     *        'sde://user:pass@sdehost:[port]/[dbname]
      * @return a ConnectionConfig object representing these parameters
      */
-    public static ArcSDEConnectionConfig sdeURLToConnectionConfig(StringBuffer sdeUrl) {
+    public static ArcSDEConnectionConfig sdeURLToConnectionConfig( StringBuffer sdeUrl ) {
         // annoyingly, geoserver currently stores the user-entered SDE string as
         // a File, and passes us the
         // File object. The File object strips the 'sde://user...' into a
@@ -442,7 +452,7 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
         if (sdeUrl.indexOf(";") > 0) {
             String optionals = sdeUrl.substring(sdeUrl.indexOf(";") + 1);
             String[] options = optionals.split(";");
-            for (String option : options) {
+            for( String option : options ) {
                 String[] pair = option.split("=");
                 if (pair.length != 2) {
                     LOGGER.info("Ignoring malformed optional param '" + option + "'");
@@ -488,7 +498,7 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
      * 
      * @param statisticsMandatory
      */
-    void setStatisticsMandatory(final boolean statisticsMandatory) {
+    void setStatisticsMandatory( final boolean statisticsMandatory ) {
         this.statisticsMandatory = statisticsMandatory;
     }
 }
