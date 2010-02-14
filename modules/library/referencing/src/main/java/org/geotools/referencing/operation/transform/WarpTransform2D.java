@@ -19,34 +19,40 @@ package org.geotools.referencing.operation.transform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.TimeZone;
 
+import javax.media.jai.JAI;
 import javax.media.jai.Warp;
 import javax.media.jai.WarpAffine;
-import javax.media.jai.WarpQuadratic;
 import javax.media.jai.WarpCubic;
-import javax.media.jai.WarpPolynomial;
 import javax.media.jai.WarpGeneralPolynomial;
+import javax.media.jai.WarpPolynomial;
+import javax.media.jai.WarpQuadratic;
 
-import org.opengis.parameter.ParameterValue;
-import org.opengis.parameter.ParameterValueGroup;
+import org.geotools.metadata.iso.citation.Citations;
+import org.geotools.parameter.DefaultParameterDescriptor;
+import org.geotools.parameter.Parameter;
+import org.geotools.parameter.ParameterGroup;
+import org.geotools.referencing.NamedIdentifier;
+import org.geotools.referencing.operation.MathTransformProvider;
+import org.geotools.resources.XArray;
+import org.geotools.resources.i18n.Vocabulary;
+import org.geotools.resources.i18n.VocabularyKeys;
+import org.geotools.util.Utilities;
 import org.opengis.parameter.ParameterDescriptor;
 import org.opengis.parameter.ParameterDescriptorGroup;
 import org.opengis.parameter.ParameterNotFoundException;
+import org.opengis.parameter.ParameterValue;
+import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.MathTransform2D;
 import org.opengis.referencing.operation.NoninvertibleTransformException;
 import org.opengis.referencing.operation.Transformation;
-
-import org.geotools.util.Utilities;
-import org.geotools.referencing.NamedIdentifier;
-import org.geotools.referencing.operation.MathTransformProvider;
-import org.geotools.metadata.iso.citation.Citations;
-import org.geotools.parameter.DefaultParameterDescriptor;
-import org.geotools.parameter.ParameterGroup;
-import org.geotools.parameter.Parameter;
-import org.geotools.resources.XArray;
-import org.geotools.resources.i18n.Vocabulary;
-import org.geotools.resources.i18n.VocabularyKeys;
 
 
 /**
@@ -84,6 +90,26 @@ public class WarpTransform2D extends AbstractMathTransform implements MathTransf
      * Serial number for interoperability with different versions.
      */
     private static final long serialVersionUID = -7949539694656719923L;
+    
+    private final static boolean USE_HACK;
+    static{
+    	final String buildVersion=JAI.getBuildVersion();
+    	final SimpleDateFormat df=  new SimpleDateFormat("yyyy-MM-dd' 'hh:mm:ss.SSSZ");
+    	final TimeZone tz= TimeZone.getTimeZone("UTC");
+    	df.setTimeZone(tz);
+    	boolean hack=false;
+    	try {
+			final Date date = buildVersion!=null?df.parse(buildVersion):new java.util.Date();
+			final GregorianCalendar version113= new GregorianCalendar(tz);
+			version113.set(2006, 8, 12, 00, 23, 56);
+			version113.set(Calendar.MILLISECOND, 159);
+			
+			hack=!date.after(version113.getTime());
+		} catch (ParseException e) {
+			hack=false;
+		}
+		USE_HACK=hack;
+    }
 
     /**
      * The maximal polynomial degree allowed.
@@ -121,7 +147,7 @@ public class WarpTransform2D extends AbstractMathTransform implements MathTransf
      * </table>
      *
      * @param srcCoords Source coordinates.
-     * @param dstCoords Destination coordinates.
+     * @param dstCoords Desination coordinates.
      * @param degree    The desired degree of the warp polynomials.
      */
     public WarpTransform2D(final Point2D[] srcCoords, final Point2D[] dstCoords, final int degree) {
@@ -218,21 +244,23 @@ public class WarpTransform2D extends AbstractMathTransform implements MathTransf
          * according the scale values, but the 'preScale' and 'postScale' are interchanged.
          * When JAI bug will be fixed, delete all the following block until the next comment.
          */
-        final double scaleX = preScaleX / postScaleX;
-        final double scaleY = preScaleY / postScaleY;
-        if (scaleX!=1 || scaleY!=1) {
-            final int n = numCoords*2;
-            if (cloneCoords) {
-                float[] o;
-                o=srcCoords; srcCoords=new float[n]; System.arraycopy(o, srcOffset, srcCoords, 0, n); srcOffset=0;
-                o=dstCoords; dstCoords=new float[n]; System.arraycopy(o, dstOffset, dstCoords, 0, n); dstOffset=0;
-            }
-            for (int i=0; i<n;) {
-                srcCoords[srcOffset + i  ] /= scaleX;
-                dstCoords[dstOffset + i++] *= scaleX;
-                srcCoords[srcOffset + i  ] /= scaleY;
-                dstCoords[dstOffset + i++] *= scaleY;
-            }
+        if(USE_HACK){
+	        final double scaleX = preScaleX / postScaleX;
+	        final double scaleY = preScaleY / postScaleY;
+	        if (scaleX!=1 || scaleY!=1) {
+	            final int n = numCoords*2;
+	            if (cloneCoords) {
+	                float[] o;
+	                o=srcCoords; srcCoords=new float[n]; System.arraycopy(o, srcOffset, srcCoords, 0, n); srcOffset=0;
+	                o=dstCoords; dstCoords=new float[n]; System.arraycopy(o, dstOffset, dstCoords, 0, n); dstOffset=0;
+	            }
+	            for (int i=0; i<n;) {
+	                srcCoords[srcOffset + i  ] /= scaleX;
+	                dstCoords[dstOffset + i++] *= scaleX;
+	                srcCoords[srcOffset + i  ] /= scaleY;
+	                dstCoords[dstOffset + i++] *= scaleY;
+	            }
+	        }
         }
         /*
          * Note: Warp semantic (transforms coordinates from destination to source) is the
