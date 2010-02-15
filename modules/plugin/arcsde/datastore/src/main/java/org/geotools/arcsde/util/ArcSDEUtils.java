@@ -17,6 +17,7 @@
  */
 package org.geotools.arcsde.util;
 
+import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -40,17 +41,17 @@ import com.esri.sde.sdk.pe.PeProjectionException;
  * implementations
  * 
  * @author Gabriel Roldan
- * 
  * @source $URL:
  *         http://svn.osgeo.org/geotools/trunk/modules/plugin/arcsde/datastore/src/main/java/org
  *         /geotools/arcsde/util/ArcSDEUtils.java $
  * @version $Id$
  * @since 2.5.6
- * 
  */
 public final class ArcSDEUtils {
 
     public static final Logger LOGGER = Logging.getLogger("org.geotools.arcsde.gce");
+
+    private static final WeakHashMap<String, CoordinateReferenceSystem> PE_CS_TO_EPSG = new WeakHashMap<String, CoordinateReferenceSystem>();
 
     private ArcSDEUtils() {
         // private default constructor to stress the pure utility nature of this class
@@ -64,8 +65,8 @@ public final class ArcSDEUtils {
      *         {@link DefaultEngineeringCRS#CARTESIAN_2D}, otherwise an equivalent CRS from the EPSG
      *         database if found, or a CRS built from the seCoordRef WKT otherwise.
      */
-    public static CoordinateReferenceSystem findCompatibleCRS(final SeCoordinateReference seCoordRef)
-            throws DataSourceException {
+    public static CoordinateReferenceSystem findCompatibleCRS(
+            final SeCoordinateReference seCoordRef ) throws DataSourceException {
 
         if (seCoordRef == null) {
             LOGGER.fine("SeCoordinateReference is null, "
@@ -81,8 +82,37 @@ public final class ArcSDEUtils {
             return DefaultEngineeringCRS.CARTESIAN_2D;
         }
 
+        final String peCoordSysName = coordSys.getName();
+
+        CoordinateReferenceSystem crs = PE_CS_TO_EPSG.get(peCoordSysName);
+
+        if (crs == null) {
+            Integer epsgCode = findEpsgCode(coordSys);
+            try {
+                if (epsgCode == null) {
+                    LOGGER.warning("Couldn't determine EPSG code for this raster."
+                            + "  Using SDE's WKT-like coordSysDescription() instead.");
+                    crs = CRS.parseWKT(seCoordRef.getCoordSysDescription());
+                } else {
+                    crs = CRS.decode("EPSG:" + epsgCode);
+                }
+                
+                PE_CS_TO_EPSG.put(peCoordSysName, crs);
+
+            } catch (FactoryException e) {
+                LOGGER.log(Level.SEVERE, "", e);
+                throw new DataSourceException(e);
+            }
+        }
+
+        return crs;
+    }
+
+    private static Integer findEpsgCode( final PeCoordinateSystem coordSys )
+            throws DataSourceException {
+        final String peCoordSysName = coordSys.getName();
+        Integer epsgCode = null;
         try {
-            int epsgCode = -1;
             final int[] seEpsgCodes;
             if (coordSys instanceof PeGeographicCS) {
                 seEpsgCodes = PeFactory.geogcsCodelist();
@@ -94,13 +124,13 @@ public final class ArcSDEUtils {
             }
             int seEpsgCode;
             PeCoordinateSystem candidate;
-            for (int i = 0; i < seEpsgCodes.length; i++) {
+            for( int i = 0; i < seEpsgCodes.length; i++ ) {
                 try {
                     seEpsgCode = seEpsgCodes[i];
                     candidate = (PeCoordinateSystem) PeFactory.factory(seEpsgCode);
                     // in ArcSDE 9.2, if the PeFactory doesn't support a projection it claimed to
                     // support, it returns 'null'. So check for it.
-                    if (candidate != null && candidate.getName().trim().equals(coordSys.getName())) {
+                    if (candidate != null && candidate.getName().trim().equals(peCoordSysName)) {
                         epsgCode = seEpsgCode;
                         break;
                     }
@@ -111,21 +141,10 @@ public final class ArcSDEUtils {
                 }
             }
 
-            CoordinateReferenceSystem crs;
-            if (epsgCode == -1) {
-                LOGGER.warning("Couldn't determine EPSG code for this raster."
-                        + "  Using SDE's WKT-like coordSysDescription() instead.");
-                crs = CRS.parseWKT(seCoordRef.getCoordSysDescription());
-            } else {
-                crs = CRS.decode("EPSG:" + epsgCode);
-            }
-            return crs;
-        } catch (FactoryException e) {
-            LOGGER.log(Level.SEVERE, "", e);
-            throw new DataSourceException(e);
         } catch (PeProjectionException e) {
             LOGGER.log(Level.SEVERE, "", e);
             throw new DataSourceException(e);
         }
+        return epsgCode;
     }
 }
