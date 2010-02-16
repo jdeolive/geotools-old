@@ -199,7 +199,7 @@ public class IndexedShapefileDataStoreTest extends TestCaseSupport {
         String nameAttribute = (String) f.getAttribute("NAME");
         
         // We expect that the UTF8 is not understood here and there will be one extra char for the misinterpreted special char
-        assertEquals("Iconfee Straße".length()+1, nameAttribute.length());
+        assertEquals("Iconfee Stra\u00dfe".length()+1, nameAttribute.length());
     }
     
 
@@ -224,7 +224,7 @@ public class IndexedShapefileDataStoreTest extends TestCaseSupport {
         String nameAttribute = (String) f.getAttribute("NAME");
 
         // We expect that the UTF8 is not understood here
-        assertEquals("Iconfee Straße".length(), nameAttribute.length());
+        assertEquals("Iconfee Stra\u00dfe".length(), nameAttribute.length());
         assertEquals("Iconfee Stra\u00dfe", nameAttribute);
     }
     
