@@ -442,6 +442,26 @@ import com.vividsolutions.jts.io.WKTReader;
         return s1.toUpperCase();
      }
      
+     static public String strCapitalize(String s)
+     {
+        int strLength = s.length();
+        StringBuilder sb = new StringBuilder(strLength);
+        boolean titleCaseNext = true;
+        for (int i = 0; i < strLength; i++) {
+            char ch = s.charAt(i);
+            if (Character.isWhitespace(ch)) {
+                sb.append(ch);
+                titleCaseNext = true;
+            } else if (titleCaseNext) {
+                sb.append(Character.toTitleCase(ch));
+                titleCaseNext = false;
+            } else {
+                sb.append(Character.toLowerCase(ch));
+            }
+        }
+        return sb.toString();
+     }
+     
      static public boolean strMatches(String s1,String s2)
      {
      	return s1.matches(s2);
