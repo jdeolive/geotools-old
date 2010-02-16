@@ -25,8 +25,8 @@ import org.geotools.gml3.bindings.AbstractFeatureCollectionTypeBinding;
 import org.geotools.gml3.bindings.AbstractFeatureTypeBinding;
 import org.geotools.gml3.bindings.AbstractGeometryTypeBinding;
 import org.geotools.gml3.bindings.AbstractRingPropertyTypeBinding;
-import org.geotools.gml3.bindings.AbstractSimpleContentComplexBinding;
 import org.geotools.gml3.bindings.BoundingShapeTypeBinding;
+import org.geotools.gml3.bindings.ComplexSupportXSAnyTypeBinding;
 import org.geotools.gml3.bindings.CurveArrayPropertyTypeBinding;
 import org.geotools.gml3.bindings.CurvePropertyTypeBinding;
 import org.geotools.gml3.bindings.CurveSegmentArrayPropertyTypeBinding;
@@ -199,9 +199,7 @@ public class GMLConfiguration extends Configuration {
         container.registerComponentImplementation(GML.SurfacePropertyType,
             SurfacePropertyTypeBinding.class);
         container.registerComponentImplementation(GML.SurfaceType, SurfaceTypeBinding.class);
-        // all complex types with simple content should use this
-        container.registerComponentImplementation(XS.SIMPLECONTENTTYPE,
-                AbstractSimpleContentComplexBinding.class);
+        container.registerComponentImplementation(XS.ANYTYPE, ComplexSupportXSAnyTypeBinding.class);
     }
 
     /**

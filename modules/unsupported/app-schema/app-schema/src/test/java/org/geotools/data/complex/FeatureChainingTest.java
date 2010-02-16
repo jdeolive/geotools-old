@@ -38,9 +38,11 @@ import org.geotools.feature.FeatureImpl;
 import org.geotools.feature.Types;
 import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.filter.FunctionExpressionImpl;
+import org.geotools.gml3.bindings.GML3EncodingUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.opengis.feature.ComplexAttribute;
 import org.opengis.feature.Feature;
 import org.opengis.feature.Property;
 import org.opengis.feature.type.FeatureType;
@@ -531,15 +533,26 @@ public class FeatureChainingTest {
         Collection<Property> properties = feature.getProperties(Types.typeName(GMLNS, "name"));
         assertTrue(properties.size() == 3);
         Iterator<Property> propIterator = properties.iterator();
-        Collection values = (Collection) propIterator.next().getValue();
+        ComplexAttribute complexAttribute;
+        Collection<? extends Property> values;
+        // first
+        complexAttribute = (ComplexAttribute) propIterator.next();
+        values = complexAttribute.getValue();
         assertEquals(values.size(), 1);
-        assertEquals(values.iterator().next().toString(), "Yaugher Volcanic Group 1");
-        values = (Collection) propIterator.next().getValue();
+        assertEquals(GML3EncodingUtils.getSimpleContent(complexAttribute),
+                "Yaugher Volcanic Group 1");
+        // second
+        complexAttribute = (ComplexAttribute) propIterator.next();
+        values = complexAttribute.getValue();
         assertEquals(values.size(), 1);
-        assertEquals(values.iterator().next().toString(), "Yaugher Volcanic Group 2");
-        values = (Collection) propIterator.next().getValue();
+        assertEquals(GML3EncodingUtils.getSimpleContent(complexAttribute),
+                "Yaugher Volcanic Group 2");
+        // third
+        complexAttribute = (ComplexAttribute) propIterator.next();
+        values = complexAttribute.getValue();
         assertEquals(values.size(), 1);
-        assertEquals(values.iterator().next().toString(), "-Py");
+        assertEquals(GML3EncodingUtils.getSimpleContent(complexAttribute),
+                "-Py");
         /**
          * Same case as above, but the multi-valued property is feature chained
          */

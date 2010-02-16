@@ -80,17 +80,15 @@ public class ElementEncoder {
      */
     public Element encode(Object value, XSDElementDeclaration element,Document document, XSDTypeDefinition container) {
         ElementEncodeExecutor executor = new ElementEncodeExecutor(value, element, document, logger);
-        bindingWalker.walk(element, executor, container, context);
-
+        BindingVisitorDispatch.walk(value, bindingWalker, element, executor, container, context);
         return executor.getEncodedElement();
     }
 
-    public Attr encode(Object value, XSDAttributeDeclaration attribute, Document document, XSDTypeDefinition container) {
+    public Attr encode(Object value, XSDAttributeDeclaration attribute, Document document,
+            XSDTypeDefinition container) {
         AttributeEncodeExecutor executor = new AttributeEncodeExecutor(value, attribute, document,
                 logger);
-
-        bindingWalker.walk(attribute, executor, container, context);
-
+        BindingVisitorDispatch.walk(value, bindingWalker, attribute, executor, container, context);
         return executor.getEncodedAttribute();
     }
 

@@ -51,13 +51,12 @@ import com.vividsolutions.jts.geom.CoordinateSequence;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.LineString;
 
-
 /**
  * Utility class for gml3 encoding.
- *
+ * 
  * @author Justin Deoliveira, The Open Planning Project, jdeolive@openplans.org
  * @author Ben Caradoc-Davies, CSIRO Exploration and Mining
- *
+ * 
  * @source $URL$
  */
 public class GML3EncodingUtils {
@@ -109,37 +108,37 @@ public class GML3EncodingUtils {
     static String getID(Geometry g) {
         return GML2EncodingUtils.getID(g);
     }
-    
+
     static String getName(Geometry g) {
         return GML2EncodingUtils.getName(g);
     }
-    
+
     static String getDescription(Geometry g) {
         return GML2EncodingUtils.getDescription(g);
     }
-    
+
     /**
-     * Helper method used to implement {@link ComplexBinding#getProperty(Object, QName)}
-     * for bindings of geometry reference types: 
+     * Helper method used to implement {@link ComplexBinding#getProperty(Object, QName)} for
+     * bindings of geometry reference types:
      * <ul>
-     *   <li>GeometryPropertyType
-     *   <li>PointPropertyType
-     *   <li>LineStringPropertyType
-     *   <li>PolygonPropertyType
+     * <li>GeometryPropertyType
+     * <li>PointPropertyType
+     * <li>LineStringPropertyType
+     * <li>PolygonPropertyType
      * </ul>
      */
-    public static Object getProperty( Geometry geometry, QName name ) {
-        return GML2EncodingUtils.GeometryPropertyType_getProperty( geometry, name );
+    public static Object getProperty(Geometry geometry, QName name) {
+        return GML2EncodingUtils.GeometryPropertyType_getProperty(geometry, name);
     }
-    
+
     /**
-     * Helper method used to implement {@link ComplexBinding#getProperties(Object)}
-     * for bindings of geometry reference types: 
+     * Helper method used to implement {@link ComplexBinding#getProperties(Object)} for bindings of
+     * geometry reference types:
      * <ul>
-     *   <li>GeometryPropertyType
-     *   <li>PointPropertyType
-     *   <li>LineStringPropertyType
-     *   <li>PolygonPropertyType
+     * <li>GeometryPropertyType
+     * <li>PointPropertyType
+     * <li>LineStringPropertyType
+     * <li>PolygonPropertyType
      * </ul>
      */
     public static List getProperties(Geometry geometry) {
@@ -164,7 +163,7 @@ public class GML3EncodingUtils {
         if (idSet != null) {
             if (idSet.idExists(id)) {
                 // XSD type ids can only appear once in the same document, otherwise the document is
-                // not schema valid. Attributes of the same ids should be encoded as xlink:href to 
+                // not schema valid. Attributes of the same ids should be encoded as xlink:href to
                 // the existing attribute.
                 encoding.setAttributeNS(XLINK.NAMESPACE, XLINK.HREF.getLocalPart(), "#"
                         + id.toString());
@@ -177,9 +176,9 @@ public class GML3EncodingUtils {
         }
         encoding.setAttributeNS(GML.NAMESPACE, "id", id);
         encodeClientProperties(feature, value);
-        
+
         return encoding;
-    }  
+    }
 
     public static List AbstractFeatureType_getProperties(Object object,
             XSDElementDeclaration element, SchemaIndex schemaIndex, Configuration configuration) {
@@ -192,8 +191,10 @@ public class GML3EncodingUtils {
      * Encode any client properties (XML attributes) found in the UserData map of a ComplexAttribute
      * as XML attributes of the element.
      * 
-     * @param complex the ComplexAttribute to search for client properties
-     * @param element the element to which XML attributes should be added
+     * @param complex
+     *            the ComplexAttribute to search for client properties
+     * @param element
+     *            the element to which XML attributes should be added
      */
     @SuppressWarnings("unchecked")
     public static void encodeClientProperties(Property complex, Element element) {
@@ -224,13 +225,26 @@ public class GML3EncodingUtils {
      */
     public static void encodeSimpleContent(ComplexAttribute complex, Document document,
             Element element) {
+        Object value = getSimpleContent(complex);
+        if (value != null) {
+            Text text = document.createTextNode(Converters.convert(value, String.class));
+            element.appendChild(text);
+        }
+    }
+
+    /**
+     * Return the simple content of a {@link ComplexAttribute} if it represents a complexType with
+     * simpleContent, otherwise null.
+     * 
+     * @param complex
+     * @return
+     */
+    public static Object getSimpleContent(ComplexAttribute complex) {
         Property simpleContent = complex.getProperty(new NameImpl("simpleContent"));
-        if (simpleContent != null) {
-            Object value = simpleContent.getValue();
-            if (value != null) {
-                Text text = document.createTextNode(Converters.convert(value, String.class));
-                element.appendChild(text);
-            }
+        if (simpleContent == null) {
+            return null;
+        } else {
+            return simpleContent.getValue();
         }
     }
 

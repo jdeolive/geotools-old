@@ -66,6 +66,8 @@ import org.geotools.feature.type.AttributeDescriptorImpl;
 import org.geotools.filter.FilterFactoryImplNamespaceAware;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.gml3.GMLSchema;
+import org.geotools.gml3.bindings.GML3EncodingUtils;
+import org.geotools.util.Converters;
 import org.geotools.xs.XSSchema;
 import org.jdom.Document;
 import org.jdom.JDOMException;
@@ -304,6 +306,12 @@ public class XmlDataStoreTest extends TestCase {
     }
 
     private String getValueForAttribute(Attribute sv) {
+        if (sv instanceof ComplexAttribute) {
+            Object value = GML3EncodingUtils.getSimpleContent((ComplexAttribute) sv);
+            if (value != null) {
+                return Converters.convert(value, String.class);
+            }
+        }
         String value = null;
         Object ob = sv.getValue();
         if (ob instanceof String) {

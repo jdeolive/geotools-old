@@ -21,6 +21,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.xml.XMLConstants;
+import javax.xml.namespace.QName;
+
 import org.eclipse.xsd.XSDElementDeclaration;
 import org.eclipse.xsd.XSDFactory;
 import org.eclipse.xsd.XSDParticle;
@@ -38,7 +41,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * A binding that searches the substitution group of XSD element children to find properties of a
+ * A replacement for {@link XSAnyTypeBinding} that adds support for {@link ComplexAttribute} and
+ * related behaviours.
+ * 
+ * <p>
+ * 
+ * This binding that searches the substitution group of XSD element children to find properties of a
  * complex attribute. This is necessary to support the GML property type pattern, in which a
  * property (a property-type type) contains a property that is a member of a substitution group.
  * gml:AttributeType is the canonical example of the property type pattern.
@@ -51,12 +59,44 @@ import org.w3c.dom.Element;
  * {@link FeaturePropertyTypeBinding} cannot be written. This class exists to handle these
  * application-schema-defined property types.
  * 
- * @author Ben Caradoc-Davies, CSIRO Exploration and Mining
+ * <p>
  * 
- *
- * @source $URL$
+ * This class supports the encoding of XML complexType with simpleContent through extraction of a
+ * simpleContent property, as well as encoding XML attributes stored in the UserData map.
+ * 
+ * @author Ben Caradoc-Davies, CSIRO Earth Science and Resource Engineering
  */
-public class SubstitutionGroupXSAnyTypeBinding extends XSAnyTypeBinding {
+public class ComplexSupportXSAnyTypeBinding extends XSAnyTypeBinding {
+
+    /**
+     * @see org.geotools.xml.AbstractComplexBinding#getProperty(java.lang.Object,
+     *      javax.xml.namespace.QName)
+     */
+    @Override
+    public Object getProperty(Object object, QName name) throws Exception {
+        if (object instanceof ComplexAttribute) {
+            ComplexAttribute complex = (ComplexAttribute) object;
+            Property property = complex.getProperty(toTypeName(name));
+            if (property != null && !(property instanceof ComplexAttribute)) {
+                return property.getValue();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Convert a {@link QName} to a {@link Name}.
+     * 
+     * @param name
+     * @return
+     */
+    private static Name toTypeName(QName name) {
+        if (XMLConstants.NULL_NS_URI.equals(name.getNamespaceURI())) {
+            return new NameImpl(name.getLocalPart());
+        } else {
+            return new NameImpl(name.getNamespaceURI(), name.getLocalPart());
+        }
+    }
 
     /**
      * @see org.geotools.xml.AbstractComplexBinding#getProperties(java.lang.Object,
@@ -67,8 +107,9 @@ public class SubstitutionGroupXSAnyTypeBinding extends XSAnyTypeBinding {
     public List getProperties(Object object, XSDElementDeclaration element) throws Exception {
         List<Object[/* 2 */]> properties = new ArrayList<Object[/* 2 */]>();
         XSDTypeDefinition typeDef = element.getTypeDefinition();
-        boolean isAnyType = (typeDef.getName().equals(XS.ANYTYPE.getLocalPart()) && typeDef
-                .getTargetNamespace().equals(XS.NAMESPACE));
+        boolean isAnyType = typeDef.getName() != null && typeDef.getTargetNamespace() != null
+                && typeDef.getName().equals(XS.ANYTYPE.getLocalPart())
+                && typeDef.getTargetNamespace().equals(XS.NAMESPACE);
         if (isAnyType) {
             Collection complexAtts;
             if (object instanceof Collection) {
@@ -152,9 +193,11 @@ public class SubstitutionGroupXSAnyTypeBinding extends XSAnyTypeBinding {
     @Override
     public Element encode(Object object, Document document, Element value) throws Exception {
         if (object instanceof ComplexAttribute) {
-            GML3EncodingUtils.encodeClientProperties((ComplexAttribute) object, value);
+            ComplexAttribute complex = (ComplexAttribute) object;
+            GML3EncodingUtils.encodeClientProperties(complex, value);
+            GML3EncodingUtils.encodeSimpleContent(complex, document, value);
         }
         return value;
     }
-    
+
 }

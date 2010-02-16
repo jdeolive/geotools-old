@@ -16,13 +16,9 @@
  */
 package org.geotools.gml3;
 
-import org.opengis.geometry.DirectPosition;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.geotools.geometry.DirectPosition1D;
-import org.geotools.gml3.bindings.GML3MockData;
 import org.geotools.xml.Configuration;
 import org.geotools.xml.test.XMLTestSupport;
+import org.w3c.dom.Element;
 
 /*
  * Test bindings by extending this class with test cases that follow this pattern:

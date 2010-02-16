@@ -50,6 +50,10 @@ public class BindingWalker implements TypeWalker.Visitor {
         chains = new HashMap();
         typeWalker = new TypeWalker();
     }
+    
+    public Binding getAnyTypeBinding() {
+        return loader.loadBinding(XS.ANYTYPE, context);
+    }
 
     public boolean visit(XSDTypeDefinition type) {
         //look up the associated binding object for this type
@@ -102,26 +106,18 @@ public class BindingWalker implements TypeWalker.Visitor {
                     }
                 }
             }
-        }
 
-        if (bindingName == null || loader.getBinding(bindingName) == null) {
-            // special case check, look for a complex type
-            // with simple content
-            // we assign the default complex binding instread of
-            // delegating to parent, because if we dont, any attributes
-            // defined by the type will not be parsed because simple
-            // types cannot have attributes.
-            // TODO: put this somewhere else, perahps in teh factories
-            // that create the bindings
-            if (type instanceof XSDComplexTypeDefinition
-                    && type.getBaseType() instanceof XSDSimpleTypeDefinition) {
-                // first look for the "psuedo" binding for complex types with simple content
-                bindingName = XS.SIMPLECONTENTTYPE;
-                // fall back to the default complex binding instread of
-                // delegating to parent, because if we dont, any attributes
-                // defined by the type will not be parsed because simple
-                // types cannot have attributes.
-                if (loader.getBinding(bindingName) == null) {
+            if ((bindingName == null) || (loader.getBinding(bindingName) == null)) {
+                //special case check, look for an anonymous complex type 
+                // with simple content
+                if (type instanceof XSDComplexTypeDefinition
+                        && type.getBaseType() instanceof XSDSimpleTypeDefinition) {
+                    //we assign the default complex binding instread of 
+                    // delegating to parent, because if we dont, any attributes
+                    // defined by the type will not be parsed because simple
+                    // types cannot have attributes.
+                    //TODO: put this somewhere else, perahps in teh factories
+                    // that create the bindings
                     bindingName = XS.ANYTYPE;
                 }
             }

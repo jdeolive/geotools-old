@@ -34,7 +34,10 @@ import org.geotools.data.FeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.Types;
+import org.geotools.gml2.bindings.GML2EncodingUtils;
+import org.geotools.gml3.bindings.GML3EncodingUtils;
 import org.geotools.util.Converters;
+import org.opengis.feature.ComplexAttribute;
 import org.opengis.feature.Feature;
 import org.opengis.feature.Property;
 import org.opengis.feature.type.FeatureType;
@@ -115,8 +118,9 @@ public class VocabFunctionsTest extends TestCase {
             String recodedName = VALUE_MAP.get(fId);
             // gml[3]: <OCQL>Recode(STRING, 'string_one', 'a', 'string_two', 'b', 'string_three',
             // 'c')</OCQL>
-            Property property = (Property) ff.property("gml:name[3]").evaluate(feature);
-            String value = Converters.convert(((Collection) property.getValue()).iterator().next(),
+            ComplexAttribute complexAttribute = (ComplexAttribute) ff.property("gml:name[3]")
+                    .evaluate(feature);
+            String value = Converters.convert(GML3EncodingUtils.getSimpleContent(complexAttribute),
                     String.class);
             assertEquals(recodedName, value);
         }
@@ -192,8 +196,9 @@ public class VocabFunctionsTest extends TestCase {
             String fId = feature.getIdentifier().getID();
             // gml[2]: <OCQL>Vocab(URN_ID,
             // 'src/test/java/org/geotools/filter/test-data/minoc_lithology_mapping.properties')</OCQL>
-            Property property = (Property) ff.property("gml:name[2]").evaluate(feature);
-            String value = Converters.convert(((Collection) property.getValue()).iterator().next(),
+            ComplexAttribute complexAttribute = (ComplexAttribute) ff.property("gml:name[2]")
+                    .evaluate(feature);
+            String value = Converters.convert(GML3EncodingUtils.getSimpleContent(complexAttribute),
                     String.class);
             assertEquals(VALUE_MAP.get(fId), value);
         }

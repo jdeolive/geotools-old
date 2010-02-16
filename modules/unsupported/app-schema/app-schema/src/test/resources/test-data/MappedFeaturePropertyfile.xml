@@ -57,6 +57,20 @@
 						<OCQL>LEX_D</OCQL>
 					</sourceExpression>
 				</AttributeMapping>
+                <AttributeMapping>
+                    <targetAttribute>gsml:positionalAccuracy</targetAttribute>
+                    <targetAttributeNode>gsml:CGI_NumericValuePropertyType</targetAttributeNode>
+                </AttributeMapping>
+                <AttributeMapping>
+                    <targetAttribute>/gsml:positionalAccuracy/gsml:CGI_NumericValue/gsml:principalValue</targetAttribute>
+                    <sourceExpression>
+                        <OCQL>LOC_ACC</OCQL>
+                    </sourceExpression>
+                    <ClientProperty>
+                        <name>uom</name>
+                        <value>'urn:ogc:def:uom:UCUM:m'</value>
+                    </ClientProperty>
+                </AttributeMapping>
 				<AttributeMapping>
 					<targetAttribute>gsml:shape</targetAttribute>
 					<sourceExpression>

@@ -59,10 +59,12 @@ import org.geotools.feature.FeatureCollection;
 import org.geotools.xml.impl.BindingFactoryImpl;
 import org.geotools.xml.impl.BindingLoader;
 import org.geotools.xml.impl.BindingPropertyExtractor;
+import org.geotools.xml.impl.BindingVisitorDispatch;
 import org.geotools.xml.impl.BindingWalker;
 import org.geotools.xml.impl.BindingWalkerFactoryImpl;
 import org.geotools.xml.impl.ElementEncoder;
 import org.geotools.xml.impl.GetPropertyExecutor;
+import org.geotools.xml.impl.MismatchedBindingFinder;
 import org.geotools.xml.impl.NamespaceSupportWrapper;
 import org.geotools.xml.impl.SchemaIndexImpl;
 import org.picocontainer.MutablePicoContainer;
@@ -848,8 +850,8 @@ public class Encoder {
 
                     //get the object(s) for this attribute
                     GetPropertyExecutor executor = new GetPropertyExecutor(entry.object, attribute);
-
-                    bindingWalker.walk(entry.element, executor, context);
+                    
+                    BindingVisitorDispatch.walk(object, bindingWalker, entry.element, executor, context);
 
                     if (executor.getChildObject() != null) {
                         //encode the attribute
