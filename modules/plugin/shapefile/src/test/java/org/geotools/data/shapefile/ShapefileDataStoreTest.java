@@ -28,10 +28,13 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.geotools.TestData;
 import org.geotools.data.DataUtilities;
@@ -795,33 +798,49 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
         SimpleFeature feature1 = writer.next();
     }
     
-    public void testReadWriteDate() throws Exception {
+    private void doTestReadWriteDate(String str_date) throws Exception {
         
         final boolean datetime_enabled = Boolean.getBoolean("org.geotools.shapefile.datetime");
-
+        
         File file = org.geotools.test.TestData.temp(this, "timestamp.shp");
+                
         URL toURL = file.toURI().toURL();
         
         ShapefileDataStore ds = new ShapefileDataStore(toURL);
         ds.createSchema(DataUtilities.createType("test",
-                        "geom:Point,timestamp:java.sql.Timestamp,date:java.util.Date"));
+                        "geom:Point,timestamp:java.util.Date,date:java.util.Date,timestamp2:java.util.Date,timestamp3:java.util.Date"));
 
         final FeatureWriter<SimpleFeatureType, SimpleFeature> fw;
         fw = ds.getFeatureWriterAppend(Transaction.AUTO_COMMIT);
         final SimpleFeature sf;
         
-        // This date is as good as any ...
-        String str_date="1984-09-16";
         DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
-        Date date = (Date) dateFormatter.parse(str_date); 
-        // Set timestamp to 1984-09-16 01:00:00
-        Timestamp timestamp = new Timestamp( date.getTime() + 60*60*1000 ); 
+        
+        Date date = (Date) dateFormatter.parse(str_date);
+
+        Calendar timestampCal = new GregorianCalendar();
+       
+        timestampCal.setTime(date);
+        
+        timestampCal.add(Calendar.MILLISECOND, 1);
+        // Set timestamp 00:00:00.001 at the same day
+        Date timestamp = timestampCal.getTime();
+        
+        timestampCal.add(Calendar.MILLISECOND,  12*60*60*1000);
+        // Set timestamp2 12:00:00.001 at the same day
+        Date timestamp2 = timestampCal.getTime();
+
+        timestampCal.add(Calendar.MILLISECOND,  11*60*60*1000+ 59*60*1000 + 59*1000 + 998);
+        // Set timestamp3 to  23:59:59.999 at the same day
+        Date timestamp3 = timestampCal.getTime(); 
         
         // Write the values to the shapefile and close the datastore.
         sf = fw.next();
         sf.setAttribute(0, new GeometryFactory().createPoint(new Coordinate(1, -1)));
         sf.setAttribute(1, timestamp);
         sf.setAttribute(2, date);
+        sf.setAttribute(3, timestamp2);
+        sf.setAttribute(4, timestamp3);
         // Cleanup
         fw.close();
         
@@ -833,15 +852,20 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
         final SimpleFeature sf1 = fr.next();  
 
         // Check the read values match with the written ones.
+        Date timestamp_ = (Date) sf1.getAttribute(1);
+        Date timestamp2_ = (Date) sf1.getAttribute(3);
+        Date timestamp3_ = (Date) sf1.getAttribute(4);         
         
         if (datetime_enabled){
-            // if datetime support is enabled, check for a timestamp
-            Timestamp timestamp_ = (Timestamp) sf1.getAttribute(1);
+            // if datetime support is enabled, check it matches the real timestamp
             assertEquals(timestamp, timestamp_);
+            assertEquals(timestamp2, timestamp2_);
+            assertEquals(timestamp3, timestamp3_);
         }else{
-            // if datetime support is not enabled, check a Date object is returned
-            Date timestamp_ = (Date) sf1.getAttribute(1);
+            // if datetime support is not enabled, test it matches the plain date
             assertEquals(date , timestamp_);
+            assertEquals(date , timestamp2_);
+            assertEquals(date , timestamp3_);
         }
         
         Date date_ = (Date) sf1.getAttribute(2);
@@ -851,6 +875,27 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
         fr.close();
         ds.dispose();
       }
+    
+    public void testReadWriteDatetimeDisabled() throws Exception{
+        System.setProperty("org.geotools.shapefile.datetime", "false");
+        doTestReadWriteDate("1984-09-16");
+    }
+    
+    public void testReadWriteDatetimeEnabled() throws Exception{
+        System.setProperty("org.geotools.shapefile.datetime", "true");
+        doTestReadWriteDate("1984-09-16");
+    }
+    
+    public void testReadWriteDatetimeBeforeNewYear() throws Exception{
+        System.setProperty("org.geotools.shapefile.datetime", "true");
+        doTestReadWriteDate("1999-12-31");
+    }
+    
+    public void testReadWriteDatetimeAfterNewYear() throws Exception{
+        System.setProperty("org.geotools.shapefile.datetime", "true");
+        doTestReadWriteDate("2000-01-01");
+    }
+    
     
     /**
      * This is useful to dump a UTF16 character to an UT16 escape sequence,

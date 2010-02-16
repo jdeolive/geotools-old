@@ -29,9 +29,9 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
-import java.sql.Timestamp;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import org.geotools.data.shapefile.FileReader;
 import org.geotools.data.shapefile.ShpFileType;
@@ -120,7 +120,12 @@ public class DbaseFileReader implements FileReader {
 
     private boolean oneBytePerChar;
 
+    private Calendar calendar = 
+        Calendar.getInstance(TimeZone.getTimeZone("UTC"), Locale.US);
 
+    private final long MILLISECS_PER_DAY = 24*60*60*1000;
+
+    
     /**
      * Creates a new instance of DBaseFileReader
      * 
@@ -407,7 +412,6 @@ public class DbaseFileReader implements FileReader {
     public Object[] readEntry(final Object[] entry) throws IOException {
         return readEntry(entry, 0);
     }
-
     private Object readObject(final int fieldOffset, final int fieldNum)
             throws IOException {
         final char type = fieldTypes[fieldNum];
@@ -464,7 +468,7 @@ public class DbaseFileReader implements FileReader {
                     final int tempMonth = Integer.parseInt(tempString) - 1;
                     tempString = fastParse(bytes,fieldOffset + 6,2); 
                     final int tempDay = Integer.parseInt(tempString);
-                    final Calendar cal = Calendar.getInstance();
+                    final Calendar cal = Calendar.getInstance(Locale.US);
                     cal.clear();
                     cal.set(Calendar.YEAR, tempYear);
                     cal.set(Calendar.MONTH, tempMonth);
@@ -489,19 +493,13 @@ public class DbaseFileReader implements FileReader {
                     ByteArrayInputStream i_bytes = new ByteArrayInputStream(timestampBytes);
                     DataInputStream i_stream = new DataInputStream(new BufferedInputStream(i_bytes));
 
-                    int tmpMillisecond = i_stream.readInt();
-                    int tmpDay = i_stream.readInt();
-       
-                    final long MILLISECS_PER_DAY = 24*60*60*1000;
-                    long time = (tmpDay +1 ) * MILLISECS_PER_DAY + tmpMillisecond;
-                       
-                    final Calendar cal0 = DbaseFileHeader.getReferenceCalendar();
+                    int time = i_stream.readInt();
+                    int days = i_stream.readInt();
+                              
+                    calendar.setTimeInMillis(days * MILLISECS_PER_DAY + DbaseFileHeader.MILLIS_SINCE_4713 + time);
 
-                    final Calendar cal = Calendar.getInstance();
-                    cal.clear();     
-                    cal.setTimeInMillis(cal0.getTimeInMillis() + time);
-                    
-                    object = new Timestamp(cal.getTime().getTime());
+                    object = calendar.getTime();
+
                 } catch (final NumberFormatException nfe) {
                    // todo: use progresslistener, this isn't a grave error.
                 }

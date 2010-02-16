@@ -28,7 +28,6 @@ import java.nio.channels.WritableByteChannel;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -73,17 +72,21 @@ public class DbaseFileHeader {
             .getLogger("org.geotools.data.shapefile");
 
     /**
-     * Returns a Calendar a day before January 1st 4713 BC
-     * to be used in timestamps.
+     * Returns the number of millis at January 1st 4713 BC
+     * 
+     *  Calendar refCal = (Calendar) new GregorianCalendar(TimeZone.getTimeZone("UTC"));
+     *   refCal.set(Calendar.ERA, GregorianCalendar.BC);
+     *   refCal.set(Calendar.YEAR, 4713);
+     *   refCal.set(Calendar.MONTH, Calendar.JANUARY);
+     *   refCal.set(Calendar.DAY_OF_MONTH, 1);
+     *   refCal.set(Calendar.HOUR, 12);
+     *   refCal.set(Calendar.MINUTE, 0);
+     *   refCal.set(Calendar.SECOND, 0);
+     *   refCal.set(Calendar.MILLISECOND, 0);
+     *   MILLIS_SINCE_4713 = refCal.getTimeInMillis() - 43200000L; 
+     *   //(43200000L: 12 hour correction factor taken from DBFViewer2000)
      */
-    public static Calendar getReferenceCalendar(){
-        Calendar refCal = (Calendar) new GregorianCalendar();
-        refCal.set(Calendar.ERA, GregorianCalendar.BC);
-        refCal.set(Calendar.YEAR, 4714);
-        refCal.set(Calendar.MONTH, Calendar.DECEMBER);
-        refCal.set(Calendar.DAY_OF_MONTH, 31);
-        return refCal;
-    }
+    public static long MILLIS_SINCE_4713 = -210866803200000L;
     
     /**
      * Class for holding the information associated with a record.

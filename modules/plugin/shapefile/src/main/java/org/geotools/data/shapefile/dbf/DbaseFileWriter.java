@@ -21,13 +21,8 @@ package org.geotools.data.shapefile.dbf;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.CharArrayWriter;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
@@ -36,10 +31,9 @@ import java.nio.charset.Charset;
 import java.text.FieldPosition;
 import java.text.NumberFormat;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.Date;
 import java.util.Locale;
-import java.sql.Timestamp;
+
 import org.geotools.data.shapefile.StreamLogging;
 import org.geotools.resources.NIOUtilities;
 
@@ -151,7 +145,19 @@ public class DbaseFileWriter {
             if (header.getFieldLength(i) != fieldString.getBytes(charset.name()).length) {
                 buffer.put(new byte[header.getFieldLength(i)]);
             } else {
-                buffer.put(fieldString.getBytes(charset.name()));
+                if ( Boolean.getBoolean("org.geotools.shapefile.datetime")
+                     &&  header.getFieldType(i) == '@')       
+                {
+                    // Adding the charset to getBytes causes the output to
+                    // get altered for the '@: Timestamp' field.
+                	// And using getBytes returns a different array in 64-bit platforms
+                	// so we expect chars and cast to byte just before writing.
+                    for (char c:  fieldString.toCharArray()){
+                    	buffer.put((byte) c);
+                    }                        	
+                }else{
+                    buffer.put(fieldString.getBytes(charset.name()));   
+                }
             }
 
         }
@@ -203,8 +209,8 @@ public class DbaseFileWriter {
             break;
         case '@':
                o = 
-                 formatter.getFieldString(
-                     (Timestamp) (obj == null ? new Timestamp(NULL_DATE.getTime()): obj)
+                 formatter.getFieldStringDateTime(
+                     (Date) (obj == null ? new Date(NULL_DATE.getTime()): obj)
                  );
             break;   
         default:
@@ -248,6 +254,8 @@ public class DbaseFileWriter {
         private NumberFormat numFormat = NumberFormat
                 .getNumberInstance(Locale.US);
         private Calendar calendar = Calendar.getInstance(Locale.US);
+        private final long MILLISECS_PER_DAY = 24*60*60*1000;
+
         private String emptyString;
         private static final int MAXCHARS = 255;
         private Charset charset;
@@ -309,7 +317,7 @@ public class DbaseFileWriter {
 
             if (d != null) {
                 buffer.delete(0, buffer.length());
-
+                
                 calendar.setTime(d);
                 int year = calendar.get(Calendar.YEAR);
                 int month = calendar.get(Calendar.MONTH) + 1; // returns 0
@@ -345,43 +353,34 @@ public class DbaseFileWriter {
             return buffer.toString();
         }
 
-        public String getFieldString(Timestamp d) {
+        public String getFieldStringDateTime(Date d) {
               
             // Sanity check
             if (d == null) return null;
-             
-            calendar.setTime(d);
-
-            Calendar cal = (Calendar) calendar.clone();
-            cal.set(Calendar.HOUR_OF_DAY, 0);
-            cal.set(Calendar.MINUTE, 0);
-            cal.set(Calendar.SECOND, 0);
-            cal.set(Calendar.MILLISECOND, 0);
-              
-            // Setup reference calendar 
-            Calendar refCal = DbaseFileHeader.getReferenceCalendar();
             
-            final long MILLISECS_PER_DAY = 24*60*60*1000;
-
-            int days = (int)((cal.getTimeInMillis() - refCal.getTimeInMillis())/MILLISECS_PER_DAY);
-            int todayTime = (int) (calendar.getTimeInMillis() - cal.getTimeInMillis()); 
- 
+            final long difference = d.getTime() - DbaseFileHeader.MILLIS_SINCE_4713;
+            
+            final int days = (int) (difference / MILLISECS_PER_DAY);
+            final int time = (int) (difference % MILLISECS_PER_DAY);
+            
             try{
                 ByteArrayOutputStream o_bytes = new ByteArrayOutputStream();
                 DataOutputStream o_stream;
                 o_stream = new DataOutputStream(new BufferedOutputStream(o_bytes));
                 o_stream.writeInt(days);
-                o_stream.writeInt(todayTime);
+                o_stream.writeInt(time);
                 o_stream.flush();                       
                 byte[] bytes = o_bytes.toByteArray();
-                byte[] out = {
+                // Cast the byte values to char as a workaround for erroneous byte
+                // array retrieval in 64-bit machines
+                char[] out = {
                     // Days, after reverse.
-                    bytes[3], bytes[2], bytes[1], bytes[0], 
+                    (char) bytes[3], (char) bytes[2],(char)  bytes[1], (char) bytes[0], 
                     // Time in millis, after reverse.
-                    bytes[7], bytes[6], bytes[5], bytes[4],
+                    (char) bytes[7], (char) bytes[6], (char) bytes[5], (char) bytes[4],
                 };
-                // Before returning, these bytes have to be reversed.
-                return new String(out);                     
+
+                return  new String(out);   
             }catch(IOException e){
                 // This is always just a int serialization, 
                 // there is no way to recover from here.
