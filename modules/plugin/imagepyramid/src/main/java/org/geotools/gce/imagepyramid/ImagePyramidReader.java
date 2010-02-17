@@ -30,9 +30,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageReadParam;
+import javax.media.jai.PlanarImage;
 
 import org.apache.commons.io.IOUtils;
 import org.geotools.coverage.CoverageFactoryFinder;
+import org.geotools.coverage.grid.GridCoordinates2D;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
@@ -165,14 +167,14 @@ public final class ImagePyramidReader extends AbstractGridCoverage2DReader imple
 		}
 		this.coverageFactory = CoverageFactoryFinder.getGridCoverageFactory(this.hints);
 
-		// /////////////////////////////////////////////////////////////////////
+		// //
 		//
 		// Check source
 		//
-		// /////////////////////////////////////////////////////////////////////
+		// //
 		if (source == null) {
 
-			final IOException ex = new IOException("ImagePyramidReader:No source set to read this coverage.");
+			final NullPointerException ex = new NullPointerException("ImagePyramidReader:No source set to read this coverage.");
 			throw new DataSourceException(ex);
 		}
 		this.source = source;
@@ -182,20 +184,18 @@ public final class ImagePyramidReader extends AbstractGridCoverage2DReader imple
                 "This plugin accepts only File, URL and String pointing to a file");
 		} 
 		
-		//
-		// ///////////////////////////////////////////////////////////////////
+		// //
 		//
 		// Load tiles informations, especially the bounds, which will be
 		// reused
 		//
-		// ///////////////////////////////////////////////////////////////////
+		// //
 		// //
 		//
 		// get the crs if able to
 		//
 		// //		
 		final URL prjURL = DataUtilities.changeUrlExt(sourceURL, "prj"); 
-		
 		PrjFileReader crsReader=null;
 		try {
 			crsReader = new PrjFileReader(Channels.newChannel(prjURL.openStream()));
@@ -206,7 +206,8 @@ public final class ImagePyramidReader extends AbstractGridCoverage2DReader imple
 				crsReader.close();
 			}
 			catch (Throwable e) {
-				// TODO: handle exception
+				if(LOGGER.isLoggable(Level.FINE))
+					LOGGER.log(Level.FINE,e.getLocalizedMessage(),e);
 			}
 		}
 		final Object tempCRS = hints.get(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM);
@@ -222,13 +223,11 @@ public final class ImagePyramidReader extends AbstractGridCoverage2DReader imple
 			} else
 				crs = tempcrs;
 		}
-		//
-		// ///////////////////////////////////////////////////////////////////
+		
 		//
 		// Load properties file with information about levels and envelope
 		//
-		//
-		// ///////////////////////////////////////////////////////////////////
+		
 		// property file
 		parseMainFile(sourceURL);
 	}
@@ -262,6 +261,7 @@ public final class ImagePyramidReader extends AbstractGridCoverage2DReader imple
 			}
 			this.originalEnvelope = new GeneralEnvelope(cornersV[0],cornersV[1]);
 			this.originalEnvelope.setCoordinateReferenceSystem(crs);
+			
 			// overviews dir
 			numOverviews = Integer.parseInt(properties.getProperty("LevelsNum")) - 1;
 			levelsDirs = properties.getProperty("LevelsDirs").split(" ");
@@ -301,6 +301,7 @@ public final class ImagePyramidReader extends AbstractGridCoverage2DReader imple
 			// close input stream
 			if (propertyStream != null)
 				IOUtils.closeQuietly(propertyStream);
+			
 			if (openStream != null) 
 				IOUtils.closeQuietly(openStream);
 		}
@@ -335,6 +336,7 @@ public final class ImagePyramidReader extends AbstractGridCoverage2DReader imple
 	 * 
 	 * @see org.opengis.coverage.grid.GridCoverageReader#read(org.opengis.parameter.GeneralParameterValue[])
 	 */
+	@SuppressWarnings("unchecked")
 	public GridCoverage2D read(GeneralParameterValue[] params) throws IOException {
 
 		GeneralEnvelope requestedEnvelope = null;
@@ -374,14 +376,12 @@ public final class ImagePyramidReader extends AbstractGridCoverage2DReader imple
 	/**
 	 * Loading the tiles which overlap with the requested envelope.
 	 * 
-	 * @param envelope
-	 * @param alphaThreshold
-	 * @param alpha
-	 * @param singleImageROIThreshold
-	 * @param singleImageROI
+	 * 
+	 * 
+	 * @param requestedEnvelope
 	 * @param dim
 	 * @param params
-	 * @param overviewPolicy 
+	 * @param overviewPolicy
 	 * @return A {@link GridCoverage}, well actually a {@link GridCoverage2D}.
 	 * @throws IOException
 	 */
@@ -499,13 +499,13 @@ public final class ImagePyramidReader extends AbstractGridCoverage2DReader imple
 				reader = (ImageMosaicReader) o;
 		}
 
-		// /////////////////////////////////////////////////////////////////////
+	
 		//
 		// Abusing of the created ImageMosaicreader for getting a
-		// gridcoverage2d.
+		// gridcoverage2d, then rename it
 		//
-		// /////////////////////////////////////////////////////////////////////
-		return reader.read(params);
+		GridCoverage2D mosaicCoverage = reader.read(params);
+		return new GridCoverage2D(coverageName, mosaicCoverage);
 	}
 
 	/**

@@ -26,8 +26,7 @@ import java.net.URL;
 import javax.imageio.ImageIO;
 import javax.media.jai.PlanarImage;
 
-import junit.framework.TestCase;
-import junit.textui.TestRunner;
+import junit.framework.Assert;
 
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridEnvelope2D;
@@ -39,6 +38,7 @@ import org.geotools.gce.imagemosaic.ImageMosaicFormat;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.test.TestData;
+import org.junit.Test;
 import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.parameter.ParameterValue;
@@ -54,7 +54,7 @@ import org.opengis.referencing.NoSuchAuthorityCodeException;
  *
  * @source $URL$
  */
-public class ImagePyramidReaderTest extends TestCase {
+public class ImagePyramidReaderTest extends Assert {
 
 	/**
 	 * File to be used for testing purposes.
@@ -62,13 +62,8 @@ public class ImagePyramidReaderTest extends TestCase {
 	private final static String TEST_FILE = "pyramid.properties";
 	private final static String TEST_JAR_FILE = "pyramid.jar";
 
-	/**
-	 * Default constructor.
-	 */
-	public ImagePyramidReaderTest() {
 
-	}
-
+	@Test
 	public void testDefaultParameterValue() throws IOException,
 			MismatchedDimensionException, NoSuchAuthorityCodeException {
 		//
@@ -102,6 +97,7 @@ public class ImagePyramidReaderTest extends TestCase {
 		//
 		// /////////////////////////////////////////////////////////////////
 		final GridCoverage2D coverage = (GridCoverage2D) reader.read(null);
+		assertEquals("pyramid", coverage.getName().toString());
 		assertNotNull("Null value returned instead of a coverage", coverage);
 		assertTrue("coverage dimensions different from what we expected",
 				coverage.getGridGeometry().getGridRange().getSpan(0) == 250
@@ -113,7 +109,7 @@ public class ImagePyramidReaderTest extends TestCase {
 			((GridCoverage2D) coverage).getRenderedImage().getData();
 
 	}
-
+	@Test
 	public void testDefaultParameterValueFile() throws IOException,
 			MismatchedDimensionException, NoSuchAuthorityCodeException {
 		//
@@ -158,7 +154,7 @@ public class ImagePyramidReaderTest extends TestCase {
 			((GridCoverage2D) coverage).getRenderedImage().getData();
 
 	}
-
+	@Test
 	public void testDefaultParameterValueString() throws IOException,
 			MismatchedDimensionException, NoSuchAuthorityCodeException {
 		//
@@ -204,7 +200,7 @@ public class ImagePyramidReaderTest extends TestCase {
 			((GridCoverage2D) coverage).getRenderedImage().getData();
 
 	}
-
+	@Test
 	public void testForErrors() throws IOException,
 			MismatchedDimensionException, NoSuchAuthorityCodeException {
 		//
@@ -269,22 +265,25 @@ public class ImagePyramidReaderTest extends TestCase {
 
 		} catch (UnsupportedOperationException e) {
 			try {
-				reader.getMetadataNames();
-				;
+				String[] names = reader.getMetadataNames();
+				assertNull(names);
 
 			} catch (UnsupportedOperationException e1) {
-				try {
-					reader.getMetadataValue("");
-				} catch (UnsupportedOperationException e2) {
-					return;
-				}
+				
+			}
+			
+			try {
+				String value = reader.getMetadataValue("");
+				assertNull(value);
+				return;
+			} catch (UnsupportedOperationException e2) {
+				return;
 			}
 		}
-		assertTrue("Some of the unsopported methdo did not send an exception",
-				false);
+		assertTrue("Some of the unsopported method did not send an exception",false);
 
 	}
-
+	@Test
 	public void testComplete() throws IOException,
 			MismatchedDimensionException, NoSuchAuthorityCodeException {
 
@@ -351,6 +350,7 @@ public class ImagePyramidReaderTest extends TestCase {
 	 * @throws MismatchedDimensionException
 	 * @throws NoSuchAuthorityCodeException
 	 */
+	@Test
 	public void testCropHighestLevel() throws IOException,
 			MismatchedDimensionException, NoSuchAuthorityCodeException {
 
@@ -428,6 +428,7 @@ public class ImagePyramidReaderTest extends TestCase {
 	 * @throws MismatchedDimensionException
 	 * @throws NoSuchAuthorityCodeException
 	 */
+	@Test
 	public void testCropLevel1() throws IOException,
 			MismatchedDimensionException, NoSuchAuthorityCodeException {
 
@@ -505,6 +506,7 @@ public class ImagePyramidReaderTest extends TestCase {
 	 * @throws MismatchedDimensionException
 	 * @throws NoSuchAuthorityCodeException
 	 */
+	@Test
 	public void testCropLevel2() throws IOException,
 			MismatchedDimensionException, NoSuchAuthorityCodeException {
 
@@ -583,6 +585,7 @@ public class ImagePyramidReaderTest extends TestCase {
 	 * @throws MismatchedDimensionException
 	 * @throws NoSuchAuthorityCodeException
 	 */
+	@Test
 	public void testCropLevel3() throws IOException,
 			MismatchedDimensionException, NoSuchAuthorityCodeException {
 
@@ -649,6 +652,7 @@ public class ImagePyramidReaderTest extends TestCase {
 	/**
 	 * Tests to read a pyramid from inside a JAR. The source is passed as an {@link URL}
 	 */
+	@Test
 	public void testDefaultParameterValueURLtoJAR() throws IOException,
 			MismatchedDimensionException, NoSuchAuthorityCodeException {
 		//
@@ -703,6 +707,7 @@ public class ImagePyramidReaderTest extends TestCase {
 	/**
 	 * Tests to read a pyramid from inside a JAR. The source is passed as a {@link String}
 	 */
+	@Test
 	public void testDefaultParameterValueStringtoURLtoJAR() throws IOException,
 			MismatchedDimensionException, NoSuchAuthorityCodeException {
 		//
@@ -749,15 +754,6 @@ public class ImagePyramidReaderTest extends TestCase {
 			coverage.show("testDefaultParameterValue");
 		else
 			((GridCoverage2D) coverage).getRenderedImage().getData();
-
-	}
-
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		TestRunner.run(ImagePyramidReaderTest.class);
 
 	}
 }
