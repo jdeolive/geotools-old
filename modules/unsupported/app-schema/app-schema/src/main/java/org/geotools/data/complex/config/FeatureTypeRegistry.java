@@ -229,7 +229,7 @@ public class FeatureTypeRegistry {
         descriptorRegistry.put(name, descriptor);
     }
 
-    private void register(AttributeType type) {
+    private void register(AttributeType type, boolean anonymous) {
         Name name = type.getName();
         Object old;
         if (anonymous) {
