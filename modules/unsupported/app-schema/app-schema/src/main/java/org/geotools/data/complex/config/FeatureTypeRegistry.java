@@ -111,6 +111,8 @@ public class FeatureTypeRegistry {
     private HashMap<Name, AttributeDescriptor> descriptorRegistry;
 
     private HashMap<Name, AttributeType> typeRegistry;
+    
+    private HashMap<Name, AttributeType> anonTypeRegistry;
 
     private FeatureTypeFactory typeFactory;
 
@@ -134,6 +136,7 @@ public class FeatureTypeRegistry {
         typeFactory = new ComplexFeatureTypeFactoryImpl();
         descriptorRegistry = new HashMap<Name, AttributeDescriptor>();
         typeRegistry = new HashMap<Name, AttributeType>();
+        anonTypeRegistry = new HashMap<Name, AttributeType>();
         processingTypes = new Stack<Name>();
 
         if (FOUNDATION_TYPES.isEmpty()) {
@@ -198,7 +201,6 @@ public class FeatureTypeRegistry {
             LOGGER.finest("Creating attribute type " + typeDef.getQName());
             type = createType(typeDef, geomType, attMappings);
             LOGGER.finest("Registering attribute type " + type.getName());
-            register(type);
         } else {
             // LOGGER.finer("Ignoring type " +
             // typeDef.getQName()
@@ -229,7 +231,12 @@ public class FeatureTypeRegistry {
 
     private void register(AttributeType type) {
         Name name = type.getName();
-        Object old = typeRegistry.put(name, type);
+        Object old;
+        if (anonymous) {
+            old = anonTypeRegistry.put(name, type);            
+        } else {
+            old = typeRegistry.put(name, type);
+        }
         if (old != null) {
             LOGGER.fine(type.getName() + " replaced by new value.");
         }
@@ -334,35 +341,34 @@ public class FeatureTypeRegistry {
             Name typeName = Types.typeName(targetNamespace, name);
             type = getAttributeType(typeName, geomType, attMappings);
             if (type == null) {
-                type = createType(typeName, typeDefinition, geomType, attMappings);
-                register(type);// //////////
+                type = createType(typeName, typeDefinition, geomType, attMappings, false);
             }
         } else {
             String name = elemDecl.getName();
             String targetNamespace = elemDecl.getTargetNamespace();
             Name overrideName = Types.typeName(targetNamespace, name);
-            type = createType(overrideName, typeDefinition, geomType, attMappings);
+            type = createType(overrideName, typeDefinition, geomType, attMappings, true);
         }
         return type;
     }
 
     private AttributeType createProxiedType(final Name assignedName,
-            final XSDTypeDefinition typeDefinition) {
+            final XSDTypeDefinition typeDefinition, Map typeRegistry) {
         AttributeType type;
         if (null == typeDefinition.getSimpleType()
                 && typeDefinition instanceof XSDComplexTypeDefinition) {
             boolean isFeatureType = isDerivedFrom(typeDefinition, GML.AbstractFeatureType);
             if (isFeatureType) {
-                type = new FeatureTypeProxy(assignedName, this.typeRegistry);
+                type = new FeatureTypeProxy(assignedName, typeRegistry);
             } else {
-                type = new ComplexTypeProxy(assignedName, this.typeRegistry);
+                type = new ComplexTypeProxy(assignedName, typeRegistry);
             }
         } else {
             boolean isGeometryType = isDerivedFrom(typeDefinition, GML.AbstractGeometryType);
             if (isGeometryType) {
-                type = new GeometryTypeProxy(assignedName, this.typeRegistry);
+                type = new GeometryTypeProxy(assignedName, typeRegistry);
             } else {
-                type = new AttributeTypeProxy(assignedName, this.typeRegistry);
+                type = new AttributeTypeProxy(assignedName, typeRegistry);
             }
         }
         return type;
@@ -389,7 +395,7 @@ public class FeatureTypeRegistry {
         String targetNamespace = typeDefinition.getTargetNamespace();
         String name = typeDefinition.getName();
         Name typeName = Types.typeName(targetNamespace, name);
-        return createType(typeName, typeDefinition, geomType, attMappings);
+        return createType(typeName, typeDefinition, geomType, attMappings, false);
     }
 
     /**
@@ -411,7 +417,7 @@ public class FeatureTypeRegistry {
      */
     private AttributeType createType(final Name assignedName,
             final XSDTypeDefinition typeDefinition, GeometryType geomType,
-            List<AttributeMapping> attMappings) {
+            List<AttributeMapping> attMappings, boolean anonymous) {
 
         AttributeType attType;
         // /////////
@@ -419,7 +425,8 @@ public class FeatureTypeRegistry {
             if (LOGGER.isLoggable(Level.FINE)) {
                 LOGGER.fine("Recursion found for type " + assignedName + ". Proxying it.");
             }
-            attType = createProxiedType(assignedName, typeDefinition);
+            attType = createProxiedType(assignedName, typeDefinition, anonymous ?
+                anonTypeRegistry : typeRegistry);            
             return attType;
         }
         processingTypes.push(assignedName);
@@ -434,7 +441,6 @@ public class FeatureTypeRegistry {
             superType = getType(targetNamespace, name);
             if (superType == null) {
                 superType = createType(baseType, geomType, attMappings);
-                register(superType);
             }
         } else {
             LOGGER.warning(assignedName + " has no super type");
@@ -478,6 +484,13 @@ public class FeatureTypeRegistry {
         attType.getUserData().put(XSDTypeDefinition.class, typeDefinition);
 
         processingTypes.pop();
+        
+        // even if the type is anonymous, it still has to be registered somewhere because
+        // it's needed for the proxied types to find them. That's why we have 2 registries, typeRegistry
+        // and anonTypeRegistry. TypeRegistry is the global one, since anonymous types are meant to be
+        // local and shouldn't be searchable.
+        register(attType, anonymous);
+        
         return attType;
     }
 
@@ -508,7 +521,7 @@ public class FeatureTypeRegistry {
             GeometryDescriptor defaultGeometry = null;
 
             for (PropertyDescriptor att : schema) {
-                // there should be only one geometry descriptor
+                // the first one would be default geometry
                 if (defaultGeometry == null) {
                     if (att instanceof GeometryDescriptor) {
                         defaultGeometry = (GeometryDescriptor) att;
@@ -638,7 +651,7 @@ public class FeatureTypeRegistry {
                 LOGGER.finer("Importing " + key + " of type " + value.getClass().getName());
                 if (value instanceof AttributeType) {
                     AttributeType type = (AttributeType) value;
-                    register(type);
+                    register(type, false);
                 } else if (value instanceof AttributeDescriptor) {
                     AttributeDescriptor descriptor = (AttributeDescriptor) value;
                     register(descriptor);
