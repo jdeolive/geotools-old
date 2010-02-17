@@ -166,7 +166,7 @@ public class GridCoverage2D extends AbstractGridCoverage implements RenderedCove
      * @param coverage The source grid coverage.
      *
      */
-    GridCoverage2D(final CharSequence   name,
+    public GridCoverage2D(final CharSequence   name,
                              final GridCoverage2D coverage)
     {
         super(name, coverage);
