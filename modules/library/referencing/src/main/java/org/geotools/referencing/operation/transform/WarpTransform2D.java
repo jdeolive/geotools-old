@@ -99,11 +99,21 @@ public class WarpTransform2D extends AbstractMathTransform implements MathTransf
     	df.setTimeZone(tz);
     	boolean hack=false;
     	try {
-			final Date date = buildVersion!=null?df.parse(buildVersion):new java.util.Date();
-			final GregorianCalendar version113= new GregorianCalendar(tz);
-			version113.set(2006, 8, 12, 00, 23, 56);
-			version113.set(Calendar.MILLISECOND, 159);
+			final Date date_ = buildVersion!=null?df.parse(buildVersion):new java.util.Date();
+			//reduce granularity to minute
+			final GregorianCalendar tempCal = new GregorianCalendar(tz);
+			tempCal.setTime(date_);
+			tempCal.set(Calendar.HOUR_OF_DAY, 0);
+			tempCal.set(Calendar.MINUTE, 0);
+			tempCal.set(Calendar.SECOND, 0);
+			tempCal.set(Calendar.MILLISECOND, 0);
+			final Date date=tempCal.getTime();
 			
+			// 113 version
+			final GregorianCalendar version113= new GregorianCalendar(tz);
+			version113.set(2006, 8, 12,0,0,0);
+			version113.set(Calendar.MILLISECOND, 0);
+			// we need the hacke only if we are using 1.1.3
 			hack=!date.after(version113.getTime());
 		} catch (ParseException e) {
 			hack=false;
