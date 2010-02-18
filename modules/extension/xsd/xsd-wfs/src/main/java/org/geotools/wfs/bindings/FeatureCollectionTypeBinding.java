@@ -23,6 +23,7 @@ import javax.xml.namespace.QName;
 import net.opengis.wfs.FeatureCollectionType;
 import net.opengis.wfs.WfsFactory;
 
+import org.eclipse.emf.ecore.EObject;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -148,9 +149,15 @@ public class FeatureCollectionTypeBinding extends AbstractComplexEMFBinding {
     public Object parse(ElementInstance instance, Node node, Object value)
         throws Exception {
         FeatureCollectionType fct = (FeatureCollectionType) super.parse(instance, node, value);
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = new DefaultFeatureCollection(null, null);
+        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = null;
         
         //gml:featureMembers
+        fc = (FeatureCollection<SimpleFeatureType, SimpleFeature>) node.getChildValue(FeatureCollection.class);
+        if (fc == null) {
+            fc = new DefaultFeatureCollection(null, null);
+        }
+        
+        //check for an array
         SimpleFeature[] featureMembers = (SimpleFeature[]) node.getChildValue(SimpleFeature[].class);
         if (featureMembers != null) {
             for (int i = 0; i < featureMembers.length; i++) {
@@ -171,4 +178,15 @@ public class FeatureCollectionTypeBinding extends AbstractComplexEMFBinding {
 
         return fct;
     }
+    
+    @Override
+    protected void setProperty(EObject eObject, String property, Object value, boolean lax) {
+        if ("featureMembers".equalsIgnoreCase(property)) {
+            //ignore feature, handled in parse()
+        }
+        else {
+            super.setProperty(eObject, property, value, lax);
+        }
+    }
+    
 }

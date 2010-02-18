@@ -73,7 +73,7 @@ public class GetPropertyExecutor implements BindingWalker.Visitor {
 
             if ((binding.getType() != null)
                     && !binding.getType().isAssignableFrom(parent.getClass())) {
-                LOGGER.warning(parent + " (" + parent.getClass().getName() + ") "
+                LOGGER.fine(parent + " (" + parent.getClass().getName() + ") "
                     + " is not of type " + binding.getType().getName());
 
                 //try to convert

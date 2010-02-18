@@ -82,7 +82,11 @@ public class AbstractFeatureCollectionTypeBinding extends AbstractComplexBinding
      */
     public Object parse(ElementInstance instance, Node node, Object value)
         throws Exception {
-        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = DefaultFeatureCollections.newCollection();
+        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = 
+            (FeatureCollection<SimpleFeatureType, SimpleFeature>) node.getChildValue(FeatureCollection.class);
+        if (featureCollection == null) {
+            featureCollection = DefaultFeatureCollections.newCollection();
+        }
 
         //&lt;element maxOccurs="unbounded" minOccurs="0" ref="gml:featureMember"/&gt;
         featureCollection.addAll(node.getChildValues(SimpleFeature.class));
