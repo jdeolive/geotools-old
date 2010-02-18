@@ -38,6 +38,7 @@ import org.opengis.feature.Feature;
 import org.opengis.feature.FeatureFactory;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.FeatureTypeFactory;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -134,6 +135,29 @@ public final class FeatureUtilities {
 
         return collection;
     }
+    
+    /**
+     * Checks if the feature type specified is a GridCoverage wrapper
+     * @param featureType
+     * @return
+     */
+    public static boolean isWrappedCoverage(SimpleFeatureType featureType) {
+        if(!"GridCoverage".equals(featureType.getName().getLocalPart()))
+            return false;
+        
+        if(featureType.getAttributeCount() != 2)
+            return false;
+        
+        AttributeDescriptor polyDescriptor = featureType.getDescriptor("geom");
+        if(polyDescriptor == null || !Polygon.class.equals(polyDescriptor.getType().getBinding()))
+            return false;
+        
+        AttributeDescriptor gridDescriptor = featureType.getDescriptor("grid");
+        if(gridDescriptor == null || !GridCoverage.class.equals(gridDescriptor.getType().getBinding()))
+            return false;
+        
+        return true;
+    }
 
     /**
      * Wraps a grid coverage into a Feature. Code lifted from ArcGridDataSource
@@ -191,6 +215,33 @@ public final class FeatureUtilities {
 
 		return collection;
 	}
+    
+    /**
+     * Checks if the feature type specified is a AbstractGridCoverage2DReader wrapper
+     * @param featureType
+     * @return
+     */
+    public static boolean isWrappedCoverageReader(SimpleFeatureType featureType) {
+        if(!"GridCoverage".equals(featureType.getName().getLocalPart()))
+            return false;
+        
+        if(featureType.getAttributeCount() != 3)
+            return false;
+        
+        AttributeDescriptor polyDescriptor = featureType.getDescriptor("geom");
+        if(polyDescriptor == null || !Polygon.class.equals(polyDescriptor.getType().getBinding()))
+            return false;
+        
+        AttributeDescriptor gridDescriptor = featureType.getDescriptor("grid");
+        if(gridDescriptor == null || !AbstractGridCoverage2DReader.class.equals(gridDescriptor.getType().getBinding()))
+            return false;
+        
+        AttributeDescriptor paramDescriptor = featureType.getDescriptor("params");
+        if(paramDescriptor == null || !GeneralParameterValue[].class.equals(paramDescriptor.getType().getBinding()))
+            return false;
+        
+        return true;
+    }
 
 	/**
 	 * Converts a JTS {@link Polygon}, which represents a ROI, int an AWT
