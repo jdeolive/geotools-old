@@ -3,7 +3,6 @@ package org.geotools.data.ingres;
 import org.geotools.jdbc.JDBCDataStore;
 import org.geotools.jdbc.JDBCDataStoreFactory;
 import org.geotools.jdbc.JDBCTestSetup;
-import org.geotools.jdbc.SQLDialect;
 
 public class IngresTestSetup extends JDBCTestSetup {
 
