@@ -50,6 +50,7 @@ import java.lang.reflect.InvocationTargetException;
 import javax.media.jai.*;
 import javax.media.jai.operator.*;
 
+import com.sun.media.imageioimpl.common.BogusColorSpace;
 import com.sun.media.imageioimpl.common.PackageUtil;
 import com.sun.media.imageioimpl.plugins.jpeg.CLibJPEGImageWriterSpi;
 import com.sun.media.jai.util.ImageUtil;
@@ -496,6 +497,19 @@ public class ImageWorker {
 	         */
 	        layout.setColorModel(newCm);
 	        layout.setSampleModel(newCm.createCompatibleSampleModel(image.getWidth(), image.getHeight()));
+        }else{
+        	final int numBands=image.getSampleModel().getNumBands();
+        	final ColorModel newCm= new ComponentColorModel(
+	                new BogusColorSpace(numBands),
+	                false,               		// If true, supports transparency.
+	                false,   					// If true, alpha is premultiplied.
+	                Transparency.OPAQUE,        // What alpha values can be represented.
+	                type);                      // Type of primitive array used to represent pixel.
+	        /*
+	         * Creating the final image layout which should allow us to change color model.
+	         */
+	        layout.setColorModel(newCm);
+	        layout.setSampleModel(newCm.createCompatibleSampleModel(image.getWidth(), image.getHeight()));
         }
         hints.put(JAI.KEY_IMAGE_LAYOUT, layout);
         return hints;
@@ -675,7 +689,10 @@ public class ImageWorker {
      * @see #forceColorSpaceRGB
      */
     public final boolean isColorSpaceRGB() {
-        return image.getColorModel().getColorSpace().getType() == ColorSpace.TYPE_RGB;
+    	final ColorModel cm = image.getColorModel();
+    	if(cm==null)
+    		return false;
+        return cm.getColorSpace().getType() == ColorSpace.TYPE_RGB;
     }
 
     /**
@@ -687,7 +704,10 @@ public class ImageWorker {
      * @see #forceColorSpaceGRAYScale
      */
     public final boolean isColorSpaceGRAYScale() {
-        return image.getColorModel().getColorSpace().getType() == ColorSpace.TYPE_GRAY;
+    	final ColorModel cm = image.getColorModel();
+    	if(cm==null)
+    		return false;
+        return cm.getColorSpace().getType() == ColorSpace.TYPE_GRAY;
     }
 
     /**
@@ -1145,7 +1165,7 @@ public class ImageWorker {
 						Errors.format(ErrorKeys.NULL_ARGUMENT_$1,"lut"));
             /*
              * Get the default hints, which usually contains only informations
-             * about tiling. If the user overrode the rendering hints with an
+             * about tiling. If the user override the rendering hints with an
              * explicit color model, keep the user's choice.
              */
             final RenderingHints hints = (RenderingHints) getRenderingHints();
@@ -1178,11 +1198,10 @@ public class ImageWorker {
 
         } else {
             // Most of the code adapted from jai-interests is in 'getRenderingHints(int)'.
-            final int type = (cm instanceof DirectColorModel) ?
-                    DataBuffer.TYPE_BYTE : image.getSampleModel().getTransferType();
+            final int type = (cm instanceof DirectColorModel) ?DataBuffer.TYPE_BYTE : image.getSampleModel().getTransferType();
             final RenderingHints hints = getRenderingHints(type);
             image = FormatDescriptor.create(image, type, hints);
-        }
+        } 
         invalidateStatistics();
 
         // All post conditions for this method contract.
@@ -1324,7 +1343,9 @@ public class ImageWorker {
 	 */
 	public final ImageWorker addBand(RenderedImage image, boolean before) {
 
-		this.image = BandMergeDescriptor.create(this.image, image, this.getRenderingHints());
+		this.image = before?
+						BandMergeDescriptor.create(image, this.image, this.getRenderingHints()):
+						BandMergeDescriptor.create(this.image, image, this.getRenderingHints());
 		invalidateStatistics();
 
 		return this;

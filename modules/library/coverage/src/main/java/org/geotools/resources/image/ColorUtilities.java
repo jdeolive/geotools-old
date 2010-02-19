@@ -462,6 +462,63 @@ public final class ColorUtilities {
 		}
 	}
 	
+	/**
+     * Returns a suitable threshold depending on the {@link DataBuffer} type.
+     * 
+     * <p>
+     * Remember that the threshold works with >=.
+     * 
+     * @param dataType
+     *            to create a low threshold for.
+     * @return a minimum threshold value suitable for this data type.
+     */
+    public static double getThreshold(int dataType) {
+        switch (dataType) {
+        case DataBuffer.TYPE_BYTE:
+        case DataBuffer.TYPE_USHORT:
+            // this may cause problems and truncations when the native mosaic
+            // operations is enabled
+            return 0.0;
+        case DataBuffer.TYPE_INT:
+            return Integer.MIN_VALUE;
+        case DataBuffer.TYPE_SHORT:
+            return Short.MIN_VALUE;
+        case DataBuffer.TYPE_DOUBLE:
+            return -Double.MAX_VALUE;
+        case DataBuffer.TYPE_FLOAT:
+            return -Float.MAX_VALUE;
+        }
+        return 0;
+    }
+    
+    /**
+     * Looks for the specified color in the color model
+     * @param bgColor The color to be searched
+     * @param icm The color model to be searched into
+     * @return The index of the color in the color model, or -1 if not found
+     */
+    public static int findColorIndex(Color bgColor, IndexColorModel icm) {
+    	if(bgColor== null)
+    		throw new NullPointerException((Errors.format(ErrorKeys.NULL_ARGUMENT_$1,"bgColor")));
+    	if(icm== null)
+    		throw new NullPointerException((Errors.format(ErrorKeys.NULL_ARGUMENT_$1,"icm")));    		
+    		
+        final int r = bgColor.getRed();
+        final int g = bgColor.getGreen();
+        final int b = bgColor.getBlue();
+        final int a = bgColor.getAlpha();
+        final int size = icm.getMapSize();
+        
+        for(int i = 0; i < size; i++) {
+            if(r == icm.getRed(i) &&
+               g == icm.getGreen(i) &&
+               b == icm.getBlue(i) &&
+               (a == icm.getAlpha(i) || !icm.hasAlpha()))
+                return i;
+        }
+        return -1;
+    }
+    
     /**
      * Provide the maximum allowe value for a certain data type.
      * @param dataType the data type to suggest a maximum value for.
