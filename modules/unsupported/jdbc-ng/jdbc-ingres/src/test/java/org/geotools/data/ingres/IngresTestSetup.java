@@ -7,10 +7,6 @@ import org.geotools.jdbc.SQLDialect;
 
 public class IngresTestSetup extends JDBCTestSetup {
 
-	
-	// testing my svn commit access
-	
-	
     @Override
     protected JDBCDataStoreFactory createDataStoreFactory() {
         return null;
