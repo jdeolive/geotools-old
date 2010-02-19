@@ -18,6 +18,7 @@ package org.geotools.renderer.lite.gridcoverage2d;
 
 // J2SE dependencies
 import java.awt.AlphaComposite;
+import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -33,9 +34,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
+import javax.media.jai.ImageLayout;
 import javax.media.jai.Interpolation;
 import javax.media.jai.InterpolationNearest;
 import javax.media.jai.JAI;
+import javax.media.jai.operator.AffineDescriptor;
+import javax.media.jai.operator.ScaleDescriptor;
+import javax.media.jai.operator.TranslateDescriptor;
 
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridEnvelope2D;
@@ -166,33 +171,6 @@ public final class GridCoverageRenderer {
     /** Parameters used to control the {@link Scale} operation. */
     private static final Resample resampleFactory = new Resample();
     
-    /**
-     * Creates a new {@link GridCoverageRenderer} object.
-     * 
-     * @param destinationCRS
-     *                the CRS of the {@link GridCoverage2D} to render.
-     * @param envelope
-     *                delineating the area to be rendered.
-     * @param screenSize
-     *                at which we want to rendere the source
-     *                {@link GridCoverage2D}.
-     * @param worldToScreen if not <code>null</code> and if it contains a rotation,
-     * this Affine Tranform is used directly to convert from world coordinates
-     * to screen coordinates. Otherwise, a standard {@link GridToEnvelopeMapper}
-     * is used to calculate the affine transform.
-     * 
-     * @throws TransformException
-     * @throws NoninvertibleTransformException
-     * @deprecated Use {@link GridCoverageRenderer#GridCoverageRenderer(CoordinateReferenceSystem, Envelope, Rectangle, AffineTransform, RenderingHints)}
-     *             instead
-     */
-    public GridCoverageRenderer(final CoordinateReferenceSystem destinationCRS,
-            final Envelope envelope, Rectangle screenSize)
-            throws TransformException, NoninvertibleTransformException {
-
-        this(destinationCRS, envelope, screenSize, null, null);
-
-    }
 
     /**
      * Creates a new {@link GridCoverageRenderer} object.
@@ -220,28 +198,7 @@ public final class GridCoverageRenderer {
 
     }
     
-    /**
-     * Creates a new {@link GridCoverageRenderer} object.
-     * 
-     * @param destinationCRS
-     *                the CRS of the {@link GridCoverage2D} to render.
-     * @param envelope
-     *                delineating the area to be rendered.
-     * @param screenSize
-     *                at which we want to rendere the source
-     *                {@link GridCoverage2D}.
-     * @param java2dHints
-     *                to control this rendering process.
-     * @throws TransformException
-     * @throws NoninvertibleTransformException
-     * @deprecated Use {@link GridCoverageRenderer#GridCoverageRenderer(CoordinateReferenceSystem, Envelope, Rectangle, AffineTransform, RenderingHints)}
-     *             instead
-     */
-    public GridCoverageRenderer(final CoordinateReferenceSystem destinationCRS,
-            final Envelope envelope, Rectangle screenSize, RenderingHints java2dHints) throws TransformException,
-            NoninvertibleTransformException {
-        this(destinationCRS, envelope, screenSize, null,java2dHints);
-    }
+
 
     /**
      * Creates a new {@link GridCoverageRenderer} object.
@@ -379,36 +336,48 @@ public final class GridCoverageRenderer {
     }
 
     /**
-     * Paint this grid coverage. The caller must ensure that
-     * <code>graphics</code> has an affine transform mapping "real world"
-     * coordinates in the coordinate system given by {@link
-     * #getCoordinateSystem}.
+     * Write the provided {@link RenderedImage} in the debug directory with the provided file name.
      * 
-     * @param graphics
-     *                the {@link Graphics2D} context in which to paint.
-     * @param metaBufferedEnvelope
+     * @param raster
+     *            the {@link RenderedImage} that we have to write.
+     * @param fileName
+     *            a {@link String} indicating where we should write it.
+     */
+    static void writeRenderedImage(final RenderedImage raster, final String fileName) {
+        if (debugDir == null)
+            throw new NullPointerException(
+                    "Unable to write the provided coverage in the debug directory");
+        if (DEBUG == false)
+            throw new IllegalStateException(
+                    "Unable to write the provided coverage since we are not in debug mode");
+        try {
+            ImageIO.write(raster, "tiff", new File(debugDir, fileName + ".tiff"));
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
+        }
+    }
+
+    /**
+     * Builds a (RenderedImage, AffineTransform) pair that can be used for rendering onto a
+     * {@link Graphics2D} or as the basis to build a final image. Will return null if there is
+     * nothing to render.
+     * 
+     * @param gridCoverage
+     * @param symbolizer
+     * @return
      * @throws FactoryException
      * @throws TransformException
      * @throws NoninvertibleTransformException
-     * @throws Exception
-     * @throws UnsupportedOperationException
-     *                 if the transformation from grid to coordinate system in
-     *                 the GridCoverage is not an AffineTransform
      */
-    public void paint(
-    		final Graphics2D graphics,
-            final GridCoverage2D gridCoverage, 
+    private Object[] prepareFinalImage(final GridCoverage2D gridCoverage,
             final RasterSymbolizer symbolizer)
             throws FactoryException, TransformException,
             NoninvertibleTransformException {
-
         // ///////////////////////////////////////////////////////////////////
         //
         // Initial checks
         //
         // ///////////////////////////////////////////////////////////////////
-    	if(graphics==null)
-    		throw new NullPointerException(Errors.format(ErrorKeys.NULL_ARGUMENT_$1,"graphics"));
     	if(gridCoverage==null)
     		throw new NullPointerException(Errors.format(ErrorKeys.NULL_ARGUMENT_$1,"gridCoverage"));
     	
@@ -548,7 +517,7 @@ public final class GridCoverageRenderer {
                 LOGGER
                         .info("The destination envelope does not intersect the envelope of the source coverage.");
             }
-            return;
+            return null;
         }
 
 
@@ -570,7 +539,7 @@ public final class GridCoverageRenderer {
 		        if (LOGGER.isLoggable(Level.FINE))
 		            LOGGER.fine(
 		                    new StringBuilder("Skipping current coverage because cropped to an empty area").toString());
-		        return;
+                return null;
 		    }
     	}catch (Throwable t) {
     		////
@@ -657,10 +626,118 @@ public final class GridCoverageRenderer {
         // //
         final AffineTransform clonedFinalWorldToGrid = (AffineTransform) finalWorldToGrid.clone();
         clonedFinalWorldToGrid.concatenate(finalGCgridToWorld);
+
+        return new Object[] {finalImage, clonedFinalWorldToGrid};
+    }            	
+
+    /**
+     * Turns the coverage into a rendered image applying the necessary transformations and the
+     * symbolizer
+     * 
+     * @param gridCoverage
+     * @param symbolizer
+     * @return The transformed image, or null if the coverage does not lie within the rendering
+     *         bounds
+     * @throws FactoryException
+     * @throws TransformException
+     * @throws NoninvertibleTransformException
+     */
+    public RenderedImage renderImage(final GridCoverage2D gridCoverage,
+            final RasterSymbolizer symbolizer, Interpolation interpolation, Color background,
+            int tileSizeX, int tileSizeY) throws FactoryException, TransformException,
+            NoninvertibleTransformException {
+
+        // Build the final image and the transformation
+        Object[] couple = prepareFinalImage(gridCoverage, symbolizer);
+        if (couple == null)
+            return null;
+
+        RenderedImage finalImage = (RenderedImage) couple[0];
+        AffineTransform clonedFinalWorldToGrid = (AffineTransform) couple[1];
+
+        // TODO: optimize translate/scale transformations
+        // TODO: use mosaic to merge with a background respecting alpha and transparency
+        // TODO: check tolerance value
+        // TODO: do we need to pass in any hints?
+        final double tolerance = 1e-6;
+
+        if (XAffineTransform.isIdentity(clonedFinalWorldToGrid, tolerance)) {
+            return finalImage;
+        }
+
+        // TODO: make this check a little more general, AffineTransform type won't use tolerances,
+        // but this will do for the moment, in our tests the common case fits with AffineTransform
+        // expectations
+        final ImageLayout layout = new ImageLayout(finalImage);
+        layout.setTileGridXOffset(0).setTileGridYOffset(0).setTileHeight(tileSizeY).setTileWidth(
+                tileSizeX);
+        final RenderingHints hints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, layout);
+        float sx = (float) clonedFinalWorldToGrid.getScaleX();
+        float sy = (float) clonedFinalWorldToGrid.getScaleY();
+        float tx = (float) clonedFinalWorldToGrid.getTranslateX();
+        float ty = (float) clonedFinalWorldToGrid.getTranslateY();
+        int txType = clonedFinalWorldToGrid.getType();
+        if (txType == AffineTransform.TYPE_TRANSLATION) {
+            return TranslateDescriptor.create(finalImage, tx, ty, interpolation, hints);
+        } else if (txType == AffineTransform.TYPE_GENERAL_SCALE
+                || txType == AffineTransform.TYPE_UNIFORM_SCALE
+                || txType == (AffineTransform.TYPE_GENERAL_SCALE | AffineTransform.TYPE_TRANSLATION)
+                || txType == (AffineTransform.TYPE_UNIFORM_SCALE | AffineTransform.TYPE_TRANSLATION)) {
+            return ScaleDescriptor.create(finalImage, sx, sy, tx, ty, interpolation, hints);
+        } else {
+            return AffineDescriptor.create(finalImage, clonedFinalWorldToGrid, interpolation, null,
+                    hints);
+        }
+    }
+    
+    /**
+     * Paint this grid coverage. The caller must ensure that
+     * <code>graphics</code> has an affine transform mapping "real world"
+     * coordinates in the coordinate system given by {@link
+     * #getCoordinateSystem}.
+     * 
+     * @param graphics
+     *                the {@link Graphics2D} context in which to paint.
+     * @param metaBufferedEnvelope
+     * @throws FactoryException
+     * @throws TransformException
+     * @throws NoninvertibleTransformException
+     * @throws Exception
+     * @throws UnsupportedOperationException
+     *                 if the transformation from grid to coordinate system in
+     *                 the GridCoverage is not an AffineTransform
+     */
+    public void paint(
+            final Graphics2D graphics,
+            final GridCoverage2D gridCoverage, 
+            final RasterSymbolizer symbolizer)
+            throws FactoryException, TransformException,
+            NoninvertibleTransformException {
+
+        // ///////////////////////////////////////////////////////////////////
+        //
+        // Initial checks
+        //
+        // ///////////////////////////////////////////////////////////////////
+        if(graphics==null)
+            throw new NullPointerException(Errors.format(ErrorKeys.NULL_ARGUMENT_$1,"graphics"));
+        if(gridCoverage==null)
+            throw new NullPointerException(Errors.format(ErrorKeys.NULL_ARGUMENT_$1,"gridCoverage"));
+        
         if (LOGGER.isLoggable(Level.FINE))
-            LOGGER.fine(new StringBuilder("clonedFinalWorldToGrid ").append(clonedFinalWorldToGrid.toString()).toString());
+            LOGGER.fine(new StringBuilder("Drawing coverage ").append(gridCoverage.toString()).toString());
+
         final RenderingHints oldHints = graphics.getRenderingHints();
         graphics.setRenderingHints(this.hints);
+        
+        
+        // Build the final image and the transformation
+        Object[] couple = prepareFinalImage(gridCoverage, symbolizer);
+        if (couple == null)
+            return;
+
+        RenderedImage finalImage = (RenderedImage) couple[0];
+        AffineTransform clonedFinalWorldToGrid = (AffineTransform) couple[1];
 
         // //
         // Opacity
@@ -669,10 +746,10 @@ public final class GridCoverageRenderer {
         final Composite oldAlphaComposite = graphics.getComposite();
         graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
         try {
-        	//debug
+            //debug
             if (DEBUG) {
                 writeRenderedImage(finalImage,"final");
-            }            	
+            }               
 
             // //
             // Drawing the Image
@@ -681,26 +758,26 @@ public final class GridCoverageRenderer {
             
         } catch (Throwable t) {
             try {
-            	//log the error
-            	if(LOGGER.isLoggable(Level.FINE))
-            		LOGGER.log(Level.FINE,t.getLocalizedMessage(),t);              
+                //log the error
+                if(LOGGER.isLoggable(Level.FINE))
+                    LOGGER.log(Level.FINE,t.getLocalizedMessage(),t);              
                 
                 // /////////////////////////////////////////////////////////////
-				// this is a workaround for a bug in Java2D, we need to convert
-				// the image to component color model to make it work just fine.
+                // this is a workaround for a bug in Java2D, we need to convert
+                // the image to component color model to make it work just fine.
                 // /////////////////////////////////////////////////////////////
                 if(t instanceof IllegalArgumentException){
                     if (DEBUG) {
                         writeRenderedImage(finalImage,"preWORKAROUND1");
                     }
-                	final RenderedImage image = new ImageWorker(finalImage).forceComponentColorModel(true).getRenderedImage();
-                	
+                    final RenderedImage image = new ImageWorker(finalImage).forceComponentColorModel(true).getRenderedImage();
+                    
                     if (DEBUG) {
-                    	writeRenderedImage(image,"WORKAROUND1");
+                        writeRenderedImage(image,"WORKAROUND1");
                         
                     }
                     graphics.drawRenderedImage(image, clonedFinalWorldToGrid);
-            	
+                
                 }
                 else if(t instanceof ImagingOpException)
                 // /////////////////////////////////////////////////////////////
@@ -719,10 +796,10 @@ public final class GridCoverageRenderer {
                 // LARGE IMAGES.
                 // /////////////////////////////////////////////////////////////
                 {
-                	BufferedImage buf = 
-                		finalImage.getColorModel().hasAlpha()?
-                				new BufferedImage(finalImage.getWidth(), finalImage.getHeight(), BufferedImage.TYPE_4BYTE_ABGR):
-                				new BufferedImage(finalImage.getWidth(), finalImage.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
+                    BufferedImage buf = 
+                        finalImage.getColorModel().hasAlpha()?
+                                new BufferedImage(finalImage.getWidth(), finalImage.getHeight(), BufferedImage.TYPE_4BYTE_ABGR):
+                                new BufferedImage(finalImage.getWidth(), finalImage.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
                                 if (DEBUG) {
                                     writeRenderedImage(buf,"preWORKAROUND2");
                                 }
@@ -731,18 +808,18 @@ public final class GridCoverageRenderer {
                     g.drawRenderedImage(finalImage, AffineTransform.getTranslateInstance(-translationX, -translationY));
                     g.dispose();
                     if (DEBUG) {
-                    	 writeRenderedImage(buf,"WORKAROUND2");
+                         writeRenderedImage(buf,"WORKAROUND2");
                     }
                     clonedFinalWorldToGrid.concatenate(AffineTransform.getTranslateInstance(translationX, translationY));
                     graphics.drawImage(buf, clonedFinalWorldToGrid, null);
                     //release
                     buf.flush();
-                    buf=null;                	
+                    buf=null;                   
                 }
                 else 
-                	//log the error
-                	if(LOGGER.isLoggable(Level.FINE))
-                		LOGGER.fine("Unable to renderer this raster, no workaround found");
+                    //log the error
+                    if(LOGGER.isLoggable(Level.FINE))
+                        LOGGER.fine("Unable to renderer this raster, no workaround found");
 
 
             } catch (Throwable t1) {
@@ -761,25 +838,5 @@ public final class GridCoverageRenderer {
         graphics.setRenderingHints(oldHints);
 
     }
-
-	/**
-	 * Write the provided {@link RenderedImage} in the debug directory with the provided file name.
-	 * @param raster the {@link RenderedImage} that we have to write.
-	 * @param fileName a {@link String} indicating where we should write it.
-	 */
-	private void writeRenderedImage(final RenderedImage raster,final String fileName) {
-		if(debugDir==null)
-			throw new NullPointerException("Unable to write the provided coverage in the debug directory");
-		if(DEBUG==false)
-			throw new IllegalStateException("Unable to write the provided coverage since we are not in debug mode");
-		try {
-		    ImageIO.write(
-		    		raster,
-		            "tiff",
-		            new File(debugDir,fileName+".tiff"));
-		} catch (IOException e) {
-			LOGGER.log(Level.SEVERE,e.getLocalizedMessage(),e);
-		}
-	}
 
 }
