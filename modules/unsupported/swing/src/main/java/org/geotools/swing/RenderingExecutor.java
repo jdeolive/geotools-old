@@ -294,9 +294,16 @@ public class RenderingExecutor {
         watcher.cancel(false);
         taskRunning.set(false);
 
+        /*
+         * We zero the cancel latch here because it's possible that the job
+         * completed (or failed) before it could be cancelled. When this statement 
+         * was only executed for the CANCELLED case (below) it led to 
+         * apps somtimes freezing.
+         */
+        cancelLatch.countDown();
+
         switch (result) {
             case CANCELLED:
-                cancelLatch.countDown();
                 mapPane.onRenderingCancelled();
                 break;
 
