@@ -22,6 +22,7 @@ import org.opengis.feature.type.GeometryDescriptor;
 import com.vividsolutions.jts.algorithm.CGAlgorithms;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.CoordinateSequence;
+import com.vividsolutions.jts.geom.CoordinateSequenceFactory;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
@@ -44,7 +45,6 @@ import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
 public class JTSUtilities {
 
     static final CGAlgorithms cga = new CGAlgorithms();
-    static final GeometryFactory factory = new GeometryFactory();
 
     private JTSUtilities() {
     }
@@ -168,14 +168,21 @@ public class JTSUtilities {
      * @return A new ring with the reversed Coordinates.
      */
     public static final LinearRing reverseRing(LinearRing lr) {
-        int numPoints = lr.getNumPoints() - 1;
-        Coordinate[] newCoords = new Coordinate[numPoints + 1];
+        GeometryFactory gf = lr.getFactory();
+        CoordinateSequenceFactory csf = gf.getCoordinateSequenceFactory();
+        
+        CoordinateSequence csOrig = lr.getCoordinateSequence();
+		int numPoints = csOrig.size();
+		int dimensions = csOrig.getDimension();
+		CoordinateSequence csNew = csf.create(numPoints, dimensions);
 
-        for (int t = numPoints; t >= 0; t--) {
-            newCoords[t] = lr.getCoordinateN(numPoints - t);
-        }
+		for (int i = 0; i < numPoints; i++) {
+			for (int j = 0; j < dimensions; j++) {
+				csOrig.getOrdinate(i, j);
+			}
+		}
 
-        return factory.createLinearRing(newCoords);
+        return gf.createLinearRing(csNew);
     }
 
     /**
@@ -187,7 +194,8 @@ public class JTSUtilities {
      * @return The "nice" Polygon.
      */
     public static final Polygon makeGoodShapePolygon(Polygon p) {
-        LinearRing outer;
+        GeometryFactory factory = p.getFactory();
+    	LinearRing outer;
         LinearRing[] holes = new LinearRing[p.getNumInteriorRing()];
         Coordinate[] coords;
 
@@ -228,7 +236,7 @@ public class JTSUtilities {
             ps[t] = makeGoodShapePolygon((Polygon) mp.getGeometryN(t));
         }
 
-        result = factory.createMultiPolygon(ps);
+        result = mp.getFactory().createMultiPolygon(ps);
 
         return result;
     }
@@ -261,6 +269,8 @@ public class JTSUtilities {
         
         if(geom == null)
         	return null;
+        
+    	GeometryFactory factory = geom.getFactory();
 
         if (type.isPointType()) {
             if ((geom instanceof Point)) {
