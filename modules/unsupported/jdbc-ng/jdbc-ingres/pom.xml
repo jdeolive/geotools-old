@@ -59,4 +59,13 @@
       <email>clgoh@student.cs.uwaterloo.ca</email>
     </developer>
   </developers>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.ingres.jdbc</groupId>
+      <artifactId>iijdbc</artifactId>
+      <version>9.2-3.4.9</version>
+    </dependency>
+  </dependencies>
+
 </project>

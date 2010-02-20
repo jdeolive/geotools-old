@@ -8,7 +8,7 @@ public class IngresTestSetup extends JDBCTestSetup {
 
     @Override
     protected JDBCDataStoreFactory createDataStoreFactory() {
-        return null;
+        return new IngresDataStoreFactory();
     }
     
     @Override

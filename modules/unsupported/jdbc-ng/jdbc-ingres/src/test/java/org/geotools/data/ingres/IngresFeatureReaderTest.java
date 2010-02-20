@@ -7,7 +7,7 @@ public class IngresFeatureReaderTest extends JDBCFeatureReaderTest {
 
 	@Override
 	protected JDBCTestSetup createTestSetup() {
-		return null;
+		return new IngresTestSetup();
 	}
 
 }
