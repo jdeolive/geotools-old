@@ -194,7 +194,7 @@ public class ShapeFileIndexer implements FileWriter {
 
     private int buildQuadTree(ShapefileReader reader, File file, boolean verbose)
             throws IOException, StoreException {
-        LOGGER.info("Building quadtree spatial index with depth " +  max + " for file " + file.getAbsolutePath());
+        LOGGER.fine("Building quadtree spatial index with depth " +  max + " for file " + file.getAbsolutePath());
         
         byte order = 0;
 
