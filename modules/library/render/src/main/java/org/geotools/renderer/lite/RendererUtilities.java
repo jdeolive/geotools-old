@@ -192,8 +192,8 @@ public final class RendererUtilities {
         worldToScreen.inverseTransform(pts, 0, pts, 0, 4);
         double xMin = Double.MAX_VALUE;
         double yMin = Double.MAX_VALUE;
-        double xMax = Double.MIN_VALUE;
-        double yMax = Double.MIN_VALUE;
+        double xMax = -Double.MAX_VALUE;
+        double yMax = -Double.MAX_VALUE;
         for (int i = 0; i < 4; i++) {
             xMin = Math.min(xMin, pts[2 * i]);
             yMin = Math.min(yMin, pts[2 * i + 1]);

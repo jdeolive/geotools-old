@@ -137,6 +137,12 @@ public class RenderUtilitiesTest extends TestCase {
         AffineTransform at = new AffineTransform(worldToScreen);
         Envelope env = RendererUtilities.createMapEnvelope(paintArea, at);
         assertEnvelopeEquals(new Envelope(offset,offset+1600,offset,offset+1200),env,0.001);
+        // Test for negative world coordinates
+        at.translate(2*offset,2*offset);
+        env = RendererUtilities.createMapEnvelope(paintArea, at);
+        assertEnvelopeEquals(new Envelope(-offset,-offset+1600,-offset,-offset+1200),env,0.001);
+        // Restore to standard offset
+        at.translate(-2*offset,-2*offset);
         at.rotate(Math.PI/2.0,offset,offset);
         env = RendererUtilities.createMapEnvelope(paintArea, at);
         assertEnvelopeEquals(new Envelope(offset,offset+1200,offset-1600,offset),env,0.0001);
