@@ -52,7 +52,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * @author  Ian Schneider
  * @author  Martin Desruisseaux
  */
-public class TestCaseSupport extends TestCase {
+public abstract class TestCaseSupport extends TestCase {
 	final static String STATE_POP = "shapes/statepop.shp";
 
 	final static String MIXED = "mif/mixed.MIF";
