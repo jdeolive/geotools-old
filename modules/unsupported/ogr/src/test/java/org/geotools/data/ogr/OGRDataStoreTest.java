@@ -267,7 +267,7 @@ public class OGRDataStoreTest extends TestCaseSupport {
         String[] files = shapeFileNames(typeName);
         cleanFiles(files);
 
-        File file = new File(typeName + ".shp");
+        File file = new File(files[0]);
         OGRDataStore ds = new OGRDataStore(file.getAbsolutePath(), "ESRI shapefile", null);
         SimpleFeatureType schema = DataUtilities.createType(typeName, "geom:Point,cat:int,name:string");
         ds.createSchema(schema);
@@ -400,6 +400,7 @@ public class OGRDataStoreTest extends TestCaseSupport {
     }
 
     private String[] shapeFileNames(String typeName) {
+        typeName = "target/" + typeName;
         return new String[] { typeName + ".shp", typeName + ".dbf", typeName + ".shp",
                 typeName + ".shx", typeName + ".prj" };
     }
