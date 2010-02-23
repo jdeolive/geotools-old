@@ -22,96 +22,96 @@ import java.util.NoSuchElementException;
 import org.gdal.ogr.DataSource;
 import org.gdal.ogr.Layer;
 import org.geotools.data.FeatureReader;
-import org.geotools.feature.Feature;
-import org.geotools.feature.FeatureType;
-import org.geotools.feature.IllegalAttributeException;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
 
 import com.vividsolutions.jts.geom.GeometryFactory;
 
 /**
  * An OGR feature reader, reads data from the provided layer.<br>
- * It assumes eventual filters have already been set on it, and will extract
- * only the
+ * It assumes eventual filters have already been set on it, and will extract only the
  * 
  * @author aaime
- *
- * @source $URL$
+ * 
+ * @source $URL:
+ *         http://svn.osgeo.org/geotools/trunk/modules/unsupported/ogr/src/main/java/org/geotools
+ *         /data/ogr/OGRFeatureReader.java $
  */
-public class OGRFeatureReader implements FeatureReader {
+public class OGRFeatureReader implements FeatureReader<SimpleFeatureType, SimpleFeature> {
 
-	DataSource ds;
+    DataSource ds;
 
-	Layer layer;
+    Layer layer;
 
-	FeatureType schema;
+    SimpleFeatureType schema;
 
-	org.gdal.ogr.Feature curr;
+    org.gdal.ogr.Feature curr;
 
-	private FeatureMapper mapper;
-	
-	boolean layerCompleted;
+    private FeatureMapper mapper;
 
-	public OGRFeatureReader(DataSource ds, Layer layer, FeatureType schema) {
-		this.ds = ds;
-		this.layer = layer;
-		this.schema = schema;
-		this.layer.ResetReading();
-		this.layerCompleted = false;
-		// TODO: use the most appropriate Geometry Factory once the SPI system
-		// allows us to provide such an hint
-		this.mapper = new FeatureMapper(new GeometryFactory());
-	}
+    boolean layerCompleted;
 
-	public void close() throws IOException {
-		if (curr != null) {
-			curr.delete();
-			curr = null;
-		}
-		if (layer != null) {
-			layer.delete();
-			layer = null;
-		}
-		if (ds != null) {
-			ds.delete();
-			ds = null;
-		}
-		schema = null;
-	}
+    public OGRFeatureReader(DataSource ds, Layer layer, SimpleFeatureType schema) {
+        this.ds = ds;
+        this.layer = layer;
+        this.schema = schema;
+        this.layer.ResetReading();
+        this.layerCompleted = false;
+        // TODO: use the most appropriate Geometry Factory once the SPI system
+        // allows us to provide such an hint
+        this.mapper = new FeatureMapper(schema, new GeometryFactory());
+    }
 
-	protected void finalize() throws Throwable {
-		close();
-	}
+    public void close() throws IOException {
+        if (curr != null) {
+            curr.delete();
+            curr = null;
+        }
+        if (layer != null) {
+            layer.delete();
+            layer = null;
+        }
+        if (ds != null) {
+            ds.delete();
+            ds = null;
+        }
+        schema = null;
+    }
 
-	public FeatureType getFeatureType() {
-		return schema;
-	}
+    protected void finalize() throws Throwable {
+        close();
+    }
 
-	public boolean hasNext() throws IOException {
-		// ugly, but necessary to close the reader when getting to the end, because
-		// it would break feature appending otherwise (the reader is used in feature
-		// writing too)
-		if(layerCompleted)
-			return false;
-		
-		if (curr != null)
-			return true;
-		boolean hasNext = (curr = layer.GetNextFeature()) != null;
-		if(!hasNext)
-			layerCompleted = true;
-		return hasNext;
-	}
+    public SimpleFeatureType getFeatureType() {
+        return schema;
+    }
 
-	public Feature next() throws IOException, IllegalAttributeException, NoSuchElementException {
-		if (!hasNext())
-			throw new NoSuchElementException("There are no more Features to be read");
+    public boolean hasNext() throws IOException {
+        // ugly, but necessary to close the reader when getting to the end, because
+        // it would break feature appending otherwise (the reader is used in feature
+        // writing too)
+        if (layerCompleted)
+            return false;
 
-		Feature f = mapper.convertOgrFeature(schema, curr);
-		
-		// .. nullify curr, so that we can move to the next one
-		curr.delete();
-		curr = null;
-		
-		return f;
-	}
+        if (curr != null)
+            return true;
+        boolean hasNext = (curr = layer.GetNextFeature()) != null;
+        if (!hasNext)
+            layerCompleted = true;
+        return hasNext;
+    }
+
+    public SimpleFeature next() throws IOException, NoSuchElementException {
+        if (!hasNext())
+            throw new NoSuchElementException("There are no more Features to be read");
+
+        SimpleFeature f = mapper.convertOgrFeature(curr);
+
+        // .. nullify curr, so that we can move to the next one
+        curr.delete();
+        curr = null;
+
+        return f;
+    }
 
 }
