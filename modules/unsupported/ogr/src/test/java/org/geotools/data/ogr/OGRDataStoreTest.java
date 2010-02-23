@@ -35,6 +35,7 @@ import org.geotools.data.FeatureWriter;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
 import org.geotools.data.shapefile.ShapefileDataStore;
+import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.FeatureIterator;
@@ -46,6 +47,7 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.filter.Filter;
+import org.opengis.filter.FilterFactory;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -317,6 +319,39 @@ public class OGRDataStoreTest extends TestCaseSupport {
         tmpFile.delete();
         OGRDataStore s = new OGRDataStore(tmpFile.getAbsolutePath(), "ESRI shapefile", null);
         writeFeatures(s, features);
+    }
+    
+    public void testAttributeFilters() throws Exception {
+        OGRDataStore s = new OGRDataStore(getAbsolutePath(STATE_POP), null, null);
+        FeatureSource fs = s.getFeatureSource(s.getTypeNames()[0]);
+        System.out.println(fs.getSchema());
+        
+        // equality filter
+        FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
+        Filter f = ff.equal(ff.property("STATE_NAME"), ff.literal("New York"), true);
+        assertEquals(1, fs.getFeatures(f).size());
+        
+        // greater than
+        f = ff.greater(ff.property("PERSONS"), ff.literal(10000000));
+        assertEquals(6, fs.getFeatures(f).size());
+        
+        // mix in a filter that cannot be encoded
+        f = ff.and(f, ff.like(ff.property("STATE_NAME"), "C*"));
+        assertEquals(1, fs.getFeatures(f).size());
+    }
+    
+    public void testGeometryFilters() throws Exception {
+        OGRDataStore s = new OGRDataStore(getAbsolutePath(STATE_POP), null, null);
+        FeatureSource fs = s.getFeatureSource(s.getTypeNames()[0]);
+        
+        // from one of the GeoServer demo requests
+        FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
+        Filter f = ff.bbox("the_geom", -75.102613, 40.212597, -72.361859,41.512517, null);
+        assertEquals(4, fs.getFeatures(f).size());
+        
+        // mix in an attribute filter
+        f = ff.and(f, ff.greater(ff.property("PERSONS"), ff.literal("10000000")));
+        assertEquals(2, fs.getFeatures(f).size());   
     }
 
     // ---------------------------------------------------------------------------------------

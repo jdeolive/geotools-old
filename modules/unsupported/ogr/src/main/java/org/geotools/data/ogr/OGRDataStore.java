@@ -17,6 +17,7 @@
 package org.geotools.data.ogr;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
@@ -37,11 +38,14 @@ import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
+import org.geotools.data.jdbc.FilterToSQL;
 import org.geotools.factory.FactoryRegistryException;
 import org.geotools.feature.AttributeTypeBuilder;
 import org.geotools.feature.FeatureTypes;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.feature.type.BasicFeatureTypes;
+import org.geotools.filter.FilterCapabilities;
+import org.geotools.filter.visitor.PostPreProcessFilterSplittingVisitor;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.resources.Classes;
@@ -50,7 +54,27 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.feature.type.GeometryType;
+import org.opengis.filter.And;
 import org.opengis.filter.Filter;
+import org.opengis.filter.Or;
+import org.opengis.filter.PropertyIsEqualTo;
+import org.opengis.filter.PropertyIsGreaterThan;
+import org.opengis.filter.PropertyIsGreaterThanOrEqualTo;
+import org.opengis.filter.PropertyIsLessThan;
+import org.opengis.filter.PropertyIsLessThanOrEqualTo;
+import org.opengis.filter.PropertyIsNotEqualTo;
+import org.opengis.filter.expression.Expression;
+import org.opengis.filter.expression.Literal;
+import org.opengis.filter.expression.PropertyName;
+import org.opengis.filter.spatial.BBOX;
+import org.opengis.filter.spatial.BinarySpatialOperator;
+import org.opengis.filter.spatial.Contains;
+import org.opengis.filter.spatial.Crosses;
+import org.opengis.filter.spatial.Equals;
+import org.opengis.filter.spatial.Intersects;
+import org.opengis.filter.spatial.Overlaps;
+import org.opengis.filter.spatial.Touches;
+import org.opengis.filter.spatial.Within;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -67,7 +91,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * A datastore based on the the <a href="http://www.gdal.org/ogr">OGR</a> spatial data abstraction
  * library
  * 
- * @author aaime
+ * @author Andrea Aime - OpenGeo
  * 
  * @source $URL:
  *         http://svn.osgeo.org/geotools/trunk/modules/unsupported/ogr/src/main/java/org/geotools
@@ -79,6 +103,34 @@ public class OGRDataStore extends AbstractDataStore {
 
     /** C compatible TRUE */
     static final int TRUE = 1;
+    
+    static final FilterCapabilities ATTRIBUTE_FILTER_CAPABILITIES;
+    
+    static final FilterCapabilities GEOMETRY_FILTER_CAPABILITIES;
+    
+    static {
+        ATTRIBUTE_FILTER_CAPABILITIES = new FilterCapabilities();
+        ATTRIBUTE_FILTER_CAPABILITIES.addType(PropertyIsEqualTo.class);
+        ATTRIBUTE_FILTER_CAPABILITIES.addType(PropertyIsNotEqualTo.class);
+        ATTRIBUTE_FILTER_CAPABILITIES.addType(PropertyIsGreaterThan.class);
+        ATTRIBUTE_FILTER_CAPABILITIES.addType(PropertyIsLessThan.class);
+        ATTRIBUTE_FILTER_CAPABILITIES.addType(PropertyIsGreaterThanOrEqualTo.class);
+        ATTRIBUTE_FILTER_CAPABILITIES.addType(PropertyIsLessThanOrEqualTo.class);
+        ATTRIBUTE_FILTER_CAPABILITIES.addType(Or.class);
+        ATTRIBUTE_FILTER_CAPABILITIES.addType(And.class);
+
+        // have the capabilities extract any filter that can use geometric intersection 
+        // as its base
+        GEOMETRY_FILTER_CAPABILITIES = new FilterCapabilities();
+        GEOMETRY_FILTER_CAPABILITIES.addType(BBOX.class);
+        GEOMETRY_FILTER_CAPABILITIES.addType(Contains.class);
+        GEOMETRY_FILTER_CAPABILITIES.addType(Crosses.class);
+        GEOMETRY_FILTER_CAPABILITIES.addType(Equals.class);
+        GEOMETRY_FILTER_CAPABILITIES.addType(Intersects.class);
+        GEOMETRY_FILTER_CAPABILITIES.addType(Overlaps.class);
+        GEOMETRY_FILTER_CAPABILITIES.addType(Touches.class);
+        GEOMETRY_FILTER_CAPABILITIES.addType(Within.class);
+    }
 
     /**
      * The OGRwkbGeometryType enum from ogr_core.h, reduced to represent only 2D classes (I hope the
@@ -136,17 +188,85 @@ public class OGRDataStore extends AbstractDataStore {
             ds.delete();
         }
     }
-
-    protected FeatureReader<SimpleFeatureType, SimpleFeature> getFeatureReader(String typeName) throws IOException {
-        return getFeatureReader(typeName, false);
+    
+    @Override
+    protected FeatureReader<SimpleFeatureType, SimpleFeature> getFeatureReader(String typeName)
+            throws IOException {
+        return getFeatureReader(typeName, Query.ALL, false);
     }
 
-    protected FeatureReader<SimpleFeatureType, SimpleFeature> getFeatureReader(String typeName, boolean openForUpdate)
+    protected FeatureReader<SimpleFeatureType, SimpleFeature> getFeatureReader(String typeName, 
+            Query query) throws IOException {
+        return getFeatureReader(typeName, query, false);
+    }
+
+    protected FeatureReader<SimpleFeatureType, SimpleFeature> getFeatureReader(String typeName, 
+            Query query, boolean openForUpdate)
             throws IOException {
         DataSource ds = getOGRDataSource(openForUpdate ? TRUE : FALSE);
         Layer layer = getOGRLayer(ds, typeName);
+        
+        // handle filtering if possible
         SimpleFeatureType schema = getSchema(typeName);
+        Filter filter = query.getFilter();
+        org.gdal.ogr.Geometry spatialFilter = getSpatialFilter(schema, filter);
+        if(spatialFilter != null)
+            layer.SetSpatialFilter(spatialFilter);
+        String attributeFilter = getAttributeFilter(schema, filter);
+        if(attributeFilter != null)
+            layer.SetAttributeFilter(attributeFilter);
+        
         return new OGRFeatureReader(ds, layer, schema);
+    }
+    
+    /**
+     * Parses the Geotools filter and tries to extract an intersecting geometry that
+     * can be used as the OGR spatial filter
+     * @param schema
+     * @param filter
+     * @return
+     */
+    protected org.gdal.ogr.Geometry getSpatialFilter(SimpleFeatureType schema, Filter filter) {
+        // TODO: switch to the non deprecated splitter (that no one seems to be using)
+        PostPreProcessFilterSplittingVisitor visitor = new PostPreProcessFilterSplittingVisitor(GEOMETRY_FILTER_CAPABILITIES, schema, null);
+        filter.accept(visitor, null);
+        Filter preFilter = visitor.getFilterPre();
+        if(preFilter instanceof BinarySpatialOperator) {
+            BinarySpatialOperator bso = ((BinarySpatialOperator) preFilter);
+            Expression geomExpression = null;
+            if(bso.getExpression1() instanceof PropertyName && bso.getExpression2() instanceof Literal) {
+                geomExpression = bso.getExpression2();
+            } else if(bso.getExpression1() instanceof Literal && bso.getExpression2() instanceof PropertyName) {
+                geomExpression = bso.getExpression1();
+            }
+            if(geomExpression != null) {
+                Geometry geom = geomExpression.evaluate(null, Geometry.class);
+                if(geom != null)
+                    return new GeometryMapper(geom.getFactory()).parseGTGeometry(geom);
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * Parses the GeoTools filter and tries to extract an SQL expression that can
+     * be used as the OGR attribute filter
+     * @param schema
+     * @param filter
+     * @return
+     */
+    protected String getAttributeFilter(SimpleFeatureType schema, Filter filter) {
+        // TODO: switch to the non deprecated splitter (that no one seems to be using)
+        PostPreProcessFilterSplittingVisitor visitor = new PostPreProcessFilterSplittingVisitor(ATTRIBUTE_FILTER_CAPABILITIES, schema, null);
+        filter.accept(visitor, null);
+        Filter preFilter = visitor.getFilterPre();
+        if(preFilter != Filter.EXCLUDE && preFilter != Filter.INCLUDE) {
+            StringWriter writer = new StringWriter();
+            FilterToSQL sqlConverter = new FilterToSQL(writer);
+            preFilter.accept(sqlConverter, null);
+            return writer.getBuffer().toString();
+        }
+        return null;
     }
 
     public SimpleFeatureType getSchema(String typeName) throws IOException {
@@ -248,7 +368,7 @@ public class OGRDataStore extends AbstractDataStore {
     protected FeatureWriter createFeatureWriter(String typeName, Transaction transaction)
             throws IOException {
         if (supportsInPlaceWrite(typeName)) {
-            OGRFeatureReader reader = (OGRFeatureReader) getFeatureReader(typeName, true);
+            OGRFeatureReader reader = (OGRFeatureReader) getFeatureReader(typeName, Query.ALL, true);
             return new OGRDirectFeatureWriter(reader);
         } else {
             throw new UnsupportedOperationException(

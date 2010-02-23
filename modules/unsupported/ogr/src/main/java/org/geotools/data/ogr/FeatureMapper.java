@@ -36,11 +36,6 @@ import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKBReader;
-import com.vividsolutions.jts.io.WKBWriter;
-import com.vividsolutions.jts.io.WKTReader;
-import com.vividsolutions.jts.io.WKTWriter;
 
 /**
  * Maps OGR features into Geotools ones, and vice versa. Chances are that if you need to update a
@@ -52,30 +47,13 @@ import com.vividsolutions.jts.io.WKTWriter;
  */
 class FeatureMapper {
 
-    /**
-     * From ogr_core.h, the byte order constants
-     */
-    static final int WKB_XDR = 1;
-
-    /**
-     * Enables usage of WKB encoding for OGR/Java Geometry conversion. At the time of writing, it
-     * cannot be used because it'll bring the virtual machine down (yes, a real crash...)
-     */
-    static final boolean USE_WKB = true;
-
-    GeometryFactory geomFactory;
-    
     SimpleFeatureBuilder builder;
     
     SimpleFeatureType schema;
-
-    WKBReader wkbReader;
-
-    WKTReader wktReader;
-
-    WKBWriter wkbWriter;
-
-    WKTWriter wktWriter;
+    
+    GeometryMapper geomMapper;
+    
+    GeometryFactory geomFactory;
 
     /**
      * The date time format used by OGR when getting/setting times using strings
@@ -89,14 +67,8 @@ class FeatureMapper {
     public FeatureMapper(SimpleFeatureType schema, GeometryFactory geomFactory) {
         this.schema = schema;
         this.builder = new SimpleFeatureBuilder(schema);
+        this.geomMapper = new GeometryMapper(geomFactory);
         this.geomFactory = geomFactory;
-        if (USE_WKB) {
-            this.wkbReader = new WKBReader(geomFactory);
-            this.wkbWriter = new WKBWriter();
-        } else {
-            this.wktReader = new WKTReader(geomFactory);
-            this.wktWriter = new WKTWriter();
-        }
     }
 
     /**
@@ -120,7 +92,7 @@ class FeatureMapper {
             if (at instanceof GeometryDescriptor) {
                 org.gdal.ogr.Geometry ogrGeometry = ogrFeature.GetGeometryRef();
                 try {
-                    builder.add(fixGeometryType(parseOgrGeometry(ogrGeometry), at));
+                    builder.add(fixGeometryType(geomMapper.parseOgrGeometry(ogrGeometry), at));
                 } finally {
                     ogrGeometry.delete();
                 }
@@ -156,7 +128,7 @@ class FeatureMapper {
             if (at instanceof GeometryDescriptor) {
                 // using setGeoemtryDirectly the feature becomes the owner of the generated
                 // OGR geometry and we don't have to .delete() it (it's faster, too)
-                result.SetGeometryDirectly(parseGTGeometry((Geometry) attribute));
+                result.SetGeometryDirectly(geomMapper.parseGTGeometry((Geometry) attribute));
                 continue;
             }
 
@@ -211,62 +183,6 @@ class FeatureMapper {
 
     }
 
-    /**
-     * Reads the current feature's geometry using wkb encoding. A wkbReader should be provided since
-     * it's not thread safe by design.
-     * 
-     * @throws IOException
-     */
-    Geometry parseOgrGeometry(org.gdal.ogr.Geometry geom) throws IOException {
-        // Extract the geometry using either WKT or WKB. Rationale: the SWIG
-        // bindings do not provide subclasses. Even if they did, going thru the
-        // JNI barrier often is expensive, so it's better to gather the geometry
-        // is a single call
-        if (USE_WKB) {
-            int wkbSize = geom.WkbSize();
-            // the gdal interface uses a char* type, maybe because in C it's
-            // unsigned and has
-            // the same size as a byte, unfortunately this means we have to
-            // unpack it
-            // to byte format by doing bit masking and shifting
-            byte[] byteBuffer = new byte[wkbSize];
-            geom.ExportToWkb(byteBuffer, WKB_XDR);
-            try {
-                Geometry g = wkbReader.read(byteBuffer);
-                return g;
-            } catch (ParseException pe) {
-                throw new DataSourceException(
-                        "Could not parse the current Geometry in WKB format.", pe);
-            }
-        } else {
-            String[] stringArray = new String[1];
-            geom.ExportToWkt(stringArray);
-            try {
-                return wktReader.read(stringArray[0]);
-            } catch (ParseException pe) {
-                throw new DataSourceException(
-                        "Could not parse the current Geometry in WKB format.", pe);
-            }
-        }
-    }
-
-    org.gdal.ogr.Geometry parseGTGeometry(Geometry geometry) throws DataSourceException {
-        final org.gdal.ogr.Geometry ogrGeom;
-        if (USE_WKB) {
-            byte[] wkb = wkbWriter.write(geometry);
-            ogrGeom = ogr.CreateGeometryFromWkb(wkb, null);
-            if (ogrGeom == null)
-                throw new DataSourceException(
-                        "Could not turn JTS geometry into an OGR one thought WKB");
-        } else {
-            String wkt = wktWriter.write(geometry);
-            ogrGeom = ogr.CreateGeometryFromWkt(wkt, null);
-            if (ogrGeom == null)
-                throw new DataSourceException(
-                        "Could not turn JTS geometry into an OGR one thought WKT");
-        }
-        return ogrGeom;
-    }
 
     /**
      * Reads the current feature's specified field using the most appropriate OGR field extraction
