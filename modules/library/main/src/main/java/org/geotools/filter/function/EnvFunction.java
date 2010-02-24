@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Level;
@@ -57,7 +58,7 @@ import org.opengis.filter.expression.Literal;
  * There is also a global lookup table, accessible from all threads.
  * When the function is given a variable to look up it first searches the
  * thread's local table and then, if the variable was not found, the global
- * table.
+ * table. All lookups are case-insensitive.
  * <p>
  * Setting a fallback value is not supported in accordance with SLD 1.1 specification.
  * However, you can provide a default value when calling the function as in
@@ -85,7 +86,7 @@ import org.opengis.filter.expression.Literal;
  * @author Andrea Aime
  * @author Michael Bedward
  * @since 2.6
- * @source $URL: $
+ * @source $URL$
  * @version $Id $
  */
 public class EnvFunction extends FunctionExpressionImpl {
@@ -98,17 +99,6 @@ public class EnvFunction extends FunctionExpressionImpl {
         @Override
         protected Map<String, Object> initialValue() {
             return new LinkedHashMap<String, Object>();
-        }
-
-        /**
-         * Get a value from the lookup table by name.
-         *
-         * @param name name of the variable to look up
-         *
-         * @return value or {@code null} if the name is not found
-         */
-        public Object getValue(String name) {
-            return super.get().get(name);
         }
 
         /**
@@ -149,8 +139,18 @@ public class EnvFunction extends FunctionExpressionImpl {
         table.clear();
 
         if (values != null) {
-            table.putAll(values);
+            for (Entry<String, Object> e : values.entrySet()) {
+                table.put(e.getKey().toUpperCase(), e.getValue());
+            }
         }
+    }
+
+    /**
+     * Clear all values from the local (to this thread) lookup table.
+     */
+    public static void clearLocalValues() {
+        localLookup.getTable().clear();
+        localLookup.remove();
     }
 
     /**
@@ -164,8 +164,17 @@ public class EnvFunction extends FunctionExpressionImpl {
         globalLookup.clear();
 
         if (values != null) {
-            globalLookup.putAll(values);
+            for (Entry<String, Object> e : values.entrySet()) {
+                globalLookup.put(e.getKey().toUpperCase(), e.getValue());
+            }
         }
+    }
+
+    /**
+     * Clear all values from the global (accessible from any thread) lookup table.
+     */
+    public static void clearGlobalValues() {
+        globalLookup.clear();
     }
 
     /**
@@ -176,7 +185,7 @@ public class EnvFunction extends FunctionExpressionImpl {
      * @param value the value
      */
     public static void setLocalValue(String name, Object value) {
-        localLookup.getTable().put(name, value);
+        localLookup.getTable().put(name.toUpperCase(), value);
     }
 
     /**
@@ -187,7 +196,7 @@ public class EnvFunction extends FunctionExpressionImpl {
      * @param value the value
      */
     public static void setGlobalValue(String name, Object value) {
-        globalLookup.put(name, value);
+        globalLookup.put(name.toUpperCase(), value);
     }
 
     /**
@@ -210,11 +219,11 @@ public class EnvFunction extends FunctionExpressionImpl {
     @Override
     public Object evaluate(Object feature) {
         String varName = getExpression(0).evaluate(feature, String.class);
-        Object value = localLookup.getValue(varName);
+        Object value = localLookup.getTable().get(varName.toUpperCase());
 
         // No result - check the global lookup table
         if (value == null) {
-            value = globalLookup.get(varName);
+            value = globalLookup.get(varName.toUpperCase());
         }
 
         // Still no result - check if there is a default

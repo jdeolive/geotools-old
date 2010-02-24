@@ -29,6 +29,7 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 import java.util.logging.StreamHandler;
 import org.geotools.factory.CommonFactoryFinder;
+import org.junit.After;
 import org.junit.Test;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
@@ -46,6 +47,11 @@ public class EnvFunctionTest {
     private final ExecutorService executor = Executors.newFixedThreadPool(2);
     private final FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
 
+    @After
+    public void tearDown() {
+        EnvFunction.clearGlobalValues();
+        EnvFunction.clearLocalValues();
+    }
 
     /**
      * Tests the use of two thread-local tables with same var names and different values
@@ -240,6 +246,58 @@ public class EnvFunctionTest {
         executor.submit(new Runner(1));
         latch[0].countDown();
         latch[1].countDown();
+    }
+
+    @Test
+    public void testCaseInsensitiveGlobalLookup() {
+        System.out.println("   test case-insensitive global lookup");
+
+        final String varName = "foo";
+        final String altVarName = "FoO";
+        final String varValue = "globalCaseTest";
+
+        EnvFunction.setGlobalValue(varName, varValue);
+        Object result = ff.function("env", ff.literal(altVarName)).evaluate(null);
+        assertEquals(varValue, result.toString());
+    }
+
+    @Test
+    public void testCaseInsensitiveLocalLookup() {
+        System.out.println("   test case-insensitive local lookup");
+
+        final String varName = "foo";
+        final String altVarName = "FoO";
+        final String varValue = "localCaseTest";
+
+        EnvFunction.setLocalValue(varName, varValue);
+        Object result = ff.function("env", ff.literal(altVarName)).evaluate(null);
+        assertEquals(varValue, result.toString());
+    }
+
+    @Test
+    public void testClearGlobal() {
+        System.out.println("   clearGlobalValues");
+
+        final String varName = "foo";
+        final String varValue = "clearGlobal";
+
+        EnvFunction.setGlobalValue(varName, varValue);
+        EnvFunction.clearGlobalValues();
+        Object result = ff.function("env", ff.literal(varName)).evaluate(null);
+        assertNull(result);
+    }
+
+    @Test
+    public void testClearLocal() {
+        System.out.println("   clearLocalValues");
+
+        final String varName = "foo";
+        final String varValue = "clearLocal";
+
+        EnvFunction.setLocalValue(varName, varValue);
+        EnvFunction.clearLocalValues();
+        Object result = ff.function("env", ff.literal(varName)).evaluate(null);
+        assertNull(result);
     }
 
     @Test
