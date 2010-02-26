@@ -5,38 +5,56 @@ import java.io.Serializable;
 import java.util.Map;
 
 import org.geotools.data.DataStore;
+import org.geotools.data.DataAccessFactory.Param;
 import org.geotools.jdbc.JDBCDataStore;
 import org.geotools.jdbc.JDBCDataStoreFactory;
 import org.geotools.jdbc.SQLDialect;
 
 public class IngresDataStoreFactory extends JDBCDataStoreFactory {
 
+    /** parameter for database type */
+    public static final Param DBTYPE = new Param("dbtype", String.class, "Type", true, "ingres");
+    
+    /** parameter for namespace of the datastore */
+    public static final Param LOOSEBBOX = new Param("Loose bbox", Boolean.class, "Perform only primary filter on bbox", false, Boolean.TRUE);
+    
+    /** parameter for database port */
+    public static final Param PORT = new Param("port", Integer.class, "Port", true, 5432);
+    
+    /** parameter for database schema */
+    public static final Param SCHEMA = new Param("schema", String.class, "Schema", false, "public");
+
+    /**
+     * Wheter a prepared statements based dialect should be used, or not
+     */
+    public static final Param PREPARED_STATEMENTS = new Param("preparedStatements", Boolean.class, "Use prepared statements", false, Boolean.FALSE);
+    
     @Override
     protected SQLDialect createSQLDialect(JDBCDataStore dataStore) {
-        return null;
+        return new IngresDialect(dataStore);
     }
 
     @Override
     protected String getDatabaseID() {
-        return null;
+        return (String)DBTYPE.sample;
     }
 
     @Override
     protected String getDriverClassName() {
-        return null;
+        return "com.ingres.jdbc.IngresDriver";
     }
 
     @Override
     protected String getValidationQuery() {
-        return null;
+        return "select now()";
     }
 
-    public DataStore createDataStore(Map<String, Serializable> params) throws IOException {
-        return null;
-    }
+//    public DataStore createDataStore(Map<String, Serializable> params) throws IOException {
+//        return null;
+//    }
 
     public String getDescription() {
-        return null;
+        return "Ingres Database";
     }
 
 }
