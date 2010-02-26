@@ -18,7 +18,6 @@
 package org.geotools.swing.tool;
 
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Point;
@@ -33,8 +32,8 @@ import javax.swing.ImageIcon;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.geometry.DirectPosition2D;
-import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.map.MapContext;
 import org.geotools.map.MapLayer;
 import org.geotools.swing.JTextReporter;
 import org.geotools.swing.TextReporterListener;
@@ -42,7 +41,6 @@ import org.geotools.swing.event.MapMouseEvent;
 import org.geotools.swing.utils.MapLayerUtils;
 import org.opengis.feature.Feature;
 import org.opengis.feature.Property;
-import org.opengis.feature.type.GeometryDescriptor;
 
 /**
  * A cursor tool to retrieve information about features that the user clicks
@@ -62,8 +60,6 @@ import org.opengis.feature.type.GeometryDescriptor;
 public class InfoTool extends CursorTool implements TextReporterListener {
 
     private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/swing/Text");
-
-    private static GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory(null);
 
     /** The tool name */
     public static final String TOOL_NAME = stringRes.getString("tool_name_info");
@@ -107,14 +103,29 @@ public class InfoTool extends CursorTool implements TextReporterListener {
         helperTable = new WeakHashMap<MapLayer, InfoToolHelper>();
     }
 
+    /**
+     * Respond to a mouse click by querying each of the {@code MapLayers}. The
+     * details of features lying within the threshold distance of the mouse
+     * position are reported on screen using a {@code JTextReporter} dialog.
+     * <p>
+     * <b>Implementation note:</b> An instance of {@code InfoToolHelper} is created
+     * and cached for each of the {@code MapLayers}. The helpers are created using
+     * reflection to avoid direct references to grid coverage classes here that would
+     * required JAI (Java Advanced Imaging) to be on the classpath even when only
+     * vector layers are being used.
+     *
+     * @param ev mouse event
+     *
+     * @see JTextReporter
+     * @see InfoToolHelper
+     */
     @Override
     public void onMouseClicked(MapMouseEvent ev) {
         DirectPosition2D pos = ev.getMapPosition();
         report(pos);
 
-        FeatureIterator<? extends Feature> iter = null;
-
-        for (MapLayer layer : getMapPane().getMapContext().getLayers()) {
+        MapContext context = getMapPane().getMapContext();
+        for (MapLayer layer : context.getLayers()) {
             if (layer.isSelected()) {
                 InfoToolHelper helper = null;
 
@@ -130,31 +141,21 @@ public class InfoTool extends CursorTool implements TextReporterListener {
                 helper = helperTable.get(layer);
                 if (helper == null) {
                     if (MapLayerUtils.isGridLayer(layer)) {
-                        String gridAttrName = MapLayerUtils.getGridAttributeName(layer);
                         try {
-                            iter = layer.getFeatureSource().getFeatures().features();
-                            Object rasterSource = iter.next().getProperty(gridAttrName).getValue();
                             Class<?> clazz = Class.forName("org.geotools.swing.tool.GridLayerHelper");
-                            Constructor<?> ctor = clazz.getConstructor(Object.class);
-                            helper = (InfoToolHelper) ctor.newInstance(rasterSource);
+                            Constructor<?> ctor = clazz.getConstructor(MapContext.class, MapLayer.class);
+                            helper = (InfoToolHelper) ctor.newInstance(context, layer);
                             helperTable.put(layer, helper);
 
                         } catch (Exception ex) {
                             throw new IllegalStateException("Failed to create InfoToolHelper for grid layer", ex);
-                        
-                        } finally {
-                            iter.close();
                         }
 
                     } else {
-                        GeometryDescriptor geomDesc = layer.getFeatureSource().getSchema().getGeometryDescriptor();
-                        String attrName = geomDesc.getLocalName();
-                        Class<?> geomClass = geomDesc.getType().getBinding();
-
                         try {
                             Class<?> clazz = Class.forName("org.geotools.swing.tool.VectorLayerHelper");
-                            Constructor<?> ctor = clazz.getConstructor(MapLayer.class, String.class, Class.class);
-                            helper = (InfoToolHelper) ctor.newInstance(layer, attrName, geomClass);
+                            Constructor<?> ctor = clazz.getConstructor(MapContext.class, MapLayer.class);
+                            helper = (InfoToolHelper) ctor.newInstance(context, layer);
                             helperTable.put(layer, helper);
 
                         } catch (Exception ex) {
@@ -165,7 +166,7 @@ public class InfoTool extends CursorTool implements TextReporterListener {
 
                 Object info = null;
 
-                if (helper.getType() == InfoToolHelper.Type.VECTOR_HELPER) {
+                if (helper instanceof VectorLayerHelper) {
                     ReferencedEnvelope mapEnv = getMapPane().getDisplayArea();
                     double searchWidth = DEFAULT_DISTANCE_FRACTION * (mapEnv.getWidth() + mapEnv.getHeight()) / 2;
                     try {
@@ -175,6 +176,7 @@ public class InfoTool extends CursorTool implements TextReporterListener {
                     }
 
                     if (info != null) {
+                        FeatureIterator<? extends Feature> iter = null;
                         FeatureCollection selectedFeatures = (FeatureCollection) info;
                         try {
                             iter = selectedFeatures.features();
@@ -292,6 +294,11 @@ public class InfoTool extends CursorTool implements TextReporterListener {
         return cursor;
     }
 
+    /**
+     * {@inheritDoc}
+     * 
+     * @return Always returns false
+     */
     @Override
     public boolean drawDragBox() {
         return false;
