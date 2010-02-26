@@ -61,6 +61,12 @@ public class H2DialectBasic extends BasicSQLDialect {
     }
     
     @Override
+    public boolean includeTable(String schemaName, String tableName, Connection cx)
+            throws SQLException {
+        return delegate.includeTable(schemaName, tableName, cx);
+    }
+    
+    @Override
     public String getNameEscape() {
         return delegate.getNameEscape();
     }

@@ -138,8 +138,15 @@ public class H2DataStoreFactory extends JDBCDataStoreFactory {
             //use current working directory
             dataSource.setUrl("jdbc:h2:" + database);
         } else {
-            //use directory specified
-            String location = new File(baseDirectory, database).getAbsolutePath();
+            //use directory specified if the patch is relative
+            String location;
+            if (!new File(database).isAbsolute()) {
+                location = new File(baseDirectory, database).getAbsolutePath();    
+            }
+            else {
+                location = database;
+            }
+
             dataSource.setUrl("jdbc:h2:file:" + location);
         }
         

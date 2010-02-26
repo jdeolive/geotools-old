@@ -29,14 +29,18 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
 import java.util.Map;
+import java.util.logging.Level;
 
 import org.geotools.geometry.jts.Geometries;
 import org.geotools.jdbc.JDBCDataStore;
 import org.geotools.jdbc.SQLDialect;
+import org.geotools.referencing.CRS;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.feature.type.PropertyDescriptor;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
@@ -104,6 +108,16 @@ public class H2Dialect extends SQLDialect {
     }
     
     @Override
+    public boolean includeTable(String schemaName, String tableName, Connection cx)
+            throws SQLException {
+        if ("_GEODB".equals(tableName) || tableName.endsWith("_HATBOX")) {
+            return false;
+        }
+        
+        return true;
+    }
+    
+    @Override
     public Class<?> getMapping(ResultSet columnMetaData, Connection cx)
             throws SQLException {
         
@@ -137,14 +151,17 @@ public class H2Dialect extends SQLDialect {
             SimpleFeatureType featureType, Connection cx) throws SQLException {
         
         Statement st = cx.createStatement();
+        String tableName = featureType.getTypeName();
+        
         try {
             //post process the feature type and set up constraints based on geometry type
             for ( PropertyDescriptor ad : featureType.getDescriptors() ) {
                 if ( ad instanceof GeometryDescriptor ) {
+                    GeometryDescriptor gd = (GeometryDescriptor)ad;
                     Class binding = ad.getType().getBinding();
+                    String propertyName = ad.getName().getLocalPart();
+                    
                     if ( isConcreteGeometry( binding ) ) {
-                        String tableName = featureType.getTypeName();
-                        String propertyName = ad.getName().getLocalPart();
                         StringBuffer sql = new StringBuffer();
                         sql.append( "ALTER TABLE ");
                         encodeTableName(tableName, sql);
@@ -160,6 +177,38 @@ public class H2Dialect extends SQLDialect {
                             
                         LOGGER.fine( sql.toString() );
                         st.execute( sql.toString() );
+                    }
+                    
+                    //create a spatial index
+                    CoordinateReferenceSystem crs = gd.getCoordinateReferenceSystem();
+                    if (crs == null) {
+                        continue;
+                    }
+                    
+                    Integer epsg = null;
+                    try {
+                        epsg = CRS.lookupEpsgCode(crs, true);
+                    } 
+                    catch (FactoryException e) {
+                        LOGGER.log(Level.FINER, "Unable to look epsg code", e);
+                    }
+                    
+                    if (epsg != null) {
+                        StringBuffer sql = new StringBuffer();
+                        sql.append("CALL CreateSpatialIndex(");
+                        if (schemaName == null) {
+                            sql.append("NULL");
+                        }
+                        else {
+                            sql.append("'").append(schemaName).append("'");
+                        }
+                       
+                        sql.append(",'").append(tableName).append("'");
+                        sql.append(",'").append(propertyName).append("'");
+                        sql.append(",'").append(epsg).append("')");
+                        
+                        LOGGER.fine(sql.toString());
+                        st.execute(sql.toString());
                     }
                 }
             }

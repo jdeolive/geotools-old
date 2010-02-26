@@ -64,6 +64,12 @@ public class H2DialectPrepared extends PreparedStatementSQLDialect {
     }
     
     @Override
+    public boolean includeTable(String schemaName, String tableName, Connection cx)
+            throws SQLException {
+        return delegate.includeTable(schemaName, tableName, cx);
+    }
+    
+    @Override
     public String getNameEscape() {
         return delegate.getNameEscape();
     }
