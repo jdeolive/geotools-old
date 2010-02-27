@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
 
 import org.geotools.jdbc.BasicSQLDialect;
 import org.geotools.jdbc.JDBCDataStore;
@@ -40,4 +41,21 @@ public class IngresDialect extends BasicSQLDialect {
     public void encodeGeometryEnvelope(String tableName, String geometryColumn, StringBuffer sql) {
     }
 
+    /**Determines the class mapping for a particular column of a table.*/
+    @Override
+    public Class<?> getMapping(ResultSet columnMetaData, Connection cx)
+            throws SQLException {
+    	
+    	return null;
+    }
+    
+    
+    @Override
+    //to register additional mappings if necessary
+    public void registerSqlTypeNameToClassMappings(Map<String, Class<?>> mappings) {
+        super.registerSqlTypeNameToClassMappings(mappings);
+
+    }
+    
+    
 }
