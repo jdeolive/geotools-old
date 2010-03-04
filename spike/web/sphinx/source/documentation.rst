@@ -12,7 +12,7 @@ Examples
 --------
 
 Visit the :ref:`examples` section for tutorial notes and source code that
-illustrate some of the common uses of GeoToools.
+illustrate some of the common uses of GeoTools.
 
 Reference
 ---------
@@ -25,6 +25,11 @@ The :ref:`userguide` is a comprehensive reference for the entire library.
    userguide/index
    quickstart
    examples/index
+
+FAQ
+---
+
+Our :ref:`faq` convey wisdom gleaned from the GeoTools user list.
 
 GeoTools API
 ------------
