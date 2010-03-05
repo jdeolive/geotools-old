@@ -5,7 +5,13 @@
 Query Lab
 =========
 
-This tutorial illustrates how to query feature collections in GeoTools. We will build an application that loads a shapefile and displays the attributes of features that match a query condition.
+This tutorial illustrates how to query feature collections in GeoTools. In the earlier tutorials we have been working
+with shapefiles. In this lab we will also bring out the big guns - a real spatial database.
+
+If you are working in an enterprise that has as spatial database (e.g. Oracle, DB2) or geospatial middleware (e.g.
+ArcSDE) you can use GeoTools to connect to your existing infrastructure. Here we will use `PostGIS
+<http://postgis.refractions.net/>`_ which is a spatially-enabled extension of PostgreSQL supporting *Simple
+Features for SQL*, and build an application that can connect
 
 .. image:: querylab.gif
 
@@ -15,15 +21,10 @@ Dependencies
 Please ensure your pom.xml includes the following::
 
     <properties>
-        <geotools.version>2.6.1</geotools.version>
+        <geotools.version>2.6.2</geotools.version>
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-main</artifactId>
-            <version>${geotools.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-shapefile</artifactId>
@@ -31,10 +32,28 @@ Please ensure your pom.xml includes the following::
         </dependency>
         <dependency>
             <groupId>org.geotools</groupId>
+            <artifactId>gt-postgis</artifactId>
+            <version>${geotools.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-epsg-hsql</artifactId>
+            <version>${geotools.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
             <artifactId>gt-swing</artifactId>
             <version>${geotools.version}</version>
         </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.5</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
+
+Note that we are including both the **gt-shapefile** and **gt-postgis** modules.
 
 Example
 -------
@@ -55,41 +74,133 @@ Main Application
       :start-after: // docs start source
       :end-before: // docs end main
 
-As you can see most of the code in the main method is to prompt the user for a shapefile and connect to it.
-Once we are connected we pass the shapefile (in the form of a DataStore object) to the class that we will look
-at next: JQueryFrame.
+The Application GUI
+-------------------
 
-.. admonition:: Using JDataStoreWizard vs JFileDataStoreChooser
-
-   In :ref:`quickstart` and other examples we used JFileDataStoreChooser to prompt the user for a 
-   shapefile. In this example we are using JDataStoreWizard which requires a few more lines of code.
-   The advantage of the wizard here is that we can easily modify the code above to have work with
-   a PostGIS database instead of a shapefile (see comment in code).
-   
-The JQueryFrame class
----------------------
-
-Here is the code for the nested class for a dialog with a text field to enter a query and a table to display data for the features that the query selects:
+Next we create the application's GUI which includes a text field to enter a query and a table to display data for the
+features that the query selects. Here is the code to create the controls:
 
    .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/QueryLab.java
       :language: java
-      :start-after: // docs start query frame
+      :start-after: // docs start constructor
+      :end-before: // docs start file menu
+
+.. _querylab-file-menu:
+
+Next we add menu items and Actions to the File menu to connect to either a shapefile or a PostGIS database:
+
+   .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/QueryLab.java
+      :language: java
+      :start-after: // docs start file menu
+      :end-before: // docs end file menu
+
+Note that each Action is calling the same method but passing in a different DataStore factory (you might like to peek
+ahead to the :ref:`connect method <querylab-connect-method>` at this point and then come back here).
+
+Now let's look at the Data menu items and Actions:
+
+   .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/QueryLab.java
+      :language: java
+      :start-after: // docs start data menu
+      :end-before: // docs end constructor
+
+.. _querylab-connect-method:
+
+The connect method
+------------------
+
+Here is the method called by the File menu Actions plus a helper method to update the controls:
+
+   .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/QueryLab.java
+      :language: java
+      :start-after: // docs start connect
+      :end-before: // docs end connect
+
+Note how the same code can be used to connect to quite different types of data stores as specified by the the
+DataStoreFactorySpi (*Service Provider Interface*) parameter. Recall that the :ref:`File menu Actions
+<querylab-file-menu>` call this method with an instance of the either **ShapefileDataStoreFactory** or
+**PostgisDataStoreFactory**.
+
+The **JDataStoreWizard** displays a dialog with entry fields appropriate to either a shapefile or PostGIS database. It
+requires a few more lines of code that **JFileDataStoreChooser**, used in :ref:`quickstart` to prompt the user for a
+shapefile, but has the advantage of flexibility.
+
+The query methods
+-----------------
+
+*Text coming soon...*
+
+Getting feature data with the filterFeatures method
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/QueryLab.java
+      :language: java
+      :start-after: // docs start filterFeatures
+      :end-before: // docs end filterFeatures
+
+The countFeatures method
+~~~~~~~~~~~~~~~~~~~~~~~
+
+   .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/QueryLab.java
+      :language: java
+      :start-after: // docs start countFeatures
+      :end-before: // docs end countFeatures
+
+The centerFeatures method
+~~~~~~~~~~~~~~~~~~~~~~~
+
+   .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/QueryLab.java
+      :language: java
+      :start-after: // docs start centerFeatures
+      :end-before: // docs end centerFeatures
+
+The queryFeatures method
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+   .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/QueryLab.java
+      :language: java
+      :start-after: // docs start queryFeatures
       :end-before: // docs end source
-
-Most of the method's code is concerned with creating the dialog. The part to note is the Action associated with the "Get features" menu item. This is what is happening:
-
-1. We get the feature type name selected by the user and retrieve the corresponding **FeatureSource** from the DataStore.
-2. We get the query condition that was entered in the text field and use the **CQL** class to create a **Filter** object.
-3. Now we pass the filter to the **getFeatures** method which returns the features matching the query as a **FeatureCollection** (you met FeatureCollection before in :ref:`csv2shp`).
-
-To display the feature data we create a new **FeatureCollectionTableModel** for our dialog's JTable. This GeoTools class takes a FeatureCollection and retrieves the feature attribute names and the data for each feature.
 
 Running the application
 -----------------------
 
-When you run this application it will prompt you for an input shapefile and then display a page with fields for namespace and creating a spatial index - for this shapefile example you can leave both of these fields blank and just click Finish to display the query dialog.
+Start the application and select either *Open shapefile...* or *Connect to PostGIS database...* from the File menu.
 
-At first the query field will show 'include' which means select all features. Click the *Data->Get features* menu item and the table will display the feature data.
+If you choose to open a shapefile, the **JDataStoreWizard** will prompt you for a file and then display a page with
+fields for namespace and creating a spatial index - for this shapefile example you can leave both of these fields blank
+and just click Finish.
+
+.. image:: querylab-shapefile-page1.gif
+
+If you choose to connect to a PostGIS database the wizard will display the following page for you to enter the
+connection parameters:
+
+.. image:: querylab-postgis-page1.gif
+
+You can leave the *schema* and *namespace* fields blank (depending on your local database configuration). If you don't
+have a PostGIS database you can try connecting to a public online database at `Refractions Research
+<http://www.refractions.net/>`_ with the following credentials:
+
+  :host:
+    www.refractions.net
+  :port:
+    5432
+  :database:
+    bc-demo
+  :user:
+    demo
+  :passwd:
+    demo
+
+Next the wizard will display a second page of optional parameters. For this example you can leave this blank and just
+click the Finish button.
+
+Once you have connected to a data store the combobox in the menubar will display the names of the available feature
+types: a single type for a shapefile and, possibly, multiple types for a PostGIS database.
+
+The query field will show 'include' which means select all features. Click the *Data->Get features* menu item and the
+table will display the feature data.
 
 The example queries below refer to the *cities* shapefile available as part of the `uDig sample dataset`__
 
@@ -118,7 +229,4 @@ Spatial queries
     Notice that we name the geometry attribute which, for the *cities* shapefile, is
     Point type.
 
-Extra things to try
--------------------
-
-Coming soon...
+*More text coming soon...*
