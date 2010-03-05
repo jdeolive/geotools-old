@@ -16,6 +16,8 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.util.Map;
 
+import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -27,9 +29,11 @@ import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
 import org.geotools.data.DataStore;
+import org.geotools.data.DataStoreFactorySpi;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureSource;
+import org.geotools.data.postgis.PostgisDataStoreFactory;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
@@ -46,10 +50,6 @@ import org.opengis.filter.Filter;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
-import javax.swing.ComboBoxModel;
-import javax.swing.DefaultComboBoxModel;
-import org.geotools.data.DataStoreFactorySpi;
-import org.geotools.data.postgis.PostgisDataStoreFactory;
 
 /**
  * The Query Lab is an excuse to try out Filters and Expressions on your own data with a table to
@@ -65,8 +65,14 @@ public class QueryLab extends JFrame {
     private JTable table;
     private JTextField text;
 
+    public static void main(String[] args) throws Exception {
+        JFrame frame = new QueryLab();
+        frame.setVisible(true);
+    }
+    // docs end main
+
+    // docs start constructor
     public QueryLab() {
-        // USER INTERFACE
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         getContentPane().setLayout(new BorderLayout());
 
@@ -95,6 +101,7 @@ public class QueryLab extends JFrame {
         menubar.add(dataMenu);
         pack();
 
+        // docs start file menu
         fileMenu.add(new SafeAction("Open shapefile...") {
             public void action(ActionEvent e) throws Throwable {
                 connect(new ShapefileDataStoreFactory());
@@ -114,48 +121,37 @@ public class QueryLab extends JFrame {
                 System.exit(0);
             }
         });
+        // docs end file menu
 
-        // ACTIONS
-        // begin filter
-        // ACTIONS
+        // docs start data menu
         dataMenu.add(new SafeAction("Get features") {
             public void action(ActionEvent e) throws Throwable {
                 filterFeatures();
             }
         });
-        // end filter
-        // begin count
+
         dataMenu.add(new SafeAction("Count") {
             public void action(ActionEvent e) throws Throwable {
                 countFeatures();
             }
         });
-        // end count
-        // begin center
+
         dataMenu.add(new SafeAction("Center") {
             public void action(ActionEvent e) throws Throwable {
                 centerFeatures();
             }
 
         });
-        // end center
-        // begin query
+
         dataMenu.add(new SafeAction("Geometry") {
             public void action(ActionEvent e) throws Throwable {
                 queryFeatures();
             }
         });
-        // end query
-
     }
+    // docs end constructor
 
-    // docs start main
-    public static void main(String[] args) throws Exception {
-        JFrame frame = new QueryLab();
-        frame.setVisible(true);
-    }
-    // docs end main
-    
+    // docs start connect
     private void connect(DataStoreFactorySpi format) throws Exception {
         JDataStoreWizard wizard = new JDataStoreWizard(format);
         int result = wizard.showModalDialog();
@@ -176,9 +172,10 @@ public class QueryLab extends JFrame {
 
         table.setModel(new DefaultTableModel(5, 5));
     }
+    // docs end connect
 
     @SuppressWarnings("unchecked")
-    // begin filterFeatures
+    // docs start filterFeatures
     private void filterFeatures() throws Exception {
         String typeName = (String) featureTypeCBox.getSelectedItem();
         FeatureSource source = dataStore.getFeatureSource(typeName);
@@ -188,10 +185,10 @@ public class QueryLab extends JFrame {
         FeatureCollectionTableModel model = new FeatureCollectionTableModel(features);
         table.setModel(model);
     }
-    // end filterFeatures
+    // docs end filterFeatures
 
     @SuppressWarnings("unchecked")
-    // begin countFeatures
+    // docs start countFeatures
     private void countFeatures() throws Exception {
         String typeName = (String) featureTypeCBox.getSelectedItem();
         FeatureSource source = dataStore.getFeatureSource(typeName);
@@ -202,11 +199,10 @@ public class QueryLab extends JFrame {
         int count = features.size();
         JOptionPane.showMessageDialog(text, "Number of selected features:" + count);
     }
-
-    // end countFeatures
+    // docs end countFeatures
 
     @SuppressWarnings("unchecked")
-    // begin centerFeatures
+    // docs start centerFeatures
     private void centerFeatures() throws Exception {
         String typeName = (String) featureTypeCBox.getSelectedItem();
         FeatureSource source = dataStore.getFeatureSource(typeName);
@@ -236,11 +232,10 @@ public class QueryLab extends JFrame {
 
         JOptionPane.showMessageDialog(text, "Center of selected features:" + center);
     }
-
-    // end centerFeatures
+    // docs end centerFeatures
 
     @SuppressWarnings("unchecked")
-    // begin queryFeatures
+    // docs start queryFeatures
     private void queryFeatures() throws Exception {
         String typeName = (String) featureTypeCBox.getSelectedItem();
         FeatureSource source = dataStore.getFeatureSource(typeName);
@@ -259,6 +254,6 @@ public class QueryLab extends JFrame {
         table.setModel(model);
     }
 
-    // end queryFeatures
+    // docs end queryFeatures
 }
 // docs end source
