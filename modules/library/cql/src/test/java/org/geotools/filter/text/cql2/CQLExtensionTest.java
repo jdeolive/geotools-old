@@ -440,8 +440,8 @@ public class CQLExtensionTest{
 
         expected = FilterCQLSample.getSample(cqlUnaryExp);
 
-        // TODO BUG in Function equals strConcat
-        //assertEquals( "Functions", expected, result);
+        // TODO BUG There is a bug in function "equals"' strConcat
+        // assertEquals( "Functions", expected, result);
 
         // test for improvement Key: GEOT-1168
         cqlUnaryExp = "A = strConcat(B, 'testParam')";

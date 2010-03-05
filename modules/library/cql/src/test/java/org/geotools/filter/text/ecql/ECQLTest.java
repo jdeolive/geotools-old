@@ -104,7 +104,7 @@ public final class ECQLTest  {
         
         Assert.assertTrue(filter instanceof PropertyIsLessThan);
     }
-// FIXME the syntax is under debate. It will be eliminate from release    
+// TODO the syntax is under debate. It will be eliminate from release    
 //    /**
 //     * Spatial relate like Intersection Matrix (DE-9IM)
 //     * 

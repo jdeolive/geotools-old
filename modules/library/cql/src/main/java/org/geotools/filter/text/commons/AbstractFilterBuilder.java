@@ -437,7 +437,8 @@ public abstract class AbstractFilterBuilder {
             for (i = arrayParts.size() - 1; i > 0; i--) {
                 part = (String) arrayParts.get(i);
                 identifier.append(part).append(":");
-            } // postcondition i=0
+            } 
+            assert i== 0;
 
             part = arrayParts.get(i);
             identifier.append(part);

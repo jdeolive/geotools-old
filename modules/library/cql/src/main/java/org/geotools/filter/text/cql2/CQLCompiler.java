@@ -32,7 +32,6 @@ import org.geotools.filter.text.commons.TokenAdapter;
 import org.geotools.filter.text.generated.parsers.CQLParser;
 import org.geotools.filter.text.generated.parsers.Node;
 import org.geotools.filter.text.generated.parsers.ParseException;
-import org.geotools.filter.text.generated.parsers.Token;
 import org.geotools.filter.text.generated.parsers.TokenMgrError;
 import org.opengis.filter.BinaryComparisonOperator;
 import org.opengis.filter.Filter;
