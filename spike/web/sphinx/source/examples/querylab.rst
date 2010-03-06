@@ -5,13 +5,16 @@
 Query Lab
 =========
 
+.. note:: 
+   This page is being revised and isn't complete yet
+
 This tutorial illustrates how to query feature collections in GeoTools. In the earlier tutorials we have been working
 with shapefiles. In this lab we will also bring out the big guns - a real spatial database.
 
 If you are working in an enterprise that has as spatial database (e.g. Oracle, DB2) or geospatial middleware (e.g.
 ArcSDE) you can use GeoTools to connect to your existing infrastructure. Here we will use `PostGIS
 <http://postgis.refractions.net/>`_ which is a spatially-enabled extension of PostgreSQL supporting *Simple
-Features for SQL*, and build an application that can connect
+Features for SQL*. We will build an application that can connect to both a PostGIS database and shapefiles.
 
 .. image:: querylab.gif
 
@@ -52,8 +55,6 @@ Please ensure your pom.xml includes the following::
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-Note that we are including both the **gt-shapefile** and **gt-postgis** modules.
 
 Example
 -------
@@ -122,8 +123,8 @@ DataStoreFactorySpi (*Service Provider Interface*) parameter. Recall that the :r
 **PostgisDataStoreFactory**.
 
 The **JDataStoreWizard** displays a dialog with entry fields appropriate to either a shapefile or PostGIS database. It
-requires a few more lines of code that **JFileDataStoreChooser**, used in :ref:`quickstart` to prompt the user for a
-shapefile, but has the advantage of flexibility.
+requires a few more lines of code than **JFileDataStoreChooser** which was used in :ref:`quickstart` to prompt the user
+for a shapefile, but adds flexibility.
 
 The query methods
 -----------------
@@ -167,11 +168,12 @@ Running the application
 
 Start the application and select either *Open shapefile...* or *Connect to PostGIS database...* from the File menu.
 
-If you choose to open a shapefile, the **JDataStoreWizard** will prompt you for a file and then display a page with
-fields for namespace and creating a spatial index - for this shapefile example you can leave both of these fields blank
-and just click Finish.
+If you choose to open a shapefile, the **JDataStoreWizard** will prompt you for a file:
 
 .. image:: querylab-shapefile-page1.gif
+
+Next it will display a page with fields for namespace and creating a spatial index - for this example you can leave both
+of these fields blank and just click Finish.
 
 If you choose to connect to a PostGIS database the wizard will display the following page for you to enter the
 connection parameters:
@@ -196,8 +198,9 @@ have a PostGIS database you can try connecting to a public online database at `R
 Next the wizard will display a second page of optional parameters. For this example you can leave this blank and just
 click the Finish button.
 
-Once you have connected to a data store the combobox in the menubar will display the names of the available feature
-types: a single type for a shapefile and, possibly, multiple types for a PostGIS database.
+Once you have successfully connected to either a shapefile or a database the combobox in the menubar will display the
+names of the available feature types: a single type for a shapefile and, possibly, multiple types for a PostGIS
+database.
 
 The query field will show 'include' which means select all features. Click the *Data->Get features* menu item and the
 table will display the feature data.
