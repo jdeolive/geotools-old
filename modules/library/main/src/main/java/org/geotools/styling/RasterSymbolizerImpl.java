@@ -60,7 +60,7 @@ public class RasterSymbolizerImpl extends AbstractSymbolizer implements RasterSy
     }
     
     public RasterSymbolizerImpl(FilterFactory factory, Description desc, String name, Unit<Length> uom, OverlapBehavior behavior) {
-        super(name, desc, "raster", uom);
+        super(name, desc, "grid", uom);
         this.filterFactory = factory;
         this.opacity = filterFactory.literal(1.0);
         this.overlap = filterFactory.literal(OverlapBehavior.RANDOM);
