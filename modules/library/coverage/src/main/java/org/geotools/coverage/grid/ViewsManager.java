@@ -159,7 +159,9 @@ scan:   for (int i=0; i<numBands; i++) {
                             return candidate.copyViewsTo(coverage);
                         }
                     }
-                    if(source == null) continue;
+                    if (source == null) { 
+                        continue;
+                    }
                     final Collection<GridCoverage> more = source.getSources();
                     if (more != null && !more.isEmpty()) {
                         if (next == null) {
