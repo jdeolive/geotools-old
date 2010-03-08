@@ -53,6 +53,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory2;
+import org.opengis.filter.expression.Expression;
 import org.opengis.filter.identity.FeatureId;
 
 /**
@@ -200,7 +201,10 @@ public class SelectionLab {
          * Create a Filter to select features that intersect with
          * the bounding box
          */
-        Filter filter = ff.bbox(ff.property(geometryAttributeName), bbox);
+        Filter filter = ff.intersects(ff.property(geometryAttributeName), ff.literal(bbox));
+                
+                
+                //ff.bbox(ff.property(geometryAttributeName), bbox);
 
         /*
          * Use the filter to identify the selected features
