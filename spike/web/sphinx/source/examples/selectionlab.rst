@@ -3,9 +3,9 @@
 Selection Lab
 =============
 
-This tutorial brings together many of the techniques and classes that we've covered in the previous examples. 
-Before doing it, it's best if you have already worked through at least the :ref:`quickstart`, :ref:`csv2shp` 
-and :ref:`stylelab` examples.
+This tutorial brings together many of the techniques and classes that we've covered in the previous examples. Before
+doing it, it's best if you have already worked through at least the :ref:`quickstart`, :ref:`csv2shp` and
+:ref:`stylelab` examples.
 
 We are going to:
  * Create a custom map cursor tool to select features when the user clicks the map
@@ -59,10 +59,11 @@ Main Application
       :start-after: // docs start source
       :end-before: // docs end main
 
-Much of this should look familiar to you from the :ref:`stylelab`. We've added some constants and class variables that we'll use when creating styles. 
+Much of this should look familiar to you from the :ref:`stylelab`. We've added some constants and class variables that
+we'll use when creating styles. 
 
-A subtle difference is that we are now using FilterFactory2 instead of FilterFactory. This class adds additional methods, one of which we'll need when
-selecting features based on a mouse click.
+A subtle difference is that we are now using FilterFactory2 instead of FilterFactory. This class adds additional
+methods, one of which we'll need when selecting features based on a mouse click.
 
 Shapefile viewer with custom map tool
 -------------------------------------
@@ -74,27 +75,41 @@ Next we add the displayShapefile method which is also very similar to the one th
       :start-after: // docs start display shapefile
       :end-before: // docs end display shapefile
 
-Note that we are customizing the JMapFrame by adding a button to its toolbar. When the user clicks this button a new **CursorTool** is set for the map window. 
-This tool has just one method that responds to a mouse click in the map area.
+Note that we are customizing the JMapFrame by adding a button to its toolbar. When the user clicks this button a new
+**CursorTool** is set for the map window.  This tool has just one method that responds to a mouse click in the map area.
 
 What features did the user click on ?
 -------------------------------------
 
-Next we'll add the method that is called when the user is in selection mode (our custom toolbar button has been clicked) and has clicked somewhere on the map.
+Next we'll add the method that is called when the user is in selection mode (our custom toolbar button has been clicked)
+and has clicked somewhere on the map.
 
-The method first creates a 5x5 pixel wide rectangle around the mouse position to make it easier to select point and line features. This is transformed from 
-pixel coordinates to world coordinates and used to create a Filter to identify features under, or close to, the mouse click.
+The method first creates a 5x5 pixel wide rectangle around the mouse position to make it easier to select point and line
+features. This is transformed from pixel coordinates to world coordinates and used to create a Filter to identify
+features under, or close to, the mouse click.
 
    .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/SelectionLab.java
       :language: java
       :start-after: // docs start select features
       :end-before: // docs end select features
 
+Note that we are using an *intersects* filter and not a *bbox* (bounding box) filter in this method.  A bounding box
+filter is very fast, but it would only test if the rectangle around the mouse click is within the **envelope**, as
+opposed to the **boundary**, of each feature. For this application, that's not what we want to do. To see why, consider
+this example...
+
+.. image:: selectionlab-bbox.gif
+
+The blue shapes are parts of a single MultiPolygon which is the standard geometry type for polygonal features in
+shapefiles. Using a bounding box filter, clicking in the orange shape would select it plus all of the blue shapes
+because the click region is within their envelope (the grey rectangle).
+
 Creating a Style based on the selection
 ---------------------------------------
 
-Once the method above has worked out which features were selected, if any, it passes their FeatureIds to the **displaySelected** method.
-This simply calls one of two Style creating methods and then redisplays the map with the updated Style:
+Once the method above has worked out which features were selected, if any, it passes their FeatureIds to the
+**displaySelected** method.  This simply calls one of two Style creating methods and then redisplays the map with the
+updated Style:
 
    .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/SelectionLab.java
       :language: java
@@ -104,7 +119,8 @@ This simply calls one of two Style creating methods and then redisplays the map 
 The default style
 ~~~~~~~~~~~~~~~~~
 
-This method creates a Style with a single **Rule** for all features using the line and fill constants defined at the top of the class:
+This method creates a Style with a single **Rule** for all features using the line and fill constants defined at the top
+of the class:
 
    .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/SelectionLab.java
       :language: java
@@ -122,8 +138,8 @@ highlight colour, and a second **Rule** for unselected features. Both rules are 
       :start-after: // docs start selected style
       :end-before: // docs end selected style
 
-Note that the first Rule includes a **Filter**, created with the **FilterFactory2.id** method. This means the rule will only apply
-to the selected features.
+Note that the first Rule includes a **Filter**, created with the **FilterFactory2.id** method. This means the rule will
+only apply to the selected features.
 
 The second rule is flagged as an *alternative* (applies to all other features) with the **setElseFilter** method.
 
@@ -142,8 +158,8 @@ Here is the method **createRule**. This is where the **Symbolizer** is created t
 Geometry type of the shapefile features
 ---------------------------------------
 
-Finally (yes, really) the createRule method above needs to know what sort of feature geometry we are dealing with to create the 
-appropriate class of Symbolizer. Here is the method that works that out:
+Finally (yes, really) the createRule method above needs to know what sort of feature geometry we are dealing with to
+create the appropriate class of Symbolizer. Here is the method that works that out:
 
    .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/SelectionLab.java
       :language: java
@@ -153,8 +169,8 @@ appropriate class of Symbolizer. Here is the method that works that out:
 Running the application
 -----------------------
 
-Here is the program displaying the **bc_voting_areas** shapefile (included in the `uDig sample data`__) with one feature (polygon)
-selected:
+Here is the program displaying the **bc_voting_areas** shapefile (included in the `uDig sample data`__) with one feature
+(polygon) selected:
 
 .. _udigdata: http://udig.refractions.net/docs/data-v1_2.zip
 
@@ -173,9 +189,10 @@ In :ref:`crslab` we saw how to change the Coordinate Reference System of a MapCo
 
 See if you can you figure out why the tool isn't working and how to fix it.
 
-There is actually some amazing style generation code included with GeoTools. Try adding a dependency on the **gt-brewer** module and having a look at 
-the **ColorBrewer class**. The class works by first asking you to calculate a *categorization* using one of the categorization functions on a feature 
-collection; you can then pass the resulting categorization on to color brewer and it will generate a style for you based predefined palettes.
+There is actually some amazing style generation code included with GeoTools. Try adding a dependency on the
+**gt-brewer** module and having a look at the **ColorBrewer class**. The class works by first asking you to calculate a
+*categorization* using one of the categorization functions on a feature collection; you can then pass the resulting
+categorization on to color brewer and it will generate a style for you based predefined palettes.
 
 For more information visit: http://colorbrewer2.org/ 
 
