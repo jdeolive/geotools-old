@@ -29,6 +29,7 @@ import java.util.Set;
 
 import javax.xml.namespace.QName;
 
+import org.geotools.data.DataAccess;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureSource;
@@ -299,15 +300,27 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
      * 
      * @return Feature. Target feature sets with simple attributes
      */
-    protected void setAttributeValue(Feature target, final ComplexAttribute source,
+    protected void setAttributeValue(Attribute target, final Feature source,
             final AttributeMapping attMapping) throws IOException {
 
         final Expression sourceExpression = attMapping.getSourceExpression();
         final AttributeType targetNodeType = attMapping.getTargetNodeInstance();
         final StepList xpath = attMapping.getTargetXPath();
         Map<Name, Expression> clientPropsMappings = attMapping.getClientProperties();
+        boolean isNestedFeature = attMapping.isNestedAttribute(); 
+        String id = null;
+        if (Expression.NIL != attMapping.getIdentifierExpression()) {
+            id = extractIdForAttribute(attMapping.getIdentifierExpression(), source);
+        }
 
-        boolean isNestedFeature = attMapping.isNestedAttribute();
+        if (attMapping.isNestedAttribute()) {
+            NestedAttributeMapping nestedMapping = ((NestedAttributeMapping) attMapping);
+            if (nestedMapping.isPolymorphic()) {
+                setPolymorphicValues(target, id, nestedMapping, source, xpath, clientPropsMappings);
+                return;
+            }
+        }
+        // otherwise, leave the value as null
         Object value = getValues(attMapping.isMultiValued(), sourceExpression, source);
         boolean isHRefLink = isByReference(clientPropsMappings, isNestedFeature);
         if (isNestedFeature) {
@@ -331,10 +344,10 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
                         // eg. gsml:GeologicUnit/gsml:occurence/gsml:MappedFeature
                         // and gsml:MappedFeature/gsml:specification/gsml:GeologicUnit
                         nestedFeatures.addAll(((NestedAttributeMapping) attMapping)
-                                .getInputFeatures(val, reprojection));
+                                .getInputFeatures(val, reprojection, source));
                     } else {
                         nestedFeatures.addAll(((NestedAttributeMapping) attMapping).getFeatures(
-                                val, reprojection));
+                                val, reprojection, source));
                     }
                 }
                 value = nestedFeatures;
@@ -343,19 +356,15 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
                 // feature type also have a reference back to this type
                 // eg. gsml:GeologicUnit/gsml:occurence/gsml:MappedFeature
                 // and gsml:MappedFeature/gsml:specification/gsml:GeologicUnit
-                value = ((NestedAttributeMapping) attMapping).getInputFeatures(value, reprojection);
+                value = ((NestedAttributeMapping) attMapping).getInputFeatures(value, reprojection, source);
             } else {
-                value = ((NestedAttributeMapping) attMapping).getFeatures(value, reprojection);
+                value = ((NestedAttributeMapping) attMapping).getFeatures(value, reprojection, source);
             }
             if (isHRefLink) {
                 // only need to set the href link value, not the nested feature properties
                 setXlinkReference(target, clientPropsMappings, value, xpath, targetNodeType);
                 return;
             }
-        }
-        String id = null;
-        if (Expression.NIL != attMapping.getIdentifierExpression()) {
-            id = extractIdForAttribute(attMapping.getIdentifierExpression(), source);
         }
         if (isNestedFeature) {
             assert (value instanceof Collection);
@@ -411,12 +420,63 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
     }
 
     /**
+     * Special handling for polymorphic mapping. Works out the polymorphic type name by evaluating
+     * the function on the feature, then set the relevant sub-type values.
+     * 
+     * @param target
+     *            The target feature to be encoded
+     * @param id
+     *            The target feature id
+     * @param nestedMapping
+     *            The mapping that is polymorphic
+     * @param source
+     *            The source simple feature
+     * @param xpath
+     *            The xpath of polymorphic type
+     * @param clientPropsMappings
+     *            Client properties
+     * @throws IOException
+     */
+    private void setPolymorphicValues(Attribute target, String id,
+            NestedAttributeMapping nestedMapping, Feature source, StepList xpath,
+            Map<Name, Expression> clientPropsMappings) throws IOException {
+        Name polymorphicTypeName = nestedMapping.getNestedFeatureType(source);
+        if (polymorphicTypeName != null) {
+            // process sub-type mapping
+            DataAccess<FeatureType, Feature> da = DataAccessRegistry
+                    .getDataAccess(polymorphicTypeName);
+            if (da instanceof AppSchemaDataAccess) {
+                // why wouldn't it be? check just to be safe
+                List<AttributeMapping> polymorphicMappings = ((AppSchemaDataAccess) da).getMapping(
+                        polymorphicTypeName).getAttributeMappings();
+                StepList prefixedXpath = xpath.clone();
+                prefixedXpath.add(new Step(new QName(polymorphicTypeName.getNamespaceURI(),
+                        polymorphicTypeName.getLocalPart(), this.namespaces
+                                .getPrefix(polymorphicTypeName.getNamespaceURI())), 1));
+                AttributeDescriptor attDescriptor = ((MappingFeatureSource) da
+                        .getFeatureSource(polymorphicTypeName)).getTargetFeature();
+                Attribute instance = xpathAttributeBuilder.set(target, prefixedXpath, null, id,
+                        da.getSchema(polymorphicTypeName), false, attDescriptor);
+                setClientProperties(instance, source, clientPropsMappings);
+                for (AttributeMapping mapping : polymorphicMappings) {
+                    if (isTopLevelmapping(polymorphicTypeName, mapping.getTargetXPath())) {
+                        // ignore the top level mapping for the Feature itself
+                        // as it was already set
+                        continue;
+                    }
+                    setAttributeValue(instance, source, mapping);
+                }
+            }
+        }// the value could be configured as null, it's a form of polymorphism.. do nothing
+    }
+
+    /**
      * Set xlink:href client property for multi-valued chained features. This has to be specially
      * handled because we don't want to encode the nested features attributes, since it's already an
      * xLink. Also we need to eliminate duplicates.
      * 
      * @param target
-     *            The target feature
+     *            The target attribute
      * @param clientPropsMappings
      *            Client properties mappings
      * @param value
@@ -426,7 +486,7 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
      * @param targetNodeType
      *            Target node type
      */
-    protected void setXlinkReference(Feature target, Map<Name, Expression> clientPropsMappings,
+    protected void setXlinkReference(Attribute target, Map<Name, Expression> clientPropsMappings,
             Object value, StepList xpath, AttributeType targetNodeType) {
         // Make sure the same value isn't already set
         // in case it comes from a denormalized view for many-to-many relationship.
@@ -583,15 +643,10 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
         Feature target = (Feature) builder.build(id);
 
         for (AttributeMapping attMapping : mappings) {
-            StepList targetXpathProperty = attMapping.getTargetXPath();
-            if (targetXpathProperty.size() == 1) {
-                Step rootStep = (Step) targetXpathProperty.get(0);
-                QName stepName = rootStep.getName();
-                if (Types.equals(targetNodeName, stepName)) {
-                    // ignore the top level mapping for the Feature itself
-                    // as it was already set
-                    continue;
-                }
+            if (isTopLevelmapping(targetNodeName, attMapping.getTargetXPath())) {
+                // ignore the top level mapping for the Feature itself
+                // as it was already set
+                continue;
             }
             // extract the values from multiple source features of the same id
             // and set them to one built feature
@@ -607,6 +662,17 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
             setGeometry(target);
         }
         return target;
+    }
+
+    private boolean isTopLevelmapping(Name targetNodeName, StepList targetXPath) {
+        if (targetXPath.size() == 1) {
+            Step rootStep = targetXPath.get(0);
+            QName stepName = rootStep.getName();
+            if (Types.equals(targetNodeName, stepName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     protected Feature populateFeatureData(String id) throws IOException {
@@ -640,7 +706,7 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
      *            The xPath matching the attribute
      * @return The first matching attribute
      */
-    private Property getProperty(ComplexAttribute root, StepList xpath) {
+    private Property getProperty(Attribute root, StepList xpath) {
         Property property = root;
 
         final StepList steps = new StepList(xpath);

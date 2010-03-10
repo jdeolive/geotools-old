@@ -35,6 +35,7 @@ import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.Feature;
+import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
@@ -135,6 +136,10 @@ class MappingFeatureSource implements FeatureSource<FeatureType, Feature> {
 
     public FeatureType getSchema() {
         return (FeatureType) mapping.getTargetFeature().getType();
+    }
+    
+    public AttributeDescriptor getTargetFeature() {
+        return mapping.getTargetFeature();
     }
 
     protected FeatureTypeMapping getMapping() {

@@ -336,7 +336,7 @@
       </documentation>
     </annotation>
     <sequence>
-      <choice>
+      <choice minOccurs="0">
         <element name="OCQL" type="string" />
         <element name="Expression">
           <complexType>

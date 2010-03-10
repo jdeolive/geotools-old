@@ -225,7 +225,7 @@ public class AppSchemaDataAccessConfigurator {
     private AttributeDescriptor getTargetDescriptor(TypeMapping dto, GeometryType geomType)
             throws IOException {
         String prefixedTargetName = dto.getTargetElementName();
-        Name targetNodeName = degloseName(prefixedTargetName);
+        Name targetNodeName = Types.degloseName(prefixedTargetName, namespaces);
 
         AttributeDescriptor targetDescriptor = typeRegistry.getDescriptor(targetNodeName, geomType,
                 dto.getAttributeMappings());
@@ -299,7 +299,7 @@ public class AppSchemaDataAccessConfigurator {
             final Map clientProperties = getClientProperties(attDto, itemXpath);
 
             if (expectedInstanceTypeName != null) {
-                Name expectedNodeTypeName = degloseTypeName(expectedInstanceTypeName);
+                Name expectedNodeTypeName = Types.degloseName(expectedInstanceTypeName, namespaces);
                 expectedInstanceOf = typeRegistry
                         .getAttributeType(expectedNodeTypeName, null, null);
                 if (expectedInstanceOf == null) {
@@ -319,15 +319,19 @@ public class AppSchemaDataAccessConfigurator {
                         attDto.getParentLabel(), attDto.getTargetQueryString(), attDto.getInstancePath());
             } else
             if (sourceElement != null) {
-                // nested complex attributes
+                // nested complex attributes, this could be a function expression for polymorphic types
+                Expression elementExpr = parseOgcCqlExpression(sourceElement);
                 String sourceField = attDto.getLinkField();
-                assert sourceField != null; // source field must be specified
-
-                final StepList sourceFieldSteps = XPath.steps(root, sourceField, namespaces);
+                StepList sourceFieldSteps = null;
+                if (sourceField != null) {
+                    // it could be null for polymorphism mapping, 
+                    // i.e. when the linked element maps to the same table as the container mapping
+                    sourceFieldSteps = XPath.steps(root, sourceField, namespaces);
+                }
                 // a nested feature
                 attMapping = new NestedAttributeMapping(idExpression, sourceExpression,
                         targetXPathSteps, isMultiValued, clientProperties,
-                        degloseTypeName(sourceElement), sourceFieldSteps, namespaces);
+                        elementExpr, sourceFieldSteps, namespaces);
             } else {
                 attMapping = new AttributeMapping(idExpression, sourceExpression, targetXPathSteps,
                         expectedInstanceOf, isMultiValued, clientProperties);
@@ -396,7 +400,7 @@ public class AppSchemaDataAccessConfigurator {
         for (Iterator it = dto.getClientProperties().entrySet().iterator(); it.hasNext();) {
             Map.Entry entry = (Map.Entry) it.next();
             String name = (String) entry.getKey();
-            Name qName = degloseName(name);
+            Name qName = Types.degloseName(name, namespaces);
             String cqlExpression = (String) entry.getValue();
             
             final Expression expression;
@@ -427,7 +431,7 @@ public class AppSchemaDataAccessConfigurator {
 
         AppSchemaDataAccessConfigurator.LOGGER.fine("asking datastore " + sourceDataStore
                 + " for source type " + typeName);
-        Name name = degloseName(typeName);
+        Name name = Types.degloseName(typeName, namespaces);
         FeatureSource fSource = (FeatureSource) sourceDataStore.getFeatureSource(name);
 
         if (inputDataAccessIds.contains(dsId)) {
@@ -645,60 +649,5 @@ public class AppSchemaDataAccessConfigurator {
             resolvedParams.put(key, value);
         }
         return resolvedParams;
-    }
-
-    /**
-     * Takes a prefixed attribute name and returns an {@link Name} by looking which namespace
-     * belongs the prefix to in {@link AppSchemaDataAccessDTO#getNamespaces()}.
-     * 
-     * @param prefixedName
-     * @return
-     * @throws IllegalArgumentException
-     *             if <code>prefixedName</code> has no prefix.
-     */
-    private Name degloseTypeName(String prefixedName) throws IllegalArgumentException {
-        Name name = null;
-
-        if (prefixedName == null) {
-            return null;
-        }
-
-        int prefixIdx = prefixedName.indexOf(':');
-        if (prefixIdx == -1) {
-            return Types.typeName(prefixedName);
-            // throw new IllegalArgumentException(prefixedName + " is not
-            // prefixed");
-        }
-
-        String nsPrefix = prefixedName.substring(0, prefixIdx);
-        String localName = prefixedName.substring(prefixIdx + 1);
-        String nsUri = namespaces.getURI(nsPrefix);
-
-        name = Types.typeName(nsUri, localName);
-
-        return name;
-    }
-
-    private Name degloseName(String prefixedName) throws IllegalArgumentException {
-        Name name = null;
-
-        if (prefixedName == null) {
-            return null;
-        }
-
-        int prefixIdx = prefixedName.indexOf(':');
-        if (prefixIdx == -1) {
-            return Types.typeName(prefixedName);
-            // throw new IllegalArgumentException(prefixedName + " is not
-            // prefixed");
-        }
-
-        String nsPrefix = prefixedName.substring(0, prefixIdx);
-        String localName = prefixedName.substring(prefixIdx + 1);
-        String nsUri = namespaces.getURI(nsPrefix);
-
-        name = Types.typeName(nsUri, localName);
-
-        return name;
     }
 }

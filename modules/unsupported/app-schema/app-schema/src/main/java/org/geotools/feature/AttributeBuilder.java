@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.geotools.data.complex.config.NonFeatureTypeProxy;
 import org.geotools.feature.type.AttributeDescriptorImpl;
 import org.opengis.feature.Association;
 import org.opengis.feature.Attribute;
@@ -370,7 +371,16 @@ public class AttributeBuilder {
             descriptor = new AttributeDescriptorImpl(type, name, minOccurs, maxOccurs, nillable,
                     defaultValue);
         }
-        Attribute attribute = create(value, null, descriptor, id);
+        Attribute attribute;
+        if (descriptor != null && descriptor.getType() instanceof NonFeatureTypeProxy) {
+            // we don't want a feature. NonFeatureTypeProxy is used to make non feature types
+            // a fake feature type, so it can be created as top level feature in app-schema
+            // mapping file. When created inside other features, it should be encoded as
+            // complex features though.
+            attribute = createComplexAttribute(value, null, descriptor, id);
+        } else {
+            attribute = create(value, null, descriptor, id);
+        }
         properties().add(attribute);
         return attribute;
     }
@@ -555,9 +565,7 @@ public class AttributeBuilder {
                     descriptor, id) : attributeFactory.createFeature((Collection) value,
                     (FeatureType) type, id);
         } else if (type instanceof ComplexType) {
-            return descriptor != null ? attributeFactory.createComplexAttribute((Collection) value,
-                    descriptor, id) : attributeFactory.createComplexAttribute((Collection) value,
-                    (ComplexType) type, id);
+            return createComplexAttribute((Collection) value, (ComplexType) type, descriptor, id);
         } else if (type instanceof GeometryType) {
             return attributeFactory.createGeometryAttribute(value, (GeometryDescriptor) descriptor,
                     id, getCRS());
@@ -566,6 +574,22 @@ public class AttributeBuilder {
         }
     }
 
+    /**
+     * Create complex attribute
+     * 
+     * @param value
+     * @param type
+     * @param descriptor
+     * @param id
+     * @return
+     */
+    public ComplexAttribute createComplexAttribute(Object value, ComplexType type,
+            AttributeDescriptor descriptor, String id) {
+        return descriptor != null ? attributeFactory.createComplexAttribute((Collection) value,
+                descriptor, id) : attributeFactory.createComplexAttribute((Collection) value, type,
+                id);
+    }
+    
     /**
      * Builds the attribute.
      * <p>
@@ -618,5 +642,25 @@ public class AttributeBuilder {
         }
         properties().clear();
         return built;
+    }
+
+    /**
+     * Special case for any type. Skip validating existence in the schema, since anyType legally can
+     * be casted into anything.
+     * 
+     * @param value
+     *            the value to be set
+     * @param type
+     *            the type of the value
+     * @param descriptor
+     *            the attribute descriptor of anyType type
+     * @param id
+     * @return
+     */
+    public Attribute addAnyTypeValue(Object value, AttributeType type,
+            AttributeDescriptor descriptor, String id) {
+        Attribute attribute = create(value, type, descriptor, id);
+        properties().add(attribute);
+        return attribute;
     }
 }

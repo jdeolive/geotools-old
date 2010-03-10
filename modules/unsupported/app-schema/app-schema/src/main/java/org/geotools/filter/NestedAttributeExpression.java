@@ -44,8 +44,10 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * feature.
  * 
  * @author Rini Angreani, Curtin University of Technology
- *
- * @source $URL$
+ * 
+ * @source $URL:
+ *         http://svn.osgeo.org/geotools/trunk/modules/unsupported/app-schema/app-schema/src/main
+ *         /java/org/geotools/filter/NestedAttributeExpression.java $
  */
 public class NestedAttributeExpression extends AttributeExpressionImpl {
     /**
@@ -243,7 +245,7 @@ public class NestedAttributeExpression extends AttributeExpressionImpl {
                 FeatureTypeMapping fMapping = null;
                 try {
                     ArrayList<Feature> featureList = getFeatures((NestedAttributeMapping) mapping,
-                            attributeValues);
+                            attributeValues, root);
                     // get the next type if there is any
                     stepIndex++;
 
@@ -296,19 +298,22 @@ public class NestedAttributeExpression extends AttributeExpressionImpl {
      * @throws IOException
      */
     private ArrayList<Feature> getFeatures(NestedAttributeMapping mapping,
-            Collection<Object> foreignKeys) throws IOException {
+            Collection<Object> foreignKeys, Feature feature) throws IOException {
         ArrayList<Feature> featureList = new ArrayList<Feature>();
 
-        boolean hasSimpleFeatures = AppSchemaDataAccessRegistry.hasName(mapping
-                .getNestedFeatureType());
+        Name fTypeName = mapping.getNestedFeatureType(feature);
+        if (fTypeName == null) {
+            return featureList;
+        }
+        boolean hasSimpleFeatures = AppSchemaDataAccessRegistry.hasName(fTypeName);
 
         if (hasSimpleFeatures) {
             for (Object val : foreignKeys) {
-                featureList.addAll(mapping.getInputFeatures(val, crs));
+                featureList.addAll(mapping.getInputFeatures(val, crs, feature));
             }
         } else {
             for (Object val : foreignKeys) {
-                featureList.addAll(mapping.getFeatures(val, crs));
+                featureList.addAll(mapping.getFeatures(val, crs, feature));
             }
         }
         return featureList;
