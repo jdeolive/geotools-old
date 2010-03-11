@@ -2,7 +2,7 @@
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
  *
- *    (C) 2002-2009, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -14,16 +14,28 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.data.postgis.ps;
+package org.geotools.data.h2;
 
-import org.geotools.jdbc.JDBCFeatureStoreTest;
+import java.io.IOException;
+
+import org.geotools.jdbc.JDBCFeatureStoreExposePkTest;
 import org.geotools.jdbc.JDBCTestSetup;
 
-public class PostgisFeatureStoreTest extends JDBCFeatureStoreTest {
 
-    @Override
+/**
+ * FeatureStore test for H2.
+ *
+ * @author Justin Deoliveira, The Open Planning Project
+ *
+ *
+ * @source $URL: http://svn.osgeo.org/geotools/trunk/modules/plugin/jdbc/jdbc-h2/src/test/java/org/geotools/data/h2/H2FeatureStoreTest.java $
+ */
+public class H2FeatureStoreExposedPkTest extends JDBCFeatureStoreExposePkTest {
     protected JDBCTestSetup createTestSetup() {
-        return new PostGISPSTestSetup();
+        return new H2TestSetup();
     }
-
+    
+    public void testAddInTransaction() throws IOException {
+        // does not work, see GEOT-2832
+    }
 }

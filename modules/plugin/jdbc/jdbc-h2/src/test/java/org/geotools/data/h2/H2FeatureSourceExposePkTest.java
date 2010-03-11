@@ -2,7 +2,7 @@
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
  *
- *    (C) 2002-2009, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -14,16 +14,17 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.data.postgis.ps;
+package org.geotools.data.h2;
 
-import org.geotools.jdbc.JDBCFeatureStoreTest;
+import org.geotools.jdbc.JDBCFeatureSourceExposePkTest;
 import org.geotools.jdbc.JDBCTestSetup;
+import org.geotools.referencing.CRS;
+import org.opengis.feature.simple.SimpleFeatureType;
 
-public class PostgisFeatureStoreTest extends JDBCFeatureStoreTest {
 
-    @Override
+public class H2FeatureSourceExposePkTest extends JDBCFeatureSourceExposePkTest {
     protected JDBCTestSetup createTestSetup() {
-        return new PostGISPSTestSetup();
+        return new H2TestSetup();
     }
-
+    
 }

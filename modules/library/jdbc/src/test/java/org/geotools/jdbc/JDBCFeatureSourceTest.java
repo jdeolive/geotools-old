@@ -187,8 +187,8 @@ public abstract class JDBCFeatureSourceTest extends JDBCTestSupport {
         SimpleFeature feature = (SimpleFeature) iterator.next();
         assertEquals(2, feature.getAttributeCount());
 
-        assertEquals(new Double(1.1), feature.getAttribute(0));
-        assertNotNull( feature.getAttribute(1));
+        assertEquals(new Double(1.1), feature.getAttribute(aname("doubleProperty")));
+        assertNotNull( feature.getAttribute(aname("intProperty")));
         features.close(iterator);
     }
     

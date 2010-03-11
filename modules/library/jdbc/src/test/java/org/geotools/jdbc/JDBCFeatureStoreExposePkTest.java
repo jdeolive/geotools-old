@@ -2,7 +2,7 @@
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
  *
- *    (C) 2002-2009, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -14,16 +14,19 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.data.postgis.ps;
+package org.geotools.jdbc;
 
-import org.geotools.jdbc.JDBCFeatureStoreTest;
-import org.geotools.jdbc.JDBCTestSetup;
-
-public class PostgisFeatureStoreTest extends JDBCFeatureStoreTest {
+/**
+ * Tests data modification when the expose primary key flag is raised
+ * 
+ * @author Andrea Aime - OpenGeo
+ */
+public abstract class JDBCFeatureStoreExposePkTest extends JDBCFeatureStoreTest {
 
     @Override
-    protected JDBCTestSetup createTestSetup() {
-        return new PostGISPSTestSetup();
+    protected void setUp() throws Exception {
+        super.setUp();
+        featureStore.setExposePrimaryKeyColumns(true);
     }
 
 }

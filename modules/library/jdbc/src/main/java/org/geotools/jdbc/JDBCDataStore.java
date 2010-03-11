@@ -35,6 +35,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -962,6 +963,18 @@ public final class JDBCDataStore extends ContentDataStore
     protected PrimaryKey getPrimaryKey(SimpleFeatureType featureType)
         throws IOException {
         return getPrimaryKey(ensureEntry(featureType.getName()));
+    }
+    
+    /**
+     * Returns the expose primary key columns flag for the specified feature type
+     * @param featureType
+     * @return
+     * @throws IOException
+     */
+    protected boolean isExposePrimaryKeyColumns(SimpleFeatureType featureType) throws IOException {
+        ContentEntry entry = ensureEntry(featureType.getName());
+        JDBCState state = (JDBCState) entry.getState(Transaction.AUTO_COMMIT);
+        return state.isExposePrimaryKeyColumns();
     }
 
     /**
@@ -2604,13 +2617,14 @@ public final class JDBCDataStore extends ContentDataStore
 
         //primary key
         PrimaryKey key = null;
-
         try {
             key = getPrimaryKey(featureType);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
+        Set<String> pkColumnNames = getColumnNames(key);
+        
+        // we need to add the primary key columns only if they are not already exposed
         for ( PrimaryKeyColumn col : key.getColumns() ) {
             dialect.encodeColumnName(col.getName(), sql);
             sql.append(",");
@@ -2618,14 +2632,18 @@ public final class JDBCDataStore extends ContentDataStore
         
         //other columns
         for (AttributeDescriptor att : featureType.getAttributeDescriptors()) {
+            String columnName = att.getLocalName();
+            // skip the eventually exposed pk column values
+            if(pkColumnNames.contains(columnName))
+                continue;
             if (att instanceof GeometryDescriptor) {
                 //encode as geometry
             	encodeGeometryColumn((GeometryDescriptor) att, sql, query.getHints());
 
                 //alias it to be the name of the original geometry
-                dialect.encodeColumnAlias(att.getLocalName(), sql);
+                dialect.encodeColumnAlias(columnName, sql);
             } else {
-                dialect.encodeColumnName(att.getLocalName(), sql);
+                dialect.encodeColumnName(columnName, sql);
             }
 
             sql.append(",");
@@ -2732,6 +2750,7 @@ public final class JDBCDataStore extends ContentDataStore
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        Set<String> pkColumnNames = getColumnNames(key);
 
         for ( PrimaryKeyColumn col : key.getColumns() ) {
             dialect.encodeColumnName(col.getName(), sql);
@@ -2740,14 +2759,19 @@ public final class JDBCDataStore extends ContentDataStore
         
         //other columns
         for (AttributeDescriptor att : featureType.getAttributeDescriptors()) {
+            // skip the eventually exposed pk column values
+            String columnName = att.getLocalName();
+            if(pkColumnNames.contains(columnName))
+                continue;
+            
             if (att instanceof GeometryDescriptor) {
                 //encode as geometry
             	encodeGeometryColumn((GeometryDescriptor) att, sql, query.getHints());
 
                 //alias it to be the name of the original geometry
-                dialect.encodeColumnAlias(att.getLocalName(), sql);
+                dialect.encodeColumnAlias(columnName, sql);
             } else {
-                dialect.encodeColumnName(att.getLocalName(), sql);
+                dialect.encodeColumnName(columnName, sql);
             }
 
             sql.append(",");
@@ -3157,6 +3181,15 @@ public final class JDBCDataStore extends ContentDataStore
     protected String insertSQL(SimpleFeatureType featureType, SimpleFeature feature, List keyValues, Connection cx) {
         BasicSQLDialect dialect = (BasicSQLDialect) getSQLDialect();
         
+        // grab the primary key and collect the pk column names 
+        PrimaryKey key = null; 
+        try {
+            key = getPrimaryKey(featureType);
+        } catch (IOException e) {
+            throw new RuntimeException( e );
+        }
+        Set<String> pkColumnNames = getColumnNames(key);
+       
         StringBuffer sql = new StringBuffer();
         sql.append("INSERT INTO ");
         encodeTableName(featureType.getTypeName(), sql);
@@ -3165,18 +3198,16 @@ public final class JDBCDataStore extends ContentDataStore
         sql.append(" ( ");
 
         for (int i = 0; i < featureType.getAttributeCount(); i++) {
-            dialect.encodeColumnName(featureType.getDescriptor(i).getLocalName(), sql);
+            String colName = featureType.getDescriptor(i).getLocalName();
+            // skip the pk columns in case we have exposed them
+            if(pkColumnNames.contains(colName)) {
+                continue;
+            }
+            dialect.encodeColumnName(colName, sql);
             sql.append(",");
         }
 
         //primary key values
-        PrimaryKey key = null; 
-        try {
-            key = getPrimaryKey(featureType);
-        } 
-        catch (IOException e) {
-            throw new RuntimeException( e );
-        }
         for (PrimaryKeyColumn col : key.getColumns() ) {
             //only include if its non auto generating
             if ( !(col instanceof AutoGeneratedPrimaryKeyColumn ) ) {
@@ -3191,9 +3222,16 @@ public final class JDBCDataStore extends ContentDataStore
 
         for (int i = 0; i < featureType.getAttributeCount(); i++) {
             AttributeDescriptor att = featureType.getDescriptor(i);
+            String colName = att.getLocalName();
+            // skip the pk columns in case we have exposed them, we grab the
+            // value from the pk itself
+            if(pkColumnNames.contains(colName)) {
+                continue;
+            }
+            
             Class binding = att.getType().getBinding();
 
-            Object value = feature.getAttribute(att.getLocalName());
+            Object value = feature.getAttribute(colName);
 
             if (value == null) {
                 if (!att.isNillable()) {
@@ -3241,11 +3279,33 @@ public final class JDBCDataStore extends ContentDataStore
     }
 
     /**
+     * Returns the set of the primary key column names. The set is guaranteed to have the same
+     * iteration order as the primary key.
+     * @param key
+     */
+    protected LinkedHashSet<String> getColumnNames(PrimaryKey key) {
+        LinkedHashSet<String> pkColumnNames = new LinkedHashSet<String>();
+        for (PrimaryKeyColumn pkcol : key.getColumns()) {
+            pkColumnNames.add(pkcol.getName());
+        }
+        return pkColumnNames;
+    }
+
+    /**
      * Generates a 'INSERT INFO' prepared statement.
      */
     protected PreparedStatement insertSQLPS(SimpleFeatureType featureType, SimpleFeature feature, List keyValues, Connection cx) 
         throws IOException, SQLException {
         PreparedStatementSQLDialect dialect = (PreparedStatementSQLDialect) getSQLDialect();
+        
+        // grab the primary key and collect the pk column names 
+        PrimaryKey key = null; 
+        try {
+            key = getPrimaryKey(featureType);
+        } catch (IOException e) {
+            throw new RuntimeException( e );
+        }
+        Set<String> pkColumnNames = getColumnNames(key);
         
         StringBuffer sql = new StringBuffer();
         sql.append("INSERT INTO ");
@@ -3255,18 +3315,17 @@ public final class JDBCDataStore extends ContentDataStore
         sql.append(" ( ");
 
         for (int i = 0; i < featureType.getAttributeCount(); i++) {
-            dialect.encodeColumnName(featureType.getDescriptor(i).getLocalName(), sql);
+            String colName = featureType.getDescriptor(i).getLocalName();
+            // skip the pk columns in case we have exposed them
+            if(pkColumnNames.contains(colName)) {
+                continue;
+            }
+
+            dialect.encodeColumnName(colName, sql);
             sql.append(",");
         }
 
         // primary key values
-        PrimaryKey key = null; 
-        try {
-            key = getPrimaryKey(featureType);
-        } 
-        catch (IOException e) {
-            throw new RuntimeException( e );
-        }
         for (PrimaryKeyColumn col : key.getColumns() ) {
             //only include if its non auto generating
             if ( !(col instanceof AutoGeneratedPrimaryKeyColumn ) ) {
@@ -3279,6 +3338,13 @@ public final class JDBCDataStore extends ContentDataStore
         // values
         sql.append(" ) VALUES ( ");
         for (AttributeDescriptor att : featureType.getAttributeDescriptors()) {
+            String colName = att.getLocalName();
+            // skip the pk columns in case we have exposed them, we grab the
+            // value from the pk itself
+            if(pkColumnNames.contains(colName)) {
+                continue;
+            }
+            
             // geometries might need special treatment, delegate to the dialect
             if(att instanceof GeometryDescriptor) {
                 Geometry geometry = (Geometry) feature.getAttribute(att.getName());
@@ -3303,11 +3369,18 @@ public final class JDBCDataStore extends ContentDataStore
         PreparedStatement ps = cx.prepareStatement(sql.toString());
         
         //set the attribute values
-        for (int i = 0; i < featureType.getAttributeCount(); i++) {
-            AttributeDescriptor att = featureType.getDescriptor(i);
+        int i = 1;
+        for(AttributeDescriptor att : featureType.getAttributeDescriptors()) {
+            String colName = att.getLocalName();
+            // skip the pk columns in case we have exposed them, we grab the
+            // value from the pk itself
+            if(pkColumnNames.contains(colName)) {
+                continue;
+            }
+            
             Class binding = att.getType().getBinding();
 
-            Object value = feature.getAttribute(att.getLocalName());
+            Object value = feature.getAttribute(colName);
             if (value == null) {
                 if (!att.isNillable()) {
                     //TODO: throw an exception    
@@ -3317,17 +3390,18 @@ public final class JDBCDataStore extends ContentDataStore
             if (Geometry.class.isAssignableFrom(binding)) {
                 Geometry g = (Geometry) value;
                 int srid = getGeometrySRID(g, att);
-                dialect.setGeometryValue( g, srid, binding, ps, i+1 );
+                dialect.setGeometryValue( g, srid, binding, ps, i );
             } else {
-                dialect.setValue( value, binding, ps, i+1, cx );
+                dialect.setValue( value, binding, ps, i, cx );
             }
             if ( LOGGER.isLoggable( Level.FINE ) ) {
-                LOGGER.fine( (i+1) + " = " + value );    
+                LOGGER.fine( (i) + " = " + value );    
             }
+            i++;
         }
         
-        //set the key values
-        int i = featureType.getAttributeCount();
+        //set the key values 
+        //mind, we are reusing the i index from the previous loop
         for ( int j = 0; j < key.getColumns().size(); j++ ) {
             PrimaryKeyColumn col = key.getColumns().get( j );
             //only include if its non auto generating
@@ -3335,7 +3409,7 @@ public final class JDBCDataStore extends ContentDataStore
                 //get the next value for the column
                 //Object value = getNextValue( col, key, cx );
                 Object value = keyValues.get( j );
-                dialect.setValue( value, col.getType(), ps, i+1, cx);
+                dialect.setValue( value, col.getType(), ps, i, cx);
                 i++;
                 if ( LOGGER.isLoggable( Level.FINE ) ) {
                     LOGGER.fine( (i) + " = " + value );    
@@ -3401,8 +3475,17 @@ public final class JDBCDataStore extends ContentDataStore
      * Generates an 'UPDATE' sql statement.
      */
     protected String updateSQL(SimpleFeatureType featureType, AttributeDescriptor[] attributes,
-        Object[] values, Filter filter) {
+        Object[] values, Filter filter) throws IOException {
         BasicSQLDialect dialect = (BasicSQLDialect) getSQLDialect();
+        
+        // grab the primary key and collect the pk column names 
+        PrimaryKey key = null; 
+        try {
+            key = getPrimaryKey(featureType);
+        } catch (IOException e) {
+            throw new RuntimeException( e );
+        }
+        Set<String> pkColumnNames = getColumnNames(key);
         
         StringBuffer sql = new StringBuffer();
         sql.append("UPDATE ");
@@ -3411,7 +3494,13 @@ public final class JDBCDataStore extends ContentDataStore
         sql.append(" SET ");
 
         for (int i = 0; i < attributes.length; i++) {
-            dialect.encodeColumnName(attributes[i].getLocalName(), sql);
+            // skip exposed pk columns, they are read only
+            String attName = attributes[i].getLocalName();
+            if(pkColumnNames.contains(attName)) {
+                continue;
+            }
+            // build "colName = value" 
+            dialect.encodeColumnName(attName, sql);
             sql.append(" = ");
             
             if ( Geometry.class.isAssignableFrom( attributes[i].getType().getBinding() ) ) {
@@ -3453,6 +3542,15 @@ public final class JDBCDataStore extends ContentDataStore
             Object[] values, Filter filter, Connection cx ) throws IOException, SQLException {
         PreparedStatementSQLDialect dialect = (PreparedStatementSQLDialect) getSQLDialect();
         
+        // grab the primary key and collect the pk column names 
+        PrimaryKey key = null; 
+        try {
+            key = getPrimaryKey(featureType);
+        } catch (IOException e) {
+            throw new RuntimeException( e );
+        }
+        Set<String> pkColumnNames = getColumnNames(key);
+        
         StringBuffer sql = new StringBuffer();
         sql.append("UPDATE ");
         encodeTableName(featureType.getTypeName(), sql);
@@ -3460,8 +3558,14 @@ public final class JDBCDataStore extends ContentDataStore
         sql.append(" SET ");
 
         for (int i = 0; i < attributes.length; i++) {
+            // skip exposed primary key values
             AttributeDescriptor att = attributes[i];
-            dialect.encodeColumnName(att.getLocalName(), sql);
+            String attName = att.getLocalName();
+            if(pkColumnNames.contains(attName)) {
+                continue;
+            }
+            
+            dialect.encodeColumnName(attName, sql);
             sql.append(" = ");
             
             // geometries might need special treatment, delegate to the dialect
@@ -3493,7 +3597,13 @@ public final class JDBCDataStore extends ContentDataStore
         
         int i =0;
         for (; i < attributes.length; i++) {
+            // skip exposed primary key columns
             AttributeDescriptor att = attributes[i];
+            String attName = att.getLocalName();
+            if(pkColumnNames.contains(attName)) {
+                continue;
+            }
+            
 			Class binding = att.getType().getBinding();
             if (Geometry.class.isAssignableFrom( binding ) ) {
                 Geometry g = (Geometry) values[i];

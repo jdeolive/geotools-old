@@ -14,16 +14,16 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.data.postgis.ps;
-
-import org.geotools.jdbc.JDBCFeatureStoreTest;
+package org.geotools.data.postgis;
+import org.geotools.jdbc.JDBCFeatureSourceExposePkTest;
 import org.geotools.jdbc.JDBCTestSetup;
 
-public class PostgisFeatureStoreTest extends JDBCFeatureStoreTest {
+
+public class PostGISFeatureSourceExposePkTest extends JDBCFeatureSourceExposePkTest {
 
     @Override
     protected JDBCTestSetup createTestSetup() {
-        return new PostGISPSTestSetup();
+        return new PostGISTestSetup();
     }
 
 }
