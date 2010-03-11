@@ -3,7 +3,7 @@ IMAGEIO-EXT-GDAL
 
   IP Review:
 
-  	* Daniele Romagnoli January 2009
+  	* Daniele Romagnoli March 2010
 
   STATUS: OK
   
@@ -55,10 +55,17 @@ IMAGEIO-EXT-GDAL
        		http://download.osgeo.org/gdal/data/gtiff/
        		
 
-  * EHdr data credit:
+  	* EHdr data credit:
 
     	* elggll.bil / elggll.hdr
     	
           data freely available at:
           http://download.osgeo.org/gdal/data/ehdr/
    
+
+  	* EnviHdr data credit:
+
+    	* aea.dat / aea.hdr
+    	
+          data freely available at:
+          http://svn.osgeo.org/gdal/tags/1.7.1/autotest/gdrivers/data/

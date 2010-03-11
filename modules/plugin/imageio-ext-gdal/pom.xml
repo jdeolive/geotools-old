@@ -124,6 +124,11 @@
     </dependency>
     <dependency>
       <groupId>it.geosolutions.imageio-ext</groupId>
+      <artifactId>imageio-ext-gdalenvihdr</artifactId>
+      <!-- The version number is specified in the parent POM. -->
+    </dependency>
+    <dependency>
+      <groupId>it.geosolutions.imageio-ext</groupId>
       <artifactId>imageio-ext-gdalerdasimg</artifactId>
       <!-- The version number is specified in the parent POM. -->
     </dependency>
@@ -136,6 +141,11 @@
       <groupId>it.geosolutions.imageio-ext</groupId>
       <artifactId>imageio-ext-imagereadmt</artifactId>
       <!-- The version number is specified in the parent POM. -->
+    </dependency>
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-epsg-hsql</artifactId>
+      <version>${project.version}</version>
     </dependency>
    
     <!-- Test dependencies -->
