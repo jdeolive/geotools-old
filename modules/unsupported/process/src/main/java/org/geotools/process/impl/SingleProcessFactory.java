@@ -73,7 +73,7 @@ public abstract class SingleProcessFactory implements ProcessFactory {
     void checkName(Name name) {
         if(name == null)
             throw new NullPointerException("Process name cannot be null");
-        if(!processName.equals(processName))
+        if(!processName.equals(name))
             throw new IllegalArgumentException("Unknown process '" + name 
                     + "', this factory knows only about '" + processName +  "'");
     }
