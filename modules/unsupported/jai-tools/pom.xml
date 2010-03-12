@@ -19,17 +19,6 @@
     <version>2.7-SNAPSHOT</version>
   </parent>
 
-  <repositories>
-        <repository> 
-            <id>jaitools-snapshots</id> 
-            <name>jaitools snapshots</name> 
-            <url>http://oss.sonatype.org/content/repositories/snapshots/</url> 
-            <snapshots> 
-                <enabled>true</enabled> 
-            </snapshots> 
-        </repository>
-    </repositories>
-
   <!-- =========================================================== -->
   <!--     Module Description                                      -->
   <!-- =========================================================== -->
