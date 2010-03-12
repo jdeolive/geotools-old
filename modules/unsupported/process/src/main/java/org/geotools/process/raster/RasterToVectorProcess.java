@@ -48,6 +48,7 @@ import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.geometry.Envelope2D;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.process.ProcessException;
 import org.geotools.process.ProcessFactory;
 import org.geotools.process.impl.AbstractProcess;
@@ -56,6 +57,7 @@ import org.geotools.util.NullProgressListener;
 import org.geotools.util.SubProgressListener;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.geometry.Envelope;
 import org.opengis.metadata.spatial.PixelOrientation;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform2D;
@@ -201,7 +203,7 @@ public class RasterToVectorProcess extends AbstractProcess {
 
         int band = (Integer) input.get(RasterToVectorFactory.BAND.key);
 
-        Envelope2D bounds = (Envelope2D) input.get(RasterToVectorFactory.BOUNDS.key);
+        Envelope bounds = (Envelope) input.get(RasterToVectorFactory.BOUNDS.key);
 
         Collection<Double> outsideValues = (Collection<Double>)input.get(
                 RasterToVectorFactory.OUTSIDE.key);
@@ -234,7 +236,7 @@ public class RasterToVectorProcess extends AbstractProcess {
     public static FeatureCollection<SimpleFeatureType,SimpleFeature> process(
             GridCoverage2D cov,
             int band,
-            Envelope2D bounds,
+            Envelope bounds,
             Collection<Double> outsideValues,
             ProgressListener progress) throws ProcessException {
 
@@ -261,7 +263,7 @@ public class RasterToVectorProcess extends AbstractProcess {
     private FeatureCollection<SimpleFeatureType,SimpleFeature> convert(
             GridCoverage2D cov,
             int band,
-            Envelope2D bounds,
+            Envelope bounds,
             Collection<Double> outsideValues,
             ProgressListener progress) throws ProcessException {
 
@@ -269,8 +271,10 @@ public class RasterToVectorProcess extends AbstractProcess {
             progress = new NullProgressListener();
         }
 
+        ReferencedEnvelope workingBounds = null;
+
         if (bounds == null) {
-            bounds = cov.getEnvelope2D();
+            workingBounds = new ReferencedEnvelope(cov.getEnvelope());
 
         } else {
             CoordinateReferenceSystem sourceCRS = bounds.getCoordinateReferenceSystem();
@@ -281,16 +285,17 @@ public class RasterToVectorProcess extends AbstractProcess {
                 }
             }
 
-            bounds = new Envelope2D(targetCRS, cov.getEnvelope2D().createIntersection(bounds));
-            if (bounds == null || bounds.isEmpty()) {
+            ReferencedEnvelope inputBounds = new ReferencedEnvelope(bounds);
+            ReferencedEnvelope covBounds = new ReferencedEnvelope(cov.getEnvelope());
+            workingBounds = new ReferencedEnvelope(covBounds.intersection(inputBounds), targetCRS);
+            if (workingBounds == null || workingBounds.isEmpty()) {
                 throw new ProcessException("Specified bounds lie wholly outside of coverage");
             }
         }
 
 
         try {
-
-            initialize(cov, bounds, new SubProgressListener(progress, 0.3f));
+            initialize(cov, workingBounds, new SubProgressListener(progress, 0.3f));
             vectorizeAndCollectBoundaries(band, outsideValues, new SubProgressListener(progress, 0.3f));
 
             /***********************************************************
@@ -390,7 +395,7 @@ public class RasterToVectorProcess extends AbstractProcess {
      * @param bounds bounds (world coords) of the area to be vectorized
      * @param progress a progress listener (may be {@code null})
      */
-    private void initialize(GridCoverage2D coverage, Envelope2D bounds, ProgressListener progress)
+    private void initialize(GridCoverage2D coverage, Envelope bounds, ProgressListener progress)
             throws TransformException, InvalidGridGeometryException {
 
         if (progress == null)
@@ -408,7 +413,7 @@ public class RasterToVectorProcess extends AbstractProcess {
                     PixelOrientation.LOWER_RIGHT);
             progress.progress(0.3f);
 
-            imageBounds = coverage.getGridGeometry().worldToGrid(bounds);
+            imageBounds = coverage.getGridGeometry().worldToGrid(new Envelope2D(bounds));
 
             cellWidthX = gridGeom.getEnvelope2D().getSpan(gridGeom.axisDimensionX) /
                          gridGeom.getGridRange2D().getSpan(gridGeom.gridDimensionX);

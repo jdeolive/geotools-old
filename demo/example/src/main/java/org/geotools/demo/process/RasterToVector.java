@@ -20,7 +20,7 @@ import org.geotools.coverage.CoverageFactoryFinder;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.feature.FeatureCollection;
-import org.geotools.geometry.Envelope2D;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.map.MapContext;
 import org.geotools.process.raster.RasterToVectorProcess;
@@ -45,7 +45,7 @@ public class RasterToVector {
     }
 
     private void demo() throws Exception {
-        Envelope2D env = new Envelope2D(DefaultGeographicCRS.WGS84, 0.0, 0.0, 8.0, 8.0);
+        ReferencedEnvelope env = new ReferencedEnvelope(0.0, 8.0, 0.0, 8.0, DefaultGeographicCRS.WGS84);
         GridCoverage2D cov = createChessboardCoverage(256, 256, 32, env);
         FeatureCollection<SimpleFeatureType, SimpleFeature> fc = RasterToVectorProcess.process(cov, 0, env, Collections.singletonList(0.0d), null);
 
@@ -56,7 +56,7 @@ public class RasterToVector {
         JMapFrame.showMap(map);
     }
 
-    private GridCoverage2D createChessboardCoverage(int imgWidth, int imgHeight, int squareWidth, Envelope2D env) {
+    private GridCoverage2D createChessboardCoverage(int imgWidth, int imgHeight, int squareWidth, ReferencedEnvelope env) {
         GridCoverageFactory factory = CoverageFactoryFinder.getGridCoverageFactory(null);
         GridCoverage2D cov = factory.create("chessboard", createChessboardImage(imgWidth, imgHeight, squareWidth), env);
         return cov;

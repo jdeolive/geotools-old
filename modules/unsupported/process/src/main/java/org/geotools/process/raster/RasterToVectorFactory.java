@@ -29,11 +29,11 @@ import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.process.impl.SingleProcessFactory;
 import org.geotools.text.Text;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.geometry.Envelope;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.util.InternationalString;
 
 import com.vividsolutions.jts.geom.Polygon;
-import org.geotools.geometry.Envelope2D;
 
 
 /**
@@ -66,8 +66,8 @@ public class RasterToVectorFactory extends SingleProcessFactory {
      * Bounds (in world coordinates) ot the area to vectorize; if {@code null}
      * or absent the bounds of the coverage are used
      */
-    public static final Parameter<Envelope2D> BOUNDS = new Parameter<Envelope2D>(
-        "bounds", Envelope2D.class, Text.text("Bounds"),
+    public static final Parameter<Envelope> BOUNDS = new Parameter<Envelope>(
+        "bounds", Envelope.class, Text.text("Bounds"),
         Text.text("Bounds of the area to vectorize"));
 
     /** 
