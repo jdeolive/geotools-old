@@ -753,7 +753,6 @@ class RasterLayerResponse{
 			finalWorldToGridCorner = finalGridToWorldCorner.inverse();// compute raster bounds
 			rasterBounds=new GeneralGridEnvelope(CRS.transform(finalWorldToGridCorner, mosaicBBox),PixelInCell.CELL_CORNER,false).toRectangle();
 			
-			
 			// create the index visitor and visit the feature
 			final MosaicBuilder visitor = new MosaicBuilder();
 			final List<Date> times = request.getRequestedTimes();

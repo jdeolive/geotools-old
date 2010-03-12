@@ -827,7 +827,7 @@ class RasterLayerRequest {
         }                
         
         if (LOGGER.isLoggable(Level.FINE)) {
-            StringBuffer sb = new StringBuffer(
+            StringBuilder sb = new StringBuilder(
                     "Adjusted Requested Envelope = ")
             		.append(requestedBBox.toString())
             		.append("\n")
