@@ -80,11 +80,7 @@
   <!--     Dependency Management                                   -->
   <!-- =========================================================== -->
   <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>provided</scope>
-    </dependency>
+    <!--  GeoTools Library modules -->
     <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-main</artifactId>
@@ -95,16 +91,11 @@
       <artifactId>gt-cql</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>javax.media</groupId>
-      <artifactId>jai_core</artifactId>
-      <!-- The version number is specified in the parent POM. -->
-      <scope>provided</scope>  <!-- Users should execute JAI installer. -->
-    </dependency>
+
     <!--  GeoTools Plugins -->
     <dependency>
       <groupId>org.geotools</groupId>
-      <artifactId>gt-swing</artifactId>
+      <artifactId>gt-shapefile</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -114,17 +105,7 @@
     </dependency>    
     <dependency>
       <groupId>org.geotools</groupId>
-      <artifactId>gt-shapefile</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.geotools</groupId>
       <artifactId>gt-wfs</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.geotools</groupId>
-      <artifactId>gt-epsg-hsql</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -137,7 +118,13 @@
       <artifactId>gt-image</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <!--  GeoTools Extentions -->
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-epsg-hsql</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!--  GeoTools Extensions -->
     <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-wms</artifactId>
@@ -153,6 +140,39 @@
       <artifactId>gt-xsd-kml</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-brewer</artifactId>
+      <version>${project.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-swing</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- Other GeoTools modules -->
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-process</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- Other dependencies -->
+    <dependency>
+      <groupId>javax.media</groupId>
+      <artifactId>jai_core</artifactId>
+      <!-- The version number is specified in the parent POM. -->
+      <scope>provided</scope>  <!-- Users should execute JAI installer. -->
+    </dependency>
+
+    <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <scope>provided</scope>
+    </dependency>
+
   </dependencies>
 
   <!-- =========================================================== -->
@@ -182,3 +202,6 @@
     </resources>
   </build>
 </project>
+
+
+
