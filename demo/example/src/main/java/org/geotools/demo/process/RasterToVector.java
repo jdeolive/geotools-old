@@ -1,7 +1,13 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ *    GeoTools - The Open Source Java GIS Tookit
+ *    http://geotools.org
+ *
+ *    (C) 2010, Open Source Geospatial Foundation (OSGeo)
+ *
+ *    This file is hereby placed into the Public Domain. This means anyone is
+ *    free to do whatever they wish with this file. Use it well and enjoy!
  */
+
 
 package org.geotools.demo.process;
 
@@ -26,6 +32,10 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 /**
+ * This examples creates a GridCoverage2D object from an image with a chessboard pattern
+ * (alternating squares with value 0 or 1) and then converts the coverage to polygon
+ * features which it displays with a JMapFrame.
+ *
  * @author Michael Bedward
  */
 public class RasterToVector {
