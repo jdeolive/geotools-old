@@ -34,6 +34,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
@@ -135,7 +136,7 @@ public class JWizard extends JDialog {
         
         buttonPanel.add(buttonBox, java.awt.BorderLayout.EAST);
         getContentPane().add(buttonPanel, java.awt.BorderLayout.SOUTH);
-        getContentPane().add(cardPanel, java.awt.BorderLayout.CENTER);
+        getContentPane().add(new JScrollPane(cardPanel), java.awt.BorderLayout.CENTER);
     }
 
     public Boolean isCancelEnabled() {

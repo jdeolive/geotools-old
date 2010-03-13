@@ -23,6 +23,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.StringTokenizer;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -60,6 +61,9 @@ public class JDataStorePage extends JPage {
 
     /** level of parameters to display */
     private String level = null;
+
+    /** max line length of parameter description labels (chars) */
+    private final int MAX_DESCRIPTION_WIDTH = 60;
 
     public JDataStorePage(DataStoreFactorySpi format) {
         this(format, null);
@@ -119,7 +123,7 @@ public class JDataStorePage extends JPage {
             fields.put(param, field);
 
             if (param.description != null) {
-                JLabel info = new JLabel("<html>" + param.description.toString());
+                JLabel info = new JLabel(formatDescription(param.description.toString()));
                 page.add(info, "skip, span, wrap");
             }
         }
@@ -176,5 +180,32 @@ public class JDataStorePage extends JPage {
             }
         }
         return true;
+    }
+
+
+    private String formatDescription(String desc) {
+        String prefix = "<html>";
+        final int LEN = desc.length();
+
+        if (LEN < MAX_DESCRIPTION_WIDTH) {
+            return prefix + desc;
+        } else {
+            StringBuffer sb = new StringBuffer(prefix);
+            StringTokenizer tokenizer = new StringTokenizer(desc);
+
+            int n = 0;
+            while (tokenizer.hasMoreTokens()) {
+                String word = tokenizer.nextToken();
+                if (n + word.length() + 1 > MAX_DESCRIPTION_WIDTH) {
+                    sb.append("<br>");
+                    n = 0;
+                }
+                sb.append(word);
+                sb.append(' ');
+                n += word.length() + 1;
+            }
+
+            return sb.toString();
+        }
     }
 }
