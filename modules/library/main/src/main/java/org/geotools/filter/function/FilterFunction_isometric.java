@@ -58,23 +58,23 @@ public class FilterFunction_isometric extends FunctionExpressionImpl implements 
             List<Polygon> faces = extractor.getFaces(geom.getFactory(), extrusion);
             
             // add the "cap" 
-//            if(geom instanceof Polygon) {
-//                Polygon offseted = (Polygon) geom.clone();
-//                offseted.apply(new OffsetOrdinateFilter(0, extrusion));
-//                faces.add(0, (Polygon) geom);
-//                faces.add(offseted);
-//            } else if(geom instanceof GeometryCollection){
-//                GeometryCollection gc = (GeometryCollection) geom;
-//                for (int i = 0; i < gc.getNumGeometries(); i++) {
-//                    Geometry g = gc.getGeometryN(i);
-//                    if(g instanceof Polygon) {
-//                        Polygon offseted = (Polygon) g.clone();
-//                        offseted.apply(new OffsetOrdinateFilter(0, extrusion));
-//                        faces.add(0, (Polygon) g);
-//                        faces.add(offseted);
-//                    }
-//                }
-//            }
+            if(geom instanceof Polygon) {
+                Polygon offseted = (Polygon) geom.clone();
+                offseted.apply(new OffsetOrdinateFilter(0, extrusion));
+                faces.add(0, (Polygon) geom);
+                faces.add(offseted);
+            } else if(geom instanceof GeometryCollection){
+                GeometryCollection gc = (GeometryCollection) geom;
+                for (int i = 0; i < gc.getNumGeometries(); i++) {
+                    Geometry g = gc.getGeometryN(i);
+                    if(g instanceof Polygon) {
+                        Polygon offseted = (Polygon) g.clone();
+                        offseted.apply(new OffsetOrdinateFilter(0, extrusion));
+                        faces.add(0, (Polygon) g);
+                        faces.add(offseted);
+                    }
+                }
+            }
             
             Polygon[] polyArray = (Polygon[]) faces.toArray(new Polygon[faces.size()]); 
             return geom.getFactory().createMultiPolygon(polyArray);
