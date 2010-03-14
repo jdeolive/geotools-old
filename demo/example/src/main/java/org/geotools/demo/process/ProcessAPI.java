@@ -1,3 +1,4 @@
+// docs start source
 /*
  *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
@@ -7,8 +8,6 @@
  *    This file is hereby placed into the Public Domain. This means anyone is
  *    free to do whatever they wish with this file. Use it well and enjoy!
  */
-
-
 package org.geotools.demo.process;
 
 import java.awt.Color;
@@ -35,36 +34,36 @@ import org.geotools.styling.SLD;
 import org.geotools.styling.Style;
 import org.geotools.swing.JMapFrame;
 import org.geotools.swing.ProgressWindow;
+import org.jdesktop.swingworker.SwingWorker;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.util.ProgressListener;
 
 /**
- * In the {@linkplain RasterToVector} example app we used the static helper method
- * {@linkplain org.geotools.process.raster.RasterToVectorProcess#process} which is
- * most convenient when running the process "manually".
- * <p>
- * This example shows how the same task would be run through the GeoTools process API
- * as, for instance, it might be called by a server.
+ * Illustrates running a process (vectorizing regions in a grid coverage) via
+ * the GeoTools process API
  *
  * @author Michael Bedward
  */
 public class ProcessAPI {
-    
+
     public static void main(String[] args) throws Exception {
         new ProcessAPI().demo();
     }
+    // docs end main
 
+    // docs start demo
     private void demo() throws Exception {
-        // create the example coverage
+        /*
+         * Create a sample coverage: an image of square cells of alternating
+         * 0 and 1 values
+         */
         ReferencedEnvelope env = new ReferencedEnvelope(0.0, 8.0, 0.0, 8.0, DefaultGeographicCRS.WGS84);
-        GridCoverage2D cov = createChessboardCoverage(256, 256, 8, env);
+        GridCoverage2D cov = createChessboardCoverage(256, 256, 4, env);
 
         /*
-         * Set the parameter for the raster to vector process
+         * Parameters for the raster to vector process
          */
-        Map<String, Object> params = new HashMap<String, Object>();
-
+        final Map<String, Object> params = new HashMap<String, Object>();
         params.put(RasterToVectorFactory.RASTER.key, cov);
         params.put(RasterToVectorFactory.BAND.key, Integer.valueOf(0));
         params.put(RasterToVectorFactory.BOUNDS.key, env);
@@ -74,29 +73,46 @@ public class ProcessAPI {
          * Create a new RasterToVectorProcess instance using the
          * Processors factory finder.
          */
-        Process r2v = Processors.createProcess(new NameImpl(ProcessFactory.GT_NAMESPACE, "RasterToVectorProcess"));
+        final Process r2v = Processors.createProcess(new NameImpl(ProcessFactory.GT_NAMESPACE, "RasterToVectorProcess"));
 
         /*
-         * Execute the process
+         * For this example we use SwingWorker to run the process on a background
+         * thread and display the results when the process has finished.
          */
-        ProgressListener progress = new ProgressWindow(null);
-        Map<String, Object> results = r2v.execute(params, progress);
+        SwingWorker worker = new SwingWorker<Map<String, Object>, Void>() {
 
-        /*
-         * Retrieve the vectorized features from the returned map and display them
-         */
-        if (results != null) {
-            FeatureCollection<SimpleFeatureType, SimpleFeature> fc =
-                    (FeatureCollection<SimpleFeatureType, SimpleFeature>) results.get(RasterToVectorFactory.RESULT_FEATURES.key);
+            @Override
+            protected Map<String, Object> doInBackground() throws Exception {
+                ProgressWindow pw = new ProgressWindow(null);
+                pw.setTitle("Vectorizing coverage");
+                return r2v.execute(params, pw);
+            }
 
-            MapContext map = new DefaultMapContext();
-            map.setTitle("raster to vector conversion");
-            Style style = SLD.createPolygonStyle(Color.BLUE, Color.CYAN, 1.0f);
-            map.addLayer(fc, style);
-            JMapFrame.showMap(map);
-        }
+            @Override
+            protected void done() {
+                Map<String, Object> vectorizingResults = null;
+                try {
+                    vectorizingResults = get();
+                } catch (Exception ignore) {}
+
+                if (vectorizingResults != null) {
+                    FeatureCollection<SimpleFeatureType, SimpleFeature> fc =
+                            (FeatureCollection<SimpleFeatureType, SimpleFeature>) vectorizingResults.get(RasterToVectorFactory.RESULT_FEATURES.key);
+
+                    MapContext map = new DefaultMapContext();
+                    map.setTitle("raster to vector conversion");
+                    Style style = SLD.createPolygonStyle(Color.BLUE, Color.CYAN, 1.0f);
+                    map.addLayer(fc, style);
+                    JMapFrame.showMap(map);
+                }
+            }
+        };
+
+        worker.execute();
     }
+    // docs end demo
 
+    // docs start create coverage
     private GridCoverage2D createChessboardCoverage(int imgWidth, int imgHeight, int squareWidth, ReferencedEnvelope env) {
         GridCoverageFactory factory = CoverageFactoryFinder.getGridCoverageFactory(null);
         GridCoverage2D cov = factory.create("chessboard", createChessboardImage(imgWidth, imgHeight, squareWidth), env);
@@ -118,3 +134,4 @@ public class ProcessAPI {
         return img;
     }
 }
+// docs end source
