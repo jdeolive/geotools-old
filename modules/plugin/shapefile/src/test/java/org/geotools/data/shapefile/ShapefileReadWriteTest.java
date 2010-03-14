@@ -49,6 +49,11 @@ public class ShapefileReadWriteTest extends TestCaseSupport {
     final String[] files = { "shapes/statepop.shp", "shapes/polygontest.shp",
             "shapes/pointtest.shp", "shapes/holeTouchEdge.shp",
             "shapes/stream.shp", "shapes/chinese_poly.shp" };
+    
+    boolean readStarted = false;
+
+    Exception exception = null;
+
 
     /** Creates a new instance of ShapefileReadWriteTest */
     public ShapefileReadWriteTest(String name) throws IOException {
@@ -75,33 +80,9 @@ public class ShapefileReadWriteTest extends TestCaseSupport {
         test("shapes/chinese_poly.shp", Charset.forName("GB18030"));
     }
     
-    public void testReadDanishPoint() throws Exception {
+    public void testReadWriteDanishPoint() throws Exception {
         test("shapes/danish_point.shp");
     }
-    
-    
-
-//    public void testAll() {
-//        StringBuffer errors = new StringBuffer();
-//        Exception bad = null;
-//        for (int i = 0, ii = files.length; i < ii; i++) {
-//            try {
-//                
-//            } catch (Exception e) {
-//                System.out.println("File failed:" + files[i] + " " + e);
-//                e.printStackTrace();
-//                errors.append("\nFile " + files[i] + " : " + e.getMessage());
-//                bad = e;
-//            }
-//        }
-//        if (errors.length() > 0) {
-//            fail(errors.toString(), bad);
-//        }
-//    }
-
-    boolean readStarted = false;
-
-    Exception exception = null;
 
     public void testConcurrentReadWrite() throws Exception {
         System.gc();
