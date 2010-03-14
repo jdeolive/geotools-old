@@ -46,7 +46,7 @@ public class IngresDataStoreFactory extends JDBCDataStoreFactory {
 
     @Override
     protected String getValidationQuery() {
-        return "select now()";
+        return "select date('now')";
     }
 
 //    public DataStore createDataStore(Map<String, Serializable> params) throws IOException {

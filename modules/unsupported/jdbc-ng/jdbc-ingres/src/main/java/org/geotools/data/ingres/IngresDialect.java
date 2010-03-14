@@ -98,11 +98,20 @@ public class IngresDialect extends BasicSQLDialect {
     	return null;
     }
 
-    
-	@Override
-	public boolean includeTable(String schemaName, String tableName, Connection cx) throws SQLException {
-		return false;
-	}
+    @Override
+    public boolean includeTable(String schemaName, String tableName, Connection cx)
+            throws SQLException {
+        if (tableName.equals("geometry_columns")) {
+            return false;
+        } else if (tableName.startsWith("spatial_ref_sys")) {
+            return false;
+        } else if (tableName.equals("geography_columns")) {
+            return false;
+        }
+
+        // others?
+        return true;
+    }
 
     @Override   
     public boolean isLimitOffsetSupported() {
