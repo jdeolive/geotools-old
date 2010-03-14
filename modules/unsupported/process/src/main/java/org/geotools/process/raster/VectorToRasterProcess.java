@@ -67,6 +67,7 @@ import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.util.ProgressListener;
 import org.geotools.util.NullProgressListener;
+import org.geotools.util.SimpleInternationalString;
 
 /**
  * A Process to rasterize vector features in an input FeatureCollection.
@@ -279,7 +280,9 @@ public class VectorToRasterProcess extends AbstractFeatureCollectionProcess {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put(VectorToRasterFactory.ATTRIBUTE.key, attributeName);
 
-        float scale = 100f / features.size();
+        monitor.setTask(new SimpleInternationalString("Rasterizing features..."));
+
+        float scale = 100.0f / features.size();
         monitor.started();
 
         FeatureIterator<SimpleFeature> fi = features.features();
