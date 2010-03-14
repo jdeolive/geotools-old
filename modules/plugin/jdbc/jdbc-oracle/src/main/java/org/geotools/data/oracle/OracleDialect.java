@@ -370,7 +370,12 @@ public class OracleDialect extends PreparedStatementSQLDialect {
     };
     
     Geometry convertGeometry(Geometry geom, GeometryDescriptor descriptor, GeometryFactory factory) {
-        //grab the binding
+        //if the geometry is null no need to convert it
+        if(geom == null) {
+            return null;
+        }
+        
+        // grab the binding
         Class targetClazz = descriptor.getType().getBinding();
         
         // in Oracle you can have polygons in a column declared to be multipolygon, and so on...
