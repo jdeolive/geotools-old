@@ -34,7 +34,7 @@ Please ensure your pom.xml includes the following::
             <version>${geotools.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.geotools</groupId>
+            <groupId>org.geotools.jdbc</groupId>
             <artifactId>gt-jdbc-postgis</artifactId>
             <version>${geotools.version}</version>
         </dependency>
@@ -140,7 +140,7 @@ Getting feature data with the filterFeatures method
       :end-before: // docs end filterFeatures
 
 The countFeatures method
-~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~
 
    .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/QueryLab.java
       :language: java
@@ -148,7 +148,7 @@ The countFeatures method
       :end-before: // docs end countFeatures
 
 The centerFeatures method
-~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
    .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/QueryLab.java
       :language: java
