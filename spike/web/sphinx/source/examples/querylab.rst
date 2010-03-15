@@ -35,7 +35,7 @@ Please ensure your pom.xml includes the following::
         </dependency>
         <dependency>
             <groupId>org.geotools</groupId>
-            <artifactId>gt-postgis</artifactId>
+            <artifactId>gt-jdbc-postgis</artifactId>
             <version>${geotools.version}</version>
         </dependency>
         <dependency>
@@ -120,7 +120,7 @@ Here is the method called by the File menu Actions plus a helper method to updat
 Note how the same code can be used to connect to quite different types of data stores as specified by the the
 DataStoreFactorySpi (*Service Provider Interface*) parameter. Recall that the :ref:`File menu Actions
 <querylab-file-menu>` call this method with an instance of the either **ShapefileDataStoreFactory** or
-**PostgisDataStoreFactory**.
+**PostgisNGDataStoreFactory**.
 
 The **JDataStoreWizard** displays a dialog with entry fields appropriate to either a shapefile or PostGIS database. It
 requires a few more lines of code than **JFileDataStoreChooser** which was used in :ref:`quickstart` to prompt the user
