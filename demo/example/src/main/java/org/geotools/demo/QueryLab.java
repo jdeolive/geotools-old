@@ -33,7 +33,7 @@ import org.geotools.data.DataStoreFactorySpi;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureSource;
-import org.geotools.data.postgis.PostgisDataStoreFactory;
+import org.geotools.data.postgis.PostgisNGDataStoreFactory;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
@@ -110,7 +110,7 @@ public class QueryLab extends JFrame {
 
         fileMenu.add(new SafeAction("Connect to PostGIS database...") {
             public void action(ActionEvent e) throws Throwable {
-                connect(new PostgisDataStoreFactory());
+                connect(new PostgisNGDataStoreFactory());
             }
         });
         
