@@ -104,10 +104,10 @@ public class PreparedFilterToSQL extends FilterToSQL {
         SRIDs.add(currentSRID);
         
         Class clazz = null;
-        if(literalValue != null)
-            clazz = literalValue.getClass();
-        else if(context instanceof Class)
+        if(context instanceof Class)
             clazz = (Class) context;
+        else if(literalValue != null)
+            clazz = literalValue.getClass();
         literalTypes.add( clazz );
         
         try {
