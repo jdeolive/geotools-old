@@ -73,9 +73,46 @@ public class IngresDialect extends BasicSQLDialect {
     public Integer getGeometrySRID(String schemaName, String tableName, String columnName,
         Connection cx) throws SQLException {
     	
-    	Integer srid = null;
-    	PreparedStatement stmt = null;
-    	return srid;
+        // first attempt, try with the geometry metadata
+        Statement statement = null;
+        ResultSet result = null;
+        Integer srid = null;
+        try {
+            if (schemaName == null)
+                schemaName = "geotools"; //default schema
+            
+            String sqlStatement = "SELECT SRID FROM GEOMETRY_COLUMNS WHERE " //
+                    + "SCHEMA_NAME = '" + schemaName + "' " //
+                    + "AND TABLE_NAME = '" + tableName + "' " //
+                    + "AND COLUMN_NAME = '" + columnName + "'";
+
+            LOGGER.log(Level.FINE, "Geometry type check; {0} ", sqlStatement);
+            statement = cx.createStatement();
+            result = statement.executeQuery(sqlStatement);
+
+            if (result.next()) {
+                srid = result.getInt(1);
+            }
+            dataStore.closeSafe(result);
+            
+            // if srid is null or -1, then the srid is undefined in the GEOMETRY_COLUMNS table
+            if(srid == null || srid.intValue() == -1) {
+            	
+                sqlStatement = "SELECT FIRST 1 SRID(" + columnName + ") " +
+                               "FROM " + schemaName + "." + tableName;
+                
+                result = statement.executeQuery(sqlStatement);
+                
+                if (result.next()) {
+                    srid = result.getInt(1);
+                }
+            }
+        } finally {
+            dataStore.closeSafe(result);
+            dataStore.closeSafe(statement);
+        }
+
+        return srid;
     }
     
     
