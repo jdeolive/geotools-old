@@ -366,6 +366,11 @@ public class DB2FilterToSQL extends PreparedFilterToSQL{
 	            if (spatialColumn == null || spatialColumn.trim().length()==0) {
 	            	spatialColumn = featureType.getGeometryDescriptor().getLocalName();
 	            }
+	            
+                    Integer srid = getSRID(spatialColumn);
+                    if (srid==null) {
+                        throw new RuntimeException("Attribute: "+spatialColumn+" is not registered");
+                    }
 
 	            double minx = filter.getMinX();
 	            double maxx = filter.getMaxX();
@@ -377,7 +382,7 @@ public class DB2FilterToSQL extends PreparedFilterToSQL{
 	            	this.out.write(escapeName(spatialColumn));
 	            	this.out.write(", ");
 	            	this.out.write(minx + ", " + miny + ", "
-	                    + maxx + ", " + maxy + ", " + getSRID(spatialColumn));
+	                    + maxx + ", " + maxy + ", " + srid);
 	            	this.out.write(") = 1");
 	            } else {
 	            	this.out.write("db2gse.st_intersects(");
@@ -397,7 +402,7 @@ public class DB2FilterToSQL extends PreparedFilterToSQL{
 	            	WKTWriter writer = new WKTWriter();	            	
 	            	this.out.write(writer.write(poly));
 	            	this.out.write("',");
-	            	this.out.write(new Integer(getSRID(spatialColumn)).toString());
+	            	this.out.write(srid.toString());
 	            	this.out.write(")) = 1");
 	            }
                 addSelectivity();  // add selectivity clause if needed
