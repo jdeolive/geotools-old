@@ -128,9 +128,9 @@ public class IngresDialect extends BasicSQLDialect {
         }
 
         // decode the type into
-        Class geometryClass = (Class) TYPE_TO_CLASS_MAP.get(gType);
-        if (geometryClass == null)
-            geometryClass = Geometry.class;
+        // Here gType may be null if database fail to give us an answer,
+        // however if it did give an answer, make sure its without leading or trailing whitespaces.
+        Class geometryClass = (Class) TYPE_TO_CLASS_MAP.get(gType==null? gType : gType.trim());
 
         return geometryClass;
     }
@@ -171,18 +171,14 @@ public class IngresDialect extends BasicSQLDialect {
     public boolean includeTable(String schemaName, String tableName, Connection cx)
             throws SQLException {
         if (tableName.equals("geometry_columns")) {
-            return true;
+            return false;
         } else if (tableName.startsWith("spatial_ref_sys")) {
-            return true;
+            return false;
         } else if (tableName.equals("geography_columns")) {
-            return true;
+            return false;
         }
-          else if (tableName.equals("ft1")) {
-                return true;
-          }
-
-        // others?
-        return false;
+       // others?
+        return true;
     }
 
     @Override   
