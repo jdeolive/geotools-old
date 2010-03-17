@@ -752,6 +752,11 @@ class RasterLayerResponse{
 			finalGridToWorldCorner=new AffineTransform2D(g2w);
 			finalWorldToGridCorner = finalGridToWorldCorner.inverse();// compute raster bounds
 			rasterBounds=new GeneralGridEnvelope(CRS.transform(finalWorldToGridCorner, mosaicBBox),PixelInCell.CELL_CORNER,false).toRectangle();
+			if (rasterBounds.width == 0)
+			    rasterBounds.width++;
+			if (rasterBounds.height == 0)
+			    rasterBounds.height++;
+			
 			
 			// create the index visitor and visit the feature
 			final MosaicBuilder visitor = new MosaicBuilder();
