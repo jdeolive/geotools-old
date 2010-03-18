@@ -1,186 +1,125 @@
 /*
- *    GeoTools - The Open Source Java GIS Tookit
+ *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
  *
- *    (C) 2006-2008, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2010, Open Source Geospatial Foundation (OSGeo)
  *
- *    This file is hereby placed into the Public Domain. This means anyone is
- *    free to do whatever they wish with this file. Use it well and enjoy!
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
  */
 package org.geotools.demo.filter.function;
 
 import java.awt.Color;
-import java.util.ArrayList;
-import java.util.List;
 import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.filter.FunctionExpressionImpl;
 import org.opengis.filter.FilterFactory;
-import org.opengis.filter.expression.Expression;
-import org.opengis.filter.expression.ExpressionVisitor;
-import org.opengis.filter.expression.Function;
-import org.opengis.filter.expression.Literal;
 
 /**
- * Illustrates how to write a custom filter function that implements the
- * {@linkplain org.opengis.filter.expression.Function} interface directly.
- * The example here is a function that can be used in a {@linkplain org.geotools.styling.Style}
- * to dynamically set the fill color of polygon features based on a numeric
- * feature attribute (e.g. country population size).
+ * Generates a colour based on an input floating point value. First the value is
+ * converted to a proportion of the expected range of values. If the value falls
+ * outside the range {@code null} is returned, otherwise the proportion is used as
+ * a hue value, together with parameters for saturation and brightness, to calculate
+ * a colour in the HSB colour space which is returned as an RGB value.
  * <p>
- * GeoTools provides a great many useful filter functions for numeric and
- * spatial operations but sometimes it is still necessary, or perhaps easier,
- * for users to create custom functions. This can be done by extending the
- * GeoTools classes or, as in this example, implementing the {@code Function}
- * interface directly.
+ * Example of use in a SLD document to set polygon fill colour based on the value
+ * of a numeric attribute FOO with an expected range of values from -10 to 10:
+ * <pre><code>
+ *   &lt;PolygonSymbolizer>
+ *     &lt;Fill>
+ *       &lt;CssParameter name="fill">
+ *         &lt;ogc:Function name="colorramp">
+ *           &lt;ogc:PropertyName>FOO&lt;/ogc:PropertyName>
+ *           &lt;!-- min expected value -->
+ *           &lt;ogc:Literal>-10&lt;/ogc:Literal>
+ *           &lt;!-- max expected value -->
+ *           &lt;ogc:Literal>10&lt;/ogc:Literal>
+ *           &lt;!-- saturation -->
+ *           &lt;ogc:Literal>0.8&lt;/ogc:Literal>
+ *           &lt;!-- brightness -->
+ *           &lt;ogc:Literal>0.8&lt;/ogc:Literal>
+ *         &lt;/ogc:Function>
+ *       &lt;/CssParameter>
+ *     &lt;/Fill>
+ *   &lt;/PolygonSymbolizer>
+ * </code></pre>
+ *
  *
  * @author Michael Bedward
- *
+ * @since 2.6
  * @source $URL$
+ * @version $Id$
  */
-public class ColorRampFunction implements Function {
-
-    private static final float EPS = 1.0e-6F;
+public class ColorRampFunction extends FunctionExpressionImpl {
 
     private static FilterFactory filterFactory = CommonFactoryFinder.getFilterFactory(null);
-    private String name;
-    private List<Expression> paramList;
-
-    private final Literal fallback;
-
-    private float minValue;
-    private float maxValue;
-    private float saturation;
-    private float brightness;
 
     /**
      * Constructor.
-     *
-     * @param valueExpr the expression that will be used to get the feature value
-     *        from which the fill color will be calculated
-     *
-     * @param minValue minimum expected feature value
-     *
-     * @param maxValue maximum expected feature value
-     *
-     * @param saturation HSB color model saturation (between 0 and 1)
-     *
-     * @param brightness HSB color model brightness (between 0 and 1)
      */
-    public ColorRampFunction(Expression valueExpr, float minValue, float maxValue, float saturation, float brightness) {
-        this.name = "ColorRamp";
-        this.paramList = new ArrayList<Expression>();
-
-        fallback = filterFactory.literal(Color.GRAY);
-
-        if (minValue - maxValue > -EPS) {
-            throw new IllegalArgumentException("minValue must be greater than maxValue");
-        }
-
-        this.minValue = minValue;
-        this.maxValue = maxValue;
-
-        if (saturation < 0.0d || saturation > 1.0d ||
-            brightness < 0.0d || brightness > 1.0d) {
-            throw new IllegalArgumentException("saturation and brightness must between 0 and 1");
-        }
-
-        this.saturation = saturation;
-        this.brightness = brightness;
-
-        this.paramList.add(valueExpr);
+    public ColorRampFunction() {
+        super("colorramp");
     }
 
     /**
-     * Get the name of this function
-     *
-     * @return function name
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Get the parameters that have been set for this function
-     * (only one parameter for the current implementation).
-     *
-     * @return live list of function parameters
-     */
-    public List<Expression> getParameters() {
-        return paramList;
-    }
-
-    /**
-     * Get the fallback value for this function
-     *
-     * @return {@code Color.GRAY} as a {@code Literal} object
-     */
-    public Literal getFallbackValue() {
-        return fallback;
-    }
-
-    /**
-     * Evaluate the function for a given feature. The feature's
-     * value will be extracted and a color calculated to use as the
-     * polygon fill.
-     *
+     * Evaluate the function for the given feature and return a colour.
+     * 
      * @param feature the input feature
-     * @return a {@code Color} object
+     * @return a {@code Color} instance
      */
+    @Override
     public Object evaluate(Object feature) {
-        float value = ((Number) getParameters().get(0).evaluate(feature)).floatValue();
-        System.out.println("value = " + value);
-        return valueToColor(value);
+        float attributeValue = getExpression(0).evaluate(feature, Float.class);
+        float minValue = getExpression(1).evaluate(feature, Float.class);
+        float maxValue = getExpression(2).evaluate(feature, Float.class);
+        float saturation = getExpression(3).evaluate(feature, Float.class);
+        float brightness = getExpression(3).evaluate(feature, Float.class);
+
+        return valueToColor(attributeValue, minValue, maxValue, saturation, brightness);
     }
 
     /**
-     * Evaluate the function for a given feature. The feature's
-     * value will be extracted and a color calculated to use as the
-     * polygon fill.
+     * Calculate a color based on a float value by range-coding the
+     * input value and then using this as the hue in an HSB color ramp.
      *
-     * @param <T> type parameter - must be {@code Color} or a subclass
-     * @param feature the input feature
-     * @param clazz a Class object for the type (e.g. {@code Color.class})
-     *
-     * @return a {@code Color} object
-     */
-    public <T> T evaluate(Object feature, Class<T> clazz) {
-        if (Color.class.isAssignableFrom(clazz)) {
-            return clazz.cast(evaluate(feature));
-        }
-
-        throw new UnsupportedOperationException("Color is the only supported class");
-    }
-
-    /**
-     * Accept a visitor that wishes to examine this function's
-     * parameters. This method will be invoked during the rendering
-     * process to get Stroke and Fill attributes.
-     *
-     * @param visitor a visitor object
-     * @param arg visitor-specific argument
-     *
-     * @return result of the visit
-     */
-    public Object accept(ExpressionVisitor visitor, Object arg) {
-        return visitor.visit(this, arg);
-    }
-
-    /**
-     * Calculate a color based on a float value. The calculation
-     * involves range-coding the input value and then using this as
-     * the hue in an HSB color ramp.
-     *
-     * @param value the input feature value
+     * @param value input value
      * @return a new {@code Color} object or null if the input value
      *         was outside the range minValue:maxValue
      */
-    private Color valueToColor(float value) {
+    private Color valueToColor(float value, float minValue, float maxValue, float saturation, float brightness) {
         float hue = (value - minValue) / (maxValue - minValue);
         if (hue < 0.0f || hue > 1.0f) {
             return null;
         }
 
-        int rgb = Color.HSBtoRGB(hue * 0.5f, saturation, brightness);
+        int rgb = Color.HSBtoRGB(adjustHue(hue), saturation, brightness);
         return new Color(rgb);
+    }
+
+    /**
+     * Adjust the hue to lie within the range 0.125 : 0.875
+     *
+     * @param hue input hue between 0 and 1
+     * @return adjusted hue
+     */
+    private float adjustHue(float hue) {
+        return hue * 0.75f + 0.125f;
+    }
+
+    /**
+     * Get the number of arguments.
+     *
+     * @return returns 5 (value, min, max, saturation, brightness)
+     */
+    @Override
+    public int getArgCount() {
+        return 5;
     }
 
 }

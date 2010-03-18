@@ -9,6 +9,7 @@
  */
 package org.geotools.demo.filter.function;
 
+import java.io.File;
 import java.net.URL;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.shapefile.ShapefileDataStore;
@@ -19,17 +20,20 @@ import org.geotools.styling.FeatureTypeStyle;
 import org.geotools.styling.Fill;
 import org.geotools.styling.PolygonSymbolizer;
 import org.geotools.styling.Rule;
+import org.geotools.styling.SLDParser;
 import org.geotools.styling.Stroke;
 import org.geotools.styling.Style;
 import org.geotools.styling.StyleFactory;
+import org.geotools.swing.ExceptionMonitor;
 import org.geotools.swing.JMapFrame;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
+import org.opengis.filter.expression.Function;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 /**
- * Demonstrates using a custom-written filter function to dynamically set
+ * Demonstrates using a custom written filter function to dynamically set
  * the fill and outline color of polygon features based on the value of a
  * specified feature attribute. Here we use the countries shapefile and
  * the log of population size as the value to base color on.
@@ -39,6 +43,9 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * @source $URL$
  */
 public class DynamicFillColor {
+
+    private static final float SATURATION = 0.8f;
+    private static final float BRIGHTNESS = 0.8f;
 
     private FilterFactory filterFactory;
     private StyleFactory styleFactory;
@@ -92,9 +99,16 @@ public class DynamicFillColor {
          * Create a new function object and set it as the basis for Fill 
          * and Stroke colors
          */
-        ColorRampFunction fn = new ColorRampFunction(valueExpr, minValue, maxValue, 0.8f, 0.8f);
-        Fill fill = styleFactory.createFill(fn);
-        Stroke stroke = styleFactory.createStroke(fn, filterFactory.literal(1.0));
+        // ColorRampFunction fn = new ColorRampFunction(valueExpr, minValue, maxValue, 0.8f, 0.8f);
+        Function colorRampFn = filterFactory.function("colorramp",
+                valueExpr,
+                filterFactory.literal(minValue),
+                filterFactory.literal(maxValue),
+                filterFactory.literal(SATURATION),
+                filterFactory.literal(BRIGHTNESS));
+
+        Fill fill = styleFactory.createFill(colorRampFn);
+        Stroke stroke = styleFactory.createStroke(colorRampFn, filterFactory.literal(1.0));
         PolygonSymbolizer symbolizer = styleFactory.createPolygonSymbolizer(stroke, fill, "the_geom");
 
         /*
@@ -108,6 +122,33 @@ public class DynamicFillColor {
 
         return style;
     }
+
+    /**
+     * An alternative approach...
+     * Read the style from the SLD document provided with the countries shapefile.
+     * Refer to this document to see how the function is specified in SLD-ese
+     *
+     * @param url shapefile URL
+     *
+     * @return the style
+     */
+    private Style createFromSLD(URL url) {
+        String path = url.getPath();
+        int dot = path.lastIndexOf('.');
+        File sld = new File(path.substring(0, dot) + ".sld");
+        Style style = null;
+        try {
+            SLDParser stylereader = new SLDParser(styleFactory, sld.toURI().toURL());
+            Style[] styles = stylereader.readXML();
+            return styles[0];
+
+        } catch (Exception e) {
+            ExceptionMonitor.show(null, e, "Problem creating style");
+        }
+
+        return null;
+    }
+
 
     /**
      * Main method, runs a demo displaying the countries shapefile with fill
@@ -139,12 +180,22 @@ public class DynamicFillColor {
         FeatureType schema = featureSource.getSchema();
         CoordinateReferenceSystem crs = schema.getCoordinateReferenceSystem();
 
+        Style style = null;
+
         /*
          * Create the dynamic fill Style using the POP_CNTRY attribute
          * and specifying that we want to use log values (5 and 22 are
          * approximate limits of the population data on the log scale)
          */
-        Style style = createColorRampStyle("POP_CNTRY", 5, 22, true);
+        style = createColorRampStyle("POP_CNTRY", 5, 22, true);
+
+        /*
+         * Alternatively, comment out the line above and uncomment the line
+         * below to read the style from a SLD file associated with the countries
+         * shapefile (see the SLD doc for how the function is used)
+         */
+        // style = createFromSLD(url);
+
 
         /*
          * Create our map and dispaly it
@@ -154,4 +205,5 @@ public class DynamicFillColor {
 
         JMapFrame.showMap(map);
     }
+
 }
