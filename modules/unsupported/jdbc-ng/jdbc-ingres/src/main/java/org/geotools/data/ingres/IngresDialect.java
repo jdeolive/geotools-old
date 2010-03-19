@@ -82,9 +82,9 @@ public class IngresDialect extends BasicSQLDialect {
                 schemaName = "geotools"; //default schema
             
             String sqlStatement = "SELECT SRID FROM GEOMETRY_COLUMNS WHERE " //
-                    + "SCHEMA_NAME = '" + schemaName + "' " //
-                    + "AND TABLE_NAME = '" + tableName + "' " //
-                    + "AND COLUMN_NAME = '" + columnName + "'";
+                    + "F_TABLE_SCHEMA = '" + schemaName + "' " //
+                    + "AND F_TABLE_NAME = '" + tableName + "' " //
+                    + "AND F_COLUMN_NAME = '" + columnName + "'";
 
             LOGGER.log(Level.FINE, "Geometry type check; {0} ", sqlStatement);
             statement = cx.createStatement();
@@ -134,8 +134,6 @@ public class IngresDialect extends BasicSQLDialect {
     	final int SCHEMA_NAME = 2;
         final int TABLE_NAME = 3;
         final int COLUMN_NAME = 4;
-        final int TYPE_NAME = 6;
-    	
         // grab the information we need to proceed
         String tableName = columnMetaData.getString(TABLE_NAME);
         String columnName = columnMetaData.getString(COLUMN_NAME);
@@ -146,9 +144,9 @@ public class IngresDialect extends BasicSQLDialect {
         String gType = null;
         try {
             String sqlStatement = "SELECT GEOMETRY_TYPE FROM GEOMETRY_COLUMNS WHERE " //
-                    + "SCHEMA_NAME = '" + schemaName + "' " //
-                    + "AND TABLE_NAME = '" + tableName + "' " //
-                    + "AND COLUMN_NAME = '" + columnName + "'";
+                    + "F_TABLE_SCHEMA = '" + schemaName + "' " //
+                    + "AND F_TABLE_NAME = '" + tableName + "' " //
+                    + "AND F_GEOMETRY_COLUMN = '" + columnName + "'";
 
             LOGGER.log(Level.FINE, "Geometry type check; {0} ", sqlStatement);
             statement = cx.createStatement();

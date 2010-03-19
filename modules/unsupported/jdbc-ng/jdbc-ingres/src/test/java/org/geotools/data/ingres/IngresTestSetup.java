@@ -25,7 +25,7 @@ public class IngresTestSetup extends JDBCTestSetup {
 
         run("CREATE TABLE \"ft1\"(" //
                 + "\"id\" int primary key, " //
-                + "\"geometry\" geometry, " //
+                + "\"geometry\" geometry SRID 4326, " //
                 + "\"intProperty\" int," //
                 + "\"doubleProperty\" double precision, " // 
                 + "\"stringProperty\" varchar)");
