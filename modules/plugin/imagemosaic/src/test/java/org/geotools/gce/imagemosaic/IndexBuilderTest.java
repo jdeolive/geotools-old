@@ -66,7 +66,7 @@ public class IndexBuilderTest extends Assert {
 	}
 
 	@Test
-	@Ignore
+//	@Ignore
 	public void indexBuilderConfiguration() throws FileNotFoundException, IOException, CloneNotSupportedException{
 		// create a stub configuration
 		final IndexBuilderConfiguration c1= new IndexBuilderConfiguration();
@@ -98,6 +98,7 @@ public class IndexBuilderTest extends Assert {
 	}
 	
 	@Test
+//	@Ignore
 	public void buildIndex() throws FileNotFoundException, IOException{
 		
 		//build a relative index and then make it run

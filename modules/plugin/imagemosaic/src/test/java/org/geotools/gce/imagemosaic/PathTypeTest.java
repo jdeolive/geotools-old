@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
+import java.util.logging.Logger;
 
 import org.geotools.test.TestData;
 import org.junit.Assert;
@@ -35,6 +36,7 @@ import org.junit.Test;
  */
 public class PathTypeTest extends Assert {
 
+        private final static Logger LOGGER = Logger.getLogger(PathTypeTest.class.toString());
 	
 	public PathTypeTest() {
 	}
@@ -43,7 +45,7 @@ public class PathTypeTest extends Assert {
 	public void relative() throws FileNotFoundException, IOException{
 		
 		//get some test data
-		final File testFile= TestData.file(this, "/rgb/global_mosaic_0.pgw");
+		final File testFile= TestData.file(this, "/rgb/global_mosaic_0.png");
 		assertTrue(testFile.exists());
 		
 		// test it as a relative path to the test-data directory
@@ -52,6 +54,7 @@ public class PathTypeTest extends Assert {
 		temp.openStream().close();
 		
 		// test error checks
+		LOGGER.info("Testing invalid path");
 		final URL temp1=PathType.RELATIVE.resolvePath(TestData.url(this, ".").toExternalForm(), "rgb/global_mosaic_0.pg");
 		assertNull(temp1);
 		try {
@@ -65,7 +68,7 @@ public class PathTypeTest extends Assert {
 	@Test
 	public void absolute() throws FileNotFoundException, IOException{
 		//get some test data
-		final URL testFile= TestData.url(this, "/rgb/global_mosaic_0.pgw");
+		final URL testFile= TestData.url(this, "/rgb/global_mosaic_0.png");
 		testFile.openStream().close();
 		
 		// test it as a relative path to the test-data directory

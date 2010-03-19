@@ -39,19 +39,18 @@ public class TimestampFileNameExtractorSPI extends
 			final Object o,
 			final List<String> propertyNames) {
 		URL source=null;
-		if(o instanceof File)
-		{
+		if (o instanceof URL){
+		    source = (URL) o;
+		} else if (o instanceof File) {
 			source=DataUtilities.fileToURL((File) o);
-		}
-		else
-			if(o instanceof String)
+		} else if (o instanceof String) {
 				try {
 					source=new URL((String) o);
 				} catch (MalformedURLException e) {
 					return null;
 				}
-			else
-				return null;
+		} else
+			return null;
 		// it is a url
 		final Properties properties = Utils.loadPropertiesFromURL(source);
 		if(properties.containsKey("regex"))

@@ -1024,7 +1024,7 @@ public class IndexBuilder implements Runnable {
 					FileFilterUtils.notFileFilter(FileFilterUtils.suffixFileFilter(ext.substring(1))));
 		}		
 		
-		//mrsid
+		//sdw
 		fileFilter=FileFilterUtils.andFileFilter(
 				fileFilter, 
 				FileFilterUtils.notFileFilter(FileFilterUtils.suffixFileFilter("sdw")));	
@@ -1032,11 +1032,15 @@ public class IndexBuilder implements Runnable {
 		fileFilter=FileFilterUtils.andFileFilter(
 				fileFilter, 
 				FileFilterUtils.notFileFilter(FileFilterUtils.suffixFileFilter("aux")));	
-		//aux
+		//wld
 		fileFilter=FileFilterUtils.andFileFilter(
 				fileFilter, 
 				FileFilterUtils.notFileFilter(FileFilterUtils.suffixFileFilter("wld")));				
-					
+		//svn
+                fileFilter=FileFilterUtils.andFileFilter(
+                                fileFilter, 
+                                FileFilterUtils.notFileFilter(FileFilterUtils.suffixFileFilter("svn")));                                
+                                        
 		
 		final IOFileFilter finalFilter=	FileFilterUtils.orFileFilter(dirFilter, fileFilter);
 		return finalFilter;

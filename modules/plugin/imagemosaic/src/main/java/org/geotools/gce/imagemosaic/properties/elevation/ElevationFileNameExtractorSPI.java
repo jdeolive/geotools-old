@@ -44,8 +44,9 @@ public class ElevationFileNameExtractorSPI extends
 			final Object o,
 			final List<String> propertyNames) {
 		URL source=null;
-		if(o instanceof File)
-		{
+		if (o instanceof URL){
+		    source = (URL)o;
+		} else if(o instanceof File) {
 			source=DataUtilities.fileToURL((File) o);
 		}
 		else
