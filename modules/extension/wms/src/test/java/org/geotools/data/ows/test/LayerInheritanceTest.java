@@ -52,10 +52,17 @@ public class LayerInheritanceTest extends TestCase {
 		
 		WMSCapabilities capabilities = (WMSCapabilities) object;
 		
-		// Get first test layer, it's nested 3 deep
-		Layer layer = (Layer) capabilities.getLayerList().get(2);
+		// Get first test layer
+		Layer layer = (Layer) capabilities.getLayerList().get(0);
+		assertNotNull(layer);
+		assertEquals(layer.getDimensions().size(), 3);
+		assertEquals(layer.getDimension("time").getUnits(), "ISO8601");
+		
+		// Get next test layer, it's nested 3 deep
+		layer = (Layer) capabilities.getLayerList().get(2);
 		assertNotNull(layer);
 		assertNotNull(layer.getParent());
+		assertEquals(layer.getDimensions().size(), 3);
 		
 		// Should be false by default since not specified in layer or ancestors
 		assertFalse(layer.isQueryable());
@@ -78,6 +85,9 @@ public class LayerInheritanceTest extends TestCase {
 		layer = (Layer) capabilities.getLayerList().get(4);
 		assertNotNull(layer);
 		assertNotNull(layer.getParent());
+		assertEquals(layer.getDimensions().size(), 3);
+		assertEquals(layer.getExtents().size(), 1);
+		assertEquals(layer.getExtent("time").getName(), "time");
 		
 		// Should be true by default since inherited from parent
 		assertEquals(layer.getName(), "RTOPO");

@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
+import org.geotools.data.wms.xml.Dimension;
+import org.geotools.data.wms.xml.Extent;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
@@ -85,6 +87,21 @@ public class Layer implements Comparable<Layer> {
     private double scaleHintMax = Double.NaN;
     private double scaleDenominatorMin = Double.NaN;
     private double scaleDenominatorMax = Double.NaN;
+
+    /**
+     * A HashMap representings the dimensions on each layer. The Key is the
+     * name of the dimension (case insensitive). The Value is the Dimension 
+     * object itself.
+     */
+    private HashMap<String, Dimension> dimensions = null;
+
+    /**
+     * A HashMap representings the extents on each layer. An Extent is not valid 
+     * unless there is a Dimension with the same name. The Key is the
+     * name of the dimension (case insensitive). The Value is the Extent 
+     * object itself.
+     */
+    private HashMap<String, Extent> extents = null;
     
     private Layer parent;
     private Layer[] children;
@@ -144,8 +161,65 @@ public class Layer implements Comparable<Layer> {
      *
      * @param boundingBoxes a HashMap containing bounding boxes
      */
-    public void setBoundingBoxes(HashMap boundingBoxes) {
+    public void setBoundingBoxes(HashMap<Object,CRSEnvelope> boundingBoxes) {
         this.boundingBoxes = boundingBoxes;
+    }
+    
+    public HashMap<String, Dimension> getDimensions() {
+    	HashMap<String, Dimension> allDimensions = new HashMap<String, Dimension>();
+    	
+    	if (dimensions != null) {
+    		allDimensions.putAll(dimensions);
+    	}
+    	Layer parent = this.getParent();
+        while (parent != null) {
+           HashMap<String,Dimension> dim = parent.getDimensions();
+           if (dim != null) {
+        	   allDimensions.putAll(dim);
+           }
+       	   parent = parent.getParent();
+        }
+         // May return null. But that is OK since spec says 0 or more may be specified 
+        return allDimensions;
+    }
+    
+    public void setDimensions(HashMap<String, Dimension> dimensions) {
+    	this.dimensions = dimensions;
+    }
+    
+    public Dimension getDimension(String name) {
+    	Dimension dimension = getDimensions().get(name);
+    	
+    	return dimension;
+    }
+
+    public HashMap<String, Extent> getExtents() {
+    	HashMap<String, Extent> allExtents = new HashMap<String, Extent>();
+    	
+    	if (extents != null) {
+    		allExtents.putAll(extents);
+    	}
+    	Layer parent = this.getParent();
+        while (parent != null) {
+           HashMap<String,Extent> ext = parent.getExtents();
+           if (ext != null) {
+        	   allExtents.putAll(ext);
+           }
+       	   parent = parent.getParent();
+        }
+         // May return null. But that is OK since spec says 0 or more may be specified 
+        return allExtents;
+    }
+    
+    public Extent getExtent(String name) {
+    	Extent extent = getExtents().get(name);
+    	
+    	return extent;
+    }
+
+    public void setExtents(HashMap<String, Extent> extents) {
+    	// TODO: Check that a dimension with the same name exist for each key in hash map
+    	this.extents = extents;
     }
 
     /**
