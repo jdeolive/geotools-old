@@ -25,7 +25,7 @@ import java.net.URL;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
-import sun.misc.BASE64Encoder;
+import org.apache.commons.codec.binary.Base64;
 
 /**
  * An {@link HTTPProtocol} implementation that relies on plain {@link HttpURLConnection}
@@ -133,8 +133,8 @@ public class SimpleHttpProtocol extends AbstractHttpProtocol {
             String userPassword = authUsername + ":" + authPassword;
             byte[] encodedUserPassword = userPassword.getBytes();
 
-            BASE64Encoder encoder = new BASE64Encoder();
-            String base64UserAndPasswd = encoder.encode(encodedUserPassword);
+            String base64UserAndPasswd = new String(Base64.encodeBase64(encodedUserPassword));
+            
             conn.setRequestProperty("Authorization", "Basic " + base64UserAndPasswd);
         }
 
