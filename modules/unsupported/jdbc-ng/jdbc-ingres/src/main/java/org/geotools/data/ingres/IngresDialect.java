@@ -84,7 +84,7 @@ public class IngresDialect extends BasicSQLDialect {
             String sqlStatement = "SELECT SRID FROM GEOMETRY_COLUMNS WHERE " //
                     + "F_TABLE_SCHEMA = '" + schemaName + "' " //
                     + "AND F_TABLE_NAME = '" + tableName + "' " //
-                    + "AND F_COLUMN_NAME = '" + columnName + "'";
+                    + "AND F_GEOMETRY_COLUMN = '" + columnName + "'";
 
             LOGGER.log(Level.FINE, "Geometry type check; {0} ", sqlStatement);
             statement = cx.createStatement();
