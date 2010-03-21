@@ -108,11 +108,11 @@ public interface FeatureSource<T extends FeatureType, F extends Feature>{
     Name getName();
     
     /**
-     * Information describing the contents of this resoruce.
+     * Information describing the contents of this resource.
      * <p>
      * Please note that for FeatureContent:
      * <ul>
-     * <li>name - unqiue with in the context of a Service
+     * <li>name - unique with in the context of a Service
      * <li>schema - used to identify the type of resource; usually gml schema; although it may be more specific
      * <ul>
      */
@@ -151,11 +151,11 @@ public interface FeatureSource<T extends FeatureType, F extends Feature>{
     void removeFeatureListener(FeatureListener listener);
 
     /**
-     * Loads features from the datasource into the returned FeatureResults,
+     * Loads features from the DataAccess into the returned FeatureCollection,
      * based on the passed query.
      *
-     * @param query a datasource query object.  It encapsulates requested
-     *        information, such as typeName, maxFeatures and filter.
+     * @param query DataAccess query for requested information, such as typeName,
+     *        maxFeatures and filter.
      *
      * @return Collection The collection to put the features into.
      *
@@ -166,7 +166,7 @@ public interface FeatureSource<T extends FeatureType, F extends Feature>{
     FeatureCollection<T, F> getFeatures(Query query) throws IOException;
 
     /**
-     * Loads features from the datasource into the returned FeatureResults,
+     * Loads features from the DataAccess into the returned FeatureCollection,
      * based on the passed filter.
      *
      * @param filter An OpenGIS filter; specifies which features to retrieve.
@@ -179,7 +179,7 @@ public interface FeatureSource<T extends FeatureType, F extends Feature>{
     FeatureCollection<T, F> getFeatures(Filter filter) throws IOException;
 
     /**
-     * Loads all features from the datasource into the return FeatureResults.
+     * Loads all features from the datasource into the return FeatureCollection.
      *
      * <p>
      * Filter.INCLUDE can also be used to get all features.  Calling this function
