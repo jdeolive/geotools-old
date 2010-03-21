@@ -38,6 +38,7 @@ import org.opengis.parameter.ParameterDescriptorGroup;
 import org.opengis.parameter.ParameterNotFoundException;
 import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.operation.MathTransform2D;
+import org.opengis.referencing.operation.NoninvertibleTransformException;
 import org.opengis.referencing.operation.Projection;
 import org.opengis.referencing.operation.TransformException;
 
@@ -261,6 +262,11 @@ public abstract class MapProjection extends AbstractMathTransform
      * if coordinates ranges should be checked.
      */
     private static int globalRangeCheckSemaphore = 1;
+    
+    /**
+     * Marks if the projection is invertible. The vast majority is, subclasses can override.
+     */
+    protected boolean invertible = true;
 
     /**
      * Constructs a new map projection from the suplied parameters.
@@ -859,7 +865,9 @@ public abstract class MapProjection extends AbstractMathTransform
         ptDst.setLocation(globalScale*ptDst.getX() + falseEasting,
                           globalScale*ptDst.getY() + falseNorthing);
 
-        assert checkReciprocal(ptDst, (ptSrc!=ptDst) ? ptSrc : new Point2D.Double(x,y), true);
+        if(invertible) {
+            assert checkReciprocal(ptDst, (ptSrc!=ptDst) ? ptSrc : new Point2D.Double(x,y), true);
+        }
         return ptDst;
     }
 
@@ -1140,7 +1148,12 @@ public abstract class MapProjection extends AbstractMathTransform
      * Returns the inverse of this map projection.
      */
     @Override
-    public final MathTransform2D inverse() {
+    public final MathTransform2D inverse() throws NoninvertibleTransformException {
+        if(!invertible) {
+            throw new NoninvertibleTransformException(Errors.format(ErrorKeys.NONINVERTIBLE_TRANSFORM));
+        }
+            
+        
         // No synchronization. Not a big deal if this method is invoked in
         // the same time by two threads resulting in two instances created.
         if (inverse == null) {

@@ -221,6 +221,15 @@ public final class ScriptTest {
     public void testRobinson() throws Exception {
         runScript("scripts/Robinson.txt");
     }
+    
+    /**
+     * Run "WinkelTripel.txt"
+     * @throws Exception
+     */
+    @Test
+    public void testWinkelTripel() throws Exception {
+        runScript("scripts/WinkelTripel.txt");
+    }
 
     /**
      * Run "OpenGIS.txt".
