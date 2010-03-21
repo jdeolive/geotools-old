@@ -3197,7 +3197,10 @@ public class WMSComplexTypes {
 			// We delegate to _ExtentType to fetch properties and value since document structure
 			// differs between WMS Spec. 1.1.1 and 1.3.0
 			Extent ext = (Extent) _ExtentType.instance.getValue(element, value, attrs, hints);
-			dim.setExtent(ext);
+			if( !ext.isEmpty() ){
+			    // only use extent if it actually aquired a value
+			    dim.setExtent(ext);
+			}
 			return dim;
 			// throw new OperationNotSupportedException();
 		}
