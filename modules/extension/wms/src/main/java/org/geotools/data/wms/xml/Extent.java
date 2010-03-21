@@ -131,7 +131,7 @@ public class Extent {
     }
 
     public boolean isEmpty() {
-        return value != null && !value.isEmpty();
+        return value != null && value.length() > 0;
     }
 
 }
