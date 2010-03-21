@@ -16,11 +16,14 @@
  */
 package org.geotools.referencing;
 
+import java.io.IOException;
 import java.io.LineNumberReader;
-import org.geotools.test.TestData;
 
-import org.junit.*;
-import static org.junit.Assert.*;
+import org.geotools.test.TestData;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.operation.TransformException;
 
 
 /**
@@ -208,6 +211,15 @@ public final class ScriptTest {
     @Test
     public void testPolyconic() throws Exception {
         runScript("scripts/Polyconic.txt");
+    }
+    
+    /**
+     * Run "Robinson.txt"
+     * @throws Exception
+     */
+    @Test
+    public void testRobinson() throws Exception {
+        runScript("scripts/Robinson.txt");
     }
 
     /**
