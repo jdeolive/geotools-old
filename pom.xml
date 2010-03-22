@@ -637,7 +637,7 @@
       <dependency>
         <groupId>com.vividsolutions</groupId>
         <artifactId>jts</artifactId>
-        <version>1.10</version>
+        <version>1.11</version>
       </dependency>
       <dependency>
         <groupId>org.wkb4j</groupId>
@@ -1223,6 +1223,7 @@
       <name>OpenGeo Maven Repository</name>
       <url>http://repo.opengeo.org</url>
     </repository>
+
   </repositories>
 
   <!-- =========================================================== -->
