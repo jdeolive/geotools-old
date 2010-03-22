@@ -374,25 +374,29 @@ abstract class TileDataFetcher {
 
             final short nodata = (short) (tileInfo.getNoDataValue().intValue() & 0xFFFF);
 
+            final short[] tileDataUShorts = tileInfo.getTileDataAsUnsignedShorts();
+
+            Arrays.fill(tileDataUShorts, nodata);
             if (numPixelsRead == 0) {
-                short[] tileData = tileInfo.getTileDataAsShorts();
-                Arrays.fill(tileData, nodata);
+                Arrays.fill(tileDataUShorts, nodata);
             } else {
                 /*
                  * getPixelData returns the SeRasterTile internal buffer with no extra copy. It may
                  * contain extra elements for the bitmask array in case there are no-data pixels
                  */
                 final byte[] pixelData = tile.getPixelData();
-                final short[] tileDataUShorts = tileInfo.getTileDataAsUnsignedShorts();
 
                 final boolean hasNoDataPixels = tileInfo.hasNoDataPixels();
                 final byte[] bitmaskData = tileInfo.getBitmaskData();
                 for (int pn = 0; pn < numPixelsRead; pn++) {
-                    if (hasNoDataPixels && isNoData(pn, bitmaskData)) {
-                        tileDataUShorts[pn] = nodata;
-                    } else {
+                    if (!hasNoDataPixels || !isNoData(pn, bitmaskData)) {
                         tileDataUShorts[pn] = (short) (pixelData[pn] & 0xFF);
                     }
+//                    if (hasNoDataPixels && isNoData(pn, bitmaskData)) {
+//                        tileDataUShorts[pn] = nodata;
+//                    } else {
+//                        tileDataUShorts[pn] = (short) (pixelData[pn] & 0xFF);
+//                    }
                 }
             }
         }

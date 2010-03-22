@@ -29,7 +29,6 @@ import static org.geotools.arcsde.raster.info.RasterCellType.TYPE_8BIT_U;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Transparency;
 import java.awt.color.ColorSpace;
@@ -45,7 +44,6 @@ import java.util.logging.Logger;
 
 import javax.imageio.ImageTypeSpecifier;
 
-import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.geometry.GeneralEnvelope;
@@ -317,7 +315,7 @@ public class RasterUtils {
         ColorUtilities.expand(new Color[] { Color.BLACK, Color.WHITE }, cmap, 0, maxValue);
 
         for (int i = maxValue; i < mapSize; i++) {
-            cmap[i] = ColorUtilities.getIntFromColor(0, 0, 0, 0);
+            cmap[i] = ColorUtilities.getIntFromColor(255, 255, 255, 0);
         }
 
         int transparentPixel = noDataValue;
@@ -416,25 +414,6 @@ public class RasterUtils {
         SampleModel sampleModel = colorModel.createCompatibleSampleModel(sampleImageWidth,
                 sampleImageHeight);
         its = new ImageTypeSpecifier(colorModel, sampleModel);
-        return its;
-    }
-
-    private static ImageTypeSpecifier createOneBitImageSpec(final RasterDatasetInfo rasterInfo,
-            final int numberOfBands, int sampleImageWidth, int sampleImageHeight,
-            final int bitsPerSample, final int dataType) {
-        final ColorModel colorModel;
-        final SampleModel sampleModel;
-        if (numberOfBands != 1) {
-            throw new IllegalArgumentException(bitsPerSample
-                    + "-Bit rasters are only supported for one band");
-        }
-        int[] argb = new int[(int) Math.pow(2, bitsPerSample)];
-        ColorUtilities.expand(new Color[] { Color.WHITE, Color.BLACK }, argb, 0, argb.length);
-        GridSampleDimension gridSampleDimension = rasterInfo.getGridSampleDimensions()[0];
-        colorModel = gridSampleDimension.getColorModel(0, numberOfBands, dataType);
-        sampleModel = colorModel.createCompatibleSampleModel(sampleImageWidth, sampleImageHeight);
-
-        ImageTypeSpecifier its = new ImageTypeSpecifier(colorModel, sampleModel);
         return its;
     }
 
@@ -608,7 +587,7 @@ public class RasterUtils {
             final Dimension tileSize = rasterInfo.getTileDimension(rasterIndex);
             final int numTilesWide = rasterInfo.getNumTilesWide(rasterIndex, pyramidLevel);
             final int numTilesHigh = rasterInfo.getNumTilesHigh(rasterIndex, pyramidLevel);
-            final Point tileOffset = rasterInfo.getTileOffset(rasterIndex, pyramidLevel);
+            //final Point tileOffset = rasterInfo.getTileOffset(rasterIndex, pyramidLevel);
             levelTileRange = new Rectangle(0, 0, numTilesWide, numTilesHigh);
             matchingTiles = findMatchingTiles(tileSize, numTilesWide, numTilesHigh, resultGridRange);
 
@@ -674,7 +653,7 @@ public class RasterUtils {
         colorMap.getRGBs(argb);
 
         // set the last entry as transparent
-        argb[newMapSize - 1] = ColorUtilities.getIntFromColor(0, 0, 0, 0);
+        argb[newMapSize - 1] = ColorUtilities.getIntFromColor(255, 255, 255, 0);
 
         IndexColorModel targetColorModel;
         final int significantBits;
