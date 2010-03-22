@@ -169,7 +169,7 @@ abstract class TileDataFetcher {
                     final byte[] bitmaskData = tileInfo.getBitmaskData();
                     for (int pn = 0; pn < numPixelsRead; pn++) {
                         if (isNoData(pn, bitmaskData)) {
-                            pixelData[pn] = nodata;
+                            tileData[pn] = nodata;
                         }
                     }
                 }
