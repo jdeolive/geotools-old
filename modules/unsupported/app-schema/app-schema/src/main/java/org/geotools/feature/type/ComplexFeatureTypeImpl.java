@@ -37,7 +37,7 @@ public class ComplexFeatureTypeImpl extends FeatureTypeImpl {
      * feature types.
      */
     final public static PropertyDescriptor FEATURE_CHAINING_LINK = new AttributeDescriptorImpl(
-            XSSchema.STRING_TYPE, FEATURE_CHAINING_LINK_NAME, 0, -1, false, null);
+            XSSchema.STRING_TYPE, FEATURE_CHAINING_LINK_NAME, 0, -1, true, null);
 
     /**
      * Type specific descriptors, excluding FEATURE_LINK
