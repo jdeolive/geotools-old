@@ -2,7 +2,6 @@ package org.geotools.data.ingres;
 
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -18,6 +17,7 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.MultiPolygon;
@@ -28,9 +28,9 @@ public class IngresDialect extends BasicSQLDialect {
 
     final static Map<String, Class> TYPE_TO_CLASS_MAP = new HashMap<String, Class>() {
         {
-            put("GEOMETRY", Geometry.class);
-            put("POINT", Point.class);
-            put("POLYGON", Polygon.class);
+        	put("POINT", Point.class);
+        	put("LINESTRING", LineString.class);
+        	put("POLYGON", Polygon.class);
             put("MULTIPOINT", MultiPoint.class);
             put("MULTILINESTRING", MultiLineString.class);
             put("MULTIPOLYGON", MultiPolygon.class);
