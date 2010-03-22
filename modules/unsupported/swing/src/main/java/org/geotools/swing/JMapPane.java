@@ -600,7 +600,9 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
      *       way for the map pane to handle this.
      */
     private boolean equalsFullExtent(final Envelope envelope) {
-        assert(fullExtent != null);
+        if (fullExtent == null || envelope == null) {
+            return false;
+        }
 
         final double TOL = 1.0e-6d * (fullExtent.getWidth() + fullExtent.getHeight());
 
@@ -921,8 +923,9 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
             addComponentListener( (ComponentListener) layer );
         }
 
-        if (context.getLayerCount() == 1) {
-            setFullExtent();
+        boolean atFullExtent = equalsFullExtent(getDisplayArea());
+        setFullExtent();
+        if (context.getLayerCount() == 1 || atFullExtent) {
             reset();
         }
 
