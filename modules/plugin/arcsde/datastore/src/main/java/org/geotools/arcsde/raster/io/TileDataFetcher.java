@@ -375,8 +375,7 @@ abstract class TileDataFetcher {
             final short nodata = (short) (tileInfo.getNoDataValue().intValue() & 0xFFFF);
 
             final short[] tileDataUShorts = tileInfo.getTileDataAsUnsignedShorts();
-
-            Arrays.fill(tileDataUShorts, nodata);
+            
             if (numPixelsRead == 0) {
                 Arrays.fill(tileDataUShorts, nodata);
             } else {
@@ -389,14 +388,11 @@ abstract class TileDataFetcher {
                 final boolean hasNoDataPixels = tileInfo.hasNoDataPixels();
                 final byte[] bitmaskData = tileInfo.getBitmaskData();
                 for (int pn = 0; pn < numPixelsRead; pn++) {
-                    if (!hasNoDataPixels || !isNoData(pn, bitmaskData)) {
+                    if (hasNoDataPixels && isNoData(pn, bitmaskData)) {
+                        tileDataUShorts[pn] = nodata;
+                    } else {
                         tileDataUShorts[pn] = (short) (pixelData[pn] & 0xFF);
                     }
-//                    if (hasNoDataPixels && isNoData(pn, bitmaskData)) {
-//                        tileDataUShorts[pn] = nodata;
-//                    } else {
-//                        tileDataUShorts[pn] = (short) (pixelData[pn] & 0xFF);
-//                    }
                 }
             }
         }
