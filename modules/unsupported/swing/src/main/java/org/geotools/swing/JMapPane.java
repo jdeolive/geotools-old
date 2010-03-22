@@ -110,7 +110,6 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
      * layers.
      */
     private ReferencedEnvelope fullExtent;
-    
 
     /**
      * Encapsulates XOR box drawing logic used with mouse dragging
@@ -943,7 +942,12 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
             addComponentListener( (ComponentListener) layer );
         }
 
-        setFullExtent();
+        if (context.getLayerCount() == 0) {
+            clearFields();
+        } else {
+            setFullExtent();
+        }
+
         repaint();
     }
 
@@ -1126,4 +1130,14 @@ public class JMapPane extends JPanel implements MapLayerListListener, MapBoundsL
             }
         }
     }
+
+    /**
+     * This method is called if all layers are removed from the context.
+     */
+    private void clearFields() {
+        fullExtent = null;
+        worldToScreen = null;
+        screenToWorld = null;
+    }
+
 }
