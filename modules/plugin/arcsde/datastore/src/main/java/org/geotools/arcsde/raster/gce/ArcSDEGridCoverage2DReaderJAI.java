@@ -395,6 +395,19 @@ public final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DR
         for (RasterQueryInfo query : queries) {
             RenderedImage image = query.getResultImage();
             log.log(image, query.getRasterId(), "01_original");
+            if (expandCM) {
+                if (LOGGER.isLoggable(Level.FINER)) {
+                    LOGGER.finer("Creating color expanded version of tile for raster #"
+                            + query.getRasterId());
+                }
+
+                /*
+                 * reformat the image as a 4 band rgba backed by byte data
+                 */
+                image = FormatDescriptor.create(image, Integer.valueOf(DataBuffer.TYPE_BYTE), null);
+
+                log.log(image, query.getRasterId(), "04_1_colorExpanded");
+            }
 
             image = cropToRequiredDimension(image, query.getTiledImageSize(), query
                     .getResultDimensionInsideTiledImage());
@@ -449,20 +462,6 @@ public final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DR
                         + mosaicLocation.height;
             }
 
-            if (expandCM) {
-                if (LOGGER.isLoggable(Level.FINER)) {
-                    LOGGER.finer("Creating color expanded version of tile for raster #"
-                            + query.getRasterId());
-                }
-
-                /*
-                 * reformat the image as a 4 band rgba backed by byte data
-                 */
-                image = FormatDescriptor.create(image, Integer.valueOf(DataBuffer.TYPE_BYTE), null);
-
-                log.log(image, query.getRasterId(), "04_1_colorExpanded");
-            }
-
             transformed.add(image);
         }
 
@@ -485,7 +484,7 @@ public final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DR
             // set background values to raster's no-data
             double[] backgroundValues;
             if (expandCM) {
-                backgroundValues = new double[] { 255, 255, 255, 0 };
+                backgroundValues = new double[] { 0, 0, 0, 0 };
             } else {
                 final int numBands = rasterInfo.getNumBands();
                 backgroundValues = new double[numBands];
@@ -506,7 +505,6 @@ public final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DR
             layout.setTileHeight(tileHeight);
 
             final RenderingHints hints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, layout);
-            // hints.put(JAI.KEY_SERIALIZE_DEEP_COPY, Boolean.TRUE);
 
             for (RenderedImage img : transformed) {
                 mosaicParams.addSource(img);

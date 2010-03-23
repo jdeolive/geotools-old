@@ -376,6 +376,7 @@ abstract class TileDataFetcher {
 
             final short[] tileDataUShorts = tileInfo.getTileDataAsUnsignedShorts();
             
+            //Arrays.fill(tileDataUShorts, nodata);
             if (numPixelsRead == 0) {
                 Arrays.fill(tileDataUShorts, nodata);
             } else {

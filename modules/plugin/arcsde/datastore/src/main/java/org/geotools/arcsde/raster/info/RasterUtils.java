@@ -315,7 +315,7 @@ public class RasterUtils {
         ColorUtilities.expand(new Color[] { Color.BLACK, Color.WHITE }, cmap, 0, maxValue);
 
         for (int i = maxValue; i < mapSize; i++) {
-            cmap[i] = ColorUtilities.getIntFromColor(255, 255, 255, 0);
+            cmap[i] = ColorUtilities.getIntFromColor(0, 0, 0, 0);
         }
 
         int transparentPixel = noDataValue;
@@ -653,7 +653,7 @@ public class RasterUtils {
         colorMap.getRGBs(argb);
 
         // set the last entry as transparent
-        argb[newMapSize - 1] = ColorUtilities.getIntFromColor(255, 255, 255, 0);
+        argb[newMapSize - 1] = ColorUtilities.getIntFromColor(0, 0, 0, 0);
 
         IndexColorModel targetColorModel;
         final int significantBits;
