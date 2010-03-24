@@ -125,14 +125,16 @@ public class VectorToRasterProcess extends AbstractFeatureCollectionProcess {
      * dynamic applications, but for 'hands on' coding this method is much more
      * convenient than working via the {@linkplain org.geotools.process.Process#execute }.
      *
-     * @param features
-     * @param attributeName
-     * @param gridWidthInCells
-     * @param gridHeightInCells
-     * @param bounds
-     * @param covName
-     * @param monitor
-     * @return
+     * @param features the feature collection to be (wholly or partially) rasterized
+     * @param attributeName a numeric feature attribute to provide raster cell values
+     * @param gridWidthInCells width (cell) of the output raster
+     * @param gridHeightInCells height (cell) of the output raster
+     * @param bounds bounds (world coordinates) of the output raster
+     * @param covName a name for the output raster
+     * @param monitor an optional {@code ProgressListener} (may be {@code null}
+     *
+     * @return a new grid coverage
+     *
      * @throws org.geotools.process.raster.VectorToRasterException
      */
     public static GridCoverage2D process(
