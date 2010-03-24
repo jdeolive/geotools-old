@@ -26,7 +26,6 @@
 package org.geotools.process.raster;
 
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
@@ -68,6 +67,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.util.ProgressListener;
 import org.geotools.util.NullProgressListener;
 import org.geotools.util.SimpleInternationalString;
+import org.opengis.geometry.Envelope;
 
 /**
  * A Process to rasterize vector features in an input FeatureCollection.
@@ -141,7 +141,7 @@ public class VectorToRasterProcess extends AbstractFeatureCollectionProcess {
             FeatureCollection<SimpleFeatureType, SimpleFeature> features,
             String attributeName,
             Dimension gridDim,
-            ReferencedEnvelope bounds,
+            Envelope bounds,
             String covName,
             ProgressListener monitor) throws VectorToRasterException {
 
@@ -268,7 +268,7 @@ public class VectorToRasterProcess extends AbstractFeatureCollectionProcess {
             FeatureCollection<SimpleFeatureType, SimpleFeature> features,
             String attributeName,
             Dimension gridDim,
-            ReferencedEnvelope bounds,
+            Envelope bounds,
             String covName,
             ProgressListener monitor)
         throws VectorToRasterException {
@@ -313,8 +313,7 @@ public class VectorToRasterProcess extends AbstractFeatureCollectionProcess {
     }
 
     private void initialize(FeatureCollection<SimpleFeatureType, SimpleFeature> features,
-            ReferencedEnvelope bounds, String attributeName,
-            Dimension gridDim ) throws VectorToRasterException {
+            Envelope bounds, String attributeName, Dimension gridDim ) throws VectorToRasterException {
 
         // check that the attribute exists and is numeric
         AttributeDescriptor attDesc = features.getSchema().getDescriptor(attributeName);
@@ -356,34 +355,34 @@ public class VectorToRasterProcess extends AbstractFeatureCollectionProcess {
      * @throws org.geotools.process.raster.VectorToRasterException
      */
     private void setBounds( FeatureCollection<SimpleFeatureType, SimpleFeature> features,
-            ReferencedEnvelope bounds,
-            Dimension gridDim ) throws VectorToRasterException {
+            Envelope bounds, Dimension gridDim ) throws VectorToRasterException {
 
         ReferencedEnvelope featureBounds = features.getBounds();
 
         if (bounds != null) {
+            ReferencedEnvelope inputBounds = new ReferencedEnvelope(bounds);
             CoordinateReferenceSystem featuresCRS = featureBounds.getCoordinateReferenceSystem();
             CoordinateReferenceSystem envCRS = bounds.getCoordinateReferenceSystem();
 
-            ReferencedEnvelope tEnv;
+            ReferencedEnvelope trEnv;
             if (!CRS.equalsIgnoreMetadata(envCRS, featuresCRS)) {
                 try {
-                    tEnv = bounds.transform(featuresCRS, true);
+                    trEnv = inputBounds.transform(featuresCRS, true);
                 } catch (Exception tex) {
                     throw new VectorToRasterException(tex);
                 }
 
             } else {
-                tEnv = bounds;
+                trEnv = inputBounds;
             }
 
-            Envelope intEnv = tEnv.intersection(features.getBounds());
-            if (intEnv == null) {
+            com.vividsolutions.jts.geom.Envelope common = trEnv.intersection(features.getBounds());
+            if (common == null || common.isNull()) {
                 throw new VectorToRasterException(
                         "Features do not lie within the requested rasterizing bounds");
             }
 
-            extent = new ReferencedEnvelope(intEnv, featuresCRS);
+            extent = new ReferencedEnvelope(common, featuresCRS);
 
         } else {
 
