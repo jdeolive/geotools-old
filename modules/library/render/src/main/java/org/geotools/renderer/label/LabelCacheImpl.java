@@ -31,6 +31,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.geotools.geometry.jts.Decimator;
 import org.geotools.geometry.jts.LiteShape2;
@@ -39,6 +41,7 @@ import org.geotools.renderer.style.SLDStyleFactory;
 import org.geotools.renderer.style.TextStyle2D;
 import org.geotools.styling.TextSymbolizer;
 import org.geotools.util.NumberRange;
+import org.geotools.util.logging.Logging;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.filter.expression.Literal;
 
@@ -113,6 +116,8 @@ import com.vividsolutions.jts.precision.EnhancedPrecisionOp;
  *         https://svn.codehaus.org/geoserver/branches/1.7.x/src/wms/src/main/java/org/vfny/geoserver/wms/responses/GSLabelCache.java $
  */
 public final class LabelCacheImpl implements LabelCache {
+    
+    static final Logger LOGGER = Logging.getLogger(LabelCacheImpl.class);
 
     public double DEFAULT_PRIORITY = 1000.0;
 
@@ -366,10 +371,8 @@ public final class LabelCacheImpl implements LabelCache {
                     lci.getGeoms().add(shape.getGeometry());
                 }
             }
-        } catch (Exception e) // DJB: protection if there's a problem with the
-        // decimation (getGeometry() can be null)
-        {
-            // do nothing
+        } catch (Exception e) {
+            LOGGER.log(Level.FINE, "Error adding label to the label cache", e);
         }
     }
 
