@@ -2640,8 +2640,7 @@ public final class StreamingRenderer implements GTRenderer {
 		/**
 		 * @throws org.opengis.referencing.operation.NoninvertibleTransformException
 		 */
-		private Decimator getDecimator(MathTransform2D mathTransform)
-				throws org.opengis.referencing.operation.NoninvertibleTransformException {
+		private Decimator getDecimator(MathTransform2D mathTransform) {
 		    // returns a decimator that does nothing if the currently set generalization
 		    // distance is zero (no generalization desired) or if the datastore has
 		    // already done full generalization at the desired level
@@ -2650,10 +2649,14 @@ public final class StreamingRenderer implements GTRenderer {
 		    
 			Decimator decimator = (Decimator) decimators.get(mathTransform);
 			if (decimator == null) {
-				if (mathTransform != null && !mathTransform.isIdentity())
-					decimator = new Decimator(mathTransform.inverse(), screenSize, generalizationDistance);
-				else
-					decimator = new Decimator(null, screenSize, generalizationDistance);
+			    try {
+    				if (mathTransform != null && !mathTransform.isIdentity())
+    					decimator = new Decimator(mathTransform.inverse(), screenSize, generalizationDistance);
+    				else
+    					decimator = new Decimator(null, screenSize, generalizationDistance);
+			    } catch(org.opengis.referencing.operation.NoninvertibleTransformException e) {
+			        decimator = new Decimator(null, screenSize, generalizationDistance);
+			    }
 
 				decimators.put(mathTransform, decimator);
 			}
