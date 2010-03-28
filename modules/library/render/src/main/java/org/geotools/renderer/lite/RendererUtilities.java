@@ -515,8 +515,7 @@ public final class RendererUtilities {
 	                      envelope.getCoordinateReferenceSystem()));
 			// make sure the crs is 2d
 			envelope = new ReferencedEnvelope((Envelope) envelope, tempCRS);
-			final MathTransform toWGS84 = CRS.findMathTransform(tempCRS,
-					DefaultGeographicCRS.WGS84);
+			final MathTransform toWGS84 = CRS.findMathTransform(tempCRS, DefaultGeographicCRS.WGS84, true);
 
 			// //
 			// Try to compute the source crs envelope, either by asking CRS or
