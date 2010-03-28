@@ -698,22 +698,24 @@ public final class RendererUtilities {
     }
     
     private static Geometry pointInGeometry(Geometry g) {
+        Point p = g.getCentroid();
         if(g instanceof Polygon) {
-            Point p = g.getCentroid();
             // if the geometry is heavily generalized centroid computation may fail and return NaN
             if(Double.isNaN(p.getX()) || Double.isNaN(p.getY()))
                 return g.getFactory().createPoint(g.getCoordinate());
-            if(!g.contains(p))
+            // otherwise let's check if the point is inside. Again, this check and "getInteriorPoint"
+            // will work only if the geometry is valid
+            if(g.isValid() && !g.contains(p)) {
                 try {
-                    return g.getInteriorPoint();
+                    p = g.getInteriorPoint();
                 } catch(Exception e) {
                     // generalized geometries might make interior point go bye bye
                     return p;
                 }
-            else
+            } else {
                 return p;
-        } else {
-            return g.getCentroid();
+            }
         }
+        return p;
     }
 }
