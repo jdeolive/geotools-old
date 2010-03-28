@@ -1973,7 +1973,6 @@ public final class StreamingRenderer implements GTRenderer {
 		Rule[] ruleList = style.ruleList;
 		Rule r;
 		Filter filter;
-		Symbolizer[] symbolizers;
 		Graphics2D graphics = style.graphics;
 		// applicable rules
 		final int length = ruleList.length;
@@ -1983,8 +1982,7 @@ public final class StreamingRenderer implements GTRenderer {
 
 			if ((filter == null) || filter.evaluate(rf.content)) {
 				doElse = false;
-				symbolizers = r.getSymbolizers();
-				processSymbolizers(graphics, rf, symbolizers, scaleRange,
+				processSymbolizers(graphics, rf, r.symbolizers(), scaleRange,
 						at, destinationCrs, layerId);
 			}
 		}
@@ -1993,9 +1991,8 @@ public final class StreamingRenderer implements GTRenderer {
 			final int elseLength = elseRuleList.length;
 			for (int tt = 0; tt < elseLength; tt++) {
 				r = elseRuleList[tt];
-				symbolizers = r.getSymbolizers();
 
-				processSymbolizers(graphics, rf, symbolizers, scaleRange,
+				processSymbolizers(graphics, rf, r.symbolizers(), scaleRange,
 						at, destinationCrs, layerId);
 
 			}
@@ -2024,24 +2021,22 @@ public final class StreamingRenderer implements GTRenderer {
 	 * @throws FactoryException
 	 */
 	final private void processSymbolizers(final Graphics2D graphics,
-			final RenderableFeature drawMe, final Symbolizer[] symbolizers,
+			final RenderableFeature drawMe, final List<Symbolizer> symbolizers,
 			NumberRange scaleRange, AffineTransform at,
 			CoordinateReferenceSystem destinationCrs, String layerId)
 			throws TransformException, FactoryException {
-		final int length = symbolizers.length;
 		
 		// clips Graphics to current drawing area before painting
 		Graphics2D clippedGraphics = (Graphics2D)graphics.create();
 		clippedGraphics.clip(screenSize);
 		
-		for (int m = 0; m < length; m++) {
+		for (Symbolizer symbolizer : symbolizers) {
 
 			// /////////////////////////////////////////////////////////////////
 			//
 			// RASTER
 			//
 			// /////////////////////////////////////////////////////////////////
-			final Symbolizer symbolizer = symbolizers[m];
 			if (symbolizer instanceof RasterSymbolizer) {
 				renderRaster(clippedGraphics, drawMe.content,
 						(RasterSymbolizer) symbolizer, destinationCrs,
@@ -2058,7 +2053,7 @@ public final class StreamingRenderer implements GTRenderer {
 				if(shape == null)
 					continue;
 				if (symbolizer instanceof TextSymbolizer && drawMe.content instanceof SimpleFeature) {
-					labelCache.put(layerId, (TextSymbolizer) symbolizers[m], (SimpleFeature) drawMe.content,
+					labelCache.put(layerId, (TextSymbolizer) symbolizers, (SimpleFeature) drawMe.content,
 							shape, scaleRange);
 				} else {
 					Style2D style = styleFactory.createStyle(drawMe.content,
