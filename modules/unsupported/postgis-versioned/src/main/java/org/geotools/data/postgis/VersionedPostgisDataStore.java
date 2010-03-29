@@ -1303,7 +1303,7 @@ public class VersionedPostgisDataStore implements VersioningDataStore {
 
             // gather bbox, we need it for the first commit msg
             Envelope envelope = wrapped.getFeatureSource(typeName).getBounds();
-            if (envelope != null) {
+            if (envelope != null && wrapped.getSchema(typeName).getGeometryDescriptor() != null) {
                 CoordinateReferenceSystem crs = wrapped.getSchema(typeName).getGeometryDescriptor()
                         .getCoordinateReferenceSystem();
                 if (crs != null)
@@ -1322,9 +1322,11 @@ public class VersionedPostgisDataStore implements VersioningDataStore {
             st.execute("DELETE FROM geometry_columns WHERE f_table_schema = current_schema() " +
             		"   AND f_table_name = '" + typeName + "_vfc_view'");
             
+            // remove all non active rows
+            st.execute("DELETE FROM " + sqlb.encodeTableName(typeName) + " WHERE expired <> " + Long.MAX_VALUE);
+            
             // build a comma separated list of old pk columns, just skip the
-            // first
-            // which we know is "revision"
+            // first which we know is "revision"
             PkDescriptor pk = getPrimaryKeyConstraintName(conn, typeName);
             if (pk == null)
                 throw new DataSourceException("Cannot version tables without primary keys");
@@ -1364,8 +1366,7 @@ public class VersionedPostgisDataStore implements VersioningDataStore {
             // alters still in progress and the whole thing will lock up
             resetTypeInfo();
         } catch (SQLException sql) {
-            throw new DataSourceException("Error occurred during version enabling. "
-                    + "Does your table have columns with reserved names?", sql);
+            throw new DataSourceException("Error occurred during version disabling", sql);
         } catch (TransformException e) {
             throw new DataSourceException(
                     "Error occurred while trying to compute the lat/lon bounding box "

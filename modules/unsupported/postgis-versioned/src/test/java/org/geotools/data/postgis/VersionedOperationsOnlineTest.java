@@ -40,6 +40,7 @@ import org.geotools.data.FeatureWriter;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
 import org.geotools.data.VersioningFeatureSource;
+import org.geotools.data.VersioningFeatureStore;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
@@ -74,15 +75,15 @@ public class VersionedOperationsOnlineTest extends AbstractVersionedPostgisDataT
         VersionedPostgisDataStore ds = getDataStore();
         List typeNames = Arrays.asList(ds.getTypeNames());
         assertTrue(typeNames.contains("road"));
-        assertFalse(typeNames.contains("road_wfc_view"));
+        assertFalse(typeNames.contains("road_vfc_view"));
         assertTrue(typeNames.contains("lake"));
-        assertFalse(typeNames.contains("lake_wfc_view"));
+        assertFalse(typeNames.contains("lake_vfc_view"));
         assertTrue(typeNames.contains("river"));
-        assertFalse(typeNames.contains("rivel_wfc_view"));
+        assertFalse(typeNames.contains("rivel_vfc_view"));
         assertTrue(typeNames.contains("rail"));
-        assertFalse(typeNames.contains("rail_wfc_view"));
+        assertFalse(typeNames.contains("rail_vfc_view"));
         assertTrue(typeNames.contains("nopk"));
-        assertFalse(typeNames.contains("nopk_wfc_view"));
+        assertFalse(typeNames.contains("nopk_vfc_view"));
         assertTrue(typeNames.contains(VersionedPostgisDataStore.TBL_CHANGESETS));
 
         assertFalse(typeNames.contains(VersionedPostgisDataStore.TBL_VERSIONEDTABLES));
@@ -1341,6 +1342,37 @@ public class VersionedOperationsOnlineTest extends AbstractVersionedPostgisDataT
         FeatureCollection<SimpleFeatureType, SimpleFeature> fc = fs.getFeatures(fidFilter);
         assertEquals(vfc.size(), fc.size());
         assertEquals(1, vfc.size());
+    }
+    
+    public void testGeometryless() throws Exception {
+        VersionedPostgisDataStore ds = getDataStore();
+        
+        ds.setVersioned("gless", true, "mambo", "Trying my luck with a geometryless layer");
+        
+        VersioningFeatureStore fs = (VersioningFeatureStore) ds.getFeatureSource("gless");
+        SimpleFeatureBuilder fb = new SimpleFeatureBuilder(ds.getSchema("gless"));
+        fs.addFeatures(DataUtilities.collection(fb.buildFeature(null, new Object[] {"third", 150.3})));
+        fs.removeFeatures(ff.equals(ff.property("name"), ff.literal("first")));
+        
+        // check we have the expected changesets
+        FeatureCollection<SimpleFeatureType, SimpleFeature> fc =
+            fs.getLog("FIRST", "LAST", Filter.INCLUDE, null, 0);
+        assertEquals(2, fc.size());
+        
+        Filter firstFilter = ff.equals(ff.property("name"), ff.literal("first"));
+        Filter secondFilter = ff.equals(ff.property("name"), ff.literal("second"));
+        Query origQuery = new DefaultQuery("gless", ff.or(firstFilter, secondFilter));
+        assertEquals(1, fs.getCount(origQuery));
+        assertEquals(2, fs.getCount(Query.ALL));
+        
+        fs.rollback("FIRST", Filter.INCLUDE, null);
+
+        // check the rollback occurred as expected
+        assertEquals(2, fs.getCount(origQuery));
+        assertEquals(2, fs.getCount(Query.ALL));
+        
+        // check we can un-version without issues
+        ds.setVersioned("gless", false, "mambo", "Trying my luck with a geometryless layer");
     }
 
     /**

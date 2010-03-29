@@ -250,10 +250,17 @@ public class VersionedPostgisFeatureStore extends AbstractFeatureStore implement
     public void rollback(String toVersion, Filter filter, String[] userIds) throws IOException {
         // TODO: build an optimized version of this that can do the same work with a couple
         // of queries assuming the filter is fully encodable
+        
+        Transaction t = getTransaction();
+        boolean autoCommit = false;
+        if (Transaction.AUTO_COMMIT.equals(t)) {
+            t = new DefaultTransaction();
+            autoCommit = true;
+        }
 
         // Gather feature modified after toVersion
         ModifiedFeatureIds mfids = store.getModifiedFeatureFIDs(schema.getTypeName(), toVersion,
-                null, filter, userIds, getTransaction());
+                null, filter, userIds, t);
         FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
 
         // remove all features that have been created and not deleted
@@ -270,16 +277,15 @@ public class VersionedPostgisFeatureStore extends AbstractFeatureStore implement
         Set fidsToRecreate = new HashSet(mfids.getDeleted());
         fidsToRecreate.removeAll(mfids.getCreated());
         if (!fidsToRecreate.isEmpty()) {
-            long revision = store.wrapped.getVersionedJdbcTransactionState(getTransaction())
-                    .getRevision();
+            long revision = store.wrapped.getVersionedJdbcTransactionState(t).getRevision();
             Filter recreateFilter = store.buildVersionedFilter(schema.getTypeName(), store
                     .buildFidFilter(fidsToRecreate), mfids.fromRevision);
             FeatureReader<SimpleFeatureType, SimpleFeature> fr = null;
             FeatureWriter<SimpleFeatureType, SimpleFeature> fw = null;
             try {
                 DefaultQuery q = new DefaultQuery(schema.getTypeName(), recreateFilter);
-                fr = store.wrapped.getFeatureReader(q, getTransaction());
-                fw = store.wrapped.getFeatureWriterAppend(schema.getTypeName(), getTransaction());
+                fr = store.wrapped.getFeatureReader(q, t);
+                fw = store.wrapped.getFeatureWriterAppend(schema.getTypeName(), t);
                 while (fr.hasNext()) {
                     SimpleFeature original = fr.next();
                     SimpleFeature restored = fw.next();
@@ -314,7 +320,7 @@ public class VersionedPostgisFeatureStore extends AbstractFeatureStore implement
              FeatureReader<SimpleFeatureType, SimpleFeature> fr = null;
             FeatureWriter<SimpleFeatureType, SimpleFeature> fw = null;
             try {
-                fw = store.getFeatureWriter(schema.getTypeName(), mifCurrent, getTransaction());
+                fw = store.getFeatureWriter(schema.getTypeName(), mifCurrent, t);
                 while (fw.hasNext()) {
                     SimpleFeature current = fw.next();
                     Filter currIdFilter = ff.id(Collections
@@ -323,7 +329,7 @@ public class VersionedPostgisFeatureStore extends AbstractFeatureStore implement
                             currIdFilter, mfids.fromRevision);
                     DefaultQuery q = new DefaultQuery(schema.getTypeName(), cidToVersion);
                     q.setVersion(mfids.fromRevision.toString());
-                    fr = store.getFeatureReader(q, getTransaction());
+                    fr = store.getFeatureReader(q, t);
                     SimpleFeature original = fr.next();
                     for (int i = 0; i < original.getFeatureType().getAttributeCount(); i++) {
                         current.setAttribute(i, original.getAttribute(i));
@@ -340,6 +346,12 @@ public class VersionedPostgisFeatureStore extends AbstractFeatureStore implement
                 if (fw != null)
                     fw.close();
             }
+        }
+        
+        // if it's auto commit, don't forget to actually commit
+        if (autoCommit) {
+            t.commit();
+            t.close();
         }
 
     }
