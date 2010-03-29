@@ -24,6 +24,7 @@ import java.util.Set;
 import javax.imageio.spi.ServiceRegistry;
 
 import org.eclipse.emf.ecore.EObject;
+import org.geotools.data.wfs.WFSDataStore;
 import org.geotools.data.wfs.v1_1_0.WFS_1_1_0_DataStore;
 import org.geotools.factory.FactoryNotFoundException;
 
@@ -40,7 +41,9 @@ import org.geotools.factory.FactoryNotFoundException;
  * @author Gabriel Roldan (OpenGeo)
  * @version $Id$
  * @since 2.6
- * @source $URL$
+ * @source $URL:
+ *         http://svn.osgeo.org/geotools/trunk/modules/unsupported/wfs/src/main/java/org/geotools
+ *         /data/wfs/protocol/wfs/WFSExtensions.java $
  */
 @SuppressWarnings("nls")
 public class WFSExtensions {
@@ -102,12 +105,31 @@ public class WFSExtensions {
         if (registry == null) {
             synchronized (WFSExtensions.class) {
                 if (registry == null) {
-                    Iterator<WFSResponseParserFactory> providers;
-                    providers = ServiceRegistry.lookupProviders(WFSResponseParserFactory.class);
-                    registry = new HashSet<WFSResponseParserFactory>();
-                    while (providers.hasNext()) {
-                        WFSResponseParserFactory provider = providers.next();
-                        registry.add(provider);
+                    /*
+                     * Set the current thread's class loader to the one that actually loaded the
+                     * WDSDataStore and related classes for while the factory lookup is performed.
+                     * This way the module is friendlier to crazy class loader hierarchies like
+                     * OSGI/Eclipse
+                     */
+                    final ClassLoader current = Thread.currentThread().getContextClassLoader();
+                    try {
+                        final ClassLoader tempClassLoader = WFSDataStore.class.getClassLoader();
+                        Thread.currentThread().setContextClassLoader(tempClassLoader);
+                        /*
+                         * Now that we're on the correct classloader lets perform the lookup
+                         */
+                        Iterator<WFSResponseParserFactory> providers;
+                        providers = ServiceRegistry.lookupProviders(WFSResponseParserFactory.class);
+                        registry = new HashSet<WFSResponseParserFactory>();
+                        while (providers.hasNext()) {
+                            WFSResponseParserFactory provider = providers.next();
+                            registry.add(provider);
+                        }
+                    } finally {
+                        /*
+                         * And finally restore the original thread's class loader
+                         */
+                        Thread.currentThread().setContextClassLoader(current);
                     }
                 }
             }
