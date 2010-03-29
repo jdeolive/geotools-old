@@ -444,6 +444,13 @@ public class VersionedPostgisDataStore implements VersioningDataStore {
         }
         return versioned.booleanValue();
     }
+    
+    /**
+     * Gets a connection for the provided transaction.
+     */
+    public Connection getConnection(Transaction t) throws IOException {
+        return wrapped.getConnection(t);
+    }
 
     public boolean isVersionedFeatureCollection(String typeName) throws IOException {
         if(!typeName.endsWith("_vfc_view"))
