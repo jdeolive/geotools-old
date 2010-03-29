@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 import net.opengis.wfs.GetFeatureType;
+import net.opengis.wfs.ResultTypeType;
 
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.wfs.protocol.wfs.GetFeature;
@@ -75,7 +76,8 @@ public class CubeWerxStrategyTest {
                 CUBEWERX_GOVUNITCE.FEATURETYPENAME), "GML2", "EPSG:4326", ResultType.RESULTS);
         RequestComponents getFeatureRequest = strategy.createGetFeatureRequest(wfs, query);
         GetFeatureType serverRequest = getFeatureRequest.getServerRequest();
-        assertNull(serverRequest.getResultType());
+        ResultTypeType resultType = serverRequest.getResultType();
+        assertNull(resultType);
         Map<String, String> kvpParameters = getFeatureRequest.getKvpParameters();
         assertNull(kvpParameters.get("RESULTTYPE"));
     }

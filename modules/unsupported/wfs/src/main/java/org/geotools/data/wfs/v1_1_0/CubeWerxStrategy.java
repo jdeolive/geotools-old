@@ -82,6 +82,9 @@ public class CubeWerxStrategy extends DefaultWFSStrategy {
         RequestComponents parts = super.createGetFeatureRequest(wfs, query);
 
         GetFeatureType serverRequest = parts.getServerRequest();
+        serverRequest.setResultType(null);
+        parts.setServerRequest(serverRequest);
+
         GetFeatureType nonResultTypeRequest = new CubeWerxGetFeatureType();
         EMFUtils.copy(serverRequest, nonResultTypeRequest);
         // CubeWerx fails if the _mandatory_ resultType attribute is sent
