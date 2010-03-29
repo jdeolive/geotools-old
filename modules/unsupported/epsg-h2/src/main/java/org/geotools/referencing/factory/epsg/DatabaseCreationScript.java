@@ -57,17 +57,8 @@ public class DatabaseCreationScript {
         /**
          * Preventive cleanup of the files should an old run was broken or stopped in the middle
          */
-        if( indexFile.exists() && !indexFile.canWrite()){
-            indexFile.setWritable(true,false);
-        }
         indexFile.delete();
-        if( databaseFile.exists() && !databaseFile.canWrite()){
-            databaseFile.setWritable(true,false);
-        }
         databaseFile.delete();
-        if( zipFile.exists() && !zipFile.canWrite()){
-            zipFile.setWritable(true,false);
-        }
         zipFile.delete();
 
 
