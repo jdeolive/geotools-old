@@ -92,7 +92,7 @@
   <dependencies>
     <dependency>
       <groupId>org.geotools</groupId>
-      <artifactId>gt-wms</artifactId>
+      <artifactId>gt-xml</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -145,8 +145,8 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <excludes>
-            <!-- The following tests are skipped because they do not extend OnlineTestCase -->
             <exclude>**/StreamingParserFeatureReaderTest.java</exclude>
+            <!-- The following tests are skipped because they do not extend OnlineTestCase -->
             <exclude>**/*OnlineTest.java</exclude>
           </excludes>
         </configuration>
