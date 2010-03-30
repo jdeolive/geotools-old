@@ -322,7 +322,11 @@ public class ThreadedH2EpsgFactory extends ThreadedEpsgFactory {
                     byte[] buf = new byte[1024];
                     int read = 0;
                     while ((ze = zin.getNextEntry()) != null) {
-                      FileOutputStream fout = new FileOutputStream(new File(directory, ze.getName()));
+                      File file = new File(directory, ze.getName());
+                      if( file.exists() ){
+                          file.delete();
+                      }                   
+                      FileOutputStream fout = new FileOutputStream(file);
                       while((read = zin.read(buf)) > 0) {
                         fout.write(buf, 0, read);
                       }
@@ -332,7 +336,11 @@ public class ThreadedH2EpsgFactory extends ThreadedEpsgFactory {
                     zin.close();
                     
                     // mark the successful creation
-                    new File(directory, MARKER_FILE).createNewFile();
+                    File marker = new File(directory, MARKER_FILE);
+                    if( marker.exists() ){
+                        marker.delete();
+                    }
+                    marker.createNewFile();
                     
                     setReadOnly(directory);
                 }
