@@ -190,7 +190,7 @@ public class SimpleFeaturePropertyAccessorFactory implements
         	xpath = stripPrefix(xpath);
         	
         	if ( object instanceof SimpleFeature ) {
-        		return ((SimpleFeature) object).getAttribute( xpath ) != null;
+        		return ((SimpleFeature) object).getType().getDescriptor(xpath) != null;
         	}
         	
         	if ( object instanceof SimpleFeatureType ) {
