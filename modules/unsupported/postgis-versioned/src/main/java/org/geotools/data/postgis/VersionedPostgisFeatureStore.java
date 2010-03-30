@@ -22,6 +22,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -40,6 +42,7 @@ import org.geotools.data.Query;
 import org.geotools.data.QueryCapabilities;
 import org.geotools.data.Transaction;
 import org.geotools.data.VersioningFeatureStore;
+import org.geotools.data.jdbc.MutableFIDFeature;
 import org.geotools.data.postgis.fidmapper.VersionedFIDMapper;
 import org.geotools.data.store.EmptyFeatureCollection;
 import org.geotools.data.store.ReTypingFeatureCollection;
@@ -55,6 +58,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
+import org.opengis.filter.identity.FeatureId;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
 
@@ -241,6 +245,41 @@ public class VersionedPostgisFeatureStore extends AbstractFeatureStore implement
 
     public FeatureCollection<SimpleFeatureType, SimpleFeature> getVersionedFeatures() throws IOException {
         return getVersionedFeatures(new DefaultQuery(getSchema().getTypeName()));
+    }
+    
+    public List<FeatureId> addFeatures(
+            FeatureCollection<SimpleFeatureType, SimpleFeature> collection) throws IOException {
+        List<FeatureId> addedFids = new LinkedList<FeatureId>();
+        String typeName = getSchema().getTypeName();
+        SimpleFeature feature = null;
+        SimpleFeature newFeature;
+        FeatureWriter<SimpleFeatureType, SimpleFeature> writer = getDataStore()
+                .getFeatureWriterAppend(typeName, getTransaction());
+
+        Iterator iterator = collection.iterator();
+        try {
+
+            while (iterator.hasNext()) {
+                feature = (SimpleFeature) iterator.next();
+                newFeature = (SimpleFeature) writer.next();
+                try {
+                    newFeature.setAttributes(feature.getAttributes());
+                } catch (Exception writeProblem) {
+                    throw new DataSourceException("Could not create " + typeName
+                            + " out of provided feature: " + feature.getID(), writeProblem);
+                }
+                
+                // preserve the FID, it could come from another node
+                ((MutableFIDFeature) newFeature).setID(feature.getID());
+
+                writer.write();
+                addedFids.add(newFeature.getIdentifier());
+            }
+        } finally {
+            collection.close(iterator);
+            writer.close();
+        }
+        return addedFids;
     }
     
     // ---------------------------------------------------------------------------------------------

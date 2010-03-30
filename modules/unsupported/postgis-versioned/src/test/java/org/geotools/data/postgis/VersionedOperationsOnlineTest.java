@@ -1354,14 +1354,6 @@ public class VersionedOperationsOnlineTest extends AbstractVersionedPostgisDataT
         fs.addFeatures(DataUtilities.collection(fb.buildFeature(null, new Object[] {"third", 150.3})));
         fs.removeFeatures(ff.equals(ff.property("name"), ff.literal("first")));
         
-        // check the pk has been generated as a UUID
-        Query uuidQuery = new DefaultQuery("gless", ff.equals(ff.property("name"), ff.literal("third")));
-        FeatureIterator<SimpleFeature> fi = fs.getFeatures(uuidQuery).features();
-        SimpleFeature f = fi.next();
-        fi.close();
-        assertTrue(f.getID().startsWith("gless."));
-        assertEquals(36, f.getID().substring(6).length());
-        
         // check we have the expected changesets
         FeatureCollection<SimpleFeatureType, SimpleFeature> fc =
             fs.getLog("FIRST", "LAST", Filter.INCLUDE, null, 0);
@@ -1381,6 +1373,37 @@ public class VersionedOperationsOnlineTest extends AbstractVersionedPostgisDataT
         
         // check we can un-version without issues
         ds.setVersioned("gless", false, "mambo", "Trying my luck with a geometryless layer");
+    }
+    
+    /**
+     * UUID keys should not be re-generated in case the feature already has a valid
+     * UUID as a key
+     */
+    public void testUUID() throws Exception {
+        VersionedPostgisDataStore ds = getDataStore();
+        ds.setVersioned("gless", true, "mambo", "Testing UUID fid mapper");
+        VersioningFeatureStore fs = (VersioningFeatureStore) ds.getFeatureSource("gless");
+        
+        // add a feature without a valida UUID key
+        SimpleFeatureBuilder fb = new SimpleFeatureBuilder(ds.getSchema("gless"));
+        fs.addFeatures(DataUtilities.collection(fb.buildFeature(null, new Object[] {"third", 150.3})));
+        
+        // check the pk has been generated as a UUID
+        Query third = new DefaultQuery("gless", ff.equals(ff.property("name"), ff.literal("third")));
+        FeatureIterator<SimpleFeature> fi = fs.getFeatures(third).features();
+        SimpleFeature f = fi.next();
+        fi.close();
+        assertTrue(f.getID().startsWith("gless."));
+        assertEquals(36, f.getID().substring(6).length());
+        
+        // add a feature with a valid UUID key
+        String fid = "gless.bbaa3bb9-7ba9-4dfc-9ffb-6eb437a257d9";
+        fs.addFeatures(DataUtilities.collection(fb.buildFeature(fid, new Object[] {"fourth", 150.3})));
+        Query fourth = new DefaultQuery("gless", ff.equals(ff.property("name"), ff.literal("fourth")));
+        fi = fs.getFeatures(fourth ).features();
+        f = fi.next();
+        fi.close();
+        assertEquals(fid, f.getID());
     }
 
     /**

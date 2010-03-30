@@ -297,6 +297,7 @@ class VersionedFeatureWriter implements FeatureWriter<SimpleFeatureType, SimpleF
     
                 // set FID to the old one
                 // TODO: check this, I'm not sure this is the proper handling
+                ((MutableFIDFeature) newFeature).setID(liveFeature.getID());
                 String id = null;
                 if (oldFeature != null) {
                     id = mapper.createVersionedFid(liveFeature.getID(), state.getRevision()); 

@@ -66,7 +66,14 @@ class VersionedUUIDFIDMapper extends MultiColumnFIDMapper implements VersionedFI
             throws IOException {
         if (feature.getAttribute(colNames[1]) == null) {
             try {
-                String id = wrapped.createID(conn, feature, statement);
+                String fid = feature.getID();
+                String id;
+                if(fid.startsWith(tableName + ".") && 
+                        fid.substring(tableName.length() + 1).matches("[0-9a-f]{8}-[0-9a-f]{4}-[1-9a-f]{4}-[1-9a-f]{4}-[1-9a-f]{12}")) {
+                    id = fid.substring(tableName.length() + 1);
+                } else {
+                    id = wrapped.createID(conn, feature, statement);
+                }
                 feature.setAttribute(colNames[1], id);
             } catch (Exception e) {
                 throw new DataSourceException("Could not generate key for the "
