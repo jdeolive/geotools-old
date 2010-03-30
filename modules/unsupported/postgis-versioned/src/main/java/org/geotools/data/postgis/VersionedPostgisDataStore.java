@@ -60,6 +60,7 @@ import org.geotools.data.jdbc.fidmapper.FIDMapper;
 import org.geotools.data.jdbc.fidmapper.MultiColumnFIDMapper;
 import org.geotools.data.jdbc.fidmapper.TypedFIDMapper;
 import org.geotools.data.postgis.fidmapper.PostGISAutoIncrementFIDMapper;
+import org.geotools.data.postgis.fidmapper.UUIDFIDMapper;
 import org.geotools.data.postgis.fidmapper.VersionedFIDMapper;
 import org.geotools.data.postgis.fidmapper.VersionedFIDMapperFactory;
 import org.geotools.factory.CommonFactoryFinder;
@@ -118,8 +119,7 @@ public class VersionedPostgisDataStore implements VersioningDataStore {
     static final String VERSION = "version";
 
     static final Class[] SUPPORTED_FID_MAPPERS = new Class[] { BasicFIDMapper.class,
-            MultiColumnFIDMapper.class, PostGISAutoIncrementFIDMapper.class };
-
+            MultiColumnFIDMapper.class, PostGISAutoIncrementFIDMapper.class, UUIDFIDMapper.class};
     /**
      * Key used in transaction properties to hold the commit author
      */

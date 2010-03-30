@@ -1354,6 +1354,14 @@ public class VersionedOperationsOnlineTest extends AbstractVersionedPostgisDataT
         fs.addFeatures(DataUtilities.collection(fb.buildFeature(null, new Object[] {"third", 150.3})));
         fs.removeFeatures(ff.equals(ff.property("name"), ff.literal("first")));
         
+        // check the pk has been generated as a UUID
+        Query uuidQuery = new DefaultQuery("gless", ff.equals(ff.property("name"), ff.literal("third")));
+        FeatureIterator<SimpleFeature> fi = fs.getFeatures(uuidQuery).features();
+        SimpleFeature f = fi.next();
+        fi.close();
+        assertTrue(f.getID().startsWith("gless."));
+        assertEquals(36, f.getID().substring(6).length());
+        
         // check we have the expected changesets
         FeatureCollection<SimpleFeatureType, SimpleFeature> fc =
             fs.getLog("FIRST", "LAST", Filter.INCLUDE, null, 0);

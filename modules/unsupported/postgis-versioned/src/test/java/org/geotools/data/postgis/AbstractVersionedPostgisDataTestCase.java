@@ -515,12 +515,12 @@ public abstract class AbstractVersionedPostgisDataTestCase extends DataTestCase 
 
             // postgis = new PostgisDataSource(connection, FEATURE_TABLE);
             s.execute("CREATE TABLE " + f.schema
-                    + ".gless(fid serial primary key, name varchar(256), flow double precision)");
+                    + ".gless(fid uuid primary key, name varchar(256), flow double precision)");
             
             s.execute("INSERT INTO " + f.schema
-                    + ".gless (name, flow) VALUES ('first', 10.5)");
+                    + ".gless (fid, name, flow) VALUES ('3228895e-4c83-451d-b793-55c795300be9', 'first', 10.5)");
             s.execute("INSERT INTO " + f.schema
-                    + ".gless (name, flow) VALUES ('second', 0.0)");
+                    + ".gless (fid, name, flow) VALUES ('611e9785-e775-481e-b5ca-02f59a6998aa', 'second', 0.0)");
         } finally {
             conn.close();
         }
