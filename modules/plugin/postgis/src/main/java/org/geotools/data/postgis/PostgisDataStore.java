@@ -981,28 +981,47 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
                 
                 // check for nullability
                 int nullCode = metadataRs.getInt( NULLABLE );
-                boolean nillable = true;
-                switch( nullCode ) {
-                    case DatabaseMetaData.columnNoNulls:
-                        nillable = false;
-                        break;
-                        
-                    case DatabaseMetaData.columnNullable:
-                        nillable = true;
-                        break;
-                        
-                    case DatabaseMetaData.columnNullableUnknown:
-                        nillable = true;
-                        break;
-                }
+                boolean nillable = isNullable(nullCode);
 
                 return getGeometryAttribute(tableName, columnName, nillable);
+            } else if("uuid".equals(typeName)) {
+                String tableName = metadataRs.getString(TABLE_NAME);
+                String columnName = metadataRs.getString(COLUMN_NAME);
+                
+                // check for nullability
+                int nullCode = metadataRs.getInt( NULLABLE );
+                boolean nillable = isNullable(nullCode);
+                
+                AttributeTypeBuilder atb = new AttributeTypeBuilder();
+                atb.setName(columnName);
+                atb.setBinding(String.class);
+                atb.setMinOccurs(nillable ? 0 : 1);
+                atb.setMaxOccurs(1);
+                return atb.buildDescriptor(columnName); 
             } else {
                 return super.buildAttributeType(metadataRs);
             }
         } catch (SQLException e) {
             throw new IOException("Sql error occurred: " + e.getMessage());
         }
+    }
+
+    private boolean isNullable(int nullCode) {
+        boolean nillable = true;
+        switch( nullCode ) {
+            case DatabaseMetaData.columnNoNulls:
+                nillable = false;
+                break;
+                
+            case DatabaseMetaData.columnNullable:
+                nillable = true;
+                break;
+                
+            case DatabaseMetaData.columnNullableUnknown:
+                nillable = true;
+                break;
+        }
+        return nillable;
     }
 
     /**

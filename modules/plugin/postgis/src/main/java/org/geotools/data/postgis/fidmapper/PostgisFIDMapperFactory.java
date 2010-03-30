@@ -114,10 +114,11 @@ public class PostgisFIDMapperFactory extends DefaultFIDMapperFactory {
         if (ci.isAutoIncrement()) {
             return new PostGISAutoIncrementFIDMapper(schema, tableName,
                 ci.getColName(), ci.getDataType());
+        } else if("uuid".equals(ci.getTypeName())) {
+            return new UUIDFIDMapper(ci.getColName(), ci.dataType);
         }
 
-        return super.buildSingleColumnFidMapper(schema, tableName, connection,
-            ci);
+        return super.buildSingleColumnFidMapper(schema, tableName, connection, ci);
     }
 
     /**
