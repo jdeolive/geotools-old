@@ -943,7 +943,7 @@ public class SLDStyleFactory {
         int iSizeY;
         if (image != null) {
             iSizeX = image.getWidth();
-            iSizeY = iSizeX;// i think it should be image.getHeight(), but i will let the old behavior.
+            iSizeY = image.getHeight();
             if (LOGGER.isLoggable(Level.FINER)) {
                 LOGGER.finer("got an image in graphic fill");
             }
