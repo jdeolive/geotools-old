@@ -39,6 +39,7 @@ import org.geotools.xml.SchemaIndex;
 import org.opengis.feature.ComplexAttribute;
 import org.opengis.feature.Feature;
 import org.opengis.feature.Property;
+import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.type.Name;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -160,7 +161,7 @@ public class GML3EncodingUtils {
         }
         Element encoding = document.createElementNS(typeName.getNamespaceURI(), typeName
                 .getLocalPart());
-        if (idSet != null) {
+        if (!(feature instanceof SimpleFeature) && idSet != null) {
             if (idSet.idExists(id)) {
                 // XSD type ids can only appear once in the same document, otherwise the document is
                 // not schema valid. Attributes of the same ids should be encoded as xlink:href to
