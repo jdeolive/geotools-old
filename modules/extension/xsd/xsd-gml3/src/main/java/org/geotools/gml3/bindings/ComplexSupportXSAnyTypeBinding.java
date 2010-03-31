@@ -19,10 +19,7 @@ package org.geotools.gml3.bindings;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
@@ -32,10 +29,6 @@ import org.eclipse.xsd.XSDFactory;
 import org.eclipse.xsd.XSDParticle;
 import org.eclipse.xsd.XSDTypeDefinition;
 import org.geotools.feature.NameImpl;
-import org.geotools.feature.type.FeatureTypeImpl;
-import org.geotools.gml3.XSDIdRegistry;
-import org.geotools.util.Converters;
-import org.geotools.xlink.XLINK;
 import org.geotools.xml.Schemas;
 import org.geotools.xs.XS;
 import org.geotools.xs.bindings.XSAnyTypeBinding;
@@ -44,10 +37,8 @@ import org.opengis.feature.ComplexAttribute;
 import org.opengis.feature.Property;
 import org.opengis.feature.type.Name;
 import org.opengis.feature.type.PropertyDescriptor;
-import org.opengis.filter.identity.Identifier;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.xml.sax.Attributes;
 
 /**
  * A replacement for {@link XSAnyTypeBinding} that adds support for {@link ComplexAttribute} and
@@ -76,12 +67,6 @@ import org.xml.sax.Attributes;
  * @author Ben Caradoc-Davies, CSIRO Earth Science and Resource Engineering
  */
 public class ComplexSupportXSAnyTypeBinding extends XSAnyTypeBinding {
-
-    private XSDIdRegistry idSet;
-
-    public ComplexSupportXSAnyTypeBinding(XSDIdRegistry idRegistry) {
-        this.idSet = idRegistry;
-    }
 
     /**
      * @see org.geotools.xml.AbstractComplexBinding#getProperty(java.lang.Object,
@@ -200,51 +185,6 @@ public class ComplexSupportXSAnyTypeBinding extends XSAnyTypeBinding {
         }
         return null;
     }
-    
-    /**
-     * Check if the complex attribute contains a feature which id is pre-existing in the document.
-     * If it's true, make sure it's only encoded as an xlink:href to the existing id.
-     * 
-     * @param value
-     *            The complex attribute value
-     * @param att
-     *            The complex attribute itself
-     */
-    private void checkXlinkHref(Object value, ComplexAttribute att) {
-        if (value != null && value instanceof ComplexAttribute) {
-            ComplexAttribute object = (ComplexAttribute) value;
-            // Only worry about features for now, as non feature types don't get ids encoded yet.
-            // See GEOS-3738. To encode xlink:href to an id that doesn't exist in the doc is wrong
-            if (!(object.getType() instanceof FeatureTypeImpl)) {
-                // we are checking the type, not the object as FeatureImpl, because they could still
-                // be non-features that are constructed as features for the purpose of feature
-                // chaining.
-                return;
-            }
-            Identifier ident = object.getIdentifier();
-            if (ident == null) {
-                return;
-            }
-            String id = Converters.convert(ident.getID(), String.class);
-            if (idSet.idExists(id)) {
-                // XSD type ids can only appear once in the same document, otherwise the document is
-                // not schema valid. Attributes of the same ids should be encoded as xlink:href to
-                // the existing attribute.
-                Object clientProperties = att.getUserData().get(Attributes.class);
-                Map<Name, Object> map = null;
-                if (clientProperties == null) {
-                    map = new HashMap<Name, Object>();
-                    att.getUserData().put(Attributes.class, map);
-                } else {
-                    map = (Map<Name, Object>) clientProperties;
-                }
-                map.put(toTypeName(XLINK.HREF), "#" + id.toString());
-                // make sure the value is not encoded
-                att.setValue(Collections.emptyList());
-            }
-        }
-        return;
-    }
 
     /**
      * @see org.geotools.xml.AbstractComplexBinding#encode(java.lang.Object, org.w3c.dom.Document,
@@ -254,10 +194,6 @@ public class ComplexSupportXSAnyTypeBinding extends XSAnyTypeBinding {
     public Element encode(Object object, Document document, Element value) throws Exception {
         if (object instanceof ComplexAttribute) {
             ComplexAttribute complex = (ComplexAttribute) object;
-            if (complex.getProperties().size() == 1) {
-                Property prop = complex.getProperties().iterator().next();
-                checkXlinkHref(prop, complex);
-            }
             GML3EncodingUtils.encodeClientProperties(complex, value);
             GML3EncodingUtils.encodeSimpleContent(complex, document, value);
         }
