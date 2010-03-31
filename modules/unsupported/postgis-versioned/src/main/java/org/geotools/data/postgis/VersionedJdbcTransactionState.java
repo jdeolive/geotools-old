@@ -264,7 +264,6 @@ class VersionedJdbcTransactionState extends JDBCTransactionState {
 
     /**
      * Stores a commit message in the CHANGESETS table and return the associated revision number.
-     * TODO: this may well be moved to the {@link VersionedJdbcTransactionState} class?
      * 
      * @param conn
      * @return
@@ -275,7 +274,13 @@ class VersionedJdbcTransactionState extends JDBCTransactionState {
         FeatureWriter<SimpleFeatureType, SimpleFeature> writer = null;
         String author = (String) t.getProperty(VersionedPostgisDataStore.AUTHOR);
         String message = (String) t.getProperty(VersionedPostgisDataStore.MESSAGE);
+        Statement st = null;
         try {
+            // we need to make sure that revision N+1 is committed after N is committed, otherwise
+            // the history will be ruined
+            st = getConnection().createStatement();
+            st.execute("LOCK TABLE " + VersionedPostgisDataStore.TBL_CHANGESETS + " IN EXCLUSIVE MODE");
+            
             writer = wrapped.getFeatureWriterAppend(VersionedPostgisDataStore.TBL_CHANGESETS, t);
             f = writer.next();
             f.setAttribute("author", author);
@@ -288,9 +293,13 @@ class VersionedJdbcTransactionState extends JDBCTransactionState {
             // if this happens there's a programming error
             throw new IOException("Could not set an attribute in changesets, "
                     + "most probably the table schema has been tampered with.");
+        } catch (SQLException e) {
+            throw new DataSourceException("Could not set a lock on the table changesets", e);
         } finally {
-            if (writer != null)
-                writer.close();
+            if(st != null)
+              JDBCUtils.close(st);  
+            if(writer != null)
+              writer.close();
         }
 
         return ((Long) f.getAttribute("revision")).longValue();

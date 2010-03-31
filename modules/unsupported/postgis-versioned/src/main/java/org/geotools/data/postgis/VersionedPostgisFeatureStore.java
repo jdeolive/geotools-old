@@ -285,6 +285,15 @@ public class VersionedPostgisFeatureStore extends AbstractFeatureStore implement
     // ---------------------------------------------------------------------------------------------
     // VERSIONING EXTENSIONS
     // ---------------------------------------------------------------------------------------------
+    
+    public String getVersion() throws IOException {
+        Transaction t = getTransaction();
+        if(t == Transaction.AUTO_COMMIT) {
+            return null;
+        } else {
+            return String.valueOf(store.wrapped.getVersionedJdbcTransactionState(t).getRevision());
+        }
+    }
 
     public void rollback(String toVersion, Filter filter, String[] userIds) throws IOException {
         // TODO: build an optimized version of this that can do the same work with a couple

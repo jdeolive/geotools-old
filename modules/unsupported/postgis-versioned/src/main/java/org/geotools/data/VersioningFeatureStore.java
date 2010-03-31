@@ -53,4 +53,12 @@ public interface VersioningFeatureStore extends VersioningFeatureSource, Feature
      */
     public void rollback(String toVersion, Filter filter, String[] users) throws IOException;
 
+    
+    /**
+     * Returns the revision for the current transaction, or null if no transaction is set.
+     * This operation is optional, some datastore may not be able to determine the version before
+     * the commit, in that case an {@link UnsupportedOperationException} will be thrown
+     * @return
+     */
+    public String getVersion() throws IOException, UnsupportedOperationException;
 }
