@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.sql.Types;
+import java.util.regex.Pattern;
 
 import org.geotools.data.DataSourceException;
 import org.geotools.data.jdbc.fidmapper.MultiColumnFIDMapper;
@@ -30,6 +31,8 @@ import org.opengis.feature.simple.SimpleFeature;
  */
 class VersionedUUIDFIDMapper extends MultiColumnFIDMapper implements VersionedFIDMapper {
     protected UUIDFIDMapper wrapped;
+    
+    static final Pattern UUID_PATTERN = Pattern.compile("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}");
 
     public VersionedUUIDFIDMapper(String tableSchemaName, String tableName, String colName, int colType, int colSize) {
         super(tableSchemaName, tableName, new String[] { "revision", colName }, new int[] {
@@ -69,7 +72,7 @@ class VersionedUUIDFIDMapper extends MultiColumnFIDMapper implements VersionedFI
                 String fid = feature.getID();
                 String id;
                 if(fid.startsWith(tableName + ".") && 
-                        fid.substring(tableName.length() + 1).matches("[0-9a-f]{8}-[0-9a-f]{4}-[1-9a-f]{4}-[1-9a-f]{4}-[1-9a-f]{12}")) {
+                        UUID_PATTERN.matcher(fid.substring(tableName.length() + 1)).matches()) {
                     id = fid.substring(tableName.length() + 1);
                 } else {
                     id = wrapped.createID(conn, feature, statement);
