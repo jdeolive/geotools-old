@@ -176,7 +176,7 @@ public class VersionedPostgisFeatureStore extends AbstractFeatureStore implement
             		"bounds affected by this feature removal", e);
         }
         
-        // now we can run the 
+        // now we can run the update
         locking.modifyFeatures(locking.getSchema().getDescriptor("expired"), new Long(state
                 .getRevision()), versionedFilter);
         
@@ -310,12 +310,17 @@ public class VersionedPostgisFeatureStore extends AbstractFeatureStore implement
         ModifiedFeatureIds mfids = store.getModifiedFeatureFIDs(schema.getTypeName(), toVersion,
                 null, filter, userIds, t);
         FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
+        
+        // grab the state, we need to mark as dirty all the features we are going to modify/re-insert
+        VersionedJdbcTransactionState state = store.wrapped.getVersionedJdbcTransactionState(t);
 
         // remove all features that have been created and not deleted
         Set fidsToRemove = new HashSet(mfids.getCreated());
         fidsToRemove.removeAll(mfids.getDeleted());
-        if (!fidsToRemove.isEmpty())
+        if (!fidsToRemove.isEmpty()) {
             removeFeatures(store.buildFidFilter(fidsToRemove));
+            state.setTypeNameDirty(getSchema().getTypeName());
+        }
 
         // reinstate all features that were there before toVersion and that
         // have been deleted after it. Notice this is an insertion, so to preserve
@@ -325,6 +330,9 @@ public class VersionedPostgisFeatureStore extends AbstractFeatureStore implement
         Set fidsToRecreate = new HashSet(mfids.getDeleted());
         fidsToRecreate.removeAll(mfids.getCreated());
         if (!fidsToRecreate.isEmpty()) {
+            state.setTypeNameDirty(getSchema().getTypeName());
+            state.setFidsDirty(getSchema().getTypeName(), fidsToRecreate);
+            
             long revision = store.wrapped.getVersionedJdbcTransactionState(t).getRevision();
             Filter recreateFilter = store.buildVersionedFilter(schema.getTypeName(), store
                     .buildFidFilter(fidsToRecreate), mfids.fromRevision);
@@ -362,6 +370,9 @@ public class VersionedPostgisFeatureStore extends AbstractFeatureStore implement
         // Here it's possible to work against the external API, thought it would be more
         // efficient (but more complex) to work against the wrapped one.
         if (!mfids.getModified().isEmpty()) {
+            state.setTypeNameDirty(getSchema().getTypeName());
+            state.setFidsDirty(getSchema().getTypeName(), mfids.getModified());
+            
             Filter modifiedIdFilter = store.buildFidFilter(mfids.getModified());
             Filter mifCurrent = store.buildVersionedFilter(schema.getTypeName(), modifiedIdFilter,
                     new RevisionInfo());

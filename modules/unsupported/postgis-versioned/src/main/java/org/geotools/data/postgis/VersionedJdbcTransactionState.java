@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -133,12 +134,30 @@ class VersionedJdbcTransactionState extends JDBCTransactionState {
      * @param fid
      */
     public void setFidDirty(String typeName, String fid) {
+        getCreateDirtyFids(typeName).add(fid);
+    }
+    
+    /**
+     * Marks a set of FIDs as dirty. This is used to avoid to do versioned operations
+     * on the same feature multiple times in the same transaction. The first must create 
+     * the new versions, the others should operate against the new record
+     * @param ft
+     * @param fid
+     */
+    public void setFidsDirty(String typeName, Collection<String> fids) {
+        getCreateDirtyFids(typeName).addAll(fids);
+    }
+
+    /**
+     * Returns (and eventually builds) the dirty fid set for the specified type name
+     */
+    Set<String> getCreateDirtyFids(String typeName) {
         Set fids = (Set) dirtyFids.get(typeName);
         if(fids == null) {
             fids = new HashSet();
             dirtyFids.put(typeName, fids);
         }
-        fids.add(fid);
+        return fids;
     }
         
     /**

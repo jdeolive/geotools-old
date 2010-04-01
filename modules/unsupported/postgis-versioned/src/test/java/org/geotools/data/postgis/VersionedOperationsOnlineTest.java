@@ -768,6 +768,38 @@ public class VersionedOperationsOnlineTest extends AbstractVersionedPostgisDataT
         t.commit();
         t.close();
     }
+    
+    /**
+     * This time we first delete, then rollback and update the same feature
+     * @throws Exception
+     */
+    public void testRollbackUpdate() throws Exception {
+        VersionedPostgisDataStore ds = getDataStore();
+
+        // version enable trees
+        ds.setVersioned("tree", true, "udig",
+                "First I remove, then rollback and update :-)");
+        
+        // build a filter to extract just tree 1
+        Filter filter = ff.id(Collections.singleton(ff.featureId("tree.1")));
+        VersioningFeatureStore store = (VersioningFeatureStore) ds.getFeatureSource("tree");
+        store.removeFeatures(filter);
+        
+        Transaction t = createTransaction("gimbo", "rollback and update");
+        store.setTransaction(t);
+        store.rollback("FIRST", filter, null);
+        SimpleFeatureType treeSchema = store.getSchema();
+        store.modifyFeatures(treeSchema.getDescriptor("name"), "update1", filter);
+        t.commit();
+        t.close();
+        store.setTransaction(Transaction.AUTO_COMMIT);
+        
+        FeatureIterator<SimpleFeature> fi = store.getFeatures(filter).features();
+        assertTrue(fi.hasNext());
+        SimpleFeature f = fi.next();
+        assertEquals("update1", f.getAttribute("name"));
+        fi.close();
+    }
 
     public void testSerialIdWriting() throws IOException, IllegalArgumentException,
             IllegalAttributeException {
@@ -1404,6 +1436,16 @@ public class VersionedOperationsOnlineTest extends AbstractVersionedPostgisDataT
         f = fi.next();
         fi.close();
         assertEquals(fid, f.getID());
+        
+        // modify the feature, make sure everything goes right (did not during the first impl.)
+        SimpleFeatureType ft = fs.getSchema();
+        Id fidFilter = ff.id(Collections.singleton(ff.featureId(fid)));
+        fs.modifyFeatures(ft.getDescriptor("name"), "4th", fidFilter);
+        fi = fs.getFeatures(fidFilter).features();
+        assertTrue(fi.hasNext());
+        f = fi.next();
+        fi.close();
+        assertEquals("4th", f.getAttribute("name"));
     }
 
     /**

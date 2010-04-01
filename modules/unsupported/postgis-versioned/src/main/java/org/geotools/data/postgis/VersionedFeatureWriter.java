@@ -249,12 +249,12 @@ class VersionedFeatureWriter implements FeatureWriter<SimpleFeatureType, SimpleF
                 }
                 if (!dirty)
                     return;
-            
-                // check if the feature is dirty. The live feature has the right external id
-                String typeName = liveFeature.getFeatureType().getTypeName();
-                String fid = liveFeature.getID();
-                dirtyFeature = state.isFidDirty(typeName, fid);
             }
+            
+            // check if the feature is dirty. The live feature has the right external id
+            String typeName = liveFeature.getFeatureType().getTypeName();
+            String fid = liveFeature.getID();
+            dirtyFeature = state.isFidDirty(typeName, fid);
             
             SimpleFeature writtenFeature = null;
             if(dirtyFeature) {
@@ -297,15 +297,17 @@ class VersionedFeatureWriter implements FeatureWriter<SimpleFeatureType, SimpleF
     
                 // set FID to the old one
                 // TODO: check this, I'm not sure this is the proper handling
-                ((MutableFIDFeature) newFeature).setID(liveFeature.getID());
                 String id = null;
                 if (oldFeature != null) {
                     id = mapper.createVersionedFid(liveFeature.getID(), state.getRevision()); 
                     newFeature.setAttribute("created", oldFeature.getAttribute("created"));
                 } else if (!mapper.hasAutoIncrementColumns()) {
+                    // preserve the outer id for UUID insertions
+                    ((MutableFIDFeature) newFeature).setID(liveFeature.getID());
                     id = mapper.createID(state.getConnection(), newFeature, null);
                     newFeature.setAttribute("created", new Long(state.getRevision()));
                 }
+                
                 // transfer generated id values to the primary key attributes
                 if (id != null) {
                     ((MutableFIDFeature) newFeature).setID(id);
@@ -314,6 +316,8 @@ class VersionedFeatureWriter implements FeatureWriter<SimpleFeatureType, SimpleF
                     for (int i = 0; i < pkatts.length; i++) {
                         newFeature.setAttribute(mapper.getColumnName(i), pkatts[i]);
                     }
+                } else {
+                    
                 }
                 
                 // write
