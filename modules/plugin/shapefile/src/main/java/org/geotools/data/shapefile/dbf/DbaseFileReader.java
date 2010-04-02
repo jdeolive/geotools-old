@@ -443,9 +443,8 @@ public class DbaseFileReader implements FileReader {
                     object = Boolean.FALSE;
                     break;
                 default:
-
-                    throw new IOException("Unknown logical value : '"
-                            + c + "'");
+                    // 0x20 should be interpreted as null, but we're going to be a bit more lax
+                    object = null;
                 }
                 break;
             // (C)character (String)
