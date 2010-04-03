@@ -2053,7 +2053,7 @@ public final class StreamingRenderer implements GTRenderer {
 				if(shape == null)
 					continue;
 				if (symbolizer instanceof TextSymbolizer && drawMe.content instanceof SimpleFeature) {
-					labelCache.put(layerId, (TextSymbolizer) symbolizers, (SimpleFeature) drawMe.content,
+					labelCache.put(layerId, (TextSymbolizer) symbolizer, (SimpleFeature) drawMe.content,
 							shape, scaleRange);
 				} else {
 					Style2D style = styleFactory.createStyle(drawMe.content,
