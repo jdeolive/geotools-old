@@ -62,10 +62,6 @@ public final class GeomCollectionIterator extends AbstractLiteIterator {
     /** Maximum distance for point elision when generalizing */
     private double maxDistance = 1.0;
     
-    private LineIterator lineIterator = new LineIterator();
-    
-    private EmptyIterator emptyIterator = new EmptyIterator();
-
     public GeomCollectionIterator()
     {
     	
@@ -82,7 +78,7 @@ public final class GeomCollectionIterator extends AbstractLiteIterator {
         this.maxDistance = maxDistance;
         currentGeom = 0;
         done = false;
-        currentIterator = gc.isEmpty() ? emptyIterator : getIterator(gc.getGeometryN(0));
+        currentIterator = gc.isEmpty() ? EmptyIterator.INSTANCE : getIterator(gc.getGeometryN(0));
 	}
 
     /**
@@ -131,21 +127,16 @@ public final class GeomCollectionIterator extends AbstractLiteIterator {
         AbstractLiteIterator pi = null;
 
         if (g.isEmpty())
-            return emptyIterator;
+            return EmptyIterator.INSTANCE;
         if (g instanceof Polygon) {
             Polygon p = (Polygon) g;
             pi = new PolygonIterator(p, at, generalize, maxDistance);
         } else if (g instanceof GeometryCollection) {
             GeometryCollection gc = (GeometryCollection) g;
             pi = new GeomCollectionIterator(gc, at, generalize, maxDistance);
-        } else if (g instanceof LineString) {
+        } else if (g instanceof LineString || g instanceof LinearRing) {
             LineString ls = (LineString) g;
-            lineIterator.init(ls, at, generalize, (float) maxDistance);
-            pi = lineIterator;
-        } else if (g instanceof LinearRing) {
-            LinearRing lr = (LinearRing) g;
-            lineIterator.init(lr, at, generalize, (float) maxDistance);
-            pi = lineIterator;
+            pi = new LineIterator(ls, at, generalize, (float) maxDistance);
         } else if (g instanceof Point) {
             Point p = (Point) g;
             pi = new PointIterator(p, at);
