@@ -60,6 +60,7 @@ public class FIDFeatureReader implements  FeatureReader<SimpleFeatureType, Simpl
     private final FIDReader fidReader;
     protected final Object[] attributes;
     private SimpleFeatureBuilder builder;
+    private Boolean hasNextFlag;
 
     /**
      * Creates a new instance of AbstractFeatureReader
@@ -92,7 +93,8 @@ public class FIDFeatureReader implements  FeatureReader<SimpleFeatureType, Simpl
 
     public SimpleFeature next()
         throws IOException, IllegalAttributeException, NoSuchElementException {
-        if (attributeReader.hasNext()) {
+        if (hasNext()) {
+            hasNextFlag = null;
             attributeReader.next();
 
             return readFeature(attributeReader);
@@ -140,6 +142,9 @@ public class FIDFeatureReader implements  FeatureReader<SimpleFeatureType, Simpl
     }
 
     public boolean hasNext() throws IOException {
-        return attributeReader.hasNext();
+        if(hasNextFlag == null) {
+            hasNextFlag = Boolean.valueOf(attributeReader.hasNext());
+        }
+        return hasNextFlag;
     }
 }
