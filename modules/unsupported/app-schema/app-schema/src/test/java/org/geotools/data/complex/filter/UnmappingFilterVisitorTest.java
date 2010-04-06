@@ -341,7 +341,7 @@ public class UnmappingFilterVisitorTest {
         
         AppSchemaDataAccess complexDs = (AppSchemaDataAccess) mappingDataStore;
         
-        mapping = complexDs.getMapping(typeName);
+        mapping = complexDs.getMappingByElement(typeName);
 
         NamespaceSupport namespaces = new NamespaceSupport();
         namespaces.declarePrefix("gml", GML.NAMESPACE);
@@ -421,7 +421,7 @@ public class UnmappingFilterVisitorTest {
         final Name typeName = new NameImpl(XMMLNS, "Borehole");
         
         AppSchemaDataAccess complexDs = (AppSchemaDataAccess) mappingDataStore;
-        mapping = complexDs.getMapping(typeName);
+        mapping = complexDs.getMappingByElement(typeName);
 
         NamespaceSupport namespaces = new NamespaceSupport();
         namespaces.declarePrefix("gml", GML.NAMESPACE);

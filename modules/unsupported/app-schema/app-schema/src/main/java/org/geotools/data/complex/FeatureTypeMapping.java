@@ -27,6 +27,7 @@ import org.geotools.data.FeatureSource;
 import org.geotools.data.complex.filter.XPath.StepList;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.FeatureType;
+import org.opengis.feature.type.Name;
 import org.opengis.filter.expression.Expression;
 import org.xml.sax.helpers.NamespaceSupport;
 
@@ -40,8 +41,8 @@ import org.xml.sax.helpers.NamespaceSupport;
 public class FeatureTypeMapping {
     /**
      * It's bad to leave this with no parameters type, but we should allow for both complex and
-     * simple feature source as we could now take in a data access instead of a data store as
-     * the source data store
+     * simple feature source as we could now take in a data access instead of a data store as the
+     * source data store
      */
     private FeatureSource source;
 
@@ -59,7 +60,13 @@ public class FeatureTypeMapping {
     NamespaceSupport namespaces;
 
     String itemXpath;
-    
+
+    /**
+     * A user-defined name for the mapping. This is optional, and used when there are more than one
+     * mapping for the same type. When defined, this overrides the targetElement as the identifier.
+     */
+    private Name mappingName;
+
     /**
      * No parameters constructor for use by the digester configuration engine as a JavaBean
      */
@@ -76,12 +83,11 @@ public class FeatureTypeMapping {
     }
 
     public FeatureTypeMapping(FeatureSource source, AttributeDescriptor target,
-            List<AttributeMapping> mappings, NamespaceSupport namespaces,
-            String itemXpath) {
+            List<AttributeMapping> mappings, NamespaceSupport namespaces, String itemXpath) {
         this(source, target, mappings, namespaces);
         this.itemXpath = itemXpath;
     }
-    
+
     public List<AttributeMapping> getAttributeMappings() {
         return Collections.unmodifiableList(attributeMappings);
     }
@@ -133,9 +139,9 @@ public class FeatureTypeMapping {
      * Finds the attribute mapping for the target expression <code>exactPath</code>
      * 
      * @param exactPath
-     *                the xpath expression on the target schema to find the mapping for
-     * @return the attribute mapping that match 1:1 with <code>exactPath</code> or
-     *         <code>null</code> if
+     *            the xpath expression on the target schema to find the mapping for
+     * @return the attribute mapping that match 1:1 with <code>exactPath</code> or <code>null</code>
+     *         if
      */
     public AttributeMapping getAttributeMapping(final StepList exactPath) {
         AttributeMapping attMapping;
@@ -173,12 +179,20 @@ public class FeatureTypeMapping {
     public FeatureSource getSource() {
         return this.source;
     }
-    
+
     public FeatureTypeMapping getUnderlyingComplexMapping() {
         if (source instanceof MappingFeatureSource) {
             return ((MappingFeatureSource) source).getMapping();
         }
         return null;
+    }
+
+    public void setName(Name name) {
+        this.mappingName = name;
+    }
+
+    public Name getMappingName() {
+        return mappingName;
     }
 
 }

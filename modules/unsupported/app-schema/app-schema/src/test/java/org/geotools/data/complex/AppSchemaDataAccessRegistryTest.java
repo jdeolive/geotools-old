@@ -23,7 +23,9 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -31,7 +33,11 @@ import org.geotools.data.DataAccess;
 import org.geotools.data.DataAccessFinder;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.FeatureSource;
+import org.geotools.data.complex.config.AppSchemaDataAccessConfigurator;
+import org.geotools.data.complex.config.AppSchemaDataAccessDTO;
 import org.geotools.data.complex.config.NonFeatureTypeProxy;
+import org.geotools.data.complex.config.SourceDataStore;
+import org.geotools.data.complex.config.TypeMapping;
 import org.geotools.feature.Types;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -46,8 +52,10 @@ import org.opengis.feature.type.Name;
  * source (simple or mapped) would be accessible globally.
  * 
  * @author Rini Angreani, Curtin Universtiy of Technology
- *
- * @source $URL$
+ * 
+ * @source $URL:
+ *         http://svn.osgeo.org/geotools/trunk/modules/unsupported/app-schema/app-schema/src/test
+ *         /java/org/geotools/data/complex/AppSchemaDataAccessRegistryTest.java $
  */
 public class AppSchemaDataAccessRegistryTest {
 
@@ -94,12 +102,30 @@ public class AppSchemaDataAccessRegistryTest {
     private static AppSchemaDataAccess ccDataAccess;
 
     /**
+     * App-schema FeatureTypeMapping extract from a mapping file. This one has a mappingName to
+     * identify itself.
+     */
+    private static TypeMapping dtoMappingName;
+
+    /**
+     * App-schema FeatureTypeMapping extract from a mapping file.This one has no mappingName,
+     * therefore targetElement is used to identify itself.
+     */
+    private static TypeMapping dtoNoMappingName;
+
+    /**
+     * App-schema mapping file extract.
+     */
+    private static AppSchemaDataAccessDTO config;
+
+    /**
      * Test registering and unregistering all data accesses works.
      * 
      * @throws Exception
      */
     @Test
     public void testRegisterAndUnregisterDataAccess() throws Exception {
+        loadDataAccesses();
         /**
          * Check that data access are registered
          */
@@ -130,10 +156,11 @@ public class AppSchemaDataAccessRegistryTest {
         Name typeName = Types.typeName(GSMLNS, "DoesNotExist");
         boolean handledException = false;
         try {
-            AppSchemaDataAccessRegistry.getMapping(typeName);
+            AppSchemaDataAccessRegistry.getMappingByElement(typeName);
         } catch (DataSourceException e) {
             LOGGER.info(e.toString());
             handledException = true;
+            assertTrue(e.getMessage().startsWith("Feature type " + typeName + " not found"));
         }
         assertTrue("Expected a DataSourceException to have been thrown and handled",
                 handledException);
@@ -144,13 +171,13 @@ public class AppSchemaDataAccessRegistryTest {
      * 
      * @throws Exception
      */
-    @BeforeClass
-    public static void setUp() throws Exception {
+    public static void loadDataAccesses() throws Exception {
         /**
          * Load Mapped Feature data access
          */
         Map dsParams = new HashMap();
-        URL url = AppSchemaDataAccessRegistryTest.class.getResource(schemaBase + "MappedFeaturePropertyfile.xml");
+        URL url = AppSchemaDataAccessRegistryTest.class.getResource(schemaBase
+                + "MappedFeaturePropertyfile.xml");
         assertNotNull(url);
         dsParams.put("dbtype", "app-schema");
         dsParams.put("url", url.toExternalForm());
@@ -184,7 +211,62 @@ public class AppSchemaDataAccessRegistryTest {
         ccDataAccess = (AppSchemaDataAccess) DataAccessRegistry.getDataAccess(CONTROLLED_CONCEPT);
         assertNotNull(ccDataAccess);
     }
-    
+
+    /**
+     * Create mock app-schema data access config.
+     */
+    @BeforeClass
+    public static void setUp() {
+        /**
+         * Create mock AppSchemaDataAccessDto to test mappingName
+         */
+        final String TARGET_ELEMENT_NAME = "gsml:MappedFeature";
+        final String MAPPING_NAME = "MAPPING_NAME_ONE";
+        final String SOURCE_ID = "MappedFeature";
+        final String MAPPING_FILE = "MappedFeaturePropertyfile";
+
+        HashSet mappings = new HashSet();
+        Map dsParams = new HashMap();
+        URL url = AppSchemaDataAccessRegistryTest.class.getResource(schemaBase);
+        assertNotNull(url);
+        final SourceDataStore ds = new SourceDataStore();
+        ds.setId(SOURCE_ID);
+        dsParams.put("directory", url.toExternalForm());
+        ds.setParams(dsParams);
+        config = new AppSchemaDataAccessDTO();
+        config.setSourceDataStores(new ArrayList() {
+            {
+                add(ds);
+            }
+        });
+        config.setBaseSchemasUrl(url.toExternalForm());
+        config.setNamespaces(new HashMap<String, String>() {
+            {
+                put("gsml", GSMLNS);
+            }
+        });
+        config.setTargetSchemasUris(new ArrayList<String>() {
+            {
+                add("http://schemas.opengis.net/GeoSciML/geosciml.xsd");
+            }
+        });
+        config.setCatalog("mappedPolygons.oasis.xml");
+
+        /**
+         * Create mock TypeMapping objects to be set inside config in the test cases
+         */
+        dtoMappingName = new TypeMapping();
+        dtoMappingName.setMappingName(MAPPING_NAME);
+        dtoMappingName.setSourceDataStore(SOURCE_ID);
+        dtoMappingName.setSourceTypeName(MAPPING_FILE);
+        dtoMappingName.setTargetElementName(TARGET_ELEMENT_NAME);
+
+        dtoNoMappingName = new TypeMapping();
+        dtoNoMappingName.setSourceDataStore(SOURCE_ID);
+        dtoNoMappingName.setSourceTypeName(MAPPING_FILE);
+        dtoNoMappingName.setTargetElementName(TARGET_ELEMENT_NAME);
+    }
+
     /**
      * Clean the registry so it doesn't affect other tests
      */
@@ -206,10 +288,10 @@ public class AppSchemaDataAccessRegistryTest {
      */
     private void checkRegisteredDataAccess(AppSchemaDataAccess dataAccess, Name typeName,
             boolean isNonFeature) throws IOException {
-        FeatureTypeMapping mapping = AppSchemaDataAccessRegistry.getMapping(typeName);
+        FeatureTypeMapping mapping = AppSchemaDataAccessRegistry.getMappingByElement(typeName);
         assertNotNull(mapping);
         // compare with the supplied data access
-        assertEquals(dataAccess.getMapping(typeName).equals(mapping), true);
+        assertEquals(dataAccess.getMappingByElement(typeName).equals(mapping), true);
         if (isNonFeature) {
             assertEquals(mapping.getTargetFeature().getType() instanceof NonFeatureTypeProxy, true);
         }
@@ -241,9 +323,10 @@ public class AppSchemaDataAccessRegistryTest {
         DataAccessRegistry.unregister(dataAccess);
         boolean notFound = false;
         try {
-            FeatureTypeMapping mapping = AppSchemaDataAccessRegistry.getMapping(typeName);
+            FeatureTypeMapping mapping = AppSchemaDataAccessRegistry.getMappingByElement(typeName);
         } catch (DataSourceException e) {
             notFound = true;
+            assertTrue(e.getMessage().startsWith("Feature type " + typeName + " not found"));
         }
         if (!notFound) {
             fail("Expecting DataSourceException but didn't occur. Deregistering data access fails.");
@@ -253,9 +336,136 @@ public class AppSchemaDataAccessRegistryTest {
             FeatureSource source = AppSchemaDataAccessRegistry.getSimpleFeatureSource(typeName);
         } catch (DataSourceException e) {
             notFound = true;
+            assertTrue(e.getMessage().startsWith("Feature type " + typeName + " not found"));
         }
         if (!notFound) {
             fail("Expecting DataSourceException but didn't occur. Deregistering data access fails.");
         }
+    }
+
+    /**
+     * Fail scenarios for breaking uniqueness of FeatureTypeMapping key (mappingName or
+     * targetElement).
+     * 
+     * @throws IOException
+     */
+    @Test
+    public void testDuplicateKey() throws IOException {
+        boolean threwException = false;
+        /**
+         * Test duplicate mappingName
+         */
+        HashSet mappings = new HashSet();
+        TypeMapping duplicate = new TypeMapping();
+        duplicate.setMappingName(dtoMappingName.getMappingName());
+        duplicate.setSourceDataStore(dtoMappingName.getSourceDataStore());
+        duplicate.setSourceTypeName(dtoMappingName.getSourceTypeName());
+        duplicate.setTargetElementName(dtoMappingName.getTargetElementName());
+        mappings.add(dtoMappingName);
+        mappings.add(duplicate);
+        config.setTypeMappings(mappings);
+        try {
+            AppSchemaDataAccess da = new AppSchemaDataAccess(AppSchemaDataAccessConfigurator
+                    .buildMappings(config));
+        } catch (DataSourceException e) {
+            assertTrue(e
+                    .getMessage()
+                    .startsWith(
+                            "Duplicate mappingName or targetElement across FeatureTypeMapping instances detected."));
+            threwException = true;
+        }
+        assertTrue(threwException);
+        threwException = false;
+        /**
+         * Test when targetElement duplicates a mappingName
+         */
+        duplicate = new TypeMapping();
+        duplicate.setMappingName(dtoNoMappingName.getTargetElementName());
+        duplicate.setSourceDataStore(dtoNoMappingName.getSourceDataStore());
+        duplicate.setSourceTypeName(dtoNoMappingName.getSourceTypeName());
+        duplicate.setTargetElementName(dtoNoMappingName.getTargetElementName());
+        mappings.clear();
+        mappings.add(duplicate);
+        mappings.add(dtoNoMappingName);
+        config.setTypeMappings(mappings);
+        // make sure the above operation didn't fail
+        assertTrue(config.getTypeMappings().containsAll(mappings));
+        try {
+            AppSchemaDataAccess da = new AppSchemaDataAccess(AppSchemaDataAccessConfigurator
+                    .buildMappings(config));
+        } catch (DataSourceException e) {
+            assertTrue(e
+                    .getMessage()
+                    .startsWith(
+                            "Duplicate mappingName or targetElement across FeatureTypeMapping instances detected."));
+            threwException = true;
+        }
+        assertTrue(threwException);
+        threwException = false;
+        /**
+         * Test duplicate targetElement, when both don't have mappingName
+         */
+        duplicate = new TypeMapping();
+        duplicate.setSourceDataStore(dtoNoMappingName.getSourceDataStore());
+        duplicate.setSourceTypeName(dtoNoMappingName.getSourceTypeName());
+        duplicate.setTargetElementName(dtoNoMappingName.getTargetElementName());
+        mappings.clear();
+        mappings.add(duplicate);
+        mappings.add(dtoNoMappingName);
+        config.setTypeMappings(mappings);
+        assertTrue(config.getTypeMappings().containsAll(mappings));
+        try {
+            AppSchemaDataAccess da = new AppSchemaDataAccess(AppSchemaDataAccessConfigurator
+                    .buildMappings(config));
+        } catch (DataSourceException e) {
+            assertTrue(e
+                    .getMessage()
+                    .startsWith(
+                            "Duplicate mappingName or targetElement across FeatureTypeMapping instances detected."));
+            threwException = true;
+        }
+        assertTrue(threwException);
+    }
+
+    /**
+     * Success scenarios for keeping uniqueness of FeatureTypeMapping key (mappingName or
+     * targetElement).
+     * 
+     * @throws IOException
+     * 
+     * @throws IOException
+     */
+    @Test
+    public void testUniqueKey() throws IOException {
+        /**
+         * When mappingName are present in both mappings, and they're unique
+         */
+        HashSet mappings = new HashSet();
+        TypeMapping duplicate = new TypeMapping();
+        duplicate.setMappingName(dtoMappingName.getTargetElementName());
+        duplicate.setSourceDataStore(dtoMappingName.getSourceDataStore());
+        duplicate.setSourceTypeName(dtoMappingName.getSourceTypeName());
+        duplicate.setTargetElementName(dtoMappingName.getTargetElementName());
+        mappings.add(dtoMappingName);
+        mappings.add(duplicate);
+        config.setTypeMappings(mappings);
+        AppSchemaDataAccess da = new AppSchemaDataAccess(AppSchemaDataAccessConfigurator
+                .buildMappings(config));
+        assertNotNull(da);
+        da.dispose();
+        /**
+         * When mappingName is present in one mapping, and it's different from the targetElement of
+         * the other.
+         */
+        mappings.clear();
+        mappings.add(dtoMappingName);
+        mappings.add(dtoNoMappingName);
+        config.setTypeMappings(mappings);
+        assertTrue(config.getTypeMappings().containsAll(mappings));
+        da = new AppSchemaDataAccess(AppSchemaDataAccessConfigurator.buildMappings(config));
+        assertNotNull(da);
+        da.dispose();
+        // no need to test the scenario if both target elements are unique, as most of the other
+        // app-schema test files are already like this.
     }
 }

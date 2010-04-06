@@ -417,26 +417,7 @@ public class FeatureChainingTest {
      */
     @Test
     public void testMultiValuedSimpleProperties() throws Exception {
-        // Controlled Concept can have many gml:name
-        Map dsParams = new HashMap();
-        URL url = getClass().getResource(schemaBase + "ControlledConcept.xml");
-        assertNotNull(url);
-
-        dsParams.put("dbtype", "app-schema");
-        dsParams.put("url", url.toExternalForm());
-        DataAccess<FeatureType, Feature> dataAccess = DataAccessFinder.getDataStore(dsParams);
-        assertNotNull(dataAccess);
-
-        FeatureType featureType = dataAccess.getSchema(CONTROLLED_CONCEPT);
-        assertNotNull(featureType);
-
-        FeatureSource fSource = (FeatureSource) dataAccess.getFeatureSource(CONTROLLED_CONCEPT);
-        FeatureCollection features = (FeatureCollection) fSource.getFeatures();
-
-        final int EXPECTED_RESULTS = 2;
-        assertEquals(features.size(), EXPECTED_RESULTS);
-
-        Iterator<Feature> iterator = features.iterator();
+        Iterator<Feature> iterator = ccFeatures.iterator();
         while (iterator.hasNext()) {
             Feature next = iterator.next();
             Collection<Property> names = next.getProperties("name");
@@ -448,8 +429,7 @@ public class FeatureChainingTest {
                 assertEquals(names.size(), 1);
             }
         }
-
-        dataAccess.dispose();
+        ccFeatures.close(iterator);
     }
 
     /**
@@ -494,7 +474,7 @@ public class FeatureChainingTest {
         // significant proportion value
         property = ff
                 .property("gsml:composition/gsml:CompositionPart/gsml:proportion/gsml:CGI_TermValue/gsml:value");
-        filter = ff.like(property, "significant");
+        filter = ff.equals(property, ff.literal("significant"));
         filteredResults = guSource.getFeatures(filter);
         assertEquals(filteredResults.size(), 3);
         iterator = filteredResults.iterator();
@@ -587,7 +567,7 @@ public class FeatureChainingTest {
     @Test
     public void testComplexTypeWithSimpleContent() throws Exception {
         Map dsParams = new HashMap();
-        URL url = getClass().getResource(schemaBase + "ComplexTypeWithSimpleContent.xml");
+        URL url = getClass().getResource(schemaBase + "FirstParentFeature.xml");
         assertNotNull(url);
 
         dsParams.put("dbtype", "app-schema");
@@ -641,6 +621,14 @@ public class FeatureChainingTest {
         // <OCQL>LINK_TWO</OCQL>
         // </sourceExpression>
         // </AttributeMapping>
+        dsParams = new HashMap();
+        url = getClass().getResource(schemaBase + "SecondParentFeature.xml");
+        assertNotNull(url);
+
+        dsParams.put("dbtype", "app-schema");
+        dsParams.put("url", url.toExternalForm());
+        dataAccess = DataAccessFinder.getDataStore(dsParams);
+        assertNotNull(dataAccess);
         typeName = Types.typeName("http://example.com", "SecondParentFeature");
         featureType = dataAccess.getSchema(typeName);
         assertNotNull(featureType);
@@ -797,7 +785,7 @@ public class FeatureChainingTest {
         resultCount = cpFeatures.size();
         assertEquals(EXPECTED_RESULT_COUNT, resultCount);
 
-        EXPECTED_RESULT_COUNT = 8;
+        EXPECTED_RESULT_COUNT = 5;
         resultCount = cgiFeatures.size();
         assertEquals(EXPECTED_RESULT_COUNT, resultCount);
     }

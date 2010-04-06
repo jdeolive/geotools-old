@@ -111,7 +111,7 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
         DataAccessIntegrationTest.setFilterFactory();
         // load app-schema data access instances
         loadGeologicUnitDataAccess();
-        loadDataAccesses("MappedFeatureAsOccurrence.xml");
+        loadDataAccess("MappedFeatureAsOccurrence.xml");
     }
 
     /**
@@ -307,7 +307,7 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
                 .getFeatures();
         // mo:EarthResource -> gsml:GeologicUnit output iterator
         AbstractMappingFeatureIterator iterator = (AbstractMappingFeatureIterator) guCollection.iterator();
-        FeatureTypeMapping guSchema = AppSchemaDataAccessRegistry.getMapping(GEOLOGIC_UNIT);
+        FeatureTypeMapping guSchema = AppSchemaDataAccessRegistry.getMappingByElement(GEOLOGIC_UNIT);
         Hints hints = new Hints(FeaturePropertyAccessorFactory.NAMESPACE_CONTEXT, guSchema
                 .getNamespaces());
         // find attribute mappings for chained features

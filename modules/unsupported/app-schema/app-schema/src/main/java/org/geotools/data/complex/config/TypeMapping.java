@@ -53,6 +53,12 @@ public class TypeMapping implements Serializable {
 
     private List attributeMappings = Collections.EMPTY_LIST;
 
+    /**
+     * Optional unique identifier for a FeatureTypeMapping, useful for multiple mappings of the
+     * same type. 
+     */
+    private String mappingName;
+
     public TypeMapping() {
         // no-op
     }
@@ -106,11 +112,23 @@ public class TypeMapping implements Serializable {
 
     public boolean isXmlDataStore() {
         return isXmlDataStore;
+    } 
+    
+    public void setMappingName(final String mappingName) {
+        this.mappingName = mappingName;   
+    }
+    
+    public String getMappingName() {
+        return mappingName;
     }
     
     public String toString() {
         StringBuffer sb = new StringBuffer();
-        sb.append("TypeMappingDTO[").append("sourceDataStore=").append(sourceDataStore).append(
+        sb.append("TypeMappingDTO[");
+        if (mappingName != null) {
+            sb.append("mappingName=").append(mappingName).append(",\n ");
+        }
+        sb.append("sourceDataStore=").append(sourceDataStore).append(
                 ",\n sourceTypeName=").append(sourceTypeName).append(",\n targetElementName=")
                 .append(targetElementName).append(",\n attributeMappings=").append(
                         attributeMappings).append("]");

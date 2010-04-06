@@ -94,5 +94,31 @@
 				</AttributeMapping>
 			</attributeMappings>
 		</FeatureTypeMapping>
+		<FeatureTypeMapping>
+		    <mappingName>exposureColor</mappingName>
+			<sourceDataStore>CGITermValue</sourceDataStore>
+			<sourceType>exposureColor</sourceType>
+			<targetElement>gsml:CGI_TermValue</targetElement>
+			<attributeMappings>
+				<AttributeMapping>
+					<targetAttribute>gsml:value</targetAttribute>
+					<sourceExpression>
+						<OCQL>VALUE</OCQL>
+					</sourceExpression>
+					<ClientProperty>
+					    <name>codeSpace</name>
+					    <value>'some:uri'</value>
+					</ClientProperty>
+				</AttributeMapping>
+				<AttributeMapping>
+					<targetAttribute>
+			            FEATURE_LINK
+  		            </targetAttribute>
+					<sourceExpression>
+						<OCQL>strTrim(getId())</OCQL>
+					</sourceExpression>
+				</AttributeMapping>
+			</attributeMappings>
+		</FeatureTypeMapping>
 	</typeMappings>
 </as:AppSchemaDataAccess>

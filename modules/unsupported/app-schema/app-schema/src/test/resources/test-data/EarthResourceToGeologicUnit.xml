@@ -22,6 +22,10 @@
 			<uri>urn:cgi:xmlns:GGIC:MineralOccurrence:1.0</uri>
 		</Namespace>
 	</namespaces>
+	<includedTypes>
+        <Include>CompositionPart.xml</Include>
+        <Include>CGITermValue.xml</Include>
+    </includedTypes>	
 	<sourceDataStores>
 		<DataStore>
 			<id>EarthResource</id>

@@ -103,6 +103,7 @@ public class AppSchemaDataAccessTest extends TestCase {
 
     protected void tearDown() throws Exception {
         super.tearDown();
+        DataAccessRegistry.unregisterAll();
     }
 
     /*

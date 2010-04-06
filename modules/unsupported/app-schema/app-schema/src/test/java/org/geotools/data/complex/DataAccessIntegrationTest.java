@@ -155,7 +155,22 @@ public class DataAccessIntegrationTest {
     public static void setUp() throws Exception {
         setFilterFactory();
         loadGeologicUnitDataAccess();
-        loadDataAccesses("MappedFeaturePropertyfile.xml");
+        // Load CGI Term Value data access
+        URL url = DataAccessIntegrationTest.class.getResource(schemaBase + "CGITermValue.xml");
+        assertNotNull(url);
+        Map<String, Serializable> dsParams = new HashMap<String, Serializable>();
+        dsParams.put("dbtype", "app-schema");
+        dsParams.put("url", url.toExternalForm());
+        DataAccess<FeatureType, Feature> cgiDataAccess = DataAccessFinder.getDataStore(dsParams);
+        assertNotNull(cgiDataAccess);
+        // Load composition part data access
+        url = DataAccessIntegrationTest.class.getResource(schemaBase + "CompositionPart.xml");
+        assertNotNull(url);        
+        dsParams.put("url", url.toExternalForm());
+        DataAccessFinder.getDataStore(dsParams);
+        // Load Mapped Feature data access
+        loadDataAccess("MappedFeaturePropertyfile.xml");
+        
     }
 
     /**
@@ -381,7 +396,7 @@ public class DataAccessIntegrationTest {
      *            Mapped feature mapping file with geologic unit as specification
      * @throws IOException
      */
-    protected static void loadDataAccesses(String mfMappingFile) throws IOException {
+    protected static void loadDataAccess(String mfMappingFile) throws IOException {
         /**
          * Load mapped feature data access
          */
@@ -406,26 +421,11 @@ public class DataAccessIntegrationTest {
             mfFeatures.add(mfIterator.next());
         }
         mfCollection.close(mfIterator);
-
+        
         /**
-         * Load CGI Term Value data access
+         * Get composition part data access features
          */
-        url = DataAccessIntegrationTest.class.getResource(schemaBase + "CGITermValue.xml");
-        assertNotNull(url);
-
-        dsParams.put("url", url.toExternalForm());
-        DataAccess<FeatureType, Feature> cgiDataAccess = DataAccessFinder.getDataStore(dsParams);
-        assertNotNull(cgiDataAccess);
-
-        /**
-         * Load composition part data access
-         */
-        url = DataAccessIntegrationTest.class.getResource(schemaBase + "CompositionPart.xml");
-        assertNotNull(url);
-
-        dsParams.put("dbtype", "app-schema");
-        dsParams.put("url", url.toExternalForm());
-        DataAccess<FeatureType, Feature> cpDataAccess = DataAccessFinder.getDataStore(dsParams);
+        DataAccess<FeatureType, Feature> cpDataAccess = DataAccessRegistry.getDataAccess(COMPOSITION_PART);
         assertNotNull(cpDataAccess);
         FeatureSource<FeatureType, Feature> cpSource = cpDataAccess
                 .getFeatureSource(COMPOSITION_PART);

@@ -30,6 +30,7 @@ import java.util.Map;
 import org.geotools.data.DataAccess;
 import org.geotools.data.DataAccessFinder;
 import org.geotools.data.FeatureSource;
+import org.geotools.data.complex.DataAccessRegistry;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.Types;
 import org.junit.AfterClass;
@@ -82,7 +83,7 @@ public class BBoxTest {
 
     @AfterClass
     public static void tearDown() {
-        dataAccess.dispose();
+        DataAccessRegistry.unregisterAll();
     }
 
     @Test

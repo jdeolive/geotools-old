@@ -17,7 +17,4 @@
 		</xs:complexContent>
 	</xs:complexType>
 	<xs:element name="PolymorphicFeature" type="ex:polymorphicFeatureType" substitutionGroup="gml:_Feature"/>
-	<xs:element name="NullValue" type="gsml:CGI_TermValueType" substitutionGroup="gsml:CGI_TermValue"/>
-	<xs:element name="TermValue" type="gsml:CGI_TermValueType" substitutionGroup="gsml:CGI_TermValue"/>
-	<xs:element name="NumericValue" type="gsml:CGI_NumericValueType" substitutionGroup="gsml:CGI_NumericValue"/>
 </xs:schema>

@@ -134,7 +134,7 @@
 		            </targetAttribute>
 					<sourceExpression>
 						<OCQL>EXPOSURE_COLOR</OCQL>
-						<linkElement>gsml:CGI_TermValue</linkElement>
+						<linkElement>exposureColor</linkElement>
 						<linkField>FEATURE_LINK</linkField>
 					</sourceExpression>
 					<isMultiple>true</isMultiple>

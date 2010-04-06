@@ -19,7 +19,6 @@ package org.geotools.data.complex;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Iterator;
@@ -94,8 +93,6 @@ public class AppSchemaDataAccessFactory implements DataAccessFactory {
         mappings = AppSchemaDataAccessConfigurator.buildMappings(config);
 
         dataStore = new AppSchemaDataAccess(mappings);
-
-        dataStore.register();
 
         return dataStore;
     }

@@ -19,9 +19,9 @@ package org.geotools.data.complex;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.geotools.data.DefaultQuery;
@@ -31,7 +31,6 @@ import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.Types;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.FilterFactoryImplNamespaceAware;
-import org.geotools.filter.NestedAttributeExpression;
 import org.opengis.feature.Feature;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.Name;
@@ -134,9 +133,9 @@ public class NestedAttributeMapping extends AttributeMapping {
      * @throws IOException
      * @throws IOException
      */
-    public Collection<Feature> getInputFeatures(Object foreignKeyValue,
+    public List<Feature> getInputFeatures(Object foreignKeyValue,
             CoordinateReferenceSystem reprojection, Feature feature) throws IOException {
-        if (isPolymorphic()) {
+        if (isSameSource()) {
             // if linkField is null, this method shouldn't be called because the mapping
             // should use the same table, and handles it differently
             throw new UnsupportedOperationException(
@@ -152,7 +151,7 @@ public class NestedAttributeMapping extends AttributeMapping {
                 return Collections.EMPTY_LIST;
             }
             FeatureTypeMapping featureTypeMapping = AppSchemaDataAccessRegistry
-                    .getMapping(featureTypeName);
+                    .getMappingByName(featureTypeName);
             assert featureTypeMapping != null;
 
             source = featureTypeMapping.getSource();
@@ -188,6 +187,59 @@ public class NestedAttributeMapping extends AttributeMapping {
     }
 
     /**
+     * Get matching input features that are stored in this mapping using a supplied link value.
+     * 
+     * @param foreignKeyValue
+     * @param reprojection
+     *            Reprojected CRS or null
+     * @return The matching input feature
+     * @throws IOException
+     * @throws IOException
+     */
+    public List<Feature> getInputFeatures(Object foreignKeyValue,
+            CoordinateReferenceSystem reprojection, FeatureTypeMapping fMapping) throws IOException {
+        if (isSameSource()) {
+            // if linkField is null, this method shouldn't be called because the mapping
+            // should use the same table, and handles it differently
+            throw new UnsupportedOperationException(
+                    "Link field is missing from feature chaining mapping!");
+        }
+        ArrayList<Feature> matchingFeatures = new ArrayList<Feature>();
+        if (source == null || !(nestedFeatureType instanceof AttributeExpressionImpl)) {
+            assert fMapping != null;
+
+            source = fMapping.getSource();
+            assert source != null;
+
+            // find source expression on nested features side
+            AttributeMapping mapping = fMapping.getAttributeMapping(this.nestedTargetXPath);
+            assert mapping != null;
+            nestedSourceExpression = mapping.getSourceExpression();
+        }
+        assert nestedSourceExpression != null;
+
+        Filter filter = filterFac.equals(this.nestedSourceExpression, filterFac
+                .literal(foreignKeyValue));
+        // get all the nested features based on the link values
+        DefaultQuery query = new DefaultQuery();
+        query.setCoordinateSystemReproject(reprojection);
+        query.setFilter(filter);
+        FeatureCollection<FeatureType, Feature> fCollection = source.getFeatures(query);
+        Iterator<Feature> it = fCollection.iterator();
+
+        while (it.hasNext()) {
+            Feature f = it.next();
+            Object value = this.nestedSourceExpression.evaluate(f);
+            if (value != null && value.equals(foreignKeyValue)) {
+                matchingFeatures.add(f);
+            }
+        }
+        fCollection.close(it);
+
+        return matchingFeatures;
+    }
+
+    /**
      * Get the maching built features that are stored in this mapping using a supplied link value
      * 
      * @param foreignKeyValue
@@ -196,38 +248,24 @@ public class NestedAttributeMapping extends AttributeMapping {
      * @return The matching simple features
      * @throws IOException
      */
-    public Collection<Feature> getFeatures(Object foreignKeyValue,
+    public List<Feature> getFeatures(Object foreignKeyValue,
             CoordinateReferenceSystem reprojection, Feature feature) throws IOException {
-        if (isPolymorphic()) {
+        if (isSameSource()) {
             // if linkField is null, this method shouldn't be called because the mapping
             // should use the same table, and handles it differently
             throw new UnsupportedOperationException(
                     "Link field is missing from feature chaining mapping!");
         }
-        if (mappingSource == null || !(nestedFeatureType instanceof AttributeExpressionImpl)) {
-            // initiate if null, or evaluate a new one if the targetElement is a function
-            // which value depends on the feature
-            Name featureTypeName = getNestedFeatureType(feature);
-            if (featureTypeName == null) {
-                return Collections.EMPTY_LIST;
-            }
-            // this cannot be set in the constructor since it might not exist yet
-            mappingSource = DataAccessRegistry.getFeatureSource(featureTypeName);
+
+        FeatureSource<FeatureType, Feature> fSource = getMappingSource(feature);
+        if (fSource == null) {
+            return null;
         }
-        assert mappingSource != null;
         Filter filter;
 
         ArrayList<Feature> matchingFeatures = new ArrayList<Feature>();
-        PropertyName propertyName = null;
+        PropertyName propertyName = filterFac.property(this.nestedTargetXPath.toString());
 
-        if (!(mappingSource instanceof MappingFeatureSource)) {
-            // non app-schema source.. may not have simple feature source behind it
-            // so we need to filter straight on the complex features
-            propertyName = new NestedAttributeExpression(this.nestedTargetXPath.toString(),
-                    reprojection);
-        } else {
-            propertyName = filterFac.property(this.nestedTargetXPath.toString());
-        }
         filter = filterFac.equals(propertyName, filterFac.literal(foreignKeyValue));
 
         DefaultQuery query = new DefaultQuery();
@@ -235,7 +273,7 @@ public class NestedAttributeMapping extends AttributeMapping {
         query.setFilter(filter);
 
         // get all the mapped nested features based on the link values
-        FeatureCollection<FeatureType, Feature> fCollection = mappingSource.getFeatures(query);
+        FeatureCollection<FeatureType, Feature> fCollection = fSource.getFeatures(query);
         Iterator<Feature> iterator = fCollection.iterator();
         while (iterator.hasNext()) {
             matchingFeatures.add(iterator.next());
@@ -243,6 +281,22 @@ public class NestedAttributeMapping extends AttributeMapping {
         fCollection.close(iterator);
 
         return matchingFeatures;
+    }
+
+    private FeatureSource<FeatureType, Feature> getMappingSource(Feature feature)
+            throws IOException {
+
+        if (mappingSource == null || !(nestedFeatureType instanceof AttributeExpressionImpl)) {
+            // initiate if null, or evaluate a new one if the targetElement is a function
+            // which value depends on the feature
+            Name featureTypeName = getNestedFeatureType(feature);
+            if (featureTypeName == null) {
+                return null;
+            }
+            // this cannot be set in the constructor since it might not exist yet
+            mappingSource = DataAccessRegistry.getFeatureSource(featureTypeName);
+        }
+        return mappingSource;
     }
 
     /**
@@ -264,10 +318,29 @@ public class NestedAttributeMapping extends AttributeMapping {
         return Types.degloseName(fTypeValue.toString(), namespaces);
     }
 
-    public boolean isPolymorphic() {
+    public boolean isSameSource() {
         // if the linkField is null, we're meant to work out the nestedFeatureType from
         // the linkElement, which should contain a function. So the value could vary
-        // feature per feature.
+        // feature per feature. But the linkElement would point to the same data source table
+        // if the linkField is null.
         return this.nestedTargetXPath == null;
+    }
+
+    public boolean isConditional() {
+        // true if the type is depending on a function value, i.e. could be a Function or filter
+        return !(nestedFeatureType instanceof AttributeExpressionImpl);
+    }
+
+    public FeatureTypeMapping getFeatureTypeMapping(Feature feature) throws IOException {
+        FeatureSource<FeatureType, Feature> fSource = getMappingSource(feature);
+        if (fSource == null) {
+            return null;
+        }
+        return (fSource instanceof MappingFeatureSource) ? ((MappingFeatureSource) fSource)
+                .getMapping() : null;
+    }
+
+    public NamespaceSupport getNamespaces() {
+        return namespaces;
     }
 }

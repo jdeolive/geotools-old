@@ -109,9 +109,9 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
     private Filter nestedAttributeFilter;
 
     /**
-     * True if the query is filtered by attributes other than id, this is to cater for denormalised 
+     * True if the query is filtered by attributes other than id, this is to cater for denormalised
      * view where there can be multiple rows for 1 complex feature with different values. If the
-     * filter is applied when the iterator is created, there's a chance some information is lost 
+     * filter is applied when the iterator is created, there's a chance some information is lost
      * from rows from denormalised view not being incorporated into the target feature.
      */
     private boolean isFiltered;
@@ -202,11 +202,13 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
             // HACK HACK HACK
             // This is the only way we can check if the filter attributes are nested or not
             // since there's no expression getter method for every implementation of filters.
-            // Remove the suspected filter from the query, and run it against each complex feature later
+            // Remove the suspected filter from the query, and run it against each complex feature
+            // later
             // because JDBCFeatureSource cannot handle nested queries, since it translates
             // it to SQL first, then run the big query, but there's no way it can find the nested
             // feature type name from there.
-            // Whereas with PropertyFeatureSource, it just runs the query first with no filters, then
+            // Whereas with PropertyFeatureSource, it just runs the query first with no filters,
+            // then
             // check every row against the filter, which is what we're trying to do here.
             if (filter != null) {
                 ((DefaultQuery) query).setFilter(Filter.INCLUDE);
@@ -307,7 +309,7 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
         final AttributeType targetNodeType = attMapping.getTargetNodeInstance();
         final StepList xpath = attMapping.getTargetXPath();
         Map<Name, Expression> clientPropsMappings = attMapping.getClientProperties();
-        boolean isNestedFeature = attMapping.isNestedAttribute(); 
+        boolean isNestedFeature = attMapping.isNestedAttribute();
         String id = null;
         if (Expression.NIL != attMapping.getIdentifierExpression()) {
             id = extractIdForAttribute(attMapping.getIdentifierExpression(), source);
@@ -315,12 +317,11 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
 
         if (attMapping.isNestedAttribute()) {
             NestedAttributeMapping nestedMapping = ((NestedAttributeMapping) attMapping);
-            if (nestedMapping.isPolymorphic()) {
+            if (nestedMapping.isSameSource()) {
                 setPolymorphicValues(target, id, nestedMapping, source, xpath, clientPropsMappings);
                 return;
             }
         }
-        // otherwise, leave the value as null
         Object value = getValues(attMapping.isMultiValued(), sourceExpression, source);
         boolean isHRefLink = isByReference(clientPropsMappings, isNestedFeature);
         if (isNestedFeature) {
@@ -356,9 +357,11 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
                 // feature type also have a reference back to this type
                 // eg. gsml:GeologicUnit/gsml:occurence/gsml:MappedFeature
                 // and gsml:MappedFeature/gsml:specification/gsml:GeologicUnit
-                value = ((NestedAttributeMapping) attMapping).getInputFeatures(value, reprojection, source);
+                value = ((NestedAttributeMapping) attMapping).getInputFeatures(value, reprojection,
+                        source);
             } else {
-                value = ((NestedAttributeMapping) attMapping).getFeatures(value, reprojection, source);
+                value = ((NestedAttributeMapping) attMapping).getFeatures(value, reprojection,
+                        source);
             }
             if (isHRefLink) {
                 // only need to set the href link value, not the nested feature properties
@@ -367,7 +370,10 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
             }
         }
         if (isNestedFeature) {
-            assert (value instanceof Collection);
+            if (value == null) {
+                // polymorphism use case, if the value doesn't match anything, don't encode
+                return;
+            }
         }
         if (value instanceof Collection) {
             // nested feature type could have multiple instances as the whole purpose
@@ -440,23 +446,23 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
     private void setPolymorphicValues(Attribute target, String id,
             NestedAttributeMapping nestedMapping, Feature source, StepList xpath,
             Map<Name, Expression> clientPropsMappings) throws IOException {
-        Name polymorphicTypeName = nestedMapping.getNestedFeatureType(source);
-        if (polymorphicTypeName != null) {
+        Name mappingName = nestedMapping.getNestedFeatureType(source);
+        if (mappingName != null) {
             // process sub-type mapping
-            DataAccess<FeatureType, Feature> da = DataAccessRegistry
-                    .getDataAccess(polymorphicTypeName);
+            DataAccess<FeatureType, Feature> da = DataAccessRegistry.getDataAccess(mappingName);
             if (da instanceof AppSchemaDataAccess) {
                 // why wouldn't it be? check just to be safe
-                List<AttributeMapping> polymorphicMappings = ((AppSchemaDataAccess) da).getMapping(
-                        polymorphicTypeName).getAttributeMappings();
+                FeatureTypeMapping fTypeMapping = ((AppSchemaDataAccess) da)
+                        .getMappingByName(mappingName);
+                List<AttributeMapping> polymorphicMappings = fTypeMapping.getAttributeMappings();
+                AttributeDescriptor attDescriptor = fTypeMapping.getTargetFeature();
+                Name polymorphicTypeName = attDescriptor.getName();
                 StepList prefixedXpath = xpath.clone();
                 prefixedXpath.add(new Step(new QName(polymorphicTypeName.getNamespaceURI(),
                         polymorphicTypeName.getLocalPart(), this.namespaces
                                 .getPrefix(polymorphicTypeName.getNamespaceURI())), 1));
-                AttributeDescriptor attDescriptor = ((MappingFeatureSource) da
-                        .getFeatureSource(polymorphicTypeName)).getTargetFeature();
                 Attribute instance = xpathAttributeBuilder.set(target, prefixedXpath, null, id,
-                        da.getSchema(polymorphicTypeName), false, attDescriptor);
+                        attDescriptor.getType(), false, attDescriptor);
                 setClientProperties(instance, source, clientPropsMappings);
                 for (AttributeMapping mapping : polymorphicMappings) {
                     if (isTopLevelmapping(polymorphicTypeName, mapping.getTargetXPath())) {
@@ -506,7 +512,7 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
                     assert linkExpression != null;
                     Object hrefValue = linkExpression.evaluate(singleVal);
                     if (hrefValue != null && hrefValue.equals(existingValue)) {
-                        // (2) if one of the new values matches the first existing value, 
+                        // (2) if one of the new values matches the first existing value,
                         // that means this comes from a denormalized view,
                         // and this set has already been set
                         return;
@@ -574,8 +580,8 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
         } else {
             // in case the expression is wrapped in a function, eg. strConcat
             // that's why we don't always filter by id, but do a PropertyIsEqualTo
-            query.setFilter(namespaceAwareFilterFactory.equals(
-                    featureFidMapping, namespaceAwareFilterFactory.literal(featureId)));
+            query.setFilter(namespaceAwareFilterFactory.equals(featureFidMapping,
+                    namespaceAwareFilterFactory.literal(featureId)));
             matchingFeatures = this.mappedSource.getFeatures(query);
         }
 

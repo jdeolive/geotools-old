@@ -24,7 +24,6 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -196,9 +195,9 @@ public class GeologicUnitTest {
         assertEquals(EXPECTED_RESULT_COUNT, resultCount);
 
         /*
-         * Make sure there are 8 cgi term values
+         * Make sure there are 5 cgi term values
          */
-        EXPECTED_RESULT_COUNT = 8;
+        EXPECTED_RESULT_COUNT = 5;
 
         FeatureSource cgiSource = DataAccessRegistry
                 .getFeatureSource(FeatureChainingTest.CGI_TERM_VALUE);
