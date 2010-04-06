@@ -21,7 +21,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -231,7 +234,13 @@ public class AppSchemaDataAccessRegistryTest {
         assertNotNull(url);
         final SourceDataStore ds = new SourceDataStore();
         ds.setId(SOURCE_ID);
-        dsParams.put("directory", url.toExternalForm());
+        try {
+            dsParams.put("directory", new File(url.toURI()).toURL().toString());
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
         ds.setParams(dsParams);
         config = new AppSchemaDataAccessDTO();
         config.setSourceDataStores(new ArrayList() {
