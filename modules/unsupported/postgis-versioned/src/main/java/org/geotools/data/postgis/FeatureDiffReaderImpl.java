@@ -23,13 +23,11 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import org.geotools.data.DataSourceException;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.Transaction;
 import org.geotools.data.postgis.fidmapper.VersionedFIDMapper;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -44,16 +42,19 @@ import org.opengis.filter.sort.SortOrder;
  * @author aaime
  * @since 2.4
  * 
- *
- * @source $URL$
+ * 
+ * @source $URL:
+ *         http://svn.osgeo.org/geotools/trunk/modules/unsupported/postgis-versioned/src/main/java
+ *         /org/geotools/data/postgis/FeatureDiffReader.java $
  */
-public class FeatureDiffReader {
-	/** The logger for the postgis module. */
-    protected static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.data.postgis");
+public class FeatureDiffReaderImpl implements org.geotools.data.FeatureDiffReader {
+    /** The logger for the postgis module. */
+    protected static final Logger LOGGER = org.geotools.util.logging.Logging
+            .getLogger("org.geotools.data.postgis");
 
-    private  FeatureReader<SimpleFeatureType, SimpleFeature> fvReader;
+    private FeatureReader<SimpleFeatureType, SimpleFeature> fvReader;
 
-    private  FeatureReader<SimpleFeatureType, SimpleFeature> tvReader;
+    private FeatureReader<SimpleFeatureType, SimpleFeature> tvReader;
 
     private RevisionInfo fromVersion;
 
@@ -65,19 +66,20 @@ public class FeatureDiffReader {
 
     private VersionedPostgisDataStore store;
 
-    private  FeatureReader<SimpleFeatureType, SimpleFeature> deletedReader;
+    private FeatureReader<SimpleFeatureType, SimpleFeature> deletedReader;
 
-    private  FeatureReader<SimpleFeatureType, SimpleFeature> createdReader;
+    private FeatureReader<SimpleFeatureType, SimpleFeature> createdReader;
 
     private SimpleFeatureType externalFeatureType;
 
-    private FeatureDiff lastDiff;
+    private FeatureDiffImpl lastDiff;
 
     private ModifiedFeatureIds modifiedIds;
 
-    public FeatureDiffReader(VersionedPostgisDataStore store, Transaction transaction,
-            SimpleFeatureType externalFeatureType, RevisionInfo fromVersion, RevisionInfo toVersion,
-            VersionedFIDMapper mapper, ModifiedFeatureIds modifiedIds) throws IOException {
+    public FeatureDiffReaderImpl(VersionedPostgisDataStore store, Transaction transaction,
+            SimpleFeatureType externalFeatureType, RevisionInfo fromVersion,
+            RevisionInfo toVersion, VersionedFIDMapper mapper, ModifiedFeatureIds modifiedIds)
+            throws IOException {
         this.store = store;
         this.transaction = transaction;
         this.fromVersion = fromVersion;
@@ -95,7 +97,7 @@ public class FeatureDiffReader {
      * @param other
      * @throws IOException
      */
-    public FeatureDiffReader(FeatureDiffReader other) throws IOException {
+    public FeatureDiffReaderImpl(FeatureDiffReaderImpl other) throws IOException {
         this.store = other.store;
         this.transaction = other.transaction;
         this.fromVersion = other.fromVersion;
@@ -111,17 +113,25 @@ public class FeatureDiffReader {
 
         // TODO: extract only pk attributes for the delete reader, no need for the others
         if (fromVersion.revision > toVersion.revision) {
-            createdReader = readerFromIdsRevision(ff, null, modifiedIds.deleted, modifiedIds.fromRevision);
-            deletedReader = readerFromIdsRevision(ff, null, modifiedIds.created, modifiedIds.toRevision);
-            fvReader = readerFromIdsRevision(ff, mapper, modifiedIds.modified, modifiedIds.toRevision);
-            tvReader = readerFromIdsRevision(ff, mapper, modifiedIds.modified, modifiedIds.fromRevision);
+            createdReader = readerFromIdsRevision(ff, null, modifiedIds.deleted,
+                    modifiedIds.fromRevision);
+            deletedReader = readerFromIdsRevision(ff, null, modifiedIds.created,
+                    modifiedIds.toRevision);
+            fvReader = readerFromIdsRevision(ff, mapper, modifiedIds.modified,
+                    modifiedIds.toRevision);
+            tvReader = readerFromIdsRevision(ff, mapper, modifiedIds.modified,
+                    modifiedIds.fromRevision);
         } else {
-            createdReader = readerFromIdsRevision(ff, null, modifiedIds.created, modifiedIds.toRevision);
-            deletedReader = readerFromIdsRevision(ff, null, modifiedIds.deleted, modifiedIds.fromRevision);
-            fvReader = readerFromIdsRevision(ff, mapper, modifiedIds.modified, modifiedIds.fromRevision);
-            tvReader = readerFromIdsRevision(ff, mapper, modifiedIds.modified, modifiedIds.toRevision);
+            createdReader = readerFromIdsRevision(ff, null, modifiedIds.created,
+                    modifiedIds.toRevision);
+            deletedReader = readerFromIdsRevision(ff, null, modifiedIds.deleted,
+                    modifiedIds.fromRevision);
+            fvReader = readerFromIdsRevision(ff, mapper, modifiedIds.modified,
+                    modifiedIds.fromRevision);
+            tvReader = readerFromIdsRevision(ff, mapper, modifiedIds.modified,
+                    modifiedIds.toRevision);
         }
-        
+
     }
 
     /**
@@ -133,8 +143,8 @@ public class FeatureDiffReader {
      * @return
      * @throws IOException
      */
-     FeatureReader<SimpleFeatureType, SimpleFeature> readerFromIdsRevision(FilterFactory ff, VersionedFIDMapper mapper, Set fids,
-            RevisionInfo ri) throws IOException {
+    FeatureReader<SimpleFeatureType, SimpleFeature> readerFromIdsRevision(FilterFactory ff,
+            VersionedFIDMapper mapper, Set fids, RevisionInfo ri) throws IOException {
         if (fids != null && !fids.isEmpty()) {
             Filter fidFilter = store.buildFidFilter(fids);
             Filter versionFilter = store.buildVersionedFilter(externalFeatureType.getTypeName(),
@@ -192,17 +202,17 @@ public class FeatureDiffReader {
      * @throws NoSuchElementException
      *             If there are no more Features in the Reader.
      */
-    public FeatureDiff next() throws IOException, NoSuchElementException {
+    public FeatureDiffImpl next() throws IOException, NoSuchElementException {
         // check we have something, and force reader mantainance as well, so that
         // we make sure finished ones are nullified
         if (!hasNext())
             throw new NoSuchElementException("No more diffs in this reader");
         if (createdReader != null) {
-            return new FeatureDiff(null, gatherNextUnversionedFeature(createdReader));
+            return new FeatureDiffImpl(null, gatherNextUnversionedFeature(createdReader));
         } else if (deletedReader != null) {
-            return new FeatureDiff(gatherNextUnversionedFeature(deletedReader), null);
+            return new FeatureDiffImpl(gatherNextUnversionedFeature(deletedReader), null);
         } else {
-            FeatureDiff diff = lastDiff;
+            FeatureDiffImpl diff = lastDiff;
             lastDiff = null;
             return diff;
         }
@@ -215,21 +225,16 @@ public class FeatureDiffReader {
      * 
      * @param f
      * @return
-     * @throws IllegalAttributeException
      */
-    private SimpleFeature gatherNextUnversionedFeature(final  FeatureReader<SimpleFeatureType, SimpleFeature> fr) throws IOException {
-        try {
-            final SimpleFeature f = fr.next();
-            final Object[] attributes = new Object[externalFeatureType.getAttributeCount()];
-            for (int i = 0; i < externalFeatureType.getAttributeCount(); i++) {
-                attributes[i] = f.getAttribute(externalFeatureType.getDescriptor(i).getLocalName());
-            }
-            String id = mapper.getUnversionedFid(f.getID());
-            return SimpleFeatureBuilder.build(externalFeatureType, attributes, id);
-        } catch (IllegalAttributeException e) {
-            throw new DataSourceException("Could not properly load the fetures to diff: " + e);
+    private SimpleFeature gatherNextUnversionedFeature(
+            final FeatureReader<SimpleFeatureType, SimpleFeature> fr) throws IOException {
+        final SimpleFeature f = fr.next();
+        final Object[] attributes = new Object[externalFeatureType.getAttributeCount()];
+        for (int i = 0; i < externalFeatureType.getAttributeCount(); i++) {
+            attributes[i] = f.getAttribute(externalFeatureType.getDescriptor(i).getLocalName());
         }
-
+        String id = mapper.getUnversionedFid(f.getID());
+        return SimpleFeatureBuilder.build(externalFeatureType, attributes, id);
     }
 
     /**
@@ -276,7 +281,7 @@ public class FeatureDiffReader {
                 // compute field by field difference
                 SimpleFeature from = gatherNextUnversionedFeature(fvReader);
                 SimpleFeature to = gatherNextUnversionedFeature(tvReader);
-                FeatureDiff diff = new FeatureDiff(from, to);
+                FeatureDiffImpl diff = new FeatureDiffImpl(from, to);
                 if (diff.getChangedAttributes().size() != 0) {
                     lastDiff = diff;
                     return true;
@@ -323,7 +328,7 @@ public class FeatureDiffReader {
     }
 
     protected void finalize() throws Throwable {
-        if(createdReader != null || deletedReader != null || fvReader != null || tvReader != null) {
+        if (createdReader != null || deletedReader != null || fvReader != null || tvReader != null) {
             LOGGER.warning("There's code leaaving the feature diff readers open!");
             close();
         }

@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.geotools.data.DataUtilities;
+import org.geotools.data.FeatureDiff;
 import org.opengis.feature.simple.SimpleFeature;
 
 /**
@@ -28,17 +29,19 @@ import org.opengis.feature.simple.SimpleFeature;
  * 
  * @author aaime
  * @since 2.4
- *
- * @source $URL$
+ * 
+ * @source $URL:
+ *         http://svn.osgeo.org/geotools/trunk/modules/unsupported/postgis-versioned/src/main/java
+ *         /org/geotools/data/postgis/FeatureDiff.java $
  */
-public class FeatureDiff {
-    
+public class FeatureDiffImpl implements FeatureDiff {
+
     /**
      * Feature does not exists in fromVersion, has been created in the meantime (change map contains
      * all attributes in this case)
      */
     public static final int INSERTED = 0;
-    
+
     /**
      * Feature exists in both versions, but has been modified
      */
@@ -67,18 +70,18 @@ public class FeatureDiff {
      * @param newFeature
      * @param changes
      */
-    FeatureDiff(SimpleFeature oldFeature, SimpleFeature newFeature) {
+    FeatureDiffImpl(SimpleFeature oldFeature, SimpleFeature newFeature) {
         super();
-        if(oldFeature == null && newFeature == null)
+        if (oldFeature == null && newFeature == null)
             throw new IllegalArgumentException("Both features are null, that's not a diff!");
-        
+
         this.ID = oldFeature != null ? oldFeature.getID() : newFeature.getID();
         this.feature = newFeature;
         this.oldFeature = oldFeature;
         this.changedAttributes = Collections.EMPTY_LIST;
-        if(oldFeature == null) {
+        if (oldFeature == null) {
             this.state = INSERTED;
-        } else if(newFeature == null) {
+        } else if (newFeature == null) {
             this.state = DELETED;
         } else {
             this.state = UPDATED;

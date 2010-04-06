@@ -515,7 +515,7 @@ public class VersionedPostgisFeatureStore extends AbstractFeatureStore implement
         return changesets.getFeatures(sq);
     }
 
-    public FeatureDiffReader getDifferences(String fromVersion, String toVersion, Filter filter, String[] userIds)
+    public FeatureDiffReaderImpl getDifferences(String fromVersion, String toVersion, Filter filter, String[] userIds)
             throws IOException {
         if(filter == null)
             filter = Filter.INCLUDE;
@@ -532,7 +532,7 @@ public class VersionedPostgisFeatureStore extends AbstractFeatureStore implement
         FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
         VersionedFIDMapper mapper = (VersionedFIDMapper) store.getFIDMapper(schema.getTypeName());
 
-        return new FeatureDiffReader(store, getTransaction(), schema, r1, r2, mapper, mfids);
+        return new FeatureDiffReaderImpl(store, getTransaction(), schema, r1, r2, mapper, mfids);
     }
     
     // ----------------------------------------------------------------------------------------------

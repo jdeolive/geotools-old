@@ -18,7 +18,7 @@ package org.geotools.data;
 
 import java.io.IOException;
 
-import org.geotools.data.postgis.FeatureDiffReader;
+import org.geotools.data.postgis.FeatureDiffReaderImpl;
 import org.geotools.data.postgis.VersionedPostgisDataStore;
 import org.geotools.feature.FeatureCollection;
 import org.opengis.feature.simple.SimpleFeature;
@@ -85,7 +85,7 @@ public interface VersioningFeatureSource extends FeatureSource<SimpleFeatureType
      * @return a difference reader
      * @throws IOException
      */
-    public FeatureDiffReader getDifferences(String fromVersion, String toVersion, Filter filter,
+    public FeatureDiffReaderImpl getDifferences(String fromVersion, String toVersion, Filter filter,
             String[] userIds) throws IOException;
     
     /**

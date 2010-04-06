@@ -33,6 +33,8 @@ import junit.textui.ResultPrinter;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.DefaultTransaction;
+import org.geotools.data.FeatureDiff;
+import org.geotools.data.FeatureDiffReader;
 import org.geotools.data.FeatureLocking;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureStore;
@@ -48,7 +50,6 @@ import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
-import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -1220,29 +1221,26 @@ public class VersionedOperationsOnlineTest extends AbstractVersionedPostgisDataT
         // forward diff, two modifications on changeset 1-2, and check reader reset while
         // you're at it
         fdr = fs.getDifferences("1", "2", Filter.INCLUDE, null);
-        for (int i = 0; i < 2; i++) {
-            fdr.reset();
-            assertEquals(fs.getSchema(), fdr.getSchema());
-            Set ids = new HashSet(Arrays.asList(new String[] { "river.rv1", "river.rv2" }));
-            assertTrue(fdr.hasNext());
-            while (fdr.hasNext()) {
-                diff = fdr.next();
-                assertTrue("Unexpected id: " + diff.getID(), ids.remove(diff.getID()));
-                assertEquals("1", fdr.getFromVersion());
-                assertEquals("2", fdr.getToVersion());
-                assertEquals(FeatureDiff.UPDATED, diff.state);
-                if (diff.getID().equals("river.rv1")) {
-                    assertEquals(2, diff.getChangedAttributes().size());
-                    assertTrue(diff.getChangedAttributes().contains("river"));
-                    assertTrue(diff.getChangedAttributes().contains("flow"));
-                    assertEquals("rv1 v2", diff.getFeature().getAttribute("river"));
-                    assertEquals(new Double(9.6), diff.getFeature().getAttribute("flow"));
-                } else {
-                    assertEquals(2, diff.getChangedAttributes().size());
-                    assertEquals("rv2 v2", diff.getFeature().getAttribute("river"));
-                    assertTrue(DataUtilities.attributesEqual(lines(new int[][] { { 100, 100, 120,
-                            120 } }), diff.getFeature().getAttribute("geom")));
-                }
+        assertEquals(fs.getSchema(), fdr.getSchema());
+        Set ids = new HashSet(Arrays.asList(new String[] { "river.rv1", "river.rv2" }));
+        assertTrue(fdr.hasNext());
+        while (fdr.hasNext()) {
+            diff = fdr.next();
+            assertTrue("Unexpected id: " + diff.getID(), ids.remove(diff.getID()));
+            assertEquals("1", fdr.getFromVersion());
+            assertEquals("2", fdr.getToVersion());
+            assertEquals(FeatureDiff.UPDATED, diff.getState());
+            if (diff.getID().equals("river.rv1")) {
+                assertEquals(2, diff.getChangedAttributes().size());
+                assertTrue(diff.getChangedAttributes().contains("river"));
+                assertTrue(diff.getChangedAttributes().contains("flow"));
+                assertEquals("rv1 v2", diff.getFeature().getAttribute("river"));
+                assertEquals(new Double(9.6), diff.getFeature().getAttribute("flow"));
+            } else {
+                assertEquals(2, diff.getChangedAttributes().size());
+                assertEquals("rv2 v2", diff.getFeature().getAttribute("river"));
+                assertTrue(DataUtilities.attributesEqual(lines(new int[][] { { 100, 100, 120,
+                        120 } }), diff.getFeature().getAttribute("geom")));
             }
         }
         fdr.close();
