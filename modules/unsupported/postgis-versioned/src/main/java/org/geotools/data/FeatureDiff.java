@@ -24,6 +24,7 @@ import org.opengis.feature.simple.SimpleFeature;
  * Represents the changes occurred between two versions of the same simple feature
  * 
  * @author Andrea Aime - OpenGeo
+ * @since 2.6
  * 
  */
 public interface FeatureDiff {
@@ -78,7 +79,7 @@ public interface FeatureDiff {
     public SimpleFeature getFeature();
 
     /**
-     * Returns the old feature, if the state is {@link #UPDATED}, null otherwise
+     * Returns the old feature, if the state is {@link #UPDATED} or {@link #DELETED}, null otherwise
      */
     public SimpleFeature getOldFeature();
 }

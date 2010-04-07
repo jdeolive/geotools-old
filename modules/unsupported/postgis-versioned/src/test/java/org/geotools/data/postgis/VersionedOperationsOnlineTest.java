@@ -591,6 +591,28 @@ public class VersionedOperationsOnlineTest extends AbstractVersionedPostgisDataT
         assertEquals(env, ((Geometry) lastChangeset.getDefaultGeometry()).getEnvelopeInternal());
     }
     
+    /**
+     * 
+     * @throws Exception
+     */
+    public void testDeleteFeaturesEmpty() throws Exception {
+        VersionedPostgisDataStore ds = getDataStore();
+
+        // version enable road
+        ds.setVersioned("road", true, "gimbo", "version enabling stuff");
+
+        // build a filter to delete a feature that's not there
+        Filter filter = ff.id(Collections.singleton(ff.featureId("road.abc")));
+        
+        // delete... nothing. Due to a bug this resulted in an exception
+        Transaction t = createTransaction("gimbo", "first change");
+        FeatureStore fs = (FeatureStore) ds.getFeatureSource("road");
+        fs.setTransaction(t);
+        fs.removeFeatures(filter);
+        t.commit();
+        t.close();
+    }
+    
     public void testFeatureStoreDeleteFeatures() throws IOException, NoSuchElementException,
             IllegalAttributeException {
         VersionedPostgisDataStore ds = getDataStore();
@@ -670,6 +692,25 @@ public class VersionedOperationsOnlineTest extends AbstractVersionedPostgisDataT
         assertEquals(env, ((Geometry) lastChangeset.getDefaultGeometry()).getEnvelopeInternal());
     }
     
+    
+    public void testFeatureStoreUpdateEmpty() throws IOException, NoSuchElementException,
+            IllegalAttributeException {
+        VersionedPostgisDataStore ds = getDataStore();
+
+        // version enable road
+        ds.setVersioned("road", true, "gimbo", "version enabling stuff");
+
+        // build a filter that won't extract any feature
+        Filter filter = ff.id(Collections.singleton(ff.featureId("road.abc")));
+
+        // now try to run an update over it, it should not break
+        Transaction t = createTransaction("gimbo", "first change");
+        FeatureStore fs = (FeatureStore) ds.getFeatureSource("road");
+        fs.setTransaction(t);
+        fs.modifyFeatures(roadType.getDescriptor("name"), "newRoad1", filter);
+        t.commit();
+        t.close();
+    }
     
 
     /**

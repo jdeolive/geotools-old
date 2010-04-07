@@ -70,7 +70,7 @@ public class FeatureDiffImpl implements FeatureDiff {
      * @param newFeature
      * @param changes
      */
-    FeatureDiffImpl(SimpleFeature oldFeature, SimpleFeature newFeature) {
+    public FeatureDiffImpl(SimpleFeature oldFeature, SimpleFeature newFeature) {
         super();
         if (oldFeature == null && newFeature == null)
             throw new IllegalArgumentException("Both features are null, that's not a diff!");
@@ -98,54 +98,22 @@ public class FeatureDiffImpl implements FeatureDiff {
         }
     }
 
-    /**
-     * Returns a read only list of modified attribute names if state is {@link #UPDATED}, an empty
-     * list otherwise
-     * 
-     * @return
-     */
     public List getChangedAttributes() {
         return changedAttributes;
     }
 
-    /**
-     * The feature ID
-     * 
-     * @return
-     */
     public String getID() {
         return ID;
     }
 
-    /**
-     * The type of difference, either::
-     * <ul>
-     * <li>{@link #UPDATED}</li>
-     * <li>{@link #INSERTED}</li>
-     * <li>{@link #DELETED}</li>
-     * </ul>
-     * 
-     * @return
-     */
     public int getState() {
         return state;
     }
 
-    /**
-     * Returns the inserted feature, if the state is {@link #INSERTED}, the new feature, if the
-     * state is {@link #UPDATED}, null otherwise
-     * 
-     * @return
-     */
     public SimpleFeature getFeature() {
         return feature;
     }
 
-    /**
-     * Returns the old feature, if the state is {@link #UPDATED}, null otherwise
-     * 
-     * @return
-     */
     public SimpleFeature getOldFeature() {
         return oldFeature;
     }

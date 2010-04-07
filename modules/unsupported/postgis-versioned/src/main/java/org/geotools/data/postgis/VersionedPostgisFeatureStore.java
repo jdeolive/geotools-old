@@ -162,18 +162,21 @@ public class VersionedPostgisFeatureStore extends AbstractFeatureStore implement
         
         // we need to mark the modified bounds and store their wgs84 version into the transaction
         ReferencedEnvelope bounds = locking.getBounds(new DefaultQuery(schema.getTypeName(), versionedFilter));
-        if(bounds.getCoordinateReferenceSystem() == null)
-            bounds = new ReferencedEnvelope(bounds, getSchema().getCoordinateReferenceSystem());
-        try {
-            ReferencedEnvelope wgsBounds = null;
-            if(bounds.getCoordinateReferenceSystem() != null)
-                wgsBounds = bounds.transform(DefaultGeographicCRS.WGS84, true);
-            else
-                wgsBounds = bounds;
-            state.expandDirtyBounds(wgsBounds);
-        } catch(Exception e) {
-            throw new DataSourceException("Problems computing and storing the " +
-            		"bounds affected by this feature removal", e);
+        if(bounds != null) { 
+            if(bounds.getCoordinateReferenceSystem() == null) {
+                bounds = new ReferencedEnvelope(bounds, getSchema().getCoordinateReferenceSystem());
+            }
+            try {
+                ReferencedEnvelope wgsBounds = null;
+                if(bounds.getCoordinateReferenceSystem() != null)
+                    wgsBounds = bounds.transform(DefaultGeographicCRS.WGS84, true);
+                else
+                    wgsBounds = bounds;
+                state.expandDirtyBounds(wgsBounds);
+            } catch(Exception e) {
+                throw new DataSourceException("Problems computing and storing the " +
+                		"bounds affected by this feature removal", e);
+            }
         }
         
         // now we can run the update
