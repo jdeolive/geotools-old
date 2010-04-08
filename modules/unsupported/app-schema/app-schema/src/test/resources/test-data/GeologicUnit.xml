@@ -156,7 +156,7 @@
 			            gsml:occurence
 		            </targetAttribute>		
 		            <sourceExpression>
-						<OCQL>getId()</OCQL>
+						<OCQL>getId()</OCQL><!--no strTrim() for unit testing purposes-->
 						<linkElement>gsml:MappedFeature</linkElement>
 						<linkField>gsml:specification</linkField>
 					</sourceExpression>					              
