@@ -883,11 +883,14 @@ public class FilterOpsComplexTypes {
             }
             FilterEncodingPreProcessor visitor=getFilterEncodingPreProcessor(hints);
             filter.accept(visitor);
+            // valid filter can have either a normal "filter" defining an test 
             if( !visitor.getFilter().equals(Filter.EXCLUDE) ){
             	encodeFilter(visitor.getFilter(),output,hints);
             }
-            encodeFilter(visitor.getFidFilter(), output, hints);
-            
+            // or it can have a "selection" of specific feature IDs
+            if( !visitor.getFidFilter().getIDs().isEmpty()){
+                encodeFilter(visitor.getFidFilter(), output, hints);
+            }
             if (element != null) {
                 output.endElement(element.getNamespace(), element.getName());
 //            }else{
