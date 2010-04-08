@@ -38,6 +38,7 @@ import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.PropertyName;
+import org.opengis.filter.identity.FeatureId;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.xml.sax.helpers.NamespaceSupport;
 
@@ -177,7 +178,9 @@ public class NestedAttributeMapping extends AttributeMapping {
         while (it.hasNext()) {
             Feature f = it.next();
             Object value = this.nestedSourceExpression.evaluate(f);
-            if (value != null && value.equals(foreignKeyValue)) {
+            if (value != null
+                    && (value.equals(foreignKeyValue) || (foreignKeyValue instanceof FeatureId && value
+                            .equals(((FeatureId) foreignKeyValue).getID())))) {
                 matchingFeatures.add(f);
             }
         }
@@ -230,7 +233,9 @@ public class NestedAttributeMapping extends AttributeMapping {
         while (it.hasNext()) {
             Feature f = it.next();
             Object value = this.nestedSourceExpression.evaluate(f);
-            if (value != null && value.equals(foreignKeyValue)) {
+            if (value != null
+                    && (value.equals(foreignKeyValue) || (foreignKeyValue instanceof FeatureId && value
+                            .equals(((FeatureId) foreignKeyValue).getID())))) {                             
                 matchingFeatures.add(f);
             }
         }
