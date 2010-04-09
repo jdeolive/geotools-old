@@ -102,11 +102,11 @@ public interface Stroke extends org.opengis.style.Stroke {
             }
 
             public Expression getLineJoin() {
-                return ConstantExpression.constant("butt");
+                return ConstantExpression.constant("miter");
             }
 
             public Expression getLineCap() {
-                return ConstantExpression.constant("miter");
+                return ConstantExpression.constant("butt");
             }
 
             public float[] getDashArray() {
