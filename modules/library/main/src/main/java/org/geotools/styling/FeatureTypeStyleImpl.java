@@ -65,7 +65,6 @@ public class FeatureTypeStyleImpl implements org.geotools.styling.FeatureTypeSty
      */
     protected FeatureTypeStyleImpl(Rule[] rules) {
         this(Arrays.asList(rules));
-        featureTypeNames.add(new NameImpl("Feature"));
     }
 
     protected FeatureTypeStyleImpl(List<Rule> arules) {

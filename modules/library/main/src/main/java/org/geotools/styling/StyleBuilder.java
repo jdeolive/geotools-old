@@ -1356,7 +1356,7 @@ public class StyleBuilder {
         if (!Double.isNaN(maxScaleDenominator)) {
             r.setMaxScaleDenominator(maxScaleDenominator);
         } else {
-            r.setMaxScaleDenominator(Double.MAX_VALUE);
+            r.setMaxScaleDenominator(Double.POSITIVE_INFINITY);
         }
 
         if (!Double.isNaN(minScaleDenominator)) {

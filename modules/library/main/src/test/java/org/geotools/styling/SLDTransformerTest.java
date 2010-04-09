@@ -16,20 +16,30 @@
  */
 package org.geotools.styling;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
+import static org.custommonkey.xmlunit.XMLAssert.assertXpathEvaluatesTo;
+import static org.custommonkey.xmlunit.XMLAssert.assertXpathExists;
+import static org.custommonkey.xmlunit.XMLUnit.buildTestDocument;
+import static org.custommonkey.xmlunit.XMLUnit.setXpathNamespaceContext;
+
 import java.awt.Color;
 import java.io.StringReader;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import junit.framework.TestCase;
-
+import org.custommonkey.xmlunit.SimpleNamespaceContext;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
-import org.geotools.filter.function.FilterFunction_buffer;
+import org.junit.Before;
+import org.junit.Test;
 import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.PropertyName;
@@ -50,22 +60,31 @@ import org.xml.sax.InputSource;
  *
  * @source $URL$
  */
-public class SLDTransformerTest extends TestCase {
+public class SLDTransformerTest {
     static StyleFactory2 sf = (StyleFactory2) CommonFactoryFinder.getStyleFactory(null);
 
     static FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
 
     static SLDTransformer transformer;
 
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         transformer = new SLDTransformer();
         transformer.setIndentation(4);
+
+        // setup xml unit
+        Map<String, String> namespaces = new HashMap<String, String>();
+        namespaces.put("sld", "http://www.opengis.net/sld");
+        namespaces.put("ogc", "http://www.opengis.net/ogc");
+        namespaces.put("gml", "http://www.opengis.net/gml");
+        setXpathNamespaceContext(new SimpleNamespaceContext(namespaces));
     }
 
     /**
      * This problem is reported from uDig 1.2, we are trying to save a RasterSymbolizer (used to
      * record the opacity of a raster layer) out to an SLD file for safe keeping.
      */
+    @Test
     public void testEncodingRasterSymbolizer() throws Exception {
         RasterSymbolizer defaultRasterSymbolizer = sf.createRasterSymbolizer();
         String xmlFragment = transformer.transform(defaultRasterSymbolizer);
@@ -87,6 +106,7 @@ public class SLDTransformerTest extends TestCase {
      * Now that we have uDig 1.2 handling opacity we can start look at something more exciting - a
      * complete style object.
      */
+    @Test
     public void testEncodingStyle() throws Exception {
 
         // simple default raster symbolizer
@@ -158,6 +178,7 @@ public class SLDTransformerTest extends TestCase {
      * 
      * @throws Exception
      */
+    @Test
     public void testStroke() throws Exception {
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><sld:UserStyle xmlns=\"http://www.opengis.net/sld\" xmlns:sld=\"http://www.opengis.net/sld\" xmlns:ogc=\"http://www.opengis.net/ogc\" xmlns:gml=\"http://www.opengis.net/gml\"><sld:Name>Default Styler</sld:Name><sld:Title>Default Styler</sld:Title><sld:FeatureTypeStyle><sld:Name>simple</sld:Name><sld:Title>title</sld:Title><sld:Abstract>abstract</sld:Abstract><sld:FeatureTypeName>Feature</sld:FeatureTypeName><sld:SemanticTypeIdentifier>generic:geometry</sld:SemanticTypeIdentifier><sld:SemanticTypeIdentifier>simple</sld:SemanticTypeIdentifier><sld:Rule><sld:Title>title</sld:Title><sld:Abstract>abstract</sld:Abstract><sld:MaxScaleDenominator>1.7976931348623157E308</sld:MaxScaleDenominator><sld:LineSymbolizer><sld:Stroke><sld:CssParameter name=\"stroke\"><ogc:Literal>#0000FF</ogc:Literal></sld:CssParameter><sld:CssParameter name=\"stroke-linecap\"><ogc:Literal>butt</ogc:Literal></sld:CssParameter><sld:CssParameter name=\"stroke-linejoin\"><ogc:Literal>miter</ogc:Literal></sld:CssParameter><sld:CssParameter name=\"stroke-opacity\"><ogc:Literal>1.0</ogc:Literal></sld:CssParameter><sld:CssParameter name=\"stroke-width\"><ogc:Literal>2.0</ogc:Literal></sld:CssParameter><sld:CssParameter name=\"stroke-dashoffset\"><ogc:Literal>0.0</ogc:Literal></sld:CssParameter></sld:Stroke></sld:LineSymbolizer></sld:Rule></sld:FeatureTypeStyle></sld:UserStyle>";
         StringReader reader = new StringReader(xml);
@@ -185,6 +206,7 @@ public class SLDTransformerTest extends TestCase {
      * 
      * @throws Exception
      */
+    @Test
     public void testTextSymbolizerLabelPalcement() throws Exception {
         String xml = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>"
                 + "<StyledLayerDescriptor version=\"1.0.0\" "
@@ -249,6 +271,7 @@ public class SLDTransformerTest extends TestCase {
      * 
      * @throws Exception
      */
+    @Test
     public void testPointSymbolizer() throws Exception {
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
                 + "<sld:StyledLayerDescriptor xmlns:sld=\"http://www.opengis.net/sld\" "
@@ -350,6 +373,7 @@ public class SLDTransformerTest extends TestCase {
      * 
      * @throws Exception
      */
+    @Test
     public void testStrokeWithLogging() throws Exception {
         Logger logger = Logger.getLogger("org.geotools.styling");
         Level before = logger.getLevel();
@@ -379,6 +403,7 @@ public class SLDTransformerTest extends TestCase {
         }
     }
 
+    @Test
     public void testUOMEncodingPointSymbolizer() throws Exception {
 
         // simple default line symbolizer
@@ -409,6 +434,7 @@ public class SLDTransformerTest extends TestCase {
 
     }
 
+    @Test
     public void testUOMEncodingPolygonSymbolizer() throws Exception {
 
         // simple default line symbolizer
@@ -434,6 +460,7 @@ public class SLDTransformerTest extends TestCase {
                 polygonSymbolizer2.getUnitOfMeasure()));
     }
 
+    @Test
     public void testUOMEncodingRasterSymbolizer2() throws Exception {
 
         // simple default line symbolizer
@@ -458,6 +485,7 @@ public class SLDTransformerTest extends TestCase {
         assertTrue(rasterSymbolizer.getUnitOfMeasure().equals(rasterSymbolizer2.getUnitOfMeasure()));
     }
 
+    @Test
     public void testUOMEncodingLineSymbolizer() throws Exception {
 
         // simple default line symbolizer
@@ -483,6 +511,7 @@ public class SLDTransformerTest extends TestCase {
 
     }
 
+    @Test
     public void testUOMEncodingTextSymbolizer() throws Exception {
 
         // simple default text symbolizer
@@ -493,7 +522,7 @@ public class SLDTransformerTest extends TestCase {
         assertNotNull(xmlFragment);
 
         xmlFragment = transformer.transform(textSymbolizer);
-        System.out.println(xmlFragment);
+        // System.out.println(xmlFragment);
 
         assertNotNull(xmlFragment);
         SLDParser parser = new SLDParser(sf);
@@ -512,6 +541,7 @@ public class SLDTransformerTest extends TestCase {
         assertTrue(textSymbolizer.getUnitOfMeasure().equals(textSymbolizer2.getUnitOfMeasure()));
     }
 
+    @Test
     public void testNullUOMEncodingPointSymbolizer() throws Exception {
 
         // simple default line symbolizer
@@ -539,6 +569,7 @@ public class SLDTransformerTest extends TestCase {
 
     }
 
+    @Test
     public void testNullUOMEncodingPolygonSymbolizer() throws Exception {
 
         // simple default line symbolizer
@@ -561,6 +592,7 @@ public class SLDTransformerTest extends TestCase {
         assertTrue(polygonSymbolizer2.getUnitOfMeasure() == null);
     }
 
+    @Test
     public void testNullUOMEncodingRasterSymbolizer2() throws Exception {
 
         // simple default line symbolizer
@@ -583,6 +615,7 @@ public class SLDTransformerTest extends TestCase {
         assertTrue(rasterSymbolizer2.getUnitOfMeasure() == null);
     }
 
+    @Test
     public void testNullUOMEncodingLineSymbolizer() throws Exception {
 
         // simple default line symbolizer
@@ -606,6 +639,7 @@ public class SLDTransformerTest extends TestCase {
 
     }
 
+    @Test
     public void testNullUOMEncodingTextSymbolizer() throws Exception {
 
         // simple default text symbolizer
@@ -631,6 +665,7 @@ public class SLDTransformerTest extends TestCase {
     /**
      * The displacement tag has not been exported to XML for a while...
      */
+    @Test
     public void testDisplacement() throws Exception {
         StyleBuilder sb = new StyleBuilder();
         
@@ -645,7 +680,7 @@ public class SLDTransformerTest extends TestCase {
         assertTrue("XML transformation of this GraphicImpl does not contain the word 'Displacement' ", xml.contains("Displacement"));
     }
     
-    
+    @Test
     public void testTextSymbolizerTransformOutAndInAndOutAgain() throws Exception {
         StyleBuilder sb = new StyleBuilder();
 
@@ -668,6 +703,7 @@ public class SLDTransformerTest extends TestCase {
     /**                 
      * Checks whether the "Priority" parameter of a TextSymbolizer is correctly stored and loaded
      */
+    @Test
     public void testPriorityTransformOutAndIn() throws Exception {
         StyleBuilder sb = new StyleBuilder();
 
@@ -714,6 +750,7 @@ public class SLDTransformerTest extends TestCase {
     /**
      * SLD Transformer did't save the type of the colormap
      */
+    @Test
     public void testColorMap() throws Exception {
     	SLDTransformer st = new SLDTransformer();
       ColorMap cm = sf.createColorMap();
@@ -728,7 +765,111 @@ public class SLDTransformerTest extends TestCase {
       
       // Test type = ramp
       cm.setType(ColorMap.TYPE_RAMP);
-      assertTrue("parsed xml must contain attribbute type with correct value", st.transform(cm).contains("type=\"ramp\""));
+      assertEquals("parsed xml must contain attribbute type with correct value", -1, st.transform(cm).indexOf("type="));
     }
+    
+    /**
+     * Checks the output of encoding a default line symbolizer does not include all the default values
+     * @throws Exception
+     */
+    @Test
+    public void testMinimumLineSymbolizer() throws Exception {
+        StyleBuilder sb = new StyleBuilder();
+        LineSymbolizer ls = sb.createLineSymbolizer();
+        String xml = transformer.transform(ls);
+        // System.out.println(xml);
+        Document doc = buildTestDocument(xml);
 
+        // check LineSymbolizer has the stroke element inside, but stroke does not have children
+        assertXpathEvaluatesTo("1", "count(/sld:LineSymbolizer/*)", doc);
+        assertXpathEvaluatesTo("0", "count(/sld:LineSymbolizer/sld:Stroke/*)", doc);
+        
+        // setup custom line width and color, and explicitly set the opacity to the default value
+        ls.getStroke().setWidth(ff.literal(3));
+        ls.getStroke().setColor(ff.literal(Color.YELLOW));
+        ls.getStroke().setOpacity(ff.literal(1));
+        xml = transformer.transform(ls);
+        // System.out.println(xml);
+        doc = buildTestDocument(xml);
+        
+        // same as above, but this time we expect the width and color to be set
+        assertXpathEvaluatesTo("1", "count(/sld:LineSymbolizer/*)", doc);
+        assertXpathEvaluatesTo("2", "count(/sld:LineSymbolizer/sld:Stroke/*)", doc);
+        assertXpathEvaluatesTo("#FFFF00", "/sld:LineSymbolizer/sld:Stroke/sld:CssParameter[@name='stroke']", doc);
+        assertXpathEvaluatesTo("3", "/sld:LineSymbolizer/sld:Stroke/sld:CssParameter[@name='stroke-width']", doc);
+    }
+   
+    @Test
+    public void testMinimumPolygonSymbolizer() throws Exception {
+        StyleBuilder sb = new StyleBuilder();
+        PolygonSymbolizer ps = sb.createPolygonSymbolizer();
+        String xml = transformer.transform(ps);
+        // System.out.println(xml);
+        Document doc = buildTestDocument(xml);
+
+        // check PolygonSymbolizer has a fill and a stroke, both empty
+        assertXpathEvaluatesTo("2", "count(/sld:PolygonSymbolizer/*)", doc);
+        assertXpathEvaluatesTo("0", "count(/sld:PolygonSymbolizer/sld:Stroke/*)", doc);
+        assertXpathEvaluatesTo("0", "count(/sld:PolygonSymbolizer/sld:Fill/*)", doc);
+        
+        ps.getFill().setColor(ff.literal(Color.BLUE));
+        xml = transformer.transform(ps);
+        // System.out.println(xml);
+        doc = buildTestDocument(xml);
+        
+        // this time check the fill has the color
+        assertXpathEvaluatesTo("2", "count(/sld:PolygonSymbolizer/*)", doc);
+        assertXpathEvaluatesTo("0", "count(/sld:PolygonSymbolizer/sld:Stroke/*)", doc);
+        assertXpathEvaluatesTo("1", "count(/sld:PolygonSymbolizer/sld:Fill/*)", doc);
+        assertXpathEvaluatesTo("#0000FF", "/sld:PolygonSymbolizer/sld:Fill/sld:CssParameter[@name='fill']", doc);
+    }
+    
+    @Test
+    public void testMinimumPointSymbolizer() throws Exception {
+        StyleBuilder sb = new StyleBuilder();
+        PointSymbolizer ps = sb.createPointSymbolizer();
+        String xml = transformer.transform(ps);
+        // System.out.println(xml);
+        Document doc = buildTestDocument(xml);
+
+        // check PolygonSymbolizer has a fill and a stroke, both empty
+        assertXpathEvaluatesTo("1", "count(/sld:PointSymbolizer/*)", doc);
+        assertXpathEvaluatesTo("1", "count(/sld:PointSymbolizer/sld:Graphic/*)", doc);
+        assertXpathEvaluatesTo("2", "count(/sld:PointSymbolizer/sld:Graphic/sld:Mark/*)", doc);
+        assertXpathExists("/sld:PointSymbolizer/sld:Graphic/sld:Mark/sld:Fill", doc);
+        assertXpathExists("/sld:PointSymbolizer/sld:Graphic/sld:Mark/sld:Stroke", doc);
+        assertXpathEvaluatesTo("0", "count(/sld:PointSymbolizer/sld:Graphic/sld:Mark/sld:Fill/*)", doc);
+        assertXpathEvaluatesTo("0", "count(/sld:PointSymbolizer/sld:Graphic/sld:Mark/sld:Stroke/*)", doc);
+    }
+    
+    @Test
+    public void testMinimumRasterSymbolizer() throws Exception {
+        StyleBuilder sb = new StyleBuilder();
+        RasterSymbolizer rs = sb.getStyleFactory().createRasterSymbolizer();
+        String xml = transformer.transform(rs);
+        // System.out.println(xml);
+        Document doc = buildTestDocument(xml);
+        
+        // check RasterSymbolizer just has the default geometry value 
+        // (which is not a default in SLD, just in our builder)
+        assertXpathEvaluatesTo("1", "count(/sld:RasterSymbolizer/*)", doc);
+        assertXpathEvaluatesTo("grid", "/sld:RasterSymbolizer/sld:Geometry/ogc:PropertyName", doc);
+    }
+    
+    @Test 
+    public void testMinimumStyle() throws Exception {
+        StyleBuilder sb = new StyleBuilder();
+        Style s = sb.createStyle(sb.createPointSymbolizer());
+        String xml = transformer.transform(s);
+        // System.out.println(xml);
+        Document doc = buildTestDocument(xml);
+        
+        // check RasterSymbolizer just has the default geometry value 
+        // (which is not a default in SLD, just in our builder)
+        assertXpathEvaluatesTo("2", "count(/sld:UserStyle/sld:FeatureTypeStyle/*)", doc);
+        assertXpathEvaluatesTo("1", "count(/sld:UserStyle/sld:FeatureTypeStyle/sld:Name)", doc);
+        assertXpathEvaluatesTo("1", "count(/sld:UserStyle/sld:FeatureTypeStyle/sld:Rule)", doc);
+        assertXpathEvaluatesTo("1", "count(/sld:UserStyle/sld:FeatureTypeStyle/sld:Rule/*)", doc);
+        assertXpathEvaluatesTo("1", "count(/sld:UserStyle/sld:FeatureTypeStyle/sld:Rule/sld:PointSymbolizer)", doc);
+    }
 }

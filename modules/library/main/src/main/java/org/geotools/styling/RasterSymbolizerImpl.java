@@ -45,7 +45,7 @@ public class RasterSymbolizerImpl extends AbstractSymbolizer implements RasterSy
     private ChannelSelection channelSelection = new ChannelSelectionImpl();
     private ColorMapImpl colorMap = new ColorMapImpl();
     private ContrastEnhancementImpl contrastEnhancement = new ContrastEnhancementImpl();
-    private ShadedReliefImpl shadedRelief = new ShadedReliefImpl();
+    private ShadedReliefImpl shadedRelief;
     private String geometryName = "geom";
     private Symbolizer symbolizer;
     private Expression opacity;

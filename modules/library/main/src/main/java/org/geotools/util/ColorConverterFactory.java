@@ -67,8 +67,33 @@ public class ColorConverterFactory implements ConverterFactory {
 					    return new Color(rgba, alpha != 0 );					    
 					}					
 				};
-			}			
-		}		
+			}	
+		} else if(target.equals(String.class) && source.equals(Color.class)) {
+		    return new Converter() {
+                
+                public <T> T convert(Object source, Class<T> target) throws Exception {
+                    Color color = (Color) source;
+                    
+                    String redCode = Integer.toHexString(color.getRed());
+                    String greenCode = Integer.toHexString(color.getGreen());
+                    String blueCode = Integer.toHexString(color.getBlue());
+
+                    if (redCode.length() == 1) {
+                        redCode = "0" + redCode;
+                    }
+
+                    if (greenCode.length() == 1) {
+                        greenCode = "0" + greenCode;
+                    }
+
+                    if (blueCode.length() == 1) {
+                        blueCode = "0" + blueCode;
+                    }
+
+                    return (T) ("#" + redCode + greenCode + blueCode).toUpperCase();
+                }
+            };
+		}
 		return null;
 	}
 
