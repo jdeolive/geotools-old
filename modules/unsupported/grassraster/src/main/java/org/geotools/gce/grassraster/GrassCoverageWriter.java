@@ -16,23 +16,30 @@
  */
 package org.geotools.gce.grassraster;
 
+import java.awt.Rectangle;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridEnvelope2D;
+import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.ViewType;
 import org.geotools.coverage.grid.io.AbstractGridCoverageWriter;
+import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.gce.grassraster.core.GrassBinaryRasterWriteHandler;
 import org.geotools.gce.grassraster.format.GrassCoverageFormat;
-import org.geotools.gce.grassraster.spi.GrassBinaryImageReaderSpi;
 import org.geotools.gce.grassraster.spi.GrassBinaryImageWriterSpi;
 import org.geotools.geometry.Envelope2D;
+import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.resources.coverage.CoverageUtilities;
 import org.opengis.coverage.grid.Format;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.coverage.grid.GridCoverageWriter;
+import org.opengis.geometry.DirectPosition;
+import org.opengis.geometry.Envelope;
 import org.opengis.parameter.GeneralParameterValue;
+import org.opengis.parameter.ParameterValue;
 import org.opengis.util.ProgressListener;
 
 /**
@@ -75,7 +82,7 @@ public class GrassCoverageWriter extends AbstractGridCoverageWriter implements G
      * @param gridCoverage2D the coverage to write.
      * @throws IOException
      */
-    public void write( GridCoverage2D gridCoverage2D ) throws IOException {
+    public void writeRaster( GridCoverage2D gridCoverage2D ) throws IOException {
         try {
             Envelope2D env = gridCoverage2D.getEnvelope2D();
             GridEnvelope2D worldToGrid = gridCoverage2D.getGridGeometry().worldToGrid(env);
@@ -99,7 +106,36 @@ public class GrassCoverageWriter extends AbstractGridCoverageWriter implements G
 
     }
 
-    public void write( GridCoverage2D gridCoverage2D, JGrassRegion writeRegion ) throws IOException {
+    public void writeRaster( GridCoverage2D gridCoverage2D, GeneralParameterValue[] params )
+            throws IOException {
+        GeneralEnvelope requestedEnvelope = null;
+        Rectangle dim = null;
+        JGrassRegion writeRegion = null;
+        if (params != null) {
+            for( int i = 0; i < params.length; i++ ) {
+                final ParameterValue< ? > param = (ParameterValue< ? >) params[i];
+                final String name = param.getDescriptor().getName().getCode();
+                if (name.equals(AbstractGridFormat.READ_GRIDGEOMETRY2D.getName().toString())) {
+                    final GridGeometry2D gg = (GridGeometry2D) param.getValue();
+                    requestedEnvelope = new GeneralEnvelope((Envelope) gg.getEnvelope2D());
+                    dim = gg.getGridRange2D().getBounds();
+                    continue;
+                }
+            }
+            if (requestedEnvelope != null && dim != null) {
+                DirectPosition lowerCorner = requestedEnvelope.getLowerCorner();
+                double[] westSouth = lowerCorner.getCoordinate();
+                DirectPosition upperCorner = requestedEnvelope.getUpperCorner();
+                double[] eastNorth = upperCorner.getCoordinate();
+                writeRegion = new JGrassRegion(westSouth[0], eastNorth[0], westSouth[1],
+                        eastNorth[1], dim.height, dim.width);
+            }
+        }
+
+        if (writeRegion == null) {
+            throw new IOException("Unable to define writing region.");
+        }
+
         GrassBinaryImageWriterSpi writerSpi = new GrassBinaryImageWriterSpi();
         GrassBinaryImageWriter writer = new GrassBinaryImageWriter(writerSpi, monitor);
         RenderedImage renderedImage = gridCoverage2D.view(ViewType.GEOPHYSICS).getRenderedImage();
@@ -116,7 +152,11 @@ public class GrassCoverageWriter extends AbstractGridCoverageWriter implements G
             throws IllegalArgumentException, IOException {
         if (coverage instanceof GridCoverage2D) {
             GridCoverage2D gridCoverage = (GridCoverage2D) coverage;
-            write(gridCoverage);
+            if (parameters == null) {
+                writeRaster(gridCoverage);
+            } else {
+                writeRaster(gridCoverage, parameters);
+            }
         } else {
             throw new IllegalArgumentException("Coverage not a GridCoverage2D");
         }

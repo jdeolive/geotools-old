@@ -770,26 +770,19 @@ public class GrassCoverageReader extends AbstractGridCoverage2DReader implements
         Rectangle dim = null;
         // OverviewPolicy overviewPolicy = null;
         if (params != null) {
-            // /////////////////////////////////////////////////////////////////////
-            //
-            // Checking params
-            //
-            // /////////////////////////////////////////////////////////////////////
-            if (params != null) {
-                for( int i = 0; i < params.length; i++ ) {
-                    final ParameterValue< ? > param = (ParameterValue< ? >) params[i];
-                    final String name = param.getDescriptor().getName().getCode();
-                    if (name.equals(AbstractGridFormat.READ_GRIDGEOMETRY2D.getName().toString())) {
-                        final GridGeometry2D gg = (GridGeometry2D) param.getValue();
-                        requestedEnvelope = new GeneralEnvelope((Envelope) gg.getEnvelope2D());
-                        dim = gg.getGridRange2D().getBounds();
-                        continue;
-                    }
-                    // if (name.equals(AbstractGridFormat.OVERVIEW_POLICY.getName().toString())) {
-                    // overviewPolicy = (OverviewPolicy) param.getValue();
-                    // continue;
-                    // }
+            for( int i = 0; i < params.length; i++ ) {
+                final ParameterValue< ? > param = (ParameterValue< ? >) params[i];
+                final String name = param.getDescriptor().getName().getCode();
+                if (name.equals(AbstractGridFormat.READ_GRIDGEOMETRY2D.getName().toString())) {
+                    final GridGeometry2D gg = (GridGeometry2D) param.getValue();
+                    requestedEnvelope = new GeneralEnvelope((Envelope) gg.getEnvelope2D());
+                    dim = gg.getGridRange2D().getBounds();
+                    continue;
                 }
+                // if (name.equals(AbstractGridFormat.OVERVIEW_POLICY.getName().toString())) {
+                // overviewPolicy = (OverviewPolicy) param.getValue();
+                // continue;
+                // }
             }
         }
         if (requestedEnvelope != null && dim != null) {

@@ -15,7 +15,7 @@ import junit.framework.TestCase;
 @SuppressWarnings("nls")
 public class TestJGrassMapEnvironment extends TestCase {
 
-    public void testJGrassMapEnvironment() {
+    public void test() {
         URL pitUrl = this.getClass().getClassLoader().getResource("testlocation/test/cell/pit");
         File mapFile = DataUtilities.urlToFile(pitUrl);
         File mapsetFile = mapFile.getParentFile().getParentFile();
