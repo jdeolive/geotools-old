@@ -96,14 +96,14 @@ public class FeatureTypeImpl extends ComplexTypeImpl implements FeatureType {
 	    if(this == o) {
 	        return true;
 	    }
+	    if (getClass() != o.getClass()) {
+            return false;
+        }
 	    if(!super.equals(o)){
 	        return false;
 	    }
-	    if (getClass() != o.getClass()) {
-	        return false;
-	    }
 	    FeatureType other = (FeatureType) o;
-	    if (!Utilities.equals( defaultGeometry, other.getGeometryDescriptor())) {
+	    if (!Utilities.equals( getGeometryDescriptor(), other.getGeometryDescriptor())) {
 	        return false;
 	    }
 	    return true;
