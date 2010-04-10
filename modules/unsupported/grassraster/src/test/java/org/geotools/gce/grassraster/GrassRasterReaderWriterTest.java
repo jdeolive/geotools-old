@@ -125,7 +125,6 @@ public class GrassRasterReaderWriterTest extends TestCase {
             rectIter.startPixels();
             y++;
         } while( !rectIter.nextLineDone() );
-
     }
 
     public static final void main( String[] args ) throws Exception {
