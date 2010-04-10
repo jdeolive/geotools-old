@@ -395,6 +395,7 @@ public class DataUtilitiesTest extends DataTestCase {
          FeatureReader<SimpleFeatureType, SimpleFeature> reader = DataUtilities.reader( collection );
         assertEquals( roadFeatures.length,  count( reader ) );
     }    
+    
     public void testCreateSubType() throws Exception {
     	SimpleFeatureType before =
     		DataUtilities.createType("cities","the_geom:Point:srid=4326,name:String");
@@ -410,6 +411,11 @@ public class DataUtilitiesTest extends DataTestCase {
         assertEquals( 1, after.getAttributeCount() );
         assertEquals( "the_geom", after.getDescriptor(0).getLocalName() );
         assertNotNull( after.getGeometryDescriptor() );
+        
+        // check that subtyping does not cause the geometry attribute structure to change
+        before = DataUtilities.createType("cities","the_geom:Point:srid=4326,name:String,population:Integer");
+        after = DataUtilities.createSubType(before, new String[] {"the_geom"});
+        assertEquals(before.getGeometryDescriptor(), after.getGeometryDescriptor());
     }
 
     public void testSource() throws Exception {

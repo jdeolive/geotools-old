@@ -1244,7 +1244,7 @@ public class DataUtilities {
                 AttributeTypeBuilder ab = new AttributeTypeBuilder();
                 ab.init( types[i] );
                 ab.setCRS(override);
-                types[i] = ab.buildDescriptor(types[i].getLocalName());
+                types[i] = ab.buildDescriptor(types[i].getLocalName(), ab.buildGeometryType());
             }
         }
 
