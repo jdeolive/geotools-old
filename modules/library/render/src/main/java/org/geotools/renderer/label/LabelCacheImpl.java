@@ -769,7 +769,7 @@ public final class LabelCacheImpl implements LabelCache {
                         if (maxAngleChange < MIN_CURVED_DELTA) {
                             // if label will be painted as straight, use the
                             // straight bounds
-                            setupLineTransform(painter, cursor, centroid, tx);
+                            setupLineTransform(painter, cursor, centroid, tx, true);
                             labelEnvelope = tx.createTransformedShape(textBounds).getBounds2D();
                         } else {
                             // otherwise use curved bounds, more expensive to
@@ -778,7 +778,7 @@ public final class LabelCacheImpl implements LabelCache {
                                     endOrdinate, textBounds.getHeight() / 2);
                         }
                     } else {
-                        setupLineTransform(painter, cursor, centroid, tx);
+                        setupLineTransform(painter, cursor, centroid, tx, false);
                         labelEnvelope = tx.createTransformedShape(textBounds).getBounds2D();
                     }
 
@@ -918,7 +918,7 @@ public final class LabelCacheImpl implements LabelCache {
      * @param textBounds
      */
     private void setupLineTransform(LabelPainter painter, LineStringCursor cursor,
-            Coordinate centroid, AffineTransform tempTransform) {
+            Coordinate centroid, AffineTransform tempTransform, boolean followLine) {
         tempTransform.translate(centroid.x, centroid.y);
 
         TextStyle2D textStyle = painter.getLabel().getTextStyle();
@@ -929,7 +929,7 @@ public final class LabelCacheImpl implements LabelCache {
         double rotation;
         double displacementX = 0;
         double displacementY = 0;
-        if (textStyle.isPointPlacement()) {
+        if (textStyle.isPointPlacement() && !followLine) {
             // use the one the user supplied!
             rotation = textStyle.getRotation();
         } else { // lineplacement
