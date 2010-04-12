@@ -855,17 +855,7 @@ class RasterLayerResponse{
 				// if provided (defaulting to 0), as well as the compute raster
 				// bounds, envelope and grid to world.
 				
-				final Double[] values;
-				if (backgroundValues == null)
-					values= new Double[] { 0.0 };
-				else {
-					
-					//we have background values available
-					values = new Double[backgroundValues.length];
-					for (int i = 0; i < values.length; i++)
-						values[i] = backgroundValues[i];
-				}
-				
+			        final Number[] values = Utils.getBackgroundValues(rasterManager.defaultSM, backgroundValues);
 				
 				// create a constant image with a proper layout
 				return ConstantDescriptor.create(

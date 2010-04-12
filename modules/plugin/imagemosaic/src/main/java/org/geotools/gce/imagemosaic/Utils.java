@@ -1203,4 +1203,65 @@ public class Utils {
 	 * A transparent color for missing data.
 	 */
 	static final Color TRANSPARENT = new Color(0,0,0,0);
+	
+    /**
+     * Build a background values array using the same dataType of the input
+     * {@link SampleModel} (if available).
+     * 
+     * @param sampleModel
+     * @param backgroundValues
+     * @return
+     */
+    static Number[] getBackgroundValues(final SampleModel sampleModel, final double[] backgroundValues) {
+        Number[] values = null;
+        final int dataType = sampleModel != null ? sampleModel.getDataType()
+                : DataBuffer.TYPE_DOUBLE;
+        if (backgroundValues == null) {
+            switch (dataType) {
+            case DataBuffer.TYPE_BYTE:
+                values = new Byte[] { 0 };
+                break;
+            case DataBuffer.TYPE_SHORT:
+            case DataBuffer.TYPE_USHORT:
+                values = new Short[] { 0 };
+                break;
+            case DataBuffer.TYPE_INT:
+                values = new Integer[] { 0 };
+                break;
+            case DataBuffer.TYPE_FLOAT:
+                values = new Float[] { 0.0f };
+                break;
+            case DataBuffer.TYPE_DOUBLE:
+                values = new Double[] { 0.0d };
+                break;
+            }
+        } else {
+            switch (dataType) {
+            case DataBuffer.TYPE_BYTE:
+                // we have background values available
+                values = new Byte[backgroundValues.length];
+                break;
+            case DataBuffer.TYPE_SHORT:
+            case DataBuffer.TYPE_USHORT:
+                // we have background values available
+                values = new Short[backgroundValues.length];
+                break;
+            case DataBuffer.TYPE_INT:
+                // we have background values available
+                values = new Integer[backgroundValues.length];
+                break;
+            case DataBuffer.TYPE_FLOAT:
+                // we have background values available
+                values = new Float[backgroundValues.length];
+                break;
+            case DataBuffer.TYPE_DOUBLE:
+                // we have background values available
+                values = new Double[backgroundValues.length];
+                break;
+            }
+            for (int i = 0; i < values.length; i++)
+                values[i] = backgroundValues[i];
+        }
+        return values;
+    }
 }
