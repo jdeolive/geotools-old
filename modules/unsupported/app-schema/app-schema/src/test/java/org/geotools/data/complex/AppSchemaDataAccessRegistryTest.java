@@ -69,7 +69,7 @@ public class AppSchemaDataAccessRegistryTest {
 
     private static final Name MAPPED_FEATURE = Types.typeName(GSMLNS, "MappedFeature");
 
-    private static final Name GEOLOGIC_UNIT = Types.typeName(GSMLNS, "GeologicUnit");
+    private static final Name GEOLOGIC_UNIT = Types.typeName("myGeologicUnit");
 
     private static final Name COMPOSITION_PART = Types.typeName(GSMLNS, "CompositionPart");
 
@@ -297,17 +297,17 @@ public class AppSchemaDataAccessRegistryTest {
      */
     private void checkRegisteredDataAccess(AppSchemaDataAccess dataAccess, Name typeName,
             boolean isNonFeature) throws IOException {
-        FeatureTypeMapping mapping = AppSchemaDataAccessRegistry.getMappingByElement(typeName);
+        FeatureTypeMapping mapping = AppSchemaDataAccessRegistry.getMappingByName(typeName);
         assertNotNull(mapping);
         // compare with the supplied data access
-        assertEquals(dataAccess.getMappingByElement(typeName).equals(mapping), true);
+        assertEquals(dataAccess.getMappingByName(typeName).equals(mapping), true);
         if (isNonFeature) {
-            assertEquals(mapping.getTargetFeature().getType() instanceof NonFeatureTypeProxy, true);
+            assertTrue(mapping.getTargetFeature().getType() instanceof NonFeatureTypeProxy);
         }
 
         // should return a simple feature source
         FeatureSource<FeatureType, Feature> source = AppSchemaDataAccessRegistry
-                .getSimpleFeatureSource(typeName);
+                .getMappingByName(typeName).getSource();
         assertNotNull(source);
         assertEquals(mapping.getSource(), source);
 
@@ -316,7 +316,7 @@ public class AppSchemaDataAccessRegistryTest {
                 .getFeatureSource(typeName);
         assertNotNull(mappedSource);
         // compare with the supplied data access
-        assertEquals(mappedSource.getDataStore().equals(dataAccess), true);
+        assertTrue(mappedSource.getDataStore().equals(dataAccess));
     }
 
     /**

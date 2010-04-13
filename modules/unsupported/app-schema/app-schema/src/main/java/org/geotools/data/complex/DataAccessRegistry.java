@@ -130,7 +130,12 @@ public class DataAccessRegistry extends ArrayList<DataAccess<FeatureType, Featur
         }
         for (DataAccess<FeatureType, Feature> dataAccess : registry) {
             if (dataAccess.getNames().contains(featureTypeName)) {
-                return dataAccess.getFeatureSource(featureTypeName);
+                if (dataAccess instanceof AppSchemaDataAccess) {
+                    return ((AppSchemaDataAccess) dataAccess)
+                            .getFeatureSourceByName(featureTypeName);
+                } else {
+                    return dataAccess.getFeatureSource(featureTypeName);
+                }
             }
         }
         throwDataSourceException(featureTypeName);

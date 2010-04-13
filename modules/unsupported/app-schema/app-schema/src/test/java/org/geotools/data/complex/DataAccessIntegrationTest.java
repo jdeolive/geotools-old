@@ -18,6 +18,7 @@ package org.geotools.data.complex;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.awt.RenderingHints.Key;
 import java.io.File;
@@ -323,8 +324,8 @@ public class DataAccessIntegrationTest {
             for (Property property : nestedGuFeatures) {
                 Object value = property.getValue();
                 assertNotNull(value);
-                assertEquals(value instanceof Collection, true);
-                assertEquals(((Collection) value).size(), 1);
+                assertTrue(value instanceof Collection);
+                assertEquals(1, ((Collection) value).size());
 
                 Feature nestedGuFeature = (Feature) ((Collection) value).iterator().next();
                 /**
@@ -332,17 +333,17 @@ public class DataAccessIntegrationTest {
                  */
                 // make sure each of the nested geologic unit is valid
                 guId = nestedGuFeature.getIdentifier().toString();
-                assertEquals(true, guMap.containsKey(guId));
+                assertTrue(guMap.containsKey(guId));
 
                 nestedGuIds.add(guId);
 
                 // make sure the nested geologic unit feature has the right properties
                 guFeature = guMap.get(guId.toString());
                 Collection<Property> guProperties = guFeature.getProperties();
-                assertEquals(guProperties, nestedGuFeature.getProperties());
+                assertEquals(nestedGuFeature.getProperties(), guProperties);
             }
             // make sure all the nested geological unit features are there
-            assertEquals(nestedGuIds.containsAll(Arrays.asList(guIds)), true);
+            assertTrue(nestedGuIds.containsAll(Arrays.asList(guIds)));
         }
     }
 
@@ -374,7 +375,7 @@ public class DataAccessIntegrationTest {
         FeatureCollection<FeatureType, Feature> filteredResults = mfDataAccess.getFeatureSource(
                 MAPPED_FEATURE).getFeatures(filter);
 
-        assertEquals(filteredResults.size(), 3);
+        assertEquals(3, filteredResults.size());
     }
 
     /**
@@ -495,7 +496,8 @@ public class DataAccessIntegrationTest {
             FeatureType guSchema = new FeatureTypeImpl(GEOLOGIC_UNIT, simpleType.getDescriptors(),
                     null, true, simpleType.getRestrictions(), GMLSchema.ABSTRACTFEATURETYPE_TYPE,
                     null);
-            return new InputDataAccess(inputFeatures, guSchema);
+            return new InputDataAccess(inputFeatures, guSchema,                    
+                    FeatureChainingTest.GEOLOGIC_UNIT_NAME);
         }
 
         public String getDescription() {
@@ -528,10 +530,10 @@ public class DataAccessIntegrationTest {
 
             private ArrayList<Name> names = new ArrayList<Name>();
 
-            public InputDataAccess(Collection<Feature> features, FeatureType schema) {
+            public InputDataAccess(Collection<Feature> features, FeatureType schema, Name fTypeName) {
                 InputFeatureCollection fCollection = new InputFeatureCollection(schema, features);
                 fSource = new InputFeatureSource(fCollection, this);
-                names.add(fSource.getName());
+                names.add(fTypeName);
                 DataAccessRegistry.register(this);
             }
 

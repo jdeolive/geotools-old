@@ -422,7 +422,7 @@ public class AppSchemaDataAccess implements DataAccess<FeatureType, Feature> {
      * @see org.geotools.data.DataAccess#getFeatureSource(org.opengis.feature.type.Name)
      */
     public FeatureSource<FeatureType, Feature> getFeatureSource(Name typeName) throws IOException {
-        return new MappingFeatureSource(this, getMappingByName(typeName));
+        return new MappingFeatureSource(this, getMappingByElement(typeName));
     }
 
     /**
@@ -435,4 +435,18 @@ public class AppSchemaDataAccess implements DataAccess<FeatureType, Feature> {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * Return a feature source that can be used to obtain features of a particular name. This name
+     * would be the mappingName in the TypeMapping if it exists, otherwise it's the target element
+     * name.
+     * 
+     * @param typeName
+     *            mappingName or targetElement
+     * @return Mapping feature source
+     * @throws IOException
+     */
+    public FeatureSource<FeatureType, Feature> getFeatureSourceByName(Name typeName)
+            throws IOException {
+        return new MappingFeatureSource(this, getMappingByName(typeName));
+    }
 }

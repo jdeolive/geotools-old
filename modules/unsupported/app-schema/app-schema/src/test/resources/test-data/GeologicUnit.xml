@@ -75,6 +75,8 @@
 	</targetTypes>
 	<typeMappings>
 		<FeatureTypeMapping>
+		    <!-- test mappingName won't break getFeature request for top level feature -->
+		    <mappingName>myGeologicUnit</mappingName>
 			<sourceDataStore>GeologicUnit</sourceDataStore>
 			<sourceType>GeologicUnit</sourceType>
 			<targetElement>gsml:GeologicUnit</targetElement>

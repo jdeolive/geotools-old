@@ -19,6 +19,7 @@ package org.geotools.data.complex;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -291,7 +292,7 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
 
         // compare the feature ids and make sure that the features are all there
         assertEquals(guIds.size(), moIds.size());
-        assertEquals(guIds.containsAll(moIds), true);
+        assertTrue(guIds.containsAll(moIds));
     }
 
     /**
@@ -331,7 +332,7 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
         // make sure all the mappings are there
         assertNotNull(occurrenceMapping);
         assertNotNull(compositionMapping);
-        assertEquals(otherMappings.size(), guSchema.getAttributeMappings().size() - 2);
+        assertEquals(guSchema.getAttributeMappings().size() - 2, otherMappings.size());
 
         int guCount = 0;
         ArrayList<Feature> guFeatures = new ArrayList<Feature>();
@@ -361,19 +362,19 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
                     cpIds.add(attrib.getValue().toString());
                 }
             }
-            assertEquals(cpIds.size() > 0, true);
+            assertTrue(cpIds.size() > 0);
             assertEquals(gsmlCompositions.size(), cpIds.size());
             ArrayList<String> nestedCpIds = new ArrayList<String>(cpIds.size());
             for (Property outputProperty : gsmlCompositions) {
                 Collection<Feature> values = (Collection<Feature>) outputProperty.getValue();
                 Feature compositionPart = values.iterator().next();
                 // check the values
-                assertEquals(cpFeatures.contains(compositionPart), true);
+                assertTrue(cpFeatures.contains(compositionPart));
                 nestedCpIds.add(compositionPart.getIdentifier().toString());
             }
 
             // check the feature has the correct id
-            assertEquals(cpIds.containsAll(nestedCpIds), true);
+            assertTrue(cpIds.containsAll(nestedCpIds));
 
             /**
              * Check Feature Chaining : Mapped Feature as occurrence
@@ -389,19 +390,19 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
                     mfIds.add(attrib.getValue().toString());
                 }
             }
-            assertEquals(mfIds.size() > 0, true);
+            assertTrue(mfIds.size() > 0);
             assertEquals(occurrences.size(), mfIds.size());
             ArrayList<String> nestedMfIds = new ArrayList<String>(mfIds.size());
             for (Property mf : occurrences) {
                 Collection<Feature> values = (Collection<Feature>) mf.getValue();
                 Feature mfFeature = values.iterator().next();
                 // check the values
-                assertEquals(mfFeatures.contains(mfFeature), true);
+                assertTrue(mfFeatures.contains(mfFeature));
                 nestedMfIds.add(mfFeature.getIdentifier().toString());
             }
 
             // check the feature has the correct id
-            assertEquals(mfIds.containsAll(nestedMfIds), true);
+            assertTrue(mfIds.containsAll(nestedMfIds));
 
             // check multi-valued properties are all mapped
             // there should be 2 gml:name attributes, although only mapped once
@@ -413,7 +414,7 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
             // </sourceExpression>
             // <isMultiple>true</isMultiple>
             // </AttributeMapping>
-            assertEquals(next.getProperties("name").size(), 2);
+            assertEquals(2, next.getProperties("name").size());
 
             /**
              * Check normal in-line attribute mappings
@@ -441,7 +442,7 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
             guCount++;
         }
         // make sure number of re-mapped features is consistent with input complex features
-        assertEquals(guCount, inputFeatures.size());
+        assertEquals(inputFeatures.size(), guCount);
 
         /**
          * Feature chaining : Make sure the features can be chained as well. The re-mapped Geologic
@@ -469,13 +470,13 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
             assertNotNull(spec);
             Object guObject = spec.getValue();
             assertNotNull(guObject);
-            assertEquals(guObject instanceof Collection, true);
-            assertEquals(((Collection<Feature>) guObject).size(), 1);
+            assertTrue(guObject instanceof Collection);
+            assertEquals(1, ((Collection<Feature>) guObject).size());
             guObject = ((Collection<Feature>) guObject).iterator().next();
-            assertEquals(guObject instanceof Feature, true);
+            assertTrue(guObject instanceof Feature);
             Feature guFeature = (Feature) guObject;
             // make sure this is the re-mapped geologic unit feature
-            assertEquals(guFeatures.contains(guFeature), true);
+            assertTrue(guFeatures.contains(guFeature));
             String propertyGuId = FeatureChainingTest.mfToGuMap.get(mf.getIdentifier().toString())
                     .split("gu.")[1];
             assertEquals(((Feature) guObject).getIdentifier().toString(), propertyGuId);
@@ -509,7 +510,7 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
         // _=FORM:String,COMPOSITION:String
         // 25699=strataform|cp.167775491936278844,cp.167775491936278812,cp.167775491936278856
         // 25682=cross-cutting|cp.167775491936278812
-        assertEquals(filteredResults.size(), 2);
+        assertEquals(2, filteredResults.size());
 
         // Filtering on mapped feature features that chain the re-mapped geologic unit features
         // First we need to recreate the mapping with a mapping file where gsml:specification exists
@@ -533,7 +534,7 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
         // 25678=vein|cp.167775491936278856|urn:cgi:classifierScheme:GSV:GeologicalUnitType|mf2,mf3
         // There are 2 mapped features: mf2 and mf3.
         // You can verify by looking at MappedFeaturePropertiesFile.properties as well
-        assertEquals(filteredResults.size(), 2);
+        assertEquals(2, filteredResults.size());
     }
 
     /**
@@ -574,7 +575,7 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
 
             inputFeatures = getInputFeatures(fCollection, complexType);
 
-            return new InputDataAccess(inputFeatures, simpleFeatureSource.getSchema());
+            return new InputDataAccess(inputFeatures, simpleFeatureSource.getSchema(), simpleFeatureSource.getName());
         }
 
         public boolean canProcess(Map<String, Serializable> params) {

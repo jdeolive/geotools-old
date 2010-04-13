@@ -51,6 +51,7 @@
 	</targetTypes>
 	<typeMappings>
 		<FeatureTypeMapping>
+		    <mappingName>myGeologicUnit</mappingName>
 			<sourceDataStore>EarthResource</sourceDataStore>
 			<sourceType>EarthResource</sourceType>
 			<targetElement>gsml:GeologicUnit</targetElement>
