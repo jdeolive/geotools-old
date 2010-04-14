@@ -72,6 +72,6 @@ public class SubProgressListener extends DelegateProgressListener {
     }
     public void progress( float progress ) {
         this.progress = progress;
-        super.progress(start + progress);
+        super.progress(start + (scale * progress));
     }
 }
