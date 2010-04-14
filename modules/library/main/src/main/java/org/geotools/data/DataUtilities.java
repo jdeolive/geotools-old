@@ -17,6 +17,7 @@
 package org.geotools.data;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
@@ -42,6 +43,8 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.geotools.data.collection.CollectionDataStore;
 import org.geotools.factory.CommonFactoryFinder;
@@ -1871,7 +1874,125 @@ public class DataUtilities {
 		a += extension;
 		return new URL(a);
 	}
-
-
+	
+    /**
+     * Checks that a {@link File} is a real file, exists and is readable.
+     * 
+     * @param file the {@link File} instance to check. Must not be null.
+     * @param logger an optional {@link Logger} (can be null) where to log detailed
+     *          info about the file properties (path/readable/hidden/writable)  
+     * 
+     * @return {@code true} in case the file is a real file, exists and is readable; 
+     *          {@code false} otherwise.
+     */
+    public static boolean checkFileReadable(final File file, final Logger logger) {
+        if (logger != null && logger.isLoggable(Level.FINE)) {
+            final StringBuilder builder = new StringBuilder("Checking file:")
+            .append(file.getAbsolutePath()).append("\n")
+            .append("canRead:").append(file.canRead()).append("\n")
+            .append("isHidden:").append(file.isHidden()).append("\n")
+            .append("isFile").append(file.isFile()).append("\n")
+            .append("canWrite").append(file.canWrite()).append("\n");
+            logger.fine(builder.toString());
+        }
+        if (!file.exists() || !file.canRead() || !file.isFile())
+            return false;
+        return true;
+    }
+    
+    /**
+     * Checks that the provided directory path refers to an existing/readable directory.
+     * Finally, return it as a normalized directory path (removing double and single dot path steps 
+     * if any) followed by the separator char if missing ({@code '/'} On UNIX systems; {@code '\\}
+     * on Microsoft Windows systems. 
+     * 
+     * @param directoryPath the input directory path. Must not be null.
+     * @return the re-formatted directory path. 
+     * @throws IllegalArgumentException in case the specified path doesn't rely on a 
+     *          existing/readable directory.
+     */
+    public static File checkDirectory(File file)
+            throws IllegalArgumentException {
+        String directoryPath = file.getPath();
+        File inDir = file;
+        if(!inDir.isDirectory()){
+            throw new IllegalArgumentException("Not a directory: "+directoryPath );
+        }
+        if (!inDir.canRead()) {
+            throw new IllegalArgumentException("Not a writable directory: "+ directoryPath );
+        }
+        try {
+            directoryPath = inDir.getCanonicalPath();
+        } catch (IOException e) {
+            throw new IllegalArgumentException(e);
+        }
+        /*
+        directoryPath = FilenameUtils.normalize(directoryPath);
+        if (!directoryPath.endsWith(File.separator)){
+            directoryPath = directoryPath + File.separator;
+        }
+        */
+        // test to see if things are still good
+        inDir = new File(directoryPath);
+        if(!inDir.isDirectory()){
+            throw new IllegalArgumentException("Not a directory: "+directoryPath );
+        }
+        if (!inDir.canRead()) {
+            throw new IllegalArgumentException("Not a writable directory: "+ directoryPath );
+        }
+        return new File(directoryPath);
+    }
+    
+    /**
+     * Returns a {@link IOFileFilter} obtained by excluding from the first input filter argument, 
+     * the additional filter arguments. 
+     * 
+     * @param inputFilter the initial filter from which to exclude other ones. 
+     * @param filters additional filters to be excluded 
+     * 
+     * @return the updated {@link IOFileFilter} 
+     */
+    public static FilenameFilter excludeFilters(final FilenameFilter inputFilter,
+            final FilenameFilter... filters) {
+        return new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                if( inputFilter.accept(dir, name)){
+                    for( FilenameFilter exclude : filters ){
+                        if( exclude.accept(dir, name)){
+                            return false;
+                        }
+                    }
+                    return true;
+                }               
+                return false;
+            }
+        };
+    }
+    
+    /**
+     * Returns a {@link IOFileFilter} obtained by adding to the first input filter argument, 
+     * the additional filter arguments. 
+     * 
+     * @param inputFilter the initial filter to which to add other ones. 
+     * @param filters additional filters to be included in the main filter. 
+     * 
+     * @return the updated {@link IOFileFilter} 
+     */
+    public static FilenameFilter includeFilters(final FilenameFilter inputFilter,
+            final FilenameFilter... filters) {
+        return new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                if( inputFilter.accept(dir, name)){
+                    return true;
+                }
+                for( FilenameFilter include : filters ){
+                    if( include.accept(dir, name)){
+                        return true;
+                    }
+                }
+                return false;
+            }
+        };
+    }
 
 }
