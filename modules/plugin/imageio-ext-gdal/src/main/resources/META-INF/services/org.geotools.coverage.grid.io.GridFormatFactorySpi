@@ -8,3 +8,4 @@ org.geotools.coverageio.gdal.erdasimg.ErdasImgFormatFactory
 org.geotools.coverageio.gdal.nitf.NITFFormatFactory
 org.geotools.coverageio.gdal.ehdr.EsriHdrFormatFactory
 org.geotools.coverageio.gdal.envihdr.EnviHdrFormatFactory
+org.geotools.coverageio.gdal.aig.AIGFormatFactory

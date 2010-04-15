@@ -89,8 +89,13 @@
     </dependency>
     <dependency>
       <groupId>it.geosolutions.imageio-ext</groupId>
+      <artifactId>imageio-ext-gdalarcbinarygrid</artifactId>
+      <!-- The version number is specified in the parent POM. -->
+    </dependency>
+    <dependency>
+      <groupId>it.geosolutions.imageio-ext</groupId>
       <artifactId>imageio-ext-gdalmrsid</artifactId>
-      <version>${imageio.ext.version}</version>
+      <!-- The version number is specified in the parent POM. -->
     </dependency>
     <dependency>
       <groupId>it.geosolutions.imageio-ext</groupId>

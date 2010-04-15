@@ -17,6 +17,7 @@
 package org.geotools.coverageio.gdal;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,10 +28,15 @@ import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.imageio.GeoToolsWriteParams;
 import org.geotools.factory.Hints;
 import org.geotools.parameter.DefaultParameterDescriptor;
+import org.geotools.parameter.DefaultParameterDescriptorGroup;
+import org.geotools.parameter.ParameterGroup;
+import org.geotools.util.Utilities;
 import org.opengis.coverage.grid.Format;
 import org.opengis.coverage.grid.GridCoverageReader;
 import org.opengis.coverage.grid.GridCoverageWriter;
+import org.opengis.parameter.GeneralParameterDescriptor;
 import org.opengis.parameter.GeneralParameterValue;
+import org.opengis.parameter.ParameterDescriptor;
 
 /**
  * A Base abstract class implementing {@link Format}, to be extended by Formats
@@ -76,8 +82,7 @@ public abstract class BaseGDALGridFormat extends AbstractGridFormat implements
      * operation of the ImageIO-Ext.
      */
     public static final DefaultParameterDescriptor<Boolean> USE_MULTITHREADING = new DefaultParameterDescriptor<Boolean>(
-            USE_MT, Boolean.class,
-            new Boolean[] { Boolean.TRUE, Boolean.FALSE }, Boolean.FALSE);
+            USE_MT, Boolean.class, new Boolean[] { Boolean.TRUE, Boolean.FALSE }, Boolean.FALSE);
 
     /** The {@code String} representing the parameter to customize tile sizes */
     private static final String SUGGESTED_TILESIZE = "SUGGESTED_TILE_SIZE";
@@ -130,8 +135,7 @@ public abstract class BaseGDALGridFormat extends AbstractGridFormat implements
      * throws an {@code UnsupportedOperationException}.
      */
     public GeoToolsWriteParams getDefaultImageIOWriteParameters() {
-        throw new UnsupportedOperationException(
-                "This plugin does not support writing parameters");
+        throw new UnsupportedOperationException("This plugin does not support writing parameters");
     }
 
     /**
@@ -142,8 +146,7 @@ public abstract class BaseGDALGridFormat extends AbstractGridFormat implements
      * throws an {@code UnsupportedOperationException}.
      */
     public GridCoverageWriter getWriter(Object destination, Hints hints) {
-        throw new UnsupportedOperationException(
-                "This plugin does not support writing at this time.");
+        throw new UnsupportedOperationException("This plugin does not support writing at this time.");
     }
 
     /**
@@ -158,5 +161,20 @@ public abstract class BaseGDALGridFormat extends AbstractGridFormat implements
             }
             return false;
         }
+    }
+    
+    /**
+     * Return a ParameterGroup with default General Parameter Descriptors.
+     * @param mInfo Set of properties info
+     * @return a {@link ParameterGroup} with Default {@link GeneralParameterDescriptors}.
+     */
+    protected static ParameterGroup getDefaultParameterGroup(Map<String,String> mInfo){
+        return new ParameterGroup(
+                new DefaultParameterDescriptorGroup(mInfo,
+                        new GeneralParameterDescriptor[] { 
+                                READ_GRIDGEOMETRY2D,
+                                USE_JAI_IMAGEREAD, 
+                                USE_MULTITHREADING, 
+                                SUGGESTED_TILE_SIZE }));
     }
 }

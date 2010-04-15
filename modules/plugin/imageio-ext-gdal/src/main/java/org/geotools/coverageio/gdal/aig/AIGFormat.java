@@ -14,9 +14,9 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.coverageio.gdal.ecw;
+package org.geotools.coverageio.gdal.aig;
 
-import it.geosolutions.imageio.plugins.ecw.ECWImageReaderSpi;
+import it.geosolutions.imageio.plugins.arcbinarygrid.ArcBinaryGridImageReaderSpi;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,35 +26,33 @@ import java.util.logging.Logger;
 import org.geotools.coverageio.gdal.BaseGDALGridFormat;
 import org.geotools.data.DataSourceException;
 import org.geotools.factory.Hints;
-import org.geotools.parameter.DefaultParameterDescriptorGroup;
-import org.geotools.parameter.ParameterGroup;
 import org.opengis.coverage.grid.Format;
 import org.opengis.geometry.MismatchedDimensionException;
-import org.opengis.parameter.GeneralParameterDescriptor;
 
 /**
- * An implementation of {@link Format} for the ECW format.
+ * An implementation of {@link Format} for the Arc/Info Binary Grid (AIG) format.
  * 
+ * @author Andrea Antonello (www.hydrologis.com) 
  * @author Daniele Romagnoli, GeoSolutions
  * @author Simone Giannecchini (simboss), GeoSolutions
  * @since 2.5.x
  */
 @SuppressWarnings("deprecation")
-public final class ECWFormat extends BaseGDALGridFormat implements Format {
+public final class AIGFormat extends BaseGDALGridFormat implements Format {
     /**
      * Logger.
      */
     private final static Logger LOGGER = org.geotools.util.logging.Logging
-            .getLogger("org.geotools.coverageio.gdal.ecw");
+            .getLogger(AIGFormat.class.toString());
 
     /**
      * Creates an instance and sets the metadata.
      */
-    public ECWFormat() {
-        super(new ECWImageReaderSpi());
+    public AIGFormat() {
+        super(new ArcBinaryGridImageReaderSpi());
 
         if (LOGGER.isLoggable(Level.FINE)) {
-            LOGGER.fine("Creating a new ECWFormat.");
+            LOGGER.fine("Creating a new AIGFormat.");
         }
 
         setInfo();
@@ -65,8 +63,8 @@ public final class ECWFormat extends BaseGDALGridFormat implements Format {
      */
     protected void setInfo() {
         final HashMap<String, String> info = new HashMap<String, String>();
-        info.put("name", "ECW");
-        info.put("description", "ECW Coverage Format");
+        info.put("name", "AIG");
+        info.put("description", "Arc/Info Binary Grid (AIG) Coverage Format");
         info.put("vendor", "Geotools");
         info.put("docURL", ""); // TODO: set something
         info.put("version", "1.0");
@@ -76,19 +74,15 @@ public final class ECWFormat extends BaseGDALGridFormat implements Format {
         writeParameters = null;
 
         // reading parameters
-        readParameters = new ParameterGroup(
-                new DefaultParameterDescriptorGroup(mInfo,
-                        new GeneralParameterDescriptor[] { READ_GRIDGEOMETRY2D,
-                                USE_JAI_IMAGEREAD, USE_MULTITHREADING,
-                                SUGGESTED_TILE_SIZE }));
+        readParameters = getDefaultParameterGroup(info);
     }
 
     /**
      * @see org.geotools.data.coverage.grid.AbstractGridFormat#getReader(Object, Hints)
      */
-    public ECWReader getReader(Object source, Hints hints) {
+    public AIGReader getReader(Object source, Hints hints) {
         try {
-            return new ECWReader(source, hints);
+            return new AIGReader(source, hints);
         } catch (MismatchedDimensionException e) {
             final RuntimeException re = new RuntimeException();
             re.initCause(e);

@@ -39,7 +39,6 @@ import org.geotools.referencing.CRS;
 import org.geotools.referencing.operation.transform.ProjectiveTransform;
 import org.opengis.coverage.grid.GridCoverageReader;
 import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.NoSuchAuthorityCodeException;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.TransformException;
 
@@ -56,9 +55,11 @@ import org.opengis.referencing.operation.TransformException;
 public abstract class BaseGDALGridCoverage2DReader extends
         BaseGridCoverage2DReader implements GridCoverageReader {
 
+    protected final static String DEFAULT_WORLDFILE_EXT = ".wld";
+    
     /** Logger. */
     private final static Logger LOGGER = org.geotools.util.logging.Logging
-            .getLogger("org.geotools.coverageio.gdal");
+            .getLogger(BaseGDALGridCoverage2DReader.class.toString());
 
     /**
      * Creates a new instance of a {@link BaseGDALGridCoverage2DReader}. I
@@ -97,8 +98,7 @@ public abstract class BaseGDALGridCoverage2DReader extends
         // //
         final IIOMetadata metadata = reader.getImageMetadata(0);
         if (!(metadata instanceof GDALCommonIIOImageMetadata)) {
-            throw new DataSourceException(
-                    "Unexpected error! Metadata should be an instance of the expected class:"
+            throw new DataSourceException("Unexpected error! Metadata should be an instance of the expected class:"
                             + " GDALCommonIIOImageMetadata.");
         }
         parseCommonMetadata((GDALCommonIIOImageMetadata) metadata);
@@ -115,8 +115,7 @@ public abstract class BaseGDALGridCoverage2DReader extends
         
         
         if (getCoverageEnvelope() == null) {
-            throw new DataSourceException(
-                    "Unable to compute the envelope for this coverage");
+            throw new DataSourceException("Unable to compute the envelope for this coverage");
         }
 
         // setting the coordinate reference system for the envelope, just to make sure we set it
