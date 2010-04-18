@@ -73,8 +73,10 @@ public class JDataStorePage extends JPage {
         this.format = format;
         if (params == null) {
             params = new HashMap<String, Object>();
-            for (Param param : format.getParametersInfo()) {
-                params.put(param.key, (Serializable) param.sample);
+            if( format != null ){
+                for (Param param : format.getParametersInfo()) {
+                    params.put(param.key, (Serializable) param.sample);
+                }
             }
         }
         this.connectionParameters = params;
@@ -82,6 +84,12 @@ public class JDataStorePage extends JPage {
 
     public void setLevel(String level) {
         this.level = level;
+    }
+    
+    public void setFormat(DataStoreFactorySpi format) {
+        if( this.format != format ){
+            this.format = format;            
+        }        
     }
 
     @Override
