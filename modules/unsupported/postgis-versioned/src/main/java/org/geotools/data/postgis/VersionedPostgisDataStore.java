@@ -121,16 +121,6 @@ public class VersionedPostgisDataStore implements VersioningDataStore {
     static final Class[] SUPPORTED_FID_MAPPERS = new Class[] { BasicFIDMapper.class,
             MultiColumnFIDMapper.class, PostGISAutoIncrementFIDMapper.class, UUIDFIDMapper.class};
     /**
-     * Key used in transaction properties to hold the commit author
-     */
-    public static final String AUTHOR = "PgVersionedCommitAuthor";
-
-    /**
-     * Key used in transaction properties to hold the commit message
-     */
-    public static final String MESSAGE = "PgVersionedCommitMessage";
-
-    /**
      * Key used to store the feature types touched by the current transaction
      */
     public static final String DIRTYTYPES = "PgVersionedDirtyTypes";
@@ -1076,8 +1066,8 @@ public class VersionedPostgisDataStore implements VersioningDataStore {
         ResultSet rs = null;
         PostgisSQLBuilder sqlb = wrapped.createSQLBuilder();
         Transaction t = new DefaultTransaction();
-        t.putProperty(AUTHOR, author);
-        t.putProperty(MESSAGE, message);
+        t.putProperty(VersioningDataStore.AUTHOR, author);
+        t.putProperty(VersioningDataStore.MESSAGE, message);
         try {
             // gather the transaction state and pick the version number, also
             // update the dirty feature types
@@ -1287,8 +1277,8 @@ public class VersionedPostgisDataStore implements VersioningDataStore {
         Statement st = null;
         PostgisSQLBuilder sqlb = wrapped.createSQLBuilder();
         Transaction t = new DefaultTransaction();
-        t.putProperty(AUTHOR, author);
-        t.putProperty(MESSAGE, message);
+        t.putProperty(VersioningDataStore.AUTHOR, author);
+        t.putProperty(VersioningDataStore.MESSAGE, message);
         try {
             // gather the transaction state and pick the version number, also
             // update the dirty feature types

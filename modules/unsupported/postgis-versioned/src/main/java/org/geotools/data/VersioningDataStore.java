@@ -29,6 +29,16 @@ import java.io.IOException;
  * @source $URL$
  */
 public interface VersioningDataStore extends DataStore {
+    
+    /**
+     * Key used in transaction properties to hold the commit author
+     */
+    public static final String AUTHOR = "VersioningCommitAuthor";
+    /**
+     * Key used in transaction properties to hold the commit message
+     */
+    public static final String MESSAGE = "VersioningCommitMessage";
+
     /**
      * Returns true if the specified feature type is versioned, false otherwise
      * 

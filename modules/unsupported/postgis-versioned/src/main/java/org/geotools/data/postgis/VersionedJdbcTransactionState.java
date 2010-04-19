@@ -32,6 +32,7 @@ import java.util.logging.Logger;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.Transaction;
+import org.geotools.data.VersioningDataStore;
 import org.geotools.data.jdbc.JDBCTransactionState;
 import org.geotools.data.jdbc.JDBCUtils;
 import org.geotools.factory.CommonFactoryFinder;
@@ -291,8 +292,8 @@ class VersionedJdbcTransactionState extends JDBCTransactionState {
     protected long writeRevision(Transaction t, ReferencedEnvelope bbox) throws IOException {
         SimpleFeature f = null;
         FeatureWriter<SimpleFeatureType, SimpleFeature> writer = null;
-        String author = (String) t.getProperty(VersionedPostgisDataStore.AUTHOR);
-        String message = (String) t.getProperty(VersionedPostgisDataStore.MESSAGE);
+        String author = (String) t.getProperty(VersioningDataStore.AUTHOR);
+        String message = (String) t.getProperty(VersioningDataStore.MESSAGE);
         Statement st = null;
         try {
             // we need to make sure that revision N+1 is committed after N is committed, otherwise

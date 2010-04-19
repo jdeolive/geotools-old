@@ -41,6 +41,7 @@ import org.geotools.data.FeatureStore;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
+import org.geotools.data.VersioningDataStore;
 import org.geotools.data.VersioningFeatureSource;
 import org.geotools.data.VersioningFeatureStore;
 import org.geotools.factory.CommonFactoryFinder;
@@ -1565,8 +1566,8 @@ public class VersionedOperationsOnlineTest extends AbstractVersionedPostgisDataT
 
     private Transaction createTransaction(String author, String message) throws IOException {
         Transaction t = new DefaultTransaction();
-        t.putProperty(VersionedPostgisDataStore.AUTHOR, author);
-        t.putProperty(VersionedPostgisDataStore.MESSAGE, message);
+        t.putProperty(VersioningDataStore.AUTHOR, author);
+        t.putProperty(VersioningDataStore.MESSAGE, message);
         return t;
     }
 
