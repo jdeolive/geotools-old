@@ -188,6 +188,10 @@ class VersionedJdbcTransactionState extends JDBCTransactionState {
     public void commit() throws IOException {
         // first, check we touched at least one versioned table
         if (!dirtyTypes.isEmpty()) {
+            // grab author and message, they might have been updated since revsion insertion
+            String author = (String) transaction.getProperty(VersioningDataStore.AUTHOR);
+            String message = (String) transaction.getProperty(VersioningDataStore.MESSAGE);
+            
             // first write down modified envelope
             SimpleFeature f = null;
             FeatureWriter<SimpleFeatureType, SimpleFeature> writer = null;
@@ -208,6 +212,8 @@ class VersionedJdbcTransactionState extends JDBCTransactionState {
                 
                 // update it
                 f = writer.next();
+                f.setAttribute("author", author);
+                f.setAttribute("message", message);
                 f.setDefaultGeometry(toLatLonRectange(bbox));
                 writer.write();
             } catch (IllegalAttributeException e) {
