@@ -19,14 +19,9 @@ package org.geotools.swing.data;
 
 import java.awt.Component;
 import java.awt.Font;
-import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.StringTokenizer;
-import java.util.Map.Entry;
 
-import javax.swing.CellRendererPane;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -40,11 +35,7 @@ import net.miginfocom.swing.MigLayout;
 
 import org.geotools.data.DataStoreFactorySpi;
 import org.geotools.data.DataStoreFinder;
-import org.geotools.data.DataAccessFactory.Param;
 import org.geotools.swing.wizard.JPage;
-import org.geotools.swing.wizard.ParamField;
-
-import com.sun.jmx.remote.internal.ListenerInfo;
 
 /**
  * A wizard page that will allow the user to choose a format (ie DataAccess factory).
