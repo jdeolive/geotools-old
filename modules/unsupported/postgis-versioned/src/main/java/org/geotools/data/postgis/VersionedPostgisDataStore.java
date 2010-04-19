@@ -655,7 +655,7 @@ public class VersionedPostgisDataStore implements VersioningDataStore {
         // select rowId, revisionCreated, [columnsForSecondaryFilter]
         // from data
         // where (
-        // (revision < r1 and expired >= r1 and expired <= r2)
+        // (revision < r1 and expired > r1 and expired <= r2)
         // or
         // (revision > r1 and revision <= r2)
         // )
@@ -693,16 +693,16 @@ public class VersionedPostgisDataStore implements VersioningDataStore {
 
         // build a filter to extract stuff modified between r1 and r2 and matching the prefilter
         Filter revLeR1 = ff.lessOrEqual(ff.property("revision"), ff.literal(r1.revision));
-        Filter expGeR1 = ff.greaterOrEqual(ff.property("expired"), ff.literal(r1.revision));
+        Filter expGtR1 = ff.greater(ff.property("expired"), ff.literal(r1.revision));
         Filter expLeR2 = ff.lessOrEqual(ff.property("expired"), ff.literal(r2.revision));
         Filter expLtR2 = ff.less(ff.property("expired"), ff.literal(r2.revision));
         Filter revGtR1 = ff.greater(ff.property("revision"), ff.literal(r1.revision));
         Filter revLeR2 = ff.lessOrEqual(ff.property("revision"), ff.literal(r2.revision));
         Filter versionFilter;
         if(r2.isLast())
-            versionFilter = ff.or(ff.and(revLeR1, ff.and(expGeR1, expLtR2)), revGtR1);
+            versionFilter = ff.or(ff.and(revLeR1, ff.and(expGtR1, expLtR2)), revGtR1);
         else
-            versionFilter = ff.or(ff.and(revLeR1, ff.and(expGeR1, expLeR2)), ff.and(revGtR1,
+            versionFilter = ff.or(ff.and(revLeR1, ff.and(expGtR1, expLeR2)), ff.and(revGtR1,
                 revLeR2));
         // ... merge in the prefilter
         Filter newFilter = null;

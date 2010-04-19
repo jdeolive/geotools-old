@@ -276,6 +276,8 @@ public class FeatureDiffReaderImpl implements org.geotools.data.FeatureDiffReade
                     lastDiff = null;
                     fvReader.close();
                     tvReader.close();
+                    fvReader = null;
+                    tvReader = null;
                     return false;
                 }
                 // compute field by field difference
