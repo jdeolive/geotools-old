@@ -118,4 +118,58 @@ public class FeatureDiffImpl implements FeatureDiff {
         return oldFeature;
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((ID == null) ? 0 : ID.hashCode());
+        result = prime * result + ((changedAttributes == null) ? 0 : changedAttributes.hashCode());
+        result = prime * result + ((feature == null) ? 0 : feature.hashCode());
+        result = prime * result + ((oldFeature == null) ? 0 : oldFeature.hashCode());
+        result = prime * result + state;
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        FeatureDiffImpl other = (FeatureDiffImpl) obj;
+        if (ID == null) {
+            if (other.ID != null)
+                return false;
+        } else if (!ID.equals(other.ID))
+            return false;
+        if (changedAttributes == null) {
+            if (other.changedAttributes != null)
+                return false;
+        } else if (!changedAttributes.equals(other.changedAttributes))
+            return false;
+        if (feature == null) {
+            if (other.feature != null)
+                return false;
+        } else if (!feature.equals(other.feature))
+            return false;
+        if (oldFeature == null) {
+            if (other.oldFeature != null)
+                return false;
+        } else if (!oldFeature.equals(other.oldFeature))
+            return false;
+        if (state != other.state)
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "FeatureDiffImpl [ID=" + ID + ", changedAttributes=" + changedAttributes
+                + ", state=" + state + "]";
+    }
+    
+    
+
 }
