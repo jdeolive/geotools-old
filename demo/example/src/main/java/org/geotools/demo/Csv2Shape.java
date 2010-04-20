@@ -37,6 +37,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
+import org.geotools.swing.data.JFileDataStoreChooser;
 
 /**
  * This example reads data for point locations and associated attributes from a comma separated text
