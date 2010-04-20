@@ -18,6 +18,7 @@
 package org.geotools.swing.data;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -97,7 +98,9 @@ public class JDataChoosePage extends JPage {
             }
         });
         JScrollPane scroll = new JScrollPane( list );
-        page.add( scroll, "growx,growy,span");
+        scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS );
+        scroll.setPreferredSize(new Dimension(300,100));
+        page.add( scroll, "growx,growy,span");        
         
         return page;
     }

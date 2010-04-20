@@ -19,11 +19,11 @@ package org.geotools.swing.data;
 import java.awt.Component;
 import java.awt.HeadlessException;
 import java.io.File;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
