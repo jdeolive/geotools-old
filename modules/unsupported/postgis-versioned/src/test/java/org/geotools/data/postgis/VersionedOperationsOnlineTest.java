@@ -630,12 +630,14 @@ public class VersionedOperationsOnlineTest extends AbstractVersionedPostgisDataT
         fr.close();
 
         // now delete one feature
-        Transaction t = createTransaction("gimbo", "first change");
-        FeatureStore fs = (FeatureStore) ds.getFeatureSource("road");
+        Transaction t = createTransaction("gimbo", "removing one feature by mass delete with filter");
+        VersioningFeatureStore fs = (VersioningFeatureStore) ds.getFeatureSource("road");
         fs.setTransaction(t);
         fs.removeFeatures(filter);
         t.commit();
         t.close();
+        
+        fs.setTransaction(Transaction.AUTO_COMMIT);
 
         // and now see if it's still there
         fr = ds.getFeatureReader(new DefaultQuery(
@@ -648,12 +650,28 @@ public class VersionedOperationsOnlineTest extends AbstractVersionedPostgisDataT
         // proper bounds
         DefaultQuery q = new DefaultQuery("changesets");
         q.setSortBy(new SortBy[] { ff.sort("revision", SortOrder.DESCENDING) });
-        final FeatureCollection<SimpleFeatureType, SimpleFeature> features = ds.getFeatureSource(
+        final FeatureCollection<SimpleFeatureType, SimpleFeature> changes = ds.getFeatureSource(
                 "changesets").getFeatures(q);
-        FeatureIterator<SimpleFeature> fi = features.features();
+        FeatureIterator<SimpleFeature> fi = changes.features();
         SimpleFeature lastChangeset = fi.next();
         fi.close();
         assertEquals(env, ((Geometry) lastChangeset.getDefaultGeometry()).getEnvelopeInternal());
+        
+        // finally make sure the deletion shows up in the differences
+        long lastRevision = (Long) lastChangeset.getAttribute("revision");
+        String vPrev = String.valueOf(lastRevision - 1);
+        String vCurr = String.valueOf(lastRevision);
+        FeatureDiffReader fdr = fs.getDifferences(vPrev, vCurr, null, null);
+        assertTrue(fdr.hasNext());
+        FeatureDiff fd = fdr.next();
+        assertEquals(FeatureDiff.DELETED, fd.getState());
+        assertEquals("road.rd1", fd.getOldFeature().getID());
+        fdr.close();
+        
+        // also make sute it made into the modified type names
+        String[] modifiedTypes = ds.getModifiedFeatureTypes(vPrev, vCurr);
+        assertEquals(1, modifiedTypes.length);
+        assertEquals("road", modifiedTypes[0]);
     }
     
     public void testFeatureStoreUpdateFeatures() throws IOException, NoSuchElementException,

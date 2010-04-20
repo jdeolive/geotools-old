@@ -173,6 +173,7 @@ public class VersionedPostgisFeatureStore extends AbstractFeatureStore implement
                 else
                     wgsBounds = bounds;
                 state.expandDirtyBounds(wgsBounds);
+                state.setTypeNameDirty(schema.getTypeName());
             } catch(Exception e) {
                 throw new DataSourceException("Problems computing and storing the " +
                 		"bounds affected by this feature removal", e);
