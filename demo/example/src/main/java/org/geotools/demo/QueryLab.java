@@ -114,6 +114,12 @@ public class QueryLab extends JFrame {
             }
         });
         
+        fileMenu.add(new SafeAction("Connect to DataStore...") {
+            public void action(ActionEvent e) throws Throwable {
+                connect(null);
+            }
+        });
+
         fileMenu.addSeparator();
 
         fileMenu.add(new SafeAction("Exit") {
@@ -161,8 +167,7 @@ public class QueryLab extends JFrame {
             if (dataStore == null) {
                 JOptionPane.showMessageDialog(null, "Could not connect - check parameters");
             }
-
-            updateUI();
+            updateUI();            
         }
     }
 
