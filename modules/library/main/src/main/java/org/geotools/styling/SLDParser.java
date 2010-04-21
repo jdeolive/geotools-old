@@ -712,15 +712,19 @@ public class SLDParser {
             if (childName == null) {
                 childName = child.getNodeName();
             }
+            String firstChildValue = getFirstChildValue(child);
             if (childName.equalsIgnoreCase("Name")) {
-                style.setName(getFirstChildValue(child));
+                style.setName(firstChildValue);
             } else if (childName.equalsIgnoreCase("Title")) {
-                style.setTitle(getFirstChildValue(child));
+                style.setTitle(firstChildValue);
             } else if (childName.equalsIgnoreCase("Abstract")) {
-                style.setAbstract(getFirstChildValue(child));
+                style.setAbstract(firstChildValue);
             } else if (childName.equalsIgnoreCase("IsDefault")) {
-                style.setDefault(Boolean.valueOf(getFirstChildValue(child))
-                        .booleanValue());
+                if("1".equals(firstChildValue)) {
+                    style.setDefault(true);
+                } else {
+                    style.setDefault(Boolean.valueOf(firstChildValue).booleanValue());
+                }
             } else if (childName.equalsIgnoreCase("FeatureTypeStyle")) {
                 style.addFeatureTypeStyle(parseFeatureTypeStyle(child));
             }

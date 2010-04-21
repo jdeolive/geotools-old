@@ -918,7 +918,7 @@ public class SLDTransformer extends TransformerBase {
                 element("Name", style.getName());
                 element("Title", style.getTitle());
                 if(style.isDefault()) {
-                    element("IsDefault", "true");
+                    element("IsDefault", "1");
                 }
                 elementSafe("Abstract", style.getAbstract());
                 FeatureTypeStyle[] fts = style.getFeatureTypeStyles();

@@ -872,4 +872,23 @@ public class SLDTransformerTest {
         assertXpathEvaluatesTo("1", "count(/sld:UserStyle/sld:FeatureTypeStyle/sld:Rule/*)", doc);
         assertXpathEvaluatesTo("1", "count(/sld:UserStyle/sld:FeatureTypeStyle/sld:Rule/sld:PointSymbolizer)", doc);
     }
+    
+    @Test
+    public void testDefaultStyle() throws Exception {
+        StyleBuilder sb = new StyleBuilder();
+        Style s = sb.createStyle(sb.createPointSymbolizer());
+        s.setDefault(true);
+        StyleFactory sf = sb.getStyleFactory();
+        StyledLayerDescriptor sld = sf.createStyledLayerDescriptor();
+        NamedLayer layer = sf.createNamedLayer();
+        layer.setName("layerName");
+        layer.addStyle(s);
+        sld.addStyledLayer(layer);
+        
+        String xml = transformer.transform(sld);
+        // System.out.println(xml);
+        Document doc = buildTestDocument(xml);
+        
+        assertXpathEvaluatesTo("1", "/sld:StyledLayerDescriptor/sld:NamedLayer/sld:UserStyle/sld:IsDefault", doc);
+    }
 }
