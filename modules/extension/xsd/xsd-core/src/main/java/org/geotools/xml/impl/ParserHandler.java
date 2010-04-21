@@ -534,7 +534,7 @@ O:          for (int i = 0; i < schemas.length; i++) {
             if (!isStrict()) {
                 String msg = "Could not find declaration for: " + qualifiedName
                     + ". Creating a mock element declaration and parsing anyways...";
-                logger.info(msg);
+                logger.fine(msg);
 
                 //create a mock element declaration
                 XSDElementDeclaration decl = XSDFactory.eINSTANCE.createXSDElementDeclaration();
