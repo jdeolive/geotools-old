@@ -49,9 +49,12 @@ First of all let's use maven to create our project. You can do this from the com
 First up you'll be presented with a long list of archetypes to select from. Choose the default quickstart archetype
 (number 15).
 
-Next you'll be prompted for the groupId. Enter: *org.geotools.demo* 
+Next you'll get a series of prompts. Enter the following inputs:
 
-The next prompt is for the artifactId. Enter: *example*
+**groupId**: *org.geotools.demo*
+**artifactId:** *example*
+**version:** *1.0-SNAPSHOT*
+**package:** *org.geotools.demo.example*
 
 The final prompt is just to confirm your choices. Press return and maven will wirr and click, downloading a bunch of
 stuff before creating the *example* directory for you.
