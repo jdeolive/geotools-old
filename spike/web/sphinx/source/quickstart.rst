@@ -159,7 +159,8 @@ To make use of GeoTools we are going to add two things to your pom.xml file:
         <dependency>
           <groupId>junit</groupId>
           <artifactId>junit</artifactId>
-          <scope>provided</scope>
+          <version>3.8.1</version>
+          <scope>test</scope>
         </dependency>
         <dependency>
           <groupId>org.geotools</groupId>
@@ -178,6 +179,7 @@ To make use of GeoTools we are going to add two things to your pom.xml file:
           <name>Open Source Geospatial Foundation Repository</name>
           <url>http://download.osgeo.org/webdav/geotools/</url>
         </repository>
+      </repositories>
     </project>
 
 Note how we use the *geotools.version* property with our ``gt-main`` dependency. 
