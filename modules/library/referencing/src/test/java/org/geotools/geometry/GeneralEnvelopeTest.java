@@ -65,6 +65,10 @@ public final class GeneralEnvelopeTest {
         GeneralEnvelope copyNil2 = new GeneralEnvelope((Envelope) nil2); // expected to work
 
         assertTrue(copyNil2.isNull());
+        
+        // See http://jira.codehaus.org/browse/GEOT-3051
+        GeneralEnvelope geot3045 = new GeneralEnvelope(new double[]{0,0}, new double[]{-1,-1}); 
+        assertTrue( geot3045.isEmpty() );
 
     }
 

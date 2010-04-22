@@ -201,9 +201,6 @@ public class GeneralEnvelope extends AbstractEnvelope implements Cloneable, Seri
                 ordinates[i] = envelope.getMinimum(i);
                 ordinates[i + dimension] = envelope.getMaximum(i);
             }
-            if (checkNullCoordinates(ordinates)) {
-                return; // null is okay
-            }
             checkCoordinates(ordinates);
         }
     }
@@ -336,12 +333,23 @@ public class GeneralEnvelope extends AbstractEnvelope implements Cloneable, Seri
     /**
      * Checks if ordinate values in the minimum point are less than or equal to the corresponding
      * ordinate value in the maximum point.
-     * 
+     * <p>
+     * This code will recognize the following exceptions:
+     * <ul>
+     * <li>ordinates encoding isNil</li>
+     * <li>ordinates encoding isEmpty</li>
+     * </ul>
      * @throws IllegalArgumentException
      *             if an ordinate value in the minimum point is not less than or equal to the
      *             corresponding ordinate value in the maximum point.
      */
     private static void checkCoordinates(final double[] ordinates) throws IllegalArgumentException {
+        if( isNilCoordinates( ordinates )){
+            return; // null ordinates are okay            
+        }
+        if( isEmptyOrdinates(ordinates)){
+            return; // empty ordinates are also a valid encoding....
+        }
         final int dimension = ordinates.length / 2;
         for (int i = 0; i < dimension; i++) {
             if (!(ordinates[i] <= ordinates[dimension + i])) { // Use '!' in order to catch 'NaN'.
@@ -860,14 +868,20 @@ public class GeneralEnvelope extends AbstractEnvelope implements Cloneable, Seri
      * @since 2.2
      */
     public boolean isNull() {
-        if (!checkNullCoordinates(ordinates)) {
+        if (!isNilCoordinates(ordinates)) {
             return false;
         }
         assert isEmpty() : this;
         return true;
     }
 
-    private static boolean checkNullCoordinates(final double[] ordinates)
+    /**
+     * Check if the ordinates indicate a "nil" envelope.
+     * @param ordinates
+     * @return
+     * @throws IllegalArgumentException
+     */
+    private static boolean isNilCoordinates(final double[] ordinates)
             throws IllegalArgumentException {
         for (int i = 0; i < ordinates.length; i++) {
             if (!Double.isNaN(ordinates[i])) {
@@ -886,6 +900,19 @@ public class GeneralEnvelope extends AbstractEnvelope implements Cloneable, Seri
      * @return {@code true} if this envelope is empty.
      */
     public boolean isEmpty() {
+        if( isEmptyOrdinates(ordinates)){
+            return true;
+        }
+        assert !isNull() : this; // JG I worry that this is circular
+        return false;
+    }
+    /**
+     * Static method used to recognize an empty encoding of ordindates
+     * @param ordinates
+     * @return true of the ordinates indicate an empty envelope
+     * @see #isEmpty()
+     */
+    private static boolean isEmptyOrdinates( double ordinates[] ){
         final int dimension = ordinates.length / 2;
         if (dimension == 0) {
             return true;
@@ -895,10 +922,8 @@ public class GeneralEnvelope extends AbstractEnvelope implements Cloneable, Seri
                 return true;
             }
         }
-        assert !isNull() : this;
         return false;
     }
-
     /**
      * Returns {@code true} if at least one of the specified CRS is null, or both CRS are equals.
      * This special processing for {@code null} values is different from the usual contract of an

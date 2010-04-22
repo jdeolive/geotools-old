@@ -479,7 +479,6 @@ public interface DataAccessFactory extends Factory {
          * @return Value as processed by text
          *
          * @throws IOException If text could not be parsed
-         * @throws DataSourceException DOCUMENT ME!
          */
         public Object handle(String text) throws IOException {
             if (text == null) {
