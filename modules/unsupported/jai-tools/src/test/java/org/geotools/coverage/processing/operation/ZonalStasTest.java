@@ -17,15 +17,19 @@
 package org.geotools.coverage.processing.operation;
 
 import static java.lang.Math.round;
+import jaitools.CollectionFactory;
 import jaitools.media.jai.zonalstats.Result;
 import jaitools.media.jai.zonalstats.ZonalStats;
 import jaitools.media.jai.zonalstats.ZonalStatsDescriptor;
+import jaitools.numeric.Range;
 import jaitools.numeric.Statistic;
+import jaitools.numeric.Range.Type;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -52,6 +56,7 @@ import org.geotools.gce.geotiff.GeoTiffReader;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.operation.transform.ProjectiveTransform;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -82,18 +87,29 @@ public class ZonalStasTest extends TestCase {
 	    private Integer[] bands;
 	    private GridCoverage2D gridCoverage2D;
 	    private List<SimpleFeature> featureList;
-
+	    private List<Range<Double>> inclusionRanges;
+	    private Range.Type rangesType = Type.EXCLUDE;
+	    private boolean isLocal = false;
 	    /*
 	     * results
 	     */
 	    private Map<String, Map<Statistic, List<Result>>> feature2StatisticsMap = new HashMap<String, Map<Statistic, List<Result>>>();
 
 	    private StatisticsTool( Set<Statistic> statisticsSet, GridCoverage2D gridCoverage2D,
-	            Integer[] bands, List<SimpleFeature> polygonsList ) {
+	            Integer[] bands, List<SimpleFeature> polygonsList, List<Range<Double>> inclusionRanges) {
+	    	this(statisticsSet, gridCoverage2D, bands, polygonsList, inclusionRanges, Range.Type.EXCLUDE, false);
+	    }
+	    
+	    private StatisticsTool( Set<Statistic> statisticsSet, GridCoverage2D gridCoverage2D,
+	            Integer[] bands, List<SimpleFeature> polygonsList, List<Range<Double>> ranges, 
+	            final Range.Type rangesType, final boolean isLocal) {
 	        this.statisticsSet = statisticsSet;
 	        this.gridCoverage2D = gridCoverage2D;
 	        this.bands = bands;
 	        this.featureList = polygonsList;
+	        this.inclusionRanges = ranges;
+	        this.isLocal = isLocal;
+	        this.rangesType = rangesType;
 	    }
 
 	    /**
@@ -158,12 +174,17 @@ public class ZonalStasTest extends TestCase {
 	                params.parameter("stats").setValue(statistis);
 	                params.parameter("bands").setValue(bands);
 	                params.parameter("roi").setValue(roi);
+	                params.parameter("ranges").setValue(inclusionRanges);
+	                params.parameter("rangesType").setValue(rangesType);
+	                params.parameter("rangeLocalStats").setValue(isLocal);
 
 	                final GridCoverage2D coverage = (GridCoverage2D) op.doOperation(params, null);
 	                final ZonalStats stats = (ZonalStats) coverage.getProperty(ZonalStatsDescriptor.ZONAL_STATS_PROPERTY);
 	                final Map<Statistic, List<Result>> statsMap = new HashMap<Statistic, List<Result>>();
 	                for( Statistic statistic : statistis ) {
-	                	List<Result> statsResult = stats.statistic(statistic).results();
+	                	final List<Range> inclRanges = CollectionFactory.list();
+	                	inclRanges.addAll(inclusionRanges);
+	                	List<Result> statsResult = stats.ranges(inclRanges).statistic(statistic).results();
 	                    statsMap.put(statistic, statsResult);
 	                }
 	                feature2StatisticsMap.put(fid, statsMap);
@@ -210,7 +231,8 @@ public class ZonalStasTest extends TestCase {
 	}
 	
 	@Test
-    public void testPolygonZone() throws Exception {
+//	@Ignore
+    public void testPolygonZoneGlobalStats() throws Exception {
 		final File file = TestData.file(this,"test.tif");
 		final GeoTiffReader reader = new GeoTiffReader(file);
 		final GridCoverage2D coverage2D = (GridCoverage2D) reader.read(null);
@@ -232,19 +254,19 @@ public class ZonalStasTest extends TestCase {
         statsSet.add(Statistic.MIN);
         statsSet.add(Statistic.MAX);
         statsSet.add(Statistic.MEAN);
-        statsSet.add(Statistic.MEDIAN);
         statsSet.add(Statistic.VARIANCE);
         statsSet.add(Statistic.SDEV);
         statsSet.add(Statistic.RANGE);
-        statsSet.add(Statistic.APPROX_MEDIAN);
-        // statsSet.add(Statistic.SUM);
-        // statsSet.add(Statistic.ACTIVECELLS);
+
 
         // select the bands to work on
         Integer[] bands = new Integer[]{0};
-
+        List<Range<Double>> inclusionRanges = new ArrayList<Range<Double>>();
+        inclusionRanges.add(new Range<Double>(Double.valueOf(0),false, Double.valueOf(1300), true));
+        inclusionRanges.add(new Range<Double>(Double.valueOf(1370),true, Double.valueOf(1600), true));
+        
         // create the proper instance
-        StatisticsTool statisticsTool = new StatisticsTool(statsSet, coverage2D, bands, polygonList);
+        StatisticsTool statisticsTool = new StatisticsTool(statsSet, coverage2D, bands, polygonList, inclusionRanges, Type.INCLUDE, false);
 
         // do analysis
         statisticsTool.run();
@@ -253,40 +275,95 @@ public class ZonalStasTest extends TestCase {
         String id = "testpolygon.1";
         Map<Statistic, List<Result>> statistics = statisticsTool.getStatistics(id);
         LOGGER.info(id + statistics.toString());
-        assertEquals(statistics.get(Statistic.RANGE).get(0).getValue().doubleValue(), 363.0, DELTA);
-        assertEquals(statistics.get(Statistic.MEDIAN).get(0).getValue().doubleValue(), 1349.0, DELTA);
-        assertEquals(statistics.get(Statistic.SDEV).get(0).getValue().doubleValue(), 71.108, DELTA);
-        assertEquals(statistics.get(Statistic.APPROX_MEDIAN).get(0).getValue().doubleValue(), 1351.0, DELTA);
+        assertEquals(statistics.get(Statistic.RANGE).get(0).getValue().doubleValue(), 343.0, DELTA);
+        assertEquals(statistics.get(Statistic.SDEV).get(0).getValue().doubleValue(), 88.7358, DELTA);
         assertEquals(statistics.get(Statistic.MIN).get(0).getValue().doubleValue(), 1255.0, DELTA);
-        assertEquals(statistics.get(Statistic.MEAN).get(0).getValue().doubleValue(), 1360.5278,DELTA);
-        assertEquals(statistics.get(Statistic.VARIANCE).get(0).getValue().doubleValue(), 5056.3548, DELTA);
-        assertEquals(statistics.get(Statistic.MAX).get(0).getValue().doubleValue(), 1618.0, DELTA);
+        assertEquals(statistics.get(Statistic.MEAN).get(0).getValue().doubleValue(), 1380.5423, DELTA);
+        assertEquals(statistics.get(Statistic.VARIANCE).get(0).getValue().doubleValue(), 7874.0598, DELTA);
+        assertEquals(statistics.get(Statistic.MAX).get(0).getValue().doubleValue(), 1598.0, DELTA);
         
 
         id = "testpolygon.2";
         statistics = statisticsTool.getStatistics(id);
         LOGGER.info(id + statistics.toString());
         assertEquals(statistics.get(Statistic.RANGE).get(0).getValue().doubleValue(), 216.0, DELTA);
-        assertEquals(statistics.get(Statistic.MEDIAN).get(0).getValue().doubleValue(), 1251.0, DELTA);
-        assertEquals(statistics.get(Statistic.SDEV).get(0).getValue().doubleValue(), 42.6214, DELTA);
-        assertEquals(statistics.get(Statistic.APPROX_MEDIAN).get(0).getValue().doubleValue(), 1254.0, DELTA);
+        assertEquals(statistics.get(Statistic.SDEV).get(0).getValue().doubleValue(), 36.7996, DELTA);
         assertEquals(statistics.get(Statistic.MIN).get(0).getValue().doubleValue(), 1192.0, DELTA);
-        assertEquals(statistics.get(Statistic.MEAN).get(0).getValue().doubleValue(), 1256.8206,DELTA);
-        assertEquals(statistics.get(Statistic.VARIANCE).get(0).getValue().doubleValue(), 1816.5803, DELTA);
+        assertEquals(statistics.get(Statistic.MEAN).get(0).getValue().doubleValue(), 1248.3870, DELTA);
+        assertEquals(statistics.get(Statistic.VARIANCE).get(0).getValue().doubleValue(), 1354.2150, DELTA);
         assertEquals(statistics.get(Statistic.MAX).get(0).getValue().doubleValue(), 1408.0, DELTA);
 
         id = "testpolygon.3";
         statistics = statisticsTool.getStatistics(id);
         LOGGER.info(id + statistics.toString());
-        assertEquals(statistics.get(Statistic.RANGE).get(0).getValue().doubleValue(), 178.0000, DELTA);
-        assertEquals(statistics.get(Statistic.MEDIAN).get(0).getValue().doubleValue(), 1289.0, DELTA);
-        assertEquals(statistics.get(Statistic.SDEV).get(0).getValue().doubleValue(),  34.4797, DELTA);
-        assertEquals(statistics.get(Statistic.APPROX_MEDIAN).get(0).getValue().doubleValue(), 1280.0, DELTA);
+        assertEquals(statistics.get(Statistic.RANGE).get(0).getValue().doubleValue(), 127.0000, DELTA);
+        assertEquals(statistics.get(Statistic.SDEV).get(0).getValue().doubleValue(),  30.9412, DELTA);
         assertEquals(statistics.get(Statistic.MIN).get(0).getValue().doubleValue(), 1173.0, DELTA);
-        assertEquals(statistics.get(Statistic.MEAN).get(0).getValue().doubleValue(), 1280.4892,DELTA);
-        assertEquals(statistics.get(Statistic.VARIANCE).get(0).getValue().doubleValue(), 1188.8471, DELTA);
-        assertEquals(statistics.get(Statistic.MAX).get(0).getValue().doubleValue(), 1351.0, DELTA);
+        assertEquals(statistics.get(Statistic.MEAN).get(0).getValue().doubleValue(), 1266.3876, DELTA);
+        assertEquals(statistics.get(Statistic.VARIANCE).get(0).getValue().doubleValue(), 957.3594, DELTA);
+        assertEquals(statistics.get(Statistic.MAX).get(0).getValue().doubleValue(), 1300.0, DELTA);
 
+        reader.dispose();
+    }
+	
+	@Test
+//	@Ignore
+    public void testPolygonZoneLocalStats() throws Exception {
+		final File file = TestData.file(this,"test.tif");
+		final GeoTiffReader reader = new GeoTiffReader(file);
+		final GridCoverage2D coverage2D = (GridCoverage2D) reader.read(null);
+        
+        final File fileshp = TestData.file(this,"testpolygon.shp");
+        final DataStore store = FileDataStoreFinder.getDataStore(fileshp.toURL());
+        FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = store.getFeatureSource(store.getNames().get(0));
+        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = featureSource.getFeatures();
+        List<SimpleFeature> polygonList = new ArrayList<SimpleFeature>();
+        FeatureIterator<SimpleFeature> featureIterator = featureCollection.features();
+        while( featureIterator.hasNext() ) {
+            SimpleFeature feature = featureIterator.next();
+            polygonList.add(feature);
+        }
+        featureCollection.close(featureIterator);
+
+        // choose the stats
+        Set<Statistic> statsSet = new LinkedHashSet<Statistic>();
+        statsSet.add(Statistic.MIN);
+        statsSet.add(Statistic.MAX);
+        statsSet.add(Statistic.MEAN);
+        statsSet.add(Statistic.VARIANCE);
+        statsSet.add(Statistic.SDEV);
+        statsSet.add(Statistic.RANGE);
+
+
+        // select the bands to work on
+        Integer[] bands = new Integer[]{0};
+        List<Range<Double>> inclusionRanges = new ArrayList<Range<Double>>();
+        inclusionRanges.add(new Range<Double>(Double.valueOf(0),false, Double.valueOf(1300), true));
+        inclusionRanges.add(new Range<Double>(Double.valueOf(1370),true, Double.valueOf(1600), true));
+        
+        // create the proper instance
+        StatisticsTool statisticsTool = new StatisticsTool(statsSet, coverage2D, bands, polygonList, inclusionRanges, Range.Type.INCLUDE, true);
+
+        // do analysis
+        statisticsTool.run();
+
+        // get the results
+        String id = "testpolygon.1";
+        Map<Statistic, List<Result>> statistics = statisticsTool.getStatistics(id);
+        LOGGER.info(id + statistics.toString());
+        assertEquals(statistics.get(Statistic.RANGE).get(0).getValue().doubleValue(), 45.0, DELTA);
+        assertEquals(statistics.get(Statistic.RANGE).get(1).getValue().doubleValue(), 228.0, DELTA);
+        assertEquals(statistics.get(Statistic.SDEV).get(0).getValue().doubleValue(), 11.7972, DELTA);
+        assertEquals(statistics.get(Statistic.SDEV).get(1).getValue().doubleValue(), 63.7335, DELTA);
+        assertEquals(statistics.get(Statistic.MIN).get(0).getValue().doubleValue(), 1255.0, DELTA);
+        assertEquals(statistics.get(Statistic.MIN).get(1).getValue().doubleValue(), 1370.0, DELTA);
+        assertEquals(statistics.get(Statistic.MEAN).get(0).getValue().doubleValue(), 1283.1634, DELTA);
+        assertEquals(statistics.get(Statistic.MEAN).get(1).getValue().doubleValue(), 1433.8979, DELTA);
+        assertEquals(statistics.get(Statistic.VARIANCE).get(0).getValue().doubleValue(), 139.1754, DELTA);
+        assertEquals(statistics.get(Statistic.VARIANCE).get(1).getValue().doubleValue(), 4061.9665, DELTA);
+        assertEquals(statistics.get(Statistic.MAX).get(0).getValue().doubleValue(), 1300.0, DELTA);
+        assertEquals(statistics.get(Statistic.MAX).get(1).getValue().doubleValue(), 1598.0, DELTA);
+        
         reader.dispose();
     }
 

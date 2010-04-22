@@ -17,15 +17,20 @@
 package org.geotools.coverage.processing.operation;
 
 import jaitools.media.jai.zonalstats.ZonalStatsDescriptor;
+import jaitools.media.jai.zonalstats.ZonalStatsRIF;
 import jaitools.numeric.Statistic;
 
 import java.awt.image.RenderedImage;
+import java.awt.image.renderable.RenderedImageFactory;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import javax.media.jai.JAI;
+import javax.media.jai.OperationRegistry;
 import javax.media.jai.RenderedOp;
+import javax.media.jai.registry.RIFRegistry;
 
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.processing.AbstractStatisticsOperationJAI;
@@ -46,6 +51,17 @@ import org.opengis.util.InternationalString;
  */
 public class ZonalStats extends AbstractStatisticsOperationJAI {
     
+    static {
+        try {
+            OperationRegistry or = JAI.getDefaultInstance().getOperationRegistry();
+            or.registerDescriptor(new ZonalStatsDescriptor());
+            RenderedImageFactory rif = new ZonalStatsRIF();
+            RIFRegistry.register(or, "ZonalStats", "jaitools.media.jai", rif);
+        } catch (Exception e) {
+            // if already registered (in other cases error will be thrown anyway)
+        }
+    }
+  
     /**
      * Serial number for interoperability with different versions.
      */
