@@ -1340,6 +1340,30 @@ public class VersionedOperationsOnlineTest extends AbstractVersionedPostgisDataT
         t.close();
     }
     
+    /**
+     * Create history, get a diff between the same two revisions (corner case usage)
+     * @throws IOException 
+     * @throws IllegalAttributeException 
+     */
+    public void testEmptyDiff() throws IOException, IllegalAttributeException {
+        VersionedPostgisDataStore ds = getDataStore();
+        buildRiverHistory();
+        
+        VersionedPostgisFeatureStore fs = (VersionedPostgisFeatureStore) ds.getFeatureSource("river");
+
+        // now extract diffs that go from a certain version to itself
+        for(int i = 1; i < 10; i++) {
+            String v = String.valueOf(i);
+            FeatureDiffReader reader = fs.getDifferences(v,v, null, null);
+            assertFalse(reader.hasNext());
+            reader.close();
+        }
+        
+        FeatureDiffReader reader = fs.getDifferences(null,null, null, null);
+        assertFalse(reader.hasNext());
+        reader.close();
+    }
+    
     public void testVersionedCollection() throws Exception {
         VersionedPostgisDataStore ds = getDataStore();
         buildRiverHistory();

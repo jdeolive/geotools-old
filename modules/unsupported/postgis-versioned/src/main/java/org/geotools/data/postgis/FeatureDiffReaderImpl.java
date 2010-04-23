@@ -52,9 +52,9 @@ public class FeatureDiffReaderImpl implements org.geotools.data.FeatureDiffReade
     protected static final Logger LOGGER = org.geotools.util.logging.Logging
             .getLogger("org.geotools.data.postgis");
 
-    private FeatureReader<SimpleFeatureType, SimpleFeature> fvReader;
+    private FeatureReader<SimpleFeatureType, SimpleFeature> fromReader;
 
-    private FeatureReader<SimpleFeatureType, SimpleFeature> tvReader;
+    private FeatureReader<SimpleFeatureType, SimpleFeature> toReader;
 
     private RevisionInfo fromVersion;
 
@@ -117,18 +117,18 @@ public class FeatureDiffReaderImpl implements org.geotools.data.FeatureDiffReade
                     modifiedIds.fromRevision);
             deletedReader = readerFromIdsRevision(ff, null, modifiedIds.created,
                     modifiedIds.toRevision);
-            fvReader = readerFromIdsRevision(ff, mapper, modifiedIds.modified,
+            fromReader = readerFromIdsRevision(ff, mapper, modifiedIds.modified,
                     modifiedIds.toRevision);
-            tvReader = readerFromIdsRevision(ff, mapper, modifiedIds.modified,
+            toReader = readerFromIdsRevision(ff, mapper, modifiedIds.modified,
                     modifiedIds.fromRevision);
         } else {
             createdReader = readerFromIdsRevision(ff, null, modifiedIds.created,
                     modifiedIds.toRevision);
             deletedReader = readerFromIdsRevision(ff, null, modifiedIds.deleted,
                     modifiedIds.fromRevision);
-            fvReader = readerFromIdsRevision(ff, mapper, modifiedIds.modified,
+            fromReader = readerFromIdsRevision(ff, mapper, modifiedIds.modified,
                     modifiedIds.fromRevision);
-            tvReader = readerFromIdsRevision(ff, mapper, modifiedIds.modified,
+            toReader = readerFromIdsRevision(ff, mapper, modifiedIds.modified,
                     modifiedIds.toRevision);
         }
 
@@ -270,19 +270,19 @@ public class FeatureDiffReaderImpl implements org.geotools.data.FeatureDiffReade
         // need to compute the diff and move forward if there's no difference at all
         if (lastDiff != null)
             return true;
-        if (fvReader != null && tvReader != null) {
+        if (fromReader != null && toReader != null) {
             while (true) {
-                if (!fvReader.hasNext()) {
+                if (!fromReader.hasNext()) {
                     lastDiff = null;
-                    fvReader.close();
-                    tvReader.close();
-                    fvReader = null;
-                    tvReader = null;
+                    fromReader.close();
+                    toReader.close();
+                    fromReader = null;
+                    toReader = null;
                     return false;
                 }
                 // compute field by field difference
-                SimpleFeature from = gatherNextUnversionedFeature(fvReader);
-                SimpleFeature to = gatherNextUnversionedFeature(tvReader);
+                SimpleFeature from = gatherNextUnversionedFeature(fromReader);
+                SimpleFeature to = gatherNextUnversionedFeature(toReader);
                 FeatureDiffImpl diff = new FeatureDiffImpl(from, to);
                 if (diff.getChangedAttributes().size() != 0) {
                     lastDiff = diff;
@@ -319,18 +319,18 @@ public class FeatureDiffReaderImpl implements org.geotools.data.FeatureDiffReade
             deletedReader.close();
             deletedReader = null;
         }
-        if (fvReader != null) {
-            fvReader.close();
-            fvReader = null;
+        if (fromReader != null) {
+            fromReader.close();
+            fromReader = null;
         }
-        if (tvReader != null) {
-            tvReader.close();
-            tvReader = null;
+        if (toReader != null) {
+            toReader.close();
+            toReader = null;
         }
     }
 
     protected void finalize() throws Throwable {
-        if (createdReader != null || deletedReader != null || fvReader != null || tvReader != null) {
+        if (createdReader != null || deletedReader != null || fromReader != null || toReader != null) {
             LOGGER.warning("There's code leaaving the feature diff readers open!");
             close();
         }
