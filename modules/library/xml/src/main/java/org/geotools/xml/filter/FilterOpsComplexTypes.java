@@ -29,6 +29,7 @@ import javax.naming.OperationNotSupportedException;
 
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.filter.BetweenFilter;
+import org.geotools.filter.BetweenFilterImpl;
 import org.geotools.filter.CompareFilter;
 import org.geotools.filter.Expression;
 import org.geotools.filter.FidFilter;
@@ -36,13 +37,32 @@ import org.geotools.filter.Filter;
 import org.geotools.filter.FilterCapabilities;
 import org.geotools.filter.FilterFactory;
 import org.geotools.filter.FilterFactoryFinder;
+import org.geotools.filter.FilterType;
 import org.geotools.filter.GeometryDistanceFilter;
 import org.geotools.filter.GeometryFilter;
 import org.geotools.filter.IllegalFilterException;
+import org.geotools.filter.IsEqualsToImpl;
+import org.geotools.filter.IsGreaterThanImpl;
+import org.geotools.filter.IsGreaterThanOrEqualToImpl;
+import org.geotools.filter.IsLessThenImpl;
+import org.geotools.filter.IsLessThenOrEqualToImpl;
+import org.geotools.filter.IsNotEqualToImpl;
 import org.geotools.filter.LikeFilter;
 import org.geotools.filter.LiteralExpression;
 import org.geotools.filter.LogicFilter;
 import org.geotools.filter.NullFilter;
+import org.geotools.filter.spatial.BBOXImpl;
+import org.geotools.filter.spatial.BeyondImpl;
+import org.geotools.filter.spatial.ContainsImpl;
+import org.geotools.filter.spatial.CrossesImpl;
+import org.geotools.filter.spatial.DWithinImpl;
+import org.geotools.filter.spatial.DisjointImpl;
+import org.geotools.filter.spatial.EqualsImpl;
+import org.geotools.filter.spatial.IntersectsImpl;
+import org.geotools.filter.spatial.OverlapsImpl;
+import org.geotools.filter.spatial.TouchesImpl;
+import org.geotools.filter.spatial.WithinImpl;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.xml.PrintHandler;
 import org.geotools.xml.XMLHandlerHints;
 import org.geotools.xml.filter.FilterComplexTypes.ExpressionType;
@@ -65,60 +85,59 @@ import org.geotools.xml.schema.impl.SequenceGT;
 import org.geotools.xml.xsi.XSISimpleTypes;
 import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.Id;
+import org.opengis.filter.expression.Literal;
 import org.opengis.filter.identity.FeatureId;
 import org.opengis.filter.identity.Identifier;
+import org.opengis.filter.spatial.Disjoint;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.helpers.AttributesImpl;
 
+import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 
 
 /**
- * <p>
- * DOCUMENT ME!
- * </p>
+ * Encode/Decode Filter types.
  *
  * @author dzwiers
  * @source $URL$
  */
 public class FilterOpsComplexTypes {    
     
+    private static final int SPATIAL_TYPE = 0;
+    private static final int COMPARE_TYPE = 1;
+    private static final int LOGIC_TYPE = 2;
+    private static final int FID_TYPE = 3;
+    
     protected static void encodeFilter(org.opengis.filter.Filter filter, PrintHandler output, Map hints) throws OperationNotSupportedException, IOException{
 
         if (filter instanceof LogicFilter) {
-            FilterType.elems[2].getType().encode(FilterType.elems[2], filter, output, hints);
+            FilterType.elems[LOGIC_TYPE].getType().encode(FilterType.elems[LOGIC_TYPE], filter, output,
+                    hints);
+        } else if (filter instanceof CompareFilter) {
+            FilterType.elems[COMPARE_TYPE].getType().encode(FilterType.elems[COMPARE_TYPE], filter, output,
+                    hints);
+        } else if (filter instanceof FidFilter) {
+            // deal with multi instance inside the type-writer
+            FilterType.elems[FID_TYPE].getType().encode(FilterType.elems[FID_TYPE], filter, output, hints);
+        } else if (filter instanceof GeometryFilter) {
+            FilterType.elems[SPATIAL_TYPE].getType().encode(FilterType.elems[SPATIAL_TYPE], filter, output,
+                    hints);
+        } else if (filter instanceof LikeFilter) {
+            FilterType.elems[COMPARE_TYPE].getType().encode(FilterType.elems[COMPARE_TYPE], filter, output,
+                    hints);
+        } else if (filter instanceof NullFilter) {
+            FilterType.elems[COMPARE_TYPE].getType().encode(FilterType.elems[COMPARE_TYPE], filter, output,
+                    hints);
         } else {
-            if (filter instanceof CompareFilter) {
-                FilterType.elems[1].getType().encode(FilterType.elems[1], filter, output, hints);
-            } else {
-                if (filter instanceof FidFilter) {
-                    //deal with multi instance inside the type-writer
-                    FilterType.elems[3].getType().encode(FilterType.elems[3], filter, output,
-                        hints);
-                } else {
-                    if (filter instanceof GeometryFilter) {
-                        FilterType.elems[0].getType().encode(FilterType.elems[0], filter, output,
-                            hints);
-                    } else {
-                        if (filter instanceof LikeFilter) {
-                            FilterType.elems[1].getType().encode(FilterType.elems[1], filter,
-                                output, hints);
-                        } else {
-                            if (filter instanceof NullFilter) {
-                                FilterType.elems[1].getType().encode(FilterType.elems[1], filter,
-                                    output, hints);
-
-                                //          }else{
-                                //              throw new OperationNotSupportedException("The Filter type is not known: please try again. "+filter == null?"null":filter.getClass().getName());
-                            }
-                        }
-                    }
-                }
-            }
+            throw new OperationNotSupportedException(
+                    "The Filter type is not known: please try again. " + filter == null ? "null"
+                            : filter.getClass().getName());
         }
     }
+    
     protected static void encodeExpr(Expression expr, PrintHandler output,
         Map hints) throws OperationNotSupportedException, IOException {
         int i = 0;
@@ -242,23 +261,41 @@ public class FilterOpsComplexTypes {
          *      org.geotools.xml.schema.ElementValue[],
          *      org.xml.sax.Attributes, java.util.Map)
          */
-        public Object getValue(Element element, ElementValue[] value,
-            Attributes attrs, Map hints) throws SAXException {
-        	FilterFactory factory = FilterSchema.filterFactory( hints );
-        	
-        	try {
-        		short type = findFilterType( element.getName() );
-				CompareFilter filter = factory.createCompareFilter( type );
-				filter.addLeftValue( (Expression) value[0].getValue() );
-				filter.addRightValue( (Expression) value[1].getValue() );				
-				return filter;
-			}
-        	catch( ClassCastException filterRequired ){
-        		throw new SAXException("Illegal filter for "+element, filterRequired );
-			}
-        	catch (IllegalFilterException e) {
-				throw new SAXException("Illegal filter for "+element );
-			} 
+        public Object getValue(Element element, ElementValue[] value, Attributes attrs, Map hints)
+                throws SAXException {
+            FilterFactory2 factory = FilterSchema.filterFactory(hints);
+
+            try {
+                Expression expr1 = (Expression) value[0].getValue();
+                Expression expr2 = (Expression) value[1].getValue();
+
+                short type = findFilterType(element.getName());
+                switch (type) {
+                case FilterType.COMPARE_EQUALS:
+                    return factory.equals(expr1, expr2);
+
+                case FilterType.COMPARE_GREATER_THAN:
+                    return factory.greater(expr1, expr2);
+
+                case FilterType.COMPARE_GREATER_THAN_EQUAL:
+                    return factory.greaterOrEqual(expr1, expr2);
+
+                case FilterType.COMPARE_LESS_THAN:
+                    return factory.less(expr1, expr2);
+
+                case FilterType.COMPARE_LESS_THAN_EQUAL:
+                    return factory.lessOrEqual(expr1, expr2);
+
+                case FilterType.COMPARE_NOT_EQUALS:
+                    return factory.notEqual(expr1, expr2);
+                default:
+                    throw new SAXException("Illegal filter for " + element);
+                }
+            } catch (ClassCastException filterRequired) {
+                throw new SAXException("Illegal filter for " + element, filterRequired);
+            } catch (IllegalFilterException e) {
+                throw new SAXException("Illegal filter for " + element);
+            }
         }
 
         /**
@@ -1090,24 +1127,45 @@ public class FilterOpsComplexTypes {
          *      org.geotools.xml.schema.ElementValue[],
          *      org.xml.sax.Attributes, java.util.Map)
          */
-        public Object getValue(Element element, ElementValue[] value,
-            Attributes attrs, Map hints) throws SAXException, OperationNotSupportedException{
-        	
-        	FilterFactory factory = FilterSchema.filterFactory( hints );
-        	
-        	try {
-        		short type = ComparisonOpsType.findFilterType( element.getName() );        		
-				CompareFilter filter = factory.createCompareFilter( type );
-				filter.addLeftValue( (Expression) value[0].getValue() );
-				filter.addRightValue( (Expression) value[1].getValue() );				
-				return filter;
-			}
-        	catch( ClassCastException expressionRequired ){
-        		throw new SAXException("Illegal filter for "+element, expressionRequired );
-			}
-        	catch (IllegalFilterException e) {
-				throw new SAXException("Illegal filter for "+element );
-			} 
+        public Object getValue(Element element, ElementValue[] value, Attributes attrs, Map hints)
+                throws SAXException, OperationNotSupportedException {
+
+            FilterFactory2 factory = FilterSchema.filterFactory(hints);
+
+            try {
+                short type = ComparisonOpsType.findFilterType(element.getName());
+
+                Expression expr1 = (Expression) value[0].getValue();
+                Expression expr2 = (Expression) value[1].getValue();
+
+                switch (type) {
+                case FilterType.COMPARE_EQUALS:
+                    return factory.equals(expr1, expr2);
+
+                case FilterType.COMPARE_NOT_EQUALS:
+                    return factory.notEqual(expr1, expr2);
+
+                case FilterType.COMPARE_GREATER_THAN:
+                    return factory.greater(expr1, expr2);
+
+                case FilterType.COMPARE_GREATER_THAN_EQUAL:
+                    return factory.greaterOrEqual(expr1, expr2);
+
+                case FilterType.COMPARE_LESS_THAN:
+                    return factory.less(expr1, expr2);
+
+                case FilterType.COMPARE_LESS_THAN_EQUAL:
+                    return factory.lessOrEqual(expr1, expr2);
+
+                default:
+                    throw new SAXException("Illegal filter for " + element);
+
+                }
+            } catch (ClassCastException expressionRequired) {
+                throw new SAXException("Illegal filter for " + element, expressionRequired);
+            } catch (IllegalFilterException e) {
+                throw new SAXException("Illegal filter for " + element);
+            }
         }
 
         /**
@@ -1232,7 +1290,7 @@ public class FilterOpsComplexTypes {
          */
         public Object getValue(Element element, ElementValue[] value,
             Attributes attrs, Map hints) throws SAXException{
-        	FilterFactory factory = FilterSchema.filterFactory( hints );
+        	FilterFactory2 factory = FilterSchema.filterFactory( hints );
             //    			<xsd:extension base="ogc:ComparisonOpsType">
             //    				<xsd:sequence>
             //    					<xsd:element ref="ogc:PropertyName"/>
@@ -1243,15 +1301,16 @@ public class FilterOpsComplexTypes {
             //    				<xsd:attribute name="escape" type="xsd:string" use="required"/>
             //    			</xsd:extension>        	
         	try {
-        		LikeFilter filter = factory.createLikeFilter();
         		
-        		filter.setValue( (Expression) value[0].getValue() );
+        		Expression expr = (Expression) value[0].getValue();
         		String wildCard = attrs.getValue( "wildCard" );
         		String singleChar = attrs.getValue( "singleChar" );
         		String escape = attrs.getValue( "escape" );
-        		filter.setPattern( (Expression) value[1].getValue(), wildCard, singleChar, escape );        						
-				return filter;
-			}
+        		Literal pattern = (Literal) value[1].getValue();
+        		
+        	
+        		return factory.like(expr, (String) pattern.getValue(), wildCard, singleChar, escape);
+                        }
         	catch( ClassCastException expressionRequired ){
         		throw new SAXException("Illegal filter for "+element, expressionRequired );
 			}
@@ -1366,21 +1425,18 @@ public class FilterOpsComplexTypes {
          *      org.geotools.xml.schema.ElementValue[],
          *      org.xml.sax.Attributes, java.util.Map)
          */
-        public Object getValue(Element element, ElementValue[] value,            
-            Attributes attrs, Map hints) throws SAXException{
-        	FilterFactory factory = FilterSchema.filterFactory( hints );
+        public Object getValue(Element element, ElementValue[] value, Attributes attrs, Map hints)
+                throws SAXException {
+            FilterFactory2 factory = FilterSchema.filterFactory(hints);
             try {
-        		NullFilter filter = factory.createNullFilter();
-        		
-        		filter.nullCheckValue( (Expression) value[0].getValue() );        						
-				return filter;
-			}
-        	catch( ClassCastException expressionRequired ){
-        		throw new SAXException("Illegal filter for "+element, expressionRequired );
-			}
-        	catch (IllegalFilterException e) {
-				throw new SAXException("Illegal filter for "+element );
-			} 
+                Expression expr = (Expression) value[0].getValue();
+
+                return factory.isNull(expr);
+            } catch (ClassCastException expressionRequired) {
+                throw new SAXException("Illegal filter for " + element, expressionRequired);
+            } catch (IllegalFilterException e) {
+                throw new SAXException("Illegal filter for " + element);
+            }
         }
 
         /**
@@ -1487,22 +1543,21 @@ public class FilterOpsComplexTypes {
          *      org.geotools.xml.schema.ElementValue[],
          *      org.xml.sax.Attributes, java.util.Map)
          */
-        public Object getValue(Element element, ElementValue[] value,
-            Attributes attrs, Map hints) throws SAXException{
-        	FilterFactory factory = FilterSchema.filterFactory( hints );
+        public Object getValue(Element element, ElementValue[] value, Attributes attrs, Map hints)
+                throws SAXException {
+            FilterFactory2 factory = FilterSchema.filterFactory(hints);
             try {
-            	BetweenFilter filter = factory.createBetweenFilter();        		
-        		filter.addLeftValue( (Expression) value[1].getValue() );
-        		filter.addMiddleValue( (Expression) value[0].getValue() );
-        		filter.addRightValue( (Expression) value[2].getValue() );
-				return filter;
-			}
-        	catch( ClassCastException expressionRequired ){
-        		throw new SAXException("Illegal filter for "+element, expressionRequired );
-			}
-        	catch (IllegalFilterException e) {
-				throw new SAXException("Illegal filter for "+element );
-			} 
+                Expression left = (Expression) value[1].getValue();
+                Expression middle = (Expression) value[0].getValue();
+                Expression right = (Expression) value[2].getValue();
+
+                return factory.between(middle, left, right);
+
+            } catch (ClassCastException expressionRequired) {
+                throw new SAXException("Illegal filter for " + element, expressionRequired);
+            } catch (IllegalFilterException e) {
+                throw new SAXException("Illegal filter for " + element);
+            }
         }
 
         /**
@@ -1792,23 +1847,50 @@ public class FilterOpsComplexTypes {
          *      org.geotools.xml.schema.ElementValue[],
          *      org.xml.sax.Attributes, java.util.Map)
          */
-        public Object getValue(Element element, ElementValue[] value,
-            Attributes attrs, Map hints) throws SAXException{
-        	FilterFactory factory = FilterSchema.filterFactory( hints );
-        	
-        	try {
-        		short type = (short) SpatialOpsType.findFilterType( element.getName() );
-        		GeometryFilter filter = factory.createGeometryFilter( type );
-				filter.addLeftGeometry( (Expression) value[0].getValue() );
-				filter.addRightGeometry( (Expression) value[1].getValue() );				
-				return filter;
-			}
-        	catch( ClassCastException filterRequired ){
-        		throw new SAXException("Illegal filter for "+element, filterRequired );
-			}
-        	catch (IllegalFilterException e) {
-				throw new SAXException("Illegal filter for "+element );
-			}
+        public Object getValue(Element element, ElementValue[] value, Attributes attrs, Map hints)
+                throws SAXException {
+            FilterFactory2 factory = FilterSchema.filterFactory(hints);
+
+            try {
+                short type = (short) SpatialOpsType.findFilterType(element.getName());
+
+                Expression geometry1 = (Expression) value[0].getValue();
+                Expression geometry2 = (Expression) value[1].getValue();
+
+                // GeometryFilter filter = factory.createGeometryFilter( type );
+                switch (type) {
+                case FilterType.GEOMETRY_EQUALS:
+                    return factory.equal(geometry1, geometry2);
+
+                case FilterType.GEOMETRY_DISJOINT:
+                    return factory.disjoint(geometry1, geometry2);
+
+                case FilterType.GEOMETRY_INTERSECTS:
+                    return factory.intersects(geometry1, geometry2);
+
+                case FilterType.GEOMETRY_CROSSES:
+                    return factory.crosses(geometry1, geometry2);
+
+                case FilterType.GEOMETRY_WITHIN:
+                    return factory.within(geometry1, geometry2);
+
+                case FilterType.GEOMETRY_CONTAINS:
+                    return factory.contains(geometry1, geometry2);
+
+                case FilterType.GEOMETRY_OVERLAPS:
+                    return factory.overlaps(geometry1, geometry2);
+
+                case FilterType.GEOMETRY_TOUCHES:
+                    return factory.touches(geometry1, geometry2);
+
+                default:
+                    throw new SAXException("Illegal filter for " + element);
+                }
+            } catch (ClassCastException filterRequired) {
+                throw new SAXException("Illegal filter for " + element, filterRequired);
+            } catch (IllegalFilterException e) {
+                throw new SAXException("Illegal filter for " + element);
+            }
         }
 
         /**
@@ -1962,25 +2044,33 @@ public class FilterOpsComplexTypes {
          *      org.geotools.xml.schema.ElementValue[],
          *      org.xml.sax.Attributes, java.util.Map)
          */
-        public Object getValue(Element element, ElementValue[] value,
-            Attributes attrs, Map hints) throws SAXException {
-        	
-        	if( value == null || value.length != 2){
-        		throw new SAXException( "ogc:propertyName or gml:box required for bbox filter" );
-        	}        	
-        	FilterFactory factory = FilterSchema.filterFactory( hints );
-        	try {
-        		GeometryFilter disjoint = factory.createGeometryFilter( FilterType.GEOMETRY_DISJOINT );
-        		disjoint.addLeftGeometry( (Expression) value[0].getValue() );
-        		disjoint.addRightGeometry( (Expression) value[1].getValue() );
-        		
-        		return disjoint.not();        		
-        	}
-        	catch( ClassCastException wrong){
-        		throw new SAXException( "ogc:propertyName or gml:box required for bbox filter", wrong );
-        	} catch (IllegalFilterException illegalFilterException) {
-        		throw new SAXException( "Could not create bbox filter", illegalFilterException );
-			}        	            
+        public Object getValue(Element element, ElementValue[] value, Attributes attrs, Map hints)
+                throws SAXException {
+
+            if (value == null || value.length != 2) {
+                throw new SAXException("ogc:propertyName or gml:box required for bbox filter");
+            }
+            FilterFactory2 factory = FilterSchema.filterFactory(hints);
+            try {
+                Expression geometry1 = (Expression) value[0].getValue();
+                Expression geometry2 = (Expression) value[1].getValue();
+                if( geometry2 instanceof Literal ){
+                    Object literal = ((Literal) geometry2).getValue();
+                    if( literal instanceof Geometry){
+                        Geometry geometry = (Geometry) literal;
+                        Envelope env = geometry.getEnvelopeInternal();
+                        return factory.bbox(geometry1, env.getMinX(), env.getMinY(), env.getMaxX(), env.getMaxY(), null );
+                    }
+                }
+                Disjoint disjoint = factory.disjoint(geometry1, geometry2);
+                return factory.not( disjoint );
+                
+            } catch (ClassCastException wrong) {
+                throw new SAXException("ogc:propertyName or gml:box required for bbox filter",
+                        wrong);
+            } catch (IllegalFilterException illegalFilterException) {
+                throw new SAXException("Could not create bbox filter", illegalFilterException);
+            }
         }
 
         /**
@@ -2104,13 +2194,13 @@ public class FilterOpsComplexTypes {
         public Object getValue(Element element, ElementValue[] value,
             Attributes attrs, Map hints) throws SAXException {
         	        	
-        	FilterFactory factory = FilterSchema.filterFactory( hints );
+        	FilterFactory2 factory = FilterSchema.filterFactory( hints );
         	try {
-        		GeometryDistanceFilter distance = factory.createGeometryDistanceFilter( FilterType.GEOMETRY_BEYOND );
-        		distance.addLeftGeometry( (Expression) value[0].getValue() );
-        		distance.addRightGeometry( (Expression) value[1].getValue() );
-        		distance.setDistance( ((Number)value[2].getValue()).doubleValue() );        		
-        		return distance;        		
+        		Expression geometry1 =  (Expression) value[0].getValue();
+        		Expression geometry2 = (Expression) value[1].getValue();
+        		Literal literal = (Literal) value[2];
+        		double distance = ((Number)literal.getValue()).doubleValue();        		
+        		return factory.beyond(geometry1, geometry2, distance, null);	
         	}
         	catch( ClassCastException wrong){
         		throw new SAXException( wrong );
@@ -2234,13 +2324,13 @@ public class FilterOpsComplexTypes {
         public Object getValue(Element element, ElementValue[] value,
             Attributes attrs, Map hints) throws SAXException {
         	
-        	FilterFactory factory = FilterSchema.filterFactory( hints );
+        	FilterFactory2 factory = FilterSchema.filterFactory( hints );
         	try {
-        		GeometryDistanceFilter distance = factory.createGeometryDistanceFilter( FilterType.GEOMETRY_DWITHIN );
-        		distance.addLeftGeometry( (Expression) value[0].getValue() );        		
-        		distance.addRightGeometry( (Expression) value[1].getValue() );
-        		distance.setDistance( ((Number)value[2].getValue()).doubleValue() );        		
-        		return distance;        		
+        	    Expression geometry1 =  (Expression) value[0].getValue();
+                    Expression geometry2 = (Expression) value[1].getValue();
+                    Literal literal = (Literal) value[2];
+                    double distance = ((Number)literal.getValue()).doubleValue(); 
+                    return factory.dwithin(geometry1, geometry2, distance, null );
         	}
         	catch( ClassCastException wrong){
         		throw new SAXException( wrong );
@@ -2368,7 +2458,7 @@ public class FilterOpsComplexTypes {
         public Object getValue(Element element, ElementValue[] value,
             Attributes attrs, Map hints) throws SAXException {
         	
-        	FilterFactory factory = FilterSchema.filterFactory( hints );
+        	FilterFactory2 factory = FilterSchema.filterFactory( hints );
         	String name = element.getName();
         	short type;
         	if( "and".equalsIgnoreCase( name )){
@@ -2529,37 +2619,33 @@ public class FilterOpsComplexTypes {
          *      org.geotools.xml.schema.ElementValue[],
          *      org.xml.sax.Attributes, java.util.Map)
          */
-        public Object getValue(Element element, ElementValue[] value,
-            Attributes attrs, Map hints) throws SAXException {
-        	FilterFactory factory = FilterSchema.filterFactory( hints );
-        	String name = element.getName();
-        	short type;        
-        	if( "and".equalsIgnoreCase( name )){
-        		type = FilterType.LOGIC_AND;
-        	}
-        	else if( "or".equalsIgnoreCase( name )){
-        		type = FilterType.LOGIC_OR;
-        	}
-        	else if( "not".equalsIgnoreCase( name )){
-        		type = FilterType.LOGIC_NOT;
-        	}
-        	else {
-        		throw new SAXException("Expected AND or OR logic filter" );
-        	}
-        	if( value == null || value.length != 1 ){
-        		throw new SAXException("Require a single filter for "+element );
-        	}
-        	try {
-				LogicFilter filter = factory.createLogicFilter( type );
-				filter.addFilter( (Filter) value[0].getValue() );				
-				return filter;
-			}
-        	catch( ClassCastException filterRequired ){
-        		throw new SAXException("Require a single filter for "+element, filterRequired );
-			}
-        	catch (IllegalFilterException e) {
-				throw new SAXException("Illegal filter for "+element );
-			} 
+        public Object getValue(Element element, ElementValue[] value, Attributes attrs, Map hints)
+                throws SAXException {
+            FilterFactory2 factory = FilterSchema.filterFactory(hints);
+            String name = element.getName();
+            short type;
+            if ("and".equalsIgnoreCase(name)) {
+                type = FilterType.LOGIC_AND;
+            } else if ("or".equalsIgnoreCase(name)) {
+                type = FilterType.LOGIC_OR;
+            } else if ("not".equalsIgnoreCase(name)) {
+                type = FilterType.LOGIC_NOT;
+            } else {
+                throw new SAXException("Expected AND or OR logic filter");
+            }
+            if (value == null || value.length != 1) {
+                throw new SAXException("Require a single filter for " + element);
+            }
+            try {
+
+                Filter filter = (Filter) value[0].getValue();
+
+                return factory.not(filter);
+            } catch (ClassCastException filterRequired) {
+                throw new SAXException("Require a single filter for " + element, filterRequired);
+            } catch (IllegalFilterException e) {
+                throw new SAXException("Illegal filter for " + element);
+            }
         }
 
         /**

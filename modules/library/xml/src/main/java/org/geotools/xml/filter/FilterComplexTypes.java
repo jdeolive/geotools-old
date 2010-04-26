@@ -25,7 +25,6 @@ import javax.naming.OperationNotSupportedException;
 import org.geotools.filter.AttributeExpression;
 import org.geotools.filter.Expression;
 import org.geotools.filter.FilterCapabilities;
-import org.geotools.filter.FilterFactory;
 import org.geotools.filter.FunctionExpression;
 import org.geotools.filter.IllegalFilterException;
 import org.geotools.filter.LiteralExpression;
@@ -53,6 +52,7 @@ import org.geotools.xml.schema.impl.ChoiceGT;
 import org.geotools.xml.schema.impl.FacetGT;
 import org.geotools.xml.schema.impl.SequenceGT;
 import org.geotools.xml.xsi.XSISimpleTypes;
+import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.expression.PropertyName;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -1352,7 +1352,7 @@ public class FilterComplexTypes {
         public Object getValue(Element element, ElementValue[] value,
             Attributes attrs, Map hints) throws SAXException{
         	
-        	FilterFactory factory = FilterSchema.filterFactory( hints );
+        	FilterFactory2 factory = FilterSchema.filterFactory( hints );
         	
         	try {
         		String string = (String) value[0].getValue(); // the spec says string!
@@ -1368,9 +1368,8 @@ public class FilterComplexTypes {
         		catch( NumberFormatException nonNumber ){
         			// ignore
         		}        		
-        		LiteralExpression expr = factory.createLiteralExpression( literal );
-				return expr;
-			}
+        		return factory.literal(literal );
+		}
         	catch (IllegalFilterException e) {
 				throw new SAXException("Illegal filter for "+element, e );
 			} 
@@ -1491,16 +1490,15 @@ public class FilterComplexTypes {
         public Object getValue(Element element, ElementValue[] value,
             Attributes attrs, Map hints) throws SAXException{
         	
-        	FilterFactory factory = FilterSchema.filterFactory( hints );
+        	FilterFactory2 factory = FilterSchema.filterFactory( hints );
         	
         	try {
         		String xpath = (String) value[0].getValue();
-        		AttributeExpression expr = factory.createAttributeExpression( xpath );
-				return expr;
-			}
+        		return factory.property( xpath );
+		}
         	catch( ClassCastException expressionRequired ){
         		throw new SAXException("Illegal xpath for property name "+element, expressionRequired );
-			}
+		}
         	//return (value == null) ? "" : value[0].toString();
         }
 

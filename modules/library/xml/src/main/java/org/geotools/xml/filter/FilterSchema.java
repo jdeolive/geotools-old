@@ -24,6 +24,8 @@ import java.util.Map;
 
 import javax.naming.OperationNotSupportedException;
 
+import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.factory.Hints;
 import org.geotools.filter.FilterFactory;
 import org.geotools.filter.FilterFactoryFinder;
 import org.geotools.xml.PrintHandler;
@@ -69,12 +71,11 @@ import org.geotools.xml.schema.Schema;
 import org.geotools.xml.schema.SimpleType;
 import org.geotools.xml.schema.Type;
 import org.geotools.xml.schema.impl.AttributeGT;
+import org.opengis.filter.FilterFactory2;
 
 
 /**
- * <p>
- * DOCUMENT ME! TODO Fill me in !!!
- * </p>
+ * Schema for parsing filter content.
  *
  * @author dzwiers
  * @source $URL$
@@ -93,8 +94,12 @@ public class FilterSchema implements Schema {
      * @param hints
      * @return FilterFactory
      */
-    static FilterFactory filterFactory(Map hints){
-    	return FilterFactoryFinder.createFilterFactory();
+    static FilterFactory2 filterFactory(Map map){
+        Hints hints = null;
+        if( map instanceof Hints){
+            hints = (Hints) map;
+        }        
+    	return CommonFactoryFinder.getFilterFactory2( hints );
     }
     
     private static final ComplexType[] complexTypes = new ComplexType[] {
