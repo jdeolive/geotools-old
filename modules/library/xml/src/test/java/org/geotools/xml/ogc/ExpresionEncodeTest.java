@@ -24,6 +24,7 @@ import javax.naming.OperationNotSupportedException;
 
 import junit.framework.TestCase;
 
+import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.filter.BetweenFilter;
 import org.geotools.filter.Expression;
 import org.geotools.filter.FidFilter;
@@ -33,6 +34,8 @@ import org.geotools.filter.IllegalFilterException;
 import org.geotools.filter.LikeFilter;
 import org.geotools.xml.DocumentWriter;
 import org.geotools.xml.filter.FilterSchema;
+import org.opengis.filter.Filter;
+import org.opengis.filter.FilterFactory2;
 
 /**
  *  For now just writes the expression built.
@@ -64,13 +67,9 @@ public class ExpresionEncodeTest extends TestCase {
     }
     
     public void testPropBetweenFilter() throws IllegalFilterException, OperationNotSupportedException, IOException{
-        FilterFactory ff = FilterFactoryFinder.createFilterFactory();
-        BetweenFilter bf = ff.createBetweenFilter();
-        bf.addLeftValue(ff.createLiteralExpression(60000));
-        bf.addMiddleValue(ff.createAttributeExpression("testDouble"));
-        bf.addRightValue(ff.createLiteralExpression(200000));
+        FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
+        Filter bf = ff.between( ff.property("testDouble"), ff.literal(60000),ff.literal(200000));
         
-
         StringWriter output = new StringWriter();
         DocumentWriter.writeFragment(bf,
             FilterSchema.getInstance(), output, null);

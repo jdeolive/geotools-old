@@ -16,15 +16,22 @@
  */
 package org.geotools.xml.filter;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 import junit.framework.TestCase;
-import org.geotools.filter.CompareFilter;
-import org.geotools.filter.FidFilter;
-import org.geotools.filter.Filter;
-import org.geotools.filter.FilterFactory;
-import org.geotools.filter.FilterFactoryFinder;
-import org.geotools.filter.FilterType;
-import org.geotools.filter.NullFilter;
+
+import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.filter.Filters;
 import org.geotools.xml.XMLHandlerHints;
+import org.opengis.filter.Filter;
+import org.opengis.filter.FilterFactory2;
+import org.opengis.filter.Id;
+import org.opengis.filter.PropertyIsNull;
+import org.opengis.filter.identity.FeatureId;
+import org.opengis.filter.identity.Identifier;
 
 
 public class FilterEncodingPreProcessorTest extends TestCase {
@@ -33,122 +40,141 @@ public class FilterEncodingPreProcessorTest extends TestCase {
     }
 
     public void testNOTFids() throws Exception {
-        FilterFactory factory = FilterFactoryFinder
-            .createFilterFactory();
+        FilterFactory2 factory = CommonFactoryFinder.getFilterFactory2(null);
         String fid1 = "FID.1";
-        Filter filter = factory.createFidFilter(fid1).not();
+        // not id filter does not actually have a valid encoding 
+        Filter filter = factory.not( factory.id( Collections.singleton( factory.featureId(fid1) ) ) );
 
         FilterEncodingPreProcessor visitor = new FilterEncodingPreProcessor(XMLHandlerHints.VALUE_FILTER_COMPLIANCE_LOW);
-        filter.accept(visitor);
+        Filters.accept(filter, visitor);
 
         assertEquals(filter, visitor.getFilter());
-        assertEquals(factory.createFidFilter(), visitor.getFidFilter());
+        
+        assertTrue(visitor.getFidFilter().getIdentifiers().isEmpty());
 
         //Test MEDIUM compliance
         visitor = new FilterEncodingPreProcessor(XMLHandlerHints.VALUE_FILTER_COMPLIANCE_MEDIUM);
-        filter.accept(visitor);
-
+        Filters.accept(filter, visitor);
+        
         assertEquals(Filter.INCLUDE, visitor.getFilter());
-        assertEquals(factory.createFidFilter(), visitor.getFidFilter());
+        assertTrue(visitor.getFidFilter().getIdentifiers().isEmpty());
         assertTrue(visitor.requiresPostProcessing());
 
         //Test HIGH compliance
         visitor = new FilterEncodingPreProcessor(XMLHandlerHints.VALUE_FILTER_COMPLIANCE_HIGH);
-        filter.accept(visitor);
+        Filters.accept(filter, visitor);
 
         assertEquals(Filter.INCLUDE, visitor.getFilter());
-        assertEquals(factory.createFidFilter(), visitor.getFidFilter());
+        assertTrue(visitor.getFidFilter().getIdentifiers().isEmpty());
         assertTrue(visitor.requiresPostProcessing());
     }
 
     public void testNOTANDFids() throws Exception {
-        FilterFactory factory = FilterFactoryFinder.createFilterFactory();
+        FilterFactory2 factory = CommonFactoryFinder.getFilterFactory2(null);
         String fid1 = "FID.1";
-        Filter fidFilter = factory.createFidFilter(fid1).not();
-        NullFilter nullFilter = factory.createNullFilter();
-        nullFilter.nullCheckValue(factory.createAttributeExpression("name"));
+        
+        Filter fidFilter = factory.not( factory.id( Collections.singleton( factory.featureId(fid1) ) ) );
+        
+         PropertyIsNull nullFilter = factory.isNull( factory.property("name"));
 
-        Filter filter = nullFilter.and(fidFilter);
+        Filter filter = factory.and(nullFilter,fidFilter);
 
         FilterEncodingPreProcessor visitor = new FilterEncodingPreProcessor(XMLHandlerHints.VALUE_FILTER_COMPLIANCE_LOW);
-        filter.accept(visitor);
-
+        Filters.accept(filter, visitor);
+        
         assertEquals(filter, visitor.getFilter());
-        assertEquals(factory.createFidFilter(), visitor.getFidFilter());
+        assertTrue(visitor.getFidFilter().getIdentifiers().isEmpty());
         assertFalse(visitor.requiresPostProcessing());
 
 
         //Test MEDIUM compliance
         visitor = new FilterEncodingPreProcessor(XMLHandlerHints.VALUE_FILTER_COMPLIANCE_MEDIUM);
-        filter.accept(visitor);
-
+        Filters.accept(filter, visitor);
+        
         assertEquals(nullFilter, visitor.getFilter());
-        assertEquals(factory.createFidFilter(), visitor.getFidFilter());
+        assertTrue(visitor.getFidFilter().getIdentifiers().isEmpty());
         assertTrue(visitor.requiresPostProcessing());
 
         //Test HIGH compliance
         visitor = new FilterEncodingPreProcessor(XMLHandlerHints.VALUE_FILTER_COMPLIANCE_HIGH);
-        filter.accept(visitor);
+        Filters.accept(filter, visitor);
 
         assertEquals(nullFilter, visitor.getFilter());
-        assertEquals(factory.createFidFilter(), visitor.getFidFilter());
+        assertTrue(visitor.getFidFilter().getIdentifiers().isEmpty());
         assertTrue(visitor.requiresPostProcessing());
+    }
+    
+    Id createFidFilter(String... fid){
+        FilterFactory2 factory = CommonFactoryFinder.getFilterFactory2(null);
+        Set<FeatureId> set;
+        if( fid == null || fid.length == 0){
+            set = Collections.emptySet();
+        }
+        else {
+            set = new HashSet<FeatureId>();
+            for( String f : fid ){
+                set.add( factory.featureId(f));
+            }
+        }
+        return factory.id( set );
     }
 
     public void testStraightANDFids() throws Exception {
-        FilterFactory factory = FilterFactoryFinder.createFilterFactory();
+        FilterFactory2 factory = CommonFactoryFinder.getFilterFactory2(null);
         String fid1 = "FID.1";
         String fid2 = "FID.2";
-        Filter filter = factory.createFidFilter(fid1)
-                               .and(factory.createFidFilter(fid2));
+        Filter filter = factory.id(Collections.singleton( factory.featureId(fid1)));
+        filter = factory.and( filter, factory.id(Collections.singleton( factory.featureId(fid2))));
 
         // Test Low compliance
         FilterEncodingPreProcessor visitor = new FilterEncodingPreProcessor(XMLHandlerHints.VALUE_FILTER_COMPLIANCE_LOW);
-        filter.accept(visitor);
-
+        Filters.accept(filter, visitor);
+        
         assertEquals(filter, visitor.getFilter());
 
-        FidFilter fidFilter = factory.createFidFilter();
+        Set<FeatureId> empty = Collections.emptySet();
+        Filter fidFilter = factory.id( empty );
         assertEquals(fidFilter, visitor.getFidFilter());
         assertFalse(visitor.requiresPostProcessing());
 
 
         // Test Medium level compliance.
         visitor = new FilterEncodingPreProcessor(XMLHandlerHints.VALUE_FILTER_COMPLIANCE_MEDIUM);
-        filter.accept(visitor);
+        Filters.accept(fidFilter, visitor);
 
         // anding 2 different fids results in nothing.
         assertEquals(Filter.EXCLUDE, visitor.getFilter());
-        fidFilter = factory.createFidFilter();
+        fidFilter = createFidFilter();
         assertEquals(fidFilter, visitor.getFidFilter());
         assertFalse(visitor.requiresPostProcessing());
 
         // Test High compliance
         visitor = new FilterEncodingPreProcessor(XMLHandlerHints.VALUE_FILTER_COMPLIANCE_HIGH);
-        filter.accept(visitor);
+        Filters.accept(fidFilter, visitor);
 
         // anding 2 different fids results in nothing.
         assertEquals(Filter.EXCLUDE, visitor.getFilter());
-        fidFilter = factory.createFidFilter();
+        fidFilter = createFidFilter();
         assertEquals(fidFilter, visitor.getFidFilter());
         assertFalse(visitor.requiresPostProcessing());
 
         // Test and same fid
-        filter = factory.createFidFilter(fid1).and(factory.createFidFilter(fid1));
+        filter = factory.and( createFidFilter(fid1), createFidFilter(fid1));
 
         // Test Medium level compliance.
         visitor = new FilterEncodingPreProcessor(XMLHandlerHints.VALUE_FILTER_COMPLIANCE_MEDIUM);
-        filter.accept(visitor);
+        Filters.accept(filter, visitor);
+
 
         assertEquals(Filter.EXCLUDE, visitor.getFilter());
-        fidFilter = factory.createFidFilter();
-        fidFilter.addFid(fid1);
-        assertEquals(fidFilter, visitor.getFidFilter());
+        fidFilter = createFidFilter(fid1);
+        assertEquals(createFidFilter(fid1), visitor.getFidFilter());
         assertFalse(visitor.requiresPostProcessing());
 
         // Test High compliance
         visitor = new FilterEncodingPreProcessor(XMLHandlerHints.VALUE_FILTER_COMPLIANCE_HIGH);
-        filter.accept(visitor);
+        Filters.accept(filter, visitor);
+
 
         assertEquals(Filter.EXCLUDE, visitor.getFilter());
         assertEquals(fidFilter, visitor.getFidFilter());
@@ -156,118 +182,111 @@ public class FilterEncodingPreProcessorTest extends TestCase {
     }
 
     public void testMixedAND() throws Exception {
-        FilterFactory factory = FilterFactoryFinder.createFilterFactory();
+        FilterFactory2 factory = CommonFactoryFinder.getFilterFactory2(null);
         String fid1 = "FID.1";
         String fid2 = "FID.2";
-        Filter filter = factory.createFidFilter(fid1)
-                               .or(factory.createFidFilter(fid2));
-        NullFilter nullFilter = factory.createNullFilter();
-        nullFilter.nullCheckValue(factory.createAttributeExpression("att"));
+        Filter filter = factory.or( createFidFilter(fid1), createFidFilter(fid2));
+        Filter nullFilter = factory.isNull(factory.property("att"));
 
-        filter = filter.and(nullFilter);
+        filter = factory.and( filter, nullFilter);
 
         // Test Low compliance
         FilterEncodingPreProcessor visitor = new FilterEncodingPreProcessor(XMLHandlerHints.VALUE_FILTER_COMPLIANCE_LOW);
-        filter.accept(visitor);
+        Filters.accept(filter, visitor);
+
 
         assertEquals(filter, visitor.getFilter());
 
-        FidFilter fidFilter = factory.createFidFilter();
+        Filter fidFilter = createFidFilter();
         assertEquals(fidFilter, visitor.getFidFilter());
         assertFalse(visitor.requiresPostProcessing());
 
         // Test Medium level compliance.
         visitor = new FilterEncodingPreProcessor(XMLHandlerHints.VALUE_FILTER_COMPLIANCE_MEDIUM);
-        filter.accept(visitor);
+        Filters.accept(filter, visitor);
+
 
         assertEquals(Filter.EXCLUDE, visitor.getFilter());
-        fidFilter = factory.createFidFilter();
-        fidFilter.addFid(fid1);
-        fidFilter.addFid(fid2);
+        fidFilter = createFidFilter(fid1,fid2);
         assertEquals(fidFilter, visitor.getFidFilter());
         assertFalse(visitor.requiresPostProcessing());
 
         // Test High compliance
         visitor = new FilterEncodingPreProcessor(XMLHandlerHints.VALUE_FILTER_COMPLIANCE_HIGH);
-        filter.accept(visitor);
+        Filters.accept(filter, visitor);
+
 
         assertEquals(Filter.EXCLUDE, visitor.getFilter());
-        fidFilter = factory.createFidFilter();
-        fidFilter.addFid(fid1);
-        fidFilter.addFid(fid2);
+        fidFilter = createFidFilter(fid1,fid2);
         assertEquals(fidFilter, visitor.getFidFilter());
         assertFalse(visitor.requiresPostProcessing());
     }
 
     public void testStraightOrFids() throws Exception {
-        FilterFactory factory = FilterFactoryFinder.createFilterFactory();
+        FilterFactory2 factory = CommonFactoryFinder.getFilterFactory2(null);
         String fid1 = "FID.1";
         String fid2 = "FID.2";
-        Filter filter = factory.createFidFilter(fid1)
-                               .or(factory.createFidFilter(fid2));
+        Filter filter = factory.or( createFidFilter(fid1),createFidFilter(fid2));
 
         // Test Low compliance
         FilterEncodingPreProcessor visitor = new FilterEncodingPreProcessor(XMLHandlerHints.VALUE_FILTER_COMPLIANCE_LOW);
-        filter.accept(visitor);
+        Filters.accept(filter, visitor);
+
 
         assertEquals(filter, visitor.getFilter());
 
-        FidFilter fidFilter = factory.createFidFilter();
+        Filter fidFilter = createFidFilter(null);
         assertEquals(fidFilter, visitor.getFidFilter());
         assertFalse(visitor.requiresPostProcessing());
 
         // Test Medium level compliance.
         visitor = new FilterEncodingPreProcessor(XMLHandlerHints.VALUE_FILTER_COMPLIANCE_MEDIUM);
-        filter.accept(visitor);
+        Filters.accept(filter, visitor);
+
 
         assertEquals(Filter.EXCLUDE, visitor.getFilter());
-        fidFilter = factory.createFidFilter();
-        fidFilter.addFid(fid1);
-        fidFilter.addFid(fid2);
+        fidFilter = createFidFilter(fid1,fid2);
         assertEquals(fidFilter, visitor.getFidFilter());
         assertFalse(visitor.requiresPostProcessing());
 
         // Test High compliance
         visitor = new FilterEncodingPreProcessor(XMLHandlerHints.VALUE_FILTER_COMPLIANCE_HIGH);
-        filter.accept(visitor);
+        Filters.accept(filter, visitor);
+
 
         assertEquals(Filter.EXCLUDE, visitor.getFilter());
-        fidFilter = factory.createFidFilter();
-        fidFilter.addFid(fid1);
-        fidFilter.addFid(fid2);
+        fidFilter = createFidFilter(fid1,fid2);
         assertEquals(fidFilter, visitor.getFidFilter());
         assertFalse(visitor.requiresPostProcessing());
     }
 
     public void testMixedOr() throws Exception {
-        FilterFactory factory = FilterFactoryFinder.createFilterFactory();
+        FilterFactory2 factory = CommonFactoryFinder.getFilterFactory2(null);
         String fid1 = "FID.1";
         String fid2 = "FID.2";
-        Filter filter = factory.createFidFilter(fid1)
-                               .or(factory.createFidFilter(fid2));
-        NullFilter nullFilter = factory.createNullFilter();
-        nullFilter.nullCheckValue(factory.createAttributeExpression("att"));
+        Filter filter = factory.or( createFidFilter(fid1), createFidFilter(fid2));
+        Filter nullFilter = factory.isNull(factory.property("att"));
 
-        filter = filter.or(nullFilter);
+        filter = factory.or( filter, nullFilter);
 
         // Test Low compliance
         FilterEncodingPreProcessor visitor = new FilterEncodingPreProcessor(XMLHandlerHints.VALUE_FILTER_COMPLIANCE_LOW);
-        filter.accept(visitor);
+        Filters.accept(filter, visitor);
+
 
         assertEquals(filter, visitor.getFilter());
 
-        FidFilter fidFilter = factory.createFidFilter();
+        Filter fidFilter = createFidFilter();
         assertEquals(fidFilter, visitor.getFidFilter());
         assertFalse(visitor.requiresPostProcessing());
 
         // Test Medium level compliance.
         visitor = new FilterEncodingPreProcessor(XMLHandlerHints.VALUE_FILTER_COMPLIANCE_MEDIUM);
-        filter.accept(visitor);
+        Filters.accept(filter, visitor);
+
 
         assertEquals(nullFilter, visitor.getFilter());
-        fidFilter = factory.createFidFilter();
-        fidFilter.addFid(fid1);
-        fidFilter.addFid(fid2);
+        fidFilter = createFidFilter(fid1,fid2);
         assertEquals(fidFilter, visitor.getFidFilter());
         assertFalse(visitor.requiresPostProcessing());
 
@@ -275,7 +294,8 @@ public class FilterEncodingPreProcessorTest extends TestCase {
         visitor = new FilterEncodingPreProcessor(XMLHandlerHints.VALUE_FILTER_COMPLIANCE_HIGH);
 
         try {
-            filter.accept(visitor);
+            Filters.accept(filter, visitor);
+
             fail("This is not a legal filter for this compliance level");
         } catch (UnsupportedFilterException e) {
             // good
@@ -305,34 +325,33 @@ public class FilterEncodingPreProcessorTest extends TestCase {
      * @throws Exception
      */
     public void testMixedAndOr() throws Exception {
-        FilterFactory factory = FilterFactoryFinder.createFilterFactory();
+        FilterFactory2 factory = CommonFactoryFinder.getFilterFactory2(null);
         String fid1 = "FID.1";
-        NullFilter nullFilter1 = factory.createNullFilter();
-        nullFilter1.nullCheckValue(factory.createAttributeExpression("att"));
+        Filter nullFilter1 = factory.isNull(factory.property("att"));
 
-        Filter filter = factory.createFidFilter(fid1).or(nullFilter1);
-        NullFilter nullFilter2 = factory.createNullFilter();
-        nullFilter2.nullCheckValue(factory.createAttributeExpression("name"));
+        Filter filter = factory.or( createFidFilter(fid1),nullFilter1);
+        Filter nullFilter2 = factory.isNull(factory.property("name"));
 
-        filter = nullFilter2.and(filter);
+        filter = factory.and( nullFilter2,filter);
 
         // Test Low compliance
         FilterEncodingPreProcessor visitor = new FilterEncodingPreProcessor(XMLHandlerHints.VALUE_FILTER_COMPLIANCE_LOW);
-        filter.accept(visitor);
+        Filters.accept(filter, visitor);
+
 
         assertEquals(filter, visitor.getFilter());
 
-        FidFilter fidFilter = factory.createFidFilter();
+        Filter fidFilter = createFidFilter();
         assertEquals(fidFilter, visitor.getFidFilter());
         assertFalse(visitor.requiresPostProcessing());
 
         // Test Medium level compliance.
         visitor = new FilterEncodingPreProcessor(XMLHandlerHints.VALUE_FILTER_COMPLIANCE_MEDIUM);
-        filter.accept(visitor);
+        Filters.accept(filter, visitor);
 
-        assertEquals(nullFilter1.and(nullFilter2), visitor.getFilter());
-        fidFilter = factory.createFidFilter();
-        fidFilter.addFid(fid1);
+
+        assertEquals( factory.and( nullFilter1,nullFilter2), visitor.getFilter());
+        fidFilter = createFidFilter(fid1);
         assertEquals(fidFilter, visitor.getFidFilter());
         assertTrue(visitor.requiresPostProcessing());
 
@@ -340,7 +359,8 @@ public class FilterEncodingPreProcessorTest extends TestCase {
         visitor = new FilterEncodingPreProcessor(XMLHandlerHints.VALUE_FILTER_COMPLIANCE_HIGH);
 
         try {
-            filter.accept(visitor);
+            Filters.accept(filter, visitor);
+
             fail("This is not a legal filter for this compliance level");
         } catch (UnsupportedFilterException e) {
             // good
@@ -348,45 +368,41 @@ public class FilterEncodingPreProcessorTest extends TestCase {
     }
 
     public void testStrictlyLegalFilter() throws Exception {
-        FilterFactory factory = FilterFactoryFinder.createFilterFactory();
-        NullFilter nullFilter1 = factory.createNullFilter();
-        nullFilter1.nullCheckValue(factory.createAttributeExpression("att"));
+        FilterFactory2 factory = CommonFactoryFinder.getFilterFactory2(null);
+        Filter nullFilter1 = factory.isNull(factory.property("att"));
 
-        NullFilter nullFilter2 = factory.createNullFilter();
-        nullFilter2.nullCheckValue(factory.createAttributeExpression("name"));
+        Filter nullFilter2 = factory.isNull(factory.property("name"));
+        Filter compareFilter = factory.equals(factory.property("name"), factory.literal(3));
+        
+        Filter filter = factory.and( nullFilter2,nullFilter1);
+        filter = factory.not(filter);
+        filter = factory.or(filter,compareFilter);
 
-        CompareFilter compareFilter = factory.createCompareFilter(FilterType.COMPARE_EQUALS);
-        compareFilter.addLeftValue(factory.createAttributeExpression("name"));
-        compareFilter.addRightValue(factory.createLiteralExpression(3));
-
-        Filter filter = nullFilter2.and(nullFilter1);
-        filter = filter.not();
-        filter = filter.or(compareFilter);
-
-        //		 Test Low compliance
+        // Test Low compliance
         FilterEncodingPreProcessor visitor = new FilterEncodingPreProcessor(XMLHandlerHints.VALUE_FILTER_COMPLIANCE_LOW);
-        filter.accept(visitor);
+        Filters.accept(filter, visitor);
+
 
         assertEquals(filter, visitor.getFilter());
-
-        FidFilter fidFilter = factory.createFidFilter();
-        assertEquals(fidFilter, visitor.getFidFilter());
+        assertEquals(createFidFilter(), visitor.getFidFilter());
         assertFalse(visitor.requiresPostProcessing());
 
         // Test Medium level compliance.
         visitor = new FilterEncodingPreProcessor(XMLHandlerHints.VALUE_FILTER_COMPLIANCE_MEDIUM);
-        filter.accept(visitor);
+        Filters.accept(filter, visitor);
+
 
         assertEquals(filter, visitor.getFilter());
-        assertEquals(fidFilter, visitor.getFidFilter());
+        assertEquals(createFidFilter(), visitor.getFidFilter());
         assertFalse(visitor.requiresPostProcessing());
 
         //Test High level compliance
         visitor = new FilterEncodingPreProcessor(XMLHandlerHints.VALUE_FILTER_COMPLIANCE_HIGH);
-        filter.accept(visitor);
+        Filters.accept(filter, visitor);
+
 
         assertEquals(filter, visitor.getFilter());
-        assertEquals(factory.createFidFilter(), visitor.getFidFilter());
+        assertEquals(createFidFilter(), visitor.getFidFilter());
         assertFalse(visitor.requiresPostProcessing());
     }
 }
