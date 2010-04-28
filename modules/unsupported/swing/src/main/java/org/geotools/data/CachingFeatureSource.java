@@ -1,4 +1,4 @@
-package org.geotools.demo.data;
+package org.geotools.data;
 
 import java.io.IOException;
 import java.util.ArrayList;
