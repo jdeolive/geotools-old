@@ -700,6 +700,10 @@ public class Types {
     }
 
     public static QName toQName(Name featurePath) {
+        return toQName(featurePath, null);
+    }
+
+    public static QName toQName(Name featurePath, NamespaceSupport ns) {
         if (featurePath == null) {
             return null;
         }
@@ -709,6 +713,13 @@ public class Types {
         if (null == namespace) {
             qName = new QName(localName);
         } else {
+            if (ns != null) {
+                String prefix = ns.getPrefix(namespace);
+                if (prefix != null) {
+                    qName = new QName(namespace, localName, prefix);
+                    return qName;
+                }
+            }
             qName = new QName(namespace, localName);
         }
         return qName;

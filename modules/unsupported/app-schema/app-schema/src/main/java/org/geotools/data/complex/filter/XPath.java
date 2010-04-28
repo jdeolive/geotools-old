@@ -28,6 +28,7 @@ import java.util.logging.Logger;
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
+import org.geotools.data.complex.ComplexFeatureConstants;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.AttributeBuilder;
 import org.geotools.feature.AttributeImpl;
@@ -35,7 +36,6 @@ import org.geotools.feature.NameImpl;
 import org.geotools.feature.Types;
 import org.geotools.feature.ValidatingFeatureFactoryImpl;
 import org.geotools.feature.type.AttributeDescriptorImpl;
-import org.geotools.feature.type.ComplexFeatureTypeImpl;
 import org.geotools.feature.type.FeatureTypeFactoryImpl;
 import org.geotools.util.CheckedArrayList;
 import org.geotools.xs.XSSchema;
@@ -476,7 +476,7 @@ public class XPath {
             final Name rootName = root.getName();
             // don't use default namespace for client properties (xml attribute), and FEATURE_LINK
             final String defaultNamespace = (isXmlAttribute
-                    || localName.equals(ComplexFeatureTypeImpl.FEATURE_CHAINING_LINK_NAME
+                    || localName.equals(ComplexFeatureConstants.FEATURE_CHAINING_LINK_NAME
                             .getLocalPart()) || rootName.getNamespaceURI() == null) ? XMLConstants.NULL_NS_URI
                     : rootName.getNamespaceURI();
             namespaceUri = defaultNamespace;
@@ -724,6 +724,10 @@ public class XPath {
                 } else {
                     leafAttribute = builder.add(id, convertedValue, attributeName, targetNodeType);
                 }
+            } else if (descriptor.getType().equals(XSSchema.ANYTYPE_TYPE)) {
+                // casting anyType as a complex attribute so we can set xlink:href
+                leafAttribute = builder.addComplexAnyTypeAttribute(convertedValue, descriptor,
+                        id);
             } else {
                 leafAttribute = builder.add(id, convertedValue, attributeName);
             }

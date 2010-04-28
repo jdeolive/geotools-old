@@ -21,8 +21,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
+import org.geotools.data.complex.ComplexFeatureConstants;
 import org.geotools.data.complex.config.NonFeatureTypeProxy;
 import org.geotools.feature.type.AttributeDescriptorImpl;
 import org.opengis.feature.Association;
@@ -554,7 +556,6 @@ public class AttributeBuilder {
         if (descriptor != null) {
             type = (AttributeType) descriptor.getType();
         }
-        Attribute attribute = null;
         // if (type instanceof FeatureCollectionType) {
         // attribute = descriptor != null ? attributeFactory.createFeatureCollection(
         // (Collection) value, descriptor, id) : attributeFactory.createFeatureCollection(
@@ -662,5 +663,26 @@ public class AttributeBuilder {
         Attribute attribute = create(value, type, descriptor, id);
         properties().add(attribute);
         return attribute;
+    }
+    
+    /**
+     * Create a complex attribute for XS.AnyType, since it's defined as a simple type. We need a
+     * complex attribute so we can set xlink:href in it.
+     * 
+     * @param value
+     * @param descriptor
+     * @param id
+     * @return
+     */
+    public Attribute addComplexAnyTypeAttribute(Object value, AttributeDescriptor descriptor,
+            String id) {
+        // need to create a complex attribute for any type, so we can have client properties
+        // for xlink:href and so we chain features etc.
+        Map<Object, Object> userData = descriptor.getUserData();
+        descriptor = new AttributeDescriptorImpl(ComplexFeatureConstants.ANYTYPE_TYPE, descriptor
+                .getName(), descriptor.getMinOccurs(), descriptor.getMaxOccurs(), descriptor
+                .isNillable(), descriptor.getDefaultValue());
+        descriptor.getUserData().putAll(userData);
+        return createComplexAttribute(value, ComplexFeatureConstants.ANYTYPE_TYPE, descriptor, id);
     }
 }

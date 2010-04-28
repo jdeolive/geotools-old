@@ -58,7 +58,6 @@ import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.NameImpl;
 import org.geotools.feature.Types;
 import org.geotools.feature.type.AttributeDescriptorImpl;
-import org.geotools.feature.type.ComplexFeatureTypeImpl;
 import org.geotools.feature.type.FeatureTypeImpl;
 import org.geotools.filter.FilterFactoryImplNamespaceAware;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -273,7 +272,7 @@ public class DataAccessIntegrationTest {
 
                 // feature chaining link
                 properties.add(new AttributeImpl(next.getID(),
-                        (AttributeDescriptor) ComplexFeatureTypeImpl.FEATURE_CHAINING_LINK, null));
+                        (AttributeDescriptor) ComplexFeatureConstants.FEATURE_CHAINING_LINK, null));
 
                 lastFeature = new FeatureImpl(properties, featureDesc, next.getIdentifier());
                 features.add(lastFeature);

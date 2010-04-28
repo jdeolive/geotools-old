@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.geotools.data.complex.ComplexFeatureConstants;
 import org.geotools.feature.NameImpl;
 import org.geotools.xs.XSSchema;
 import org.opengis.feature.type.AttributeType;
@@ -24,21 +25,6 @@ import org.opengis.util.InternationalString;
  * @source $URL$
  */
 public class ComplexFeatureTypeImpl extends FeatureTypeImpl {
-
-    /**
-     * Static attribute name used to link different feature types.
-     */
-    final public static Name FEATURE_CHAINING_LINK_NAME = new NameImpl("FEATURE_LINK");
-
-    /**
-     * Static attribute descriptor used to link different feature types. This attribute won't appear
-     * in the output document as it doesn't exist in the schema. Specifying the index would allow
-     * more than one instances to be used in one type that can be chained by different parent
-     * feature types.
-     */
-    final public static PropertyDescriptor FEATURE_CHAINING_LINK = new AttributeDescriptorImpl(
-            XSSchema.STRING_TYPE, FEATURE_CHAINING_LINK_NAME, 0, -1, true, null);
-
     /**
      * Type specific descriptors, excluding FEATURE_LINK
      */
@@ -69,7 +55,7 @@ public class ComplexFeatureTypeImpl extends FeatureTypeImpl {
             AttributeType superType, InternationalString description) {
         super(name, new ArrayList<PropertyDescriptor>(schema) {
             {
-                add(FEATURE_CHAINING_LINK);
+                add(ComplexFeatureConstants.FEATURE_CHAINING_LINK);
             };
         }, defaultGeometry, isAbstract, restrictions, superType, description);
 

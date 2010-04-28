@@ -27,6 +27,7 @@ import java.util.Map;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.complex.filter.XPath.StepList;
+import org.geotools.factory.Hints;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.Types;
 import org.geotools.filter.AttributeExpressionImpl;
@@ -146,13 +147,14 @@ public class NestedAttributeMapping extends AttributeMapping {
         if (source == null || !(nestedFeatureType instanceof AttributeExpressionImpl)) {
             // We can't initiate this in the constructor because the feature type mapping
             // might not be built yet.
-            Name featureTypeName = getNestedFeatureType(feature);
-            if (featureTypeName == null) {
+            Object featureTypeName = getNestedFeatureType(feature);
+            if (featureTypeName == null || !(featureTypeName instanceof Name)) {
                 // this could be legitimate, for some null values polymorphism use case
+                // or that it's set to be xlink:href
                 return Collections.EMPTY_LIST;
             }
             FeatureTypeMapping featureTypeMapping = AppSchemaDataAccessRegistry
-                    .getMappingByName(featureTypeName);
+                    .getMappingByName((Name) featureTypeName);
             assert featureTypeMapping != null;
 
             source = featureTypeMapping.getSource();
@@ -294,12 +296,12 @@ public class NestedAttributeMapping extends AttributeMapping {
         if (mappingSource == null || !(nestedFeatureType instanceof AttributeExpressionImpl)) {
             // initiate if null, or evaluate a new one if the targetElement is a function
             // which value depends on the feature
-            Name featureTypeName = getNestedFeatureType(feature);
-            if (featureTypeName == null) {
+            Object featureTypeName = getNestedFeatureType(feature);
+            if (featureTypeName == null || !(featureTypeName instanceof Name)) {
                 return null;
             }
             // this cannot be set in the constructor since it might not exist yet
-            mappingSource = DataAccessRegistry.getFeatureSource(featureTypeName);
+            mappingSource = DataAccessRegistry.getFeatureSource((Name) featureTypeName);
         }
         return mappingSource;
     }
@@ -307,7 +309,7 @@ public class NestedAttributeMapping extends AttributeMapping {
     /**
      * @return the nested feature type name
      */
-    public Name getNestedFeatureType(Feature feature) {
+    public Object getNestedFeatureType(Feature feature) {
         Object fTypeValue;
         if (nestedFeatureType instanceof AttributeExpressionImpl) {
             fTypeValue = ((AttributeExpressionImpl) nestedFeatureType).getPropertyName();
@@ -320,7 +322,10 @@ public class NestedAttributeMapping extends AttributeMapping {
             // if null, don't encode this element
             return null;
         }
-        return Types.degloseName(fTypeValue.toString(), namespaces);
+        if (!(fTypeValue instanceof Hints)) {
+            return Types.degloseName(fTypeValue.toString(), namespaces);
+        }
+        return fTypeValue;
     }
 
     public boolean isSameSource() {

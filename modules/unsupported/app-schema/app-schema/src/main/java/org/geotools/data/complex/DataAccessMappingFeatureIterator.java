@@ -37,13 +37,14 @@ import org.geotools.data.Query;
 import org.geotools.data.complex.filter.XPath;
 import org.geotools.data.complex.filter.XPath.Step;
 import org.geotools.data.complex.filter.XPath.StepList;
+import org.geotools.factory.Hints;
 import org.geotools.feature.AttributeBuilder;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureImpl;
 import org.geotools.feature.Types;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.FidFilterImpl;
-import org.geotools.xlink.XLINK;
+import org.geotools.filter.FilterFactoryImpl;
 import org.opengis.feature.Attribute;
 import org.opengis.feature.ComplexAttribute;
 import org.opengis.feature.Feature;
@@ -78,11 +79,6 @@ import org.xml.sax.Attributes;
  * @since 2.4
  */
 public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIterator {
-    /**
-     * Name representation of xlink:href
-     */
-    public static final Name XLINK_HREF_NAME = Types.toTypeName(XLINK.HREF);
-
     /**
      * Hold on to iterator to allow features to be streamed.
      */
@@ -314,11 +310,20 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
         if (Expression.NIL != attMapping.getIdentifierExpression()) {
             id = extractIdForAttribute(attMapping.getIdentifierExpression(), source);
         }
-
         if (attMapping.isNestedAttribute()) {
             NestedAttributeMapping nestedMapping = ((NestedAttributeMapping) attMapping);
             if (nestedMapping.isSameSource()) {
-                setPolymorphicValues(target, id, nestedMapping, source, xpath, clientPropsMappings);
+                // polymorphism mapping
+                Object mappingName = nestedMapping.getNestedFeatureType(source);
+                if (mappingName != null) {
+                    if (mappingName instanceof Name) {
+                        setPolymorphicValues((Name) mappingName, target, id, nestedMapping, source,
+                                xpath, clientPropsMappings);
+                    } else {
+                        setPolymorphicReference(mappingName, clientPropsMappings, target, xpath,
+                                targetNodeType);
+                    }
+                }
                 return;
             }
         }
@@ -426,6 +431,38 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
     }
 
     /**
+     * Special handling for polymorphic mapping where the value of the attribute determines that
+     * this attribute should be a placeholder for an xlink:href.
+     * 
+     * @param xlinkHref
+     *            the xlink:href hints holding the URI
+     * @param clientPropsMappings
+     *            client properties
+     * @param target
+     *            the complex feature being built
+     * @param xpath
+     *            the xpath of attribute
+     * @param targetNodeType
+     *            the type of the attribute to be cast to, if any
+     */
+    private void setPolymorphicReference(Object xlinkHref,
+            Map<Name, Expression> clientPropsMappings, Attribute target, StepList xpath,
+            AttributeType targetNodeType) {
+        if (xlinkHref instanceof Hints) {
+            Object uri = ((Hints) xlinkHref).get(ComplexFeatureConstants.STRING_KEY);
+            if (uri != null) {
+                Attribute instance = xpathAttributeBuilder.set(target, xpath, null, "",
+                        targetNodeType, true);
+                FilterFactoryImpl ff = new FilterFactoryImpl();
+                Map<Name, Expression> newClientProps = new HashMap<Name, Expression>();
+                newClientProps.putAll(clientPropsMappings);
+                newClientProps.put(XLINK_HREF_NAME, ff.literal(uri));
+                setClientProperties(instance, null, newClientProps);
+            }
+        }
+    }
+
+    /**
      * Special handling for polymorphic mapping. Works out the polymorphic type name by evaluating
      * the function on the feature, then set the relevant sub-type values.
      * 
@@ -443,37 +480,34 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
      *            Client properties
      * @throws IOException
      */
-    private void setPolymorphicValues(Attribute target, String id,
+    private void setPolymorphicValues(Name mappingName, Attribute target, String id,
             NestedAttributeMapping nestedMapping, Feature source, StepList xpath,
             Map<Name, Expression> clientPropsMappings) throws IOException {
-        Name mappingName = nestedMapping.getNestedFeatureType(source);
-        if (mappingName != null) {
-            // process sub-type mapping
-            DataAccess<FeatureType, Feature> da = DataAccessRegistry.getDataAccess(mappingName);
-            if (da instanceof AppSchemaDataAccess) {
-                // why wouldn't it be? check just to be safe
-                FeatureTypeMapping fTypeMapping = ((AppSchemaDataAccess) da)
-                        .getMappingByName(mappingName);
-                List<AttributeMapping> polymorphicMappings = fTypeMapping.getAttributeMappings();
-                AttributeDescriptor attDescriptor = fTypeMapping.getTargetFeature();
-                Name polymorphicTypeName = attDescriptor.getName();
-                StepList prefixedXpath = xpath.clone();
-                prefixedXpath.add(new Step(new QName(polymorphicTypeName.getNamespaceURI(),
-                        polymorphicTypeName.getLocalPart(), this.namespaces
-                                .getPrefix(polymorphicTypeName.getNamespaceURI())), 1));
-                Attribute instance = xpathAttributeBuilder.set(target, prefixedXpath, null, id,
-                        attDescriptor.getType(), false, attDescriptor);
-                setClientProperties(instance, source, clientPropsMappings);
-                for (AttributeMapping mapping : polymorphicMappings) {
-                    if (isTopLevelmapping(polymorphicTypeName, mapping.getTargetXPath())) {
-                        // ignore the top level mapping for the Feature itself
-                        // as it was already set
-                        continue;
-                    }
-                    setAttributeValue(instance, source, mapping);
+        // process sub-type mapping
+        DataAccess<FeatureType, Feature> da = DataAccessRegistry.getDataAccess((Name) mappingName);
+        if (da instanceof AppSchemaDataAccess) {
+            // why wouldn't it be? check just to be safe
+            FeatureTypeMapping fTypeMapping = ((AppSchemaDataAccess) da)
+                    .getMappingByName((Name) mappingName);
+            List<AttributeMapping> polymorphicMappings = fTypeMapping.getAttributeMappings();
+            AttributeDescriptor attDescriptor = fTypeMapping.getTargetFeature();
+            Name polymorphicTypeName = attDescriptor.getName();
+            StepList prefixedXpath = xpath.clone();
+            prefixedXpath.add(new Step(new QName(polymorphicTypeName.getNamespaceURI(),
+                    polymorphicTypeName.getLocalPart(), this.namespaces
+                            .getPrefix(polymorphicTypeName.getNamespaceURI())), 1));
+            Attribute instance = xpathAttributeBuilder.set(target, prefixedXpath, null, id,
+                    attDescriptor.getType(), false, attDescriptor);
+            setClientProperties(instance, source, clientPropsMappings);
+            for (AttributeMapping mapping : polymorphicMappings) {
+                if (isTopLevelmapping(polymorphicTypeName, mapping.getTargetXPath())) {
+                    // ignore the top level mapping for the Feature itself
+                    // as it was already set
+                    continue;
                 }
+                setAttributeValue(instance, source, mapping);
             }
-        }// the value could be configured as null, it's a form of polymorphism.. do nothing
+        }
     }
 
     /**
@@ -546,7 +580,9 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
             }
             targetAttributes.put(propName, propValue);
         }
-        // FIXME should set a child Property
+        // FIXME should set a child Property.. but be careful for things that
+        // are smuggled in there internally and don't exist in the schema, like 
+        // XSDTypeDefinition, CRS etc.
         target.getUserData().put(Attributes.class, targetAttributes);
     }
 

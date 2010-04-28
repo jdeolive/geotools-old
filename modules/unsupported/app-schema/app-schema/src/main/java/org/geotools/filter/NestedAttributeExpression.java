@@ -154,7 +154,7 @@ public class NestedAttributeExpression extends AttributeExpressionImpl {
                 } catch (IOException e) {
                     fMapping = null;
                 }
-                if (nestedMapping.isSameSource()) {
+                if (fMapping != null && nestedMapping.isSameSource()) {
                     // same root/database row, different mappings, used in polymorphism
                     continue;
                 }
@@ -213,11 +213,11 @@ public class NestedAttributeExpression extends AttributeExpressionImpl {
      */
     private List<Feature> getNestedFeatures(Feature root, NestedAttributeMapping nestedMapping,
             FeatureTypeMapping fMapping) throws IOException {
-        Name fTypeName = nestedMapping.getNestedFeatureType(root);
-        if (fTypeName == null) {
+        Object fTypeName = nestedMapping.getNestedFeatureType(root);
+        if (fTypeName == null || !(fTypeName instanceof Name)) {
             return null;
         }
-        boolean hasSimpleFeatures = AppSchemaDataAccessRegistry.hasName(fTypeName);
+        boolean hasSimpleFeatures = AppSchemaDataAccessRegistry.hasName((Name) fTypeName);
         // get foreign key
         Object val = getValue(nestedMapping.getSourceExpression(), root);
         if (val == null) {
