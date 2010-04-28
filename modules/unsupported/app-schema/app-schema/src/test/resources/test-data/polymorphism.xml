@@ -14,6 +14,10 @@
 			<prefix>gsml</prefix>
 			<uri>http://www.cgi-iugs.org/xml/GeoSciML/2</uri>
 		</Namespace>
+		<Namespace>
+			<prefix>xlink</prefix>
+			<uri>http://www.w3.org/1999/xlink</uri>
+		</Namespace>		
 	</namespaces>
 	<includedTypes>
         <Include>CGITermValue.xml</Include>
@@ -47,7 +51,7 @@
 					<sourceExpression>
 						<OCQL>VALUE_ID</OCQL>	
 						<linkElement>
-						    Recode(CLASS_TEXT, 'numeric', 'NumericType', 'literal', 'gsml:CGI_TermValue', 'invalid', Expression.NIL)
+						    Recode(CLASS_TEXT, 'numeric', 'NumericType', 'literal', 'gsml:CGI_TermValue')
 						</linkElement>
 						<linkField>FEATURE_LINK</linkField>
 					</sourceExpression>					
@@ -58,7 +62,8 @@
 					<targetAttribute>ex:secondValue</targetAttribute>
 					<sourceExpression>
 						<linkElement>
-						    if_then_else(equalTo(CLASS_TEXT, 'numeric'), 'NumericType',  'TermValue2')
+						    if_then_else(isNull(CLASS_TEXT), Expression.Nil,
+						       if_then_else(equalTo(CLASS_TEXT, 'numeric'), 'NumericType',  'TermValue2'))
 						</linkElement>
 					</sourceExpression>
 				</AttributeMapping>
@@ -81,22 +86,23 @@
 					</sourceExpression>
 				</AttributeMapping>
 				<AttributeMapping>
-				    <!-- Test polymorphism with null values -->
+				    <!-- Test referential polymorphism -->
 					<targetAttribute>ex:fourthValue</targetAttribute>
 					<sourceExpression>
 						<linkElement>
-						    if_then_else(lessEqualThan(NUMERIC_VALUE, 999), 'NullValue', 'NumericType')
+						    if_then_else(lessEqualThan(NUMERIC_VALUE, 999), toXlinkHref('urn:ogc:def:nil:OGC::missing'),
+						        'NumericType')
 						</linkElement>
 					</sourceExpression>
 				</AttributeMapping>
 				<AttributeMapping>
-				    <!-- Test polymorphism with anyType -->
+				    <!-- Test polymorphism with anyType  -->
 					<targetAttribute>ex:anyValue</targetAttribute>
 					<sourceExpression>
 						<linkElement>
-						<!-- This is not a good example of testing null value, more so testing a string value of 'NULL',
-						     because there's a bug preventing us from having null values at the moment :( -->
-						    Recode(CLASS_TEXT, 'NULL', 'NullValue', 'numeric', 'NumericType', 'literal', 'TermValue2')
+						   Recode(CLASS_TEXT, Expression.Nil, toXlinkHref('urn:ogc:def:nil:OGC::missing'),
+						       'numeric', toXlinkHref(strConcat('urn:numeric-value::', NUMERIC_VALUE)),
+						       'literal', 'TermValue2')
 						</linkElement>
 					</sourceExpression>
 				</AttributeMapping>
@@ -141,20 +147,6 @@
   		            </targetAttribute>
 					<sourceExpression>
 						<OCQL>strTrim(getId())</OCQL>
-					</sourceExpression>
-				</AttributeMapping>
-			</attributeMappings>
-		</FeatureTypeMapping>
-		<FeatureTypeMapping>		
-			<mappingName>NullValue</mappingName>
-			<sourceDataStore>PropertyFiles</sourceDataStore>
-			<sourceType>PolymorphicFeature</sourceType>
-			<targetElement>gsml:CGI_TermValue</targetElement>
-			<attributeMappings>
-				<AttributeMapping>
-					<targetAttribute>gsml:value</targetAttribute>
-					<sourceExpression>
-						<OCQL>'urn:ogc:def:nil:OGC::missing'</OCQL>
 					</sourceExpression>
 				</AttributeMapping>
 			</attributeMappings>
