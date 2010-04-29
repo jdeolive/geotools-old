@@ -430,14 +430,33 @@ Copy and paste the code into your IDE as part of your Maven project:
 
    .. literalinclude:: ../../../../demo/example/src/main/java/org/geotools/demo/Quickstart.java
       :language: java
+      :start-after: // docs start source
+      :end-before: // docs end main
    
-Now build the application, either from within your IDE or from the command line with ``mvn compile``.
+Add a closing curly brace for the class and then build the application, either from within your IDE or from the command
+line with ``mvn compile``.
 
 If the application compiled you can now run it. Once again, you can do this from within your IDE or from the command
 line. The program should display a dialog prompting you for a shapefile and then display it in a simple map viewer.
 
 .. image:: quickstart.gif
 
+Optional extra: speeding up the display of features
+---------------------------------------------------
+This application is reading the shapefile directly every time you refresh the display, for instance when you zoom in or
+out. If the shapefile is large you will notice some delay while the data are read from disk. One way to speed up the
+display's responsiveness is to cache some or all of the feature data in memory. **CachingFeatureSource** provides this
+ability. It reads features from the original feature source (e.g. your shapefile) and stores them in memory in a
+spatially indexed manner. Obviously the amount of memory available determines how practical this is for any particular
+feature source.
+
+The method below shows how to introduce **CachingFeatureSource** into our example application:
+
+   .. literalinclude:: ../../../../demo/example/src/main/java/org/geotools/demo/Quickstart.java
+      :language: java
+      :start-after: // docs start cache
+      :end-before: // docs end source
+   
 Questions
 =========
 
