@@ -724,7 +724,7 @@ public class XPath {
                 } else {
                     leafAttribute = builder.add(id, convertedValue, attributeName, targetNodeType);
                 }
-            } else if (descriptor.getType().equals(XSSchema.ANYTYPE_TYPE)) {
+            } else if (value == null && descriptor.getType().equals(XSSchema.ANYTYPE_TYPE)) {
                 // casting anyType as a complex attribute so we can set xlink:href
                 leafAttribute = builder.addComplexAnyTypeAttribute(convertedValue, descriptor,
                         id);
