@@ -10,6 +10,7 @@
 package org.geotools.demo;
 
 import java.io.File;
+import org.geotools.data.CachingFeatureSource;
 
 import org.geotools.data.FeatureSource;
 import org.geotools.data.FileDataStore;
@@ -45,6 +46,35 @@ public class Quickstart {
         MapContext map = new DefaultMapContext();
         map.setTitle("Quickstart");
         map.addLayer(featureSource, null);
+
+        // Now display the map
+        JMapFrame.showMap(map);
+    }
+
+    /**
+     * This method demonstrates using a memory-based cache to speed up
+     * the display (e.g. when zooming in and out).
+     *
+     * There is just one line extra compared to the main method, where
+     * we create an instance of CachingFeatureStore.
+     *
+     * @throws Exception
+     */
+    public void usingFeatureCaching() throws Exception {
+        File file = JFileDataStoreChooser.showOpenFile("shp", null);
+        if (file == null) {
+            return;
+        }
+
+        FileDataStore store = FileDataStoreFinder.getDataStore(file);
+        FeatureSource featureSource = store.getFeatureSource();
+
+        CachingFeatureSource cache = new CachingFeatureSource(featureSource);
+
+        // Create a map context and add our shapefile to it
+        MapContext map = new DefaultMapContext();
+        map.setTitle("Using cached features");
+        map.addLayer(cache, null);
 
         // Now display the map
         JMapFrame.showMap(map);
