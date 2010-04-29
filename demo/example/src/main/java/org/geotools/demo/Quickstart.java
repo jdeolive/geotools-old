@@ -1,3 +1,4 @@
+// docs start source
 /*
  *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
@@ -10,8 +11,8 @@
 package org.geotools.demo;
 
 import java.io.File;
-import org.geotools.data.CachingFeatureSource;
 
+import org.geotools.data.CachingFeatureSource;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.FileDataStore;
 import org.geotools.data.FileDataStoreFinder;
@@ -50,7 +51,9 @@ public class Quickstart {
         // Now display the map
         JMapFrame.showMap(map);
     }
+// docs end main
 
+// docs start cache
     /**
      * This method demonstrates using a memory-based cache to speed up
      * the display (e.g. when zooming in and out).
@@ -80,3 +83,4 @@ public class Quickstart {
         JMapFrame.showMap(map);
     }
 }
+// docs end source
