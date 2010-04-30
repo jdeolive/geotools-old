@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.geotools.data.DataUtilities;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.feature.CollectionListener;
@@ -48,11 +49,15 @@ public class DecoratingSimpleFeatureCollection implements SimpleFeatureCollectio
     /**
      * the delegate
      */
-	protected SimpleFeatureCollection delegate;
+    protected SimpleFeatureCollection delegate;
 
-	protected DecoratingSimpleFeatureCollection(SimpleFeatureCollection delegate) {
-		this.delegate = delegate;
-	}
+    protected DecoratingSimpleFeatureCollection(FeatureCollection<SimpleFeatureType,SimpleFeature> delegate) {
+        this.delegate = DataUtilities.simple(delegate);
+    }
+    
+    protected DecoratingSimpleFeatureCollection(SimpleFeatureCollection delegate) {
+        this.delegate = delegate;
+    }
 
     public void accepts(org.opengis.feature.FeatureVisitor visitor,
             org.opengis.util.ProgressListener progress) throws IOException {

@@ -18,10 +18,12 @@ package org.geotools.data;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -31,14 +33,19 @@ import java.util.Set;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.feature.CollectionListener;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.FeatureTypes;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.SchemaException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.filter.IllegalFilterException;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.test.TestData;
+import org.opengis.feature.FeatureVisitor;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.FeatureType;
@@ -54,7 +61,9 @@ import org.opengis.filter.PropertyIsNull;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Function;
 import org.opengis.filter.expression.PropertyName;
+import org.opengis.filter.sort.SortBy;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.util.ProgressListener;
 
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -75,6 +84,13 @@ public class DataUtilitiesTest extends DataTestCase {
     public DataUtilitiesTest(String arg0) {
         super(arg0);
     }
+    
+    public void testSimple(){
+        FeatureCollection<SimpleFeatureType,SimpleFeature> featureCollection = DataUtilities.collection(roadFeatures);
+        SimpleFeatureCollection simple = DataUtilities.simple(featureCollection);
+        assertSame( simple, featureCollection); // we expect a straight cast
+    }        
+
 
     public void testCheckDirectory() {
         File home = new File(System.getProperty("user.home"));

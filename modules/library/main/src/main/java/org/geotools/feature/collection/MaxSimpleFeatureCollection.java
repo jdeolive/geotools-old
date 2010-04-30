@@ -50,6 +50,10 @@ public class MaxSimpleFeatureCollection extends
 	SimpleFeatureCollection delegate;
 	long max;
 	
+	public MaxSimpleFeatureCollection( FeatureCollection<SimpleFeatureType,SimpleFeature> delegate, long max ) {
+	    this( DataUtilities.simple( delegate ), max );
+	}
+	
 	public MaxSimpleFeatureCollection( SimpleFeatureCollection delegate, long max ) {
 		super(delegate);
 		this.delegate = delegate;

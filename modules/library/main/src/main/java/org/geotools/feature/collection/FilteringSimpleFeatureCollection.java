@@ -55,6 +55,10 @@ public class FilteringSimpleFeatureCollection extends DecoratingSimpleFeatureCol
 	 */
 	Filter filter;
 	
+	public FilteringSimpleFeatureCollection( FeatureCollection<SimpleFeatureType,SimpleFeature> delegate, Filter filter ) {
+	    this( DataUtilities.simple( delegate), filter );
+	}
+	
 	public FilteringSimpleFeatureCollection( SimpleFeatureCollection delegate, Filter filter ) {
 		super(delegate);
 		this.delegate = delegate;

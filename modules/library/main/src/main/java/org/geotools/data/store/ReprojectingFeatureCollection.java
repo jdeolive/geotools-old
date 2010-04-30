@@ -21,10 +21,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.geotools.data.DataUtilities;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.collection.DelegateFeatureReader;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.FeatureTypes;
 import org.geotools.feature.SchemaException;
@@ -75,9 +77,19 @@ public class ReprojectingFeatureCollection extends DecoratingSimpleFeatureCollec
      */
     GeometryCoordinateSequenceTransformer transformer;
     
+    public ReprojectingFeatureCollection(
+            FeatureCollection<SimpleFeatureType, SimpleFeature> delegate,
+            CoordinateReferenceSystem target) {
+        this(DataUtilities.simple(delegate), target);
+    }
     public ReprojectingFeatureCollection(SimpleFeatureCollection delegate,
             CoordinateReferenceSystem target) {
         this( delegate, delegate.getSchema().getGeometryDescriptor().getCoordinateReferenceSystem(), target );
+    }
+    
+    public ReprojectingFeatureCollection(FeatureCollection<SimpleFeatureType, SimpleFeature> delegate,
+            CoordinateReferenceSystem source, CoordinateReferenceSystem target) {
+        this(DataUtilities.simple(delegate), source, target);
     }
     
     public ReprojectingFeatureCollection(

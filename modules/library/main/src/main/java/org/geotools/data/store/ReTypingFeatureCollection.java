@@ -19,11 +19,12 @@ package org.geotools.data.store;
 import java.io.IOException;
 import java.util.Iterator;
 
+import org.geotools.data.DataUtilities;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.collection.DelegateFeatureReader;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
-import org.geotools.feature.FeatureIterator;
+import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.collection.DecoratingSimpleFeatureCollection;
 import org.geotools.feature.collection.DelegateSimpleFeatureIterator;
 import org.opengis.feature.simple.SimpleFeature;
@@ -42,6 +43,9 @@ public class ReTypingFeatureCollection extends DecoratingSimpleFeatureCollection
 
 	SimpleFeatureType featureType;
     
+	public ReTypingFeatureCollection ( FeatureCollection<SimpleFeatureType,SimpleFeature> delegate, SimpleFeatureType featureType ) {
+	    this( DataUtilities.simple( delegate), featureType );
+	}
 	public ReTypingFeatureCollection ( SimpleFeatureCollection delegate, SimpleFeatureType featureType ) {
 		super(delegate);
 		this.featureType = featureType;

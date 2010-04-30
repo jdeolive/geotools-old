@@ -1027,6 +1027,29 @@ public class DataUtilities {
     public static DefaultFeatureCollection collection( FeatureCollection<SimpleFeatureType,SimpleFeature> featureCollection ){
         return new DefaultFeatureCollection( featureCollection );
     }
+    
+    /**
+     * A safe cast to SimpleFeatureCollection; that will introduce a wrapper if it has to.
+     * <p>
+     * Please keep the use of this class to a minimum; if you are expecting a FeatureCollection<SimpleFeatureType,SimpleFeature>
+     * please make use of SimpleFeatureCollection if you possibly can.
+     * <p>
+     * So when are you stuck using this class?:
+     * <ul>
+     * <li>Offering backwards compatible constructors for legacy code prior to 2.7</li>
+     * <li>implementing FeatureStore.addFeatures(...) since we cannot type narrow parameters</li>
+     * </ul>
+     * @param featureCollection will be returned as a SimpleFeatureCollection and wrapped only if needed
+     * @return SimpleFeatureCollection
+     * @since 2.7
+     */
+    public static SimpleFeatureCollection simple( FeatureCollection<SimpleFeatureType,SimpleFeature> featureCollection ){
+       if( featureCollection instanceof SimpleFeatureCollection ){
+           return (SimpleFeatureCollection) featureCollection;
+       }
+       return new SimpleFeatureCollectionBridge( featureCollection );
+    }
+    
     /**
      * Copies the provided fetaures into a List.
      * 
