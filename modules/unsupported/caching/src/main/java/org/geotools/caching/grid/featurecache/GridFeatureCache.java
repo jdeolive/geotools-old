@@ -39,8 +39,10 @@ import org.geotools.caching.spatialindex.Storage;
 import org.geotools.caching.util.CacheUtil;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -72,7 +74,7 @@ public class GridFeatureCache extends AbstractFeatureCache {
      * @throws FeatureCacheException
      * @throws IOException 
      */
-    public GridFeatureCache(FeatureSource fs, int indexcapacity, int capacity, Storage store)
+    public GridFeatureCache(SimpleFeatureSource fs, int indexcapacity, int capacity, Storage store)
         throws FeatureCacheException {
         
         this(fs, getFeatureBounds(fs), indexcapacity, capacity, store);   
@@ -87,7 +89,7 @@ public class GridFeatureCache extends AbstractFeatureCache {
      * @param capacity       maximum number of features to cache
      * @param store         the cache storage
      */
-    public GridFeatureCache(FeatureSource fs, ReferencedEnvelope env, int gridsize, int capacity, Storage store){
+    public GridFeatureCache(SimpleFeatureSource fs, ReferencedEnvelope env, int gridsize, int capacity, Storage store){
         super(fs);
         tracker = new GridSpatialIndex(CacheUtil.convert(env), gridsize, store, capacity);
         this.capacity = capacity;
@@ -261,7 +263,7 @@ public class GridFeatureCache extends AbstractFeatureCache {
      * Looks in the cache for any elements within the given envelope.
      * <p>Returns a in-memory feature collection.</p>
      */
-    public FeatureCollection peek(Envelope e) {
+    public SimpleFeatureCollection peek(Envelope e) {
 
         FeatureCollectingVisitor v = new FeatureCollectingVisitor(this.getSchema());
         lock.readLock().lock();
@@ -278,7 +280,7 @@ public class GridFeatureCache extends AbstractFeatureCache {
     /**
      * Adds a feature collection to the cache.
      */
-    public void put(FeatureCollection fc, Envelope e) throws CacheOversizedException {
+    public void put(SimpleFeatureCollection fc, Envelope e) throws CacheOversizedException {
         isOversized(fc);
         lock.writeLock().lock();
         try {
@@ -349,11 +351,11 @@ public class GridFeatureCache extends AbstractFeatureCache {
      * 
      * @throws CacheOversizedException if the feature collection has too many features for the cache.
      */
-    public void put(FeatureCollection fc) throws CacheOversizedException {
+    public void put(SimpleFeatureCollection fc) throws CacheOversizedException {
         isOversized(fc);
         lock.writeLock().lock();
         try {
-            FeatureIterator<SimpleFeature> it = fc.features();
+            SimpleFeatureIterator it = fc.features();
             try{
                 while (it.hasNext()) {
                     SimpleFeature f = it.next();

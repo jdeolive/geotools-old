@@ -19,9 +19,9 @@ package org.geotools.util;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import org.geotools.factory.Hints;
-
 import junit.framework.TestCase;
+
+import org.geotools.factory.Hints;
 
 public class NumericConverterFactoryTest extends TestCase {
 

@@ -49,6 +49,8 @@ import org.geotools.data.complex.config.CatalogUtilities;
 import org.geotools.data.complex.config.EmfAppSchemaReader;
 import org.geotools.data.complex.config.FeatureTypeRegistry;
 import org.geotools.data.property.PropertyDataStore;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.feature.AttributeImpl;
 import org.geotools.feature.CollectionListener;
 import org.geotools.feature.ComplexAttributeImpl;
@@ -182,7 +184,7 @@ public class DataAccessIntegrationTest {
      * @throws IOException
      */
     private static ArrayList<Feature> getInputFeatures(
-            FeatureCollection<SimpleFeatureType, SimpleFeature> fCollection,
+            SimpleFeatureCollection fCollection,
             FeatureType geologicUnitType) throws IOException {
         ArrayList<Feature> features = new ArrayList<Feature>();
 
@@ -473,9 +475,9 @@ public class DataAccessIntegrationTest {
             }
             // get geologic unit properties file
             PropertyDataStore dataStore = new PropertyDataStore(dir);
-            FeatureSource<SimpleFeatureType, SimpleFeature> simpleFeatureSource = dataStore
+            SimpleFeatureSource simpleFeatureSource = dataStore
                     .getFeatureSource(GEOLOGIC_UNIT);
-            FeatureCollection<SimpleFeatureType, SimpleFeature> fCollection = simpleFeatureSource
+            SimpleFeatureCollection fCollection = simpleFeatureSource
                     .getFeatures();
             reader = EmfAppSchemaReader.newInstance();
             // set catalog

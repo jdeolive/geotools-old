@@ -33,7 +33,6 @@ import org.geotools.data.DefaultQuery;
 import org.geotools.data.DefaultRepository;
 import org.geotools.data.DefaultTransaction;
 import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.FileDataStoreFactorySpi;
 import org.geotools.data.Query;
@@ -42,6 +41,7 @@ import org.geotools.data.gen.tool.Toolbox;
 import org.geotools.data.memory.MemoryDataStore;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.feature.NameImpl;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeImpl;
@@ -286,7 +286,7 @@ public class TestSetup {
                 .toURL());
         ShapefileDataStore ds = (ShapefileDataStore) factory.createNewDataStore(params);
 
-        FeatureSource<SimpleFeatureType, SimpleFeature> fs = shapeDS.getFeatureSource(shapeDS
+        SimpleFeatureSource fs = shapeDS.getFeatureSource(shapeDS
                 .getTypeNames()[0]);
 
         ds.createSchema(fs.getSchema());

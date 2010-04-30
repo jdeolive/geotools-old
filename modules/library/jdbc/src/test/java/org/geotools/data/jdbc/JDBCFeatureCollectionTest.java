@@ -16,8 +16,10 @@
  */
 package org.geotools.data.jdbc;
 
-import static org.easymock.EasyMock.*;
-import static org.easymock.classextension.EasyMock.*;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.classextension.EasyMock.createMock;
+import static org.easymock.classextension.EasyMock.createNiceMock;
+import static org.easymock.classextension.EasyMock.replay;
 import junit.framework.TestCase;
 
 import org.geotools.data.DataStore;

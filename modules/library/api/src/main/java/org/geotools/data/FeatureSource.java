@@ -49,11 +49,11 @@ import org.opengis.filter.Filter;
  * been moved to an external object, and the locking api has been intergrated.
  * </li>
  * <li>
- * FeatureCollection<SimpleFeatureType, SimpleFeature> has been replaced with FeatureResult as we do not wish to
+ * SimpleFeatureCollection has been replaced with FeatureResult as we do not wish to
  * indicate that results can be stored in memory.
  * </li>
  * <li>
- * FeatureSource<SimpleFeatureType, SimpleFeature> has been split into three interfaces, the intention is to use
+ * SimpleFeatureSource has been split into three interfaces, the intention is to use
  * the instanceof opperator to check capabilities rather than the previous
  * DataSourceMetaData.
  * </li>
@@ -249,7 +249,7 @@ public interface FeatureSource<T extends FeatureType, F extends Feature>{
      *
      * <p>
      * This method is needed if we are to stream features to a gml out, since a
-     * FeatureCollection<SimpleFeatureType, SimpleFeature> must have a boundedBy element.
+     * SimpleFeatureCollection must have a boundedBy element.
      * </p>
      *
      * <p>

@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.geotools.filter.FunctionExpressionImpl;
 import org.opengis.filter.expression.Literal;
 

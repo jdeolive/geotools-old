@@ -15,10 +15,10 @@ import javax.imageio.ImageIO;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.data.DefaultQuery;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.map.MapContext;
@@ -104,7 +104,7 @@ public class LargePolygonsPerfTest {
     @Test
     public void testRenderPostGIS() throws Exception {
         DataStore dataStore = getPostGISDataStore();
-        FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
+        SimpleFeatureSource featureSource;
         featureSource = dataStore.getFeatureSource(postgisTypeName);
         try {
             testRender(featureSource);
@@ -116,7 +116,7 @@ public class LargePolygonsPerfTest {
     @Test
     public void testRenderShapefile() throws Exception {
         DataStore dataStore = getShapefileDataStore();
-        FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
+        SimpleFeatureSource featureSource;
         featureSource = dataStore.getFeatureSource(shapefileTypeName);
         try {
             testRender(featureSource);
@@ -127,7 +127,7 @@ public class LargePolygonsPerfTest {
 
     @Test
     public void testRenderArcSDE() throws Exception {
-        FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
+        SimpleFeatureSource featureSource;
         ArcSDEDataStore dataStore = testData.getDataStore();
         featureSource = dataStore.getFeatureSource(typeName);
         try {
@@ -137,7 +137,7 @@ public class LargePolygonsPerfTest {
         }
     }
 
-    private void testRender(FeatureSource<SimpleFeatureType, SimpleFeature> featureSource)
+    private void testRender(SimpleFeatureSource featureSource)
             throws Exception {
         SimpleFeatureType schema = featureSource.getSchema();
         CoordinateReferenceSystem crs = schema.getCoordinateReferenceSystem();
@@ -174,7 +174,7 @@ public class LargePolygonsPerfTest {
     @Test
     public void testFeatureSourceArcSDE() throws IOException {
         DataStore dataStore = testData.getDataStore();
-        FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
+        SimpleFeatureSource featureSource;
         featureSource = dataStore.getFeatureSource(typeName);
         try {
             testFeatureSource(featureSource);
@@ -186,7 +186,7 @@ public class LargePolygonsPerfTest {
     @Test
     public void testFeatureSourcePostGIS() throws IOException {
         DataStore dataStore = getPostGISDataStore();
-        FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
+        SimpleFeatureSource featureSource;
         featureSource = dataStore.getFeatureSource(postgisTypeName);
 
         try {
@@ -199,7 +199,7 @@ public class LargePolygonsPerfTest {
     @Test
     public void testFeatureSourceShapefile() throws IOException {
         DataStore dataStore = getShapefileDataStore();
-        FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
+        SimpleFeatureSource featureSource;
         featureSource = dataStore.getFeatureSource(shapefileTypeName);
 
         try {
@@ -233,7 +233,7 @@ public class LargePolygonsPerfTest {
         return dataStore;
     }
 
-    private void testFeatureSource(FeatureSource<SimpleFeatureType, SimpleFeature> fs)
+    private void testFeatureSource(SimpleFeatureSource fs)
             throws IOException {
         log("-----------------------------------------------------");
         log("Testing feature source");
@@ -257,7 +257,7 @@ public class LargePolygonsPerfTest {
         log("-----------------------------------------------------");
         log("Testing feature source without geometry");
         DataStore ds = testData.getDataStore();
-        FeatureSource<SimpleFeatureType, SimpleFeature> fs = ds.getFeatureSource(typeName);
+        SimpleFeatureSource fs = ds.getFeatureSource(typeName);
         try {
             Query query = new DefaultQuery(typeName, Filter.INCLUDE, new String[] { "TOWN_ID" });
             long runTime = 0;
@@ -421,13 +421,13 @@ public class LargePolygonsPerfTest {
         return sw.getTime();
     }
 
-    private long iterate(FeatureSource<SimpleFeatureType, SimpleFeature> fs, Query query)
+    private long iterate(SimpleFeatureSource fs, Query query)
             throws IOException {
         Stopwatch sw = new Stopwatch();
-        FeatureCollection<SimpleFeatureType, SimpleFeature> features;
+        SimpleFeatureCollection features;
         features = fs.getFeatures(query);
 
-        FeatureIterator<SimpleFeature> iterator;
+        SimpleFeatureIterator iterator;
         iterator = features.features();
 
         log("- Iterating: " + Arrays.asList(query.getPropertyNames()));

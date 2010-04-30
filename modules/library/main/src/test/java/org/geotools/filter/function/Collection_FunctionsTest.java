@@ -18,13 +18,9 @@
  */
 package org.geotools.filter.function;
 
-import java.util.Collections;
 import java.util.HashSet;
 
-import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollections;
-import org.geotools.filter.Expression;
-import org.geotools.filter.FunctionExpression;
 import org.opengis.filter.expression.Function;
 import org.opengis.filter.expression.PropertyName;
 

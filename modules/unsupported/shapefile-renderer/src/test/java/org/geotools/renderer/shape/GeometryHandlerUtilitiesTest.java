@@ -23,12 +23,12 @@ import junit.framework.TestCase;
 import org.geotools.data.shapefile.shp.ShapeType;
 import org.geotools.referencing.ReferencingFactoryFinder;
 import org.geotools.referencing.operation.matrix.GeneralMatrix;
+import org.opengis.geometry.DirectPosition;
+import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.Matrix;
 import org.opengis.referencing.operation.NoninvertibleTransformException;
 import org.opengis.referencing.operation.TransformException;
-import org.opengis.geometry.DirectPosition;
-import org.opengis.geometry.MismatchedDimensionException;
 
 
 /**

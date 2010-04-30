@@ -34,7 +34,6 @@ import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.EmptyFeatureReader;
 import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
 import org.geotools.data.ReTypeFeatureReader;
 import org.geotools.data.Transaction;
@@ -51,6 +50,7 @@ import org.geotools.data.jdbc.SQLBuilder;
 import org.geotools.data.jdbc.attributeio.AttributeIO;
 import org.geotools.data.jdbc.fidmapper.FIDMapper;
 import org.geotools.data.jdbc.fidmapper.FIDMapperFactory;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.feature.AttributeTypeBuilder;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -395,7 +395,7 @@ public class DB2DataStore extends JDBCDataStore implements DataStore{
      *
      * @see org.geotools.data.DataStore#getFeatureSource(java.lang.String)
      */
-    public FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSource(String typeName)
+    public SimpleFeatureSource getFeatureSource(String typeName)
         throws IOException {
         if (!this.typeHandler.getFIDMapper(typeName).isVolatile()
                 || this.allowWriteOnVolatileFIDs) {

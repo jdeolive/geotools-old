@@ -23,7 +23,6 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.geotools.data.ows.AbstractRequest;
 import org.geotools.data.ows.Layer;
 
 /**

@@ -32,6 +32,8 @@ import org.geotools.data.FeatureEvent;
 import org.geotools.data.FeatureListener;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.Query;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.feature.CollectionEvent;
 import org.geotools.feature.CollectionListener;
 import org.geotools.feature.FeatureCollection;
@@ -57,7 +59,7 @@ import org.opengis.filter.identity.FeatureId;
  *
  * @source $URL$
  */
-public class ContentFeatureCollection implements FeatureCollection<SimpleFeatureType, SimpleFeature> {
+public class ContentFeatureCollection implements SimpleFeatureCollection {
     
     /**
      * feature store the collection originated from.
@@ -88,8 +90,8 @@ public class ContentFeatureCollection implements FeatureCollection<SimpleFeature
         public void changed(FeatureEvent featureEvent) {
             if( listeners.isEmpty() ) return;
 
-            FeatureCollection<SimpleFeatureType, SimpleFeature> collection;
-            collection = (FeatureCollection<SimpleFeatureType, SimpleFeature>) ContentFeatureCollection.this;
+            SimpleFeatureCollection collection;
+            collection = (SimpleFeatureCollection) ContentFeatureCollection.this;
             CollectionEvent event = new CollectionEvent( collection, featureEvent );
 
             CollectionListener[] notify = (CollectionListener[]) listeners.toArray( new CollectionListener[ listeners.size() ]);
@@ -164,9 +166,9 @@ public class ContentFeatureCollection implements FeatureCollection<SimpleFeature
     }
     
     // Iterators
-    public static class WrappingFeatureIterator implements FeatureIterator<SimpleFeature> {
+    public static class WrappingFeatureIterator implements SimpleFeatureIterator {
        
-         FeatureReader<SimpleFeatureType, SimpleFeature> delegate;
+        FeatureReader<SimpleFeatureType, SimpleFeature> delegate;
         
         public WrappingFeatureIterator(  FeatureReader<SimpleFeatureType, SimpleFeature> delegate ) {
             this.delegate = delegate;
@@ -202,7 +204,7 @@ public class ContentFeatureCollection implements FeatureCollection<SimpleFeature
         }
     }
     
-    public FeatureIterator<SimpleFeature> features(){
+    public SimpleFeatureIterator features(){
         try {
             return new WrappingFeatureIterator( featureSource.getReader(query) );    
         }
@@ -332,11 +334,11 @@ public class ContentFeatureCollection implements FeatureCollection<SimpleFeature
         //do nothing
     }
     
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> sort(SortBy order) {
+    public SimpleFeatureCollection sort(SortBy order) {
         return sort( (org.opengis.filter.sort.SortBy) order );
     }
     
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> sort(org.opengis.filter.sort.SortBy sort) {
+    public SimpleFeatureCollection sort(org.opengis.filter.sort.SortBy sort) {
         Query query = new DefaultQuery();
         ((DefaultQuery)query).setSortBy( new org.opengis.filter.sort.SortBy[]{sort});
 
@@ -344,7 +346,7 @@ public class ContentFeatureCollection implements FeatureCollection<SimpleFeature
         return new ContentFeatureCollection( featureSource, query );    
     }
     
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> subCollection(Filter filter) {
+    public SimpleFeatureCollection subCollection(Filter filter) {
         Query query = new DefaultQuery();
         ((DefaultQuery)query).setFilter( filter );
         

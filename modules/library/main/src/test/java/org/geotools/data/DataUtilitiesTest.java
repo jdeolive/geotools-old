@@ -28,8 +28,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureTypes;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.SchemaException;
@@ -437,7 +438,7 @@ public class DataUtilitiesTest extends DataTestCase {
     }
 
     public void testCollection() {
-        FeatureCollection<SimpleFeatureType, SimpleFeature> collection = DataUtilities
+        SimpleFeatureCollection collection = DataUtilities
                 .collection(roadFeatures);
         assertEquals(roadFeatures.length, collection.size());
     }
@@ -448,7 +449,7 @@ public class DataUtilitiesTest extends DataTestCase {
     }
 
     public void testReaderCollection() throws Exception {
-        FeatureCollection<SimpleFeatureType, SimpleFeature> collection = DataUtilities.collection( roadFeatures );
+        SimpleFeatureCollection collection = DataUtilities.collection( roadFeatures );
         assertEquals( roadFeatures.length,  collection.size() );
                 
          FeatureReader<SimpleFeatureType, SimpleFeature> reader = DataUtilities.reader( collection );
@@ -486,7 +487,7 @@ public class DataUtilitiesTest extends DataTestCase {
     }
 
     public void testSource() throws Exception {
-        FeatureSource<SimpleFeatureType, SimpleFeature> s = DataUtilities.source(roadFeatures);
+        SimpleFeatureSource s = DataUtilities.source(roadFeatures);
         assertEquals(-1, s.getCount(Query.ALL));
         assertEquals(3, s.getFeatures().size());
         assertEquals(3, s.getFeatures(Query.ALL).size());

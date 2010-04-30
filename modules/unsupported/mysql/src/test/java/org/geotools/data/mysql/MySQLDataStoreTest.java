@@ -16,9 +16,6 @@
  */
 package org.geotools.data.mysql;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -28,20 +25,15 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.NoSuchElementException;
 import java.util.PropertyResourceBundle;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.LinearRing;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.geom.PrecisionModel;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.DefaultTransaction;
 import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.Query;
 import org.geotools.data.SchemaNotFoundException;
@@ -51,7 +43,8 @@ import org.geotools.data.jdbc.JDBCTransactionState;
 import org.geotools.data.jdbc.datasource.ManageableDataSource;
 import org.geotools.data.jdbc.fidmapper.BasicFIDMapper;
 import org.geotools.data.jdbc.fidmapper.TypedFIDMapper;
-import org.geotools.feature.FeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.filter.AbstractFilter;
@@ -64,7 +57,15 @@ import org.geotools.filter.IllegalFilterException;
 import org.geotools.filter.LiteralExpression;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.feature.type.AttributeDescriptor;
+
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.PrecisionModel;
 
 
 /**
@@ -80,7 +81,7 @@ public class MySQLDataStoreTest extends TestCase {
     private static String TEST_NS = "http://www.geotools.org/data/postgis";
     private static GeometryFactory geomFac = new GeometryFactory();
     private FilterFactory filterFac = FilterFactoryFinder.createFilterFactory();
-    private FeatureCollection<SimpleFeatureType, SimpleFeature> collection = FeatureCollections.newCollection();
+    private SimpleFeatureCollection collection = FeatureCollections.newCollection();
     private SimpleFeatureType schema;
     private int srid = -1;
     private MySQLDataStore dstore;
@@ -333,7 +334,7 @@ public class MySQLDataStoreTest extends TestCase {
     }
 
     public void testOptimizedBounds() throws Exception {
-        FeatureSource<SimpleFeatureType, SimpleFeature> source = dstore.getFeatureSource(FEATURE_TABLE);
+        SimpleFeatureSource source = dstore.getFeatureSource(FEATURE_TABLE);
         CompareFilter test1 = null;
 
         try {
@@ -354,7 +355,7 @@ public class MySQLDataStoreTest extends TestCase {
         Envelope fBounds = source.getBounds();
         LOGGER.info("Bounds of source is " + fBounds);
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> results = source.getFeatures(query);
+        SimpleFeatureCollection results = source.getFeatures(query);
         LOGGER.info("bounds from feature results is " + results.getBounds());
     }
 

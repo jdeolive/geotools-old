@@ -11,30 +11,30 @@
 
 package org.geotools.demo;
 
-import com.vividsolutions.jts.geom.Geometry;
 import java.awt.event.ActionEvent;
 import java.io.File;
-
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JToolBar;
+
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFactorySpi;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.DefaultTransaction;
-import org.geotools.data.FeatureSource;
-import org.geotools.data.FeatureStore;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.FileDataStore;
 import org.geotools.data.FileDataStoreFinder;
 import org.geotools.data.Transaction;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
+import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.map.DefaultMapContext;
@@ -53,6 +53,8 @@ import org.opengis.feature.type.FeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 
+import com.vividsolutions.jts.geom.Geometry;
+
 /**
  * This is a visual example of changing the coordinate reference
  * system of a feature layer.
@@ -62,7 +64,7 @@ import org.opengis.referencing.operation.MathTransform;
 public class CRSLab {
 
     private File sourceFile;
-    private FeatureSource<SimpleFeatureType,SimpleFeature> featureSource;
+    private SimpleFeatureSource featureSource;
     private MapContext map;
     private int numInvalidGeometries = 0;
 
@@ -145,7 +147,7 @@ public class CRSLab {
         MathTransform transform = CRS.findMathTransform( dataCRS, worldCRS, lenient );
 
         // grab all features
-        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = featureSource.getFeatures();
+        SimpleFeatureCollection featureCollection = featureSource.getFeatures();
 
         // And create a new Shapefile with a slight modified schema
         DataStoreFactorySpi factory = new ShapefileDataStoreFactory();
@@ -160,7 +162,7 @@ public class CRSLab {
         // carefully open an iterator and writer to process the results
         Transaction transaction = new DefaultTransaction("Reproject");
         FeatureWriter<SimpleFeatureType, SimpleFeature> writer = newDataStore.getFeatureWriterAppend( featureType.getTypeName(), transaction);
-        FeatureIterator<SimpleFeature> iterator = featureCollection.features();                
+        SimpleFeatureIterator iterator = featureCollection.features();
         try {
             while( iterator.hasNext() ){
                 // copy the contents of each feature and transform the geometry
@@ -219,7 +221,7 @@ public class CRSLab {
         query.setTypeName(typeName);
         query.setCoordinateSystemReproject(map.getCoordinateReferenceSystem());
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = featureSource.getFeatures(query);
+        SimpleFeatureCollection featureCollection = featureSource.getFeatures(query);
 
         // And create a new Shapefile with the results
         DataStoreFactorySpi factory = new ShapefileDataStoreFactory();
@@ -231,8 +233,8 @@ public class CRSLab {
 
         newDataStore.createSchema(featureCollection.getSchema());
         Transaction transaction = new DefaultTransaction("Reproject");
-        FeatureStore<SimpleFeatureType, SimpleFeature> featureStore;
-        featureStore = (FeatureStore<SimpleFeatureType, SimpleFeature>) newDataStore.getFeatureSource(typeName);
+        SimpleFeatureStore featureStore;
+        featureStore = (SimpleFeatureStore) newDataStore.getFeatureSource(typeName);
         featureStore.setTransaction(transaction);
         try {
             featureStore.addFeatures(featureCollection);
@@ -260,7 +262,7 @@ public class CRSLab {
      * this method in a background thread and reports on the results
      */
     private void validateFeatureGeometry() throws Exception {
-        final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection =
+        final SimpleFeatureCollection featureCollection =
                 featureSource.getFeatures();
 
         /* 

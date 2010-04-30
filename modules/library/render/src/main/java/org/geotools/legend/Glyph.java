@@ -16,6 +16,16 @@
  */
 package org.geotools.legend;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.Stroke;
+import java.awt.image.BufferedImage;
+
+import org.geotools.styling.Rule;
+import org.opengis.feature.simple.SimpleFeatureType;
+
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.MultiLineString;
@@ -23,16 +33,6 @@ import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Graphics2D;
-
-import java.awt.RenderingHints;
-import java.awt.Stroke;
-import java.awt.image.BufferedImage;
-
-import org.geotools.styling.Rule;
-import org.opengis.feature.simple.SimpleFeatureType;
  
  
 /**

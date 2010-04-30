@@ -28,16 +28,16 @@ import junit.framework.TestCase;
 
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
 import org.geotools.data.Repository;
 import org.geotools.data.Transaction;
 import org.geotools.data.gen.info.GeneralizationInfos;
 import org.geotools.data.gen.info.GeneralizationInfosProvider;
 import org.geotools.data.gen.info.GeneralizationInfosProviderImpl;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.Hints;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.Expression;
 import org.geotools.filter.SortBy2;
@@ -92,7 +92,7 @@ public abstract class AbstractPreGeneralizedFeatureSourceTest extends TestCase {
 
             PreGeneralizedDataStore ds = getDataStore(configName);
 
-            FeatureSource<SimpleFeatureType, SimpleFeature> fs = ds.getFeatureSource("GenStreams");
+            SimpleFeatureSource fs = ds.getFeatureSource("GenStreams");
             assertTrue(fs.getSupportedHints().contains(Hints.GEOMETRY_DISTANCE));
 
             Filter filter = CQL.toFilter("CAT_ID = 2");
@@ -128,7 +128,7 @@ public abstract class AbstractPreGeneralizedFeatureSourceTest extends TestCase {
         try {
             PreGeneralizedDataStore ds = getDataStore(configName);
 
-            FeatureSource<SimpleFeatureType, SimpleFeature> fs = ds.getFeatureSource("GenStreams");
+            SimpleFeatureSource fs = ds.getFeatureSource("GenStreams");
             assertTrue(fs.getSupportedHints().contains(Hints.GEOMETRY_DISTANCE));
 
             Filter filter = CQL.toFilter("CAT_ID = 2");
@@ -178,7 +178,7 @@ public abstract class AbstractPreGeneralizedFeatureSourceTest extends TestCase {
         try {
             PreGeneralizedDataStore ds = getDataStore(configName);
 
-            FeatureSource<SimpleFeatureType, SimpleFeature> fs = ds.getFeatureSource("GenStreams");
+            SimpleFeatureSource fs = ds.getFeatureSource("GenStreams");
             assertTrue(fs.getSupportedHints().contains(Hints.GEOMETRY_DISTANCE));
 
             Filter filter = CQL.toFilter("CAT_ID = 2");
@@ -265,7 +265,7 @@ public abstract class AbstractPreGeneralizedFeatureSourceTest extends TestCase {
 
             PreGeneralizedDataStore ds = getDataStore(configName);
 
-            FeatureSource<SimpleFeatureType, SimpleFeature> fs = ds.getFeatureSource("GenStreams");
+            SimpleFeatureSource fs = ds.getFeatureSource("GenStreams");
             assertTrue(fs.getSupportedHints().contains(Hints.GEOMETRY_DISTANCE));
 
             Filter filter = CQL.toFilter("CAT_ID = 2");
@@ -293,7 +293,7 @@ public abstract class AbstractPreGeneralizedFeatureSourceTest extends TestCase {
         try {
             PreGeneralizedDataStore ds = getDataStore(configName);
 
-            FeatureSource<SimpleFeatureType, SimpleFeature> fs = ds.getFeatureSource("GenStreams");
+            SimpleFeatureSource fs = ds.getFeatureSource("GenStreams");
             assertTrue(fs.getSupportedHints().contains(Hints.GEOMETRY_DISTANCE));
 
             Filter filter = CQL.toFilter("CAT_ID = 2");
@@ -305,7 +305,7 @@ public abstract class AbstractPreGeneralizedFeatureSourceTest extends TestCase {
 
             for (DefaultQuery q : queries) {
 
-                FeatureCollection<SimpleFeatureType, SimpleFeature> fCollection;
+                SimpleFeatureCollection fCollection;
                 String typeName;
 
                 q.getHints().put(Hints.GEOMETRY_DISTANCE, 1.0);
@@ -314,7 +314,7 @@ public abstract class AbstractPreGeneralizedFeatureSourceTest extends TestCase {
                 assertTrue("GenStreams".equals(typeName));
                 assertTrue("the_geom".equals(fCollection.getSchema().getGeometryDescriptor()
                         .getLocalName()));
-                FeatureIterator<SimpleFeature> iterator = fCollection.features();
+                SimpleFeatureIterator iterator = fCollection.features();
                 while (iterator.hasNext()) {
                     SimpleFeature f = iterator.next();
                     checkPoints(f, 0.0);
@@ -382,7 +382,7 @@ public abstract class AbstractPreGeneralizedFeatureSourceTest extends TestCase {
     protected void testGetDataStore(String configName) {
         try {
             PreGeneralizedDataStore ds = getDataStore(configName);
-            FeatureSource<SimpleFeatureType, SimpleFeature> fs = ds.getFeatureSource("GenStreams");
+            SimpleFeatureSource fs = ds.getFeatureSource("GenStreams");
             assertTrue(ds == fs.getDataStore());
         } catch (Exception ex) {
             Assert.fail(ex.getMessage());
@@ -394,10 +394,10 @@ public abstract class AbstractPreGeneralizedFeatureSourceTest extends TestCase {
         try {
             PreGeneralizedDataStore ds = getDataStore(configName);
 
-            FeatureSource<SimpleFeatureType, SimpleFeature> fs = ds.getFeatureSource("GenStreams");
+            SimpleFeatureSource fs = ds.getFeatureSource("GenStreams");
             assertTrue(fs.getSupportedHints().contains(Hints.GEOMETRY_DISTANCE));
 
-            FeatureCollection<SimpleFeatureType, SimpleFeature> fCollection;
+            SimpleFeatureCollection fCollection;
             String typeName;
 
             fCollection = fs.getFeatures();
@@ -443,10 +443,10 @@ public abstract class AbstractPreGeneralizedFeatureSourceTest extends TestCase {
         try {
             PreGeneralizedDataStore ds = getDataStore(configName);
 
-            FeatureSource<SimpleFeatureType, SimpleFeature> fs = ds.getFeatureSource("GenStreams");
+            SimpleFeatureSource fs = ds.getFeatureSource("GenStreams");
             assertTrue(fs.getSupportedHints().contains(Hints.GEOMETRY_DISTANCE));
 
-            FeatureCollection<SimpleFeatureType, SimpleFeature> fCollection;
+            SimpleFeatureCollection fCollection;
             String typeName;
 
             fCollection = fs.getFeatures();
@@ -473,7 +473,7 @@ public abstract class AbstractPreGeneralizedFeatureSourceTest extends TestCase {
             list.add(array[1]);
             assertTrue(fCollection.containsAll(list));
 
-            FeatureCollection<SimpleFeatureType, SimpleFeature> subCollection = fCollection
+            SimpleFeatureCollection subCollection = fCollection
                     .subCollection(Filter.INCLUDE);
             typeName = subCollection.getSchema().getTypeName();
             assertTrue("GenStreams".equals(typeName));
@@ -507,7 +507,7 @@ public abstract class AbstractPreGeneralizedFeatureSourceTest extends TestCase {
                 }
 
             };
-            FeatureCollection<SimpleFeatureType, SimpleFeature> sortedCollection = fCollection
+            SimpleFeatureCollection sortedCollection = fCollection
                     .sort(sortBy);
             // null here
 
@@ -545,7 +545,7 @@ public abstract class AbstractPreGeneralizedFeatureSourceTest extends TestCase {
         try {
             PreGeneralizedDataStore ds = getDataStore(configName);
 
-            FeatureSource<SimpleFeatureType, SimpleFeature> fs = ds.getFeatureSource("GenStreams");
+            SimpleFeatureSource fs = ds.getFeatureSource("GenStreams");
             assertTrue("GenStreams".equals(fs.getInfo().getName()));
             assertTrue("GenStreams".equals(fs.getName().getLocalPart()));
             assertNull(fs.getName().getNamespaceURI());
@@ -561,7 +561,7 @@ public abstract class AbstractPreGeneralizedFeatureSourceTest extends TestCase {
         try {
             PreGeneralizedDataStore ds = getDataStore(configName);
 
-            FeatureSource<SimpleFeatureType, SimpleFeature> fs = ds.getFeatureSource("GenStreams");
+            SimpleFeatureSource fs = ds.getFeatureSource("GenStreams");
             assertFalse(fs.getQueryCapabilities().isOffsetSupported());
             assertTrue(fs.getQueryCapabilities().isReliableFIDSupported());
 
@@ -600,7 +600,7 @@ public abstract class AbstractPreGeneralizedFeatureSourceTest extends TestCase {
         try {
             PreGeneralizedDataStore ds = getDataStore(configName);
 
-            FeatureSource<SimpleFeatureType, SimpleFeature> fs = ds.getFeatureSource("GenStreams");
+            SimpleFeatureSource fs = ds.getFeatureSource("GenStreams");
             assertTrue("GenStreams".equals(fs.getSchema().getTypeName()));
             assertTrue(fs.getSchema().getAttributeCount() == 4);
             assertTrue("the_geom".equals(fs.getSchema().getGeometryDescriptor().getLocalName()));

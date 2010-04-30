@@ -16,10 +16,7 @@
  */
 package org.geotools.feature.visitor;
 
-import org.geotools.filter.FidFilter;
 import org.geotools.filter.visitor.AbstractFinderFilterVisitor;
-import org.geotools.filter.visitor.DefaultFilterVisitor;
-import org.geotools.filter.visitor.NullFilterVisitor;
 import org.opengis.filter.Id;
 
 /**

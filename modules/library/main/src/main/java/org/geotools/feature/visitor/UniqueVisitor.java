@@ -21,8 +21,8 @@ import java.util.HashSet;
 import java.util.ListIterator;
 import java.util.Set;
 
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.feature.FeatureCollection;
 import org.geotools.filter.IllegalFilterException;
 import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
@@ -64,7 +64,7 @@ public class UniqueVisitor implements FeatureCalc {
         this.expr = expr;
     }
 
-    public void init(FeatureCollection<SimpleFeatureType, SimpleFeature> collection) {
+    public void init(SimpleFeatureCollection collection) {
     	//do nothing
     }
     

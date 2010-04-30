@@ -16,10 +16,7 @@
  */
 package org.geotools.filter;
 
-import org.opengis.filter.FilterVisitor;
 import org.opengis.filter.expression.Expression;
-
-import com.vividsolutions.jts.geom.Geometry;
 
 
 /**

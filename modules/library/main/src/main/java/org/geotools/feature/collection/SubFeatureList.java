@@ -17,21 +17,17 @@
 package org.geotools.feature.collection;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.ConcurrentModificationException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.feature.FeatureCollection;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.Id;
@@ -47,10 +43,10 @@ public class SubFeatureList extends SubFeatureCollection implements RandomFeatur
     /** List of FeatureIDs in sorted order */
     List<FeatureId> index;
     
-    public SubFeatureList(FeatureCollection<SimpleFeatureType, SimpleFeature> list, Filter filter){
+    public SubFeatureList(SimpleFeatureCollection list, Filter filter){
         this( list, filter, SortBy.NATURAL_ORDER );
     }
-    public SubFeatureList(FeatureCollection<SimpleFeatureType, SimpleFeature> list, SortBy sort ){
+    public SubFeatureList(SimpleFeatureCollection list, SortBy sort ){
         this( list, Filter.INCLUDE, sort );
     }
     /**
@@ -59,7 +55,7 @@ public class SubFeatureList extends SubFeatureCollection implements RandomFeatur
 	 * 
 	 * @param filter
 	 */
-	public SubFeatureList(FeatureCollection<SimpleFeatureType, SimpleFeature> list, Filter filter, SortBy subSort) {
+	public SubFeatureList(SimpleFeatureCollection list, Filter filter, SortBy subSort) {
 		super( list,  filter );
 		
         if( subSort == null || subSort.equals( SortBy.NATURAL_ORDER ) ){
@@ -75,7 +71,7 @@ public class SubFeatureList extends SubFeatureCollection implements RandomFeatur
         index = null;
 	}
     
-    public SubFeatureList(FeatureCollection<SimpleFeatureType, SimpleFeature> list, List order) {
+    public SubFeatureList(SimpleFeatureCollection list, List order) {
         super( list );        
          
         index = order;
@@ -224,7 +220,7 @@ public class SubFeatureList extends SubFeatureCollection implements RandomFeatur
      * is maintained and only indexed once.
      * </p>
      */
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> subList(Filter subfilter) {
+    public SimpleFeatureCollection subList(Filter subfilter) {
         if (filter.equals(Filter.INCLUDE)) {
             return this;
         }

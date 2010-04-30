@@ -19,9 +19,10 @@ package org.geotools.data.mysql;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.sql.DataSource;
+
 import org.geotools.data.AbstractDataStoreFactory;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataStore;

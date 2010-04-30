@@ -15,7 +15,7 @@ import java.util.logging.Level;
 
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
-import org.geotools.data.FeatureSource;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
 import org.geotools.map.DefaultMapContext;
@@ -31,8 +31,6 @@ import org.geotools.styling.Style;
 import org.geotools.styling.StyleFactory;
 import org.geotools.styling.Symbolizer;
 import org.geotools.swing.JMapFrame;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory2;
 
@@ -58,12 +56,12 @@ public class SLDExample {
 		org.geotools.util.logging.Logging.getLogger("net.refractions.xml").setLevel( Level.SEVERE);
 	}
 	public static void localSLD() throws Exception {
-		FeatureSource<SimpleFeatureType, SimpleFeature> source = demoFeatureSource();
+		SimpleFeatureSource source = demoFeatureSource();
 		Style style = demoStyle( source.getSchema().getTypeName() );
 
 		show( source, style );
 	}
-	static FeatureSource<SimpleFeatureType, SimpleFeature> demoFeatureSource() throws Exception {
+	static SimpleFeatureSource demoFeatureSource() throws Exception {
 		String getCapabilities =
 			"http://localhost:8080/geoserver/wfs?service=WFS&request=GetCapabilities";
 		
@@ -100,7 +98,7 @@ public class SLDExample {
 		return style;
 	}
 
-    public static void show(FeatureSource<SimpleFeatureType, SimpleFeature> source, Style style) throws Exception {
+    public static void show(SimpleFeatureSource source, Style style) throws Exception {
 		    MapContext context = new DefaultMapContext( DefaultGeographicCRS.WGS84 );
 		    context.setAreaOfInterest(source.getBounds(), DefaultGeographicCRS.WGS84 );
 		    context.addLayer( source, style );

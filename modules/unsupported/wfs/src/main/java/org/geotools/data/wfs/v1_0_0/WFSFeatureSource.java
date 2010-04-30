@@ -38,8 +38,9 @@ import org.geotools.data.ResourceInfo;
 import org.geotools.data.Transaction;
 import org.geotools.data.ows.FeatureSetDescription;
 import org.geotools.data.ows.WFSCapabilities;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.data.store.EmptyFeatureCollection;
-import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.NameImpl;
 import org.geotools.filter.Filter;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -60,7 +61,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  *         http://svn.geotools.org/geotools/trunk/gt/modules/plugin/wfs/src/main/java/org/geotools
  *         /wfs/v_1_0_0/data/WFSFeatureSource.java $
  */
-public class WFSFeatureSource extends AbstractFeatureSource implements FeatureSource<SimpleFeatureType, SimpleFeature> {
+public class WFSFeatureSource extends AbstractFeatureSource implements SimpleFeatureSource {
     private static final Logger LOGGER = Logging.getLogger("org.geotools.data.wfs");
 
     protected WFS_1_0_0_DataStore ds;
@@ -196,14 +197,14 @@ public class WFSFeatureSource extends AbstractFeatureSource implements FeatureSo
     /**
      * @see org.geotools.data.FeatureSource#getFeatures()
      */
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> getFeatures() throws IOException {
+    public SimpleFeatureCollection getFeatures() throws IOException {
         return getFeatures(new DefaultQuery(getSchema().getTypeName(), Filter.INCLUDE));
     }
 
     /**
      * @see org.geotools.data.FeatureSource#getFeatures(org.geotools.filter.Filter)
      */
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> getFeatures( Filter filter )
+    public SimpleFeatureCollection getFeatures( Filter filter )
             throws IOException {
         return getFeatures(new DefaultQuery(getSchema().getTypeName(), filter));
     }
@@ -211,7 +212,7 @@ public class WFSFeatureSource extends AbstractFeatureSource implements FeatureSo
     /**
      * @see org.geotools.data.FeatureSource#getFeatures(org.geotools.data.Query)
      */
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> getFeatures( Query query )
+    public SimpleFeatureCollection getFeatures( Query query )
             throws IOException {
         SimpleFeatureType schema = getSchema();
         String typeName = schema.getTypeName();

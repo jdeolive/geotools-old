@@ -16,17 +16,19 @@
  */
 package org.geotools.graph.util.delaunay;
 
-import com.vividsolutions.jts.geom.Coordinate;
 import java.awt.Color;
 import java.awt.Graphics;
-import java.lang.RuntimeException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Vector;
+
 import javax.swing.JPanel;
+
 import org.geotools.graph.structure.Edge;
 import org.geotools.graph.structure.Graph;
 import org.geotools.graph.structure.line.XYNode;
+
+import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  *

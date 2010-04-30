@@ -19,6 +19,7 @@ package org.geotools.graph.traverse.standard;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+
 import org.geotools.graph.structure.Graph;
 import org.geotools.graph.structure.Graphable;
 import org.geotools.graph.structure.Node;

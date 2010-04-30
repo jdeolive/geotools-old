@@ -5,7 +5,7 @@ import java.io.IOException;
 
 import org.geotools.data.DataUtilities;
 import org.geotools.data.FeatureStore;
-import org.geotools.feature.FeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.junit.Before;
@@ -21,7 +21,7 @@ import com.vividsolutions.jts.geom.Point;
 public class ShapefileNullHandlingTest extends TestCaseSupport {
 	
 	SimpleFeatureType schema;
-	FeatureCollection<SimpleFeatureType, SimpleFeature> collection;
+	SimpleFeatureCollection collection;
 	private SimpleFeature[] features;
 	
 	public ShapefileNullHandlingTest(String name) throws IOException {

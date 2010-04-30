@@ -9,30 +9,18 @@
  */
 package org.geotools.demo.xml;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringBufferInputStream;
 import java.io.StringReader;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.apache.xerces.util.DOMUtil;
 import org.geotools.filter.FilterDOMParser;
-import org.geotools.filter.FilterFilter;
-import org.geotools.filter.FilterHandler;
-import org.geotools.gml.GMLFilterDocument;
-import org.geotools.gml.GMLFilterGeometry;
 import org.opengis.filter.Filter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.DefaultHandler;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 public class DOMExample {
 	static String xml = "<Filter xmlns:gml=\"http://www.opengis.net/gml\">"

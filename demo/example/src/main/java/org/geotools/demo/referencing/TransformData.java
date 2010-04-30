@@ -14,14 +14,13 @@ import java.io.File;
 import java.net.URL;
 
 import org.geotools.data.DataStore;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.Transaction;
 import org.geotools.data.shapefile.ShapefileDataStore;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.feature.FeatureTypes;
-import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.referencing.ReferencingFactoryFinder;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -66,7 +65,7 @@ public class TransformData {
     
     /** Creates a new instance of TransformData */
     public TransformData(URL inURL, URL outURL, String inWKT, String outWKT) {
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = null;
+        SimpleFeatureCollection fc = null;
         FeatureWriter<SimpleFeatureType, SimpleFeature> outFeatureWriter = null;
         try {
             //create the CS's and transformation
@@ -81,7 +80,7 @@ public class TransformData {
             //get the input shapefile
             DataStore inStore = new ShapefileDataStore(inURL);
             String name = inStore.getTypeNames()[0];
-            FeatureSource<SimpleFeatureType, SimpleFeature> inSource = inStore.getFeatureSource(name);
+            SimpleFeatureSource inSource = inStore.getFeatureSource(name);
             fc = inSource.getFeatures();
             SimpleFeatureType inSchema = inSource.getSchema();
 
@@ -90,7 +89,7 @@ public class TransformData {
             outStore.createSchema(FeatureTypes.transform(inSchema, outCRS));
             outFeatureWriter = outStore.getFeatureWriter(outStore.getTypeNames()[0], Transaction.AUTO_COMMIT);
             
-            FeatureIterator<SimpleFeature> i = fc.features();
+            SimpleFeatureIterator i = fc.features();
             while(i.hasNext()) {
                 SimpleFeature inFeature = i.next();
                 // create a new feature

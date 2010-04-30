@@ -27,6 +27,7 @@ import java.sql.Connection;
 import java.sql.Statement;
 import java.sql.Types;
 
+import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
 
 

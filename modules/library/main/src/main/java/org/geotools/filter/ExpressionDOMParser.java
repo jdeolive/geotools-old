@@ -24,10 +24,8 @@ import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.FilterFactory2;
-import org.opengis.filter.expression.Add;
+import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.PropertyName;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -42,7 +40,6 @@ import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.TopologyException;
-import org.opengis.filter.expression.Expression;
 
 /**
  * parsez short sections of gml for use in expressions and filters Hopefully we

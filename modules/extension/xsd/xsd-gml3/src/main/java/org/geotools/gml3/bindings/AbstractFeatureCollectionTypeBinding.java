@@ -18,6 +18,7 @@ package org.geotools.gml3.bindings;
 
 import javax.xml.namespace.QName;
 
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.DefaultFeatureCollections;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.gml3.GML;
@@ -25,7 +26,6 @@ import org.geotools.xml.AbstractComplexBinding;
 import org.geotools.xml.ElementInstance;
 import org.geotools.xml.Node;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 
 /**
@@ -82,8 +82,8 @@ public class AbstractFeatureCollectionTypeBinding extends AbstractComplexBinding
      */
     public Object parse(ElementInstance instance, Node node, Object value)
         throws Exception {
-        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = 
-            (FeatureCollection<SimpleFeatureType, SimpleFeature>) node.getChildValue(FeatureCollection.class);
+        SimpleFeatureCollection featureCollection = 
+            (SimpleFeatureCollection) node.getChildValue(FeatureCollection.class);
         if (featureCollection == null) {
             featureCollection = DefaultFeatureCollections.newCollection();
         }
@@ -106,7 +106,7 @@ public class AbstractFeatureCollectionTypeBinding extends AbstractComplexBinding
     public Object getProperty(Object object, QName name) {
         //just return the features themselves
         if (GML.featureMembers.equals(name)) {
-            FeatureCollection<SimpleFeatureType, SimpleFeature> fc = (FeatureCollection<SimpleFeatureType, SimpleFeature>) object;
+            SimpleFeatureCollection fc = (SimpleFeatureCollection) object;
 
             return fc;
 

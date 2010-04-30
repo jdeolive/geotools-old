@@ -17,7 +17,6 @@
 package org.geotools.data;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -26,12 +25,13 @@ import java.util.NoSuchElementException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
+import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -103,14 +103,13 @@ public abstract class AbstractDataStoreTest extends DataTestCase {
         data.createSchema(roadType);
         data.createSchema(riverType);
         
-        
-        FeatureStore<SimpleFeatureType, SimpleFeature> roads;
-        roads = ((FeatureStore<SimpleFeatureType, SimpleFeature>) data.getFeatureSource(roadType
+        SimpleFeatureStore roads;
+        roads = ((SimpleFeatureStore) data.getFeatureSource(roadType
                 .getTypeName()));
         
         roads.addFeatures(DataUtilities.collection(roadFeatures));
         
-        FeatureStore<SimpleFeatureType, SimpleFeature> rivers = ((FeatureStore<SimpleFeatureType, SimpleFeature>) data
+        SimpleFeatureStore rivers = ((SimpleFeatureStore) data
                 .getFeatureSource(riverType.getTypeName()));
         
         rivers.addFeatures(DataUtilities.collection(riverFeatures));
@@ -122,7 +121,7 @@ public abstract class AbstractDataStoreTest extends DataTestCase {
         riverFeatures = grabArray( rivers.getFeatures(), riverFeatures.length );
     }
     
-    SimpleFeature[] grabArray( FeatureCollection<SimpleFeatureType, SimpleFeature> features, int size ){        
+    SimpleFeature[] grabArray( SimpleFeatureCollection features, int size ){        
         try {
             SimpleFeature array[] = new SimpleFeature[ size ];
             array = (SimpleFeature[]) features.toArray( array );
@@ -142,9 +141,9 @@ public abstract class AbstractDataStoreTest extends DataTestCase {
     }
 
     public void testFeatureEvents() throws Exception {
-        FeatureStore<SimpleFeatureType, SimpleFeature> store1 = (FeatureStore<SimpleFeatureType, SimpleFeature>) data
+        SimpleFeatureStore store1 = (SimpleFeatureStore) data
                 .getFeatureSource(roadFeatures[0].getFeatureType().getTypeName());
-        FeatureStore<SimpleFeatureType, SimpleFeature> store2 = (FeatureStore<SimpleFeatureType, SimpleFeature>) data
+        SimpleFeatureStore store2 = (SimpleFeatureStore) data
                 .getFeatureSource(roadFeatures[0].getFeatureType().getTypeName());
         store1.setTransaction(new DefaultTransaction());
         class Listener implements FeatureListener {
@@ -301,7 +300,7 @@ public abstract class AbstractDataStoreTest extends DataTestCase {
     }
 
     /**
-     * Checks that a given FeatureCollection<SimpleFeatureType, SimpleFeature> contains the specified feature
+     * Checks that a given SimpleFeatureCollection contains the specified feature
      *
      * @param fc the feature collection we're going to search
      * @param f the feature we're looking for
@@ -309,7 +308,7 @@ public abstract class AbstractDataStoreTest extends DataTestCase {
      * @return true if the feature is in the feature collection, false
      *         otherwise
      */
-    boolean containsFeatureCollection(FeatureCollection<SimpleFeatureType, SimpleFeature> fc, SimpleFeature f) {
+    boolean containsFeatureCollection(SimpleFeatureCollection fc, SimpleFeature f) {
         if ((fc == null) || fc.isEmpty()) {
             return false;
         }
@@ -460,7 +459,7 @@ public abstract class AbstractDataStoreTest extends DataTestCase {
         assertEquals(riverType, data.getSchema("RIVER"));
     }
 
-    void assertCovers(String msg, FeatureCollection<SimpleFeatureType, SimpleFeature> c1, FeatureCollection<SimpleFeatureType, SimpleFeature> c2) {
+    void assertCovers(String msg, SimpleFeatureCollection c1, SimpleFeatureCollection c2) {
         if (c1 == c2) {
             return;
         }
@@ -471,7 +470,7 @@ public abstract class AbstractDataStoreTest extends DataTestCase {
 
         SimpleFeature f;
 
-        for (FeatureIterator<SimpleFeature> i = c1.features(); i.hasNext();) {
+        for (SimpleFeatureIterator i = c1.features(); i.hasNext();) {
             f = i.next();
             assertTrue(msg + " " + f.getID(), containsFeatureCollection(c2, f)); //c2.contains(f));
         }
@@ -624,7 +623,7 @@ public abstract class AbstractDataStoreTest extends DataTestCase {
         assertEquals(type, reader.getFeatureType());
         assertEquals(1, count(reader));
 
-        FeatureStore<SimpleFeatureType, SimpleFeature> store = (FeatureStore<SimpleFeatureType, SimpleFeature>) data.getFeatureSource("ROAD");
+        SimpleFeatureStore store = (SimpleFeatureStore) data.getFeatureSource("ROAD");
         store.setTransaction(t);
         store.removeFeatures(rd1Filter);
 
@@ -678,7 +677,7 @@ public abstract class AbstractDataStoreTest extends DataTestCase {
      * @throws IOException DOCUMENT ME!
      * @throws IllegalAttributeException DOCUMENT ME!
      */
-    boolean covers(FeatureCollection<SimpleFeatureType, SimpleFeature> features, SimpleFeature[] array)
+    boolean covers(SimpleFeatureCollection features, SimpleFeature[] array)
         throws NoSuchElementException, IOException, IllegalAttributeException {
         
         SimpleFeature feature;
@@ -733,7 +732,7 @@ public abstract class AbstractDataStoreTest extends DataTestCase {
         assertEquals( "covers", count, array.length );
         return true;
     }
-    boolean covers(FeatureIterator<SimpleFeature> reader, SimpleFeature[] array)
+    boolean covers(SimpleFeatureIterator reader, SimpleFeature[] array)
         throws NoSuchElementException, IOException {
         SimpleFeature feature;
         int count = 0;
@@ -778,7 +777,7 @@ public abstract class AbstractDataStoreTest extends DataTestCase {
     }
 
 
-    boolean coversLax(FeatureIterator<SimpleFeature> reader, SimpleFeature[] array)
+    boolean coversLax(SimpleFeatureIterator reader, SimpleFeature[] array)
         throws NoSuchElementException, IOException, IllegalAttributeException {
         SimpleFeature feature;
         int count = 0;
@@ -1097,7 +1096,7 @@ public abstract class AbstractDataStoreTest extends DataTestCase {
     //
     // Feature Source Testing
     public void atestGetFeatureSourceRoad() throws IOException {
-        FeatureSource<SimpleFeatureType, SimpleFeature> road = data.getFeatureSource("ROAD");
+        SimpleFeatureSource road = data.getFeatureSource("ROAD");
 
         assertEquals(roadType, road.getSchema());
         assertEquals(data, road.getDataStore());
@@ -1107,16 +1106,16 @@ public abstract class AbstractDataStoreTest extends DataTestCase {
         assertEquals(new Envelope(1, 5, 0, 4),
             road.getFeatures(Query.ALL).getBounds()); //road.getBounds(Query.ALL));
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> all = road.getFeatures();
+        SimpleFeatureCollection all = road.getFeatures();
         assertEquals(3, all.size());
         assertEquals(roadBounds, all.getBounds());
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> expected = DataUtilities.collection(roadFeatures);
+        SimpleFeatureCollection expected = DataUtilities.collection(roadFeatures);
 
         assertCovers("ALL", expected, all);
         assertEquals(roadBounds, all.getBounds());
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> some = road.getFeatures(rd12Filter);
+        SimpleFeatureCollection some = road.getFeatures(rd12Filter);
         assertEquals(2, some.size());
         assertEquals(rd12Bounds, some.getBounds());
         assertEquals(some.getSchema(), road.getSchema());
@@ -1128,11 +1127,11 @@ public abstract class AbstractDataStoreTest extends DataTestCase {
         DefaultQuery query = new DefaultQuery("ROAD", rd12Filter,
                 new String[] { "NAME", });
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> half = road.getFeatures(query);
+        SimpleFeatureCollection half = road.getFeatures(query);
         assertEquals(2, half.size());
         assertEquals(1, half.getSchema().getAttributeCount());
 
-        FeatureIterator<SimpleFeature> reader = half.features();
+        SimpleFeatureIterator reader = half.features();
         SimpleFeatureType type = half.getSchema();
         reader.close();
 
@@ -1156,17 +1155,17 @@ public abstract class AbstractDataStoreTest extends DataTestCase {
 
     public void testGetFeatureSourceRiver()
         throws NoSuchElementException, IOException, IllegalAttributeException {
-        FeatureSource<SimpleFeatureType, SimpleFeature> river = data.getFeatureSource("RIVER");
+        SimpleFeatureSource river = data.getFeatureSource("RIVER");
 
         assertEquals(riverType, river.getSchema());
         assertEquals(data, river.getDataStore());
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> all = river.getFeatures();
+        SimpleFeatureCollection all = river.getFeatures();
         assertEquals(2, all.size());
         assertEquals(riverBounds, all.getBounds());
         assertTrue("RIVERS", covers(all.features(), riverFeatures));
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> expected = DataUtilities.collection(riverFeatures);
+        SimpleFeatureCollection expected = DataUtilities.collection(riverFeatures);
         assertCovers("ALL", expected, all);
         assertEquals(riverBounds, all.getBounds());
     }
@@ -1175,26 +1174,26 @@ public abstract class AbstractDataStoreTest extends DataTestCase {
     // Feature Store Testing
     //
     public void testGetFeatureStoreModifyFeatures1() throws IOException {
-        FeatureStore<SimpleFeatureType, SimpleFeature> road = (FeatureStore<SimpleFeatureType, SimpleFeature>) data.getFeatureSource("ROAD");
+        SimpleFeatureStore road = (SimpleFeatureStore) data.getFeatureSource("ROAD");
         AttributeDescriptor name = roadType.getDescriptor("NAME");
         road.modifyFeatures(name, "changed", rd1Filter);
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> results = road.getFeatures(rd1Filter);
+        SimpleFeatureCollection results = road.getFeatures(rd1Filter);
         assertEquals("changed", results.features().next().getAttribute("NAME"));
     }
 
     public void testGetFeatureStoreModifyFeatures2() throws IOException {
-        FeatureStore<SimpleFeatureType, SimpleFeature> road = (FeatureStore<SimpleFeatureType, SimpleFeature>) data.getFeatureSource("ROAD");
+        SimpleFeatureStore road = (SimpleFeatureStore) data.getFeatureSource("ROAD");
         AttributeDescriptor name = roadType.getDescriptor("NAME");
         road.modifyFeatures(new AttributeDescriptor[] { name, },
             new Object[] { "changed", }, rd1Filter);
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> results = road.getFeatures(rd1Filter);
+        SimpleFeatureCollection results = road.getFeatures(rd1Filter);
         assertEquals("changed", results.features().next().getAttribute("NAME"));
     }
 
     public void testGetFeatureStoreRemoveFeatures() throws IOException {
-        FeatureStore<SimpleFeatureType, SimpleFeature> road = (FeatureStore<SimpleFeatureType, SimpleFeature>) data.getFeatureSource("ROAD");
+        SimpleFeatureStore road = (SimpleFeatureStore) data.getFeatureSource("ROAD");
 
         road.removeFeatures(rd1Filter);
         assertEquals(0, road.getFeatures(rd1Filter).size());
@@ -1203,7 +1202,7 @@ public abstract class AbstractDataStoreTest extends DataTestCase {
 
     public void testGetFeatureStoreAddFeatures() throws IOException {
          FeatureReader<SimpleFeatureType, SimpleFeature> reader = DataUtilities.reader(new SimpleFeature[] { newRoad, });
-         FeatureStore<SimpleFeatureType, SimpleFeature> road = (FeatureStore<SimpleFeatureType, SimpleFeature>) data.getFeatureSource("ROAD");
+         SimpleFeatureStore road = (SimpleFeatureStore) data.getFeatureSource("ROAD");
         
         road.addFeatures( DataUtilities.collection(reader));
         assertEquals(roadFeatures.length + 1, road.getFeatures().size());
@@ -1211,7 +1210,7 @@ public abstract class AbstractDataStoreTest extends DataTestCase {
 
     public void testGetFeatureStoreSetFeatures() throws IOException {
          FeatureReader<SimpleFeatureType, SimpleFeature> reader = DataUtilities.reader(new SimpleFeature[] { newRoad, });
-         FeatureStore<SimpleFeatureType, SimpleFeature> road = (FeatureStore<SimpleFeatureType, SimpleFeature>) data.getFeatureSource("ROAD");
+         SimpleFeatureStore road = (SimpleFeatureStore) data.getFeatureSource("ROAD");
 
         road.setFeatures(reader);
         assertEquals(1, road.getFeatures().size());
@@ -1222,9 +1221,9 @@ public abstract class AbstractDataStoreTest extends DataTestCase {
         Transaction t1 = new DefaultTransaction();
         Transaction t2 = new DefaultTransaction();
 
-        FeatureStore<SimpleFeatureType, SimpleFeature> road = (FeatureStore<SimpleFeatureType, SimpleFeature>) data.getFeatureSource("ROAD");
-        FeatureStore<SimpleFeatureType, SimpleFeature> road1 = (FeatureStore<SimpleFeatureType, SimpleFeature>) data.getFeatureSource("ROAD");
-        FeatureStore<SimpleFeatureType, SimpleFeature> road2 = (FeatureStore<SimpleFeatureType, SimpleFeature>) data.getFeatureSource("ROAD");
+        SimpleFeatureStore road = (SimpleFeatureStore) data.getFeatureSource("ROAD");
+        SimpleFeatureStore road1 = (SimpleFeatureStore) data.getFeatureSource("ROAD");
+        SimpleFeatureStore road2 = (SimpleFeatureStore) data.getFeatureSource("ROAD");
 
         road1.setTransaction(t1);
         road2.setTransaction(t2);
@@ -1273,7 +1272,7 @@ public abstract class AbstractDataStoreTest extends DataTestCase {
         // road2 adds road.rd4 on t2
         // ----------------------------
         // - tests transaction independence from each other
-        FeatureCollection<SimpleFeatureType, SimpleFeature> collection = DataUtilities.collection(new SimpleFeature[] { newRoad, });
+        SimpleFeatureCollection collection = DataUtilities.collection(new SimpleFeature[] { newRoad, });
         road2.addFeatures(collection);
 
         // We still have ORIGIONAL, t1 has REMOVE, and t2 has ADD

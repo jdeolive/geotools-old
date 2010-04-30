@@ -16,8 +16,9 @@
  */
 package org.geotools.process.raster;
 
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Polygon;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
@@ -26,18 +27,22 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
 import javax.imageio.ImageIO;
+
 import org.geotools.coverage.CoverageFactoryFinder;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
-import org.geotools.feature.FeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.util.ProgressListener;
-import static org.junit.Assert.*;
+
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Polygon;
 
 /**
  * Unit tests for {@code JMapPaneModel}.
@@ -78,7 +83,7 @@ public class RasterToVectorProcessTest {
         Set<Double> outsideValues = Collections.singleton(0D);
 
         ProgressListener progress = null;
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fc =
+        SimpleFeatureCollection fc =
                 RasterToVectorProcess.process(cov, band, null, outsideValues, progress);
 
         double perimeter = 0;
@@ -124,12 +129,12 @@ public class RasterToVectorProcessTest {
         Set<Double> outsideValues = Collections.singleton(0D);
 
         ProgressListener progress = null;
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fc =
+        SimpleFeatureCollection fc =
                 RasterToVectorProcess.process(cov, band, null, outsideValues, progress);
 
         assertEquals(NUM_POLYS, fc.size());
 
-        FeatureIterator<SimpleFeature> iter = fc.features();
+        SimpleFeatureIterator iter = fc.features();
         try {
             while (iter.hasNext()) {
                 Polygon poly = (Polygon) iter.next().getDefaultGeometry();
@@ -165,7 +170,7 @@ public class RasterToVectorProcessTest {
         int band = 0;
 
         ProgressListener progress = null;
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fc =
+        SimpleFeatureCollection fc =
                 RasterToVectorProcess.process(cov, band, null, null, progress);
 
         assertEquals(NUM_POLYS, fc.size());
@@ -194,11 +199,11 @@ public class RasterToVectorProcessTest {
         Set<Double> outsideValues = Collections.singleton(Double.valueOf(outside));
 
         ProgressListener progress = null;
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fc =
+        SimpleFeatureCollection fc =
                 RasterToVectorProcess.process(cov, band, null, outsideValues, progress);
 
         // validate geometries and sum areas
-        FeatureIterator<SimpleFeature> iter = fc.features();
+        SimpleFeatureIterator iter = fc.features();
         Map<Integer, Double> areas = new HashMap<Integer, Double>();
         try {
             while (iter.hasNext()) {

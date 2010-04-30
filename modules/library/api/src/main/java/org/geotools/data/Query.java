@@ -233,7 +233,7 @@ public interface Query {
      *
      * <p>
      * This denotes a request to Temporarily to override the coordinate system
-     * contained in the FeatureSource<SimpleFeatureType, SimpleFeature> being queried. The same coordinate
+     * contained in the SimpleFeatureSource being queried. The same coordinate
      * values will be used, but the features created will appear in this
      * Coordinate System.
      * </p>

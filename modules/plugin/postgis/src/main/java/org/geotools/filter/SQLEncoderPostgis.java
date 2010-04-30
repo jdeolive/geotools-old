@@ -17,10 +17,8 @@
 package org.geotools.filter;
 
 import java.io.IOException;
-import java.sql.Date;
 import java.util.logging.Logger;
 
-import org.geotools.filter.FilterType;
 import org.opengis.filter.ExcludeFilter;
 import org.opengis.filter.Id;
 import org.opengis.filter.IncludeFilter;

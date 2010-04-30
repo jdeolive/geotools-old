@@ -20,22 +20,18 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import junit.framework.TestCase;
+
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.visitor.IdCollectorFilterVisitor;
 import org.geotools.feature.visitor.IdFinderFilterVisitor;
-import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.filter.Filter;
-import org.opengis.filter.FilterFactory;
 import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.FilterVisitor;
 import org.opengis.filter.Id;
 import org.opengis.filter.expression.PropertyName;
 
-import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
-
-import junit.framework.TestCase;
 
 /**
  * This test checks that our filter visitor examples on the wiki are in working order.

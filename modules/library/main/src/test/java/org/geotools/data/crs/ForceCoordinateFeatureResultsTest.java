@@ -2,9 +2,8 @@ package org.geotools.data.crs;
 
 import junit.framework.TestCase;
 
-import org.geotools.data.FeatureSource;
 import org.geotools.data.memory.MemoryDataStore;
-import org.geotools.feature.FeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -49,17 +48,17 @@ public class ForceCoordinateFeatureResultsTest extends TestCase {
     }
 
     public void testSchema() throws Exception {
-        FeatureCollection original = store.getFeatureSource(FEATURE_TYPE_NAME).getFeatures();
+        SimpleFeatureCollection original = store.getFeatureSource(FEATURE_TYPE_NAME).getFeatures();
         assertEquals(wgs84, original.getSchema().getCoordinateReferenceSystem());
         
-        FeatureCollection forced = new ForceCoordinateSystemFeatureResults(original, utm32n);
+        SimpleFeatureCollection forced = new ForceCoordinateSystemFeatureResults(original, utm32n);
         assertEquals(utm32n, forced.getSchema().getCoordinateReferenceSystem());
     }
     
     public void testBounds() throws Exception {
-        FeatureCollection original = store.getFeatureSource(FEATURE_TYPE_NAME).getFeatures();
+        SimpleFeatureCollection original = store.getFeatureSource(FEATURE_TYPE_NAME).getFeatures();
         
-        FeatureCollection forced = new ForceCoordinateSystemFeatureResults(original, utm32n);
+        SimpleFeatureCollection forced = new ForceCoordinateSystemFeatureResults(original, utm32n);
         assertEquals(new ReferencedEnvelope(10,10,10,10, utm32n), forced.getBounds());
     }
 }

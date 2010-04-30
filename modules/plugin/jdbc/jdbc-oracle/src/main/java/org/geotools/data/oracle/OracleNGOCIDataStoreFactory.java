@@ -19,8 +19,6 @@ package org.geotools.data.oracle;
 import java.io.IOException;
 import java.util.Map;
 
-import org.geotools.data.DataAccessFactory.Param;
-
 /**
  * Creates an Oracle datastore based on a thick OCI client connection, instead of the traditional
  * (thin) jdbc connection. The thin JDBC connection was designed for clients requiring no more

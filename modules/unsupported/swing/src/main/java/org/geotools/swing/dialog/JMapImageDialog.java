@@ -21,6 +21,7 @@ import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -30,7 +31,9 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+
 import net.miginfocom.swing.MigLayout;
+
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.swing.control.JIntegerField;
 import org.geotools.swing.control.ValueChangedEvent;

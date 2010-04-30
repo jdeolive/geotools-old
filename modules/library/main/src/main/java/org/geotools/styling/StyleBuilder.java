@@ -20,9 +20,9 @@ import java.awt.Color;
 import java.util.Arrays;
 import java.util.Iterator;
 
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
-import org.geotools.feature.FeatureCollection;
 import org.geotools.filter.IllegalFilterException;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -1714,7 +1714,7 @@ public class StyleBuilder {
      * @throws IllegalFilterException DOCUMENT ME!
      */
     public Style buildClassifiedStyle(
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fc,
+        SimpleFeatureCollection fc,
         String name,
         String[] colors,
         SimpleFeatureType schema)

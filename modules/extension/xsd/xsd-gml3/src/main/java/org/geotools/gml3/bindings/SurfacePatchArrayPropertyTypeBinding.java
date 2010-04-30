@@ -18,12 +18,14 @@ package org.geotools.gml3.bindings;
 
 import java.util.List;
 
+import javax.xml.namespace.QName;
+
 import org.geotools.gml3.GML;
-import org.geotools.xml.*;
+import org.geotools.xml.AbstractComplexBinding;
+import org.geotools.xml.ElementInstance;
+import org.geotools.xml.Node;
 
 import com.vividsolutions.jts.geom.Polygon;
-
-import javax.xml.namespace.QName;
 
 /**
  * Binding object for the type http://www.opengis.net/gml:SurfacePatchArrayPropertyType.

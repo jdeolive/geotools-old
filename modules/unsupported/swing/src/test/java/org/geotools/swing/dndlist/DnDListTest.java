@@ -17,14 +17,14 @@
 
 package org.geotools.swing.dndlist;
 
-import org.geotools.swing.control.DnDListModel;
-import org.geotools.swing.control.DnDList;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 
 import java.awt.GraphicsEnvironment;
 
+import org.geotools.swing.control.DnDList;
+import org.geotools.swing.control.DnDListModel;
 import org.junit.Test;
 
 public class DnDListTest {

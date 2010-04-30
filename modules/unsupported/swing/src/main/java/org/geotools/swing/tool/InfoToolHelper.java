@@ -19,6 +19,7 @@ package org.geotools.swing.tool;
 
 import java.lang.ref.WeakReference;
 import java.util.logging.Logger;
+
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.map.MapContext;
 import org.geotools.referencing.CRS;

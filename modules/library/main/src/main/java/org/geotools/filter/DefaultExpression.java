@@ -18,6 +18,7 @@ package org.geotools.filter;
 
 import org.geotools.filter.expression.ExpressionAbstract;
 import org.geotools.filter.expression.FilterVisitorExpressionWrapper;
+import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.filter.expression.Add;
 import org.opengis.filter.expression.Divide;

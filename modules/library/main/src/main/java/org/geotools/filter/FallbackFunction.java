@@ -18,8 +18,6 @@ package org.geotools.filter;
 
 import java.util.List;
 
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.filter.expression.Function;
 import org.opengis.filter.expression.Literal;
 
 /**

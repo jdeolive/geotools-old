@@ -16,18 +16,20 @@
  */
 package org.geotools.data.db2;
 
-import com.ibm.db2.jcc.DB2ConnectionPoolDataSource;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Logger;
+
+import javax.sql.ConnectionPoolDataSource;
+import javax.sql.DataSource;
+
 import org.geotools.data.jdbc.ConnectionPool;
 import org.geotools.data.jdbc.ConnectionPoolManager;
 import org.geotools.data.jdbc.datasource.DataSourceFinder;
 import org.geotools.data.jdbc.datasource.DataSourceUtil;
 
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Logger;
-import javax.sql.ConnectionPoolDataSource;
-import javax.sql.DataSource;
+import com.ibm.db2.jcc.DB2ConnectionPoolDataSource;
 
 
 /**

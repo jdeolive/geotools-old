@@ -25,7 +25,6 @@ import java.util.Properties;
 import java.util.Stack;
 
 import org.apache.commons.lang.StringUtils;
-import org.geotools.data.ows.AbstractRequest;
 import org.geotools.data.ows.CRSEnvelope;
 import org.geotools.data.ows.Layer;
 import org.geotools.data.ows.StyleImpl;

@@ -16,9 +16,8 @@
  */
 package org.geotools.feature.visitor;
 
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.feature.FeatureCollection;
-
 import org.geotools.feature.visitor.AverageVisitor.AverageResult;
 import org.geotools.feature.visitor.CountVisitor.CountResult;
 import org.geotools.filter.IllegalFilterException;
@@ -62,7 +61,7 @@ public class SumVisitor implements FeatureCalc {
         this.expr = expr;
     }
 
-    public void init(FeatureCollection<SimpleFeatureType, SimpleFeature> collection) {
+    public void init(SimpleFeatureCollection collection) {
     	//do nothing
     }
     

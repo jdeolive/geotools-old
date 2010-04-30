@@ -28,16 +28,18 @@ import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
+
 import javax.swing.JPanel;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.LineString;
-import org.opengis.feature.simple.SimpleFeature;
-import org.geotools.caching.grid.featurecache.GridFeatureCache;
+
 import org.geotools.caching.spatialindex.Data;
 import org.geotools.caching.spatialindex.Node;
 import org.geotools.caching.spatialindex.Region;
 import org.geotools.caching.spatialindex.Visitor;
+import org.opengis.feature.simple.SimpleFeature;
+
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.LineString;
 
 
 public class CacheDisplayPanel extends JPanel {

@@ -44,7 +44,7 @@ public interface FeatureIterator<F extends Feature> {
     public F next() throws java.util.NoSuchElementException;
 
     /**
-     * Required so FeatureCollection<SimpleFeatureType, SimpleFeature> classes can implement close( FeatureIterator<SimpleFeature> ).
+     * Required so SimpleFeatureCollection classes can implement close( FeatureIterator<SimpleFeature> ).
      */
     public void close();
 }

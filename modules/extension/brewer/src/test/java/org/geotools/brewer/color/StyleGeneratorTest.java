@@ -23,17 +23,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.opengis.feature.Feature;
-import org.opengis.feature.FeatureVisitor;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.filter.Filter;
-import org.opengis.filter.FilterFactory;
-import org.opengis.filter.expression.Expression;
 import org.geotools.data.DataTestCase;
 import org.geotools.data.DataUtilities;
-import org.geotools.data.FeatureSource;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.filter.IllegalFilterException;
 import org.geotools.filter.function.ClassificationFunction;
@@ -42,7 +37,13 @@ import org.geotools.filter.function.ExplicitClassifier;
 import org.geotools.filter.function.RangedClassifier;
 import org.geotools.styling.FeatureTypeStyle;
 import org.geotools.styling.Rule;
+import org.opengis.feature.Feature;
+import org.opengis.feature.FeatureVisitor;
+import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.filter.Filter;
+import org.opengis.filter.FilterFactory;
+import org.opengis.filter.expression.Expression;
 
 
 /**
@@ -54,16 +55,16 @@ public class StyleGeneratorTest extends DataTestCase {
         super(arg0);
     }
 
-    public void checkFilteredResultNotEmpty(Rule[] rule, FeatureSource<SimpleFeatureType, SimpleFeature> fs, String attribName)
+    public void checkFilteredResultNotEmpty(Rule[] rule, SimpleFeatureSource fs, String attribName)
         throws IOException {
         for (int i = 0; i < rule.length; i++) {
             Filter filter = rule[i].getFilter();
-            FeatureCollection<SimpleFeatureType, SimpleFeature> filteredCollection = fs.getFeatures(filter);
+            SimpleFeatureCollection filteredCollection = fs.getFeatures(filter);
             assertTrue(filteredCollection.size() > 0);
 
             String filterInfo = "Filter \"" + filter.toString() + "\" contains "
                 + filteredCollection.size() + " element(s) (";
-            FeatureIterator<SimpleFeature> it = filteredCollection.features();
+            SimpleFeatureIterator it = filteredCollection.features();
 
             while (it.hasNext()) {
                 SimpleFeature feature = (SimpleFeature) it.next();
@@ -88,8 +89,8 @@ public class StyleGeneratorTest extends DataTestCase {
         Expression expr2 = null;
         SimpleFeatureType type = roadType;
         String attribName = type.getDescriptor(0).getLocalName();
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = DataUtilities.collection(roadFeatures);
-        FeatureSource<SimpleFeatureType, SimpleFeature> fs = DataUtilities.source(fc);
+        SimpleFeatureCollection fc = DataUtilities.collection(roadFeatures);
+        SimpleFeatureSource fs = DataUtilities.source(fc);
 
         try {
             expr = ff.multiply(ff.property(attribName), ff.property(attribName));
@@ -144,7 +145,7 @@ public class StyleGeneratorTest extends DataTestCase {
 
          SimpleFeatureType type = riverType;
          final String attribName = "river";
-         FeatureCollection<SimpleFeatureType, SimpleFeature> fc = DataUtilities.collection(riverFeatures);
+         SimpleFeatureCollection fc = DataUtilities.collection(riverFeatures);
 
          expr = ff.property(attribName);
 

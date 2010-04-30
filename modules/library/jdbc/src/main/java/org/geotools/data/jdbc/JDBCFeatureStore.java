@@ -30,12 +30,12 @@ import org.geotools.data.DefaultQuery;
 import org.geotools.data.DefaultTransaction;
 import org.geotools.data.FeatureLockException;
 import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureStore;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.InProcessLockingManager;
 import org.geotools.data.LockingManager;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
+import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.IllegalAttributeException;
 import org.opengis.feature.simple.SimpleFeature;
@@ -64,20 +64,20 @@ import org.opengis.filter.identity.FeatureId;
  * 
  * @deprecated scheduled for removal in 2.7, use classes in org.geotools.jdbc
  */
-public class JDBCFeatureStore extends JDBCFeatureSource implements FeatureStore<SimpleFeatureType, SimpleFeature> {
+public class JDBCFeatureStore extends JDBCFeatureSource implements SimpleFeatureStore {
     
    /** The logger for the postgis module. */
     private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger(
             "org.geotools.data.jdbc");
 
-/** Current Transaction this FeatureSource<SimpleFeatureType, SimpleFeature> is opperating against */
+/** Current Transaction this SimpleFeatureSource is opperating against */
     protected Transaction transaction = Transaction.AUTO_COMMIT;
 
     public JDBCFeatureStore(JDBC1DataStore jdbcDataStore, SimpleFeatureType featureType) {
         super(jdbcDataStore, featureType);
     }
 
-    /* Retrieve the Transaction this FeatureSource<SimpleFeatureType, SimpleFeature> is opperating against. */
+    /* Retrieve the Transaction this SimpleFeatureSource is opperating against. */
     public Transaction getTransaction() {
         return transaction;
     }
@@ -343,7 +343,7 @@ public class JDBCFeatureStore extends JDBCFeatureSource implements FeatureStore<
         return addedFids;
     }
 
-    public List<FeatureId> addFeatures(FeatureCollection<SimpleFeatureType, SimpleFeature> collection) throws IOException {
+    public List<FeatureId> addFeatures(FeatureCollection collection) throws IOException {
         List<FeatureId> addedFids= new LinkedList<FeatureId>();
         String typeName = getSchema().getTypeName();
         SimpleFeature feature = null;

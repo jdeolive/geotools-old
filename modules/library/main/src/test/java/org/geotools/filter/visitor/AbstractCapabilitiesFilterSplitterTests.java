@@ -28,7 +28,6 @@ import org.geotools.feature.SchemaException;
 import org.geotools.filter.Capabilities;
 import org.geotools.filter.IllegalFilterException;
 import org.geotools.filter.function.FilterFunction_geometryType;
-import org.geotools.filter.visitor.ClientTransactionAccessor;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.Id;

@@ -16,15 +16,14 @@
  */
 package org.geotools.data.property;
 
-import org.geotools.data.DataStore;
-import org.geotools.data.DataStoreFactorySpi;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.geotools.data.DataStore;
+import org.geotools.data.DataStoreFactorySpi;
 
 
 /**

@@ -7,7 +7,7 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
-import org.geotools.feature.FeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.util.NullProgressListener;
 import org.jdesktop.swingworker.SwingWorker;
 import org.opengis.feature.Feature;
@@ -38,14 +38,14 @@ public class FeatureCollectionTableModel extends AbstractTableModel {
      * background thread.
      */
     class TableWorker extends SwingWorker<List<Object[]>, Object[]> {
-        FeatureCollection<SimpleFeatureType,SimpleFeature> features;
+        SimpleFeatureCollection features;
 
         /**
          * Constructor
          *
          * @param features the feature collection to be loaded into the table
          */
-        TableWorker( FeatureCollection<SimpleFeatureType,SimpleFeature> features ) { 
+        TableWorker( SimpleFeatureCollection features ) { 
             this.features = features;            
         }
 
@@ -96,7 +96,7 @@ public class FeatureCollectionTableModel extends AbstractTableModel {
      *
      * @param features the feature collection to load into the table
      */
-    public FeatureCollectionTableModel( FeatureCollection<SimpleFeatureType,SimpleFeature> features ){
+    public FeatureCollectionTableModel( SimpleFeatureCollection features ){
         this.load = new TableWorker( features );
         load.execute();
         this.schema = features.getSchema();

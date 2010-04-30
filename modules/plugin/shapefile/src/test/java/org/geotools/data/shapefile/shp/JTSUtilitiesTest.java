@@ -1,5 +1,8 @@
 package org.geotools.data.shapefile.shp;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -7,7 +10,6 @@ import org.junit.Test;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
-import static org.junit.Assert.*;
 
 public class JTSUtilitiesTest {
     GeometryFactory geomFactory;

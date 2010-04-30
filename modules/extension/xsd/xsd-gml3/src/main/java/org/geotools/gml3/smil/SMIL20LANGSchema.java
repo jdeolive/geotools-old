@@ -16,18 +16,12 @@
  */
 package org.geotools.gml3.smil;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
-import org.opengis.feature.type.AttributeType;
-import org.opengis.feature.type.ComplexType;
+
 import org.geotools.feature.NameImpl;
-import org.geotools.feature.type.AttributeDescriptorImpl;
-import org.geotools.feature.type.AttributeTypeImpl;
 import org.geotools.feature.type.ComplexTypeImpl;
 import org.geotools.feature.type.SchemaImpl;
-import org.geotools.gml3.smil.SMIL20Schema;
-import org.geotools.xs.XSSchema;
+import org.opengis.feature.type.ComplexType;
 
 
 public class SMIL20LANGSchema extends SchemaImpl {

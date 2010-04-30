@@ -16,11 +16,10 @@
  */
 package org.geotools.gml3.bindings;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import org.geotools.gml3.GML3TestSupport;
+
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
-import org.geotools.gml3.GML3TestSupport;
 
 
 public class LineStringTypeBindingTest extends GML3TestSupport {

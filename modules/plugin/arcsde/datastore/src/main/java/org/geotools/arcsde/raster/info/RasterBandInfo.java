@@ -18,8 +18,6 @@
 package org.geotools.arcsde.raster.info;
 
 import java.awt.Point;
-import java.awt.geom.Point2D;
-import java.awt.geom.Point2D.Double;
 import java.awt.image.IndexColorModel;
 
 /**

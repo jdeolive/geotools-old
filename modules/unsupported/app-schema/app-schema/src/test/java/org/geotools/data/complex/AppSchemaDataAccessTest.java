@@ -33,6 +33,7 @@ import org.geotools.data.complex.config.AppSchemaDataAccessConfigurator;
 import org.geotools.data.complex.config.AppSchemaDataAccessDTO;
 import org.geotools.data.complex.config.XMLConfigDigester;
 import org.geotools.data.memory.MemoryDataStore;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.NameImpl;
@@ -91,7 +92,7 @@ public class AppSchemaDataAccessTest extends TestCase {
         List mappings = TestData.createMappingsColumnsAndValues(targetFeature);
 
         Name sourceName = TestData.WATERSAMPLE_TYPENAME;
-        FeatureSource<SimpleFeatureType, SimpleFeature> source = ds.getFeatureSource(sourceName);
+        SimpleFeatureSource source = ds.getFeatureSource(sourceName);
 
         // empty nssupport as the sample types have no namespace defined
         NamespaceSupport namespaces = new NamespaceSupport();
@@ -145,7 +146,7 @@ public class AppSchemaDataAccessTest extends TestCase {
 
         FeatureTypeMapping mapping = (FeatureTypeMapping) mappings.iterator().next();
 
-        FeatureSource<SimpleFeatureType, SimpleFeature> mappedSource = mapping.getSource();
+        FeatureSource<?,?> mappedSource = mapping.getSource();
         Envelope expected = getBounds(mappedSource);
         Envelope actual = getBounds(source);
 
@@ -261,7 +262,7 @@ public class AppSchemaDataAccessTest extends TestCase {
 
         PropertyIsEqualTo equivalentSourceFilter = ff.equals(ff.property("ph"), ff
                 .literal(new Integer(3)));
-        FeatureCollection<SimpleFeatureType, SimpleFeature> collection = mapping.getSource()
+        FeatureCollection<?,?> collection = mapping.getSource()
                 .getFeatures(equivalentSourceFilter);
 
         int count = 0;

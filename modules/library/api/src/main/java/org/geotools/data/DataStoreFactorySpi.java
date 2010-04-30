@@ -41,7 +41,7 @@ import java.util.Map;
  * registry.addDataStore("leeds", params);
  *
  * DataStore postgis = registry.getDataStore( "leeds" );
- * FeatureSource<SimpleFeatureType, SimpleFeature> = postgis.getFeatureSource( "table" );
+ * SimpleFeatureSource = postgis.getFeatureSource( "table" );
  * </code></pre>
  * </p> 
  * <h2>Implementation Notes</h2>

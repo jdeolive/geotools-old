@@ -37,7 +37,6 @@ import org.geotools.data.DefaultResourceInfo;
 import org.geotools.data.FeatureListener;
 import org.geotools.data.FeatureListenerManager;
 import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
 import org.geotools.data.QueryCapabilities;
 import org.geotools.data.Repository;
@@ -45,8 +44,9 @@ import org.geotools.data.ResourceInfo;
 import org.geotools.data.Transaction;
 import org.geotools.data.gen.info.Generalization;
 import org.geotools.data.gen.info.GeneralizationInfo;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.Hints;
-import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.NameImpl;
 import org.geotools.feature.simple.SimpleFeatureTypeImpl;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -70,7 +70,7 @@ import org.opengis.filter.sort.SortBy;
  *
  * @source $URL$
  */
-public class PreGeneralizedFeatureSource implements FeatureSource<SimpleFeatureType, SimpleFeature> {
+public class PreGeneralizedFeatureSource implements SimpleFeatureSource {
 
     protected FeatureListenerManager listenerManager = new FeatureListenerManager();
 
@@ -82,11 +82,11 @@ public class PreGeneralizedFeatureSource implements FeatureSource<SimpleFeatureT
 
     protected Logger log = Logger.getLogger(this.getClass().getName());
 
-    private FeatureSource<SimpleFeatureType, SimpleFeature> baseFeatureSource;
+    private SimpleFeatureSource baseFeatureSource;
 
     private Set<Key> supportedHints;
 
-    private Map<Generalization, FeatureSource<SimpleFeatureType, SimpleFeature>> featureSourceCache;
+    private Map<Generalization, SimpleFeatureSource> featureSourceCache;
 
     private QueryCapabilities queryCapabilities;
 
@@ -114,7 +114,7 @@ public class PreGeneralizedFeatureSource implements FeatureSource<SimpleFeatureT
 
     public void reset() {
         baseFeatureSource = null;
-        featureSourceCache = new HashMap<Generalization, FeatureSource<SimpleFeatureType, SimpleFeature>>();
+        featureSourceCache = new HashMap<Generalization, SimpleFeatureSource>();
         indexMapping = new HashMap<Double, int[]>();
         supportedHints = null;
         queryCapabilities = null;
@@ -122,7 +122,7 @@ public class PreGeneralizedFeatureSource implements FeatureSource<SimpleFeatureT
 
     }
 
-    private FeatureSource<SimpleFeatureType, SimpleFeature> getBaseFeatureSource()
+    private SimpleFeatureSource getBaseFeatureSource()
             throws IOException {
         if (baseFeatureSource != null)
             return baseFeatureSource;
@@ -172,7 +172,7 @@ public class PreGeneralizedFeatureSource implements FeatureSource<SimpleFeatureT
 
     public ReferencedEnvelope getBounds(Query query) throws IOException {
 
-        // FeatureSource<SimpleFeatureType, SimpleFeature> fs = getFeatureSourceFor(query);
+        // SimpleFeatureSource fs = getFeatureSourceFor(query);
         // Query newQuery=getProxyObject(query, fs);
         // return fs.getBounds(newQuery);
 
@@ -182,7 +182,7 @@ public class PreGeneralizedFeatureSource implements FeatureSource<SimpleFeatureT
 
     public int getCount(Query query) throws IOException {
 
-        // FeatureSource<SimpleFeatureType, SimpleFeature> fs = getFeatureSourceFor(query);
+        // SimpleFeatureSource fs = getFeatureSourceFor(query);
         // Query newQuery=getProxyObject(query, fs);
         // return fs.getCount(newQuery);
 
@@ -194,24 +194,24 @@ public class PreGeneralizedFeatureSource implements FeatureSource<SimpleFeatureT
         return dataStore;
     }
 
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> getFeatures() throws IOException {
+    public SimpleFeatureCollection getFeatures() throws IOException {
         return new PreGeneralizedFeatureCollection(getBaseFeatureSource().getFeatures(),
                 getSchema(), indexMapping.get(0.0), info.getGeomPropertyName(), info
                         .getGeomPropertyName());
 
     }
 
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> getFeatures(Filter filter)
+    public SimpleFeatureCollection getFeatures(Filter filter)
             throws IOException {
         return new PreGeneralizedFeatureCollection(getBaseFeatureSource().getFeatures(filter),
                 getSchema(), indexMapping.get(0.0), info.getGeomPropertyName(), info
                         .getGeomPropertyName());
     }
 
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> getFeatures(Query query)
+    public SimpleFeatureCollection getFeatures(Query query)
             throws IOException {
 
-        FeatureSource<SimpleFeatureType, SimpleFeature> fs = getFeatureSourceFor(query);
+        SimpleFeatureSource fs = getFeatureSourceFor(query);
         Query newQuery = getProxyObject(query, fs);
         Generalization di = info.getGeneralizationForDistance(getRequestedDistance(query));
         if (di != null)
@@ -224,7 +224,7 @@ public class PreGeneralizedFeatureSource implements FeatureSource<SimpleFeatureT
     public FeatureReader<SimpleFeatureType, SimpleFeature> getFeatureReader(Query query,
             Transaction transaction) throws IOException {
 
-        FeatureSource<SimpleFeatureType, SimpleFeature> fs = getFeatureSourceFor(query);
+        SimpleFeatureSource fs = getFeatureSourceFor(query);
         Query newQuery = getProxyObject(query, fs);
         DataAccess<SimpleFeatureType, SimpleFeature> access = fs.getDataStore();
         if (access instanceof DataStore) {
@@ -293,7 +293,7 @@ public class PreGeneralizedFeatureSource implements FeatureSource<SimpleFeatureT
                     if (!getBaseFeatureSource().getQueryCapabilities().isOffsetSupported())
                         return false;
                     for (Generalization di : info.getGeneralizations()) {
-                        FeatureSource<SimpleFeatureType, SimpleFeature> fs = getFeatureSourceFor(di);
+                        SimpleFeatureSource fs = getFeatureSourceFor(di);
                         if (!fs.getQueryCapabilities().isOffsetSupported())
                             return false;
                     }
@@ -309,7 +309,7 @@ public class PreGeneralizedFeatureSource implements FeatureSource<SimpleFeatureT
                     if (!getBaseFeatureSource().getQueryCapabilities().isReliableFIDSupported())
                         return false;
                     for (Generalization di : info.getGeneralizations()) {
-                        FeatureSource<SimpleFeatureType, SimpleFeature> fs = getFeatureSourceFor(di);
+                        SimpleFeatureSource fs = getFeatureSourceFor(di);
                         if (!fs.getQueryCapabilities().isReliableFIDSupported())
                             return false;
                     }
@@ -325,7 +325,7 @@ public class PreGeneralizedFeatureSource implements FeatureSource<SimpleFeatureT
                     if (!getBaseFeatureSource().getQueryCapabilities().supportsSorting(arg0))
                         return false;
                     for (Generalization di : info.getGeneralizations()) {
-                        FeatureSource<SimpleFeatureType, SimpleFeature> fs = getFeatureSourceFor(di);
+                        SimpleFeatureSource fs = getFeatureSourceFor(di);
                         if (!fs.getQueryCapabilities().supportsSorting(arg0))
                             return false;
                     }
@@ -398,7 +398,7 @@ public class PreGeneralizedFeatureSource implements FeatureSource<SimpleFeatureT
             hints.addAll(getBaseFeatureSource().getSupportedHints()); // start with base feature
             // source
             for (Generalization di : info.getGeneralizations()) {
-                FeatureSource<SimpleFeatureType, SimpleFeature> fs = getFeatureSourceFor(di);
+                SimpleFeatureSource fs = getFeatureSourceFor(di);
                 hints.retainAll(fs.getSupportedHints());
             }
         } catch (IOException ex) {
@@ -421,7 +421,7 @@ public class PreGeneralizedFeatureSource implements FeatureSource<SimpleFeatureT
      * @param requestedDistance
      * @return the proper feature source for the given distance
      */
-    private FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSourceFor(
+    private SimpleFeatureSource getFeatureSourceFor(
             Double requestedDistance) throws IOException {
 
         if (requestedDistance == null || requestedDistance == 0)
@@ -430,11 +430,11 @@ public class PreGeneralizedFeatureSource implements FeatureSource<SimpleFeatureT
         return getFeatureSourceFor(di);
     }
 
-    private FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSourceFor(Generalization di)
+    private SimpleFeatureSource getFeatureSourceFor(Generalization di)
             throws IOException {
         if (di == null)
             return getBaseFeatureSource();
-        FeatureSource<SimpleFeatureType, SimpleFeature> fs = featureSourceCache.get(di);
+        SimpleFeatureSource fs = featureSourceCache.get(di);
         if (fs != null)
             return fs;
 
@@ -457,7 +457,7 @@ public class PreGeneralizedFeatureSource implements FeatureSource<SimpleFeatureT
         return (Double) query.getHints().get(Hints.GEOMETRY_DISTANCE);
     }
 
-    private FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSourceFor(Query query)
+    private SimpleFeatureSource getFeatureSourceFor(Query query)
             throws IOException {
         Double distance = getRequestedDistance(query);
 
@@ -490,9 +490,9 @@ public class PreGeneralizedFeatureSource implements FeatureSource<SimpleFeatureT
      * 
      */
 
-    private String getBackendGeometryName(FeatureSource<SimpleFeatureType, SimpleFeature> fs) {
+    private String getBackendGeometryName(SimpleFeatureSource fs) {
         // look for the backend geom property name
-        for (Entry<Generalization, FeatureSource<SimpleFeatureType, SimpleFeature>> entry : featureSourceCache
+        for (Entry<Generalization, SimpleFeatureSource> entry : featureSourceCache
                 .entrySet()) {
             if (entry.getValue() == fs) {
                 return entry.getKey().getGeomPropertyName();
@@ -501,7 +501,7 @@ public class PreGeneralizedFeatureSource implements FeatureSource<SimpleFeatureT
         return info.getGeomPropertyName(); // use prop name from base feature source
     }
 
-    protected Query getProxyObject(Query query, FeatureSource<SimpleFeatureType, SimpleFeature> fs) {
+    protected Query getProxyObject(Query query, SimpleFeatureSource fs) {
 
         String baseGeomPropertyName = info.getGeomPropertyName(); // generalized geom property
         String backendGeomPropertyName = getBackendGeometryName(fs);

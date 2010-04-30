@@ -16,8 +16,9 @@
  */
 package org.geotools.renderer.shape;
 
-import com.vividsolutions.jts.geom.Envelope;
 import org.geotools.data.shapefile.shp.ShapeType;
+
+import com.vividsolutions.jts.geom.Envelope;
 
 
 /**

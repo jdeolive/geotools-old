@@ -16,7 +16,8 @@
  */
 package org.geotools.renderer.shape;
 
-import static org.geotools.data.shapefile.ShpFileType.*;
+import static org.geotools.data.shapefile.ShpFileType.QIX;
+import static org.geotools.data.shapefile.ShpFileType.SHX;
 
 import java.io.File;
 import java.io.IOException;

@@ -37,8 +37,6 @@ import org.geotools.referencing.CRS;
 import org.geotools.resources.coverage.FeatureUtilities;
 import org.geotools.styling.Style;
 import org.opengis.coverage.grid.GridCoverage;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.geometry.Envelope;
 import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.parameter.GeneralParameterValue;
@@ -58,7 +56,7 @@ public class DefaultMapLayer implements MapLayer {
     private CollectionSource source = null;
 
 	/** Holds value of property FeatureSource. */
-	protected FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
+	protected FeatureSource<?,?> featureSource;
 
 	/** The style to symbolize the features of this layer */
 	protected Style style;
@@ -99,7 +97,7 @@ public class DefaultMapLayer implements MapLayer {
 	 * @throws NullPointerException
 	 *             DOCUMENT ME!
 	 */
-	public DefaultMapLayer(FeatureSource<SimpleFeatureType, SimpleFeature> featureSource, Style style,
+	public DefaultMapLayer(FeatureSource featureSource, Style style,
 			String title) {
 		if ((featureSource == null) || (style == null) || (title == null)) {
 			//throw new NullPointerException();
@@ -136,7 +134,7 @@ public class DefaultMapLayer implements MapLayer {
 	 * @param style
 	 *            the style used to represent this layer
 	 */
-	public DefaultMapLayer(FeatureSource<SimpleFeatureType, SimpleFeature> featureSource, Style style) {
+	public DefaultMapLayer(FeatureSource featureSource, Style style) {
 		this(featureSource, style, "");
 	}
 
@@ -152,7 +150,7 @@ public class DefaultMapLayer implements MapLayer {
 	 * @param title
 	 *            DOCUMENT ME!
 	 */
-	public DefaultMapLayer(FeatureCollection<SimpleFeatureType, SimpleFeature> collection, Style style,
+	public DefaultMapLayer(FeatureCollection collection, Style style,
 			String title) {
 		this(DataUtilities.source(collection), style, title);
 	}
@@ -170,7 +168,7 @@ public class DefaultMapLayer implements MapLayer {
 	 * @param style
 	 *            the style used to represent this layer
 	 */
-	public DefaultMapLayer(FeatureCollection<SimpleFeatureType, SimpleFeature> collection, Style style) {
+	public DefaultMapLayer(FeatureCollection collection, Style style) {
 		this(DataUtilities.source(collection), style, "");
 	}
 
@@ -276,7 +274,7 @@ public class DefaultMapLayer implements MapLayer {
 	 * 
 	 * @return Value of property featureSource.
 	 */
-	public FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSource() {
+	public FeatureSource getFeatureSource() {
 		return this.featureSource;
 	}
 

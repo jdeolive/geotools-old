@@ -21,6 +21,7 @@ import java.awt.Dimension;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
+
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -28,16 +29,17 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
+
 import net.miginfocom.swing.MigLayout;
 
+import org.geotools.map.MapContext;
 import org.geotools.renderer.GTRenderer;
+import org.geotools.renderer.lite.StreamingRenderer;
+import org.geotools.swing.action.InfoAction;
 import org.geotools.swing.action.PanAction;
 import org.geotools.swing.action.ResetAction;
 import org.geotools.swing.action.ZoomInAction;
 import org.geotools.swing.action.ZoomOutAction;
-import org.geotools.map.MapContext;
-import org.geotools.renderer.lite.StreamingRenderer;
-import org.geotools.swing.action.InfoAction;
 
 /**
  * A Swing frame containing a map display pane and (optionally) a toolbar,

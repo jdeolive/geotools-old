@@ -21,7 +21,7 @@ import org.geotools.jdbc.JDBCTestSetup;
 
 
 /**
- * FeatureCollection<SimpleFeatureType, SimpleFeature> test for H2.
+ * SimpleFeatureCollection test for H2.
  *
  * @author Justin Deoliveira, The Open Planning Project
  *

@@ -27,10 +27,10 @@ import java.util.HashSet;
 
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.Transaction;
-import org.geotools.feature.FeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.referencing.CRS;
 import org.opengis.feature.simple.SimpleFeature;
@@ -198,7 +198,7 @@ public abstract class JDBCDataStoreTest extends JDBCTestSupport {
     }
     
     public void testGetFeatureSource() throws Exception {
-        FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = dataStore.getFeatureSource(tname("ft1"));
+        SimpleFeatureSource featureSource = dataStore.getFeatureSource(tname("ft1"));
         assertNotNull(featureSource);
     }
 
@@ -281,7 +281,7 @@ public abstract class JDBCDataStoreTest extends JDBCTestSupport {
         FilterFactory ff = dataStore.getFilterFactory();
 
         Filter f = ff.equals(ff.property(aname("intProperty")), ff.literal(100));
-        FeatureCollection<SimpleFeatureType, SimpleFeature> features = dataStore.getFeatureSource(tname("ft1")).getFeatures(f);
+        SimpleFeatureCollection features = dataStore.getFeatureSource(tname("ft1")).getFeatures(f);
         assertEquals(0, features.size());
 
         f = ff.equals(ff.property(aname("intProperty")), ff.literal(1));
@@ -312,7 +312,7 @@ public abstract class JDBCDataStoreTest extends JDBCTestSupport {
 
         writer.close();
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> features = dataStore.getFeatureSource(tname("ft1")).getFeatures();
+        SimpleFeatureCollection features = dataStore.getFeatureSource(tname("ft1")).getFeatures();
         assertEquals(6, features.size());
     }
 }

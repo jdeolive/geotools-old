@@ -21,7 +21,7 @@ import org.geotools.jdbc.JDBCTestSetup;
 
 
 /**
- * FeatureSource<SimpleFeatureType, SimpleFeature> test for H2.
+ * SimpleFeatureSource test for H2.
  *
  * @author Justin Deoliveira, The Open Planning Project
  *

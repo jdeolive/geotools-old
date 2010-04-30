@@ -22,8 +22,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.geotools.util.Utilities;
 import org.geotools.util.SimpleInternationalString;
+import org.geotools.util.Utilities;
 import org.opengis.style.Description;
 import org.opengis.util.Cloneable;
 

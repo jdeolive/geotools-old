@@ -16,9 +16,6 @@
  */
 package org.geotools.data.db2;
 
-import org.geotools.factory.FactoryRegistryException;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -30,6 +27,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
+
+import org.geotools.factory.FactoryRegistryException;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 
 /**

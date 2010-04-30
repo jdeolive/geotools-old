@@ -12,7 +12,6 @@ package org.geotools.demo.jts;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,14 +20,13 @@ import java.util.Random;
 
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
-import org.geotools.data.FeatureSource;
-import org.geotools.feature.FeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.util.NullProgressListener;
 import org.opengis.feature.Feature;
 import org.opengis.feature.FeatureVisitor;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.Name;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -86,10 +84,10 @@ public class SnapToLine {
         DataStore data = DataStoreFinder.getDataStore(params);        
         List<Name> names = data.getNames();
         
-        FeatureSource<SimpleFeatureType, SimpleFeature> source = data.getFeatureSource( names.get(0));
+        SimpleFeatureSource source = data.getFeatureSource( names.get(0));
         
         final SpatialIndex index = new STRtree();     
-        FeatureCollection<SimpleFeatureType, SimpleFeature> features = source.getFeatures();
+        SimpleFeatureCollection features = source.getFeatures();
         System.out.println("Slurping in features ...");
         features.accepts( new FeatureVisitor(){
             public void visit(Feature feature) {

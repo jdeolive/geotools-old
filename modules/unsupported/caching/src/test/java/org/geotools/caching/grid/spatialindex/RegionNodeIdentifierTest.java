@@ -16,13 +16,12 @@
  */
 package org.geotools.caching.grid.spatialindex;
 
+import java.util.HashMap;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import java.util.HashMap;
 
-import org.geotools.caching.grid.spatialindex.GridSpatialIndex;
-import org.geotools.caching.grid.spatialindex.GridNode;
 import org.geotools.caching.spatialindex.Region;
 import org.geotools.caching.spatialindex.RegionNodeIdentifier;
 

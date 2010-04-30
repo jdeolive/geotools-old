@@ -16,7 +16,6 @@
  */
 package org.geotools.xml.schema;
 
-import java.net.URI;
 import java.util.Map;
 
 import org.xml.sax.Attributes;

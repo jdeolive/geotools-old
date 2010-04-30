@@ -21,11 +21,9 @@ import java.net.URL;
 import java.util.List;
 
 import net.opengis.wfs.GetFeatureType;
-import net.opengis.wfs.GetGmlObjectType;
 import net.opengis.wfs.QueryType;
 import net.opengis.wfs.ResultTypeType;
 
-import org.eclipse.emf.common.util.EList;
 import org.geotools.test.TestData;
 import org.geotools.wfs.WFS;
 import org.geotools.wfs.WFSTestSupport;

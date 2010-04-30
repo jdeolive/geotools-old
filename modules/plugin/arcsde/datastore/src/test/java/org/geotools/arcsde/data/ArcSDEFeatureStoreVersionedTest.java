@@ -29,12 +29,12 @@ import org.geotools.arcsde.session.ISession;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultTransaction;
-import org.geotools.data.FeatureSource;
-import org.geotools.data.FeatureStore;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
+import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.util.logging.Logging;
 import org.junit.After;
@@ -120,10 +120,10 @@ public class ArcSDEFeatureStoreVersionedTest {
     @Test
     public void testEditVersionedTableAutoCommit() throws Exception {
         final ArcSDEDataStore dataStore = testData.getDataStore();
-        final FeatureSource<SimpleFeatureType, SimpleFeature> source;
-        final FeatureStore<SimpleFeatureType, SimpleFeature> store;
+        final SimpleFeatureSource source;
+        final SimpleFeatureStore store;
         source = dataStore.getFeatureSource(tableName);
-        store = (FeatureStore<SimpleFeatureType, SimpleFeature>) dataStore
+        store = (SimpleFeatureStore) dataStore
                 .getFeatureSource(tableName);
 
         ArcSdeResourceInfo info = (ArcSdeResourceInfo) store.getInfo();
@@ -138,7 +138,7 @@ public class ArcSDEFeatureStoreVersionedTest {
         final WKTReader reader = new WKTReader();
         Object[] content = new Object[2];
         SimpleFeature feature;
-        FeatureCollection<SimpleFeatureType, SimpleFeature> collection;
+        SimpleFeatureCollection collection;
         int count;
 
         content[0] = "Feature name 1";
@@ -179,11 +179,11 @@ public class ArcSDEFeatureStoreVersionedTest {
             }
 
             final ArcSDEDataStore dataStore = testData.getDataStore();
-            final FeatureSource<SimpleFeatureType, SimpleFeature> source;
-            final FeatureStore<SimpleFeatureType, SimpleFeature> store;
+            final SimpleFeatureSource source;
+            final SimpleFeatureStore store;
 
             source = dataStore.getFeatureSource(tableName);
-            store = (FeatureStore<SimpleFeatureType, SimpleFeature>) dataStore
+            store = (SimpleFeatureStore) dataStore
                     .getFeatureSource(tableName);
 
             Transaction transaction = new DefaultTransaction();
@@ -200,7 +200,7 @@ public class ArcSDEFeatureStoreVersionedTest {
             final WKTReader reader = new WKTReader();
             Object[] content = new Object[2];
             SimpleFeature feature;
-            FeatureCollection<SimpleFeatureType, SimpleFeature> collection;
+            SimpleFeatureCollection collection;
             int count;
 
             content[0] = "Feature name 1";
@@ -216,7 +216,7 @@ public class ArcSDEFeatureStoreVersionedTest {
             assertEquals(0, source.getCount(Query.ALL));
 
             {
-                FeatureIterator<SimpleFeature> features = store.getFeatures().features();
+                SimpleFeatureIterator features = store.getFeatures().features();
                 SimpleFeature f = features.next();
                 features.close();
                 Object obj = f.getDefaultGeometry();
@@ -248,7 +248,7 @@ public class ArcSDEFeatureStoreVersionedTest {
             transaction.close();
 
             {
-                FeatureIterator<SimpleFeature> features = source.getFeatures().features();
+                SimpleFeatureIterator features = source.getFeatures().features();
                 SimpleFeature f = features.next();
                 features.close();
                 Object obj = f.getDefaultGeometry();
@@ -274,12 +274,12 @@ public class ArcSDEFeatureStoreVersionedTest {
         assertNotSame(dataStore1, dataStore2);
         assertNotSame(dataStore1.connectionPool, dataStore2.connectionPool);
 
-        final FeatureStore<SimpleFeatureType, SimpleFeature> store1, store2;
+        final SimpleFeatureStore store1, store2;
 
-        store1 = (FeatureStore<SimpleFeatureType, SimpleFeature>) dataStore1
+        store1 = (SimpleFeatureStore) dataStore1
                 .getFeatureSource(tableName);
 
-        store2 = (FeatureStore<SimpleFeatureType, SimpleFeature>) dataStore2
+        store2 = (SimpleFeatureStore) dataStore2
                 .getFeatureSource(tableName);
 
         Transaction transaction1 = new DefaultTransaction();
@@ -296,7 +296,7 @@ public class ArcSDEFeatureStoreVersionedTest {
         final WKTReader reader = new WKTReader();
         Object[] content = new Object[2];
         SimpleFeature feature;
-        FeatureCollection<SimpleFeatureType, SimpleFeature> collection;
+        SimpleFeatureCollection collection;
 
         // add a feature to store1
         content[0] = "Feature name 1";

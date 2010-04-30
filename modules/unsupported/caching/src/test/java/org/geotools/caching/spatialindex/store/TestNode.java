@@ -16,8 +16,8 @@
  */
 package org.geotools.caching.spatialindex.store;
 
-import org.geotools.caching.grid.spatialindex.GridSpatialIndex;
 import org.geotools.caching.grid.spatialindex.GridNode;
+import org.geotools.caching.grid.spatialindex.GridSpatialIndex;
 import org.geotools.caching.spatialindex.Region;
 import org.geotools.caching.spatialindex.RegionNodeIdentifier;
 

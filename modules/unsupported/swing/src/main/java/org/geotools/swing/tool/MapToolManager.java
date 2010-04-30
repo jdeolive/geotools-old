@@ -22,7 +22,9 @@ import java.awt.event.MouseWheelListener;
 import java.util.HashSet;
 import java.util.ResourceBundle;
 import java.util.Set;
+
 import javax.swing.event.MouseInputListener;
+
 import org.geotools.swing.JMapPane;
 import org.geotools.swing.event.MapMouseEvent;
 import org.geotools.swing.event.MapMouseListener;

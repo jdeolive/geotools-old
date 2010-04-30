@@ -19,7 +19,6 @@ package org.geotools.geometry.text;
 import junit.framework.TestCase;
 
 import org.geotools.geometry.MockGeometryFactory;
-import org.opengis.geometry.coordinate.LineString;
 import org.opengis.geometry.primitive.Curve;
 import org.opengis.geometry.primitive.Point;
 

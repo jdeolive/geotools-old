@@ -20,11 +20,9 @@ import junit.framework.TestCase;
 
 import org.geotools.factory.CommonFactoryFinder;
 import org.opengis.filter.And;
+import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.PropertyIsEqualTo;
-
-import org.opengis.filter.Filter;
-import org.opengis.filter.PropertyIsBetween;
 import org.opengis.filter.spatial.Beyond;
 /**
  * Unit test for FilterCapabilities.

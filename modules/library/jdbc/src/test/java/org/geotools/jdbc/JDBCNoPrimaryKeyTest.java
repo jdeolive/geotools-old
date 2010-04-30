@@ -19,9 +19,9 @@ package org.geotools.jdbc;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.FeatureStore;
 import org.geotools.data.Transaction;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -54,9 +54,9 @@ public abstract class JDBCNoPrimaryKeyTest extends JDBCTestSupport {
     }
     
     public void testReadFeatures() throws Exception {
-        FeatureCollection fc = dataStore.getFeatureSource(tname(LAKE)).getFeatures();
+    	SimpleFeatureCollection fc = dataStore.getFeatureSource(tname(LAKE)).getFeatures();
         assertEquals(1, fc.size());
-        FeatureIterator<SimpleFeature> fr = fc.features();
+        SimpleFeatureIterator fr = fc.features();
         assertTrue(fr.hasNext());
         SimpleFeature f = fr.next();
         assertFalse(fr.hasNext());

@@ -16,10 +16,10 @@
  */
 package org.geotools.xml.gml;
 
+import java.util.Map;
+
 import org.geotools.xml.FlowHandler;
 import org.geotools.xml.XMLHandlerHints;
-
-import java.util.Map;
 
 /**
  * Allows the XMLSAXHandler to abort parsing of GML.

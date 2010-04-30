@@ -8,20 +8,18 @@ import java.io.File;
 
 import junit.framework.TestCase;
 
-import org.geotools.data.FeatureSource;
 import org.geotools.data.property.PropertyDataStore;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.styling.Style;
 import org.geotools.test.TestData;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 public class LineTest extends TestCase {
     
     private static final long TIME = 1000;
-    FeatureSource<SimpleFeatureType, SimpleFeature> fs;
+    SimpleFeatureSource fs;
     ReferencedEnvelope bounds;
 
     @Override

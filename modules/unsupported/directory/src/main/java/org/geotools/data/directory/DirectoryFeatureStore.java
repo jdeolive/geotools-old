@@ -21,8 +21,9 @@ import java.util.List;
 
 import org.geotools.data.FeatureListener;
 import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureStore;
 import org.geotools.data.Transaction;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.feature.FeatureCollection;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -31,12 +32,12 @@ import org.opengis.filter.Filter;
 import org.opengis.filter.identity.FeatureId;
 
 public class DirectoryFeatureStore extends DirectoryFeatureSource implements
-        FeatureStore<SimpleFeatureType, SimpleFeature> {
+        SimpleFeatureStore {
 
-    FeatureStore<SimpleFeatureType, SimpleFeature> fstore;
+    SimpleFeatureStore fstore;
 
     public DirectoryFeatureStore(
-            FeatureStore<SimpleFeatureType, SimpleFeature> store,  DirectoryDataStore dataStore) {
+            SimpleFeatureStore store,  DirectoryDataStore dataStore) {
         super(store, dataStore);
         this.fstore = store;
     }
@@ -74,7 +75,7 @@ public class DirectoryFeatureStore extends DirectoryFeatureSource implements
     }
 
     public List<FeatureId> addFeatures(
-            FeatureCollection<SimpleFeatureType, SimpleFeature> collection)
+            FeatureCollection collection)
             throws IOException {
         return fstore.addFeatures(collection);
     }

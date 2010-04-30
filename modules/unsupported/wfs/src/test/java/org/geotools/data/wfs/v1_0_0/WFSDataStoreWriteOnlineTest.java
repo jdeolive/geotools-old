@@ -19,7 +19,6 @@ package org.geotools.data.wfs.v1_0_0;
 
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -30,15 +29,14 @@ import junit.framework.TestCase;
 
 import org.geotools.data.DataStore;
 import org.geotools.data.DefaultTransaction;
-import org.geotools.data.FeatureStore;
 import org.geotools.data.Transaction;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.FactoryRegistryException;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.filter.IllegalFilterException;
-import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.filter.Filter;
@@ -61,7 +59,7 @@ public class WFSDataStoreWriteOnlineTest extends TestCase {
 //        FeatureType ft = ds.getSchema("states");
 //        Feature f = ds.getFeatureReader("states").next();
 //        doDelete(ds,ft,FilterFactoryFinder.createFilterFactory().createFidFilter(f.getID()));
-//        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = DefaultFeatureCollections.newCollection();
+//        SimpleFeatureCollection fc = DefaultFeatureCollections.newCollection();
 //        fc.add(f);
 //        doInsert(ds,ft,(new CollectionDataStore(fc)).getFeatureReader("states"));
     }
@@ -71,12 +69,12 @@ public class WFSDataStoreWriteOnlineTest extends TestCase {
         Logger.global.setLevel(Level.SEVERE);
     }
     
-    public static Id doInsert(DataStore ds,SimpleFeatureType ft,FeatureCollection<SimpleFeatureType, SimpleFeature> insert) throws NoSuchElementException, IOException, IllegalAttributeException{
+    public static Id doInsert(DataStore ds,SimpleFeatureType ft,SimpleFeatureCollection insert) throws NoSuchElementException, IOException, IllegalAttributeException{
     	Transaction t = new DefaultTransaction();
     	WFSFeatureStore fs = (WFSFeatureStore)ds.getFeatureSource(ft.getTypeName());
     	fs.setTransaction(t);
     	System.out.println("Insert Read 1");
-    	FeatureIterator<SimpleFeature> fr = fs.getFeatures().features();
+    	SimpleFeatureIterator fr = fs.getFeatures().features();
     	int count1 = 0;
     	while(fr.hasNext()){
     		count1 ++; fr.next();
@@ -153,11 +151,11 @@ public class WFSDataStoreWriteOnlineTest extends TestCase {
     public static void doDelete(DataStore ds,SimpleFeatureType ft, Id ff) throws NoSuchElementException, IllegalAttributeException, IOException{
     	assertNotNull("doInsertFailed?",ff);
     	Transaction t = new DefaultTransaction();
-    	FeatureStore<SimpleFeatureType, SimpleFeature> fs = (FeatureStore<SimpleFeatureType, SimpleFeature>)ds.getFeatureSource(ft.getTypeName());
+    	SimpleFeatureStore fs = (SimpleFeatureStore)ds.getFeatureSource(ft.getTypeName());
     	fs.setTransaction(t);
     	
     	System.out.println("Delete Read 1");
-    	FeatureIterator<SimpleFeature> fr = fs.getFeatures().features();
+    	SimpleFeatureIterator fr = fs.getFeatures().features();
     	int count1 = 0;
     	while(fr.hasNext()){
     		count1 ++; fr.next();
@@ -195,7 +193,7 @@ public class WFSDataStoreWriteOnlineTest extends TestCase {
     
     public static void doUpdate(DataStore ds,SimpleFeatureType ft, String attributeToChange, Object newValue ) throws IllegalFilterException, FactoryRegistryException, NoSuchElementException, IOException, IllegalAttributeException{
     	Transaction t = new DefaultTransaction();
-    	FeatureStore<SimpleFeatureType, SimpleFeature> fs = (FeatureStore<SimpleFeatureType, SimpleFeature>)ds.getFeatureSource(ft.getTypeName());
+    	SimpleFeatureStore fs = (SimpleFeatureStore)ds.getFeatureSource(ft.getTypeName());
     	fs.setTransaction(t);
     	
     	AttributeDescriptor at = ft.getDescriptor(attributeToChange);
@@ -206,7 +204,7 @@ public class WFSDataStoreWriteOnlineTest extends TestCase {
                 .literal(newValue));
 
     	System.out.println("Update Read 1");
-    	FeatureIterator<SimpleFeature> fr = fs.getFeatures(f).features();
+    	SimpleFeatureIterator fr = fs.getFeatures(f).features();
     	
     	int count1 = 0;
     	Object oldValue=null;

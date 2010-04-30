@@ -21,6 +21,7 @@ import java.io.IOException;
 import org.geotools.data.FeatureLock;
 import org.geotools.data.FeatureLocking;
 import org.geotools.data.Query;
+import org.geotools.data.simple.SimpleFeatureLocking;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
@@ -38,7 +39,7 @@ class WrappingPostgisFeatureLocking extends WrappingPostgisFeatureStore
 
     private FeatureLocking<SimpleFeatureType, SimpleFeature> wrappedLocking;
 
-    public WrappingPostgisFeatureLocking(FeatureLocking<SimpleFeatureType, SimpleFeature> wrapped,
+    public WrappingPostgisFeatureLocking(SimpleFeatureLocking wrapped,
             VersionedPostgisDataStore store) {
         super(wrapped, store);
         this.wrappedLocking = wrapped;

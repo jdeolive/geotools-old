@@ -11,12 +11,7 @@
 
 package org.geotools.demo.xml;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.io.WKTReader;
-import org.geotools.feature.FeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
@@ -25,8 +20,13 @@ import org.geotools.kml.KML;
 import org.geotools.kml.KMLConfiguration;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.xml.Encoder;
-import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.io.WKTReader;
 
 /**
  * This example illustrates how to produce KML representations
@@ -62,7 +62,7 @@ public class KMLExample {
      * encoded as KML
      */
     private void featureCollectionToKML() throws Exception {
-        FeatureCollection<SimpleFeatureType, SimpleFeature> features = createSampleFeatures();
+        SimpleFeatureCollection features = createSampleFeatures();
         Encoder encoder = new Encoder(new KMLConfiguration());
         encoder.setIndenting(true);
         encoder.encode(features, KML.kml, System.out );
@@ -76,7 +76,7 @@ public class KMLExample {
      * example: <a href="http://geotools.org/examples/csv2shp.html">CSV To Shape Lab</a>
      * for an introduction to Feature, FeatureType and FeatureCollection.
      */
-    private FeatureCollection<SimpleFeatureType, SimpleFeature> createSampleFeatures() {
+    private SimpleFeatureCollection createSampleFeatures() {
         SimpleFeatureTypeBuilder typeBuilder = new SimpleFeatureTypeBuilder();
         typeBuilder.setName("cities");
         typeBuilder.add("geometry", Point.class, DefaultGeographicCRS.WGS84);
@@ -86,7 +86,7 @@ public class KMLExample {
 
         SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(TYPE);
         GeometryFactory gf = JTSFactoryFinder.getGeometryFactory(null);
-        FeatureCollection<SimpleFeatureType, SimpleFeature> features = FeatureCollections.newCollection();
+        SimpleFeatureCollection features = FeatureCollections.newCollection();
 
         // Rome
         featureBuilder.add(gf.createPoint(new Coordinate(12.5000, 41.8833)));

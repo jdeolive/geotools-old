@@ -24,8 +24,8 @@ import java.util.Set;
 
 import org.geotools.data.DataTestCase;
 import org.geotools.data.DataUtilities;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.visitor.MaxVisitor.MaxResult;
 import org.geotools.feature.visitor.MedianVisitor.MedianResult;
@@ -44,11 +44,11 @@ import com.vividsolutions.jts.geom.Envelope;
  * @source $URL$
  */
 public class VisitorCalculationTest extends DataTestCase {
-    FeatureCollection<SimpleFeatureType, SimpleFeature> fc;
+    SimpleFeatureCollection fc;
     SimpleFeatureType ft;
-    FeatureCollection<SimpleFeatureType, SimpleFeature> fc2;
+    SimpleFeatureCollection fc2;
     SimpleFeatureType ft2;
-    FeatureCollection<SimpleFeatureType, SimpleFeature> fc3;
+    SimpleFeatureCollection fc3;
     SimpleFeatureType ft3;
 
     public VisitorCalculationTest(String arg0) {

@@ -16,23 +16,22 @@
  */
 package org.geotools.process.raster;
 
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTReader;
+import static org.junit.Assert.assertTrue;
+
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.awt.image.RenderedImage;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.media.jai.iterator.RectIter;
 import javax.media.jai.iterator.RectIterFactory;
+
 import org.geotools.coverage.grid.GridCoverage2D;
-import org.geotools.feature.FeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.feature.FeatureCollections;
-import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -46,7 +45,11 @@ import org.opengis.referencing.operation.MathTransform2D;
 import org.opengis.referencing.operation.TransformException;
 import org.opengis.util.ProgressListener;
 
-import static org.junit.Assert.*;
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKTReader;
 
 /**
  *
@@ -62,7 +65,7 @@ public class VectorToRasterProcessTest {
     @Test
     public void testProcess() throws Exception {
         System.out.println("process");
-        FeatureCollection<SimpleFeatureType, SimpleFeature> features = createTestFeatures();
+        SimpleFeatureCollection features = createTestFeatures();
         ReferencedEnvelope bounds = features.getBounds();
 
         Dimension gridDim = new Dimension(
@@ -80,7 +83,7 @@ public class VectorToRasterProcessTest {
          * the larger rectangle (value 2)
          */
         Map<Integer, Envelope> rects = new HashMap<Integer, Envelope>();
-        FeatureIterator<SimpleFeature> iter = features.features();
+        SimpleFeatureIterator iter = features.features();
         while (iter.hasNext()) {
             SimpleFeature sf = iter.next();
             rects.put((Integer)sf.getAttribute("value"),
@@ -131,7 +134,7 @@ public class VectorToRasterProcessTest {
      *             |---------------|
      * </pre>
      */
-    private FeatureCollection<SimpleFeatureType, SimpleFeature> createTestFeatures() {
+    private SimpleFeatureCollection createTestFeatures() {
         SimpleFeatureTypeBuilder tb = new SimpleFeatureTypeBuilder();
         tb.setName("testType");
         tb.setNamespaceURI("http://www.geotools.org/");
@@ -146,7 +149,7 @@ public class VectorToRasterProcessTest {
         SimpleFeatureBuilder builder = new SimpleFeatureBuilder(type);
         WKTReader reader = new WKTReader();
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = FeatureCollections.newCollection();
+        SimpleFeatureCollection fc = FeatureCollections.newCollection();
         SimpleFeature feature;
 
         feature = buildFeature(builder, reader,

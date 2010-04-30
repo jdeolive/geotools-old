@@ -16,6 +16,15 @@
  */
 package org.geotools.xml.filter;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.Stack;
+
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.filter.AttributeExpression;
 import org.geotools.filter.BetweenFilter;
@@ -23,8 +32,6 @@ import org.geotools.filter.CompareFilter;
 import org.geotools.filter.Expression;
 import org.geotools.filter.FidFilter;
 import org.geotools.filter.Filter;
-import org.geotools.filter.FilterFactory;
-import org.geotools.filter.FilterFactoryFinder;
 import org.geotools.filter.FilterType;
 import org.geotools.filter.FilterVisitor;
 import org.geotools.filter.FilterVisitor2;
@@ -42,38 +49,29 @@ import org.opengis.filter.ExcludeFilter;
 import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.IncludeFilter;
 import org.opengis.filter.identity.FeatureId;
-import org.opengis.filter.identity.Identifier;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.Stack;
 
 
 /**
  * Prepares a filter for xml encoded for interoperability with another system.  It will behave differently depeding on
  * the compliance level chosen.  A new request will have to be made and the features will have
  * to be tested again on the client side if there are any FidFilters in the filter.  Consider the following to understand why:
- *
+ * <pre>
  * and {
- *                 nullFilter
- *                 or{
- *                         fidFilter
- *                         nullFilter
- *                 }
+ *   nullFilter
+ *   or{
+ *    fidFilter
+ *    nullFilter
+ *   }
  * }
+ * </pre>
  *
  * for strict it would throw an exception, for low it would be left alone, but for Medium it would end up as:
- *
- *         and{
- *                 nullFilter
- *                 nullFilter
- *         }
- *
+ * <pre>
+ * and{
+ *         nullFilter
+ *         nullFilter
+ * }
+ * </pre>
  * and getFids() would return the fids in the fidFilter.
  *
  * So the final filter would (this is not standard but a common implementation) return the results of the and filter as well as

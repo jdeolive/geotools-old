@@ -54,13 +54,13 @@ import org.geotools.data.jdbc.FilterToSQL;
 import org.geotools.data.jdbc.FilterToSQLException;
 import org.geotools.data.jdbc.datasource.ManageableDataSource;
 import org.geotools.data.jdbc.fidmapper.FIDMapper;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.data.store.ContentDataStore;
 import org.geotools.data.store.ContentEntry;
 import org.geotools.data.store.ContentFeatureSource;
 import org.geotools.data.store.ContentState;
 import org.geotools.factory.Hints;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.NameImpl;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.visitor.CountVisitor;
@@ -678,10 +678,10 @@ public final class JDBCDataStore extends ContentDataStore
         query.setFilter( filter );
         query.setHints( hints );
         
-        FeatureCollection<SimpleFeatureType, SimpleFeature> features = 
+        SimpleFeatureCollection features = 
             getFeatureSource( featureTypeName ).getFeatures( query );  
         if ( !features.isEmpty() ) {
-            FeatureIterator<SimpleFeature> fi = features.features();
+            SimpleFeatureIterator fi = features.features();
             try {
                 if ( fi.hasNext() ) {
                     return fi.next();
@@ -720,7 +720,7 @@ public final class JDBCDataStore extends ContentDataStore
 //    /**
 //     * Creates a new instance of {@link JDBCTransactionState}.
 //     */
-//    protected State createTransactionState(ContentFeatureSource<SimpleFeatureType, SimpleFeature> featureSource)
+//    protected State createTransactionState(ContentSimpleFeatureSource featureSource)
 //        throws IOException {
 //        return new JDBCTransactionState((JDBCFeatureStore) featureSource);
 //    }

@@ -18,13 +18,11 @@ package org.geotools.data.store;
 
 import java.io.IOException;
 
-import org.geotools.data.FeatureSource;
 import org.geotools.data.Transaction;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.util.InternationalString;
-
-import com.vividsolutions.jts.geom.Envelope;
 
 /**
  * Starting place for holding information about a FeatureType.
@@ -111,7 +109,7 @@ public interface TypeEntry {
      * @throws IOException
      */
     //FeatureSource getFeatureSource() throws IOException;
-    FeatureSource<SimpleFeatureType, SimpleFeature> createFeatureSource() throws IOException;
+    SimpleFeatureSource createFeatureSource() throws IOException;
     
     /**
      * Change notifcation

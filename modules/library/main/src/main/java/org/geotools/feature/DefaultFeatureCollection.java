@@ -19,7 +19,6 @@ package org.geotools.feature;
 // J2SE interfaces
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -32,14 +31,15 @@ import java.util.logging.Logger;
 
 import org.geotools.data.DataSourceException;
 import org.geotools.data.FeatureReader;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.feature.collection.FeatureIteratorImpl;
+import org.geotools.feature.collection.SimpleFeatureIteratorImpl;
 import org.geotools.feature.collection.SubFeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
-import org.geotools.feature.simple.SimpleFeatureTypeImpl;
 import org.geotools.filter.SortBy2;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.util.NullProgressListener;
-import org.geotools.util.ProgressListener;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
@@ -48,7 +48,7 @@ import org.opengis.geometry.BoundingBox;
 
 
 /**
- * A basic implementation of FeatureCollection<SimpleFeatureType, SimpleFeature> which use a {@link TreeMap} for
+ * A basic implementation of SimpleFeatureCollection which use a {@link TreeMap} for
  * its internal storage.
  * <p>
  * This should be considered a MemoryFeatureCollection.
@@ -58,7 +58,7 @@ import org.opengis.geometry.BoundingBox;
  * @source $URL$
  * @version $Id$
  */
-public class DefaultFeatureCollection implements FeatureCollection<SimpleFeatureType, SimpleFeature> {
+public class DefaultFeatureCollection implements SimpleFeatureCollection {
     protected static Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.feature");
     
     /**
@@ -68,7 +68,7 @@ public class DefaultFeatureCollection implements FeatureCollection<SimpleFeature
      * with shapefile etc...
      * </p>
      */
-    private SortedMap contents = new TreeMap();
+    private SortedMap<String,SimpleFeature> contents = new TreeMap<String,SimpleFeature>();
     
     /** Internal listener storage list */
     //private List listeners = new ArrayList(2);
@@ -80,9 +80,9 @@ public class DefaultFeatureCollection implements FeatureCollection<SimpleFeature
 
     /**
      * This constructor should not be used by client code.
-     * @param collection FeatureCollection<SimpleFeatureType, SimpleFeature> to copy into memory
+     * @param collection SimpleFeatureCollection to copy into memory
      */
-    public DefaultFeatureCollection( FeatureCollection<SimpleFeatureType, SimpleFeature> collection ) {
+    public DefaultFeatureCollection( SimpleFeatureCollection collection ) {
         this( collection.getID(), collection.getSchema() );
         addAll(collection);
     }
@@ -257,7 +257,7 @@ public class DefaultFeatureCollection implements FeatureCollection<SimpleFeature
         }
         finally {
             if( collection instanceof FeatureCollection ){
-                ((FeatureCollection<SimpleFeatureType, SimpleFeature>)collection).close( iterator );
+                ((SimpleFeatureCollection)collection).close( iterator );
             }
         }
     }
@@ -344,7 +344,7 @@ public class DefaultFeatureCollection implements FeatureCollection<SimpleFeature
         }
         finally {
             if( collection instanceof FeatureCollection ){
-                ((FeatureCollection<SimpleFeatureType, SimpleFeature>)collection).close( iterator );
+                ((SimpleFeatureCollection)collection).close( iterator );
             }
         }
     }
@@ -389,13 +389,13 @@ public class DefaultFeatureCollection implements FeatureCollection<SimpleFeature
     }
 
     /**
-     * Gets a FeatureIterator<SimpleFeature> of this feature collection.  This allows
+     * Gets a SimpleFeatureIterator of this feature collection.  This allows
      * iteration without having to cast.
      *
-     * @return the FeatureIterator<SimpleFeature> for this collection.
+     * @return the SimpleFeatureIterator for this collection.
      */
-    public FeatureIterator<SimpleFeature> features() {
-        return new FeatureIteratorImpl<SimpleFeature>(this);
+    public SimpleFeatureIterator features() {
+        return new SimpleFeatureIteratorImpl(this);
     }
 
     /**
@@ -459,7 +459,7 @@ public class DefaultFeatureCollection implements FeatureCollection<SimpleFeature
         }
         finally {
             if( collection instanceof FeatureCollection ){
-                ((FeatureCollection<SimpleFeatureType, SimpleFeature>)collection).close( iterator );
+                ((SimpleFeatureCollection)collection).close( iterator );
             }
         }
     }
@@ -586,7 +586,7 @@ public class DefaultFeatureCollection implements FeatureCollection<SimpleFeature
     }
 
 	
-	public void close( FeatureIterator<SimpleFeature> close ) {
+	public void close( FeatureIterator<SimpleFeature>  close ) {
         if( close instanceof FeatureIteratorImpl){
         	FeatureIteratorImpl<SimpleFeature> wrapper = (FeatureIteratorImpl<SimpleFeature>) close;
         	wrapper.close();
@@ -598,7 +598,7 @@ public class DefaultFeatureCollection implements FeatureCollection<SimpleFeature
     }
 
     public  FeatureReader<SimpleFeatureType, SimpleFeature> reader() throws IOException {
-        final FeatureIterator<SimpleFeature> iterator = features(); 
+        final SimpleFeatureIterator iterator = features(); 
         return new FeatureReader<SimpleFeatureType, SimpleFeature>(){
             public SimpleFeatureType getFeatureType() {
                 return getSchema();
@@ -621,10 +621,10 @@ public class DefaultFeatureCollection implements FeatureCollection<SimpleFeature
         return contents.size();
     }
 
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> collection() throws IOException {
-        FeatureCollection<SimpleFeatureType, SimpleFeature> copy = new DefaultFeatureCollection( null, getSchema() );
+    public SimpleFeatureCollection collection() throws IOException {
+        SimpleFeatureCollection copy = new DefaultFeatureCollection( null, getSchema() );
         List<SimpleFeature> list = new ArrayList<SimpleFeature>( contents.size() );
-        FeatureIterator<SimpleFeature> iterator = features();
+        SimpleFeatureIterator iterator = features();
         try {
 	        while( iterator.hasNext() ){
 	            SimpleFeature feature = iterator.next();
@@ -690,7 +690,7 @@ public class DefaultFeatureCollection implements FeatureCollection<SimpleFeature
      * @param filter Filter used to determine sub collection.
      * @since GeoTools 2.2, Filter 1.1
      */
-	public FeatureCollection<SimpleFeatureType, SimpleFeature> subCollection(Filter filter) {
+	public SimpleFeatureCollection subCollection(Filter filter) {
 		if( filter == Filter.INCLUDE ){
 			return this;
 		}		
@@ -714,7 +714,7 @@ public class DefaultFeatureCollection implements FeatureCollection<SimpleFeature
      * @return FeatureList sorted according to provided order
      * 
      */
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> sort(SortBy order) {
+    public SimpleFeatureCollection sort(SortBy order) {
     	if( order == SortBy.NATURAL_ORDER ){
     		return this;
     	}
@@ -734,7 +734,7 @@ public class DefaultFeatureCollection implements FeatureCollection<SimpleFeature
      * @param order GeoTools SortBy
      * @return FeatureList sorted according to provided order
      */
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> sort(SortBy2 order ){
+    public SimpleFeatureCollection sort(SortBy2 order ){
     	if( order == SortBy.NATURAL_ORDER ){
     		return this;
     	}

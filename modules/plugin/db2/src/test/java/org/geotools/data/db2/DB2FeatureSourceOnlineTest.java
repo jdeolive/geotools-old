@@ -20,10 +20,10 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import org.geotools.data.DefaultQuery;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.feature.FeatureCollection;
 import org.geotools.filter.IllegalFilterException;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -59,7 +59,7 @@ public class DB2FeatureSourceOnlineTest extends AbstractDB2OnlineTestCase {
     }
 
     public void testGetBounds() throws Exception {
-        FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
+        SimpleFeatureSource featureSource;
         Envelope env;
         String coordString = null;
         DefaultQuery query;
@@ -93,8 +93,8 @@ public class DB2FeatureSourceOnlineTest extends AbstractDB2OnlineTestCase {
     }
 
     private void checkFidTable(String featureName, String testValue) throws IOException {
-        FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
-        FeatureCollection<SimpleFeatureType, SimpleFeature> features;
+        SimpleFeatureSource featureSource;
+        SimpleFeatureCollection features;
         Iterator it;
 
         featureSource = dataStore.getFeatureSource(featureName);
@@ -128,7 +128,7 @@ public class DB2FeatureSourceOnlineTest extends AbstractDB2OnlineTestCase {
     }
     
     public void testGetCount() throws Exception {
-        FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
+        SimpleFeatureSource featureSource;
         int count;
 
         // Check "Roads"
@@ -152,7 +152,7 @@ public class DB2FeatureSourceOnlineTest extends AbstractDB2OnlineTestCase {
     }
 
     public void testCRS() throws IOException {
-        FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
+        SimpleFeatureSource featureSource;
         CoordinateReferenceSystem crs;
 
         // Check "Roads"
@@ -172,7 +172,7 @@ public class DB2FeatureSourceOnlineTest extends AbstractDB2OnlineTestCase {
     }
 
     public void testSchema() throws IOException {
-        FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
+        SimpleFeatureSource featureSource;
         featureSource = dataStore.getFeatureSource("Roads");
 
         String schemaFound = featureSource.getSchema().toString();
@@ -181,7 +181,7 @@ public class DB2FeatureSourceOnlineTest extends AbstractDB2OnlineTestCase {
         assertEquals("schema mismatch", schemaCompare, schemaFound);
     }
 
-    private BBOX getBBOXFilter(FeatureSource<SimpleFeatureType, SimpleFeature> featureSource,
+    private BBOX getBBOXFilter(SimpleFeatureSource featureSource,
         Envelope env) throws IllegalFilterException {
     	
     	double xmin = env.getMinX();
@@ -194,7 +194,7 @@ public class DB2FeatureSourceOnlineTest extends AbstractDB2OnlineTestCase {
         return bbox;
     }
 
-    private DefaultQuery getBBOXQuery(FeatureSource<SimpleFeatureType, SimpleFeature> featureSource, Envelope env)
+    private DefaultQuery getBBOXQuery(SimpleFeatureSource featureSource, Envelope env)
         throws IllegalFilterException {
         BBOX bbox = getBBOXFilter(featureSource, env);
         SimpleFeatureType ft = featureSource.getSchema();

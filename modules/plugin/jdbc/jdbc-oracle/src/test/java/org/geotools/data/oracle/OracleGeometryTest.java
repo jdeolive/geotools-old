@@ -16,7 +16,7 @@
  */
 package org.geotools.data.oracle;
 
-import org.geotools.feature.FeatureIterator;
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.jdbc.JDBCGeometryTest;
 import org.geotools.jdbc.JDBCGeometryTestSetup;
 import org.opengis.feature.simple.SimpleFeature;
@@ -38,7 +38,7 @@ public class OracleGeometryTest extends JDBCGeometryTest {
     }
     
     public void testComplexGeometryFallback() throws Exception {
-        FeatureIterator<SimpleFeature> fi = dataStore.getFeatureSource("COLA_MARKETS_CS").getFeatures().features();
+        SimpleFeatureIterator fi = dataStore.getFeatureSource("COLA_MARKETS_CS").getFeatures().features();
         assertTrue(fi.hasNext());
         SimpleFeature sf = fi.next();
         assertNotNull(sf.getDefaultGeometry());

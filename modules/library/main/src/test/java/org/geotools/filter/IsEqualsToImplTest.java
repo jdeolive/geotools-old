@@ -18,11 +18,11 @@ package org.geotools.filter;
 
 import java.math.BigDecimal;
 
+import junit.framework.TestCase;
+
 import org.geotools.factory.CommonFactoryFinder;
 import org.opengis.filter.PropertyIsEqualTo;
 import org.opengis.filter.expression.Expression;
-
-import junit.framework.TestCase;
 
 public class IsEqualsToImplTest extends TestCase {
 

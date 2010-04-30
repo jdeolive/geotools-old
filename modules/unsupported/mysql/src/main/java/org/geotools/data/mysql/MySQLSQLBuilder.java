@@ -16,13 +16,12 @@
  */
 package org.geotools.data.mysql;
 
-import org.opengis.feature.simple.SimpleFeature;
+import org.geotools.data.jdbc.FilterToSQL;
+import org.geotools.data.jdbc.GeoAPISQLBuilder;
+import org.geotools.data.jdbc.fidmapper.FIDMapper;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.GeometryDescriptor;
-import org.geotools.data.jdbc.GeoAPISQLBuilder;
-import org.geotools.data.jdbc.fidmapper.FIDMapper;
-import org.geotools.data.jdbc.FilterToSQL;
 
 
 /**

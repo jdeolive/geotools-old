@@ -19,8 +19,7 @@ package org.geotools.data.crs;
 import java.io.IOException;
 import java.util.Iterator;
 
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.FeatureTypes;
 import org.geotools.feature.SchemaException;
 import org.geotools.feature.collection.AbstractFeatureCollection;
@@ -62,21 +61,21 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  */
 public class ForceCoordinateSystemFeatureResults extends AbstractFeatureCollection {
     
-    FeatureCollection<SimpleFeatureType, SimpleFeature> results;
+    SimpleFeatureCollection results;
     
-    public ForceCoordinateSystemFeatureResults(FeatureCollection<SimpleFeatureType, SimpleFeature> results,
+    public ForceCoordinateSystemFeatureResults(SimpleFeatureCollection results,
             CoordinateReferenceSystem forcedCS) throws IOException, SchemaException {
         this(results, forcedCS, false);
     }
 
-    public ForceCoordinateSystemFeatureResults(FeatureCollection<SimpleFeatureType, SimpleFeature> results,            
+    public ForceCoordinateSystemFeatureResults(SimpleFeatureCollection results,            
         CoordinateReferenceSystem forcedCS, boolean forceOnlyMissing) throws IOException, SchemaException {
         super( forceType( origionalType( results ), forcedCS, forceOnlyMissing ));
         
         this.results = results;
     }
     
-    private static SimpleFeatureType origionalType( FeatureCollection<SimpleFeatureType, SimpleFeature> results ){
+    private static SimpleFeatureType origionalType( SimpleFeatureCollection results ){
         while( true ){
             if ( results instanceof ReprojectFeatureResults ) {
                 results = ((ReprojectFeatureResults) results).getOrigin();
@@ -89,7 +88,7 @@ public class ForceCoordinateSystemFeatureResults extends AbstractFeatureCollecti
         return results.getSchema();
     }
     
-	 public Iterator openIterator() {
+	 public Iterator<SimpleFeature> openIterator() {
 	        return new ForceCoordinateSystemIterator( results.features(), getSchema() );
 	  }
 	 public void closeIterator( Iterator close ) {
@@ -134,8 +133,8 @@ public class ForceCoordinateSystemFeatureResults extends AbstractFeatureCollecti
     /**
      * @see org.geotools.data.FeatureResults#collection()
      */
-//    public FeatureCollection<SimpleFeatureType, SimpleFeature> collection() throws IOException {
-//        FeatureCollection<SimpleFeatureType, SimpleFeature> collection = FeatureCollections.newCollection();
+//    public SimpleFeatureCollection collection() throws IOException {
+//        SimpleFeatureCollection collection = FeatureCollections.newCollection();
 //
 //        try {
 //             FeatureReader<SimpleFeatureType, SimpleFeature> reader = reader();
@@ -157,7 +156,7 @@ public class ForceCoordinateSystemFeatureResults extends AbstractFeatureCollecti
      * ForceCoordinateSystemFeatureResults
      *
      */
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> getOrigin() {
+    public SimpleFeatureCollection getOrigin() {
         return results;
     }
 }

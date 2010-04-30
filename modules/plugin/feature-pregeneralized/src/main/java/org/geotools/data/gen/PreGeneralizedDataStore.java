@@ -28,7 +28,6 @@ import java.util.Set;
 import org.geotools.data.DataStore;
 import org.geotools.data.DefaultServiceInfo;
 import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.LockingManager;
 import org.geotools.data.Query;
@@ -37,6 +36,7 @@ import org.geotools.data.ServiceInfo;
 import org.geotools.data.Transaction;
 import org.geotools.data.gen.info.GeneralizationInfo;
 import org.geotools.data.gen.info.GeneralizationInfos;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.data.view.DefaultView;
 import org.geotools.factory.Hints;
 import org.geotools.feature.FeatureTypes;
@@ -110,9 +110,9 @@ public class PreGeneralizedDataStore implements DataStore {
 
     }
 
-    public FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSource(String typeName)
+    public SimpleFeatureSource getFeatureSource(String typeName)
             throws IOException {
-        FeatureSource<SimpleFeatureType, SimpleFeature> fs = featureSources.get(typeName);
+        SimpleFeatureSource fs = featureSources.get(typeName);
         if (fs == null)
             throw new IOException(typeName + " not found");
         return fs;
@@ -150,7 +150,7 @@ public class PreGeneralizedDataStore implements DataStore {
 
     }
 
-    public FeatureSource<SimpleFeatureType, SimpleFeature> getView(Query query) throws IOException,
+    public SimpleFeatureSource getView(Query query) throws IOException,
             SchemaException {
         return new DefaultView(this.getFeatureSource(query.getTypeName()), query);
     }
@@ -171,7 +171,7 @@ public class PreGeneralizedDataStore implements DataStore {
         }
     }
 
-    public FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSource(Name typeName)
+    public SimpleFeatureSource getFeatureSource(Name typeName)
             throws IOException {
         return getFeatureSource(typeName.getLocalPart());
 

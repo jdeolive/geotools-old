@@ -18,7 +18,6 @@ package org.geotools.data;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.logging.Level;
@@ -26,10 +25,9 @@ import java.util.logging.Logger;
 
 import javax.swing.event.EventListenerList;
 
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.Feature;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.FeatureType;
 
 /**
@@ -103,7 +101,7 @@ public class FeatureListenerManager {
     }
             
     /**
-     * Used by FeatureSource<SimpleFeatureType, SimpleFeature> implementations to provide listener support.
+     * Used by SimpleFeatureSource implementations to provide listener support.
      *
      * @param featureSource
      * @param featureListener
@@ -146,11 +144,11 @@ public class FeatureListenerManager {
     }
 
     /**
-     * Returns a Map of FeatureListener[] by FeatureSource<SimpleFeatureType, SimpleFeature> for all matches with
+     * Returns a Map of FeatureListener[] by SimpleFeatureSource for all matches with
      * featureType and transaction.
      * 
      * <p>
-     * A FeatureSource<SimpleFeatureType, SimpleFeature> is considered a match when typeName and Transaction
+     * A SimpleFeatureSource is considered a match when typeName and Transaction
      * agree.  Transaction.AUTO_COMMIT will match with any change.
      * </p>
      *
@@ -158,16 +156,16 @@ public class FeatureListenerManager {
      * @param transaction Transaction to match against (may be AUTO_COMMIT)
      *
      */
-    Map<FeatureSource<SimpleFeatureType, SimpleFeature>,FeatureListener[]> getListeners(String typeName, Transaction transaction) {
-        Map<FeatureSource<SimpleFeatureType, SimpleFeature>,FeatureListener[]> map = new HashMap<FeatureSource<SimpleFeatureType, SimpleFeature>,FeatureListener[]>();
-        //Map.Entry<FeatureSource<SimpleFeatureType, SimpleFeature>,FeatureListener[]> entry;
-        FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
+    Map<SimpleFeatureSource,FeatureListener[]> getListeners(String typeName, Transaction transaction) {
+        Map<SimpleFeatureSource,FeatureListener[]> map = new HashMap<SimpleFeatureSource,FeatureListener[]>();
+        //Map.Entry<SimpleFeatureSource,FeatureListener[]> entry;
+        SimpleFeatureSource featureSource;
         EventListenerList listenerList;
         FeatureListener[] listeners;
 
         synchronized (listenerMap) {
             for (Map.Entry entry : listenerMap.entrySet()) {
-                featureSource = (FeatureSource<SimpleFeatureType, SimpleFeature>) entry.getKey();
+                featureSource = (SimpleFeatureSource) entry.getKey();
 
                 if (!featureSource.getName().getLocalPart().equals(typeName)) {
                     continue; // skip as typeName does not match
@@ -222,12 +220,12 @@ public class FeatureListenerManager {
      * <li>
      * FeatureWriter.next() with FeatureWriter.hasNext() == false<br>
      * - when an existing Feature is removed with Tranasaction.AUTO_COMMIT all
-     * listeners registered with FeatureSource<SimpleFeatureType, SimpleFeature> of typeName will be notified.
+     * listeners registered with SimpleFeatureSource of typeName will be notified.
      * </li>
      * <li>
      * FeatureWriter.next()with FeatureWriter.hasNext() == false<br>
      * - when an existing Feature is removed with a Transaction all listeners
-     * registered with FeatureSource<SimpleFeatureType, SimpleFeature> of typeName and with the same Transaction
+     * registered with SimpleFeatureSource of typeName and with the same Transaction
      * will be notified.
      * </li>
      * </ul>
@@ -267,7 +265,7 @@ public class FeatureListenerManager {
     		// This is a commit event; it needs to go out to everyone
     		// Listeners on the Transaction need to be told about any feature ids that were changed
     		// Listeners on AUTO_COMMIT need to be told that something happened            
-            Map<FeatureSource<SimpleFeatureType, SimpleFeature>,FeatureListener[]> map = getListeners(typeName, Transaction.AUTO_COMMIT);
+            Map<SimpleFeatureSource,FeatureListener[]> map = getListeners(typeName, Transaction.AUTO_COMMIT);
             for (Map.Entry entry : map.entrySet()) {
                 FeatureSource featureSource = (FeatureSource) entry.getKey();
                 FeatureListener[] listeners = (FeatureListener[]) entry.getValue();
@@ -286,7 +284,7 @@ public class FeatureListenerManager {
     		// This is a commit event; it needs to go out to everyone
     		// Listeners on the Transaction need to be told about any feature ids that were changed
     		// Listeners on AUTO_COMMIT need to be told that something happened            
-    		Map<FeatureSource<SimpleFeatureType, SimpleFeature>,FeatureListener[]> map = getListeners(typeName, transaction);
+    		Map<SimpleFeatureSource,FeatureListener[]> map = getListeners(typeName, transaction);
             for (Map.Entry entry : map.entrySet()) {
                 FeatureSource featureSource = (FeatureSource) entry.getKey();
                 FeatureListener[] listeners = (FeatureListener[]) entry.getValue();
@@ -314,13 +312,13 @@ public class FeatureListenerManager {
      * <li>
      * FeatureWriter.next() with FeatureWriter.hasNext() == true <br>
      * - when an existing Feature is modified with Tranasaction.AUTO_COMMIT
-     * all listeners registered with FeatureSource<SimpleFeatureType, SimpleFeature> of typeName will be
+     * all listeners registered with SimpleFeatureSource of typeName will be
      * notified.
      * </li>
      * <li>
      * FeatureWriter.next()with FeatureWriter.hasNext() == true <br>
      * - when an existing Feature is modified, with a Transaction all
-     * listeners registered with FeatureSource<SimpleFeatureType, SimpleFeature> of typeName and with the same
+     * listeners registered with SimpleFeatureSource of typeName and with the same
      * Transaction will be notified.
      * </li>
      * </ul>
@@ -358,12 +356,12 @@ public class FeatureListenerManager {
      * <ul>
      * <li>
      * Transaction.commit()<br> - when changes have occured on a Transaction
-     * all listeners registered with FeatureSource<SimpleFeatureType, SimpleFeature> of typeName will be
+     * all listeners registered with SimpleFeatureSource of typeName will be
      * notified except those with the Same Transaction
      * </li>
      * <li>
      * Transaction.rollback()<br> - when changes have been reverted only those
-     * listeners registered with FeatureSource<SimpleFeatureType, SimpleFeature> of typeName and with the same
+     * listeners registered with SimpleFeatureSource of typeName and with the same
      * Transaction will be notified.
      * </li>
      * </ul>
@@ -393,7 +391,7 @@ public class FeatureListenerManager {
         FeatureSource<? extends FeatureType, ? extends Feature> featureSource;
         FeatureListener[] listeners;
         FeatureEvent event;
-        Map<FeatureSource<SimpleFeatureType, SimpleFeature>,FeatureListener[]> map = getListeners(typeName, Transaction.AUTO_COMMIT);
+        Map<SimpleFeatureSource,FeatureListener[]> map = getListeners(typeName, Transaction.AUTO_COMMIT);
 
         for (Map.Entry entry : map.entrySet()) {
             featureSource = (FeatureSource<? extends FeatureType, ? extends Feature>) entry.getKey();
@@ -422,7 +420,7 @@ public class FeatureListenerManager {
         FeatureSource<? extends FeatureType, ? extends Feature> featureSource;
         FeatureListener[] listeners;
         FeatureEvent event;
-        Map<FeatureSource<SimpleFeatureType, SimpleFeature>,FeatureListener[]> map = getListeners(typeName, transaction);
+        Map<SimpleFeatureSource,FeatureListener[]> map = getListeners(typeName, transaction);
 
         for (Map.Entry entry : map.entrySet()) {
             featureSource = (FeatureSource) entry.getKey();
@@ -446,12 +444,12 @@ public class FeatureListenerManager {
      * <ul>
      * <li>
      * FeatureWrtier.remove() - when an existing Feature is removed with
-     * Tranasaction.AUTO_COMMIT all listeners registered with FeatureSource<SimpleFeatureType, SimpleFeature> of
+     * Tranasaction.AUTO_COMMIT all listeners registered with SimpleFeatureSource of
      * typeName will be notified.
      * </li>
      * <li>
      * FeatureWrtier.remove() - when an existing Feature is removed with a
-     * Transaction all listeners registered with FeatureSource<SimpleFeatureType, SimpleFeature> of typeName and
+     * Transaction all listeners registered with SimpleFeatureSource of typeName and
      * with the same Transaction will be notified.
      * </li>
      * </ul>

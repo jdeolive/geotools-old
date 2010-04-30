@@ -25,16 +25,6 @@
 
 package org.geotools.process.raster;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.LinearRing;
-import com.vividsolutions.jts.geom.MultiLineString;
-import com.vividsolutions.jts.geom.MultiPoint;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -49,25 +39,36 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.media.jai.RasterFactory;
 import javax.media.jai.TiledImage;
+
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.process.Process;
 import org.geotools.process.feature.AbstractFeatureCollectionProcess;
 import org.geotools.process.feature.AbstractFeatureCollectionProcessFactory;
 import org.geotools.referencing.CRS;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.feature.type.AttributeDescriptor;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.util.ProgressListener;
 import org.geotools.util.NullProgressListener;
 import org.geotools.util.SimpleInternationalString;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.geometry.Envelope;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.util.ProgressListener;
+
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.MultiLineString;
+import com.vividsolutions.jts.geom.MultiPoint;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 
 /**
  * A Process to rasterize vector features in an input FeatureCollection.
@@ -138,7 +139,7 @@ public class VectorToRasterProcess extends AbstractFeatureCollectionProcess {
      * @throws org.geotools.process.raster.VectorToRasterException
      */
     public static GridCoverage2D process(
-            FeatureCollection<SimpleFeatureType, SimpleFeature> features,
+            SimpleFeatureCollection features,
             String attributeName,
             Dimension gridDim,
             Envelope bounds,
@@ -171,7 +172,7 @@ public class VectorToRasterProcess extends AbstractFeatureCollectionProcess {
     public Map<String, Object> execute( Map<String, Object> input, ProgressListener monitor )
         throws VectorToRasterException {
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> features = (FeatureCollection<SimpleFeatureType, SimpleFeature>)
+        SimpleFeatureCollection features = (SimpleFeatureCollection)
             input.get(AbstractFeatureCollectionProcessFactory.FEATURES.key);
 
         String attributeName = (String) input.get(VectorToRasterFactory.ATTRIBUTE.key);
@@ -265,7 +266,7 @@ public class VectorToRasterProcess extends AbstractFeatureCollectionProcess {
     }
 
     private GridCoverage2D convert(
-            FeatureCollection<SimpleFeatureType, SimpleFeature> features,
+            SimpleFeatureCollection features,
             String attributeName,
             Dimension gridDim,
             Envelope bounds,
@@ -287,7 +288,7 @@ public class VectorToRasterProcess extends AbstractFeatureCollectionProcess {
         float scale = 100.0f / features.size();
         monitor.started();
 
-        FeatureIterator<SimpleFeature> fi = features.features();
+        SimpleFeatureIterator fi = features.features();
         try {
             int counter = 0;
             while( fi.hasNext() ) {
@@ -312,7 +313,7 @@ public class VectorToRasterProcess extends AbstractFeatureCollectionProcess {
         return gcf.create(covName, image, extent);
     }
 
-    private void initialize(FeatureCollection<SimpleFeatureType, SimpleFeature> features,
+    private void initialize(SimpleFeatureCollection features,
             Envelope bounds, String attributeName, Dimension gridDim ) throws VectorToRasterException {
 
         // check that the attribute exists and is numeric
@@ -354,7 +355,7 @@ public class VectorToRasterProcess extends AbstractFeatureCollectionProcess {
      * @param env
      * @throws org.geotools.process.raster.VectorToRasterException
      */
-    private void setBounds( FeatureCollection<SimpleFeatureType, SimpleFeature> features,
+    private void setBounds( SimpleFeatureCollection features,
             Envelope bounds, Dimension gridDim ) throws VectorToRasterException {
 
         ReferencedEnvelope featureBounds = features.getBounds();

@@ -39,7 +39,7 @@ import org.geotools.arcsde.session.SessionPoolFactory;
 import org.geotools.arcsde.session.UnavailableConnectionException;
 import org.geotools.arcsde.session.Commands.GetVersionCommand;
 import org.geotools.data.DataSourceException;
-import org.geotools.feature.FeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
@@ -676,7 +676,7 @@ public class TestData {
     } // End method insertData
 
     /**
-     * Creates a FeatureCollection<SimpleFeatureType, SimpleFeature> with features whose schema
+     * Creates a SimpleFeatureCollection with features whose schema
      * adheres to the one created in <code>createTestData()</code> and returns it.
      * <p>
      * This schema is something like:
@@ -704,9 +704,9 @@ public class TestData {
      *             if the schema for te test table cannot be fetched from the database.
      * @throws SeException
      */
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> createTestFeatures(
+    public SimpleFeatureCollection createTestFeatures(
             Class jtsGeomType, int numFeatures) throws IOException, SeException {
-        FeatureCollection<SimpleFeatureType, SimpleFeature> col = FeatureCollections
+        SimpleFeatureCollection col = FeatureCollections
                 .newCollection();
         SimpleFeatureType type = getDataStore().getSchema(getTempTableName());
         Object[] values = new Object[type.getAttributeCount()];

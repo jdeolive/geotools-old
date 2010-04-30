@@ -10,10 +10,6 @@
  */
 package org.geotools.demo;
 
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.MultiLineString;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Polygon;
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -24,14 +20,16 @@ import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
+
 import javax.swing.JButton;
 import javax.swing.JToolBar;
-import org.geotools.data.FeatureSource;
+
 import org.geotools.data.FileDataStore;
 import org.geotools.data.FileDataStoreFinder;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.map.MapContext;
@@ -49,12 +47,15 @@ import org.geotools.swing.data.JFileDataStoreChooser;
 import org.geotools.swing.event.MapMouseEvent;
 import org.geotools.swing.tool.CursorTool;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory2;
-import org.opengis.filter.expression.Expression;
 import org.opengis.filter.identity.FeatureId;
+
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.MultiLineString;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Polygon;
 
 /**
  * In this example we create a map tool to select a feature clicked
@@ -86,7 +87,7 @@ public class SelectionLab {
     private static final float POINT_SIZE = 10.0f;
 
     private JMapFrame mapFrame;
-    private FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
+    private SimpleFeatureSource featureSource;
 
     private String geometryAttributeName;
     private GeomType geometryType;
@@ -210,10 +211,10 @@ public class SelectionLab {
          * Use the filter to identify the selected features
          */
         try {
-            FeatureCollection<SimpleFeatureType, SimpleFeature> selectedFeatures =
+            SimpleFeatureCollection selectedFeatures =
                     featureSource.getFeatures(filter);
 
-            FeatureIterator<SimpleFeature> iter = selectedFeatures.features();
+            SimpleFeatureIterator iter = selectedFeatures.features();
             Set<FeatureId> IDs = new HashSet<FeatureId>();
             try {
                 while (iter.hasNext()) {

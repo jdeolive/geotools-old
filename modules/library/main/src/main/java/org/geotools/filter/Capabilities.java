@@ -16,37 +16,22 @@
  */
 package org.geotools.filter;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
-import org.opengis.filter.capability.ArithmeticOperators;
-import org.opengis.filter.capability.ComparisonOperators;
-import org.opengis.filter.capability.FilterCapabilities;
-import org.opengis.filter.capability.Functions;
-import org.opengis.filter.capability.GeometryOperand;
-import org.opengis.filter.capability.Operator;
-import org.opengis.filter.capability.ScalarCapabilities;
-import org.opengis.filter.capability.SpatialCapabilities;
-import org.opengis.filter.capability.SpatialOperators;
 import org.geotools.filter.capability.ArithmeticOperatorsImpl;
 import org.geotools.filter.capability.ComparisonOperatorsImpl;
 import org.geotools.filter.capability.FilterCapabilitiesImpl;
 import org.geotools.filter.capability.FunctionNameImpl;
 import org.geotools.filter.capability.FunctionsImpl;
 import org.geotools.filter.capability.OperatorImpl;
-import org.geotools.filter.capability.ScalarCapabilitiesImpl;
-import org.geotools.filter.capability.SpatialCapabiltiesImpl;
 import org.geotools.filter.capability.SpatialOperatorImpl;
 import org.geotools.filter.capability.SpatialOperatorsImpl;
 import org.geotools.filter.visitor.IsFullySupportedFilterVisitor;
 import org.geotools.filter.visitor.IsSupportedFilterVisitor;
 import org.geotools.filter.visitor.OperatorNameFilterVisitor;
-import org.opengis.filter.BinaryComparisonOperator;
-import org.opengis.filter.Filter;
 import org.opengis.filter.And;
+import org.opengis.filter.Filter;
 import org.opengis.filter.Id;
 import org.opengis.filter.Not;
 import org.opengis.filter.Or;
@@ -59,15 +44,16 @@ import org.opengis.filter.PropertyIsLessThanOrEqualTo;
 import org.opengis.filter.PropertyIsLike;
 import org.opengis.filter.PropertyIsNotEqualTo;
 import org.opengis.filter.PropertyIsNull;
+import org.opengis.filter.capability.FilterCapabilities;
+import org.opengis.filter.capability.GeometryOperand;
 import org.opengis.filter.expression.Add;
 import org.opengis.filter.expression.Divide;
+import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Function;
 import org.opengis.filter.expression.Multiply;
 import org.opengis.filter.expression.Subtract;
-import org.opengis.filter.identity.FeatureId;
 import org.opengis.filter.spatial.BBOX;
 import org.opengis.filter.spatial.Beyond;
-import org.opengis.filter.spatial.BinarySpatialOperator;
 import org.opengis.filter.spatial.Contains;
 import org.opengis.filter.spatial.Crosses;
 import org.opengis.filter.spatial.DWithin;
@@ -75,11 +61,8 @@ import org.opengis.filter.spatial.Disjoint;
 import org.opengis.filter.spatial.Equals;
 import org.opengis.filter.spatial.Intersects;
 import org.opengis.filter.spatial.Overlaps;
-import org.opengis.filter.spatial.SpatialOperator;
 import org.opengis.filter.spatial.Touches;
 import org.opengis.filter.spatial.Within;
-import org.opengis.filter.expression.Expression;
-import org.opengis.filter.expression.Function;
 
 /**
  * Allows for easier interaction with FilterCapabilities.

@@ -21,13 +21,12 @@ import java.io.FilenameFilter;
 import java.util.Map;
 
 import org.geotools.data.DefaultRepository;
-import org.geotools.feature.FeatureIterator;
 import org.geotools.data.Repository;
 import org.geotools.data.memory.MemoryDataStore;
 import org.geotools.data.shapefile.ShapefileDataStore;
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.test.TestData;
 import org.geotools.validation.xml.XMLReader;
-import org.opengis.feature.simple.SimpleFeature;
 
 
 /**
@@ -87,7 +86,7 @@ public class TestFixture {
         	ShapefileDataStore dataStore = new ShapefileDataStore( shapefile.toURI().toURL() );
         	String dataStoreId = dataStore.getTypeNames()[0].toUpperCase();
         	String typeName = dataStore.getTypeNames()[0];
-        	FeatureIterator<SimpleFeature> features = dataStore.getFeatureSource( typeName ).getFeatures().features();
+        	SimpleFeatureIterator features = dataStore.getFeatureSource( typeName ).getFeatures().features();
         	MemoryDataStore cache = new MemoryDataStore( features );
         	
         	repository.register( dataStoreId, cache );

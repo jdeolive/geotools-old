@@ -25,8 +25,6 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.geotools.geometry.jts.LiteShape2;
-import org.geotools.referencing.operation.LinearTransform;
 import org.geotools.referencing.operation.transform.ProjectiveTransform;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.MathTransform;

@@ -29,8 +29,8 @@ import junit.framework.TestCase;
 
 import org.geotools.data.DataUtilities;
 import org.geotools.data.memory.MemoryDataStore;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.SchemaException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
@@ -216,13 +216,13 @@ public class Rendering2DTest extends TestCase {
 		return polysym;
 	}
 
-	FeatureCollection<SimpleFeatureType, SimpleFeature> createTestFeatureCollection(
+	SimpleFeatureCollection createTestFeatureCollection(
 			CoordinateReferenceSystem crs, String typeName) throws Exception {
 		GeometryFactory geomFac = new GeometryFactory();
 		return createTestFeatureCollection(crs, geomFac, typeName);
 	}
 
-	FeatureCollection<SimpleFeatureType, SimpleFeature> createTestFeatureCollection(
+	SimpleFeatureCollection createTestFeatureCollection(
 			CoordinateReferenceSystem crs, GeometryFactory geomFac,
 			String typeName) throws Exception {
 		
@@ -297,7 +297,7 @@ public class Rendering2DTest extends TestCase {
 		// CREATING FEATURES
 		//
 		// ////////////////////////////////////////////////////////////////////
-		final FeatureCollection<SimpleFeatureType, SimpleFeature> ft = createTestFeatureCollection(
+		final SimpleFeatureCollection ft = createTestFeatureCollection(
 				DefaultGeographicCRS.WGS84, POLYGON);
 
 		// ////////////////////////////////////////////////////////////////////
@@ -340,7 +340,7 @@ public class Rendering2DTest extends TestCase {
 	// // same as the datasource test, load in some features into a table
 	// System.err.println("starting RenderLoadedStyle");
 	//
-	// FeatureCollection<SimpleFeatureType, SimpleFeature> ft = createTestFeatureCollection(null, POLYGON);
+	// SimpleFeatureCollection ft = createTestFeatureCollection(null, POLYGON);
 	// Style style = loadTestStyle();
 	//
 	// MapContext map = new DefaultMapContext();
@@ -361,7 +361,7 @@ public class Rendering2DTest extends TestCase {
 		// CREATING FEATURES
 		//
 		// ////////////////////////////////////////////////////////////////////
-		final FeatureCollection<SimpleFeatureType, SimpleFeature> ft = createTestFeatureCollection(
+		final SimpleFeatureCollection ft = createTestFeatureCollection(
 				DefaultGeographicCRS.WGS84, LINE);
 
 		// ////////////////////////////////////////////////////////////////////
@@ -410,7 +410,7 @@ public class Rendering2DTest extends TestCase {
 		// CREATING FEATURES
 		//
 		// ////////////////////////////////////////////////////////////////////
-		final FeatureCollection<SimpleFeatureType, SimpleFeature> ft = createTestFeatureCollection(
+		final SimpleFeatureCollection ft = createTestFeatureCollection(
 				DefaultGeographicCRS.WGS84, POINT);
 
 		// ////////////////////////////////////////////////////////////////////
@@ -465,7 +465,7 @@ public class Rendering2DTest extends TestCase {
 		// //
 		GeometryFactory geomFac = new GeometryFactory(
 				PackedCoordinateSequenceFactory.DOUBLE_FACTORY);
-		FeatureCollection<SimpleFeatureType, SimpleFeature> ft = createTestFeatureCollection(
+		SimpleFeatureCollection ft = createTestFeatureCollection(
 				DefaultGeographicCRS.WGS84, geomFac, POLYGON);
 		Style style = createTestStyle();
 
@@ -539,7 +539,7 @@ public class Rendering2DTest extends TestCase {
 		LOGGER.finer("starting testLiteRender2");
 		final GeometryFactory geomFac = new GeometryFactory(
 				PackedCoordinateSequenceFactory.DOUBLE_FACTORY);
-		final FeatureCollection<SimpleFeatureType, SimpleFeature> ft = createTestFeatureCollection(
+		final SimpleFeatureCollection ft = createTestFeatureCollection(
 				DefaultGeographicCRS.WGS84, geomFac, LINE);
 		final Style style = createTestStyle();
 
@@ -608,7 +608,7 @@ public class Rendering2DTest extends TestCase {
 		LOGGER.finer("starting testLiteRender2");
 		final GeometryFactory geomFac = new GeometryFactory(
 				PackedCoordinateSequenceFactory.DOUBLE_FACTORY);
-		final FeatureCollection<SimpleFeatureType, SimpleFeature> ft = createTestFeatureCollection(
+		final SimpleFeatureCollection ft = createTestFeatureCollection(
 				DefaultGeographicCRS.WGS84, geomFac, POINT);
 		final Style style = createTestStyle();
 
@@ -684,7 +684,7 @@ public class Rendering2DTest extends TestCase {
 	public void testDefinitionQueryProcessing() throws Exception {
 
 		// LOGGER.info("starting definition query test");
-		// final FeatureCollection<SimpleFeatureType, SimpleFeature> ft = createTestDefQueryFeatureCollection();
+		// final SimpleFeatureCollection ft = createTestDefQueryFeatureCollection();
 		// final Style style = createDefQueryTestStyle();
 		// FeatureResults results;
 		// Envelope envelope = ft.getBounds();
@@ -798,7 +798,7 @@ public class Rendering2DTest extends TestCase {
 	}
 
 	public void testDefinitionQuerySLDProcessing() throws Exception {
-		// final FeatureCollection<SimpleFeatureType, SimpleFeature> ft = createTestDefQueryFeatureCollection();
+		// final SimpleFeatureCollection ft = createTestDefQueryFeatureCollection();
 		// final Style style = createDefQueryTestStyle();
 		// FeatureResults results;
 		// Envelope envelope = ft.getBounds();
@@ -865,7 +865,7 @@ public class Rendering2DTest extends TestCase {
 
 	}
 
-	private FeatureCollection<SimpleFeatureType, SimpleFeature> createTestDefQueryFeatureCollection()
+	private SimpleFeatureCollection createTestDefQueryFeatureCollection()
 			throws Exception {
 		MemoryDataStore data = new MemoryDataStore();
 		SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
@@ -1162,7 +1162,7 @@ public class Rendering2DTest extends TestCase {
     
 
     private void renderEmptyGeometry(SimpleFeature f, Style style) {
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = DataUtilities.collection(f);
+        SimpleFeatureCollection fc = DataUtilities.collection(f);
         MapContext mc = new DefaultMapContext();
         mc.addLayer(fc, style);
         StreamingRenderer sr = new StreamingRenderer();

@@ -18,7 +18,6 @@ package org.geotools.validation;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,8 +27,9 @@ import org.geotools.data.DataStore;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureSource;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.feature.NameImpl;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.opengis.feature.simple.SimpleFeature;
@@ -84,17 +84,17 @@ public class ValidatorTest extends TestCase {
     }
 
     public void testFeatureValidation() throws Exception {
-    	FeatureSource<SimpleFeatureType, SimpleFeature> lakes = fixture.repository.source( "LAKES", "lakes" );
-    	FeatureCollection<SimpleFeatureType, SimpleFeature> features = lakes.getFeatures();
+    	SimpleFeatureSource lakes = fixture.repository.source( "LAKES", "lakes" );
+    	SimpleFeatureCollection features = lakes.getFeatures();
 		DefaultFeatureResults results = new DefaultFeatureResults();    	
     	fixture.processor.runFeatureTests( "LAKES", features, results );
     		
     	assertEquals( "lakes test", 0, results.error.size() );
     }
     public SimpleFeature createInvalidLake() throws Exception {
-    	FeatureSource<SimpleFeatureType, SimpleFeature> lakes = fixture.repository.source( "LAKES", "lakes" );
+    	SimpleFeatureSource lakes = fixture.repository.source( "LAKES", "lakes" );
     	
-    	FeatureIterator<SimpleFeature> features = lakes.getFeatures( new DefaultQuery("lakes", Filter.INCLUDE, 1, null, null) ).features();
+    	SimpleFeatureIterator features = lakes.getFeatures( new DefaultQuery("lakes", Filter.INCLUDE, 1, null, null) ).features();
     	SimpleFeature feature = features.next();
     	features.close();
     	
@@ -121,10 +121,10 @@ public class ValidatorTest extends TestCase {
     	return SimpleFeatureBuilder.build(LAKE, array, "splash");
     }
     public void testFeatureValidation2() throws Exception {
-        FeatureSource<SimpleFeatureType, SimpleFeature> lakes = fixture.repository.source( "LAKES", "lakes" );
+        SimpleFeatureSource lakes = fixture.repository.source( "LAKES", "lakes" );
     	SimpleFeature newFeature = createInvalidLake();
     	    	
-    	FeatureCollection<SimpleFeatureType, SimpleFeature> add = DataUtilities.collection( new SimpleFeature[]{ newFeature, } );
+    	SimpleFeatureCollection add = DataUtilities.collection( new SimpleFeature[]{ newFeature, } );
     	
     	DefaultFeatureResults results = new DefaultFeatureResults();    	
     	fixture.processor.runFeatureTests( "LAKES", add, results );
@@ -152,8 +152,8 @@ public class ValidatorTest extends TestCase {
     public void testValidator() throws Exception {
     	Validator validator = new Validator( fixture.repository, fixture.processor );
 
-    	FeatureSource<SimpleFeatureType, SimpleFeature> lakes = fixture.repository.source( "LAKES", "lakes" );
-    	FeatureCollection<SimpleFeatureType, SimpleFeature> features = lakes.getFeatures();
+    	SimpleFeatureSource lakes = fixture.repository.source( "LAKES", "lakes" );
+    	SimpleFeatureCollection features = lakes.getFeatures();
     	DefaultFeatureResults results = new DefaultFeatureResults();
     	validator.featureValidation( "LAKES", features, results );
     	
@@ -162,10 +162,10 @@ public class ValidatorTest extends TestCase {
     public void testValidator2() throws Exception {
     	Validator validator = new Validator( fixture.repository, fixture.processor );
     	
-    	FeatureSource<SimpleFeatureType, SimpleFeature> lakes = fixture.repository.source( "LAKES", "lakes" );
+    	SimpleFeatureSource lakes = fixture.repository.source( "LAKES", "lakes" );
     	SimpleFeature newFeature = createInvalidLake();
         
-    	FeatureCollection<SimpleFeatureType, SimpleFeature> add = DataUtilities.collection( new SimpleFeature[]{ newFeature, } );
+    	SimpleFeatureCollection add = DataUtilities.collection( new SimpleFeature[]{ newFeature, } );
     	DefaultFeatureResults results = new DefaultFeatureResults();
     	fixture.processor.runFeatureTests( "LAKES", add, results );
     	

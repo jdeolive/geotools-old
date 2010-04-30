@@ -16,11 +16,11 @@
  */
 package org.geotools.factory;
 
+import junit.framework.TestCase;
+
 import org.geotools.feature.AbstractFeatureFactoryImpl;
 import org.geotools.feature.ValidatingFeatureFactoryImpl;
 import org.opengis.feature.FeatureFactory;
-
-import junit.framework.TestCase;
 
 public class CommonFactoryFinderTest extends TestCase {
 

@@ -20,8 +20,9 @@ import java.io.IOException;
 import java.util.List;
 
 import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureStore;
 import org.geotools.data.Transaction;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.feature.FeatureCollection;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -38,17 +39,17 @@ import org.opengis.filter.identity.FeatureId;
  * 
  */
 class WrappingPostgisFeatureStore extends WrappingPostgisFeatureSource
-        implements FeatureStore<SimpleFeatureType, SimpleFeature> {
+        implements SimpleFeatureStore {
 
-    private FeatureStore<SimpleFeatureType, SimpleFeature> wrappedStore;
+    private SimpleFeatureStore wrappedStore;
 
-    public WrappingPostgisFeatureStore(FeatureStore<SimpleFeatureType, SimpleFeature> wrapped,
+    public WrappingPostgisFeatureStore(SimpleFeatureStore wrapped,
             VersionedPostgisDataStore store) {
         super(wrapped, store);
         this.wrappedStore = wrapped;
     }
 
-    public List<FeatureId> addFeatures(FeatureCollection<SimpleFeatureType, SimpleFeature> collection) throws IOException {
+    public List<FeatureId> addFeatures(FeatureCollection<SimpleFeatureType,SimpleFeature> collection) throws IOException {
         return wrappedStore.addFeatures(collection);
     }
 

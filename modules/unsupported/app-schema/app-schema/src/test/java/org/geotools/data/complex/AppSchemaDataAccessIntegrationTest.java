@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import org.geotools.data.DataAccess;
 import org.geotools.data.DataAccessFinder;
 import org.geotools.data.FeatureSource;
@@ -39,6 +40,8 @@ import org.geotools.data.complex.config.CatalogUtilities;
 import org.geotools.data.complex.config.EmfAppSchemaReader;
 import org.geotools.data.complex.config.FeatureTypeRegistry;
 import org.geotools.data.property.PropertyDataStore;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.Hints;
 import org.geotools.feature.AttributeImpl;
 import org.geotools.feature.ComplexAttributeImpl;
@@ -51,10 +54,10 @@ import org.geotools.feature.type.FeatureTypeImpl;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.expression.FeaturePropertyAccessorFactory;
 import org.geotools.gml3.GMLSchema;
+import org.geotools.xml.SchemaIndex;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.geotools.xml.SchemaIndex;
 import org.opengis.feature.Attribute;
 import org.opengis.feature.Feature;
 import org.opengis.feature.Property;
@@ -153,7 +156,7 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
      * @throws IOException
      */
     private static ArrayList<Feature> getInputFeatures(
-            FeatureCollection<SimpleFeatureType, SimpleFeature> fCollection, ComplexType complexType)
+            SimpleFeatureCollection fCollection, ComplexType complexType)
             throws IOException {
 
         ArrayList<Feature> features = new ArrayList<Feature>();
@@ -279,9 +282,9 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
         // get the simple earth resource features
         File dir = new File(getClass().getResource(schemaBase).toURI());
         PropertyDataStore dataStore = new PropertyDataStore(dir);
-        FeatureSource<SimpleFeatureType, SimpleFeature> simpleFeatureSource = dataStore
+        SimpleFeatureSource simpleFeatureSource = dataStore
                 .getFeatureSource(EARTH_RESOURCE);
-        FeatureCollection<SimpleFeatureType, SimpleFeature> moFeatures = simpleFeatureSource
+        SimpleFeatureCollection moFeatures = simpleFeatureSource
                 .getFeatures();
         Iterator<SimpleFeature> moIterator = moFeatures.iterator();
         ArrayList<String> moIds = new ArrayList<String>();
@@ -554,11 +557,11 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
             }
             PropertyDataStore dataStore = new PropertyDataStore(fileDir);
 
-            FeatureSource<SimpleFeatureType, SimpleFeature> simpleFeatureSource = dataStore
+            SimpleFeatureSource simpleFeatureSource = dataStore
                     .getFeatureSource(typeName);
 
             // get the simple features from EarthResource.properties file
-            FeatureCollection<SimpleFeatureType, SimpleFeature> fCollection = simpleFeatureSource
+            SimpleFeatureCollection fCollection = simpleFeatureSource
                     .getFeatures();
             reader = EmfAppSchemaReader.newInstance();
             typeRegistry = new FeatureTypeRegistry();

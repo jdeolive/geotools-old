@@ -18,10 +18,8 @@ package org.geotools.filter.function;
 
 import java.util.logging.Logger;
 
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.feature.FeatureCollections;
-import org.geotools.feature.FeatureIterator;
-import org.geotools.filter.Expression;
-import org.geotools.filter.FunctionExpression;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.filter.expression.Function;
 import org.opengis.filter.expression.Literal;
@@ -78,7 +76,7 @@ public class StandardDeviationFunctionTest extends FunctionTestSupport {
         PropertyName exp = ff.property("foo");
         Function func = ff.function("StandardDeviation", exp, classes);
         
-        FeatureIterator<SimpleFeature> list = featureCollection.features();
+        SimpleFeatureIterator list = featureCollection.features();
         //feature 1
         SimpleFeature f = list.next();
         int slot = ((Number)func.evaluate(f)).intValue();

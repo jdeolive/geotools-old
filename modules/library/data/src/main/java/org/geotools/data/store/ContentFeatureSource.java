@@ -37,13 +37,16 @@ import org.geotools.data.ReTypeFeatureReader;
 import org.geotools.data.ResourceInfo;
 import org.geotools.data.Transaction;
 import org.geotools.data.crs.ReprojectFeatureReader;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.Hints;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.filter.function.Collection_AverageFunction;
 import org.geotools.filter.function.Collection_BoundsFunction;
-import org.geotools.filter.function.Collection_CountFunction;
 import org.geotools.filter.function.Collection_MaxFunction;
+import org.geotools.filter.function.Collection_MedianFunction;
+import org.geotools.filter.function.Collection_MinFunction;
+import org.geotools.filter.function.Collection_SumFunction;
 import org.geotools.filter.function.Collection_UniqueFunction;
 import org.geotools.filter.visitor.PropertyNameResolvingVisitor;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -61,7 +64,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * Abstract implementation of FeatureSource.
  * <p>
  * This feature source works off of operations provided by {@link FeatureCollection}.
- * Individual FeatureCollection<SimpleFeatureType, SimpleFeature> implementations are provided by subclasses:
+ * Individual SimpleFeatureCollection implementations are provided by subclasses:
  * <ul>
  *   {@link #all(ContentState)}: Access to entire dataset
  *   {@link #filtered(ContentState, Filter)}: Access to filtered dataset
@@ -84,7 +87,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  *
  * @source $URL$
  */
-public abstract class ContentFeatureSource implements FeatureSource<SimpleFeatureType, SimpleFeature> {
+public abstract class ContentFeatureSource implements SimpleFeatureSource {
     /**
      * The entry for the feature source.
      */
@@ -990,7 +993,7 @@ public abstract class ContentFeatureSource implements FeatureSource<SimpleFeatur
     //protected abstract FeatureList sorted(ContentState state, Filter filter, List order);
 
     /**
-     * FeatureCollection<SimpleFeatureType, SimpleFeature> optimized for read-only access.
+     * SimpleFeatureCollection optimized for read-only access.
      * <p>
      * Available via getView( filter ):
      * <ul>
@@ -1006,7 +1009,7 @@ public abstract class ContentFeatureSource implements FeatureSource<SimpleFeatur
      * @return readonly access
      */
 
-    //protected abstract FeatureCollection<SimpleFeatureType, SimpleFeature> readonly(ContentState state, Filter filter);
+    //protected abstract SimpleFeatureCollection readonly(ContentState state, Filter filter);
 
     public QueryCapabilities getQueryCapabilities() {
         // lazy initialization, so that the subclass has all its data structures ready

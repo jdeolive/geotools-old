@@ -18,24 +18,21 @@ package org.geotools.graph.traverse.standard;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.StringTokenizer;
+
+import junit.framework.TestCase;
 
 import org.geotools.graph.GraphTestUtil;
 import org.geotools.graph.build.GraphBuilder;
 import org.geotools.graph.build.basic.BasicGraphBuilder;
 import org.geotools.graph.path.AStarShortestPathFinder;
 import org.geotools.graph.path.Path;
-import org.geotools.graph.structure.Edge;
 import org.geotools.graph.structure.GraphVisitor;
 import org.geotools.graph.structure.Graphable;
 import org.geotools.graph.structure.Node;
 import org.geotools.graph.traverse.GraphTraversal;
 import org.geotools.graph.traverse.basic.BasicGraphTraversal;
 import org.geotools.graph.traverse.basic.CountingWalker;
-import org.geotools.graph.traverse.basic.SimpleGraphWalker;
 import org.geotools.graph.traverse.standard.AStarIterator.AStarNode;
-
-import junit.framework.TestCase;
 
 public class AStarIteratorTest extends TestCase{
 	 public GraphBuilder m_builder;

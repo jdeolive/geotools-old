@@ -18,18 +18,16 @@ package org.geotools.data.store;
 
 import java.util.Iterator;
 
-import org.geotools.feature.FeatureCollection;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
+import org.geotools.feature.collection.MaxSimpleFeatureCollection;
 
 public class MaxFeaturesFeatureCollectionTest extends
 		FeatureCollectionWrapperTestSupport {
 
-	MaxFeaturesFeatureCollection<SimpleFeatureType, SimpleFeature> max;
+	MaxSimpleFeatureCollection max;
 	
 	protected void setUp() throws Exception {
 		super.setUp();
-		max = new MaxFeaturesFeatureCollection<SimpleFeatureType, SimpleFeature>( delegate, 2 );
+		max = new MaxSimpleFeatureCollection( delegate, 2 );
 	}
 	
 	public void testSize() throws Exception {

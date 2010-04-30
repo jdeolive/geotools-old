@@ -36,7 +36,6 @@ import org.geotools.gce.imagemosaic.indexbuilder.IndexBuilder.ProcessingEventLis
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.test.TestData;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.parameter.ParameterValue;

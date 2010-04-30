@@ -45,7 +45,6 @@ import org.geotools.geometry.jts.LiteShape2;
 import org.geotools.renderer.label.LabelCacheImpl;
 import org.geotools.renderer.style.SLDStyleFactory;
 import org.geotools.renderer.style.TextStyle2D;
-import org.geotools.resources.geometry.XRectangle2D;
 import org.geotools.styling.TextSymbolizer;
 import org.geotools.util.NumberRange;
 import org.opengis.feature.simple.SimpleFeature;

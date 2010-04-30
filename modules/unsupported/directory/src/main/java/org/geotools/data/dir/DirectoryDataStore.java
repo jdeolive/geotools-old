@@ -35,13 +35,13 @@ import org.geotools.data.DataStore;
 import org.geotools.data.DefaultServiceInfo;
 import org.geotools.data.FeatureLock;
 import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.FileDataStoreFinder;
 import org.geotools.data.LockingManager;
 import org.geotools.data.Query;
 import org.geotools.data.ServiceInfo;
 import org.geotools.data.Transaction;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.data.view.DefaultView;
 import org.geotools.feature.FeatureTypes;
 import org.geotools.feature.NameImpl;
@@ -84,7 +84,7 @@ public class DirectoryDataStore implements DataStore, LockingManager {
     }
 
     // This is the *better* implementation of getview from AbstractDataStore
-    public FeatureSource<SimpleFeatureType, SimpleFeature> getView(final Query query)
+    public SimpleFeatureSource getView(final Query query)
         throws IOException, SchemaException {
         return new DefaultView( this.getFeatureSource( query.getTypeName() ), query );
     }
@@ -209,7 +209,7 @@ public class DirectoryDataStore implements DataStore, LockingManager {
     /**
      * @see org.geotools.data.DataStore#getFeatureSource(java.lang.String)
      */
-    public FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSource(String typeName)
+    public SimpleFeatureSource getFeatureSource(String typeName)
         throws IOException {
         AbstractFileDataStore afds = (AbstractFileDataStore) dataStores.get(typeName);
 
@@ -399,7 +399,7 @@ public class DirectoryDataStore implements DataStore, LockingManager {
      * @since 2.5
      * @see DataAccess#getFeatureSource(Name)
      */
-    public FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSource(Name typeName)
+    public SimpleFeatureSource getFeatureSource(Name typeName)
             throws IOException {
         return getFeatureSource(typeName.getLocalPart());
     }

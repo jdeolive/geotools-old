@@ -24,7 +24,6 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
-import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -34,21 +33,20 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 
 import org.geotools.TestData;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.DefaultTransaction;
 import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureCollections;
-import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.FeatureTypes;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
@@ -92,35 +90,35 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
         super(testName);
     }
 
-    protected FeatureCollection<SimpleFeatureType, SimpleFeature> loadFeatures(String resource, Query query)
+    protected SimpleFeatureCollection loadFeatures(String resource, Query query)
             throws Exception {
         assertNotNull(query);
 
         URL url = TestData.url(resource);
         ShapefileDataStore s = new ShapefileDataStore(url);
-        FeatureSource<SimpleFeatureType, SimpleFeature> fs = s.getFeatureSource(s.getTypeNames()[0]);
+        SimpleFeatureSource fs = s.getFeatureSource(s.getTypeNames()[0]);
         return fs.getFeatures(query);
     }
 
-    protected FeatureCollection<SimpleFeatureType, SimpleFeature> loadLocalFeaturesM2() throws IOException {
+    protected SimpleFeatureCollection loadLocalFeaturesM2() throws IOException {
         String target = "jar:file:/C:/Documents and Settings/jgarnett/.m2/repository/org/geotools/gt2-sample-data/2.4-SNAPSHOT/gt2-sample-data-2.4-SNAPSHOT.jar!/org/geotools/test-data/shapes/statepop.shp";
         URL url = new URL(target);
         ShapefileDataStore s = new ShapefileDataStore(url);
-        FeatureSource<SimpleFeatureType, SimpleFeature> fs = s.getFeatureSource(s.getTypeNames()[0]);
+        SimpleFeatureSource fs = s.getFeatureSource(s.getTypeNames()[0]);
         return fs.getFeatures();
     }
 
-    protected FeatureCollection<SimpleFeatureType, SimpleFeature> loadFeatures(String resource, Charset charset,
+    protected SimpleFeatureCollection loadFeatures(String resource, Charset charset,
             Query q) throws Exception {
         if (q == null)
             q = new DefaultQuery();
         URL url = TestData.url(resource);
         ShapefileDataStore s = new ShapefileDataStore(url, false, charset);
-        FeatureSource<SimpleFeatureType, SimpleFeature> fs = s.getFeatureSource(s.getTypeNames()[0]);
+        SimpleFeatureSource fs = s.getFeatureSource(s.getTypeNames()[0]);
         return fs.getFeatures(q);
     }
 
-    protected FeatureCollection<SimpleFeatureType, SimpleFeature> loadFeatures(ShapefileDataStore s)
+    protected SimpleFeatureCollection loadFeatures(ShapefileDataStore s)
             throws Exception {
         return s.getFeatureSource(s.getTypeNames()[0]).getFeatures();
     }
@@ -130,7 +128,7 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
     }
 
     public void testLoadDanishChars() throws Exception {
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = loadFeatures(DANISH, Query.ALL);
+        SimpleFeatureCollection fc = loadFeatures(DANISH, Query.ALL);
         SimpleFeature first = firstFeature(fc);
 
         // Charlotte (but with the o is stroked)
@@ -139,7 +137,7 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
 
     public void testLoadChineseChars() throws Exception {
         try {
-            FeatureCollection<SimpleFeatureType, SimpleFeature> fc = loadFeatures(CHINESE, Charset
+            SimpleFeatureCollection fc = loadFeatures(CHINESE, Charset
                     .forName("GB18030"), null);
             SimpleFeature first = firstFeature(fc);
             String s = (String) first.getAttribute("NAME");
@@ -156,9 +154,9 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
     
     public void testLoadRussianChars() throws Exception {
         try {
-            FeatureCollection<SimpleFeatureType, SimpleFeature> fc = loadFeatures(RUSSIAN, Charset
+            SimpleFeatureCollection fc = loadFeatures(RUSSIAN, Charset
                     .forName("CP1251"), null);
-            FeatureIterator<SimpleFeature> features = fc.features();
+            SimpleFeatureIterator features = fc.features();
             SimpleFeature f = features.next();
             assertEquals("\u041A\u0438\u0440\u0438\u043B\u043B\u0438\u0446\u0430", f.getAttribute("TEXT"));
             f = features.next();
@@ -206,17 +204,17 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
      * Test envelope versus old DataSource
      */
     public void testEnvelope() throws Exception {
-        FeatureCollection<SimpleFeatureType, SimpleFeature> features = loadFeatures(STATE_POP, Query.ALL);
+        SimpleFeatureCollection features = loadFeatures(STATE_POP, Query.ALL);
         ShapefileDataStore s = new ShapefileDataStore(TestData.url(STATE_POP));
         String typeName = s.getTypeNames()[0];
-        FeatureCollection<SimpleFeatureType, SimpleFeature> all = s.getFeatureSource(typeName).getFeatures();
+        SimpleFeatureCollection all = s.getFeatureSource(typeName).getFeatures();
 
         assertEquals(features.getBounds(), all.getBounds());
     }
 
     public void testLoadAndVerify() throws Exception {
-        FeatureCollection<SimpleFeatureType, SimpleFeature> features = loadFeatures(STATE_POP, Query.ALL);
-        // FeatureCollection<SimpleFeatureType, SimpleFeature> features = loadFeaturesM2();
+        SimpleFeatureCollection features = loadFeatures(STATE_POP, Query.ALL);
+        // SimpleFeatureCollection features = loadFeaturesM2();
         int count = features.size();
 
         assertTrue("Have features", count > 0);
@@ -236,7 +234,7 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
     }
 
     public void testLoadAndCheckParentTypeIsPolygon() throws Exception {
-        FeatureCollection<SimpleFeatureType, SimpleFeature> features = loadFeatures(STATE_POP, Query.ALL);
+        SimpleFeatureCollection features = loadFeatures(STATE_POP, Query.ALL);
         SimpleFeatureType schema = firstFeature(features).getFeatureType();
 
         assertTrue(FeatureTypes.isDecendedFrom(schema,
@@ -340,7 +338,7 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
     }
 
     private ShapefileDataStore createDataStore(File f) throws Exception {
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = createFeatureCollection();
+        SimpleFeatureCollection fc = createFeatureCollection();
         ShapefileDataStore sds = new ShapefileDataStore(f.toURI().toURL());
         writeFeatures(sds, fc);
         return sds;
@@ -375,10 +373,10 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
                 if (writer != null)
                     writer.close();
             }
-            FeatureCollection<SimpleFeatureType, SimpleFeature> fc = loadFeatures(sds);
+            SimpleFeatureCollection fc = loadFeatures(sds);
 
             assertEquals(10, fc.size());
-            for (FeatureIterator<SimpleFeature> i = fc.features(); i.hasNext();) {
+            for (SimpleFeatureIterator i = fc.features(); i.hasNext();) {
                 assertEquals(-1, ((Byte) i.next().getAttribute(1)).byteValue());
             }
     }
@@ -486,7 +484,7 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
         // semantics of this,
         // but it's meant to be used in the context of a FeatureCollection
         // iteration,
-        // where the FeatureCollection<SimpleFeatureType, SimpleFeature> has nothing in it.
+        // where the SimpleFeatureCollection has nothing in it.
         featureWriter.close();
     }
 
@@ -497,14 +495,14 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
      * As we care about supporting more stuff please add on to the end of this
      * list...
      * 
-     * @return FeatureCollection<SimpleFeatureType, SimpleFeature> For use in testing.
+     * @return SimpleFeatureCollection For use in testing.
      * @throws Exception
      */
-    private FeatureCollection<SimpleFeatureType, SimpleFeature> createFeatureCollection() throws Exception {
+    private SimpleFeatureCollection createFeatureCollection() throws Exception {
         SimpleFeatureType featureType = createExampleSchema();
         SimpleFeatureBuilder build = new SimpleFeatureBuilder(featureType);
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> features = FeatureCollections.newCollection();
+        SimpleFeatureCollection features = FeatureCollections.newCollection();
         for (int i = 0, ii = 20; i < ii; i++) {
 
             build.add(new GeometryFactory().createPoint(new Coordinate(1, -1)));
@@ -547,7 +545,7 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
     }
 
     public void testAttributesWriting() throws Exception {
-        FeatureCollection<SimpleFeatureType, SimpleFeature> features = createFeatureCollection();
+        SimpleFeatureCollection features = createFeatureCollection();
         File tmpFile = getTempFile();
         tmpFile.createNewFile();
         ShapefileDataStore s = new ShapefileDataStore(tmpFile.toURI().toURL());
@@ -558,7 +556,7 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
         // create feature type
         SimpleFeatureType type = DataUtilities.createType("junk",
                 "a:Point,b:java.math.BigDecimal,c:java.math.BigInteger");
-        FeatureCollection<SimpleFeatureType, SimpleFeature> features = FeatureCollections.newCollection();
+        SimpleFeatureCollection features = FeatureCollections.newCollection();
 
         BigInteger bigInteger = new BigInteger("1234567890123456789");
         BigDecimal bigDecimal = new BigDecimal(bigInteger, 2);
@@ -623,12 +621,12 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
         }
     }
 
-    private void writeFeatures(ShapefileDataStore s, FeatureCollection<SimpleFeatureType, SimpleFeature> fc)
+    private void writeFeatures(ShapefileDataStore s, SimpleFeatureCollection fc)
             throws Exception {
         s.createSchema(fc.features().next().getFeatureType());
         FeatureWriter<SimpleFeatureType, SimpleFeature> fw = s.getFeatureWriter(s.getTypeNames()[0],
                 Transaction.AUTO_COMMIT);
-        FeatureIterator<SimpleFeature> it = fc.features();
+        SimpleFeatureIterator it = fc.features();
         while (it.hasNext()) {
             SimpleFeature feature = it.next();
             SimpleFeature newFeature = fw.next();
@@ -647,7 +645,7 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
         ftb.add("a", geom.getClass());
         SimpleFeatureType type = ftb.buildFeatureType();
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> features = FeatureCollections.newCollection();
+        SimpleFeatureCollection features = FeatureCollections.newCollection();
         SimpleFeatureBuilder build = new SimpleFeatureBuilder(type);
         for (int i = 0, ii = 20; i < ii; i++) {
             build.set(0, (Geometry) geom.clone());
@@ -668,8 +666,8 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
 
         // read features
         shapeDataStore = new ShapefileDataStore(tmpFile.toURI().toURL());
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = loadFeatures(shapeDataStore);
-        FeatureIterator<SimpleFeature> fci = fc.features();
+        SimpleFeatureCollection fc = loadFeatures(shapeDataStore);
+        SimpleFeatureIterator fci = fc.features();
         // verify
         while (fci.hasNext()) {
             SimpleFeature f = fci.next();

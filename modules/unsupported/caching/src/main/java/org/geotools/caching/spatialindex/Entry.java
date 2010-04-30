@@ -28,7 +28,6 @@
 //    marioh@cs.ucr.edu
 package org.geotools.caching.spatialindex;
 
-import com.vividsolutions.jts.geom.Envelope;
 
 public interface Entry {
     

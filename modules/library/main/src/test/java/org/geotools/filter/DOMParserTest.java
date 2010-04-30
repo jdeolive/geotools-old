@@ -30,6 +30,8 @@ import org.geotools.feature.SchemaException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.test.TestData;
+import org.opengis.filter.Filter;
+import org.opengis.filter.PropertyIsNotEqualTo;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -37,10 +39,6 @@ import org.w3c.dom.NodeList;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
-
-import org.opengis.filter.And;
-import org.opengis.filter.Filter;
-import org.opengis.filter.PropertyIsNotEqualTo;
 
 /**
  * Tests for the DOM parser.

@@ -24,14 +24,9 @@ import java.util.List;
 import java.util.Set;
 
 import org.geotools.data.jdbc.FilterToSQL;
-import org.opengis.feature.type.AttributeDescriptor;
-import org.opengis.feature.type.GeometryDescriptor;
-import org.opengis.filter.BinaryComparisonOperator;
 import org.opengis.filter.Id;
 import org.opengis.filter.expression.Literal;
-import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.identity.Identifier;
-import org.opengis.filter.spatial.BinarySpatialOperator;
 
 import com.vividsolutions.jts.geom.Geometry;
 

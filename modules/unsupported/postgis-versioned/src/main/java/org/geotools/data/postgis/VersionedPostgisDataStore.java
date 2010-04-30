@@ -42,9 +42,7 @@ import org.geotools.data.DefaultQuery;
 import org.geotools.data.DefaultServiceInfo;
 import org.geotools.data.DefaultTransaction;
 import org.geotools.data.FeatureListenerManager;
-import org.geotools.data.FeatureLocking;
 import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureStore;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.LockingManager;
@@ -63,6 +61,9 @@ import org.geotools.data.postgis.fidmapper.PostGISAutoIncrementFIDMapper;
 import org.geotools.data.postgis.fidmapper.UUIDFIDMapper;
 import org.geotools.data.postgis.fidmapper.VersionedFIDMapper;
 import org.geotools.data.postgis.fidmapper.VersionedFIDMapperFactory;
+import org.geotools.data.simple.SimpleFeatureLocking;
+import org.geotools.data.simple.SimpleFeatureSource;
+import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.FactoryRegistryException;
 import org.geotools.feature.FeatureTypes;
@@ -141,7 +142,7 @@ public class VersionedPostgisDataStore implements VersioningDataStore {
      */
     protected FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
 
-    /** Manages listener lists for FeatureSource<SimpleFeatureType, SimpleFeature> implementations */
+    /** Manages listener lists for SimpleFeatureSource implementations */
     protected FeatureListenerManager listenerManager = new FeatureListenerManager();
 
     public VersionedPostgisDataStore(DataSource dataSource, String schema, String namespace,
@@ -318,26 +319,26 @@ public class VersionedPostgisDataStore implements VersioningDataStore {
         return getFeatureWriterInternal(typeName, Filter.EXCLUDE, transaction, true);
     }
 
-    public FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSource(String typeName) throws IOException {
+    public SimpleFeatureSource getFeatureSource(String typeName) throws IOException {
         if (isVersioned(typeName))
             return new VersionedPostgisFeatureStore(getSchema(typeName), this);
 
-        FeatureSource<SimpleFeatureType, SimpleFeature> source = wrapped.getFeatureSource(typeName);
+        SimpleFeatureSource source = wrapped.getFeatureSource(typeName);
         
         // changesets should be read only for the outside world
         if(TBL_CHANGESETS.equals(typeName))
             return new WrappingPostgisFeatureSource(source, this);
         
         // for the others, wrap so that we don't report the wrong owning datastore
-        if(source instanceof FeatureLocking)
-            return new WrappingPostgisFeatureLocking((FeatureLocking<SimpleFeatureType, SimpleFeature>) source, this);
+        if(source instanceof SimpleFeatureLocking)
+            return new WrappingPostgisFeatureLocking((SimpleFeatureLocking) source, this);
         else if(source instanceof FeatureStore)
-            return new WrappingPostgisFeatureStore((FeatureStore<SimpleFeatureType, SimpleFeature>) source, this);
+            return new WrappingPostgisFeatureStore((SimpleFeatureStore) source, this);
         else 
-            return new WrappingPostgisFeatureSource((FeatureSource<SimpleFeatureType, SimpleFeature>) source, this);
+            return new WrappingPostgisFeatureSource((SimpleFeatureSource) source, this);
     }
 
-    public FeatureSource<SimpleFeatureType, SimpleFeature> getView(Query query) throws IOException, SchemaException {
+    public SimpleFeatureSource getView(Query query) throws IOException, SchemaException {
         throw new UnsupportedOperationException("At the moment getView(Query) is not supported");
     }
 
@@ -1603,7 +1604,7 @@ public class VersionedPostgisDataStore implements VersioningDataStore {
      * @since 2.5
      * @see DataAccess#getFeatureSource(Name)
      */
-    public FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSource(Name typeName)
+    public SimpleFeatureSource getFeatureSource(Name typeName)
             throws IOException {
         return getFeatureSource(typeName.getLocalPart());
     }

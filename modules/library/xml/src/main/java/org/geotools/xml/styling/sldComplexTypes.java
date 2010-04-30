@@ -27,7 +27,6 @@ import java.util.Map;
 import javax.naming.OperationNotSupportedException;
 
 import org.geotools.filter.Expression;
-import org.geotools.filter.FilterFactory;
 import org.geotools.filter.FilterFactoryFinder;
 import org.geotools.styling.ContrastEnhancement;
 import org.geotools.styling.ContrastEnhancementImpl;
@@ -35,7 +34,6 @@ import org.geotools.styling.ExternalGraphic;
 import org.geotools.styling.Graphic;
 import org.geotools.styling.Mark;
 import org.geotools.styling.Stroke;
-import org.geotools.styling.StyleFactory;
 import org.geotools.styling.StyleFactoryFinder;
 import org.geotools.xml.PrintHandler;
 import org.geotools.xml.schema.Attribute;

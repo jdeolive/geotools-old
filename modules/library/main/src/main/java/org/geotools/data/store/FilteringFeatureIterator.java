@@ -18,24 +18,25 @@ package org.geotools.data.store;
 
 import java.util.NoSuchElementException;
 
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.feature.FeatureIterator;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.filter.Filter;
 
 /**
- * Decorates a FeatureIterator<SimpleFeature>  with one that filters content.
+ * Decorates a SimpleFeatureIterator  with one that filters content.
  * 
  * @author Justin Deoliveira, The Open Planning Project
  *
  *
  * @source $URL$
  */
-public class FilteringFeatureIterator implements FeatureIterator<SimpleFeature> {
+public class FilteringFeatureIterator implements SimpleFeatureIterator {
 
     /**
      * delegate iterator
      */
-    protected FeatureIterator<SimpleFeature> delegate;
+    protected SimpleFeatureIterator delegate;
     /**
      * The Filter
      */
@@ -45,7 +46,7 @@ public class FilteringFeatureIterator implements FeatureIterator<SimpleFeature> 
      */
     protected SimpleFeature next;
     
-    public FilteringFeatureIterator( FeatureIterator<SimpleFeature> delegate, Filter filter ) {
+    public FilteringFeatureIterator( SimpleFeatureIterator delegate, Filter filter ) {
         this.delegate = delegate;
         this.filter = filter;
     }

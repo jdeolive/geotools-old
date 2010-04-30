@@ -17,7 +17,6 @@
 package org.geotools.renderer.shape.shapehandler.jts;
 
 import java.awt.Rectangle;
-import java.util.Iterator;
 
 import org.geotools.data.shapefile.shp.ShapeType;
 import org.geotools.geometry.jts.LiteCoordinateSequence;

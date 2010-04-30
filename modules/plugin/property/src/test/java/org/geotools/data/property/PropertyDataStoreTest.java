@@ -32,14 +32,14 @@ import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.DefaultTransaction;
 import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureSource;
-import org.geotools.data.FeatureStore;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
+import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.opengis.feature.simple.SimpleFeature;
@@ -347,9 +347,9 @@ public class PropertyDataStoreTest extends TestCase {
     }
     
     public void testGetFeatureSource() throws Exception {
-        FeatureSource<SimpleFeatureType, SimpleFeature> road = store.getFeatureSource( "road" );
-        FeatureCollection<SimpleFeatureType, SimpleFeature> features = road.getFeatures();
-        FeatureIterator<SimpleFeature> reader = features.features();
+        SimpleFeatureSource road = store.getFeatureSource( "road" );
+        SimpleFeatureCollection features = road.getFeatures();
+        SimpleFeatureIterator reader = features.features();
         List list = new ArrayList();
         try {
             while( reader.hasNext() ){
@@ -388,13 +388,13 @@ public class PropertyDataStoreTest extends TestCase {
         SimpleFeature chrisFeature =
             SimpleFeatureBuilder.build(ROAD, new Object[]{ new Integer(5), "chris"}, "fid5" );
         
-        FeatureStore<SimpleFeatureType, SimpleFeature> roadAuto = (FeatureStore<SimpleFeatureType, SimpleFeature>) store.getFeatureSource("road");
+        SimpleFeatureStore roadAuto = (SimpleFeatureStore) store.getFeatureSource("road");
         
-        FeatureStore<SimpleFeatureType, SimpleFeature> roadFromClient1 = (FeatureStore<SimpleFeatureType, SimpleFeature>) store.getFeatureSource("road");
+        SimpleFeatureStore roadFromClient1 = (SimpleFeatureStore) store.getFeatureSource("road");
         Transaction transaction1 = new DefaultTransaction("Transaction Used by Client 1");
         roadFromClient1.setTransaction( transaction1 );
         
-        FeatureStore<SimpleFeatureType, SimpleFeature> roadFromClient2 = (FeatureStore<SimpleFeatureType, SimpleFeature>) store.getFeatureSource("road");
+        SimpleFeatureStore roadFromClient2 = (SimpleFeatureStore) store.getFeatureSource("road");
         Transaction transaction2 = new DefaultTransaction("Transaction Used by Client 2");
         roadFromClient2.setTransaction( transaction2 );
 

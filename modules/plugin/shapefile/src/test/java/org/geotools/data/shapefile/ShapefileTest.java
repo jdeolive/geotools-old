@@ -24,14 +24,13 @@ import java.util.ArrayList;
 import org.geotools.TestData;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataUtilities;
-import org.geotools.data.FeatureSource;
-import org.geotools.data.FeatureStore;
 import org.geotools.data.Query;
 import org.geotools.data.shapefile.shp.IndexFile;
 import org.geotools.data.shapefile.shp.ShapefileReader;
-import org.geotools.feature.FeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
+import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.feature.FeatureCollections;
-import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 import com.vividsolutions.jts.geom.Envelope;
@@ -137,7 +136,7 @@ public class ShapefileTest extends TestCaseSupport {
     public void testHolyPolygons() throws Exception {
         SimpleFeatureType type = DataUtilities.createType("junk",
                 "a:MultiPolygon");
-        FeatureCollection<SimpleFeatureType, SimpleFeature> features = FeatureCollections.newCollection();
+        SimpleFeatureCollection features = FeatureCollections.newCollection();
 
         File tmpFile = getTempFile();
         tmpFile.delete();
@@ -147,14 +146,14 @@ public class ShapefileTest extends TestCaseSupport {
         DataStore s = make.createDataStore(tmpFile.toURI().toURL());
         s.createSchema(type);
         String typeName = type.getTypeName();
-        FeatureStore<SimpleFeatureType, SimpleFeature> store = (FeatureStore<SimpleFeatureType, SimpleFeature>) s.getFeatureSource(typeName);
+        SimpleFeatureStore store = (SimpleFeatureStore) s.getFeatureSource(typeName);
 
         store.addFeatures(features);
 
         s = new ShapefileDataStore(tmpFile.toURI().toURL());
         typeName = s.getTypeNames()[0];
-        FeatureSource<SimpleFeatureType, SimpleFeature> source = s.getFeatureSource(typeName);
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = source.getFeatures();
+        SimpleFeatureSource source = s.getFeatureSource(typeName);
+        SimpleFeatureCollection fc = source.getFeatures();
 
         ShapefileReadWriteTest.compare(features, fc);
     }
@@ -178,7 +177,7 @@ public class ShapefileTest extends TestCaseSupport {
     public void testDuplicateColumnNames() throws Exception {
         File file = TestData.file(TestCaseSupport.class, "bad/state.shp");
         ShapefileDataStore dataStore = new ShapefileDataStore(file.toURI().toURL());
-        FeatureSource<SimpleFeatureType, SimpleFeature> states = dataStore.getFeatureSource();
+        SimpleFeatureSource states = dataStore.getFeatureSource();
         SimpleFeatureType schema = states.getSchema();
         assertEquals(6, schema.getAttributeCount());
         assertTrue(states.getCount(Query.ALL) > 0);

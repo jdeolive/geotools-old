@@ -18,8 +18,6 @@ package org.geotools.jdbc;
 
 import java.sql.SQLException;
 
-import javax.sql.DataSource;
-
 
 /**
  * Extension of JDBCTestSetup which is used by {@link JDBCDataStoreAPITest}.

@@ -16,14 +16,15 @@
  */
 package org.geotools.data.db2;
 
-import org.geotools.factory.FactoryRegistryException;
-import org.geotools.referencing.ReferencingFactoryFinder;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+
+import org.geotools.factory.FactoryRegistryException;
+import org.geotools.referencing.ReferencingFactoryFinder;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 
 /**

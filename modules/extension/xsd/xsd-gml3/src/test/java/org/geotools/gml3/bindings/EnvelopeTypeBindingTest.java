@@ -16,11 +16,12 @@
  */
 package org.geotools.gml3.bindings;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import com.vividsolutions.jts.geom.Envelope;
 import org.geotools.gml3.GML;
 import org.geotools.gml3.GML3TestSupport;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+import com.vividsolutions.jts.geom.Envelope;
 
 
 public class EnvelopeTypeBindingTest extends GML3TestSupport {

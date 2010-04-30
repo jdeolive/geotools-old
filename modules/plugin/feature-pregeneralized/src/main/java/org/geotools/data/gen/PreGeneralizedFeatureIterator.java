@@ -19,6 +19,7 @@ package org.geotools.data.gen;
 
 import java.util.NoSuchElementException;
 
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.feature.FeatureIterator;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -30,9 +31,9 @@ import org.opengis.feature.simple.SimpleFeatureType;
  *
  * @source $URL$
  */
-public class PreGeneralizedFeatureIterator implements FeatureIterator<SimpleFeature> {
+public class PreGeneralizedFeatureIterator implements SimpleFeatureIterator {
 
-    protected FeatureIterator<SimpleFeature> backendIterator;
+    protected SimpleFeatureIterator backendIterator;
 
     protected SimpleFeatureType featureTyp;
 
@@ -40,7 +41,7 @@ public class PreGeneralizedFeatureIterator implements FeatureIterator<SimpleFeat
 
     protected int[] indexMapping;
 
-    public PreGeneralizedFeatureIterator(FeatureIterator<SimpleFeature> backendIterator,
+    public PreGeneralizedFeatureIterator(SimpleFeatureIterator backendIterator,
             SimpleFeatureType featureTyp, int indexMapping[], String geomPropertyName,
             String backendGeomPropertyName) {
         super();

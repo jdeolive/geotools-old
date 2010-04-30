@@ -19,9 +19,7 @@ package org.geotools.jdbc;
 import java.io.IOException;
 import java.sql.Connection;
 
-import org.geotools.data.DelegatingFeatureReader;
 import org.geotools.data.DelegatingFeatureWriter;
-import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureWriter;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;

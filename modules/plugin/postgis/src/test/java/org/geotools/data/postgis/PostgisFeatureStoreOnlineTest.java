@@ -17,12 +17,11 @@
 package org.geotools.data.postgis;
 
 import java.util.List;
-import java.util.Set;
 
 import org.geotools.data.DefaultTransaction;
-import org.geotools.data.FeatureStore;
 import org.geotools.data.Transaction;
-import org.geotools.feature.FeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.opengis.feature.simple.SimpleFeature;
@@ -49,11 +48,11 @@ public class PostgisFeatureStoreOnlineTest extends AbstractPostgisOnlineTestCase
     @SuppressWarnings("unchecked")
     public String attemptWrite(String table) throws Exception {
         Transaction transaction = new DefaultTransaction("attemptWriteFS");
-        FeatureStore<SimpleFeatureType, SimpleFeature> fs;
-        fs = (FeatureStore<SimpleFeatureType, SimpleFeature>) ds.getFeatureSource(table);
+        SimpleFeatureStore fs;
+        fs = (SimpleFeatureStore) ds.getFeatureSource(table);
         fs.setTransaction(transaction);
         SimpleFeatureType ft = fs.getSchema();
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = FeatureCollections.newCollection();
+        SimpleFeatureCollection fc = FeatureCollections.newCollection();
         SimpleFeature feature = SimpleFeatureBuilder.build(ft, new Object[] {"test"}, null);
         fc.add(feature);
         List<FeatureId> set = fs.addFeatures(fc);

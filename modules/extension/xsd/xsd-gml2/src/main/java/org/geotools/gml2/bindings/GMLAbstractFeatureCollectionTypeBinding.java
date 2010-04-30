@@ -18,13 +18,13 @@ package org.geotools.gml2.bindings;
 
 import javax.xml.namespace.QName;
 
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.gml2.GML;
 import org.geotools.xml.AbstractComplexBinding;
 import org.geotools.xml.ElementInstance;
 import org.geotools.xml.Node;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 
 /**
@@ -92,7 +92,7 @@ public class GMLAbstractFeatureCollectionTypeBinding extends AbstractComplexBind
     public Object parse(ElementInstance instance, Node node, Object value)
         throws Exception {
         //call "super"
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = (FeatureCollection<SimpleFeatureType, SimpleFeature>) value;
+        SimpleFeatureCollection fc = (SimpleFeatureCollection) value;
 
         //add all feature member children
         fc.addAll(node.getChildValues(SimpleFeature.class));

@@ -24,10 +24,9 @@ import java.util.Date;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.geotools.factory.Hints;
-
-
 import junit.framework.TestCase;
+
+import org.geotools.factory.Hints;
 
 public class TemporalConverterFactoryTest extends TestCase {
 

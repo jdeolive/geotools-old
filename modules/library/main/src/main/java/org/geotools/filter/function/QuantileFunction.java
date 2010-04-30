@@ -23,15 +23,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.visitor.CalcResult;
 import org.geotools.feature.visitor.QuantileListVisitor;
 import org.geotools.util.NullProgressListener;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 /**
- * Breaks a FeatureCollection<SimpleFeatureType, SimpleFeature> into classes with an equal number of items in each.
+ * Breaks a SimpleFeatureCollection into classes with an equal number of items in each.
  * 
  * @author Cory Horner, Refractions Research Inc.
  * @source $URL$
@@ -46,14 +45,14 @@ public class QuantileFunction extends ClassificationFunction {
         return 2;
     }
     
-	private Object calculate(FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection) {
+	private Object calculate(SimpleFeatureCollection featureCollection) {
 		// use a visitor to find the values in each bin
 		QuantileListVisitor quantileVisit = new QuantileListVisitor(getExpression(), getClasses());
 		if (progress == null) progress = new NullProgressListener();
 		try {
             featureCollection.accepts(quantileVisit, progress);
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "QuantileFunction calculate(FeatureCollection<SimpleFeatureType, SimpleFeature>) failed" , e);
+            LOGGER.log(Level.SEVERE, "QuantileFunction calculate(SimpleFeatureCollection) failed" , e);
             return null;
         }
 		if (progress.isCanceled()) return null;
@@ -144,7 +143,7 @@ public class QuantileFunction extends ClassificationFunction {
 	    if (!(feature instanceof FeatureCollection)) {
 	        return null;
         }
-        return calculate((FeatureCollection<SimpleFeatureType, SimpleFeature>) feature);
+        return calculate((SimpleFeatureCollection) feature);
 	}
 
 }

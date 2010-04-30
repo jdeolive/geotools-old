@@ -18,10 +18,10 @@ package org.geotools.filter.expression;
 
 import java.util.Map;
 
+import junit.framework.TestCase;
+
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-
-import junit.framework.TestCase;
 
 public class SimpleFeaturePropertyAccessorFactoryTest extends TestCase {
 

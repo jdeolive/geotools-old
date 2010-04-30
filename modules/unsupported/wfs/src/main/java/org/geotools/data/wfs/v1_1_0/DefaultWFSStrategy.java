@@ -50,7 +50,6 @@ import org.geotools.filter.v1_1.OGC;
 import org.geotools.filter.v1_1.OGCConfiguration;
 import org.geotools.filter.visitor.CapabilitiesFilterSplitter;
 import org.geotools.util.logging.Logging;
-
 import org.geotools.wfs.v1_1.WFSConfiguration;
 import org.geotools.xml.Configuration;
 import org.geotools.xml.Encoder;

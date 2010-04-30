@@ -16,12 +16,10 @@
  */
 package org.geotools.data.jdbc;
 
-import org.geotools.data.Query;
 import org.geotools.data.jdbc.fidmapper.FIDMapper;
-import org.opengis.feature.type.AttributeDescriptor;
-import org.opengis.filter.Filter;
 import org.geotools.factory.Hints;
 import org.geotools.filter.SQLEncoderException;
+import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.filter.Filter;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.sort.SortBy;

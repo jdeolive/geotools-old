@@ -22,23 +22,23 @@ import java.util.Set;
 
 import org.geotools.data.DataAccess;
 import org.geotools.data.FeatureListener;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
 import org.geotools.data.QueryCapabilities;
 import org.geotools.data.ResourceInfo;
-import org.geotools.feature.FeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
 
-class DirectoryFeatureSource implements FeatureSource<SimpleFeatureType, SimpleFeature> {
-    FeatureSource<SimpleFeatureType, SimpleFeature> fsource;
+class DirectoryFeatureSource implements SimpleFeatureSource {
+    SimpleFeatureSource fsource;
     DirectoryDataStore dataStore;
     
     public DirectoryFeatureSource(
-            FeatureSource<SimpleFeatureType, SimpleFeature> delegate,
+            SimpleFeatureSource delegate,
             DirectoryDataStore dataStore) {
         this.fsource = delegate;
         this.dataStore = dataStore;
@@ -64,17 +64,17 @@ class DirectoryFeatureSource implements FeatureSource<SimpleFeatureType, SimpleF
         return dataStore;
     }
 
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> getFeatures()
+    public SimpleFeatureCollection getFeatures()
             throws IOException {
         return fsource.getFeatures();
     }
 
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> getFeatures(
+    public SimpleFeatureCollection getFeatures(
             Filter filter) throws IOException {
         return fsource.getFeatures(filter);
     }
 
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> getFeatures(
+    public SimpleFeatureCollection getFeatures(
             Query query) throws IOException {
         return fsource.getFeatures(query);
     }

@@ -19,11 +19,11 @@ package org.geotools.data.ows;
 import org.geotools.geometry.GeneralDirectPosition;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultEngineeringCRS;
+import org.opengis.geometry.DirectPosition;
+import org.opengis.geometry.Envelope;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.NoSuchAuthorityCodeException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.geometry.DirectPosition;
-import org.opengis.geometry.Envelope;
 
 /**
  * A pair of coordinates and a reference system that represents a section of the Earth

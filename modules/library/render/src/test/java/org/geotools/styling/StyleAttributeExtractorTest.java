@@ -1,12 +1,15 @@
 package org.geotools.styling;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.util.Set;
 
 import org.geotools.factory.CommonFactoryFinder;
 import org.junit.Test;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
-import static org.junit.Assert.*;
 
 public class StyleAttributeExtractorTest {
     FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);

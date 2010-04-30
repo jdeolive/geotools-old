@@ -18,8 +18,6 @@ package org.geotools.data.wms.request;
 
 import java.net.URL;
 
-import org.geotools.data.ows.AbstractRequest;
-
 /**
  * Provides functionality for a basic GetLegendGraphic request
  * 

@@ -16,7 +16,6 @@
  */
 package org.geotools.wfs.bindings;
 
-import java.net.URI;
 import java.net.URL;
 import java.util.List;
 
@@ -31,7 +30,6 @@ import net.opengis.wfs.OperationType;
 import net.opengis.wfs.OperationsType;
 import net.opengis.wfs.OutputFormatListType;
 
-import org.eclipse.emf.common.util.EList;
 import org.geotools.ows.OWS;
 import org.geotools.test.TestData;
 import org.geotools.wfs.WFS;

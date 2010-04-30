@@ -18,10 +18,9 @@ package org.geotools.validation.spatial;
 
 import java.util.Map;
 
-import org.geotools.data.FeatureSource;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.validation.ValidationResults;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
@@ -55,7 +54,7 @@ public class PolygonNotOverlappingLineValidation
     /**
      * Check that the polygon is not overlapping the line.
      *
-     * @param layers Map of FeatureSource<SimpleFeatureType, SimpleFeature> by "dataStoreID:typeName"
+     * @param layers Map of SimpleFeatureSource by "dataStoreID:typeName"
      * @param envelope The bounding box that encloses the unvalidated data
      * @param results Used to coallate results information
      *
@@ -65,8 +64,8 @@ public class PolygonNotOverlappingLineValidation
      */
     public boolean validate(Map layers, Envelope envelope,
         ValidationResults results) throws Exception {
-        FeatureSource<SimpleFeatureType, SimpleFeature> polySource1 = (FeatureSource<SimpleFeatureType, SimpleFeature>) layers.get(getPolygonTypeRef());
-        FeatureSource<SimpleFeatureType, SimpleFeature> polySource2 = (FeatureSource<SimpleFeatureType, SimpleFeature>) layers.get(getRestrictedLineTypeRef());
+        SimpleFeatureSource polySource1 = (SimpleFeatureSource) layers.get(getPolygonTypeRef());
+        SimpleFeatureSource polySource2 = (SimpleFeatureSource) layers.get(getRestrictedLineTypeRef());
 
         Object[] poly1 = polySource1.getFeatures().toArray();
         Object[] poly2 = polySource2.getFeatures().toArray();

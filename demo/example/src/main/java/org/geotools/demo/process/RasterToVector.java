@@ -16,10 +16,11 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.awt.image.WritableRaster;
 import java.util.Collections;
+
 import org.geotools.coverage.CoverageFactoryFinder;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
-import org.geotools.feature.FeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.map.MapContext;
@@ -28,8 +29,6 @@ import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.styling.SLD;
 import org.geotools.styling.Style;
 import org.geotools.swing.JMapFrame;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 /**
  * This examples creates a GridCoverage2D object from an image with a chessboard pattern
@@ -47,7 +46,7 @@ public class RasterToVector {
     private void demo() throws Exception {
         ReferencedEnvelope env = new ReferencedEnvelope(0.0, 8.0, 0.0, 8.0, DefaultGeographicCRS.WGS84);
         GridCoverage2D cov = createChessboardCoverage(256, 256, 32, env);
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = RasterToVectorProcess.process(cov, 0, env, Collections.singletonList(0.0d), null);
+        SimpleFeatureCollection fc = RasterToVectorProcess.process(cov, 0, env, Collections.singletonList(0.0d), null);
 
         MapContext map = new DefaultMapContext();
         map.setTitle("raster to vector conversion");

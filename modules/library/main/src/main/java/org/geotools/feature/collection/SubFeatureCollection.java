@@ -23,8 +23,9 @@ import java.util.List;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.collection.DelegateFeatureReader;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.visitor.BoundsVisitor;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -34,7 +35,6 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.sort.SortBy;
-import org.opengis.geometry.BoundingBox;
 
 /**
  * Used as a reasonable default implementation for subCollection.
@@ -53,14 +53,14 @@ public class SubFeatureCollection extends AbstractFeatureCollection {
     protected Filter filter;
     
     /** Original Collection */
-	protected FeatureCollection<SimpleFeatureType, SimpleFeature> collection;
+	protected SimpleFeatureCollection collection;
 	
     protected FilterFactory ff = CommonFactoryFinder.getFilterFactory( null );
         
-    public SubFeatureCollection(FeatureCollection<SimpleFeatureType, SimpleFeature> collection ) {
+    public SubFeatureCollection(SimpleFeatureCollection collection ) {
         this( collection, Filter.INCLUDE );
     }
-	public SubFeatureCollection(FeatureCollection<SimpleFeatureType, SimpleFeature> collection, Filter subfilter ){
+	public SubFeatureCollection(SimpleFeatureCollection collection, Filter subfilter ){
 	    super( collection.getSchema() );	    
 		if (subfilter == null ) subfilter = Filter.INCLUDE;
 		if (subfilter.equals(Filter.EXCLUDE)) {
@@ -119,19 +119,19 @@ public class SubFeatureCollection extends AbstractFeatureCollection {
         return Filter.INCLUDE;
     }
     
-	public FeatureIterator<SimpleFeature> features() {
-		return new DelegateFeatureIterator<SimpleFeature>( this, iterator() );		
+	public SimpleFeatureIterator features() {
+		return new DelegateSimpleFeatureIterator( this, iterator() );		
 	}
 	
 	
-	public void close(FeatureIterator<SimpleFeature> close) {
+	public void close(SimpleFeatureIterator close) {
 		if( close != null ) close.close();
 	}
 
     //
     //
     //
-	public FeatureCollection<SimpleFeatureType, SimpleFeature> subCollection(Filter filter) {
+	public SimpleFeatureCollection subCollection(Filter filter) {
 		if (filter.equals(Filter.INCLUDE)) {
 			return this;
 		}
@@ -175,7 +175,7 @@ public class SubFeatureCollection extends AbstractFeatureCollection {
         }
 	}	
 
-	public FeatureCollection<SimpleFeatureType, SimpleFeature> sort(SortBy order) {
+	public SimpleFeatureCollection sort(SortBy order) {
 		return new SubFeatureList( collection, filter, order );
 	}
 	
@@ -205,7 +205,7 @@ public class SubFeatureCollection extends AbstractFeatureCollection {
         return size();
     }
 
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> collection() throws IOException {
+    public SimpleFeatureCollection collection() throws IOException {
         return this;
     }
 

@@ -25,7 +25,6 @@ import java.awt.Paint;
 import org.geotools.styling.LineSymbolizer;
 import org.geotools.styling.Stroke;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.expression.Expression;
 
 

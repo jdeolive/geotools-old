@@ -17,7 +17,6 @@
 
 package org.geotools.swing.tool;
 
-import com.vividsolutions.jts.geom.Geometry;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Point;
@@ -28,7 +27,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.WeakHashMap;
+
 import javax.swing.ImageIcon;
+
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.geometry.DirectPosition2D;
@@ -41,6 +42,8 @@ import org.geotools.swing.event.MapMouseEvent;
 import org.geotools.swing.utils.MapLayerUtils;
 import org.opengis.feature.Feature;
 import org.opengis.feature.Property;
+
+import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * A cursor tool to retrieve information about features that the user clicks

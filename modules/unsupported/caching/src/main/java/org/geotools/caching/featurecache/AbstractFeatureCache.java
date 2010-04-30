@@ -32,18 +32,19 @@ import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureEvent;
 import org.geotools.data.FeatureListener;
 import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
 import org.geotools.data.QueryCapabilities;
 import org.geotools.data.ResourceInfo;
 import org.geotools.data.Transaction;
 import org.geotools.data.memory.MemoryDataStore;
 import org.geotools.data.memory.MemoryFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.data.store.EmptyFeatureCollection;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
 import org.geotools.filter.OrImpl;
 import org.geotools.filter.spatial.BBOXImpl;
 import org.opengis.feature.simple.SimpleFeature;
@@ -76,7 +77,7 @@ public abstract class AbstractFeatureCache implements FeatureCache, FeatureListe
         logger = org.geotools.util.logging.Logging.getLogger("org.geotools.caching");
     }
 
-    protected FeatureSource fs;             //the feature source that backs the given feature type
+    protected SimpleFeatureSource fs;             //the feature source that backs the given feature type
     
     //statistics about the cache
     protected int source_hits = 0;
@@ -90,7 +91,7 @@ public abstract class AbstractFeatureCache implements FeatureCache, FeatureListe
      * 
      * @param fs
      */
-    public AbstractFeatureCache(FeatureSource fs) {
+    public AbstractFeatureCache(SimpleFeatureSource fs) {
         this.fs = fs;
         fs.addFeatureListener(this);
     }
@@ -112,7 +113,7 @@ public abstract class AbstractFeatureCache implements FeatureCache, FeatureListe
     /**
      * Gets all features from that are contained within the feature source.
      */
-    public FeatureCollection getFeatures() throws IOException {
+    public SimpleFeatureCollection getFeatures() throws IOException {
         return this.getFeatures(Filter.INCLUDE);
     }
 
@@ -123,14 +124,14 @@ public abstract class AbstractFeatureCache implements FeatureCache, FeatureListe
      * datastore and combines them in a memory feature collection.</p> 
      * <p>This should probably be overwritten for any implementations.</p>
      */
-    public FeatureCollection getFeatures(Query query) throws IOException {
+    public SimpleFeatureCollection getFeatures(Query query) throws IOException {
     	String typename = query.getTypeName();
         String schemaname = this.getSchema().getTypeName();
         if ((query.getTypeName() != null)
                 && (typename != schemaname)) {
             return new EmptyFeatureCollection(this.getSchema());
         } else {
-            FeatureCollection fc = getFeatures(query.getFilter());
+            SimpleFeatureCollection fc = getFeatures(query.getFilter());
             if (fc.size() == 0) {
                 return new EmptyFeatureCollection(this.getSchema());
             }
@@ -152,7 +153,7 @@ public abstract class AbstractFeatureCache implements FeatureCache, FeatureListe
             //making a memory data store from a feature collection results
             //in a null pointer exception
             ArrayList<SimpleFeature> features = new ArrayList<SimpleFeature>();
-            FeatureIterator<SimpleFeature> it = fc.features();
+            SimpleFeatureIterator it = fc.features();
             try{
                 for( ; it.hasNext(); ) {
                     SimpleFeature type = (SimpleFeature) it.next();
@@ -165,7 +166,7 @@ public abstract class AbstractFeatureCache implements FeatureCache, FeatureListe
 
             //convert back to a feature collection with the query applied
             FeatureReader<SimpleFeatureType, SimpleFeature> fr = md.getFeatureReader(query, Transaction.AUTO_COMMIT);
-            FeatureCollection fc1 = new DefaultFeatureCollection("cachedfeaturecollection", (SimpleFeatureType) fr.getFeatureType());
+            SimpleFeatureCollection fc1 = new DefaultFeatureCollection("cachedfeaturecollection", (SimpleFeatureType) fr.getFeatureType());
             while( fr.hasNext() ) {
                 fc1.add(fr.next());
             }
@@ -181,7 +182,7 @@ public abstract class AbstractFeatureCache implements FeatureCache, FeatureListe
      * them in a memory feature collection.</p>
      * <p>This should probably be overwritten for any implementations.</p>
      */
-    public FeatureCollection getFeatures(Filter filter)
+    public SimpleFeatureCollection getFeatures(Filter filter)
         throws IOException {
     	    	
         /* PostPreProcessFilterSplittingVisitor may return
@@ -204,7 +205,7 @@ public abstract class AbstractFeatureCache implements FeatureCache, FeatureListe
             // delegate to source
             return this.fs.getFeatures(filter);
         } else {
-            FeatureCollection fc;
+            SimpleFeatureCollection fc;
 
             try {
                 // first pre-process query from cache
@@ -226,7 +227,7 @@ public abstract class AbstractFeatureCache implements FeatureCache, FeatureListe
      * @return
      * @throws IOException
      */
-    protected FeatureCollection _getFeatures(Filter filter)
+    protected SimpleFeatureCollection _getFeatures(Filter filter)
         throws IOException {
         if (filter instanceof BBOXImpl) {
             //return _getFeatures((BBOXImpl) filter) ;
@@ -239,9 +240,9 @@ public abstract class AbstractFeatureCache implements FeatureCache, FeatureListe
     /**
      * Get all features within a given envelope as a in memory feature collection.
      */
-    public FeatureCollection get(Envelope e) throws IOException {
-    	FeatureCollection fromCache;
-        FeatureCollection fromSource;
+    public SimpleFeatureCollection get(Envelope e) throws IOException {
+    	SimpleFeatureCollection fromCache;
+        SimpleFeatureCollection fromSource;
         List<Envelope> notcached = null;
         
         String geometryname = getSchema().getGeometryDescriptor().getLocalName();
@@ -291,7 +292,7 @@ public abstract class AbstractFeatureCache implements FeatureCache, FeatureListe
             //get the data from the source
             try{
                 //cache these features in a local feature collection while we deal with them
-                FeatureCollection localSource = new MemoryFeatureCollection(getSchema());
+                SimpleFeatureCollection localSource = new MemoryFeatureCollection(getSchema());
                 fromSource = this.fs.getFeatures(filter);
                 localSource.addAll(fromSource);
                 fromSource = localSource;

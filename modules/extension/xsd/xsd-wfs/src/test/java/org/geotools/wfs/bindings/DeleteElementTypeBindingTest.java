@@ -21,7 +21,6 @@ import java.util.Collections;
 
 import javax.xml.namespace.QName;
 
-import net.opengis.wfs.BaseRequestType;
 import net.opengis.wfs.DeleteElementType;
 
 import org.geotools.test.TestData;
@@ -32,7 +31,6 @@ import org.opengis.filter.Filter;
 import org.opengis.filter.Id;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
 
 /**
  * Unit test suite for {@link DeleteElementTypeBinding}

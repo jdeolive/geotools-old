@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Stack;
 
 import org.geotools.data.shapefile.shp.IndexFile;
 import org.geotools.index.Data;

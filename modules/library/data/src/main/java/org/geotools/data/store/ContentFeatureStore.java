@@ -21,8 +21,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,11 +29,12 @@ import org.geotools.data.FeatureLock;
 import org.geotools.data.FeatureLockException;
 import org.geotools.data.FeatureLocking;
 import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureStore;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.InProcessLockingManager;
 import org.geotools.data.LockingManager;
 import org.geotools.data.Query;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.feature.FeatureCollection;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -50,7 +49,7 @@ import org.opengis.filter.identity.FeatureId;
  * of operations provided by {@link FeatureCollection}.
  * </p>
  * <p>
- * The {@link #addFeatures(FeatureCollection<SimpleFeatureType, SimpleFeature>)} method is used to add features to
+ * The {@link #addFeatures(SimpleFeatureCollection)} method is used to add features to
  * the feature store. The method should return the "persistent" feature id's 
  * which are generated after the feature has been added to persistent storage.
  * Often the persistent fid is different from the fid specified by the actual 
@@ -81,7 +80,7 @@ import org.opengis.filter.identity.FeatureId;
  * @source $URL$
  */
 public abstract class ContentFeatureStore extends ContentFeatureSource implements
-        FeatureStore<SimpleFeatureType, SimpleFeature>,
+        SimpleFeatureStore,
         FeatureLocking<SimpleFeatureType, SimpleFeature> {
 
     /**
@@ -230,7 +229,7 @@ public abstract class ContentFeatureStore extends ContentFeatureSource implement
      * This method calls through to {@link #addFeatures(Collection)}.
      * </p>
      */
-    public final List<FeatureId> addFeatures(FeatureCollection<SimpleFeatureType, SimpleFeature> collection)
+    public final List<FeatureId> addFeatures(FeatureCollection<SimpleFeatureType,SimpleFeature> collection)
         throws IOException {
         //gather up id's
         List<FeatureId> ids = new LinkedList<FeatureId>();

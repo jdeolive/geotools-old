@@ -17,7 +17,9 @@
 package org.geotools.gml3.smil;
 
 import java.util.Set;
+
 import javax.xml.namespace.QName;
+
 import org.geotools.xml.SchemaLocator;
 import org.geotools.xml.XSD;
 

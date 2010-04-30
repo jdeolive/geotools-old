@@ -6,14 +6,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.geotools.data.FeatureSource;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.filter.text.cql2.CQL;
 import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory2;
@@ -30,7 +29,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * @source $URL$
  */
 public class FilterExamples {
-    FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
+    SimpleFeatureSource featureSource;
 
     /**
      * How to find Features using IDs?
@@ -46,7 +45,7 @@ public class FilterExamples {
      * @return Selected Features
      * @throws IOException
      */
-    FeatureCollection<SimpleFeatureType, SimpleFeature> grabSelectedIds(
+    SimpleFeatureCollection grabSelectedIds(
             Set<String> selection) throws IOException {
         FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
 

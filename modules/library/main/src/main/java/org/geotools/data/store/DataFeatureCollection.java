@@ -30,18 +30,19 @@ import java.util.logging.Logger;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.collection.DelegateFeatureReader;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.feature.CollectionEvent;
 import org.geotools.feature.CollectionListener;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
-
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.collection.DelegateFeatureIterator;
+import org.geotools.feature.collection.DelegateSimpleFeatureIterator;
 import org.geotools.feature.collection.SubFeatureCollection;
 import org.geotools.filter.SortBy2;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.util.NullProgressListener;
-import org.geotools.util.ProgressListener;
 import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -72,7 +73,7 @@ import org.opengis.filter.sort.SortBy;
  * @since 2.1.RC0
  * @source $URL$
  */
-public abstract class DataFeatureCollection implements FeatureCollection<SimpleFeatureType, SimpleFeature> {
+public abstract class DataFeatureCollection implements SimpleFeatureCollection {
     
 	/** logger */
 	static Logger LOGGER = org.geotools.util.logging.Logging.getLogger( "org.geotools.data" );
@@ -131,7 +132,7 @@ public abstract class DataFeatureCollection implements FeatureCollection<SimpleF
 
     public abstract int getCount() throws IOException;;
 
-    //public abstract FeatureCollection<SimpleFeatureType, SimpleFeature> collection() throws IOException;
+    //public abstract SimpleFeatureCollection collection() throws IOException;
 
     //
     // Additional Subclass "hooks"
@@ -150,7 +151,7 @@ public abstract class DataFeatureCollection implements FeatureCollection<SimpleF
         throw new UnsupportedOperationException( "Modification of this collection is not supported" );
     }
     //
-    // FeatureCollection<SimpleFeatureType, SimpleFeature> methods
+    // SimpleFeatureCollection methods
     // 
     // implemented in terms of feature results
     //
@@ -173,13 +174,13 @@ public abstract class DataFeatureCollection implements FeatureCollection<SimpleF
 
     protected SimpleFeatureType schema;
     /**
-     * FeatureIterator<SimpleFeature> is entirely based on iterator().
+     * SimpleFeatureIterator is entirely based on iterator().
      * <p>
      * So when we implement FeatureCollection.iterator() this will work
      * out of the box.
      */
-    public FeatureIterator<SimpleFeature> features() {
-    	FeatureIterator<SimpleFeature> iterator = new DelegateFeatureIterator<SimpleFeature>( this, iterator() );
+    public SimpleFeatureIterator features() {
+    	SimpleFeatureIterator iterator = new DelegateSimpleFeatureIterator( this, iterator() );
         open.add( iterator );
         return iterator;
     }
@@ -276,7 +277,7 @@ public abstract class DataFeatureCollection implements FeatureCollection<SimpleF
     				closeIterator( (Iterator) iterator );
     			}
     			if( iterator instanceof FeatureIterator){
-    				( (FeatureIterator<SimpleFeature>) iterator ).close();
+    				( (SimpleFeatureIterator) iterator ).close();
     			}
     		}
     		catch( Throwable e){
@@ -485,7 +486,7 @@ public abstract class DataFeatureCollection implements FeatureCollection<SimpleF
      * @param filter Filter used to determine sub collection.
      * @since GeoTools 2.2, Filter 1.1
      */
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> subCollection(Filter filter) {
+    public SimpleFeatureCollection subCollection(Filter filter) {
         if( filter == Filter.INCLUDE ){
             return this;
         }        
@@ -507,7 +508,7 @@ public abstract class DataFeatureCollection implements FeatureCollection<SimpleF
      * @return FeatureList sorted according to provided order
 
      */
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> sort(SortBy order) {
+    public SimpleFeatureCollection sort(SortBy order) {
     	if( order instanceof SortBy2){
     		SortBy2 advanced = (SortBy2) order;
     		return sort( advanced );
@@ -524,7 +525,7 @@ public abstract class DataFeatureCollection implements FeatureCollection<SimpleF
      * @param order GeoTools SortBy
      * @return FeatureList sorted according to provided order
      */
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> sort(SortBy2 order ){
+    public SimpleFeatureCollection sort(SortBy2 order ){
     	return null;
     }
     public String getID() {

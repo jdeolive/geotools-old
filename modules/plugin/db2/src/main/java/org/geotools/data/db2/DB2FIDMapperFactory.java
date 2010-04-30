@@ -16,18 +16,19 @@
  */
 package org.geotools.data.db2;
 
-import org.geotools.data.jdbc.JDBCUtils;
-import org.geotools.data.jdbc.fidmapper.BasicFIDMapper;
-import org.geotools.data.jdbc.fidmapper.DefaultFIDMapperFactory;
-import org.geotools.data.jdbc.fidmapper.FIDMapper;
-import org.geotools.data.jdbc.fidmapper.MaxIncFIDMapper;
-import org.geotools.data.jdbc.fidmapper.TypedFIDMapper;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.logging.Logger;
+
+import org.geotools.data.jdbc.JDBCUtils;
+import org.geotools.data.jdbc.fidmapper.BasicFIDMapper;
+import org.geotools.data.jdbc.fidmapper.DefaultFIDMapperFactory;
+import org.geotools.data.jdbc.fidmapper.FIDMapper;
+import org.geotools.data.jdbc.fidmapper.MaxIncFIDMapper;
+import org.geotools.data.jdbc.fidmapper.TypedFIDMapper;
 
 
 /**

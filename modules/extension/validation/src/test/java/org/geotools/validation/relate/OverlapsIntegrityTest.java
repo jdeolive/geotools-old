@@ -20,10 +20,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.geotools.data.FeatureSource;
-import org.geotools.feature.FeatureIterator;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
 
 import com.vividsolutions.jts.geom.Envelope;
@@ -64,7 +63,7 @@ public class OverlapsIntegrityTest extends SpatialTestCase
 	}
 
 	public void testOverlapFilter() throws Exception {
-		FeatureSource<SimpleFeatureType, SimpleFeature> line = mds.getFeatureSource( "line" );
+		SimpleFeatureSource line = mds.getFeatureSource( "line" );
 		
 		Filter filter;
 		
@@ -81,7 +80,7 @@ public class OverlapsIntegrityTest extends SpatialTestCase
 		}
 		int counter = 0;
 		filter = OverlapsIntegrity.filterBBox( all, line.getSchema() );
-        FeatureIterator<SimpleFeature> r=line.getFeatures().features();
+        SimpleFeatureIterator r=line.getFeatures().features();
 		for( ; r.hasNext(); ){
 			System.out.println("Loop counter: " +  ++counter);
 			SimpleFeature victim = r.next();

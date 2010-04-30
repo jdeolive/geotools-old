@@ -18,6 +18,7 @@
 package org.geotools.filter.visitor;
 
 import java.util.SortedMap;
+
 import org.opengis.annotation.XmlElement;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Function;

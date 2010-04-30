@@ -21,8 +21,6 @@ package org.geotools.data.oracle.sdo;
 
 //import oracle.spatial.geometry.JGeometry;
 
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
 
 /**
  * Converts between JGeometry and JTS geometries. Is used by the SDO*Dialect classes, which

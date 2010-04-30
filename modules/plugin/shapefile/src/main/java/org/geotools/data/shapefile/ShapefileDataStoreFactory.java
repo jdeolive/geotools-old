@@ -32,11 +32,9 @@ import org.geotools.data.DataStore;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.FileDataStore;
 import org.geotools.data.FileDataStoreFactorySpi;
-import org.geotools.data.Parameter;
 import org.geotools.data.shapefile.indexed.IndexType;
 import org.geotools.data.shapefile.indexed.IndexedShapefileDataStore;
 import org.geotools.util.KVP;
-import org.geotools.util.SimpleInternationalString;
 
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -244,7 +242,7 @@ public class ShapefileDataStoreFactory implements FileDataStoreFactorySpi {
      * yet.
      * 
      */
-    public FileDataStore createNewDataStore(Map params) throws IOException {
+    public ShapefileDataStore createNewDataStore(Map params) throws IOException {
         URL url = (URL) URLP.lookUp(params);
         Boolean isMemoryMapped = (Boolean) MEMORY_MAPPED.lookUp(params);
         URI namespace = (URI) NAMESPACEP.lookUp(params);

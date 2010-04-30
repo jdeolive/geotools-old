@@ -20,6 +20,7 @@ import java.awt.Component;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -28,7 +29,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+
 import net.miginfocom.swing.MigLayout;
+
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.styling.Font;
 import org.geotools.styling.StyleFactory;

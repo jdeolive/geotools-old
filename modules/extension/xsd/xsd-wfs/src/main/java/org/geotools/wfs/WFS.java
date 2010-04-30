@@ -16,10 +16,8 @@
  */
 package org.geotools.wfs;
 
-import java.util.Set;
 import javax.xml.namespace.QName;
-import org.geotools.filter.v1_1.OGC;
-import org.geotools.ows.OWS;
+
 import org.geotools.xml.XSD;
 
 

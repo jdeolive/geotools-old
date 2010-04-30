@@ -22,14 +22,15 @@ import java.util.List;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureStore;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.Transaction;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.data.store.ContentFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.Hints;
 import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.geometry.jts.LiteCoordinateSequenceFactory;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -113,8 +114,8 @@ public abstract class JDBC3DTest extends JDBCTestSupport {
     }
 
     public void testReadPoint() throws Exception {
-        FeatureCollection fc = dataStore.getFeatureSource(tname(POINT3D)).getFeatures();
-        FeatureIterator<SimpleFeature> fr = fc.features();
+        SimpleFeatureCollection fc = dataStore.getFeatureSource(tname(POINT3D)).getFeatures();
+        SimpleFeatureIterator fr = fc.features();
         assertTrue(fr.hasNext());
         Point p = (Point) fr.next().getDefaultGeometry();
         assertTrue(new Coordinate(1, 1, 1).equals(p.getCoordinate()));
@@ -122,8 +123,8 @@ public abstract class JDBC3DTest extends JDBCTestSupport {
     }
 
     public void testReadLine() throws Exception {
-        FeatureCollection fc = dataStore.getFeatureSource(tname(LINE3D)).getFeatures();
-        FeatureIterator<SimpleFeature> fr = fc.features();
+    	SimpleFeatureCollection fc = dataStore.getFeatureSource(tname(LINE3D)).getFeatures();
+        SimpleFeatureIterator fr = fc.features();
         assertTrue(fr.hasNext());
         LineString ls = (LineString) fr.next().getDefaultGeometry();
         // 1 1 0, 2 2 0, 4 2 1, 5 1 1
@@ -146,12 +147,12 @@ public abstract class JDBC3DTest extends JDBCTestSupport {
                 "l3" }, null);
 
         // insert it
-        FeatureStore<SimpleFeatureType, SimpleFeature> fs = (FeatureStore) dataStore
+        SimpleFeatureStore fs = (SimpleFeatureStore) dataStore
                 .getFeatureSource(tname(LINE3D), Transaction.AUTO_COMMIT);
         List<FeatureId> fids = fs.addFeatures(DataUtilities.collection(newFeature));
 
         // retrieve it back
-        FeatureIterator<SimpleFeature> fi = fs.getFeatures(FF.id(new HashSet<FeatureId>(fids)))
+        SimpleFeatureIterator fi = fs.getFeatures(FF.id(new HashSet<FeatureId>(fids)))
                 .features();
         assertTrue(fi.hasNext());
         SimpleFeature f = fi.next();

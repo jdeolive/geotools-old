@@ -16,12 +16,9 @@
  */
 package org.geotools.feature;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureImpl;
 import org.opengis.feature.Association;
 import org.opengis.feature.Attribute;
@@ -29,7 +26,6 @@ import org.opengis.feature.ComplexAttribute;
 import org.opengis.feature.Feature;
 import org.opengis.feature.FeatureFactory;
 import org.opengis.feature.GeometryAttribute;
-import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AssociationDescriptor;

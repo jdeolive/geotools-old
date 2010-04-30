@@ -3,7 +3,6 @@ package org.geotools.caching.grid.featurecache.readers;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -21,19 +20,21 @@ import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.EmptyFeatureReader;
 import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.MaxFeatureReader;
 import org.geotools.data.Query;
 import org.geotools.data.ReTypeFeatureReader;
 import org.geotools.data.Transaction;
 import org.geotools.data.crs.ReprojectFeatureReader;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.Hints;
 import org.geotools.feature.CollectionListener;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.SchemaException;
-import org.geotools.feature.collection.DelegateFeatureIterator;
+import org.geotools.feature.collection.DelegateSimpleFeatureIterator;
 import org.geotools.geometry.jts.LiteCoordinateSequenceFactory;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
@@ -61,7 +62,7 @@ import com.vividsolutions.jts.geom.Envelope;
  *
  * @source $URL$
  */
-public class GridCachingFeatureCollection implements FeatureCollection<SimpleFeatureType, SimpleFeature>{
+public class GridCachingFeatureCollection implements SimpleFeatureCollection {
 	private static final int MAX_FILTER_SIZE = 4; //the maximum number of "and" statements allowed in filter  
 	
 	private static Logger logger = org.geotools.util.logging.Logging.getLogger("org.geotools.caching");
@@ -72,7 +73,7 @@ public class GridCachingFeatureCollection implements FeatureCollection<SimpleFea
 	private Query query;			//query (may be null)
 	
 	private GridFeatureCache grid;		//feature cache
-	private FeatureSource<SimpleFeatureType, SimpleFeature> fs;	//raw feature source
+	private SimpleFeatureSource fs;	//raw feature source
 	private FeatureType featureType ;		//feature type associated with feature source
 	private FeatureType newFeatureType;		//feature type associated with returned feature collection
 	
@@ -95,7 +96,7 @@ public class GridCachingFeatureCollection implements FeatureCollection<SimpleFea
 	 * @param cacheFeatures
 	 */
 	public GridCachingFeatureCollection(BBOX preFilter, Filter postFilter, 
-			GridFeatureCache g, FeatureSource<SimpleFeatureType, SimpleFeature> fs, boolean cacheFeatures){
+			GridFeatureCache g, SimpleFeatureSource fs, boolean cacheFeatures){
 		this.grid = g;
 		this.preFilter = preFilter;
 		
@@ -120,7 +121,7 @@ public class GridCachingFeatureCollection implements FeatureCollection<SimpleFea
 	 * @throws IOException
 	 */
 	public GridCachingFeatureCollection(BBOX preFilter, Query query, GridFeatureCache g,
-	            FeatureSource<SimpleFeatureType, SimpleFeature> fs, boolean cacheFeatures) throws IOException{
+	            SimpleFeatureSource fs, boolean cacheFeatures) throws IOException{
 	    this(preFilter, query.getFilter(), g, fs, cacheFeatures);
 	    
 	    this.query = query;
@@ -207,7 +208,7 @@ public class GridCachingFeatureCollection implements FeatureCollection<SimpleFea
 	 * Visits all features in the collection.
 	 */
 	public void accepts(FeatureVisitor visitor, ProgressListener progress) throws IOException {
-	    FeatureIterator<SimpleFeature> feats = features();
+	    SimpleFeatureIterator feats = features();
 	    try {
             while( feats.hasNext() ) {
                 SimpleFeature f = feats.next();
@@ -287,8 +288,8 @@ public class GridCachingFeatureCollection implements FeatureCollection<SimpleFea
 	/**
 	 * @returns a feature iterator that iterators over all features in the collection
 	 */
-	public FeatureIterator<SimpleFeature> features() {
-		FeatureIterator<SimpleFeature> iter = new DelegateFeatureIterator<SimpleFeature>(this, openIterator());
+	public SimpleFeatureIterator features() {
+		SimpleFeatureIterator iter = new DelegateSimpleFeatureIterator(this, openIterator());
 		iterators.add(iter);
 		return iter;
 	}
@@ -599,7 +600,7 @@ public class GridCachingFeatureCollection implements FeatureCollection<SimpleFea
 	 * Determines the size of the feature collection
 	 */
 	public int size() {
-		FeatureIterator<SimpleFeature> fi = features();
+		SimpleFeatureIterator fi = features();
 		int cnt = 0;
 		try {
 			while (fi.hasNext()) {
@@ -653,14 +654,14 @@ public class GridCachingFeatureCollection implements FeatureCollection<SimpleFea
 	/**
 	 * @throws UnsupportedOperationException
 	 */
-	public FeatureCollection<SimpleFeatureType, SimpleFeature> subCollection(Filter filter) {
+	public SimpleFeatureCollection subCollection(Filter filter) {
 		throw new UnsupportedOperationException("Cannot modify this feature collection");
 	}
 	
 	/**
 	 * @throws UnsupportedOperationException
 	 */
-	public FeatureCollection<SimpleFeatureType, SimpleFeature> sort(SortBy order) {
+	public SimpleFeatureCollection sort(SortBy order) {
 		throw new UnsupportedOperationException("Cannot modify this feature collection");
 	}
 	

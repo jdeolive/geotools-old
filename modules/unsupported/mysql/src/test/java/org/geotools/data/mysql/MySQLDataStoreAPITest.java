@@ -40,8 +40,6 @@ import org.geotools.data.FeatureLock;
 import org.geotools.data.FeatureLockFactory;
 import org.geotools.data.FeatureLocking;
 import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureSource;
-import org.geotools.data.FeatureStore;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.FilteringFeatureReader;
 import org.geotools.data.InProcessLockingManager;
@@ -50,8 +48,10 @@ import org.geotools.data.Transaction;
 import org.geotools.data.jdbc.datasource.ManageableDataSource;
 import org.geotools.data.jdbc.fidmapper.BasicFIDMapper;
 import org.geotools.data.jdbc.fidmapper.TypedFIDMapper;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
+import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.filter.AbstractFilter;
 import org.geotools.filter.CompareFilter;
@@ -600,7 +600,7 @@ public class MySQLDataStoreAPITest extends DataTestCase {
         }
     }
 
-    void assertCovers(String msg, FeatureCollection<SimpleFeatureType, SimpleFeature> c1, FeatureCollection<SimpleFeatureType, SimpleFeature> c2) {
+    void assertCovers(String msg, SimpleFeatureCollection c1, SimpleFeatureCollection c2) {
         if (c1 == c2) {
             return;
         }
@@ -611,7 +611,7 @@ public class MySQLDataStoreAPITest extends DataTestCase {
 
         SimpleFeature f;
 
-        for (FeatureIterator<SimpleFeature> i = c1.features(); i.hasNext();) {
+        for (SimpleFeatureIterator i = c1.features(); i.hasNext();) {
             f = i.next();
             assertTrue(msg + " " + f.getID(), c2.contains(f));
         }
@@ -906,7 +906,7 @@ public class MySQLDataStoreAPITest extends DataTestCase {
         return count == array.length;
     }
 
-    boolean covers(FeatureIterator<SimpleFeature> reader, SimpleFeature[] array)
+    boolean covers(SimpleFeatureIterator reader, SimpleFeature[] array)
         throws NoSuchElementException, IOException, IllegalAttributeException {
         SimpleFeature feature;
         int count = 0;
@@ -1349,7 +1349,7 @@ public class MySQLDataStoreAPITest extends DataTestCase {
 
     // Feature Source Testing
     public void testGetFeatureSourceRoad() throws IOException {
-        FeatureSource<SimpleFeatureType, SimpleFeature> road = data.getFeatureSource("road");
+        SimpleFeatureSource road = data.getFeatureSource("road");
 
         assertEquals(roadType, road.getSchema());
         assertSame(data, road.getDataStore());
@@ -1360,16 +1360,16 @@ public class MySQLDataStoreAPITest extends DataTestCase {
         Envelope bounds = road.getBounds(Query.ALL);
         assertTrue((bounds == null) || bounds.equals(roadBounds));
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> all = road.getFeatures();
+        SimpleFeatureCollection all = road.getFeatures();
         assertEquals(3, all.size());
         assertEquals(roadBounds, all.getBounds());
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> expected = DataUtilities.collection(roadFeatures);
+        SimpleFeatureCollection expected = DataUtilities.collection(roadFeatures);
 
         assertCovers("all", expected, all);
         assertEquals(roadBounds, all.getBounds());
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> some = road.getFeatures(rd12Filter);
+        SimpleFeatureCollection some = road.getFeatures(rd12Filter);
         assertEquals(2, some.size());
 
         Envelope e = new Envelope();
@@ -1380,11 +1380,11 @@ public class MySQLDataStoreAPITest extends DataTestCase {
 
         DefaultQuery query = new DefaultQuery("road", rd12Filter, new String[] { "name" });
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> half = road.getFeatures(query);
+        SimpleFeatureCollection half = road.getFeatures(query);
         assertEquals(2, half.size());
         assertEquals(1, half.getSchema().getAttributeCount());
 
-        FeatureIterator<SimpleFeature> reader = half.features();
+        SimpleFeatureIterator reader = half.features();
         SimpleFeatureType type = half.getSchema();
         reader.close();
 
@@ -1408,24 +1408,24 @@ public class MySQLDataStoreAPITest extends DataTestCase {
 
     public void testGetFeatureSourceRiver()
         throws NoSuchElementException, IOException, IllegalAttributeException {
-        FeatureSource<SimpleFeatureType, SimpleFeature> river = data.getFeatureSource("river");
+        SimpleFeatureSource river = data.getFeatureSource("river");
 
         assertEquals(riverType, river.getSchema());
         assertSame(data, river.getDataStore());
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> all = river.getFeatures();
+        SimpleFeatureCollection all = river.getFeatures();
         assertEquals(2, all.size());
         assertEquals(riverBounds, all.getBounds());
         assertTrue("rivers", covers(all.features(), riverFeatures));
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> expected = DataUtilities.collection(riverFeatures);
+        SimpleFeatureCollection expected = DataUtilities.collection(riverFeatures);
         assertCovers("all", expected, all);
         assertEquals(riverBounds, all.getBounds());
     }
     
     public void testCaseInsensitiveFilter() throws Exception {
         final String riverName = riverType.getName().getLocalPart();
-        FeatureSource<SimpleFeatureType, SimpleFeature> rivers = data.getFeatureSource(riverName);
+        SimpleFeatureSource rivers = data.getFeatureSource(riverName);
         org.opengis.filter.Filter caseSensitive = ff.equal(ff.property("river"), ff.literal("Rv1"), true);
         assertEquals(0, rivers.getCount(new DefaultQuery(riverName, caseSensitive)));
         org.opengis.filter.Filter caseInsensitive = ff.equal(ff.property("river"), ff.literal("Rv1"), false);
@@ -1436,7 +1436,7 @@ public class MySQLDataStoreAPITest extends DataTestCase {
     // Feature Store Testing
     //
     public void testGetFeatureStoreModifyFeatures1() throws IOException {
-        FeatureStore<SimpleFeatureType, SimpleFeature> road = (FeatureStore<SimpleFeatureType, SimpleFeature>) data.getFeatureSource("road");
+        SimpleFeatureStore road = (SimpleFeatureStore) data.getFeatureSource("road");
 
         //FilterFactory factory = FilterFactoryFinder.createFilterFactory();
         //rd1Filter = factory.createFidFilter( roadFeatures[0].getID() );
@@ -1444,12 +1444,12 @@ public class MySQLDataStoreAPITest extends DataTestCase {
         AttributeDescriptor name = roadType.getDescriptor("id");
         road.modifyFeatures(name, changed, rd1Filter);
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> results = road.getFeatures(rd1Filter);
+        SimpleFeatureCollection results = road.getFeatures(rd1Filter);
         assertEquals(changed, results.features().next().getAttribute("id"));
     }
 
     public void testGetFeatureStoreModifyFeatures2() throws IOException {
-        FeatureStore<SimpleFeatureType, SimpleFeature> road = (FeatureStore<SimpleFeatureType, SimpleFeature>) data.getFeatureSource("road");
+        SimpleFeatureStore road = (SimpleFeatureStore) data.getFeatureSource("road");
 
         FilterFactory factory = FilterFactoryFinder.createFilterFactory();
         rd1Filter = factory.createFidFilter(roadFeatures[0].getID());
@@ -1457,12 +1457,12 @@ public class MySQLDataStoreAPITest extends DataTestCase {
         AttributeDescriptor name = roadType.getDescriptor("name");
         road.modifyFeatures(new AttributeDescriptor[] { name, }, new Object[] { "changed", }, rd1Filter);
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> results = road.getFeatures(rd1Filter);
+        SimpleFeatureCollection results = road.getFeatures(rd1Filter);
         assertEquals("changed", results.features().next().getAttribute("name"));
     }
 
     public void testGetFeatureStoreRemoveFeatures() throws IOException {
-        FeatureStore<SimpleFeatureType, SimpleFeature> road = (FeatureStore<SimpleFeatureType, SimpleFeature>) data.getFeatureSource("road");
+        SimpleFeatureStore road = (SimpleFeatureStore) data.getFeatureSource("road");
 
         road.removeFeatures(rd1Filter);
         assertEquals(0, road.getFeatures(rd1Filter).size());
@@ -1470,7 +1470,7 @@ public class MySQLDataStoreAPITest extends DataTestCase {
     }
 
     public void testGetFeatureStoreAddFeatures() throws IOException {
-        FeatureStore<SimpleFeatureType, SimpleFeature> road = (FeatureStore<SimpleFeatureType, SimpleFeature>) data.getFeatureSource("road");
+        SimpleFeatureStore road = (SimpleFeatureStore) data.getFeatureSource("road");
 
         road.addFeatures(DataUtilities.collection(newRoad));
         assertEquals(roadFeatures.length + 1, count("road"));
@@ -1480,7 +1480,7 @@ public class MySQLDataStoreAPITest extends DataTestCase {
         throws NoSuchElementException, IOException, IllegalAttributeException {
          FeatureReader<SimpleFeatureType, SimpleFeature> reader = DataUtilities.reader(new SimpleFeature[] { newRoad, });
 
-        FeatureStore<SimpleFeatureType, SimpleFeature> road = (FeatureStore<SimpleFeatureType, SimpleFeature>) data.getFeatureSource("road");
+        SimpleFeatureStore road = (SimpleFeatureStore) data.getFeatureSource("road");
 
         assertEquals(3, count("road"));
 
@@ -1494,9 +1494,9 @@ public class MySQLDataStoreAPITest extends DataTestCase {
     //        Transaction t1 = new DefaultTransaction();
     //        Transaction t2 = new DefaultTransaction();
     //
-    //        FeatureStore<SimpleFeatureType, SimpleFeature> road = (FeatureStore<SimpleFeatureType, SimpleFeature>) data.getFeatureSource("road");
-    //        FeatureStore road1 = (FeatureStore<SimpleFeatureType, SimpleFeature>) data.getFeatureSource("road");
-    //        FeatureStore road2 = (FeatureStore<SimpleFeatureType, SimpleFeature>) data.getFeatureSource("road");
+    //        SimpleFeatureStore road = (SimpleFeatureStore) data.getFeatureSource("road");
+    //        FeatureStore road1 = (SimpleFeatureStore) data.getFeatureSource("road");
+    //        FeatureStore road2 = (SimpleFeatureStore) data.getFeatureSource("road");
     //
     //        road1.setTransaction(t1);
     //        road2.setTransaction(t2);

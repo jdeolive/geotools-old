@@ -16,29 +16,13 @@
  */
 package org.geotools.caching.grid.spatialindex;
 
-import java.io.IOException;
-import java.util.Set;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.geotools.caching.grid.spatialindex.GridSpatialIndex;
 import org.geotools.caching.grid.spatialindex.store.MemoryStorage;
 import org.geotools.caching.spatialindex.AbstractSpatialIndex;
 import org.geotools.caching.spatialindex.AbstractSpatialIndexTest;
 import org.geotools.caching.spatialindex.Region;
-import org.geotools.data.DataAccess;
-import org.geotools.data.FeatureListener;
-import org.geotools.data.FeatureSource;
-import org.geotools.data.Query;
-import org.geotools.data.QueryCapabilities;
-import org.geotools.data.ResourceInfo;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.filter.spatial.BBOXImpl;
-import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.opengis.feature.type.FeatureType;
-import org.opengis.feature.type.Name;
-import org.opengis.filter.Filter;
 
 
 public class GridTest extends AbstractSpatialIndexTest {

@@ -22,19 +22,18 @@ import java.awt.GridLayout;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
+
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import com.vividsolutions.jts.geom.Envelope;
 
 import org.geotools.caching.featurecache.FeatureCacheException;
-import org.geotools.caching.grid.featurecache.GridFeatureCache;
-import org.geotools.caching.grid.spatialindex.store.BufferedDiskStorage;
-import org.geotools.caching.grid.spatialindex.store.DiskStorage;
 import org.geotools.caching.grid.spatialindex.store.MemoryStorage;
 import org.geotools.data.memory.MemoryDataStore;
 import org.geotools.feature.FeatureCollection;
+
+import com.vividsolutions.jts.geom.Envelope;
 
 
 public class DemoApp extends JFrame {

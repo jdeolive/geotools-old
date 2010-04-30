@@ -20,6 +20,7 @@ package org.geotools.swing.action;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
+
 import org.geotools.swing.JMapPane;
 
 

@@ -18,10 +18,10 @@ package org.geotools.styling;
 
 import java.awt.Color;
 
+import junit.framework.TestCase;
+
 import org.geotools.factory.CommonFactoryFinder;
 import org.opengis.filter.FilterFactory2;
-
-import junit.framework.TestCase;
 
 /**
  * Test cases for the SLD utility class

@@ -1,6 +1,6 @@
 package org.geotools.filter.expression;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.geotools.factory.CommonFactoryFinder;
 import org.junit.Test;

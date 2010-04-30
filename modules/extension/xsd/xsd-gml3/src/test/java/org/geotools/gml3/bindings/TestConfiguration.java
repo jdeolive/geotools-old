@@ -16,11 +16,9 @@
  */
 package org.geotools.gml3.bindings;
 
-import org.eclipse.xsd.XSDSchema;
-import org.eclipse.xsd.util.XSDSchemaLocationResolver;
-import org.picocontainer.MutablePicoContainer;
 import org.geotools.gml3.GMLConfiguration;
 import org.geotools.xml.Configuration;
+import org.picocontainer.MutablePicoContainer;
 
 
 public class TestConfiguration extends Configuration {

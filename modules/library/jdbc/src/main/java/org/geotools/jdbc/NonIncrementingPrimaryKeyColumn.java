@@ -16,11 +16,6 @@
  */
 package org.geotools.jdbc;
 
-import java.io.IOException;
-import java.math.BigInteger;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
 
 /**
  * Represents a column of a primary key which is not auto incrementing.

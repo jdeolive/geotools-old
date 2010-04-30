@@ -23,12 +23,12 @@ import java.net.MalformedURLException;
 import junit.framework.AssertionFailedError;
 
 import org.geotools.TestData;
-import org.geotools.data.FeatureSource;
-import org.geotools.data.FeatureStore;
 import org.geotools.data.Query;
 import org.geotools.data.shapefile.TestCaseSupport;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
+import org.geotools.data.simple.SimpleFeatureStore;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
@@ -85,9 +85,9 @@ public class ShapefileRTreeReadWriteTest extends TestCaseSupport {
         IndexedShapefileDataStore s1 = new IndexedShapefileDataStore(TestData
                 .url(TestData.class, "shapes/stream.shp"));
         String typeName = s1.getTypeNames()[0];
-        FeatureSource<SimpleFeatureType, SimpleFeature> source = s1.getFeatureSource(typeName);
+        SimpleFeatureSource source = s1.getFeatureSource(typeName);
         SimpleFeatureType type = source.getSchema();
-        FeatureCollection<SimpleFeatureType, SimpleFeature> one = source.getFeatures();
+        SimpleFeatureCollection one = source.getFeatures();
 
 
         doubleWrite(type, one, getTempFile(), false);
@@ -96,7 +96,7 @@ public class ShapefileRTreeReadWriteTest extends TestCaseSupport {
         s1.dispose();
     }
 
-    private void doubleWrite(SimpleFeatureType type, FeatureCollection<SimpleFeatureType, SimpleFeature> one,
+    private void doubleWrite(SimpleFeatureType type, SimpleFeatureCollection one,
             File tmp, 
             boolean memorymapped) throws IOException, MalformedURLException {
         IndexedShapefileDataStore s;
@@ -104,7 +104,7 @@ public class ShapefileRTreeReadWriteTest extends TestCaseSupport {
                 memorymapped, true);
 
         s.createSchema(type);
-        FeatureStore<SimpleFeatureType, SimpleFeature> store = (FeatureStore<SimpleFeatureType, SimpleFeature>) s.getFeatureSource(type
+        SimpleFeatureStore store = (SimpleFeatureStore) s.getFeatureSource(type
                 .getTypeName());
 
         store.addFeatures(one);
@@ -118,9 +118,9 @@ public class ShapefileRTreeReadWriteTest extends TestCaseSupport {
         File file = copyShapefiles(f); // Work on File rather than URL from JAR.
         IndexedShapefileDataStore s = new IndexedShapefileDataStore(file.toURI().toURL());
         String typeName = s.getTypeNames()[0];
-        FeatureSource<SimpleFeatureType, SimpleFeature> source = s.getFeatureSource(typeName);
+        SimpleFeatureSource source = s.getFeatureSource(typeName);
         SimpleFeatureType type = source.getSchema();
-        FeatureCollection<SimpleFeatureType, SimpleFeature> one = source.getFeatures();
+        SimpleFeatureCollection one = source.getFeatures();
 
         test(type, one, getTempFile(), false);
         test(type, one, getTempFile(), true);
@@ -128,7 +128,7 @@ public class ShapefileRTreeReadWriteTest extends TestCaseSupport {
         s.dispose();
     }
 
-    private void test(SimpleFeatureType type, FeatureCollection<SimpleFeatureType, SimpleFeature> one, File tmp, boolean memorymapped)
+    private void test(SimpleFeatureType type, SimpleFeatureCollection one, File tmp, boolean memorymapped)
             throws IOException, MalformedURLException, Exception {
         IndexedShapefileDataStore s;
         String typeName;
@@ -137,20 +137,20 @@ public class ShapefileRTreeReadWriteTest extends TestCaseSupport {
 
         s.createSchema(type);
 
-        FeatureStore<SimpleFeatureType, SimpleFeature> store = (FeatureStore<SimpleFeatureType, SimpleFeature>) s.getFeatureSource(type
+        SimpleFeatureStore store = (SimpleFeatureStore) s.getFeatureSource(type
                 .getTypeName());
         store.addFeatures(one);
 
         s = new IndexedShapefileDataStore(tmp.toURI().toURL());
         typeName = s.getTypeNames()[0];
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> two = s.getFeatureSource(typeName).getFeatures();
+        SimpleFeatureCollection two = s.getFeatureSource(typeName).getFeatures();
 
         compare(one.features(), two.features());
         s.dispose();
     }
 
-    static void compare(FeatureIterator<SimpleFeature> fs1, FeatureIterator<SimpleFeature> fs2)
+    static void compare(SimpleFeatureIterator fs1, SimpleFeatureIterator fs2)
             throws Exception {
 
         int i = 0;

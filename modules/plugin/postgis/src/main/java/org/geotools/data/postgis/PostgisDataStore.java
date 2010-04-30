@@ -32,7 +32,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -44,7 +43,6 @@ import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.EmptyFeatureReader;
 import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.InProcessLockingManager;
 import org.geotools.data.LockingManager;
@@ -69,6 +67,7 @@ import org.geotools.data.postgis.attributeio.EWKTAttributeIO;
 import org.geotools.data.postgis.attributeio.PgWKBAttributeIO;
 import org.geotools.data.postgis.fidmapper.PostgisFIDMapperFactory;
 import org.geotools.data.postgis.referencing.PostgisAuthorityFactory;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.GeoTools;
 import org.geotools.factory.Hints;
 import org.geotools.feature.AttributeTypeBuilder;
@@ -1681,7 +1680,7 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
      *
      * @see org.geotools.data.DataStore#getFeatureSource(java.lang.String)
      */
-    public FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSource(String typeName)
+    public SimpleFeatureSource getFeatureSource(String typeName)
         throws IOException {
         if (!typeHandler.getFIDMapper(typeName).isVolatile()
                 || allowWriteOnVolatileFIDs) {

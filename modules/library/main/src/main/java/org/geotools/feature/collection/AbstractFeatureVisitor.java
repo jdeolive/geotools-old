@@ -16,10 +16,7 @@
  */
 package org.geotools.feature.collection;
 
-import org.geotools.feature.FeatureCollection;
-import org.opengis.feature.Feature;
 import org.opengis.feature.FeatureVisitor;
-import org.opengis.feature.type.FeatureType;
 
 /**
  * An abstract class to reduce the amount of work needed when working with FeatureVisitor.

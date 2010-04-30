@@ -65,13 +65,13 @@ public class DefaultTransaction implements Transaction {
      * Remembers Externalized State for a DataSource.
      * 
      * <p>
-     * This is the GOF Momento pattern: a FeatureSource<SimpleFeatureType, SimpleFeature> is able to externalize its internal State
+     * This is the GOF Momento pattern: a SimpleFeatureSource is able to externalize its internal State
      * required for Transaction support and have this class manage it. It may retrieve this State
      * with getState( key ).
      * </p>
      * 
      * <p>
-     * In addition several FeatureSource<SimpleFeatureType, SimpleFeature> implementations may share State, a common example is
+     * In addition several SimpleFeatureSource implementations may share State, a common example is
      * JDBCDataSources keeping a shared JDBC connection using the JDBC URL as a key.
      * </p>
      * 

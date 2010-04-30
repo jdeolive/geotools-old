@@ -16,28 +16,24 @@
  */
 package org.geotools.graph.util.delaunay;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Point;
 import java.awt.geom.Ellipse2D;
-import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Vector;
 import java.util.logging.Logger;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
+
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.graph.structure.Edge;
 import org.geotools.graph.structure.Graph;
 import org.geotools.graph.structure.Node;
-import org.geotools.graph.structure.basic.BasicEdge;
 import org.geotools.graph.structure.basic.BasicGraph;
-import org.geotools.graph.structure.line.BasicXYNode;
-import org.geotools.graph.structure.line.XYNode;
 import org.geotools.math.Line;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
+
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Point;
 
 /**
  *
@@ -64,7 +60,7 @@ public class DelaunayTriangulator {
         return nodes;
     }
     
-    public void setFeatureCollection(FeatureCollection<SimpleFeatureType, SimpleFeature> data){
+    public void setFeatureCollection(SimpleFeatureCollection data){
         nodes = featuresToNodes(data);
     }
     
@@ -72,8 +68,8 @@ public class DelaunayTriangulator {
         return triangleList;
     }
     
-    public DelaunayNode[] featuresToNodes(FeatureCollection<SimpleFeatureType, SimpleFeature> fc){
-        FeatureIterator<SimpleFeature> iter = fc.features();
+    public DelaunayNode[] featuresToNodes(SimpleFeatureCollection fc){
+        SimpleFeatureIterator iter = fc.features();
         int size = fc.size();
         DelaunayNode[] nodes = new DelaunayNode[size];
         int index = 0;

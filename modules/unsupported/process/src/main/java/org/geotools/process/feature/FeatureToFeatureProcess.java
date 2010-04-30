@@ -26,7 +26,6 @@ import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.util.NullProgressListener;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.feature.type.FeatureType;
 import org.opengis.util.ProgressListener;
 
 /**

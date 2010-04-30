@@ -54,6 +54,7 @@ import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
 import org.geotools.data.crs.ForceCoordinateSystemFeatureResults;
 import org.geotools.data.memory.CollectionSource;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.Hints;
 import org.geotools.feature.FeatureCollection;
@@ -1673,7 +1674,9 @@ public final class StreamingRenderer implements GTRenderer {
                 if ((rCS == null) || !CRS.equalsIgnoreMetadata(rCS, sourceCrs)) {
                     // need to retag the features
                     try {
-                        return new ForceCoordinateSystemFeatureResults( features, sourceCrs );
+                        if( features instanceof SimpleFeatureCollection){
+                            return new ForceCoordinateSystemFeatureResults( (SimpleFeatureCollection) features, sourceCrs );
+                        }
                     } catch (Exception ee) {
                         LOGGER.log(Level.WARNING, ee.getLocalizedMessage(), ee);
                     }

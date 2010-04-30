@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.geotools.feature.FeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.visitor.CalcResult;
 import org.geotools.feature.visitor.CountVisitor;
 import org.geotools.filter.AttributeExpression;
@@ -31,11 +31,9 @@ import org.geotools.filter.Expression;
 import org.geotools.filter.FunctionExpressionImpl;
 import org.geotools.filter.IllegalFilterException;
 import org.geotools.filter.visitor.AbstractFilterVisitor;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 /**
- * Calculates the count value of an attribute for a given FeatureCollection<SimpleFeatureType, SimpleFeature> and
+ * Calculates the count value of an attribute for a given SimpleFeatureCollection and
  * Expression.
  * 
  * @author Cory Horner
@@ -46,7 +44,7 @@ public class Collection_CountFunction extends FunctionExpressionImpl{
 	/** The logger for the filter module. */
 	private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.filter.function");
 
-	FeatureCollection<SimpleFeatureType, SimpleFeature> previousFeatureCollection = null;
+	SimpleFeatureCollection previousFeatureCollection = null;
 
 	Object count = null;
 
@@ -72,7 +70,7 @@ public class Collection_CountFunction extends FunctionExpressionImpl{
 	 * @throws IllegalFilterException
 	 * @throws IOException
 	 */
-	static CalcResult calculateCount(FeatureCollection<SimpleFeatureType, SimpleFeature> collection)
+	static CalcResult calculateCount(SimpleFeatureCollection collection)
 			throws IllegalFilterException, IOException {
 		CountVisitor countVisitor = new CountVisitor();
 		collection.accepts(countVisitor, null);
@@ -127,7 +125,7 @@ public class Collection_CountFunction extends FunctionExpressionImpl{
 		if (feature == null) {
 			return new Integer(0); // no features were visited in the making of this answer
 		}
-		FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = (FeatureCollection<SimpleFeatureType, SimpleFeature>) feature;
+		SimpleFeatureCollection featureCollection = (SimpleFeatureCollection) feature;
 		synchronized (featureCollection) {
 			if (featureCollection != previousFeatureCollection) {
 				previousFeatureCollection = featureCollection;

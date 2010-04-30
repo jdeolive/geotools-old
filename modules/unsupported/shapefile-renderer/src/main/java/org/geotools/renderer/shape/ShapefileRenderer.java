@@ -16,7 +16,6 @@
  */
 package org.geotools.renderer.shape;
 
-import static org.geotools.data.shapefile.ShpFileType.GRX;
 import static org.geotools.data.shapefile.ShpFileType.QIX;
 import static org.geotools.data.shapefile.ShpFileType.SHX;
 
@@ -62,6 +61,7 @@ import org.geotools.data.shapefile.indexed.IndexType;
 import org.geotools.data.shapefile.shp.ShapeType;
 import org.geotools.data.shapefile.shp.ShapefileReader;
 import org.geotools.data.shapefile.shp.ShapefileReader.Record;
+import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.feature.FeatureTypes;
 import org.geotools.feature.SchemaException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
@@ -829,7 +829,7 @@ public class ShapefileRenderer implements GTRenderer {
      * 
      * @param query DOCUMENT ME!
      * @param style the <code>Style</code> to determine the needed attributes from
-     * @param schema the FeatureSource<SimpleFeatureType, SimpleFeature> schema
+     * @param schema the SimpleFeatureSource schema
      * @return the minimun set of attribute names needed to render <code>layer</code>
      */
     private String[] findStyleAttributes( final Query query, Style style, SimpleFeatureType schema ) {
@@ -1421,7 +1421,7 @@ public class ShapefileRenderer implements GTRenderer {
                 Transaction transaction = Transaction.AUTO_COMMIT;
 
                 if (currLayer.getFeatureSource() instanceof FeatureStore) {
-                    transaction = ((FeatureStore<SimpleFeatureType, SimpleFeature>) currLayer.getFeatureSource()).getTransaction();
+                    transaction = ((SimpleFeatureStore) currLayer.getFeatureSource()).getTransaction();
                 }
 
                 DefaultQuery query = new DefaultQuery(currLayer.getQuery());

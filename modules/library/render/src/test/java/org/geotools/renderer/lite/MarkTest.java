@@ -1,27 +1,27 @@
 package org.geotools.renderer.lite;
 
+import static java.awt.RenderingHints.KEY_ANTIALIASING;
+import static java.awt.RenderingHints.VALUE_ANTIALIAS_ON;
+
 import java.awt.Font;
 import java.awt.RenderingHints;
 import java.io.File;
 
 import junit.framework.TestCase;
 
-import org.geotools.data.FeatureSource;
 import org.geotools.data.property.PropertyDataStore;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.renderer.style.FontCache;
 import org.geotools.styling.Style;
 import org.geotools.test.TestData;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
-import static java.awt.RenderingHints.*;
 
 public class MarkTest extends TestCase {
     private static final long TIME = 3000;
-    FeatureSource<SimpleFeatureType, SimpleFeature> pointFS;
-    FeatureSource<SimpleFeatureType, SimpleFeature> lineFS;
+    SimpleFeatureSource pointFS;
+    SimpleFeatureSource lineFS;
     ReferencedEnvelope bounds;
 
     @Override

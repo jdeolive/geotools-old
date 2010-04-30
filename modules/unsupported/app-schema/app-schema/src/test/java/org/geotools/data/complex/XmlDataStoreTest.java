@@ -55,6 +55,7 @@ import org.geotools.data.complex.config.XMLConfigDigester;
 import org.geotools.data.complex.xml.XmlFeatureCollection;
 import org.geotools.data.complex.xml.XmlFeatureSource;
 import org.geotools.data.complex.xml.XmlResponse;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.data.store.DataFeatureCollection;
 import org.geotools.feature.ComplexAttributeImpl;
 import org.geotools.feature.FeatureCollection;
@@ -408,7 +409,7 @@ public class XmlDataStoreTest extends TestCase {
             return null;
         }
 
-        public FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSource(String typeName)
+        public SimpleFeatureSource getFeatureSource(String typeName)
                 throws IOException {
             return null;
         }
@@ -440,7 +441,7 @@ public class XmlDataStoreTest extends TestCase {
             return null;
         }
 
-        public FeatureSource<SimpleFeatureType, SimpleFeature> getView(Query query)
+        public SimpleFeatureSource getView(Query query)
                 throws IOException, SchemaException {
             return null;
         }
@@ -454,7 +455,7 @@ public class XmlDataStoreTest extends TestCase {
         public void dispose() {
         }
 
-        public FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSource(Name typeName)
+        public SimpleFeatureSource getFeatureSource(Name typeName)
                 throws IOException {
             return new XmlTestFeatureSource(this);
         }

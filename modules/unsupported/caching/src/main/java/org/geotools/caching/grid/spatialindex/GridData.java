@@ -24,8 +24,8 @@ import java.io.ObjectOutput;
 import org.geotools.caching.spatialindex.Data;
 import org.geotools.caching.spatialindex.Shape;
 import org.geotools.caching.util.SimpleFeatureMarshaller;
-import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.IllegalAttributeException;
+import org.opengis.feature.simple.SimpleFeature;
 
 
 /** 

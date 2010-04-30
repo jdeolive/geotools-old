@@ -16,14 +16,14 @@
  */
 package org.geotools.caching.grid.featurecache;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import java.io.IOException;
 import java.util.List;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
 import org.geotools.caching.featurecache.AbstractFeatureCache;
 import org.geotools.caching.featurecache.FeatureCacheException;
-import org.geotools.caching.grid.featurecache.GridFeatureCache;
 import org.geotools.caching.grid.spatialindex.GridSpatialIndex;
 import org.geotools.caching.grid.spatialindex.store.DiskStorage;
 import org.geotools.caching.spatialindex.Region;

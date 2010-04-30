@@ -16,11 +16,12 @@
  */
 package org.geotools.data.db2;
 
+import java.io.IOException;
+import java.util.logging.Logger;
+
 import org.geotools.data.jdbc.FeatureTypeHandler;
 import org.geotools.data.jdbc.JDBCDataStore;
 import org.geotools.data.jdbc.fidmapper.FIDMapperFactory;
-import java.io.IOException;
-import java.util.logging.Logger;
 
 /**
  * Override methods from FeatureTypeHandler for DB2-specific handling.

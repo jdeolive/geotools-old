@@ -1,7 +1,8 @@
 package org.geotools.geometry.jts;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import junit.framework.Assert;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -9,7 +10,6 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.WKTReader;
-import static org.junit.Assert.*;
 public class WKTReader2Test {
 
     @Test

@@ -21,10 +21,14 @@ import java.awt.Component;
 import java.io.File;
 import java.util.Set;
 import java.util.TreeSet;
+
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
+
+import org.geotools.swing.data.JFileDataStoreChooser;
+import org.geotools.swing.data.JParameterListWizard;
 
 /**
  * A file chooser dialog for common raster image format files.

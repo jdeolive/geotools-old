@@ -18,31 +18,23 @@
  */
 package org.geotools.feature;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.opengis.feature.GeometryAttribute;
-import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.feature.type.AttributeDescriptor;
-import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
-import org.opengis.filter.identity.FeatureId;
 import org.opengis.filter.sort.SortBy;
-
-import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * @author jamesm
  * @source $URL:
  *         http://svn.geotools.org/geotools/trunk/gt/modules/library/main/src/test/java/org/geotools/feature/MockFeatureCollection.java $
  */
-public class MockFeatureCollection implements FeatureCollection<SimpleFeatureType, SimpleFeature> {
+public class MockFeatureCollection implements SimpleFeatureCollection {
 
     /** Creates a new instance of MockFeatureCollection */
     public MockFeatureCollection() {
@@ -63,7 +55,7 @@ public class MockFeatureCollection implements FeatureCollection<SimpleFeatureTyp
     public void close(Iterator close) {
     }
 
-    public FeatureIterator<SimpleFeature> features() {
+    public SimpleFeatureIterator features() {
         return null;
     }
 
@@ -75,11 +67,11 @@ public class MockFeatureCollection implements FeatureCollection<SimpleFeatureTyp
             throws NullPointerException {
     }
 
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> sort(SortBy order) {
+    public SimpleFeatureCollection sort(SortBy order) {
         return null;
     }
 
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> subCollection(Filter filter) {
+    public SimpleFeatureCollection subCollection(Filter filter) {
         return null;
     }
 

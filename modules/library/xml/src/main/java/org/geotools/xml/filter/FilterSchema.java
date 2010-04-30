@@ -26,8 +26,6 @@ import javax.naming.OperationNotSupportedException;
 
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.Hints;
-import org.geotools.filter.FilterFactory;
-import org.geotools.filter.FilterFactoryFinder;
 import org.geotools.xml.PrintHandler;
 import org.geotools.xml.filter.FilterComplexTypes.BinaryOperatorType;
 import org.geotools.xml.filter.FilterComplexTypes.Comparison_OperatorsType;

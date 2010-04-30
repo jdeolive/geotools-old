@@ -16,18 +16,18 @@ import java.util.Map;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.data.DefaultQuery;
-import org.geotools.data.FeatureSource;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
+import org.geotools.swing.data.JFileDataStoreChooser;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory2;
 
 import com.vividsolutions.jts.geom.Geometry;
-import org.geotools.swing.data.JFileDataStoreChooser;
 
 /**
  * This class shows how to "join" two feature sources.
@@ -66,19 +66,19 @@ public class JoinExample {
         connect.put("url", file.toURI().toURL());
         DataStore shapefile = DataStoreFinder.getDataStore(connect);
         String typeName = shapefile.getTypeNames()[0];
-        FeatureSource<SimpleFeatureType, SimpleFeature> shapes = shapefile.getFeatureSource( typeName );
+        SimpleFeatureSource shapes = shapefile.getFeatureSource( typeName );
         
         Map<String,Object> connect2 = new HashMap<String,Object>();
         connect.put("url", file2.toURI().toURL());
         DataStore shapefile2 = DataStoreFinder.getDataStore(connect);
         String typeName2 = shapefile2.getTypeNames()[0];
-        FeatureSource<SimpleFeatureType, SimpleFeature> shapes2 = shapefile2.getFeatureSource( typeName2 );
+        SimpleFeatureSource shapes2 = shapefile2.getFeatureSource( typeName2 );
         
         joinExample( shapes, shapes2);
         System.exit(0);
     }
 
-    private static void joinExample( FeatureSource<SimpleFeatureType, SimpleFeature> shapes, FeatureSource<SimpleFeatureType, SimpleFeature> shapes2 ) throws Exception {
+    private static void joinExample( SimpleFeatureSource shapes, SimpleFeatureSource shapes2 ) throws Exception {
         SimpleFeatureType schema = shapes.getSchema();
         String typeName = schema.getTypeName();
         String geomName = schema.getGeometryDescriptor().getLocalName();
@@ -89,8 +89,8 @@ public class JoinExample {
         FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);        
         
         DefaultQuery outerGeometry = new DefaultQuery( typeName, Filter.INCLUDE, new String[]{ geomName } );        
-        FeatureCollection<SimpleFeatureType, SimpleFeature> outerFeatures = shapes.getFeatures( outerGeometry );
-        FeatureIterator<SimpleFeature> iterator = outerFeatures.features();
+        SimpleFeatureCollection outerFeatures = shapes.getFeatures( outerGeometry );
+        SimpleFeatureIterator iterator = outerFeatures.features();
         int max = 0;
         try {
             while( iterator.hasNext() ){
@@ -107,7 +107,7 @@ public class JoinExample {
                     //Filter innerFilter = ff.not( ff.disjoint(ff.property(geomName2), ff.literal( geometry )) );
                     
                     DefaultQuery innerQuery = new DefaultQuery( typeName2, innerFilter, DefaultQuery.NO_NAMES );
-                    FeatureCollection<SimpleFeatureType, SimpleFeature> join = shapes2.getFeatures( innerQuery );
+                    SimpleFeatureCollection join = shapes2.getFeatures( innerQuery );
                     int size = join.size();                
                     max = Math.max( max, size );
                 }

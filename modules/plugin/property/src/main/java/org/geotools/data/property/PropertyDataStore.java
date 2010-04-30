@@ -31,9 +31,9 @@ import org.geotools.data.DataSourceException;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultServiceInfo;
 import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.ServiceInfo;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.feature.FeatureTypes;
 import org.geotools.feature.SchemaException;
 import org.opengis.feature.simple.SimpleFeature;
@@ -134,7 +134,7 @@ public class PropertyDataStore extends AbstractDataStore {
     //
     // Access to Optimizations
     //
-    public FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSource(final String typeName) throws IOException {
+    public SimpleFeatureSource getFeatureSource(final String typeName) throws IOException {
         return new PropertyFeatureSource( this, typeName );
     }        
 }

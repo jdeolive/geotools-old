@@ -19,9 +19,8 @@ package org.geotools.data;
 import java.io.IOException;
 
 import org.geotools.data.postgis.VersionedPostgisDataStore;
-import org.geotools.feature.FeatureCollection;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.opengis.filter.Filter;
 
 /**
@@ -37,7 +36,7 @@ import org.opengis.filter.Filter;
  *
  * @source $URL$
  */
-public interface VersioningFeatureSource extends FeatureSource<SimpleFeatureType, SimpleFeature> {
+public interface VersioningFeatureSource extends SimpleFeatureSource {
 
     /**
      * Returns a log of changes performed between fromVersion and toVersion
@@ -64,7 +63,7 @@ public interface VersioningFeatureSource extends FeatureSource<SimpleFeatureType
      * @return a feature collection of the logs, sorted on revision, descending
      * @throws IOException
      */
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> getLog(String fromVersion, String toVersion, Filter filter,
+    public SimpleFeatureCollection getLog(String fromVersion, String toVersion, Filter filter,
             String[] userIds, int maxRows) throws IOException;
 
     /**
@@ -92,19 +91,19 @@ public interface VersioningFeatureSource extends FeatureSource<SimpleFeatureType
      * attributes, namely, revision, author and date of the version.
      * @return
      */
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> getVersionedFeatures(Query q) throws IOException;
+    public SimpleFeatureCollection getVersionedFeatures(Query q) throws IOException;
     
     /**
      * Returns the same features as {@link FeatureSource#getFeatures(Filter)} but providing more
      * attributes, namely, revision, author and date of the version.
      * @return
      */
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> getVersionedFeatures(Filter f) throws IOException;
+    public SimpleFeatureCollection getVersionedFeatures(Filter f) throws IOException;
     
     /**
      * Returns the same features as {@link FeatureSource#getFeatures()} but providing more
      * attributes, namely, revision, author and date of the version.
      * @return
      */
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> getVersionedFeatures() throws IOException;
+    public SimpleFeatureCollection getVersionedFeatures() throws IOException;
 }

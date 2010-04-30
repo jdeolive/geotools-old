@@ -17,15 +17,14 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.geotools.data.DataStoreFactorySpi;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultTransaction;
-import org.geotools.data.FeatureSource;
-import org.geotools.data.FeatureStore;
 import org.geotools.data.Transaction;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
-import org.geotools.feature.FeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
+import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
@@ -38,7 +37,6 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
-import org.geotools.swing.data.JFileDataStoreChooser;
 
 /**
  * This example reads data for point locations and associated attributes from a comma separated text
@@ -53,7 +51,6 @@ import org.geotools.swing.data.JFileDataStoreChooser;
  */
 public class Csv2Shape {
 
-    @SuppressWarnings("unchecked")
     public static void main(String[] args) throws Exception {
 
         File file = JFileDataStoreChooser.showOpenFile("csv", null);
@@ -79,7 +76,7 @@ public class Csv2Shape {
          * We create a FeatureCollection into which we will put each Feature created from a record
          * in the input csv data file
          */
-        FeatureCollection collection = FeatureCollections.newCollection();
+        SimpleFeatureCollection collection = FeatureCollections.newCollection();
 
         /*
          * GeometryFactory will be used to create the geometry attribute of each feature (a Point
@@ -121,14 +118,13 @@ public class Csv2Shape {
          */
         File newFile = getNewShapeFile(file);
 
-        DataStoreFactorySpi dataStoreFactory = new ShapefileDataStoreFactory();
+        ShapefileDataStoreFactory dataStoreFactory = new ShapefileDataStoreFactory();
 
         Map<String, Serializable> params = new HashMap<String, Serializable>();
         params.put("url", newFile.toURI().toURL());
         params.put("create spatial index", Boolean.TRUE);
 
-        ShapefileDataStore newDataStore = (ShapefileDataStore) dataStoreFactory
-                .createNewDataStore(params);
+        ShapefileDataStore newDataStore = dataStoreFactory.createNewDataStore(params);
         newDataStore.createSchema(TYPE);
         newDataStore.forceSchemaCRS(DefaultGeographicCRS.WGS84);
 
@@ -139,10 +135,10 @@ public class Csv2Shape {
         Transaction transaction = new DefaultTransaction("create");
 
         String typeName = newDataStore.getTypeNames()[0];
-        FeatureSource featureSource = newDataStore.getFeatureSource(typeName);
+        SimpleFeatureSource featureSource = newDataStore.getFeatureSource(typeName);
 
-        if (featureSource instanceof FeatureStore) {
-            FeatureStore featureStore = (FeatureStore) featureSource;
+        if (featureSource instanceof SimpleFeatureStore) {
+        	SimpleFeatureStore featureStore = (SimpleFeatureStore) featureSource;
 
             featureStore.setTransaction(transaction);
             try {

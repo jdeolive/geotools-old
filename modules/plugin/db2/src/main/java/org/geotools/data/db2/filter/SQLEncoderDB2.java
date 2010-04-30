@@ -16,14 +16,16 @@
  */
 package org.geotools.data.db2.filter;
 
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.io.WKTWriter;
+import java.io.IOException;
+import java.sql.Types;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.logging.Logger;
 
 import org.geotools.data.jdbc.FilterToSQL;
-
 import org.geotools.filter.DefaultExpression;
 import org.geotools.filter.FilterCapabilities;
-
 import org.opengis.filter.ExcludeFilter;
 import org.opengis.filter.Id;
 import org.opengis.filter.IncludeFilter;
@@ -43,12 +45,8 @@ import org.opengis.filter.spatial.Overlaps;
 import org.opengis.filter.spatial.Touches;
 import org.opengis.filter.spatial.Within;
 
-import java.io.IOException;
-import java.sql.Types;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.logging.Logger;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.io.WKTWriter;
 
 
 /**

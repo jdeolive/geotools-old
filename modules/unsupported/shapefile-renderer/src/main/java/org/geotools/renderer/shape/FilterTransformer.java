@@ -29,7 +29,6 @@ import org.geotools.referencing.operation.matrix.Matrix2;
 import org.geotools.util.logging.Logging;
 import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.expression.Literal;
-import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.spatial.BBOX;
 import org.opengis.filter.spatial.Beyond;
 import org.opengis.filter.spatial.DWithin;

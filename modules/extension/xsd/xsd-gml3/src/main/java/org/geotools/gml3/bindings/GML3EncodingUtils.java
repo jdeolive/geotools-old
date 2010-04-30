@@ -25,12 +25,13 @@ import java.util.List;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
+
 import org.eclipse.xsd.XSDElementDeclaration;
 import org.geotools.feature.NameImpl;
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.gml2.bindings.GML2EncodingUtils;
-import org.geotools.gml3.XSDIdRegistry;
 import org.geotools.gml3.GML;
+import org.geotools.gml3.XSDIdRegistry;
 import org.geotools.util.Converters;
 import org.geotools.xlink.XLINK;
 import org.geotools.xml.ComplexBinding;

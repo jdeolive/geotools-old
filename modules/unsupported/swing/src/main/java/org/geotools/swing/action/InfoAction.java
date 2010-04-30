@@ -21,6 +21,7 @@ package org.geotools.swing.action;
  * @author Michael Bedward
  */
 import java.awt.event.ActionEvent;
+
 import org.geotools.swing.JMapPane;
 import org.geotools.swing.tool.InfoTool;
 

@@ -36,17 +36,15 @@ import org.geotools.data.jdbc.JDBCFeatureStore;
 import org.geotools.data.jdbc.JDBCUtils;
 import org.geotools.data.jdbc.SQLBuilder;
 import org.geotools.data.jdbc.fidmapper.FIDMapper;
-import org.geotools.data.jdbc.fidmapper.NullFIDMapper;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.factory.FactoryRegistryException;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.SchemaException;
 import org.geotools.filter.FidFilter;
 import org.geotools.filter.FilterFactory;
 import org.geotools.filter.FilterFactoryFinder;
 import org.geotools.filter.SQLEncoderException;
-import org.geotools.filter.SQLEncoderPostgis;
 import org.geotools.filter.SQLUnpacker;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.simple.SimpleFeature;
@@ -350,11 +348,11 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
         query.setPropertyNames(new String[0]);
         query.setFilter(unEncodableFilter);
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> features = getFeatures(unEncodableFilter);
+        SimpleFeatureCollection features = getFeatures(unEncodableFilter);
 
         FilterFactory ff = FilterFactoryFinder.createFilterFactory();
         FidFilter fidFilter = ff.createFidFilter();
-        FeatureIterator<SimpleFeature> it = features.features();
+        SimpleFeatureIterator it = features.features();
         try {
             while( it.hasNext() ) {
                 SimpleFeature feature = (SimpleFeature) it.next();

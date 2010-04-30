@@ -11,11 +11,12 @@ import org.geotools.caching.grid.spatialindex.store.MemoryStorage;
 import org.geotools.data.DataStore;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.DefaultTransaction;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.Transaction;
 import org.geotools.data.memory.MemoryDataStore;
 import org.geotools.data.memory.MemoryFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
@@ -52,7 +53,7 @@ public class StreamingGridFeatureCacheTest extends TestCase {
 	
 	private DataStore rawDataset;
 	private FeatureCache cacheDataset;
-	private FeatureSource cacheFS;
+	private SimpleFeatureSource cacheFS;
 
 	private int numFeatures = 100;
 	
@@ -180,11 +181,11 @@ public class StreamingGridFeatureCacheTest extends TestCase {
 		// ---- CACHING FEATURE COLLECTION -----
 		//
 		DataStore ds = new MemoryDataStore(mm);
-		FeatureSource fs = ds.getFeatureSource(featureType.getTypeName());
+		SimpleFeatureSource fs = ds.getFeatureSource(featureType.getTypeName());
 		FeatureCache cache = new StreamingGridFeatureCache(fs, 4, 4,MemoryStorage.createInstance());
 		
 		Filter upperLeft = filterFactory.bbox(featureType.getGeometryDescriptor().getLocalName(), 0, 5.1, 4.9, 9.9,featureType.getCoordinateReferenceSystem().toString());
-		FeatureCollection<SimpleFeatureType, SimpleFeature> fc = cache.getFeatures(upperLeft);
+		SimpleFeatureCollection fc = cache.getFeatures(upperLeft);
 		assertEquals(2, fc.size());
 
 		//this should end up getting the same features from the source that are already in the cache
@@ -242,7 +243,7 @@ public class StreamingGridFeatureCacheTest extends TestCase {
 			resetDatasets();
 
 			String feattype = "mycollection";
-			FeatureSource<SimpleFeatureType, SimpleFeature> raw = rawDataset.getFeatureSource("mycollection");
+			SimpleFeatureSource raw = rawDataset.getFeatureSource("mycollection");
 
 			FeatureType ft = rawDataset.getFeatureSource("mycollection").getSchema();
 			String localname = ft.getGeometryDescriptor().getLocalName();

@@ -32,7 +32,7 @@ import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultRepository;
-import org.geotools.data.FeatureSource;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.validation.dto.ArgumentDTO;
 import org.geotools.validation.dto.PlugInDTO;
@@ -41,7 +41,6 @@ import org.geotools.validation.dto.TestSuiteDTO;
 import org.geotools.validation.xml.ValidationException;
 import org.geotools.validation.xml.XMLReader;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 import com.vividsolutions.jts.geom.Envelope;
 
@@ -163,7 +162,7 @@ public class BatchValidator {
                 ss[j] = ss[j].trim();
 
                 try {
-                    FeatureSource<SimpleFeatureType, SimpleFeature> fs = ds.getFeatureSource(ss[j]);
+                    SimpleFeatureSource fs = ds.getFeatureSource(ss[j]);
                     sources.put(ss, fs);
 
                     // BatchValidationResults vr = new BatchValidationResults();

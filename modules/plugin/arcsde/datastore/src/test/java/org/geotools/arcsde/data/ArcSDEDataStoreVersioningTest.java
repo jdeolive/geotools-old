@@ -28,9 +28,9 @@ import org.geotools.arcsde.session.ISession;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataStore;
 import org.geotools.data.DefaultTransaction;
-import org.geotools.data.FeatureStore;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
+import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.filter.text.cql2.CQL;
 import org.geotools.filter.text.cql2.CQLException;
 import org.junit.After;
@@ -38,8 +38,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
 
 import com.esri.sde.sdk.client.SeVersion;
@@ -139,9 +137,9 @@ public class ArcSDEDataStoreVersioningTest {
 
     private void testMultiVersionSupport(final Transaction transaction) throws IOException {
         final int initialCount = 8;// as per TestData.insertData
-        FeatureStore<SimpleFeatureType, SimpleFeature> storeDefault;
-        FeatureStore<SimpleFeatureType, SimpleFeature> storeV1;
-        FeatureStore<SimpleFeatureType, SimpleFeature> storeV2;
+        SimpleFeatureStore storeDefault;
+        SimpleFeatureStore storeV1;
+        SimpleFeatureStore storeV2;
 
         storeDefault = store(defaultVersionDataStore, typeName, transaction);
         storeV1 = store(version1DataStore, typeName, transaction);
@@ -169,7 +167,7 @@ public class ArcSDEDataStoreVersioningTest {
         }
     }
 
-    private void delete(final FeatureStore<SimpleFeatureType, SimpleFeature> store,
+    private void delete(final SimpleFeatureStore store,
             final String ecqlPredicate) throws IOException {
 
         Filter filter;
@@ -182,14 +180,14 @@ public class ArcSDEDataStoreVersioningTest {
         store.removeFeatures(filter);
     }
 
-    private int count(FeatureStore<SimpleFeatureType, SimpleFeature> store) throws IOException {
+    private int count(SimpleFeatureStore store) throws IOException {
         return store.getCount(Query.ALL);
     }
 
-    private FeatureStore<SimpleFeatureType, SimpleFeature> store(final DataStore ds,
+    private SimpleFeatureStore store(final DataStore ds,
             final String typeName, final Transaction transaction) throws IOException {
-        FeatureStore<SimpleFeatureType, SimpleFeature> store;
-        store = (FeatureStore<SimpleFeatureType, SimpleFeature>) ds.getFeatureSource(typeName);
+        SimpleFeatureStore store;
+        store = (SimpleFeatureStore) ds.getFeatureSource(typeName);
         store.setTransaction(transaction);
         return store;
     }

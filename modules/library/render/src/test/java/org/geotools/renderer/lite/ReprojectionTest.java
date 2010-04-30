@@ -23,7 +23,7 @@ import java.util.Collections;
 
 import junit.framework.TestCase;
 
-import org.geotools.feature.FeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
@@ -70,8 +70,8 @@ public class ReprojectionTest extends TestCase {
 		pointFeautureType = builder.buildFeatureType();
 	}
 
-	public FeatureCollection<SimpleFeatureType, SimpleFeature> createLineCollection() throws Exception {
-	    FeatureCollection<SimpleFeatureType, SimpleFeature> fc = FeatureCollections.newCollection();
+	public SimpleFeatureCollection createLineCollection() throws Exception {
+	    SimpleFeatureCollection fc = FeatureCollections.newCollection();
 		fc.add(createLine(-177, 0, -177, 10));
 		fc.add(createLine(-177, 0, -200, 0));
 		fc.add(createLine(-177, 0, -177, 100));

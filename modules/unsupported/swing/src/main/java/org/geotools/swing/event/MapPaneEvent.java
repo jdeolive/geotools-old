@@ -18,6 +18,7 @@
 package org.geotools.swing.event;
 
 import java.util.EventObject;
+
 import org.geotools.swing.JMapPane;
 
 /**

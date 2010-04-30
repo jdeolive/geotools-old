@@ -23,7 +23,6 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.geotools.filter.Capabilities;
-import org.geotools.filter.visitor.ClientTransactionAccessor;
 import org.junit.Before;
 import org.junit.Test;
 import org.opengis.filter.Filter;

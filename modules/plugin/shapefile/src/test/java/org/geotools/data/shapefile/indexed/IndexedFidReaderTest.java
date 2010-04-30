@@ -22,12 +22,11 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.geotools.data.FeatureSource;
 import org.geotools.data.shapefile.ShpFiles;
 import org.geotools.data.shapefile.shp.IndexFile;
-import org.geotools.feature.FeatureIterator;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 
 public class IndexedFidReaderTest extends FIDTestCase {
@@ -87,8 +86,8 @@ public class IndexedFidReaderTest extends FIDTestCase {
         {
             IndexedShapefileDataStore ds = new IndexedShapefileDataStore(backshp.toURI().toURL(), null,
                     true, true, IndexType.NONE);
-            FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = ds.getFeatureSource();
-            FeatureIterator<SimpleFeature> features = featureSource.getFeatures().features();
+            SimpleFeatureSource featureSource = ds.getFeatureSource();
+            SimpleFeatureIterator features = featureSource.getFeatures().features();
             while (features.hasNext()) {
                 SimpleFeature next = features.next();
                 expectedCount++;
@@ -111,8 +110,8 @@ public class IndexedFidReaderTest extends FIDTestCase {
         {
             IndexedShapefileDataStore ds = new IndexedShapefileDataStore(backshp.toURI().toURL(), null,
                     true, true, IndexType.NONE);
-            FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = ds.getFeatureSource();
-            FeatureIterator<SimpleFeature> features = featureSource.getFeatures().features();
+            SimpleFeatureSource featureSource = ds.getFeatureSource();
+            SimpleFeatureIterator features = featureSource.getFeatures().features();
             while (features.hasNext()) {
                 SimpleFeature next = features.next();
                 expectedCount++;

@@ -16,28 +16,23 @@
  */
 package org.geotools.data.memory;
 
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.TreeMap;
 
-import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.collection.AbstractFeatureCollection;
 import org.geotools.feature.collection.RandomFeatureAccess;
 import org.geotools.feature.visitor.BoundsVisitor;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.util.NullProgressListener;
-import org.opengis.feature.Feature;
-import org.opengis.feature.FeatureVisitor;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.geometry.BoundingBox;
 
 /**
- * Implement a FeatureCollection<SimpleFeatureType, SimpleFeature> by burning memory!
+ * Implement a SimpleFeatureCollection by burning memory!
  * <p>
  * Contents are maintained in a sorted TreeMap by FID, this serves as a reference implementation
- * when exploring the FeatureCollection<SimpleFeatureType, SimpleFeature> api.
+ * when exploring the SimpleFeatureCollection api.
  * </p>
  * <p>
  * This is similar to DefaultFeatureCollection, although additional methods are supported and test

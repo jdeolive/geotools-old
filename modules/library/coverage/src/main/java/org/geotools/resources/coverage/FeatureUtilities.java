@@ -22,9 +22,9 @@ import java.util.List;
 
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.FactoryRegistryException;
-import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.SchemaException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
@@ -113,7 +113,7 @@ public final class FeatureUtilities {
      * @return a feature with the grid coverage envelope as the geometry and the
      *         grid coverage itself in the "grid" attribute.
      */
-    public static FeatureCollection<SimpleFeatureType, SimpleFeature> wrapGridCoverage(final GridCoverage2D coverage)
+    public static SimpleFeatureCollection wrapGridCoverage(final GridCoverage2D coverage)
             throws TransformException, SchemaException {
         final Polygon bounds = getPolygon(coverage.getEnvelope2D());
         final CoordinateReferenceSystem sourceCRS = coverage.getCoordinateReferenceSystem2D();
@@ -130,7 +130,7 @@ public final class FeatureUtilities {
         fb.add(coverage);
         SimpleFeature feature = fb.buildFeature(null);
 
-        final FeatureCollection<SimpleFeatureType, SimpleFeature> collection = FeatureCollections.newCollection();
+        final SimpleFeatureCollection collection = FeatureCollections.newCollection();
         collection.add(feature);
 
         return collection;
@@ -167,7 +167,7 @@ public final class FeatureUtilities {
      * @return a feature with the grid coverage envelope as the geometry and the
      *         grid coverage itself in the "grid" attribute.
      */
-    public static FeatureCollection<SimpleFeatureType, SimpleFeature> wrapGridCoverageReader(final AbstractGridCoverage2DReader gridCoverageReader,
+    public static SimpleFeatureCollection wrapGridCoverageReader(final AbstractGridCoverage2DReader gridCoverageReader,
 			GeneralParameterValue[] params) throws TransformException,
 			FactoryRegistryException, SchemaException {
 
@@ -210,7 +210,7 @@ public final class FeatureUtilities {
         SimpleFeature feature = fb.buildFeature(null);
 
 
-		final FeatureCollection<SimpleFeatureType, SimpleFeature> collection = FeatureCollections.newCollection();
+		final SimpleFeatureCollection collection = FeatureCollections.newCollection();
 		collection.add(feature);
 
 		return collection;

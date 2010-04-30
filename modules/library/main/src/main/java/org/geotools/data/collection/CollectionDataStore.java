@@ -25,6 +25,7 @@ import org.geotools.data.FeatureReader;
 import org.geotools.data.Query;
 import org.geotools.data.SchemaNotFoundException;
 import org.geotools.data.Transaction;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.CollectionEvent;
 import org.geotools.feature.CollectionListener;
 import org.geotools.feature.FeatureCollection;
@@ -34,10 +35,8 @@ import org.geotools.feature.FeatureTypes;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.feature.type.FeatureType;
 import org.opengis.filter.Filter;
 
-import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 
 
@@ -48,7 +47,7 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 public class CollectionDataStore extends AbstractDataStore {
     SimpleFeatureType featureType;
-    FeatureCollection<SimpleFeatureType, SimpleFeature> collection;
+    FeatureCollection<SimpleFeatureType,SimpleFeature> collection;
 
     /**
      * Builds a data store wrapper around an empty collection.
@@ -66,7 +65,7 @@ public class CollectionDataStore extends AbstractDataStore {
      *
      * @param collection
      */
-    public CollectionDataStore(FeatureCollection<SimpleFeatureType, SimpleFeature> collection) {
+    public CollectionDataStore(FeatureCollection<SimpleFeatureType,SimpleFeature> collection) {
         this.collection = collection;
 
         if (collection.size() == 0) {
@@ -127,8 +126,8 @@ public class CollectionDataStore extends AbstractDataStore {
      * Returns the feature collection held by this data store
      *
      */
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> getCollection() {
-        return collection;
+    public FeatureCollection<SimpleFeatureType,SimpleFeature> getCollection() {
+        return (SimpleFeatureCollection) collection;
     }
 
     /**
@@ -179,7 +178,7 @@ public class CollectionDataStore extends AbstractDataStore {
             throw new SchemaNotFoundException(featureTypeName);
         }
             int count = 0;
-            FeatureIterator<SimpleFeature> iterator = collection.features();
+            FeatureIterator<SimpleFeature>  iterator = collection.features();
 
             Filter filter = query.getFilter();
 

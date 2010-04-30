@@ -47,7 +47,6 @@ import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultFIDReader;
 import org.geotools.data.EmptyFeatureReader;
 import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.Query;
 import org.geotools.data.ResourceInfo;
@@ -65,6 +64,7 @@ import org.geotools.data.shapefile.shp.ShapefileHeader;
 import org.geotools.data.shapefile.shp.ShapefileReader;
 import org.geotools.data.shapefile.shp.ShapefileWriter;
 import org.geotools.data.shapefile.shp.xml.ShpXmlFileReader;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.Hints;
 import org.geotools.feature.AttributeTypeBuilder;
 import org.geotools.feature.FeatureTypes;
@@ -218,7 +218,7 @@ public class ShapefileDataStore extends AbstractFileDataStore {
     }
     
     /**
-     * Used by FeatureSource<SimpleFeatureType, SimpleFeature> / FeatureStore / FeatureLocking to 
+     * Used by SimpleFeatureSource / FeatureStore / FeatureLocking to 
      * access a single ResourceInfo.
      * 
      * @param typeName
@@ -959,7 +959,7 @@ public class ShapefileDataStore extends AbstractFileDataStore {
     /**
      * @see org.geotools.data.DataStore#getFeatureSource(java.lang.String)
      */
-    public FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSource(final String typeName)
+    public SimpleFeatureSource getFeatureSource(final String typeName)
             throws IOException {
         final SimpleFeatureType featureType = getSchema(typeName);
 

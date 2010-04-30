@@ -24,13 +24,13 @@ import junit.framework.TestCase;
 
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
 import org.geotools.data.ServiceInfo;
 import org.geotools.data.Transaction;
 import org.geotools.data.gen.info.GeneralizationInfos;
 import org.geotools.data.gen.info.GeneralizationInfosProvider;
 import org.geotools.data.gen.info.GeneralizationInfosProviderImpl;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.feature.NameImpl;
 import org.junit.Assert;
 import org.opengis.feature.simple.SimpleFeature;
@@ -62,7 +62,7 @@ public class PreGeneralizedDataStoreTest extends TestCase {
             assertTrue(reader != null);
             reader.close();
 
-            FeatureSource<SimpleFeatureType, SimpleFeature> fsource = ds.getFeatureSource(typeName);
+            SimpleFeatureSource fsource = ds.getFeatureSource(typeName);
             assertTrue(fsource != null);
 
             fsource = ds.getFeatureSource(new NameImpl(typeName));

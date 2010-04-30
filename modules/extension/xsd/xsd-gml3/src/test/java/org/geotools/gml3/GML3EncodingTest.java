@@ -27,14 +27,13 @@ import junit.framework.TestCase;
 
 import org.apache.xerces.parsers.SAXParser;
 import org.eclipse.xsd.XSDSchema;
-import org.geotools.feature.FeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.gml3.bindings.GML3MockData;
 import org.geotools.gml3.bindings.TEST;
 import org.geotools.gml3.bindings.TestConfiguration;
 import org.geotools.xml.Encoder;
 import org.geotools.xml.Parser;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -67,7 +66,7 @@ public class GML3EncodingTest extends TestCase {
 
         //first parse in test data
         Parser parser = new Parser(configuration);
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = (FeatureCollection<SimpleFeatureType, SimpleFeature>) parser.parse(TestConfiguration.class
+        SimpleFeatureCollection fc = (SimpleFeatureCollection) parser.parse(TestConfiguration.class
                 .getResourceAsStream("test.xml"));
         assertNotNull(fc);
 
@@ -124,7 +123,7 @@ public class GML3EncodingTest extends TestCase {
 
         //first parse in test data
         Parser parser = new Parser(configuration);
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = (FeatureCollection<SimpleFeatureType, SimpleFeature>) parser.parse(TestConfiguration.class
+        SimpleFeatureCollection fc = (SimpleFeatureCollection) parser.parse(TestConfiguration.class
                 .getResourceAsStream("test.xml"));
         assertNotNull(fc);
 

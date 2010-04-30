@@ -19,21 +19,22 @@
 
 package org.geotools.feature;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
 import org.geotools.data.DataUtilities;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -49,7 +50,7 @@ import com.vividsolutions.jts.geom.PrecisionModel;
  */
 public class FeatureCollectionTest extends TestCase {
   
-  FeatureCollection<SimpleFeatureType, SimpleFeature> features;
+  SimpleFeatureCollection features;
   
   public FeatureCollectionTest(String testName){
     super(testName);
@@ -123,7 +124,7 @@ public class FeatureCollectionTest extends TestCase {
     
     SimpleFeatureType t = tb.buildFeatureType();
     
-    FeatureCollection<SimpleFeatureType, SimpleFeature> fc = FeatureCollections.newCollection();
+    SimpleFeatureCollection fc = FeatureCollections.newCollection();
     SimpleFeatureBuilder b = new SimpleFeatureBuilder(t);
     
     for (int i = 0; i < g.length; i++) {
@@ -171,7 +172,7 @@ public class FeatureCollectionTest extends TestCase {
   }
   
   public void testAssorted() {
-    FeatureCollection<SimpleFeatureType, SimpleFeature> copy = FeatureCollections.newCollection();
+    SimpleFeatureCollection copy = FeatureCollections.newCollection();
     copy.addAll(features);
     copy.clear();
     assertTrue(copy.isEmpty());
@@ -185,13 +186,13 @@ public class FeatureCollectionTest extends TestCase {
     for (int i = 0; i < f1.length; i++) {
       assertSame(f1[i], f2[i]);
     }
-    FeatureIterator<SimpleFeature> copyIterator = copy.features();
-    FeatureIterator<SimpleFeature> featuresIterator = features.features();
+    SimpleFeatureIterator copyIterator = copy.features();
+    SimpleFeatureIterator featuresIterator = features.features();
     while (copyIterator.hasNext() && featuresIterator.hasNext()) {
       assertEquals(copyIterator.next(),featuresIterator.next());
     }
     
-    FeatureCollection<SimpleFeatureType, SimpleFeature> listen = FeatureCollections.newCollection();
+    SimpleFeatureCollection listen = FeatureCollections.newCollection();
     ListenerProxy counter = new ListenerProxy();
     listen.addListener(counter);
     listen.addAll(features);

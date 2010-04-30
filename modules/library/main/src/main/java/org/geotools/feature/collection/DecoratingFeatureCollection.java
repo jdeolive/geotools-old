@@ -19,35 +19,21 @@ package org.geotools.feature.collection;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 import org.geotools.feature.CollectionListener;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
-
-import org.geotools.feature.IllegalAttributeException;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.util.ProgressListener;
 import org.opengis.feature.Feature;
-import org.opengis.feature.GeometryAttribute;
-import org.opengis.feature.Property;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.FeatureType;
-import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
-import org.opengis.filter.identity.FeatureId;
 import org.opengis.filter.sort.SortBy;
-
-import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * A FeatureCollection which completley delegates to another FeatureCollection.
  * <p>
  * This class should be subclasses by classes which must somehow decorate 
- * another FeatureCollection<SimpleFeatureType, SimpleFeature> and override the relevant methods. 
+ * another SimpleFeatureCollection and override the relevant methods. 
  * </p>
  * @author Justin Deoliveira, The Open Planning Project, jdeolive@openplans.org
  * @since 2.5

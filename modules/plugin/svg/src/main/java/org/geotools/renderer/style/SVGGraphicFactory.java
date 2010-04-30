@@ -27,7 +27,6 @@ import java.net.URL;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 
 import javax.swing.Icon;
 
@@ -39,9 +38,6 @@ import org.apache.batik.bridge.UserAgentAdapter;
 import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
 import org.apache.batik.gvt.GraphicsNode;
 import org.apache.batik.util.XMLResourceDescriptor;
-import org.geotools.styling.Displacement;
-import org.geotools.styling.ExternalGraphic;
-import org.geotools.styling.Graphic;
 import org.geotools.util.SoftValueHashMap;
 import org.opengis.feature.Feature;
 import org.opengis.filter.expression.Expression;

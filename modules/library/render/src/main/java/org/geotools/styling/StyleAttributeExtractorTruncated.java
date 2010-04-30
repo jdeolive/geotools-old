@@ -16,14 +16,6 @@
  */
 package org.geotools.styling;
 
-import org.geotools.styling.Font;
-import org.geotools.styling.LineSymbolizer;
-import org.geotools.styling.PointSymbolizer;
-import org.geotools.styling.PolygonSymbolizer;
-import org.geotools.styling.RasterSymbolizer;
-import org.geotools.styling.StyleVisitor;
-import org.geotools.styling.TextSymbolizer;
-import org.geotools.styling.TextSymbolizer2;
 
 /**
  * A simple visitor whose purpose is to extract the set of attributes used by a

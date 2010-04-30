@@ -17,10 +17,11 @@ import java.awt.image.WritableRaster;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.geotools.coverage.CoverageFactoryFinder;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
-import org.geotools.feature.FeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.NameImpl;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.DefaultMapContext;
@@ -35,8 +36,6 @@ import org.geotools.styling.Style;
 import org.geotools.swing.JMapFrame;
 import org.geotools.swing.ProgressWindow;
 import org.jdesktop.swingworker.SwingWorker;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 /**
  * Illustrates running a process (vectorizing regions in a grid coverage) via
@@ -96,8 +95,8 @@ public class ProcessAPI {
                 } catch (Exception ignore) {}
 
                 if (vectorizingResults != null) {
-                    FeatureCollection<SimpleFeatureType, SimpleFeature> fc =
-                            (FeatureCollection<SimpleFeatureType, SimpleFeature>) vectorizingResults.get(RasterToVectorFactory.RESULT_FEATURES.key);
+                    SimpleFeatureCollection fc =
+                            (SimpleFeatureCollection) vectorizingResults.get(RasterToVectorFactory.RESULT_FEATURES.key);
 
                     MapContext map = new DefaultMapContext();
                     map.setTitle("raster to vector conversion");

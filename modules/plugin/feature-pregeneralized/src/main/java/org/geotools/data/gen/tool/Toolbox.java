@@ -25,15 +25,15 @@ import java.util.List;
 import java.util.Map;
 
 import org.geotools.data.DataStore;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.FileDataStoreFactorySpi;
 import org.geotools.data.Transaction;
 import org.geotools.data.gen.info.GeneralizationInfosProviderImpl;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
@@ -154,12 +154,12 @@ public class Toolbox {
     protected void generalizeShapeFile(File shapeFile, DataStore shapeDS, File targetDir,
             Double[] distanceArray) throws IOException {
         String typeName = shapeDS.getTypeNames()[0];
-        FeatureSource<SimpleFeatureType, SimpleFeature> fs = shapeDS.getFeatureSource(typeName);
+        SimpleFeatureSource fs = shapeDS.getFeatureSource(typeName);
         SimpleFeatureType ftype = fs.getSchema();
         DataStore[] dataStores = createDataStores(shapeFile, targetDir, ftype, distanceArray);
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fcoll = fs.getFeatures();
-        FeatureIterator<SimpleFeature> it = fcoll.features();
+        SimpleFeatureCollection fcoll = fs.getFeatures();
+        SimpleFeatureIterator it = fcoll.features();
         int countTotal = fcoll.size();
 
         List<FeatureWriter<SimpleFeatureType, SimpleFeature>> writers = new ArrayList<FeatureWriter<SimpleFeatureType, SimpleFeature>>();

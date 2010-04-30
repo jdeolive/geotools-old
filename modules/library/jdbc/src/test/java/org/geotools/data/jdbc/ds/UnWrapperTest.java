@@ -24,11 +24,11 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import junit.framework.TestCase;
+
 import org.apache.commons.dbcp.BasicDataSource;
 import org.geotools.data.jdbc.datasource.DataSourceFinder;
 import org.geotools.data.jdbc.datasource.UnWrapper;
-
-import junit.framework.TestCase;
 
 public class UnWrapperTest extends TestCase {
 

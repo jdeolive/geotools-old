@@ -16,8 +16,8 @@
  */
 package org.geotools.feature.visitor;
 
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.feature.FeatureCollection;
 import org.geotools.filter.IllegalFilterException;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -59,7 +59,7 @@ public class MinVisitor implements FeatureCalc {
         this.expr = expr;
     }
 
-    public void init(FeatureCollection<SimpleFeatureType, SimpleFeature> collection) {
+    public void init(SimpleFeatureCollection collection) {
     	//do nothing
     }
     /**

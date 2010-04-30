@@ -15,19 +15,18 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.DefaultTransaction;
-import org.geotools.data.FeatureSource;
-import org.geotools.data.FeatureStore;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
+import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
-import org.geotools.feature.FeatureCollection;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.Feature;
@@ -80,7 +79,7 @@ public class WFSExample {
 		System.out.println( "Schema Attributes:"+schema.getAttributeCount() );
 		
 		// Step 4 - target
-		FeatureSource<SimpleFeatureType, SimpleFeature> source = data.getFeatureSource( typeName );
+		SimpleFeatureSource source = data.getFeatureSource( typeName );
 		System.out.println( "Metadata Bounds:"+ source.getBounds() );
 
 		// Step 5 - query
@@ -92,7 +91,7 @@ public class WFSExample {
         Intersects filter = ff.intersects( ff.property( geomName ), ff.literal( polygon ) );
 		
 		Query query = new DefaultQuery( typeName, filter, new String[]{ geomName } );
-		FeatureCollection<SimpleFeatureType, SimpleFeature> features = source.getFeatures( query );
+		SimpleFeatureCollection features = source.getFeatures( query );
 
 		ReferencedEnvelope bounds = new ReferencedEnvelope();
 		Iterator<SimpleFeature> iterator = features.iterator();
@@ -124,7 +123,7 @@ public class WFSExample {
 		System.out.println( "Schema Attributes:"+schema.getAttributeCount() );
 		
 		// Step 4 - target
-		FeatureSource<SimpleFeatureType, SimpleFeature> source = data.getFeatureSource( typeName );
+		SimpleFeatureSource source = data.getFeatureSource( typeName );
 		System.out.println( "Metadata Bounds:"+ source.getBounds() );
 
 		// Step 5 - query
@@ -132,7 +131,7 @@ public class WFSExample {
 		
 		DefaultQuery query = new DefaultQuery( typeName, Filter.INCLUDE );
 		query.setMaxFeatures(2);
-		FeatureCollection<SimpleFeatureType, SimpleFeature> features = source.getFeatures( query );
+		SimpleFeatureCollection features = source.getFeatures( query );
 
 		String fid = null;
 		Iterator<SimpleFeature> iterator = features.iterator();
@@ -148,7 +147,7 @@ public class WFSExample {
 		// step 6 modify
 		Transaction t = new DefaultTransaction();
 
-		FeatureStore<SimpleFeatureType, SimpleFeature> store = (FeatureStore<SimpleFeatureType, SimpleFeature>) source;
+		SimpleFeatureStore store = (SimpleFeatureStore) source;
 		store.setTransaction( t );
 		Set<Identifier> ids = new HashSet<Identifier>();
 		ids.add( ff.featureId(fid) );

@@ -18,6 +18,7 @@ package org.geotools.data;
 
 import java.io.IOException;
 
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.opengis.filter.Filter;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -51,7 +52,7 @@ public interface FileDataStore extends DataStore {
     /**
      * @see org.geotools.data.DataStore#getFeatureSource(java.lang.String)
      */
-    FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSource() throws IOException;
+    SimpleFeatureSource getFeatureSource() throws IOException;
 
     /**
      * @see org.geotools.data.DataStore#getFeatureReader(java.lang.String)

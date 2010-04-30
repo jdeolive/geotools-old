@@ -30,30 +30,27 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
-import java.util.HashMap;
-import java.util.Map;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
+
 import javax.swing.JPanel;
 import javax.swing.Timer;
 import javax.swing.event.MouseInputAdapter;
+
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.map.event.MapBoundsEvent;
-import org.geotools.swing.event.MapMouseListener;
-import org.geotools.swing.event.MapPaneEvent;
-import org.geotools.swing.event.MapPaneListener;
-import org.geotools.swing.tool.CursorTool;
-import org.geotools.swing.tool.MapToolManager;
 import org.geotools.map.MapContext;
 import org.geotools.map.MapLayer;
+import org.geotools.map.event.MapBoundsEvent;
 import org.geotools.map.event.MapBoundsListener;
 import org.geotools.map.event.MapLayerEvent;
 import org.geotools.map.event.MapLayerListEvent;
@@ -62,6 +59,11 @@ import org.geotools.renderer.GTRenderer;
 import org.geotools.renderer.label.LabelCacheImpl;
 import org.geotools.renderer.lite.LabelCache;
 import org.geotools.renderer.lite.StreamingRenderer;
+import org.geotools.swing.event.MapMouseListener;
+import org.geotools.swing.event.MapPaneEvent;
+import org.geotools.swing.event.MapPaneListener;
+import org.geotools.swing.tool.CursorTool;
+import org.geotools.swing.tool.MapToolManager;
 import org.opengis.geometry.Envelope;
 
 /**

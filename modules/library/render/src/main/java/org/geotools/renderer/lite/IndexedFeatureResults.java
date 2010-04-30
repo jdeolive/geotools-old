@@ -22,10 +22,10 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.geotools.data.FeatureReader;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.data.store.DataFeatureCollection;
-import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureCollections;
-import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.simple.SimpleFeature;
@@ -47,14 +47,14 @@ public final class IndexedFeatureResults extends DataFeatureCollection {
 	int count;
 	private Envelope queryBounds;
 
-	public IndexedFeatureResults(FeatureCollection<SimpleFeatureType, SimpleFeature> results) throws IOException,
+	public IndexedFeatureResults(SimpleFeatureCollection results) throws IOException,
 			IllegalAttributeException {
 		// copy results attributes
 		super(null,results.getSchema());
 		
 				
 		// load features into the index
-		FeatureIterator<SimpleFeature> reader = null;
+		SimpleFeatureIterator reader = null;
 		bounds = new Envelope();
 		count = 0;
 		try {
@@ -129,8 +129,8 @@ public final class IndexedFeatureResults extends DataFeatureCollection {
 	/**
 	 * @see org.geotools.data.FeatureResults#collection()
 	 */
-	public FeatureCollection<SimpleFeatureType, SimpleFeature> collection() throws IOException {
-	    FeatureCollection<SimpleFeatureType, SimpleFeature> fc = FeatureCollections.newCollection();
+	public SimpleFeatureCollection collection() throws IOException {
+	    SimpleFeatureCollection fc = FeatureCollections.newCollection();
 		List<SimpleFeature> results = index.query(bounds);
 		for (Iterator<SimpleFeature> it = results.iterator(); it.hasNext();) {
 			fc.add(it.next());

@@ -22,7 +22,7 @@ import org.geotools.data.DataTestCase;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.memory.MemoryDataStore;
-import org.geotools.feature.FeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.validation.spatial.LineNoSelfIntersectValidation;
@@ -154,7 +154,7 @@ public class ValidationPlugInTester extends DataTestCase {
 		try {
              FeatureReader<SimpleFeatureType, SimpleFeature> reader = DataUtilities.reader(new SimpleFeature[] {this.newRoad});
             String typeName = reader.getFeatureType().getTypeName();            
-			FeatureCollection<SimpleFeatureType, SimpleFeature> collection = DataUtilities.collection(new SimpleFeature[] {this.newRoad});
+			SimpleFeatureCollection collection = DataUtilities.collection(new SimpleFeature[] {this.newRoad});
             processor.runFeatureTests("road", collection, roadValidationResults);
 			}
 		catch (Exception e1) {

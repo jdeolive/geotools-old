@@ -16,7 +16,6 @@
  */
 package org.geotools.data.postgis;
 
-import java.io.IOException;
 import java.util.Map;
 
 public class PostgisAlternateSchemaOnlineTest extends PostgisFeatureWriterOnlineTest {

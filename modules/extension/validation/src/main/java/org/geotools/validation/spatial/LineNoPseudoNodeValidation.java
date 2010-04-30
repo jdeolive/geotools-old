@@ -18,12 +18,11 @@ package org.geotools.validation.spatial;
 
 import java.util.Map;
 
-import org.geotools.data.FeatureSource;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.validation.ValidationResults;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
@@ -81,9 +80,9 @@ public class LineNoPseudoNodeValidation extends LineAbstractValidation {
 
     	boolean r = true;
     	
-        FeatureSource<SimpleFeatureType, SimpleFeature> fsLine = (FeatureSource<SimpleFeatureType, SimpleFeature>) layers.get(getLineTypeRef());
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fcLine = fsLine.getFeatures();
-        FeatureIterator<SimpleFeature> fLine = fcLine.features();
+        SimpleFeatureSource fsLine = (SimpleFeatureSource) layers.get(getLineTypeRef());
+        SimpleFeatureCollection fcLine = fsLine.getFeatures();
+        SimpleFeatureIterator fLine = fcLine.features();
                 
         while(fLine.hasNext()){
         	SimpleFeature line = fLine.next();

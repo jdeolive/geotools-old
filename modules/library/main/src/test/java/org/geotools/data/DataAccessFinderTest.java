@@ -28,6 +28,7 @@ import java.util.Set;
 
 import junit.framework.TestCase;
 
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.feature.SchemaException;
 import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
@@ -356,7 +357,7 @@ public class DataAccessFinderTest extends TestCase {
             return null;
         }
 
-        public FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSource(String typeName)
+        public SimpleFeatureSource getFeatureSource(String typeName)
                 throws IOException {
             return null;
         }
@@ -388,7 +389,7 @@ public class DataAccessFinderTest extends TestCase {
             return null;
         }
 
-        public FeatureSource<SimpleFeatureType, SimpleFeature> getView(Query query)
+        public SimpleFeatureSource getView(Query query)
                 throws IOException, SchemaException {
             return null;
         }
@@ -402,7 +403,7 @@ public class DataAccessFinderTest extends TestCase {
         public void dispose() {
         }
 
-        public FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSource(Name typeName)
+        public SimpleFeatureSource getFeatureSource(Name typeName)
                 throws IOException {
             return null;
         }

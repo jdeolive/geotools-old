@@ -26,10 +26,10 @@ import java.io.IOException;
 import java.util.Collections;
 
 import org.geotools.data.DefaultQuery;
-import org.geotools.data.FeatureSource;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
 import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -57,7 +57,7 @@ public class GeoServerOnlineTest extends AbstractWfsDataStoreOnlineTest {
             return;
         }
 
-        FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
+        SimpleFeatureSource featureSource;
         featureSource = wfs.getFeatureSource(testType.FEATURETYPENAME);
         assertNotNull(featureSource);
 
@@ -74,14 +74,14 @@ public class GeoServerOnlineTest extends AbstractWfsDataStoreOnlineTest {
         // System.out.println(filter);
         query.setFilter(filter);
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> features;
+        SimpleFeatureCollection features;
         features = featureSource.getFeatures(query);
         assertNotNull(features);
 
         SimpleFeatureType schema = features.getSchema();
         assertNotNull(schema);
 
-        FeatureIterator<SimpleFeature> iterator = features.features();
+        SimpleFeatureIterator iterator = features.features();
         assertNotNull(iterator);
         try {
             assertTrue(iterator.hasNext());

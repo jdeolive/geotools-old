@@ -16,8 +16,6 @@
  */
 package org.geotools.filter.function;
 
-import org.geotools.filter.Expression;
-import org.geotools.filter.FunctionExpression;
 import org.opengis.filter.expression.Function;
 import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;

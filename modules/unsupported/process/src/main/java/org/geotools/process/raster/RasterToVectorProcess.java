@@ -17,14 +17,6 @@
 
 package org.geotools.process.raster;
 
-import com.vividsolutions.jts.algorithm.InteriorPointArea;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineSegment;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.operation.polygonize.Polygonizer;
 import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.awt.image.RenderedImage;
@@ -39,11 +31,14 @@ import java.util.TreeSet;
 import java.util.concurrent.CancellationException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.media.jai.iterator.RandomIter;
 import javax.media.jai.iterator.RandomIterFactory;
+
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.InvalidGridGeometryException;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
@@ -56,7 +51,6 @@ import org.geotools.referencing.CRS;
 import org.geotools.util.NullProgressListener;
 import org.geotools.util.SimpleInternationalString;
 import org.geotools.util.SubProgressListener;
-import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.geometry.Envelope;
 import org.opengis.metadata.spatial.PixelOrientation;
@@ -64,6 +58,15 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform2D;
 import org.opengis.referencing.operation.TransformException;
 import org.opengis.util.ProgressListener;
+
+import com.vividsolutions.jts.algorithm.InteriorPointArea;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineSegment;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.operation.polygonize.Polygonizer;
 
 /**
  * Vectorizes discrete regions of uniform value in the specified band of a GridCoverage2D
@@ -260,7 +263,7 @@ public class RasterToVectorProcess extends AbstractProcess {
      *
      * @return a FeatureCollection containing simple polygon features
      */
-    public static FeatureCollection<SimpleFeatureType,SimpleFeature> process(
+    public static SimpleFeatureCollection process(
             GridCoverage2D cov,
             int band,
             Envelope bounds,
@@ -284,7 +287,7 @@ public class RasterToVectorProcess extends AbstractProcess {
      *
      * @return a FeatureCollection containing simple polygon features
      */
-    private FeatureCollection<SimpleFeatureType,SimpleFeature> convert(
+    private SimpleFeatureCollection convert(
             GridCoverage2D cov,
             int band,
             Envelope bounds,
@@ -335,7 +338,7 @@ public class RasterToVectorProcess extends AbstractProcess {
                     .getCoordinateReferenceSystem());
 
             monitor.setTask(new SimpleInternationalString("Creating polygon features"));
-            FeatureCollection<SimpleFeatureType,SimpleFeature> features = 
+            SimpleFeatureCollection features = 
                     assembleFeatures(cov, band, schema, new SubProgressListener(monitor, 20));
 
             return features;
@@ -358,13 +361,13 @@ public class RasterToVectorProcess extends AbstractProcess {
      * @param monitor a progress listener (may be {@code null})
      * @return a new FeatureCollection containing the boundary polygons
      */
-    private FeatureCollection<SimpleFeatureType,SimpleFeature> assembleFeatures(GridCoverage2D grid, int band,
+    private SimpleFeatureCollection assembleFeatures(GridCoverage2D grid, int band,
             SimpleFeatureType type, ProgressListener monitor) {
         if (monitor == null) {
             monitor = new NullProgressListener();
         }
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> features = FeatureCollections.newCollection();
+        SimpleFeatureCollection features = FeatureCollections.newCollection();
         SimpleFeatureBuilder builder = new SimpleFeatureBuilder(type);
 
         Point2D p = new Point2D.Double();

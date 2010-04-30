@@ -28,7 +28,6 @@ import org.geotools.data.DataStore;
 import org.geotools.data.DefaultServiceInfo;
 import org.geotools.data.EmptyFeatureWriter;
 import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.FilteringFeatureWriter;
 import org.geotools.data.InProcessLockingManager;
@@ -36,6 +35,7 @@ import org.geotools.data.LockingManager;
 import org.geotools.data.Query;
 import org.geotools.data.ServiceInfo;
 import org.geotools.data.Transaction;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.data.view.DefaultView;
 import org.geotools.feature.FeatureTypes;
 import org.geotools.feature.NameImpl;
@@ -157,7 +157,7 @@ public class AbstractDataStore2 implements DataStore {
      * </p>
      * <p>
      * This method is lazyly called to create a List of ActiveTypeEntry for
-     * each FeatureCollection<SimpleFeatureType, SimpleFeature> in this DataStore.
+     * each SimpleFeatureCollection in this DataStore.
      * </p>
      * @return List<ActiveTypeEntry>.
      */
@@ -221,23 +221,23 @@ public class AbstractDataStore2 implements DataStore {
 
     // Jody - This is my recomendation for DataStore in order to support CS reprojection and override
     /**
-     * Create a FeatureSource<SimpleFeatureType, SimpleFeature> that represents your Query.
+     * Create a SimpleFeatureSource that represents your Query.
      * <p>
      * If we can make this part of the public API, we can phase out FeatureResults.
      * (and reduce the number of classes people need to know about).
      * </p>
      */
-    public FeatureSource<SimpleFeatureType, SimpleFeature> getView(final Query query)
+    public SimpleFeatureSource getView(final Query query)
         throws IOException, SchemaException {
         return new DefaultView( getFeatureSource( query.getTypeName() ), query );
     }
     /**
-     * Aqure FeatureSource<SimpleFeatureType, SimpleFeature> for indicated typeName.
+     * Aqure SimpleFeatureSource for indicated typeName.
      * <p>
      * Note this API is not sufficient; Namespace needs to be used as well.
      * </p>
      */
-    public FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSource( final String typeName )
+    public SimpleFeatureSource getFeatureSource( final String typeName )
         throws IOException {        
         return entry( typeName ).createFeatureSource();        
     }
@@ -348,7 +348,7 @@ public class AbstractDataStore2 implements DataStore {
      * @since 2.5
      * @see DataAccess#getFeatureSource(Name)
      */
-    public FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSource(Name typeName)
+    public SimpleFeatureSource getFeatureSource(Name typeName)
             throws IOException {
         return getFeatureSource(typeName.getLocalPart());
     }

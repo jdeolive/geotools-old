@@ -18,15 +18,14 @@
  */
 package org.geotools.filter.function;
 
+import junit.framework.TestCase;
+
 import org.geotools.data.DataUtilities;
 import org.geotools.data.memory.MemoryDataStore;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
-import junit.framework.TestCase;
-import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
-import org.geotools.filter.FilterFactory;
-import org.geotools.filter.FilterFactoryFinder;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.FilterFactory2;
@@ -41,7 +40,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  */
 public class FunctionTestSupport extends TestCase {
     
-    protected FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;
+    protected SimpleFeatureCollection featureCollection;
     protected FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(GeoTools.getDefaultHints());
     protected SimpleFeatureType dataType;
     protected SimpleFeature[] testFeatures;

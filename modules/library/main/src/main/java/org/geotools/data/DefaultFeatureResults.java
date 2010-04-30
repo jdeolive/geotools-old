@@ -23,8 +23,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geotools.data.crs.ReprojectFeatureReader;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
+import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.data.store.DataFeatureCollection;
-import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.SchemaException;
@@ -63,7 +65,7 @@ public class DefaultFeatureResults extends DataFeatureCollection {
      * need to be forwarded through this collection api to simplier code
      * such as renderers.
      */
-    protected FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
+    protected SimpleFeatureSource featureSource;
 
     protected MathTransform transform;
     
@@ -75,13 +77,13 @@ public class DefaultFeatureResults extends DataFeatureCollection {
      * </p>
      * <p>
      * Really? I think it would be, it would just reflect the
-     * same query against the FeatureSource<SimpleFeatureType, SimpleFeature> using AUTO_COMMIT.
+     * same query against the SimpleFeatureSource using AUTO_COMMIT.
      * </p>
      * 
      * @param source
      * @param query
      */
-    public DefaultFeatureResults(FeatureSource<SimpleFeatureType, SimpleFeature> source, Query query)
+    public DefaultFeatureResults(SimpleFeatureSource source, Query query)
             throws IOException {
     	super(null,getSchemaInternal(source,query));
     	this.featureSource = source;        
@@ -127,7 +129,7 @@ public class DefaultFeatureResults extends DataFeatureCollection {
     }
 
     static SimpleFeatureType getSchemaInternal(
-            FeatureSource<SimpleFeatureType, SimpleFeature> featureSource, Query query) {
+            SimpleFeatureSource featureSource, Query query) {
     	SimpleFeatureType origionalType = featureSource.getSchema();
     	SimpleFeatureType schema = null;
     	
@@ -182,15 +184,15 @@ public class DefaultFeatureResults extends DataFeatureCollection {
     }
 
     /**
-     * Returns transaction from FeatureSource<SimpleFeatureType, SimpleFeature> (if it is a FeatureStore), or
+     * Returns transaction from SimpleFeatureSource (if it is a FeatureStore), or
      * Transaction.AUTO_COMMIT if it is not.
      *
      * @return Transacstion this FeatureResults opperates against
      */
     protected Transaction getTransaction() {
         if (featureSource instanceof FeatureStore) {
-            FeatureStore<SimpleFeatureType, SimpleFeature> featureStore;
-            featureStore = (FeatureStore<SimpleFeatureType, SimpleFeature>) featureSource;
+            SimpleFeatureStore featureStore;
+            featureStore = (SimpleFeatureStore) featureSource;
 
             return featureStore.getTransaction();
         } else {
@@ -251,7 +253,7 @@ public class DefaultFeatureResults extends DataFeatureCollection {
      *
      * <p>
      * This implementation will generate the correct results from reader() if
-     * the provided FeatureSource<SimpleFeatureType, SimpleFeature> does not provide an optimized result via
+     * the provided SimpleFeatureSource does not provide an optimized result via
      * FeatureSource.getBounds( Query ).
      * </p>
      * If the feature has no geometry, then an empty envelope is returned.
@@ -299,7 +301,7 @@ public class DefaultFeatureResults extends DataFeatureCollection {
      *
      * <p>
      * This implementation will generate the correct results from reader() if
-     * the provided FeatureSource<SimpleFeatureType, SimpleFeature> does not provide an optimized result via
+     * the provided SimpleFeatureSource does not provide an optimized result via
      * FeatureSource.getCount( Query ).
      * </p>
      *
@@ -338,9 +340,9 @@ public class DefaultFeatureResults extends DataFeatureCollection {
         }
     }
 
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> collection() throws IOException {
+    public SimpleFeatureCollection collection() throws IOException {
         try {
-            FeatureCollection<SimpleFeatureType, SimpleFeature> collection = FeatureCollections.newCollection();
+            SimpleFeatureCollection collection = FeatureCollections.newCollection();
             //Feature feature;
              FeatureReader<SimpleFeatureType, SimpleFeature> reader = reader();
             //SimpleFeatureType type = reader.getFeatureType();

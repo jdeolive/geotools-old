@@ -18,7 +18,6 @@ package org.geotools.data;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +25,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.data.view.DefaultView;
 import org.geotools.feature.FeatureTypes;
 import org.geotools.feature.NameImpl;
@@ -35,8 +35,6 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
-
-import com.vividsolutions.jts.geom.Envelope;
 
 
 /**
@@ -91,7 +89,7 @@ public abstract class AbstractDataStore implements DataStore {
     /** The logger for the filter module. */
     protected static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.data");
 
-    /** Manages listener lists for FeatureSource<SimpleFeatureType, SimpleFeature> implementation */
+    /** Manages listener lists for SimpleFeatureSource implementation */
     public FeatureListenerManager listenerManager = new FeatureListenerManager();
 
     /**
@@ -246,7 +244,7 @@ public abstract class AbstractDataStore implements DataStore {
 
     // Jody - This is my recomendation for DataStore
     // in order to support CS reprojection and override
-    public FeatureSource<SimpleFeatureType, SimpleFeature> getView(final Query query)
+    public SimpleFeatureSource getView(final Query query)
         throws IOException, SchemaException {
         return new DefaultView( this.getFeatureSource( query.getTypeName() ), query );
     }        
@@ -259,7 +257,7 @@ public abstract class AbstractDataStore implements DataStore {
      *
      * @see org.geotools.data.DataStore#getFeatureSource(java.lang.String)
      */
-    public FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSource(final String typeName)
+    public SimpleFeatureSource getFeatureSource(final String typeName)
         throws IOException {
         final SimpleFeatureType featureType = getSchema(typeName);
 
@@ -615,7 +613,7 @@ public abstract class AbstractDataStore implements DataStore {
      * @since 2.5
      * @see DataAccess#getFeatureSource(Name)
      */
-    public FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSource(Name typeName)
+    public SimpleFeatureSource getFeatureSource(Name typeName)
             throws IOException {
         return getFeatureSource(typeName.getLocalPart());
     }

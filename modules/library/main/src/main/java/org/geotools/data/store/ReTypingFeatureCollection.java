@@ -21,15 +21,16 @@ import java.util.Iterator;
 
 import org.geotools.data.FeatureReader;
 import org.geotools.data.collection.DelegateFeatureReader;
-import org.geotools.feature.FeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.feature.FeatureIterator;
-import org.geotools.feature.collection.DecoratingFeatureCollection;
-import org.geotools.feature.collection.DelegateFeatureIterator;
+import org.geotools.feature.collection.DecoratingSimpleFeatureCollection;
+import org.geotools.feature.collection.DelegateSimpleFeatureIterator;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 /**
- * FeatureCollection<SimpleFeatureType, SimpleFeature> decorator which decorates a feature collection "re-typing" 
+ * SimpleFeatureCollection decorator which decorates a feature collection "re-typing" 
  * its schema based on attributes specified in a query.
  * 
  * @author Justin Deoliveira, The Open Planning Project
@@ -37,11 +38,11 @@ import org.opengis.feature.simple.SimpleFeatureType;
  *
  * @source $URL$
  */
-public class ReTypingFeatureCollection extends DecoratingFeatureCollection<SimpleFeatureType, SimpleFeature> {
+public class ReTypingFeatureCollection extends DecoratingSimpleFeatureCollection {
 
 	SimpleFeatureType featureType;
     
-	public ReTypingFeatureCollection ( FeatureCollection<SimpleFeatureType, SimpleFeature> delegate, SimpleFeatureType featureType ) {
+	public ReTypingFeatureCollection ( SimpleFeatureCollection delegate, SimpleFeatureType featureType ) {
 		super(delegate);
 		this.featureType = featureType;
 	}
@@ -54,11 +55,11 @@ public class ReTypingFeatureCollection extends DecoratingFeatureCollection<Simpl
 		return new DelegateFeatureReader<SimpleFeatureType, SimpleFeature>( getSchema(), features() );
 	}
 	
-	public FeatureIterator<SimpleFeature> features() {
-		return new DelegateFeatureIterator<SimpleFeature>( this, iterator() );
+	public SimpleFeatureIterator features() {
+		return new DelegateSimpleFeatureIterator( this, iterator() );
 	}
 
-	public void close(FeatureIterator<SimpleFeature> close) {
+	public void close(SimpleFeatureIterator close) {
 		close.close();
 	}
 

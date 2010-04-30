@@ -1,14 +1,9 @@
 package org.geotools.styling.builder;
 
-import java.awt.Color;
-
 import org.geotools.Builder;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.filter.expression.ExpressionBuilder;
-import org.geotools.styling.Stroke;
 import org.geotools.styling.StyleFactory;
 import org.geotools.styling.Symbol;
-import org.opengis.filter.expression.Expression;
 
 public class SymbolBuilder<P> implements Builder<Symbol> {
     P parent;

@@ -36,6 +36,7 @@ import org.geotools.data.LockingManager;
 import org.geotools.data.Query;
 import org.geotools.data.ServiceInfo;
 import org.geotools.data.Transaction;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureTypes;
 import org.geotools.feature.NameImpl;
@@ -628,10 +629,10 @@ public abstract class ContentDataStore implements DataStore {
      * Subclasses should override method to return a specific instance of 
      * {@link Transaction.State}.
      * </p>
-     * @param FeatureSource<SimpleFeatureType, SimpleFeature> The feature source / store for the new transaction
+     * @param SimpleFeatureSource The feature source / store for the new transaction
      * state.
      */
-//    protected abstract Transaction.State createTransactionState(ContentFeatureSource<SimpleFeatureType, SimpleFeature> featureSource)
+//    protected abstract Transaction.State createTransactionState(ContentSimpleFeatureSource featureSource)
 //        throws IOException;
 
     
@@ -642,7 +643,7 @@ public abstract class ContentDataStore implements DataStore {
      * @since 2.5
      * @see DataAccess#getFeatureSource(Name)
      */
-    public FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSource(Name typeName)
+    public SimpleFeatureSource getFeatureSource(Name typeName)
             throws IOException {
         return getFeatureSource(typeName.getLocalPart());
     }

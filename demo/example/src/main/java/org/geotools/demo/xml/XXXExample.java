@@ -9,11 +9,9 @@
  */
 package org.geotools.demo.xml;
 
-import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 
-import org.geotools.filter.text.cql2.CQL;
 import org.geotools.xml.Configuration;
 import org.geotools.xml.Parser;
 import org.opengis.filter.Filter;

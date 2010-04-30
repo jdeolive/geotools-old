@@ -1,10 +1,10 @@
 package org.geotools.data.ows;
 
+import static org.junit.Assert.assertTrue;
+
 import java.util.HashMap;
 
 import org.junit.Test;
-import org.opengis.geometry.Envelope;
-import static org.junit.Assert.*;
 /**
  * Simple API designed to keep the API stable.
  */

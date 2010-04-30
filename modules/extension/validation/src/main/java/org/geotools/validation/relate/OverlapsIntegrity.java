@@ -21,11 +21,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import org.geotools.data.FeatureSource;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.FactoryRegistryException;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
 import org.geotools.filter.IllegalFilterException;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -37,7 +37,6 @@ import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.spatial.Disjoint;
-import org.opengis.geometry.BoundingBox;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
@@ -110,7 +109,7 @@ public class OverlapsIntegrity extends RelationIntegrity
 		LOGGER.finer("Starting test "+getName()+" ("+getClass().getName()+")" );
 		String typeRef1 = getGeomTypeRefA();
 		LOGGER.finer( typeRef1 +": looking up FeatureSource" );		
-		FeatureSource<SimpleFeatureType, SimpleFeature> geomSource1 = (FeatureSource<SimpleFeatureType, SimpleFeature>) layers.get( typeRef1 );
+		SimpleFeatureSource geomSource1 = (SimpleFeatureSource) layers.get( typeRef1 );
 		LOGGER.finer( typeRef1 +": found "+ geomSource1.getSchema().getTypeName() );
 		
 		String typeRef2 = getGeomTypeRefB();
@@ -118,8 +117,8 @@ public class OverlapsIntegrity extends RelationIntegrity
 			return validateSingleLayer(geomSource1, isExpected(), results, envelope);
 		else
 		{
-			LOGGER.warning( typeRef2 +": looking up FeatureSource<SimpleFeatureType, SimpleFeature> " );        
-			FeatureSource<SimpleFeatureType, SimpleFeature> geomSource2 = (FeatureSource<SimpleFeatureType, SimpleFeature>) layers.get( typeRef2 );
+			LOGGER.warning( typeRef2 +": looking up SimpleFeatureSource " );        
+			SimpleFeatureSource geomSource2 = (SimpleFeatureSource) layers.get( typeRef2 );
 			LOGGER.finer( typeRef2 +": found "+ geomSource2.getSchema().getTypeName() );
 			return validateMultipleLayers(geomSource1, geomSource2, isExpected(), results, envelope);
 		}	
@@ -142,7 +141,7 @@ public class OverlapsIntegrity extends RelationIntegrity
 	 * <p>
 	 * The function filters the FeatureSources using the given bounding box.
 	 * It creates iterators over both filtered FeatureSources. It calls overlaps() and contains()using the
-	 * geometries in the FeatureSource<SimpleFeatureType, SimpleFeature> layers. Tests the results of the method call against
+	 * geometries in the SimpleFeatureSource layers. Tests the results of the method call against
 	 * the given expected results. Returns true if the returned results and the expected results 
 	 * are true, false otherwise.
 	 * 
@@ -150,16 +149,16 @@ public class OverlapsIntegrity extends RelationIntegrity
 	 * 
 	 * Author: bowens<br>
 	 * Created on: Apr 27, 2004<br>
-	 * @param featureSourceA - the FeatureSource<SimpleFeatureType, SimpleFeature> to pull the original geometries from. This geometry is the one that is tested for overlaping with the other
-	 * @param featureSourceB - the FeatureSource<SimpleFeatureType, SimpleFeature> to pull the other geometries from - these geometries will be those that may overlap the first geometry
+	 * @param featureSourceA - the SimpleFeatureSource to pull the original geometries from. This geometry is the one that is tested for overlaping with the other
+	 * @param featureSourceB - the SimpleFeatureSource to pull the other geometries from - these geometries will be those that may overlap the first geometry
 	 * @param expected - boolean value representing the user's expected outcome of the test
 	 * @param results - ValidationResults
 	 * @param bBox - Envelope - the bounding box within which to perform the overlaps() and contains()
 	 * @return boolean result of the test
 	 * @throws Exception - IOException if iterators improperly closed
 	 */
-	private boolean validateMultipleLayers(	FeatureSource<SimpleFeatureType, SimpleFeature> featureSourceA, 
-											FeatureSource<SimpleFeatureType, SimpleFeature> featureSourceB, 
+	private boolean validateMultipleLayers(	SimpleFeatureSource featureSourceA, 
+											SimpleFeatureSource featureSourceB, 
 											boolean expected, 
 											ValidationResults results, 
 											ReferencedEnvelope bBox) 
@@ -173,11 +172,11 @@ public class OverlapsIntegrity extends RelationIntegrity
 		
 		Filter filter = filterBBox(bBox, ft);
 
-		//FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = featureSourceA.getFeatures(filter);
-		FeatureCollection<SimpleFeatureType, SimpleFeature> collectionA = featureSourceA.getFeatures();
+		//SimpleFeatureCollection featureCollection = featureSourceA.getFeatures(filter);
+		SimpleFeatureCollection collectionA = featureSourceA.getFeatures();
 		
-		FeatureIterator<SimpleFeature> fr1 = null;
-		FeatureIterator<SimpleFeature> fr2 = null;
+		SimpleFeatureIterator fr1 = null;
+		SimpleFeatureIterator fr2 = null;
 		try 
 		{
 			fr1 = collectionA.features();
@@ -193,7 +192,7 @@ public class OverlapsIntegrity extends RelationIntegrity
 				Geometry g1 = (Geometry)f1.getDefaultGeometry();
 				Filter filter2 = filterBBox(ReferencedEnvelope.reference(g1.getEnvelope().getEnvelopeInternal()), ft);
 
-				FeatureCollection<SimpleFeatureType, SimpleFeature> collectionB = featureSourceB.getFeatures(filter2);
+				SimpleFeatureCollection collectionB = featureSourceB.getFeatures(filter2);
 				
 				fr2 = collectionB.features();
 				try 
@@ -251,23 +250,23 @@ public class OverlapsIntegrity extends RelationIntegrity
 	 * 
 	 * <b>Description:</b><br>
 	 * <p>
-	 * The function filters the FeatureSource<SimpleFeatureType, SimpleFeature> using the given bounding box.
+	 * The function filters the SimpleFeatureSource using the given bounding box.
 	 * It creates iterators over the filtered FeatureSource. It calls overlaps() and contains() using the
-	 * geometries in the FeatureSource<SimpleFeatureType, SimpleFeature> layer. Tests the results of the method calls against
+	 * geometries in the SimpleFeatureSource layer. Tests the results of the method calls against
 	 * the given expected results. Returns true if the returned results and the expected results 
 	 * are true, false otherwise.
 	 * 
 	 * </p>	 * 
 	 * Author: bowens<br>
 	 * Created on: Apr 27, 2004<br>
-	 * @param featureSourceA - the FeatureSource<SimpleFeatureType, SimpleFeature> to pull the original geometries from. This geometry is the one that is tested for overlapping itself
+	 * @param featureSourceA - the SimpleFeatureSource to pull the original geometries from. This geometry is the one that is tested for overlapping itself
 	 * @param expected - boolean value representing the user's expected outcome of the test
 	 * @param results - ValidationResults
 	 * @param bBox - Envelope - the bounding box within which to perform the overlaps() and contains()
 	 * @return boolean result of the test
 	 * @throws Exception - IOException if iterators improperly closed
 	 */
-	private boolean validateSingleLayer(FeatureSource<SimpleFeatureType, SimpleFeature> featureSourceA, 
+	private boolean validateSingleLayer(SimpleFeatureSource featureSourceA, 
 										boolean expected, 
 										ValidationResults results, 
 										ReferencedEnvelope bBox) 
@@ -283,7 +282,7 @@ public class OverlapsIntegrity extends RelationIntegrity
 		
 		System.out.println("---------------- In Overlaps Integrity ----------------");
 
-		FeatureCollection<SimpleFeatureType, SimpleFeature> collectionA = null;
+		SimpleFeatureCollection collectionA = null;
 		
 		if(bBox != null && !bBox.isNull() && bBox.getHeight() != 0.0 && bBox.getWidth() != 0.0)
 		{
@@ -293,8 +292,8 @@ public class OverlapsIntegrity extends RelationIntegrity
 		else
 			collectionA = featureSourceA.getFeatures();
 		
-		FeatureIterator<SimpleFeature> fr1 = null;
-		FeatureIterator<SimpleFeature> fr2 = null;
+		SimpleFeatureIterator fr1 = null;
+		SimpleFeatureIterator fr2 = null;
 		try 
 		{
 			fr1 = collectionA.features();
@@ -309,7 +308,7 @@ public class OverlapsIntegrity extends RelationIntegrity
 				Geometry g1 = (Geometry) f1.getDefaultGeometry();
 				Filter filter2 = filterBBox(ReferencedEnvelope.reference(g1.getEnvelope().getEnvelopeInternal()), ft);
 
-				FeatureCollection<SimpleFeatureType, SimpleFeature> collectionB = featureSourceA.getFeatures(filter2);
+				SimpleFeatureCollection collectionB = featureSourceA.getFeatures(filter2);
 				
 				fr2 = collectionB.features();
 				try 

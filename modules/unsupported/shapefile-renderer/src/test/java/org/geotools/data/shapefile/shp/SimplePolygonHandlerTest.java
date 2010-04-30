@@ -37,7 +37,6 @@ import org.geotools.renderer.shape.SimpleGeometry;
 import org.geotools.test.TestData;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.MathTransform2D;
 
 import com.vividsolutions.jts.geom.Envelope;
 

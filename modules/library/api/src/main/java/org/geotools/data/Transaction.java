@@ -46,8 +46,8 @@ import java.util.Set;
  * Transaction t = new DefaultTransaction("handle");
  * t.putProperty( "hint", new Integer(7) );
  * try {
- *     FeatureStore<SimpleFeatureType, SimpleFeature> road = (FeatureStore<SimpleFeatureType, SimpleFeature>) store.getFeatureSource("road");
- *     FeatureStore river = (FeatureStore<SimpleFeatureType, SimpleFeature>) store.getFeatureSource("river");
+ *     SimpleFeatureStore road = (SimpleFeatureStore) store.getFeatureSource("road");
+ *     FeatureStore river = (SimpleFeatureStore) store.getFeatureSource("river");
  *
  *     road.setTransaction( t );
  *     river.setTransaction( t );
@@ -130,7 +130,7 @@ public interface Transaction {
      *
      * <p>
      * This may be used to provide hints to DataStore implementations, it
-     * operates as a blackboard for client, FeatureSource<SimpleFeatureType, SimpleFeature> communication.
+     * operates as a blackboard for client, SimpleFeatureSource communication.
      * </p>
      *
      * <p>
@@ -156,7 +156,7 @@ public interface Transaction {
     Set<String> getAuthorizations();
 
     /**
-     * Allows FeatureSource<SimpleFeatureType, SimpleFeature> to squirel away information( and callbacks ) for
+     * Allows SimpleFeatureSource to squirel away information( and callbacks ) for
      * later.
      *
      * <p>
@@ -296,7 +296,7 @@ public interface Transaction {
      * Provides a Transaction property for this Transasction.
      *
      * <p>
-     * All proceeding FeatureSource<SimpleFeatureType, SimpleFeature> (for FeatureReader/Writer) operations may
+     * All proceeding SimpleFeatureSource (for FeatureReader/Writer) operations may
      * make use of the provided property.
      * </p>
      */

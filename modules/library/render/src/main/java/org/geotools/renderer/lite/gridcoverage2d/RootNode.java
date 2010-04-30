@@ -18,7 +18,6 @@ package org.geotools.renderer.lite.gridcoverage2d;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Logger;
 
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.factory.Hints;
@@ -27,7 +26,6 @@ import org.geotools.renderer.i18n.Errors;
 import org.geotools.renderer.i18n.Vocabulary;
 import org.geotools.renderer.i18n.VocabularyKeys;
 import org.geotools.util.SimpleInternationalString;
-import org.geotools.util.logging.Logging;
 import org.opengis.util.InternationalString;
 
 /**

@@ -39,7 +39,6 @@ import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.EmptyFeatureReader;
 import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.FilteringFeatureReader;
 import org.geotools.data.LockingManager;
@@ -49,6 +48,7 @@ import org.geotools.data.ReTypeFeatureReader;
 import org.geotools.data.SchemaNotFoundException;
 import org.geotools.data.Transaction;
 import org.geotools.data.crs.ReprojectFeatureReader;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.data.view.DefaultView;
 import org.geotools.data.wfs.WFSDataStore;
 import org.geotools.data.wfs.WFSServiceInfo;
@@ -451,10 +451,10 @@ public final class WFS_1_1_0_DataStore implements WFSDataStore {
      * @see org.geotools.data.DataStore#getView(org.geotools.data.Query)
      * @see DefaultView
      */
-    public FeatureSource<SimpleFeatureType, SimpleFeature> getView(final Query query)
+    public SimpleFeatureSource getView(final Query query)
             throws IOException, SchemaException {
         final String typeName = query.getTypeName();
-        final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = this
+        final SimpleFeatureSource featureSource = this
                 .getFeatureSource(typeName);
         return new DefaultView(featureSource, query);
     }
@@ -501,7 +501,7 @@ public final class WFS_1_1_0_DataStore implements WFSDataStore {
     /**
      * @see org.geotools.data.DataAccess#getFeatureSource(org.opengis.feature.type.Name)
      */
-    public FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSource(Name typeName)
+    public SimpleFeatureSource getFeatureSource(Name typeName)
             throws IOException {
         Set<QName> featureTypeNames = wfs.getFeatureTypeNames();
 

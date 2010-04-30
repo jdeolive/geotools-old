@@ -16,27 +16,29 @@
  */
 package org.geotools.wfs;
 
-import net.opengis.wfs.WfsFactory;
-import org.eclipse.emf.ecore.EObject;
-import org.opengis.filter.FilterFactory2;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.NoSuchElementException;
+
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import net.opengis.wfs.WfsFactory;
+
+import org.eclipse.emf.ecore.EObject;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.xml.Binding;
 import org.geotools.xml.Configuration;
 import org.geotools.xml.test.XMLTestSupport;
+import org.opengis.filter.FilterFactory2;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 public abstract class WFSTestSupport extends XMLTestSupport {
     protected WfsFactory factory = WfsFactory.eINSTANCE;

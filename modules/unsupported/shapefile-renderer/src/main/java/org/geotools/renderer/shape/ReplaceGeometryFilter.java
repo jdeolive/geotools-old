@@ -16,6 +16,8 @@
  */
 package org.geotools.renderer.shape;
 
+import java.util.Iterator;
+
 import org.geotools.filter.AttributeExpression;
 import org.geotools.filter.BetweenFilter;
 import org.geotools.filter.CompareFilter;
@@ -31,7 +33,6 @@ import org.geotools.filter.LiteralExpression;
 import org.geotools.filter.LogicFilter;
 import org.geotools.filter.MathExpression;
 import org.geotools.filter.NullFilter;
-import java.util.Iterator;
 
 
 /**

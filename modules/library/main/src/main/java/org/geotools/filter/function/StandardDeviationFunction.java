@@ -19,16 +19,15 @@ package org.geotools.filter.function;
 import java.io.IOException;
 import java.util.logging.Level;
 
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.visitor.AverageVisitor;
 import org.geotools.feature.visitor.CalcResult;
 import org.geotools.feature.visitor.StandardDeviationVisitor;
 import org.geotools.util.NullProgressListener;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 /**
- * Breaks a FeatureCollection<SimpleFeatureType, SimpleFeature> into classes using the standard deviation classification method.
+ * Breaks a SimpleFeatureCollection into classes using the standard deviation classification method.
  * 
  * @author Cory Horner, Refractions Research Inc.
  * @source $URL$
@@ -43,7 +42,7 @@ public class StandardDeviationFunction extends ClassificationFunction {
         setName("StandardDeviation");
 	}
 
-	private Object calculate(FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection) {
+	private Object calculate(SimpleFeatureCollection featureCollection) {
         try {
             int classNum = getClasses();
     		// find the average
@@ -79,7 +78,7 @@ public class StandardDeviationFunction extends ClassificationFunction {
 		if (!(feature instanceof FeatureCollection)) {
 			return null;
 		}
-        return calculate((FeatureCollection<SimpleFeatureType, SimpleFeature>) feature);
+        return calculate((SimpleFeatureCollection) feature);
 	}
 
 	private Double getMin(int index, int numClasses, double average, double standardDeviation) {

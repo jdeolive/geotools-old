@@ -19,6 +19,7 @@ package org.geotools.graph.util.delaunay;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Vector;
+
 import org.geotools.filter.Expression;
 import org.geotools.graph.structure.Graph;
 import org.geotools.graph.structure.basic.BasicGraph;

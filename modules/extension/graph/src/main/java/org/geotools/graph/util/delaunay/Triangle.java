@@ -16,16 +16,18 @@
  */
 package org.geotools.graph.util.delaunay;
 
+import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
+
+import org.geotools.graph.structure.Edge;
+import org.geotools.graph.structure.Node;
+import org.geotools.graph.structure.line.XYNode;
+
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
-import java.awt.geom.Line2D;
-import java.awt.geom.Point2D;
-import org.geotools.graph.structure.Edge;
-import org.geotools.graph.structure.Node;
-import org.geotools.graph.structure.line.XYNode;
 
 /**
  *

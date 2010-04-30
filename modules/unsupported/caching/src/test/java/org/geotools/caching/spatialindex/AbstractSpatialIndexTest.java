@@ -16,12 +16,12 @@
  */
 package org.geotools.caching.spatialindex;
 
-import junit.framework.TestCase;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Random;
 import java.util.Set;
+
+import junit.framework.TestCase;
 
 
 /** A common test framework for spatial indexes.

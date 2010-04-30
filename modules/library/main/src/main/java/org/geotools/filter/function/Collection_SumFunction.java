@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.geotools.feature.FeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.visitor.CalcResult;
 import org.geotools.feature.visitor.SumVisitor;
 import org.geotools.filter.AttributeExpression;
@@ -33,8 +33,6 @@ import org.geotools.filter.FunctionExpression;
 import org.geotools.filter.FunctionExpressionImpl;
 import org.geotools.filter.IllegalFilterException;
 import org.geotools.filter.visitor.AbstractFilterVisitor;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 
 /**
@@ -50,7 +48,7 @@ public class Collection_SumFunction extends FunctionExpressionImpl
     /** The logger for the filter module. */
     private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger(
             "org.geotools.filter.function");
-    FeatureCollection<SimpleFeatureType, SimpleFeature> previousFeatureCollection = null;
+    SimpleFeatureCollection previousFeatureCollection = null;
     Object sum = null;
 
     /**
@@ -75,7 +73,7 @@ public class Collection_SumFunction extends FunctionExpressionImpl
      * @throws IllegalFilterException
      * @throws IOException 
      */
-    static CalcResult calculateSum(FeatureCollection<SimpleFeatureType, SimpleFeature> collection,
+    static CalcResult calculateSum(SimpleFeatureCollection collection,
         Expression expression) throws IllegalFilterException, IOException {
         SumVisitor sumVisitor = new SumVisitor(expression);
         collection.accepts(sumVisitor, null);
@@ -129,7 +127,7 @@ public class Collection_SumFunction extends FunctionExpressionImpl
 		if (feature == null) {
 			return new Integer(0); // no features were visited in the making of this answer
 		}
-		FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = (FeatureCollection<SimpleFeatureType, SimpleFeature>) feature;
+		SimpleFeatureCollection featureCollection = (SimpleFeatureCollection) feature;
                 Expression expr = (Expression) getExpression(0);
 		synchronized (featureCollection) {
 			if (featureCollection != previousFeatureCollection) {

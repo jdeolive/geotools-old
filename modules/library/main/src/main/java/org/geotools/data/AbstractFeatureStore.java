@@ -17,13 +17,13 @@
 package org.geotools.data;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.IllegalAttributeException;
 import org.opengis.feature.simple.SimpleFeature;
@@ -40,8 +40,8 @@ import org.opengis.filter.identity.FeatureId;
  * @source $URL$
  */
 public abstract class AbstractFeatureStore extends AbstractFeatureSource
-    implements FeatureStore<SimpleFeatureType, SimpleFeature> {
-    /** Current Transaction this FeatureSource<SimpleFeatureType, SimpleFeature> is opperating against */
+    implements SimpleFeatureStore {
+    /** Current Transaction this SimpleFeatureSource is opperating against */
     protected Transaction transaction = Transaction.AUTO_COMMIT;
     
     public AbstractFeatureStore() {
@@ -57,9 +57,9 @@ public abstract class AbstractFeatureStore extends AbstractFeatureSource
     }
 
     /**
-     * Retrieve the Transaction this FeatureSource<SimpleFeatureType, SimpleFeature> is opperating against.
+     * Retrieve the Transaction this SimpleFeatureSource is opperating against.
      *
-     * @return Transaction FeatureSource<SimpleFeatureType, SimpleFeature> is operating against
+     * @return Transaction SimpleFeatureSource is operating against
      */
     public Transaction getTransaction() {
         return transaction;
@@ -245,7 +245,7 @@ public abstract class AbstractFeatureStore extends AbstractFeatureSource
         return addedFids;
     }
 
-    public List<FeatureId> addFeatures(FeatureCollection<SimpleFeatureType, SimpleFeature> collection)
+    public List<FeatureId> addFeatures(FeatureCollection<SimpleFeatureType,SimpleFeature> collection)
             throws IOException {
     	List<FeatureId> addedFids = new LinkedList<FeatureId>();
         String typeName = getSchema().getTypeName();

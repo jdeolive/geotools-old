@@ -23,7 +23,6 @@ import org.geotools.factory.GeoTools;
 import org.geotools.filter.IllegalFilterException;
 import org.opengis.filter.And;
 import org.opengis.filter.Filter;
-import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.Not;
 import org.opengis.filter.PropertyIsGreaterThan;
 import org.opengis.filter.PropertyIsLessThan;

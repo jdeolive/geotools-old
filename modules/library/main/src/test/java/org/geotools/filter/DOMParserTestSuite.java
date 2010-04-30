@@ -36,6 +36,7 @@ import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.test.TestData;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.filter.Filter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -44,7 +45,6 @@ import org.w3c.dom.NodeList;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
-import org.opengis.filter.Filter;
 
 public class DOMParserTestSuite extends TestSuite {
     

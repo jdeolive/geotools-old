@@ -20,7 +20,9 @@ import java.io.IOException;
 
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.feature.SchemaException;
 
 
@@ -132,11 +134,11 @@ public interface DataStore extends DataAccess<SimpleFeatureType, SimpleFeature>{
     SimpleFeatureType getSchema(String typeName) throws IOException;
 
     /**
-     * Access a FeatureSource<SimpleFeatureType, SimpleFeature> for Query providing a high-level API.
+     * Access a SimpleFeatureSource for Query providing a high-level API.
      * <p>
      * The provided Query does not need to completely cover the existing
      * schema for Query.getTypeName(). The result will mostly likely only be
-     * a FeatureSource<SimpleFeatureType, SimpleFeature> and probably wont' allow write access by the
+     * a SimpleFeatureSource and probably wont' allow write access by the
      * FeatureStore method.
      * </p>
      * <p>
@@ -154,25 +156,25 @@ public interface DataStore extends DataAccess<SimpleFeatureType, SimpleFeature>{
      * </p>
      * @param query Query.getTypeName() locates FeatureType being viewed
      *
-     * @return FeatureSource<SimpleFeatureType, SimpleFeature> providing operations for featureType
-     * @throws IOException If FeatureSource<SimpleFeatureType, SimpleFeature> is not available
+     * @return SimpleFeatureSource providing operations for featureType
+     * @throws IOException If SimpleFeatureSource is not available
      * @throws SchemaException If fetureType is not covered by existing schema
      */
-    FeatureSource<SimpleFeatureType, SimpleFeature> getView(Query query) throws IOException,
+    SimpleFeatureSource getView(Query query) throws IOException,
             SchemaException;
 
     /**
-     * Access a FeatureSource<SimpleFeatureType, SimpleFeature> for typeName providing a high-level API.
+     * Access a SimpleFeatureSource for typeName providing a high-level API.
      *
      * <p>
-     * The resulting FeatureSource<SimpleFeatureType, SimpleFeature> may implment more functionality:
+     * The resulting SimpleFeatureSource may implment more functionality:
      * </p>
      * <pre><code>
      *
-     * FeatureSource<SimpleFeatureType, SimpleFeature> fsource = dataStore.getFeatureSource( "roads" );
+     * SimpleFeatureSource fsource = dataStore.getFeatureSource( "roads" );
      * FeatureStore fstore = null;
      * if( fsource instanceof FeatureLocking ){
-     *     fstore = (FeatureStore<SimpleFeatureType, SimpleFeature>) fs;
+     *     fstore = (SimpleFeatureStore) fs;
      * }
      * else {
      *     System.out.println("We do not have write access to roads");
@@ -182,10 +184,13 @@ public interface DataStore extends DataAccess<SimpleFeatureType, SimpleFeature>{
      *
      * @param typeName
      *
-     * @return FeatureSource<SimpleFeatureType, SimpleFeature> (or subclass) providing operations for typeName
+     * @return SimpleFeatureSource (or subclass) providing operations for typeName
      */
-    FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSource(String typeName)
+    SimpleFeatureSource getFeatureSource(String typeName)
             throws IOException;
+    
+    SimpleFeatureSource getFeatureSource(Name typeName) throws IOException;
+    
 
     /**
      * Access a FeatureReader providing access to Feature information.

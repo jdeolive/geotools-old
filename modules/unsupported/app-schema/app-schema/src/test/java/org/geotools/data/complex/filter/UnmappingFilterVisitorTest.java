@@ -19,9 +19,9 @@ package org.geotools.data.complex.filter;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.net.URL;
@@ -45,6 +45,7 @@ import org.geotools.data.complex.TestData;
 import org.geotools.data.complex.filter.XPath.Step;
 import org.geotools.data.complex.filter.XPath.StepList;
 import org.geotools.data.memory.MemoryDataStore;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.NameImpl;
@@ -146,6 +147,7 @@ public class UnmappingFilterVisitorTest {
      * @return
      * @throws Exception
      */
+    @SuppressWarnings("unchecked")
     private FeatureTypeMapping createSampleDerivedAttributeMappings() throws Exception {
         // create the target type
         FeatureTypeFactory tf = new FeatureTypeFactoryImpl();
@@ -179,7 +181,7 @@ public class UnmappingFilterVisitorTest {
         attMappings.add(new AttributeMapping(null, strConcat, XPath.steps(targetFeature,
                 "concatenated", namespaces)));
 
-        FeatureSource<SimpleFeatureType, SimpleFeature> simpleSource = mapping.getSource();
+        FeatureSource simpleSource = mapping.getSource();
         FeatureTypeMapping mapping = new FeatureTypeMapping(simpleSource, targetFeature,
                 attMappings, namespaces);
         return mapping;
@@ -197,7 +199,7 @@ public class UnmappingFilterVisitorTest {
         Filter unrolled = (Filter) fidFilter.accept(visitor, null);
         assertNotNull(unrolled);
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> results = mapping.getSource()
+        FeatureCollection<SimpleFeatureType,SimpleFeature> results = mapping.getSource()
                 .getFeatures(unrolled);
         assertEquals(1, getCount(results));
 
@@ -268,7 +270,7 @@ public class UnmappingFilterVisitorTest {
         }
         featureMapping.setIdentifierExpression(idExpression);
         this.visitor = new UnmappingFilterVisitor(this.mapping);
-        FeatureCollection<SimpleFeatureType, SimpleFeature> content = mapping.getSource()
+        FeatureCollection<SimpleFeatureType,SimpleFeature> content = mapping.getSource()
                 .getFeatures();
         Iterator iterator = content.iterator();
         Feature sourceFeature = (Feature) iterator.next();
@@ -279,7 +281,7 @@ public class UnmappingFilterVisitorTest {
         assertNotNull(unrolled);
         assertTrue(unrolled instanceof Id);
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> results = mapping.getSource()
+        FeatureCollection<SimpleFeatureType,SimpleFeature> results = mapping.getSource()
                 .getFeatures(unrolled);
         assertEquals(1, getCount(results));
         iterator = results.iterator();

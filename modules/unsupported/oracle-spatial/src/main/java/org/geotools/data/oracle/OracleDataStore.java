@@ -41,7 +41,6 @@ import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.DefaultTransaction;
 import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
 import org.geotools.data.jdbc.DefaultSQLBuilder;
@@ -59,6 +58,7 @@ import org.geotools.data.oracle.attributeio.SDOAttributeIO;
 import org.geotools.data.oracle.referencing.OracleAuthorityFactory;
 import org.geotools.data.oracle.sdo.GeometryConverter;
 import org.geotools.data.oracle.sdo.TT;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.feature.AttributeTypeBuilder;
 import org.geotools.feature.SchemaException;
 import org.geotools.filter.SQLEncoder;
@@ -433,7 +433,7 @@ public class OracleDataStore extends JDBCDataStore {
      *
      * @see org.geotools.data.DataStore#getFeatureSource(java.lang.String)
      */
-    public FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSource(String typeName) throws IOException {
+    public SimpleFeatureSource getFeatureSource(String typeName) throws IOException {
         if (!typeHandler.getFIDMapper(typeName).isVolatile()
                 || allowWriteOnVolatileFIDs) {
             if (getLockingManager() != null) {

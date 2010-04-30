@@ -1,15 +1,11 @@
 package org.geotools.filter;
 
-import static org.junit.Assert.*;
-
 import org.geotools.factory.CommonFactoryFinder;
 import org.junit.Test;
 import org.opengis.filter.And;
-import org.opengis.filter.FilterFactory;
 import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.PropertyIsNull;
 import org.opengis.filter.expression.Add;
-import org.opengis.filter.expression.Expression;
 import org.opengis.filter.spatial.Equals;
 
 

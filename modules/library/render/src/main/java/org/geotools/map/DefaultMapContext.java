@@ -29,6 +29,8 @@ import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.memory.CollectionSource;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.FactoryRegistryException;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.SchemaException;
@@ -40,18 +42,16 @@ import org.geotools.map.event.MapLayerListener;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.resources.coverage.FeatureUtilities;
+import org.geotools.styling.SLD;
 import org.geotools.styling.Style;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.feature.Feature;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 
 import com.vividsolutions.jts.geom.Envelope;
-import org.geotools.styling.SLD;
 
 /**
  * The default implementation of the {@linkplain org.geotools.map.MapContext}
@@ -296,7 +296,7 @@ public class DefaultMapContext implements MapContext {
      *
      * @param style a Style object to be used in rendering this layer. 
      */
-    public void addLayer(FeatureSource<SimpleFeatureType, SimpleFeature> featureSource, Style style) {
+    public void addLayer(FeatureSource featureSource, Style style) {
 
         checkCRS(featureSource);
         Style layerStyle = checkStyle(style, featureSource.getSchema());
@@ -318,7 +318,7 @@ public class DefaultMapContext implements MapContext {
     public void addLayer(CollectionSource source, Style style) {
         // JG: for later when feature source extends source
 //        if( source instanceof FeatureSource){
-//            addLayer( (FeatureSource<SimpleFeatureType, SimpleFeature>) source, style);
+//            addLayer( (SimpleFeatureSource) source, style);
 //        }
 
         this.addLayer(new DefaultMapLayer(source, style, ""));
@@ -389,7 +389,7 @@ public class DefaultMapContext implements MapContext {
      * @param collection the collection of features for the new layer
      * @param style a Style object to be used in rendering this layer
      */
-    public void addLayer(FeatureCollection<SimpleFeatureType, SimpleFeature> collection, Style style) {
+    public void addLayer(FeatureCollection collection, Style style) {
         Style layerStyle = checkStyle(style, collection.getSchema());
         this.addLayer(new DefaultMapLayer(collection, layerStyle, ""));
     }
@@ -405,7 +405,7 @@ public class DefaultMapContext implements MapContext {
      */
     public void addLayer(Collection collection, Style style) {
         if (collection instanceof FeatureCollection) {
-            this.addLayer(new DefaultMapLayer((FeatureCollection<SimpleFeatureType, SimpleFeature>) collection, style, ""));
+            this.addLayer(new DefaultMapLayer((SimpleFeatureCollection) collection, style, ""));
             return;
         }
         this.addLayer(new DefaultMapLayer(collection, style, ""));
@@ -469,7 +469,7 @@ public class DefaultMapContext implements MapContext {
      * @return the input Style object if not {@code null}, or a Style instance
      *         for a default style
      */
-    private Style checkStyle(Style style, SimpleFeatureType featureType) {
+    private Style checkStyle(Style style, FeatureType featureType) {
         if (style != null) {
             return style;
         }
@@ -680,7 +680,7 @@ public class DefaultMapContext implements MapContext {
 
         final int length = layerList.size();
         MapLayer layer;
-        FeatureSource<SimpleFeatureType, SimpleFeature> fs;
+        SimpleFeatureSource fs;
         ReferencedEnvelope env;
         CoordinateReferenceSystem sourceCrs;
 

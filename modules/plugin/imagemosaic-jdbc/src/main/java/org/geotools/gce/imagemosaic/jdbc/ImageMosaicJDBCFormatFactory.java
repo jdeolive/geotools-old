@@ -20,7 +20,6 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.geotools.coverage.grid.io.GridFormatFactorySpi;
-import org.opengis.coverage.grid.Format;
 
 /**
  * Implementation of the GridCoverageFormat service provider interface for

@@ -15,17 +15,15 @@ import java.util.Map;
 
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
-import org.geotools.data.FeatureSource;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.GeoTools;
-import org.geotools.feature.FeatureCollection;
 import org.geotools.swing.ProgressWindow;
+import org.geotools.swing.data.JFileDataStoreChooser;
 import org.opengis.feature.Feature;
 import org.opengis.feature.FeatureVisitor;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 import com.vividsolutions.jts.geom.Geometry;
-import org.geotools.swing.data.JFileDataStoreChooser;
 
 /**
  * How to Read a Shapefile.
@@ -63,8 +61,8 @@ public class ShapefileRead {
 
 		System.out.println("Reading content " + typeName);
 
-		FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = dataStore.getFeatureSource(typeName);
-		FeatureCollection<SimpleFeatureType, SimpleFeature> collection = featureSource.getFeatures();
+		SimpleFeatureSource featureSource = dataStore.getFeatureSource(typeName);
+		SimpleFeatureCollection collection = featureSource.getFeatures();
 		
 		class DistanceVisitor implements FeatureVisitor {
 			int length =0;

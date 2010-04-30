@@ -10,19 +10,11 @@
 package org.geotools.demo.xml;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringBufferInputStream;
 import java.io.StringReader;
 
-import org.geotools.filter.FilterFilter;
-import org.geotools.filter.FilterHandler;
 import org.geotools.gml.GMLFilterDocument;
 import org.geotools.gml.GMLFilterGeometry;
-import org.geotools.gml.GMLHandlerGeometry;
 import org.geotools.gml.GMLHandlerJTS;
-import org.opengis.filter.Filter;
-import org.xml.sax.Attributes;
-import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;

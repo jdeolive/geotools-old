@@ -17,15 +17,15 @@
 package org.geotools.feature.collection;
 
 import java.util.NoSuchElementException;
+
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
-import org.geotools.feature.FeatureCollection;
 
 
 /**
  * Access Feature content using Feature "Id".
  * <p>
- * Many FeatureCollection<SimpleFeatureType, SimpleFeature> classes will make use of this
+ * Many SimpleFeatureCollection classes will make use of this
  * API to avoid unnecessary caching of content. Supporting
  * this interface will allow SubCollections to occur based
  * on FeatureIds, with a suitable improvement in memory
@@ -39,7 +39,7 @@ import org.geotools.feature.FeatureCollection;
  * @author Jody Garnett, Refractions Research Inc.
  * @source $URL$
  */
-public interface RandomFeatureAccess extends FeatureCollection<SimpleFeatureType, SimpleFeature> {
+public interface RandomFeatureAccess extends SimpleFeatureCollection {
     /**
      * Access Feature content by feature id.
      *

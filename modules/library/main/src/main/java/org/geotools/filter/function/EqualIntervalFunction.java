@@ -22,14 +22,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.visitor.MaxVisitor;
 import org.geotools.feature.visitor.MinVisitor;
 import org.geotools.feature.visitor.UniqueVisitor;
 import org.geotools.filter.IllegalFilterException;
 import org.geotools.util.NullProgressListener;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 
 /**
@@ -46,7 +45,7 @@ public class EqualIntervalFunction extends ClassificationFunction {
         setName("EqualInterval");
     }
 
-    private RangedClassifier calculate(FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection) {
+    private RangedClassifier calculate(SimpleFeatureCollection featureCollection) {
         int classNum = getClasses();
         Comparable globalMin;
         Comparable globalMax;
@@ -68,10 +67,10 @@ public class EqualIntervalFunction extends ClassificationFunction {
                 return calculateNonNumerical(classNum, featureCollection);
 			}
         } catch (IllegalFilterException e) { // accepts exploded
-            LOGGER.log(Level.SEVERE, "EqualIntervalFunction calculate(FeatureCollection<SimpleFeatureType, SimpleFeature>) failed", e);
+            LOGGER.log(Level.SEVERE, "EqualIntervalFunction calculate(SimpleFeatureCollection) failed", e);
             return null;
         } catch (IOException e) { // getResult().getValue() exploded
-            LOGGER.log(Level.SEVERE, "EqualIntervalFunction calculate(FeatureCollection<SimpleFeatureType, SimpleFeature>) failed", e);
+            LOGGER.log(Level.SEVERE, "EqualIntervalFunction calculate(SimpleFeatureCollection) failed", e);
             return null;
         }
 
@@ -111,7 +110,7 @@ public class EqualIntervalFunction extends ClassificationFunction {
         return new RangedClassifier(localMin, localMax);
     }
     
-    private RangedClassifier calculateNonNumerical(int classNum, FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection) throws IOException {
+    private RangedClassifier calculateNonNumerical(int classNum, SimpleFeatureCollection featureCollection) throws IOException {
         //obtain of list of unique values, so we can enumerate
         UniqueVisitor uniqueVisit = new UniqueVisitor(getExpression());
         featureCollection.accepts(uniqueVisit, new NullProgressListener());
@@ -170,7 +169,7 @@ public class EqualIntervalFunction extends ClassificationFunction {
         if (!(object instanceof FeatureCollection)) {
             return null;
         }
-        return calculate((FeatureCollection<SimpleFeatureType, SimpleFeature>) object);
+        return calculate((SimpleFeatureCollection) object);
     }
 
     public int getArgCount() {

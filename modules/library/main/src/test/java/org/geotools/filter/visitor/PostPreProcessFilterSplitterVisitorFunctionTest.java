@@ -18,12 +18,12 @@ package org.geotools.filter.visitor;
 
 import java.util.Arrays;
 
-import org.opengis.filter.Filter;
-import org.opengis.filter.PropertyIsEqualTo;
-import org.opengis.filter.expression.Expression;
 import org.geotools.filter.FilterCapabilities;
 import org.geotools.filter.function.FilterFunction_geometryType;
 import org.geotools.filter.function.math.FilterFunction_abs;
+import org.opengis.filter.Filter;
+import org.opengis.filter.PropertyIsEqualTo;
+import org.opengis.filter.expression.Expression;
 
 /**
  * Test case where only specific functions are supported.

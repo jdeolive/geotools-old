@@ -6,10 +6,9 @@ import static java.awt.RenderingHints.VALUE_ANTIALIAS_ON;
 import java.awt.Font;
 import java.awt.RenderingHints;
 import java.io.File;
-import java.util.Collections;
 
-import org.geotools.data.FeatureSource;
 import org.geotools.data.property.PropertyDataStore;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
@@ -18,13 +17,11 @@ import org.geotools.styling.Style;
 import org.geotools.test.TestData;
 import org.junit.Before;
 import org.junit.Test;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 public class FillTest {
     private static final long TIME = 20000;
-    FeatureSource<SimpleFeatureType, SimpleFeature> fs;
-    FeatureSource<SimpleFeatureType, SimpleFeature> bfs;
+    SimpleFeatureSource fs;
+    SimpleFeatureSource bfs;
     ReferencedEnvelope bounds;
 
     @Before

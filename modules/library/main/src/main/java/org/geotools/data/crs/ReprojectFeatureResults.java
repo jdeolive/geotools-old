@@ -20,8 +20,8 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.feature.FeatureTypes;
 import org.geotools.feature.SchemaException;
 import org.geotools.feature.collection.AbstractFeatureCollection;
@@ -70,7 +70,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * @version $Id$ TODO: handle the case where there is more than one geometry and the other geometries have a different CS than the default geometry
  */
 public class ReprojectFeatureResults extends AbstractFeatureCollection {
-    FeatureCollection<SimpleFeatureType, SimpleFeature> results;
+    SimpleFeatureCollection results;
     MathTransform transform;
 
     /**
@@ -89,7 +89,7 @@ public class ReprojectFeatureResults extends AbstractFeatureCollection {
      * @throws NullPointerException DOCUMENT ME!
      * @throws IllegalArgumentException
      */
-    public ReprojectFeatureResults(FeatureCollection<SimpleFeatureType, SimpleFeature> results,
+    public ReprojectFeatureResults(SimpleFeatureCollection results,
         CoordinateReferenceSystem destinationCS)
         throws IOException, SchemaException, TransformException, OperationNotFoundException, NoSuchElementException, FactoryException {
         
@@ -120,7 +120,7 @@ public class ReprojectFeatureResults extends AbstractFeatureCollection {
 	        return results.size();
 	    }
 
-    private static FeatureCollection<SimpleFeatureType, SimpleFeature> origionalCollection( FeatureCollection<SimpleFeatureType, SimpleFeature> results ){
+    private static SimpleFeatureCollection origionalCollection( SimpleFeatureCollection results ){
         while( true ){
             if ( results instanceof ReprojectFeatureResults ) {
                 results = ((ReprojectFeatureResults) results).getOrigin();
@@ -132,7 +132,7 @@ public class ReprojectFeatureResults extends AbstractFeatureCollection {
         }
         return results;
     }
-    private static SimpleFeatureType origionalType( FeatureCollection<SimpleFeatureType, SimpleFeature> results ){
+    private static SimpleFeatureType origionalType( SimpleFeatureCollection results ){
         while( true ){
             if ( results instanceof ReprojectFeatureResults ) {
                 results = ((ReprojectFeatureResults) results).getOrigin();
@@ -173,7 +173,7 @@ public class ReprojectFeatureResults extends AbstractFeatureCollection {
      * @see org.geotools.data.FeatureResults#getBounds()
      */
     public ReferencedEnvelope getBounds() {
-        FeatureIterator<SimpleFeature> r = features();
+        SimpleFeatureIterator r = features();
         try {            
             Envelope newBBox = new Envelope();
             Envelope internal;
@@ -197,33 +197,12 @@ public class ReprojectFeatureResults extends AbstractFeatureCollection {
         }
     }
 
-   
-    /**
-     * @see org.geotools.data.FeatureResults#collection()
-     *
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> collection() throws IOException {
-        FeatureCollection<SimpleFeatureType, SimpleFeature> collection = FeatureCollections.newCollection();
-
-        try {
-             FeatureReader<SimpleFeatureType, SimpleFeature> reader = reader();
-
-            while (reader.hasNext()) {
-                collection.add(reader.next());
-            }
-        } catch (NoSuchElementException e) {
-            throw new DataSourceException("This should not happen", e);
-        } catch (IllegalAttributeException e) {
-            throw new DataSourceException("This should not happen", e);
-        }
-
-        return collection;
-    }*/
 
     /**
      * Returns the feature results wrapped by this reprojecting feature results
      *
      */
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> getOrigin() {
+    public SimpleFeatureCollection getOrigin() {
         return results;
     }
 }

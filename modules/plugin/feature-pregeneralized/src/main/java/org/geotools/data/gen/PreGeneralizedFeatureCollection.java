@@ -23,6 +23,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.feature.CollectionListener;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
@@ -46,9 +48,9 @@ import org.opengis.util.ProgressListener;
  */
 
 public class PreGeneralizedFeatureCollection implements
-        FeatureCollection<SimpleFeatureType, SimpleFeature> {
+        SimpleFeatureCollection {
 
-    protected FeatureCollection<SimpleFeatureType, SimpleFeature> backendCollection;
+    protected SimpleFeatureCollection backendCollection;
 
     protected SimpleFeatureType featureType;
 
@@ -59,7 +61,7 @@ public class PreGeneralizedFeatureCollection implements
     List<CollectionListener> listeners = new ArrayList<CollectionListener>();
 
     public PreGeneralizedFeatureCollection(
-            FeatureCollection<SimpleFeatureType, SimpleFeature> backendCollection,
+            SimpleFeatureCollection backendCollection,
             SimpleFeatureType featureType, int[] indexMapping, String geomPropertyName,
             String backendGeomPropertyName) {
         super();
@@ -160,7 +162,7 @@ public class PreGeneralizedFeatureCollection implements
         return backendCollection.containsAll(searchColl);
     }
 
-    public FeatureIterator<SimpleFeature> features() {
+    public SimpleFeatureIterator features() {
         return new PreGeneralizedFeatureIterator(backendCollection.features(), featureType,
                 indexMapping, geomPropertyName, backendGeomPropertyName);
     }
@@ -232,8 +234,8 @@ public class PreGeneralizedFeatureCollection implements
         return backendCollection.size();
     }
 
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> sort(SortBy sortBy) {
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fColl = backendCollection.sort(sortBy);
+    public SimpleFeatureCollection sort(SortBy sortBy) {
+        SimpleFeatureCollection fColl = backendCollection.sort(sortBy);
         if (fColl == null)
             return null;
         return new PreGeneralizedFeatureCollection(fColl, featureType, indexMapping,
@@ -241,8 +243,8 @@ public class PreGeneralizedFeatureCollection implements
 
     }
 
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> subCollection(Filter filter) {
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fColl = backendCollection
+    public SimpleFeatureCollection subCollection(Filter filter) {
+        SimpleFeatureCollection fColl = backendCollection
                 .subCollection(filter);
         if (fColl == null)
             return null;

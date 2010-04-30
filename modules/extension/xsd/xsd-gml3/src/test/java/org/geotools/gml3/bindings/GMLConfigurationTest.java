@@ -18,18 +18,13 @@
 package org.geotools.gml3.bindings;
 
 import java.lang.reflect.Constructor;
-import java.util.List;
 import java.util.Map;
 
 import junit.framework.TestCase;
 
 import org.geotools.gml3.GML;
 import org.geotools.gml3.GMLConfiguration;
-import org.geotools.gml3.smil.SMIL20Configuration;
-import org.geotools.gml3.smil.SMIL20LANGConfiguration;
-import org.geotools.xlink.XLINKConfiguration;
 import org.geotools.xml.Binding;
-import org.geotools.xs.XSConfiguration;
 
 /**
  * Test {@link GMLConfiguration}.

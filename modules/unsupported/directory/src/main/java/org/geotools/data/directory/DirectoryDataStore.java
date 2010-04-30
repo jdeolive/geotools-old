@@ -29,13 +29,15 @@ import org.geotools.data.DataStore;
 import org.geotools.data.DefaultServiceInfo;
 import org.geotools.data.FeatureLocking;
 import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureStore;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.LockingManager;
 import org.geotools.data.Query;
 import org.geotools.data.ServiceInfo;
 import org.geotools.data.Transaction;
+import org.geotools.data.simple.SimpleFeatureLocking;
+import org.geotools.data.simple.SimpleFeatureSource;
+import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.feature.FeatureTypes;
 import org.geotools.feature.NameImpl;
 import org.geotools.feature.SchemaException;
@@ -59,15 +61,15 @@ public class DirectoryDataStore implements DataStore {
         return getDataStore(typeName).getFeatureReader(query, transaction);
     }
 
-    public FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSource(
+    public SimpleFeatureSource getFeatureSource(
             String typeName) throws IOException {
-        FeatureSource<SimpleFeatureType, SimpleFeature> fs = getDataStore(typeName).getFeatureSource(typeName);
-        if(fs instanceof FeatureLocking) {
-            return new DirectoryFeatureLocking((FeatureLocking<SimpleFeatureType, SimpleFeature>) fs, this);
+        SimpleFeatureSource fs = getDataStore(typeName).getFeatureSource(typeName);
+        if(fs instanceof SimpleFeatureLocking) {
+            return new DirectoryFeatureLocking((SimpleFeatureLocking) fs, this);
         } else if(fs instanceof FeatureStore) {
-            return new DirectoryFeatureStore((FeatureStore<SimpleFeatureType, SimpleFeature>) fs, this);
+            return new DirectoryFeatureStore((SimpleFeatureStore) fs, this);
         } else {
-            return new DirectoryFeatureSource((FeatureSource<SimpleFeatureType, SimpleFeature>) fs, this);
+            return new DirectoryFeatureSource((SimpleFeatureSource) fs, this);
         }
     }
 
@@ -103,7 +105,7 @@ public class DirectoryDataStore implements DataStore {
         return typeNames.toArray(new String[typeNames.size()]);
     }
 
-    public FeatureSource<SimpleFeatureType, SimpleFeature> getView(Query query)
+    public SimpleFeatureSource getView(Query query)
             throws IOException, SchemaException {
         String typeName = query.getTypeName();
         return getDataStore(typeName).getView(query);
@@ -134,7 +136,7 @@ public class DirectoryDataStore implements DataStore {
         cache.dispose();
     }
 
-    public FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSource(
+    public SimpleFeatureSource getFeatureSource(
             Name typeName) throws IOException {
         return getFeatureSource(typeName.getLocalPart());
     }

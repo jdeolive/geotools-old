@@ -20,17 +20,16 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.GeometryAttribute;
 import org.opengis.feature.Property;
+import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.Name;
-
-import com.vividsolutions.jts.geom.Geometry;
-import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.filter.identity.FeatureId;
 import org.opengis.geometry.BoundingBox;
+
+import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * Base class for feature decorators.

@@ -19,8 +19,8 @@ package org.geotools.caching;
 import org.geotools.caching.spatialindex.Data;
 import org.geotools.caching.spatialindex.Node;
 import org.geotools.caching.spatialindex.Visitor;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.DefaultFeatureCollection;
-import org.geotools.feature.FeatureCollection;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
@@ -32,7 +32,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
  * @source $URL$
  */
 public class FeatureCollectingVisitor implements Visitor {
-    FeatureCollection<SimpleFeatureType, SimpleFeature> fc;
+    SimpleFeatureCollection fc;
     int visited_nodes = 0;
 
     public FeatureCollectingVisitor(SimpleFeatureType type) {
@@ -53,7 +53,7 @@ public class FeatureCollectingVisitor implements Visitor {
     /**
      * @return the collection of features visited
      */
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> getCollection() {
+    public SimpleFeatureCollection getCollection() {
         return fc;
     }
 

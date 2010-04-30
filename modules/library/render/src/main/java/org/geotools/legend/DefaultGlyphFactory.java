@@ -21,7 +21,6 @@ import java.awt.Color;
 import javax.swing.Icon;
 
 import org.geotools.map.MapLayer;
-import org.geotools.styling.FeatureTypeStyle;
 import org.geotools.styling.Rule;
 import org.geotools.styling.SLD;
 import org.opengis.feature.simple.SimpleFeatureType;

@@ -26,7 +26,7 @@ import org.geotools.data.FeatureLockException;
 import org.geotools.data.FeatureLocking;
 import org.geotools.data.LockingManager;
 import org.geotools.data.Query;
-import org.geotools.feature.FeatureIterator;
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
@@ -155,7 +155,7 @@ public class JDBCFeatureLocking extends JDBCFeatureStore
 
         // Could we reduce the Query to only return the FetureID here?
         //
-        FeatureIterator<SimpleFeature> reader = getFeatures(query).features();
+        SimpleFeatureIterator reader = getFeatures(query).features();
         String typeName = query.getTypeName();
         SimpleFeature feature;
         int count = 0;
@@ -229,7 +229,7 @@ public class JDBCFeatureLocking extends JDBCFeatureStore
 
         // Could we reduce the Query to only return the FetureID here?
         //
-        FeatureIterator<SimpleFeature> reader = getFeatures(query).features();
+        SimpleFeatureIterator reader = getFeatures(query).features();
         String typeName = query.getTypeName();
         SimpleFeature feature;
 

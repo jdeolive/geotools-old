@@ -27,8 +27,6 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import com.vividsolutions.jts.geom.Envelope;
-
 
 /**
  * A FeatureWriter that captures modifications against a FeatureReader.
@@ -229,12 +227,12 @@ public abstract class DiffFeatureWriter implements FeatureWriter<SimpleFeatureTy
      * 
      * <p>
      * Notification requirements for modifications against a Transaction should
-     * only be issued to FeatureSource<SimpleFeatureType, SimpleFeature> instances that opperate against the
+     * only be issued to SimpleFeatureSource instances that opperate against the
      * same typeName and Transaction.
      * </p>
      * 
      * <p>
-     * Other FeatureSource<SimpleFeatureType, SimpleFeature> instances with the same typeName will be notified
+     * Other SimpleFeatureSource instances with the same typeName will be notified
      * when the Transaction is committed.
      * </p>
      *

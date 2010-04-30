@@ -27,8 +27,6 @@ import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.filter.DefaultExpression;
 import org.geotools.filter.Expression;
 import org.geotools.filter.ExpressionType;
-import org.geotools.filter.FilterFactory;
-import org.geotools.filter.FilterFactoryFinder;
 import org.geotools.filter.FunctionExpression;
 import org.geotools.filter.LiteralExpression;
 import org.geotools.util.ProgressListener;

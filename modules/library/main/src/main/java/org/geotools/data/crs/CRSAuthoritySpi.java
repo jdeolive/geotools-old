@@ -20,8 +20,8 @@ import java.io.IOException;
 import java.util.Set;
 
 import org.geotools.factory.Factory;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.CRSAuthorityFactory;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 /**
  * This is a marker used to allow CRSService to dynamically locate

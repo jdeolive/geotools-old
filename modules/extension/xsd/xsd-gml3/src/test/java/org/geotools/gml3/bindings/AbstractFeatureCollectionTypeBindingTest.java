@@ -18,12 +18,11 @@ package org.geotools.gml3.bindings;
 
 import java.util.Iterator;
 
-import org.geotools.feature.FeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.gml3.GML;
 import org.geotools.gml3.GML3TestSupport;
 import org.geotools.xml.Configuration;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.w3c.dom.Element;
 
 
@@ -51,7 +50,7 @@ public class AbstractFeatureCollectionTypeBindingTest extends GML3TestSupport {
         feature = GML3MockData.feature(document, featureMember);
         feature.setAttributeNS(GML.NAMESPACE, "id", "fid.2");
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = (FeatureCollection<SimpleFeatureType, SimpleFeature>) parse();
+        SimpleFeatureCollection fc = (SimpleFeatureCollection) parse();
         assertNotNull(fc);
 
         assertEquals(2, fc.size());
@@ -76,7 +75,7 @@ public class AbstractFeatureCollectionTypeBindingTest extends GML3TestSupport {
         feature = GML3MockData.feature(document, featureMember);
         feature.setAttributeNS(GML.NAMESPACE, "id", "fid.2");
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = (FeatureCollection<SimpleFeatureType, SimpleFeature>) parse();
+        SimpleFeatureCollection fc = (SimpleFeatureCollection) parse();
         assertNotNull(fc);
 
         assertEquals(2, fc.size());

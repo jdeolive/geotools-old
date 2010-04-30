@@ -50,11 +50,10 @@ import javax.media.jai.PlanarImage;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.data.DataUtilities;
-import org.geotools.data.FeatureSource;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 import com.sun.media.jai.codec.ByteArraySeekableStream;
 import com.sun.media.jai.codec.ImageCodec;
@@ -165,9 +164,9 @@ public class Import extends AbstractCmd {
 
 	private int commitCount = DefaultCommitCount;
 
-	private FeatureIterator<SimpleFeature> featureIterator;
+	private SimpleFeatureIterator featureIterator;
 
-	private FeatureCollection<SimpleFeatureType, SimpleFeature> featureColl;
+	private SimpleFeatureCollection featureColl;
 
 	private File imageFiles[];
 
@@ -677,7 +676,7 @@ public class Import extends AbstractCmd {
 		}
 	}
 
-	private FeatureIterator<SimpleFeature> getFeatureIterator()
+	private SimpleFeatureIterator getFeatureIterator()
 			throws IOException {
 		try {
 			Map<String, Object> map = new HashMap<String, Object>();
@@ -693,7 +692,7 @@ public class Import extends AbstractCmd {
 					: index;
 			String layerName = shapeFileUrl.getPath().substring(startIndex,
 					endIndex);
-			FeatureSource<SimpleFeatureType, SimpleFeature> contents = shapefile
+			SimpleFeatureSource contents = shapefile
 					.getFeatureSource(layerName);
 			featureColl = contents.getFeatures();
 			total = featureColl.size();

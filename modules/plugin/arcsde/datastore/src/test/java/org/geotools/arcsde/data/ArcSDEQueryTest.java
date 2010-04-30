@@ -35,12 +35,12 @@ import org.geotools.arcsde.data.versioning.AutoCommitVersionHandler;
 import org.geotools.arcsde.session.ISession;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
 import org.geotools.filter.text.cql2.CQL;
 import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -131,9 +131,9 @@ public class ArcSDEQueryTest {
         this.ftype = dstore.getSchema(typeName);
 
         // grab some fids
-        FeatureSource<SimpleFeatureType, SimpleFeature> source = dstore.getFeatureSource(typeName);
-        FeatureCollection<SimpleFeatureType, SimpleFeature> features = source.getFeatures();
-        FeatureIterator<SimpleFeature> iterator = features.features();
+        SimpleFeatureSource source = dstore.getFeatureSource(typeName);
+        SimpleFeatureCollection features = source.getFeatures();
+        SimpleFeatureIterator iterator = features.features();
         List fids = new ArrayList();
         for (int i = 0; i < FILTERING_COUNT; i++) {
             fids.add(ff.featureId(iterator.next().getID()));
@@ -343,9 +343,9 @@ public class ArcSDEQueryTest {
 
     @Test
     public void testCalculateResultCountAll() throws Exception {
-        FeatureCollection<SimpleFeatureType, SimpleFeature> features = dstore.getFeatureSource(
+        SimpleFeatureCollection features = dstore.getFeatureSource(
                 typeName).getFeatures();
-        FeatureIterator<SimpleFeature> reader = features.features();
+        SimpleFeatureIterator reader = features.features();
         int read = 0;
         try {
             while (reader.hasNext()) {
@@ -423,9 +423,9 @@ public class ArcSDEQueryTest {
     @Test
     public void testCalculateQueryExtent() throws Exception {
         {
-            FeatureCollection<SimpleFeatureType, SimpleFeature> features;
+            SimpleFeatureCollection features;
             features = dstore.getFeatureSource(typeName).getFeatures();
-            FeatureIterator<SimpleFeature> reader = features.features();
+            SimpleFeatureIterator reader = features.features();
             SimpleFeatureType featureType = features.getSchema();
             GeometryDescriptor defaultGeometry = featureType.getGeometryDescriptor();
             ReferencedEnvelope real = new ReferencedEnvelope(defaultGeometry

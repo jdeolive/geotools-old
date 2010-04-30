@@ -9,7 +9,6 @@
  */
 package org.geotools.demo;
 
-import java.io.File;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +22,6 @@ import org.geotools.data.wfs.WFSDataStoreFactory;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.map.MapContext;
 import org.geotools.swing.JMapFrame;
-import org.geotools.swing.data.JFileDataStoreChooser;
 
 /**
  * The following code examples supplement those provided in the Quickstart class.

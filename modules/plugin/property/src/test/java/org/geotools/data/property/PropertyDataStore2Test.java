@@ -23,10 +23,9 @@ import java.io.FileWriter;
 import junit.framework.TestCase;
 
 import org.geotools.data.DefaultQuery;
-import org.geotools.data.FeatureSource;
-import org.geotools.feature.FeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.referencing.CRS;
-import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.filter.Filter;
@@ -77,19 +76,19 @@ public class PropertyDataStore2Test extends TestCase {
 
  
     public void testSimple() throws Exception {
-        FeatureSource<SimpleFeatureType, SimpleFeature> road = store.getFeatureSource( "road" );
-        FeatureCollection<SimpleFeatureType, SimpleFeature> features = road.getFeatures();
+        SimpleFeatureSource road = store.getFeatureSource( "road" );
+        SimpleFeatureCollection features = road.getFeatures();
         
         //assertEquals( 1, features.getFeatureType().getAttributeCount() );
         assertEquals( 4, features.size() );
     }
     public void testQuery() throws Exception {
-        FeatureSource<SimpleFeatureType, SimpleFeature> road = store.getFeatureSource( "road" );
+        SimpleFeatureSource road = store.getFeatureSource( "road" );
                 
         DefaultQuery query = new DefaultQuery( "road", Filter.INCLUDE,
                 new String[]{ "name" } );
         
-        FeatureCollection<SimpleFeatureType, SimpleFeature> features = road.getFeatures( query );
+        SimpleFeatureCollection features = road.getFeatures( query );
         assertEquals( 4, features.size() );
         //assertEquals( 1, features.getFeatureType().getAttributeCount() );
     }
@@ -99,7 +98,7 @@ public class PropertyDataStore2Test extends TestCase {
         CoordinateReferenceSystem local = CRS.decode("EPSG:3005"); // british columbia
         
         
-        FeatureSource<SimpleFeatureType, SimpleFeature> road = store.getFeatureSource( "road" );
+        SimpleFeatureSource road = store.getFeatureSource( "road" );
         SimpleFeatureType origionalType = road.getSchema();
         
         DefaultQuery query = new DefaultQuery( "road", Filter.INCLUDE,
@@ -108,7 +107,7 @@ public class PropertyDataStore2Test extends TestCase {
         query.setCoordinateSystem( local ); // FROM
         query.setCoordinateSystemReproject( world ); // TO
                 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> features = road.getFeatures( query );
+        SimpleFeatureCollection features = road.getFeatures( query );
         SimpleFeatureType resultType = features.getSchema();
         
         

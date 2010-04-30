@@ -16,16 +16,17 @@
  */
 package org.geotools.data;
 
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.IllegalAttributeException;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.IllegalAttributeException;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
 
 
 /**
@@ -36,7 +37,7 @@ import java.util.NoSuchElementException;
  * @source $URL$
  */
 public class CollectionFeatureReader implements  FeatureReader<SimpleFeatureType, SimpleFeature> {
-    private FeatureCollection<SimpleFeatureType, SimpleFeature> collection;
+    private SimpleFeatureCollection collection;
     private Iterator features;
     private SimpleFeatureType type;
     private boolean closed = false;
@@ -51,7 +52,7 @@ public class CollectionFeatureReader implements  FeatureReader<SimpleFeatureType
         assert !featuresArg.isEmpty();
 
         if (featuresArg instanceof FeatureCollection) {
-            collection = (FeatureCollection<SimpleFeatureType, SimpleFeature>) featuresArg;
+            collection = (SimpleFeatureCollection) featuresArg;
         }
 
         this.features = featuresArg.iterator();
@@ -64,7 +65,7 @@ public class CollectionFeatureReader implements  FeatureReader<SimpleFeatureType
      * @param featuresArg a FeatureCollection.  <b>All features must be of the same FeatureType</b> 
      * @param typeArg the Feature type of of the features.
      */
-    public CollectionFeatureReader(FeatureCollection<SimpleFeatureType, SimpleFeature> featuresArg,
+    public CollectionFeatureReader(SimpleFeatureCollection featuresArg,
         SimpleFeatureType typeArg) {
         assert !featuresArg.isEmpty();
         collection = featuresArg;

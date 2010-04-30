@@ -22,12 +22,14 @@ import java.awt.FlowLayout;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ResourceBundle;
+
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
+
 import org.geotools.map.MapLayer;
 
 /**

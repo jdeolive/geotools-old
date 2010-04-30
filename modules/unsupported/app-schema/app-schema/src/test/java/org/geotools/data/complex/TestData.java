@@ -20,9 +20,9 @@ package org.geotools.data.complex;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.geotools.data.FeatureSource;
 import org.geotools.data.complex.filter.XPath;
 import org.geotools.data.memory.MemoryDataStore;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.TypeBuilder;
 import org.geotools.feature.Types;
@@ -254,7 +254,7 @@ public class TestData {
     public static FeatureTypeMapping createMappingsGroupByStation(MemoryDataStore simpleStore)
             throws Exception {
         Name sourceTypeName = WATERSAMPLE_TYPENAME;
-        final FeatureSource<SimpleFeatureType, SimpleFeature> wsSource = simpleStore.getFeatureSource(sourceTypeName);
+        final SimpleFeatureSource wsSource = simpleStore.getFeatureSource(sourceTypeName);
 
         FeatureType targetType = createComplexWaterQualityType();
         FeatureTypeFactory tf = new FeatureTypeFactoryImpl();

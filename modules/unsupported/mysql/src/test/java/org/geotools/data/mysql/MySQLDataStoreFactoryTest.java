@@ -16,19 +16,15 @@
  */
 package org.geotools.data.mysql;
 
+import java.util.Map;
+import java.util.Properties;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-import java.util.PropertyResourceBundle;
+
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataStore;
-import org.geotools.data.FeatureSource;
-import org.geotools.data.DataAccessFactory.Param;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 /**

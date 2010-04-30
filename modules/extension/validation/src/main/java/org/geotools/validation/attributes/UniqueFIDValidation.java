@@ -20,13 +20,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.geotools.data.FeatureSource;
-import org.geotools.feature.FeatureIterator;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.validation.DefaultIntegrityValidation;
 import org.geotools.validation.ValidationResults;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 
 /**
@@ -133,8 +132,8 @@ public class UniqueFIDValidation extends DefaultIntegrityValidation {
         //TODO: get the needed layers from the database and use them instead
         while (it.hasNext()) // for each layer
          {
-            FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = (FeatureSource<SimpleFeatureType, SimpleFeature>) it.next();
-            FeatureIterator<SimpleFeature> features = featureSource.getFeatures().features();
+            SimpleFeatureSource featureSource = (SimpleFeatureSource) it.next();
+            SimpleFeatureIterator features = featureSource.getFeatures().features();
 
             try {
                 while (features.hasNext()) // for each feature

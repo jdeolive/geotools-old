@@ -33,18 +33,15 @@ import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFactorySpi;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultQuery;
-import org.geotools.data.FeatureSource;
-import org.geotools.data.FeatureStore;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.Query;
 import org.geotools.data.QueryCapabilities;
 import org.geotools.data.Transaction;
-import org.geotools.data.postgis.PostgisNGDataStoreFactory;
-import org.geotools.data.postgis.PostgisNGJNDIDataStoreFactory;
-import org.geotools.data.store.ContentFeatureSource;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
+import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
-import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.SchemaException;
 import org.geotools.feature.collection.AbstractFeatureVisitor;
@@ -123,7 +120,7 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 
 	private String typeName;
 
-	private FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
+	private SimpleFeatureSource featureSource;
 
 	private String geometryPropertyName;
 
@@ -202,7 +199,7 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 		featureSource = tileIndexStore.getFeatureSource(typeName);
 		if (featureSource == null) 
 			throw new NullPointerException(
-					"The provided FeatureSource<SimpleFeatureType, SimpleFeature> is null, it's impossible to create an index!");
+					"The provided SimpleFeatureSource is null, it's impossible to create an index!");
 		bounds=featureSource.getBounds();
 		
 		
@@ -269,10 +266,10 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 			// check if the index has been cleared
 			checkStore();		
 			
-			FeatureStore<SimpleFeatureType, SimpleFeature> fs=null;
+			SimpleFeatureStore fs=null;
 			try{
 				// create a writer that appends this features
-				fs = (FeatureStore<SimpleFeatureType, SimpleFeature>) tileIndexStore.getFeatureSource(typeName);
+				fs = (SimpleFeatureStore) tileIndexStore.getFeatureSource(typeName);
 				final int retVal=fs.getCount(query);
 				fs.removeFeatures(query.getFilter());
 				
@@ -364,7 +361,7 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 	throws IOException {
 		Utils.ensureNonNull("q",q);
 
-		FeatureCollection<SimpleFeatureType, SimpleFeature> features=null;
+		SimpleFeatureCollection features=null;
 		final Lock lock=rwLock.readLock();
 		try{
 			lock.lock();		
@@ -378,7 +375,7 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 		
 			if (features == null) 
 				throw new NullPointerException(
-						"The provided FeatureCollection<SimpleFeatureType, SimpleFeature> is null, it's impossible to create an index!");
+						"The provided SimpleFeatureCollection is null, it's impossible to create an index!");
 	
 			if (LOGGER.isLoggable(Level.FINE))
 				LOGGER.fine("Index Loaded");
@@ -387,7 +384,7 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 			//load the feature from the shapefile and create JTS index
 			if (features.size()<=0) 
 				throw new IllegalArgumentException(
-						"The provided FeatureCollection<SimpleFeatureType, SimpleFeature>  is empty, it's impossible to create an index!");
+						"The provided SimpleFeatureCollection  is empty, it's impossible to create an index!");
 			
 			features.accepts( new AbstractFeatureVisitor(){
 			    public void visit( Feature feature ) {
@@ -415,7 +412,7 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 		Utils.ensureNonNull("q",q);
 
 		FeatureIterator<SimpleFeature> it=null;
-		FeatureCollection<SimpleFeatureType, SimpleFeature> features=null;
+		SimpleFeatureCollection features=null;
 		final Lock lock=rwLock.readLock();
 		try{
 			lock.lock();		
@@ -429,7 +426,7 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 		
 			if (features == null) 
 				throw new NullPointerException(
-						"The provided FeatureCollection<SimpleFeatureType, SimpleFeature> is null, it's impossible to create an index!");
+						"The provided SimpleFeatureCollection is null, it's impossible to create an index!");
 	
 			if (LOGGER.isLoggable(Level.FINE))
 				LOGGER.fine("Index Loaded");
@@ -439,7 +436,7 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 			it = features.features();
 			if (!it.hasNext()) 
 				throw new IllegalArgumentException(
-						"The provided FeatureCollection<SimpleFeatureType, SimpleFeature>  or empty, it's impossible to create an index!");
+						"The provided SimpleFeatureCollection  or empty, it's impossible to create an index!");
 			
 			// now build the index
 			// TODO make it configurable as far the index is involved
@@ -550,13 +547,13 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 		try{
 			lock.lock();
 			checkStore();
-			FeatureSource<SimpleFeatureType, SimpleFeature> fs = tileIndexStore.getFeatureSource(tileIndexStore.getTypeNames()[0]);
+			SimpleFeatureSource fs = tileIndexStore.getFeatureSource(tileIndexStore.getTypeNames()[0]);
 				
 			if(fs instanceof ContentFeatureSource)
 				((ContentFeatureSource)fs).accepts(query, function, null);
 			else
 			{
-				final FeatureCollection<SimpleFeatureType, SimpleFeature> collection = fs.getFeatures(query);
+				final SimpleFeatureCollection collection = fs.getFeatures(query);
 				collection.accepts(function, null);
 				
 			}

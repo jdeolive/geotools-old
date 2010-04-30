@@ -17,10 +17,8 @@
  */
 package org.geotools.filter.function;
 
-import org.geotools.filter.FunctionExpression;
 import org.geotools.filter.FunctionExpressionImpl;
 import org.opengis.feature.Attribute;
-import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
 
 /**

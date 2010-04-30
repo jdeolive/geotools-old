@@ -25,6 +25,8 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import org.geotools.data.FeatureReader;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureCollectionIteration;
 import org.geotools.feature.FeatureIterator;
@@ -56,7 +58,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * (hopefully) valid gml. This is a work in progress, so please be patient. A
  * simple example of how to use this class follows:
  * <pre>
- *    FeatureCollection<SimpleFeatureType, SimpleFeature> collection; // can also use FeatureReader!!
+ *    SimpleFeatureCollection collection; // can also use FeatureReader!!
  *   OutputStream out;
  *    FeatureTransformer ft = new FeatureTransformer();
  *    // set the indentation to 4 spaces
@@ -477,12 +479,12 @@ public class FeatureTransformer extends TransformerBase {
         public void encode(Object o) throws IllegalArgumentException {
             try {
                 if (o instanceof FeatureCollection) {
-                    FeatureCollection<SimpleFeatureType, SimpleFeature> fc = (FeatureCollection<SimpleFeatureType, SimpleFeature>) o;
+                    SimpleFeatureCollection fc = (SimpleFeatureCollection) o;
                     FeatureCollectionIteration.iteration(this, fc);
                 } else if (o instanceof FeatureCollection[]) {
                     //Did FeatureResult[] so that we are sure they're all the same type.
                     //Could also consider collections here...  
-                    FeatureCollection<SimpleFeatureType, SimpleFeature>[] results = (FeatureCollection[]) o;
+                    SimpleFeatureCollection[] results = (SimpleFeatureCollection[]) o;
                     startFeatureCollection();
                     if(collectionBounding) {
                         ReferencedEnvelope bounds = null;
@@ -546,7 +548,7 @@ public class FeatureTransformer extends TransformerBase {
             }
         }
 
-        public void handleFeatureIterator(FeatureIterator<SimpleFeature> iterator)
+        public void handleFeatureIterator(SimpleFeatureIterator iterator)
             throws IOException {
             try {
                 while (iterator.hasNext() && running) {
@@ -627,7 +629,7 @@ public class FeatureTransformer extends TransformerBase {
          *
          * @param collection DOCUMENT ME!
          */
-        public void handleFeatureCollection(FeatureCollection<SimpleFeatureType, SimpleFeature> collection) {
+        public void handleFeatureCollection(SimpleFeatureCollection collection) {
             startFeatureCollection();
             if(collectionBounding)
                 writeBounds(collection.getBounds());
@@ -687,7 +689,7 @@ public class FeatureTransformer extends TransformerBase {
          *
          * @param collection DOCUMENT ME!
          */
-        public void endFeatureCollection(FeatureCollection<SimpleFeatureType, SimpleFeature> collection) {
+        public void endFeatureCollection(SimpleFeatureCollection collection) {
             endFeatureCollection();
         }
 

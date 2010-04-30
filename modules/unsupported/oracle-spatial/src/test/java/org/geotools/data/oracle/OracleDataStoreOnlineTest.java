@@ -37,16 +37,16 @@ import org.geotools.data.DataStoreFinder;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureSource;
-import org.geotools.data.FeatureStore;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
 import org.geotools.data.jdbc.JDBCDataStoreConfig;
 import org.geotools.data.jdbc.fidmapper.MaxIncFIDMapper;
 import org.geotools.data.jdbc.fidmapper.TypedFIDMapper;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
+import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.filter.AbstractFilter;
 import org.geotools.filter.CompareFilter;
@@ -298,8 +298,8 @@ public class OracleDataStoreOnlineTest extends TestCase {
         DefaultQuery query = new DefaultQuery();
         query.setTypeName("ORA_TEST_POINTS");
         query.setMaxFeatures(3);
-        FeatureSource<SimpleFeatureType, SimpleFeature> fs = dstore.getFeatureSource("ORA_TEST_POINTS");        
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fr = fs.getFeatures(query);
+        SimpleFeatureSource fs = dstore.getFeatureSource("ORA_TEST_POINTS");        
+        SimpleFeatureCollection fr = fs.getFeatures(query);
         assertEquals(3, fr.size());
     }
 
@@ -311,8 +311,8 @@ public class OracleDataStoreOnlineTest extends TestCase {
         likeFilter.setPattern(pattern, "*", "?", "\\"); // '*' --> '%' 
         likeFilter.setValue(attr);
         
-        FeatureSource<SimpleFeatureType, SimpleFeature> fs = dstore.getFeatureSource("ORA_TEST_POINTS");
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fr = fs.getFeatures(likeFilter);
+        SimpleFeatureSource fs = dstore.getFeatureSource("ORA_TEST_POINTS");
+        SimpleFeatureCollection fr = fs.getFeatures(likeFilter);
         assertEquals(5, fr.size());
         
         pattern = filterFactory.createLiteralExpression("*5");
@@ -329,13 +329,13 @@ public class OracleDataStoreOnlineTest extends TestCase {
         attributeEquality.addLeftValue(attribute);
         attributeEquality.addRightValue(literal);
         
-        FeatureSource<SimpleFeatureType, SimpleFeature> fs = dstore.getFeatureSource("ORA_TEST_POINTS");
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fr = fs.getFeatures(attributeEquality);
+        SimpleFeatureSource fs = dstore.getFeatureSource("ORA_TEST_POINTS");
+        SimpleFeatureCollection fr = fs.getFeatures(attributeEquality);
         assertEquals(1, fr.size());
         
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = fr;
+        SimpleFeatureCollection fc = fr;
         assertEquals(1, fc.size());
-        final FeatureIterator<SimpleFeature> iterator = fc.features();
+        final SimpleFeatureIterator iterator = fc.features();
         SimpleFeature f = iterator.next();
         iterator.close();
         assertEquals("point 1", f.getAttribute("NAME"));
@@ -351,8 +351,8 @@ public class OracleDataStoreOnlineTest extends TestCase {
         filter.addLeftGeometry(left);
         filter.addRightGeometry(right);
         
-        FeatureSource<SimpleFeatureType, SimpleFeature> fs = dstore.getFeatureSource("ORA_TEST_POINTS");
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fr = fs.getFeatures(filter);        
+        SimpleFeatureSource fs = dstore.getFeatureSource("ORA_TEST_POINTS");
+        SimpleFeatureCollection fr = fs.getFeatures(filter);        
         assertEquals(5, fr.size()); // we pass this!
         
     	//                   + (20,30)
@@ -373,7 +373,7 @@ public class OracleDataStoreOnlineTest extends TestCase {
     
     public void testCaseInsensitiveFilter() throws Exception {
         final String typeName = "ORA_TEST_POINTS";
-        FeatureSource<SimpleFeatureType, SimpleFeature> rivers = dstore.getFeatureSource(typeName);
+        SimpleFeatureSource rivers = dstore.getFeatureSource(typeName);
         final Literal literal = filterFactory.literal("PoInT 1");
         final PropertyName property = filterFactory.property("NAME");
         org.opengis.filter.Filter caseSensitive = filterFactory.equal(property, literal, true);
@@ -391,8 +391,8 @@ public class OracleDataStoreOnlineTest extends TestCase {
         filter.addLeftGeometry(left);
         filter.addRightGeometry(right);
         
-        FeatureSource<SimpleFeatureType, SimpleFeature> fs = dstore.getFeatureSource("ORA_TEST_POINTS");
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fr = fs.getFeatures(filter);        
+        SimpleFeatureSource fs = dstore.getFeatureSource("ORA_TEST_POINTS");
+        SimpleFeatureCollection fr = fs.getFeatures(filter);        
         assertEquals(5, fr.size()); // we pass this!
         
         //                   + (20,30)
@@ -429,8 +429,8 @@ public class OracleDataStoreOnlineTest extends TestCase {
         filter.addLeftGeometry(left);
         filter.addRightGeometry(right);
         
-        FeatureSource<SimpleFeatureType, SimpleFeature> fs = dstore.getFeatureSource("ORA_TEST_POINTS");
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fr = fs.getFeatures(filter);
+        SimpleFeatureSource fs = dstore.getFeatureSource("ORA_TEST_POINTS");
+        SimpleFeatureCollection fr = fs.getFeatures(filter);
         assertEquals(3, fr.size()); // we have 4!
         
         // check a filter built changing operands order works the same
@@ -449,8 +449,8 @@ public class OracleDataStoreOnlineTest extends TestCase {
         filter.addRightValue(right);
         
         
-        FeatureSource<SimpleFeatureType, SimpleFeature> fs = dstore.getFeatureSource("ORA_TEST_POINTS");
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fr = fs.getFeatures(filter);        
+        SimpleFeatureSource fs = dstore.getFeatureSource("ORA_TEST_POINTS");
+        SimpleFeatureCollection fr = fs.getFeatures(filter);        
         assertEquals(1, fr.size());
         
         final Iterator iterator = fr.iterator();
@@ -479,7 +479,7 @@ public class OracleDataStoreOnlineTest extends TestCase {
         builder.add(point);
         SimpleFeature feature = builder.buildFeature("fid.1");
          
-        FeatureStore<SimpleFeatureType, SimpleFeature> fs = (FeatureStore<SimpleFeatureType, SimpleFeature>) dstore.getFeatureSource("ORA_TEST_POINTS");
+        SimpleFeatureStore fs = (SimpleFeatureStore) dstore.getFeatureSource("ORA_TEST_POINTS");
         fs.addFeatures(DataUtilities.collection(feature));
 
         // Select is directly from the DB
@@ -497,9 +497,9 @@ public class OracleDataStoreOnlineTest extends TestCase {
     
     public void testRemoveFeatures() throws Exception {
     	if( conn == null ) return;    	
-    	FeatureStore<SimpleFeatureType, SimpleFeature> fs = (FeatureStore<SimpleFeatureType, SimpleFeature>) dstore.getFeatureSource("ORA_TEST_POINTS");
+    	SimpleFeatureStore fs = (SimpleFeatureStore) dstore.getFeatureSource("ORA_TEST_POINTS");
         fs.removeFeatures(Filter.INCLUDE);
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fr = fs.getFeatures();
+        SimpleFeatureCollection fr = fs.getFeatures();
         assertEquals(0, fr.size());
     }
     

@@ -27,7 +27,6 @@ import java.util.logging.Logger;
 import org.geotools.feature.NameImpl;
 import org.geotools.util.SimpleInternationalString;
 import org.geotools.util.Utilities;
-
 import org.opengis.feature.type.Name;
 import org.opengis.filter.Id;
 import org.opengis.metadata.citation.OnLineResource;

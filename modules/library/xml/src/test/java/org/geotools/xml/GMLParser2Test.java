@@ -24,10 +24,10 @@ import java.util.logging.Level;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import junit.framework.TestCase;
+
 import org.geotools.test.TestData;
 import org.xml.sax.SAXException;
-
-import junit.framework.TestCase;
 
 
 /**

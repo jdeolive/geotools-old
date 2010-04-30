@@ -13,23 +13,23 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.measure.unit.Unit;
-import org.geotools.data.DataStore;
-import org.geotools.data.DataStoreFinder;
-import org.geotools.data.FeatureSource;
-import org.geotools.factory.GeoTools;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
-
-import com.vividsolutions.jts.geom.Geometry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.measure.unit.Unit;
 import javax.swing.JOptionPane;
+
+import org.geotools.data.DataStore;
+import org.geotools.data.DataStoreFinder;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
+import org.geotools.factory.GeoTools;
 import org.geotools.swing.data.JFileDataStoreChooser;
+import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+
+import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * The example code for the "FirstProject" in the GeoTools wiki.
@@ -107,13 +107,13 @@ public class FirstProject {
              * Iterate through the features, collecting some spatial data (line or boundary length)
              * on each one
              */
-            FeatureSource<SimpleFeatureType, SimpleFeature> featureSource =
+            SimpleFeatureSource featureSource =
                     dataStore.getFeatureSource(typeName);
 
-            FeatureCollection<SimpleFeatureType, SimpleFeature> collection =
+            SimpleFeatureCollection collection =
                     featureSource.getFeatures();
 
-            FeatureIterator<SimpleFeature> iterator = collection.features();
+            SimpleFeatureIterator iterator = collection.features();
 
             double totalLength = 0.0;
             try {

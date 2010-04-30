@@ -21,7 +21,9 @@ import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.util.ResourceBundle;
+
 import javax.swing.ImageIcon;
+
 import org.geotools.swing.event.MapMouseEvent;
 
 /**

@@ -27,10 +27,10 @@ import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.GridFormatFinder;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.FileDataStore;
 import org.geotools.data.FileDataStoreFinder;
 import org.geotools.data.Parameter;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.map.MapContext;
@@ -46,8 +46,6 @@ import org.geotools.swing.action.SafeAction;
 import org.geotools.swing.data.JParameterListWizard;
 import org.geotools.swing.wizard.JWizard;
 import org.geotools.util.KVP;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.FilterFactory2;
 import org.opengis.style.ContrastMethod;
 
@@ -111,7 +109,7 @@ public class ImageLab {
 
         // Connect to the shapefile
         FileDataStore dataStore = FileDataStoreFinder.getDataStore(shpFile);
-        FeatureSource<SimpleFeatureType, SimpleFeature> shapefileSource = dataStore
+        SimpleFeatureSource shapefileSource = dataStore
                 .getFeatureSource();
 
         // Create a basic style with yellow lines and no fill

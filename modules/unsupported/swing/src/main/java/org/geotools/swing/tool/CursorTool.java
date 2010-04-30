@@ -19,6 +19,7 @@ package org.geotools.swing.tool;
 
 import java.awt.Cursor;
 import java.util.ResourceBundle;
+
 import org.geotools.swing.JMapPane;
 import org.geotools.swing.event.MapMouseAdapter;
 

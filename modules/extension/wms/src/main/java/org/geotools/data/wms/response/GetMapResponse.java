@@ -21,7 +21,6 @@ import java.io.InputStream;
 
 import org.geotools.data.ows.Response;
 import org.geotools.ows.ServiceException;
-import org.xml.sax.SAXException;
 
 
 /**

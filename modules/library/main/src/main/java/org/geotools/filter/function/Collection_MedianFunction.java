@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.visitor.CalcResult;
 import org.geotools.feature.visitor.MedianVisitor;
@@ -34,8 +35,6 @@ import org.geotools.filter.FunctionExpressionImpl;
 import org.geotools.filter.IllegalFilterException;
 import org.geotools.filter.visitor.AbstractFilterVisitor;
 import org.opengis.feature.Feature;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.FeatureType;
 
 
@@ -132,7 +131,7 @@ public class Collection_MedianFunction extends FunctionExpressionImpl
 			return new Integer(0); // no features were visited in the making of this answer
 		}
                 Expression expr = (Expression) getExpression(0);
-		FeatureCollection<? extends FeatureType, ? extends Feature> featureCollection = (FeatureCollection<SimpleFeatureType, SimpleFeature>) feature;
+		FeatureCollection<? extends FeatureType, ? extends Feature> featureCollection = (SimpleFeatureCollection) feature;
 		synchronized (featureCollection) {
 			if (featureCollection != previousFeatureCollection) {
 				previousFeatureCollection = featureCollection;

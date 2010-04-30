@@ -32,7 +32,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
  * to work with a custom iterator need just that - a custom iterator.
  * <p>
  * <p>
- * The use of this class against a FeatureSource<SimpleFeatureType, SimpleFeature> not backed by
+ * The use of this class against a SimpleFeatureSource not backed by
  * a Transaction may *really* cut into performance. Consider if
  * you will the overhead involved in writing out each feature into
  * a temporary file (when the user may not even modify anything).

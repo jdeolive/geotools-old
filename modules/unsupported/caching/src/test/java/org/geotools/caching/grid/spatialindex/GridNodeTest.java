@@ -22,10 +22,6 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.geotools.caching.grid.spatialindex.GridSpatialIndex;
-import org.geotools.caching.grid.spatialindex.GridData;
-import org.geotools.caching.grid.spatialindex.GridNode;
-import org.geotools.caching.spatialindex.NodeIdentifier;
 import org.geotools.caching.spatialindex.Region;
 import org.geotools.caching.spatialindex.RegionNodeIdentifier;
 

@@ -16,21 +16,21 @@
  */
 package org.geotools.graph.util.delaunay;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Point;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Vector;
 import java.util.logging.Logger;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
+
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.graph.structure.Edge;
 import org.geotools.graph.structure.Graph;
 import org.geotools.graph.structure.Node;
 import org.geotools.graph.structure.basic.BasicGraph;
+import org.opengis.feature.simple.SimpleFeature;
+
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Point;
 
 /**
  *
@@ -105,8 +105,8 @@ public class AutoClustUtils {
         return ret;
     }
     
-    public static DelaunayNode[] featureCollectionToNodeArray(FeatureCollection<SimpleFeatureType, SimpleFeature> fc){
-        FeatureIterator<SimpleFeature> iter = fc.features();
+    public static DelaunayNode[] featureCollectionToNodeArray(SimpleFeatureCollection fc){
+        SimpleFeatureIterator iter = fc.features();
         int size = fc.size();
         DelaunayNode[] nodes = new DelaunayNode[size];
         int index = 0;

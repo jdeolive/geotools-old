@@ -25,9 +25,11 @@ import java.awt.image.Raster;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Random;
+
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.Timer;
+
 import org.geotools.data.FeatureSource;
 import org.geotools.data.FileDataStore;
 import org.geotools.data.FileDataStoreFinder;

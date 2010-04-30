@@ -25,12 +25,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.geotools.data.DefaultQuery;
-import org.geotools.data.FeatureStore;
 import org.geotools.data.Query;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureCollections;
-import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -55,7 +55,7 @@ public class FidQueryTest extends FIDTestCase {
             .getFilterFactory2(null);
     Map<String, SimpleFeature> fids = new HashMap<String, SimpleFeature>();
 
-    FeatureStore<SimpleFeatureType, SimpleFeature> featureStore;
+    SimpleFeatureStore featureStore;
 
     private int numFeatures;
 
@@ -67,9 +67,9 @@ public class FidQueryTest extends FIDTestCase {
         ds = new IndexedShapefileDataStore(url, null, false, true,
                 IndexType.QIX);
         numFeatures = 0;
-        featureStore = (FeatureStore<SimpleFeatureType, SimpleFeature>) ds.getFeatureSource();
+        featureStore = (SimpleFeatureStore) ds.getFeatureSource();
         {
-            FeatureIterator<SimpleFeature> features = featureStore.getFeatures().features();
+            SimpleFeatureIterator features = featureStore.getFeatures().features();
             try {
                 while (features.hasNext()) {
                     numFeatures++;
@@ -102,7 +102,7 @@ public class FidQueryTest extends FIDTestCase {
         build.add(new Long(0));
         build.add("Hey");
         SimpleFeature newFeature = build.buildFeature(null);
-        FeatureCollection<SimpleFeatureType, SimpleFeature> collection = FeatureCollections.newCollection();
+        SimpleFeatureCollection collection = FeatureCollections.newCollection();
         collection.add(newFeature);
 
         List<FeatureId> newFids = featureStore.addFeatures(collection);
@@ -115,7 +115,7 @@ public class FidQueryTest extends FIDTestCase {
         
         Filter filter = fac.id(Collections.singleton(id));
         query.setFilter(filter);
-        FeatureIterator<SimpleFeature> features = featureStore.getFeatures(query).features();
+        SimpleFeatureIterator features = featureStore.getFeatures(query).features();
         try {
             feature = features.next();
             for (int i = 0; i < schema.getAttributeCount(); i++) {
@@ -148,7 +148,7 @@ public class FidQueryTest extends FIDTestCase {
         featureStore.modifyFeatures(schema.getDescriptor("ID"), new Integer(
                 newId), createFidFilter);
 
-        FeatureIterator<SimpleFeature> features = featureStore.getFeatures(createFidFilter)
+        SimpleFeatureIterator features = featureStore.getFeatures(createFidFilter)
                 .features();
         try {
             assertFalse(feature.equals(features.next()));
@@ -162,7 +162,7 @@ public class FidQueryTest extends FIDTestCase {
     }
 
     public void testDeleteFeature() throws Exception {
-        FeatureIterator<SimpleFeature> features = featureStore.getFeatures().features();
+        SimpleFeatureIterator features = featureStore.getFeatures().features();
         SimpleFeature feature;
         try {
             feature = features.next();
@@ -192,7 +192,7 @@ public class FidQueryTest extends FIDTestCase {
     }
 
     public void testFIDBBoxQuery() throws Exception {
-        FeatureIterator<SimpleFeature> features = featureStore.getFeatures().features();
+        SimpleFeatureIterator features = featureStore.getFeatures().features();
         SimpleFeature feature;
         try {
             feature = features.next();
@@ -244,7 +244,7 @@ public class FidQueryTest extends FIDTestCase {
             FeatureId id = fac.featureId(fid);
             Filter filter = fac.id(Collections.singleton(id));
             query.setFilter(filter);
-            FeatureIterator<SimpleFeature> features = featureStore.getFeatures(query)
+            SimpleFeatureIterator features = featureStore.getFeatures(query)
                     .features();
             try {
                 SimpleFeature feature = features.next();

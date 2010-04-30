@@ -17,8 +17,6 @@
 package org.geotools.filter.function;
 
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.filter.Expression;
-import org.geotools.filter.FunctionExpression;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.filter.expression.Function;
 import org.opengis.filter.expression.Literal;

@@ -28,10 +28,10 @@ import org.geotools.data.DefaultTransaction;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.Transaction;
 import org.geotools.data.FeatureEvent.Type;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.AttributeTypeBuilder;
 import org.geotools.feature.DefaultFeatureCollection;
-import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -75,7 +75,7 @@ public abstract class JDBCFeatureStoreTest extends JDBCTestSupport {
         
         assertEquals(3, fids.size());
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> features = featureStore.getFeatures();
+        SimpleFeatureCollection features = featureStore.getFeatures();
         assertEquals(6, features.size());
 
         FilterFactory ff = dataStore.getFilterFactory();
@@ -153,7 +153,7 @@ public abstract class JDBCFeatureStoreTest extends JDBCTestSupport {
          FeatureReader<SimpleFeatureType, SimpleFeature> reader = new CollectionFeatureReader(collection, collection.getSchema());
         featureStore.setFeatures(reader);
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> features = featureStore.getFeatures();
+        SimpleFeatureCollection features = featureStore.getFeatures();
         assertEquals(3, features.size());
 
         Iterator iterator = features.iterator();
@@ -183,7 +183,7 @@ public abstract class JDBCFeatureStoreTest extends JDBCTestSupport {
         assertEquals( "Should be an update event", Type.CHANGED, watcher.type );
         assertEquals( Filter.INCLUDE, watcher.filter );
         
-        FeatureCollection<SimpleFeatureType, SimpleFeature> features = featureStore.getFeatures();
+        SimpleFeatureCollection features = featureStore.getFeatures();
         Iterator<SimpleFeature> i = features.iterator();
 
         assertTrue(i.hasNext());
@@ -203,7 +203,7 @@ public abstract class JDBCFeatureStoreTest extends JDBCTestSupport {
 		featureStore.modifyFeatures(new AttributeDescriptor[] { t.getDescriptor(aname("geometry")) },
             new Object[] { point }, Filter.INCLUDE);
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> features = featureStore.getFeatures();
+        SimpleFeatureCollection features = featureStore.getFeatures();
         Iterator i = features.iterator();
 
         assertTrue(i.hasNext());
@@ -231,7 +231,7 @@ public abstract class JDBCFeatureStoreTest extends JDBCTestSupport {
         featureStore.modifyFeatures(new AttributeDescriptor[] { madeUp },
             new Object[] { point }, Filter.INCLUDE);
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> features = featureStore.getFeatures();
+        SimpleFeatureCollection features = featureStore.getFeatures();
         Iterator i = features.iterator();
 
         assertTrue(i.hasNext());
@@ -248,7 +248,7 @@ public abstract class JDBCFeatureStoreTest extends JDBCTestSupport {
         SimpleFeatureType t = featureStore.getSchema();
         featureStore.modifyFeatures(t.getDescriptor(aname("stringProperty")), "foo" , Filter.INCLUDE);
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> features = featureStore.getFeatures();
+        SimpleFeatureCollection features = featureStore.getFeatures();
         Iterator i = features.iterator();
 
         assertTrue(i.hasNext());
@@ -279,7 +279,7 @@ public abstract class JDBCFeatureStoreTest extends JDBCTestSupport {
         FilterFactory ff = dataStore.getFilterFactory();
         Filter filter = ff.equals(ff.property(aname("intProperty")), ff.literal(1));
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> features = featureStore.getFeatures();
+        SimpleFeatureCollection features = featureStore.getFeatures();
         assertEquals(3, features.size());
 
         featureStore.removeFeatures(filter);

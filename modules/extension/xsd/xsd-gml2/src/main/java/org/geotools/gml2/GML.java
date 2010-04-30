@@ -16,14 +16,11 @@
  */
 package org.geotools.gml2;
 
-import java.io.IOException;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
 
-import org.eclipse.xsd.XSDSchema;
 import org.geotools.xlink.XLINK;
 import org.geotools.xml.XSD;
 import org.opengis.feature.type.Schema;

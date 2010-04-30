@@ -19,10 +19,10 @@
  */
 package org.geotools.data.shapefile.dbf;
 
-import java.io.IOException;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;

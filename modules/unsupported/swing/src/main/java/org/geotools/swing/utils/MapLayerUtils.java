@@ -17,6 +17,7 @@
 package org.geotools.swing.utils;
 
 import java.util.Collection;
+
 import org.geotools.map.MapLayer;
 import org.opengis.feature.type.PropertyDescriptor;
 

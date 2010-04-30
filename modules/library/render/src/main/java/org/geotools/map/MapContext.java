@@ -30,8 +30,6 @@ import org.geotools.map.event.MapBoundsListener;
 import org.geotools.map.event.MapLayerListListener;
 import org.geotools.styling.Style;
 import org.opengis.coverage.grid.GridCoverage;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
@@ -77,17 +75,17 @@ public interface MapContext {
      * Add a new layer and trigger a {@link LayerListEvent}.
      *
      * @param featureSource
-     *            a FeatureSource<SimpleFeatureType, SimpleFeature> with the new layer that will be added.
+     *            a SimpleFeatureSource with the new layer that will be added.
      */
-    void addLayer(FeatureSource<SimpleFeatureType, SimpleFeature> featureSource, Style style);
+    void addLayer(FeatureSource featureSource, Style style);
 
     /**
      * Add a new layer and trigger a {@link LayerListEvent}.
      *
      * @param collection
-     *            a FeatureCollection<SimpleFeatureType, SimpleFeature> with the new layer that will be added.
+     *            a SimpleFeatureCollection with the new layer that will be added.
      */
-    void addLayer(FeatureCollection<SimpleFeatureType, SimpleFeature> collection, Style style);
+    void addLayer(FeatureCollection collection, Style style);
 
     /**
      * Add a new layer and trigger a {@link LayerListEvent}.

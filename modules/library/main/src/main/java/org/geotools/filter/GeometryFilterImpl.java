@@ -21,7 +21,6 @@ import java.util.logging.Logger;
 import org.geotools.factory.CommonFactoryFinder;
 import org.opengis.feature.simple.SimpleFeature;
 
-
 import com.vividsolutions.jts.geom.Geometry;
 
 

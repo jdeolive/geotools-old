@@ -16,7 +16,7 @@
  */
 package org.geotools.renderer.crs;
 
-import static org.geotools.referencing.crs.DefaultGeographicCRS.*;
+import static org.geotools.referencing.crs.DefaultGeographicCRS.WGS84;
 
 import java.util.ArrayList;
 import java.util.Collections;

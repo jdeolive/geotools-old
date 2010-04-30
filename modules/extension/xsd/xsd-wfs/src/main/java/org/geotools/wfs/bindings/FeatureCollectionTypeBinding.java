@@ -24,6 +24,7 @@ import net.opengis.wfs.FeatureCollectionType;
 import net.opengis.wfs.WfsFactory;
 
 import org.eclipse.emf.ecore.EObject;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -34,7 +35,6 @@ import org.geotools.xml.AbstractComplexEMFBinding;
 import org.geotools.xml.ElementInstance;
 import org.geotools.xml.Node;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 
 /**
@@ -149,10 +149,10 @@ public class FeatureCollectionTypeBinding extends AbstractComplexEMFBinding {
     public Object parse(ElementInstance instance, Node node, Object value)
         throws Exception {
         FeatureCollectionType fct = (FeatureCollectionType) super.parse(instance, node, value);
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = null;
+        SimpleFeatureCollection fc = null;
         
         //gml:featureMembers
-        fc = (FeatureCollection<SimpleFeatureType, SimpleFeature>) node.getChildValue(FeatureCollection.class);
+        fc = (SimpleFeatureCollection) node.getChildValue(FeatureCollection.class);
         if (fc == null) {
             fc = new DefaultFeatureCollection(null, null);
         }

@@ -20,7 +20,8 @@ import java.io.IOException;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import org.geotools.feature.FeatureIterator;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
@@ -58,7 +59,7 @@ import org.opengis.filter.Filter;
  * @source $URL$
  */
 public abstract class AbstractFeatureLocking extends AbstractFeatureStore
-    implements FeatureLocking<SimpleFeatureType, SimpleFeature> {
+    implements FeatureLocking<SimpleFeatureType, SimpleFeature>, SimpleFeatureSource {
     FeatureLock featureLock = FeatureLock.TRANSACTION;
     
     public AbstractFeatureLocking() {
@@ -152,7 +153,7 @@ public abstract class AbstractFeatureLocking extends AbstractFeatureStore
 
         // Could we reduce the Query to only return the FetureID here?
         //
-        FeatureIterator<SimpleFeature> reader = getFeatures(query).features();
+        SimpleFeatureIterator reader = getFeatures(query).features();
         String typeName = query.getTypeName();
         SimpleFeature feature;
         int count = 0;
@@ -228,7 +229,7 @@ public abstract class AbstractFeatureLocking extends AbstractFeatureStore
 
         // Could we reduce the Query to only return the FetureID here?
         //
-        FeatureIterator<SimpleFeature> reader = getFeatures(query).features();
+        SimpleFeatureIterator reader = getFeatures(query).features();
         String typeName = query.getTypeName();
         SimpleFeature feature;
 

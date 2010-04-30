@@ -16,12 +16,13 @@
  */
 package org.geotools.gml3.bindings;
 
+import javax.xml.namespace.QName;
+
 import org.geotools.gml3.GML;
-import org.geotools.xml.*;
+import org.geotools.xml.AbstractSimpleBinding;
+import org.geotools.xml.InstanceComponent;
 
 import com.vividsolutions.jts.geom.Envelope;
-
-import javax.xml.namespace.QName;
 
 /**
  * Binding object for the type http://www.opengis.net/gml:NullType.

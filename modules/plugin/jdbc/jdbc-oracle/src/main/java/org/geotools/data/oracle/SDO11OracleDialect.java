@@ -22,14 +22,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.logging.Level;
 
-//import oracle.jdbc.OracleConnection;
-//import oracle.spatial.geometry.JGeometry;
-//import oracle.sql.STRUCT;
-
-import org.geotools.data.oracle.sdo.JGeometryConverter;
-import org.geotools.data.oracle.sdo.SDOSqlDumper;
 import org.geotools.jdbc.JDBCDataStore;
 
 import com.vividsolutions.jts.geom.Geometry;

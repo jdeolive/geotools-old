@@ -57,7 +57,7 @@ import org.opengis.util.InternationalString;
  * registry.addDataStore("leeds", params);
  *
  * DataStore postgis = registry.getDataStore( "leeds" );
- * FeatureSource<SimpleFeatureType, SimpleFeature> = postgis.getFeatureSource( "table" );
+ * SimpleFeatureSource = postgis.getFeatureSource( "table" );
  * </code></pre>
  * </p>
  * The required parameters are described by the getParameterInfo() method. Client

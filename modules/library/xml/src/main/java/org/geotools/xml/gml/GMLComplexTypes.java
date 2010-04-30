@@ -30,20 +30,15 @@ import java.util.logging.Logger;
 import javax.naming.OperationNotSupportedException;
 
 import org.geotools.data.DataUtilities;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.feature.AttributeTypeBuilder;
 import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.NameImpl;
-import org.geotools.feature.SchemaException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.feature.type.AttributeDescriptor;
-import org.opengis.feature.type.GeometryDescriptor;
-import org.opengis.filter.Filter;
 import org.geotools.referencing.CRS;
 import org.geotools.xml.PrintHandler;
 import org.geotools.xml.XMLHandlerHints;
@@ -66,6 +61,10 @@ import org.geotools.xml.schema.SimpleType;
 import org.geotools.xml.schema.Type;
 import org.geotools.xml.xLink.XLinkSchema;
 import org.geotools.xml.xsi.XSISimpleTypes;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.AttributeDescriptor;
+import org.opengis.feature.type.GeometryDescriptor;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXNotSupportedException;
@@ -4722,7 +4721,7 @@ public class GMLComplexTypes {
             return false;
         }
 
-        private FeatureCollection<SimpleFeatureType, SimpleFeature> getCollection(Attributes attrs, ElementValue[] value) {
+        private SimpleFeatureCollection getCollection(Attributes attrs, ElementValue[] value) {
         	
         	String id = "";
         	id = attrs.getValue("", "ID");
@@ -4790,7 +4789,7 @@ public class GMLComplexTypes {
                     ? (ComplexType) t.getParent() : null;
 
             return ((t != null) && (value instanceof FeatureCollection)
-            		&& ((FeatureCollection<SimpleFeatureType, SimpleFeature>)value).getBounds()!=null);
+            		&& ((SimpleFeatureCollection)value).getBounds()!=null);
         }
 
         /**
@@ -4812,7 +4811,7 @@ public class GMLComplexTypes {
                     null);
             }
 
-            FeatureCollection<SimpleFeatureType, SimpleFeature> fc = (FeatureCollection<SimpleFeatureType, SimpleFeature>) value;
+            SimpleFeatureCollection fc = (SimpleFeatureCollection) value;
 
             if (fc.getBounds() != null) {
                 BoundingShapeType.getInstance().encode(null, fc.getBounds(),
@@ -4821,7 +4820,7 @@ public class GMLComplexTypes {
             	throw new IOException("Bounding box required for the FeatureCollection");
             }
 
-            FeatureIterator<SimpleFeature> i = fc.features();
+            SimpleFeatureIterator i = fc.features();
             Element e = null;
 
             while (i.hasNext()) {

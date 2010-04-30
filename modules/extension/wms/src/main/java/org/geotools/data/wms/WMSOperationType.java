@@ -16,9 +16,6 @@
  */
 package org.geotools.data.wms;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
 import org.geotools.data.ows.OperationType;
 
 

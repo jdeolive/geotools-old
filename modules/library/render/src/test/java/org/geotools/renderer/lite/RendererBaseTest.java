@@ -36,7 +36,6 @@ import org.geotools.renderer.GTRenderer;
 import org.geotools.styling.SLDParser;
 import org.geotools.styling.Style;
 import org.geotools.styling.StyleFactory;
-import org.geotools.styling.StyleFactoryFinder;
 import org.geotools.test.TestData;
 
 /**

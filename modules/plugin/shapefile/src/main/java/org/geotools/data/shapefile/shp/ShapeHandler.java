@@ -18,8 +18,6 @@ package org.geotools.data.shapefile.shp;
 
 import java.nio.ByteBuffer;
 
-import com.vividsolutions.jts.geom.GeometryFactory;
-
 /**
  * A ShapeHandler defines what is needed to construct and persist geometries
  * based upon the shapefile specification.

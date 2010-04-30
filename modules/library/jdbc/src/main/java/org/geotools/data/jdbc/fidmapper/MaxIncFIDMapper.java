@@ -21,9 +21,6 @@
  */
 package org.geotools.data.jdbc.fidmapper;
 
-import org.geotools.data.DataSourceException;
-import org.opengis.feature.simple.SimpleFeature;
-
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -31,6 +28,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.geotools.data.DataSourceException;
+import org.opengis.feature.Feature;
+import org.opengis.feature.simple.SimpleFeature;
 
 
 /**

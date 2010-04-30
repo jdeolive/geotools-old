@@ -16,7 +16,6 @@
  */
 package org.geotools.xml.filter;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -31,7 +30,6 @@ import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.Id;
 import org.opengis.filter.PropertyIsNull;
 import org.opengis.filter.identity.FeatureId;
-import org.opengis.filter.identity.Identifier;
 
 
 public class FilterEncodingPreProcessorTest extends TestCase {

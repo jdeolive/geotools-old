@@ -8,7 +8,6 @@ import javax.swing.Icon;
 
 import org.geotools.Builder;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.filter.expression.ChildExpressionBuilder;
 import org.geotools.styling.AnchorPoint;
 import org.geotools.styling.ExternalGraphic;
 import org.geotools.styling.StyleFactory;

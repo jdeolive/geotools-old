@@ -16,9 +16,10 @@
  */
 package org.geotools.data.db2;
 
+import java.util.logging.Logger;
+
 import org.geotools.data.jdbc.fidmapper.FIDMapper;
 import org.geotools.data.jdbc.fidmapper.NullFIDMapper;
-import java.util.logging.Logger;
 
 
 /**

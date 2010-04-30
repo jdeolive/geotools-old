@@ -37,7 +37,7 @@ import org.geotools.feature.FeatureCollection;
  * </p>
  *
  * <p>
- * This is a prototype DataSource replacement please see FeatureSource<SimpleFeatureType, SimpleFeature> for more
+ * This is a prototype DataSource replacement please see SimpleFeatureSource for more
  * information.
  * </p>
  *

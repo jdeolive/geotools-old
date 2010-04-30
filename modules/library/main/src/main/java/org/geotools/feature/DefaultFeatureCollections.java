@@ -18,7 +18,7 @@
  */
 package org.geotools.feature;
 
-import org.opengis.feature.simple.SimpleFeature;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 /**
@@ -40,13 +40,13 @@ public class DefaultFeatureCollections extends FeatureCollections {
      *
      * @return A new, empty DefaultFeatureCollection.
      */
-    protected FeatureCollection<SimpleFeatureType, SimpleFeature> createCollection() {
+    protected SimpleFeatureCollection createCollection() {
         return new DefaultFeatureCollection(null,null);
     }
-    protected FeatureCollection<SimpleFeatureType, SimpleFeature> createCollection(String id) {
+    protected SimpleFeatureCollection createCollection(String id) {
         return new DefaultFeatureCollection(id,null);
     }
-    protected FeatureCollection<SimpleFeatureType, SimpleFeature> createCollection(String id, SimpleFeatureType ft) {
+    protected SimpleFeatureCollection createCollection(String id, SimpleFeatureType ft) {
         return new DefaultFeatureCollection(id,ft);
     }
 }

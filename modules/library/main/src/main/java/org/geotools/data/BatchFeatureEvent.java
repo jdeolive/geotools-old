@@ -16,11 +16,8 @@
  */
 package org.geotools.data;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-import org.geotools.data.FeatureEvent.Type;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.filter.identity.FeatureIdImpl;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -30,7 +27,6 @@ import org.opengis.feature.type.FeatureType;
 import org.opengis.filter.And;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
-import org.opengis.filter.FilterVisitor;
 import org.opengis.filter.Id;
 import org.opengis.filter.identity.Identifier;
 

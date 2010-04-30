@@ -18,16 +18,15 @@ package org.geotools.validation.network;
 
 import java.util.Map;
 
-import org.geotools.data.FeatureSource;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.graph.build.line.LineStringGraphGenerator;
 import org.geotools.graph.structure.Graph;
 import org.geotools.validation.DefaultIntegrityValidation;
 import org.geotools.validation.ValidationResults;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 
 /**
@@ -43,7 +42,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
  * @version $Id$
  */
 public class OrphanNodeValidation extends DefaultIntegrityValidation {
-    /** the FeatureSource<SimpleFeatureType, SimpleFeature> name datastoreId:typename */
+    /** the SimpleFeatureSource name datastoreId:typename */
     private String typeName;
 
     /**
@@ -74,7 +73,7 @@ public class OrphanNodeValidation extends DefaultIntegrityValidation {
      * Detailed description...
      * </p>
      *
-     * @param layers Map of FeatureSource<SimpleFeatureType, SimpleFeature> by "dataStoreID:typeName"
+     * @param layers Map of SimpleFeatureSource by "dataStoreID:typeName"
      * @param envelope The bounding box that encloses the unvalidated data
      * @param results Used to coallate results information
      *
@@ -86,10 +85,10 @@ public class OrphanNodeValidation extends DefaultIntegrityValidation {
         final ValidationResults results) throws Exception {
     	
       LineStringGraphGenerator lgb = new LineStringGraphGenerator();
-      FeatureSource<SimpleFeatureType, SimpleFeature> fs = (FeatureSource<SimpleFeatureType, SimpleFeature>) layers.get(typeName);
-      FeatureCollection<SimpleFeatureType, SimpleFeature> fr = fs.getFeatures();
-      FeatureCollection<SimpleFeatureType, SimpleFeature> fc = fr;
-      FeatureIterator<SimpleFeature> f = fc.features();
+      SimpleFeatureSource fs = (SimpleFeatureSource) layers.get(typeName);
+      SimpleFeatureCollection fr = fs.getFeatures();
+      SimpleFeatureCollection fc = fr;
+      SimpleFeatureIterator f = fc.features();
 
       while (f.hasNext()) {
           SimpleFeature ft = f.next();
@@ -110,10 +109,10 @@ public class OrphanNodeValidation extends DefaultIntegrityValidation {
 //    public boolean validate_old(Map layers, Envelope envelope,
 //        final ValidationResults results) throws Exception {
 //        LineGraphBuilder lgb = new LineGraphBuilder();
-//        FeatureSource<SimpleFeatureType, SimpleFeature> fs = (FeatureSource<SimpleFeatureType, SimpleFeature>) layers.get(typeName);
+//        SimpleFeatureSource fs = (SimpleFeatureSource) layers.get(typeName);
 //        FeatureResults fr = fs.getFeatures();
-//        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = fr.collection();
-//        FeatureIterator<SimpleFeature> f = fc.features();
+//        SimpleFeatureCollection fc = fr.collection();
+//        SimpleFeatureIterator f = fc.features();
 //
 //        while (f.hasNext()) {
 //            Feature ft = f.next();

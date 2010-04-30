@@ -16,10 +16,11 @@
  */
 package org.geotools.gml3.bindings;
 
-import org.w3c.dom.Document;
-import com.vividsolutions.jts.geom.MultiPoint;
 import org.geotools.gml3.GML;
 import org.geotools.gml3.GML3TestSupport;
+import org.w3c.dom.Document;
+
+import com.vividsolutions.jts.geom.MultiPoint;
 
 
 public class MultiPointTypeBindingTest extends GML3TestSupport {

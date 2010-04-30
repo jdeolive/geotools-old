@@ -57,6 +57,7 @@ import org.geotools.data.Query;
 import org.geotools.data.ReTypeFeatureReader;
 import org.geotools.data.ServiceInfo;
 import org.geotools.data.Transaction;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.data.view.DefaultView;
 import org.geotools.factory.GeoTools;
 import org.geotools.factory.Hints;
@@ -64,6 +65,7 @@ import org.geotools.feature.FeatureTypes;
 import org.geotools.feature.SchemaException;
 import org.geotools.geometry.jts.LiteCoordinateSequenceFactory;
 import org.geotools.util.logging.Logging;
+import org.hsqldb.Session;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -106,7 +108,7 @@ public class ArcSDEDataStore implements DataStore {
     private static final int DEFAULT_LAYER_NAMES_CACHE_UPDATE_FREQ_SECS = 60;
 
     /**
-     * Manages listener lists for FeatureSource<SimpleFeatureType, SimpleFeature> implementation
+     * Manages listener lists for SimpleFeatureSource implementation
      */
     final FeatureListenerManager listenerManager = new FeatureListenerManager();
 
@@ -464,10 +466,10 @@ public class ArcSDEDataStore implements DataStore {
      * @return {@link FeatureSource} or {@link FeatureStore} depending on if the user has write
      *         permissions over <code>typeName</code>
      */
-    public FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSource(final String typeName)
+    public SimpleFeatureSource getFeatureSource(final String typeName)
             throws IOException {
         final FeatureTypeInfo typeInfo = typeInfoCache.getFeatureTypeInfo(typeName);
-        FeatureSource<SimpleFeatureType, SimpleFeature> fsource;
+        SimpleFeatureSource fsource;
         if (typeInfo.isWritable()) {
             fsource = new ArcSdeFeatureStore(typeInfo, this);
         } else {
@@ -600,7 +602,7 @@ public class ArcSDEDataStore implements DataStore {
     /**
      * @see DataStore#getView(Query)
      */
-    public FeatureSource<SimpleFeatureType, SimpleFeature> getView(final Query query)
+    public SimpleFeatureSource getView(final Query query)
             throws IOException, SchemaException {
         return new DefaultView(this.getFeatureSource(query.getTypeName()), query);
     }
@@ -621,7 +623,7 @@ public class ArcSDEDataStore implements DataStore {
      * @since 2.5
      * @see DataAccess#getFeatureSource(Name)
      */
-    public FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSource(Name typeName)
+    public SimpleFeatureSource getFeatureSource(Name typeName)
             throws IOException {
         return getFeatureSource(typeName.getLocalPart());
     }

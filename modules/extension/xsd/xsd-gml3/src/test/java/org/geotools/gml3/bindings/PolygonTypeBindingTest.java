@@ -16,10 +16,9 @@
  */
 package org.geotools.gml3.bindings;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import com.vividsolutions.jts.geom.Polygon;
 import org.geotools.gml3.GML3TestSupport;
+
+import com.vividsolutions.jts.geom.Polygon;
 
 
 public class PolygonTypeBindingTest extends GML3TestSupport {

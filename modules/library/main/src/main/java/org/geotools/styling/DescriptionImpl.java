@@ -1,7 +1,6 @@
 package org.geotools.styling;
 
 import org.geotools.util.SimpleInternationalString;
-import org.geotools.styling.Description;
 import org.opengis.util.InternationalString;
 
 public class DescriptionImpl implements Description {

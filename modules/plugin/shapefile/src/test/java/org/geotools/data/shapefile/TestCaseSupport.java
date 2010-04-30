@@ -29,10 +29,9 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.geotools.TestData;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.ParseException;
@@ -161,8 +160,8 @@ public class TestCaseSupport extends TestCase {
     /**
      * Returns the first feature in the given feature collection.
      */
-    protected SimpleFeature firstFeature(FeatureCollection<SimpleFeatureType, SimpleFeature> fc) {
-        FeatureIterator<SimpleFeature> features = fc.features();
+    protected SimpleFeature firstFeature(SimpleFeatureCollection fc) {
+        SimpleFeatureIterator features = fc.features();
         SimpleFeature next = features.next();
         features.close();
         return next;

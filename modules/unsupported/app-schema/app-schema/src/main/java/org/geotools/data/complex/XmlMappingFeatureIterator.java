@@ -33,15 +33,13 @@ import org.geotools.data.complex.filter.XPath.StepList;
 import org.geotools.data.complex.xml.XmlFeatureCollection;
 import org.geotools.data.complex.xml.XmlFeatureSource;
 import org.geotools.data.complex.xml.XmlResponse;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.AttributeBuilder;
-import org.geotools.feature.FeatureCollection;
 import org.geotools.filter.LiteralExpressionImpl;
 import org.geotools.util.XmlXpathUtilites;
 import org.jdom.Element;
 import org.opengis.feature.Attribute;
 import org.opengis.feature.Feature;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.Name;
@@ -72,9 +70,10 @@ public class XmlMappingFeatureIterator extends AbstractMappingFeatureIterator {
 
     private List<Element> sources;
 
-    private FeatureSource<SimpleFeatureType, SimpleFeature> mappedSource;
+    @SuppressWarnings("unchecked")
+    private FeatureSource mappedSource;
 
-    private FeatureCollection<SimpleFeatureType, SimpleFeature> sourceFeatures;
+    private SimpleFeatureCollection sourceFeatures;
 
     private AttributeCreateOrderList attOrderedTypeList = null;
 
@@ -133,7 +132,7 @@ public class XmlMappingFeatureIterator extends AbstractMappingFeatureIterator {
         // operation, before getting the data. This results in two identical queries. We are simply
         // trying to save on the second query here. We don't want to cache beyond this.
         if (cachedQuery == null || !cachedQuery.equals(query)) {
-            sourceFeatures = mappedSource.getFeatures(query);
+            sourceFeatures = (SimpleFeatureCollection) mappedSource.getFeatures(query);
 
             XmlFeatureSource xmlFeatureSource = (XmlFeatureSource) mappedSource;
             xmlFeatureSource.setNamespaces(mapping.getNamespaces());

@@ -22,8 +22,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
-import org.geotools.data.ows.Response;
 import org.geotools.data.ows.LayerDescription;
+import org.geotools.data.ows.Response;
 import org.geotools.data.wms.xml.WMSSchema;
 import org.geotools.ows.ServiceException;
 import org.geotools.xml.DocumentFactory;

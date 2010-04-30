@@ -18,25 +18,27 @@
 package org.geotools.swing;
 
 import java.awt.BorderLayout;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
-import java.awt.event.MouseEvent;
-import javax.swing.Icon;
-import javax.swing.event.ListDataEvent;
-import org.geotools.swing.control.DnDList;
-import java.awt.Point;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ResourceBundle;
+
 import javax.swing.BorderFactory;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
-import org.geotools.swing.control.DnDListModel;
+
 import org.geotools.map.MapLayer;
 import org.geotools.styling.Style;
+import org.geotools.swing.control.DnDList;
+import org.geotools.swing.control.DnDListModel;
 import org.geotools.swing.styling.JSimpleStyleDialog;
 
 /**

@@ -46,7 +46,6 @@ import org.geotools.data.DefaultServiceInfo;
 import org.geotools.data.EmptyFeatureReader;
 import org.geotools.data.FeatureListenerManager;
 import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.FilteringFeatureReader;
 import org.geotools.data.InProcessLockingManager;
@@ -61,6 +60,7 @@ import org.geotools.data.jdbc.attributeio.BasicAttributeIO;
 import org.geotools.data.jdbc.fidmapper.DefaultFIDMapperFactory;
 import org.geotools.data.jdbc.fidmapper.FIDMapper;
 import org.geotools.data.jdbc.fidmapper.FIDMapperFactory;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.data.view.DefaultView;
 import org.geotools.factory.FactoryRegistryException;
 import org.geotools.factory.Hints;
@@ -195,7 +195,7 @@ public abstract class JDBC1DataStore implements DataStore {
 
 	private BasicAttributeIO basicAttributeIO;
 
-	/** Manages listener lists for FeatureSource<SimpleFeatureType, SimpleFeature> implementations */
+	/** Manages listener lists for SimpleFeatureSource implementations */
 	public FeatureListenerManager listenerManager = new FeatureListenerManager();
 
 	private LockingManager lockingManager = createLockingManager();
@@ -395,7 +395,7 @@ public abstract class JDBC1DataStore implements DataStore {
 	}
 
 	// This is the *better* implementation of getview from AbstractDataStore
-	public FeatureSource<SimpleFeatureType, SimpleFeature> getView(final Query query) throws IOException,
+	public SimpleFeatureSource getView(final Query query) throws IOException,
 			SchemaException {
 		return new DefaultView(this.getFeatureSource(query.getTypeName()),
 				query);
@@ -403,7 +403,7 @@ public abstract class JDBC1DataStore implements DataStore {
 
 	/*
 	 * // Jody - This is my recomendation for DataStore // in order to support
-	 * CS reprojection and override public FeatureSource<SimpleFeatureType, SimpleFeature> getView(final Query
+	 * CS reprojection and override public SimpleFeatureSource getView(final Query
 	 * query) throws IOException, SchemaException { String typeName =
 	 * query.getTypeName(); FeatureType origionalType = getSchema(typeName);
 	 * //CoordinateSystem cs = query.getCoordinateSystem(); //final FeatureType
@@ -428,7 +428,7 @@ public abstract class JDBC1DataStore implements DataStore {
 	 *
 	 * @see org.geotools.data.DataStore#getFeatureSource(java.lang.String)
 	 */
-	public FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSource(String typeName) throws IOException {
+	public SimpleFeatureSource getFeatureSource(String typeName) throws IOException {
 		if (!typeHandler.getFIDMapper(typeName).isVolatile()
 				|| allowWriteOnVolatileFIDs) {
 			if (getLockingManager() != null) {
@@ -1780,7 +1780,7 @@ public abstract class JDBC1DataStore implements DataStore {
      * @since 2.5
      * @see DataAccess#getFeatureSource(Name)
      */
-    public FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSource(Name typeName)
+    public SimpleFeatureSource getFeatureSource(Name typeName)
             throws IOException {
         return getFeatureSource(typeName.getLocalPart());
     }

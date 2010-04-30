@@ -19,11 +19,10 @@ import javax.swing.filechooser.FileFilter;
 
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
-import org.geotools.data.FeatureSource;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.GeoTools;
-import org.geotools.feature.FeatureCollection;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -80,8 +79,8 @@ public class ShapefileRead2 {
 
 		System.out.println("Reading content " + typeName);
 
-		FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = dataStore.getFeatureSource(typeName);
-		FeatureCollection<SimpleFeatureType, SimpleFeature> collection = featureSource.getFeatures();
+		SimpleFeatureSource featureSource = dataStore.getFeatureSource(typeName);
+		SimpleFeatureCollection collection = featureSource.getFeatures();
 		
 		Iterator iterator = collection.iterator();
 		int length = 0;		

@@ -16,17 +16,10 @@
  */
 package org.geotools.data.jdbc.referencing;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Set;
 
 import javax.sql.DataSource;
 
-import org.geotools.data.DataSourceException;
-import org.geotools.data.Transaction;
-import org.geotools.data.jdbc.ConnectionPool;
-import org.geotools.data.jdbc.JDBCTransactionState;
 import org.geotools.referencing.ReferencingFactoryFinder;
 import org.opengis.metadata.citation.Citation;
 import org.opengis.referencing.FactoryException;

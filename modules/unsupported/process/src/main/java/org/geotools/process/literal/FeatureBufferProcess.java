@@ -17,8 +17,8 @@
 
 package org.geotools.process.literal;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.geotools.process.ProcessFactory;
 import org.geotools.process.impl.AbstractProcess;

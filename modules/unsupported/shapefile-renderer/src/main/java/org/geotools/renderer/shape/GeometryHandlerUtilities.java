@@ -16,17 +16,16 @@
  */
 package org.geotools.renderer.shape;
 
-import com.vividsolutions.jts.geom.Envelope;
+import java.awt.Rectangle;
+import java.awt.geom.Point2D;
+import java.nio.ByteBuffer;
+
 import org.geotools.data.shapefile.shp.ShapeType;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.NoninvertibleTransformException;
 import org.opengis.referencing.operation.TransformException;
 
-import java.awt.Rectangle;
-import java.awt.geom.Point2D;
-import java.nio.ByteBuffer;
-
-import javax.measure.quantity.Torque;
+import com.vividsolutions.jts.geom.Envelope;
 
 
 /**

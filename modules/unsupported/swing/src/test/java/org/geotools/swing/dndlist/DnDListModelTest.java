@@ -17,8 +17,10 @@
 
 package org.geotools.swing.dndlist;
 
-import org.geotools.swing.control.DnDListModel;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,6 +29,7 @@ import java.util.List;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
+import org.geotools.swing.control.DnDListModel;
 import org.junit.Test;
 
 public class DnDListModelTest {

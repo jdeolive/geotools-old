@@ -91,9 +91,9 @@ public class CollectionEvent extends EventObject {
     }
 
     /**
-     * provides access to the FeatureCollection<SimpleFeatureType, SimpleFeature> which fired the event
+     * provides access to the SimpleFeatureCollection which fired the event
      *
-     * @return The FeatureCollection<SimpleFeatureType, SimpleFeature> which was the event's source.
+     * @return The SimpleFeatureCollection which was the event's source.
      */
     @SuppressWarnings("unchecked")
 	public FeatureCollection<? extends FeatureType, ? extends Feature> getCollection() {

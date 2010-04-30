@@ -31,7 +31,7 @@ import com.vividsolutions.jts.geom.Envelope;
  *
  * <p>
  * The "Source" for FeatureEvents is taken to be a <code>FeatureSource</code>,
- * rather than <code>DataStore</code>. The is due to FeatureSource<SimpleFeatureType, SimpleFeature> having a
+ * rather than <code>DataStore</code>. The is due to SimpleFeatureSource having a
  * hold of Transaction information.
  * </p>
  *
@@ -268,7 +268,7 @@ public class FeatureEvent extends EventObject {
     /**
      * Constructs a new FeatureEvent.
      *
-     * @param FeatureSource<SimpleFeatureType, SimpleFeature> The DataStore that fired the event
+     * @param SimpleFeatureSource The DataStore that fired the event
      * @param eventType One of FEATURE_CHANGED, FEATURE_REMOVED or
      *        FEATURE_ADDED
      * @param bounds The area modified by this change
@@ -295,9 +295,9 @@ public class FeatureEvent extends EventObject {
     }
 
     /**
-     * Provides access to the FeatureSource<SimpleFeatureType, SimpleFeature> which fired the event.
+     * Provides access to the SimpleFeatureSource which fired the event.
      *
-     * @return The FeatureSource<SimpleFeatureType, SimpleFeature> which was the event's source.
+     * @return The SimpleFeatureSource which was the event's source.
      */
     @SuppressWarnings("unchecked")
     public FeatureSource<? extends FeatureType, ? extends Feature> getFeatureSource() {

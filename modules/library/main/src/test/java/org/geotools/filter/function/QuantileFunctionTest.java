@@ -18,7 +18,7 @@ package org.geotools.filter.function;
 
 import org.geotools.data.DataUtilities;
 import org.geotools.data.memory.MemoryDataStore;
-import org.geotools.feature.FeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.opengis.feature.simple.SimpleFeature;
@@ -117,7 +117,7 @@ public class QuantileFunctionTest extends FunctionTestSupport {
 		MemoryDataStore store = new MemoryDataStore();
 		store.createSchema(dataType);
 		store.addFeatures(myfeatures);
-		FeatureCollection<SimpleFeatureType, SimpleFeature> myFeatureCollection = store.getFeatureSource("test1").getFeatures();
+		SimpleFeatureCollection myFeatureCollection = store.getFeatureSource("test1").getFeatures();
 
 		//run the quantile function
 		org.opengis.filter.expression.Expression function = ff.function("Quantile", ff.property("value"), ff.literal(5));
@@ -154,7 +154,7 @@ public class QuantileFunctionTest extends FunctionTestSupport {
     	MemoryDataStore store = new MemoryDataStore();
     	store.createSchema(dataType);
     	store.addFeatures(myfeatures);
-    	FeatureCollection<SimpleFeatureType, SimpleFeature> myFeatureCollection = store.getFeatureSource("test1").getFeatures();
+    	SimpleFeatureCollection myFeatureCollection = store.getFeatureSource("test1").getFeatures();
 
     	//run the quantile function
     	org.opengis.filter.expression.Expression function = ff.function("Quantile", ff.property("value"), ff.literal(5));
@@ -212,7 +212,7 @@ public class QuantileFunctionTest extends FunctionTestSupport {
     	MemoryDataStore store = new MemoryDataStore();
     	store.createSchema(ft);
     	store.addFeatures(testFeatures);
-    	FeatureCollection<SimpleFeatureType, SimpleFeature> thisFC = store.getFeatureSource("nullnan").getFeatures();
+    	SimpleFeatureCollection thisFC = store.getFeatureSource("nullnan").getFeatures();
 
     	//create the expression
         Divide divide = ff.divide(ff.property("foo"), ff.property("bar"));

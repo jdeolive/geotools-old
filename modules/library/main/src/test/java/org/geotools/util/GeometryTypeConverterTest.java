@@ -8,18 +8,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import junit.framework.TestCase;
+
 import org.geotools.test.TestData;
-import org.geotools.util.Converter;
-import org.geotools.util.ConverterFactory;
-import org.geotools.util.Converters;
-
-
-
 
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.WKTReader;
-
-import junit.framework.TestCase;
 /**
  * Test suite for the GeometryTypeConverterFactory Converters.
  * 

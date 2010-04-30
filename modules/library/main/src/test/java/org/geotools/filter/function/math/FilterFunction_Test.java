@@ -24,8 +24,6 @@ import org.geotools.filter.FilterFactoryImpl;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Function;
 import org.opengis.filter.expression.Literal;
-import org.opengis.filter.FilterFactory;
-import org.opengis.filter.expression.Function;
 
 public class FilterFunction_Test extends TestCase {
 

@@ -26,15 +26,12 @@ import org.geotools.data.DataSourceException;
 import org.geotools.data.jdbc.attributeio.AttributeIO;
 import org.geotools.factory.Hints;
 import org.geotools.geometry.jts.LiteCoordinateSequenceFactory;
-import org.geotools.geometry.jts.coordinatesequence.PackedCSBuilder;
 
 import com.vividsolutions.jts.geom.CoordinateSequenceFactory;
-import com.vividsolutions.jts.geom.DefaultCoordinateSequenceFactory;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.PrecisionModel;
 import com.vividsolutions.jts.geom.impl.CoordinateArraySequenceFactory;
-import com.vividsolutions.jts.geom.impl.PackedCoordinateSequenceFactory;
 import com.vividsolutions.jts.io.InStream;
 import com.vividsolutions.jts.io.WKBReader;
 import com.vividsolutions.jts.io.WKBWriter;

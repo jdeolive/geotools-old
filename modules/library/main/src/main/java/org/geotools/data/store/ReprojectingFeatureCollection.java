@@ -18,24 +18,23 @@ package org.geotools.data.store;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
 import org.geotools.data.FeatureReader;
 import org.geotools.data.collection.DelegateFeatureReader;
-import org.geotools.feature.CollectionListener;
-import org.geotools.feature.FeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.FeatureTypes;
-import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.SchemaException;
 import org.geotools.feature.collection.DecoratingFeatureCollection;
+import org.geotools.feature.collection.DecoratingSimpleFeatureCollection;
 import org.geotools.feature.collection.DelegateFeatureIterator;
+import org.geotools.feature.collection.DelegateSimpleFeatureIterator;
 import org.geotools.geometry.jts.GeometryCoordinateSequenceTransformer;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
-import org.geotools.util.ProgressListener;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
@@ -48,13 +47,13 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
- * FeatureCollection<SimpleFeatureType, SimpleFeature> decorator that reprojects the default geometry.
+ * SimpleFeatureCollection decorator that reprojects the default geometry.
  * 
  * @author Justin
  *
  * @source $URL$
  */
-public class ReprojectingFeatureCollection extends DecoratingFeatureCollection <SimpleFeatureType, SimpleFeature> {
+public class ReprojectingFeatureCollection extends DecoratingSimpleFeatureCollection {
 
     /**
      * The transform to the target coordinate reference system
@@ -76,13 +75,13 @@ public class ReprojectingFeatureCollection extends DecoratingFeatureCollection <
      */
     GeometryCoordinateSequenceTransformer transformer;
     
-    public ReprojectingFeatureCollection(FeatureCollection<SimpleFeatureType, SimpleFeature> delegate,
+    public ReprojectingFeatureCollection(SimpleFeatureCollection delegate,
             CoordinateReferenceSystem target) {
         this( delegate, delegate.getSchema().getGeometryDescriptor().getCoordinateReferenceSystem(), target );
     }
     
     public ReprojectingFeatureCollection(
-            FeatureCollection<SimpleFeatureType, SimpleFeature> delegate,
+            SimpleFeatureCollection delegate,
             CoordinateReferenceSystem source, CoordinateReferenceSystem target) {
         super(delegate);
         this.target = target;
@@ -128,11 +127,11 @@ public class ReprojectingFeatureCollection extends DecoratingFeatureCollection <
         return new DelegateFeatureReader<SimpleFeatureType, SimpleFeature>(getSchema(), features());
     }
 
-    public FeatureIterator<SimpleFeature> features() {
-        return new DelegateFeatureIterator<SimpleFeature>(this, iterator());
+    public SimpleFeatureIterator features() {
+        return new DelegateSimpleFeatureIterator(this, iterator());
     }
 
-    public void close(FeatureIterator<SimpleFeature> close) {
+    public void close(SimpleFeatureIterator close) {
         close.close();
     }
 
@@ -153,7 +152,7 @@ public class ReprojectingFeatureCollection extends DecoratingFeatureCollection <
         return this.schema;
     }
 
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> subCollection(Filter filter) {
+    public SimpleFeatureCollection subCollection(Filter filter) {
         Filter unFilter = unFilter(filter);
         return new ReprojectingFeatureCollection(delegate
                 .subCollection(unFilter), target);
@@ -176,7 +175,7 @@ public class ReprojectingFeatureCollection extends DecoratingFeatureCollection <
         return filter;
     }
 
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> sort(SortBy order) {
+    public SimpleFeatureCollection sort(SortBy order) {
         // return new ReprojectingFeatureList( delegate.sort( order ), target );
         throw new UnsupportedOperationException("Not yet");
     }
@@ -216,7 +215,7 @@ public class ReprojectingFeatureCollection extends DecoratingFeatureCollection <
      * @see org.geotools.data.FeatureResults#getBounds()
      */
     public ReferencedEnvelope getBounds() {
-        FeatureIterator<SimpleFeature> r = features();
+        SimpleFeatureIterator r = features();
         try {
             Envelope newBBox = new Envelope();
             Envelope internal;

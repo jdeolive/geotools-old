@@ -1,5 +1,8 @@
 package org.geotools.geometry.jts;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 
@@ -12,8 +15,6 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Point;
-
-import static org.junit.Assert.*;
 
 public class DecimatorTest {
 

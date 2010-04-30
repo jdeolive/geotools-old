@@ -18,17 +18,11 @@ package org.geotools.jdbc;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 import org.geotools.data.jdbc.FilterToSQL;
-import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.filter.expression.Literal;
 
-import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
 
 public abstract class BasicSQLDialect extends SQLDialect {
 

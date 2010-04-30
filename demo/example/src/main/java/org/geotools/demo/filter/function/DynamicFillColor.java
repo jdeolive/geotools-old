@@ -11,6 +11,7 @@ package org.geotools.demo.filter.function;
 
 import java.io.File;
 import java.net.URL;
+
 import org.geotools.data.FeatureSource;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.factory.CommonFactoryFinder;

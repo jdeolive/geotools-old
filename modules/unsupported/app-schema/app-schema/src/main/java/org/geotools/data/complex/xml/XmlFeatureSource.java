@@ -18,6 +18,7 @@
 package org.geotools.data.complex.xml;
 
 import org.geotools.data.FeatureSource;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.xml.sax.helpers.NamespaceSupport;
@@ -27,7 +28,7 @@ import org.xml.sax.helpers.NamespaceSupport;
  * @version $Id$
  * @source $URL$
  */
-public interface XmlFeatureSource extends FeatureSource<SimpleFeatureType, SimpleFeature> {
+public interface XmlFeatureSource extends SimpleFeatureSource {
 
     void setNamespaces(NamespaceSupport namespaces);
 

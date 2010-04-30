@@ -26,17 +26,18 @@ import org.geotools.data.DataSourceException;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.FeatureListener;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
-import org.geotools.feature.FeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.feature.SchemaException;
+import org.geotools.feature.collection.FilteringSimpleFeatureCollection;
+import org.geotools.feature.collection.MaxSimpleFeatureCollection;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-public abstract class AbstractFeatureSource2 implements FeatureSource<SimpleFeatureType, SimpleFeature> {
+public abstract class AbstractFeatureSource2 implements SimpleFeatureSource {
 
 	/** The logger for the data module. */
     protected static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.data");
@@ -62,7 +63,7 @@ public abstract class AbstractFeatureSource2 implements FeatureSource<SimpleFeat
 		entry.listenerManager.removeFeatureListener( this, listener );
 	}
 
-	public FeatureCollection<SimpleFeatureType, SimpleFeature> getFeatures(Query query) throws IOException {
+	public SimpleFeatureCollection getFeatures(Query query) throws IOException {
 		 SimpleFeatureType featureType = entry.getFeatureType();
 		 
 		 Filter filter = query.getFilter();
@@ -84,7 +85,7 @@ public abstract class AbstractFeatureSource2 implements FeatureSource<SimpleFeat
 //         }
          
          //filter
-         FeatureCollection<SimpleFeatureType, SimpleFeature> features = getFeatures( filter );
+         SimpleFeatureCollection features = getFeatures( filter );
          
          //retyping
          if( propertyNames != null || query.getCoordinateSystem() != null ){
@@ -116,16 +117,16 @@ public abstract class AbstractFeatureSource2 implements FeatureSource<SimpleFeat
          
          //max feature cap
          if (query.getMaxFeatures() != Query.DEFAULT_MAX) {
-             features = new MaxFeaturesFeatureCollection<SimpleFeatureType, SimpleFeature>( features, query.getMaxFeatures() );
+             features = new MaxSimpleFeatureCollection( features, query.getMaxFeatures() );
          }
          
          return features;
 	}
 
-	public FeatureCollection<SimpleFeatureType, SimpleFeature> getFeatures(Filter filter) throws IOException {
+	public SimpleFeatureCollection getFeatures(Filter filter) throws IOException {
         //filter
         if ( filter != null && !filter.equals( Filter.INCLUDE ) ) {
-            return new FilteringFeatureCollection<SimpleFeatureType, SimpleFeature>( getFeatures() , filter );
+            return new FilteringSimpleFeatureCollection( getFeatures() , filter );
         }
         
         return getFeatures();
@@ -157,7 +158,7 @@ public abstract class AbstractFeatureSource2 implements FeatureSource<SimpleFeat
 	 * 
 	 * @return the reprojected feature collection.
 	 */
-	protected FeatureCollection<SimpleFeatureType, SimpleFeature> reproject( FeatureCollection<SimpleFeatureType, SimpleFeature> features, CoordinateReferenceSystem source, CoordinateReferenceSystem target ) {
+	protected SimpleFeatureCollection reproject( SimpleFeatureCollection features, CoordinateReferenceSystem source, CoordinateReferenceSystem target ) {
 		return new ReprojectingFeatureCollection( features, source, target );
 	}
 	

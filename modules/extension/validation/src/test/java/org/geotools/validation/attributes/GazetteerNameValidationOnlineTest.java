@@ -31,8 +31,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import junit.framework.TestCase;
 
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureImplUtils;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.GeometryAttribute;
@@ -43,7 +42,6 @@ import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.Name;
 import org.opengis.feature.type.PropertyDescriptor;
 import org.opengis.filter.identity.FeatureId;
-import org.opengis.filter.identity.Identifier;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -71,8 +69,8 @@ public class GazetteerNameValidationOnlineTest extends TestCase {
 	public void XtestValidate() {
 		class TestFeature implements SimpleFeature {
 			Map attrs = new HashMap();
-			public FeatureCollection<SimpleFeatureType, SimpleFeature> getParent(){return null;}
-			public void setParent(FeatureCollection<SimpleFeatureType, SimpleFeature> collection){}
+			public SimpleFeatureCollection getParent(){return null;}
+			public void setParent(SimpleFeatureCollection collection){}
 			public SimpleFeatureType getFeatureType(){return null;}
 			public String getID(){return "";}
 			public FeatureId getIdentifier(){return null;}
@@ -297,7 +295,7 @@ public class GazetteerNameValidationOnlineTest extends TestCase {
 			Document serviceDoc = dfactory.newDocumentBuilder().parse(gazetteerInputSource);
 			Element elem = serviceDoc.getDocumentElement();
 			
-			// elem == FeatureCollection<SimpleFeatureType, SimpleFeature> at this point
+			// elem == SimpleFeatureCollection at this point
 			
 			elem = getChildElement(elem,"queryInfo");
 			if(elem==null)

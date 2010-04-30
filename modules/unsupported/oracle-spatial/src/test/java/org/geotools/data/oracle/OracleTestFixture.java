@@ -20,8 +20,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
 
-import oracle.jdbc.OracleConnection;
-
 import org.geotools.data.jdbc.datasource.ManageableDataSource;
 
 /**

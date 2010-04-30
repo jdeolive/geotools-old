@@ -1,6 +1,7 @@
 package org.geotools.demo.style;
 
 import java.awt.Color;
+
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
 import org.geotools.styling.ExternalGraphic;

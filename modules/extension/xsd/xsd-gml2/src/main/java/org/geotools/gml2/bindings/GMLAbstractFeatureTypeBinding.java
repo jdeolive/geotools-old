@@ -25,7 +25,6 @@ import javax.xml.namespace.QName;
 import org.eclipse.xsd.XSDElementDeclaration;
 import org.geotools.gml2.FeatureTypeCache;
 import org.geotools.gml2.GML;
-import org.geotools.gml2.GMLConfiguration;
 import org.geotools.xml.AbstractComplexBinding;
 import org.geotools.xml.BindingWalkerFactory;
 import org.geotools.xml.Configuration;

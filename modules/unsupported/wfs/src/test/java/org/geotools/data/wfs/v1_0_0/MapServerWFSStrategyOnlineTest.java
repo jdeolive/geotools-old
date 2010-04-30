@@ -23,18 +23,16 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.geotools.data.DefaultQuery;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.data.wfs.WFSDataStoreFactory;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
 import org.geotools.filter.Filter;
 import org.geotools.filter.FilterFactory;
 import org.geotools.filter.FilterFactoryFinder;
 import org.geotools.filter.FilterType;
 import org.geotools.filter.GeometryFilter;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 public class MapServerWFSStrategyOnlineTest extends TestCase {
     private static final String TYPE_NAME = "hospitals"; //$NON-NLS-1$
@@ -67,9 +65,9 @@ public class MapServerWFSStrategyOnlineTest extends TestCase {
         
         Query query=new DefaultQuery(TYPE_NAME, filter);
         
-        FeatureCollection<SimpleFeatureType, SimpleFeature> features = ds.getFeatureSource(TYPE_NAME).getFeatures(query);
+        SimpleFeatureCollection features = ds.getFeatureSource(TYPE_NAME).getFeatures(query);
         
-        FeatureIterator<SimpleFeature> iter = features.features();
+        SimpleFeatureIterator iter = features.features();
         try{
             int count=0;
             while(iter.hasNext()){
@@ -83,9 +81,9 @@ public class MapServerWFSStrategyOnlineTest extends TestCase {
     }
 
     public void testFilterNONE() throws Exception {
-        FeatureSource<SimpleFeatureType, SimpleFeature> source=ds.getFeatureSource(TYPE_NAME);
+        SimpleFeatureSource source=ds.getFeatureSource(TYPE_NAME);
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> reader = source.getFeatures(Query.ALL);
+        SimpleFeatureCollection reader = source.getFeatures(Query.ALL);
         assertCorrectSize(reader);
 
         reader = source.getFeatures(Filter.NONE);
@@ -95,8 +93,8 @@ public class MapServerWFSStrategyOnlineTest extends TestCase {
         assertCorrectSize(reader);
 }
 
-    private void assertCorrectSize( FeatureCollection<SimpleFeatureType, SimpleFeature> collection ) throws Exception{
-        FeatureIterator<SimpleFeature> iter = collection.features();
+    private void assertCorrectSize( SimpleFeatureCollection collection ) throws Exception{
+        SimpleFeatureIterator iter = collection.features();
         
         try{
             int count=0;

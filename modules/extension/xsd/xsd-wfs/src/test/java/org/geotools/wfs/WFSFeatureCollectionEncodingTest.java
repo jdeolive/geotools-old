@@ -16,11 +16,14 @@
  */
 package org.geotools.wfs;
 
+import junit.framework.TestCase;
+import net.opengis.wfs.FeatureCollectionType;
+import net.opengis.wfs.WfsFactory;
+
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
-import org.geotools.gml3.GML;
 import org.geotools.xml.Encoder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -28,10 +31,6 @@ import org.w3c.dom.Element;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
-
-import junit.framework.TestCase;
-import net.opengis.wfs.FeatureCollectionType;
-import net.opengis.wfs.WfsFactory;
 
 public class WFSFeatureCollectionEncodingTest extends TestCase {
 

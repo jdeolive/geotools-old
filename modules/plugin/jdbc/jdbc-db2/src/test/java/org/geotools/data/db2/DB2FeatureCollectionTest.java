@@ -21,7 +21,7 @@ import org.geotools.jdbc.JDBCTestSetup;
 
 
 /**
- * FeatureCollection<SimpleFeatureType, SimpleFeature> test for DB2.
+ * SimpleFeatureCollection test for DB2.
  *
  * @author Christian Mueller
  *

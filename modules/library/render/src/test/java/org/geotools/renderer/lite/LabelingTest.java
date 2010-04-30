@@ -21,6 +21,7 @@ import java.io.IOException;
 import junit.framework.TestCase;
 
 import org.geotools.data.memory.MemoryDataStore;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
@@ -39,7 +40,6 @@ import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.LinearRing;
@@ -101,7 +101,7 @@ public class LabelingTest extends TestCase {
         return style;
 	}
 
-	private FeatureCollection<SimpleFeatureType, SimpleFeature> createPointFeatureCollection() throws Exception {
+	private SimpleFeatureCollection createPointFeatureCollection() throws Exception {
 		AttributeDescriptor[] types = new AttributeDescriptor[2];
 
         
@@ -150,7 +150,7 @@ public class LabelingTest extends TestCase {
         RendererBaseTest.showRender("testLineLabeling", renderer, timout, env);
 	}
 
-	private FeatureCollection<SimpleFeatureType, SimpleFeature> createLineFeatureCollection() throws Exception {
+	private SimpleFeatureCollection createLineFeatureCollection() throws Exception {
         AttributeDescriptor[] types = new AttributeDescriptor[2];
 
         
@@ -199,7 +199,7 @@ public class LabelingTest extends TestCase {
         RendererBaseTest.showRender("testPolyLabeling", renderer, timout, env);
 	}
 
-	private FeatureCollection<SimpleFeatureType, SimpleFeature> createPolyFeatureCollection() throws Exception {
+	private SimpleFeatureCollection createPolyFeatureCollection() throws Exception {
         GeometryFactory geomFac=new GeometryFactory();
 		CoordinateReferenceSystem crs=DefaultGeographicCRS.WGS84;
 

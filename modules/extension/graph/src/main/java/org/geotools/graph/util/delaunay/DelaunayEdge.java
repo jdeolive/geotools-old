@@ -17,7 +17,7 @@
 package org.geotools.graph.util.delaunay;
 
 import java.util.logging.Logger;
-import org.geotools.graph.structure.Node;
+
 import org.geotools.graph.structure.basic.BasicEdge;
 import org.geotools.graph.structure.line.XYNode;
 

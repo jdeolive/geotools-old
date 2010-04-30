@@ -16,12 +16,6 @@
  */
 package org.geotools.filter.function;
 
-import java.util.List;
-
-import org.geotools.filter.Expression;
-import org.geotools.filter.FunctionImpl;
-import org.geotools.filter.LiteralExpression;
-import org.opengis.filter.expression.ExpressionVisitor;
 
 /**
  * The data structure returned by classification functions. We can take this

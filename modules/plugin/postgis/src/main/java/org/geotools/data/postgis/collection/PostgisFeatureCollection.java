@@ -23,7 +23,7 @@ import org.geotools.data.jdbc.JDBCFeatureCollection;
 import org.geotools.data.jdbc.JDBCFeatureSource;
 
 /**
- * FeatureCollection<SimpleFeatureType, SimpleFeature> for PostGIS datastores. If we'd like to optimize PostGIS
+ * SimpleFeatureCollection for PostGIS datastores. If we'd like to optimize PostGIS
  * any further than JDBCFeatureCollection, we can override methods within this
  * subclass. Even though we aren't overriding any methods, we should use this
  * class in case we do optimizations for PostGIS in the future.

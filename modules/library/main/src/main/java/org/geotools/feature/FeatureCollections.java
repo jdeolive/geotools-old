@@ -19,15 +19,14 @@ package org.geotools.feature;
 import java.util.Collections;
 import java.util.Map;
 
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.Factory;
 import org.geotools.factory.GeoTools;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 /**
  * A utility class for working with FeatureCollections.
- * Provides a mechanism for obtaining a FeatureCollection<SimpleFeatureType, SimpleFeature> instance.
+ * Provides a mechanism for obtaining a SimpleFeatureCollection instance.
  * @author  Ian Schneider
  * @source $URL$
  */
@@ -39,42 +38,42 @@ public abstract class FeatureCollections implements Factory {
   }
   
   /**
-   * create a new FeatureCollection<SimpleFeatureType, SimpleFeature> using the current default factory.
-   * @return A FeatureCollection<SimpleFeatureType, SimpleFeature> instance.
+   * create a new SimpleFeatureCollection using the current default factory.
+   * @return A SimpleFeatureCollection instance.
    */
-  public static FeatureCollection<SimpleFeatureType, SimpleFeature> newCollection() {
+  public static SimpleFeatureCollection newCollection() {
     return instance().createCollection(); 
   }
   
   /**
-   * Creates a new FeatureCollection<SimpleFeatureType, SimpleFeature> with a particular id using the current 
+   * Creates a new SimpleFeatureCollection with a particular id using the current 
    * default factory.
    * 
    * @param id The id of the feature collection.
    * 
-   * @return A new FeatureCollection<SimpleFeatureType, SimpleFeature> intsance with the specified id.
+   * @return A new SimpleFeatureCollection intsance with the specified id.
    * 
    * @since 2.4
    */
-  public static FeatureCollection<SimpleFeatureType, SimpleFeature> newCollection( String id ) {
+  public static SimpleFeatureCollection newCollection( String id ) {
 	  return instance().createCollection( id );
   }
   
   /**
-   * Subclasses must implement this to return a new FeatureCollection<SimpleFeatureType, SimpleFeature> object.
+   * Subclasses must implement this to return a new SimpleFeatureCollection object.
    * @return A new FeatureCollection
    */
-  protected abstract FeatureCollection<SimpleFeatureType, SimpleFeature> createCollection();
+  protected abstract SimpleFeatureCollection createCollection();
   
   /**
-   * Subclasses must implement this to return a new FeatureCollection<SimpleFeatureType, SimpleFeature> object 
+   * Subclasses must implement this to return a new SimpleFeatureCollection object 
    * with a particular id.
    * 
    * @param id The identification of the feature collection.
    * 
-   * @return A new FeatureCollection<SimpleFeatureType, SimpleFeature> with the specified id. 
+   * @return A new SimpleFeatureCollection with the specified id. 
    */
-  protected abstract FeatureCollection<SimpleFeatureType, SimpleFeature> createCollection( String id );
+  protected abstract SimpleFeatureCollection createCollection( String id );
   
   /**
    * Returns the implementation hints. The default implementation returns en empty map.

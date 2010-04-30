@@ -53,7 +53,7 @@ public class SLDInlineFeatureParser
 	
 	public SLDInlineFeatureParser(Node root) throws Exception
 	{
-		//handle FeatureCollection<SimpleFeatureType, SimpleFeature> or Feature Tag
+		//handle SimpleFeatureCollection or Feature Tag
 		
 		boolean isFeatureCollection = false;
 		
@@ -82,7 +82,7 @@ public class SLDInlineFeatureParser
 
 	/**
 	 *   1. we have a FeatureType (cf. makeFeatureType)
-	 *   2. we iterate through either the FeatureCollection<SimpleFeatureType, SimpleFeature> or the _Feature set
+	 *   2. we iterate through either the SimpleFeatureCollection or the _Feature set
 	 *   3.      we build a Feature for each element of the set
 	 *   4. we stick it in the features list
 	 * 
@@ -280,7 +280,7 @@ public class SLDInlineFeatureParser
 	 * 
 	 * Checks to make sure we're not going to shoot ourselves in the foot.
 	 *    if InlineFeature has a FeatureCollection, then thats the only node
-	 *           ie. no set of FeatureCollections or FeatureCollection<SimpleFeatureType, SimpleFeature> mixed with a set of Feature 
+	 *           ie. no set of FeatureCollections or SimpleFeatureCollection mixed with a set of Feature 
 	 * 
 	 *    Other stuff as we think of them.
 	 * 
@@ -329,7 +329,7 @@ public class SLDInlineFeatureParser
 			if (foundFC >1)
 				throw new Exception ("SLD - UserLayer, inline feature parser - found >1 FeatureCollection.  Not supported");
 			if ( (foundFC >0) && (foundFeature>0) )
-				throw new Exception ("SLD - UserLayer, inline feature parser - found  FeatureCollection<SimpleFeatureType, SimpleFeature> and featureMembers.  Not supported");
+				throw new Exception ("SLD - UserLayer, inline feature parser - found  SimpleFeatureCollection and featureMembers.  Not supported");
 
 
 			if (foundFC ==0)
@@ -337,7 +337,7 @@ public class SLDInlineFeatureParser
 			
 			 featureName  = null;
 			 
-			//otherwise decend into the FeatureCollection<SimpleFeatureType, SimpleFeature> and check to make sure it only contains features
+			//otherwise decend into the SimpleFeatureCollection and check to make sure it only contains features
 			children = fcNode.getChildNodes();
 
 			for (int i = 0; i < children.getLength(); i++) 

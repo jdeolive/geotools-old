@@ -29,6 +29,7 @@ import java.awt.Dimension;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.data.Parameter;
 import org.geotools.process.feature.AbstractFeatureCollectionProcessFactory;

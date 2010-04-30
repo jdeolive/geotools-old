@@ -18,7 +18,9 @@ package org.geotools.gml3;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
+
 import javax.xml.namespace.QName;
+
 import org.geotools.gml3.smil.SMIL20;
 import org.geotools.gml3.smil.SMIL20LANG;
 import org.geotools.xlink.XLINK;

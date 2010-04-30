@@ -16,9 +16,8 @@
  */
 package org.geotools.gml3.smil;
 
-import org.eclipse.xsd.util.XSDSchemaLocator;
-import org.picocontainer.MutablePicoContainer;
 import org.geotools.xml.Configuration;
+import org.picocontainer.MutablePicoContainer;
 
 
 public class SMIL20LANGConfiguration extends Configuration {

@@ -1,10 +1,10 @@
 package org.geotools.data.wfs.protocol.wfs;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 
-import net.opengis.wfs.BaseRequestType;
 import net.opengis.wfs.GetFeatureType;
 import net.opengis.wfs.WfsFactory;
 

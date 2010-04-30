@@ -33,7 +33,6 @@ import junit.framework.TestSuite;
 import net.sourceforge.groboutils.junit.v1.MultiThreadedTestRunner;
 import net.sourceforge.groboutils.junit.v1.TestRunnable;
 
-import org.geotools.caching.grid.featurecache.GridFeatureCache;
 import org.geotools.caching.grid.spatialindex.store.BufferedDiskStorage;
 import org.geotools.caching.grid.spatialindex.store.DiskStorage;
 import org.geotools.caching.util.CacheUtil;

@@ -16,12 +16,11 @@
  */
 package org.geotools.filter.expression;
 
+import junit.framework.TestCase;
+
 import org.geotools.factory.CommonFactoryFinder;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
-
-
-import junit.framework.TestCase;
 
 public class AddImplTest extends TestCase {
 

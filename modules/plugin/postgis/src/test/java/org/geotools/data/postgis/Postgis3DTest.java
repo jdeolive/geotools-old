@@ -9,15 +9,15 @@ import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureSource;
-import org.geotools.data.FeatureStore;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.Transaction;
 import org.geotools.data.jdbc.JDBCDataStore;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.Hints;
 import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
-import org.geotools.feature.FeatureTypes;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.geometry.jts.LiteCoordinateSequenceFactory;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -184,8 +184,8 @@ public class Postgis3DTest extends AbstractPostgisDataTestCase {
     }
 
     public void testReadPoint() throws Exception {
-        FeatureCollection fc = data.getFeatureSource(POINT3D).getFeatures();
-        FeatureIterator<SimpleFeature> fr = fc.features();
+    	SimpleFeatureCollection fc = data.getFeatureSource(POINT3D).getFeatures();
+        SimpleFeatureIterator fr = fc.features();
         assertTrue(fr.hasNext());
         SimpleFeature feature = fr.next();
         assertEquals(3, feature.getType().getGeometryDescriptor().getUserData().get(Hints.COORDINATE_DIMENSION));
@@ -197,8 +197,8 @@ public class Postgis3DTest extends AbstractPostgisDataTestCase {
     public void testReadPoint2D() throws Exception {
         DefaultQuery q = new DefaultQuery(POINT3D);
         q.setHints(new Hints(Hints.FEATURE_2D, true));
-        FeatureCollection fc = data.getFeatureSource(POINT3D).getFeatures(q);
-        FeatureIterator<SimpleFeature> fr = fc.features();
+        SimpleFeatureCollection fc = data.getFeatureSource(POINT3D).getFeatures(q);
+        SimpleFeatureIterator fr = fc.features();
         assertTrue(fr.hasNext());
         SimpleFeature feature = fr.next();
         assertEquals(2, feature.getType().getGeometryDescriptor().getUserData().get(Hints.COORDINATE_DIMENSION));
@@ -208,8 +208,8 @@ public class Postgis3DTest extends AbstractPostgisDataTestCase {
     }
 
     public void testReadLine() throws Exception {
-        FeatureCollection fc = data.getFeatureSource(LINE3D).getFeatures();
-        FeatureIterator<SimpleFeature> fr = fc.features();
+    	SimpleFeatureCollection fc = data.getFeatureSource(LINE3D).getFeatures();
+        SimpleFeatureIterator fr = fc.features();
         assertTrue(fr.hasNext());
         LineString ls = (LineString) fr.next().getDefaultGeometry();
         // 1 1 0, 2 2 0, 4 2 1, 5 1 1
@@ -232,12 +232,12 @@ public class Postgis3DTest extends AbstractPostgisDataTestCase {
                 "l3" }, null);
 
         // insert it
-        FeatureStore<SimpleFeatureType, SimpleFeature> fs = (FeatureStore) data
+        SimpleFeatureStore fs = (SimpleFeatureStore) data
                 .getFeatureSource(LINE3D);
         List<FeatureId> fids = fs.addFeatures(DataUtilities.collection(newFeature));
 
         // retrieve it back
-        FeatureIterator<SimpleFeature> fi = fs.getFeatures(FF.id(new HashSet<FeatureId>(fids)))
+        SimpleFeatureIterator fi = fs.getFeatures(FF.id(new HashSet<FeatureId>(fids)))
                 .features();
         assertTrue(fi.hasNext());
         SimpleFeature f = fi.next();

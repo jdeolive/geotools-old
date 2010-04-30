@@ -16,7 +16,10 @@
  */
 package org.geotools.renderer.lite;
 
-import static org.easymock.EasyMock.*;
+import static org.easymock.EasyMock.anyObject;
+import static org.easymock.EasyMock.createNiceMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
 
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -27,11 +30,10 @@ import java.util.Iterator;
 
 import junit.framework.TestCase;
 
-import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
-import org.geotools.feature.FeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.feature.FeatureCollections;
-import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -83,8 +85,8 @@ public class StreamingRendererTest extends TestCase {
         testPointFeatureType = builder.buildFeatureType();
     }
 
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> createLineCollection() throws Exception {
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = FeatureCollections.newCollection();
+    public SimpleFeatureCollection createLineCollection() throws Exception {
+        SimpleFeatureCollection fc = FeatureCollections.newCollection();
         fc.add(createLine(-177, 0, -177, 10));
         fc.add(createLine(-177, 0, -200, 0));
         fc.add(createLine(-177, 0, -177, 100));
@@ -156,13 +158,13 @@ public class StreamingRendererTest extends TestCase {
         expect(it2.hasNext()).andThrow(sentinel).anyTimes();
         replay(it2);
         
-        FeatureCollection fc = createNiceMock(FeatureCollection.class);
+        SimpleFeatureCollection fc = createNiceMock(SimpleFeatureCollection.class);
         expect(fc.iterator()).andReturn(it2);
         expect(fc.size()).andReturn(200);
         expect(fc.getSchema()).andReturn(testFeatureType).anyTimes();
         replay(fc);
         
-        FeatureSource fs = createNiceMock(FeatureSource.class);
+        SimpleFeatureSource fs = createNiceMock(SimpleFeatureSource.class);
         expect(fs.getFeatures((Query) anyObject())).andReturn(fc);
         expect(fs.getSchema()).andReturn(testFeatureType).anyTimes();
         expect(fs.getSupportedHints()).andReturn(new HashSet()).anyTimes();
@@ -219,7 +221,7 @@ public class StreamingRendererTest extends TestCase {
         final Rectangle screen = new Rectangle(0, 0, 100, 50);
         final Envelope world = new Envelope(0, 50, 0, -100);
         final AffineTransform worldToScreen = AffineTransform.getRotateInstance(Math.toRadians(90), 0, 0);
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = FeatureCollections.newCollection();
+        SimpleFeatureCollection fc = FeatureCollections.newCollection();
         fc.add(createPoint(0, 0));
         fc.add(createPoint(world.getMaxX(), world.getMinY()));
         MapContext mapContext = new DefaultMapContext(DefaultGeographicCRS.WGS84);

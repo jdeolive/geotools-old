@@ -16,8 +16,8 @@
  */
 package org.geotools.data;
 
-import java.util.Map;
 import java.util.Collections;
+import java.util.Map;
 
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.Factory;

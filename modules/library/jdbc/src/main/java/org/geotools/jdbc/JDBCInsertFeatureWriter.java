@@ -21,9 +21,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import org.geotools.data.FeatureEvent;
 import org.geotools.data.FeatureWriter;
-import org.geotools.data.FeatureEvent.Type;
 import org.geotools.data.store.ContentEntry;
 import org.geotools.data.store.ContentState;
 import org.geotools.factory.Hints;

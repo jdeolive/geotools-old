@@ -38,17 +38,17 @@ import junit.framework.TestCase;
 import org.geotools.TestData;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultTransaction;
-import org.geotools.data.FeatureSource;
-import org.geotools.data.FeatureStore;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.data.shapefile.ShapefileRendererUtil;
 import org.geotools.data.shapefile.dbf.IndexedDbaseFileReader;
 import org.geotools.data.shapefile.shp.ShapefileReader;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
+import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.filter.Filter;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -215,9 +215,9 @@ public class ShapeRendererTest extends TestCase {
         // Sorry! Not part of this testing resources, but too hard to show it with lakes.
         ShapefileDataStore dataStore = TestUtilites.getDataStore("countries.shp");
 
-        final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = dataStore
+        final SimpleFeatureSource featureSource = dataStore
                 .getFeatureSource(dataStore.getTypeNames()[0]);
-        FeatureCollection<SimpleFeatureType, SimpleFeature> features = featureSource.getFeatures();
+        SimpleFeatureCollection features = featureSource.getFeatures();
 
         // Preparing the Filter
         Set<FeatureId> selectedFids = new HashSet<FeatureId>();
@@ -334,12 +334,12 @@ public class ShapeRendererTest extends TestCase {
         ShapefileDataStore ds = TestUtilites.getDataStore(shp2.getName());
         System.out.println("Count: " + ds.getFeatureSource().getCount(Query.ALL));
         Style st = TestUtilites.createTestStyle(null, typename);
-        final FeatureStore<SimpleFeatureType, SimpleFeature> store;
-        store = (FeatureStore<SimpleFeatureType, SimpleFeature>) ds.getFeatureSource();
+        final SimpleFeatureStore store;
+        store = (SimpleFeatureStore) ds.getFeatureSource();
         Transaction t = new DefaultTransaction();
         store.setTransaction(t);
-        FeatureCollection<SimpleFeatureType, SimpleFeature> collection = store.getFeatures();
-        FeatureIterator<SimpleFeature> iter = collection.features();
+        SimpleFeatureCollection collection = store.getFeatures();
+        SimpleFeatureIterator iter = collection.features();
         FeatureId id = TestUtilites.filterFactory.featureId(iter.next().getID());
         Id createFidFilter = TestUtilites.filterFactory.id(Collections.singleton(id));
         collection.close(iter);
@@ -393,11 +393,11 @@ public class ShapeRendererTest extends TestCase {
     public void testAddTransaction() throws Exception {
         final ShapefileDataStore ds = TestUtilites.getDataStore(shp2.getName());
         Style st = TestUtilites.createTestStyle(null, typename);
-        FeatureStore<SimpleFeatureType, SimpleFeature> store = (FeatureStore<SimpleFeatureType, SimpleFeature>) ds.getFeatureSource();
+        SimpleFeatureStore store = (SimpleFeatureStore) ds.getFeatureSource();
         Transaction t = new DefaultTransaction();
         store.setTransaction(t);
-        FeatureCollection<SimpleFeatureType, SimpleFeature> collection = store.getFeatures();
-        FeatureIterator<SimpleFeature> iter = collection.features();
+        SimpleFeatureCollection collection = store.getFeatures();
+        SimpleFeatureIterator iter = collection.features();
         final SimpleFeature feature = iter.next();
         collection.close(iter);
 
@@ -422,7 +422,7 @@ public class ShapeRendererTest extends TestCase {
     public void testModifyTransaction() throws Exception {
         ShapefileDataStore ds = TestUtilites.getDataStore(shp2.getName());
         Style st = TestUtilites.createTestStyle(null, typename);
-        FeatureStore<SimpleFeatureType, SimpleFeature> store = (FeatureStore<SimpleFeatureType, SimpleFeature>) ds.getFeatureSource();
+        SimpleFeatureStore store = (SimpleFeatureStore) ds.getFeatureSource();
         Transaction t = new DefaultTransaction();
         store.setTransaction(t);
         store.modifyFeatures(ds.getSchema().getDescriptor("NAME"), "bleep",

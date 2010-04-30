@@ -16,12 +16,11 @@
  */
 package org.geotools.gml3.bindings;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Polygon;
 import org.geotools.gml3.GML;
 import org.geotools.gml3.GML3TestSupport;
+import org.w3c.dom.Document;
+
+import com.vividsolutions.jts.geom.MultiPolygon;
 
 
 public class MultiPolygonTypeBindingTest extends GML3TestSupport {

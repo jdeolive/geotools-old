@@ -20,9 +20,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.geotools.feature.FeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.expression.Expression;
 
 /**
@@ -51,7 +50,7 @@ public class QuantileListVisitor implements FeatureCalc {
 		this.bin = new ArrayList[bins];
 	}
 
-	public void init(FeatureCollection<SimpleFeatureType, SimpleFeature> collection) {
+	public void init(SimpleFeatureCollection collection) {
 		//do nothing
 	}
 	

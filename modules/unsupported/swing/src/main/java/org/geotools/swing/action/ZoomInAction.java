@@ -18,6 +18,7 @@
 package org.geotools.swing.action;
 
 import java.awt.event.ActionEvent;
+
 import org.geotools.swing.JMapPane;
 import org.geotools.swing.tool.ZoomInTool;
 

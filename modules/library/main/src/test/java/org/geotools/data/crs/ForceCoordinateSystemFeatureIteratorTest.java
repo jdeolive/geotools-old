@@ -18,10 +18,9 @@ package org.geotools.data.crs;
 
 import junit.framework.TestCase;
 
-import org.geotools.data.FeatureReader;
 import org.geotools.data.memory.MemoryDataStore;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.referencing.crs.DefaultEngineeringCRS;
@@ -76,8 +75,8 @@ public class ForceCoordinateSystemFeatureIteratorTest extends TestCase {
         
         MemoryDataStore ds = createDatastore(crs, p);
         
-        FeatureCollection<SimpleFeatureType, SimpleFeature> collection = ds.getFeatureSource(FEATURE_TYPE_NAME).getFeatures();
-        FeatureIterator<SimpleFeature> original = collection.features();
+        SimpleFeatureCollection collection = ds.getFeatureSource(FEATURE_TYPE_NAME).getFeatures();
+        SimpleFeatureIterator original = collection.features();
         
         ForceCoordinateSystemIterator modified = new ForceCoordinateSystemIterator(collection.features(), collection.getSchema(), crs);
         
@@ -97,8 +96,8 @@ public class ForceCoordinateSystemFeatureIteratorTest extends TestCase {
         
         MemoryDataStore ds = createDatastore(srcCRS, p);
         
-        FeatureCollection<SimpleFeatureType, SimpleFeature> collection = ds.getFeatureSource(FEATURE_TYPE_NAME).getFeatures();
-        FeatureIterator<SimpleFeature> original = collection.features();
+        SimpleFeatureCollection collection = ds.getFeatureSource(FEATURE_TYPE_NAME).getFeatures();
+        SimpleFeatureIterator original = collection.features();
         CoordinateReferenceSystem destCRS=DefaultEngineeringCRS.CARTESIAN_2D;
         ForceCoordinateSystemIterator modified = new ForceCoordinateSystemIterator(collection.features(), collection.getSchema(), destCRS);
         
@@ -126,7 +125,7 @@ public class ForceCoordinateSystemFeatureIteratorTest extends TestCase {
         MemoryDataStore ds = createDatastore(crs, p);
         
         try{
-            FeatureCollection<SimpleFeatureType, SimpleFeature> collection = ds.getFeatureSource(FEATURE_TYPE_NAME).getFeatures();
+            SimpleFeatureCollection collection = ds.getFeatureSource(FEATURE_TYPE_NAME).getFeatures();
             new ForceCoordinateSystemIterator(collection.features(), collection.getSchema(), (CoordinateReferenceSystem) null);
             fail(); // should throw a nullpointer exception.
         }catch(NullPointerException e){
@@ -142,8 +141,8 @@ public class ForceCoordinateSystemFeatureIteratorTest extends TestCase {
         
         MemoryDataStore ds = createDatastore(srcCRS, p);
         
-        FeatureCollection<SimpleFeatureType, SimpleFeature> collection = ds.getFeatureSource(FEATURE_TYPE_NAME).getFeatures();
-        FeatureIterator<SimpleFeature> original = collection.features();
+        SimpleFeatureCollection collection = ds.getFeatureSource(FEATURE_TYPE_NAME).getFeatures();
+        SimpleFeatureIterator original = collection.features();
         CoordinateReferenceSystem destCRS=DefaultEngineeringCRS.CARTESIAN_2D;
         ForceCoordinateSystemIterator modified = new ForceCoordinateSystemIterator(collection.features(), collection.getSchema(), destCRS);
         

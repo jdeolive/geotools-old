@@ -22,25 +22,23 @@ import org.opengis.feature.Feature;
 import org.opengis.feature.type.FeatureType;
 
 /**
- * A convenience class for dealing with FeatureCollection Iterators. DOES NOT
- * implement Iterator.
+ * A convenience class for dealing with FeatureCollection Iterators
  * <p>
- * We are sorry but this does not implement Iteartor<Feature>, although it should
- * be a drop in replacement when Geotools is able to upgrade to Java 5.
- * </p>
+ * Note this does not implement Iterator (FeatureIterator is a separate class).
+ * 
  * @author Ian Schneider
  * @source $URL$
  */
 public class FeatureIteratorImpl<F extends Feature> implements FeatureIterator<F> {
-    /** The iterator from the FeatureCollection<SimpleFeatureType, SimpleFeature> to return features from. */
+    /** The iterator from the SimpleFeatureCollection to return features from. */
      java.util.Iterator<F> iterator;
      FeatureCollection<? extends FeatureType, F> collection;
      
     /**
-     * Create a new FeatureIterator<SimpleFeature> using the Iterator from the given
+     * Create a new SimpleFeatureIterator using the Iterator from the given
      * FeatureCollection.
      *
-     * @param collection The FeatureCollection<SimpleFeatureType, SimpleFeature> to perform the iteration on.
+     * @param collection The SimpleFeatureCollection to perform the iteration on.
      */
     public FeatureIteratorImpl(FeatureCollection<? extends FeatureType, F> collection) {
         this.collection = collection;
@@ -69,7 +67,7 @@ public class FeatureIteratorImpl<F extends Feature> implements FeatureIterator<F
         return (F) iterator.next();
     }
     /**
-     * Required so FeatureCollection<SimpleFeatureType, SimpleFeature> classes can implement close( FeatureIterator<SimpleFeature> ).
+     * Required so SimpleFeatureCollection classes can implement close( SimpleFeatureIterator ).
      */
     public void close(){
         if( iterator != null ){

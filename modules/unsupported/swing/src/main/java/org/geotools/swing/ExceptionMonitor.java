@@ -17,39 +17,37 @@
 
 package org.geotools.swing;
 
-import java.awt.Rectangle;
-import java.awt.Dimension;
-import java.awt.Graphics2D;
-
 import java.awt.BorderLayout;
-import java.awt.Container;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dialog;
-import java.awt.Window;
-import javax.swing.JPanel;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JTextArea;
-import javax.swing.JComponent;
-import javax.swing.JOptionPane;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JDesktopPane;
-import javax.swing.BorderFactory;
-import javax.swing.JInternalFrame;
-import javax.swing.AbstractButton;
-
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
+import java.awt.Dimension;
 import java.awt.EventQueue;
-
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.lang.reflect.InvocationTargetException;
 
-import org.geotools.util.logging.Logging;
+import javax.swing.AbstractButton;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JDesktopPane;
+import javax.swing.JDialog;
+import javax.swing.JInternalFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
+
 import org.geotools.resources.Classes;
+import org.geotools.resources.GraphicsUtilities;
 import org.geotools.resources.i18n.Vocabulary;
 import org.geotools.resources.i18n.VocabularyKeys;
-import org.geotools.resources.GraphicsUtilities;
+import org.geotools.util.logging.Logging;
 
 
 /**

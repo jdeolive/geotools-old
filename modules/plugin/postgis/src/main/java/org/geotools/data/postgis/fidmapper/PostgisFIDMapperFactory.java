@@ -16,16 +16,17 @@
  */
 package org.geotools.data.postgis.fidmapper;
 
-import org.geotools.data.jdbc.JDBCDataStoreConfig;
-import org.geotools.data.jdbc.fidmapper.DefaultFIDMapperFactory;
-import org.geotools.data.jdbc.fidmapper.FIDMapper;
-import org.geotools.data.postgis.PostgisSQLBuilder;
-import org.geotools.filter.SQLEncoderPostgis;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.logging.Level;
+
+import org.geotools.data.jdbc.JDBCDataStoreConfig;
+import org.geotools.data.jdbc.fidmapper.DefaultFIDMapperFactory;
+import org.geotools.data.jdbc.fidmapper.FIDMapper;
+import org.geotools.data.postgis.PostgisSQLBuilder;
+import org.geotools.filter.SQLEncoderPostgis;
 
 
 /**

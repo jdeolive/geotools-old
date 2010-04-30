@@ -16,8 +16,6 @@
  */
 package org.geotools.gml;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Vector;
 import java.util.logging.Logger;
 

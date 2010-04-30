@@ -24,12 +24,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.visitor.CalcResult;
 import org.geotools.feature.visitor.UniqueVisitor;
 import org.geotools.util.NullProgressListener;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 
 /**
@@ -44,7 +43,7 @@ public class UniqueIntervalFunction extends ClassificationFunction {
         setName("UniqueInterval");
     }
 
-    private Object calculate(FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection) {
+    private Object calculate(SimpleFeatureCollection featureCollection) {
         try {
             int classNum = getClasses();
         	//use a visitor to grab the unique values
@@ -126,7 +125,7 @@ public class UniqueIntervalFunction extends ClassificationFunction {
 		if (!(feature instanceof FeatureCollection)) {
 			return null;
 		}
-        return calculate((FeatureCollection<SimpleFeatureType, SimpleFeature>) feature);
+        return calculate((SimpleFeatureCollection) feature);
     }
 
     public int getArgCount() {

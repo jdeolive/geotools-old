@@ -35,16 +35,13 @@ import junit.framework.TestSuite;
 
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.filter.FilterDOMParser;
-import org.geotools.filter.FilterFactoryFinder;
 import org.geotools.test.TestData;
 import org.geotools.xml.DocumentFactory;
 import org.geotools.xml.DocumentWriter;
 import org.geotools.xml.XMLHandlerHints;
 import org.geotools.xml.filter.FilterSchema;
 import org.opengis.filter.Filter;
-import org.opengis.filter.FilterFactory;
 import org.opengis.filter.FilterFactory2;
-import org.opengis.filter.Id;
 import org.opengis.filter.PropertyIsNull;
 import org.opengis.filter.identity.FeatureId;
 import org.w3c.dom.Document;

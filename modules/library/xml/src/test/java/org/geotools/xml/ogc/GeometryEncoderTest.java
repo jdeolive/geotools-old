@@ -29,7 +29,6 @@ import javax.xml.parsers.SAXParserFactory;
 import junit.framework.TestCase;
 
 import org.geotools.TestData;
-import org.geotools.xml.DocumentWriter;
 import org.geotools.xml.PrintHandler;
 import org.geotools.xml.XSISAXHandler;
 import org.geotools.xml.schema.Element;

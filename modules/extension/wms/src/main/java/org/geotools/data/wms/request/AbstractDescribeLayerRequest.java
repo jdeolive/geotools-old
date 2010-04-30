@@ -19,8 +19,6 @@ package org.geotools.data.wms.request;
 import java.net.URL;
 import java.util.Properties;
 
-import org.geotools.data.ows.AbstractRequest;
-
 /**
  * Describes an abstract DescribeLayer request. Provides everything except
  * the versioning info, which subclasses must implement.

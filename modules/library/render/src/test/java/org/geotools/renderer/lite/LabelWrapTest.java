@@ -1,6 +1,7 @@
 package org.geotools.renderer.lite;
 
-import static java.awt.RenderingHints.*;
+import static java.awt.RenderingHints.KEY_ANTIALIASING;
+import static java.awt.RenderingHints.VALUE_ANTIALIAS_ON;
 
 import java.awt.RenderingHints;
 import java.util.HashMap;
@@ -10,6 +11,7 @@ import junit.framework.TestCase;
 
 import org.geotools.data.FeatureSource;
 import org.geotools.data.memory.MemoryDataStore;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -27,7 +29,7 @@ import com.vividsolutions.jts.geom.Point;
 public class LabelWrapTest extends TestCase {
 
     private static final long TIME = 10000;
-    FeatureSource<SimpleFeatureType, SimpleFeature> fs;
+    SimpleFeatureSource fs;
     ReferencedEnvelope bounds;
 
     @Override

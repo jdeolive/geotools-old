@@ -18,8 +18,6 @@ package org.geotools.jdbc;
 
 import java.sql.SQLException;
 
-import javax.sql.DataSource;
-
 public abstract class JDBCPrimaryKeyTestSetup extends JDBCDelegatingTestSetup {
 
     protected JDBCPrimaryKeyTestSetup(JDBCTestSetup delegate) {

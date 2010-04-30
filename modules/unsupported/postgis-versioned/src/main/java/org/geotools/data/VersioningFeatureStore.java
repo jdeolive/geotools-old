@@ -18,8 +18,7 @@ package org.geotools.data;
 
 import java.io.IOException;
 
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
+import org.geotools.data.simple.SimpleFeatureStore;
 import org.opengis.filter.Filter;
 
 /**
@@ -31,7 +30,7 @@ import org.opengis.filter.Filter;
  *
  * @source $URL$
  */
-public interface VersioningFeatureStore extends VersioningFeatureSource, FeatureStore<SimpleFeatureType, SimpleFeature> {
+public interface VersioningFeatureStore extends VersioningFeatureSource, SimpleFeatureStore {
     /**
      * Rolls back features matching the filter to the state they had on the
      * specified version.

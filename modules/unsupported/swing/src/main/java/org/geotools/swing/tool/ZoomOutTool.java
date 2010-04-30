@@ -22,7 +22,9 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.util.ResourceBundle;
+
 import javax.swing.ImageIcon;
+
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.geometry.Envelope2D;
 import org.geotools.swing.event.MapMouseEvent;

@@ -19,19 +19,18 @@ package org.geotools.caching.firstdraft;
 import java.io.IOException;
 import java.util.List;
 
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.feature.type.Name;
-import org.opengis.filter.Filter;
 import org.geotools.data.DataStore;
 import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.LockingManager;
 import org.geotools.data.Query;
 import org.geotools.data.ServiceInfo;
 import org.geotools.data.Transaction;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.feature.SchemaException;
+import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.Name;
+import org.opengis.filter.Filter;
 
 
 /**
@@ -85,7 +84,7 @@ public class DelayedDataStore implements DataStore {
         return this.sourceDataStore.getFeatureReader(arg0, arg1);
     }
 
-    public FeatureSource getFeatureSource(String arg0)
+    public SimpleFeatureSource getFeatureSource(String arg0)
         throws IOException {
         idle();
 
@@ -125,7 +124,7 @@ public class DelayedDataStore implements DataStore {
         return this.sourceDataStore.getTypeNames();
     }
 
-    public FeatureSource getView(Query arg0) throws IOException, SchemaException {
+    public SimpleFeatureSource getView(Query arg0) throws IOException, SchemaException {
         idle();
 
         return this.sourceDataStore.getView(arg0);
@@ -141,7 +140,7 @@ public class DelayedDataStore implements DataStore {
 		
 	}
 
-	public FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSource(
+	public SimpleFeatureSource getFeatureSource(
 			Name typeName) throws IOException {
 		 idle();
 		return sourceDataStore.getFeatureSource(typeName);

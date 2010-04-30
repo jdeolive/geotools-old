@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.logging.Logger;
 
 import org.opengis.feature.simple.SimpleFeatureType;
-import org.w3c.dom.NamedNodeMap;
 import org.xml.sax.Attributes;
 
 import com.vividsolutions.jts.geom.Geometry;

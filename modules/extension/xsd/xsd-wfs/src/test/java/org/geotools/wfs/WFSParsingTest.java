@@ -53,13 +53,12 @@ import org.eclipse.xsd.XSDComplexTypeDefinition;
 import org.eclipse.xsd.XSDElementDeclaration;
 import org.eclipse.xsd.XSDSchema;
 import org.geotools.data.DataUtilities;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.xml.Parser;
 import org.geotools.xml.Schemas;
 import org.geotools.xml.StreamingParser;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.capability.FilterCapabilities;
 import org.opengis.filter.capability.SpatialOperators;
 import org.w3c.dom.Document;
@@ -261,11 +260,11 @@ public class WFSParsingTest extends TestCase {
         List featureCollections = fc.getFeature();
         assertEquals(1, featureCollections.size());
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;
-        featureCollection = (FeatureCollection<SimpleFeatureType, SimpleFeature>) featureCollections.get(0);
+        SimpleFeatureCollection featureCollection;
+        featureCollection = (SimpleFeatureCollection) featureCollections.get(0);
         assertEquals(5, featureCollection.size());
 
-        FeatureIterator<SimpleFeature> features = featureCollection.features();
+        SimpleFeatureIterator features = featureCollection.features();
 
         try {
             assertTrue(features.hasNext());

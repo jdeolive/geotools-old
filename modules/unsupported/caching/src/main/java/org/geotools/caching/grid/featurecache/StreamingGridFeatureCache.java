@@ -14,13 +14,12 @@ import org.geotools.caching.spatialindex.Storage;
 import org.geotools.caching.util.BBoxFilterSplitter;
 import org.geotools.caching.util.CacheUtil;
 import org.geotools.data.DefaultQuery;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.data.store.EmptyFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
 import org.opengis.filter.spatial.BBOX;
 
@@ -48,11 +47,11 @@ import com.vividsolutions.jts.geom.Envelope;
 public class StreamingGridFeatureCache extends GridFeatureCache {
 
     
-    public StreamingGridFeatureCache(FeatureSource fs, int indexcapacity, int capacity, Storage store)  throws FeatureCacheException {
+    public StreamingGridFeatureCache(SimpleFeatureSource fs, int indexcapacity, int capacity, Storage store)  throws FeatureCacheException {
 		super(fs, indexcapacity, capacity, store);
 	}
     
-	public StreamingGridFeatureCache(FeatureSource fs, ReferencedEnvelope env, int indexcapacity, int capacity, Storage store){
+	public StreamingGridFeatureCache(SimpleFeatureSource fs, ReferencedEnvelope env, int indexcapacity, int capacity, Storage store){
 		super(fs, env, indexcapacity, capacity, store);
 	}
 
@@ -61,7 +60,7 @@ public class StreamingGridFeatureCache extends GridFeatureCache {
 	 * Gets all feature within a given envelope.
 	 */
 	@Override
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> get(Envelope e) throws IOException{
+    public SimpleFeatureCollection get(Envelope e) throws IOException{
 		Filter f = ff.bbox(getSchema().getGeometryDescriptor().getLocalName(), e.getMinX(), e.getMinY(), e.getMaxX(), e.getMaxY(), getSchema().getCoordinateReferenceSystem().toString());		
 		return getFeatures(f);
 	}
@@ -72,7 +71,7 @@ public class StreamingGridFeatureCache extends GridFeatureCache {
 	 * <p>Currently the query handle is not supported.</p>
 	 */
 	@Override
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> getFeatures(Query query) throws IOException{
+    public SimpleFeatureCollection getFeatures(Query query) throws IOException{
 		//setup types
 		if (query.getTypeName() == null){
 			query = new DefaultQuery(query);
@@ -104,7 +103,7 @@ public class StreamingGridFeatureCache extends GridFeatureCache {
 	 * Get all features that match given filter.
 	 */
 	@Override
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> getFeatures(Filter filter) throws IOException{
+    public SimpleFeatureCollection getFeatures(Filter filter) throws IOException{
 	    
 		Filter[] filters = splitFilter(filter);
 		Filter envFilter = filters[0];
@@ -117,7 +116,7 @@ public class StreamingGridFeatureCache extends GridFeatureCache {
         	envFilter = createFilterFromBounds();
 			return generateFeatureCollection((BBOX)envFilter, filter);
         } else if (envFilter instanceof BBOX){   
-        	FeatureCollection<SimpleFeatureType, SimpleFeature> fc = generateFeatureCollection((BBOX)envFilter, filter);
+        	SimpleFeatureCollection fc = generateFeatureCollection((BBOX)envFilter, filter);
         	return fc;
         }else{
         	throw new UnsupportedOperationException("Invalid filter created.");
@@ -142,7 +141,7 @@ public class StreamingGridFeatureCache extends GridFeatureCache {
 	 * @param postFilter
 	 * @return
 	 */
-	private FeatureCollection<SimpleFeatureType, SimpleFeature> generateFeatureCollection(BBOX envFilter, Filter postFilter){
+	private SimpleFeatureCollection generateFeatureCollection(BBOX envFilter, Filter postFilter){
 		GridCachingFeatureCollection collection = new GridCachingFeatureCollection(envFilter, postFilter, this, this.fs, true);
 		return collection;
 	}
@@ -154,7 +153,7 @@ public class StreamingGridFeatureCache extends GridFeatureCache {
 	 * @param postFilter
 	 * @return
 	 */
-	private FeatureCollection<SimpleFeatureType, SimpleFeature> generateFeatureCollection(Envelope env){
+	private SimpleFeatureCollection generateFeatureCollection(Envelope env){
 		GridCachingFeatureCollection collection = new GridCachingFeatureCollection(env, this);
 		return collection;
 	}
@@ -182,7 +181,7 @@ public class StreamingGridFeatureCache extends GridFeatureCache {
 	/**
 	 * Returns all features in the cache that match the given envelope.
 	 */
-	public FeatureCollection peek(Envelope e) {
+	public SimpleFeatureCollection peek(Envelope e) {
        	return generateFeatureCollection(e);
 	}
 	

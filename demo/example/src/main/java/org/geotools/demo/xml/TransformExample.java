@@ -11,7 +11,6 @@ package org.geotools.demo.xml;
 
 import org.geotools.filter.FilterTransformer;
 import org.geotools.filter.text.cql2.CQL;
-import org.geotools.gml.producer.GeometryTransformer;
 import org.opengis.filter.Filter;
 
 public class TransformExample {

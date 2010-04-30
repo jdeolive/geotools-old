@@ -19,13 +19,12 @@
 
 package org.geotools.filter;
 
-import org.geotools.filter.expression.AddImpl;
-import org.geotools.filter.function.math.FilterFunction_abs;
-import org.geotools.filter.function.math.FilterFunction_min;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+
+import org.geotools.filter.expression.AddImpl;
+import org.geotools.filter.function.math.FilterFunction_min;
 
 /**
  *

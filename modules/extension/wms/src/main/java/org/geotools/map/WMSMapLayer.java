@@ -21,8 +21,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
@@ -30,15 +28,14 @@ import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 
-import org.apache.commons.lang.StringUtils;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.data.DataUtilities;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.ows.Layer;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.data.wms.WebMapServer;
 import org.geotools.data.wms.request.GetFeatureInfoRequest;
 import org.geotools.data.wms.request.GetMapRequest;
@@ -57,8 +54,6 @@ import org.geotools.styling.Rule;
 import org.geotools.styling.Style;
 import org.geotools.styling.StyleFactory;
 import org.opengis.coverage.grid.Format;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.geometry.Envelope;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.parameter.ParameterValue;
@@ -108,7 +103,7 @@ public class WMSMapLayer extends DefaultMapLayer {
      * @param layer
      */
     public WMSMapLayer(WebMapServer wms, Layer layer) {
-        super((FeatureSource<SimpleFeatureType, SimpleFeature>) null, null, "");
+        super((SimpleFeatureSource) null, null, "");
         reader = new WMSCoverageReader(wms, layer);
         try {
             this.featureSource = DataUtilities.source(FeatureUtilities.wrapGridCoverageReader(

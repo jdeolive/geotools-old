@@ -7,6 +7,7 @@ package org.geotools.swing.control;
 
 import java.util.HashSet;
 import java.util.Set;
+
 import javax.swing.JTextField;
 
 /**

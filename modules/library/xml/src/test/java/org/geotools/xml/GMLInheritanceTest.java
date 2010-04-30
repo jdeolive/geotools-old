@@ -23,14 +23,12 @@ import java.util.logging.Level;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
-import org.geotools.TestData;
-
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
-
 import junit.framework.TestCase;
+
+import org.geotools.TestData;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.opengis.feature.simple.SimpleFeature;
 
 
 /**
@@ -64,7 +62,7 @@ public class GMLInheritanceTest extends TestCase {
         assertNotNull("Document missing", doc);
 //            System.out.println(doc);
         
-        checkFeatureCollection((FeatureCollection<SimpleFeatureType, SimpleFeature>)doc);
+        checkFeatureCollection((SimpleFeatureCollection)doc);
     }
     public void testMultiInheritance() throws Throwable {
         SAXParserFactory spf = SAXParserFactory.newInstance();
@@ -90,14 +88,14 @@ public class GMLInheritanceTest extends TestCase {
         assertNotNull("Document missing", doc);
 //            System.out.println(doc);
         
-        checkFeatureCollection((FeatureCollection<SimpleFeatureType, SimpleFeature>)doc);
+        checkFeatureCollection((SimpleFeatureCollection)doc);
     }
     
-    private void checkFeatureCollection(FeatureCollection<SimpleFeatureType, SimpleFeature> doc){
+    private void checkFeatureCollection(SimpleFeatureCollection doc){
                
         //remaining slot (s) should be feature(s)
         assertTrue("Requires atleast one feature",doc.size()>0);  //bbox + feature
-        FeatureIterator<SimpleFeature> i = doc.features();
+        SimpleFeatureIterator i = doc.features();
         int j = 1;
         while(i.hasNext()){
             SimpleFeature ft = i.next();

@@ -27,8 +27,9 @@ import java.util.NoSuchElementException;
 
 import org.geotools.data.DataUtilities;
 import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureStore;
 import org.geotools.data.Transaction;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.data.wfs.v1_0_0.Action.DeleteAction;
 import org.geotools.data.wfs.v1_0_0.Action.InsertAction;
 import org.geotools.data.wfs.v1_0_0.Action.UpdateAction;
@@ -56,7 +57,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * @author dzwiers 
  * @source $URL$
  */
-public class WFSFeatureStore extends WFSFeatureSource implements FeatureStore<SimpleFeatureType, SimpleFeature> {
+public class WFSFeatureStore extends WFSFeatureSource implements SimpleFeatureStore {
     protected Transaction trans = Transaction.AUTO_COMMIT;
 
     /**
@@ -89,7 +90,7 @@ public class WFSFeatureStore extends WFSFeatureSource implements FeatureStore<Si
         return addFeatures(DataUtilities.collection((SimpleFeature[]) features.toArray(new SimpleFeature[0])));
     }
 
-	public List<FeatureId> addFeatures(FeatureCollection<SimpleFeatureType, SimpleFeature> collection) throws IOException {
+	public List<FeatureId> addFeatures(FeatureCollection<SimpleFeatureType,SimpleFeature> collection) throws IOException {
         WFSTransactionState ts = null;
 
         if (trans == Transaction.AUTO_COMMIT) {

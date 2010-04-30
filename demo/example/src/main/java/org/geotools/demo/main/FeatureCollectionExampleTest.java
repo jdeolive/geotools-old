@@ -17,18 +17,16 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.geotools.data.DataUtilities;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.DefaultFeatureCollection;
-import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureCollections;
-import org.geotools.feature.FeatureIterator;
-import org.geotools.feature.collection.AbstractFeatureVisitor;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.visitor.BoundsVisitor;
 import org.geotools.filter.function.Classifier;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.util.NullProgressListener;
-import org.opengis.feature.FeatureVisitor;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.FilterFactory2;
@@ -61,7 +59,7 @@ import com.vividsolutions.jts.geom.Point;
  * @source $URL$
  */
 public class FeatureCollectionExampleTest extends TestCase {
-    private FeatureCollection<SimpleFeatureType, SimpleFeature> features;
+    private SimpleFeatureCollection features;
     private SimpleFeature feature1;
     
     @Override
@@ -90,10 +88,10 @@ public class FeatureCollectionExampleTest extends TestCase {
      * implementation we can make available.
      */
     public void testNewDefaultFeatureCollection(){
-        FeatureCollection<SimpleFeatureType, SimpleFeature> collection = new DefaultFeatureCollection("internal", null );        
+        SimpleFeatureCollection collection = new DefaultFeatureCollection("internal", null );        
     }
     public void testFeatureCollectionsNewCollection(){
-        FeatureCollection<SimpleFeatureType, SimpleFeature> collection = FeatureCollections.newCollection("internal");
+        SimpleFeatureCollection collection = FeatureCollections.newCollection("internal");
     }
     
     public void testAddingContentToYourFeatureCollection() throws Exception{
@@ -101,7 +99,7 @@ public class FeatureCollectionExampleTest extends TestCase {
         Point point1 = geomFactory.createPoint( new Coordinate(40,50));
         Point point2 = geomFactory.createPoint( new Coordinate(30,45));
         
-        FeatureCollection<SimpleFeatureType, SimpleFeature> collection = FeatureCollections.newCollection("internal");
+        SimpleFeatureCollection collection = FeatureCollections.newCollection("internal");
         
         SimpleFeatureType type = DataUtilities.createType("location","geom:Point,name:String");
         final SimpleFeature feature1 = SimpleFeatureBuilder.build( type, new Object[]{ point1, "name1" }, null );
@@ -194,11 +192,11 @@ public class FeatureCollectionExampleTest extends TestCase {
     }
     /** This example also works with Java 1.4 */
     public void testFeatureIterator(){
-        FeatureCollection<SimpleFeatureType, SimpleFeature> collection = features;
+        SimpleFeatureCollection collection = features;
         
         Envelope bounds = new Envelope();
         
-        FeatureIterator<SimpleFeature> features = collection.features();
+        SimpleFeatureIterator features = collection.features();
         try {
             while( features.hasNext()){
                 SimpleFeature feature = features.next();

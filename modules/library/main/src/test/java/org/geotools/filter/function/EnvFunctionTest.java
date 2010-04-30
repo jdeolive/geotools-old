@@ -17,6 +17,11 @@
 
 package org.geotools.filter.function;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,12 +36,12 @@ import java.util.logging.Handler;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 import java.util.logging.StreamHandler;
+
 import org.geotools.factory.CommonFactoryFinder;
 import org.junit.After;
 import org.junit.Test;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
-import static org.junit.Assert.*;
 
 /**
  * @author Andrea Aime

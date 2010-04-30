@@ -17,19 +17,9 @@
 package org.geotools.renderer.style;
 
 import java.awt.Composite;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Shape;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.PathIterator;
 
 import javax.swing.Icon;
-
-import org.geotools.geometry.jts.GeomCollectionIterator;
-import org.geotools.geometry.jts.LiteShape2;
-
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryCollection;
 
 /**
  * Represents a {@link Style2D} backed by an {@link Icon}

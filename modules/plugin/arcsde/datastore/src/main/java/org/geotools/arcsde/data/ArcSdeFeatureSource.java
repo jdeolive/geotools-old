@@ -34,8 +34,9 @@ import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
 import org.geotools.data.QueryCapabilities;
 import org.geotools.data.Transaction;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.Hints;
-import org.geotools.feature.FeatureCollection;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.util.logging.Logging;
 import org.opengis.feature.simple.SimpleFeature;
@@ -49,7 +50,7 @@ import org.opengis.filter.sort.SortBy;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.GeometryFactory;
 
-public class ArcSdeFeatureSource implements FeatureSource<SimpleFeatureType, SimpleFeature> {
+public class ArcSdeFeatureSource implements SimpleFeatureSource {
 
     private static final Logger LOGGER = Logging.getLogger("org.geotools.arcsde.data");
 
@@ -270,10 +271,10 @@ public class ArcSdeFeatureSource implements FeatureSource<SimpleFeatureType, Sim
     /**
      * @see FeatureSource#getFeatures(Query)
      */
-    public final FeatureCollection<SimpleFeatureType, SimpleFeature> getFeatures(final Query query)
+    public final SimpleFeatureCollection getFeatures(final Query query)
             throws IOException {
         final Query namedQuery = namedQuery(query);
-        FeatureCollection<SimpleFeatureType, SimpleFeature> collection;
+        SimpleFeatureCollection collection;
         SimpleFeatureType queryType = dataStore.getQueryType(namedQuery);
         collection = new ArcSdeFeatureCollection(this, queryType, namedQuery);
         return collection;
@@ -282,7 +283,7 @@ public class ArcSdeFeatureSource implements FeatureSource<SimpleFeatureType, Sim
     /**
      * @see FeatureSource#getFeatures(Filter)
      */
-    public final FeatureCollection<SimpleFeatureType, SimpleFeature> getFeatures(final Filter filter)
+    public final SimpleFeatureCollection getFeatures(final Filter filter)
             throws IOException {
         DefaultQuery query = new DefaultQuery(typeInfo.getFeatureTypeName(), filter);
         return getFeatures(query);
@@ -291,7 +292,7 @@ public class ArcSdeFeatureSource implements FeatureSource<SimpleFeatureType, Sim
     /**
      * @see FeatureSource#getFeatures()
      */
-    public final FeatureCollection<SimpleFeatureType, SimpleFeature> getFeatures()
+    public final SimpleFeatureCollection getFeatures()
             throws IOException {
         return getFeatures(Filter.INCLUDE);
     }

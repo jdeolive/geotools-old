@@ -16,10 +16,7 @@
  */
 package org.geotools.styling;
 
-import java.io.StringReader;
 import java.net.URL;
-
-import org.geotools.factory.CommonFactoryFinder;
 
 import junit.framework.TestCase;
 

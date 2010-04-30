@@ -16,8 +16,6 @@
  */
 package org.geotools.xml.gml;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import org.geotools.data.DataUtilities;

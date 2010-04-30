@@ -38,7 +38,7 @@ public class PostgisPermissionOnlineTest extends PostgisOnlineTestCase {
 
         try {
             dataStore.getFeatureSource("restricted");
-            fail("user should not have been able to create FeatureSource<SimpleFeatureType, SimpleFeature> to restricted table");
+            fail("user should not have been able to create SimpleFeatureSource to restricted table");
         } catch (DataSourceException e) {
         }
     }

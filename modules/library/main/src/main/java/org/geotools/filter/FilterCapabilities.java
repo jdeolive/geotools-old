@@ -16,14 +16,12 @@
  */
 package org.geotools.filter;
 
-import java.awt.Dialog;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.geotools.util.MapEntry;
 import org.opengis.filter.And;
 import org.opengis.filter.Not;
 import org.opengis.filter.Or;

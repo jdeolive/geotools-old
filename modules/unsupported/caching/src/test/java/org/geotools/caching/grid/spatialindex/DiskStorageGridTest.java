@@ -16,18 +16,17 @@
  */
 package org.geotools.caching.grid.spatialindex;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import java.io.IOException;
 import java.util.Properties;
 
-import org.geotools.caching.grid.spatialindex.GridSpatialIndex;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
 import org.geotools.caching.grid.spatialindex.store.BufferedDiskStorage;
 import org.geotools.caching.spatialindex.AbstractSpatialIndex;
 import org.geotools.caching.spatialindex.AbstractSpatialIndexTest;
 import org.geotools.caching.spatialindex.Region;
 import org.geotools.caching.spatialindex.Storage;
-import org.geotools.caching.spatialindex.AbstractSpatialIndexTest.HarvestingVisitor;
 
 
 //import org.geotools.caching.spatialindex.store.DiskStorage;

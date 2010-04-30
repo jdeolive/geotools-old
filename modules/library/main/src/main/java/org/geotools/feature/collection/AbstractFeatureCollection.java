@@ -16,7 +16,6 @@
  */
 package org.geotools.feature.collection;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -24,12 +23,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.feature.CollectionListener;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.util.NullProgressListener;
-import org.geotools.util.ProgressListener;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
@@ -42,11 +42,11 @@ import org.opengis.filter.sort.SortBy;
  *
  * @source $URL$
  */
-public abstract class AbstractFeatureCollection implements FeatureCollection<SimpleFeatureType, SimpleFeature> {
+public abstract class AbstractFeatureCollection implements SimpleFeatureCollection {
     /**
      * listeners
      */
-    protected List listeners = new ArrayList();
+    protected List<CollectionListener> listeners = new ArrayList<CollectionListener>();
     /** 
      * id used when serialized to gml
      */
@@ -59,10 +59,11 @@ public abstract class AbstractFeatureCollection implements FeatureCollection<Sim
 	}
 	
     //
-    // FeatureCollection<SimpleFeatureType, SimpleFeature> - Feature Access
+    // SimpleFeatureCollection - Feature Access
     // 
-    public FeatureIterator<SimpleFeature> features() {
-        FeatureIterator<SimpleFeature> iter = new DelegateFeatureIterator<SimpleFeature>( this, openIterator() );
+    @SuppressWarnings("unchecked")
+	public SimpleFeatureIterator features() {
+        SimpleFeatureIterator iter = new DelegateSimpleFeatureIterator( this, openIterator() );
         getOpenIterators().add( iter );
         return iter;
     }
@@ -84,7 +85,8 @@ public abstract class AbstractFeatureCollection implements FeatureCollection<Sim
      * </p>
      * @param close
      */
-    final public void close( Iterator close ){
+    @SuppressWarnings("unchecked")
+	final public void close( Iterator close ){
         if( close == null ) return;
         try {
             closeIterator( close );
@@ -112,7 +114,7 @@ public abstract class AbstractFeatureCollection implements FeatureCollection<Sim
      * 
      * @return Iterator based on resource use
      */
-    abstract protected Iterator openIterator();
+    abstract protected Iterator<SimpleFeature> openIterator();
     
     /**
      * Please override to cleanup after your own iterators, and
@@ -128,7 +130,7 @@ public abstract class AbstractFeatureCollection implements FeatureCollection<Sim
      * 
      * @param close Iterator, will not be <code>null</code>
      */
-    abstract protected void closeIterator( Iterator close );
+    abstract protected void closeIterator( Iterator<SimpleFeature> close );
     
     /**
      * Close any outstanding resources released by this resources.
@@ -143,7 +145,8 @@ public abstract class AbstractFeatureCollection implements FeatureCollection<Sim
      * collection.purge(); 
      * </code></pre>
      */
-    public void purge(){        
+    @SuppressWarnings("unchecked")
+	public void purge(){        
         for( Iterator i = open.iterator(); i.hasNext(); ){
             Object resource = i.next();
             if( resource instanceof Iterator ){
@@ -203,7 +206,8 @@ public abstract class AbstractFeatureCollection implements FeatureCollection<Sim
      * 
      * @see #add(Object)
      */
-    public boolean addAll(Collection<? extends SimpleFeature> c) {
+    @SuppressWarnings("unchecked")
+	public boolean addAll(Collection<? extends SimpleFeature> c) {
         boolean modified = false;
         Iterator<? extends SimpleFeature> e = c.iterator();
         try {
@@ -243,7 +247,7 @@ public abstract class AbstractFeatureCollection implements FeatureCollection<Sim
      *        not supported by this collection.
      */
     public void clear() {
-        Iterator e = iterator();
+        Iterator<SimpleFeature> e = iterator();
         try {
             while (e.hasNext()) {
                 e.next();
@@ -266,7 +270,7 @@ public abstract class AbstractFeatureCollection implements FeatureCollection<Sim
      * @return <tt>true</tt> if this collection contains the specified element.
      */
     public boolean contains(Object o) {
-        Iterator e = null;
+        Iterator<SimpleFeature> e = null;
         try {
             e = iterator();
             if (o==null) {
@@ -312,13 +316,16 @@ public abstract class AbstractFeatureCollection implements FeatureCollection<Sim
     //
     //
     /** Set of open resource iterators */
-    protected final Set open = new HashSet();
+    @SuppressWarnings("unchecked")
+	protected final Set open = new HashSet<Iterator<SimpleFeature>>();
 
     /**
      * Returns the set of open iterators.
-     * 
+     * <p>
+     * Contents are a mix of Iterator<SimpleFeature> and SimpleFeatureIterator
      */
-    final public Set getOpenIterators() {
+    @SuppressWarnings("unchecked")
+	final public Set getOpenIterators() {
         return open;
     }
     
@@ -329,9 +336,10 @@ public abstract class AbstractFeatureCollection implements FeatureCollection<Sim
      * will know what to do.
      * 
      */
-    final public Iterator iterator(){
-        Iterator iterator = openIterator();
-        open.add( iterator );
+    @SuppressWarnings("unchecked")
+	final public Iterator<SimpleFeature> iterator(){
+    	Iterator<SimpleFeature> iterator = openIterator();
+    	getOpenIterators().add( iterator );
         return iterator;
     }
     
@@ -339,7 +347,7 @@ public abstract class AbstractFeatureCollection implements FeatureCollection<Sim
      * @return <tt>true</tt> if this collection contains no elements.
      */
     public boolean isEmpty() {
-        Iterator iterator = iterator();
+        Iterator<SimpleFeature> iterator = iterator();
         try {
             return !iterator.hasNext();
         }
@@ -359,7 +367,7 @@ public abstract class AbstractFeatureCollection implements FeatureCollection<Sim
      *        not supported by this collection.
      */
     public boolean remove(Object o) {
-        Iterator e = iterator();
+        Iterator<SimpleFeature> e = iterator();
         try {
             if (o==null) {
                 while (e.hasNext()) {
@@ -397,7 +405,8 @@ public abstract class AbstractFeatureCollection implements FeatureCollection<Sim
      * @see #remove(Object)
      * @see #contains(Object)
      */
-    final public boolean removeAll(Collection<?> c) {
+    @SuppressWarnings("unchecked")
+	final public boolean removeAll(Collection<?> c) {
         boolean modified = false;
         Iterator e = iterator();
         try {
@@ -431,7 +440,8 @@ public abstract class AbstractFeatureCollection implements FeatureCollection<Sim
      * @see #remove(Object)
      * @see #contains(Object)
      */
-    final public boolean retainAll(Collection<?> c) {
+    @SuppressWarnings("unchecked")
+	final public boolean retainAll(Collection<?> c) {
         boolean modified = false;
         Iterator e = iterator();
         try {
@@ -459,7 +469,7 @@ public abstract class AbstractFeatureCollection implements FeatureCollection<Sim
      */
     public Object[] toArray() {
         Object[] result = new Object[size()];
-        Iterator e = null;
+        Iterator<SimpleFeature> e = null;
         try {
             e = iterator();
             for (int i=0; e.hasNext(); i++)
@@ -470,13 +480,13 @@ public abstract class AbstractFeatureCollection implements FeatureCollection<Sim
         }
     }
 
-    public <T> T[] toArray(T[] a){
+    @SuppressWarnings("unchecked")
+	public <T> T[] toArray(T[] a){
         int size = size();
-        if (a.length < size)
-            a = (T[])java.lang.reflect.Array
-            .newInstance(a.getClass().getComponentType(), size);
-
-        Iterator it = iterator();
+        if (a.length < size){
+            a = (T[])java.lang.reflect.Array.newInstance(a.getClass().getComponentType(), size);
+         }
+        Iterator<SimpleFeature> it = iterator();
         try {
             
             Object[] result = a;
@@ -492,7 +502,7 @@ public abstract class AbstractFeatureCollection implements FeatureCollection<Sim
     }
 
 	public void accepts(org.opengis.feature.FeatureVisitor visitor, org.opengis.util.ProgressListener progress) {
-    	Iterator iterator = null;
+    	Iterator<SimpleFeature> iterator = null;
     	if( progress == null ) progress = new NullProgressListener();
         try{
             float size = size();
@@ -518,18 +528,18 @@ public abstract class AbstractFeatureCollection implements FeatureCollection<Sim
     //
     // Feature Collections API
     //
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> subList( Filter filter ) {
+    public SimpleFeatureCollection subList( Filter filter ) {
         return new SubFeatureList(this, filter );
     }
     
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> subCollection( Filter filter ) {
+    public SimpleFeatureCollection subCollection( Filter filter ) {
         if( filter == Filter.INCLUDE ){
             return this;
         }        
         return new SubFeatureCollection( this, filter );
     }
 
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> sort( SortBy order ) {
+    public SimpleFeatureCollection sort( SortBy order ) {
         return new SubFeatureList(this, order );
     }
 

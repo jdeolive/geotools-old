@@ -32,8 +32,9 @@ import org.geotools.data.FeatureWriter;
 import org.geotools.data.Query;
 import org.geotools.data.SchemaNotFoundException;
 import org.geotools.data.Transaction;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.Feature;
@@ -89,7 +90,10 @@ public class MemoryDataStore extends AbstractDataStore {
         schema.put(typeName, featureType);
         memory.put(typeName, featureMap);
     }
-    public MemoryDataStore(FeatureCollection<SimpleFeatureType, SimpleFeature> collection) {
+    public MemoryDataStore(FeatureCollection<SimpleFeatureType,SimpleFeature> collection) {
+        addFeatures(collection);
+    }
+    public MemoryDataStore(SimpleFeatureCollection collection) {
         addFeatures(collection);
     }
 
@@ -100,7 +104,7 @@ public class MemoryDataStore extends AbstractDataStore {
     public MemoryDataStore(FeatureReader <SimpleFeatureType, SimpleFeature> reader) throws IOException {
         addFeatures(reader);
     }
-    public MemoryDataStore(FeatureIterator<SimpleFeature> reader) throws IOException {
+    public MemoryDataStore(SimpleFeatureIterator reader) throws IOException {
         addFeatures(reader);
     }
 
@@ -156,7 +160,7 @@ public class MemoryDataStore extends AbstractDataStore {
      * @throws IOException If problems are encountered while adding
      * @throws DataSourceException See IOException
      */
-    public void addFeatures(FeatureIterator<SimpleFeature> reader) throws IOException {
+    public void addFeatures(SimpleFeatureIterator reader) throws IOException {
         try {
             SimpleFeatureType featureType;
             Map<String,SimpleFeature> featureMap = new LinkedHashMap<String,SimpleFeature>();
@@ -199,7 +203,7 @@ public class MemoryDataStore extends AbstractDataStore {
      */
     public void addFeatures(Collection<?> collection) {
         if ((collection == null) || collection.isEmpty()) {
-            throw new IllegalArgumentException("Provided FeatureCollection<SimpleFeatureType, SimpleFeature> is empty");
+            throw new IllegalArgumentException("Provided SimpleFeatureCollection is empty");
         }
 
         synchronized (memory) {
@@ -208,9 +212,9 @@ public class MemoryDataStore extends AbstractDataStore {
             }
         }
     }
-    public void addFeatures(FeatureCollection<SimpleFeatureType, SimpleFeature> collection) {
+    public void addFeatures(FeatureCollection<SimpleFeatureType,SimpleFeature> collection) {
         if ((collection == null) ) {
-            throw new IllegalArgumentException("Provided FeatureCollection<SimpleFeatureType, SimpleFeature> is empty");
+            throw new IllegalArgumentException("Provided SimpleFeatureCollection is empty");
         }
         synchronized (memory) {
             try {

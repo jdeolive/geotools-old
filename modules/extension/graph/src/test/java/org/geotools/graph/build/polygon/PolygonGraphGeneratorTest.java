@@ -18,6 +18,8 @@ package org.geotools.graph.build.polygon;
 
 import java.util.StringTokenizer;
 
+import junit.framework.TestCase;
+
 import org.geotools.graph.build.basic.BasicGraphBuilder;
 import org.geotools.graph.structure.Graph;
 import org.geotools.graph.structure.Node;
@@ -25,8 +27,6 @@ import org.geotools.graph.structure.Node;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
-
-import junit.framework.TestCase;
 
 public class PolygonGraphGeneratorTest extends TestCase {
 

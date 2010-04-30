@@ -27,12 +27,11 @@ import junit.framework.TestCase;
 import org.geotools.data.gen.info.GeneralizationInfos;
 import org.geotools.data.gen.info.GeneralizationInfosProvider;
 import org.geotools.data.gen.info.GeneralizationInfosProviderImpl;
-import org.geotools.feature.FeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.NameImpl;
 import org.junit.Assert;
 import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 public class PreGeneralizedSimpleFeatureTest extends TestCase {
 
@@ -47,7 +46,7 @@ public class PreGeneralizedSimpleFeatureTest extends TestCase {
         GeneralizationInfosProvider provider = new GeneralizationInfosProviderImpl();
         GeneralizationInfos ginfos = null;
         PreGeneralizedDataStore ds = null;
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fCollection = null;
+        SimpleFeatureCollection fCollection = null;
         String typeName = "GenStreams";
         try {
             ginfos = provider.getGeneralizationInfos("src/test/resources/geninfo_vertical.xml");
@@ -132,7 +131,7 @@ public class PreGeneralizedSimpleFeatureTest extends TestCase {
         GeneralizationInfosProvider provider = new GeneralizationInfosProviderImpl();
         GeneralizationInfos ginfos = null;
         PreGeneralizedDataStore ds = null;
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fCollection = null;
+        SimpleFeatureCollection fCollection = null;
         String typeName = "GenStreams";
         try {
             ginfos = provider.getGeneralizationInfos("src/test/resources/geninfo_vertical.xml");

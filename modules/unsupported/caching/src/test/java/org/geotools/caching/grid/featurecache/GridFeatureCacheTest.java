@@ -35,9 +35,10 @@ import org.geotools.caching.util.CacheUtil;
 import org.geotools.caching.util.Generator;
 import org.geotools.data.DataStore;
 import org.geotools.data.DefaultQuery;
-import org.geotools.data.FeatureStore;
 import org.geotools.data.memory.MemoryDataStore;
 import org.geotools.data.memory.MemoryFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
@@ -46,7 +47,6 @@ import org.geotools.referencing.crs.DefaultEngineeringCRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
-import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
@@ -69,7 +69,7 @@ public class GridFeatureCacheTest extends AbstractFeatureCacheTest {
     @Override
     protected AbstractFeatureCache createInstance(int capacity)
         throws FeatureCacheException, IOException {
-        this.cache = new GridFeatureCache((FeatureStore) ds.getFeatureSource(
+        this.cache = new GridFeatureCache((SimpleFeatureStore) ds.getFeatureSource(
                     dataset.getSchema().getName()), 100, capacity,
                 MemoryStorage.createInstance());
 
@@ -83,8 +83,8 @@ public class GridFeatureCacheTest extends AbstractFeatureCacheTest {
         for (int i = 0; i < 11; i++) {
             for (int j = 0; j < 11; j++) {
                 Filter f = Generator.createBboxFilter(new Coordinate(i * 0.1, j * 0.1), 0.1, 0.1);
-                FeatureCollection<SimpleFeatureType, SimpleFeature> control = ds.getFeatureSource(dataset.getSchema().getName()).getFeatures(f);
-                FeatureCollection<FeatureType, org.opengis.feature.Feature> c = cache.getFeatures(f);
+                SimpleFeatureCollection control = ds.getFeatureSource(dataset.getSchema().getName()).getFeatures(f);
+                SimpleFeatureCollection c = cache.getFeatures(f);
                 
                 assertEquals(control.size(), c.size());
 

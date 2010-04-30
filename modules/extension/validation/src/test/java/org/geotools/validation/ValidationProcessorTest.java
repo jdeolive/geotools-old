@@ -21,12 +21,11 @@ import java.util.HashMap;
 import org.geotools.data.DataTestCase;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.memory.MemoryDataStore;
-import org.geotools.feature.FeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.validation.spatial.IsValidGeometryValidation;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 /**
  * ValidationProcessorTest purpose.
@@ -105,7 +104,7 @@ public class ValidationProcessorTest extends DataTestCase {
 		
 		SimpleFeature[] singleRoad = new SimpleFeature[1];
 		singleRoad[0] = this.newRoad;
-		FeatureCollection<SimpleFeatureType, SimpleFeature> features = DataUtilities.collection(singleRoad);
+		SimpleFeatureCollection features = DataUtilities.collection(singleRoad);
 		processor.runFeatureTests( "dataStoreId", features, results);
 		assertTrue( results.getFailedMessages().length > 0 );
 

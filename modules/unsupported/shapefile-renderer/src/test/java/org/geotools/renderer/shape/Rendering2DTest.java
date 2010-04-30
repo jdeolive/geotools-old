@@ -27,8 +27,8 @@ import junit.framework.TestSuite;
 import junit.textui.TestRunner;
 
 import org.geotools.data.DataStore;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.shapefile.ShapefileDataStore;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.filter.IllegalFilterException;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.DefaultMapContext;
@@ -43,8 +43,6 @@ import org.geotools.styling.StyleFactoryFinder;
 import org.geotools.styling.StyledLayerDescriptor;
 import org.geotools.styling.UserLayer;
 import org.geotools.test.TestData;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.vividsolutions.jts.geom.Envelope;
@@ -107,7 +105,7 @@ public class Rendering2DTest extends TestCase {
         LOGGER.finer("starting rendering2DTest");
 
         DataStore ds = TestUtilites.getPolygons();
-        FeatureSource<SimpleFeatureType, SimpleFeature> source = ds.getFeatureSource(ds.getTypeNames()[0]);
+        SimpleFeatureSource source = ds.getFeatureSource(ds.getTypeNames()[0]);
         Style style = createTestStyle();
 
         MapContext map = new DefaultMapContext(DefaultGeographicCRS.WGS84);
@@ -199,7 +197,7 @@ public class Rendering2DTest extends TestCase {
         System.err.println("starting rendering2DTest");
 
         DataStore ds = TestUtilites.getPoints();
-        FeatureSource<SimpleFeatureType, SimpleFeature> source = ds.getFeatureSource(ds.getTypeNames()[0]);
+        SimpleFeatureSource source = ds.getFeatureSource(ds.getTypeNames()[0]);
         Style style = createTestStyle();
 
         MapContext map = new DefaultMapContext(DefaultGeographicCRS.WGS84);
@@ -214,7 +212,7 @@ public class Rendering2DTest extends TestCase {
 
     public void testReprojection() throws Exception {
         DataStore ds = TestUtilites.getPolygons();
-        FeatureSource<SimpleFeatureType, SimpleFeature> source = ds.getFeatureSource(ds.getTypeNames()[0]);
+        SimpleFeatureSource source = ds.getFeatureSource(ds.getTypeNames()[0]);
         Style style = createTestStyle();
         CoordinateReferenceSystem crs = ReferencingFactoryFinder.getCRSFactory(null)
         .createFromWKT("PROJCS[\"NAD_1983_UTM_Zone_10N\",GEOGCS[\"GCS_North_American_1983\",DATUM[\"D_North_American_1983\",TOWGS84[0,0,0,0,0,0,0],SPHEROID[\"GRS_1980\",6378137,298.257222101]],PRIMEM[\"Greenwich\",0],UNIT[\"Degree\",0.017453292519943295]],PROJECTION[\"Transverse_Mercator\"],PARAMETER[\"False_Easting\",500000],PARAMETER[\"False_Northing\",0],PARAMETER[\"Central_Meridian\",-123],PARAMETER[\"Scale_Factor\",0.9996],PARAMETER[\"Latitude_Of_Origin\",0],UNIT[\"Meter\",1]]");
@@ -247,7 +245,7 @@ public class Rendering2DTest extends TestCase {
         System.err.println("starting testLiteRender2");
 
         ShapefileDataStore ds = TestUtilites.getDataStore("smallMultiPoly.shp");
-        FeatureSource<SimpleFeatureType, SimpleFeature> source = ds.getFeatureSource(ds.getTypeNames()[0]);
+        SimpleFeatureSource source = ds.getFeatureSource(ds.getTypeNames()[0]);
         Style style = TestUtilites.createTestStyle(ds.getSchema().getTypeName(),
                 null);
 
@@ -313,7 +311,7 @@ public class Rendering2DTest extends TestCase {
      */
     private ShapefileRenderer createLineRenderer(ShapefileDataStore ds)
         throws Exception {
-        FeatureSource<SimpleFeatureType, SimpleFeature> source = ds.getFeatureSource(ds.getTypeNames()[0]);
+        SimpleFeatureSource source = ds.getFeatureSource(ds.getTypeNames()[0]);
         Style style = TestUtilites.createTestStyle(null, ds.getTypeNames()[0]);
 
         MapContext map = new DefaultMapContext(DefaultGeographicCRS.WGS84);

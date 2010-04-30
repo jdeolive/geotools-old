@@ -25,10 +25,9 @@ import junit.framework.TestCase;
 import org.geotools.data.gen.info.GeneralizationInfos;
 import org.geotools.data.gen.info.GeneralizationInfosProvider;
 import org.geotools.data.gen.info.GeneralizationInfosProviderImpl;
-import org.geotools.feature.FeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.junit.Assert;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 public class PreGeneralizedFeatureCollectionTest extends TestCase {
 
@@ -43,7 +42,7 @@ public class PreGeneralizedFeatureCollectionTest extends TestCase {
         GeneralizationInfosProvider provider = new GeneralizationInfosProviderImpl();
         GeneralizationInfos ginfos = null;
         PreGeneralizedDataStore ds = null;
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fCollection = null;
+        SimpleFeatureCollection fCollection = null;
         String typeName = null;
         try {
             ginfos = provider.getGeneralizationInfos("src/test/resources/geninfo_only_base.xml");
@@ -77,7 +76,7 @@ public class PreGeneralizedFeatureCollectionTest extends TestCase {
 
         error = true;
         try {
-            fCollection.addAll((FeatureCollection<SimpleFeatureType, SimpleFeature>) null);
+            fCollection.addAll((SimpleFeatureCollection) null);
         } catch (UnsupportedOperationException ex) {
             error = false;
         }

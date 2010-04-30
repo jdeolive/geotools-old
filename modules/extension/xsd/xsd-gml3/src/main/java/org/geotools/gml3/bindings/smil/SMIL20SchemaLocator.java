@@ -16,10 +16,11 @@
  */
 package org.geotools.gml3.bindings.smil;
 
+import java.io.IOException;
+
 import org.eclipse.xsd.XSDSchema;
 import org.eclipse.xsd.util.XSDSchemaLocationResolver;
 import org.eclipse.xsd.util.XSDSchemaLocator;
-import java.io.IOException;
 import org.geotools.gml3.smil.SMIL20;
 import org.geotools.gml3.smil.SMIL20LANG;
 import org.geotools.xml.Schemas;

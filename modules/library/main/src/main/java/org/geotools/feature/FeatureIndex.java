@@ -20,7 +20,7 @@ import org.opengis.feature.simple.SimpleFeature;
 
 /**
  * An Index is built up around a FeatureCollection, using one of the 
- * attributes in the FeatureCollection<SimpleFeatureType, SimpleFeature> as a comparable reference.
+ * attributes in the SimpleFeatureCollection as a comparable reference.
  * <p> 
  * An object in a column can be any object, but must either be a java
  * base-type Object (Integer, String, Character, etc.) or implement

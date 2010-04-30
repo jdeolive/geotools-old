@@ -29,14 +29,13 @@ import junit.framework.TestCase;
 import org.geotools.data.DataStore;
 import org.geotools.data.memory.MemoryDataStore;
 import org.geotools.data.memory.MemoryFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
-import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.referencing.CRS;
 import org.geotools.test.TestData;
-import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.PropertyIsLessThan;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -114,7 +113,7 @@ public class UserLayerTest extends TestCase {
         final SimpleFeatureType schema = ftb.buildFeatureType();
 
         // create a feature collection ----------------------------------------
-        final FeatureCollection<SimpleFeatureType, SimpleFeature> fc = new MemoryFeatureCollection(schema);
+        final SimpleFeatureCollection fc = new MemoryFeatureCollection(schema);
 
         // populate the collection --------------------------------------------
         final PrecisionModel pm = new PrecisionModel(PrecisionModel.FLOATING);

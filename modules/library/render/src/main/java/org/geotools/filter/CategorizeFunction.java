@@ -22,13 +22,13 @@ import java.util.Collections;
 import java.util.List;
 
 import org.geotools.factory.CommonFactoryFinder;
+import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.capability.FunctionName;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.ExpressionVisitor;
 import org.opengis.filter.expression.Function;
 import org.opengis.filter.expression.Literal;
-import org.opengis.filter.Filter;
 
 /**
  * Implementation of "Categorize" as a normal function.

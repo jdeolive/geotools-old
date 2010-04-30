@@ -20,8 +20,6 @@ import java.util.Map;
 
 import org.geotools.geometry.jts.ReferencedEnvelope;
 
-import com.vividsolutions.jts.geom.Envelope;
-
 
 /**
  * Used to check geospatial information for integrity.
@@ -84,7 +82,7 @@ public interface IntegrityValidation extends Validation {
      * 
      * <p>
      * The layers Map is still under developement, current thinking involves
-     * storing a FeatureSource<SimpleFeatureType, SimpleFeature> of the correct typeName requested by
+     * storing a SimpleFeatureSource of the correct typeName requested by
      * getTypeNames(), using the current geotools2 Transaction as the
      * opperation being validated.
      * </p>
@@ -103,7 +101,7 @@ public interface IntegrityValidation extends Validation {
      * </ul>
      * </p>
      *
-     * @param layers Map of FeatureSource<SimpleFeatureType, SimpleFeature> by "dataStoreID:typeName"
+     * @param layers Map of SimpleFeatureSource by "dataStoreID:typeName"
      * @param envelope The bounding box that encloses the unvalidated data
      * @param results Used to coallate results information
      *

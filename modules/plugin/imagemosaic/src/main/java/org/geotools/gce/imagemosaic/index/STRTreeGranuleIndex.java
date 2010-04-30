@@ -32,11 +32,9 @@ import java.util.logging.Logger;
 
 import org.geotools.data.DataStoreFactorySpi;
 import org.geotools.data.DefaultQuery;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
 import org.geotools.data.QueryCapabilities;
 import org.geotools.data.Transaction;
-import org.geotools.data.store.ContentFeatureSource;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.SchemaException;
 import org.geotools.feature.visitor.FeatureCalc;
@@ -202,7 +200,7 @@ class STRTreeGranuleIndex implements GranuleIndex {
 			features = originalIndex.getGranules();
 			if (features == null) 
 				throw new NullPointerException(
-						"The provided FeatureCollection<SimpleFeatureType, SimpleFeature> is null, it's impossible to create an index!");
+						"The provided SimpleFeatureCollection is null, it's impossible to create an index!");
 	
 			if (LOGGER.isLoggable(Level.FINE))
 				LOGGER.fine("Index Loaded");
@@ -211,7 +209,7 @@ class STRTreeGranuleIndex implements GranuleIndex {
 			it = features.iterator();
 			if (!it.hasNext()) 
 				throw new IllegalArgumentException(
-						"The provided FeatureCollection<SimpleFeatureType, SimpleFeature>  or empty, it's impossible to create an index!");
+						"The provided SimpleFeatureCollection  or empty, it's impossible to create an index!");
 			
 			// now build the index
 			// TODO make it configurable as far the index is involved

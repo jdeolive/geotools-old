@@ -289,6 +289,7 @@ public class AppSchemaDataAccess implements DataAccess<FeatureType, Feature> {
      * @param mapping
      * @return
      */
+    @SuppressWarnings("unchecked")
     public Query unrollQuery(Query query, FeatureTypeMapping mapping) {
         Query unrolledQuery = Query.ALL;
         FeatureSource<FeatureType, Feature> source = mapping.getSource();

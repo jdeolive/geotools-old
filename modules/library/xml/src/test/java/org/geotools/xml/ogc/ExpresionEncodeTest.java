@@ -25,7 +25,6 @@ import javax.naming.OperationNotSupportedException;
 import junit.framework.TestCase;
 
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.filter.BetweenFilter;
 import org.geotools.filter.Expression;
 import org.geotools.filter.FidFilter;
 import org.geotools.filter.FilterFactory;

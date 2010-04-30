@@ -26,14 +26,14 @@ import org.geotools.data.DefaultTransaction;
 import org.geotools.data.DiffFeatureReader;
 import org.geotools.data.EmptyFeatureReader;
 import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.FilteringFeatureReader;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
 import org.geotools.data.TransactionStateDiff;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.feature.IllegalAttributeException;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -158,7 +158,7 @@ public class CollectionDataStoreTest extends DataTestCase {
         assertSame(roadType, data.getSchema("road"));
     }
 
-    void assertCovers(String msg, FeatureCollection<SimpleFeatureType, SimpleFeature> c1, FeatureCollection<SimpleFeatureType, SimpleFeature> c2) {
+    void assertCovers(String msg, SimpleFeatureCollection c1, SimpleFeatureCollection c2) {
         if (c1 == c2) {
             return;
         }
@@ -169,7 +169,7 @@ public class CollectionDataStoreTest extends DataTestCase {
 
         SimpleFeature f;
 
-        for (FeatureIterator<SimpleFeature> i = c1.features(); i.hasNext();) {
+        for (SimpleFeatureIterator i = c1.features(); i.hasNext();) {
             f = i.next();
             assertTrue(msg + " " + f.getID(), c2.contains(f));
         }
@@ -408,34 +408,34 @@ public class CollectionDataStoreTest extends DataTestCase {
 
     // SimpleFeature Source Testing
     public void testGetFeatureSourceRoad() throws IOException {
-        FeatureSource<SimpleFeatureType, SimpleFeature> road = data.getFeatureSource("road");
+        SimpleFeatureSource road = data.getFeatureSource("road");
 
         assertSame(roadType, road.getSchema());
         assertSame(data, road.getDataStore());
         assertEquals(3, road.getCount(Query.ALL));
         assertEquals(new Envelope(1, 5, 0, 4), road.getBounds(Query.ALL));
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> all = road.getFeatures();
+        SimpleFeatureCollection all = road.getFeatures();
         assertEquals(3, all.size());
         assertEquals(roadBounds, all.getBounds());
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> expected = DataUtilities.collection(roadFeatures);
+        SimpleFeatureCollection expected = DataUtilities.collection(roadFeatures);
 
         assertCovers("all", expected, all);
         assertEquals(roadBounds, all.getBounds());
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> some = road.getFeatures(rd12Filter);
+        SimpleFeatureCollection some = road.getFeatures(rd12Filter);
         assertEquals(2, some.size());
         assertEquals(rd12Bounds, some.getBounds());
         assertEquals(some.getSchema(), road.getSchema());
 
         DefaultQuery query = new DefaultQuery( road.getSchema().getTypeName(), rd12Filter, new String[] { "name" });
         
-        FeatureCollection<SimpleFeatureType, SimpleFeature> half = road.getFeatures(query);
+        SimpleFeatureCollection half = road.getFeatures(query);
         assertEquals(2, half.size());
         assertEquals(1, half.getSchema().getAttributeCount());
 
-        FeatureIterator<SimpleFeature> reader = half.features();
+        SimpleFeatureIterator reader = half.features();
         SimpleFeatureType type = half.getSchema();
         reader.close();
 

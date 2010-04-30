@@ -18,6 +18,7 @@ package org.geotools.filter;
 
 import java.util.logging.Logger;
 
+import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
 
 /**

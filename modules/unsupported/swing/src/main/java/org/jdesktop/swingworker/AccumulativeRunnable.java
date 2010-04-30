@@ -7,7 +7,11 @@
 
 package org.jdesktop.swingworker;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import javax.swing.SwingUtilities;
 
 /**

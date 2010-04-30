@@ -28,6 +28,9 @@ import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureStore;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.Transaction;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.util.logging.Logging;
@@ -42,7 +45,7 @@ import com.esri.sde.sdk.client.SeException;
 import com.esri.sde.sdk.client.SeTable;
 
 public class ArcSdeFeatureStore extends ArcSdeFeatureSource implements
-        FeatureStore<SimpleFeatureType, SimpleFeature> {
+        SimpleFeatureStore {
 
     private static final Logger LOGGER = Logging.getLogger(ArcSdeFeatureStore.class.getName());
 
@@ -88,10 +91,10 @@ public class ArcSdeFeatureStore extends ArcSdeFeatureSource implements
     }
 
     /**
-     * @see FeatureStore#addFeatures(FeatureCollection<SimpleFeatureType, SimpleFeature>)
+     * @see FeatureStore#addFeatures(SimpleFeatureCollection)
      */
     public List<FeatureId> addFeatures(
-            final FeatureCollection<SimpleFeatureType, SimpleFeature> collection)
+            final FeatureCollection collection)
             throws IOException {
         // System.err.println(">>addFeatures called at " +
         // Thread.currentThread().getName());

@@ -24,32 +24,25 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.geotools.caching.CacheOversizedException;
-import org.geotools.caching.featurecache.AbstractFeatureCache;
-import org.geotools.caching.featurecache.FeatureCacheException;
-import org.geotools.caching.grid.featurecache.GridFeatureCache;
-import org.geotools.caching.grid.spatialindex.GridSpatialIndex;
-import org.geotools.caching.spatialindex.Region;
-import org.geotools.caching.spatialindex.SpatialIndex;
 import org.geotools.caching.util.CacheUtil;
 import org.geotools.caching.util.Generator;
 import org.geotools.data.memory.MemoryDataStore;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
-import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.filter.spatial.BBOXImpl;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.filter.Filter;
-import org.opengis.filter.FilterFactory;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 
 
 public abstract class AbstractFeatureCacheTest extends TestCase {
-    protected static FeatureCollection<SimpleFeatureType, SimpleFeature> dataset;
+    protected static SimpleFeatureCollection dataset;
     protected static int numdata = 100;
     protected static List<Filter> filterset;
     public final static Filter unitsquarefilter;

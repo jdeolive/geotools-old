@@ -33,19 +33,14 @@ import org.geotools.data.crs.ReprojectFeatureReader;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.visitor.AverageVisitor;
 import org.geotools.feature.visitor.CountVisitor;
-
 import org.geotools.feature.visitor.MaxVisitor;
 import org.geotools.feature.visitor.MedianVisitor;
 import org.geotools.feature.visitor.MinVisitor;
 import org.geotools.feature.visitor.SumVisitor;
 import org.geotools.feature.visitor.UniqueVisitor;
-import org.geotools.filter.IllegalFilterException;
 import org.geotools.filter.SQLEncoderException;
-import org.geotools.filter.visitor.AbstractFilterVisitor;
-import org.geotools.filter.visitor.DefaultFilterVisitor;
 import org.geotools.filter.visitor.DuplicatingFilterVisitor;
 import org.geotools.util.NullProgressListener;
-
 import org.opengis.feature.FeatureVisitor;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;

@@ -24,6 +24,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.feature.CollectionListener;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
@@ -43,7 +45,7 @@ import org.opengis.util.ProgressListener;
  *
  * @source $URL$
  */
-public abstract class AdaptorFeatureCollection implements FeatureCollection<SimpleFeatureType, SimpleFeature> {
+public abstract class AdaptorFeatureCollection implements SimpleFeatureCollection {
  
     public AdaptorFeatureCollection( String id, SimpleFeatureType memberType ) {
         this.id = id == null ? "featureCollection" : id;
@@ -51,19 +53,19 @@ public abstract class AdaptorFeatureCollection implements FeatureCollection<Simp
     }
     
     //
-    // FeatureCollection<SimpleFeatureType, SimpleFeature> - Feature Access
+    // SimpleFeatureCollection - Feature Access
     // 
-    public FeatureIterator<SimpleFeature> features() {
-        FeatureIterator<SimpleFeature> iter = new DelegateFeatureIterator<SimpleFeature>( this, openIterator() );
+    public SimpleFeatureIterator features() {
+        SimpleFeatureIterator iter = new DelegateSimpleFeatureIterator( this, openIterator() );
         open.add( iter );
         return iter; 
     }
-    public void close( FeatureIterator<SimpleFeature> close ) {     
+    public void close( SimpleFeatureIterator close ) {     
         closeIterator( close );
         open.remove( close );
     }
-    public void closeIterator( FeatureIterator<SimpleFeature> close ) {
-        DelegateFeatureIterator<SimpleFeature> iter = (DelegateFeatureIterator<SimpleFeature>) close;
+    public void closeIterator( SimpleFeatureIterator close ) {
+        DelegateSimpleFeatureIterator iter = (DelegateSimpleFeatureIterator) close;
         closeIterator( iter.delegate );
         iter.close(); 
     }
@@ -99,18 +101,18 @@ public abstract class AdaptorFeatureCollection implements FeatureCollection<Simp
     //
     // Feature Collections API
     //
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> subList( Filter filter ) {
+    public SimpleFeatureCollection subList( Filter filter ) {
         return new SubFeatureList(this, filter );
     }
     
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> subCollection( Filter filter ) {
+    public SimpleFeatureCollection subCollection( Filter filter ) {
         if( filter == Filter.INCLUDE ){
             return this;
         }        
         return new SubFeatureCollection( this, filter );
     }
 
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> sort( SortBy order ) {
+    public SimpleFeatureCollection sort( SortBy order ) {
         return new SubFeatureList(this, order );
     }
 
@@ -564,7 +566,7 @@ public abstract class AdaptorFeatureCollection implements FeatureCollection<Simp
                 }
             }
             else if ( resource instanceof FeatureIterator ){
-                FeatureIterator<SimpleFeature> resourceIterator = (FeatureIterator<SimpleFeature>) resource;
+                SimpleFeatureIterator resourceIterator = (SimpleFeatureIterator) resource;
                 try {
                     closeIterator( resourceIterator );
                 }

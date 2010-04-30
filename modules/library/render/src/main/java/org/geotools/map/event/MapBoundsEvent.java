@@ -18,10 +18,9 @@ package org.geotools.map.event;
 
 import java.util.EventObject;
 
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.MapContext;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-
-import org.geotools.geometry.jts.ReferencedEnvelope;
 
 
 /**

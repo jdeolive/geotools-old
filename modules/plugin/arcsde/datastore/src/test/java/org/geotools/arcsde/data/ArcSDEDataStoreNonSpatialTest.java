@@ -36,13 +36,14 @@ import org.geotools.data.DataStore;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.DefaultTransaction;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureStore;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
+import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.filter.text.cql2.CQL;
@@ -207,7 +208,7 @@ public class ArcSDEDataStoreNonSpatialTest {
 
         testData.truncateTestTable(tableName);
 
-        FeatureSource<SimpleFeatureType, SimpleFeature> fs;
+        SimpleFeatureSource fs;
 
         fs = ds.getFeatureSource(tableName);
         assertNotNull(fs);
@@ -224,12 +225,12 @@ public class ArcSDEDataStoreNonSpatialTest {
 
         Filter filter = CQL.toFilter("INT_COL = 2000");
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> features = fs.getFeatures(filter);
+        SimpleFeatureCollection features = fs.getFeatures(filter);
         assertNotNull(features);
         assertEquals(1, features.size());
         assertNull(fs.getBounds());
 
-        FeatureIterator<SimpleFeature> iterator = features.features();
+        SimpleFeatureIterator iterator = features.features();
         assertTrue(iterator.hasNext());
         SimpleFeature next = iterator.next();
         assertNotNull(next);
@@ -429,8 +430,8 @@ public class ArcSDEDataStoreNonSpatialTest {
             throws IOException, UnavailableConnectionException {
         testData.truncateTestTable(tableName);
 
-        FeatureStore<SimpleFeatureType, SimpleFeature> store;
-        store = (FeatureStore<SimpleFeatureType, SimpleFeature>) ds.getFeatureSource(tableName);
+        SimpleFeatureStore store;
+        store = (SimpleFeatureStore) ds.getFeatureSource(tableName);
         assertNotNull(store);
 
         store.setTransaction(transaction);
@@ -446,7 +447,7 @@ public class ArcSDEDataStoreNonSpatialTest {
         builder.set("INT_COL", Integer.valueOf(1000));
         builder.set("STRING_COL", Integer.valueOf(1000));
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fc;
+        SimpleFeatureCollection fc;
         fc = DataUtilities.collection(builder.buildFeature(null));
 
         List<FeatureId> fids = store.addFeatures(fc);

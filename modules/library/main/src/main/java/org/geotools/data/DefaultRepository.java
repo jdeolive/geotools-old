@@ -23,24 +23,16 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.SortedMap;
-import java.util.SortedSet;
-import java.util.TreeMap;
-import java.util.TreeSet;
 
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.feature.NameImpl;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.Name;
 
 /**
@@ -259,7 +251,7 @@ public class DefaultRepository implements Repository {
         return dataStore( new NameImpl( id ));
     }
 
-    public FeatureSource<SimpleFeatureType, SimpleFeature> source(String dataStoreId,
+    public SimpleFeatureSource source(String dataStoreId,
             String typeName) throws IOException {
         DataStore ds = datastore(dataStoreId);
         return ds.getFeatureSource(typeName);

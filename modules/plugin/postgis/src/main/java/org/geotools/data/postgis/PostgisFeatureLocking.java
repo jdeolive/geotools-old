@@ -25,11 +25,9 @@ import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureLock;
 import org.geotools.data.FeatureLockException;
 import org.geotools.data.FeatureLocking;
-import org.geotools.data.FeatureReader;
 import org.geotools.data.LockingManager;
 import org.geotools.data.Query;
-import org.geotools.feature.FeatureIterator;
-import org.geotools.feature.IllegalAttributeException;
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
@@ -163,7 +161,7 @@ public class PostgisFeatureLocking extends PostgisFeatureStore
         // Good idea, but it's not working right now, so we're just using the query passed in.
         Query optimizedQuery = new DefaultQuery(typeName, query.getFilter(),
                 query.getMaxFeatures(), Query.NO_NAMES, query.getHandle());
-        FeatureIterator<SimpleFeature> reader = getFeatures(query).features();
+        SimpleFeatureIterator reader = getFeatures(query).features();
         SimpleFeature feature;
         int count = 0;
         LOGGER.info("got reader from query " + optimizedQuery
@@ -277,7 +275,7 @@ public class PostgisFeatureLocking extends PostgisFeatureStore
 
         // Could we reduce the Query to only return the FetureID here?
         //
-        FeatureIterator<SimpleFeature> reader = getFeatures(query).features();
+        SimpleFeatureIterator reader = getFeatures(query).features();
         String typeName = getSchema().getTypeName();
         SimpleFeature feature;
 

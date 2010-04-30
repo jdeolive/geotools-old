@@ -146,7 +146,7 @@ class WFSFeatureCollection extends DataFeatureCollection {
      * {@code -1}.
      * </p>
      * 
-     * @return the FeatureCollection<SimpleFeatureType, SimpleFeature> size.
+     * @return the SimpleFeatureCollection size.
      * @see DataFeatureCollection#getCount()
      */
     @Override

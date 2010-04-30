@@ -47,6 +47,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geotools.data.collection.CollectionDataStore;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.AttributeTypeBuilder;
 import org.geotools.feature.DefaultFeatureCollection;
@@ -876,7 +879,7 @@ public class DataUtilities {
      * @throws IOException DOCUMENT ME!
      * @throws RuntimeException DOCUMENT ME!
      */
-    public static FeatureSource<SimpleFeatureType, SimpleFeature> source(final SimpleFeature[] featureArray) {
+    public static SimpleFeatureSource source(final SimpleFeature[] featureArray) {
         final SimpleFeatureType featureType;
 
         if ((featureArray == null) || (featureArray.length == 0)) {
@@ -925,7 +928,7 @@ public class DataUtilities {
      * @throws NullPointerException DOCUMENT ME!
      * @throws RuntimeException DOCUMENT ME!
      */
-    public static FeatureSource<SimpleFeatureType, SimpleFeature> source(final FeatureCollection<SimpleFeatureType, SimpleFeature> collection) {
+    public static SimpleFeatureSource source(final FeatureCollection<SimpleFeatureType,SimpleFeature> collection) {
         if (collection == null) {
             throw new NullPointerException();
         }
@@ -941,7 +944,7 @@ public class DataUtilities {
         }
     }
     
-    public static FeatureCollection<SimpleFeatureType, SimpleFeature> results(SimpleFeature[] featureArray){
+    public static SimpleFeatureCollection results(SimpleFeature[] featureArray){
         return results(collection(featureArray));
     }
 
@@ -954,7 +957,7 @@ public class DataUtilities {
      *
      * @throws IOException Raised if collection was empty
      */
-    public static FeatureCollection<SimpleFeatureType, SimpleFeature> results(final FeatureCollection<SimpleFeatureType, SimpleFeature> collection){
+    public static SimpleFeatureCollection results(final SimpleFeatureCollection collection){
         if (collection.size() == 0) {
             //throw new IOException("Provided collection was empty");
         }
@@ -983,7 +986,7 @@ public class DataUtilities {
      * @throws IOException IOException if there is any problem reading the content.
      */   
     public static FeatureReader<SimpleFeatureType, SimpleFeature> reader(
-            FeatureCollection<SimpleFeatureType,SimpleFeature> collection) throws IOException {
+            SimpleFeatureCollection collection) throws IOException {
         return reader(collection
                 .toArray(new SimpleFeature[collection.size()]));
     }
@@ -998,8 +1001,8 @@ public class DataUtilities {
      * @param features Array of features
      * @return FeatureCollection
      */
-    public static FeatureCollection<SimpleFeatureType, SimpleFeature> collection(SimpleFeature[] features) {
-        FeatureCollection<SimpleFeatureType, SimpleFeature> collection = FeatureCollections.newCollection();
+    public static SimpleFeatureCollection collection(SimpleFeature[] features) {
+        SimpleFeatureCollection collection = FeatureCollections.newCollection();
 		final int length = features.length;
 		for (int i = 0; i < length; i++) {
             collection.add(features[i]);
@@ -1009,12 +1012,12 @@ public class DataUtilities {
     /**
      * Copies the provided features into a FeatureCollection.
      * <p>
-     * Often used when gathering a FeatureCollection<SimpleFeatureType, SimpleFeature> into memory.
+     * Often used when gathering a SimpleFeatureCollection into memory.
      * 
-     * @param FeatureCollection<SimpleFeatureType, SimpleFeature> the features to add to a new feature collection.
+     * @param SimpleFeatureCollection the features to add to a new feature collection.
      * @return FeatureCollection
      */
-    public static DefaultFeatureCollection collection( FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection ){
+    public static DefaultFeatureCollection collection( SimpleFeatureCollection featureCollection ){
         return new DefaultFeatureCollection( featureCollection );
     }
     /**
@@ -1023,7 +1026,7 @@ public class DataUtilities {
      * @param featureCollection
      * @return List of features copied into memory
      */
-    public static List<SimpleFeature> list( FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection ){
+    public static List<SimpleFeature> list( SimpleFeatureCollection featureCollection ){
         final ArrayList<SimpleFeature> list = new ArrayList<SimpleFeature>();
         try {
             featureCollection.accepts( new FeatureVisitor(){
@@ -1059,13 +1062,13 @@ public class DataUtilities {
     /**
      * Copies the provided features into a FeatureCollection.
      * <p>
-     * Often used when gathering a FeatureCollection<SimpleFeatureType, SimpleFeature> into memory.
+     * Often used when gathering a SimpleFeatureCollection into memory.
      *
      * @param list features to add to a new FeatureCollection
      * @return FeatureCollection
      */
-    public static FeatureCollection<SimpleFeatureType, SimpleFeature> collection( List<SimpleFeature> list ) {
-        FeatureCollection<SimpleFeatureType, SimpleFeature> collection = FeatureCollections.newCollection();
+    public static SimpleFeatureCollection collection( List<SimpleFeature> list ) {
+        SimpleFeatureCollection collection = FeatureCollections.newCollection();
         for ( SimpleFeature feature : list ){
             collection.add( feature );
         }
@@ -1083,8 +1086,8 @@ public class DataUtilities {
      * @param feature a feature to add to a new collection
      * @return FeatureCollection
      */
-    public static FeatureCollection<SimpleFeatureType, SimpleFeature> collection( SimpleFeature feature ){
-        FeatureCollection<SimpleFeatureType, SimpleFeature> collection = FeatureCollections.newCollection();
+    public static SimpleFeatureCollection collection( SimpleFeature feature ){
+        SimpleFeatureCollection collection = FeatureCollections.newCollection();
         collection.add(feature);
         return collection;
     }
@@ -1098,8 +1101,8 @@ public class DataUtilities {
      * 
      * @return FeatureCollection
      */
-    public static FeatureCollection<SimpleFeatureType, SimpleFeature> collection(FeatureReader <SimpleFeatureType, SimpleFeature> reader) throws IOException {
-        FeatureCollection<SimpleFeatureType, SimpleFeature> collection = FeatureCollections.newCollection();        
+    public static SimpleFeatureCollection collection(FeatureReader <SimpleFeatureType, SimpleFeature> reader) throws IOException {
+        SimpleFeatureCollection collection = FeatureCollections.newCollection();        
         try {
             while( reader.hasNext() ) {
                 try {
@@ -1125,8 +1128,8 @@ public class DataUtilities {
      * 
      * @return FeatureCollection
      */
-    public static FeatureCollection<SimpleFeatureType, SimpleFeature> collection(FeatureIterator<SimpleFeature> reader) throws IOException {
-        FeatureCollection<SimpleFeatureType, SimpleFeature> collection = FeatureCollections.newCollection();        
+    public static SimpleFeatureCollection collection(SimpleFeatureIterator reader) throws IOException {
+        SimpleFeatureCollection collection = FeatureCollections.newCollection();        
         try {
             while( reader.hasNext() ) {
                 try {

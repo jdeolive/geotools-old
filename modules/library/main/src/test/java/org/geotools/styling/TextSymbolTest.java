@@ -23,8 +23,8 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.geotools.data.memory.MemoryDataStore;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.opengis.feature.simple.SimpleFeature;
@@ -115,7 +115,7 @@ public class TextSymbolTest extends TestCase {
         }
 
         String typeName = data.getTypeNames()[0];
-        FeatureCollection<SimpleFeatureType, SimpleFeature> ft = data.getFeatureSource(typeName).getFeatures();
+        SimpleFeatureCollection ft = data.getFeatureSource(typeName).getFeatures();
 
         //REVISIT: Removed since it is deprecated, not sure what this test is
         //is doing, what should replace it.  If someone with more knowledge of

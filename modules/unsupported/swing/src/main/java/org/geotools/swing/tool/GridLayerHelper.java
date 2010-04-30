@@ -20,6 +20,7 @@ package org.geotools.swing.tool;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.feature.FeatureIterator;
@@ -29,6 +30,7 @@ import org.geotools.map.MapContext;
 import org.geotools.map.MapLayer;
 import org.geotools.swing.utils.MapLayerUtils;
 import org.opengis.feature.Feature;
+import org.opengis.geometry.DirectPosition;
 import org.opengis.referencing.operation.MathTransform;
 
 /**

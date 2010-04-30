@@ -17,6 +17,7 @@
 package org.geotools.demo.filter.function;
 
 import java.awt.Color;
+
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.filter.FunctionExpressionImpl;
 import org.opengis.filter.FilterFactory;

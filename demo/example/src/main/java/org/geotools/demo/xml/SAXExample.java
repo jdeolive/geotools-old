@@ -10,8 +10,6 @@
 package org.geotools.demo.xml;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringBufferInputStream;
 import java.io.StringReader;
 
 import org.geotools.filter.FilterFilter;

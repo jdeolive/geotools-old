@@ -16,12 +16,6 @@
  */
 package org.geotools.styling;
 
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.MultiLineString;
-import com.vividsolutions.jts.geom.MultiPoint;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
 import java.awt.Color;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -36,12 +30,20 @@ import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.filter.Filters;
 import org.geotools.styling.visitor.DuplicatingStyleVisitor;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
 import org.opengis.style.GraphicalSymbol;
 import org.opengis.style.SemanticType;
+
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.MultiLineString;
+import com.vividsolutions.jts.geom.MultiPoint;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 
 
 /**
@@ -1917,7 +1919,7 @@ public class SLD {
      *
      * @return a new Style instance
      */
-    public static Style createSimpleStyle(SimpleFeatureType type) {
+    public static Style createSimpleStyle(FeatureType type) {
         return createSimpleStyle(type, Color.BLACK);
     }
 
@@ -1934,7 +1936,7 @@ public class SLD {
      *
      * @throws java.io.IOException if the data store cannot be accessed
      */
-    public static Style createSimpleStyle(SimpleFeatureType type, Color color) {
+    public static Style createSimpleStyle(FeatureType type, Color color) {
         GeometryDescriptor desc = type.getGeometryDescriptor();
         Class<?> clazz = desc.getType().getBinding();
         Color fillColor = null;

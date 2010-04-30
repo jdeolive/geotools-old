@@ -18,9 +18,10 @@ package org.geotools.data;
 
 import java.io.IOException;
 
-import org.opengis.filter.Filter;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.filter.Filter;
 
 
 /**
@@ -70,7 +71,7 @@ public abstract class AbstractFileDataStore extends AbstractDataStore implements
      *
      * @see org.geotools.data.DataStore#getFeatureSource(java.lang.String)
      */
-    public FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSource() throws IOException {
+    public SimpleFeatureSource getFeatureSource() throws IOException {
         return getFeatureSource(getSchema().getTypeName());
     }
 

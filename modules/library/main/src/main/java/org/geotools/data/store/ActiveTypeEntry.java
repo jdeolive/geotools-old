@@ -19,16 +19,12 @@ package org.geotools.data.store;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geotools.data.AbstractFeatureLocking;
 import org.geotools.data.AbstractFeatureSource;
 import org.geotools.data.AbstractFeatureStore;
-import org.geotools.data.DataSourceException;
 import org.geotools.data.DataStore;
-import org.geotools.data.DataUtilities;
-import org.geotools.data.Diff;
 import org.geotools.data.DiffFeatureReader;
 import org.geotools.data.EmptyFeatureReader;
 import org.geotools.data.EmptyFeatureWriter;
@@ -36,27 +32,19 @@ import org.geotools.data.FeatureListener;
 import org.geotools.data.FeatureListenerManager;
 import org.geotools.data.FeatureLocking;
 import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureSource;
-import org.geotools.data.FeatureStore;
 import org.geotools.data.FeatureWriter;
-import org.geotools.data.FilteringFeatureReader;
 import org.geotools.data.InProcessLockingManager;
-import org.geotools.data.MaxFeatureReader;
 import org.geotools.data.Query;
-import org.geotools.data.ReTypeFeatureReader;
 import org.geotools.data.Transaction;
 import org.geotools.data.collection.DelegateFeatureReader;
-import org.geotools.feature.FeatureCollection;
-
-import org.geotools.feature.SchemaException;
-import org.geotools.feature.collection.DelegateFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
+import org.geotools.data.simple.SimpleFeatureStore;
+import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.util.SimpleInternationalString;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
-import org.geotools.geometry.jts.JTS;
-import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.util.SimpleInternationalString;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.util.InternationalString;
 
 import com.vividsolutions.jts.geom.Envelope;
@@ -174,7 +162,7 @@ public abstract class ActiveTypeEntry implements TypeEntry {
 //    protected Envelope createBounds() {
 //        Envelope bbox;
 //        try {
-//            FeatureSource<SimpleFeatureType, SimpleFeature> source = getFeatureSource();
+//            SimpleFeatureSource source = getFeatureSource();
 //            bbox = source.getBounds();
 //            if( bbox == null ){
 //                bbox = source.getFeatures().getBounds();
@@ -200,7 +188,7 @@ public abstract class ActiveTypeEntry implements TypeEntry {
 //    public int getCount() {
 //        if( count != -1 ) return count;
 //        try {
-//            FeatureSource<SimpleFeatureType, SimpleFeature> source = getFeatureSource();
+//            SimpleFeatureSource source = getFeatureSource();
 //            count = source.getCount( Query.ALL );
 //            if( count == -1 ){
 //                count = source.getFeatures().size();
@@ -245,7 +233,7 @@ public abstract class ActiveTypeEntry implements TypeEntry {
         return Collections.unmodifiableMap( metadata );
     }
     
-    /** Manages listener lists for FeatureSource<SimpleFeatureType, SimpleFeature> implementation */
+    /** Manages listener lists for SimpleFeatureSource implementation */
     public FeatureListenerManager listenerManager = new FeatureListenerManager();
     
     //
@@ -273,7 +261,7 @@ public abstract class ActiveTypeEntry implements TypeEntry {
      * 
      * @return FeatureLocking allowing access to content.
      */
-//    public FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSource() throws IOException {        
+//    public SimpleFeatureSource getFeatureSource() throws IOException {        
 //        return createFeatureSource();
 //    }
     /**
@@ -298,7 +286,7 @@ public abstract class ActiveTypeEntry implements TypeEntry {
     		throw new NullPointerException( "Transaction null, did you mean Transaction.AUTO_COMMIT" );
     	}
     	
-    	FeatureCollection<SimpleFeatureType, SimpleFeature> features = createFeatureSource().getFeatures( query );
+    	SimpleFeatureCollection features = createFeatureSource().getFeatures( query );
     	FeatureReader<SimpleFeatureType, SimpleFeature> reader = new DelegateFeatureReader<SimpleFeatureType, SimpleFeature>(
 			features.getSchema(), features.features()
     	);
@@ -407,14 +395,14 @@ public abstract class ActiveTypeEntry implements TypeEntry {
     //
     // Start of Overrides
     //    
-    public abstract FeatureSource<SimpleFeatureType, SimpleFeature> createFeatureSource();
+    public abstract SimpleFeatureSource createFeatureSource();
     
     /**
      * Override to provide readonly access
      * @param schema
-     * @return FeatureSource<SimpleFeatureType, SimpleFeature> backed by this TypeEntry.
+     * @return SimpleFeatureSource backed by this TypeEntry.
      */
-//    protected FeatureSource<SimpleFeatureType, SimpleFeature> createFeatureSource() {
+//    protected SimpleFeatureSource createFeatureSource() {
 //        return new AbstractFeatureSource() {
 //            public DataStore getDataStore() {
 //                return parent;
@@ -437,7 +425,7 @@ public abstract class ActiveTypeEntry implements TypeEntry {
      * Default implementation makes use of DataStore getReader( ... ), and listenerManager.
      * </p>
      */
-    protected FeatureSource<SimpleFeatureType, SimpleFeature> createFeatureSource( final SimpleFeatureType featureType ) {
+    protected SimpleFeatureSource createFeatureSource( final SimpleFeatureType featureType ) {
         return new AbstractFeatureSource() {
             public DataStore getDataStore() {
                 return parent;
@@ -460,7 +448,7 @@ public abstract class ActiveTypeEntry implements TypeEntry {
     /**
      * Create the FeatureStore, override for your own custom implementation.
      */
-    protected FeatureStore<SimpleFeatureType, SimpleFeature> createFeatureStore() {
+    protected SimpleFeatureStore createFeatureStore() {
         
         // This implementation needs FeatureWriters to work
         // please provide your own override for a datastore that does not 

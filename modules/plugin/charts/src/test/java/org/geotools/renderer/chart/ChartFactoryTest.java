@@ -1,7 +1,6 @@
 package org.geotools.renderer.chart;
 
 import javax.swing.Icon;
-import javax.swing.ImageIcon;
 
 import junit.framework.TestCase;
 

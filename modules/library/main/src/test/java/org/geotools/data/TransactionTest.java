@@ -19,13 +19,13 @@ package org.geotools.data;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import junit.framework.TestCase;
 
 import org.geotools.data.memory.MemoryDataStore;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.opengis.feature.simple.SimpleFeature;
@@ -65,7 +65,7 @@ public class TransactionTest extends TestCase {
         SimpleFeature f1=SimpleFeatureBuilder.build(type,new Object[]{ "one",geom },null);
         SimpleFeature f2=SimpleFeatureBuilder.build(type,new Object[]{ "two", geom },null);
         
-        FeatureStore<SimpleFeatureType, SimpleFeature> store=(FeatureStore<SimpleFeatureType, SimpleFeature>) ds.getFeatureSource("default");
+        SimpleFeatureStore store=(SimpleFeatureStore) ds.getFeatureSource("default");
         store.setTransaction(new DefaultTransaction());
         store.addFeatures( DataUtilities.collection( f1 ) );
         store.addFeatures( DataUtilities.collection(f2) );
@@ -77,7 +77,7 @@ public class TransactionTest extends TestCase {
     public void testRemoveFeature() throws Exception{
         SimpleFeature f1=SimpleFeatureBuilder.build(type,new Object[]{ "one",geom },null);
         
-        FeatureStore<SimpleFeatureType, SimpleFeature> store=(FeatureStore<SimpleFeatureType, SimpleFeature>) ds.getFeatureSource("default");
+        SimpleFeatureStore store=(SimpleFeatureStore) ds.getFeatureSource("default");
         store.setTransaction(new DefaultTransaction());
         List<FeatureId> fid=store.addFeatures( DataUtilities.collection(f1) );
 
@@ -92,9 +92,9 @@ public class TransactionTest extends TestCase {
 //        assertEquals("Number of known feature as obtained from getCount",3, store.getCount(Query.ALL));
     }
 
-	private void count(FeatureStore<SimpleFeatureType, SimpleFeature> store, int expected) throws IOException, IllegalAttributeException {
+	private void count(SimpleFeatureStore store, int expected) throws IOException, IllegalAttributeException {
 		int i=0;
-        for( FeatureIterator<SimpleFeature> reader=store.getFeatures().features();
+        for( SimpleFeatureIterator reader=store.getFeatures().features();
         reader.hasNext();){
             reader.next();
             i++;

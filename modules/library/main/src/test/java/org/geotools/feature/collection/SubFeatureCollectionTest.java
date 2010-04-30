@@ -16,31 +16,19 @@
  */
 package org.geotools.feature.collection;
 
-import java.util.Iterator;
-import java.util.Random;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.geotools.data.DataTestCase;
-import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.feature.FeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
-import org.geotools.filter.FidFilterImpl;
-import org.geotools.filter.FilterFactoryImpl;
-import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
-import org.opengis.filter.FilterFactory;
-import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.FilterVisitor;
-import org.opengis.filter.identity.FeatureId;
 
 public class SubFeatureCollectionTest extends DataTestCase {
-    FeatureCollection<SimpleFeatureType, SimpleFeature> features = FeatureCollections
+    SimpleFeatureCollection features = FeatureCollections
             .newCollection();
 
     public SubFeatureCollectionTest(String testName) {
@@ -68,7 +56,7 @@ public class SubFeatureCollectionTest extends DataTestCase {
     }
 
     public void testBounds() {
-        FeatureCollection<SimpleFeatureType, SimpleFeature> subCollection = features
+        SimpleFeatureCollection subCollection = features
                 .subCollection(new Filter() {
 
                     public Object accept(FilterVisitor arg0, Object arg1) {

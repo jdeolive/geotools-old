@@ -16,12 +16,9 @@
  */
 package org.geotools.gml3;
 
-import org.eclipse.xsd.XSDSchema;
-import org.eclipse.xsd.util.XSDSchemaLocationResolver;
-import org.picocontainer.MutablePicoContainer;
-import java.io.File;
 import org.geotools.xml.Configuration;
 import org.geotools.xs.XSConfiguration;
+import org.picocontainer.MutablePicoContainer;
 
 
 /**

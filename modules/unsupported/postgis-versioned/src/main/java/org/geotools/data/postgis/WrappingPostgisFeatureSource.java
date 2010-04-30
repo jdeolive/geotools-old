@@ -25,9 +25,9 @@ import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
 import org.geotools.data.QueryCapabilities;
 import org.geotools.data.ResourceInfo;
-import org.geotools.feature.FeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
@@ -42,12 +42,12 @@ import org.opengis.filter.Filter;
  *
  * @source $URL$
  */
-public class WrappingPostgisFeatureSource implements FeatureSource<SimpleFeatureType, SimpleFeature> {
-    FeatureSource<SimpleFeatureType, SimpleFeature> wrapped;
+public class WrappingPostgisFeatureSource implements SimpleFeatureSource {
+    SimpleFeatureSource wrapped;
 
     VersionedPostgisDataStore store;
 
-    public WrappingPostgisFeatureSource(FeatureSource<SimpleFeatureType, SimpleFeature> wrapped,
+    public WrappingPostgisFeatureSource(SimpleFeatureSource wrapped,
             VersionedPostgisDataStore store) {
         this.wrapped = wrapped;
         this.store = store;
@@ -89,15 +89,15 @@ public class WrappingPostgisFeatureSource implements FeatureSource<SimpleFeature
         return wrapped.getCount(query);
     }
 
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> getFeatures() throws IOException {
+    public SimpleFeatureCollection getFeatures() throws IOException {
         return wrapped.getFeatures();
     }
 
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> getFeatures(Filter filter) throws IOException {
+    public SimpleFeatureCollection getFeatures(Filter filter) throws IOException {
         return wrapped.getFeatures(filter);
     }
 
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> getFeatures(Query query) throws IOException {
+    public SimpleFeatureCollection getFeatures(Query query) throws IOException {
         return wrapped.getFeatures(query);
     }
 

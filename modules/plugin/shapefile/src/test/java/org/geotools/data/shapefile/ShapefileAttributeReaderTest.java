@@ -4,17 +4,14 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Collections;
-import java.util.Iterator;
 
-import org.geotools.TestData;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.Query;
 import org.geotools.data.shapefile.indexed.IndexedShapefileDataStore;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.identity.FeatureId;
@@ -37,7 +34,7 @@ public class ShapefileAttributeReaderTest extends TestCaseSupport {
 		ShapefileDataStore store = new ShapefileDataStore(url);
 
 		//get a random feature id from one of the stores
-		FeatureIterator<SimpleFeature> it = indexedstore.getFeatureSource().getFeatures().features();
+		SimpleFeatureIterator it = indexedstore.getFeatureSource().getFeatures().features();
                 FeatureId fid = it.next().getIdentifier();
                 it.close();
 		
@@ -45,15 +42,15 @@ public class ShapefileAttributeReaderTest extends TestCaseSupport {
 		FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
 		Filter idFilter = ff.id(Collections.singleton(fid));
 		final Query query = new DefaultQuery(indexedstore.getSchema().getName().getLocalPart(), idFilter, new String[] { "STATE_NAME"});
-		final FeatureCollection<SimpleFeatureType, SimpleFeature> indexedfeatures = indexedstore.getFeatureSource().getFeatures(query);
-		final FeatureCollection<SimpleFeatureType, SimpleFeature> features = store.getFeatureSource().getFeatures(query);
+		final SimpleFeatureCollection indexedfeatures = indexedstore.getFeatureSource().getFeatures(query);
+		final SimpleFeatureCollection features = store.getFeatureSource().getFeatures(query);
 		
 		// compare the results
-		FeatureIterator<SimpleFeature> indexIterator = indexedfeatures.features();
+		SimpleFeatureIterator indexIterator = indexedfeatures.features();
 		SimpleFeature indexedFeature = indexIterator.next();
 		indexIterator.close();
 		
-		FeatureIterator<SimpleFeature> iterator = features.features();
+		SimpleFeatureIterator iterator = features.features();
 		SimpleFeature feature = iterator.next();
 		iterator.close();
 		

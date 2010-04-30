@@ -29,10 +29,10 @@ import java.util.Map;
 import junit.framework.AssertionFailedError;
 
 import org.geotools.TestData;
-import org.geotools.data.FeatureSource;
-import org.geotools.data.FeatureStore;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
+import org.geotools.data.simple.SimpleFeatureStore;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
@@ -165,9 +165,9 @@ public class ShapefileReadWriteTest extends TestCaseSupport {
             s = new ShapefileDataStore(TestData.url(TestCaseSupport.class, f), false, charset);
         }
         String typeName = s.getTypeNames()[0];
-        FeatureSource<SimpleFeatureType, SimpleFeature> source = s.getFeatureSource(typeName);
+        SimpleFeatureSource source = s.getFeatureSource(typeName);
         SimpleFeatureType type = source.getSchema();
-        FeatureCollection<SimpleFeatureType, SimpleFeature> one = source.getFeatures();
+        SimpleFeatureCollection one = source.getFeatures();
         File tmp = getTempFile();
 
         ShapefileDataStoreFactory maker = new ShapefileDataStoreFactory();
@@ -178,7 +178,7 @@ public class ShapefileReadWriteTest extends TestCaseSupport {
         test(type, one, tmp2, maker, false, charset);
     }
 
-    private void test(SimpleFeatureType type, FeatureCollection<SimpleFeatureType, SimpleFeature> original,
+    private void test(SimpleFeatureType type, SimpleFeatureCollection original,
             File tmp, ShapefileDataStoreFactory maker, boolean memorymapped, Charset charset)
             throws IOException, MalformedURLException, Exception {
 
@@ -193,12 +193,12 @@ public class ShapefileReadWriteTest extends TestCaseSupport {
 
         shapefile.createSchema(type);
 
-        FeatureStore<SimpleFeatureType, SimpleFeature> store = (FeatureStore<SimpleFeatureType, SimpleFeature>) shapefile.getFeatureSource(type
+        SimpleFeatureStore store = (SimpleFeatureStore) shapefile.getFeatureSource(type
                 .getTypeName());
 
         store.addFeatures(original);
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> copy = store.getFeatures();
+        SimpleFeatureCollection copy = store.getFeatures();
         compare(original, copy);
 
         if (true) {
@@ -209,15 +209,15 @@ public class ShapefileReadWriteTest extends TestCaseSupport {
             else
                 review = new ShapefileDataStore(tmp.toURI().toURL(), tmp.toURI(), memorymapped, charset);
             typeName = review.getTypeNames()[0];
-            FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = review.getFeatureSource(typeName);
-            FeatureCollection<SimpleFeatureType, SimpleFeature> again = featureSource.getFeatures();
+            SimpleFeatureSource featureSource = review.getFeatureSource(typeName);
+            SimpleFeatureCollection again = featureSource.getFeatures();
 
             compare(copy, again);
             compare(original, again);
         }
     }
 
-    static void compare(FeatureCollection<SimpleFeatureType, SimpleFeature> one, FeatureCollection<SimpleFeatureType, SimpleFeature> two)
+    static void compare(SimpleFeatureCollection one, SimpleFeatureCollection two)
             throws Exception {
 
         if (one.size() != two.size()) {
@@ -225,8 +225,8 @@ public class ShapefileReadWriteTest extends TestCaseSupport {
                     + " != " + two.size());
         }
 
-        FeatureIterator<SimpleFeature> iterator1 = one.features();
-        FeatureIterator<SimpleFeature> iterator2 = two.features();
+        SimpleFeatureIterator iterator1 = one.features();
+        SimpleFeatureIterator iterator2 = two.features();
 
         while (iterator1.hasNext()) {
             SimpleFeature f1 = iterator1.next();

@@ -32,18 +32,17 @@ import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFactorySpi;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.data.DefaultQuery;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.postgis.PostgisNGDataStoreFactory;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.filter.text.cql2.CQL;
 import org.geotools.swing.action.SafeAction;
 import org.geotools.swing.data.JDataStoreWizard;
 import org.geotools.swing.table.FeatureCollectionTableModel;
 import org.geotools.swing.wizard.JWizard;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.filter.Filter;
 
@@ -179,46 +178,43 @@ public class QueryLab extends JFrame {
     }
     // docs end connect
 
-    @SuppressWarnings("unchecked")
     // docs start filterFeatures
     private void filterFeatures() throws Exception {
         String typeName = (String) featureTypeCBox.getSelectedItem();
-        FeatureSource source = dataStore.getFeatureSource(typeName);
+        SimpleFeatureSource source = dataStore.getFeatureSource(typeName);
 
         Filter filter = CQL.toFilter(text.getText());
-        FeatureCollection features = source.getFeatures(filter);
+        SimpleFeatureCollection features = source.getFeatures(filter);
         FeatureCollectionTableModel model = new FeatureCollectionTableModel(features);
         table.setModel(model);
     }
     // docs end filterFeatures
 
-    @SuppressWarnings("unchecked")
     // docs start countFeatures
     private void countFeatures() throws Exception {
         String typeName = (String) featureTypeCBox.getSelectedItem();
-        FeatureSource source = dataStore.getFeatureSource(typeName);
+        SimpleFeatureSource source = dataStore.getFeatureSource(typeName);
 
         Filter filter = CQL.toFilter(text.getText());
-        FeatureCollection features = source.getFeatures(filter);
+        SimpleFeatureCollection features = source.getFeatures(filter);
 
         int count = features.size();
         JOptionPane.showMessageDialog(text, "Number of selected features:" + count);
     }
     // docs end countFeatures
 
-    @SuppressWarnings("unchecked")
     // docs start centerFeatures
     private void centerFeatures() throws Exception {
         String typeName = (String) featureTypeCBox.getSelectedItem();
-        FeatureSource source = dataStore.getFeatureSource(typeName);
+        SimpleFeatureSource source = dataStore.getFeatureSource(typeName);
 
         Filter filter = CQL.toFilter(text.getText());
-        FeatureCollection<SimpleFeatureType, SimpleFeature> features = source.getFeatures(filter);
+        SimpleFeatureCollection features = source.getFeatures(filter);
 
         double totalX = 0.0;
         double totalY = 0.0;
         long count = 0;
-        FeatureIterator<SimpleFeature> iterator = features.features();
+        SimpleFeatureIterator iterator = features.features();
         try {
             while (iterator.hasNext()) {
                 SimpleFeature feature = iterator.next();
@@ -239,11 +235,10 @@ public class QueryLab extends JFrame {
     }
     // docs end centerFeatures
 
-    @SuppressWarnings("unchecked")
     // docs start queryFeatures
     private void queryFeatures() throws Exception {
         String typeName = (String) featureTypeCBox.getSelectedItem();
-        FeatureSource source = dataStore.getFeatureSource(typeName);
+        SimpleFeatureSource source = dataStore.getFeatureSource(typeName);
 
         FeatureType schema = source.getSchema();
         String name = schema.getGeometryDescriptor().getLocalName();
@@ -253,7 +248,7 @@ public class QueryLab extends JFrame {
         DefaultQuery query = new DefaultQuery(schema.getName().getLocalPart(), filter,
                 new String[] { name });
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> features = source.getFeatures(query);
+        SimpleFeatureCollection features = source.getFeatures(query);
 
         FeatureCollectionTableModel model = new FeatureCollectionTableModel(features);
         table.setModel(model);

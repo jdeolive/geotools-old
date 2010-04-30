@@ -27,13 +27,12 @@ import javax.xml.parsers.SAXParserFactory;
 import junit.framework.TestCase;
 
 import org.geotools.TestData;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.xml.gml.GMLFeatureCollection;
 import org.geotools.xml.gml.GMLSchema;
 import org.geotools.xml.schema.Schema;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.xml.sax.SAXException;
 
 
@@ -75,7 +74,7 @@ public class GMLParserTest extends TestCase {
             Object doc = xmlContentHandler.getDocument();
             assertNotNull("Document missing", doc);
             
-            FeatureCollection<SimpleFeatureType, SimpleFeature> collection=(FeatureCollection<SimpleFeatureType, SimpleFeature>) doc;
+            SimpleFeatureCollection collection=(SimpleFeatureCollection) doc;
             assertEquals(0, collection.size());
             
     }
@@ -104,7 +103,7 @@ public class GMLParserTest extends TestCase {
             assertNotNull("Document missing", doc);
 //            System.out.println(doc);
             
-            checkFeatureCollection((FeatureCollection<SimpleFeatureType, SimpleFeature>)doc);
+            checkFeatureCollection((SimpleFeatureCollection)doc);
             
     }
     public void skippedtestMoreFeatures(){
@@ -133,7 +132,7 @@ public class GMLParserTest extends TestCase {
             assertNotNull("Document missing", doc);
 //            System.out.println(doc);
             
-            checkFeatureCollection((FeatureCollection<SimpleFeatureType, SimpleFeature>)doc);
+            checkFeatureCollection((SimpleFeatureCollection)doc);
             
         } catch (Throwable e) {
             e.printStackTrace();
@@ -166,7 +165,7 @@ public class GMLParserTest extends TestCase {
             assertNotNull("Document missing", doc);
 //            System.out.println(doc);
 
-            checkFeatureCollection((FeatureCollection<SimpleFeatureType, SimpleFeature>)doc);
+            checkFeatureCollection((SimpleFeatureCollection)doc);
             
         } catch (Throwable e) {
             e.printStackTrace();
@@ -199,7 +198,7 @@ public class GMLParserTest extends TestCase {
             assertNotNull("Document missing", doc);
 //            System.out.println(doc);
             
-            checkFeatureCollection((FeatureCollection<SimpleFeatureType, SimpleFeature>)doc);
+            checkFeatureCollection((SimpleFeatureCollection)doc);
             
         } catch (Throwable e) {
             e.printStackTrace();
@@ -207,11 +206,11 @@ public class GMLParserTest extends TestCase {
         }
     }
     
-    private void checkFeatureCollection(FeatureCollection<SimpleFeatureType, SimpleFeature> doc){
+    private void checkFeatureCollection(SimpleFeatureCollection doc){
                
         //remaining slot (s) should be feature(s)
         assertTrue("Requires atleast one feature",doc.size()>0);  //bbox + feature
-        FeatureIterator<SimpleFeature> i = doc.features();
+        SimpleFeatureIterator i = doc.features();
         int j = 1;
         while(i.hasNext()){
             SimpleFeature ft = i.next();
@@ -320,7 +319,7 @@ public class GMLParserTest extends TestCase {
            assertNotNull("Document missing", doc);
 //           System.out.println(doc);
            
-           checkFeatureCollection((FeatureCollection<SimpleFeatureType, SimpleFeature>)doc);
+           checkFeatureCollection((SimpleFeatureCollection)doc);
            fail("Didn't catch an exception :(");
        } catch (Throwable e) {
 //           e.printStackTrace();

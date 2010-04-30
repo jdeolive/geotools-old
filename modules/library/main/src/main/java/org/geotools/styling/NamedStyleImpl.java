@@ -19,10 +19,6 @@ package org.geotools.styling;
 
 import org.opengis.style.FeatureTypeStyle;
 import org.opengis.style.StyleVisitor;
-import org.opengis.util.InternationalString;
-import org.opengis.style.Description;
-
-import org.geotools.util.SimpleInternationalString;
 
 
 

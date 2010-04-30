@@ -25,12 +25,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
-import org.opengis.filter.expression.Expression;
-import org.opengis.filter.FilterFactory2;
-
-
 import org.geotools.styling.ExternalGraphic;
 import org.geotools.styling.Graphic;
+import org.opengis.filter.FilterFactory2;
+import org.opengis.filter.expression.Expression;
 
 /**
  * 
@@ -207,8 +205,8 @@ public class CustomGlyphRenderer implements GlyphRenderer {
 //chorner: feature.getParent is no more... is this needed?        
 //        if (!maxFound){
 //            maxFound = true;
-//            FeatureCollection<SimpleFeatureType, SimpleFeature> fc = feature.getParent();
-//            FeatureIterator<SimpleFeature> features = fc.features();
+//            SimpleFeatureCollection fc = feature.getParent();
+//            SimpleFeatureIterator features = fc.features();
 //            while (features.hasNext()){
 //                Feature next = features.next();
 //                Expression tempExp = (Expression) list.getPropertyValue("bar height");

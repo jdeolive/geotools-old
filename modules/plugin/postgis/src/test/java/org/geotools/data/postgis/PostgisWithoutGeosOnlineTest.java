@@ -17,15 +17,12 @@
 package org.geotools.data.postgis;
 
 import java.util.ArrayList;
-
 import java.util.Iterator;
 import java.util.List;
 
 import org.geotools.data.FeatureReader;
-
 import org.geotools.data.Transaction;
-import org.geotools.feature.FeatureCollection;
-
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.filter.FilterFactory;
 import org.geotools.filter.FilterFactoryFinder;
 import org.geotools.filter.GeometryFilter;
@@ -62,7 +59,7 @@ public class PostgisWithoutGeosOnlineTest extends AbstractPostgisDataTestCase {
 //		get the bounding box for each feature
 		List bbox = new ArrayList();
 		List fids = new ArrayList();
-		FeatureCollection<SimpleFeatureType, SimpleFeature> fc = data.getFeatureSource("road").getFeatures();
+		SimpleFeatureCollection fc = data.getFeatureSource("road").getFeatures();
 		for (Iterator itr = fc.iterator(); itr.hasNext();) {
 			SimpleFeature f = (SimpleFeature)itr.next();
 			bbox.add(((Geometry) f.getDefaultGeometry()).getEnvelopeInternal());

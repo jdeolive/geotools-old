@@ -25,10 +25,9 @@ import java.util.NoSuchElementException;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureStore;
 import org.geotools.data.shapefile.indexed.IndexedShapefileDataStoreFactory;
-import org.geotools.feature.FeatureCollection;
-
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
@@ -65,9 +64,9 @@ public class createTestData {
         final SimpleFeatureType featureType = builder.buildFeatureType();
         datastore.createSchema(featureType);
 
-        FeatureStore<SimpleFeatureType, SimpleFeature> store = (FeatureStore<SimpleFeatureType, SimpleFeature>) datastore.getFeatureSource(
+        SimpleFeatureStore store = (SimpleFeatureStore) datastore.getFeatureSource(
                 "test_lines");
-        FeatureCollection<SimpleFeatureType, SimpleFeature> collection;
+        SimpleFeatureCollection collection;
         collection = DataUtilities
                 .collection(new FeatureReader<SimpleFeatureType, SimpleFeature>() {
             public SimpleFeatureType getFeatureType() {

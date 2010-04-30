@@ -23,16 +23,16 @@
 
 package org.geotools.process.literal;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.Collections;
 
-import org.geotools.text.Text;
 import org.geotools.data.Parameter;
 import org.geotools.feature.NameImpl;
 import org.geotools.process.Process;
-import org.opengis.util.InternationalString;
 import org.geotools.process.impl.SingleProcessFactory;
+import org.geotools.text.Text;
+import org.opengis.util.InternationalString;
 
 public class DoubleAdditionFactory extends SingleProcessFactory
 {

@@ -20,15 +20,15 @@
  */
 package org.geotools.data.jdbc.fidmapper;
 
-import org.geotools.data.DataSourceException;
-import org.opengis.feature.simple.SimpleFeature;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.Statement;
+
+import org.geotools.data.DataSourceException;
+import org.opengis.feature.simple.SimpleFeature;
 
 
 /**

@@ -24,10 +24,7 @@ import java.util.List;
 import org.geotools.geometry.jts.LiteShape2;
 import org.geotools.styling.TextSymbolizer;
 import org.geotools.util.NumberRange;
-import org.geotools.util.Range;
 import org.opengis.feature.simple.SimpleFeature;
-
-import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * Used to cache labels prior to their being drawn on the screen.

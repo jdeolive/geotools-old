@@ -19,8 +19,6 @@ package org.geotools.data.wms.test;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import javax.swing.Icon;
-
 import junit.framework.TestCase;
 
 import org.geotools.data.ResourceInfo;
@@ -29,8 +27,6 @@ import org.geotools.data.ows.Layer;
 import org.geotools.data.ows.WMSCapabilities;
 import org.geotools.data.wms.WebMapServer;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.referencing.crs.DefaultGeocentricCRS;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
 
 /**
  * This test case assume you have a default geoserver installed

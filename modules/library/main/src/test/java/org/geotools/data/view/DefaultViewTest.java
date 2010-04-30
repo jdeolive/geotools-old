@@ -22,15 +22,13 @@ import junit.framework.TestCase;
 
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultQuery;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.memory.MemoryDataStore;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
-
-import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.SchemaException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
-import org.geotools.filter.FilterFactoryFinder;
 import org.geotools.filter.IllegalFilterException;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -66,9 +64,9 @@ public class DefaultViewTest extends TestCase {
 
     public void testGetFeatures() throws Exception {
 
-        FeatureSource<SimpleFeatureType, SimpleFeature> view = getView();
+        SimpleFeatureSource view = getView();
         
-        FeatureIterator<SimpleFeature> features = view.getFeatures().features();
+        SimpleFeatureIterator features = view.getFeatures().features();
         int count=0;
         while( features.hasNext() ){
             count++;
@@ -80,9 +78,9 @@ public class DefaultViewTest extends TestCase {
 
     public void testGetFeaturesQuery() throws Exception {
 
-        FeatureSource<SimpleFeatureType, SimpleFeature> view = getView();
+        SimpleFeatureSource view = getView();
         
-        FeatureIterator<SimpleFeature> features = view.getFeatures(getQuery()).features();
+        SimpleFeatureIterator features = view.getFeatures(getQuery()).features();
         int count=0;
         while( features.hasNext() ){
             count++;
@@ -93,9 +91,9 @@ public class DefaultViewTest extends TestCase {
     }
     public void testGetFeaturesFilter() throws Exception {
 
-        FeatureSource<SimpleFeatureType, SimpleFeature> view = getView();
+        SimpleFeatureSource view = getView();
         Filter f = getFilter();
-        FeatureIterator<SimpleFeature> features = view.getFeatures(f).features();
+        SimpleFeatureIterator features = view.getFeatures(f).features();
         int count=0;
         while( features.hasNext() ){
             count++;
@@ -106,7 +104,7 @@ public class DefaultViewTest extends TestCase {
     }
   
     public void testGetCount() throws Exception {
-        FeatureSource<SimpleFeatureType, SimpleFeature> view = getView();
+        SimpleFeatureSource view = getView();
         
         DefaultQuery defaultQuery = getQuery();
         int count = view.getCount(defaultQuery);
@@ -125,11 +123,11 @@ public class DefaultViewTest extends TestCase {
         return f;
     }
 
-    private FeatureSource<SimpleFeatureType, SimpleFeature> getView() throws IllegalFilterException, IOException, SchemaException {
+    private SimpleFeatureSource getView() throws IllegalFilterException, IOException, SchemaException {
         FilterFactory fac = CommonFactoryFinder.getFilterFactory(null);
         Filter f = fac.less(fac.property("id"), fac.literal(3));
 
-        FeatureSource<SimpleFeatureType, SimpleFeature> view = ds.getView(new DefaultQuery(typeName, f));
+        SimpleFeatureSource view = ds.getView(new DefaultQuery(typeName, f));
         return view;
     }
 

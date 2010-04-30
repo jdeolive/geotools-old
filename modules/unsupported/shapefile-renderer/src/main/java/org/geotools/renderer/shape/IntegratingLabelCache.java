@@ -21,15 +21,11 @@ import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
 
-import javax.media.jai.util.Range;
-
 import org.geotools.geometry.jts.LiteShape2;
 import org.geotools.renderer.lite.LabelCache;
 import org.geotools.styling.TextSymbolizer;
 import org.geotools.util.NumberRange;
 import org.opengis.feature.simple.SimpleFeature;
-
-import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * Wrapper around another {@link LabelCache} that disables the following methods:

@@ -19,7 +19,8 @@ package org.geotools.caching.featurecache;
 import java.io.IOException;
 
 import org.geotools.caching.CacheOversizedException;
-import org.geotools.data.FeatureSource;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.feature.FeatureCollection;
 
 import com.vividsolutions.jts.geom.Envelope;
@@ -30,7 +31,7 @@ import com.vividsolutions.jts.geom.Envelope;
  *
  * @source $URL$
  */
-public interface FeatureCache extends FeatureSource {
+public interface FeatureCache extends SimpleFeatureSource {
     /**
      * Removes all features from the feature cache.
      */
@@ -43,7 +44,7 @@ public interface FeatureCache extends FeatureSource {
     *  
     * @throws CacheOversizedException
     */
-    public void put(FeatureCollection fc, Envelope e) throws CacheOversizedException;
+    public void put(SimpleFeatureCollection fc, Envelope e) throws CacheOversizedException;
 
     /**
      *
@@ -51,7 +52,7 @@ public interface FeatureCache extends FeatureSource {
      *  
      * @throws CacheOversizedException
      */
-    public void put(FeatureCollection fc) throws CacheOversizedException;
+    public void put(SimpleFeatureCollection fc) throws CacheOversizedException;
 
     /**
      * Returns a feature collection of features within in the given 
@@ -64,7 +65,7 @@ public interface FeatureCache extends FeatureSource {
      * @return Collection of feature found in the given envelope (from the cache or feature source)
      * @throws IOException
      */
-    public FeatureCollection get(Envelope e) throws IOException;
+    public SimpleFeatureCollection get(Envelope e) throws IOException;
 
     /**
      * Looks in the cache for the features within a given
@@ -75,7 +76,7 @@ public interface FeatureCache extends FeatureSource {
      * @param e
      * @return Collection of features found in the cache.
      */
-    public FeatureCollection peek(Envelope e);
+    public SimpleFeatureCollection peek(Envelope e);
 
     /**
      * Removes all features from the cache

@@ -6,8 +6,8 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
-import org.geotools.data.FeatureSource;
 import org.geotools.data.property.PropertyDataStore;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
@@ -15,7 +15,6 @@ import org.geotools.renderer.RenderListener;
 import org.geotools.styling.Style;
 import org.geotools.test.TestData;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 /**
  * Tests the optimized data loading does merge the filters properly (was never released,
@@ -27,7 +26,7 @@ public class QueryOptimizeTest extends TestCase {
     
     private static final long TIME = 2000;
     
-    FeatureSource<SimpleFeatureType, SimpleFeature> squareFS;
+    SimpleFeatureSource squareFS;
     ReferencedEnvelope bounds;
     StreamingRenderer renderer;
     DefaultMapContext context;

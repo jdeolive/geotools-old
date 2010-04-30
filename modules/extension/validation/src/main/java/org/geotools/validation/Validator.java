@@ -29,13 +29,10 @@ import org.geotools.data.DataSourceException;
 import org.geotools.data.DefaultRepository;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.Repository;
-import org.geotools.feature.FeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.Name;
-
-import com.vividsolutions.jts.geom.Envelope;
 
 /**
  * Validator<br>
@@ -110,7 +107,7 @@ public class Validator
 	 * @throws IOException
 	 * @throws Exception
 	 */
-	public void featureValidation(String dsid, FeatureCollection<SimpleFeatureType, SimpleFeature> features, ValidationResults results )
+	public void featureValidation(String dsid, SimpleFeatureCollection features, ValidationResults results )
 		throws IOException, Exception//, WfsTransactionException 
 	{
 		//LOGGER.finer("FeatureValidation called on "+dsid+":"+type.getTypeName() ); 
@@ -245,7 +242,7 @@ public class Validator
 				sources.put( typeRef, source );                                                
 			}
 		}
-		LOGGER.finer( "Total of "+sources.size()+" FeatureSource<SimpleFeatureType, SimpleFeature> marshalled for testing" );
+		LOGGER.finer( "Total of "+sources.size()+" SimpleFeatureSource marshalled for testing" );
 		final Map failed = new TreeMap();
 		
 		try {

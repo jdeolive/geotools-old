@@ -16,12 +16,12 @@
  */
 package org.geotools.data.jdbc.fidmapper;
 
-import org.opengis.feature.simple.SimpleFeature;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.Statement;
+
+import org.opengis.feature.simple.SimpleFeature;
 
 
 /**

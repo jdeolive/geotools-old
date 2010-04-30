@@ -22,15 +22,14 @@ import java.util.Collections;
 import junit.framework.TestCase;
 
 import org.geotools.data.DefaultQuery;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.renderer.RenderListener;
 import org.geotools.styling.Style;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.And;
 import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.PropertyIsEqualTo;
@@ -52,7 +51,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  */ 
 public class QueryTest extends TestCase {
     private static final boolean INTERACTIVE = false;
-    private FeatureSource<SimpleFeatureType, SimpleFeature> source;
+    private SimpleFeatureSource source;
     private Style style;
     private DefaultMapContext map;
     Envelope bounds = new Envelope(-5, 5, -5, 5);

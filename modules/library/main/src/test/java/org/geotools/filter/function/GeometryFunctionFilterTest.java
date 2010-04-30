@@ -16,7 +16,7 @@
  */
 package org.geotools.filter.function;
 
-import org.geotools.feature.FeatureIterator;
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.filter.expression.Function;
 
@@ -29,7 +29,7 @@ public class GeometryFunctionFilterTest extends FunctionTestSupport {
     
     public void testBasicTest() throws Exception {
         Function exp = ff.function("geometryType", ff.property("geom"));
-        FeatureIterator<SimpleFeature> iter=featureCollection.features();
+        SimpleFeatureIterator iter=featureCollection.features();
         while( iter.hasNext() ){
             SimpleFeature feature = iter.next();
             assertEquals( "Point", exp.evaluate(feature) );
@@ -40,7 +40,7 @@ public class GeometryFunctionFilterTest extends FunctionTestSupport {
     
     public void testNullTest() throws Exception {
         Function exp = ff.function("geometryType", ff.property("geom"));
-        FeatureIterator<SimpleFeature> iter=featureCollection.features();
+        SimpleFeatureIterator iter=featureCollection.features();
         while( iter.hasNext() ){
         	SimpleFeature feature = iter.next();
             feature.setAttribute("geom",null);

@@ -44,7 +44,7 @@ public class FeatureTypeMapping {
      * simple feature source as we could now take in a data access instead of a data store as the
      * source data store
      */
-    private FeatureSource source;
+    private FeatureSource<?,?> source;
 
     /**
      * Encapsulates the name and type of target Features
@@ -74,7 +74,7 @@ public class FeatureTypeMapping {
         this(null, null, new LinkedList<AttributeMapping>(), new NamespaceSupport());
     }
 
-    public FeatureTypeMapping(FeatureSource source, AttributeDescriptor target,
+    public FeatureTypeMapping(FeatureSource<?,?> source, AttributeDescriptor target,
             List<AttributeMapping> mappings, NamespaceSupport namespaces) {
         this.source = source;
         this.target = target;
@@ -82,7 +82,7 @@ public class FeatureTypeMapping {
         this.namespaces = namespaces;
     }
 
-    public FeatureTypeMapping(FeatureSource source, AttributeDescriptor target,
+    public FeatureTypeMapping(FeatureSource<?,?> source, AttributeDescriptor target,
             List<AttributeMapping> mappings, NamespaceSupport namespaces, String itemXpath) {
         this(source, target, mappings, namespaces);
         this.itemXpath = itemXpath;
@@ -176,6 +176,7 @@ public class FeatureTypeMapping {
         return this.target;
     }
 
+    @SuppressWarnings("unchecked")
     public FeatureSource getSource() {
         return this.source;
     }

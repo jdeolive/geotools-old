@@ -30,7 +30,7 @@
 // Readers/Writers lock by Allen Holub
 package org.geotools.caching.spatialindex;
 
-import java.util.*;
+import java.util.LinkedList;
 
 
 public class RWLock {

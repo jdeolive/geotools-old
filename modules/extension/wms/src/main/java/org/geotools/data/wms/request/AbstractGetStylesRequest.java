@@ -18,7 +18,6 @@ package org.geotools.data.wms.request;
 
 import java.net.URL;
 
-import org.geotools.data.ows.AbstractRequest;
 import org.geotools.data.ows.Layer;
 
 /**

@@ -19,6 +19,7 @@ package org.geotools.swing.event;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.geom.AffineTransform;
+
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.swing.JMapPane;
 

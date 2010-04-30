@@ -47,7 +47,6 @@ import org.opengis.style.GraphicStroke;
 import org.opengis.style.GraphicalSymbol;
 import org.opengis.style.OverlapBehavior;
 import org.opengis.style.SemanticType;
-import org.opengis.style.Symbolizer;
 import org.opengis.util.InternationalString;
 
 

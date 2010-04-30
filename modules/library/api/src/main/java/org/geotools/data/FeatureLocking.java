@@ -32,9 +32,9 @@ import org.opengis.filter.Filter;
  * or reserved from modification through this interface.
  * </p>
  * <p>
- * To use please cast your FeatureSource<SimpleFeatureType, SimpleFeature> to this interface.
+ * To use please cast your SimpleFeatureSource to this interface.
  * <pre><code>
- * FeatureSource<SimpleFeatureType, SimpleFeature> source = dataStore.getFeatureSource("roads");
+ * SimpleFeatureSource source = dataStore.getFeatureSource("roads");
  * if( source instanceof FeatureLocking ) {
  *     FeatureLocking locking = (FeatureLocking<SimpleFeatureType, SimpleFeature>) source;
  *     ...

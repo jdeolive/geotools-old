@@ -37,10 +37,10 @@ import org.geotools.arcsde.session.ISession;
 import org.geotools.arcsde.session.SdeRow;
 import org.geotools.arcsde.session.UnavailableConnectionException;
 import org.geotools.data.DefaultQuery;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
-import org.geotools.feature.FeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.filter.text.cql2.CQL;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -214,7 +214,7 @@ public class SDEJavaApiJoinTest {
      * 
      * SimpleFeatureType type = (SimpleFeatureType) store.getSchema(typeName); assertNotNull(type);
      * 
-     * FeatureSource<SimpleFeatureType, SimpleFeature> fs = store.getFeatureSource(typeName);
+     * SimpleFeatureSource fs = store.getFeatureSource(typeName);
      * assertNotNull(fs); int count = fs.getCount(Query.ALL); final int expected = 16479;
      * assertEquals(expected, count); }
      */
@@ -335,7 +335,7 @@ public class SDEJavaApiJoinTest {
                 .parseSqlQuery(InProcessViewSupportTestData.masterChildSql);
         store.registerView(InProcessViewSupportTestData.typeName, (PlainSelect) select);
 
-        FeatureSource<SimpleFeatureType, SimpleFeature> fs = store
+        SimpleFeatureSource fs = store
                 .getFeatureSource(InProcessViewSupportTestData.typeName);
         assertNotNull(fs);
         Envelope bounds = fs.getBounds();
@@ -352,7 +352,7 @@ public class SDEJavaApiJoinTest {
                 .parseSqlQuery(InProcessViewSupportTestData.masterChildSql);
         store.registerView(InProcessViewSupportTestData.typeName, (PlainSelect) select);
 
-        FeatureSource<SimpleFeatureType, SimpleFeature> fs = store
+        SimpleFeatureSource fs = store
                 .getFeatureSource(InProcessViewSupportTestData.typeName);
         assertNotNull(fs);
 
@@ -375,7 +375,7 @@ public class SDEJavaApiJoinTest {
                 .parseSqlQuery(InProcessViewSupportTestData.masterChildSql);
         store.registerView(InProcessViewSupportTestData.typeName, (PlainSelect) select);
 
-        FeatureSource<SimpleFeatureType, SimpleFeature> fs = store
+        SimpleFeatureSource fs = store
                 .getFeatureSource(InProcessViewSupportTestData.typeName);
         assertNotNull(fs);
         int count = fs.getCount(Query.ALL);
@@ -389,7 +389,7 @@ public class SDEJavaApiJoinTest {
                 .parseSqlQuery(InProcessViewSupportTestData.masterChildSql);
         store.registerView(InProcessViewSupportTestData.typeName, (PlainSelect) select);
 
-        FeatureSource<SimpleFeatureType, SimpleFeature> fs = store
+        SimpleFeatureSource fs = store
                 .getFeatureSource(InProcessViewSupportTestData.typeName);
         assertNotNull(fs);
 
@@ -408,12 +408,12 @@ public class SDEJavaApiJoinTest {
                 .parseSqlQuery(InProcessViewSupportTestData.masterChildSql);
         store.registerView(InProcessViewSupportTestData.typeName, (PlainSelect) select);
 
-        FeatureSource<SimpleFeatureType, SimpleFeature> fs = store
+        SimpleFeatureSource fs = store
                 .getFeatureSource(InProcessViewSupportTestData.typeName);
 
         DefaultQuery query = new DefaultQuery(InProcessViewSupportTestData.typeName,
                 Filter.INCLUDE, null);
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = fs.getFeatures(query);
+        SimpleFeatureCollection fc = fs.getFeatures(query);
         int fcCount = fc.size();
         int itCount = 0;
         final int expectedCount = 7;
@@ -438,9 +438,9 @@ public class SDEJavaApiJoinTest {
         Filter filter = CQL.toFilter(cqlQuery);
         DefaultQuery query = new DefaultQuery(InProcessViewSupportTestData.typeName, filter);
 
-        FeatureSource<SimpleFeatureType, SimpleFeature> fs = store
+        SimpleFeatureSource fs = store
                 .getFeatureSource(InProcessViewSupportTestData.typeName);
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = fs.getFeatures(query);
+        SimpleFeatureCollection fc = fs.getFeatures(query);
         int fcCount = fc.size();
         int itCount = 0;
         final int expectedCount = 3;

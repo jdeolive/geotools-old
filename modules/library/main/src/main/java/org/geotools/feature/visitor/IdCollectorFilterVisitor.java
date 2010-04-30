@@ -16,11 +16,8 @@
  */
 package org.geotools.feature.visitor;
 
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
 
-import org.geotools.filter.FidFilter;
 import org.geotools.filter.visitor.DefaultFilterVisitor;
 import org.opengis.filter.Id;
 

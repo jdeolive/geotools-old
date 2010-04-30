@@ -18,10 +18,9 @@ package org.geotools.validation.spatial;
 
 import java.util.Map;
 
-import org.geotools.data.FeatureSource;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.validation.ValidationResults;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
@@ -75,8 +74,8 @@ public class PolygonBoundaryCoveredByPolygonValidation
      */
     public boolean validate(Map layers, Envelope envelope,
         ValidationResults results) throws Exception {
-        FeatureSource<SimpleFeatureType, SimpleFeature> polySource = (FeatureSource<SimpleFeatureType, SimpleFeature>) layers.get(getPolygonTypeRef());
-        FeatureSource<SimpleFeatureType, SimpleFeature> polyrSource = (FeatureSource<SimpleFeatureType, SimpleFeature>) layers.get(getRestrictedPolygonTypeRef());
+        SimpleFeatureSource polySource = (SimpleFeatureSource) layers.get(getPolygonTypeRef());
+        SimpleFeatureSource polyrSource = (SimpleFeatureSource) layers.get(getRestrictedPolygonTypeRef());
 
         Object[] polys = polyrSource.getFeatures().toArray();
         Object[] polyRs = polySource.getFeatures().toArray();

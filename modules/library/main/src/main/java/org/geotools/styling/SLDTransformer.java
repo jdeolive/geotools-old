@@ -31,15 +31,14 @@ import javax.measure.quantity.Length;
 import javax.measure.unit.Unit;
 
 import org.geotools.data.DataStore;
-import org.geotools.data.FeatureSource;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.feature.FeatureCollection;
 import org.geotools.filter.FilterTransformer;
 import org.geotools.gml.producer.FeatureTransformer;
 import org.geotools.referencing.NamedIdentifier;
 import org.geotools.xml.transform.TransformerBase;
 import org.geotools.xml.transform.Translator;
-import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
@@ -800,8 +799,8 @@ public class SLDTransformer extends TransformerBase {
             start("InlineFeature");
             try {
                 final String ftName = featureType.getTypeName();
-                final FeatureSource<SimpleFeatureType, SimpleFeature> fs = dataStore.getFeatureSource(ftName);
-                final FeatureCollection<SimpleFeatureType, SimpleFeature> fc = fs.getFeatures();
+                final SimpleFeatureSource fs = dataStore.getFeatureSource(ftName);
+                final SimpleFeatureCollection fc = fs.getFeatures();
                 final FeatureTransformer ftrax = new FeatureTransformer();
                 ftrax.setCollectionNamespace(null);
                 ftrax.setCollectionPrefix(null);

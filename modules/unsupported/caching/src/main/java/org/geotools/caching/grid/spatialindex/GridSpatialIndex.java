@@ -25,7 +25,6 @@ import java.util.Properties;
 import org.geotools.caching.EvictableTree;
 import org.geotools.caching.EvictionPolicy;
 import org.geotools.caching.LRUEvictionPolicy;
-import org.geotools.caching.grid.featurecache.GridFeatureCache;
 import org.geotools.caching.grid.spatialindex.store.StorageFactory;
 import org.geotools.caching.spatialindex.AbstractSpatialIndex;
 import org.geotools.caching.spatialindex.Node;

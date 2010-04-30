@@ -26,6 +26,7 @@ import java.awt.image.BufferedImage;
 import java.net.URL;
 
 import javax.imageio.ImageIO;
+
 import junit.framework.TestCase;
 
 import org.geotools.factory.CommonFactoryFinder;

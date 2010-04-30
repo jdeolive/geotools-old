@@ -20,12 +20,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.geotools.data.FeatureSource;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.validation.ValidationResults;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 import com.vividsolutions.jts.geom.CoordinateSequence;
 import com.vividsolutions.jts.geom.Envelope;
@@ -80,18 +79,18 @@ public class LineIntersectsLineWithNodeValidation
         ValidationResults results) throws Exception {
     	boolean r = true;
     	
-        FeatureSource<SimpleFeatureType, SimpleFeature> fsLine = (FeatureSource<SimpleFeatureType, SimpleFeature>) layers.get(getLineTypeRef());
+        SimpleFeatureSource fsLine = (SimpleFeatureSource) layers.get(getLineTypeRef());
         
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fcLine = fsLine.getFeatures();
-        FeatureIterator<SimpleFeature> fLine = fcLine.features();
+        SimpleFeatureCollection fcLine = fsLine.getFeatures();
+        SimpleFeatureIterator fLine = fcLine.features();
         
-        FeatureSource<SimpleFeatureType, SimpleFeature> fsRLine = (FeatureSource<SimpleFeatureType, SimpleFeature>) layers.get(getRestrictedLineTypeRef());
+        SimpleFeatureSource fsRLine = (SimpleFeatureSource) layers.get(getRestrictedLineTypeRef());
         
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fcRLine = fsRLine.getFeatures();
+        SimpleFeatureCollection fcRLine = fsRLine.getFeatures();
                 
         while(fLine.hasNext()){
         	SimpleFeature line = fLine.next();
-        	FeatureIterator<SimpleFeature> fRLine = fcRLine.features();
+        	SimpleFeatureIterator fRLine = fcRLine.features();
         	Geometry lineGeom = (Geometry) line.getDefaultGeometry();
         	if(envelope.contains(lineGeom.getEnvelopeInternal())){
         		// 	check for valid comparison

@@ -16,10 +16,7 @@
  */
 package org.geotools.styling;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.opengis.filter.expression.Function;
-import org.opengis.style.ColorReplacement;
 import org.opengis.style.StyleVisitor;
 
 

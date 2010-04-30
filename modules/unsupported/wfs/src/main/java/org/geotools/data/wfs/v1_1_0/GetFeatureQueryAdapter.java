@@ -18,7 +18,6 @@ package org.geotools.data.wfs.v1_1_0;
 
 import org.geotools.data.Query;
 import org.geotools.data.wfs.protocol.wfs.GetFeature;
-import org.geotools.data.wfs.protocol.wfs.GetFeature.ResultType;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 

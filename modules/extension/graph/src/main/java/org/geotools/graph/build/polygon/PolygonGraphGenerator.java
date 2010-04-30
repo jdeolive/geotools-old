@@ -28,7 +28,6 @@ import org.geotools.graph.structure.Node;
 
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.index.quadtree.Quadtree;
-import com.vividsolutions.jts.index.strtree.STRtree;
 
 /**
  * An implementation of GraphGenerator used to build graphs from a set 

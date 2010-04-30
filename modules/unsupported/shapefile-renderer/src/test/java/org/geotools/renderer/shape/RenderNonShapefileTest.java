@@ -18,11 +18,11 @@ package org.geotools.renderer.shape;
 
 import junit.framework.TestCase;
 
-import org.geotools.data.FeatureSource;
-import org.geotools.data.FeatureStore;
 import org.geotools.data.memory.MemoryDataStore;
 import org.geotools.data.shapefile.indexed.IndexedShapefileDataStore;
-import org.geotools.feature.FeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
+import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.map.DefaultMapLayer;
@@ -30,8 +30,6 @@ import org.geotools.map.FeatureSourceMapLayer;
 import org.geotools.map.MapContext;
 import org.geotools.map.MapLayer;
 import org.geotools.styling.Style;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 import com.vividsolutions.jts.geom.Envelope;
 
@@ -49,12 +47,12 @@ public class RenderNonShapefileTest extends TestCase {
     public void testRender() throws Exception {
         MemoryDataStore store = new MemoryDataStore();
         IndexedShapefileDataStore polys = TestUtilites.getPolygons();
-        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = polys
+        SimpleFeatureCollection featureCollection = polys
                 .getFeatureSource().getFeatures();
         store.createSchema(polys.getSchema());
-        FeatureSource<SimpleFeatureType, SimpleFeature> target = store.getFeatureSource(store
+        SimpleFeatureSource target = store.getFeatureSource(store
                 .getTypeNames()[0]);
-        ((FeatureStore<SimpleFeatureType, SimpleFeature>) target).addFeatures(featureCollection);
+        ((SimpleFeatureStore) target).addFeatures(featureCollection);
         Style testStyle = TestUtilites.createTestStyle(target.getSchema().getTypeName(), null);
         MapLayer layer = new DefaultMapLayer(target, testStyle);
         MapContext context = new DefaultMapContext(new MapLayer[] { layer }, 
@@ -72,12 +70,12 @@ public class RenderNonShapefileTest extends TestCase {
     public void testRenderFeatureSourceMapLayer() throws Exception {
         MemoryDataStore store = new MemoryDataStore();
         IndexedShapefileDataStore polys = TestUtilites.getPolygons();
-        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = polys
+        SimpleFeatureCollection featureCollection = polys
                 .getFeatureSource().getFeatures();
         store.createSchema(polys.getSchema());
-        FeatureSource<SimpleFeatureType, SimpleFeature> target = store.getFeatureSource(store
+        SimpleFeatureSource target = store.getFeatureSource(store
                 .getTypeNames()[0]);
-        ((FeatureStore<SimpleFeatureType, SimpleFeature>) target).addFeatures(featureCollection);
+        ((SimpleFeatureStore) target).addFeatures(featureCollection);
         Style testStyle = TestUtilites.createTestStyle(target.getSchema().getTypeName(), null);
         MapLayer layer = new FeatureSourceMapLayer(target, testStyle);
         MapContext context = new DefaultMapContext(new MapLayer[] { layer }, polys.getSchema().getCoordinateReferenceSystem());

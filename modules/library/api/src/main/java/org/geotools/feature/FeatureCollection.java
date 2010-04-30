@@ -37,14 +37,14 @@ import org.opengis.util.ProgressListener;
  * optional to implement, and may throw an UnsupportedOperationException.
  * </p>
  * <p>
- * FeatureCollection<SimpleFeatureType, SimpleFeature> house rules:
+ * SimpleFeatureCollection house rules:
  * <ul>
  * <li>FeatureCollection.close( iterator ) must be called (see example below)
- * <li>Features are not specifically ordered within the FeatureCollection<SimpleFeatureType, SimpleFeature> (see FeatureList)
+ * <li>Features are not specifically ordered within the SimpleFeatureCollection (see FeatureList)
  * <li>Two instances cannot exist with the same Feature ID (Feature contract)
  * <li>(unsure) the same Instance can be in the collection more then once
  * </ul>
- * In programmer speak a FeatureCollection<SimpleFeatureType, SimpleFeature> is a "Bag" with an index based ID.
+ * In programmer speak a SimpleFeatureCollection is a "Bag" with an index based ID.
  * </p>
  * <p>
  * <h3>Life Cycle of Iterator</h3>
@@ -72,7 +72,7 @@ import org.opengis.util.ProgressListener;
  * to release resources at when the iterator has reached the end of its contents
  * this is not something you should rely on.
  * </p>
- * <h2>Notes for FeatureCollection<SimpleFeatureType, SimpleFeature> Implementors</h2>
+ * <h2>Notes for SimpleFeatureCollection Implementors</h2>
  * <p>
  * Many users will be treating this as a straight forward Collection,
  * there code will break often enough due to latency - try and close
@@ -285,15 +285,15 @@ public interface FeatureCollection<T extends FeatureType, F extends Feature> {
     void accepts(FeatureVisitor visitor, ProgressListener progress) throws IOException;
 
     /**
-     * FeatureCollection<SimpleFeatureType, SimpleFeature> "view" indicated by provided filter.
+     * SimpleFeatureCollection "view" indicated by provided filter.
      * <p>
-     * The contents of the returned FeatureCollection<SimpleFeatureType, SimpleFeature> are determined by
+     * The contents of the returned SimpleFeatureCollection are determined by
      * applying the provider Filter to the entire contents of this
      * FeatureCollection. The result is "live" and modifications will
      * be shared.
      * <p>
      * This method is used cut down on the number of filter based methods
-     * required for a useful FeatureCollection<SimpleFeatureType, SimpleFeature> construct. The FeatureCollections
+     * required for a useful SimpleFeatureCollection construct. The FeatureCollections
      * returned really should be considered as a temporary "view" used to
      * control the range of a removeAll, or modify operation.
      * <p>
@@ -312,7 +312,7 @@ public interface FeatureCollection<T extends FeatureType, F extends Feature> {
      * </p>
      * @see FeatureList
      * @param filter
-     * @return FeatureCollection<SimpleFeatureType, SimpleFeature> identified as subset.
+     * @return SimpleFeatureCollection identified as subset.
      */
     public FeatureCollection<T, F> subCollection(Filter filter);
 

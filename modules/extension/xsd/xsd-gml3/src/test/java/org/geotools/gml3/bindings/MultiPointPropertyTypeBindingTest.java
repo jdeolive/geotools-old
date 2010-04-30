@@ -16,9 +16,9 @@
  */
 package org.geotools.gml3.bindings;
 
-import org.w3c.dom.Document;
 import org.geotools.gml3.GML;
 import org.geotools.gml3.GML3TestSupport;
+import org.w3c.dom.Document;
 
 
 public class MultiPointPropertyTypeBindingTest extends GML3TestSupport {

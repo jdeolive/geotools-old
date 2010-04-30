@@ -17,7 +17,10 @@
  */
 package org.geotools.data.wfs.v1_0_0;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ConnectException;
@@ -33,8 +36,6 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.logging.Level;
 
-import junit.framework.TestCase;
-
 import org.geotools.data.DataStore;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultQuery;
@@ -42,15 +43,15 @@ import org.geotools.data.DefaultTransaction;
 import org.geotools.data.FeatureEvent;
 import org.geotools.data.FeatureListener;
 import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureSource;
-import org.geotools.data.FeatureStore;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
+import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.data.wfs.WFSDataStoreFactory;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.filter.IllegalFilterException;
@@ -139,10 +140,10 @@ public class GeoServerOnlineTest {
             type.getTypeName();
             type.getName().getNamespaceURI();
 
-            FeatureSource<SimpleFeatureType, SimpleFeature> source = wfs.getFeatureSource(typeName);
+            SimpleFeatureSource source = wfs.getFeatureSource(typeName);
             source.getBounds();
 
-            FeatureCollection<SimpleFeatureType, SimpleFeature> features = source.getFeatures();
+            SimpleFeatureCollection features = source.getFeatures();
             features.getBounds();
             features.getSchema();
             // features.getFeatureType();
@@ -157,7 +158,7 @@ public class GeoServerOnlineTest {
             }
             features.close(reader);
 
-            FeatureIterator<SimpleFeature> iterator = features.features();
+            SimpleFeatureIterator iterator = features.features();
             while (iterator.hasNext()) {
                 SimpleFeature feature = iterator.next();
             }
@@ -187,10 +188,10 @@ public class GeoServerOnlineTest {
         type.getTypeName();
         type.getName().getNamespaceURI();
 
-        FeatureSource<SimpleFeatureType, SimpleFeature> source = wfs.getFeatureSource(typeName);
+        SimpleFeatureSource source = wfs.getFeatureSource(typeName);
         source.getBounds();
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> features = source.getFeatures();
+        SimpleFeatureCollection features = source.getFeatures();
         features.getBounds();
         features.getSchema();
         // features.getFeatureType();
@@ -207,7 +208,7 @@ public class GeoServerOnlineTest {
         }
         features.close(reader);
 
-        FeatureIterator<SimpleFeature> iterator = features.features();
+        SimpleFeatureIterator iterator = features.features();
         while (iterator.hasNext()) {
             SimpleFeature feature = iterator.next();
         }
@@ -403,7 +404,7 @@ public class GeoServerOnlineTest {
         DataStore post = (WFS_1_0_0_DataStore) (new WFSDataStoreFactory()).createDataStore(m);
         String typename = TO_EDIT_TYPE;
         SimpleFeatureType ft = post.getSchema(typename);
-        FeatureSource<SimpleFeatureType, SimpleFeature> fs = post.getFeatureSource(typename);
+        SimpleFeatureSource fs = post.getFeatureSource(typename);
         class Watcher implements FeatureListener {
             public int count = 0;
 
@@ -433,7 +434,7 @@ public class GeoServerOnlineTest {
             PropertyIsNull geomNullCheck = filterFac.isNull(geometryAttributeExpression);
             Query query = new DefaultQuery(typename, filterFac.not(geomNullCheck), 1,
                     Query.ALL_NAMES, null);
-            FeatureIterator<SimpleFeature> inStore = fs.getFeatures(query).features();
+            SimpleFeatureIterator inStore = fs.getFeatures(query).features();
 
             SimpleFeature f, f2;
             try {
@@ -451,7 +452,7 @@ public class GeoServerOnlineTest {
 
             org.geotools.util.logging.Logging.getLogger("org.geotools.data.wfs").setLevel(
                     Level.FINE);
-            FeatureCollection<SimpleFeatureType, SimpleFeature> inserts = DataUtilities
+            SimpleFeatureCollection inserts = DataUtilities
                     .collection(new SimpleFeature[] { f, f2 });
             Id fp = WFSDataStoreWriteOnlineTest.doInsert(post, ft, inserts);
 
@@ -470,7 +471,7 @@ public class GeoServerOnlineTest {
             // assertFalse("events not fired", watcher.count == 0);
         } finally {
             try {
-                ((FeatureStore<SimpleFeatureType, SimpleFeature>) fs).removeFeatures(filterFac
+                ((SimpleFeatureStore) fs).removeFeatures(filterFac
                         .not(startingFeatures));
             } catch (Exception e) {
                 System.out.println(e);
@@ -478,9 +479,9 @@ public class GeoServerOnlineTest {
         }
     }
 
-    private Id createFidFilter(FeatureSource<SimpleFeatureType, SimpleFeature> fs)
+    private Id createFidFilter(SimpleFeatureSource fs)
             throws IOException {
-        FeatureIterator<SimpleFeature> iter = fs.getFeatures().features();
+        SimpleFeatureIterator iter = fs.getFeatures().features();
         FilterFactory2 ffac = CommonFactoryFinder.getFilterFactory2(GeoTools.getDefaultHints());
         Set fids = new HashSet();
         try {

@@ -1,6 +1,7 @@
 package org.geotools.renderer.lite;
 
-import static java.awt.RenderingHints.*;
+import static java.awt.RenderingHints.KEY_ANTIALIASING;
+import static java.awt.RenderingHints.VALUE_ANTIALIAS_ON;
 
 import java.awt.RenderingHints;
 import java.io.File;
@@ -9,21 +10,19 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
-import org.geotools.data.FeatureSource;
 import org.geotools.data.property.PropertyDataStore;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.renderer.label.LabelCacheImpl;
 import org.geotools.styling.Style;
 import org.geotools.test.TestData;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 public class LabelOrientationTest extends TestCase {
 
     private static final long TIME = 10000;
-    FeatureSource<SimpleFeatureType, SimpleFeature> fs;
+    SimpleFeatureSource fs;
     ReferencedEnvelope bounds;
     StreamingRenderer renderer;
 

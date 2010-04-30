@@ -22,11 +22,10 @@ package org.geotools.xml.styling;
  * @source $URL$
  */
 
-import java.util.Map;
-import java.util.Collections;
-
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
+import java.util.Map;
 
 import org.geotools.xml.schema.Attribute;
 import org.geotools.xml.schema.AttributeGroup;

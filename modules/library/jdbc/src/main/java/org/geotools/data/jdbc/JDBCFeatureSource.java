@@ -40,10 +40,10 @@ import org.geotools.data.Transaction;
 import org.geotools.data.jdbc.fidmapper.FIDMapper;
 import org.geotools.data.jdbc.fidmapper.NullFIDMapper;
 import org.geotools.data.jdbc.fidmapper.TypedFIDMapper;
-import org.geotools.feature.FeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.filter.SQLEncoderException;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.Name;
@@ -88,7 +88,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * 
  * @deprecated scheduled for removal in 2.7, use classes in org.geotools.jdbc
  */
-public class JDBCFeatureSource implements FeatureSource<SimpleFeatureType, SimpleFeature> {
+public class JDBCFeatureSource implements SimpleFeatureSource {
     /** The logger for the filter module. */
     private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.data.jdbc");
     
@@ -362,7 +362,7 @@ public class JDBCFeatureSource implements FeatureSource<SimpleFeatureType, Simpl
     }
 
     /**
-     * Retrieve the Transaction this FeatureSource<SimpleFeatureType, SimpleFeature> is opperating against.
+     * Retrieve the Transaction this SimpleFeatureSource is opperating against.
      * 
      * <p>
      * For a plain JDBCFeatureSource that cannot modify this will always be
@@ -390,7 +390,7 @@ public class JDBCFeatureSource implements FeatureSource<SimpleFeatureType, Simpl
      *
      * @see org.geotools.data.FeatureSource#getFeatures(org.geotools.data.Query)
      */
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> getFeatures(Query request) throws IOException {
+    public SimpleFeatureCollection getFeatures(Query request) throws IOException {
         String typeName = featureType.getTypeName();
 
         if ((request.getTypeName() != null) && !typeName.equals(request.getTypeName())) {
@@ -413,24 +413,22 @@ public class JDBCFeatureSource implements FeatureSource<SimpleFeatureType, Simpl
     /**
      * Retrieve all Feature matching the Filter
      *
-     * @param filter DOCUMENT ME!
-     *
-     * @return DOCUMENT ME!
-     *
-     * @throws IOException DOCUMENT ME!
+     * @param filter
+     * @return SimpleFeatureCollection
+     * @throws IOException
      */
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> getFeatures(Filter filter) throws IOException {
+    public SimpleFeatureCollection getFeatures(Filter filter) throws IOException {
         return getFeatures(new DefaultQuery(featureType.getTypeName(), filter));
     }
 
     /**
      * Retrieve all Features
      *
-     * @return DOCUMENT ME!
+     * @return SimpleFeature colleciton of all features
      *
-     * @throws IOException DOCUMENT ME!
+     * @throws IOException
      */
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> getFeatures() throws IOException {
+    public SimpleFeatureCollection getFeatures() throws IOException {
         return getFeatures(Filter.INCLUDE);
     }
 
