@@ -110,7 +110,8 @@ public class EqualIntervalFunction extends ClassificationFunction {
         return new RangedClassifier(localMin, localMax);
     }
     
-    private RangedClassifier calculateNonNumerical(int classNum, SimpleFeatureCollection featureCollection) throws IOException {
+    @SuppressWarnings("unchecked")
+    private RangedClassifier calculateNonNumerical(int classNum, FeatureCollection<?,?> featureCollection) throws IOException {
         //obtain of list of unique values, so we can enumerate
         UniqueVisitor uniqueVisit = new UniqueVisitor(getExpression());
         featureCollection.accepts(uniqueVisit, new NullProgressListener());

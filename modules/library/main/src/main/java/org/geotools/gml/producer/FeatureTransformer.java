@@ -34,12 +34,14 @@ import org.geotools.feature.type.DateUtil;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.gml.producer.GeometryTransformer.GeometryTranslator;
 import org.geotools.xml.transform.TransformerBase;
+import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.feature.type.Name;
+import org.opengis.feature.type.PropertyDescriptor;
 import org.opengis.geometry.BoundingBox;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.xml.sax.Attributes;
@@ -627,9 +629,9 @@ public class FeatureTransformer extends TransformerBase {
         /**
          * Prints up the gml for a featurecollection.
          *
-         * @param collection DOCUMENT ME!
+         * @param collection FeatureCollection being encoded
          */
-        public void handleFeatureCollection(SimpleFeatureCollection collection) {
+        public void handleFeatureCollection(FeatureCollection<?,?> collection) {
             startFeatureCollection();
             if(collectionBounding)
                 writeBounds(collection.getBounds());
@@ -687,20 +689,20 @@ public class FeatureTransformer extends TransformerBase {
         /**
          * Sends sax for the ending of a feature collection.
          *
-         * @param collection DOCUMENT ME!
+         * @param collection Feature collection we have just finished encoding
          */
-        public void endFeatureCollection(SimpleFeatureCollection collection) {
+        public void endFeatureCollection(FeatureCollection<?,?> collection) {
             endFeatureCollection();
         }
 
         /**
          * Sends sax for the ending of a feature.
          *
-         * @param f DOCUMENT ME!
+         * @param f Feature (implementation assume a SimpleFeature)
          *
-         * @throws RuntimeException DOCUMENT ME!
+         * @throws RuntimeException if something goes wrong during encode it is wrapped up as a generic runtime exception
          */
-        public void endFeature(SimpleFeature f) {
+        public void endFeature(Feature f) {
             try {
                 Name typeName = f.getType().getName();
                 String name = typeName.getLocalPart();
@@ -718,15 +720,15 @@ public class FeatureTransformer extends TransformerBase {
         /**
          * handles sax for an attribute.
          *
-         * @param descriptor DOCUMENT ME!
-         * @param value DOCUMENT ME!
+         * @param descriptor Property descriptor
+         * @param value Value being encoded for this property
          *
-         * @throws RuntimeException DOCUMENT ME!
+         * @throws RuntimeException Any problems are bundled up in a generic runtime exception
          */
-        public void handleAttribute(AttributeDescriptor descriptor, Object value) {
+        public void handleAttribute(PropertyDescriptor descriptor, Object value) {
             try {
                 if (value != null) {
-                    String name = descriptor.getLocalName();
+                    String name = descriptor.getName().getLocalPart();
 
                     //HACK: this should be user configurable, along with the
 
@@ -813,20 +815,20 @@ public class FeatureTransformer extends TransformerBase {
         /**
          * Handles sax for a feature.
          *
-         * @param f DOCUMENT ME!
+         * @param f Feature being encoded
          *
-         * @throws RuntimeException DOCUMENT ME!
+         * @throws RuntimeException Used to report any troubles during encoding
          */
-        public void handleFeature(SimpleFeature f) {
+        public void handleFeature(Feature f) {
             try {
                 contentHandler.startElement("", "", memberString, NULL_ATTS);
 
-                SimpleFeatureType type = f.getFeatureType();
-                String name = type.getTypeName();
+                FeatureType type = f.getType();
+                String name = type.getName().getLocalPart();
                 currentPrefix = getNamespaceSupport().getPrefix( type.getName().getNamespaceURI() );
 
                 if (currentPrefix == null) {
-                    currentPrefix = types.findPrefix(f.getFeatureType());
+                    currentPrefix = types.findPrefix(f.getType());
                 }
 
                 if (currentPrefix == null) {
@@ -848,7 +850,7 @@ public class FeatureTransformer extends TransformerBase {
                     //HACK pt.2 see line 511, if the cite stuff wanted to hack
                     //in a boundedBy geometry, we don't want to do it twice.
                     //So if 
-                    if (prefixGml && (f.getAttribute("boundedBy") != null)) {
+                    if (prefixGml && (f.getProperty("boundedBy") != null)) {
                         //do nothing, since our hack will handle it.
                     } else {
                         writeBounds(f.getBounds());
@@ -859,9 +861,9 @@ public class FeatureTransformer extends TransformerBase {
             }
         }
         
-        protected Attributes encodeFeatureId( SimpleFeature f ) {
+        protected Attributes encodeFeatureId( Feature f ) {
         	AttributesImpl fidAtts = new org.xml.sax.helpers.AttributesImpl();
-            String fid = f.getID();
+            String fid = f.getIdentifier().getID();
 
             if (fid != null) {
                 fidAtts.addAttribute("", "fid", "fid", "fids", fid);

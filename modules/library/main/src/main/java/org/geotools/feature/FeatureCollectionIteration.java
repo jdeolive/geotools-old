@@ -21,9 +21,13 @@ package org.geotools.feature;
 import java.util.Iterator;
 
 import org.geotools.data.simple.SimpleFeatureCollection;
+import org.opengis.feature.Feature;
+import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
+import org.opengis.feature.type.FeatureType;
+import org.opengis.feature.type.PropertyDescriptor;
 
 /**
  * The FeatureCollectionIteration provides a depth first traversal of a
@@ -52,7 +56,7 @@ public class FeatureCollectionIteration {
     protected final Handler handler;
 
     /** The collection being iterated */
-    private final SimpleFeatureCollection collection;
+    private final FeatureCollection<?,?> collection;
 
     /**
      * Create a new FeatureCollectionIteration with the given handler and
@@ -64,7 +68,7 @@ public class FeatureCollectionIteration {
      * @throws NullPointerException If handler or collection are null.
      */
     public FeatureCollectionIteration(Handler handler,
-        SimpleFeatureCollection collection) throws NullPointerException {
+            FeatureCollection<?,?> collection) throws NullPointerException {
         if (handler == null) {
             throw new NullPointerException("handler");
         }
@@ -83,7 +87,7 @@ public class FeatureCollectionIteration {
      * @param handler The handler to perform operations on this iteration.
      * @param collection The collection to iterate over.
      */
-    public static void iteration(Handler handler, SimpleFeatureCollection collection) {
+    public static void iteration(Handler handler, FeatureCollection<?,?> collection) {
         FeatureCollectionIteration iteration = new FeatureCollectionIteration(handler,
                 collection);
         iteration.iterate();
@@ -104,7 +108,7 @@ public class FeatureCollectionIteration {
      *
      * @param collection The collection to iterate upon.
      */
-    protected void walker(SimpleFeatureCollection collection) {
+    protected void walker(FeatureCollection<?,?> collection) {
         handler.handleFeatureCollection(collection);
 
         iterate(collection.iterator());
@@ -117,9 +121,9 @@ public class FeatureCollectionIteration {
      *
      * @param iterator The Iterator to iterate upon.
      */
-    protected void iterate(Iterator iterator) {
+    protected void iterate(Iterator<?> iterator) {
         while (iterator.hasNext()) {
-            walker((SimpleFeature) iterator.next());
+            walker((Feature) iterator.next());
         }
     }
 
@@ -128,25 +132,24 @@ public class FeatureCollectionIteration {
      *
      * @param feature The Feature to explore.
      */
-    protected void walker(SimpleFeature feature) {
-        final SimpleFeatureType schema = feature.getFeatureType();
-        final int cnt = schema.getAttributeCount();
+    protected void walker(Feature feature) {
+        final FeatureType schema = feature.getType();
+        //final int cnt = schema.getAttributeCount();
 
         handler.handleFeature(feature);
 
-        for (int i = 0; i < cnt; i++) {
-            AttributeDescriptor type = schema.getDescriptor(i);
-
+        for( Property property : feature.getProperties() ){
+            Class<?> binding = property.getType().getBinding();
             // recurse if attribute type is another collection
-            if (FeatureCollection.class.isAssignableFrom(type.getType().getBinding())) {
-                walker((SimpleFeatureCollection) feature.getAttribute(i));
+            if (FeatureCollection.class.isAssignableFrom( binding )) {
+                walker((FeatureCollection) property.getValue() );
 //            } else if (type instanceof FeatureType) {
-            } else if (SimpleFeature.class.isAssignableFrom(type.getType().getBinding())) {
+            } else if (Feature.class.isAssignableFrom(binding)) {
                 // recurse if attribute type is another feature
-                walker((SimpleFeature) feature.getAttribute(i));
+                walker((Feature) property.getValue() );
             } else {
                 // normal handling
-                handler.handleAttribute(type, feature.getAttribute(i));
+                handler.handleAttribute(property.getDescriptor(), property.getValue() );
             }
         }
 
@@ -163,28 +166,28 @@ public class FeatureCollectionIteration {
          *
          * @param fc The currently visited FeatureCollection.
          */
-        void handleFeatureCollection(SimpleFeatureCollection fc);
+        void handleFeatureCollection(FeatureCollection<?,?> fc);
 
         /**
          * The handler is done visiting a FeatureCollection.
          *
          * @param fc The SimpleFeatureCollection which was visited.
          */
-        void endFeatureCollection(SimpleFeatureCollection fc);
+        void endFeatureCollection(FeatureCollection<?,?> fc);
 
         /**
          * The handler is visiting a Feature.
          *
          * @param f The Feature the handler is visiting.
          */
-        void handleFeature(SimpleFeature f);
+        void handleFeature(Feature f);
 
         /**
          * The handler is ending its visit with a Feature.
          *
          * @param f The Feature that was visited.
          */
-        void endFeature(SimpleFeature f);
+        void endFeature(Feature f);
 
         /**
          * The handler is visiting an Attribute of a Feature.
@@ -192,6 +195,6 @@ public class FeatureCollectionIteration {
          * @param type The meta-data of the given attribute value.
          * @param value The attribute value, may be null.
          */
-        void handleAttribute(AttributeDescriptor type, Object value);
+        void handleAttribute(PropertyDescriptor type, Object value);
     }
 }
