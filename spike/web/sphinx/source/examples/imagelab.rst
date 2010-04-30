@@ -153,11 +153,11 @@ which contains a geotiff global image: **bluemarble.tif** and a shapefile of cou
 
 When you run the program you will first see the wizard dialog prompting your for the image and shapefile...
 
-.. image:: ImageLab_dialog.gif
+.. image:: ImageLab_dialog.png
 
 The initial map display shows the image as a greyscale, single-band view...
 
-.. image:: ImageLab_display.gif
+.. image:: ImageLab_display.png
 
 Experiment with displaying different bands in greyscale and swapping to the RGB display.
 

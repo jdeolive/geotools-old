@@ -98,7 +98,7 @@ filter is very fast, but it would only test if the rectangle around the mouse cl
 opposed to the **boundary**, of each feature. For this application, that's not what we want to do. To see why, consider
 this example...
 
-.. image:: selectionlab-bbox.gif
+.. image:: selectionlab-bbox.png
 
 The blue shapes are parts of a single MultiPolygon which is the standard geometry type for polygonal features in
 shapefiles. Using a bounding box filter, clicking in the orange shape would select it plus all of the blue shapes
@@ -176,7 +176,7 @@ Here is the program displaying the **bc_voting_areas** shapefile (included in th
 
 __ udigdata_
 
-.. image:: SelectionLab.gif
+.. image:: SelectionLab.png
 
 Things to try
 -------------

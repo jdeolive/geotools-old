@@ -439,7 +439,7 @@ line with ``mvn compile``.
 If the application compiled you can now run it. Once again, you can do this from within your IDE or from the command
 line. The program should display a dialog prompting you for a shapefile and then display it in a simple map viewer.
 
-.. image:: quickstart.gif
+.. image:: quickstart.png
 
 Optional extra: speeding up the display of features
 ---------------------------------------------------

@@ -16,7 +16,7 @@ ArcSDE) you can use GeoTools to connect to your existing infrastructure. Here we
 <http://postgis.refractions.net/>`_ which is a spatially-enabled extension of PostgreSQL supporting *Simple
 Features for SQL*. We will build an application that can connect to both a PostGIS database and shapefiles.
 
-.. image:: querylab.gif
+.. image:: querylab.png
 
 Dependencies
 ------------
@@ -170,7 +170,7 @@ Start the application and select either *Open shapefile...* or *Connect to PostG
 
 If you choose to open a shapefile, the **JDataStoreWizard** will prompt you for a file:
 
-.. image:: querylab-shapefile-page1.gif
+.. image:: querylab-shapefile-page1.png
 
 Next it will display a page with fields for namespace and creating a spatial index - for this example you can leave both
 of these fields blank and just click Finish.
@@ -178,7 +178,7 @@ of these fields blank and just click Finish.
 If you choose to connect to a PostGIS database the wizard will display the following page for you to enter the
 connection parameters:
 
-.. image:: querylab-postgis-page1.gif
+.. image:: querylab-postgis-page1.png
 
 You can leave the *schema* and *namespace* fields blank (depending on your local database configuration). If you don't
 have a PostGIS database you can try connecting to a public online database at `Refractions Research

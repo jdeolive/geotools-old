@@ -6,8 +6,6 @@ CRS Lab
 This tutorial gives a visual demonstration of coordinate reference systems by displaying
 a shapefile and showing how changing the map projection morphs the shape of the features.
 
-.. image:: CRSLab_animated.gif
-
 Dependencies
 ------------
  
@@ -134,12 +132,12 @@ using the *bc_border* map which can be downloaded as part of the `uDig sample da
 
 __ udigdata_
 
-.. image:: CRSLab_start.gif
+.. image:: CRSLab_start.png
 
 Click the CRS button at the right-hand end of the status bar and choose *Set the CRS...* from the pop-up menu to
 display this chooser dialog:
 
-.. image:: CRSLab_chooser.gif
+.. image:: CRSLab_chooser.png
 
 GeoTools includes a very extensive database of map projections drawn from the EPSG reference (see `Some useful links`_ below).
 For our example shapefile, an appropriate alternative map projection is *BC Albers* (tip: you can find this quickly in the
@@ -147,7 +145,7 @@ chooser list by typing 3005).
 
 When you click OK the map is displayed in the new projection:
 
-.. image:: CRSLab_reprojected.gif
+.. image:: CRSLab_reprojected.png
 
 Note that when you move the mouse over the map the coordinates are now displayed in metres (the unit of measurement that
 applies to the *BC Albers* projection) rather than degrees.
