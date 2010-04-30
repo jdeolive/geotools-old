@@ -849,17 +849,32 @@ public class VersionedPostgisDataStore implements VersioningDataStore {
      * The base revision is the revision at which the feature type has been version enabled.
      * returned) 
      * @param typeName
-     * @return
+     * @return 
      */
     long getBaseRevision(String typeName, Transaction transaction) throws IOException {
-        DefaultQuery q = new DefaultQuery(typeName);
-        q.setPropertyNames(new String[] {REVISION});
-        q.setSortBy(new org.opengis.filter.sort.SortBy[] { ff.sort(REVISION, SortOrder.ASCENDING) });
-        q.setMaxFeatures(1);
+        // first grab the table code
+        DefaultQuery q = new DefaultQuery(TBL_VERSIONEDTABLES);
+        q.setFilter(ff.equal(ff.property("name"), ff.literal(typeName), true));
         FeatureReader<SimpleFeatureType, SimpleFeature> fr = null;
+        Long tableId;
         try {
             fr = wrapped.getFeatureReader(q, transaction);
-            return (Long) fr.next().getAttribute(REVISION);
+            tableId = (Long) fr.next().getAttribute("id");
+        } finally {
+            if(fr != null) fr.close();
+        }
+        
+        // next find the revision at which it was version enabled (it's the oldest)
+        q = new DefaultQuery(TBL_TABLESCHANGED);
+        q.setSortBy(new org.opengis.filter.sort.SortBy[] { ff.sort(REVISION, SortOrder.ASCENDING) });
+        q.setMaxFeatures(1);
+        try {
+            fr = wrapped.getFeatureReader(q, transaction);
+            if(!fr.hasNext()) {
+                return -1; // this is equivalent to "FIRST"
+            } else {
+                return (Long) fr.next().getAttribute(REVISION);
+            }
         } finally {
             if(fr != null) fr.close();
         }

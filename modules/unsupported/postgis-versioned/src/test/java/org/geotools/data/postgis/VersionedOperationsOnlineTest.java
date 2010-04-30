@@ -1317,6 +1317,42 @@ public class VersionedOperationsOnlineTest extends AbstractVersionedPostgisDataT
         fdr.close();
     }
     
+    public void testVersionEmptyTable() throws Exception {
+        // start with an empty table
+        VersionedPostgisDataStore ds = getDataStore();
+        FeatureStore store = (FeatureStore) ds.getFeatureSource("river");
+        store.removeFeatures(Filter.INCLUDE);
+        
+        ds.setVersioned("river", true, "mambo", "version enabling stuff");
+        
+        VersionedPostgisFeatureStore fs = (VersionedPostgisFeatureStore) ds.getFeatureSource("river");
+        FeatureDiffReader reader = fs.getDifferences("FIRST", "LAST", null, null);
+        assertFalse(reader.hasNext());
+        reader.close();
+        
+        // add a new feature
+        Transaction t = createTransaction("lamb", "third change");
+        FeatureWriter<SimpleFeatureType, SimpleFeature> fw = ds.getFeatureWriterAppend("river", t);
+        SimpleFeature f = fw.next();
+        f.setAttribute("id", new Integer(3));
+        f.setAttribute("geom", lines(new int[][] { { 300, 300, 301, 301 } }));
+        f.setAttribute("river", "rv2 v3");
+        f.setAttribute("flow", new Double(12.2));
+        fw.write();
+        String newId = f.getID();
+        fw.close();
+        t.commit();
+        t.close();
+        
+        // now grab again the diff
+        reader = fs.getDifferences("FIRST", "LAST", null, null);
+        assertTrue(reader.hasNext());
+        FeatureDiff fd = reader.next();
+        reader.close();
+        assertEquals(FeatureDiff.INSERTED, fd.getState());
+        assertEquals(newId, fd.getID());
+    }
+    
     /**
      * Create history, rollback it, diff used to report changes anyways
      * @throws IOException 
