@@ -28,6 +28,7 @@ import org.geotools.feature.SchemaException;
 import org.geotools.feature.collection.AbstractFeatureCollection;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
+import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.FactoryException;
@@ -71,7 +72,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * @version $Id$ TODO: handle the case where there is more than one geometry and the other geometries have a different CS than the default geometry
  */
 public class ReprojectFeatureResults extends AbstractFeatureCollection {
-    SimpleFeatureCollection results;
+    FeatureCollection<SimpleFeatureType, SimpleFeature> results;
     MathTransform transform;
 
     /**
@@ -90,7 +91,7 @@ public class ReprojectFeatureResults extends AbstractFeatureCollection {
      * @throws NullPointerException DOCUMENT ME!
      * @throws IllegalArgumentException
      */
-    public ReprojectFeatureResults(SimpleFeatureCollection results,
+    public ReprojectFeatureResults(FeatureCollection<SimpleFeatureType, SimpleFeature> results,
         CoordinateReferenceSystem destinationCS)
         throws IOException, SchemaException, TransformException, OperationNotFoundException, NoSuchElementException, FactoryException {
         
@@ -121,7 +122,7 @@ public class ReprojectFeatureResults extends AbstractFeatureCollection {
 	        return results.size();
 	    }
 
-    private static SimpleFeatureCollection origionalCollection( SimpleFeatureCollection results ){
+    private static FeatureCollection<SimpleFeatureType, SimpleFeature> origionalCollection( FeatureCollection<SimpleFeatureType, SimpleFeature> results ){
         while( true ){
             if ( results instanceof ReprojectFeatureResults ) {
                 results = ((ReprojectFeatureResults) results).getOrigin();
@@ -203,7 +204,7 @@ public class ReprojectFeatureResults extends AbstractFeatureCollection {
      * Returns the feature results wrapped by this reprojecting feature results
      *
      */
-    public SimpleFeatureCollection getOrigin() {
+    public FeatureCollection<SimpleFeatureType, SimpleFeature> getOrigin() {
         return results;
     }
 }

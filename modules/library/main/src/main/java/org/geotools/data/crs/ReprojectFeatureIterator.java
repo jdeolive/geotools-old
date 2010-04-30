@@ -21,7 +21,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import org.geotools.data.DataSourceException;
-import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.geometry.jts.GeometryCoordinateSequenceTransformer;
@@ -68,11 +68,11 @@ import com.vividsolutions.jts.geom.Geometry;
  * @version $Id$
  */
 public class ReprojectFeatureIterator implements Iterator {
-    SimpleFeatureIterator reader;
+    FeatureIterator<SimpleFeature> reader;
     SimpleFeatureType schema;
     GeometryCoordinateSequenceTransformer transformer = new GeometryCoordinateSequenceTransformer();
 
-    public ReprojectFeatureIterator(SimpleFeatureIterator reader, SimpleFeatureType schema,
+    public ReprojectFeatureIterator(FeatureIterator<SimpleFeature> reader, SimpleFeatureType schema,
         MathTransform transform) {
         this.reader = reader;
         this.schema = schema;

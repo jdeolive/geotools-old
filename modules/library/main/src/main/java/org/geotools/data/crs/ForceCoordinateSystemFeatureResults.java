@@ -62,14 +62,14 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  */
 public class ForceCoordinateSystemFeatureResults extends AbstractFeatureCollection {
     
-    SimpleFeatureCollection results;
+    FeatureCollection<SimpleFeatureType,SimpleFeature> results;
     
-    public ForceCoordinateSystemFeatureResults(SimpleFeatureCollection results,
+    public ForceCoordinateSystemFeatureResults(FeatureCollection<SimpleFeatureType,SimpleFeature> results,
             CoordinateReferenceSystem forcedCS) throws IOException, SchemaException {
         this(results, forcedCS, false);
     }
 
-    public ForceCoordinateSystemFeatureResults(SimpleFeatureCollection results,            
+    public ForceCoordinateSystemFeatureResults(FeatureCollection<SimpleFeatureType,SimpleFeature> results,            
         CoordinateReferenceSystem forcedCS, boolean forceOnlyMissing) throws IOException, SchemaException {
         super( forceType( origionalType( results ), forcedCS, forceOnlyMissing ));
         
@@ -157,7 +157,7 @@ public class ForceCoordinateSystemFeatureResults extends AbstractFeatureCollecti
      * ForceCoordinateSystemFeatureResults
      *
      */
-    public SimpleFeatureCollection getOrigin() {
+    public FeatureCollection<SimpleFeatureType,SimpleFeature> getOrigin() {
         return results;
     }
 }

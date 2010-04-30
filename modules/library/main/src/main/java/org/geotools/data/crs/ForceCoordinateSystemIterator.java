@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.FeatureTypes;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.SchemaException;
@@ -62,7 +63,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * @version $Id$
  */
 public class ForceCoordinateSystemIterator implements SimpleFeatureIterator, Iterator<SimpleFeature> {
-    protected SimpleFeatureIterator reader;
+    protected FeatureIterator<SimpleFeature> reader;
     protected SimpleFeatureBuilder builder;
 
     /**
@@ -70,7 +71,7 @@ public class ForceCoordinateSystemIterator implements SimpleFeatureIterator, Ite
      * @param reader
      * @param schema
      */
-    ForceCoordinateSystemIterator(SimpleFeatureIterator reader, SimpleFeatureType schema) {
+    ForceCoordinateSystemIterator(FeatureIterator<SimpleFeature> reader, SimpleFeatureType schema) {
         this.reader = reader;
         this.builder = new SimpleFeatureBuilder(schema);
     }
@@ -85,7 +86,7 @@ public class ForceCoordinateSystemIterator implements SimpleFeatureIterator, Ite
      * @throws NullPointerException DOCUMENT ME!
      * @throws IllegalArgumentException DOCUMENT ME!
      */
-    public ForceCoordinateSystemIterator(SimpleFeatureIterator reader, SimpleFeatureType type,
+    public ForceCoordinateSystemIterator(FeatureIterator<SimpleFeature> reader, SimpleFeatureType type,
         CoordinateReferenceSystem cs) throws SchemaException {
         if (cs == null) {
             throw new NullPointerException("CoordinateSystem required");
