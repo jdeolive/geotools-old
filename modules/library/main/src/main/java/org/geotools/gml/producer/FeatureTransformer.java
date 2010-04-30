@@ -24,12 +24,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import org.geotools.data.DataUtilities;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureCollectionIteration;
-import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.type.DateUtil;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.gml.producer.GeometryTransformer.GeometryTranslator;
@@ -486,7 +486,7 @@ public class FeatureTransformer extends TransformerBase {
                 } else if (o instanceof FeatureCollection[]) {
                     //Did FeatureResult[] so that we are sure they're all the same type.
                     //Could also consider collections here...  
-                    SimpleFeatureCollection[] results = (SimpleFeatureCollection[]) o;
+                    FeatureCollection[] results = (FeatureCollection[]) o;
                     startFeatureCollection();
                     if(collectionBounding) {
                         ReferencedEnvelope bounds = null;
@@ -505,7 +505,7 @@ public class FeatureTransformer extends TransformerBase {
                     }
                    
                     for (int i = 0; i < results.length; i++) {
-                        handleFeatureIterator(results[i].features());
+                        handleFeatureIterator(DataUtilities.simple(results[i]).features());
                     }
                     endFeatureCollection();
                 } else if (o instanceof FeatureReader) {

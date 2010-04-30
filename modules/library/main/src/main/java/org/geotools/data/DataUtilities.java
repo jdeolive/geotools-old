@@ -49,7 +49,9 @@ import java.util.logging.Logger;
 import org.geotools.data.collection.CollectionDataStore;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureLocking;
 import org.geotools.data.simple.SimpleFeatureSource;
+import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.AttributeTypeBuilder;
 import org.geotools.feature.DefaultFeatureCollection;
@@ -1047,7 +1049,74 @@ public class DataUtilities {
        if( featureCollection instanceof SimpleFeatureCollection ){
            return (SimpleFeatureCollection) featureCollection;
        }
-       return new SimpleFeatureCollectionBridge( featureCollection );
+       if( featureCollection.getSchema() instanceof SimpleFeatureType) {
+           return new SimpleFeatureCollectionBridge( featureCollection );
+       }
+       throw new IllegalArgumentException("The provided feature collection contains complex features, cannot be bridged to a simple one");
+    }
+    
+    /**
+     * A safe cast to SimpleFeatureSource; that will introduce a wrapper if it has to.
+     * <p>
+     * Please keep the use of this class to a minimum; if you are expecting a FeatureSource<SimpleFeatureType,SimpleFeature>
+     * please make use of SimpleFeatureSource if you possibly can.
+     * @since 2.7
+     */
+    public static SimpleFeatureSource simple(FeatureSource source) {
+        if (source instanceof FeatureLocking) {
+            return simple((FeatureLocking) source);
+        } else if (source instanceof FeatureStore) {
+            return simple((FeatureStore) source);
+        }
+
+        if (source instanceof SimpleFeatureSource) {
+            return (SimpleFeatureSource) source;
+        }
+        if (source.getSchema() instanceof SimpleFeatureType) {
+            return new SimpleFeatureSourceBridge(source);
+        }
+        throw new IllegalArgumentException(
+                "The provided feature source contains complex features, cannot be bridged to a simple one");
+    }
+    
+    /**
+     * A safe cast to SimpleFeatureStore; that will introduce a wrapper if it has to.
+     * <p>
+     * Please keep the use of this class to a minimum; if you are expecting a FeatureStore<SimpleFeatureType,SimpleFeature>
+     * please make use of SimpleFeatureStore if you possibly can.
+     * @since 2.7
+     */
+    public static SimpleFeatureStore simple(FeatureStore store) {
+        if (store instanceof FeatureLocking) {
+            return simple((FeatureLocking) store);
+        }
+
+        if (store instanceof SimpleFeatureStore) {
+            return (SimpleFeatureStore) store;
+        }
+        if (store.getSchema() instanceof SimpleFeatureType) {
+            return new SimpleFeatureStoreBridge(store);
+        }
+        throw new IllegalArgumentException(
+                "The provided feature store contains complex features, cannot be bridged to a simple one");
+    }
+    
+    /**
+     * A safe cast to SimpleFeatureLocking; that will introduce a wrapper if it has to.
+     * <p>
+     * Please keep the use of this class to a minimum; if you are expecting a FeatureLocking<SimpleFeatureType,SimpleFeature>
+     * please make use of SimpleFeatureLocking if you possibly can.
+     * @since 2.7
+     */
+    public static SimpleFeatureLocking simple(FeatureLocking locking) {
+        if (locking instanceof SimpleFeatureLocking) {
+            return (SimpleFeatureLocking) locking;
+        }
+        if (locking.getSchema() instanceof SimpleFeatureType) {
+            return new SimpleFeatureLockingBridge(locking);
+        }
+        throw new IllegalArgumentException(
+                "The provided feature store contains complex features, cannot be bridged to a simple one");
     }
     
     /**
@@ -1056,7 +1125,7 @@ public class DataUtilities {
      * @param featureCollection
      * @return List of features copied into memory
      */
-    public static List<SimpleFeature> list( FeatureCollection<SimpleFeatureType,SimpleFeature> featureCollection ){
+    public static List<SimpleFeature> list( FeatureCollection<SimpleFeatureType,SimpleFeature> featureCollection ) {
         final ArrayList<SimpleFeature> list = new ArrayList<SimpleFeature>();
         try {
             featureCollection.accepts( new FeatureVisitor(){
