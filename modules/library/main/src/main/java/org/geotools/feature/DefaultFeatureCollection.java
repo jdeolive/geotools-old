@@ -82,7 +82,7 @@ public class DefaultFeatureCollection implements SimpleFeatureCollection {
      * This constructor should not be used by client code.
      * @param collection SimpleFeatureCollection to copy into memory
      */
-    public DefaultFeatureCollection( SimpleFeatureCollection collection ) {
+    public DefaultFeatureCollection( FeatureCollection<SimpleFeatureType,SimpleFeature> collection ) {
         this( collection.getID(), collection.getSchema() );
         addAll(collection);
     }

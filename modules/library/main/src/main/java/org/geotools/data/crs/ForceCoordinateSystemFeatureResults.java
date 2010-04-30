@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureTypes;
 import org.geotools.feature.SchemaException;
 import org.geotools.feature.collection.AbstractFeatureCollection;
@@ -75,7 +76,7 @@ public class ForceCoordinateSystemFeatureResults extends AbstractFeatureCollecti
         this.results = results;
     }
     
-    private static SimpleFeatureType origionalType( SimpleFeatureCollection results ){
+    private static SimpleFeatureType origionalType( FeatureCollection<SimpleFeatureType,SimpleFeature> results ){
         while( true ){
             if ( results instanceof ReprojectFeatureResults ) {
                 results = ((ReprojectFeatureResults) results).getOrigin();

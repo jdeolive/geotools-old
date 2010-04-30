@@ -20,8 +20,10 @@ import java.util.Iterator;
 
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
 
 /**
  * A feature iterator that completely delegates to a normal
@@ -41,7 +43,7 @@ public class DelegateSimpleFeatureIterator extends DelegateFeatureIterator<Simpl
 	 * 
 	 * @param iterator Iterator to be used as a delegate.
 	 */
-	public DelegateSimpleFeatureIterator( SimpleFeatureCollection collection, Iterator<SimpleFeature> iterator ){
+	public DelegateSimpleFeatureIterator( FeatureCollection<SimpleFeatureType,SimpleFeature> collection, Iterator<SimpleFeature> iterator ){
 		super( collection, iterator );
 	}
 }

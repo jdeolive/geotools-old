@@ -22,6 +22,7 @@ import java.util.NoSuchElementException;
 
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureTypes;
 import org.geotools.feature.SchemaException;
 import org.geotools.feature.collection.AbstractFeatureCollection;
@@ -132,7 +133,7 @@ public class ReprojectFeatureResults extends AbstractFeatureCollection {
         }
         return results;
     }
-    private static SimpleFeatureType origionalType( SimpleFeatureCollection results ){
+    private static SimpleFeatureType origionalType( FeatureCollection<SimpleFeatureType,SimpleFeature> results ){
         while( true ){
             if ( results instanceof ReprojectFeatureResults ) {
                 results = ((ReprojectFeatureResults) results).getOrigin();

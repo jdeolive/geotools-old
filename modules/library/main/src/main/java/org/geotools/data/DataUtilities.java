@@ -963,6 +963,13 @@ public class DataUtilities {
         }
         return collection;
     }
+    
+    public static <T extends FeatureType,F extends Feature> FeatureCollection<T,F> results(final FeatureCollection<T,F> collection){
+        if (collection.size() == 0) {
+            //throw new IOException("Provided collection was empty");
+        }
+        return collection;
+    }
 
     /**
      * Adapt a collection to a reader for use with FeatureStore.setFeatures( reader ).
@@ -986,7 +993,7 @@ public class DataUtilities {
      * @throws IOException IOException if there is any problem reading the content.
      */   
     public static FeatureReader<SimpleFeatureType, SimpleFeature> reader(
-            SimpleFeatureCollection collection) throws IOException {
+            FeatureCollection<SimpleFeatureType, SimpleFeature> collection) throws IOException {
         return reader(collection
                 .toArray(new SimpleFeature[collection.size()]));
     }
@@ -1017,7 +1024,7 @@ public class DataUtilities {
      * @param SimpleFeatureCollection the features to add to a new feature collection.
      * @return FeatureCollection
      */
-    public static DefaultFeatureCollection collection( SimpleFeatureCollection featureCollection ){
+    public static DefaultFeatureCollection collection( FeatureCollection<SimpleFeatureType,SimpleFeature> featureCollection ){
         return new DefaultFeatureCollection( featureCollection );
     }
     /**
@@ -1026,7 +1033,7 @@ public class DataUtilities {
      * @param featureCollection
      * @return List of features copied into memory
      */
-    public static List<SimpleFeature> list( SimpleFeatureCollection featureCollection ){
+    public static List<SimpleFeature> list( FeatureCollection<SimpleFeatureType,SimpleFeature> featureCollection ){
         final ArrayList<SimpleFeature> list = new ArrayList<SimpleFeature>();
         try {
             featureCollection.accepts( new FeatureVisitor(){
