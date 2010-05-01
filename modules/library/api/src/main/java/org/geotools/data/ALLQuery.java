@@ -18,6 +18,8 @@ package org.geotools.data;
 
 import java.net.URI;
 import java.util.Arrays;
+import java.util.List;
+
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -40,7 +42,7 @@ import org.geotools.factory.Hints;
  * </code></pre>
  * @source $URL$
  */
-class ALLQuery implements Query {
+class ALLQuery extends Query {
     public final String[] getPropertyNames() {
         return null;
     }
@@ -173,4 +175,61 @@ class ALLQuery implements Query {
     public Hints getHints() {
         return new Hints();
     }
+    
+    //
+    // Not mutable; all values hard coded
+    //
+    @Override
+    public void setCoordinateSystem(CoordinateReferenceSystem system) {
+        new UnsupportedOperationException("Query.ALL cannot be changed, please just use as a default.");
+    }
+    @Override
+    public void setCoordinateSystemReproject(CoordinateReferenceSystem system) {
+        new UnsupportedOperationException("Query.ALL cannot be changed, please just use as a default.");
+    }
+    @Override
+    public void setFilter(Filter filter) {
+        new UnsupportedOperationException("Query.ALL cannot be changed, please just use as a default.");
+    }
+    @Override
+    public void setHandle(String handle) {
+        new UnsupportedOperationException("Query.ALL cannot be changed, please just use as a default.");
+    }
+    @Override
+    public void setHints(Hints hints) {
+        new UnsupportedOperationException("Query.ALL cannot be changed, please just use as a default.");
+    }
+    @Override
+    public void setMaxFeatures(int maxFeatures) {
+        new UnsupportedOperationException("Query.ALL cannot be changed, please just use as a default.");
+    }
+    @Override
+    public void setNamespace(URI namespace) {
+        new UnsupportedOperationException("Query.ALL cannot be changed, please just use as a default.");
+    }
+    @Override
+    public void setPropertyNames(List<String> propNames) {
+        new UnsupportedOperationException("Query.ALL cannot be changed, please just use as a default.");
+    }
+    @Override
+    public void setPropertyNames(String[] propNames) {
+        new UnsupportedOperationException("Query.ALL cannot be changed, please just use as a default.");
+    }
+    @Override
+    public void setSortBy(SortBy[] sortBy) {
+        new UnsupportedOperationException("Query.ALL cannot be changed, please just use as a default.");
+    }
+    @Override
+    public void setStartIndex(Integer startIndex) {
+        new UnsupportedOperationException("Query.ALL cannot be changed, please just use as a default.");
+    }
+    @Override
+    public void setTypeName(String typeName) {
+        new UnsupportedOperationException("Query.ALL cannot be changed, please just use as a default.");
+    }
+    @Override
+    public void setVersion(String version) {
+        new UnsupportedOperationException("Query.ALL cannot be changed, please just use as a default.");
+    }
+
 }

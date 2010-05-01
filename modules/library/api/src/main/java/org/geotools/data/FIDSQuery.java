@@ -18,6 +18,8 @@ package org.geotools.data;
 
 import java.net.URI;
 import java.util.Arrays;
+import java.util.List;
+
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -35,13 +37,19 @@ import org.geotools.factory.Hints;
  *
  * <p>
  * Example:
- * </p>
  * <pre><code>
  * featureSource.getFeatures( Query.FIDS );
  * </code></pre>
+ * There is nothing special about this implementation; you can achieve the same effect using:
+ * <pre><code>
+ * Query fids = new Query();
+ * fids.setPropertyNames( new String[0] );
+ * featureSource.getFeatures( fids );
+ * </code></pre>
+ * 
  * @source $URL$
  */
-class FIDSQuery implements Query {
+class FIDSQuery extends Query {
     static final String[] NO_PROPERTIES = new String[0];
 
     public String[] getPropertyNames() {
@@ -175,5 +183,61 @@ class FIDSQuery implements Query {
      */
     public Hints getHints() {
         return GeoTools.getDefaultHints();
+    }
+    
+    //
+    // Not mutable; all values hard coded
+    //
+    @Override
+    public void setCoordinateSystem(CoordinateReferenceSystem system) {
+        new UnsupportedOperationException("Query.ALL cannot be changed, please just use as a default.");
+    }
+    @Override
+    public void setCoordinateSystemReproject(CoordinateReferenceSystem system) {
+        new UnsupportedOperationException("Query.ALL cannot be changed, please just use as a default.");
+    }
+    @Override
+    public void setFilter(Filter filter) {
+        new UnsupportedOperationException("Query.ALL cannot be changed, please just use as a default.");
+    }
+    @Override
+    public void setHandle(String handle) {
+        new UnsupportedOperationException("Query.ALL cannot be changed, please just use as a default.");
+    }
+    @Override
+    public void setHints(Hints hints) {
+        new UnsupportedOperationException("Query.ALL cannot be changed, please just use as a default.");
+    }
+    @Override
+    public void setMaxFeatures(int maxFeatures) {
+        new UnsupportedOperationException("Query.ALL cannot be changed, please just use as a default.");
+    }
+    @Override
+    public void setNamespace(URI namespace) {
+        new UnsupportedOperationException("Query.ALL cannot be changed, please just use as a default.");
+    }
+    @Override
+    public void setPropertyNames(List<String> propNames) {
+        new UnsupportedOperationException("Query.FIDS cannot be changed, please just use as a default.");
+    }
+    @Override
+    public void setPropertyNames(String[] propNames) {
+        new UnsupportedOperationException("Query.FIDS cannot be changed, please just use as a default.");
+    }
+    @Override
+    public void setSortBy(SortBy[] sortBy) {
+        new UnsupportedOperationException("Query.FIDS cannot be changed, please just use as a default.");
+    }
+    @Override
+    public void setStartIndex(Integer startIndex) {
+        new UnsupportedOperationException("Query.FIDS cannot be changed, please just use as a default.");
+    }
+    @Override
+    public void setTypeName(String typeName) {
+        new UnsupportedOperationException("Query.FIDS cannot be changed, please just use as a default.");
+    }
+    @Override
+    public void setVersion(String version) {
+        new UnsupportedOperationException("Query.FIDS cannot be changed, please just use as a default.");
     }
 }

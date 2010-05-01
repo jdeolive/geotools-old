@@ -523,9 +523,11 @@ public class PreGeneralizedFeatureSource implements SimpleFeatureSource {
             }
         }
 
-        return (Query) Proxy.newProxyInstance(this.getClass().getClassLoader(),
-                new Class[] { Query.class }, new QueryInvocationHandler(query, fs.getName()
-                        .getLocalPart(), newPropNames));
+        Query newQuery = new Query(query);
+        newQuery.setTypeName(fs.getName().getLocalPart());
+        newQuery.setPropertyNames(newPropNames);
+
+        return newQuery;
     }
 
     protected void logDistanceInfo(Generalization di) {
