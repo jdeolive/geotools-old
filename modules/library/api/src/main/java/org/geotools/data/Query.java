@@ -29,43 +29,43 @@ import org.geotools.factory.Hints;
 /**
  * Encapsulates a request for data, typically as:
  * <pre><code>
- * myFeatureSource.getFeatures(Query);
+ * Query query = ...
+ * myFeatureSource.getFeatures(query);
  * </code></pre>
  *
  * The query class is based on the Web Feature Server specification and offers a 
  * few interesting capabilities such as the ability to sort results and use a filter
- * (similar to the where clause in SQL).
+ * (similar to the WHERE clause in SQL).
  * <p>
  * Additional capabilities:
  * <ul>
  * <li>
- * {@link #setMaxFeatures(int)} and {@link #setStartIndex(int)} can be used to mirror the idea
- * of paging through content. This is useful when the FeatureSource has an upper limit of the
- * number of features it can return to you in one gulp or you want to limit the number that
- * you process.
+ * {@linkplain #setMaxFeatures(int)} and {@linkplain #setStartIndex(Integer)} can be used
+ * implement 'paging' through the data source's content. This is useful if, for example, the
+ * FeatureSource has an upper limit on the number of features it can return in a single
+ * request or you are working with limited memory.
  * </li>
  * <li>
- * {@link #setHandle(String) is simply used to name the query; often indicating what you are up to
- * when perform the query. This name will be used in error reporting and logs.
+ * {@linkplain #setHandle(String)} can be used to give the query a mnemonic name
+ * which will appear in error reporing and logs.
  * </li>
  * <li>
- * {@link #setCoordinateSystem()} is used to to indicate the CoordinateReferenceSystem the results are
- * "forced" into. You can use this to correct when a featureSource is *wrong* about the information
- * it is returning. This is often used to correct a featureSource when the application and the data
- * format have different ideas about the "axis order" issue (where "EPSG:4325" is to be considered
- * in long/lat order or lat/long order)</li>
+ * {@linkplain #setCoordinateSystem(CoordinateReferenceSystem)} is used to to specify the
+ * coordinate system that retrieved features will be "forced" into.
+ * This is often used to correct a feature source when the application and the data
+ * format have different ideas about the coordinate system (for example, the "axis order"
+ * issue).
+ * </li>
  * <li>
- * {@link #getCoordinateSystemReproject()} is used to ask for the information to be reproejcted. This should
- * occur "natively" if the featureSource implementor has such facilities in their WFS or database.
- * If not we have provided helper code to allow implementors to reproject at the Java level for
- * formats like shapefile.
+ * {@linkplain #setCoordinateSystemReproject(CoordinateReferenceSystem)} is used to ask for
+ * the retrieved features to be reproejcted. 
  * </li>
  * </ul>
  *
  * Vendor specific:
  * <ul>
- * <li>getHints() is used to access venfor specific capabilities provided by FeatureSource
- * implementations.
+ * <li>{@linkplain setHints(Hints)} is used to specify venfor specific capabilities
+ * provided by a feature source implementation.
  * </li>
  * </ul>
  * Example:<pre><code>
@@ -97,21 +97,26 @@ public class Query {
 
     /**
      * Implements a query that will fetch all the FeatureIDs from a datasource.
-     * This query should retrive no properties, with no maxFeatures, no
+     * This query should retrieve no properties, with no maxFeatures, no
      * filtering, and the a featureType with no attribtues.
      */
     public static final Query FIDS = new FIDSQuery();
 
     /**
-     * Ask for no properties when used with setPropertyNames.
-     *
+     * A constant (empty String array) that can be used with
+     * {@linkplain #setPropertyNames(String[])} to indicate that no
+     * properties are to be retrieved.
      * <p>
      * Note the query will still return a result - limited to FeatureIDs.
      * </p>
      */
     public static final String[] NO_NAMES = new String[0];
 
-    /** Ask for all properties when used with setPropertyNames. */
+    /**
+     * A constant (value {@code null}) that can be used with
+     * {@linkplain #setPropertyNames(String[])} to indicate that all properties
+     * are to be retrieved.
+     */
     public static final String[] ALL_NAMES = null;
 
     /** The properties to fetch */
@@ -120,6 +125,7 @@ public class Query {
     /** The maximum numbers of features to fetch */
     protected int maxFeatures = Query.DEFAULT_MAX;
 
+    /** The index of the first feature to process */
     protected Integer startIndex = null;
     
     /** The filter to constrain the request. */
@@ -150,18 +156,17 @@ public class Query {
     protected Hints hints;
     
     /**
-     * Create a query, please configure before use (as the default values
+     * Create a query, please configure before use (the default values
      * will select all content).
-     * 
      */
     public Query() {
         // no arg
     }
+
     /**
      * Query with indicated typeName, will retrieve
      * all contents for the provided typeName.
-     * <p>
-     * </p>
+     *
      * @param typeName the name of the featureType to retrieve
      */
     public Query( String typeName ){
@@ -170,9 +175,6 @@ public class Query {
     
     /**
      * Query content with matching typeName as selected by the provided filter.
-     * <p>
-     * Please note that current featureSource implementations
-     * generally have one kind of content.
      * 
      * @param typeName the name of the featureType to retrieve.
      * @param filter the OGC filter to constrain the request.
@@ -180,24 +182,26 @@ public class Query {
     public Query(String typeName, Filter filter) {
         this( typeName, filter, Query.ALL_NAMES );        
     }
+
     /**
      * Constructor that sets the filter and properties
-     * @param typeName 
      *
+     * @param typeName the name of the featureType to retrieve.
      * @param filter the OGC filter to constrain the request.
      * @param properties an array of the properties to fetch.
      */
     public Query(String typeName, Filter filter, String[] properties) {
         this( typeName, null, filter, Query.DEFAULT_MAX, properties, null );        
     }    
+
     /**
-     * Constructor that sets all fields.
+     * Constructor.
      *
      * @param typeName the name of the featureType to retrieve.
      * @param filter the OGC filter to constrain the request.
      * @param maxFeatures the maximum number of features to be returned.
      * @param propNames an array of the properties to fetch.
-     * @param handle the name to associate with the query.
+     * @param handle the name to associate with this query.
      */
     public Query(String typeName, Filter filter, int maxFeatures,
         String[] propNames, String handle) {
@@ -205,7 +209,7 @@ public class Query {
     }
     
     /**
-     * Constructor that sets all fields.
+     * Constructor.
      *
      * @param typeName the name of the featureType to retrieve.
      * @param namespace Namespace for provided typeName, or null if unspecified
@@ -225,8 +229,9 @@ public class Query {
     }
     
     /**
-     * Copy contructor, clones the state of a generic Query into a DefaultQuery
-     * @param query
+     * Copy contructor.
+     *
+     * @param query the query to copy
      */
     public Query(Query query) {
       this(query.getTypeName(), query.getNamespace(), query.getFilter(), query.getMaxFeatures(),
@@ -238,48 +243,14 @@ public class Query {
       this.hints = query.getHints();
       this.startIndex = query.getStartIndex();
     }
+
     /**
-     * The properties array is used to specify the attributes that should be
-     * selected for the return feature collection.
-     *
-     * <ul>
-     * <li>
-     * ALL_NAMES: <code>null</code><br>
-     * If no properties are specified (getProperties returns ALL_NAMES or
-     * null) then the full schema should  be used (all attributes).
-     * </li>
-     * <li>
-     * NO_NAMES: <code>new String[0]</code><br>
-     * If getProperties returns an array of size 0, then the datasource should
-     * return features with no attributes, only their ids.
-     * </li>
-     * </ul>
-     *
-     * <p>
-     * The available properties can be determined with a getSchema call from
-     * the DataSource interface.  A datasource can use {@link
-     * #retrieveAllProperties()} as a shortcut to determine if all its
-     * available properties should be returned (same as checking to see if
-     * getProperties is ALL_NAMES, but clearer)
-     * </p>
-     *
-     * <p>
-     * If properties that are not part of the datasource's schema are requested
-     * then the datasource shall throw an exception.
-     * </p>
-     *
-     * <p>
-     * This replaces our funky setSchema method of retrieving select
-     * properties.  It makes it easier to understand how to get certain
-     * properties out of the datasource, instead of having users get the
-     * schema and then compose a new schema using the attributes that they
-     * want.  The old way had problems because one couldn't have multiple
-     * object reuse the same datasource object, since some other object could
-     * come along and change its schema, and would then return the wrong
-     * properties.
-     * </p>
+     * Get the names of the properties that this Query will retrieve as part of
+     * the returned {@linkplain org.geotools.feature.FeatureCollection}.
      *
      * @return the attributes to be used in the returned FeatureCollection.
+     *
+     * @see #retrieveAllProperties()
      *
      * @task REVISIT: make a FidProperties object, instead of an array size 0.
      *       I think Query.FIDS fills this role to some degree.
@@ -288,24 +259,41 @@ public class Query {
     public String[] getPropertyNames() {
         return properties;
     }
+
     /**
-     * Sets the properties to retrieve from the db.  If the boolean to load all
-     * properties is set to true then the AttributeTypes that are not in the
-     * database's schema will just be filled with null values.
+     * Set the names of the properties that this Query should retrieve as part of
+     * the returned {@linkplain org.geotools.feature.FeatureCollection}.
+     * As well as an array of names, the following constants can be used:
+     * <ul>
+     * <li>
+     * {@linkplain #ALL_NAMES} to retrieve all properties.
+     * </li>
+     * <li>
+     * {@linkplain #NO_NAMES} to indicate no properties are required, just feature IDs.
+     * </li>
+     * </ul>
+     * The available properties can be determined with {@linkplain FeatureSource#getSchema()}.
+     * If properties that are not part of the source's schema are requested
+     * an exception will be thrown.
      *
-     * @param propNames The names of attributes to load from the datasouce.
+     * @param propNames the names of the properties to retrieve or one of
+     *        {@linkplain #ALL_NAMES} or {@linkplain #NO_NAMES}.
      */
     public void setPropertyNames(String[] propNames) {
         this.properties = propNames;
     }
     
     /**
-     * Sets the proper attributeTypes constructed from a schema and a  list of
-     * propertyNames.
+     * Set the names of the properties that this Query should retrieve as part of
+     * the returned {@linkplain org.geotools.feature.FeatureCollection}.
+     * <p>
+     * The available properties can be determined with {@linkplain FeatureSource#getSchema()}.
+     * If properties that are not part of the source's schema are requested
+     * an exception will be thrown.
      *
-     * @param propNames the names of the properties to check against the
-     *        schema. If null then all attributes will be returned.  If a List
-     *        of size 0 is used then only the featureIDs should be used.
+     * @param propNames the names of the properties to retrieve or
+     *        {@linkplain #ALL_NAMES}; an empty List can be passed in to
+     *        indicate that only feature IDs should be retrieved
      *
      * @task REVISIT: This syntax is really obscure.  Consider having an fid or
      *       featureID propertyName that datasource implementors look for
@@ -313,72 +301,82 @@ public class Query {
      */
     public void setPropertyNames(List<String> propNames) {
         if (propNames == null) {
-            this.properties = null;
-
+            this.properties = ALL_NAMES;
             return;
         }
 
         String[] stringArr = new String[propNames.size()];
-        this.properties = (String[]) propNames.toArray(stringArr);
+        this.properties = propNames.toArray(stringArr);
     }
     
     /**
-     * Convenience method to determine if the query should use the full schema
-     * (all properties) of the data source for the features returned.  This
-     * method is equivalent to if (query.getProperties() == null), but allows
-     * for more clarity on the part of datasource implementors, so they do not
-     * need to examine and use null values.  All Query implementations should
-     * return true for this function if getProperties returns null.
+     * Convenience method to determine if the query should retrieve all
+     * properties defined in the schema of the feature data source. This
+     * is equivalent to testing if {@linkplain #getPropertyNames()} returns
+     * {@linkplain #ALL_NAMES}.
      *
-     * @return if all datasource attributes should be included in the schema of
-     *         the returned FeatureCollection.
+     * @return true if all properties will be retrieved by this Query; false
+     *         otherwise
      */
     public boolean retrieveAllProperties() {
         return properties == null;
     }
 
     /**
-     * The optional maxFeatures can be used to limit the number of features
-     * that a query request retrieves.  If no maxFeatures is specified then
-     * all features should be returned.
-     *
+     * Get the maximum number of features that will be retrieved by this
+     * Query.
      * <p>
-     * This is the only method that is not directly out of the Query element in
-     * the WFS spec.  It is instead a part of a GetFeature request, which can
+     * Note: This is the only method that is not directly out of the Query element in
+     * the WFS specification.  It is instead a part of a GetFeature request, which can
      * hold one or more queries.  But each of those in turn will need a
      * maxFeatures, so it is needed here.
      * </p>
      *
-     * @return the max features the getFeature call should return.
+     * @return the maximum number of features that will be retrieved by
+     *         this query
      */
     public int getMaxFeatures() {
         return this.maxFeatures;
     }
     
     /**
-     * Sets the max features to retrieved by this query.
+     * Sets the maximum number of features that should be retrieved by this query.
+     * The default is to retrieve all features.
      *
-     * @param maxFeatures the maximum number of features the getFeature call
-     *        should return.
+     * @param maxFeatures the maximum number of features to retrieve
      */
     public void setMaxFeatures(int maxFeatures) {
         this.maxFeatures = maxFeatures;
     }
-    
+
+    /**
+     * Get the index of the first feature to retrieve.
+     *
+     * @return the index of the first feature to retrieve or {@code null}
+     * if no start index is defined.
+     */
     public Integer getStartIndex(){
         return this.startIndex;
     }
 
+    /**
+     * Set the index of the first feature to retrieve. This can be used in
+     * conjuction with {@linkplain #setMaxFeatures(int) } to 'page' through
+     * a feature data source.
+     *
+     * @param startIndex index of the first feature to retrieve or {@code null}
+     *        to indicate no start index
+     *
+     * @throws IllegalArgumentException if startIndex is less than 0
+     */
     public void setStartIndex(Integer startIndex){
         if(startIndex != null && startIndex.intValue() < 0){
             throw new IllegalArgumentException("startIndex shall be a positive integer: " + startIndex);
         }
         this.startIndex = startIndex;
     }
+    
     /**
-     * The Filter can be used to define constraints on a query.  If no Filter
-     * is present then the query is unconstrained and all feature instances
-     * should be retrieved.
      *
      * @return The filter that defines constraints on the query.
      */
@@ -387,21 +385,23 @@ public class Query {
     }
 
     /**
-     * Sets the filter to constrain the query.
+     * Sets the filter to constrain the features that will be retrieved by
+     * this Query. If no filter is set all features will be retrieved (taking
+     * into account any bounds set via {@linkplain #setMaxFeatures(int) } and
+     * {@linkplain #setStartIndex(java.lang.Integer) }).
+     * <p>
+     * The default is {@linkplain Filter#INCLUDE}.
      *
-     * @param filter the OGC filter to limit the datasource getFeatures
-     *        request.
+     * @param filter the OGC filter which features must pass through to
+     *        be retrieved by this Query.
      */
     public void setFilter(Filter filter) {
         this.filter = filter;
     }
     
     /**
-     * The typeName attribute is used to indicate the name of the feature type
-     * to be queried.  If no typename is specified, then the default typeName
-     * should be returned from the dataStore.  If the datasstore only supports
-     * one feature type then this part of the query may be ignored.
-     *
+     * Get the name of the feature type to be queried.
+     * 
      * @return the name of the feature type to be returned with this query.
      */
     public String getTypeName() {
@@ -409,7 +409,9 @@ public class Query {
     }
 
     /**
-     * Sets the typename.
+     * Sets the  name of the feature type to be queried.  If no typename is specified,
+     * then the data source's default type will be used. When working with sources
+     * such as shapefiles that only support one feature type this method can be ignored.
      *
      * @param typeName the name of the featureType to retrieve.
      */
@@ -418,8 +420,7 @@ public class Query {
     }
     
     /**
-     * The namespace attribute is used to indicate the namespace of the schema
-     * being represented.
+     * Get the namespace of the feature type to be queried.
      *
      * @return the gml namespace of the feature type to be returned with this
      *         query
@@ -429,28 +430,28 @@ public class Query {
     }
 
     /**
-     * Set the namespace of the type name.
+     * Set the namespace of the feature type to be queried.
      * 
-     * @param namespace namespace of the type name
+     * @return the gml namespace of the feature type to be returned with this
+     *         query
      */
     public void setNamespace(URI namespace) {
         this.namespace = namespace;
     }
     
     /**
-     * The handle attribute is included to allow a client to associate  a
-     * mnemonic name to the Query request. The purpose of the handle attribute
-     * is to provide an error handling mechanism for locating  a statement
-     * that might fail.
+     * Get the handle (mnemonic name) that will be associated with this Query.
+     * The handle is used in logging and error reporting.
      *
-     * @return the mnemonic name of the query request.
+     * @return the name to refer to this query.
      */
     public String getHandle() {
         return this.handle;
     }
 
     /**
-     * Sets a mnemonic name for the query request.
+     * Set the handle (mnemonic name) that will be associated with this Query.
+     * The handle is used in logging and error reporting.
      *
      * @param handle the name to refer to this query.
      */
@@ -460,7 +461,7 @@ public class Query {
     
     /**
      * From WFS Spec:  The version attribute is included in order to
-     * accommodate systems that  support feature versioning. A value of ALL
+     * accommodate systems that  support feature versioning. A value of {@linkplain #ALL}
      * indicates that all versions of a feature should be fetched. Otherwise
      * an integer, n, can be specified  to return the n th version of a
      * feature. The version numbers start at '1'  which is the oldest version.
@@ -476,8 +477,10 @@ public class Query {
     }
     
     /**
-     * @see #getVersion()
+     * Set the version of features to retrieve where this is supported by the
+     * data source being queried.
      * @param version
+     * @see #getVersion() getVersion() for explanation
      * @since 2.4
      */
     public void setVersion(String version) {
@@ -485,21 +488,9 @@ public class Query {
     }
     
     /**
-     * Specifies the coordinate system that the features being queried are in.
-     *
-     * <p>
-     * This denotes a request to Temporarily to override the coordinate system
-     * contained in the SimpleFeatureSource being queried. The same coordinate
-     * values will be used, but the features created will appear in this
-     * Coordinate System.
-     * </p>
-     *
-     * <p>
-     * This change is not persistant at all, indeed it is only for the Features
-     * returned by this Query. If used in conjunction with {@link #getCoordinateSystemReproject()}
-     * the reprojection will occur from {@link #getCoordinateSystem()} to
-     * {@link #getCoordinateSystemReproject()}.
-     * </p>
+     * Get the coordinate system that applies to features retrieved by this Query.
+     * By default this is the coordinate system of the features in the data source
+     * but this can be overriden via {@linkplain #setCoordinateSystem( CoordinateReferenceSystem )}.
      *
      * @return The coordinate system to be returned for Features from this
      *         Query (override the set coordinate system).
@@ -507,36 +498,50 @@ public class Query {
     public CoordinateReferenceSystem getCoordinateSystem() {
         return coordinateSystem;
     }
-    
+
+    /**
+     * Set the coordinate system to apply to features retrieved by this Query.
+     * <p>
+     * This denotes a request to <b>temporarily</b> override the coordinate system
+     * contained in the feature data source being queried. The same coordinate
+     * values will be used, but the features retrieved will appear in this
+     * Coordinate System.
+     *
+     * <p>
+     * This change is not persistant and only applies to the features
+     * returned by this Query. If used in conjunction with {@link #getCoordinateSystemReproject()}
+     * the reprojection will occur from {@link #getCoordinateSystem()} to
+     * {@link #getCoordinateSystemReproject()}.
+     * </p>
+     *
+     * @param system the coordinate system to apply to features retrieved by this Query
+     */
     public void setCoordinateSystem(CoordinateReferenceSystem system) {
         coordinateSystem = system;
     }
-    
+
     /**
-     * Request data reprojection.
+     * If reprojection has been requested, this returns the coordinate system
+     * that features retrieved by this Query will be reprojected into.
      *
-     * <p>
-     * Gets the coordinate System to reproject the data contained in the
-     * backend datastore to.
-     * </p>
+     * @return the coordinate system that features will be reprojected into (if set)
      *
-     * <p>
-     * If the DataStore can optimize the reprojection it should, if not then a
-     * decorator on the reader should perform the reprojection on the fly.
-     * </p>
-     *
-     * <p>
-     * If the datastore has the wrong CS then {@link #getCoordinateSystem()} should be set to
-     * the CS to be used, this will perform the reprojection on that.
-     * </p>
-     *
-     * @return The coordinate system that Features from the datasource should
-     *         be reprojected to.
+     * @see #setCoordinateSystemReproject( CoordinateReferenceSystem )
      */
     public CoordinateReferenceSystem getCoordinateSystemReproject() {
         return coordinateSystemReproject;
     }
     
+    /**
+     * Request that features retrieved by this Query be reprojected into the
+     * given coordinate system.
+     * <p>
+     * If used in conjunction with {@link #setCoordinateSystem(CoordinateReferenceSystem)}
+     * the reprojection will occur from the overridden coordinate system to the system
+     * specified here.
+     *
+     * @return the coordinate system that features should be reprojected into
+     */
     public void setCoordinateSystemReproject(CoordinateReferenceSystem system) {
         coordinateSystemReproject = system;
     }
@@ -586,17 +591,11 @@ public class Query {
     }
     
     /**
-     * Specifies some hints to drive the query execution and results build-up.
-     * Hints examples can be the GeometryFactory to be used, a generalization
-     * distance to be applied right in the data store, to data store specific
-     * things such as the fetch size to be used in JDBC queries.
-     * The set of hints supported can be fetched by calling
-     * {@links FeatureSource#getSupportedHints()}.
-     * Depending on the actual values of the hints, the data store is free to ignore them.
-     * No mechanism is in place, at the moment, to figure out which hints where
-     * actually used during the query execution.
-     * @return the Hints the data store should try to use when executing the query
-     *         (eventually empty but never null).
+     * Get hints that have been set to control the query execution.
+     *
+     * @return hints that are set (may be empty)
+     *
+     * @see #setHints(Hints) setHints(Hints) for more explanation
      */
     public Hints getHints() {
         if(hints == null){
@@ -606,18 +605,33 @@ public class Query {
     }
     
     /**
-     * Sets the query hints
-     * @param hints
+     * Set hints to control the query execution.
+     * <p>
+     * Hints can control such things as:
+     * <ul>
+     * <li> the GeometryFactory to be used
+     * <li> a generalization distance to be applied
+     * <li> the fetch size to be used in JDBC queries
+     * </ul>
+     * The set of hints supported can be found by calling
+     * {@linkplain org.geotools.data.FeatureSource#getSupportedHints() }.
+     * <p>
+     * Note: Data sources may ignore hints (depending on their values) and no
+     * mechanism currently exists to discover which hints where actually used
+     * during the query's execution.
+     *
+     * @param hints the hints to apply
      */
     public void setHints(Hints hints) {
         this.hints = hints;
     }
     
     /**
-     * Hashcode based on propertyName, maxFeatures and filter.
+     * Hashcode based on all parameters other than the handle.
      *
-     * @return hascode for filter
+     * @return hascode for this Query
      */
+    @Override
     public int hashCode() {
         String[] n = getPropertyNames();
 
@@ -633,17 +647,13 @@ public class Query {
     }
     
     /**
-     * Equality based on propertyNames, maxFeatures, filter, typeName and
-     * version.
+     * Equality based on all query parameters other than the handle.
      * 
-     * <p>
-     * Changing the handle does not change the meaning of the Query.
-     * </p>
-     *
      * @param obj Other object to compare against
      *
-     * @return <code>true</code> if <code>obj</code> matches this filter
+     * @return true if this Query matches the other object; false otherwise
      */
+    @Override
     public boolean equals(Object obj) {
         if ((obj == null) || !(obj instanceof Query)) {
             return false;
@@ -668,10 +678,11 @@ public class Query {
     }
     
     /**
-     * Over ride of toString
+     * Return a string representation of this Query.
      *
-     * @return a string representation of this query object.
+     * @return a string representation of this Query
      */
+    @Override
     public String toString() {
         StringBuffer returnString = new StringBuffer("Query:");
 
