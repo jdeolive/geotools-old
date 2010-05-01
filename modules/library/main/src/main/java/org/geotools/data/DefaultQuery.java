@@ -22,9 +22,8 @@ import org.opengis.filter.Filter;
 
 
 /**
- * Implementation of Query allowing content to be requested from a Datastore or FeatureSource.
- * <p>
- * The default implementation provides no additional methods at this time.
+ * A Query class allowing content to be requested from a Datastore or FeatureSource.
+ * @deprecated This class is now synonymous with the {@linkplain Query} class.
  * @see Query
  * @author Chris Holmes
  * @source $URL$
