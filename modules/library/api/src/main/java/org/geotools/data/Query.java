@@ -156,16 +156,15 @@ public class Query {
     protected Hints hints;
     
     /**
-     * Create a query, please configure before use (the default values
-     * will select all content).
+     * Default constructor. Use setter methods to configure the Query
+     * before use (the default Query will retrieve all features).
      */
     public Query() {
         // no arg
     }
 
     /**
-     * Query with indicated typeName, will retrieve
-     * all contents for the provided typeName.
+     * Constructor.
      *
      * @param typeName the name of the featureType to retrieve
      */
@@ -174,7 +173,7 @@ public class Query {
     }
     
     /**
-     * Query content with matching typeName as selected by the provided filter.
+     * Constructor.
      * 
      * @param typeName the name of the featureType to retrieve.
      * @param filter the OGC filter to constrain the request.
@@ -184,7 +183,7 @@ public class Query {
     }
 
     /**
-     * Constructor that sets the filter and properties
+     * Constructor.
      *
      * @param typeName the name of the featureType to retrieve.
      * @param filter the OGC filter to constrain the request.
@@ -377,6 +376,8 @@ public class Query {
     }
     
     /**
+     * Gets the filter used to define constraints on the features that will be
+     * retrieved by this Query.
      *
      * @return The filter that defines constraints on the query.
      */
