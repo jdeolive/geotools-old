@@ -18,11 +18,11 @@ package org.geotools.data;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Set;
 
 import org.opengis.feature.Feature;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.FeatureType;
+import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
 import org.opengis.filter.identity.FeatureId;
 import org.geotools.feature.FeatureCollection;
@@ -77,37 +77,57 @@ public interface FeatureStore<T extends FeatureType, F extends Feature> extends 
      * Modifies the passed attribute types with the passed objects in all
      * features that correspond to the passed OGS filter.
      *
-     * @param type The attributes to modify.
-     * @param value The values to put in the attribute types.
+     * @param attributeNames The attributes to modify.
+     * @param attributeValues The values to put in the attribute types.
      * @param filter An OGC filter to note which attributes to modify.
      *
      * @throws IOException if the attribute and object arrays are not eqaul
      *         length, if the object types do not match the attribute types,
      *         or if there are backend errors.
      */
-
     //void modifyFeatures(AttributeType[] type, Object[] value, Filter filter)
     //    throws IOException;
-    void modifyFeatures(AttributeDescriptor[] type, Object[] value, Filter filter)
-        throws IOException;
+    void modifyFeatures( Name[] attributeNames, Object[] attributeValues, Filter filter )  throws IOException;
 
+    /**
+     * For backwards compatibility; please be careful that your descriptor is actually compatible
+     * with the one declared.
+     * 
+     * @param type
+     * @param value
+     * @param filter
+     * @throws IOException
+     * @deprecated Please use {@link #modifyFeatures(Name[], Object[], Filter)}
+     */
+    void modifyFeatures(AttributeDescriptor[] type, Object[] value, Filter filter) throws IOException;
+    
     /**
      * Modifies the passed attribute types with the passed objects in all
      * features that correspond to the passed OGS filter.  A convenience
      * method for single attribute modifications.
      *
-     * @param type The attributes to modify.
-     * @param value The values to put in the attribute types.
+     * @param attributeName The attribute to modify.
+     * @param attributeValue The value to put in the attribute
      * @param filter An OGC filter to note which attributes to modify.
      *
      * @throws IOException If modificaton is not supported, if the object type
      *         do not match the attribute type.
      */
-
-    //void modifyFeatures(AttributeType type, Object value, Filter filter)
-    //    throws IOException;
+    void modifyFeatures( Name attributeName, Object attributeValue, Filter filter )  throws IOException;
+    
+    /**
+     * For backwards compatibility; please be careful that your descriptor is actually compatible
+     * with the one declared.
+     * @param type
+     * @param value
+     * @param filter
+     * @throws IOException
+     * @deprecated Please use {@link #modifyFeatures(Name, Object, Filter)}
+     */
     void modifyFeatures(AttributeDescriptor type, Object value, Filter filter)
         throws IOException;
+
+
 
     /**
      * Deletes the all the current Features of this datasource and adds the new

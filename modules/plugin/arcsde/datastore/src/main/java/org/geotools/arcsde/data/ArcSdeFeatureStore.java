@@ -33,10 +33,12 @@ import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
+import org.geotools.feature.NameImpl;
 import org.geotools.util.logging.Logging;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
+import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
 import org.opengis.filter.identity.FeatureId;
 
@@ -124,7 +126,16 @@ public class ArcSdeFeatureStore extends ArcSdeFeatureSource implements
     /**
      * @see FeatureStore#modifyFeatures(AttributeDescriptor[], Object[], Filter)
      */
-    public void modifyFeatures(final AttributeDescriptor[] attributes, final Object[] values,
+    public final void modifyFeatures(AttributeDescriptor[] type, Object[] value,
+        Filter filter) throws IOException {
+        
+        Name attributeNames[] = new Name[ type.length ];
+        for( int i=0; i < type.length; i ++){
+            attributeNames[i] = type[i].getName();
+        }
+        modifyFeatures( attributeNames, value, filter );       
+    }
+    public void modifyFeatures(final Name[] attributes, final Object[] values,
             final Filter filter) throws IOException {
         final ISession session = getSession();
         try {
@@ -138,7 +149,7 @@ public class ArcSdeFeatureStore extends ArcSdeFeatureSource implements
                 while (writer.hasNext()) {
                     feature = writer.next();
                     for (int i = 0; i < values.length; i++) {
-                        feature.setAttribute(attributes[i].getLocalName(), values[i]);
+                        feature.setAttribute(attributes[i].getLocalPart(), values[i]);
                     }
                     writer.write();
                 }
@@ -150,12 +161,28 @@ public class ArcSdeFeatureStore extends ArcSdeFeatureSource implements
         }
     }
 
+    public void modifyFeatures(String name, Object attributeValue, Filter filter)
+            throws IOException {
+        modifyFeatures(new Name[] { new NameImpl(name), }, new Object[] { attributeValue, }, filter);
+    }
+
+    public void modifyFeatures(String[] names, Object[] values, Filter filter) throws IOException {
+        Name attributeNames[] = new Name[names.length];
+        for (int i = 0; i < names.length; i++) {
+            attributeNames[i] = new NameImpl(names[i]);
+        }
+        modifyFeatures(attributeNames, values, filter);
+    }
     /**
      * @see FeatureStore#modifyFeatures(AttributeDescriptor, Object, Filter)
      */
     public final void modifyFeatures(final AttributeDescriptor type, final Object value,
             final Filter filter) throws IOException {
-        modifyFeatures(new AttributeDescriptor[] { type, }, new Object[] { value, }, filter);
+        modifyFeatures(new Name[] { type.getName(), }, new Object[] { value, }, filter);
+    }
+    public final void modifyFeatures(final Name name, final Object value,
+            final Filter filter) throws IOException {
+        modifyFeatures(new Name[] { name, }, new Object[] { value, }, filter);
     }
 
     /**

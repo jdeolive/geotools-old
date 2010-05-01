@@ -27,6 +27,7 @@ import org.geotools.feature.FeatureCollection;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
+import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
 import org.opengis.filter.identity.FeatureId;
 
@@ -55,6 +56,25 @@ class WrappingPostgisFeatureStore extends WrappingPostgisFeatureSource
 
     public Transaction getTransaction() {
         return wrappedStore.getTransaction();
+    }
+
+    public void modifyFeatures(Name attributeName, Object attributeValue, Filter filter)
+            throws IOException {
+        wrappedStore.modifyFeatures(attributeName, attributeValue, filter);        
+    }
+    public void modifyFeatures(Name[] attributeNames, Object[] attributeValues, Filter filter)
+            throws IOException {
+        wrappedStore.modifyFeatures(attributeNames, attributeValues, filter);        
+    }
+    
+    public void modifyFeatures(String name, Object attributeValue, Filter filter)
+            throws IOException {
+        wrappedStore.modifyFeatures(name, attributeValue, filter);
+    }
+
+    public void modifyFeatures(String[] names, Object[] attributeValues, Filter filter)
+            throws IOException {
+        wrappedStore.modifyFeatures(names, attributeValues, filter);
     }
 
     public void modifyFeatures(AttributeDescriptor type, Object value, Filter filter)

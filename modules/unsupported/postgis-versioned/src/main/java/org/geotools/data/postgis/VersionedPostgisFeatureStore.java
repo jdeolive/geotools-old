@@ -136,15 +136,6 @@ public class VersionedPostgisFeatureStore extends AbstractFeatureStore implement
         store.listenerManager.removeFeatureListener(this, listener);
     }
 
-    public void modifyFeatures(AttributeDescriptor type, Object value, Filter filter) throws IOException {
-        super.modifyFeatures(type, value, filter);
-    }
-
-    public void modifyFeatures(AttributeDescriptor[] type, Object[] value, Filter filter)
-            throws IOException {
-        super.modifyFeatures(type, value, filter);
-    }
-
     public void removeFeatures(Filter filter) throws IOException {
         // this we can optimize, it's a matter of mass updating the last
         // revisions (and before that, we have to compute the modified envelope)

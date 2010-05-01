@@ -26,9 +26,11 @@ import java.util.Set;
 import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.IllegalAttributeException;
+import org.geotools.feature.NameImpl;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
+import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
 import org.opengis.filter.identity.FeatureId;
 
@@ -97,10 +99,30 @@ public abstract class AbstractFeatureStore extends AbstractFeatureSource
      *
      * @throws IOException If modification could not be made
      */
-    public void modifyFeatures(AttributeDescriptor type, Object value, Filter filter)
+    public final void modifyFeatures(AttributeDescriptor type, Object value, Filter filter)
         throws IOException {
-        modifyFeatures(new AttributeDescriptor[] { type, }, new Object[] { value, },
-            filter);
+        Name attributeName = type.getName();
+        modifyFeatures( attributeName, value, filter);
+    }
+    
+    public void modifyFeatures(Name attributeName, Object attributeValue, Filter filter)  throws IOException {
+        modifyFeatures(new Name[] { attributeName, }, new Object[] { attributeValue, },
+                filter);
+    }
+    
+    public void modifyFeatures(String name, Object attributeValue, Filter filter)
+            throws IOException {
+        modifyFeatures(new Name[] { new NameImpl( name ), }, new Object[] { attributeValue, },
+                filter);
+    }
+
+    public void modifyFeatures(String[] names, Object[] values, Filter filter)
+            throws IOException {
+        Name attributeNames[] = new Name[ names.length ];
+        for( int i=0; i < names.length; i ++){
+            attributeNames[i] = new NameImpl(names[i]);
+        }
+        modifyFeatures( attributeNames, values, filter ); 
     }
 
     /**
@@ -136,24 +158,41 @@ public abstract class AbstractFeatureStore extends AbstractFeatureSource
      * @throws IOException If we could not modify Feature
      * @throws DataSourceException See IOException
      */
-    public void modifyFeatures(AttributeDescriptor[] type, Object[] value,
+    public final void modifyFeatures(AttributeDescriptor[] type, Object[] value,
         Filter filter) throws IOException {
+        
+        Name attributeNames[] = new Name[ type.length ];
+        for( int i=0; i < type.length; i ++){
+            attributeNames[i] = type[i].getName();
+        }
+        modifyFeatures( attributeNames, value, filter );       
+    }
+
+    public void modifyFeatures(Name[] attributeNames, Object[] attributeValues, Filter filter)  throws IOException{
         String typeName = getSchema().getTypeName();
+        if ( filter == null ) {
+            String msg = "Must specify a filter, must not be null.";
+            throw new IllegalArgumentException( msg );
+        }
         FeatureWriter<SimpleFeatureType, SimpleFeature> writer = ((DataStore) getDataStore())
                 .getFeatureWriter(typeName, filter, getTransaction());
-        SimpleFeature feature;
-
+        SimpleFeature feature;        
+        for( Name attributeName : attributeNames ){
+            if( getSchema().getDescriptor( attributeName) == null ){
+                throw new DataSourceException("Cannot modify "+attributeName+" as it is not an attribute of "+getSchema().getName() );
+            }
+        }
         try {
             while (writer.hasNext()) {
                 feature = writer.next();
 
-                for (int i = 0; i < type.length; i++) {
+                for (int i = 0; i < attributeNames.length; i++) {
                     try {
-                        feature.setAttribute(type[i].getLocalName(), value[i]);
+                        feature.setAttribute(attributeNames[i], attributeValues[i]);
                     } catch (Exception e) {
                         throw new DataSourceException(
                             "Could not update feature " + feature.getID()
-                            + " with " + type[i].getLocalName() + "=" + value[i], e);
+                            + " with " + attributeNames[i] + "=" + attributeValues[i], e);
                     }
                 }
 
@@ -163,7 +202,6 @@ public abstract class AbstractFeatureStore extends AbstractFeatureSource
             writer.close();
         }
     }
-
     /**
      * Add Features from reader to this FeatureStore.
      * 

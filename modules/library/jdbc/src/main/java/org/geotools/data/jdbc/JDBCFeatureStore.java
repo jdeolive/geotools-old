@@ -37,10 +37,12 @@ import org.geotools.data.Query;
 import org.geotools.data.Transaction;
 import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.IllegalAttributeException;
+import org.geotools.feature.NameImpl;
+import org.opengis.feature.IllegalAttributeException;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
+import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
 import org.opengis.filter.identity.FeatureId;
 
@@ -181,9 +183,12 @@ public class JDBCFeatureStore extends JDBCFeatureSource implements SimpleFeature
      */
     public void modifyFeatures(AttributeDescriptor type, Object value, Filter filter)
         throws IOException {
-        modifyFeatures( new AttributeDescriptor[]{type}, new Object[]{value}, filter );
+        modifyFeatures( new Name[]{type.getName()}, new Object[]{value}, filter );
     }
 
+    public void modifyFeatures(Name name, Object value, Filter filter) throws IOException {
+        modifyFeatures(new Name[] { name }, new Object[] { value }, filter);
+    }
     /**
      * Modifies features matching <code>filter</code>.
      * 
@@ -218,6 +223,15 @@ public class JDBCFeatureStore extends JDBCFeatureSource implements SimpleFeature
      */
     public void modifyFeatures(AttributeDescriptor[] type, Object[] value,
         Filter filter) throws IOException {
+        
+        Name attributeNames[] = new Name[ type.length ];
+        for( int i=0; i < type.length; i ++){
+            attributeNames[i] = type[i].getName();
+        }
+        modifyFeatures( attributeNames, value, filter );       
+    }
+    public void modifyFeatures(Name[] attributeNames, Object[] attributeValues, Filter filter)  throws IOException{
+        
         String typeName = getSchema().getTypeName();
         
         if( getTransaction() == Transaction.AUTO_COMMIT ){
@@ -225,7 +239,7 @@ public class JDBCFeatureStore extends JDBCFeatureSource implements SimpleFeature
             Transaction atomic = new DefaultTransaction();
             try {
                 FeatureWriter<SimpleFeatureType, SimpleFeature> writer = getDataStore().getFeatureWriter(typeName, filter, atomic);
-                modifyFeatures( type, value, writer );                
+                modifyFeatures( attributeNames, attributeValues, writer );                
                 atomic.commit();                
             }
             catch( Throwable t ){
@@ -237,10 +251,10 @@ public class JDBCFeatureStore extends JDBCFeatureSource implements SimpleFeature
         }
         else {
             FeatureWriter<SimpleFeatureType, SimpleFeature> writer = getDataStore().getFeatureWriter(typeName, filter, getTransaction() );
-            modifyFeatures( type, value, writer );            
+            modifyFeatures( attributeNames, attributeValues, writer );            
         }
     }
-    protected void modifyFeatures(AttributeDescriptor[] type, Object[] value,
+    protected void modifyFeatures(Name[] names, Object[] values,
             FeatureWriter<SimpleFeatureType, SimpleFeature> writer) throws DataSourceException,
             IOException {
         SimpleFeature feature;        
@@ -248,13 +262,13 @@ public class JDBCFeatureStore extends JDBCFeatureSource implements SimpleFeature
         	while (writer.hasNext()) {
                 feature = writer.next();
 
-                for (int i = 0; i < type.length; i++) {
+                for (int i = 0; i < names.length; i++) {
                     try {
-                        feature.setAttribute(type[i].getLocalName(), value[i]);
+                        feature.setAttribute(names[i], values[i]);
                     } catch (IllegalAttributeException e) {
                         throw new DataSourceException(
                             "Could not update feature " + feature.getID()
-                            + " with " + type[i].getLocalName() + "=" + value[i], e);
+                            + " with " + names[i] + "=" + values[i], e);
                     }
                 }
 
@@ -263,6 +277,19 @@ public class JDBCFeatureStore extends JDBCFeatureSource implements SimpleFeature
         } finally {
             writer.close();
         }        
+    }
+
+    public void modifyFeatures(String name, Object attributeValue, Filter filter)
+            throws IOException {
+        modifyFeatures(new Name[] { new NameImpl(name), }, new Object[] { attributeValue, }, filter);
+    }
+
+    public void modifyFeatures(String[] names, Object[] values, Filter filter) throws IOException {
+        Name attributeNames[] = new Name[names.length];
+        for (int i = 0; i < names.length; i++) {
+            attributeNames[i] = new NameImpl(names[i]);
+        }
+        modifyFeatures(attributeNames, values, filter);
     }
     /**
      * Add Features from reader to this FeatureStore.

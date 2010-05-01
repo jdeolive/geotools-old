@@ -33,33 +33,37 @@ class SimpleFeatureLockingBridge extends SimpleFeatureStoreBridge implements
         super(delegate);
     }
 
+    protected FeatureLocking<SimpleFeatureType, SimpleFeature> delegate(){
+        return (FeatureLocking<SimpleFeatureType, SimpleFeature>) delegate;
+    }
+    
     public int lockFeatures(Query query) throws IOException {
-        return ((FeatureLocking<SimpleFeatureType, SimpleFeature>) delegate).lockFeatures(query);
+        return delegate().lockFeatures(query);
     }
 
     public int lockFeatures(Filter filter) throws IOException {
-        return ((FeatureLocking<SimpleFeatureType, SimpleFeature>) delegate).lockFeatures(filter);
+        return delegate().lockFeatures(filter);
     }
 
     public int lockFeatures() throws IOException {
-        return ((FeatureLocking<SimpleFeatureType, SimpleFeature>) delegate).lockFeatures();
+        return delegate().lockFeatures();
     }
 
     public void setFeatureLock(FeatureLock lock) {
-        ((FeatureLocking<SimpleFeatureType, SimpleFeature>) delegate).setFeatureLock(lock);
+        delegate().setFeatureLock(lock);
     }
 
     public void unLockFeatures() throws IOException {
-        ((FeatureLocking<SimpleFeatureType, SimpleFeature>) delegate).unLockFeatures();
+        delegate().unLockFeatures();
         
     }
 
     public void unLockFeatures(Filter filter) throws IOException {
-        ((FeatureLocking<SimpleFeatureType, SimpleFeature>) delegate).unLockFeatures(filter);
+        delegate().unLockFeatures(filter);
     }
 
     public void unLockFeatures(Query query) throws IOException {
-        ((FeatureLocking<SimpleFeatureType, SimpleFeature>) delegate).unLockFeatures(query);
+        delegate().unLockFeatures(query);
     }
 
 }

@@ -38,12 +38,14 @@ import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.LenientBuilder;
 import org.geotools.feature.LenientFeatureFactory;
+import org.geotools.feature.NameImpl;
 import org.geotools.filter.identity.FeatureIdImpl;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.GeometryDescriptor;
+import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
 import org.opengis.filter.identity.FeatureId;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -226,7 +228,7 @@ public class WFSFeatureStore extends WFSFeatureSource implements SimpleFeatureSt
      * 
      * @see org.geotools.data.FeatureStore#modifyFeatures(org.geotools.feature.AttributeType[], java.lang.Object[], org.geotools.filter.Filter)
      */
-    public void modifyFeatures(AttributeDescriptor[] type, Object[] value,
+    public void modifyFeatures(Name[] names, Object[] value,
         Filter filter2) throws IOException {
     	Filter filter=ds.processFilter(filter2);
         WFSTransactionState ts = null;
@@ -237,13 +239,13 @@ public class WFSFeatureStore extends WFSFeatureSource implements SimpleFeatureSt
             ts = (WFSTransactionState) trans.getState(ds);
         }
 
-        Map props = new HashMap();
+        Map<String,Object> props = new HashMap<String,Object>();
         
         ReferencedEnvelope bounds=null;
-        for (int i = 0; i < type.length; i++) {
-        	if(type[i] instanceof GeometryDescriptor){
+        for (int i = 0; i < names.length; i++) {
+        	if(names[i] instanceof GeometryDescriptor){
         		Geometry g = (Geometry)value[i];
-        		CoordinateReferenceSystem cs = ((GeometryDescriptor)type[i]).getCoordinateReferenceSystem();
+        		CoordinateReferenceSystem cs = ((GeometryDescriptor)names[i]).getCoordinateReferenceSystem();
 
                 if( cs!=null && !cs.getIdentifiers().isEmpty() )
                     g.setUserData(cs.getIdentifiers().iterator().next().toString());
@@ -259,7 +261,7 @@ public class WFSFeatureStore extends WFSFeatureSource implements SimpleFeatureSt
                     bounds.expandToInclude(g.getEnvelopeInternal());
                 }
         	}
-            props.put(type[i].getLocalName(), value[i]);
+            props.put(names[i].getLocalPart(), value[i]);
         }
 
         ts.addAction(getSchema().getTypeName(), new UpdateAction(getSchema().getTypeName(), filter, props));
@@ -281,16 +283,44 @@ public class WFSFeatureStore extends WFSFeatureSource implements SimpleFeatureSt
             ts.commit();
         }
     }
+
+    public final void modifyFeatures(AttributeDescriptor type, Object value, Filter filter)
+            throws IOException {
+        Name attributeName = type.getName();
+        modifyFeatures(attributeName, value, filter);
+    }
     /**
      * 
      * @see org.geotools.data.FeatureStore#modifyFeatures(org.geotools.feature.AttributeType, java.lang.Object, org.geotools.filter.Filter)
      */
-    public void modifyFeatures(AttributeDescriptor type, Object value, Filter filter)
+    public void modifyFeatures(Name type, Object value, Filter filter)
         throws IOException {
-        modifyFeatures(new AttributeDescriptor[] { type, }, new Object[] { value, },
+        modifyFeatures(new Name[] { type, }, new Object[] { value, },
             filter);
     }
 
+    public final void modifyFeatures(AttributeDescriptor[] type, Object[] value, Filter filter)
+            throws IOException {
+
+        Name attributeNames[] = new Name[type.length];
+        for (int i = 0; i < type.length; i++) {
+            attributeNames[i] = type[i].getName();
+        }
+        modifyFeatures(attributeNames, value, filter);
+    }
+
+    public void modifyFeatures(String name, Object attributeValue, Filter filter)
+            throws IOException {
+        modifyFeatures(new Name[] { new NameImpl(name), }, new Object[] { attributeValue, }, filter);
+    }
+
+    public void modifyFeatures(String[] names, Object[] values, Filter filter) throws IOException {
+        Name attributeNames[] = new Name[names.length];
+        for (int i = 0; i < names.length; i++) {
+            attributeNames[i] = new NameImpl(names[i]);
+        }
+        modifyFeatures(attributeNames, values, filter);
+    }
     /**
      * 
      * @see org.geotools.data.FeatureStore#setFeatures(org.geotools.data.FeatureReader)

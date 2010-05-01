@@ -309,16 +309,16 @@ public final class JDBCFeatureStore extends ContentFeatureStore {
     }
     
     @Override
-    public void modifyFeatures(AttributeDescriptor[] types, Object[] values, Filter filter)
+    public void modifyFeatures(Name[] names, Object[] values, Filter filter)
             throws IOException {
         
         // we cannot trust attribute definitions coming from outside, they might not
         // have the same metadata the inner ones have. Let's remap them
-        AttributeDescriptor[] innerTypes = new AttributeDescriptor[types.length];
-        for (int i = 0; i < types.length; i++) {
-            innerTypes[i] = getSchema().getDescriptor(types[i].getLocalName());
+        AttributeDescriptor[] innerTypes = new AttributeDescriptor[names.length];
+        for (int i = 0; i < names.length; i++) {
+            innerTypes[i] = getSchema().getDescriptor(names[i].getLocalPart());
             if(innerTypes[i] == null)
-                throw new IllegalArgumentException("Unknon attribute " + types[i].getLocalName());
+                throw new IllegalArgumentException("Unknon attribute " + names[i].getLocalPart());
         }
         
         // split the filter

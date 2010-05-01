@@ -36,9 +36,11 @@ import org.geotools.data.Query;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.NameImpl;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
+import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
 import org.opengis.filter.identity.FeatureId;
 
@@ -301,6 +303,15 @@ public abstract class ContentFeatureStore extends ContentFeatureSource implement
         }
     }
     
+    public void modifyFeatures(AttributeDescriptor[] type, Object[] value, Filter filter)
+    throws IOException {
+        Name attributeNames[] = new Name[ type.length ];
+        for( int i=0; i < type.length; i ++){
+            attributeNames[i] = type[i].getName();
+        }
+        modifyFeatures( attributeNames, value, filter ); 
+    }
+    
     /**
      * Modifies/updates the features of the store which match the specified filter.
      * <p>
@@ -312,7 +323,7 @@ public abstract class ContentFeatureStore extends ContentFeatureSource implement
      * will throw an {@link IllegalArgumentException}.
      * </p>
      */
-    public void modifyFeatures(AttributeDescriptor[] type, Object[] value, Filter filter)
+    public void modifyFeatures(Name[] type, Object[] value, Filter filter)
         throws IOException {
         if ( filter == null ) {
             String msg = "Must specify a filter, must not be null.";
@@ -327,7 +338,7 @@ public abstract class ContentFeatureStore extends ContentFeatureSource implement
                 SimpleFeature toWrite = writer.next();
                 
                 for ( int i = 0; i < type.length; i++ ) {
-                    toWrite.setAttribute( type[i].getName(), value[i] );
+                    toWrite.setAttribute( type[i], value[i] );
                 }
                 
                 writer.write();
@@ -339,13 +350,35 @@ public abstract class ContentFeatureStore extends ContentFeatureSource implement
         }
     }
 
+    final public void modifyFeatures(String name, Object attributeValue, Filter filter)
+            throws IOException {
+        modifyFeatures(new Name[] { new NameImpl(name), }, new Object[] { attributeValue, }, filter);
+    }
+
+    final public void modifyFeatures(String[] names, Object[] values, Filter filter) throws IOException {
+        Name attributeNames[] = new Name[names.length];
+        for (int i = 0; i < names.length; i++) {
+            attributeNames[i] = new NameImpl(names[i]);
+        }
+        modifyFeatures(attributeNames, values, filter);
+    }
+    
     /**
-     * Calls through to {@link #modifyFeatures(AttributeDescriptor[], Object[], Filter)}.
+     * Calls through to {@link #modifyFeatures(Name[], Object[], Filter)}.
      */
     public final void modifyFeatures(AttributeDescriptor type, Object value, Filter filter)
         throws IOException {
         
-        modifyFeatures( new AttributeDescriptor[]{ type }, new Object[]{ value }, filter );
+        modifyFeatures( new Name[]{ type.getName() }, new Object[]{ value }, filter );
+    }
+    
+    /**
+     * Calls through to {@link #modifyFeatures(Name[], Object[], Filter)}.
+     */
+    public final void modifyFeatures(Name name, Object value, Filter filter)
+        throws IOException {
+        
+        modifyFeatures( new Name[]{ name }, new Object[]{ value }, filter );
     }
 
     /**
