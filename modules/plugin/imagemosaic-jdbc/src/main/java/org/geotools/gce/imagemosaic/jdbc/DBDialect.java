@@ -69,7 +69,7 @@ public abstract class DBDialect {
 			return new MySqlDialect(config);
 		} else if (type == SpatialExtension.UNIVERSAL) {
 			return new UniversalDialect(config);
-		} else if (type == SpatialExtension.ORACLE) {
+		} else if (type == SpatialExtension.ORACLE || type==SpatialExtension.GEORASTER) {
 			return new OracleDialect(config);
 		} else {
 			return null;

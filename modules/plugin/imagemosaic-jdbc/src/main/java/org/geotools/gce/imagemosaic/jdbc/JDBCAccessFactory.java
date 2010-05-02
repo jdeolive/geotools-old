@@ -63,6 +63,8 @@ class JDBCAccessFactory {
 			jdbcAccess = new JDBCAccessUniversal(config);
 		} else if (type == SpatialExtension.ORACLE) {
 			jdbcAccess = new JDBCAccessOracle(config);
+                } else if (type == SpatialExtension.GEORASTER) {
+                    jdbcAccess = new JDBCAccessOracleGeoRaster(config);			
 		} else {
 			throw new Exception("spatialExtension: " + type + " not supported");
 		}

@@ -48,8 +48,10 @@ class Config {
 	private String xmlUrl;
 
 	private String coverageName;
+	private String geoRasterAttribute;
 
-	private String coordsys;
+
+        private String coordsys;
 
 	private SpatialExtension spatialExtension;
 
@@ -155,61 +157,70 @@ class Config {
 		result.coverageName = readNameString(dom.getDocumentElement(),
 				"coverageName");
 
+
 		// db mapping
 		result.spatialExtension = SpatialExtension.fromString(readNameString(
 				dom.getDocumentElement(), "spatialExtension"));
 		result.masterTable = readNameString(dom.getDocumentElement(),
 				"masterTable");
+		
 
 		Element masterTableElem = (Element) dom.getElementsByTagName(
 				"masterTable").item(0);
 		result.coverageNameAttribute = readNameString(masterTableElem,
 				"coverageNameAttribute");
-		result.maxXAttribute = readNameString(masterTableElem, "maxXAttribute");
-		result.maxYAttribute = readNameString(masterTableElem, "maxYAttribute");
-		result.minXAttribute = readNameString(masterTableElem, "minXAttribute");
-		result.minYAttribute = readNameString(masterTableElem, "minYAttribute");
-		result.resXAttribute = readNameString(masterTableElem, "resXAttribute");
-		result.resYAttribute = readNameString(masterTableElem, "resYAttribute");
-		result.tileTableNameAtribute = readNameString(masterTableElem,
+                if (result.spatialExtension.equals(SpatialExtension.GEORASTER)) {
+                    result.geoRasterAttribute = readNameString(masterTableElem,
+                     "geoRasterAttribute");
+                } else {
+                    result.maxXAttribute = readNameString(masterTableElem, "maxXAttribute");
+                    result.maxYAttribute = readNameString(masterTableElem, "maxYAttribute");
+                    result.minXAttribute = readNameString(masterTableElem, "minXAttribute");
+                    result.minYAttribute = readNameString(masterTableElem, "minYAttribute");
+                    result.resXAttribute = readNameString(masterTableElem, "resXAttribute");
+                    result.resYAttribute = readNameString(masterTableElem, "resYAttribute");
+                    result.tileTableNameAtribute = readNameString(masterTableElem,
 				"tileTableNameAtribute");
-		result.spatialTableNameAtribute = readNameString(masterTableElem,
+                    result.spatialTableNameAtribute = readNameString(masterTableElem,
 				"spatialTableNameAtribute");
 
-		Element tileTableElem = (Element) dom.getElementsByTagName("tileTable")
+                    Element tileTableElem = (Element) dom.getElementsByTagName("tileTable")
 				.item(0);
-		result.blobAttributeNameInTileTable = readNameString(tileTableElem,
+                    result.blobAttributeNameInTileTable = readNameString(tileTableElem,
 				"blobAttributeName");
-		result.keyAttributeNameInTileTable = readNameString(tileTableElem,
+                    result.keyAttributeNameInTileTable = readNameString(tileTableElem,
 				"keyAttributeName");
 
-		Element spatialTableElem = (Element) dom.getElementsByTagName(
+                    Element spatialTableElem = (Element) dom.getElementsByTagName(
 				"spatialTable").item(0);
-		result.keyAttributeNameInSpatialTable = readNameString(
+                    result.keyAttributeNameInSpatialTable = readNameString(
 				spatialTableElem, "keyAttributeName");
-		result.geomAttributeNameInSpatialTable = readNameString(
+                    result.geomAttributeNameInSpatialTable = readNameString(
 				spatialTableElem, "geomAttributeName");
-		result.tileMaxXAttribute = readNameString(spatialTableElem,
+                    result.tileMaxXAttribute = readNameString(spatialTableElem,
 				"tileMaxXAttribute");
-		result.tileMaxYAttribute = readNameString(spatialTableElem,
+                    result.tileMaxYAttribute = readNameString(spatialTableElem,
 				"tileMaxYAttribute");
-		result.tileMinXAttribute = readNameString(spatialTableElem,
+                    result.tileMinXAttribute = readNameString(spatialTableElem,
 				"tileMinXAttribute");
-		result.tileMinYAttribute = readNameString(spatialTableElem,
+                    result.tileMinYAttribute = readNameString(spatialTableElem,
 				"tileMinYAttribute");
-
+                }    
 		// end db mapping
-		Node tmp = dom.getElementsByTagName("scaleop").item(0);
-		NamedNodeMap map = tmp.getAttributes();
-		String s = map.getNamedItem("interpolation").getNodeValue();
-		result.interpolation = new Integer(s);
 
-		tmp = dom.getElementsByTagName("verify").item(0);
-		map = tmp.getAttributes();
-		s = map.getNamedItem("cardinality").getNodeValue();
-		result.verifyCardinality = new Boolean(s);
+                Node tmp = dom.getElementsByTagName("scaleop").item(0);
+                NamedNodeMap map = tmp.getAttributes();
+                String s = map.getNamedItem("interpolation").getNodeValue();
+                result.interpolation = new Integer(s);
+                
+                if (result.spatialExtension.equals(SpatialExtension.GEORASTER)==false) {
+                    tmp = dom.getElementsByTagName("verify").item(0);
+                    map = tmp.getAttributes();
+                    s = map.getNamedItem("cardinality").getNodeValue();
+                    result.verifyCardinality = new Boolean(s);
 
-		result.initStatements();
+                    result.initStatements();
+                }    
 
 		ConfigMap.put(xmlURL.toString(), result);
 
@@ -417,6 +428,10 @@ class Config {
 	String getCoverageNameAttribute() {
 		return coverageNameAttribute;
 	}
+
+       public String getGeoRasterAttribute() {
+           return geoRasterAttribute;
+       }
 
 	String getPassword() {
 		return password;

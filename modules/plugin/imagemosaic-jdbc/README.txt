@@ -15,10 +15,11 @@ resources.zip		:	a zip file containing image material needed for the tests
 						lower left:		9/46
 						upper right:	17/49
 						
-db2.properties		:	a template for connect info for db2 online tests
-postgis.properties	: 	a template for connect info for postgis online tests
-mysql.properties	:   a template for connect info for mysql online tests
-oracle.properties	: 	a template for connect info for oracle online tests
+db2.properties		 :	a template for connect info for db2 online tests
+postgis.properties	 : 	a template for connect info for postgis online tests
+mysql.properties	 :   a template for connect info for mysql online tests
+oracle.properties	 : 	a template for connect info for oracle online tests
+georaster.properties : 	a template for connect info for oracle georaster online tests
 
 Prior to starting the test, resources.zip  will automatically be unzipped into target/resources/.
 
@@ -29,6 +30,7 @@ target/db2
 target/postgis
 target/mysql
 target/oracle
+target/georaster
 
 
 **  Running Online Tests **
@@ -71,6 +73,9 @@ Oracle
 	2) have a correct property file (fixture) in your home dir
 	3) have ojdbc14.jar in your classpath
 	http://www.oracle.com/technology/software/tech/java/sqlj_jdbc/htdocs/jdbc9201.html
+	
+Oracle Georaster
+	1) like Oracle, Oracle Spatial must be available
 
 
 Run  Maven with:
