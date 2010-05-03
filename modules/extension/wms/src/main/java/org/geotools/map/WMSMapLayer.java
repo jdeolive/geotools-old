@@ -260,8 +260,10 @@ public class WMSMapLayer extends DefaultMapLayer {
                         final GridGeometry2D gg = (GridGeometry2D) ((ParameterValue) param)
                                 .getValue();
                         requestedEnvelope = gg.getEnvelope();
-                        width = gg.getGridRange().getHigh(0);
-                        height = gg.getGridRange().getHigh(1);
+                        // the range high value is the highest pixel included in the raster,
+                        // the actual width and height is one more than that
+                        width = gg.getGridRange().getHigh(0) + 1;
+                        height = gg.getGridRange().getHigh(1) + 1;
                         break;
                     }
                 }
