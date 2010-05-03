@@ -33,12 +33,14 @@ import org.geotools.data.ServiceInfo;
 import org.geotools.data.Transaction;
 import org.geotools.data.complex.xml.XmlResponse;
 import org.geotools.data.complex.xml.XmlXpathFilterData;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.data.view.DefaultView;
 import org.geotools.data.ws.protocol.ws.WSProtocol;
 import org.geotools.data.ws.protocol.ws.WSResponse;
 import org.geotools.feature.SchemaException;
 import org.geotools.util.XmlXpathUtilites;
 import org.geotools.util.logging.Logging;
+import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
@@ -48,7 +50,6 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
 import org.xml.sax.helpers.NamespaceSupport;
-import org.jdom.Document;
 
 /**
  * An implementation of a DS that uses XML over HTTP.
@@ -248,7 +249,7 @@ public final class WS_DataStore implements XmlDataStore {
      * @see org.geotools.data.DataStore#getView(org.geotools.data.Query)
      * @see DefaultView
      */
-    public FeatureSource<SimpleFeatureType, SimpleFeature> getView(final Query query)
+    public SimpleFeatureSource getView(final Query query)
             throws IOException, SchemaException {
         throw new UnsupportedOperationException("DS not supported!");
     }
@@ -292,7 +293,7 @@ public final class WS_DataStore implements XmlDataStore {
         throw new UnsupportedOperationException("This is a read only DataStore");
     }
 
-    public FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSource(Name typeName)
+    public SimpleFeatureSource getFeatureSource(Name typeName)
             throws IOException {
         // this is a hack as this datastore only returns one type of response.
         //set the name to what is passed in as it maybe needed later.        
