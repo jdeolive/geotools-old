@@ -26,6 +26,8 @@ import java.util.Queue;
 import java.util.Set;
 
 import org.geotools.factory.Hints;
+import org.geotools.resources.i18n.ErrorKeys;
+import org.geotools.resources.i18n.Errors;
 
 
 /**
@@ -651,4 +653,19 @@ public final class Utilities {
         }
         return s;
     }
+    
+    /**
+     * Makes sure that an argument is non-null.
+     * 
+     * @param name Argument name.
+     * @param object User argument.
+     * @throws NullPointerException if {@code object} is null.
+     */
+    public static void ensureNonNull(final String name, final Object object)
+            throws NullPointerException {
+        if (object == null) {
+            throw new NullPointerException(Errors.format(ErrorKeys.NULL_ARGUMENT_$1, name));
+        }
+    }
+
 }

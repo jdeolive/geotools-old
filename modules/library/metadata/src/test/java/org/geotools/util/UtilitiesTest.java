@@ -29,6 +29,32 @@ import static org.geotools.util.Utilities.*;
  * @author Martin Desruisseaux
  */
 public final class UtilitiesTest {
+    
+    /**
+     * Tests {@link Utilities#ensureNonNull}.
+     */
+    @Test
+    public void testEnsureNonNull() {
+        boolean isNull = false;
+        Object sampleObject = null;
+        try {
+            assertNull(sampleObject);
+            Utilities.ensureNonNull("sampleObject", sampleObject);
+        } catch (NullPointerException npe){
+            isNull = true;
+        }
+        assertTrue(isNull);
+        sampleObject = "";
+        try {
+            assertNotNull(sampleObject);
+            Utilities.ensureNonNull("sampleObject", sampleObject);
+            isNull = false;
+        } catch (NullPointerException npe){
+            isNull = true;
+        }
+        assertFalse(isNull);
+    }
+    
     /**
      * Tests {@link Utilities#equals}.
      */
