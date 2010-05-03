@@ -775,8 +775,9 @@ public class Types {
      *            , namespaces
      * @return
      * @throws IllegalArgumentException
-     *             if <code>prefixedName</code> has no prefix.
-     */
+	 *             if <code>prefixedName</code> has no declared namespace in
+	 *             app-schema config file.
+	 */	
     public static Name degloseName(String prefixedName, NamespaceSupport namespaces)
             throws IllegalArgumentException {
         Name name = null;
@@ -795,7 +796,19 @@ public class Types {
         String nsPrefix = prefixedName.substring(0, prefixIdx);
         String localName = prefixedName.substring(prefixIdx + 1);
         String nsUri = namespaces.getURI(nsPrefix);
+        
+        // handles undeclared namespaces in the app-schema mapping file
+		if (nsUri == null) {
+			throw new IllegalArgumentException(
+					"No namespace set: The namespace has not"
+							+ " been declared in the app-schema mapping file for name: "
+							+ nsPrefix
+							+ ":"
+							+ localName
+							+ " [Check the Namespaces section in the config file] ");
 
+		}
+        
         name = Types.typeName(nsUri, localName);
 
         return name;
