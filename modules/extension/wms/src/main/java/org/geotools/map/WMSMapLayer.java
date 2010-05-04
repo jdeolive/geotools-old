@@ -68,6 +68,9 @@ import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.parameter.ParameterValue;
 import org.opengis.referencing.ReferenceIdentifier;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.MathTransform;
+
+import com.sun.org.apache.bcel.internal.generic.ASTORE;
 
 /**
  * Wraps a WMS layer into a {@link MapLayer} for interactive rendering usage TODO: expose a
@@ -131,13 +134,14 @@ public class WMSMapLayer extends DefaultMapLayer {
      * Retrieves the feature info as text (assuming "text/plain" is a supported feature info format)
      * 
      * @param pos
+     *            the position to be checked, in real world coordinates
      * @return
      * @throws IOException
      */
     public String getFeatureInfoAsText(DirectPosition2D pos, int featureCount) throws IOException {
         BufferedReader br = null;
         try {
-            InputStream is = reader.getFeatureInfo(pos, "text/plain", featureCount);
+            InputStream is = reader.getFeatureInfo(pos, "text/plain", featureCount, reader.mapRequest);
             br = new BufferedReader(new InputStreamReader(is));
             String line;
             StringBuilder sb = new StringBuilder();
@@ -160,6 +164,7 @@ public class WMSMapLayer extends DefaultMapLayer {
      * interpret the contents and ensure the stream is closed feature info format)
      * 
      * @param pos
+     *            the position to be checked, in real world coordinates
      * @param infoFormat
      *            The INFO_FORMAT parameter in the GetFeatureInfo request
      * @return
@@ -167,7 +172,40 @@ public class WMSMapLayer extends DefaultMapLayer {
      */
     public InputStream getFeatureInfo(DirectPosition2D pos, String infoFormat, int featureCount)
             throws IOException {
-        return reader.getFeatureInfo(pos, infoFormat, featureCount);
+        return reader.getFeatureInfo(pos, infoFormat, featureCount, reader.mapRequest);
+    }
+
+    /**
+     * Allows to run a standalone GetFeatureInfo request, without the need to have previously run a
+     * GetMap request on this layer. Mostly useful for stateless users that rebuild the map context
+     * for each rendering operation (e.g., GeoServer)
+     * 
+     * @param pos
+     * @param infoFormat
+     *            The INFO_FORMAT parameter in the GetFeatureInfo request
+     * @return
+     * @throws IOException
+     */
+    public InputStream getFeatureInfo(ReferencedEnvelope bbox, int width, int height, int x, int y,
+            String infoFormat, int featureCount) throws IOException {
+        try {
+            reader.initMapRequest(bbox, width, height);
+            // we need to convert x/y from the screen to the original coordinates, and then to the ones
+            // that will be used to make the request
+            AffineTransform at = RendererUtilities.worldToScreenTransform(bbox, new Rectangle(width, height));
+            Point2D screenPos = new Point2D.Double(x, y);
+            Point2D worldPos = new Point2D.Double(x, y);
+            at.inverseTransform(screenPos, worldPos);
+            DirectPosition2D fromPos = new DirectPosition2D(worldPos.getX(), worldPos.getY());
+            DirectPosition2D toPos = new DirectPosition2D();
+            MathTransform mt = CRS.findMathTransform(bbox.getCoordinateReferenceSystem(), reader.requestCRS, true);
+            mt.transform(fromPos, toPos);
+            return reader.getFeatureInfo(toPos, infoFormat, featureCount, reader.mapRequest);
+        } catch(IOException e) {
+            throw e;
+        } catch(Throwable t) {
+            throw (IOException) new IOException("Unexpected issue during GetFeatureInfo execution").initCause(t);
+        }
     }
 
     /**
@@ -205,13 +243,31 @@ public class WMSMapLayer extends DefaultMapLayer {
     public GetMapRequest getLastGetMap() {
         return reader.mapRequest;
     }
-    
+
     /**
      * Allows to add another WMS layer into the GetMap requests
+     * 
      * @param layer
      */
     public void addLayer(Layer layer) {
         reader.addLayer(layer);
+    }
+
+    /**
+     * Returns true if the specified CRS can be used directly to perform WMS requests. Natively
+     * supported crs will provide the best rendering quality as no client side reprojection is
+     * necessary, the image coming from the WMS server will be used as-is
+     * 
+     * @param crs
+     * @return
+     */
+    public boolean isNativelySupported(CoordinateReferenceSystem crs) {
+        try {
+            String code = CRS.lookupIdentifier(crs, false);
+            return code != null && reader.validSRS.contains(code);
+        } catch (Throwable t) {
+            return false;
+        }
     }
 
     /**
@@ -252,7 +308,7 @@ public class WMSMapLayer extends DefaultMapLayer {
          * The set of SRS common to all layers
          */
         Set<String> validSRS;
-        
+
         /**
          * The cached layer bounds
          */
@@ -261,19 +317,22 @@ public class WMSMapLayer extends DefaultMapLayer {
         /**
          * The last request envelope
          */
-        private ReferencedEnvelope requestedEnvelope;
+        ReferencedEnvelope requestedEnvelope;
 
         /**
          * Last request width
          */
-        private int width;
+        int width;
 
         /**
          * Last request height
          */
-        private int height;
+        int height;
 
-        
+        /**
+         * Last request CRS (used for reprojected GetFeatureInfo)
+         */
+        CoordinateReferenceSystem requestCRS;
 
         /**
          * Builds a new WMS coverage reader
@@ -340,7 +399,7 @@ public class WMSMapLayer extends DefaultMapLayer {
                 LOGGER.log(Level.FINE, "Bounds unavailable for layer" + layer);
             }
             this.crs = crs;
-            
+
             // update the cached bounds and the reader original envelope
             updateBounds();
         }
@@ -352,9 +411,9 @@ public class WMSMapLayer extends DefaultMapLayer {
          * @return
          * @throws IOException
          */
-        public InputStream getFeatureInfo(DirectPosition2D pos, String infoFormat, int featureCount)
+        public InputStream getFeatureInfo(DirectPosition2D pos, String infoFormat, int featureCount, GetMapRequest getmap)
                 throws IOException {
-            GetFeatureInfoRequest request = wms.createGetFeatureInfoRequest(mapRequest);
+            GetFeatureInfoRequest request = wms.createGetFeatureInfoRequest(getmap);
             request.setFeatureCount(1);
             request.setQueryLayers(new LinkedHashSet<Layer>(layers));
             request.setInfoFormat(infoFormat);
@@ -417,7 +476,7 @@ public class WMSMapLayer extends DefaultMapLayer {
                     && grid.getEnvelope().equals(requestedEnvelope))
                 return grid;
 
-            grid = getMap(toReferencedEnvelope(requestedEnvelope), width, height);
+            grid = getMap(reference(requestedEnvelope), width, height);
             return grid;
         }
 
@@ -427,32 +486,7 @@ public class WMSMapLayer extends DefaultMapLayer {
         GridCoverage2D getMap(ReferencedEnvelope requestedEnvelope, int width, int height)
                 throws IOException {
             // build the request
-            ReferencedEnvelope gridEnvelope = requestedEnvelope;
-            try {
-                // first see if we can cascade the request in its native SRS
-                String code = CRS.lookupIdentifier(
-                        requestedEnvelope.getCoordinateReferenceSystem(), false);
-                if (code != null && validSRS.contains(code)) {
-                    initMapRequest(requestedEnvelope, code, width, height);
-                } else {
-                    // first reproject to the map CRS
-                    gridEnvelope = requestedEnvelope.transform(getCrs(), true);
-
-                    // then adjust the form factor
-                    if (gridEnvelope.getWidth() < gridEnvelope.getHeight()) {
-                        height = (int) Math.round(width * gridEnvelope.getHeight()
-                                / gridEnvelope.getWidth());
-                    } else {
-                        width = (int) Math.round(height * gridEnvelope.getWidth()
-                                / gridEnvelope.getHeight());
-                    }
-
-                    initMapRequest(gridEnvelope, srsName, width, height);
-                }
-            } catch (Exception e) {
-                throw (IOException) new IOException("Could not reproject the request envelope")
-                        .initCause(e);
-            }
+            ReferencedEnvelope gridEnvelope = initMapRequest(requestedEnvelope, width, height);
 
             // issue the request and wrap response in a grid coverage
             InputStream is = null;
@@ -467,8 +501,42 @@ public class WMSMapLayer extends DefaultMapLayer {
             }
         }
 
-        void initMapRequest(ReferencedEnvelope requestedEnvelope, String srsName, int width,
-                int height) {
+        /**
+         * Sets up a max request with the provided parameters, making sure it is compatible with
+         * the layers own native SRS list
+         * @param bbox
+         * @param width
+         * @param height
+         * @return
+         * @throws IOException
+         */
+        ReferencedEnvelope initMapRequest(ReferencedEnvelope bbox, int width, int height)
+                throws IOException {
+            ReferencedEnvelope gridEnvelope = bbox;
+            String requestSrs = srsName;
+            try {
+                // first see if we can cascade the request in its native SRS
+                String code = CRS.lookupIdentifier(bbox.getCoordinateReferenceSystem(), false);
+                if (code != null && validSRS.contains(code)) {
+                    requestSrs = code;
+                } else {
+                    // first reproject to the map CRS
+                    gridEnvelope = bbox.transform(getCrs(), true);
+
+                    // then adjust the form factor
+                    if (gridEnvelope.getWidth() < gridEnvelope.getHeight()) {
+                        height = (int) Math.round(width * gridEnvelope.getHeight()
+                                / gridEnvelope.getWidth());
+                    } else {
+                        width = (int) Math.round(height * gridEnvelope.getWidth()
+                                / gridEnvelope.getHeight());
+                    }
+                }
+            } catch (Exception e) {
+                throw (IOException) new IOException("Could not reproject the request envelope")
+                        .initCause(e);
+            }
+
             GetMapRequest mapRequest = wms.createGetMapRequest();
             // for some silly reason GetMapRequest will list the layers in the opposite order...
             List<Layer> reversed = new ArrayList<Layer>(layers);
@@ -478,27 +546,21 @@ public class WMSMapLayer extends DefaultMapLayer {
             }
             mapRequest.setDimensions(width, height);
             mapRequest.setFormat(format);
-            mapRequest.setSRS(srsName);
-            mapRequest.setBBox(requestedEnvelope);
+            mapRequest.setSRS(requestSrs);
+            mapRequest.setBBox(gridEnvelope);
             mapRequest.setTransparent(true);
 
+            try {
+                this.requestCRS = CRS.decode(requestSrs);
+            } catch(Exception e) {
+                throw new IOException("Could not decode request SRS " + requestSrs);
+            }
             this.mapRequest = mapRequest;
-            this.requestedEnvelope = requestedEnvelope;
+            this.requestedEnvelope = gridEnvelope;
             this.width = width;
             this.height = height;
-        }
 
-        /**
-         * Converts a {@link Envelope} into a {@link ReferencedEnvelope}
-         * 
-         * @param envelope
-         * @return
-         */
-        ReferencedEnvelope toReferencedEnvelope(Envelope envelope) {
-            ReferencedEnvelope env = new ReferencedEnvelope(envelope.getCoordinateReferenceSystem());
-            env.expandToInclude(envelope.getMinimum(0), envelope.getMinimum(1));
-            env.expandToInclude(envelope.getMaximum(0), envelope.getMaximum(1));
-            return env;
+            return gridEnvelope;
         }
 
         public Format getFormat() {
@@ -520,6 +582,19 @@ public class WMSMapLayer extends DefaultMapLayer {
 
             this.bounds = result;
             this.originalEnvelope = new GeneralEnvelope(result);
+        }
+        
+        /**
+         * Converts a {@link Envelope} into a {@link ReferencedEnvelope}
+         * 
+         * @param envelope
+         * @return
+         */
+        ReferencedEnvelope reference(Envelope envelope) {
+            ReferencedEnvelope env = new ReferencedEnvelope(envelope.getCoordinateReferenceSystem());
+            env.expandToInclude(envelope.getMinimum(0), envelope.getMinimum(1));
+            env.expandToInclude(envelope.getMaximum(0), envelope.getMaximum(1));
+            return env;
         }
 
         /**
