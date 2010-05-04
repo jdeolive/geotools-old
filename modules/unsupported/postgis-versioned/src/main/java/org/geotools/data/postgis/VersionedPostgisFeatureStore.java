@@ -49,6 +49,7 @@ import org.geotools.data.store.EmptyFeatureCollection;
 import org.geotools.data.store.ReTypingFeatureCollection;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.Hints;
+import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -242,8 +243,7 @@ public class VersionedPostgisFeatureStore extends AbstractFeatureStore implement
         return getVersionedFeatures(new DefaultQuery(getSchema().getTypeName()));
     }
     
-    public List<FeatureId> addFeatures(
-            SimpleFeatureCollection collection) throws IOException {
+    public List<FeatureId> addFeatures(FeatureCollection<SimpleFeatureType,SimpleFeature> collection) throws IOException {
         List<FeatureId> addedFids = new LinkedList<FeatureId>();
         String typeName = getSchema().getTypeName();
         SimpleFeature feature = null;
