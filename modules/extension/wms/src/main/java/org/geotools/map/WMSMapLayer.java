@@ -361,7 +361,29 @@ public class WMSMapLayer extends DefaultMapLayer {
         GridCoverage2D getMap(ReferencedEnvelope requestedEnvelope, int width, int height)
                 throws IOException {
             // build the request
-            initMapRequest(requestedEnvelope, width, height);
+            ReferencedEnvelope gridEnvelope = requestedEnvelope;
+            try {
+                // first see if we can cascade the request in its native SRS
+                String code = CRS.lookupIdentifier(requestedEnvelope.getCoordinateReferenceSystem(), false);
+                if(code != null && layer.getSrs().contains(code)) {
+                    initMapRequest(requestedEnvelope, code, width, height);
+                } else {
+                    // first reproject to the map CRS
+                    gridEnvelope = requestedEnvelope.transform(getCrs(), true);
+                    
+                    // then adjust the form factor
+                    if(gridEnvelope.getWidth() < gridEnvelope.getHeight()) {
+                        height = (int) Math.round(width * gridEnvelope.getHeight() / gridEnvelope.getWidth());
+                    } else {
+                        width = (int) Math.round(height * gridEnvelope.getWidth() / gridEnvelope.getHeight());
+                    }
+                    
+                    initMapRequest(gridEnvelope, srsName, width, height);
+                }
+            } catch(Exception e) {
+                throw (IOException) new IOException("Could not reproject the request envelope").initCause(e);
+            }
+            
 
             // issue the request and wrap response in a grid coverage
             InputStream is = null;
@@ -370,13 +392,13 @@ public class WMSMapLayer extends DefaultMapLayer {
                 is = response.getInputStream();
                 BufferedImage image = ImageIO.read(is);
                 LOGGER.fine("GetMap completed");
-                return gcf.create(layer.getTitle(), image, requestedEnvelope);
+                return gcf.create(layer.getTitle(), image, gridEnvelope);
             } catch(ServiceException e) {
                 throw (IOException) new IOException("GetMap failed").initCause(e);
             }
         }
 
-        void initMapRequest(ReferencedEnvelope requestedEnvelope, int width, int height) {
+        void initMapRequest(ReferencedEnvelope requestedEnvelope, String srsName, int width, int height) {
             GetMapRequest mapRequest = wms.createGetMapRequest();
             mapRequest.addLayer(layer);
             mapRequest.setDimensions(width, height);
