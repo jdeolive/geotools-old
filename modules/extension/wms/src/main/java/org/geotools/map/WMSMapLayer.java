@@ -16,11 +16,15 @@
  */
 package org.geotools.map;
 
+import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
@@ -47,6 +51,7 @@ import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.ows.ServiceException;
 import org.geotools.referencing.CRS;
+import org.geotools.renderer.lite.RendererUtilities;
 import org.geotools.resources.coverage.FeatureUtilities;
 import org.geotools.styling.FeatureTypeStyle;
 import org.geotools.styling.RasterSymbolizer;
@@ -59,7 +64,6 @@ import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.parameter.ParameterValue;
 import org.opengis.referencing.ReferenceIdentifier;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
 
 /**
  * Wraps a WMS layer into a {@link MapLayer} for interactive rendering usage TODO: expose a
@@ -120,15 +124,78 @@ public class WMSMapLayer extends DefaultMapLayer {
     }
 
     /**
-     * Retrieves the feature info as text
+     * Retrieves the feature info as text (assuming "text/plain" is a supported
+     * feature info format)
      * @param pos
      * @return
      * @throws IOException
      */
-    public String getFeatureInfoAsText(DirectPosition2D pos) throws IOException {
-        return reader.getFeatureInfoAsText(pos);
+    public String getFeatureInfoAsText(DirectPosition2D pos, int featureCount) throws IOException {
+        BufferedReader br = null;
+        try {
+            InputStream is = reader.getFeatureInfo(pos, "text/plain", featureCount);
+            br = new BufferedReader(new InputStreamReader(is));
+            String line;
+            StringBuilder sb = new StringBuilder();
+            while ((line = br.readLine()) != null) {
+                sb.append(line).append("\n");
+            }
+            return sb.toString();
+        } catch(IOException e) {
+            throw e;
+        } catch (Throwable t) {
+            throw (IOException) new IOException("Failed to grab feature info").initCause(t);
+        } finally {
+            if(br != null)
+                br.close();
+        }
     }
-
+    
+    /**
+     * Retrieves the feature info as a generic input stream, it's the duty of the caller to
+     * interpret the contents and ensure the stream is closed
+     * feature info format)
+     * @param pos
+     * @param infoFormat The INFO_FORMAT parameter in the GetFeatureInfo request
+     * @return
+     * @throws IOException
+     */
+    public InputStream getFeatureInfo(DirectPosition2D pos, String infoFormat, int featureCount) throws IOException {
+        return reader.getFeatureInfo(pos, infoFormat, featureCount);
+    }   
+    
+    /**
+     * Returns the {@link WebMapServer} used by this layer
+     * @return
+     */
+    public WebMapServer getWebMapServer() {
+        return reader.wms;
+    }
+    
+    /**
+     * Returns the WMS {@link Layer} used by this layer
+     * @return
+     */
+    public Layer getWMSLayer() {
+        return reader.layer;
+    }
+    
+    /**
+     * Returns the CRS used to make requests to the remote WMS
+     * @return
+     */
+    public CoordinateReferenceSystem getCoordinateReferenceSystem() {
+        return reader.getCrs();
+    }
+    
+    /**
+     * Returns last GetMap request performed by this layer
+     * @return
+     */
+    public GetMapRequest getLastGetMap() {
+        return reader.mapRequest;
+    }
+    
     /**
      * A grid coverage readers backing onto a WMS server by issuing GetMap 
      */
@@ -167,6 +234,12 @@ public class WMSMapLayer extends DefaultMapLayer {
          * The last GetMap response
          */
         GridCoverage2D grid;
+
+        private ReferencedEnvelope requestedEnvelope;
+
+        private int width;
+
+        private int  height;
 
         /**
          * Builds a new WMS coverage reader
@@ -215,34 +288,29 @@ public class WMSMapLayer extends DefaultMapLayer {
          * @return
          * @throws IOException
          */
-        public String getFeatureInfoAsText(DirectPosition2D pos) throws IOException {
+        public InputStream getFeatureInfo(DirectPosition2D pos, String infoFormat, int featureCount) throws IOException {
             GetFeatureInfoRequest request = wms.createGetFeatureInfoRequest(mapRequest);
             request.setFeatureCount(1);
-            request.setInfoFormat("text/plain");
+            request.setQueryLayers(Collections.singleton(layer));
+            request.setInfoFormat(infoFormat);
+            request.setFeatureCount(featureCount);
             try {
-                MathTransform mt = grid.getGridGeometry().getCRSToGrid2D();
-                DirectPosition2D dest = new DirectPosition2D();
-                mt.transform(pos, dest);
+                AffineTransform tx = RendererUtilities.worldToScreenTransform(requestedEnvelope, new Rectangle(width, height));
+                Point2D dest = new Point2D.Double();
+                Point2D src = new Point2D.Double(pos.x, pos.y);
+                tx.transform(src, dest);
                 request.setQueryPoint((int) dest.getX(), (int) dest.getY());
             } catch (Exception e) {
-                throw new IOException("Failed to grab feature info");
+                throw (IOException) new IOException("Failed to grab feature info").initCause(e);
             }
 
-            BufferedReader reader = null;
             try {
                 GetFeatureInfoResponse response = wms.issueRequest(request);
-                reader = new BufferedReader(new InputStreamReader(response.getInputStream()));
-                String line;
-                StringBuilder sb = new StringBuilder();
-                while ((line = reader.readLine()) != null) {
-                    sb.append(line);
-                }
-                return sb.toString();
-            } catch (ServiceException e) {
-                throw (IOException) new IOException("Failed to grab feature info").initCause(e);
-            } finally {
-                if (reader != null)
-                    reader.close();
+                return response.getInputStream();
+            } catch(IOException e) {
+                throw e;
+            } catch (Throwable t) {
+                throw (IOException) new IOException("Failed to grab feature info").initCause(t);
             }
         }
 
@@ -293,13 +361,7 @@ public class WMSMapLayer extends DefaultMapLayer {
         GridCoverage2D getMap(ReferencedEnvelope requestedEnvelope, int width, int height)
                 throws IOException {
             // build the request
-            GetMapRequest mapRequest = wms.createGetMapRequest();
-            mapRequest.addLayer(layer);
-            mapRequest.setDimensions(width, height);
-            mapRequest.setFormat(format);
-            mapRequest.setSRS(srsName);
-            mapRequest.setBBox(requestedEnvelope);
-            mapRequest.setTransparent(true);
+            initMapRequest(requestedEnvelope, width, height);
 
             // issue the request and wrap response in a grid coverage
             InputStream is = null;
@@ -308,11 +370,25 @@ public class WMSMapLayer extends DefaultMapLayer {
                 is = response.getInputStream();
                 BufferedImage image = ImageIO.read(is);
                 LOGGER.fine("GetMap completed");
-                this.mapRequest = mapRequest;
                 return gcf.create(layer.getTitle(), image, requestedEnvelope);
             } catch(ServiceException e) {
                 throw (IOException) new IOException("GetMap failed").initCause(e);
             }
+        }
+
+        void initMapRequest(ReferencedEnvelope requestedEnvelope, int width, int height) {
+            GetMapRequest mapRequest = wms.createGetMapRequest();
+            mapRequest.addLayer(layer);
+            mapRequest.setDimensions(width, height);
+            mapRequest.setFormat(format);
+            mapRequest.setSRS(srsName);
+            mapRequest.setBBox(requestedEnvelope);
+            mapRequest.setTransparent(true);
+            
+            this.mapRequest = mapRequest;
+            this.requestedEnvelope = requestedEnvelope;
+            this.width = width;
+            this.height = height;
         }
 
         /**
