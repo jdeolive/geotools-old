@@ -122,6 +122,8 @@ public class Import extends AbstractCmd {
 			+ "-config URLOrFile -spatialTN spatialTableName -tileTN tileTableName [-commitCount commitCount] -dir directory -ext extension"
 			+ "\n\n" + "The default for commitCount is 100\n";
 
+	private final static String NotSupported = "Imporft not supported for type ";
+	
 	private Config config;
 
 	private ImportTyp typ;
@@ -246,6 +248,10 @@ public class Import extends AbstractCmd {
 					e.printStackTrace();
 					System.exit(1);
 				}
+		                if (config !=null && config.getSpatialExtension()==SpatialExtension.GEORASTER) {
+		                    System.out.println(NotSupported+config.getSpatialExtension().toString());
+		                    System.exit(1);
+		                }
 
 				i++;
 			} else if (args[i].equals("-spatialTN")) {
@@ -304,6 +310,7 @@ public class Import extends AbstractCmd {
 			System.out.println(UsageInfo);
 			System.exit(1);
 		}
+		
 
 		// check if prefix or level import
 		boolean isLevelImport = false, isPrefixImport = false;

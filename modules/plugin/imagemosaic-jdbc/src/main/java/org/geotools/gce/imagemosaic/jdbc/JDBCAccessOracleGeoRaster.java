@@ -66,17 +66,42 @@ import com.vividsolutions.jts.io.WKBReader;
 class JDBCAccessOracleGeoRaster implements JDBCAccess {
 
     static String StmtTemplatePixel = "SELECT "
-            + " sdo_geor.getCellCoordinate(%s, %s, sdo_geometry(2001,%s,sdo_point_type(?,?,null), null,null)), "
-            + " sdo_geor.getCellCoordinate(%s, %s, sdo_geometry(2001,%s,sdo_point_type(?,?,null), null,null)) "
+            + " sdo_geor.getCellCoordinate(%s, ?, sdo_geometry(2001,%s,sdo_point_type(?,?,null), null,null)), "
+            + " sdo_geor.getCellCoordinate(%s, ?, sdo_geometry(2001,%s,sdo_point_type(?,?,null), null,null)) "
             + " from %s where %s = ?";
 
+//    static String StmtTemplateExport = "declare " + "gr sdo_georaster; " + "lb blob; " + "begin "
+//            + "dbms_lob.createtemporary(lb,true); "
+//            + "select a.%s into gr from %s a where a.%s = ?; "
+//            + "sdo_geor.exportTo(gr, 'pLevel=%d cropArea=(%d,%d,%d,%d)', '%s', lb); " + "?:=lb; "
+//            + "end; ";
+    
     static String StmtTemplateExport = "declare " + "gr sdo_georaster; " + "lb blob; " + "begin "
-            + "dbms_lob.createtemporary(lb,true); "
-            + "select a.%s into gr from %s a where a.%s = ?; "
-            + "sdo_geor.exportTo(gr, 'pLevel=%d cropArea=(%d,%d,%d,%d)', '%s', lb); " + "?:=lb; "
-            + "end; ";
+    + "dbms_lob.createtemporary(lb,true); "
+    + "select a.%s into gr from %s a where a.%s = ?; "
+    + "sdo_geor.exportTo(gr, ?, '%s', lb); " + "?:=lb; "
+    + "end; ";
+    
+    
+//    static String StmtTemplateRasterSubset = "declare " + "gr sdo_georaster; " + "lb blob; " + "begin "
+//        + "dbms_lob.createtemporary(lb,true); "
+//        + "select a.%s into gr from %s a where a.%s = ?; "
+//        + "sdo_geor.getRasterSubset(gr, ?, sdo_number_array(?,?,?,?), null, lb,%s);"
+//        + "?:=lb; "
+//        + "end; ";
 
+//   static String StmtTemplateRasterSubset = "declare " + "gr sdo_georaster; " + "lb blob; " + "begin "
+//      + "dbms_lob.createtemporary(lb,true); "
+//      + "select a.%s into gr from %s a where a.%s = ?; "
+//      + "sdo_geor.getRasterSubset(gr, ?, sdo_geometry(2003,?,null,sdo_elem_info_array(1, 1003, 1),sdo_ordinate_array(?,?,?,?)), null, lb,%s);"
+//      + "?:=lb; "
+//      + "end; ";
+    
+      
     private boolean isCellXYOrder;
+
+    private String stmtPixel;
+    private String stmtExport;
 
     boolean isCellXYOrder() {
         return isCellXYOrder;
@@ -98,7 +123,7 @@ class JDBCAccessOracleGeoRaster implements JDBCAccess {
     /**
      * 
      * @param config
-     * Config from XML file passed to this class
+     *            Config from XML file passed to this class
      * 
      **/
     JDBCAccessOracleGeoRaster(Config config) throws IOException {
@@ -107,7 +132,9 @@ class JDBCAccessOracleGeoRaster implements JDBCAccess {
         this.dataSource = DataSourceFinder.getDataSource(config.getDataSourceParams());
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.geotools.gce.imagemosaic.jdbc.JDBCAccess#initialize()
      * 
      * Gathers the initial meta data needed
@@ -121,6 +148,15 @@ class JDBCAccessOracleGeoRaster implements JDBCAccess {
 
             con = getConnection();
             int srid = getSRID(con);
+
+            stmtPixel = String.format(StmtTemplatePixel, config.getGeoRasterAttribute(), Integer
+                    .toString(srid), config.getGeoRasterAttribute(), Integer.toString(srid), config
+                    .getMasterTable(), config.getCoverageNameAttribute());
+            
+            stmtExport = String.format(StmtTemplateExport, config.getGeoRasterAttribute(), config
+                    .getMasterTable(), config.getCoverageNameAttribute(), 
+                     "TIFF");
+
             CoordinateReferenceSystem crs = getCRS();
             Envelope extent = getExtent(con);
             setCellXYOrder(con, srid, extent);
@@ -215,7 +251,7 @@ class JDBCAccessOracleGeoRaster implements JDBCAccess {
             crs = CRS.decode(config.getCoordsys());
             LOGGER.fine("CRS get Identifier" + crs.getIdentifiers());
 
-        } catch (Exception e) {            
+        } catch (Exception e) {
             LOGGER.severe("Cannot parse Decode CRS from Config File " + e.getMessage());
             throw new RuntimeException(e);
         } finally {
@@ -472,18 +508,15 @@ class JDBCAccessOracleGeoRaster implements JDBCAccess {
         try {
 
             // Determine pixel x y order
-            String pixelStmt = String.format(StmtTemplatePixel, config.getGeoRasterAttribute(),
-                    "0", Integer.toString(srid), config.getGeoRasterAttribute(), "0", Integer
-                            .toString(srid), config.getMasterTable(), config
-                            .getCoverageNameAttribute());
-
             // Setting world coordinates for ULC and URC
-            PreparedStatement ps = con.prepareStatement(pixelStmt);
-            ps.setDouble(1, extent.getMinX());
-            ps.setDouble(2, extent.getMaxY());
-            ps.setDouble(3, extent.getMaxX());
-            ps.setDouble(4, extent.getMaxY());
-            ps.setString(5, config.getCoverageName());
+            PreparedStatement ps = con.prepareStatement(stmtPixel);
+            ps.setInt(1, 0);
+            ps.setDouble(2, extent.getMinX());
+            ps.setDouble(3, extent.getMaxY());
+            ps.setInt(4, 0);
+            ps.setDouble(5, extent.getMaxX());
+            ps.setDouble(6, extent.getMaxY());
+            ps.setString(7, config.getCoverageName());
 
             r = ps.executeQuery();
             if (r.next()) {
@@ -609,22 +642,21 @@ class JDBCAccessOracleGeoRaster implements JDBCAccess {
 
     /**
      * 
-     * @param envelopeOrig  Envelope in world coords
-     * @param info          ImageLevelInfo    
-     * @param conn          Database Connection
-     * @return  TileQueueElement containing the georeferenced 
-     * cropped image
+     * @param envelopeOrig
+     *            Envelope in world coords
+     * @param info
+     *            ImageLevelInfo
+     * @param conn
+     *            Database Connection
+     * @return TileQueueElement containing the georeferenced cropped image
      */
     public TileQueueElement getSingleTQElement(GeneralEnvelope envelopeOrig, ImageLevelInfo info,
             Connection conn) {
 
         int level = Integer.parseInt(info.getTileTableName());
         BufferedImage bimg = null;
-        PreparedStatement ps = null;
-        CallableStatement cs = null;
-        ResultSet r = null;
 
-        // check a against the extent of the pyramid level          
+        // check a against the extent of the pyramid level
         GeneralEnvelope envelope = new GeneralEnvelope(envelopeOrig);
         GeneralEnvelope intersectEnvelope = new GeneralEnvelope(new double[] {
                 info.getExtentMinX(), info.getExtentMinY() }, new double[] { info.getExtentMaxX(),
@@ -633,57 +665,13 @@ class JDBCAccessOracleGeoRaster implements JDBCAccess {
         envelope.intersect(intersectEnvelope);
 
         try {
-
             LOGGER.fine("Starting to Retrieve GeoRaster Image");
 
-            
-            // Query for the cell/pixel coordinates corresponding to the request envelope
-            String pixelStmt = String.format(StmtTemplatePixel, config.getGeoRasterAttribute(),
-                    Integer.toString(level), Integer.toString(info.getSrsId()), config
-                            .getGeoRasterAttribute(), Integer.toString(level), Integer
-                            .toString(info.getSrsId()), config.getMasterTable(), config
-                            .getCoverageNameAttribute());
-
-            ps = conn.prepareStatement(pixelStmt);
-
-            ps.setDouble(1, envelope.getMinimum(0));
-            ps.setDouble(2, envelope.getMaximum(1));
-            ps.setDouble(3, envelope.getMaximum(0));
-            ps.setDouble(4, envelope.getMinimum(1));
-            ps.setString(5, config.getCoverageName());
-
-            r = ps.executeQuery();
-            BigDecimal[] pixelCoords1 = null;
-            BigDecimal[] pixelCoords2 = null;
-
-            if (r.next()) {
-                pixelCoords1 = (BigDecimal[]) r.getArray(1).getArray();
-                pixelCoords2 = (BigDecimal[]) r.getArray(2).getArray();
-            } else {
-                throw new RuntimeException("No cell/pixel coordinates for world Envelope "+envelope);
-            }
-            
-            r.close();
-            ps.close();
-
-            // Export the georaster object, cropped by cell coordinates as a TIFF image into a BLOB
-            String stmt = String.format(StmtTemplateExport, config.getGeoRasterAttribute(), config
-                    .getMasterTable(), config.getCoverageNameAttribute(), level, pixelCoords1[0]
-                    .intValue(), pixelCoords1[1].intValue(), pixelCoords2[0].intValue(),
-                    pixelCoords2[1].intValue(), "TIFF");
-
-            cs = conn.prepareCall(stmt);
-            cs.setString(1, config.getCoverageName());
-
-            cs.registerOutParameter(2, Types.BLOB);
-            cs.execute();
-            Blob blob = cs.getBlob(2);
-            byte[] bytes = blob.getBytes(1, (int) blob.length());
-            cs.close();
+            byte[] bytes = getImageBytesUsingSDOExport(envelope, level, conn);
 
             // start creating a java Buffered image from the blob
             SeekableStream stream = new ByteArraySeekableStream(bytes);
-            
+
             // find an ImageDecorder
             String decoderName = null;
             for (String dn : ImageCodec.getDecoderNames(stream)) {
@@ -693,23 +681,82 @@ class JDBCAccessOracleGeoRaster implements JDBCAccess {
             // decode Image
             ImageDecoder decoder = ImageCodec.createImageDecoder(decoderName, stream, null);
             RenderedImage rimage = decoder.decodeAsRenderedImage();
-            
+
             // Check for the color model, if there is none, create one
             ColorModel cm = rimage.getColorModel();
             if (cm == null)
                 cm = PlanarImage.createColorModel(rimage.getSampleModel());
-            
+
             // Convert to BufferedImage
             PlanarImage pimage = PlanarImage.wrapRenderedImage(rimage);
             bimg = pimage.getAsBufferedImage(null, cm);
 
             LOGGER.fine("Creating BufferedImage from GeoRaster Object");
 
-            //LOGGER.fine("Writing Retrieved Image to disk (Should be for Debugging only!)");
+            // LOGGER.fine("Writing Retrieved Image to disk (Should be for Debugging only!)");
             // ImageIO.write(bimg,"png", new File("/tmp/pics/test.png"));
 
             return new TileQueueElement(config.getCoverageName(), bimg, envelope);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
 
+    }
+
+    /**
+     * Gets the blob using Oracle Georaster export facility
+     * 
+     * @param envelope  The window in world coords
+     * @param level     Pyramid level
+     * @param conn      Connection
+     * @return          The BLOB as byte array
+     */
+    byte[] getImageBytesUsingSDOExport(GeneralEnvelope envelope, int level, Connection conn) {
+        PreparedStatement ps = null;
+        CallableStatement cs = null;
+        ResultSet r = null;
+
+        try {
+            ps = conn.prepareStatement(stmtPixel);
+
+            ps.setInt(1, level);
+            ps.setDouble(2, envelope.getMinimum(0));
+            ps.setDouble(3, envelope.getMaximum(1));
+            ps.setInt(4, level);
+            ps.setDouble(5, envelope.getMaximum(0));
+            ps.setDouble(6, envelope.getMinimum(1));
+            ps.setString(7, config.getCoverageName());
+
+            r = ps.executeQuery();
+            BigDecimal[] pixelCoords1 = null;
+            BigDecimal[] pixelCoords2 = null;
+
+            if (r.next()) {
+                pixelCoords1 = (BigDecimal[]) r.getArray(1).getArray();
+                pixelCoords2 = (BigDecimal[]) r.getArray(2).getArray();
+            } else {
+                throw new RuntimeException("No cell/pixel coordinates for world Envelope "
+                        + envelope);
+            }
+
+            r.close();
+            ps.close();
+
+            // Export the georaster object, cropped by cell coordinates as a TIFF image into a BLOB
+
+            
+            cs = conn.prepareCall(stmtExport);
+            cs.setString(1, config.getCoverageName());
+            String params = String.format("pLevel=%d cropArea=(%d,%d,%d,%d)",level, 
+                    pixelCoords1[0].intValue(), pixelCoords1[1].intValue(), pixelCoords2[0].intValue(),pixelCoords2[1].intValue());
+
+            cs.setString(2, params);
+            cs.registerOutParameter(3, Types.BLOB);
+            cs.execute();
+            Blob blob = cs.getBlob(3);
+            byte[] bytes = blob.getBytes(1, (int) blob.length());
+            cs.close();
+            return bytes;
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
@@ -717,5 +764,6 @@ class JDBCAccessOracleGeoRaster implements JDBCAccess {
             closeStmt(ps);
             closeStmt(cs);
         }
+
     }
 }
