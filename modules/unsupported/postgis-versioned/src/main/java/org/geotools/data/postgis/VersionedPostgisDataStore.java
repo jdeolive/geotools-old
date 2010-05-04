@@ -332,7 +332,7 @@ public class VersionedPostgisDataStore implements VersioningDataStore {
         // for the others, wrap so that we don't report the wrong owning datastore
         if(source instanceof SimpleFeatureLocking)
             return new WrappingPostgisFeatureLocking((SimpleFeatureLocking) source, this);
-        else if(source instanceof FeatureStore)
+        else if(source instanceof SimpleFeatureStore)
             return new WrappingPostgisFeatureStore((SimpleFeatureStore) source, this);
         else 
             return new WrappingPostgisFeatureSource((SimpleFeatureSource) source, this);
@@ -859,13 +859,20 @@ public class VersionedPostgisDataStore implements VersioningDataStore {
         Long tableId;
         try {
             fr = wrapped.getFeatureReader(q, transaction);
-            tableId = (Long) fr.next().getAttribute("id");
+            SimpleFeature feature = fr.next();
+            tableId = Long.parseLong(feature.getID().substring(TBL_VERSIONEDTABLES.length() + 1));
         } finally {
             if(fr != null) fr.close();
         }
         
+        if(tableId == null) {
+            throw new RuntimeException("Table " + typeName + " does not appear " +
+            		"to be versioned, there is no record of it in " + TBL_VERSIONEDTABLES);
+        }
+        
         // next find the revision at which it was version enabled (it's the oldest)
         q = new DefaultQuery(TBL_TABLESCHANGED);
+        q.setFilter(ff.equal(ff.property("versionedtable"), ff.literal(tableId), false));
         q.setSortBy(new org.opengis.filter.sort.SortBy[] { ff.sort(REVISION, SortOrder.ASCENDING) });
         q.setMaxFeatures(1);
         try {
@@ -873,7 +880,8 @@ public class VersionedPostgisDataStore implements VersioningDataStore {
             if(!fr.hasNext()) {
                 return -1; // this is equivalent to "FIRST"
             } else {
-                return (Long) fr.next().getAttribute(REVISION);
+                SimpleFeature feature = fr.next();
+                return (Long) feature.getAttribute(REVISION);
             }
         } finally {
             if(fr != null) fr.close();
