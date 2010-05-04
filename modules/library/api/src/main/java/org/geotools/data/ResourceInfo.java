@@ -24,15 +24,17 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 
 /**
- * Information about a resource.
+ * This interface defines methods to convey information about some resource such as
+ * title, keywords, description and spatial parameters.
  * <p>
- * This interface is based on Dublin Core and the RDF application profile.
- * </p>
+ * It is based on Dublin Core (a metadata specification initiative;
+ * http://dublincore.org/) and the RDF application profile.
+ * <p>
  * There are two ids that may be associated with a resource:
  * <ul>
- * <li>name - unqiue with in the context of a Service
+ * <li>name - unqiue within the context of a Service
  * <li>schema - used to identify the type of resource
- * <ul>
+ * </ul>
  * 
  * @author Jody Garnett, Refractions Research
  * @author David Zwiers, Refractions Research
@@ -43,7 +45,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  */
 public interface ResourceInfo {
     /**
-     * Resource's title.
+     * Returns the resource's title.
      * <p>
      * The title is human readable text representing the resource, in the 
      * current locale if available.
@@ -53,19 +55,20 @@ public interface ResourceInfo {
     String getTitle();
 
     /**
-     * Keywords associated with this resource
+     * Returns keywords associated with this resource for use with searches
+     * etc.
      * <p>
      * Known Mappings:
      * <ul>
      * <li> Maps to Dublin Core's Subject element
      * </ul>
      * </p>
-     * @return Keywords for use with search, or <code>null</code> unavailable.
+     * @return Keywords or {@code null} if unavailable
      */
     Set<String> getKeywords();
 
     /**
-     * Resource's description or abstract.
+     * Returns a description or abstract for this resource.
      * <p>
      * Known Mappings:
      * <ul>
@@ -80,59 +83,50 @@ public interface ResourceInfo {
     String getDescription();
 
     /**
-     * Name of the resource with the context of its service.
+     * Returns the name of this resource within the context of its service.
      * <p>
-     * Known Mappings:
+     * Known mappings:
      * <ul>
      * <li>WFS typeName
      * <li>Database table name
      * <li>WMS layer name
      * <li>level of a grid coverage
      * </ul>
-     * </p>
-     * The name should be unique with in the context of a single Service.
      * 
-     * @return name of the data, used with getSchema() to identify resource
+     * The name should be unique within the context of a single Service.
+     * 
+     * @return name of this resource
      */
     String getName();
     
     /**
-     * A URI used to identify the resource type.
+     * A namespace, in the form of a {@code URI}, used to identify the resource type.
      * <p>
      * Known Mappings:
      * <ul>
      * <li>Dublin Code Format element
      * <li>WFS DescribeFeatureType URL
      * <li>file.toURI()
-     * <li>xml namespace
+     * <li>XML namespace
      * <li>URL
      * </ul>
-     * </p>
-     * @return namespace, used with getName() to identify resource
+     * 
+     * @return namespace, used with getName() to identify resource type
      */
     URI getSchema();
 
     /**
-     * Bounding box of the resource (in the native CRS), envelope isNull otherwise.
-     * <p>
-     * You can transform this envelope to Lat Long with a single line:
-     * <code>
-     * info.getBounds().transform( DefaultGeographicCRS.WGS84, true );
-     * </code>
-     * Here are several other options for LatLong:
-     * <ul>
-     * <li>DefaultGeographicCRS.WGS84
-     * <li>EPSG:4369 (LatLong NAD83)
-     * <li>ESPG 4326 (another LatLong)
-     * </ul>
-     * </p>
+     * Returns the bounds of the resource, expressed in the native coordinate
+     * reference system. IF the bounds are unknown or undefined calling {@code isNull()}
+     * on the returned envelope will return {@code true}.
      * 
-     * @return Bounding box of the resource (in natvie CRS), envelope.isNull() will return true if not known
+     * @return bounds of the resource if defined; otherwise an envelope where the
+     *         {@code isNull()} returns {@code true}
      */
     ReferencedEnvelope getBounds();
 
     /**
-     * Returns the CRS of the resource if known.
+     * Returns the coordinate reference system of this resource if known.
      * <p>
      * Known Mappings:
      * <ul>
@@ -142,11 +136,13 @@ public interface ResourceInfo {
      * </ul>
      * </p>
      *
-     * @return CRS of the resource, or <code>null</code> if unknown.
+     * @return CRS of the resource, or {@code null} if unavailable.
      */
     CoordinateReferenceSystem getCRS();
     
-    /**
+    /*
+     * mbedward : removed from javadocs
+     *
      * This method was considered because some services maintain this
      * information as metadata. If it was a bit more common (and axis order more consistent)
      * it would be worth considering.
