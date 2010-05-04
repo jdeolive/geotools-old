@@ -32,7 +32,6 @@ import java.util.logging.Logger;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFactorySpi;
 import org.geotools.data.DataUtilities;
-import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.Query;
 import org.geotools.data.QueryCapabilities;
@@ -217,7 +216,7 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 	 */
 	public List<SimpleFeature> getGranules(final BoundingBox envelope) throws IOException {
 		Utils.ensureNonNull("envelope",envelope);
-		final DefaultQuery q= new DefaultQuery(typeName);
+		final Query q= new Query(typeName);
 		Filter filter = ff.bbox( ff.property( geometryPropertyName ), ReferencedEnvelope.reference(envelope) );
 		q.setFilter(filter);
 	    return getGranules(q);	
@@ -229,7 +228,7 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 	 */
 	public void  getGranules(final BoundingBox envelope, final GranuleIndexVisitor visitor) throws IOException {
 		Utils.ensureNonNull("envelope",envelope);
-		final DefaultQuery q= new DefaultQuery(typeName);
+		final Query q= new Query(typeName);
 		Filter filter = ff.bbox( ff.property( geometryPropertyName ), ReferencedEnvelope.reference(envelope) );
 		q.setFilter(filter);
 	    getGranules(q,visitor);			

@@ -31,7 +31,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geotools.data.DataStoreFactorySpi;
-import org.geotools.data.DefaultQuery;
 import org.geotools.data.Query;
 import org.geotools.data.QueryCapabilities;
 import org.geotools.data.Transaction;
@@ -90,14 +89,14 @@ class STRTreeGranuleIndex implements GranuleIndex {
 		
 		public JTSIndexVisitorAdapter(final GranuleIndexVisitor adaptee, Query q) {
 			this.adaptee=adaptee;
-			this.filter=q==null?DefaultQuery.ALL.getFilter():q.getFilter();
+			this.filter=q==null?Query.ALL.getFilter():q.getFilter();
 		}
 		/**
 		 * @param indexLocation
 		 */
 		public JTSIndexVisitorAdapter(final GranuleIndexVisitor adaptee, Filter filter) {
 			this.adaptee=adaptee;
-			this.filter=filter==null?DefaultQuery.ALL.getFilter():filter;
+			this.filter=filter==null?Query.ALL.getFilter():filter;
 		}
 
 		/*
@@ -310,7 +309,7 @@ class STRTreeGranuleIndex implements GranuleIndex {
 			
 			// load what we need to load
 			final List<SimpleFeature> features= getIndex(lock).query(requestedBBox);
-			if(q.equals(DefaultQuery.ALL))
+			if(q.equals(Query.ALL))
 				return features;
 			
 			final List<SimpleFeature> retVal= new ArrayList<SimpleFeature>();
