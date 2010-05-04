@@ -71,6 +71,7 @@ public final class ImageMosaicFormatFactory implements GridFormatFactorySpi {
 				replaceGDALKAK();
 			}
 		}
+		
 	}
 	/**
 	 * Tells me if this plugin will work on not given the actual installation.
