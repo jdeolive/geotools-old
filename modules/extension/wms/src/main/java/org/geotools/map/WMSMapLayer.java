@@ -529,7 +529,7 @@ public class WMSMapLayer extends DefaultMapLayer {
          * @return
          */
         ReferencedEnvelope reference(GeneralEnvelope ge) {
-            return new ReferencedEnvelope(ge.getMinimum(0), ge.getMinimum(0), ge.getMaximum(0), ge
+            return new ReferencedEnvelope(ge.getMinimum(0), ge.getMinimum(1), ge.getMaximum(0), ge
                     .getMaximum(1), ge.getCoordinateReferenceSystem());
         }
     }
