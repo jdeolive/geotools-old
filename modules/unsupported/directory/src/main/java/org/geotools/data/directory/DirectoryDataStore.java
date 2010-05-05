@@ -105,12 +105,6 @@ public class DirectoryDataStore implements DataStore {
         return typeNames.toArray(new String[typeNames.size()]);
     }
 
-    public SimpleFeatureSource getView(Query query)
-            throws IOException, SchemaException {
-        String typeName = query.getTypeName();
-        return getDataStore(typeName).getView(query);
-    }
-
     public void updateSchema(String typeName, SimpleFeatureType featureType)
             throws IOException {
         getDataStore(typeName).updateSchema(typeName, featureType);

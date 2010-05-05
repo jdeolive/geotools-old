@@ -42,6 +42,7 @@ import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.test.TestData;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.filter.And;
 import org.opengis.filter.BinaryLogicOperator;
@@ -58,6 +59,7 @@ import org.opengis.filter.expression.PropertyName;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.vividsolutions.jts.geom.Geometry;
+import org.geotools.data.memory.MemoryDataStore;
 
 /**
  * Tests cases for DataUtilities.
@@ -606,6 +608,18 @@ public class DataUtilitiesTest extends DataTestCase {
         // System.out.println("EXPECTED:"+expected);
         // System.out.println("  AFTER:"+spec2);
         assertEquals(expected, spec2);
+    }
+
+    public void testCreateView() throws Exception {
+        String[] propNames = {"id", "geom"};
+        Query query = new Query(roadType.getTypeName(), Filter.INCLUDE, 100, propNames, null);
+        DataStore ds = new MemoryDataStore(roadFeatures);
+        SimpleFeatureSource view = DataUtilities.createView(ds, query);
+        assertNotNull(view);
+        List<AttributeDescriptor> desc = view.getSchema().getAttributeDescriptors();
+        assertTrue(desc.size() == propNames.length);
+        assertTrue(desc.get(0).getLocalName().equals(propNames[0]));
+        assertTrue(desc.get(1).getLocalName().equals(propNames[1]));
     }
 
     public static void main(String[] args) {

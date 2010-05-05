@@ -124,12 +124,6 @@ public class DelayedDataStore implements DataStore {
         return this.sourceDataStore.getTypeNames();
     }
 
-    public SimpleFeatureSource getView(Query arg0) throws IOException, SchemaException {
-        idle();
-
-        return this.sourceDataStore.getView(arg0);
-    }
-
     public void updateSchema(String arg0, SimpleFeatureType arg1)
         throws IOException {
         this.sourceDataStore.updateSchema(arg0, arg1);

@@ -394,13 +394,6 @@ public abstract class JDBC1DataStore implements DataStore {
 				"Table modification not supported");
 	}
 
-	// This is the *better* implementation of getview from AbstractDataStore
-	public SimpleFeatureSource getView(final Query query) throws IOException,
-			SchemaException {
-		return new DefaultView(this.getFeatureSource(query.getTypeName()),
-				query);
-	}
-
 	/*
 	 * // Jody - This is my recomendation for DataStore // in order to support
 	 * CS reprojection and override public SimpleFeatureSource getView(final Query

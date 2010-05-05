@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.List;
 
 import junit.framework.TestCase;
+import org.geotools.data.DataUtilities;
 
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureReader;
@@ -76,7 +77,7 @@ public class PreGeneralizedDataStoreTest extends TestCase {
             assertTrue(names.contains(new NameImpl(typeName)));
             assertTrue("GenStreams".equals(ds.getNames().get(0).getLocalPart()));
 
-            fsource = ds.getView(query);
+            fsource = DataUtilities.createView(ds, query);
             assertTrue(fsource != null);
 
             assertNotNull(ds.getSchema(typeName));

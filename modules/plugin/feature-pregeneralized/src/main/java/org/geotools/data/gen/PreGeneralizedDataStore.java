@@ -150,11 +150,6 @@ public class PreGeneralizedDataStore implements DataStore {
 
     }
 
-    public SimpleFeatureSource getView(Query query) throws IOException,
-            SchemaException {
-        return new DefaultView(this.getFeatureSource(query.getTypeName()), query);
-    }
-
     public void updateSchema(String typeName, SimpleFeatureType featureType) throws IOException {
         throw new UnsupportedOperationException("updateSchema");
 

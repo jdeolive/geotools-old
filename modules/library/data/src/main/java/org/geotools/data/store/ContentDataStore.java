@@ -483,11 +483,6 @@ public abstract class ContentDataStore implements DataStore {
         return lockingManager;
     }
 
-    public final ContentFeatureSource getView(Query query) throws IOException, SchemaException {
-        ContentFeatureSource origional = getFeatureSource( query.getTypeName() );
-        return origional.getView(query);
-    }
-
     public final void updateSchema(String typeName, SimpleFeatureType featureType)
         throws IOException {
         throw new UnsupportedOperationException();

@@ -23,50 +23,17 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
 import org.geotools.data.simple.SimpleFeatureSource;
-import org.geotools.feature.SchemaException;
 
 
 /**
- * Represents a Physical Store for FeatureTypes.
+ * This represents a physical source of feature data, such as a shapefiles or a
+ * database table, where the features will be instances of {@code SimpleFeature}.
+ * It is derived from the {@code DataAccess} interface (which works at the more
+ * general {@code Feature} level.
  *
- * <p>
- * The source of data for FeatureTypes. Shapefiles, databases tables, etc. are
- * referenced through this interface.
- * </p>
- *
- * <p>
- * Summary of our requirements:
- * </p>
- *
- * <ul>
- * <li>
- * Provides lookup of available Feature Types
- * </li>
- * <li>
- * Provides access to low-level Readers/Writers API for a feature type
- * </li>
- * <li>
- * Provides access to high-level FeatureSource/Store/Locking API a feature type
- * </li>
- * <li>
- * Handles the conversion of filters into data source specific queries
- * </li>
- * <li>
- * Handles creation of new Feature Types
- * </li>
- * <li>
- * Provides access of Feature Type Schema information
- * </li>
- * </ul>
- *
- * Suggestions:
- *
- * <ul>
- * <li>GeoAPI - has reduced this to api to the FeatureStore construct
- *     Jody - since we are no longer using the FeatureReader/ReaderWriter in client
- *            code this would not be a bad idea.
- * </li>
- * </ul>
+ * @see DataAccess
+ * @see org.opengis.feature.Feature
+ * @see SimpleFeature
  *
  * @author Jody Garnett, Refractions Research
  * @source $URL$
@@ -132,36 +99,6 @@ public interface DataStore extends DataAccess<SimpleFeatureType, SimpleFeature>{
      * @throws IOException If typeName cannot be found
      */
     SimpleFeatureType getSchema(String typeName) throws IOException;
-
-    /**
-     * Access a SimpleFeatureSource for Query providing a high-level API.
-     * <p>
-     * The provided Query does not need to completely cover the existing
-     * schema for Query.getTypeName(). The result will mostly likely only be
-     * a SimpleFeatureSource and probably wont' allow write access by the
-     * FeatureStore method.
-     * </p>
-     * <p>
-     * By using Query we allow support for reprojection, in addition
-     * to overriding the CoordinateSystem used by the native FeatureType.
-     * </p>
-     * <p>
-     * We may wish to limit this method to only support Queries using
-     * Filter.EXCLUDE.
-     * </p>
-     * <p>
-     * Update - GeoServer has an elegatent implementation of this functionality
-     * that we could steal. GeoServerFeatureSource, GeoServerFeatureStore and
-     * GeoServerFeatureLocking serve as a working prototype.
-     * </p>
-     * @param query Query.getTypeName() locates FeatureType being viewed
-     *
-     * @return SimpleFeatureSource providing operations for featureType
-     * @throws IOException If SimpleFeatureSource is not available
-     * @throws SchemaException If fetureType is not covered by existing schema
-     */
-    SimpleFeatureSource getView(Query query) throws IOException,
-            SchemaException;
 
     /**
      * Access a SimpleFeatureSource for typeName providing a high-level API.

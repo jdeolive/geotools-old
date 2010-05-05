@@ -246,15 +246,6 @@ public final class WS_DataStore implements XmlDataStore {
     }
 
     /**
-     * @see org.geotools.data.DataStore#getView(org.geotools.data.Query)
-     * @see DefaultView
-     */
-    public SimpleFeatureSource getView(final Query query)
-            throws IOException, SchemaException {
-        throw new UnsupportedOperationException("DS not supported!");
-    }
-
-    /**
      * Not supported.
      * 
      * @see org.geotools.data.DataStore#getFeatureWriter(java.lang.String,

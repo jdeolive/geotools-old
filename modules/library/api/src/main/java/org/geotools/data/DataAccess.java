@@ -25,7 +25,8 @@ import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.Name;
 
 /**
- * Access to Feature content from a service or file.
+ * This is the top-level interface for access to {@code FeatureData}.
+ *
  * <p>
  * <h2>Description</h2>
  * The DataAccess interface provides the following information about its contents:

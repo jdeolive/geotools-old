@@ -441,11 +441,6 @@ public class XmlDataStoreTest extends TestCase {
             return null;
         }
 
-        public SimpleFeatureSource getView(Query query)
-                throws IOException, SchemaException {
-            return null;
-        }
-
         public void updateSchema(String typeName, SimpleFeatureType featureType) throws IOException {
         }
 

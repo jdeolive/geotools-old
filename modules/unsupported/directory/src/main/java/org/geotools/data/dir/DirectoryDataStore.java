@@ -83,12 +83,6 @@ public class DirectoryDataStore implements DataStore, LockingManager {
     private DirectoryDataStore() {
     }
 
-    // This is the *better* implementation of getview from AbstractDataStore
-    public SimpleFeatureSource getView(final Query query)
-        throws IOException, SchemaException {
-        return new DefaultView( this.getFeatureSource( query.getTypeName() ), query );
-    }
-    
     public DirectoryDataStore(File f) throws MalformedURLException, IOException {
         dir = f;
         createOrder = FileDataStoreFinder.getAvailableFileExtentions().toArray( new String[0]);

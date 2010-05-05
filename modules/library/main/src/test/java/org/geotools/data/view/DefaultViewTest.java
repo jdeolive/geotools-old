@@ -18,18 +18,16 @@ package org.geotools.data.view;
 
 import java.io.IOException;
 
-import junit.framework.TestCase;
-
 import org.geotools.data.DataUtilities;
-import org.geotools.data.DefaultQuery;
 import org.geotools.data.memory.MemoryDataStore;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.SchemaException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.filter.IllegalFilterException;
+
+import org.opengis.feature.IllegalAttributeException;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
@@ -37,6 +35,9 @@ import org.opengis.filter.FilterFactory;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
+
+import junit.framework.TestCase;
+import org.geotools.data.Query;
 
 public class DefaultViewTest extends TestCase {
 
@@ -106,15 +107,15 @@ public class DefaultViewTest extends TestCase {
     public void testGetCount() throws Exception {
         SimpleFeatureSource view = getView();
         
-        DefaultQuery defaultQuery = getQuery();
-        int count = view.getCount(defaultQuery);
+        Query query = getQuery();
+        int count = view.getCount(query);
         assertEquals(1, count);
     }
 
-    private DefaultQuery getQuery() throws IllegalFilterException {
+    private Query getQuery() throws IllegalFilterException {
         Filter f = getFilter();
-        DefaultQuery defaultQuery = new DefaultQuery(typeName, f, new String[0]);
-        return defaultQuery;
+        Query query = new Query(typeName, f, new String[0]);
+        return query;
     }
 
     private Filter getFilter() throws IllegalFilterException {
@@ -127,7 +128,7 @@ public class DefaultViewTest extends TestCase {
         FilterFactory fac = CommonFactoryFinder.getFilterFactory(null);
         Filter f = fac.less(fac.property("id"), fac.literal(3));
 
-        SimpleFeatureSource view = ds.getView(new DefaultQuery(typeName, f));
+        SimpleFeatureSource view = DataUtilities.createView(ds, new Query(typeName, f));
         return view;
     }
 

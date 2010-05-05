@@ -600,14 +600,6 @@ public class ArcSDEDataStore implements DataStore {
     }
 
     /**
-     * @see DataStore#getView(Query)
-     */
-    public SimpleFeatureSource getView(final Query query)
-            throws IOException, SchemaException {
-        return new DefaultView(this.getFeatureSource(query.getTypeName()), query);
-    }
-
-    /**
      * This operation is not supported at this version of the GeoTools ArcSDE plugin.
      * 
      * @see DataStore#updateSchema(String, SimpleFeatureType)

@@ -119,7 +119,10 @@ import java.util.Set;
  * @version $Id$
  */
 public interface Transaction {
-    /** Represents AUTO_COMMIT Mode */
+    /** 
+     * Represents AUTO_COMMIT mode as opposed to operations with commit/rollback
+     * control under a user-supplied transaction.
+     */
     static final Transaction AUTO_COMMIT = new AutoCommitTransaction();
 
     //

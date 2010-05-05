@@ -242,12 +242,6 @@ public abstract class AbstractDataStore implements DataStore {
         throw new UnsupportedOperationException("Schema modification not supported");
     }
 
-    // Jody - This is my recomendation for DataStore
-    // in order to support CS reprojection and override
-    public SimpleFeatureSource getView(final Query query)
-        throws IOException, SchemaException {
-        return new DefaultView( this.getFeatureSource( query.getTypeName() ), query );
-    }        
     /**
      * Default implementation based on getFeatureReader and getFeatureWriter.
      *

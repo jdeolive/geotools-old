@@ -448,18 +448,6 @@ public final class WFS_1_1_0_DataStore implements WFSDataStore {
     }
 
     /**
-     * @see org.geotools.data.DataStore#getView(org.geotools.data.Query)
-     * @see DefaultView
-     */
-    public SimpleFeatureSource getView(final Query query)
-            throws IOException, SchemaException {
-        final String typeName = query.getTypeName();
-        final SimpleFeatureSource featureSource = this
-                .getFeatureSource(typeName);
-        return new DefaultView(featureSource, query);
-    }
-
-    /**
      * Not supported.
      * 
      * @see org.geotools.data.DataStore#getFeatureWriter(java.lang.String,

@@ -105,6 +105,7 @@ import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
+import org.geotools.data.view.DefaultView;
 
 /**
  * Utility functions for use when implementing working with data classes.
@@ -944,6 +945,22 @@ public class DataUtilities {
                 "Something is wrong with the geotools code, "
                 + "this exception should not happen", e);
         }
+    }
+
+    /**
+     * Return a 'view' of the given {@code DataStore} constrained by a {@code Query}.
+     *
+     * @param store the data store
+     * @param query the query
+     *
+     * @return the constrained view
+     *
+     * @throws IOException if the data store cannot be accessed
+     * @throws SchemaException if the query is incompatible with the store's contents
+     */
+    public static SimpleFeatureSource createView(final DataStore store, final Query query)
+        throws IOException, SchemaException {
+        return new DefaultView( store.getFeatureSource( query.getTypeName() ), query );
     }
     
     public static SimpleFeatureCollection results(SimpleFeature[] featureArray){
