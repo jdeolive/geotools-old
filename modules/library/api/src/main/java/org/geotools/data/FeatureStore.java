@@ -29,17 +29,29 @@ import org.geotools.feature.FeatureCollection;
 
 
 /**
- * Provides storage of data for Features.
+ * This interface extends {@code FeatureSource}, adding methods to add and remove
+ * features and to modify existing features.
+ * <pre><code>
+ * DataStore myDataStore = ...
+ * FeatureSource featureSource = myDataStore.getFeatureSource("aname");
+ * if (featureSource instanceof FeatureStore) {
+ *     // we have write access to the feature data
+ *     FeatureStore featureStore = (FeatureStore) featureSource;
  *
- * <p>
- * Individual shapefiles, database tables, etc. are modified through this
- * interface.
- * </p>
- *
- * <p>
- * This is a prototype DataSource replacement please see SimpleFeatureSource for more
- * information.
- * </p>
+ *     // add some new features
+ *     Transaction t = new DefaultTransaction("add");
+ *     featureStore.setTransaction(t);
+ *     try {
+ *         featureStore.addFeatures( someFeatures );
+ *         t.commit();
+ *     } catch (Exception ex) {
+ *         ex.printStackTrace();
+ *         t.rollback();
+ *     } finally {
+ *         t.close();
+ *     }
+ * }
+ * </code></pre>
  *
  * @author Jody Garnett
  * @author Ray Gallagher
@@ -50,89 +62,97 @@ import org.geotools.feature.FeatureCollection;
  */
 public interface FeatureStore<T extends FeatureType, F extends Feature> extends FeatureSource<T, F> {
     /**
-     * Adds all features from the passed feature collection to the datasource.
+     * Adds all features from the feature collection.
      * <p>
-     * A list of FeatureIds is returned; one for each Feature in the order created.
-     * Please note that these FeatureIds may not be assigned until after
-     * a commit has been performed.
-     * </p>
-     * @param collection The collection of features to add.
-     * @return the FeatureIds of the newly added features.
+     * A list of {@code FeatureIds} is returned, one for each feature in the order created.
+     * However, these might not be assigned until after a commit has been performed.
+     * 
+     * @param collection the collection of features to add
      *
-     * @throws IOException if anything goes wrong.
+     * @return the {@code FeatureIds} of the newly added features
+     *
+     * @throws IOException if an error occurs modifying the data source
      */
     List<FeatureId> addFeatures(FeatureCollection<T, F> collection) throws IOException;
 
     /**
-     * Removes all of the features specificed by the passed filter from the
-     * collection.
+     * Removes features selected by the given filter.
      *
-     * @param filter An OpenGIS filter; specifies which features to remove.
+     * @param filter an OpenGIS filter
      *
-     * @throws IOException If anything goes wrong.
+     * @throws IOException if an error occurs modifying the data source
      */
     void removeFeatures(Filter filter) throws IOException;
 
     /**
-     * Modifies the passed attribute types with the passed objects in all
-     * features that correspond to the passed OGS filter.
+     * Modifies the attributes with the supplied values in all
+     * features selected by the given filter.
      *
-     * @param attributeNames The attributes to modify.
-     * @param attributeValues The values to put in the attribute types.
-     * @param filter An OGC filter to note which attributes to modify.
+     * @param attributeNames the attributes to modify
      *
-     * @throws IOException if the attribute and object arrays are not eqaul
-     *         length, if the object types do not match the attribute types,
-     *         or if there are backend errors.
+     * @param attributeValues the new values for the attributes
+     *
+     * @param filter an OpenGIS filter
+     *
+     * @throws IOException if the attribute and object arrays are not equal
+     *         in length; if the value types do not match the attribute types;
+     *         if modification is not supported; or if there errors accessing the
+     *         data source
      */
-    //void modifyFeatures(AttributeType[] type, Object[] value, Filter filter)
-    //    throws IOException;
     void modifyFeatures( Name[] attributeNames, Object[] attributeValues, Filter filter )  throws IOException;
 
     /**
-     * For backwards compatibility; please be careful that your descriptor is actually compatible
-     * with the one declared.
+     * For backwards compatibility; please be careful that your descriptor is
+     * actually compatible with the one declared.
      * 
-     * @param type
-     * @param value
-     * @param filter
+     * @param type the attributes to modify
+     *
+     * @param value the new values for the attributes
+     *
+     * @param filter an OpenGIS filter
+     *
      * @throws IOException
-     * @deprecated Please use {@link #modifyFeatures(Name[], Object[], Filter)}
+     *
+     * @deprecated Please use the safer method {@link #modifyFeatures(Name[], Object[], Filter)}
      */
     void modifyFeatures(AttributeDescriptor[] type, Object[] value, Filter filter) throws IOException;
     
     /**
-     * Modifies the passed attribute types with the passed objects in all
-     * features that correspond to the passed OGS filter.  A convenience
-     * method for single attribute modifications.
+     * Modifies an attribute with the supplied value in all features
+     * selected by the given filter.
      *
-     * @param attributeName The attribute to modify.
-     * @param attributeValue The value to put in the attribute
-     * @param filter An OGC filter to note which attributes to modify.
+     * @param attributeName the attribute to modify
      *
-     * @throws IOException If modificaton is not supported, if the object type
-     *         do not match the attribute type.
+     * @param attributeValue the new value for the attribute
+     *
+     * @param filter an OpenGIS filter
+     *
+     * @throws IOException if modification is not supported; if the value type does
+     *         not match the attribute type; or if there errors accessing the data source
      */
     void modifyFeatures( Name attributeName, Object attributeValue, Filter filter )  throws IOException;
     
     /**
      * For backwards compatibility; please be careful that your descriptor is actually compatible
      * with the one declared.
-     * @param type
-     * @param value
-     * @param filter
+     *
+     * @param type the attribute to modify
+     *
+     * @param value the new value for the attribute
+     *
+     * @param filter an OpenGIS filter
+     *
      * @throws IOException
-     * @deprecated Please use {@link #modifyFeatures(Name, Object, Filter)}
+     *
+     * @deprecated Please use the safer method {@link #modifyFeatures(Name, Object, Filter)}
      */
     void modifyFeatures(AttributeDescriptor type, Object value, Filter filter)
         throws IOException;
 
-
-
     /**
-     * Deletes the all the current Features of this datasource and adds the new
-     * collection.  Primarily used as a convenience method for file
-     * datasources.
+     * Deletes any existing features in the data source and then
+     * inserts new features provided by the given reader. This is primarily used
+     * as a convenience method for file-based data sources.
      *
      * @param reader - the collection to be written
      *
@@ -141,43 +161,43 @@ public interface FeatureStore<T extends FeatureType, F extends Feature> extends 
     void setFeatures(FeatureReader<T, F> reader) throws IOException;
 
     /**
-     * Provides a transaction for commit/rollback control of this FeatureStore.
+     * Provide a transaction for commit/rollback control of a modifying
+     * operation on this {@code FeatureStore}.
+     * <pre><code>
+     * Transation t = new DefaultTransaction();
+     * featureStore.setTransaction(t);
+     * try {
+     *     featureStore.addFeatures( someFeatures );
+     *     t.commit();
+     * } catch ( IOException ex ) {
+     *     // something went wrong;
+     *     ex.printStackTrace();
+     *     t.rollback();
+     * } finally {
+     *     t.close();
+     * }
+     * </code></pre>
      *
-     * <p>
-     * This method operates as a replacement for setAutoCommitMode.  When a
-     * transaction is provided you are no longer automatically committing.
-     * </p>
-     *
-     * <p>
-     * In order to return to AutoCommit mode supply the Transaction.AUTO_COMMIT
-     * to this method. Since this represents a return to AutoCommit mode the
-     * previous Transaction will be commited.
-     * </p>
-     *
-     * @param transaction DOCUMENT ME!
+     * @param transaction the transaction
      */
     void setTransaction(Transaction transaction);
 
     /**
-     * Used to access the Transaction this DataSource is currently opperating
-     * against.
-     *
-     * <p>
-     * Example Use: adding features to a road DataSource
-     * </p>
+     * Gets the {@code Transaction} that this {@code FeatureStore} is
+     * currently operating against.
      * <pre><code>
-     * Transaction t = roads.getTransaction();
-     * try{
-     *     roads.addFeatures( features );
-     *     roads.getTransaction().commit();
-     * }
-     * catch( IOException erp ){
-     *     //something went wrong;
-     *     roads.getTransaction().rollback();
+     * Transaction t = featureStore.getTransaction();
+     * try {
+     *     featureStore.addFeatures( features );
+     *     t.commit();
+     * } catch( IOException erp ){
+     *     // something went wrong;
+     *     ex.printStackTrace();
+     *     t.rollback();
      * }
      * </code></pre>
      *
-     * @return Transaction in use, or <code>Transaction.AUTO_COMMIT</code>
+     * @return Transaction in use, or {@linkplain Transaction#AUTO_COMMIT}
      */
     Transaction getTransaction();
 }
