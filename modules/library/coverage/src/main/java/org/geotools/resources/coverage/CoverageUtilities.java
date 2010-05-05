@@ -32,16 +32,6 @@ import javax.media.jai.InterpolationBilinear;
 import javax.media.jai.InterpolationNearest;
 import javax.media.jai.PropertySource;
 
-import org.opengis.coverage.Coverage;
-import org.opengis.coverage.SampleDimension;
-import org.opengis.coverage.grid.GridCoverage;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.MathTransform1D;
-import org.opengis.referencing.operation.TransformException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.geometry.MismatchedDimensionException;
-
 import org.geotools.coverage.Category;
 import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.grid.GridCoverage2D;
@@ -57,6 +47,15 @@ import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.util.NumberRange;
 import org.geotools.util.Utilities;
+import org.opengis.coverage.Coverage;
+import org.opengis.coverage.SampleDimension;
+import org.opengis.coverage.grid.GridCoverage;
+import org.opengis.geometry.MismatchedDimensionException;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.MathTransform1D;
+import org.opengis.referencing.operation.TransformException;
 
 
 /**
@@ -519,6 +518,7 @@ public final class CoverageUtilities {
         return Math.abs(quadrantRotation - Math.floor(quadrantRotation)) < EPS;
     }
     
+    
     /**
      * Checks that the provided {@code dimensions} when intersected with the source region used by 
      * the provided {@link ImageReadParam} instance does not result in an empty {@link Rectangle}.
@@ -543,5 +543,5 @@ public final class CoverageUtilities {
         }
         readParameters.setSourceRegion(sourceRegion);
         return false;
-    }
+    }    
 }
