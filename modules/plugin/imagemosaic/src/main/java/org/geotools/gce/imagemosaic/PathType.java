@@ -26,7 +26,7 @@ import org.geotools.data.DataUtilities;
 
 /**
  * Enum that can be use to distinguish between relative paths and absolute paths
- * when trying to load a granule for a mosaic.
+ * when trying to load a granuleDescriptor for a mosaic.
  * 
  * @author Simone Giannecchini, GeoSolutions SAS
  * @author Stefan Alfons Krueger (alfonx), Wikisquare.de : Support for jar:file:foo.jar/bar.properties URLs
@@ -69,7 +69,7 @@ enum PathType {
 //			File rasterFile= new File(parentLocation,location);
 //			if(!ImageMosaicUtils.checkFileReadable(rasterFile))
 //			{		
-//				if (LOGGER.isLoggable(Level.INFO))
+//				if (LOGGER.isLoggable(GranuleOverviewLevelDescriptor.INFO))
 //					LOGGER.info("Unable to read image for file "+ rasterFile.getAbsolutePath());
 //				
 //				return null;
@@ -118,7 +118,7 @@ enum PathType {
 //			File rasterFile= new File(location);
 //			if(!ImageMosaicUtils.checkFileReadable(rasterFile))
 //			{		
-//				if (LOGGER.isLoggable(Level.INFO))
+//				if (LOGGER.isLoggable(GranuleOverviewLevelDescriptor.INFO))
 //					LOGGER.info("Unable to read image for file "+ rasterFile.getAbsolutePath());
 //				return null;
 //				
@@ -132,7 +132,7 @@ enum PathType {
 	private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(PathType.class);
 
 	/**
-	 * Resolve a path for a granule given the parent location and location
+	 * Resolve a path for a granuleDescriptor given the parent location and location
 	 * itself.
 	 * 
 	 * <p>

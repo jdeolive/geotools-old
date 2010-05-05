@@ -77,8 +77,8 @@ import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.gce.image.WorldImageFormat;
 import org.geotools.gce.imagemosaic.MosaicConfigurationBean;
 import org.geotools.gce.imagemosaic.Utils;
-import org.geotools.gce.imagemosaic.index.GranuleIndex;
-import org.geotools.gce.imagemosaic.index.GranuleIndexFactory;
+import org.geotools.gce.imagemosaic.index.GranuleCatalog;
+import org.geotools.gce.imagemosaic.index.GranuleCatalogFactory;
 import org.geotools.gce.imagemosaic.properties.PropertiesCollector;
 import org.geotools.gce.imagemosaic.properties.PropertiesCollectorFinder;
 import org.geotools.gce.imagemosaic.properties.PropertiesCollectorSPI;
@@ -898,7 +898,7 @@ public class IndexBuilder implements Runnable {
 
 	private GeometryFactory geomFactory;
 
-	private GranuleIndex index;
+	private GranuleCatalog index;
 
 	private int numberOfProcessedFiles;
 
@@ -1250,7 +1250,7 @@ public class IndexBuilder implements Runnable {
 			if(file.getProtocol().equalsIgnoreCase("file"))
 				params.put(ShapefileDataStoreFactory.CREATE_SPATIAL_INDEX.key, Boolean.TRUE);
 			params.put(ShapefileDataStoreFactory.MEMORY_MAPPED.key, Boolean.TRUE);
-			index= GranuleIndexFactory.createGranuleIndex(params,false,true, Utils.SHAPE_SPI);
+			index= GranuleCatalogFactory.createGranuleIndex(params,false,true, Utils.SHAPE_SPI);
 		}
 	
 		//

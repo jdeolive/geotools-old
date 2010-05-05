@@ -39,7 +39,7 @@ import org.geotools.feature.SchemaException;
 import org.geotools.feature.visitor.FeatureCalc;
 import org.geotools.gce.imagemosaic.ImageMosaicReader;
 import org.geotools.gce.imagemosaic.Utils;
-import org.geotools.gce.imagemosaic.index.GTDataStoreGranuleIndex.BBOXFilterExtractor;
+import org.geotools.gce.imagemosaic.index.GTDataStoreGranuleCatalog.BBOXFilterExtractor;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -69,32 +69,32 @@ import com.vividsolutions.jts.index.strtree.STRtree;
 	 * @source $URL: http://svn.osgeo.org/geotools/trunk/modules/plugin/imagemosaic/src/main/java/org/geotools/gce/imagemosaic/RasterManager.java $
  */
 @SuppressWarnings("unused")
-class STRTreeGranuleIndex implements GranuleIndex {
+class STRTreeGranuleCatalog implements GranuleCatalog {
 	
 	/** Logger. */
-	final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(STRTreeGranuleIndex.class);
+	final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(STRTreeGranuleCatalog.class);
 
 	private static class JTSIndexVisitorAdapter  implements ItemVisitor {
 
-		private GranuleIndexVisitor adaptee;
+		private GranuleCatalogVisitor adaptee;
 		
 		private Filter filter;
 
 		/**
 		 * @param indexLocation
 		 */
-		public JTSIndexVisitorAdapter(final GranuleIndexVisitor adaptee) {
+		public JTSIndexVisitorAdapter(final GranuleCatalogVisitor adaptee) {
 			this(adaptee,(Query)null);
 		}
 		
-		public JTSIndexVisitorAdapter(final GranuleIndexVisitor adaptee, Query q) {
+		public JTSIndexVisitorAdapter(final GranuleCatalogVisitor adaptee, Query q) {
 			this.adaptee=adaptee;
 			this.filter=q==null?Query.ALL.getFilter():q.getFilter();
 		}
 		/**
 		 * @param indexLocation
 		 */
-		public JTSIndexVisitorAdapter(final GranuleIndexVisitor adaptee, Filter filter) {
+		public JTSIndexVisitorAdapter(final GranuleCatalogVisitor adaptee, Filter filter) {
 			this.adaptee=adaptee;
 			this.filter=filter==null?Query.ALL.getFilter():filter;
 		}
@@ -118,12 +118,12 @@ class STRTreeGranuleIndex implements GranuleIndex {
 
 	}
 
-	private GranuleIndex originalIndex;
+	private GranuleCatalog originalIndex;
 	
-	public STRTreeGranuleIndex(final Map<String,Serializable> params, DataStoreFactorySpi spi) {
+	public STRTreeGranuleCatalog(final Map<String,Serializable> params, DataStoreFactorySpi spi) {
 		Utils.ensureNonNull("params",params);
 		try{
-			originalIndex= new GTDataStoreGranuleIndex(params,false,spi);
+			originalIndex= new GTDataStoreGranuleCatalog(params,false,spi);
 		}
 		catch (Throwable e) {
 			try {
@@ -146,7 +146,7 @@ class STRTreeGranuleIndex implements GranuleIndex {
 	private final ReadWriteLock rwLock= new ReentrantReadWriteLock(true);
 
 	/**
-	 * Constructs a {@link STRTreeGranuleIndex} out of a {@link FeatureCollection}.
+	 * Constructs a {@link STRTreeGranuleCatalog} out of a {@link FeatureCollection}.
 	 * @param readLock 
 	 * 
 	 * @param features
@@ -252,7 +252,7 @@ class STRTreeGranuleIndex implements GranuleIndex {
 	/* (non-Javadoc)
 	 * @see org.geotools.gce.imagemosaic.FeatureIndex#findFeatures(com.vividsolutions.jts.geom.Envelope, com.vividsolutions.jts.index.ItemVisitor)
 	 */
-	public void getGranules(final BoundingBox envelope, final GranuleIndexVisitor visitor) throws IOException {
+	public void getGranules(final BoundingBox envelope, final GranuleCatalogVisitor visitor) throws IOException {
 		Utils.ensureNonNull("envelope",envelope);
 		Utils.ensureNonNull("visitor",visitor);
 		final Lock lock=rwLock.readLock();
@@ -327,7 +327,7 @@ class STRTreeGranuleIndex implements GranuleIndex {
 
 	private ReferencedEnvelope extractAndCombineBBox(Filter filter) {
 		// TODO extract eventual bbox from query here
-		final BBOXFilterExtractor bboxExtractor = new GTDataStoreGranuleIndex.BBOXFilterExtractor();
+		final BBOXFilterExtractor bboxExtractor = new GTDataStoreGranuleCatalog.BBOXFilterExtractor();
 		filter.accept(bboxExtractor, null);
 		ReferencedEnvelope requestedBBox=bboxExtractor.getBBox();
 		
@@ -348,7 +348,7 @@ class STRTreeGranuleIndex implements GranuleIndex {
 		return getGranules(this.getBounds());
 	}
 
-	public void getGranules(Query q, GranuleIndexVisitor visitor)
+	public void getGranules(Query q, GranuleCatalogVisitor visitor)
 			throws IOException {
 		Utils.ensureNonNull("q",q);
 		final Lock lock=rwLock.readLock();

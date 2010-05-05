@@ -33,14 +33,14 @@ import org.opengis.geometry.BoundingBox;
  * @author Simone Giannecchini, GeoSolutions SAS
  *
  */
-public interface GranuleIndex {
+public interface GranuleCatalog {
 	
 	/**
 	 * 
 	 * @author Simone Giannecchini, GeoSolutions SAS
 	 *
 	 */
-	public interface GranuleIndexVisitor{
+	public interface GranuleCatalogVisitor{
 		public void visit(final SimpleFeature index, Object o);
 	}
 
@@ -68,9 +68,9 @@ public interface GranuleIndex {
 	 *         {@link BoundingBox}.
 	 * @throws IOException 
 	 */
-	public abstract void  getGranules(final BoundingBox envelope,final  GranuleIndexVisitor visitor) throws IOException;
+	public abstract void  getGranules(final BoundingBox envelope,final  GranuleCatalogVisitor visitor) throws IOException;
 	
-	public abstract void  getGranules( final Query q,final GranuleIndexVisitor visitor) throws IOException;	
+	public abstract void  getGranules( final Query q,final GranuleCatalogVisitor visitor) throws IOException;	
 
 	public abstract void dispose();
 		

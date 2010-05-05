@@ -27,7 +27,7 @@ import java.net.URL;
 import javax.imageio.ImageReadParam;
 
 import org.geotools.coverage.grid.io.AbstractGridFormat;
-import org.geotools.gce.imagemosaic.Granule.Level;
+import org.geotools.gce.imagemosaic.GranuleDescriptor.GranuleOverviewLevelDescriptor;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.geotools.test.TestData;
@@ -39,7 +39,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.NoninvertibleTransformException;
 
 /**
- * Testing {@link Granule} class.
+ * Testing {@link GranuleDescriptor} class.
  * 
  * @author Daniele Romagnoli, GeoSolutions SAS
  * @author Stefan Alfons Krueger (alfonx), Wikisquare.de : Support for jar:file:foo.jar/bar.properties URLs
@@ -66,31 +66,31 @@ public class GranuleTest extends Assert {
 		final URL testUrl= TestData.url(this, "/overview/0/D220161A.tif");
 		testUrl.openStream().close();
 		
-		//Create a Granule
-		final Granule granule = new Granule(TEST_BBOX,testUrl);
-		assertNotNull(granule.toString());
+		//Create a GranuleDescriptor
+		final GranuleDescriptor granuleDescriptor = new GranuleDescriptor(TEST_BBOX,testUrl);
+		assertNotNull(granuleDescriptor.toString());
 		
-		//Get a Level
-		final Level level = granule.getLevel(2);
-		assertNotNull(level);
+		//Get a GranuleOverviewLevelDescriptor
+		final GranuleOverviewLevelDescriptor granuleOverviewLevelDescriptor = granuleDescriptor.getLevel(2);
+		assertNotNull(granuleOverviewLevelDescriptor);
 		
-		final int h = level.getHeight();
-		final int w = level.getWidth();
+		final int h = granuleOverviewLevelDescriptor.getHeight();
+		final int w = granuleOverviewLevelDescriptor.getWidth();
 		assertEquals(47, h);
 		assertEquals(35, w);
 		
-		final double scaleX = level.getScaleX();
-		final double scaleY = level.getScaleY();
+		final double scaleX = granuleOverviewLevelDescriptor.getScaleX();
+		final double scaleY = granuleOverviewLevelDescriptor.getScaleY();
 		assertEquals("ScaleX not equal", scaleX, 4.0d, DELTASCALE);
 		assertEquals("ScaleY not equal", scaleY, 3.9788d, DELTASCALE);
 		
-		final Rectangle rect = level.getBounds();
+		final Rectangle rect = granuleOverviewLevelDescriptor.getBounds();
 		assertEquals(rect.x, 0);
 		assertEquals(rect.y, 0);
 		assertEquals(rect.width, 35);
 		assertEquals(rect.height, 47);
 		
-		final AffineTransform btlTransform = level.getBaseToLevelTransform();
+		final AffineTransform btlTransform = granuleOverviewLevelDescriptor.getBaseToLevelTransform();
 		final double[] baseMatrix = new double[6];
 		btlTransform.getMatrix(baseMatrix);
 		assertEquals("m00 not equal", baseMatrix[0], 4.0d, DELTASCALE);
@@ -100,7 +100,7 @@ public class GranuleTest extends Assert {
 		assertEquals("m02 not equal", baseMatrix[4], 0.0d, DELTA);
 		assertEquals("m12 not equal", baseMatrix[5], 0.0d, DELTA);
 		
-		final AffineTransform2D g2wtTransform = level.getGridToWorldTransform();
+		final AffineTransform2D g2wtTransform = granuleOverviewLevelDescriptor.getGridToWorldTransform();
 		final double[] g2wMatrix = new double[6];
 		g2wtTransform.getMatrix(g2wMatrix);
 		assertEquals("m00 not equal", g2wMatrix[0], 0.08276290425318347d, DELTASCALE);
@@ -121,9 +121,9 @@ public class GranuleTest extends Assert {
 		final URL testUrl= TestData.url(this, "/rgb/global_mosaic_12.png");
 		testUrl.openStream().close();
 		
-		final Granule granule = new Granule(TEST_BBOX,testUrl);
-		final Level level = granule.getLevel(0);
-		assertNotNull(level);
+		final GranuleDescriptor granuleDescriptor = new GranuleDescriptor(TEST_BBOX,testUrl);
+		final GranuleOverviewLevelDescriptor granuleOverviewLevelDescriptor = granuleDescriptor.getLevel(0);
+		assertNotNull(granuleOverviewLevelDescriptor);
 		
 		final ImageMosaicReader reader = (ImageMosaicReader) new ImageMosaicFormat().getReader(testMosaic);
 		assertNotNull(reader);
@@ -142,16 +142,16 @@ public class GranuleTest extends Assert {
 		final ImageReadParam readParameters = new ImageReadParam();
 		readParameters.setSourceRegion(new Rectangle(0,0,50,50));
 		
-		final AffineTransform2D gridToWorldTransform = level.getGridToWorldTransform();
+		final AffineTransform2D gridToWorldTransform = granuleOverviewLevelDescriptor.getGridToWorldTransform();
 		
-		final RenderedImage raster = granule.loadRaster(readParameters, 0, TEST_BBOX, gridToWorldTransform.inverse(), request, new Dimension(10,10));
+		final RenderedImage raster = granuleDescriptor.loadRaster(readParameters, 0, TEST_BBOX, gridToWorldTransform.inverse(), request, new Dimension(10,10));
 		assertEquals(raster.getWidth(), 50);
 		assertEquals(raster.getHeight(), 50);
 		
 		AffineTransform translate = new AffineTransform(gridToWorldTransform);
 		translate.preConcatenate(AffineTransform.getTranslateInstance(2, 2));
 		
-		final RenderedImage translatedRaster = granule.loadRaster(readParameters, 0, TEST_BBOX, new AffineTransform2D(translate).inverse(), request, new Dimension(10,10));
+		final RenderedImage translatedRaster = granuleDescriptor.loadRaster(readParameters, 0, TEST_BBOX, new AffineTransform2D(translate).inverse(), request, new Dimension(10,10));
 		assertEquals(translatedRaster.getWidth(), 50);
 		assertEquals(translatedRaster.getHeight(), 50);
 	}

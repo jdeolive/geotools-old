@@ -56,7 +56,7 @@ import org.geotools.data.QueryCapabilities;
 import org.geotools.factory.Hints;
 import org.geotools.feature.visitor.UniqueVisitor;
 import org.geotools.filter.SortByImpl;
-import org.geotools.gce.imagemosaic.index.GranuleIndex;
+import org.geotools.gce.imagemosaic.index.GranuleCatalog;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
 import org.opengis.coverage.grid.Format;
@@ -129,7 +129,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 	/** The suggested SPI to avoid SPI lookup*/
 	ImageReaderSpi suggestedSPI;
 
-	GranuleIndex index;
+	GranuleCatalog index;
 
 	String timeAttribute;
 

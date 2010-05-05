@@ -68,7 +68,7 @@ import org.geotools.feature.visitor.MaxVisitor;
 import org.geotools.filter.IllegalFilterException;
 import org.geotools.filter.SortByImpl;
 import org.geotools.gce.imagemosaic.RasterManager.OverviewLevel;
-import org.geotools.gce.imagemosaic.index.GranuleIndex.GranuleIndexVisitor;
+import org.geotools.gce.imagemosaic.index.GranuleCatalog.GranuleCatalogVisitor;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.image.ImageWorker;
@@ -305,7 +305,7 @@ class RasterLayerResponse{
 	 * @author Simone Giannecchini, GeoSolutions SAS
 	 *
 	 */
-	class MosaicBuilder implements GranuleIndexVisitor{
+	class MosaicBuilder implements GranuleCatalogVisitor{
 
 		/**
 		 * Default {@link Constructor}
@@ -329,11 +329,11 @@ class RasterLayerResponse{
 			final ReferencedEnvelope granuleBBox = ReferencedEnvelope.reference(feature.getBounds());
 			
 
-			// Load a granule from disk as requested.
+			// Load a granuleDescriptor from disk as requested.
 			if (LOGGER.isLoggable(Level.FINE))
 				LOGGER.fine("About to read image number " + granulesNumber);
 
-			// If the granule is not there, dump a message and continue
+			// If the granuleDescriptor is not there, dump a message and continue
 			final URL rasterFile = rasterManager.getPathType().resolvePath(parentLocation, granuleLocation);
 			if (rasterFile == null) {
 				return;
@@ -341,8 +341,8 @@ class RasterLayerResponse{
 			if (LOGGER.isLoggable(Level.FINE))
 				LOGGER.fine("File found "+granuleLocation);
 			
-			// granule cache
-			Granule granule=null;
+			// granuleDescriptor cache
+			GranuleDescriptor granuleDescriptor=null;
 			synchronized (rasterManager.granulesCache) {
 				
 				// Comment by Stefan Krueger
@@ -350,20 +350,20 @@ class RasterLayerResponse{
 				
 				if(rasterManager.granulesCache.containsKey(rasterFile.toString()))
 				{
-					granule=rasterManager.granulesCache.get(rasterFile.toString());
+					granuleDescriptor=rasterManager.granulesCache.get(rasterFile.toString());
 				}
 				else
 				{
-					granule=new Granule(granuleBBox,rasterFile,rasterManager.parent.suggestedSPI);
-					rasterManager.granulesCache.put(rasterFile.toString(),granule);
+					granuleDescriptor=new GranuleDescriptor(granuleBBox,rasterFile,rasterManager.parent.suggestedSPI);
+					rasterManager.granulesCache.put(rasterFile.toString(),granuleDescriptor);
 				}
 			}
 			
 			//
 			// load raster data
 			//
-			//create a granule loader
-			final GranuleLoader loader = new GranuleLoader(baseReadParameters, imageChoice, mosaicBBox, finalWorldToGridCorner, granule, request);
+			//create a granuleDescriptor loader
+			final GranuleLoader loader = new GranuleLoader(baseReadParameters, imageChoice, mosaicBBox, finalWorldToGridCorner, granuleDescriptor, request);
 			if(!multithreadingAllowed)
 				tasks.add(new FutureTask<RenderedImage>(loader));
 			else
@@ -401,7 +401,7 @@ class RasterLayerResponse{
 					if(loadedImage==null)
 					{
 						if(LOGGER.isLoggable(Level.FINE))
-							LOGGER.log(Level.FINE,"Unable to load the raster for granule " +granuleIndex+ " with request "+request.toString());
+							LOGGER.log(Level.FINE,"Unable to load the raster for granuleDescriptor " +granuleIndex+ " with request "+request.toString());
 						continue;
 					}
 					if(firstGranule){
@@ -439,11 +439,11 @@ class RasterLayerResponse{
 					
 				} catch (InterruptedException e) {
 					if(LOGGER.isLoggable(Level.SEVERE))
-						LOGGER.log(Level.SEVERE,"Unable to load the raster for granule " +granuleIndex,e);
+						LOGGER.log(Level.SEVERE,"Unable to load the raster for granuleDescriptor " +granuleIndex,e);
 					continue;
 				} catch (ExecutionException e) {
 					if(LOGGER.isLoggable(Level.SEVERE))
-						LOGGER.log(Level.SEVERE,"Unable to load the raster for granule " +granuleIndex,e);
+						LOGGER.log(Level.SEVERE,"Unable to load the raster for granuleDescriptor " +granuleIndex,e);
 					continue;
 				}
 
@@ -488,7 +488,7 @@ class RasterLayerResponse{
 			if(granulesNumber==0)
 			{
 				if(LOGGER.isLoggable(Level.FINE))
-					LOGGER.log(Level.FINE,"Unable to load any granule ");
+					LOGGER.log(Level.FINE,"Unable to load any granuleDescriptor ");
 				return;
 			}
 
@@ -708,7 +708,7 @@ class RasterLayerResponse{
 			// relaxed a bit the requirement to have the same exact resolution
 			// for all the overviews, but still we do not allow for reading the
 			// various grid to world transform directly from the input files,
-			// therefore we are assuming that each granule has a scale and
+			// therefore we are assuming that each granuleDescriptor has a scale and
 			// translate only grid to world that can be deduced from its base
 			// level dimension and envelope. The grid to world transforms for
 			// the other levels can be computed accordingly knowning the scale

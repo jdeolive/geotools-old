@@ -59,16 +59,16 @@ import org.opengis.referencing.operation.TransformException;
 import com.sun.media.jai.util.Rational;
 
 /**
- * A granule is a single piece of the mosaic, with its own overviews and
+ * A granuleDescriptor is a single piece of the mosaic, with its own overviews and
  * everything.
  * 
  * <p>
  * This class is responsible for caching the various size of the different
- * levels of each single granule since computing them each time is expensive
+ * levels of each single granuleDescriptor since computing them each time is expensive
  * (opening a file, looking for a reader, parsing metadata,etc...).
  * 
  * <p>
- * Right now we are making the assumption that a single granule is made a by a
+ * Right now we are making the assumption that a single granuleDescriptor is made a by a
  * single file with embedded overviews, either explicit or intrinsic through wavelets like MrSID,
  * ECW or JPEG2000.
  * 
@@ -76,10 +76,10 @@ import com.sun.media.jai.util.Rational;
  * @author Stefan Alfons Krueger (alfonx), Wikisquare.de : Support for jar:file:foo.jar/bar.properties URLs
  * @since 2.5.5
  */
-public class Granule {
+public class GranuleDescriptor {
 	
 	/** Logger. */
-	private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(Granule.class); 
+	private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(GranuleDescriptor.class); 
 	   
     // FORMULAE FOR FORWARD MAP are derived as follows
     //     Nearest
@@ -256,12 +256,12 @@ public class Granule {
 		return retValue;
 	}
 	/**
-	 * This class represent an overview level in a single granule.
+	 * This class represent an overview level in a single granuleDescriptor.
 	 * 
 	 * @author Simone Giannecchini, GeoSolutions S.A.S.
 	 *
 	 */
-	class Level{
+	class GranuleOverviewLevelDescriptor{
 
 		final double scaleX;
 		
@@ -298,7 +298,7 @@ public class Granule {
 			return height;
 		}
 
-		public Level(final double scaleX,final double scaleY,final int width,final int height) {
+		public GranuleOverviewLevelDescriptor(final double scaleX,final double scaleY,final int width,final int height) {
 			this.scaleX = scaleX;
 			this.scaleY = scaleY;
 			this.baseToLevelTransform=new AffineTransform2D( XAffineTransform.getScaleInstance(scaleX,scaleY,0,0));
@@ -326,7 +326,7 @@ public class Granule {
 		public String toString() {
 			// build a decent representation for this level
 			final StringBuilder buffer = new StringBuilder();
-			buffer.append("Description of a granule level").append("\n");
+			buffer.append("Description of a granuleDescriptor level").append("\n");
 			buffer.append("width:\t\t").append(width).append("\n");
 			buffer.append("height:\t\t").append(height).append("\n");
 			buffer.append("scaleX:\t\t").append(scaleX).append("\n");
@@ -342,17 +342,17 @@ public class Granule {
 	
 	URL granuleUrl;
 	
-	final Map<Integer,Level> granuleLevels= Collections.synchronizedMap(new HashMap<Integer,Level>());
+	final Map<Integer,GranuleOverviewLevelDescriptor> granuleLevels= Collections.synchronizedMap(new HashMap<Integer,GranuleOverviewLevelDescriptor>());
 	
 	AffineTransform baseGridToWorld;
 	
 	ImageReaderSpi cachedSPI;
 
-	public Granule(final BoundingBox granuleBBOX,final URL granuleUrl) {
+	public GranuleDescriptor(final BoundingBox granuleBBOX,final URL granuleUrl) {
 		this(granuleBBOX, granuleUrl, null);
 	}
 	
-	public Granule(final BoundingBox granuleBBOX,final URL granuleUrl, final ImageReaderSpi suggestedSPI) {
+	public GranuleDescriptor(final BoundingBox granuleBBOX,final URL granuleUrl, final ImageReaderSpi suggestedSPI) {
 		this.granuleBBOX = ReferencedEnvelope.reference(granuleBBOX);
 		this.granuleUrl = granuleUrl;
 		
@@ -402,7 +402,7 @@ public class Granule {
 			this.baseGridToWorld = geMapper.createAffineTransform();
 			
 			// add the base level
-			this.granuleLevels.put(Integer.valueOf(0), new Level(1, 1, originalDimension.width, originalDimension.height));
+			this.granuleLevels.put(Integer.valueOf(0), new GranuleOverviewLevelDescriptor(1, 1, originalDimension.width, originalDimension.height));
 
 		} catch (IllegalStateException e) {
 			throw new IllegalArgumentException(e);
@@ -434,7 +434,7 @@ public class Granule {
 			final Dimension tileDimension) throws IOException {
 		
 		if (LOGGER.isLoggable(java.util.logging.Level.FINE))
-			LOGGER.fine("Loading raster data for granule "+this.toString());
+			LOGGER.fine("Loading raster data for granuleDescriptor "+this.toString());
 
 		final ReferencedEnvelope bbox= new ReferencedEnvelope(granuleBBOX);
 		// intersection of this tile bound with the current crop bbox
@@ -463,12 +463,12 @@ public class Granule {
 			if(reader==null)
 			{
 				if (LOGGER.isLoggable(java.util.logging.Level.WARNING))
-					LOGGER.warning("Unable to get reader for granule "+this.toString()+ " with request "+request.toString());
+					LOGGER.warning("Unable to get reader for granuleDescriptor "+this.toString()+ " with request "+request.toString());
 				return null;
 			}
 			
 			//get selected level and base level dimensions
-			final Level selectedlevel= getLevel(imageIndex);
+			final GranuleOverviewLevelDescriptor selectedlevel= getLevel(imageIndex);
 	
 			
 			// now create the crop grid to world which can be used to decide
@@ -487,7 +487,7 @@ public class Granule {
 			// is it empty??
 			if (sourceArea.isEmpty()) {
 				if (LOGGER.isLoggable(java.util.logging.Level.FINE))
-					LOGGER.fine("Got empty area for granule "+this.toString()+ " with request "+request.toString());
+					LOGGER.fine("Got empty area for granuleDescriptor "+this.toString()+ " with request "+request.toString());
 				return null;
 
 			} else if (LOGGER.isLoggable(java.util.logging.Level.FINE))
@@ -516,7 +516,7 @@ public class Granule {
 			}
 			catch (Throwable e) {
 				if(LOGGER.isLoggable(java.util.logging.Level.FINE))
-					LOGGER.log(java.util.logging.Level.FINE,"Unable to load raster for granule "+this.toString()+ " with request "+request.toString(),e);
+					LOGGER.log(java.util.logging.Level.FINE,"Unable to load raster for granuleDescriptor "+this.toString()+ " with request "+request.toString(),e);
 				return null;
 			}
 
@@ -569,7 +569,7 @@ public class Granule {
 			if(finalLayout.isEmpty())
 			{
 				if(LOGGER.isLoggable(java.util.logging.Level.FINE))
-					LOGGER.fine("Unable to create a granule "+this.toString()+ " due to jai scale bug");
+					LOGGER.fine("Unable to create a granuleDescriptor "+this.toString()+ " due to jai scale bug");
 				return null;
 			}
 			
@@ -599,16 +599,16 @@ public class Granule {
 		
 		} catch (IllegalStateException e) {
 			if (LOGGER.isLoggable(java.util.logging.Level.WARNING))
-				LOGGER.log(java.util.logging.Level.WARNING, "Unable to load raster for granule "+this.toString()+ " with request "+request.toString(), e);
+				LOGGER.log(java.util.logging.Level.WARNING, "Unable to load raster for granuleDescriptor "+this.toString()+ " with request "+request.toString(), e);
 			return null;
 		} 
 		catch (org.opengis.referencing.operation.NoninvertibleTransformException e) {
 			if (LOGGER.isLoggable(java.util.logging.Level.WARNING))
-				LOGGER.log(java.util.logging.Level.WARNING, "Unable to load raster for granule "+this.toString()+ " with request "+request.toString(), e);
+				LOGGER.log(java.util.logging.Level.WARNING, "Unable to load raster for granuleDescriptor "+this.toString()+ " with request "+request.toString(), e);
 			return null;
 		} catch (TransformException e) {
 			if (LOGGER.isLoggable(java.util.logging.Level.WARNING))
-				LOGGER.log(java.util.logging.Level.WARNING, "Unable to load raster for granule "+this.toString()+ " with request "+request.toString(), e);
+				LOGGER.log(java.util.logging.Level.WARNING, "Unable to load raster for granuleDescriptor "+this.toString()+ " with request "+request.toString(), e);
 			return null;
 		} 
 		finally{
@@ -624,7 +624,7 @@ public class Granule {
 	}
 
 
-	public Level getLevel(final int index) {
+	public GranuleOverviewLevelDescriptor getLevel(final int index) {
 		synchronized (granuleLevels) {
 			if(granuleLevels.containsKey(Integer.valueOf(index)))
 				return granuleLevels.get(Integer.valueOf(index));
@@ -659,12 +659,12 @@ public class Granule {
 					final Rectangle levelDimension = Utils.getDimension(index,inStream, reader);
 					
 					
-					final Level baseLevel= granuleLevels.get(0);
+					final GranuleOverviewLevelDescriptor baseLevel= granuleLevels.get(0);
 					final double scaleX=baseLevel.width/(1.0*levelDimension.width);
 					final double scaleY=baseLevel.height/(1.0*levelDimension.height);
 					
 					// add the base level
-					final Level newLevel=new Level(scaleX,scaleY,levelDimension.width,levelDimension.height);
+					final GranuleOverviewLevelDescriptor newLevel=new GranuleOverviewLevelDescriptor(scaleX,scaleY,levelDimension.width,levelDimension.height);
 					this.granuleLevels.put(Integer.valueOf(index),newLevel);
 					
 					return newLevel;
@@ -697,16 +697,16 @@ public class Granule {
 	public String toString() {
 		// build a decent representation for this level
 		final StringBuilder buffer = new StringBuilder();
-		buffer.append("Description of a granule ").append("\n");
+		buffer.append("Description of a granuleDescriptor ").append("\n");
 		buffer.append("BBOX:\t\t").append(granuleBBOX.toString());
 		buffer.append("file:\t\t").append(granuleUrl);
 		buffer.append("gridToWorld:\t\t").append(baseGridToWorld);
 		int i=1;
-		for(final Level level : granuleLevels.values())
+		for(final GranuleOverviewLevelDescriptor granuleOverviewLevelDescriptor : granuleLevels.values())
 		{
 			i++;
 			buffer.append("Description of level ").append(i++).append("\n");
-			buffer.append(level.toString()).append("\n");
+			buffer.append(granuleOverviewLevelDescriptor.toString()).append("\n");
 		}
 		return super.toString();
 	}

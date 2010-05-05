@@ -37,7 +37,7 @@ class GranuleLoader implements Callable<RenderedImage>{
 	
 	final MathTransform2D mosaicWorldToGrid;
 	
-	final Granule granule;
+	final GranuleDescriptor granuleDescriptor;
 	
 	final ImageReadParam readParameters;
 	
@@ -52,13 +52,13 @@ class GranuleLoader implements Callable<RenderedImage>{
 			final int imageIndex,
 			final ReferencedEnvelope cropBBox, 
 			final MathTransform2D mosaicWorldToGrid,
-			final Granule granule,
+			final GranuleDescriptor granuleDescriptor,
 			final RasterLayerRequest request) {
 		this.readParameters = Utils.cloneImageReadParam(readParameters);
 		this.imageIndex = imageIndex;
 		this.cropBBox = cropBBox;
 		this.mosaicWorldToGrid = mosaicWorldToGrid;
-		this.granule = granule;
+		this.granuleDescriptor = granuleDescriptor;
 		this.request=request;
 		this.tilesDimension= request.getTileDimensions()!=null?(Dimension) request.getTileDimensions().clone():null;
 	}
@@ -71,8 +71,8 @@ class GranuleLoader implements Callable<RenderedImage>{
 		return mosaicWorldToGrid;
 	}
 
-	public Granule getGranule() {
-		return granule;
+	public GranuleDescriptor getGranule() {
+		return granuleDescriptor;
 	}
 
 	public ImageReadParam getReadParameters() {
@@ -84,7 +84,7 @@ class GranuleLoader implements Callable<RenderedImage>{
 	}
 	
 	public RenderedImage call() throws Exception {
-		return granule.loadRaster(readParameters, imageIndex, cropBBox, mosaicWorldToGrid, request,tilesDimension);
+		return granuleDescriptor.loadRaster(readParameters, imageIndex, cropBBox, mosaicWorldToGrid, request,tilesDimension);
 	}
 
 }

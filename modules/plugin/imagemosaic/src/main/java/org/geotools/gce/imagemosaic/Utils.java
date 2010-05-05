@@ -72,8 +72,8 @@ import org.geotools.data.DataAccessFactory.Param;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
-import org.geotools.gce.imagemosaic.index.GranuleIndex;
-import org.geotools.gce.imagemosaic.index.GranuleIndexFactory;
+import org.geotools.gce.imagemosaic.index.GranuleCatalog;
+import org.geotools.gce.imagemosaic.index.GranuleCatalogFactory;
 import org.geotools.gce.imagemosaic.indexbuilder.IndexBuilder;
 import org.geotools.gce.imagemosaic.indexbuilder.IndexBuilderConfiguration;
 import org.geotools.gce.imagemosaic.indexbuilder.IndexBuilder.ExceptionEvent;
@@ -1029,7 +1029,7 @@ public class Utils {
 	 * @throws IOException
 	 */
 	@SuppressWarnings("unchecked")
-	public static GranuleIndex createDataStoreParamsFromPropertiesFile(
+	public static GranuleCatalog createDataStoreParamsFromPropertiesFile(
 			final URL datastoreProperties, boolean caching, boolean create)
 			throws IOException {
 		// read the properties file
@@ -1056,8 +1056,7 @@ public class Utils {
 					throw new IOException("Required parameter missing: "
 							+ p.toString());
 			}
-			return GranuleIndexFactory.createGranuleIndex(params, caching,
-					create, spi);
+			return GranuleCatalogFactory.createGranuleIndex(params, caching,create, spi);
 		} catch (ClassNotFoundException e) {
 			final IOException ioe = new IOException();
 			throw (IOException) ioe.initCause(e);
@@ -1078,7 +1077,7 @@ public class Utils {
 	 * @return
 	 * @throws IOException
 	 */
-	public static GranuleIndex createShapeFileStoreParamsFromURL(final URL url,
+	public static GranuleCatalog createShapeFileStoreParamsFromURL(final URL url,
 			boolean caching, boolean create) throws IOException {
 		final Map<String, Serializable> params = new HashMap<String, Serializable>();
 		params.put(ShapefileDataStoreFactory.URLP.key, url);
@@ -1086,8 +1085,7 @@ public class Utils {
 			params.put(ShapefileDataStoreFactory.CREATE_SPATIAL_INDEX.key,
 					Boolean.TRUE);
 		params.put(ShapefileDataStoreFactory.MEMORY_MAPPED.key, Boolean.TRUE);
-		return GranuleIndexFactory.createGranuleIndex(params, caching, create,
-				caching ? SHAPE_SPI : INDEXED_SHAPE_SPI);
+		return GranuleCatalogFactory.createGranuleIndex(params, caching, create,caching ? SHAPE_SPI : INDEXED_SHAPE_SPI);
 	}
 
 	/**

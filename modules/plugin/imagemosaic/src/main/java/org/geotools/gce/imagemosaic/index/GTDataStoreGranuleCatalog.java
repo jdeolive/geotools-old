@@ -79,10 +79,10 @@ import org.opengis.geometry.BoundingBox;
  *
 	 * @source $URL: http://svn.osgeo.org/geotools/trunk/modules/plugin/imagemosaic/src/main/java/org/geotools/gce/imagemosaic/RasterManager.java $
  */
-class GTDataStoreGranuleIndex implements GranuleIndex {
+class GTDataStoreGranuleCatalog implements GranuleCatalog {
 	
 	/** Logger. */
-	final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(GTDataStoreGranuleIndex.class);
+	final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(GTDataStoreGranuleCatalog.class);
 
 	final static FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2( GeoTools.getDefaultHints() );
 	
@@ -131,7 +131,7 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 	private DataStoreFactorySpi spi;
 
 
-	public GTDataStoreGranuleIndex(
+	public GTDataStoreGranuleCatalog(
 			final Map<String, Serializable> params, 
 			final boolean create, 
 			final DataStoreFactorySpi spi) {
@@ -226,7 +226,7 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 	/* (non-Javadoc)
 	 * @see org.geotools.gce.imagemosaic.FeatureIndex#findFeatures(com.vividsolutions.jts.geom.Envelope, com.vividsolutions.jts.index.ItemVisitor)
 	 */
-	public void  getGranules(final BoundingBox envelope, final GranuleIndexVisitor visitor) throws IOException {
+	public void  getGranules(final BoundingBox envelope, final GranuleCatalogVisitor visitor) throws IOException {
 		Utils.ensureNonNull("envelope",envelope);
 		final Query q= new Query(typeName);
 		Filter filter = ff.bbox( ff.property( geometryPropertyName ), ReferencedEnvelope.reference(envelope) );
@@ -359,7 +359,7 @@ class GTDataStoreGranuleIndex implements GranuleIndex {
 		
 	}
 
-	public void  getGranules(final Query q,final GranuleIndexVisitor visitor)
+	public void  getGranules(final Query q,final GranuleCatalogVisitor visitor)
 	throws IOException {
 		Utils.ensureNonNull("q",q);
 

@@ -41,8 +41,8 @@ import org.geotools.data.DataSourceException;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.Query;
 import org.geotools.factory.Hints;
-import org.geotools.gce.imagemosaic.index.GranuleIndex;
-import org.geotools.gce.imagemosaic.index.GranuleIndex.GranuleIndexVisitor;
+import org.geotools.gce.imagemosaic.index.GranuleCatalog;
+import org.geotools.gce.imagemosaic.index.GranuleCatalog.GranuleCatalogVisitor;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.metadata.iso.extent.GeographicBoundingBoxImpl;
@@ -64,7 +64,7 @@ class RasterManager {
 	/** Logger. */
 	private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(RasterManager.class);
 	
-	final SoftValueHashMap<String, Granule> granulesCache= new SoftValueHashMap<String, Granule>();
+	final SoftValueHashMap<String, GranuleDescriptor> granulesCache= new SoftValueHashMap<String, GranuleDescriptor>();
 	
 
 
@@ -448,7 +448,7 @@ class RasterManager {
 	SpatialDomainManager spatialDomainManager;
 
 	/** {@link SoftReference} to the index holding the tiles' envelopes. */
-	final GranuleIndex index;
+	final GranuleCatalog index;
 
 	String timeAttribute;
 	
@@ -615,7 +615,7 @@ class RasterManager {
 			return Collections.emptyList();
 	}
 	
-	void getGranules(final Query q,final GranuleIndexVisitor visitor)throws IOException {
+	void getGranules(final Query q,final GranuleCatalogVisitor visitor)throws IOException {
 		index.getGranules(q,visitor);
 
 	}
@@ -630,7 +630,7 @@ class RasterManager {
 	 * @throws IOException
 	 *             In case loading the needed features failes.
 	 */
-	void getGranules(final BoundingBox envelope,final GranuleIndexVisitor visitor)throws IOException {
+	void getGranules(final BoundingBox envelope,final GranuleCatalogVisitor visitor)throws IOException {
 		index.getGranules(envelope,visitor);
 	}
 
