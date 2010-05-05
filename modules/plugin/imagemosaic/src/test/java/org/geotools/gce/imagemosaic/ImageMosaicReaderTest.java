@@ -348,7 +348,7 @@ public class ImageMosaicReaderTest extends Assert{
 		//remove generated file
 		cleanUp();
 		
-		rgbURL = new File("/media/ext_hd_01_/work/data/iacovella").toURI().toURL();
+		rgbURL = new File("C:\\work\\data\\mosaic_sample").toURI().toURL();
 		timeURL = TestData.url(this, "time_geotiff");
 		rgbJarURL = new URL("jar:"+TestData.url(this, "rgb.jar").toExternalForm()+"!/rgb/mosaic.shp");
 		

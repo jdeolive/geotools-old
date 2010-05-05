@@ -14,7 +14,7 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.gce.imagemosaic.index;
+package org.geotools.gce.imagemosaic.catalog;
 
 import java.io.IOException;
 import java.io.Serializable;

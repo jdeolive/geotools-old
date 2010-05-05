@@ -77,8 +77,8 @@ import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.gce.image.WorldImageFormat;
 import org.geotools.gce.imagemosaic.MosaicConfigurationBean;
 import org.geotools.gce.imagemosaic.Utils;
-import org.geotools.gce.imagemosaic.index.GranuleCatalog;
-import org.geotools.gce.imagemosaic.index.GranuleCatalogFactory;
+import org.geotools.gce.imagemosaic.catalog.GranuleCatalog;
+import org.geotools.gce.imagemosaic.catalog.GranuleCatalogFactory;
 import org.geotools.gce.imagemosaic.properties.PropertiesCollector;
 import org.geotools.gce.imagemosaic.properties.PropertiesCollectorFinder;
 import org.geotools.gce.imagemosaic.properties.PropertiesCollectorSPI;
@@ -571,7 +571,7 @@ public class IndexBuilder implements Runnable {
 						indexSchema = featureBuilder.buildFeatureType();
 					}
 					// create the schema for the new shape file
-					index.createType(indexSchema);
+					catalog.createType(indexSchema);
 					
 				} else {
 					// ////////////////////////////////////////////////////////
@@ -638,7 +638,7 @@ public class IndexBuilder implements Runnable {
 						pc.reset();
 					}
 
-				index.addGranule(feature,transaction);
+				catalog.addGranule(feature,transaction);
 
 				// fire event
 				fireEvent(Level.FINE,"Done with file "+fileBeingProcessed, (((fileIndex + 1) * 99.0) / numFiles));
@@ -898,7 +898,7 @@ public class IndexBuilder implements Runnable {
 
 	private GeometryFactory geomFactory;
 
-	private GranuleCatalog index;
+	private GranuleCatalog catalog;
 
 	private int numberOfProcessedFiles;
 
@@ -1238,7 +1238,7 @@ public class IndexBuilder implements Runnable {
 		final File datastoreProperties= new File(parent,"datastore.properties");
 		if(Utils.checkFileReadable(datastoreProperties))
 		{
-			index=Utils.createDataStoreParamsFromPropertiesFile(DataUtilities.fileToURL(datastoreProperties),false,true);
+			catalog=Utils.createDataStoreParamsFromPropertiesFile(DataUtilities.fileToURL(datastoreProperties),false,true);
 		    
 		}
 		else{
@@ -1250,7 +1250,7 @@ public class IndexBuilder implements Runnable {
 			if(file.getProtocol().equalsIgnoreCase("file"))
 				params.put(ShapefileDataStoreFactory.CREATE_SPATIAL_INDEX.key, Boolean.TRUE);
 			params.put(ShapefileDataStoreFactory.MEMORY_MAPPED.key, Boolean.TRUE);
-			index= GranuleCatalogFactory.createGranuleIndex(params,false,true, Utils.SHAPE_SPI);
+			catalog= GranuleCatalogFactory.createGranuleIndex(params,false,true, Utils.SHAPE_SPI);
 		}
 	
 		//
@@ -1389,13 +1389,13 @@ public class IndexBuilder implements Runnable {
 
 		
 		try {
-			if(index!=null)
-				index.dispose();
+			if(catalog!=null)
+				catalog.dispose();
 		} catch (Throwable e) {
 			LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
 		}
 	
-		index=null;
+		catalog=null;
 		
 
 

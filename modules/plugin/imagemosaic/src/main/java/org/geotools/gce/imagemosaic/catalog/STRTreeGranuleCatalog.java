@@ -14,7 +14,7 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.gce.imagemosaic.index;
+package org.geotools.gce.imagemosaic.catalog;
 
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
@@ -41,9 +41,8 @@ import org.geotools.feature.visitor.FeatureCalc;
 import org.geotools.gce.imagemosaic.GranuleDescriptor;
 import org.geotools.gce.imagemosaic.ImageMosaicReader;
 import org.geotools.gce.imagemosaic.Utils;
-import org.geotools.gce.imagemosaic.index.GTDataStoreGranuleCatalog.BBOXFilterExtractor;
+import org.geotools.gce.imagemosaic.catalog.GTDataStoreGranuleCatalog.BBOXFilterExtractor;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.resources.coverage.CoverageUtilities;
 import org.geotools.resources.coverage.FeatureUtilities;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
