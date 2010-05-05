@@ -70,6 +70,7 @@ import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.GridFormatFinder;
 import org.geotools.coverage.grid.io.UnknownFormat;
+import org.geotools.data.DataStoreFactorySpi;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultTransaction;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
@@ -1236,10 +1237,29 @@ public class IndexBuilder implements Runnable {
 		// do we have a datastore.properties file?
 		final File parent=new File(runConfiguration.getRootMosaicDirectory());
 		final File datastoreProperties= new File(parent,"datastore.properties");
-		if(Utils.checkFileReadable(datastoreProperties))
-		{
-			catalog=Utils.createDataStoreParamsFromPropertiesFile(DataUtilities.fileToURL(datastoreProperties),false,true);
-		    
+		if(Utils.checkFileReadable(datastoreProperties)){
+			// read the properties file
+			Properties properties = Utils.loadPropertiesFromURL(DataUtilities.fileToURL(datastoreProperties));
+			if (properties == null)
+				throw new IOException();
+
+			// SPI
+			final String SPIClass = properties.getProperty("SPI");
+			try {
+				// create a datastore as instructed
+				final DataStoreFactorySpi spi = (DataStoreFactorySpi) Class.forName(SPIClass).newInstance();
+				final Map<String, Serializable> params = Utils.createDataStoreParamsFromPropertiesFile(properties,spi);
+				catalog=GranuleCatalogFactory.createGranuleIndex(params,false,true, spi);
+			} catch (ClassNotFoundException e) {
+				final IOException ioe = new IOException();
+				throw (IOException) ioe.initCause(e);
+			} catch (InstantiationException e) {
+				final IOException ioe = new IOException();
+				throw (IOException) ioe.initCause(e);
+			} catch (IllegalAccessException e) {
+				final IOException ioe = new IOException();
+				throw (IOException) ioe.initCause(e);
+			}			
 		}
 		else{
 			

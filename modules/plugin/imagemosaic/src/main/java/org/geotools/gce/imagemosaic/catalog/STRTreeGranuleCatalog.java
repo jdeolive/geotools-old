@@ -221,8 +221,7 @@ class STRTreeGranuleCatalog implements GranuleCatalog {
 				final GranuleDescriptor granule = it.next();
 				final ReferencedEnvelope env=ReferencedEnvelope.reference(granule.getGranuleBBOX());
 				final Geometry g = (Geometry)FeatureUtilities.getPolygon(
-						new Rectangle2D.Double(env.getMinX(),env.getMinY(),env.getWidth(),env.getHeight())
-						,0);
+						new Rectangle2D.Double(env.getMinX(),env.getMinY(),env.getWidth(),env.getHeight()),0);
 				tree.insert(g.getEnvelopeInternal(), granule);
 			}
 			

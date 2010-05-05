@@ -1017,21 +1017,14 @@ public class Utils {
 	public static final boolean DEFAULT_RECURSION_BEHAVIOR = true;
 
 	/**
+	 * 
 	 * @param datastoreProperties
-	 * @param caching
-	 * @param create
-	 * @param suggestedSPI 
-	 * @param locationAttributeName 
-	 * @param sourceURL 
-	 * @param pathType 
 	 * @return
 	 * @throws IOException
 	 */
 	@SuppressWarnings("unchecked")
-	public static GranuleCatalog createDataStoreParamsFromPropertiesFile(
-			final URL datastoreProperties, 
-			boolean caching, 
-			boolean create)
+	public static Map<String, Serializable> createDataStoreParamsFromPropertiesFile(
+			final URL datastoreProperties)
 			throws IOException {
 		// read the properties file
 		Properties properties = loadPropertiesFromURL(datastoreProperties);
@@ -1043,21 +1036,7 @@ public class Utils {
 		try {
 			// create a datastore as instructed
 			final DataStoreFactorySpi spi = (DataStoreFactorySpi) Class.forName(SPIClass).newInstance();
-
-			// get the params
-			final Map<String, Serializable> params = new HashMap<String, Serializable>();
-			final Param[] paramsInfo = spi.getParametersInfo();
-			for (Param p : paramsInfo) {
-				// search for this param and set the value if found
-				if (properties.containsKey(p.key))
-					params.put(p.key, (Serializable) Converters.convert(
-							properties.getProperty(p.key), p.type));
-				else if (p.required && p.sample == null)
-					throw new IOException("Required parameter missing: "
-							+ p.toString());
-			}
-
-			return GranuleCatalogFactory.createGranuleIndex(params, caching,create, spi);
+			return createDataStoreParamsFromPropertiesFile(properties, spi);
 		} catch (ClassNotFoundException e) {
 			final IOException ioe = new IOException();
 			throw (IOException) ioe.initCause(e);
@@ -1244,4 +1223,20 @@ public class Utils {
         }
         return values;
     }
+
+	public static Map<String, Serializable> createDataStoreParamsFromPropertiesFile(
+			Properties properties, DataStoreFactorySpi spi) throws IOException {
+		// get the params
+		final Map<String, Serializable> params = new HashMap<String, Serializable>();
+		final Param[] paramsInfo = spi.getParametersInfo();
+		for (Param p : paramsInfo) {
+			// search for this param and set the value if found
+			if (properties.containsKey(p.key))
+				params.put(p.key, (Serializable) Converters.convert(properties.getProperty(p.key), p.type));
+			else if (p.required && p.sample == null)
+				throw new IOException("Required parameter missing: "+ p.toString());
+		}
+		
+		return params;
+	}
 }
