@@ -98,18 +98,11 @@ class JDBCAccessOracleGeoRaster implements JDBCAccess {
 //      + "end; ";
     
       
-    private boolean isCellXYOrder;
 
     private String stmtPixel;
     private String stmtExport;
 
-    boolean isCellXYOrder() {
-        return isCellXYOrder;
-    }
 
-    void setCellXYOrder(boolean isCellXYOrder) {
-        this.isCellXYOrder = isCellXYOrder;
-    }
 
     protected final static Logger LOGGER = Logger.getLogger(JDBCAccessOracleGeoRaster.class
             .getPackage().getName());
@@ -159,7 +152,6 @@ class JDBCAccessOracleGeoRaster implements JDBCAccess {
 
             CoordinateReferenceSystem crs = getCRS();
             Envelope extent = getExtent(con);
-            setCellXYOrder(con, srid, extent);
             double[] spatialResolutions = getSpatialResolutions(con);
             int numberOfPyramidLevels = getPyramidLevels(con);
 
@@ -377,14 +369,8 @@ class JDBCAccessOracleGeoRaster implements JDBCAccess {
             rs.next();
             Array array = rs.getArray(1);
             BigDecimal[] javaArray = (BigDecimal[]) array.getArray();
-            if (isCellXYOrder()) {
-                spatialResolution[0] = javaArray[0].doubleValue();
-                spatialResolution[1] = javaArray[1].doubleValue();
-            } else {
-                spatialResolution[1] = javaArray[0].doubleValue();
-                spatialResolution[0] = javaArray[1].doubleValue();
-
-            }
+            spatialResolution[1] = javaArray[0].doubleValue();
+            spatialResolution[0] = javaArray[1].doubleValue();
             LOGGER.fine("Assigned X Value: " + spatialResolution[0]);
             LOGGER.fine("Assigned Y Value: " + spatialResolution[1]);
         } catch (Exception ex) {
@@ -483,69 +469,6 @@ class JDBCAccessOracleGeoRaster implements JDBCAccess {
 
     }
 
-    /**
-     * Check for x y order of cell coordinates (EPSG:4326 has y/x order)
-     * 
-     * The test is done by getting cell coordinates for the ULC and URC of world coordinates. For
-     * the ULC, the result must be 0,0
-     * 
-     * For the URC, either the first or the second value must be 0. URC first value == 0 --> y/x
-     * order URC second value == 0 --> x/y order
-     * 
-     * 
-     * @param con
-     *            Jdbc Connection
-     * @param srid
-     *            Spatial Reference Identifier
-     * @param extent
-     *            Extent of pyramid level 0
-     */
-    protected void setCellXYOrder(Connection con, int srid, Envelope extent) {
-
-        PreparedStatement s = null;
-        ResultSet r = null;
-
-        try {
-
-            // Determine pixel x y order
-            // Setting world coordinates for ULC and URC
-            PreparedStatement ps = con.prepareStatement(stmtPixel);
-            ps.setInt(1, 0);
-            ps.setDouble(2, extent.getMinX());
-            ps.setDouble(3, extent.getMaxY());
-            ps.setInt(4, 0);
-            ps.setDouble(5, extent.getMaxX());
-            ps.setDouble(6, extent.getMaxY());
-            ps.setString(7, config.getCoverageName());
-
-            r = ps.executeQuery();
-            if (r.next()) {
-                BigDecimal[] pixelCoords1 = (BigDecimal[]) r.getArray(1).getArray();
-                BigDecimal[] pixelCoords2 = (BigDecimal[]) r.getArray(2).getArray();
-                int minx = pixelCoords1[0].intValue();
-                int miny = pixelCoords1[1].intValue();
-                int maxx = pixelCoords2[0].intValue();
-                int miny2 = pixelCoords2[1].intValue();
-                if (minx != 0 || miny != 0) {
-                    throw new RuntimeException("Error, ULC must have pixelcoordinates 0/0");
-                }
-                if (miny2 == 0) // x,y order
-                    setCellXYOrder(true);
-                else if (maxx == 0) // y,x order
-                    setCellXYOrder(false);
-                else
-                    throw new RuntimeException("Error, URC must have one pixel ordinate == 0");
-            } else {
-                throw new RuntimeException("Error, cannot determine pixel ordinate order");
-            }
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        } finally {
-            closeResultSet(r);
-            closeStmt(s);
-        }
-
-    }
 
     /**
      * getConnection
