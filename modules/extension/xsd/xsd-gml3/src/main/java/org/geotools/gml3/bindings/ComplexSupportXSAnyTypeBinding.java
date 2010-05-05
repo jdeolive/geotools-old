@@ -186,11 +186,13 @@ public class ComplexSupportXSAnyTypeBinding extends XSAnyTypeBinding {
                         wrapper.setResolvedElementDeclaration(e);
                         substitutedChildParticle.setContent(wrapper);
                         for (Property property : nameProperties) {
+                            /*
+                             * Note : Returning simple feature value is not necessary as it has been
+                             * taken care in the 1st For Loop of BindingPropertyExtractor.java -
+                             * List properties(Object, XSDElementDeclaration) method
+                             */
                             if (property instanceof ComplexAttribute) {
                                 properties.add(new Object[] { substitutedChildParticle, property });
-                            } else {
-                                properties.add(new Object[] { substitutedChildParticle,
-                                        property.getValue() });
                             }
                         }
                     }
