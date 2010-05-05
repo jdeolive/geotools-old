@@ -124,48 +124,7 @@ public final class OperationsTest extends GridProcessingTestBase {
         }
     }
 
-    /**
-     * Tests {@link Operations#nodataFilter}.
-     */
-    @Test
-    public void testNodataFilter() {
-        GridCoverage  sourceCoverage = SST.view(GEOPHYSICS);
-        GridCoverage  targetCoverage = processor.nodataFilter(sourceCoverage);
-        RenderedImage sourceImage    = sourceCoverage.getRenderableImage(0,1).createDefaultRendering();
-        RenderedImage targetImage    = targetCoverage.getRenderableImage(0,1).createDefaultRendering();
-        Raster        sourceRaster   = sourceImage.getData();
-        Raster        targetRaster   = targetImage.getData();
-        assertNotSame(sourceCoverage,                                targetCoverage);
-        assertNotSame(sourceImage,                                   targetImage);
-        assertNotSame(sourceRaster,                                  targetRaster);
-        assertSame   (sourceCoverage.getCoordinateReferenceSystem(), targetCoverage.getCoordinateReferenceSystem());
-        assertEquals (sourceCoverage.getEnvelope(),                  targetCoverage.getEnvelope());
-        assertEquals (sourceCoverage.getGridGeometry(),              targetCoverage.getGridGeometry());
-        assertEquals (sourceRaster  .getMinX(),                      targetRaster  .getMinX());
-        assertEquals (sourceRaster  .getMinY(),                      targetRaster  .getMinY());
-        assertEquals (sourceRaster  .getWidth(),                     targetRaster  .getWidth());
-        assertEquals (sourceRaster  .getHeight(),                    targetRaster  .getHeight());
-        assertEquals (0, sourceRaster.getMinX());
-        assertEquals (0, sourceRaster.getMinY());
-        assertEquals ("org.geotools.NodataFilter", ((OperationNode) targetImage).getOperationName());
-
-        for (int y=sourceRaster.getHeight(); --y>=0;) {
-            for (int x=sourceRaster.getWidth(); --x>=0;) {
-                final float s = sourceRaster.getSampleFloat(x, y, 0);
-                final float t = targetRaster.getSampleFloat(x, y, 0);
-                if (Float.isNaN(s)) {
-                    if (!Float.isNaN(t)) {
-                        // TODO: put some test here.
-                    }
-                } else {
-                    assertEquals(s, t, 1E-5f);
-                }
-            }
-        }
-        if (SHOW) {
-            show(targetCoverage);
-        }
-    }
+    
 
     /**
      * Tests {@link Operations#gradientMagnitude}.

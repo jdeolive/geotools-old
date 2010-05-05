@@ -194,23 +194,7 @@ public class OperationJAI extends Operation2D {
         if (operation != null) {
             return operation;
         }
-        if (name.startsWith("org.geotools.") &&
-                registry.getDescriptor(RENDERED_MODE, "org.geotools.Combine") == null)
-        {
-            try {
-                // try and register our operations
-                Registry.registerGeotoolsServices(registry);
-            } catch (RuntimeException e) {
-                Logging.unexpectedException(AbstractProcessor.LOGGER,
-                        OperationJAI.class, "getOperationDescriptor", e);
-            }
-
-            // try to get it again
-            operation = (OperationDescriptor) registry.getDescriptor(RENDERED_MODE, name);
-            if (operation != null) {
-                return operation;
-            }
-        }
+        
         throw new OperationNotFoundException(Errors.format(ErrorKeys.OPERATION_NOT_FOUND_$1, name));
     }
 
