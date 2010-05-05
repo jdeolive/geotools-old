@@ -22,11 +22,9 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.logging.Logger;
 
-import javax.media.jai.JAI;
-import javax.media.jai.TileCache;
+import javax.media.jai.PlanarImage;
 
-import junit.framework.TestCase;
-import junit.textui.TestRunner;
+import junit.framework.Assert;
 
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridGeometry2D;
@@ -37,13 +35,13 @@ import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.operation.matrix.XAffineTransform;
 import org.geotools.test.TestData;
+import org.junit.Test;
 import org.opengis.coverage.grid.GridCoverageReader;
 import org.opengis.coverage.grid.GridCoverageWriter;
 import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.crs.ProjectedCRS;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
@@ -54,68 +52,11 @@ import org.opengis.referencing.operation.TransformException;
  * @source $URL:
  *         http://svn.geotools.org/geotools/trunk/gt/plugin/geotiff/test/org/geotools/gce/geotiff/GeoTiffVisualizationTest.java $
  */
-public class GeoTiffWriterTest extends TestCase {
+@SuppressWarnings("deprecation")
+public class GeoTiffWriterTest extends Assert {
 	private static final Logger logger = org.geotools.util.logging.Logging.getLogger(GeoTiffWriterTest.class.toString());
 
-	/**
-	 * 
-	 */
-	public GeoTiffWriterTest() {
-		super("Writer Test!");
-		// TODO Auto-generated constructor stub
-	}
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		TestRunner.run(GeoTiffWriterTest.class);
-
-	}
-
-	/*
-	 * @see TestCase#setUp()
-	 */
-	protected void setUp() throws Exception {
-		super.setUp();
-		final JAI jaiDef = JAI.getDefaultInstance();
-
-		// using a big tile cache
-		final TileCache cache = jaiDef.getTileCache();
-		cache.setMemoryCapacity(64 * 1024 * 1024);
-		cache.setMemoryThreshold(0.75f);
-
-	}
-
-	private static MathTransform getConversionFromBase(CoordinateReferenceSystem crs) {
-        return (crs instanceof ProjectedCRS) ? ((ProjectedCRS) crs).getConversionFromBase().getMathTransform() : null;
-	}
-
-	/**
-	 * Checks two envelopes for equality ignoring their CRSs.
-	 * @param sourceEnv first {@link GeneralEnvelope}  to check.
-	 * @param targetEnv secondo {@link GeneralEnvelope} to check.
-	 * @param gc the source {@link GridCoverage2D}.
-	 * @return false if they are reasonably equal, false otherwise.
-	 */
-	private boolean checkEnvelopes(GeneralEnvelope sourceEnv, GeneralEnvelope targetEnv, GridCoverage2D gc) {
-        final int dimension = sourceEnv.getDimension();
-        if (sourceEnv.getDimension() != targetEnv.getDimension()) {
-            return false;
-        }
-        AffineTransform mathTransformation = (AffineTransform) ((GridGeometry2D)gc.getGridGeometry()).getGridToCRS2D();
-        double epsilon;
-        for (int i=0; i<dimension; i++) {
-        	epsilon=i==0?XAffineTransform.getScaleX0(mathTransformation):XAffineTransform.getScaleY0(mathTransformation);
-            // Comparaison below uses '!' in order to catch NaN values.
-            if (!(Math.abs(sourceEnv.getMinimum(i) - targetEnv.getMinimum(i)) <= epsilon &&
-                  Math.abs(sourceEnv.getMaximum(i) - targetEnv.getMaximum(i)) <= epsilon))
-            {
-                return false;
-            }
-        }
-        return true;
-	}
 
 	/**
 	 * Testing {@link GeoTiffWriter} capabilities to write a cropped coverage.
@@ -127,6 +68,7 @@ public class GeoTiffWriterTest extends TestCase {
 	 * @throws FactoryException
 	 * @throws TransformException
 	 */
+	@Test
 	public void testWriteCroppedCoverage() throws IllegalArgumentException,
 			IOException, UnsupportedOperationException, ParseException,
 			FactoryException, TransformException {
@@ -138,7 +80,7 @@ public class GeoTiffWriterTest extends TestCase {
 		//
 		// /////////////////////////////////////////////////////////////////////
 		final File readdir = TestData.file(GeoTiffWriterTest.class, "");
-		final File writedir = new File(new StringBuffer(readdir.getAbsolutePath()).append("/testWriter/").toString());
+		final File writedir = new File(new StringBuilder(readdir.getAbsolutePath()).append("/testWriter/").toString());
 		writedir.mkdir();
 		final File tiff = new File(readdir, "latlon.tiff");
 		assert tiff.exists() && tiff.canRead() && tiff.isFile();
@@ -173,7 +115,7 @@ public class GeoTiffWriterTest extends TestCase {
 		// /////////////////////////////////////////////////////////////////////
 		GridCoverage2D gc = (GridCoverage2D) reader.read(null);
 		if (TestData.isInteractiveTest()) {
-			logger.info(new StringBuffer("Coverage before: ").append("\n")
+			logger.info(new StringBuilder("Coverage before: ").append("\n")
 					.append(gc.getCoordinateReferenceSystem().toWKT()).append(
 							gc.getEnvelope().toString()).toString());
 		}
@@ -195,10 +137,10 @@ public class GeoTiffWriterTest extends TestCase {
 		// Crop the original coverage.
 		//
 		// /////////////////////////////////////////////////////////////////////
-		double xc = sourceEnvelope.getCenter(0);
-		double yc = sourceEnvelope.getCenter(1);
-		double xl = sourceEnvelope.getLength(0);
-		double yl = sourceEnvelope.getLength(1);
+		double xc = sourceEnvelope.getMedian(0);
+		double yc = sourceEnvelope.getMedian(1);
+		double xl = sourceEnvelope.getSpan(0);
+		double yl = sourceEnvelope.getSpan(1);
 		final GeneralEnvelope cropEnvelope = new GeneralEnvelope(new double[] {
 				xc - xl / 4.0, yc - yl / 4.0 }, new double[] { xc + xl / 4.0,
 				yc + yl / 4.0 });
@@ -207,8 +149,7 @@ public class GeoTiffWriterTest extends TestCase {
 				.getOperation("CoverageCrop").getParameters();
 		param.parameter("Source").setValue(gc);
 		param.parameter("Envelope").setValue(cropEnvelope);
-		final GridCoverage2D cropped = (GridCoverage2D) processor
-				.doOperation(param);
+		final GridCoverage2D cropped = (GridCoverage2D) processor.doOperation(param);
 
 		// /////////////////////////////////////////////////////////////////////
 		//
@@ -216,8 +157,7 @@ public class GeoTiffWriterTest extends TestCase {
 		//
 		// /////////////////////////////////////////////////////////////////////
 		// checking the ranges of the output image.
-		final GridGeometry2D croppedGG = (GridGeometry2D) cropped
-				.getGridGeometry();
+		final GridGeometry2D croppedGG = (GridGeometry2D) cropped.getGridGeometry();
 		final GridEnvelope croppedGR = croppedGG.getGridRange();
 		final MathTransform croppedG2W = croppedGG.getGridToCRS(PixelInCell.CELL_CENTER);
 		final GeneralEnvelope croppedEnvelope = (GeneralEnvelope) cropped.getEnvelope();
@@ -233,6 +173,14 @@ public class GeoTiffWriterTest extends TestCase {
 		final GeneralEnvelope expectedEnvelope = new GeneralEnvelope(croppedGR,PixelInCell.CELL_CENTER, croppedG2W, cropped.getCoordinateReferenceSystem2D());
 		assertTrue("Expected envelope is different from the computed one",expectedEnvelope.equals(croppedEnvelope, XAffineTransform.getScale((AffineTransform) croppedG2W) / 2.0, false));
 
+		//release things
+		cropped.dispose(true);
+		gc.dispose(true);
+		try{
+			if(reader!=null)
+				reader.dispose();
+		}catch (Throwable e) {
+		}
 		// /////////////////////////////////////////////////////////////////////
 		//
 		//
@@ -240,32 +188,54 @@ public class GeoTiffWriterTest extends TestCase {
 		//
 		//
 		// /////////////////////////////////////////////////////////////////////
-		final File writeFile = new File(new StringBuffer(writedir.getAbsolutePath()).append(File.separatorChar).append(cropped.getName().toString()).append(".tiff").toString());
+		final File writeFile = new File(new StringBuilder(writedir.getAbsolutePath()).append(File.separatorChar).append(cropped.getName().toString()).append(".tiff").toString());
 		final GridCoverageWriter writer = format.getWriter(writeFile);
 		// /////////////////////////////////////////////////////////////////////
 		//
 		// Create the writing params
 		//
 		// /////////////////////////////////////////////////////////////////////
-		writer.write(cropped, null);
-		reader = new GeoTiffReader(writeFile, null);
-		gc = (GridCoverage2D) reader.read(null);
-		final CoordinateReferenceSystem targetCRS = gc.getCoordinateReferenceSystem2D();
-		assertTrue(
-				"Source and Target coordinate reference systems do not match",
-				CRS.equalsIgnoreMetadata(sourceCRS, targetCRS));
-		assertEquals("Read-back and Cropped envelopes do not match", cropped
-				.getEnvelope(), croppedEnvelope);
-
-		if (TestData.isInteractiveTest()) {
-			logger.info(new StringBuffer("Coverage after: ").append("\n")
-					.append(gc.getCoordinateReferenceSystem().toWKT()).append(
-							gc.getEnvelope().toString()).toString());
-			if (TestData.isInteractiveTest())
-				gc.show();
-			else
-				gc.getRenderedImage().getData();
-
+		try{
+			writer.write(cropped, null);
+		}catch (IOException e) {
+		}
+		finally{
+			try{
+				writer.dispose();
+			}catch (Throwable e) {
+			}
+		}
+		try{
+			reader = new GeoTiffReader(writeFile, null);
+			assertNotNull(reader);
+			gc = (GridCoverage2D) reader.read(null);
+			assertNotNull(gc);
+			final CoordinateReferenceSystem targetCRS = gc.getCoordinateReferenceSystem2D();
+			assertTrue(
+					"Source and Target coordinate reference systems do not match",
+					CRS.equalsIgnoreMetadata(sourceCRS, targetCRS));
+			assertEquals("Read-back and Cropped envelopes do not match", cropped
+					.getEnvelope(), croppedEnvelope);
+	
+			if (TestData.isInteractiveTest()) {
+				logger.info(new StringBuilder("Coverage after: ").append("\n")
+						.append(gc.getCoordinateReferenceSystem().toWKT()).append(
+								gc.getEnvelope().toString()).toString());
+				if (TestData.isInteractiveTest())
+					gc.show();
+				else
+					PlanarImage.wrapRenderedImage(gc.getRenderedImage()).getTiles();
+	
+			}
+		}finally{
+			try{
+				if(reader!=null)
+					reader.dispose();
+			}catch (Throwable e) {
+			}
+			
+			if(!TestData.isInteractiveTest())
+				gc.dispose(true);
 		}
 	}
 }

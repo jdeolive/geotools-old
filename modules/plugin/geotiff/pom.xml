@@ -126,8 +126,7 @@
       <groupId>it.geosolutions.imageio-ext</groupId>
   	  <artifactId>imageio-ext-tiff</artifactId>
       <!-- The version number is specified in the parent POM. -->      
-    </dependency>
-
+    </dependency>   
     <!-- Test dependencies -->
     <dependency>
       <!-- We need this to make the referencing module useful. -->

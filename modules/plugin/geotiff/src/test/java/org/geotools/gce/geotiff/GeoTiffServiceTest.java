@@ -18,10 +18,11 @@ package org.geotools.gce.geotiff;
 
 import java.util.Iterator;
 
-import junit.framework.TestCase;
+import junit.framework.Assert;
 
 import org.geotools.coverage.grid.io.GridFormatFactorySpi;
 import org.geotools.coverage.grid.io.GridFormatFinder;
+import org.junit.Test;
 
 /**
  * Testing {@link GeoTiffFormatFactorySpi}.
@@ -31,21 +32,11 @@ import org.geotools.coverage.grid.io.GridFormatFinder;
  *
  * @source $URL$
  */
-public class GeoTiffServiceTest extends TestCase {
+public class GeoTiffServiceTest extends Assert {
 
-	/**
-	 * @param arg0
-	 */
-	public GeoTiffServiceTest(String arg0) {
-		super(arg0);
-	}
-
-	public static void main(java.lang.String[] args) {
-		junit.textui.TestRunner.run(GeoTiffServiceTest.class);
-	}
-
+	@Test
 	public void testIsAvailable() {
-		Iterator list = GridFormatFinder.getAvailableFormats().iterator();
+		Iterator<GridFormatFactorySpi> list = GridFormatFinder.getAvailableFormats().iterator();
 		boolean found = false;
 
 		while (list.hasNext()) {

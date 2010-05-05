@@ -21,14 +21,16 @@ import java.io.File;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-import junit.framework.TestCase;
-import junit.textui.TestRunner;
+import javax.media.jai.PlanarImage;
+
+import junit.framework.Assert;
 
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.imageio.IIOMetadataDumper;
 import org.geotools.factory.Hints;
 import org.geotools.test.TestData;
+import org.junit.Test;
 import org.opengis.referencing.NoSuchAuthorityCodeException;
 
 /**
@@ -38,23 +40,10 @@ import org.opengis.referencing.NoSuchAuthorityCodeException;
  * @source $URL:
  *         http://svn.geotools.org/geotools/trunk/gt/plugin/geotiff/test/org/geotools/gce/geotiff/GeoTiffReaderTest.java $
  */
-public class GeoTiffReaderTest extends TestCase {
+public class GeoTiffReaderTest extends Assert {
 	private final static Logger LOGGER = org.geotools.util.logging.Logging
 			.getLogger(GeoTiffReaderTest.class.toString());
 
-	/**
-	 * Constructor for GeoTiffReaderTest.
-	 * 
-	 * @param arg0
-	 */
-	public GeoTiffReaderTest(String arg0) {
-		super(arg0);
-	}
-
-	public static void main(String[] args) {
-		TestRunner.run(GeoTiffReaderTest.class);
-
-	}
 
 	/**
 	 * testReader
@@ -63,6 +52,7 @@ public class GeoTiffReaderTest extends TestCase {
 	 * @throws IOException
 	 * @throws NoSuchAuthorityCodeException
 	 */
+	@Test
 	public void testReader() throws IllegalArgumentException, IOException,
 			NoSuchAuthorityCodeException {
 
@@ -71,7 +61,7 @@ public class GeoTiffReaderTest extends TestCase {
 		final int numFiles = files.length;
 		final AbstractGridFormat format = new GeoTiffFormat();
 		for (int i = 0; i < numFiles; i++) {
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			final String path = files[i].getAbsolutePath().toLowerCase();
 			if (!path.endsWith("tif") && !path.endsWith("tiff"))
 				continue;
@@ -117,7 +107,7 @@ public class GeoTiffReaderTest extends TestCase {
 					if (TestData.isInteractiveTest())
 						coverage.show();
 					else
-						coverage.getRenderedImage().getData();
+						PlanarImage.wrapRenderedImage(coverage.getRenderedImage()).getTiles();
 
 				}
 
