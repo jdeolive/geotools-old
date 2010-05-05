@@ -141,14 +141,14 @@ public class GeoRasterOnlineTest extends AbstractTest {
             con.prepareStatement("INSERT INTO RASTER VALUES ('oek', sdo_geor.init('RASTER_RDT'))").execute();
             con.prepareStatement("CREATE TABLE blob_table (blob_col BLOB, blobid NUMBER unique, clob_col CLOB)").execute();
             
-            InputStream imageIn = this.getClass().getResourceAsStream("/baseimage/map.tif");
+            InputStream imageIn = new URL("file:target/resources/baseimage/map.tif").openStream();
             ByteArrayOutputStream imageOut = new ByteArrayOutputStream();
             int in; 
             while ((in = imageIn.read())!=-1) {
                 imageOut.write(in);
             }
             
-            InputStream worldIn = this.getClass().getResourceAsStream("/baseimage/map.tfw");
+            InputStream worldIn = new URL("file:target/resources/baseimage/map.tfw").openStream();
             ByteArrayOutputStream worldOut = new ByteArrayOutputStream(); 
             
             while ((in=worldIn.read())!=-1) {
