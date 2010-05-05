@@ -83,7 +83,6 @@ import org.opengis.coverage.SampleDimension;
 import org.opengis.coverage.SampleDimensionType;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.feature.Feature;
-import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
 import org.opengis.filter.PropertyIsEqualTo;
@@ -321,43 +320,43 @@ class RasterLayerResponse{
 		private Color inputTransparentColor;
 		private PlanarImage[] alphaChannels;
 
-		public void visit(SimpleFeature item, Object o) {
+		public void visit(GranuleDescriptor granuleDescriptor, Object o) {
 
-			// Get location and envelope of the image to load.
-			final SimpleFeature feature = (SimpleFeature) item;
-			final String granuleLocation = (String) feature.getAttribute(rasterManager.getLocationAttribute());
-			final ReferencedEnvelope granuleBBox = ReferencedEnvelope.reference(feature.getBounds());
-			
-
-			// Load a granuleDescriptor from disk as requested.
-			if (LOGGER.isLoggable(Level.FINE))
-				LOGGER.fine("About to read image number " + granulesNumber);
-
-			// If the granuleDescriptor is not there, dump a message and continue
-			final URL rasterFile = rasterManager.getPathType().resolvePath(parentLocation, granuleLocation);
-			if (rasterFile == null) {
-				return;
-			}
-			if (LOGGER.isLoggable(Level.FINE))
-				LOGGER.fine("File found "+granuleLocation);
-			
-			// granuleDescriptor cache
-			GranuleDescriptor granuleDescriptor=null;
-			synchronized (rasterManager.granulesCache) {
-				
-				// Comment by Stefan Krueger
-				// Before the File.toURI().toString was used as the cache key. For URL that potentially throws an URISystaxException and i used just toString()  
-				
-				if(rasterManager.granulesCache.containsKey(rasterFile.toString()))
-				{
-					granuleDescriptor=rasterManager.granulesCache.get(rasterFile.toString());
-				}
-				else
-				{
-					granuleDescriptor=new GranuleDescriptor(granuleBBox,rasterFile,rasterManager.parent.suggestedSPI);
-					rasterManager.granulesCache.put(rasterFile.toString(),granuleDescriptor);
-				}
-			}
+//			// Get location and envelope of the image to load.
+//			final SimpleFeature feature = (SimpleFeature) item;
+//			final String granuleLocation = (String) feature.getAttribute(rasterManager.getLocationAttribute());
+//			final ReferencedEnvelope granuleBBox = ReferencedEnvelope.reference(feature.getBounds());
+//			
+//
+//			// Load a granuleDescriptor from disk as requested.
+//			if (LOGGER.isLoggable(Level.FINE))
+//				LOGGER.fine("About to read image number " + granulesNumber);
+//
+//			// If the granuleDescriptor is not there, dump a message and continue
+//			final URL rasterFile = rasterManager.getPathType().resolvePath(parentLocation, granuleLocation);
+//			if (rasterFile == null) {
+//				return;
+//			}
+//			if (LOGGER.isLoggable(Level.FINE))
+//				LOGGER.fine("File found "+granuleLocation);
+//			
+//			// granuleDescriptor cache
+//			GranuleDescriptor granuleDescriptor=null;
+//			synchronized (rasterManager.granulesCache) {
+//				
+//				// Comment by Stefan Krueger
+//				// Before the File.toURI().toString was used as the cache key. For URL that potentially throws an URISystaxException and i used just toString()  
+//				
+//				if(rasterManager.granulesCache.containsKey(rasterFile.toString()))
+//				{
+//					granuleDescriptor=rasterManager.granulesCache.get(rasterFile.toString());
+//				}
+//				else
+//				{
+//					granuleDescriptor=new GranuleDescriptor(granuleBBox,rasterFile,rasterManager.parent.suggestedSPI);
+//					rasterManager.granulesCache.put(rasterFile.toString(),granuleDescriptor);
+//				}
+//			}
 			
 			//
 			// load raster data
@@ -536,14 +535,9 @@ class RasterLayerResponse{
 	/** The base envelope related to the input coverage */
 	private GeneralEnvelope coverageEnvelope;
 
-	private URL inputURL;
-
 	private boolean frozen = false;
 
 	private RasterManager rasterManager;
-
-	private String parentLocation;
-
 
 	private Color finalTransparentColor;
 
@@ -586,13 +580,6 @@ class RasterLayerResponse{
 	public RasterLayerResponse(final RasterLayerRequest request,
 			final RasterManager rasterManager) {
 		this.request = request;
-		inputURL = rasterManager.getInputURL();
-
-		try {
-			parentLocation = DataUtilities.getParentUrl(inputURL).toExternalForm();
-		} catch (MalformedURLException e) {
-			throw new IllegalArgumentException("Unable to determine the parent location of "+inputURL, e);
-		}
 		coverageEnvelope = rasterManager.getCoverageEnvelope();
 		this.coverageFactory = rasterManager.getCoverageFactory();
 		this.rasterManager = rasterManager;

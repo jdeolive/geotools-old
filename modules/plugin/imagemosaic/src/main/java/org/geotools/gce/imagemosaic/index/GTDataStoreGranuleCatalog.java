@@ -29,6 +29,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.imageio.spi.ImageReaderSpi;
+
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFactorySpi;
 import org.geotools.data.DataUtilities;
@@ -49,7 +51,9 @@ import org.geotools.feature.SchemaException;
 import org.geotools.feature.collection.AbstractFeatureVisitor;
 import org.geotools.feature.visitor.FeatureCalc;
 import org.geotools.filter.visitor.DefaultFilterVisitor;
+import org.geotools.gce.imagemosaic.GranuleDescriptor;
 import org.geotools.gce.imagemosaic.ImageMosaicReader;
+import org.geotools.gce.imagemosaic.PathType;
 import org.geotools.gce.imagemosaic.Utils;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.util.NullProgressListener;
@@ -130,6 +134,14 @@ class GTDataStoreGranuleCatalog implements GranuleCatalog {
 
 	private DataStoreFactorySpi spi;
 
+	private PathType pathType;
+
+	private String locationAttribute;
+
+	private ImageReaderSpi suggestedSPI;
+
+	private String parentLocation;
+
 
 	public GTDataStoreGranuleCatalog(
 			final Map<String, Serializable> params, 
@@ -138,8 +150,15 @@ class GTDataStoreGranuleCatalog implements GranuleCatalog {
 		Utils.ensureNonNull("params",params);
 		Utils.ensureNonNull("spi",spi);
 		this.spi=spi;
-		try{
 		
+		try{
+
+			this.pathType=(PathType) params.get("PathType");
+			this.locationAttribute=(String)params.get("LocationAttribute");
+			final String temp=(String)params.get("SuggestedSPI");
+			this.suggestedSPI=temp!=null?(ImageReaderSpi) Class.forName(temp).newInstance():null;
+			this.parentLocation=(String)params.get("ParentLocation");
+			
 			// creating a store, this might imply creating it for an existing underlying store or 
 			// creating a brand new one
 			if(!create)
@@ -214,7 +233,7 @@ class GTDataStoreGranuleCatalog implements GranuleCatalog {
 	/* (non-Javadoc)
 	 * @see org.geotools.gce.imagemosaic.FeatureIndex#findFeatures(com.vividsolutions.jts.geom.Envelope)
 	 */
-	public List<SimpleFeature> getGranules(final BoundingBox envelope) throws IOException {
+	public List<GranuleDescriptor> getGranules(final BoundingBox envelope) throws IOException {
 		Utils.ensureNonNull("envelope",envelope);
 		final Query q= new Query(typeName);
 		Filter filter = ff.bbox( ff.property( geometryPropertyName ), ReferencedEnvelope.reference(envelope) );
@@ -393,7 +412,14 @@ class GTDataStoreGranuleCatalog implements GranuleCatalog {
 			        if(feature instanceof SimpleFeature)
 			        {
 			        	final SimpleFeature sf= (SimpleFeature) feature;
-			        	visitor.visit(sf, null);
+						// create the granule descriptor
+						final GranuleDescriptor granule= new GranuleDescriptor(
+								sf,
+								suggestedSPI,
+								pathType,
+								locationAttribute,
+								parentLocation);
+			        	visitor.visit(granule, null);
 			        }
 			    }            
 			}, new NullProgressListener() );
@@ -410,7 +436,7 @@ class GTDataStoreGranuleCatalog implements GranuleCatalog {
 		
 	}
 
-	public List<SimpleFeature> getGranules(final Query q) throws IOException {
+	public List<GranuleDescriptor> getGranules(final Query q) throws IOException {
 		Utils.ensureNonNull("q",q);
 
 		FeatureIterator<SimpleFeature> it=null;
@@ -442,10 +468,19 @@ class GTDataStoreGranuleCatalog implements GranuleCatalog {
 			
 			// now build the index
 			// TODO make it configurable as far the index is involved
-			final ArrayList<SimpleFeature> retVal= new ArrayList<SimpleFeature>(features.size());
+			final ArrayList<GranuleDescriptor> retVal= new ArrayList<GranuleDescriptor>(features.size());
 			while (it.hasNext()) {
-				final SimpleFeature feature = it.next();
-				retVal.add(feature);
+				// get the feature
+				final SimpleFeature sf = it.next();
+				
+				// create the granule descriptor
+				final GranuleDescriptor granule= new GranuleDescriptor(
+						sf,
+						suggestedSPI,
+						pathType,
+						locationAttribute,
+						parentLocation);
+				retVal.add(granule);
 			}
 			return retVal;
 
@@ -463,7 +498,7 @@ class GTDataStoreGranuleCatalog implements GranuleCatalog {
 		}
 	}
 
-	public Collection<SimpleFeature> getGranules()throws IOException {
+	public Collection<GranuleDescriptor> getGranules()throws IOException {
 		return getGranules(getBounds());
 	}
 

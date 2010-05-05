@@ -16,6 +16,7 @@
  */
 package org.geotools.gce.imagemosaic.index;
 
+import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.ref.SoftReference;
@@ -37,10 +38,13 @@ import org.geotools.data.Transaction;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.SchemaException;
 import org.geotools.feature.visitor.FeatureCalc;
+import org.geotools.gce.imagemosaic.GranuleDescriptor;
 import org.geotools.gce.imagemosaic.ImageMosaicReader;
 import org.geotools.gce.imagemosaic.Utils;
 import org.geotools.gce.imagemosaic.index.GTDataStoreGranuleCatalog.BBOXFilterExtractor;
 import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.resources.coverage.CoverageUtilities;
+import org.geotools.resources.coverage.FeatureUtilities;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
@@ -106,10 +110,11 @@ class STRTreeGranuleCatalog implements GranuleCatalog {
 		 * com.vividsolutions.jts.index.ItemVisitor#visitItem(java.lang.Object)
 		 */
 		public void visitItem(Object o) {
-			if(o instanceof SimpleFeature){
-				final SimpleFeature f=(SimpleFeature) o;
-				if(filter.evaluate(f))
-					adaptee.visit(f,null);
+			if(o instanceof GranuleDescriptor){
+				final GranuleDescriptor g=(GranuleDescriptor) o;
+				final SimpleFeature originator = g.getOriginator();
+				if(originator!=null&&filter.evaluate(originator))
+					adaptee.visit(g,null);
 				return;
 			}
 			throw new IllegalArgumentException("Unable to visit provided item"+o);
@@ -188,8 +193,8 @@ class STRTreeGranuleCatalog implements GranuleCatalog {
 	 */
 	private void createIndex() {
 		
-		Iterator<SimpleFeature> it=null;
-		Collection<SimpleFeature> features=null;
+		Iterator<GranuleDescriptor> it=null;
+		Collection<GranuleDescriptor> features=null;
 		//
 		// Load tiles informations, especially the bounds, which will be
 		// reused
@@ -214,9 +219,12 @@ class STRTreeGranuleCatalog implements GranuleCatalog {
 			// TODO make it configurable as far the index is involved
 			STRtree tree = new STRtree();
 			while (it.hasNext()) {
-				final SimpleFeature feature = it.next();
-				final Geometry g = (Geometry) feature.getDefaultGeometry();
-				tree.insert(g.getEnvelopeInternal(), feature);
+				final GranuleDescriptor granule = it.next();
+				final ReferencedEnvelope env=ReferencedEnvelope.reference(granule.getGranuleBBOX());
+				final Geometry g = (Geometry)FeatureUtilities.getPolygon(
+						new Rectangle2D.Double(env.getMinX(),env.getMinY(),env.getWidth(),env.getHeight())
+						,0);
+				tree.insert(g.getEnvelopeInternal(), granule);
 			}
 			
 			// force index construction --> STRTrees are build on first call to
@@ -236,7 +244,7 @@ class STRTreeGranuleCatalog implements GranuleCatalog {
 	 * @see org.geotools.gce.imagemosaic.FeatureIndex#findFeatures(com.vividsolutions.jts.geom.Envelope)
 	 */
 	@SuppressWarnings("unchecked")
-	public List<SimpleFeature> getGranules(final BoundingBox envelope) throws IOException {
+	public List<GranuleDescriptor> getGranules(final BoundingBox envelope) throws IOException {
 		Utils.ensureNonNull("envelope",envelope);
 		final Lock lock=rwLock.readLock();
 		try{
@@ -295,7 +303,7 @@ class STRTreeGranuleCatalog implements GranuleCatalog {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<SimpleFeature> getGranules(Query q) throws IOException {
+	public List<GranuleDescriptor> getGranules(Query q) throws IOException {
 		Utils.ensureNonNull("q",q);
 		final Lock lock=rwLock.readLock();
 		try{
@@ -308,16 +316,17 @@ class STRTreeGranuleCatalog implements GranuleCatalog {
 			ReferencedEnvelope requestedBBox=extractAndCombineBBox(filter);
 			
 			// load what we need to load
-			final List<SimpleFeature> features= getIndex(lock).query(requestedBBox);
+			final List<GranuleDescriptor> features= getIndex(lock).query(requestedBBox);
 			if(q.equals(Query.ALL))
 				return features;
 			
-			final List<SimpleFeature> retVal= new ArrayList<SimpleFeature>();
-			for (Iterator<SimpleFeature> it = features.iterator();it.hasNext();)
+			final List<GranuleDescriptor> retVal= new ArrayList<GranuleDescriptor>();
+			for (Iterator<GranuleDescriptor> it = features.iterator();it.hasNext();)
 			{
-				SimpleFeature f= it.next();
-				if(filter.evaluate(f))
-					retVal.add(f);
+				GranuleDescriptor g= it.next();
+				final SimpleFeature originator = g.getOriginator();
+				if(originator!=null&&filter.evaluate(originator))
+					retVal.add(g);
 			}
 			return retVal;
 		}finally{
@@ -344,7 +353,7 @@ class STRTreeGranuleCatalog implements GranuleCatalog {
 		return requestedBBox;
 	}
 
-	public List<SimpleFeature> getGranules() throws IOException {
+	public List<GranuleDescriptor> getGranules() throws IOException {
 		return getGranules(this.getBounds());
 	}
 

@@ -51,7 +51,6 @@ import org.geotools.util.SoftValueHashMap;
 import org.geotools.util.Utilities;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.coverage.grid.GridEnvelope;
-import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.geometry.BoundingBox;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.referencing.FactoryException;
@@ -427,7 +426,6 @@ class RasterManager {
 	private double[] highestRes;
 	/** The hints to be used to produce this coverage */
 	private Hints hints;
-	private URL inputURL;
 	private int numberOfOvervies;
 	private double[][] overviewsResolution;
 	// ////////////////////////////////////////////////////////////////////////
@@ -442,7 +440,6 @@ class RasterManager {
 	OverviewPolicy overviewPolicy;
 	DecimationController decimationController;
 	ImageMosaicReader parent;
-	private String locationAttribute;
 	private PathType pathType;
 	boolean expandMe;
 	SpatialDomainManager spatialDomainManager;
@@ -462,13 +459,11 @@ class RasterManager {
 		
 		this.parent=reader;
 		this.expandMe=parent.expandMe;
-        inputURL = reader.sourceURL;
         
         //take ownership of the index
 		index= parent.index;
 		parent.index=null;
 		
-        locationAttribute=parent.locationAttributeName;
         timeAttribute=parent.timeAttribute;
         elevationAttribute=parent.elevationAttribute;
         coverageIdentifier=reader.getName();
@@ -599,18 +594,18 @@ class RasterManager {
 	 * @throws IOException
 	 *             In case loading the needed features failes.
 	 */
-	Collection<SimpleFeature> getGranules(final BoundingBox envelope)throws IOException {
-		final Collection<SimpleFeature> features = index.getGranules(envelope);
-		if (features != null)
-			return features;
+	Collection<GranuleDescriptor> getGranules(final BoundingBox envelope)throws IOException {
+		final Collection<GranuleDescriptor> granules = index.getGranules(envelope);
+		if (granules != null)
+			return granules;
 		else
 			return Collections.emptyList();
 	}
 	
-	Collection<SimpleFeature> getGranules(final Query q)throws IOException {
-		final Collection<SimpleFeature> features = index.getGranules(q);
-		if (features != null)
-			return features;
+	Collection<GranuleDescriptor> getGranules(final Query q)throws IOException {
+		final Collection<GranuleDescriptor> granules = index.getGranules(q);
+		if (granules != null)
+			return granules;
 		else
 			return Collections.emptyList();
 	}
@@ -638,13 +633,6 @@ class RasterManager {
 		return pathType;
 	}
 
-	public String getLocationAttribute() {
-		return locationAttribute;
-	}
-
-	public URL getInputURL() {
-		return inputURL;
-	}
 
 	public String getCoverageIdentifier() {
 		return coverageIdentifier;

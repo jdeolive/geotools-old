@@ -32,7 +32,7 @@ import org.geotools.data.DataUtilities;
  * @author Stefan Alfons Krueger (alfonx), Wikisquare.de : Support for jar:file:foo.jar/bar.properties URLs
  * 
  */
-enum PathType {
+public enum PathType {
 	RELATIVE{
 
 		@Override

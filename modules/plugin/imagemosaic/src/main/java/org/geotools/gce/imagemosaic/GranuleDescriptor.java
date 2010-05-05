@@ -29,6 +29,7 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageReadParam;
@@ -51,6 +52,7 @@ import org.geotools.referencing.operation.matrix.XAffineTransform;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.geotools.referencing.operation.transform.ProjectiveTransform;
 import org.geotools.resources.geometry.XRectangle2D;
+import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.geometry.BoundingBox;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform2D;
@@ -348,11 +350,18 @@ public class GranuleDescriptor {
 	
 	ImageReaderSpi cachedSPI;
 
-	public GranuleDescriptor(final BoundingBox granuleBBOX,final URL granuleUrl) {
-		this(granuleBBOX, granuleUrl, null);
-	}
-	
-	public GranuleDescriptor(final BoundingBox granuleBBOX,final URL granuleUrl, final ImageReaderSpi suggestedSPI) {
+	SimpleFeature originator;
+
+//	public GranuleDescriptor(final BoundingBox granuleBBOX,final URL granuleUrl) {
+//		this(granuleBBOX, granuleUrl, null);
+//	}
+//	
+//	public GranuleDescriptor(final BoundingBox granuleBBOX,final URL granuleUrl, final ImageReaderSpi suggestedSPI) {
+//		init(granuleBBOX, granuleUrl, suggestedSPI);	
+//	}
+
+	private void init(final BoundingBox granuleBBOX, final URL granuleUrl,
+			final ImageReaderSpi suggestedSPI) {
 		this.granuleBBOX = ReferencedEnvelope.reference(granuleBBOX);
 		this.granuleUrl = granuleUrl;
 		
@@ -422,9 +431,34 @@ public class GranuleDescriptor {
 				if(reader != null)
 					reader.dispose();
 			}
-		}	
+		}
 	}
 	
+	public GranuleDescriptor(
+			SimpleFeature feature, 
+			ImageReaderSpi suggestedSPI,
+			PathType pathType,
+			final String locationAttribute,
+			final String parentLocation) {
+		// Get location and envelope of the image to load.
+		final String granuleLocation = (String) feature.getAttribute(locationAttribute);
+		final ReferencedEnvelope granuleBBox = ReferencedEnvelope.reference(feature.getBounds());
+		
+
+		// If the granuleDescriptor is not there, dump a message and continue
+		final URL rasterFile = pathType.resolvePath(parentLocation, granuleLocation);
+		if (rasterFile == null) {
+			return;
+		}
+		if (LOGGER.isLoggable(Level.FINE))
+			LOGGER.fine("File found "+granuleLocation);
+
+		this.originator=feature;
+		init(granuleBBox,rasterFile,suggestedSPI);
+		
+		
+	}
+
 	public RenderedImage loadRaster(
 			final ImageReadParam readParameters,
 			final int imageIndex, 
@@ -715,18 +749,12 @@ public class GranuleDescriptor {
 		return granuleBBOX;
 	}
 
-	public void setGranuleBBOX(BoundingBox granuleBBOX) {
-		this.granuleBBOX = ReferencedEnvelope.reference(granuleBBOX);
-		if(this.granuleBBOX.getCoordinateReferenceSystem()==null)
-			throw new IllegalArgumentException("The provided boox has not CRS.");
-	}
-
 	public URL getGranuleUrl() {
 		return granuleUrl;
 	}
 
-	public void setGranuleUrl(URL granuleUrl) {
-		this.granuleUrl = granuleUrl;
+	public SimpleFeature getOriginator() {
+		return originator;
 	}
 	
 }

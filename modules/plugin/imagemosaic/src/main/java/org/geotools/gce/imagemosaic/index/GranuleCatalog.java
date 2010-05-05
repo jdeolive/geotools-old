@@ -24,6 +24,7 @@ import org.geotools.data.QueryCapabilities;
 import org.geotools.data.Transaction;
 import org.geotools.feature.SchemaException;
 import org.geotools.feature.visitor.FeatureCalc;
+import org.geotools.gce.imagemosaic.GranuleDescriptor;
 import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -41,7 +42,7 @@ public interface GranuleCatalog {
 	 *
 	 */
 	public interface GranuleCatalogVisitor{
-		public void visit(final SimpleFeature index, Object o);
+		public void visit(final GranuleDescriptor granule, Object o);
 	}
 
 	/**
@@ -53,11 +54,11 @@ public interface GranuleCatalog {
 	 *         {@link BoundingBox}.
 	 * @throws IOException 
 	 */
-	public abstract Collection<SimpleFeature> getGranules(final BoundingBox envelope)throws IOException;
+	public abstract Collection<GranuleDescriptor> getGranules(final BoundingBox envelope)throws IOException;
 	
-	public abstract Collection<SimpleFeature> getGranules(final Query q) throws IOException;
+	public abstract Collection<GranuleDescriptor> getGranules(final Query q) throws IOException;
 
-	public abstract Collection<SimpleFeature> getGranules()throws IOException;
+	public abstract Collection<GranuleDescriptor> getGranules()throws IOException;
 	
 	/**
 	 * Finds the features that intersects the provided {@link BoundingBox}:

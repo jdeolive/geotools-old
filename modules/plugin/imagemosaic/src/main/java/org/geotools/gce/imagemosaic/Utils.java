@@ -57,6 +57,7 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
 import javax.imageio.spi.ImageInputStreamSpi;
+import javax.imageio.spi.ImageReaderSpi;
 import javax.imageio.stream.ImageInputStream;
 import javax.media.jai.RasterFactory;
 import javax.media.jai.remote.SerializableRenderedImage;
@@ -374,7 +375,7 @@ public class Utils {
 					for (File propFile : properties) {
 
 						// load properties
-						if (null == Utils.loadMosaicProperties(DataUtilities.fileToURL(propFile), "location"))
+						if (null == Utils.loadMosaicProperties(DataUtilities.fileToURL(propFile), Utils.DEFAULT_LOCATION_ATTRIBUTE))
 							continue;
 
 						// look for a couple shapefile, mosaic properties file
@@ -541,8 +542,7 @@ public class Utils {
 		//
 		// resolutions levels
 		//			
-		int levelsNumber = Integer.parseInt(properties.getProperty("LevelsNum",
-				"1").trim());
+		int levelsNumber = Integer.parseInt(properties.getProperty("LevelsNum","1").trim());
 		retValue.setLevelsNum(levelsNumber);
 		if (!properties.containsKey("Levels")) {
 			if (LOGGER.isLoggable(Level.INFO))
@@ -583,8 +583,7 @@ public class Utils {
 		// time attribute is optional
 		//
 		if (properties.containsKey("TimeAttribute")) {
-			String timeAttribute = properties.getProperty("TimeAttribute")
-					.trim();
+			String timeAttribute = properties.getProperty("TimeAttribute").trim();
 			retValue.setTimeAttribute(timeAttribute);
 		}
 
@@ -592,8 +591,7 @@ public class Utils {
 		// elevation attribute is optional
 		//
 		if (properties.containsKey("ElevationAttribute")) {
-			String elevationAttribute = properties.getProperty(
-					"ElevationAttribute").trim();
+			String elevationAttribute = properties.getProperty("ElevationAttribute").trim();
 			retValue.setElevationAttribute(elevationAttribute);
 		}
 
@@ -605,8 +603,7 @@ public class Utils {
 			try {
 				retValue.setCaching(Boolean.valueOf(caching));
 			} catch (Throwable e) {
-				retValue.setCaching(Boolean
-						.valueOf(Utils.DEFAULT_CACHING_BEHAVIOR));
+				retValue.setCaching(Boolean.valueOf(Utils.DEFAULT_CACHING_BEHAVIOR));
 			}
 		}
 
@@ -624,8 +621,7 @@ public class Utils {
 		// need a color expansion?
 		// this is a newly added property we have to be ready to the case where
 		// we do not find it.
-		final boolean expandMe = Boolean.valueOf(properties.getProperty(
-				"ExpandToRGB", "false").trim());
+		final boolean expandMe = Boolean.valueOf(properties.getProperty("ExpandToRGB", "false").trim());
 		retValue.setExpandToRGB(expandMe);
 
 		//
@@ -1025,12 +1021,18 @@ public class Utils {
 	 * @param datastoreProperties
 	 * @param caching
 	 * @param create
+	 * @param suggestedSPI 
+	 * @param locationAttributeName 
+	 * @param sourceURL 
+	 * @param pathType 
 	 * @return
 	 * @throws IOException
 	 */
 	@SuppressWarnings("unchecked")
 	public static GranuleCatalog createDataStoreParamsFromPropertiesFile(
-			final URL datastoreProperties, boolean caching, boolean create)
+			final URL datastoreProperties, 
+			boolean caching, 
+			boolean create)
 			throws IOException {
 		// read the properties file
 		Properties properties = loadPropertiesFromURL(datastoreProperties);
@@ -1041,8 +1043,7 @@ public class Utils {
 		final String SPIClass = properties.getProperty("SPI");
 		try {
 			// create a datastore as instructed
-			final DataStoreFactorySpi spi = (DataStoreFactorySpi) Class
-					.forName(SPIClass).newInstance();
+			final DataStoreFactorySpi spi = (DataStoreFactorySpi) Class.forName(SPIClass).newInstance();
 
 			// get the params
 			final Map<String, Serializable> params = new HashMap<String, Serializable>();
@@ -1056,6 +1057,7 @@ public class Utils {
 					throw new IOException("Required parameter missing: "
 							+ p.toString());
 			}
+
 			return GranuleCatalogFactory.createGranuleIndex(params, caching,create, spi);
 		} catch (ClassNotFoundException e) {
 			final IOException ioe = new IOException();
@@ -1067,25 +1069,6 @@ public class Utils {
 			final IOException ioe = new IOException();
 			throw (IOException) ioe.initCause(e);
 		}
-	}
-
-	/**
-	 * 
-	 * @param url
-	 * @param caching
-	 * @param create
-	 * @return
-	 * @throws IOException
-	 */
-	public static GranuleCatalog createShapeFileStoreParamsFromURL(final URL url,
-			boolean caching, boolean create) throws IOException {
-		final Map<String, Serializable> params = new HashMap<String, Serializable>();
-		params.put(ShapefileDataStoreFactory.URLP.key, url);
-		if (url.getProtocol().equalsIgnoreCase("file"))
-			params.put(ShapefileDataStoreFactory.CREATE_SPATIAL_INDEX.key,
-					Boolean.TRUE);
-		params.put(ShapefileDataStoreFactory.MEMORY_MAPPED.key, Boolean.TRUE);
-		return GranuleCatalogFactory.createGranuleIndex(params, caching, create,caching ? SHAPE_SPI : INDEXED_SHAPE_SPI);
 	}
 
 	/**

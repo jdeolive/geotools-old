@@ -57,6 +57,7 @@ import org.geotools.factory.Hints;
 import org.geotools.feature.visitor.UniqueVisitor;
 import org.geotools.filter.SortByImpl;
 import org.geotools.gce.imagemosaic.index.GranuleCatalog;
+import org.geotools.gce.imagemosaic.index.GranuleCatalogFactory;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
 import org.opengis.coverage.grid.Format;
@@ -167,8 +168,6 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 			this.maxAllowedTiles= ((Integer)this.hints.get(Hints.MAX_ALLOWED_TILES));		
 
 
-		
-
 		// /////////////////////////////////////////////////////////////////////
 		//
 		// Check source
@@ -188,10 +187,12 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 		//
 		// Load properties file with information about levels and envelope
 		//
-		final boolean retValue = loadMosaicProperties();
-		if(!retValue)
-			throw new DataSourceException("Unable to create reader for this mosaicsince we could not parse the configuration.");
-		
+		final MosaicConfigurationBean configuration = loadMosaicProperties();
+		if(configuration==null)
+			throw new DataSourceException("Unable to create reader for this mosaic since we could not parse the configuration.");
+		//location attribute override
+		if(this.hints.containsKey(Hints.MOSAIC_LOCATION_ATTRIBUTE))
+			this.locationAttributeName=((String)this.hints.get(Hints.MOSAIC_LOCATION_ATTRIBUTE));	
 		
 		// 
 		//
@@ -200,17 +201,8 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 		//
 		// 
 		try{
-			final File sourceFile=DataUtilities.urlToFile(sourceURL);
-			final String extension= FilenameUtils.getExtension(sourceFile.getAbsolutePath());
-			if(extension.equalsIgnoreCase("shp"))
-			{
-				// shapefile, caching is always true by default
-				index=Utils.createShapeFileStoreParamsFromURL(sourceURL,cachingIndex,false);
-			}
-			else
-			{
-				index=Utils.createDataStoreParamsFromPropertiesFile(sourceURL,cachingIndex,false);
-			}
+			// create the index
+			index= GranuleCatalogFactory.createGranuleIndex(sourceURL, configuration);
 			
 			// error
 			if(index==null)
@@ -263,10 +255,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 
 			//
 			// location attribute field checks
-			//
-			//location attribute override
-			if(this.hints.containsKey(Hints.MOSAIC_LOCATION_ATTRIBUTE))
-				this.locationAttributeName=((String)this.hints.get(Hints.MOSAIC_LOCATION_ATTRIBUTE));		
+			//	
 			if(this.locationAttributeName==null)
 			{
 				//get the first string
@@ -347,7 +336,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 	 * @throws UnsupportedEncodingException
 	 * @throws IOException
 	 */
-	private boolean loadMosaicProperties(){
+	private MosaicConfigurationBean loadMosaicProperties(){
 		// discern if we have a shapefile based index or a datastore based index
 		final File sourceFile=DataUtilities.urlToFile(sourceURL);
 		final String extension= FilenameUtils.getExtension(sourceFile.getAbsolutePath());
@@ -386,17 +375,12 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 							
 		}
 		// we did not find any good candidate for mosaic.properties file, this will signal it		
-		if(configuration==null)
-		{
-			if (LOGGER.isLoggable(Level.FINE))
-				LOGGER.fine("Unable to load configuration for this mosaic");
-			return false;
-		}
-		// load config
-		return extractProperties(configuration);
+		if(configuration!=null)
+			return extractProperties(configuration);
+		return configuration;
 	}
 
-	private boolean extractProperties(
+	private MosaicConfigurationBean extractProperties(
 			final MosaicConfigurationBean configuration) {
 
 		// resolutions levels
@@ -475,7 +459,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 		// caching for the index
 		cachingIndex=configuration.isCaching();
 		
-		return true;
+		return configuration;
 	}
 
 	/**
