@@ -16,6 +16,7 @@
  */
 package org.geotools.data.sqlserver;
 
+import java.io.IOException;
 import java.util.Map;
 
 import org.geotools.jdbc.JDBCDataStore;
@@ -65,4 +66,19 @@ public class SQLServerDataStoreFactory extends JDBCDataStoreFactory {
         super.setupParameters(parameters);
         parameters.put(DBTYPE.key, DBTYPE);
     }
+    
+    /**
+     *  Builds up the JDBC url in a jdbc:<database>://<host>:<port>;DatabaseName=<dbname>
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    protected String getJDBCUrl(Map params) throws IOException {
+        String url = super.getJDBCUrl(params);
+        String db = (String) DATABASE.lookUp(params);
+        if (db != null) {
+            url = url.substring(0, url.lastIndexOf("/")) + (db != null ? ";DatabaseName="+db : "");
+        }
+        return url;
+    }
+
 }
