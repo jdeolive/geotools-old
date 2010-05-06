@@ -319,42 +319,6 @@ class RasterLayerResponse{
 		private PlanarImage[] alphaChannels;
 
 		public void visit(GranuleDescriptor granuleDescriptor, Object o) {
-
-//			// Get location and envelope of the image to load.
-//			final SimpleFeature feature = (SimpleFeature) item;
-//			final String granuleLocation = (String) feature.getAttribute(rasterManager.getLocationAttribute());
-//			final ReferencedEnvelope granuleBBox = ReferencedEnvelope.reference(feature.getBounds());
-//			
-//
-//			// Load a granuleDescriptor from disk as requested.
-//			if (LOGGER.isLoggable(Level.FINE))
-//				LOGGER.fine("About to read image number " + granulesNumber);
-//
-//			// If the granuleDescriptor is not there, dump a message and continue
-//			final URL rasterFile = rasterManager.getPathType().resolvePath(parentLocation, granuleLocation);
-//			if (rasterFile == null) {
-//				return;
-//			}
-//			if (LOGGER.isLoggable(Level.FINE))
-//				LOGGER.fine("File found "+granuleLocation);
-//			
-//			// granuleDescriptor cache
-//			GranuleDescriptor granuleDescriptor=null;
-//			synchronized (rasterManager.granulesCache) {
-//				
-//				// Comment by Stefan Krueger
-//				// Before the File.toURI().toString was used as the cache key. For URL that potentially throws an URISystaxException and i used just toString()  
-//				
-//				if(rasterManager.granulesCache.containsKey(rasterFile.toString()))
-//				{
-//					granuleDescriptor=rasterManager.granulesCache.get(rasterFile.toString());
-//				}
-//				else
-//				{
-//					granuleDescriptor=new GranuleDescriptor(granuleBBox,rasterFile,rasterManager.parent.suggestedSPI);
-//					rasterManager.granulesCache.put(rasterFile.toString(),granuleDescriptor);
-//				}
-//			}
 			
 			//
 			// load raster data

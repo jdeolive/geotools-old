@@ -119,10 +119,13 @@ class RasterManager {
 	    
 	}
 	
-	class OverviewsController  {
+	static class OverviewsController  {
 		final ArrayList<org.geotools.gce.imagemosaic.RasterManager.OverviewLevel> resolutionsLevels = new ArrayList<OverviewLevel>();
-		
-		public OverviewsController() {
+	
+		public OverviewsController(
+        		final double []highestRes,
+        		final int numberOfOvervies,
+        		final double [][] overviewsResolution) {
 				
 			// notice that we assume what follows:
 			// -highest resolution image is at level 0.
@@ -423,11 +426,8 @@ class RasterManager {
 	private String coverageIdentifier;
 
 	
-	private double[] highestRes;
 	/** The hints to be used to produce this coverage */
 	private Hints hints;
-	private int numberOfOvervies;
-	private double[][] overviewsResolution;
 	// ////////////////////////////////////////////////////////////////////////
 	//
 	// Information obtained by the coverageRequest instance
@@ -477,12 +477,12 @@ class RasterManager {
         this.pathType=parent.pathType;
         
         //resolution values
-        highestRes= reader.getHighestRes();
-        numberOfOvervies=reader.getNumberOfOvervies();
-        overviewsResolution=reader.getOverviewsResolution();
         
         //instantiating controller for subsampling and overviews
-        overviewsController=new OverviewsController();
+        overviewsController=new OverviewsController(
+        		reader.getHighestRes(),
+        		reader.getNumberOfOvervies(),
+        		reader.getOverviewsResolution());
         decimationController= new DecimationController();
         try {
 			spatialDomainManager= new SpatialDomainManager();
