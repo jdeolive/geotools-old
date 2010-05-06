@@ -542,10 +542,10 @@ class RasterLayerResponse{
 	public RasterLayerResponse(final RasterLayerRequest request,
 			final RasterManager rasterManager) {
 		this.request = request;
-		coverageEnvelope = rasterManager.getCoverageEnvelope();
+		coverageEnvelope = rasterManager.spatialDomainManager.coverageEnvelope;
 		this.coverageFactory = rasterManager.getCoverageFactory();
 		this.rasterManager = rasterManager;
-		baseGridToWorld=rasterManager.getRaster2Model();
+		baseGridToWorld=rasterManager.spatialDomainManager.coverageGridToWorld2D;
 		finalTransparentColor=request.getOutputTransparentColor();
 		// are we doing multithreading?
 		multithreadingAllowed= request.isMultithreadingAllowed();
@@ -1090,7 +1090,7 @@ class RasterLayerResponse{
 
 
 		// DECIMATION ON READING
-		rasterManager.decimationController.performDecimation(imageChoice, readParams, request);
+		rasterManager.decimationController.performDecimation(imageChoice, readParams, request, rasterManager.overviewsController, rasterManager.spatialDomainManager);
 		return imageChoice;
 
 	}

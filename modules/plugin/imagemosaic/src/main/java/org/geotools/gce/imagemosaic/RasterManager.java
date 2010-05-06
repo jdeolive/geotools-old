@@ -47,10 +47,8 @@ import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.metadata.iso.extent.GeographicBoundingBoxImpl;
 import org.geotools.referencing.CRS;
-import org.geotools.util.SoftValueHashMap;
 import org.geotools.util.Utilities;
 import org.opengis.coverage.grid.GridCoverage;
-import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.geometry.BoundingBox;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.referencing.FactoryException;
@@ -63,10 +61,6 @@ class RasterManager {
 	/** Logger. */
 	private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(RasterManager.class);
 	
-	final SoftValueHashMap<String, GranuleDescriptor> granulesCache= new SoftValueHashMap<String, GranuleDescriptor>();
-	
-
-
 	/**
 	 * Simple support class for sorting overview resolutions
 	 * @author Andrea Aime
@@ -232,8 +226,12 @@ class RasterManager {
 	    }
 		
 	}
-	
-	class DecimationController  {
+	/**
+	 * 
+	 * @author Simone Giannecchini, GeoSolutions S.A.S.
+	 *
+	 */
+	static class  DecimationController  {
 		
 		public DecimationController() {
 
@@ -256,7 +254,9 @@ class RasterManager {
 		void performDecimation(
 				final int imageIndex,
 				final ImageReadParam readParameters, 
-				final RasterLayerRequest request) {
+				final RasterLayerRequest request,
+				final OverviewsController overviewsController,
+				final SpatialDomainManager spatialDomainManager) {
 			{
 		
 				// the read parameters cannot be null
@@ -330,12 +330,8 @@ class RasterManager {
 	 * @author Simone Giannecchini, GeoSolutions SAS
 	 *
 	 */
-	class SpatialDomainManager{
+	static class SpatialDomainManager{
 
-		public SpatialDomainManager() throws TransformException, FactoryException {
-			setBaseParameters();
-			prepareCoverageSpatialElements();
-		}
 		/** The base envelope 2D */
 		ReferencedEnvelope coverageBBox;
 		/** The CRS for the coverage */
@@ -356,6 +352,26 @@ class RasterManager {
 		MathTransform2D coverageGridToWorld2D;
 		/** The base grid range for the coverage */
 		 Rectangle coverageRasterArea;
+		 
+
+		public SpatialDomainManager(final GeneralEnvelope envelope,
+				final GridEnvelope2D coverageGridrange,
+				final CoordinateReferenceSystem crs,
+				final MathTransform coverageGridToWorld2D,
+				final OverviewsController overviewsController) throws TransformException, FactoryException {
+		    this.coverageEnvelope = envelope.clone();
+		    this.coverageRasterArea =coverageGridrange.clone();
+		    this.coverageCRS = crs;
+		    this.coverageGridToWorld2D = (MathTransform2D) coverageGridToWorld2D;
+		    this.coverageFullResolution = new double[2];
+		    final OverviewLevel highestLevel= overviewsController.resolutionsLevels.get(0);
+		    coverageFullResolution[0] = highestLevel.resolutionX;
+		    coverageFullResolution[1] = highestLevel.resolutionY;
+		    
+			prepareCoverageSpatialElements();
+		}
+			
+			
 		/**
 		 * Initialize the 2D properties (CRS and Envelope) of this coverage
 		 * @throws TransformException 
@@ -387,20 +403,7 @@ class RasterManager {
 		    }
 		    
 		}
-		/**
-		 * Set the main parameters of this coverage request, getting basic
-		 * information from the reader.
-		 */
-		private void setBaseParameters() {
-		    this.coverageEnvelope = RasterManager.this.getCoverageEnvelope().clone();
-		    this.coverageRasterArea =(( GridEnvelope2D)RasterManager.this.getCoverageGridrange());
-		    this.coverageCRS = RasterManager.this.getCoverageCRS();
-		    this.coverageGridToWorld2D = (MathTransform2D) RasterManager.this.getRaster2Model();
-		    this.coverageFullResolution = new double[2];
-		    final OverviewLevel highestLevel= RasterManager.this.overviewsController.resolutionsLevels.get(0);
-		    coverageFullResolution[0] = highestLevel.resolutionX;
-		    coverageFullResolution[1] = highestLevel.resolutionY;
-		}
+
 		
 		
 		
@@ -411,11 +414,6 @@ class RasterManager {
 	
 	/** Default {@link SampleModel}.*/
 	SampleModel defaultSM;
-	
-	/** The CRS of the input coverage */
-	private CoordinateReferenceSystem coverageCRS;
-	/** The base envelope related to the input coverage */
-	private GeneralEnvelope coverageEnvelope;
 	
 	/** The coverage factory producing a {@link GridCoverage} from an image */
 	private GridCoverageFactory coverageFactory;
@@ -428,15 +426,7 @@ class RasterManager {
 	
 	/** The hints to be used to produce this coverage */
 	private Hints hints;
-	// ////////////////////////////////////////////////////////////////////////
-	//
-	// Information obtained by the coverageRequest instance
-	//
-	// ////////////////////////////////////////////////////////////////////////
-	/** The coverage grid to world transformation */
-	private MathTransform raster2Model;
 	OverviewsController overviewsController;
-	private GridEnvelope coverageGridrange;
 	OverviewPolicy overviewPolicy;
 	DecimationController decimationController;
 	ImageMosaicReader parent;
@@ -468,10 +458,6 @@ class RasterManager {
         elevationAttribute=parent.elevationAttribute;
         coverageIdentifier=reader.getName();
         hints = reader.getHints();
-        coverageEnvelope = reader.getOriginalEnvelope();
-        coverageGridrange=reader.getOriginalGridRange();
-        coverageCRS = reader.getCrs();	 
-        raster2Model = reader.getOriginalGridToWorld(PixelInCell.CELL_CENTER);
         this.coverageIdentifier =reader.getName();
         this.coverageFactory = reader.getGridCoverageFactory();
         this.pathType=parent.pathType;
@@ -485,7 +471,12 @@ class RasterManager {
         		reader.getOverviewsResolution());
         decimationController= new DecimationController();
         try {
-			spatialDomainManager= new SpatialDomainManager();
+			spatialDomainManager= new SpatialDomainManager(
+					reader.getOriginalEnvelope(),
+					(GridEnvelope2D)reader.getOriginalGridRange(),
+					reader.getCrs(),
+					reader.getOriginalGridToWorld(PixelInCell.CELL_CENTER),
+					overviewsController);
 		} catch (TransformException e) {
 			throw new DataSourceException(e);
 		} catch (FactoryException e) {
@@ -643,25 +634,8 @@ class RasterManager {
 		return hints;
 	}
 
-	public CoordinateReferenceSystem getCoverageCRS() {
-		return coverageCRS;
-	}
-
-	public GeneralEnvelope getCoverageEnvelope() {
-		return coverageEnvelope;
-	}
-
 	public GridCoverageFactory getCoverageFactory() {
 		return coverageFactory;
-	}
-
-	public MathTransform getRaster2Model() {
-		return raster2Model;
-	}
-
-	
-	public GridEnvelope getCoverageGridrange() {
-		return coverageGridrange;
 	}
 
 }
