@@ -494,7 +494,10 @@ class RasterManager {
 	 * that falls within a hole in the mosaic.
 	 */
 	private void loadSampleImage() {
-
+	    if (this.parent.sourceURL == null) {
+	        //TODO: I need to define the sampleImage somehow for the ImageMosaicDescriptor case
+	        return;
+	    }
 		
 			final URL baseURL=this.parent.sourceURL;
 			final File baseFile= DataUtilities.urlToFile(baseURL);

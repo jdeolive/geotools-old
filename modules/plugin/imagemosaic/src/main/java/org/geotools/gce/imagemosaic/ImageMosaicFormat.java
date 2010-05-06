@@ -43,10 +43,12 @@ import org.geotools.data.DataAccessFactory.Param;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.Hints;
+import org.geotools.gce.imagemosaic.catalog.GranuleCatalog;
 import org.geotools.parameter.DefaultParameterDescriptor;
 import org.geotools.parameter.DefaultParameterDescriptorGroup;
 import org.geotools.parameter.ParameterGroup;
 import org.geotools.util.Converters;
+import org.geotools.util.Utilities;
 import org.opengis.coverage.grid.Format;
 import org.opengis.coverage.grid.GridCoverageReader;
 import org.opengis.coverage.grid.GridCoverageWriter;
@@ -208,8 +210,50 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
      * @see org.geotools.data.coverage.grid.AbstractGridFormat#accepts(Object input)
      */
     @SuppressWarnings("unchecked")
-	public boolean accepts( Object source ) {
-        try {
+    public boolean accepts( Object source ) {
+        Utilities.ensureNonNull("source", source);
+            if (source instanceof ImageMosaicDescriptor){
+                return checkDescriptor((ImageMosaicDescriptor)source);
+            } else {
+                return checkForUrl(source);
+            }
+    }
+            
+    /**
+     * Checks that the provided {@link ImageMosaicDescriptor} is well formed.
+     *             
+     * @param source
+     * @return 
+     */
+    private boolean checkDescriptor(final ImageMosaicDescriptor source) {
+        //TODO: improve checks
+        final GranuleCatalog catalog = source.getCatalog();
+        final MosaicConfigurationBean configuration = source.getConfiguration();
+        if (configuration == null) {
+            if (LOGGER.isLoggable(Level.FINE)) {
+                LOGGER.fine("Mosaic configuration is missing");
+            }
+            return false;
+        }
+        if (configuration.getLevels() == null) {
+            if (LOGGER.isLoggable(Level.FINE)) {
+                LOGGER.fine("resolution leves is unavailable ");
+            }
+
+            return false;
+        }
+        if (catalog == null) {
+            if (LOGGER.isLoggable(Level.FINE)) {
+                LOGGER.fine("Granule Catalog is unavailable ");
+            }
+            return false;
+        }
+        return true;
+    }
+
+    private boolean checkForUrl( Object source ) {
+         try {
+            
             URL sourceURL = Utils.checkSource(source);
             if(sourceURL==null)
             	return false;

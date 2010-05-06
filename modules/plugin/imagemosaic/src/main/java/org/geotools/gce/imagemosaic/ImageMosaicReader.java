@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -60,6 +61,7 @@ import org.geotools.gce.imagemosaic.catalog.GranuleCatalog;
 import org.geotools.gce.imagemosaic.catalog.GranuleCatalogFactory;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
+import org.geotools.util.Utilities;
 import org.opengis.coverage.grid.Format;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.coverage.grid.GridCoverageReader;
@@ -103,7 +105,7 @@ import org.opengis.referencing.operation.MathTransform;
 @SuppressWarnings("deprecation")
 public final class ImageMosaicReader extends AbstractGridCoverage2DReader implements GridCoverageReader, GridCoverageWriter {
 
-	/** Logger. */
+        /** Logger. */
 	private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(ImageMosaicReader.class);
 
 	final static ExecutorService multiThreadedLoader= new ThreadPoolExecutor(4,8,30,TimeUnit.SECONDS,new LinkedBlockingQueue<Runnable>());
@@ -116,10 +118,8 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 	URL sourceURL;
 
 	boolean expandMe;
-
 	
 	PathType pathType;
-
 
 	String locationAttributeName="location";
 
@@ -179,7 +179,43 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 				LOGGER.log(Level.WARNING, ex.getLocalizedMessage(), ex);
 			throw new DataSourceException(ex);
 		}
-		this.source = source;		
+		this.source = source;
+		if (source instanceof ImageMosaicDescriptor) {
+		    initReaderFromDescriptor((ImageMosaicDescriptor) source, uHints);
+		} else {
+		    initReaderFromURL(source, uHints);
+		}
+	}
+	
+	/**
+	 * Init this {@link ImageMosaicReader} using the provided {@link ImageMosaicDescriptor} as source. 
+	 * @param source
+	 * @param uHints
+	 * @throws DataSourceException
+	 */
+    private void initReaderFromDescriptor(final ImageMosaicDescriptor source, final Hints uHints) throws DataSourceException {
+        Utilities.ensureNonNull("source", source);
+        final MosaicConfigurationBean configuration = source.getConfiguration();
+        if (configuration == null) {
+            throw new DataSourceException("Unable to create reader for this mosaic since we could not parse the configuration.");
+        }
+        extractProperties(configuration);
+        index = source.getCatalog();
+        if (index == null) {
+            throw new DataSourceException("Unable to create reader for this mosaic since the inner catalog is null.");
+        }
+        setGridGeometry(index);
+        
+    }
+
+    /**
+     * Init this {@link ImageMosaicReader} using the provided object as a source referring to an {@link URL}. 
+     * 
+     * @param source
+     * @param uHints
+     * @throws DataSourceException
+     */
+    private void initReaderFromURL(final Object source, final Hints hints) throws MalformedURLException, DataSourceException {
 		this.sourceURL=Utils.checkSource(source);
 		if(this.sourceURL==null)
 			throw new DataSourceException("This plugin accepts File, URL or String. The string may describe a File or an URL");
@@ -200,9 +236,9 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 		// reused
 		//
 		// 
-		try{
+		try {
 			// create the index
-			index= GranuleCatalogFactory.createGranuleIndex(sourceURL, configuration);
+			index= GranuleCatalogFactory.createGranuleCatalog(sourceURL, configuration);
 			
 			// error
 			if(index==null)
@@ -216,43 +252,25 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 			if (type==null)
 				throw new IllegalArgumentException("Problems when opening the index, no typenames for the schema are defined");
 			
-			//
-			// save the bbox and prepare otherinfo
-			//
-			final BoundingBox bounds = index.getBounds();
-			if(bounds.isEmpty())
-				throw new IllegalArgumentException("Cannot create a mosaic out of an empty index");
-			this.originalEnvelope=new GeneralEnvelope(bounds);
-			// original gridrange (estimated)
-			originalGridRange = new GridEnvelope2D(
-					new Rectangle(
-							(int) Math.round(originalEnvelope.getSpan(0)/ highestRes[0]), 
-							(int) Math.round(originalEnvelope.getSpan(1)/ highestRes[1])
-							)
-					);
-			final GridToEnvelopeMapper geMapper= new GridToEnvelopeMapper(originalGridRange,originalEnvelope);
-			geMapper.setPixelAnchor(PixelInCell.CELL_CENTER);
-			raster2Model= geMapper.createTransform();			
-
-			//
-			// get the crs if able to
-			//
-			final Object tempCRS = this.hints.get(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM);
-			if (tempCRS != null) {
-				this.crs = (CoordinateReferenceSystem) tempCRS;
-				LOGGER.log(Level.WARNING, "Using forced coordinate reference system "+crs.toWKT().toString());
-			} else {
-				final CoordinateReferenceSystem tempcrs = type.getGeometryDescriptor().getCoordinateReferenceSystem();
-				if (tempcrs == null) {
-					// use the default crs
-					crs = AbstractGridFormat.getDefaultCRS();
-					LOGGER.log(Level.WARNING,"Unable to find a CRS for this coverage, using a default one: "+crs.toWKT());
-				} else
-					crs = tempcrs;
-			}
-	
-
-
+			setGridGeometry(index);
+			
+                        //
+                        // get the crs if able to
+                        //
+                        final Object tempCRS = this.hints.get(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM);
+                        if (tempCRS != null) {
+                            this.crs = (CoordinateReferenceSystem) tempCRS;
+                            LOGGER.log(Level.WARNING, "Using forced coordinate reference system " + crs.toWKT().toString());
+                        } else {
+                            final CoordinateReferenceSystem tempcrs = type.getGeometryDescriptor().getCoordinateReferenceSystem();
+                            if (tempcrs == null) {
+                                // use the default crs
+                                crs = AbstractGridFormat.getDefaultCRS();
+                                LOGGER.log(Level.WARNING, "Unable to find a CRS for this coverage, using a default one: " + crs.toWKT());
+                            } else
+                                crs = tempcrs;
+                        }
+			
 			//
 			// location attribute field checks
 			//	
@@ -297,7 +315,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 				throw new DataSourceException("The provided name for the timeAttribute attribute is invalid.");			
 			
 			// creating the raster manager
-			rasterManager= new RasterManager(this);
+			rasterManager = new RasterManager(this);
 		}
 		catch (Throwable e) {
 			try {
@@ -329,7 +347,30 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 		
 	}
 
-	/**
+	private void setGridGeometry (final GranuleCatalog index) {
+	    Utilities.ensureNonNull("index", index);
+	    //
+            // save the bbox and prepare otherinfo
+            //
+            final BoundingBox bounds = index.getBounds();
+            if(bounds.isEmpty()) {
+                    throw new IllegalArgumentException("Cannot create a mosaic out of an empty index");
+            }
+            this.originalEnvelope=new GeneralEnvelope(bounds);
+            
+            // original gridrange (estimated)
+            originalGridRange = new GridEnvelope2D(
+                            new Rectangle(
+                                            (int) Math.round(originalEnvelope.getSpan(0)/ highestRes[0]), 
+                                            (int) Math.round(originalEnvelope.getSpan(1)/ highestRes[1])
+                                            )
+                            );
+            final GridToEnvelopeMapper geMapper = new GridToEnvelopeMapper(originalGridRange, originalEnvelope);
+            geMapper.setPixelAnchor(PixelInCell.CELL_CENTER);
+            raster2Model = geMapper.createTransform();                       
+        }
+
+        /**
 	 * Loads the properties file that contains useful information about this
 	 * coverage.
 	 * 
@@ -380,22 +421,21 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 		return configuration;
 	}
 
-	private MosaicConfigurationBean extractProperties(
-			final MosaicConfigurationBean configuration) {
+	private MosaicConfigurationBean extractProperties(final MosaicConfigurationBean configuration) {
 
 		// resolutions levels
-		numOverviews = configuration.getLevelsNum()-1;
+		numOverviews = configuration.getLevelsNum() - 1;
 		final double[][] resolutions = configuration.getLevels();
 		overViewResolutions = numOverviews >= 1 ? new double[numOverviews][2]: null;
 		highestRes = new double[2];
 		highestRes[0] = resolutions[0][0];
-		highestRes[1] =resolutions[0][1];
+		highestRes[1] = resolutions[0][1];
 
 		if (LOGGER.isLoggable(Level.FINE))
 			LOGGER.fine(new StringBuilder("Highest res ").append(highestRes[0])
 					.append(" ").append(highestRes[1]).toString());
 
-		if(numOverviews>0){
+		if (numOverviews > 0){
 	   		for (int i = 0; i < numOverviews; i++) {     			
 				overViewResolutions[i][0] = resolutions[i+1][0];
 				overViewResolutions[i][1] = resolutions[i+1][1];
@@ -412,17 +452,16 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 
 
 		// absolute or relative path
-		pathType =configuration.isAbsolutePath()?PathType.ABSOLUTE:PathType.RELATIVE;
+		pathType = configuration.isAbsolutePath()?PathType.ABSOLUTE:PathType.RELATIVE;
 		
 		//
 		// location attribute
 		//
-		locationAttributeName=configuration.getLocationAttribute();
-		
+		locationAttributeName = configuration.getLocationAttribute();
 		
 		// suggested SPI
-		final String suggestedSPIClass= configuration.getSuggestedSPI();
-		if(suggestedSPIClass!=null){
+		final String suggestedSPIClass = configuration.getSuggestedSPI();
+		if (suggestedSPIClass != null){
 			try {
 				final Class<?> clazz=Class.forName(suggestedSPIClass);
 				if(clazz.newInstance() instanceof ImageReaderSpi)
@@ -445,19 +484,19 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 		}
 		
 		// time param
-		final String timeAttribute= configuration.getTimeAttribute();
-		if(timeAttribute!=null)
-			this.timeAttribute=timeAttribute;
+		final String timeAttribute = configuration.getTimeAttribute();
+		if(timeAttribute != null)
+			this.timeAttribute = timeAttribute;
 		
 		
 		// elevation param
-		final String elevationAttribute= configuration.getElevationAttribute();
-		if(elevationAttribute!=null)
-			this.elevationAttribute=elevationAttribute;		
+		final String elevationAttribute = configuration.getElevationAttribute();
+		if(elevationAttribute != null)
+			this.elevationAttribute = elevationAttribute;		
 		
 
 		// caching for the index
-		cachingIndex=configuration.isCaching();
+		cachingIndex = configuration.isCaching();
 		
 		return configuration;
 	}
@@ -493,8 +532,12 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 	public GridCoverage2D read(GeneralParameterValue[] params) throws IOException {
 
 		if (LOGGER.isLoggable(Level.FINE)) {
-			LOGGER.fine("Reading mosaic from " + sourceURL.toString());
-			LOGGER.fine(new StringBuffer("Highest res ").append(highestRes[0])
+    		    if (sourceURL != null) {
+    			LOGGER.fine("Reading mosaic from " + sourceURL.toString());
+    		    } else {
+    		        LOGGER.fine("Reading mosaic");
+    		    }
+		    LOGGER.fine(new StringBuffer("Highest res ").append(highestRes[0])
 					.append(" ").append(highestRes[1]).toString());
 		}
 		//

@@ -25,6 +25,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
@@ -432,6 +433,30 @@ public class GranuleDescriptor {
 					reader.dispose();
 			}
 		}
+	}
+	
+	public GranuleDescriptor(
+	        final String granuleLocation,
+                final BoundingBox granuleBBox, 
+                final ImageReaderSpi suggestedSPI) {
+
+            // If the granuleDescriptor is not there, dump a message and continue
+            URL rasterFile = null;
+            
+            try {
+                rasterFile = new URL(granuleLocation);
+            } catch (MalformedURLException e) {
+            }
+            
+            if (rasterFile == null) {
+                    return;
+            }
+            if (LOGGER.isLoggable(Level.FINE))
+                    LOGGER.fine("File found "+granuleLocation);
+    
+            this.originator = null;
+            init(granuleBBox,rasterFile,suggestedSPI);
+        
 	}
 	
 	public GranuleDescriptor(

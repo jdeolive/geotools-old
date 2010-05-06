@@ -1250,7 +1250,7 @@ public class CatalogBuilder implements Runnable {
 				// create a datastore as instructed
 				final DataStoreFactorySpi spi = (DataStoreFactorySpi) Class.forName(SPIClass).newInstance();
 				final Map<String, Serializable> params = Utils.createDataStoreParamsFromPropertiesFile(properties,spi);
-				catalog=GranuleCatalogFactory.createGranuleIndex(params,false,true, spi);
+				catalog=GranuleCatalogFactory.createGranuleCatalog(params,false,true, spi);
 			} catch (ClassNotFoundException e) {
 				final IOException ioe = new IOException();
 				throw (IOException) ioe.initCause(e);
@@ -1271,7 +1271,7 @@ public class CatalogBuilder implements Runnable {
 			if(file.getProtocol().equalsIgnoreCase("file"))
 				params.put(ShapefileDataStoreFactory.CREATE_SPATIAL_INDEX.key, Boolean.TRUE);
 			params.put(ShapefileDataStoreFactory.MEMORY_MAPPED.key, Boolean.TRUE);
-			catalog= GranuleCatalogFactory.createGranuleIndex(params,false,true, Utils.SHAPE_SPI);
+			catalog= GranuleCatalogFactory.createGranuleCatalog(params,false,true, Utils.SHAPE_SPI);
 		}
 	
 		//

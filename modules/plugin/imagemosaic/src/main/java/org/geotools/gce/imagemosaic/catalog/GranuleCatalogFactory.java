@@ -54,12 +54,12 @@ public abstract class GranuleCatalogFactory {
 	}
 	
 
-	public static GranuleCatalog createGranuleIndex(final  Map<String, Serializable> params, final boolean caching, final boolean create, final DataStoreFactorySpi spi){
+	public static GranuleCatalog createGranuleCatalog(final  Map<String, Serializable> params, final boolean caching, final boolean create, final DataStoreFactorySpi spi){
 		//TODO @todo this is a temporary hack before we have an even stupid SPI mechanism here
 		return caching?new STRTreeGranuleCatalog(params,spi):new GTDataStoreGranuleCatalog(params,create,spi);	
 	}
 
-	public static GranuleCatalog createGranuleIndex(
+	public static GranuleCatalog createGranuleCatalog(
 			final URL sourceURL,
 			final MosaicConfigurationBean configuration){
 		final File sourceFile=DataUtilities.urlToFile(sourceURL);

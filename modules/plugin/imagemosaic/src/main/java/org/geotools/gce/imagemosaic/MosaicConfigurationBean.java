@@ -17,7 +17,10 @@
 package org.geotools.gce.imagemosaic;
 
 import java.awt.image.IndexColorModel;
+import java.lang.reflect.InvocationTargetException;
 
+import org.apache.commons.beanutils.BeanUtils;
+import org.geotools.util.Utilities;
 
 /**
  * Very simple bean to hold the configuration of the mosaic.
@@ -30,6 +33,20 @@ public class MosaicConfigurationBean {
 	public MosaicConfigurationBean() {
 		
 	}
+	
+	public MosaicConfigurationBean(final MosaicConfigurationBean that) {
+            Utilities.ensureNonNull("MosaicConfigurationBean", that);
+            try {
+                    BeanUtils.copyProperties(this, that);
+            } catch (IllegalAccessException e) {
+                    final IllegalArgumentException iae= new IllegalArgumentException(e);
+                    throw iae;
+            } catch (InvocationTargetException e) {
+                    final IllegalArgumentException iae= new IllegalArgumentException(e);
+                    throw iae;
+            }
+        }
+	
 	/**
 	 * <code>true</code> it tells us if the mosaic points to absolute paths or to relative ones. (in case of <code>false</code>).
 	 */
@@ -131,8 +148,4 @@ public class MosaicConfigurationBean {
 	public void setCaching(boolean caching) {
 		this.caching = caching;
 	}
-	
-	
-
-
 }
