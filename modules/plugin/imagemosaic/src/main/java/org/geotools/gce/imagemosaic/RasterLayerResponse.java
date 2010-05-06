@@ -59,6 +59,7 @@ import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DefaultQuery;
+import org.geotools.data.Query;
 import org.geotools.data.QueryCapabilities;
 import org.geotools.factory.Hints;
 import org.geotools.feature.visitor.MaxVisitor;
@@ -749,7 +750,7 @@ class RasterLayerResponse{
 			final boolean hasTime=(times!=null&&times.size()>0);
 			final boolean hasElevation=!Double.isNaN(elevation);
 
-			DefaultQuery query= new DefaultQuery(rasterManager.index.getType().getTypeName());
+			Query query= new DefaultQuery(rasterManager.index.getType().getTypeName());
 			final Filter bbox=Utils.FILTER_FACTORY.bbox(Utils.FILTER_FACTORY.property(rasterManager.index.getType().getGeometryDescriptor().getName()),mosaicBBox);
 			query.setFilter( bbox);
 			

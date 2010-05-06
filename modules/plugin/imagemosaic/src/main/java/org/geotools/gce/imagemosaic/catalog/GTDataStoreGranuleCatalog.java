@@ -54,9 +54,9 @@ import org.geotools.filter.visitor.DefaultFilterVisitor;
 import org.geotools.gce.imagemosaic.GranuleDescriptor;
 import org.geotools.gce.imagemosaic.ImageMosaicReader;
 import org.geotools.gce.imagemosaic.PathType;
-import org.geotools.gce.imagemosaic.Utils;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.util.NullProgressListener;
+import org.geotools.util.Utilities;
 import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -147,8 +147,8 @@ class GTDataStoreGranuleCatalog implements GranuleCatalog {
 			final Map<String, Serializable> params, 
 			final boolean create, 
 			final DataStoreFactorySpi spi) {
-		Utils.ensureNonNull("params",params);
-		Utils.ensureNonNull("spi",spi);
+		Utilities.ensureNonNull("params",params);
+		Utilities.ensureNonNull("spi",spi);
 		this.spi=spi;
 		
 		try{
@@ -234,7 +234,7 @@ class GTDataStoreGranuleCatalog implements GranuleCatalog {
 	 * @see org.geotools.gce.imagemosaic.FeatureIndex#findFeatures(com.vividsolutions.jts.geom.Envelope)
 	 */
 	public List<GranuleDescriptor> getGranules(final BoundingBox envelope) throws IOException {
-		Utils.ensureNonNull("envelope",envelope);
+		Utilities.ensureNonNull("envelope",envelope);
 		final Query q= new Query(typeName);
 		Filter filter = ff.bbox( ff.property( geometryPropertyName ), ReferencedEnvelope.reference(envelope) );
 		q.setFilter(filter);
@@ -246,7 +246,7 @@ class GTDataStoreGranuleCatalog implements GranuleCatalog {
 	 * @see org.geotools.gce.imagemosaic.FeatureIndex#findFeatures(com.vividsolutions.jts.geom.Envelope, com.vividsolutions.jts.index.ItemVisitor)
 	 */
 	public void  getGranules(final BoundingBox envelope, final GranuleCatalogVisitor visitor) throws IOException {
-		Utils.ensureNonNull("envelope",envelope);
+		Utilities.ensureNonNull("envelope",envelope);
 		final Query q= new Query(typeName);
 		Filter filter = ff.bbox( ff.property( geometryPropertyName ), ReferencedEnvelope.reference(envelope) );
 		q.setFilter(filter);
@@ -280,7 +280,7 @@ class GTDataStoreGranuleCatalog implements GranuleCatalog {
 	}
 
 	public int removeGranules(final Query query) {
-		Utils.ensureNonNull("query",query);
+		Utilities.ensureNonNull("query",query);
 		final Lock lock=rwLock.writeLock();
 		try{
 			lock.lock();
@@ -316,7 +316,7 @@ class GTDataStoreGranuleCatalog implements GranuleCatalog {
 	}
 	
 	public void addGranules(final Collection<SimpleFeature> granules, final Transaction transaction) throws IOException {
-		Utils.ensureNonNull("granuleMetadata",granules);
+		Utilities.ensureNonNull("granuleMetadata",granules);
 		final Lock lock=rwLock.writeLock();
 		try{
 			lock.lock();
@@ -380,7 +380,7 @@ class GTDataStoreGranuleCatalog implements GranuleCatalog {
 
 	public void  getGranules(final Query q,final GranuleCatalogVisitor visitor)
 	throws IOException {
-		Utils.ensureNonNull("q",q);
+		Utilities.ensureNonNull("q",q);
 
 		SimpleFeatureCollection features=null;
 		final Lock lock=rwLock.readLock();
@@ -437,7 +437,7 @@ class GTDataStoreGranuleCatalog implements GranuleCatalog {
 	}
 
 	public List<GranuleDescriptor> getGranules(final Query q) throws IOException {
-		Utils.ensureNonNull("q",q);
+		Utilities.ensureNonNull("q",q);
 
 		FeatureIterator<SimpleFeature> it=null;
 		SimpleFeatureCollection features=null;
@@ -515,8 +515,8 @@ class GTDataStoreGranuleCatalog implements GranuleCatalog {
 	}
 
 	public void createType(String namespace, String typeName, String typeSpec) throws IOException, SchemaException {
-		Utils.ensureNonNull("typeName",typeName);
-		Utils.ensureNonNull("typeSpec",typeSpec);
+		Utilities.ensureNonNull("typeName",typeName);
+		Utilities.ensureNonNull("typeSpec",typeSpec);
 		final Lock lock=rwLock.writeLock();
 		try{
 			lock.lock();
@@ -534,7 +534,7 @@ class GTDataStoreGranuleCatalog implements GranuleCatalog {
 	}
 
 	public void createType(SimpleFeatureType featureType) throws IOException {
-		Utils.ensureNonNull("featureType",featureType);
+		Utilities.ensureNonNull("featureType",featureType);
 		final Lock lock=rwLock.writeLock();
 		try{
 			lock.lock();
@@ -550,8 +550,8 @@ class GTDataStoreGranuleCatalog implements GranuleCatalog {
 	}
 
 	public void createType(String identification, String typeSpec) throws SchemaException, IOException {
-		Utils.ensureNonNull("typeSpec",typeSpec);
-		Utils.ensureNonNull("identification",identification);
+		Utilities.ensureNonNull("typeSpec",typeSpec);
+		Utilities.ensureNonNull("identification",identification);
 		final Lock lock=rwLock.writeLock();
 		try{
 			lock.lock();

@@ -14,7 +14,7 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.gce.imagemosaic.indexbuilder;
+package org.geotools.gce.imagemosaic.catalogbuilder;
 
 import java.awt.color.ColorSpace;
 import java.awt.geom.AffineTransform;
@@ -87,6 +87,7 @@ import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.resources.coverage.CoverageUtilities;
+import org.geotools.util.Utilities;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.geometry.Envelope;
@@ -106,13 +107,13 @@ import com.vividsolutions.jts.geom.PrecisionModel;
  * 
  */
 @SuppressWarnings("unchecked")
-public class IndexBuilder implements Runnable {
+public class CatalogBuilder implements Runnable {
 
 
 	/** Default Logger * */
-	final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(IndexBuilder.class);
+	final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(CatalogBuilder.class);
 	
-	static class CommandLineIndexBuilderRunner extends CommandLine {
+	static class CommandLineCatalogBuilderRunner extends CommandLine {
 
 		@Option(description="This index must use absolute or relative path",mandatory=false,name="absolute")
 		private Boolean absolute;
@@ -135,7 +136,7 @@ public class IndexBuilder implements Runnable {
 		@Option(description="Default location attribute for this index",mandatory=false,name="locationAttribute")
 		private String locationAttribute = Utils.DEFAULT_LOCATION_ATTRIBUTE;
 
-		public CommandLineIndexBuilderRunner(String[] args) {
+		public CommandLineCatalogBuilderRunner(String[] args) {
 			super(args);
 			if(this.absolute==null)
 				this.absolute=Utils.DEFAULT_PATH_BEHAVIOR;
@@ -145,9 +146,9 @@ public class IndexBuilder implements Runnable {
 
 
 		public static void main(String args[]){
-			final CommandLineIndexBuilderRunner runner = new CommandLineIndexBuilderRunner(args);
+			final CommandLineCatalogBuilderRunner runner = new CommandLineCatalogBuilderRunner(args);
 			// prepare the configuration
-			final IndexBuilderConfiguration configuration= new IndexBuilderConfiguration();
+			final CatalogBuilderConfiguration configuration= new CatalogBuilderConfiguration();
 			configuration.setAbsolute(runner.absolute);
 			configuration.setIndexName(runner.indexName);
 			configuration.setRootMosaicDirectory(runner.rootMosaicDirectory);
@@ -162,7 +163,7 @@ public class IndexBuilder implements Runnable {
 			configuration.setIndexingDirectories(dirs);
 			
 			//prepare and run the index builder
-			final IndexBuilder builder= new IndexBuilder(configuration);		
+			final CatalogBuilder builder= new CatalogBuilder(configuration);		
 			builder.run();
 	  		
 		}
@@ -347,7 +348,7 @@ public class IndexBuilder implements Runnable {
 
 		@Override
 		protected boolean handleIsCancelled(File file, int depth,Collection results) throws IOException {			
-			return IndexBuilder.this.stop&&super.handleIsCancelled(file, depth, results);
+			return CatalogBuilder.this.stop&&super.handleIsCancelled(file, depth, results);
 		}
 
 		@Override
@@ -919,7 +920,7 @@ public class IndexBuilder implements Runnable {
 
 	private byte[][] defaultPalette = null;
 
-	private IndexBuilderConfiguration runConfiguration;
+	private CatalogBuilderConfiguration runConfiguration;
 
 	private ImageReaderSpi cachedSPI;
 
@@ -1052,12 +1053,12 @@ public class IndexBuilder implements Runnable {
 	 * @throws  
 	 * @throws IllegalArgumentException 
 	 */
-	public IndexBuilder(final IndexBuilderConfiguration configuration)  {
-		Utils.ensureNonNull("runConfiguration", configuration);
+	public CatalogBuilder(final CatalogBuilderConfiguration configuration)  {
+		Utilities.ensureNonNull("runConfiguration", configuration);
 		//check config
 		configuration.check();
 		
-		this.runConfiguration = new IndexBuilderConfiguration(configuration);
+		this.runConfiguration = new CatalogBuilderConfiguration(configuration);
 
 	}
 
@@ -1079,7 +1080,7 @@ public class IndexBuilder implements Runnable {
 	 * 
 	 * <p>
 	 * Make sure to call this method when you are not running the
-	 * {@link IndexBuilder} or bad things can happen. If it is running, please
+	 * {@link CatalogBuilder} or bad things can happen. If it is running, please
 	 * stop it first.
 	 */
 	public  void reset() {

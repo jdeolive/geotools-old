@@ -40,10 +40,10 @@ import org.geotools.feature.SchemaException;
 import org.geotools.feature.visitor.FeatureCalc;
 import org.geotools.gce.imagemosaic.GranuleDescriptor;
 import org.geotools.gce.imagemosaic.ImageMosaicReader;
-import org.geotools.gce.imagemosaic.Utils;
 import org.geotools.gce.imagemosaic.catalog.GTDataStoreGranuleCatalog.BBOXFilterExtractor;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.resources.coverage.FeatureUtilities;
+import org.geotools.util.Utilities;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
@@ -125,7 +125,7 @@ class STRTreeGranuleCatalog implements GranuleCatalog {
 	private GranuleCatalog originalIndex;
 	
 	public STRTreeGranuleCatalog(final Map<String,Serializable> params, DataStoreFactorySpi spi) {
-		Utils.ensureNonNull("params",params);
+		Utilities.ensureNonNull("params",params);
 		try{
 			originalIndex= new GTDataStoreGranuleCatalog(params,false,spi);
 		}
@@ -243,7 +243,7 @@ class STRTreeGranuleCatalog implements GranuleCatalog {
 	 */
 	@SuppressWarnings("unchecked")
 	public List<GranuleDescriptor> getGranules(final BoundingBox envelope) throws IOException {
-		Utils.ensureNonNull("envelope",envelope);
+		Utilities.ensureNonNull("envelope",envelope);
 		final Lock lock=rwLock.readLock();
 		try{
 			lock.lock();
@@ -259,8 +259,8 @@ class STRTreeGranuleCatalog implements GranuleCatalog {
 	 * @see org.geotools.gce.imagemosaic.FeatureIndex#findFeatures(com.vividsolutions.jts.geom.Envelope, com.vividsolutions.jts.index.ItemVisitor)
 	 */
 	public void getGranules(final BoundingBox envelope, final GranuleCatalogVisitor visitor) throws IOException {
-		Utils.ensureNonNull("envelope",envelope);
-		Utils.ensureNonNull("visitor",visitor);
+		Utilities.ensureNonNull("envelope",envelope);
+		Utilities.ensureNonNull("visitor",visitor);
 		final Lock lock=rwLock.readLock();
 		try{
 			lock.lock();
@@ -302,7 +302,7 @@ class STRTreeGranuleCatalog implements GranuleCatalog {
 
 	@SuppressWarnings("unchecked")
 	public List<GranuleDescriptor> getGranules(Query q) throws IOException {
-		Utils.ensureNonNull("q",q);
+		Utilities.ensureNonNull("q",q);
 		final Lock lock=rwLock.readLock();
 		try{
 			lock.lock();
@@ -357,7 +357,7 @@ class STRTreeGranuleCatalog implements GranuleCatalog {
 
 	public void getGranules(Query q, GranuleCatalogVisitor visitor)
 			throws IOException {
-		Utils.ensureNonNull("q",q);
+		Utilities.ensureNonNull("q",q);
 		final Lock lock=rwLock.readLock();
 		try{
 			lock.lock();

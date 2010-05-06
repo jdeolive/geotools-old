@@ -335,7 +335,7 @@ public class GranuleDescriptor {
 			buffer.append("scaleY:\t\t").append(scaleY).append("\n");
 			buffer.append("baseToLevelTransform:\t\t").append(baseToLevelTransform.toString()).append("\n");
 			buffer.append("gridToWorldTransform:\t\t").append(gridToWorldTransform.toString()).append("\n");
-			return super.toString();
+			return buffer.toString();
 		}
 		
 	}
@@ -742,7 +742,7 @@ public class GranuleDescriptor {
 			buffer.append("Description of level ").append(i++).append("\n");
 			buffer.append(granuleOverviewLevelDescriptor.toString()).append("\n");
 		}
-		return super.toString();
+		return buffer.toString();
 	}
 
 	public BoundingBox getGranuleBBOX() {

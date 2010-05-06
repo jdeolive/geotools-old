@@ -72,12 +72,10 @@ import org.geotools.data.DataAccessFactory.Param;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
-import org.geotools.gce.imagemosaic.catalog.GranuleCatalog;
-import org.geotools.gce.imagemosaic.catalog.GranuleCatalogFactory;
-import org.geotools.gce.imagemosaic.indexbuilder.IndexBuilder;
-import org.geotools.gce.imagemosaic.indexbuilder.IndexBuilderConfiguration;
-import org.geotools.gce.imagemosaic.indexbuilder.IndexBuilder.ExceptionEvent;
-import org.geotools.gce.imagemosaic.indexbuilder.IndexBuilder.ProcessingEvent;
+import org.geotools.gce.imagemosaic.catalogbuilder.CatalogBuilder;
+import org.geotools.gce.imagemosaic.catalogbuilder.CatalogBuilderConfiguration;
+import org.geotools.gce.imagemosaic.catalogbuilder.CatalogBuilder.ExceptionEvent;
+import org.geotools.gce.imagemosaic.catalogbuilder.CatalogBuilder.ProcessingEvent;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.image.ImageWorker;
 import org.geotools.metadata.iso.spatial.PixelTranslation;
@@ -85,6 +83,7 @@ import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.util.Converters;
+import org.geotools.util.Utilities;
 import org.opengis.filter.FilterFactory2;
 import org.opengis.geometry.BoundingBox;
 import org.opengis.metadata.extent.GeographicBoundingBox;
@@ -161,7 +160,7 @@ public class Utils {
 			final String wildcard, final boolean absolutePath) {
 
 		// create a mosaic index builder and set the relevant elements
-		final IndexBuilderConfiguration configuration = new IndexBuilderConfiguration();
+		final CatalogBuilderConfiguration configuration = new CatalogBuilderConfiguration();
 		configuration.setAbsolute(absolutePath);
 		configuration.setRootMosaicDirectory(location);
 		configuration.setIndexingDirectories(Arrays.asList(location));
@@ -212,12 +211,12 @@ public class Utils {
 		}
 
 		// create the builder
-		final IndexBuilder indexBuilder = new IndexBuilder(configuration);
+		final CatalogBuilder catalogBuilder = new CatalogBuilder(configuration);
 		// this is going to help us with catching exceptions and logging them
 		final Queue<Throwable> exceptions = new LinkedList<Throwable>();
 		try {
 
-			final IndexBuilder.ProcessingEventListener listener = new IndexBuilder.ProcessingEventListener() {
+			final CatalogBuilder.ProcessingEventListener listener = new CatalogBuilder.ProcessingEventListener() {
 
 				@Override
 				public void exceptionOccurred(ExceptionEvent event) {
@@ -236,13 +235,13 @@ public class Utils {
 				}
 
 			};
-			indexBuilder.addProcessingEventListener(listener);
-			indexBuilder.run();
+			catalogBuilder.addProcessingEventListener(listener);
+			catalogBuilder.run();
 		} catch (Throwable e) {
 			LOGGER.log(Level.SEVERE, "Unable to build mosaic", e);
 			return false;
 		} finally {
-			indexBuilder.dispose();
+			catalogBuilder.dispose();
 		}
 
 		// check that nothing bad happened
@@ -710,7 +709,7 @@ public class Utils {
 	 */
 	static ReferencedEnvelope getReferencedEnvelopeFromGeographicBoundingBox(
 			final GeographicBoundingBox geographicBBox) {
-		Utils.ensureNonNull("GeographicBoundingBox", geographicBBox);
+		Utilities.ensureNonNull("GeographicBoundingBox", geographicBBox);
 		return new ReferencedEnvelope(geographicBBox.getEastBoundLongitude(),
 				geographicBBox.getWestBoundLongitude(), geographicBBox
 						.getSouthBoundLatitude(), geographicBBox
@@ -781,24 +780,6 @@ public class Utils {
 
 	}
 
-	/**
-	 * Makes sure that an argument is non-null.
-	 * 
-	 * @param name
-	 *            Argument name.
-	 * @param object
-	 *            User argument.
-	 * @throws IllegalArgumentException
-	 *             if {@code object} is null.
-	 */
-	public static void ensureNonNull(final String name, final Object object)
-			throws NullPointerException {
-		if (object == null) {
-			throw new NullPointerException(Errors.format(
-					ErrorKeys.NULL_ARGUMENT_$1, name));
-		}
-	}
-
 	public static IOFileFilter excludeFilters(final IOFileFilter inputFilter,
 			IOFileFilter... filters) {
 		IOFileFilter retFilter = inputFilter;
@@ -823,7 +804,7 @@ public class Utils {
 	 *         if one cannot be found.
 	 */
 	static ImageReader getReader(final ImageInputStream inStream) {
-		ensureNonNull("inStream", inStream);
+		Utilities.ensureNonNull("inStream", inStream);
 		// get a reader
 		inStream.mark();
 		final Iterator<ImageReader> readersIt = ImageIO
@@ -860,8 +841,8 @@ public class Utils {
 	static Rectangle getDimension(final int imageIndex,
 			final ImageInputStream inStream, final ImageReader reader)
 			throws IOException {
-		ensureNonNull("inStream", inStream);
-		ensureNonNull("reader", reader);
+		Utilities.ensureNonNull("inStream", inStream);
+		Utilities.ensureNonNull("reader", reader);
 		if (imageIndex < 0)
 			throw new IllegalArgumentException(Errors.format(
 					ErrorKeys.INDEX_OUT_OF_BOUNDS_$1, imageIndex));
@@ -900,34 +881,6 @@ public class Utils {
 		if (inStream == null)
 			return null;
 		return inStream;
-	}
-
-	/**
-	 * Checks that the provided <code>dimensions</code> when intersected with
-	 * the source region used by the provided {@link ImageReadParam} instance
-	 * does not result in an empty {@link Rectangle}.
-	 * 
-	 * <p>
-	 * Input parameters cannot be null.
-	 * 
-	 * @param readParameters
-	 *            an instance of {@link ImageReadParam} for which we want to
-	 *            check the source region element.
-	 * @param dimensions
-	 *            an instance of {@link Rectangle} to use for the check.
-	 * @return <code>true</code> if the intersection is not empty,
-	 *         <code>false</code> otherwise.
-	 */
-	static boolean checkEmptySourceRegion(final ImageReadParam readParameters,
-			final Rectangle dimensions) {
-		ensureNonNull("readDimension", dimensions);
-		ensureNonNull("readP", readParameters);
-		final Rectangle sourceRegion = readParameters.getSourceRegion();
-		Rectangle.intersect(sourceRegion, dimensions, sourceRegion);
-		if (sourceRegion.isEmpty())
-			return true;
-		readParameters.setSourceRegion(sourceRegion);
-		return false;
 	}
 
 	/**
@@ -1163,66 +1116,75 @@ public class Utils {
 	 */
 	static final Color TRANSPARENT = new Color(0,0,0,0);
 	
-    /**
-     * Build a background values array using the same dataType of the input
-     * {@link SampleModel} (if available).
-     * 
-     * @param sampleModel
-     * @param backgroundValues
-     * @return
-     */
-    static Number[] getBackgroundValues(final SampleModel sampleModel, final double[] backgroundValues) {
-        Number[] values = null;
-        final int dataType = sampleModel != null ? sampleModel.getDataType()
-                : DataBuffer.TYPE_DOUBLE;
-        if (backgroundValues == null) {
-            switch (dataType) {
-            case DataBuffer.TYPE_BYTE:
-                values = new Byte[] { 0 };
-                break;
-            case DataBuffer.TYPE_SHORT:
-            case DataBuffer.TYPE_USHORT:
-                values = new Short[] { 0 };
-                break;
-            case DataBuffer.TYPE_INT:
-                values = new Integer[] { 0 };
-                break;
-            case DataBuffer.TYPE_FLOAT:
-                values = new Float[] { 0.0f };
-                break;
-            case DataBuffer.TYPE_DOUBLE:
-                values = new Double[] { 0.0d };
-                break;
-            }
-        } else {
-            switch (dataType) {
-            case DataBuffer.TYPE_BYTE:
-                // we have background values available
-                values = new Byte[backgroundValues.length];
-                break;
-            case DataBuffer.TYPE_SHORT:
-            case DataBuffer.TYPE_USHORT:
-                // we have background values available
-                values = new Short[backgroundValues.length];
-                break;
-            case DataBuffer.TYPE_INT:
-                // we have background values available
-                values = new Integer[backgroundValues.length];
-                break;
-            case DataBuffer.TYPE_FLOAT:
-                // we have background values available
-                values = new Float[backgroundValues.length];
-                break;
-            case DataBuffer.TYPE_DOUBLE:
-                // we have background values available
-                values = new Double[backgroundValues.length];
-                break;
-            }
-            for (int i = 0; i < values.length; i++)
-                values[i] = backgroundValues[i];
-        }
-        return values;
-    }
+	/** 
+	     * Build a background values array using the same dataType of the input {@link SampleModel} (if available). 
+	     * 
+	     * @param sampleModel
+	     * @param backgroundValues
+	     * @return
+	     */
+	    static Number[] getBackgroundValues(final SampleModel sampleModel, final double[] backgroundValues) {
+	        Number[] values = null;
+	        final int dataType = sampleModel != null ? sampleModel.getDataType() : DataBuffer.TYPE_DOUBLE;
+	        final int numBands=sampleModel.getNumBands();
+	        switch (dataType){
+	            case DataBuffer.TYPE_BYTE:
+	                values = new Byte[numBands];
+	                 if (backgroundValues == null){                          
+	                         Arrays.fill(values, Byte.valueOf((byte)0));
+	                 }
+	                 else{
+	                        //we have background values available
+	                     for (int i = 0; i < values.length; i++)
+	                         values[i] = i>=backgroundValues.length?Byte.valueOf((byte)backgroundValues[0]):Byte.valueOf((byte)backgroundValues[i]);
+	                     break;
+	                 }
+	            case DataBuffer.TYPE_SHORT:
+	            case DataBuffer.TYPE_USHORT:
+	                 values = new Short[numBands] ;
+	                 if (backgroundValues == null)
+	                         Arrays.fill(values, Short.valueOf((short)0));
+	                 else{
+	                        //we have background values available
+	                 values = new Short[backgroundValues.length];
+	                 for (int i = 0; i < values.length; i++)
+	                     values[i] = i>=backgroundValues.length?Short.valueOf((short)backgroundValues[0]):Short.valueOf((short)backgroundValues[i]);
+	                 break;
+	                 }              
+	            case DataBuffer.TYPE_INT:
+	                values = new Integer[numBands] ;
+	                 if (backgroundValues == null)
+	                         Arrays.fill(values, Integer.valueOf((int)0));
+	                         else{
+	                                //we have background values available
+	                        for (int i = 0; i < values.length; i++)
+	                                values[i] = i>=backgroundValues.length?Integer.valueOf((int)backgroundValues[0]):Integer.valueOf((int)backgroundValues[i]);
+	                        break;
+	                         }       
+	            case DataBuffer.TYPE_FLOAT:
+	                values = new Float[numBands] ;
+	                 if (backgroundValues == null)
+	                        Arrays.fill(values, Float.valueOf(0.f));
+	                 else{
+	                        //we have background values available
+	                     for (int i = 0; i < values.length; i++)
+	                         values[i] = i>=backgroundValues.length?Float.valueOf((float)backgroundValues[0]):Float.valueOf((float)backgroundValues[i]);
+	                     break;
+	                 }        
+	            case DataBuffer.TYPE_DOUBLE:
+	                values = new Double[numBands] ;
+	                 if (backgroundValues == null)
+	                        Arrays.fill(values, Double.valueOf(0.d));
+	                 else{
+	                        //we have background values available
+	                     values = new Double[backgroundValues.length];
+	                     for (int i = 0; i < values.length; i++)
+	                         values[i] = i>=backgroundValues.length?Double.valueOf((Double)backgroundValues[0]):Double.valueOf((Double)backgroundValues[i]);
+	                     break;
+	                 }      
+	            }
+	        return values;
+	    }
 
 	public static Map<String, Serializable> createDataStoreParamsFromPropertiesFile(
 			Properties properties, DataStoreFactorySpi spi) throws IOException {

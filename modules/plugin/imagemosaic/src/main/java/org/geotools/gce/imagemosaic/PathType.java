@@ -23,6 +23,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geotools.data.DataUtilities;
+import org.geotools.util.Utilities;
 
 /**
  * Enum that can be use to distinguish between relative paths and absolute paths
@@ -38,8 +39,8 @@ public enum PathType {
 		@Override
 		URL resolvePath(final String parentLocation,final  String location) {
 			// initial checks
-			Utils.ensureNonNull("parentLocation", parentLocation);
-			Utils.ensureNonNull("location", location);
+			Utilities.ensureNonNull("parentLocation", parentLocation);
+			Utilities.ensureNonNull("location", location);
 			if(LOGGER.isLoggable(Level.FINE))
 			{
 				final StringBuilder builder = new StringBuilder();
@@ -69,7 +70,7 @@ public enum PathType {
 //			File rasterFile= new File(parentLocation,location);
 //			if(!ImageMosaicUtils.checkFileReadable(rasterFile))
 //			{		
-//				if (LOGGER.isLoggable(GranuleOverviewLevelDescriptor.INFO))
+//				if (LOGGER.isLoggable(Level.INFO))
 //					LOGGER.info("Unable to read image for file "+ rasterFile.getAbsolutePath());
 //				
 //				return null;
@@ -86,7 +87,7 @@ public enum PathType {
 		@Override
 		URL resolvePath(final String parentLocation,final  String location) {
 
-			Utils.ensureNonNull("location", location);
+			Utilities.ensureNonNull("location", location);
 			if(LOGGER.isLoggable(Level.FINE))
 			{
 				final StringBuilder builder = new StringBuilder();
@@ -118,7 +119,7 @@ public enum PathType {
 //			File rasterFile= new File(location);
 //			if(!ImageMosaicUtils.checkFileReadable(rasterFile))
 //			{		
-//				if (LOGGER.isLoggable(GranuleOverviewLevelDescriptor.INFO))
+//				if (LOGGER.isLoggable(Level.INFO))
 //					LOGGER.info("Unable to read image for file "+ rasterFile.getAbsolutePath());
 //				return null;
 //				

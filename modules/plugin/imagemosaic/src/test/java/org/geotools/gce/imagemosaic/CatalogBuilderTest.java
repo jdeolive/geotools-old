@@ -28,11 +28,11 @@ import javax.media.jai.PlanarImage;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.gce.imagemosaic.indexbuilder.IndexBuilder;
-import org.geotools.gce.imagemosaic.indexbuilder.IndexBuilderConfiguration;
-import org.geotools.gce.imagemosaic.indexbuilder.IndexBuilder.ExceptionEvent;
-import org.geotools.gce.imagemosaic.indexbuilder.IndexBuilder.ProcessingEvent;
-import org.geotools.gce.imagemosaic.indexbuilder.IndexBuilder.ProcessingEventListener;
+import org.geotools.gce.imagemosaic.catalogbuilder.CatalogBuilder;
+import org.geotools.gce.imagemosaic.catalogbuilder.CatalogBuilderConfiguration;
+import org.geotools.gce.imagemosaic.catalogbuilder.CatalogBuilder.ExceptionEvent;
+import org.geotools.gce.imagemosaic.catalogbuilder.CatalogBuilder.ProcessingEvent;
+import org.geotools.gce.imagemosaic.catalogbuilder.CatalogBuilder.ProcessingEventListener;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.test.TestData;
 import org.junit.Assert;
@@ -40,16 +40,16 @@ import org.junit.Test;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.parameter.ParameterValue;
 /**
- * Testing {@link IndexBuilder} and its related subclasses.
+ * Testing {@link CatalogBuilder} and its related subclasses.
  * 
  * @author Simone Giannecchini, GeoSolutions SAS
  *
  *
- * @source $URL$
+ * @source $URL: http://svn.osgeo.org/geotools/trunk/modules/plugin/imagemosaic/src/test/java/org/geotools/gce/imagemosaic/CatalogBuilderTest.java $
  */
-public class IndexBuilderTest extends Assert {
+public class CatalogBuilderTest extends Assert {
 	
-	private final class IndexBuilderListener extends ProcessingEventListener{
+	private final class CatalogBuilderListener extends ProcessingEventListener{
 
 		@Override
 		public void exceptionOccurred(ExceptionEvent event) {
@@ -66,9 +66,9 @@ public class IndexBuilderTest extends Assert {
 
 	@Test
 //	@Ignore
-	public void indexBuilderConfiguration() throws FileNotFoundException, IOException, CloneNotSupportedException{
+	public void catalogBuilderConfiguration() throws FileNotFoundException, IOException, CloneNotSupportedException{
 		// create a stub configuration
-		final IndexBuilderConfiguration c1= new IndexBuilderConfiguration();
+		final CatalogBuilderConfiguration c1= new CatalogBuilderConfiguration();
 		c1.setAbsolute(true);
 		c1.setIndexName("index");
 		c1.setLocationAttribute("location");
@@ -77,7 +77,7 @@ public class IndexBuilderTest extends Assert {
 		assertNotNull(c1.toString());
 		
 		// create a second stub configuration
-		final IndexBuilderConfiguration c2= new IndexBuilderConfiguration();
+		final CatalogBuilderConfiguration c2= new CatalogBuilderConfiguration();
 		c2.setAbsolute(true);
 		c2.setIndexName("index");
 		c2.setLocationAttribute("location");
@@ -86,22 +86,22 @@ public class IndexBuilderTest extends Assert {
 		assertTrue(c1.equals(c2));
 		assertEquals(c1.hashCode(), c2.hashCode());
 		
-		IndexBuilderConfiguration c3 = c2.clone();
+		CatalogBuilderConfiguration c3 = c2.clone();
 		assertTrue(c3.equals(c2));
 		assertEquals(c3.hashCode(), c2.hashCode());
 		
 		//check errors
-		final IndexBuilderConfiguration c4= new IndexBuilderConfiguration();
+		final CatalogBuilderConfiguration c4= new CatalogBuilderConfiguration();
 		assertNotNull(c4.toString());
 		
 	}
 	
 	@Test
 //	@Ignore
-	public void buildIndex() throws FileNotFoundException, IOException{
+	public void buildCatalog() throws FileNotFoundException, IOException{
 		
 		//build a relative index and then make it run
-		IndexBuilderConfiguration c1= new IndexBuilderConfiguration();
+		CatalogBuilderConfiguration c1= new CatalogBuilderConfiguration();
 		c1.setAbsolute(true);
 		c1.setIndexName("shpindex");
 		c1.setLocationAttribute("location");
@@ -110,8 +110,8 @@ public class IndexBuilderTest extends Assert {
 		c1.setIndexingDirectories(Arrays.asList(TestData.file(this,"/overview/0").toString()));
 		assertNotNull(c1.toString());		
 		//build the index
-		IndexBuilder builder= new IndexBuilder(c1);
-		builder.addProcessingEventListener(new IndexBuilderListener());
+		CatalogBuilder builder= new CatalogBuilder(c1);
+		builder.addProcessingEventListener(new CatalogBuilderListener());
 		builder.run();
 		final File relativeMosaic=TestData.file(this,"/overview/"+c1.getIndexName()+".shp");
 		assertTrue(relativeMosaic.exists());
@@ -143,7 +143,7 @@ public class IndexBuilderTest extends Assert {
 
 		
 		//build an absolute index and then make it run
-		c1= new IndexBuilderConfiguration();
+		c1= new CatalogBuilderConfiguration();
 		c1.setAbsolute(true);
 		c1.setIndexName("shpindex_absolute");
 		c1.setLocationAttribute("location");
@@ -152,8 +152,8 @@ public class IndexBuilderTest extends Assert {
 		c1.setIndexingDirectories(Arrays.asList(TestData.file(this,"/overview/0").toString()));
 		assertNotNull(c1.toString());		
 		//build the index
-		builder= new IndexBuilder(c1);
-		builder.addProcessingEventListener(new IndexBuilderListener());
+		builder= new CatalogBuilder(c1);
+		builder.addProcessingEventListener(new CatalogBuilderListener());
 		builder.run();
 		final File absoluteMosaic=TestData.file(this,"/overview/"+c1.getIndexName()+".shp");
 		assertTrue(absoluteMosaic.exists());

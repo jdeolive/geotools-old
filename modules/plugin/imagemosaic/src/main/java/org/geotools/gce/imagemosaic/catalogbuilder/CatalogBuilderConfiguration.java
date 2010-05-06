@@ -14,7 +14,7 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.gce.imagemosaic.indexbuilder;
+package org.geotools.gce.imagemosaic.catalogbuilder;
 
 
 import java.lang.reflect.InvocationTargetException;
@@ -27,18 +27,18 @@ import org.geotools.gce.imagemosaic.Utils;
 import org.geotools.util.Utilities;
 
 /**
- * Simple bean that conveys the information needed by the IndexBuilder to create an index
+ * Simple bean that conveys the information needed by the CatalogBuilder to create an index
  * 
  * @author Simone Giannecchini, GeoSolutions SAS
  *
  */
-public class IndexBuilderConfiguration{
+public class CatalogBuilderConfiguration{
 
-	public IndexBuilderConfiguration() {
+	public CatalogBuilderConfiguration() {
 	}
 	
-	public IndexBuilderConfiguration(final IndexBuilderConfiguration that) {
-		Utils.ensureNonNull("IndexBuilderConfiguration", that);
+	public CatalogBuilderConfiguration(final CatalogBuilderConfiguration that) {
+		Utilities.ensureNonNull("CatalogBuilderConfiguration", that);
 //		this.absolute=that.absolute;
 //		this.indexingDirectories=new ArrayList<String>(that.indexingDirectories);
 //		this.indexName=that.indexName;
@@ -199,7 +199,7 @@ public class IndexBuilderConfiguration{
 	 * @see org.geotools.gce.imagemosaic.JMXIndexBuilderMBean#setRootMosaicDirectory(java.lang.String)
 	 */
 	public void setRootMosaicDirectory(final String rootMosaicDirectory) {
-		 Utils.ensureNonNull("rootMosaicDirectory", rootMosaicDirectory);
+		 Utilities.ensureNonNull("rootMosaicDirectory", rootMosaicDirectory);
 		 String testingDirectory = rootMosaicDirectory;
 		 Utils.checkDirectory(testingDirectory);
 		 this.rootMosaicDirectory=testingDirectory;
@@ -215,17 +215,17 @@ public class IndexBuilderConfiguration{
 	}
 
 	@Override
-	public IndexBuilderConfiguration clone() throws CloneNotSupportedException {
-		return new IndexBuilderConfiguration(this);
+	public CatalogBuilderConfiguration clone() throws CloneNotSupportedException {
+		return new CatalogBuilderConfiguration(this);
 	}
 
 	@Override
 	public boolean equals(Object obj) {
 		if(this==obj)
 			return true;
-		if(!(obj instanceof IndexBuilderConfiguration))
+		if(!(obj instanceof CatalogBuilderConfiguration))
 			return false;
-		final IndexBuilderConfiguration that=(IndexBuilderConfiguration) obj;
+		final CatalogBuilderConfiguration that=(CatalogBuilderConfiguration) obj;
 		
 		if(this.absolute!=that.absolute)
 			return false;
@@ -257,7 +257,7 @@ public class IndexBuilderConfiguration{
 	@Override
 	public String toString() {
 		final StringBuilder builder= new StringBuilder();
-		builder.append("IndexBuilderConfiguration").append("\n");
+		builder.append("CatalogBuilderConfiguration").append("\n");
 		builder.append("wildcardString:\t\t\t").append(wildcard).append("\n");
 		builder.append("indexName:\t\t\t").append(indexName).append("\n");
 		builder.append("absolute:\t\t\t").append(absolute).append("\n");
