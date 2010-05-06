@@ -18,6 +18,7 @@ package org.geotools.wfs.bindings;
 
 import javax.xml.namespace.QName;
 
+import net.opengis.wfs.MetadataURLType;
 import net.opengis.wfs.WfsFactory;
 
 import org.geotools.wfs.WFS;
@@ -99,7 +100,7 @@ public class MetadataURLTypeBinding extends AbstractComplexEMFBinding {
      * @generated modifiable
      */
     public Class getType() {
-        return null;
+        return MetadataURLType.class;
     }
 
     /**
