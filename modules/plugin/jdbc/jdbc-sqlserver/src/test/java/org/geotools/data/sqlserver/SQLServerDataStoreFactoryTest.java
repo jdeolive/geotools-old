@@ -27,12 +27,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import junit.framework.TestCase;
-
 import org.geotools.jdbc.JDBCDataStore;
+import org.geotools.jdbc.JDBCTestSetup;
+import org.geotools.jdbc.JDBCTestSupport;
 
-public class SQLServerDataStoreFactoryTest extends TestCase {
+public class SQLServerDataStoreFactoryTest extends JDBCTestSupport {
 
+    @Override
+    protected JDBCTestSetup createTestSetup() {
+        return new SQLServerTestSetup();
+    }
+    
     public void testCreateDataStore() throws Exception {
         checkConnection(false);
     }
