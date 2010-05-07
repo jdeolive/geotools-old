@@ -58,7 +58,8 @@ public class HeuristicPrimaryKeyFinder extends PrimaryKeyFinder {
             if (pkey == null) {
                 // No known database supports unique indexes on views and this check
                 // causes problems with Oracle, so we skip it
-                if (!store.isView(metaData, databaseSchema, tableName)) {
+                if (!store.isView(metaData, databaseSchema, tableName)
+                        && store.getVirtualTables().get(tableName) == null) {
                     // no primary key, check for a unique index
                     LOGGER.log(Level.FINE, "Getting information about unique indexes of {0}",
                             tableName);

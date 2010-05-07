@@ -317,6 +317,7 @@ public class OracleDialect extends PreparedStatementSQLDialect {
         super.registerSqlTypeNameToClassMappings(mappings);
         
         mappings.put( "SDO_GEOMETRY", Geometry.class );
+        mappings.put( "MDSYS.SDO_GEOMETRY", Geometry.class );
     }
     
     @Override
@@ -845,9 +846,9 @@ public class OracleDialect extends PreparedStatementSQLDialect {
     }
     
     @Override
-    public void postCreateAttribute(AttributeDescriptor att, ResultSet columnMetadata,
-            String tableName, String schemaName, Connection cx) throws SQLException {
-        super.postCreateAttribute(att, columnMetadata, tableName, schemaName, cx);
+    public void postCreateAttribute(AttributeDescriptor att, String tableName,
+            String schemaName, Connection cx) throws SQLException {
+        super.postCreateAttribute(att, tableName, schemaName, cx);
         
         if(att instanceof GeometryDescriptor) {
             Integer srid = (Integer) att.getUserData().get(JDBCDataStore.JDBC_NATIVE_SRID);

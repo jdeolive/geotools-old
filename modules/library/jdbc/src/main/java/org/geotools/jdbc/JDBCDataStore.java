@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
 import javax.sql.DataSource;
@@ -249,7 +250,46 @@ public final class JDBCDataStore extends ContentDataStore
      * Finds the primary key definitions
      */
     protected PrimaryKeyFinder primaryKeyFinder = DEFAULT_PRIMARY_KEY_FINDER;
+    
+    /**
+     * Contains the SQL definition of the various virtual tables
+     */
+    protected Map<String, VirtualTable> virtualTables = new ConcurrentHashMap<String, VirtualTable>();
 
+    /**
+     * Adds a virtual table to the data store. If a virtual table with the same name was registered this
+     * method will replace it with the new one.
+     * @param vt
+     * @throws IOException If the view definition is not valid
+     */
+    public void addVirtualTable(VirtualTable vtable) throws IOException {
+        try {
+            virtualTables.put(vtable.getName(), vtable);
+            getSchema(vtable.getName());
+        } catch(IOException e) {
+            virtualTables.remove(vtable.getName());
+            throw e;
+        }
+    }
+    
+    /**
+     * Removes and returns the specified virtual table
+     * @param name
+     * @return
+     */
+    public VirtualTable removeVirtualTable(String name) {
+        return virtualTables.remove(name);
+    }
+    
+
+    /**
+     * Returns a live, immutable view of the virtual tables map (from name to definition)  
+     * @return
+     */
+    Map<String, VirtualTable> getVirtualTables() {
+        return Collections.unmodifiableMap(virtualTables);
+    }
+    
     /**
      * Returns the finder used to build {@link PrimaryKey} representations
      * @return
@@ -790,6 +830,10 @@ public final class JDBCDataStore extends ContentDataStore
             closeSafe(cx);
         }
 
+        
+        for(String virtualTable : virtualTables.keySet()) {
+            typeNames.add(new NameImpl(namespaceURI, virtualTable));
+        }
         return typeNames;
     }
 
@@ -3742,12 +3786,18 @@ public final class JDBCDataStore extends ContentDataStore
      * prefixes the table name with it.
      */
     protected void encodeTableName(String tableName, StringBuffer sql) {
-        if (databaseSchema != null) {
-            dialect.encodeSchemaName(databaseSchema, sql);
-            sql.append(".");
+        VirtualTable vtDefinition = virtualTables.get(tableName);
+        if(vtDefinition != null) {
+            sql.append("(").append(vtDefinition.getSql()).append(")");
+            dialect.encodeTableAlias("vtable", sql);
+        } else {
+            if (databaseSchema != null) {
+                dialect.encodeSchemaName(databaseSchema, sql);
+                sql.append(".");
+            }
+    
+            dialect.encodeTableName(tableName, sql);
         }
-
-        dialect.encodeTableName(tableName, sql);
     }
 
     /**
@@ -3975,5 +4025,5 @@ public final class JDBCDataStore extends ContentDataStore
     	   	    	
     	dialect.encodeGeometryColumn(gatt,srid, sql);        
     }
-
+    
 }

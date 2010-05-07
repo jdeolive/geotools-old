@@ -760,13 +760,12 @@ public abstract class SQLDialect {
      * This base implementation does nothing, subclasses should override as need be.
      * </p>
      * @param att The built attribute descriptor.
-     * @param columnMetadata The database metadata about the column.
      * @param tableName The name of the table containing the column
      * @param schemaName The name of the database scheam containing the table containing the column
      * @param cx The database connection.
      */
-    public void postCreateAttribute(AttributeDescriptor att, ResultSet columnMetadata, String tableName, 
-        String schemaName, Connection cx ) throws SQLException {
+    public void postCreateAttribute(AttributeDescriptor att, String tableName, String schemaName, 
+        Connection cx ) throws SQLException {
         
     }
     

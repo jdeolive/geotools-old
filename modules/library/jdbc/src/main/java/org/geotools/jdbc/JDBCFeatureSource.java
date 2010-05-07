@@ -21,6 +21,7 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -136,6 +137,7 @@ public class JDBCFeatureSource extends ContentFeatureSource {
     protected SimpleFeatureType buildFeatureType() throws IOException {
         //grab the primary key
         PrimaryKey pkey = getDataStore().getPrimaryKey(entry);
+        VirtualTable virtualTable = getDataStore().getVirtualTables().get(entry.getTypeName());
         
         SimpleFeatureTypeBuilder tb = new SimpleFeatureTypeBuilder();
         AttributeTypeBuilder ab = new AttributeTypeBuilder();
@@ -143,7 +145,7 @@ public class JDBCFeatureSource extends ContentFeatureSource {
         // setup the read only marker if no pk or null pk
         boolean readOnly = false;
         if(pkey == null || pkey instanceof NullPrimaryKey) {
-        	readOnly = true;
+            readOnly = true;
         }
 
         //set up the name
@@ -166,180 +168,156 @@ public class JDBCFeatureSource extends ContentFeatureSource {
 
         //ensure we have a connection
         Connection cx = getDataStore().getConnection(state);
+        
+        // grab the dialect
+        SQLDialect dialect = getDataStore().getSQLDialect();
+
 
         //get metadata about columns from database
         try {
             DatabaseMetaData metaData = cx.getMetaData();
+            // get metadata about columns from database
+            List<ColumnMetadata> columns;
+            if (virtualTable != null) {
+                columns = getColumnMetadata(cx, virtualTable, dialect);
+            } else {
+                columns = getColumnMetadata(cx, databaseSchema, tableName, dialect);
+            }
 
-            /*
-             *        <LI><B>COLUMN_NAME</B> String => column name
-             *        <LI><B>DATA_TYPE</B> int => SQL type from java.sql.Types
-             *        <LI><B>TYPE_NAME</B> String => Data source dependent type name,
-             *  for a UDT the type name is fully qualified
-             *        <LI><B>COLUMN_SIZE</B> int => column size.  For char or date
-             *            types this is the maximum number of characters, for numeric or
-             *            decimal types this is precision.
-             *        <LI><B>BUFFER_LENGTH</B> is not used.
-             *        <LI><B>DECIMAL_DIGITS</B> int => the number of fractional digits
-             *        <LI><B>NUM_PREC_RADIX</B> int => Radix (typically either 10 or 2)
-             *        <LI><B>NULLABLE</B> int => is NULL allowed.
-             *      <UL>
-             *      <LI> columnNoNulls - might not allow <code>NULL</code> values
-             *      <LI> columnNullable - definitely allows <code>NULL</code> values
-             *      <LI> columnNullableUnknown - nullability unknown
-             *      </UL>
-             *         <LI><B>COLUMN_DEF</B> String => default value (may be <code>null</code>)
-             *        <LI><B>IS_NULLABLE</B> String => "NO" means column definitely
-             *      does not allow NULL values; "YES" means the column might
-             *      allow NULL values.  An empty string means nobody knows.
-             */
-            ResultSet columns = metaData.getColumns(null, databaseSchema, tableName, "%");
+            for (ColumnMetadata column : columns) {
+                String name = column.name;
 
-            try {
-                SQLDialect dialect = getDataStore().getSQLDialect();
-
-                while (columns.next()) {
-                    String name = columns.getString("COLUMN_NAME");
-
-                    //do not include primary key in the type if not exposing primary key columns
-                    boolean pkColumn = false;
-                    for ( PrimaryKeyColumn pkeycol : pkey.getColumns() ) {
-                        if ( name.equals( pkeycol.getName() ) ) {
-                            if ( !state.isExposePrimaryKeyColumns() ) {
-                                name = null;
-                                break;
-                            } else {
-                                pkColumn = true;
-                            }
+                //do not include primary key in the type if not exposing primary key columns
+                boolean pkColumn = false;
+                for ( PrimaryKeyColumn pkeycol : pkey.getColumns() ) {
+                    if ( name.equals( pkeycol.getName() ) ) {
+                        if ( !state.isExposePrimaryKeyColumns() ) {
+                            name = null;
+                            break;
+                        } else {
+                            pkColumn = true;
                         }
                     }
-                 
-                    if (name == null) {
-                        continue;
-                    }
-
-                    //check for association
-                    if (getDataStore().isAssociations()) {
-                        getDataStore().ensureAssociationTablesExist(cx);
-
-                        //check for an association
-                        Statement st = null;
-                        ResultSet relationships = null;
-                        if ( getDataStore().getSQLDialect() instanceof PreparedStatementSQLDialect ) {
-                            st = getDataStore().selectRelationshipSQLPS(tableName, name, cx);
-                            relationships = ((PreparedStatement)st).executeQuery();
-                        }
-                        else {
-                            String sql = getDataStore().selectRelationshipSQL(tableName, name);
-                            getDataStore().getLogger().fine(sql);
-                            
-                            st = cx.createStatement();
-                            relationships = st.executeQuery(sql);
-                        }
-
-                       try {
-                            if (relationships.next()) {
-                                //found, create a special mapping 
-                                tb.add(name, Association.class);
-
-                                continue;
-                            }
-                        } finally {
-                            getDataStore().closeSafe(relationships);
-                            getDataStore().closeSafe(st);
-                        }
-                        
-                    }
-
-                    //figure out the type mapping
-                    String nativeTypeName = columns.getString("TYPE_NAME");
-                    
-                    //first ask the dialect
-                    Class binding = dialect.getMapping(columns, cx);
-
-                    if (binding == null) {
-                        //determine from type mappings
-                        int dataType = columns.getInt("DATA_TYPE");
-                        binding = getDataStore().getMapping(dataType);
-                    }
-
-                    if (binding == null) {
-                        //determine from type name mappings
-                        binding = getDataStore().getMapping(nativeTypeName);
-                    }
-
-                    // if still not found, ignore the column we don't know about
-                    if (binding == null) {
-                        getDataStore().getLogger().warning("Could not find mapping for '" + name 
-                                + "', ignoring the column and setting the feature type read only");
-                    	readOnly = true;
-                    	continue;
-                    }
-                    
-                    //store the native database type in the attribute descriptor user data
-                    ab.addUserData(JDBCDataStore.JDBC_NATIVE_TYPENAME, nativeTypeName);
-
-                    //nullability
-                    if ( !pkColumn && "NO".equalsIgnoreCase( columns.getString( "IS_NULLABLE" ) ) ) {
-                        ab.nillable(false);
-                        ab.minOccurs(1);
-                    }
-                    
-                    AttributeDescriptor att = null;
-                    
-                    //determine if this attribute is a geometry or not
-                    if (Geometry.class.isAssignableFrom(binding)) {
-                        //add the attribute as a geometry, try to figure out 
-                        // its srid first
-                        Integer srid = null;
-                        CoordinateReferenceSystem crs = null;
-                        try {
-                            srid = dialect.getGeometrySRID(databaseSchema, tableName, name, cx);
-                            if(srid != null)
-                                crs = dialect.createCRS(srid, cx);
-                        } catch (Exception e) {
-                            String msg = "Error occured determing srid for " + tableName + "."
-                                + name;
-                            getDataStore().getLogger().log(Level.WARNING, msg, e);
-                        }
-
-                        ab.setBinding(binding);
-                        ab.setName(name);
-                        ab.setCRS(crs);
-                        if(srid != null)
-                            ab.addUserData(JDBCDataStore.JDBC_NATIVE_SRID, srid);
-                        att = ab.buildDescriptor(name, ab.buildGeometryType());
-                    } else {
-                        //add the attribute
-                        ab.setName(name);
-                        ab.setBinding(binding);
-                        att = ab.buildDescriptor(name, ab.buildType());
-                    }
-                    
-                    //call dialect callback
-                    dialect.postCreateAttribute( att, columns, tableName, databaseSchema, cx);
-                    tb.add(att);
+                }
+             
+                if (name == null) {
+                    continue;
                 }
 
-                //build the final type
-                SimpleFeatureType ft = tb.buildFeatureType();
-                
-                // mark it as read only if necessary 
-                // (the builder userData method affects attributes, not the ft itself)
-                if(readOnly)
-                    ft.getUserData().put(JDBCDataStore.JDBC_READ_ONLY, Boolean.TRUE);
+                //check for association
+                if (getDataStore().isAssociations()) {
+                    getDataStore().ensureAssociationTablesExist(cx);
 
+                    //check for an association
+                    Statement st = null;
+                    ResultSet relationships = null;
+                    if ( getDataStore().getSQLDialect() instanceof PreparedStatementSQLDialect ) {
+                        st = getDataStore().selectRelationshipSQLPS(tableName, name, cx);
+                        relationships = ((PreparedStatement)st).executeQuery();
+                    }
+                    else {
+                        String sql = getDataStore().selectRelationshipSQL(tableName, name);
+                        getDataStore().getLogger().fine(sql);
+                        
+                        st = cx.createStatement();
+                        relationships = st.executeQuery(sql);
+                    }
+
+                   try {
+                        if (relationships.next()) {
+                            //found, create a special mapping 
+                            tb.add(name, Association.class);
+
+                            continue;
+                        }
+                    } finally {
+                        getDataStore().closeSafe(relationships);
+                        getDataStore().closeSafe(st);
+                    }
+                    
+                }
+
+                //first ask the dialect
+                Class binding = column.binding;
+
+                if (binding == null) {
+                    //determine from type mappings
+                    binding = getDataStore().getMapping(column.sqlType);
+                }
+
+                if (binding == null) {
+                    //determine from type name mappings
+                    binding = getDataStore().getMapping(column.typeName);
+                }
+
+                // if still not found, ignore the column we don't know about
+                if (binding == null) {
+                    getDataStore().getLogger().warning("Could not find mapping for '" + name 
+                            + "', ignoring the column and setting the feature type read only");
+                	readOnly = true;
+                	continue;
+                }
+                
+                // store the native database type in the attribute descriptor user data
+                ab.addUserData(JDBCDataStore.JDBC_NATIVE_TYPENAME, column.typeName);
+
+                // nullability
+                if (!column.nullable) {
+                    ab.nillable(false);
+                    ab.minOccurs(1);
+                }
+                
+                AttributeDescriptor att = null;
+                
+                //determine if this attribute is a geometry or not
+                if (Geometry.class.isAssignableFrom(binding)) {
+                    //add the attribute as a geometry, try to figure out 
+                    // its srid first
+                    Integer srid = null;
+                    CoordinateReferenceSystem crs = null;
+                    try {
+                        srid = dialect.getGeometrySRID(databaseSchema, tableName, name, cx);
+                        if(srid != null)
+                            crs = dialect.createCRS(srid, cx);
+                    } catch (Exception e) {
+                        String msg = "Error occured determing srid for " + tableName + "."
+                            + name;
+                        getDataStore().getLogger().log(Level.WARNING, msg, e);
+                    }
+
+                    ab.setBinding(binding);
+                    ab.setName(name);
+                    ab.setCRS(crs);
+                    if(srid != null)
+                        ab.addUserData(JDBCDataStore.JDBC_NATIVE_SRID, srid);
+                    att = ab.buildDescriptor(name, ab.buildGeometryType());
+                } else {
+                    //add the attribute
+                    ab.setName(name);
+                    ab.setBinding(binding);
+                    att = ab.buildDescriptor(name, ab.buildType());
+                }
+                
                 //call dialect callback
-                dialect.postCreateFeatureType(ft, metaData, databaseSchema, cx);
-                return ft;
-            } finally {
-                getDataStore().closeSafe(columns);
+                dialect.postCreateAttribute( att, tableName, databaseSchema, cx);
+                tb.add(att);
             }
+
+            //build the final type
+            SimpleFeatureType ft = tb.buildFeatureType();
+            
+            // mark it as read only if necessary 
+            // (the builder userData method affects attributes, not the ft itself)
+            if(readOnly)
+                ft.getUserData().put(JDBCDataStore.JDBC_READ_ONLY, Boolean.TRUE);
+
+            //call dialect callback
+            dialect.postCreateFeatureType(ft, metaData, databaseSchema, cx);
+            return ft;
         } catch (SQLException e) {
             String msg = "Error occurred building feature type";
             throw (IOException) new IOException().initCause(e);
-        }
-        finally {
+        } finally {
             getDataStore().releaseConnection( cx, state );
         }
     }
@@ -593,5 +571,134 @@ public class JDBCFeatureSource extends ContentFeatureSource {
         finally {
             getDataStore().closeSafe( cx );
         }
+    }
+    
+    /**
+     * Computes the column metadata from a plain database table
+     * @param cx
+     * @param databaseSchema
+     * @param tableName
+     * @param dialect
+     * @return
+     * @throws SQLException
+     */
+    List<ColumnMetadata> getColumnMetadata(Connection cx, String databaseSchema, String tableName, SQLDialect dialect)
+            throws SQLException {
+        List<ColumnMetadata> result = new ArrayList<ColumnMetadata>();
+
+        DatabaseMetaData metaData = cx.getMetaData();
+
+        /*
+         * <UL>
+         * <LI><B>COLUMN_NAME</B> String => column name
+         * <LI><B>DATA_TYPE</B> int => SQL type from java.sql.Types
+         * <LI><B>TYPE_NAME</B> String => Data source dependent type name, for a UDT the type name
+         * is fully qualified
+         * <LI><B>COLUMN_SIZE</B> int => column size. For char or date types this is the maximum
+         * number of characters, for numeric or decimal types this is precision.
+         * <LI><B>BUFFER_LENGTH</B> is not used.
+         * <LI><B>DECIMAL_DIGITS</B> int => the number of fractional digits
+         * <LI><B>NUM_PREC_RADIX</B> int => Radix (typically either 10 or 2)
+         * <LI><B>NULLABLE</B> int => is NULL allowed.
+         * <UL>
+         * <LI>columnNoNulls - might not allow <code>NULL</code> values
+         * <LI>columnNullable - definitely allows <code>NULL</code> values
+         * <LI>columnNullableUnknown - nullability unknown
+         * </UL>
+         * <LI><B>COLUMN_DEF</B> String => default value (may be <code>null</code>)
+         * <LI>
+         * <B>IS_NULLABLE</B> String => "NO" means column definitely does not allow NULL values;
+         * "YES" means the column might allow NULL values. An empty string means nobody knows.
+         * </UL>
+         */
+        ResultSet columns = metaData.getColumns(null, databaseSchema, tableName, "%");
+
+        try {
+            while (columns.next()) {
+                ColumnMetadata column = new ColumnMetadata();
+                column.name = columns.getString("COLUMN_NAME");
+                column.typeName = columns.getString("TYPE_NAME");
+                column.sqlType = columns.getInt("DATA_TYPE");
+                column.nullable = "YES".equalsIgnoreCase(columns.getString("IS_NULLABLE"));
+                column.binding = dialect.getMapping(columns, cx);
+                result.add(column);
+            }
+        } finally {
+            getDataStore().closeSafe(columns);
+        }
+
+        return result;
+    }
+    
+    /**
+     * Computes the column metadata by running the virtual table query
+     * @param cx
+     * @param vtable
+     * @param dialect
+     * @return
+     * @throws SQLException
+     */
+    List<ColumnMetadata> getColumnMetadata(Connection cx, VirtualTable vtable, SQLDialect dialect) throws SQLException {
+        List<ColumnMetadata> result = new ArrayList<ColumnMetadata>();
+
+        Statement st = null;
+        ResultSet rs = null;
+        try {
+            String sql;
+            if(dialect.isLimitOffsetSupported()) {
+                // try to avoid actually running the query as it might be very expensive
+                // and just grab the metadata instead
+                StringBuffer sb = new StringBuffer();
+                sb.append("select * from (");
+                sb.append(vtable.getSql());
+                sb.append(")");
+                dialect.encodeTableAlias("vtable", sb);
+                dialect.applyLimitOffset(sb, 0, 0);
+                sql = sb.toString();
+            } else {
+                sql = vtable.getSql();
+            }
+            
+            st = cx.createStatement();
+            st.setMaxRows(1);
+            rs = st.executeQuery(sql);
+            
+            ResultSetMetaData metadata = rs.getMetaData();
+            for(int i = 1; i < metadata.getColumnCount() + 1; i++) {
+                ColumnMetadata column = new ColumnMetadata();
+                column.name = metadata.getColumnName(i);
+                column.typeName = metadata.getColumnTypeName(i);
+                column.sqlType = metadata.getColumnType(i);
+                column.nullable = metadata.isNullable(i) != ResultSetMetaData.columnNoNulls;
+                column.srid = vtable.getNativeSrid(column.name);
+                column.binding = vtable.getGeometryType(column.name);
+                result.add(column);
+            }
+        } finally {
+            getDataStore().closeSafe(st);
+            getDataStore().closeSafe(rs);
+        }
+        
+        return result;
+    }
+    
+    
+    /**
+     * Represents the column metadata we need to build a feature type
+     * @author Andrea Aime - OpenGeo
+     */
+    class ColumnMetadata {
+        /** The column java type, if known */
+        Class binding;
+        /** The column name */
+        String name;
+        /** The native type name */
+        String typeName;
+        /** The native sql type */
+        int sqlType;
+        /** Is the column accepting null values? */
+        boolean nullable;
+        /** The native srid */
+        Integer srid;
     }
 }

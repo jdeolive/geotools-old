@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.sql.DataSource;
@@ -204,7 +205,7 @@ public abstract class JDBCDataStoreFactory extends AbstractDataStoreFactory {
         if(exposePk != null) {
             dataStore.setExposePrimaryKeyColumns(exposePk);
         }
-
+        
         // factories
         dataStore.setFilterFactory(CommonFactoryFinder.getFilterFactory(null));
         dataStore.setGeometryFactory(new GeometryFactory());
