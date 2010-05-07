@@ -595,7 +595,9 @@ public final class GridCoverageRenderer {
         	finalGC=preSymbolizer;
         	finalImage=finalGC.geophysics(false).getRenderedImage();
         }
-
+        if (DEBUG) {
+            writeRenderedImage(finalImage,"postSymbolizer");
+        }
         // ///////////////////////////////////////////////////////////////////
         //
         // DRAW ME
@@ -642,25 +644,30 @@ public final class GridCoverageRenderer {
      * @throws TransformException
      * @throws NoninvertibleTransformException
      */
-    public RenderedImage renderImage(final GridCoverage2D gridCoverage,
-            final RasterSymbolizer symbolizer, Interpolation interpolation, Color background,
-            int tileSizeX, int tileSizeY) throws FactoryException, TransformException,
-            NoninvertibleTransformException {
+    public RenderedImage renderImage(
+    		final GridCoverage2D gridCoverage,
+            final RasterSymbolizer symbolizer, 
+            final Interpolation interpolation, 
+            final Color background,
+            final int tileSizeX, 
+            final int tileSizeY
+            ) throws FactoryException, TransformException, NoninvertibleTransformException {
 
         // Build the final image and the transformation
         Object[] couple = prepareFinalImage(gridCoverage, symbolizer);
         if (couple == null)
             return null;
-
-        RenderedImage finalImage = (RenderedImage) couple[0];
-        AffineTransform clonedFinalWorldToGrid = (AffineTransform) couple[1];
+        // NOTICE that at this stage the image we get should be 8 bits, either RGB, RGBA, Gray, GrayA
+        // either multiband or indexed. It could also be 16 bits indexed!!!!
+        
+        final RenderedImage finalImage = (RenderedImage) couple[0];
+        final AffineTransform clonedFinalWorldToGrid = (AffineTransform) couple[1];
 
         // TODO: optimize translate/scale transformations
         // TODO: use mosaic to merge with a background respecting alpha and transparency
         // TODO: check tolerance value
         // TODO: do we need to pass in any hints?
         final double tolerance = 1e-6;
-
         if (XAffineTransform.isIdentity(clonedFinalWorldToGrid, tolerance)) {
             return finalImage;
         }
@@ -669,14 +676,15 @@ public final class GridCoverageRenderer {
         // but this will do for the moment, in our tests the common case fits with AffineTransform
         // expectations
         final ImageLayout layout = new ImageLayout(finalImage);
-        layout.setTileGridXOffset(0).setTileGridYOffset(0).setTileHeight(tileSizeY).setTileWidth(
-                tileSizeX);
+        layout.setTileGridXOffset(0).setTileGridYOffset(0).setTileHeight(tileSizeY).setTileWidth(tileSizeX);
         final RenderingHints hints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, layout);
         float sx = (float) clonedFinalWorldToGrid.getScaleX();
         float sy = (float) clonedFinalWorldToGrid.getScaleY();
         float tx = (float) clonedFinalWorldToGrid.getTranslateX();
         float ty = (float) clonedFinalWorldToGrid.getTranslateY();
         int txType = clonedFinalWorldToGrid.getType();
+        //add hints to preserve IndexColorModel
+        hints.add(new RenderingHints(JAI.KEY_REPLACE_INDEX_COLOR_MODEL, Boolean.FALSE));
         if (txType == AffineTransform.TYPE_TRANSLATION) {
             return TranslateDescriptor.create(finalImage, tx, ty, interpolation, hints);
         } else if (txType == AffineTransform.TYPE_GENERAL_SCALE
@@ -685,8 +693,15 @@ public final class GridCoverageRenderer {
                 || txType == (AffineTransform.TYPE_UNIFORM_SCALE | AffineTransform.TYPE_TRANSLATION)) {
             return ScaleDescriptor.create(finalImage, sx, sy, tx, ty, interpolation, hints);
         } else {
-            return AffineDescriptor.create(finalImage, clonedFinalWorldToGrid, interpolation, null,
-                    hints);
+        	RenderedImage im=null;
+        	try{
+        		// 
+        		im= AffineDescriptor.create(finalImage, clonedFinalWorldToGrid, interpolation, null,hints);
+        		return im;
+        	}finally{
+        		if(DEBUG)
+        			writeRenderedImage(im, "postAffine");
+        	}
         }
     }
     
