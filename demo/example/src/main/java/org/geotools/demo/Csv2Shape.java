@@ -93,19 +93,21 @@ public class Csv2Shape {
             System.out.println("Header: " + line);
 
             for (line = reader.readLine(); line != null; line = reader.readLine()) {
-                String tokens[] = line.split("\\,");
+                if (line.trim().length() > 0) { // skip blank lines
+                    String tokens[] = line.split("\\,");
 
-                double longitude = Double.parseDouble(tokens[0]);
-                double latitude = Double.parseDouble(tokens[1]);
-                String name = tokens[2].trim();
+                    double longitude = Double.parseDouble(tokens[0]);
+                    double latitude = Double.parseDouble(tokens[1]);
+                    String name = tokens[2].trim();
 
-                /* Longitude (= x coord) first ! */
-                Point point = geometryFactory.createPoint(new Coordinate(longitude, latitude));
+                    /* Longitude (= x coord) first ! */
+                    Point point = geometryFactory.createPoint(new Coordinate(longitude, latitude));
 
-                featureBuilder.add(point);
-                featureBuilder.add(name);
-                SimpleFeature feature = featureBuilder.buildFeature(null);
-                collection.add(feature);
+                    featureBuilder.add(point);
+                    featureBuilder.add(name);
+                    SimpleFeature feature = featureBuilder.buildFeature(null);
+                    collection.add(feature);
+                }
             }
 
         } finally {
@@ -126,6 +128,11 @@ public class Csv2Shape {
 
         ShapefileDataStore newDataStore = dataStoreFactory.createNewDataStore(params);
         newDataStore.createSchema(TYPE);
+
+        /*
+         * You can comment out this line if you are using the createFeatureType
+         * method (at end of class file) rather than DataUtilities.createType
+         */
         newDataStore.forceSchemaCRS(DefaultGeographicCRS.WGS84);
 
         // docs break transaction
