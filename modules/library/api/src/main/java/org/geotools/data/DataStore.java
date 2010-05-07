@@ -26,8 +26,8 @@ import org.geotools.data.simple.SimpleFeatureSource;
 
 
 /**
- * This represents a physical source of feature data, such as a shapefiles or a
- * database table, where the features will be instances of {@code SimpleFeature}.
+ * This represents a physical source of feature data, such as a shapefiles or
+ * database, where the features will be instances of {@code SimpleFeature}.
  * It is derived from the {@code DataAccess} interface (which works at the more
  * general {@code Feature} level.
  *
@@ -42,320 +42,183 @@ import org.geotools.data.simple.SimpleFeatureSource;
 public interface DataStore extends DataAccess<SimpleFeatureType, SimpleFeature>{
    
     /**
-     * Used to force namespace and CS info into a persistent change.
-     * <p>
-     * The provided featureType should completely cover the existing schema.
-     * All attributes should be accounted for and the typeName should match.
-     * </p>
-     * <p>
-     * Suggestions:
-     * </p>
-     * <ul>
-     * <li>Sean - don't do this</li>
-     * <li>Jody - Just allow changes to metadata: CS, namespace, and others</li>
-     * <li>James - Allow change/addition of attribtues</li>
-     * </ul>
-     * @param typeName
-     * @throws IOException
+     * Applies a new schema to the given feature type. This can be used
+     * to add or remove properties. The resulting update will be persistent.
+     *
+     * @param typeName name of the feature type to update
+     *
+     * @param featureType the new schema to apply
+     *
+     * @throws IOException on error
      */
     void updateSchema(String typeName, SimpleFeatureType featureType)
         throws IOException;
 
     /**
-     * Retrieves a list of of the available FeatureTypes.
+     * Gets the names of feature types available in this {@code DataStore}.
+     * Please note that this is not guaranteed to return a list of unique
+     * names since the same unqualified name may be present in separate
+     * namespaces within the {@code DataStore}.
      *
-     * <p>
-     * This is simply a list of the FeatureType names as aquiring the actual
-     * FeatureType schemas may be expensive.
-     * </p>
+     * @return names of feature types available in this {@code DataStore}
      *
-     * <p>
-     * Warning: this list may not be unique - the types may be
-     * in separate namespaces.
-     * </p>
-     *
-     * <p>
-     * If you need to worry about such things please consider the use of
-     * the Catalog and CatalogEntry interface - many DataStores support this.
-     * getTypeNames is really a convience method for a Catalog.iterator() where
-     * the name of each entry is returned.
-     * </p>
-     *
-     * @return typeNames for available FeatureTypes.
+     * @throws IOException if data access errors occur
      */
     String[] getTypeNames() throws IOException;
     
     /**
-     * Retrieve FeatureType metadata by <code>typeName</code>.
+     * Gets the type information (schema) for the specified feature type.
      *
-     * <p>
-     * Retrieves the Schema information as a FeatureType object.
-     * </p>
+     * @param typeName the feature type name
      *
-     * @param typeName typeName of requested FeatureType
+     * @return the requested feature type
      *
-     * @return FeatureType for the provided typeName
-     *
-     * @throws IOException If typeName cannot be found
+     * @throws IOException if {@code typeName} is not available
      */
     SimpleFeatureType getSchema(String typeName) throws IOException;
 
     /**
-     * Access a SimpleFeatureSource for typeName providing a high-level API.
-     *
+     * Gets a {@code SimpleFeatureSource} for features of the specified
+     * type. {@code SimpleFeatureSource} provides a high-level API for
+     * feature operations.
      * <p>
-     * The resulting SimpleFeatureSource may implment more functionality:
-     * </p>
+     * The resulting {@code SimpleFeatureSource} may implment more functionality
+     * as in this example:
      * <pre><code>
      *
-     * SimpleFeatureSource fsource = dataStore.getFeatureSource( "roads" );
-     * FeatureStore fstore = null;
-     * if( fsource instanceof FeatureLocking ){
-     *     fstore = (SimpleFeatureStore) fs;
+     * SimpleFeatureSource fsource = dataStore.getFeatureSource("roads");
+     * if (fsource instanceof SimpleFeatureStore) {
+     *     // we have write access to the feature data
+     *     SimpleFeatureStore fstore = (SimpleFeatureStore) fs;
      * }
      * else {
      *     System.out.println("We do not have write access to roads");
      * }
-     * </code>
-     * </pre>
+     * </code></pre>
      *
-     * @param typeName
+     * @param typeName the feature type
      *
-     * @return SimpleFeatureSource (or subclass) providing operations for typeName
+     * @return a {@code SimpleFeatureSource} (or possibly a subclass) providing
+     *         operations for features of the specified type
+     *
+     * @throws IOException if data access errors occur
+     *
+     * @see SimpleFeatureSource
+     * @see org.geotools.data.simple.SimpleFeatureStore
      */
-    SimpleFeatureSource getFeatureSource(String typeName)
-            throws IOException;
+    SimpleFeatureSource getFeatureSource(String typeName) throws IOException;
     
+    /**
+     * Gets a {@code SimpleFeatureSource} for features of the type
+     * specified by a qualified name (namespace plus type name).
+     *
+     * @param typeName the qualified name of the feature type
+     *
+     * @return a {@code SimpleFeatureSource} (or possibly a subclass) providing
+     *         operations for features of the specified type
+     *
+     * @throws IOException if data access errors occur
+     *
+     * @see #getFeatureSource(String)
+     * @see SimpleFeatureSource
+     * @see org.geotools.data.simple.SimpleFeatureStore
+     */
     SimpleFeatureSource getFeatureSource(Name typeName) throws IOException;
     
 
     /**
-     * Access a FeatureReader providing access to Feature information.
-     *
+     * Gets a {@code FeatureReader} for features selected by the given
+     * {@code Query}.  {@code FeatureReader} provies an iterator-style
+     * API to feature data.
      * <p>
-     * <b>Filter</b> is used as a low-level indication of constraints.
-     * (Implementations may resort to using a FilteredFeatureReader, or
-     * provide their own optimizations)
-     * </p>
-     *
+     * The {@code Query} provides the schema for the form of the returned
+     * features as well as a {@code Filter} to constrain the features
+     * available via the reader.
      * <p>
-     * <b>FeatureType</b> provides a template for the returned FeatureReader
-     * </p>
+     * The {@code Transaction} can be used to externalize the state of the
+     * {@code DataStore}. Examples of this include a {@code JDBCDataStore}
+     * sharing a connection for use across several {@code FeatureReader} requests;
+     * and a {@code ShapefileDataStore} redirecting requests to an alternate file
+     * during the course of a {@code Transaction}.
      *
-     * <ul>
-     * <li>
-     * featureType.getTypeName(): used by JDBC as the table reference to query
-     * against. Shapefile reader may need to store a lookup to the required
-     * filename.
-     * </li>
-     * <li>
-     * featureType.getAttributeTypes(): describes the requested content. This
-     * may be a subset of the complete FeatureType defined by the DataStore.
-     * </li>
-     * <li>
-     * getType.getNamespace(): describes the requested namespace for the
-     * results (may be different then the one used internally)
-     * </li>
-     * </ul>
+     * @param query a query providing the schema and constraints for
+     *        features that the reader will return
      *
-     * <p>
-     * <b>Transaction</b> to externalize DataStore state on a per Transaction
-     * basis. The most common example is a JDBC datastore saving a Connection
-     * for use across several FeatureReader requests. Similarly a Shapefile
-     * reader may wish to redirect FeatureReader requests to a alternate
-     * filename over the course of a Transaction.
-     * </p>
+     * @param transaction a transaction that this reader will operate against
      *
-     * <p>
-     * <b>Notes For Implementing DataStore</b>
-     * </p>
+     * @throws IOException if data access errors occur
      *
-     * <p>
-     * Subclasses may need to retrieve additional attributes, beyond those
-     * requested by featureType.getAttributeTypes(), in order to correctly
-     * apply the <code>filter</code>.<br>
-     * These Additional <b>attribtues</b> should be not be returned by
-     * FeatureReader. Subclasses may use ReTypeFeatureReader to aid in
-     * acomplishing this.
-     * </p>
-     * <p>
-     * Helper classes for implementing a FeatureReader (in order):
-     * </p>
-     * <ul>
-     * <li>
-     * DefaultFeatureReader
-     * - basic support for creating a FeatureReader for an AttributeReader
-     * </li>
-     * <li>
-     * FilteringFeatureReader
-     * - filtering support
-     * </li>
-     * <li>
-     * DiffFeatureReader
-     * - In-Process Transaction Support (see TransactionStateDiff)
-     * </li>
-     * <li>
-     * ReTypeFeatureReader
-     * - Feature Type schema manipulation of namesspace and attribute type subsets
-     * </li>
-     * <li>
-     * EmptyFeatureReader
-     * - provides no content for Filter.EXCLUDE optimizations
-     * </li>
-     * </ul>
-     * <p>
-     * Sample use (not optimized):
-     * </p>
-     * <pre><code>
-     * if (filter == Filter.EXCLUDE) {
-     *      return new EmptyFeatureReader(featureType);
-     *  }
-     *
-     *  String typeName = featureType.getTypeName();
-     *  FeatureType schema = getSchema( typeName );
-     *  FeatureReader reader = new DefaultFeatureReader( getAttributeReaders(), schema );
-     *
-     *  if (filter != Filter.INCLUDE) {
-     *      reader = new FilteringFeatureReader<SimpleFeatureType, SimpleFeature>(reader, filter);
-     *  }
-     *
-     *  if (transaction != Transaction.AUTO_COMMIT) {
-     *      Map diff = state(transaction).diff(typeName);
-     *      reader = new DiffFeatureReader(reader, diff);
-     *  }
-     *
-     *  if (!featureType.equals(reader.getFeatureType())) {
-     *      reader = new ReTypeFeatureReader(reader, featureType);
-     *  }
-     * return reader
-     * </code></pre>
-     * <p>
-     * Locking support does not need to be provided for FeatureReaders.
-     * </p>
-     *
-     * @param query Requested form of the returned Features and the filter used
-     *              to constraints the results
-     * @param transaction Transaction this query operates against
-     *
-     * @return FeatureReader Allows Sequential Processing of featureType
+     * @return an instance of {@code FeatureReader}
      */
     FeatureReader<SimpleFeatureType, SimpleFeature> getFeatureReader(Query query,
             Transaction transaction) throws IOException;
 
     /**
-     * Access FeatureWriter for modification of existing DataStore contents.
-     *
+     * Gets a {@code FeatureWriter} to modify features in this {@code DataStore}.
+     * {@code FeatureWriter} provides an iterator style API to features.
      * <p>
-     * To limit FeatureWriter to the FeatureTypes defined by this DataStore,
-     * typeName is used to indicate FeatureType. The resulting
-     * feature writer will allow modifications against the
-     * same FeatureType provided by getSchema( typeName )
-     * </p>
+     * The returned writer does <b>not</b> allow features to be added.
      *
-     * <p>
-     * The FeatureWriter will provide access to the existing contents of the
-     * FeatureType referenced by typeName. The provided filter will be used
-     * to skip over Features as required.
-     * </p>
+     * @param typeName the type name for features that will be accessible
      *
-     * <b>Notes For Implementing DataStore</b>
-     * </p>
+     * @param filter defines additional constraints on the features that will
+     *        be accessible
      *
-     * <p>
-     * The returned FeatureWriter <b>does not</b> support the addition of new
-     * Features to FeatureType (it would need to police your modifications to
-     * agree with <code>filer</code>).  As such it will return
-     * <code>false</code> for getNext() when it reaches the end of the Query
-     * and NoSuchElementException when next() is called.
-     * </p>
+     * @param transaction the transation that the returned writer operates
+     *        against
      *
-     * <p>
-     * Helper classes for implementing a FeatureWriter (in order):
-     * </p>
-     * <li>
-     * InProcessLockingManager.checkedWriter( writer )
-     * - provides a check against locks before allowing modification
+     * @return an instance of {@code FeatureWriter}
      *
-     * <li>
-     * FilteringFeatureWriter
-     * - filtering support for FeatureWriter (does not allow new content)
-     * </li>
-     * <li>
-     * DiffFeatureWriter
-     * - In-Process Transaction Support (see TransactionStateDiff)
-     * </li>
-     * <li>
-     * EmptyFeatureWriter
-     * - provides no content for Filter.EXCLUDE optimizations
-     * </li>
-     * </ul>
+     * @throws IOException if data access errors occur
      *
-     * @param typeName Indicates featureType to be modified
-     * @param filter constraints used to limit the modification
-     * @param transaction Transaction this query operates against
-     *
-     * @return FeatureWriter Allows Sequential Modification of featureType
+     * @see #getFeatureWriterAppend(String, Transaction)
      */
     FeatureWriter<SimpleFeatureType, SimpleFeature> getFeatureWriter(String typeName,
             Filter filter, Transaction transaction) throws IOException;
 
     /**
-     * Access FeatureWriter for modification of the DataStore typeName.
-     *
+     * Gets a {@code FeatureWriter} to modify features in this {@code DataStore}.
+     * {@code FeatureWriter} provides an iterator style API to features.
      * <p>
-     * FeatureWriters will need to be limited to the FeatureTypes defined by
-     * the DataStore, the easiest way to express this limitation is to the
-     * FeatureType by a provided typeName.
-     * </p>
+     * The returned writer does <b>not</b> allow features to be added.
      *
-     * <p>
-     * The returned FeatureWriter will return <code>false</code> for getNext()
-     * when it reaches the end of the Query.
-     * </p>
+     * @param typeName the type name for features that will be accessible
      *
-     * @param typeName Indicates featureType to be modified
-     * @param transaction Transaction to operates against
+     * @param transaction the transation that the returned writer operates
+     *        against
      *
-     * @return FeatureReader Allows Sequential Processing of featureType
+     * @return an instance of {@code FeatureWriter}
+     *
+     * @throws IOException if data access errors occur
+     *
+     * @see #getFeatureWriterAppend(String, Transaction)
      */
     FeatureWriter<SimpleFeatureType, SimpleFeature> getFeatureWriter(String typeName,
             Transaction transaction) throws IOException;
 
     /**
-     * Aquire a FeatureWriter for adding new content to a FeatureType.
-     *
+     * Gets a {@code FeatureWriter} that can add new features to the {@code DataStore}.
      * <p>
-     * This FeatureWriter will return <code>false</code> for hasNext(), however
-     * next() may be used to aquire new Features that may be writen out to add
-     * new content.
-     * </p>
+     * The {@code FeatureWriter} will return {@code false} when its {@code hasNext()}
+     * method is called, but {@code next()} can be used to acquire new features.
      *
-     * @param typeName Indicates featureType to be modified
-     * @param transaction Transaction to operates against
+     * @param typeName name of the feature type for which features will be added
      *
-     * @return FeatureWriter that may only be used to append new content
+     * @param transaction the transaction to operate against
      *
-     * @throws IOException
+     * @return an instance of {@code FeatureWriter} that can only be used to
+     *         append new features
+     *
+     * @throws IOException if data access errors occur
      */
     FeatureWriter<SimpleFeatureType, SimpleFeature> getFeatureWriterAppend(String typeName,
             Transaction transaction) throws IOException;
 
     /**
-     * Retrieve a per featureID based locking service from this DataStore.
+     * Retrieve a per featureID based locking service from this {@code DataStore}.
      *
-     * <p>
-     * It is common to return an instanceof InProcessLockingManager for
-     * DataStores that do not provide native locking.
-     * </p>
-     *
-     * <p>
-     * AbstractFeatureLocking makes use of this service to provide locking
-     * support. You are not limitied by this implementation and may simply
-     * return <code>null</code> for this value.
-     * </p>
-     *
-     * @return DataStores may return <code>null</code>, if the handling locking
-     *         in another fashion.
+     * @return an instance of {@code LockingManager}; or {@code null} if locking
+     *         is handled by the {@code DataStore} in a different fashion
      */
     LockingManager getLockingManager();
 
