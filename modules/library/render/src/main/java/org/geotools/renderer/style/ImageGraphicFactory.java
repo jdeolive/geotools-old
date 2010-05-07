@@ -23,14 +23,15 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
+import org.geotools.util.SoftValueHashMap;
 import org.geotools.util.logging.Logging;
 import org.opengis.feature.Feature;
 import org.opengis.filter.expression.Expression;
@@ -51,7 +52,7 @@ public class ImageGraphicFactory implements ExternalGraphicFactory {
     private static final Logger LOGGER = Logging.getLogger(ImageGraphicFactory.class);
 
     /** Current way to load images */
-    ImageLoader imageLoader = new ImageLoader();
+    static Map<URL, BufferedImage> imageCache = Collections.synchronizedMap(new SoftValueHashMap<URL, BufferedImage>());
 
     /** Holds the of graphic formats supported by the current jdk */
     static Set<String> supportedGraphicFormats = new HashSet<String>(Arrays.asList(ImageIO
@@ -68,14 +69,11 @@ public class ImageGraphicFactory implements ExternalGraphicFactory {
             throw new IllegalArgumentException(
                     "The provided expression cannot be evaluated to a URL");
 
-        // imageLoader is not thread safe
-        BufferedImage image;
-        synchronized (imageLoader) {
-            image = imageLoader.get(location, false);
-        }
+        // get the image from the cache, or load it
+        BufferedImage image = imageCache.get(location);
         if(image == null) {
-            LOGGER.log(Level.FINE, "Failed to load image {0}", location);
-            return null;
+            image = ImageIO.read(location);
+            imageCache.put(location, image);
         }
         
         // if scaling is needed, perform it
@@ -104,7 +102,7 @@ public class ImageGraphicFactory implements ExternalGraphicFactory {
     /**
      * Images are cached by the factory, this method can be used to drop the cache 
      */
-    public void resetImageCache() {
-        imageLoader.reset();
+    public static void resetCache() {
+        imageCache.clear();
     }
 }
