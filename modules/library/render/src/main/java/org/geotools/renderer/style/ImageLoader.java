@@ -23,10 +23,12 @@ import java.awt.MediaTracker;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.net.URL;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.geotools.util.SoftValueHashMap;
 
 
 /**
@@ -40,7 +42,7 @@ class ImageLoader implements Runnable {
     private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.rendering");
 
     /** The images managed by the loader */
-    private static Map images = new HashMap();
+    private static Map images = Collections.synchronizedMap(new SoftValueHashMap());
 
     /** A canvas used as the image observer on the tracker */
     private static Canvas obs = new Canvas();
@@ -162,10 +164,6 @@ class ImageLoader implements Runnable {
 
             return (BufferedImage) images.get(location);
         } else {
-            if (!interactive) {
-                images.put(location, null);
-            }
-
             LOGGER.finest("adding " + location);
             add(location, interactive);
 

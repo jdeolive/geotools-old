@@ -101,4 +101,10 @@ public class ImageGraphicFactory implements ExternalGraphicFactory {
         return Collections.unmodifiableSet(supportedGraphicFormats);
     }
 
+    /**
+     * Images are cached by the factory, this method can be used to drop the cache 
+     */
+    public void resetImageCache() {
+        imageLoader.reset();
+    }
 }
