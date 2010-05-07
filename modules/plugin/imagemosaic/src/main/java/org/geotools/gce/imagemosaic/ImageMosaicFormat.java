@@ -35,6 +35,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
+import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.coverage.grid.io.imageio.GeoToolsWriteParams;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFactorySpi;
@@ -142,6 +143,13 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
     /** Control the transparency of the output coverage. */
     public static final ParameterDescriptor<Color> OUTPUT_TRANSPARENT_COLOR = new DefaultParameterDescriptor<Color>(
             "OutputTransparentColor", Color.class, null, null);
+    
+    /** control the decimation policy behavior */
+    public static final ParameterDescriptor<DecimationPolicy> DECIMATION_POLICY = new DefaultParameterDescriptor<DecimationPolicy>(
+            "DecimationPolicy", DecimationPolicy.class, new DecimationPolicy[] {
+                        DecimationPolicy.ALLOW,
+                        DecimationPolicy.DISALLOW},
+                        DecimationPolicy.ALLOW);
 
     /** Control the thresholding on the input coverage */
     public static final ParameterDescriptor<Integer> MAX_ALLOWED_TILES = new DefaultParameterDescriptor<Integer>(

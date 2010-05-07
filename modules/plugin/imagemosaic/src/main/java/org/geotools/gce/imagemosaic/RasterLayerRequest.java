@@ -82,6 +82,9 @@ class RasterLayerRequest {
     /** The {@link BoundingBox} of the portion of the coverage that intersects the requested bbox */
     private BoundingBox cropBBox;
     
+    /** The desired decimation Policy for this request */
+    private DecimationPolicy decimationPolicy;
+    
     /** The desired overview Policy for this request */
     private OverviewPolicy overviewPolicy;
 
@@ -148,6 +151,10 @@ class RasterLayerRequest {
 		return multithreadingAllowed;
 	}
 
+	 public DecimationPolicy getDecimationPolicy() {
+	        return decimationPolicy;
+	 }
+	
 	/**
      * Build a new {@code CoverageRequest} given a set of input parameters.
      * 
@@ -255,6 +262,18 @@ class RasterLayerRequest {
 	            overviewPolicy = (OverviewPolicy) value;
 	            continue;
 	        }
+	        
+	        // //
+                //
+                // Decimation Policy parameter
+                //
+                // //
+                if (name.equals(ImageMosaicFormat.DECIMATION_POLICY.getName())) {
+                        if(value==null)
+                                continue;
+                    decimationPolicy = (DecimationPolicy) value;
+                    continue;
+                }
 	
 	        if (name.equals(ImageMosaicFormat.INPUT_TRANSPARENT_COLOR.getName())) {
 	        	if(value==null)
@@ -407,6 +426,19 @@ class RasterLayerRequest {
         	if(value==null)
         		return;
             overviewPolicy = (OverviewPolicy) param.getValue();
+            return;
+        }
+        
+        // //
+        //
+        // Decimation Policy parameter
+        //
+        // //
+        if (name.equals(ImageMosaicFormat.DECIMATION_POLICY.getName())) {
+                final Object value = param.getValue();
+                if(value==null)
+                        return;
+            decimationPolicy = (DecimationPolicy) param.getValue();
             return;
         }
 

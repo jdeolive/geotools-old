@@ -54,11 +54,11 @@ public interface GranuleCatalog {
 	 *         {@link BoundingBox}.
 	 * @throws IOException 
 	 */
-	public abstract Collection<GranuleDescriptor> getGranules(final BoundingBox envelope)throws IOException;
+	public Collection<GranuleDescriptor> getGranules(final BoundingBox envelope)throws IOException;
 	
-	public abstract Collection<GranuleDescriptor> getGranules(final Query q) throws IOException;
+	public Collection<GranuleDescriptor> getGranules(final Query q) throws IOException;
 
-	public abstract Collection<GranuleDescriptor> getGranules()throws IOException;
+	public Collection<GranuleDescriptor> getGranules()throws IOException;
 	
 	/**
 	 * Finds the features that intersects the provided {@link BoundingBox}:
@@ -69,11 +69,11 @@ public interface GranuleCatalog {
 	 *         {@link BoundingBox}.
 	 * @throws IOException 
 	 */
-	public abstract void  getGranules(final BoundingBox envelope,final  GranuleCatalogVisitor visitor) throws IOException;
+	public void  getGranules(final BoundingBox envelope,final  GranuleCatalogVisitor visitor) throws IOException;
 	
-	public abstract void  getGranules( final Query q,final GranuleCatalogVisitor visitor) throws IOException;	
+	public void  getGranules( final Query q,final GranuleCatalogVisitor visitor) throws IOException;	
 
-	public abstract void dispose();
+	public void dispose();
 		
 	public void addGranule(final SimpleFeature granule, final Transaction transaction) throws IOException;
 	

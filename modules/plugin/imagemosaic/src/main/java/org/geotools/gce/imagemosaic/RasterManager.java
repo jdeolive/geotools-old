@@ -428,6 +428,7 @@ class RasterManager {
 	private Hints hints;
 	OverviewsController overviewsController;
 	OverviewPolicy overviewPolicy;
+	DecimationPolicy decimationPolicy;
 	DecimationController decimationController;
 	ImageMosaicReader parent;
 	private PathType pathType;

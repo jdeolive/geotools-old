@@ -660,7 +660,7 @@ class RasterLayerResponse{
 			// the other levels can be computed accordingly knowning the scale
 			// factors.
 			if (request.getRequestedBBox() != null&& request.getRequestedRasterArea() != null)
-				imageChoice = setReadParams(request.getOverviewPolicy(), baseReadParameters, request);
+				imageChoice = setReadParams(request.getOverviewPolicy(), request.getDecimationPolicy(), baseReadParameters, request);
 			else
 				imageChoice = 0;
 			assert imageChoice>=0;
@@ -1060,7 +1060,7 @@ class RasterLayerResponse{
 	 * @throws IOException
 	 * @throws TransformException
 	 */
-	private int setReadParams(final OverviewPolicy overviewPolicy,
+	private int setReadParams(final OverviewPolicy overviewPolicy, final DecimationPolicy decimationPolicy,
 			final ImageReadParam readParams, final RasterLayerRequest request)
 			throws IOException, TransformException {
 
@@ -1076,22 +1076,29 @@ class RasterLayerResponse{
 		// when policy is explictly provided it overrides the policy provided
 		// using hints.
 		final OverviewPolicy policy;
+		final DecimationPolicy decPolicy;
 		if (overviewPolicy == null)
 			policy = rasterManager.overviewPolicy;
 		else
 			policy = overviewPolicy;
-
+		
+		if (decimationPolicy == null)
+                    decPolicy = rasterManager.decimationPolicy;
+                else
+                    decPolicy = decimationPolicy;
 
 		// requested to ignore overviews
+		//TODO: Change this behavior 
 		if (policy.equals(OverviewPolicy.IGNORE))
 			return imageChoice;
 
 		// overviews and decimation
 		imageChoice = rasterManager.overviewsController.pickOverviewLevel(overviewPolicy, request);
 
-
+		
 		// DECIMATION ON READING
-		rasterManager.decimationController.performDecimation(imageChoice, readParams, request, rasterManager.overviewsController, rasterManager.spatialDomainManager);
+		if (!decPolicy.equals(DecimationPolicy.DISALLOW))
+		    rasterManager.decimationController.performDecimation(imageChoice, readParams, request, rasterManager.overviewsController, rasterManager.spatialDomainManager);
 		return imageChoice;
 
 	}

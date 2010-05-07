@@ -331,19 +331,19 @@ public class GranuleDescriptor {
 		public String toString() {
 			// build a decent representation for this level
 			final StringBuilder buffer = new StringBuilder();
-			buffer.append("Description of a granuleDescriptor level").append("\n");
-			buffer.append("width:\t\t").append(width).append("\n");
-			buffer.append("height:\t\t").append(height).append("\n");
-			buffer.append("scaleX:\t\t").append(scaleX).append("\n");
-			buffer.append("scaleY:\t\t").append(scaleY).append("\n");
-			buffer.append("baseToLevelTransform:\t\t").append(baseToLevelTransform.toString()).append("\n");
-			buffer.append("gridToWorldTransform:\t\t").append(gridToWorldTransform.toString()).append("\n");
+			buffer.append("Description of a granuleDescriptor level").append("\n")
+			.append("width:\t\t").append(width).append("\n")
+			.append("height:\t\t").append(height).append("\n")
+			.append("scaleX:\t\t").append(scaleX).append("\n")
+			.append("scaleY:\t\t").append(scaleY).append("\n")
+			.append("baseToLevelTransform:\t\t").append(baseToLevelTransform.toString()).append("\n")
+			.append("gridToWorldTransform:\t\t").append(gridToWorldTransform.toString()).append("\n");
 			return buffer.toString();
 		}
 		
 	}
 	
-	ReferencedEnvelope  granuleBBOX;
+	ReferencedEnvelope granuleBBOX;
 	
 	URL granuleUrl;
 	

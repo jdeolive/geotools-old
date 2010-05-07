@@ -72,7 +72,7 @@ import com.vividsolutions.jts.index.strtree.STRtree;
 	 * @source $URL: http://svn.osgeo.org/geotools/trunk/modules/plugin/imagemosaic/src/main/java/org/geotools/gce/imagemosaic/RasterManager.java $
  */
 @SuppressWarnings("unused")
-class STRTreeGranuleCatalog implements GranuleCatalog {
+class STRTreeGranuleCatalog extends AbstractGranuleCatalog {
 	
 	/** Logger. */
 	final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(STRTreeGranuleCatalog.class);
@@ -295,11 +295,6 @@ class STRTreeGranuleCatalog implements GranuleCatalog {
 		
 	}
 
-	public int removeGranules(final Query query) {
-		throw new UnsupportedOperationException("removeGranules is not supported, this ia read only index");
-
-	}
-
 	@SuppressWarnings("unchecked")
 	public List<GranuleDescriptor> getGranules(Query q) throws IOException {
 		Utilities.ensureNonNull("q",q);
@@ -394,34 +389,6 @@ class STRTreeGranuleCatalog implements GranuleCatalog {
 	private void checkStore() throws IllegalStateException {
 		if(originalIndex==null)
 			throw new IllegalStateException("The underlying store has already been disposed!");
-	}
-
-	public void addGranule(final SimpleFeature granule, final Transaction transaction) throws IOException {
-		throw new UnsupportedOperationException("Operation unsupported for this index class:"+this.getClass().getName());
-		
-	}
-
-	public void addGranules(final Collection<SimpleFeature> granules, final Transaction transaction)
-			throws IOException {
-		throw new UnsupportedOperationException("Operation unsupported for this index class:"+this.getClass().getName());
-		
-	}
-
-	public void createType(String namespace, String typeName, String typeSpec)
-			throws IOException, SchemaException {
-		throw new UnsupportedOperationException("Operation unsupported for this index class:"+this.getClass().getName());
-		
-	}
-
-	public void createType(SimpleFeatureType featureType) throws IOException {
-		throw new UnsupportedOperationException("Operation unsupported for this index class:"+this.getClass().getName());
-		
-	}
-
-	public void createType(String identification, String typeSpec)
-			throws SchemaException, IOException {
-		throw new UnsupportedOperationException("Operation unsupported for this index class:"+this.getClass().getName());
-		
 	}
 
 	public SimpleFeatureType getType() throws IOException {

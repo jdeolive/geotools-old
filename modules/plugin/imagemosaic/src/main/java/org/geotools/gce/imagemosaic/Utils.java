@@ -420,7 +420,6 @@ public class Utils {
 							sourceURL = null;
 						else
 							sourceURL = DataUtilities.fileToURL(dataStoreProperties);
-
 					}
 
 				} else

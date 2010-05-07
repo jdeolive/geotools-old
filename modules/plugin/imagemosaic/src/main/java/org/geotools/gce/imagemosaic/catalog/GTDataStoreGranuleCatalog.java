@@ -83,7 +83,7 @@ import org.opengis.geometry.BoundingBox;
  *
 	 * @source $URL: http://svn.osgeo.org/geotools/trunk/modules/plugin/imagemosaic/src/main/java/org/geotools/gce/imagemosaic/RasterManager.java $
  */
-class GTDataStoreGranuleCatalog implements GranuleCatalog {
+class GTDataStoreGranuleCatalog extends AbstractGranuleCatalog {
 	
 	/** Logger. */
 	final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(GTDataStoreGranuleCatalog.class);
@@ -206,8 +206,9 @@ class GTDataStoreGranuleCatalog implements GranuleCatalog {
 	 * @throws IllegalStateException in case the underlying store has been disposed. 
 	 */
 	private void checkStore()throws IllegalStateException{
-		if(tileIndexStore==null)
-			throw new IllegalStateException("The index sore has been disposed already.");
+		if (tileIndexStore == null) {
+			throw new IllegalStateException("The index store has been disposed already.");
+		}
 	}
 	private void extractBasicProperties() throws IOException {
 		final String[] typeNames = tileIndexStore.getTypeNames();
@@ -378,7 +379,7 @@ class GTDataStoreGranuleCatalog implements GranuleCatalog {
 		
 	}
 
-	public void  getGranules(final Query q,final GranuleCatalogVisitor visitor)
+	public void  getGranules(final Query q, final GranuleCatalogVisitor visitor)
 	throws IOException {
 		Utilities.ensureNonNull("q",q);
 
@@ -432,8 +433,6 @@ class GTDataStoreGranuleCatalog implements GranuleCatalog {
 			lock.unlock();
 
 		}
-				
-		
 	}
 
 	public List<GranuleDescriptor> getGranules(final Query q) throws IOException {
