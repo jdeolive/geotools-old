@@ -387,9 +387,6 @@ class RasterLayerResponse{
 						// for data type other than byte and ushort. With float and double
 						// it can cut off a large par of the dynamic.
 						//
-//						if(!Double.isNaN(request.getThreshold()))
-//							pbjMosaic.setParameter("sourceThreshold", new double[][]{{request.getThreshold()}});
-//						else
 							pbjMosaic.setParameter("sourceThreshold",
 								new double[][] { { Utils.getThreshold(loadedImage.getSampleModel().getDataType()) } });
 						
@@ -714,9 +711,13 @@ class RasterLayerResponse{
 			final boolean hasTime=(times!=null&&times.size()>0);
 			final boolean hasElevation=!Double.isNaN(elevation);
 
-			Query query= new DefaultQuery(rasterManager.index.getType().getTypeName());
-			final Filter bbox=Utils.FILTER_FACTORY.bbox(Utils.FILTER_FACTORY.property(rasterManager.index.getType().getGeometryDescriptor().getName()),mosaicBBox);
-			query.setFilter( bbox);
+			final SimpleFeatureType type = rasterManager.index.getType();
+			Query query = null;
+			if (type != null){
+			    query= new DefaultQuery(rasterManager.index.getType().getTypeName());
+			    final Filter bbox=Utils.FILTER_FACTORY.bbox(Utils.FILTER_FACTORY.property(rasterManager.index.getType().getGeometryDescriptor().getName()),mosaicBBox);
+			    query.setFilter( bbox);
+			}
 			
 			if(hasTime||hasElevation)
 			{

@@ -206,6 +206,8 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
         }
         setGridGeometry(index);
         
+        rasterManager = new RasterManager(this);
+        
     }
 
     /**
@@ -357,6 +359,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
                     throw new IllegalArgumentException("Cannot create a mosaic out of an empty index");
             }
             this.originalEnvelope=new GeneralEnvelope(bounds);
+            this.crs = originalEnvelope.getCoordinateReferenceSystem();
             
             // original gridrange (estimated)
             originalGridRange = new GridEnvelope2D(

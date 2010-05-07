@@ -24,6 +24,7 @@ import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.RenderedImage;
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -44,6 +45,7 @@ import javax.media.jai.JAI;
 import javax.media.jai.operator.AffineDescriptor;
 
 import org.geotools.coverage.grid.GridEnvelope2D;
+import org.geotools.data.DataUtilities;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.metadata.iso.spatial.PixelTranslation;
@@ -441,12 +443,7 @@ public class GranuleDescriptor {
                 final ImageReaderSpi suggestedSPI) {
 
             // If the granuleDescriptor is not there, dump a message and continue
-            URL rasterFile = null;
-            
-            try {
-                rasterFile = new URL(granuleLocation);
-            } catch (MalformedURLException e) {
-            }
+            URL rasterFile = DataUtilities.fileToURL(new File(granuleLocation));
             
             if (rasterFile == null) {
                     return;
@@ -455,7 +452,7 @@ public class GranuleDescriptor {
                     LOGGER.fine("File found "+granuleLocation);
     
             this.originator = null;
-            init(granuleBBox,rasterFile,suggestedSPI);
+            init (granuleBBox, rasterFile, suggestedSPI);
         
 	}
 	
