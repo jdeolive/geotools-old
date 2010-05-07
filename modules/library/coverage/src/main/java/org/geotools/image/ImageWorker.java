@@ -2444,8 +2444,6 @@ public class ImageWorker {
         final ImageOutputStream outStream = ImageIO.createImageOutputStream(destination);
         if(outStream==null)
         	throw new IIOException(Errors.format(ErrorKeys.NULL_ARGUMENT_$1,"stream"));
-
-        	
          
         iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
         iwp.setCompressionType(compression);        // Lossy compression.
