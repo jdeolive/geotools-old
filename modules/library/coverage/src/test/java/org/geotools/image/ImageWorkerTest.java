@@ -125,7 +125,24 @@ public final class ImageWorkerTest {
 			}
 		}
 		return image;
-	}   
+	} 
+	
+	/**
+	 * Creates a test paletted image with translucency.
+	 * 
+	 * @return 
+	 */
+	private static BufferedImage getSyntheticTranslucentIndexed() {
+		final byte bb[]= new byte[256];
+		for(int i =0;i<256;i++)
+			bb[i]=(byte)i;
+		final IndexColorModel icm = new IndexColorModel(8, 256, bb, bb, bb,bb);
+		final WritableRaster raster=RasterFactory.createWritableRaster(icm.createCompatibleSampleModel(1024, 1024), null);
+		for(int i= raster.getMinX();i<raster.getMinX()+raster.getWidth();i++)
+			for(int j= raster.getMinY();j<raster.getMinY()+raster.getHeight();j++)
+				raster.setSample(i,j, 0, (i+j)/32);
+		return new BufferedImage(icm, raster, false,null);		
+	}
 
     /**
      * Loads the image (if not already loaded) and creates the worker instance.
@@ -219,6 +236,24 @@ public final class ImageWorkerTest {
         assertFalse (     worker.isColorSpaceGRAYScale());
         assertFalse (     worker.isTranslucent());
         
+        
+        final BufferedImage translucentIndexed= getSyntheticTranslucentIndexed();
+        worker=new ImageWorker(translucentIndexed);
+        assertTrue  (     worker.isBytes());
+        assertFalse (     worker.isBinary());
+        assertTrue  (     worker.isIndexed());
+        assertTrue  (     worker.isColorSpaceRGB());       
+        assertTrue (     worker.isTranslucent());    
+        
+        
+        worker.forceIndexColorModelForGIF(true);
+        assertEquals(  1, worker.getNumBands());
+        assertEquals( 0, worker.getTransparentPixel());
+        assertTrue  (     worker.isBytes());
+        assertFalse (     worker.isBinary());
+        assertTrue  (     worker.isIndexed());
+        assertTrue  (     worker.isColorSpaceRGB());
+        assertFalse (     worker.isTranslucent());        
         
     }
     /**

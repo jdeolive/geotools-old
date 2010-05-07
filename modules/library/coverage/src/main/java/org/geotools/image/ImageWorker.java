@@ -964,8 +964,10 @@ public class ImageWorker {
             final ImageLayout layout = getImageLayout(hints);
             layout.setColorModel(newCM);
             hints.put(JAI.KEY_IMAGE_LAYOUT, layout);
-            hints.put(JAI.KEY_REPLACE_INDEX_COLOR_MODEL, Boolean.FALSE);
             image = LookupDescriptor.create(image, lookupTable, hints);
+            
+            //workaround bug in Lookup since it looks like it is switching 255 and 254
+            image=FormatDescriptor.create(image, image.getSampleModel().getDataType(), hints);
         } else {
         	// force component color model first
         	forceComponentColorModel(true);
