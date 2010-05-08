@@ -259,6 +259,9 @@ public abstract class SQLDialect {
         mappings.put(new Integer(Types.DATE), Date.class);
         mappings.put(new Integer(Types.TIME), Time.class);
         mappings.put(new Integer(Types.TIMESTAMP), Timestamp.class);
+        
+        mappings.put(new Integer(Types.BLOB), byte[].class);
+        mappings.put(new Integer(Types.CLOB), String.class);
 
         //subclasses should extend to provide additional
     }
@@ -291,6 +294,8 @@ public abstract class SQLDialect {
         mappings.put(Time.class, new Integer(Types.TIME));
         mappings.put(java.util.Date.class, new Integer(Types.TIMESTAMP));
         mappings.put(Timestamp.class, new Integer(Types.TIMESTAMP));
+        
+        mappings.put(byte[].class, new Integer(Types.BLOB));
 
         //subclasses should extend and provide additional
     }

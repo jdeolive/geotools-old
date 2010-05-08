@@ -16,6 +16,7 @@
  */
 package org.geotools.jdbc;
 
+import java.io.StringReader;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.Date;
@@ -142,6 +143,13 @@ public abstract class PreparedStatementSQLDialect extends SQLDialect {
             case Types.TIMESTAMP:
                 ps.setTimestamp( column, (Timestamp) convert(value,Timestamp.class) );
                 break;
+            case Types.BLOB:
+                ps.setBytes(column, convert(value, byte[].class));
+                break;
+            case Types.CLOB:
+                String string = convert(value, String.class);
+                ps.setCharacterStream(column, new StringReader(string), string.length());
+                break;
             default:
                 ps.setObject( column, value );
         }
@@ -151,9 +159,9 @@ public abstract class PreparedStatementSQLDialect extends SQLDialect {
     /*
      * Helper method to convert a value.
      */
-    Object convert( Object value, Class binding ) {
+    <T> T convert( Object value, Class<T> binding ) {
         if (value == null) {
-            return value;
+            return (T) value;
         }
         //convert the value if necessary
         if ( ! binding.isInstance( value ) ) {
@@ -165,7 +173,7 @@ public abstract class PreparedStatementSQLDialect extends SQLDialect {
                 dataStore.getLogger().warning( "Unable to convert " + value + " to " + binding.getName() );
             }
         }
-        return value;
+        return (T) value;
     }
     
     public PreparedFilterToSQL createPreparedFilterToSQL() {

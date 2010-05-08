@@ -114,8 +114,7 @@ public abstract class JDBCTestSetup {
         BufferedReader reader = new BufferedReader(new InputStreamReader(script));
 
         //connect
-        Connection conn = getDataSource().getConnection();
-        createDataStoreFactory().createSQLDialect(new JDBCDataStore()).initializeConnection(conn);
+        Connection conn = getConnection();
         
         try {
             Statement st = conn.createStatement();
@@ -136,6 +135,16 @@ public abstract class JDBCTestSetup {
             conn.close();
         }
     }
+    
+    /**
+     * Returns a properly initialized connection. It's up to the calling code to close it
+     */
+    protected Connection getConnection() throws SQLException, IOException {
+        Connection conn = getDataSource().getConnection();
+        createDataStoreFactory().createSQLDialect(new JDBCDataStore()).initializeConnection(conn);
+        return conn;
+    }
+
 
     /**
      * This method is used whenever referencing the name
