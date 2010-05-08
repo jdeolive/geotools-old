@@ -20,7 +20,7 @@ Dependencies
 We are going to add another couple dependencies here::
  
   <properties>
-      <geotools.version>2.6.1</geotools.version>
+      <geotools.version>2.6.3</geotools.version>
   </properties>
 
   <dependencies>
@@ -43,15 +43,6 @@ We are going to add another couple dependencies here::
           <groupId>org.geotools</groupId>
           <artifactId>gt-render</artifactId>
           <version>${geotools.version}</version>
-          <!-- For this module we explicitly exclude some of its own -->
-          <!-- dependencies from being downloaded because they are   -->
-          <!-- big and we don't need them                            -->
-          <exclusions>
-              <exclusion>
-                  <groupId>org.apache.xmlgraphics</groupId>
-                  <artifactId>batik-transcoder</artifactId>
-              </exclusion>
-          </exclusions>
       </dependency>
   </dependencies>
 

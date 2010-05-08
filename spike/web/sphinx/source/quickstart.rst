@@ -31,7 +31,7 @@ I am using Java 1.5 above; and Maven 2.1.0. You can use Java 6 if you like; curr
 Notes:
 
 * If you are using the Netbeans IDE for development then the command line Maven utility is optional because there is
-  support for Maven within the IDE. The notes below refer to Netbeans version 6.7.1
+  support for Maven within the IDE. The notes below refer to Netbeans version 6.8
 
 * Windows and OSX users can download and install maven from apache: http://maven.apache.org/download.html
 
@@ -139,7 +139,7 @@ Depending on GeoTools
 
 To make use of GeoTools we are going to add two things to your pom.xml file:
 
-* A *properties* element defining the version of GeoTools that we want to use (2.6.1 for this example)
+* A *properties* element defining the version of GeoTools that we want to use (2.6.3 for this example)
 * A new dependency: ``gt-main``
 * A list of *repositories* where maven can find GeoTools and all the cool stuff it uses
 
@@ -156,7 +156,7 @@ To make use of GeoTools we are going to add two things to your pom.xml file:
       <name>example</name>
       <url>http://maven.apache.org</url>
       <properties>
-        <geotools.version>2.6.1</geotools.version>
+        <geotools.version>2.6.3</geotools.version>
       </properties>
       <dependencies>
         <dependency>
@@ -277,7 +277,7 @@ Running your application from the command line is a bit more cumbersome, requiri
  [INFO] Preparing exec:java
  [INFO] No goals needed for project - skipping
  [INFO] [exec:java]
- Hello GeoTools:2.6.1
+ Hello GeoTools:2.6.3
  [INFO] ------------------------------------------------------------------------
  [INFO] BUILD SUCCESSFUL
  [INFO] ------------------------------------------------------------------------
@@ -385,20 +385,20 @@ dependency:tree`` at the command line::
  [INFO] [dependency:tree]
  [INFO] org.geotools.demo.example:example:jar:1.0-SNAPSHOT
  [INFO] +- junit:junit:jar:3.8.1:test
- [INFO] +- org.geotools:gt-main:jar:2.6.1:compile
- [INFO] |  +- org.geotools:gt-api:jar:2.6.1:compile
+ [INFO] +- org.geotools:gt-main:jar:2.6.3:compile
+ [INFO] |  +- org.geotools:gt-api:jar:2.6.3:compile
  [INFO] |  +- com.vividsolutions:jts:jar:1.9:compile
  [INFO] |  +- jdom:jdom:jar:1.0:compile
  [INFO] |  \- commons-beanutils:commons-beanutils:jar:1.7.0:compile
  [INFO] |     \- commons-logging:commons-logging:jar:1.0.3:compile
- [INFO] +- org.geotools:gt-shapefile:jar:2.6.1:compile
- [INFO] |  \- org.geotools:gt-referencing:jar:2.6.1:compile
+ [INFO] +- org.geotools:gt-shapefile:jar:2.6.3:compile
+ [INFO] |  \- org.geotools:gt-referencing:jar:2.6.3:compile
  [INFO] |     +- java3d:vecmath:jar:1.3.1:compile
  [INFO] |     +- commons-pool:commons-pool:jar:1.3:compile
- [INFO] |     \- org.geotools:gt-metadata:jar:2.6.1:compile
+ [INFO] |     \- org.geotools:gt-metadata:jar:2.6.3:compile
  [INFO] |        +- org.opengis:geoapi:jar:2.2-SNAPSHOT:compile
  [INFO] |        \- net.java.dev.jsr-275:jsr-275:jar:1.0-beta-2:compile
- [INFO] \- org.geotools:gt-epsg-hsql:jar:2.6.1:compile
+ [INFO] \- org.geotools:gt-epsg-hsql:jar:2.6.3:compile
  [INFO]    \- hsqldb:hsqldb:jar:1.8.0.7:compile
  [INFO] ------------------------------------------------------------------------
  [INFO] BUILD SUCCESSFUL
@@ -414,7 +414,7 @@ Example Code
 
 The following example is available from:
 
-  http://svn.osgeo.org/geotools/trunk/demo/example/src/main/java/org/geotools/demo/Quickstart.java
+  http://svn.osgeo.org/geotools/tags/2.6.3/demo/example/src/main/java/org/geotools/demo/Quickstart.java
 
 It is also included in the demo directory when you download geotools.
 
@@ -428,7 +428,7 @@ The code for the application is shown below. It consists of a single class:
 
 Copy and paste the code into your IDE as part of your Maven project:
 
-   .. literalinclude:: ../../../../demo/example/src/main/java/org/geotools/demo/Quickstart.java
+   .. literalinclude:: ../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/Quickstart.java
       :language: java
       :start-after: // docs start source
       :end-before: // docs end main
@@ -452,7 +452,7 @@ feature source.
 
 The method below shows how to introduce **CachingFeatureSource** into our example application:
 
-   .. literalinclude:: ../../../../demo/example/src/main/java/org/geotools/demo/Quickstart.java
+   .. literalinclude:: ../../../../../branches/2.6.x/demo/example/src/main/java/org/geotools/demo/Quickstart.java
       :language: java
       :start-after: // docs start cache
       :end-before: // docs end source

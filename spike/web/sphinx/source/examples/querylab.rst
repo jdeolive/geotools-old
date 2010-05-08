@@ -24,7 +24,7 @@ Dependencies
 Please ensure your pom.xml includes the following::
 
     <properties>
-        <geotools.version>2.6.2</geotools.version>
+        <geotools.version>2.6.3</geotools.version>
     </properties>
 
     <dependencies>
@@ -63,14 +63,14 @@ The example code is available
  * Directly from svn: QueryLab.java_
  * Included in the demo directory when you download the GeoTools source code
 
-.. _QueryLab.java: http://svn.osgeo.org/geotools/trunk/demo/example/src/main/java/org/geotools/demo/QueryLab.java 
+.. _QueryLab.java: http://svn.osgeo.org/geotools/tags/2.6.3/demo/example/src/main/java/org/geotools/demo/QueryLab.java 
  
 Main Application
 ----------------
 1. Please create the file **QueryLab.java**
 2. Copy and paste in the following code:
 
-   .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/QueryLab.java
+   .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/QueryLab.java
       :language: java
       :start-after: // docs start source
       :end-before: // docs end main
@@ -81,7 +81,7 @@ The Application GUI
 Next we create the application's GUI which includes a text field to enter a query and a table to display data for the
 features that the query selects. Here is the code to create the controls:
 
-   .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/QueryLab.java
+   .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/QueryLab.java
       :language: java
       :start-after: // docs start constructor
       :end-before: // docs start file menu
@@ -90,7 +90,7 @@ features that the query selects. Here is the code to create the controls:
 
 Next we add menu items and Actions to the File menu to connect to either a shapefile or a PostGIS database:
 
-   .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/QueryLab.java
+   .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/QueryLab.java
       :language: java
       :start-after: // docs start file menu
       :end-before: // docs end file menu
@@ -100,7 +100,7 @@ ahead to the :ref:`connect method <querylab-connect-method>` at this point and t
 
 Now let's look at the Data menu items and Actions:
 
-   .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/QueryLab.java
+   .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/QueryLab.java
       :language: java
       :start-after: // docs start data menu
       :end-before: // docs end constructor
@@ -112,7 +112,7 @@ The connect method
 
 Here is the method called by the File menu Actions plus a helper method to update the controls:
 
-   .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/QueryLab.java
+   .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/QueryLab.java
       :language: java
       :start-after: // docs start connect
       :end-before: // docs end connect
@@ -134,7 +134,7 @@ The query methods
 Getting feature data with the filterFeatures method
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-   .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/QueryLab.java
+   .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/QueryLab.java
       :language: java
       :start-after: // docs start filterFeatures
       :end-before: // docs end filterFeatures
@@ -142,7 +142,7 @@ Getting feature data with the filterFeatures method
 The countFeatures method
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-   .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/QueryLab.java
+   .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/QueryLab.java
       :language: java
       :start-after: // docs start countFeatures
       :end-before: // docs end countFeatures
@@ -150,7 +150,7 @@ The countFeatures method
 The centerFeatures method
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-   .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/QueryLab.java
+   .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/QueryLab.java
       :language: java
       :start-after: // docs start centerFeatures
       :end-before: // docs end centerFeatures
@@ -158,7 +158,7 @@ The centerFeatures method
 The queryFeatures method
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-   .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/QueryLab.java
+   .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/QueryLab.java
       :language: java
       :start-after: // docs start queryFeatures
       :end-before: // docs end source

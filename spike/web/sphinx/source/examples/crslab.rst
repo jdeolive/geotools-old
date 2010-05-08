@@ -12,7 +12,7 @@ Dependencies
 Please ensure your pom.xml includes the following::
 
   <properties>
-      <geotools.version>2.6.1</geotools.version>
+      <geotools.version>2.6.3</geotools.version>
   </properties>
 
   <dependencies>
@@ -40,14 +40,14 @@ The example code is available
  * Directly from svn: CRSLab.java_
  * Included in the demo directory when you download the GeoTools source code
 
-.. _CRSLab.java: http://svn.osgeo.org/geotools/trunk/demo/example/src/main/java/org/geotools/demo/CRSLab.java 
+.. _CRSLab.java: http://svn.osgeo.org/geotools/tags/2.6.3/demo/example/src/main/java/org/geotools/demo/CRSLab.java 
  
 Main Application
 ----------------
 1. Please create the file **CRSLab.java**
 2. Copy and paste in the following code:
 
-   .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/CRSLab.java
+   .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/CRSLab.java
       :language: java
       :start-after: // docs start source
       :end-before: // docs end main
@@ -62,7 +62,7 @@ This method opens and connects to a shapefile and uses a **JMapFrame** to displa
 the :ref:`quickstart` example. Notice that we are customizing the JMapFrame by adding two buttons to its toolbar: one to
 check that feature geometries are valid (e.g. polygon boundaries are closed) and one to export reprojected feature data.
 
-   .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/CRSLab.java
+   .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/CRSLab.java
       :language: java
       :start-after: // docs start display
       :end-before: // docs end display
@@ -76,7 +76,7 @@ This action is implemented as a nested class. Most of the work is done by a help
 Note the use of the SwingWorker utility class to run the validation in a background thread. This allows large shapefiles to 
 be checked without locking up the GUI.
 
-  .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/CRSLab.java
+  .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/CRSLab.java
       :language: java
       :start-after: // docs start validate action
       :end-before: // docs end validate action
@@ -93,7 +93,7 @@ Export button action
 
 This is another nested class that simply delegates to the exportToShapefile method in the parent class.
 
-  .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/CRSLab.java
+  .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/CRSLab.java
       :language: java
       :start-after: // docs start export action
       :end-before: // docs end export action
@@ -105,7 +105,7 @@ This method checks the geometry associated with each feature in our shapefile fo
 not having closed boundaries).
 
 
-   .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/CRSLab.java
+   .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/CRSLab.java
       :language: java
       :start-after: // docs start validate
       :end-before: // docs end validate
@@ -114,7 +114,7 @@ not having closed boundaries).
 Exporting reprojected data to a shapefile
 -----------------------------------------
 
-  .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/CRSLab.java
+  .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/CRSLab.java
       :language: java
       :start-after: // docs start export
       :end-before: // docs end export
@@ -170,7 +170,7 @@ An alternative export to shapefile method
 This version of the export method shows how to use a **Query** object to retrieve reprojected features and write them to
 a new shapefile instead of transforming the features 'by hand' as we did above.
 
-   .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/CRSLab.java
+   .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/CRSLab.java
       :language: java
       :start-after: // docs start export2
       :end-before: // docs end export2
