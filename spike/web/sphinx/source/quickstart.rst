@@ -443,6 +443,9 @@ line. The program should display a dialog prompting you for a shapefile and then
 
 Optional extra: speeding up the display of features
 ---------------------------------------------------
+**NOTE: At the moment you will need to use GeoTools version 2.6-SNAPSHOT for this section (see below for how to use
+snapshot releases). Alternatively, it will be included in version 2.6.4 due out in the next few days.**
+
 This application is reading the shapefile directly every time you refresh the display, for instance when you zoom in or
 out. If the shapefile is large you will notice some delay while the data are read from disk. One way to speed up the
 display's responsiveness is to cache some or all of the feature data in memory. **CachingFeatureSource** provides this
