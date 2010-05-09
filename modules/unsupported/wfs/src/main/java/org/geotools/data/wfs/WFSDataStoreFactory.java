@@ -151,6 +151,11 @@ public class WFSDataStoreFactory extends AbstractDataStoreFactory {
             this.defaultValue = defaultValue;
         }
 
+        public WFSFactoryParam(String key, Class type, String description, T defaultValue, Object... metadata) {
+            super(key, type, description, false, metadata);
+            this.defaultValue = defaultValue;
+        }
+        
         public T lookUp(final Map params) throws IOException {
             T parameter = (T) super.lookUp(params);
             return parameter == null ? defaultValue : parameter;
@@ -185,7 +190,7 @@ public class WFSDataStoreFactory extends AbstractDataStoreFactory {
         clazz = String.class;
         description = "This allows the user to specify a username. This param should not"
                 + " be used without the USERNAME param.";
-        parametersInfo[3] = new WFSFactoryParam(name, clazz, description, (String) null);
+        parametersInfo[3] = new WFSFactoryParam(name, clazz, description, (String) null, Param.IS_PASSWORD, true);
 
         name = "WFSDataStoreFactory:ENCODING";
         clazz = String.class;

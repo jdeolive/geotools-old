@@ -62,7 +62,7 @@ public class VersionedPostgisDataStoreFactory extends AbstractDataStoreFactory {
     public static final Param USER = new Param("user", String.class, "user name to login as");
 
     public static final Param PASSWD = new Param("passwd", String.class, "password used to login",
-            false);
+            false, null, Param.IS_PASSWORD, true);
 
     public static final Param NAMESPACE = new Param("namespace", String.class,
             "namespace prefix used", false);
