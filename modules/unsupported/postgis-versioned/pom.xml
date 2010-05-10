@@ -115,6 +115,9 @@
             <exclude>**/VersiondPostgisDataStoreFactoryOnlineTest.java</exclude>
             <exclude>**/VersionedOperationsOnlineTest.java</exclude>
             <exclude>**/VersionedDataStoreStressTest.java</exclude>
+            <exclude>**/SynchronizedDataStoreStressTest.java</exclude>
+            <exclude>**/SynchronizedPostgisDataStoreFactoryOnlineTest.java</exclude>
+            <exclude>**/WrapperTest.java</exclude>
           </excludes>
         </configuration>
       </plugin>
