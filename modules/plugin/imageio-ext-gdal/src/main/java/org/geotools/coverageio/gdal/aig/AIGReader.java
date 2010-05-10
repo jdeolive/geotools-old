@@ -40,8 +40,7 @@ import org.opengis.coverage.grid.GridCoverageReader;
 public final class AIGReader extends BaseGDALGridCoverage2DReader implements
         GridCoverageReader {
     /** Logger. */
-    private final static Logger LOGGER = org.geotools.util.logging.Logging
-            .getLogger(AIGReader.class.toString());
+    private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(AIGReader.class.toString());
 
     /**
      * Creates a new instance of a {@link AIGReader}. I assume nothing about

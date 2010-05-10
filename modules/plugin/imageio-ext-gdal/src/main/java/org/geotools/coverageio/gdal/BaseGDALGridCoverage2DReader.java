@@ -58,8 +58,7 @@ public abstract class BaseGDALGridCoverage2DReader extends
     protected final static String DEFAULT_WORLDFILE_EXT = ".wld";
     
     /** Logger. */
-    private final static Logger LOGGER = org.geotools.util.logging.Logging
-            .getLogger(BaseGDALGridCoverage2DReader.class.toString());
+    private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(BaseGDALGridCoverage2DReader.class.toString());
 
     /**
      * Creates a new instance of a {@link BaseGDALGridCoverage2DReader}. I
@@ -98,8 +97,7 @@ public abstract class BaseGDALGridCoverage2DReader extends
         // //
         final IIOMetadata metadata = reader.getImageMetadata(0);
         if (!(metadata instanceof GDALCommonIIOImageMetadata)) {
-            throw new DataSourceException("Unexpected error! Metadata should be an instance of the expected class:"
-                            + " GDALCommonIIOImageMetadata.");
+            throw new DataSourceException("Unexpected error! Metadata should be an instance of the expected class: GDALCommonIIOImageMetadata.");
         }
         parseCommonMetadata((GDALCommonIIOImageMetadata) metadata);
 
@@ -135,8 +133,7 @@ public abstract class BaseGDALGridCoverage2DReader extends
      *                a {@link GDALCommonIIOImageMetadata} metadata instance
      *                from where to search needed properties.
      */
-    private void parseCommonMetadata(
-            GDALCommonIIOImageMetadata metadata) {
+    private void parseCommonMetadata(final GDALCommonIIOImageMetadata metadata) {
 
         // ////////////////////////////////////////////////////////////////////
         //

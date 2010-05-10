@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.channels.FileChannel;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -36,7 +37,6 @@ import javax.imageio.spi.ImageReaderSpi;
 import javax.media.jai.JAI;
 
 import org.geotools.coverage.CoverageFactoryFinder;
-import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
@@ -412,11 +412,15 @@ public abstract class BaseGridCoverage2DReader extends AbstractGridCoverage2DRea
         // read the prj serviceInfo from the file
         PrjFileReader projReader = null;
 
+        FileInputStream inStream=null;
+        FileChannel channel=null;
         try {
             final File prj = new File(prjPath);
+            if (prj.exists()&&prj.canRead()) {
 
-            if (prj.exists()) {
-                projReader = new PrjFileReader(new FileInputStream(prj).getChannel());
+                inStream=new FileInputStream(prj);
+                channel=inStream.getChannel();
+                projReader = new PrjFileReader(channel);
                 setCoverageCRS(projReader.getCoordinateReferenceSystem());
             }
             // If some exception occurs, warn about the error but proceed
@@ -443,6 +447,26 @@ public abstract class BaseGridCoverage2DReader extends AbstractGridCoverage2DRea
                     }
                 }
             }
+            
+            if (inStream != null) {
+                try {
+                    inStream.close();
+                } catch (Throwable e) {
+                    if (LOGGER.isLoggable(Level.WARNING)) {
+                        LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);
+                    }
+                }
+            }
+            
+            if (channel != null) {
+                try {
+                    channel.close();
+                } catch (Throwable e) {
+                    if (LOGGER.isLoggable(Level.WARNING)) {
+                        LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);
+                    }
+                }
+            }            
         }
     }
 
