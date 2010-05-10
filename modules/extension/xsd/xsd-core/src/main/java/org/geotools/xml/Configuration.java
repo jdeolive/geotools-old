@@ -244,7 +244,7 @@ public abstract class Configuration {
      */
     public Configuration(XSD xsd) {
         this.xsd = xsd;
-        dependencies = new ArrayList();
+        dependencies = Collections.synchronizedList(new ArrayList());
 
         //bootstrap check
         if (!(this instanceof XSConfiguration)) {
@@ -601,14 +601,14 @@ public abstract class Configuration {
             }
 
             //set any parser properties
-            List properties = new ArrayList(dependency.getProperties());
-            for (Iterator p = properties.iterator(); p.hasNext();) {
-                QName property = (QName) p.next();
-
-                try {
-                    container.registerComponentInstance(property, property);
-                } catch (DuplicateComponentKeyRegistrationException e) {
-                    //ok, ignore
+            synchronized(dependency.getProperties()) {
+                
+                for (QName property : (Set<QName>)dependency.getProperties()) {
+                    try {
+                        container.registerComponentInstance(property, property);
+                    } catch (DuplicateComponentKeyRegistrationException e) {
+                        //ok, ignore
+                    }
                 }
             }
 
