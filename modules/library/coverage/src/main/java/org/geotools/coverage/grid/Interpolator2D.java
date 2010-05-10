@@ -227,27 +227,6 @@ public final class Interpolator2D extends Calculator2D {
 	        this.toGrid = fallback.toGrid;
 	    } else try {
 	        final MathTransform2D transform = gridGeometry.getGridToCRS2D(PixelOrientation.UPPER_LEFT);
-	        // Note: If we want nearest-neighbor interpolation, we need to add the
-	        //       following line (assuming the transform is an 'AffineTransform'):
-	        //
-	        //       transform.translate(-0.5, -0.5);
-	        //
-	        //       This is because we need to cancel the last 'translate(0.5, 0.5)' that appears
-	        //       in GridGeometry's constructor (we must remember that OpenGIS's transform maps
-	        //       pixel CENTER, while JAI transforms maps pixel UPPER LEFT corner). For exemple
-	        //       the (12.4, 18.9) coordinates still lies on the [12,9] pixel.  Since the JAI's
-	        //       nearest-neighbor interpolation use 'Math.floor' operation instead of
-	        //       'Math.round', we must follow this convention.
-	        //
-	        //       For other kinds of interpolation, we want to maps pixel values to pixel center.
-	        //       For example, coordinate (12.5, 18.5) (in floating-point coordinates) lies at
-	        //       the center of pixel [12,18] (in integer coordinates); the evaluated value
-	        //       should be the exact pixel's value. On the other hand, coordinate (12.5, 19)
-	        //       (in floating-point coordinates) lies exactly at the edge between pixels
-	        //       [12,19] and [12,20]; the evaluated value should be a mid-value between those
-	        //       two pixels. If we want center of mass located at pixel centers, we must keep
-	        //       the (0.5, 0.5) translation provided by 'GridGeometry' for interpolation other
-	        //       than nearest-neighbor.
 	        toGrid = transform.inverse();
 	    } catch (NoninvertibleTransformException exception) {
 	        throw new IllegalArgumentException(exception);
