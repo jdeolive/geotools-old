@@ -134,7 +134,7 @@ public abstract class BaseGDALGridCoverage2DReader extends
      *                from where to search needed properties.
      */
     private void parseCommonMetadata(final GDALCommonIIOImageMetadata metadata) {
-
+    	
         // ////////////////////////////////////////////////////////////////////
         //
         // setting CRS and Envelope directly from GDAL, if available
