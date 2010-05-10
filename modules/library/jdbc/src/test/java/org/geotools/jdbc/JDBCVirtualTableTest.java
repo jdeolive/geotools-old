@@ -38,14 +38,14 @@ public abstract class JDBCVirtualTableTest extends JDBCTestSupport {
         sb.append(" * 2 as ");
         dialect.encodeColumnName(aname("doubleFlow"), sb);
         sb.append(" from ");
-        dialect.encodeTableName(tname("river"), sb);
-        sb.append(" where ");
-        dialect.encodeColumnName(aname("flow"), sb);
-        sb.append(" > 4");
         if (dbSchemaName!=null) {
             dialect.encodeSchemaName(dbSchemaName, sb);
             sb.append(".");
         }
+        dialect.encodeTableName(tname("river"), sb);
+        sb.append(" where ");
+        dialect.encodeColumnName(aname("flow"), sb);
+        sb.append(" > 4");
         VirtualTable vt = new VirtualTable("riverReduced", sb.toString());
         vt.addGeometryMetadatata("geom", LineString.class, -1);
         dataStore.addVirtualTable(vt);
