@@ -94,6 +94,7 @@ import org.geotools.util.logging.Logging;
  * @author Remi Eve
  * @author Martin Desruisseaux (IRD)
  */
+@SuppressWarnings("unchecked")
 public final class DeferredPlanarImage extends PlanarImage
         implements WritableRenderedImage, TileObserver, TileComputationListener
 {
@@ -145,7 +146,7 @@ public final class DeferredPlanarImage extends PlanarImage
      * Empty {@link DataBuffer} for a set of {@link SampleModel}.
      * Will be created only when first needed.
      */
-    private static Map buffers;
+    private static Map<Entry,DataBuffer> buffers;
 
     /**
      * The maximum delay (in milliseconds) to wait for a tile with one million pixels (e.g.
@@ -217,8 +218,8 @@ public final class DeferredPlanarImage extends PlanarImage
      * @todo Should be inlined in the constructor if only Sun was to fix RFE #4093999
      *       ("Relax constraint on placement of this()/super() call in constructors").
      */
-    private static Vector toVector(final RenderedImage image) {
-        final Vector vector = new Vector(1);
+    private static Vector<RenderedImage> toVector(final RenderedImage image) {
+        final Vector<RenderedImage> vector = new Vector<RenderedImage>(1);
         vector.add(image);
         return vector;
     }
@@ -283,7 +284,7 @@ public final class DeferredPlanarImage extends PlanarImage
             waitings[tileIndice] = true;
             try {
                 wait(delay);
-            } catch (InterruptedException exception) {
+            } catch (final InterruptedException exception) {
                 // Somebody doesn't want to lets us sleep. Go back to work.
             }
             waitings[tileIndice] = false;
@@ -339,7 +340,7 @@ public final class DeferredPlanarImage extends PlanarImage
         }
         final Entry entry = new Entry(sampleModel, fill, box);
         if (buffers == null) {
-            buffers = new WeakValueHashMap();
+            buffers = new WeakValueHashMap<Entry,DataBuffer>();
         }
         DataBuffer buffer = (DataBuffer) buffers.get(entry);
         if (buffer != null) {
@@ -413,7 +414,7 @@ public final class DeferredPlanarImage extends PlanarImage
             for (int i=0; i<length; i++) {
                 try {
                     observers[i].tileUpdate(this, tileX, tileY, willBeWritable);
-                } catch (RuntimeException cause) {
+                } catch (final RuntimeException cause) {
                     /*
                      * An exception occured in the user code. Unfortunatly, we are probably not in
                      * the mean user thread (e.g. the Swing thread).  This method is often invoked
@@ -623,7 +624,7 @@ public final class DeferredPlanarImage extends PlanarImage
      * {@code DeferredPlanarImage} are not really writable, this method
      * throws an {@link UnsupportedOperationException}.
      */
-    public void setData(Raster r) {
+    public void setData(final Raster r) {
         throw new UnsupportedOperationException();
     }
 
