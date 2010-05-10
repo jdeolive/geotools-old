@@ -30,6 +30,11 @@ import org.geotools.jdbc.JDBCDataStore;
 import org.geotools.jdbc.JDBCDataStoreFactory;
 import org.geotools.jdbc.SQLDialect;
 
+import com.vividsolutions.jts.io.ByteArrayInStream;
+import com.vividsolutions.jts.io.ByteOrderDataInStream;
+import com.vividsolutions.jts.io.ByteOrderValues;
+import com.vividsolutions.jts.io.WKBConstants;
+
 
 
 /**
@@ -42,9 +47,8 @@ import org.geotools.jdbc.SQLDialect;
  */
 public class DB2NGDataStoreFactory extends JDBCDataStoreFactory {
 
-    public static int MajorVersion,MinorVersion;
-    public static String ProductName,ProductVersion;
     public static String GetCurrentSchema = "select current sqlid from sysibm.sysdummy1";
+    public static String GetWKBZTypes = "select db2gse.st_asbinary(db2gse.st_point(1,2,3,0)) from sysibm.sysdummy1";
     
     /** parameter for database type */
     public static final Param DBTYPE = new Param("dbtype", String.class, "Type", true, "db2");
@@ -52,7 +56,7 @@ public class DB2NGDataStoreFactory extends JDBCDataStoreFactory {
 	public final static String DriverClassName = "com.ibm.db2.jcc.DB2Driver"; 
 	
     protected SQLDialect createSQLDialect(JDBCDataStore dataStore) {
-        return new DB2SQLDialectPrepared(dataStore);
+        return new DB2SQLDialectPrepared(dataStore, new DB2DialectInfo());
     }
 
     public String getDisplayName() {
@@ -129,12 +133,13 @@ public class DB2NGDataStoreFactory extends JDBCDataStoreFactory {
     throws IOException {
     Connection con = null;
     try {    
-    con = dataStore.getDataSource().getConnection();    
+    con = dataStore.getDataSource().getConnection();
+    DB2DialectInfo di = ((DB2SQLDialectPrepared) dataStore.getSQLDialect()).getDb2DialectInfo(); 
     DatabaseMetaData md = con.getMetaData();
-    MajorVersion=md.getDatabaseMajorVersion();
-    MinorVersion=md.getDatabaseMinorVersion();
-    ProductName=md.getDatabaseProductName();
-    ProductVersion=md.getDatabaseProductVersion();
+    di.setMajorVersion(md.getDatabaseMajorVersion());
+    di.setMinorVersion(md.getDatabaseMinorVersion());
+    di.setProductName(md.getDatabaseProductName());
+    di.setProductVersion(md.getDatabaseProductVersion());
     if (dataStore.getDatabaseSchema()==null) {
         PreparedStatement ps = con.prepareStatement(GetCurrentSchema);
         ResultSet  rs = ps.executeQuery();
@@ -143,6 +148,22 @@ public class DB2NGDataStoreFactory extends JDBCDataStoreFactory {
         rs.close();        
         ps.close();
     }
+    PreparedStatement  ps = con.prepareStatement(GetWKBZTypes);
+    ResultSet rs = ps.executeQuery();
+    rs.next();
+    byte[] bytes = rs.getBytes(1);
+    ByteOrderDataInStream dis = new ByteOrderDataInStream();
+    dis.setInStream(new ByteArrayInStream(bytes));
+    byte byteOrder = dis.readByte();
+    // default is big endian
+    if (byteOrder == WKBConstants.wkbNDR)
+      dis.setOrder(ByteOrderValues.LITTLE_ENDIAN);
+
+    int geometryType = dis.readInt();
+    if (geometryType==1001)
+        di.setHasOGCWkbZTyps(true);
+    rs.close();
+    ps.close();
     } catch (SQLException e) {
         throw new IOException(e.getMessage());
     }

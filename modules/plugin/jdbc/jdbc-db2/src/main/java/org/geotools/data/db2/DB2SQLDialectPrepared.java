@@ -41,9 +41,9 @@ public class DB2SQLDialectPrepared extends PreparedStatementSQLDialect {
 
 	private DB2SQLDialect delegate = null;
     
-    public DB2SQLDialectPrepared(JDBCDataStore dataStore) {
+    public DB2SQLDialectPrepared(JDBCDataStore dataStore, DB2DialectInfo info) {
         super(dataStore);
-        delegate  = new DB2SQLDialect(dataStore);
+        delegate  = new DB2SQLDialect(dataStore,info);
 
     }
     
@@ -160,7 +160,7 @@ public class DB2SQLDialectPrepared extends PreparedStatementSQLDialect {
 			ps.setBytes(column, null);
 			return;
 		}		
-		DB2WKBWriter w = new DB2WKBWriter(DB2WKBWriter.guessCoorinateDims(g));
+		DB2WKBWriter w = new DB2WKBWriter(DB2WKBWriter.guessCoorinateDims(g),getDb2DialectInfo().isHasOGCWkbZTyps());
 		byte[] bytes = w.write(g);
 		ps.setBytes(column, bytes);		
 	}
@@ -210,10 +210,14 @@ public class DB2SQLDialectPrepared extends PreparedStatementSQLDialect {
     protected void addSupportedHints(Set<Key> hints) {
     	delegate.addSupportedHints(hints);
     }
+
     @Override
     public boolean includeTable(String schemaName, String tableName, Connection cx) throws SQLException {
         return delegate.includeTable(schemaName, tableName, cx);
     }
 
+    public DB2DialectInfo getDb2DialectInfo() {
+        return delegate.getDb2DialectInfo();
+    }
 
 }

@@ -42,9 +42,9 @@ public class DB2SQLDialectBasic extends BasicSQLDialect {
 
 	private DB2SQLDialect delegate  = null;
 	
-    public DB2SQLDialectBasic(JDBCDataStore dataStore) {
+    public DB2SQLDialectBasic(JDBCDataStore dataStore, DB2DialectInfo info) {
         super(dataStore);
-        delegate  = new DB2SQLDialect(dataStore);
+        delegate  = new DB2SQLDialect(dataStore,info);
     }
     
     /* (non-Javadoc)
@@ -189,6 +189,10 @@ public class DB2SQLDialectBasic extends BasicSQLDialect {
     @Override
     public boolean includeTable(String schemaName, String tableName, Connection cx) throws SQLException {
         return delegate.includeTable(schemaName, tableName, cx);
+    }
+
+    public DB2DialectInfo getDb2DialectInfo() {
+        return delegate.getDb2DialectInfo();
     }
 
 }
