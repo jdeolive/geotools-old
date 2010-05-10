@@ -261,6 +261,7 @@ public abstract class SQLDialect {
         mappings.put(new Integer(Types.TIMESTAMP), Timestamp.class);
         
         mappings.put(new Integer(Types.BLOB), byte[].class);
+        mappings.put(new Integer(Types.BINARY), byte[].class);
         mappings.put(new Integer(Types.CLOB), String.class);
 
         //subclasses should extend to provide additional

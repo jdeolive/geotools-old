@@ -54,6 +54,7 @@ public abstract class JDBCLobTest extends JDBCTestSupport {
         FeatureIterator<SimpleFeature> fi = fc.features();
         assertTrue(fi.hasNext());
         SimpleFeature f = fi.next();
+        fi.close();
         assertTrue(Arrays.equals(new byte[] {1,2,3,4,5}, (byte[]) f.getAttribute(aname(BLOB_FIELD))));
         assertEquals("small clob", f.getAttribute(aname(CLOB_FIELD)));
     }
@@ -70,6 +71,7 @@ public abstract class JDBCLobTest extends JDBCTestSupport {
         FeatureIterator<SimpleFeature> fi = fs.getFeatures(filter).features();
         assertTrue(fi.hasNext());
         SimpleFeature f = fi.next();
+        fi.close();
         assertTrue(Arrays.equals(new byte[] {6,7,8}, (byte[]) f.getAttribute(aname(BLOB_FIELD))));
         assertEquals("newclob", f.getAttribute(aname(CLOB_FIELD)));
     }
