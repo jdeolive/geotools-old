@@ -92,7 +92,7 @@ public abstract class AbstractTest extends TestCase {
 		super(test);
 	}
 
-	boolean checkPreConditions() {
+	protected boolean checkPreConditions() {
 		try {
 			initOutputDir();
 		} catch (Exception e) {

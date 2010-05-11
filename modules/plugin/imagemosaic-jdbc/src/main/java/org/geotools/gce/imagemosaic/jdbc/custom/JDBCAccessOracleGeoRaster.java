@@ -15,7 +15,7 @@
  *    Lesser General Public License for more details.
  */
 
-package org.geotools.gce.imagemosaic.jdbc;
+package org.geotools.gce.imagemosaic.jdbc.custom;
 
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
@@ -30,21 +30,18 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Types;
-import java.util.ArrayList;
-import java.util.List;
 
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Logger;
 
 import javax.media.jai.PlanarImage;
-import javax.sql.DataSource;
 
 import org.geotools.coverage.grid.GridCoverageFactory;
-import org.geotools.data.jdbc.datasource.DataSourceFinder;
+import org.geotools.gce.imagemosaic.jdbc.Config;
+import org.geotools.gce.imagemosaic.jdbc.ImageLevelInfo;
+import org.geotools.gce.imagemosaic.jdbc.TileQueueElement;
 import org.geotools.geometry.GeneralEnvelope;
-import org.geotools.referencing.CRS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.sun.media.jai.codec.ByteArraySeekableStream;
@@ -63,9 +60,13 @@ import com.vividsolutions.jts.io.WKBReader;
  * 
  **/
 
-class JDBCAccessOracleGeoRaster implements JDBCAccess {
+public class JDBCAccessOracleGeoRaster extends JDBCAccessCustom {
+    
+    private final static Logger LOGGER = Logger.getLogger(JDBCAccessOracleGeoRaster.class
+            .getPackage().getName());
 
-    static String StmtTemplatePixel = "SELECT "
+
+    private static String StmtTemplatePixel = "SELECT "
             + " sdo_geor.getCellCoordinate(%s, ?, sdo_geometry(2001,%s,sdo_point_type(?,?,null), null,null)), "
             + " sdo_geor.getCellCoordinate(%s, ?, sdo_geometry(2001,%s,sdo_point_type(?,?,null), null,null)) "
             + " from %s where %s = ?";
@@ -76,7 +77,7 @@ class JDBCAccessOracleGeoRaster implements JDBCAccess {
 //            + "sdo_geor.exportTo(gr, 'pLevel=%d cropArea=(%d,%d,%d,%d)', '%s', lb); " + "?:=lb; "
 //            + "end; ";
     
-    static String StmtTemplateExport = "declare " + "gr sdo_georaster; " + "lb blob; " + "begin "
+    private static String StmtTemplateExport = "declare " + "gr sdo_georaster; " + "lb blob; " + "begin "
     + "dbms_lob.createtemporary(lb,true); "
     + "select a.%s into gr from %s a where a.%s = ?; "
     + "sdo_geor.exportTo(gr, ?, '%s', lb); " + "?:=lb; "
@@ -104,25 +105,14 @@ class JDBCAccessOracleGeoRaster implements JDBCAccess {
 
 
 
-    protected final static Logger LOGGER = Logger.getLogger(JDBCAccessOracleGeoRaster.class
-            .getPackage().getName());
-
-    protected List<ImageLevelInfo> levelInfos = new ArrayList<ImageLevelInfo>();
-
-    protected Config config;
-
-    protected DataSource dataSource;
-
     /**
      * 
      * @param config
      *            Config from XML file passed to this class
      * 
      **/
-    JDBCAccessOracleGeoRaster(Config config) throws IOException {
-        super();
-        this.config = config;
-        this.dataSource = DataSourceFinder.getDataSource(config.getDataSourceParams());
+    public JDBCAccessOracleGeoRaster(Config config) throws IOException {
+        super(config);
     }
 
     /*
@@ -142,12 +132,12 @@ class JDBCAccessOracleGeoRaster implements JDBCAccess {
             con = getConnection();
             int srid = getSRID(con);
 
-            stmtPixel = String.format(StmtTemplatePixel, config.getGeoRasterAttribute(), Integer
-                    .toString(srid), config.getGeoRasterAttribute(), Integer.toString(srid), config
-                    .getMasterTable(), config.getCoverageNameAttribute());
+            stmtPixel = String.format(StmtTemplatePixel, getConfig().getGeoRasterAttribute(), Integer
+                    .toString(srid), getConfig().getGeoRasterAttribute(), Integer.toString(srid), getConfig()
+                    .getMasterTable(), getConfig().getCoverageNameAttribute());
             
-            stmtExport = String.format(StmtTemplateExport, config.getGeoRasterAttribute(), config
-                    .getMasterTable(), config.getCoverageNameAttribute(), 
+            stmtExport = String.format(StmtTemplateExport, getConfig().getGeoRasterAttribute(), getConfig()
+                    .getMasterTable(), getConfig().getCoverageNameAttribute(), 
                      "TIFF");
 
             CoordinateReferenceSystem crs = getCRS();
@@ -168,7 +158,7 @@ class JDBCAccessOracleGeoRaster implements JDBCAccess {
 
                 ImageLevelInfo imageLevel = new ImageLevelInfo();
 
-                imageLevel.setCoverageName(config.getCoverageName());
+                imageLevel.setCoverageName(getConfig().getCoverageName());
                 imageLevel.setSpatialTableName(new String(i + ""));
                 imageLevel.setTileTableName(new String(i + ""));
 
@@ -182,9 +172,9 @@ class JDBCAccessOracleGeoRaster implements JDBCAccess {
 
                 imageLevel.setSrsId(srid);
                 imageLevel.setCrs(crs);
-                levelInfos.add(imageLevel);
+                getLevelInfos().add(imageLevel);
 
-                LOGGER.fine("New Level Info for Coverage: " + config.getCoverageName()
+                LOGGER.fine("New Level Info for Coverage: " + getConfig().getCoverageName()
                         + " Pyramid Level: " + imageLevel.getSpatialTableName());
                 LOGGER.fine("Resolution X: " + imageLevel.getResX());
                 LOGGER.fine("Resolution Y: " + imageLevel.getResY());
@@ -192,7 +182,7 @@ class JDBCAccessOracleGeoRaster implements JDBCAccess {
                 LOGGER.fine("CRS: " + imageLevel.getCrs());
             }
 
-            LOGGER.fine("Image Level List Size: " + levelInfos.size());
+            LOGGER.fine("Image Level List Size: " + getLevelInfos().size());
 
         } finally {
             closeConnection(con);
@@ -201,60 +191,6 @@ class JDBCAccessOracleGeoRaster implements JDBCAccess {
 
     }
 
-    /**
-     * getLevelInfo
-     * 
-     * @param level
-     *            Pyramid Level Information
-     * @return ImageLevelInfo
-     **/
-
-    public ImageLevelInfo getLevelInfo(int level) {
-        LOGGER.fine("getLevelInfo Method");
-        return levelInfos.get(level);
-    }
-
-    /**
-     * getNumOverviews
-     * 
-     * 
-     * @return int
-     **/
-
-    public int getNumOverviews() {
-        LOGGER.fine("getNumOverviews Method");
-        return levelInfos.size() - 1;
-    }
-
-    /**
-     *getCRS
-     * 
-     * @return CoordinateReferenceSystem
-     **/
-
-    private CoordinateReferenceSystem getCRS() {
-
-        LOGGER.fine("getCRS Method");
-
-        CoordinateReferenceSystem crs = null;
-
-        try {
-
-            crs = CRS.decode(config.getCoordsys());
-            LOGGER.fine("CRS get Identifier" + crs.getIdentifiers());
-
-        } catch (Exception e) {
-            LOGGER.severe("Cannot parse Decode CRS from Config File " + e.getMessage());
-            throw new RuntimeException(e);
-        } finally {
-
-        }
-
-        LOGGER.fine("Returning CRS Result");
-
-        return crs;
-
-    }
 
     /**
      * getExtent of pyramid level 0
@@ -268,8 +204,8 @@ class JDBCAccessOracleGeoRaster implements JDBCAccess {
         LOGGER.fine("Get Extent Method");
 
         String extentSelectLBX = "select sdo_geometry.get_wkb(sdo_geor.generateSpatialExtent("
-                + config.getGeoRasterAttribute() + ")) from " + config.getMasterTable() + " where "
-                + config.getCoverageNameAttribute() + "=?";
+                + getConfig().getGeoRasterAttribute() + ")) from " + getConfig().getMasterTable() + " where "
+                + getConfig().getCoverageNameAttribute() + "=?";
 
         PreparedStatement s = null;
         ResultSet r = null;
@@ -278,7 +214,7 @@ class JDBCAccessOracleGeoRaster implements JDBCAccess {
         try {
 
             s = con.prepareStatement(extentSelectLBX);
-            s.setString(1, config.getCoverageName());
+            s.setString(1, getConfig().getCoverageName());
             r = s.executeQuery();
             r.next();
             byte[] wkb = r.getBytes(1);
@@ -311,9 +247,9 @@ class JDBCAccessOracleGeoRaster implements JDBCAccess {
 
         LOGGER.fine("getSRId Method");
 
-        String SRSSelect = "select sdo_geor.getModelSRID(" + config.getGeoRasterAttribute()
-                + ") from " + config.getMasterTable() + " where "
-                + config.getCoverageNameAttribute() + "=?";
+        String SRSSelect = "select sdo_geor.getModelSRID(" + getConfig().getGeoRasterAttribute()
+                + ") from " + getConfig().getMasterTable() + " where "
+                + getConfig().getCoverageNameAttribute() + "=?";
 
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -322,7 +258,7 @@ class JDBCAccessOracleGeoRaster implements JDBCAccess {
         try {
             stmt = con.prepareStatement(SRSSelect);
 
-            stmt.setString(1, config.getCoverageName());
+            stmt.setString(1, getConfig().getCoverageName());
             rs = stmt.executeQuery();
 
             if (rs.next()) {
@@ -353,8 +289,8 @@ class JDBCAccessOracleGeoRaster implements JDBCAccess {
         LOGGER.fine("getSpatialResolution Method");
 
         String sqlSpatialResolution = "select sdo_geor.getspatialresolutions("
-                + config.getGeoRasterAttribute() + ") from " + config.getMasterTable() + " where "
-                + config.getCoverageNameAttribute() + "=?";
+                + getConfig().getGeoRasterAttribute() + ") from " + getConfig().getMasterTable() + " where "
+                + getConfig().getCoverageNameAttribute() + "=?";
 
         LOGGER.fine("Sptial Reso SQL:" + sqlSpatialResolution);
 
@@ -364,7 +300,7 @@ class JDBCAccessOracleGeoRaster implements JDBCAccess {
 
         try {
             stmt = con.prepareStatement(sqlSpatialResolution);
-            stmt.setString(1, config.getCoverageName());
+            stmt.setString(1, getConfig().getCoverageName());
             rs = stmt.executeQuery();
             rs.next();
             Array array = rs.getArray(1);
@@ -397,8 +333,8 @@ class JDBCAccessOracleGeoRaster implements JDBCAccess {
         LOGGER.fine("getPyrmidLevels Method");
 
         String sqlPyramidLevels = "select sdo_geor.getPyramidMaxLevel("
-                + config.getGeoRasterAttribute() + ") from " + config.getMasterTable() + " where "
-                + config.getCoverageNameAttribute() + " = ?";
+                + getConfig().getGeoRasterAttribute() + ") from " + getConfig().getMasterTable() + " where "
+                + getConfig().getCoverageNameAttribute() + " = ?";
 
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -408,7 +344,7 @@ class JDBCAccessOracleGeoRaster implements JDBCAccess {
 
             LOGGER.fine("get pyramid level sql: " + sqlPyramidLevels);
             stmt = con.prepareStatement(sqlPyramidLevels);
-            stmt.setString(1, config.getCoverageName());
+            stmt.setString(1, getConfig().getCoverageName());
             rs = stmt.executeQuery();
 
             if (rs.next()) {
@@ -470,98 +406,6 @@ class JDBCAccessOracleGeoRaster implements JDBCAccess {
     }
 
 
-    /**
-     * getConnection
-     * 
-     * @return Connection
-     **/
-
-    protected Connection getConnection() {
-
-        Connection con = null;
-        try {
-
-            con = dataSource.getConnection();
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-        return con;
-    }
-
-    /**
-     * closeConnection
-     * 
-     * @param conn
-     *            Connection Object passed to be closed
-     **/
-
-    protected void closeConnection(Connection con) {
-        try {
-
-            if (con != null) {
-                con.close();
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * closePreparedStatement
-     * 
-     * @param stmt
-     *            PreparedStatement Object passed to be closed
-     **/
-
-    protected void closePreparedStmt(PreparedStatement stmt) {
-        try {
-
-            if (stmt != null) {
-                stmt.close();
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * closeStmt
-     * 
-     * @param stmt
-     *            Statement Object passed to be closed
-     **/
-
-    protected void closeStmt(Statement stmt) {
-
-        try {
-
-            if (stmt != null) {
-                stmt.close();
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * closeResultSet
-     * 
-     * @param rs
-     *            ResultSet Object passed to be closed
-     **/
-
-    protected void closeResultSet(ResultSet rs) {
-        try {
-
-            if (rs != null) {
-                rs.close();
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     /**
      * 
@@ -573,7 +417,7 @@ class JDBCAccessOracleGeoRaster implements JDBCAccess {
      *            Database Connection
      * @return TileQueueElement containing the georeferenced cropped image
      */
-    public TileQueueElement getSingleTQElement(GeneralEnvelope envelopeOrig, ImageLevelInfo info,
+     private TileQueueElement getSingleTQElement(GeneralEnvelope envelopeOrig, ImageLevelInfo info,
             Connection conn) {
 
         int level = Integer.parseInt(info.getTileTableName());
@@ -619,7 +463,7 @@ class JDBCAccessOracleGeoRaster implements JDBCAccess {
             // LOGGER.fine("Writing Retrieved Image to disk (Should be for Debugging only!)");
             // ImageIO.write(bimg,"png", new File("/tmp/pics/test.png"));
 
-            return new TileQueueElement(config.getCoverageName(), bimg, envelope);
+            return new TileQueueElement(getConfig().getCoverageName(), bimg, envelope);
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
@@ -634,7 +478,7 @@ class JDBCAccessOracleGeoRaster implements JDBCAccess {
      * @param conn      Connection
      * @return          The BLOB as byte array
      */
-    byte[] getImageBytesUsingSDOExport(GeneralEnvelope envelope, int level, Connection conn) {
+    private byte[] getImageBytesUsingSDOExport(GeneralEnvelope envelope, int level, Connection conn) {
         PreparedStatement ps = null;
         CallableStatement cs = null;
         ResultSet r = null;
@@ -648,7 +492,7 @@ class JDBCAccessOracleGeoRaster implements JDBCAccess {
             ps.setInt(4, level);
             ps.setDouble(5, envelope.getMaximum(0));
             ps.setDouble(6, envelope.getMinimum(1));
-            ps.setString(7, config.getCoverageName());
+            ps.setString(7, getConfig().getCoverageName());
 
             r = ps.executeQuery();
             BigDecimal[] pixelCoords1 = null;
@@ -669,7 +513,7 @@ class JDBCAccessOracleGeoRaster implements JDBCAccess {
 
             
             cs = conn.prepareCall(stmtExport);
-            cs.setString(1, config.getCoverageName());
+            cs.setString(1, getConfig().getCoverageName());
             String params = String.format("pLevel=%d cropArea=(%d,%d,%d,%d)",level, 
                     pixelCoords1[0].intValue(), pixelCoords1[1].intValue(), pixelCoords2[0].intValue(),pixelCoords2[1].intValue());
 

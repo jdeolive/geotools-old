@@ -248,7 +248,8 @@ public class Import extends AbstractCmd {
 					e.printStackTrace();
 					System.exit(1);
 				}
-		                if (config !=null && config.getSpatialExtension()==SpatialExtension.GEORASTER) {
+		                if (config !=null && (config.getSpatialExtension()==SpatialExtension.GEORASTER ||
+		                        config.getSpatialExtension()==SpatialExtension.CUSTOM)) {
 		                    System.out.println(NotSupported+config.getSpatialExtension().toString());
 		                    System.exit(1);
 		                }

@@ -120,8 +120,9 @@ class DDLGenerator extends AbstractCmd {
 					e.printStackTrace();
 					System.exit(1);
 				}
-		                if (config !=null && config.getSpatialExtension()==SpatialExtension.GEORASTER) {
-		                    System.out.println(NotSuppord+SpatialExtension.GEORASTER.toString());
+		                if (config !=null && (config.getSpatialExtension()==SpatialExtension.GEORASTER ||
+		                        config.getSpatialExtension()==SpatialExtension.CUSTOM)) {
+		                    System.out.println(NotSuppord+config.getSpatialExtension());
 		                    System.exit(1);
 		                }
 				i++;

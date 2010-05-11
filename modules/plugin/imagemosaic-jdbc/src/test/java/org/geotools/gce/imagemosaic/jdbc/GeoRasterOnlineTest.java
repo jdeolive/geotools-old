@@ -29,7 +29,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 public class GeoRasterOnlineTest extends AbstractTest {
-    static DBDialect dialect = null;
+    static protected DBDialect dialect = null;
     static String CREATE_RDT = 
         "CREATE TABLE RASTER_RDT OF SDO_RASTER"+
         " (PRIMARY KEY (rasterID, pyramidLevel, bandBlockNumber,"+

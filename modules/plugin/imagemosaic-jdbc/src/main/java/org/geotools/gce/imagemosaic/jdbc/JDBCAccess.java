@@ -1,5 +1,5 @@
 /*
- *    GeoTools - The Open Source Java GIS Toolkit
+ *    GeoTools+ - The Open Source Java GIS Toolkit
  *    http://geotools.org
  *
  *    (C) 2008, Open Source Geospatial Foundation (OSGeo)
@@ -31,7 +31,7 @@ import org.geotools.geometry.GeneralEnvelope;
  * @author mcr
  * 
  */
-interface JDBCAccess {
+public interface JDBCAccess {
 	/**
 	 * Method for starting the main action, getting the neccessairy tiles and
 	 * decoding them in a multithreaded manner
