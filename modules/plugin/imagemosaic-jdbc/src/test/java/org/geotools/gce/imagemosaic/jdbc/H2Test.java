@@ -165,7 +165,7 @@ public class H2Test extends AbstractTest {
 		// No fixture check needed
 	}
 
-	String getFixtureId() {
+	protected String getFixtureId() {
 		return null;
 	}
 

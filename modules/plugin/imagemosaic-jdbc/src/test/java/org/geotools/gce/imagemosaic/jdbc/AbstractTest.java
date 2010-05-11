@@ -758,7 +758,7 @@ public abstract class AbstractTest extends TestCase {
 		}
 	}
 
-	String getFixtureId() {
+	protected String getFixtureId() {
 		return "imagemosaic." + getSubDir();
 	}
 

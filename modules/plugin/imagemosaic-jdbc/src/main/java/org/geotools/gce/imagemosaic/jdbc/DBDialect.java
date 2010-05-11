@@ -54,7 +54,7 @@ public abstract class DBDialect {
 	 * @param config
 	 * @return
 	 */
-	static DBDialect getDBDialect(Config config) {
+	public static DBDialect getDBDialect(Config config) {
 		SpatialExtension type = config.getSpatialExtension();
 
 		if (type == null) {
@@ -113,7 +113,7 @@ public abstract class DBDialect {
 	 * @return jdbc connection
 	 * @throws Exception
 	 */
-	protected Connection getConnection() throws Exception {
+	public Connection getConnection() throws Exception {
 		Connection con = getDataSource().getConnection();
 		con.setAutoCommit(false);
 
