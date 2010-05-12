@@ -30,6 +30,7 @@ import org.opengis.coverage.grid.Format;
 import org.opengis.coverage.grid.GridCoverageReader;
 import org.opengis.coverage.grid.GridCoverageWriter;
 import org.opengis.parameter.GeneralParameterValue;
+import org.opengis.parameter.ParameterDescriptor;
 import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.NoSuchAuthorityCodeException;
@@ -140,7 +141,7 @@ public abstract class AbstractGridFormat implements Format {
 	 * This {@link GeneralParameterValue} can be provided to the
 	 * {@link GridCoverageReader}s through the
 	 * {@link GridCoverageReader#read(GeneralParameterValue[])} method in order
-	 * to specify the policy a reader should adopt when chhosing the right
+	 * to specify the policy a reader should adopt when choosing the right
 	 * overview during a read operation.
 	 */
 	public static final DefaultParameterDescriptor<OverviewPolicy> OVERVIEW_POLICY = new DefaultParameterDescriptor<OverviewPolicy>(
@@ -151,6 +152,18 @@ public abstract class AbstractGridFormat implements Format {
 					OverviewPolicy.SPEED },
 			OverviewPolicy.QUALITY);
 	
+	/**
+         * This {@link GeneralParameterValue} can be provided to the
+         * {@link GridCoverageReader}s through the
+         * {@link GridCoverageReader#read(GeneralParameterValue[])} method in order
+         * to specify the policy a reader should adopt when setting read parameters  
+         * when evaluating a needed resolution.
+         */
+        public static final ParameterDescriptor<DecimationPolicy> DECIMATION_POLICY = new DefaultParameterDescriptor<DecimationPolicy>(
+            Hints.DECIMATION_POLICY.toString(), DecimationPolicy.class, new DecimationPolicy[] {
+                    DecimationPolicy.ALLOW, DecimationPolicy.DISALLOW },
+            DecimationPolicy.ALLOW);
+
 	/**
 	 * @see org.opengis.coverage.grid.Format#getName()
 	 */

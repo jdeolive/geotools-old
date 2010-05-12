@@ -23,7 +23,7 @@ package org.geotools.coverage.grid.io;
  * @since 2.5
  * @source $URL$
  * @version $Id$
- * @author Andrea Aimes
+ * @author Andrea Aime
  * @author Simone Giannecchini
  */
 public enum OverviewPolicy {
