@@ -56,6 +56,7 @@ import org.geotools.coverage.TypeMap;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
+import org.geotools.coverage.grid.io.DecimationPolicy;
 import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DefaultQuery;
@@ -952,7 +953,7 @@ class RasterLayerResponse{
 	        if(backgroundValues!=null)
 	        {
 	        	// sometimes background values are not specified as 1 per each band, therefore we need to be careful
-	        	noData= backgroundValues[backgroundValues.length>=i?i:0];
+	        	noData= backgroundValues[backgroundValues.length > i ? i:0];
 	        }
 	        else
 	        {
@@ -1032,11 +1033,6 @@ class RasterLayerResponse{
 
 	/**
 	 * This method is responsible for preparing the read param for doing an
-	 * {@link ImageReader#read(int, ImageReadParam)}.
-	 * 
-	 * 
-	 * <p>
-	 * This method is responsible for preparing the read param for doing an
 	 * {@link ImageReader#read(int, ImageReadParam)}. It sets the passed
 	 * {@link ImageReadParam} in terms of decimation on reading using the
 	 * provided requestedEnvelope and requestedDim to evaluate the needed
@@ -1088,17 +1084,17 @@ class RasterLayerResponse{
                     decPolicy = decimationPolicy;
 
 		// requested to ignore overviews
-		//TODO: Change this behavior 
-		if (policy.equals(OverviewPolicy.IGNORE))
+		if (policy.equals(OverviewPolicy.IGNORE) && decPolicy.equals(DecimationPolicy.DISALLOW))
 			return imageChoice;
 
-		// overviews and decimation
-		imageChoice = rasterManager.overviewsController.pickOverviewLevel(overviewPolicy, request);
-
+		if (!policy.equals(OverviewPolicy.IGNORE)) {
+		    imageChoice = rasterManager.overviewsController.pickOverviewLevel(overviewPolicy, request);
+		}
 		
 		// DECIMATION ON READING
-		if (!decPolicy.equals(DecimationPolicy.DISALLOW))
+		if (!decPolicy.equals(DecimationPolicy.DISALLOW)) {
 		    rasterManager.decimationController.performDecimation(imageChoice, readParams, request, rasterManager.overviewsController, rasterManager.spatialDomainManager);
+		}
 		return imageChoice;
 
 	}

@@ -36,6 +36,7 @@ import javax.media.jai.ImageLayout;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.grid.GridEnvelope2D;
+import org.geotools.coverage.grid.io.DecimationPolicy;
 import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataUtilities;
@@ -484,6 +485,7 @@ class RasterManager {
 			throw new DataSourceException(e);
 		}
         extractOverviewPolicy();
+        extractDecimationPolicy();
         
         // load defaultSM and defaultCM by using the sample_image if it was provided
         loadSampleImage();        
@@ -529,10 +531,10 @@ class RasterManager {
 	 * the provided {@link Hints}.
 	 * 
 	 * @return the overview policy which can be one of
-	 *         {@link Hints#VALUE_OVERVIEW_POLICY_IGNORE},
-	 *         {@link Hints#VALUE_OVERVIEW_POLICY_NEAREST},
-	 *         {@link Hints#VALUE_OVERVIEW_POLICY_SPEED}, {@link Hints#VALUE_OVERVIEW_POLICY_QUALITY}.
-	 *         Default is {@link Hints#VALUE_OVERVIEW_POLICY_NEAREST}.
+	 *         {@link OverviewPolicy#IGNORE},
+	 *         {@link OverviewPolicy#NEAREST},
+	 *         {@link OverviewPolicy#SPEED}, {@link OverviewPolicy#QUALITY}.
+	 *         Default is {@link OverviewPolicy#NEAREST}.
 	 */
 	private OverviewPolicy extractOverviewPolicy() {
 		
@@ -543,21 +545,41 @@ class RasterManager {
 				overviewPolicy = (OverviewPolicy) this.hints.get(Hints.OVERVIEW_POLICY);
 	
 		// use default if not provided. Default is nearest
-		if (overviewPolicy == null)
+		if (overviewPolicy == null) {
 			overviewPolicy = OverviewPolicy.getDefaultPolicy();
+		}
 		assert overviewPolicy != null;
 		return overviewPolicy;
 	}
-
 	
-	public Collection<GridCoverage2D> read(final GeneralParameterValue[] params) throws IOException
-	{
+	/**
+         * This method is responsible for checking the decimation policy as defined by
+         * the provided {@link Hints}.
+         * 
+         * @return the decimation policy which can be one of
+         *         {@link DecimationPolicy#ALLOW},
+         *         {@link DecimationPolicy#DISALLOW}.
+         *         Default is {@link DecimationPolicy#ALLOW}.
+         */
+	private DecimationPolicy extractDecimationPolicy() {
+            if (this.hints != null)
+                if (this.hints.containsKey(Hints.DECIMATION_POLICY))
+                    decimationPolicy = (DecimationPolicy) this.hints.get(Hints.DECIMATION_POLICY);
+    
+            // use default if not provided. Default is allow
+            if (decimationPolicy == null) {
+                decimationPolicy = DecimationPolicy.getDefaultPolicy();
+            }
+            assert decimationPolicy != null;
+            return decimationPolicy;
 
-		
+        }
+
+	public Collection<GridCoverage2D> read(final GeneralParameterValue[] params) throws IOException {
 
 		// create a request
 		final RasterLayerRequest request= new RasterLayerRequest(params,this);
-		if(request.isEmpty()){
+		if (request.isEmpty()){
 			if(LOGGER.isLoggable(Level.FINE))
 				LOGGER.log(Level.FINE,"Request is empty: "+request.toString());
 			return Collections.emptyList();		
