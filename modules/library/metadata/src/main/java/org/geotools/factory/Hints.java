@@ -659,13 +659,20 @@ public class Hints extends RenderingHints {
 
 
     /**
-     * Overview choosing policy. The value most be one of
+     * Overview choosing policy. The value must be one of
      * {link #org.geotools.coverage.grid.io.OverviewPolicy} enumeration.
      *
      * @since 2.5
      */
-    public static final Key OVERVIEW_POLICY = new Key(
-            "org.geotools.coverage.grid.io.OverviewPolicy");
+    public static final Key OVERVIEW_POLICY = new Key("org.geotools.coverage.grid.io.OverviewPolicy");
+    
+    /**
+     * Decimation choosing policy. The value must be one of
+     * {link #org.geotools.coverage.grid.io.DecimationPolicy} enumeration.
+     *
+     * @since 2.7
+     */
+    public static final Key DECIMATION_POLICY = new Key("org.geotools.coverage.grid.io.DecimationPolicy");
 
     /**
      * Forces the {@linkplain org.opengis.coverage.processing.GridCoverageProcessor grid coverage
