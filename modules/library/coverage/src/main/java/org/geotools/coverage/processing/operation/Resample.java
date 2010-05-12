@@ -17,37 +17,37 @@
 package org.geotools.coverage.processing.operation;
 
 import javax.media.jai.Interpolation;
-import javax.media.jai.operator.WarpDescriptor;    // For javadoc
-import javax.media.jai.operator.AffineDescriptor;  // For javadoc
-
-import org.opengis.geometry.Envelope;
-import org.opengis.coverage.Coverage;
-import org.opengis.coverage.grid.GridEnvelope;
-import org.opengis.coverage.grid.GridGeometry;
-import org.opengis.coverage.grid.GridCoverage;
-import org.opengis.parameter.ParameterDescriptor;
-import org.opengis.parameter.ParameterValueGroup;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.datum.PixelInCell;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.TransformException;
+import javax.media.jai.operator.AffineDescriptor;
+import javax.media.jai.operator.WarpDescriptor;
 
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.coverage.processing.Operation2D;
 import org.geotools.coverage.processing.CannotReprojectException;
+import org.geotools.coverage.processing.Operation2D;
 import org.geotools.factory.Hints;
-import org.geotools.referencing.CRS;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.metadata.iso.citation.Citations;
 import org.geotools.parameter.DefaultParameterDescriptor;
 import org.geotools.parameter.DefaultParameterDescriptorGroup;
-import org.geotools.util.logging.Logging;
-import org.geotools.resources.i18n.Errors;
-import org.geotools.resources.i18n.ErrorKeys;
-import org.geotools.resources.image.ImageUtilities;
+import org.geotools.parameter.Parameter;
+import org.geotools.referencing.CRS;
 import org.geotools.resources.coverage.CoverageUtilities;
+import org.geotools.resources.i18n.ErrorKeys;
+import org.geotools.resources.i18n.Errors;
+import org.geotools.resources.image.ImageUtilities;
+import org.geotools.util.logging.Logging;
+import org.opengis.coverage.Coverage;
+import org.opengis.coverage.grid.GridCoverage;
+import org.opengis.coverage.grid.GridEnvelope;
+import org.opengis.coverage.grid.GridGeometry;
+import org.opengis.geometry.Envelope;
+import org.opengis.parameter.ParameterDescriptor;
+import org.opengis.parameter.ParameterValueGroup;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.datum.PixelInCell;
+import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.TransformException;
 
 
 /**
@@ -118,6 +118,13 @@ import org.geotools.resources.coverage.CoverageUtilities;
  *     <td align="center">N/A</td>
  *     <td align="center">N/A</td>
  *   </tr>
+ *    <tr>
+ *     <td>{@code "BackgroundValues"}</td>
+ *     <td>{@code double[]}</td>
+ *     <td align="center">N/A</td>
+ *     <td align="center">N/A</td>
+ *     <td align="center">N/A</td>
+ *   </tr>
  * </table>
  *
  * @since 2.2
@@ -172,6 +179,19 @@ public class Resample extends Operation2D {
                 null,                               // Maximal value
                 null,                               // Unit of measure
                 false);                             // Parameter is optional
+    
+    /**
+     * The parameter descriptor for the BackgroundValues.
+     */
+    public static final ParameterDescriptor BACKGROUND_VALUES =
+            new DefaultParameterDescriptor(Citations.JAI, "BackgroundValues",
+                double[].class,                     // Value class (mandatory)
+                null,                               // Array of valid values
+                null,                               // Default value
+                null,                               // Minimal value
+                null,                               // Maximal value
+                null,                               // Unit of measure
+                false);                             // Parameter is optional
 
     /**
      * Constructs a {@code "Resample"} operation.
@@ -182,7 +202,8 @@ public class Resample extends Operation2D {
                     SOURCE_0,
                     INTERPOLATION_TYPE,
                     COORDINATE_REFERENCE_SYSTEM,
-                    GRID_GEOMETRY
+                    GRID_GEOMETRY,
+                    BACKGROUND_VALUES
         }));
     }
 
@@ -203,9 +224,16 @@ public class Resample extends Operation2D {
         final GridGeometry2D targetGG = GridGeometry2D.wrap(
                 (GridGeometry) parameters.parameter("GridGeometry").getValue());
         final GridCoverage2D target;
+        final Object bgValueParam = parameters.parameter("BackgroundValues");
+        final double [] bgValues;
+        if (bgValueParam != null && bgValueParam instanceof Parameter<?>){
+            bgValues = ((Parameter<double[]>)bgValueParam).getValue();
+        } else {
+            bgValues = null;
+        }
         try {
             target = Resampler2D.reproject(source, targetCRS, targetGG, interpolation,
-                (hints instanceof Hints) ? hints : new Hints(hints));
+                (hints instanceof Hints) ? hints : new Hints(hints), bgValues);
         } catch (FactoryException exception) {
             throw new CannotReprojectException(Errors.format(
                     ErrorKeys.CANT_REPROJECT_$1, source.getName()), exception);

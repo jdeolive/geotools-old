@@ -172,7 +172,7 @@ final class Resampler2D extends GridCoverage2D {
         coverage = coverage.view(finalView);
         return coverage;
     }
-
+    
     /**
      * Creates a new coverage with a different coordinate reference reference system. If a
      * grid geometry is supplied, only its {@linkplain GridGeometry2D#getRange grid range}
@@ -202,6 +202,43 @@ final class Resampler2D extends GridCoverage2D {
                                            GridGeometry2D            targetGG,
                                            final Interpolation       interpolation,
                                            final Hints               hints)
+            throws FactoryException, TransformException {
+        return reproject(sourceCoverage, targetCRS, targetGG, interpolation, hints, null);
+    }
+
+    /**
+     * Creates a new coverage with a different coordinate reference reference system. If a
+     * grid geometry is supplied, only its {@linkplain GridGeometry2D#getRange grid range}
+     * and {@linkplain GridGeometry2D#getGridToCRS grid to CRS} transform are taken in account.
+     *
+     * @param sourceCoverage
+     *          The source grid coverage.
+     * @param targetCRS
+     *          Coordinate reference system for the new grid coverage, or {@code null}.
+     * @param targetGG
+     *          The target grid geometry, or {@code null} for default.
+     * @param interpolation
+     *          The interpolation to use, or {@code null} if none.
+     * @param hints
+     *          The rendering hints. This is usually provided by {@link AbstractProcessor}.
+     *          This method will looks for {@link Hints#COORDINATE_OPERATION_FACTORY} and
+     *          {@link Hints#JAI_INSTANCE} keys.
+     * @param backgroundValues 
+     *          The background values to be used by the underlying JAI operation, or 
+     *          {@code null} if none. 
+     * @return
+     *          The new grid coverage, or {@code sourceCoverage} if no resampling was needed.
+     * @throws FactoryException
+     *          if a transformation step can't be created.
+     * @throws TransformException
+     *          if a transformation failed.
+     */
+    public static GridCoverage2D reproject(GridCoverage2D            sourceCoverage,
+                                           CoordinateReferenceSystem targetCRS,
+                                           GridGeometry2D            targetGG,
+                                           final Interpolation       interpolation,
+                                           final Hints               hints,
+                                           final double[]            backgroundValues)
             throws FactoryException, TransformException
     {
         ////////////////////////////////////////////////////////////////////////////////////////
@@ -463,7 +500,7 @@ final class Resampler2D extends GridCoverage2D {
          * desired target grid range. NOT specifying border extender will allows "Affine" to
          * shrink the target image bounds to the range containing computed values.
          */
-        final double[] background = CoverageUtilities.getBackgroundValues(sourceCoverage);
+        final double[] background = backgroundValues != null ? backgroundValues : CoverageUtilities.getBackgroundValues(sourceCoverage);
         if (background != null && background.length != 0) {
             if (!automaticGR) {
                 final BorderExtender borderExtender;
@@ -596,7 +633,7 @@ final class Resampler2D extends GridCoverage2D {
                         target = targetGG.reduce(target);
                         if (!(new GeneralEnvelope(source).contains(target, true))) {
                             if (interpolation != null && !(interpolation instanceof InterpolationNearest)) {
-                                return reproject(sourceCoverage, targetCRS, targetGG, null, hints);
+                                return reproject(sourceCoverage, targetCRS, targetGG, null, hints, background);
                             } else {
                                 // If we were already using nearest-neighbor interpolation, force
                                 // usage of WarpAdapter2D instead of WarpAffine. The price will be

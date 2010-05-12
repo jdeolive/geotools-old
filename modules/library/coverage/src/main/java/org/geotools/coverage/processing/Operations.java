@@ -427,6 +427,32 @@ public class Operations {
                            "GridGeometry",              gridGeometry,
                            "InterpolationType",         interpolationType);
     }
+    
+    /**
+     * Resamples a grid coverage to the specified coordinate reference system and grid geometry.
+     *
+     * @param source The source coverage.
+     * @param crs The target coordinate reference system, or {@code null} for keeping it unchanged.
+     * @param gridGeometry The grid geometry, or {@code null} for a default one.
+     * @param interpolationType The interpolation type, or {@code null} for the default one.
+     * @param backgroundValues The backgroundValues, or {@code null} for the default one.
+     * @throws CoverageProcessingException if the operation can't be applied.
+     *
+     * @see org.geotools.coverage.processing.operation.Resample
+     */
+    public Coverage resample(final GridCoverage  source,
+                             final CoordinateReferenceSystem crs,
+                             final GridGeometry  gridGeometry,
+                             final Interpolation interpolationType,
+                             final double[] backgroundValues)
+            throws CoverageProcessingException
+    {
+        return doOperation("Resample",                  source,
+                           "CoordinateReferenceSystem", crs,
+                           "GridGeometry",              gridGeometry,
+                           "InterpolationType",         interpolationType,
+                           "BackgroundValues",          backgroundValues);
+    }
 
     /**
      * Crops the image to a specified rectangular area.
