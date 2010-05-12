@@ -49,7 +49,7 @@ public class CompressesRasterWriter {
 
     private boolean jump = false;
 
-    private double[] range = new double[]{Double.MAX_VALUE, Double.MIN_VALUE};
+    private double[] range = new double[]{Double.MAX_VALUE, -Double.MIN_VALUE};
 
     private long pointerInFilePosition = 0;
 
