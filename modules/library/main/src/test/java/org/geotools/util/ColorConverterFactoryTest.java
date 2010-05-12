@@ -18,6 +18,8 @@ package org.geotools.util;
 
 import java.awt.Color;
 
+import org.geotools.filter.ConstantExpression;
+
 import junit.framework.TestCase;
 
 public class ColorConverterFactoryTest extends TestCase {
@@ -26,6 +28,16 @@ public class ColorConverterFactoryTest extends TestCase {
     
     protected void setUp() throws Exception {
         factory = new ColorConverterFactory();
+    }
+ 
+    public void testVsConstantExpression() throws Exception {
+        ConstantExpression expr = ConstantExpression.color(Color.RED);
+        String expected = expr.evaluate(null, String.class );
+        
+        Converter converter = factory.createConverter( Color.class, String.class, null );
+        String actual = converter.convert( Color.RED, String.class );
+        
+        assertEquals( expected, actual );
     }
     
     public void testFromString() throws Exception {

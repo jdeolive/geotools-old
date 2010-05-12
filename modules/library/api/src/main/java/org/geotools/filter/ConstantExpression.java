@@ -246,7 +246,7 @@ public class ConstantExpression implements LiteralExpression, Cloneable {
             blueCode = "0" + blueCode;
         }
 
-        String colorCode = "#" + redCode + greenCode + blueCode;
+        String colorCode = ("#" + redCode + greenCode + blueCode).toUpperCase();
 
         return new ConstantExpression(colorCode);
     }

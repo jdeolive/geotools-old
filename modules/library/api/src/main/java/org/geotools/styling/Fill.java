@@ -83,8 +83,8 @@ public interface Fill extends org.opengis.style.Fill{
                 throw new UnsupportedOperationException("Constant Stroke may not be modified");
             }
 
-            final Expression COLOR = ConstantExpression.constant(new Color(128, 128, 128));
-            final Expression BGCOLOR = ConstantExpression.constant(new Color(255, 255, 255, 0));
+            final Expression COLOR = ConstantExpression.color(new Color(128, 128, 128));
+            final Expression BGCOLOR = ConstantExpression.color(new Color(255, 255, 255, 0));
             final Expression OPACITY = ConstantExpression.ONE;
 
             public Expression getColor() {
