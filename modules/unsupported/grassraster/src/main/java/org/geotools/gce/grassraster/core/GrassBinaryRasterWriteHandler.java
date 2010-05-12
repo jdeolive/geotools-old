@@ -88,7 +88,7 @@ public class GrassBinaryRasterWriteHandler {
     /**
      * the range of the raster map as an array of minimum value and maximum value.
      */
-    private final double[] range = new double[]{Double.MAX_VALUE, -Double.MIN_VALUE};
+    private final double[] range = new double[]{Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY};
 
     /**
      * the data type for the output map.
