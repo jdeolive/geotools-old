@@ -31,7 +31,6 @@ import javax.xml.namespace.QName;
 
 import org.geotools.data.DataAccess;
 import org.geotools.data.DataSourceException;
-import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
 import org.geotools.data.complex.filter.XPath;
@@ -207,7 +206,7 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
             // then
             // check every row against the filter, which is what we're trying to do here.
             if (filter != null) {
-                ((DefaultQuery) query).setFilter(Filter.INCLUDE);
+                query.setFilter(Filter.INCLUDE);
                 nestedAttributeFilter = filter;
                 sourceFeatures = mappedSource.getFeatures(query);
                 this.sourceFeatureIterator = sourceFeatures.iterator();
@@ -218,11 +217,9 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
     }
 
     private Filter getAttributeFilter(Query query) {
-        if (query instanceof DefaultQuery) {
-            Filter filter = ((DefaultQuery) query).getFilter();
-            if (filter != null && filter != Filter.INCLUDE && !(filter instanceof FidFilterImpl)) {
-                return filter;
-            }
+        Filter filter = query.getFilter();
+        if (filter != null && filter != Filter.INCLUDE && !(filter instanceof FidFilterImpl)) {
+            return filter;
         }
         return null;
     }
@@ -312,23 +309,27 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
         }
         if (attMapping.isNestedAttribute()) {
             NestedAttributeMapping nestedMapping = ((NestedAttributeMapping) attMapping);
-            if (nestedMapping.isSameSource()) {
-                // polymorphism mapping
-                Object mappingName = nestedMapping.getNestedFeatureType(source);
-                if (mappingName != null) {
-                    if (mappingName instanceof Name) {
-                        setPolymorphicValues((Name) mappingName, target, id, nestedMapping, source,
-                                xpath, clientPropsMappings);
-                    } else {
-                        setPolymorphicReference(mappingName, clientPropsMappings, target, xpath,
-                                targetNodeType);
-                    }
+            Object mappingName = nestedMapping.getNestedFeatureType(source);
+            if (mappingName != null) {
+                if (nestedMapping.isSameSource() && mappingName instanceof Name) {
+                    // data type polymorphism mapping
+                    setPolymorphicValues((Name) mappingName, target, id, nestedMapping, source,
+                            xpath, clientPropsMappings);
+                    return;
+                } else if (mappingName instanceof Hints) {
+                    // referential polymorphism mapping
+                    setPolymorphicReference((Hints) mappingName, clientPropsMappings, target,
+                            xpath, targetNodeType);
+                    return;
                 }
+            } else {
+                // polymorphism could result in null, to skip the attribute
                 return;
             }
         }
         Object value = getValues(attMapping.isMultiValued(), sourceExpression, source);
         boolean isHRefLink = isByReference(clientPropsMappings, isNestedFeature);
+        // set polymorphic reference here
         if (isNestedFeature) {
             // get built feature based on link value
             if (value instanceof Collection) {
@@ -434,7 +435,7 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
      * Special handling for polymorphic mapping where the value of the attribute determines that
      * this attribute should be a placeholder for an xlink:href.
      * 
-     * @param xlinkHref
+     * @param xlinkHrefHints
      *            the xlink:href hints holding the URI
      * @param clientPropsMappings
      *            client properties
@@ -445,20 +446,19 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
      * @param targetNodeType
      *            the type of the attribute to be cast to, if any
      */
-    private void setPolymorphicReference(Object xlinkHref,
+    private void setPolymorphicReference(Hints xlinkHrefHints,
             Map<Name, Expression> clientPropsMappings, Attribute target, StepList xpath,
             AttributeType targetNodeType) {
-        if (xlinkHref instanceof Hints) {
-            Object uri = ((Hints) xlinkHref).get(ComplexFeatureConstants.STRING_KEY);
-            if (uri != null) {
-                Attribute instance = xpathAttributeBuilder.set(target, xpath, null, "",
-                        targetNodeType, true);
-                FilterFactoryImpl ff = new FilterFactoryImpl();
-                Map<Name, Expression> newClientProps = new HashMap<Name, Expression>();
-                newClientProps.putAll(clientPropsMappings);
-                newClientProps.put(XLINK_HREF_NAME, ff.literal(uri));
-                setClientProperties(instance, null, newClientProps);
-            }
+
+        Object uri = xlinkHrefHints.get(ComplexFeatureConstants.STRING_KEY);
+        if (uri != null) {
+            Attribute instance = xpathAttributeBuilder.set(target, xpath, null, "", targetNodeType,
+                    true);
+            FilterFactoryImpl ff = new FilterFactoryImpl();
+            Map<Name, Expression> newClientProps = new HashMap<Name, Expression>();
+            newClientProps.putAll(clientPropsMappings);
+            newClientProps.put(XLINK_HREF_NAME, ff.literal(uri));
+            setClientProperties(instance, null, newClientProps);
         }
     }
 
@@ -581,7 +581,7 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
             targetAttributes.put(propName, propValue);
         }
         // FIXME should set a child Property.. but be careful for things that
-        // are smuggled in there internally and don't exist in the schema, like 
+        // are smuggled in there internally and don't exist in the schema, like
         // XSDTypeDefinition, CRS etc.
         target.getUserData().put(Attributes.class, targetAttributes);
     }
@@ -601,7 +601,7 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
     private void setNextFilteredFeature(String fId, ArrayList<Feature> features) throws IOException {
         FeatureCollection<FeatureType, Feature> matchingFeatures;
         FeatureId featureId = namespaceAwareFilterFactory.featureId(fId);
-        DefaultQuery query = new DefaultQuery();
+        Query query = new Query();
         if (reprojection != null) {
             query.setCoordinateSystemReproject(reprojection);
         }
