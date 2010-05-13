@@ -191,6 +191,9 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
             filteredFeatures = new ArrayList<String>();
         }
         try {
+            // we need to disable the max number of features retrieved so we can
+            // sort them manually just in case the data is denormalised          
+            query.setMaxFeatures(Query.DEFAULT_MAX);
             sourceFeatures = mappedSource.getFeatures(query);
             this.sourceFeatureIterator = sourceFeatures.iterator();
         } catch (IllegalArgumentException e) {
@@ -329,7 +332,6 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
         }
         Object value = getValues(attMapping.isMultiValued(), sourceExpression, source);
         boolean isHRefLink = isByReference(clientPropsMappings, isNestedFeature);
-        // set polymorphic reference here
         if (isNestedFeature) {
             // get built feature based on link value
             if (value instanceof Collection) {
