@@ -27,8 +27,6 @@ import java.awt.image.renderable.ParameterBlock;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
@@ -48,6 +46,7 @@ import javax.media.jai.ImageLayout;
 import javax.media.jai.Interpolation;
 import javax.media.jai.InterpolationBicubic;
 import javax.media.jai.InterpolationBilinear;
+import javax.media.jai.InterpolationNearest;
 import javax.media.jai.JAI;
 import javax.media.jai.ParameterBlockJAI;
 import javax.media.jai.RenderedOp;
@@ -90,6 +89,12 @@ import org.geotools.utils.progress.ProcessingEventListener;
  */
 public class OverviewsEmbedder extends BaseArgumentsManager implements Runnable, ProcessingEventListener {
 
+	public static enum SubsampleAlgorithm{
+
+		Nearest, Bilinear, Bicubic, Average, Filtered; 
+
+//		public abstract RenderedImage scale(); 
+	}
 	/**
 	 * 
 	 * @author Simone Giannecchini
@@ -167,18 +172,6 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements Runnable,
 	 */
 	private final OverviewsEmbedderWriteProgressListener writeProgressListener = new OverviewsEmbedderWriteProgressListener();
 
-	/** Static immutable ap for scaling algorithms. */
-	public static final List<String> scalingAlgorithms;
-	static {
-		ArrayList<String> list = new ArrayList<String>();
-		list.add("nn");
-		list.add("bil");
-		list.add("bic");
-		list.add("avg");
-		list.add("filt");
-		scalingAlgorithms=Collections.unmodifiableList(list);
-	}
-
 	private final static String NAME = "OverviewsEmbedder";
 
 	/** Program Version */
@@ -234,16 +227,6 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements Runnable,
 	 */
 	private String sourcePath;
 
-	/**
-	 * 
-	 * Interpolation method used througout all the program.
-	 * 
-	 * @TODO make the interpolation method customizable from the user
-	 *       perpsective.
-	 * 
-	 */
-	private Interpolation interp = CoverageToolsConstants.DEFAULT_INTERPOLATION;
-	
 	private String compressionScheme = null;
 
 	private double compressionRatio = CoverageToolsConstants.DEFAULT_COMPRESSION_RATIO;
@@ -264,6 +247,7 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements Runnable,
 	 * 
 	 * 
 	 */
+	@SuppressWarnings("unchecked")
 	public OverviewsEmbedder() {
 		super(NAME, VERSION);
 		// /////////////////////////////////////////////////////////////////////
@@ -280,8 +264,7 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements Runnable,
 											throws InvalidArgumentException {
 										final int size = args.size();
 										if (size > 1)
-											throw new InvalidArgumentException(
-													"Source can be a single file or  directory ");
+											throw new InvalidArgumentException("Source can be a single file or  directory ");
 										final File source = new File(
 												(String) args.get(0));
 										if (!source.exists())
@@ -379,14 +362,14 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements Runnable,
 										if (size > 1)
 											throw new InvalidArgumentException(
 													"Only one scaling algorithm at a time can be chosen");
-										if (!scalingAlgorithms.contains(args
-												.get(0)))
+										final SubsampleAlgorithm algorithm=SubsampleAlgorithm.valueOf((String)args.get(0)); 
+										if (algorithm!=null)
 											throw new InvalidArgumentException(
 													new StringBuilder(
 															"The scaling algorithm ")
 															.append(args.get(0))
 															.append(
-																	" is not permitted")
+																	" is not supported")
 															.toString());
 
 									}
@@ -472,7 +455,7 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements Runnable,
 	 *            Tile height.
 	 * @param tileGrdiOffseX
 	 * @param tileGrdiOffseY
-	 * @param interp
+	 * @param interpolation
 	 *            Interpolation method used.
 	 * 
 	 * @return RenderedOp containing the chain to obtain the tiled image.
@@ -524,14 +507,14 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements Runnable,
 	 * @param scaleTC 
 	 * @param scale
 	 *            Scale factor.
-	 * @param interp
+	 * @param interpolation
 	 *            Interpolation method used.
 	 * @param tileHints
 	 *            Hints provided.
 	 * 
 	 * @return The subsampled RenderedOp.
 	 */
-	private RenderedOp subsample(RenderedOp src, TileCache scaleTC) {
+	private RenderedOp subsample(RenderedOp src, TileCache scaleTC, final Interpolation interpolation) {
 		final RenderingHints newHints = new RenderingHints(JAI.KEY_TILE_CACHE,scaleTC);
 		newHints.add(ImageUtilities.DONT_REPLACE_INDEX_COLOR_MODEL);
 		newHints.add(new RenderingHints(JAI.KEY_BORDER_EXTENDER, this.borderExtender));
@@ -542,7 +525,7 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements Runnable,
 		pb.setParameter("scaleX", new Integer(downsampleStep));
 		pb.setParameter("scaleY", new Integer(downsampleStep));
 		pb.setParameter("qsFilterArray", new float[] { 1.0f });
-		pb.setParameter("Interpolation", interp);
+		pb.setParameter("Interpolation", interpolation);
 		// remember to add the hint to avoid replacement of the original
 		// IndexColorModel
 		// in future versions we might want to make this parametrix XXX TODO
@@ -613,7 +596,7 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements Runnable,
 		pb.setParameter("scaleX", new Integer(downsampleStep));
 		pb.setParameter("scaleY", new Integer(downsampleStep));
 		pb.setParameter("qsFilterArray", lowPassFilter);
-		pb.setParameter("Interpolation", interp);
+		pb.setParameter("Interpolation", new InterpolationNearest());
 		return JAI.create("filteredsubsample", pb,newHints);
 	}
 
@@ -653,9 +636,6 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements Runnable,
 		this.borderExtender = borderExtender;
 	}
 
-	public void setInterp(Interpolation interp) {
-		this.interp = interp;
-	}
 
 	public float[] getLowPassFilter() {
 		return lowPassFilter;
@@ -872,13 +852,11 @@ public void run() {
 				baseTC= JAI.createTileCache();
 				baseTC.setMemoryCapacity(tilecacheSize/2);
 				baseTC.setMemoryThreshold(1.0f);
-//				final TCTool tctool = new TCTool((SunTileCache)baseTC);
 
 				
 				scaleTC= JAI.createTileCache();
 				scaleTC.setMemoryCapacity(tilecacheSize/2);
 				scaleTC.setMemoryThreshold(1.0f);
-//				final TCTool tctool1 = new TCTool((SunTileCache)scaleTC);
 				
 				final RenderingHints newHints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, layout);
 				newHints.add(new RenderingHints(JAI.KEY_TILE_CACHE,baseTC));
@@ -886,7 +864,7 @@ public void run() {
 				// read base image
 				ParameterBlock pbjRead = new ParameterBlock();
 				pbjRead.add(stream);
-				pbjRead.add(new Integer(0));
+				pbjRead.add(Integer.valueOf(0));
 				pbjRead.add(Boolean.FALSE);
 				pbjRead.add(Boolean.FALSE);
 				pbjRead.add(Boolean.FALSE);
@@ -915,18 +893,28 @@ public void run() {
 					// SCALE
 					
 					// subsampling the input image using the chosen algorithm
-					if (scaleAlgorithm.equalsIgnoreCase("avg"))
+					final SubsampleAlgorithm algorithm=SubsampleAlgorithm.valueOf(scaleAlgorithm);
+					switch (algorithm) {
+					case Average:
 						newImage = scaleAverage(currentImage,scaleTC);
-					else if (scaleAlgorithm.equalsIgnoreCase("filt"))
+						break;
+					case Filtered:
 						newImage = filteredSubsample(currentImage,scaleTC);
-					else if (scaleAlgorithm.equalsIgnoreCase("bil"))
-						newImage = bilinear(currentImage,scaleTC);
-					else if (scaleAlgorithm.equalsIgnoreCase("nn"))
-						newImage = subsample(currentImage,scaleTC);
-					else if (scaleAlgorithm.equalsIgnoreCase("bic"))
-						newImage = bicubic(currentImage,scaleTC);
-					else
-						throw new IllegalArgumentException("Invalid scaling algorithm "+scaleAlgorithm);
+						break;
+					case Bilinear:
+						newImage = subsample(currentImage,scaleTC,new InterpolationBilinear());
+						break;	
+					case Bicubic:
+						newImage = subsample(currentImage,scaleTC,new InterpolationBicubic(2));
+						break;
+					case Nearest:
+						newImage = subsample(currentImage,scaleTC, new InterpolationNearest());
+						break;						
+					default:
+						throw new IllegalArgumentException("Invalid scaling algorithm "+scaleAlgorithm);//cannot get here
+						
+					}
+						
 					
 					//set relevant metadata
 					IIOMetadata imageMetadata = null;                                        
@@ -1018,49 +1006,6 @@ public void run() {
 
 	}
 
-	/**
-	 * Performs a bilinear interpolation on the provided image.
-	 * 
-	 * @param src
-	 *            The source image.
-	 * @param scaleTC 
-	 * @return The subsampled image.
-	 */
-	private RenderedOp bilinear(RenderedOp src, TileCache scaleTC) {
-		final RenderingHints newHints = new RenderingHints(JAI.KEY_TILE_CACHE,scaleTC);
-		newHints.add(ImageUtilities.DONT_REPLACE_INDEX_COLOR_MODEL);
-		// using filtered subsample operator to do a subsampling
-		final ParameterBlockJAI pb = new ParameterBlockJAI("filteredsubsample");
-		pb.addSource(src);
-		pb.setParameter("scaleX", new Integer(downsampleStep));
-		pb.setParameter("scaleY", new Integer(downsampleStep));
-		pb.setParameter("qsFilterArray", new float[] { 1.0f });
-		pb.setParameter("Interpolation", new InterpolationBilinear());
-		return JAI.create("filteredsubsample", pb,newHints);
-	}
-
-	/**
-	 * Performs a bicubic interpolation on the provided image.
-	 * 
-	 * @param src
-	 *            The source image.
-	 * @param scaleTC 
-	 * @return The subsampled image.
-	 */
-	private RenderedOp bicubic(RenderedOp src, TileCache scaleTC) {
-		
-		
-		final RenderingHints newHints = new RenderingHints(JAI.KEY_TILE_CACHE,scaleTC);
-		newHints.add(ImageUtilities.DONT_REPLACE_INDEX_COLOR_MODEL);
-		// using filtered subsample operator to do a subsampling
-		final ParameterBlockJAI pb = new ParameterBlockJAI("filteredsubsample");
-		pb.addSource(src);
-		pb.setParameter("scaleX", new Integer(downsampleStep));
-		pb.setParameter("scaleY", new Integer(downsampleStep));
-		pb.setParameter("qsFilterArray", new float[] { 1.0f });
-		pb.setParameter("Interpolation", new InterpolationBicubic(2));
-		return JAI.create("filteredsubsample", pb,newHints);
-	}
 
 	/*
 	 * (non-Javadoc)
@@ -1238,13 +1183,5 @@ public void run() {
 
 	public String getWildcardString() {
 		return wildcardString;
-	}
-
-	public static List<String> getScalingAlgorithms() {
-		return scalingAlgorithms;
-	}
-
-	public Interpolation getInterp() {
-		return interp;
 	}
 }
