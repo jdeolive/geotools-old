@@ -51,7 +51,7 @@
 					<sourceExpression>
 						<OCQL>VALUE_ID</OCQL>	
 						<linkElement>
-						    Recode(CLASS_TEXT, 'numeric', 'NumericType', 'literal', 'gsml:CGI_TermValue')
+						    Recode(CLASS_TEXT, 'numeric', 'NumericType', 'literal', toXlinkHref(strConcat('urn:value::', VALUE_ID)))
 						</linkElement>
 						<linkField>FEATURE_LINK</linkField>
 					</sourceExpression>					
@@ -63,7 +63,7 @@
 					<sourceExpression>
 						<linkElement>
 						    if_then_else(isNull(CLASS_TEXT), Expression.Nil,
-						       if_then_else(equalTo(CLASS_TEXT, 'numeric'), 'NumericType',  'TermValue2'))
+						       if_then_else(equalTo(CLASS_TEXT, 'numeric'), 'NumericType', 'TermValue2'))
 						</linkElement>
 					</sourceExpression>
 				</AttributeMapping>
