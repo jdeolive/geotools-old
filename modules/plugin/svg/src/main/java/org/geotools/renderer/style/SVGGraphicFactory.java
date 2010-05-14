@@ -223,7 +223,7 @@ public class SVGGraphicFactory implements ExternalGraphicFactory {
     /**
      * Forcefully drops the SVG cache 
      */
-    public void resetCache() {
+    public static void resetCache() {
         glyphCache.clear();
     }
 
