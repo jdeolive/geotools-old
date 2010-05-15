@@ -27,10 +27,10 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -53,7 +53,7 @@ public class FontCache {
     Set<String> fontFamilies = null;
 
     /** Fonts already loaded */
-    Map<String, Font> loadedFonts = new HashMap<String, Font>();
+    Map<String, Font> loadedFonts = new ConcurrentHashMap<String, Font>();
 
     /**
      * Returns the default, system wide font cache
@@ -205,4 +205,11 @@ public class FontCache {
         loadedFonts.put(f.getName(), f);
     }
 
+    /**
+     * Resets the font loading cache. If any font was manually registered, it will have to be registered again
+     */
+    public void resetCache() {
+        fontFamilies.clear();
+        loadedFonts.clear();
+    }
 }

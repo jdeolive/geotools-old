@@ -727,7 +727,7 @@ public class SLDStyleFactory {
         if(fonts != null) {
             for (int k = 0; k < fonts.length; k++) {
                 String requestedFont = evalToString(fonts[k].getFontFamily(), feature, null);
-                java.awt.Font javaFont = FontCache.getDefaultInsance().getFont(requestedFont);
+                java.awt.Font javaFont = FontCache.getDefaultInstance().getFont(requestedFont);
                 
                 if(javaFont != null) {
                     String reqStyle = evalToString(fonts[k].getFontStyle(), feature, null);
