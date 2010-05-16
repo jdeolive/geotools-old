@@ -2610,15 +2610,17 @@ public final class StreamingRenderer implements GTRenderer {
 
                     // then post process it					
                     geom = projectionHandler.postProcess(geom);
-
-                    // apply the affine transform turning the coordinates into pixels
-                    d = new Decimator(-1, -1);
-                    d.decimateTransformGeneralize(geom, sa.axform);
-
-                    // wrap into a lite shape
-                    if(geom != null)
+                    if(geom == null) {
+                        shape = null;
+                    } else {
+                        // apply the affine transform turning the coordinates into pixels
+                        d = new Decimator(-1, -1);
+                        d.decimateTransformGeneralize(geom, sa.axform);
+    
+                        // wrap into a lite shape
                         geom.geometryChanged();
-                    shape = new LiteShape2(geom, null, null, false, false);
+                        shape = new LiteShape2(geom, null, null, false, false);
+                    }
                 } 
             } else {
                 MathTransform2D xform = null;
