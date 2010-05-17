@@ -29,8 +29,7 @@ import junit.framework.Assert;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.imageio.IIOMetadataDumper;
-import org.geotools.coverage.processing.AbstractProcessor;
-import org.geotools.coverage.processing.DefaultProcessor;
+import org.geotools.coverage.processing.CoverageProcessor;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.operation.matrix.XAffineTransform;
@@ -144,7 +143,7 @@ public class GeoTiffWriterTest extends Assert {
 		final GeneralEnvelope cropEnvelope = new GeneralEnvelope(new double[] {
 				xc - xl / 4.0, yc - yl / 4.0 }, new double[] { xc + xl / 4.0,
 				yc + yl / 4.0 });
-		final AbstractProcessor processor = new DefaultProcessor(null);
+		final CoverageProcessor processor = CoverageProcessor.getInstance();
 		final ParameterValueGroup param = processor
 				.getOperation("CoverageCrop").getParameters();
 		param.parameter("Source").setValue(gc);
