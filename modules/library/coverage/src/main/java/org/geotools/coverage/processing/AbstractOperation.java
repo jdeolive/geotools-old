@@ -16,23 +16,23 @@
  */
 package org.geotools.coverage.processing;
 
-import java.awt.RenderingHints;
 import java.io.Serializable;
 import java.util.Iterator;
 
-import org.opengis.coverage.Coverage;
-import org.opengis.coverage.processing.Operation;
-import org.opengis.parameter.ParameterValueGroup;
-import org.opengis.parameter.ParameterDescriptor;
-import org.opengis.parameter.ParameterDescriptorGroup;
-import org.opengis.parameter.GeneralParameterDescriptor;
-import org.opengis.util.InternationalString;
-
-import org.geotools.util.Utilities;
 import org.geotools.factory.Hints;
 import org.geotools.resources.Classes;
-import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
+import org.geotools.resources.i18n.Errors;
+import org.geotools.util.Utilities;
+import org.opengis.coverage.Coverage;
+import org.opengis.coverage.processing.Operation;
+import org.opengis.filter.identity.Identifier;
+import org.opengis.metadata.citation.Citation;
+import org.opengis.parameter.GeneralParameterDescriptor;
+import org.opengis.parameter.ParameterDescriptor;
+import org.opengis.parameter.ParameterDescriptorGroup;
+import org.opengis.parameter.ParameterValueGroup;
+import org.opengis.util.InternationalString;
 
 
 /**
@@ -63,7 +63,7 @@ public abstract class AbstractOperation implements Operation, Serializable {
      * @param descriptor The parameters descriptor.
      */
     public AbstractOperation(final ParameterDescriptorGroup descriptor) {
-        ensureNonNull("descriptor", descriptor);
+        Utilities.ensureNonNull("descriptor", descriptor);
         this.descriptor = descriptor;
     }
 
@@ -170,40 +170,6 @@ public abstract class AbstractOperation implements Operation, Serializable {
      */
     public abstract Coverage doOperation(final ParameterValueGroup parameters, final Hints hints)
             throws CoverageProcessingException;
-
-    /**
-     * Returns the {@link AbstractProcessor} instance used for an operation. The instance is fetch
-     * from the rendering hints given to the {@link #doOperation} method. If no processor is
-     * specified, then a default one is returned.
-     *
-     * @param  hints The rendering hints, or {@code null} if none.
-     * @return The {@code AbstractProcessor} instance in use (never {@code null}).
-     */
-    protected static AbstractProcessor getProcessor(final RenderingHints hints) {
-        if (hints != null) {
-            final Object value = hints.get(Hints.GRID_COVERAGE_PROCESSOR);
-            if (value instanceof AbstractProcessor) {
-                return (AbstractProcessor) value;
-            }
-        }
-        return AbstractProcessor.getInstance();
-    }
-
-    /**
-     * Makes sure that an argument is non-null. This is a convenience method for
-     * implementations in subclasses.
-     *
-     * @param  name   Argument name.
-     * @param  object User argument.
-     * @throws IllegalArgumentException if {@code object} is null.
-     */
-    protected static void ensureNonNull(final String name, final Object object)
-            throws IllegalArgumentException
-    {
-        if (object == null) {
-            throw new IllegalArgumentException(Errors.format(ErrorKeys.NULL_ARGUMENT_$1, name));
-        }
-    }
 
     /**
      * Returns a hash value for this operation. This value need not remain consistent between

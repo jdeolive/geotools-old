@@ -160,7 +160,7 @@ public class OperationJAI extends Operation2D {
     {
         super(descriptor);
         this.operation = operation;
-        ensureNonNull("operation", operation);
+        Utilities.ensureNonNull("operation", operation);
         /*
          * Check argument validity.
          */
@@ -433,7 +433,7 @@ public class OperationJAI extends Operation2D {
          * dimensions. For example it may have a time or a depth axis. In such case, their "head"
          * and "tail" CRS will be preserved before and after 'crs2D'.
          */
-        final AbstractProcessor processor = getProcessor(hints);
+        final CoverageProcessor processor = CoverageProcessor.getInstance(hints);
         for (int i=0; i<sources.length; i++) {
             if (sources[i] == null) { 
                 continue;

@@ -47,14 +47,14 @@ public final class FilteredSubsampleTest extends GridProcessingTestBase {
     /**
      * The processors to be used for all tests.
      */
-    private DefaultProcessor processor;
+    private CoverageProcessor processor;
 
     /**
      * Set up common objects used for all tests.
      */
     @Before
     public void setUp() {
-        processor = new DefaultProcessor(null);
+        processor = CoverageProcessor.getInstance();
     }
 
     /**
@@ -156,7 +156,7 @@ public final class FilteredSubsampleTest extends GridProcessingTestBase {
         int h = originalImage.getHeight();
 
         // Creating a default processor.
-        final DefaultProcessor processor = (hints != null) ? new DefaultProcessor(hints) : this.processor;
+        final CoverageProcessor processor = (hints != null) ? CoverageProcessor.getInstance(hints) : this.processor;
 
         // Getting parameters for the FilteredSubsample operation.
         final ParameterValueGroup param = processor.getOperation("FilteredSubsample").getParameters();

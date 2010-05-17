@@ -35,7 +35,7 @@ import javax.media.jai.PlanarImage;
 import org.opengis.util.InternationalString;
 import org.opengis.parameter.ParameterValueGroup;
 import org.geotools.coverage.GridSampleDimension;
-import org.geotools.coverage.processing.AbstractProcessor;
+import org.geotools.coverage.processing.CoverageProcessor;
 import org.geotools.resources.Arguments;
 import org.geotools.resources.Classes;
 import org.geotools.util.Utilities;
@@ -290,7 +290,7 @@ public class Viewer extends JPanel {
             coverage = coverage.view(geophysics.booleanValue() ? ViewType.GEOPHYSICS : ViewType.RENDERED);
         }
         if (operation != null) {
-            final AbstractProcessor processor = AbstractProcessor.getInstance();
+            final CoverageProcessor processor = CoverageProcessor.getInstance();
             final ParameterValueGroup param = processor.getOperation(operation).getParameters();
             param.parameter("Source").setValue(coverage);
             coverage = (GridCoverage2D) processor.doOperation(param);

@@ -79,8 +79,7 @@ public class GridProcessingTestBase extends GridCoverageTestBase {
                                       final Hints                     hints,
                                       final boolean                   useGeophysics)
     {
-        final AbstractProcessor processor = (hints != null) ?
-                new DefaultProcessor(hints) : AbstractProcessor.getInstance();
+        final CoverageProcessor processor = CoverageProcessor.getInstance(hints);
         final String arg1, arg2;
         final Object value1, value2;
         if (targetCRS != null) {
@@ -130,7 +129,7 @@ public class GridProcessingTestBase extends GridCoverageTestBase {
         String operation = null;
         if (image instanceof RenderedOp) {
             operation = ((RenderedOp) image).getOperationName();
-            AbstractProcessor.LOGGER.fine("Applied \"" + operation + "\" JAI operation.");
+            CoverageProcessor.LOGGER.fine("Applied \"" + operation + "\" JAI operation.");
         }
         coverage = coverage.view(ViewType.PACKED);
         if (SHOW) {

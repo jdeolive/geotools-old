@@ -394,7 +394,7 @@ public class ColorMap implements Serializable {
             try {
                 scale = ((MeasurementRange) scale).convertTo(units);
             } catch (ConversionException e) {
-                Logging.unexpectedException(AbstractProcessor.LOGGER, ColorMap.class, "recolor", e);
+                Logging.unexpectedException(CoverageProcessor.LOGGER, ColorMap.class, "recolor", e);
                 return null; // This is allowed by this method contract.
             }
             MathTransform1D tr = category.getSampleToGeophysics();
@@ -403,7 +403,7 @@ public class ColorMap implements Serializable {
                 minimum = tr.transform(minimum);
                 maximum = tr.transform(maximum);
             } catch (TransformException e) {
-                Logging.unexpectedException(AbstractProcessor.LOGGER, ColorMap.class, "recolor", e);
+                Logging.unexpectedException(CoverageProcessor.LOGGER, ColorMap.class, "recolor", e);
                 return null; // This is allowed by this method contract.
             }
         } else {
@@ -522,7 +522,7 @@ public class ColorMap implements Serializable {
                     outOfBounds = true;
                 }
                 if (outOfBounds) {
-                    AbstractProcessor.LOGGER.warning(Errors.format(
+                    CoverageProcessor.LOGGER.warning(Errors.format(
                             ErrorKeys.VALUE_OUT_OF_BOUNDS_$3, category, 0, ARGB.length - 1));
                 }
                 if (upper <= lower) {

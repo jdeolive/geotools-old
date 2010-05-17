@@ -19,24 +19,24 @@ package org.geotools.coverage.processing;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.opengis.parameter.ParameterDescriptor;
-import org.opengis.parameter.ParameterDescriptorGroup;
-import org.opengis.parameter.ParameterValueGroup;
-import org.opengis.parameter.ParameterNotFoundException;
-import org.opengis.parameter.InvalidParameterValueException;
-import org.opengis.referencing.IdentifiedObject;
-
-import org.geotools.factory.Hints;
 import org.geotools.coverage.CoverageFactoryFinder;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.grid.ViewType;
+import org.geotools.factory.Hints;
 import org.geotools.metadata.iso.citation.Citations;
 import org.geotools.parameter.DefaultParameterDescriptor;
 import org.geotools.referencing.NamedIdentifier;
 import org.geotools.resources.Classes;
-import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
+import org.geotools.resources.i18n.Errors;
+import org.geotools.util.Utilities;
+import org.opengis.parameter.InvalidParameterValueException;
+import org.opengis.parameter.ParameterDescriptor;
+import org.opengis.parameter.ParameterDescriptorGroup;
+import org.opengis.parameter.ParameterNotFoundException;
+import org.opengis.parameter.ParameterValueGroup;
+import org.opengis.referencing.IdentifiedObject;
 
 
 /**
@@ -141,9 +141,9 @@ public abstract class Operation2D extends AbstractOperation {
                                       final GridCoverage2D[]    sources)
             throws ParameterNotFoundException, InvalidParameterValueException
     {
-        ensureNonNull("parameters",  parameters);
-        ensureNonNull("sourceNames", sourceNames);
-        ensureNonNull("sources",     sources);
+        Utilities.ensureNonNull("parameters",  parameters);
+        Utilities.ensureNonNull("sourceNames", sourceNames);
+        Utilities.ensureNonNull("sources",     sources);
         if (sources.length != sourceNames.length) {
             throw new IllegalArgumentException(Errors.format(ErrorKeys.MISMATCHED_ARRAY_LENGTH));
         }

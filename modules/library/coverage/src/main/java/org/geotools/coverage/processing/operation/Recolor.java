@@ -24,7 +24,7 @@ import org.opengis.parameter.ParameterValueGroup;
 
 import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.processing.ColorMap;
-import org.geotools.coverage.processing.AbstractProcessor;
+import org.geotools.coverage.processing.CoverageProcessor;
 import org.geotools.metadata.iso.citation.Citations;
 import org.geotools.parameter.DefaultParameterDescriptor;
 import org.geotools.parameter.DefaultParameterDescriptorGroup;
@@ -82,7 +82,7 @@ public final class Recolor extends IndexColorOperation {
         }
         Object colorMap = colorMaps[Math.min(band, colorMaps.length - 1)];
         if (colorMap instanceof Map) {
-            AbstractProcessor.LOGGER.warning("\"ColorMaps\" parameter of type java.util.Map[] is deprecated. " +
+            CoverageProcessor.LOGGER.warning("\"ColorMaps\" parameter of type java.util.Map[] is deprecated. " +
                     "Please use the org.geotools.coverage.processing.ColorMap type instead.");
             colorMap = new ColorMap((Map) colorMap);
         }

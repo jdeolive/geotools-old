@@ -60,7 +60,7 @@ import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.ViewType;
-import org.geotools.coverage.processing.AbstractProcessor;
+import org.geotools.coverage.processing.CoverageProcessor;
 import org.geotools.coverage.processing.CannotReprojectException;
 import org.geotools.factory.Hints;
 import org.geotools.geometry.GeneralEnvelope;
@@ -187,7 +187,7 @@ final class Resampler2D extends GridCoverage2D {
      * @param interpolation
      *          The interpolation to use, or {@code null} if none.
      * @param hints
-     *          The rendering hints. This is usually provided by {@link AbstractProcessor}.
+     *          The rendering hints. This is usually provided by {@link CoverageProcessor}.
      *          This method will looks for {@link Hints#COORDINATE_OPERATION_FACTORY} and
      *          {@link Hints#JAI_INSTANCE} keys.
      * @return
@@ -220,7 +220,7 @@ final class Resampler2D extends GridCoverage2D {
      * @param interpolation
      *          The interpolation to use, or {@code null} if none.
      * @param hints
-     *          The rendering hints. This is usually provided by {@link AbstractProcessor}.
+     *          The rendering hints. This is usually provided by {@link CoverageProcessor}.
      *          This method will looks for {@link Hints#COORDINATE_OPERATION_FACTORY} and
      *          {@link Hints#JAI_INSTANCE} keys.
      * @param backgroundValues 
@@ -704,7 +704,7 @@ final class Resampler2D extends GridCoverage2D {
         targetCoverage = create(sourceCoverage, targetImage, targetGG, finalView, hints);
         assert CRS.equalsIgnoreMetadata(targetCoverage.getCoordinateReferenceSystem(), targetCRS) : targetGG;
         assert targetCoverage.getGridGeometry().getGridRange2D().equals(targetImage.getBounds())  : targetGG;
-        if (AbstractProcessor.LOGGER.isLoggable(LOGGING_LEVEL)) {
+        if (CoverageProcessor.LOGGER.isLoggable(LOGGING_LEVEL)) {
             log(Loggings.getResources(locale).getLogRecord(LOGGING_LEVEL,
                 LoggingKeys.APPLIED_RESAMPLE_$11, new Object[] {
                 /*  {0} */ sourceCoverage.getName().toString(locale),
@@ -959,7 +959,7 @@ final class Resampler2D extends GridCoverage2D {
     private static void log(final LogRecord record) {
         record.setSourceClassName("Resample");
         record.setSourceMethodName("doOperation");
-        final Logger logger = AbstractProcessor.LOGGER;
+        final Logger logger = CoverageProcessor.LOGGER;
         record.setLoggerName(logger.getName());
         logger.log(record);
     }

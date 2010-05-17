@@ -49,7 +49,7 @@ import org.opengis.referencing.operation.NoninvertibleTransformException;
 
 import org.geotools.coverage.Category;
 import org.geotools.coverage.GridSampleDimension;
-import org.geotools.coverage.processing.AbstractProcessor;
+import org.geotools.coverage.processing.CoverageProcessor;
 import org.geotools.factory.Hints;
 import org.geotools.resources.XArray;
 import org.geotools.resources.coverage.CoverageUtilities;
@@ -609,13 +609,13 @@ testLinear: for (int i=0; i<numBands; i++) {
             final GridSampleDimension[] targetBands, final int code, final Hints userHints)
     {
         final InternationalString name = coverage.getName();
-        if (GridCoverage2D.LOGGER.isLoggable(AbstractProcessor.OPERATION)) {
+        if (GridCoverage2D.LOGGER.isLoggable(CoverageProcessor.OPERATION)) {
             // Logs a message using the same level than grid coverage processor.
             final String operation = view.getOperationName();
             final String shortName = operation.substring(operation.lastIndexOf('.') + 1);
             final Locale    locale = coverage.getLocale();
             final LogRecord record = Loggings.getResources(locale).getLogRecord(
-                    AbstractProcessor.OPERATION, LoggingKeys.SAMPLE_TRANSCODE_$3, new Object[] {
+                    CoverageProcessor.OPERATION, LoggingKeys.SAMPLE_TRANSCODE_$3, new Object[] {
                         (name != null) ? name.toString(locale) :
                             Vocabulary.getResources(locale).getString(VocabularyKeys.UNTITLED),
                         Integer.valueOf(code), shortName

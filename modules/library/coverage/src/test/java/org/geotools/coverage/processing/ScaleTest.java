@@ -44,7 +44,7 @@ public class ScaleTest extends GridProcessingTestBase {
     /**
      * The processor to be used for all tests.
      */
-    private DefaultProcessor processor;
+    private CoverageProcessor processor;
 
     /**
      * Set up common objects used for all tests.
@@ -52,7 +52,7 @@ public class ScaleTest extends GridProcessingTestBase {
     @Before
     public void setUp() {
         Hints hints = new Hints(Hints.COVERAGE_PROCESSING_VIEW, PHOTOGRAPHIC);
-        processor = new DefaultProcessor(hints);
+        processor = CoverageProcessor.getInstance(hints);
     }
 
     /**

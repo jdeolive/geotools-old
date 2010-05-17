@@ -22,6 +22,7 @@ import javax.media.jai.Interpolation;
 import javax.media.jai.KernelJAI;
 
 import org.geotools.coverage.processing.operation.Resample;
+import org.geotools.factory.Hints;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
 import org.opengis.coverage.Coverage;
@@ -41,10 +42,10 @@ import org.opengis.referencing.operation.TransformException;
  * Convenience, type-safe, methods for applying some common operations on
  * {@linkplain Coverage coverage} objects. All methods wrap their arguments in a
  * {@linkplain ParameterValueGroup parameter value group} and delegate the work to the processor's
- * {@link AbstractProcessor#doOperation doOperation} method.
+ * {@link CoverageProcessor#doOperation doOperation} method.
  * This convenience class do not brings any new functionalities, but brings type-safety when the
  * operation is know at compile time. For operation unknown at compile time (e.g. for an operation
- * selected by users in some widget), use the {@linkplain AbstractProcessor processor} directly.
+ * selected by users in some widget), use the {@linkplain CoverageProcessor processor} directly.
  *
  * @since 2.2
  * @source $URL$
@@ -65,7 +66,7 @@ public class Operations {
      *
      * @todo Uses the GeoAPI's interface instead once it will be ready.
      */
-    private AbstractProcessor processor;
+    private CoverageProcessor processor;
 
     /**
      * Creates a new instance using the specified hints.
@@ -74,7 +75,7 @@ public class Operations {
      */
     public Operations(final RenderingHints hints) {
         if (hints != null && !hints.isEmpty()) {
-            processor = new DefaultProcessor(hints);
+            processor = CoverageProcessor.getInstance(new Hints(hints));
         }
         // Otherwise, will creates the processor only when first needed.
     }
@@ -665,10 +666,10 @@ public class Operations {
     /**
      * Returns the processor, creating one if needed.
      */
-    private AbstractProcessor getProcessor() {
+    private CoverageProcessor getProcessor() {
         // No need to synchronize.
         if (processor == null) {
-            processor = AbstractProcessor.getInstance();
+            processor = CoverageProcessor.getInstance();
         }
         return processor;
     }
@@ -686,7 +687,7 @@ public class Operations {
     protected final Coverage doOperation(final String operationName, final Coverage source)
             throws OperationNotFoundException, CoverageProcessingException
     {
-        final AbstractProcessor processor = getProcessor();
+        final CoverageProcessor processor = getProcessor();
         final Operation operation = processor.getOperation(operationName);
         final ParameterValueGroup parameters = operation.getParameters();
         parameters.parameter("Source").setValue(source);
@@ -711,7 +712,7 @@ public class Operations {
             throws OperationNotFoundException, InvalidParameterNameException,
                    CoverageProcessingException
     {
-        final AbstractProcessor processor = getProcessor();
+        final CoverageProcessor processor = getProcessor();
         final Operation operation = processor.getOperation(operationName);
         final ParameterValueGroup parameters = operation.getParameters();
         parameters.parameter("Source").setValue(source);
@@ -740,7 +741,7 @@ public class Operations {
             throws OperationNotFoundException, InvalidParameterNameException,
                    CoverageProcessingException
     {
-        final AbstractProcessor processor = getProcessor();
+        final CoverageProcessor processor = getProcessor();
         final Operation operation = processor.getOperation(operationName);
         final ParameterValueGroup parameters = operation.getParameters();
         parameters.parameter("Source").setValue(source);
@@ -773,7 +774,7 @@ public class Operations {
             throws OperationNotFoundException, InvalidParameterNameException,
                    CoverageProcessingException
     {
-        final AbstractProcessor processor = getProcessor();
+        final CoverageProcessor processor = getProcessor();
         final Operation operation = processor.getOperation(operationName);
         final ParameterValueGroup parameters = operation.getParameters();
         parameters.parameter("Source").setValue(source);
@@ -804,7 +805,7 @@ public class Operations {
             throws OperationNotFoundException, InvalidParameterNameException,
                    CoverageProcessingException
     {
-        final AbstractProcessor processor = getProcessor();
+        final CoverageProcessor processor = getProcessor();
         final Operation operation = processor.getOperation(operationName);
         final ParameterValueGroup parameters = operation.getParameters();
         parameters.parameter("Source").setValue(source);
@@ -837,7 +838,7 @@ public class Operations {
             throws OperationNotFoundException, InvalidParameterNameException,
                    CoverageProcessingException
     {
-        final AbstractProcessor processor = getProcessor();
+        final CoverageProcessor processor = getProcessor();
         final Operation operation = processor.getOperation(operationName);
         final ParameterValueGroup parameters = operation.getParameters();
         parameters.parameter("Source").setValue(source);
@@ -872,7 +873,7 @@ public class Operations {
             throws OperationNotFoundException, InvalidParameterNameException,
                    CoverageProcessingException
     {
-        final AbstractProcessor processor = getProcessor();
+        final CoverageProcessor processor = getProcessor();
         final Operation operation = processor.getOperation(operationName);
         final ParameterValueGroup parameters = operation.getParameters();
         parameters.parameter("Source").setValue(source);

@@ -70,7 +70,7 @@ public final class CropTest extends GridProcessingTestBase {
      */
     @Test
     public void testCrop() throws TransformException {
-        final AbstractProcessor processor = AbstractProcessor.getInstance();
+        final CoverageProcessor processor = CoverageProcessor.getInstance();
         /*
          * Get the source coverage and build the cropped envelope.
          */
@@ -136,7 +136,7 @@ public final class CropTest extends GridProcessingTestBase {
          * center of this coverage envelope that is large 1/4 f the original
          * width and tall 1/4 of the original height.
          */
-        final AbstractProcessor processor = AbstractProcessor.getInstance();
+        final CoverageProcessor processor = CoverageProcessor.getInstance();
         final Envelope oldEnvelope = rotated.getEnvelope();
         final GeneralEnvelope cropEnvelope = new GeneralEnvelope(new double[] {
                 oldEnvelope.getMinimum(0) + oldEnvelope.getSpan(0) * 3 / 8,

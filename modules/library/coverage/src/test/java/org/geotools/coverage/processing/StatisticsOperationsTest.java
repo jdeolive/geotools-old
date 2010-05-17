@@ -108,7 +108,7 @@ public final class StatisticsOperationsTest extends GridProcessingTestBase {
          * Create the operation for the Extrema with a ROI.
          * No subsampling should be applied.
          */
-        final AbstractProcessor processor = AbstractProcessor.getInstance();
+        final CoverageProcessor processor = CoverageProcessor.getInstance();
         final AbstractOperation op = (AbstractOperation) processor.getOperation("Extrema");
         assertTrue(op instanceof Extrema);
         final ParameterValueGroup params = op.getParameters();
@@ -173,7 +173,7 @@ public final class StatisticsOperationsTest extends GridProcessingTestBase {
          * Create the operation for the Histogram with a ROI.
          * No subsampling should be applied.
          */
-        final AbstractProcessor processor = AbstractProcessor.getInstance();
+        final CoverageProcessor processor = CoverageProcessor.getInstance();
         final AbstractOperation op = (AbstractOperation) processor.getOperation("Histogram");
         assertTrue(op instanceof Histogram);
         final ParameterValueGroup params = op.getParameters();

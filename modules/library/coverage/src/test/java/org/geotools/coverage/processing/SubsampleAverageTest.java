@@ -46,7 +46,7 @@ public final class SubsampleAverageTest extends GridProcessingTestBase {
     /**
      * The processors to be used for all tests.
      */
-    private DefaultProcessor defaultProcessor, photographicProcessor;
+    private CoverageProcessor defaultProcessor, photographicProcessor;
 
     /**
      * Set up common objects used for all tests.
@@ -54,8 +54,8 @@ public final class SubsampleAverageTest extends GridProcessingTestBase {
     @Before
     public void setUp() {
         Hints hints = new Hints(Hints.COVERAGE_PROCESSING_VIEW, PHOTOGRAPHIC);
-        photographicProcessor = new DefaultProcessor(hints);
-        defaultProcessor      = new DefaultProcessor(null);
+        photographicProcessor = CoverageProcessor.getInstance(hints);
+        defaultProcessor      = CoverageProcessor.getInstance(null);
     }
 
     /**
@@ -120,7 +120,7 @@ public final class SubsampleAverageTest extends GridProcessingTestBase {
         /*
          * Get the processor and prepare the first operation.
          */
-        final DefaultProcessor processor = photographic ? photographicProcessor : defaultProcessor;
+        final CoverageProcessor processor = photographic ? photographicProcessor : defaultProcessor;
         final ParameterValueGroup param = processor.getOperation("SubsampleAverage").getParameters();
         param.parameter("Source").setValue(coverage);
         param.parameter("scaleX").setValue(Double.valueOf(0.5));

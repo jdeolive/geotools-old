@@ -58,7 +58,7 @@ public final class BandSelectTest extends GridProcessingTestBase {
      */
     @Test
     public void testBandSelectSimple() {
-        final AbstractProcessor processor = AbstractProcessor.getInstance();
+        final CoverageProcessor processor = CoverageProcessor.getInstance();
         /*
          * Get the source coverage and build the cropped envelope.
          */
@@ -95,7 +95,7 @@ public final class BandSelectTest extends GridProcessingTestBase {
      */
     @Test
     public void testBandSelect() throws TransformException {
-        final AbstractProcessor processor = AbstractProcessor.getInstance();
+        final CoverageProcessor processor = CoverageProcessor.getInstance();
         /*
          * Get the source coverage and build the cropped envelope.
          */
