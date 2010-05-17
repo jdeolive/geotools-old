@@ -18,7 +18,6 @@ package org.geotools.renderer.lite.gridcoverage2d;
 
 import java.awt.Color;
 
-import org.geotools.coverage.GridSampleDimension;
 import org.geotools.referencing.piecewise.DomainElement1D;
 import org.geotools.referencing.piecewise.PiecewiseTransform1DElement;
 

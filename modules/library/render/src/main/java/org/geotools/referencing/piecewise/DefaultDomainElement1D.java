@@ -347,7 +347,7 @@ public class DefaultDomainElement1D implements DomainElement1D {
 	}
 
 	public String toString() {
-		final StringBuffer buffer= new StringBuffer("Domain description:");
+		final StringBuilder buffer= new StringBuilder("Domain description:");
 		buffer.append("\n").append("name=").append(name);
 		buffer.append("\n").append("input range=").append(range);
 		return buffer.toString();

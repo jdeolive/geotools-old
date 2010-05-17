@@ -53,6 +53,7 @@ import org.geotools.renderer.i18n.Errors;
  * @author        Simone Giannecchini - GeoSolutions
  * @since        2.4
  */
+@SuppressWarnings("unchecked")
 public class RasterClassifier extends PointOpImage {
 
 	/**

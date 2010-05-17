@@ -224,7 +224,7 @@ public class LinearColorMapElement extends DefaultLinearPiecewiseTransform1DElem
 	 * @see org.geotools.referencing.piecewise.DefaultLinearPiecewiseTransform1DElement#toString()
 	 */
 	public String toString() {
-		final StringBuffer buffer= new StringBuffer(super.toString());
+		final StringBuilder buffer= new StringBuilder(super.toString());
 		buffer.append("\n").append("colors=");
 		for(int i=0;(colors !=null)&&i<colors.length;i++)
 		{
