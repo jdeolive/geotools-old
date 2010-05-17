@@ -39,7 +39,7 @@ import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.coverage.grid.io.imageio.GeoToolsWriteParams;
-import org.geotools.coverage.processing.DefaultProcessor;
+import org.geotools.coverage.processing.CoverageProcessor;
 import org.geotools.factory.Hints;
 import org.geotools.gce.geotiff.GeoTiffWriter;
 import org.geotools.gce.imagemosaic.ImageMosaicFormat;
@@ -572,7 +572,7 @@ public class PyramidLayerBuilder extends BaseArgumentsManager implements
 		uppers[0] ++;
 		uppers[1] ++;
 		final double newRange[] = new double[] { uppers[0] / newCols,uppers[1] / newRows };
-		final DefaultProcessor processor = new DefaultProcessor(null);
+		final CoverageProcessor processor = CoverageProcessor.getInstance();
 		for (int i = 0; i < newRows; i++)
 			for (int j = 0; j < newCols; j++) {
 
