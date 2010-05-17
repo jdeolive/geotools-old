@@ -49,7 +49,6 @@ import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.data.DataUtilities;
-import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
 import org.geotools.data.crs.ForceCoordinateSystemFeatureResults;
@@ -59,7 +58,6 @@ import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.Hints;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureTypes;
-import org.geotools.feature.IllegalAttributeException;
 import org.geotools.filter.IllegalFilterException;
 import org.geotools.filter.function.GeometryTransformationVisitor;
 import org.geotools.filter.visitor.SimplifyingFilterVisitor;
@@ -90,6 +88,7 @@ import org.geotools.styling.Rule;
 import org.geotools.styling.StyleAttributeExtractor;
 import org.geotools.styling.Symbolizer;
 import org.geotools.styling.TextSymbolizer;
+import org.geotools.styling.visitor.UomRescaleStyleVisitor;
 import org.geotools.util.NumberRange;
 import org.geotools.util.Range;
 import org.opengis.coverage.grid.GridCoverage;
@@ -759,19 +758,19 @@ public final class StreamingRenderer implements GTRenderer {
     //TODO: Implement filtering for bbox and read in only the need attributes 
     Collection queryLayer(MapLayer currLayer, CollectionSource source) {
         //REVISIT: this method does not make sense. Always compares
-        //new DefaultQuery(DefaultQuery.ALL) for reference equality with Query.All. GR.
+        //new Query(Query.ALL) for reference equality with Query.All. GR.
 
         Collection results = null;
-        DefaultQuery query = new DefaultQuery(DefaultQuery.ALL);
+        Query query = new Query(Query.ALL);
         Query definitionQuery;
 
         definitionQuery = currLayer.getQuery();
 
         if (definitionQuery != Query.ALL) {
             if (query == Query.ALL) {
-                query = new DefaultQuery(definitionQuery);
+                query = new Query(definitionQuery);
             } else {
-                query = new DefaultQuery(DataUtilities.mixQueries(definitionQuery, query, "liteRenderer"));
+                query = new Query(DataUtilities.mixQueries(definitionQuery, query, "liteRenderer"));
             }
         }
 
@@ -829,7 +828,6 @@ public final class StreamingRenderer implements GTRenderer {
      * @throws IllegalFilterException
      *             if something goes wrong constructing the bbox filter
      * @throws IOException
-     * @throws IllegalAttributeException
      * @see MapLayer#setQuery(org.geotools.data.Query)
      */
     /*
@@ -842,10 +840,9 @@ public final class StreamingRenderer implements GTRenderer {
             CoordinateReferenceSystem featCrs, Rectangle screenSize,
             GeometryDescriptor geometryAttribute,
             AffineTransform worldToScreenTransform)
-            throws IllegalFilterException, IOException,
-            IllegalAttributeException {
+            throws IllegalFilterException, IOException {
         FeatureCollection<SimpleFeatureType, SimpleFeature> results = null;
-        DefaultQuery query = new DefaultQuery(DefaultQuery.ALL);
+        Query query = new Query(Query.ALL);
         Query definitionQuery;
         final int length;
         Filter filter = null;
@@ -902,7 +899,7 @@ public final class StreamingRenderer implements GTRenderer {
 
                 // now build the query using only the attributes and the
                 // bounding box needed
-                query = new DefaultQuery(schema.getTypeName());
+                query = new Query(schema.getTypeName());
                 query.setFilter(filter);
                 query.setPropertyNames(attributes);
                 processRuleForQuery(styles, query);
@@ -910,7 +907,7 @@ public final class StreamingRenderer implements GTRenderer {
             } catch (Exception e) {
                 fireErrorEvent(new Exception("Error transforming bbox", e));
                 canTransform = false;
-                query = new DefaultQuery(schema.getTypeName());
+                query = new Query(schema.getTypeName());
                 query.setPropertyNames(attributes);
                 Envelope bounds = source.getBounds();
                 if (bounds != null && envelope.intersects(bounds)) {
@@ -937,9 +934,9 @@ public final class StreamingRenderer implements GTRenderer {
 
         if (definitionQuery != Query.ALL) {
             if (query == Query.ALL) {
-                query = new DefaultQuery(definitionQuery);
+                query = new Query(definitionQuery);
             } else {
-                query = new DefaultQuery(DataUtilities.mixQueries(
+                query = new Query(DataUtilities.mixQueries(
                         definitionQuery, query, "liteRenderer"));
             }
         }
@@ -1101,8 +1098,7 @@ public final class StreamingRenderer implements GTRenderer {
      * @param q
      */
 
-    private void processRuleForQuery(LiteFeatureTypeStyle[] styles,
-            DefaultQuery q) {
+    private void processRuleForQuery(LiteFeatureTypeStyle[] styles, Query q) {
         try {
 
             // first we check to see if there are >
@@ -1550,6 +1546,8 @@ public final class StreamingRenderer implements GTRenderer {
         return result;
     }
 
+
+
     private boolean isFeatureTypeStyleActive(SimpleFeatureType ftype, FeatureTypeStyle fts) {
         return ((ftype.getTypeName() != null)
                 && (ftype.getTypeName().equalsIgnoreCase(fts.getFeatureTypeName()) || 
@@ -1716,14 +1714,12 @@ public final class StreamingRenderer implements GTRenderer {
      * @param screenSize
      * @param layerId 
      * @throws IOException
-     * @throws IllegalAttributeException
      * @throws IllegalFilterException
      */
     final private void processStylers(final Graphics2D graphics,
             MapLayer currLayer, AffineTransform at,
             CoordinateReferenceSystem destinationCrs, Envelope mapArea,
-            Rectangle screenSize, String layerId) throws IllegalFilterException, IOException,
-            IllegalAttributeException {
+            Rectangle screenSize, String layerId) throws IllegalFilterException, IOException {
 
         /*
          * DJB: changed this a wee bit so that it now does the layer query AFTER
@@ -1745,7 +1741,7 @@ public final class StreamingRenderer implements GTRenderer {
 
         final CoordinateReferenceSystem sourceCrs;
         final NumberRange scaleRange = new NumberRange(scaleDenominator,scaleDenominator);
-        final ArrayList lfts ;
+        final ArrayList<LiteFeatureTypeStyle> lfts ;
 
         if ( featureSource != null ) {
             final SimpleFeatureType schema = featureSource.getSchema();
@@ -1762,6 +1758,8 @@ public final class StreamingRenderer implements GTRenderer {
             lfts = createLiteFeatureTypeStyles(featureStylers,schema, graphics);
             if(lfts.size() == 0)
                 return;
+            
+            applyUnitRescale(lfts);
 
             LiteFeatureTypeStyle[] featureTypeStyleArray = (LiteFeatureTypeStyle[]) lfts.toArray(new LiteFeatureTypeStyle[lfts.size()]);
             // /////////////////////////////////////////////////////////////////////
@@ -1786,18 +1784,42 @@ public final class StreamingRenderer implements GTRenderer {
 
             sourceCrs = null;
             lfts = createLiteFeatureTypeStyles( featureStylers, source.describe(), graphics );
+            applyUnitRescale(lfts);
         }
 
         if (lfts.size() == 0) return; // nothing to do
 
-
-        if(isOptimizedFTSRenderingEnabled())
+        // finally, perform rendering
+        if(isOptimizedFTSRenderingEnabled()) {
             drawOptimized(graphics, currLayer, at, destinationCrs, layerId, collection, features,
                     scaleRange, lfts);
-        else
+        } else {
             drawPlain(graphics, currLayer, at, destinationCrs, layerId, collection, features,
                     scaleRange, lfts);
+        }
+    }
 
+    /**
+     * Applies Unit Of Measure rescaling against all symbolizers, the result will be symbolizers
+     * that operate purely in pixels
+     * @param lfts
+     */
+    void applyUnitRescale(final ArrayList<LiteFeatureTypeStyle> lfts) {
+        // apply UOM rescaling
+        double pixelsPerMeters = RendererUtilities.calculatePixelsPerMeterRatio(scaleDenominator, rendererHints);
+        UomRescaleStyleVisitor rescaleVisitor = new UomRescaleStyleVisitor(pixelsPerMeters);
+        for(LiteFeatureTypeStyle fts : lfts) {
+            for (int i = 0; i < fts.ruleList.length; i++) {
+                rescaleVisitor.visit(fts.ruleList[i]);
+                fts.ruleList[i] = (Rule) rescaleVisitor.getCopy();
+            }
+            if(fts.elseRules != null) {
+                for (int i = 0; i < fts.elseRules.length; i++) {
+                    rescaleVisitor.visit(fts.elseRules[i]);
+                    fts.elseRules[i] = (Rule) rescaleVisitor.getCopy();
+                }
+            }
+        }
     }
 
     /**

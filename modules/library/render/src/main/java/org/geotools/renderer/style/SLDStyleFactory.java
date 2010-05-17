@@ -122,6 +122,11 @@ This change could affect the j2d renderer as it appears to use the
 public class SLDStyleFactory {
     /** The logger for the rendering module. */
     private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.rendering");
+    
+    /**
+     * The threshold at which we switch from pre-rasterized icons to dynamically painted ones (to avoid OOM) 
+     */
+    private static final int MAX_RASTERIZATION_SIZE = 512; 
 
     /** Holds a lookup bewteen SLD names and java constants. */
     private static final java.util.Map joinLookup = new java.util.HashMap();
@@ -181,8 +186,8 @@ public class SLDStyleFactory {
     /**
      * Holds value of property mapScaleDenominator.
      */
-    private double mapScaleDenominator = Double.NaN;;
-
+    private double mapScaleDenominator = Double.NaN;
+    
     /**
      * The factory builds a fair number of buffered images to deal with
      * external graphics that need resizing and the like. This hints will
@@ -383,16 +388,19 @@ public class SLDStyleFactory {
         if (fill == null)
         	return;
         
-        // sets Style2D fill
-        if (fill.getGraphicFill() != null && isVectorRenderingEnabled()) {
-        	// sets graphic fill if available and vector rendering is enabled
-        	Style2D style2DFill = createPointStyle(feature, fill.getGraphicFill(), scaleRange);
-        	style.setGraphicFill(style2DFill);
-        } else {
-            //otherwise, sets regular fill using Java raster-based Paint objects
-            style.setFill(getPaint(symbolizer.getFill(), feature));
-            style.setFillComposite(getComposite(symbolizer.getFill(), feature));
-        }
+        // sets Style2D fill making sure we don't use too much memory for the rasterization
+        if (fill.getGraphicFill() != null) {
+            double size = evalToDouble(fill.getGraphicFill().getSize(), feature, 0);
+            if(isVectorRenderingEnabled() || size > MAX_RASTERIZATION_SIZE) {
+             // sets graphic fill if available and vector rendering is enabled
+                Style2D style2DFill = createPointStyle(feature, fill.getGraphicFill(), scaleRange);
+                style.setGraphicFill(style2DFill);
+                return ;
+            }
+        } 
+        //otherwise, sets regular fill using Java raster-based Paint objects
+        style.setFill(getPaint(symbolizer.getFill(), feature));
+        style.setFillComposite(getComposite(symbolizer.getFill(), feature));
     }
 
     Style2D createDynamicPolygonStyle(SimpleFeature feature, PolygonSymbolizer symbolizer,
@@ -511,17 +519,23 @@ public class SLDStyleFactory {
                 }
                 eg = (ExternalGraphic) symbol;
                 
-                if(vectorRenderingEnabled) {
-                    Icon icon = getIcon(eg, feature, (int) size);
+                // if the icon size becomes too big we switch to vector rendering too, since
+                // pre-rasterizing and caching the result will use too much memory
+                if(vectorRenderingEnabled || size > MAX_RASTERIZATION_SIZE) {
+                    Icon icon = getIcon(eg, feature, -1);
                     if(icon == null) {
                         // no icon -> no image either, there is no raster fallback
                         continue;
                     } else {
+                        if(icon.getIconHeight() != size && size != 0) {
+                            double scale = ((double) size) / icon.getIconHeight(); 
+                            icon = new RescaledIcon(icon, scale);
+                        }
                         retval = new IconStyle2D(icon, feature, displacementX, displacementY, rotation, composite);
                         break;
                     }
                 } else {
-    	            img = getImage(eg, (Feature) feature, (int) size);
+    	            img = getImage(eg, (Feature) feature, size);
                     if (img == null) {
                         continue;
                     } else {
@@ -577,6 +591,21 @@ public class SLDStyleFactory {
         }
 
         return retval;
+    }
+
+    /**
+     * Turns a floating point style into a integer size useful to specify the size of a
+     * BufferedImage. Will return 1 between 0 and 1 (0 excluded), will otherwise round the
+     * size to integer.
+     * @param size
+     * @return
+     */
+    int toImageSize(double size) {
+        if(size > 0 && size < 0.5d) {
+            return 1;
+        } else {
+            return (int) Math.round(size);
+        }
     }
 
     Style2D createTextStyle(Object feature, TextSymbolizer symbolizer, Range scaleRange) {
@@ -935,7 +964,7 @@ public class SLDStyleFactory {
      */
     public TexturePaint getTexturePaint(org.geotools.styling.Graphic gr, Object feature) {
         // -1 to have the image use its natural size if none was provided by the user
-        int graphicSize = evalToInt(gr.getSize(), feature, -1);
+        double graphicSize = evalToDouble(gr.getSize(), feature, -1);
         BufferedImage image = getImage(gr, feature, graphicSize);
 
         int iSizeX; 
@@ -1025,7 +1054,7 @@ public class SLDStyleFactory {
      * @param size
      * @return
      */
-    private BufferedImage getImage(Graphic graphic, Object feature, int size) {
+    private BufferedImage getImage(Graphic graphic, Object feature, double size) {
         if(graphic == null)
             return null;
         
@@ -1049,8 +1078,8 @@ public class SLDStyleFactory {
      * @param size
      * @return the image, or null if the external graphics could not be interpreted
      */
-    private BufferedImage getImage(ExternalGraphic eg, Object feature, int size) {
-        Icon icon = getIcon(eg, feature, size);
+    private BufferedImage getImage(ExternalGraphic eg, Object feature, double size) {
+        Icon icon = getIcon(eg, feature, toImageSize(size));
         if(icon != null)
             return rasterizeIcon(icon);
         
@@ -1064,7 +1093,7 @@ public class SLDStyleFactory {
      * @param size
      * @return the image, or null if the external graphics could not be interpreted
      */
-    private Icon getIcon(ExternalGraphic eg, Object feature, int size) {
+    private Icon getIcon(ExternalGraphic eg, Object feature, double size) {
         if(eg == null)
             return null;
         
@@ -1092,7 +1121,7 @@ public class SLDStyleFactory {
         Iterator<ExternalGraphicFactory> it  = DynamicSymbolFactoryFinder.getExternalGraphicFactories();
         while(it.hasNext()) {
             try {
-                Icon icon = it.next().getIcon((Feature) feature, location, eg.getFormat(), size);
+                Icon icon = it.next().getIcon((Feature) feature, location, eg.getFormat(), toImageSize(size));
                 if(icon != null) {
                     return icon;
                 }

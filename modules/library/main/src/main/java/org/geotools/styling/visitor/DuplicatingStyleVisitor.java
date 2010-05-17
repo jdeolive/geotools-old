@@ -915,6 +915,11 @@ public class DuplicatingStyleVisitor implements StyleVisitor {
     public void visit(LinePlacement lp) {
         Expression offset = copy( lp.getPerpendicularOffset());
         LinePlacement copy = sf.createLinePlacement(offset);
+        copy.setAligned( lp.isAligned() );
+        copy.setGap( copy(lp.getGap()) );
+        copy.setGeneralized( lp.isGeneralizeLine() );
+        copy.setInitialGap( copy(lp.getInitialGap()) );
+        copy.setRepeated( lp.isRepeated() );
 
         if( STRICT && !copy.equals( lp )){
             throw new IllegalStateException("Was unable to duplicate provided LinePlacement:"+lp );

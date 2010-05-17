@@ -85,6 +85,7 @@ import org.geotools.renderer.RenderListener;
 import org.geotools.renderer.label.LabelCacheImpl;
 import org.geotools.renderer.lite.LabelCache;
 import org.geotools.renderer.lite.LabelCacheDefault;
+import org.geotools.renderer.lite.LiteFeatureTypeStyle;
 import org.geotools.renderer.lite.RendererUtilities;
 import org.geotools.renderer.lite.StreamingRenderer;
 import org.geotools.renderer.style.SLDStyleFactory;
@@ -99,6 +100,7 @@ import org.geotools.styling.StyleAttributeExtractor;
 import org.geotools.styling.Symbolizer;
 import org.geotools.styling.TextSymbolizer;
 import org.geotools.styling.visitor.DuplicatingStyleVisitor;
+import org.geotools.styling.visitor.UomRescaleStyleVisitor;
 import org.geotools.util.NumberRange;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -325,8 +327,8 @@ public class ShapefileRenderer implements GTRenderer {
                     || typeName .equalsIgnoreCase(fts.getFeatureTypeName()))) {
                 // get applicable rules at the current scale
                 Rule[] rules = fts.getRules();
-                List ruleList = new ArrayList();
-                List elseRuleList = new ArrayList();
+                List<Rule> ruleList = new ArrayList<Rule>();
+                List<Rule> elseRuleList = new ArrayList<Rule>();
                 
                 // TODO process filter for geometry expressions and restrict bbox further based on 
                 // the result
@@ -361,6 +363,18 @@ public class ShapefileRenderer implements GTRenderer {
                             ruleList.add(r);
                         }
                     }
+                }
+
+                // apply uom rescaling
+                double pixelsPerMeters = RendererUtilities.calculatePixelsPerMeterRatio(scaleDenominator, rendererHints);
+                UomRescaleStyleVisitor rescaleVisitor = new UomRescaleStyleVisitor(pixelsPerMeters);
+                for (int j = 0; j < ruleList.size(); j++) {
+                    rescaleVisitor.visit(ruleList.get(j));
+                    ruleList.set(j, (Rule) rescaleVisitor.getCopy());
+                }
+                for (int j = 0; j < elseRuleList.size(); j++) {
+                    rescaleVisitor.visit(elseRuleList.get(j));
+                    elseRuleList.set(j, (Rule) rescaleVisitor.getCopy());
                 }
 
                 // process the features according to the rules

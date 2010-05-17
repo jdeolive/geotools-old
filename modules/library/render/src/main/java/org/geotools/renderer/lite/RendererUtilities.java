@@ -389,6 +389,26 @@ public final class RendererUtilities {
     
     final static double OGC_DEGREE_TO_METERS = 6378137.0 * 2.0 * Math.PI / 360;
     
+    
+	/**
+	 * Calculates the pixels per meter ratio based on a scale denominator.
+	 * 
+	 * @param scaleDenominator
+	 *            The scale denominator value.
+	 * @param hints
+	 *            The hints used in calculation. if "dpi" key is present, it
+	 *            uses it's Integer value as the dpi of the current device. if
+	 *            not it uses 90 that is the OGC default value.
+	 * @return The pixels per meter ratio for the given scale denominator.
+	 */
+	public static double calculatePixelsPerMeterRatio(double scaleDenominator, Map hints) {
+		if (scaleDenominator <= 0.0)
+			throw new IllegalArgumentException("The scale denominator must be positive.");
+		double scale = 1.0 / scaleDenominator;
+		return scale * (getDpi(hints) / 0.0254);
+	}
+    
+    
     /**
      * This method performs the computation using the methods suggested by the OGC SLD specification, page 26.
      * @param envelope
