@@ -47,7 +47,7 @@ import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverageWriter;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.imageio.GeoToolsWriteParams;
-import org.geotools.coverage.processing.DefaultProcessor;
+import org.geotools.coverage.processing.CoverageProcessor;
 import org.geotools.coverage.processing.operation.Resample;
 import org.geotools.coverage.processing.operation.SelectSampleDimension;
 import org.geotools.data.DataSourceException;
@@ -99,7 +99,7 @@ public final class ArcGridWriter extends AbstractGridCoverageWriter implements G
 	/** Caching a {@link SelectSampleDimension} operation. */
 	private static final SelectSampleDimension bandSelectFactory = new SelectSampleDimension();
 	static {
-		DefaultProcessor processor = new DefaultProcessor(new Hints(
+		CoverageProcessor processor = new CoverageProcessor(new Hints(
 				Hints.LENIENT_DATUM_SHIFT, Boolean.TRUE));
 		bandSelectParams = (ParameterValueGroup) processor.getOperation(
 				"SelectSampleDimension").getParameters();
