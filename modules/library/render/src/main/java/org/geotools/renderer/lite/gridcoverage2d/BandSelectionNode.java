@@ -29,7 +29,7 @@ import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
 
 import org.geotools.coverage.grid.GridCoverage2D;
-import org.geotools.coverage.processing.DefaultProcessor;
+import org.geotools.coverage.processing.CoverageProcessor;
 import org.geotools.coverage.processing.operation.SelectSampleDimension;
 import org.geotools.factory.Hints;
 import org.geotools.renderer.i18n.ErrorKeys;
@@ -145,7 +145,7 @@ class BandSelectionNode extends StyleVisitorCoverageProcessingNodeAdapter
 					// Do the actual band selection.
 					//
 					// //
-					final DefaultProcessor processor = new DefaultProcessor(
+					final CoverageProcessor processor = new CoverageProcessor(
 							this.getHints());
 					// get the source
 					final ParameterValueGroup parameters = processor

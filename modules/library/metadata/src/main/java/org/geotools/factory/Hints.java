@@ -623,15 +623,6 @@ public class Hints extends RenderingHints {
     ////////////////////////////////////////////////////////////////////////
 
     /**
-     * The {@link org.opengis.coverage.processing.GridCoverageProcessor} instance to use.
-     *
-     * @deprecated The {@code GridCoverageProcessor} interface is not yet
-     *             stable. Avoid dependencies if possible.
-     */
-    public static final Key GRID_COVERAGE_PROCESSOR = new Key(Object.class);
-    // TODO new Key("org.opengis.coverage.processing.GridCoverageProcessor");
-
-    /**
      * Key to control the maximum allowed number of tiles that we will load.
      * If this number is exceeded, i.e. we request an area which is too large
      * instead of getting stuck with opening thousands of files we throw an error.

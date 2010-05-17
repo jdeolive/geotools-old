@@ -45,7 +45,7 @@ import javax.media.jai.operator.TranslateDescriptor;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.coverage.processing.DefaultProcessor;
+import org.geotools.coverage.processing.CoverageProcessor;
 import org.geotools.coverage.processing.operation.Crop;
 import org.geotools.coverage.processing.operation.Resample;
 import org.geotools.coverage.processing.operation.Scale;
@@ -142,7 +142,7 @@ public final class GridCoverageRenderer {
         // Caching parameters for performing the various operations.
         //	
         // ///////////////////////////////////////////////////////////////////
-        final DefaultProcessor processor = new DefaultProcessor(new Hints(Hints.LENIENT_DATUM_SHIFT, Boolean.TRUE));
+        final CoverageProcessor processor = new CoverageProcessor(new Hints(Hints.LENIENT_DATUM_SHIFT, Boolean.TRUE));
         resampleParams = processor.getOperation("Resample").getParameters();
         cropParams = processor.getOperation("CoverageCrop").getParameters();
     }
