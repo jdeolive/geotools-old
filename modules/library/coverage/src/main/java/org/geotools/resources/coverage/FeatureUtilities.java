@@ -30,9 +30,12 @@ import org.geotools.feature.SchemaException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.feature.type.FeatureTypeFactoryImpl;
+import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
+import org.geotools.util.Utilities;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.feature.Feature;
 import org.opengis.feature.FeatureFactory;
@@ -40,6 +43,7 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.FeatureTypeFactory;
+import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
@@ -317,5 +321,46 @@ public final class FeatureUtilities {
 
 		// return the created polygon.
 		return retValue;
+	}
+
+	/**
+	 * Convert the crop envelope into a polygon and the use the
+	 * world-to-grid transform to get a ROI for the source coverage.
+	 */
+	public static Polygon getPolygon(final GeneralEnvelope env, final GeometryFactory gf) throws IllegalStateException, MismatchedDimensionException {
+	    final Rectangle2D rect = env.toRectangle2D();
+	    final Coordinate[] coord = new Coordinate[]{
+	        new Coordinate(rect.getMinX(), rect.getMinY()),
+	        new Coordinate(rect.getMinX(), rect.getMaxY()),
+	        new Coordinate(rect.getMaxX(), rect.getMaxY()),
+	        new Coordinate(rect.getMaxX(), rect.getMinY()),
+	        new Coordinate(rect.getMinX(), rect.getMinY())};
+	    final LinearRing ring = gf.createLinearRing(coord);
+	    final Polygon modelSpaceROI = new Polygon(ring, null, gf);
+	    // check that we have the same thing here
+	    assert modelSpaceROI.getEnvelopeInternal().equals(new ReferencedEnvelope(rect, env.getCoordinateReferenceSystem()));
+	    return modelSpaceROI;
+	}
+
+	/**
+	 * Function to calculate the area of a polygon, according to the algorithm
+	 * defined at http://local.wasp.uwa.edu.au/~pbourke/geometry/polyarea/
+	 *
+	 * @param polyPoints
+	 *            array of points in the polygon
+	 * @return area of the polygon defined by pgPoints
+	 */
+	public static double area(Point2D[] polyPoints) {
+		Utilities.ensureNonNull("polyPoints", polyPoints);
+		int i, j, n = polyPoints.length;
+		double area = 0;
+	
+		for (i = 0; i < n; i++) {
+			j = (i + 1) % n;
+			area += polyPoints[i].getX() * polyPoints[j].getY();
+			area -= polyPoints[j].getX() * polyPoints[i].getY();
+		}
+		area /= 2.0;
+		return (area);
 	}
 }

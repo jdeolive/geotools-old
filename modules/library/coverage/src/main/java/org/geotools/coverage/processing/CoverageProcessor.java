@@ -242,7 +242,7 @@ public class CoverageProcessor {
      * <strong>Note:</strong> this is a temporary method, until we have GeoAPI interface for
      * coverage processor and a factory finder for their implementations.
      */
-    public static synchronized CoverageProcessor getInstance(final Hints hints) {
+    public static synchronized CoverageProcessor getInstance(final Hints hints) 	{
     	if(hints==null||hints.isEmpty()){
 	        if (DEFAULT == null) {
 	            DEFAULT = new CacheableCoverageProcessor();
