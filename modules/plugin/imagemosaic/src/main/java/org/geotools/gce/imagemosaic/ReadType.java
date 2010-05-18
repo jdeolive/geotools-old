@@ -34,6 +34,7 @@ import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
 import javax.media.jai.RenderedOp;
 
+import org.geotools.factory.Hints;
 import org.geotools.resources.coverage.CoverageUtilities;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
@@ -55,8 +56,8 @@ enum ReadType {
     			final int imageIndex, 
     			final URL rasterURL,
     			final Rectangle readDimension,
-    			final Dimension tileDimension, // we just ignore in this case
-    			final ImageReaderSpi spi
+    			final ImageReaderSpi spi,
+    			final Hints hints
     			)throws IOException{
     		//
     		// Using ImageReader to load the data directly
@@ -121,8 +122,8 @@ enum ReadType {
     			final int imageIndex, 
     			final URL rasterUrl,
     			final Rectangle readDimension,
-    			final Dimension tileDimension,
-    			final ImageReaderSpi spi
+    			final ImageReaderSpi spi,
+    			final Hints hints
     			) throws IOException{
     		
       		///
@@ -190,11 +191,13 @@ enum ReadType {
 			pbjImageRead.add(readP);
 			pbjImageRead.add(spi.createReaderInstance());
 			final RenderedOp raster;
-			if(tileDimension!=null){
+//			if(tileDimension != null){
+			if (hints != null){    
 				//build a proper layout
-				final ImageLayout layout = new ImageLayout();
-				layout.setTileWidth(tileDimension.width).setTileHeight(tileDimension.height);
-				raster = JAI.create("ImageRead", pbjImageRead,new RenderingHints(JAI.KEY_IMAGE_LAYOUT,layout));
+//				final ImageLayout layout = new ImageLayout();
+//				layout.setTileWidth(tileDimension.width).setTileHeight(tileDimension.height);
+//				raster = JAI.create("ImageRead", pbjImageRead,new RenderingHints(JAI.KEY_IMAGE_LAYOUT,layout));
+			    raster = JAI.create("ImageRead", pbjImageRead, hints);
 			}
 			else
 				raster = JAI.create("ImageRead", pbjImageRead);
@@ -213,8 +216,8 @@ enum ReadType {
     			final int imageIndex, 
     			final URL rasterUrl,
     			final Rectangle readDimension,
-    			final Dimension tileDimension,
-    			final ImageReaderSpi spi
+    			final ImageReaderSpi spi,
+    			final Hints hints
     			)throws IOException{
     		throw new UnsupportedOperationException(Errors.format(ErrorKeys.UNSUPPORTED_OPERATION_$1,"read"));
     	}
@@ -259,8 +262,8 @@ enum ReadType {
 			final int imageIndex, 
 			final URL rasterUrl,
 			final Rectangle readDimension, 
-			final Dimension tileDimension,
-			final ImageReaderSpi spi
+			final ImageReaderSpi spi,
+			final Hints hints
 			) throws IOException;
 	
 };

@@ -236,7 +236,7 @@ class GTDataStoreGranuleCatalog extends AbstractGranuleCatalog {
 	 */
 	public List<GranuleDescriptor> getGranules(final BoundingBox envelope) throws IOException {
 		Utilities.ensureNonNull("envelope",envelope);
-		final Query q= new Query(typeName);
+		final Query q = new Query(typeName);
 		Filter filter = ff.bbox( ff.property( geometryPropertyName ), ReferencedEnvelope.reference(envelope) );
 		q.setFilter(filter);
 	    return getGranules(q);	
@@ -248,7 +248,7 @@ class GTDataStoreGranuleCatalog extends AbstractGranuleCatalog {
 	 */
 	public void  getGranules(final BoundingBox envelope, final GranuleCatalogVisitor visitor) throws IOException {
 		Utilities.ensureNonNull("envelope",envelope);
-		final Query q= new Query(typeName);
+		final Query q = new Query(typeName);
 		Filter filter = ff.bbox( ff.property( geometryPropertyName ), ReferencedEnvelope.reference(envelope) );
 		q.setFilter(filter);
 	    getGranules(q,visitor);			

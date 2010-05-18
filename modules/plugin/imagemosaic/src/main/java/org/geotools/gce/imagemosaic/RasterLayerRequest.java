@@ -530,7 +530,7 @@ class RasterLayerRequest {
                             // Getting suggested tile size
                             final int tileWidth = Integer.valueOf(tilesSize[0] .trim());
                             final int tileHeight = Integer.valueOf(tilesSize[1].trim());
-                            tileDimensions= new Dimension(tileWidth,tileHeight);
+                            tileDimensions = new Dimension(tileWidth,tileHeight);
                         } catch (NumberFormatException nfe) {
                             if (LOGGER.isLoggable(Level.WARNING)) {
                                 LOGGER.log(Level.WARNING, "Unable to parse "

@@ -17,11 +17,15 @@
 package org.geotools.gce.imagemosaic;
 
 import java.awt.Dimension;
+import java.awt.RenderingHints;
 import java.awt.image.RenderedImage;
 import java.util.concurrent.Callable;
 
 import javax.imageio.ImageReadParam;
+import javax.media.jai.ImageLayout;
+import javax.media.jai.JAI;
 
+import org.geotools.factory.Hints;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.geometry.BoundingBox;
 import org.opengis.referencing.operation.MathTransform2D;
@@ -43,7 +47,9 @@ class GranuleLoader implements Callable<RenderedImage>{
 	
 	final int imageIndex;
 
-	final Dimension tilesDimension;
+//	final Dimension tilesDimension;
+	
+	final Hints hints;
 
 	RasterLayerRequest request;
 	
@@ -53,14 +59,30 @@ class GranuleLoader implements Callable<RenderedImage>{
 			final ReferencedEnvelope cropBBox, 
 			final MathTransform2D mosaicWorldToGrid,
 			final GranuleDescriptor granuleDescriptor,
-			final RasterLayerRequest request) {
+			final RasterLayerRequest request,
+			final Hints hints) {
 		this.readParameters = Utils.cloneImageReadParam(readParameters);
 		this.imageIndex = imageIndex;
 		this.cropBBox = cropBBox;
 		this.mosaicWorldToGrid = mosaicWorldToGrid;
 		this.granuleDescriptor = granuleDescriptor;
 		this.request=request;
-		this.tilesDimension= request.getTileDimensions()!=null?(Dimension) request.getTileDimensions().clone():null;
+		this.hints = new Hints(hints);
+		if (request.getTileDimensions()!= null) {
+		    final Dimension tileDimension = request.getTileDimensions();
+		    if (hints != null && hints.containsKey(JAI.KEY_IMAGE_LAYOUT)){
+		        final Object layout = this.hints.get(JAI.KEY_IMAGE_LAYOUT);
+		        if (layout != null && layout instanceof ImageLayout){
+		            final ImageLayout imageLayout = (ImageLayout) layout;
+		            imageLayout.setTileHeight(tileDimension.height);
+		            imageLayout.setTileWidth(tileDimension.width);
+		        }
+		    } else {
+		        final ImageLayout layout = new ImageLayout();
+		        layout.setTileWidth(tileDimension.width).setTileHeight(tileDimension.height);
+		        this.hints.add(new RenderingHints(JAI.KEY_IMAGE_LAYOUT,layout));
+		    }
+		}
 	}
 	
 	public BoundingBox getCropBBox() {
@@ -84,7 +106,7 @@ class GranuleLoader implements Callable<RenderedImage>{
 	}
 	
 	public RenderedImage call() throws Exception {
-		return granuleDescriptor.loadRaster(readParameters, imageIndex, cropBBox, mosaicWorldToGrid, request,tilesDimension);
+		return granuleDescriptor.loadRaster(readParameters, imageIndex, cropBBox, mosaicWorldToGrid, request, hints);
 	}
 
 }

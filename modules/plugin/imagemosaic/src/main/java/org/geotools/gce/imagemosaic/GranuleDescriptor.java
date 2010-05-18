@@ -41,10 +41,12 @@ import javax.media.jai.ImageLayout;
 import javax.media.jai.Interpolation;
 import javax.media.jai.InterpolationNearest;
 import javax.media.jai.JAI;
+import javax.media.jai.TileCache;
 import javax.media.jai.operator.AffineDescriptor;
 
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.data.DataUtilities;
+import org.geotools.factory.Hints;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.metadata.iso.spatial.PixelTranslation;
@@ -486,7 +488,7 @@ public class GranuleDescriptor {
 			final ReferencedEnvelope cropBBox,
 			final MathTransform2D mosaicWorldToGrid,
 			final RasterLayerRequest request,
-			final Dimension tileDimension) throws IOException {
+			final Hints hints) throws IOException {
 		
 		if (LOGGER.isLoggable(java.util.logging.Level.FINE))
 			LOGGER.fine("Loading raster data for granuleDescriptor "+this.toString());
@@ -566,7 +568,7 @@ public class GranuleDescriptor {
 			final RenderedImage raster;
 			try{
 				// read
-				raster= request.getReadType().read(readParameters,imageIndex, granuleUrl, selectedlevel.rasterDimensions,tileDimension,cachedSPI);
+				raster= request.getReadType().read(readParameters,imageIndex, granuleUrl, selectedlevel.rasterDimensions,cachedSPI, hints);
 				
 			}
 			catch (Throwable e) {
@@ -641,11 +643,15 @@ public class GranuleDescriptor {
 				// performances of the subsequent affine operation.
 				//
 				final Dimension tileDimensions=request.getTileDimensions();
-				if(tileDimensions!=null&&request.getReadType().equals(ReadType.DIRECT_READ))
-				{
+				if(tileDimensions!=null&&request.getReadType().equals(ReadType.DIRECT_READ)) {
 					final ImageLayout layout = new ImageLayout();
 					layout.setTileHeight(tileDimensions.width).setTileWidth(tileDimensions.height);
 					localHints.add(new RenderingHints(JAI.KEY_IMAGE_LAYOUT,layout));
+				}
+				if (hints != null && hints.containsKey(JAI.KEY_TILE_CACHE)){
+				    final Object cache = hints.get(JAI.KEY_TILE_CACHE);
+				    if (cache != null && cache instanceof TileCache)
+				        localHints.add(new RenderingHints(JAI.KEY_TILE_CACHE, (TileCache) cache));
 				}
 				// border extender
 //				return WarpDescriptor.create(raster, new WarpAffine(translationTransform.createInverse()),new InterpolationNearest(), request.getBackgroundValues(),localHints);
