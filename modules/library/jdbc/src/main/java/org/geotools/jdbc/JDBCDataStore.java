@@ -286,7 +286,7 @@ public final class JDBCDataStore extends ContentDataStore
      * Returns a live, immutable view of the virtual tables map (from name to definition)  
      * @return
      */
-    Map<String, VirtualTable> getVirtualTables() {
+    public Map<String, VirtualTable> getVirtualTables() {
         return Collections.unmodifiableMap(virtualTables);
     }
     
