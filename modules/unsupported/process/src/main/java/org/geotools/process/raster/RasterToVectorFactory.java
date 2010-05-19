@@ -24,7 +24,6 @@ import java.util.TreeMap;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.data.Parameter;
 import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.NameImpl;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.process.impl.SingleProcessFactory;
 import org.geotools.text.Text;
@@ -111,10 +110,6 @@ public class RasterToVectorFactory extends SingleProcessFactory {
         resultInfo.put(RESULT_FEATURES.key, RESULT_FEATURES);
     }
     
-    public RasterToVectorFactory() {
-        super(new NameImpl(GT_NAMESPACE, "RasterToVectorProcess"));
-    }
-
     /**
      * Return a new instance of a RasterToVectorProcess
      */

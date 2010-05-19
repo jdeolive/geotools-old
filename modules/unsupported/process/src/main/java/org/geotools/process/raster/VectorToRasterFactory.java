@@ -73,13 +73,16 @@ public class VectorToRasterFactory extends AbstractFeatureCollectionProcessFacto
             1, 1, null, null);
 
     /**
-     * The name of the feature attribute that will be used to set the
-     * value of cells in the output grid. The attribute must be numeric.
-     * Mandatory.
+     * The source of values for cells in the output grid coverage. 
+     * This is either the name ({@code String}) of a numeric feature property
+     * or an {@code org.opengis.filter.expression.Expression} that can be
+     * evaluated to a numeric value.
+     * <p>
+     * This parameter is mandatory.
      */
-    static final Parameter<String> ATTRIBUTE = new Parameter<String>(
+    static final Parameter<Object> ATTRIBUTE = new Parameter<Object>(
             "attribute",
-            String.class,
+            Object.class,
             Text.text("Attribute"),
             Text.text("The feature attribute to use for raster cell values"),
             true, // this parameter is mandatory

@@ -16,8 +16,6 @@
  */
 package org.geotools.process.raster;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -36,13 +34,20 @@ import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.feature.FeatureIterator;
+import org.geotools.feature.NameImpl;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.junit.Test;
+import org.geotools.process.Process;
+import org.geotools.process.ProcessFactory;
+import org.geotools.process.Processors;
+
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.util.ProgressListener;
 
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygon;
+
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
  * Unit tests for {@code JMapPaneModel}.
@@ -55,6 +60,17 @@ import com.vividsolutions.jts.geom.Polygon;
 public class RasterToVectorProcessTest {
 
     private static final GridCoverageFactory covFactory = CoverageFactoryFinder.getGridCoverageFactory(null);
+
+    /**
+     * Tests creating the process via the Processors class
+     */
+    @Test
+    public void testCreateProcess() {
+        System.out.println("   create process");
+        Process p = Processors.createProcess(new NameImpl(ProcessFactory.GT_NAMESPACE, "RasterToVector"));
+        assertNotNull(p);
+        assertTrue(p instanceof RasterToVectorProcess);
+    }
 
     /**
      * Test conversion with a tiny coverage

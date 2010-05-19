@@ -16,8 +16,6 @@
  */
 package org.geotools.process.raster;
 
-import static org.junit.Assert.assertTrue;
-
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.geom.Point2D;
@@ -32,12 +30,15 @@ import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.feature.FeatureCollections;
+import org.geotools.feature.NameImpl;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.process.Process;
+import org.geotools.process.ProcessFactory;
+import org.geotools.process.Processors;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.junit.Ignore;
-import org.junit.Test;
+
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.metadata.spatial.PixelOrientation;
@@ -50,6 +51,9 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
+
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
  *
@@ -112,10 +116,12 @@ public class VectorToRasterProcessTest {
 
     }
 
-    @Ignore
     @Test
-    public void testExecute() throws Exception {
-        /* WRITE ME ! */
+    public void testCreateProcess() throws Exception {
+        System.out.println("   create process");
+        Process p = Processors.createProcess(new NameImpl(ProcessFactory.GT_NAMESPACE, "VectorToRaster"));
+        assertNotNull(p);
+        assertTrue(p instanceof VectorToRasterProcess);
     }
 
     /**
