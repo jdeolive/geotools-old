@@ -348,6 +348,8 @@ public class GranuleDescriptor {
 	
 	URL granuleUrl;
 	
+	int maxDecimationFactor = -1;
+	
 	final Map<Integer,GranuleOverviewLevelDescriptor> granuleLevels= Collections.synchronizedMap(new HashMap<Integer,GranuleOverviewLevelDescriptor>());
 	
 	AffineTransform baseGridToWorld;
@@ -355,14 +357,6 @@ public class GranuleDescriptor {
 	ImageReaderSpi cachedSPI;
 
 	SimpleFeature originator;
-
-//	public GranuleDescriptor(final BoundingBox granuleBBOX,final URL granuleUrl) {
-//		this(granuleBBOX, granuleUrl, null);
-//	}
-//	
-//	public GranuleDescriptor(final BoundingBox granuleBBOX,final URL granuleUrl, final ImageReaderSpi suggestedSPI) {
-//		init(granuleBBOX, granuleUrl, suggestedSPI);	
-//	}
 
 	private void init(final BoundingBox granuleBBOX, final URL granuleUrl,
 			final ImageReaderSpi suggestedSPI) {
@@ -439,12 +433,21 @@ public class GranuleDescriptor {
 	}
 	
 	public GranuleDescriptor(
-	        final String granuleLocation,
+                final String granuleLocation,
                 final BoundingBox granuleBBox, 
                 final ImageReaderSpi suggestedSPI) {
+	    this (granuleLocation, granuleBBox, suggestedSPI, -1);
+	}
+	
+	public GranuleDescriptor(
+	        final String granuleLocation,
+                final BoundingBox granuleBBox, 
+                final ImageReaderSpi suggestedSPI,
+                final int maxDecimationFactor) {
 
+	    this.maxDecimationFactor = maxDecimationFactor;
             // If the granuleDescriptor is not there, dump a message and continue
-            URL rasterFile = DataUtilities.fileToURL(new File(granuleLocation));
+            final URL rasterFile = DataUtilities.fileToURL(new File(granuleLocation));
             
             if (rasterFile == null) {
                     return;
@@ -559,8 +562,12 @@ public class GranuleDescriptor {
 				final int ssx = readParameters.getSourceXSubsampling();
 				final int ssy = readParameters.getSourceYSubsampling();
 				newSubSamplingFactor = Utilities.getSubSamplingFactor2(ssx , ssy);
-				if (newSubSamplingFactor != 0)
-					readParameters.setSourceSubsampling(newSubSamplingFactor, newSubSamplingFactor,0,0);
+				if (newSubSamplingFactor != 0) {
+				    if (newSubSamplingFactor > maxDecimationFactor && maxDecimationFactor != -1){
+				        newSubSamplingFactor = maxDecimationFactor;
+				    }
+				    readParameters.setSourceSubsampling(newSubSamplingFactor, newSubSamplingFactor,0,0);
+				}
 			}
 			
 			// set the source region
@@ -655,7 +662,7 @@ public class GranuleDescriptor {
 				}
 				// border extender
 //				return WarpDescriptor.create(raster, new WarpAffine(translationTransform.createInverse()),new InterpolationNearest(), request.getBackgroundValues(),localHints);
-				return AffineDescriptor.create(raster, finalRaster2Model, nearest, request.getBackgroundValues(),localHints);
+				return AffineDescriptor.create(raster, finalRaster2Model, nearest, request.getBackgroundValues(), localHints);
 			}
 		
 		} catch (IllegalStateException e) {

@@ -47,8 +47,6 @@ class GranuleLoader implements Callable<RenderedImage>{
 	
 	final int imageIndex;
 
-//	final Dimension tilesDimension;
-	
 	final Hints hints;
 
 	RasterLayerRequest request;
