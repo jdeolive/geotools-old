@@ -57,16 +57,6 @@ public class Extent {
         this.value = value;
     }
 
-    // public Extent(String name, String defaultValue, String value) {
-    // if (name == null || name.length() == 0) {
-    // throw new
-    // IllegalArgumentException("Error creating Dimension: parameter name must not be null!");
-    // }
-    // this.name = name;
-    // this.defaultValue = defaultValue;
-    // this.value = value;
-    // }
-    //
     public String getName() {
         return name;
     }
@@ -131,7 +121,7 @@ public class Extent {
     }
 
     public boolean isEmpty() {
-        return value != null && value.length() > 0;
+        return value != null || value.length() > 0;
     }
 
 }
