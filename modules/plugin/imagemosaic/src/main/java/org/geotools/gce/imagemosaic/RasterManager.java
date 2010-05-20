@@ -453,8 +453,8 @@ class RasterManager {
 		this.expandMe=parent.expandMe;
         
         //take ownership of the index
-		index= parent.index;
-		parent.index=null;
+		index= parent.catalog;
+		parent.catalog=null;
 		
         timeAttribute=parent.timeAttribute;
         elevationAttribute=parent.elevationAttribute;

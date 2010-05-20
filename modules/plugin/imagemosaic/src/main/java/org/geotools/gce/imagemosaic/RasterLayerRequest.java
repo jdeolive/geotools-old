@@ -94,6 +94,10 @@ class RasterLayerRequest {
     
     /** The region of the  */
     private Rectangle destinationRasterArea;
+    
+    private boolean footprintManagement;
+    
+    private boolean setRoiProperty;
 
     /**
      * Set to {@code true} if this request will produce an empty result, and the
@@ -332,7 +336,21 @@ class RasterLayerRequest {
 	        		continue;
 				multithreadingAllowed = ((Boolean) value).booleanValue();
 				continue;
-			}	 		
+			}	 	
+			
+			if (name.equals(ImageMosaicFormat.HANDLE_FOOTPRINT.getName())) {
+                            if (value == null)
+                                    continue;
+                            footprintManagement = ((Boolean) value).booleanValue();
+                            continue;
+                        }       
+			
+			if (name.equals(ImageMosaicFormat.SET_ROI_PROPERTY.getName())) {
+			   if (value == null)
+                                continue;
+	                    setRoiProperty = ((Boolean) value).booleanValue();
+	                    return;
+	                }  
 	       
 	        // //
 	        //
@@ -505,7 +523,25 @@ class RasterLayerRequest {
         		return;
 			multithreadingAllowed = ((Boolean) param.getValue()).booleanValue();
 			return;
-		}	 		
+		}	 	
+		
+		if (name.equals(ImageMosaicFormat.HANDLE_FOOTPRINT.getName())) {
+                    final Object value = param.getValue();
+                    if (value == null) {
+                            return;
+                    }
+                    footprintManagement = ((Boolean) param.getValue()).booleanValue();
+                    return;
+                }    
+		
+		if (name.equals(ImageMosaicFormat.SET_ROI_PROPERTY.getName())) {
+                    final Object value = param.getValue();
+                    if (value == null) {
+                            return;
+                    }
+                    setRoiProperty = ((Boolean) param.getValue()).booleanValue();
+                    return;
+                }    
        
         // //
         //
@@ -1158,6 +1194,14 @@ class RasterLayerRequest {
 	public int getMaximumNumberOfGranules() {
 		return maximumNumberOfGranules;
 	}
+	
+	public boolean isFootprintManagement() {
+            return footprintManagement;
+        }
+	
+        public boolean isSetRoiProperty() {
+            return setRoiProperty;
+        }
 
 	public boolean isBlend() {
 		return blend;
@@ -1187,6 +1231,8 @@ class RasterLayerRequest {
 	public Dimension getTileDimensions() {
 		return tileDimensions;
 	}
+	
+	
 //
 //	public double[] getRequestedRasterScaleFactors() {
 //		return requestedRasterScaleFactors!=null?requestedRasterScaleFactors.clone():requestedRasterScaleFactors;
@@ -1201,5 +1247,6 @@ class RasterLayerRequest {
 		builder.append("\tRequestedGridToWorld=").append(requestedGridToWorld).append("\n");
 		builder.append("\tReadType=").append(readType);
 		return builder.toString();
-	}	
+	}
+   
 }

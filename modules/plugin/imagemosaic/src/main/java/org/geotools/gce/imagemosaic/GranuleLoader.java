@@ -18,7 +18,6 @@ package org.geotools.gce.imagemosaic;
 
 import java.awt.Dimension;
 import java.awt.RenderingHints;
-import java.awt.image.RenderedImage;
 import java.util.concurrent.Callable;
 
 import javax.imageio.ImageReadParam;
@@ -26,6 +25,7 @@ import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
 
 import org.geotools.factory.Hints;
+import org.geotools.gce.imagemosaic.RasterLayerResponse.GranuleLoadingResult;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.geometry.BoundingBox;
 import org.opengis.referencing.operation.MathTransform2D;
@@ -35,7 +35,7 @@ import org.opengis.referencing.operation.MathTransform2D;
  * @author Simone Giannecchini, GeoSolutions SAS
  *
  */
-class GranuleLoader implements Callable<RenderedImage>{
+class GranuleLoader implements Callable<GranuleLoadingResult>{
 
 	final ReferencedEnvelope cropBBox;
 	
@@ -103,7 +103,7 @@ class GranuleLoader implements Callable<RenderedImage>{
 		return imageIndex;
 	}
 	
-	public RenderedImage call() throws Exception {
+	public GranuleLoadingResult call() throws Exception {
 		return granuleDescriptor.loadRaster(readParameters, imageIndex, cropBBox, mosaicWorldToGrid, request, hints);
 	}
 

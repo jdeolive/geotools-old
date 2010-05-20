@@ -130,7 +130,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 	/** The suggested SPI to avoid SPI lookup*/
 	ImageReaderSpi suggestedSPI;
 
-	GranuleCatalog index;
+	GranuleCatalog catalog;
 
 	String timeAttribute;
 
@@ -200,11 +200,11 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
             throw new DataSourceException("Unable to create reader for this mosaic since we could not parse the configuration.");
         }
         extractProperties(configuration);
-        index = source.getCatalog();
-        if (index == null) {
+        catalog = source.getCatalog();
+        if (catalog == null) {
             throw new DataSourceException("Unable to create reader for this mosaic since the inner catalog is null.");
         }
-        setGridGeometry(index);
+        setGridGeometry(catalog);
         
         rasterManager = new RasterManager(this);
         
@@ -240,21 +240,21 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 		// 
 		try {
 			// create the index
-			index= GranuleCatalogFactory.createGranuleCatalog(sourceURL, configuration);
+			catalog= GranuleCatalogFactory.createGranuleCatalog(sourceURL, configuration);
 			
 			// error
-			if(index==null)
+			if(catalog==null)
 				throw new DataSourceException("Unable to create index for this URL "+sourceURL);
 			
 			// everything is fine
 			if (LOGGER.isLoggable(Level.FINE))
 				LOGGER.fine("Connected mosaic reader to its index "
 						+ sourceURL.toString());
-			final SimpleFeatureType type= index.getType();
+			final SimpleFeatureType type= catalog.getType();
 			if (type==null)
 				throw new IllegalArgumentException("Problems when opening the index, no typenames for the schema are defined");
 			
-			setGridGeometry(index);
+			setGridGeometry(catalog);
 			
                         //
                         // get the crs if able to
@@ -321,14 +321,14 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 		}
 		catch (Throwable e) {
 			try {
-				if(index!=null)
-					index.dispose();
+				if(catalog!=null)
+					catalog.dispose();
 			} catch (Throwable e1) {
 				if (LOGGER.isLoggable(Level.FINEST))
 					LOGGER.log(Level.FINEST, e1.getLocalizedMessage(), e1);
 			}
 			finally{
-				index=null;
+				catalog=null;
 			}
 			
 			// dispose raster manager as well

@@ -97,6 +97,19 @@ import org.opengis.referencing.datum.PixelInCell;
  * 
  */
 public class Utils {
+    
+    static class Prop {
+        final static String LOCATION_ATTRIBUTE = "LocationAttribute";
+        final static String ENVELOPE2D = "Envelope2D";
+        final static String LEVELS_NUM = "LevelsNum";
+        final static String LEVELS = "Levels";
+        final static String SUGGESTED_SPI = "SuggestedSPI";
+        final static String EXP_RGB = "ExpandToRGB";
+        final static String ABSOLUTE_PATH = "AbsolutePath";
+        final static String NAME = "Name";
+        final static String FOOTPRINT_MANAGEMENT = "FootprintManagement";       
+    }
+    
 	/**
 	 * {@link AffineTransform} that can be used to go from an image datum placed
 	 * at the center of pixels to one that is placed at ULC.
@@ -1114,6 +1127,8 @@ public class Utils {
 	 * A transparent color for missing data.
 	 */
 	static final Color TRANSPARENT = new Color(0,0,0,0);
+        
+	final static Boolean IGNORE_FOOTPRINT = Boolean.getBoolean("org.geotools.footprint.ignore");
 	
 	/** 
 	     * Build a background values array using the same dataType of the input {@link SampleModel} (if available). 

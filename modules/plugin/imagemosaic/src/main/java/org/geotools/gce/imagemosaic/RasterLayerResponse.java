@@ -47,6 +47,7 @@ import javax.media.jai.ParameterBlockJAI;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.ROI;
 import javax.media.jai.ROIShape;
+import javax.media.jai.RenderedOp;
 import javax.media.jai.TileCache;
 import javax.media.jai.operator.ConstantDescriptor;
 import javax.media.jai.operator.MosaicDescriptor;
@@ -70,6 +71,7 @@ import org.geotools.filter.SortByImpl;
 import org.geotools.gce.imagemosaic.RasterManager.OverviewLevel;
 import org.geotools.gce.imagemosaic.catalog.GranuleCatalog.GranuleCatalogVisitor;
 import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.geometry.jts.JTS;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.image.ImageWorker;
 import org.geotools.referencing.CRS;
@@ -99,6 +101,7 @@ import org.opengis.referencing.operation.TransformException;
 import org.opengis.util.InternationalString;
 
 import com.sun.media.jai.codecimpl.util.ImagingException;
+import com.vividsolutions.jts.geom.Geometry;
 /**
  * A RasterLayerResponse. An instance of this class is produced everytime a
  * requestCoverage is called to a reader.
@@ -109,6 +112,32 @@ import com.sun.media.jai.codecimpl.util.ImagingException;
 @SuppressWarnings("deprecation")
 class RasterLayerResponse{
 
+    /**
+     * Simple placeholder class to store the result of a Granule Loading
+     * 
+     * @author Daniele Romagnoli Giannecchini, GeoSolutions S.A.S.
+     * 
+     */
+    static class GranuleLoadingResult {
+
+        RenderedImage loadedImage;
+
+        ROIShape inclusionArea;
+
+        public ROIShape getFootprint() {
+            return inclusionArea;
+        }
+
+        public RenderedImage getRaster() {
+            return loadedImage;
+        }
+
+        GranuleLoadingResult(RenderedImage loadedImage, ROIShape inclusionArea) {
+            this.loadedImage = loadedImage;
+            this.inclusionArea = inclusionArea;
+        }
+    }
+    
     private static final class SimplifiedGridSampleDimension extends GridSampleDimension implements SampleDimension{
 
 		/**
@@ -313,7 +342,7 @@ class RasterLayerResponse{
 		}
 		
 
-		private final List<Future<RenderedImage>> tasks= new ArrayList<Future<RenderedImage>>();
+		private final List<Future<GranuleLoadingResult>> tasks= new ArrayList<Future<GranuleLoadingResult>>();
 		private int   granulesNumber;
 		private boolean doInputTransparency;
 		private List<ROI> rois = new ArrayList<ROI>();
@@ -326,13 +355,18 @@ class RasterLayerResponse{
 			// load raster data
 			//
 			//create a granuleDescriptor loader
-			final GranuleLoader loader = new GranuleLoader(baseReadParameters, imageChoice, mosaicBBox, finalWorldToGridCorner, granuleDescriptor, request, hints);
-			if(!multithreadingAllowed)
-				tasks.add(new FutureTask<RenderedImage>(loader));
-			else
-				tasks.add(ImageMosaicReader.multiThreadedLoader.submit(loader));
-			
-			granulesNumber++;
+                        final Geometry bb = JTS.toGeometry((BoundingBox)mosaicBBox);
+                        final Geometry inclusionGeometry = granuleDescriptor.inclusionGeometry;
+                        if (!footprintManagement || inclusionGeometry == null || footprintManagement && inclusionGeometry.intersects(bb)){
+                            final GranuleLoader loader = new GranuleLoader(baseReadParameters, imageChoice, mosaicBBox, finalWorldToGridCorner, granuleDescriptor, request, hints);
+                            if(!multithreadingAllowed)
+                                        tasks.add(new FutureTask<GranuleLoadingResult>(loader));
+                                else
+                                        tasks.add(ImageMosaicReader.multiThreadedLoader.submit(loader));
+                                
+                                granulesNumber++;
+                        }
+                        
 			if(granulesNumber>request.getMaximumNumberOfGranules())
 				throw new IllegalStateException("The maximum number of allowed granules ("+request.getMaximumNumberOfGranules()+")has been exceeded.");
 		}
@@ -344,23 +378,31 @@ class RasterLayerResponse{
 			alphaChannels = new PlanarImage[granulesNumber];
 			int granuleIndex=0;
 			inputTransparentColor = request.getInputTransparentColor();
-			doInputTransparency = inputTransparentColor != null;
+			doInputTransparency = inputTransparentColor != null&&!footprintManagement;
 			// execute them all
 			boolean firstGranule=true;
 			int[] alphaIndex=null;
 			
-			for (Future<RenderedImage> future :tasks) {
+			for (Future<GranuleLoadingResult> future :tasks) {
 				
 				
 				final RenderedImage loadedImage;
+				final GranuleLoadingResult result;
 				try {
 					if(!multithreadingAllowed)
 					{
 						//run the loading in this thread
-						final FutureTask<RenderedImage> task=(FutureTask<RenderedImage>) future;
-						task.run();
+					    final FutureTask<GranuleLoadingResult> task=(FutureTask<GranuleLoadingResult>) future;
+                                            task.run();
 					}
-					loadedImage=future.get();
+					result = future.get();
+                                        if (result == null) {
+                                            if (LOGGER.isLoggable(Level.FINE))
+                                                LOGGER.log(Level.FINE, "Unable to load the raster for granule " 
+                                                        + granuleIndex + " with request " + request.toString());
+                                            continue;
+                                        }
+					loadedImage = result.getRaster();
 					if(loadedImage==null)
 					{
 						if(LOGGER.isLoggable(Level.FINE))
@@ -435,7 +477,12 @@ class RasterLayerResponse{
 						inputTransparentColor);
 				
 				// we need to add its roi in order to avoid problems whith the mosaic overl
-				rois.add(new ROIShape(PlanarImage.wrapRenderedImage(raster).getBounds()));
+				ROI imageBounds = new ROIShape(PlanarImage.wrapRenderedImage(raster).getBounds());
+                                if (footprintManagement){
+                                    final ROIShape footprint = result.getFootprint();
+                                    imageBounds = footprint != null? imageBounds.intersect(footprint): imageBounds;
+                                }
+                                rois.add(imageBounds);
 
 				// add to mosaic
 				pbjMosaic.addSource(raster);
@@ -518,6 +565,10 @@ class RasterLayerResponse{
 
 	private boolean multithreadingAllowed=false;
 	
+	private boolean footprintManagement = !Utils.IGNORE_FOOTPRINT;
+	
+	private boolean setRoiProperty;
+	
 	private boolean alphaIn=false;
 
 	private MathTransform baseGridToWorld;
@@ -525,6 +576,7 @@ class RasterLayerResponse{
 	private double[] backgroundValues;
 	
 	private Hints hints;
+
 
 	/**
 	 * Construct a {@code RasterLayerResponse} given a specific
@@ -551,6 +603,8 @@ class RasterLayerResponse{
 		finalTransparentColor=request.getOutputTransparentColor();
 		// are we doing multithreading?
 		multithreadingAllowed= request.isMultithreadingAllowed();
+		footprintManagement = request.isFootprintManagement();
+		setRoiProperty = request.isSetRoiProperty();
 		backgroundValues = request.getBackgroundValues();
 
 	}
@@ -924,6 +978,22 @@ class RasterLayerResponse{
 		    }
 		}
 		RenderedImage mosaic = JAI.create("Mosaic", pbjMosaic, localHints);
+		
+		if (setRoiProperty) {
+		    
+    		    //Adding globalRoi to the output
+    		    RenderedOp rop = (RenderedOp) mosaic;
+                    ROI globalRoi = null;
+                    ROI[] rois = (ROI []) pbjMosaic.getObjectParameter("sourceROI");
+                    for (int i=0; i<rois.length; i++){
+                        if (globalRoi == null){
+                            globalRoi = new ROI(rois[i].getAsImage());
+                        } else {
+                            globalRoi = globalRoi.add(rois[i]);
+                        }
+                    }
+                    rop.setProperty("ROI", globalRoi);
+		}
 
 		if (LOGGER.isLoggable(Level.FINE))
 			LOGGER.fine(new StringBuffer("Mosaic created ").toString());
