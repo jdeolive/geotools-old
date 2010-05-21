@@ -278,6 +278,10 @@ public class SLDStyleFactory {
      */
     public Style2D createStyle(Object drawMe, Symbolizer symbolizer, Range scaleRange) {
         Style2D style = null;
+        
+        if(symbolizer == null) {
+            throw new NullPointerException("The provided symbolizer is null!");
+        }
 
         SymbolizerKey key = new SymbolizerKey(symbolizer, scaleRange);
         style = (Style2D) staticSymbolizers.get(key);
@@ -288,6 +292,10 @@ public class SLDStyleFactory {
             hits++;
         } else {
             style = createStyleInternal(drawMe, symbolizer, scaleRange);
+            
+            if(style == null) {
+                throw new RuntimeException("Could not transform SLD " + symbolizer + " into a Java2D style");
+            }
 
             // if known dynamic symbolizer return the style
             if (dynamicSymbolizers.containsKey(key)) {
@@ -329,7 +337,7 @@ public class SLDStyleFactory {
             style = createPointStyle(drawMe, (PointSymbolizer) symbolizer, scaleRange);
         } else if (symbolizer instanceof TextSymbolizer) {
             style = createTextStyle(drawMe, (TextSymbolizer) symbolizer, scaleRange);
-        }
+        } 
 
         return style;
     }
