@@ -294,6 +294,10 @@ public class SLDStyleFactory {
             style = createStyleInternal(drawMe, symbolizer, scaleRange);
             
             if(style == null) {
+                if(symbolizer instanceof PointSymbolizer) {
+                    // it's ok, we would not build either a graphic or a mark that could be used
+                    return null;
+                }
                 throw new RuntimeException("Could not transform SLD " + symbolizer + " into a Java2D style");
             }
 
