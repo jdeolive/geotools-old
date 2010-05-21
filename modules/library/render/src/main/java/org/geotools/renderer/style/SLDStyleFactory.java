@@ -279,10 +279,6 @@ public class SLDStyleFactory {
     public Style2D createStyle(Object drawMe, Symbolizer symbolizer, Range scaleRange) {
         Style2D style = null;
         
-        if(symbolizer == null) {
-            throw new NullPointerException("The provided symbolizer is null!");
-        }
-
         SymbolizerKey key = new SymbolizerKey(symbolizer, scaleRange);
         style = (Style2D) staticSymbolizers.get(key);
 
@@ -293,12 +289,10 @@ public class SLDStyleFactory {
         } else {
             style = createStyleInternal(drawMe, symbolizer, scaleRange);
             
+            // for some legitimate cases some styles cannot be turned into a valid Style2D      
+            // e.g., point symbolizer that contains no graphic that can be used due to network issues
             if(style == null) {
-                if(symbolizer instanceof PointSymbolizer) {
-                    // it's ok, we would not build either a graphic or a mark that could be used
-                    return null;
-                }
-                throw new RuntimeException("Could not transform SLD " + symbolizer + " into a Java2D style");
+                return null;
             }
 
             // if known dynamic symbolizer return the style
