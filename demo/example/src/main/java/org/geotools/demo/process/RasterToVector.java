@@ -46,7 +46,7 @@ public class RasterToVector {
     private void demo() throws Exception {
         ReferencedEnvelope env = new ReferencedEnvelope(0.0, 8.0, 0.0, 8.0, DefaultGeographicCRS.WGS84);
         GridCoverage2D cov = createChessboardCoverage(256, 256, 32, env);
-        SimpleFeatureCollection fc = RasterToVectorProcess.process(cov, 0, env, Collections.singletonList(0.0d), null);
+        SimpleFeatureCollection fc = RasterToVectorProcess.process(cov, 0, env, Collections.singletonList(0.0d), true, null);
 
         MapContext map = new DefaultMapContext();
         map.setTitle("raster to vector conversion");

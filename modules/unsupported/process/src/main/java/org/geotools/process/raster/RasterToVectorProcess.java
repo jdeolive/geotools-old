@@ -239,16 +239,26 @@ public class RasterToVectorProcess extends AbstractProcess {
     public Map<String, Object> execute(Map<String, Object> input, ProgressListener monitor)
             throws ProcessException {
 
+        Object o;
+
         GridCoverage2D cov = (GridCoverage2D) input.get(RasterToVectorFactory.RASTER.key);
 
-        int band = (Integer) input.get(RasterToVectorFactory.BAND.key);
+        int band = 0;
+        o = input.get(RasterToVectorFactory.BAND.key);
+        if (o != null) {
+            band = (Integer) o;
+        }
 
         Envelope bounds = (Envelope) input.get(RasterToVectorFactory.BOUNDS.key);
 
         Collection<Double> outsideValues = (Collection<Double>)input.get(
                 RasterToVectorFactory.OUTSIDE.key);
 
-        boolean insideEdges = (Boolean) input.get(RasterToVectorFactory.INSIDE_EDGES.key);
+        boolean insideEdges = true;
+        o = input.get(RasterToVectorFactory.INSIDE_EDGES.key);
+        if (o != null) {
+            insideEdges = (Boolean) o;
+        }
 
         FeatureCollection features = convert(cov, band, bounds, outsideValues, insideEdges, monitor);
 
