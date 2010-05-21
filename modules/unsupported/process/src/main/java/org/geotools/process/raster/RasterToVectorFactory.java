@@ -16,6 +16,7 @@
  */
 package org.geotools.process.raster;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -75,9 +76,9 @@ public class RasterToVectorFactory extends SingleProcessFactory {
      * {@linkplain RasterToVectorProcess#execute(java.util.Map, org.opengis.util.ProgressListener) }
      * method.
      */
-    public static final Parameter<Double> OUTSIDE = new Parameter<Double>(
-            "nodata", Double.class, Text.text("NoData"), 
-            Text.text("Value representing NODATA or outside"),
+    public static final Parameter<Collection> OUTSIDE = new Parameter<Collection>(
+            "nodata", Collection.class, Text.text("NoData"),
+            Text.text("Collection of Double values representing NODATA or outside"),
             true, 1, -1, null, null);
 
     private static final Map<String, Parameter<?>> parameterInfo = new TreeMap<String, Parameter<?>>();
