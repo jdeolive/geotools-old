@@ -51,11 +51,11 @@ import com.vividsolutions.jts.geom.Polygon;
  */
 public class RasterToVectorFactory extends SingleProcessFactory {
 
-    private static final String VERSION_STRING = "0.0.3";
+    private static final String VERSION_STRING = "0.0.4";
     
     /** Grid coverage to vectorize */
     public static final Parameter<GridCoverage2D> RASTER = new Parameter<GridCoverage2D>(
-        "raster", GridCoverage2D.class, Text.text("Raster"), 
+        "raster", GridCoverage2D.class, Text.text("Source coverage"),
         Text.text("Grid coverage to vectorize"));
     
     /** Index of the band with data to vectorize */
@@ -70,16 +70,25 @@ public class RasterToVectorFactory extends SingleProcessFactory {
         "bounds", Envelope.class, Text.text("Bounds"),
         Text.text("Bounds of the area to vectorize"));
 
-    /** 
-     * The code(s) representing NODATA or outside the regions to be vectorized,
-     * which will be supplied as a {@linkplain java.util.Collection} of Double values to the
-     * {@linkplain RasterToVectorProcess#execute(java.util.Map, org.opengis.util.ProgressListener) }
-     * method.
+    /**
+     * The code(s) representing NODATA or outside the regions to be vectorized.
      */
     public static final Parameter<Collection> OUTSIDE = new Parameter<Collection>(
-            "nodata", Collection.class, Text.text("NoData"),
+            "nodata", Collection.class, Text.text("Outside values"),
             Text.text("Collection of Double values representing NODATA or outside"),
             true, 1, -1, null, null);
+
+    /**
+     * Whether inside edges (those separating regions with non-outside values)
+     * should be vectorized. If {@code Boolean.TRUE} (the default), inside edges
+     * are vectorized. If {@code Boolean.FALSE} only edges between outside and
+     * non-outside values are vectorized.
+     */
+    public static final Parameter<Boolean> INSIDE_EDGES = new Parameter<Boolean>(
+            "inside", Boolean.class, Text.text("Inside edges"),
+            Text.text("Whether to vectorize inside edges (those separating " +
+            "regions with non-outside values"));
+
 
     private static final Map<String, Parameter<?>> parameterInfo = new TreeMap<String, Parameter<?>>();
     static {
@@ -87,6 +96,7 @@ public class RasterToVectorFactory extends SingleProcessFactory {
         parameterInfo.put(BAND.key, BAND);
         parameterInfo.put(BOUNDS.key, BOUNDS);
         parameterInfo.put(OUTSIDE.key, OUTSIDE);
+        parameterInfo.put(INSIDE_EDGES.key, INSIDE_EDGES);
     }
     
     /**
@@ -180,7 +190,7 @@ public class RasterToVectorFactory extends SingleProcessFactory {
      * 
      * @param crs a coorindate reference system for the features
      * @return a new SimpleFeatureType with name: r2vPolygons and two attributes:
-     * shape (Polygon) and code (Integer)
+     * shape (Polygon) and gridvalue (Double)
      */
     public static SimpleFeatureType getSchema(CoordinateReferenceSystem crs) {
         SimpleFeatureTypeBuilder typeBuilder = new SimpleFeatureTypeBuilder();
@@ -189,7 +199,7 @@ public class RasterToVectorFactory extends SingleProcessFactory {
             typeBuilder.setCRS(crs);
         }
         typeBuilder.add("shape", Polygon.class, (CoordinateReferenceSystem) null);
-        typeBuilder.add("code", Integer.class);
+        typeBuilder.add("gridvalue", Double.class);
         SimpleFeatureType type = typeBuilder.buildFeatureType();
         return type;
     }

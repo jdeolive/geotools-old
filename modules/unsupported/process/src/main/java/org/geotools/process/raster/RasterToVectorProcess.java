@@ -83,6 +83,7 @@ import com.vividsolutions.jts.operation.polygonize.Polygonizer;
  * params.put(RasterToVectorFactory.BAND.key, Integer.valueOf(0));
  * params.put(RasterToVectorFactory.BOUNDS.key, env);
  * params.put(RasterToVectorFactory.OUTSIDE.key, Collections.singleton(0.0d));
+ * params.put(RasterToVectorFactory.INSIDE_EDGES.key, Boolean.TRUE);
  *
  * final Process r2v = Processors.createProcess(new NameImpl(ProcessFactory.GT_NAMESPACE, "RasterToVectorProcess"));
  *
@@ -120,9 +121,10 @@ import com.vividsolutions.jts.operation.polygonize.Polygonizer;
  * int band = ...
  * Envelope bounds = ...
  * List&lt;Double> outsideValues = ...
+ * boolean insideEdges = ...
  *
  * FeatureCollection&lt;SimpleFeatureType,SimpleFeature> features =
- *     RasterToVectorProcess.process(cov, band, bounds, outsideValues, null);
+ *     RasterToVectorProcess.process(cov, band, bounds, outsideValues, insideEdges, null);
  * </code></pre>
  * 
  * @author Jody Garnett
@@ -168,7 +170,14 @@ public class RasterToVectorProcess extends AbstractProcess {
 
     // Set of values that indicate 'outside' or 'no data' areas in the raster
     private SortedSet<Double> outside;
-    
+
+    // Proxy value used when inside edges are not being vectorized
+    private Double inside = null;
+
+    // Flag value used to code polygons when inside edges are not
+    // being vectorized
+    private static final int INSIDE_FLAG_VALUE = 1;
+
     /*
      * array of Coor objects that store end-points of vertical lines under construction
      */
@@ -239,7 +248,9 @@ public class RasterToVectorProcess extends AbstractProcess {
         Collection<Double> outsideValues = (Collection<Double>)input.get(
                 RasterToVectorFactory.OUTSIDE.key);
 
-        FeatureCollection features = convert(cov, band, bounds, outsideValues, monitor);
+        boolean insideEdges = (Boolean) input.get(RasterToVectorFactory.INSIDE_EDGES.key);
+
+        FeatureCollection features = convert(cov, band, bounds, outsideValues, insideEdges, monitor);
 
         Map<String, Object> results = new HashMap<String, Object>();
         results.put(RasterToVectorFactory.RESULT_FEATURES.key, features);
@@ -259,6 +270,8 @@ public class RasterToVectorProcess extends AbstractProcess {
      *        the whole coverage
      * @param outside a collection of one or more values which represent 'outside' or no data
      *        (may be {@code null} or empty)
+     * @param insideEdges whether to vectorize inside edges (those separating grid regions
+     *        with non-outside values)
      * @param monitor an optional ProgressListener (may be {@code null})
      *
      * @return a FeatureCollection containing simple polygon features
@@ -268,11 +281,12 @@ public class RasterToVectorProcess extends AbstractProcess {
             int band,
             Envelope bounds,
             Collection<Double> outsideValues,
+            boolean insideEdges,
             ProgressListener monitor) throws ProcessException {
 
         RasterToVectorFactory factory = new RasterToVectorFactory();
         RasterToVectorProcess process =  factory.create();
-        return process.convert(cov, band, bounds, outsideValues, monitor);
+        return process.convert(cov, band, bounds, outsideValues, insideEdges, monitor);
     }
 
     /**
@@ -283,6 +297,8 @@ public class RasterToVectorProcess extends AbstractProcess {
      * @param bounds of the area to vectorize in world coords (null means whole coverage)
      * @param outside a collection of one or more values which represent 'outside' or no data
      *        (may be {@code null} or empty)
+     * @param insideEdges whether to vectorize inside edges (those separating grid regions
+     *        with non-outside values)
      * @param monitor a progress listener (may be {@code null})
      *
      * @return a FeatureCollection containing simple polygon features
@@ -292,6 +308,7 @@ public class RasterToVectorProcess extends AbstractProcess {
             int band,
             Envelope bounds,
             Collection<Double> outsideValues,
+            boolean insideEdges,
             ProgressListener monitor) throws ProcessException {
 
         if (monitor == null) {
@@ -328,7 +345,7 @@ public class RasterToVectorProcess extends AbstractProcess {
             initialize(cov, workingBounds, new SubProgressListener(monitor, 10));
 
             monitor.setTask(new SimpleInternationalString("Vectorizing"));
-            vectorizeAndCollectBoundaries(band, outsideValues, new SubProgressListener(monitor, 70));
+            vectorizeAndCollectBoundaries(band, outsideValues, insideEdges, new SubProgressListener(monitor, 70));
 
             /***********************************************************
              * Assemble the LineStringss into Polygons, and create the
@@ -339,7 +356,7 @@ public class RasterToVectorProcess extends AbstractProcess {
 
             monitor.setTask(new SimpleInternationalString("Creating polygon features"));
             SimpleFeatureCollection features = 
-                    assembleFeatures(cov, band, schema, new SubProgressListener(monitor, 20));
+                    assembleFeatures(cov, band, insideEdges, schema, new SubProgressListener(monitor, 20));
 
             return features;
 
@@ -357,12 +374,14 @@ public class RasterToVectorProcess extends AbstractProcess {
      * 
      * @param grid the input grid coverage
      * @param band the band containing the data to vectorize
+     * @param insideEdges whether to vectorize inside edges (those separating grid regions
+     *        with non-outside values)
      * @param type feature type
      * @param monitor a progress listener (may be {@code null})
      * @return a new FeatureCollection containing the boundary polygons
      */
     private SimpleFeatureCollection assembleFeatures(GridCoverage2D grid, int band,
-            SimpleFeatureType type, ProgressListener monitor) {
+            boolean insideEdges, SimpleFeatureType type, ProgressListener monitor) {
         if (monitor == null) {
             monitor = new NullProgressListener();
         }
@@ -391,16 +410,16 @@ public class RasterToVectorProcess extends AbstractProcess {
                 Polygon poly = (Polygon) i.next();
                 InteriorPointArea ipa = new InteriorPointArea(poly);
                 Coordinate c = ipa.getInteriorPoint();
-                Point inside = geomFactory.createPoint(c);
+                Point insidePt = geomFactory.createPoint(c);
 
-                if (!poly.contains(inside)) {
+                if (!poly.contains(insidePt)) {
                     // try another method to generate an interior point
                     boolean found = false;
                     for (Coordinate ringC : poly.getExteriorRing().getCoordinates()) {
                         c.x = ringC.x + cellWidthX / 2;
                         c.y = ringC.y;
-                        inside = geomFactory.createPoint(c);
-                        if (poly.contains(inside)) {
+                        insidePt = geomFactory.createPoint(c);
+                        if (poly.contains(insidePt)) {
                             found = true;
                             break;
                         }
@@ -416,7 +435,12 @@ public class RasterToVectorProcess extends AbstractProcess {
 
                 if (!isOutside(bandData[band])) {
                     builder.add(poly);
-                    builder.add((int) bandData[band]);
+
+                    if (insideEdges) {
+                        builder.add(bandData[band]);
+                    } else {
+                        builder.add(INSIDE_FLAG_VALUE);
+                    }
                     features.add(builder.buildFeature(null));
                 }
             }
@@ -481,9 +505,11 @@ public class RasterToVectorProcess extends AbstractProcess {
      * @param band index of the band which contains the data to be vectorized
      * @param outsideValues a collection of one or more values which represent 'outside'
      *        or no data (may be {@code null} or empty)
+     * @param insideEdges whether to vectorize inside edges (those separating grid regions
+     *        with non-outside values)
      * @param monitor a progress listener (may be {@code null})
      */
-    private void vectorizeAndCollectBoundaries(int band, Collection<Double> outsideValues, ProgressListener monitor) {
+    private void vectorizeAndCollectBoundaries(int band, Collection<Double> outsideValues, boolean insideEdges, ProgressListener monitor) {
         if (monitor == null) {
             monitor = new NullProgressListener();
         }
@@ -498,6 +524,10 @@ public class RasterToVectorProcess extends AbstractProcess {
                 outside.add(Double.NaN);
             } else {
                 outside.addAll(outsideValues);
+            }
+
+            if (!insideEdges) {
+                setInsideValue();
             }
 
             // we add a virtual border, one cell wide, coded as 'outside'
@@ -520,11 +550,15 @@ public class RasterToVectorProcess extends AbstractProcess {
                     curData[TR] = (ok[TR] ? imageIter.getSampleDouble(col + 1, row, band) : outside.first());
                     if (isOutside(curData[TR])) {
                         curData[TR] = outside.first();
+                    } else if (!insideEdges) {
+                        curData[TR] = inside;
                     }
 
                     curData[BR] = (ok[BR] ? imageIter.getSampleDouble(col + 1, row + 1, band) : outside.first());
                     if (isOutside(curData[BR])) {
                         curData[BR] = outside.first();
+                    } else if (!insideEdges) {
+                        curData[BR] = inside;
                     }
 
                     updateCoordList(row, col, curData);
@@ -532,6 +566,26 @@ public class RasterToVectorProcess extends AbstractProcess {
             }
         } finally {
             monitor.complete();
+        }
+    }
+
+    /**
+     * Sets the proxy value used for "inside" cells when inside edges
+     * are not being vectorized.
+     */
+    private void setInsideValue() {
+        Double maxFinite = null;
+
+        for (Double d : outside) {
+            if (!(d.isInfinite() || d.isNaN())) {
+                maxFinite = d;
+            }
+        }
+
+        if (maxFinite != null) {
+            inside = maxFinite + 1;
+        } else {
+            inside = (double) INSIDE_FLAG_VALUE;
         }
     }
 
