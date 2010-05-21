@@ -45,8 +45,7 @@
         <module>sensorML-1.0.1</module>
         <module>sweCommon-1.0.1</module>
         <module>xlink</module>
-        <!-- xml not used by anything; ignore it for now -->
-        <!-- <module>xml</module> -->
+        <module>xml</module>
     </modules>
 
     <!--
