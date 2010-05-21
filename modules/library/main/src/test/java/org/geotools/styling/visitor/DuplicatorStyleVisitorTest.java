@@ -58,6 +58,7 @@ import org.geotools.styling.UserLayer;
 import org.geotools.util.Utilities;
 import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.expression.Expression;
+import org.opengis.filter.expression.Function;
 import org.opengis.util.Cloneable;
 
 
@@ -96,6 +97,7 @@ public class DuplicatorStyleVisitorTest extends TestCase {
     	assertNotNull(copy);
     	assertEquals(original, copy);
     }
+    
     
     public void testStyleDuplication() throws IllegalFilterException {
     	//create a style
@@ -634,4 +636,80 @@ public class DuplicatorStyleVisitorTest extends TestCase {
                 .getOpacity());
     }
     
+
+    public void testPointSymbolizerWithGeomFunction() throws Exception {
+        URL urlExternal = getClass().getResource("/data/sld/blob.gif");
+        ExternalGraphic extg = sb.createExternalGraphic(urlExternal, "image/svg+xml");
+        Graphic graphic = sb.createGraphic(extg, null, null);
+        PointSymbolizer pointSymb = sb.createPointSymbolizer(graphic);
+        
+        // Set a function as geometry
+        Function geomFunc = ff.function("centroid", ff.property("thr_geom"));
+        pointSymb.setGeometry(geomFunc);
+
+        pointSymb.accept(visitor);
+        PointSymbolizer copy = (PointSymbolizer) visitor.getCopy();
+
+        assertEquals("Any Expression set as Geometry must be correctly replicated",geomFunc, copy.getGeometry());
+    }
+    
+    public void testRasterSymbolizerDuplicationWithGeometryFunction() {
+        // create a default RasterSymbolizer
+        RasterSymbolizer original = sb.createRasterSymbolizer();
+
+        // Set a function as geometry
+        Function geomFunc = ff.function("centroid", ff.property("thr_geom"));
+        original.setGeometry(geomFunc);
+
+        // duplicate it
+        original.accept(visitor);
+        RasterSymbolizer copy = (RasterSymbolizer) visitor.getCopy();
+
+        // compare it
+        assertEquals("Any Expression set as Geometry must be correctly replicated", geomFunc, copy
+                .getGeometry());
+    }
+
+    public void testLineSymbolizerWithGeometryFunction() {
+        LineSymbolizer lineSymb = sf.createLineSymbolizer();
+
+        // Set a function as geometry
+        Function geomFunc = ff.function("centroid", ff.property("thr_geom"));
+        lineSymb.setGeometry(geomFunc);
+
+        LineSymbolizer copy = (LineSymbolizer) visitor.copy(lineSymb);
+
+        // compare it
+        assertEquals("Any Expression set as Geometry must be correctly replicated", geomFunc, copy
+                .getGeometry());
+    }
+
+    public void testPolygonSymbolizerWithGeometryFunction() {
+        PolygonSymbolizer symb = sf.createPolygonSymbolizer();
+
+        // Set a function as geometry
+        Function geomFunc = ff.function("centroid", ff.property("thr_geom"));
+        symb.setGeometry(geomFunc);
+
+        PolygonSymbolizer copy = (PolygonSymbolizer) visitor.copy(symb);
+
+        // compare it
+        assertEquals("Any Expression set as Geometry must be correctly replicated", geomFunc, copy
+                .getGeometry());
+    }
+
+    public void testTextSymbolizerWithGeometryFunction() {
+        TextSymbolizer symb = sf.createTextSymbolizer();
+
+        // Set a function as geometry
+        Function geomFunc = ff.function("centroid", ff.property("the_geom"));
+        symb.setGeometry(geomFunc);
+
+        TextSymbolizer copy = (TextSymbolizer) visitor.copy(symb);
+
+        // compare it
+        assertEquals("Any Expression set as Geometry must be correctly replicated", geomFunc, copy
+                .getGeometry());
+    }
+
 }

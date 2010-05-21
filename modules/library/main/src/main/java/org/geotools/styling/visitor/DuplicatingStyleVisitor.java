@@ -714,7 +714,9 @@ public class DuplicatingStyleVisitor implements StyleVisitor {
 
     public void visit(PointSymbolizer ps) {
         PointSymbolizer copy = sf.getDefaultPointSymbolizer();
-        copy.setGeometryPropertyName( ps.getGeometryPropertyName());
+        
+        copy.setGeometry(copy(ps.getGeometry()));
+        
         copy.setUnitOfMeasure(ps.getUnitOfMeasure());
         copy.setGraphic( copy( ps.getGraphic() ));
         if( STRICT ){
@@ -727,7 +729,9 @@ public class DuplicatingStyleVisitor implements StyleVisitor {
 
     public void visit(LineSymbolizer line) {
         LineSymbolizer copy = sf.getDefaultLineSymbolizer();
-        copy.setGeometryPropertyName( line.getGeometryPropertyName());
+        
+        copy.setGeometry(copy(line.getGeometry()));
+        
         copy.setUnitOfMeasure(line.getUnitOfMeasure());
         copy.setStroke( copy( line.getStroke()));
         
@@ -740,7 +744,9 @@ public class DuplicatingStyleVisitor implements StyleVisitor {
     public void visit(PolygonSymbolizer poly) {
         PolygonSymbolizer copy = sf.createPolygonSymbolizer();
         copy.setFill( copy( poly.getFill()));
-        copy.setGeometryPropertyName( poly.getGeometryPropertyName());
+        
+        copy.setGeometry(copy(poly.getGeometry()));
+        
         copy.setUnitOfMeasure(poly.getUnitOfMeasure());
         copy.setStroke(copy(poly.getStroke()));
         
@@ -754,7 +760,9 @@ public class DuplicatingStyleVisitor implements StyleVisitor {
         TextSymbolizer copy = sf.createTextSymbolizer();
         copy.setFill( copy( text.getFill()));
         copy.setFont( copy( text.getFont()));
-        copy.setGeometryPropertyName( text.getGeometryPropertyName() );
+        
+        copy.setGeometry(copy(text.getGeometry()));
+        
         copy.setUnitOfMeasure(text.getUnitOfMeasure());
         copy.setHalo( copy( text.getHalo() ));
         copy.setLabel( copy( text.getLabel()));
@@ -773,7 +781,9 @@ public class DuplicatingStyleVisitor implements StyleVisitor {
         copy.setChannelSelection( copy( raster.getChannelSelection() ));
         copy.setColorMap( copy( raster.getColorMap() ));
         copy.setContrastEnhancement( copy( raster.getContrastEnhancement()));
-        copy.setGeometryPropertyName( raster.getGeometryPropertyName());
+        
+        copy.setGeometry(copy(raster.getGeometry()));
+        
         copy.setUnitOfMeasure(raster.getUnitOfMeasure());
         copy.setImageOutline( copy( raster.getImageOutline()));
         copy.setOpacity( copy( raster.getOpacity() ));
@@ -800,7 +810,10 @@ public class DuplicatingStyleVisitor implements StyleVisitor {
         // Symbol[] symbolCopys = copy( gr.getSymbols() );
 
         copy = sf.createDefaultGraphic();
+        
+        // Odd.. graphics should not have a geometry property name 
         copy.setGeometryPropertyName(gr.getGeometryPropertyName());
+        
         copy.setDisplacement(displacementCopy);
         copy.setExternalGraphics(externalGraphicsCopy);
         copy.setMarks(marksCopy);
