@@ -203,9 +203,6 @@ public class SelectionLab {
          * the bounding box
          */
         Filter filter = ff.intersects(ff.property(geometryAttributeName), ff.literal(bbox));
-                
-                
-                //ff.bbox(ff.property(geometryAttributeName), bbox);
 
         /*
          * Use the filter to identify the selected features
