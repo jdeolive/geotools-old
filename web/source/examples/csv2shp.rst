@@ -29,7 +29,7 @@ Dependencies
 Please ensure your pom.xml includes the following::
 
   <properties>
-      <geotools.version>2.6.3</geotools.version>
+      <geotools.version>2.7-SNAPSHOT</geotools.version>
   </properties>
 
   <dependencies>
@@ -54,14 +54,14 @@ The example code is available
  * Directly from svn: Csv2Shape.java_.
  * Included in the demo directory when you download the GeoTools source code
 
-.. _Csv2Shape.java:  http://svn.osgeo.org/geotools/tags/2.6.3/demo/example/src/main/java/org/geotools/demo/Csv2Shape.java
+.. _Csv2Shape.java:  http://svn.osgeo.org/geotools/trunk/demo/example/src/main/java/org/geotools/demo/Csv2Shape.java
 
 Main Application
 ----------------
 1. Please create the file **Csv2Shape.java**
 2. Copy and paste in the following code:
 
-   .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/Csv2Shape.java
+   .. literalinclude:: ../../../demo/example/src/main/java/org/geotools/demo/Csv2Shape.java
       :language: java
       :start-after: // start source
       :end-before: // docs break feature type
@@ -74,7 +74,7 @@ Create a FeatureType
 We create a FeatureType to describe the data the we are importing from the CSV file and writing to a shapefile.
 Here we use the DataUtilities convenience class:
 
-   .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/Csv2Shape.java
+   .. literalinclude:: ../../../demo/example/src/main/java/org/geotools/demo/Csv2Shape.java
       :language: java
       :start-after: // docs break feature type
       :end-before: // docs break feature collection
@@ -87,7 +87,7 @@ We can now read the CSV File into a FeatureCollection; please note the following
  * Use of GeometryFactory to create new Points
  * Creation of features (SimpleFeature objects) using SimpleFeatureBuilder
 
-   .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/Csv2Shape.java
+   .. literalinclude:: ../../../demo/example/src/main/java/org/geotools/demo/Csv2Shape.java
       :language: java
       :start-after: // docs break feature collection
       :end-before: // docs break new shapefile
@@ -101,7 +101,7 @@ Things to note as we create the shapefile:
  * The createSchema( SimpleFeatureType ) method to set up the shapefile
  * Our SimpleFeatureType did not include map projection (coordinate reference system) information needed to make a .prj file, so we call forceSchemaCRS to do this
 
-   .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/Csv2Shape.java
+   .. literalinclude:: ../../../demo/example/src/main/java/org/geotools/demo/Csv2Shape.java
       :language: java
       :start-after: // docs break new shapefile
       :end-before: // docs break transaction
@@ -111,7 +111,7 @@ Write the feature data to the shapefile
 
 Here we use a Transaction to safely add the FeatureCollection in one go:
 
-   .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/Csv2Shape.java
+   .. literalinclude:: ../../../demo/example/src/main/java/org/geotools/demo/Csv2Shape.java
       :language: java
       :start-after: // docs break transaction
       :end-before: // end main
@@ -124,7 +124,7 @@ Prompt for the output shapefile
 This method prompts the user for an appropriate shapefile to write out to. The original csv file is used to determine a good default
 shapefile name.
 
-   .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/Csv2Shape.java
+   .. literalinclude:: ../../../demo/example/src/main/java/org/geotools/demo/Csv2Shape.java
       :language: java
       :start-after: // start get shapefile
       :end-before: // end get shapefile
@@ -147,7 +147,7 @@ Although the DataUtilities class used above provided a quick and easy way to bui
 
 Here is how to use SimpleFeatureTypeBuilder to accomplish the same result:
 
-   .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/Csv2Shape.java
+   .. literalinclude:: ../../../demo/example/src/main/java/org/geotools/demo/Csv2Shape.java
       :language: java
       :start-after: // start createFeatureType
       :end-before: // end createFeatureType

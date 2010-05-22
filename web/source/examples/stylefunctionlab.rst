@@ -13,7 +13,7 @@ Dependencies
 Please ensure your pom.xml includes the following::
 
     <properties>
-        <geotools.version>2.6.3</geotools.version>
+        <geotools.version>2.7-SNAPSHOT</geotools.version>
     </properties>
 
     <dependencies>
@@ -43,14 +43,14 @@ The example code is available
  * Directly from svn: StyleFunctionLab.java_
  * Included in the demo directory when you download the GeoTools source code
 
-.. _StyleFunctionLab.java: http://svn.osgeo.org/geotools/tags/2.6.3/demo/example/src/main/java/org/geotools/demo/StyleFunctionLab.java 
+.. _StyleFunctionLab.java: http://svn.osgeo.org/geotools/trunk/demo/example/src/main/java/org/geotools/demo/StyleFunctionLab.java 
 
 Main application and display method
 -----------------------------------
 
 Please create the file **StyleFunctionLab.java** then copy and paste in the following code:
 
-   .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/StyleFunctionLab.java
+   .. literalinclude:: ../../../demo/example/src/main/java/org/geotools/demo/StyleFunctionLab.java
       :language: java
       :start-after: // docs start source
       :end-before: // docs end display
@@ -61,7 +61,7 @@ select a feature attribute and passing the name of this to a new **createStyle**
 Creating a dynamic Style
 ------------------------
 
-   .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/StyleFunctionLab.java
+   .. literalinclude:: ../../../demo/example/src/main/java/org/geotools/demo/StyleFunctionLab.java
       :language: java
       :start-after: // docs start create style
       :end-before: // docs end create style
@@ -93,7 +93,7 @@ data in complex ways. This topic will be explored further in some of the other L
 Meanwhile, we're going to look at how to create a custom function that GeoTools will call to provide colours as it draws each feature in the
 shapefile. Here is the function code:
 
-   .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/StyleFunctionLab.java
+   .. literalinclude:: ../../../demo/example/src/main/java/org/geotools/demo/StyleFunctionLab.java
       :language: java
       :start-after: // docs start function
       :end-before: // docs end source

@@ -11,7 +11,7 @@ Dependencies
 Please ensure your pom.xml includes the following::
 
     <properties>
-        <geotools.version>2.6.3</geotools.version>
+        <geotools.version>2.6.4</geotools.version>
     </properties>
 
     <dependencies>
@@ -39,14 +39,14 @@ The example code is available
  * Directly from svn: StyleLab.java_
  * Included in the demo directory when you download the GeoTools source code
 
-.. _StyleLab.java: http://svn.osgeo.org/geotools/tags/2.6.3/demo/example/src/main/java/org/geotools/demo/StyleLab.java 
+.. _StyleLab.java: http://svn.osgeo.org/geotools/tags/2.6.4/demo/example/src/main/java/org/geotools/demo/StyleLab.java 
 
 Main Application
 ----------------
 1. Please create the file **StyleLab.java**
 2. Copy and paste in the following code:
 
-   .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/StyleLab.java
+   .. literalinclude:: ../../../demo/example/src/main/java/org/geotools/demo/StyleLab.java
       :language: java
       :start-after: // docs start source
       :end-before: // docs end main
@@ -56,7 +56,7 @@ Displaying a shapefile
 
 If you have worked through the previous labs, most of this method will look familiar to you:
 
-   .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/StyleLab.java
+   .. literalinclude:: ../../../demo/example/src/main/java/org/geotools/demo/StyleLab.java
       :language: java
       :start-after: // docs start display
       :end-before: // docs end display
@@ -71,7 +71,7 @@ This method first looks to see if there is an SLD document (Styled Layer Descrip
 If it finds one it processes that file to create the style. Otherwise, it displays a **JSimpleStyleDialog** to
 prompt the user for style choices:
 
-   .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/StyleLab.java
+   .. literalinclude:: ../../../demo/example/src/main/java/org/geotools/demo/StyleLab.java
       :language: java
       :start-after: // docs start create style
       :end-before: // docs end create style
@@ -79,7 +79,7 @@ prompt the user for style choices:
 The following two methods do the work of figuring out the SLD file name, based on the shapefile name, and processing
 the SLD document if one is found:
 
-   .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/StyleLab.java
+   .. literalinclude:: ../../../demo/example/src/main/java/org/geotools/demo/StyleLab.java
       :language: java
       :start-after: // docs start sld
       :end-before: // docs end sld
@@ -94,7 +94,7 @@ which provide a huge amount of flexibility in the styles that you can create.
 In the code below, the first method works out what type of geometry we have in our shapefile: points, lines or polygons. It then calls a geometry-specific
 method to create a Style object.
 
-   .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/StyleLab.java
+   .. literalinclude:: ../../../demo/example/src/main/java/org/geotools/demo/StyleLab.java
       :language: java
       :start-after: // docs start alternative
       :end-before: // docs end alternative

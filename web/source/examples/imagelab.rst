@@ -13,7 +13,7 @@ Dependencies
 Please ensure your pom.xml includes the following::
 
     <properties>
-        <geotools.version>2.6.3</geotools.version>
+        <geotools.version>2.7-SNAPSHOT</geotools.version>
     </properties>
 
     <dependencies>
@@ -65,14 +65,14 @@ The example code is available
  * Directly from svn: ImageLab.java_
  * Included in the demo directory when you download the GeoTools source code
 
-.. _ImageLab.java: http://svn.osgeo.org/geotools/tags/2.6.3/demo/example/src/main/java/org/geotools/demo/ImageLab.java 
+.. _ImageLab.java: http://svn.osgeo.org/geotools/trunk/demo/example/src/main/java/org/geotools/demo/ImageLab.java 
 
 Main Application
 ----------------
 1. Please create the file **ImageLab.java**
 2. Copy and paste in the following code:
 
-   .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/ImageLab.java
+   .. literalinclude:: ../../../demo/example/src/main/java/org/geotools/demo/ImageLab.java
       :language: java
       :start-after: // docs start source
       :end-before: // docs end main
@@ -83,7 +83,7 @@ Prompting for input data
 We use one of GeoTools' data wizards, **JParameterListWizard**, to prompt for the raster file and the shapefile that
 will be displayed over it:
 
-   .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/ImageLab.java
+   .. literalinclude:: ../../../demo/example/src/main/java/org/geotools/demo/ImageLab.java
       :language: java
       :start-after: // docs start get layers
       :end-before: // docs end get layers
@@ -119,7 +119,7 @@ to a **JMapFrame**.
 Rather than using the static JMapFrame.showMap method, as we have in previous examples, we create a map frame and customize it
 by adding a menu to choose the image display mode. 
 
-   .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/ImageLab.java
+   .. literalinclude:: ../../../demo/example/src/main/java/org/geotools/demo/ImageLab.java
       :language: java
       :start-after: // docs start display layers
       :end-before: // docs end display layers
@@ -143,7 +143,7 @@ Two methods are involved here:
  * **createGreyScaleStyle()**, prompts the user for the image band to display
  * **createGreyScaleStyle(int band)** does the actual work of creating a new Style object
 
-   .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/ImageLab.java
+   .. literalinclude:: ../../../demo/example/src/main/java/org/geotools/demo/ImageLab.java
       :language: java
       :start-after: // docs start create greyscale style
       :end-before: // docs end create greyscale style
@@ -155,7 +155,7 @@ To create an RGB Style we specify the image bands to use for the red, green and 
 we examine the image to see if its bands (known as *sample dimensions* in GeoTools-speak) have labels indicating which
 to use. If not, we just use the first three bands and hope for the best !
 
-   .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/ImageLab.java
+   .. literalinclude:: ../../../demo/example/src/main/java/org/geotools/demo/ImageLab.java
       :language: java
       :start-after: // docs start create rgb style
       :end-before: // docs end source

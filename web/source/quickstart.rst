@@ -428,7 +428,7 @@ The code for the application is shown below. It consists of a single class:
 
 Copy and paste the code into your IDE as part of your Maven project:
 
-   .. literalinclude:: ../../../tags/2.6.4/demo/example/src/main/java/org/geotools/demo/Quickstart.java
+   .. literalinclude:: ../../demo/example/src/main/java/org/geotools/demo/Quickstart.java
       :language: java
       :start-after: // docs start source
       :end-before: // docs end main
@@ -455,7 +455,7 @@ feature source.
 
 The method below shows how to introduce **CachingFeatureSource** into our example application:
 
-   .. literalinclude:: ../../../tags/2.6.4/demo/example/src/main/java/org/geotools/demo/Quickstart.java
+   .. literalinclude:: ../../demo/example/src/main/java/org/geotools/demo/Quickstart.java
       :language: java
       :start-after: // docs start cache
       :end-before: // docs end source

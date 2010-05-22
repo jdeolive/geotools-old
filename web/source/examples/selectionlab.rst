@@ -19,7 +19,7 @@ Dependencies
 Please ensure your pom.xml includes the following::
 
   <properties>
-      <geotools.version>2.6.3</geotools.version>
+      <geotools.version>2.7-SNAPSHOT</geotools.version>
   </properties>
 
   <dependencies>
@@ -47,14 +47,14 @@ The example code is available
  * Directly from svn: SelectionLab.java_
  * Included in the demo directory when you download the GeoTools source code
 
-.. _SelectionLab.java: http://svn.osgeo.org/geotools/tags/2.6.3/demo/example/src/main/java/org/geotools/demo/SelectionLab.java
+.. _SelectionLab.java: http://svn.osgeo.org/geotools/trunk/demo/example/src/main/java/org/geotools/demo/SelectionLab.java
  
 Main Application
 ----------------
 1. Please create the file **SelectionLab.java**
 2. Copy and paste in the following code:
 
-   .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/SelectionLab.java
+   .. literalinclude:: ../../../demo/example/src/main/java/org/geotools/demo/SelectionLab.java
       :language: java
       :start-after: // docs start source
       :end-before: // docs end main
@@ -70,7 +70,7 @@ Shapefile viewer with custom map tool
 
 Next we add the displayShapefile method which is also very similar to the one that we used in :ref:`stylelab`
 
-   .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/SelectionLab.java
+   .. literalinclude:: ../../../demo/example/src/main/java/org/geotools/demo/SelectionLab.java
       :language: java
       :start-after: // docs start display shapefile
       :end-before: // docs end display shapefile
@@ -88,7 +88,7 @@ The method first creates a 5x5 pixel wide rectangle around the mouse position to
 features. This is transformed from pixel coordinates to world coordinates and used to create a Filter to identify
 features under, or close to, the mouse click.
 
-   .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/SelectionLab.java
+   .. literalinclude:: ../../../demo/example/src/main/java/org/geotools/demo/SelectionLab.java
       :language: java
       :start-after: // docs start select features
       :end-before: // docs end select features
@@ -111,7 +111,7 @@ Once the method above has worked out which features were selected, if any, it pa
 **displaySelected** method.  This simply calls one of two Style creating methods and then redisplays the map with the
 updated Style:
 
-   .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/SelectionLab.java
+   .. literalinclude:: ../../../demo/example/src/main/java/org/geotools/demo/SelectionLab.java
       :language: java
       :start-after: // docs start display selected
       :end-before: // docs end display selected
@@ -122,7 +122,7 @@ The default style
 This method creates a Style with a single **Rule** for all features using the line and fill constants defined at the top
 of the class:
 
-   .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/SelectionLab.java
+   .. literalinclude:: ../../../demo/example/src/main/java/org/geotools/demo/SelectionLab.java
       :language: java
       :start-after: // docs start default style
       :end-before: // docs end default style
@@ -133,7 +133,7 @@ The selected style
 This method creates a Style with one **Rule** for selected features, to paint them in a
 highlight colour, and a second **Rule** for unselected features. Both rules are then wrapped in the Style object.
 
-   .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/SelectionLab.java
+   .. literalinclude:: ../../../demo/example/src/main/java/org/geotools/demo/SelectionLab.java
       :language: java
       :start-after: // docs start selected style
       :end-before: // docs end selected style
@@ -150,7 +150,7 @@ OK, we're nearly at the end !
 
 Here is the method **createRule**. This is where the **Symbolizer** is created that describes how to draw a feature.
 
-   .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/SelectionLab.java
+   .. literalinclude:: ../../../demo/example/src/main/java/org/geotools/demo/SelectionLab.java
       :language: java
       :start-after: // docs start create rule
       :end-before: // docs end create rule
@@ -161,7 +161,7 @@ Geometry type of the shapefile features
 Finally (yes, really) the createRule method above needs to know what sort of feature geometry we are dealing with to
 create the appropriate class of Symbolizer. Here is the method that works that out:
 
-   .. literalinclude:: ../../../../../../tags/2.6.3/demo/example/src/main/java/org/geotools/demo/SelectionLab.java
+   .. literalinclude:: ../../../demo/example/src/main/java/org/geotools/demo/SelectionLab.java
       :language: java
       :start-after: // docs start set geometry
       :end-before: // docs end set geometry
