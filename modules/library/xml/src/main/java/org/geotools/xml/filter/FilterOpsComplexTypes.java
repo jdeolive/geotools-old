@@ -2359,22 +2359,30 @@ public class FilterOpsComplexTypes {
                 return;
             }
 
-            GeometryDistanceFilter lf = (GeometryDistanceFilter) value;
+            GeometryDistanceFilter distanceFilter = (GeometryDistanceFilter) value;
 
             AttributesImpl ai = new AttributesImpl();
 
-            if (lf.getLeftGeometry().getType() == org.geotools.filter.ExpressionType.LITERAL_GEOMETRY) {
-                ai.addAttribute(getNamespace().toString(), attrs[0].getName(),
-                    null, "string",
-                    ((Geometry) lf.getLeftGeometry().getValue(null)).getUserData().toString());
+            String name = attrs[0].getName();
+            String uri = getNamespace().toString();
+            if (distanceFilter.getLeftGeometry().getType() == org.geotools.filter.ExpressionType.LITERAL_GEOMETRY) {
+                Geometry geometry = (Geometry) distanceFilter.getLeftGeometry().getValue(null);
+                if( geometry.getUserData() != null ){
+                    // code assume user data is an srsName see GEOT-693
+                    String srsName = String.valueOf( geometry.getUserData() );
+                    ai.addAttribute(uri, name, null, "string", srsName);
+                }
             } else {
-                ai.addAttribute(getNamespace().toString(), attrs[0].getName(),
-                    null, "string",
-                    ((Geometry) lf.getRightGeometry().getValue(null)).getUserData().toString());
+                Geometry geometry = (Geometry) distanceFilter.getRightGeometry().getValue(null);
+                if( geometry.getUserData() != null ){
+                    // code assume user data is an srsName see GEOT-693
+                    String srsName = String.valueOf( geometry.getUserData() );
+                    ai.addAttribute(uri, name, null, "string", srsName);
+                }
             }
 
             output.startElement(element.getNamespace(), element.getName(), null);
-            output.characters("" + lf.getDistance());
+            output.characters("" + distanceFilter.getDistance());
             output.endElement(element.getNamespace(), element.getName());
         }
     }
