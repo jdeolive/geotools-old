@@ -103,7 +103,7 @@ public class AttributeImpl extends PropertyImpl implements Attribute {
 	        return true;
 	    }
 	    
-		if (!(obj instanceof AttributeImpl)) {
+		if (!(obj instanceof Attribute)) {
 			return false;
 		}
 
@@ -111,9 +111,9 @@ public class AttributeImpl extends PropertyImpl implements Attribute {
 		    return false;
 		}
 		
-		AttributeImpl att = (AttributeImpl) obj;
+		Attribute att = (Attribute) obj;
 		
-		return Utilities.equals( id, att.id );
+		return Utilities.equals( id, att.getIdentifier() );
 	}
 	public void validate() {
 	    Types.validate(this, this.getValue() );

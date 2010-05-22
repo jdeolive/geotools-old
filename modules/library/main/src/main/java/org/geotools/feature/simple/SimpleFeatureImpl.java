@@ -25,11 +25,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.geotools.feature.AttributeImpl;
 import org.geotools.feature.GeometryAttributeImpl;
 import org.geotools.feature.IllegalAttributeException;
+import org.geotools.feature.PropertyImpl;
 import org.geotools.feature.type.Types;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.util.Converters;
+import org.geotools.util.Utilities;
 import org.opengis.feature.GeometryAttribute;
 import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
@@ -481,6 +484,41 @@ public class SimpleFeatureImpl implements SimpleFeature {
 
         public void setValue(Object newValue) {
             values[index] = newValue;
+        }
+        /**
+         * Override of hashCode; uses descriptor name to agree with AttributeImpl
+         * 
+         * @return hashCode for this object.
+         */
+        public int hashCode() {
+            return 37 * getDescriptor().hashCode()
+                    + (37 * (getValue() == null ? 0 : getValue().hashCode()));
+        }
+
+        /**
+         * Override of equals.
+         * 
+         * @param other
+         *            the object to be tested for equality.
+         * 
+         * @return whether other is equal to this attribute Type.
+         */
+        public boolean equals(Object obj) {
+            if ( this == obj ) {
+                return true;
+            }
+            
+            if (!(obj instanceof Attribute)) {
+                return false;
+            }
+            Attribute other = (Attribute) obj;
+            if (!Utilities.equals(getDescriptor(), other.getDescriptor())){
+                return false;
+            }
+            if (!Utilities.deepEquals(getValue(), other.getValue())){
+                return false;   
+            }
+            return Utilities.equals( getIdentifier(), other.getIdentifier());
         }
         
         public void validate() {
