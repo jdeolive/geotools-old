@@ -51,6 +51,6 @@ public class IsNullImpl extends CompareFilterImpl implements
 	}
 
 	public void setExpression(Expression expression) {
-		setExpression( expression );
+		super.setExpression1( expression );
 	}
 }
