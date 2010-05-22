@@ -330,7 +330,10 @@ public class Query {
      * hold one or more queries.  But each of those in turn will need a
      * maxFeatures, so it is needed here.
      * </p>
-     *
+     * <p>
+     * If the value returned here is max integer then the number of features
+     * should not be limited.
+     * 
      * @return the maximum number of features that will be retrieved by
      *         this query
      */
@@ -338,6 +341,15 @@ public class Query {
         return this.maxFeatures;
     }
     
+    /**
+     * Check if this query allows an unlimited number of features to be returned.
+     * <p>
+     * @return true maxFeatures is less then zero, or equal to Integer.MAX_VALUE.
+     */
+    public boolean isMaxFeaturesUnlimited(){
+        return maxFeatures < 0 || maxFeatures == Integer.MAX_VALUE;
+    }
+
     /**
      * Sets the maximum number of features that should be retrieved by this query.
      * The default is to retrieve all features.
