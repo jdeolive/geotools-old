@@ -3602,7 +3602,7 @@ public final class JDBCDataStore extends ContentDataStore
         sql.append(" SET ");
 
         for (int i = 0; i < attributes.length; i++) {
-            // skip exposed primary key values
+            // skip exposed primary key values, they are read only
             AttributeDescriptor att = attributes[i];
             String attName = att.getLocalName();
             if(pkColumnNames.contains(attName)) {
@@ -3639,7 +3639,8 @@ public final class JDBCDataStore extends ContentDataStore
         PreparedStatement ps = cx.prepareStatement(sql.toString());
         LOGGER.log(Level.FINE, "Updating features with prepared statement: {0}", sql);
         
-        int i =0;
+        int i = 0;
+        int j = 0;
         for (; i < attributes.length; i++) {
             // skip exposed primary key columns
             AttributeDescriptor att = attributes[i];
@@ -3648,17 +3649,18 @@ public final class JDBCDataStore extends ContentDataStore
                 continue;
             }
             
-			Class binding = att.getType().getBinding();
+            Class binding = att.getType().getBinding();
             if (Geometry.class.isAssignableFrom( binding ) ) {
                 Geometry g = (Geometry) values[i];
-                dialect.setGeometryValue(g, getDescriptorSRID(att), binding, ps, i+1);
-            }
-            else {
-                dialect.setValue( values[i], binding, ps, i+1, cx);    
+                dialect.setGeometryValue(g, getDescriptorSRID(att), binding, ps, j+1);
+            } else {
+                dialect.setValue( values[i], binding, ps, j+1, cx);    
             }
             if ( LOGGER.isLoggable( Level.FINE ) ) {
-                LOGGER.fine( (i+1) + " = " + values[i] );
+                LOGGER.fine( (j+1) + " = " + values[i] );
             }
+            // we do this only if we did not skip the exposed pk
+            j++;
         }
         
         if ( toSQL != null ) {
