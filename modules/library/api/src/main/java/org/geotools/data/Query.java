@@ -632,7 +632,14 @@ public class Query {
      * Note: Data sources may ignore hints (depending on their values) and no
      * mechanism currently exists to discover which hints where actually used
      * during the query's execution.
-     *
+     * @see Hints#FEATURE_DETACHED
+     * @see Hints#JTS_GEOMETRY_FACTORY
+     * @see Hints#JTS_COORDINATE_SEQUENCE_FACTORY
+     * @see Hints#JTS_PRECISION_MODEL
+     * @see Hints#JTS_SRID
+     * @see Hints#GEOMETRY_DISTANCE
+     * @see Hints#FEATURE_2D
+     * 
      * @param hints the hints to apply
      */
     public void setHints(Hints hints) {

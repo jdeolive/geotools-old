@@ -563,8 +563,6 @@ public abstract class AbstractFeatureCollection implements SimpleFeatureCollecti
     /**
      * Subclasses need to override this.
      */
-    public ReferencedEnvelope getBounds() {
-    	throw new UnsupportedOperationException("subclasses should override");
-    }
+    public abstract ReferencedEnvelope getBounds();
     
 }

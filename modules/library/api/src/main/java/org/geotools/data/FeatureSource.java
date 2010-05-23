@@ -20,6 +20,7 @@ import java.awt.RenderingHints;
 import java.io.IOException;
 import java.util.Set;
 
+import org.geotools.factory.Hints;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.Feature;
@@ -227,14 +228,19 @@ public interface FeatureSource<T extends FeatureType, F extends Feature>{
     int getCount(Query query) throws IOException;
 
     /**
-     * Returns the set of hints that this {@code FeatureSource} supports via
-     * {@code Query} requests.
+     * Returns the set of hints that this {@code FeatureSource} supports via {@code Query} requests.
      * <p>
-     * Note: the existence of a specific hint does not guarantee that it will
-     * always be honored by the implementing class.
-     *
-     * @return a set of {@code RenderingHints#Key} objects; may be empty but
-     *         never {@code null}
+     * Note: the existence of a specific hint does not guarantee that it will always be honored by
+     * the implementing class.
+     * 
+     * @see Hints#FEATURE_DETACHED
+     * @see Hints#JTS_GEOMETRY_FACTORY
+     * @see Hints#JTS_COORDINATE_SEQUENCE_FACTORY
+     * @see Hints#JTS_PRECISION_MODEL
+     * @see Hints#JTS_SRID
+     * @see Hints#GEOMETRY_DISTANCE
+     * @see Hints#FEATURE_2D
+     * @return a set of {@code RenderingHints#Key} objects; may be empty but never {@code null}
      */
     public Set<RenderingHints.Key> getSupportedHints();
     

@@ -17,7 +17,7 @@
  *    Created on July 21, 2003, 5:58 PM
  */
 
-package org.geotools.feature;
+package org.geotools.data.collection;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -44,15 +44,15 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.PrecisionModel;
 
 /**
- *
- * @author  en
- * @source $URL$
+ * Verify TreeSetFeatureCollection is conforming to the FeatureCollection api contract.
+ * @author  Jody
+ * @source $URL: http://svn.osgeo.org/geotools/trunk/modules/library/main/src/test/java/org/geotools/feature/FeatureCollectionTest.java $
  */
-public class FeatureCollectionTest extends org.geotools.data.collection.FeatureCollectionTest {
-    public FeatureCollectionTest(String testName) {
+public class TreeSetFeatureCollectionTest extends org.geotools.data.collection.FeatureCollectionTest {
+    public TreeSetFeatureCollectionTest(String testName) {
         super(testName);
     }
     protected SimpleFeatureCollection newCollection(SimpleFeatureType schema ) {
-        return FeatureCollections.newCollection();
+        return new TreeSetFeatureCollection( null, null);
     }
 }

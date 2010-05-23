@@ -339,8 +339,8 @@ public class CachingFeatureSource implements FeatureSource {
     
     /**
      * A custom feature collection to avoid the {@link DefaultFeatureCollection} nasty overhead
+     * 
      * @author aaime
-     *
      */
     static final class CachingFeatureCollection extends AbstractFeatureCollection {
 
@@ -348,7 +348,9 @@ public class CachingFeatureSource implements FeatureSource {
         private SimpleFeatureType sourceSchema;
         private SimpleFeatureType targetSchema;
         private Filter filter;
-
+        /** Cached bounds */
+        private ReferencedEnvelope bounds = null;
+        
         protected CachingFeatureCollection(List<SimpleFeature> features, SimpleFeatureType sourceSchema, 
                 SimpleFeatureType targetSchema, Filter filter) {
             super(targetSchema);
@@ -361,6 +363,27 @@ public class CachingFeatureSource implements FeatureSource {
         @Override
         public int size() {
             return features.size();
+        }
+        @Override
+        public synchronized ReferencedEnvelope getBounds() {
+            if( bounds == null ){
+                bounds = calculateBounds();
+            }
+            return bounds;
+        }
+        /**
+         * Calculate bounds from features
+         * @return 
+         */
+        private ReferencedEnvelope calculateBounds() {
+            ReferencedEnvelope extent = new ReferencedEnvelope();
+            for( SimpleFeature feature : features ){
+                if( feature == null ) continue;
+                ReferencedEnvelope bbox = ReferencedEnvelope.reference( feature.getBounds() );
+                if( bbox == null || bbox.isEmpty() || bbox.isNull() ) continue;
+                extent.expandToInclude( bbox );
+            }
+            return extent;
         }
         
         @Override
