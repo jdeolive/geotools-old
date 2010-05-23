@@ -891,4 +891,19 @@ public class SLDTransformerTest {
         
         assertXpathEvaluatesTo("1", "/sld:StyledLayerDescriptor/sld:NamedLayer/sld:UserStyle/sld:IsDefault", doc);
     }
+    
+    @Test
+    public void testEncodeFunction() throws Exception {
+        StyleBuilder sb = new StyleBuilder();
+        PointSymbolizer ps = sb.createPointSymbolizer();
+        ps.getGraphic().setSize(sb.getFilterFactory().function("random"));
+        Style s = sb.createStyle(ps);
+        s.setDefault(true);
+        
+        String xml = transformer.transform(s);
+        // System.out.println(xml);
+        Document doc = buildTestDocument(xml);
+        
+        assertXpathEvaluatesTo("random", "/sld:UserStyle/sld:FeatureTypeStyle/sld:Rule/sld:PointSymbolizer/sld:Graphic/sld:Size/ogc:Function/@name", doc);
+    }
 }
