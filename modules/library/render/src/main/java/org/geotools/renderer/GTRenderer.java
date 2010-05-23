@@ -120,7 +120,7 @@ public interface GTRenderer {
      * This version of the method assumes that paint area, enelope and
      * worldToScreen transform are already computed and in sync. Use this method
      * to avoid recomputation. <b>Note however that no check is performed that
-     * they are really synchronized!<b/>
+     * they are really synchronized!</b>
      *
      * @param graphics The graphics object to draw to.
      * @param paintArea The size of the output area in output units (eg: pixels).
@@ -136,7 +136,7 @@ public interface GTRenderer {
 	 * the method assumes that paint area, enelope and worldToScreen transform
 	 * are already computed and in sync. Use this method to avoid recomputation.
 	 * <b>Note however that no check is performed that they are really
-	 * synchronized!<b/>
+	 * synchronized!</b>
 	 * 
 	 * @param graphics
 	 *            The graphics object to draw to.
