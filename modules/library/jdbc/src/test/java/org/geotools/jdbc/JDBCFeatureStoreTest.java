@@ -17,6 +17,7 @@
 package org.geotools.jdbc;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -137,6 +138,19 @@ public abstract class JDBCFeatureStoreTest extends JDBCTestSupport {
         SimpleFeatureBuilder b = new SimpleFeatureBuilder(featureStore.getSchema());
         SimpleFeature nullFeature = b.buildFeature("testId");
         featureStore.addFeatures(Arrays.asList(nullFeature));
+    }
+    
+    /**
+     * Check null encoding is working properly
+     * @throws IOException
+     */
+    public void testModifyNullAttributes() throws IOException {
+        String[] attributeNames = new String[featureStore.getSchema().getAttributeCount()];
+        for(int i = 0; i < attributeNames.length; i++) {
+            attributeNames[i] = featureStore.getSchema().getDescriptor(i).getLocalName();
+        }
+        Object[] nulls = new Object[attributeNames.length];
+        featureStore.modifyFeatures(attributeNames, nulls, Filter.INCLUDE);
     }
 
     public void testSetFeatures() throws IOException {
