@@ -47,6 +47,7 @@ import org.geotools.metadata.iso.spatial.PixelTranslation;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
+import org.geotools.util.Utilities;
 import org.opengis.geometry.BoundingBox;
 import org.opengis.metadata.extent.GeographicBoundingBox;
 import org.opengis.referencing.datum.PixelInCell;
@@ -114,7 +115,7 @@ class Utils {
 					source = null;
 				}
 			} else {
-				sourceURL = tempFile.toURI().toURL();
+			    	sourceURL =  DataUtilities.fileToURL(tempFile); 
 				source = tempFile;
 			}
 		} else if (source instanceof FileImageInputStreamExt) {
@@ -145,7 +146,7 @@ class Utils {
 	 */
 	static ReferencedEnvelope getReferencedEnvelopeFromGeographicBoundingBox(
 			final GeographicBoundingBox geographicBBox) {
-		Utils.ensureNonNull("GeographicBoundingBox", geographicBBox);
+		Utilities.ensureNonNull("GeographicBoundingBox", geographicBBox);
 		return new ReferencedEnvelope(geographicBBox.getEastBoundLongitude(),
 				geographicBBox.getWestBoundLongitude(), geographicBBox
 						.getSouthBoundLatitude(), geographicBBox
@@ -200,38 +201,21 @@ class Utils {
 		newParam.setSourceBands(param.getSourceBands());
 		newParam.setSourceRegion(param.getSourceRegion());
 		if (param.getSourceMaxProgressivePass() != Integer.MAX_VALUE) {
-			newParam.setSourceProgressivePasses(param
-					.getSourceMinProgressivePass(), param
-					.getSourceNumProgressivePasses());
+	        newParam.setSourceProgressivePasses(
+	            param.getSourceMinProgressivePass(),
+	            param.getSourceNumProgressivePasses());
 		}
 		if (param.canSetSourceRenderSize()) {
 			newParam.setSourceRenderSize(param.getSourceRenderSize());
 		}
-		newParam.setSourceSubsampling(param.getSourceXSubsampling(), param
-				.getSourceYSubsampling(), param.getSubsamplingXOffset(), param
-				.getSubsamplingYOffset());
+	    newParam.setSourceSubsampling(param.getSourceXSubsampling(),
+	                                  param.getSourceYSubsampling(),
+	                                  param.getSubsamplingXOffset(),
+	                                  param.getSubsamplingYOffset());
 
 		// Replace the local variable with the new ImageReadParam.
 		return newParam;
 
-	}
-
-	/**
-	 * Makes sure that an argument is non-null.
-	 * 
-	 * @param name
-	 *            Argument name.
-	 * @param object
-	 *            User argument.
-	 * @throws IllegalArgumentException
-	 *             if {@code object} is null.
-	 */
-	static void ensureNonNull(final String name, final Object object)
-			throws IllegalArgumentException {
-		if (object == null) {
-			throw new IllegalArgumentException(Errors.format(
-					ErrorKeys.NULL_ARGUMENT_$1, name));
-		}
 	}
 
 	/**
@@ -248,7 +232,7 @@ class Utils {
 	 *         if one cannot be found.
 	 */
 	static ImageReader getReader(final ImageInputStream inStream) {
-		ensureNonNull("inStream", inStream);
+		Utilities.ensureNonNull("inStream", inStream);
 		// get a reader
 //		inStream.mark();
 		try {
@@ -292,8 +276,8 @@ class Utils {
 	static Rectangle getDimension(final int imageIndex,
 			final ImageInputStream inStream, final ImageReader reader)
 			throws IOException {
-		ensureNonNull("inStream", inStream);
-		ensureNonNull("reader", reader);
+		Utilities.ensureNonNull("inStream", inStream);
+		Utilities.ensureNonNull("reader", reader);
 		if (imageIndex < 0)
 			throw new IllegalArgumentException(Errors.format(
 					ErrorKeys.INDEX_OUT_OF_BOUNDS_$1, imageIndex));
@@ -318,33 +302,7 @@ class Utils {
 		return inStream;
 	}
 
-	/**
-	 * Checks that the provided <code>dimensions</code> when intersected with
-	 * the source region used by the provided {@link ImageReadParam} instance
-	 * does not result in an empty {@link Rectangle}.
-	 * 
-	 * <p>
-	 * Input parameters cannot be null.
-	 * 
-	 * @param readParameters
-	 *            an instance of {@link ImageReadParam} for which we want to
-	 *            check the source region element.
-	 * @param dimensions
-	 *            an instance of {@link Rectangle} to use for the check.
-	 * @return <code>true</code> if the intersection is not empty,
-	 *         <code>false</code> otherwise.
-	 */
-	static boolean checkEmptySourceRegion(final ImageReadParam readParameters,
-			final Rectangle dimensions) {
-		ensureNonNull("readDimension", dimensions);
-		ensureNonNull("readP", readParameters);
-		final Rectangle sourceRegion = readParameters.getSourceRegion();
-		Rectangle.intersect(sourceRegion, dimensions, sourceRegion);
-		if (sourceRegion.isEmpty())
-			return true;
-		readParameters.setSourceRegion(sourceRegion);
-		return false;
-	}
+	
 
 	/**
 	 * Default priority for the underlying {@link Thread}.
@@ -400,32 +358,16 @@ class Utils {
 	}
 	
 	private static IOFileFilter createFilter() {
-		IOFileFilter fileFilter = Utils.includeFilters(
+		IOFileFilter fileFilter = FileFilterUtils.asFileFilter(DataUtilities.includeFilters(
 				FileFilterUtils.suffixFileFilter("jp2"),
+				FileFilterUtils.suffixFileFilter("JP2"),
 				FileFilterUtils.suffixFileFilter("j2c"),
-				FileFilterUtils.suffixFileFilter("jpx"), 
-				FileFilterUtils.suffixFileFilter("jp2k"), 
-				FileFilterUtils.nameFileFilter("jpeg2000"));
+				FileFilterUtils.suffixFileFilter("J2C"),
+				FileFilterUtils.suffixFileFilter("jpx"),
+				FileFilterUtils.suffixFileFilter("JPX"),
+				FileFilterUtils.suffixFileFilter("jp2k"),
+				FileFilterUtils.suffixFileFilter("JP2K"),
+				FileFilterUtils.nameFileFilter("jpeg2000")));
 		return fileFilter;
-	}
-	
-	static IOFileFilter excludeFilters(final IOFileFilter inputFilter,
-			IOFileFilter ...filters) {
-		IOFileFilter retFilter=inputFilter;
-		for(IOFileFilter filter:filters){
-			retFilter=FileFilterUtils.andFileFilter(
-					retFilter, 
-					FileFilterUtils.notFileFilter(filter));
-		}
-		return retFilter;
-	}
-	
-	static IOFileFilter includeFilters(final IOFileFilter inputFilter,
-			IOFileFilter ...filters) {
-		IOFileFilter retFilter=inputFilter;
-		for(IOFileFilter filter:filters){
-			retFilter=FileFilterUtils.orFileFilter(retFilter, filter);
-		}
-		return retFilter;
 	}
 }

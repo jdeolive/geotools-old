@@ -34,6 +34,7 @@ import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
 import javax.media.jai.RenderedOp;
 
+import org.geotools.resources.coverage.CoverageUtilities;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
 
@@ -78,7 +79,7 @@ enum ReadType {
     			reader.setInput(inStream);
     			
     			//check source regione
-    			if(Utils.checkEmptySourceRegion(readP, readDimension))
+    			if(CoverageUtilities.checkEmptySourceRegion(readP, readDimension))
     				return null;
     			
     			if (LOGGER.isLoggable(Level.FINE))
@@ -147,7 +148,7 @@ enum ReadType {
 
     			
     			//check source region
-    			if(Utils.checkEmptySourceRegion(readP, readDimension))
+    			if(CoverageUtilities.checkEmptySourceRegion(readP, readDimension))
     				return null;
     			
 
@@ -238,7 +239,7 @@ enum ReadType {
 
     			
     			//check source region
-    			if(Utils.checkEmptySourceRegion(readP, readDimension))
+    			if(CoverageUtilities.checkEmptySourceRegion(readP, readDimension))
     				return null;
     			
 

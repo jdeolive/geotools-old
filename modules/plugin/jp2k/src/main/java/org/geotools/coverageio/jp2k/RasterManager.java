@@ -17,7 +17,6 @@
 package org.geotools.coverageio.jp2k;
 
 import java.awt.Rectangle;
-
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -244,8 +243,8 @@ class RasterManager {
 			final RasterLayerRequest request) {
 	
 			// the read parameters cannot be null
-			Utils.ensureNonNull("readParameters", readParameters);
-			Utils.ensureNonNull("request", request);
+			Utilities.ensureNonNull("readParameters", readParameters);
+			Utilities.ensureNonNull("request", request);
 			
 			//get the requested resolution
 			final double[] requestedRes=request.getRequestedResolution();
@@ -421,7 +420,7 @@ class RasterManager {
 
 	public RasterManager(final JP2KReader reader) throws DataSourceException {
 		
-		Utils.ensureNonNull("JP2KReader", reader);
+	        Utilities.ensureNonNull("JP2KReader", reader);
 		this.parent=reader;
 		this.expandMe=parent.expandMe;
         inputURL = reader.sourceURL;

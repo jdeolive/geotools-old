@@ -330,7 +330,7 @@ class Granule {
 			buffer.append("scaleY:\t\t").append(scaleY).append("\n");
 			buffer.append("baseToLevelTransform:\t\t").append(baseToLevelTransform.toString()).append("\n");
 			buffer.append("gridToWorldTransform:\t\t").append(gridToWorldTransform.toString()).append("\n");
-			return super.toString();
+			return buffer.toString();
 		}
 	}
 	
