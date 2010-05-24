@@ -46,6 +46,7 @@ import javax.media.jai.InterpolationNearest;
 import javax.media.jai.JAI;
 import javax.media.jai.ROIShape;
 import javax.media.jai.TileCache;
+import javax.media.jai.TileScheduler;
 import javax.media.jai.operator.AffineDescriptor;
 
 import org.geotools.coverage.grid.GridEnvelope2D;
@@ -722,6 +723,11 @@ public class GranuleDescriptor {
 				    if (cache != null && cache instanceof TileCache)
 				        localHints.add(new RenderingHints(JAI.KEY_TILE_CACHE, (TileCache) cache));
 				}
+				if (hints != null && hints.containsKey(JAI.KEY_TILE_SCHEDULER)){
+                                    final Object scheduler = hints.get(JAI.KEY_TILE_SCHEDULER);
+                                    if (scheduler != null && scheduler instanceof TileScheduler)
+                                        localHints.add(new RenderingHints(JAI.KEY_TILE_SCHEDULER, (TileScheduler) scheduler));
+                                }
 				// border extender
 //				return WarpDescriptor.create(raster, new WarpAffine(translationTransform.createInverse()),new InterpolationNearest(), request.getBackgroundValues(),localHints);
 				return new GranuleLoadingResult(AffineDescriptor.create(raster, finalRaster2Model, nearest, request.getBackgroundValues(),localHints), granuleLoadingShape);

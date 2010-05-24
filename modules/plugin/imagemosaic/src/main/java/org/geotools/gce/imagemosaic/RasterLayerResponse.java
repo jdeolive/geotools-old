@@ -49,6 +49,7 @@ import javax.media.jai.ROI;
 import javax.media.jai.ROIShape;
 import javax.media.jai.RenderedOp;
 import javax.media.jai.TileCache;
+import javax.media.jai.TileScheduler;
 import javax.media.jai.operator.ConstantDescriptor;
 import javax.media.jai.operator.MosaicDescriptor;
 
@@ -115,7 +116,7 @@ class RasterLayerResponse{
     /**
      * Simple placeholder class to store the result of a Granule Loading
      * 
-     * @author Daniele Romagnoli Giannecchini, GeoSolutions S.A.S.
+     * @author Daniele Romagnoli, GeoSolutions S.A.S.
      * 
      */
     static class GranuleLoadingResult {
@@ -976,6 +977,11 @@ class RasterLayerResponse{
 		        if (tc != null && tc instanceof TileCache)
 		            localHints.add(new RenderingHints(JAI.KEY_TILE_CACHE, (TileCache) tc));
 		    }
+		    if (hints.containsKey(JAI.KEY_TILE_SCHEDULER)){
+                        final Object ts = hints.get(JAI.KEY_TILE_SCHEDULER);
+                        if (ts != null && ts instanceof TileScheduler)
+                            localHints.add(new RenderingHints(JAI.KEY_TILE_SCHEDULER, (TileScheduler) ts));
+                    }
 		}
 		RenderedImage mosaic = JAI.create("Mosaic", pbjMosaic, localHints);
 		

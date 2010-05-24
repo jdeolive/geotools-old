@@ -46,7 +46,7 @@ public interface GranuleCatalog {
 	}
 
 	/**
-	 * Finds the features that intersects the provided {@link BoundingBox}:
+	 * Finds the granules that intersects the provided {@link BoundingBox}:
 	 * 
 	 * @param envelope
 	 *            The {@link BoundingBox} to test for intersection.
@@ -61,7 +61,7 @@ public interface GranuleCatalog {
 	public Collection<GranuleDescriptor> getGranules()throws IOException;
 	
 	/**
-	 * Finds the features that intersects the provided {@link BoundingBox}:
+	 * Finds the granules that intersects the provided {@link BoundingBox}:
 	 * 
 	 * @param envelope
 	 *            The {@link BoundingBox} to test for intersection.
@@ -69,9 +69,9 @@ public interface GranuleCatalog {
 	 *         {@link BoundingBox}.
 	 * @throws IOException 
 	 */
-	public void  getGranules(final BoundingBox envelope,final  GranuleCatalogVisitor visitor) throws IOException;
+	public void getGranules(final BoundingBox envelope,final  GranuleCatalogVisitor visitor) throws IOException;
 	
-	public void  getGranules( final Query q,final GranuleCatalogVisitor visitor) throws IOException;	
+	public void getGranules( final Query q, final GranuleCatalogVisitor visitor) throws IOException;	
 
 	public void dispose();
 		
