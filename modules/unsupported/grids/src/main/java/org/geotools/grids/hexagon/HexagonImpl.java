@@ -29,8 +29,8 @@ import org.geotools.geometry.jts.JTSFactoryFinder;
  *
  * @author mbedward
  * @since 2.7
- * @source $URL: $
- * @version $Id: $
+ * @source $URL$
+ * @version $Id$
  */
 public class HexagonImpl implements Hexagon {
     private static final double ROOT3 = Math.sqrt(3.0);
@@ -70,7 +70,7 @@ public class HexagonImpl implements Hexagon {
         this.minY = minY;
         this.orientation = orientation;
 
-        this.area = Hexagons.sideLenToArea(sideLen);
+        this.area = Hexagons.sideLengthToArea(sideLen);
         calculateVertices();
     }
 

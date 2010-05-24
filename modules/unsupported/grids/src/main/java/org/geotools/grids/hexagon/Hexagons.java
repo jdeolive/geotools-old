@@ -34,8 +34,8 @@ import org.geotools.grids.hexagon.Hexagon.Orientation;
  *
  * @author mbedward
  * @since 2.7
- * @source $URL: $
- * @version $Id: $
+ * @source $URL$
+ * @version $Id$
  */
 public class Hexagons {
 
@@ -50,7 +50,7 @@ public class Hexagons {
      *
      * @throws IllegalArgumentException if {@code sideLen} is not greater than zero
      */
-    public static double sideLenToArea(double sideLen) {
+    public static double sideLengthToArea(double sideLen) {
         if (sideLen <= 0.0) {
             throw new IllegalArgumentException("side length must be > 0");
         }
@@ -66,7 +66,7 @@ public class Hexagons {
      *
      * @throws IllegalArgumentException if {@code area} is not greater than zero
      */
-    public static double areaToSideLen(double area) {
+    public static double areaToSideLength(double area) {
         if (area <= 0.0) {
             throw new IllegalArgumentException("area must be > 0");
         }

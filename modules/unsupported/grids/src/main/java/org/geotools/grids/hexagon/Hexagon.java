@@ -25,8 +25,8 @@ import org.geotools.grids.GridElement;
  *
  * @author mbedward
  * @since 2.7
- * @source $URL: $
- * @version $Id: $
+ * @source $URL$
+ * @version $Id$
  */
 public interface Hexagon extends GridElement {
 

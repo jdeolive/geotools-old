@@ -37,8 +37,8 @@ import org.opengis.feature.simple.SimpleFeatureType;
  *
  * @author mbedward
  * @since 2.7
- * @source $URL: $
- * @version $Id: $
+ * @source $URL$
+ * @version $Id$
  */
 public abstract class AttributeSetter {
     protected final SimpleFeatureType type;

@@ -40,19 +40,29 @@ import static org.junit.Assert.*;
  *
  * @author mbedward
  * @since 2.7
- * @source $URL: $
- * @version $Id: $
+ * @source $URL$
+ * @version $Id$
  */
 public class HexagonsTest extends HexagonTestBase {
 
     @Test
     public void calculateArea() {
-        assertEquals(AREA, Hexagons.sideLenToArea(SIDE_LEN), TOL);
+        assertEquals(AREA, Hexagons.sideLengthToArea(SIDE_LEN), TOL);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void calculateAreaInvalidArg() {
+        Hexagons.sideLengthToArea(0.0);
     }
 
     @Test
     public void calculateSideLen() {
-        assertEquals(SIDE_LEN, Hexagons.areaToSideLen(AREA), TOL);
+        assertEquals(SIDE_LEN, Hexagons.areaToSideLength(AREA), TOL);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void calculateSideLenInvalidArg() {
+        Hexagons.areaToSideLength(0.0);
     }
 
     @Test
