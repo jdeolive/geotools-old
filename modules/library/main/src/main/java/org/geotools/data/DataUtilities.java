@@ -905,17 +905,13 @@ public class DataUtilities {
     }
 
     /**
-     * DOCUMENT ME!
+     * Wrap up an array of features as a FeatureSource.
      * 
-     * @param featureArray
-     *            DOCUMENT ME!
-     * 
-     * @return DOCUMENT ME!
+     * @param featureArray Array of features
+     * @return FeatureSource
      * 
      * @throws IOException
-     *             DOCUMENT ME!
      * @throws RuntimeException
-     *             DOCUMENT ME!
      */
     public static SimpleFeatureSource source(final SimpleFeature[] featureArray) {
         final SimpleFeatureType featureType;

@@ -53,7 +53,7 @@ import org.opengis.geometry.BoundingBox;
  * @author Jody
  */
 @SuppressWarnings("unchecked")
-public class ListFeatureCollection extends AbstractFeatureCollection  {
+public class ListFeatureCollection extends AbstractFeatureCollection {
     /** wrapped list of features containing the contents */
      private List<SimpleFeature> list;
      
