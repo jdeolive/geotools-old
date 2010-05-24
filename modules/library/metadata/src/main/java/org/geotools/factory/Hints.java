@@ -534,10 +534,11 @@ public class Hints extends RenderingHints {
     public static final Key FEATURE_TYPE_FACTORY_NAME = new Key(String.class);
 
     /**
-     * Whether the features returned by the feature collections should be considered detached from
-     * the datastore, that is, they are updatable without altering the backing store (makes sense
-     * only if features are kept in memory or if there is some transparent persistent mechanism in
-     * place, such as the Hibernate one)
+     * Indicates the features returned by the feature collections should be considered detached from
+     * the datastore. If true the features can be udpated without altering the backing store.
+     * <p>
+     * Examples of fetures that are "attached" are features are kept in memory or features managed
+     * by a transparent persistence mechanism like Hibernate.
      *
      * @since 2.4
      */

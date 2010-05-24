@@ -24,40 +24,69 @@ import org.opengis.feature.Feature;
  * Iterator wrapper which caps the number of returned features;
  * 
  * @author Justin Deoliveira, The Open Planning Project
- *
- *
- * @source $URL$
+ * 
+ * 
+ * @source $URL:
+ *         http://svn.osgeo.org/geotools/trunk/modules/library/main/src/main/java/org/geotools/
+ *         data/store/MaxFeaturesIterator.java $
  */
 public class MaxFeaturesIterator<F extends Feature> implements Iterator<F> {
 
-	Iterator<F> delegate;
-	long max;
-	long counter;
-	
-	public MaxFeaturesIterator( Iterator<F> delegate, long max ) {
-		this.delegate = delegate;
-		this.max = max;
-		counter = 0;
-	}
-	
-	public Iterator<F> getDelegate() {
-		return delegate;
-	}
-	
-	public void remove() {
-		delegate.remove();
-	}
+    Iterator<F> delegate;
 
-	public boolean hasNext() {
-		return delegate.hasNext() && counter < max; 
-	}
+    long start;
 
-	public F next() {
-		if ( counter++ <= max ) {
-			return delegate.next();
-		}
-		
-		return null;
-	}
+    long end;
+
+    long counter;
+
+    public MaxFeaturesIterator(Iterator<F> delegate, long max) {
+        this(delegate, 0, max);
+    }
+
+    public MaxFeaturesIterator(Iterator<F> delegate, long start, long max) {
+        this.delegate = delegate;
+        this.start = start;
+        this.end = start + max;
+        counter = 0;
+    }
+
+    public Iterator<F> getDelegate() {
+        return delegate;
+    }
+
+    public void remove() {
+        delegate.remove();
+    }
+
+    public boolean hasNext() {
+        if (counter < start) {
+            // skip to just before start if needed
+            skip();
+        }
+        return delegate.hasNext() && counter < end;
+    }
+
+    public F next() {
+        if (counter < start) {
+            // skip to just before start if needed
+            skip();
+        }
+        if (counter <= end) {
+            counter++;
+            F next = delegate.next();
+            return next;
+        }
+        return null;
+    }
+
+    private void skip() {
+        if (counter < start) {
+            while (hasNext() && counter < start) {
+                counter++;
+                F skip = delegate.next(); // skip!
+            }
+        }
+    }
 
 }

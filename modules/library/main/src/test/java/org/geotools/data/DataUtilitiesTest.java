@@ -86,10 +86,10 @@ public class DataUtilitiesTest extends DataTestCase {
     }
     
     public void testSimpleSource() {
-        FeatureSource<SimpleFeatureType,SimpleFeature> source = DataUtilities.source(DataUtilities.collection(roadFeatures));
+        SimpleFeatureCollection collection = DataUtilities.collection(roadFeatures);
+        FeatureSource<SimpleFeatureType,SimpleFeature> source = DataUtilities.source(collection);
         SimpleFeatureSource simple = DataUtilities.simple(source);
-        // we actually expect it not to be a straight cast, DataUtilities.collection does not return a SimpleFeatureSource
-        assertNotSame( simple, source);  
+        assertSame( simple, source);  
     } 
 
 

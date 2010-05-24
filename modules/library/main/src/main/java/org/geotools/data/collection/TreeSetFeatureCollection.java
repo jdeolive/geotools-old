@@ -31,6 +31,7 @@ import java.util.logging.Logger;
 
 import org.geotools.data.DataSourceException;
 import org.geotools.data.FeatureReader;
+import org.geotools.data.Query;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.feature.CollectionEvent;
@@ -710,64 +711,20 @@ public class TreeSetFeatureCollection implements SimpleFeatureCollection {
         if (filter == Filter.INCLUDE) {
             return this;
         }
-        return new SubFeatureCollection(this, filter);
+        CollectionFeatureSource temp = new CollectionFeatureSource( this );
+        return temp.getFeatures(filter);
     }
-
-    /**
-     * Construct a sorted view of this content.
-     * <p>
-     * Sorts may be combined togther in a stable fashion, in congruence with the Filter 1.1
-     * specification.
-     * </p>
-     * <p>
-     * This method should also be able to handle GeoTools specific sorting through detecting order
-     * as a SortBy2 instance.
-     * </p>
-     * 
-     * @since GeoTools 2.2, Filter 1.1
-     * @param order
-     *            Filter 1.1 SortBy Construction of a Sort
-     * 
-     * @return FeatureList sorted according to provided order
-     * 
-     */
+        
     public SimpleFeatureCollection sort(SortBy order) {
-        if (order == SortBy.NATURAL_ORDER) {
-            return this;
-        }
-        if (order instanceof SortBy2) {
-            SortBy2 advanced = (SortBy2) order;
-            return sort(advanced);
-        }
-        return null;
-    }
-
-    /**
-     * Allows for "Advanced" sort capabilities specific to the GeoTools platform!
-     * <p>
-     * Advanced in this case really means making use of a generic Expression, rather then being
-     * limited to PropertyName.
-     * </p>
-     * 
-     * @param order
-     *            GeoTools SortBy
-     * @return FeatureList sorted according to provided order
-     */
-    public SimpleFeatureCollection sort(SortBy2 order) {
-        if (order == SortBy.NATURAL_ORDER) {
-            return this;
-        } else if (order == SortBy.REVERSE_ORDER) {
-            // backwards
-        }
-        // custom
-        return null; // new OrderedFeatureList( order, compare );
+        Query subQuery = new Query( getSchema().getTypeName() );
+        subQuery.setSortBy( new SortBy[]{ order } );
+       
+        CollectionFeatureSource temp = new CollectionFeatureSource( this );
+        return temp.getFeatures(subQuery);
     }
 
     public void purge() {
         // no resources were harmed in the making of this FeatureCollection
-    }
-
-    public void validate() {
     }
 
     public String getID() {

@@ -53,7 +53,7 @@ import org.opengis.filter.Filter;
 import org.opengis.filter.identity.FeatureId;
 
 /**
- * A FeatureCollection that completly delegates to a backing FetaureSource.
+ * A FeatureCollection that completely delegates to a backing FetaureSource#getReader
  * 
  * @author Jody Garnett (Refractions Research, Inc.)
  *
@@ -77,7 +77,7 @@ public class ContentFeatureCollection implements SimpleFeatureCollection {
     protected ContentState state;
     
     /** Internal listener storage list */
-    protected List listeners = new ArrayList(2);
+    protected List<CollectionListener> listeners = new ArrayList<CollectionListener>(2);
 
     /** Set of open resource iterators */
     protected final Set open = new HashSet();
@@ -382,8 +382,14 @@ public class ContentFeatureCollection implements SimpleFeatureCollection {
     public Object[] toArray(Object[] array) {
         throw new UnsupportedOperationException();
     }
-
-    public Object getAttribute(String name) {
+    public String getID() {
+        throw new UnsupportedOperationException();
+    }
+    //
+    // Deprecated Feature methods
+    // From when FeatureCollection extends Feature
+    //
+/*  public Object getAttribute(String name) {
         throw new UnsupportedOperationException();
     }
 
@@ -443,9 +449,9 @@ public class ContentFeatureCollection implements SimpleFeatureCollection {
     public GeometryAttribute getDefaultGeometryProperty() {
         throw new UnsupportedOperationException();
     }
-	public FeatureId getIdentifier() {
-		throw new UnsupportedOperationException();
-	}
+    public FeatureId getIdentifier() {
+        throw new UnsupportedOperationException();
+    }
     public String getID() {
         throw new UnsupportedOperationException();
     }
@@ -503,4 +509,5 @@ public class ContentFeatureCollection implements SimpleFeatureCollection {
     }
     public void validate() {
     }
+    */
 }

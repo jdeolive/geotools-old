@@ -21,12 +21,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import org.geotools.data.Query;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.collection.AbstractFeatureCollection;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.filter.Filter;
+import org.opengis.filter.sort.SortBy;
 import org.opengis.geometry.BoundingBox;
 
 /**
@@ -51,23 +55,27 @@ import org.opengis.geometry.BoundingBox;
 @SuppressWarnings("unchecked")
 public class ListFeatureCollection extends AbstractFeatureCollection  {
     /** wrapped list of features containing the contents */
-     private List<SimpleFeature> features = new ArrayList<SimpleFeature>();
+     private List<SimpleFeature> list;
      
      /** Cached bounds */
      private ReferencedEnvelope bounds = null;
     
      protected ListFeatureCollection(SimpleFeatureType schema) {
-         super(schema);
+         this(schema, new ArrayList<SimpleFeature>());
      }
-    
+     protected ListFeatureCollection(SimpleFeatureType schema, List<SimpleFeature> list ){
+         super(schema);
+         this.list = list;
+     }
+     
      @Override
      public int size() {
-         return features.size();
+         return list.size();
      }
     
      @Override
      protected Iterator openIterator() {
-         Iterator it = features.iterator();
+         Iterator it = list.iterator();
          return it;
      }
     
@@ -75,11 +83,9 @@ public class ListFeatureCollection extends AbstractFeatureCollection  {
      protected void closeIterator(Iterator close) {
          // nothing to do there
      }
-
-
+     
     @Override
     public boolean add(SimpleFeature f) {
-       
          //maintain the bounds
           BoundingBox boundingBox = f.getBounds();
           if (bounds == null){
@@ -91,7 +97,7 @@ public class ListFeatureCollection extends AbstractFeatureCollection  {
               bounds.expandToInclude(boundingBox.getMinX(), boundingBox.getMinY());   
               bounds.expandToInclude(boundingBox.getMaxX(), boundingBox.getMaxY());   
           }
-        return features.add(f);
+        return list.add(f);
     }
 
     @Override
@@ -103,7 +109,7 @@ public class ListFeatureCollection extends AbstractFeatureCollection  {
 
     @Override
     public SimpleFeatureIterator features() {
-        return new ListFeatureIterator(features);
+        return new ListFeatureIterator(list);
     }
 
     @Override
@@ -119,7 +125,7 @@ public class ListFeatureCollection extends AbstractFeatureCollection  {
      */
     private ReferencedEnvelope calculateBounds() {
         ReferencedEnvelope extent = new ReferencedEnvelope();
-        for( SimpleFeature feature : features ){
+        for( SimpleFeature feature : list ){
             if( feature == null ) continue;
             ReferencedEnvelope bbox = ReferencedEnvelope.reference( feature.getBounds() );
             if( bbox == null || bbox.isEmpty() || bbox.isNull() ) continue;
@@ -130,7 +136,7 @@ public class ListFeatureCollection extends AbstractFeatureCollection  {
 
     @Override
     public boolean isEmpty() {
-        return features.isEmpty();
+        return list.isEmpty();
     }
     /**
      * SimpleFeatureIterator that will use collection close method.
@@ -154,5 +160,20 @@ public class ListFeatureCollection extends AbstractFeatureCollection  {
         public SimpleFeature next() throws NoSuchElementException {
             return iter.next();
         }
+    }
+    
+    @Override
+    public SimpleFeatureCollection subCollection(Filter filter) {
+        CollectionFeatureSource temp = new CollectionFeatureSource( this );
+        return temp.getFeatures(filter);
+    }
+    
+    @Override
+    public SimpleFeatureCollection sort(SortBy order) {
+        Query subQuery = new Query( getSchema().getTypeName() );
+        subQuery.setSortBy( new SortBy[]{ order } );
+       
+        CollectionFeatureSource temp = new CollectionFeatureSource( this );
+        return temp.getFeatures(subQuery);
     }
  }

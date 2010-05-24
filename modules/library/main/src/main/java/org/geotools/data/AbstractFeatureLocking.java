@@ -21,6 +21,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureLocking;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -59,7 +60,7 @@ import org.opengis.filter.Filter;
  * @source $URL$
  */
 public abstract class AbstractFeatureLocking extends AbstractFeatureStore
-    implements FeatureLocking<SimpleFeatureType, SimpleFeature>, SimpleFeatureSource {
+    implements FeatureLocking<SimpleFeatureType, SimpleFeature>, SimpleFeatureLocking {
     FeatureLock featureLock = FeatureLock.TRANSACTION;
     
     public AbstractFeatureLocking() {

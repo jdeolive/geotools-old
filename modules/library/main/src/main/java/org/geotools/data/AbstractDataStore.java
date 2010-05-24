@@ -261,7 +261,9 @@ public abstract class AbstractDataStore implements DataStore {
                     public DataStore getDataStore() {
                         return AbstractDataStore.this;
                     }
-
+                    public String toString() {
+                        return "AbstractDataStore.AbstractFeatureLocking("+typeName+")";
+                    }
                     public void addFeatureListener(FeatureListener listener) {
                         listenerManager.addFeatureListener(this, listener);
                     }
@@ -279,7 +281,9 @@ public abstract class AbstractDataStore implements DataStore {
                     public DataStore getDataStore() {
                         return AbstractDataStore.this;
                     }
-
+                    public String toString() {
+                        return "AbstractDataStore.AbstractFeatureStore("+typeName+")";
+                    }
                     public void addFeatureListener(FeatureListener listener) {
                         listenerManager.addFeatureListener(this, listener);
                     }
@@ -298,7 +302,9 @@ public abstract class AbstractDataStore implements DataStore {
                 public DataStore getDataStore() {
                     return AbstractDataStore.this;
                 }
-
+                public String toString() {
+                    return "AbstractDataStore.AbstractFeatureSource("+typeName+")";
+                }
                 public void addFeatureListener(FeatureListener listener) {
                     listenerManager.addFeatureListener(this, listener);
                 }

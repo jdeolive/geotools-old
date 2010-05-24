@@ -48,17 +48,24 @@ public class MaxSimpleFeatureCollection extends
         DecoratingSimpleFeatureCollection {
 
 	SimpleFeatureCollection delegate;
+	long start;
 	long max;
 	
-	public MaxSimpleFeatureCollection( FeatureCollection<SimpleFeatureType,SimpleFeature> delegate, long max ) {
-	    this( DataUtilities.simple( delegate ), max );
-	}
-	
-	public MaxSimpleFeatureCollection( SimpleFeatureCollection delegate, long max ) {
-		super(delegate);
-		this.delegate = delegate;
-		this.max = max;
-	}
+    public MaxSimpleFeatureCollection(FeatureCollection<SimpleFeatureType, SimpleFeature> delegate,
+            long max) {
+        this(DataUtilities.simple(delegate), 0, max);
+    }
+
+    public MaxSimpleFeatureCollection(SimpleFeatureCollection delegate, long max) {
+        this(delegate, 0, max);
+    }
+
+    public MaxSimpleFeatureCollection(SimpleFeatureCollection delegate, long start, long max) {
+        super(delegate);
+        this.delegate = delegate;
+        this.start = start;
+        this.max = max;
+    }
 	
 	public  FeatureReader<SimpleFeatureType,SimpleFeature> reader() throws IOException {
 		return new DelegateFeatureReader<SimpleFeatureType,SimpleFeature>( getSchema(), features() );
@@ -73,7 +80,7 @@ public class MaxSimpleFeatureCollection extends
 	}
 
 	public Iterator<SimpleFeature> iterator() {
-		return new MaxFeaturesIterator<SimpleFeature>( delegate.iterator(), max );
+		return new MaxFeaturesIterator<SimpleFeature>( delegate.iterator(), start, max );
 	}
 	
 	public void close(Iterator<SimpleFeature> close) {

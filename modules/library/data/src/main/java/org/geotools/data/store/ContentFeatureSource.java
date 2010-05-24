@@ -25,7 +25,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.geotools.data.DataUtilities;
-import org.geotools.data.DefaultQuery;
+import org.geotools.data.Query;
 import org.geotools.data.FeatureListener;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureSource;
@@ -437,7 +437,6 @@ public abstract class ContentFeatureSource implements SimpleFeatureSource {
     public final ContentFeatureCollection getFeatures() throws IOException {
         Query query = joinQuery(Query.ALL);
         return new ContentFeatureCollection( this, query );
-        //return getFeatures(Query.ALL);
     }
 
     /**
@@ -476,7 +475,7 @@ public abstract class ContentFeatureSource implements SimpleFeatureSource {
                 throw new IOException("Feature source does not support this sorting " +
                         "so there is no way a stable paging (offset/limit) can be performed");
             
-            DefaultQuery dq = new DefaultQuery(query);
+            Query dq = new Query(query);
             dq.setSortBy(new SortBy[] {SortBy.NATURAL_ORDER});
             query = dq;
         }
@@ -794,7 +793,7 @@ public abstract class ContentFeatureSource implements SimpleFeatureSource {
      */
     public final ContentFeatureCollection getFeatures(Filter filter)
         throws IOException {
-        return getFeatures( new DefaultQuery( getSchema().getTypeName(), filter ) );
+        return getFeatures( new Query( getSchema().getTypeName(), filter ) );
     }
     
     /**
@@ -804,11 +803,11 @@ public abstract class ContentFeatureSource implements SimpleFeatureSource {
      * </p>
      */
     public final  FeatureReader<SimpleFeatureType, SimpleFeature> getReader(Filter filter) throws IOException {
-        return getReader( new DefaultQuery( getSchema().getTypeName(), filter ));
+        return getReader( new Query( getSchema().getTypeName(), filter ));
     }
 
     public final ContentFeatureSource getView(Filter filter) throws IOException {
-        return getView( new DefaultQuery( getSchema().getTypeName(), filter ) );
+        return getView( new Query( getSchema().getTypeName(), filter ) );
     }
     
     /**
@@ -865,14 +864,14 @@ public abstract class ContentFeatureSource implements SimpleFeatureSource {
      */
     protected Query joinQuery( Query query ) {
         // if the defining query is unset or ALL just return the query passed in
-        if ( this.query == null || this.query == Query.ALL ) {
-            return query;
-        }
+//        if ( this.query == null || this.query == Query.ALL ) {
+//            return query;
+//        }
         
         // if the query passed in is unset or ALL return the defining query
-        if ( query == null ) {
-            return this.query;
-        }
+//        if ( query == null ) {
+//            return this.query;
+//        }
         
         // join the queries
         return DataUtilities.mixQueries(this.query, query, null);
@@ -887,24 +886,25 @@ public abstract class ContentFeatureSource implements SimpleFeatureSource {
      *</p>
      */
     protected Query resolvePropertyNames( Query query ) {
-        Filter resolved = resolvePropertyNames( query.getFilter() );
-        if ( resolved == query.getFilter() ) {
-            return query;
-        }
-        
-        DefaultQuery newQuery = new DefaultQuery(query);
-        newQuery.setFilter( resolved );
-        return newQuery;
+//        Filter resolved = resolvePropertyNames( query.getFilter() );
+//        if ( resolved == query.getFilter() ) {
+//            return query;
+//        }
+//        
+//        Query newQuery = new Query(query);
+//        newQuery.setFilter( resolved );
+//        return newQuery;
+        return DataUtilities.resolvePropertyNames(query, getSchema() );
     }
     
     /** Transform provided filter; resolving property names */
     protected Filter resolvePropertyNames( Filter filter ) {
-        if ( filter == null || filter == Filter.INCLUDE || filter == Filter.EXCLUDE ) {
-            return filter;
-        }
-        
-        return (Filter) filter.accept( 
-            new PropertyNameResolvingVisitor(getSchema()) , null);
+//        if ( filter == null || filter == Filter.INCLUDE || filter == Filter.EXCLUDE ) {
+//            return filter;
+//        }
+//        
+//        return (Filter) filter.accept( new PropertyNameResolvingVisitor(getSchema()) , null);
+        return DataUtilities.resolvePropertyNames(filter, getSchema() );
     }
     /**
      * Creates the feature type or schema for the feature source.

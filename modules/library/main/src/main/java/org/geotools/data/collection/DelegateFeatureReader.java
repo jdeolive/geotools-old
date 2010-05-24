@@ -29,7 +29,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.FeatureType;
 
 /**
- * A  FeatureReader that wraps up a normal FeatureIterator.
+ * A FeatureReader that wraps up a normal FeatureIterator.
  * <p>
  * This class is useful for faking (and testing) the Resource based
  * API against in memory datastructures. You are warned that to

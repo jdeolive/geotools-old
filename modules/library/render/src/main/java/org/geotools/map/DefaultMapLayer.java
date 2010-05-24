@@ -147,8 +147,7 @@ public class DefaultMapLayer implements MapLayer {
 	 *            the source feature collection
 	 * @param style
 	 *            the style used to represent this layer
-	 * @param title
-	 *            DOCUMENT ME!
+	 * @param title Title of map layer
 	 */
 	public DefaultMapLayer(FeatureCollection collection, Style style,
 			String title) {
