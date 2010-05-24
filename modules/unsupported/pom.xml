@@ -160,7 +160,7 @@
          <module>caching</module>
          <module>shapefile-renderer</module>
          <module>matfile5</module>
-         <module>grids</module>
+         <module>grid</module>
        </modules>
      </profile>
   </profiles>
