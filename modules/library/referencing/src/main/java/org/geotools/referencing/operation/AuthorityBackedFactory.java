@@ -304,7 +304,7 @@ public class AuthorityBackedFactory extends DefaultCoordinateOperationFactory
                         prepend = createOperation(sourceCRS, source).getMathTransform();
                         source  = sourceCRS;
                     } finally {
-                        processing.set(Boolean.FALSE);
+                        processing.remove();
                     } else {
                         prepend = null;
                     }
@@ -313,7 +313,7 @@ public class AuthorityBackedFactory extends DefaultCoordinateOperationFactory
                         append = createOperation(target, targetCRS).getMathTransform();
                         target = targetCRS;
                     } finally {
-                        processing.set(Boolean.FALSE);
+                        processing.remove();
                     } else {
                         append = null;
                     }

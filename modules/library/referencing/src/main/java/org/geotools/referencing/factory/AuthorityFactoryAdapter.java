@@ -1263,4 +1263,19 @@ public class AuthorityFactoryAdapter extends AbstractAuthorityFactory implements
         }
         return false;
     }
+    
+    @Override
+    public void dispose() throws FactoryException {
+        super.dispose();
+        disposeAbstractAuthorityFactory(datumFactory);
+        disposeAbstractAuthorityFactory(csFactory);
+        disposeAbstractAuthorityFactory(crsFactory);
+        disposeAbstractAuthorityFactory(operationFactory);
+    }
+    
+    private void disposeAbstractAuthorityFactory(Object factory) throws FactoryException {
+        if(factory instanceof AbstractAuthorityFactory) {
+            ((AbstractAuthorityFactory) factory).dispose();
+        }
+    }
 }

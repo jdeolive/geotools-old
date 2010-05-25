@@ -41,6 +41,7 @@ import org.geotools.resources.i18n.Loggings;
 import org.geotools.util.Version;
 import org.geotools.util.logging.Logging;
 import org.hsqldb.jdbc.jdbcDataSource;
+import org.opengis.referencing.FactoryException;
 
 
 /**
@@ -226,6 +227,7 @@ public class ThreadedHsqlEpsgFactory extends ThreadedEpsgFactory {
                 url.append('/');
             }
             url.append(DATABASE_NAME);
+            url.append(";shutdown=true");
             source.setDatabase(url.toString());
             assert directory.equals(getDirectory(source)) : url;
         }

@@ -64,8 +64,10 @@ import org.geotools.referencing.cs.DefaultEllipsoidalCS;
 import org.geotools.referencing.cs.DefaultCoordinateSystemAxis;
 import org.geotools.referencing.factory.AbstractAuthorityFactory;
 import org.geotools.referencing.factory.IdentifiedObjectFinder;
+import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.geotools.referencing.operation.projection.MapProjection;
 import org.geotools.referencing.operation.transform.IdentityTransform;
+import org.geotools.referencing.wkt.Formattable;
 import org.geotools.resources.geometry.XRectangle2D;
 import org.geotools.resources.CRSUtilities;
 import org.geotools.resources.i18n.Errors;
@@ -1679,6 +1681,16 @@ search:             if (DefaultCoordinateSystemAxis.isCompassDirection(axis.getD
         strictFactory = null;
         lenientFactory = null;
     }
+    
+    /**
+     * Cleans up the thread local set in this thread. They can prevent web applications from
+     * proper shutdown
+     */
+    public static void cleanupThreadLocals() {
+        DefaultMathTransformFactory.cleanupThreadLocals();
+        Formattable.cleanupThreadLocals();
+    }
+
 
     /**
      * Prints to the {@linkplain System#out standard output stream} some information about

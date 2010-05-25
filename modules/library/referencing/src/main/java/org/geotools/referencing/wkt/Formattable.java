@@ -243,4 +243,13 @@ public class Formattable {
     static void setIndentation(final int indentation) throws SecurityException {
         Preferences.userNodeForPackage(Formattable.class).putInt(INDENTATION, indentation);
     }
+    
+    /**
+     * Cleans up the thread local set in this thread. They can prevent web applications from
+     * proper shutdown
+     */
+    public static void cleanupThreadLocals() {
+        FORMATTER.remove();
+    }
+
 }

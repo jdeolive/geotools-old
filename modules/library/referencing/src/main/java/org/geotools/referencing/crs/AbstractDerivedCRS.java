@@ -341,7 +341,7 @@ public class AbstractDerivedCRS extends AbstractSingleCRS implements GeneralDeri
                                   that.conversionFromBase,
                                   compareMetadata);
                 } finally {
-                    _COMPARING.set(Boolean.FALSE);
+                    _COMPARING.remove();
                 }
             }
         }

@@ -130,7 +130,7 @@ public class DefaultMathTransformFactory extends ReferencingFactory implements M
     /**
      * The operation method for the last transform created.
      */
-    private final ThreadLocal<OperationMethod> lastMethod;
+    private static final ThreadLocal<OperationMethod> lastMethod = new ThreadLocal<OperationMethod>();
 
     /**
      * A pool of math transform. This pool is used in order to
@@ -159,7 +159,6 @@ public class DefaultMathTransformFactory extends ReferencingFactory implements M
      */
     private DefaultMathTransformFactory(final Class<?>[] categories) {
         registry   = new FactoryRegistry(Arrays.asList(categories));
-        lastMethod = new ThreadLocal<OperationMethod>();
         pool       = CanonicalSet.newInstance(MathTransform.class);
     }
 
@@ -707,5 +706,13 @@ public class DefaultMathTransformFactory extends ReferencingFactory implements M
             return;
         }
         arguments.out.flush();
+    }
+    
+    /**
+     * Cleans up the thread local set in this thread. They can prevent web applications from
+     * proper shutdown
+     */
+    public static void cleanupThreadLocals() {
+        lastMethod.remove();
     }
 }

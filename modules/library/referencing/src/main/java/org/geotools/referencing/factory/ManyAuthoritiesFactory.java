@@ -585,8 +585,8 @@ public class ManyAuthoritiesFactory extends AuthorityFactoryAdapter implements C
         final Set<String> codes = new LinkedHashSet<String>();
         final Set<AuthorityFactory> done = new HashSet<AuthorityFactory>();
         done.add(this); // Safety for avoiding recursive calls.
-        inProgress.set(Boolean.TRUE);
         try {
+            inProgress.set(Boolean.TRUE);
             for (String authority : getAuthorityNames()) {
                 authority = authority.trim();
                 final char separator = getSeparator(authority);

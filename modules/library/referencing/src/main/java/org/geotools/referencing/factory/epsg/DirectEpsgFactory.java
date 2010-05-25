@@ -2988,7 +2988,6 @@ public abstract class DirectEpsgFactory extends DirectAuthorityFactory
      */
     @Override
     public synchronized void dispose() throws FactoryException {
-        final boolean shutdown = SHUTDOWN_THREAD.equals(Thread.currentThread().getName());
         final boolean isClosed;
         try {
             Connection connection = getConnection();
@@ -3006,16 +3005,14 @@ public abstract class DirectEpsgFactory extends DirectAuthorityFactory
                 ((PreparedStatement) it.next()).close();
                 it.remove();
             }
-            if (shutdown) {
-                shutdown(true);
-            }
+            shutdown(true);
             connection.close();
             dataSource = null;
         } catch (SQLException exception) {
             throw new FactoryException(exception);
         }
         super.dispose();
-        if (shutdown) try {
+        try {
             shutdown(false);
         } catch (SQLException exception) {
             throw new FactoryException(exception);

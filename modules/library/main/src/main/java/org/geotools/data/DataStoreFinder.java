@@ -143,5 +143,16 @@ public final class DataStoreFinder {
 		getServiceRegistry().scanForPlugins();
 
 	}
+	
+	/**
+	     * Resets the factory finder and prepares for a new full scan of the SPI subsystems
+	     */
+	    public static void reset() {
+	        FactoryRegistry copy = registry;
+	        registry = null;
+	        if(copy != null) {
+	            copy.deregisterAll();
+	        }
+	    }
     
 }

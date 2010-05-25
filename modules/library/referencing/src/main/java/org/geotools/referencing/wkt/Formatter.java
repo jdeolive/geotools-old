@@ -884,6 +884,7 @@ public class Formatter {
         lineChanged   = false;
         margin        = 0;
     }
+    
 
     /**
      * Set the preferred indentation from the command line. This indentation is used by
