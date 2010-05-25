@@ -47,6 +47,7 @@ import javax.sql.DataSource;
 
 import org.geotools.data.DataStore;
 import org.geotools.data.DefaultQuery;
+import org.geotools.data.FeatureStore;
 import org.geotools.data.GmlObjectStore;
 import org.geotools.data.InProcessLockingManager;
 import org.geotools.data.Query;
@@ -1411,44 +1412,67 @@ public final class JDBCDataStore extends ContentDataStore
             throw (IOException) new IOException(msg).initCause(e);
         }
     }
-
+    
     /**
-     * Gets a database connection for the specified feature store.
+     * Returns a JDCB Connection to the underlying database for the specified GeoTools
+     * {@link Transaction}. This has two main use cases:
+     * <ul>
+     * <li>Independently accessing the underlying database directly reusing the connection pool
+     * contained in the {@link JDBCDataStore}</li>
+     * <li>Performing some direct access to the database in the same JDBC transaction as the
+     * Geotools code</li>
+     * </ul>
+     * The connection shall be used in a different way depending on the use case:
+     * <ul>
+     * <li>
+     * If the transaction is {@link Transaction#AUTO_COMMIT} or if the transaction is not shared
+     * with this data store and originating {@link FeatureStore} objects it is the duty of the
+     * caller to properly close the connection after usage, failure to do so will result in the
+     * connection pool loose one available connection permanently</li>
+     * <li>
+     * If the transaction is on the other side a valid transaction is shared with Geotools the
+     * client code should refrain from closing the connection, committing or rolling back, and use
+     * the {@link Transaction} facilities to do so instead</li>
+     * </ul>
+     * 
+     * @param t
+     *            The GeoTools transaction. Can be {@code null}, in that case a new connection will
+     *            be returned (as if {@link Transaction#AUTO_COMMIT} was provided)
      */
-    protected final Connection getConnection(JDBCState state) {
+    public Connection getConnection(Transaction t) throws IOException {
         // short circuit this state, all auto commit transactions are using the same
-        if(state.getTransaction() == Transaction.AUTO_COMMIT) {
+        if(t == Transaction.AUTO_COMMIT) {
             Connection cx = createConnection();
             try {
                 cx.setAutoCommit(true);
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                throw (IOException) new IOException().initCause(e);
             }
             return cx;
         }
- 
-        // else we look to grab the connection from the state, and eventually create it
-        // for the first time
-        Connection cx = state.getConnection();
-        if (cx == null) {
-            synchronized (state) {
-                //create a new connection
-                cx = createConnection();
-
-                //set auto commit to false, we know tx != auto commit
-                try {
-                    cx.setAutoCommit(false);
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
-
-                //add connection state to the transaction
-                state.setConnection(cx);                
-                // register a single JDBCTransactionState on this connection to handle commit/revert
-                state.getTransaction().putState(state, new JDBCTransactionState( cx, this ) );
+        
+        JDBCTransactionState tstate = (JDBCTransactionState) t.getState(this);
+        if(tstate != null) {
+            return tstate.cx;
+        } else {
+            Connection cx = createConnection();
+            try {
+                cx.setAutoCommit(false);
+            } catch (SQLException e) {
+                throw (IOException) new IOException().initCause(e);
             }
+            
+            tstate = new JDBCTransactionState(cx, this);
+            t.putState(this, tstate);
+            return cx;
         }
-        return cx;
+    }
+
+    /**
+     * Gets a database connection for the specified feature store.
+     */
+    protected final Connection getConnection(JDBCState state) throws IOException {
+        return getConnection(state.getTransaction());
     }
 
     /**

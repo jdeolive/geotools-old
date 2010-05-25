@@ -16,9 +16,6 @@
  */
 package org.geotools.jdbc;
 
-import java.sql.Connection;
-import java.util.logging.Logger;
-
 import org.geotools.data.store.ContentEntry;
 import org.geotools.data.store.ContentState;
 
@@ -33,11 +30,6 @@ import org.geotools.data.store.ContentState;
  * @source $URL$
  */
 public final class JDBCState extends ContentState {
-    /**
-     * cached database connection
-     */
-    private Connection connection;
-
     /**
      * cached primary key
      */
@@ -58,9 +50,6 @@ public final class JDBCState extends ContentState {
         //copy the primary key
         primaryKey = state.getPrimaryKey();
         exposePrimaryKeyColumns = state.isExposePrimaryKeyColumns();
-        
-        //do not copy the connection
-        //connection = state.getConnection();
     }
 
     /**
@@ -68,20 +57,6 @@ public final class JDBCState extends ContentState {
      */
     public JDBCState(ContentEntry entry) {
         super(entry);
-    }
-
-    /**
-     * The cached database connection.
-     */
-    public Connection getConnection() {
-        return connection;
-    }
-
-    /**
-     * Sets the cached database connection.
-     */
-    public void setConnection(Connection connection) {
-        this.connection = connection;
     }
 
     /**
@@ -123,7 +98,6 @@ public final class JDBCState extends ContentState {
      * Flushes all cached state.
      */
     public void flush() {
-        connection = null;
         primaryKey = null;
         super.flush();
     }
@@ -135,19 +109,4 @@ public final class JDBCState extends ContentState {
         return new JDBCState(this);
     }
 
-    /**
-     * Closes the database connection with a call to
-     * {@link JDBCDataStore#closeSafe(Connection)}.
-     */
-    public void close() {
-        ((JDBCDataStore)entry.getDataStore()).closeSafe(connection);
-        super.close();
-    }
-    
-    @Override
-    protected void finalize() throws Throwable {
-        if ( connection != null && !connection.isClosed()) {
-            Logger.getLogger( "org.geotools.jdbc").severe("State finalized with open connection.");
-        }
-    }
 }

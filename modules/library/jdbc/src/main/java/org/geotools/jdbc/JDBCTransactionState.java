@@ -29,7 +29,7 @@ import org.geotools.data.Transaction.State;
  *
  * @source $URL$
  */
-public final class JDBCTransactionState implements State {
+final class JDBCTransactionState implements State {
     /**
      * The datastore
      */
@@ -56,14 +56,8 @@ public final class JDBCTransactionState implements State {
             
         if ( tx == null ) {
             if ( cx != null ) {
-                try {
-                    cx.close();
-                }
-                catch( SQLException e ) {
-                    //TODO: perhaps we should log this at the finest level
-                }
-            }
-            else {
+                dataStore.closeSafe(cx);
+            }  else {
                 dataStore.getLogger().warning("Transaction is attempting to " +
                     "close an already closed connection");
             }
@@ -83,7 +77,6 @@ public final class JDBCTransactionState implements State {
             String msg = "Error occured on commit";
             throw (IOException) new IOException(msg).initCause(e);
         }        
-        //state.fireBatchFeatureEvent( true );
     }
 
     public void rollback() throws IOException {
@@ -93,13 +86,13 @@ public final class JDBCTransactionState implements State {
             String msg = "Error occured on rollback";
             throw (IOException) new IOException(msg).initCause(e);
         }
-        //state.fireBatchFeatureEvent( false );
     }
     
     @Override
     protected void finalize() throws Throwable {
         if ( cx != null && !cx.isClosed()) {
             Logger.getLogger( "org.geotools.jdbc").severe("State finalized with open connection.");
+            dataStore.closeSafe(cx);
         }
     }
 }
