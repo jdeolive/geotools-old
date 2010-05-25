@@ -95,6 +95,9 @@ public class ComplexSupportXSAnyTypeBinding extends XSAnyTypeBinding {
             if (property != null && !(property instanceof ComplexAttribute)) {
                 return property.getValue();
             }
+            if ("id".equals(name.getLocalPart())) {
+                return complex.getIdentifier();
+            }
         }
         return null;
     }
