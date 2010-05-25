@@ -46,7 +46,7 @@ public class ServiceTest extends TestCase {
 	public void testIsAvailable() throws NoSuchAuthorityCodeException,
 			FactoryException {
 		GridFormatFinder.scanForPlugins();
-		Iterator list = GridFormatFinder.getAvailableFormats().iterator();
+		Iterator<GridFormatFactorySpi> list = GridFormatFinder.getAvailableFormats().iterator();
 		boolean found = false;
 		GridFormatFactorySpi fac = null;
 		while (list.hasNext()) {
