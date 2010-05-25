@@ -49,6 +49,10 @@ import java.util.logging.Logger;
 
 import org.geotools.data.collection.CollectionDataStore;
 import org.geotools.data.collection.CollectionFeatureSource;
+import org.geotools.data.collection.ListFeatureCollection;
+import org.geotools.data.collection.SpatialIndexFeatureCollection;
+import org.geotools.data.collection.SpatialIndexFeatureSource;
+import org.geotools.data.collection.TreeSetFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.data.simple.SimpleFeatureLocking;
@@ -61,7 +65,6 @@ import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.FeatureTypes;
-import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.NameImpl;
 import org.geotools.feature.SchemaException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
@@ -82,6 +85,7 @@ import org.geotools.util.Utilities;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.feature.Feature;
 import org.opengis.feature.FeatureVisitor;
+import org.opengis.feature.IllegalAttributeException;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -186,12 +190,10 @@ public class DataUtilities {
     }
 
     /**
-     * DOCUMENT ME!
+     * Retrieve the attributeNames defined by the featureType
      * 
      * @param featureType
-     *            DOCUMENT ME!
-     * 
-     * @return DOCUMENT ME!
+     * @return array of simple attribute names
      */
     public static String[] attributeNames(SimpleFeatureType featureType) {
         String[] names = new String[featureType.getAttributeCount()];
@@ -199,7 +201,6 @@ public class DataUtilities {
         for (int i = 0; i < count; i++) {
             names[i] = featureType.getDescriptor(i).getLocalName();
         }
-
         return names;
     }
 
@@ -479,6 +480,9 @@ public class DataUtilities {
 
     /**
      * Creates duplicate of feature adjusted to the provided featureType.
+     * <p>
+     * Please note this implementation provides "deep copy" using {@link #duplicate(Object)}
+     * to copy each attribute.
      * 
      * @param featureType
      *            FeatureType requested
@@ -511,7 +515,51 @@ public class DataUtilities {
 
         return SimpleFeatureBuilder.build(featureType, attributes, id);
     }
+    /**
+     * Retypes the feature to match the provided featureType.
+     * <p>
+     * The duplicate parameter indicates how the new feature is to be formed:
+     * <ul>
+     * <li>dupliate is true: A "deep copy" is made of each attribute resulting in a safe
+     * "copy"Adjusts the attribute order to match the provided featureType.</li>
+     * <li>duplicate is false: the attributes are simply reordered and are actually the same 
+     * instances as those in the origional feature</li>
+     * </ul>
+     * In the future this method may simply return a "wrapper" when duplicate is false.
+     * <p>
+     * @param featureType
+     * @param feature
+     * @param duplicate True to perform {@link #duplicate(Object)} on each attribute
+     * @return
+     * @throws IllegalAttributeException
+     */
+    public static SimpleFeature reType(SimpleFeatureType featureType, SimpleFeature feature, boolean duplicate)
+            throws IllegalAttributeException {
+        if( duplicate ){
+            return reType(featureType, feature);
+        }
+        
+        FeatureType origional = feature.getFeatureType();
+        if (featureType.equals(origional)) {
+            return feature;
+        }
+        String id = feature.getID();
+        int numAtts = featureType.getAttributeCount();
+        Object[] attributes = new Object[numAtts];
+        String xpath;
 
+        for (int i = 0; i < numAtts; i++) {
+            AttributeDescriptor curAttType = featureType.getDescriptor(i);
+            attributes[i] = feature.getAttribute(curAttType.getLocalName());
+        }
+        return SimpleFeatureBuilder.build(featureType, attributes, id);
+    }
+    /**
+     * Performs a deep copy of the provided object.
+     * 
+     * @param src Source object
+     * @return copy of source object
+     */
     public static Object duplicate(Object src) {
         // JD: this method really needs to be replaced with somethign better
 
@@ -618,7 +666,7 @@ public class DataUtilities {
         // Please extend this to support additional classes.
         //
         // And good luck getting Cloneable to work
-        throw new IllegalAttributeException("Do not know how to deep copy " + type.getName());
+        throw new IllegalAttributeException(null,"Do not know how to deep copy " + type.getName());
     }
 
     /**
@@ -967,18 +1015,37 @@ public class DataUtilities {
         if (collection == null) {
             throw new NullPointerException("No content provided");
         }
-        if (false) {
-            SimpleFeatureCollection simpleFeatureCollection = simple( collection );
-            CollectionFeatureSource source = new CollectionFeatureSource(simpleFeatureCollection);
+        if( collection instanceof ListFeatureCollection ){
+            ListFeatureCollection list = (ListFeatureCollection) collection;
+            CollectionFeatureSource source = new CollectionFeatureSource( list );
+            
             return source;
-        } else {
-            CollectionDataStore store = new CollectionDataStore(collection);
-            try {
-                return store.getFeatureSource(store.getTypeNames()[0]);
-            } catch (IOException e) {
-                throw new RuntimeException("Something is wrong with the geotools code, "
-                        + "this exception should not happen", e);
-            }
+        }
+        if( collection instanceof SpatialIndexFeatureCollection ){
+            SpatialIndexFeatureCollection indexed = (SpatialIndexFeatureCollection) collection;
+            SpatialIndexFeatureSource source = new SpatialIndexFeatureSource( indexed );
+            
+            return source;
+        }
+        if( collection instanceof TreeSetFeatureCollection ){
+            TreeSetFeatureCollection tree = (TreeSetFeatureCollection) collection;
+            CollectionFeatureSource source = new CollectionFeatureSource(tree);
+            
+            return source;
+        }
+//        if( collection instanceof SimpleFeatureCollection ){
+//            SimpleFeatureCollection simpleFeatureCollection = simple( collection );
+//            CollectionFeatureSource source = new CollectionFeatureSource(simpleFeatureCollection);
+//            
+//            return source;
+//        }
+        
+        CollectionDataStore store = new CollectionDataStore(collection);
+        try {
+            return store.getFeatureSource(store.getTypeNames()[0]);
+        } catch (IOException e) {
+            throw new RuntimeException("Something is wrong with the geotools code, "
+                    + "this exception should not happen", e);
         }
     }
 

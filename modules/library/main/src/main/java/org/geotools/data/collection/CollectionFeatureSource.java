@@ -172,15 +172,19 @@ public class CollectionFeatureSource implements SimpleFeatureSource {
         query = DataUtilities.resolvePropertyNames(query, getSchema());
         final int offset = query.getStartIndex() != null ? query.getStartIndex() : 0;
         if (offset > 0 & query.getSortBy() == null) {
-            if (!getQueryCapabilities().supportsSorting(query.getSortBy()))
+            if (!getQueryCapabilities().supportsSorting(query.getSortBy())){
                 throw new IllegalStateException("Feature source does not support this sorting "
                         + "so there is no way a stable paging (offset/limit) can be performed");
+            }
             Query copy = new Query(query);
             copy.setSortBy(new SortBy[] { SortBy.NATURAL_ORDER });
             query = copy;
         }
         SimpleFeatureCollection features = collection;
         // step one: filter
+        if( query.getFilter() != null && query.getFilter().equals(Filter.EXCLUDE)){
+            return new EmptyFeatureCollection( getSchema() );
+        }
         if (query.getFilter() != null && query.getFilter() != Filter.INCLUDE) {
             features = new FilteringSimpleFeatureCollection(features, query.getFilter());
         }

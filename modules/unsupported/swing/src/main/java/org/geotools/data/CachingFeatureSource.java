@@ -8,14 +8,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.geotools.data.DataSourceException;
-import org.geotools.data.DataStore;
-import org.geotools.data.DefaultQuery;
-import org.geotools.data.FeatureListener;
-import org.geotools.data.FeatureSource;
-import org.geotools.data.Query;
-import org.geotools.data.QueryCapabilities;
-import org.geotools.data.ResourceInfo;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.data.store.FilteringIterator;
 import org.geotools.data.store.ReTypingIterator;
 import org.geotools.factory.CommonFactoryFinder;
@@ -62,8 +56,8 @@ import com.vividsolutions.jts.index.strtree.STRtree;
  * This feature source is used as a wrapper offering a spatial index, for a quick
  * user interface experience at the cost of memory.
  */
-public class CachingFeatureSource implements FeatureSource {
-    private FeatureSource wrapped;
+public class CachingFeatureSource implements SimpleFeatureSource {
+    private SimpleFeatureSource wrapped;
 
     private SpatialIndex index;
 
@@ -83,7 +77,10 @@ public class CachingFeatureSource implements FeatureSource {
             BBOX.class, Contains.class, Crosses.class, DWithin.class, Equals.class,
             Intersects.class, Overlaps.class, Touches.class, Within.class));
 
-    public CachingFeatureSource(FeatureSource original) throws IOException {
+    public CachingFeatureSource( FeatureSource original) throws IOException {
+        this( DataUtilities.simple( original ));
+    }
+    public CachingFeatureSource(SimpleFeatureSource original) throws IOException {
         this.wrapped = original;
         this.originalBounds = original.getBounds();
         if (originalBounds == null)
@@ -139,19 +136,19 @@ public class CachingFeatureSource implements FeatureSource {
         return wrapped.getCount(query);
     }
 
-    public FeatureType getSchema() {
+    public SimpleFeatureType getSchema() {
         return wrapped.getSchema();
     }
 
-    public FeatureCollection getFeatures() throws IOException {
+    public SimpleFeatureCollection getFeatures() throws IOException {
         return getFeatures(Filter.INCLUDE);
     }
 
-    public FeatureCollection getFeatures(Filter filter) throws IOException {
+    public SimpleFeatureCollection getFeatures(Filter filter) throws IOException {
         return getFeatures(new DefaultQuery(wrapped.getSchema().getName().getLocalPart(), filter));
     }
 
-    public FeatureCollection getFeatures(Query query) throws IOException {
+    public SimpleFeatureCollection getFeatures(Query query) throws IOException {
         String schemaName = wrapped.getSchema().getName().getLocalPart();
         if (query.getTypeName() != null && !schemaName.equals(query.getTypeName())) {
             throw new DataSourceException("Typename mismatch, query asks for '"
@@ -166,7 +163,7 @@ public class CachingFeatureSource implements FeatureSource {
         return getFeatureCollection(query, getEnvelope(query.getFilter()));
     }
 
-    private FeatureCollection getFeatureCollection(Query query, Envelope bounds) throws IOException {
+    private SimpleFeatureCollection getFeatureCollection(Query query, Envelope bounds) throws IOException {
         try {
             SimpleFeatureType alternate = cachedSchema;
             if (query.getPropertyNames() != Query.ALL_NAMES) {

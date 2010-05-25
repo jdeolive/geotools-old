@@ -53,11 +53,11 @@ public abstract class AbstractFeatureCollection implements SimpleFeatureCollecti
     protected String id;
     protected SimpleFeatureType schema;
 
-	protected AbstractFeatureCollection( SimpleFeatureType memberType ) {
-	    this.id = id == null ? "featureCollection" : id;
-        this.schema = memberType;	      
-	}
-	
+    protected AbstractFeatureCollection(SimpleFeatureType memberType) {
+        this.id = id == null ? "featureCollection" : id;
+        this.schema = memberType;
+    }
+
     //
     // SimpleFeatureCollection - Feature Access
     // 
@@ -441,7 +441,7 @@ public abstract class AbstractFeatureCollection implements SimpleFeatureCollecti
      * @see #contains(Object)
      */
     @SuppressWarnings("unchecked")
-	final public boolean retainAll(Collection<?> c) {
+    final public boolean retainAll(Collection<?> c) {
         boolean modified = false;
         Iterator e = iterator();
         try {
@@ -481,7 +481,7 @@ public abstract class AbstractFeatureCollection implements SimpleFeatureCollecti
     }
 
     @SuppressWarnings("unchecked")
-	public <T> T[] toArray(T[] a){
+    public <T> T[] toArray(T[] a) {
         int size = size();
         if (a.length < size){
             a = (T[])java.lang.reflect.Array.newInstance(a.getClass().getComponentType(), size);
@@ -548,13 +548,12 @@ public abstract class AbstractFeatureCollection implements SimpleFeatureCollecti
     }
 
     public final void addListener(CollectionListener listener) throws NullPointerException {
-    	listeners.add(listener);
+        listeners.add(listener);
     }
 
-    public final void removeListener(CollectionListener listener)
-            throws NullPointerException {
-            	listeners.remove(listener);
-            }
+    public final void removeListener(CollectionListener listener) throws NullPointerException {
+        listeners.remove(listener);
+    }
 
     public SimpleFeatureType getSchema() {
     	return schema;

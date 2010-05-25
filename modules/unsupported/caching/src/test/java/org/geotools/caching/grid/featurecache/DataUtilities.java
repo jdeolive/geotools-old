@@ -35,7 +35,9 @@ import org.opengis.filter.Filter;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 
-
+/**
+ * Data Utilities for Caching.
+ */
 public class DataUtilities {
     static FilterFactoryImpl ff = new FilterFactoryImpl();
 
