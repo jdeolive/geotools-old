@@ -357,17 +357,33 @@ class Utils {
 		return accum;
 	}
 	
-	private static IOFileFilter createFilter() {
-		IOFileFilter fileFilter = FileFilterUtils.asFileFilter(DataUtilities.includeFilters(
-				FileFilterUtils.suffixFileFilter("jp2"),
-				FileFilterUtils.suffixFileFilter("JP2"),
-				FileFilterUtils.suffixFileFilter("j2c"),
-				FileFilterUtils.suffixFileFilter("J2C"),
-				FileFilterUtils.suffixFileFilter("jpx"),
-				FileFilterUtils.suffixFileFilter("JPX"),
-				FileFilterUtils.suffixFileFilter("jp2k"),
-				FileFilterUtils.suffixFileFilter("JP2K"),
-				FileFilterUtils.nameFileFilter("jpeg2000")));
-		return fileFilter;
-	}
+    private static IOFileFilter createFilter() {
+        IOFileFilter fileFilter = Utils.includeFilters(
+                FileFilterUtils.suffixFileFilter("jp2"), 
+                FileFilterUtils.suffixFileFilter("JP2"), 
+                FileFilterUtils.suffixFileFilter("j2c"),
+                FileFilterUtils.suffixFileFilter("J2C"), 
+                FileFilterUtils.suffixFileFilter("jpx"), 
+                FileFilterUtils.suffixFileFilter("JPX"), 
+                FileFilterUtils.suffixFileFilter("jp2k"), 
+                FileFilterUtils.suffixFileFilter("JP2K"), 
+                FileFilterUtils.nameFileFilter("jpeg2000"));
+        return fileFilter;
+    }
+
+    static IOFileFilter excludeFilters(final IOFileFilter inputFilter, IOFileFilter... filters) {
+        IOFileFilter retFilter = inputFilter;
+        for (IOFileFilter filter : filters) {
+            retFilter = FileFilterUtils.andFileFilter(retFilter, FileFilterUtils.notFileFilter(filter));
+        }
+        return retFilter;
+    }
+
+    static IOFileFilter includeFilters(final IOFileFilter inputFilter, IOFileFilter... filters) {
+        IOFileFilter retFilter = inputFilter;
+        for (IOFileFilter filter : filters) {
+            retFilter = FileFilterUtils.orFileFilter(retFilter, filter);
+        }
+        return retFilter;
+    }
 }
