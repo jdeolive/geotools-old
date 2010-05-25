@@ -45,7 +45,6 @@ import org.geotools.data.Query;
 import org.geotools.data.QueryCapabilities;
 import org.geotools.data.ResourceInfo;
 import org.geotools.data.ServiceInfo;
-import org.geotools.data.complex.config.CatalogUtilities;
 import org.geotools.data.complex.config.EmfAppSchemaReader;
 import org.geotools.data.complex.config.FeatureTypeRegistry;
 import org.geotools.data.property.PropertyDataStore;
@@ -64,15 +63,14 @@ import org.geotools.feature.type.FeatureTypeImpl;
 import org.geotools.filter.FilterFactoryImplNamespaceAware;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.gml3.GMLSchema;
+import org.geotools.xml.SchemaIndex;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.geotools.xml.SchemaIndex;
 import org.opengis.feature.Feature;
 import org.opengis.feature.FeatureVisitor;
 import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.ComplexType;
@@ -482,7 +480,7 @@ public class DataAccessIntegrationTest {
             reader = EmfAppSchemaReader.newInstance();
             // set catalog
             URL catalogLocation = getClass().getResource(schemaBase + "mappedPolygons.oasis.xml");
-            reader.setCatalog(CatalogUtilities.buildPrivateCatalog(catalogLocation));
+            reader.setResolver(catalogLocation);
             // set schema URI
             SchemaIndex schemaIndex = reader.parse(new URL(schemaURL.toString() + File.separator
                     + "commonSchemas_new/GeoSciML/geologicUnit.xsd"), null);

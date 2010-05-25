@@ -625,7 +625,7 @@ public class FeatureTypeRegistry {
 
             LOGGER.info("Creating GMLConfiguration to get the prebuilt gml schemas from");
             GMLConfiguration configuration = new GMLConfiguration();
-            LOGGER.info("Aquiring prebuilt gml schema and its dependencies");
+            LOGGER.info("Acquiring prebuilt gml schema and its dependencies");
             SchemaIndex index = Schemas.findSchemas(configuration);
             // schedule the gml schemas to be lazily loaded for any type missing from the above
             // import of prebuilt types

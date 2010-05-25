@@ -36,7 +36,6 @@ import java.util.Map;
 import org.geotools.data.DataAccess;
 import org.geotools.data.DataAccessFinder;
 import org.geotools.data.FeatureSource;
-import org.geotools.data.complex.config.CatalogUtilities;
 import org.geotools.data.complex.config.EmfAppSchemaReader;
 import org.geotools.data.complex.config.FeatureTypeRegistry;
 import org.geotools.data.property.PropertyDataStore;
@@ -62,7 +61,6 @@ import org.opengis.feature.Attribute;
 import org.opengis.feature.Feature;
 import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.ComplexType;
@@ -567,7 +565,7 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
             typeRegistry = new FeatureTypeRegistry();
             // set catalog
             URL catalogLocation = getClass().getResource(schemaBase + "mappedPolygons.oasis.xml");
-            reader.setCatalog(CatalogUtilities.buildPrivateCatalog(catalogLocation));   
+            reader.setResolver(catalogLocation);   
             
             SchemaIndex schemaIndex = reader.parse(new URL(schemaDir.toString() + schemaLocation),
                     null);

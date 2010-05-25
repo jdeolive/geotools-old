@@ -39,7 +39,6 @@ import java.util.logging.Logger;
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
-import org.apache.xml.resolver.Catalog;
 import org.geotools.data.DataAccess;
 import org.geotools.data.DataAccessFinder;
 import org.geotools.data.DataSourceException;
@@ -61,6 +60,9 @@ import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.filter.expression.FeaturePropertyAccessorFactory;
 import org.geotools.filter.text.cql2.CQL;
 import org.geotools.filter.text.cql2.CQLException;
+import org.geotools.xml.AppSchemaCache;
+import org.geotools.xml.AppSchemaCatalog;
+import org.geotools.xml.AppSchemaResolver;
 import org.geotools.xml.SchemaIndex;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.AttributeType;
@@ -177,7 +179,7 @@ public class AppSchemaDataAccessConfigurator {
         parseGmlSchemas();
 
         // -create source datastores
-        sourceDataStores = aquireSourceDatastores();
+        sourceDataStores = acquireSourceDatastores();
 
         // -create FeatureType mappings
         Set featureTypeMappings = createFeatureTypeMappings();
@@ -470,10 +472,9 @@ public class AppSchemaDataAccessConfigurator {
 
         final List schemaFiles = config.getTargetSchemasUris();
 
-        final Catalog oasisCatalog = getCatalog();
         EmfAppSchemaReader schemaParser;
         schemaParser = EmfAppSchemaReader.newInstance();
-        schemaParser.setCatalog(oasisCatalog);
+        schemaParser.setResolver(buildResolver());
 
         // create a single type registry for all the schemas in the config
         typeRegistry = new FeatureTypeRegistry(namespaces);
@@ -491,15 +492,46 @@ public class AppSchemaDataAccessConfigurator {
         }
     }
 
-    private Catalog getCatalog() throws MalformedURLException, IOException {
+    /**
+     * Build the catalog for this data access.
+     */
+    private AppSchemaCatalog buildCatalog() {
         String catalogLocation = config.getCatalog();
         if (catalogLocation == null) {
             return null;
         } else {
-            URL baseUrl = new URL(config.getBaseSchemasUrl());
-            URL resolvedCatalogLocation = resolveResourceLocation(baseUrl, catalogLocation);
-            return CatalogUtilities.buildPrivateCatalog(resolvedCatalogLocation);
+            URL baseUrl;
+            try {
+                baseUrl = new URL(config.getBaseSchemasUrl());
+                URL resolvedCatalogLocation = resolveResourceLocation(baseUrl, catalogLocation);
+                return AppSchemaCatalog.build(resolvedCatalogLocation);
+            } catch (MalformedURLException e) {
+                LOGGER.warning("Malformed URL encountered while setting OASIS catalog location. "
+                        + "Mapping file URL: " + config.getBaseSchemasUrl() + " Catalog location: "
+                        + config.getCatalog() + " Detail: " + e.getMessage());
+                return null;
+            }
         }
+    }
+    
+    /**
+     * Build the cache for this data access.
+     */
+    private AppSchemaCache buildCache() {
+        try {
+            return AppSchemaCache.buildFromGeoserverUrl(new URL(config.getBaseSchemasUrl()));
+        } catch (MalformedURLException e) {
+            LOGGER.warning("Malformed mapping file URL: " + config.getBaseSchemasUrl() + " Detail: "
+                    + e.getMessage());
+            return null;
+        }
+    }
+    
+    /**
+     * Build the resolver (catalog plus cache) for this data access.
+     */
+    private AppSchemaResolver buildResolver() {
+        return new AppSchemaResolver(buildCatalog(), buildCache());
     }
 
     private URL resolveResourceLocation(final URL baseUrl, String schemaLocation)
@@ -534,9 +566,9 @@ public class AppSchemaDataAccessConfigurator {
      * @throws DataSourceException
      *             DOCUMENT ME!
      */
-    private Map/* <String, FeatureAccess> */aquireSourceDatastores() throws IOException {
+    private Map/* <String, FeatureAccess> */acquireSourceDatastores() throws IOException {
         AppSchemaDataAccessConfigurator.LOGGER.entering(getClass().getName(),
-                "aquireSourceDatastores");
+                "acquireSourceDatastores");
 
         final Map datastores = new HashMap();
         final List dsParams = config.getSourceDataStores();
