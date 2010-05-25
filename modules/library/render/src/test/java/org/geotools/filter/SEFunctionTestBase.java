@@ -34,20 +34,18 @@ import org.opengis.filter.expression.Expression;
  */
 public class SEFunctionTestBase {
 
-    public SEFunctionTestBase() {
-    }
     protected final FilterFactory2 ff2 = CommonFactoryFinder.getFilterFactory2(null);
     protected final FunctionFinder finder = new FunctionFinder(null);
     protected final GeometryFactory gf = JTSFactoryFinder.getGeometryFactory(null);
     protected List<Expression> parameters;
 
-    protected SimpleFeature feature(Number number) throws Exception {
-        String typeSpec = "geom:Point,value:" + number.getClass().getSimpleName();
+    protected SimpleFeature feature(Object value) throws Exception {
+        String typeSpec = "geom:Point,value:" + value.getClass().getSimpleName();
         SimpleFeatureType type = DataUtilities.createType("Feature", typeSpec);
         SimpleFeatureBuilder builder = new SimpleFeatureBuilder(type);
         Coordinate coord = new Coordinate(0, 0);
         builder.add(gf.createPoint(coord));
-        builder.add(number);
+        builder.add(value);
         return builder.buildFeature(null);
     }
 

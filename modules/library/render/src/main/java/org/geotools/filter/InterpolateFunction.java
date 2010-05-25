@@ -52,16 +52,6 @@ import org.opengis.filter.expression.Literal;
  * (Note: it would make more sense if these terms were reversed but we are
  * adhering to their use as published in the OGC specification).
  * <p>
- * Example of use in a SLD document
- * <pre><code>
- *   &lt;PolygonSymbolizer>
- *     &lt;Fill>
- *       &lt;CssParameter name="fill">
- *       &lt;/CssParameter>
- *     &lt;/Fill>
- *   &lt;/PolygonSymbolizer>
- * </code></pre>
- *
  * <b>Number of points and interpolation modes</b>
  * <ul>
  * <li>
