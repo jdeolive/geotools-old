@@ -16,6 +16,8 @@
  */
 package org.geotools.data.h2;
 
+import java.util.Properties;
+
 import javax.sql.DataSource;
 
 import org.apache.commons.dbcp.BasicDataSource;
@@ -82,5 +84,15 @@ public class H2TestSetup extends JDBCTestSetup {
     @Override
     protected JDBCDataStoreFactory createDataStoreFactory() {
         return new H2DataStoreFactory();
+    }
+    
+    @Override
+    protected Properties createOfflineFixture() {
+        Properties fixture = new Properties();
+        fixture.put( "driver","org.h2.Driver");
+        fixture.put( "url","jdbc:h2:target/geotools");
+        fixture.put( "user","geotools");
+        fixture.put( "password","geotools");
+        return fixture;
     }
 }

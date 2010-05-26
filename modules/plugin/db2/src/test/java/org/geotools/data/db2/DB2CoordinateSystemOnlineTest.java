@@ -35,8 +35,8 @@ public class DB2CoordinateSystemOnlineTest extends AbstractDB2OnlineTestCase {
      *
      * @throws Exception
      */
-    public void setUp() throws Exception {
-        super.setUp();
+    public void connect() throws Exception {
+        super.connect();
         conn = getConnection();
     }
 
@@ -45,9 +45,9 @@ public class DB2CoordinateSystemOnlineTest extends AbstractDB2OnlineTestCase {
      *
      * @throws Exception
      */
-    protected void tearDown() throws Exception {
+    protected void disconnect() throws Exception {
         conn.close();
-        super.tearDown();
+        super.disconnect();
     }
 
     public void testCreate() {

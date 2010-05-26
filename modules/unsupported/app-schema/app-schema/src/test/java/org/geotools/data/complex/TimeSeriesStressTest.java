@@ -107,7 +107,7 @@ public class TimeSeriesStressTest extends OnlineTestCase {
      * @throws Exception
      *                 DOCUMENT ME!
      */
-    protected void setUp() throws Exception {
+    protected void setUpInternal() throws Exception {
         super.setUp();
         reader = EmfAppSchemaReader.newInstance();
 
@@ -120,7 +120,7 @@ public class TimeSeriesStressTest extends OnlineTestCase {
      * @throws Exception
      *                 DOCUMENT ME!
      */
-    protected void tearDown() throws Exception {
+    protected void tearDownInternal() throws Exception {
         super.tearDown();
     }
 

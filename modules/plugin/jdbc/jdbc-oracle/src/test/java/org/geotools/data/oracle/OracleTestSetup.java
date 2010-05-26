@@ -16,7 +16,6 @@
  */
 package org.geotools.data.oracle;
 
-import java.io.IOException;
 import java.util.Properties;
 
 import org.geotools.jdbc.JDBCDataStore;
@@ -43,14 +42,21 @@ public class OracleTestSetup extends JDBCTestSetup {
         super.setUpDataStore(dataStore);
         // tests do assume the dialect is working in non loose mode
         ((OracleDialect) dataStore.getSQLDialect()).setLooseBBOXEnabled(false);
-        
-        try {
-            Properties props = new Properties();
-            fillConnectionProperties(props);
-            dataStore.setDatabaseSchema(props.getProperty("username").toUpperCase());
-        } catch(IOException e) {
-            throw new RuntimeException("Failed to read the connection property file", e);
-        }
+        dataStore.setDatabaseSchema(fixture.getProperty("user").toUpperCase());
+    }
+    
+    @Override
+    protected Properties createExampleFixture() {
+        Properties fixture = new Properties();
+        fixture.put("driver", "oracle.jdbc.driver.OracleDriver");
+        fixture.put("url", "jdbc:oracle:thin:@192.168.1.200:1521:xe");
+        fixture.put("host", "192.168.1.200");
+        fixture.put("port", "1521");
+        fixture.put("database", "xe");
+        fixture.put("username", "geoserver");
+        fixture.put("password", "postgis");
+        fixture.put("dbtype", "Oracle" );
+        return fixture;
     }
     
     @Override

@@ -53,6 +53,8 @@ public class H2DataStoreFactoryTest extends TestCase {
         HashMap params = new HashMap();
         params.put(H2DataStoreFactory.HOST.key, "localhost");
         params.put(H2DataStoreFactory.DATABASE.key, "geotools");
+        params.put(H2DataStoreFactory.USER.key, "geotools");
+        params.put(H2DataStoreFactory.PASSWD.key, "geotools");
         
         DataStore ds = factory.createDataStore(params);
         try {

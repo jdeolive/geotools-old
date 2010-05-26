@@ -47,8 +47,8 @@ public abstract class JDBCGeometrylessTest extends JDBCTestSupport {
     protected abstract JDBCGeometrylessTestSetup createTestSetup();
     
     @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+    protected void connect() throws Exception {
+        super.connect();
         
         personSchema = DataUtilities.createType(dataStore.getNamespaceURI() + "." + PERSON, ID + ":0," + NAME+":String," + AGE + ":0");
         zipCodeSchema = DataUtilities.createType(dataStore.getNamespaceURI() + "." + ZIPCODE, ID + ":0," + CODE + ":String");

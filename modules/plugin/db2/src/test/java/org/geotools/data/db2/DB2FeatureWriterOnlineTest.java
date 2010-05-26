@@ -44,8 +44,8 @@ public class DB2FeatureWriterOnlineTest extends AbstractDB2OnlineTestCase {
      *
      * @throws Exception
      */
-    public void setUp() throws Exception {
-        super.setUp();
+    public void connect() throws Exception {
+        super.connect();
         dataStore = getDataStore();
     }
 

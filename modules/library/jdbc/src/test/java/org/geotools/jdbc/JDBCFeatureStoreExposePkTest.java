@@ -24,8 +24,8 @@ package org.geotools.jdbc;
 public abstract class JDBCFeatureStoreExposePkTest extends JDBCFeatureStoreTest {
 
     @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+    protected void connect() throws Exception {
+        super.connect();
         featureStore.setExposePrimaryKeyColumns(true);
     }
 

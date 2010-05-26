@@ -31,9 +31,10 @@ public abstract class JDBCLobTest extends JDBCTestSupport {
     @Override
     protected abstract JDBCLobTestSetup createTestSetup();
     
+    
     @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+    protected void connect() throws Exception {
+        super.connect();
         
         SimpleFeatureTypeBuilder tb = new SimpleFeatureTypeBuilder();
         tb.setName(TESTLOB);

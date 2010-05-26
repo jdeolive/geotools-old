@@ -85,8 +85,8 @@ public abstract class JDBC3DTest extends JDBCTestSupport {
     
 
     @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+    protected void connect() throws Exception {
+        super.connect();
 
         line3DType = DataUtilities.createType(dataStore.getNamespaceURI() + "." + tname(LINE3D),
                 aname(ID) + ":0," + aname(GEOM) + ":LineString:srid=4326," + aname(NAME)

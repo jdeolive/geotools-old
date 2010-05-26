@@ -38,8 +38,8 @@ public class DB2SpatialCatalogOnlineTest extends AbstractDB2OnlineTestCase {
      *
      * @throws Exception
      */
-    public void setUp() throws Exception {
-        super.setUp();
+    public void connect() throws Exception {
+        super.connect();
         conn = getConnection();
         tabSchema = getDataStore().getTableSchema();
         dbUrl = getDataStore().getDbURL();
@@ -50,9 +50,9 @@ public class DB2SpatialCatalogOnlineTest extends AbstractDB2OnlineTestCase {
      *
      * @throws Exception
      */
-    protected void tearDown() throws Exception {
+    protected void disconnect() throws Exception {
         conn.close();
-        super.tearDown();
+        super.disconnect();
     }
 
     /**

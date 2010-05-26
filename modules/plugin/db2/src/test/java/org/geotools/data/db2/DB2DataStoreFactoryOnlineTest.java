@@ -31,12 +31,12 @@ import org.geotools.data.DataAccessFactory.Param;
 public class DB2DataStoreFactoryOnlineTest extends AbstractDB2OnlineTestCase {
     DB2DataStoreFactory factory = new DB2DataStoreFactory();
 
-    public void setUp() throws Exception {
-        super.setUp();
+    public void connect() throws Exception {
+        super.connect();
     }
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
+    protected void disconnect() throws Exception {
+        super.disconnect();
     }
 
     public void testIsAvailable() {

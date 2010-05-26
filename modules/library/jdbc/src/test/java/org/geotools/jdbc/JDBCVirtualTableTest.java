@@ -22,9 +22,9 @@ public abstract class JDBCVirtualTableTest extends JDBCTestSupport {
     protected abstract JDBCDataStoreAPITestSetup createTestSetup();
 
     @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-
+    protected void connect() throws Exception {
+        super.connect();
+    
         SQLDialect dialect = dataStore.getSQLDialect();
         StringBuffer sb = new StringBuffer();
         sb.append("select ");

@@ -49,8 +49,8 @@ public abstract class JDBCSpatialFiltersTest extends JDBCTestSupport {
     
     TestData td;
 
-    protected void setUp() throws Exception {
-        super.setUp();
+    protected void connect() throws Exception {
+        super.connect();
 
         if (td == null) {
             td = new TestData(((JDBCDataStoreAPITestSetup) setup).getInitialPrimaryKeyValue());

@@ -24,26 +24,7 @@ package org.geotools.data.db2;
  * @source $URL$
  */
 public class DB2DataStoreOnlineTest extends AbstractDB2OnlineTestCase {
-    /**
-     * Setup gets a database connection that will be live for the duration of
-     * all tests.
-     *
-     * @throws Exception
-     */
-    public void setUp() throws Exception {
-        super.setUp();
-    }
-
-    /**
-     * Closes the database connection before we terminate.
-     *
-     * @throws Exception
-     */
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
-
-    public void testTableSchema() throws Exception {
+       public void testTableSchema() throws Exception {
     	String tableSchema = getDataStore().getTableSchema();
         assertEquals(tableSchema, "Test");
     }

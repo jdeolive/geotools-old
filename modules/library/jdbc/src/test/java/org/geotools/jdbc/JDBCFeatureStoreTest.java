@@ -52,8 +52,8 @@ import com.vividsolutions.jts.geom.Point;
 public abstract class JDBCFeatureStoreTest extends JDBCTestSupport {
     JDBCFeatureStore featureStore;
 
-    protected void setUp() throws Exception {
-        super.setUp();
+    protected void connect() throws Exception {
+        super.connect();
 
         featureStore = (JDBCFeatureStore) dataStore.getFeatureSource(tname("ft1"));
     }

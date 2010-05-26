@@ -9,11 +9,10 @@ public class DB2VirtualTableTest extends JDBCVirtualTableTest {
     protected JDBCDataStoreAPITestSetup createTestSetup() {
         return new DB2DataStoreAPITestSetup();
     }
-    
-    protected void setUp() throws Exception {
+   
+    @Override
+    protected void connect() throws Exception {
         dbSchemaName=DB2TestUtil.SCHEMA;
-        super.setUp();
-    }    
-
-
+        super.connect();
+    }
 }

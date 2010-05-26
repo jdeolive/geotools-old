@@ -25,8 +25,9 @@ import org.opengis.feature.simple.SimpleFeatureType;
  */
 public abstract class JDBCFeatureSourceExposePkTest extends JDBCFeatureSourceTest {
     
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Override
+    protected void connect() throws Exception {
+        super.connect();
         ((JDBCFeatureStore) featureSource).setExposePrimaryKeyColumns(true);
     }
 

@@ -45,8 +45,8 @@ import org.opengis.filter.spatial.BBOX;
 public abstract class JDBCFeatureSourceTest extends JDBCTestSupport {
     ContentFeatureSource featureSource;
 
-    protected void setUp() throws Exception {
-        super.setUp();
+    protected void connect() throws Exception {
+        super.connect();
 
         featureSource = (JDBCFeatureStore) dataStore.getFeatureSource(tname("ft1"));
     }
