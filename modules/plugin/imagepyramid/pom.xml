@@ -19,9 +19,9 @@
     <version>2.7-SNAPSHOT</version>
   </parent>
 
-  <properties>
+  <!--properties>
      <maven.test.skip>true</maven.test.skip>
-  </properties>
+  </properties-->
   
   <!-- =========================================================== -->
   <!--     Module Description                                      -->
