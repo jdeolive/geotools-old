@@ -71,7 +71,7 @@
     <stress.skip.pattern>**/*StressTest.java</stress.skip.pattern>
     <test.maxHeapSize>512M</test.maxHeapSize>
     <src.output>${basedir}/target</src.output>
-    <imageio.ext.version>1.0.6</imageio.ext.version>
+    <imageio.ext.version>1.0.5</imageio.ext.version>
   </properties>
 
   <!-- Profiles set on the command-line overwrite default properties. -->
@@ -554,11 +554,6 @@
       <dependency>
         <groupId>it.geosolutions.imageio-ext</groupId>
   	<artifactId>imageio-ext-tiff</artifactId>
-        <version>${imageio.ext.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>it.geosolutions.imageio-ext</groupId>
-  	    <artifactId>imageio-ext-customstreams</artifactId>
         <version>${imageio.ext.version}</version>
       </dependency>
       <dependency>
