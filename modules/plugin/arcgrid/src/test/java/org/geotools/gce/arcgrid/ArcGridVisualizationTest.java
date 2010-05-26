@@ -51,6 +51,7 @@ import org.opengis.coverage.grid.GridCoverageReader;
  * @source $URL$
  * @version 1.0
  */
+@SuppressWarnings("deprecation")
 public final class ArcGridVisualizationTest extends ArcGridTestCaseAdapter {
 
 
