@@ -17,21 +17,12 @@
 package org.geotools.gce.imagemosaic;
 
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Rectangle;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URL;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
-import java.util.logging.Logger;
 
 import javax.media.jai.PlanarImage;
 import javax.media.jai.widget.ScrollingImagePanel;
@@ -43,7 +34,6 @@ import junit.textui.TestRunner;
 
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.geotools.coverage.grid.GridCoverage2D;
-import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
@@ -75,8 +65,6 @@ import org.opengis.referencing.datum.PixelInCell;
 @SuppressWarnings("deprecation")
 public class ImageMosaicReaderTest extends Assert{
 
-        private final static Logger LOGGER = Logger.getLogger(ImageMosaicReaderTest.class.toString());
-    
 	public static junit.framework.Test suite() { 
 	    return new JUnit4TestAdapter(ImageMosaicReaderTest.class); 
 	}
@@ -86,24 +74,22 @@ public class ImageMosaicReaderTest extends Assert{
 	private URL indexURL;
 
 	private URL indexAlphaURL;
+	
+	private URL index_unique_paletteAlphaURL;
 
 	private URL grayURL;
-
-	private URL index_unique_paletteAlphaURL;
 
 	private URL rgbAURL;
 
 	private URL overviewURL;
 
-	private URL rgbJarURL;
-	
-	private URL indexJarURL;
-	
-	private URL indexAlphaJarURL;
-	
-	private URL grayJarURL;
-	
-	private URL index_unique_paletteAlphaJarURL;
+//	private URL rgbJarURL;
+//	
+//	private URL indexJarURL;
+//	
+//	private URL indexAlphaJarURL;
+//	
+//	private URL grayJarURL;
 	
 	private boolean interactive;
 
@@ -118,17 +104,18 @@ public class ImageMosaicReaderTest extends Assert{
 	 * @throws NoSuchAuthorityCodeException
 	 */
 	@Test
-//	@Ignore
 	public void defaultParameterValue() throws IOException,	
 			MismatchedDimensionException, NoSuchAuthorityCodeException {
 
 		final String baseTestName="testDefaultParameterValue-";
 		imageMosaicSimpleParamsTest(rgbURL, null, null,baseTestName+rgbURL.getFile(), false);
-//		imageMosaicSimpleParamsTest(rgbAURL, null,  null,baseTestName+rgbAURL.getFile(), false);
-//		imageMosaicSimpleParamsTest(overviewURL, null,null,baseTestName+overviewURL.getFile(), false);
-//		imageMosaicSimpleParamsTest(indexURL, null, null,baseTestName+indexURL.getFile(), false);
-//		imageMosaicSimpleParamsTest(grayURL, null, null,baseTestName+grayURL.getFile(), false);
-//		imageMosaicSimpleParamsTest(indexAlphaURL, null, null,baseTestName+indexAlphaURL.getFile(), false);
+		imageMosaicSimpleParamsTest(rgbAURL, null,  null,baseTestName+rgbAURL.getFile(), false);
+		imageMosaicSimpleParamsTest(overviewURL, null,null,baseTestName+overviewURL.getFile(), false);
+		imageMosaicSimpleParamsTest(indexURL, null, null,baseTestName+indexURL.getFile(), false);
+		imageMosaicSimpleParamsTest(grayURL, null, null,baseTestName+grayURL.getFile(), false);
+		imageMosaicSimpleParamsTest(indexAlphaURL, null, null,baseTestName+indexAlphaURL.getFile(), false);
+		imageMosaicSimpleParamsTest(index_unique_paletteAlphaURL, null, null,baseTestName+index_unique_paletteAlphaURL.getFile(), false);
+		imageMosaicSimpleParamsTest(timeURL, null, null,baseTestName+timeURL.getFile(), false);
 //
 //		// And again with URL that points into a JAR
 //		imageMosaicSimpleParamsTest(rgbJarURL, null, null,baseTestName+rgbJarURL.getFile(), false);
@@ -199,7 +186,7 @@ public class ImageMosaicReaderTest extends Assert{
 	private void testCoverage(final ImageMosaicReader reader,
 			GeneralParameterValue[] values, String title,
 			final GridCoverage2D coverage) {
-		if (true)
+		if (TestData.isInteractiveTest())
 			show( coverage.getRenderedImage(), title);
 		else
 			PlanarImage.wrapRenderedImage( coverage.getRenderedImage()).getTiles();
@@ -348,25 +335,24 @@ public class ImageMosaicReaderTest extends Assert{
 		//remove generated file
 		cleanUp();
 		
-//		rgbURL = new File("C:\\work\\data\\mosaic_sample").toURI().toURL();
 		rgbURL = TestData.url(this, "rgb/");
 		timeURL = TestData.url(this, "time_geotiff");
-		rgbJarURL = new URL("jar:"+TestData.url(this, "rgb.jar").toExternalForm()+"!/rgb/mosaic.shp");
+//		rgbJarURL = new URL("jar:"+TestData.url(this, "rgb.jar").toExternalForm()+"!/rgb/mosaic.shp");
 		
 		overviewURL = TestData.url(this, "overview/");
 		rgbAURL = TestData.url(this, "rgba/");
 		
 		indexURL = TestData.url(this, "index/");
-		indexJarURL = new URL("jar:"+TestData.url(this, "index.jar").toExternalForm()+"!/index/modis.shp");
+//		indexJarURL = new URL("jar:"+TestData.url(this, "index.jar").toExternalForm()+"!/index/modis.shp");
 		
 		indexAlphaURL = TestData.url(this, "index_alpha/");
-		indexAlphaJarURL = new URL("jar:"+TestData.url(this, "index_alpha.jar").toExternalForm()+"!/index_alpha/modis.shp");
+//		indexAlphaJarURL = new URL("jar:"+TestData.url(this, "index_alpha.jar").toExternalForm()+"!/index_alpha/modis.shp");
 		
 		grayURL = TestData.url(this, "gray/");
-		grayJarURL = new URL("jar:"+TestData.url(this, "gray.jar").toExternalForm()+"!/gray/dof.shp");
+//		grayJarURL = new URL("jar:"+TestData.url(this, "gray.jar").toExternalForm()+"!/gray/dof.shp");
 		
 		index_unique_paletteAlphaURL = TestData.url(this,"index_alpha_unique_palette/");
-		index_unique_paletteAlphaJarURL = new URL("jar:"+TestData.url(this, "index_alpha_unique_palette.jar").toExternalForm()+"!/index_alpha_unique_palette/dof.shp");
+//		index_unique_paletteAlphaJarURL = new URL("jar:"+TestData.url(this, "index_alpha_unique_palette.jar").toExternalForm()+"!/index_alpha_unique_palette/dof.shp");
 		
 		interactive = TestData.isInteractiveTest();
 

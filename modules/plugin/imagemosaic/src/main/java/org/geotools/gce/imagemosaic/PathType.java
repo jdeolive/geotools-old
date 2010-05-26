@@ -100,31 +100,26 @@ public enum PathType {
 			// create a file for the provided location ignoring the parent type
 			// create a URL for the provided location, relative to parent location
 			try {
-				
-			URL rasterURL= new URL(location);
-			if(!Utils.checkURLReadable(rasterURL))
-			{		
-				if (LOGGER.isLoggable(Level.INFO))
-					LOGGER.info("Unable to read image for file "+ rasterURL);
+			    File rasterFile= new File(location);
+	                      if(!Utils.checkFileReadable(rasterFile)){               
+	                          URL rasterURL= new URL(location);
+	                          if(!Utils.checkURLReadable(rasterURL))
+	                          {               
+	                                  if (LOGGER.isLoggable(Level.INFO))
+	                                          LOGGER.info("Unable to read image for file "+ rasterURL);
 
-				return null;
+	                                  return null;
 
-			}		
-			return rasterURL;
+	                          }               
+	                          return rasterURL;
+	                              
+	                      } else {
+	                          return DataUtilities.fileToURL(rasterFile);
+	                      }
+			
 			} catch (MalformedURLException e) {
 				return null;
 			}
-			
-//			// create a file for the provided location ignoring the parent type
-//			File rasterFile= new File(location);
-//			if(!ImageMosaicUtils.checkFileReadable(rasterFile))
-//			{		
-//				if (LOGGER.isLoggable(Level.INFO))
-//					LOGGER.info("Unable to read image for file "+ rasterFile.getAbsolutePath());
-//				return null;
-//				
-//			}		
-//			return rasterFile;
 		}
 		
 	};

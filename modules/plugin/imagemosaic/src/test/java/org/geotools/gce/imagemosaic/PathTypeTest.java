@@ -71,7 +71,7 @@ public class PathTypeTest extends Assert {
 		final URL testFile= TestData.url(this, "/rgb/global_mosaic_0.png");
 		testFile.openStream().close();
 		
-		// test it as a relative path to the test-data directory
+		// test it as a absolute path to the test-data directory
 		final URL temp=PathType.ABSOLUTE.resolvePath(TestData.url(this, ".").toExternalForm(), testFile.toExternalForm());
 		assertNotNull(temp);
 		temp.openStream().close();
@@ -86,7 +86,7 @@ public class PathTypeTest extends Assert {
 		assertNull(temp2);
 		try {
 			temp2.openStream().close();
-			fail("The relative URL "+temp2+" is not supposed to exist!");
+			fail("The URL "+temp2+" is not supposed to exist!");
 		} catch (Exception e) {
 		}
 		

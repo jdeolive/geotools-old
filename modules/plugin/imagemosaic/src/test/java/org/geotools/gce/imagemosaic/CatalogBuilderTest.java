@@ -65,22 +65,21 @@ public class CatalogBuilderTest extends Assert {
 	}
 
 	@Test
-//	@Ignore
 	public void catalogBuilderConfiguration() throws FileNotFoundException, IOException, CloneNotSupportedException{
 		// create a stub configuration
 		final CatalogBuilderConfiguration c1= new CatalogBuilderConfiguration();
-		c1.setAbsolute(true);
 		c1.setIndexName("index");
 		c1.setLocationAttribute("location");
+		c1.setAbsolute(true);
 		c1.setRootMosaicDirectory(TestData.file(this,"/rgb").toString());
 		c1.setIndexingDirectories(Arrays.asList(TestData.file(this,"/rgb").toString()));
 		assertNotNull(c1.toString());
 		
 		// create a second stub configuration
 		final CatalogBuilderConfiguration c2= new CatalogBuilderConfiguration();
-		c2.setAbsolute(true);
 		c2.setIndexName("index");
 		c2.setLocationAttribute("location");
+		c2.setAbsolute(true);
 		c2.setRootMosaicDirectory(TestData.file(this,"/rgb").toString());
 		c2.setIndexingDirectories(Arrays.asList(TestData.file(this,"/rgb").toString()));
 		assertTrue(c1.equals(c2));
@@ -97,12 +96,24 @@ public class CatalogBuilderTest extends Assert {
 	}
 	
 	@Test
-//	@Ignore
 	public void buildCatalog() throws FileNotFoundException, IOException{
-		
+            CatalogBuilder builder = null;
+            ImageMosaicReader reader = null;
+            ParameterValue<GridGeometry2D> gg = null;
+            GeneralEnvelope envelope = null;
+            Dimension dim = null;
+            Rectangle rasterArea = null;
+            GridEnvelope2D range = null;
+            GridCoverage2D coverage = null;
+            final ParameterValue<Boolean> useJai = ImageMosaicFormat.USE_JAI_IMAGEREAD.createValue();
+            useJai.setValue(false);
+            
+            final ParameterValue<String> tileSize = ImageMosaicFormat.SUGGESTED_TILE_SIZE.createValue();
+            tileSize.setValue("128,128");
+
+	    
 		//build a relative index and then make it run
 		CatalogBuilderConfiguration c1= new CatalogBuilderConfiguration();
-		c1.setAbsolute(true);
 		c1.setIndexName("shpindex");
 		c1.setLocationAttribute("location");
 		c1.setAbsolute(false);
@@ -110,52 +121,46 @@ public class CatalogBuilderTest extends Assert {
 		c1.setIndexingDirectories(Arrays.asList(TestData.file(this,"/overview/0").toString()));
 		assertNotNull(c1.toString());		
 		//build the index
-		CatalogBuilder builder= new CatalogBuilder(c1);
+		builder= new CatalogBuilder(c1);
 		builder.addProcessingEventListener(new CatalogBuilderListener());
 		builder.run();
 		final File relativeMosaic=TestData.file(this,"/overview/"+c1.getIndexName()+".shp");
 		assertTrue(relativeMosaic.exists());
 		
 		assertTrue(new ImageMosaicFormat().accepts(relativeMosaic));
-		ImageMosaicReader reader = (ImageMosaicReader) new ImageMosaicReader(relativeMosaic);
+		reader = (ImageMosaicReader) new ImageMosaicReader(relativeMosaic);
 
 		// limit yourself to reading just a bit of it
-		ParameterValue<GridGeometry2D> gg =  ImageMosaicFormat.READ_GRIDGEOMETRY2D.createValue();
-		GeneralEnvelope envelope = reader.getOriginalEnvelope();
-		Dimension dim= new Dimension();
+		gg =  ImageMosaicFormat.READ_GRIDGEOMETRY2D.createValue();
+		envelope = reader.getOriginalEnvelope();
+		dim= new Dimension();
 		dim.setSize(reader.getOriginalGridRange().getSpan(0)/2.0, reader.getOriginalGridRange().getSpan(1)/2.0);
-		Rectangle rasterArea=(( GridEnvelope2D)reader.getOriginalGridRange());
+		rasterArea=(( GridEnvelope2D)reader.getOriginalGridRange());
 		rasterArea.setSize(dim);
-		GridEnvelope2D range= new GridEnvelope2D(rasterArea);
+		range= new GridEnvelope2D(rasterArea);
 		gg.setValue(new GridGeometry2D(range,envelope));
 		
 		// use imageio with defined tiles
-		final ParameterValue<Boolean> useJai = ImageMosaicFormat.USE_JAI_IMAGEREAD.createValue();
-		useJai.setValue(false);
-		
-		final ParameterValue<String> tileSize = ImageMosaicFormat.SUGGESTED_TILE_SIZE.createValue();
-		tileSize.setValue("128,128");
 		
 		// Test the output coverage
-		GridCoverage2D coverage = (GridCoverage2D) reader.read(new GeneralParameterValue[] {gg,useJai ,tileSize});
+		coverage = (GridCoverage2D) reader.read(new GeneralParameterValue[] {gg,useJai ,tileSize});
 		Assert.assertNotNull(coverage);
 		PlanarImage.wrapRenderedImage( coverage.getRenderedImage()).getTiles();;
 
 		
 		//build an absolute index and then make it run
-		c1= new CatalogBuilderConfiguration();
-		c1.setAbsolute(true);
-		c1.setIndexName("shpindex_absolute");
-		c1.setLocationAttribute("location");
-		c1.setAbsolute(true);
-		c1.setRootMosaicDirectory(TestData.file(this,"/overview").toString());
-		c1.setIndexingDirectories(Arrays.asList(TestData.file(this,"/overview/0").toString()));
-		assertNotNull(c1.toString());		
+		CatalogBuilderConfiguration c2= new CatalogBuilderConfiguration();
+		c2.setIndexName("shpindex_absolute");
+		c2.setLocationAttribute("location");
+		c2.setAbsolute(true);
+		c2.setRootMosaicDirectory(TestData.file(this,"/overview").toString());
+		c2.setIndexingDirectories(Arrays.asList(TestData.file(this,"/overview/0").toString()));
+		assertNotNull(c2.toString());		
 		//build the index
-		builder= new CatalogBuilder(c1);
+		builder= new CatalogBuilder(c2);
 		builder.addProcessingEventListener(new CatalogBuilderListener());
 		builder.run();
-		final File absoluteMosaic=TestData.file(this,"/overview/"+c1.getIndexName()+".shp");
+		final File absoluteMosaic=TestData.file(this,"/overview/"+c2.getIndexName()+".shp");
 		assertTrue(absoluteMosaic.exists());
 		
 		assertTrue(new ImageMosaicFormat().accepts(absoluteMosaic));
