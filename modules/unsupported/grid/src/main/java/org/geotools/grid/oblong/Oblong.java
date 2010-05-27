@@ -25,8 +25,8 @@ import org.geotools.grid.GridElement;
  *
  * @author mbedward
  * @since 2.7
- * @source $URL: http://svn.osgeo.org/geotools/trunk/modules/unsupported/grid/src/main/java/org/geotools/grid/hexagon/Hexagon.java $
- * @version $Id: Hexagon.java 35566 2010-05-24 13:47:59Z mbedward $
+ * @source $URL$
+ * @version $Id$
  */
 public interface Oblong extends GridElement {
 

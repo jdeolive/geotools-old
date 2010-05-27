@@ -30,8 +30,8 @@ import org.geotools.geometry.jts.JTSFactoryFinder;
  *
  * @author mbedward
  * @since 2.7
- * @source $URL: http://svn.osgeo.org/geotools/trunk/modules/unsupported/grid/src/main/java/org/geotools/grid/hexagon/HexagonImpl.java $
- * @version $Id: HexagonImpl.java 35566 2010-05-24 13:47:59Z mbedward $
+ * @source $URL$
+ * @version $Id$
  */
 public class OblongImpl implements Oblong {
 

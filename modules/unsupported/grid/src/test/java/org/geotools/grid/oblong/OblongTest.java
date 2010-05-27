@@ -36,8 +36,8 @@ import static org.junit.Assert.*;
  *
  * @author mbedward
  * @since 2.7
- * @source $URL: http://svn.osgeo.org/geotools/trunk/modules/unsupported/grid/src/test/java/org/geotools/grid/hexagon/HexagonTest.java $
- * @version $Id: HexagonTest.java 35566 2010-05-24 13:47:59Z mbedward $
+ * @source $URL$
+ * @version $Id$
  */
 public class OblongTest extends TestBase {
     private static final double MINX = -10;
