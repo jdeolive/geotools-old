@@ -91,6 +91,7 @@ import org.geotools.resources.coverage.CoverageUtilities;
  * @version $Id$
  * @author Martin Desruisseaux (IRD)
  * @author Simone Giannecchini, GeoSolutions SAS
+ * @author Daniele Romagnoli, GeoSolutions SAS
  */
 final class Resampler2D extends GridCoverage2D {
     /**
@@ -502,7 +503,7 @@ final class Resampler2D extends GridCoverage2D {
          */
         final double[] background = backgroundValues != null ? backgroundValues : CoverageUtilities.getBackgroundValues(sourceCoverage);
         if (background != null && background.length != 0) {
-            if (!automaticGR) {
+            if (!automaticGR && !hints.containsKey(JAI.KEY_BORDER_EXTENDER)) {
                 final BorderExtender borderExtender;
                 if (XArray.allEquals(background, 0)) {
                     borderExtender = BorderExtender.createInstance(BorderExtender.BORDER_ZERO);
