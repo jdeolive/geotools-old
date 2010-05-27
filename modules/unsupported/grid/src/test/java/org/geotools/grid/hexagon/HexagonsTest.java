@@ -27,7 +27,7 @@ import org.geotools.data.DataUtilities;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.grid.AttributeSetter;
 import org.geotools.grid.GridElement;
-import org.geotools.grid.hexagon.Hexagon.Neighbor;
+import org.geotools.grid.Neighbor;
 import org.geotools.grid.hexagon.Hexagon.Orientation;
 
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -67,20 +67,20 @@ public class HexagonsTest extends HexagonTestBase {
 
     @Test
     public void createHexagon() {
-        Hexagon hexagon = Hexagons.create(SIDE_LEN, 0.0, 0.0, Orientation.FLAT);
+        Hexagon hexagon = Hexagons.create(0.0, 0.0, SIDE_LEN, Orientation.FLAT);
         assertNotNull(hexagon);
     }
 
     @Test
     public void getVerticesFlat() {
-        Hexagon hexagon = Hexagons.create(SIDE_LEN, 0.0, 0.0, Orientation.FLAT);
-        assertVertices(hexagon, SIDE_LEN, 0.0, 0.0, Orientation.FLAT);
+        Hexagon hexagon = Hexagons.create(0.0, 0.0, SIDE_LEN, Orientation.FLAT);
+        assertVertices(hexagon, 0.0, 0.0, SIDE_LEN, Orientation.FLAT);
     }
     
     @Test
     public void getVerticesAngled() {
-        Hexagon hexagon = Hexagons.create(SIDE_LEN, 0.0, 0.0, Orientation.ANGLED);
-        assertVertices(hexagon, SIDE_LEN, 0.0, 0.0, Orientation.ANGLED);
+        Hexagon hexagon = Hexagons.create(0.0, 0.0, SIDE_LEN, Orientation.ANGLED);
+        assertVertices(hexagon, 0.0, 0.0, SIDE_LEN, Orientation.ANGLED);
     }
 
     @Test
@@ -161,7 +161,7 @@ public class HexagonsTest extends HexagonTestBase {
         table.put(Orientation.ANGLED, angledShifts);
 
         for (Orientation o : Orientation.values()) {
-            Hexagon h0 = Hexagons.create(SIDE_LEN, 0.0, 0.0, o);
+            Hexagon h0 = Hexagons.create(0.0, 0.0, SIDE_LEN, o);
 
             for (Neighbor n : Neighbor.values()) {
                 boolean expectEx = !Hexagons.isValidNeighbor(o, n);
@@ -187,19 +187,32 @@ public class HexagonsTest extends HexagonTestBase {
     public void createLattice() throws Exception {
         final SimpleFeatureType TYPE = DataUtilities.createType("hextype", "hexagon:Polygon,id:Integer");
 
-        final Envelope bounds = new Envelope(0, 100, 0, 100);
+        final double SPAN = 100;
+        final Envelope bounds = new Envelope(0, SPAN, 0, SPAN);
 
-        AttributeSetter attributeSetter = new AttributeSetter(TYPE) {
-            private int id = 1;
+        class Setter extends AttributeSetter {
+            int id = 0;
 
-            public void setAttributes(GridElement h, Map<String, Object> attributes) {
-                attributes.put("id", id++);
+            public Setter(SimpleFeatureType type) {
+                super(type);
             }
-        };
 
-        SimpleFeatureCollection lattice = Hexagons.createGrid(bounds, SIDE_LEN, Orientation.FLAT, attributeSetter);
+            @Override
+            public void setAttributes(GridElement el, Map<String, Object> attributes) {
+                attributes.put("id", ++id);
+            }
+        }
 
+        Setter setter = new Setter(TYPE);
+
+        SimpleFeatureCollection lattice = Hexagons.createGrid(bounds, SIDE_LEN, Orientation.FLAT, setter);
         assertNotNull(lattice);
+
+        int expectedCols = (int) ((SPAN - 2 * SIDE_LEN) / (1.5 * SIDE_LEN)) + 1;
+        int expectedRows = (int) (SPAN / (Math.sqrt(3.0) * SIDE_LEN));
+        
+        assertEquals(expectedCols * expectedRows, setter.id);
+        assertEquals(setter.id, lattice.size());
     }
 
     private void assertNeighborVertices(Hexagon h0, Hexagon h1, double dx, double dy) {

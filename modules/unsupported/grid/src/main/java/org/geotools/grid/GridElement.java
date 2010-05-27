@@ -44,11 +44,20 @@ public interface GridElement {
     public Coordinate[] getVertices();
 
     /**
-     * Creates a new {@code Polygon} from the vertices of this
-     * grid element.
+     * Creates a new {@code Polygon} from this grid element.
      * 
      * @return a new {@code Polygon}
      */
     public Polygon toPolygon();
-    
+
+    /**
+     * Creates a new, densified {@code Polygon} from this grid element.
+     *
+     * @param maxSpacing the maximum distance between adjacent vertices
+     *
+     * @return a new {@code Polygon} with additional vertices on each edge
+     *
+     * @throws IllegalArgumentException if maxSpacing is {@code <=} 0
+     */
+    public Polygon toDensePolygon(double maxSpacing);
 }

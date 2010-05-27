@@ -21,6 +21,10 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygon;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+import org.geotools.grid.GridElement;
 
 import org.geotools.grid.hexagon.Hexagon.Orientation;
 
@@ -41,41 +45,27 @@ public class HexagonTest extends HexagonTestBase {
     public void getVerticesFlat() {
         double minx = 1.0;
         double miny = -1.0;
-        Hexagon hexagon = new HexagonImpl(SIDE_LEN, minx, miny, Orientation.FLAT);
+        GridElement hexagon = new HexagonImpl(minx, miny, SIDE_LEN, Orientation.FLAT);
 
-        assertVertices(hexagon, SIDE_LEN, minx, miny, Orientation.FLAT);
+        assertVertices(hexagon, minx, miny, SIDE_LEN, Orientation.FLAT);
     }
 
-    @Test
+    @Test(expected=IllegalArgumentException.class)
     public void badSideLen() throws Exception {
-        boolean gotEx = false;
-        try {
-            Hexagon h = new HexagonImpl(0.0, 0.0, 0.0, Orientation.FLAT);
-        } catch (IllegalArgumentException ex) {
-            gotEx = true;
-        }
-
-        assertTrue(gotEx);
+        GridElement h = new HexagonImpl(0.0, 0.0, 0.0, Orientation.FLAT);
     }
 
-    @Test
+    @Test(expected=IllegalArgumentException.class)
     public void badOrientation() throws Exception {
-        boolean gotEx = false;
-        try {
-            Hexagon h = new HexagonImpl(SIDE_LEN, 0.0, 0.0, null);
-        } catch (IllegalArgumentException ex) {
-            gotEx = true;
-        }
-
-        assertTrue(gotEx);
+        GridElement h = new HexagonImpl(0.0, 0.0, SIDE_LEN, null);
     }
 
     @Test
     public void getOrientation() {
-        Hexagon hexagon = new HexagonImpl(SIDE_LEN, 0.0, 0.0, Orientation.ANGLED);
+        Hexagon hexagon = new HexagonImpl(0.0, 0.0, SIDE_LEN, Orientation.ANGLED);
         assertEquals(Orientation.ANGLED, hexagon.getOrientation());
 
-        hexagon = new HexagonImpl(SIDE_LEN, 0.0, 0.0, Orientation.FLAT);
+        hexagon = new HexagonImpl(0.0, 0.0, SIDE_LEN, Orientation.FLAT);
         assertEquals(Orientation.FLAT, hexagon.getOrientation());
     }
 
@@ -83,14 +73,14 @@ public class HexagonTest extends HexagonTestBase {
     public void getVerticesAngled() {
         double minx = 1.0;
         double miny = -1.0;
-        Hexagon hexagon = new HexagonImpl(SIDE_LEN, minx, miny, Orientation.ANGLED);
+        GridElement hexagon = new HexagonImpl(minx, miny, SIDE_LEN, Orientation.ANGLED);
 
-        assertVertices(hexagon, SIDE_LEN, minx, miny, Orientation.ANGLED);
+        assertVertices(hexagon, minx, miny, SIDE_LEN, Orientation.ANGLED);
     }
 
     @Test
     public void getCenterFlat() throws Exception {
-        Hexagon hexagon = new HexagonImpl(SIDE_LEN, 0.0, 0.0, Orientation.FLAT);
+        GridElement hexagon = new HexagonImpl(0.0, 0.0, SIDE_LEN, Orientation.FLAT);
         Coordinate expected = new Coordinate(SIDE_LEN, 0.5 * Math.sqrt(3.0) * SIDE_LEN);
         Coordinate result = hexagon.getCenter();
 
@@ -99,7 +89,7 @@ public class HexagonTest extends HexagonTestBase {
 
     @Test
     public void getCenterAngled() {
-        Hexagon hexagon = new HexagonImpl(SIDE_LEN, 0.0, 0.0, Orientation.ANGLED);
+        GridElement hexagon = new HexagonImpl(0.0, 0.0, SIDE_LEN, Orientation.ANGLED);
         Coordinate expected = new Coordinate(0.5 * Math.sqrt(3.0) * SIDE_LEN, SIDE_LEN);
         Coordinate result = hexagon.getCenter();
 
@@ -108,7 +98,7 @@ public class HexagonTest extends HexagonTestBase {
 
     @Test
     public void getBoundsFlat() {
-        Hexagon hexagon = new HexagonImpl(SIDE_LEN, 0.0, 0.0, Orientation.FLAT);
+        GridElement hexagon = new HexagonImpl(0.0, 0.0, SIDE_LEN, Orientation.FLAT);
 
         Envelope expected = new Envelope(
                 0.0,
@@ -123,7 +113,7 @@ public class HexagonTest extends HexagonTestBase {
 
     @Test
     public void getBoundsAngled() {
-        Hexagon hexagon = new HexagonImpl(SIDE_LEN, 0.0, 0.0, Orientation.ANGLED);
+        GridElement hexagon = new HexagonImpl(0.0, 0.0, SIDE_LEN, Orientation.ANGLED);
 
         Envelope expected = new Envelope(
                 0.0,
@@ -138,10 +128,28 @@ public class HexagonTest extends HexagonTestBase {
 
     @Test
     public void toPolygon() {
-        Hexagon hexagon = Hexagons.create(SIDE_LEN, 0.0, 0.0, Orientation.FLAT);
+        GridElement hexagon = new HexagonImpl(0.0, 0.0, SIDE_LEN, Orientation.FLAT);
         Geometry polygon = hexagon.toPolygon();
         assertNotNull(polygon);
         assertTrue(polygon instanceof Polygon);
+
+        Set<Coordinate> polyCoords = new HashSet<Coordinate>(Arrays.asList(polygon.getCoordinates()));
+        for (Coordinate c : hexagon.getVertices()) {
+            assertTrue(polyCoords.contains(c));
+        }
+    }
+
+    @Test
+    public void toDensePolygon() {
+        GridElement hexagon = new HexagonImpl(0.0, 0.0, SIDE_LEN, Orientation.FLAT);
+
+        final int density = 10;
+        final double maxSpacing = SIDE_LEN / density;
+
+        Geometry polygon = hexagon.toDensePolygon(maxSpacing);
+        assertNotNull(polygon);
+        assertTrue(polygon instanceof Polygon);
+        assertTrue(polygon.getCoordinates().length - 1 >= 6 * density);
     }
 
 }

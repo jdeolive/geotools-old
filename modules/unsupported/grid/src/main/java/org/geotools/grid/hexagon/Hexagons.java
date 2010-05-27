@@ -26,7 +26,8 @@ import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.grid.AttributeSetter;
-import org.geotools.grid.hexagon.Hexagon.Neighbor;
+import org.geotools.grid.GridElement;
+import org.geotools.grid.Neighbor;
 import org.geotools.grid.hexagon.Hexagon.Orientation;
 
 /**
@@ -76,11 +77,11 @@ public class Hexagons {
     /**
      * Creates a new {@code Hexagon} object.
      *
-     * @param sideLen the side length
-     *
      * @param minX the min X ordinate of the bounding rectangle
      *
      * @param minY the min Y ordinate of the bounding rectangle
+     *
+     * @param sideLen the side length
      *
      * @param orientation either {@code Hexagon.Orientation.FLAT} or
      *        {@code Hexagon.Orientation.ANGLED}
@@ -90,15 +91,15 @@ public class Hexagons {
      * @throws IllegalArgumentException if {@code sideLen} is {@code <=} 0 or
      *         if {@code orientation} is {@code null}
      */
-    public static Hexagon create(double sideLen, double minX, double minY, Orientation orientation) {
-        return new HexagonImpl(sideLen, minX, minY, orientation);
+    public static Hexagon create(double minX, double minY, double sideLen, Orientation orientation) {
+        return new HexagonImpl(minX, minY, sideLen, orientation);
     }
 
     /**
      * Creates a new {@code Hexagon} positioned at the given neighbor position
-     * relative to the reference hexagon.
+     * relative to the reference element.
      *
-     * @param hexagon the reference hexagon
+     * @param el the reference hexagon
      *
      * @param neighbor a valid neighbour position given the reference hexagon's
      *        orientation
@@ -106,16 +107,23 @@ public class Hexagons {
      * @return a new {@code Hexagon} object
      *
      * @throws IllegalArgumentException if either argument is {@code null} or
+     *         if {@code el} is not an instance of {@code Hexagon} or
      *         if the neighbor position is not valid for the reference hexagon's
      *         orientation
      *
      * @see #isValidNeighbor(Hexagon.Orientation, Hexagon.Neighbor)
      */
-    public static Hexagon createNeighbor(Hexagon hexagon, Hexagon.Neighbor neighbor) {
-        if (hexagon == null || neighbor == null) {
+    public static Hexagon createNeighbor(GridElement el, Neighbor neighbor) {
+        if (el == null || neighbor == null) {
             throw new IllegalArgumentException(
-                    "hexagon and neighbour position must both be non-null");
+                    "el and neighbour position must both be non-null");
         }
+
+        if (!(el instanceof Hexagon)) {
+            throw new IllegalArgumentException("el must be an instance of Hexagon");
+        }
+
+        Hexagon hexagon = (Hexagon) el;
 
         if (!isValidNeighbor(hexagon.getOrientation(), neighbor)) {
             throw new IllegalArgumentException(
@@ -190,9 +198,8 @@ public class Hexagons {
                 throw new IllegalArgumentException("Unrecognized value for neighbor");
         }
 
-        return create(hexagon.getSideLength(),
-                bounds.getMinX() + dx, bounds.getMinY() + dy,
-                hexagon.getOrientation());
+        return create(bounds.getMinX() + dx, bounds.getMinY() + dy,
+                hexagon.getSideLength(), hexagon.getOrientation());
     }
 
     /**
@@ -239,9 +246,9 @@ public class Hexagons {
      *
      * @param orientation hexagon orientation
      *
-     * @param setter
+     * @param setter an instance of {@code AttributeSetter}
      *
-     * @return
+     * @return a new grid
      */
     public static SimpleFeatureCollection createGrid(
             Envelope bounds,
@@ -256,7 +263,7 @@ public class Hexagons {
         final double ySpan = orientation == Orientation.ANGLED ? 2.0 * sideLen : Math.sqrt(3.0) * sideLen; 
         final double xSpan = orientation == Orientation.ANGLED ? Math.sqrt(3.0) * sideLen : 2.0 * sideLen; 
 
-        Hexagon h0 = create(sideLen, bounds.getMinX(), bounds.getMinY(), orientation);
+        Hexagon h0 = create(bounds.getMinX(), bounds.getMinY(), sideLen, orientation);
         Hexagon h = h0;
         
         Neighbor[] nextX = new Neighbor[2];

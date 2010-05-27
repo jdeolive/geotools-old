@@ -17,6 +17,7 @@
 
 package org.geotools.grid.hexagon;
 
+import com.vividsolutions.jts.densify.Densifier;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -47,16 +48,16 @@ public class HexagonImpl implements Hexagon {
     /**
      * Creates a new hexagon.
      *
-     * @param sideLen the side length
-     *
      * @param minX the min X ordinate of the bounding rectangle
      *
      * @param minY the min Y ordinate of the bounding rectangle
      *
+     * @param sideLen the side length
+     *
      * @param orientation either {@code Hexagon.Orientation.FLAT} or
      *        {@code Hexagon.Orientation.ANGLED}
      */
-    public HexagonImpl(double sideLen, double minX, double minY, Orientation orientation) {
+    public HexagonImpl(double minX, double minY, double sideLen, Orientation orientation) {
         if (sideLen <= 0.0) {
             throw new IllegalArgumentException("side length must be > 0");
         }
@@ -141,6 +142,13 @@ public class HexagonImpl implements Hexagon {
         ring[6] = vertices[0];
 
         return geomFactory.createPolygon(geomFactory.createLinearRing(ring), null);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Polygon toDensePolygon(double maxSpacing) {
+        return (Polygon) Densifier.densify(this.toPolygon(), maxSpacing);
     }
 
     /**

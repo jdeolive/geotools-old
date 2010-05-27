@@ -18,7 +18,8 @@
 package org.geotools.grid.hexagon;
 
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
+import org.geotools.grid.GridElement;
+import org.geotools.grid.TestBase;
 
 import static org.junit.Assert.*;
 
@@ -30,15 +31,16 @@ import static org.junit.Assert.*;
  * @source $URL$
  * @version $Id$
  */
-public class HexagonTestBase {
-
-    protected static final double TOL = 1.0E-8d;
-
+public class HexagonTestBase extends TestBase {
+    
     protected final double SIDE_LEN = 1.0;
     protected final double AREA = Math.sqrt(3.0) * 1.5;
 
-    protected void assertVertices(Hexagon hexagon,
-            double sideLen, double minx, double miny, Hexagon.Orientation orientation) {
+    protected void assertVertices(GridElement hexagon,
+            double minx, double miny, double sideLen, Hexagon.Orientation orientation) {
+
+        assertTrue("error in test code", hexagon instanceof Hexagon);
+
         // expected results
         final double span = Math.sqrt(3.0) * sideLen;
         Coordinate[] expected = new Coordinate[6];
@@ -64,24 +66,6 @@ public class HexagonTestBase {
 
         for (int i = 0; i < vertices.length; i++) {
             assertCoordinate(expected[i], vertices[i]);
-        }
-    }
-
-    protected void assertEnvelope(Envelope expected, Envelope actual) {
-        assertEquals((expected == null), (actual == null));
-        if (expected != null) {
-            assertEquals(expected.getMinX(), actual.getMinX(), TOL);
-            assertEquals(expected.getMinY(), actual.getMinY(), TOL);
-            assertEquals(expected.getMaxX(), actual.getMaxX(), TOL);
-            assertEquals(expected.getMaxY(), actual.getMaxY(), TOL);
-        }
-    }
-
-    protected void assertCoordinate(Coordinate expected, Coordinate actual) {
-        assertEquals((expected == null), (actual == null));
-        if (expected != null) {
-            assertEquals(expected.x, actual.x, TOL);
-            assertEquals(expected.y, actual.y, TOL);
         }
     }
 

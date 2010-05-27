@@ -60,35 +60,6 @@ public interface Hexagon extends GridElement {
     }
 
     /**
-     * Neighbour positions
-     */
-    public static enum Neighbor {
-        /** Upper neighbour; only applicable for {@code Orientation#FLAT} */
-        UPPER,
-
-        /** Upper left neighbour; applicable to both orientations */
-        UPPER_LEFT,
-
-        /** Upper right neighbour; applicable to both orientations */
-        UPPER_RIGHT,
-
-        /** Lower neighbour; only applicable for {@code Orientation#FLAT} */
-        LOWER,
-
-        /** Lower left neighbour; applicable to both orientations */
-        LOWER_LEFT,
-
-        /** Lower right neighbour; applicable to both orientations */
-        LOWER_RIGHT,
-
-        /** Left neighbour; only applicable for {@code Orientation#ANGLED} */
-        LEFT,
-
-        /** Right neighbour; only applicable for {@code Orientation#ANGLED} */
-        RIGHT;
-    }
-
-    /**
      * Gets the side length of this hexagon.
      *
      * @return side length
