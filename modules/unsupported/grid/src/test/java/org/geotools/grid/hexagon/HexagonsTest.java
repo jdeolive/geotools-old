@@ -184,7 +184,7 @@ public class HexagonsTest extends HexagonTestBase {
     }
 
     @Test
-    public void createLattice() throws Exception {
+    public void createGrid() throws Exception {
         final SimpleFeatureType TYPE = DataUtilities.createType("hextype", "hexagon:Polygon,id:Integer");
 
         final double SPAN = 100;
@@ -205,14 +205,14 @@ public class HexagonsTest extends HexagonTestBase {
 
         Setter setter = new Setter(TYPE);
 
-        SimpleFeatureCollection lattice = Hexagons.createGrid(bounds, SIDE_LEN, Orientation.FLAT, setter);
-        assertNotNull(lattice);
+        SimpleFeatureCollection grid = Hexagons.createGrid(bounds, SIDE_LEN, Orientation.FLAT, setter);
+        assertNotNull(grid);
 
         int expectedCols = (int) ((SPAN - 2 * SIDE_LEN) / (1.5 * SIDE_LEN)) + 1;
         int expectedRows = (int) (SPAN / (Math.sqrt(3.0) * SIDE_LEN));
         
         assertEquals(expectedCols * expectedRows, setter.id);
-        assertEquals(setter.id, lattice.size());
+        assertEquals(setter.id, grid.size());
     }
 
     private void assertNeighborVertices(Hexagon h0, Hexagon h1, double dx, double dy) {

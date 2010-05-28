@@ -32,7 +32,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- * Unit tests for the Hexagon class.
+ * Unit tests for the Oblong class.
  *
  * @author mbedward
  * @since 2.7
