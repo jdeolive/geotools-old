@@ -70,11 +70,9 @@
      <!-- Selected classes will be moved out of these to the -->
      <!-- new module prior to discarding them                -->
      <profile>
-       <id>swing-archive</id>
+       <id>archive</id>
        <modules>
          <module>ogr</module>
-         <module>widgets-swing</module>
-         <module>widgets-swing-pending</module>
        </modules>
      </profile>
 
