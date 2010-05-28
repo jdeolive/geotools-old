@@ -208,8 +208,12 @@ public class FontCache {
     /**
      * Resets the font loading cache. If any font was manually registered, it will have to be registered again
      */
-    public void resetCache() {
-        fontFamilies.clear();
-        loadedFonts.clear();
+    public synchronized void resetCache() {
+        if(fontFamilies != null) {
+            fontFamilies.clear();
+        }
+        if(loadedFonts != null) {
+            loadedFonts.clear();
+        }
     }
 }
