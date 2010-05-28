@@ -38,8 +38,8 @@ import static org.junit.Assert.*;
  *
  * @author mbedward
  * @since 2.7
- * @source $URL: http://svn.osgeo.org/geotools/trunk/modules/unsupported/grid/src/test/java/org/geotools/grid/oblong/OblongTest.java $
- * @version $Id: OblongTest.java 35619 2010-05-27 15:06:34Z mbedward $
+ * @source $URL$
+ * @version $Id$
  */
 public class OblongsTest extends TestBase {
 
