@@ -5,16 +5,20 @@
 
 package org.geotools.grid.oblong;
 
-import com.vividsolutions.jts.geom.Envelope;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.vividsolutions.jts.geom.Envelope;
 
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.grid.AttributeSetter;
 import org.geotools.grid.GridElement;
 import org.geotools.grid.Neighbor;
+
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 /**
  *
@@ -33,13 +37,16 @@ public class Oblongs {
      *
      * @param height the height
      *
+     * @param crs the coordinate reference system (may be {@code null})
+     *
      * @return a new {@code Oblong} object
      *
      * @throws IllegalArgumentException if either {@code width} or {@code height}
      *         are {@code <=} 0
      */
-    public static Oblong create(double minX, double minY, double width, double height) {
-        return new OblongImpl(minX, minY, width, height);
+    public static Oblong create(double minX, double minY, double width, double height,
+            CoordinateReferenceSystem crs) {
+        return new OblongImpl(minX, minY, width, height, crs);
     }
 
     /**
@@ -66,9 +73,9 @@ public class Oblongs {
         }
 
         Oblong oblong = (Oblong) el;
-
-        Envelope bounds = oblong.getBounds();
+        ReferencedEnvelope bounds = oblong.getBounds();
         double dx, dy;
+
         switch (neighbor) {
             case LEFT:
                 dx = -bounds.getWidth();
@@ -115,12 +122,15 @@ public class Oblongs {
         }
 
         return create(bounds.getMinX() + dx, bounds.getMinY() + dy,
-                bounds.getWidth(), bounds.getHeight());
+                bounds.getWidth(), bounds.getHeight(),
+                bounds.getCoordinateReferenceSystem());
 
     }
 
     /**
-     * Creates a new grid of oblongs within a bounding rectangle.
+     * Creates a new grid of oblongs within a bounding rectangle with grid elements
+     * represented by densified polygons (ie. additional vertices added to each
+     * edge).
      *
      * @param bounds the bounding rectangle
      *
@@ -128,26 +138,39 @@ public class Oblongs {
      *
      * @param height oblong height
      *
+     * @param vertexSpacing maximum distance between adjacent vertices in a grid
+     *        element; if {@code <= 0} or {@code >= min(width, height) / 2.0} it
+     *        is ignored and the polygons will not be densified
+     *
      * @param setter an instance of {@code AttributeSetter}
      *
      * @return a new grid
      */
-    public static SimpleFeatureCollection createGrid(Envelope bounds, double width, double height, AttributeSetter setter) {
+    public static SimpleFeatureCollection createGrid(ReferencedEnvelope bounds, 
+            double width, double height, double vertexSpacing, AttributeSetter setter) {
 
         final SimpleFeatureCollection fc = FeatureCollections.newCollection();
         final SimpleFeatureBuilder builder = new SimpleFeatureBuilder(setter.getType());
         String geomPropName = setter.getType().getGeometryDescriptor().getLocalName();
 
-        Oblong el0 = create(bounds.getMinX(), bounds.getMinY(), width, height);
+        final boolean densify =
+                vertexSpacing > 0.0 && vertexSpacing < Math.min(width, height);
+
+        Oblong el0 = create(bounds.getMinX(), bounds.getMinY(), width, height,
+                bounds.getCoordinateReferenceSystem());
         Oblong el = el0;
 
         while (el.getBounds().getMinY() <= bounds.getMaxY()) {
             while (el.getBounds().getMaxX() <= bounds.getMaxX()) {
-                if (bounds.contains(el.getBounds())) {
+                if (((Envelope)bounds).contains(el.getBounds())) {
                     Map<String, Object> attrMap = new HashMap<String, Object>();
                     setter.setAttributes(el, attrMap);
 
-                    builder.set(geomPropName, el.toPolygon());
+                    if (densify) {
+                        builder.set(geomPropName, el.toDensePolygon(vertexSpacing));
+                    } else {
+                        builder.set(geomPropName, el.toPolygon());
+                    }
                     for (String propName : attrMap.keySet()) {
                         builder.set(propName, attrMap.get(propName));
                     }
@@ -163,6 +186,30 @@ public class Oblongs {
         }
 
         return fc;
+    }
+
+
+    /**
+     * Creates a new grid of oblongs within a bounding rectangle with grid elements
+     * represented by simple (ie. undensified) polygons.
+     *
+     * @param bounds the bounding rectangle
+     *
+     * @param width oblong width
+     *
+     * @param height oblong height
+     *
+     * @param vertexSpacing maximum distance between adjacent vertices in a grid
+     *        element; if {@code <= 0} or {@code >= min(width, height) / 2.0} it
+     *        is ignored and the polygons will not be densified
+     *
+     * @param setter an instance of {@code AttributeSetter}
+     *
+     * @return a new grid
+     */
+    public static SimpleFeatureCollection createGrid(ReferencedEnvelope bounds,
+            double width, double height, AttributeSetter setter) {
+        return createGrid(bounds, width, height, -1.0, setter);
     }
 
 }

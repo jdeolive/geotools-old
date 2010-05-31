@@ -25,10 +25,13 @@ import com.vividsolutions.jts.geom.Envelope;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.grid.AttributeSetter;
 import org.geotools.grid.GridElement;
 import org.geotools.grid.Neighbor;
 import org.geotools.grid.hexagon.Hexagon.Orientation;
+
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 /**
  * A utilities class with static methods to create and work with {@code Hexagons}.
@@ -86,13 +89,16 @@ public class Hexagons {
      * @param orientation either {@code Hexagon.Orientation.FLAT} or
      *        {@code Hexagon.Orientation.ANGLED}
      *
+     * @param crs the coordinate reference system (may be {@code null})
+     *
      * @return a new {@code Hexagon} object
      *
      * @throws IllegalArgumentException if {@code sideLen} is {@code <=} 0 or
      *         if {@code orientation} is {@code null}
      */
-    public static Hexagon create(double minX, double minY, double sideLen, Orientation orientation) {
-        return new HexagonImpl(minX, minY, sideLen, orientation);
+    public static Hexagon create(double minX, double minY, double sideLen,
+            Orientation orientation, CoordinateReferenceSystem crs) {
+        return new HexagonImpl(minX, minY, sideLen, orientation, crs);
     }
 
     /**
@@ -131,8 +137,9 @@ public class Hexagons {
                     hexagon.getOrientation());
         }
 
-        Envelope bounds = hexagon.getBounds();
+        ReferencedEnvelope bounds = hexagon.getBounds();
         double dx, dy;
+
         switch (neighbor) {
             case LEFT:
                 dx = -bounds.getWidth();
@@ -199,7 +206,8 @@ public class Hexagons {
         }
 
         return create(bounds.getMinX() + dx, bounds.getMinY() + dy,
-                hexagon.getSideLength(), hexagon.getOrientation());
+                hexagon.getSideLength(), hexagon.getOrientation(),
+                bounds.getCoordinateReferenceSystem());
     }
 
     /**
@@ -251,7 +259,7 @@ public class Hexagons {
      * @return a new grid
      */
     public static SimpleFeatureCollection createGrid(
-            Envelope bounds,
+            ReferencedEnvelope bounds,
             double sideLen,
             Orientation orientation,
             AttributeSetter setter) {
@@ -263,7 +271,8 @@ public class Hexagons {
         final double ySpan = orientation == Orientation.ANGLED ? 2.0 * sideLen : Math.sqrt(3.0) * sideLen; 
         final double xSpan = orientation == Orientation.ANGLED ? Math.sqrt(3.0) * sideLen : 2.0 * sideLen; 
 
-        Hexagon h0 = create(bounds.getMinX(), bounds.getMinY(), sideLen, orientation);
+        Hexagon h0 = create(bounds.getMinX(), bounds.getMinY(), sideLen, 
+                orientation, bounds.getCoordinateReferenceSystem());
         Hexagon h = h0;
         
         Neighbor[] nextX = new Neighbor[2];
@@ -284,7 +293,7 @@ public class Hexagons {
 
         while (h.getBounds().getMinY() <= bounds.getMaxY()) {
             while (h.getBounds().getMaxX() <= bounds.getMaxX()) {
-                if (bounds.contains(h.getBounds())) {
+                if (((Envelope)bounds).contains(h.getBounds())) {
                     Map<String, Object> attrMap = new HashMap<String, Object>();
                     setter.setAttributes(h, attrMap);
 

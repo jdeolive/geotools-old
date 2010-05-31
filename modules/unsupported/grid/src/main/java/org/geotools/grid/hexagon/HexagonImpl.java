@@ -19,11 +19,13 @@ package org.geotools.grid.hexagon;
 
 import com.vividsolutions.jts.densify.Densifier;
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
 
 import org.geotools.geometry.jts.JTSFactoryFinder;
+import org.geotools.geometry.jts.ReferencedEnvelope;
+
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 /**
  * Default implementation of {@code Hexagon}.
@@ -44,6 +46,7 @@ public class HexagonImpl implements Hexagon {
     private final double minY;
     private final Orientation orientation;
     private Coordinate[] vertices;
+    private final CoordinateReferenceSystem crs;
 
     /**
      * Creates a new hexagon.
@@ -56,8 +59,12 @@ public class HexagonImpl implements Hexagon {
      *
      * @param orientation either {@code Hexagon.Orientation.FLAT} or
      *        {@code Hexagon.Orientation.ANGLED}
+     *
+     * @param crs the coordinate reference system (may be {@code null})
      */
-    public HexagonImpl(double minX, double minY, double sideLen, Orientation orientation) {
+    public HexagonImpl(double minX, double minY, double sideLen, 
+            Orientation orientation, CoordinateReferenceSystem crs) {
+
         if (sideLen <= 0.0) {
             throw new IllegalArgumentException("side length must be > 0");
         }
@@ -70,6 +77,7 @@ public class HexagonImpl implements Hexagon {
         this.minX = minX;
         this.minY = minY;
         this.orientation = orientation;
+        this.crs = crs;
 
         this.area = Hexagons.sideLengthToArea(sideLen);
         calculateVertices();
@@ -112,11 +120,18 @@ public class HexagonImpl implements Hexagon {
     /**
      * {@inheritDoc}
      */
-    public Envelope getBounds() {
+    public ReferencedEnvelope getBounds() {
         if (orientation == Orientation.FLAT) {
-            return new Envelope(minX, minX + 2.0 * sideLen, minY, minY + ROOT3 * sideLen);
+            return new ReferencedEnvelope(
+                    minX, minX + 2.0 * sideLen,
+                    minY, minY + ROOT3 * sideLen,
+                    crs);
+
         } else {  // ANGLED
-            return new Envelope(minX, minX + ROOT3 * sideLen, minY, minY + 2.0 * sideLen);
+            return new ReferencedEnvelope(
+                    minX, minX + ROOT3 * sideLen,
+                    minY, minY + 2.0 * sideLen,
+                    crs);
         }
     }
 
@@ -146,8 +161,14 @@ public class HexagonImpl implements Hexagon {
 
     /**
      * {@inheritDoc}
+     *
+     * @throws IllegalArgumentException if {@code maxSpacing} is not a positive value
      */
     public Polygon toDensePolygon(double maxSpacing) {
+        if (maxSpacing <= 0.0) {
+            throw new IllegalArgumentException("maxSpacing must be a positive value");
+        }
+        
         return (Polygon) Densifier.densify(this.toPolygon(), maxSpacing);
     }
 

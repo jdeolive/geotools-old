@@ -20,12 +20,12 @@ package org.geotools.grid.example;
 import java.awt.Color;
 import java.util.Map;
 
-import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Polygon;
 
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.grid.AttributeSetter;
 import org.geotools.grid.GridElement;
 import org.geotools.grid.oblong.Oblongs;
@@ -59,7 +59,7 @@ public class OblongExample {
         typeBuilder.add("color", Color.class);
         final SimpleFeatureType TYPE = typeBuilder.buildFeatureType();
 
-        final Envelope bounds = new Envelope(0, 100, 0, 100);
+        final ReferencedEnvelope bounds = new ReferencedEnvelope(0, 100, 0, 100, null);
 
         AttributeSetter attributeSetter = new AttributeSetter(TYPE) {
             public void setAttributes(GridElement el, Map<String, Object> attributes) {

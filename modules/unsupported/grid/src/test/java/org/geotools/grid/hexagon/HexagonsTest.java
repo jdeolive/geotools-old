@@ -21,10 +21,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
 
 import org.geotools.data.DataUtilities;
 import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.grid.AttributeSetter;
 import org.geotools.grid.GridElement;
 import org.geotools.grid.Neighbor;
@@ -67,19 +67,19 @@ public class HexagonsTest extends HexagonTestBase {
 
     @Test
     public void createHexagon() {
-        Hexagon hexagon = Hexagons.create(0.0, 0.0, SIDE_LEN, Orientation.FLAT);
+        Hexagon hexagon = Hexagons.create(0.0, 0.0, SIDE_LEN, Orientation.FLAT, null);
         assertNotNull(hexagon);
     }
 
     @Test
     public void getVerticesFlat() {
-        Hexagon hexagon = Hexagons.create(0.0, 0.0, SIDE_LEN, Orientation.FLAT);
+        Hexagon hexagon = Hexagons.create(0.0, 0.0, SIDE_LEN, Orientation.FLAT, null);
         assertVertices(hexagon, 0.0, 0.0, SIDE_LEN, Orientation.FLAT);
     }
     
     @Test
     public void getVerticesAngled() {
-        Hexagon hexagon = Hexagons.create(0.0, 0.0, SIDE_LEN, Orientation.ANGLED);
+        Hexagon hexagon = Hexagons.create(0.0, 0.0, SIDE_LEN, Orientation.ANGLED, null);
         assertVertices(hexagon, 0.0, 0.0, SIDE_LEN, Orientation.ANGLED);
     }
 
@@ -161,7 +161,7 @@ public class HexagonsTest extends HexagonTestBase {
         table.put(Orientation.ANGLED, angledShifts);
 
         for (Orientation o : Orientation.values()) {
-            Hexagon h0 = Hexagons.create(0.0, 0.0, SIDE_LEN, o);
+            Hexagon h0 = Hexagons.create(0.0, 0.0, SIDE_LEN, o, null);
 
             for (Neighbor n : Neighbor.values()) {
                 boolean expectEx = !Hexagons.isValidNeighbor(o, n);
@@ -188,7 +188,7 @@ public class HexagonsTest extends HexagonTestBase {
         final SimpleFeatureType TYPE = DataUtilities.createType("hextype", "hexagon:Polygon,id:Integer");
 
         final double SPAN = 100;
-        final Envelope bounds = new Envelope(0, SPAN, 0, SPAN);
+        final ReferencedEnvelope bounds = new ReferencedEnvelope(0, SPAN, 0, SPAN, null);
 
         class Setter extends AttributeSetter {
             int id = 0;

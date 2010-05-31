@@ -14,23 +14,25 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
+
 package org.geotools.grid.oblong;
 
-import com.vividsolutions.jts.geom.Coordinate;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Coordinate;
+
 import org.geotools.data.DataUtilities;
 import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.grid.AttributeSetter;
-
 import org.geotools.grid.GridElement;
 import org.geotools.grid.Neighbor;
 import org.geotools.grid.TestBase;
 
-import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeatureType;
+
+import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
@@ -45,19 +47,19 @@ public class OblongsTest extends TestBase {
 
     @Test
     public void create() {
-        GridElement oblong = Oblongs.create(1, 2, 3, 4);
+        GridElement oblong = Oblongs.create(1, 2, 3, 4, null);
         assertNotNull(oblong);
-        assertEnvelope(new Envelope(1, 4, 2, 6), oblong.getBounds());
+        assertEnvelope(new ReferencedEnvelope(1, 4, 2, 6, null), oblong.getBounds());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void badWidth() {
-        Oblongs.create(1, 2, -1, 4);
+        Oblongs.create(1, 2, -1, 4, null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void badHeight() {
-        Oblongs.create(1, 2, 3, -1);
+        Oblongs.create(1, 2, 3, -1, null);
     }
 
     @Test
@@ -88,7 +90,7 @@ public class OblongsTest extends TestBase {
         shifts.put(Neighbor.UPPER_LEFT, new Shift(-WIDTH, HEIGHT));
         shifts.put(Neighbor.UPPER_RIGHT, new Shift(WIDTH, HEIGHT));
 
-        Oblong oblong = Oblongs.create(0.0, 0.0, WIDTH, HEIGHT);
+        Oblong oblong = Oblongs.create(0.0, 0.0, WIDTH, HEIGHT, null);
 
         for (Neighbor n : Neighbor.values()) {
             neighbor = Oblongs.createNeighbor(oblong, n);
@@ -104,7 +106,7 @@ public class OblongsTest extends TestBase {
         final SimpleFeatureType TYPE = DataUtilities.createType("obtype", "oblong:Polygon,id:Integer");
 
         final double SPAN = 100;
-        final Envelope bounds = new Envelope(0, SPAN, 0, SPAN);
+        final ReferencedEnvelope bounds = new ReferencedEnvelope(0, SPAN, 0, SPAN, null);
 
         class Setter extends AttributeSetter {
             int id = 0;

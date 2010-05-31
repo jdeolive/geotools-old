@@ -19,11 +19,13 @@ package org.geotools.grid.oblong;
 
 import com.vividsolutions.jts.densify.Densifier;
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
 
 import org.geotools.geometry.jts.JTSFactoryFinder;
+import org.geotools.geometry.jts.ReferencedEnvelope;
+
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 /**
  * Default implementation of {@code Oblong}.
@@ -36,16 +38,16 @@ import org.geotools.geometry.jts.JTSFactoryFinder;
 public class OblongImpl implements Oblong {
 
     private static final GeometryFactory geomFactory = JTSFactoryFinder.getGeometryFactory(null);
-    private final Envelope envelope;
+    private final ReferencedEnvelope envelope;
 
     /**
      * Creates a new oblong.
      */
-    public OblongImpl(double minX, double minY, double width, double height) {
+    public OblongImpl(double minX, double minY, double width, double height, CoordinateReferenceSystem crs) {
         if (width <=0 || height <= 0) {
             throw new IllegalArgumentException("width and height must both be positive");
         }
-        envelope = new Envelope(minX, minX + width, minY, minY + height);
+        envelope = new ReferencedEnvelope(minX, minX + width, minY, minY + height, crs);
     }
 
     /**
@@ -58,8 +60,8 @@ public class OblongImpl implements Oblong {
     /**
      * {@inheritDoc}
      */
-    public Envelope getBounds() {
-        return new Envelope(envelope);
+    public ReferencedEnvelope getBounds() {
+        return new ReferencedEnvelope(envelope);
     }
 
     /**

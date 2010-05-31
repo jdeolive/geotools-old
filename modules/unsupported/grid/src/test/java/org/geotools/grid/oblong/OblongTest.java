@@ -47,53 +47,53 @@ public class OblongTest extends TestBase {
 
     @Test
     public void createValid() {
-        GridElement oblong = new OblongImpl(0, 0, WIDTH, HEIGHT);
+        GridElement oblong = new OblongImpl(0, 0, WIDTH, HEIGHT, null);
         assertNotNull(oblong);
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void negativeWidth() {
-        GridElement oblong = new OblongImpl(0, 0, -1, HEIGHT);
+        GridElement oblong = new OblongImpl(0, 0, -1, HEIGHT, null);
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void zeroWidth() {
-        GridElement oblong = new OblongImpl(0, 0, 0, HEIGHT);
+        GridElement oblong = new OblongImpl(0, 0, 0, HEIGHT, null);
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void negativeHeight() {
-        GridElement oblong = new OblongImpl(0, 0, WIDTH, -1);
+        GridElement oblong = new OblongImpl(0, 0, WIDTH, -1, null);
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void zeroHeight() {
-        GridElement oblong = new OblongImpl(0, 0, WIDTH, 0);
+        GridElement oblong = new OblongImpl(0, 0, WIDTH, 0, null);
     }
 
     @Test
     public void getArea() {
-        GridElement oblong = new OblongImpl(MINX, MINY, WIDTH, HEIGHT);
+        GridElement oblong = new OblongImpl(MINX, MINY, WIDTH, HEIGHT, null);
         double expected = WIDTH * HEIGHT;
         assertEquals(expected, oblong.getArea(), TOL);
     }
 
     @Test
     public void getBounds() {
-        GridElement oblong = new OblongImpl(MINX, MINY, WIDTH, HEIGHT);
+        GridElement oblong = new OblongImpl(MINX, MINY, WIDTH, HEIGHT, null);
         assertEnvelope(new Envelope(-10, WIDTH - 10, -5, HEIGHT - 5), oblong.getBounds());
     }
 
     @Test
     public void getCenter() {
-        GridElement oblong = new OblongImpl(MINX, MINY, WIDTH, HEIGHT);
+        GridElement oblong = new OblongImpl(MINX, MINY, WIDTH, HEIGHT, null);
         Coordinate expected = new Coordinate(WIDTH/2 + MINX, HEIGHT/2 + MINY);
         assertCoordinate(expected, oblong.getCenter());
     }
 
     @Test
     public void getVertices() {
-        GridElement oblong = new OblongImpl(MINX, MINY, WIDTH, HEIGHT);
+        GridElement oblong = new OblongImpl(MINX, MINY, WIDTH, HEIGHT, null);
         Coordinate[] expected = {
             new Coordinate(MINX, MINY),
             new Coordinate(MINX, MINY + HEIGHT),
@@ -110,7 +110,7 @@ public class OblongTest extends TestBase {
 
     @Test
     public void toPolygon() {
-        GridElement oblong = new OblongImpl(MINX, MINY, WIDTH, HEIGHT);
+        GridElement oblong = new OblongImpl(MINX, MINY, WIDTH, HEIGHT, null);
         Geometry polygon = oblong.toPolygon();
         assertNotNull(polygon);
         assertTrue(polygon instanceof Polygon);
@@ -123,7 +123,7 @@ public class OblongTest extends TestBase {
 
     @Test
     public void toDensePolygon() {
-        GridElement oblong = new OblongImpl(0, 0, WIDTH, HEIGHT);
+        GridElement oblong = new OblongImpl(0, 0, WIDTH, HEIGHT, null);
 
         final int density = 10;
         final double maxSpacing = Math.min(WIDTH, HEIGHT) / density;
