@@ -78,7 +78,7 @@ public class ThreadedH2EpsgFactory extends ThreadedEpsgFactory {
      * additional minor version number if there is some changes related to the EPSG-H2
      * plugin rather then the EPSG database itself (for example additional database index).
      */
-    public static final Version VERSION = new Version("7.4.0");
+    public static final Version VERSION = new Version("7.5.0");
     
     /**
      * The name of the ZIP file to read in order to create the cached database.
