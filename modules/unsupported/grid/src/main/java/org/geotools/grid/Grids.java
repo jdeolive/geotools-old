@@ -94,7 +94,7 @@ public class Grids {
     public static SimpleFeatureCollection createSquareGrid(
             ReferencedEnvelope bounds, double sideLen, double vertexSpacing) {
         return Oblongs.createGrid(bounds, sideLen, sideLen, vertexSpacing,
-                new IdAttributeSetter());
+                new IdAttributeSetter(bounds.getCoordinateReferenceSystem()));
     }
 
 }

@@ -18,9 +18,13 @@
 package org.geotools.grid;
 
 import java.util.Map;
-import org.geotools.data.DataUtilities;
-import org.geotools.feature.SchemaException;
+
+import com.vividsolutions.jts.geom.Polygon;
+
+import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
+
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 /**
  * A basic implementation of {@code AttributeSetter} which will create a
@@ -43,7 +47,7 @@ public class IdAttributeSetter extends AttributeSetter {
     
     private int id;
 
-    protected static SimpleFeatureType createType(String typeName) {
+    protected static SimpleFeatureType createType(String typeName, CoordinateReferenceSystem crs) {
         final String finalName;
         if (typeName != null && typeName.trim().length() > 0) {
             finalName = typeName;
@@ -51,19 +55,23 @@ public class IdAttributeSetter extends AttributeSetter {
             finalName = DEFAULT_TYPE_NAME;
         }
 
-        try {
-            return DataUtilities.createType(finalName, "element:Polygon,id:Integer");
-        } catch (SchemaException ex) {
-            throw new IllegalStateException(ex);
-        }
+        SimpleFeatureTypeBuilder tb = new SimpleFeatureTypeBuilder();
+        tb.setName(finalName);
+        tb.add("element", Polygon.class, crs);
+        tb.add("id", Integer.class);
+        return tb.buildFeatureType();
     }
 
     public IdAttributeSetter() {
-        this(DEFAULT_TYPE_NAME);
+        this(DEFAULT_TYPE_NAME, null);
     }
 
-    public IdAttributeSetter(String typeName) {
-        super(createType(typeName));
+    IdAttributeSetter(CoordinateReferenceSystem crs) {
+        this(DEFAULT_TYPE_NAME, crs);
+    }
+
+    public IdAttributeSetter(String typeName, CoordinateReferenceSystem crs) {
+        super(createType(typeName, crs));
         id = 0;
     }
 
