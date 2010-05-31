@@ -170,12 +170,22 @@ public class SVGGraphicFactory implements ExternalGraphicFactory {
             Node heightNode = attrbiutes.getNamedItem("height");
 
             if (widthNode != null && heightNode != null) {
-                double width = Double.parseDouble(widthNode.getNodeValue());
-                double height = Double.parseDouble(heightNode.getNodeValue());
+                double width = parseDouble(widthNode.getNodeValue());
+                double height = parseDouble(heightNode.getNodeValue());
                 return new Rectangle2D.Double(0.0, 0.0, width, height);
             }
 
             return null;
+        }
+        
+        private double parseDouble(String value) {
+            try {
+                return Double.parseDouble(value);
+            }
+            catch(NumberFormatException e) {
+                //strip off any units
+                return Double.parseDouble(value.replaceAll("\\D*$", ""));
+            }
         }
 
         /**
