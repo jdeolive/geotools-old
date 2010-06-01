@@ -42,6 +42,16 @@ public class OblongImpl implements Oblong {
 
     /**
      * Creates a new oblong.
+     * 
+     * @param minX minimum X ordinate
+     *
+     * @param minY minimum Y ordinate
+     *
+     * @param width span in the X direction
+     *
+     * @param height span in the Y direction
+     * 
+     * @param crs coordinate reference system (may be {@code null})
      */
     public OblongImpl(double minX, double minY, double width, double height, CoordinateReferenceSystem crs) {
         if (width <=0 || height <= 0) {

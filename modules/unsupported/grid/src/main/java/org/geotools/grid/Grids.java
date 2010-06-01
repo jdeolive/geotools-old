@@ -22,7 +22,16 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.grid.oblong.Oblongs;
 
 /**
- * A utility class to create vector grids.
+ * A utility class to create vector grids with basic attributes. Where grids are
+ * only being used for display purposes this is the only class that you have to
+ * deal with.
+ * <p>
+ * For finer control of grid attributes, such as working with a user-supplied
+ * SimpleFeatureType, see the {@code Oblongs} and {@code Hexagons} utility
+ * classes.
+ *
+ * @see org.geotools.grid.hexagon.Hexagons
+ * @see Oblongs
  *
  * @author mbedward
  * @since 2.7
@@ -36,9 +45,9 @@ public class Grids {
      * taken from the input bounds. A {@code null} coordinate reference system is
      * permitted.
      * <p>
+     * The grid's origin is the minimum X and Y point of the envelope.
      * If the width and/or height of the bounding envelope is not a simple multiple
-     * of the requested side length, there will be some unfilled space with the
-     * grid's origin being the minimum X and Y point of the envelope.
+     * of the requested side length, there will be some unfilled space.
      * <p>
      * Each square in the returned grid is represented by a {@code SimpleFeature}.
      * The feature type has two properties:
@@ -48,27 +57,36 @@ public class Grids {
      * </ul>
      *
      * @param bounds bounds of the grid
+     *
      * @param sideLen the side length of grid elements
+     *
      * @return the vector grid
+     *
+     * @throws IllegalArgumentException
+     *         if bounds is null or empty; or
+     *         if sideLen is {@code <=} 0
      */
     public static SimpleFeatureCollection createSquareGrid(
             ReferencedEnvelope bounds, double sideLen) {
-        return Oblongs.createGrid(bounds, sideLen, sideLen, new IdAttributeSetter());
+
+        return Oblongs.createGrid(bounds, sideLen, sideLen, new DefaultFeatureBuilder());
     }
 
     /**
-     * Creates a vector grid of square elements. This version creates 'densified'
-     * polygons to represent grid elements by adding additional vertices to each
-     * edge. This is useful if you plan to display the grid in a projection other
-     * than the one that it was created with because the extra vertices will
-     * approximate curves.
+     * Creates a vector grid of square elements represented by 'densified' polygons.
+     * Each polygon has additional vertices added to its edges.
+     * This is useful if you plan to display the grid in a projection other
+     * than the one that it was created in since the extra vertices will better
+     * approximate curves. The density of vertices is controlled by
+     * the value of {@code vertexSpacing} which specifies the maximum distance
+     * between adjacent vertices. Vertices are added more or less uniformly.
      *
      * The coordinate reference system is taken from the input bounds.
      * A {@code null} coordinate reference system is permitted.
      * <p>
+     * The grid's origin is the minimum X and Y point of the envelope.
      * If the width and/or height of the bounding envelope is not a simple multiple
-     * of the requested side length, there will be some unfilled space with the
-     * grid's origin being the minimum X and Y point of the envelope.
+     * of the requested side length, there will be some unfilled space.
      * <p>
      * Each square in the returned grid is represented by a {@code SimpleFeature}.
      * The feature type has two properties:
@@ -76,10 +94,6 @@ public class Grids {
      * <li>element - type Polygon
      * <li>id - type Integer
      * </ul>
-     * Each {@code Polygon} representing a grid element is densified by adding
-     * additiona vertices to its edges. The density of vertices is controlled by
-     * the value of {@code vertexSpacing} which specifies the maximum distance
-     * between adjacent vertices. Vertices are added more or less uniformly.
      *
      * @param bounds bounds of the grid
      *
@@ -90,11 +104,61 @@ public class Grids {
      *        and the polygons will not be densified
      *
      * @return the vector grid
+     *
+     * @throws IllegalArgumentException
+     *         if bounds is null or empty; or
+     *         if sideLen is {@code <=} 0
      */
     public static SimpleFeatureCollection createSquareGrid(
             ReferencedEnvelope bounds, double sideLen, double vertexSpacing) {
+        
         return Oblongs.createGrid(bounds, sideLen, sideLen, vertexSpacing,
-                new IdAttributeSetter(bounds.getCoordinateReferenceSystem()));
+                new DefaultFeatureBuilder(bounds.getCoordinateReferenceSystem()));
+    }
+
+    /**
+     * Creates a vector grid of square elements represented by 'densified' polygons.
+     * Each polygon has additional vertices added to its edges.
+     * This is useful if you plan to display the grid in a projection other
+     * than the one that it was created in since the extra vertices will better
+     * approximate curves. The density of vertices is controlled by
+     * the value of {@code vertexSpacing} which specifies the maximum distance
+     * between adjacent vertices. Vertices are added more or less uniformly.
+     *
+     * The coordinate reference system is taken from the {@code GridFeatureBuilder}.
+     * A {@code null} coordinate reference system is permitted but if both the
+     * builder and bounding envelope have non-{@code null} reference systems set
+     * they must be the same.
+     * <p>
+     * The grid's origin is the minimum X and Y point of the envelope.
+     * If the width and/or height of the bounding envelope is not a simple multiple
+     * of the requested side length, there will be some unfilled space.
+     *
+     * @param bounds bounds of the grid
+     *
+     * @param sideLen the side length of grid elements
+     *
+     * @param vertexSpacing maximum distance between adjacent vertices in a grid
+     *        element; if {@code <= 0} or {@code >= sideLen / 2.0} the polygons
+     *        will not be densified
+     *
+     * @param builder the {@code GridFeatureBuilder} used to control feature
+     *        creation and the setting of feature attribute values
+     *
+     * @return the vector grid
+     *
+     * @throws IllegalArgumentException
+     *         if bounds is null or empty; or
+     *         if sideLen is {@code <=} 0; or
+     *         if the {@code CoordinateReferenceSystems}
+     *         set for the bounds and the {@code GridFeatureBuilder} are both
+     *         non-null but different
+     */
+    public static SimpleFeatureCollection createSquareGrid(
+            ReferencedEnvelope bounds, double sideLen, double vertexSpacing,
+            GridFeatureBuilder builder) {
+
+        return Oblongs.createGrid(bounds, sideLen, sideLen, vertexSpacing, builder);
     }
 
 }

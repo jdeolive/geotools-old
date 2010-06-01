@@ -26,7 +26,7 @@ import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.grid.AttributeSetter;
+import org.geotools.grid.GridFeatureBuilder;
 import org.geotools.grid.GridElement;
 import org.geotools.grid.Neighbor;
 import org.geotools.grid.hexagon.Hexagon.Orientation;
@@ -34,7 +34,8 @@ import org.geotools.grid.hexagon.Hexagon.Orientation;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 /**
- * A utilities class with static methods to create and work with {@code Hexagons}.
+ * A utilities class with static methods to create and work with hexagonal
+ * grid elements.
  *
  * @author mbedward
  * @since 2.7
@@ -254,7 +255,7 @@ public class Hexagons {
      *
      * @param orientation hexagon orientation
      *
-     * @param setter an instance of {@code AttributeSetter}
+     * @param setter an instance of {@code GridFeatureBuilder}
      *
      * @return a new grid
      */
@@ -262,7 +263,7 @@ public class Hexagons {
             ReferencedEnvelope bounds,
             double sideLen,
             Orientation orientation,
-            AttributeSetter setter) {
+            GridFeatureBuilder setter) {
         
         final SimpleFeatureCollection fc = FeatureCollections.newCollection();
         final SimpleFeatureBuilder builder = new SimpleFeatureBuilder(setter.getType());

@@ -73,13 +73,4 @@ public interface Hexagon extends GridElement {
      */
     public Orientation getOrientation();
 
-    /**
-     * Creates a new {@code Polygon} with the vertices of this hexagon.
-     * <p>
-     * For a hexagon with {@code FLAT} orientation, vertex 0 is
-     * at the left of the upper edge while for {@code aNGLED}
-     * orientation it is the uppermost vertex. Subsequent vertices
-     * are indexed in clockwise order.
-     */
-    public Polygon toPolygon();
 }

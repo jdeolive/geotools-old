@@ -1,6 +1,18 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ *    GeoTools - The Open Source Java GIS Toolkit
+ *    http://geotools.org
+ *
+ *    (C) 2010, Open Source Geospatial Foundation (OSGeo)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
  */
 
 package org.geotools.grid.oblong;
@@ -14,15 +26,20 @@ import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.grid.AttributeSetter;
+import org.geotools.grid.GridFeatureBuilder;
 import org.geotools.grid.GridElement;
 import org.geotools.grid.Neighbor;
+import org.geotools.referencing.CRS;
 
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 /**
+ * A utility class with static methods to create and work with oblong grid elements.
  *
- * @author michael
+ * @author mbedward
+ * @since 2.7
+ * @source $URL$
+ * @version $Id$
  */
 public class Oblongs {
 
@@ -142,16 +159,44 @@ public class Oblongs {
      *        element; if {@code <= 0} or {@code >= min(width, height) / 2.0} it
      *        is ignored and the polygons will not be densified
      *
-     * @param setter an instance of {@code AttributeSetter}
+     * @param gridBuilder an instance of {@code GridFeatureBuilder}
      *
-     * @return a new grid
+     * @return the vector grid
+     *
+     * @throws IllegalArgumentException
+     *         if bounds is null or empty; or
+     *         if either width or height is {@code <=} 0; or
+     *         if the {@code CoordinateReferenceSystems}
+     *         set for the bounds and the {@code GridFeatureBuilder} are both
+     *         non-null but different
      */
-    public static SimpleFeatureCollection createGrid(ReferencedEnvelope bounds, 
-            double width, double height, double vertexSpacing, AttributeSetter setter) {
+    public static SimpleFeatureCollection createGrid(
+            ReferencedEnvelope bounds,
+            double width, double height, 
+            double vertexSpacing, GridFeatureBuilder gridBuilder) {
 
+        if (bounds == null || bounds.isEmpty() || bounds.isNull()) {
+            throw new IllegalArgumentException("bounds should not me null or empty");
+        }
+
+        if (width <= 0) {
+            throw new IllegalArgumentException("width must be great than 0");
+        }
+
+        if (height <= 0) {
+            throw new IllegalArgumentException("height must be greater than 0");
+        }
+
+        CoordinateReferenceSystem boundsCRS = bounds.getCoordinateReferenceSystem();
+        CoordinateReferenceSystem builderCRS = gridBuilder.getType().getCoordinateReferenceSystem();
+        if (boundsCRS != null && builderCRS != null &&
+                !CRS.equalsIgnoreMetadata(boundsCRS, builderCRS)) {
+            throw new IllegalArgumentException("Different CRS set for bounds and grid feature builder");
+        }
+        
         final SimpleFeatureCollection fc = FeatureCollections.newCollection();
-        final SimpleFeatureBuilder builder = new SimpleFeatureBuilder(setter.getType());
-        String geomPropName = setter.getType().getGeometryDescriptor().getLocalName();
+        final SimpleFeatureBuilder fb = new SimpleFeatureBuilder(gridBuilder.getType());
+        String geomPropName = gridBuilder.getType().getGeometryDescriptor().getLocalName();
 
         final boolean densify =
                 vertexSpacing > 0.0 && vertexSpacing < Math.min(width, height);
@@ -162,20 +207,23 @@ public class Oblongs {
 
         while (el.getBounds().getMinY() <= bounds.getMaxY()) {
             while (el.getBounds().getMaxX() <= bounds.getMaxX()) {
-                if (((Envelope)bounds).contains(el.getBounds())) {
-                    Map<String, Object> attrMap = new HashMap<String, Object>();
-                    setter.setAttributes(el, attrMap);
+                if (((Envelope) bounds).contains(el.getBounds())) {
+                    if (gridBuilder.getCreateFeature(el)) {
+                        Map<String, Object> attrMap = new HashMap<String, Object>();
+                        gridBuilder.setAttributes(el, attrMap);
 
-                    if (densify) {
-                        builder.set(geomPropName, el.toDensePolygon(vertexSpacing));
-                    } else {
-                        builder.set(geomPropName, el.toPolygon());
-                    }
-                    for (String propName : attrMap.keySet()) {
-                        builder.set(propName, attrMap.get(propName));
-                    }
+                        if (densify) {
+                            fb.set(geomPropName, el.toDensePolygon(vertexSpacing));
+                        } else {
+                            fb.set(geomPropName, el.toPolygon());
+                        }
 
-                    fc.add(builder.buildFeature(setter.getFeatureID(el)));
+                        for (String propName : attrMap.keySet()) {
+                            fb.set(propName, attrMap.get(propName));
+                        }
+
+                        fc.add(fb.buildFeature(gridBuilder.getFeatureID(el)));
+                    }
                 }
 
                 el = createNeighbor(el, Neighbor.RIGHT);
@@ -203,12 +251,12 @@ public class Oblongs {
      *        element; if {@code <= 0} or {@code >= min(width, height) / 2.0} it
      *        is ignored and the polygons will not be densified
      *
-     * @param setter an instance of {@code AttributeSetter}
+     * @param setter an instance of {@code GridFeatureBuilder}
      *
      * @return a new grid
      */
     public static SimpleFeatureCollection createGrid(ReferencedEnvelope bounds,
-            double width, double height, AttributeSetter setter) {
+            double width, double height, GridFeatureBuilder setter) {
         return createGrid(bounds, width, height, -1.0, setter);
     }
 

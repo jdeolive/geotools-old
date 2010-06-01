@@ -20,7 +20,7 @@ package org.geotools.grid.oblong;
 import org.geotools.grid.GridElement;
 
 /**
- * Defines methods and enum constants to work with oblongs. The class name was
+ * Marker interface for oblong grid elements. The name was
  * chosen to avoid the inevitable confusion with {@code java.awt.Rectangle}
  *
  * @author mbedward

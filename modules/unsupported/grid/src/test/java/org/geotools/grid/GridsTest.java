@@ -17,12 +17,21 @@
 
 package org.geotools.grid;
 
+import java.util.Map;
+
 import com.vividsolutions.jts.geom.Polygon;
+
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.junit.Test;
+import org.geotools.referencing.CRS;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
+
 import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+
+import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
@@ -33,8 +42,7 @@ import static org.junit.Assert.*;
  * @source $URL$
  * @version $Id$
  */
-public class GridsTest {
-    private static final double TOL = 1.0e-8d;
+public class GridsTest extends TestBase {
 
     private final ReferencedEnvelope bounds = new ReferencedEnvelope(0, 90, 0, 100, null);
     private final double sideLen = 9.0;
@@ -60,7 +68,8 @@ public class GridsTest {
     @Test
     public void createDensifiedSquareGrid() {
         SimpleFeatureCollection grid = Grids.createSquareGrid(bounds, sideLen, sideLen / 10.0);
-        assertEquals(expectedNumElements, grid.size());
+        assertGridSizeAndIds(grid);
+
         SimpleFeatureIterator iter = grid.features();
         try {
             Polygon poly = (Polygon) iter.next().getAttribute("element");
@@ -68,6 +77,26 @@ public class GridsTest {
         } finally {
             iter.close();
         }
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void incompatibleCRS() {
+        CoordinateReferenceSystem boundsCRS = DefaultGeographicCRS.WGS84;
+        CoordinateReferenceSystem builderCRS;
+        try {
+            builderCRS = CRS.parseWKT(getSydneyWKT());
+        } catch (FactoryException ex) {
+            throw new IllegalStateException("Error in test code");
+        }
+
+        GridFeatureBuilder builder = new GridFeatureBuilder(createFeatureType(builderCRS)) {
+            @Override
+            public void setAttributes(GridElement el, Map<String, Object> attributes) {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+        };
+
+        Grids.createSquareGrid(new ReferencedEnvelope(150, 151, -33, -34, boundsCRS), sideLen, sideLen, builder);
     }
 
     private void assertGridSizeAndIds(SimpleFeatureCollection grid) {

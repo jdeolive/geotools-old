@@ -25,7 +25,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.grid.AttributeSetter;
+import org.geotools.grid.GridFeatureBuilder;
 import org.geotools.grid.GridElement;
 import org.geotools.grid.Neighbor;
 import org.geotools.grid.hexagon.Hexagon.Orientation;
@@ -190,7 +190,7 @@ public class HexagonsTest extends HexagonTestBase {
         final double SPAN = 100;
         final ReferencedEnvelope bounds = new ReferencedEnvelope(0, SPAN, 0, SPAN, null);
 
-        class Setter extends AttributeSetter {
+        class Setter extends GridFeatureBuilder {
             int id = 0;
 
             public Setter(SimpleFeatureType type) {
