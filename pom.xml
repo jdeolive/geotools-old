@@ -986,6 +986,7 @@
             <descriptors>
               <descriptor>build/maven/assembly/binaryDist.xml</descriptor>
               <descriptor>build/maven/assembly/sourceDist.xml</descriptor>
+              <descriptor>build/maven/assembly/userDocDist.xml</descriptor>
             </descriptors>
           </configuration>
         </plugin>

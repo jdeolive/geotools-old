@@ -17,7 +17,7 @@ illustrate some of the common uses of GeoTools.
 Reference
 ---------
 
-The :ref:`userguide` is a comprehensive reference for the entire library.
+The `user guide <http://geotools.org/userguide>`_ is a comprehensive reference for the entire library.
 
 .. toctree::
    :hidden:
