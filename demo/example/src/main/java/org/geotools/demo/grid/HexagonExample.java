@@ -28,8 +28,7 @@ import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.grid.GridFeatureBuilder;
 import org.geotools.grid.GridElement;
-import org.geotools.grid.hexagon.Hexagon.Orientation;
-import org.geotools.grid.hexagon.Hexagons;
+import org.geotools.grid.Grids;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.styling.Fill;
 import org.geotools.styling.PolygonSymbolizer;
@@ -62,7 +61,7 @@ public class HexagonExample {
 
         final ReferencedEnvelope bounds = new ReferencedEnvelope(0, 100, 0, 100, null);
 
-        GridFeatureBuilder attributeSetter = new GridFeatureBuilder(TYPE) {
+        GridFeatureBuilder builder = new GridFeatureBuilder(TYPE) {
             public void setAttributes(GridElement el, Map<String, Object> attributes) {
                 int g = (int) (255 * el.getCenter().x / bounds.getWidth());
                 int b = (int) (255 * el.getCenter().y / bounds.getHeight());
@@ -72,7 +71,7 @@ public class HexagonExample {
 
         final double sideLen = 5.0;
 
-        SimpleFeatureCollection lattice = Hexagons.createGrid(bounds, sideLen, Orientation.FLAT, attributeSetter);
+        SimpleFeatureCollection lattice = Grids.createHexagonalGrid(bounds, sideLen, -1, builder);
 
         DefaultMapContext map = new DefaultMapContext();
         map.addLayer(lattice, createStyle("color"));

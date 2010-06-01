@@ -28,7 +28,7 @@ import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.grid.GridFeatureBuilder;
 import org.geotools.grid.GridElement;
-import org.geotools.grid.oblong.Oblongs;
+import org.geotools.grid.Grids;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.styling.Fill;
 import org.geotools.styling.PolygonSymbolizer;
@@ -43,14 +43,12 @@ import org.opengis.filter.FilterFactory2;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 /**
- * Demonstrates creating a vector grid of tesselated hexagons and setting
+ * Demonstrates creating a vector grid of square elements and setting
  * the value of an attribute for each grid element based on its position.
- * <p>
- * TODO: move this to the demo/example project later
  *
  * @author mbedward
  */
-public class OblongExample {
+public class SquareExample {
 
     public static void main(String[] args) {
         SimpleFeatureTypeBuilder typeBuilder = new SimpleFeatureTypeBuilder();
@@ -61,7 +59,7 @@ public class OblongExample {
 
         final ReferencedEnvelope bounds = new ReferencedEnvelope(0, 100, 0, 100, null);
 
-        GridFeatureBuilder attributeSetter = new GridFeatureBuilder(TYPE) {
+        GridFeatureBuilder builder = new GridFeatureBuilder(TYPE) {
             public void setAttributes(GridElement el, Map<String, Object> attributes) {
                 int g = (int) (255 * el.getCenter().x / bounds.getWidth());
                 int b = (int) (255 * el.getCenter().y / bounds.getHeight());
@@ -69,10 +67,8 @@ public class OblongExample {
             }
         };
 
-        final double width = 8.0;
-        final double height = 4.0;
-
-        SimpleFeatureCollection lattice = Oblongs.createGrid(bounds, width, height, attributeSetter);
+        final double sideLen = 10.0;
+        SimpleFeatureCollection lattice = Grids.createSquareGrid(bounds, sideLen, -1, builder);
 
         DefaultMapContext map = new DefaultMapContext();
         map.addLayer(lattice, createStyle("color"));
