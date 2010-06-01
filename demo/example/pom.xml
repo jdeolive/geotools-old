@@ -159,6 +159,12 @@
       <version>${project.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-grid</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
     <!-- Other dependencies -->
     <dependency>
       <groupId>javax.media</groupId>

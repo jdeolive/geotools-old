@@ -15,17 +15,7 @@
               <CssParameter name="stroke">#000000</CssParameter>
             </Stroke>
             <Fill>
-              <CssParameter name="fill">
-                <ogc:Function name="colorramp">
-                    <ogc:Function name="log">
-                        <ogc:PropertyName>POP_CNTRY</ogc:PropertyName>
-                    </ogc:Function>
-                    <ogc:Literal>5</ogc:Literal>
-                    <ogc:Literal>22</ogc:Literal>
-                    <ogc:Literal>0.8</ogc:Literal>
-                    <ogc:Literal>0.8</ogc:Literal>
-                </ogc:Function>
-              </CssParameter>
+              <CssParameter name="fill">#00aaaa</CssParameter>
             </Fill>
           </PolygonSymbolizer>
         </Rule>
