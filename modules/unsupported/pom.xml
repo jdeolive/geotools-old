@@ -158,7 +158,6 @@
          <module>caching</module>
          <module>shapefile-renderer</module>
          <module>matfile5</module>
-         <module>grid</module>
        </modules>
      </profile>
   </profiles>
@@ -168,6 +167,7 @@
     <module>directory</module>
     <module>wfs</module>
     <module>geojson</module>
+    <module>grid</module>
   </modules>
 
 </project>
