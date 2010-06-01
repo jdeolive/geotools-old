@@ -30,6 +30,7 @@ import org.geotools.grid.GridFeatureBuilder;
 import org.geotools.grid.GridElement;
 import org.geotools.grid.Neighbor;
 import org.geotools.grid.hexagon.Hexagon.Orientation;
+import org.geotools.referencing.CRS;
 
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -246,8 +247,10 @@ public class Hexagons {
         }
     }
 
+
     /**
-     * Creates a new grid of tesselated hexagons within a bounding rectangle.
+     * Creates a new grid of tesselated hexagons within a bounding rectangle
+     * with grid elements represented by simple (ie. undensified) polygons.
      *
      * @param bounds the bounding rectangle
      *
@@ -255,22 +258,85 @@ public class Hexagons {
      *
      * @param orientation hexagon orientation
      *
-     * @param setter an instance of {@code GridFeatureBuilder}
+     * @param gridBuilder an instance of {@code GridFeatureBuilder}
      *
      * @return a new grid
+     *
+     * @throws IllegalArgumentException
+     *         if bounds is null or empty; or
+     *         if sideLen is {@code <=} 0; or
+     *         if the {@code CoordinateReferenceSystems}
+     *         set for the bounds and the {@code GridFeatureBuilder} are both
+     *         non-null but different
      */
     public static SimpleFeatureCollection createGrid(
             ReferencedEnvelope bounds,
             double sideLen,
             Orientation orientation,
-            GridFeatureBuilder setter) {
+            GridFeatureBuilder gridBuilder) {
+
+        return createGrid(bounds, sideLen, -1, orientation, gridBuilder);
+    }
+    
+
+    /**
+     * Creates a new grid of tesselated hexagons within a bounding rectangle
+     * with grid elements represented by densified polygons (ie. additional
+     * vertices added to each edge).
+     *
+     * @param bounds the bounding rectangle
+     *
+     * @param sideLen hexagon side length
+     *
+     * @param vertexSpacing maximum distance between adjacent vertices in a grid
+     *        element; if {@code <= 0} or {@code >= min(width, height) / 2.0} it
+     *        is ignored and the polygons will not be densified
+     *
+     * @param orientation hexagon orientation
+     *
+     * @param gridBuilder an instance of {@code GridFeatureBuilder}
+     *
+     * @return a new grid
+     *
+     * @throws IllegalArgumentException
+     *         if bounds is null or empty; or
+     *         if sideLen is {@code <=} 0; or
+     *         if the {@code CoordinateReferenceSystems}
+     *         set for the bounds and the {@code GridFeatureBuilder} are both
+     *         non-null but different
+     */
+    public static SimpleFeatureCollection createGrid(
+            ReferencedEnvelope bounds,
+            double sideLen,
+            double vertexSpacing,
+            Orientation orientation,
+            GridFeatureBuilder gridBuilder) {
         
+        if (bounds == null || bounds.isEmpty() || bounds.isNull()) {
+            throw new IllegalArgumentException("bounds should not be null or empty");
+        }
+
+        if (sideLen <= 0) {
+            throw new IllegalArgumentException("sideLen must be greater than 0");
+        }
+
+        if (orientation == null) {
+            throw new IllegalArgumentException("orientation should not be null");
+        }
+
+        CoordinateReferenceSystem boundsCRS = bounds.getCoordinateReferenceSystem();
+        CoordinateReferenceSystem builderCRS = gridBuilder.getType().getCoordinateReferenceSystem();
+        if (boundsCRS != null && builderCRS != null &&
+                !CRS.equalsIgnoreMetadata(boundsCRS, builderCRS)) {
+            throw new IllegalArgumentException("Different CRS set for bounds and grid feature builder");
+        }
+
         final SimpleFeatureCollection fc = FeatureCollections.newCollection();
-        final SimpleFeatureBuilder builder = new SimpleFeatureBuilder(setter.getType());
-        String geomPropName = setter.getType().getGeometryDescriptor().getLocalName();
+        final SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(gridBuilder.getType());
+        String geomPropName = gridBuilder.getType().getGeometryDescriptor().getLocalName();
         
-        final double ySpan = orientation == Orientation.ANGLED ? 2.0 * sideLen : Math.sqrt(3.0) * sideLen; 
-        final double xSpan = orientation == Orientation.ANGLED ? Math.sqrt(3.0) * sideLen : 2.0 * sideLen; 
+        final boolean densify =
+                vertexSpacing > 0.0 && vertexSpacing < sideLen / 2.0;
 
         Hexagon h0 = create(bounds.getMinX(), bounds.getMinY(), sideLen, 
                 orientation, bounds.getCoordinateReferenceSystem());
@@ -294,16 +360,23 @@ public class Hexagons {
 
         while (h.getBounds().getMinY() <= bounds.getMaxY()) {
             while (h.getBounds().getMaxX() <= bounds.getMaxX()) {
-                if (((Envelope)bounds).contains(h.getBounds())) {
-                    Map<String, Object> attrMap = new HashMap<String, Object>();
-                    setter.setAttributes(h, attrMap);
+                if (((Envelope) bounds).contains(h.getBounds())) {
+                    if (gridBuilder.getCreateFeature(h)) {
+                        Map<String, Object> attrMap = new HashMap<String, Object>();
+                        gridBuilder.setAttributes(h, attrMap);
 
-                    builder.set(geomPropName, h.toPolygon());
-                    for (String propName : attrMap.keySet()) {
-                        builder.set(propName, attrMap.get(propName));
+                        if (densify) {
+                            featureBuilder.set(geomPropName, h.toDensePolygon(vertexSpacing));
+                        } else {
+                            featureBuilder.set(geomPropName, h.toPolygon());
+                        }
+
+                        for (String propName : attrMap.keySet()) {
+                            featureBuilder.set(propName, attrMap.get(propName));
+                        }
+
+                        fc.add(featureBuilder.buildFeature(gridBuilder.getFeatureID(h)));
                     }
-
-                    fc.add(builder.buildFeature(setter.getFeatureID(h)));
                 }
 
                 h = createNeighbor(h, nextX[xIndex]);

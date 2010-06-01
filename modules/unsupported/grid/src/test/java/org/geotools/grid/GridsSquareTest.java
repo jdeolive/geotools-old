@@ -42,7 +42,7 @@ import static org.junit.Assert.*;
  * @source $URL$
  * @version $Id$
  */
-public class GridsTest extends TestBase {
+public class GridsSquareTest extends TestBase {
 
     private final ReferencedEnvelope bounds = new ReferencedEnvelope(0, 90, 0, 100, null);
     private final double sideLen = 9.0;
@@ -52,7 +52,7 @@ public class GridsTest extends TestBase {
     private final ReferencedEnvelope expectedBounds = new ReferencedEnvelope(0, sideLen * expectedCols, 0, sideLen * expectedRows, null);
 
     @Test
-    public void createUndensifiedSquareGrid() {
+    public void createGrid() {
         SimpleFeatureCollection grid = Grids.createSquareGrid(bounds, sideLen);
         assertGridSizeAndIds(grid);
 
@@ -66,17 +66,33 @@ public class GridsTest extends TestBase {
     }
 
     @Test
-    public void createDensifiedSquareGrid() {
-        SimpleFeatureCollection grid = Grids.createSquareGrid(bounds, sideLen, sideLen / 10.0);
+    public void createDensifiedGrid() {
+        final int vertexDensity = 10;
+        SimpleFeatureCollection grid = Grids.createSquareGrid(bounds, sideLen, sideLen / vertexDensity);
         assertGridSizeAndIds(grid);
 
         SimpleFeatureIterator iter = grid.features();
         try {
             Polygon poly = (Polygon) iter.next().getAttribute("element");
-            assertTrue(poly.getCoordinates().length - 1 >= 4 * (int)(sideLen / 10.0));
+            assertTrue(poly.getCoordinates().length - 1 >= 4 * vertexDensity);
         } finally {
             iter.close();
         }
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void createGrid_InvalidBounds() {
+        Grids.createSquareGrid(ReferencedEnvelope.EVERYTHING, sideLen);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void createGrid_NullBounds() {
+        Grids.createSquareGrid(null, sideLen);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void createGrid_BadSideLength() {
+        Grids.createSquareGrid(bounds, 0);
     }
 
     @Test(expected=IllegalArgumentException.class)

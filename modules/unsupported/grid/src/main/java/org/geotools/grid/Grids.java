@@ -19,6 +19,8 @@ package org.geotools.grid;
 
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.grid.hexagon.Hexagon;
+import org.geotools.grid.hexagon.Hexagons;
 import org.geotools.grid.oblong.Oblongs;
 
 /**
@@ -69,7 +71,12 @@ public class Grids {
     public static SimpleFeatureCollection createSquareGrid(
             ReferencedEnvelope bounds, double sideLen) {
 
-        return Oblongs.createGrid(bounds, sideLen, sideLen, new DefaultFeatureBuilder());
+        if (bounds == null) {
+            throw new IllegalArgumentException("bounds should not be null");
+        }
+
+        return Oblongs.createGrid(bounds, sideLen, sideLen,
+                new DefaultFeatureBuilder(bounds.getCoordinateReferenceSystem()));
     }
 
     /**
@@ -112,6 +119,10 @@ public class Grids {
     public static SimpleFeatureCollection createSquareGrid(
             ReferencedEnvelope bounds, double sideLen, double vertexSpacing) {
         
+        if (bounds == null) {
+            throw new IllegalArgumentException("bounds should not be null");
+        }
+
         return Oblongs.createGrid(bounds, sideLen, sideLen, vertexSpacing,
                 new DefaultFeatureBuilder(bounds.getCoordinateReferenceSystem()));
     }
@@ -150,6 +161,7 @@ public class Grids {
      * @throws IllegalArgumentException
      *         if bounds is null or empty; or
      *         if sideLen is {@code <=} 0; or
+     *         if builder is null; or
      *         if the {@code CoordinateReferenceSystems}
      *         set for the bounds and the {@code GridFeatureBuilder} are both
      *         non-null but different
@@ -159,6 +171,161 @@ public class Grids {
             GridFeatureBuilder builder) {
 
         return Oblongs.createGrid(bounds, sideLen, sideLen, vertexSpacing, builder);
+    }
+
+    /**
+     * Creates a vector grid of hexagonal elements. Hexagon size is expressed as
+     * side length. To create hexagons of specified area you can use the static
+     * {@linkplain Hexagons#areaToSideLength(double)} method to calculate the
+     * equivalent side length.
+     * <p>
+     * The hexagons created by this method are orientated with a pair of edges
+     * parallel to the top and bottom of the bounding envelope
+     * ({@linkplain org.geotools.grid.hexagon.Hexagon.Orientation#FLAT}). The
+     * bounding rectangle of each hexagon has width {@code sideLen * 2.0} and
+     * height {@code sideLen * sqrt(3.0)}.
+     * <p>
+     * The grid's origin is the minimum X and Y point of the envelope.
+     * <p>
+     * The feature type of grid features has two properties:
+     * <ul>
+     * <li>element - type Polygon
+     * <li>id - type Integer
+     * </ul>
+     *
+     * @param bounds bounds of the grid
+     *
+     * @param sideLen the length
+     *
+     * @return the vector grid
+     *
+     * @throws IllegalArgumentException
+     *         if bounds is null or empty; or
+     *         if sideLen is {@code <=} 0
+     */
+    public static SimpleFeatureCollection createHexagonalGrid(
+            ReferencedEnvelope bounds, double sideLen) {
+
+        if (bounds == null) {
+            throw new IllegalArgumentException("bounds should not be null");
+        }
+
+        return Hexagons.createGrid(bounds, sideLen, Hexagon.Orientation.FLAT,
+                new DefaultFeatureBuilder(bounds.getCoordinateReferenceSystem()));
+    }
+
+    /**
+     * Creates a vector grid of hexagonal elements represented by 'densified' polygons.
+     * Each polygon has additional vertices added to its edges.
+     * This is useful if you plan to display the grid in a projection other
+     * than the one that it was created in since the extra vertices will better
+     * approximate curves. The density of vertices is controlled by
+     * the value of {@code vertexSpacing} which specifies the maximum distance
+     * between adjacent vertices. Vertices are added more or less uniformly.
+     * <p>
+     * Hexagon size is expressed as
+     * side length. To create hexagons of specified area you can use the static
+     * {@linkplain Hexagons#areaToSideLength(double)} method to calculate the
+     * equivalent side length.
+     * <p>
+     * The hexagons created by this method are orientated with a pair of edges
+     * parallel to the top and bottom of the bounding envelope
+     * ({@linkplain org.geotools.grid.hexagon.Hexagon.Orientation#FLAT}). The
+     * bounding rectangle of each hexagon has width {@code sideLen * 2.0} and
+     * height {@code sideLen * sqrt(3.0)}.
+     * <p>
+     * The grid's origin is the minimum X and Y point of the envelope.
+     * <p>
+     * The feature type of grid features has two properties:
+     * <ul>
+     * <li>element - type Polygon
+     * <li>id - type Integer
+     * </ul>
+     *
+     * @param bounds bounds of the grid
+     *
+     * @param sideLen the length
+     *
+     * @param vertexSpacing maximum distance between adjacent vertices in a grid
+     *        element; if {@code <= 0} or {@code >= sideLen / 2.0} the polygons
+     *        will not be densified
+     *
+     * @return the vector grid
+     *
+     * @throws IllegalArgumentException
+     *         if bounds is null or empty; or
+     *         if sideLen is {@code <=} 0
+     */
+    public static SimpleFeatureCollection createHexagonalGrid(
+            ReferencedEnvelope bounds, double sideLen, double vertexSpacing) {
+
+        if (bounds == null) {
+            throw new IllegalArgumentException("bounds should not be null");
+        }
+
+        return Hexagons.createGrid(bounds, sideLen, vertexSpacing, Hexagon.Orientation.FLAT,
+                new DefaultFeatureBuilder(bounds.getCoordinateReferenceSystem()));
+    }
+
+    /**
+     * Creates a vector grid of hexagonal elements represented by 'densified' polygons.
+     * Each polygon has additional vertices added to its edges.
+     * This is useful if you plan to display the grid in a projection other
+     * than the one that it was created in since the extra vertices will better
+     * approximate curves. The density of vertices is controlled by
+     * the value of {@code vertexSpacing} which specifies the maximum distance
+     * between adjacent vertices. Vertices are added more or less uniformly.
+     * <p>
+     * Hexagon size is expressed as
+     * side length. To create hexagons of specified area you can use the static
+     * {@linkplain Hexagons#areaToSideLength(double)} method to calculate the
+     * equivalent side length.
+     * <p>
+     * The hexagons created by this method are orientated with a pair of edges
+     * parallel to the top and bottom of the bounding envelope
+     * ({@linkplain org.geotools.grid.hexagon.Hexagon.Orientation#FLAT}). The
+     * bounding rectangle of each hexagon has width {@code sideLen * 2.0} and
+     * height {@code sideLen * sqrt(3.0)}.
+     * <p>
+     * The grid's origin is the minimum X and Y point of the envelope.
+     * <p>
+     * The feature type of grid features has two properties:
+     * <ul>
+     * <li>element - type Polygon
+     * <li>id - type Integer
+     * </ul>
+     *
+     * @param bounds bounds of the grid
+     *
+     * @param sideLen the length
+     *
+     * @param vertexSpacing maximum distance between adjacent vertices in a grid
+     *        element; if {@code <= 0} or {@code >= sideLen / 2.0} the polygons
+     *        will not be densified
+     *
+     * @param builder the {@code GridFeatureBuilder} used to control feature
+     *        creation and the setting of feature attribute values
+     *
+     * @return the vector grid
+     *
+     * @throws IllegalArgumentException
+     *         if bounds is null or empty; or
+     *         if sideLen is {@code <=} 0; or
+     *         if builder is null; or
+     *         if the {@code CoordinateReferenceSystems}
+     *         set for the bounds and the {@code GridFeatureBuilder} are both
+     *         non-null but different
+     */
+    public static SimpleFeatureCollection createHexagonalGrid(
+            ReferencedEnvelope bounds, double sideLen, double vertexSpacing,
+            GridFeatureBuilder builder) {
+
+        if (bounds == null) {
+            throw new IllegalArgumentException("bounds should not be null");
+        }
+
+        return Hexagons.createGrid(bounds, sideLen, vertexSpacing,
+                Hexagon.Orientation.FLAT, builder);
     }
 
 }

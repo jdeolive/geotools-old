@@ -144,6 +144,38 @@ public class Oblongs {
 
     }
 
+
+    /**
+     * Creates a new grid of oblongs within a bounding rectangle with grid elements
+     * represented by simple (ie. undensified) polygons.
+     *
+     * @param bounds the bounding rectangle
+     *
+     * @param width oblong width
+     *
+     * @param height oblong height
+     *
+     * @param vertexSpacing maximum distance between adjacent vertices in a grid
+     *        element; if {@code <= 0} or {@code >= min(width, height) / 2.0} it
+     *        is ignored and the polygons will not be densified
+     *
+     * @param setter an instance of {@code GridFeatureBuilder}
+     *
+     * @return a new grid
+     *
+     * @throws IllegalArgumentException
+     *         if bounds is null or empty; or
+     *         if either width or height is {@code <=} 0; or
+     *         if the {@code CoordinateReferenceSystems}
+     *         set for the bounds and the {@code GridFeatureBuilder} are both
+     *         non-null but different
+     */
+    public static SimpleFeatureCollection createGrid(ReferencedEnvelope bounds,
+            double width, double height, GridFeatureBuilder setter) {
+        return createGrid(bounds, width, height, -1.0, setter);
+    }
+    
+
     /**
      * Creates a new grid of oblongs within a bounding rectangle with grid elements
      * represented by densified polygons (ie. additional vertices added to each
@@ -176,11 +208,11 @@ public class Oblongs {
             double vertexSpacing, GridFeatureBuilder gridBuilder) {
 
         if (bounds == null || bounds.isEmpty() || bounds.isNull()) {
-            throw new IllegalArgumentException("bounds should not me null or empty");
+            throw new IllegalArgumentException("bounds should not be null or empty");
         }
 
         if (width <= 0) {
-            throw new IllegalArgumentException("width must be great than 0");
+            throw new IllegalArgumentException("width must be greater than 0");
         }
 
         if (height <= 0) {
@@ -199,7 +231,7 @@ public class Oblongs {
         String geomPropName = gridBuilder.getType().getGeometryDescriptor().getLocalName();
 
         final boolean densify =
-                vertexSpacing > 0.0 && vertexSpacing < Math.min(width, height);
+                vertexSpacing > 0.0 && vertexSpacing < Math.min(width, height) / 2.0;
 
         Oblong el0 = create(bounds.getMinX(), bounds.getMinY(), width, height,
                 bounds.getCoordinateReferenceSystem());
@@ -234,30 +266,6 @@ public class Oblongs {
         }
 
         return fc;
-    }
-
-
-    /**
-     * Creates a new grid of oblongs within a bounding rectangle with grid elements
-     * represented by simple (ie. undensified) polygons.
-     *
-     * @param bounds the bounding rectangle
-     *
-     * @param width oblong width
-     *
-     * @param height oblong height
-     *
-     * @param vertexSpacing maximum distance between adjacent vertices in a grid
-     *        element; if {@code <= 0} or {@code >= min(width, height) / 2.0} it
-     *        is ignored and the polygons will not be densified
-     *
-     * @param setter an instance of {@code GridFeatureBuilder}
-     *
-     * @return a new grid
-     */
-    public static SimpleFeatureCollection createGrid(ReferencedEnvelope bounds,
-            double width, double height, GridFeatureBuilder setter) {
-        return createGrid(bounds, width, height, -1.0, setter);
     }
 
 }

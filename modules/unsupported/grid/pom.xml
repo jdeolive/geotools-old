@@ -66,25 +66,5 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- The following dependencies are temporary for testing or -->
-        <!-- example app purposes                                    -->
-        <dependency>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-swing</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-shapefile</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-epsg-hsql</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
     </dependencies>
 </project>
