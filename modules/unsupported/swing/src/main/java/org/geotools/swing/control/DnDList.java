@@ -88,7 +88,6 @@ public class DnDList<T> extends JList implements DragGestureListener, DragSource
 
         tgt = new DropTarget(this, this);
 
-        setDragEnabled(true);
         movingItems = false;
         overIndex = -1;
     }
