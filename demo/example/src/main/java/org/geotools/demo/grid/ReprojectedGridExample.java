@@ -36,7 +36,7 @@ public class ReprojectedGridExample {
         //ReferencedEnvelope latLonEnv = featureBounds.transform(DefaultGeographicCRS.WGS84, true);
 
         // create a grid of squares 2 degrees across
-        final double gridSize = 5.0;
+        final double gridSize = 10.0;
 
         // vertex spacing for 'densified' grid polygons
         final double vertexSpacing = gridSize / 20;

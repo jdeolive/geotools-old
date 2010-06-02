@@ -17,6 +17,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
+import java.awt.Color;
 
 import org.geotools.data.FileDataStore;
 import org.geotools.data.FileDataStoreFinder;
@@ -32,7 +33,7 @@ import org.geotools.grid.GridFeatureBuilder;
 import org.geotools.grid.Grids;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.map.MapContext;
-import org.geotools.referencing.CRS;
+import org.geotools.styling.SLD;
 import org.geotools.swing.JMapFrame;
 
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -54,8 +55,9 @@ public class IntersectionExample {
         FileDataStore dataStore = FileDataStoreFinder.getDataStore(url);
         final SimpleFeatureSource featureSource = dataStore.getFeatureSource();
 
+        final double sideLen = 1.0;
         ReferencedEnvelope gridBounds =
-                Envelopes.expandToInclude(featureSource.getBounds(), 5.0);
+                Envelopes.expandToInclude(featureSource.getBounds(), sideLen);
 
         SimpleFeatureTypeBuilder tb = new SimpleFeatureTypeBuilder();
         tb.setName("grid");
@@ -65,10 +67,10 @@ public class IntersectionExample {
         final SimpleFeatureType TYPE = tb.buildFeatureType();
 
         GridFeatureBuilder builder = new IntersectionBuilder(TYPE, featureSource);
-        SimpleFeatureCollection grid = Grids.createHexagonalGrid(gridBounds, gridBounds.getWidth() / 50, -1, builder);
+        SimpleFeatureCollection grid = Grids.createHexagonalGrid(gridBounds, sideLen, -1, builder);
 
         MapContext map = new DefaultMapContext();
-        map.addLayer(featureSource, null);
+        map.addLayer(featureSource, SLD.createPolygonStyle(Color.BLUE, Color.CYAN, 1.0f));
         map.addLayer(grid, null);
         JMapFrame.showMap(map);
     }
