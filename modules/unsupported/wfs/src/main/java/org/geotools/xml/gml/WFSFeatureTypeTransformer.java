@@ -25,58 +25,59 @@ import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 /**
- * A sad hack class until the new Feature Model comes around. 
+ * Transform a provided SimpleFeatureType to a different CoordinteReferenceSystem.
  * 
  * @see ChoiceAttributeType
  * @author Jesse
- * @since 1.1.0
- *
- * @source $URL$
+ * @since 2.4
+ * 
+ * @source $URL:
+ *         http://svn.osgeo.org/geotools/trunk/modules/unsupported/wfs/src/main/java/org/geotools
+ *         /xml/gml/WFSFeatureTypeTransformer.java $
  */
 public class WFSFeatureTypeTransformer {
 
-    public static SimpleFeatureType transform( SimpleFeatureType schema, CoordinateReferenceSystem crs ) throws SchemaException {
+    public static SimpleFeatureType transform(SimpleFeatureType schema,
+            CoordinateReferenceSystem crs) throws SchemaException {
         SimpleFeatureTypeBuilder build = new SimpleFeatureTypeBuilder();
-        build.setName( schema.getName() );
-        //build.setDefaultGeometry( schema.getDefaultGeometry().getLocalName() );
-        
+        build.setName(schema.getName());
+
         GeometryDescriptor defaultGeometryType = null;
-        for( int i = 0; i < schema.getAttributeCount(); i++ ) {
+        for (int i = 0; i < schema.getAttributeCount(); i++) {
             AttributeDescriptor attributeType = schema.getDescriptor(i);
-            if( attributeType instanceof ChoiceGeometryType ){
-                defaultGeometryType = handleChoiceGeometryAttribute(schema, crs, build, defaultGeometryType, attributeType);
-            }
-            else if (attributeType instanceof GeometryDescriptor) {
-                defaultGeometryType = handleGeometryAttribute(schema, crs, build, defaultGeometryType, attributeType);
-            }
-            else {
+            if (attributeType instanceof ChoiceGeometryType) {
+                defaultGeometryType = handleChoiceGeometryAttribute(schema, crs, build,
+                        defaultGeometryType, attributeType);
+            } else if (attributeType instanceof GeometryDescriptor) {
+                defaultGeometryType = handleGeometryAttribute(schema, crs, build,
+                        defaultGeometryType, attributeType);
+            } else {
                 build.add(attributeType);
             }
         }
-        //Only try to set default geometry when there actually is a geometry type
-        if(defaultGeometryType!=null){
-           build.setDefaultGeometry(defaultGeometryType.getLocalName());  
+        if (defaultGeometryType != null) {
+            // Only try to set default geometry when there actually is a geometry type
+            build.setDefaultGeometry(defaultGeometryType.getLocalName());
         }
         return build.buildFeatureType();
     }
 
-    private static GeometryDescriptor handleGeometryAttribute( SimpleFeatureType schema, CoordinateReferenceSystem crs, SimpleFeatureTypeBuilder factory, GeometryDescriptor defaultGeometryType, AttributeDescriptor attributeType ) {
+    private static GeometryDescriptor handleGeometryAttribute(SimpleFeatureType schema,
+            CoordinateReferenceSystem crs, SimpleFeatureTypeBuilder factory,
+            GeometryDescriptor defaultGeometryType, AttributeDescriptor attributeType) {
         GeometryDescriptor geometryType = (GeometryDescriptor) attributeType;
         GeometryDescriptor geometry;
 
         AttributeTypeBuilder builder = new AttributeTypeBuilder();
-        builder.setName( geometryType.getLocalName()  );
-        builder.setBinding( geometryType.getType().getBinding() );
-        builder.setNillable( geometryType.isNillable() );
-        
-        //builder.setDefaultValue(defaultValue);
-        builder.setCRS( crs );
-        
-        geometry = builder.buildDescriptor( geometryType.getLocalName(), builder.buildGeometryType() );
-        
-//        geometry = (GeometryDescriptor) AttributeTypeFactory.newAttributeType(
-//                geometryType.getLocalName(), geometryType.getBinding(), geometryType.isNillable(),
-//                0, geometryType.createDefaultValue(), crs);
+        builder.setName(geometryType.getLocalName());
+        builder.setBinding(geometryType.getType().getBinding());
+        builder.setNillable(geometryType.isNillable());
+
+        // builder.setDefaultValue(defaultValue);
+        builder.setCRS(crs);
+
+        geometry = builder
+                .buildDescriptor(geometryType.getLocalName(), builder.buildGeometryType());
 
         if (defaultGeometryType == null || geometryType == schema.getGeometryDescriptor()) {
             defaultGeometryType = geometry;
@@ -85,13 +86,16 @@ public class WFSFeatureTypeTransformer {
         return defaultGeometryType;
     }
 
-    private static GeometryDescriptor handleChoiceGeometryAttribute( SimpleFeatureType schema, CoordinateReferenceSystem crs, SimpleFeatureTypeBuilder factory, GeometryDescriptor defaultGeometryType, AttributeDescriptor attributeType ) {
+    private static GeometryDescriptor handleChoiceGeometryAttribute(SimpleFeatureType schema,
+            CoordinateReferenceSystem crs, SimpleFeatureTypeBuilder factory,
+            GeometryDescriptor defaultGeometryType, AttributeDescriptor attributeType) {
         ChoiceGeometryTypeImpl geometryType = (ChoiceGeometryTypeImpl) attributeType;
         ChoiceGeometryTypeImpl geometry;
 
-        geometry = new ChoiceGeometryTypeImpl(
-            geometryType.getName(), geometryType.getChoices(), geometryType.getBinding(), geometryType.isNillable(),
-            geometryType.getMinOccurs(), geometryType.getMaxOccurs(), geometryType.createDefaultValue(), crs, geometryType.getRestrictions());
+        geometry = new ChoiceGeometryTypeImpl(geometryType.getName(), geometryType.getChoices(),
+                geometryType.getBinding(), geometryType.isNillable(), geometryType.getMinOccurs(),
+                geometryType.getMaxOccurs(), geometryType.createDefaultValue(), crs, geometryType
+                        .getRestrictions());
 
         if (defaultGeometryType == null || geometryType == schema.getGeometryDescriptor()) {
             defaultGeometryType = geometry;
