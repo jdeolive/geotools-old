@@ -37,7 +37,8 @@
   </scm>
 
   <description>
-    (todo)
+    Implementation of DataStore allowing geotools code to work with an
+    OGC Web Feature Service. Offers client code for WFS 1.0 and WFS 1.1.
   </description>
 
   <licenses>
@@ -115,12 +116,6 @@
       <groupId>org.geotools.ogc</groupId>
       <artifactId>net.opengis.wfs</artifactId>
       <version>${project.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.geotools</groupId>
-          <artifactId>gt2-api</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>xpp3</groupId>
