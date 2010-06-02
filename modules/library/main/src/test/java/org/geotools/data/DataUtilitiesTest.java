@@ -83,8 +83,14 @@ public class DataUtilitiesTest extends DataTestCase {
         FeatureCollection<SimpleFeatureType,SimpleFeature> featureCollection = DataUtilities.collection(roadFeatures);
         SimpleFeatureCollection simple = DataUtilities.simple(featureCollection);
         assertSame( simple, featureCollection); // we expect a straight cast
+        assertEquals(roadFeatures.length, featureCollection.size());
     }
     
+    public void testSimpleCollectionList() {
+        SimpleFeatureCollection featureCollection = DataUtilities.collection(Arrays.asList(roadFeatures));
+        assertEquals(roadFeatures.length, featureCollection.size());
+    }
+
     public void testSimpleSource() {
         SimpleFeatureCollection collection = DataUtilities.collection(roadFeatures);
         FeatureSource<SimpleFeatureType,SimpleFeature> source = DataUtilities.source(collection);
