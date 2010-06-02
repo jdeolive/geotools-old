@@ -12,7 +12,7 @@ import org.geotools.grid.Envelopes;
 import org.geotools.grid.Grids;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.map.MapContext;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.geotools.referencing.CRS;
 import org.geotools.styling.SLD;
 import org.geotools.swing.JMapFrame;
 
@@ -28,26 +28,26 @@ import org.geotools.swing.JMapFrame;
 public class ReprojectedGridExample {
 
     public static void main(String[] args) throws Exception {
-        URL url = ReprojectedGridExample.class.getResource("/data/shapefiles/bc_voting_areas.shp");
+        URL url = ReprojectedGridExample.class.getResource("/data/shapefiles/oz.shp");
         FileDataStore store = FileDataStoreFinder.getDataStore(url);
         FeatureSource featureSource = store.getFeatureSource();
 
         ReferencedEnvelope featureBounds = featureSource.getBounds();
-        ReferencedEnvelope latLonEnv = featureBounds.transform(DefaultGeographicCRS.WGS84, true);
+        //ReferencedEnvelope latLonEnv = featureBounds.transform(DefaultGeographicCRS.WGS84, true);
 
         // create a grid of squares 2 degrees across
-        final double gridSize = 2.0;
+        final double gridSize = 5.0;
 
         // vertex spacing for 'densified' grid polygons
         final double vertexSpacing = gridSize / 20;
-        ReferencedEnvelope roundedEnv = Envelopes.expandToInclude(latLonEnv, gridSize);
+        ReferencedEnvelope gridBounds = Envelopes.expandToInclude(featureBounds, gridSize);
 
         // create the vector grid
-        SimpleFeatureCollection grid = Grids.createSquareGrid(roundedEnv, gridSize, vertexSpacing);
+        SimpleFeatureCollection grid = Grids.createSquareGrid(gridBounds, gridSize, vertexSpacing);
 
         MapContext map = new DefaultMapContext();
         map.setTitle("Vector grid");
-        map.setCoordinateReferenceSystem(featureBounds.getCoordinateReferenceSystem());
+        map.setCoordinateReferenceSystem(CRS.decode("EPSG:4462", true));
         map.addLayer(featureSource, SLD.createPolygonStyle(Color.BLUE, Color.CYAN, 1.0f));
         map.addLayer(grid, SLD.createPolygonStyle(Color.LIGHT_GRAY, null, 1.0f));
 
