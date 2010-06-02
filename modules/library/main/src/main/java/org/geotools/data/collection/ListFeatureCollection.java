@@ -60,10 +60,30 @@ public class ListFeatureCollection extends AbstractFeatureCollection {
      /** Cached bounds */
      private ReferencedEnvelope bounds = null;
     
-     protected ListFeatureCollection(SimpleFeatureType schema) {
+     /**
+      * Create a ListFeatureCollection for the provided schema
+      * An ArrayList is used internally.
+      * @param schema
+      */
+     public ListFeatureCollection(SimpleFeatureType schema) {
          this(schema, new ArrayList<SimpleFeature>());
      }
-     protected ListFeatureCollection(SimpleFeatureType schema, List<SimpleFeature> list ){
+     /**
+      * Create a ListFeatureCollection around the provided list. The contents
+      * of the list should all be of the provided schema for this to make sense.
+      * Please keep in mind the feature collection control, no two Features in the list
+      * should have the same feature id, and you should not insert the same feature more
+      * then once.
+      * <p>
+      * The provided list is directly used for storage, most feature collection
+      * operations just use a simple iterator so there is no performance advantaged
+      * to be gained over using an ArrayList vs a LinkedList (other then for the size()
+      * method of course).
+      * 
+      * @param schema
+      * @param list
+      */
+     public ListFeatureCollection(SimpleFeatureType schema, List<SimpleFeature> list ){
          super(schema);
          this.list = list;
      }
