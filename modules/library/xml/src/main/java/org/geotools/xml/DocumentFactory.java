@@ -28,81 +28,73 @@ import javax.xml.parsers.SAXParserFactory;
 
 import org.xml.sax.SAXException;
 
-
 /**
- * SchemaFactory purpose.
- * 
- * <p>
  * This is the main entry point into the XSI parsing routines.
- * </p>
- * 
  * <p>
  * Example Use:
- * <pre><code>
  * 
- *  
- *    
+ * <pre>
  *     Object x = DocumentFactory.getInstance(new URI(&quot;MyInstanceDocumentURI&quot;);
- *     
- *   
- *  
- * </code></pre>
+ * </pre>
+ * 
  * </p>
- *
+ * 
  * @author dzwiers, Refractions Research, Inc. http://www.refractions.net
  * @author $Author:$ (last modification)
- * @source $URL$
+ * @source $URL:
+ *         http://svn.osgeo.org/geotools/trunk/modules/library/xml/src/main/java/org/geotools/xml
+ *         /DocumentFactory.java $
  * @version $Id$
  */
 public class DocumentFactory {
 
-	/**
-	 * When this hint is contained and set to Boolean.FALSE, element ordering will not 
-	 * be validated. This key may also affect data validation within the parse routines. 
-	 * The inherent safety of the resulting objects is weekend by turning this param to false.
-	 */
+    /**
+     * When this hint is contained and set to Boolean.FALSE, element ordering will not be validated.
+     * This key may also affect data validation within the parse routines. The inherent safety of
+     * the resulting objects is weekend by turning this param to false.
+     */
     public static final String VALIDATION_HINT = "DocumentFactory_VALIDATION_HINT";
-    
+
     /**
      * <p>
      * calls getInstance(URI,Level) with Level.WARNING
      * </p>
-     *
+     * 
      * @param desiredDocument
-     * @param hints May be null.
-     *
+     * @param hints
+     *            May be null.
+     * 
      * @return Object
-     *
+     * 
      * @throws SAXException
-     *
+     * 
      * @see DocumentFactory#getInstance(URI, Map, Level)
      */
-    public static Object getInstance(URI desiredDocument, Map hints)
-        throws SAXException {
+    public static Object getInstance(URI desiredDocument, Map hints) throws SAXException {
         return getInstance(desiredDocument, hints, Level.WARNING);
     }
 
     /**
      * <p>
-     * Parses the instance data provided. This method assumes that the XML
-     * document is fully described using XML Schemas. Failure to be fully
-     * described as Schemas will result in errors, as opposed to a vid parse.
+     * Parses the instance data provided. This method assumes that the XML document is fully
+     * described using XML Schemas. Failure to be fully described as Schemas will result in errors,
+     * as opposed to a vid parse.
      * </p>
-     *
+     * 
      * @param desiredDocument
-     * @param hints May be null.
+     * @param hints
+     *            May be null.
      * @param level
-     *
+     * 
      * @return Object
-     *
+     * 
      * @throws SAXException
      */
     public static Object getInstance(URI desiredDocument, Map hints, Level level)
-        throws SAXException {
+            throws SAXException {
         SAXParser parser = getParser();
 
-        XMLSAXHandler xmlContentHandler = new XMLSAXHandler(desiredDocument,
-                hints);
+        XMLSAXHandler xmlContentHandler = new XMLSAXHandler(desiredDocument, hints);
         XMLSAXHandler.setLogLevel(level);
 
         try {
@@ -116,21 +108,21 @@ public class DocumentFactory {
 
     /**
      * <p>
-     * Parses the instance data provided. This method assumes that the XML
-     * document is fully described using XML Schemas. Failure to be fully
-     * described as Schemas will result in errors, as opposed to a vid parse.
+     * Parses the instance data provided. This method assumes that the XML document is fully
+     * described using XML Schemas. Failure to be fully described as Schemas will result in errors,
+     * as opposed to a vid parse.
      * </p>
-     *
+     * 
      * @param is
-     * @param hints May be null.
+     * @param hints
+     *            May be null.
      * @param level
-     *
+     * 
      * @return Object
-     *
+     * 
      * @throws SAXException
      */
-    public static Object getInstance(InputStream is, Map hints, Level level)
-        throws SAXException {
+    public static Object getInstance(InputStream is, Map hints, Level level) throws SAXException {
         SAXParser parser = getParser();
 
         XMLSAXHandler xmlContentHandler = new XMLSAXHandler(hints);
@@ -155,9 +147,9 @@ public class DocumentFactory {
         spf.setValidating(false);
 
         try {
-//            spf.setFeature("http://xml.org/sax/features/external-general-entities", false);
-//            spf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-            
+            // spf.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            // spf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+
             SAXParser sp = spf.newSAXParser();
             return sp;
         } catch (ParserConfigurationException e) {

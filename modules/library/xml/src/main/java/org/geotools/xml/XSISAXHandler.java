@@ -32,9 +32,6 @@ import org.xml.sax.helpers.DefaultHandler;
 
 
 /**
- * XSISAXHandler purpose.
- * 
- * <p>
  * This is a schema handler. Code here has been modified from code written by
  * Ian Schneider.
  * </p>

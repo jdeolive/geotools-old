@@ -45,7 +45,6 @@ import org.xml.sax.SAXException;
 
 
 /**
- * <p>
  * This class represents a hard coded, java interpreted version  of the GML
  * 2.1.2 schema. Instances of this class should be prefered for use over a
  * parsed instance as this class will create real instances  for elements

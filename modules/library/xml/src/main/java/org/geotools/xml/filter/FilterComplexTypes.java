@@ -143,7 +143,7 @@ public class FilterComplexTypes {
         /**
          * @see org.geotools.xml.schema.Type#getInstanceType()
          */
-        public Class getInstanceType() {
+        public Class<?> getInstanceType() {
             return FilterCapabilities.class;
         }
 

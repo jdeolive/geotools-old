@@ -31,12 +31,7 @@ import org.xml.sax.SAXNotSupportedException;
 
 
 /**
- * XSIElementHandler purpose.
- * 
- * <p>
- * This abstract class is intended to act as both a definition of a generic
- * handler.
- * </p>
+ * Intended to act as both a definition and a generic handler.
  *
  * @author dzwiers, Refractions Research, Inc. http://www.refractions.net
  * @author $Author:$ (last modification)

@@ -78,6 +78,7 @@
   <!--     Dependency Management                                   -->
   <!-- =========================================================== -->
   <dependencies>
+  
     <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-api</artifactId>
@@ -88,6 +89,21 @@
       <artifactId>gt-main</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <!--  xml parser/encoder dependencies -->
+    <dependency>
+      <groupId>org.geotools.xsd</groupId>
+      <artifactId>gt-xsd-wfs</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    
+    <!--  xml/xsd dependencies -->
+    <dependency>
+      <groupId>org.geotools.ogc</groupId>
+      <artifactId>net.opengis.wfs</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    
+    <!--  test dependencies -->
     <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-sample-data</artifactId>

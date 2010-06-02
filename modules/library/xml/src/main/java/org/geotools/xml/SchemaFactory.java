@@ -49,23 +49,13 @@ import org.xml.sax.SAXException;
 
 
 /**
- * SchemaFactory purpose.
- * 
- * <p>
  * This is the main entry point into the XSI parsing routines.
- * </p>
  * 
  * <p>
  * Example Use:
- * <pre><code>
- * 
- *  
- *    
- *     Schema x = SchemaFactory.getInstance(&quot;MyTargetNameSpace&quot;,new URI(&quot;MyNameSpaceURI&quot;);
- *     
- *   
- *  
- * </code></pre>
+ * <pre>
+ * Schema x = SchemaFactory.getInstance(&quot;MyTargetNameSpace&quot;,new URI(&quot;MyNameSpaceURI&quot;);
+ * </pre>
  * </p>
  *
  * @author dzwiers, Refractions Research, Inc. http://www.refractions.net

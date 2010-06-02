@@ -41,12 +41,8 @@ import org.xml.sax.helpers.DefaultHandler;
 
 
 /**
- * XMLSAXHandler purpose.
- * 
- * <p>
  * This is a schema content handler. Code here has been modified from code
  * written by Ian Schneider.
- * </p>
  * 
  * <p>
  * This class contains one stack used to store part of the parse tree. The
