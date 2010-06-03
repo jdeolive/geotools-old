@@ -18,6 +18,7 @@
 package org.geotools.grid;
 
 import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.grid.hexagon.Hexagon;
 import org.geotools.grid.hexagon.Hexagons;
@@ -68,7 +69,7 @@ public class Grids {
      *         if bounds is null or empty; or
      *         if sideLen is {@code <=} 0
      */
-    public static SimpleFeatureCollection createSquareGrid(
+    public static SimpleFeatureSource createSquareGrid(
             ReferencedEnvelope bounds, double sideLen) {
 
         if (bounds == null) {
@@ -116,7 +117,7 @@ public class Grids {
      *         if bounds is null or empty; or
      *         if sideLen is {@code <=} 0
      */
-    public static SimpleFeatureCollection createSquareGrid(
+    public static SimpleFeatureSource createSquareGrid(
             ReferencedEnvelope bounds, double sideLen, double vertexSpacing) {
         
         if (bounds == null) {
@@ -166,7 +167,7 @@ public class Grids {
      *         set for the bounds and the {@code GridFeatureBuilder} are both
      *         non-null but different
      */
-    public static SimpleFeatureCollection createSquareGrid(
+    public static SimpleFeatureSource createSquareGrid(
             ReferencedEnvelope bounds, double sideLen, double vertexSpacing,
             GridFeatureBuilder builder) {
 
@@ -203,7 +204,7 @@ public class Grids {
      *         if bounds is null or empty; or
      *         if sideLen is {@code <=} 0
      */
-    public static SimpleFeatureCollection createHexagonalGrid(
+    public static SimpleFeatureSource createHexagonalGrid(
             ReferencedEnvelope bounds, double sideLen) {
 
         if (bounds == null) {
@@ -256,7 +257,7 @@ public class Grids {
      *         if bounds is null or empty; or
      *         if sideLen is {@code <=} 0
      */
-    public static SimpleFeatureCollection createHexagonalGrid(
+    public static SimpleFeatureSource createHexagonalGrid(
             ReferencedEnvelope bounds, double sideLen, double vertexSpacing) {
 
         if (bounds == null) {
@@ -316,7 +317,7 @@ public class Grids {
      *         set for the bounds and the {@code GridFeatureBuilder} are both
      *         non-null but different
      */
-    public static SimpleFeatureCollection createHexagonalGrid(
+    public static SimpleFeatureSource createHexagonalGrid(
             ReferencedEnvelope bounds, double sideLen, double vertexSpacing,
             GridFeatureBuilder builder) {
 

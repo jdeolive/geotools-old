@@ -23,7 +23,7 @@ import java.util.Map;
 import com.vividsolutions.jts.geom.Coordinate;
 
 import org.geotools.data.DataUtilities;
-import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.grid.DefaultFeatureBuilder;
 import org.geotools.grid.GridFeatureBuilder;
@@ -131,14 +131,14 @@ public class OblongsTest extends TestBase {
 
         final double WIDTH = 5.0;
         final double HEIGHT = 10.0;
-        SimpleFeatureCollection grid = Oblongs.createGrid(bounds, WIDTH, HEIGHT, setter);
-        assertNotNull(grid);
+        SimpleFeatureSource gridSource = Oblongs.createGrid(bounds, WIDTH, HEIGHT, setter);
+        assertNotNull(gridSource);
 
         int expectedCols = (int) (SPAN / WIDTH);
         int expectedRows = (int) (SPAN / HEIGHT);
 
         assertEquals(expectedCols * expectedRows, setter.id);
-        assertEquals(setter.id, grid.size());
+        assertEquals(setter.id, gridSource.getFeatures().size());
     }
     
     @Test(expected=IllegalArgumentException.class)

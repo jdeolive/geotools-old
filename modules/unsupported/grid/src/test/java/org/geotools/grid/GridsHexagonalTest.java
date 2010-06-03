@@ -20,6 +20,7 @@ package org.geotools.grid;
 import com.vividsolutions.jts.geom.Polygon;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 
 import org.junit.Test;
@@ -44,11 +45,11 @@ public class GridsHexagonalTest {
     private final int expectedNumElements = expectedRows * expectedCols;
 
     @Test
-    public void createGrid() {
-        SimpleFeatureCollection grid = Grids.createHexagonalGrid(BOUNDS, SIDE_LEN);
-        assertGridSizeAndIds(grid);
+    public void createGrid() throws Exception {
+        SimpleFeatureSource gridSource = Grids.createHexagonalGrid(BOUNDS, SIDE_LEN);
+        assertGridSizeAndIds(gridSource);
 
-        SimpleFeatureIterator iter = grid.features();
+        SimpleFeatureIterator iter = gridSource.getFeatures().features();
         try {
             SimpleFeature f = iter.next();
             Polygon poly = (Polygon) f.getDefaultGeometry();
@@ -59,12 +60,12 @@ public class GridsHexagonalTest {
     }
 
     @Test
-    public void createDensifiedGrid() {
+    public void createDensifiedGrid() throws Exception {
         final int vertexDensity = 10;
-        SimpleFeatureCollection grid = Grids.createHexagonalGrid(BOUNDS, SIDE_LEN, SIDE_LEN / vertexDensity);
-        assertGridSizeAndIds(grid);
+        SimpleFeatureSource gridSource = Grids.createHexagonalGrid(BOUNDS, SIDE_LEN, SIDE_LEN / vertexDensity);
+        assertGridSizeAndIds(gridSource);
 
-        SimpleFeatureIterator iter = grid.features();
+        SimpleFeatureIterator iter = gridSource.getFeatures().features();
         try {
             SimpleFeature f = iter.next();
             Polygon poly = (Polygon) f.getDefaultGeometry();
@@ -89,9 +90,9 @@ public class GridsHexagonalTest {
         Grids.createHexagonalGrid(BOUNDS, 0);
     }
 
-    private void assertGridSizeAndIds(SimpleFeatureCollection grid) {
+    private void assertGridSizeAndIds(SimpleFeatureSource gridSource) throws Exception {
+        SimpleFeatureCollection grid = gridSource.getFeatures();
         assertEquals(expectedNumElements, grid.size());
-        //assertTrue(expectedBounds.boundsEquals2D(grid.getBounds(), TOL));
 
         boolean[] flag = new boolean[expectedNumElements + 1];
         int count = 0;

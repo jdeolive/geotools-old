@@ -21,9 +21,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.vividsolutions.jts.geom.Envelope;
+import org.geotools.data.DataUtilities;
+import org.geotools.data.collection.ListFeatureCollection;
 
 import org.geotools.data.simple.SimpleFeatureCollection;
-import org.geotools.feature.FeatureCollections;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.grid.GridFeatureBuilder;
@@ -269,7 +271,7 @@ public class Hexagons {
      *         set for the bounds and the {@code GridFeatureBuilder} are both
      *         non-null but different
      */
-    public static SimpleFeatureCollection createGrid(
+    public static SimpleFeatureSource createGrid(
             ReferencedEnvelope bounds,
             double sideLen,
             Orientation orientation,
@@ -305,7 +307,7 @@ public class Hexagons {
      *         set for the bounds and the {@code GridFeatureBuilder} are both
      *         non-null but different
      */
-    public static SimpleFeatureCollection createGrid(
+    public static SimpleFeatureSource createGrid(
             ReferencedEnvelope bounds,
             double sideLen,
             double vertexSpacing,
@@ -331,7 +333,7 @@ public class Hexagons {
             throw new IllegalArgumentException("Different CRS set for bounds and grid feature builder");
         }
 
-        final SimpleFeatureCollection fc = FeatureCollections.newCollection();
+        final SimpleFeatureCollection fc = new ListFeatureCollection(gridBuilder.getType());
         final SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(gridBuilder.getType());
         String geomPropName = gridBuilder.getType().getGeometryDescriptor().getLocalName();
         
@@ -389,7 +391,7 @@ public class Hexagons {
             xIndex = 0;
         }
 
-        return fc;
+        return DataUtilities.source(fc);
     }
 
 }

@@ -23,7 +23,7 @@ import java.util.Map;
 import com.vividsolutions.jts.geom.Coordinate;
 
 import org.geotools.data.DataUtilities;
-import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.grid.GridFeatureBuilder;
 import org.geotools.grid.GridElement;
@@ -205,14 +205,14 @@ public class HexagonsTest extends HexagonTestBase {
 
         Setter setter = new Setter(TYPE);
 
-        SimpleFeatureCollection grid = Hexagons.createGrid(bounds, SIDE_LEN, Orientation.FLAT, setter);
-        assertNotNull(grid);
+        SimpleFeatureSource gridSource = Hexagons.createGrid(bounds, SIDE_LEN, Orientation.FLAT, setter);
+        assertNotNull(gridSource);
 
         int expectedCols = (int) ((SPAN - 2 * SIDE_LEN) / (1.5 * SIDE_LEN)) + 1;
         int expectedRows = (int) (SPAN / (Math.sqrt(3.0) * SIDE_LEN));
         
         assertEquals(expectedCols * expectedRows, setter.id);
-        assertEquals(setter.id, grid.size());
+        assertEquals(setter.id, gridSource.getFeatures().size());
     }
 
     private void assertNeighborVertices(Hexagon h0, Hexagon h1, double dx, double dy) {

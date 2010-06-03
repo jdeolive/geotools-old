@@ -23,6 +23,7 @@ import com.vividsolutions.jts.geom.Polygon;
 
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
@@ -52,11 +53,11 @@ public class GridsSquareTest extends TestBase {
     private final ReferencedEnvelope expectedBounds = new ReferencedEnvelope(0, sideLen * expectedCols, 0, sideLen * expectedRows, null);
 
     @Test
-    public void createGrid() {
-        SimpleFeatureCollection grid = Grids.createSquareGrid(bounds, sideLen);
-        assertGridSizeAndIds(grid);
+    public void createGrid() throws Exception {
+        SimpleFeatureSource gridSource = Grids.createSquareGrid(bounds, sideLen);
+        assertGridSizeAndIds(gridSource);
 
-        SimpleFeatureIterator iter = grid.features();
+        SimpleFeatureIterator iter = gridSource.getFeatures().features();
         try {
             Polygon poly = (Polygon) iter.next().getAttribute("element");
             assertEquals(5, poly.getCoordinates().length);
@@ -66,12 +67,12 @@ public class GridsSquareTest extends TestBase {
     }
 
     @Test
-    public void createDensifiedGrid() {
+    public void createDensifiedGrid() throws Exception {
         final int vertexDensity = 10;
-        SimpleFeatureCollection grid = Grids.createSquareGrid(bounds, sideLen, sideLen / vertexDensity);
-        assertGridSizeAndIds(grid);
+        SimpleFeatureSource gridSource = Grids.createSquareGrid(bounds, sideLen, sideLen / vertexDensity);
+        assertGridSizeAndIds(gridSource);
 
-        SimpleFeatureIterator iter = grid.features();
+        SimpleFeatureIterator iter = gridSource.getFeatures().features();
         try {
             Polygon poly = (Polygon) iter.next().getAttribute("element");
             assertTrue(poly.getCoordinates().length - 1 >= 4 * vertexDensity);
@@ -115,7 +116,8 @@ public class GridsSquareTest extends TestBase {
         Grids.createSquareGrid(new ReferencedEnvelope(150, 151, -33, -34, boundsCRS), sideLen, sideLen, builder);
     }
 
-    private void assertGridSizeAndIds(SimpleFeatureCollection grid) {
+    private void assertGridSizeAndIds(SimpleFeatureSource gridSource) throws Exception {
+        SimpleFeatureCollection grid = gridSource.getFeatures();
         assertEquals(expectedNumElements, grid.size());
         assertTrue(expectedBounds.boundsEquals2D(grid.getBounds(), TOL));
 
