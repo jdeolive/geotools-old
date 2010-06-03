@@ -22,7 +22,7 @@ import java.util.Map;
 
 import com.vividsolutions.jts.geom.Polygon;
 
-import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -57,7 +57,7 @@ public class HexagonExample {
         typeBuilder.setName("hextype");
         typeBuilder.add("hexagon", Polygon.class, (CoordinateReferenceSystem)null);
         typeBuilder.add("color", Color.class);
-        final SimpleFeatureType TYPE = typeBuilder.buildFeatureType();
+        SimpleFeatureType TYPE = typeBuilder.buildFeatureType();
 
         final ReferencedEnvelope bounds = new ReferencedEnvelope(0, 100, 0, 100, null);
 
@@ -69,12 +69,12 @@ public class HexagonExample {
             }
         };
 
-        final double sideLen = 5.0;
+        double sideLen = 5.0;
 
-        SimpleFeatureCollection lattice = Grids.createHexagonalGrid(bounds, sideLen, -1, builder);
+        SimpleFeatureSource grid = Grids.createHexagonalGrid(bounds, sideLen, -1, builder);
 
         DefaultMapContext map = new DefaultMapContext();
-        map.addLayer(lattice, createStyle("color"));
+        map.addLayer(grid, createStyle("color"));
         JMapFrame.showMap(map);
     }
 

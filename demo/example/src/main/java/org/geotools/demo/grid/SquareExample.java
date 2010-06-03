@@ -22,7 +22,7 @@ import java.util.Map;
 
 import com.vividsolutions.jts.geom.Polygon;
 
-import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -68,10 +68,10 @@ public class SquareExample {
         };
 
         final double sideLen = 10.0;
-        SimpleFeatureCollection lattice = Grids.createSquareGrid(bounds, sideLen, -1, builder);
+        SimpleFeatureSource grid = Grids.createSquareGrid(bounds, sideLen, -1, builder);
 
         DefaultMapContext map = new DefaultMapContext();
-        map.addLayer(lattice, createStyle("color"));
+        map.addLayer(grid, createStyle("color"));
         JMapFrame.showMap(map);
     }
 

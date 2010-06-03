@@ -21,7 +21,6 @@ import java.awt.Color;
 
 import org.geotools.data.FileDataStore;
 import org.geotools.data.FileDataStoreFinder;
-import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
@@ -53,24 +52,26 @@ public class IntersectionExample {
     public static void main(String[] args) throws Exception {
         URL url = IntersectionExample.class.getResource("/data/shapefiles/oz.shp");
         FileDataStore dataStore = FileDataStoreFinder.getDataStore(url);
-        final SimpleFeatureSource featureSource = dataStore.getFeatureSource();
+        SimpleFeatureSource ozMapSource = dataStore.getFeatureSource();
 
-        final double sideLen = 1.0;
+        // set the grid size (1 degree) and create a bounding envelope
+        // that is neatly aligned with the grid size
+        double sideLen = 1.0;
         ReferencedEnvelope gridBounds =
-                Envelopes.expandToInclude(featureSource.getBounds(), sideLen);
+                Envelopes.expandToInclude(ozMapSource.getBounds(), sideLen);
 
         SimpleFeatureTypeBuilder tb = new SimpleFeatureTypeBuilder();
         tb.setName("grid");
         tb.add(GridFeatureBuilder.DEFAULT_GEOMETRY_ATTRIBUTE_NAME,
                 Polygon.class, gridBounds.getCoordinateReferenceSystem());
         tb.add("id", Integer.class);
-        final SimpleFeatureType TYPE = tb.buildFeatureType();
+        SimpleFeatureType TYPE = tb.buildFeatureType();
 
-        GridFeatureBuilder builder = new IntersectionBuilder(TYPE, featureSource);
-        SimpleFeatureCollection grid = Grids.createHexagonalGrid(gridBounds, sideLen, -1, builder);
+        GridFeatureBuilder builder = new IntersectionBuilder(TYPE, ozMapSource);
+        SimpleFeatureSource grid = Grids.createHexagonalGrid(gridBounds, sideLen, -1, builder);
 
         MapContext map = new DefaultMapContext();
-        map.addLayer(featureSource, SLD.createPolygonStyle(Color.BLUE, Color.CYAN, 1.0f));
+        map.addLayer(ozMapSource, SLD.createPolygonStyle(Color.BLUE, Color.CYAN, 1.0f));
         map.addLayer(grid, null);
         JMapFrame.showMap(map);
     }
