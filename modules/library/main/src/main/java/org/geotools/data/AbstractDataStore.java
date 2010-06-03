@@ -221,7 +221,7 @@ public abstract class AbstractDataStore implements DataStore {
      */
     protected FeatureWriter<SimpleFeatureType, SimpleFeature> createFeatureWriter(String typeName, Transaction transaction)
     throws IOException {
-        throw new UnsupportedOperationException("Schema creation not supported");    	
+        throw new UnsupportedOperationException("FeatureWriter not supported");    	
     }
     /**
      * Subclass should implement to provide writing support.
