@@ -11,7 +11,7 @@ Follow the :ref:`quickstart` to get up and running with GeoTools in minutes.
 Examples
 --------
 
-Visit the :ref:`examples` section for tutorial notes and source code that
+Visit the `examples <http://geotools.org/userguide/examples>`_ section for tutorial notes and source code that
 illustrate some of the common uses of GeoTools.
 
 Reference
@@ -24,7 +24,6 @@ The `user guide <http://geotools.org/userguide>`_ is a comprehensive reference f
 
    userguide/index
    quickstart
-   examples/index
 
 FAQ
 ---
