@@ -22,11 +22,17 @@ import java.net.URI;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import javax.xml.namespace.QName;
-import org.opengis.feature.type.AttributeType;
+
 import org.geotools.feature.NameImpl;
 import org.geotools.feature.type.AttributeTypeImpl;
+import org.geotools.feature.type.ProfileImpl;
 import org.geotools.feature.type.SchemaImpl;
+import org.opengis.feature.type.AttributeType;
+import org.opengis.feature.type.Name;
 
 
 /**
@@ -1641,4 +1647,54 @@ public class XSSchema extends SchemaImpl {
         put(new NameImpl("http://www.w3.org/2001/XMLSchema", "allNNI"), ALLNNI_TYPE);
         put(new NameImpl("http://www.w3.org/2001/XMLSchema", "IDREF"), IDREF_TYPE);
     }
+    
+    /**
+     * Profile of XSSchema used to provide a unique mapping for Java classes.
+     * <p>
+     * The entries selected are:
+     * <ul>
+     * <li>XS.BYTE: Byte</li>
+     * <li>XS.HEXBINARY)): byte</li>
+     * <li>XS.SHORT: Short</li>
+     * <li>XS.INT: Integer</li>
+     * <li>XS.FLOAT: Float</li>
+     * <li>XS.LONG: Long</li>
+     * <li>XS.QNAME: Qname</li>
+     * <li>XS.DATE: java.sql.Date</li>
+     * <li>XS.DATETIME: java.sql.Timestamp</li>
+     * <li>XS.TIME: java.sql.Time</li>
+     * <li>XS.BOOLEAN: Boolean</li>
+     * <li>XS.DOUBLE: Double</li>
+     * <li>XS.STRING: String</li>
+     * <li>XS.INTEGER: BigInteger</li>
+     * <li>XS.DECIMAL: BigDecimal</li>
+     * <li>XS.ANYURI: URI</li>
+     * </ul>
+     * This is just the profile used by GeoTools internally; you are free to make and use your own
+     * profile when encoding/decoding.
+     * <p>
+     * 
+     * @return Subset of XSSchema capturing a unique mapping for Java classes
+     */
+    public ProfileImpl profile() {
+        Set<Name> profile = new LinkedHashSet<Name>();
+        profile.add(new NameImpl(XS.BYTE)); // Byte.class
+        profile.add(new NameImpl(XS.HEXBINARY)); // byte[].class
+        profile.add(new NameImpl(XS.SHORT)); // Short.class
+        profile.add(new NameImpl(XS.INT)); // Integer.class
+        profile.add(new NameImpl(XS.FLOAT)); // Float.class
+        profile.add(new NameImpl(XS.LONG)); // Long.class
+        profile.add(new NameImpl(XS.QNAME)); // Qname.class
+        profile.add(new NameImpl(XS.DATE)); // java.sql.Date.class
+        profile.add(new NameImpl(XS.DATETIME)); // java.sql.Timestamp.class
+        profile.add(new NameImpl(XS.TIME)); // java.sql.Time.class
+        profile.add(new NameImpl(XS.BOOLEAN)); // Boolean.class
+        profile.add(new NameImpl(XS.DOUBLE)); // Double.class
+        profile.add(new NameImpl(XS.STRING)); // String.class
+        profile.add(new NameImpl(XS.INTEGER)); // BigInteger.class
+        profile.add(new NameImpl(XS.DECIMAL)); // BigDecimal.class
+        profile.add(new NameImpl(XS.ANYURI)); // URI.class
+        return new ProfileImpl(this, profile);
+    }
+    
 }

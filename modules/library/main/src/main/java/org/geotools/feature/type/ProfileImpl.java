@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.Map.Entry;
 
 import org.opengis.feature.type.AttributeType;
@@ -85,7 +86,12 @@ public class ProfileImpl implements Schema {
 	}
 
 	public Schema profile(Set<Name> profile) {
-		return parent.profile( profile );
+	    if( !this.profile.containsAll( profile ) ){
+	        Set<Name> set = new TreeSet<Name>( profile );
+	        set.removeAll( this.profile );
+	        throw new IllegalArgumentException("Unable to profile the following names: "+set );
+	    }
+	    return parent.profile( profile );
 	}
 
 	public int size() {

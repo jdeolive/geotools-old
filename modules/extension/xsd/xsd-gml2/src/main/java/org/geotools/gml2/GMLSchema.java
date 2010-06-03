@@ -18,17 +18,22 @@ package org.geotools.gml2;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.geotools.feature.NameImpl;
 import org.geotools.feature.type.AttributeDescriptorImpl;
 import org.geotools.feature.type.AttributeTypeImpl;
 import org.geotools.feature.type.FeatureTypeImpl;
+import org.geotools.feature.type.ProfileImpl;
 import org.geotools.feature.type.SchemaImpl;
+import org.geotools.gml2.GML;
 import org.geotools.xs.XSSchema;
 import org.opengis.feature.Feature;
 import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.FeatureType;
+import org.opengis.feature.type.Name;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.CoordinateSequence;
@@ -1137,5 +1142,25 @@ public class GMLSchema extends SchemaImpl {
             MULTIPOINTPROPERTYTYPE_TYPE);
         put(new NameImpl("http://www.opengis.net/gml", "LineStringPropertyType"),
             LINESTRINGPROPERTYTYPE_TYPE);
+    }
+    
+    /**
+     * Profile of GMLSchema capturing a unique mapping of Java classes.
+     * <p>
+     * This profile mostly matches to JTS Geometry classes.
+     * 
+     * @return Subset of GMLSchema capturing a unique mapping of Java classes
+     */
+    public ProfileImpl profile() {
+        Set<Name> profile = new LinkedHashSet<Name>();
+        profile.add(new NameImpl(GML.PointPropertyType));
+        profile.add(new NameImpl(GML.MultiPointPropertyType));
+        profile.add(new NameImpl(GML.LineStringPropertyType));
+        profile.add(new NameImpl(GML.MultiLineStringPropertyType));
+        profile.add(new NameImpl(GML.PolygonPropertyType));
+        profile.add(new NameImpl(GML.MultiPolygonPropertyType));
+        profile.add(new NameImpl(GML.GeometryPropertyType));
+        
+        return new ProfileImpl(this,profile);
     }
 }

@@ -2,18 +2,22 @@ package org.geotools.gml3;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.geotools.feature.NameImpl;
 import org.geotools.feature.type.AttributeDescriptorImpl;
 import org.geotools.feature.type.AttributeTypeImpl;
 import org.geotools.feature.type.ComplexTypeImpl;
+import org.geotools.feature.type.ProfileImpl;
 import org.geotools.feature.type.SchemaImpl;
 import org.geotools.gml3.smil.SMIL20LANGSchema;
 import org.geotools.xlink.XLINKSchema;
 import org.geotools.xs.XSSchema;
 import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.ComplexType;
+import org.opengis.feature.type.Name;
 import org.opengis.feature.type.PropertyDescriptor;
 import org.opengis.filter.Filter;
 
@@ -24118,6 +24122,31 @@ public class GMLSchema extends SchemaImpl {
         put(new NameImpl("http://www.opengis.net/gml","CylindricalCSType"),CYLINDRICALCSTYPE_TYPE);
         put(new NameImpl("http://www.opengis.net/gml","CylindricalCSRefType"),CYLINDRICALCSREFTYPE_TYPE);
         put(new NameImpl("http://www.opengis.net/gml","OffsetCurveType"),OFFSETCURVETYPE_TYPE);
+    }
+    /**
+     * Profile of GMLSchema capturing a unique mapping of Java classes.
+     * <p>
+     * This profile mostly matches to JTS Geometry classes.
+     * 
+     * @return Subset of GMLSchema capturing a unique mapping of Java classes
+     */
+    public ProfileImpl profile() {
+        Set<Name> profile = new LinkedHashSet<Name>();
+        profile.add(new NameImpl(GML.MeasureType));
+        profile.add(new NameImpl(GML.PointPropertyType));
+        profile.add(new NameImpl(GML.MultiPointPropertyType));
+        profile.add(new NameImpl(GML.LineStringPropertyType));
+        profile.add(new NameImpl(GML.MultiLineStringPropertyType));
+        profile.add(new NameImpl(GML.CurvePropertyType));
+        profile.add(new NameImpl(GML.MultiCurvePropertyType));
+        profile.add(new NameImpl(GML.SurfacePropertyType));
+        profile.add(new NameImpl(GML.MultiSurfacePropertyType));
+        profile.add(new NameImpl(GML.PolygonPropertyType));
+        profile.add(new NameImpl(GML.MultiPolygonPropertyType));
+        profile.add(new NameImpl(GML.GeometryPropertyType));
+        profile.add(new NameImpl(GML.MultiGeometryPropertyType));
+        
+        return new ProfileImpl(this,profile);
     }
     
 }

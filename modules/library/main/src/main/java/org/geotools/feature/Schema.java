@@ -49,6 +49,7 @@ import org.opengis.filter.PropertyIsNull;
  * @see FeatureType
  * @author Jody Garnett
  * @since 2.1.0
+ * @deprecated This helper class was for the old feature model; please use FeatureTypes
  * @source $URL$
  */
 public class Schema {

@@ -55,7 +55,7 @@ public class NameImpl implements org.opengis.feature.type.Name, Serializable, Co
     /** local part */
     protected String local;
 
-	private String separator;
+    private String separator;
 
     /**
      * Constructs an instance with the local part set. Namespace / scope is
@@ -90,6 +90,13 @@ public class NameImpl implements org.opengis.feature.type.Name, Serializable, Co
         this.local = local;
     }
 
+    /**
+     * Constract an instance from the provided QName. 
+     */
+    public NameImpl( javax.xml.namespace.QName qName ){
+        this( qName.getNamespaceURI(), qName.getLocalPart() );
+    }
+    
     public boolean isGlobal() {
         return getNamespaceURI() == null;
     }
