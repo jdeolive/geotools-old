@@ -17,10 +17,8 @@
 
 package org.geotools.grid;
 
-import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.grid.hexagon.Hexagon;
 import org.geotools.grid.hexagon.Hexagons;
 import org.geotools.grid.oblong.Oblongs;
 
@@ -211,7 +209,7 @@ public class Grids {
             throw new IllegalArgumentException("bounds should not be null");
         }
 
-        return Hexagons.createGrid(bounds, sideLen, Hexagon.Orientation.FLAT,
+        return Hexagons.createGrid(bounds, sideLen, Orientation.FLAT,
                 new DefaultFeatureBuilder(bounds.getCoordinateReferenceSystem()));
     }
 
@@ -264,7 +262,7 @@ public class Grids {
             throw new IllegalArgumentException("bounds should not be null");
         }
 
-        return Hexagons.createGrid(bounds, sideLen, vertexSpacing, Hexagon.Orientation.FLAT,
+        return Hexagons.createGrid(bounds, sideLen, vertexSpacing, Orientation.FLAT,
                 new DefaultFeatureBuilder(bounds.getCoordinateReferenceSystem()));
     }
 
@@ -326,7 +324,7 @@ public class Grids {
         }
 
         return Hexagons.createGrid(bounds, sideLen, vertexSpacing,
-                Hexagon.Orientation.FLAT, builder);
+                Orientation.FLAT, builder);
     }
 
 }

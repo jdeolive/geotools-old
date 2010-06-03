@@ -15,33 +15,32 @@
  *    Lesser General Public License for more details.
  */
 
-package org.geotools.grid.hexagon;
-
-import org.geotools.grid.Orientation;
-import org.geotools.grid.GridElement;
+package org.geotools.grid;
 
 /**
- * Defines methods and enum constants to work with hexagons.
- *
- * @author mbedward
- * @since 2.7
- * @source $URL$
- * @version $Id$
+ * Constants to describe the orientation of a grid element.
+ * <ul>
+ * <li>
+ * An {@code ANGLED} element has a "pointy" top with a single vertex
+ * touching the upper edge of its bounding rectangle.
+ * </li>
+ * <li>
+ * A {@code FLAT} element has edges that run along the upper and
+ * lower edges of its bounding rectangle
+ * </li>
+ * </ul>
  */
-public interface Hexagon extends GridElement {
+public enum Orientation {
 
     /**
-     * Gets the side length of this hexagon.
-     *
-     * @return side length
+     * An {@code ANGLED} element has a "pointy" top with a single vertex
+     * touching the upper edge of its bounding rectangle.
      */
-    public double getSideLength();
-
+    ANGLED, 
+    
     /**
-     * Gets the orientation of this hexagon.
-     *
-     * @return either {@linkplain Orientation#ANGLED} or {@linkplain Orientation#FLAT}
+     * A {@code FLAT} element has edges that run along the upper and
+     * lower edges of its bounding rectangle
      */
-    public Orientation getOrientation();
-
+    FLAT;
 }

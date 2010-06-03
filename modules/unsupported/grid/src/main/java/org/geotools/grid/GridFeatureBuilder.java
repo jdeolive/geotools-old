@@ -46,7 +46,7 @@ public abstract class GridFeatureBuilder {
     /** Default name for the geometry attribute: "element" */
     public static final String DEFAULT_GEOMETRY_ATTRIBUTE_NAME = "element";
 
-    protected final SimpleFeatureType type;
+    private final SimpleFeatureType TYPE;
 
     /**
      * Creates an {@code GridFeatureBuilder} to work with the given feature type.
@@ -54,7 +54,7 @@ public abstract class GridFeatureBuilder {
      * @param type the feature type
      */
     public GridFeatureBuilder(SimpleFeatureType type) {
-        this.type = type;
+        this.TYPE = type;
     }
 
     /**
@@ -63,7 +63,7 @@ public abstract class GridFeatureBuilder {
      * @return the feature type
      */
     public SimpleFeatureType getType() {
-        return type;
+        return TYPE;
     }
 
     /**
@@ -106,7 +106,7 @@ public abstract class GridFeatureBuilder {
      * @param el the element from which the new feature would be constructed
      *
      * @return {@code true} to create a feature for the element; {@code false}
-     *         to skip the element.
+     *         to skip the element
      */
     public boolean getCreateFeature(GridElement el) {
         return true;

@@ -17,6 +17,7 @@
 
 package org.geotools.grid.hexagon;
 
+import org.geotools.grid.Orientation;
 import com.vividsolutions.jts.densify.Densifier;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;

@@ -26,7 +26,7 @@ import java.util.HashSet;
 import java.util.Set;
 import org.geotools.grid.GridElement;
 
-import org.geotools.grid.hexagon.Hexagon.Orientation;
+import org.geotools.grid.Orientation;
 
 import org.junit.Test;
 import static org.junit.Assert.*;

@@ -30,8 +30,8 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * A basic implementation of {@code GridFeatureBuilder} which will create a
  * {@code SimpleFeatureType} having two properties:
  * <ul>
- * <li>element - type Polygon
- * <li>id - type Integer
+ * <li>element - TYPE Polygon
+ * <li>id - TYPE Integer
  * </ul>
  * The attribute names can also be referred to using
  * {@linkplain GridFeatureBuilder#DEFAULT_GEOMETRY_ATTRIBUTE_NAME} and
@@ -46,7 +46,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  */
 public final class DefaultFeatureBuilder extends GridFeatureBuilder {
 
-    /** Default feature type name: "grid" */
+    /** Default feature TYPE name: "grid" */
     public static final String DEFAULT_TYPE_NAME = "grid";
 
     /** Name used for the integer id attribute: "id" */
@@ -55,14 +55,14 @@ public final class DefaultFeatureBuilder extends GridFeatureBuilder {
     private int id;
 
     /**
-     * Creates the feature type
+     * Creates the feature TYPE
      *
-     * @param typeName name for the feature type; if {@code null} or empty,
+     * @param typeName name for the feature TYPE; if {@code null} or empty,
      *        {@linkplain #DEFAULT_TYPE_NAME} will be used
      *
      * @param crs coordinate reference system (may be {@code null})
      *
-     * @return the feature type
+     * @return the feature TYPE
      */
     protected static SimpleFeatureType createType(String typeName, CoordinateReferenceSystem crs) {
         final String finalName;
@@ -80,7 +80,7 @@ public final class DefaultFeatureBuilder extends GridFeatureBuilder {
     }
 
     /**
-     * Creates a new instance with a feature type having the default name
+     * Creates a new instance with a feature TYPE having the default name
      * and a null coordinate reference system.
      *
      * @see #DEFAULT_TYPE_NAME
@@ -92,7 +92,7 @@ public final class DefaultFeatureBuilder extends GridFeatureBuilder {
     /**
      * Creates a new instance with a null coordinate reference system.
      *
-     * @param typeName name for the feature type; if {@code null} or empty,
+     * @param typeName name for the feature TYPE; if {@code null} or empty,
      *        {@linkplain #DEFAULT_TYPE_NAME} will be used
      */
     DefaultFeatureBuilder(String typeName) {
@@ -100,7 +100,7 @@ public final class DefaultFeatureBuilder extends GridFeatureBuilder {
     }
 
     /**
-     * Creates a new instance with a feature type having the default name
+     * Creates a new instance with a feature TYPE having the default name
      * and the supplied coordinate reference system.
      *
      * @param crs coordinate reference system (may be {@code null})
@@ -114,7 +114,7 @@ public final class DefaultFeatureBuilder extends GridFeatureBuilder {
     /**
      * Creates a new instance.
      *
-     * @param typeName name for the feature type; if {@code null} or empty,
+     * @param typeName name for the feature TYPE; if {@code null} or empty,
      *        {@linkplain #DEFAULT_TYPE_NAME} will be used
      *
      * @param crs coordinate reference system (may be {@code null})

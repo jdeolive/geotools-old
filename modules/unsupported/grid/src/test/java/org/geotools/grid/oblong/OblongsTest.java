@@ -17,10 +17,7 @@
 
 package org.geotools.grid.oblong;
 
-import java.util.HashMap;
 import java.util.Map;
-
-import com.vividsolutions.jts.geom.Coordinate;
 
 import org.geotools.data.DataUtilities;
 import org.geotools.data.simple.SimpleFeatureSource;
@@ -28,18 +25,17 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.grid.DefaultFeatureBuilder;
 import org.geotools.grid.GridFeatureBuilder;
 import org.geotools.grid.GridElement;
-import org.geotools.grid.Neighbor;
 import org.geotools.grid.TestBase;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 
 import org.opengis.feature.simple.SimpleFeatureType;
-
-import org.junit.Test;
 import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.referencing.FactoryException;
-import static org.junit.Assert.*;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
  * Unit tests for the Oblongs class.
@@ -66,45 +62,6 @@ public class OblongsTest extends TestBase {
     @Test(expected = IllegalArgumentException.class)
     public void badHeight() {
         Oblongs.create(1, 2, 3, -1, null);
-    }
-
-    @Test
-    public void createNeighbor() {
-        Oblong neighbor = null;
-
-        class Shift {
-
-            double dx;
-            double dy;
-
-            public Shift(double dx, double dy) {
-                this.dx = dx;
-                this.dy = dy;
-            }
-        }
-
-        final double WIDTH = 2.0;
-        final double HEIGHT = 1.0;
-
-        Map<Neighbor, Shift> shifts = new HashMap<Neighbor, Shift>();
-        shifts.put(Neighbor.LOWER, new Shift(0.0, -HEIGHT));
-        shifts.put(Neighbor.LOWER_LEFT, new Shift(-WIDTH, -HEIGHT));
-        shifts.put(Neighbor.LOWER_RIGHT, new Shift(WIDTH, -HEIGHT));
-        shifts.put(Neighbor.LEFT, new Shift(-WIDTH, 0.0));
-        shifts.put(Neighbor.RIGHT, new Shift(WIDTH, 0.0));
-        shifts.put(Neighbor.UPPER, new Shift(0.0, HEIGHT));
-        shifts.put(Neighbor.UPPER_LEFT, new Shift(-WIDTH, HEIGHT));
-        shifts.put(Neighbor.UPPER_RIGHT, new Shift(WIDTH, HEIGHT));
-
-        Oblong oblong = Oblongs.create(0.0, 0.0, WIDTH, HEIGHT, null);
-
-        for (Neighbor n : Neighbor.values()) {
-            neighbor = Oblongs.createNeighbor(oblong, n);
-
-            Shift shift = shifts.get(n);
-            assertNotNull("Error in test code", shift);
-            assertNeighbor(oblong, neighbor, shift.dx, shift.dy);
-        }
     }
 
     @Test
@@ -177,14 +134,4 @@ public class OblongsTest extends TestBase {
         }
     }
 
-    private void assertNeighbor(Oblong refEl, Oblong neighbor, double dx, double dy) {
-        Coordinate[] refCoords = refEl.getVertices();
-        Coordinate[] neighborCoords = neighbor.getVertices();
-
-        for (int i = 0; i < refCoords.length; i++) {
-            refCoords[i].x += dx;
-            refCoords[i].y += dy;
-            assertCoordinate(refCoords[i], neighborCoords[i]);
-        }
-    }
 }
