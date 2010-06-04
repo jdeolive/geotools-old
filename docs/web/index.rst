@@ -7,7 +7,5 @@ geospatial data.
 .. toctree::
    :hidden:
 
-   quickstart
-   documentation
    getinvolved
    about
