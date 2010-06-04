@@ -652,7 +652,7 @@ public class Encoder {
         }
 
         if (root == null) {
-            String msg = "Could not find elmeent declaration for:" + name;
+            String msg = "Could not find element declaration for:" + name;
             throw new IllegalArgumentException(msg);
         }
 

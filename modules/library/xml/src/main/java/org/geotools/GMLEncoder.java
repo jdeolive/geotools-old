@@ -13,6 +13,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
+import javax.xml.namespace.QName;
+import javax.xml.transform.TransformerException;
+
+import net.opengis.wfs.FeatureCollectionType;
+import net.opengis.wfs.WfsFactory;
+
 import org.eclipse.xsd.XSDComplexTypeDefinition;
 import org.eclipse.xsd.XSDCompositor;
 import org.eclipse.xsd.XSDDerivationMethod;
@@ -26,10 +32,15 @@ import org.eclipse.xsd.XSDSchema;
 import org.eclipse.xsd.XSDTypeDefinition;
 import org.eclipse.xsd.util.XSDConstants;
 import org.eclipse.xsd.util.XSDResourceImpl;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.AttributeTypeBuilder;
 import org.geotools.feature.NameImpl;
 import org.geotools.feature.type.SchemaImpl;
+import org.geotools.gml.producer.FeatureTransformer;
+import org.geotools.referencing.CRS;
+import org.geotools.wfs.WFS;
 import org.geotools.xml.Configuration;
+import org.geotools.xml.Encoder;
 import org.geotools.xs.XS;
 import org.geotools.xs.XSSchema;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -49,6 +60,11 @@ import org.opengis.feature.type.Schema;
  * <p>
  */
 public class GMLEncoder {
+    /** Version of encoder to use */
+    public static enum Version {
+        GML2, GML3, WFS1_0, WFS1_1
+    }
+
     private OutputStream out;
 
     private Charset encoding = Charset.forName("UTF-8");
@@ -67,8 +83,42 @@ public class GMLEncoder {
      */
     private List<Schema> schemaList = new ArrayList<Schema>();
 
-    GMLEncoder(OutputStream out) {
+    String prefix = null;
+
+    String namespace = null;
+
+    private final Version version;
+
+    private boolean legacy;
+
+    GMLEncoder(OutputStream out, Version version) {
         this.out = out;
+        this.version = version;
+        init();
+    }
+
+    /**
+     * Engage legacy support for GML2.
+     * <p>
+     * The GML2 support for FeatureTransformer is much faster then that provided by the
+     * GTXML parser/encoder. This speed is at the expense of getting the up front configuration
+     * exactly correct (something you can only tell when parsing the produced result!). Setting
+     * this value to false will use the same GMLConfiguration employed when parsing and has less
+     * risk of producing invalid content.
+     * @param legacy
+     */
+    public void setLegacy( boolean legacy ){
+        this.legacy = legacy;
+    }
+    /**
+     * Set the target namespace for the encoding.
+     * 
+     * @param prefix
+     * @param namespace
+     */
+    public void setNamespace(String prefix, String namespace) {
+        this.prefix = prefix;
+        this.namespace = namespace;
     }
 
     /**
@@ -90,8 +140,11 @@ public class GMLEncoder {
     /**
      * Set up out of the box configuration for GML encoding.
      * <ul>
-     * <li>gml2</li>
-     * <li>gml3</li>
+     * <li>GML2</li>
+     * <li>GML3</li>
+     * </ul>
+     * The following are not avialable yet:
+     * <ul>
      * <li>gml3.2 - not yet available</li>
      * <li>wfs1.0 - not yet available</li>
      * <li>wfs1.1 - not yet available</li>
@@ -99,7 +152,7 @@ public class GMLEncoder {
      * 
      * @param version
      */
-    public void setGML(String version) {
+    protected void init() {
         List<Schema> schemas = new ArrayList<Schema>();
         schemas.add(new XSSchema().profile()); // encoding of common java types
         Schema hack = new SchemaImpl(XS.NAMESPACE);
@@ -110,24 +163,37 @@ public class GMLEncoder {
         hack.put(new NameImpl(XS.DATETIME), builder.buildType());
 
         schemas.add(hack);
-
-        if ("gml2".equals(version)) {
+        
+        // GML 2
+        //
+        if (Version.GML2 == version) {
             gmlNamespace = org.geotools.gml2.GML.NAMESPACE;
             gmlLocation = "gml/2.1.2/feature.xsd";
             gmlConfiguration = new org.geotools.gml2.GMLConfiguration();
             schemas.add(new org.geotools.gml2.GMLSchema().profile());
         }
-        if ("gml3".equals(version)) {
+        if (Version.WFS1_0 == version) {
+            gmlNamespace = org.geotools.gml2.GML.NAMESPACE;
+            gmlLocation = "gml/2.1.2/feature.xsd";
+            gmlConfiguration = new org.geotools.wfs.v1_0.WFSConfiguration();
+            
+            schemas.add(new org.geotools.gml2.GMLSchema().profile());
+            
+        }
+        // GML 3
+        //
+        if (Version.GML3 == version) {
             gmlNamespace = org.geotools.gml3.GML.NAMESPACE;
             gmlLocation = "gml/3.1.1/base/gml.xsd";
             gmlConfiguration = new org.geotools.gml3.GMLConfiguration();
             schemas.add(new org.geotools.gml3.GMLSchema().profile());
         }
-        if ("wfs1.0".equals(version)) {
-            throw new UnsupportedOperationException("wfs1.0 bindings not yet sorted out");
-        }
-        if ("wfs1.1".equals(version)) {
-            throw new UnsupportedOperationException("wfs1.0 bindings not yet sorted out");
+        if (Version.WFS1_1 == version) {
+            gmlNamespace = org.geotools.gml3.GML.NAMESPACE;
+            gmlLocation = "gml/3.1.1/base/gml.xsd";
+            gmlConfiguration = new org.geotools.wfs.v1_1.WFSConfiguration();
+            
+            schemas.add(new org.geotools.gml3.GMLSchema().profile());
         }
         schemaList = schemas;
     }
@@ -171,13 +237,86 @@ public class GMLEncoder {
         }
     }
 
-    /**
-     * Encode the provided SimpleFeatureType into an XSD file.
-     * 
-     * @param simpleFeatureType
-     */
-    public void encode(SimpleFeatureType simpleFeatureType) throws IOException {
-        encode(simpleFeatureType, null, null);
+    public void encode(SimpleFeatureCollection collection ) throws IOException {
+        
+        if( version == Version.GML2){
+            if( legacy ){
+                encodeLegacyGML2(collection);
+            }
+            else {
+                throw new IllegalStateException("Cannot encode a feature collection using GML2 (only WFS)");
+            }
+        }
+        if( version == Version.WFS1_0 ){
+            Encoder e = new Encoder( new org.geotools.wfs.v1_0.WFSConfiguration() );
+            e.getNamespaces().declarePrefix( prefix, namespace );
+            e.setIndenting(true);
+            
+            FeatureCollectionType featureCollectionType = WfsFactory.eINSTANCE.createFeatureCollectionType();
+            featureCollectionType.getFeature().add(collection);
+            
+            e.encode( featureCollectionType, org.geotools.wfs.WFS.FeatureCollection, out );
+        }
+        if( version == Version.WFS1_1 ){
+            Encoder e = new Encoder( new org.geotools.wfs.v1_1.WFSConfiguration() );
+            e.getNamespaces().declarePrefix( prefix, namespace );
+            e.setIndenting(true);
+            
+            FeatureCollectionType featureCollectionType = WfsFactory.eINSTANCE.createFeatureCollectionType();
+            featureCollectionType.getFeature().add(collection);
+            
+            e.encode( featureCollectionType, org.geotools.wfs.WFS.FeatureCollection, out );
+        }
+    }
+
+    private void encodeLegacyGML2(SimpleFeatureCollection collection) throws IOException {
+        final SimpleFeatureType TYPE = collection.getSchema();
+        
+        FeatureTransformer transform = new FeatureTransformer();
+        transform.setIndentation(4);
+        transform.setGmlPrefixing(true);
+        
+        if( prefix != null && namespace != null ){
+            transform.getFeatureTypeNamespaces().declareDefaultNamespace(prefix, namespace );
+            transform.addSchemaLocation(prefix,namespace);
+            //transform.getFeatureTypeNamespaces().declareDefaultNamespace("", namespace );
+        }
+        
+        if( TYPE.getName().getNamespaceURI() != null && TYPE.getUserData().get("prefix") != null){
+            String typeNamespace = TYPE.getName().getNamespaceURI();
+            String typePrefix = (String) TYPE.getUserData().get("prefix");
+            
+            transform.getFeatureTypeNamespaces().declareNamespace(TYPE, typePrefix, typeNamespace );
+        }
+        else if ( prefix != null && namespace != null ){
+            // ignore namespace URI in feature type
+            transform.getFeatureTypeNamespaces().declareNamespace(TYPE, prefix, namespace);
+        }
+        else {
+            // hopefully that works out for you then
+        }
+        
+        // we probably need to do a wfs feaure collection here?
+        transform.setCollectionPrefix(null);
+        transform.setCollectionNamespace(null);
+        
+        // other configuration
+        transform.setCollectionBounding(true);
+        transform.setEncoding(encoding);
+        
+        // configure additional feature namespace lookup
+        transform.getFeatureNamespaces(); 
+        
+        String srsName = CRS.toSRS( TYPE.getCoordinateReferenceSystem() );
+        if( srsName != null ){
+            transform.setSrsName(srsName);
+        }
+        
+        try {
+            transform.transform( collection, out );
+        } catch (TransformerException e) {
+            throw (IOException) new IOException("Failed to encode feature collection:"+e).initCause(e);
+        }
     }
 
     /**
@@ -199,8 +338,13 @@ public class GMLEncoder {
      *            Target namespace
      */
     @SuppressWarnings("unchecked")
-    public void encode(SimpleFeatureType simpleFeatureType, String prefix, String namespace)
-            throws IOException {
+    public void encode(SimpleFeatureType simpleFeatureType) throws IOException {
+        XSDSchema xsd = xsd(simpleFeatureType);
+        
+        XSDResourceImpl.serialize(out, xsd.getElement(), encoding.name());
+    }
+
+    protected XSDSchema xsd(SimpleFeatureType simpleFeatureType) throws IOException {
         XSDFactory factory = XSDFactory.eINSTANCE;
         XSDSchema xsd = factory.createXSDSchema();
 
@@ -253,10 +397,10 @@ public class GMLEncoder {
         element.setTypeDefinition(featureType);
         xsd.getContents().add(element);
         xsd.updateElement();
-
-        XSDResourceImpl.serialize(out, xsd.getElement(), encoding.name());
+        return xsd;
     }
 
+    
     /**
      * Build the XSD definition for the provided type.
      * <p>

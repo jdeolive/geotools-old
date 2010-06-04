@@ -33,6 +33,7 @@ import org.geotools.feature.FeatureCollectionIteration;
 import org.geotools.feature.type.DateUtil;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.gml.producer.GeometryTransformer.GeometryTranslator;
+import org.geotools.referencing.CRS;
 import org.geotools.xml.transform.TransformerBase;
 import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
@@ -160,12 +161,15 @@ public class FeatureTransformer extends TransformerBase {
 
     /**
      * Used to set the srsName attribute of the Geometries to be turned to xml.
-     * For now we can only have all with the same srsName.
+     * The srsName is applied to all the geometries and is not done on a case by case
+     * basis.
      *
-     * @param srsName DOCUMENT ME!
+     * @param srsName Spatial Reference System Name
      *
      * @task REVISIT: once we have better srs support in our feature model this
      *       should be rethought, as it's a rather blunt approach.
+     *
+     * @see CRS#toSRS(CoordinateReferenceSystem, boolean)
      */
     public void setSrsName(String srsName) {
         this.srsName = srsName;
@@ -339,7 +343,7 @@ public class FeatureTransformer extends TransformerBase {
 
         public String toString() {
             return "FeatureTypeNamespaces[Default: " + defaultPrefix
-            + ", lookUp: " + lookup;
+            + ", lookUp: " + lookup.keySet() +"]";
         }
     }
 
@@ -383,10 +387,10 @@ public class FeatureTransformer extends TransformerBase {
          * Constructor with handler.
          *
          * @param handler the handler to use.
-         * @param prefix DOCUMENT ME!
-         * @param ns DOCUMENT ME!
-         * @param types DOCUMENT ME!
-         * @param schemaLoc DOCUMENT ME!
+         * @param prefix prefix
+         * @param ns namespace
+         * @param types Capture namespace and prefix information for types
+         * @param schemaLoc Schema location information
          */
         public FeatureTranslator(ContentHandler handler, String prefix,
             String ns, FeatureTypeNamespaces types,
@@ -808,13 +812,21 @@ public class FeatureTransformer extends TransformerBase {
                 //REVISIT: xsi:nillable is the proper xml way to handle nulls,
                 //but OGC people are fine with just leaving it out.       
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                throw new IllegalStateException("Could not transform "+descriptor.getName()+":"+e, e );
             }
         }
 
         /**
          * Handles sax for a feature.
-         *
+         * <p>
+         * Please take care when considering the prefix/namespace for the feature. It is defined
+         * by either:
+         * <ul>
+         * <li>the FeatureType using type.getName().getNamespaceURI() and the user data entry for
+         * "prefix".</li>
+         * <li>FeatureTypeNamespaces as provided to the constructor</li>
+         * </ul>
+         * 
          * @param f Feature being encoded
          *
          * @throws RuntimeException Used to report any troubles during encoding
@@ -825,19 +837,28 @@ public class FeatureTransformer extends TransformerBase {
 
                 FeatureType type = f.getType();
                 String name = type.getName().getLocalPart();
-                currentPrefix = getNamespaceSupport().getPrefix( type.getName().getNamespaceURI() );
-
+                String namespaceURI = type.getName().getNamespaceURI();
+                if( namespaceURI != null ){
+                    currentPrefix = getNamespaceSupport().getPrefix( namespaceURI );
+                    if( currentPrefix == null ){
+                        currentPrefix = (String) type.getUserData().get("prefix");
+                        if( currentPrefix != null ){
+                            getNamespaceSupport().declarePrefix(currentPrefix, namespaceURI );
+                        }
+                    }
+                }
+                
                 if (currentPrefix == null) {
-                    currentPrefix = types.findPrefix(f.getType());
+                    currentPrefix = types.findPrefix(type);
                 }
 
-                if (currentPrefix == null) {
-                    throw new RuntimeException(
-                        "Could not locate namespace for FeatureType : "
-                        + name + "look up in: " + types);
+                if (currentPrefix == null ){
+                    throw new IllegalStateException("FeatureType namespace/prefix unknown for " + name + "look up in: " + types);
                 }
-
-                if (currentPrefix != null) {
+                else if ( currentPrefix.length() == 0 ) {
+                    // must be the default prefix
+                }
+                else {
                     name = currentPrefix + ":" + name;
                 }
 
@@ -857,7 +878,7 @@ public class FeatureTransformer extends TransformerBase {
                     }
                 }
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                throw new IllegalStateException("Could not transform "+f.getIdentifier()+" :"+e, e );
             }
         }
         

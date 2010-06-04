@@ -838,21 +838,51 @@ search:             if (DefaultCoordinateSystemAxis.isCompassDirection(axis.getD
      * @since 2.5
      */
     public static String toSRS(final CoordinateReferenceSystem crs) {
-        if (crs != null) {
-        	final Set<ReferenceIdentifier> identifiers = crs.getIdentifiers();
-        	if( identifiers.isEmpty() ){
-        		// fallback unfortunately this often doesnt work
-	            final ReferenceIdentifier name = crs.getName();
-	            if (name != null) {
-	                return name.toString();
-	            }
-        	} else {
-        		return identifiers.iterator().next().toString();
-        	}
+        if( crs == null ){
+            return null;
+        }
+        final Set<ReferenceIdentifier> identifiers = crs.getIdentifiers();
+        if (identifiers.isEmpty()) {
+            // fallback unfortunately this often does not work
+            final ReferenceIdentifier name = crs.getName();
+            if (name != null) {
+                return name.toString();
+            }
+        } else {
+            return identifiers.iterator().next().toString();
         }
         return null;
     }
-
+    /**
+     * Returns the <cite>Spatial Reference System</cite> identifier, or {@code null} if none.
+     * <p>
+     * Some older web services are unable to deal with the full ogc:uri syntax, set simple to 
+     * true for force a very simple representation that is just based on the code portion.
+     * 
+     * @param crs
+     * @param simple Set to true to force generation of a simple srsName entry
+     * @return srsName
+     */
+    public static String toSRS(final CoordinateReferenceSystem crs, boolean simple){
+        if( crs == null ) return null;
+        String srsName = toSRS( crs );
+        if( simple && srsName != null ){
+            // Some Server implementations using older versions of this
+            // library barf on a fully qualified CRS name with messages
+            // like : "couldnt decode SRS - EPSG:EPSG:4326. currently
+            // only supporting EPSG #"; looks like they only needs the
+            // SRID. adjust
+            final int index = srsName.indexOf(':');
+            if (index > 0) {
+                //LOGGER.info("Reducing CRS name [" + srsName+ "] to its SRID");
+                srsName = srsName.substring(index + 1).trim();
+            }
+            return srsName;
+        }
+        else {
+            return srsName;
+        }
+    }
     /**
      * Looks up an identifier for the specified object. This method searchs in registered factories
      * for an object {@linkplain #equalsIgnoreMetadata equals, ignoring metadata}, to the specified

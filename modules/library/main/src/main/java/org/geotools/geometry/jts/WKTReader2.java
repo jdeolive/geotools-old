@@ -76,7 +76,7 @@ public class WKTReader2 extends WKTReader {
      * Creates a reader that creates objects using the default {@link GeometryFactory}.
      */
     public WKTReader2() {
-        this(new GeometryFactory());
+        this(JTSFactoryFinder.getGeometryFactory( null ));
     }
 
     /**

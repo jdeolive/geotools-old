@@ -36,6 +36,7 @@ import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.filter.FilterTransformer;
 import org.geotools.gml.producer.FeatureTransformer;
+import org.geotools.referencing.CRS;
 import org.geotools.referencing.NamedIdentifier;
 import org.geotools.xml.transform.TransformerBase;
 import org.geotools.xml.transform.Translator;
@@ -46,6 +47,7 @@ import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;
+import org.opengis.referencing.ReferenceIdentifier;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.style.SemanticType;
 import org.xml.sax.ContentHandler;
@@ -794,8 +796,7 @@ public class SLDTransformer extends TransformerBase {
             end("UserLayer");
         }
 
-        private void visitInlineFeatureType(DataStore dataStore,
-                SimpleFeatureType featureType) {
+        private void visitInlineFeatureType(DataStore dataStore, SimpleFeatureType featureType) {
             start("InlineFeature");
             try {
                 final String ftName = featureType.getTypeName();
@@ -806,63 +807,60 @@ public class SLDTransformer extends TransformerBase {
                 ftrax.setCollectionPrefix(null);
                 ftrax.setGmlPrefixing(true);
                 ftrax.setIndentation(2);
-                final CoordinateReferenceSystem crs = featureType
-                        .getGeometryDescriptor().getCoordinateReferenceSystem();
+                final CoordinateReferenceSystem crs = featureType.getGeometryDescriptor()
+                        .getCoordinateReferenceSystem();
                 String srsName = null;
                 if (crs == null) {
-                    LOGGER.warning("Null CRS in feature type named [" + ftName
-                            + "]. Ignore CRS");
+                    LOGGER.warning("Null CRS in feature type named [" + ftName + "]. Ignore CRS");
                 } else {
-                    // assume the first named identifier of this CRS is its
-                    // fully
-                    // qualified code; e.g. authoriy and SRID
-                    Set ids = crs.getIdentifiers();
-                    if (ids == null || ids.isEmpty()) {
-                        LOGGER.warning("Null or empty set of named identifiers "
-                                        + "in CRS ["
-                                        + crs
-                                        + "] of feature type named ["
-                                        + ftName
-                                        + "]. Ignore CRS");
-                    } else {
-                        for (Iterator it = ids.iterator(); it.hasNext();) {
-                            NamedIdentifier id = (NamedIdentifier) ids
-                                    .iterator().next();
-                            if (id != null) {
-                                srsName = String.valueOf(id);
-                                break;
+                    srsName = CRS.toSRS(crs, true); // single implementation of toSRS
+                    if (srsName == null) {
+                        // fallback on origional code
+                        // assume the first named identifier of this CRS is its
+                        // fully
+                        // qualified code; e.g. authoriy and SRID
+                        Set<ReferenceIdentifier> ids = crs.getIdentifiers();
+                        if (ids == null || ids.isEmpty()) {
+                            LOGGER.warning("Null or empty set of named identifiers " + "in CRS ["
+                                    + crs + "] of feature type named [" + ftName + "]. Ignore CRS");
+                        } else {
+                            for (ReferenceIdentifier id : ids) {
+                                if (id != null) {
+                                    srsName = String.valueOf(id);
+                                    break;
+                                }
                             }
+                        }
+                    }
+                    if (srsName != null) {
+                        // Some Server implementations using older versions of this
+                        // library barf on a fully qualified CRS name with messages
+                        // like : "couldnt decode SRS - EPSG:EPSG:4326. currently
+                        // only supporting EPSG #"; looks like they only needs the
+                        // SRID. adjust
+                        final int ndx = srsName.indexOf(':');
+                        if (ndx > 0) {
+                            LOGGER.info("Reducing CRS name [" + srsName + "] to its SRID");
+                            srsName = srsName.substring(ndx + 1).trim();
                         }
                     }
                 }
                 if (srsName != null) {
-                    // Some Server implementations using older versions of this
-                    // library barf on a fully qualified CRS name with messages
-                    // like : "couldnt decode SRS - EPSG:EPSG:4326. currently
-                    // only supporting EPSG #"; looks like they only needs the
-                    // SRID. adjust
-                    final int ndx = srsName.indexOf(':');
-                    if (ndx > 0) {
-                        LOGGER.info("Reducing CRS name [" + srsName
-                                + "] to its SRID");
-                        srsName = srsName.substring(ndx + 1).trim();
-                    }
                     ftrax.setSrsName(srsName);
                 }
+                
                 final String defaultNS = this.getDefaultNamespace();
-                ftrax.getFeatureTypeNamespaces().declareDefaultNamespace("",
-                        defaultNS);
+                ftrax.getFeatureTypeNamespaces().declareDefaultNamespace("", defaultNS);
                 final String ns = featureType.getName().getNamespaceURI();
                 if (ns == null) {
-                    LOGGER.info("Null namespace URI in feature type named ["
-                            + ftName + "]. Ignore namespace in features");
+                    LOGGER.info("Null namespace URI in feature type named [" + ftName
+                            + "]. Ignore namespace in features");
                 } else {
                     // find the URI's prefix mapping in this namespace support
                     // delegate and use it; otherwise ignore it
                     final String prefix = this.nsSupport.getPrefix(ns);
                     if (prefix != null)
-                        ftrax.getFeatureTypeNamespaces().declareNamespace(
-                                featureType, prefix, ns);
+                        ftrax.getFeatureTypeNamespaces().declareNamespace(featureType, prefix, ns);
                 }
                 final Translator t = ftrax
                         .createTranslator(this.contentHandler);

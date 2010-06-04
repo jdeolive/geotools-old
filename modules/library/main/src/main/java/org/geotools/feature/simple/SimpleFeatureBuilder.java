@@ -19,25 +19,22 @@ package org.geotools.feature.simple;
 import java.rmi.server.UID;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
 import org.geotools.data.DataUtilities;
-import org.geotools.data.ReTypeFeatureReader;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.type.Types;
 import org.geotools.filter.identity.FeatureIdImpl;
 import org.geotools.util.Converters;
 import org.opengis.feature.FeatureFactory;
+import org.opengis.feature.IllegalAttributeException;
 import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.Name;
-import org.opengis.filter.identity.FeatureId;
 
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -222,7 +219,7 @@ public class SimpleFeatureBuilder {
     /**
      * Adds a list of attributes.
      */
-    public void addAll(List values) {
+    public void addAll(List<Object> values) {
         for (int i = 0; i < values.size(); i++) {
             add(values.get(i));
         }
@@ -300,7 +297,7 @@ public class SimpleFeatureBuilder {
     private Object convert(Object value, AttributeDescriptor descriptor) {
         //make sure the type of the value and the binding of the type match up
         if ( value != null ) {
-            Class target = descriptor.getType().getBinding(); 
+            Class<?> target = descriptor.getType().getBinding(); 
             Object converted = Converters.convert(value, target);
             if(converted != null)
                 value = converted;
@@ -407,6 +404,9 @@ public class SimpleFeatureBuilder {
      * This method is a short-hand convenience which creates a builder instance
      * internally and adds all the specified attributes.
      * </p>
+     * @param type SimpleFeatureType defining the structure for the created feature
+     * @param values Attribute values, must be in the order defined by SimpleFeatureType
+     * @param id FeatureID for the generated feature, use null to allow one to be supplied for you
      */
     public static SimpleFeature build( SimpleFeatureType type, Object[] values, String id ) {
         SimpleFeatureBuilder builder = new SimpleFeatureBuilder(type);
@@ -420,8 +420,11 @@ public class SimpleFeatureBuilder {
      * If multiple features need to be created, this method should not be used
      * and instead an instance should be instantiated directly.
      * </p>
+     * @param type SimpleFeatureType defining the structure for the created feature
+     * @param values Attribute values, must be in the order defined by SimpleFeatureType
+     * @param id FeatureID for the generated feature, use null to allow one to be supplied for you
      */
-    public static SimpleFeature build( SimpleFeatureType type, List values, String id ) {
+    public static SimpleFeature build( SimpleFeatureType type, List<Object> values, String id ) {
         return build( type, values.toArray(), id );
     }
     
@@ -445,33 +448,35 @@ public class SimpleFeatureBuilder {
     }
     
     /**
-     * Deep copy an existing feature.
+     * Perform a "deep copy" an existing feature resuling in a duplicate of any geometry
+     * attributes.
      * <p>
      * This method is scary, expensive and will result in a deep copy of
-     * Geometry which will be.
+     * Geometry which may take a significant amount of memory/time to perform.
      * </p>
      * @param original Content
      * @return copy
      */
-    public static SimpleFeature deep( SimpleFeature original ) {
-        if( original == null ) return null;
-        
+    public static SimpleFeature deep(SimpleFeature original) {
+        if (original == null)
+            return null;
+
         SimpleFeatureBuilder builder = new SimpleFeatureBuilder(original.getFeatureType());
-        try {
-            for( Property property : original.getProperties() ){
-                Object value = property.getValue();
+        for (Property property : original.getProperties()) {
+            Object value = property.getValue();
+            try {
                 Object copy = value;
-                if( value instanceof Geometry ){
+                if (value instanceof Geometry) {
                     Geometry geometry = (Geometry) value;
                     copy = geometry.clone();
                 }
-                builder.set( property.getName(), copy );
+                builder.set(property.getName(), copy);
+            } catch (Exception e) {
+                throw new IllegalAttributeException(
+                        (AttributeDescriptor) property.getDescriptor(), value, e );
             }
-            return builder.buildFeature(original.getID());    
         }
-        catch( Exception e ) {
-            throw (IllegalAttributeException) new IllegalAttributeException("illegal attribute").initCause(e);
-        }
+        return builder.buildFeature(original.getID());
     }
     
     /**
@@ -548,12 +553,15 @@ public class SimpleFeatureBuilder {
         return setUserData(next, key, value);
     }
     
+    @SuppressWarnings("unchecked")
     public SimpleFeatureBuilder setUserData(int index, Object key, Object value) {
-        if(userData == null)
+        if (userData == null) {
             userData = new Map[values.length];
-        if(userData[index] == null)
+        }
+        if (userData[index] == null) {
             userData[index] = new HashMap<Object, Object>();
-        userData[index].put( key, value );
+        }
+        userData[index].put(key, value);
         return this;
     }
     
