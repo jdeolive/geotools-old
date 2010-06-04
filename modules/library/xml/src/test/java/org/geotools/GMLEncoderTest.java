@@ -52,7 +52,6 @@ public class GMLEncoderTest {
         String xsd = out.toString();
         
         System.out.println( xsd );
-        assertNotNull( xsd );
 
     }
 }
