@@ -154,6 +154,7 @@ public interface FeatureCollection<T extends FeatureType, F extends Feature> {
      * </code></pre>
      * </p>
      * @param close
+     * @deprecated Please FeatureIterator.close()
      */
     public void close(FeatureIterator<F> close);
     
@@ -173,7 +174,7 @@ public interface FeatureCollection<T extends FeatureType, F extends Feature> {
      * }
      * </code></pre>
      * </p>
-     * @param close
+     * @deprecated Please use features() to obtain a FeatureIterator
      */
     public void close(Iterator<F> close);
     
@@ -361,6 +362,7 @@ public interface FeatureCollection<T extends FeatureType, F extends Feature> {
      * </code></pre>
      * </p>
      * @return Iterator
+     * @deprecated Please use features() to obtain a FeatureIterator
      */
     public Iterator<F> iterator();
 
@@ -376,7 +378,7 @@ public interface FeatureCollection<T extends FeatureType, F extends Feature> {
      * Collections.sort( collection );
      * collection.purge();
      * </code></pre>
-     * @deprecated No longer needed as iterator use by java for each construct not available
+     * @deprecated Please use features() to obtain a FeatureIterator
      */
     public void purge();
     
