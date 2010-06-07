@@ -93,6 +93,7 @@ import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.feature.type.GeometryType;
+import org.opengis.feature.type.Name;
 import org.opengis.feature.type.PropertyDescriptor;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
@@ -1244,6 +1245,89 @@ public class DataUtilities {
         }
         throw new IllegalArgumentException(
                 "The provided feature store contains complex features, cannot be bridged to a simple one");
+    }
+    
+
+    /**
+     * Go through FeatureType description and convert to a SimpleFeatureType.
+     * Also ignores AbstractFeatureType contributions such as name etc...
+     * 
+     * @param featureType FeatureType being converted
+     * @return SimpleFeatureType created by stripping any complicated content from the provided featureType
+     * @throws DataSourceException
+     */
+    public static SimpleFeatureType simple( final FeatureType featureType )
+            throws DataSourceException {
+        if( featureType == null ){
+            return null;
+        }
+        // go through the attributes and strip out compicated contents
+        //
+        List<PropertyDescriptor> attributes;
+        Collection<PropertyDescriptor> descriptors = featureType.getDescriptors();
+        attributes = new ArrayList<PropertyDescriptor>(descriptors);
+        
+        List<String> simpleProperties = new ArrayList<String>();
+        List<AttributeDescriptor> simpleAttributes = new ArrayList<AttributeDescriptor>();
+        
+        // HACK HACK!! the parser sets no namespace to the properties so we're
+        // doing a hardcode property name black list
+        final List<String> ignoreList = Arrays.asList(new String[]{"location",
+                "metaDataProperty","description","name", "boundedBy"});
+
+        for( Iterator<PropertyDescriptor> it = attributes.iterator(); it.hasNext(); ) {
+            PropertyDescriptor property = it.next();
+            if (!(property instanceof AttributeDescriptor)) {
+                continue;
+            }
+            AttributeDescriptor descriptor = (AttributeDescriptor) property;
+            Name name = descriptor.getName();
+
+            if (ignoreList.contains(name.getLocalPart())) {
+                it.remove();
+            }
+        }
+        // / HACK END
+
+        for( PropertyDescriptor descriptor : attributes ) {
+            Class< ? > binding = descriptor.getType().getBinding();
+            int maxOccurs = descriptor.getMaxOccurs();
+            Name name = descriptor.getName();
+            if( Object.class.equals(binding)){
+                continue; // skip complex
+            }
+            if( maxOccurs > 1){
+                continue; // skip multi value
+            }
+            if ("http://www.opengis.net/gml".equals(name.getNamespaceURI())) {
+                continue; // skip AbstractFeature stuff
+            }
+            if( descriptor instanceof AttributeDescriptor ){
+                AttributeDescriptor attribute = (AttributeDescriptor) descriptor;
+                
+                simpleAttributes.add( attribute );
+                simpleProperties.add( attribute.getLocalName());
+            }
+        }
+
+        String[] properties = simpleProperties.toArray(new String[simpleProperties.size()]);
+        SimpleFeatureType simpleFeatureType;
+        try {
+            if( featureType instanceof SimpleFeature ){
+                simpleFeatureType = DataUtilities.createSubType( (SimpleFeatureType) featureType, properties);
+            }
+            else {
+                SimpleFeatureTypeBuilder build = new SimpleFeatureTypeBuilder();
+                build.setName( featureType.getName() );
+                build.setAttributes( simpleAttributes );
+                build.setDefaultGeometry( featureType.getGeometryDescriptor().getLocalName() );
+                
+                simpleFeatureType = build.buildFeatureType();
+            }
+        } catch (SchemaException e) {
+            throw new DataSourceException(e);
+        }
+        return simpleFeatureType;
     }
 
     /**

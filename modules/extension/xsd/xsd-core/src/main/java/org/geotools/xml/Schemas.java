@@ -83,8 +83,8 @@ import org.xml.sax.helpers.DefaultHandler;
 
 
 /**
- * Utility class for performing various opreations.
- *
+ * Utility class for performing various operations.
+ * 
  * @author Justin Deoliveira, The Open Planning Project
  *
  *

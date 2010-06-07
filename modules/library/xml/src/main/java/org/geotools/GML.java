@@ -1,6 +1,7 @@
 package org.geotools;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -13,6 +14,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
+import javax.xml.namespace.QName;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import net.opengis.wfs.FeatureCollectionType;
@@ -31,23 +34,39 @@ import org.eclipse.xsd.XSDSchema;
 import org.eclipse.xsd.XSDTypeDefinition;
 import org.eclipse.xsd.util.XSDConstants;
 import org.eclipse.xsd.util.XSDResourceImpl;
+import org.geotools.data.DataUtilities;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.AttributeTypeBuilder;
 import org.geotools.feature.NameImpl;
 import org.geotools.feature.type.SchemaImpl;
 import org.geotools.gml.producer.FeatureTransformer;
+import org.geotools.gml3.ApplicationSchemaConfiguration;
+import org.geotools.gml3.ApplicationSchemaXSD;
+import org.geotools.gtxml.GTXML;
 import org.geotools.referencing.CRS;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.geotools.test.TestData;
+import org.geotools.wfs.v1_1.WFSConfiguration;
 import org.geotools.xml.Configuration;
 import org.geotools.xml.Encoder;
+import org.geotools.xml.Parser;
+import org.geotools.xml.ParserDelegate;
+import org.geotools.xml.XSD;
+import org.geotools.xml.XSDParserDelegate;
+import org.geotools.xml.gml.FCBuffer;
 import org.geotools.xs.XS;
+import org.geotools.xs.XSConfiguration;
 import org.geotools.xs.XSSchema;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.ComplexType;
+import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.Name;
 import org.opengis.feature.type.PropertyDescriptor;
 import org.opengis.feature.type.Schema;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.xml.sax.SAXException;
 
 /**
  * UtilityClass for encoding GML content.
@@ -86,6 +105,8 @@ public class GML {
     private final Version version;
 
     private boolean legacy;
+
+    private CoordinateReferenceSystem crs;
 
     GML(Version version) {
         this.version = version;
@@ -131,7 +152,17 @@ public class GML {
     public void setBaseURL(URL baseURL) {
         this.baseURL = baseURL;
     }
-
+    /**
+     * Coordinate reference system to use when decoding.
+     * <p>
+     * In a few cases (such as decoding a SimpleFeatureType) the file format does not include
+     * the required CooridinateReferenceSystem and you are asked to supply it.
+     * 
+     * @param crs
+     */
+    public void setCoordinateReferenceSystem(CoordinateReferenceSystem crs) {
+        this.crs = crs;
+    }
     /**
      * Set up out of the box configuration for GML encoding.
      * <ul>
@@ -338,7 +369,76 @@ public class GML {
         
         XSDResourceImpl.serialize(out, xsd.getElement(), encoding.name());
     }
+    /**
+     * Decode a typeName from the provided schemaLocation.
+     * <p>
+     * The XMLSchema does not include CoordinateReferenceSystem we need to ask you to supply this
+     * information.
+     * 
+     * @param schemaLocation
+     * @param typeName
+     * @param crs
+     * @return
+     * @throws IOException
+     */
+    public SimpleFeatureType decodeSimpleFeatureType( URL schemaLocation, Name typeName) throws IOException {
+        if( Version.WFS1_1 == version ){
+            final QName featureName = new QName( typeName.getNamespaceURI(), typeName.getLocalPart() );
+            
+            String namespaceURI = featureName.getNamespaceURI();
+            String uri = schemaLocation.toExternalForm();
+            Configuration wfsConfiguration = new org.geotools.gml3.ApplicationSchemaConfiguration(namespaceURI, uri);
+            
+            FeatureType parsed = GTXML.parseFeatureType(wfsConfiguration, featureName, crs);
+            return DataUtilities.simple(parsed);
+        }
+        
+        if( Version.WFS1_0 == version ){
+            final QName featureName = new QName( typeName.getNamespaceURI(), typeName.getLocalPart() );
+            
+            String namespaceURI = featureName.getNamespaceURI();
+            String uri = schemaLocation.toExternalForm();
+            
+            XSD xsd = new org.geotools.gml2.ApplicationSchemaXSD(namespaceURI, uri );            
+            Configuration configuration = new Configuration( xsd ){
+                {
+                    addDependency(new XSConfiguration());
+                    addDependency(gmlConfiguration); // use our GML configuration
+                }
+                protected void registerBindings(java.util.Map bindings) {
+                    // we have no special bindings
+                }
+            };
+            
+            FeatureType parsed = GTXML.parseFeatureType(configuration, featureName, crs);
+            return DataUtilities.simple(parsed);
+        }
+        return null;
+    }
 
+    public SimpleFeatureCollection decodeFeatureCollection( InputStream in ) throws IOException, SAXException, ParserConfigurationException{
+        if( Version.GML3 == version ){
+            Parser parser = new Parser(gmlConfiguration);
+            Object obj = parser.parse( in );
+            return (SimpleFeatureCollection) obj;
+        }
+        if( Version.WFS1_0 == version ){
+            if( legacy ){
+                // could consider using FCBuffer here?
+            }
+            Parser parser = new Parser(gmlConfiguration);
+            Object obj = parser.parse( in );
+            return (SimpleFeatureCollection) obj;
+        }
+        if( Version.WFS1_1 == version ){
+            ParserDelegate parserDelegate = new XSDParserDelegate( gmlConfiguration );
+            Parser parser = new Parser(gmlConfiguration);
+            Object obj = parser.parse( in );
+            return (SimpleFeatureCollection) obj;            
+        }
+        return null;
+    }
+    
     @SuppressWarnings("unchecked")
     protected XSDSchema xsd(SimpleFeatureType simpleFeatureType) throws IOException {
         XSDFactory factory = XSDFactory.eINSTANCE;

@@ -120,7 +120,14 @@ public class EmfAppSchemaParser {
         SimpleFeatureType subsetType = toSimpleFeatureType(realType);
         return subsetType;
     }
-
+    /**
+     * Go through FeatureType description and convert to a SimpleFeatureType.
+     * Also ignores AbstractFeatureType contributions such as name etc...
+     * 
+     * @param realType
+     * @return
+     * @throws DataSourceException
+     */
     public static SimpleFeatureType toSimpleFeatureType( final FeatureType realType )
             throws DataSourceException {
         List<PropertyDescriptor> attributes;
