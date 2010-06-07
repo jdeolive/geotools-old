@@ -40,7 +40,7 @@ public class PropertyDumper {
         Properties props = new Properties();
         for (String code : CRS.getSupportedCodes("EPSG")) {
             try {
-                CoordinateReferenceSystem crs = CRS.decode("EPSG:" + code);
+                CoordinateReferenceSystem crs = CRS.decode("EPSG:" + code, true);
                 // use toString, it's more lenient that toWKT
                 props.put(code, crs.toString().replaceAll("\n", "").replaceAll("  ", ""));
                 
