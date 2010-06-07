@@ -57,7 +57,7 @@ import org.opengis.feature.type.Schema;
  * own measures.
  * <p>
  */
-public class GMLEncoder {
+public class GML {
     /** Version of encoder to use */
     public static enum Version {
         GML2, GML3, WFS1_0, WFS1_1
@@ -87,7 +87,7 @@ public class GMLEncoder {
 
     private boolean legacy;
 
-    GMLEncoder(Version version) {
+    GML(Version version) {
         this.version = version;
         init();
     }

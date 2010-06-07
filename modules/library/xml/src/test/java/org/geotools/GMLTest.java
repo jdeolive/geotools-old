@@ -7,7 +7,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.net.URL;
 
-import org.geotools.GMLEncoder.Version;
+import org.geotools.GML.Version;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.FeatureCollections;
@@ -20,9 +20,9 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import com.vividsolutions.jts.geom.Point;
 
 /**
- * Check GMLEncoder abilities
+ * Check GML abilities
  */
-public class GMLEncoderTest {
+public class GMLTest {
     /**
      * Check if we can encode a SimpleFeatureType using GML2
      */
@@ -31,7 +31,7 @@ public class GMLEncoderTest {
         SimpleFeatureType TYPE = DataUtilities.createType("location","geom:Point,name:String");
         
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        GMLEncoder encode = new GMLEncoder(Version.GML2 );
+        GML encode = new GML(Version.GML2 );
         encode.setBaseURL( new URL("http://localhost/"));
         encode.encode( out, TYPE );
         
@@ -52,7 +52,7 @@ public class GMLEncoderTest {
         collection.add( SimpleFeatureBuilder.build( TYPE, new Object[]{ wkt.read("POINT (4 4)"), "name2"}, null) );
         
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        GMLEncoder encode = new GMLEncoder( Version.GML2 );
+        GML encode = new GML( Version.GML2 );
         encode.setNamespace("location", "http://localhost/location.xsd");
         encode.setLegacy(true);
         encode.encode( out, collection );
@@ -80,7 +80,7 @@ public class GMLEncoderTest {
         
         FileOutputStream out = new FileOutputStream(locationFile);
         
-        GMLEncoder encode = new GMLEncoder( Version.GML2 );
+        GML encode = new GML( Version.GML2 );
         encode.setBaseURL( baseURL );
         encode.setNamespace("location", locationURL.toExternalForm() );
         encode.encode( out, TYPE );
@@ -94,7 +94,7 @@ public class GMLEncoderTest {
         collection.add( SimpleFeatureBuilder.build( TYPE, new Object[]{ wkt.read("POINT (4 4)"), "name2"}, null) );
         
         ByteArrayOutputStream out2 = new ByteArrayOutputStream();
-        GMLEncoder encode2 = new GMLEncoder( Version.GML2 );
+        GML encode2 = new GML( Version.GML2 );
         encode2.setBaseURL( baseURL );
         encode2.setNamespace("location", "location.xsd" );
         encode2.encode( out2, collection );
@@ -123,7 +123,7 @@ public class GMLEncoderTest {
         
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         
-        GMLEncoder encode = new GMLEncoder( Version.WFS1_0 );
+        GML encode = new GML( Version.WFS1_0 );
         encode.setNamespace("geotools","http://geotools.org");
         
         encode.encode( out, collection );
@@ -150,7 +150,7 @@ public class GMLEncoderTest {
         
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         
-        GMLEncoder encode = new GMLEncoder( Version.WFS1_1 );
+        GML encode = new GML( Version.WFS1_1 );
         encode.setNamespace("geotools","http://geotools.org");
         
         encode.encode( out, collection );
@@ -165,7 +165,7 @@ public class GMLEncoderTest {
         SimpleFeatureType TYPE = DataUtilities.createType("location","geom:Point,name:String");
         
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        GMLEncoder encode = new GMLEncoder( Version.GML3 );
+        GML encode = new GML( Version.GML3 );
         encode.setBaseURL( new URL("http://localhost/"));
         encode.setNamespace("location", "http://localhost/location.xsd");
         encode.encode( out, TYPE );
