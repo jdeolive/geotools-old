@@ -13,7 +13,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
-import javax.xml.namespace.QName;
 import javax.xml.transform.TransformerException;
 
 import net.opengis.wfs.FeatureCollectionType;
@@ -38,7 +37,6 @@ import org.geotools.feature.NameImpl;
 import org.geotools.feature.type.SchemaImpl;
 import org.geotools.gml.producer.FeatureTransformer;
 import org.geotools.referencing.CRS;
-import org.geotools.wfs.WFS;
 import org.geotools.xml.Configuration;
 import org.geotools.xml.Encoder;
 import org.geotools.xs.XS;
@@ -65,8 +63,6 @@ public class GMLEncoder {
         GML2, GML3, WFS1_0, WFS1_1
     }
 
-    private OutputStream out;
-
     private Charset encoding = Charset.forName("UTF-8");
 
     private URL baseURL;
@@ -91,8 +87,7 @@ public class GMLEncoder {
 
     private boolean legacy;
 
-    GMLEncoder(OutputStream out, Version version) {
-        this.out = out;
+    GMLEncoder(Version version) {
         this.version = version;
         init();
     }
@@ -237,11 +232,12 @@ public class GMLEncoder {
         }
     }
 
-    public void encode(SimpleFeatureCollection collection ) throws IOException {
+    @SuppressWarnings("unchecked")
+    public void encode( OutputStream out, SimpleFeatureCollection collection ) throws IOException {
         
         if( version == Version.GML2){
             if( legacy ){
-                encodeLegacyGML2(collection);
+                encodeLegacyGML2(out,collection);
             }
             else {
                 throw new IllegalStateException("Cannot encode a feature collection using GML2 (only WFS)");
@@ -269,7 +265,7 @@ public class GMLEncoder {
         }
     }
 
-    private void encodeLegacyGML2(SimpleFeatureCollection collection) throws IOException {
+    private void encodeLegacyGML2(OutputStream out, SimpleFeatureCollection collection) throws IOException {
         final SimpleFeatureType TYPE = collection.getSchema();
         
         FeatureTransformer transform = new FeatureTransformer();
@@ -337,13 +333,13 @@ public class GMLEncoder {
      * @param namespace
      *            Target namespace
      */
-    @SuppressWarnings("unchecked")
-    public void encode(SimpleFeatureType simpleFeatureType) throws IOException {
+    public void encode(OutputStream out, SimpleFeatureType simpleFeatureType) throws IOException {
         XSDSchema xsd = xsd(simpleFeatureType);
         
         XSDResourceImpl.serialize(out, xsd.getElement(), encoding.name());
     }
 
+    @SuppressWarnings("unchecked")
     protected XSDSchema xsd(SimpleFeatureType simpleFeatureType) throws IOException {
         XSDFactory factory = XSDFactory.eINSTANCE;
         XSDSchema xsd = factory.createXSDSchema();
