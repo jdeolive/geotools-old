@@ -113,7 +113,15 @@ public class GML {
 
     private CoordinateReferenceSystem crs;
 
-    GML(Version version) {
+    /**
+     * Construct a GML utility class to work with the indicated version of GML.
+     * <p>
+     * Note that when working with GML2 you need to supply additional information
+     * prior to use (in order to indicate where for XSD file is located).
+     * 
+     * @param version Version of GML to use
+     */
+    public GML(Version version) {
         this.version = version;
         init();
     }
