@@ -6,6 +6,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +16,7 @@ import javax.xml.namespace.QName;
 import org.geotools.GML.Version;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.NameImpl;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
@@ -26,6 +28,7 @@ import org.geotools.test.TestData;
 import org.geotools.wfs.v1_1.WFSConfiguration;
 import org.geotools.xml.Configuration;
 import org.junit.Test;
+import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.FeatureType;
@@ -245,7 +248,50 @@ public class GMLTest {
     }
     
     @Test
-    public void testGMLFeatureCollection(){
+    public void testGML3FeatureCollection() throws Exception {
+        URL url = TestData.getResource(this,"states.xml");
+        InputStream in = url.openStream();
         
+        GML gml = new GML(Version.GML3);
+        SimpleFeatureCollection featureCollection = gml.decodeFeatureCollection(in);
+        
+        assertNotNull( featureCollection );
+        assertEquals( 2, featureCollection.size() );
     }
+    
+    @Test
+    public void testGML3FeatureIterator() throws Exception {
+        URL url = TestData.getResource(this,"states.xml");
+        InputStream in = url.openStream();
+        
+        GML gml = new GML(Version.GML3);
+        SimpleFeatureIterator iter = gml.decodeFeatureIterator(in);
+        assertTrue( iter.hasNext() );        
+        int count = 0;
+        while( iter.hasNext() ){
+            SimpleFeature feature = iter.next();
+            assertNotNull( feature );            
+            count++;
+        }
+        assertEquals( 2, count );
+    }
+    @Test
+    public void testGML3FeatureIteratorGeometryMorph() throws Exception {
+        URL url = TestData.getResource(this,"states.xml");
+        InputStream in = url.openStream();
+        
+        QName name = new QName("http://www.opengis.net/gml","MultiSurface");
+        
+        GML gml = new GML(Version.GML3);
+        SimpleFeatureIterator iter = gml.decodeFeatureIterator(in,name);
+        assertTrue( iter.hasNext() );        
+        int count = 0;
+        while( iter.hasNext() ){
+            SimpleFeature feature = iter.next();
+            assertNotNull( feature );            
+            count++;
+        }
+        assertEquals( 2, count );
+    }
+    
 }

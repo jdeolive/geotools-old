@@ -7,11 +7,13 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.xml.namespace.QName;
@@ -36,8 +38,13 @@ import org.eclipse.xsd.util.XSDConstants;
 import org.eclipse.xsd.util.XSDResourceImpl;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.feature.AttributeTypeBuilder;
+import org.geotools.feature.DefaultFeatureCollection;
+import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.NameImpl;
+import org.geotools.feature.simple.SimpleFeatureBuilder;
+import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.feature.type.SchemaImpl;
 import org.geotools.gml.producer.FeatureTransformer;
 import org.geotools.gtxml.GTXML;
@@ -46,11 +53,13 @@ import org.geotools.xml.Configuration;
 import org.geotools.xml.Encoder;
 import org.geotools.xml.Parser;
 import org.geotools.xml.ParserDelegate;
+import org.geotools.xml.StreamingParser;
 import org.geotools.xml.XSD;
 import org.geotools.xml.XSDParserDelegate;
 import org.geotools.xs.XS;
 import org.geotools.xs.XSConfiguration;
 import org.geotools.xs.XSSchema;
+import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.AttributeType;
@@ -61,6 +70,8 @@ import org.opengis.feature.type.PropertyDescriptor;
 import org.opengis.feature.type.Schema;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.xml.sax.SAXException;
+
+import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * UtilityClass for encoding GML content.
@@ -110,16 +121,18 @@ public class GML {
     /**
      * Engage legacy support for GML2.
      * <p>
-     * The GML2 support for FeatureTransformer is much faster then that provided by the
-     * GTXML parser/encoder. This speed is at the expense of getting the up front configuration
-     * exactly correct (something you can only tell when parsing the produced result!). Setting
-     * this value to false will use the same GMLConfiguration employed when parsing and has less
-     * risk of producing invalid content.
+     * The GML2 support for FeatureTransformer is much faster then that provided by the GTXML
+     * parser/encoder. This speed is at the expense of getting the up front configuration exactly
+     * correct (something you can only tell when parsing the produced result!). Setting this value
+     * to false will use the same GMLConfiguration employed when parsing and has less risk of
+     * producing invalid content.
+     * 
      * @param legacy
      */
-    public void setLegacy( boolean legacy ){
+    public void setLegacy(boolean legacy) {
         this.legacy = legacy;
     }
+
     /**
      * Set the target namespace for the encoding.
      * 
@@ -146,17 +159,19 @@ public class GML {
     public void setBaseURL(URL baseURL) {
         this.baseURL = baseURL;
     }
+
     /**
      * Coordinate reference system to use when decoding.
      * <p>
-     * In a few cases (such as decoding a SimpleFeatureType) the file format does not include
-     * the required CooridinateReferenceSystem and you are asked to supply it.
+     * In a few cases (such as decoding a SimpleFeatureType) the file format does not include the
+     * required CooridinateReferenceSystem and you are asked to supply it.
      * 
      * @param crs
      */
     public void setCoordinateReferenceSystem(CoordinateReferenceSystem crs) {
         this.crs = crs;
     }
+
     /**
      * Set up out of the box configuration for GML encoding.
      * <ul>
@@ -183,7 +198,7 @@ public class GML {
         hack.put(new NameImpl(XS.DATETIME), builder.buildType());
 
         schemas.add(hack);
-        
+
         // GML 2
         //
         if (Version.GML2 == version) {
@@ -196,9 +211,9 @@ public class GML {
             gmlNamespace = org.geotools.gml2.GML.NAMESPACE;
             gmlLocation = "gml/2.1.2/feature.xsd";
             gmlConfiguration = new org.geotools.wfs.v1_0.WFSConfiguration();
-            
+
             schemas.add(new org.geotools.gml2.GMLSchema().profile());
-            
+
         }
         // GML 3
         //
@@ -212,7 +227,7 @@ public class GML {
             gmlNamespace = org.geotools.gml3.GML.NAMESPACE;
             gmlLocation = "gml/3.1.1/base/gml.xsd";
             gmlConfiguration = new org.geotools.wfs.v1_1.WFSConfiguration();
-            
+
             schemas.add(new org.geotools.gml3.GMLSchema().profile());
         }
         schemaList = schemas;
@@ -258,85 +273,87 @@ public class GML {
     }
 
     @SuppressWarnings("unchecked")
-    public void encode( OutputStream out, SimpleFeatureCollection collection ) throws IOException {
-        
-        if( version == Version.GML2){
-            if( legacy ){
-                encodeLegacyGML2(out,collection);
-            }
-            else {
-                throw new IllegalStateException("Cannot encode a feature collection using GML2 (only WFS)");
+    public void encode(OutputStream out, SimpleFeatureCollection collection) throws IOException {
+
+        if (version == Version.GML2) {
+            if (legacy) {
+                encodeLegacyGML2(out, collection);
+            } else {
+                throw new IllegalStateException(
+                        "Cannot encode a feature collection using GML2 (only WFS)");
             }
         }
-        if( version == Version.WFS1_0 ){
-            Encoder e = new Encoder( new org.geotools.wfs.v1_0.WFSConfiguration() );
-            e.getNamespaces().declarePrefix( prefix, namespace );
+        if (version == Version.WFS1_0) {
+            Encoder e = new Encoder(new org.geotools.wfs.v1_0.WFSConfiguration());
+            e.getNamespaces().declarePrefix(prefix, namespace);
             e.setIndenting(true);
-            
-            FeatureCollectionType featureCollectionType = WfsFactory.eINSTANCE.createFeatureCollectionType();
+
+            FeatureCollectionType featureCollectionType = WfsFactory.eINSTANCE
+                    .createFeatureCollectionType();
             featureCollectionType.getFeature().add(collection);
-            
-            e.encode( featureCollectionType, org.geotools.wfs.WFS.FeatureCollection, out );
+
+            e.encode(featureCollectionType, org.geotools.wfs.WFS.FeatureCollection, out);
         }
-        if( version == Version.WFS1_1 ){
-            Encoder e = new Encoder( new org.geotools.wfs.v1_1.WFSConfiguration() );
-            e.getNamespaces().declarePrefix( prefix, namespace );
+        if (version == Version.WFS1_1) {
+            Encoder e = new Encoder(new org.geotools.wfs.v1_1.WFSConfiguration());
+            e.getNamespaces().declarePrefix(prefix, namespace);
             e.setIndenting(true);
-            
-            FeatureCollectionType featureCollectionType = WfsFactory.eINSTANCE.createFeatureCollectionType();
+
+            FeatureCollectionType featureCollectionType = WfsFactory.eINSTANCE
+                    .createFeatureCollectionType();
             featureCollectionType.getFeature().add(collection);
-            
-            e.encode( featureCollectionType, org.geotools.wfs.WFS.FeatureCollection, out );
+
+            e.encode(featureCollectionType, org.geotools.wfs.WFS.FeatureCollection, out);
         }
     }
 
-    private void encodeLegacyGML2(OutputStream out, SimpleFeatureCollection collection) throws IOException {
+    private void encodeLegacyGML2(OutputStream out, SimpleFeatureCollection collection)
+            throws IOException {
         final SimpleFeatureType TYPE = collection.getSchema();
-        
+
         FeatureTransformer transform = new FeatureTransformer();
         transform.setIndentation(4);
         transform.setGmlPrefixing(true);
-        
-        if( prefix != null && namespace != null ){
-            transform.getFeatureTypeNamespaces().declareDefaultNamespace(prefix, namespace );
-            transform.addSchemaLocation(prefix,namespace);
-            //transform.getFeatureTypeNamespaces().declareDefaultNamespace("", namespace );
+
+        if (prefix != null && namespace != null) {
+            transform.getFeatureTypeNamespaces().declareDefaultNamespace(prefix, namespace);
+            transform.addSchemaLocation(prefix, namespace);
+            // transform.getFeatureTypeNamespaces().declareDefaultNamespace("", namespace );
         }
-        
-        if( TYPE.getName().getNamespaceURI() != null && TYPE.getUserData().get("prefix") != null){
+
+        if (TYPE.getName().getNamespaceURI() != null && TYPE.getUserData().get("prefix") != null) {
             String typeNamespace = TYPE.getName().getNamespaceURI();
             String typePrefix = (String) TYPE.getUserData().get("prefix");
-            
-            transform.getFeatureTypeNamespaces().declareNamespace(TYPE, typePrefix, typeNamespace );
-        }
-        else if ( prefix != null && namespace != null ){
+
+            transform.getFeatureTypeNamespaces().declareNamespace(TYPE, typePrefix, typeNamespace);
+        } else if (prefix != null && namespace != null) {
             // ignore namespace URI in feature type
             transform.getFeatureTypeNamespaces().declareNamespace(TYPE, prefix, namespace);
-        }
-        else {
+        } else {
             // hopefully that works out for you then
         }
-        
+
         // we probably need to do a wfs feaure collection here?
         transform.setCollectionPrefix(null);
         transform.setCollectionNamespace(null);
-        
+
         // other configuration
         transform.setCollectionBounding(true);
         transform.setEncoding(encoding);
-        
+
         // configure additional feature namespace lookup
-        transform.getFeatureNamespaces(); 
-        
-        String srsName = CRS.toSRS( TYPE.getCoordinateReferenceSystem() );
-        if( srsName != null ){
+        transform.getFeatureNamespaces();
+
+        String srsName = CRS.toSRS(TYPE.getCoordinateReferenceSystem());
+        if (srsName != null) {
             transform.setSrsName(srsName);
         }
-        
+
         try {
-            transform.transform( collection, out );
+            transform.transform(collection, out);
         } catch (TransformerException e) {
-            throw (IOException) new IOException("Failed to encode feature collection:"+e).initCause(e);
+            throw (IOException) new IOException("Failed to encode feature collection:" + e)
+                    .initCause(e);
         }
     }
 
@@ -360,9 +377,10 @@ public class GML {
      */
     public void encode(OutputStream out, SimpleFeatureType simpleFeatureType) throws IOException {
         XSDSchema xsd = xsd(simpleFeatureType);
-        
+
         XSDResourceImpl.serialize(out, xsd.getElement(), encoding.name());
     }
+
     /**
      * Decode a typeName from the provided schemaLocation.
      * <p>
@@ -375,64 +393,288 @@ public class GML {
      * @return
      * @throws IOException
      */
-    public SimpleFeatureType decodeSimpleFeatureType( URL schemaLocation, Name typeName) throws IOException {
-        if( Version.WFS1_1 == version ){
-            final QName featureName = new QName( typeName.getNamespaceURI(), typeName.getLocalPart() );
-            
+    public SimpleFeatureType decodeSimpleFeatureType(URL schemaLocation, Name typeName)
+            throws IOException {
+        if (Version.WFS1_1 == version) {
+            final QName featureName = new QName(typeName.getNamespaceURI(), typeName.getLocalPart());
+
             String namespaceURI = featureName.getNamespaceURI();
             String uri = schemaLocation.toExternalForm();
-            Configuration wfsConfiguration = new org.geotools.gml3.ApplicationSchemaConfiguration(namespaceURI, uri);
-            
+            Configuration wfsConfiguration = new org.geotools.gml3.ApplicationSchemaConfiguration(
+                    namespaceURI, uri);
+
             FeatureType parsed = GTXML.parseFeatureType(wfsConfiguration, featureName, crs);
             return DataUtilities.simple(parsed);
         }
-        
-        if( Version.WFS1_0 == version ){
-            final QName featureName = new QName( typeName.getNamespaceURI(), typeName.getLocalPart() );
-            
+
+        if (Version.WFS1_0 == version) {
+            final QName featureName = new QName(typeName.getNamespaceURI(), typeName.getLocalPart());
+
             String namespaceURI = featureName.getNamespaceURI();
             String uri = schemaLocation.toExternalForm();
-            
-            XSD xsd = new org.geotools.gml2.ApplicationSchemaXSD(namespaceURI, uri );            
-            Configuration configuration = new Configuration( xsd ){
+
+            XSD xsd = new org.geotools.gml2.ApplicationSchemaXSD(namespaceURI, uri);
+            Configuration configuration = new Configuration(xsd) {
                 {
                     addDependency(new XSConfiguration());
                     addDependency(gmlConfiguration); // use our GML configuration
                 }
+
                 protected void registerBindings(java.util.Map bindings) {
                     // we have no special bindings
                 }
             };
-            
+
             FeatureType parsed = GTXML.parseFeatureType(configuration, featureName, crs);
             return DataUtilities.simple(parsed);
         }
         return null;
     }
 
-    public SimpleFeatureCollection decodeFeatureCollection( InputStream in ) throws IOException, SAXException, ParserConfigurationException{
-        if( Version.GML3 == version ){
+    public SimpleFeatureCollection decodeFeatureCollection(InputStream in) throws IOException,
+            SAXException, ParserConfigurationException {
+        if (Version.GML2 == version || Version.GML3 == version || Version.WFS1_0 == version
+                || Version.WFS1_1 == version) {
+            // ParserDelegate parserDelegate = new XSDParserDelegate( gmlConfiguration );
             Parser parser = new Parser(gmlConfiguration);
-            Object obj = parser.parse( in );
-            return (SimpleFeatureCollection) obj;
-        }
-        if( Version.WFS1_0 == version ){
-            if( legacy ){
-                // could consider using FCBuffer here?
+            Object obj = parser.parse(in);
+            if (obj == null) {
+                return null; // not available?
             }
-            Parser parser = new Parser(gmlConfiguration);
-            Object obj = parser.parse( in );
-            return (SimpleFeatureCollection) obj;
-        }
-        if( Version.WFS1_1 == version ){
-            ParserDelegate parserDelegate = new XSDParserDelegate( gmlConfiguration );
-            Parser parser = new Parser(gmlConfiguration);
-            Object obj = parser.parse( in );
-            return (SimpleFeatureCollection) obj;            
+            if (obj instanceof SimpleFeatureCollection) {
+                return (SimpleFeatureCollection) obj;
+            }
+            if (obj instanceof Collection<?>) {
+                Collection<?> collection = (Collection<?>) obj;
+                SimpleFeatureCollection simpleFeatureCollection = simpleFeatureCollection(collection);
+                return simpleFeatureCollection;
+            }
+            if (obj instanceof SimpleFeature) {
+                SimpleFeature feature = (SimpleFeature) obj;
+                return DataUtilities.collection(feature);
+            }
+            throw new ClassCastException(obj.getClass()
+                    + " produced when FeatureCollection expected"
+                    + " check schema use of AbstractFeatureCollection");
         }
         return null;
     }
-    
+
+    /**
+     * Allow the parsing of features as a stream; the returned iterator can be used to step through
+     * the inputstream of content one feature at a time without loading everything into memory.
+     * <p>
+     * The schema used by the XML is consulted to determine what element extends AbstractFeature.
+     * 
+     * @param in
+     * @return Iterator that can be used to parse features one at a time
+     * @throws SAXException
+     * @throws ParserConfigurationException
+     * @throws IOException
+     */
+    public SimpleFeatureIterator decodeFeatureIterator(InputStream in) throws IOException,
+            ParserConfigurationException, SAXException {
+        return decodeFeatureIterator(in, null);
+    }
+
+    /**
+     * Allow the parsing of features as a stream; the returned iterator can be used to step through
+     * the inputstream of content one feature at a time without loading everything into memory.
+     * <p>
+     * The use of an elementName is optional; and can be used as a workaround in cases where the
+     * schema is not available or correctly defined. The returned elements are wrapped up as a
+     * Feature if needed. This mehtod can be used to retrive only the Geometry elements from a GML
+     * docuemnt.
+     * 
+     * @param in
+     *            InputStream used as a source of SimpleFeature content
+     * @param xpath
+     *            Optional xpath used to indicate simple feature element; the schema will be checked
+     *            for an entry that extends AbstratFeatureType
+     * @return
+     * @throws SAXException
+     * @throws ParserConfigurationException
+     */
+    public SimpleFeatureIterator decodeFeatureIterator(InputStream in, QName elementName)
+            throws IOException, ParserConfigurationException, SAXException {
+        if (Version.GML2 == version || Version.GML3 == version || Version.WFS1_0 == version
+                || Version.WFS1_1 == version) {
+            // ParserDelegate parserDelegate = new XSDParserDelegate( gmlConfiguration );
+            StreamingParser parser;
+            if (elementName != null) {
+                parser = new StreamingParser(gmlConfiguration, in, elementName);
+            } else {
+                parser = new StreamingParser(gmlConfiguration, in, SimpleFeature.class);
+            }
+            return iterator(parser);
+        }
+        return null;
+    }
+
+    /**
+     * Go through collection contents and morph contents into SimpleFeatures as required.
+     * 
+     * @param collection
+     * @return SimpleFeatureCollection
+     */
+    private SimpleFeatureCollection simpleFeatureCollection(Collection<?> collection) {
+        SimpleFeatureCollection featureCollection = FeatureCollections.newCollection();
+        SimpleFeatureType schema = null;
+        for (Object obj : collection) {
+            if (schema == null) {
+                schema = simpleType(obj);
+            }
+            SimpleFeature feature = simpleFeature(obj, schema);
+            featureCollection.add(feature);
+        }
+        return featureCollection;
+    }
+
+    /**
+     * Used to wrap up a StreamingParser as a Iterator<SimpleFeature>.
+     * <p>
+     * This iterator is actually forgiving; and willing to "morph" content into a SimpleFeature if
+     * needed.
+     * <ul>
+     * <li>SimpleFeature - is returned as is
+     * <li>
+     * 
+     * @param parser
+     * @return
+     */
+    protected SimpleFeatureIterator iterator(final StreamingParser parser) {
+        return new SimpleFeatureIterator() {
+            SimpleFeatureType schema;
+
+            Object next;
+
+            public boolean hasNext() {
+                if (next != null) {
+                    return true;
+                }
+                next = parser.parse();
+                return next != null;
+            }
+
+            public SimpleFeature next() {
+                if (next == null) {
+                    next = parser.parse();
+                }
+                if (next != null) {
+                    try {
+                        if (schema == null) {
+                            schema = simpleType(next);
+                        }
+                        SimpleFeature feature = simpleFeature(next, schema);
+                        return feature;
+                    } finally {
+                        next = null; // we have tried processing this one now
+                    }
+                } else {
+                    return null; // nothing left
+                }
+            }
+
+            public void close() {
+                schema = null;
+            }
+        };
+    }
+
+    protected SimpleFeatureType simpleType(Object obj) {
+        if (obj instanceof SimpleFeature) {
+            SimpleFeature feature = (SimpleFeature) obj;
+            return feature.getFeatureType();
+        }
+        if (obj instanceof Map<?, ?>) {
+            Map<?, ?> map = (Map<?, ?>) obj;
+            SimpleFeatureTypeBuilder build = new SimpleFeatureTypeBuilder();
+            build.setName("Unknown");
+            for (Map.Entry<?, ?> entry : map.entrySet()) {
+                String key = (String) entry.getKey();
+                Object value = entry.getValue();
+                Class<?> binding = value == null ? Object.class : value.getClass();
+                if (value instanceof Geometry) {
+                    Geometry geom = (Geometry) value;
+                    Object srs = geom.getUserData();
+                    if (srs instanceof CoordinateReferenceSystem) {
+                        build.add(key, binding, (CoordinateReferenceSystem) srs);
+                    } else if (srs instanceof Integer) {
+                        build.add(key, binding, (Integer) srs);
+                    } else if (srs instanceof String) {
+                        build.add(key, binding, (String) srs);
+                    } else {
+                        build.add(key, binding);
+                    }
+                } else {
+                    build.add(key, binding);
+                }
+            }
+            SimpleFeatureType schema = build.buildFeatureType();
+            return schema;
+        }
+        if (obj instanceof Geometry) {
+            Geometry geom = (Geometry) obj;
+            Class<?> binding = geom.getClass();
+            Object srs = geom.getUserData();
+
+            SimpleFeatureTypeBuilder build = new SimpleFeatureTypeBuilder();
+            build.setName("Unknown");
+            if (srs instanceof CoordinateReferenceSystem) {
+                build.add("the_geom", binding, (CoordinateReferenceSystem) srs);
+            } else if (srs instanceof Integer) {
+                build.add("the_geom", binding, (Integer) srs);
+            } else if (srs instanceof String) {
+                build.add("the_geom", binding, (String) srs);
+            } else {
+                build.add("the_geom", binding);
+            }
+            build.setDefaultGeometry("the_geom");
+            SimpleFeatureType schema = build.buildFeatureType();
+            return schema;
+        }
+        return null;
+    }
+
+    /**
+     * Morph provided obj to a SimpleFeature if possible.
+     * 
+     * @param obj
+     * @param schema
+     * @return SimpleFeature, or null if not possible
+     */
+    protected SimpleFeature simpleFeature(Object obj, SimpleFeatureType schema) {
+        if (schema == null) {
+            schema = simpleType(obj);
+        }
+
+        if (obj instanceof SimpleFeature) {
+            return (SimpleFeature) obj;
+        }
+        if (obj instanceof Map<?, ?>) {
+            Map<?, ?> map = (Map<?, ?>) obj;
+            Object values[] = new Object[schema.getAttributeCount()];
+            for (int i = 0; i < schema.getAttributeCount(); i++) {
+                AttributeDescriptor descriptor = schema.getDescriptor(i);
+                String key = descriptor.getLocalName();
+                Object value = map.get(key);
+
+                values[i] = value;
+            }
+            SimpleFeature feature = SimpleFeatureBuilder.build(schema, values, null);
+            return feature;
+        }
+        if (obj instanceof Geometry) {
+            Geometry geom = (Geometry) obj;
+            SimpleFeatureBuilder build = new SimpleFeatureBuilder(schema);
+            build.set(schema.getGeometryDescriptor().getName(), geom);
+
+            SimpleFeature feature = build.buildFeature(null);
+            return feature;
+        }
+        return null; // not available as a feature!
+    }
+
     @SuppressWarnings("unchecked")
     protected XSDSchema xsd(SimpleFeatureType simpleFeatureType) throws IOException {
         XSDFactory factory = XSDFactory.eINSTANCE;
@@ -490,7 +732,6 @@ public class GML {
         return xsd;
     }
 
-    
     /**
      * Build the XSD definition for the provided type.
      * <p>
