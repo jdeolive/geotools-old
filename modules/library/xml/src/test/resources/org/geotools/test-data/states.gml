@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wfs:FeatureCollection numberOfFeatures="2"
+<gml:FeatureCollection numberOfFeatures="2"
 	timeStamp="2008-07-05T21:55:29.524+02:00"
 	xsi:schemaLocation="http://www.openplans.org/topp states.xsd 
-	http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.1.0/wfs.xsd
 	http://www.opengis.net/gml http://schemas.opengis.net/gml/3.1.1/base/gml.xsd"
 	xmlns:ogc="http://www.opengis.net/ogc"
 	xmlns:tiger="http://www.census.gov"
-	xmlns:wfs="http://www.opengis.net/wfs"
 	xmlns:topp="http://www.openplans.org/topp"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:sf="http://www.openplans.org/spearfish"
@@ -154,4 +152,4 @@
 			<topp:SAMP_POP>1747776.0</topp:SAMP_POP>
 		</topp:states>
 	</gml:featureMembers>
-</wfs:FeatureCollection>
+</gml:FeatureCollection>

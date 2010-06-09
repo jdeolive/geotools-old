@@ -116,10 +116,11 @@ public class GML {
     /**
      * Construct a GML utility class to work with the indicated version of GML.
      * <p>
-     * Note that when working with GML2 you need to supply additional information
-     * prior to use (in order to indicate where for XSD file is located).
+     * Note that when working with GML2 you need to supply additional information prior to use (in
+     * order to indicate where for XSD file is located).
      * 
-     * @param version Version of GML to use
+     * @param version
+     *            Version of GML to use
      */
     public GML(Version version) {
         this.version = version;
@@ -441,31 +442,47 @@ public class GML {
 
     public SimpleFeatureCollection decodeFeatureCollection(InputStream in) throws IOException,
             SAXException, ParserConfigurationException {
-        if (Version.GML2 == version || Version.GML3 == version || Version.WFS1_0 == version
+        if (Version.GML2 == version || Version.WFS1_0 == version || Version.GML2 == version
+                || Version.GML3 == version || Version.WFS1_0 == version
                 || Version.WFS1_1 == version) {
-            // ParserDelegate parserDelegate = new XSDParserDelegate( gmlConfiguration );
             Parser parser = new Parser(gmlConfiguration);
             Object obj = parser.parse(in);
-            if (obj == null) {
-                return null; // not available?
+            SimpleFeatureCollection collection = toFeatureCollection(obj);
+            return collection;
+        }
+        return null;
+    }
+
+    private SimpleFeatureCollection toFeatureCollection(Object obj) {
+        if (obj == null) {
+            return null; // not available?
+        }
+        if (obj instanceof SimpleFeatureCollection) {
+            return (SimpleFeatureCollection) obj;
+        }
+        if (obj instanceof Collection<?>) {
+            Collection<?> collection = (Collection<?>) obj;
+            SimpleFeatureCollection simpleFeatureCollection = simpleFeatureCollection(collection);
+            return simpleFeatureCollection;
+        }
+        if (obj instanceof SimpleFeature) {
+            SimpleFeature feature = (SimpleFeature) obj;
+            return DataUtilities.collection(feature);
+        }
+        if (obj instanceof FeatureCollectionType) {
+            FeatureCollectionType collectionType = (FeatureCollectionType) obj;
+            for (Object entry : collectionType.getFeature()) {
+                SimpleFeatureCollection collection = toFeatureCollection(entry);
+                if (entry != null) {
+                    return collection;
+                }
             }
-            if (obj instanceof SimpleFeatureCollection) {
-                return (SimpleFeatureCollection) obj;
-            }
-            if (obj instanceof Collection<?>) {
-                Collection<?> collection = (Collection<?>) obj;
-                SimpleFeatureCollection simpleFeatureCollection = simpleFeatureCollection(collection);
-                return simpleFeatureCollection;
-            }
-            if (obj instanceof SimpleFeature) {
-                SimpleFeature feature = (SimpleFeature) obj;
-                return DataUtilities.collection(feature);
-            }
+            return null; // nothing found
+        } else {
             throw new ClassCastException(obj.getClass()
                     + " produced when FeatureCollection expected"
                     + " check schema use of AbstractFeatureCollection");
         }
-        return null;
     }
 
     /**

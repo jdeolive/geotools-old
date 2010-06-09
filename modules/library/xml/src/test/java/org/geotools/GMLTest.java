@@ -5,11 +5,16 @@ import static org.junit.Assert.*;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FilePermission;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.security.Permission;
+import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 
@@ -210,11 +215,12 @@ public class GMLTest {
     @Test
     public void testGML3ParseSimpleFeatureType() throws IOException {
         URL schemaLocation = TestData.getResource(this, "states.xsd");
-        
+
         GML gml = new GML(Version.WFS1_1);
-        gml.setCoordinateReferenceSystem( DefaultGeographicCRS.WGS84 );
-        
-        SimpleFeatureType featureType = gml.decodeSimpleFeatureType(schemaLocation, new NameImpl("http://www.openplans.org/topp", "states"));
+        gml.setCoordinateReferenceSystem(DefaultGeographicCRS.WGS84);
+
+        SimpleFeatureType featureType = gml.decodeSimpleFeatureType(schemaLocation, new NameImpl(
+                "http://www.openplans.org/topp", "states"));
 
         assertNotNull(featureType);
         assertSame(DefaultGeographicCRS.WGS84, featureType.getCoordinateReferenceSystem());
@@ -224,17 +230,18 @@ public class GMLTest {
         for (AttributeDescriptor desc : attributes) {
             names.add(desc.getLocalName());
         }
-        assertEquals( "Expected number of Attributes", 23, names.size() );
+        assertEquals("Expected number of Attributes", 23, names.size());
     }
-    
+
     @Test
     public void testGML2ParseSimpleFeatureType() throws IOException {
         URL schemaLocation = TestData.getResource(this, "states_gml2.xsd");
-        
+
         GML gml = new GML(Version.WFS1_0);
-        gml.setCoordinateReferenceSystem( DefaultGeographicCRS.WGS84 );
-        
-        SimpleFeatureType featureType = gml.decodeSimpleFeatureType(schemaLocation, new NameImpl("http://www.openplans.org/topp", "states"));
+        gml.setCoordinateReferenceSystem(DefaultGeographicCRS.WGS84);
+
+        SimpleFeatureType featureType = gml.decodeSimpleFeatureType(schemaLocation, new NameImpl(
+                "http://www.openplans.org/topp", "states"));
 
         assertNotNull(featureType);
         assertSame(DefaultGeographicCRS.WGS84, featureType.getCoordinateReferenceSystem());
@@ -244,54 +251,87 @@ public class GMLTest {
         for (AttributeDescriptor desc : attributes) {
             names.add(desc.getLocalName());
         }
-        assertEquals( "Expected number of Attributes", 23, names.size() );
+        assertEquals("Expected number of Attributes", 23, names.size());
     }
-    
+
+    @Test
+    public void testWFS1_0FeatureCollection() throws Exception {
+        URL url = TestData.getResource(this, "states_gml2.xml");
+        InputStream in = url.openStream();
+
+        GML gml = new GML(Version.WFS1_0);
+        SimpleFeatureCollection featureCollection = gml.decodeFeatureCollection(in);
+
+        assertNotNull(featureCollection);
+        assertEquals(49, featureCollection.size());
+    }
+
     @Test
     public void testGML3FeatureCollection() throws Exception {
-        URL url = TestData.getResource(this,"states.xml");
-        InputStream in = url.openStream();
-        
-        GML gml = new GML(Version.GML3);
-        SimpleFeatureCollection featureCollection = gml.decodeFeatureCollection(in);
-        
-        assertNotNull( featureCollection );
-        assertEquals( 2, featureCollection.size() );
+        Logger log = org.geotools.util.logging.Logging.getLogger("org.geotools.xml");
+        Level level = log.getLevel();
+        try {
+            log.setLevel( Level.ALL );
+            
+            URL url = TestData.getResource(this, "states.gml");
+            InputStream in = url.openStream();
+            
+            GML gml = new GML(Version.GML3);
+            SimpleFeatureCollection featureCollection = gml.decodeFeatureCollection(in);
+
+            assertNotNull(featureCollection);
+            assertEquals(2, featureCollection.size());
+        } finally {
+            log.setLevel(level);
+        }
     }
-    
+
+    @Test
+    public void testWFS1_2FeatureCollection() throws Exception {
+        URL url = TestData.getResource(this, "states.xml");
+        InputStream in = url.openStream();
+
+        GML gml = new GML(Version.WFS1_1);
+        SimpleFeatureCollection featureCollection = gml.decodeFeatureCollection(in);
+
+        assertNotNull(featureCollection);
+        assertEquals(2, featureCollection.size());
+    }
+
     @Test
     public void testGML3FeatureIterator() throws Exception {
-        URL url = TestData.getResource(this,"states.xml");
+        URL url = TestData.getResource(this, "states.xml");
         InputStream in = url.openStream();
-        
+
         GML gml = new GML(Version.GML3);
         SimpleFeatureIterator iter = gml.decodeFeatureIterator(in);
-        assertTrue( iter.hasNext() );        
+        assertTrue(iter.hasNext());
         int count = 0;
-        while( iter.hasNext() ){
+        while (iter.hasNext()) {
             SimpleFeature feature = iter.next();
-            assertNotNull( feature );            
+            assertNotNull(feature);
             count++;
         }
-        assertEquals( 2, count );
+        assertEquals(2, count);
     }
+
     @Test
     public void testGML3FeatureIteratorGeometryMorph() throws Exception {
-        URL url = TestData.getResource(this,"states.xml");
+        URL url = TestData.getResource(this, "states.xml");
         InputStream in = url.openStream();
-        
-        QName name = new QName("http://www.opengis.net/gml","MultiSurface");
-        
+
+        QName name = new QName("http://www.opengis.net/gml", "MultiSurface");
+
         GML gml = new GML(Version.GML3);
-        SimpleFeatureIterator iter = gml.decodeFeatureIterator(in,name);
-        assertTrue( iter.hasNext() );        
+        SimpleFeatureIterator iter = gml.decodeFeatureIterator(in, name);
+        assertTrue(iter.hasNext());
         int count = 0;
-        while( iter.hasNext() ){
+        while (iter.hasNext()) {
             SimpleFeature feature = iter.next();
-            assertNotNull( feature );            
+            assertNotNull(feature);
             count++;
         }
-        assertEquals( 2, count );
+        assertEquals(2, count);
     }
-    
+
 }
