@@ -18,6 +18,9 @@
 package org.geotools.data.gen;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;                                                                     
+import java.lang.reflect.Method;                                                                                        
+import java.lang.reflect.Modifier;  
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -135,10 +138,26 @@ public class PreGeneralizedFeatureCollection implements
 
     }
 
-    public void close(Iterator it) {
-        // noop
-
-    }
+        
+   public void close(Iterator it) {                                                                                    
+       if (it==null) return;                                                                                           
+                                                                                                                       
+       try {   // check for a possible close method                                                                    
+           Method closeMethod = it.getClass().getMethod("close", new Class[]{});
+   
+               if (closeMethod!=null) {
+                   int mod = closeMethod.getModifiers();
+                   if (Modifier.isPublic(mod) && (Modifier.isStatic(mod)==false))
+                       closeMethod.invoke(it, new Object[]{});
+               }
+           } catch (SecurityException e) {
+               return;
+           } catch (NoSuchMethodException e) {
+               return;
+           } catch (Exception e) {
+               throw new RuntimeException("Error calling close method for "+it.getClass().getName());
+       }
+   }
 
     public boolean contains(Object feature) {
         if (feature instanceof PreGeneralizedSimpleFeature)
@@ -185,7 +204,7 @@ public class PreGeneralizedFeatureCollection implements
     }
 
     public Iterator<SimpleFeature> iterator() {
-        final Iterator iterator = backendCollection.iterator();
+        final Iterator<SimpleFeature> iterator = backendCollection.iterator();
 
         return new Iterator<SimpleFeature>() {
 
@@ -201,6 +220,9 @@ public class PreGeneralizedFeatureCollection implements
 
             public void remove() {
                 throw unsupported();
+            }
+            public void close() {
+                backendCollection.close(iterator);
             }
         };
     }
