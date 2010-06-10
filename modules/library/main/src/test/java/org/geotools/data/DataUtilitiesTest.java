@@ -466,6 +466,12 @@ public class DataUtilitiesTest extends DataTestCase {
         assertEquals(roadFeatures.length, collection.size());
     }
 
+    public void testCollectionList() {
+        SimpleFeatureCollection collection = DataUtilities
+                .collection(Arrays.asList(roadFeatures));
+        assertEquals(roadFeatures.length, collection.size());
+    }
+    
     public void testReaderFeatureArray() throws Exception {
         FeatureReader<SimpleFeatureType, SimpleFeature> reader = DataUtilities.reader(roadFeatures);
         assertEquals(roadFeatures.length, count(reader));
