@@ -12,10 +12,11 @@ import org.geotools.coverage.grid.GridCoverage2D;
  */
 public class DEMTools {
 
-    @DescribeProcess(description = "Convert from a DEM to a slope")
-    @DescribeResult(name = "slope", type = GridCoverage2D.class, description = "Slope band one is gradient, band two is direction")
-    public GridCoverage2D slope(
+    @DescribeProcess(description = "Convert from a DEM to a gradient")
+    @DescribeResult(name = "slope", type = GridCoverage2D.class, description = "Gradient field for the DEM")
+    public static final GridCoverage2D slope(
             @DescribeParameter( name="DEM", description = "Digital Elevation model") GridCoverage2D DEM) {        
+        // processing goes here
         return DEM;
     }
 

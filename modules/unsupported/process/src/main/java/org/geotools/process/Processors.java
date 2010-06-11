@@ -77,10 +77,10 @@ public class Processors extends FactoryFinder {
     }
 
     /**
-     * Look up a Factory by name.
+     * Look up a Factory by process name.
      * 
-     * @param name Name of Factory
-     * @return ProcessFactory with matching name
+     * @param name Name of the Process you wish to work with
+     * @return ProcessFactory capabile of creating an instanceof the named process
      */
     public static synchronized ProcessFactory createProcessFactory(Name name){
         for( ProcessFactory factory : getProcessFactories() ) {
@@ -93,6 +93,8 @@ public class Processors extends FactoryFinder {
 
     /**
      * Look up an implementation of the named process on the classpath.
+     * @param name Name of the Process to create
+     * @return created process
      */
     public static synchronized Process createProcess(Name name){
         ProcessFactory factory = createProcessFactory( name );
