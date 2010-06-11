@@ -50,7 +50,7 @@ public class GMLTest {
      */
     @Test
     public void testEncodeGML2XSD() throws Exception {
-        SimpleFeatureType TYPE = DataUtilities.createType("location", "geom:Point,name:String");
+        SimpleFeatureType TYPE = DataUtilities.createType("Location", "geom:Point,name:String");
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         GML encode = new GML(Version.GML2);
@@ -66,7 +66,7 @@ public class GMLTest {
 
     @Test
     public void testEncodeGML2Legacy() throws Exception {
-        SimpleFeatureType TYPE = DataUtilities.createType("location", "geom:Point,name:String");
+        SimpleFeatureType TYPE = DataUtilities.createType("Location", "geom:Point,name:String");
 
         SimpleFeatureCollection collection = FeatureCollections.newCollection("internal");
         WKTReader2 wkt = new WKTReader2();
@@ -78,7 +78,7 @@ public class GMLTest {
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         GML encode = new GML(Version.GML2);
-        encode.setNamespace("location", "http://localhost/location.xsd");
+        encode.setNamespace("Location", "http://localhost/Location.xsd");
         encode.setLegacy(true);
         encode.encode(out, collection);
 
