@@ -34,8 +34,13 @@ public class DEMProcessFactoryTest {
        assertNotNull( input );
        Parameter<?> param = input.get("DEM");
        assertNotNull( param );
-     
+       assertEquals( "DEM", param.key );
        
+       Map<String, Parameter<?>> result = factory.getResultInfo(NAME, null );
+       assertNotNull( result );
+       Parameter<?> param2 = result.get("slope");
+       assertNotNull( param2 );
+       assertEquals( "slope", param2.key );
     }
     
 }

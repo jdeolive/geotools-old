@@ -131,9 +131,24 @@ public class DEMProcessFactory implements ProcessFactory {
         return input;
     }
 
+    @SuppressWarnings("unchecked")
     public Map<String, Parameter<?>> getResultInfo(Name name, Map<String, Object> parameters)
             throws IllegalArgumentException {
-        return null;
+        Method method = method( name.getLocalPart() );
+        Map<String,Parameter<?>> result = new LinkedHashMap<String, Parameter<?>>();
+        for( Annotation annotation : method.getAnnotations() ){
+            if( annotation instanceof DescribeResult ){
+                DescribeResult info = (DescribeResult) annotation;
+                Parameter<?> RESULT = new Parameter(
+                        info.name(), info.type(), info.name(), info.description() );
+                result.put( RESULT.key, RESULT );
+            }
+        }
+        if( result.isEmpty() ){
+            Parameter<?> VALUE = new Parameter( "value", Object.class, "Undefined Value", "No description is available" );
+            result.put( VALUE.key, VALUE );
+        }
+        return result;
     }
 
     public InternationalString getTitle(Name name) {
