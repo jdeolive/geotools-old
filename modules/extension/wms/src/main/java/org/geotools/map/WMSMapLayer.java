@@ -516,7 +516,16 @@ public class WMSMapLayer extends DefaultMapLayer {
             String requestSrs = srsName;
             try {
                 // first see if we can cascade the request in its native SRS
-                String code = CRS.lookupIdentifier(bbox.getCoordinateReferenceSystem(), false);
+                // we first look for an official epsg code
+                String code = null;
+                Integer epsgCode = CRS.lookupEpsgCode(bbox.getCoordinateReferenceSystem(), false);
+                if(epsgCode != null) {
+                    code = "EPSG:" + epsgCode;
+                } else {
+                    // otherwise let's make a fuller scan, but this method is more fragile...
+                    code = CRS.lookupIdentifier(bbox.getCoordinateReferenceSystem(), false);
+                }
+                
                 if (code != null && validSRS.contains(code)) {
                     requestSrs = code;
                 } else {
