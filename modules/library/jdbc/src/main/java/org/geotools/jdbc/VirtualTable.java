@@ -16,9 +16,11 @@
  */
 package org.geotools.jdbc;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -29,8 +31,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * 
  * @author Andrea Aime - OpenGeo
  * 
- */
-public class VirtualTable {
+ */     
+public class VirtualTable implements Serializable {
     String name;
 
     String sql;
@@ -105,6 +107,14 @@ public class VirtualTable {
     public Class<? extends Geometry> getGeometryType(String geometryName) {
         return geometryTypes.get(geometryName);
     }
+    
+    /**
+     * Returns the name of the geometry colums declared in this virtual table
+     * @return
+     */
+    public Set<String> getGeometries() {
+        return geometryTypes.keySet();
+    }
 
     /**
      * Returns the geometry native srid, or -1 if not known
@@ -118,5 +128,56 @@ public class VirtualTable {
         }
         return srid;
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((geometryTypes == null) ? 0 : geometryTypes.hashCode());
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result + ((nativeSrids == null) ? 0 : nativeSrids.hashCode());
+        result = prime * result + ((primaryKeyColumns == null) ? 0 : primaryKeyColumns.hashCode());
+        result = prime * result + ((sql == null) ? 0 : sql.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        VirtualTable other = (VirtualTable) obj;
+        if (geometryTypes == null) {
+            if (other.geometryTypes != null)
+                return false;
+        } else if (!geometryTypes.equals(other.geometryTypes))
+            return false;
+        if (name == null) {
+            if (other.name != null)
+                return false;
+        } else if (!name.equals(other.name))
+            return false;
+        if (nativeSrids == null) {
+            if (other.nativeSrids != null)
+                return false;
+        } else if (!nativeSrids.equals(other.nativeSrids))
+            return false;
+        if (primaryKeyColumns == null) {
+            if (other.primaryKeyColumns != null)
+                return false;
+        } else if (!primaryKeyColumns.equals(other.primaryKeyColumns))
+            return false;
+        if (sql == null) {
+            if (other.sql != null)
+                return false;
+        } else if (!sql.equals(other.sql))
+            return false;
+        return true;
+    }
+    
+    
 
 }
