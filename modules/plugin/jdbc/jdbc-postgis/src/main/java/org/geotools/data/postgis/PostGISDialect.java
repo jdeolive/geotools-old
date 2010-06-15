@@ -29,8 +29,8 @@ import java.util.logging.Level;
 import org.geotools.data.jdbc.FilterToSQL;
 import org.geotools.jdbc.BasicSQLDialect;
 import org.geotools.jdbc.JDBCDataStore;
-import org.geotools.jdbc.SQLDialect;
 import org.geotools.referencing.CRS;
+import org.geotools.util.Version;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.GeometryDescriptor;
@@ -48,7 +48,6 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKBReader;
 import com.vividsolutions.jts.io.WKTReader;
 
 public class PostGISDialect extends BasicSQLDialect {
@@ -87,6 +86,8 @@ public class PostGISDialect extends BasicSQLDialect {
             put(byte[].class, "BYTEA");
         }
     };
+    
+    static final Version V_1_5_0 = new Version("1.5.0");
 
     public PostGISDialect(JDBCDataStore dataStore) {
         super(dataStore);
@@ -95,6 +96,8 @@ public class PostGISDialect extends BasicSQLDialect {
     boolean looseBBOXEnabled = false;
 
     boolean estimatedExtentsEnabled = false;
+    
+    Version version;
 
     public boolean isLooseBBOXEnabled() {
         return looseBBOXEnabled;
@@ -154,26 +157,24 @@ public class PostGISDialect extends BasicSQLDialect {
                 .getDimension();
         sql.append("encode(");
         if (dimensions > 2) {
-            sql.append("asEWKB(");
+            sql.append("ST_AsEWKB(");
             encodeColumnName(gatt.getLocalName(), sql);
         } else {
-            sql.append("asBinary(");
-            sql.append("force_2d(");
+            sql.append("ST_AsBinary(");
             encodeColumnName(gatt.getLocalName(), sql);
-            sql.append(")");
         }
-        sql.append(",'XDR'),'base64')");
+        sql.append("),'base64')");
     }
 
     @Override
     public void encodeGeometryEnvelope(String tableName, String geometryColumn,
             StringBuffer sql) {
         if (estimatedExtentsEnabled) {
-            sql.append("estimated_extent(");
+            sql.append("ST_Estimated_Extent(");
             sql.append("'" + tableName + "','" + geometryColumn + "'))));");
         } else {
-            sql.append("AsText(force_2d(Envelope(");
-            sql.append("Extent(\"" + geometryColumn + "\"))))");
+            sql.append("ST_AsText(ST_Force_2D(Envelope(");
+            sql.append("ST_Extent(\"" + geometryColumn + "\"::geometry))))");
         }
     }
 
@@ -196,77 +197,65 @@ public class PostGISDialect extends BasicSQLDialect {
     @Override
     public Class<?> getMapping(ResultSet columnMetaData, Connection cx)
             throws SQLException {
-        final int SCHEMA_NAME = 2;
-        final int TABLE_NAME = 3;
-        final int COLUMN_NAME = 4;
-        final int TYPE_NAME = 6;
-        if (!columnMetaData.getString(TYPE_NAME).equals("geometry")) {
+        
+        String typeName = columnMetaData.getString("TYPE_NAME");
+        String gType = null;
+        if ("geometry".equalsIgnoreCase(typeName)) {
+            gType = lookupGeometryType(columnMetaData, cx, "geometry_columns", "f_geometry_column");
+        } else if ("geography".equalsIgnoreCase(typeName)) {
+            gType = lookupGeometryType(columnMetaData, cx, "geography_columns", "f_geography_column");
+        } else {
             return null;
         }
+       
+        // decode the type into
+        if(gType == null) {
+            // it's either a generic geography or geometry not registered in the medatata tables
+            return Geometry.class;
+        } else {
+            Class geometryClass = (Class) TYPE_TO_CLASS_MAP.get(gType.toUpperCase());
+            if (geometryClass == null) {
+                geometryClass = Geometry.class;
+            }
+    
+            return geometryClass;
+        }
+    }
 
+    String lookupGeometryType(ResultSet columnMetaData, Connection cx, String gTableName, 
+            String gColumnName) throws SQLException {
+        
         // grab the information we need to proceed
-        String tableName = columnMetaData.getString(TABLE_NAME);
-        String columnName = columnMetaData.getString(COLUMN_NAME);
-        String schemaName = columnMetaData.getString(SCHEMA_NAME);
+        String tableName = columnMetaData.getString("TABLE_NAME");
+        String columnName = columnMetaData.getString("COLUMN_NAME");
+        String schemaName = columnMetaData.getString("TABLE_SCHEM");
 
         // first attempt, try with the geometry metadata
         Connection conn = null;
         Statement statement = null;
         ResultSet result = null;
-        String gType = null;
+        
         try {
-            String sqlStatement = "SELECT TYPE FROM GEOMETRY_COLUMNS WHERE " //
+            String sqlStatement = "SELECT TYPE FROM " + gTableName + " WHERE " //
                     + "F_TABLE_SCHEMA = '" + schemaName + "' " //
                     + "AND F_TABLE_NAME = '" + tableName + "' " //
-                    + "AND F_GEOMETRY_COLUMN = '" + columnName + "'";
+                    + "AND " + gColumnName + " = '" + columnName + "'";
 
             LOGGER.log(Level.FINE, "Geometry type check; {0} ", sqlStatement);
             statement = cx.createStatement();
             result = statement.executeQuery(sqlStatement);
 
             if (result.next()) {
-                gType = result.getString(1);
+                return result.getString(1);
             }
         } finally {
             dataStore.closeSafe(result);
             dataStore.closeSafe(statement);
         }
 
-        // TODO: add the support code needed to infer from the first geometry
-        // if (gType == null) {
-        // // no geometry_columns entry, try grabbing a feature
-        // StringBuffer sql = new StringBuffer();
-        // sql.append("SELECT encode(AsBinary(force_2d(\"");
-        // sql.append(columnName);
-        // sql.append("\"), 'XDR'),'base64') FROM \"");
-        // sql.append(schemaName);
-        // sql.append("\".\"");
-        // sql.append(tableName);
-        // sql.append("\" LIMIT 1");
-        // result = statement.executeQuery(sql.toString());
-        // if (result.next()) {
-        // AttributeIO attrIO = getGeometryAttributeIO(null, null);
-        // Object object = attrIO.read(result, 1);
-        // if (object instanceof Geometry) {
-        // Geometry geom = (Geometry) object;
-        // geometryType = geom.getGeometryType().toUpperCase();
-        // type = geom.getClass();
-        // srid = geom.getSRID(); // will return 0 unless we support
-        // // EWKB
-        // }
-        // }
-        // result.close();
-        // }
-        // statement.close();
-
-        // decode the type into
-        Class geometryClass = (Class) TYPE_TO_CLASS_MAP.get(gType);
-        if (geometryClass == null)
-            geometryClass = Geometry.class;
-
-        return geometryClass;
+        return null;
     }
-
+    
     @Override
     public Integer getGeometrySRID(String schemaName, String tableName,
             String columnName, Connection cx) throws SQLException {
@@ -279,12 +268,30 @@ public class PostGISDialect extends BasicSQLDialect {
         try {
             if (schemaName == null)
                 schemaName = "public";
+            
+            if(supportsGeography(cx)) {
+                //first look for an entry in geography_columns, if there return 4326
+                String sqlStatement = "SELECT SRID FROM GEOGRAPHY_COLUMNS WHERE " //
+                    + "F_TABLE_SCHEMA = '" + schemaName + "' " //
+                    + "AND F_TABLE_NAME = '" + tableName + "' " //
+                    + "AND F_GEOGRAPHY_COLUMN = '" + columnName + "'";
+                LOGGER.log(Level.FINE, "Geography srid check; {0} ", sqlStatement);
+                statement = cx.createStatement();
+                result = statement.executeQuery(sqlStatement);
+    
+                if (result.next()) {
+                    return 4326;
+                }
+                
+                dataStore.closeSafe(result);
+            }
+            
             String sqlStatement = "SELECT SRID FROM GEOMETRY_COLUMNS WHERE " //
                     + "F_TABLE_SCHEMA = '" + schemaName + "' " //
                     + "AND F_TABLE_NAME = '" + tableName + "' " //
                     + "AND F_GEOMETRY_COLUMN = '" + columnName + "'";
 
-            LOGGER.log(Level.FINE, "Geometry type check; {0} ", sqlStatement);
+            LOGGER.log(Level.FINE, "Geometry srid check; {0} ", sqlStatement);
             statement = cx.createStatement();
             result = statement.executeQuery(sqlStatement);
 
@@ -623,4 +630,35 @@ public class PostGISDialect extends BasicSQLDialect {
             super.encodeValue(value, type, sql);
         }
     }
-}
+
+    /**
+     * Returns the PostGIS version
+     * @return
+     */
+    public Version getVersion(Connection conn) throws SQLException {
+        if(version == null) {
+            Statement st = null;
+            ResultSet rs = null;
+            try {
+                st = conn.createStatement();
+                rs = st.executeQuery("select PostGIS_Lib_Version()");
+                if(rs.next()) {
+                    version = new Version(rs.getString(1));
+                } 
+            } finally {
+                dataStore.closeSafe(rs);
+                dataStore.closeSafe(st);
+            }
+        }
+        
+        return version;
+    }
+    
+    /**
+     * Returns true if the PostGIS version is >= 1.5.0
+     */
+    boolean supportsGeography(Connection cx) throws SQLException {
+        return getVersion(cx).compareTo(V_1_5_0) >= 0;
+    }
+    
+    }

@@ -20,6 +20,7 @@ import java.io.IOException;
 
 import org.geotools.data.jdbc.FilterToSQL;
 import org.geotools.filter.FilterCapabilities;
+import org.geotools.jdbc.JDBCDataStore;
 import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.spatial.BinarySpatialOperator;
@@ -53,9 +54,16 @@ public class PostgisFilterToSQL extends FilterToSQL {
             geom = geom.getFactory().createLineString(((LinearRing) geom).getCoordinateSequence());
         }
         
-        out.write("GeomFromText('");
-        out.write(geom.toText());
-        out.write("', " + currentSRID + ")");
+        Object typename = currentGeometry.getUserData().get(JDBCDataStore.JDBC_NATIVE_TYPENAME);
+        if("geography".equals(typename)) {
+            out.write("ST_GeogFromText('");
+            out.write(geom.toText());
+            out.write("')");
+        } else {
+            out.write("ST_GeomFromText('");
+            out.write(geom.toText());
+            out.write("', " + currentSRID + ")");
+        }
     }
 
     @Override
