@@ -181,7 +181,10 @@ class GTDataStoreGranuleCatalog extends AbstractGranuleCatalog {
 				return;
 				
 			// if this is not a new store let's extract basic properties from it
-			extractBasicProperties(FilenameUtils.getBaseName(FilenameUtils.getPathNoEndSeparator(this.parentLocation)));			
+			if(spi instanceof PostgisNGJNDIDataStoreFactory||spi instanceof PostgisNGDataStoreFactory)
+				extractBasicProperties(FilenameUtils.getBaseName(FilenameUtils.getPathNoEndSeparator(this.parentLocation)));
+			else
+				extractBasicProperties(null);
 		}
 		catch (Throwable e) {
 			try {
@@ -211,30 +214,31 @@ class GTDataStoreGranuleCatalog extends AbstractGranuleCatalog {
 			throw new IllegalStateException("The index store has been disposed already.");
 		}
 	}
-	private void extractBasicProperties(final String typeName) throws IOException {
-		if (typeName != null) {
-			final String[] typeNames = tileIndexStore.getTypeNames();
-			if (typeNames.length <= 0)
-				throw new IllegalArgumentException("Problems when opening the index, no typenames for the schema are defined");
+	private void extractBasicProperties(String typeName) throws IOException {
+		final String[] typeNames = tileIndexStore.getTypeNames();
+		if (typeNames.length <= 0)
+			throw new IllegalArgumentException("Problems when opening the index, no typenames for the schema are defined");
 
-			// loading all the features into memory to build an in-memory index.
-			for (String type : typeNames) {
-				if (type.equals(typeName)) {
-					this.typeName = type;
-					break;
-				}
+		if (typeName == null)
+			typeName = typeNames[0];
+
+		// loading all the features into memory to build an in-memory index.
+		for (String type : typeNames) {
+			if (type.equals(typeName)) {
+				this.typeName = type;
+				break;
 			}
-			
-			featureSource = tileIndexStore.getFeatureSource(this.typeName);
-			if (featureSource == null) 
-				throw new NullPointerException(
-						"The provided SimpleFeatureSource is null, it's impossible to create an index!");
-			bounds=featureSource.getBounds();
-			
-			
-			final FeatureType schema = featureSource.getSchema();
-			geometryPropertyName = schema.getGeometryDescriptor().getLocalName();
 		}
+
+		featureSource = tileIndexStore.getFeatureSource(this.typeName);
+		if (featureSource == null) 
+			throw new NullPointerException(
+					"The provided SimpleFeatureSource is null, it's impossible to create an index!");
+		bounds=featureSource.getBounds();
+
+
+		final FeatureType schema = featureSource.getSchema();
+		geometryPropertyName = schema.getGeometryDescriptor().getLocalName();
 	}
 	
 	private final ReadWriteLock rwLock= new ReentrantReadWriteLock(true);
