@@ -26,6 +26,7 @@ import java.util.logging.Logger;
 
 import junit.framework.Assert;
 
+import org.eclipse.xsd.XSDSchema;
 import org.geotools.data.DataUtilities;
 import org.junit.After;
 import org.junit.Before;
@@ -40,9 +41,9 @@ public class AppSchemaConfigurationTest {
 
     private static final Logger LOGGER = org.geotools.util.logging.Logging
             .getLogger(AppSchemaConfigurationTest.class.getPackage().getName());
-    
+
     /**
-     * Set this to true if you want to see all the resolved locations. 
+     * Set this to true if you want to see all the resolved locations.
      */
     private static final boolean ADJUST_LOGLEVEL = false;
 
@@ -94,9 +95,15 @@ public class AppSchemaConfigurationTest {
                         AppSchemaCatalog.build(getClass().getResource("/test-data/catalog.xml"))));
         SchemaIndex schemaIndex = Schemas.findSchemas(configuration);
         Assert.assertEquals(3, schemaIndex.getSchemas().length);
-        String schemaLocation = schemaIndex.getSchemas()[0].getSchemaLocation();
+        String schemaLocation = null;
+        for (XSDSchema schema : schemaIndex.getSchemas()) {
+            if (schema.getSchemaLocation().endsWith("catalog-test.xsd")) {
+                schemaLocation = schema.getSchemaLocation();
+                break;
+            }
+        }
+        Assert.assertNotNull(schemaLocation);
         Assert.assertTrue(schemaLocation.startsWith("file:"));
-        Assert.assertTrue(schemaLocation.endsWith("catalog-test.xsd"));
         Assert.assertTrue(DataUtilities.urlToFile(new URL(schemaLocation)).exists());
     }
 
@@ -109,10 +116,16 @@ public class AppSchemaConfigurationTest {
                 "http://www.geosciml.org/geosciml/2.0/xsd/geosciml.xsd", new AppSchemaResolver());
         SchemaIndex schemaIndex = Schemas.findSchemas(configuration);
         Assert.assertEquals(3, schemaIndex.getSchemas().length);
-        String schemaLocation = schemaIndex.getSchemas()[0].getSchemaLocation();
+        String schemaLocation = null;
+        for (XSDSchema schema : schemaIndex.getSchemas()) {
+            if (schema.getSchemaLocation().endsWith("geosciml.xsd")) {
+                schemaLocation = schema.getSchemaLocation();
+                break;
+            }
+        }
+        Assert.assertNotNull(schemaLocation);
         Assert.assertTrue(schemaLocation.startsWith("jar:file:"));
-        Assert.assertTrue(schemaLocation.endsWith("geosciml.xsd"));
-   }
+    }
 
     /**
      * Test we can {@link Schemas#findSchemas(Configuration)} with cache and classpath.
@@ -128,9 +141,15 @@ public class AppSchemaConfigurationTest {
                 "http://schemas.example.org/cache-test/cache-test.xsd", resolver);
         SchemaIndex schemaIndex = Schemas.findSchemas(configuration);
         Assert.assertEquals(3, schemaIndex.getSchemas().length);
-        String schemaLocation = schemaIndex.getSchemas()[0].getSchemaLocation();
+        String schemaLocation = null;
+        for (XSDSchema schema : schemaIndex.getSchemas()) {
+            if (schema.getSchemaLocation().endsWith("cache-test.xsd")) {
+                schemaLocation = schema.getSchemaLocation();
+                break;
+            }
+        }
+        Assert.assertNotNull(schemaLocation);
         Assert.assertTrue(schemaLocation.startsWith("file:"));
-        Assert.assertTrue(schemaLocation.endsWith("cache-test.xsd"));
         Assert.assertTrue(DataUtilities.urlToFile(new URL(schemaLocation)).exists());
     }
 
