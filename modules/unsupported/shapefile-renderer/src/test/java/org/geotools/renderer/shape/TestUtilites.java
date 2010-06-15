@@ -30,6 +30,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import junit.framework.TestCase;
 
@@ -66,6 +68,8 @@ import com.vividsolutions.jts.geom.Envelope;
  * @source $URL$
  */
 public class TestUtilites {
+    public static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.renderer.shape");
+    
     static final FilterFactory filterFactory = CommonFactoryFinder.getFilterFactory(null);
     public static boolean INTERACTIVE = false;
 
@@ -191,11 +195,15 @@ public class TestUtilites {
     public static BufferedImage showRender(String testName, GTRenderer renderer,
         long timeOut, Envelope bounds, int expectedFeatureCount)
         throws Exception {
-        CountingRenderListener listener = new CountingRenderListener();
-
+       
+        RenderListener listener;     
         if (expectedFeatureCount > -1) {
-            renderer.addRenderListener(listener);
+            listener = new CountingRenderListener(testName);
         }
+        else {
+            listener = new LogginRenderListener(testName);
+        }
+        renderer.addRenderListener(listener);
 
         int w = 300;
         int h = 300;
@@ -245,9 +253,9 @@ public class TestUtilites {
 
         TestCase.assertTrue("image is blank and should not be", hasData);
 
+        renderer.removeRenderListener(listener);
         if (expectedFeatureCount > -1) {
-            renderer.removeRenderListener(listener);
-            TestCase.assertEquals(expectedFeatureCount, listener.count);
+            TestCase.assertEquals(expectedFeatureCount, ((CountingRenderListener)listener).count);
         }
         
         return image;
@@ -276,42 +284,45 @@ public class TestUtilites {
         }
     }
 
+    /** Simply logs errors */
+    public static class LogginRenderListener implements RenderListener {
+        public LogginRenderListener( String testName ){
+            this.location = testName;
+        }
+        public String location = "TestUtilities";
+        public void featureRenderer(SimpleFeature feature) {
+        }
+        public void errorOccurred(Exception e) {
+            LOGGER.log(Level.INFO, location, e );
+        }
+    }
+    /** Logs errors and counts the number of features rendered */
     public static class CountingRenderListener implements RenderListener {
+        public CountingRenderListener( String testName ){
+            this.location = testName;
+        }
         public int count = 0;
-
-        /* (non-Javadoc)
-         * @see org.geotools.renderer.lite.RenderListener#featureRenderer(org.geotools.feature.Feature)
-         */
+        public String location = "TestUtilities";
         public void featureRenderer(SimpleFeature feature) {
             count++;
         }
-
-        /* (non-Javadoc)
-         * @see org.geotools.renderer.lite.RenderListener#errorOccurred(java.lang.Exception)
-         */
         public void errorOccurred(Exception e) {
-            // TODO Auto-generated method stub
+            LOGGER.log(Level.INFO, location, e );
         }
     }
-    
-        public static class ExceptionCollectorRenderListener implements RenderListener {
+    /**
+     * Collects the number of produced exceptions.
+     */
+    public static class ExceptionCollectorRenderListener implements RenderListener {
         public List<Exception> exceptions = new ArrayList<Exception>();
-
-        /*
-         * (non-Javadoc)
-         * 
-         * @see
-         * org.geotools.renderer.lite.RenderListener#featureRenderer(org.geotools.feature.Feature)
-         */
+        public String location = "TestUtilities";
+        public ExceptionCollectorRenderListener( String testName ){
+            this.location = testName;
+        }
         public void featureRenderer(SimpleFeature feature) {
         }
-
-        /*
-         * (non-Javadoc)
-         * 
-         * @see org.geotools.renderer.lite.RenderListener#errorOccurred(java.lang.Exception)
-         */
         public void errorOccurred(Exception e) {
+            LOGGER.log(Level.INFO, location, e );
             exceptions.add(e);
         }
     }      

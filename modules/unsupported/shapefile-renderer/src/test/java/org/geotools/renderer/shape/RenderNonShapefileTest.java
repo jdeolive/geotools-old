@@ -26,7 +26,7 @@ import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.map.DefaultMapLayer;
-import org.geotools.map.FeatureSourceMapLayer;
+import org.geotools.map.FeatureLayer;
 import org.geotools.map.MapContext;
 import org.geotools.map.MapLayer;
 import org.geotools.styling.Style;
@@ -77,7 +77,7 @@ public class RenderNonShapefileTest extends TestCase {
                 .getTypeNames()[0]);
         ((SimpleFeatureStore) target).addFeatures(featureCollection);
         Style testStyle = TestUtilites.createTestStyle(target.getSchema().getTypeName(), null);
-        MapLayer layer = new FeatureSourceMapLayer(target, testStyle);
+        MapLayer layer = new DefaultMapLayer( new FeatureLayer(target, testStyle));
         MapContext context = new DefaultMapContext(new MapLayer[] { layer }, polys.getSchema().getCoordinateReferenceSystem());
         ShapefileRenderer renderer = new ShapefileRenderer(context);
         Envelope env = context.getLayerBounds();

@@ -74,7 +74,8 @@ public class LabelingTest extends TestCase {
         TestUtilites.INTERACTIVE = INTERACTIVE;
         env = new Envelope(env.getMinX() - boundary, env.getMaxX() + boundary,
                 env.getMinY() - boundary, env.getMaxY() + boundary);
-        TestUtilites.showRender("testLineLabeling", renderer, timout, env);
+        
+        TestUtilites.showRender("testLineLabeling", renderer, timout, env );
     }
 
     public void testPolyLabeling() throws Exception {

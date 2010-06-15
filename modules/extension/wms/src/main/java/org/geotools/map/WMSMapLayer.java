@@ -114,16 +114,8 @@ public class WMSMapLayer extends DefaultMapLayer {
      * @param layer
      */
     public WMSMapLayer(WebMapServer wms, Layer layer) {
-        super((SimpleFeatureSource) null, null, "");
-        reader = new WMSCoverageReader(wms, layer);
-        try {
-            this.featureSource = DataUtilities.source(FeatureUtilities.wrapGridCoverageReader(
-                    reader, null));
-        } catch (Throwable t) {
-            throw new RuntimeException("Unexpected exception occurred during map layer building", t);
-        }
-
-        this.style = STYLE;
+        super( new WMSCoverageReader(wms, layer), STYLE );
+        reader = (WMSCoverageReader) ((GridReaderLayer)internal).getReader();
     }
 
     public synchronized ReferencedEnvelope getBounds() {

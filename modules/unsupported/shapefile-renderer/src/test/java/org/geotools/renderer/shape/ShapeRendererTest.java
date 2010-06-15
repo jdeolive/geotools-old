@@ -348,7 +348,7 @@ public class ShapeRendererTest extends TestCase {
         MapContext context = new DefaultMapContext();
         context.addLayer(store, st);
         ShapefileRenderer renderer = new ShapefileRenderer(context);
-        TestUtilites.CountingRenderListener listener = new TestUtilites.CountingRenderListener();
+        TestUtilites.CountingRenderListener listener = new TestUtilites.CountingRenderListener(getName());
         renderer.addRenderListener(listener);
         Envelope env = context.getLayerBounds();
         int boundary = 7;
@@ -407,7 +407,7 @@ public class ShapeRendererTest extends TestCase {
         MapContext context = new DefaultMapContext();
         context.addLayer(store, st);
         ShapefileRenderer renderer = new ShapefileRenderer(context);
-        TestUtilites.CountingRenderListener listener = new TestUtilites.CountingRenderListener();
+        TestUtilites.CountingRenderListener listener = new TestUtilites.CountingRenderListener(getName());
         renderer.addRenderListener(listener);
         Envelope env = context.getLayerBounds();
         int boundary = 7;
@@ -431,7 +431,7 @@ public class ShapeRendererTest extends TestCase {
         MapContext context = new DefaultMapContext();
         context.addLayer(store, st);
         ShapefileRenderer renderer = new ShapefileRenderer(context);
-        TestUtilites.CountingRenderListener listener = new TestUtilites.CountingRenderListener();
+        TestUtilites.CountingRenderListener listener = new TestUtilites.CountingRenderListener(getName());
         renderer.addRenderListener(listener);
         renderer.addRenderListener(new RenderListener() {
 
@@ -488,7 +488,7 @@ public class ShapeRendererTest extends TestCase {
             g.fillRect(0, 0, w, h);
 
             ShapefileRenderer renderer = new ShapefileRenderer();
-            TestUtilites.ExceptionCollectorRenderListener listenerForEx = new TestUtilites.ExceptionCollectorRenderListener();
+            TestUtilites.ExceptionCollectorRenderListener listenerForEx = new TestUtilites.ExceptionCollectorRenderListener(getName());
             renderer.addRenderListener(listenerForEx);
             renderer.setContext(context);
 

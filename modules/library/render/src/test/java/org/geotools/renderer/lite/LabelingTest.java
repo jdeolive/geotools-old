@@ -134,21 +134,23 @@ public class LabelingTest extends TestCase {
 	}
 
    
-	public void testLineLabeling() throws Exception{		
-		FeatureCollection collection=createLineFeatureCollection();
-		Style style=loadStyle("LineStyle.sld");
-		assertNotNull(style);
-		MapContext map = new DefaultMapContext(DefaultGeographicCRS.WGS84);
+    public void testLineLabeling() throws Exception {
+        FeatureCollection collection = createLineFeatureCollection();
+        Style style = loadStyle("LineStyle.sld");
+        assertNotNull(style);
+        MapContext map = new DefaultMapContext(DefaultGeographicCRS.WGS84);
         map.addLayer(collection, style);
 
-        StreamingRenderer renderer=new StreamingRenderer();
+        StreamingRenderer renderer = new StreamingRenderer();
         renderer.setContext(map);
         ReferencedEnvelope env = map.getLayerBounds();
-        int boundary=10;
-        env = new ReferencedEnvelope(env.getMinX() - boundary, env.getMaxX() + boundary, 
-        		env.getMinY() - boundary, env.getMaxY() + boundary, null);
+        int boundary = 10;
+        env = new ReferencedEnvelope(env.getMinX() - boundary, env.getMaxX() + boundary, env
+                .getMinY()
+                - boundary, env.getMaxY() + boundary, null);
+        
         RendererBaseTest.showRender("testLineLabeling", renderer, timout, env);
-	}
+    }
 
 	private SimpleFeatureCollection createLineFeatureCollection() throws Exception {
         AttributeDescriptor[] types = new AttributeDescriptor[2];

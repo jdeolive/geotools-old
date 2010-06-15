@@ -255,7 +255,6 @@ public class Rendering2DTest extends TestCase {
         ShapefileRenderer renderer = new ShapefileRenderer(map);
         ReferencedEnvelope env = map.getLayerBounds();
 
-
         //        renderer.setOptimizedDataLoadingEnabled(true);
         env = new ReferencedEnvelope(env.getMinX() - 1, env.getMaxX() + 1,
                 env.getMinY() - 1, env.getMaxY() + 1, env.getCoordinateReferenceSystem());
@@ -280,7 +279,7 @@ public class Rendering2DTest extends TestCase {
         ShapefileRenderer renderer = createLineRenderer(TestUtilites.getLines());
         MapContext context = renderer.getContext();
 
-        TestUtilites.CountingRenderListener l1 = new TestUtilites.CountingRenderListener();
+        TestUtilites.CountingRenderListener l1 = new TestUtilites.CountingRenderListener(getName());
         renderer.addRenderListener(l1);
 
         BufferedImage image = new BufferedImage(300, 300,
@@ -289,7 +288,7 @@ public class Rendering2DTest extends TestCase {
             context.getAreaOfInterest());
         renderer.removeRenderListener(l1);
 
-        TestUtilites.CountingRenderListener l2 = new TestUtilites.CountingRenderListener();
+        TestUtilites.CountingRenderListener l2 = new TestUtilites.CountingRenderListener(getName());
         renderer.addRenderListener(l2);
 
         ReferencedEnvelope old = context.getAreaOfInterest();

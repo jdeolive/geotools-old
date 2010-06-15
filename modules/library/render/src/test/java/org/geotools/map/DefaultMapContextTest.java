@@ -1,35 +1,43 @@
 package org.geotools.map;
 
-
-import static org.easymock.EasyMock.createNiceMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
-
 import java.io.IOException;
 
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.Test;
+import static org.junit.Assert.*;
 
 public class DefaultMapContextTest {
+    @Test
+    public void testDispose() {
+        DefaultMapContext mapContext = new DefaultMapContext();
+        mapContext.dispose();
 
-	MapLayer mapLayerBoundsNull = createNiceMock(MapLayer.class);
+        mapContext = new DefaultMapContext(DefaultGeographicCRS.WGS84);
+        mapContext.dispose();
 
-	/**
-	 * if a {@link MapLayer#getBounds()} returns null a NullPointerException will be thrown 
-	 */
-	@Test
-	public void testNPELayerBounds() {
-		expect(mapLayerBoundsNull.getBounds()).andReturn(null);
-		
-		replay(mapLayerBoundsNull);
-		
-		DefaultMapContext mapContext = new DefaultMapContext(DefaultGeographicCRS.WGS84);
-		try {
-			mapContext.addLayer(mapLayerBoundsNull);
-			// throws a NullPointerException
-			mapContext.getLayerBounds();
-		} catch (IOException e) {
-			// don't care about is right here
-		}
-	}
+    }
+
+    /**
+     * Test DefaultMapContext handles layers that return null bounds.
+     */
+    @Test
+    public void testNPELayerBounds() throws IOException {
+
+        MapLayer mapLayerBoundsNull = new MapLayer(new Layer() {
+            public ReferencedEnvelope getBounds() {
+                return null;
+            }
+        });
+        DefaultMapContext mapContext = new DefaultMapContext(DefaultGeographicCRS.WGS84);
+        mapContext.addLayer(mapLayerBoundsNull);
+        ReferencedEnvelope layerBounds = mapContext.getLayerBounds();
+        assertNull(layerBounds);
+        
+        ReferencedEnvelope maxBounds = mapContext.getMaxBounds();
+        assertNotNull(maxBounds);
+        assertEquals( DefaultGeographicCRS.WGS84, maxBounds.getCoordinateReferenceSystem() );
+        assertTrue( maxBounds.isEmpty() );
+        
+    }
 }

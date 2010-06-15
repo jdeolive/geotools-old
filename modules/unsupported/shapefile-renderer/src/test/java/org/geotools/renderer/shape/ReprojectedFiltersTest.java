@@ -4,17 +4,21 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
 
 import junit.framework.TestCase;
 
 import org.geotools.TestData;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.shapefile.ShapefileDataStore;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.filter.text.cql2.CQL;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.map.DefaultMapLayer;
-import org.geotools.map.FeatureSourceMapLayer;
+import org.geotools.map.FeatureLayer;
 import org.geotools.map.MapContext;
 import org.geotools.map.MapLayer;
 import org.geotools.referencing.CRS;
@@ -71,10 +75,10 @@ public class ReprojectedFiltersTest extends TestCase {
         StyleBuilder sb = new StyleBuilder();
         Style s = sb.createStyle(sb.createPolygonSymbolizer()); 
         
-        Filter f = CQL.toFilter("CONTAINS(the_geom, POINT(-100 32))");
+        Filter filter = CQL.toFilter("CONTAINS(the_geom, POINT(-100 32))");
         MapContext mc = new DefaultMapContext(mercator);
         DefaultMapLayer l = new DefaultMapLayer(ds.getFeatureSource(), s);
-        l.setQuery(new DefaultQuery("statepop", f));
+        l.setQuery(new DefaultQuery("statepop", filter));
         mc.addLayer(l);
         
         ShapefileRenderer r = new ShapefileRenderer(mc);
@@ -103,6 +107,7 @@ public class ReprojectedFiltersTest extends TestCase {
      * 
      * @throws Exception
      */
+    @SuppressWarnings("deprecation")
     public void testReprojectFilterFeatureSourceMapLayer() throws Exception {
         CoordinateReferenceSystem mercator = CRS.decode("EPSG:3395", true);
         ReferencedEnvelope world = new ReferencedEnvelope(-180, 180, -80, 80, DefaultGeographicCRS.WGS84);
@@ -111,16 +116,27 @@ public class ReprojectedFiltersTest extends TestCase {
         Style s = sb.createStyle(sb.createPolygonSymbolizer()); 
         Filter f = CQL.toFilter("CONTAINS(the_geom, POINT(-100 32))");
         MapContext mc = new DefaultMapContext(mercator);
-        MapLayer l = new FeatureSourceMapLayer(ds.getFeatureSource(), s);
+        MapLayer l = new DefaultMapLayer( new FeatureLayer(ds.getFeatureSource(), s));
         l.setQuery(new DefaultQuery("statepop", f));
         mc.addLayer(l);
+        
+        SimpleFeatureCollection sanityCheck = ds.getFeatureSource().getFeatures(f);
+        SimpleFeatureIterator iter = sanityCheck.features();
+        final Set<String> expected = new HashSet<String>();
+        while( iter.hasNext() ){
+            SimpleFeature feature = iter.next();
+            String fid = feature.getID();
+            expected.add( fid );
+        }
+        iter.close();
+        
         ShapefileRenderer r = new ShapefileRenderer(mc);
         r.addRenderListener(new RenderListener() {
             public void featureRenderer(SimpleFeature feature) {
                 features++;
-                assertEquals("statepop.15", feature.getID());
-            }
-        
+                String fid = feature.getID();
+                assertTrue("Unexpected result "+fid, expected.contains( fid ));
+            }        
             public void errorOccurred(Exception e) {
                 errors++;
             }

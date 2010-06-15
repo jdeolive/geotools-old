@@ -1317,7 +1317,9 @@ public class ShapefileRenderer implements GTRenderer {
 
     public void paint( Graphics2D graphics, Rectangle paintArea, ReferencedEnvelope envelope,
             AffineTransform transform ) {
-
+        if( transform == null ){
+            throw new NullPointerException("Transform is required");
+        }
         if (hints != null) {
             graphics.setRenderingHints(hints);
         }
@@ -1359,7 +1361,7 @@ public class ShapefileRenderer implements GTRenderer {
         } catch (Exception e) // probably either (1) no CRS (2) error xforming
         {
             LOGGER.throwing("RendererUtilities", "calculateScale(envelope, coordinateReferenceSystem, imageWidth, imageHeight, hints)", e);
-            setScaleDenominator(1 / transform.getScaleX()); // DJB old method - the best we can do
+            setScaleDenominator(1 / transform.getScaleX()); // DJB old method - the best we can do            
         }
 
         MapLayer[] layers = context.getLayers();
@@ -1396,25 +1398,36 @@ public class ShapefileRenderer implements GTRenderer {
                 GeometryDescriptor geom = currLayer.getFeatureSource().getSchema().getGeometryDescriptor();
                 
                 CoordinateReferenceSystem dataCRS;
-                if( getForceCRSHint()==null )
-                	dataCRS = geom.getCoordinateReferenceSystem();
-                else
-                	dataCRS=getForceCRSHint();
-                
-                MathTransform mt;
-                CoordinateOperation op;
-
-                try {
-                    op = CRS.getCoordinateOperationFactory(true).createOperation(dataCRS, destinationCrs);
-                    mt = op.getMathTransform();
-                    bbox = bbox.transform(dataCRS, true, 10);
-                } catch (Exception e) {
-                    fireErrorEvent(e);
-                    LOGGER.log(Level.WARNING, "Could not reproject the bounding boxes, proceeding in non reprojecting mode", e);
-                    op = null;
-                    mt = null;
+                if (getForceCRSHint() == null) {
+                    dataCRS = geom.getCoordinateReferenceSystem();
+                } else {
+                    dataCRS = getForceCRSHint();
                 }
-
+                MathTransform mt = null;
+                CoordinateOperation op = null;
+                if( dataCRS != null ){
+                    try {
+                        if( dataCRS != null ){
+                            op = CRS.getCoordinateOperationFactory(true).createOperation(dataCRS, destinationCrs);
+                            mt = op.getMathTransform();
+                            bbox = bbox.transform(dataCRS, true, 10);
+                        }
+                        else {
+                            LOGGER.log(Level.WARNING, "Could not reproject the bounding boxes as data CRS was null, proceeding in non reprojecting mode");
+                            op = null;
+                            mt = null;
+                        }
+                    } catch (Exception e) {
+                        fireErrorEvent(e);
+                        LOGGER.log(Level.WARNING, "Could not reproject the bounding boxes, proceeding in non reprojecting mode", e);
+                        op = null;
+                        mt = null;
+                    }
+                }
+                else {
+                    LOGGER.log(Level.WARNING, "Data CRS is unknown, proceeding in non reprojecting mode");
+                }
+                
                 MathTransform at = ReferencingFactoryFinder.getMathTransformFactory(null)
                         .createAffineTransform(new GeneralMatrix(transform));
 
@@ -1457,7 +1470,8 @@ public class ShapefileRenderer implements GTRenderer {
                 processStylers(graphics, ds, query, bbox, paintArea,
                         mt, currLayer.getStyle(), layerIndexInfo[i], transaction, ""+i);
             } catch (Exception exception) {
-                fireErrorEvent(new Exception("Exception rendering layer " + currLayer, exception));
+                Exception e = new Exception("Exception rendering layer " + currLayer, exception);
+                fireErrorEvent(e);
             }
 
             labelCache.endLayer(""+i, graphics, paintArea);
