@@ -29,10 +29,10 @@ import com.vividsolutions.jts.geom.Envelope;
 
 
 /**
+ * GeoTools renderer for rendering spatial content into a Graphics2D.
  * Typical usage: <pre>
- *
  *          Rectangle paintArea = new Rectangle(width, height);
- *          Envelope mapArea = map.getAreaOfInterest();
+ *          ReferencedEnvelope mapArea = map.getBounds();
  *
  *          renderer = new StreamingRenderer();
  *          renderer.setContext(map);
@@ -40,9 +40,11 @@ import com.vividsolutions.jts.geom.Envelope;
  *          RenderingHints hints = new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON );
  *          renderer.setJava2DHints(hints);
  *
- *          Map rendererParams = new HashMap();
+ *          Map<Object,Object> rendererParams = new HashMap<Object,Object>();
  *          rendererParams.put("optimizedDataLoadingEnabled",new Boolean(true) );
- *
+ *          
+ *          renderer.setRendererHints( renderParams );
+ *          
  *          renderer.paint(graphic, paintArea, mapArea);
  *</pre>
  *
@@ -53,22 +55,72 @@ import com.vividsolutions.jts.geom.Envelope;
  */
 
 public interface GTRenderer {
-    public void stopRendering();
     
+    /**
+     * If you call this method from another thread than the one that called
+     * <code>paint</code> or <code>render</code> the rendering will be
+     * forcefully stopped before termination.
+     */
+    public void stopRendering();
+
+    /**
+     * adds a listener that responds to error events of feature rendered events.
+     * 
+     * @see RenderListener
+     * 
+     * @param listener
+     *            the listener to add.
+     */
     public void addRenderListener(RenderListener listener);
+
+    /**
+     * Removes a render listener.
+     * 
+     * @see RenderListener
+     * 
+     * @param listener
+     *            the listener to remove.
+     */
     public void removeRenderListener(RenderListener listener);
     
+    /**
+     * Hints used to configure Java2D Graphics prior to rendering.
+     */
     public void setJava2DHints(RenderingHints hints);
+    
+    /**
+     * Hints used to configure Java2D Graphics prior to rendering.
+     * @return Hints
+     */
     public RenderingHints getJava2DHints();
     
+    /**
+     * Hints used to configure rendering process.
+     * @param hints
+     */
     public void setRendererHints(Map<Object,Object> hints);
+    
+    /**
+     * Hints used to configure rendering process
+     * @return Hints used to configure rendering process
+     */
     public Map<Object,Object> getRendererHints();
     
+    /**
+     * Map content to render.
+     * @param context
+     */
     public void setContext( MapContext context );
-    public  MapContext getContext(  );
     
-    /** Renders features based on the map layers and their styles as specified
-     * in the map context using <code>setContext</code>.
+    /**
+     * Map content being rendered.
+     * @return Map content being rendered.
+     */
+    public  MapContext getContext();
+    
+    /**
+     * Renders features based on the map layers and their styles as specified
+     * in the map content using <code>setContext</code>.
      * <p/>
      * This version of the method assumes that the size of the output area
      * and the transformation from coordinates to pixels are known.
@@ -78,9 +130,9 @@ public interface GTRenderer {
      * @param graphics The graphics object to draw to.
      * @param paintArea The size of the output area in output units (eg: pixels).
      * @param worldToScreen A transform which converts World coordinates to Screen coordinates.
-     * @task Need to check if the Layer CoordinateSystem is different to the BoundingBox rendering
-     *       CoordinateSystem and if so, then transform the coordinates.
      */
+    // TASK: Need to check if the Layer CoordinateSystem is different to the BoundingBox rendering
+    //       CoordinateSystem and if so, then transform the coordinates.
     public void paint( Graphics2D graphics, Rectangle paintArea, AffineTransform worldToScreen );
     
     /** Renders features based on the map layers and their styles as specified
@@ -113,7 +165,7 @@ public interface GTRenderer {
 	public void paint(Graphics2D graphics, Rectangle paintArea,
 			ReferencedEnvelope mapArea);
 
-	/**
+    /**
      * Renders features based on the map layers and their styles as specified
      * in the map context using <code>setContext</code>.
      * <p/>
@@ -147,7 +199,6 @@ public interface GTRenderer {
 	 * @param worldToScreen
 	 *            A transform which converts World coordinates to Screen
 	 *            coordinates.
-	 * 
 	 */
 	public void paint(Graphics2D graphics, Rectangle paintArea,
 			ReferencedEnvelope mapArea, AffineTransform worldToScreen);
