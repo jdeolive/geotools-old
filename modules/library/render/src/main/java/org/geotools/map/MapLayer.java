@@ -581,8 +581,8 @@ public class MapLayer {
     }
     
     public String toString() {
-        StringBuffer buf = new StringBuffer();
-        buf.append("DefaultMapLayer:");
+        StringBuilder buf = new StringBuilder();
+        buf.append("MapLayer:");
         buf.append( internal );
         
         return buf.toString();

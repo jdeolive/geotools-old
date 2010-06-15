@@ -1,6 +1,5 @@
 package org.geotools.map;
 
-import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -302,11 +301,9 @@ public abstract class Layer {
     @Override
     public String toString() {
         StringBuilder buf = new StringBuilder();
-        buf.append(getClass().getCanonicalName());
-
-        if (title == null || title.length() == 0) {
-            buf.append("UNNAMED");
-        } else {
+        buf.append(getClass().getName());
+        buf.append("[");
+        if (title != null && title.length() != 0) {
             buf.append(getTitle());
         }
         if (visible) {

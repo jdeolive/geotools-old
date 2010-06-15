@@ -41,9 +41,9 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * <p>
  * This implementation was almost entirely stolen from that of {@link DefaultMapLayer}.
  * <p>
- * 
  * @author Ben Caradoc-Davies, CSIRO Exploration and Mining
  * @source $URL$
+ * @deprecated Please use MapLayer directly; or you are just interested in rendering a subclass of Layer
  */
 public class FeatureSourceMapLayer extends MapLayer {
 
