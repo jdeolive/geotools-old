@@ -188,11 +188,25 @@ public class FeatureLayer extends Layer {
         try {
             ReferencedEnvelope bounds = featureSource.getBounds();
             if( bounds != null ){
+                FeatureType schema = featureSource.getSchema();
+                CoordinateReferenceSystem schemaCrs = schema.getCoordinateReferenceSystem();
+                CoordinateReferenceSystem boundsCrs = bounds.getCoordinateReferenceSystem();
+                
+                if( boundsCrs == null && schemaCrs != null ){
+                    LOGGER.warning("Bounds crs not defined; assuming bounds from schema are correct for "+featureSource );
+                    bounds = new ReferencedEnvelope(bounds.getMinX(),bounds.getMaxX(),bounds.getMinY(),bounds.getMaxY(),schemaCrs);
+                }
+                if( boundsCrs != null && schemaCrs != null && !CRS.equalsIgnoreMetadata(boundsCrs, schemaCrs)){
+                    LOGGER.warning("Bounds crs and schema crs are not consistent; forcing the use of the schema crs so they are consistent" );
+                    //bounds = bounds.transform(schemaCrs, true );
+                    bounds = new ReferencedEnvelope(bounds.getMinX(),bounds.getMaxX(),bounds.getMinY(),bounds.getMaxY(),schemaCrs);
+                }
                 return bounds;
             }            
         } catch (IOException e) {
             // feature bounds unavailable
-        }        
+        }
+        
         CoordinateReferenceSystem crs = featureSource.getSchema().getCoordinateReferenceSystem();
         if (crs != null) {
             // returns the envelope based on the CoordinateReferenceSystem

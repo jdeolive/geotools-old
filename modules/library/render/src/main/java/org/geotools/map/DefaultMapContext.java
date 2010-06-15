@@ -16,43 +16,24 @@
  */
 package org.geotools.map;
 
-import java.awt.geom.AffineTransform;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.memory.CollectionSource;
-import org.geotools.data.simple.SimpleFeatureCollection;
-import org.geotools.data.simple.SimpleFeatureSource;
-import org.geotools.factory.FactoryRegistryException;
 import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.SchemaException;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.map.event.MapBoundsEvent;
-import org.geotools.map.event.MapLayerEvent;
 import org.geotools.map.event.MapLayerListEvent;
-import org.geotools.map.event.MapLayerListener;
-import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.geotools.resources.coverage.FeatureUtilities;
 import org.geotools.styling.SLD;
 import org.geotools.styling.Style;
 import org.opengis.coverage.grid.GridCoverage;
-import org.opengis.feature.Feature;
 import org.opengis.feature.type.FeatureType;
-import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.TransformException;
-
-import com.vividsolutions.jts.geom.Envelope;
 
 /**
  * A kinder gentler implementation of {@linkplain org.geotools.map.MapContext} that produces defaults
@@ -195,7 +176,7 @@ public class DefaultMapContext extends MapContext {
      */
     @SuppressWarnings("deprecation")
     public boolean addLayer(int index, MapLayer mapLayer) {
-        checkCRS(mapLayer);
+        // checkCRS(mapLayer);
         Layer layer = mapLayer.toLayer();
         layers().add(index, layer);
         return true;
@@ -214,7 +195,7 @@ public class DefaultMapContext extends MapContext {
      */
     @SuppressWarnings("deprecation")
     public boolean addLayer(MapLayer mapLayer) {
-        checkCRS(mapLayer);
+        //checkCRS(mapLayer);
         layers().add(mapLayer.toLayer());
         return true;
     }
@@ -237,7 +218,7 @@ public class DefaultMapContext extends MapContext {
      *            a Style object to be used in rendering this layer.
      */
     public void addLayer(FeatureSource featureSource, Style style) {
-        checkCRS(featureSource);
+        //checkCRS(featureSource);
         Style layerStyle = checkStyle(style, featureSource.getSchema());
         addLayer(new DefaultMapLayer(featureSource, layerStyle, ""));
     }
@@ -274,7 +255,7 @@ public class DefaultMapContext extends MapContext {
         if (style == null) {
             throw new IllegalArgumentException("style cannot be null");
         }
-        checkCRS(gc.getCoordinateReferenceSystem());
+        // checkCRS(gc.getCoordinateReferenceSystem());
         if (gc instanceof GridCoverage2D) {
             Layer layer = new GridCoverageLayer((GridCoverage2D) gc, style);
             layers().add(layer);
@@ -299,7 +280,7 @@ public class DefaultMapContext extends MapContext {
         if (style == null) {
             throw new IllegalArgumentException("style cannot be null");
         }
-        checkCRS(reader.getCrs());
+        // checkCRS(reader.getCrs());
         Layer layer = new GridReaderLayer(reader, style);
         layers().add(layer);
     }
@@ -317,7 +298,7 @@ public class DefaultMapContext extends MapContext {
     public void addLayer(FeatureCollection featureCollection, Style style) {
         FeatureType schema = featureCollection.getSchema();
         Style layerStyle = checkStyle(style, schema);
-        checkCRS(schema.getCoordinateReferenceSystem()); // Jody: added for consistency
+        // checkCRS(schema.getCoordinateReferenceSystem()); // Jody: added for consistency
         Layer layer = new FeatureLayer(featureCollection, layerStyle);
         this.layers().add(layer);
     }
@@ -349,19 +330,19 @@ public class DefaultMapContext extends MapContext {
      * @param layer
      *            a map layer being added to the context
      */
-    @SuppressWarnings("deprecation")
-    private void checkCRS(MapLayer layer) {
-        FeatureSource<? extends FeatureType, ? extends Feature> featureSource = layer
-                .getFeatureSource();
-        if (featureSource != null) {
-            checkCRS(featureSource);
-        } else {
-            CollectionSource source = layer.getSource();
-            if (source != null) {
-                checkCRS(source.getCRS());
-            }
-        }
-    }
+//    @SuppressWarnings("deprecation")
+//    private void checkCRS(MapLayer layer) {
+//        FeatureSource<? extends FeatureType, ? extends Feature> featureSource = layer
+//                .getFeatureSource();
+//        if (featureSource != null) {
+//            checkCRS(featureSource);
+//        } else {
+//            CollectionSource source = layer.getSource();
+//            if (source != null) {
+//                checkCRS(source.getCRS());
+//            }
+//        }
+//    }
 
     /**
      * If a CRS has not been defined for this context, attempt to get one from this featureSource
@@ -370,24 +351,24 @@ public class DefaultMapContext extends MapContext {
      * @param featureSource
      *            a feature source being added in a new layer
      */
-    private void checkCRS(FeatureSource<? extends FeatureType, ? extends Feature> featureSource) {
-        if (featureSource != null) {
-            checkCRS(featureSource.getSchema().getCoordinateReferenceSystem());
-        }
-    }
+//    private void checkCRS(FeatureSource<? extends FeatureType, ? extends Feature> featureSource) {
+//        if (featureSource != null) {
+//            checkCRS(featureSource.getSchema().getCoordinateReferenceSystem());
+//        }
+//    }
 
     /**
      * Sets the viewport CRS if needed.
      * <p>
      * This amounts to the viewport taking its default CRS from the first provided layer.
      */
-    private void checkCRS(CoordinateReferenceSystem crs) {
-        if (getViewport().getCoordianteReferenceSystem() == null) {
-            if (crs != null) {
-                viewport.setCoordinateReferenceSystem(crs);
-            }
-        }
-    }
+//    private void checkCRS(CoordinateReferenceSystem crs) {
+//        if( viewport != null && viewport.getCoordianteReferenceSystem() != null ){
+//            if (crs != null) {
+//                getViewport().setCoordinateReferenceSystem(crs);
+//            }
+//        }
+//    }
 
     /**
      * Helper for some addLayer methods that take a Style argument. Checks if the style is null and,
@@ -524,14 +505,6 @@ public class DefaultMapContext extends MapContext {
      * 
      */
     public ReferencedEnvelope getAreaOfInterest() {
-        if( viewport == null ){
-            // fall back to layer bounds if no area of interest has been set
-            try {
-                ReferencedEnvelope layerBounds = getLayerBounds();
-                getViewport().setBounds( layerBounds );
-            } catch (IOException e) {
-            }
-        }
         return getBounds();        
     }
 
@@ -541,6 +514,22 @@ public class DefaultMapContext extends MapContext {
      */
     public void clearLayerList() {
         layers().clear();
+    }
+    
+    @Override
+    public synchronized MapViewport getViewport() {
+        if(viewport == null) {
+            viewport = new MapViewport();
+            try {
+                ReferencedEnvelope layerBounds = getLayerBounds();
+                if(layerBounds != null) {
+                    viewport.setBounds( layerBounds );
+                    viewport.setCoordinateReferenceSystem(layerBounds.getCoordinateReferenceSystem());
+                }
+            } catch (IOException e) {
+            }
+        }
+        return viewport;
     }
     
 }

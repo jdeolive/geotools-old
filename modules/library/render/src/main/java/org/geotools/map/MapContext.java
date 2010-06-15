@@ -454,7 +454,7 @@ public class MapContext extends MapContent {
         // (I would prefer to skip these layers as getMaxBounds() does however some test cases
         // depend on this feature)
         ReferencedEnvelope maxBounds = null;
-        final CoordinateReferenceSystem mapCRS = getCoordinateReferenceSystem();
+        CoordinateReferenceSystem mapCRS = viewport != null ? viewport.getCoordianteReferenceSystem() : null;
 
         for (Layer layer : layers()) {
             if (layer == null) {
@@ -493,6 +493,9 @@ public class MapContext extends MapContent {
                     maxBounds = dataBounds;
                 } else {
                     maxBounds.expandToInclude(dataBounds);
+                }
+                if (mapCRS == null) {
+                    mapCRS = dataBounds.getCoordinateReferenceSystem();
                 }
             }
         }
