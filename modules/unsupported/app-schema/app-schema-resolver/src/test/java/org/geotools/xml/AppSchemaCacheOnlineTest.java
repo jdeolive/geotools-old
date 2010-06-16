@@ -66,6 +66,7 @@ public class AppSchemaCacheOnlineTest extends OnlineTestSupport {
      * @see org.geotools.test.OnlineTestSupport#before()
      */
     @Before
+    @Override
     public void before() throws Exception {
         super.before();
         AppSchemaCache.delete(CACHE_DIRECTORY);
@@ -75,30 +76,46 @@ public class AppSchemaCacheOnlineTest extends OnlineTestSupport {
      * @see org.geotools.test.OnlineTestSupport#after()
      */
     @After
+    @Override
     public void after() throws Exception {
         super.after();
         AppSchemaCache.delete(CACHE_DIRECTORY);
     }
 
     /**
-     * Test download of schema with default block size.
+     * Test download of schema via http.
      */
     @Test
-    public void downloadDefaultBlockSize() throws Exception {
-        check(AppSchemaCache.download(new URI(
-                "http://www.geosciml.org/geosciml/2.0/xsd/geologicStructure.xsd")));
+    public void downloadHttp() throws Exception {
+        check(AppSchemaCache.download(new URI(SCHEMA_LOCATION)));
     }
 
     /**
-     * Test download of schema with smaller block size.
+     * Test download of schema via http with smaller block size.
      */
     @Test
-    public void downloadSmallBlockSize() throws Exception {
-        check(AppSchemaCache.download(new URI(
-                "http://www.geosciml.org/geosciml/2.0/xsd/geologicStructure.xsd"), 32));
+    public void downloadHttpWithSmallBlockSize() throws Exception {
+        check(AppSchemaCache.download(new URI(SCHEMA_LOCATION), 32));
 
     }
 
+    /**
+     * Test download of schema via http with larger block size.
+     */
+    @Test
+    public void downloadHttpWithLargeBlockSize() throws Exception {
+        check(AppSchemaCache.download(new URI(
+                "http://www.geosciml.org/geosciml/2.0/xsd/geosciml.xsd"), 65536));
+    }
+
+    /**
+     * Test download of schema via https.
+     */
+    @Test
+    public void downloadHttps() throws Exception {
+        check(AppSchemaCache.download(new URI("https://www.seegrid.csiro.au/"
+                + "subversion/GeoSciML/trunk/schema/GeoSciML/geosciml.xsd")));
+    }
     /**
      * Basic sanity checks of schema and test store to disk.
      */
