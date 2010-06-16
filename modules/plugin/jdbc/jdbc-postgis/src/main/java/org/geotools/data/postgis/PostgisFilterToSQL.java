@@ -62,7 +62,14 @@ public class PostgisFilterToSQL extends FilterToSQL {
         } else {
             out.write("ST_GeomFromText('");
             out.write(geom.toText());
-            out.write("', " + currentSRID + ")");
+            if(currentSRID == null && currentGeometry  != null) {
+                // if we don't know at all, use the srid of the geometry we're comparing against
+                // (much slower since that has to be extracted record by record as opposed to 
+                // being a constant)
+                out.write("', ST_SRID(\"" + currentGeometry.getLocalName() + "\"))");
+            } else {
+                out.write("', " + currentSRID + ")");
+            }
         }
     }
 
