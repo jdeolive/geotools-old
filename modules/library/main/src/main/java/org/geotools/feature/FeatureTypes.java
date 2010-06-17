@@ -389,17 +389,16 @@ public class FeatureTypes {
     }
 
     /**
-     * Walks up the type hierachy of the feature returning all super types of the specified feature
-     * type.
+     * Walks up the type hierarchy of the feature returning all super types of the specified feature
+     * type. The search terminates when a non-FeatureType or null is found. The original featureType
+     * is not included as an ancestor, only its strict ancestors.
      */
     public static List<FeatureType> getAncestors(FeatureType featureType) {
         List<FeatureType> ancestors = new ArrayList<FeatureType>();
-        while (featureType.getSuper() != null) {
-            if (featureType.getSuper() instanceof FeatureType) {
-                FeatureType superType = (FeatureType) featureType.getSuper();
-                ancestors.add(superType);
-                featureType = superType;
-            }
+        while (featureType.getSuper() instanceof FeatureType) {
+            FeatureType superType = (FeatureType) featureType.getSuper();
+            ancestors.add(superType);
+            featureType = superType;
         }
         return ancestors;
     }

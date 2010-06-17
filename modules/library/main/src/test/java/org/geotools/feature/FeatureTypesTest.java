@@ -2,11 +2,15 @@ package org.geotools.feature;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.List;
+
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
+import org.junit.Assert;
 import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
+import org.opengis.feature.type.FeatureType;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Function;
@@ -58,4 +62,17 @@ public class FeatureTypesTest {
         attribute = builder.buildDescriptor("attribute");
         assertEquals(19, FeatureTypes.getFieldLength(attribute));
     }
+    
+    @Test
+    public void testGetAncestors() {
+        SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
+        builder.setName("SomeFeature");
+        builder.add("name", String.class);
+        builder.add("geom", Point.class);
+        SimpleFeatureType ft = builder.buildFeatureType();
+        List<FeatureType> types = FeatureTypes.getAncestors(ft);
+        Assert.assertEquals(1, types.size());
+        Assert.assertEquals("Feature", types.get(0).getName().getLocalPart());
+    }
+    
 }
