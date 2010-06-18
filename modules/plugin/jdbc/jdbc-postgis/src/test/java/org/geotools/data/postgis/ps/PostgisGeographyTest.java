@@ -33,6 +33,10 @@ public class PostgisGeographyTest extends JDBCGeographyTest {
     public void testSchema() throws Exception {
         super.testSchema();
         
+        if (!isGeographySupportAvailable()) {
+            return;
+        }
+
         // extra check, pg specific: the native typename is actually geography
         SimpleFeatureType ft = dataStore.getFeatureSource(tname("geopoint")).getSchema();
         assertEquals("geography", ft.getGeometryDescriptor().getUserData().get(JDBCDataStore.JDBC_NATIVE_TYPENAME));
