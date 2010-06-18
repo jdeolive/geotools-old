@@ -44,7 +44,7 @@ public class PostGISTestSetup extends JDBCTestSetup {
         fixture.put("database", "mydbname");
         fixture.put("port", "5432");
         fixture.put("user", "myuser");
-        fixture.put("passwd", "mypassword");
+        fixture.put("password", "mypassword");
         return fixture;
     }
     
