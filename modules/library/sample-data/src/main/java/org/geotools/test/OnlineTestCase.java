@@ -2,7 +2,7 @@
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
  * 
- *    (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2005-2010, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -14,14 +14,12 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
+
 package org.geotools.test;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -31,7 +29,7 @@ import junit.framework.TestResult;
 
 
 /**
- * Test support for test cases which require an "online" resource, such as an
+ * Test support for test cases that require an "online" resource, such as an
  * external server or database.
  * <p>
  * Online tests work off of a "fixture". A fixture is a properties file which
@@ -39,8 +37,13 @@ import junit.framework.TestResult;
  * must define the id of the fixture is uses with {@link #getFixtureId()}.
  * </p>
  * <p>
- * Fixtures are stored under the users home directory, under the "{@code .geotools}"
- * directory. In the event that a fixture does not exist, the test case is
+ * Fixtures are stored under the users home directory, under the "<code>.geotools</code>"
+ * directory. Dots "." in the fixture id represent a subdirectory path under this
+ * configuration file directory. For example, a fixture id <code>a.b.foo</code> would be
+ * resolved to <code>.geotools/a/b/foo.properties<code>.
+ * </p>
+ * <p>
+ * In the event that a fixture does not exist, the test case is
  * aborted.
  * </p>
  * <p>
@@ -67,6 +70,7 @@ import junit.framework.TestResult;
  * @source $URL$
  * @version $Id$
  * @author Justin Deoliveira, The Open Planning Project
+ * @author Ben Caradoc-Davies, CSIRO Earth Science and Resource Engineering
  */
 public abstract class OnlineTestCase extends TestCase {
     /**
@@ -89,13 +93,13 @@ public abstract class OnlineTestCase extends TestCase {
      * A static map which tracks which fixtures are offline. This prevents continually trying to 
      * run a test when an external resource is offline.  
      */
-    protected static Map<String,Boolean> online = new HashMap();
+    protected static Map<String,Boolean> online = new HashMap<String,Boolean>();
     
     /**
      * A static map which tracks which fixture files can not be found. This prevents
      * continually looking up the file and reporting it not found to the user.
      */
-    protected static Map<String,Boolean> found = new HashMap();
+    protected static Map<String,Boolean> found = new HashMap<String,Boolean>();
     /**
      * The test fixture, {@code null} if the fixture is not available.
      */
@@ -113,92 +117,91 @@ public abstract class OnlineTestCase extends TestCase {
      */
     @Override
     public void run(TestResult result) {
-        if ( fixture == null ) {
+        if (checkAvailable()) {
+            super.run(result);
+        }    
+    }
+
+    /**
+     * Check whether the fixture is available. This method also loads the configuration if present,
+     * and tests the connection using {@link #isOnline()}.
+     * 
+     * @return true if fixture is available for use
+     */
+    boolean checkAvailable() {
+        configureFixture();
+        if (fixture == null) {
+            return false;
+        } else {
             String fixtureId = getFixtureId();
-            
+            // do an online/offline check
+            Boolean available = (Boolean) online.get(fixtureId);
+            if (available == null || available.booleanValue()) {
+                // test the connection
+                try {
+                    available = isOnline();
+                } catch (Throwable t) {
+                    System.out.println("Skipping " + fixtureId
+                            + " tests, resources not available: " + t.getMessage());
+                    t.printStackTrace();
+                    available = Boolean.FALSE;
+                }
+                online.put(fixtureId, available);
+            }
+            return available;
+        }
+    }
+
+    /**
+     * Load fixture configuration. Create example if absent.
+     */
+    private void configureFixture() {
+        if (fixture == null) {
+            String fixtureId = getFixtureId();
+            if (fixtureId == null) {
+                return; // not available (turn test off)
+            }
             try {
                 // load the fixture
-                File base = new File(System.getProperty("user.home") + File.separator + ".geotools");
-                if (fixtureId == null) {
-                    fixture = null; // not available (turn test off)            
-                    return;
-                }
-                
-                //look for a "profile", these can be used to group related fixtures
+                File base = FixtureUtilities.getFixtureDirectory();
+                // look for a "profile", these can be used to group related fixtures
                 String profile = System.getProperty(ONLINE_TEST_PROFILE);
                 if (profile != null && !"".equals(profile)) {
                     base = new File(base, profile);
                 }
-                
-                File fixtureFile = new File(base, fixtureId.replace('.',
-                        File.separatorChar).concat(".properties"));
-        
-                Boolean exists = found.get( fixtureFile.getCanonicalPath() );
-                if ( exists == null || exists.booleanValue() ) {
+                File fixtureFile = FixtureUtilities.getFixtureFile(base, fixtureId);
+                Boolean exists = found.get(fixtureFile.getCanonicalPath());
+                if (exists == null || exists.booleanValue()) {
                     if (fixtureFile.exists()) {
-                        InputStream input = new BufferedInputStream(new FileInputStream(fixtureFile));
-                        try {
-                            fixture = new Properties();
-                            fixture.load(input);
-                        } finally {
-                            input.close();
-                        }
+                        fixture = FixtureUtilities.loadProperties(fixtureFile);
                         found.put(fixtureFile.getCanonicalPath(), true);
-                    }
-                    else {
-                        //no fixture file, if no profile was specified write out a template
+                    } else {
+                        // no fixture file, if no profile was specified write out a template
                         // fixture using the offline fixture properties
                         if (profile == null) {
                             Properties exampleFixture = createExampleFixture();
                             if (exampleFixture != null) {
-                                File exFixtureFile = new File(fixtureFile.getAbsolutePath() + ".example");
+                                File exFixtureFile = new File(fixtureFile.getAbsolutePath()
+                                        + ".example");
                                 if (!exFixtureFile.exists()) {
-                                   createExampleFixture(exFixtureFile, exampleFixture);
+                                    createExampleFixture(exFixtureFile, exampleFixture);
                                 }
                             }
                         }
                         found.put(fixtureFile.getCanonicalPath(), false);
                     }
                 }
-                
-                if ( fixture == null ) {
+                if (fixture == null) {
                     fixture = createOfflineFixture();
                 }
-                
-                if ( fixture == null && exists == null) {
-                    //only report if exsts == null since it means that this is
+                if (fixture == null && exists == null) {
+                    // only report if exists == null since it means that this is
                     // the first time trying to load the fixture
-                    System.out.println( "Skipping " + fixtureId + " tests. Fixture file "
-                            + fixtureFile.getCanonicalPath() + " not found.");
+                    FixtureUtilities.printSkipNotice(fixtureId, fixtureFile);
                 }
-            }
-            catch(Exception e ) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
-        }
-        
-        if ( fixture != null ) {
-            String fixtureId = getFixtureId();
-            
-            //do an online/offline check
-            Boolean available = (Boolean) online.get( fixtureId );
-            if ( available == null || available.booleanValue() ) {
-                //test the connection
-                try {
-                    available = isOnline();
-                } 
-                catch (Throwable t) {
-                    System.out.println("Skipping " + fixtureId + " tests, resources not available: "
-                        + t.getMessage());
-                    t.printStackTrace();
-                    available = Boolean.FALSE;
-                }
-                online.put( fixtureId, available);
-            }
-        
-            if ( available ) {
-                super.run(result);
-            }    
         }
     }
     

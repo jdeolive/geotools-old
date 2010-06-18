@@ -40,10 +40,10 @@ import org.junit.Before;
  * 
  * <p>
  * 
- * This class is an adapter to {@link OnlineTestCase} that allows its use with JUnit 4. Delegation
- * is used to recycle the behaviour of {@link OnlineTestCase} without extending {@link TestCase}.
- * This is necessary because {@link TestRunner}s appear to give priority to JUnit 3 behaviour,
- * ignoring JUnit 4 annotations in suites that extend {@link TestCase}.
+ * This class contains an adapter to {@link OnlineTestCase} that allows its use with JUnit 4.
+ * Delegation is used to recycle the behaviour of {@link OnlineTestCase} without extending
+ * {@link TestCase}. This is necessary because {@link TestRunner}s appear to give priority to JUnit
+ * 3 behaviour, ignoring JUnit 4 annotations in suites that extend {@link TestCase}.
  * 
  * @author Ben Caradoc-Davies, CSIRO Earth Science and Resource Engineering
  * @see OnlineTestCase
@@ -57,9 +57,10 @@ public abstract class OnlineTestSupport {
 
     @Before
     public void before() throws Exception {
+        // disable test if fixture not available
+        // must call checkAvailable to configure fixture before calling setUp
+        Assume.assumeTrue(delegate.checkAvailable());
         delegate.setUp();
-        // disable test if fixture is null
-        Assume.assumeNotNull(delegate.fixture);
     }
 
     @After
@@ -96,6 +97,62 @@ public abstract class OnlineTestSupport {
      * @see OnlineTestCase#disconnect()
      */
     protected void disconnect() throws Exception {
+    }
+
+    /**
+     * Override this method to return false if you can detect that an online resource required for
+     * this test is not available,
+     * 
+     * @return false if a required resource is not online
+     * @throws Exception
+     * @see OnlineTestCase#isOnline()
+     */
+    protected boolean isOnline() throws Exception {
+        return true;
+    }
+
+    /**
+     * Method for subclasses to latch onto the setup phase.
+     * 
+     * @see OnlineTestCase#setUpInternal()
+     */
+    protected void setUpInternal() throws Exception {
+    }
+
+    /**
+     * Method for subclasses to latch onto the teardown phase.
+     * 
+     * @see OnlineTestCase#tearDownInternal()
+     */
+    protected void tearDownInternal() throws Exception {
+    }
+
+    /**
+     * Allows tests to create an offline fixture in cases where the user has not specified an
+     * explicit fixture for the test.
+     * <p>
+     * Note, that this should method should on be implemented if the test case is created of
+     * creating a fixture which relies solely on embedded or offline resources. It should not
+     * reference any external or online resources as it prevents the user from running offline.
+     * </p>
+     * 
+     * @see OnlineTestCase#createOfflineFixture()
+     */
+    protected Properties createOfflineFixture() {
+        return null;
+    }
+
+    /**
+     * Allows test to create a sample fixture for users.
+     * <p>
+     * If this method returns a value the first time a fixture is looked up and not found this
+     * method will be called to create a fixture file with the same id, but suffixed with .template.
+     * </p>
+     * 
+     * @see OnlineTestCase#createExampleFixture()
+     */
+    protected Properties createExampleFixture() {
+        return null;
     }
 
     /**
@@ -138,6 +195,46 @@ public abstract class OnlineTestSupport {
         @Override
         protected void disconnect() throws Exception {
             OnlineTestSupport.this.disconnect();
+        }
+
+        /**
+         * @see org.geotools.test.OnlineTestCase#isOnline()
+         */
+        @Override
+        protected boolean isOnline() throws Exception {
+            return OnlineTestSupport.this.isOnline();
+        }
+
+        /**
+         * @see org.geotools.test.OnlineTestCase#setUpInternal()
+         */
+        @Override
+        protected void setUpInternal() throws Exception {
+            OnlineTestSupport.this.setUpInternal();
+        }
+
+        /**
+         * @see org.geotools.test.OnlineTestCase#tearDownInternal()
+         */
+        @Override
+        protected void tearDownInternal() throws Exception {
+            OnlineTestSupport.this.tearDownInternal();
+        }
+
+        /**
+         * @see org.geotools.test.OnlineTestCase#createExampleFixture()
+         */
+        @Override
+        protected Properties createExampleFixture() {
+            return OnlineTestSupport.this.createExampleFixture();
+        }
+
+        /**
+         * @see org.geotools.test.OnlineTestCase#createOfflineFixture()
+         */
+        @Override
+        protected Properties createOfflineFixture() {
+            return OnlineTestSupport.this.createOfflineFixture();
         }
 
     }
