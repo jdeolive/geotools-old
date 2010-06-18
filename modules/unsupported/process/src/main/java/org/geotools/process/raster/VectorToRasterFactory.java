@@ -25,9 +25,8 @@
 
 package org.geotools.process.raster;
 
-import java.awt.Dimension;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.geotools.coverage.grid.GridCoverage2D;
@@ -52,11 +51,19 @@ public class VectorToRasterFactory extends AbstractFeatureCollectionProcessFacto
     /**
      * Output grid dimensions expressed (in cells).
      */
-    static final Parameter<Dimension> GRID_DIM = new Parameter<Dimension>(
-            "dim",
-            Dimension.class,
-            Text.text("Dim"),
-            Text.text("Dimensions of the output grid in cells"),
+    static final Parameter<Integer> RASTER_WIDTH = new Parameter<Integer>(
+            "rasterWidth",
+            Integer.class,
+            Text.text("Width"),
+            Text.text("Number of cells in a raster row"),
+            true, // this parameter is mandatory
+            1, 1, null, null);
+    
+    static final Parameter<Integer> RASTER_HEIGHT = new Parameter<Integer>(
+            "rasterHeight",
+            Integer.class,
+            Text.text("Height"),
+            Text.text("Number of cells in a raster column"),
             true, // this parameter is mandatory
             1, 1, null, null);
 
@@ -70,19 +77,18 @@ public class VectorToRasterFactory extends AbstractFeatureCollectionProcessFacto
             Text.text("Title"),
             Text.text("An optional title for the output grid"),
             false, // this parameter is optional
-            1, 1, null, null);
+            0, 1, "raster", null);
 
     /**
      * The source of values for cells in the output grid coverage. 
      * This is either the name ({@code String}) of a numeric feature property
-     * or an {@code org.opengis.filter.expression.Expression} that can be
-     * evaluated to a numeric value.
+     * or a CQL expression that can be evaluated to a numeric value.
      * <p>
      * This parameter is mandatory.
      */
-    static final Parameter<Object> ATTRIBUTE = new Parameter<Object>(
+    static final Parameter<String> ATTRIBUTE = new Parameter<String>(
             "attribute",
-            Object.class,
+            String.class,
             Text.text("Attribute"),
             Text.text("The feature attribute to use for raster cell values"),
             true, // this parameter is mandatory
@@ -99,7 +105,7 @@ public class VectorToRasterFactory extends AbstractFeatureCollectionProcessFacto
             Text.text("Bounds"),
             Text.text("Bounds of the area to rasterize"),
             false, // this parameter is optional
-            1, 1, null, null);
+            0, 1, null, null);
 
     /**
      * The result of the operation is a FeatureCollection.
@@ -110,16 +116,18 @@ public class VectorToRasterFactory extends AbstractFeatureCollectionProcessFacto
             "result", GridCoverage2D.class, Text.text("Result"), Text
                     .text("Rasterized features"));
 
-    static final Map<String,Parameter<?>> resultInfo = new HashMap<String, Parameter<?>>();
+    static final Map<String,Parameter<?>> resultInfo = new LinkedHashMap<String, Parameter<?>>();
     static {
-        resultInfo.put( ATTRIBUTE.key, ATTRIBUTE );
-        resultInfo.put( GRID_DIM.key, GRID_DIM );
         resultInfo.put( RESULT.key, RESULT );
     }
 
     @Override
     protected void addParameters(Map<String, Parameter<?>> parameters) {
         parameters.put(BOUNDS.key, BOUNDS);
+        parameters.put( ATTRIBUTE.key, ATTRIBUTE );
+        parameters.put( RASTER_WIDTH.key, RASTER_WIDTH );
+        parameters.put( RASTER_HEIGHT.key, RASTER_HEIGHT );
+        parameters.put( TITLE.key, TITLE);
     }
 
     public InternationalString getTitle() {

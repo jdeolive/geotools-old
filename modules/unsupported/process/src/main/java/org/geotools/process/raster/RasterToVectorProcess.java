@@ -22,6 +22,7 @@ import java.awt.geom.Point2D;
 import java.awt.image.RenderedImage;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -251,8 +252,11 @@ public class RasterToVectorProcess extends AbstractProcess {
 
         Envelope bounds = (Envelope) input.get(RasterToVectorFactory.BOUNDS.key);
 
-        Collection<Double> outsideValues = (Collection<Double>)input.get(
+        Collection<Double> outsideValues = (Collection<Double>) input.get(
                 RasterToVectorFactory.OUTSIDE.key);
+        if(outsideValues == null) {
+        	outsideValues = Collections.emptyList();
+        }
 
         boolean insideEdges = true;
         o = input.get(RasterToVectorFactory.INSIDE_EDGES.key);

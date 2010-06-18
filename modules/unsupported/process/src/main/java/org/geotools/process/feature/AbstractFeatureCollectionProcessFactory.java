@@ -17,6 +17,7 @@
 package org.geotools.process.feature;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.geotools.data.Parameter;
@@ -52,7 +53,7 @@ public abstract class AbstractFeatureCollectionProcessFactory extends SingleProc
      * Adds the {@link #FEATURES} parameter and then delegates to {@link #addParameters(Map)}.
      */
     public final Map<String, Parameter<?>> getParameterInfo() {
-        HashMap<String,Parameter<?>> parameterInfo = new HashMap<String, Parameter<?>>();
+        HashMap<String,Parameter<?>> parameterInfo = new LinkedHashMap<String, Parameter<?>>();
         parameterInfo.put( FEATURES.key, FEATURES );
         addParameters( parameterInfo );
         return parameterInfo;

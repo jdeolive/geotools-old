@@ -110,6 +110,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-cql</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>javax.media</groupId>
             <artifactId>jai_core</artifactId>
             <!-- The version number is specified in the parent POM. -->

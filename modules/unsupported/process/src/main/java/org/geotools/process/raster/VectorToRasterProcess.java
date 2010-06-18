@@ -30,7 +30,10 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.Transparency;
+import java.awt.color.ColorSpace;
 import java.awt.image.ColorModel;
+import java.awt.image.ComponentColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
 import java.awt.image.SampleModel;
@@ -47,6 +50,8 @@ import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.filter.text.cql2.CQLException;
+import org.geotools.filter.text.ecql.ECQL;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.process.feature.AbstractFeatureCollectionProcess;
 import org.geotools.process.feature.AbstractFeatureCollectionProcessFactory;
@@ -191,13 +196,24 @@ public class VectorToRasterProcess extends AbstractFeatureCollectionProcess {
         SimpleFeatureCollection features = (SimpleFeatureCollection)
             input.get(AbstractFeatureCollectionProcessFactory.FEATURES.key);
 
-        Object attribute = input.get(VectorToRasterFactory.ATTRIBUTE.key);
+        String attributeStr = (String) input.get(VectorToRasterFactory.ATTRIBUTE.key);
+        Expression attribute = null;
+        try {
+        	attribute = ECQL.toExpression(attributeStr);
+        } catch(CQLException e) {
+        	throw new VectorToRasterException(e);
+        }
 
-        Dimension gridDim = (Dimension) input.get(VectorToRasterFactory.GRID_DIM.key);
+        int w = (Integer) input.get(VectorToRasterFactory.RASTER_WIDTH.key);
+        int h = (Integer) input.get(VectorToRasterFactory.RASTER_HEIGHT.key);
+        Dimension gridDim = new Dimension(w, h);
 
         ReferencedEnvelope env = (ReferencedEnvelope) input.get(VectorToRasterFactory.BOUNDS.key);
 
         String title = (String) input.get(VectorToRasterFactory.TITLE.key);
+        if(title == null) {
+        	title = "raster";
+        }
 
         GridCoverage2D cov = convert(features, attribute, gridDim, env, title, monitor);
 
@@ -480,7 +496,8 @@ public class VectorToRasterProcess extends AbstractFeatureCollectionProcess {
                 DataBuffer.TYPE_INT, image.getWidth(), image.getHeight(), 1);
 
         TiledImage destImage = new TiledImage(0, 0, image.getWidth(), image.getHeight(),
-                0, 0, sm, null);
+                0, 0, sm, new ComponentColorModel(ColorSpace.getInstance(ColorSpace.CS_GRAY), 
+                		false, false, Transparency.OPAQUE, DataBuffer.TYPE_INT));
 
         for (int yt = 0; yt < numYTiles; yt++) {
             for (int xt = 0; xt < numXTiles; xt++) {
@@ -509,7 +526,9 @@ public class VectorToRasterProcess extends AbstractFeatureCollectionProcess {
         int numYTiles = image.getNumYTiles();
 
         SampleModel sm = RasterFactory.createPixelInterleavedSampleModel(DataBuffer.TYPE_FLOAT, image.getWidth(), image.getHeight(), 1);
-        TiledImage destImage = new TiledImage(0, 0, image.getWidth(), image.getHeight(), 0, 0, sm, null);
+        TiledImage destImage = new TiledImage(0, 0, image.getWidth(), image.getHeight(), 0, 0, sm, 
+        		new ComponentColorModel(ColorSpace.getInstance(ColorSpace.CS_GRAY), 
+                		false, false, Transparency.OPAQUE, DataBuffer.TYPE_FLOAT));
 
         for (int yt = 0; yt < numYTiles; yt++) {
             for (int xt = 0; xt < numXTiles; xt++) {

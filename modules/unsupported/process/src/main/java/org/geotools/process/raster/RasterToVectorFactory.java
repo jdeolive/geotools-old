@@ -60,7 +60,8 @@ public class RasterToVectorFactory extends SingleProcessFactory {
     
     /** Index of the band with data to vectorize */
     public static final Parameter<Integer> BAND = new Parameter<Integer>(
-        "band", Integer.class, Text.text("Band"), Text.text("Index of band to vectorize"));
+        "band", Integer.class, Text.text("Band"), Text.text("Index of band to vectorize"),
+        false, 0, 1, 1, null);
     
     /**
      * Bounds (in world coordinates) ot the area to vectorize; if {@code null}
@@ -68,7 +69,7 @@ public class RasterToVectorFactory extends SingleProcessFactory {
      */
     public static final Parameter<Envelope> BOUNDS = new Parameter<Envelope>(
         "bounds", Envelope.class, Text.text("Bounds"),
-        Text.text("Bounds of the area to vectorize"));
+        Text.text("Bounds of the area to vectorize"), false, 0, 1, null, null);
 
     /**
      * The code(s) representing NODATA or outside the regions to be vectorized.
@@ -76,7 +77,7 @@ public class RasterToVectorFactory extends SingleProcessFactory {
     public static final Parameter<Collection> OUTSIDE = new Parameter<Collection>(
             "nodata", Collection.class, Text.text("Outside values"),
             Text.text("Collection of Double values representing NODATA or outside"),
-            true, 1, -1, null, null);
+            false, 0, -1, null, null);
 
     /**
      * Whether inside edges (those separating regions with non-outside values)
@@ -87,7 +88,7 @@ public class RasterToVectorFactory extends SingleProcessFactory {
     public static final Parameter<Boolean> INSIDE_EDGES = new Parameter<Boolean>(
             "inside", Boolean.class, Text.text("Inside edges"),
             Text.text("Whether to vectorize inside edges (those separating " +
-            "regions with non-outside values"));
+            "regions with non-outside values"), false, 0, 1, Boolean.FALSE, null);
 
 
     private static final Map<String, Parameter<?>> parameterInfo = new TreeMap<String, Parameter<?>>();
