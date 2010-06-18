@@ -27,6 +27,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
+import java.io.StringReader;
 import java.io.Writer;
 import java.lang.reflect.Proxy;
 import java.util.List;
@@ -60,10 +61,10 @@ public class GeoJSONUtil {
      * 
      * @param input The input object.
      * 
-     * @return A buffered reader.
+     * @return A reader.
      * @throws IOException
      */
-    public static BufferedReader toReader(Object input) throws IOException {
+    public static Reader toReader(Object input) throws IOException {
         if (input instanceof BufferedReader) {
             return (BufferedReader) input;
         }
@@ -81,7 +82,7 @@ public class GeoJSONUtil {
         }
         
         if (input instanceof String) {
-            return new BufferedReader(new FileReader((String)input));
+            return new StringReader((String)input);
         }
         
         throw new IllegalArgumentException("Unable to turn " + input + " into a reader");
@@ -101,10 +102,10 @@ public class GeoJSONUtil {
      * </p>
      * @param output The output object.
      * 
-     * @return A buffered writer.
+     * @return A writer.
      * @throws IOException
      */
-    public static BufferedWriter toWriter(Object output) throws IOException {
+    public static Writer toWriter(Object output) throws IOException {
         if (output instanceof BufferedWriter) {
             return (BufferedWriter) output;
         }
