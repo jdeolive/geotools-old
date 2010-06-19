@@ -367,7 +367,18 @@ public class Hints extends RenderingHints {
      * @since 2.4
      */
     public static final Key VERSION = new Key("org.geotools.util.Version");
+    
+    
 
+    /**
+     * When this key is used in the user data section of a feature and the feature store
+     * query capabilities reports being able to use provided feature ids the store will
+     * try to use the user provided feature id during insertion, and will fail if the FID
+     * cannot be parsed into a valid storage identifier
+     *
+     * @since 2.7
+     */
+    public static final Key USE_PROVIDED_FID = new Key("org.geotools.fidPolicy.UseExisting");
 
 
     ////////////////////////////////////////////////////////////////////////

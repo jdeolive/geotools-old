@@ -16,6 +16,7 @@
  */
 package org.geotools.jdbc;
 
+import org.geotools.data.FeatureStore;
 import org.geotools.data.QueryCapabilities;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.filter.expression.PropertyName;
@@ -97,5 +98,10 @@ class JDBCQueryCapabilities extends QueryCapabilities {
     @Override
     public boolean isOffsetSupported() {
         return source.getDataStore().getSQLDialect().isLimitOffsetSupported();
+    }
+    
+    @Override
+    public boolean isUseProvidedFIDSupported() {
+        return true;
     }
 }

@@ -31,6 +31,7 @@ import org.geotools.data.Transaction;
 import org.geotools.data.FeatureEvent.Type;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.factory.Hints;
 import org.geotools.feature.AttributeTypeBuilder;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
@@ -97,6 +98,43 @@ public abstract class JDBCFeatureStoreTest extends JDBCTestSupport {
             assertFalse(iterator.hasNext());
 
             features.close(iterator);
+        }
+    }
+    
+    public void testAddFeaturesUseProvidedFid() throws IOException {
+        // check we advertise the ability to reuse feature ids
+        assertTrue(featureStore.getQueryCapabilities().isUseProvidedFIDSupported());
+        
+        SimpleFeatureBuilder b = new SimpleFeatureBuilder(featureStore.getSchema());
+        DefaultFeatureCollection collection = new DefaultFeatureCollection(null,
+                featureStore.getSchema());
+        
+        String typeName = b.getFeatureType().getTypeName();
+        for (int i = 3; i < 6; i++) {
+            b.set(aname("intProperty"), new Integer(i));
+            b.set(aname("geometry"), new GeometryFactory().createPoint(new Coordinate(i, i)));
+            b.featureUserData(Hints.USE_PROVIDED_FID, Boolean.TRUE);
+            collection.add(b.buildFeature(typeName + "." + (i * 10)));
+        }
+        List<FeatureId> fids = featureStore.addFeatures(collection);
+        
+        assertEquals(3, fids.size());
+        assertTrue(fids.contains(SimpleFeatureBuilder.createDefaultFeatureIdentifier(typeName + ".30")));
+        assertTrue(fids.contains(SimpleFeatureBuilder.createDefaultFeatureIdentifier(typeName + ".40")));
+        assertTrue(fids.contains(SimpleFeatureBuilder.createDefaultFeatureIdentifier(typeName + ".50")));
+
+        SimpleFeatureCollection features = featureStore.getFeatures();
+        assertEquals(6, features.size());
+
+        FilterFactory ff = dataStore.getFilterFactory();
+
+        for (Iterator f = fids.iterator(); f.hasNext();) {
+            FeatureId identifier = (FeatureId) f.next();
+            String fid = identifier.getID();
+            Id filter = ff.id(Collections.singleton(identifier));
+
+            features = featureStore.getFeatures(filter);
+            assertEquals(1, features.size());
         }
     }
     

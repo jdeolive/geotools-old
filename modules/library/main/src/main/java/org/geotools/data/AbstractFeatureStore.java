@@ -24,9 +24,11 @@ import java.util.List;
 import java.util.Set;
 
 import org.geotools.data.simple.SimpleFeatureStore;
+import org.geotools.factory.Hints;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.NameImpl;
+import org.geotools.filter.identity.FeatureIdImpl;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -271,6 +273,11 @@ public abstract class AbstractFeatureStore extends AbstractFeatureSource
                         + typeName + " out of provided feature: "
                         + feature.getID(), writeProblem);
                 }
+                
+                boolean useExisting = Boolean.TRUE.equals(feature.getUserData().get(Hints.USE_PROVIDED_FID));
+                if(getQueryCapabilities().isUseProvidedFIDSupported() && useExisting) {
+                    ((FeatureIdImpl) newFeature.getIdentifier()).setID(feature.getID());
+                }
 
                 writer.write();
                 addedFids.add(newFeature.getID());
@@ -304,6 +311,11 @@ public abstract class AbstractFeatureStore extends AbstractFeatureSource
                     throw new DataSourceException("Could not create "
                         + typeName + " out of provided feature: "
                         + feature.getID(), writeProblem);
+                }
+                
+                boolean useExisting = Boolean.TRUE.equals(feature.getUserData().get(Hints.USE_PROVIDED_FID));
+                if(getQueryCapabilities().isUseProvidedFIDSupported() && useExisting) {
+                    ((FeatureIdImpl) newFeature.getIdentifier()).setID(feature.getID());
                 }
 
                 writer.write();

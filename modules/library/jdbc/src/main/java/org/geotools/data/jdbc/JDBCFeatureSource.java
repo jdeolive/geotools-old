@@ -33,6 +33,7 @@ import org.geotools.data.DataStore;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureListener;
 import org.geotools.data.FeatureSource;
+import org.geotools.data.FeatureStore;
 import org.geotools.data.Query;
 import org.geotools.data.QueryCapabilities;
 import org.geotools.data.ResourceInfo;
@@ -225,6 +226,11 @@ public class JDBCFeatureSource implements SimpleFeatureSource {
             }
             
             return mapper instanceof NullFIDMapper;
+        }
+        
+        @Override
+        public boolean isUseProvidedFIDSupported() {
+            return this instanceof FeatureStore;
         }
     }
     
