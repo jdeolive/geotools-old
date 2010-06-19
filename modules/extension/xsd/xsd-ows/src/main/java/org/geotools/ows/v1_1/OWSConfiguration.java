@@ -22,6 +22,7 @@ import net.opengis.ows11.AllowedValuesType;
 import net.opengis.ows11.AnyValueType;
 import net.opengis.ows11.Ows11Factory;
 
+import org.geotools.ows.bindings.BoundingBoxTypeBinding;
 import org.geotools.ows.bindings.UnitBinding;
 import org.geotools.xlink.XLINKConfiguration;
 import org.geotools.xml.ComplexEMFBinding;
@@ -69,7 +70,8 @@ public class OWSConfiguration extends Configuration {
         bindings.put(OWS.GetCapabilitiesType,new ComplexEMFBinding(Ows11Factory.eINSTANCE, OWS.GetCapabilitiesType));
         bindings.put(OWS.SectionsType ,new ComplexEMFBinding(Ows11Factory.eINSTANCE, OWS.SectionsType));
         bindings.put(OWS.AcceptFormatsType,new ComplexEMFBinding(Ows11Factory.eINSTANCE, OWS.AcceptFormatsType));
-        bindings.put(OWS.BoundingBoxType,new ComplexEMFBinding(Ows11Factory.eINSTANCE, OWS.BoundingBoxType));
+        bindings.put(OWS.BoundingBoxType,BoundingBoxTypeBinding.class);
+        
         bindings.put(OWS.CodeType,new SimpleContentComplexEMFBinding(Ows11Factory.eINSTANCE, OWS.CodeType));
         bindings.put(OWS.ContactType,new ComplexEMFBinding(Ows11Factory.eINSTANCE, OWS.ContactType));
         bindings.put(OWS.DomainMetadataType,new SimpleContentComplexEMFBinding(Ows11Factory.eINSTANCE,OWS.DomainMetadataType));

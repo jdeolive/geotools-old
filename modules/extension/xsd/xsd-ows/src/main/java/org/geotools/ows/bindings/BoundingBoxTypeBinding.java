@@ -16,11 +16,15 @@
  */
 package org.geotools.ows.bindings;
 
-import net.opengis.ows10.BoundingBoxType;
-import net.opengis.ows10.Ows10Factory;
+import java.util.List;
+
 import javax.xml.namespace.QName;
+
+import org.eclipse.emf.ecore.EFactory;
 import org.geotools.ows.OWS;
-import org.geotools.xml.*;
+import org.geotools.xml.AbstractComplexEMFBinding;
+import org.geotools.xml.ElementInstance;
+import org.geotools.xml.Node;
 
 
 /**
@@ -69,7 +73,7 @@ import org.geotools.xml.*;
  * @source $URL$
  */
 public class BoundingBoxTypeBinding extends AbstractComplexEMFBinding {
-    public BoundingBoxTypeBinding(Ows10Factory factory) {
+    public BoundingBoxTypeBinding(EFactory factory) {
         super(factory);
     }
 
@@ -100,5 +104,20 @@ public class BoundingBoxTypeBinding extends AbstractComplexEMFBinding {
         throws Exception {
         //TODO: implement and remove call to super
         return super.parse(instance, node, value);
+    }
+    
+    @Override
+    public Object getProperty(Object object, QName name) throws Exception {
+        if ("LowerCorner".equals(name.getLocalPart()) || "UpperCorner".equals(name.getLocalPart())) {
+            //JD: this is a hack to get around the fact that the encoder won't match up simple list
+            // types with a binding
+            Object value = super.getProperty(object, name);
+            if (value instanceof List) {
+                return new PositionTypeBinding().encode(value, value.toString());
+            }
+        }
+        
+        return super.getProperty(object, name);    
+        
     }
 }

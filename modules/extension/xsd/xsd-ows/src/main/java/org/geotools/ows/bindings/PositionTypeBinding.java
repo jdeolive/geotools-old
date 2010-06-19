@@ -16,6 +16,8 @@
  */
 package org.geotools.ows.bindings;
 
+import java.util.List;
+
 import net.opengis.ows10.Ows10Factory;
 import javax.xml.namespace.QName;
 import org.geotools.ows.OWS;
@@ -47,7 +49,7 @@ import org.geotools.xml.*;
  * @source $URL$
  */
 public class PositionTypeBinding extends AbstractSimpleBinding {
-    public PositionTypeBinding(Ows10Factory factory) {
+    public PositionTypeBinding() {
     }
 
     /**
@@ -64,7 +66,7 @@ public class PositionTypeBinding extends AbstractSimpleBinding {
      * @generated modifiable
      */
     public Class getType() {
-        return null;
+        return List.class;
     }
 
     /**
@@ -78,4 +80,17 @@ public class PositionTypeBinding extends AbstractSimpleBinding {
         //TODO: implement and remove call to super
         return super.parse(instance, value);
     }
+    
+    @Override
+    public String encode(Object object, String value) throws Exception {
+        List list = (List) object;
+        StringBuilder sb = new StringBuilder();
+        for (Object o : list) {
+            sb.append(o).append(" ");
+        }
+        sb.setLength(sb.length()-1);
+        return sb.toString();
+        
+    }
+    
 }
