@@ -47,11 +47,13 @@ import javax.sql.DataSource;
 
 import org.geotools.data.DataStore;
 import org.geotools.data.DefaultQuery;
+import org.geotools.data.DefaultTransaction;
 import org.geotools.data.FeatureStore;
 import org.geotools.data.GmlObjectStore;
 import org.geotools.data.InProcessLockingManager;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
+import org.geotools.data.Transaction.State;
 import org.geotools.data.jdbc.FilterToSQL;
 import org.geotools.data.jdbc.FilterToSQLException;
 import org.geotools.data.jdbc.datasource.ManageableDataSource;
@@ -4055,4 +4057,25 @@ public final class JDBCDataStore extends ContentDataStore
     	dialect.encodeGeometryColumn(gatt,srid, sql);        
     }
     
+    /**
+     * Builds a transaction object around a user provided connection. The returned transaction
+     * allows the store to work against an externally managed transaction, such as in J2EE
+     * enviroments. It is the duty of the caller to ensure the connection is to the same database
+     * managed by this {@link JDBCDataStore}.
+     * 
+     * Calls to {@link Transaction#commit()}, {@link Transaction#rollback()} and
+     * {@link Transaction#close()} will not result in corresponding calls to the provided
+     * {@link Connection} object.
+     * 
+     * @param conn
+     *            The externally managed connection
+     */
+    public Transaction buildTransaction(Connection cx) {
+        DefaultTransaction tx = new DefaultTransaction();
+
+        State state = new JDBCTransactionState(cx, this, true);
+        tx.putState(this, state);
+
+        return tx;
+    }
 }

@@ -42,10 +42,20 @@ final class JDBCTransactionState implements State {
      * The current connection
      */
     Connection cx;
+    /**
+     * Whether the connection is internally managed, or externally provided (in the latter
+     * case no attempt to commit, rollback or close will be done)
+     */
+    boolean external;
 
     public JDBCTransactionState(Connection cx, JDBCDataStore dataStore) {
+        this(cx, dataStore, false);
+    }
+    
+    public JDBCTransactionState(Connection cx, JDBCDataStore dataStore, boolean external) {
         this.cx = cx;
         this.dataStore = dataStore;
+        this.external = external;
     }
 
     public void setTransaction(Transaction tx) {
@@ -55,7 +65,7 @@ final class JDBCTransactionState implements State {
         }
             
         if ( tx == null ) {
-            if ( cx != null ) {
+            if ( cx != null && !external) {
                 dataStore.closeSafe(cx);
             }  else {
                 dataStore.getLogger().warning("Transaction is attempting to " +
@@ -71,26 +81,30 @@ final class JDBCTransactionState implements State {
     }
 
     public void commit() throws IOException {
-        try {
-            cx.commit();
-        } catch (SQLException e) {
-            String msg = "Error occured on commit";
-            throw (IOException) new IOException(msg).initCause(e);
-        }        
+        if(!external) {        
+            try {
+                cx.commit();
+            } catch (SQLException e) {
+                String msg = "Error occured on commit";
+                throw (IOException) new IOException(msg).initCause(e);
+            }        
+        }
     }
 
     public void rollback() throws IOException {
-        try {
-            cx.rollback();
-        } catch (SQLException e) {
-            String msg = "Error occured on rollback";
-            throw (IOException) new IOException(msg).initCause(e);
+        if(!external) {
+            try {
+                cx.rollback();
+            } catch (SQLException e) {
+                String msg = "Error occured on rollback";
+                throw (IOException) new IOException(msg).initCause(e);
+            }
         }
     }
     
     @Override
     protected void finalize() throws Throwable {
-        if ( cx != null && !cx.isClosed()) {
+        if ( !external && cx != null && !cx.isClosed()) {
             Logger.getLogger( "org.geotools.jdbc").severe("State finalized with open connection.");
             dataStore.closeSafe(cx);
         }

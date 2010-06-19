@@ -18,6 +18,8 @@ package org.geotools.jdbc;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -166,6 +168,48 @@ public abstract class JDBCFeatureStoreTest extends JDBCTestSupport {
         assertEquals(4, featureStore2.getFeatures().size());
         
         t.close();
+    }
+    
+    public void testExternalConnection() throws IOException, SQLException {
+        SimpleFeatureBuilder b = new SimpleFeatureBuilder(featureStore.getSchema());
+        DefaultFeatureCollection collection = new DefaultFeatureCollection(null,
+                featureStore.getSchema());
+        
+        b.set(aname("intProperty"), new Integer(3));
+        b.set(aname("geometry"), new GeometryFactory().createPoint(new Coordinate(3, 3)));
+        collection.add(b.buildFeature(null));
+
+        FeatureEventWatcher watcher = new FeatureEventWatcher();
+        
+        Connection conn = setup.getDataSource().getConnection();
+        conn.setAutoCommit(false);
+        Transaction t = dataStore.buildTransaction(conn);
+        featureStore.setTransaction(t);
+        featureStore.addFeatureListener(watcher);
+        JDBCFeatureStore featureStore2 = (JDBCFeatureStore) dataStore.getFeatureSource(featureStore.getName().getLocalPart()); 
+        List<FeatureId> fids = featureStore.addFeatures(collection);
+        
+        assertEquals(1, fids.size());
+
+        // check the store with the transaction sees the new features, but the other store does not
+        assertEquals(4, featureStore.getFeatures().size());
+        assertEquals(3, featureStore2.getFeatures().size());
+        
+        // check that after the commit on the transaction things have not changed, 
+        // the connection is externally managed
+        t.commit();
+        assertEquals(4, featureStore.getFeatures().size());
+        assertEquals(3, featureStore2.getFeatures().size());
+
+        // commit directly
+        conn.commit();
+        assertEquals(4, featureStore.getFeatures().size());
+        assertEquals(4, featureStore2.getFeatures().size());
+        
+        // check that closing the transaction does not affect the connection
+        t.close();
+        assertFalse(conn.isClosed());
+        conn.close();
     }
     
     /**
