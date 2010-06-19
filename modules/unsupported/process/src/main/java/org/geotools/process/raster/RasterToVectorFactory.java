@@ -74,8 +74,8 @@ public class RasterToVectorFactory extends SingleProcessFactory {
     /**
      * The code(s) representing NODATA or outside the regions to be vectorized.
      */
-    public static final Parameter<Collection> OUTSIDE = new Parameter<Collection>(
-            "nodata", Collection.class, Text.text("Outside values"),
+    public static final Parameter<Double> OUTSIDE = new Parameter<Double>(
+            "nodata", Double.class, Text.text("Outside values"),
             Text.text("Collection of Double values representing NODATA or outside"),
             false, 0, -1, null, null);
 
