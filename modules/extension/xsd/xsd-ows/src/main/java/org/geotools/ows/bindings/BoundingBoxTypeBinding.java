@@ -16,9 +16,13 @@
  */
 package org.geotools.ows.bindings;
 
+import java.math.BigInteger;
 import java.util.List;
 
 import javax.xml.namespace.QName;
+
+import net.opengis.ows11.BoundingBoxType;
+import net.opengis.ows11.Ows11Factory;
 
 import org.eclipse.emf.ecore.EFactory;
 import org.geotools.ows.OWS;
@@ -73,9 +77,6 @@ import org.geotools.xml.Node;
  * @source $URL$
  */
 public class BoundingBoxTypeBinding extends AbstractComplexEMFBinding {
-    public BoundingBoxTypeBinding(EFactory factory) {
-        super(factory);
-    }
 
     /**
      * @generated
@@ -91,7 +92,7 @@ public class BoundingBoxTypeBinding extends AbstractComplexEMFBinding {
      * @generated modifiable
      */
     public Class getType() {
-        return super.getType();
+        return BoundingBoxType.class;
     }
 
     /**
@@ -102,8 +103,17 @@ public class BoundingBoxTypeBinding extends AbstractComplexEMFBinding {
      */
     public Object parse(ElementInstance instance, Node node, Object value)
         throws Exception {
-        //TODO: implement and remove call to super
-        return super.parse(instance, node, value);
+        BoundingBoxType bbox = Ows11Factory.eINSTANCE.createBoundingBoxType();
+        bbox.setLowerCorner((List) node.getChildValue("LowerCorner"));
+        bbox.setUpperCorner((List) node.getChildValue("UpperCorner"));
+        if(node.getAttributeValue("crs") != null) {
+            bbox.setCrs(node.getAttributeValue("crs").toString());
+        }
+        if(node.getAttributeValue("dimensions") != null) {
+            bbox.setDimensions((BigInteger) node.getAttributeValue("dimensions"));
+        }
+        
+        return bbox;
     }
     
     @Override
