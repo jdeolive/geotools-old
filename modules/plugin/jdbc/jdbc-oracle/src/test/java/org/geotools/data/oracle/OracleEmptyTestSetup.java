@@ -13,15 +13,8 @@ public class OracleEmptyTestSetup extends JDBCEmptyTestSetup {
         String sql = "CREATE TABLE empty (" 
             + "id INT, geom MDSYS.SDO_GEOMETRY, PRIMARY KEY(id))";
         run(sql);
-        sql = "CREATE SEQUENCE empty_pkey_seq";
+        sql = "CREATE SEQUENCE empty_id_seq";
         run(sql);
-        sql = "CREATE TRIGGER empty_pkey_trigger " + 
-            "BEFORE INSERT ON empty " + 
-            "FOR EACH ROW " + 
-             "BEGIN " + 
-              "SELECT empty_pkey_seq.nextval INTO :new.id FROM dual; " + 
-             "END;";
-        run( sql );
         
         sql = "INSERT INTO USER_SDO_GEOM_METADATA (TABLE_NAME, COLUMN_NAME, DIMINFO, SRID ) " + 
          "VALUES ('EMPTY','GEOM',MDSYS.SDO_DIM_ARRAY(MDSYS.SDO_DIM_ELEMENT('X',-180,180,0.5), " + 
@@ -45,7 +38,7 @@ public class OracleEmptyTestSetup extends JDBCEmptyTestSetup {
             e.printStackTrace();
         }
         try {
-            run("DROP SEQUENCE empty_pkey_seq");
+            run("DROP SEQUENCE empty_id_seq");
         } catch (Exception e) {
         }
      

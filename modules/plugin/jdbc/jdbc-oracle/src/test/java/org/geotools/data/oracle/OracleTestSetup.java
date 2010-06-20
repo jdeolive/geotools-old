@@ -63,6 +63,8 @@ public class OracleTestSetup extends JDBCTestSetup {
     protected void setUpData() throws Exception {
         //drop old data
         try {
+            // left here so that dbs with old tests can run the test safely, we previously had
+            // this trigger
             run("DROP TRIGGER ft1_pkey_trigger");
         } catch (Exception e) {
         }
@@ -92,13 +94,6 @@ public class OracleTestSetup extends JDBCTestSetup {
         run(sql);
         sql = "CREATE SEQUENCE ft1_pkey_seq";
         run(sql);
-        sql = "CREATE TRIGGER ft1_pkey_trigger " + 
-            "BEFORE INSERT ON ft1 " + 
-            "FOR EACH ROW " + 
-             "BEGIN " + 
-              "SELECT ft1_pkey_seq.nextval INTO :new.id FROM dual; " + 
-             "END;";
-        run( sql );
         
         sql = "INSERT INTO USER_SDO_GEOM_METADATA (TABLE_NAME, COLUMN_NAME, DIMINFO, SRID ) " + 
          "VALUES ('ft1','geometry',MDSYS.SDO_DIM_ARRAY(MDSYS.SDO_DIM_ELEMENT('X',-180,180,0.5), " + 

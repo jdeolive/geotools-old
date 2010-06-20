@@ -14,15 +14,8 @@ public class OracleSkipColumnTestSetup extends JDBCSkipColumnTestSetup {
             + "fid INT, id INT, geom MDSYS.SDO_GEOMETRY, weirdcolumn BFILE, "
             + "name VARCHAR(255), PRIMARY KEY(fid))";
         run(sql);
-        sql = "CREATE SEQUENCE skipcolumn_pkey_seq";
+        sql = "CREATE SEQUENCE skipcolumn_fid_seq";
         run(sql);
-        sql = "CREATE TRIGGER skipcolumn_pkey_trigger " + 
-            "BEFORE INSERT ON skipcolumn " + 
-            "FOR EACH ROW " + 
-             "BEGIN " + 
-              "SELECT skipcolumn_pkey_seq.nextval INTO :new.fid FROM dual; " + 
-             "END;";
-        run( sql );
         
         sql = "INSERT INTO USER_SDO_GEOM_METADATA (TABLE_NAME, COLUMN_NAME, DIMINFO, SRID ) " + 
          "VALUES ('skipcolumn','geom',MDSYS.SDO_DIM_ARRAY(MDSYS.SDO_DIM_ELEMENT('X',-180,180,0.5), " + 
@@ -33,7 +26,7 @@ public class OracleSkipColumnTestSetup extends JDBCSkipColumnTestSetup {
                         + " PARAMETERS ('SDO_INDX_DIMS=2 LAYER_GTYPE=\"POINT\"')";
         run(sql);
         
-        sql = "INSERT INTO SKIPCOLUMN VALUES (0, 0," +
+        sql = "INSERT INTO SKIPCOLUMN VALUES (skipcolumn_fid_seq.nextval, 0," +
             "MDSYS.SDO_GEOMETRY(2001,4326,SDO_POINT_TYPE(0.0,0.0,NULL),NULL,NULL), null, 'GeoTools')";
         run(sql);
 
@@ -43,7 +36,7 @@ public class OracleSkipColumnTestSetup extends JDBCSkipColumnTestSetup {
     protected void dropSkipColumnTable() throws Exception {
         runSafe("DROP TRIGGER skipcolumn_pkey_trigger");
         runSafe("DROP TABLE skipcolumn purge");
-        runSafe("DROP SEQUENCE skipcolumn_pkey_seq");
+        runSafe("DROP SEQUENCE skipcolumn_fid_seq");
      
         run("DELETE FROM USER_SDO_GEOM_METADATA WHERE TABLE_NAME = 'SKIPCOLUMN'");
 

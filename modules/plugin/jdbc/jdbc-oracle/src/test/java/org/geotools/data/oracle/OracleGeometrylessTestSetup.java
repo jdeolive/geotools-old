@@ -32,22 +32,16 @@ public class OracleGeometrylessTestSetup extends JDBCGeometrylessTestSetup {
         //set up table
         run("CREATE TABLE person (fid int, id int, "
             + " name varchar(255), age int, PRIMARY KEY (fid) )");
-        run("CREATE SEQUENCE person_pkey_seq START WITH 0 MINVALUE 0");
-        run("CREATE TRIGGER person_pkey_trigger " + 
-            "BEFORE INSERT ON person " + 
-            "FOR EACH ROW " + 
-              "BEGIN " + 
-                "SELECT person_pkey_seq.nextval INTO :new.fid FROM dual; " + 
-              "END;");
+        run("CREATE SEQUENCE person_fid_seq START WITH 0 MINVALUE 0");
         
         // insert data
-        run("INSERT INTO person(id,name,age) VALUES ( 0, 'Paul', 32)");
-        run("INSERT INTO person(id,name,age) VALUES ( 1, 'Anne', 40)");
+        run("INSERT INTO person(fid,id,name,age) VALUES ( person_fid_seq.nextval, 0, 'Paul', 32)");
+        run("INSERT INTO person(fid,id,name,age) VALUES ( person_fid_seq.nextval, 1, 'Anne', 40)");
     }
 
     @Override
     protected void dropPersonTable() throws SQLException {
-        runSafe("DROP SEQUENCE person_pkey_seq");
+        runSafe("DROP SEQUENCE person_fid_seq");
         runSafe("DROP TABLE person");
     }
 
