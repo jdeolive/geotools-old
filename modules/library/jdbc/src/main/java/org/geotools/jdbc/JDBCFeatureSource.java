@@ -142,9 +142,9 @@ public class JDBCFeatureSource extends ContentFeatureSource {
         SimpleFeatureTypeBuilder tb = new SimpleFeatureTypeBuilder();
         AttributeTypeBuilder ab = new AttributeTypeBuilder();
         
-        // setup the read only marker if no pk or null pk
+        // setup the read only marker if no pk or null pk or it's a view
         boolean readOnly = false;
-        if(pkey == null || pkey instanceof NullPrimaryKey) {
+        if(pkey == null || pkey instanceof NullPrimaryKey || virtualTable != null) {
             readOnly = true;
         }
 
@@ -179,7 +179,7 @@ public class JDBCFeatureSource extends ContentFeatureSource {
             // get metadata about columns from database
             List<ColumnMetadata> columns;
             if (virtualTable != null) {
-                columns = getColumnMetadata(cx, virtualTable, dialect);
+                columns = getColumnMetadata(cx, virtualTable, dialect, getDataStore());
             } else {
                 columns = getColumnMetadata(cx, databaseSchema, tableName, dialect);
             }
@@ -197,6 +197,10 @@ public class JDBCFeatureSource extends ContentFeatureSource {
                         } else {
                             pkColumn = true;
                         }
+                    }
+                    // in views we don't know the pk type, grab it now
+                    if(pkeycol.type == null) {
+                        pkeycol.type = column.binding;
                     }
                 }
              
@@ -276,7 +280,11 @@ public class JDBCFeatureSource extends ContentFeatureSource {
                     Integer srid = null;
                     CoordinateReferenceSystem crs = null;
                     try {
-                        srid = dialect.getGeometrySRID(databaseSchema, tableName, name, cx);
+                        if(virtualTable != null && virtualTable.getNativeSrid(name) != -1) {
+                            srid = virtualTable.getNativeSrid(name);
+                        } else {
+                            srid = dialect.getGeometrySRID(databaseSchema, tableName, name, cx);
+                        }
                         if(srid != null)
                             crs = dialect.createCRS(srid, cx);
                     } catch (Exception e) {
@@ -308,15 +316,16 @@ public class JDBCFeatureSource extends ContentFeatureSource {
             
             // mark it as read only if necessary 
             // (the builder userData method affects attributes, not the ft itself)
-            if(readOnly)
+            if(readOnly) {
                 ft.getUserData().put(JDBCDataStore.JDBC_READ_ONLY, Boolean.TRUE);
+            }
 
             //call dialect callback
             dialect.postCreateFeatureType(ft, metaData, databaseSchema, cx);
             return ft;
         } catch (SQLException e) {
             String msg = "Error occurred building feature type";
-            throw (IOException) new IOException().initCause(e);
+            throw (IOException) new IOException(msg).initCause(e);
         } finally {
             getDataStore().releaseConnection( cx, state );
         }
@@ -638,7 +647,7 @@ public class JDBCFeatureSource extends ContentFeatureSource {
      * @return
      * @throws SQLException
      */
-    List<ColumnMetadata> getColumnMetadata(Connection cx, VirtualTable vtable, SQLDialect dialect) throws SQLException {
+    static List<ColumnMetadata> getColumnMetadata(Connection cx, VirtualTable vtable, SQLDialect dialect, JDBCDataStore store) throws SQLException {
         List<ColumnMetadata> result = new ArrayList<ColumnMetadata>();
 
         Statement st = null;
@@ -675,8 +684,8 @@ public class JDBCFeatureSource extends ContentFeatureSource {
                 result.add(column);
             }
         } finally {
-            getDataStore().closeSafe(st);
-            getDataStore().closeSafe(rs);
+            store.closeSafe(st);
+            store.closeSafe(rs);
         }
         
         return result;
@@ -687,7 +696,7 @@ public class JDBCFeatureSource extends ContentFeatureSource {
      * Represents the column metadata we need to build a feature type
      * @author Andrea Aime - OpenGeo
      */
-    class ColumnMetadata {
+    static class ColumnMetadata {
         /** The column java type, if known */
         Class binding;
         /** The column name */

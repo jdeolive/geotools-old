@@ -1,6 +1,7 @@
 package org.geotools.jdbc;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 
 import org.geotools.data.FeatureSource;
@@ -28,7 +29,7 @@ public abstract class JDBCVirtualTableTest extends JDBCTestSupport {
         SQLDialect dialect = dataStore.getSQLDialect();
         StringBuffer sb = new StringBuffer();
         sb.append("select ");
-        dialect.encodeColumnName(aname("fid"), sb);
+        dialect.encodeColumnName(aname("id"), sb);
         sb.append(", ");
         dialect.encodeColumnName(aname("geom"), sb);
         sb.append(", ");
@@ -47,11 +48,12 @@ public abstract class JDBCVirtualTableTest extends JDBCTestSupport {
         dialect.encodeColumnName(aname("flow"), sb);
         sb.append(" > 4");
         VirtualTable vt = new VirtualTable("riverReduced", sb.toString());
-        vt.addGeometryMetadatata("geom", LineString.class, -1);
+        vt.addGeometryMetadatata("geom", LineString.class, 4326);
         dataStore.addVirtualTable(vt);
         
         vt = new VirtualTable("riverReducedPk", sb.toString());
-        vt.addGeometryMetadatata("geom", LineString.class, -1);
+        vt.addGeometryMetadatata("geom", LineString.class, 4326);
+        vt.setPrimaryKeyColumns(Arrays.asList(aname("id")));
         dataStore.addVirtualTable(vt);        
     }
 
@@ -60,8 +62,8 @@ public abstract class JDBCVirtualTableTest extends JDBCTestSupport {
         assertNotNull(type);
         
         assertEquals(4, type.getAttributeCount());
-        AttributeDescriptor fid = type.getDescriptor(aname("fid"));
-        assertTrue(Number.class.isAssignableFrom(fid.getType().getBinding()));
+        AttributeDescriptor id = type.getDescriptor(aname("id"));
+        assertTrue(Number.class.isAssignableFrom(id.getType().getBinding()));
         GeometryDescriptor geom = type.getGeometryDescriptor();
         assertEquals(aname("geom"), geom.getLocalName());
         AttributeDescriptor river = type.getDescriptor(aname("river"));
@@ -106,6 +108,25 @@ public abstract class JDBCVirtualTableTest extends JDBCTestSupport {
             fail("Should have failed with invalid sql definition");
         } catch(IOException e) {
             // ok, that's what we expected
+        }
+    }
+    
+    public void testGetFeatureId() throws Exception {
+        FeatureSource fsView = dataStore.getFeatureSource("riverReducedPk");
+        assertFalse(fsView instanceof FeatureStore);
+
+        assertEquals(1, fsView.getCount(Query.ALL));
+        
+        FeatureIterator<SimpleFeature> it = null;
+        try {
+            it = fsView.getFeatures().features();
+            
+            assertTrue(it.hasNext());
+            SimpleFeature sf = it.next();
+            // check the primary key is build out of the fid attribute
+            assertEquals("riverReducedPk.0", sf.getID());
+        } finally {
+            it.close();
         }
     }
 }

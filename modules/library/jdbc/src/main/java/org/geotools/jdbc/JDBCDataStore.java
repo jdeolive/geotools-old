@@ -70,6 +70,7 @@ import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.visitor.CountVisitor;
 import org.geotools.filter.FilterCapabilities;
 import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.jdbc.JDBCFeatureSource.ColumnMetadata;
 import org.geotools.referencing.CRS;
 import org.geotools.util.Converters;
 import org.opengis.feature.FeatureVisitor;
@@ -856,14 +857,40 @@ public final class JDBCDataStore extends ContentDataStore
                     Connection cx = createConnection();
 
                     try {
+                        PrimaryKey pkey;
                         String tableName = entry.getName().getLocalPart();
-                        PrimaryKey pkey = primaryKeyFinder.getPrimaryKey(this, databaseSchema, tableName, cx);
+                        if(virtualTables.containsKey(tableName)) {
+                            VirtualTable vt = virtualTables.get(tableName);
+                            if(vt.getPrimaryKeyColumns().size() == 0) {
+                                pkey = new NullPrimaryKey( tableName );
+                            } else {
+                                List<ColumnMetadata> metas = JDBCFeatureSource.getColumnMetadata(cx, vt, dialect, this);
+                                
+                                List<PrimaryKeyColumn> kcols = new ArrayList<PrimaryKeyColumn>();
+                                for (String pkName : vt.getPrimaryKeyColumns()) {
+                                    // look for the pk type
+                                    Class binding = null;
+                                    for(ColumnMetadata meta : metas) {
+                                        if(meta.name.equals(pkName)) {
+                                            binding = meta.binding;
+                                        }
+                                    }
+                                    
+                                    // we build a pk without type, the JDBCFeatureStore will do this 
+                                    // for us while building the primary key
+                                    kcols.add(new NonIncrementingPrimaryKeyColumn(pkName, binding));
+                                }
+                                pkey = new PrimaryKey(tableName, kcols);
+                            }
+                        } else {
+                            pkey = primaryKeyFinder.getPrimaryKey(this, databaseSchema, tableName, cx);
                             
-                        if ( pkey == null ) {
-                            String msg = "No primary key or unique index found for " + tableName + ".";
-                            LOGGER.warning(msg);
-
-                            pkey = new NullPrimaryKey( tableName );
+                            if ( pkey == null ) {
+                                String msg = "No primary key or unique index found for " + tableName + ".";
+                                LOGGER.warning(msg);
+    
+                                pkey = new NullPrimaryKey( tableName );
+                            }
                         }
                         
                         state.setPrimaryKey(pkey);

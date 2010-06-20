@@ -17,6 +17,7 @@
 package org.geotools.jdbc;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +38,7 @@ public class VirtualTable implements Serializable {
 
     String sql;
 
-    List<String> primaryKeyColumns;
+    List<String> primaryKeyColumns = new ArrayList<String>();
 
     Map<String, Class<? extends Geometry>> geometryTypes = new HashMap<String, Class<? extends Geometry>>();
 
@@ -68,7 +69,10 @@ public class VirtualTable implements Serializable {
      * @param primaryKeyColumns
      */
     public void setPrimaryKeyColumns(List<String> primaryKeyColumns) {
-        this.primaryKeyColumns = primaryKeyColumns;
+        this.primaryKeyColumns.clear();
+        if(primaryKeyColumns != null) {
+            this.primaryKeyColumns.addAll(primaryKeyColumns);
+        }
     }
 
     /**
