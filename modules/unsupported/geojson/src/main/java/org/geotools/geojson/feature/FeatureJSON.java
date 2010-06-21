@@ -368,9 +368,11 @@ public class FeatureJSON {
             }
             
             //geometry
-            string("geometry", sb).append(":")
+            if (feature.getDefaultGeometry() != null) {
+                string("geometry", sb).append(":")
                 .append(gjson.toString((Geometry) feature.getDefaultGeometry()));    
-            sb.append(",");
+                sb.append(",");
+            }
             
             //properties
             int gindex = featureType.getGeometryDescriptor() != null ? 

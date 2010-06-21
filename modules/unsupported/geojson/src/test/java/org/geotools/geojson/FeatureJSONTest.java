@@ -134,6 +134,28 @@ public class FeatureJSONTest extends GeoJSONTestSupport {
         assertEquals(strip(featureWithCRSText()), fjson.toString(feature(1)));
     }
 
+    public void testFeatureNoGeometryWrite() throws Exception {
+        String json = 
+            "{" + 
+            "   'type': 'Feature'," +
+            "   'properties': {" +
+            "     'foo': 'FOO'" +
+            "   }," +
+            "   'id': 'feature.foo'" +
+            " }";
+        
+        SimpleFeatureTypeBuilder tb = new SimpleFeatureTypeBuilder();
+        tb.setName("nogeom");
+        tb.add("foo", String.class);
+        
+        SimpleFeatureType ft = tb.buildFeatureType();
+        SimpleFeatureBuilder b = new SimpleFeatureBuilder(ft);
+        b.add("FOO");
+        
+        SimpleFeature f = b.buildFeature("feature.foo");
+        assertEquals(strip(json), fjson.toString(f));
+    }
+    
     String featureWithCRSText() {
         String json = 
             "{" + 
@@ -157,7 +179,7 @@ public class FeatureJSONTest extends GeoJSONTestSupport {
             " }";
         return json;
     }
-    
+
     public void testFeatureWithCRSRead() throws Exception {
         SimpleFeature f = fjson.readFeature(reader(strip(featureWithCRSText())));
         assertTrue(CRS.equalsIgnoreMetadata(CRS.decode("EPSG:4326"), 
