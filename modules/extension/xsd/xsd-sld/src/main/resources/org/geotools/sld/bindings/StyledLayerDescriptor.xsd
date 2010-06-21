@@ -297,6 +297,7 @@
         types are derived from this base type.
       </xsd:documentation>
     </xsd:annotation>
+    <xsd:attribute name="uom" type="xsd:anyURI"/>
   </xsd:complexType>
 
 <!-- *********************************************************************** -->
