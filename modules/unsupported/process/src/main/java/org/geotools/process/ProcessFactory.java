@@ -35,6 +35,7 @@ import org.opengis.util.InternationalString;
  *         /process/ProcessFactory.java $
  */
 public interface ProcessFactory extends OptionalFactory {
+    /** namespace used for internal GeoTools processes */
     public static final String GT_NAMESPACE = "gt";
 
     /**
@@ -91,7 +92,10 @@ public interface ProcessFactory extends OptionalFactory {
     public Process create(Name name);
 
     /**
-     * Description of the results returned
+     * Description of the results returned.
+     * <p>
+     * Note the input parameters are required as they may control the kind of results produced (for
+     * example by defining an image format or coordinate reference system to be used).
      * 
      * @param name
      *            the process identifier
