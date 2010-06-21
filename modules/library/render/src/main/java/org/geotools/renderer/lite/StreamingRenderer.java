@@ -88,6 +88,8 @@ import org.geotools.styling.Rule;
 import org.geotools.styling.StyleAttributeExtractor;
 import org.geotools.styling.Symbolizer;
 import org.geotools.styling.TextSymbolizer;
+import org.geotools.styling.visitor.DuplicatingStyleVisitor;
+import org.geotools.styling.visitor.RescaleStyleVisitor;
 import org.geotools.styling.visitor.UomRescaleStyleVisitor;
 import org.geotools.util.NumberRange;
 import org.geotools.util.Range;
@@ -1809,15 +1811,35 @@ public final class StreamingRenderer implements GTRenderer {
         double pixelsPerMeters = RendererUtilities.calculatePixelsPerMeterRatio(scaleDenominator, rendererHints);
         UomRescaleStyleVisitor rescaleVisitor = new UomRescaleStyleVisitor(pixelsPerMeters);
         for(LiteFeatureTypeStyle fts : lfts) {
-            for (int i = 0; i < fts.ruleList.length; i++) {
-                rescaleVisitor.visit(fts.ruleList[i]);
-                fts.ruleList[i] = (Rule) rescaleVisitor.getCopy();
+            rescaleFeatureTypeStyle(fts, rescaleVisitor);
+        }
+        
+        // apply dpi rescale
+        double dpi = RendererUtilities.getDpi(getRendererHints());
+        double standardDpi = RendererUtilities.getDpi(Collections.emptyMap());
+        if(dpi != standardDpi) {
+            double scaleFactor = dpi / standardDpi;
+            RescaleStyleVisitor dpiVisitor = new RescaleStyleVisitor(scaleFactor);
+            for(LiteFeatureTypeStyle fts : lfts) {
+                rescaleFeatureTypeStyle(fts, dpiVisitor);
             }
-            if(fts.elseRules != null) {
-                for (int i = 0; i < fts.elseRules.length; i++) {
-                    rescaleVisitor.visit(fts.elseRules[i]);
-                    fts.elseRules[i] = (Rule) rescaleVisitor.getCopy();
-                }
+        }
+    }
+    
+    /**
+     * Utility method to apply the two rescale visitors without duplicating code
+     * @param fts
+     * @param visitor
+     */
+    void rescaleFeatureTypeStyle(LiteFeatureTypeStyle fts, DuplicatingStyleVisitor visitor) {
+        for (int i = 0; i < fts.ruleList.length; i++) {
+            visitor.visit(fts.ruleList[i]);
+            fts.ruleList[i] = (Rule) visitor.getCopy();
+        }
+        if(fts.elseRules != null) {
+            for (int i = 0; i < fts.elseRules.length; i++) {
+                visitor.visit(fts.elseRules[i]);
+                fts.elseRules[i] = (Rule) visitor.getCopy();
             }
         }
     }

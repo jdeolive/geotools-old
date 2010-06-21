@@ -468,7 +468,7 @@ public final class RendererUtilities {
      * @param hints 
      * @return DPI as doubles, to avoid issues with integer trunking in scale computation expression
      */
-    private static double getDpi(Map hints) {
+    public static double getDpi(Map hints) {
         if( hints!=null && hints.containsKey("dpi") ){
             return ((Integer)hints.get("dpi")).intValue();
         }else{

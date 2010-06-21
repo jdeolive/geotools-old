@@ -171,6 +171,7 @@ public class UomRescaleStyleVisitor extends DuplicatingStyleVisitor {
         if (stroke != null) {
             stroke.setWidth(rescale(stroke.getWidth(), mapScale, uom));
             stroke.setDashArray(rescale(stroke.getDashArray(), mapScale, uom));
+            stroke.setDashOffset(rescale(stroke.getDashOffset(), mapScale, uom));
         }
     }
 
@@ -250,6 +251,12 @@ public class UomRescaleStyleVisitor extends DuplicatingStyleVisitor {
                     mapScale, uom));
         }
         copy.setLabelPlacement(placement);
+        
+        // rescale the halo
+        if(copy.getHalo() != null) {
+            copy.getHalo().setRadius(rescale(copy.getHalo().getRadius(), mapScale, uom));
+        }
+        
         copy.setUnitOfMeasure(NonSI.PIXEL);
     }
 }

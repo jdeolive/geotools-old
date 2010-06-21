@@ -100,6 +100,7 @@ import org.geotools.styling.StyleAttributeExtractor;
 import org.geotools.styling.Symbolizer;
 import org.geotools.styling.TextSymbolizer;
 import org.geotools.styling.visitor.DuplicatingStyleVisitor;
+import org.geotools.styling.visitor.RescaleStyleVisitor;
 import org.geotools.styling.visitor.UomRescaleStyleVisitor;
 import org.geotools.util.NumberRange;
 import org.opengis.feature.simple.SimpleFeature;
@@ -375,6 +376,22 @@ public class ShapefileRenderer implements GTRenderer {
                 for (int j = 0; j < elseRuleList.size(); j++) {
                     rescaleVisitor.visit(elseRuleList.get(j));
                     elseRuleList.set(j, (Rule) rescaleVisitor.getCopy());
+                }
+                
+                // apply dpi rescale
+                double dpi = RendererUtilities.getDpi(getRendererHints());
+                double standardDpi = RendererUtilities.getDpi(Collections.emptyMap());
+                if(dpi != standardDpi) {
+                    double scaleFactor = dpi / standardDpi;
+                    RescaleStyleVisitor dpiVisitor = new RescaleStyleVisitor(scaleFactor);
+                    for (int j = 0; j < ruleList.size(); j++) {
+                        dpiVisitor.visit(ruleList.get(j));
+                        ruleList.set(j, (Rule) dpiVisitor.getCopy());
+                    }
+                    for (int j = 0; j < elseRuleList.size(); j++) {
+                        dpiVisitor.visit(elseRuleList.get(j));
+                        elseRuleList.set(j, (Rule) dpiVisitor.getCopy());
+                    }
                 }
 
                 // process the features according to the rules
