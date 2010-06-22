@@ -26,7 +26,6 @@ import java.io.Serializable;
 import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -41,6 +40,7 @@ import org.geotools.data.complex.config.EmfAppSchemaReader;
 import org.geotools.data.complex.config.FeatureTypeRegistry;
 import org.geotools.data.complex.config.XMLConfigDigester;
 import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.Types;
 import org.geotools.xml.SchemaIndex;
 import org.junit.AfterClass;
@@ -213,12 +213,12 @@ public class GeoSciMLTest {
 
             Feature feature;
             int count = 0;
-            Iterator it = features.iterator();
+            FeatureIterator it = features.features();
             for (; it.hasNext();) {
                 feature = (Feature) it.next();
                 count++;
             }
-            features.close(it);
+            it.close();
 
             assertEquals(EXPECTED_RESULT_COUNT, count);
         } catch (Exception e) {
@@ -245,7 +245,7 @@ public class GeoSciMLTest {
     }
 
     private int getCount(FeatureCollection features) {
-        Iterator iterator = features.iterator();
+        FeatureIterator iterator = features.features();
         int count = 0;
         try {
             while (iterator.hasNext()) {
@@ -253,7 +253,7 @@ public class GeoSciMLTest {
                 count++;
             }
         } finally {
-            features.close(iterator);
+            iterator.close();
         }
         return count;
     }

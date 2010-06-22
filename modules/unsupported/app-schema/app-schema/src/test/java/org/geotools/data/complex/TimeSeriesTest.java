@@ -44,6 +44,7 @@ import org.geotools.data.complex.config.EmfAppSchemaReader;
 import org.geotools.data.complex.config.FeatureTypeRegistry;
 import org.geotools.data.complex.config.XMLConfigDigester;
 import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.NameImpl;
 import org.geotools.feature.Types;
 import org.geotools.filter.FilterFactoryImplNamespaceAware;
@@ -414,7 +415,7 @@ public class TimeSeriesTest extends TestCase {
         }
 
         final String phenomNamePath = "aw:relatedObservation/aw:PhenomenonTimeSeries/om:observedProperty/swe:Phenomenon/gml:name";
-        Iterator it = features.iterator();
+        FeatureIterator it = features.features();
         for (; it.hasNext();) {
             feature = (Feature) it.next();
             count++;
@@ -455,10 +456,10 @@ public class TimeSeriesTest extends TestCase {
             }
 
         }
-        features.close(it);
+        it.close();
 
         count = 0;
-        Iterator simpleIterator = ((AbstractMappingFeatureIterator) features.iterator()).getSourceFeatureIterator();
+        FeatureIterator<Feature> simpleIterator = ((AbstractMappingFeatureIterator) features.features()).getSourceFeatureIterator();
         for (; simpleIterator.hasNext();) {
             feature = (Feature) simpleIterator.next();
             count++;
@@ -505,7 +506,7 @@ public class TimeSeriesTest extends TestCase {
     }
 
     private int getCount(FeatureCollection features) {
-        Iterator iterator = features.iterator();
+        FeatureIterator iterator = features.features();
         int count = 0;
         try {
             while (iterator.hasNext()) {
@@ -513,7 +514,7 @@ public class TimeSeriesTest extends TestCase {
                 count++;
             }
         } finally {
-            features.close(iterator);
+            iterator.close();
         }
         return count;
     }

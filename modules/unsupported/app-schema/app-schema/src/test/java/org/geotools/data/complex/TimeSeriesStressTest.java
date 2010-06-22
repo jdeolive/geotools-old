@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -38,6 +37,7 @@ import org.geotools.data.Transaction;
 import org.geotools.data.complex.config.EmfAppSchemaReader;
 import org.geotools.data.postgis.PostgisDataStoreFactory;
 import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.NameImpl;
 import org.geotools.feature.Types;
 import org.geotools.filter.FilterFactoryImplNamespaceAware;
@@ -206,7 +206,7 @@ public class TimeSeriesStressTest extends OnlineTestCase {
         final String phenomNamePath = "aw:relatedObservation/aw:PhenomenonTimeSeries/om:observedProperty/swe:Phenomenon/gml:name";
 
         for (int run = 0; run < numberOfRuns; run++) {
-            Iterator it = features.iterator();
+            FeatureIterator it = features.features();
             count = 0;
             timer.start();
             for (; it.hasNext();) {
@@ -215,7 +215,7 @@ public class TimeSeriesStressTest extends OnlineTestCase {
             }
             timer.stop();
             cumulativeTime += timer.time();
-            features.close(it);
+            it.close();
         }
 
         PropertyName gmlName = ffac.property("gml:name");
@@ -316,7 +316,7 @@ public class TimeSeriesStressTest extends OnlineTestCase {
     }
 
     private int getCount(FeatureCollection features) {
-        Iterator iterator = features.iterator();
+        FeatureIterator iterator = features.features();
         int count = 0;
         try {
             while (iterator.hasNext()) {
@@ -324,7 +324,7 @@ public class TimeSeriesStressTest extends OnlineTestCase {
                 count++;
             }
         } finally {
-            features.close(iterator);
+            iterator.close();
         }
         return count;
     }

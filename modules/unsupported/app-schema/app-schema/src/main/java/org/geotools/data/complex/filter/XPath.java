@@ -182,8 +182,14 @@ public class XPath {
             while (mine.hasNext()) {
                 myStep = (Step) mine.next();
                 hisStep = (Step) him.next();
-                if (!myStep.equalsIgnoreIndex(hisStep)) {
-                    return false;
+                if (myStep.isIndexed()) {
+                    if (!myStep.equals(hisStep)) {
+                        return false;
+                    }
+                } else {
+                    if (!myStep.equalsIgnoreIndex(hisStep)) {
+                        return false;
+                    }
                 }
             }
             return true;
@@ -281,11 +287,15 @@ public class XPath {
             if (other == this) {
                 return true;
             }
-            return other.getName().equals(getName());
+            return attributeName.equals(other.attributeName) && isXmlAttribute == other.isXmlAttribute;
         }
 
         public int getIndex() {
             return index;
+        }
+        
+        public boolean isIndexed() {
+            return isIndexed;
         }
 
         public QName getName() {

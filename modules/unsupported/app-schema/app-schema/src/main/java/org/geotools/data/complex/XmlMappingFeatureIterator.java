@@ -35,6 +35,7 @@ import org.geotools.data.complex.xml.XmlFeatureSource;
 import org.geotools.data.complex.xml.XmlResponse;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.AttributeBuilder;
+import org.geotools.feature.FeatureIterator;
 import org.geotools.filter.LiteralExpressionImpl;
 import org.geotools.util.XmlXpathUtilites;
 import org.jdom.Element;
@@ -112,7 +113,7 @@ public class XmlMappingFeatureIterator extends AbstractMappingFeatureIterator {
         count = ls.size();        
     }
 
-    protected Iterator<Element> getSourceFeatureIterator() {
+    protected FeatureIterator<Feature> getSourceFeatureIterator() {
         return null;
     }
 

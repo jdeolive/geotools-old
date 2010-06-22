@@ -20,7 +20,6 @@ package org.geotools.data.complex;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -36,6 +35,7 @@ import org.geotools.data.memory.MemoryDataStore;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.NameImpl;
 import org.geotools.feature.Types;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
@@ -161,14 +161,14 @@ public class AppSchemaDataAccessTest extends TestCase {
         try {
             ReferencedEnvelope boundingBox = new ReferencedEnvelope(DefaultGeographicCRS.WGS84);
             FeatureCollection features = source.getFeatures();
-            Iterator<Feature> iterator = features.iterator();
+            FeatureIterator iterator = features.features();
             try {
                 while (iterator.hasNext()) {
                     Feature f = iterator.next();
                     boundingBox.include(f.getBounds());
                 }
             } finally {
-                features.close(iterator);
+                iterator.close();
             }
             return boundingBox;
         } catch (IOException e) {
@@ -187,14 +187,14 @@ public class AppSchemaDataAccessTest extends TestCase {
         FeatureCollection<FeatureType, Feature> reader = access.getFeatures();
         assertNotNull(reader);
 
-        Iterator<Feature> features = reader.iterator();
+        FeatureIterator<Feature> features = reader.features();
         assertTrue(features.hasNext());
 
         Feature complexFeature = (Feature) features.next();
         assertNotNull(complexFeature);
         assertEquals(targetType, complexFeature.getType());
 
-        reader.close(features);
+        features.close();
 
         org.opengis.filter.FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
         PropertyName expr;
@@ -258,7 +258,7 @@ public class AppSchemaDataAccessTest extends TestCase {
         FeatureSource<FeatureType, Feature> complexSource = dataStore.getFeatureSource(targetName);
         FeatureCollection<FeatureType, Feature> features = complexSource.getFeatures(filter);
 
-        Iterator<Feature> reader = features.iterator();
+        FeatureIterator<Feature> reader = features.features();
 
         PropertyIsEqualTo equivalentSourceFilter = ff.equals(ff.property("ph"), ff
                 .literal(new Integer(3)));
@@ -278,7 +278,7 @@ public class AppSchemaDataAccessTest extends TestCase {
             assertFalse(badFilter.evaluate(f));
             count++;
         }
-        features.close(reader);
+        reader.close();
         assertEquals(expectedCount, count);
     }
 
@@ -349,7 +349,7 @@ public class AppSchemaDataAccessTest extends TestCase {
  
 
         FeatureCollection<FeatureType, Feature> content = source.getFeatures();
-        Iterator<Feature> features = content.iterator();
+        FeatureIterator<Feature> features = content.features();
         int count = 0;
         final int expectedCount = 5;
         try {
@@ -362,7 +362,7 @@ public class AppSchemaDataAccessTest extends TestCase {
             e.printStackTrace();
             throw e;
         } finally {
-            content.close(features);
+            features.close();
         }
         assertEquals("feature count", expectedCount, count);
 
@@ -371,7 +371,7 @@ public class AppSchemaDataAccessTest extends TestCase {
         DefaultQuery query = new DefaultQuery();
         query.setMaxFeatures(expectedCount2);
         FeatureCollection<FeatureType, Feature> content2 = source.getFeatures(query);
-        Iterator<Feature> features2 = content2.iterator();
+        FeatureIterator<Feature> features2 = content2.features();
         int count2 = 0;
         try {
             while (features2.hasNext()) {
@@ -383,7 +383,7 @@ public class AppSchemaDataAccessTest extends TestCase {
             e.printStackTrace();
             throw e;
         } finally {
-            content.close(features2);
+            features2.close();
         }
         assertEquals("feature count", expectedCount2, count2);
 

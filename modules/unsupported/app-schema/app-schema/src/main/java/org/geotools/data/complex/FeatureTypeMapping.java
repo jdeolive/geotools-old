@@ -93,21 +93,19 @@ public class FeatureTypeMapping {
     }
 
     /**
-     * Finds the attribute mappings for the given target location path ignoring the xpath index of
-     * each step.
+     * Finds the attribute mappings for the given target location path. 
+     * If the exactPath is not indexed, it will get all the matching mappings ignoring index.
+     * If it is indexed, it will get the one with matching index only.
      * 
      * @param targetPath
      * @return
      */
     public List<AttributeMapping> getAttributeMappingsIgnoreIndex(final StepList targetPath) {
         AttributeMapping attMapping;
-        List<AttributeMapping> mappings = Collections.emptyList();
+        List<AttributeMapping> mappings = new ArrayList<AttributeMapping>();
         for (Iterator<AttributeMapping> it = attributeMappings.iterator(); it.hasNext();) {
             attMapping = (AttributeMapping) it.next();
             if (targetPath.equalsIgnoreIndex(attMapping.getTargetXPath())) {
-                if (mappings.size() == 0) {
-                    mappings = new ArrayList<AttributeMapping>(2);
-                }
                 mappings.add(attMapping);
             }
         }
@@ -122,13 +120,10 @@ public class FeatureTypeMapping {
      */
     public List<AttributeMapping> getAttributeMappingsByExpression(final Expression sourceExpression) {
         AttributeMapping attMapping;
-        List<AttributeMapping> mappings = Collections.emptyList();
+        List<AttributeMapping> mappings = new ArrayList<AttributeMapping>();
         for (Iterator<AttributeMapping> it = attributeMappings.iterator(); it.hasNext();) {
             attMapping = (AttributeMapping) it.next();
             if (sourceExpression.equals(attMapping.getSourceExpression())) {
-                if (mappings.size() == 0) {
-                    mappings = new ArrayList<AttributeMapping>(2);
-                }
                 mappings.add(attMapping);
             }
         }

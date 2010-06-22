@@ -43,6 +43,7 @@ import org.geotools.data.complex.config.FeatureTypeRegistry;
 import org.geotools.data.complex.config.XMLConfigDigester;
 import org.geotools.data.complex.filter.XPath.StepList;
 import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.NameImpl;
 import org.geotools.feature.Types;
 import org.geotools.feature.type.ComplexFeatureTypeImpl;
@@ -308,12 +309,12 @@ public class BoreholeTest {
 
         Feature feature;
         int count = 0;
-        Iterator it = features.iterator();
+        FeatureIterator<Feature> it = features.features();
         for (; it.hasNext();) {
             feature = (Feature) it.next();
             count++;
         }
-        features.close(it);
+        it.close();
         assertEquals(EXPECTED_RESULT_COUNT, count);
     }
 
@@ -374,7 +375,7 @@ public class BoreholeTest {
 
         FeatureCollection<FeatureType, Feature> features = (FeatureCollection) fSource
                 .getFeatures();
-        Feature f = (Feature) features.iterator().next();
+        Feature f = (Feature) features.features().next();
         traverse(f);
     }
 

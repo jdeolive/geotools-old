@@ -49,6 +49,7 @@ import org.geotools.data.complex.config.EmfAppSchemaReader;
 import org.geotools.data.complex.config.FeatureTypeRegistry;
 import org.geotools.data.property.PropertyDataStore;
 import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.feature.AttributeImpl;
 import org.geotools.feature.CollectionListener;
@@ -200,7 +201,7 @@ public class DataAccessIntegrationTest {
                 "http://www.w3.org/2001/XMLSchema", "string"));
         AttributeDescriptor stringDescriptor = new AttributeDescriptorImpl(simpleContentType, name,
                 1, 1, true, (Object) null);
-        Iterator<SimpleFeature> simpleFeatures = fCollection.iterator();
+        SimpleFeatureIterator simpleFeatures = fCollection.features();
         // keep track of the last feature, so we can group them as 1 if they're the same
         Feature lastFeature = null;
         while (simpleFeatures.hasNext()) {
@@ -278,7 +279,7 @@ public class DataAccessIntegrationTest {
                 features.add(lastFeature);
             }
         }
-        fCollection.close(simpleFeatures);
+        simpleFeatures.close();
 
         return features;
     }
@@ -415,12 +416,12 @@ public class DataAccessIntegrationTest {
         FeatureSource<FeatureType, Feature> mfSource = mfDataAccess
                 .getFeatureSource(MAPPED_FEATURE);
         FeatureCollection<FeatureType, Feature> mfCollection = mfSource.getFeatures();
-        Iterator<Feature> mfIterator = mfCollection.iterator();
+        FeatureIterator<Feature> mfIterator = mfCollection.features();
         mfFeatures = new ArrayList<Feature>();
         while (mfIterator.hasNext()) {
             mfFeatures.add(mfIterator.next());
         }
-        mfCollection.close(mfIterator);
+        mfIterator.close();
         
         /**
          * Get composition part data access features
@@ -430,13 +431,13 @@ public class DataAccessIntegrationTest {
         FeatureSource<FeatureType, Feature> cpSource = cpDataAccess
                 .getFeatureSource(COMPOSITION_PART);
         FeatureCollection<FeatureType, Feature> cpCollection = cpSource.getFeatures();
-        Iterator<Feature> cpIterator = cpCollection.iterator();
+        FeatureIterator<Feature> cpIterator = cpCollection.features();
 
         cpFeatures = new ArrayList<Feature>();
         while (cpIterator.hasNext()) {
             cpFeatures.add(cpIterator.next());
         }
-        cpCollection.close(cpIterator);
+        cpIterator.close();
     }
 
     /**

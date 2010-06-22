@@ -140,7 +140,23 @@ public class UnmappingFilterVisitor implements org.opengis.filter.FilterVisitor,
         case 0:
             throw new IllegalArgumentException("No filters to combine");
         case 1:
-            return (Filter) combinedFilters.get(0);
+            Filter filter = (Filter) combinedFilters.get(0);
+            if (filter instanceof BinaryComparisonOperator) {
+                Expression exp = ((BinaryComparisonOperator) filter).getExpression1();
+                if (exp != null && exp instanceof NestedAttributeExpression) {
+                    filter = new MultiValuedOrImpl(ff, filter,
+                            (NestedAttributeExpression) ((BinaryComparisonOperator) filter)
+                                    .getExpression1());
+                } else {
+                    exp = ((BinaryComparisonOperator) filter).getExpression2();
+                    if (exp != null && exp instanceof NestedAttributeExpression) {
+                        filter = new MultiValuedOrImpl(ff, filter,
+                                (NestedAttributeExpression) ((BinaryComparisonOperator) filter)
+                                        .getExpression2());
+                    }
+                }
+            }
+            return filter;
         default:
             return ff.or(combinedFilters);
         }
@@ -350,7 +366,11 @@ public class UnmappingFilterVisitor implements org.opengis.filter.FilterVisitor,
                 Expression prop = (Expression) exprs.next();
                 for (Iterator uppers = upperExpressions.iterator(); uppers.hasNext();) {
                     Expression roof = (Expression) uppers.next();
-                    PropertyIsBetween newFilter = ff.between(prop, floor, roof);
+                    Filter newFilter = ff.between(prop, floor, roof);
+                    if (prop instanceof NestedAttributeExpression) {
+                        newFilter = new MultiValuedOrImpl(ff, newFilter,
+                                (NestedAttributeExpression) prop);
+                    }
                     combinedFilters.add(newFilter);
                 }
             }
@@ -468,7 +488,11 @@ public class UnmappingFilterVisitor implements org.opengis.filter.FilterVisitor,
         List combined = new ArrayList(unrolledValues.size());
         for (Iterator it = unrolledValues.iterator(); it.hasNext();) {
             Expression sourceValue = (Expression) it.next();
-            PropertyIsLike newFilter = ff.like(sourceValue, literal, wildcard, single, escape);
+            Filter newFilter = ff.like(sourceValue, literal, wildcard, single, escape);
+            if (sourceValue instanceof NestedAttributeExpression) {
+                newFilter = new MultiValuedOrImpl(ff, newFilter,
+                        (NestedAttributeExpression) sourceValue);
+            }
             combined.add(newFilter);
         }
         Filter unrolled = combineOred(combined);
@@ -484,6 +508,10 @@ public class UnmappingFilterVisitor implements org.opengis.filter.FilterVisitor,
         for (Iterator it = sourceChecks.iterator(); it.hasNext();) {
             Expression sourceValue = (Expression) it.next();
             Filter newFilter = ff.isNull(sourceValue);
+            if (sourceValue instanceof NestedAttributeExpression) {
+                newFilter = new MultiValuedOrImpl(ff, newFilter,
+                        (NestedAttributeExpression) sourceValue);
+            }
             combined.add(newFilter);
         }
 

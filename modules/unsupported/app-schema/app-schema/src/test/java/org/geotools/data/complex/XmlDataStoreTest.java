@@ -59,8 +59,8 @@ import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.data.store.DataFeatureCollection;
 import org.geotools.feature.ComplexAttributeImpl;
 import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.NameImpl;
-import org.geotools.feature.SchemaException;
 import org.geotools.feature.Types;
 import org.geotools.feature.simple.SimpleFeatureTypeImpl;
 import org.geotools.feature.type.AttributeDescriptorImpl;
@@ -184,11 +184,11 @@ public class XmlDataStoreTest extends TestCase {
         assertEquals(0, size);
 
         List<Feature> results = new ArrayList<Feature>();
-        Iterator it = features.iterator();
+        FeatureIterator it = features.features();
         for (; it.hasNext();) {
             results.add((Feature) it.next());
         }
-        features.close(it);
+        it.close();
         assertEquals(ls.size(), results.size());
     }
 
@@ -209,11 +209,11 @@ public class XmlDataStoreTest extends TestCase {
         List<Feature> results = new ArrayList<Feature>();
 
         FeatureCollection features = getFeatures(MAX_FEATURES, filter);
-        Iterator it = features.iterator();
+        FeatureIterator it = features.features();
         for (; it.hasNext();) {
             results.add((Feature) it.next());
         }
-        features.close(it);
+        it.close();
         assertEquals(ls.size(), results.size());
 
         // ***************************************************************************************

@@ -29,7 +29,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -40,12 +39,14 @@ import org.geotools.data.complex.config.EmfAppSchemaReader;
 import org.geotools.data.complex.config.FeatureTypeRegistry;
 import org.geotools.data.property.PropertyDataStore;
 import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.Hints;
 import org.geotools.feature.AttributeImpl;
 import org.geotools.feature.ComplexAttributeImpl;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureImpl;
+import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.NameImpl;
 import org.geotools.feature.Types;
 import org.geotools.feature.type.AttributeDescriptorImpl;
@@ -175,7 +176,7 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
                 "http://www.w3.org/2001/XMLSchema", "string"));
         AttributeDescriptor stringDescriptor = new AttributeDescriptorImpl(simpleContentType, name,
                 1, 1, true, (Object) null);
-        Iterator<SimpleFeature> simpleFeatures = fCollection.iterator();
+        SimpleFeatureIterator simpleFeatures = fCollection.features();
         // gml:name descriptor
         AttributeDescriptor nameDescriptor = (AttributeDescriptor) GMLSchema.ABSTRACTGMLTYPE_TYPE
                 .getDescriptor(Types.typeName(GMLNS, "name"));
@@ -255,7 +256,7 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
 
             features.add(new FeatureImpl(properties, featureDesc, next.getIdentifier()));
         }
-        fCollection.close(simpleFeatures);
+        simpleFeatures.close();
 
         return features;
     }
@@ -270,12 +271,12 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
     public void testLoadDataAccess() throws IOException, URISyntaxException {
         // get the re-mapped geologic unit features
         FeatureCollection<FeatureType, Feature> guFeatures = guFeatureSource.getFeatures();
-        Iterator<Feature> guIterator = guFeatures.iterator();
+        FeatureIterator<Feature> guIterator = guFeatures.features();
         ArrayList<String> guIds = new ArrayList<String>();
         while (guIterator.hasNext()) {
             guIds.add(guIterator.next().getIdentifier().toString());
         }
-        guFeatures.close(guIterator);
+        guIterator.close();
 
         // get the simple earth resource features
         File dir = new File(getClass().getResource(schemaBase).toURI());
@@ -284,12 +285,12 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
                 .getFeatureSource(EARTH_RESOURCE);
         SimpleFeatureCollection moFeatures = simpleFeatureSource
                 .getFeatures();
-        Iterator<SimpleFeature> moIterator = moFeatures.iterator();
+        SimpleFeatureIterator moIterator = moFeatures.features();
         ArrayList<String> moIds = new ArrayList<String>();
         while (moIterator.hasNext()) {
             moIds.add(moIterator.next().getIdentifier().toString());
         }
-        moFeatures.close(moIterator);
+        moIterator.close();
 
         // compare the feature ids and make sure that the features are all there
         assertEquals(guIds.size(), moIds.size());
@@ -308,7 +309,7 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
         FeatureCollection<FeatureType, Feature> guCollection = (FeatureCollection<FeatureType, Feature>) guFeatureSource
                 .getFeatures();
         // mo:EarthResource -> gsml:GeologicUnit output iterator
-        AbstractMappingFeatureIterator iterator = (AbstractMappingFeatureIterator) guCollection.iterator();
+        AbstractMappingFeatureIterator iterator = (AbstractMappingFeatureIterator) guCollection.features();
         FeatureTypeMapping guSchema = AppSchemaDataAccessRegistry.getMappingByElement(GEOLOGIC_UNIT);
         Hints hints = new Hints(FeaturePropertyAccessorFactory.NAMESPACE_CONTEXT, guSchema
                 .getNamespaces());
@@ -464,7 +465,7 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
                 .getFeatureSource(MAPPED_FEATURE);
         FeatureCollection<FeatureType, Feature> mfCollection = mfSource.getFeatures();
 
-        Iterator<Feature> mfIterator = mfCollection.iterator();
+        FeatureIterator<Feature> mfIterator = mfCollection.features();
         while (mfIterator.hasNext()) {
             Feature mf = mfIterator.next();
             Property spec = mf.getProperty("specification");
@@ -482,7 +483,7 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
                     .split("gu.")[1];
             assertEquals(((Feature) guObject).getIdentifier().toString(), propertyGuId);
         }
-        mfCollection.close(mfIterator);
+        mfIterator.close();
 
         mfDataAccess.dispose();
     }

@@ -27,7 +27,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.geotools.data.DataAccess;
@@ -35,9 +34,9 @@ import org.geotools.data.DataAccessFinder;
 import org.geotools.data.FeatureSource;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureImpl;
+import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.Types;
 import org.geotools.filter.FilterFactoryImpl;
-import org.geotools.filter.FunctionExpressionImpl;
 import org.geotools.gml3.bindings.GML3EncodingUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -181,9 +180,9 @@ public class FeatureChainingTest {
      */
     @Test
     public void testFeatureChaining() throws Exception {
-        Iterator<Feature> mfIterator = mfFeatures.iterator();
+        FeatureIterator<Feature> mfIterator = mfFeatures.features();
 
-        Iterator<Feature> guIterator = guFeatures.iterator();
+        FeatureIterator<Feature> guIterator = guFeatures.features();
 
         // Extract all geological unit features into a map by id
         Map<String, Feature> guMap = new HashMap<String, Feature>();
@@ -197,7 +196,7 @@ public class FeatureChainingTest {
         }
 
         // Extract all compositional part "features" into a map by id
-        Iterator<Feature> cpIterator = cpFeatures.iterator();
+        FeatureIterator<Feature> cpIterator = cpFeatures.features();
         Map<String, Feature> cpMap = new HashMap<String, Feature>();
         Feature cpFeature;
         while (cpIterator.hasNext()) {
@@ -282,9 +281,9 @@ public class FeatureChainingTest {
             assertTrue(nestedGuIds.containsAll(Arrays.asList(guIds)));
 
         }
-        mfFeatures.close(mfIterator);
-        guFeatures.close(guIterator);
-        cpFeatures.close(cpIterator);
+        mfIterator.close();
+        guIterator.close();
+        cpIterator.close();
     }
 
     /**
@@ -301,7 +300,7 @@ public class FeatureChainingTest {
         final int EXPECTED_RESULT_COUNT = 2;
         // get controlled concept features on their own
         AbstractMappingFeatureIterator iterator = (AbstractMappingFeatureIterator) ccFeatures
-                .iterator();
+                .features();
         int count = 0;
         Map<String, Feature> featureList = new HashMap<String, Feature>();
         try {
@@ -311,11 +310,11 @@ public class FeatureChainingTest {
                 count++;
             }
         } finally {
-            ccFeatures.close((Iterator<Feature>) iterator);
+            iterator.close();
         }
         assertEquals(EXPECTED_RESULT_COUNT, count);
 
-        Iterator<Feature> cpIterator = cpFeatures.iterator();
+        FeatureIterator<Feature> cpIterator = cpFeatures.features();
         while (cpIterator.hasNext()) {
             Feature cpFeature = (Feature) cpIterator.next();
             Collection<Property> lithologies = cpFeature.getProperties(LITHOLOGY);
@@ -352,7 +351,7 @@ public class FeatureChainingTest {
      */
     @Test
     public void testMultipleMultiValuedProperties() throws Exception {
-        Iterator guIterator = guFeatures.iterator();
+        FeatureIterator<Feature> guIterator = guFeatures.features();
 
         Feature guFeature;
         final String EXPOSURE_COLOR = "exposureColor";
@@ -409,7 +408,7 @@ public class FeatureChainingTest {
             assertEquals(realValues.size(), values.length);
             assertTrue(realValues.containsAll(Arrays.asList(values)));
         }
-        guFeatures.close(guIterator);
+        guIterator.close();
     }
 
     /**
@@ -419,7 +418,7 @@ public class FeatureChainingTest {
      */
     @Test
     public void testMultiValuedSimpleProperties() throws Exception {
-        Iterator<Feature> iterator = ccFeatures.iterator();
+        FeatureIterator<Feature> iterator = ccFeatures.features();
         while (iterator.hasNext()) {
             Feature next = iterator.next();
             Collection<Property> names = next.getProperties("name");
@@ -431,7 +430,7 @@ public class FeatureChainingTest {
                 assertEquals(1, names.size());
             }
         }
-        ccFeatures.close(iterator);
+        iterator.close();
     }
 
     /**
@@ -457,14 +456,14 @@ public class FeatureChainingTest {
                 "Olivine basalt, tuff, microgabbro, minor sedimentary rocks");
         FeatureCollection<FeatureType, Feature> filteredResults = mfSource.getFeatures(filter);
         assertEquals(3, filteredResults.size());
-        Iterator<Feature> iterator = filteredResults.iterator();
+        FeatureIterator<Feature> iterator = filteredResults.features();
         Feature feature = iterator.next();
         assertEquals("mf1", feature.getIdentifier().toString());
         feature = iterator.next();
         assertEquals("mf2", feature.getIdentifier().toString());
         feature = iterator.next();
         assertEquals("mf3", feature.getIdentifier().toString());
-        filteredResults.close(iterator);
+        iterator.close();
 
         /**
          * Test filtering on multi valued properties
@@ -478,14 +477,14 @@ public class FeatureChainingTest {
         filter = ff.equals(property, ff.literal("significant"));
         filteredResults = guSource.getFeatures(filter);
         assertEquals(3, filteredResults.size());
-        iterator = filteredResults.iterator();
+        iterator = filteredResults.features();
         feature = iterator.next();
         assertEquals("gu.25699", feature.getIdentifier().toString());
         feature = iterator.next();
         assertEquals("gu.25678", feature.getIdentifier().toString());
         feature = iterator.next();
         assertEquals("gu.25682", feature.getIdentifier().toString());
-        filteredResults.close(iterator);
+        iterator.close();
 
         /**
          * Test filtering client properties on chained features
@@ -494,7 +493,7 @@ public class FeatureChainingTest {
         filter = ff.like(property, "urn:cgi:feature:MappedFeature:mf1");
         filteredResults = mfSource.getFeatures(filter);
         assertEquals(1, filteredResults.size());
-        feature = filteredResults.iterator().next();
+        feature = filteredResults.features().next();
         assertEquals("mf1", feature.getIdentifier().toString());
 
         /**
@@ -509,7 +508,7 @@ public class FeatureChainingTest {
         // gu.25678=-Py|Yaugher Volcanic Group 2
         // Check that all 3 names are there:
         // - Yaugher Volcanic Group 1, Yaugher Volcanic Group 2 and -Py
-        feature = filteredResults.iterator().next();
+        feature = filteredResults.features().next();
         assertEquals("gu.25678", feature.getIdentifier().toString());
         Collection<Property> properties = feature.getProperties(Types.typeName(GMLNS, "name"));
         assertTrue(properties.size() == 3);
@@ -541,7 +540,7 @@ public class FeatureChainingTest {
         filter = ff.equals(property, ff.literal("Yellow"));
         filteredResults = guSource.getFeatures(filter);
         assertEquals(1, filteredResults.size());
-        feature = filteredResults.iterator().next();
+        feature = filteredResults.features().next();
         // ensure it's the right feature
         assertEquals("gu.25678", feature.getIdentifier().toString());
         properties = feature.getProperties(Types.typeName(GSMLNS, "exposureColor"));
@@ -593,7 +592,7 @@ public class FeatureChainingTest {
         final int EXPECTED_RESULTS = 2;
         assertEquals(EXPECTED_RESULTS, features.size());
 
-        Iterator<Feature> iterator = features.iterator();
+        FeatureIterator iterator = features.features();
         while (iterator.hasNext()) {
             Feature next = iterator.next();
             Collection<Property> children = next.getProperties("nestedFeature");
@@ -639,7 +638,7 @@ public class FeatureChainingTest {
 
         assertEquals(EXPECTED_RESULTS, features.size());
 
-        iterator = features.iterator();
+        iterator = features.features();
         while (iterator.hasNext()) {
             Feature next = iterator.next();
             Collection<Property> children = next.getProperties("nestedFeature");
@@ -685,7 +684,7 @@ public class FeatureChainingTest {
 
         ArrayList<String> processedFeatureIds = new ArrayList<String>();
 
-        Iterator guIterator = guFeatures.iterator();
+        FeatureIterator<Feature> guIterator = guFeatures.features();
         while (guIterator.hasNext()) {
             Feature guFeature = (Feature) guIterator.next();
             String guId = guFeature.getIdentifier().toString();
@@ -716,7 +715,7 @@ public class FeatureChainingTest {
         assertTrue(processedFeatureIds.containsAll(guToOccurenceMap.keySet()));
 
         // clean ups
-        guFeatures.close(guIterator);
+        guIterator.close();
     }
 
     /**

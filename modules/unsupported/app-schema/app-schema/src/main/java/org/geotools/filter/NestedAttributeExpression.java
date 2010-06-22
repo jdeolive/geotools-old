@@ -17,7 +17,9 @@
 package org.geotools.filter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -57,6 +59,8 @@ public class NestedAttributeExpression extends AttributeExpressionImpl {
 
     private NamespaceSupport namespaces;
 
+    private StepList fullSteps;
+
     /**
      * First constructor
      * 
@@ -69,6 +73,7 @@ public class NestedAttributeExpression extends AttributeExpressionImpl {
         super(xpath);
         this.mappings = mappings;
         this.namespaces = mappings.getNamespaces();
+        fullSteps = XPath.steps(mappings.getTargetFeature(), this.attPath.toString(), namespaces);
     }
 
     /**
@@ -85,31 +90,46 @@ public class NestedAttributeExpression extends AttributeExpressionImpl {
             throw new UnsupportedOperationException(
                     "Expecting a feature to apply filter, but found: " + object);
         }
-        Object value = null;
-        FeatureTypeMapping fMapping = mappings;
-        Feature root = (Feature) object;
-        StepList fullSteps = XPath.steps(fMapping.getTargetFeature(), this.attPath.toString(),
-                namespaces);
-        AttributeMapping attMapping = null;
-        AttributeMapping prevMapping = null;
-        int startIndex = 0;
-        int endIndex = startIndex;
-        int lastIndex = fullSteps.size() - 1;
 
-        while (startIndex <= fullSteps.size() - 1 && endIndex <= lastIndex) {
+        // if (object instanceof FeatureImpl) {
+        // AttributeExpressionImpl exp = new AttributeExpressionImpl(attPath, new Hints(
+        // FeaturePropertyAccessorFactory.NAMESPACE_CONTEXT, namespaces));
+        // List<Object> values = new ArrayList<Object>(1);
+        // values.add(exp.evaluate(object));
+        // return values;
+        // }
+
+        List<Feature> roots = new ArrayList<Feature>();
+        roots.add((Feature) object);
+
+        return getValues(0, 0, roots, mappings, null);
+    }
+
+    private List<Object> getValues(int startIndex, int endIndex, List<Feature> roots,
+            FeatureTypeMapping fMapping, AttributeMapping prevMapping) {
+        List<Object> values = new ArrayList<Object>();
+        while (startIndex <= endIndex) {
+            List<AttributeMapping> attMappings = new ArrayList<AttributeMapping>();
             boolean isElementName = false;
             StepList steps = null;
-            prevMapping = attMapping;
-            attMapping = null;
-
-            while (!isElementName && attMapping == null && endIndex <= lastIndex) {
+            if (endIndex >= fullSteps.size()) {
+                return null;
+            }
+            if (!attMappings.isEmpty()) {
+                endIndex++;
+                steps = fullSteps.subList(startIndex, endIndex);
+            }
+            while (!isElementName && attMappings.isEmpty() && endIndex < fullSteps.size()) {
                 endIndex++;
                 steps = fullSteps.subList(startIndex, endIndex);
                 if (steps.size() == 1) {
                     Step step = steps.get(0);
                     if (step.isXmlAttribute()) {
                         // use previous mapping to get client properties
-                        attMapping = prevMapping;
+                        if (prevMapping == null) {
+                            return null;
+                        }
+                        attMappings.add(prevMapping);
                         break;
                     }
                     if (Types.equals(fMapping.getTargetFeature().getName(), step.getName())) {
@@ -118,85 +138,138 @@ public class NestedAttributeExpression extends AttributeExpressionImpl {
                         break;
                     }
                 }
-                attMapping = fMapping.getAttributeMapping(steps);
-                if (attMapping == null) {
-                    if (prevMapping instanceof NestedAttributeMapping) {
-                        if (((NestedAttributeMapping) prevMapping).isConditional()) {
-                            // polymorphic type, that doesn't match the filter attributes
-                            return null;
-                        }
-                    }
+                attMappings = fMapping.getAttributeMappingsIgnoreIndex(steps);
+                if (attMappings.isEmpty()) {
                     continue;
                 }
-                if (!(attMapping instanceof NestedAttributeMapping)
-                        && attMapping.getSourceExpression().equals(Expression.NIL)) {
-                    // might be an inline element name inside the feature type mapping
-                    attMapping = null;
+                Iterator<AttributeMapping> mappingIterator = attMappings.iterator();
+                while (mappingIterator.hasNext()) {
+                    AttributeMapping mapping = mappingIterator.next();
+                    if (!(mapping instanceof NestedAttributeMapping)
+                            && mapping.getSourceExpression().equals(Expression.NIL)) {
+                        // might be an inline element name inside the feature type mapping
+                        mappingIterator.remove();
+                    }
                 }
             }
-
             startIndex++;
             if (isElementName) {
                 // get the next one
                 continue;
             }
-            if (attMapping == null) {
-                throw new IllegalArgumentException("Can't find source expression for: " + attPath);
-            } else if (steps.size() == 1 && steps.get(0).isXmlAttribute()) {
+            if (attMappings.isEmpty()) {
+                // not found here, but might be found in other nodes if multi-valued
+                // and polymorphic
+                continue;
+            }
+            if (steps.size() == 1 && steps.get(0).isXmlAttribute()) {
                 // a client properties
-                value = getClientPropertyExpression(steps.get(0), attMapping, this.attPath)
-                        .evaluate(root);
-            } else if (attMapping instanceof NestedAttributeMapping) {
-                // feature chaining mapping
-                NestedAttributeMapping nestedMapping = ((NestedAttributeMapping) attMapping);
-                try {
-                    fMapping = nestedMapping.getFeatureTypeMapping(root);
-                } catch (IOException e) {
-                    fMapping = null;
-                }
-                if (fMapping != null && nestedMapping.isSameSource()) {
-                    // same root/database row, different mappings, used in polymorphism
-                    continue;
-                }
-                namespaces = nestedMapping.getNamespaces();
-                try {
-                    int index = steps.get(steps.size() - 1).getIndex() - 1;
-                    List<Feature> nestedFeatures = getNestedFeatures(root, nestedMapping, fMapping);
-                    if (nestedFeatures == null || nestedFeatures.isEmpty()) {
-                        return null;
-                    }
-                    root = nestedFeatures.get(index);
-                } catch (IOException e) {
-                    throw new RuntimeException("Failed evaluating filter expression: '" + attPath
-                            + "'. Caused by: " + e.getMessage());
-                }
-                if (fMapping == null) {
-                    if (root instanceof FeatureImpl) {
-                        // has a complex features backend, therefore doesn't necessarily have a
-                        // FeatureTypeMapping, because it's not an app-schema data access
-                        return getComplexFeatureValue(root, fullSteps.subList(startIndex, fullSteps
-                                .size()));
-                    } else {
-                        throw new UnsupportedOperationException(
-                                "FeatureTypeMapping not found for "
-                                        + attPath
-                                        + ". This shouldn't happen if it's set in AppSchemaDataAccess mapping file!");
+                for (AttributeMapping mapping : attMappings) {
+                    Expression exp = getClientPropertyExpression(steps.get(0), mapping,
+                            this.attPath);
+                    for (Feature root : roots) {
+                        Object value = getValue(exp, root);
+                        if (value != null) {
+                            values.add(value);
+                        }
                     }
                 }
             } else {
-                // normal attribute mapping
-                Object val = attMapping.getSourceExpression().evaluate(root);
-                if (val == null) {
-                    return null;
-                }
-                if (val instanceof Feature) {
-                    root = ((Feature) val);
-                } else {
-                    value = extractAttributeValue(val);
+                for (AttributeMapping mapping : attMappings) {
+                    if (mapping instanceof NestedAttributeMapping) {
+                        // feature chaining mapping
+                        NestedAttributeMapping nestedMapping = ((NestedAttributeMapping) mapping);
+                        for (Feature root : roots) {
+                            try {
+                                fMapping = nestedMapping.getFeatureTypeMapping(root);
+                            } catch (IOException e) {
+                                fMapping = null;
+                            }
+                            if (fMapping != null && nestedMapping.isSameSource()) {
+                                // same root/database row, different mappings, used in
+                                // polymorphism
+                                List<Feature> nestedRoots = new ArrayList<Feature>(1);
+                                nestedRoots.add(root);
+                                List<Object> nestedValues = getValues(startIndex, endIndex,
+                                        nestedRoots, fMapping, mapping);
+                                if (nestedValues != null) {
+                                    values.addAll(nestedValues);
+                                }
+                                continue;
+                            }
+                            namespaces = nestedMapping.getNamespaces();
+                            try {
+                                List<Feature> nestedFeatures = getNestedFeatures(root,
+                                        nestedMapping, fMapping);
+                                if (nestedFeatures == null || nestedFeatures.isEmpty()) {
+                                    continue;
+                                }
+                                Step step = steps.get(steps.size() - 1);
+                                if (step.isIndexed()) {
+                                    int index = step.getIndex() - 1;
+                                    Feature f = nestedFeatures.get(index);
+                                    nestedFeatures.clear();
+                                    nestedFeatures.add(f);
+                                }
+
+                                if (fMapping == null && !nestedFeatures.isEmpty()) {
+                                    if (nestedFeatures.get(0) instanceof FeatureImpl) {
+                                        // has a complex features backend, therefore doesn't
+                                        // necessarily
+                                        // have a
+                                        // FeatureTypeMapping, because it's not an
+                                        // app-schema data
+                                        // access
+                                        Expression exp = getComplexFeatureValue(fullSteps.subList(
+                                                startIndex, fullSteps.size()));
+                                        for (Feature f : nestedFeatures) {
+                                            Object value = getValue(exp, f);
+                                            if (value != null) {
+                                                values.add(value);
+                                            }
+                                        }
+                                    } else {
+                                        throw new UnsupportedOperationException(
+                                                "FeatureTypeMapping not found for "
+                                                        + attPath
+                                                        + ". This shouldn't happen if it's set in AppSchemaDataAccess mapping file!");
+                                    }
+                                } else {
+                                    List<Object> nestedValues = getValues(startIndex, endIndex,
+                                            nestedFeatures, fMapping, mapping);
+                                    if (nestedValues != null) {
+                                        values.addAll(nestedValues);
+                                    }
+                                }
+                            } catch (IOException e) {
+                                throw new RuntimeException("Failed evaluating filter expression: '"
+                                        + attPath + "'. Caused by: " + e.getMessage());
+                            }
+                        }
+                    } else {
+                        // normal attribute mapping
+                        if (endIndex == fullSteps.size()) {
+                            Expression exp = mapping.getSourceExpression();
+                            for (Feature f : roots) {
+                                Object value = getValue(exp, f);
+                                if (value != null) {
+                                    values.add(value);
+                                }
+                            }
+                        } else {
+                            // might be a client property?
+                            List<Object> nestedValues = getValues(startIndex, endIndex, roots,
+                                    fMapping, mapping);
+                            if (nestedValues != null) {
+                                values.addAll(nestedValues);
+                            }
+                        }
+                    }
                 }
             }
+            return values;
         }
-        return value;
+        return values;
     }
 
     /**
@@ -235,16 +308,14 @@ public class NestedAttributeExpression extends AttributeExpressionImpl {
     /**
      * Extract leaf attribute value from an xpath in a feature.
      * 
-     * @param root
-     *            the feature
      * @param subList
      *            xpath steps
      * @return leaf attribute value
      */
-    private Object getComplexFeatureValue(Feature root, StepList subList) {
+    private Expression getComplexFeatureValue(StepList subList) {
         AttributeExpressionImpl att = new AttributeExpressionImpl(subList.toString(), new Hints(
                 FeaturePropertyAccessorFactory.NAMESPACE_CONTEXT, namespaces));
-        return getValue(att, root);
+        return att;
     }
 
     private Object getValue(Expression expression, Feature feature) {
