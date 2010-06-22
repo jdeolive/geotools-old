@@ -140,7 +140,7 @@
       <artifactId>commons-dbcp</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.h2database</groupId>
+      <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
       <scope>test</scope>
     </dependency>

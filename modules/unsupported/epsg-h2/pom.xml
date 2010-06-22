@@ -102,7 +102,7 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.h2database</groupId>
+      <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
     </dependency>
   </dependencies>
