@@ -107,12 +107,11 @@
        </modules>
      </profile>
      <profile>
-       <id>workflow</id>
+       <id>wps</id>
        <activation>
          <property><name>all</name></property>
        </activation>
        <modules>
-         <module>process</module>
          <module>wps</module>
        </modules>
      </profile>
@@ -164,6 +163,7 @@
 
   <modules>
     <module>swing</module>
+    <module>process</module>
     <module>directory</module>
     <module>wfs</module>
     <module>geojson</module>
