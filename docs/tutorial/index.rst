@@ -1,13 +1,12 @@
-.. _workshop:
+.. _tutorial:
 
 Geospatial for Java
 ===================
 
 .. toctree::
-   :hidden:
+   :maxdepth: 1
+   
+   quickstart/quickstart
 
-   quickstart/index
-   examples/index
-
-Welcome to the GeoTools workshop materials. These materials are provided as part of our user guide
-and server as an introduction to GIS concepts using examples from GeoTools and other Java libraries.
+Welcome to the GeoTools workshop materials. These tutorials are provided as part of an introduction
+to GIS workshop and make use of examples from GeoTools and other Java libraries.

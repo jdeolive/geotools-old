@@ -1,19 +1,109 @@
-.. _quickstart:
+.. _eclipse-quickstart:
 
-Quickstart
-==========
+**********************
+  Eclipse Quickstart 
+**********************
 
-Welcome to your first GeoTools project! We are going to set up a project to use GeoTools; and then display a shapefile on the screen.
+.. sectionauthor:: Jody Garnett <jody.garnett@gmail.org>
 
-Please note that GeoTools is large. Well actually quite HUGE. And it depends on a lot of other open source libraries,
-toolkits, hacks and so on. Keeping track of all of this is a bit of a chore - so I would like to introduce a tool to
-you.
+:Author: Jody Garnett
+:Author: Micheal Bedward
+:Thanks: geotools-user list
+:Version: $Revision: 5801 $
+:License: Create Commons with attribution
 
-*  Maven - http://maven.apache.org/
+Welcome Eclipse Developers
+==========================
 
-Maven is a build tool that is going to help sort all of this stuff out. You may be used to using ant, or sticking to the
-safe confines of your IDE. If so, bear with me for a moment as we set up a simple maven project. I think you will find
-this tool makes things much easier.
+Welcome to Geospatial for Java -this workbook is aimed at Java developers who are new to geospatial
+and would like to get started.
+
+We are going to start out carefully with the steps needed to set up your IDE and are pleased this
+year to cover both NetBeans and Eclipse. If you are comfortable with the build tool Maven, it is
+our preferred option for downloading and managing jars but we will also document how to set up
+things by hand.
+
+Extra care has been taken to make this year's tutorial visually oriented right from the get go.
+While these examples will make use of Swing, please be assured that that this is only an aid in
+making the examples easy and fun to use. 
+
+These sessions are applicable to both server side and client side development.
+
+Java Install
+============
+
+.. sidebar:: Lab
+
+   If you are following this workbook in a lab setting you will find installer on the DVD.
+   
+We are going to be making use of Java – so if you don't have a Java Development Kit installed now is
+the time to do so. Even if you have Java installed already check out the optional Java Advanced
+Imaging and Java Image IO section.
+   
+#. Download the latest JDK from the the java.sun.com website:
+
+   http://java.sun.com/javase/downloads/index.jsp
+   
+#. At the time of writing the latest JDK was:
+   
+   jdk-6u20-windows-i586.exe
+   
+#. Click through the installer you will need to set an acceptance a license agreement and so forth.
+   By default this will install to:     
+   
+   C:\\Program Files\\Java\\jdk1.6.0_20\\
+     
+#. Optional – Java Advanced Imaging is used by GeoTools for raster support. If you install JAI 1.1.3 
+   performance will be improved:   
+   
+   https://jai.dev.java.net/binary-builds.html
+   
+   Both a JDK and JRE installer are available:   
+   jai-1_1_3-lib-windows-i586-jdk.exe
+   jai-1_1_3-lib-windows-i586-jre.exe
+     
+#. Optional – ImageIO Is used to read and write raster files. GeoTools uses version 1_1 of the
+   ImageIO library:
+   
+   https://jai-imageio.dev.java.net/binary-builds.html
+   
+   Both a JDK and JRE installer are available:   
+   jai_imageio-1_1-lib-windows-i586-jdk.exe 
+   jai_imageio-1_1-lib-windows-i586-jre.exe
+
+Eclipse
+=======
+
+Eclipse is a popular integrated development environment most often used for all kinds of Java
+development. For this tutorial we are doing straight up Java programming using the smallest
+download available - if you already have an Eclipse download please go ahead and use it and
+switch to the “Java Perspective”.
+
+#. Visit the Eclipse download page (http://www.eclipse.org/downloads/) and download “Eclipse IDE for
+   Java developers”.
+   
+   These instructions were written with the Eclipse Helios 3.6.0 release. 
+   
+#. Hopefully by now your eclipse download has finished and we can begin to installation.
+#. Eclipse does not provide an installer; just a directory to unzip and run.
+#. To start out with create the folder C:\\java to keep all our java development in one spot.
+#. Unzip the downloaded eclipse-java-galileo-SR1-win32.zip file to your C:\\java directory – the
+   folder C:\\java\\eclipse will be created.
+#. Navigate to C:\\java\\eclipse and right-click on the eclipse.exe file and select
+   Send To->Desktop (create shortcut).
+#. Open up the desktop short cut properties and change the Target:
+
+   C:\\java\\eclipse\\eclipse.exe -vmargs -Xmx756m
+
+If you have plenty of memory to burn on development you may wish to provide yourself some more memory.
+
+#. Double click on your desktop short cut to start up eclipse.
+#. When you start up eclipse for the first time it will prompt you for a workspace. To keep our
+   java work in one spot you can type in:
+   
+   C:\\java\\workspace
+   
+#. On the Welcome view press Workbench along the right hand side.
 
 Ensure you have Java and Maven
 ------------------------------
