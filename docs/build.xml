@@ -19,6 +19,9 @@
     <antcall target="sphinx">
       <param name="id" value="index"/>
     </antcall>
+    <antcall target="sphinx">
+      <param name="id" value="tutorial"/>
+    </antcall>
   </target>
 
   <target name="sphinx" if="sphinx.available">
