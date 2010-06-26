@@ -84,15 +84,6 @@ div.sphinxsidebarwrapper {
     padding: 0;
 }
 
-div.sphinxsidebar {
-    margin: 0;
-    padding: 0.5em 15px 15px 0;
-    width: 210px;
-    float: right;
-    font-size: 1em;
-    text-align: left;
-}
-
 div.sphinxsidebar h3, div.sphinxsidebar h4 {
     margin: 1em 0 0.5em 0;
     font-size: 1em;

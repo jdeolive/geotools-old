@@ -1,4 +1,4 @@
-<project name="docs"> 
+<project name="docs" default="build"> 
 
   <target name="build">
     <property environment="env"/>

@@ -37,20 +37,19 @@ h1, h2, h3, h4, h5, h6 {
 table td, table th {
     padding: 0;
 }
-div.related {
-    margin: 0 80px;
-    width: auto;
-}
-div.related ul li a {
-   /*font-size: 0.8em;*/
-   color: #078c00;
-}
+
 a.reference em {
     font-style: normal;
 }
 div.sphinxsidebar {
-    padding-right: 95px;
+    margin: 0;
+    padding: 0.0em 15px 15px 0.5em;
+    width: 210px;
+    float: left;
+    font-size: 1em;
+    text-align: left;
 }
+
 div.sphinxsidebar h3, div.sphinxsidebar h4 {
     background: inherit;
     border: none;
@@ -61,7 +60,7 @@ div.sphinxsidebar h3 a {
     color: inherit;
 }
 div.document {
-    margin: 0 80px;
+    margin: 0 20px;
 }
 div.documentwrapper {
     width: auto;
@@ -77,8 +76,8 @@ div.footer {
 div.header {
     position: relative;
     overflow: hidden;
-    height: 150px;
-    background: #97b7e1 url(img/header-bg2.png) 0 0 repeat-x;
+    height: 30px;
+    background: #fff url(img/header-bg2.png) repeat-x;
 }
 div.header div.wrap {
     margin: 0 80px;
@@ -297,7 +296,7 @@ display: block;
 font-size: 0.85em;
 color: #c6e09b;
 border-bottom: 1px solid #c6e09b;
-margin: -1200px 0 1em;
+margin: 0.2em 0 1em;
 padding: 0 0 0.5em;
 }
 
