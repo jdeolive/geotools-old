@@ -23,9 +23,9 @@ year to cover both NetBeans and Eclipse. If you are comfortable with the build t
 our preferred option for downloading and managing jars but we will also document how to set up
 things by hand.
 
-Extra care has been taken to make this year's tutorial visually oriented right from the get go.
-While these examples will make use of Swing, please be assured that that this is only an aid in
-making the examples easy and fun to use. 
+This is our second year offering visual tutorials allowing you to see what you are working with
+while learning. While these examples will make use of Swing, please be assured that that this is
+only an aid in making the examples easy and fun to use. 
 
 These sessions are applicable to both server side and client side development.
 
@@ -74,28 +74,32 @@ Imaging and Java Image IO section.
 Eclipse
 =======
 
+.. sidebar:: Lab
+
+   In a lab setting you instructor will have downloaded these files for you, and often have a ready
+   to go Eclipse zipped up and ready to use.
+   
 Eclipse is a popular integrated development environment most often used for all kinds of Java
 development. For this tutorial we are doing straight up Java programming using the smallest
 download available - if you already have an Eclipse download please go ahead and use it and
 switch to the “Java Perspective”.
-
+   
 #. Visit the Eclipse download page (http://www.eclipse.org/downloads/) and download “Eclipse IDE for
    Java developers”.
    
-   These instructions were written with the Eclipse Helios 3.6.0 release. 
+   These instructions were written with the Eclipse Helios 3.6.0 release.
    
-#. Hopefully by now your eclipse download has finished and we can begin to installation.
 #. Eclipse does not provide an installer; just a directory to unzip and run.
 #. To start out with create the folder C:\\java to keep all our java development in one spot.
 #. Unzip the downloaded eclipse-java-galileo-SR1-win32.zip file to your C:\\java directory – the
    folder C:\\java\\eclipse will be created.
 #. Navigate to C:\\java\\eclipse and right-click on the eclipse.exe file and select
    Send To->Desktop (create shortcut).
-#. Open up the desktop short cut properties and change the Target:
+#. Open up the eclipse.ini file (notepad will be fine) and change the following line::
 
-   C:\\java\\eclipse\\eclipse.exe -vmargs -Xmx756m
-
-If you have plenty of memory to burn on development you may wish to provide yourself some more memory.
+     -Xmx756m
+   
+   If you have plenty of memory to burn on development you may wish to provide yourself some more memory.
 
 #. Double click on your desktop short cut to start up eclipse.
 #. When you start up eclipse for the first time it will prompt you for a workspace. To keep our
@@ -103,517 +107,193 @@ If you have plenty of memory to burn on development you may wish to provide your
    
    C:\\java\\workspace
    
-#. On the Welcome view press Workbench along the right hand side.
+#. On the Welcome view press Workbench along the right hand side and we can get started
 
-Ensure you have Java and Maven
-------------------------------
+M2Eclipse
+---------
 
-You can check to see if you have the command line Maven utility installed and, if so, the version as follows::
+.. sidebar:: Lab
 
- C:\java\geotools-example>mvn -version
- Maven version: 2.1.0
- Java version: 1.5.0_18
- OS name: "windows vista" version: "6.0" arch: "x86" Family: "windows"
+  The bundled eclipse includes M2Eclipse you may skip this section.
+  
+Maven is build system for Java which is very good at managing dependencies. The GeoTools library is
+plugin based and you get to pick and choose what features you need for your application. While this
+is useful when determining just what is needed for delivery - it can be a pain to manage by hand
+so we encourage the use of a tool such as maven.
 
-I am using Java 1.5 above; and Maven 2.1.0. You can use Java 6 if you like; currently GeoTools is developed against Java
-1.5 (for all the Java EE applications out there).
+In previous years we used the command line (gasp!) when working with maven. This year we are going
+to be using the M2Eclipse plugin from Sonyatype.
 
-Notes:
+To install the M2Eclipse plugin:
 
-* If you are using the Netbeans IDE for development then the command line Maven utility is optional because there is
-  support for Maven within the IDE. The notes below refer to Netbeans version 6.8
+#. Open the *Install* dialog using :menuselection:`Select Help --> Install New Software` from the
+   menubar.
 
-* Windows and OSX users can download and install maven from apache: http://maven.apache.org/download.html
-
-* Linux users can either download or use apt-get::  
- 
-    apt-get maven
-
-Setting up your Project Folder
-==============================
-
-First of all let's use maven to create our project. You can do this from the command line::
-
- C:java> mvn archetype:generate
-
-First up you'll be presented with a long list of archetypes to select from. Choose the default quickstart archetype
-(number 15).
-
-Next you'll get a series of prompts. Enter the following inputs:
-
-**groupId**: *org.geotools.demo*
-**artifactId:** *example*
-**version:** *1.0-SNAPSHOT*
-**package:** *org.geotools.demo.example*
-
-The final prompt is just to confirm your choices. Press return and maven will wirr and click, downloading a bunch of
-stuff before creating the *example* directory for you.
-
-Eclipse IDE
------------
-
-Eclipse users now need to set things up for the IDE::
-
- C:java>cd example
- C:java\example>mvn eclipse:eclipse
-
-You can now give Eclipse the background information it needs to talk to your "maven repository" (maven downloaded
-something like 30 jars for you):
-
-1. Start up Eclipse
-2. Open up the Windows > Preferences menu
-3. Navigate to the Java > Classpath Variables preferences page
-4. Add an M2_REPO classpath variable pointing to your "local repository" (in your home directory):
-
- - Windows XP: C:\\Documents and Settings\\USERNAME\\.m2\\repository
- - Windows Vista: C:\\Users\\USERNAME\.m2\\repository
- - Linux and Mac: ~/.m2/repository
+#. In the *work with:* field enter the update site url:
+    
+   m2eclipse - http://m2eclipse.sonatype.org/sites/m2e
    
-You can now import your project into eclipse:
+#. You be prompted by an *Add Repository* dialog, check the Name and Location and press OK
 
-1. Select the File > Import menu
-2. Choose Existing Projects into Workspace from the list, and press Next
-3. Select the project you created: C:\\java\\example
-4. Finish
+#. From the list of available plugins and components select *Maven Integration for Eclipse* and
+   press *Next*
 
-Netbeans IDE
-------------
+#. The *Install Details* page checks to see if the plugin will work with you eclipse, press *Next*
 
-If you are using Netbeans you don't need to go through the steps outlined above for Eclipse. You can create a new Maven
-project from within Netbeans rather than at the command line. To do this, select the Maven Quickstart Archetype in the
-New Project dialog to create a basic pom.xml and directory structure, and then manually edit the POM to add the
-necessary repositories and dependencies as outlined below. 
+#. For *Review Licenses* we get check *I accept the terms of the license agreement* and *Finish*
 
-If you have already created your project at the command line (see above) then all that you need to do is open the
-project within Netbeans as if it was a normal Java project.
+#. The *Installing Software* dialog will download the software, when it is ready Eclipse will ask
+   you to restart your IDE
 
-Your New Project
-----------------
+At the end of this workbook we offer two alternatives to using the M2Eclipse plugin:
+* Using maven from the command line
+* Downloading GeoTools and throwing out the parts that conflict
 
-1. In your IDE you can now now open up your *pom.xml* file and have a look at it:
+Quickstart
+==========
 
-.. sourcecode:: xml
+For this Quickstart we are going to produce a simple maven project, hook it up to GeoTools, and
+then display a shapefile.
 
-    <project xmlns="http://maven.apache.org/POM/4.0.0"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-      <modelVersion>4.0.0</modelVersion>
-      <groupId>org.geotools.demo</groupId>
-      <artifactId>example</artifactId>
-      <packaging>jar</packaging>
-      <version>1.0-SNAPSHOT</version>
-      <name>example</name>
-      <url>http://maven.apache.org</url>
-      <dependencies>
-        <dependency>
-          <groupId>junit</groupId>
-          <artifactId>junit</artifactId>
-          <version>3.8.1</version>
-          <scope>test</scope>
-        </dependency>
-      </dependencies>
-    </project>
+This tutorial is really focused on your development environment and making sure you have GeoTools
+ready to go. We will cover what a shapefile is and how the map is displayed shortly.
 
-2. This file describes your project for maven. Right now you have a single dependency on junit version 3.8.1.
-3. You should be able to see this dependency in your IDE as well.
-
-.. Tip:: Netbeans defaults to Java 1.3 format for new Maven projects. To
-         correct this:
-
-         * Go to the Project properties dialog
-         * Select "Sources"
-         * Set the "Source / binary format" to 1.5
-
-Depending on GeoTools
----------------------
-
-To make use of GeoTools we are going to add two things to your pom.xml file:
-
-* A *properties* element defining the version of GeoTools that we want to use (2.6.4 for this example)
-* A new dependency: ``gt-main``
-* A list of *repositories* where maven can find GeoTools and all the cool stuff it uses
-
-.. sourcecode:: xml
-
-    <project xmlns="http://maven.apache.org/POM/4.0.0"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-      <modelVersion>4.0.0</modelVersion>
-      <groupId>org.geotools.demo</groupId>
-      <artifactId>example</artifactId>
-      <packaging>jar</packaging>
-      <version>1.0-SNAPSHOT</version>
-      <name>example</name>
-      <url>http://maven.apache.org</url>
-      <properties>
-        <geotools.version>2.6.4</geotools.version>
-      </properties>
-      <dependencies>
-        <dependency>
-          <groupId>junit</groupId>
-          <artifactId>junit</artifactId>
-          <version>3.8.1</version>
-          <scope>test</scope>
-        </dependency>
-        <dependency>
-          <groupId>org.geotools</groupId>
-          <artifactId>gt-main</artifactId>
-          <version>${geotools.version}</version>
-        </dependency>
-      </dependencies>
-      <repositories>
-        <repository>
-          <id>maven2-repository.dev.java.net</id>
-          <name>Java.net repository</name>
-          <url>http://download.java.net/maven/2</url>
-        </repository>
-        <repository>
-          <id>osgeo</id>
-          <name>Open Source Geospatial Foundation Repository</name>
-          <url>http://download.osgeo.org/webdav/geotools/</url>
-        </repository>
-      </repositories>
-    </project>
-
-Note how we use the *geotools.version* property with our ``gt-main`` dependency. 
-
-In later tutorials we will just show the dependency section of the pom.xml file since you won't need to make any further
-changes to the other sections. We will be adding dependencies over time as we try out more of the library.
-      
-Updating the IDE (Eclipse only)
+Creating a Simple Maven project
 -------------------------------
 
-1. We can regenerate our .classpath and .project files so the IDE knows about this stuff::
+Maven works by asking you to describe your project, the name, the version number, where the source
+code is, how you want it packaged, and what libraries it makes use of. Based on the description it
+can figure out most things: how to compile your code, creating javadocs, or even downloading the
+library jars for you.
 
-     C:java\geotools-example>mvn eclipse:eclipse
+To use M2Eclipse plugin to create a create a new maven project:
 
-2. Hit refresh in Eclipse
-3. GeoTools (and a bunch of other stuff) will now show up in your project!)
+#. File > New > Other from the menu bar
 
-If you are using Netbeans you don't need to worry about this step.
+#. Select the wizard *Maven > Maven Project* and press *Next* to open the *New Maven Project* wizard
 
-Modifying Main
---------------
+#. The *New Maven project* page defaults are fine, press *Next*
 
-Let's open up your App:
-
-.. sourcecode:: java
-
-         package org.geotools.demo.example;
-
-         /**
-          * Hello world!
-          *
-          */
-         public class App
-         {
-             public static void main( String[] args )
-             {
-                 System.out.println( "Hello World!" );
-             }
-         }
-
-And add some GeoTools code to it:
-
-.. sourcecode:: java
-
-         package org.geotools.demo.example;
-
-         import org.geotools.factory.GeoTools;
-         /**
-          * Hello world!
-          *
-          */
-         public class App
-         {
-             public static void main( String[] args )
-             {
-                 System.out.println( "Hello GeoTools:" + GeoTools.getVersion() );
-             }
-         }
-
-You can build and run the application from within your IDE or from the command line.
-
-Compiling your application from the command line is as simple as typing ``mvn compile``::
-
- C:\java\example>mvn compile
- [INFO] Scanning for projects...
- [INFO] ------------------------------------------------------------------------
- [INFO] Building example
- [INFO]    task-segment: [compile]
- [INFO] ------------------------------------------------------------------------
- [INFO] [resources:resources]
- [INFO] Using encoding: 'UTF-8' to copy filtered resources.
- [INFO] [compiler:compile]
- [INFO] Compiling 1 source file to C:\java\example\target\classes
- [INFO] ------------------------------------------------------------------------
- [INFO] BUILD SUCCESSFUL
- [INFO] ------------------------------------------------------------------------
- [INFO] Total time: 1 second
- [INFO] Finished at: Fri Aug 07 20:51:48 EST 2009
- [INFO] Final Memory: 5M/16M
- [INFO] ------------------------------------------------------------------------
-
-
-Running your application from the command line is a bit more cumbersome, requiring this Maven incantation::
-
- C:\java\example>mvn exec:java -Dexec.mainClass="org.geotools.demo.example.App"
- [INFO] Scanning for projects...
- [INFO] Searching repository for plugin with prefix: 'exec'.
- [INFO] ------------------------------------------------------------------------
- [INFO] Building example
- [INFO]    task-segment: [exec:java]
- [INFO] ------------------------------------------------------------------------
- [INFO] Preparing exec:java
- [INFO] No goals needed for project - skipping
- [INFO] [exec:java]
- Hello GeoTools:2.6.4
- [INFO] ------------------------------------------------------------------------
- [INFO] BUILD SUCCESSFUL
- [INFO] ------------------------------------------------------------------------
- [INFO] Total time: 2 seconds
- [INFO] Finished at: Fri Aug 07 21:09:19 EST 2009
- [INFO] Final Memory: 7M/13M
- [INFO] ------------------------------------------------------------------------
-
-.. tip:: If you will be running your application from the command line frequently you can avoid the long
-         incantation above by specifying the main class in the pom.xml file. See the Maven documentation
-         for details.
+   .. image:: images/newmaven.jpg
+   
+#. Select the default *maven-archtype-quickstart* and press *Next*
  
-How to read and display a shapefile
-===================================
-
-Now that we have tried out maven, we can get down to working with some real spatial data. The shapefile format used by
-ESRI products is in very common use. If you don't have a shapefile handy, you can download "world_borders.zip" and
-"world_borders.prj" from the following location:
-
-* http://www.mappinghacks.com/data/
-
-You can also find some more sample data here:
-
-* http://udig.refractions.net/docs/data.zip
-
-.. note:: Please make sure to unzip the archive into the individual shp, dbf, and shx files. The prj file is used to
-          describe the projection of the data and is very useful if you want to draw or perform analysis.
-
-Adding the Shape and EPSG-HSQL Plugins to your Project
-------------------------------------------------------
-
-We are going to start by adding two plugins to our GeoTools application. Plugins are used to add functionality to the core library.
-
-Here are the plugins we will be using to to read a shapefile.
-
-* **gt-shapefile** used to reads file.shp, file.dbf, file.shx etc...
-* **gt-epsg-hsql** used to read file.prj (map projection)
-* **gt-swing** a collection of Swing GUI classes for GeoTools
-* **gt-render** classes to draw map features
-
-.. sourcecode:: xml
-
-    <dependency>
-        <groupId>org.geotools</groupId>
-        <artifactId>gt-shapefile</artifactId>
-        <version>${geotools.version}</version>
-    </dependency>
-    <dependency>
-        <groupId>org.geotools</groupId>
-        <artifactId>gt-epsg-hsql</artifactId>
-        <version>${geotools.version}</version>
-    </dependency>
-    <dependency>
-        <groupId>org.geotools</groupId>
-        <artifactId>gt-swing</artifactId>
-        <version>${geotools.version}</version>
-    </dependency>
-
-Refresh your IDE Project Files
-------------------------------
-
-Eclipse users
-~~~~~~~~~~~~~
-
-1. You will need to kick these dependencies into your IDE with another::
-
-     C:\\java\\example>mvn eclipse:eclipse
-
-2. Hit refresh in Eclipse
-
-Netbeans users
-~~~~~~~~~~~~~~
-
-Make sure you save the edits to your pom.xml file, then in the Projects window, right-click on the Libraries element of
-the Project and select 'Download missing dependencies' from the pop-up menu.
-
-Where did all these other JARs come from?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-You should now be able to see the two new dependencies. You'll also see a lot of extra jars that you didn't add ! 
-
-GeoTools is divided up into a series of modules, plugins and extensions. For the background information on how GeoTools
-slots together please read: http://docs.codehaus.org/display/GEOTDOC/02+Meet+the+GeoTools+Library
-
-As well as all of its own jars, GeoTools makes use of a **lot** of third party jars. Following our "don't invent here"
-(well, mostly) policy we turn to the experts to handle things such as geometry, image file operations, logging etc. So,
-although you might only specify a small number of GeoTools dependencies in your pom.xml file, each of them will usually
-rely on a number of other GeoTools and third party jars. And each of these jars in turn... well, you get the idea.
-
-We want to stick to working on spatial code rather than worrying about all of these extra jars and this is where using
-Maven can make your life a lot easier. It keeps track of the dependencies between jars for you, downloading the
-necessary jars as required into a local cache (repository) on your system.
-
-To see this in action you can ask Maven to print out a tree of the dependencies for your project my typing ``mvn
-dependency:tree`` at the command line::
-
- C:\java\example> mvn dependency:tree 
- mvn dependency:tree
- [INFO] Scanning for projects...
- [INFO] Searching repository for plugin with prefix: 'dependency'.
- [INFO] ------------------------------------------------------------------------
- [INFO] Building example
- [INFO]    task-segment: [dependency:tree]
- [INFO] ------------------------------------------------------------------------
- [INFO] [dependency:tree]
- [INFO] org.geotools.demo.example:example:jar:1.0-SNAPSHOT
- [INFO] +- junit:junit:jar:3.8.1:test
- [INFO] +- org.geotools:gt-main:jar:2.6.4:compile
- [INFO] |  +- org.geotools:gt-api:jar:2.6.4:compile
- [INFO] |  +- com.vividsolutions:jts:jar:1.9:compile
- [INFO] |  +- jdom:jdom:jar:1.0:compile
- [INFO] |  \- commons-beanutils:commons-beanutils:jar:1.7.0:compile
- [INFO] |     \- commons-logging:commons-logging:jar:1.0.3:compile
- [INFO] +- org.geotools:gt-shapefile:jar:2.6.4:compile
- [INFO] |  \- org.geotools:gt-referencing:jar:2.6.4:compile
- [INFO] |     +- java3d:vecmath:jar:1.3.1:compile
- [INFO] |     +- commons-pool:commons-pool:jar:1.3:compile
- [INFO] |     \- org.geotools:gt-metadata:jar:2.6.4:compile
- [INFO] |        +- org.opengis:geoapi:jar:2.2-SNAPSHOT:compile
- [INFO] |        \- net.java.dev.jsr-275:jsr-275:jar:1.0-beta-2:compile
- [INFO] \- org.geotools:gt-epsg-hsql:jar:2.6.4:compile
- [INFO]    \- hsqldb:hsqldb:jar:1.8.0.7:compile
- [INFO] ------------------------------------------------------------------------
- [INFO] BUILD SUCCESSFUL
- [INFO] ------------------------------------------------------------------------
- [INFO] Total time: 7 seconds
- [INFO] Finished at: Fri Aug 07 20:44:02 EST 2009
- [INFO] Final Memory: 12M/22M
- [INFO] ------------------------------------------------------------------------
-
-
-Example Code
-------------
-
-The following example is available from:
-
-  http://svn.osgeo.org/geotools/tags/2.6.4/demo/example/src/main/java/org/geotools/demo/Quickstart.java
-
-It is also included in the demo directory when you download geotools.
-
-Application
------------
-We are going to create an application to open a shapefile and display it with a simple map viewer.
-
-The code for the application is shown below. It consists of a single class: 
-
-  **org.geotools.demo.Quickstart** 
-
-Copy and paste the code into your IDE as part of your Maven project:
-
-   .. literalinclude:: ../../demo/example/src/main/java/org/geotools/demo/Quickstart.java
-      :language: java
-      :start-after: // docs start source
-      :end-before: // docs end main
+   .. image:: images/archetype.jpg
    
-Add a closing curly brace for the class and then build the application, either from within your IDE or from the command
-line with ``mvn compile``.
-
-If the application compiled you can now run it. Once again, you can do this from within your IDE or from the command
-line. The program should display a dialog prompting you for a shapefile and then display it in a simple map viewer.
-
-.. image:: quickstart.png
-
-Optional extra: speeding up the display of features
----------------------------------------------------
-**NOTE: At the moment you will need to use GeoTools version 2.6-SNAPSHOT for this section (see below for how to use
-snapshot releases). Alternatively, it will be included in version 2.6.4 due out in the next few days.**
-
-This application is reading the shapefile directly every time you refresh the display, for instance when you zoom in or
-out. If the shapefile is large you will notice some delay while the data are read from disk. One way to speed up the
-display's responsiveness is to cache some or all of the feature data in memory. **CachingFeatureSource** provides this
-ability. It reads features from the original feature source (e.g. your shapefile) and stores them in memory in a
-spatially indexed manner. Obviously the amount of memory available determines how practical this is for any particular
-feature source.
-
-The method below shows how to introduce **CachingFeatureSource** into our example application:
-
-   .. literalinclude:: ../../demo/example/src/main/java/org/geotools/demo/Quickstart.java
-      :language: java
-      :start-after: // docs start cache
-      :end-before: // docs end source
+#. The archtype acts a template using the parameters we supply to create the project.
    
-Questions
-=========
+   * Group Id: org.geotools
+   * Artifact Id: tutorial
+   * Version: 0.0.1-SNAPSHOT (default)
+   * Package: org.geotools.tutorial
+   
+   .. image:: images/artifact.jpg
+   
+#. Press *Finish* to create the new project.
+#. You can see that an application has been created; complete with *App.java* and a JUnit test case
+#. Open up src/main/java and select *org.geotools.tutorial.App* and press the *Run* button in the
+   toolbar::
+   
+     Hello World!
+   
+Adding Jars to your Project
+---------------------------
 
-What is a GeoTools SNAPSHOT version and how do I use it ?
----------------------------------------------------------
+.. sidebar:: Lab
 
-A snapshot is the bleeding edge GeoTools code that the developers are actively working on. Usually there will be two
-active snapshots: one associated with the most recent formal release (e.g GeoTools 2.7-SNAPSHOT) and a second for work
-that is continuing on a earlier version that is being widely used (e.g. GeoTools 2.6-SNAPSHOT).
+   We are going to cheat in order to save time; the local maven repository has already been
+   populated with the latest copy of geotools allowing us to run in "offline" mode.
+   
+   To turn on offline mode:
+   
+   #. Open :menuselection:`Windows --> Preferences`
+   #. Select :guilabel:`Maven` preference page
+   #. Ensure :guielabel:`offline` is checked
+    
+   This setting is useful when wanting to work quickly once everything is downloaded.
+    
+The *pom.xml* file is used to describe the care and feeding of your maven project; we are going to
+focus on the dependencies needed for your project 
 
-New snapshot jars are built nightly and deployed to a repository separate from the one used for formal releases. To work
-with the snapshot code in your own applications you will need to add this repository to your pom.xml:
+When downloading jars maven makes use of a "local repository" to store jars.
 
-.. sourcecode:: xml
+  ==================  ========================================================
+     PLATFORM           LOCAL REPOSITORY
+  ==================  ========================================================
+     Windows XP:      :file:`C:\Documents and Settings\Jody\.m2\repository`
+     Windows:         :file:`C:\Users\Jody\.m2\repository`
+     Linux and Mac:   :file:`~/.m2/repository`
+  ==================  ========================================================
 
-    <repository>
-      <id>opengeo</id>
-      <name>OpenGeo Maven Repository</name>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-      <url>http://repo.opengeo.org/</url>
-    </repository>
+When downloading jars maven makes use of public maven repositories on the internet where projects
+such as GeoTools publish their work.
 
-You can now refer to 2.7-SNAPSHOT with your version property:
+#. Open up :file:`pom.xml` in your new project. You can see some of the information we entered
+   earlier.
+   
+   .. image:: images/pomOverview.jpg
+   
+#. This editor allows you to describe all kinds of things; in the interest of time we are going to
+   skip the long drawn out explanation and ask you to click on the :guilabel:`pom.xml` tab.
+   
+   .. code-block:: xml
+   
+    <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+      <modelVersion>4.0.0</modelVersion>
 
-.. sourcecode:: xml
+      <groupId>org.geotools</groupId>
+      <artifactId>tutorial</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
+      <packaging>jar</packaging>
+    
+      <name>tutorial</name>
+      <url>http://maven.apache.org</url>
+    
+      <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+      </properties>
+    
+      <dependencies>
+        <dependency>
+          <groupId>junit</groupId>
+          <artifactId>junit</artifactId>
+          <version>3.8.1</version>
+          <scope>test</scope>
+        </dependency>
+      </dependencies>
+    </project>
 
-    <properties>
-      <geotools.version>2.7-SNAPSHOT</geotools.version>
-    </properties>
+#. To make use of GeoTools we are going to add three things to this pom.xml file.
+   
+#. At the top after moduleVersion add a *properties* element defining the version of GeoTools that
+   we want to use (|version| for this example).
+   
+   .. literalinclude:: artifacts/pom.xml
+        :language: xml
+        :start-after: <url>http://maven.apache.org</url>
+        :end-before: <dependencies>
+        
+#. We are going to add a dependence to GeoTools :file:`gt-main` and :file:`gt-swing` jars. Note we
+   are making use of the geotools.version defined above.
+   
+   .. literalinclude:: artifacts/pom.xml
+        :language: xml
+        :start-after: </properties>
+        :end-before: <repositories>
+    
+#. Finally we need to list the external *repositories* where maven can download GeoTools and and
+   other required jars from.
 
-What are FileDataStore and FeatureSource ?
-------------------------------------------
+   .. literalinclude:: artifacts/pom.xml
+        :language: xml
+        :start-after: </dependencies>
+        :end-before: </project>
 
-Here is how this all fits together:
+#. Here is what the completed :file:`pom.xml` looks like:
 
-* FileDataStore represents the shapefile and allows you to work with the "shp", "dbf" and "prj" files as a group (even
-  generating a new "qnx" index if needed)
-* FeatureSource is used to read the data in the shapefile; you can perform queries and get a FeatureCollection out
-* FeatureStore is used to modify the data; you can add features; and update features etc...
-* FeatureCollection is used work with Features. Please note that this is more like a result set or data stream than a 
-  Java Collection (you will need to close each iterator after use)
-* Iterator, FeatureIterator or FeatureVisitors can all be used process the Features in your FeatureCollection.
-* Each Feature has a Geometry (a JTS Geometry object)
-* Each Feature has a number of Attributes (String, Integers, etc...)
-* The FeatureCollection has a schema (ie a FeatureType) which tells you what the String, Integers, etc mean
-* There is a CoordinateReferenceSystem to tell you what the Coordinates mean - so if you want to draw the shapefile 
-  you can tell where in the world the coordinates go.
+   .. literalinclude:: artifacts/pom.xml
+        :language: xml
+   
+   
   
-How can I write a Shapefile?
-----------------------------
-
-For an introduction to creating Features and writing them to a shapefile have a look at :ref:`csv2shp`
-
-Can the program read files that are several MB in size?
--------------------------------------------------------
-
-Yes the shapefile reading code actually does not read anything until you open up an iterator(); and then it only keeps
-the file open as you call next(), .. hasNext(), ... next() ... etc...
-
-The approach used is to "stream" the content into your application as you read; it does NOT load it into memory allowing
-you to work with massive files. GIS data is almost always big; so this approach is needed.
-
-If you have database experience you may wish to think of a FeatureCollection as a prepared statement, and iterator() as
-executing the query.
-
