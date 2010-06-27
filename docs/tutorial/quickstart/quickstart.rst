@@ -208,7 +208,7 @@ Adding Jars to your Project
    
    #. Open :menuselection:`Windows --> Preferences`
    #. Select :guilabel:`Maven` preference page
-   #. Ensure :guielabel:`offline` is checked
+   #. Ensure :guilabel:`offline` is checked
     
    This setting is useful when wanting to work quickly once everything is downloaded.
     
@@ -295,5 +295,118 @@ such as GeoTools publish their work.
    .. literalinclude:: artifacts/pom.xml
         :language: xml
    
+   You may find cutting and pasting from the documentation to be easier then typing.
+  
+Quickstart Application
+----------------------
+
+Now that your environment is setup we can put together a simple Quickstart. This example will display a shapefile on screen.
+
+#. Create the org.geotools.tutorial.Quickstart class using your IDE.
+
+   .. image:: images/class.jpg
    
+#. Fill in the following code:
+
+   .. literalinclude:: ../../src/main/java/org/geotools/tutorial/Quickstart.java
+        :language: java
+        
+#. We need to download some sample data to work with. The http://www.naturalearthdata.com/ project
+   is a great project supported by the North American Cartographic Information Society.
+   
+   * http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/110m/cultural/110m-cultural.zip 
+   
+   Please unzip the above data into a location you can find easily such as the desktop.
+
+#. Run the application to open a file chooser. Choose a shapefile from the example dataset.
+
+   .. image:: images/QuickstartOpen.jpg
+   
+#. The application will connect to your shapefile, 1.produce a map context and display the shapefile.
+
+   .. image:: images/QuickstartMap.jpg
+   
+#. A couple of things to note about the code example:
+   
+   * The shapefile is not loaded into memory – instead it is read from disk each and every time it is needed
+   * This approach allows you to work with data sets larger then available memory
+
+Things to Try
+=============
+
+Each tutorial contains a minimal introduction with very detailed steps to follow. The real learning
+comes from answering these extra questions at the end of each workbook.
+
+If you have an questions about these steps please ask the instructor; or sign up to the
+geotools-users email list.
+
+Here are some additional challenges for you to try:
+
+* Try out the different sample data sets
+
+* You can zoom in, zoom out and show the full extents and Use the select tool to examine individual
+  countries in the sample countries.shp file
+
+* Download the largest shapefile you can find and see how quickly it can be rendered. You should
+  find that the very first time it will take a while as a spatial index is generated. After that
+  performance should be very good when zoomed in.
+  
+* Fast: We know that one of the ways people choose a graphic library is based on speed. By
+  design GeoTools does not the above shapefile into memory (instead it streams it off of disk
+  each time it is drawn using a spatial index).
+  
+  If you would like to ask GeoTools to cache the shapefile in memory try the following code:
+  
+  .. literalinclude:: ../../src/main/java/org/geotools/tutorial/QuickstartCache.java
+     :language: java
+     :start-after: // docs start cache
+     :end-before:  // docs end cache
+
+* Try and sort out what all the different “side car” files are – and what they are for. The sample
+  data set includes “shp”, “dbf” and “shx”. How many other side car files are there?
+
+* Advanced: The use of FileDataStoreFinder allows us to work easily with files. The other way to do
+  things is with a map of connection parameters. This techniques gives us a little more control over
+  how we work with a shapefile and also allows us to connect to databases and web feature servers.
+  
+  .. codeblock: java
+  
+        File file = JFileDataStoreChooser.showOpenFile("shp", null);
+        
+        Map<String,Object> params = new HashMap<String,Object>();
+        params.put( ShapefileDataStoreFactory.URLP.key, file.toURI().toURL() );
+        params.put( ShapefileDataStoreFactory.CREATE_SPATIAL_INDEX.key, false );
+        params.put( ShapefileDataStoreFactory.MEMORY_MAPPED.key, false );
+        params.put( ShapefileDataStoreFactory.DBFCHARSET.key, "ISO-8859-1" );
+        
+        DataStore store = DataStoreFinder.getDataStore( params );
+        FeatureSource featureSource = store.getFeatureSource( store.getTypeNames()[0] );
+        
+* Important: GeoTools is an active open source project – you can quickly use maven to try out the
+  latest nightly build by changing your pom.xml file to use a “SNAPSHOT” release.
+  
+  At the time of writing |version|-SNAPSHOT under active development.
+  
+  .. codeblock: java
+  
+   .. literalinclude:: artifacts/pom2.xml
+        :language: xml
+        :start-after: <url>http://maven.apache.org</url>
+        :end-before: <dependencies>
+    
+  You will also need to change your pom.xml file to include the following snapshot repository:
+  
+     .. literalinclude:: artifacts/pom2.xml
+        :language: xml
+        :start-after: </dependencies>
+        :end-before: </project>
+        
+* So what jars did maven actually use for the Qucikstart application? Open up your :file:`pom.xml`
+  and switch to the :guilabel:`depdendency heirarchy` or :guilabel:`dependency graph` tabs to see
+  what is going on.
+  
+     .. image:: images/quickstart-dependency.jpg
+  
+  We will be making use of some of the project is greater depth in the remaining tutorials.
+  
   
