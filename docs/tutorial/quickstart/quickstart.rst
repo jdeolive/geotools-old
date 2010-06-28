@@ -295,8 +295,10 @@ such as GeoTools publish their work.
    .. literalinclude:: artifacts/pom.xml
         :language: xml
    
-   You may find cutting and pasting from the documentation to be easier then typing.
-  
+   * You may find cutting and pasting from the documentation to be easier then typing.
+   
+   * You may also :download:`download this file<artefacts/pom.xml`
+   
 Quickstart Application
 ----------------------
 
@@ -308,7 +310,7 @@ Now that your environment is setup we can put together a simple Quickstart. This
    
 #. Fill in the following code:
 
-   .. literalinclude:: ../../src/main/java/org/geotools/tutorial/Quickstart.java
+   .. literalinclude:: ../../src/main/java/org/geotools/tutorial/quickstart/Quickstart.java
         :language: java
         
 #. We need to download some sample data to work with. The http://www.naturalearthdata.com/ project
@@ -334,11 +336,8 @@ Now that your environment is setup we can put together a simple Quickstart. This
 Things to Try
 =============
 
-Each tutorial contains a minimal introduction with very detailed steps to follow. The real learning
-comes from answering these extra questions at the end of each workbook.
-
-If you have an questions about these steps please ask the instructor; or sign up to the
-geotools-users email list.
+Each tutorial consists of very detailed steps followed by a series of extra questions. If you get
+stuck at any point please ask your instructor; or sign up to the geotools-users email list.
 
 Here are some additional challenges for you to try:
 
@@ -351,37 +350,43 @@ Here are some additional challenges for you to try:
   find that the very first time it will take a while as a spatial index is generated. After that
   performance should be very good when zoomed in.
   
-* Fast: We know that one of the ways people choose a graphic library is based on speed. By
-  design GeoTools does not the above shapefile into memory (instead it streams it off of disk
-  each time it is drawn using a spatial index).
+* Fast: We know that one of the ways people select a spatial library is based on speed. By design
+  GeoTools does not load the above shapefile into memory (instead it streams it off of disk
+  each time it is drawn using a spatial index to only bring the content required for display).
   
   If you would like to ask GeoTools to cache the shapefile in memory try the following code:
-  
-  .. literalinclude:: ../../src/main/java/org/geotools/tutorial/QuickstartCache.java
+
+    .. literalinclude:: ../../src/main/java/org/geotools/tutorial/quickstart/QuickstartCache.java
      :language: java
      :start-after: // docs start cache
      :end-before:  // docs end cache
+  
+  * For the above example to compile hit :kbd:`Control-Shift-O` to organise imports; it will pull
+    in the following import:
+    
+    .. code-block:: java
 
+       import org.geotools.data.CachingFeatureSource;
+  
+  .. 
+     The ability to grab figure out what classes to import is a key skill; we are
+     starting off here with a simple example with a single import.
+  
 * Try and sort out what all the different “side car” files are – and what they are for. The sample
   data set includes “shp”, “dbf” and “shx”. How many other side car files are there?
 
+  .. This exercise asks users to locate the geotools user guide or wikipedia
+  
 * Advanced: The use of FileDataStoreFinder allows us to work easily with files. The other way to do
   things is with a map of connection parameters. This techniques gives us a little more control over
   how we work with a shapefile and also allows us to connect to databases and web feature servers.
-  
-  .. codeblock: java
-  
-        File file = JFileDataStoreChooser.showOpenFile("shp", null);
-        
-        Map<String,Object> params = new HashMap<String,Object>();
-        params.put( ShapefileDataStoreFactory.URLP.key, file.toURI().toURL() );
-        params.put( ShapefileDataStoreFactory.CREATE_SPATIAL_INDEX.key, false );
-        params.put( ShapefileDataStoreFactory.MEMORY_MAPPED.key, false );
-        params.put( ShapefileDataStoreFactory.DBFCHARSET.key, "ISO-8859-1" );
-        
-        DataStore store = DataStoreFinder.getDataStore( params );
-        FeatureSource featureSource = store.getFeatureSource( store.getTypeNames()[0] );
-        
+
+    .. literalinclude:: ../../src/main/java/org/geotools/tutorial/quickstart/QuickstartNotes.java
+     :language: java
+     :start-after: // start datastore
+     :end-before:  // end datastore
+     
+
 * Important: GeoTools is an active open source project – you can quickly use maven to try out the
   latest nightly build by changing your pom.xml file to use a “SNAPSHOT” release.
   
