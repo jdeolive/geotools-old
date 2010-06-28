@@ -27,12 +27,11 @@ import org.opengis.filter.Id;
 import org.opengis.filter.Not;
 
 /**
- * 
  * Test for ID Predicate
  * <pre>
- * &lt id predicate &gt ::= [ "NOT" ] "IN " "(" &lt id value &gt {,&lt id value &gt } ")"
+ * &lt id predicate &gt ::= "ID" [ "NOT" ] "IN " "(" &lt id value &gt {,&lt id value &gt } ")"
  * 
- * Sample: IN ( 'states.1', 'states.2', 'states.3')
+ * Sample: ID IN ( 'states.1', 'states.2', 'states.3')
  * </pre>
  *
  * @author Mauricio Pazos (Axios Engineering)
@@ -42,8 +41,9 @@ import org.opengis.filter.Not;
  */
 public class ECQLIDPredicateTest {
     
+    
     /**
-     * Sample: IN( 'states.1', 'states.2', 'states.3'
+     * Sample: ID IN( 'states.1', 'states.2', 'states.3'
      * </pre>
      * @throws Exception
      */
@@ -53,7 +53,7 @@ public class ECQLIDPredicateTest {
         final String strId1 = "states.1";
         final String strId2 = "states.2";
         final String strId3 = "states.3";
-        Filter filter = ECQL.toFilter("IN ('" + strId1 + "','" + strId2
+        Filter filter = ECQL.toFilter("ID IN ('" + strId1 + "','" + strId2
                 + "', '" + strId3 + "')");
         Assert.assertNotNull(filter);
         Assert.assertTrue(filter instanceof Id);
@@ -72,7 +72,7 @@ public class ECQLIDPredicateTest {
     
     /**
      * <pre>
-     * Sample: NOT IN( 'states.1', 'states.2', 'states.3')
+     * Sample: ID NOT IN( 'states.1', 'states.2', 'states.3')
      * </pre>
      * @throws Exception
      */
@@ -84,19 +84,16 @@ public class ECQLIDPredicateTest {
         final String strId1 = "states.1";
         final String strId2 = "states.2";
         final String strId3 = "states.3";
-        filter = ECQL.toFilter("NOT IN ('" + strId1 + "','" + strId2
+        filter = ECQL.toFilter("NOT ID IN ('" + strId1 + "','" + strId2
                 + "', '" + strId3 + "')");
         
         Assert.assertNotNull(filter);
         Assert.assertTrue("Not filter was expected",  filter instanceof Not);
         
-        Assert.assertTrue(filter instanceof Not);
         Not notFilter = (Not) filter;
         filter = notFilter.getFilter();
 
-        Assert.assertTrue(filter instanceof Id);        
         Id filterId = (Id) filter;
-        
         Set<?> resultIdentifiers = filterId.getIDs();
         Assert.assertTrue("one id in filter Id was expected",
                 resultIdentifiers.size() == 3);
@@ -109,16 +106,22 @@ public class ECQLIDPredicateTest {
     }
 
     @Test
-    public void idUsingIntegerValues() throws Exception {
+    public void notIdUsingIntegerValues() throws Exception {
 
         Filter filter;
         
         final String strId1 = "1";
         final String strId2 = "2";
         final String strId3 = "3";
-        filter = ECQL.toFilter("IN (" + strId1 + "," + strId2
+        filter = ECQL.toFilter("NOT ID IN (" + strId1 + "," + strId2
                 + ", " + strId3 + ")");
         
+        Assert.assertNotNull(filter);
+        Assert.assertTrue("Not filter was expected",  filter instanceof Not);
+        
+        Not notFilter = (Not) filter;
+        filter = notFilter.getFilter();
+
         Id filterId = (Id) filter;
         Set<?> resultIdentifiers = filterId.getIDs();
         Assert.assertTrue("one id in filter Id was expected",
@@ -130,67 +133,16 @@ public class ECQLIDPredicateTest {
 
         Assert.assertTrue(strId3 + " was expected", resultIdentifiers.contains(strId3));
     }
-
-    @Test
-    public void IdUsingDateValues() throws Exception {
-
-        Filter filter;
-        
-        final String date1 = "2010-01-01";
-        final String date2 = "2010-02-02";
-        final String date3 = "2010-03-03";
-        filter = ECQL.toFilter("IN ('" + date1 + "','" + date2+ "', '" + date3 + "')");
-        
-        Assert.assertNotNull(filter);
-        Assert.assertTrue("Not filter was expected",  filter instanceof Id);
-
-        Id filterId = (Id) filter;
-
-        Set<?> resultIdentifiers = filterId.getIDs();
-        Assert.assertTrue("one id in filter Id was expected",
-                resultIdentifiers.size() == 3);
-
-        Assert.assertTrue(date1 + " was expected", resultIdentifiers.contains(date1));
-
-        Assert.assertTrue(date2 + " was expected", resultIdentifiers.contains(date2));
-
-        Assert.assertTrue(date3 + " was expected", resultIdentifiers.contains(date3));
-    }
-
-    @Test
-    public void IdUsingTimeStamp() throws Exception {
-
-        Filter filter;
-        
-        final String timeStamp1 = "2010-01-01 00:01:01";
-        final String timeStamp2 = "2010-02-02 00:01:01";
-        final String timeStamp3 = "2010-03-03 00:01:01";
-        filter = ECQL.toFilter("IN ('" + timeStamp1 + "','" + timeStamp2+ "', '" + timeStamp3 + "')");
-        
-        Assert.assertNotNull(filter);
-        Assert.assertTrue("Not filter was expected",  filter instanceof Id);
-
-        Id filterId = (Id) filter;
-
-        Set<?> resultIdentifiers = filterId.getIDs();
-        Assert.assertTrue("one id in filter Id was expected",
-                resultIdentifiers.size() == 3);
-
-        Assert.assertTrue(timeStamp1 + " was expected", resultIdentifiers.contains(timeStamp1));
-
-        Assert.assertTrue(timeStamp2 + " was expected", resultIdentifiers.contains(timeStamp2));
-
-        Assert.assertTrue(timeStamp3 + " was expected", resultIdentifiers.contains(timeStamp3));
-    }
+    
     
     /**
      * <pre>
      * 
      * Samples:
      * <ul>
-     * <li>IN( '15521.3566' )</li>
-     * <li>IN( 'fid-_df58120_11814e5d8b3__7ffb')</li>
-     * <li>IN ('states.1')</li>
+     * <li>ID IN( '15521.3566' )</li>
+     * <li>ID IN( 'fid-_df58120_11814e5d8b3__7ffb')</li>
+     * <li>ID IN ('states.1')</li>
      * </ul> 
      * </pre>
      * @throws Exception
@@ -209,7 +161,7 @@ public class ECQLIDPredicateTest {
     private void assertFilterId(final String idValue) throws CQLException {
 
         String strId = "'"+ idValue + "'";
-        Filter filter = ECQL.toFilter("IN (" + strId + ")");
+        Filter filter = ECQL.toFilter("ID IN (" + strId + ")");
         Assert.assertNotNull(filter);
         Assert.assertTrue(filter instanceof Id);
 
@@ -225,7 +177,7 @@ public class ECQLIDPredicateTest {
      */
     @Test(expected = CQLException.class)
     public void filterIdSyntaxError() throws CQLException {
-        String strId = "IN 15521.3566"; // should be ID IN( '15521.3566')
+        String strId = "ID 15521.3566"; // should be ID IN( '15521.3566')
         ECQL.toFilter(strId);
     }
 }

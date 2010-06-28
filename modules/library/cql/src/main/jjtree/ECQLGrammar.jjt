@@ -2,7 +2,7 @@
  *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.orgLITERAL
  *
- *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)SpatialRelateLikeSpatialRelateLike
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -27,7 +27,7 @@ options {
    SANITY_CHECK=true;
    VISITOR=false;
    
-   FORCE_LA_CHECK=false; // force lookahead ambiguity checking in such instances. This option don't take into account the lookahead
+   FORCE_LA_CHECK=false; // force lookahead ambiguity checking in such instances. This option don't take into account the locak lookagead
 
    	// debug
    DEBUG_TOKEN_MANAGER=false;
@@ -40,7 +40,6 @@ package org.geotools.filter.text.generated.parsers;
         
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Logger;
 
 
 
@@ -51,9 +50,6 @@ import java.util.logging.Logger;
  * @since 2.6
  */
 public class ECQLParser {
-
-  private static final Logger LOGGER = Logger.getLogger(CQLParser.class.getName());
-
   public void jjtreeOpenNodeScope(Node n) throws ParseException {
  
   }
@@ -123,7 +119,7 @@ TOKEN:
 TOKEN [IGNORE_CASE]:  /* keywords */
 {
    < AND: "and" | "&&"> |
-   < OR: "or"> | "||" |
+   < OR: "or"> |
    < NOT: "not" | "!"> |
    < EQ: "eq" | "==" | "="> |
    < NEQ: "neq" | "<>" > |
@@ -136,9 +132,9 @@ TOKEN [IGNORE_CASE]:  /* keywords */
    < UNKNOWN: "unknown"> |
    < LIKE: "like" > |
    < BETWEEN: "between"> |
+   < ID: "id" > |
    < IN: "in" > |
    < IS: "is" > |
-   < ID: "id" > |   
    < NULL: "null" > 
 
 }
@@ -214,11 +210,12 @@ TOKEN:
   < SENTENCE_SEPARATOR: ";"> |
   < PERIOD: "."> |
   < SLASH: "/"> |
+//  < PERIOD_SEP: <SLASH> > |
+//  < DIV: <SLASH> > |
   < COLON: ":">	|
   < MULT: "*"> |
   < PLUS: "+"> |
-  < MINUS: "-" > |
-  < DOUBLE_QUOTE: "\"">
+  < MINUS: "-" > 
 }
 
 
@@ -234,10 +231,6 @@ TOKEN [IGNORE_CASE]: /* Literals */
     	( ( <DIGIT> )* "." ( <DIGIT> )+ (<EXPONENT>)? ) |
     	( ( <DIGIT> )+ ("." ( <DIGIT> )*)? (<EXPONENT>)? )
   	> |
-
-	<DATE_LITERAL:  "'" <INTEGER_LITERAL> "-" <INTEGER_LITERAL> "-" <INTEGER_LITERAL> "'" > |
-	<TIME_LITERAL:  "'" <INTEGER_LITERAL> ":" <INTEGER_LITERAL> ":" <INTEGER_LITERAL> "'" > |
-	<TIMESTAMP_LITERAL:  "'" <DATE_LITERAL> " " <TIME_LITERAL> > |
 
 	< #DUR_DAY:	  (<DIGIT>)+ "D" > |
 	< #DUR_MONTH: (<DIGIT>)+ "M" (<DUR_DAY>)? > |
@@ -255,9 +248,9 @@ TOKEN [IGNORE_CASE]: /* Literals */
 	< #UTC_TIME: <DIGIT><DIGIT> ":" <DIGIT><DIGIT> ":" <DIGIT><DIGIT> ("." (<DIGIT>)+)? "Z" > |
 	< DATE_TIME : <FULL_DATE>"T"<UTC_TIME> > |
 
-    < IDENTIFIER: (<LETTER> (<LETTER>|<DIGIT>)*) | <DOUBLE_QUOTE> (<LETTER> (<LETTER>|<DIGIT>)*) <DOUBLE_QUOTE> > |
+    < IDENTIFIER: (<LETTER> (<LETTER>|<DIGIT>)*) > |
 
-  	< LETTER: [ "a"-"z", "A"-"Z" , "_", "ó"] > |
+  	< LETTER: [ "a"-"z", "A"-"Z" , "_"] > |
   	< DIGIT: [ "0"-"9"] > |
   	< #EXPONENT: ["e","E"] (["+","-"])? (<DIGIT>)+ > 
 }
@@ -369,17 +362,14 @@ void BooleanPrimary() #void:
  * 	| <temporal predicate>
  * 	| <classification predicate> (*not supported*)
  * 	| <existence predicate> 
- * 	| <between predicate> 
- *  | <includeexclude predicate> 
+ * 	| <between predicate> (*extension*)
+ *  | <includeexclude predicate> (*extesion*)
  *  | <id predicate>
  */
 void Predicate() #void:
 {}
 {
-		IdPredicateDeprecated() // TODO deprecated syntax
-    |	IdPredicate()
-	|	LOOKAHEAD(InPredicate()) InPredicate() 
-	|	Expression()  
+		LOOKAHEAD(3) Expression()  
 		(
 				LOOKAHEAD(2) TextPredicate()
 			| 	LOOKAHEAD(2) ExistencePredicate() 
@@ -388,51 +378,37 @@ void Predicate() #void:
 			| 	LOOKAHEAD(2) TemporalPredicate() 
 			| 	ComparisonPredicate() 
 		)
+	|	LOOKAHEAD(3) IdPredicate()
+	|	InPredicate() 
 		 
 }
 
 /* ---------------------------------------- *
  *   	<id predicate>
  * ---------------------------------------- *
-/* Deprecated Syntax
+/*
  * <id predicate> ::= "ID" "IN" <id list> 
  * <id list> ::= <id value>, {"," id value}
  */
-void IdPredicateDeprecated() #Id_Predicate_Node:
+void IdPredicate() #void:
 {}
 {
-	<ID> <IN> IdList() 		
-	{
-		
-		LOGGER.warning("ID IN (...) is deprecated syntax, you should use IN (...)");
-	}
+  	 	 LOOKAHEAD(3) <ID> <NOT> <IN> IdList() 	#Not_Id_Predicate_Node
+  	|	  			  <ID> <IN> IdList() 		#Id_Predicate_Node
+  	
 }
-
-
-/* New syntax
- * <id predicate> ::= "IN" <id list> 
- * <id list> ::= <id value>, {"," id value}
- */
-void IdPredicate() #Id_Predicate_Node:
-{}
-{
-	<IN> IdList() 	
-}
-
-
 void IdList() #void:
 {}
 {
 	<LP> IdValue()( <COMMA>  IdValue() )* <RP> 
+	
 } 
 
 void IdValue() #FEATURE_ID_NODE:
 {}
 {
-	  <STRING_LITERAL>
-	| <INTEGER_LITERAL>	
-	| <FLOATING_LITERAL>
-	| <DATE_LITERAL>
+		<STRING_LITERAL>	
+	| 	<INTEGER_LITERAL>
 
 }
 
@@ -441,14 +417,15 @@ void IdValue() #FEATURE_ID_NODE:
  * ---------------------------------------- *
 /*
 /* <in predicate>    	::=   <attribute-name> [  "NOT"  ]  "IN"  <in predicate value>
- * <in predicate value> ::=   "(" <in value list> ")"
- * <in value list>      ::=   <expression> {"," <expression>} 
+ * <in predicate value>    ::=   "(" <in value list> ")"
+ * <in value list>         ::=   <expression> {"," <expression>} 
  */
 void InPredicate() #void:
 {}
 {
-		LOOKAHEAD(3) 	Attribute() <NOT> <IN> InPredicateList() 	#Not_In_Predicate_Node
-  	|	  				Attribute() 	  <IN> InPredicateList() 	#In_Predicate_Node 
+  	 	  LOOKAHEAD(4) 	Attribute() <NOT> <IN> InPredicateList() 	#Not_In_Predicate_Node
+  	|	   				Attribute() <IN> InPredicateList() 		#In_Predicate_Node
+  	
 }
 
 void InPredicateList() #void:
@@ -500,7 +477,7 @@ void RelateTail() #void:
 {}
 {
 	    <EOF> #Relate_Node
-// TODO	  | SpatialRelateLike()  
+// FIXME	  | SpatialRelateLike()  
 }
 
 /*
@@ -597,6 +574,7 @@ void RelGeoRoutineArgumentList() #void:
 {
 	<LP> Expression() <COMMA> Expression() <COMMA> Tolerance() <RP>
 	
+//	<LP> Attribute() <COMMA> GeometryLiteral() <COMMA> Tolerance() <RP>
 }
 /*
  * <tolerance> ::= <unsigned numeric literal><comma><distance units>
@@ -910,11 +888,10 @@ void Identifier() #Identifier_Node:
 {
 	IdentifierPart() ( <COLON> | IdentifierPart() )*	
 }
-
 void IdentifierPart() #Identifier_Part_Node:
  {}
  {
-		<IDENTIFIER>
+	<IDENTIFIER>
  }
  
    
@@ -926,7 +903,7 @@ void IdentifierPart() #Identifier_Part_Node:
  * <compound attribute name> ::= 
  * 		<identifier><period> [{<identifier><period>}*] <simple attribute name>
  *
- * <simple attribute name> ::= <>
+ * <simple attribute name> ::= <identifier>
  */ 
 void Attribute() #void:
 {}
@@ -985,26 +962,9 @@ void GeneralLiteral() #void:
 {}
 {
   	StringLiteral()
-  | DatetimeLiteral() 	
+//  | DatetimeLiteral()   TODO	
   |	BooleanLiteral() 
 //  | GeographyLiteral()  TODO
-}
-
-/*
- *   <unquoted date value>   ::=   <years value> "-" <months value> "-" <days value>
- *   <unquoted time value>   ::=   <hours value> ":" <minutes value> ":" <seconds value>
- *   <date value>   ::=   "'" <unquoted date value> "'"
- *   <time value>   ::=   "'" <unquoted time value> "'"
- *   <unquoted timestamp string>  ::= <unquoted date value> <space> <unquoted time value>
- *   <timestamp string>  ::= "'" <unquoted date value> <space> <unquoted time value> "'"
- *    
- */
-void DatetimeLiteral() #void:
-{}
-{
-		<DATE_LITERAL> 			#DateString_Node
-	|	<TIME_LITERAL> 			#TimeString_Node
-	|   <TIMESTAMP_LITERAL> 	#TimeStampString_Node
 }
 
 void IntegerLiteral() #IntegerNode:
@@ -1056,7 +1016,7 @@ void FunctionName() #FunctionName_Node:
  * <argument>  ::= 
  *      <literal>  
  *  |   <attribute name>                                            
- * 	|	<expression> (*extension: expression include literal and attributes*) 
+ * 	|	<expression> (*extension: expresion inclue literal and attributes*) 
  */
 void FunctionArg() #FunctionArg_Node:
 {}
@@ -1078,7 +1038,7 @@ void Point() #Point_Node:
 
 /*
  * <LineString Text> := EMPTY
- * | <left parent><Point>{<comma><Point >} ... <right parent>
+ * | <left paren><Point>{<comma><Point >} ... <right paren>
  */
 void LineStringText() #LineStringText_Node:
 {}

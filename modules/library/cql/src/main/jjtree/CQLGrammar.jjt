@@ -250,6 +250,8 @@ TOKEN:
   < SENTENCE_SEPARATOR: ";"> |
   < PERIOD: "."> |
   < SLASH: "/"> |
+//  < PERIOD_SEP: <SLASH> > |
+//  < DIV: <SLASH> > |
   < COLON: ":">	|
   < MULT: "*"> |
   < PLUS: "+"> |
@@ -270,10 +272,6 @@ TOKEN [IGNORE_CASE]: /* Literals */
     	( ( <DIGIT> )+ ("." ( <DIGIT> )*)? (<EXPONENT>)? )
   	> |
 
-	<DATE_LITERAL:  "'" <INTEGER_LITERAL> "-" <INTEGER_LITERAL> "-" <INTEGER_LITERAL> "'" > |
-	<TIME_LITERAL:  "'" <INTEGER_LITERAL> ":" <INTEGER_LITERAL> ":" <INTEGER_LITERAL> "'" > |
-	<TIMESTAMP_LITERAL:  "'" <DATE_LITERAL> " " <TIME_LITERAL> > |
-
 	< #DUR_DAY:	  (<DIGIT>)+ "D" > |
 	< #DUR_MONTH: (<DIGIT>)+ "M" (<DUR_DAY>)? > |
 	< #DUR_YEAR:  (<DIGIT>)+ "Y" (<DUR_MONTH>)? > |	
@@ -290,8 +288,8 @@ TOKEN [IGNORE_CASE]: /* Literals */
 	< #UTC_TIME: <DIGIT><DIGIT> ":" <DIGIT><DIGIT> ":" <DIGIT><DIGIT> ("." (<DIGIT>)+)? "Z" > |
 	< DATE_TIME : <FULL_DATE>"T"<UTC_TIME> > |
 
-    < IDENTIFIER: (<LETTER> (<LETTER>|<DIGIT>)*)  > |
-
+    < IDENTIFIER: (<LETTER> (<LETTER>|<DIGIT>)*) > |
+    
   	< LETTER: [ "a"-"z", "A"-"Z" , "_"] > |
   	< DIGIT: [ "0"-"9"] > |
   	< #EXPONENT: ["e","E"] (["+","-"])? (<DIGIT>)+ > 
@@ -319,7 +317,6 @@ Node ExpressionCompilationUnit() :
    <EOF>
    {return jjtree.rootNode();}
 }
-
 
 /*
  * Program structuring syntax to parse a list of filters.
@@ -887,19 +884,10 @@ void GeneralLiteral() #void:
 {}
 {
   	StringLiteral()
-  | DatetimeLiteral()   	
+//  | DatetimeLiteral()   TODO	
   |	BooleanLiteral() 
 //  | GeographyLiteral()  TODO
 }
-
-void DatetimeLiteral() #void:
-{}
-{
-		<DATE_LITERAL> 			#DateString_Node
-	|	<TIME_LITERAL> 			#TimeString_Node
-	|   <TIMESTAMP_LITERAL> 	#TimeStampString_Node
-}
-
 
 void IntegerLiteral() #IntegerNode:
 {}
