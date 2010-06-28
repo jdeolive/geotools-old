@@ -25,6 +25,7 @@ import org.eclipse.emf.ecore.impl.EObjectImpl;
 
 import org.eclipse.emf.ecore.util.EObjectResolvingEList;
 import org.eclipse.emf.ecore.util.EObjectContainmentEList;
+import org.eclipse.emf.ecore.util.EcoreEList;
 import org.eclipse.emf.ecore.util.InternalEList;
 
 /**
@@ -71,12 +72,13 @@ public class UOMsTypeImpl extends EObjectImpl implements UOMsType {
 
     /**
      * <!-- begin-user-doc -->
+     * Uses an ECoreEList inatance as we are managing Unit (which is not an EObject)
      * <!-- end-user-doc -->
-     * @generated
      */
     public EList getUOM() {
         if (uOM == null) {
-            uOM = new EObjectResolvingEList(Unit.class, this, Wps10Package.UO_MS_TYPE__UOM);
+            //uOM = new EObjectResolvingEList(Unit.class, this, Wps10Package.UO_MS_TYPE__UOM);
+            uOM = new EcoreEList(Unit.class, this );
         }
         return uOM;
     }
