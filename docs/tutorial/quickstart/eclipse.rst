@@ -58,9 +58,10 @@ Imaging and Java Image IO section.
    
    https://jai.dev.java.net/binary-builds.html
    
-   Both a JDK and JRE installer are available:   
-   jai-1_1_3-lib-windows-i586-jdk.exe
-   jai-1_1_3-lib-windows-i586-jre.exe
+   Both a JDK and JRE installer are available:
+   
+   * jai-1_1_3-lib-windows-i586-jdk.exe
+   * jai-1_1_3-lib-windows-i586-jre.exe
      
 #. Optional – ImageIO Is used to read and write raster files. GeoTools uses version 1_1 of the
    ImageIO library:
@@ -68,8 +69,9 @@ Imaging and Java Image IO section.
    https://jai-imageio.dev.java.net/binary-builds.html
    
    Both a JDK and JRE installer are available:   
-   jai_imageio-1_1-lib-windows-i586-jdk.exe 
-   jai_imageio-1_1-lib-windows-i586-jre.exe
+   
+   * jai_imageio-1_1-lib-windows-i586-jdk.exe 
+   * jai_imageio-1_1-lib-windows-i586-jre.exe
 
 Eclipse
 =======
