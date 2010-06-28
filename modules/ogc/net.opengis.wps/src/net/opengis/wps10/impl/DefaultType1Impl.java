@@ -124,7 +124,10 @@ public class DefaultType1Impl extends EObjectImpl implements DefaultType1 {
     public void eSet(int featureID, Object newValue) {
         switch (featureID) {
             case Wps10Package.DEFAULT_TYPE1__UOM:
-                setUOM((Unit)newValue);
+                if (newValue instanceof String) {
+                    throw new ClassCastException("Unable to cast String \"" + newValue + "\" to a Unit");
+                }
+                setUOM((Unit) newValue);
                 return;
         }
         super.eSet(featureID, newValue);

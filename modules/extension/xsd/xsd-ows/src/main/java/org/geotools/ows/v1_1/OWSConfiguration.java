@@ -61,6 +61,7 @@ public class OWSConfiguration extends Configuration {
         
     }
     
+    @SuppressWarnings("unchecked")
     protected void registerBindings(Map bindings) {
         bindings.put(OWS.AcceptVersionsType,new ComplexEMFBinding(Ows11Factory.eINSTANCE, OWS.AcceptVersionsType));        
         bindings.put(OWS.AddressType,new ComplexEMFBinding(Ows11Factory.eINSTANCE, OWS.AddressType));
