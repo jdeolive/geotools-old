@@ -9,9 +9,9 @@
 :Author: Jody Garnett
 :Author: Micheal Bedward
 :Thanks: geotools-user list
-:Version: $Revision: 5801 $
+:Version: |release|
 :License: Create Commons with attribution
-
+   
 Welcome Eclipse Developers
 ==========================
 
@@ -109,12 +109,10 @@ switch to the “Java Perspective”.
    
 #. On the Welcome view press Workbench along the right hand side and we can get started
 
+.. _eclipse-m2eclipse:
+
 M2Eclipse
 ---------
-
-.. sidebar:: Lab
-
-  The bundled eclipse includes M2Eclipse you may skip this section.
   
 Maven is build system for Java which is very good at managing dependencies. The GeoTools library is
 plugin based and you get to pick and choose what features you need for your application. While this
@@ -148,6 +146,8 @@ To install the M2Eclipse plugin:
 At the end of this workbook we offer two alternatives to using the M2Eclipse plugin:
 * Using maven from the command line
 * Downloading GeoTools and throwing out the parts that conflict
+
+.. _eclipse-m2-start:
 
 Quickstart
 ==========
@@ -235,34 +235,6 @@ such as GeoTools publish their work.
    
 #. This editor allows you to describe all kinds of things; in the interest of time we are going to
    skip the long drawn out explanation and ask you to click on the :guilabel:`pom.xml` tab.
-   
-   .. code-block:: xml
-   
-    <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-      <modelVersion>4.0.0</modelVersion>
-
-      <groupId>org.geotools</groupId>
-      <artifactId>tutorial</artifactId>
-      <version>0.0.1-SNAPSHOT</version>
-      <packaging>jar</packaging>
-    
-      <name>tutorial</name>
-      <url>http://maven.apache.org</url>
-    
-      <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-      </properties>
-    
-      <dependencies>
-        <dependency>
-          <groupId>junit</groupId>
-          <artifactId>junit</artifactId>
-          <version>3.8.1</version>
-          <scope>test</scope>
-        </dependency>
-      </dependencies>
-    </project>
 
 #. To make use of GeoTools we are going to add three things to this pom.xml file.
    
@@ -299,8 +271,9 @@ such as GeoTools publish their work.
    
    * You may also :download:`download this file<artefacts/pom.xml`
    
+
 Quickstart Application
-----------------------
+======================
 
 Now that your environment is setup we can put together a simple Quickstart. This example will display a shapefile on screen.
 
@@ -414,4 +387,179 @@ Here are some additional challenges for you to try:
   
   We will be making use of some of the project is greater depth in the remaining tutorials.
   
-  
+Alternatives to M2Eclipse
+=========================
+
+There are two alternatives to the use of the M2Eclipse plugin; you may find these better suite the
+needs of your organisation.
+
+* :ref:`eclipse-mvn-start`
+* :ref:`eclipse-download-start`
+
+.. _eclipse-mvn-start:
+
+Maven Plugin
+------------
+
+The first alternative to putting maven into eclipse; it to put eclipse into maven.
+
+The maven build tool also works directly on the command line; and includes a plugin for
+generating eclipse :file:`.project` and :file:`.classpath` files.
+
+#. Download Maven from http://maven.apache.org/download.html 
+   
+   The last version we tested with was: Maven 2.2.1
+   
+#. Unzip the file apache-maven-2.2.1-bin.zip to C:\java\apache-maven-2.2.1
+#. You need to have a couple of environmental variables set for maven to work. Use
+   :menuselection:`Control Panel --> System --> Advanced --> Environmental Variables` to set the following:
+
+   JAVA_HOME = :file:`C:\Program Files\Java\jdk1.6.0_16`
+   M2_HOME = :file:`C:\java\apache-maven-2.2.1`
+   PATH = :file:`%JAVA_HOME%\bin;%M2_HOME%\bin`
+
+   .. image:: images/env-variables.jpg
+   
+#. Open up a commands prompt :menuselection:`Accessories --> Command Prompt`
+#. Type the following command to confirm you are set up correctly:
+
+   .. code-block:: bat
+   
+      C:java> mvn -version
+      
+#. This should produce the following output
+
+   .. image:: images/maven-version.png
+   
+#. We can now create our project with:
+
+   .. code-block:: bat
+   
+      C:>cd C:\java
+      C:java> mvn archetype:create -DgroupId=org.geotools -DartifactId=tutorial
+
+#. And ask for our project to be set up for eclipse:
+
+   .. code-block:: bat
+      
+      C:java> cd tutorial
+      C:java\tutorial> mvn eclipse:eclipse
+
+#. You can now give Eclipse the background information it needs to talk to your “maven repository”
+   (maven downloaded something like 30 jars for you)
+#. Return to Eclipse
+#. Use :menuselection:`Windows --> Preferences` to open the Preference Dialog. 
+   Using the tree on the left navigate to the Java > Build path > Classpath Variables preference
+   Page.
+   
+   .. image:: images/classpath-variables.png
+   
+#. Add an **M2_REPO** classpath variable pointing to your “local repository” 
+
+    ==================  ========================================================
+       PLATFORM           LOCAL REPOSITORY
+    ==================  ========================================================
+       Windows XP:      :file:`C:\Documents and Settings\Jody\.m2\repository`
+       Windows:         :file:`C:\Users\Jody\.m2\repository`
+       Linux and Mac:   :file:`~/.m2/repository`
+    ==================  ========================================================
+
+#. We can now import your new project into eclipse using :menuselection:`File --> Import`
+#. Choose *Existing Projects into Workspace* from the list, and press :guilabel:`Next`
+
+  .. image:: images/import-existing.png
+
+#. Select the project you created: :file:`C:\java\tutorial`
+#. Press :guilabel:`Finish` to import your project
+#. Navigate to the pom.xml file and double click to open it up.
+   
+   We are going to start by defining the version number of GeoTools we wish to use. This workbook
+   was written for |version| although you may wish to try a newer version – or make use of a
+   nightly build by using |release|-SNAPSHOT.
+
+   Please add the properties, dependencies and repositories shown below:
+   
+      .. literalinclude:: artifacts/pom.xml
+        :language: xml
+
+   You may find it easier to cut and paste into your existing file; or just
+   :download:`download pom.xml<artifacts/pom.xml>` directly.
+   
+   And easy way to pick up typing mistakes with tags is to Eclipse to format the xml file.
+   
+#. Return to the command line and maven to download the required jars and tell eclipse about it
+   
+    .. code-block:: bat
+
+       C:\java\example> mvn eclipse:eclipse
+      
+#. Return to eclipse and select the project folder. Refresh your project using the context menu
+   or by pressing :kbd:`F5`. If you open up referenced libraries you will see the required jars 
+   listed.
+   
+      .. image:: images/maven-refresh.png
+
+#. Using this technique of running mvn eclipse:eclipse and refreshing in eclipse you can proceed
+   through all the tutorial examples.
+   
+.. _eclipse-download-start:
+
+Download GeoTools
+-----------------
+
+We can also download the GeoTools project bundle from source forge and set up our project to use
+them. Please follow these steps carefully as not all the GeoTools jars can be used at the same
+time.
+
+#. Download the GeoTools binrary release from http://sourceforge.net/projects/geotools/files 
+
+#. We are now going to make a project for the required jars. By placing the jars into their own project is is easier to upgrade GeoTools.
+
+   Select File > New > Java Project to open the New Java Project wizard
+
+#. Type in “GeoTools Download” as the name of the project and press Finish.
+
+#. Choose File > Import to open the Import Wizard.
+
+#. Select General > Archive File and press Next
+
+#. Navigate to the geotools-bin.zip download and import the contents into your project.
+
+#. GeoTools includes a copy of the “EPSG” database; but also allows you to hook up your own copy of the EPSG database as an option..
+
+   However only one copy can be used at a time so we will need to remove the following jars from the Library Manager:
+
+   * gt-epsg-h2
+   * gt-epsg-oracle
+   * gt-epsg-postgresql
+   * gt-epsg-wkt
+      
+#. GeoTools allows you to work with many different databases; however to make them work you will need to download jdbc drivers from the manufacturer.
+
+   For now remove the follow plugins from your Library Manager definition:
+
+   * gt-arcsde
+   * gt-arcsde-common
+   * gt-db2
+   * gt-jdbc-db2
+   * gt-oracle-spatial
+   * gt-jdbc-oracle
+
+#. Next we update our java build path to include the remaining jars. Choose Project > Properties from 
+   the menu bar
+
+#. Select Java Build Path property page; and switch to the library tab.
+
+#. Press Add JARs button and add all the jars
+
+#. Switch to the Order and Export tab and press Select All
+
+#. We can now create a new Example project to get going on our Example.
+
+#. Use Project > Properties on your new Example project to open up the Java Build Path page.
+
+#. Switch to the Projects tab and use the Add.. button to add GeoTools Downloads to the build path.
+
+#. Our example project can now use all the GeoTools jars.
+
+#. Please proceed to the Quickstart.
