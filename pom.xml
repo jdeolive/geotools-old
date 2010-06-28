@@ -1266,6 +1266,7 @@
   <modules>
     <module>build</module>
     <module>modules</module>
+    <module>docs</module>
     <module>demo</module>
   </modules>
 </project>
