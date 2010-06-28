@@ -55,6 +55,7 @@ public class WPSConfiguration extends Configuration {
        addDependency( new OWSConfiguration());
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void registerBindings(Map bindings) {
         bindings.put(WPS.InputReferenceType, InputReferenceTypeBinding.class);
