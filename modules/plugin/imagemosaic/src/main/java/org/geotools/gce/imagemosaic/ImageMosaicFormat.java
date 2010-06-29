@@ -28,8 +28,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.media.jai.Interpolation;
+import javax.media.jai.InterpolationNearest;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -100,11 +107,15 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 @SuppressWarnings("deprecation")
 public final class ImageMosaicFormat extends AbstractGridFormat implements Format {
 
+    ExecutorService mtLoader = null; 
+    
     /** Logger. */
     private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(ImageMosaicFormat.class.toString());
     
     /** The {@code String} representing the parameter to customize tile sizes */
     private static final String SUGGESTED_TILESIZE = "SUGGESTED_TILE_SIZE";
+    
+    static final Interpolation DEFAULT_INTERPOLATION = new InterpolationNearest();
 
     /**
      * This {@link GeneralParameterValue} can be provided to the
@@ -137,7 +148,8 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
     public static final ParameterDescriptor<Boolean> FADING = new DefaultParameterDescriptor<Boolean>("Fading", Boolean.class, new Boolean[]{Boolean.TRUE,Boolean.FALSE}, Boolean.FALSE);
 
     /** Control the transparency of the input coverages. */
-    public static final ParameterDescriptor<Color> INPUT_TRANSPARENT_COLOR = new DefaultParameterDescriptor<Color>("InputTransparentColor", Color.class, null, null);
+    public static final ParameterDescriptor<Color> INPUT_TRANSPARENT_COLOR = new DefaultParameterDescriptor<Color>(
+            "InputTransparentColor", Color.class, null, null);
 
     /** Control the transparency of the output coverage. */
     public static final ParameterDescriptor<Color> OUTPUT_TRANSPARENT_COLOR = new DefaultParameterDescriptor<Color>(
@@ -147,7 +159,7 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
     public static final ParameterDescriptor<Integer> MAX_ALLOWED_TILES = new DefaultParameterDescriptor<Integer>(
             "MaxAllowedTiles", Integer.class, null, Integer.MAX_VALUE);
     
-    /** Control the threading behavior for this plugin. This parameter contains the number of thread that we should use to load the granules. Default value is 0 which means not additional thread, max value is 8.*/
+    /** Control the threading behavior for this plugin.*/
     public static final ParameterDescriptor<Boolean> ALLOW_MULTITHREADING = new DefaultParameterDescriptor<Boolean>(
             "AllowMultithreading", Boolean.class, new Boolean[]{Boolean.TRUE,Boolean.FALSE}, Boolean.FALSE);
     
@@ -155,7 +167,7 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
     public static final ParameterDescriptor<Boolean> HANDLE_FOOTPRINT = new DefaultParameterDescriptor<Boolean>(
             "HandleFootprint", Boolean.class, new Boolean[]{Boolean.TRUE,Boolean.FALSE}, Boolean.TRUE);
     
-    /** Control the footprint management.*/
+    /** Control whether to add the ROI in the output mosaic. */
     public static final ParameterDescriptor<Boolean> SET_ROI_PROPERTY = new DefaultParameterDescriptor<Boolean>(
             "SetRoiProperty", Boolean.class, new Boolean[]{Boolean.TRUE,Boolean.FALSE}, Boolean.FALSE);
     
@@ -163,13 +175,28 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
     public static final ParameterDescriptor<double[]> BACKGROUND_VALUES = new DefaultParameterDescriptor<double[]>(
             "BackgroundValues", double[].class, null, null);
     
+    /** Control the interpolation to be used in mosaicking */
+    public static final ParameterDescriptor<Interpolation> INTERPOLATION = new DefaultParameterDescriptor<Interpolation>(
+            "Interpolation", Interpolation.class, null, DEFAULT_INTERPOLATION);
+    
     /**
      * Creates an instance and sets the metadata.
      */
     public ImageMosaicFormat() {
         setInfo();
+        mtLoader = ImageMosaicFormatFactory.DefaultMultiThreadedLoader;
     }
 
+    /**
+     * Creates an instance with a specific multiThreadedLoaderConfiguration.
+     */
+    public ImageMosaicFormat(final int corePoolSize, final int maxCorePoolSize, final int keepAliveSeconds) {
+        setInfo();
+        mtLoader = new ThreadPoolExecutor(corePoolSize,maxCorePoolSize,keepAliveSeconds,
+                TimeUnit.SECONDS,new LinkedBlockingQueue<Runnable>());
+    }
+
+    
     /**
      * Sets the metadata information.
      */
@@ -193,6 +220,7 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
                 SUGGESTED_TILE_SIZE,
                 ALLOW_MULTITHREADING,
                 MAX_ALLOWED_TILES,
+                INTERPOLATION,
                 TIME,
                 ELEVATION}));
 
@@ -410,7 +438,9 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
     public ImageMosaicReader getReader( Object source, Hints hints ) {
         try {
 
-            return new ImageMosaicReader(source, hints);
+            final ImageMosaicReader reader = new ImageMosaicReader(source, hints);
+            reader.multiThreadedLoader = mtLoader;
+            return reader;
         } catch (MalformedURLException e) {
             if (LOGGER.isLoggable(Level.WARNING))
                 LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);

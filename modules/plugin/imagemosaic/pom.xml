@@ -37,8 +37,7 @@
   </scm>
 
   <description>
-    Datasource created to read a mosaic of georeferenced images or geotiff
-    (and in future also JPEG2K).
+    Datasource created to read a mosaic of georeferenced images or geotiff, jp2k, ...
   </description>
 
   <licenses>

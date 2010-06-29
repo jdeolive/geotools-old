@@ -22,10 +22,17 @@ import it.geosolutions.imageio.plugins.jp2mrsid.JP2GDALMrSidImageReaderSpi;
 import it.geosolutions.imageio.utilities.ImageIOUtilities;
 
 import java.awt.RenderingHints;
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -35,6 +42,7 @@ import org.geotools.coverage.grid.io.GridFormatFactorySpi;
 import org.geotools.coverageio.gdal.jp2ecw.JP2ECWFormatFactory;
 import org.geotools.coverageio.gdal.jp2kak.JP2KFormatFactory;
 import org.geotools.coverageio.gdal.jp2mrsid.JP2MrSIDFormatFactory;
+import org.geotools.data.DataUtilities;
 
 import com.sun.media.imageioimpl.common.PackageUtil;
 import com.sun.media.imageioimpl.plugins.jpeg2000.J2KImageReaderCodecLibSpi;
@@ -49,11 +57,22 @@ import com.sun.media.imageioimpl.plugins.tiff.TIFFImageReaderSpi;
  * @since 2.3
  */
 public final class ImageMosaicFormatFactory implements GridFormatFactorySpi {
+        
+    @Override
+	protected void finalize() throws Throwable {
+    	DefaultMultiThreadedLoader.shutdown();
+		DefaultMultiThreadedLoader.shutdownNow();
+	}
+
+	static ExecutorService DefaultMultiThreadedLoader;
+    
 	/** Logger. */
 	private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(ImageMosaicFormatFactory.class);
 	private static final String KAKADU_SPI = "it.geosolutions.imageio.plugins.jp2k.JP2KKakaduImageReaderSpi";
 
-	static{
+	static {
+	    initDefaultMultiThreadedLoader();
+	    
 		replaceTIFF();
 		
 		if(JP2KAK()){
@@ -96,6 +115,91 @@ public final class ImageMosaicFormatFactory implements GridFormatFactorySpi {
 
 		return available;
 	}
+
+	private static void initDefaultMultiThreadedLoader() {
+	        int corePoolSize = Utils.DEFAULT_CORE_POOLSIZE;
+            int maxPoolSize = Utils.DEFAULT_MAX_POOLSIZE;;
+            int keepAliveSeconds = Utils.DEFAULT_KEEP_ALIVE;
+            Utils.QueueType queueType=Utils.DEFAULT_QUEUE_TYPE;
+            
+            //Looking for file on user home
+            final String userHome = System.getProperty("user.home");
+            String configFile = null;
+            if (userHome != null && userHome.length()>0) {
+                configFile = new StringBuilder(userHome).
+                append(File.separatorChar).append(Utils.THREADPOOL_CONFIG_FILE).toString();
+            }
+            Properties props = null;
+            File file = null;
+            
+            if (configFile != null){
+                file = new File(configFile);
+                if (file != null && file.exists() && file.canRead()){
+                    props = Utils.loadPropertiesFromURL(DataUtilities.fileToURL(file));
+                }
+            }
+            
+            // Looking for file referred by "mosaic.threadpoolconfig.path" property
+            if (props == null) {
+                if (!file.exists() || !file.canRead()) {
+                    final String filePath = System.getProperty("mosaic.threadpoolconfig.path");
+                    if (filePath != null && filePath.trim().length() > 0) {
+                        configFile = filePath;
+                        if (configFile != null){
+                            file = new File(configFile);
+                            if (file != null && file.exists() && file.canRead()){
+                                props = Utils.loadPropertiesFromURL(DataUtilities.fileToURL(file));
+                            }
+                        }
+                    }
+                }
+            }
+            
+            //Init properties
+            if (props != null){
+                final String corePool = props.getProperty("corePoolSize");
+                if (corePool != null){
+                    corePoolSize = Integer.parseInt(corePool);
+                }
+                final String maxPool = props.getProperty("maxPoolSize");
+                if (maxPool != null){
+                    maxPoolSize = Integer.parseInt(maxPool);
+                }
+                final String keepAlive = props.getProperty("keepAliveSeconds");
+                if (keepAlive != null){
+                    keepAliveSeconds = Integer.parseInt(keepAlive);
+                }
+                final String queueT = props.getProperty("queueType");
+                if (queueT != null){
+                	try{
+                		queueType = Utils.QueueType.valueOf(queueT);
+                	}finally{
+                		queueType = Utils.QueueType.getDefault();
+                	}
+                }                
+            }
+            
+            switch (queueType) {
+			case UNBOUNDED:
+				DefaultMultiThreadedLoader = new ThreadPoolExecutor(corePoolSize,maxPoolSize,keepAliveSeconds,
+	                    TimeUnit.SECONDS,new LinkedBlockingQueue<Runnable>());
+				break;
+			case DIRECT:
+				DefaultMultiThreadedLoader = new ThreadPoolExecutor(corePoolSize,maxPoolSize,keepAliveSeconds,
+	                    TimeUnit.SECONDS,new SynchronousQueue<Runnable>());
+				break;
+			default:// UNBOUNDED
+				DefaultMultiThreadedLoader = new ThreadPoolExecutor(corePoolSize,maxPoolSize,keepAliveSeconds,
+	                    TimeUnit.SECONDS,new LinkedBlockingQueue<Runnable>());				
+				break;
+			}
+            if (LOGGER.isLoggable(Level.FINE)){
+                LOGGER.fine(new StringBuilder("MultithreadedLoader configured with corePoolSize = ").append(corePoolSize)
+                        .append(" ; maxPoolSize = ").append(maxPoolSize).append(" ; keepAliveSeconds = ").append(keepAliveSeconds)
+                        .append(" ; queueType = ").append(queueType.toString()).toString());
+            }
+        
+    }
 
 	private static boolean JP2KAK() {
 		try{
@@ -291,6 +395,13 @@ public final class ImageMosaicFormatFactory implements GridFormatFactorySpi {
 	public ImageMosaicFormat createFormat() {
 		return new ImageMosaicFormat();
 	}
+	
+	/**
+         * @see GridFormatFactorySpi#createFormat().
+         */
+        public ImageMosaicFormat createFormat(final int corePoolSize, final int maxPoolSize, final int keepAliveSeconds) {
+                return new ImageMosaicFormat(corePoolSize, maxPoolSize, keepAliveSeconds);
+        }
 
 	/**
 	 * Returns the implementation hints. The default implementation returns an

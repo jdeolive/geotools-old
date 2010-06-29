@@ -84,6 +84,8 @@ public class CatalogBuilderConfiguration{
 	
 	private String locationAttribute = Utils.DEFAULT_LOCATION_ATTRIBUTE;
 	
+	private boolean footprintManagement = Utils.DEFAULT_FOOTPRINT_MANAGEMENT;
+	
 	@Option(description="Root directory where to place the index file",mandatory=true,name="rootDirectory")
 	private String rootMosaicDirectory;
 	
@@ -119,6 +121,13 @@ public class CatalogBuilderConfiguration{
 		this.timeAttribute = timeAttribute;
 	}
 
+        public boolean isFootprintManagement() {
+                return footprintManagement;
+        }
+    
+        public void setFootprintManagement(boolean footprintManagement) {
+                this.footprintManagement = footprintManagement;
+        }
 
 	private String timeAttribute;
 	
@@ -139,65 +148,38 @@ public class CatalogBuilderConfiguration{
 		return indexingDirectories;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.geotools.gce.imagemosaic.JMXIndexBuilderMBean#getIndexName()
-	 */
 	public String getIndexName() {
 		return indexName;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.geotools.gce.imagemosaic.JMXIndexBuilderMBean#getLocationAttribute()
-	 */
 	public String getLocationAttribute() {
 		return locationAttribute;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.geotools.gce.imagemosaic.JMXIndexBuilderMBean#getRootMosaicDirectory()
-	 */
 	public String getRootMosaicDirectory() {
 		return rootMosaicDirectory;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.geotools.gce.imagemosaic.JMXIndexBuilderMBean#getWildcardString()
-	 */
 	public String getWildcard() {
 		return wildcard;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.geotools.gce.imagemosaic.JMXIndexBuilderMBean#isAbsolute()
-	 */
 	public boolean isAbsolute() {
 		return absolute;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.geotools.gce.imagemosaic.JMXIndexBuilderMBean#setAbsolute(boolean)
-	 */
 	public void setAbsolute(boolean absolute) {
 		this.absolute = absolute;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.geotools.gce.imagemosaic.JMXIndexBuilderMBean#setIndexName(java.lang.String)
-	 */
 	public void setIndexName(String indexName) {
 		this.indexName = indexName;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.geotools.gce.imagemosaic.JMXIndexBuilderMBean#setLocationAttribute(java.lang.String)
-	 */
 	public void setLocationAttribute(String locationAttribute) {
 		this.locationAttribute = locationAttribute;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.geotools.gce.imagemosaic.JMXIndexBuilderMBean#setRootMosaicDirectory(java.lang.String)
-	 */
 	public void setRootMosaicDirectory(final String rootMosaicDirectory) {
 		 Utilities.ensureNonNull("rootMosaicDirectory", rootMosaicDirectory);
 		 String testingDirectory = rootMosaicDirectory;
@@ -207,9 +189,6 @@ public class CatalogBuilderConfiguration{
 	}		
 
 
-	/* (non-Javadoc)
-	 * @see org.geotools.gce.imagemosaic.JMXIndexBuilderMBean#setWildcardString(java.lang.String)
-	 */
 	public void setWildcard(String wildcardString) {
 		this.wildcard = wildcardString;
 	}
@@ -229,6 +208,8 @@ public class CatalogBuilderConfiguration{
 		
 		if(this.absolute!=that.absolute)
 			return false;
+		if(this.footprintManagement!=that.footprintManagement)
+                    return false;
 		if(!(this.indexName==null&&that.indexName==null)&&!this.indexName.equals(that.indexName))
 			return false;	
 		if(!(this.locationAttribute==null&&that.locationAttribute==null)&&!this.locationAttribute.equals(that.locationAttribute))
@@ -246,6 +227,7 @@ public class CatalogBuilderConfiguration{
 	public int hashCode() {
 		int seed=37;
 		seed=Utilities.hash(absolute, seed);
+		seed=Utilities.hash(footprintManagement, seed);
 		seed=Utilities.hash(locationAttribute, seed);
 		seed=Utilities.hash(indexName, seed);
 		seed=Utilities.hash(wildcard, seed);
@@ -261,6 +243,7 @@ public class CatalogBuilderConfiguration{
 		builder.append("wildcardString:\t\t\t").append(wildcard).append("\n");
 		builder.append("indexName:\t\t\t").append(indexName).append("\n");
 		builder.append("absolute:\t\t\t").append(absolute).append("\n");
+		builder.append("footprintManagement:\t\t\t").append(footprintManagement).append("\n");
 		builder.append("locationAttribute:\t\t\t").append(locationAttribute).append("\n");
 		builder.append("rootMosaicDirectory:\t\t\t").append(rootMosaicDirectory).append("\n");
 		builder.append("indexingDirectories:\t\t\t").append(Utilities.deepToString(indexingDirectories)).append("\n");

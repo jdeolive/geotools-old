@@ -21,6 +21,7 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
 import java.awt.image.ColorModel;
 import java.awt.image.IndexColorModel;
 import java.awt.image.MultiPixelPackedSampleModel;
@@ -41,7 +42,9 @@ import java.util.logging.Logger;
 import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
 import javax.measure.unit.Unit;
+import javax.media.jai.BorderExtender;
 import javax.media.jai.ImageLayout;
+import javax.media.jai.Interpolation;
 import javax.media.jai.JAI;
 import javax.media.jai.ParameterBlockJAI;
 import javax.media.jai.PlanarImage;
@@ -50,6 +53,7 @@ import javax.media.jai.ROIShape;
 import javax.media.jai.RenderedOp;
 import javax.media.jai.TileCache;
 import javax.media.jai.TileScheduler;
+import javax.media.jai.operator.AffineDescriptor;
 import javax.media.jai.operator.ConstantDescriptor;
 import javax.media.jai.operator.MosaicDescriptor;
 
@@ -59,6 +63,7 @@ import org.geotools.coverage.TypeMap;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
+import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.io.DecimationPolicy;
 import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.data.DataSourceException;
@@ -76,6 +81,7 @@ import org.geotools.geometry.jts.JTS;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.image.ImageWorker;
 import org.geotools.referencing.CRS;
+import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.geotools.resources.i18n.Vocabulary;
 import org.geotools.resources.i18n.VocabularyKeys;
@@ -328,6 +334,7 @@ class RasterLayerResponse{
 
 		
 	}
+
 	/**
 	 * This class is responsible for putting together the granules for the final mosaic.
 	 * 
@@ -345,10 +352,24 @@ class RasterLayerResponse{
 
 		private final List<Future<GranuleLoadingResult>> tasks= new ArrayList<Future<GranuleLoadingResult>>();
 		private int   granulesNumber;
-		private boolean doInputTransparency;
 		private List<ROI> rois = new ArrayList<ROI>();
 		private Color inputTransparentColor;
 		private PlanarImage[] alphaChannels;
+        
+                private ROI[] sourceRoi;
+        
+                private double[][] sourceThreshold;
+        
+                private boolean doInputTransparency;
+		
+		private List<RenderedImage> sources = new ArrayList<RenderedImage>();
+
+		public RenderedImage[] getSourcesAsArray() {
+		    RenderedImage []imageSources = new RenderedImage[sources.size()];
+    	            sources.toArray(imageSources);
+    	            return imageSources;
+                }
+
 
 		public void visit(GranuleDescriptor granuleDescriptor, Object o) {
 			
@@ -363,7 +384,7 @@ class RasterLayerResponse{
                             if(!multithreadingAllowed)
                                         tasks.add(new FutureTask<GranuleLoadingResult>(loader));
                                 else
-                                        tasks.add(ImageMosaicReader.multiThreadedLoader.submit(loader));
+                                        tasks.add(rasterManager.parent.multiThreadedLoader.submit(loader));
                                 
                                 granulesNumber++;
                         }
@@ -432,8 +453,7 @@ class RasterLayerResponse{
 						// for data type other than byte and ushort. With float and double
 						// it can cut off a large par of the dynamic.
 						//
-							pbjMosaic.setParameter("sourceThreshold",
-								new double[][] { { Utils.getThreshold(loadedImage.getSampleModel().getDataType()) } });
+						sourceThreshold = new double[][] { { Utils.getThreshold(loadedImage.getSampleModel().getDataType()) } };
 						
 						
 						firstGranule=false;
@@ -481,12 +501,21 @@ class RasterLayerResponse{
 				ROI imageBounds = new ROIShape(PlanarImage.wrapRenderedImage(raster).getBounds());
                                 if (footprintManagement){
                                     final ROIShape footprint = result.getFootprint();
-                                    imageBounds = footprint != null? imageBounds.intersect(footprint): imageBounds;
-                                }
+								    if (footprint != null){
+								        if (imageBounds.contains(footprint.getBounds())) {
+								            imageBounds = footprint;
+								        } else {
+								            imageBounds = imageBounds.intersect(footprint);
+								        }
+								    }
+				    
+				    
+				}
                                 rois.add(imageBounds);
 
 				// add to mosaic
-				pbjMosaic.addSource(raster);
+                                sources.add(raster);
+                                
 			
 				//increment index 
 				granuleIndex++;
@@ -499,31 +528,9 @@ class RasterLayerResponse{
 					LOGGER.log(Level.FINE,"Unable to load any granuleDescriptor ");
 				return;
 			}
-
 			
-			//
-			// management of the alpha information which
-			// can be the result of a masking operation upon the request for a
-			// transparent color or the result of input images with internal
-			// transparency.
-
-			if (alphaIn || doInputTransparency) {
-				// //
-				//
-				// In case the input images have transparency information
-				// this
-				// way we can handle it.
-				//
-				// //
-				pbjMosaic.setParameter("sourceAlpha", alphaChannels);
-
-			}
-
-			pbjMosaic.setParameter("sourceROI", rois.toArray(new ROI[rois.size()]));			
-			
+	                sourceRoi = rois.toArray(new ROI[rois.size()]);
 		}
-
-
 		
 	}
 
@@ -550,7 +557,6 @@ class RasterLayerResponse{
 
 	private Color finalTransparentColor;
 
-	private ParameterBlockJAI pbjMosaic;
 
 	private ReferencedEnvelope mosaicBBox;
 
@@ -571,14 +577,19 @@ class RasterLayerResponse{
 	private boolean setRoiProperty;
 	
 	private boolean alphaIn=false;
+	
+	private boolean oversampledRequest = false;
 
 	private MathTransform baseGridToWorld;
+	
+	private Interpolation interpolation;
+	
+	private boolean needsReprojection;
 
 	private double[] backgroundValues;
 	
 	private Hints hints;
-
-
+	
 	/**
 	 * Construct a {@code RasterLayerResponse} given a specific
 	 * {@link RasterLayerRequest}, a {@code GridCoverageFactory} to produce
@@ -607,7 +618,8 @@ class RasterLayerResponse{
 		footprintManagement = request.isFootprintManagement();
 		setRoiProperty = request.isSetRoiProperty();
 		backgroundValues = request.getBackgroundValues();
-
+		interpolation = request.getInterpolation();
+		needsReprojection = request.isNeedsReprojection();
 	}
 
 	/**
@@ -669,7 +681,7 @@ class RasterLayerResponse{
 		RenderedImage finalRaster = postProcessRaster(mosaic);
 		
 		//create the coverage
-		gridCoverage=prepareCoverage(finalRaster);
+		gridCoverage = prepareCoverage(finalRaster);
 		
 		//freeze
 		frozen = true;
@@ -683,6 +695,19 @@ class RasterLayerResponse{
 				LOGGER.fine("Support for alpha on final mosaic");
 			return Utils.makeColorTransparent(finalTransparentColor,mosaic);
 
+		}
+		if (oversampledRequest){
+		    try {
+		        AffineTransform affine1 = new AffineTransform((AffineTransform) baseGridToWorld);
+		        affine1.concatenate(Utils.CENTER_TO_CORNER);
+		        AffineTransform affine2 = request.getRequestedGridToWorld().createInverse();
+		        affine2.concatenate(affine1);
+                        mosaic = AffineDescriptor.create(mosaic, affine2 , interpolation, backgroundValues, hints);
+                    } catch (NoninvertibleTransformException e) {
+                        if (LOGGER.isLoggable(Level.SEVERE)){
+                            LOGGER.log(Level.SEVERE, "Unable to create the requested mosaic ", e );
+                        }
+                    }
 		}
 		return mosaic;
 	}
@@ -701,14 +726,8 @@ class RasterLayerResponse{
 			//
 			// prepare the params for executing a mosaic operation.
 			//
-			pbjMosaic = new ParameterBlockJAI("Mosaic");
-			pbjMosaic.setParameter("backgroundValues",backgroundValues);
 			// It might important to set the mosaic type to blend otherwise
 			// sometimes strange results jump in.
-			if (request.isBlend()) 
-				pbjMosaic.setParameter("mosaicType",MosaicDescriptor.MOSAIC_TYPE_BLEND);
-			else
-				pbjMosaic.setParameter("mosaicType",MosaicDescriptor.MOSAIC_TYPE_OVERLAY);
 
 			// select the relevant overview, notice that at this time we have
 			// relaxed a bit the requirement to have the same exact resolution
@@ -740,21 +759,32 @@ class RasterLayerResponse{
 						
 			//compute final world to grid
 			// base grid to world for the center of pixels
-			final AffineTransform g2w = new AffineTransform((AffineTransform) baseGridToWorld);
-			// move it to the corner
-			g2w.concatenate(Utils.CENTER_TO_CORNER);
 			
-			//keep into account overviews and subsampling
-			final OverviewLevel level = rasterManager.overviewsController.resolutionsLevels.get(imageChoice);
-			final OverviewLevel baseLevel = rasterManager.overviewsController.resolutionsLevels.get(0);
-			final AffineTransform2D adjustments = new AffineTransform2D(
-					(level.resolutionX/baseLevel.resolutionX)*baseReadParameters.getSourceXSubsampling(),
-					0,
-					0,
-					(level.resolutionY/baseLevel.resolutionY)*baseReadParameters.getSourceYSubsampling(),
-					0,
-					0);
-			g2w.concatenate(adjustments);
+			
+			final AffineTransform g2w;
+			
+                            final OverviewLevel baseLevel = rasterManager.overviewsController.resolutionsLevels.get(0);
+                            final double resX = baseLevel.resolutionX;
+                            final double resY = baseLevel.resolutionY;
+                            final double[] requestRes = request.getRequestedResolution();
+                            if (requestRes[0] < resX || requestRes[1] < resY) {
+                                // Using the better available resolution
+                                oversampledRequest = true;
+                                g2w = new AffineTransform((AffineTransform) baseGridToWorld);
+                                g2w.concatenate(Utils.CENTER_TO_CORNER);
+                            } else {
+                                if (!needsReprojection){
+                                    g2w = new AffineTransform(request.getRequestedGridToWorld());
+                                    g2w.concatenate(Utils.CENTER_TO_CORNER);
+                                } else {
+                                    GridToEnvelopeMapper mapper = new GridToEnvelopeMapper(new GridEnvelope2D(request.getRequestedRasterArea()), mosaicBBox);
+                                    mapper.setPixelAnchor(PixelInCell.CELL_CORNER);
+                                    g2w = mapper.createAffineTransform();
+                                }
+                            }
+    
+                            // move it to the corner
+
 			finalGridToWorldCorner=new AffineTransform2D(g2w);
 			finalWorldToGridCorner = finalGridToWorldCorner.inverse();// compute raster bounds
 			rasterBounds=new GeneralGridEnvelope(CRS.transform(finalWorldToGridCorner, mosaicBBox),PixelInCell.CELL_CORNER,false).toRectangle();
@@ -855,7 +885,7 @@ class RasterLayerResponse{
 							.toString());
 				
 				
-				return buildMosaic();				
+				return buildMosaic(visitor);				
 			
 			}
 			else{
@@ -956,10 +986,11 @@ class RasterLayerResponse{
 	 * Once we reach this method it means that we have loaded all the images
 	 * which were intersecting the requested envelope. Next step is to create
 	 * the final mosaic image and cropping it to the exact requested envelope.
+	 * @param visitor 
 	 * 
 	 * @return A {@link RenderedImage}}.
 	 */
-	private RenderedImage buildMosaic() throws IOException  {
+	private RenderedImage buildMosaic(final MosaicBuilder visitor) throws IOException  {
 
 		final ImageLayout layout = new ImageLayout(
 				rasterBounds.x,
@@ -977,20 +1008,35 @@ class RasterLayerResponse{
 		        if (tc != null && tc instanceof TileCache)
 		            localHints.add(new RenderingHints(JAI.KEY_TILE_CACHE, (TileCache) tc));
 		    }
+		    boolean addBorderExtender = true;
+		    if (hints != null && hints.containsKey(JAI.KEY_BORDER_EXTENDER)){
+                        final Object extender = hints.get(JAI.KEY_BORDER_EXTENDER);
+                        if (extender != null && extender instanceof BorderExtender) {
+                            localHints.add(new RenderingHints(JAI.KEY_BORDER_EXTENDER, (BorderExtender) extender));
+                            addBorderExtender = false;
+                        }
+                    }
+		    if (addBorderExtender){
+		        localHints.add(Utils.BORDER_EXTENDER_HINTS);
+		    }
 		    if (hints.containsKey(JAI.KEY_TILE_SCHEDULER)){
                         final Object ts = hints.get(JAI.KEY_TILE_SCHEDULER);
                         if (ts != null && ts instanceof TileScheduler)
                             localHints.add(new RenderingHints(JAI.KEY_TILE_SCHEDULER, (TileScheduler) ts));
                     }
 		}
-		RenderedImage mosaic = JAI.create("Mosaic", pbjMosaic, localHints);
+
+		ROI[] sourceRoi = visitor.sourceRoi;
+		RenderedImage mosaic = MosaicDescriptor.create(visitor.getSourcesAsArray(), 
+		        request.isBlend()? MosaicDescriptor.MOSAIC_TYPE_BLEND: MosaicDescriptor.MOSAIC_TYPE_OVERLAY
+		        , (alphaIn || visitor.doInputTransparency) ? visitor.alphaChannels : null, sourceRoi, visitor.sourceThreshold, backgroundValues, localHints);
 		
 		if (setRoiProperty) {
 		    
     		    //Adding globalRoi to the output
     		    RenderedOp rop = (RenderedOp) mosaic;
                     ROI globalRoi = null;
-                    ROI[] rois = (ROI []) pbjMosaic.getObjectParameter("sourceROI");
+                    ROI[] rois = sourceRoi;
                     for (int i=0; i<rois.length; i++){
                         if (globalRoi == null){
                             globalRoi = new ROI(rois[i].getAsImage());

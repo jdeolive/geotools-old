@@ -19,10 +19,13 @@ package org.geotools.gce.imagemosaic.catalog;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -89,6 +92,11 @@ class GTDataStoreGranuleCatalog extends AbstractGranuleCatalog {
 	/** Logger. */
 	final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(GTDataStoreGranuleCatalog.class);
 
+	/**
+     * UTC timezone to serve as reference
+     */
+    static final TimeZone UTC_TZ = TimeZone.getTimeZone("UTC");
+    
 	final static FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2( GeoTools.getDefaultHints() );
 	
 	/**
@@ -362,7 +370,15 @@ class GTDataStoreGranuleCatalog extends AbstractGranuleCatalog {
 								// escape the string correctly
 								attribute=((String) attribute).replace("\\", "\\\\");
 							}
-							
+
+							if(descriptor.getType().getBinding().equals(Date.class))
+							{
+								// escape the date correctly
+								Calendar cal = Calendar.getInstance(UTC_TZ);
+								cal.setTime(((Date) attribute));
+								attribute=cal.getTime();
+							}
+
 						}
 						
 						feature.setAttribute(i, attribute);

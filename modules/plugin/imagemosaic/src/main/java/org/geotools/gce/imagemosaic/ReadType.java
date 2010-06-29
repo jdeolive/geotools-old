@@ -18,7 +18,6 @@ package org.geotools.gce.imagemosaic;
 
 import java.awt.Dimension;
 import java.awt.Rectangle;
-import java.awt.RenderingHints;
 import java.awt.image.RenderedImage;
 import java.awt.image.renderable.ParameterBlock;
 import java.io.IOException;
@@ -30,14 +29,14 @@ import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
 import javax.imageio.spi.ImageReaderSpi;
 import javax.imageio.stream.ImageInputStream;
-import javax.media.jai.ImageLayout;
-import javax.media.jai.JAI;
 import javax.media.jai.RenderedOp;
 
 import org.geotools.factory.Hints;
 import org.geotools.resources.coverage.CoverageUtilities;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
+
+import com.sun.media.jai.operator.ImageReadDescriptor;
 
 
 /**
@@ -192,17 +191,18 @@ enum ReadType {
 			pbjImageRead.add(spi.createReaderInstance());
 			final RenderedOp raster;
 //			if(tileDimension != null){
-			if (hints != null){    
+//			if (hints != null){    
 				//build a proper layout
 //				final ImageLayout layout = new ImageLayout();
 //				layout.setTileWidth(tileDimension.width).setTileHeight(tileDimension.height);
 //				raster = JAI.create("ImageRead", pbjImageRead,new RenderingHints(JAI.KEY_IMAGE_LAYOUT,layout));
-			    raster = JAI.create("ImageRead", pbjImageRead, hints);
-			}
-			else
-				raster = JAI.create("ImageRead", pbjImageRead);
+//			    raster = JAI.create("ImageRead", pbjImageRead, hints);
+			    raster = ImageReadDescriptor.create(Utils.getInputStream(rasterUrl), imageIndex, false, false, false, null, null, readP, spi.createReaderInstance(), hints);
+//			}
+//			else
+//				raster = JAI.create("ImageRead", pbjImageRead);
 			//force rendering (a-la JAI)
-			if(raster!=null)
+			if (raster != null)
 				raster.getWidth();
 			return raster;
     	}

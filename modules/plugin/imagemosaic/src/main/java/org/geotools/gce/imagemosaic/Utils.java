@@ -20,6 +20,7 @@ import it.geosolutions.imageio.stream.input.spi.URLImageInputStreamSpi;
 
 import java.awt.Color;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
@@ -50,6 +51,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Queue;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -58,6 +60,8 @@ import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
 import javax.imageio.spi.ImageInputStreamSpi;
 import javax.imageio.stream.ImageInputStream;
+import javax.media.jai.BorderExtender;
+import javax.media.jai.JAI;
 import javax.media.jai.RasterFactory;
 import javax.media.jai.remote.SerializableRenderedImage;
 
@@ -98,6 +102,10 @@ import org.opengis.referencing.datum.PixelInCell;
  */
 public class Utils {
     
+    final static BorderExtender BORDER_EXTENDER = BorderExtender.createInstance(BorderExtender.BORDER_COPY);
+
+    final static RenderingHints BORDER_EXTENDER_HINTS = new RenderingHints(JAI.KEY_BORDER_EXTENDER, BORDER_EXTENDER);
+    
     static class Prop {
         final static String LOCATION_ATTRIBUTE = "LocationAttribute";
         final static String ENVELOPE2D = "Envelope2D";
@@ -110,6 +118,21 @@ public class Utils {
         final static String FOOTPRINT_MANAGEMENT = "FootprintManagement";       
     }
     
+	/**
+	 * Discriminator for the type of queue we should use.
+	 * 
+	 * @author Simone Giannecchini, GeoSolutions SAS
+	 *
+	 */
+    enum QueueType{
+    	UNBOUNDED, DIRECT;
+
+		public static QueueType getDefault() {
+			return UNBOUNDED;
+		}
+    }
+	final static String THREADPOOL_CONFIG_FILE = "mosaicthreadpoolconfig.properties";
+	static final int DEFAULT_CORE_POOLSIZE = 5;	
 	/**
 	 * {@link AffineTransform} that can be used to go from an image datum placed
 	 * at the center of pixels to one that is placed at ULC.
@@ -532,9 +555,17 @@ public class Utils {
 	}
 
 	static MosaicConfigurationBean loadMosaicProperties(final URL sourceURL,
-			final String defaultLocationAttribute) {
+                final String defaultLocationAttribute) {
+	    return loadMosaicProperties(sourceURL, defaultLocationAttribute, null);
+	}
+	
+	static MosaicConfigurationBean loadMosaicProperties(
+	        final URL sourceURL,
+		final String defaultLocationAttribute, 
+		final Set<String> ignorePropertiesSet) {
 		// ret value
 		final MosaicConfigurationBean retValue = new MosaicConfigurationBean();
+		final boolean ignoreSome = ignorePropertiesSet != null && !ignorePropertiesSet.isEmpty();
 
 		//
 		// load the properties file
@@ -549,51 +580,56 @@ public class Utils {
 			return null;
 		}
 
+		String[] pairs = null;
+		String pair[] = null;
+		
 		//
-		// resolutions levels
-		//			
-		int levelsNumber = Integer.parseInt(properties.getProperty("LevelsNum","1").trim());
-		retValue.setLevelsNum(levelsNumber);
-		if (!properties.containsKey("Levels")) {
-			if (LOGGER.isLoggable(Level.INFO))
-				LOGGER.info("Required key Levels not found.");
-			return null;
-		}
-		final String levels = properties.getProperty("Levels").trim();
-		String[] pairs = levels.split(" ");
-		if (pairs == null || pairs.length != levelsNumber) {
-			if (LOGGER.isLoggable(Level.INFO))
-				LOGGER
-						.info("Levels number is different from the provided number of levels resoltion.");
-			return null;
-		}
-		final double[][] resolutions = new double[levelsNumber][2];
-		for (int i = 0; i < levelsNumber; i++) {
-			String pair[] = pairs[i].split(",");
-			if (pair == null || pair.length != 2) {
-				if (LOGGER.isLoggable(Level.INFO))
-					LOGGER
-							.info("OverviewLevel number is different from the provided number of levels resoltion.");
-				return null;
-			}
-			resolutions[i][0] = Double.parseDouble(pair[0]);
-			resolutions[i][1] = Double.parseDouble(pair[1]);
-		}
-		retValue.setLevels(resolutions);
+                // resolutions levels
+                //              
+                if (!ignoreSome || !ignorePropertiesSet.contains(Prop.LEVELS)){
+                        int levelsNumber = Integer.parseInt(properties.getProperty(Prop.LEVELS_NUM,"1").trim()) ;
+                        retValue.setLevelsNum(levelsNumber);
+                        if(!properties.containsKey(Prop.LEVELS)) {
+                                if(LOGGER.isLoggable(Level.INFO))
+                                        LOGGER.info("Required key Levels not found.");                
+                                return  null;
+                        }                       
+                        final String levels = properties.getProperty(Prop.LEVELS).trim();
+                        pairs = levels.split(" ");
+                        if (pairs == null || pairs.length != levelsNumber) {
+                            if (LOGGER.isLoggable(Level.INFO))
+                                LOGGER.info("Levels number is different from the provided number of levels resoltion.");
+                                return null;
+                        }
+                        final double[][] resolutions = new double[levelsNumber][2];
+                        for (int i = 0; i < levelsNumber; i++) {
+                                pair = pairs[i].split(",");
+                                if (pair == null || pair.length != 2) {
+                                    if (LOGGER.isLoggable(Level.INFO))
+                                        LOGGER.info("OverviewLevel number is different from the provided number of levels resoltion.");
+                                        return null;
+                                }                               
+                                resolutions[i][0] = Double.parseDouble(pair[0]);
+                                resolutions[i][1] = Double.parseDouble(pair[1]);
+                        }
+                        retValue.setLevels(resolutions);
+                }
 
 		//
 		// suggested spi is optional
 		//
-		if (properties.containsKey("SuggestedSPI")) {
-			String suggestedSPI = properties.getProperty("SuggestedSPI").trim();
-			retValue.setSuggestedSPI(suggestedSPI);
-		}
+                if (!ignoreSome || !ignorePropertiesSet.contains(Prop.SUGGESTED_SPI)) {
+                    if (properties.containsKey(Prop.SUGGESTED_SPI)) {
+                            final String suggestedSPI = properties.getProperty(Prop.SUGGESTED_SPI).trim();
+                            retValue.setSuggestedSPI(suggestedSPI);
+                    }
+                }
 
 		//
 		// time attribute is optional
 		//
 		if (properties.containsKey("TimeAttribute")) {
-			String timeAttribute = properties.getProperty("TimeAttribute").trim();
+		        final String timeAttribute = properties.getProperty("TimeAttribute").trim();
 			retValue.setTimeAttribute(timeAttribute);
 		}
 
@@ -601,7 +637,7 @@ public class Utils {
 		// elevation attribute is optional
 		//
 		if (properties.containsKey("ElevationAttribute")) {
-			String elevationAttribute = properties.getProperty("ElevationAttribute").trim();
+		        final String elevationAttribute = properties.getProperty("ElevationAttribute").trim();
 			retValue.setElevationAttribute(elevationAttribute);
 		}
 
@@ -620,33 +656,46 @@ public class Utils {
 		//
 		// name is not optional
 		//
-		if (!properties.containsKey("Name")) {
-			if (LOGGER.isLoggable(Level.INFO))
-				LOGGER.info("Required key Name not found.");
-			return null;
-		}
-		String coverageName = properties.getProperty("Name").trim();
-		retValue.setName(coverageName);
+		if (!ignoreSome || !ignorePropertiesSet.contains(Prop.NAME)){
+                    if(!properties.containsKey(Prop.NAME)) {
+                            if(LOGGER.isLoggable(Level.SEVERE))
+                                    LOGGER.severe("Required key Name not found.");          
+                            return  null;
+                    }                       
+                    String coverageName = properties.getProperty(Prop.NAME).trim();
+                    retValue.setName(coverageName);
+                }
 
 		// need a color expansion?
-		// this is a newly added property we have to be ready to the case where
-		// we do not find it.
-		final boolean expandMe = Boolean.valueOf(properties.getProperty("ExpandToRGB", "false").trim());
-		retValue.setExpandToRGB(expandMe);
+                // this is a newly added property we have to be ready to the case where
+                // we do not find it.
+                if (!ignoreSome || !ignorePropertiesSet.contains(Prop.EXP_RGB)) {
+                        final boolean expandMe = Boolean.valueOf(properties.getProperty(Prop.EXP_RGB,"false").trim());  
+                        retValue.setExpandToRGB(expandMe);
+                }
 
-		//
-		// Absolute or relative path
-		//
-		boolean absolutePath = Boolean.parseBoolean(properties.getProperty(
-				"AbsolutePath", Boolean.toString(Utils.DEFAULT_PATH_BEHAVIOR))
-				.trim());
-		retValue.setAbsolutePath(absolutePath);
-
-		//
-		// location
-		//	
-		retValue.setLocationAttribute(properties.getProperty(
-				"LocationAttribute", Utils.DEFAULT_LOCATION_ATTRIBUTE).trim());
+                //
+                // Absolute or relative path
+                //
+                if (!ignoreSome || !ignorePropertiesSet.contains(Prop.ABSOLUTE_PATH)) {
+                        final boolean absolutePath = Boolean.parseBoolean(properties.getProperty(Prop.ABSOLUTE_PATH, Boolean.toString(Utils.DEFAULT_PATH_BEHAVIOR)).trim());
+                        retValue.setAbsolutePath(absolutePath);
+                }
+                
+                //
+                // Footprint management
+                //
+                if (!ignoreSome || !ignorePropertiesSet.contains(Prop.FOOTPRINT_MANAGEMENT)) {
+                        final boolean footprintManagement=Boolean.valueOf(properties.getProperty(Prop.FOOTPRINT_MANAGEMENT, "false").trim());   
+                        retValue.setFootprintManagement(footprintManagement);
+                }
+                
+                //
+                //  location
+                //  
+                if (!ignoreSome || !ignorePropertiesSet.contains(Prop.LOCATION_ATTRIBUTE)) {
+                        retValue.setLocationAttribute(properties.getProperty(Prop.LOCATION_ATTRIBUTE, Utils.DEFAULT_LOCATION_ATTRIBUTE).trim());
+                }
 
 		// retrn value
 		return retValue;
@@ -987,7 +1036,6 @@ public class Utils {
 	 * @return
 	 * @throws IOException
 	 */
-	@SuppressWarnings("unchecked")
 	public static Map<String, Serializable> createDataStoreParamsFromPropertiesFile(
 			final URL datastoreProperties)
 			throws IOException {
@@ -1130,6 +1178,11 @@ public class Utils {
         
 	final static Boolean IGNORE_FOOTPRINT = Boolean.getBoolean("org.geotools.footprint.ignore");
 	
+        public static final boolean DEFAULT_FOOTPRINT_MANAGEMENT = true;
+	
+	static final int DEFAULT_MAX_POOLSIZE = 15;
+	public static final int DEFAULT_KEEP_ALIVE = 30;
+	static final QueueType DEFAULT_QUEUE_TYPE = QueueType.getDefault();
 	/** 
 	     * Build a background values array using the same dataType of the input {@link SampleModel} (if available). 
 	     * 

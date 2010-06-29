@@ -108,9 +108,6 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
         /** Logger. */
 	private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(ImageMosaicReader.class);
 
-	final static ExecutorService multiThreadedLoader= new ThreadPoolExecutor(4,8,30,TimeUnit.SECONDS,new LinkedBlockingQueue<Runnable>());
-
-
 	/**
 	 * The source {@link URL} pointing to the index shapefile for this
 	 * {@link ImageMosaicReader}.
@@ -120,6 +117,8 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 	boolean expandMe;
 	
 	PathType pathType;
+	
+	ExecutorService multiThreadedLoader;
 
 	String locationAttributeName="location";
 
@@ -153,6 +152,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 	 * 
 	 */
 	public ImageMosaicReader(Object source, Hints uHints) throws IOException {
+	        multiThreadedLoader = ImageMosaicFormatFactory.DefaultMultiThreadedLoader;
 		// //
 		//
 		// managing hints
@@ -518,8 +518,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
 	 * 
 	 * @see org.opengis.coverage.grid.GridCoverageReader#getFormat()
 	 */
@@ -527,8 +526,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 		return new ImageMosaicFormat();
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
 	 * 
 	 * @see org.opengis.coverage.grid.GridCoverageReader#read(org.opengis.parameter.GeneralParameterValue[])
 	 */

@@ -26,6 +26,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
+import javax.media.jai.Interpolation;
 
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridEnvelope2D;
@@ -88,6 +89,9 @@ class RasterLayerRequest {
     
     /** The desired overview Policy for this request */
     private OverviewPolicy overviewPolicy;
+    
+    /** The Interpolation required to serve this request */
+    private Interpolation interpolation;
 
     /** The region where to fit the requested envelope */
     private Rectangle requestedRasterArea;
@@ -98,6 +102,9 @@ class RasterLayerRequest {
     private boolean footprintManagement;
     
     private boolean setRoiProperty;
+    
+    private boolean needsReprojection = false;
+
 
     /**
      * Set to {@code true} if this request will produce an empty result, and the
@@ -160,6 +167,10 @@ class RasterLayerRequest {
 	        return decimationPolicy;
 	 }
 	
+	 public boolean isNeedsReprojection() {
+	        return needsReprojection;
+	    }
+	 
 	/**
      * Build a new {@code CoverageRequest} given a set of input parameters.
      * 
@@ -232,7 +243,7 @@ class RasterLayerRequest {
 	        //
 	        // //
 	        if (descriptor.getName().equals(AbstractGridFormat.READ_GRIDGEOMETRY2D.getName())) {
-	        	if(value==null)
+	        	if (value == null)
 	        		continue;
 	            final GridGeometry2D gg = (GridGeometry2D)value;
 	            
@@ -280,6 +291,20 @@ class RasterLayerRequest {
                     continue;
                 }
 	
+                // //
+                //
+                // Interpolation parameter
+                //
+                // //
+                if (name.equals(ImageMosaicFormat.INTERPOLATION.getName())) {
+                    if (value == null) {
+                            continue;
+                    }
+                    interpolation = (Interpolation) value;
+                    continue;
+                }
+                
+                
 	        if (name.equals(ImageMosaicFormat.INPUT_TRANSPARENT_COLOR.getName())) {
 	        	if(value==null)
 	        		continue;
@@ -410,7 +435,7 @@ class RasterLayerRequest {
         	final Object value = param.getValue();
         	if(value==null)
         		return;
-            final GridGeometry2D gg = (GridGeometry2D) param.getValue();
+            final GridGeometry2D gg = (GridGeometry2D) value;
             if (gg == null) {
                 return;
             }
@@ -444,7 +469,7 @@ class RasterLayerRequest {
         	final Object value = param.getValue();
         	if(value==null)
         		return;
-            overviewPolicy = (OverviewPolicy) param.getValue();
+            overviewPolicy = (OverviewPolicy) value;
             return;
         }
         
@@ -457,7 +482,20 @@ class RasterLayerRequest {
                 final Object value = param.getValue();
                 if(value==null)
                         return;
-            decimationPolicy = (DecimationPolicy) param.getValue();
+            decimationPolicy = (DecimationPolicy) value;
+            return;
+        }
+        
+        // //
+        //
+        // Interpolation parameter
+        //
+        // //
+        if (name.equals(ImageMosaicFormat.INTERPOLATION.getName())) {
+                final Object value = param.getValue();
+                if(value==null)
+                        return;
+            interpolation = (Interpolation) value;
             return;
         }
 
@@ -465,7 +503,7 @@ class RasterLayerRequest {
         	final Object value = param.getValue();
         	if(value==null)
         		return;
-			inputTransparentColor = (Color) param.getValue();
+			inputTransparentColor = (Color) value;
 			// paranoiac check on the provided transparent color
 			inputTransparentColor = new Color(
 					inputTransparentColor.getRed(),
@@ -479,7 +517,7 @@ class RasterLayerRequest {
         	final Object value = param.getValue();
         	if(value==null)
         		return;
-			blend = ((Boolean) param.getValue()).booleanValue();
+			blend = ((Boolean) value).booleanValue();
 			return;
 
 		} 
@@ -488,7 +526,7 @@ class RasterLayerRequest {
         	final Object value = param.getValue();
         	if(value==null)
         		return;
-			outputTransparentColor = (Color) param.getValue();
+			outputTransparentColor = (Color) value;
 			// paranoiac check on the provided transparent color
 			outputTransparentColor = new Color(
 					outputTransparentColor.getRed(),
@@ -503,7 +541,7 @@ class RasterLayerRequest {
         	final Object value = param.getValue();
         	if(value==null)
         		return;
-			backgroundValues = (double[]) param.getValue();
+			backgroundValues = (double[]) value;
 			return;
 
 		}		
@@ -521,7 +559,7 @@ class RasterLayerRequest {
         	final Object value = param.getValue();
         	if(value==null)
         		return;
-			multithreadingAllowed = ((Boolean) param.getValue()).booleanValue();
+			multithreadingAllowed = ((Boolean) value).booleanValue();
 			return;
 		}	 	
 		
@@ -530,7 +568,7 @@ class RasterLayerRequest {
                     if (value == null) {
                             return;
                     }
-                    footprintManagement = ((Boolean) param.getValue()).booleanValue();
+                    footprintManagement = ((Boolean) value).booleanValue();
                     return;
                 }    
 		
@@ -539,7 +577,7 @@ class RasterLayerRequest {
                     if (value == null) {
                             return;
                     }
-                    setRoiProperty = ((Boolean) param.getValue()).booleanValue();
+                    setRoiProperty = ((Boolean) value).booleanValue();
                     return;
                 }    
        
@@ -663,6 +701,7 @@ class RasterLayerRequest {
             	destinationToSourceTransform=null;// the CRS is basically the same
             else if(destinationToSourceTransform instanceof AffineTransform)
             {
+                needsReprojection = true;
 	            //
 				// k, the transformation between the various CRS is not null or the
 				// Identity, let's see if it is an affine transform, which case we
@@ -1055,6 +1094,7 @@ class RasterLayerRequest {
             	final GeneralEnvelope temp = CRS.transform(destinationToSourceTransform,requestedBBox);
             	temp.setCoordinateReferenceSystem(rasterManager.spatialDomainManager.coverageCRS2D);
             	cropBBox= new ReferencedEnvelope(temp);
+            	needsReprojection = true;
             	
             }
             else
@@ -1215,7 +1255,15 @@ class RasterLayerRequest {
 		return backgroundValues;
 	}
 
-	public Rectangle getDestinationRasterArea() {
+	public void setInterpolation(Interpolation interpolation) {
+        this.interpolation = interpolation;
+    }
+
+    public Interpolation getInterpolation() {
+        return interpolation;
+    }
+
+    public Rectangle getDestinationRasterArea() {
 		return destinationRasterArea;
 	}
 

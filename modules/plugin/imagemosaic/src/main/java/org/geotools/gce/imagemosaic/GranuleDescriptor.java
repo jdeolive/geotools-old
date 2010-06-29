@@ -40,9 +40,9 @@ import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
 import javax.imageio.spi.ImageReaderSpi;
 import javax.imageio.stream.ImageInputStream;
+import javax.media.jai.BorderExtender;
 import javax.media.jai.ImageLayout;
 import javax.media.jai.Interpolation;
-import javax.media.jai.InterpolationNearest;
 import javax.media.jai.JAI;
 import javax.media.jai.ROIShape;
 import javax.media.jai.TileCache;
@@ -533,8 +533,10 @@ public class GranuleDescriptor {
 			final RasterLayerRequest request,
 			final Hints hints) throws IOException {
 		
-		if (LOGGER.isLoggable(java.util.logging.Level.FINE))
-			LOGGER.fine("Loading raster data for granuleDescriptor "+this.toString());
+		if (LOGGER.isLoggable(java.util.logging.Level.FINE)){
+		    final String name = Thread.currentThread().getName();
+			LOGGER.fine("Thread:" + name + " Loading raster data for granuleDescriptor "+this.toString());
+		}
 
 		final ReferencedEnvelope bbox = inclusionGeometry != null? new ReferencedEnvelope(granuleBBOX.intersection(inclusionGeometry.getEnvelopeInternal()), granuleBBOX.getCoordinateReferenceSystem()):granuleBBOX;
                 
@@ -669,8 +671,7 @@ public class GranuleDescriptor {
 
 			// keep into account translation factors to place this tile
 			finalRaster2Model.preConcatenate((AffineTransform) mosaicWorldToGrid);
-			
-			final InterpolationNearest nearest = new InterpolationNearest();
+			final Interpolation interpolation = request.getInterpolation();
 			//paranoiac check to avoid that JAI freaks out when computing its internal layouT on images that are too small
 			Rectangle2D finalLayout= layoutHelper(
 					raster, 
@@ -678,7 +679,7 @@ public class GranuleDescriptor {
 					(float)finalRaster2Model.getScaleY(), 
 					(float)finalRaster2Model.getTranslateX(), 
 					(float)finalRaster2Model.getTranslateY(), 
-					nearest);
+					interpolation);
 			if(finalLayout.isEmpty())
 			{
 				if(LOGGER.isLoggable(java.util.logging.Level.FINE))
@@ -728,17 +729,27 @@ public class GranuleDescriptor {
                                     if (scheduler != null && scheduler instanceof TileScheduler)
                                         localHints.add(new RenderingHints(JAI.KEY_TILE_SCHEDULER, (TileScheduler) scheduler));
                                 }
+				boolean addBorderExtender = true;
+                                if (hints != null && hints.containsKey(JAI.KEY_BORDER_EXTENDER)) {
+                                    final Object extender = hints.get(JAI.KEY_BORDER_EXTENDER);
+                                    if (extender != null && extender instanceof BorderExtender) {
+                                        localHints.add(new RenderingHints(JAI.KEY_BORDER_EXTENDER, (BorderExtender) extender));
+                                        addBorderExtender = false;
+                                    }
+                                }
+                                if (addBorderExtender) {
+                                    localHints.add(Utils.BORDER_EXTENDER_HINTS);
+                                }
 				// border extender
 //				return WarpDescriptor.create(raster, new WarpAffine(translationTransform.createInverse()),new InterpolationNearest(), request.getBackgroundValues(),localHints);
-				return new GranuleLoadingResult(AffineDescriptor.create(raster, finalRaster2Model, nearest, request.getBackgroundValues(),localHints), granuleLoadingShape);
+				return new GranuleLoadingResult(AffineDescriptor.create(raster, finalRaster2Model, interpolation, request.getBackgroundValues(),localHints), granuleLoadingShape);
 			}
 		
 		} catch (IllegalStateException e) {
 			if (LOGGER.isLoggable(java.util.logging.Level.WARNING))
 				LOGGER.log(java.util.logging.Level.WARNING, "Unable to load raster for granuleDescriptor "+this.toString()+ " with request "+request.toString(), e);
 			return null;
-		} 
-		catch (org.opengis.referencing.operation.NoninvertibleTransformException e) {
+		} catch (org.opengis.referencing.operation.NoninvertibleTransformException e) {
 			if (LOGGER.isLoggable(java.util.logging.Level.WARNING))
 				LOGGER.log(java.util.logging.Level.WARNING, "Unable to load raster for granuleDescriptor "+this.toString()+ " with request "+request.toString(), e);
 			return null;

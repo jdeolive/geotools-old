@@ -121,6 +121,9 @@ public class CatalogBuilder implements Runnable {
 		@Option(description="Directories where to look for file to index",mandatory=true,name="indexingDirectories")
 		private String indexingDirectoriesString;
 		
+		@Option(description="This index must handle footprint",mandatory=false,name="footprintManagement")
+                private Boolean footprintManagement;
+		
 		/**
 		 * Index file name. Default is index.
 		 */
@@ -140,6 +143,8 @@ public class CatalogBuilder implements Runnable {
 			super(args);
 			if(this.absolute==null)
 				this.absolute=Utils.DEFAULT_PATH_BEHAVIOR;
+			if(this.footprintManagement == null)
+                                this.footprintManagement = Utils.DEFAULT_FOOTPRINT_MANAGEMENT;
 			if(this.indexName==null)
 				this.indexName=Utils.DEFAULT_INDEX_NAME;
 		}
@@ -151,6 +156,7 @@ public class CatalogBuilder implements Runnable {
 			final CatalogBuilderConfiguration configuration= new CatalogBuilderConfiguration();
 			configuration.setAbsolute(runner.absolute);
 			configuration.setIndexName(runner.indexName);
+			configuration.setFootprintManagement(runner.footprintManagement);
 			configuration.setRootMosaicDirectory(runner.rootMosaicDirectory);
 			configuration.setWildcard(runner.wildcardString);
 			configuration.setLocationAttribute(runner.locationAttribute);

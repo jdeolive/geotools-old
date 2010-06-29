@@ -81,16 +81,21 @@ public class MosaicConfigurationBean {
 	public String getElevationAttribute() {
 		return elevationAttribute;
 	}
-	public void setElevationAttribute(String elevationAttribute) {
+	public void setElevationAttribute(final String elevationAttribute) {
 		this.elevationAttribute = elevationAttribute;
 	}
 	/** do we want to use caching for our index.*/
 	private boolean caching=false;
 
+	/**
+         * <code>true</code> if we need to manage footprint if available.
+         */
+        private boolean footprintManagement;
+
 	public String getTimeAttribute() {
 		return timeAttribute;
 	}
-	public void setTimeAttribute(String timeAttribute) {
+	public void setTimeAttribute(final String timeAttribute) {
 		this.timeAttribute = timeAttribute;
 	}
 	/**
@@ -102,50 +107,58 @@ public class MosaicConfigurationBean {
 	/**
 	 * @param suggestedSPI the suggestedSPI to set
 	 */
-	public void setSuggestedSPI(String suggestedSPI) {
+	public void setSuggestedSPI(final String suggestedSPI) {
 		this.suggestedSPI = suggestedSPI;
 	}
 	
 	public boolean isAbsolutePath() {
 		return absolutePath;
 	}
-	public void setAbsolutePath(boolean absolutePath) {
+	public void setAbsolutePath(final boolean absolutePath) {
 		this.absolutePath = absolutePath;
 	}
 	public boolean isExpandToRGB() {
 		return expandToRGB;
 	}
-	public void setExpandToRGB(boolean expandToRGB) {
+	public void setExpandToRGB(final boolean expandToRGB) {
 		this.expandToRGB = expandToRGB;
 	}
 	public String getName() {
 		return name;
 	}
-	public void setName(String name) {
+	public void setName(final String name) {
 		this.name = name;
 	}
 	public int getLevelsNum() {
 		return levelsNum;
 	}
-	public void setLevelsNum(int levelsNum) {
+	public void setLevelsNum(final int levelsNum) {
 		this.levelsNum = levelsNum;
 	}
 	public double[][] getLevels() {
 		return levels.clone();
 	}
-	public void setLevels(double[][] levels) {
+	public void setLevels(final double[][] levels) {
 		this.levels = levels.clone();
 	}
 	public String getLocationAttribute() {
 		return locationAttribute;
 	}
-	public void setLocationAttribute(String locationAttribute) {
+	public void setLocationAttribute(final String locationAttribute) {
 		this.locationAttribute = locationAttribute;
 	}
 	public boolean isCaching() {
 		return caching;
 	}
-	public void setCaching(boolean caching) {
+	public void setCaching(final boolean caching) {
 		this.caching = caching;
 	}
+
+        public void setFootprintManagement(final boolean footprintManagement) {
+                this.footprintManagement = footprintManagement;
+        }
+
+        public boolean isFootprintManagement() {
+            return footprintManagement;
+        }
 }
