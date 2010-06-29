@@ -77,7 +77,7 @@ public class OnlineWPSManualRequestTest extends OnlineTestCase {
      */
     @Override
     protected String getFixtureId() {
-        return "wps.geoserver";
+        return "wps";
     }
 
     public void connect() throws ServiceException, IOException {

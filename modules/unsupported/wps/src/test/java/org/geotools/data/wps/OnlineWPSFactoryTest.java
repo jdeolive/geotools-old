@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.TreeMap;
 
 import junit.framework.TestCase;
@@ -73,9 +74,16 @@ public class OnlineWPSFactoryTest extends OnlineTestCase {
      */
     @Override
     protected String getFixtureId() {
-        return "wps.geoserver";
+        return "wps";
     }
 
+    protected Properties createExampleFixture() {
+        Properties example = new Properties();
+        example.put("service", "http://localhost:8080/geoserver/ows?service=wps&version=1.0.0&request=GetCapabilities");
+        example.put("processId","buffer");
+        
+        return example;
+    }
     public void connect() throws ServiceException, IOException {
         if (fixture == null) {
             return;
