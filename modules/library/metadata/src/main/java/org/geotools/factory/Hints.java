@@ -738,6 +738,14 @@ public class Hints extends RenderingHints {
      */
     public static final Key SAMPLE_DIMENSION_TYPE = new Key("org.opengis.coverage.SampleDimensionType");
 
+    
+    /**
+     * The GridCoverageFactory to be used.
+     * 
+     * @since 2.7
+     */
+    public static final ClassKey GRID_COVERAGE_FACTORY = new ClassKey("org.geotools.coverage.grid.GridCoverageFactory");
+    
 
 
     ////////////////////////////////////////////////////////////////////////
