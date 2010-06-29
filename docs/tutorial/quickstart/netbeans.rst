@@ -327,3 +327,60 @@ Here are some additional challenges for you to try:
      .. image:: images/nbGraph.png
   
   We will be making use of some of the project is greater depth in the remaining tutorials.
+
+Maven Alternative
+=================
+
+The alternative to using Maven to download and manage jars for you is to manually install them.
+To start with we will obtain GeoTools from the website:
+
+1. Download the GeoTools binary release from http://sourceforge.net/projects/geotools/files 
+2. Extract the geotools-2.6.0-bin.zip file to C:\java\geotools-2.6.0 folder.
+3. If you open up the folder and have a look you will see GeoTools and all of the other jars that it uses including those from other libraries such as GeoAPI and JTS.
+
+  .. image:: images/gtunzipped.jpg
+  
+4. We can now set up GeoTools as a library in NetBeans:
+
+   From the menu bar choose Tools > Libraries to open the Library Manager.
+   
+5. From the Library Manager press the New Library button.
+
+6. Enter “GeoTools” for the Library Name and press OK
+
+7. You can now press the Add JAR/Folder button and add in all the jars from C:\java\GeoTools-|release|
+   
+8. GeoTools includes a copy of the “EPSG” map projections database; but also allows you to hook up your own copy of the EPSG database as an option. However, only one copy can be used at a time so we will need to remove the following jars from the Library Manager:
+   
+.. sidebar:: EPSG
+
+  The EPSG databaes is distributed as an Access database and has been converted into the pure java
+  database HSQL for our use.
+   
+   * gt-epsg-h2
+   * gt-epsg-oracle
+   * gt-epsg-postgresql
+   * gt-epsg-wkt-2.6
+
+9. GeoTools allows you to work with many different databases; however to make them work you will
+   need to download jdbc drivers from the manufacturer.
+
+   For now remove the following plugins from the Library Manager:
+
+   * gt-arcsde
+   * gt-arcsde-common
+   * gt-db2
+   * gt-jdbc-db2
+   * gt-oracle-spatial
+   * gt-jdbc-oracle
+
+10. We are now ready to proceed with creating an example project. Select File > New Project
+
+11. Choose the default “Java Application”
+
+12. Fill in “Tutorial” as the project name; and our initial Main class will be called “Quickstart”.
+
+13. Open up Example in the Projects window, right click on Libraries and select Add Libraries.
+   Choose GeoTools from the Add Library dialog.
+   
+14. Congratulations ! You can now return to Quickstart or any of the other tutorials
