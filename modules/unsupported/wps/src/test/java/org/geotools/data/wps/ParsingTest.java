@@ -110,6 +110,29 @@ public class ParsingTest {
     }
     
     @Test
+    public void testGeoServer3CapabilitiesParsing() throws Exception {
+        Object object;
+        BufferedReader in = null;
+        try {
+            Configuration config = new WPSConfiguration();
+
+            URL url;
+            url = TestData.url(this, "geoserverCapabilities.xml");
+            
+            Parser parser = new Parser(config);
+            in = new BufferedReader(new InputStreamReader(url.openStream()));
+            object = parser.parse(in);
+            
+            assertNotNull("parsed",object);
+            WPSCapabilitiesType capabiliites = (WPSCapabilitiesType) object;
+            assertEquals("1.0.0", capabiliites.getVersion() );
+            
+        } finally {
+            in.close();
+        }
+    }
+    
+    @Test
     public void testDegree3DescribeProcessParsing() throws Exception {
         Object object;
         BufferedReader in = null;

@@ -122,33 +122,4 @@
     </dependency>    
   </dependencies>
 
-
-  <!-- =========================================================== -->
-  <!--     Build Configuration                                     -->
-  <!--         copies all JARs in a single directory.              -->
-  <!-- =========================================================== -->
-  <build>
-
-    <plugins>
-      <!-- ====    Compilation      ============================== -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <!-- ====    Switch commenting to skip tests    = -->
-          <skip>${allow.test.skip}</skip>
-          <!-- skip>true</skip> -->
-          <includes>
-            <include></include>
-          </includes>
-          <excludes>
-            <exclude></exclude>
-          </excludes>
-        </configuration>
-      </plugin>
-
-    </plugins>
-    
-  </build>
-
 </project>
