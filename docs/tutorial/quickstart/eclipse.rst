@@ -271,11 +271,11 @@ such as GeoTools publish their work.
    
    * You may find cutting and pasting from the documentation to be easier then typing.
    
-   * You may also :download:`download this file<artefacts/pom.xml`
+   * You may also :download:`download this file <artifacts/pom.xml`
    
 
 Quickstart Application
-======================
+----------------------
 
 Now that your environment is setup we can put together a simple Quickstart. This example will display a shapefile on screen.
 
@@ -306,7 +306,11 @@ Now that your environment is setup we can put together a simple Quickstart. This
 #. A couple of things to note about the code example:
    
    * The shapefile is not loaded into memory – instead it is read from disk each and every time it is needed
-   * This approach allows you to work with data sets larger then available memory
+     This approach allows you to work with data sets larger then available memory.
+     
+      
+   * We are using a very basic display style here that just shows feature outlines. In the examples that follow we will see how to specify more sophisticated styles.
+   
 
 Things to Try
 =============
