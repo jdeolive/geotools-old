@@ -19,18 +19,13 @@ package org.geotools.data.complex;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.Iterator;
+import java.util.ListIterator;
 
+import org.apache.commons.collections.IteratorUtils;
 import org.geotools.data.Query;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
 import org.opengis.feature.Feature;
-import org.opengis.feature.type.FeatureType;
 import org.opengis.filter.Filter;
-import org.opengis.filter.expression.PropertyName;
-import org.opengis.filter.identity.FeatureId;
 
 /**
  * An extension to {@linkplain org.geotools.data.complex.DataAccessMappingFeatureIterator} where
@@ -42,34 +37,41 @@ import org.opengis.filter.identity.FeatureId;
  */
 public class FilteringMappingFeatureIterator extends DataAccessMappingFeatureIterator {
 
-    private List<String> filteredFeatures;
+    protected ListIterator<Feature> listFeatureIterator;
 
     private Filter filter;
 
     public FilteringMappingFeatureIterator(AppSchemaDataAccess store, FeatureTypeMapping mapping,
             Query query, Filter filter) throws IOException {
-        super(store, mapping, query);
+        // assumed it's denormalised, since the filter would be on nested feature's attribute
+        // and we don't even know what type the nested feature is of..
+        // so we don't know if it's multi-valued or not
+        super(store, mapping, query, false, true, true);
         this.filter = filter;
-        query.setFilter(Filter.INCLUDE);
-        filteredFeatures = new ArrayList<String>();
+    }
+
+    @Override
+    protected void initialiseSourceFeatures(FeatureTypeMapping mapping, Query query)
+            throws IOException {
+        super.initialiseSourceFeatures(mapping, query);
+        listFeatureIterator = IteratorUtils.toListIterator(super.getSourceFeatureIterator());
     }
 
     @Override
     protected void closeSourceFeatures() {
         super.closeSourceFeatures();
-        filteredFeatures.clear();
+        listFeatureIterator = null;
+    }
+
+    @Override
+    protected Iterator<Feature> getSourceFeatureIterator() {
+        return listFeatureIterator;
     }
 
     @Override
     public boolean hasNext() {
         // check that the feature exists
         while (super.hasNext()) {
-            // check that this row has already been accounted for
-            if (filteredFeatures.contains(extractIdForFeature(this.curSrcFeature))) {
-                // get the next one as this row would've been already added to the target
-                // feature from setNextFilteredFeature
-                return hasNext();
-            }
             // apply filter
             if (filter.evaluate(curSrcFeature)) {
                 return true;
@@ -80,44 +82,23 @@ public class FilteringMappingFeatureIterator extends DataAccessMappingFeatureIte
 
     @Override
     protected void setNextFeature(String fId, ArrayList<Feature> features) throws IOException {
-        FeatureCollection<FeatureType, Feature> matchingFeatures;
-        FeatureId featureId = namespaceAwareFilterFactory.featureId(fId);
-        // Since this is filtered, it could happen that the source is a denormalised view
-        // where only the last row of the same id satisfies the filter. However, we'd want
-        // to get all the rows of the matching id to group as a complex feature.. so we
-        // have to run an extra query to get the rows of the same id.
-        Query query = new Query();
-        if (reprojection != null) {
-            query.setCoordinateSystemReproject(reprojection);
+        int prevCount = 0;
+        while (listFeatureIterator.hasPrevious()) {
+            Feature prev = listFeatureIterator.previous();
+            prevCount++;
+            // include other rows that don't match the filter, but matches the id of the
+            // matching feature.. for denormalised view
+            if (extractIdForFeature(prev).equals(fId)) {
+                features.add(prev);
+            } else {
+                break;
+            }
         }
-        if (featureFidMapping instanceof PropertyName
-                && ((PropertyName) featureFidMapping).getPropertyName().equals("@id")) {
-            // no real feature id mapping,
-            // so trying to find it when the filter's evaluated will result in exception
-            Set<FeatureId> ids = new HashSet<FeatureId>();
-            ids.add(featureId);
-            query.setFilter(namespaceAwareFilterFactory.id(ids));
-            matchingFeatures = this.mappedSource.getFeatures(query);
-        } else {
-            // in case the expression is wrapped in a function, eg. strConcat
-            // that's why we don't always filter by id, but do a PropertyIsEqualTo
-            query.setFilter(namespaceAwareFilterFactory.equals(featureFidMapping,
-                    namespaceAwareFilterFactory.literal(featureId)));
-            matchingFeatures = this.mappedSource.getFeatures(query);
+        // get back to the original position
+        for (int i = 0; i < prevCount; i++) {
+            listFeatureIterator.next();
         }
-
-        FeatureIterator<Feature> iterator = matchingFeatures.features();
-
-        while (iterator.hasNext()) {
-            features.add(iterator.next());
-        }
-
-        if (features.size() < 1) {
-            LOGGER.warning("This shouldn't have happened."
-                    + "There should be at least 1 features with id='" + fId + "'.");
-        }
-        filteredFeatures.add(fId);
-        iterator.close();
-        curSrcFeature = null;
+        // then add next features to same id
+        super.setNextFeature(fId, features);
     }
 }

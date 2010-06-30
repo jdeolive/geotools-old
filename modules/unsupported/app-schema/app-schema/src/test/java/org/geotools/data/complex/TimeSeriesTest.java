@@ -459,7 +459,7 @@ public class TimeSeriesTest extends TestCase {
         it.close();
 
         count = 0;
-        FeatureIterator<Feature> simpleIterator = ((AbstractMappingFeatureIterator) features.features()).getSourceFeatureIterator();
+        Iterator<Feature> simpleIterator = ((AbstractMappingFeatureIterator) features.features()).getSourceFeatureIterator();
         for (; simpleIterator.hasNext();) {
             feature = (Feature) simpleIterator.next();
             count++;

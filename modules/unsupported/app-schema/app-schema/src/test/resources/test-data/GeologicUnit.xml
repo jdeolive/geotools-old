@@ -109,7 +109,8 @@
 		            </targetAttribute>
 					<sourceExpression>
 						<OCQL>ABBREVIATION</OCQL>
-					</sourceExpression>
+					</sourceExpression>					
+		            <isMultiple>true</isMultiple>
 				</AttributeMapping>
 				<AttributeMapping>
 					<targetAttribute>

@@ -18,6 +18,7 @@ package org.geotools.data.complex;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -30,7 +31,6 @@ import org.geotools.data.complex.filter.XPath.Step;
 import org.geotools.data.complex.filter.XPath.StepList;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.AppSchemaFeatureFactoryImpl;
-import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.GeometryAttributeImpl;
 import org.geotools.feature.Types;
 import org.geotools.feature.type.GeometryDescriptorImpl;
@@ -108,6 +108,11 @@ public abstract class AbstractMappingFeatureIterator implements IMappingFeatureI
 
     public AbstractMappingFeatureIterator(AppSchemaDataAccess store, FeatureTypeMapping mapping,
             Query query) throws IOException {
+        this(store, mapping, query, false);
+    }
+    
+    public AbstractMappingFeatureIterator(AppSchemaDataAccess store, FeatureTypeMapping mapping,
+            Query query, boolean isQueryUnrolled) throws IOException {
         this.store = store;
         this.attf = new AppSchemaFeatureFactoryImpl();
 
@@ -133,11 +138,13 @@ public abstract class AbstractMappingFeatureIterator implements IMappingFeatureI
         if (featureFidMapping == null || Expression.NIL.equals(featureFidMapping)) {
             FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
             featureFidMapping = ff.property("@id");
-        }
-
+        }        
         this.maxFeatures = query.getMaxFeatures();
+                
+        if (!isQueryUnrolled) {
+            query = getUnrolledQuery(query);
+        }                
         initialiseSourceFeatures(mapping, query);
-
         xpathAttributeBuilder = new XPath();
         xpathAttributeBuilder.setFeatureFactory(attf);
         namespaces = mapping.getNamespaces();
@@ -230,6 +237,17 @@ public abstract class AbstractMappingFeatureIterator implements IMappingFeatureI
         return exists;
     }
 
+    /**
+     * Return a query appropriate to its underlying feature source.
+     * 
+     * @param query
+     *            the original query against the output schema
+     * @return a query appropriate to be executed over the underlying feature source.
+     */
+    protected Query getUnrolledQuery(Query query) {
+        return store.unrollQuery(query, mapping);
+    }
+
     protected Feature computeNext() throws IOException {
         if (!hasNextCalled) {
             // hasNext needs to be called to set nextSrcFeature
@@ -296,7 +314,7 @@ public abstract class AbstractMappingFeatureIterator implements IMappingFeatureI
 
     protected abstract void closeSourceFeatures();
 
-    protected abstract FeatureIterator<Feature> getSourceFeatureIterator();
+    protected abstract Iterator<Feature> getSourceFeatureIterator();
 
     protected abstract void initialiseSourceFeatures(FeatureTypeMapping mapping, Query query)
             throws IOException;
