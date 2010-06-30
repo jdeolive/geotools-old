@@ -26,14 +26,24 @@ html {
 body {
     border: none;
     background-color: white;
-    margin: 0;
+    margin-left: 175px;
+    margin-right: 50px;
     padding: 0;
     min-width: 900px;
+    line-height: 110%;
+    font-family: 'Lucida Sans','Geneva','Verdana',sans-serif;
 }
+
 h1, h2, h3, h4, h5, h6 {
-    /*color: #385F95;*/
-	color: #17365c
+   color: #004d87;
 }
+
+div.body h1 a, div.body h2 a, div.body h3 a, div.body h4 a, div.body h5 a, div.body h6 a {
+    color: #004d87!important;
+   text-decoration: none;
+}
+
+
 table td, table th {
     padding: 0;
 }
@@ -239,12 +249,16 @@ dl.class {
 
 /* headers with bottom border get some padding */
 h2, h3, h4 {
-    padding-bottom: 4px;
+    padding-bottom: 0.42cm;
+    padding-top: 0.42cm;
 }
 
 /* making code samples less gigantic */
 pre {
     font-size: 0.8em;
+    margin-left: -160px;
+    border: 1px solid #333333;
+    background-color: #E6E6E6;
 }
 
 /* blog entry style */
@@ -312,4 +326,24 @@ text-decoration: none;
 
 #breadcrumbs a:hover {
 color: #26b2dd;
+}
+
+div.sidebar {
+  float:left;
+  width: 150px;
+  margin-left: -164px;
+  font-style: italic;
+  color: #808080;
+  line-height: 150%;
+  border: 0px;
+}
+
+p {
+   font-size: 11pt;
+   margin-bottom: 0.14cm;
+   margin-top: 0.14cm;
+}
+
+div.body a {
+   color: #004d87;
 }

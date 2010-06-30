@@ -12,6 +12,8 @@
 :Version: |release|
 :License: Create Commons with attribution
    
+.. contents::
+
 Welcome Eclipse Developers
 ==========================
 
