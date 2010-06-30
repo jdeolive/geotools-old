@@ -74,6 +74,12 @@ public class GMLConfiguration extends Configuration {
      * Property which controls whether encoded features should include bounds.
      */
     public static final QName NO_FEATURE_BOUNDS = new QName( "org.geotools.gml", "noFeatureBounds" );
+   
+    /**
+     * Boolean property which controls whether the FeatureCollection should be encoded with multiple featureMember
+     * as opposed to a single featureMembers
+     */
+    public static final QName ENCODE_FEATURE_MEMBER = new QName( "org.geotools.gml", "encodeFeatureMember" );
 
     /**
      * Creates the new gml configuration, with a depenendency

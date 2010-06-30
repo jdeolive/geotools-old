@@ -96,6 +96,12 @@ public class GMLConfiguration extends Configuration {
      * Boolean property which controls whether encoded features should include bounds.
      */
     public static final QName NO_FEATURE_BOUNDS = org.geotools.gml2.GMLConfiguration.NO_FEATURE_BOUNDS;
+    
+    /**
+     * Boolean property which controls whether the FeatureCollection should be encoded with multiple featureMember
+     * as opposed to a single featureMembers 
+     */
+    public static final QName ENCODE_FEATURE_MEMBER = org.geotools.gml2.GMLConfiguration.ENCODE_FEATURE_MEMBER;
 
     public GMLConfiguration() {
         super(GML.getInstance());
