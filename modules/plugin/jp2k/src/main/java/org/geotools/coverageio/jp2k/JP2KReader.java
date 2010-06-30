@@ -29,6 +29,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.nio.channels.FileChannel;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
@@ -134,7 +135,7 @@ public final class JP2KReader extends AbstractGridCoverage2DReader implements
         // Getting stream metadata from the underlying layer
         //
         // //
-        final IIOMetadata metadata = reader.getStreamMetadata();
+        
         int hrWidth = reader.getWidth(0);
         int hrHeight = reader.getHeight(0);
         final Rectangle actualDim = new Rectangle(0, 0, hrWidth, hrHeight);
@@ -142,11 +143,16 @@ public final class JP2KReader extends AbstractGridCoverage2DReader implements
         if (this.crs == null) {
             parsePRJFile();
         }
-        if (this.nativeEnvelope == null)
+        
+        if (this.nativeEnvelope == null) {
         	parseWorldFile();
+        }
 
-        if (this.crs == null || this.nativeEnvelope == null)
-        	checkUUIDBoxes(metadata);	
+        if (this.crs == null || this.nativeEnvelope == null) {
+            final IIOMetadata metadata = reader.getStreamMetadata();
+            checkUUIDBoxes(metadata);
+        	
+        }
         // //
         //
         // If no sufficient information have been found to set the
@@ -368,8 +374,8 @@ public final class JP2KReader extends AbstractGridCoverage2DReader implements
          tiffreader.setInput(ImageIO.createImageInputStream(inputStream));
          final IIOMetadata tiffmetadata = tiffreader.getImageMetadata(0);
          try {
-        	 final GeoTiffIIOMetadataDecoder metadataDecoder = new GeoTiffIIOMetadataDecoder(tiffmetadata);
-        	 final GeoTiffMetadata2CRSAdapter adapter = new GeoTiffMetadata2CRSAdapter(null);
+            final GeoTiffIIOMetadataDecoder metadataDecoder = new GeoTiffIIOMetadataDecoder(tiffmetadata);
+            final GeoTiffMetadata2CRSAdapter adapter = (GeoTiffMetadata2CRSAdapter) GeoTiffMetadata2CRSAdapter.get(hints);
              coordinateReferenceSystem = adapter.createCoordinateSystem(metadataDecoder);
              if (coordinateReferenceSystem != null) {
              	if (this.crs == null)
@@ -468,7 +474,17 @@ public final class JP2KReader extends AbstractGridCoverage2DReader implements
 		if (uHints != null) {
 			this.hints.add(uHints);
 		}
-		this.coverageFactory= CoverageFactoryFinder.getGridCoverageFactory(this.hints);
+		
+                // GridCoverageFactory initialization
+                if (this.hints.containsKey(Hints.GRID_COVERAGE_FACTORY)) {
+                    final Object factory = this.hints.get(Hints.GRID_COVERAGE_FACTORY);
+                    if (factory != null && factory instanceof GridCoverageFactory) {
+                        this.coverageFactory = (GridCoverageFactory) factory;
+                    }
+                }
+                if (this.coverageFactory == null) {
+                    this.coverageFactory = CoverageFactoryFinder.getGridCoverageFactory(this.hints);
+                }
 
 		// /////////////////////////////////////////////////////////////////////
 		//
@@ -499,6 +515,9 @@ public final class JP2KReader extends AbstractGridCoverage2DReader implements
 			if(reader != null)
 				cachedSPI = reader.getOriginatingProvider();
 		}
+        
+        if (reader == null)
+            throw new DataSourceException("No reader found for that source " + sourceURL);            
         reader.setInput(stream);
         
 		coverageName = inputFile.getName();
@@ -617,43 +636,50 @@ public final class JP2KReader extends AbstractGridCoverage2DReader implements
 	 * @throws UnsupportedEncodingException 
      */
     protected void parsePRJFile() throws UnsupportedEncodingException {
-        String prjPath = null;
-        prjPath = new StringBuilder(parentPath).append(SEPARATOR)
+        String prjPath = new StringBuilder(parentPath).append(SEPARATOR)
                 .append(coverageName).append(".prj").toString();
 
-        // read the prj info from the file
-        PrjFileReader projReader = null;
-
-        try {
-            final File prj = new File(prjPath);
-
-            if (prj.exists()) {
-                projReader = new PrjFileReader(new FileInputStream(prj)
-                        .getChannel());
-                this.crs = projReader.getCoordinateReferenceSystem();
-            }
-            // If some exception occurs, warn about the error but proceed
+        // does it exist?
+        final File prjFile = new File(prjPath);
+        if (prjFile.exists()) {
+            // it exists then we have top read it
+            PrjFileReader projReader = null;
+            FileInputStream instream = null;
+            try {
+            	instream=new FileInputStream(prjFile);
+                final FileChannel channel = instream.getChannel();
+                projReader = new PrjFileReader(channel);
+                crs = projReader.getCoordinateReferenceSystem();
             // using a default CRS
-        } catch (FileNotFoundException e) {
-            if (LOGGER.isLoggable(Level.WARNING)) {
-                LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);
-            }
-        } catch (IOException e) {
-            if (LOGGER.isLoggable(Level.WARNING)) {
-                LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);
-            }
-        } catch (FactoryException e) {
-            if (LOGGER.isLoggable(Level.WARNING)) {
-                LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);
-            }
-        } finally {
-            if (projReader != null) {
-                try {
-                    projReader.close();
-                } catch (IOException e) {
-                    if (LOGGER.isLoggable(Level.WARNING)) {
-                        LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);
+            } catch (FileNotFoundException e) {
+                if (LOGGER.isLoggable(Level.WARNING)) {
+                    LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);
+                }
+            } catch (IOException e) {
+                if (LOGGER.isLoggable(Level.WARNING)) {
+                    LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);
+                }
+            } catch (FactoryException e) {
+                if (LOGGER.isLoggable(Level.WARNING)) {
+                    LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);
+                }
+            } finally {
+                if (projReader != null) {
+                    try {
+                        projReader.close();
+                    } catch (IOException e) {
+                        if (LOGGER.isLoggable(Level.WARNING)) {
+                            LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);
+                        }
                     }
+                    if (instream != null)
+                        try {
+                            instream.close();
+                        } catch (IOException ioe) {
+                            // warn about the error but proceed, it is not fatal
+                            // we have at least the default crs to use
+                            LOGGER.log(Level.FINE, ioe.getLocalizedMessage(),ioe);
+                        }                        
                 }
             }
         }

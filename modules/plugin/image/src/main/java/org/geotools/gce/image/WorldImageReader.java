@@ -45,6 +45,7 @@ import javax.media.jai.RenderedOp;
 
 import org.geotools.coverage.CoverageFactoryFinder;
 import org.geotools.coverage.grid.GridCoverage2D;
+import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
@@ -149,11 +150,20 @@ public final class WorldImageReader extends AbstractGridCoverage2DReader
 		if (this.hints == null)
 			this.hints= new Hints();	
 		if (hints != null) {
-			// prevent the use from reordering axes
-			this.hints.add(hints);
+		        this.hints.add(hints);
 		}
-		this.coverageFactory= CoverageFactoryFinder.getGridCoverageFactory(this.hints);
-			
+
+                // GridCoverageFactory initialization
+                if (this.hints.containsKey(Hints.GRID_COVERAGE_FACTORY)) {
+                    final Object factory = this.hints.get(Hints.GRID_COVERAGE_FACTORY);
+                    if (factory != null && factory instanceof GridCoverageFactory) {
+                        this.coverageFactory = (GridCoverageFactory) factory;
+                    }
+                }
+                if (this.coverageFactory == null) {
+                    this.coverageFactory = CoverageFactoryFinder.getGridCoverageFactory(this.hints);
+                }
+                
 		coverageName = "image_coverage";
 		try {
 			boolean closeMe = true;

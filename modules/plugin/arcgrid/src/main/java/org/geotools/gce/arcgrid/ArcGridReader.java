@@ -53,6 +53,7 @@ import org.geotools.coverage.Category;
 import org.geotools.coverage.CoverageFactoryFinder;
 import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.grid.GridCoverage2D;
+import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
@@ -255,9 +256,18 @@ public final class ArcGridReader extends AbstractGridCoverage2DReader implements
 		if (hints != null) {
 			this.hints.add(hints);
 		}
-		this.coverageFactory= CoverageFactoryFinder.getGridCoverageFactory(this.hints);
 		
-		
+                // GridCoverageFactory initialization
+                if (this.hints.containsKey(Hints.GRID_COVERAGE_FACTORY)) {
+                    final Object factory = this.hints.get(Hints.GRID_COVERAGE_FACTORY);
+                    if (factory != null && factory instanceof GridCoverageFactory) {
+                        this.coverageFactory = (GridCoverageFactory) factory;
+                    }
+                }
+                if (this.coverageFactory == null) {
+                    this.coverageFactory = CoverageFactoryFinder.getGridCoverageFactory(this.hints);
+                }
+                
 		
 		if (input == null) {
 			final DataSourceException ex = new DataSourceException(
@@ -267,8 +277,6 @@ public final class ArcGridReader extends AbstractGridCoverage2DReader implements
 			throw ex;
 		}
 		this.source = input;
-		if (hints != null)
-			this.hints.add(hints);
 		closeMe = true;
 		// //
 		//

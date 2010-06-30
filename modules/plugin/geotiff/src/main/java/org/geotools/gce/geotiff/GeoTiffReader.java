@@ -67,6 +67,7 @@ import org.geotools.coverage.CoverageFactoryFinder;
 import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.TypeMap;
 import org.geotools.coverage.grid.GridCoverage2D;
+import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
@@ -166,7 +167,17 @@ public final class GeoTiffReader extends AbstractGridCoverage2DReader implements
 			this.hints.add(new Hints(Hints.FORCE_LONGITUDE_FIRST_AXIS_ORDER,Boolean.TRUE));
 			
 		}
-		this.coverageFactory= CoverageFactoryFinder.getGridCoverageFactory(this.hints);
+
+                // GridCoverageFactory initialization
+                if (this.hints.containsKey(Hints.GRID_COVERAGE_FACTORY)) {
+                    final Object factory = this.hints.get(Hints.GRID_COVERAGE_FACTORY);
+                    if (factory != null && factory instanceof GridCoverageFactory) {
+                        this.coverageFactory = (GridCoverageFactory) factory;
+                    }
+                }
+                if (this.coverageFactory == null) {
+                    this.coverageFactory = CoverageFactoryFinder.getGridCoverageFactory(this.hints);
+                }
 		coverageName = "geotiff_coverage";
 
 		// /////////////////////////////////////////////////////////////////////
