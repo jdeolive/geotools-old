@@ -65,7 +65,6 @@ import org.geotools.referencing.datum.DefaultGeodeticDatum;
 import org.geotools.referencing.datum.DefaultPrimeMeridian;
 import org.geotools.referencing.factory.AllAuthoritiesFactory;
 import org.geotools.referencing.factory.ReferencingFactoryContainer;
-import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.geotools.referencing.operation.matrix.GeneralMatrix;
 import org.geotools.referencing.operation.transform.ProjectiveTransform;
 import org.geotools.resources.i18n.Vocabulary;
@@ -151,11 +150,15 @@ public final class GeoTiffMetadata2CRSAdapter {
 	 */
 	private Hints hints;
 
+	/** Default hints for axis order management */
+        private static final Hints DEFAULT_HINTS = new Hints(
+                Hints.FORCE_LONGITUDE_FIRST_AXIS_ORDER, Boolean.TRUE);
+	
 	/**
 	 * Cached {@link MathTransformFactory} for building {@link MathTransform}
 	 * objects.
 	 */
-	private final static MathTransformFactory mtFactory = new DefaultMathTransformFactory();
+	private final static MathTransformFactory mtFactory = ReferencingFactoryFinder.getMathTransformFactory(null);
 
 	/**
 	 * The default value for {@link #maxStrongReferences} .
@@ -174,6 +177,10 @@ public final class GeoTiffMetadata2CRSAdapter {
 	/** CS Factory for creating {@link CoordinateSystem} objects. */
 	private final CSFactory csFactory;
 
+	/** Default factories for various purposes. */
+	private static final AllAuthoritiesFactory DEFAULT_ALLAUTHORITIES_FACTORY = 
+	    new AllAuthoritiesFactory(DEFAULT_HINTS);
+	
 	/** EPSG factories for various purposes. */
 	private final AllAuthoritiesFactory allAuthoritiesFactory;
 
@@ -186,11 +193,11 @@ public final class GeoTiffMetadata2CRSAdapter {
 	 */
 	public GeoTiffMetadata2CRSAdapter(Hints hints) {
 
-		final Hints tempHints = hints != null ? new Hints(hints) : new Hints(
-				Hints.FORCE_LONGITUDE_FIRST_AXIS_ORDER, Boolean.TRUE);
+		final Hints tempHints = hints != null ? new Hints(hints) : DEFAULT_HINTS;
 
 		this.hints = (Hints) tempHints.clone();
-		allAuthoritiesFactory = new AllAuthoritiesFactory(this.hints);
+		allAuthoritiesFactory = hints != null ? new AllAuthoritiesFactory(this.hints):
+		    DEFAULT_ALLAUTHORITIES_FACTORY;
 
 		// factory = new ThreadedEpsgFactory(hints);
 		datumObjFactory = ReferencingFactoryFinder.getDatumFactory(this.hints);
