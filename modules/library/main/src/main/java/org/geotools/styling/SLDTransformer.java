@@ -223,8 +223,17 @@ public class SLDTransformer extends TransformerBase {
         void element(String element, Expression expr) {
             element(element, expr, null);
         }
-        
+
+        /**
+         * Utility method used to quickly package up the provided expression.
+         * @param element
+         * @param expr
+         */
         void element(String element, Expression expr, Object defaultValue) {
+            element(element, expr, defaultValue, null);
+        }
+        
+        void element(String element, Expression expr, Object defaultValue, AttributesImpl atts) {
             if( expr == null || expr == Expression.NIL ) return;
             
             // skip encoding if we are using the default value
@@ -235,7 +244,7 @@ public class SLDTransformer extends TransformerBase {
                 }
             }
             
-            start(element);
+            start(element, atts);
             filterTranslator.encode(expr);
             end(element);
         }
@@ -377,6 +386,19 @@ public class SLDTransformer extends TransformerBase {
             
             if (text.getPriority() != null) {
                 element("Priority", text.getPriority());
+            }
+            
+            if (text instanceof TextSymbolizer2){
+            	TextSymbolizer2 text2 = (TextSymbolizer2) text;
+            	if (text2.getGraphic() != null) visit(text2.getGraphic());
+            	if (text2.getSnippet() != null) element("Snippet", text2.getSnippet());
+            	if (text2.getFeatureDescription() != null) element("FeatureDescription", text2.getFeatureDescription());
+            	OtherText otherText = text2.getOtherText();
+				if (otherText != null) {
+            	    AttributesImpl otherTextAtts = new AttributesImpl();
+            	    otherTextAtts.addAttribute("", "target", "target", "", otherText.getTarget());
+					element("OtherText",otherText.getText(), null, otherTextAtts);
+            	}
             }
             
             end("TextSymbolizer");
@@ -707,7 +729,7 @@ public class SLDTransformer extends TransformerBase {
 
             end("Graphic");
         }
-
+        
         public void visit(StyledLayerDescriptor sld) {
             AttributesImpl atts = new AttributesImpl();
             atts.addAttribute("", "version", "version", "", "1.0.0");

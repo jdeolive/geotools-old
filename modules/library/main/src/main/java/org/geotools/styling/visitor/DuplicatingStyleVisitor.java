@@ -46,6 +46,8 @@ import org.geotools.styling.LinePlacement;
 import org.geotools.styling.LineSymbolizer;
 import org.geotools.styling.Mark;
 import org.geotools.styling.NamedLayer;
+import org.geotools.styling.OtherText;
+import org.geotools.styling.OtherTextImpl;
 import org.geotools.styling.OverlapBehavior;
 import org.geotools.styling.PointPlacement;
 import org.geotools.styling.PointSymbolizer;
@@ -64,6 +66,7 @@ import org.geotools.styling.StyledLayerDescriptor;
 import org.geotools.styling.Symbol;
 import org.geotools.styling.Symbolizer;
 import org.geotools.styling.TextSymbolizer;
+import org.geotools.styling.TextSymbolizer2;
 import org.geotools.styling.UserLayer;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory2;
@@ -758,6 +761,7 @@ public class DuplicatingStyleVisitor implements StyleVisitor {
 
     public void visit(TextSymbolizer text) {
         TextSymbolizer copy = sf.createTextSymbolizer();
+        
         copy.setFill( copy( text.getFill()));
         copy.setFont( copy( text.getFont()));
         
@@ -770,13 +774,23 @@ public class DuplicatingStyleVisitor implements StyleVisitor {
         copy.setPriority( copy( text.getPriority()));
         copy.getOptions().putAll(text.getOptions());
         
+        if (text instanceof TextSymbolizer2){
+        	TextSymbolizer2 text2 = (TextSymbolizer2) text;
+        	TextSymbolizer2 copy2 = (TextSymbolizer2) copy;
+        	
+        	copy2.setGraphic( copy(text2.getGraphic()));
+        	copy2.setSnippet(copy(text2.getSnippet()));
+        	copy2.setFeatureDescription(copy(text2.getFeatureDescription()));
+        	copy2.setOtherText(copy(text2.getOtherText()));
+        }
+        
         if( STRICT && !copy.equals( text )){
             throw new IllegalStateException("Was unable to duplicate provided TextSymbolizer:"+text );
         }
         pages.push(copy);
     }
-    
-    public void visit(RasterSymbolizer raster) {
+
+	public void visit(RasterSymbolizer raster) {
         RasterSymbolizer copy = sf.createRasterSymbolizer();
         copy.setChannelSelection( copy( raster.getChannelSelection() ));
         copy.setColorMap( copy( raster.getColorMap() ));
@@ -980,6 +994,19 @@ public class DuplicatingStyleVisitor implements StyleVisitor {
         Extent copy = sf.createExtent(name, value);
         return copy;
     }
+    
+    
+    private OtherText copy(OtherText otherText) {
+    	if (otherText == null) return null;
+    	
+        // TODO: add methods to the factory to create OtherText instances
+    	// sf.createOtherText();
+    	OtherTextImpl copy = new OtherTextImpl();
+    	copy.setTarget( otherText.getTarget() );
+    	copy.setText( copy(otherText.getText()) );
+		return copy;
+	}
+
     
     public void visit(ColorMap colorMap) {
         ColorMap copy = sf.createColorMap();

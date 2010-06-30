@@ -35,11 +35,13 @@ import org.geotools.styling.FeatureTypeStyle;
 import org.geotools.styling.Fill;
 import org.geotools.styling.Font;
 import org.geotools.styling.Graphic;
+import org.geotools.styling.GraphicImpl;
 import org.geotools.styling.Halo;
 import org.geotools.styling.LabelPlacement;
 import org.geotools.styling.LinePlacement;
 import org.geotools.styling.LineSymbolizer;
 import org.geotools.styling.Mark;
+import org.geotools.styling.OtherTextImpl;
 import org.geotools.styling.PointPlacement;
 import org.geotools.styling.PointSymbolizer;
 import org.geotools.styling.PolygonSymbolizer;
@@ -53,12 +55,14 @@ import org.geotools.styling.StyleFactory;
 import org.geotools.styling.StyledLayerDescriptor;
 import org.geotools.styling.Symbolizer;
 import org.geotools.styling.TextSymbolizer;
+import org.geotools.styling.TextSymbolizer2;
 import org.geotools.styling.UomOgcMapping;
 import org.geotools.styling.UserLayer;
 import org.geotools.util.Utilities;
 import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Function;
+import org.opengis.filter.expression.Literal;
 import org.opengis.util.Cloneable;
 
 
@@ -712,4 +716,45 @@ public class DuplicatorStyleVisitorTest extends TestCase {
                 .getGeometry());
     }
 
+
+    /**
+     * Test that {@link TextSymbolizer2} is correctly duplicated. 
+     * @author Stefan Tzeggai, June 29th 2010  
+     */
+    public void testTextSymbolizer2() {
+        TextSymbolizer2 symb = (TextSymbolizer2) sf.createTextSymbolizer();
+        
+        // Create a Graphic with two recognizable values
+        GraphicImpl gr = new GraphicImpl(ff);
+        gr.setOpacity(ff.literal(0.77));
+        gr.setSize(ff.literal(77));
+        symb.setGraphic(gr);
+        Literal snippet = ff.literal("no idea what a snipet is good for");
+		symb.setSnippet(snippet);
+        Literal fD = ff.literal("some description");
+		symb.setFeatureDescription(fD);
+        OtherTextImpl otherText = new OtherTextImpl();
+        otherText.setTarget("otherTextTarget");
+        otherText.setText(ff.literal("otherTextText"));
+		symb.setOtherText(otherText);
+
+		// copy it
+        TextSymbolizer2 copy = (TextSymbolizer2) visitor.copy(symb);
+
+        // compare it
+        assertEquals("Graphic of TextSymbolizer2 has not been correctly duplicated", gr, copy
+                .getGraphic());
+        assertEquals("Graphic of TextSymbolizer2 has not been correctly duplicated", gr.getOpacity(), copy
+                .getGraphic().getOpacity());
+        assertEquals("Graphic of TextSymbolizer2 has not been correctly duplicated", gr.getSize(), copy
+                .getGraphic().getSize());        
+        assertEquals("Snippet of TextSymbolizer2 has not been correctly duplicated", snippet, copy
+                .getSnippet());
+        assertEquals("FeatureDescription of TextSymbolizer2 has not been correctly duplicated", fD, copy
+                .getFeatureDescription());
+        assertEquals("OtherText of TextSymbolizer2 has not been correctly duplicated", otherText.getTarget(), copy
+                .getOtherText().getTarget());
+        assertEquals("OtherText of TextSymbolizer2 has not been correctly duplicated", otherText.getText(), copy
+                .getOtherText().getText());        
+    }
 }

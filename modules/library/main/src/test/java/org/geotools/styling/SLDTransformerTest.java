@@ -25,6 +25,7 @@ import static org.custommonkey.xmlunit.XMLUnit.buildTestDocument;
 import static org.custommonkey.xmlunit.XMLUnit.setXpathNamespaceContext;
 
 import java.awt.Color;
+import java.io.IOException;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.List;
@@ -34,20 +35,24 @@ import java.util.logging.Logger;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.TransformerException;
 
 import org.custommonkey.xmlunit.SimpleNamespaceContext;
+import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
 import org.junit.Before;
 import org.junit.Test;
 import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.expression.Expression;
+import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;
 import org.opengis.style.GraphicalSymbol;
 import org.opengis.style.Rule;
 import org.opengis.style.Symbolizer;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 /**
  * This test case captures specific problems encountered with the SLDTransformer code.
@@ -905,5 +910,59 @@ public class SLDTransformerTest {
         Document doc = buildTestDocument(xml);
         
         assertXpathEvaluatesTo("random", "/sld:UserStyle/sld:FeatureTypeStyle/sld:Rule/sld:PointSymbolizer/sld:Graphic/sld:Size/ogc:Function/@name", doc);
+    }
+    
+
+    /**
+     * TextSymbolizer2 specific properties saved and laoded again must fit
+     */
+    @Test
+    public void textTextSymbolizer2_InAndOut() throws TransformerException, SAXException, IOException, XpathException {
+    	StyleBuilder sb = new StyleBuilder(); 
+    	
+    	TextSymbolizer2 ts2 = (TextSymbolizer2)sf.createTextSymbolizer();
+        // Create a Graphic with two recognizable values
+        GraphicImpl gr = new GraphicImpl(ff);
+        gr.setOpacity(ff.literal(0.77));
+        gr.setSize(ff.literal(77));
+        ts2.setGraphic(gr);
+        Literal snippet = ff.literal("no idea what a snipet is good for");
+		ts2.setSnippet(snippet);
+        Literal fD = ff.literal("some description");
+		ts2.setFeatureDescription(fD);
+        OtherTextImpl otherText = new OtherTextImpl();
+        otherText.setTarget("otherTextTarget");
+        otherText.setText(ff.literal("otherTextText"));
+		ts2.setOtherText(otherText);
+
+		// A first check of the XML
+        Document doc = buildTestDocument(transformer.transform(ts2));
+        assertXpathEvaluatesTo("1", "count(/sld:TextSymbolizer/sld:Graphic)", doc);
+        assertXpathEvaluatesTo("1", "count(/sld:TextSymbolizer/sld:Snippet)", doc);
+        assertXpathEvaluatesTo("1", "count(/sld:TextSymbolizer/sld:OtherText)", doc);
+        assertXpathEvaluatesTo("1", "count(/sld:TextSymbolizer/sld:FeatureDescription)", doc);
+
+        // Transform and reimport and compare
+    	String xml = transformer.transform(sb.createStyle(ts2));
+
+    	SLDParser sldParser = new SLDParser(sf);
+    	sldParser.setInput(new StringReader(xml));
+    	Style importedStyle = (Style) sldParser.readXML()[0];
+    	TextSymbolizer2 copy = (TextSymbolizer2)importedStyle.featureTypeStyles().get(0).rules().get(0).symbolizers().get(0);
+
+        // compare it
+        assertEquals("Graphic of TextSymbolizer2 has not been correctly ex- and reimported", gr.getOpacity(), copy
+                .getGraphic().getOpacity());
+        assertEquals("Graphic of TextSymbolizer2 has not been correctly ex- and reimported", gr.getSize(), copy
+                .getGraphic().getSize());        
+        assertEquals("Snippet of TextSymbolizer2 has not been correctly ex- and reimported", snippet, copy
+                .getSnippet());
+        assertEquals("FeatureDescription of TextSymbolizer2 has not been correctly ex- and reimported", fD, copy
+                .getFeatureDescription());
+        assertEquals("OtherText of TextSymbolizer2 has not been correctly ex- and reimported", otherText.getTarget(), copy
+                .getOtherText().getTarget());
+        assertEquals("OtherText of TextSymbolizer2 has not been correctly ex- and reimported", otherText.getText(), copy
+                .getOtherText().getText());        
+        
     }
 }
