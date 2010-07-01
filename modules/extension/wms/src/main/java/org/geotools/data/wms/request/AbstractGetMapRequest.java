@@ -24,17 +24,14 @@ import java.util.ListIterator;
 import java.util.Properties;
 import java.util.Stack;
 
-import org.apache.commons.lang.StringUtils;
 import org.geotools.data.ows.CRSEnvelope;
 import org.geotools.data.ows.Layer;
 import org.geotools.data.ows.StyleImpl;
 import org.opengis.geometry.BoundingBox;
 
 /**
+ * 
  * @author Richard Gould
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
  * @source $URL$
  */
 public abstract class AbstractGetMapRequest extends AbstractWMSRequest implements GetMapRequest {
@@ -70,10 +67,12 @@ public abstract class AbstractGetMapRequest extends AbstractWMSRequest implement
                 } catch (UnsupportedEncodingException e) {
                     layerString = layerString + layerName;
                 }
+                styleName = styleName == null ? "" : styleName;
                 try {
-                    styleString = styleString + URLEncoder.encode(StringUtils.defaultString(styleName), "UTF-8");
+
+                    styleString = styleString + URLEncoder.encode(styleName, "UTF-8");
                 } catch (UnsupportedEncodingException e1) {
-                    styleString = styleString + StringUtils.defaultString(styleName);
+                    styleString = styleString + styleName;
                 }
                 
                 if (layerIter.hasPrevious()) {

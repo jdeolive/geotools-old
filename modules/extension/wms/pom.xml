@@ -98,9 +98,23 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.geotools</groupId>
-      <artifactId>gt-xml</artifactId>
-      <version>${project.version}</version>
+        <groupId>org.geotools</groupId>
+        <artifactId>gt-xml</artifactId>
+        <version>${project.version}</version>
+        <exclusions>
+            <exclusion>
+                <groupId>org.geotools</groupId>
+                <artifactId>gt-wfs</artifactId>                
+            </exclusion>
+            <exclusion>
+                <groupId>org.geotools.xsd</groupId>
+                <artifactId>gt-xsd-wfs</artifactId>                
+            </exclusion>
+            <exclusion>
+                <groupId>org.geotools.ogc</groupId>
+                <artifactId>net.opengis.wfs</artifactId>
+            </exclusion>
+        </exclusions>
     </dependency>
     <dependency>
       <groupId>org.geotools</groupId>
@@ -118,11 +132,6 @@
       <artifactId>gt-sample-data</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-      <!-- The version number is specified in the parent POM. -->
     </dependency>
   </dependencies>
 
