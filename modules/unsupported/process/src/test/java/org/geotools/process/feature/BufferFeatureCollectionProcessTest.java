@@ -92,7 +92,8 @@ public class BufferFeatureCollectionProcessTest {
      */
     @Test
     public void testFindProcess() {
-        Process p = Processors.createProcess(new NameImpl(ProcessFactory.GT_NAMESPACE, "BufferFeatureCollection"));
+        String GT_NAMESPACE = "gt";
+        Process p = Processors.createProcess(new NameImpl(GT_NAMESPACE, "BufferFeatureCollection"));
         assertNotNull(p);
         assertTrue(p instanceof BufferFeatureCollectionProcess);
     }

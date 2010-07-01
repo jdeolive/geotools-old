@@ -75,7 +75,7 @@ public class IntersectionFactory extends SingleProcessFactory {
     }
     
     public IntersectionFactory() {
-        super(new NameImpl(GT_NAMESPACE, "Intersect"));
+        super(new NameImpl("gt", "Intersect"));
     }
     
 	public Process create()

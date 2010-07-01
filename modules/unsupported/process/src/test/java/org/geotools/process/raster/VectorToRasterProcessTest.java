@@ -119,7 +119,7 @@ public class VectorToRasterProcessTest {
     @Test
     public void testCreateProcess() throws Exception {
         System.out.println("   create process");
-        Process p = Processors.createProcess(new NameImpl(ProcessFactory.GT_NAMESPACE, "VectorToRaster"));
+        Process p = Processors.createProcess(new NameImpl("gt", "VectorToRaster"));
         assertNotNull(p);
         assertTrue(p instanceof VectorToRasterProcess);
     }

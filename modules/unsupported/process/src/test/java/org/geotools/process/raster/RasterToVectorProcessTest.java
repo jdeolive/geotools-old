@@ -68,7 +68,7 @@ public class RasterToVectorProcessTest {
     @Test
     public void testCreateProcess() {
         System.out.println("   create process");
-        Process p = Processors.createProcess(new NameImpl(ProcessFactory.GT_NAMESPACE, "RasterToVector"));
+        Process p = Processors.createProcess(new NameImpl("gt", "RasterToVector"));
         assertNotNull(p);
         assertTrue(p instanceof RasterToVectorProcess);
     }

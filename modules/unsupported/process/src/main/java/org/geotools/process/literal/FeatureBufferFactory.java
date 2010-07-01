@@ -59,7 +59,7 @@ public class FeatureBufferFactory extends SingleProcessFactory  {
     }
 	
 	public FeatureBufferFactory() {
-        super(new NameImpl(GT_NAMESPACE, "FeatureBuffer"));
+        super(new NameImpl("gt", "FeatureBuffer"));
     }
 
 	public Process create(Map<String, Object> parameters) throws IllegalArgumentException

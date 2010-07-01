@@ -74,7 +74,7 @@ public class UnionFactory extends SingleProcessFactory {
     }
     
     public UnionFactory() {
-        super(new NameImpl(GT_NAMESPACE, "Union"));
+        super(new NameImpl("gt", "Union"));
     }
     
 	public Process create(){

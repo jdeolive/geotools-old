@@ -70,7 +70,7 @@ public class BufferFactory extends SingleProcessFactory {
     }
     
     public BufferFactory() {
-        super(new NameImpl(GT_NAMESPACE, "buffer"));
+        super(new NameImpl("gt", "buffer"));
     }
     
 	public Process create(Map<String, Object> parameters)

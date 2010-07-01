@@ -70,6 +70,10 @@ public class DEMProcessFactory implements ProcessFactory {
     public Process create(Name name) {
         return new ProcessInvocation(DEMTools.class, name.getLocalPart());
     }
+    
+    public InternationalString getTitle() {
+        return new SimpleInternationalString( "DEM Tools" );
+    }
 
     public InternationalString getDescription(Name name) {
         Method method = method( name.getLocalPart() );

@@ -25,6 +25,7 @@ import org.geotools.data.Parameter;
 import org.geotools.feature.NameImpl;
 import org.geotools.process.Process;
 import org.geotools.process.ProcessFactory;
+import org.geotools.util.SimpleInternationalString;
 import org.opengis.feature.type.Name;
 import org.opengis.util.InternationalString;
 
@@ -51,6 +52,7 @@ public abstract class SingleProcessFactory implements ProcessFactory {
         } else {
             localName = factoryName;
         }
+        String GT_NAMESPACE = "gt";
         processName = new NameImpl(GT_NAMESPACE, localName);
     }
 
@@ -142,7 +144,14 @@ public abstract class SingleProcessFactory implements ProcessFactory {
     protected abstract Map<String, Parameter<?>> getResultInfo(Map<String, Object> parameters)
             throws IllegalArgumentException;
 
-    protected abstract InternationalString getTitle();
+    /**
+     * Name suitable for display to end user.
+     *
+     * @return A short name suitable for display in a user interface.
+     */
+    public InternationalString getTitle(){
+        return new SimpleInternationalString(processName.getLocalPart());
+    }
 
     protected abstract String getVersion();
 
