@@ -72,7 +72,7 @@ public class ProcessAPI {
          * Create a new RasterToVectorProcess instance using the
          * Processors factory finder.
          */
-        final Process r2v = Processors.createProcess(new NameImpl(ProcessFactory.GT_NAMESPACE, "RasterToVector"));
+        final Process r2v = Processors.createProcess(new NameImpl("gt", "RasterToVector"));
 
         /*
          * For this example we use SwingWorker to run the process on a background
