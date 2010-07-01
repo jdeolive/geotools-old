@@ -391,7 +391,7 @@ Here are some additional challenges for you to try:
   and switch to the :guilabel:`depdendency heirarchy` or :guilabel:`dependency graph` tabs to see
   what is going on.
   
-     .. image:: images/quickstart-dependency.jpg
+     .. image:: images/quickstart-dependency.png
   
   We will be making use of some of the project is greater depth in the remaining tutorials.
   
