@@ -118,15 +118,15 @@ TOKEN:
  */
 TOKEN [IGNORE_CASE]:  /* keywords */
 {
-   < AND: "and" | "&&"> |
+   < AND: "and"> |
    < OR: "or"> |
-   < NOT: "not" | "!"> |
-   < EQ: "eq" | "==" | "="> |
-   < NEQ: "neq" | "<>" > |
-   < GT: "gt" | ">" > |
-   < LT: "lt" | "<" > |
-   < GTE: "gte" | ">="> |
-   < LTE: "lte" | "<="> |
+   < NOT: "not"> |
+   < EQ:  "="> |
+   < NEQ: "<>" > |
+   < GT:  ">" > |
+   < LT: "<" > |
+   < GTE:">="> |
+   < LTE:"<="> |
    < TRUE: "true"> |
    < FALSE: "false"> |
    < UNKNOWN: "unknown"> |
@@ -231,6 +231,12 @@ TOKEN [IGNORE_CASE]: /* Literals */
     	( ( <DIGIT> )* "." ( <DIGIT> )+ (<EXPONENT>)? ) |
     	( ( <DIGIT> )+ ("." ( <DIGIT> )*)? (<EXPONENT>)? )
   	> |
+
+	< #DATE_LITERAL_UNQUOTED: <INTEGER_LITERAL>"-"<INTEGER_LITERAL>"-"<INTEGER_LITERAL>> |
+	< #TIME_LITERAL_UNQUOTED: <INTEGER_LITERAL>":"<INTEGER_LITERAL>":"<INTEGER_LITERAL>> |
+	< DATE_LITERAL: "'" <DATE_LITERAL_UNQUOTED> "'"> |
+	< TIME_LITERAL: "'" <TIME_LITERAL_UNQUOTED> "'"> |
+	< TIMESTAMP_LITERAL: "'" <DATE_LITERAL> " " <TIME_LITERAL> "'">|
 
 	< #DUR_DAY:	  (<DIGIT>)+ "D" > |
 	< #DUR_MONTH: (<DIGIT>)+ "M" (<DUR_DAY>)? > |
