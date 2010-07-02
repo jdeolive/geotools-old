@@ -235,9 +235,9 @@ TOKEN [IGNORE_CASE]: /* Literals */
     	( ( <DIGIT> )+ ("." ( <DIGIT> )*)? (<EXPONENT>)? )
   	> |
 
-	<DATE_LITERAL:  "'" <INTEGER_LITERAL> "-" <INTEGER_LITERAL> "-" <INTEGER_LITERAL> "'" > |
-	<TIME_LITERAL:  "'" <INTEGER_LITERAL> ":" <INTEGER_LITERAL> ":" <INTEGER_LITERAL> "'" > |
-	<TIMESTAMP_LITERAL:  "'" <DATE_LITERAL> " " <TIME_LITERAL> > |
+//	<DATE_LITERAL:  "'" <INTEGER_LITERAL> "-" <INTEGER_LITERAL> "-" <INTEGER_LITERAL> "'" > |
+//	<TIME_LITERAL:  "'" <INTEGER_LITERAL> ":" <INTEGER_LITERAL> ":" <INTEGER_LITERAL> "'" > |
+//	<TIMESTAMP_LITERAL:  "'" <DATE_LITERAL> " " <TIME_LITERAL> > |
 
 	< #DUR_DAY:	  (<DIGIT>)+ "D" > |
 	< #DUR_MONTH: (<DIGIT>)+ "M" (<DUR_DAY>)? > |
@@ -432,7 +432,7 @@ void IdValue() #FEATURE_ID_NODE:
 	  <STRING_LITERAL>
 	| <INTEGER_LITERAL>	
 	| <FLOATING_LITERAL>
-	| <DATE_LITERAL>
+// TODO	| <DATE_LITERAL>
 
 }
 
@@ -985,9 +985,9 @@ void GeneralLiteral() #void:
 {}
 {
   	StringLiteral()
-  | DatetimeLiteral() 	
+// TODO  | DatetimeLiteral() 	
   |	BooleanLiteral() 
-//  | GeographyLiteral()  TODO
+// TODO | GeographyLiteral() 
 }
 
 /*
@@ -999,6 +999,7 @@ void GeneralLiteral() #void:
  *   <timestamp string>  ::= "'" <unquoted date value> <space> <unquoted time value> "'"
  *    
  */
+ /* TODO
 void DatetimeLiteral() #void:
 {}
 {
@@ -1006,7 +1007,7 @@ void DatetimeLiteral() #void:
 	|	<TIME_LITERAL> 			#TimeString_Node
 	|   <TIMESTAMP_LITERAL> 	#TimeStampString_Node
 }
-
+*/
 void IntegerLiteral() #IntegerNode:
 {}
 {

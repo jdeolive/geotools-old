@@ -221,10 +221,11 @@ public class ECQLCompiler extends ECQLParser implements org.geotools.filter.text
                 // ----------------------------------------
                 // Date, Time and Timestamp Strings
                 // ----------------------------------------
-            case   JJTDATESTRING_NODE:
-            case   JJTTIMESTRING_NODE:
-            case   JJTTIMESTAMPSTRING_NODE:
-            	return this.builder.buildDateTimeExpression(getTokenInPosition(0));            	
+//FIXME                
+//            case   JJTDATESTRING_NODE:
+//            case   JJTTIMESTRING_NODE:
+//            case   JJTTIMESTAMPSTRING_NODE:
+//            	return this.builder.buildDateTimeExpression(getTokenInPosition(0));            	
             	
                 // ----------------------------------------
                 // String

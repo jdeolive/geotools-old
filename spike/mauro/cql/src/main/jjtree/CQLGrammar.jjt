@@ -259,9 +259,9 @@ TOKEN [IGNORE_CASE]: /* Literals */
     	( ( <DIGIT> )+ ("." ( <DIGIT> )*)? (<EXPONENT>)? )
   	> |
 
-	<DATE_LITERAL:  "'" <INTEGER_LITERAL> "-" <INTEGER_LITERAL> "-" <INTEGER_LITERAL> "'" > |
-	<TIME_LITERAL:  "'" <INTEGER_LITERAL> ":" <INTEGER_LITERAL> ":" <INTEGER_LITERAL> "'" > |
-	<TIMESTAMP_LITERAL:  "'" <DATE_LITERAL> " " <TIME_LITERAL> > |
+//	<DATE_LITERAL:  "'" <INTEGER_LITERAL> "-" <INTEGER_LITERAL> "-" <INTEGER_LITERAL> "'" > |
+//	<TIME_LITERAL:  "'" <INTEGER_LITERAL> ":" <INTEGER_LITERAL> ":" <INTEGER_LITERAL> "'" > |
+//	<TIMESTAMP_LITERAL:  "'" <DATE_LITERAL> " " <TIME_LITERAL> > |
 
 	< #DUR_DAY:	  (<DIGIT>)+ "D" > |
 	< #DUR_MONTH: (<DIGIT>)+ "M" (<DUR_DAY>)? > |
@@ -876,11 +876,11 @@ void GeneralLiteral() #void:
 {}
 {
   	StringLiteral()
-  | DatetimeLiteral()   	
+//  | DatetimeLiteral()   	
   |	BooleanLiteral() 
 //  | GeographyLiteral()  TODO
 }
-
+/* TODO
 void DatetimeLiteral() #void:
 {}
 {
@@ -888,7 +888,7 @@ void DatetimeLiteral() #void:
 	|	<TIME_LITERAL> 			#TimeString_Node
 	|   <TIMESTAMP_LITERAL> 	#TimeStampString_Node
 }
-
+*/
 
 void IntegerLiteral() #IntegerNode:
 {}
