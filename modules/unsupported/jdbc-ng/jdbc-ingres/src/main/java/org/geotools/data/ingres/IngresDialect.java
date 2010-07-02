@@ -9,41 +9,64 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
+//import net.sf.jsqlparser.schema.Column;
+
+import org.geotools.data.DataSourceException;
+import org.geotools.data.jdbc.FilterToSQL;
 import org.geotools.jdbc.BasicSQLDialect;
 import org.geotools.jdbc.JDBCDataStore;
+import org.geotools.referencing.CRS;
 import org.opengis.feature.type.GeometryDescriptor;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKTReader;
+import com.vividsolutions.jts.io.WKBReader;
 
 public class IngresDialect extends BasicSQLDialect {
 
     final static Map<String, Class> TYPE_TO_CLASS_MAP = new HashMap<String, Class>() {
         {
+        	put("GEOMETRY", Geometry.class);
         	put("POINT", Point.class);
         	put("LINESTRING", LineString.class);
         	put("POLYGON", Polygon.class);
             put("MULTIPOINT", MultiPoint.class);
             put("MULTILINESTRING", MultiLineString.class);
             put("MULTIPOLYGON", MultiPolygon.class);
-            put("GEOMCOLLECTION", GeometryCollection.class);
+            put("GEOMCOLLECTION", Geometry.class); //HACK we get conversion errors otherwise
         }
     };
-	
+    
+    final static Map<Class, String> CLASS_TO_TYPE_MAP = new HashMap<Class, String>() {
+        {
+            put(Geometry.class, "GEOMETRY");
+            put(Point.class, "POINT");
+            put(LineString.class, "LINESTRING");
+            put(Polygon.class, "POLYGON");
+            put(MultiPoint.class, "MULTIPOINT");
+            put(MultiLineString.class, "MULTILINESTRING");
+            put(MultiPolygon.class, "MULTIPOLYGON");
+            put(GeometryCollection.class, "GEOMETRYCOLLECTION");
+        }
+    };
+
     /** Whether to use only primary filters for BBOX filters */
     boolean looseBBOXEnabled = false;
 	
     public IngresDialect(JDBCDataStore dataStore) {
         super(dataStore);
-        
     }
     
     public boolean isLooseBBOXEnabled() {
@@ -56,19 +79,72 @@ public class IngresDialect extends BasicSQLDialect {
 
     @Override
     public void encodeGeometryValue(Geometry value, int srid, StringBuffer sql) throws IOException {
+        if(value == null) {
+            sql.append("NULL");
+        } else {
+            if (value instanceof LinearRing) {
+                //postgis does not handle linear rings, convert to just a line string
+                value = value.getFactory().createLineString(((LinearRing) value).getCoordinateSequence());
+            }
+            
+            sql.append("GeometryFromText('" + value.toText() + "', " + srid + ")");
+        }
+        System.out.println("In encodeGeometryValue: " + sql);
     }
-    
+
+//    ThreadLocal<WKBReader> wkbReader = new ThreadLocal<WKBReader>();
     public Geometry decodeGeometryValue(GeometryDescriptor descriptor, ResultSet rs,
             String column, GeometryFactory factory, Connection cx ) throws IOException, SQLException {
-    	return null;
+/*        WKBReader reader = wkbReader.get();
+        if(reader == null) {
+            reader = new WKBReader(factory);
+            wkbReader.set(reader);
+        }*/
+        try {
+        	byte bytes[] = rs.getBytes(column);
+        	
+        	if(bytes == null) {
+        		return null;
+        	}
+            Geometry geom = (Geometry) new WKBReader().read(bytes);
+            return geom;
+        }
+        catch (Exception e) {
+            throw new DataSourceException("An exception occurred while parsing WKB data", e);
+        }
     }
     
     @Override
     public Envelope decodeGeometryEnvelope(ResultSet rs, int column, Connection cx)
             throws SQLException, IOException {
-        return null;
+        try {
+            String envelope = rs.getString(column);
+            if (envelope != null) {
+                System.out.println("In decodeGeometryEnvelope; " + envelope);
+                return new WKTReader().read(envelope).getEnvelopeInternal();
+            } else {
+                // empty one
+                return new Envelope();
+            }
+        } catch (ParseException e) {
+            throw (IOException) new IOException(
+                    "Error occurred parsing the bounds WKT").initCause(e);
+        }
     }
-
+    
+    @Override
+    public void encodeGeometryEnvelope(String tableName, String geometryColumn, StringBuffer sql) {
+    	sql.append("AsText(Envelope(" + geometryColumn + "))");
+    }
+    
+    @Override
+    public void encodeGeometryColumn(GeometryDescriptor gatt, int srid,
+            StringBuffer sql) {
+    	sql.append(" AsBinary( ");
+    	encodeColumnName(gatt.getLocalName(), sql);
+    	sql.append(" ) ");
+    }
+      
     @Override
     public Integer getGeometrySRID(String schemaName, String tableName, String columnName,
         Connection cx) throws SQLException {
@@ -78,13 +154,16 @@ public class IngresDialect extends BasicSQLDialect {
         ResultSet result = null;
         Integer srid = null;
         try {
-            if (schemaName == null)
-                schemaName = "geotools"; //default schema
             
-            String sqlStatement = "SELECT SRID FROM GEOMETRY_COLUMNS WHERE " //
-                    + "F_TABLE_SCHEMA = '" + schemaName + "' " //
-                    + "AND F_TABLE_NAME = '" + tableName + "' " //
-                    + "AND F_GEOMETRY_COLUMN = '" + columnName + "'";
+            String sqlStatement = "SELECT SRID FROM GEOMETRY_COLUMNS WHERE ";
+            if(schemaName == null) {
+                sqlStatement += "F_TABLE_NAME = '" + tableName + "' ";            	
+            }
+            else {
+                sqlStatement += "F_TABLE_SCHEMA = '" + schemaName + "' "
+                	+ "AND F_TABLE_NAME = '" + tableName + "' ";
+            }
+            sqlStatement += "AND F_GEOMETRY_COLUMN = '" + columnName + "'";
 
             LOGGER.log(Level.FINE, "Geometry type check; {0} ", sqlStatement);
             statement = cx.createStatement();
@@ -93,20 +172,28 @@ public class IngresDialect extends BasicSQLDialect {
             if (result.next()) {
                 srid = result.getInt(1);
             }
-            dataStore.closeSafe(result);
+/*            dataStore.closeSafe(result);
             
-            // if srid is null or -1, then the srid is undefined in the GEOMETRY_COLUMNS table
-            if(srid == null || srid.intValue() == -1) {
+            // if srid is null  then the srid is undefined in the GEOMETRY_COLUMNS table
+            // This might not ever be necessary, since if the column is a geometry col, it will
+            // exist in GEOMETRY_COLUMNS. Additionally will only work if there is at least one
+            // non-null entry in the column
+            if(srid == null) {
             	
-                sqlStatement = "SELECT FIRST 1 SRID(" + columnName + ") " +
-                               "FROM " + schemaName + "." + tableName;
-                
+            	if(schemaName == null) {
+                    sqlStatement = "SELECT FIRST 1 SRID(" + columnName + ") " +
+                    "FROM " + tableName;
+            	}
+            	else {
+                    sqlStatement = "SELECT FIRST 1 SRID(" + columnName + ") " +
+                    "FROM " + schemaName + "." + tableName;
+            	}
                 result = statement.executeQuery(sqlStatement);
                 
                 if (result.next()) {
                     srid = result.getInt(1);
                 }
-            }
+            }*/
         } finally {
             dataStore.closeSafe(result);
             dataStore.closeSafe(statement);
@@ -118,19 +205,14 @@ public class IngresDialect extends BasicSQLDialect {
     
     @Override
     public void encodePrimaryKey(String column, StringBuffer sql) {
-    	super.encodePrimaryKey(column, sql);
-    	sql.append(" NOT NULL");
-    }
-
-    @Override
-    public void encodeGeometryEnvelope(String tableName, String geometryColumn, StringBuffer sql) {
+        encodeColumnName(column, sql);
+        sql.append(" INT AUTO_INCREMENT PRIMARY KEY");
     }
 
     /**Determines the class mapping for a particular column of a table.*/
     @Override
     public Class<?> getMapping(ResultSet columnMetaData, Connection cx)
             throws SQLException {
-    	
     	final int SCHEMA_NAME = 2;
         final int TABLE_NAME = 3;
         final int COLUMN_NAME = 4;
@@ -138,21 +220,27 @@ public class IngresDialect extends BasicSQLDialect {
         String tableName = columnMetaData.getString(TABLE_NAME);
         String columnName = columnMetaData.getString(COLUMN_NAME);
         String schemaName = columnMetaData.getString(SCHEMA_NAME);
+        String sqlStatement;
         
         Statement statement = null;
         ResultSet result = null;
         String gType = null;
         try {
-            String sqlStatement = "SELECT GEOMETRY_TYPE FROM GEOMETRY_COLUMNS WHERE " //
+        	if(schemaName != null) {
+        		sqlStatement = "SELECT GEOMETRY_TYPE FROM GEOMETRY_COLUMNS WHERE " //
                     + "F_TABLE_SCHEMA = '" + schemaName + "' " //
                     + "AND F_TABLE_NAME = '" + tableName + "' " //
                     + "AND F_GEOMETRY_COLUMN = '" + columnName + "'";
+        	} else {
+        		sqlStatement = "SELECT GEOMETRY_TYPE FROM GEOMETRY_COLUMNS WHERE " //
+                    + "F_TABLE_NAME = '" + tableName + "' " //
+                    + "AND F_GEOMETRY_COLUMN = '" + columnName + "'";
+        	}
 
             LOGGER.log(Level.FINE, "Geometry type check; {0} ", sqlStatement);
             statement = cx.createStatement();
             result = statement.executeQuery(sqlStatement);
        
-            
             if (result.next()) {
                 gType = result.getString(1);  
             }
@@ -175,7 +263,8 @@ public class IngresDialect extends BasicSQLDialect {
     //to register additional mappings if necessary
     public void registerSqlTypeNameToClassMappings(Map<String, Class<?>> mappings) {
         super.registerSqlTypeNameToClassMappings(mappings);
-
+        mappings.put("GEOMCOLLECTION", Geometry.class);
+        mappings.put("GEOMETRY", Geometry.class);
     }
     
     @Override
@@ -191,15 +280,52 @@ public class IngresDialect extends BasicSQLDialect {
     @Override
     public String getSequenceForColumn(String schemaName, String tableName,
             String columnName, Connection cx) throws SQLException {
-    	
+    	System.out.println("getSequenceForColumn called");
+        String sequenceName = (tableName + "_" + columnName + "_sequence").toLowerCase();
+        Statement st = cx.createStatement();
+        try {
+            // check the user owned sequences
+            String sql = "SELECT * FROM IISEQUENCE" +
+                " WHERE SEQ_NAME = '" + sequenceName + "'";
+            if(schemaName != null) {
+                sql += " AND SEQ_OWNER = '" + schemaName + "'";
+            }
+            ResultSet rs = st.executeQuery(sql);
+            try {
+                if ( rs.next() ) {
+                    return sequenceName; 
+                }    
+            } finally {
+                dataStore.closeSafe( rs );
+            }
+        } finally {
+            dataStore.closeSafe( st );
+        }
+        
         return null;
     }
-    
-        
+
     @Override
     public Object getNextSequenceValue(String schemaName, String sequenceName,
             Connection cx) throws SQLException {
-    	return null;
+        Statement st = cx.createStatement();
+        try {
+            String sql = "SELECT NEXT VALUE FOR " + sequenceName;
+
+            dataStore.getLogger().fine(sql);
+            ResultSet rs = st.executeQuery(sql);
+            try {
+                if (rs.next()) {
+                    return rs.getLong(1);
+                }
+            } finally {
+                dataStore.closeSafe(rs);
+            }
+        } finally {
+            dataStore.closeSafe(st);
+        }
+
+        return null;
     }
 
     @Override
@@ -215,13 +341,95 @@ public class IngresDialect extends BasicSQLDialect {
        // others?
         return true;
     }
+    
+    @Override
+    public boolean lookupGeneratedValuesPostInsert() {
+        return true;
+    }
+
+    // This will be a bit of a hack, since you cannot call current value on a sequence
+    // if that sequence wasn't called with next value in the same session.
+    @Override
+    public Object getLastAutoGeneratedValue(String schemaName, String tableName, String columnName,
+            Connection cx) throws SQLException {
+        Statement st = cx.createStatement();
+        try {
+            String sql = "SELECT max(" + columnName +") FROM " + tableName;
+            dataStore.getLogger().fine( sql);
+            
+            ResultSet rs = st.executeQuery( sql);
+            try {
+                if ( rs.next() ) {
+                    return rs.getLong(1);
+                }
+            }
+            finally {
+                dataStore.closeSafe(rs);
+            }
+        }
+        finally {
+            dataStore.closeSafe(st);
+        }
+
+        return null;
+    }
 
     @Override   
     public boolean isLimitOffsetSupported() {
     	return false;
+    	//While Ingres does support OFFSET/LIMIT it is not
+    	//supported in such a way that GeoTools make use of it
     }
     
     @Override
     public void applyLimitOffset(StringBuffer sql, int limit, int offset) {
+    	if(offset > 0) {
+    		sql.append(" OFFSET " + offset);
+    		if(limit > 0 && limit < Integer.MAX_VALUE) {
+    			sql.append(" FETCH NEXT " + limit + " ROWS ONLY ");
+    		}
+    	} else if(limit > 0 && limit < Integer.MAX_VALUE) {
+    		sql.append(" FETCH FIRST " + limit + " ROWS ONLY ");
+    	}
+    	System.out.println("applyLimitOffset: " + sql);
+    }
+    
+    @Override
+    public CoordinateReferenceSystem createCRS(int srid, Connection cx) throws SQLException  {
+        // if the official EPSG database has an answer, use that one
+        CoordinateReferenceSystem crs = super.createCRS(srid, cx);
+        if(crs != null)
+            return crs;
+        
+        // otherwise try to use the Ingres spatial_ref_sys WKT
+        String sql = "SELECT srtext FROM spatial_ref_sys WHERE srid = " + srid;
+        Statement st = null;
+        ResultSet rs = null; 
+        try {
+            st = cx.createStatement();
+            rs = st.executeQuery( sql.toString() );
+            if ( rs.next() ) {
+                String wkt = rs.getString(1);
+                if ( wkt != null ) {
+                    try {
+                        return CRS.parseWKT(wkt);
+                    } catch(Exception e) {
+                        if(LOGGER.isLoggable(Level.FINE))
+                            LOGGER.log(Level.FINE, "Could not parse WKT " + wkt, e);
+                        return null;
+                    }
+                }
+            }
+        } finally {
+            dataStore.closeSafe( rs );
+            dataStore.closeSafe( st );
+        }
+
+        return null;
+    }
+    
+    @Override
+    public String getGeometryTypeName(Integer type) {
+        return "geometry";
     }
 }

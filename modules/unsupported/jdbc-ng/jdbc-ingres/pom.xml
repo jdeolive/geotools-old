@@ -58,6 +58,11 @@
       <id>clgoh</id>
       <email>clgoh@student.cs.uwaterloo.ca</email>
     </developer>
+    <developer>
+      <name>Alex Trofast</name>
+      <id>atrofast</id>
+      <email>alex.trofast@ingres.com</email>
+    </developer>
   </developers>
 
   <dependencies>

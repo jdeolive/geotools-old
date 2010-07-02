@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
 
+import org.apache.commons.dbcp.BasicDataSource;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataAccessFactory.Param;
 import org.geotools.jdbc.JDBCDataStore;
@@ -22,7 +23,7 @@ public class IngresDataStoreFactory extends JDBCDataStoreFactory {
     public static final Param PORT = new Param("port", Integer.class, "Port", true, 5432);
     
     /** parameter for database schema */
-    public static final Param SCHEMA = new Param("schema", String.class, "Schema", false, "public");
+    public static final Param SCHEMA = new Param("schema", String.class, "Schema", false, null);
 
     /**
      * Wheter a prepared statements based dialect should be used, or not
@@ -52,6 +53,16 @@ public class IngresDataStoreFactory extends JDBCDataStoreFactory {
 //    public DataStore createDataStore(Map<String, Serializable> params) throws IOException {
 //        return null;
 //    }
+    
+/*    public BasicDataSource createDataSource(Map params) throws IOException {
+    	try {
+			SCHEMA.parse((String) USER.lookUp(params));
+		} catch (Throwable e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	return super.createDataSource(params);
+    }*/
 
     public String getDescription() {
         return "Ingres Database";
