@@ -64,16 +64,6 @@ private static final Logger LOGGER = Logger.getLogger(CQLParser.class.getName())
   /**
    * initialize geooperations
    */  
-// the following were deprecated in CSW specification v 2.0.2
-  protected static final Set GEOOP_DEPRECATED= new HashSet();
-  static{
-		GEOOP_DEPRECATED.add("EQUAL"); 		
-		GEOOP_DEPRECATED.add("INTERSECT"); 	
-		GEOOP_DEPRECATED.add("TOUCH");			
-		GEOOP_DEPRECATED.add("CROSS");			
-		GEOOP_DEPRECATED.add("OVERLAP");		
-  }
-
   protected static final Set GEOOP = new HashSet();
   static {
 		GEOOP.add("EQUALS");	
@@ -86,7 +76,6 @@ private static final Logger LOGGER = Logger.getLogger(CQLParser.class.getName())
 		GEOOP.add("OVERLAPS");
 		GEOOP.add("RELATE");
 		GEOOP.add("BBOX");
-		GEOOP.addAll(GEOOP_DEPRECATED);
   }
   
   protected boolean isGeoOp() {
@@ -161,15 +150,15 @@ TOKEN:
  */
 TOKEN [IGNORE_CASE]:  /* keywords */
 {
-   < AND: "and" | "&&"> |
-   < OR: "or"> |
-   < NOT: "not" | "!"> |
-   < EQ: "eq" | "==" | "="> |
-   < NEQ: "neq" | "<>" > |
-   < GT: "gt" | ">" > |
-   < LT: "lt" | "<" > |
-   < GTE: "gte" | ">="> |
-   < LTE: "lte" | "<="> |
+   < AND: "and"> |
+   < OR:  "or"> |
+   < NOT: "not" > |
+   < EQ:  "="> |
+   < NEQ: "<>" > |
+   < GT:  ">" > |
+   < LT:  "<" > |
+   < GTE: ">="> |
+   < LTE: "<="> |
    < TRUE: "true"> |
    < FALSE: "false"> |
    < UNKNOWN: "unknown"> |
@@ -212,16 +201,16 @@ TOKEN [IGNORE_CASE]: /* existence predicate*/
 
 TOKEN [IGNORE_CASE]:  
 {
-  < EQUALS: "equal" | "equals" > |
-  < DISJOINT: "disjoint"> |
-  <INTERSECTS: "intersect" |"intersects" > |
-  < TOUCHES: "touch"| "touches"> |
-  < CROSSES: "cross" | "crosses"> |
-  < WITHIN: "within"> |
-  < CONTAINS: "contains"> |
-  < OVERLAPS: "overlap" | "overlaps"> |
-  < RELATE: "relate"> |
-  < BBOX: "bbox"> 
+  < EQUALS: 	"equals" > |
+  < DISJOINT: 	"disjoint"> |
+  <INTERSECTS: 	"intersects" > |
+  < TOUCHES: 	"touches"> |
+  < CROSSES: 	"crosses"> |
+  < WITHIN: 	"within"> |
+  < CONTAINS: 	"contains"> |
+  < OVERLAPS: 	"overlaps" > |
+  < RELATE: 	"relate"> |
+  < BBOX: 		"bbox"> 
 }
 
 TOKEN [IGNORE_CASE]: /* relgeoop name */
@@ -250,8 +239,6 @@ TOKEN:
   < SENTENCE_SEPARATOR: ";"> |
   < PERIOD: "."> |
   < SLASH: "/"> |
-//  < PERIOD_SEP: <SLASH> > |
-//  < DIV: <SLASH> > |
   < COLON: ":">	|
   < MULT: "*"> |
   < PLUS: "+"> |
@@ -272,6 +259,10 @@ TOKEN [IGNORE_CASE]: /* Literals */
     	( ( <DIGIT> )+ ("." ( <DIGIT> )*)? (<EXPONENT>)? )
   	> |
 
+	<DATE_LITERAL:  "'" <INTEGER_LITERAL> "-" <INTEGER_LITERAL> "-" <INTEGER_LITERAL> "'" > |
+	<TIME_LITERAL:  "'" <INTEGER_LITERAL> ":" <INTEGER_LITERAL> ":" <INTEGER_LITERAL> "'" > |
+	<TIMESTAMP_LITERAL:  "'" <DATE_LITERAL> " " <TIME_LITERAL> > |
+
 	< #DUR_DAY:	  (<DIGIT>)+ "D" > |
 	< #DUR_MONTH: (<DIGIT>)+ "M" (<DUR_DAY>)? > |
 	< #DUR_YEAR:  (<DIGIT>)+ "Y" (<DUR_MONTH>)? > |	
@@ -288,8 +279,8 @@ TOKEN [IGNORE_CASE]: /* Literals */
 	< #UTC_TIME: <DIGIT><DIGIT> ":" <DIGIT><DIGIT> ":" <DIGIT><DIGIT> ("." (<DIGIT>)+)? "Z" > |
 	< DATE_TIME : <FULL_DATE>"T"<UTC_TIME> > |
 
-    < IDENTIFIER: (<LETTER> (<LETTER>|<DIGIT>)*) > |
-    
+    < IDENTIFIER: (<LETTER> (<LETTER>|<DIGIT>)*)  > |
+
   	< LETTER: [ "a"-"z", "A"-"Z" , "_"] > |
   	< DIGIT: [ "0"-"9"] > |
   	< #EXPONENT: ["e","E"] (["+","-"])? (<DIGIT>)+ > 
@@ -317,6 +308,7 @@ Node ExpressionCompilationUnit() :
    <EOF>
    {return jjtree.rootNode();}
 }
+
 
 /*
  * Program structuring syntax to parse a list of filters.
@@ -884,10 +876,19 @@ void GeneralLiteral() #void:
 {}
 {
   	StringLiteral()
-//  | DatetimeLiteral()   TODO	
+  | DatetimeLiteral()   	
   |	BooleanLiteral() 
 //  | GeographyLiteral()  TODO
 }
+
+void DatetimeLiteral() #void:
+{}
+{
+		<DATE_LITERAL> 			#DateString_Node
+	|	<TIME_LITERAL> 			#TimeString_Node
+	|   <TIMESTAMP_LITERAL> 	#TimeStampString_Node
+}
+
 
 void IntegerLiteral() #IntegerNode:
 {}

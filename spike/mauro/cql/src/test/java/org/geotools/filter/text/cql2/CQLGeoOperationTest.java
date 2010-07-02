@@ -120,10 +120,6 @@ public class CQLGeoOperationTest {
         
         Assert.assertTrue("Intersects was expected", resultFilter instanceof Intersects);
 
-        // INTERSECT is deprecated syntax
-        resultFilter = CompilerUtil.parseFilter(language,"INTERSECT(ATTR1, POINT(1 2))");
-
-        Assert.assertTrue("Intersects was expected", resultFilter instanceof Intersects);
     }
 
 
@@ -143,10 +139,6 @@ public class CQLGeoOperationTest {
 
         Assert.assertTrue("Touches was expected", resultFilter instanceof Touches);
 
-        // TOUCH is deprecated syntax
-        resultFilter = CompilerUtil.parseFilter(language,"TOUCH(ATTR1, POINT(1 2))");
-
-        Assert.assertTrue("Touches was expected", resultFilter instanceof Touches);
     }
 
     /**
@@ -165,10 +157,6 @@ public class CQLGeoOperationTest {
 
         Assert.assertTrue("Crosses was expected", resultFilter instanceof Crosses);
 
-        // CROSS is deprecated syntax
-        resultFilter = CompilerUtil.parseFilter(language,"CROSS(ATTR1, POINT(1 2))");
-
-        Assert.assertTrue("Crosses was expected", resultFilter instanceof Crosses);
         
     }
     @Test
@@ -194,10 +182,6 @@ public class CQLGeoOperationTest {
 
         Assert.assertTrue("Overlaps was expected", resultFilter instanceof Overlaps);
 
-        // OVERLAP is deprecated syntax
-        resultFilter = CompilerUtil.parseFilter(language,"OVERLAP(ATTR1, POINT(1 2))");
-
-        Assert.assertTrue("Overlaps was expected", resultFilter instanceof Overlaps);
     }
     
     /**
@@ -213,12 +197,6 @@ public class CQLGeoOperationTest {
         
         // EQUALS
         resultFilter = CompilerUtil.parseFilter(language,"EQUALS(ATTR1, POINT(1 2))");
-
-        Assert.assertTrue("not an instance of Equals", resultFilter instanceof Equals);
-
-
-        // EQUAL is deprecated syntax
-        resultFilter = CompilerUtil.parseFilter(language,"EQUAL(ATTR1, POINT(1 2))");
 
         Assert.assertTrue("not an instance of Equals", resultFilter instanceof Equals);
 
