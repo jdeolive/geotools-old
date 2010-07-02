@@ -208,12 +208,7 @@ public final class ECQLTest  {
     @Test 
     public void idPredicate() throws Exception {
         
-        Filter filter = ECQL.toFilter("IN ('river.1', 'river.2')");
-        Assert.assertTrue(filter instanceof Id);
-
- 
-        //deprecated syntax (TODO  it should be unsupported in the next version)
-        filter = ECQL.toFilter("ID IN ('river.1', 'river.2')");
+        Filter filter = ECQL.toFilter("ID IN ('river.1', 'river.2')");
         
         Assert.assertTrue(filter instanceof Id);
         
