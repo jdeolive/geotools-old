@@ -72,8 +72,7 @@ enum ReadType {
     			if(reader==null)
     			{
     				if (LOGGER.isLoggable(Level.WARNING))
-    					LOGGER.warning("Unable to get reader for URL "
-    							+ rasterURL);
+    					LOGGER.warning("Unable to get reader for URL " + rasterURL);
     				return null;
     			}
     			
@@ -84,8 +83,8 @@ enum ReadType {
     			if(CoverageUtilities.checkEmptySourceRegion(readP, readDimension))
     				return null;
     			
-    			if (LOGGER.isLoggable(Level.FINE))
-    			    LOGGER.log(Level.FINE, "reading file: " + rasterURL);
+    			if (LOGGER.isLoggable(Level.FINER))
+    			    LOGGER.log(Level.FINER, "reading file: " + rasterURL);
     			
     			// read data
     			return reader.read(imageIndex,readP);

@@ -482,8 +482,9 @@ public class GranuleDescriptor {
             if (rasterFile == null) {
                     return;
             }
-            if (LOGGER.isLoggable(Level.FINE))
-                    LOGGER.fine("File found "+granuleLocation);
+            if (LOGGER.isLoggable(Level.FINER)) {
+                    LOGGER.finer("File found "+granuleLocation);
+            }
     
             this.originator = null;
             init (granuleBBox, rasterFile, suggestedSPI, inclusionGeometry);
@@ -533,9 +534,9 @@ public class GranuleDescriptor {
 			final RasterLayerRequest request,
 			final Hints hints) throws IOException {
 		
-		if (LOGGER.isLoggable(java.util.logging.Level.FINE)){
+		if (LOGGER.isLoggable(java.util.logging.Level.FINER)){
 		    final String name = Thread.currentThread().getName();
-			LOGGER.fine("Thread:" + name + " Loading raster data for granuleDescriptor "+this.toString());
+			LOGGER.finer("Thread:" + name + " Loading raster data for granuleDescriptor "+this.toString());
 		}
 
 		final ReferencedEnvelope bbox = inclusionGeometry != null? new ReferencedEnvelope(granuleBBOX.intersection(inclusionGeometry.getEnvelopeInternal()), granuleBBOX.getCoordinateReferenceSystem()):granuleBBOX;
@@ -604,8 +605,8 @@ public class GranuleDescriptor {
 				}
 				return null;
 
-			} else if (LOGGER.isLoggable(java.util.logging.Level.FINE)){
-				LOGGER.fine((new StringBuffer("Loading level ").append(
+			} else if (LOGGER.isLoggable(java.util.logging.Level.FINER)){
+				LOGGER.finer((new StringBuffer("Loading level ").append(
 						imageIndex).append(" with source region ").append(
 						sourceArea).toString()));
 			}

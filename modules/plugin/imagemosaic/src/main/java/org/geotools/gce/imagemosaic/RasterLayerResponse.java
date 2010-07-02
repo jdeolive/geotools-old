@@ -481,8 +481,9 @@ class RasterLayerResponse{
 				}
 
 
-				if (LOGGER.isLoggable(Level.FINE))
-					LOGGER.fine("Adding to mosaic image number " + granuleIndex);
+				if (LOGGER.isLoggable(Level.FINER)) {
+					LOGGER.finer("Adding to mosaic image number " + granuleIndex);
+				}
 				
 				//
 				// add to the mosaic collection, with preprocessing
@@ -877,8 +878,8 @@ class RasterLayerResponse{
 				// management of the transparent color involves removing
 				// transparency information from the input images.
 				// 
-				if (LOGGER.isLoggable(Level.FINE))
-					LOGGER.fine(new StringBuilder("Loaded bbox ").append(
+				if (LOGGER.isLoggable(Level.FINER))
+					LOGGER.finer(new StringBuilder("Loaded bbox ").append(
 							mosaicBBox.toString()).append(" while crop bbox ")
 							.append(request.getCropBBox().toString())
 							.toString());

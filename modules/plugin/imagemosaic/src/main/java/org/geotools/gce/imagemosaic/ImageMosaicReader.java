@@ -583,7 +583,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 		final Collection<GridCoverage2D> response = rasterManager.read(params);
 		if (response.isEmpty()) {
 		    if (LOGGER.isLoggable(Level.FINE)){
-		        LOGGER.fine("The response is empty");
+		        LOGGER.fine("The response is empty. ==> returning a null GridCoverage");
 		    }
 		    return null;
 		} else {

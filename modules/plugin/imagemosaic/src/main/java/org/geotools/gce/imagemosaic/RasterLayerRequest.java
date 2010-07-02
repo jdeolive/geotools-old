@@ -187,7 +187,7 @@ class RasterLayerRequest {
         // Setting default parameters
         //
         // //
-    	this.rasterManager=rasterManager;
+    	this.rasterManager = rasterManager;
     	setDefaultParameterValues();
     	
     	
@@ -220,9 +220,9 @@ class RasterLayerRequest {
     @SuppressWarnings({ "unchecked", "deprecation" })
 	private void setDefaultParameterValues() {
     	final ParameterValueGroup readParams = this.rasterManager.parent.getFormat().getReadParameters();
-    	if(readParams==null){
-    		if(LOGGER.isLoggable(Level.FINE))
-    			LOGGER.fine("No default values for the read parameters!");
+    	if (readParams == null) {
+    		if(LOGGER.isLoggable(Level.FINER))
+    			LOGGER.finer("No default values for the read parameters!");
     		return;
     	}
     	final List<GeneralParameterDescriptor> parametersDescriptors = readParams.getDescriptor().descriptors();
@@ -665,13 +665,13 @@ class RasterLayerRequest {
                     //
                     // In case we have nothing to look at we should get the whole coverage
                     //
-                    requestedBBox=rasterManager.spatialDomainManager.coverageBBox;
-                    cropBBox=rasterManager.spatialDomainManager.coverageBBox;
-                    requestedRasterArea=(Rectangle) rasterManager.spatialDomainManager.coverageRasterArea.clone();
-                    destinationRasterArea=(Rectangle)rasterManager.spatialDomainManager.coverageRasterArea.clone();
-                    requestedResolution=rasterManager.spatialDomainManager.coverageFullResolution.clone();   
+                    requestedBBox = rasterManager.spatialDomainManager.coverageBBox;
+                    cropBBox = rasterManager.spatialDomainManager.coverageBBox;
+                    requestedRasterArea = (Rectangle) rasterManager.spatialDomainManager.coverageRasterArea.clone();
+                    destinationRasterArea = (Rectangle)rasterManager.spatialDomainManager.coverageRasterArea.clone();
+                    requestedResolution = rasterManager.spatialDomainManager.coverageFullResolution.clone();   
                     // TODO harmonize the various types of transformations
-                    requestedGridToWorld=(AffineTransform) rasterManager.spatialDomainManager.coverageGridToWorld2D;
+                    requestedGridToWorld = (AffineTransform) rasterManager.spatialDomainManager.coverageGridToWorld2D;
                     return;
             }
             
@@ -846,7 +846,7 @@ class RasterLayerRequest {
         if (destinationRasterArea.isEmpty()) 
         {
             if (LOGGER.isLoggable(Level.FINE)) 
-                LOGGER.log(Level.FINE, "Requested envelope too small resulting in empty cropped raster region");
+                LOGGER.log(Level.FINE, "Requested envelope too small resulting in empty cropped raster region. cropBbox:" + cropBBox);
             // TODO: Future versions may define a 1x1 rectangle starting
             // from the lower coordinate
             empty=true;
@@ -907,18 +907,16 @@ class RasterLayerRequest {
         // WE DO HAVE A REQUESTED AREA!
     	//
 
-
         //
-		// Create the crop bbox in the coverage CRS for cropping it later
-		// on. 
+        // Create the crop bbox in the coverage CRS for cropping it later on.
         //
         computeCropBBOX();
-        if (empty||(cropBBox!=null&&cropBBox.isEmpty()))
-        {	  	
-            if (LOGGER.isLoggable(Level.FINE)) 
+        if (empty || (cropBBox != null && cropBBox.isEmpty())) {	  	
+            if (LOGGER.isLoggable(Level.FINE)) {
                 LOGGER.log(Level.FINE, "RequestedBBox empty or null");
-        	//this means that we do not have anything to load at all!
-            empty=true;
+            }
+            //this means that we do not have anything to load at all!
+            empty = true;
             return;
         }
         
@@ -926,25 +924,19 @@ class RasterLayerRequest {
         // CROP SOURCE REGION using the refined requested envelope
         //
         computeCropRasterArea();     
-        if (empty||(destinationRasterArea!=null&&destinationRasterArea.isEmpty()))
-        {	  	
-            if (LOGGER.isLoggable(Level.FINE)) 
+        if (empty || (destinationRasterArea != null && destinationRasterArea.isEmpty())) {	  	
+            if (LOGGER.isLoggable(Level.FINE)) {
                 LOGGER.log(Level.FINE, "CropRasterArea empty or null");
+            }
         	//this means that we do not have anything to load at all!
             return;
         }                
         
-        if (LOGGER.isLoggable(Level.FINE)) {
-            StringBuilder sb = new StringBuilder(
-                    "Adjusted Requested Envelope = ")
-            		.append(requestedBBox.toString())
-            		.append("\n")
-                    .append("Requested raster dimension = ")
-                    .append(requestedRasterArea.toString())
-                    .append("\n")
-                    .append("Corresponding raster source region = ")
-                            .append(requestedRasterArea.toString());
-                    LOGGER.log(Level.FINE, sb.toString());
+        if (LOGGER.isLoggable(Level.FINER)) {
+            StringBuilder sb = new StringBuilder("Adjusted Requested Envelope = ").append(requestedBBox.toString())
+            		.append("\n").append("Requested raster dimension = ").append(requestedRasterArea.toString())
+                    .append("\n").append("Corresponding raster source region = ").append(requestedRasterArea.toString());
+                    LOGGER.log(Level.FINER, sb.toString());
                 }
  
 
@@ -1117,7 +1109,12 @@ class RasterLayerRequest {
             // layer in native crs
             if (!cropBBox.intersects((BoundingBox)rasterManager.spatialDomainManager.coverageBBox))
             {
-                cropBBox=null;
+                if (LOGGER.isLoggable(Level.FINE)){
+                    LOGGER.fine(new StringBuilder("The computed CropBoundingBox ").append(cropBBox)
+                            .append(" Doesn't intersect the coverage BoundingBox ").append(rasterManager.spatialDomainManager.coverageBBox)
+                            .append(" resulting in an empty request").toString());
+                }
+                cropBBox = null;
                 empty=true;
             	return;
             }

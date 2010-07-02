@@ -505,7 +505,7 @@ class RasterManager {
 			final URL baseURL=this.parent.sourceURL;
 			final File baseFile= DataUtilities.urlToFile(baseURL);
 			// in case we do not manage to convert the source URL we leave right awaycd sr
-			if(baseFile==null){
+			if (baseFile==null){
 				if(LOGGER.isLoggable(Level.FINE))
 					LOGGER.fine("Unable to find sample image for path "+baseURL);
 				return;
@@ -581,7 +581,7 @@ class RasterManager {
 		final RasterLayerRequest request= new RasterLayerRequest(params,this);
 		if (request.isEmpty()){
 			if(LOGGER.isLoggable(Level.FINE))
-				LOGGER.log(Level.FINE,"Request is empty: "+request.toString());
+				LOGGER.log(Level.FINE,"Request is empty: "+ request.toString());
 			return Collections.emptyList();		
 		}
 		
