@@ -16,9 +16,13 @@
  */
 package org.geotools.filter.function;
 
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 
-import org.apache.commons.beanutils.PropertyUtils;
+//import org.apache.commons.beanutils.PropertyUtils;
 import org.geotools.filter.FunctionExpressionImpl;
 import org.geotools.util.Utilities;
 import org.opengis.feature.simple.SimpleFeature;
@@ -89,19 +93,41 @@ public class PropertyExistsFunction extends FunctionExpressionImpl {
 
         final String propName = getPropertyName();
 
-        Boolean propertyExists = Boolean.TRUE;
-
-        try {
-            PropertyUtils.getProperty(bean, propName);
-        } catch (NoSuchMethodException e) {
-            propertyExists = Boolean.FALSE;
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
+       try {
+            Class type = bean.getClass();
+            //quick 1
+//            try {
+//                String getName = "get"+propName.substring(0,1).toUpperCase()+propName.substring(1);
+//                if (type.getMethod(getName, new Class[0]) != null) {
+//                    return true;
+//                }
+//            } catch (Exception ignore) {
+//            }
+//            // quick 2
+//            try {
+//                String isName = "is"+propName.substring(0,1).toUpperCase()+propName.substring(1);
+//                if (type.getMethod(isName, new Class[0]) != null) {
+//                    return true;
+//                }
+//            } catch (Exception ignore) {
+//            }
+            // okay go for real
+            BeanInfo info = Introspector.getBeanInfo( type );
+            for( PropertyDescriptor descriptor : info.getPropertyDescriptors() ){
+                if( descriptor.getName().equals(propName) ){
+                    if( descriptor.getReadMethod() != null ){
+                        return true;
+                    }
+                    else {
+                        return false; // property found but not writable
+                    }
+                }
+            }
+            //PropertyUtils.getProperty(bean, propName);
+            //return true;
+        } catch (IntrospectionException ignore) {
         }
-
-        return propertyExists;
+        return false;
     }
 
     public String toString() {
