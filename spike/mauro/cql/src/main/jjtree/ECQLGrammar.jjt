@@ -135,8 +135,7 @@ TOKEN [IGNORE_CASE]:  /* keywords */
    < ID: "id" > |
    < IN: "in" > |
    < IS: "is" > |
-   < NULL: "null" > 
-
+   < NULL: "null" >
 }
 
 TOKEN [IGNORE_CASE]: /* include all and exclude all filters */
