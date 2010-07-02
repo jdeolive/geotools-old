@@ -34,9 +34,6 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -584,10 +581,14 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 		// /////////////////////////////////////////////////////////////////////
 		
 		final Collection<GridCoverage2D> response = rasterManager.read(params);
-		if(response.isEmpty())
-			return null;
-		else
+		if (response.isEmpty()) {
+		    if (LOGGER.isLoggable(Level.FINE)){
+		        LOGGER.fine("The response is empty");
+		    }
+		    return null;
+		} else {
 			return response.iterator().next();
+		}
 	}
 
 	/**

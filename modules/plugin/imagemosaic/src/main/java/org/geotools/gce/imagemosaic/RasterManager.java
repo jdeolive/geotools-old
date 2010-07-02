@@ -589,9 +589,10 @@ class RasterManager {
 		final RasterLayerResponse response= new RasterLayerResponse(request,this);
 		
 		// execute the request
-		final GridCoverage2D elem=response.createResponse();
-		if(elem!=null)
+		final GridCoverage2D elem = response.createResponse();
+		if (elem != null){
 			return Collections.singletonList(elem);
+		}
 		return Collections.emptyList();
 		
 		

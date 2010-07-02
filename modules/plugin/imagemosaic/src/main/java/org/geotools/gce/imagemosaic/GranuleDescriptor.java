@@ -543,8 +543,10 @@ public class GranuleDescriptor {
                 // intersection of this tile bound with the current crop bbox
                 final ReferencedEnvelope intersection = new ReferencedEnvelope(bbox.intersection(cropBBox), cropBBox.getCoordinateReferenceSystem());
                 if (intersection.isEmpty()) {
-                    if (LOGGER.isLoggable(java.util.logging.Level.FINE))
-                            LOGGER.fine("Got empty intersection for granule "+this.toString()+ " with request "+request.toString());
+                    if (LOGGER.isLoggable(java.util.logging.Level.FINE)){
+                            LOGGER.fine(new StringBuilder("Got empty intersection for granule ").append(this.toString())
+                                    .append(" with request ").append(request.toString()).append(" Resulting in no granule loaded: Empty result").toString());
+                    }
                     return null;
                 }
 
@@ -568,10 +570,11 @@ public class GranuleDescriptor {
 			}
 			else
 				reader=cachedSPI.createReaderInstance();
-			if(reader==null)
-			{
-				if (LOGGER.isLoggable(java.util.logging.Level.WARNING))
-					LOGGER.warning("Unable to get reader for granuleDescriptor "+this.toString()+ " with request "+request.toString());
+			if(reader==null) {
+				if (LOGGER.isLoggable(java.util.logging.Level.WARNING)){
+					LOGGER.warning(new StringBuilder("Unable to get s reader for granuleDescriptor ").append(this.toString())
+					        .append(" with request ").append(request.toString()).append(" Resulting in no granule loaded: Empty result").toString());
+				}
 				return null;
 			}
 			
@@ -594,14 +597,18 @@ public class GranuleDescriptor {
 			XRectangle2D.intersect(sourceArea, selectedlevel.rasterDimensions, sourceArea);//make sure roundings don't bother us
 			// is it empty??
 			if (sourceArea.isEmpty()) {
-				if (LOGGER.isLoggable(java.util.logging.Level.FINE))
-					LOGGER.fine("Got empty area for granuleDescriptor "+this.toString()+ " with request "+request.toString());
+				if (LOGGER.isLoggable(java.util.logging.Level.FINE)){
+					LOGGER.fine(new StringBuilder("Got empty area for granuleDescriptor ").append(this.toString())
+					        .append(" with request ").append(request.toString()).append(" Resulting in no granule loaded: Empty result").toString());
+					
+				}
 				return null;
 
-			} else if (LOGGER.isLoggable(java.util.logging.Level.FINE))
+			} else if (LOGGER.isLoggable(java.util.logging.Level.FINE)){
 				LOGGER.fine((new StringBuffer("Loading level ").append(
 						imageIndex).append(" with source region ").append(
 						sourceArea).toString()));
+			}
 
 			// Setting subsampling 
 			int newSubSamplingFactor = 0;
@@ -627,8 +634,11 @@ public class GranuleDescriptor {
 				
 			}
 			catch (Throwable e) {
-				if(LOGGER.isLoggable(java.util.logging.Level.FINE))
-					LOGGER.log(java.util.logging.Level.FINE,"Unable to load raster for granuleDescriptor "+this.toString()+ " with request "+request.toString(),e);
+				if (LOGGER.isLoggable(java.util.logging.Level.FINE)){
+					LOGGER.log(java.util.logging.Level.FINE,
+					        new StringBuilder("Unable to load raster for granuleDescriptor ").append(this.toString())
+					        .append(" with request ").append(request.toString()).append(" Resulting in no granule loaded: Empty result").toString(),e);
+				}
 				return null;
 			}
 
@@ -746,17 +756,24 @@ public class GranuleDescriptor {
 			}
 		
 		} catch (IllegalStateException e) {
-			if (LOGGER.isLoggable(java.util.logging.Level.WARNING))
-				LOGGER.log(java.util.logging.Level.WARNING, "Unable to load raster for granuleDescriptor "+this.toString()+ " with request "+request.toString(), e);
+			if (LOGGER.isLoggable(java.util.logging.Level.WARNING)) {
+				LOGGER.log(java.util.logging.Level.WARNING, new StringBuilder("Unable to load raster for granuleDescriptor ")
+				.append(this.toString()).append(" with request ").append(request.toString()).append(" Resulting in no granule loaded: Empty result").toString(), e);
+			}
 			return null;
 		} catch (org.opengis.referencing.operation.NoninvertibleTransformException e) {
-			if (LOGGER.isLoggable(java.util.logging.Level.WARNING))
-				LOGGER.log(java.util.logging.Level.WARNING, "Unable to load raster for granuleDescriptor "+this.toString()+ " with request "+request.toString(), e);
-			return null;
+                    if (LOGGER.isLoggable(java.util.logging.Level.WARNING)) {
+                        LOGGER.log(java.util.logging.Level.WARNING, new StringBuilder("Unable to load raster for granuleDescriptor ")
+                        .append(this.toString()).append(" with request ").append(request.toString()).append(" Resulting in no granule loaded: Empty result").toString(), e);
+                    }
+                    return null;
 		} catch (TransformException e) {
-			if (LOGGER.isLoggable(java.util.logging.Level.WARNING))
-				LOGGER.log(java.util.logging.Level.WARNING, "Unable to load raster for granuleDescriptor "+this.toString()+ " with request "+request.toString(), e);
-			return null;
+                    if (LOGGER.isLoggable(java.util.logging.Level.WARNING)) {
+                        LOGGER.log(java.util.logging.Level.WARNING, new StringBuilder("Unable to load raster for granuleDescriptor ")
+                        .append(this.toString()).append(" with request ").append(request.toString()).append(" Resulting in no granule loaded: Empty result").toString(), e);
+                    }
+                    return null;
+
 		} 
 		finally{
 			try{
