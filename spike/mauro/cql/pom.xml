@@ -24,8 +24,8 @@
   <!-- =========================================================== -->
   <!--     Module Description                                      -->
   <!-- =========================================================== -->
-  <groupId>org.geotools.spike</groupId>
-  <artifactId>gt-cql</artifactId>
+  <groupId>org.geotools</groupId>
+  <artifactId>gt-cql-spike</artifactId>
   <packaging>jar</packaging>
   <name>OGC CQL to Filter parser</name>
   <version>2.7-SNAPSHOT</version>
@@ -107,9 +107,48 @@
           
         </executions>
 
-      </plugin>     
-	</plugins>
+      </plugin>  
+      
+
+      <!-- ======================================================= -->
+      <!--     Compilation.                                        -->
+      <!-- ======================================================= -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.5</source>  <!-- The -source argument for the Java compiler. -->
+          <target>1.5</target>  <!-- The -target argument for the Java compiler. -->
+          <debug>true</debug>   <!-- Whether to include debugging information.   -->
+          <encoding>UTF-8</encoding> <!-- The -encoding argument for the Java compiler. -->
+          <!-- 
+               On java6 the build oom's otherwise due to the compiler accumulating
+               too many classes in the permanent generation, see GEOT-2462  
+          -->
+          <fork>true</fork> 
+        </configuration>
+      </plugin>
+
+
+
+      <!-- ======================================================= -->
+      <!--     Resources.                                          -->
+      <!-- ======================================================= -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <configuration>
+          <encoding>UTF-8</encoding>
+        </configuration>
+      </plugin>
+
+
+
+      
+    </plugins>
 
   </build>
+  
+  
 
 </project>
