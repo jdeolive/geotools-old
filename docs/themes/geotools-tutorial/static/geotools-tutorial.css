@@ -2,10 +2,10 @@
 
 @import url("sphinxdoc.css");
 
-/* override some of ext-all.css 
+/* override some of ext-all.css  */
 ul, ol {
     margin: 14px 0;
-    padding-left: 40px;
+    padding-left: 2emx;    
 }
 ul {
     list-style: disc;
@@ -16,20 +16,20 @@ ol {
 strong {
     font-weight: bolder;
 }
-*/
 
 /* override some of sphinxdoc.css */
 html {
     margin: 0;
     padding: 0;
 }
+
 body {
     border: none;
     background-color: white;
-    margin-left: 175px;
-    margin-right: 50px;
-    padding: 0;
+    margin-left: 0;
+    margin-right: 0;
     min-width: 900px;
+    padding: 0;
     line-height: 110%;
     font-family: 'Lucida Sans','Geneva','Verdana',sans-serif;
 }
@@ -39,10 +39,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 div.body h1 a, div.body h2 a, div.body h3 a, div.body h4 a, div.body h5 a, div.body h6 a {
-    color: #004d87!important;
+   color: #004d87!important;
    text-decoration: none;
 }
-
 
 table td, table th {
     padding: 0;
@@ -51,6 +50,7 @@ table td, table th {
 a.reference em {
     font-style: normal;
 }
+
 div.sphinxsidebar {
     margin: 0;
     padding: 0.0em 15px 15px 0.5em;
@@ -58,6 +58,7 @@ div.sphinxsidebar {
     float: left;
     font-size: 1em;
     text-align: left;
+    background-color: #FFFFFF; 
 }
 
 div.sphinxsidebar h3, div.sphinxsidebar h4 {
@@ -73,8 +74,12 @@ div.document {
     margin: 0 20px;
 }
 div.documentwrapper {
-    width: auto;
+    margin-left: 175px;
+    margin-right: 50px;
+    padding: 0;
 }
+
+
 div.footer {
     background: #fff url(img/footer-bg.png) repeat-x;
     color: #000000;
@@ -256,7 +261,9 @@ h2, h3, h4 {
 /* making code samples less gigantic */
 pre {
     font-size: 0.8em;
-    margin-left: -160px;
+    position: relative;
+    left: -160px;
+    margin-right: -160px;    
     border: 1px solid #333333;
     background-color: #E6E6E6;
 }
@@ -328,14 +335,20 @@ text-decoration: none;
 color: #26b2dd;
 }
 
+#div.body {
+  margin: 0px;
+  padding: 0 1em 1em;
+}
+
 div.sidebar {
   float:left;
   width: 150px;
-  margin-left: -164px;
+  margin-left: -175px;
   font-style: italic;
   color: #808080;
   line-height: 150%;
   border: 0px;
+  background-color: #FFF;
 }
 
 p {

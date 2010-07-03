@@ -179,11 +179,13 @@ To use M2Eclipse plugin to create a create a new maven project:
 #. The *New Maven project* page defaults are fine, press *Next*
 
    .. image:: images/newmaven.jpg
-   
+      :width: 60%
+      
 #. Select the default *maven-archtype-quickstart* and press *Next*
  
    .. image:: images/archetype.jpg
-   
+      :width: 60%
+
 #. The archtype acts a template using the parameters we supply to create the project.
    
    * Group Id: org.geotools
@@ -192,7 +194,8 @@ To use M2Eclipse plugin to create a create a new maven project:
    * Package: org.geotools.tutorial
    
    .. image:: images/artifact.jpg
-   
+      :width: 60%   
+      
 #. Press *Finish* to create the new project.
 #. You can see that an application has been created; complete with *App.java* and a JUnit test case
 #. Open up src/main/java and select *org.geotools.tutorial.App* and press the *Run* button in the
@@ -232,86 +235,88 @@ When downloading jars maven makes use of a "local repository" to store jars.
 When downloading jars maven makes use of public maven repositories on the internet where projects
 such as GeoTools publish their work.
 
-#. Open up :file:`pom.xml` in your new project. You can see some of the information we entered
+1. Open up :file:`pom.xml` in your new project. You can see some of the information we entered
    earlier.
    
    .. image:: images/pomOverview.jpg
-   
-#. This editor allows you to describe all kinds of things; in the interest of time we are going to
+      :width: 60%
+ 
+2. This editor allows you to describe all kinds of things; in the interest of time we are going to
    skip the long drawn out explanation and ask you to click on the :guilabel:`pom.xml` tab.
 
-#. To make use of GeoTools we are going to add three things to this pom.xml file.
+3. To make use of GeoTools we are going to add three things to this pom.xml file.
    
-#. At the top after moduleVersion add a *properties* element defining the version of GeoTools that
+4. At the top after moduleVersion add a *properties* element defining the version of GeoTools that
    we want to use (|version| for this example).
    
-   .. literalinclude:: artifacts/pom.xml
+.. literalinclude:: artifacts/pom.xml
         :language: xml
         :start-after: <url>http://maven.apache.org</url>
         :end-before: <dependencies>
         
-#. We are going to add a dependence to GeoTools :file:`gt-main` and :file:`gt-swing` jars. Note we
+5. We are going to add a dependence to GeoTools :file:`gt-main` and :file:`gt-swing` jars. Note we
    are making use of the geotools.version defined above.
    
-   .. literalinclude:: artifacts/pom.xml
+.. literalinclude:: artifacts/pom.xml
         :language: xml
         :start-after: </properties>
         :end-before: <repositories>
     
-#. Finally we need to list the external *repositories* where maven can download GeoTools and and
+6. Finally we need to list the external *repositories* where maven can download GeoTools and and
    other required jars from.
 
-   .. literalinclude:: artifacts/pom.xml
+.. literalinclude:: artifacts/pom.xml
         :language: xml
         :start-after: </dependencies>
         :end-before: </project>
 
-#. Here is what the completed :file:`pom.xml` looks like:
+7. Here is what the completed :file:`pom.xml` looks like:
 
-   .. literalinclude:: artifacts/pom.xml
+.. literalinclude:: artifacts/pom.xml
         :language: xml
    
-   * You may find cutting and pasting from the documentation to be easier then typing.
+* You may find cutting and pasting from the documentation to be easier then typing.
    
-   * You may also :download:`download this file <artifacts/pom.xml`
+* You may also :download:`download this file <artifacts/pom.xml`
    
-
 Quickstart Application
 ----------------------
 
 Now that your environment is setup we can put together a simple Quickstart. This example will display a shapefile on screen.
 
-#. Create the org.geotools.tutorial.Quickstart class using your IDE.
+1. Create the org.geotools.tutorial.Quickstart class using your IDE.
 
-   .. image:: images/class.jpg
+     .. image:: images/class.jpg
+        :width: 60%
    
-#. Fill in the following code:
+2. Fill in the following code:
 
-   .. literalinclude:: ../../src/main/java/org/geotools/tutorial/quickstart/Quickstart.java
+.. literalinclude:: ../../src/main/java/org/geotools/tutorial/quickstart/Quickstart.java
         :language: java
         
-#. We need to download some sample data to work with. The http://www.naturalearthdata.com/ project
+3. We need to download some sample data to work with. The http://www.naturalearthdata.com/ project
    is a great project supported by the North American Cartographic Information Society.
    
    * http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/110m/cultural/110m-cultural.zip 
    
    Please unzip the above data into a location you can find easily such as the desktop.
 
-#. Run the application to open a file chooser. Choose a shapefile from the example dataset.
+4. Run the application to open a file chooser. Choose a shapefile from the example dataset.
 
    .. image:: images/QuickstartOpen.jpg
+      :width: 60%
    
-#. The application will connect to your shapefile, 1.produce a map context and display the shapefile.
+5. The application will connect to your shapefile, 1.produce a map context and display the shapefile.
 
    .. image:: images/QuickstartMap.jpg
+      :width: 60%
    
-#. A couple of things to note about the code example:
+6. A couple of things to note about the code example:
    
-   * The shapefile is not loaded into memory – instead it is read from disk each and every time it is needed
-     This approach allows you to work with data sets larger then available memory.
-     
+* The shapefile is not loaded into memory – instead it is read from disk each and every time it is needed
+  This approach allows you to work with data sets larger then available memory.
       
-   * We are using a very basic display style here that just shows feature outlines. In the examples that follow we will see how to specify more sophisticated styles.
+* We are using a very basic display style here that just shows feature outlines. In the examples that follow we will see how to specify more sophisticated styles.
    
 
 Things to Try
@@ -337,17 +342,17 @@ Here are some additional challenges for you to try:
   
   If you would like to ask GeoTools to cache the shapefile in memory try the following code:
 
-    .. literalinclude:: ../../src/main/java/org/geotools/tutorial/quickstart/QuickstartCache.java
-     :language: java
-     :start-after: // docs start cache
-     :end-before:  // docs end cache
+.. literalinclude:: ../../src/main/java/org/geotools/tutorial/quickstart/QuickstartCache.java
+   :language: java
+   :start-after: // docs start cache
+   :end-before:  // docs end cache
   
   * For the above example to compile hit :kbd:`Control-Shift-O` to organise imports; it will pull
     in the following import:
     
-    .. code-block:: java
+.. code-block:: java
 
-       import org.geotools.data.CachingFeatureSource;
+   import org.geotools.data.CachingFeatureSource;
   
   .. 
      The ability to grab figure out what classes to import is a key skill; we are
@@ -356,16 +361,16 @@ Here are some additional challenges for you to try:
 * Try and sort out what all the different “side car” files are – and what they are for. The sample
   data set includes “shp”, “dbf” and “shx”. How many other side car files are there?
 
-  .. This exercise asks users to locate the geotools user guide or wikipedia
+.. This exercise asks users to locate the geotools user guide or wikipedia
   
 * Advanced: The use of FileDataStoreFinder allows us to work easily with files. The other way to do
   things is with a map of connection parameters. This techniques gives us a little more control over
   how we work with a shapefile and also allows us to connect to databases and web feature servers.
 
-    .. literalinclude:: ../../src/main/java/org/geotools/tutorial/quickstart/QuickstartNotes.java
-     :language: java
-     :start-after: // start datastore
-     :end-before:  // end datastore
+.. literalinclude:: ../../src/main/java/org/geotools/tutorial/quickstart/QuickstartNotes.java
+   :language: java
+   :start-after: // start datastore
+   :end-before:  // end datastore
      
 
 * Important: GeoTools is an active open source project – you can quickly use maven to try out the
@@ -373,16 +378,14 @@ Here are some additional challenges for you to try:
   
   At the time of writing |version|-SNAPSHOT under active development.
   
-  .. codeblock: java
-  
-   .. literalinclude:: artifacts/pom2.xml
+.. literalinclude:: artifacts/pom2.xml
         :language: xml
         :start-after: <url>http://maven.apache.org</url>
         :end-before: <dependencies>
     
   You will also need to change your pom.xml file to include the following snapshot repository:
   
-     .. literalinclude:: artifacts/pom2.xml
+.. literalinclude:: artifacts/pom2.xml
         :language: xml
         :start-after: </dependencies>
         :end-before: </project>
@@ -391,7 +394,8 @@ Here are some additional challenges for you to try:
   and switch to the :guilabel:`depdendency heirarchy` or :guilabel:`dependency graph` tabs to see
   what is going on.
   
-     .. image:: images/quickstart-dependency.png
+  .. image:: images/quickstart-dependency.png
+     :width: 60%
   
   We will be making use of some of the project is greater depth in the remaining tutorials.
   
@@ -414,12 +418,12 @@ The first alternative to putting maven into eclipse; it to put eclipse into mave
 The maven build tool also works directly on the command line; and includes a plugin for
 generating eclipse :file:`.project` and :file:`.classpath` files.
 
-#. Download Maven from http://maven.apache.org/download.html 
+1. Download Maven from http://maven.apache.org/download.html 
    
    The last version we tested with was: Maven 2.2.1
    
-#. Unzip the file apache-maven-2.2.1-bin.zip to C:\java\apache-maven-2.2.1
-#. You need to have a couple of environmental variables set for maven to work. Use
+2. Unzip the file apache-maven-2.2.1-bin.zip to C:\java\apache-maven-2.2.1
+3. You need to have a couple of environmental variables set for maven to work. Use
    :menuselection:`Control Panel --> System --> Advanced --> Environmental Variables` to set the following:
 
    JAVA_HOME = :file:`C:\Program Files\Java\jdk1.6.0_16`
@@ -427,42 +431,39 @@ generating eclipse :file:`.project` and :file:`.classpath` files.
    PATH = :file:`%JAVA_HOME%\bin;%M2_HOME%\bin`
 
    .. image:: images/env-variables.jpg
+      :width: 60%
    
-#. Open up a commands prompt :menuselection:`Accessories --> Command Prompt`
-#. Type the following command to confirm you are set up correctly:
-
-   .. code-block:: bat
+4. Open up a commands prompt :menuselection:`Accessories --> Command Prompt`
+5. Type the following command to confirm you are set up correctly::
    
       C:java> mvn -version
       
-#. This should produce the following output
+6. This should produce the following output
 
    .. image:: images/maven-version.png
+      :width: 60%
    
-#. We can now create our project with:
+7. We can now create our project with::
 
-   .. code-block:: bat
-   
       C:>cd C:\java
       C:java> mvn archetype:create -DgroupId=org.geotools -DartifactId=tutorial
 
-#. And ask for our project to be set up for eclipse:
+8. And ask for our project to be set up for eclipse::
 
-   .. code-block:: bat
-      
       C:java> cd tutorial
       C:java\tutorial> mvn eclipse:eclipse
 
-#. You can now give Eclipse the background information it needs to talk to your “maven repository”
+9. You can now give Eclipse the background information it needs to talk to your “maven repository”
    (maven downloaded something like 30 jars for you)
-#. Return to Eclipse
-#. Use :menuselection:`Windows --> Preferences` to open the Preference Dialog. 
-   Using the tree on the left navigate to the Java > Build path > Classpath Variables preference
-   Page.
+10. Return to Eclipse
+11. Use :menuselection:`Windows --> Preferences` to open the Preference Dialog. 
+    Using the tree on the left navigate to the Java > Build path > Classpath Variables preference
+    Page.
    
    .. image:: images/classpath-variables.png
+      :width: 60%
    
-#. Add an **M2_REPO** classpath variable pointing to your “local repository” 
+12. Add an **M2_REPO** classpath variable pointing to your “local repository” 
 
     ==================  ========================================================
        PLATFORM           LOCAL REPOSITORY
@@ -472,14 +473,15 @@ generating eclipse :file:`.project` and :file:`.classpath` files.
        Linux and Mac:   :file:`~/.m2/repository`
     ==================  ========================================================
 
-#. We can now import your new project into eclipse using :menuselection:`File --> Import`
-#. Choose *Existing Projects into Workspace* from the list, and press :guilabel:`Next`
+13. We can now import your new project into eclipse using :menuselection:`File --> Import`
+14. Choose *Existing Projects into Workspace* from the list, and press :guilabel:`Next`
 
-  .. image:: images/import-existing.png
+    .. image:: images/import-existing.png
+       :width: 60%
 
-#. Select the project you created: :file:`C:\java\tutorial`
-#. Press :guilabel:`Finish` to import your project
-#. Navigate to the pom.xml file and double click to open it up.
+15. Select the project you created: :file:`C:\java\tutorial`
+16. Press :guilabel:`Finish` to import your project
+17. Navigate to the pom.xml file and double click to open it up.
    
    We are going to start by defining the version number of GeoTools we wish to use. This workbook
    was written for |version| although you may wish to try a newer version – or make use of a
@@ -487,7 +489,7 @@ generating eclipse :file:`.project` and :file:`.classpath` files.
 
    Please add the properties, dependencies and repositories shown below:
    
-      .. literalinclude:: artifacts/pom.xml
+.. literalinclude:: artifacts/pom.xml
         :language: xml
 
    You may find it easier to cut and paste into your existing file; or just
@@ -495,20 +497,19 @@ generating eclipse :file:`.project` and :file:`.classpath` files.
    
    And easy way to pick up typing mistakes with tags is to Eclipse to format the xml file.
    
-#. Return to the command line and maven to download the required jars and tell eclipse about it
+18. Return to the command line and maven to download the required jars and tell eclipse about it::
    
-    .. code-block:: bat
-
-       C:\java\example> mvn eclipse:eclipse
+     C:\java\example> mvn eclipse:eclipse
       
-#. Return to eclipse and select the project folder. Refresh your project using the context menu
-   or by pressing :kbd:`F5`. If you open up referenced libraries you will see the required jars 
-   listed.
+19. Return to eclipse and select the project folder. Refresh your project using the context menu
+    or by pressing :kbd:`F5`. If you open up referenced libraries you will see the required jars 
+    listed.
    
-      .. image:: images/maven-refresh.png
+    .. image:: images/maven-refresh.png
+       :width: 60%
 
-#. Using this technique of running mvn eclipse:eclipse and refreshing in eclipse you can proceed
-   through all the tutorial examples.
+20. Using this technique of running mvn eclipse:eclipse and refreshing in eclipse you can proceed
+    through all the tutorial examples.
    
 .. _eclipse-download-start:
 
@@ -519,21 +520,21 @@ We can also download the GeoTools project bundle from source forge and set up ou
 them. Please follow these steps carefully as not all the GeoTools jars can be used at the same
 time.
 
-#. Download the GeoTools binrary release from http://sourceforge.net/projects/geotools/files 
+1. Download the GeoTools binrary release from http://sourceforge.net/projects/geotools/files 
 
-#. We are now going to make a project for the required jars. By placing the jars into their own project is is easier to upgrade GeoTools.
+2. We are now going to make a project for the required jars. By placing the jars into their own project is is easier to upgrade GeoTools.
 
    Select File > New > Java Project to open the New Java Project wizard
 
-#. Type in “GeoTools Download” as the name of the project and press Finish.
+3. Type in “GeoTools Download” as the name of the project and press Finish.
 
-#. Choose File > Import to open the Import Wizard.
+4. Choose File > Import to open the Import Wizard.
 
-#. Select General > Archive File and press Next
+5. Select General > Archive File and press Next
 
-#. Navigate to the geotools-bin.zip download and import the contents into your project.
+6. Navigate to the geotools-bin.zip download and import the contents into your project.
 
-#. GeoTools includes a copy of the “EPSG” database; but also allows you to hook up your own copy of the EPSG database as an option..
+7. GeoTools includes a copy of the “EPSG” database; but also allows you to hook up your own copy of the EPSG database as an option..
 
    However only one copy can be used at a time so we will need to remove the following jars from the Library Manager:
 
@@ -542,7 +543,7 @@ time.
    * gt-epsg-postgresql
    * gt-epsg-wkt
       
-#. GeoTools allows you to work with many different databases; however to make them work you will need to download jdbc drivers from the manufacturer.
+8. GeoTools allows you to work with many different databases; however to make them work you will need to download jdbc drivers from the manufacturer.
 
    For now remove the follow plugins from your Library Manager definition:
 
@@ -553,21 +554,21 @@ time.
    * gt-oracle-spatial
    * gt-jdbc-oracle
 
-#. Next we update our java build path to include the remaining jars. Choose Project > Properties from 
+9. Next we update our java build path to include the remaining jars. Choose Project > Properties from 
    the menu bar
 
-#. Select Java Build Path property page; and switch to the library tab.
+10. Select Java Build Path property page; and switch to the library tab.
 
-#. Press Add JARs button and add all the jars
+11. Press Add JARs button and add all the jars
 
-#. Switch to the Order and Export tab and press Select All
+12. Switch to the Order and Export tab and press Select All
 
-#. We can now create a new Example project to get going on our Example.
+13. We can now create a new Example project to get going on our Example.
 
-#. Use Project > Properties on your new Example project to open up the Java Build Path page.
+14. Use Project > Properties on your new Example project to open up the Java Build Path page.
 
-#. Switch to the Projects tab and use the Add.. button to add GeoTools Downloads to the build path.
+15. Switch to the Projects tab and use the Add.. button to add GeoTools Downloads to the build path.
 
-#. Our example project can now use all the GeoTools jars.
+16. Our example project can now use all the GeoTools jars.
 
-#. Please proceed to the Quickstart.
+17. Please proceed to the Quickstart.

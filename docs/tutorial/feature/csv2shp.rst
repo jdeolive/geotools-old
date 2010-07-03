@@ -382,7 +382,7 @@ The way to tell if a File can be written to in GeoTools is to use an instanceof 
     String typeNames = dataStore.getTypeNames()[0];
     SimpleFeatureSource source = store.getfeatureSource( typeName );
     if( source instanceof SimpleFeatureStore){
-       FeatureStore store = (SimpleFeatureStore) source; // write access!   
+       SimpleFeatureStore store = (SimpleFeatureStore) source; // write access!   
        store.addFeatures( featureCollection );
        store.removeFeatures( filter ); // filter is like SQL WHERE
        store.modifyFeature( attribute, value, filter );
