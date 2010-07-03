@@ -101,7 +101,7 @@ switch to the “Java Perspective”.
    Send To->Desktop (create shortcut).
 #. Open up the eclipse.ini file (notepad will be fine) and change the following line::
 
-     -Xmx756m
+      -Xmx756m
    
    If you have plenty of memory to burn on development you may wish to provide yourself some more memory.
 
@@ -270,14 +270,9 @@ such as GeoTools publish their work.
         :start-after: </dependencies>
         :end-before: </project>
 
-7. Here is what the completed :file:`pom.xml` looks like:
+7. For comarison here is the completed :download:`pom.xml <artifacts/pom.xml` file for download.
 
-.. literalinclude:: artifacts/pom.xml
-        :language: xml
-   
 * You may find cutting and pasting from the documentation to be easier then typing.
-   
-* You may also :download:`download this file <artifacts/pom.xml`
    
 Quickstart Application
 ----------------------
@@ -342,21 +337,20 @@ Here are some additional challenges for you to try:
   
   If you would like to ask GeoTools to cache the shapefile in memory try the following code:
 
-.. literalinclude:: ../../src/main/java/org/geotools/tutorial/quickstart/QuickstartCache.java
-   :language: java
-   :start-after: // docs start cache
-   :end-before:  // docs end cache
+  .. literalinclude:: ../../src/main/java/org/geotools/tutorial/quickstart/QuickstartCache.java
+     :language: java
+     :start-after: // docs start cache
+     :end-before:  // docs end cache
   
-  * For the above example to compile hit :kbd:`Control-Shift-O` to organise imports; it will pull
-    in the following import:
+  For the above example to compile hit :kbd:`Control-Shift-O` to organise imports; it will pull
+  in the following import:
     
-.. code-block:: java
+  .. code-block:: java
 
-   import org.geotools.data.CachingFeatureSource;
-  
-  .. 
-     The ability to grab figure out what classes to import is a key skill; we are
-     starting off here with a simple example with a single import.
+     import org.geotools.data.CachingFeatureSource;
+
+..  The ability to grab figure out what classes to import is a key skill; we are
+    starting off here with a simple example with a single import.
   
 * Try and sort out what all the different “side car” files are – and what they are for. The sample
   data set includes “shp”, “dbf” and “shx”. How many other side car files are there?
@@ -482,33 +476,50 @@ generating eclipse :file:`.project` and :file:`.classpath` files.
 15. Select the project you created: :file:`C:\java\tutorial`
 16. Press :guilabel:`Finish` to import your project
 17. Navigate to the pom.xml file and double click to open it up.
-   
-   We are going to start by defining the version number of GeoTools we wish to use. This workbook
-   was written for |version| although you may wish to try a newer version – or make use of a
-   nightly build by using |release|-SNAPSHOT.
+18. We are going to start by defining the version number of GeoTools we wish to use. This workbook
+    was written for |version| although you may wish to try a newer version, or make use of a
+    nightly build by using |release|-SNAPSHOT.
+    
+.. literalinclude:: artifacts/pom.xml
+        :language: xml
+        :start-after: <url>http://maven.apache.org</url>
+        :end-before: <dependencies>
 
-   Please add the properties, dependencies and repositories shown below:
+
+19. The following dependencies:
+
+
+.. literalinclude:: artifacts/pom.xml
+        :language: xml
+        :start-after: </properties>
+        :end-before: <repositories>
+
+
+20. Finally several repositories to download from:
+
    
 .. literalinclude:: artifacts/pom.xml
         :language: xml
+        :start-after: </dependencies>
+        :end-before: </project>
 
-   You may find it easier to cut and paste into your existing file; or just
-   :download:`download pom.xml<artifacts/pom.xml>` directly.
+21. You may find it easier to cut and paste into your existing file; or just
+    :download:`download pom.xml<artifacts/pom.xml>` directly.
    
-   And easy way to pick up typing mistakes with tags is to Eclipse to format the xml file.
+    And easy way to pick up typing mistakes with tags is to Eclipse to format the xml file.
    
-18. Return to the command line and maven to download the required jars and tell eclipse about it::
+22. Return to the command line and maven to download the required jars and tell eclipse about it::
    
      C:\java\example> mvn eclipse:eclipse
       
-19. Return to eclipse and select the project folder. Refresh your project using the context menu
+23. Return to eclipse and select the project folder. Refresh your project using the context menu
     or by pressing :kbd:`F5`. If you open up referenced libraries you will see the required jars 
     listed.
    
     .. image:: images/maven-refresh.png
        :width: 60%
 
-20. Using this technique of running mvn eclipse:eclipse and refreshing in eclipse you can proceed
+24. Using this technique of running mvn eclipse:eclipse and refreshing in eclipse you can proceed
     through all the tutorial examples.
    
 .. _eclipse-download-start:

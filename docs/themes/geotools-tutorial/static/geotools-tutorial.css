@@ -258,12 +258,16 @@ h2, h3, h4 {
     padding-top: 0.42cm;
 }
 
-/* making code samples less gigantic */
-pre {
-    font-size: 0.8em;
+/** outdenting literal code examples */
+div.highlight {
     position: relative;
     left: -160px;
     margin-right: -160px;    
+}
+
+/* making code samples less gigantic */
+pre {
+    font-size: 0.8em;
     border: 1px solid #333333;
     background-color: #E6E6E6;
 }
