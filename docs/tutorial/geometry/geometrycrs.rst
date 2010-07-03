@@ -1,4 +1,4 @@
-.. _geometry_crs::
+.. _geometrycrs:
 
 ***********************
  Geometry CRS Workbook
@@ -45,247 +45,181 @@ Michael Bedward
    a particularly wide grasp of all the possible mistakes one can make using
    GeoTools.
 
-CRS Lab Example
-================
+CRS Lab Applicaiton
+====================
 
-This example is an updated version of Quickstart. It adds a dialog allowing you
-to change the projection that the map is drawn in. The data will be
-“reprojected” into the correct coordinate reference system for display.
+This tutorial gives a visual demonstration of coordinate reference systems by
+displaying a shapefile and showing how changing the map projection morphs
+the geometry of the features.
 
-1.Please ensure your pom.xml includes the following:
+1. Please ensure your pom.xml includes the following:
 
-.. code-block:: xml
-
-    <dependencies>
-      <dependency>
-        <groupId>org.geotools</groupId>
-        <artifactId>gt-swing</artifactId>
-        <version>${geotools.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.geotools</groupId>
-        <artifactId>gt-shapefile</artifactId>
-        <version>${geotools.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.geotools</groupId>
-        <artifactId>gt-epsg-hsql</artifactId>
-        <version>${geotools.version}</version>
-      </dependency>
-    </dependencies>
+.. literalinclude:: artifacts/pom.xml
+        :language: xml
+        :start-after: </properties>
+        :end-before: <repositories>
     
-2. Create the CRSLab.java file and copy and paste the following code.
+2. Create the **CRSLab.java** file and copy and paste the following code.
 
-.. code-block:: java
+.. literalinclude:: ../../src/main/java/org/geotools/tutorial/crs/CRSLab.java
+   :language: java
+   :start-after: // docs start source
+   :end-before: // docs end main
 
-    package org.geotools.demo;
-    
-    import java.awt.event.ActionEvent;
-    import java.awt.event.ActionListener;
-    import java.io.File;
-    import javax.swing.JButton;
-    import javax.swing.JToolBar;
-    import org.geotools.data.FeatureSource;
-    import org.geotools.data.FileDataStore;
-    import org.geotools.data.FileDataStoreFinder;
-    import org.geotools.map.DefaultMapContext;
-    import org.geotools.map.MapContext;
-    import org.geotools.swing.JCRSChooser;
-    import org.geotools.swing.JMapFrame;
-    import org.geotools.swing.data.JFileDataStoreChooser;
-    import org.opengis.referencing.crs.CoordinateReferenceSystem;
-    
-    /**
-     * This is a visual example of changing the coordinate reference
-     * system of a feature layer.
-     */
-    public class CRSLab {
-    
-    }
-3. We can now create a main method that connects to a shapefile and uses a
-   JMapFrame to display it.
+3. Notice that we are customizing the JMapFrame by adding two buttons to its
+   toolbar: one to check that feature geometries are valid (e.g. polygon
+   boundaries are closed) and one to export reprojected feature data.
 
-   This should look familiar to you from the Quickstart example.
+.. literalinclude:: ../../src/main/java/org/geotools/tutorial/crs/CRSLab.java
+      :language: java
+      :start-after: // docs start display
+      :end-before: // docs end display
+
+4. Here is how we have configured JMapFrame
+
+   * We have enabled a status line; this contains a button allowing the map
+     coordinate reference system to be chagned.
+     
+   * We have enabled the toolbar and added two actions to it (which we will
+     be defining in the next section).
+     
+Validate Geometry
+-------------------
+
+Our toobar action is implemented as a nested class, with most of the work being
+done by a helper method in the parent class.
+
+1. Create the **ValidateGeometryAction** mentioned in the previous section
+   as an inner class.
+
+.. literalinclude:: ../../src/main/java/org/geotools/tutorial/crs/CRSLab.java
+   :language: java
+   :start-after: // docs start validate action
+   :end-before: // docs end validate action
+
+2. This method checks the geometry associated with each feature in our shapefile
+  for common problems (such as polygons not having closed boundaries).
+
+.. literalinclude:: ../../src/main/java/org/geotools/tutorial/crs/CRSLab.java
+   :language: java
+   :start-after: // docs start validate
+   :end-before: // docs end validate
+
+Export Reprojected Shapefile
+-----------------------------
+
+.. sidebar:: FeatureIterator
    
-..code-block:: java
+   Please close feature iterator after use to prevent resource leaks.
 
-    public static void main(String[] args) throws Exception {
-        File file = JFileDataStoreChooser.showOpenFile("shp", null);
-        if (file == null) {
-            return;
-        }
+The next action will form a little utility that can  read in a shapefile and
+write out a shapefile in a different coordinate reference system.
 
-        FileDataStore store = FileDataStoreFinder.getDataStore(file);
-        FeatureSource featureSource = store.getFeatureSource();
+One important thing to pick up from this lab is how easy it is to create a
+MathTransform between two CoordinateReferenceSystems. You can use the
+MathTransform to transform points one at a time; or use the JTS utility class
+to create a copy of a Geometry with the points modified.
 
-        // Create a map context and add our shapefile to it
-        final MapContext map = new DefaultMapContext();
-        map.addLayer(featureSource, null);
+We use similar steps to export a shapefile as used by the csv 2 shp example.
+In this case we are reading the contents from an existing shapefile using
+a **FeatureIterator**; and writing out the contents one at a time
+using a **FeatureWriter**. Please close these objects after use.
 
-        JMapFrame mapFrame = new JMapFrame(map);
-        mapFrame.enableTool(JMapFrame.Tool.NONE);
-        mapFrame.enableStatusBar(true);
+1. The action is a nested class that delegates to the exportToShapefile
+   method in the parent class.
 
-        JToolBar toolbar = mapFrame.getToolBar();
-        JButton btn = new JButton("Change CRS");
-        toolbar.add( new AbstractAction("Change CRS") {            
-            public void actionPerformed(ActionEvent arg0) {
-                try {
-                    CoordinateReferenceSystem crs = JCRSChooser.showDialog(
-                            null, "Coordinate Reference System", "Choose a new projection:", null);
-                    if( crs != null){
-                        map.setCoordinateReferenceSystem(crs);
-                    }
+.. literalinclude:: ../../src/main/java/org/geotools/tutorial/crs/CRSLab.java
+    :language: java
+    :start-after: // docs start export action
+    :end-before: // docs end export action
 
-                } catch (Exception ex) {
-                    System.out.println("Could not use crs " + ex);
-                }
-            }
-        });
-        mapFrame.setSize(800, 600);
-        mapFrame.setVisible(true);
-    }
-    
-4. Here is how we have customized the map frame
+2. Exporting reprojected data to a shapefile
 
-   * Firstly, mapFrame.enableTool(JMapFrame.Tool.NONE) requests that an empty
-     toolbar be created
+.. literalinclude:: ../../src/main/java/org/geotools/tutorial/crs/CRSLab.java
+   :language: java
+   :start-after: // docs start export
+   :end-before: // set up the math transform used to process the data
+      
+3. Set up a math transform used to process the data
 
-   * Next we create a JButton and add it to the toolbar
-   
-   * Finally we set an action for the button so that when it is clicked a
-     chooser dialog will be displayed to select a coordinate reference system
-     which will be set as the new CRS of the map.
+.. literalinclude:: ../../src/main/java/org/geotools/tutorial/crs/CRSLab.java
+   :language: java
+   :start-after: // set up the math transform used to process the data
+   :end-before: // grab all features
+
+4. Grab all features
+
+.. literalinclude:: ../../src/main/java/org/geotools/tutorial/crs/CRSLab.java
+   :language: java
+   :start-after: // grab all features
+   :end-before: // And create a new Shapefile with a slight modified schema
+
+5. To create a new shapefile we will need to produce a FeatureType that is
+   similar to our original. The only difference will be the
+   CoordinateReferenceSystem of the geometry descriptor.
+
+.. literalinclude:: ../../src/main/java/org/geotools/tutorial/crs/CRSLab.java
+   :language: java
+   :start-after: // And create a new Shapefile with a slight modified schema
+   :end-before: // carefully open an iterator and writer to process the results
+        
+6. We can now carefully open an iterator to go through the contents, and a
+   writer to write out the new Shapefile.
+        
+.. literalinclude:: ../../src/main/java/org/geotools/tutorial/crs/CRSLab.java
+   :language: java
+   :start-after: // carefully open an iterator and writer to process the results
+   :end-before: // docs end export
 
 Running the Application
 ========================
 
-1. Grab the sample data from http://www.naturalearthdata.com/ we used in the Quickstart.
+To switch between map projections:
 
-   Remember to unzip this data into a location you can find easily like your desktop.
+1. When you start the application you will be prompted for a shapefile to display.
+   In the screenshots below we are using the *bc_border* map which can be
+   downloaded as part of the `uDig sample data`__.
+
+   .. _udigdata: http://udig.refractions.net/docs/data-v1_2.zip
+
+.. image:: images/CRSLab_start.png
+   :width: 60%
+      
+2. GeoTools includes a very extensive database of map projections defined by
+   EPSG reference numbers. For our example shapefile, an appropriate alternative
+   map projection is *BC Albers*.
    
-2. Run the application and choose the cities shapefile. Zoom into the west coast of
-   north america.
+   You can find this quickly in the chooser list by typing 3005.
 
-3. Now click the ‘Change CRS’ button and select the EPSG:3005 BC Albers
-   projection. Hint: you can type 3005 rather than scrolling through the very long
-   list.
+   When you click OK the map is displayed in the new projection:
 
-4. When you click OK the map will be re-displayed in this new map projection. As
-   well as the change in shape, notice that the units in the status
-   bar have changed from degrees to meters.
+.. image:: images/CRSLab_reprojected.png
+      :width: 60%
+      
+3. Note that when you move the mouse over the map the coordinates are now
+   displayed in metres (the unit of measurement that applies to the *BC Albers*
+   projection) rather than degrees.
 
-5. If you want to return to the original map projection, choose EPSG:4326.
+4. To return to the original projection, open the CRS chooser again and type
+    **4326** for the default geographic projection.
+    
+    Notice that the map coordinates are now expressed in degrees once again.
 
-Reproject a Shapefile
-=====================
+Exporting the reprojected data:
 
-We can now put what we know together into a utility that will read in a shapefile and write out a
-shapefile in a different coordinate reference system.
+1. When you change the map projection for the display the shapefile remains
+   unchanged.
+   
+   With the *bc_border* shapefile, the feature data are still in degrees but
+   when we select the *BC Albers* projection the features are reprojected on
+   the fly.
 
-One important thing to pick up from this lab is how easy it is to create a MathTransform between two
-CoordinateReferenceSystems. You can use the MathTransform to transform points one at a time; or use
-the JTS utility class to create a copy of a Geometry with the points modified.
-
-Let us use these two ideas to write out a new shapefile in a new projection.
-
-1. Start by adding an export button.
-
-.. code-block:: java
-
-        toolbar.add( new SafeAction("Export") {            
-            public void action(ActionEvent e) throws Throwable {
-                export( featureSource, map.getCoordinateReferenceSystem(), file );
-            }
-        });
-        
-2. We will now create an export method to prompt the user for a filename.
-
-.. code-block:: java
-
-    static void export(FeatureSource featureSource,
-            CoordinateReferenceSystem crs, File origional) throws Exception {
-       SimpleFeatureType schema = featureSource.getSchema();
-        JFileDataStoreChooser chooser = new JFileDataStoreChooser("shp");
-        chooser.setDialogTitle("Save reprojected shapefile");
-        chooser.setSaveFile(sourceFile);
-        int returnVal = chooser.showSaveDialog(null);
-        if (returnVal != JFileDataStoreChooser.APPROVE_OPTION) {
-            return;
-        }
-        File file = chooser.getSelectedFile();
-        if (file.equals(sourceFile)) {
-            JOptionPane.showMessageDialog(
-                    null, "Cannot replace " + file,
-                    "File warning", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-3. We can now set up the MathTransform between the two coordinate reference systems.
-
-.. code-block:: java
-
-        CoordinateReferenceSystem dataCRS = schema.getCoordinateReferenceSystem();
-        CoordinateReferenceSystem worldCRS = map.getCoordinateReferenceSystem();
-        boolean lenient = true; // allow for some error due to different datums
-        MathTransform transform = CRS.findMathTransform( dataCRS, worldCRS, lenient );
-
-4. And then grab all the features.
-
-.. code-block:: java
-
-        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = featureSource.getFeatures();
-
-5. To create a new shapefile we will need to produce a FeatureType that is
-   similar to our original – the only difference will be the
-   CoordinateReferenceSystem of the geometry descriptor.
-
-.. code-block:: java
-
-        DataStoreFactorySpi factory = new ShapefileDataStoreFactory();
-        Map<String, Serializable> create = new HashMap<String, Serializable>();
-        create.put("url", file.toURI().toURL());
-        create.put("create spatial index", Boolean.TRUE);        
-        DataStore newDataStore = factory.createNewDataStore(create);
-        SimpleFeatureType featureType = SimpleFeatureTypeBuilder.retype( schema, worldCRS );
-        newDataStore.createSchema( featureType );
-
-6. We can now carefully open an iterator to go through the contents, and a
-writer to write out the new Shapefile.
-
-.. code-block:: java
-
-        // carefully open an iterator and writer to process the results
-        Transaction transaction = new DefaultTransaction("Reproject");
-        FeatureWriter<SimpleFeatureType, SimpleFeature>
-              writer = newDataStore.getFeatureWriterAppend( featureType.getTypeName(), transaction);
-        FeatureIterator<SimpleFeature> iterator = featureCollection.features();                
-        try {
-            while( iterator.hasNext() ){
-                // copy the contents of each feature and transform the geometry
-                SimpleFeature feature = iterator.next();
-                SimpleFeature copy = writer.next();
-                copy.setAttributes( feature.getAttributes() );
-                
-                Geometry geometry = (Geometry) feature.getDefaultGeometry();
-                Geometry geometry2 = JTS.transform(geometry, transform);
-                
-                copy.setDefaultGeometry( geometry2 );                
-                writer.write();
-            }
-            transaction.commit();
-            JOptionPane.showMessageDialog(
-                null, "Export complete", "Export", JOptionPane.INFORMATION_MESSAGE);
-
-        } catch (Exception problem) {
-            problem.printStackTrace();
-            transaction.rollback();
-            JOptionPane.showMessageDialog(null, "Export to shapefile failed", "Export", JOptionPane.ERROR_MESSAGE);
-        } finally {
-            writer.close();
-            iterator.close();
-            transaction.close();
-        }
+2. Set the display of reprojected data (e.g. 3005 BC Albers for the *bc_border*
+   shapefile).
+   
+3. Click the *Validate geometry* button to check feature geometries are ok.
+4. If there are no geometry problems, click the *Export* button and enter a name
+   and path for the new shapefile.
 
 Things to Try
 =============
@@ -297,24 +231,46 @@ Here are a couple things to try with the above application.
   degrees and the other measured in meters.
 
 * Make a button to print out the map coordinate reference system as human
-  readable “Well Known Text”. This is the same text format used by a shapefile's
-  “prj” side car file!
+  readable "Well Known Text". This is the same text format used by a
+  shapefile's "prj" side car file.
 
-* Visit the JTS website and look up how to simplify geometry. Modify the example
+* It is bad manners to keep the user waiting; the SwingWorker class is part of
+  Java 6. GeoTools also includes SwingWorker the **gt-swing** module for use in
+  Java 5 applications.
+  
+  Replace your ValidateGeometryAction with the following: 
+  
+.. literalinclude:: ../../src/main/java/org/geotools/tutorial/crs/CRSLab.java
+   :language: java
+   :start-after: // docs start validate action2
+   :end-before: // docs end validate action2
+
+* Visit the JTS web site and look up how to simplify geometry. Modify the example
   to simplify the geometry before writing it out -  there are several  techniques
   to try (the TopologyPreservingSimplifier and DouglasPeuckerSimplifier classes
   are recommended).
 
   This exercise is a common form of data preparation.
 
-* One thing that can be dangerous about geometry – especially ones you make
-  yourself – is that they can be invalid. The geoemtry.isValid() method allows you
-  to test for invalid geometry – such as a polygon that forms a figure eight; or a
-  LineString with only one point. Add code to test for invalid geometry.
+* One thing that can be dangerous about geometry, especially ones you make
+  yourself, is that they can be invalid. 
   
   There are many tricks to fixing an invalid geometry. An easy place to start
-  is to use geometry.buffer(0). Use this tip to build your own shapefile cleaner.
-   
+  is to use geometry.buffer(0). Use this tip to build your own shapefile
+  data cleaner cleaner.
+  
+* An alternate to doing all the geometry transformations by hand is to ask
+  for the data in the projection required.
+
+  This version of the export method shows how to use a **Query** object to
+  retrieve reprojected features and write them to a new shapefile instead of
+  transforming the features 'by hand' as we did above.
+
+.. literalinclude:: ../../src/main/java/org/geotools/tutorial/crs/CRSLab.java
+   :language: java
+   :start-after: // We can now query to retrieve a FeatureCollection in the desired crs
+   :end-before: // docs end export2
+      
 Geometry
 ========
 
@@ -334,19 +290,20 @@ Point
 -----
 Here is an example of creating a point using the Well-Known-Text (WKT) format.
 
-GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory( null );
-
 .. code-block:: java
-    WKTReader reader = new WKTReader( geometryFactory );
-    Point point = (Point) reader.read("POINT (1 1)");
+
+   GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory( null );
+
+   WKTReader reader = new WKTReader( geometryFactory );
+   Point point = (Point) reader.read("POINT (1 1)");
 
 You can also create a Point by hand using the GeometryFactory directly.
 
 .. code-block:: java
 
-    GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory( null );
-    Coordinate coord = new Coordinate( 1, 1 );
-    Point point = geometryFactory.createPoint( coord );
+   GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory( null );
+   Coordinate coord = new Coordinate( 1, 1 );
+   Point point = geometryFactory.createPoint( coord );
 
 Line
 ----
@@ -419,6 +376,7 @@ You are encouraged to read the javadocs for JTS which contains helpful definitio
 
 .. tip::
 	The disjoint predicate has the following equivalent definitions:
+	
 	* The two geometries have no point in common
 	* The DE-9IM Intersection Matrix for the two geometries is FF*FF****
 	* !g.intersects(this) (disjoint is the inverse of intersects)
@@ -538,3 +496,18 @@ We have finally sorted out an alternative; rather then EPSG:4326 we are supposed
 to use “urn:ogc:def:crs:EPSG:6.6:4326“. If you ever see that you can be sure
 that a) someone really knows what they are doing and b) the data is recorded in
 exactly the order defined by the EPSG database.
+
+For more Information
+---------------------
+
+`EPSG registry <http://www.epsg-registry.org/>`_ 
+  This is *the* place to go to look up map projections. You can search by
+  geographic area, name and type and epsg code.
+
+`Online coordinate conversion tool <http://gist.fsv.cvut.cz:8080/webref/>`_
+  Produced by Jan Jezek and powered by GeoTools.
+
+`Wikibook: Coordinate Reference Systems and Positioning <http://en.wikibooks.org/wiki/Coordinate_Reference_Systems_and_Positioning>`_
+  A summary page with some useful definition and links to more detailed information
+
+  

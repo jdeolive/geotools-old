@@ -17,8 +17,8 @@
 Welcome Eclipse Developers
 ==========================
 
-Welcome to Geospatial for Java -this workbook is aimed at Java developers who are new to geospatial
-and would like to get started.
+Welcome to Geospatial for Java - this workbook is aimed at Java developers who
+are new to geospatial and would like to get started.
 
 We are going to start out carefully with the steps needed to set up your IDE and are pleased this
 year to cover both NetBeans and Eclipse. If you are comfortable with the build tool Maven, it is
@@ -38,7 +38,7 @@ Java Install
 
    If you are following this workbook in a lab setting you will find installer on the DVD.
    
-We are going to be making use of Java â€“ so if you don't have a Java Development Kit installed now is
+We are going to be making use of Javaâ so if you don't have a Java Development Kit installed now is
 the time to do so. Even if you have Java installed already check out the optional Java Advanced
 Imaging and Java Image IO section.
    
@@ -292,7 +292,7 @@ Now that your environment is setup we can put together a simple Quickstart. This
 3. We need to download some sample data to work with. The http://www.naturalearthdata.com/ project
    is a great project supported by the North American Cartographic Information Society.
    
-   * http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/110m/cultural/110m-cultural.zip 
+   * `110m-cultural.zip <http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/110m/cultural/110m-cultural.zip>`
    
    Please unzip the above data into a location you can find easily such as the desktop.
 
@@ -373,16 +373,16 @@ Here are some additional challenges for you to try:
   At the time of writing |version|-SNAPSHOT under active development.
   
 .. literalinclude:: artifacts/pom2.xml
-        :language: xml
-        :start-after: <url>http://maven.apache.org</url>
-        :end-before: <dependencies>
+   :language: xml
+   :start-after: <url>http://maven.apache.org</url>
+   :end-before: <dependencies>
     
   You will also need to change your pom.xml file to include the following snapshot repository:
   
 .. literalinclude:: artifacts/pom2.xml
-        :language: xml
-        :start-after: </dependencies>
-        :end-before: </project>
+   :language: xml
+   :start-after: </dependencies>
+   :end-before: </project>
         
 * So what jars did maven actually use for the Qucikstart application? Open up your :file:`pom.xml`
   and switch to the :guilabel:`depdendency heirarchy` or :guilabel:`dependency graph` tabs to see
