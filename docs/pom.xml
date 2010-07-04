@@ -96,7 +96,7 @@
       <version>${project.version}</version>
     </dependency>
     
-        <!--  GeoTools Extensions -->
+    <!--  GeoTools Extensions -->
     <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-wms</artifactId>

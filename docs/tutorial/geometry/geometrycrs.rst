@@ -1,7 +1,7 @@
 .. _geometrycrs:
 
 ***********************
- Geometry CRS Workbook
+ Geometry CRS Tutorial
 ***********************
 
 .. sectionauthor:: Jody Garnett <jody.garnett@gmail.org>
