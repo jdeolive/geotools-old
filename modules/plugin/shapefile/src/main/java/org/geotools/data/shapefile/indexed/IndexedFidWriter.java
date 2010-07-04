@@ -193,9 +193,8 @@ public class IndexedFidWriter implements FileWriter {
             channel.close();
         streamLogger.close();
         if (writeBuffer != null) {
-            if (writeBuffer instanceof MappedByteBuffer) {
-                NIOUtilities.clean(writeBuffer);
-            }
+            NIOUtilities.clean(writeBuffer);
+            writeBuffer = null;
         }
 
     }

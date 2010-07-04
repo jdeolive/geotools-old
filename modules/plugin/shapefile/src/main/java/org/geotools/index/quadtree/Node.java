@@ -226,4 +226,11 @@ public class Node {
     public Node copy() throws IOException {
         return new Node(bounds, id);
     }
+
+    /**
+     * Clears up whatever resources the node is hanging onto
+     */
+    public void close() {
+        // TODO Auto-generated method stub
+    }
 }

@@ -126,30 +126,35 @@ public class IndexFile implements FileReader {
 
     private void readHeader(ReadableByteChannel channel) throws IOException {
         ByteBuffer buffer = ByteBuffer.allocateDirect(100);
-        while (buffer.remaining() > 0) {
-            channel.read(buffer);
+        try {
+            while (buffer.remaining() > 0) {
+                channel.read(buffer);
+            }
+            buffer.flip();
+            header = new ShapefileHeader();
+            header.read(buffer, true);
+        } finally {
+            NIOUtilities.clean(buffer);
         }
-        buffer.flip();
-        header = new ShapefileHeader();
-        header.read(buffer, true);
-
-        NIOUtilities.clean(buffer);
     }
 
     private void readRecords(ReadableByteChannel channel) throws IOException {
         check();
         int remaining = (header.getFileLength() * 2) - 100;
         ByteBuffer buffer = ByteBuffer.allocateDirect(remaining);
-        buffer.order(ByteOrder.BIG_ENDIAN);
-        while (buffer.remaining() > 0) {
-            channel.read(buffer);
+        try {
+            buffer.order(ByteOrder.BIG_ENDIAN);
+            while (buffer.remaining() > 0) {
+                channel.read(buffer);
+            }
+            buffer.flip();
+            int records = remaining / 4;
+            content = new int[records];
+            IntBuffer ints = buffer.asIntBuffer();
+            ints.get(content);
+        } finally {
+            NIOUtilities.clean(buffer);
         }
-        buffer.flip();
-        int records = remaining / 4;
-        content = new int[records];
-        IntBuffer ints = buffer.asIntBuffer();
-        ints.get(content);
-        NIOUtilities.clean(buffer);
     }
 
     private void readRecord(int index) throws IOException {
@@ -182,14 +187,11 @@ public class IndexFile implements FileReader {
             channel.close();
             streamLogger.close();
 
-            if (buf instanceof MappedByteBuffer) {
-                NIOUtilities.clean(buf);
-            } else {
-                buf.clear();
-            }
+            NIOUtilities.clean(buf);
         }
         this.buf = null;
         this.content = null;
+        this.channel = null;
     }
 
     /**

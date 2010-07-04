@@ -24,6 +24,7 @@ import java.nio.channels.FileChannel;
 
 import org.geotools.index.quadtree.Node;
 import org.geotools.index.quadtree.StoreException;
+import org.geotools.resources.NIOUtilities;
 
 import com.vividsolutions.jts.geom.Envelope;
 
@@ -185,6 +186,14 @@ public class FileSystemNode extends Node {
 
         return node;
     }
+    
+    @Override
+    public void close() {
+        if(buffer != null) {
+            buffer.close();
+        }
+        buffer = null;
+    }
 
     /**
      * A utility class to access file contents by using a single scrolling
@@ -208,6 +217,14 @@ public class FileSystemNode extends Node {
             this.buffer.order(order);
             channel.read(buffer);
             buffer.flip();
+        }
+
+        public void close() {
+            if(buffer != null) {
+                NIOUtilities.clean(buffer);
+                buffer = null;
+            }
+            
         }
 
         public int getInt() throws IOException {

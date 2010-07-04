@@ -355,6 +355,7 @@ public class QuadTree {
     public void close() throws StoreException {
         try {
             indexfile.close();
+            root.close();
         } catch (IOException e) {
             throw new StoreException("error closing indexfile", e.getCause());
         }

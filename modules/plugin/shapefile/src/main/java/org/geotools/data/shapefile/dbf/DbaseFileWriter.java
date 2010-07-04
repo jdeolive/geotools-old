@@ -236,11 +236,11 @@ public class DbaseFileWriter {
         // buffer.position(0);
         // buffer.put((byte) 0).position(0).limit(1);
         // write();
-        if (channel.isOpen()) {
+        if (channel != null && channel.isOpen()) {
             channel.close();
             streamLogger.close();
         }
-        if (buffer instanceof MappedByteBuffer) {
+        if(buffer != null) {
             NIOUtilities.clean(buffer);
         }
         buffer = null;

@@ -132,9 +132,7 @@ public class PrjFileReader implements FileReader {
 
     public void close() throws IOException {
         if (buffer != null) {
-            if (buffer instanceof MappedByteBuffer && !memoryMapped) {
-                NIOUtilities.clean(buffer);
-            }
+            NIOUtilities.clean(buffer);
             buffer = null;
         }
 

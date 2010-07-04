@@ -254,14 +254,17 @@ public class ShapefileReader implements FileReader {
     public static ShapefileHeader readHeader(ReadableByteChannel channel,
             boolean strict) throws IOException {
         ByteBuffer buffer = ByteBuffer.allocateDirect(100);
-        if (fill(buffer, channel) == -1) {
-            throw new EOFException("Premature end of header");
+        try {
+            if (fill(buffer, channel) == -1) {
+                throw new EOFException("Premature end of header");
+            }
+            buffer.flip();
+            ShapefileHeader header = new ShapefileHeader();
+            header.read(buffer, strict);
+            return header;
+        } finally {
+            NIOUtilities.clean(buffer);
         }
-        buffer.flip();
-        ShapefileHeader header = new ShapefileHeader();
-        header.read(buffer, strict);
-        NIOUtilities.clean(buffer);
-        return header;
     }
 
     // ensure the capacity of the buffer is of size by doubling the original
@@ -282,12 +285,8 @@ public class ShapefileReader implements FileReader {
             limit *= 2;
         }
         if (limit != buffer.limit()) {
-            // if (record.ready) {
+            // clean up the old buffer and allocate a new one
             buffer = ByteBuffer.allocateDirect(limit);
-            // }
-            // else {
-            // throw new IllegalArgumentException("next before hasNext");
-            // }
         }
         return buffer;
     }
@@ -368,9 +367,7 @@ public class ShapefileReader implements FileReader {
             channel.close();
             streamLogger.close();
         }
-        if (buffer instanceof MappedByteBuffer) {
-            NIOUtilities.clean(buffer);
-        }
+        NIOUtilities.clean(buffer);
         if(shxReader != null)
             shxReader.close();
         shxReader = null;

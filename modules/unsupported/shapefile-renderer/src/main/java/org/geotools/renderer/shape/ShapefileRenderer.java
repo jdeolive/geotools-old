@@ -549,50 +549,50 @@ public class ShapefileRenderer implements GTRenderer {
             List ruleList, List elseRuleList, Set modifiedFIDs, NumberRange scaleRange, String layerId )
             throws IOException {
         IndexedDbaseFileReader dbfreader = null;
+        IndexInfo.Reader shpreader = null;
+        FIDReader fidReader = null;
         
-		// clips Graphics to current drawing area before painting
-        graphics = (Graphics2D)graphics.create();
-        graphics.clip(screenSize);
-
-        // don't waste time processing the dbf file if the only attribute loades is the geometry
-        if(type.getAttributeCount() > 1) {
+        try {
+    		// clips Graphics to current drawing area before painting
+            graphics = (Graphics2D)graphics.create();
+            graphics.clip(screenSize);
+    
+            // don't waste time processing the dbf file if the only attribute loades is the geometry
+            if(type.getAttributeCount() > 1) {
+                try {
+                    dbfreader = ShapefileRendererUtil.getDBFReader(datastore);
+                } catch (Exception e) {
+                    fireErrorEvent(e);
+                }
+            }
+    
+            OpacityFinder opacityFinder = new OpacityFinder(getAcceptableSymbolizers(type
+                    .getGeometryDescriptor()));
+    
+            for( Iterator iter = ruleList.iterator(); iter.hasNext(); ) {
+                Rule rule = (Rule) iter.next();
+                rule.accept(opacityFinder);
+            }
+    
+            boolean useJTS=true;
             try {
-                dbfreader = ShapefileRendererUtil.getDBFReader(datastore);
+                shpreader = new IndexInfo.Reader(info, ShapefileRendererUtil.getShpReader(datastore,
+                        bbox, screenSize, mt, opacityFinder.hasOpacity, useJTS), bbox);
             } catch (Exception e) {
                 fireErrorEvent(e);
+                return;
             }
-        }
-
-        OpacityFinder opacityFinder = new OpacityFinder(getAcceptableSymbolizers(type
-                .getGeometryDescriptor()));
-
-        for( Iterator iter = ruleList.iterator(); iter.hasNext(); ) {
-            Rule rule = (Rule) iter.next();
-            rule.accept(opacityFinder);
-        }
-
-        IndexInfo.Reader shpreader = null;
-        boolean useJTS=true;
+    
+            
+            try {
+                fidReader = ShapefileRendererUtil.getFidReader(datastore,shpreader);
+            } catch (Exception e) {
+                fireErrorEvent(e);
+                return;
+            }
+            
+            SimpleFeatureBuilder fbuilder = new SimpleFeatureBuilder(type);
         
-        try {
-            shpreader = new IndexInfo.Reader(info, ShapefileRendererUtil.getShpReader(datastore,
-                    bbox, screenSize, mt, opacityFinder.hasOpacity, useJTS), bbox);
-        } catch (Exception e) {
-            fireErrorEvent(e);
-            return;
-        }
-
-        FIDReader fidReader = null;
-        try {
-            fidReader = ShapefileRendererUtil.getFidReader(datastore,shpreader);
-        } catch (Exception e) {
-            fireErrorEvent(e);
-            return;
-        }
-        
-        SimpleFeatureBuilder fbuilder = new SimpleFeatureBuilder(type);
-        
-        try {
             while( true ) {
                 try {
                     if (renderingStopRequested) {

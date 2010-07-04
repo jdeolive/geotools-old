@@ -276,12 +276,10 @@ public class ShapefileWriter {
         shpChannel = null;
         shxChannel = null;
         handler = null;
-        if (indexBuffer instanceof MappedByteBuffer) {
+        if(indexBuffer != null)
             NIOUtilities.clean(indexBuffer);
-        }
-        if (shapeBuffer instanceof MappedByteBuffer) {
+        if(shapeBuffer != null)
             NIOUtilities.clean(shapeBuffer);
-        }
         indexBuffer = null;
         shapeBuffer = null;
     }

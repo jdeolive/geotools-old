@@ -469,7 +469,7 @@ public class NADCONTransform extends AbstractMathTransform implements MathTransf
      */
     private ByteBuffer fillBuffer(ReadableByteChannel channel, int numBytes)
         throws IOException {
-        ByteBuffer buf = ByteBuffer.allocateDirect(numBytes);
+        ByteBuffer buf = ByteBuffer.allocate(numBytes);
 
         if (fill(buf, channel) == -1) {
             throw new EOFException(Errors.format(ErrorKeys.END_OF_DATA_FILE));

@@ -149,7 +149,10 @@ public class PrjFileReader {
 	}
 
 	public void close() throws IOException {
-		NIOUtilities.clean(buffer); // will close if a MappedByteBuffer
+	    if(buffer != null) {
+	        NIOUtilities.clean(buffer); // will close if a MappedByteBuffer
+	        buffer = null;
+	    }
 		if (channel.isOpen()) {
 			channel.close();
 		}

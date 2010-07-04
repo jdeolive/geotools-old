@@ -246,11 +246,11 @@ public class DbaseFileReader implements FileReader {
      *                 If an error occurs.
      */
     public void close() throws IOException {
-        if (channel.isOpen()) {
+        if (channel != null && channel.isOpen()) {
             channel.close();
             streamLogger.close();
         }
-        if (buffer instanceof MappedByteBuffer) {
+        if(buffer != null) {
             NIOUtilities.clean(buffer);
         }
 
