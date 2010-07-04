@@ -215,7 +215,7 @@ public class ShapefileReader implements FileReader {
         streamLogger.open();
         randomAccessEnabled = channel instanceof FileChannel;
         try {
-            shxReader = new IndexFile(shapefileFiles, true);
+            shxReader = new IndexFile(shapefileFiles, useMemoryMapped);
         } catch(Exception e) {
             LOGGER.log(Level.WARNING, "Could not open the .shx file, continuing " +
             		"assuming the .shp file is not sparse", e);
