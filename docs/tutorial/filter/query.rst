@@ -34,7 +34,7 @@ will use `PostGIS <http://postgis.refractions.net/>`_ which is a spatially-enabl
 PostgreSQL supporting *Simple Features for SQL*. We will build an application that can connect
 to both a PostGIS database and shapefiles.
 
-We are trying out a code first idea with these workbooks – offering you a chance to start with
+We are trying out a code first idea with these workbooks |hyphen| offering you a chance to start with
 source code and explore the ideas that went into it later if you have any questions. 
 
 This workbook is part of the FOSS4G 2010 conference proceedings.
@@ -72,7 +72,7 @@ example.
         :language: xml
         :start-after: </properties>
         :end-before: <repositories>
-        
+
 
 2. Create the *QueryLab** class and copy and paste the following to get going.
 
@@ -152,13 +152,17 @@ Here is our strategy for displaying the selected features:
 
 * Get the feature type name selected by the user and retrieve the corresponding
   FeatureSource from the DataStore.
-* Get the query condition that was entered in the text field and use the CQL class
-  to create a Filter object.
-* We pass the filter to the getFeatures method which returns the features matching the query
+
+* Get the query condition that was entered in the text field and use the CQL class to create a
+  Filter object.
+
+* Pass the filter to the getFeatures method which returns the features matching the query
   as a FeatureCollection.
-* Finally, we create a FeatureCollectionTableModel for our dialog’s JTable. This GeoTools
+
+* Create a FeatureCollectionTableModel for our dialog|apos|s JTable. This GeoTools
   class takes a FeatureCollection and retrieves the feature attribute names and the data for
   each feature.
+
 
 1. Getting feature data using featureSource.getFeatures( filter )
 
@@ -332,7 +336,7 @@ We have a nice parser in GeoTools that can be used to create a Filter in a human
    
    Filter filter = CQL.toFilter("POPULATION > 30000");
    
-We can also make spatial filters using CQL – geometry is expressed using the same Well Known Text
+We can also make spatial filters using CQL |hyphen| geometry is expressed using the same Well Known Text
 format employed earlier for JTS Geometry::
 
 .. code-block:: java
@@ -398,7 +402,7 @@ Query
 -----
 
 The Query data structure is used to offer finer grain control on the results returned. The
-following query will request THE_GEOM and POPULATION from a FeatureSource “cities”::
+following query will request THE_GEOM and POPULATION from a FeatureSource |ldquo| cities |rdquo|:
 
 .. code-block:: java
    
@@ -414,8 +418,8 @@ Special care is needed when stepping through the contents of a FeatureCollection
 FeatureIterator. A FeatureIterator will actually be streaming the data off disk and we need to
 remember to close the stream  when we are done.
 
-Even though a FeatureCollection is a “Collection” it is very lazy and does not load anything
-until you start iterating through the contents. 
+Even though a FeatureCollection is a |ldquo| Collection |rdquo| it is very lazy and does not load
+anything until you start iterating through the contents. 
 
 The closest Java concepts I have to FeatureCollection and FeatureIterator come from JDBC as show
 below.
@@ -429,5 +433,5 @@ below.
   FeatureIterator    ResultSet
  ================== ====================
 
-If that is too much just remember – please close your feature iterator when you are done. If not
-you will leak resources and get into trouble.
+If that is too much just remember |hyphen| please close your feature iterator when you are done. If
+not you will leak resources and get into trouble.
