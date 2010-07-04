@@ -38,7 +38,7 @@ Java Install
 
    If you are following this workbook in a lab setting you will find installer on the DVD.
    
-We are going to be making use of Java� so if you don't have a Java Development Kit installed now is
+We are going to be making use of Java, so if you don't have a Java Development Kit installed now is
 the time to do so. Even if you have Java installed already check out the optional Java Advanced
 Imaging and Java Image IO section.
    
@@ -371,19 +371,19 @@ Here are some additional challenges for you to try:
   latest nightly build by changing your pom.xml file to use a “SNAPSHOT” release.
   
   At the time of writing |version|-SNAPSHOT under active development.
-  
-.. literalinclude:: artifacts/pom2.xml
+
+  .. literalinclude:: artifacts/pom2.xml
    :language: xml
    :start-after: <url>http://maven.apache.org</url>
    :end-before: <dependencies>
-    
+
   You will also need to change your pom.xml file to include the following snapshot repository:
-  
+
 .. literalinclude:: artifacts/pom2.xml
    :language: xml
    :start-after: </dependencies>
    :end-before: </project>
-        
+
 * So what jars did maven actually use for the Qucikstart application? Open up your :file:`pom.xml`
   and switch to the :guilabel:`depdendency heirarchy` or :guilabel:`dependency graph` tabs to see
   what is going on.

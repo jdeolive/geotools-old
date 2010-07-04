@@ -381,6 +381,6 @@ To start with we will obtain GeoTools from the website:
 12. Fill in “Tutorial” as the project name; and our initial Main class will be called “Quickstart”.
 
 13. Open up Example in the Projects window, right click on Libraries and select Add Libraries.
-   Choose GeoTools from the Add Library dialog.
+    Choose GeoTools from the Add Library dialog.
    
 14. Congratulations ! You can now return to Quickstart or any of the other tutorials

@@ -177,7 +177,7 @@ When you run this application it will prompt you for:
 * The a shapefile to create
 
 Things to Try
-============
+===============
 
 Another way to build a SimpleFeatureType
 ----------------------------------------
@@ -205,9 +205,7 @@ Other things to try
 -------------------
 
 * Modify the code to read the feature attribute names from the data file header rather than
-  hard-coding them in the application.
-  
-  .. code-block::
+  hard-coding them in the application::
   
      LAT, LON, CITY, NUMBER
   
@@ -261,7 +259,7 @@ Other things to try
 Feature
 ========
 
-.. sidebar::
+.. sidebar:: Conceptual Feature
 
    You can also draw ideas like urban growth or predicted rain fall.
    
@@ -275,9 +273,9 @@ Like a java object features can contain some information about the real world th
 represent. This information is organized into attributes just as in Java information is slotted
 into fields.
 
-.. sidebar::
+.. sidebar:: Key
    
-   You can see the “feature types” for a map listed in the map key.
+   The "feature types" for a map are listed in the map key.
    
    .. image:: images/key.png
    

@@ -17,13 +17,15 @@
 Welcome
 =========
 
-Welcome to Geospatial for Java -this workbook is aimed at Java developers who
-are new to geospatial and would like to get started. Please set up your
+Welcome to Geospatial for Java. This workbook is aimed at Java developers who
+are new to geospatial and would like to get started.
+
+Please set up your
 development environment prior to starting this tutorial. We will list the maven
 dependencies required at the start of the workbook.
 
 This work book covers the dirty raw underbelly of the GIS world; yes I am afraid
-we are talking about… math. However please do not be afraid – all the math
+we are talking about *Math*. However please do not be afraid, all the math
 amounts to is shapes drawn on the earth.
 
 This workbook is constructed in a code first manner; allowing you to work
@@ -45,7 +47,7 @@ Michael Bedward
    a particularly wide grasp of all the possible mistakes one can make using
    GeoTools.
 
-CRS Lab Applicaiton
+CRS Lab Application
 ====================
 
 This tutorial gives a visual demonstration of coordinate reference systems by
@@ -98,7 +100,7 @@ done by a helper method in the parent class.
    :end-before: // docs end validate action
 
 2. This method checks the geometry associated with each feature in our shapefile
-  for common problems (such as polygons not having closed boundaries).
+   for common problems (such as polygons not having closed boundaries).
 
 .. literalinclude:: ../../src/main/java/org/geotools/tutorial/crs/CRSLab.java
    :language: java
@@ -178,9 +180,8 @@ To switch between map projections:
 
 1. When you start the application you will be prompted for a shapefile to display.
    In the screenshots below we are using the *bc_border* map which can be
-   downloaded as part of the `uDig sample data`__.
-
-   .. _udigdata: http://udig.refractions.net/docs/data-v1_2.zip
+   downloaded as part of the uDig sample data file:
+   `data-v1_2.zip <http://udig.refractions.net/docs/data-v1_2.zip>`
 
 .. image:: images/CRSLab_start.png
    :width: 60%

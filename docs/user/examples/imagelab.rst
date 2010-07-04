@@ -181,11 +181,12 @@ Experiment with displaying different bands in greyscale and swapping to the RGB 
 Extra things to try
 -------------------
 
-* Modify the file prompt wizard, or the menu, to allow additional shapfiles to be overlaid onto the image.
+* Modify the file prompt wizard, or the menu, to allow additional shapfiles to be overlaid onto the
+  image.
 
-* Add a map layer table to the JMapFrame using frame.enableLayerTable(true) so that you can toggle the visibility of the
-layers.
+* Add a map layer table to the JMapFrame using frame.enableLayerTable(true) so that you can toggle
+  the visibility of the layers.
 
-* (Advanced) Experiment with Styles for the raster display: e.g. contrast enhancement options; display based on ranges
-of image band values
+* (Advanced) Experiment with Styles for the raster display: e.g. contrast enhancement options;
+  display based on ranges of image band values
 

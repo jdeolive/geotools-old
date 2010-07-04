@@ -1,7 +1,5 @@
 .. _faq:
 
-:tocdepth: 2
-
 ============================ 
  Frequently Asked Questions
 ============================
