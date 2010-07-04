@@ -148,7 +148,11 @@ and pass it to a **JMapFrame**.
    :start-after: // docs start create greyscale style
    :end-before: // docs end create greyscale style
 
-4. To create an RGB Style we specify the image bands to use for the red, green and blue *channels*.
+4. To display color we need to use a slightly more complex Style that specifies which bands in the
+   grid coverage map to the R, G and B colors on screen. 
+   
+   While this will be very easy for a simple color image; it can be harder for things like
+   satellite images where none of the bands quite line up with what human eyes see.
    
    The methods checks the image to see if its bands (known as *sample dimensions*) have labels
    indicating which to use. If not, we just use the first three bands and hope for the best !
@@ -192,4 +196,90 @@ Extra things to try
 
 * Advanced: Experiment with Styles for the raster display: e.g. contrast enhancement options;
   display based on ranges of image band values
+  
+* Advanced: You can also use GeoTools to work with raster information being served up from a remote
+  Web Map Service.
+  
+.. literalinclude:: ../../src/main/java/org/geotools/tutorial/wms/WMSLab.java
+   :language: java
+
+Raster Data
+============
+
+Grid Coverage
+-------------
+
+Support for raster data is provided by the concept of a GridCoverage.  As programmers we are used 
+to working with raster data in the form of bitmapped graphics such as JPEG, GIF and PNG files.
+
+On the geospatial side of things there is the concept of a Coverage. A coverage is a collection of
+spatially located features. Informally, we equate a coverage with a map (in the geographic rather
+than the programming sense).
+
+A GridCoverage is a special case of Coverage where the features are  rectangles forming a grid that
+fills the area of the coverage. In our Java code we can use a bitmapped graphic as the backing data
+structure for a GridCoverage together with additional elements to record spatial bounds in a 
+specific coordinate reference system.
+
+There are many kinds of grid coverage file formats. Some of the most common are:
+
+world plus image
+    A normal image format like jpeg or png that has a side-car file describing where it is located
+    as well as a prj sidecar file defining the map projection just like a shapefile uses.
+                   
+Geotiff
+    A normal tiff image that has geospatial information stored in the image metadata fields.
+
+JPEG2000
+    The sequel to jpeg that uses wavelet compression  to handle massive images. The file
+    format also supports metadata fields that can be used to store geospatial information.
+
+There are also more exotic formats such as ECW and MRSID that can be supported if you have installed
+the imageio-ext project into your JRE.
+
+Web Map Server
+--------------
+
+Another source of imagery is a  Web Map Server (WMS). The Web Map Server specification is defined
+by the Open Geospatial Consortium – an industry body set up to encourage collaboration on this sort
+of thing.
+
+At a basic level we can fetch information from a WMS using a GetMap operation.
+
+http://localhost:8080/geoserver/wms?bbox=-130,24,-66,50&styles=population&Format=image/png&request=GetMap&layers=topp:states&width=550&height=250&srs=EPSG:4326
+
+The trick is knowing what parameters to fill in for “layer” and “style” when making one of these
+requests.
+
+The WMS Service offers a GetCapabilities document that describes what layers are available and wha
+other operations like GetMap are available to work on those layers.
+
+GeoTools has a great implementation to help out here – it can parse that capabilities document for
+a list of layers, the supported image formats and so forth.
+
+.. code-block:: java
+   
+   URL url =  url = new URL("http://www2.dmsolutions.ca/cgi-bin/mswms_gmap?VERSION=1.1.0&REQUEST=GetCapabilities");
+   
+   WebMapServer wms = new WebMapServer(url);
+   WMSCapabilities capabilities = wms.getCapabilities();
+
+   // gets all the layers in a flat list, in the order they appear in
+   // the capabilities document (so the rootLayer is at index 0)
+   List layers = capabilities.getLayerList();
+
+WebMapServer class also knows how to set up a GetMap request for several different version of the
+WMS standard.
+
+.. code-block:: java
+
+   GetMapRequest request = wms.createGetMapRequest();
+   request.setFormat("image/png");
+   request.setDimensions("583", "420"); //sets the dimensions to be returned from the server
+   request.setTransparent(true);
+   request.setSRS("EPSG:4326");
+   request.setBBox("-131.13151509433965,46.60532747661736,-117.61620566037737,56.34191403281659");
+
+   GetMapResponse response = (GetMapResponse) wms.issueRequest(request);
+   BufferedImage image = ImageIO.read(response.getInputStream());
 
