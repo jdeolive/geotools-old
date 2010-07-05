@@ -37,7 +37,7 @@ import org.geotools.util.logging.Logging;
 /**
  * Handles setting up connections to a WFS based on a WFS capabilities document,
  * taking care of GZIP and authentication.
- * 
+ *
  * @author Gabriel Roldan
  * @version $Id: DefaultConnectionFactory.java 29055 2008-02-02 17:38:44Z
  *          groldan $
@@ -66,7 +66,7 @@ public class DefaultConnectionFactory implements ConnectionFactory {
 
     /**
      * A simple user/password authenticator
-     * 
+     *
      * @author Gabriel Roldan
      * @version $Id: DefaultConnectionFactory.java 29055 2008-02-02 17:38:44Z
      *          groldan $
@@ -78,7 +78,7 @@ public class DefaultConnectionFactory implements ConnectionFactory {
         private java.net.PasswordAuthentication pa;
 
         /**
-         * 
+         *
          * @param user
          * @param pass
          */
@@ -94,7 +94,7 @@ public class DefaultConnectionFactory implements ConnectionFactory {
     /**
      * Creates a connection factory set up for the given tryGzip flag, HTTP
      * authentication if needed, and default character encoding.
-     * 
+     *
      * @param tryGzip
      * @param user
      * @param pass
@@ -118,7 +118,7 @@ public class DefaultConnectionFactory implements ConnectionFactory {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.geotools.wfs.protocol.ConnectionFactory#getEncoding()
      */
     public Charset getEncoding() {
@@ -127,7 +127,7 @@ public class DefaultConnectionFactory implements ConnectionFactory {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.geotools.wfs.protocol.ConnectionFactory#getConnection(java.net.URL,
      *      org.geotools.wfs.protocol.HttpMethod)
      */
@@ -142,7 +142,11 @@ public class DefaultConnectionFactory implements ConnectionFactory {
         if (POST == method) {
             connection.setRequestMethod("POST");
             connection.setDoOutput(true);
-            connection.setRequestProperty("Content-type", "text/xml, application/xml");
+            /*ESRI ArcGis has a bug when sending xml and content-type = text/xml. When omitting
+            it, it works fine.*/
+            if (url==null || !url.toString().contains("/ArcGIS/services/")){
+                connection.setRequestProperty("Content-type", "text/xml, application/xml");
+            }
         } else {
             connection.setRequestMethod("GET");
         }
@@ -150,18 +154,18 @@ public class DefaultConnectionFactory implements ConnectionFactory {
         if (tryGzip) {
             connection.addRequestProperty("Accept-Encoding", "gzip");
         }
-        
+
         connection.setConnectTimeout(timeoutMillis);
         connection.setReadTimeout(timeoutMillis);
-        
-        
+
+
         // auth must be after connection because one branch makes the connection
         if (auth != null) {
             if (auth instanceof WFSAuthenticator) {
                 WFSAuthenticator wfsAuth = (WFSAuthenticator) auth;
                 String user = wfsAuth.pa.getUserName();
                 char[] pass = wfsAuth.pa.getPassword();
-                
+
                 String combined = String.format("%s:%s", user, String.valueOf(pass));
                 byte[] authBytes = combined.getBytes("US-ASCII");
                 String encoded = new String(Base64.encodeBase64(authBytes));
@@ -198,7 +202,7 @@ public class DefaultConnectionFactory implements ConnectionFactory {
      * If the connection content-encoding contains the {@code gzip} flag creates
      * a gzip inputstream, otherwise returns a normal buffered input stream by
      * opening the http connection.
-     * 
+     *
      * @param hc
      *            the connection to use to create the stream
      * @return an input steam from the provided connection
