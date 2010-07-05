@@ -225,7 +225,24 @@ public class ECQLIDPredicateTest {
      */
     @Test(expected = CQLException.class)
     public void filterIdSyntaxError() throws CQLException {
-        String strId = "IN 15521.3566"; // should be ID IN( '15521.3566')
+        String strId = "IN 15521.3566"; // should be IN( '15521.3566')
         ECQL.toFilter(strId);
+    }
+    
+    
+
+    /** 
+     * deprecated syntax (TODO  it should be unsupported in the next version)
+     * 
+     * This test produces the following warning in the log:
+     * "WARNING: ID IN (...) is a deprecated syntax, you should use IN (...) "
+     * 
+     */
+    @Test
+    public void deprecatedSyntax() throws Exception{
+
+    	Filter filter = ECQL.toFilter("ID IN ('river.1', 'river.2')");
+    
+    	Assert.assertTrue(filter instanceof Id);
     }
 }
