@@ -28,6 +28,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -65,7 +66,6 @@ import net.opengis.wfs.WFSCapabilitiesType;
 
 import org.eclipse.emf.ecore.EObject;
 import org.geotools.data.DataSourceException;
-import org.geotools.data.Query;
 import org.geotools.data.wfs.protocol.http.HTTPProtocol;
 import org.geotools.data.wfs.protocol.http.HTTPResponse;
 import org.geotools.data.wfs.protocol.http.HttpMethod;
@@ -209,6 +209,29 @@ public class WFS_1_1_0_Protocol implements WFSProtocol {
     public Set<String> getSupportedGetFeatureOutputFormats() {
         OperationType operationMetadata = getOperationMetadata(WFSOperationType.GET_FEATURE);
         List<DomainType> parameters = operationMetadata.getParameter();
+        List featuretypes = capabilities.getFeatureTypeList().getFeatureType();
+
+        List supportedByAllFeatureTypes= null;
+        for (int i=0; i < featuretypes.size() ; i++){
+            net.opengis.wfs.FeatureTypeType ft = (FeatureTypeType) featuretypes.get(i);
+            List value=ft.getOutputFormats().getFormat();
+            if (supportedByAllFeatureTypes ==null){
+                supportedByAllFeatureTypes=value;
+            }else{
+                List removeOutputFormats= new ArrayList();
+                for (Object o : supportedByAllFeatureTypes){
+                    if (!value.contains(o)){
+                        removeOutputFormats.add(o);
+                    }
+                }
+                for (Object o : removeOutputFormats){
+                   supportedByAllFeatureTypes.remove(o);
+                }
+                if (supportedByAllFeatureTypes.size() ==0){
+                    break;
+                }
+            }
+        }
 
         Set<String> outputFormats = new HashSet<String>();
         for (DomainType param : parameters) {
@@ -218,6 +241,7 @@ public class WFS_1_1_0_Protocol implements WFSProtocol {
                 outputFormats.addAll(value);
             }
         }
+        outputFormats.addAll(supportedByAllFeatureTypes);
         return outputFormats;
     }
 
