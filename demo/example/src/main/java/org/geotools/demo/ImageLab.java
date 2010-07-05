@@ -1,4 +1,3 @@
-// docs start source
 /*
  *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
@@ -8,7 +7,7 @@
  *    This file is hereby placed into the Public Domain. This means anyone is
  *    free to do whatever they wish with this file. Use it well and enjoy!
  */
-
+// docs start source
 package org.geotools.demo;
 
 import java.awt.Color;

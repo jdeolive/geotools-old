@@ -101,7 +101,7 @@ class NonStrictWFSStrategy implements WFSStrategy {
             data = createFeatureReaderGET(query, transaction);
 
         if (data.reader == null && data.saxException != null)
-            throw new IOException(data.saxException.toString(), data.saxException);
+            throw (IOException) new IOException(data.saxException.toString()).initCause(data.saxException);
         if (data.reader == null && data.ioException != null)
             throw data.ioException;
 
