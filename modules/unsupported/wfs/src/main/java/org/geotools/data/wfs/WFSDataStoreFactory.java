@@ -50,6 +50,7 @@ import org.geotools.data.wfs.protocol.wfs.Version;
 import org.geotools.data.wfs.protocol.wfs.WFSProtocol;
 import org.geotools.data.wfs.v1_0_0.WFS100ProtocolHandler;
 import org.geotools.data.wfs.v1_0_0.WFS_1_0_0_DataStore;
+import org.geotools.data.wfs.v1_1_0.ArcGISServerStrategy;
 import org.geotools.data.wfs.v1_1_0.CubeWerxStrategy;
 import org.geotools.data.wfs.v1_1_0.DefaultWFSStrategy;
 import org.geotools.data.wfs.v1_1_0.GeoServerStrategy;
@@ -468,6 +469,8 @@ public class WFSDataStoreFactory extends AbstractDataStoreFactory {
             String uri = getCapabilitiesRequest.toExternalForm();
             if (uri.contains("geoserver")) {
                 strategy = new GeoServerStrategy();
+            }else if (uri.contains("/ArcGIS/services/")){
+                strategy = new ArcGISServerStrategy();
             }
         }
 
