@@ -179,12 +179,12 @@ To use M2Eclipse plugin to create a create a new maven project:
 #. The *New Maven project* page defaults are fine, press *Next*
 
    .. image:: images/newmaven.jpg
-      :width: 60%
-      
+      :scale: 60
+   
 #. Select the default *maven-archtype-quickstart* and press *Next*
  
    .. image:: images/archetype.jpg
-      :width: 60%
+      :scale: 60
 
 #. The archtype acts a template using the parameters we supply to create the project.
    
@@ -194,7 +194,7 @@ To use M2Eclipse plugin to create a create a new maven project:
    * Package: org.geotools.tutorial
    
    .. image:: images/artifact.jpg
-      :width: 60%   
+      :scale: 60   
       
 #. Press *Finish* to create the new project.
 #. You can see that an application has been created; complete with *App.java* and a JUnit test case
@@ -239,7 +239,7 @@ such as GeoTools publish their work.
    earlier.
    
    .. image:: images/pomOverview.jpg
-      :width: 60%
+      :scale: 60
  
 2. This editor allows you to describe all kinds of things; in the interest of time we are going to
    skip the long drawn out explanation and ask you to click on the :guilabel:`pom.xml` tab.
@@ -249,7 +249,7 @@ such as GeoTools publish their work.
 4. At the top after moduleVersion add a *properties* element defining the version of GeoTools that
    we want to use (|version| for this example).
    
-.. literalinclude:: artifacts/pom.xml
+   .. literalinclude:: artifacts/pom.xml
         :language: xml
         :start-after: <url>http://maven.apache.org</url>
         :end-before: <dependencies>
@@ -280,9 +280,9 @@ Quickstart Application
 Now that your environment is setup we can put together a simple Quickstart. This example will display a shapefile on screen.
 
 1. Create the org.geotools.tutorial.Quickstart class using your IDE.
-
-     .. image:: images/class.jpg
-        :width: 60%
+   
+   .. image:: images/class.jpg
+      :scale: 60
    
 2. Fill in the following code:
 
@@ -292,19 +292,19 @@ Now that your environment is setup we can put together a simple Quickstart. This
 3. We need to download some sample data to work with. The http://www.naturalearthdata.com/ project
    is a great project supported by the North American Cartographic Information Society.
    
-   * `110m-cultural.zip <http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/110m/cultural/110m-cultural.zip>`
+   * `110m-cultural.zip <http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/110m/cultural/110m-cultural.zip>`_
    
    Please unzip the above data into a location you can find easily such as the desktop.
 
 4. Run the application to open a file chooser. Choose a shapefile from the example dataset.
 
    .. image:: images/QuickstartOpen.jpg
-      :width: 60%
+      :scale: 60
    
 5. The application will connect to your shapefile, 1.produce a map context and display the shapefile.
 
    .. image:: images/QuickstartMap.jpg
-      :width: 60%
+      :scale: 60
    
 6. A couple of things to note about the code example:
    
@@ -389,7 +389,7 @@ Here are some additional challenges for you to try:
   what is going on.
   
   .. image:: images/quickstart-dependency.png
-     :width: 60%
+     :scale: 60
   
   We will be making use of some of the project is greater depth in the remaining tutorials.
   
@@ -425,7 +425,7 @@ generating eclipse :file:`.project` and :file:`.classpath` files.
    PATH = :file:`%JAVA_HOME%\bin;%M2_HOME%\bin`
 
    .. image:: images/env-variables.jpg
-      :width: 60%
+      :scale: 60
    
 4. Open up a commands prompt :menuselection:`Accessories --> Command Prompt`
 5. Type the following command to confirm you are set up correctly::
@@ -435,7 +435,7 @@ generating eclipse :file:`.project` and :file:`.classpath` files.
 6. This should produce the following output
 
    .. image:: images/maven-version.png
-      :width: 60%
+      :scale: 60
    
 7. We can now create our project with::
 
@@ -455,7 +455,7 @@ generating eclipse :file:`.project` and :file:`.classpath` files.
     Page.
    
    .. image:: images/classpath-variables.png
-      :width: 60%
+      :scale: 60
    
 12. Add an **M2_REPO** classpath variable pointing to your “local repository” 
 
@@ -471,7 +471,7 @@ generating eclipse :file:`.project` and :file:`.classpath` files.
 14. Choose *Existing Projects into Workspace* from the list, and press :guilabel:`Next`
 
     .. image:: images/import-existing.png
-       :width: 60%
+       :scale: 60
 
 15. Select the project you created: :file:`C:\java\tutorial`
 16. Press :guilabel:`Finish` to import your project
@@ -509,15 +509,15 @@ generating eclipse :file:`.project` and :file:`.classpath` files.
     And easy way to pick up typing mistakes with tags is to Eclipse to format the xml file.
    
 22. Return to the command line and maven to download the required jars and tell eclipse about it::
-   
+    
      C:\java\example> mvn eclipse:eclipse
-      
+    
 23. Return to eclipse and select the project folder. Refresh your project using the context menu
     or by pressing :kbd:`F5`. If you open up referenced libraries you will see the required jars 
     listed.
    
     .. image:: images/maven-refresh.png
-       :width: 60%
+       :scale: 60
 
 24. Using this technique of running mvn eclipse:eclipse and refreshing in eclipse you can proceed
     through all the tutorial examples.

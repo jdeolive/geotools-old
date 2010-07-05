@@ -5,7 +5,7 @@
 /* override some of ext-all.css  */
 ul, ol {
     margin: 14px 0;
-    padding-left: 2emx;    
+    padding-left: 20px;
 }
 ul {
     list-style: disc;
@@ -71,11 +71,11 @@ div.sphinxsidebar h3 a {
     color: inherit;
 }
 div.document {
-    margin: 0 20px;
+    margin: 0 10px;
 }
 div.documentwrapper {
     margin-left: 175px;
-    margin-right: 50px;
+    margin-right: 10px;
     padding: 0;
 }
 
@@ -265,6 +265,12 @@ div.highlight {
     margin-right: -160px;    
 }
 
+li div.highlight {
+    position: relative;
+    left: -180px;
+    margin-right: -180px;    
+}
+
 /* making code samples less gigantic */
 pre {
     font-size: 0.8em;
@@ -339,7 +345,7 @@ text-decoration: none;
 color: #26b2dd;
 }
 
-#div.body {
+div #body {
   margin: 0px;
   padding: 0 1em 1em;
 }
@@ -355,10 +361,16 @@ div.sidebar {
   background-color: #FFF;
 }
 
-p {
-   font-size: 11pt;
-   margin-bottom: 0.14cm;
-   margin-top: 0.14cm;
+/* space out the intros */
+div.section > p {
+  margin: 0.5em 0 0.5em 0;
+  line-height: 140%;
+}
+li {
+   margin: 0.5em 0 0.5em 0;
+}
+li p {
+   margin: 2 0 2 0;
 }
 
 div.body a {
