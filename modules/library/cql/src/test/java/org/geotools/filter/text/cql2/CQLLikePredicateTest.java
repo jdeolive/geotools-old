@@ -22,8 +22,6 @@ import org.geotools.filter.text.commons.Language;
 import org.junit.Assert;
 import org.junit.Test;
 import org.opengis.filter.Filter;
-import org.opengis.filter.PropertyIsLike;
-import org.opengis.filter.expression.PropertyName;
 
 /**
  * Test case for Like predicate

@@ -223,6 +223,15 @@ public class CQLCompiler extends CQLParser implements ICompiler{
             return this.builder.buildIdentifierPart(getTokenInPosition(0));
 
             // ----------------------------------------
+            // Date, Time and Timestamp Strings
+            // ----------------------------------------
+//FIXME
+//        case   JJTDATESTRING_NODE:
+//        case   JJTTIMESTRING_NODE:
+//        case   JJTTIMESTAMPSTRING_NODE:
+//        	return this.builder.buildDateTimeExpression(getTokenInPosition(0));            	
+
+            // ----------------------------------------
             // attribute
             // ----------------------------------------
         case JJTSIMPLE_ATTRIBUTE_NODE:

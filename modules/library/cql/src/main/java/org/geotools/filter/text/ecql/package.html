@@ -28,17 +28,13 @@
 	<P ALIGN="justify">
 	Filter filter = ECQL.toFilter(<b>"Name LIKE '%omer%'"</b>);
 	</P>
-    
-	<P ALIGN="justify">
-    Filter filter = ECQL.toFilter(<b>"RELATE( the_geom1,the_geom2) like 'T**F*****'"</b>);
-	</P>
 
 	<P ALIGN="justify">
     Filter filter = ECQL.toFilter(<b>"DISJOINT(buffer(the_geom, 10) , POINT(1 2))"</b>);
 	</P>
 
 	<P ALIGN="justify">
-    Filter filter = ECQL.toFilter(<b>"ID IN ('river.1', 'river.2')"</b>);
+    Filter filter = ECQL.toFilter(<b>"IN ('river.1', 'river.2')"</b>);
 	</P>
 	
 	<P ALIGN="justify">

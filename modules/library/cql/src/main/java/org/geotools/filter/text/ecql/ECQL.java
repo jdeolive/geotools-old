@@ -49,7 +49,7 @@ import org.opengis.filter.expression.Expression;
  *
  *       Filter filter = ECQL.toFilter(<b>"DISJOINT(buffer(the_geom, 10) , POINT(1 2))"</b>);
  *
- *       Filter filter = ECQL.toFilter(<b>"ID IN ('river.1', 'river.2')"</b>);
+ *       Filter filter = ECQL.toFilter(<b>"IN ('river.1', 'river.2')"</b>);
  *       
  *       Filter filter = ECQL.toFilter(<b>"LENGHT IN (4100001,4100002, 4100003 )"</b>);
  *

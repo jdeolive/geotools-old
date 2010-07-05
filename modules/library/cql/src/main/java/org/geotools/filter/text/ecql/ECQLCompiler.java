@@ -31,7 +31,6 @@ import org.geotools.filter.text.generated.parsers.TokenMgrError;
 import org.opengis.filter.BinaryComparisonOperator;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
-import org.opengis.filter.Id;
 import org.opengis.filter.Not;
 import org.opengis.filter.Or;
 import org.opengis.filter.expression.Expression;
@@ -217,7 +216,16 @@ public class ECQLCompiler extends ECQLParser implements org.geotools.filter.text
                 return this.builder.buildLiteralDouble(getTokenInPosition(0).toString());
             case JJTNEGATIVENUMBER_NODE:
                 return this.builder.bulidNegativeNumber();
-
+            
+                // ----------------------------------------
+                // Date, Time and Timestamp Strings
+                // ----------------------------------------
+//				TODO under debate in ogc cs list
+//            case   JJTDATESTRING_NODE:
+//            case   JJTTIMESTRING_NODE:
+//            case   JJTTIMESTAMPSTRING_NODE:
+//            	return this.builder.buildDateTimeExpression(getTokenInPosition(0));            	
+            	
                 // ----------------------------------------
                 // String
                 // ----------------------------------------
@@ -469,14 +477,6 @@ public class ECQLCompiler extends ECQLParser implements org.geotools.filter.text
 
             case JJTID_PREDICATE_NODE:
                 return this.builder.buildFilterId(JJTFEATURE_ID_NODE);
-
-            case JJTNOT_ID_PREDICATE_NODE:
-
-                Id idFilter = this.builder.buildFilterId(JJTFEATURE_ID_NODE);
-                Not notIdFilter = this.builder.buildNotFilter(idFilter);
-
-                return notIdFilter;
-                
                 // ----------------------------------------
                 //  IN Predicate
                 // ----------------------------------------

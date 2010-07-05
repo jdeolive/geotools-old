@@ -250,8 +250,6 @@ TOKEN:
   < SENTENCE_SEPARATOR: ";"> |
   < PERIOD: "."> |
   < SLASH: "/"> |
-//  < PERIOD_SEP: <SLASH> > |
-//  < DIV: <SLASH> > |
   < COLON: ":">	|
   < MULT: "*"> |
   < PLUS: "+"> |
