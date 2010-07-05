@@ -2,7 +2,8 @@
  *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.orgLITERAL
  *
- *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)SpatialRelateLikeSpatialRelateLike
+ *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
+ 
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -40,6 +41,7 @@ package org.geotools.filter.text.generated.parsers;
         
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Logger;
 
 
 
@@ -50,6 +52,8 @@ import java.util.Set;
  * @since 2.6
  */
 public class ECQLParser {
+  private static final Logger LOGGER = Logger.getLogger(CQLParser.class.getName());
+  
   public void jjtreeOpenNodeScope(Node n) throws ParseException {
  
   }
@@ -161,7 +165,7 @@ TOKEN [IGNORE_CASE]: /* temporal expression*/
 	<BEFORE: "before"> 	| 
 	<DURING: "during"> 	|
 	<AFTER:  "after">  	|
-	<UTC: "T">			
+	<UTC: "T">
 }
 TOKEN [IGNORE_CASE]: /* existence predicate*/
 {
@@ -212,7 +216,8 @@ TOKEN:
   < COLON: ":">	|
   < MULT: "*"> |
   < PLUS: "+"> |
-  < MINUS: "-" > 
+  < MINUS: "-" > | 
+  < DOUBLE_QUOTE: "\"">
 }
 
 
@@ -251,7 +256,7 @@ TOKEN [IGNORE_CASE]: /* Literals */
 	< #UTC_TIME: <DIGIT><DIGIT> ":" <DIGIT><DIGIT> ":" <DIGIT><DIGIT> ("." (<DIGIT>)+)? "Z" > |
 	< DATE_TIME : <FULL_DATE>"T"<UTC_TIME> > |
 
-    < IDENTIFIER: (<LETTER> (<LETTER>|<DIGIT>)*) > |
+    < IDENTIFIER: (<LETTER> (<LETTER>|<DIGIT>)*) | <DOUBLE_QUOTE> (<LETTER> (<LETTER>|<DIGIT>)*) <DOUBLE_QUOTE> > |
 
   	< LETTER: [ "a"-"z", "A"-"Z" , "_"] > |
   	< DIGIT: [ "0"-"9"] > |
@@ -372,34 +377,49 @@ void BooleanPrimary() #void:
 void Predicate() #void:
 {}
 {
-		LOOKAHEAD(3) Expression()  
-		(
-				LOOKAHEAD(2) TextPredicate()
-			| 	LOOKAHEAD(2) ExistencePredicate() 
-			|  	LOOKAHEAD(2) NullPredicate() 
-			|   LOOKAHEAD(2) BetweenPredicate()		
-			| 	LOOKAHEAD(2) TemporalPredicate() 
-			| 	ComparisonPredicate() 
-		)
-	|	LOOKAHEAD(3) IdPredicate()
-	|	InPredicate() 
-		 
+        IdPredicateDeprecated() // TODO deprecated syntax
+    |   IdPredicate()
+    |   LOOKAHEAD(InPredicate()) InPredicate() 
+    |   Expression()  
+        (
+                LOOKAHEAD(2) TextPredicate()
+            |   LOOKAHEAD(2) ExistencePredicate() 
+            |   LOOKAHEAD(2) NullPredicate() 
+            |   LOOKAHEAD(2) BetweenPredicate()     
+            |   LOOKAHEAD(2) TemporalPredicate() 
+            |   ComparisonPredicate() 
+        )
+        
 }
 
 /* ---------------------------------------- *
  *   	<id predicate>
  * ---------------------------------------- *
 /*
+ * Deprecated Syntax
  * <id predicate> ::= "ID" "IN" <id list> 
  * <id list> ::= <id value>, {"," id value}
  */
-void IdPredicate() #void:
+void IdPredicateDeprecated() #Id_Predicate_Node:
 {}
 {
-  	 	 LOOKAHEAD(3) <ID> <NOT> <IN> IdList() 	#Not_Id_Predicate_Node
-  	|	  			  <ID> <IN> IdList() 		#Id_Predicate_Node
-  	
+    <ID> <IN> IdList()      
+    {
+        
+        LOGGER.warning("ID IN (...) is a deprecated syntax, you should use IN (...)");
+    }
 }
+
+/* New syntax
+ * <id predicate> ::= "IN" <id list> 
+ * <id list> ::= <id value>, {"," id value}
+ */
+void IdPredicate() #Id_Predicate_Node:
+{}
+{
+    <IN> IdList()   
+}
+
 void IdList() #void:
 {}
 {
@@ -410,9 +430,8 @@ void IdList() #void:
 void IdValue() #FEATURE_ID_NODE:
 {}
 {
-		<STRING_LITERAL>	
-	| 	<INTEGER_LITERAL>
-
+      <STRING_LITERAL>
+    | <INTEGER_LITERAL> 
 }
 
 /* ---------------------------------------- *
@@ -426,10 +445,10 @@ void IdValue() #FEATURE_ID_NODE:
 void InPredicate() #void:
 {}
 {
-  	 	  LOOKAHEAD(4) 	Attribute() <NOT> <IN> InPredicateList() 	#Not_In_Predicate_Node
-  	|	   				Attribute() <IN> InPredicateList() 		#In_Predicate_Node
-  	
+        LOOKAHEAD(3)    Attribute() <NOT> <IN> InPredicateList()    #Not_In_Predicate_Node
+    |                   Attribute()       <IN> InPredicateList()    #In_Predicate_Node 
 }
+
 
 void InPredicateList() #void:
 {}
@@ -969,6 +988,25 @@ void GeneralLiteral() #void:
   |	BooleanLiteral() 
 //  | GeographyLiteral()  TODO
 }
+
+/*
+ *   <unquoted date value>   ::=   <years value> "-" <months value> "-" <days value>
+ *   <unquoted time value>   ::=   <hours value> ":" <minutes value> ":" <seconds value>
+ *   <date value>   ::=   "'" <unquoted date value> "'"
+ *   <time value>   ::=   "'" <unquoted time value> "'"
+ *   <unquoted timestamp string>  ::= <unquoted date value> <space> <unquoted time value>
+ *   <timestamp string>  ::= "'" <unquoted date value> <space> <unquoted time value> "'"
+ *    
+ */
+void DatetimeLiteral() #void:
+{}
+{
+        <DATE_LITERAL>          #DateString_Node
+    |   <TIME_LITERAL>          #TimeString_Node
+    |   <TIMESTAMP_LITERAL>     #TimeStampString_Node
+}
+
+
 
 void IntegerLiteral() #IntegerNode:
 {}
