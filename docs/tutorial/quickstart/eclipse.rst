@@ -88,30 +88,33 @@ development. For this tutorial we are doing straight up Java programming using t
 download available - if you already have an Eclipse download please go ahead and use it and
 switch to the “Java Perspective”.
    
-#. Visit the Eclipse download page (http://www.eclipse.org/downloads/) and download “Eclipse IDE for
+1. Visit the Eclipse download page (http://www.eclipse.org/downloads/) and download “Eclipse IDE for
    Java developers”.
    
-   These instructions were written with the Eclipse Helios 3.6.0 release.
+   At the time of writing the latest release was:
    
-#. Eclipse does not provide an installer; just a directory to unzip and run.
-#. To start out with create the folder C:\\java to keep all our java development in one spot.
-#. Unzip the downloaded eclipse-java-galileo-SR1-win32.zip file to your C:\\java directory – the
+   * eclipse-java-helios-win32.zip 
+   
+2. Eclipse does not provide an installer; just a directory to unzip and run.
+3. To start out with create the folder C:\\java to keep all our java development in one spot.
+4. Unzip the downloaded eclipse-java-galileo-SR1-win32.zip file to your C:\\java directory – the
    folder C:\\java\\eclipse will be created.
-#. Navigate to C:\\java\\eclipse and right-click on the eclipse.exe file and select
-   Send To->Desktop (create shortcut).
-#. Open up the eclipse.ini file (notepad will be fine) and change the following line::
-
-      -Xmx756m
+5. Navigate to C:\\java\\eclipse and right-click on the eclipse.exe file and select
+   Send To -> Desktop (create shortcut).
+6. Open up the eclipse.ini file.
    
-   If you have plenty of memory to burn on development you may wish to provide yourself some more memory.
-
-#. Double click on your desktop short cut to start up eclipse.
-#. When you start up eclipse for the first time it will prompt you for a workspace. To keep our
+   * Use our JDK directly by providing a -vm argument
+   * Optional: If you have lots of memory for development consider -Xmx756m
+   
+.. literalinclude:: artifacts/eclipse.ini
+   
+7. Double click on your desktop short cut to start up eclipse.
+8. When you start up eclipse for the first time it will prompt you for a workspace. To keep our
    java work in one spot you can type in:
    
    C:\\java\\workspace
    
-#. On the Welcome view press Workbench along the right hand side and we can get started
+9. On the Welcome view press Workbench along the right hand side and we can get started
 
 .. _eclipse-m2eclipse:
 
@@ -128,25 +131,41 @@ to be using the M2Eclipse plugin from Sonyatype.
 
 To install the M2Eclipse plugin:
 
-#. Open the *Install* dialog using :menuselection:`Select Help --> Install New Software` from the
+1. Open the *Install* dialog using :menuselection:`Select Help --> Install New Software` from the
    menubar.
 
-#. In the *work with:* field enter the update site url:
+2. In the *work with:* field enter the update site url:
     
    m2eclipse - http://m2eclipse.sonatype.org/sites/m2e
    
-#. You be prompted by an *Add Repository* dialog, check the Name and Location and press OK
+3. You be prompted by an *Add Repository* dialog, check the Name and Location and press OK
 
-#. From the list of available plugins and components select *Maven Integration for Eclipse* and
+   .. image: images/AddM2EclipseRepository.png
+      :width: 60%
+	  
+4. From the list of available plugins and components select *Maven Integration for Eclipse* and
    press *Next*
 
-#. The *Install Details* page checks to see if the plugin will work with you eclipse, press *Next*
+   .. image: images/AddM2EclipseInstall.png
+      :width: 60%
+	  
+5. The *Install Details* page checks to see if the plugin will work with you eclipse, press *Next*
 
-#. For *Review Licenses* we get check *I accept the terms of the license agreement* and *Finish*
+6. For *Review Licenses* we get check *I accept the terms of the license agreement* and *Finish*
 
-#. The *Installing Software* dialog will download the software, when it is ready Eclipse will ask
-   you to restart your IDE
+.. sidebar:: While you Wait
 
+   The download often takes five minuets, you may wish to read ahead.
+   
+7. The *Installing Software* dialog will download the software.
+  
+   .. image: images/InstallingSoftware.png
+      :width: 60%
+ 
+8.   When it is ready Eclipse will ask you to restart your IDE. Please choose **Restart Now**.
+
+   .. image: images/SoftwareUpdates.png
+   
 At the end of this workbook we offer two alternatives to using the M2Eclipse plugin:
 * Using maven from the command line
 * Downloading GeoTools and throwing out the parts that conflict
@@ -178,12 +197,12 @@ To use M2Eclipse plugin to create a create a new maven project:
 
 #. The *New Maven project* page defaults are fine, press *Next*
 
-   .. image:: images/newmaven.jpg
+   .. image:: images/newmaven.png
       :scale: 60
    
-#. Select the default *maven-archtype-quickstart* and press *Next*
+#. The default of *maven-archtype-quickstart* is fine, press *Next*
  
-   .. image:: images/archetype.jpg
+   .. image:: images/archetype.png
       :scale: 60
 
 #. The archtype acts a template using the parameters we supply to create the project.
@@ -193,7 +212,7 @@ To use M2Eclipse plugin to create a create a new maven project:
    * Version: 0.0.1-SNAPSHOT (default)
    * Package: org.geotools.tutorial
    
-   .. image:: images/artifact.jpg
+   .. image:: images/artifact.png
       :scale: 60   
       
 #. Press *Finish* to create the new project.
@@ -202,6 +221,9 @@ To use M2Eclipse plugin to create a create a new maven project:
    toolbar::
    
      Hello World!
+
+#. You may also open up src/main/test and run *org.geotools.tutorial.AppTest* as a **JUnit Test**.	 
+	 
    
 Adding Jars to your Project
 ---------------------------
@@ -209,7 +231,7 @@ Adding Jars to your Project
 .. sidebar:: Lab
 
    We are going to cheat in order to save time; the local maven repository has already been
-   populated with the latest copy of geotools allowing us to run in "offline" mode.
+   populated with the latest copy of geotools allowing us to use offline mode.
    
    To turn on offline mode:
    
@@ -232,7 +254,7 @@ When downloading jars maven makes use of a "local repository" to store jars.
      Linux and Mac:   :file:`~/.m2/repository`
   ==================  ========================================================
 
-When downloading jars maven makes use of public maven repositories on the internet where projects
+To download jars maven makes use of public maven repositories on the internet where projects
 such as GeoTools publish their work.
 
 1. Open up :file:`pom.xml` in your new project. You can see some of the information we entered
@@ -272,8 +294,21 @@ such as GeoTools publish their work.
 
 7. For comarison here is the completed :download:`pom.xml <artifacts/pom.xml` file for download.
 
-* You may find cutting and pasting from the documentation to be easier then typing.
-   
+   * You may find cutting and pasting to be easier then typing, you can choose Source --> Format to
+     fix indentation
+
+8.  If maven has trouble downloading any jar; you can try again by selecting
+    :menuselectino:`Project --> Update All Maven Dependencies`.
+    
+    If it really cannot connect you will need to switch to |release|-SNAPSHOT and add the following
+    snap shot repository.
+    
+  .. literalinclude:: artifacts/pom2.xml
+   :language: xml
+   :start-after: <url>http://maven.apache.org</url>
+   :end-before: <dependencies>
+
+
 Quickstart Application
 ----------------------
 
@@ -292,18 +327,18 @@ Now that your environment is setup we can put together a simple Quickstart. This
 3. We need to download some sample data to work with. The http://www.naturalearthdata.com/ project
    is a great project supported by the North American Cartographic Information Society.
    
-   * `110m-cultural.zip <http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/110m/cultural/110m-cultural.zip>`_
+   * `110m-cultural.zip <http//www.naturalearthdata.com/download/110m/cultural/110m-cultural.zip>`_
    
    Please unzip the above data into a location you can find easily such as the desktop.
 
 4. Run the application to open a file chooser. Choose a shapefile from the example dataset.
 
-   .. image:: images/QuickstartOpen.jpg
+   .. image:: images/QuickstartOpen.png
       :scale: 60
    
 5. The application will connect to your shapefile, 1.produce a map context and display the shapefile.
 
-   .. image:: images/QuickstartMap.jpg
+   .. image:: images/QuickstartMap.png
       :scale: 60
    
 6. A couple of things to note about the code example:
