@@ -298,7 +298,7 @@ such as GeoTools publish their work.
      fix indentation
 
 8.  If maven has trouble downloading any jar; you can try again by selecting
-    :menuselectino:`Project --> Update All Maven Dependencies`.
+    :menuselection:`Project --> Update All Maven Dependencies`.
     
     If it really cannot connect you will need to switch to |release|-SNAPSHOT and add the following
     snap shot repository.

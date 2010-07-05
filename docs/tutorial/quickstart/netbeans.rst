@@ -92,6 +92,9 @@ The NetBeans IDE is a popular choice for Java development and features excellent
 #. Click through the steps of the installer. You will notice it will pick up on the JDK you
    installed earlier.
 
+   .. image:: images/netbeansInstall.png
+      :scale: 60
+   
 Quickstart
 ==========
 
@@ -116,23 +119,29 @@ Creating the Project
 --------------------
 
 Let's get started:
-#. Start with File > New Project to open the New Project wizard
-#. Select the Maven category; choose Maven Project and press Next.
+
+1. Start with :menuselection:`File --> New Project` to open the **New Project** wizard
+2. Select the Maven category; choose Maven Project and press **Next**.
 
    .. image:: images/nbNewProject.png
-
-#. On the Maven Archetype page select “Maven Quickstart Archetype” and press Next.
+      :scale: 60
+      
+3. On the Maven Archetype page select “Maven Quickstart Archetype” and press Next.
 
    .. image:: images/nbNewProjectArchetype.png
-   
-#. We can now fill in the blanks
+      :scale: 60
+
+4. We can now fill in the blanks
 
    * Project name: tutorial
    * GroupId: org.geotools
 
-#. Click on the Finish button and the new project will be created.
+   .. image:: images/nbNameAndLocation.png
+      :Scale: 60
 
-#. If this is your first time using Maven with NetBeans it will want to confirm that it is okay to
+5. Click on the Finish button and the new project will be created.
+
+6. If this is your first time using Maven with NetBeans it will want to confirm that it is okay to
    use the copy of Maven included with NetBeans (it is also possible to use an external Maven
    executable from within Netbeans which is convenient if, for instance, you want to work with the
    same version of Maven within the IDE and from the command line).
@@ -142,17 +151,13 @@ Adding Jars to Your Project
 
 .. sidebar:: Lab
 
-   We are going to cheat in order to save time; the local maven repository has already been
-   populated with the latest copy of geotools allowing us to run in "offline" mode.
-   
-   To turn on offline mode:
+   Your local maven repository has already been
+   populated with geotools allowing the use of "offline" mode.
    
    #. Open :menuselection:`Windows --> Preferences`
    #. Select :guilabel:`Maven` preference page
    #. Ensure :guilabel:`offline` is checked
-    
-   This setting is useful when wanting to work quickly once everything is downloaded.
-    
+
 The *pom.xml* file is used to describe the care and feeding of your maven project; we are going to
 focus on the dependencies needed for your project 
 
@@ -169,23 +174,23 @@ When downloading jars maven makes use of a "local repository" to store jars.
 When downloading jars maven makes use of public maven repositories on the internet where projects
 such as GeoTools publish their work.
 
-#. The next step is for us to make it a GeoTools project by adding information to Maven's project
+1. The next step is for us to make it a GeoTools project by adding information to Maven's project
    description file (“project object model” in Maven-speak) - pom.xml
    
    In the Projects panel open up the Project Files folder and double click on pom.xml to open it.
    
-#. We are going to start by defining the version number of GeoTools we wish to use. 
+2. We are going to start by defining the version number of GeoTools we wish to use. 
 
    .. literalinclude:: artifacts/pom.xml
         :language: xml
         :start-after: <url>http://maven.apache.org</url>
         :end-before: <dependencies>
   
-  If you make any mistakes when editing the xml file you'll see that your project will be renamed
-  “<Badley formed Maven project>” in the Projects window. You can choose “Format” as a quick way to
-  check if the tags line up. Or just hit undo and try again. 
+   If you make any mistakes when editing the xml file you'll see that your project will be renamed
+   “<Badley formed Maven project>” in the Projects window. You can choose “Format” as a quick way to
+   check if the tags line up. Or just hit undo and try again. 
   
-#. Next we add two GeoTools modules to the dependencies section: gt-shapefile and gt-swing for our
+3. Next we add two GeoTools modules to the dependencies section: gt-shapefile and gt-swing for our
    project.
 
    .. literalinclude:: artifacts/pom.xml
@@ -193,20 +198,20 @@ such as GeoTools publish their work.
         :start-after: </properties>
         :end-before: <repositories>
   
-#. And the repositories where these jars can be downloaded from.
+4. And the repositories where these jars can be downloaded from.
 
    .. literalinclude:: artifacts/pom.xml
         :language: xml
         :start-after: </dependencies>
         :end-before: </project>
     
-#. You can now right click on Libraries in the Projects window, then Download missing Dependencies
+5. You can now right click on Libraries in the Projects window, then Download missing Dependencies
    from the pop-up menu. When downloading it will check the repositories we have listed
    above.
 
-#. We will continue to add dependencies on different parts of the GeoTools library as we work through these exercises; this fine grain control and the ability to download exactly what is needed is one of the advantages of using Maven.
+6. We will continue to add dependencies on different parts of the GeoTools library as we work through these exercises; this fine grain control and the ability to download exactly what is needed is one of the advantages of using Maven.
 
-#. Here is what the completed :file:`pom.xml` looks like:
+7. Here is what the completed :file:`pom.xml` looks like:
 
    .. literalinclude:: artifacts/pom.xml
         :language: xml
@@ -229,21 +234,31 @@ Now that your environment is setup we can put together a simple Quickstart. This
 
 #. Build the application and check that all is well in the Output window.
 
+   .. image:: images/nbQuickstart.png
+      :Scale: 60
+   
+   A fair bit of time will be spent downloading the libraries required.
+
+Running the Application
+------------------------
+
 #. We need to download some sample data to work with. The http://www.naturalearthdata.com/ project
    is a great project supported by the North American Cartographic Information Society.
    
-   * http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/110m/cultural/110m-cultural.zip 
+   * `110m-cultural.zip <http//www.naturalearthdata.com/download/110m/cultural/110m-cultural.zip>`_ 
    
    Please unzip the above data into a location you can find easily such as the desktop.
 
 #. Run the application to open a file chooser. Choose a shapefile from the example dataset.
 
    .. image:: images/QuickstartOpen.jpg
-   
+      :scale: 60
+      
 #. The application will connect to your shapefile, 1.produce a map context and display the shapefile.
 
    .. image:: images/QuickstartMap.jpg
-   
+      :scale: 60
+      
 #. A couple of things to note about the code example:
    
    * The shapefile is not loaded into memory – instead it is read from disk each and every time it is needed
@@ -275,17 +290,16 @@ Here are some additional challenges for you to try:
   
   If you would like to ask GeoTools to cache the shapefile in memory try the following code:
 
-    .. literalinclude:: ../../src/main/java/org/geotools/tutorial/quickstart/QuickstartCache.java
+  .. literalinclude:: ../../src/main/java/org/geotools/tutorial/quickstart/QuickstartCache.java
      :language: java
      :start-after: // docs start cache
      :end-before:  // docs end cache
   
-  * For the above example to compile you will need the following import:
+  For the above example to compile you will need the following import:
     
-    .. code-block:: java
+  .. code-block:: java
 
        import org.geotools.data.CachingFeatureSource;
-  
   
 * Try and sort out what all the different “side car” files are – and what they are for. The sample
   data set includes “shp”, “dbf” and “shx”. How many other side car files are there?
@@ -296,7 +310,7 @@ Here are some additional challenges for you to try:
   things is with a map of connection parameters. This techniques gives us a little more control over
   how we work with a shapefile and also allows us to connect to databases and web feature servers.
 
-    .. literalinclude:: ../../src/main/java/org/geotools/tutorial/quickstart/QuickstartNotes.java
+  .. literalinclude:: ../../src/main/java/org/geotools/tutorial/quickstart/QuickstartNotes.java
      :language: java
      :start-after: // start datastore
      :end-before:  // end datastore
@@ -307,25 +321,23 @@ Here are some additional challenges for you to try:
   
   At the time of writing |version|-SNAPSHOT under active development.
   
-  .. codeblock: java
-  
-   .. literalinclude:: artifacts/pom2.xml
-        :language: xml
-        :start-after: <url>http://maven.apache.org</url>
-        :end-before: <dependencies>
+  .. literalinclude:: artifacts/pom2.xml
+     :language: xml
+     :start-after: <url>http://maven.apache.org</url>
+     :end-before: <dependencies>
     
   You will also need to change your pom.xml file to include the following snapshot repository:
   
-     .. literalinclude:: artifacts/pom2.xml
-        :language: xml
-        :start-after: </dependencies>
-        :end-before: </project>
+  .. literalinclude:: artifacts/pom2.xml
+     :language: xml
+     :start-after: </dependencies>
+     :end-before: </project>
         
 * NetBeans has an interesting feature to show how the dependency system works - Right click on
   Libraries and choose Show Dependency
   
-     .. image:: images/nbGraph.png
-  
+  .. image:: images/nbGraph.png
+   
   We will be making use of some of the project is greater depth in the remaining tutorials.
 
 Maven Alternative
@@ -336,10 +348,11 @@ To start with we will obtain GeoTools from the website:
 
 1. Download the GeoTools binary release from http://sourceforge.net/projects/geotools/files 
 2. Extract the geotools-2.6.0-bin.zip file to C:\java\geotools-2.6.0 folder.
-3. If you open up the folder and have a look you will see GeoTools and all of the other jars that it uses including those from other libraries such as GeoAPI and JTS.
+3. If you open up the folder and have a look you will see GeoTools and all of the other jars that
+   it uses including those from other libraries such as GeoAPI and JTS.
 
-  .. image:: images/gtunzipped.jpg
-  
+   .. image:: images/gtunzipped.jpg
+
 4. We can now set up GeoTools as a library in NetBeans:
 
    From the menu bar choose Tools > Libraries to open the Library Manager.
@@ -350,12 +363,14 @@ To start with we will obtain GeoTools from the website:
 
 7. You can now press the Add JAR/Folder button and add in all the jars from C:\java\GeoTools-|release|
    
-8. GeoTools includes a copy of the “EPSG” map projections database; but also allows you to hook up your own copy of the EPSG database as an option. However, only one copy can be used at a time so we will need to remove the following jars from the Library Manager:
+8. GeoTools includes a copy of the “EPSG” map projections database; but also allows you to hook up
+   your own copy of the EPSG database as an option. However, only one copy can be used at a time
+   so we will need to remove the following jars from the Library Manager:
    
 .. sidebar:: EPSG
 
-  The EPSG databaes is distributed as an Access database and has been converted into the pure java
-  database HSQL for our use.
+   The EPSG databaes is distributed as an Access database and has been converted into the pure java
+   database HSQL for our use.
    
    * gt-epsg-h2
    * gt-epsg-oracle
