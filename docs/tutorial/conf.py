@@ -9,6 +9,6 @@ html_theme = 'geotools-tutorial'
 # extensions = ['sphinx.ext.autodoc','rst2pdf.pdfbuilder']
 
 # options for pdf
-# pdf_documents = [
+#pdf_documents = [
 #  ('quickstart/eclipse', u'eclipseQuickstart', u'Eclipse Quickstart', u'Jody Garnett\\Micheal Bedward'),
-# ]
+#]
