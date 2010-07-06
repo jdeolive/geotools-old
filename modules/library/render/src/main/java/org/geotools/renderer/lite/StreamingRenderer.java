@@ -971,7 +971,11 @@ public final class StreamingRenderer implements GTRenderer {
                 }
             }
         }
-        query.setHints(hints);
+        if(query.getHints() == null) {
+            query.setHints(hints);
+        } else {
+            query.getHints().putAll(hints);
+        }
 
         // simplify the filter
         SimplifyingFilterVisitor simplifier = new SimplifyingFilterVisitor();
