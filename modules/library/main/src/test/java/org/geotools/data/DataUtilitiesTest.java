@@ -31,6 +31,7 @@ import java.util.Set;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.factory.Hints;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureTypes;
 import org.geotools.feature.IllegalAttributeException;
@@ -586,6 +587,28 @@ public class DataUtilitiesTest extends DataTestCase {
             Filter subFilter = (Filter) fit.next();
             assertTrue(filter1.equals(subFilter) || filter2.equals(subFilter));
         }
+        
+        // check mixing hints too
+        firstQuery.setHints(new Hints(Hints.USE_PROVIDED_FID, Boolean.TRUE));
+        secondQuery.setHints(new Hints(Hints.FEATURE_2D, Boolean.TRUE));
+        mixed = DataUtilities.mixQueries(firstQuery, secondQuery, "newhandle");
+        
+        assertEquals(2, mixed.getHints().size());
+        assertTrue((Boolean) mixed.getHints().get(Hints.USE_PROVIDED_FID));
+        assertTrue((Boolean) mixed.getHints().get(Hints.FEATURE_2D));
+    }
+    
+    public void testMixQueryAll() {
+        // mixing Query.ALL equivalents with extra hints did not work
+        Query firstQuery = new Query(Query.ALL);
+        Query secondQuery = new Query(Query.ALL);
+        firstQuery.setHints(new Hints(Hints.USE_PROVIDED_FID, Boolean.TRUE));
+        secondQuery.setHints(new Hints(Hints.FEATURE_2D, Boolean.TRUE));
+        
+        Query mixed = DataUtilities.mixQueries(firstQuery, secondQuery, "mixer");
+        assertEquals(2, mixed.getHints().size());
+        assertTrue((Boolean) mixed.getHints().get(Hints.USE_PROVIDED_FID));
+        assertTrue((Boolean) mixed.getHints().get(Hints.FEATURE_2D));
     }
 
     public void testSpecNoCRS() throws Exception {

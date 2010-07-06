@@ -59,6 +59,7 @@ import org.geotools.data.simple.SimpleFeatureLocking;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.factory.Hints;
 import org.geotools.feature.AttributeTypeBuilder;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
@@ -1997,12 +1998,21 @@ public class DataUtilities {
         if (secondQuery.getStartIndex() != null) {
             start += secondQuery.getStartIndex();
         }
+        // collect all hints
+        Hints hints = new Hints();
+        if(firstQuery.getHints() != null) {
+            hints.putAll(firstQuery.getHints());
+        } 
+        if(secondQuery.getHints() != null) {
+            hints.putAll(secondQuery.getHints());
+        }
         // build the mixed query
         String typeName = firstQuery.getTypeName() != null ? firstQuery.getTypeName() : secondQuery
                 .getTypeName();
 
         Query mixed = new Query(typeName, filter, maxFeatures, propNames, handle);
         mixed.setVersion(version);
+        mixed.setHints(hints);
         if (start != 0) {
             mixed.setStartIndex(start);
         }
