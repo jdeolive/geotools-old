@@ -7,7 +7,7 @@
 
     <groupId>net.opengis.schemas</groupId>
     <artifactId>gml-3.1</artifactId>
-    <version>3.1.1-1</version>
+    <version>3.1.1-2</version>
     <name>Geography Markup Language (GML) 3.1 application schema</name>
     
     <developers>
@@ -25,7 +25,7 @@
         <dependency>
             <groupId>net.opengis.schemas</groupId>
             <artifactId>xlink</artifactId>
-            <version>[1.0.0,1.0.1)</version>
+            <version>1.0.0-1</version>
         </dependency>
     </dependencies>
 

@@ -7,7 +7,7 @@
 
     <groupId>net.opengis.schemas</groupId>
     <artifactId>sweCommon-1.0.1</artifactId>
-    <version>1.0.1-1</version>
+    <version>1.0.1-2</version>
     <name>Sensor Web Enablement (SWE) Common 1.0.1 application schema</name>
     
     <developers>
@@ -25,7 +25,7 @@
         <dependency>
             <groupId>net.opengis.schemas</groupId>
             <artifactId>gml-3.1</artifactId>
-            <version>[3.1.1,3.1.2)</version>
+            <version>3.1.1-2</version>
         </dependency>
     </dependencies>
 

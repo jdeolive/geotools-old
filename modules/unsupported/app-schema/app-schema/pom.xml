@@ -134,14 +134,14 @@
     <dependency>
       <groupId>org.geosciml</groupId>
       <artifactId>geosciml-2.0</artifactId>
-      <version>[2.0.2, 2.0.3)</version>
+      <version>2.0.2-2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <!-- required for sweCommon 1.0.30 used by XMML/borehole -->
       <groupId>org.w3</groupId>
       <artifactId>xml</artifactId>
-      <version>[1.0.0, 1.0.1)</version>
+      <version>1.0.0-1</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
