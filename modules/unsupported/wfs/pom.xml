@@ -143,9 +143,6 @@
             <exclude>**/StreamingParserFeatureReaderTest.java</exclude>
             <!-- The following tests are skipped because they do not extend OnlineTestCase -->
             <exclude>**/*OnlineTest.java</exclude>
-            <!-- The following tests fail and are excluded to fix the build -->
-            <exclude>**/WFS_1_1_0_ProtocolTest.java</exclude>
-            <exclude>**/WFS_1_1_0_DataStoreTest.java</exclude>
           </excludes>
         </configuration>
       </plugin>
@@ -153,3 +150,4 @@
   </build>
 
 </project>
+

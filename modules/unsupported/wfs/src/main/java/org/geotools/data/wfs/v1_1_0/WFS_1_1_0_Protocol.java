@@ -214,21 +214,23 @@ public class WFS_1_1_0_Protocol implements WFSProtocol {
         List supportedByAllFeatureTypes= null;
         for (int i=0; i < featuretypes.size() ; i++){
             net.opengis.wfs.FeatureTypeType ft = (FeatureTypeType) featuretypes.get(i);
-            List value=ft.getOutputFormats().getFormat();
-            if (supportedByAllFeatureTypes ==null){
-                supportedByAllFeatureTypes=value;
-            }else{
-                List removeOutputFormats= new ArrayList();
-                for (Object o : supportedByAllFeatureTypes){
-                    if (!value.contains(o)){
-                        removeOutputFormats.add(o);
+            if (ft.getOutputFormats()!=null){
+                List value=ft.getOutputFormats().getFormat();
+                if (supportedByAllFeatureTypes ==null){
+                    supportedByAllFeatureTypes=value;
+                }else{
+                    List removeOutputFormats= new ArrayList();
+                    for (Object o : supportedByAllFeatureTypes){
+                        if (!value.contains(o)){
+                            removeOutputFormats.add(o);
+                        }
                     }
-                }
-                for (Object o : removeOutputFormats){
-                   supportedByAllFeatureTypes.remove(o);
-                }
-                if (supportedByAllFeatureTypes.size() ==0){
-                    break;
+                    for (Object o : removeOutputFormats){
+                       supportedByAllFeatureTypes.remove(o);
+                    }
+                    if (supportedByAllFeatureTypes.size() ==0){
+                        break;
+                    }
                 }
             }
         }
@@ -241,7 +243,8 @@ public class WFS_1_1_0_Protocol implements WFSProtocol {
                 outputFormats.addAll(value);
             }
         }
-        outputFormats.addAll(supportedByAllFeatureTypes);
+        if (supportedByAllFeatureTypes!=null)
+            outputFormats.addAll(supportedByAllFeatureTypes);
         return outputFormats;
     }
 

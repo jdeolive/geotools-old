@@ -204,10 +204,16 @@ public class WFS_1_1_0_ProtocolTest {
         createTestProtocol(GEOS_ARCHSITES.CAPABILITIES);
         Set<String> supportedOutputFormats = wfs.getSupportedGetFeatureOutputFormats();
         assertNotNull(supportedOutputFormats);
-        assertEquals(2, supportedOutputFormats.size()); // should be 2 once GEOT-2096 is fixed
+        assertEquals(8, supportedOutputFormats.size()); // should be 7 once GEOT-3172 is fixed
 
         assertTrue(supportedOutputFormats.contains("text/gml; subtype=gml/3.1.1"));
         assertTrue(supportedOutputFormats.contains("text/xml; subtype=gml/2.1.2"));
+        assertTrue(supportedOutputFormats.contains("text/xml; subtype=gml/3.1.1"));
+        assertTrue(supportedOutputFormats.contains("GML2-GZIP"));
+        assertTrue(supportedOutputFormats.contains("gml3"));
+        assertTrue(supportedOutputFormats.contains("json"));
+        assertTrue(supportedOutputFormats.contains("SHAPE-ZIP"));
+        assertTrue(supportedOutputFormats.contains("GML2"));        
     }
 
     /**
