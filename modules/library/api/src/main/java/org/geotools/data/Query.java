@@ -695,7 +695,7 @@ public class Query {
         && ((getCoordinateSystemReproject() == null) ? (other.getCoordinateSystemReproject() == null)
                                                    : getCoordinateSystemReproject().equals(other.getCoordinateSystemReproject()))                                           
         && (getStartIndex() == other.getStartIndex()) 
-        && (getHints() == other.getHints());
+        && (getHints() == null ? (other.getHints() == null) : getHints().equals(other.getHints()));
     }
     
     /**
