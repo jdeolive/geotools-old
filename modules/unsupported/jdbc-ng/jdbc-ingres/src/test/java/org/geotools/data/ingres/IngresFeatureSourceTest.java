@@ -34,8 +34,4 @@ public class IngresFeatureSourceTest extends JDBCFeatureSourceTest {
     protected JDBCTestSetup createTestSetup() {
         return new IngresTestSetup();
     }
-    public void testGetFeaturesWithSort() throws Exception {
-    	//this guy makes Ingres hang when it fails for some bizarre
-    	//reason, taken out for the time being.
-    }
 }

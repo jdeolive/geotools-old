@@ -16,6 +16,8 @@ import org.geotools.data.jdbc.FilterToSQL;
 import org.geotools.jdbc.BasicSQLDialect;
 import org.geotools.jdbc.JDBCDataStore;
 import org.geotools.referencing.CRS;
+import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -45,7 +47,7 @@ public class IngresDialect extends BasicSQLDialect {
             put("MULTIPOINT", MultiPoint.class);
             put("MULTILINESTRING", MultiLineString.class);
             put("MULTIPOLYGON", MultiPolygon.class);
-            put("GEOMCOLLECTION", Geometry.class); //HACK we get conversion errors otherwise
+            put("GEOMCOLLECTION", GeometryCollection.class);
         }
     };
     
@@ -83,23 +85,22 @@ public class IngresDialect extends BasicSQLDialect {
             sql.append("NULL");
         } else {
             if (value instanceof LinearRing) {
-                //postgis does not handle linear rings, convert to just a line string
+                //Ingres does not handle linear rings, convert to just a line string
                 value = value.getFactory().createLineString(((LinearRing) value).getCoordinateSequence());
             }
             
             sql.append("GeometryFromText('" + value.toText() + "', " + srid + ")");
         }
-        System.out.println("In encodeGeometryValue: " + sql);
     }
 
-//    ThreadLocal<WKBReader> wkbReader = new ThreadLocal<WKBReader>();
+    ThreadLocal<WKBReader> wkbReader = new ThreadLocal<WKBReader>();
     public Geometry decodeGeometryValue(GeometryDescriptor descriptor, ResultSet rs,
             String column, GeometryFactory factory, Connection cx ) throws IOException, SQLException {
-/*        WKBReader reader = wkbReader.get();
+        WKBReader reader = wkbReader.get();
         if(reader == null) {
             reader = new WKBReader(factory);
             wkbReader.set(reader);
-        }*/
+        }
         try {
         	byte bytes[] = rs.getBytes(column);
         	
@@ -206,7 +207,7 @@ public class IngresDialect extends BasicSQLDialect {
     @Override
     public void encodePrimaryKey(String column, StringBuffer sql) {
         encodeColumnName(column, sql);
-        sql.append(" INT AUTO_INCREMENT PRIMARY KEY");
+        sql.append(" INT PRIMARY KEY");
     }
 
     /**Determines the class mapping for a particular column of a table.*/
@@ -258,12 +259,76 @@ public class IngresDialect extends BasicSQLDialect {
         return geometryClass;
     }
     
-    
+    @Override
+    public void postCreateTable(String schemaName,
+            SimpleFeatureType featureType, Connection cx) throws SQLException {
+        String tableName = featureType.getName().getLocalPart();
+        String sql;
+        
+        Statement st = null;
+        try {
+            st = cx.createStatement();
+
+            // register all geometry columns in the database
+            for (AttributeDescriptor att : featureType
+                    .getAttributeDescriptors()) {
+                if (att instanceof GeometryDescriptor) {
+                    GeometryDescriptor gd = (GeometryDescriptor) att;
+                    
+                    //this class is already set right, continue
+                    if(gd.getType().getBinding() == Geometry.class) {
+                    	continue;
+                    }
+
+                    // lookup or reverse engineer the srid
+                    int srid = -1;
+                    if (gd.getUserData().get(JDBCDataStore.JDBC_NATIVE_SRID) != null) {
+                        srid = (Integer) gd.getUserData().get(
+                                JDBCDataStore.JDBC_NATIVE_SRID);
+                    } else if (gd.getCoordinateReferenceSystem() != null) {
+                        try {
+                            Integer result = CRS.lookupEpsgCode(gd
+                                    .getCoordinateReferenceSystem(), true);
+                            if (result != null)
+                                srid = result;
+                        } catch (Exception e) {
+                            LOGGER.log(Level.FINE, "Error looking up the "
+                                    + "epsg code for metadata "
+                                    + "insertion, assuming -1", e);
+                        }
+                    }
+
+                    // grab the geometry type
+                    String geomType = CLASS_TO_TYPE_MAP.get(gd.getType()
+                            .getBinding());
+                    if (geomType == null)
+                        geomType = "GEOMETRY";
+
+                    // alter the table to use the right type
+                    if(schemaName != null) {
+	                    sql = "ALTER TABLE \"" + schemaName + "\".\"" + tableName + "\" ALTER COLUMN \"" + gd.getLocalName() +
+	                    	"\" " + geomType;
+                    }
+                    else {
+	                    sql = "ALTER TABLE \"" + tableName + "\" ALTER COLUMN \"" + gd.getLocalName() +
+	                    	"\" " + geomType;	
+                    }
+                    if(srid != -1) {
+                    	sql += " SRID " + srid; 
+                    }
+                    st.execute( sql );
+                }
+            }
+        } finally {
+            dataStore.closeSafe(st);
+        }
+    }
+
     @Override
     //to register additional mappings if necessary
     public void registerSqlTypeNameToClassMappings(Map<String, Class<?>> mappings) {
         super.registerSqlTypeNameToClassMappings(mappings);
-        mappings.put("GEOMCOLLECTION", Geometry.class);
+        mappings.put("GEOMETRYCOLLECTION", GeometryCollection.class);
         mappings.put("GEOMETRY", Geometry.class);
     }
     

@@ -31,13 +31,14 @@ public class IngresTestSetup extends JDBCTestSetup {
     @Override
     protected void setUpData() throws Exception {
         runSafe("DROP TABLE ft1");
+        runSafe("DROP TABLE ft2");
 
         run("CREATE TABLE ft1(" //
                 + "id int primary key, " //
                 + "geometry geometry SRID 4326, " //
                 + "intProperty int," //
                 + "doubleProperty double precision, " // 
-                + "stringProperty varchar)");
+                + "stringProperty varchar(256))");
         
         run("INSERT INTO ft1 VALUES(0, GeometryFromText('POINT(0 0)', 4326), 0, 0.0, 'zero')");
         run("INSERT INTO ft1 VALUES(1, GeometryFromText('POINT(1 1)', 4326), 1, 1.1, 'one')");

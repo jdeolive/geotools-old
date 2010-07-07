@@ -9,5 +9,4 @@ public class IngresDataStoreAPITest extends JDBCDataStoreAPITest {
 	protected JDBCDataStoreAPITestSetup createTestSetup() {
 		return new IngresDataStoreAPITestSetup(new IngresTestSetup());
 	}
-
 }
