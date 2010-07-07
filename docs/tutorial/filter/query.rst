@@ -1,3 +1,9 @@
+:Author: Jody Garnett
+:Author: Micheal Bedward
+:Thanks: geotools-user list
+:Version: |release|
+:License: Create Commons with attribution
+
 .. include:: <isonum.txt>
 
 .. _query:
@@ -5,13 +11,6 @@
 *****************
 Query Tutorial
 *****************
-
-:Author: Jody Garnett
-:Author: Micheal Bedward
-:Thanks: geotools-user list
-:Version: |release|
-:License: Create Commons with attribution
-
 .. contents::
 
 Welcome
@@ -148,10 +147,10 @@ Query
 A **Filter** is similar to the where clause of an SQL statement; defining a condition that each
 selected feature needs to meet in order to be included.
 
-Here is our strategy for displaying the selected features:
+Here is our strategy for displaying the selected features.
 
-* Get the feature type name selected by the user and retrieve the corresponding
-  FeatureSource from the DataStore.
+* Get the feature type name selected by the user and retrieve the corresponding FeatureSource from
+  the DataStore.
 
 * Get the query condition that was entered in the text field and use the CQL class to create a
   Filter object.
@@ -162,7 +161,6 @@ Here is our strategy for displaying the selected features:
 * Create a FeatureCollectionTableModel for our dialog|apos|s JTable. This GeoTools
   class takes a FeatureCollection and retrieves the feature attribute names and the data for
   each feature.
-
 
 1. Getting feature data using featureSource.getFeatures( filter )
 

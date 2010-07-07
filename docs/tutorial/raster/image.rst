@@ -1,14 +1,16 @@
-.. _image:
-
-*****************
-Image Tutorial
-*****************
-
 :Author: Jody Garnett
 :Author: Micheal Bedward
 :Thanks: geotools-user list
 :Version: |release|
 :License: Create Commons with attribution
+
+.. include:: <isonum.txt>
+
+.. _image:
+
+*****************
+Image Tutorial
+*****************
 
 .. contents::
 
@@ -241,20 +243,20 @@ Web Map Server
 --------------
 
 Another source of imagery is a  Web Map Server (WMS). The Web Map Server specification is defined
-by the Open Geospatial Consortium – an industry body set up to encourage collaboration on this sort
+by the Open Geospatial Consortium |hyphen| an industry body set up to encourage collaboration on this sort
 of thing.
 
-At a basic level we can fetch information from a WMS using a GetMap operation.
+At a basic level we can fetch information from a WMS using a GetMap operation::
 
-http://localhost:8080/geoserver/wms?bbox=-130,24,-66,50&styles=population&Format=image/png&request=GetMap&layers=topp:states&width=550&height=250&srs=EPSG:4326
+    http://localhost:8080/geoserver/wms?bbox=-130,24,-66,50&styles=population&Format=image/png&request=GetMap&layers=topp:states&width=550&height=250&srs=EPSG:4326
 
-The trick is knowing what parameters to fill in for “layer” and “style” when making one of these
+The trick is knowing what parameters to fill in for |ldquo| layer |rdquo| and |ldquo| style |rdquo| when making one of these
 requests.
 
 The WMS Service offers a GetCapabilities document that describes what layers are available and wha
 other operations like GetMap are available to work on those layers.
 
-GeoTools has a great implementation to help out here – it can parse that capabilities document for
+GeoTools has a great implementation to help out here |hyphen| it can parse that capabilities document for
 a list of layers, the supported image formats and so forth.
 
 .. code-block:: java

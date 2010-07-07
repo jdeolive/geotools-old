@@ -1,3 +1,11 @@
+:Author: Jody Garnett
+:Author: Micheal Bedward
+:Thanks: geotools-user list
+:Version: |release|
+:License: Create Commons with attribution
+
+.. include:: <isonum.txt>
+
 .. _style:
 
 *********************
@@ -49,7 +57,7 @@ Main Application
 1. Please create the file **StyleLab.java**
 2. Copy and paste in the following code:
 
-   .. literalinclude:: ../../src/main/java/org/geotools/tutorial/StyleLab.java
+   .. literalinclude:: ../../src/main/java/org/geotools/tutorial/style/StyleLab.java
       :language: java
       :start-after: // docs start source
       :end-before: // docs end main
@@ -59,7 +67,7 @@ Displaying a shapefile
 
 If you have worked through the previous labs, most of this method will look familiar to you:
 
-   .. literalinclude:: ../../src/main/java/org/geotools/tutorial/StyleLab.java
+   .. literalinclude:: ../../src/main/java/org/geotools/tutorial/style/StyleLab.java
       :language: java
       :start-after: // docs start display
       :end-before: // docs end display
@@ -74,7 +82,7 @@ This method first looks to see if there is an SLD document (Styled Layer Descrip
 If it finds one it processes that file to create the style. Otherwise, it displays a **JSimpleStyleDialog** to
 prompt the user for style choices:
 
-   .. literalinclude:: ../../src/main/java/org/geotools/tutorial/StyleLab.java
+   .. literalinclude:: ../../src/main/java/org/geotools/tutorial/style/StyleLab.java
       :language: java
       :start-after: // docs start create style
       :end-before: // docs end create style
@@ -82,7 +90,7 @@ prompt the user for style choices:
 The following two methods do the work of figuring out the SLD file name, based on the shapefile name, and processing
 the SLD document if one is found:
 
-   .. literalinclude:: ../../src/main/java/org/geotools/tutorial/StyleLab.java
+   .. literalinclude:: ../../src/main/java/org/geotools/tutorial/style/StyleLab.java
       :language: java
       :start-after: // docs start sld
       :end-before: // docs end sld
@@ -97,7 +105,7 @@ which provide a huge amount of flexibility in the styles that you can create.
 In the code below, the first method works out what type of geometry we have in our shapefile: points, lines or polygons. It then calls a geometry-specific
 method to create a Style object.
 
-.. literalinclude:: ../../src/main/java/org/geotools/tutorial/StyleLab.java
+.. literalinclude:: ../../src/main/java/org/geotools/tutorial/style/StyleLab.java
    :language: java
    :start-after: // docs start alternative
    :end-before: // docs end alternative
@@ -209,7 +217,7 @@ filter is very fast, but it would only test if the rectangle around the mouse cl
 opposed to the **boundary**, of each feature. For this application, that's not what we want to do. To see why, consider
 this example...
 
-.. image:: selectionlab-bbox.png
+.. image:: images/selectionlab-bbox.png
 
 The blue shapes are parts of a single MultiPolygon which is the standard geometry type for polygonal features in
 shapefiles. Using a bounding box filter, clicking in the orange shape would select it plus all of the blue shapes
@@ -244,7 +252,7 @@ The selected style
 This method creates a Style with one **Rule** for selected features, to paint them in a
 highlight colour, and a second **Rule** for unselected features. Both rules are then wrapped in the Style object.
 
-   .. literalinclude:: ../../src/main/java/org/geotools/tutorial/style/SelectionLab.java
+   .. literalinclude:: ../../src/main/java/org/geotools/tutorial/style/StyleLab.java
       :language: java
       :start-after: // docs start selected style
       :end-before: // docs end selected style
@@ -287,7 +295,7 @@ Here is the program displaying the **bc_voting_areas** shapefile (included in th
 
 __ udigdata_
 
-.. image:: SelectionLab.png
+.. image:: images/SelectionLab.png
 
 Things to try
 ==============
@@ -313,7 +321,7 @@ For more information visit: http://colorbrewer2.org/
 Style Layer Descriptor
 ======================
 
-Style is all about looking good – and this section is a box of crayons – learning how to make a map
+Style is all about looking good, and this section is a box of crayons, learning how to make a map
 look good is the practice of cartography.
 
 Actually cartography is focused on using a map to communicate, choosing what information to include,
@@ -321,17 +329,17 @@ being strict about removing information that is off topic and so on.
 
 Occasionally organizations will have *cartographic standards* that must be followed. How thick lines
 must be exactly, what shade of blue to use for water.  Having a cartographic standard is a great
-time saver – the rest of us are going to have to be creative.
+time saver |hyphen| the rest of us are going to have to be creative.
 
-We do have one kind of standard to help us though: the Styled Layer Descriptor (SLD) standard – this
-document defines a nice data structure for Style which we have captured in the form of Java objects.
-If you get stuck at any point please review the SLD specification as it defines all the ideas we
-are going to work with today.
+We do have one kind of standard to help us though: the Styled Layer Descriptor (SLD) standard
+|hyphen| this document defines a nice data structure for Style which we have captured in the form
+of Java objects. If you get stuck at any point please review the SLD specification as it defines
+all the ideas we are going to work with today.
 
 At its heart it focuses on two things:
 
 Style Layer Descriptor
-  Covers the definition of “layers” or presentations of feature content. 
+  Covers the definition of |ldquo| layers |rdquo| or presentations of feature content.
 
 Symbology Encoding
   Covers portrayal or how to draw the features
@@ -345,7 +353,7 @@ This is the heart of map making with GeoTools (or indeed with open standards).
    :width: 80%
 
 It helps if you imagine a big funnel throwing all the features at your map at once. This is going
-to work kind of like those machines for sorting coins – early stages of the machine are going to
+to work kind of like those machines for sorting coins |hyphen| early stages of the machine are going to
 select a feature; once we are sure what kind of feature we have we are going to use the feature to
 control actual drawing onto different bitmaps. Finally we will gather up all the different bitmaps
 (and slap some labels on top) to produce a final image.
@@ -356,7 +364,7 @@ Rendering occurs in the following stages:
 * Portrayal: actual drawing
 * Composition: putting everything together
 
-The first line of defence is “FeatureTypeStyle”, it makes use of a constraint to select what
+The first line of defence is |ldquo| FeatureTypeStyle |rdquo|, it makes use of a constraint to select what
 FeatureType you want to work with. If you don't care use the FeatureType with the name `Feature`
 as kind of a wild card (since everything extends `Feature`). 
 
@@ -365,8 +373,15 @@ checks about what is going to get drawn. In addition to checking feature attribu
 a Rule is able to check the current scale of the map. Finally there is an `Other` rule to catch any
 features left over from earlier Rules.
 
-Now that a Rule has selected features for us to work with we can get down to drawing in the Portrayal step. The renderer will go through a list of symbolizers (for a Rule) and draw the results. The symbolizers are just a list of draw instructions to be done in order. The symbolizers use expressions to define width and color – allowing you to dynamically generate the appearance on a feature by feature basis!
+Now that a Rule has selected features for us to work with we can get down to drawing in the
+Portrayal step. The renderer will go through a list of symbolizers (for a Rule) and draw the
+results. The symbolizers are just a list of draw instructions to be done in order. The symbolizers
+use expressions to define width and color |hyphen| allowing you to dynamically generate the
+appearance on a feature by feature basis!
 
-The only symbolizer which is not drawn in order is TextSymbolizer which gathers up text labels for the next step.
+The only symbolizer which is not drawn in order is TextSymbolizer which gathers up text labels for 
+the next step.
 
-Finally in the composition step – will take all the content drawn during portrayal and squish them together into a final image. The icing on the cake is the text labels (produced from any and all TextSymbolizers) which are drizzled on top taking care not to have any overlaps.
+Finally in the composition step |hyphen| will take all the content drawn during portrayal and squish
+them together into a final image. The icing on the cake is the text labels (produced from any and
+all TextSymbolizers) which are drizzled on top taking care not to have any overlaps.
