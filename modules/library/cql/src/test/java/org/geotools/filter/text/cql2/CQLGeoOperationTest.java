@@ -44,8 +44,8 @@ import org.opengis.filter.spatial.Within;
  *       |   &lt;relgeoop name &gt; &lt;relgeoop argument list &gt;
  *       |   &lt;routine name &gt; &lt;argument list &gt;
  *   &lt;geoop name &gt; ::=
- *           EQUAL | DISJOINT | INTERSECT | TOUCH | CROSS | [*]
- *           WITHIN | CONTAINS |OVERLAP | RELATE [*]
+ *           EQUALS | DISJOINT | INTERSECTS | TOUCHES | CROSSES | [*]
+ *           WITHIN | CONTAINS |OVERLAPS | RELATE [*]
  *   That rule is extended with bbox for convenience.
  *   &lt;bbox argument list &gt;::=
  *       &quot;(&quot;  &lt;attribute &gt; &quot;,&quot; &lt;min X &gt; &quot;,&quot; &lt;min Y &gt; &quot;,&quot; &lt;max X &gt; &quot;,&quot; &lt;max Y &gt;[&quot;,&quot;  &lt;srs &gt;] &quot;)&quot;
@@ -102,7 +102,6 @@ public class CQLGeoOperationTest {
     /**
      * Intersects geooperation 
      * 
-     * The INTERSECT syntax was changed in 2.0.2 specification. You should use INTERSECTS.
      * @see intersects
      * @throws CQLException
      */
@@ -116,17 +115,39 @@ public class CQLGeoOperationTest {
         Assert.assertTrue("Intersects was expected", resultFilter instanceof Intersects);
         
         //test bug GEOT-1980
-        CompilerUtil.parseFilter(language,"INTERSECTS(GEOLOC, POINT(615358 312185))");
+        resultFilter= CompilerUtil.parseFilter(language,"INTERSECTS(GEOLOC, POINT(615358 312185))");
         
         Assert.assertTrue("Intersects was expected", resultFilter instanceof Intersects);
 
     }
 
-
+    /**
+     * Invalid Geooperation Test
+     * @throws CQLException
+     */
+    @Test(expected = CQLException.class)  
+    public void invalidGeoOperation() throws CQLException{
+        CompilerUtil.parseFilter(this.language,"INTERSECT(ATTR1, POINT(1 2))"); // should be "intersects"
+    }
+    
+    @Test
+    public void invalidSyntaxMessage() throws CQLException{
+        try{
+        	CompilerUtil.parseFilter(this.language,"INTERSECT(ATTR1, POINT(1 2))"); // should be "intersects"
+        	Assert.fail("CQLException is expected");
+        } catch (CQLException e){
+        	final String error = e.getSyntaxError() ;
+        	Assert.assertNotNull(error);
+        	Assert.assertFalse("".equals(error));
+        }
+        
+        
+    }
+    
+    
     /**
      * TOUCHES geooperation
      * 
-     * The TOUCH syntax was changed in 2.0.2 specification. You should use TOUCH.
      * @throws CQLException
      */
     @Test
@@ -143,8 +164,6 @@ public class CQLGeoOperationTest {
 
     /**
      * CROSSES geooperation operation
-     * 
-     * The CROSS syntax was changed in 2.0.2 specification. You should use CROSSES.
      * 
      * @throws CQLException
      */
@@ -170,8 +189,6 @@ public class CQLGeoOperationTest {
     /**
      * OVERLAPS geooperation operation test
      * 
-     * The OVERLAP syntax was changed in 2.0.2 specification. You should use OVERLAPS.
-     * 
      * @throws CQLException
      */
     @Test
@@ -187,8 +204,6 @@ public class CQLGeoOperationTest {
     /**
      * EQULS geooperation operation test
      * 
-     * The EQUAL syntax was changed in 2.0.2 specification. You should use EQUALS.
-     * 
      * @throws CQLException
      */
     @Test
@@ -202,7 +217,11 @@ public class CQLGeoOperationTest {
 
     }
     
-    
+    /**
+     * WITHIN test
+     * 
+     * @throws CQLException
+     */
     @Test
     public void within() throws CQLException{
         
@@ -211,6 +230,10 @@ public class CQLGeoOperationTest {
         Assert.assertTrue("Within was expected", resultFilter instanceof Within);
     }
 
+    /**
+     * BBOX test
+     * @throws CQLException
+     */
     @Test
     public void bbox() throws CQLException{
         

@@ -69,7 +69,7 @@ import org.opengis.filter.expression.Expression;
  *
  * Filter f = CQL.toFilter(&quot;QUANTITY BETWEEN 10 AND 20&quot;);
  *
- * Filter f = CQL.toFilter(&quot;CROSS(SHAPE, LINESTRING(1 2, 10 15))&quot;);
+ * Filter f = CQL.toFilter(&quot;CROSSES(SHAPE, LINESTRING(1 2, 10 15))&quot;);
  *
  * Filter f = CQL.toFilter(&quot;BBOX(SHAPE, 10,20,30,40)&quot;);
  *

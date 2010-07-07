@@ -1094,12 +1094,19 @@ public abstract class AbstractFilterBuilder {
         // Puts the argument in correct order
         Collections.reverse(argList);
 
+        
         Expression[] args = (Expression[]) argList
                 .toArray(new Expression[argList.size()]);
 
-        Function function = filterFactory.function(functionName, args);
+        Function function = null;
+        try{
+            function = filterFactory.function(functionName, args);
 
-        if (function == null) {
+            if (function == null) {
+                throw new CQLException("Function not found.", this.cqlSource);
+            }
+        	
+        } catch (Exception ex){
             throw new CQLException("Function not found.", this.cqlSource);
         }
 

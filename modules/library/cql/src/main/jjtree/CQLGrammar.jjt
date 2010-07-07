@@ -64,16 +64,6 @@ private static final Logger LOGGER = Logger.getLogger(CQLParser.class.getName())
   /**
    * initialize geooperations
    */  
-// the following were deprecated in CSW specification v 2.0.2
-  protected static final Set GEOOP_DEPRECATED= new HashSet();
-  static{
-		GEOOP_DEPRECATED.add("EQUAL"); 		
-		GEOOP_DEPRECATED.add("INTERSECT"); 	
-		GEOOP_DEPRECATED.add("TOUCH");			
-		GEOOP_DEPRECATED.add("CROSS");			
-		GEOOP_DEPRECATED.add("OVERLAP");		
-  }
-
   protected static final Set GEOOP = new HashSet();
   static {
 		GEOOP.add("EQUALS");	
@@ -86,7 +76,6 @@ private static final Logger LOGGER = Logger.getLogger(CQLParser.class.getName())
 		GEOOP.add("OVERLAPS");
 		GEOOP.add("RELATE");
 		GEOOP.add("BBOX");
-		GEOOP.addAll(GEOOP_DEPRECATED);
   }
   
   protected boolean isGeoOp() {
@@ -96,28 +85,8 @@ private static final Logger LOGGER = Logger.getLogger(CQLParser.class.getName())
         			 "(".equals(getToken(2).image)
             		&& GEOOP.contains(tokenImage);
 
-		if(OK) warning(tokenImage);
 
         return OK;
-  }
-  
-  protected void warning(String images){
-  
-  	if(images.equals("EQUAL")){
-    	LOGGER.warning("EQUAL is deprecated syntax, you should use EQUALS");
-  	}
-  	if(images.equals("INTERSECT")){
-    	LOGGER.warning("INTERSECT is deprecated syntax, you should use INTERSECTS");
-  	}
-  	if(images.equals("TOUCH")){
-    	LOGGER.warning("TOUCH is deprecated syntax, you should use TOUCHES");
-  	}
-  	if(images.equals("CROSS")){
-    	LOGGER.warning("CROSS is deprecated syntax, you should use CROSSES");
-  	}
-  	if(images.equals("OVERLAP")){
-    	LOGGER.warning("OVERLAP is deprecated syntax, you should use OVERLAPS");
-  	}
   }
   
   protected static final Set RELGEOOP = new HashSet();
@@ -212,14 +181,14 @@ TOKEN [IGNORE_CASE]: /* existence predicate*/
 
 TOKEN [IGNORE_CASE]:  
 {
-  < EQUALS: "equal" | "equals" > |
+  < EQUALS: "equals" > |
   < DISJOINT: "disjoint"> |
-  <INTERSECTS: "intersect" |"intersects" > |
-  < TOUCHES: "touch"| "touches"> |
-  < CROSSES: "cross" | "crosses"> |
+  <INTERSECTS: "intersects" > |
+  < TOUCHES: "touches"> |
+  < CROSSES: "crosses"> |
   < WITHIN: "within"> |
   < CONTAINS: "contains"> |
-  < OVERLAPS: "overlap" | "overlaps"> |
+  < OVERLAPS: "overlaps"> |
   < RELATE: "relate"> |
   < BBOX: "bbox"> 
 }
@@ -882,7 +851,6 @@ void GeneralLiteral() #void:
 {}
 {
   	StringLiteral()
-//  | DatetimeLiteral()   TODO	
   |	BooleanLiteral() 
 //  | GeographyLiteral()  TODO
 }

@@ -234,13 +234,6 @@ TOKEN [IGNORE_CASE]: /* Literals */
     	( ( <DIGIT> )+ ("." ( <DIGIT> )*)? (<EXPONENT>)? )
   	> |
 
-// TODO this is under debate in the catalog ogc list
-//	< #DATE_LITERAL_UNQUOTED: <INTEGER_LITERAL>"-"<INTEGER_LITERAL>"-"<INTEGER_LITERAL>> |
-//	< #TIME_LITERAL_UNQUOTED: <INTEGER_LITERAL>":"<INTEGER_LITERAL>":"<INTEGER_LITERAL>> |
-//	< DATE_LITERAL: "'" <DATE_LITERAL_UNQUOTED> "'"> |
-//	< TIME_LITERAL: "'" <TIME_LITERAL_UNQUOTED> "'"> |
-//	< TIMESTAMP_LITERAL: "'" <DATE_LITERAL> " " <TIME_LITERAL> "'">|
-
 	< #DUR_DAY:	  (<DIGIT>)+ "D" > |
 	< #DUR_MONTH: (<DIGIT>)+ "M" (<DUR_DAY>)? > |
 	< #DUR_YEAR:  (<DIGIT>)+ "Y" (<DUR_MONTH>)? > |	
@@ -985,28 +978,10 @@ void GeneralLiteral() #void:
 {}
 {
   	StringLiteral()
-//  | DatetimeLiteral()   TODO under debate	
   |	BooleanLiteral() 
 //  | GeographyLiteral()  TODO
 }
 
-/*
- *   <unquoted date value>   ::=   <years value> "-" <months value> "-" <days value>
- *   <date value>   ::=   "'" <unquoted date value> "'"
- *   <time value>   ::=   "'" <unquoted time value> "'"
- *   <unquoted timestamp string>  ::= <unquoted date value> <space> <unquoted time value>
- *   <timestamp string>  ::= "'" <unquoted date value> <space> <unquoted time value> "'"
- *    
- */
-/* TODO under debate
-void DatetimeLiteral() #void:
-{}
-{
-        <DATE_LITERAL>          #DateString_Node
-    |   <TIME_LITERAL>          #TimeString_Node
-    |   <TIMESTAMP_LITERAL>     #TimeStampString_Node
-}
-*/
 
 
 void IntegerLiteral() #IntegerNode:

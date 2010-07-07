@@ -102,7 +102,7 @@ public class CQLException extends ParseException {
      */
     public String getMessage() {
 
-        return super.getMessage() + ". Parsing : " + this.cqlSource + ". Current Token : \"" + this.currentToken.toString()+ "\"";
+        return super.getMessage() + " Parsing : " + this.cqlSource + ".";
     }
 
     /**
