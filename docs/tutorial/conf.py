@@ -95,14 +95,13 @@ pdf_fit_mode = "shrink"
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, document class [howto/manual]).
 latex_documents = [
-  ('quickstart/eclipse', 'EclipseQuickstart.tex', u'Eclipse Quickstart',u'Jody Garnett /and Micheal Bedward', 'howto'),
-  ('quickstart/netbeans', 'NetBeansQuickstart.tex', u'Netbeans Quickstart',u'Jody Garnett /and Micheal Bedward', 'howto'),
+  ('quickstart/eclipse', 'EclipseQuickstart.tex', u'Eclipse Quickstart', u'Jody Garnett /and Micheal Bedward','howto'),
+  ('quickstart/netbeans', 'NetBeansQuickstart.tex', u'Netbeans Quickstart', u'Jody Garnett /and Micheal Bedward','howto'),
   ('feature/csv2shp', 'FeatureTutorial.tex', u'Feature Tutorial',u'Jody Garnett /and Micheal Bedward','howto'),
   ('geometry/geometrycrs', 'GeometryCRS.tex', u'Geometry and CRS Tutorial',u'Jody Garnett /and Micheal Bedward','howto'),
   ('filter/query', 'Query.tex', u'Query Tutorial',u'Jody Garnett /and Micheal Bedward','howto'),
-  ('filter/query', 'Filter.tex', u'Filter Tutorial',u'Jody Garnett /and Micheal Bedward','howto'),
   ('raster/image', 'Image.tex', u'Image Tutorial',u'Jody Garnett /and Micheal Bedward','howto'),
-  ('map/style', 'Image.tex', u'Style Tutorial',u'Jody Garnett /and Micheal Bedward','howto'),
+  ('map/style', 'Style.tex', u'Style Tutorial',u'Jody Garnett /and Micheal Bedward','howto'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
