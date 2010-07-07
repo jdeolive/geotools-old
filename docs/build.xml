@@ -27,10 +27,10 @@
       <param name="build" value="html"/>
     </antcall>
     <!-- uncomment for pdf -->
-    <!-- antcall target="sphinx">
+    <antcall target="sphinx">
       <param name="id" value="tutorial"/>
-      <param name="build" value="pdf"/>
-    </antcall-->
+      <param name="build" value="latex"/>
+    </antcall>
   </target>
 
   <target name="sphinx" if="sphinx.available">
