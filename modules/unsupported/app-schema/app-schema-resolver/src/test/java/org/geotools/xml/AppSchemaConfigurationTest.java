@@ -35,6 +35,12 @@ import org.junit.Test;
 /**
  * Tests of {@link AppSchemaConfiguration} used with {@link Schemas#findSchemas(Configuration)}.
  * 
+ * <p>
+ * 
+ * Note that the test configurations constructed in this fixture will be of no use in production
+ * because they do not add a GML dependency such as GMLConfiguration, which is necessary to have
+ * Java bindings.
+ * 
  * @author Ben Caradoc-Davies, CSIRO Earth Science and Resource Engineering
  */
 public class AppSchemaConfigurationTest {
@@ -43,7 +49,8 @@ public class AppSchemaConfigurationTest {
             .getLogger(AppSchemaConfigurationTest.class.getPackage().getName());
 
     /**
-     * Set this to true if you want to see all the resolved locations.
+     * Set this to true if you want to see all the resolved locations. (Most useful when manually
+     * running this test.)
      */
     private static final boolean ADJUST_LOGLEVEL = false;
 
@@ -144,6 +151,34 @@ public class AppSchemaConfigurationTest {
         String schemaLocation = null;
         for (XSDSchema schema : schemaIndex.getSchemas()) {
             if (schema.getSchemaLocation().endsWith("cache-test.xsd")) {
+                schemaLocation = schema.getSchemaLocation();
+                break;
+            }
+        }
+        Assert.assertNotNull(schemaLocation);
+        Assert.assertTrue(schemaLocation.startsWith("file:"));
+        Assert.assertTrue(DataUtilities.urlToFile(new URL(schemaLocation)).exists());
+    }
+
+    /**
+     * Test we can {@link Schemas#findSchemas(Configuration)} with a catalog plus cache. This test
+     * verifies the fall-through behaviour of the catalog even when a schema is sought inside the
+     * scope of the catalog rewrite rules but is not contained in the catalog.
+     */
+    @Test
+    public void catalogCache() throws Exception {
+        File cacheDirectory = DataUtilities.urlToFile(AppSchemaCacheTest.class
+                .getResource("/test-data/cache"));
+        AppSchemaResolver resolver = new AppSchemaResolver(AppSchemaCatalog.build(getClass()
+                .getResource("/test-data/catalog.xml")), new AppSchemaCache(cacheDirectory, false));
+        Configuration configuration = new AppSchemaConfiguration(
+                "http://schemas.example.org/catalog-test",
+                "http://schemas.example.org/catalog-test/catalog-cache-test.xsd", resolver);
+        SchemaIndex schemaIndex = Schemas.findSchemas(configuration);
+        Assert.assertEquals(3, schemaIndex.getSchemas().length);
+        String schemaLocation = null;
+        for (XSDSchema schema : schemaIndex.getSchemas()) {
+            if (schema.getSchemaLocation().endsWith("catalog-cache-test.xsd")) {
                 schemaLocation = schema.getSchemaLocation();
                 break;
             }

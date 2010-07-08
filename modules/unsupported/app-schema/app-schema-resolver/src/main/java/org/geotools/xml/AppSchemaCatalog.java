@@ -17,13 +17,9 @@
 
 package org.geotools.xml;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.io.InputStream;
 import java.net.URL;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.xml.resolver.Catalog;
@@ -54,41 +50,43 @@ public class AppSchemaCatalog {
     }
 
     /**
-     * Return schema location resolved to local file if possible.
+     * Return schema location resolved in the catalog if possible. <tt>rewriteURI</tt> semantics are
+     * used.
      * 
      * @param location
      *            typically an absolute http/https URL.
-     * @return null if catalog is null or location not found in catalog
+     * @return null if location not found in the catalog
      */
     public String resolveLocation(String location) {
         String resolvedLocation = null;
         try {
-            LOGGER.finest("Resolving " + location);
-            /*
-             * See discussion of rewriteSystem versus rewriteURI:
-             * https://www.seegrid.csiro.au/twiki/bin/view/AppSchemas/ConfiguringXMLProcessors Old
-             * version used rewriteSystem.
-             */
             resolvedLocation = catalog.resolveURI(location);
-            if (resolvedLocation != null) {
-                LOGGER.finer("Verifying existence of " + "catalog resolved location "
-                        + resolvedLocation);
-                try {
-                    File f = new File(new URI(resolvedLocation));
-                    if (!f.exists()) {
-                        // catalog miss
-                        LOGGER.finer("Cannot locate " + resolvedLocation);
-                        resolvedLocation = null;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        if (resolvedLocation != null) {
+            InputStream input = null;
+            try {
+                // verify existence of resource
+                // could be a file, jar resource, or other
+                input = (new URL(resolvedLocation)).openStream();
+                // catalog hit
+                LOGGER.fine("Catalog resolved " + location + " to " + resolvedLocation);
+            } catch (IOException e) {
+                // catalog miss
+                LOGGER.fine("Catalog did not resolve " + location + " to " + resolvedLocation
+                        + " despite matching catalog entry because an error occurred: "
+                        + e.getMessage());
+                resolvedLocation = null;
+            } finally {
+                if (input != null) {
+                    try {
+                        input.close();
+                    } catch (IOException e) {
+                        // we tried
                     }
-                } catch (URISyntaxException e) {
-                    resolvedLocation = null;
-                    LOGGER.log(Level.WARNING, "Exception resolving " + resolvedLocation, e);
                 }
             }
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
         return resolvedLocation;
     }
