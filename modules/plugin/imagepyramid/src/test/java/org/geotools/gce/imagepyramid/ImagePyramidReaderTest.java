@@ -74,6 +74,7 @@ public class ImagePyramidReaderTest extends Assert {
      * @throws IOException
      */
     @Test
+    @Ignore
     public void testAutomaticBuild() throws IOException {
         final URL testFile = TestData.getResource(this, TEST_FILE);
         File sourceDir = DataUtilities.urlToFile(testFile).getParentFile();
@@ -101,6 +102,7 @@ public class ImagePyramidReaderTest extends Assert {
      * @throws IOException
      */
     @Test
+    @Ignore
     public void testAutomaticBuildGdalRetile() throws IOException {
         final URL testFile = TestData.getResource(this, TEST_FILE);
         File sourceDir = DataUtilities.urlToFile(testFile).getParentFile();
