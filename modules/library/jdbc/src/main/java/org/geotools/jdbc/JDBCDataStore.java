@@ -955,7 +955,7 @@ public final class JDBCDataStore extends ContentDataStore
                 sql.append("SELECT ");
                 dialect.encodeColumnName(columnName, sql);
                 sql.append(" FROM ");
-                encodeTableName(tableName, sql);
+                encodeTableName(tableName, sql, null);
     
                 sql.append(" WHERE 0=1");
     
@@ -1354,7 +1354,7 @@ public final class JDBCDataStore extends ContentDataStore
      */
     protected void update(SimpleFeatureType featureType, List<AttributeDescriptor> attributes,
         List<Object> values, Filter filter, Connection cx)
-        throws IOException {
+        throws IOException, SQLException {
         update(featureType, attributes.toArray(new AttributeDescriptor[attributes.size()]),
             values.toArray(new Object[values.size()]), filter, cx);
     }
@@ -1363,8 +1363,7 @@ public final class JDBCDataStore extends ContentDataStore
      * Updates an existing feature(s) in the database for a particular feature type / table.
      */
     protected void update(SimpleFeatureType featureType, AttributeDescriptor[] attributes,
-        Object[] values, Filter filter, Connection cx)
-        throws IOException {
+        Object[] values, Filter filter, Connection cx) throws IOException, SQLException {
         if ((attributes == null) || (attributes.length == 0)) {
             LOGGER.warning("Update called with no attributes, doing nothing.");
 
@@ -1682,7 +1681,7 @@ public final class JDBCDataStore extends ContentDataStore
                   sql.append( "SELECT MAX(");
                   dialect.encodeColumnName( col.getName() , sql );
                   sql.append( ") + 1 FROM ");
-                  encodeTableName(pkey.getTableName(), sql);
+                  encodeTableName(pkey.getTableName(), sql, null);
                   
                   LOGGER.log(Level.FINE, "Getting next FID: {0}", sql);
                   
@@ -2024,7 +2023,7 @@ public final class JDBCDataStore extends ContentDataStore
      * @param table The table of the association
      * @param column The column of the association
      */
-    protected String selectRelationshipSQL(String table, String column) {
+    protected String selectRelationshipSQL(String table, String column) throws SQLException {
         BasicSQLDialect dialect = (BasicSQLDialect) getSQLDialect();
         
         StringBuffer sql = new StringBuffer();
@@ -2034,7 +2033,7 @@ public final class JDBCDataStore extends ContentDataStore
         dialect.encodeColumnName("col", sql);
 
         sql.append(" FROM ");
-        encodeTableName(FEATURE_RELATIONSHIP_TABLE, sql);
+        encodeTableName(FEATURE_RELATIONSHIP_TABLE, sql, null);
 
         if (table != null) {
             sql.append(" WHERE ");
@@ -2079,7 +2078,7 @@ public final class JDBCDataStore extends ContentDataStore
         dialect.encodeColumnName("col", sql);
 
         sql.append(" FROM ");
-        encodeTableName(FEATURE_RELATIONSHIP_TABLE, sql);
+        encodeTableName(FEATURE_RELATIONSHIP_TABLE, sql, null);
 
         if (table != null) {
             sql.append(" WHERE ");
@@ -2118,7 +2117,7 @@ public final class JDBCDataStore extends ContentDataStore
      * </p>
      * @param fid The feature id of the association
      */
-    protected String selectAssociationSQL(String fid) {
+    protected String selectAssociationSQL(String fid) throws SQLException {
         BasicSQLDialect dialect = (BasicSQLDialect) getSQLDialect();
 
         StringBuffer sql = new StringBuffer();
@@ -2132,7 +2131,7 @@ public final class JDBCDataStore extends ContentDataStore
         dialect.encodeColumnName("rfid", sql);
 
         sql.append(" FROM ");
-        encodeTableName(FEATURE_ASSOCIATION_TABLE, sql);
+        encodeTableName(FEATURE_ASSOCIATION_TABLE, sql, null);
         
         if (fid != null) {
             sql.append(" WHERE ");
@@ -2168,7 +2167,7 @@ public final class JDBCDataStore extends ContentDataStore
         dialect.encodeColumnName("rfid", sql);
 
         sql.append(" FROM ");
-        encodeTableName(FEATURE_ASSOCIATION_TABLE, sql);
+        encodeTableName(FEATURE_ASSOCIATION_TABLE, sql, null);
         
         if (fid != null) {
             sql.append(" WHERE ");
@@ -2196,7 +2195,7 @@ public final class JDBCDataStore extends ContentDataStore
      * @param gid The geometry id to select for, may be <code>null</code>
      *
      */
-    protected String selectGeometrySQL(String gid) {
+    protected String selectGeometrySQL(String gid) throws SQLException {
         
         BasicSQLDialect dialect = (BasicSQLDialect) getSQLDialect();
         
@@ -2212,7 +2211,7 @@ public final class JDBCDataStore extends ContentDataStore
         sql.append(",");
         dialect.encodeColumnName("geometry", sql);
         sql.append(" FROM ");
-        encodeTableName( GEOMETRY_TABLE, sql );
+        encodeTableName( GEOMETRY_TABLE, sql, null );
         
         if (gid != null) {
             sql.append(" WHERE ");
@@ -2249,7 +2248,7 @@ public final class JDBCDataStore extends ContentDataStore
         sql.append(",");
         dialect.encodeColumnName("geometry", sql);
         sql.append(" FROM ");
-        encodeTableName( GEOMETRY_TABLE, sql );
+        encodeTableName( GEOMETRY_TABLE, sql, null );
         
         if (gid != null) {
             sql.append(" WHERE ");
@@ -2275,7 +2274,7 @@ public final class JDBCDataStore extends ContentDataStore
      * </p>
      * @param gid The geometry id to select for, may be <code>null</code>.
      */
-    protected String selectMultiGeometrySQL(String gid) {
+    protected String selectMultiGeometrySQL(String gid) throws SQLException {
         BasicSQLDialect dialect = (BasicSQLDialect) getSQLDialect();
         
         StringBuffer sql = new StringBuffer();
@@ -2287,7 +2286,7 @@ public final class JDBCDataStore extends ContentDataStore
         dialect.encodeColumnName("ref", sql);
 
         sql.append(" FROM ");
-        encodeTableName(MULTI_GEOMETRY_TABLE, sql);
+        encodeTableName(MULTI_GEOMETRY_TABLE, sql, null);
 
         if (gid != null) {
             sql.append(" WHERE ");
@@ -2321,7 +2320,7 @@ public final class JDBCDataStore extends ContentDataStore
         dialect.encodeColumnName("ref", sql);
 
         sql.append(" FROM ");
-        encodeTableName(MULTI_GEOMETRY_TABLE, sql);
+        encodeTableName(MULTI_GEOMETRY_TABLE, sql, null);
 
         if (gid != null) {
             sql.append(" WHERE ");
@@ -2364,7 +2363,7 @@ public final class JDBCDataStore extends ContentDataStore
      * @param gid The geometry id to select for, may be <code>null</code>
      * @param gname The geometry name to select for, may be <code>null</code>
      */
-    protected String selectGeometryAssociationSQL(String fid, String gid, String gname) {
+    protected String selectGeometryAssociationSQL(String fid, String gid, String gname) throws SQLException {
         BasicSQLDialect dialect = (BasicSQLDialect) getSQLDialect();
         
         StringBuffer sql = new StringBuffer();
@@ -2378,7 +2377,7 @@ public final class JDBCDataStore extends ContentDataStore
         dialect.encodeColumnName("ref", sql);
 
         sql.append(" FROM ");
-        encodeTableName(GEOMETRY_ASSOCIATION_TABLE, sql);
+        encodeTableName(GEOMETRY_ASSOCIATION_TABLE, sql, null);
 
         if (fid != null) {
             sql.append(" WHERE ");
@@ -2436,7 +2435,7 @@ public final class JDBCDataStore extends ContentDataStore
         dialect.encodeColumnName("ref", sql);
 
         sql.append(" FROM ");
-        encodeTableName(GEOMETRY_ASSOCIATION_TABLE, sql);
+        encodeTableName(GEOMETRY_ASSOCIATION_TABLE, sql, null);
 
         if (fid != null) {
             sql.append(" WHERE ");
@@ -2487,12 +2486,12 @@ public final class JDBCDataStore extends ContentDataStore
      * Helper method for building a 'CREATE TABLE' sql statement.
      */
     private String createTableSQL(String tableName, String[] columnNames, String[] sqlTypeNames,
-        boolean[] nillable, String pkeyColumn, SimpleFeatureType featureType ) {
+        boolean[] nillable, String pkeyColumn, SimpleFeatureType featureType ) throws SQLException {
         //build the create table sql
         StringBuffer sql = new StringBuffer();
         sql.append("CREATE TABLE ");
 
-        encodeTableName(tableName, sql);
+        encodeTableName(tableName, sql, null);
         sql.append(" ( ");
 
         //primary key column
@@ -2706,7 +2705,7 @@ public final class JDBCDataStore extends ContentDataStore
      * @param sort
      *            sort conditions
      */
-    protected String selectSQL(SimpleFeatureType featureType, Query query) throws IOException {
+    protected String selectSQL(SimpleFeatureType featureType, Query query) throws IOException, SQLException {
         StringBuffer sql = new StringBuffer();
         sql.append("SELECT ");
 
@@ -2749,7 +2748,7 @@ public final class JDBCDataStore extends ContentDataStore
         sql.setLength(sql.length() - 1);
 
         sql.append(" FROM ");
-        encodeTableName(featureType.getTypeName(), sql);
+        encodeTableName(featureType.getTypeName(), sql, query.getHints());
 
         //filtering
         Filter filter = query.getFilter();
@@ -2877,7 +2876,7 @@ public final class JDBCDataStore extends ContentDataStore
         sql.setLength(sql.length() - 1);
 
         sql.append(" FROM ");
-        encodeTableName(featureType.getTypeName(), sql);
+        encodeTableName(featureType.getTypeName(), sql, query.getHints());
 
         //filtering
         PreparedFilterToSQL toSQL = null;
@@ -2961,7 +2960,7 @@ public final class JDBCDataStore extends ContentDataStore
      * @param query Specifies which features are to be used for the bounds computation
      *              (and in particular uses filter, start index and max features)
      */
-    protected String selectBoundsSQL(SimpleFeatureType featureType, Query query) {
+    protected String selectBoundsSQL(SimpleFeatureType featureType, Query query) throws SQLException {
         StringBuffer sql = new StringBuffer();
 
         boolean offsetLimit = checkLimitOffset(query);
@@ -2975,7 +2974,7 @@ public final class JDBCDataStore extends ContentDataStore
         }
 
         sql.append(" FROM ");
-        encodeTableName(featureType.getTypeName(), sql);
+        encodeTableName(featureType.getTypeName(), sql, query.getHints());
 
         Filter filter = query.getFilter();
         if (filter != null  && !Filter.INCLUDE.equals(filter)) {
@@ -3029,7 +3028,7 @@ public final class JDBCDataStore extends ContentDataStore
         }
 
         sql.append(" FROM ");
-        encodeTableName(featureType.getTypeName(), sql);
+        encodeTableName(featureType.getTypeName(), sql, query.getHints());
 
         // encode the filter
         PreparedFilterToSQL toSQL = null;
@@ -3094,7 +3093,7 @@ public final class JDBCDataStore extends ContentDataStore
      * as limit/offset usually alters the number of returned rows 
      * (and a count returns just one), and then count on the result of that first select
      */
-    protected String selectCountSQL(SimpleFeatureType featureType, Query query) {
+    protected String selectCountSQL(SimpleFeatureType featureType, Query query) throws SQLException {
         //JD: this method should not be called anymore
         return selectAggregateSQL("count",null,featureType,query);
     }
@@ -3111,7 +3110,8 @@ public final class JDBCDataStore extends ContentDataStore
     /**
      * Generates a 'SELECT <function>() FROM' statement.
      */
-    protected String selectAggregateSQL(String function, AttributeDescriptor att, SimpleFeatureType featureType, Query query) {
+    protected String selectAggregateSQL(String function, AttributeDescriptor att, 
+            SimpleFeatureType featureType, Query query) throws SQLException {
         StringBuffer sql = new StringBuffer();
 
         boolean limitOffset = checkLimitOffset(query);
@@ -3122,7 +3122,7 @@ public final class JDBCDataStore extends ContentDataStore
             encodeFunction(function,att,query,sql);
             sql.append( " FROM ");
         }
-        encodeTableName(featureType.getTypeName(), sql);
+        encodeTableName(featureType.getTypeName(), sql, query.getHints());
 
         Filter filter = query.getFilter();
         if (filter != null && !Filter.INCLUDE.equals(filter)) {
@@ -3165,7 +3165,7 @@ public final class JDBCDataStore extends ContentDataStore
             encodeFunction(function,att,query,sql);
             sql.append( " FROM ");
         }
-        encodeTableName(featureType.getTypeName(), sql);
+        encodeTableName(featureType.getTypeName(), sql, query.getHints());
 
         Filter filter = query.getFilter();
         PreparedFilterToSQL toSQL = null;
@@ -3221,11 +3221,11 @@ public final class JDBCDataStore extends ContentDataStore
     /**
      * Generates a 'DELETE FROM' sql statement.
      */
-    protected String deleteSQL(SimpleFeatureType featureType, Filter filter) {
+    protected String deleteSQL(SimpleFeatureType featureType, Filter filter) throws SQLException {
         StringBuffer sql = new StringBuffer();
 
         sql.append("DELETE FROM ");
-        encodeTableName(featureType.getTypeName(), sql);
+        encodeTableName(featureType.getTypeName(), sql, null);
 
         if (filter != null && !Filter.INCLUDE.equals(filter)) {
             //encode filter
@@ -3248,7 +3248,7 @@ public final class JDBCDataStore extends ContentDataStore
         StringBuffer sql = new StringBuffer();
 
         sql.append("DELETE FROM ");
-        encodeTableName(featureType.getTypeName(), sql);
+        encodeTableName(featureType.getTypeName(), sql, null);
 
         PreparedFilterToSQL toSQL = null;
         if (filter != null && !Filter.INCLUDE.equals(filter)) {
@@ -3275,7 +3275,8 @@ public final class JDBCDataStore extends ContentDataStore
      * Generates a 'INSERT INFO' sql statement.
      * @throws IOException 
      */
-    protected String insertSQL(SimpleFeatureType featureType, SimpleFeature feature, List keyValues, Connection cx) {
+    protected String insertSQL(SimpleFeatureType featureType, SimpleFeature feature, 
+            List keyValues, Connection cx) throws SQLException {
         BasicSQLDialect dialect = (BasicSQLDialect) getSQLDialect();
         
         // grab the primary key and collect the pk column names 
@@ -3289,7 +3290,7 @@ public final class JDBCDataStore extends ContentDataStore
        
         StringBuffer sql = new StringBuffer();
         sql.append("INSERT INTO ");
-        encodeTableName(featureType.getTypeName(), sql);
+        encodeTableName(featureType.getTypeName(), sql, null);
 
         //column names
         sql.append(" ( ");
@@ -3408,7 +3409,7 @@ public final class JDBCDataStore extends ContentDataStore
         
         StringBuffer sql = new StringBuffer();
         sql.append("INSERT INTO ");
-        encodeTableName(featureType.getTypeName(), sql);
+        encodeTableName(featureType.getTypeName(), sql, null);
 
         // column names
         sql.append(" ( ");
@@ -3575,7 +3576,7 @@ public final class JDBCDataStore extends ContentDataStore
      * Generates an 'UPDATE' sql statement.
      */
     protected String updateSQL(SimpleFeatureType featureType, AttributeDescriptor[] attributes,
-        Object[] values, Filter filter) throws IOException {
+        Object[] values, Filter filter) throws IOException, SQLException {
         BasicSQLDialect dialect = (BasicSQLDialect) getSQLDialect();
         
         // grab the primary key and collect the pk column names 
@@ -3589,7 +3590,7 @@ public final class JDBCDataStore extends ContentDataStore
         
         StringBuffer sql = new StringBuffer();
         sql.append("UPDATE ");
-        encodeTableName(featureType.getTypeName(), sql);
+        encodeTableName(featureType.getTypeName(), sql, null);
 
         sql.append(" SET ");
 
@@ -3653,7 +3654,7 @@ public final class JDBCDataStore extends ContentDataStore
         
         StringBuffer sql = new StringBuffer();
         sql.append("UPDATE ");
-        encodeTableName(featureType.getTypeName(), sql);
+        encodeTableName(featureType.getTypeName(), sql, null);
 
         sql.append(" SET ");
 
@@ -3842,11 +3843,12 @@ public final class JDBCDataStore extends ContentDataStore
     /**
      * Helper method to encode table name which checks if a schema is set and
      * prefixes the table name with it.
+     * @param hints TODO
      */
-    protected void encodeTableName(String tableName, StringBuffer sql) {
+    protected void encodeTableName(String tableName, StringBuffer sql, Hints hints) throws SQLException {
         VirtualTable vtDefinition = virtualTables.get(tableName);
         if(vtDefinition != null) {
-            sql.append("(").append(vtDefinition.getSql()).append(")");
+            sql.append("(").append(vtDefinition.expandParameters(hints)).append(")");
             dialect.encodeTableAlias("vtable", sql);
         } else {
             if (databaseSchema != null) {

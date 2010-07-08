@@ -121,7 +121,7 @@ public class HeuristicPrimaryKeyFinder extends PrimaryKeyFinder {
                 sql.append("SELECT ");
                 store.getSQLDialect().encodeColumnName(columnName, sql);
                 sql.append(" FROM ");
-                store.encodeTableName(tableName, sql);
+                store.encodeTableName(tableName, sql, null);
 
                 sql.append(" WHERE 0=1");
 

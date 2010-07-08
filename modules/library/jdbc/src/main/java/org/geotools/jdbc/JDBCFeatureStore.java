@@ -351,7 +351,11 @@ public final class JDBCFeatureStore extends ContentFeatureStore {
                     bounds = before;
                 }
             }
-            getDataStore().update(getSchema(), innerTypes, values, preFilter, cx);
+            try {
+                getDataStore().update(getSchema(), innerTypes, values, preFilter, cx);
+            } catch(SQLException e) {
+                throw (IOException) (new IOException(e.getMessage()).initCause(e));
+            }
             
             if( state.hasListener() ){
                 // gather any updated bounds due to a geometry modification

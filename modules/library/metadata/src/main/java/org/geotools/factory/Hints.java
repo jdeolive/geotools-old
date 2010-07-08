@@ -627,6 +627,14 @@ public class Hints extends RenderingHints {
             "org.opengis.filter.FilterFactory");
 
 
+    /**
+     * Provides the parameter values to a JDBC parametrized SQL view.
+     * The value of the hint must be a Map<String, String>
+     *
+     * @since 2.7
+     */
+    public static final ClassKey VIRTUAL_TABLE_PARAMETERS = new ClassKey(
+            "java.util.Map");
 
     ////////////////////////////////////////////////////////////////////////
     ////////                                                        ////////

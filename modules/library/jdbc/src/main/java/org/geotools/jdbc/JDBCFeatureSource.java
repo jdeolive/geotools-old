@@ -280,7 +280,7 @@ public class JDBCFeatureSource extends ContentFeatureSource {
                     Integer srid = null;
                     CoordinateReferenceSystem crs = null;
                     try {
-                        if(virtualTable != null && virtualTable.getNativeSrid(name) != -1) {
+                        if(virtualTable != null) {
                             srid = virtualTable.getNativeSrid(name);
                         } else {
                             srid = dialect.getGeometrySRID(databaseSchema, tableName, name, cx);
@@ -659,13 +659,13 @@ public class JDBCFeatureSource extends ContentFeatureSource {
                 // and just grab the metadata instead
                 StringBuffer sb = new StringBuffer();
                 sb.append("select * from (");
-                sb.append(vtable.getSql());
+                sb.append(vtable.expandParameters(null));
                 sb.append(")");
                 dialect.encodeTableAlias("vtable", sb);
                 dialect.applyLimitOffset(sb, 0, 0);
                 sql = sb.toString();
             } else {
-                sql = vtable.getSql();
+                sql = vtable.expandParameters(null);
             }
             
             st = cx.createStatement();
