@@ -95,21 +95,32 @@ public class MatFile5Reader extends BaseGridCoverage2DReader implements GridCove
         //
         // //
         final IIOMetadata metadata = reader.getImageMetadata(0);
-        
-        // CRS
         final boolean isSAS= metadata instanceof SASTileMetadata;
-        if(!isSAS)
-        	parsePRJFile();
-        else{
-        	getPropertiesFromMetadata((SASTileMetadata) metadata);
-        }
-        if (getCoverageCRS() == null) {
-            parsePRJFile();
-        }
-
-        if (getCoverageCRS() == null) {
-            LOGGER.info("crs not found, proceeding with EPSG:4326");
-            setCoverageCRS(AbstractGridFormat.getDefaultCRS());
+        
+        // //
+        //
+        // get the CRS INFO
+        //
+        // //
+        final Object tempCRS = this.hints.get(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM);
+        if (tempCRS != null) {
+            setCoverageCRS((CoordinateReferenceSystem) tempCRS);
+            if (LOGGER.isLoggable(Level.FINE))
+                LOGGER.log(Level.FINE, "Using forced coordinate reference system "
+                        + crs.toWKT());
+        } else {
+           
+            if(!isSAS)
+            	parsePRJFile();
+            else{
+            	getPropertiesFromMetadata((SASTileMetadata) metadata);
+            }
+            if (getCoverageCRS() == null) {
+                parsePRJFile();
+            }
+            
+            if (getCoverageCRS() == null)
+                throw new DataSourceException("Coordinate Reference System is not available");            
         }
 
         // //

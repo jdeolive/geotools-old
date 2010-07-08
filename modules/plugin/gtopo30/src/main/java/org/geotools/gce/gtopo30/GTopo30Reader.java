@@ -180,33 +180,8 @@ public final class GTopo30Reader extends AbstractGridCoverage2DReader implements
 	 */
 	public GTopo30Reader(final Object source, final Hints hints)
 			throws IOException {
-		
-		// //
-		//
-		// managing hints
-		//
-		// //
-		if (this.hints == null)
-			this.hints= new Hints();	
-		if (hints != null) {
-			this.hints.add(hints);
-		}
-		
-                // GridCoverageFactory initialization
-                if (this.hints.containsKey(Hints.GRID_COVERAGE_FACTORY)) {
-                    final Object factory = this.hints.get(Hints.GRID_COVERAGE_FACTORY);
-                    if (factory != null && factory instanceof GridCoverageFactory) {
-                        this.coverageFactory = (GridCoverageFactory) factory;
-                    }
-                }
-                if (this.coverageFactory == null) {
-                    this.coverageFactory = CoverageFactoryFinder.getGridCoverageFactory(this.hints);
-                }
-                
-		if (source == null) {
-			throw new DataSourceException(
-					"GTopo30Reader:No source set to read this coverage.");
-		}
+	    super(source, hints);
+
 		if (source instanceof File) {
 			urlToUse = ((File) source).toURI().toURL();
 		} else if (source instanceof URL) {
@@ -284,15 +259,14 @@ public final class GTopo30Reader extends AbstractGridCoverage2DReader implements
 		// Build the coordinate system and the envelope
 		//
 		// ///////////////////////////////////////////////////////////
-		final Object tempCRS = this.hints
-				.get(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM);
-		if (tempCRS != null) {
-			this.crs = (CoordinateReferenceSystem) tempCRS;
-			LOGGER.log(Level.WARNING, new StringBuffer(
-					"Using forced coordinate reference system ").append(
-					crs.toWKT()).toString());
-		} else
-			crs = initCRS();
+                final Object tempCRS = this.hints.get(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM);
+                if (tempCRS != null) {
+                    this.crs = (CoordinateReferenceSystem) tempCRS;
+                    LOGGER.log(Level.WARNING,
+                            new StringBuilder("Using forced coordinate reference system ").append(
+                                    crs.toWKT()).toString());
+                } else
+                    crs = initCRS();
 		this.originalEnvelope = getBounds(crs);
 		final GridToEnvelopeMapper geMapper= new  GridToEnvelopeMapper(originalGridRange,originalEnvelope);
 		geMapper.setPixelAnchor(PixelInCell.CELL_CENTER);
@@ -556,7 +530,7 @@ public final class GTopo30Reader extends AbstractGridCoverage2DReader implements
 			reader = new BufferedReader(new FileReader(DataUtilities.urlToFile(prjURL)));
 
 			// reading the first line to see if I need to read it all
-			final StringBuffer buffer = new StringBuffer(reader.readLine());
+			final StringBuilder buffer = new StringBuilder(reader.readLine());
 
 			if (buffer != null) {
 				String line = buffer.toString().trim();
@@ -623,12 +597,9 @@ public final class GTopo30Reader extends AbstractGridCoverage2DReader implements
 				        LOGGER.log(Level.FINE,e1.getLocalizedMessage(),e1);
 				}
 		}
-		final CoordinateReferenceSystem crs = AbstractGridFormat
-				.getDefaultCRS();
-		LOGGER.info(new StringBuffer(
-				"PRJ file not found, proceeding with EPSG:4326 as follows: ")
-				.append(crs.toWKT()).toString());
-		return crs;
+                final CoordinateReferenceSystem crs = AbstractGridFormat.getDefaultCRS();
+                LOGGER.info("PRJ file not found, proceeding with EPSG:4326 as follows: "+crs.toWKT());
+                return crs;
 	}
 
 	/**

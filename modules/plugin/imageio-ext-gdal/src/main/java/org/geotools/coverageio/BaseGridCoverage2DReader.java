@@ -419,7 +419,7 @@ public abstract class BaseGridCoverage2DReader extends AbstractGridCoverage2DRea
         String prjPath = null;
 
         setCoverageCRS(null);
-        prjPath = new StringBuilder(this.parentPath).append(File.separatorChar) .append(coverageName).append(".prj").toString();
+        prjPath =this.parentPath+File.separatorChar+coverageName+".prj";
 
         // read the prj serviceInfo from the file
         PrjFileReader projReader = null;

@@ -37,6 +37,7 @@ import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 import javax.media.jai.PlanarImage;
 
+import org.geotools.coverage.CoverageFactoryFinder;
 import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.TypeMap;
 import org.geotools.coverage.grid.GridCoverage2D;
@@ -51,6 +52,8 @@ import org.geotools.referencing.CRS;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
 import org.geotools.referencing.operation.transform.IdentityTransform;
 import org.geotools.referencing.operation.transform.ProjectiveTransform;
+import org.geotools.resources.i18n.ErrorKeys;
+import org.geotools.resources.i18n.Errors;
 import org.geotools.util.logging.Logging;
 import org.opengis.coverage.ColorInterpretation;
 import org.opengis.coverage.grid.Format;
@@ -86,13 +89,10 @@ import org.opengis.referencing.operation.TransformException;
  * @since 2.3
  */
 @SuppressWarnings("deprecation")
-public abstract class AbstractGridCoverage2DReader implements
-		GridCoverageReader {
-    
+public abstract class AbstractGridCoverage2DReader implements GridCoverageReader {
 
-	/** The {@link Logger} for this {@link AbstractGridCoverage2DReader}. */
-	private final static Logger LOGGER = Logging
-			.getLogger("org.geotools.data.coverage.grid");
+    /** The {@link Logger} for this {@link AbstractGridCoverage2DReader}. */
+    private final static Logger LOGGER = Logging.getLogger("org.geotools.data.coverage.grid");
 
 	public static final double EPS = 1E-6;
 
@@ -165,6 +165,69 @@ public abstract class AbstractGridCoverage2DReader implements
 
 	private ArrayList<Resolution> resolutionsLevels;
 
+	
+ 
+    /**
+     * Default protected constructor. Useful for wrappers.
+     */
+    protected AbstractGridCoverage2DReader() {
+        
+    }
+    /**
+     * Creates a new instance of a {@link AIGReader}. I assume nothing about file extension.
+     * 
+     * @param input
+     *            Source object for which we want to build an {@link AIGReader}.
+     * @throws DataSourceException
+     */
+    public AbstractGridCoverage2DReader(Object input) throws DataSourceException {
+        this(input, null);
+    }
+
+    /**
+     * Creates a new instance of a {@link AIGReader}. I assume nothing about file extension.
+     * 
+     * @param input
+     *            Source object for which we want to build an {@link AIGReader}.
+     * @param hints
+     *            Hints to be used by this reader throughout his life.
+     * @throws DataSourceException
+     */
+    public AbstractGridCoverage2DReader(Object input, Hints hints) throws DataSourceException {
+        
+        // 
+        // basic management of hints
+        //
+        if (hints == null)
+            this.hints = new Hints();
+        if (hints != null) {
+            this.hints.add(hints);
+
+        }
+
+        // GridCoverageFactory initialization
+        if (this.hints.containsKey(Hints.GRID_COVERAGE_FACTORY)) {
+            final Object factory = this.hints.get(Hints.GRID_COVERAGE_FACTORY);
+            if (factory != null && factory instanceof GridCoverageFactory) {
+                this.coverageFactory = (GridCoverageFactory) factory;
+            }
+        }
+        if (this.coverageFactory == null) {
+            this.coverageFactory = CoverageFactoryFinder.getGridCoverageFactory(this.hints);
+        }
+
+
+        //
+        // Setting input
+        //
+        if (input == null) {
+            final IOException ex = new IOException(Errors.format(ErrorKeys.NULL_ARGUMENT_$1,"input"));
+            throw new DataSourceException(ex);
+        }
+        this.source = input;
+       
+    }
+	    
     /**
      * Read the current grid coverage from the stream.
      * <p>

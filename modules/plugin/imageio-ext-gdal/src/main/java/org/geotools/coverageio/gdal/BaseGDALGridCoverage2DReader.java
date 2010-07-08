@@ -39,6 +39,7 @@ import org.geotools.referencing.CRS;
 import org.geotools.referencing.operation.transform.ProjectiveTransform;
 import org.opengis.coverage.grid.GridCoverageReader;
 import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.TransformException;
 
@@ -145,34 +146,46 @@ public abstract class BaseGDALGridCoverage2DReader extends
         // 1) CRS
         //
         // //
-        // //
-        //
-        // Let the prj file override the internal representation for the undelrying source of information.
-        //
-        // //
-        parsePRJFile();
-        // if there was not prj or the envelope could not be created easily, let's go with the standard metadata.
-        if (getCoverageCRS() == null) {
-            final String wkt = metadata.getProjection();
-
-            if ((wkt != null) && !(wkt.equalsIgnoreCase(""))) {
-                try {
-                    setCoverageCRS(CRS.parseWKT(wkt));
-                    final Integer epsgCode = CRS.lookupEpsgCode(getCoverageCRS(), true);
-                    // Force the creation of the CRS directly from the
-                    // retrieved EPSG code in order to prevent weird transformation
-                    // between "same" CRSs having slight differences.
-                    // TODO: cache epsgCode-CRSs
-                    if (epsgCode != null) {
-                        setCoverageCRS(CRS.decode("EPSG:" + epsgCode));
+        final Object tempCRS = this.hints.get(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM);
+            if (tempCRS != null) {
+                this.crs = (CoordinateReferenceSystem) tempCRS;
+                LOGGER.log(Level.WARNING,"Using forced coordinate reference system "+crs.toWKT());
+        } else{
+            
+            // //
+            //
+            // Default CRS override it all
+            //
+            // //
+            // //
+            //
+            // Let the prj file override the internal representation for the undelrying source of information.
+            //
+            // //
+            parsePRJFile();
+            // if there was not prj or the envelope could not be created easily, let's go with the standard metadata.
+            if (getCoverageCRS() == null) {
+                final String wkt = metadata.getProjection();
+    
+                if ((wkt != null) && !(wkt.equalsIgnoreCase(""))) {
+                    try {
+                        setCoverageCRS(CRS.parseWKT(wkt));
+                        final Integer epsgCode = CRS.lookupEpsgCode(getCoverageCRS(), true);
+                        // Force the creation of the CRS directly from the
+                        // retrieved EPSG code in order to prevent weird transformation
+                        // between "same" CRSs having slight differences.
+                        // TODO: cache epsgCode-CRSs
+                        if (epsgCode != null) {
+                            setCoverageCRS(CRS.decode("EPSG:" + epsgCode));
+                        }
+                    } catch (FactoryException fe) {
+                        // unable to get CRS from WKT
+                        if (LOGGER.isLoggable(Level.FINE)) {
+                            LOGGER.log(Level.FINE,"Unable to get CRS from WKT contained in metadata. Looking for a PRJ.");
+                        }
+                        //reset crs 
+                        setCoverageCRS(null);
                     }
-                } catch (FactoryException fe) {
-                    // unable to get CRS from WKT
-                    if (LOGGER.isLoggable(Level.FINE)) {
-                        LOGGER.log(Level.FINE,"Unable to get CRS from WKT contained in metadata. Looking for a PRJ.");
-                    }
-                    //reset crs 
-                    setCoverageCRS(null);
                 }
             }
         }

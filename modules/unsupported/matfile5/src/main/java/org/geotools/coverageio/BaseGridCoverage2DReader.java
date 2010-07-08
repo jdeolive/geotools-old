@@ -162,23 +162,12 @@ public abstract class BaseGridCoverage2DReader extends AbstractGridCoverage2DRea
     		final Hints hints,
     		final String worldFileExtension,
             final ImageReaderSpi formatSpecificSpi) throws DataSourceException {
-
+        super(input, hints);
+        
     	ImageReader reader=null;
     	FileImageInputStreamExt fiis = null;
         try {
-            // //
-            //
-            // managing hints
-            //
-            // //
-            if (this.hints == null)
-                this.hints = new Hints();
-
-            if (hints != null)
-                this.hints.add(hints);
-
-            this.coverageFactory = CoverageFactoryFinder
-                    .getGridCoverageFactory(this.hints);
+            
 
             readerSPI = formatSpecificSpi;
             worldFileExt = worldFileExtension;
@@ -288,11 +277,7 @@ public abstract class BaseGridCoverage2DReader extends AbstractGridCoverage2DRea
      */
     private void checkSource(Object input) throws UnsupportedEncodingException,
             DataSourceException, IOException, FileNotFoundException {
-        if (input == null) {
-            final IllegalArgumentException ex = new IllegalArgumentException(
-                    "No source set to read this coverage.");
-            throw ex;
-        }
+
         this.source = null;
 
         // //

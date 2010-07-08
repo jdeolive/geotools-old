@@ -454,105 +454,75 @@ public final class JP2KReader extends AbstractGridCoverage2DReader implements
 
 	private String parentPath;
 
-	/**
-	 * Constructor.
-	 * 
-	 * @param source
-	 *            The source object.
-	 * @throws IOException
-	 * @throws UnsupportedEncodingException
-	 * 
-	 */
-	public JP2KReader(Object source, Hints uHints) throws IOException {
-		// //
-		//
-		// managing hints
-		//
-		// //
-		if (this.hints == null)
-			this.hints= new Hints();	
-		if (uHints != null) {
-			this.hints.add(uHints);
-		}
-		
-                // GridCoverageFactory initialization
-                if (this.hints.containsKey(Hints.GRID_COVERAGE_FACTORY)) {
-                    final Object factory = this.hints.get(Hints.GRID_COVERAGE_FACTORY);
-                    if (factory != null && factory instanceof GridCoverageFactory) {
-                        this.coverageFactory = (GridCoverageFactory) factory;
-                    }
-                }
-                if (this.coverageFactory == null) {
-                    this.coverageFactory = CoverageFactoryFinder.getGridCoverageFactory(this.hints);
-                }
+    /**
+     * Constructor.
+     * 
+     * @param source
+     *            The source object.
+     * @throws IOException
+     * @throws UnsupportedEncodingException
+     * 
+     */
+    public JP2KReader(Object source, Hints uHints) throws IOException {
+        super(source,uHints);
 
-		// /////////////////////////////////////////////////////////////////////
-		//
-		// Check source
-		//
-		// /////////////////////////////////////////////////////////////////////
-		if (source == null) {
-			final IOException ex = new IOException(
-					"JP2KReader:No source set to read this coverage.");
-			if (LOGGER.isLoggable(Level.WARNING))
-				LOGGER.log(Level.WARNING, ex.getLocalizedMessage(), ex);
-			throw new DataSourceException(ex);
-		}
-		this.source = source;		
-		this.sourceURL=Utils.checkSource(source);
+        
 
-        if(this.sourceURL==null)
-			throw new DataSourceException("This plugin accepts only File,  URL and String pointing to a file");
+        // /////////////////////////////////////////////////////////////////////
+        //
+        // Check source
+        //
+        // /////////////////////////////////////////////////////////////////////
+        this.sourceURL = Utils.checkSource(source);
+        if (this.sourceURL == null)
+            throw new DataSourceException(
+                    "This plugin accepts only File,  URL and String pointing to a file");
 
         final File inputFile = DataUtilities.urlToFile(sourceURL);
         if (inputFile == null)
-        	throw new DataSourceException("Unable to find a file for the provided source");
+            throw new DataSourceException("Unable to find a file for the provided source");
         parentPath = inputFile.getParent();
         ImageReader reader = null;
         final ImageInputStream stream = ImageIO.createImageInputStream(inputFile);
-        if (cachedSPI == null){
-			reader = Utils.getReader(stream);
-			if(reader != null)
-				cachedSPI = reader.getOriginatingProvider();
-		}
-        
+        if (cachedSPI == null) {
+            reader = Utils.getReader(stream);
+            if (reader != null)
+                cachedSPI = reader.getOriginatingProvider();
+        }
+
         if (reader == null)
-            throw new DataSourceException("No reader found for that source " + sourceURL);            
+            throw new DataSourceException("No reader found for that source " + sourceURL);
         reader.setInput(stream);
-        
-		coverageName = inputFile.getName();
+
+        coverageName = inputFile.getName();
 
         final int dotIndex = coverageName.lastIndexOf(".");
-        coverageName = (dotIndex == -1) ? coverageName : coverageName
-                .substring(0, dotIndex);
-		
-		// //
-		//
-		// get the crs if able to
-		//
-		// //
-		final Object tempCRS = this.hints.get(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM);
-		if (tempCRS != null) {
-			this.crs = (CoordinateReferenceSystem) tempCRS;
-			LOGGER.log(Level.WARNING, new StringBuffer(
-					"Using forced coordinate reference system ").append(
-					crs.toWKT()).toString());
-		} else {
-			
-			setCoverageProperties(reader);
-			
-			if (crs == null) {
-				// use the default crs
-				crs = AbstractGridFormat.getDefaultCRS();
-				LOGGER.log(Level.WARNING,"Unable to find a CRS for this coverage, using a default one: "+crs.toWKT());
-			} 
-		}
-		setResolutionInfo(reader);
+        coverageName = (dotIndex == -1) ? coverageName : coverageName.substring(0, dotIndex);
+
+        // //
+        //
+        // get the crs if able to
+        //
+        // //
+        final Object tempCRS = this.hints.get(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM);
+        if (tempCRS != null) {
+            this.crs = (CoordinateReferenceSystem) tempCRS;
+            LOGGER.log(Level.WARNING, "Using forced coordinate reference system "+crs.toWKT());
+        } else {
+
+            setCoverageProperties(reader);
+
+            if (crs == null) {
+                throw new DataSourceException("Unable to find a CRS for this coverage, using a default one: "
+                                + crs.toWKT());
+            }
+        }
+        setResolutionInfo(reader);
         reader.dispose();
 
-		// creating the raster manager
-		rasterManager = new RasterManager(this);
-	}
+        // creating the raster manager
+        rasterManager = new RasterManager(this);
+    }
 
 	/**
 	 * @see org.opengis.coverage.grid.GridCoverageReader#getFormat()

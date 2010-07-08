@@ -239,17 +239,14 @@ public final class WorldImageReader extends AbstractGridCoverage2DReader
 			// CRS
 			//
 			// /////////////////////////////////////////////////////////////////////
-			if (!wmsRequest) {
-				final Object tempCRS = this.hints
-						.get(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM);
-				if (tempCRS != null) {
-					this.crs = (CoordinateReferenceSystem) tempCRS;
-					LOGGER.log(Level.WARNING, new StringBuffer(
-							"Using forced coordinate reference system ")
-							.append(crs.toWKT()).toString());
-				} else
-					readCRS();
-			}
+                        if (!wmsRequest) {
+                            final Object tempCRS = this.hints.get(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM);
+                            if (tempCRS != null) {
+                                this.crs = (CoordinateReferenceSystem) tempCRS;
+                                LOGGER.log(Level.WARNING,  "Using forced coordinate reference system "+crs.toWKT());
+                            } else
+                                readCRS();
+                        }
 
 			// /////////////////////////////////////////////////////////////////////
 			//
@@ -284,7 +281,7 @@ public final class WorldImageReader extends AbstractGridCoverage2DReader
 		// TODO optimize this using image file extension when possible
 		//
 		// //
-		final Iterator it = ImageIO.getImageReaders(inStream);
+		final Iterator<ImageReader> it = ImageIO.getImageReaders(inStream);
 		if (!it.hasNext())
 			throw new DataSourceException("No reader avalaible for this source");
 		final ImageReader reader = (ImageReader) it.next();
@@ -604,73 +601,70 @@ public final class WorldImageReader extends AbstractGridCoverage2DReader
 	 * 
 	 * @throws IOException
 	 */
-	private void readCRS() throws IOException {
+    private void readCRS() throws IOException {
 
-		// check to see if there is a projection file
-		if (source instanceof File
-				|| (source instanceof URL && (((URL) source).getProtocol() == "file"))) {
-			// getting name for the prj file
-			final String sourceAsString;
+        // check to see if there is a projection file
+        if (source instanceof File
+                || (source instanceof URL && (((URL) source).getProtocol() == "file"))) {
+            // getting name for the prj file
+            final String sourceAsString;
 
             if (source instanceof File) {
                 sourceAsString = ((File) source).getAbsolutePath();
             } else {
-            	String auth = ((URL) source).getAuthority();
-            	String path = ((URL) source).getPath();
-            	if (auth != null && !auth.equals("")) {
-            		sourceAsString = "//"+auth+path;
-            	} else {
-            		sourceAsString = path;
-            	}
+                String auth = ((URL) source).getAuthority();
+                String path = ((URL) source).getPath();
+                if (auth != null && !auth.equals("")) {
+                    sourceAsString = "//" + auth + path;
+                } else {
+                    sourceAsString = path;
+                }
             }
 
-			final int index = sourceAsString.lastIndexOf(".");
-			final StringBuffer base = new StringBuffer(sourceAsString
-					.substring(0, index)).append(".prj");
+            final int index = sourceAsString.lastIndexOf(".");
+            final StringBuffer base = new StringBuffer(sourceAsString.substring(0, index))
+                    .append(".prj");
 
-			// does it exist?
-			final File prjFile = new File(base.toString());
-			if (prjFile.exists()) {
-				// it exists then we have top read it
-				PrjFileReader projReader=null;
-				try {
-					final FileChannel channel = new FileInputStream(prjFile)
-							.getChannel();
-					projReader = new PrjFileReader(channel);
-					crs = projReader.getCoordinateReferenceSystem();
-				} catch (FileNotFoundException e) {
-					// warn about the error but proceed, it is not fatal
-					// we have at least the default crs to use
-					LOGGER.log(Level.INFO, e.getLocalizedMessage(), e);
-				} catch (IOException e) {
-					// warn about the error but proceed, it is not fatal
-					// we have at least the default crs to use
-					LOGGER.log(Level.INFO, e.getLocalizedMessage(), e);
-				} catch (FactoryException e) {
-					// warn about the error but proceed, it is not fatal
-					// we have at least the default crs to use
-					LOGGER.log(Level.INFO, e.getLocalizedMessage(), e);
-				}
-				finally{
-					if(projReader!=null)
-						try{
-							projReader.close();
-						}
-					catch (IOException e) {
-						// warn about the error but proceed, it is not fatal
-						// we have at least the default crs to use
-						LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
-					}
-				}
+            // does it exist?
+            final File prjFile = new File(base.toString());
+            if (prjFile.exists()) {
+                // it exists then we have top read it
+                PrjFileReader projReader = null;
+                try {
+                    final FileChannel channel = new FileInputStream(prjFile).getChannel();
+                    projReader = new PrjFileReader(channel);
+                    crs = projReader.getCoordinateReferenceSystem();
+                } catch (FileNotFoundException e) {
+                    // warn about the error but proceed, it is not fatal
+                    // we have at least the default crs to use
+                    LOGGER.log(Level.INFO, e.getLocalizedMessage(), e);
+                } catch (IOException e) {
+                    // warn about the error but proceed, it is not fatal
+                    // we have at least the default crs to use
+                    LOGGER.log(Level.INFO, e.getLocalizedMessage(), e);
+                } catch (FactoryException e) {
+                    // warn about the error but proceed, it is not fatal
+                    // we have at least the default crs to use
+                    LOGGER.log(Level.INFO, e.getLocalizedMessage(), e);
+                } finally {
+                    if (projReader != null)
+                        try {
+                            projReader.close();
+                        } catch (IOException e) {
+                            // warn about the error but proceed, it is not fatal
+                            // we have at least the default crs to use
+                            LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
+                        }
+                }
 
-			}
-		}
-		if (crs == null) {
-			crs = AbstractGridFormat.getDefaultCRS();
-			LOGGER.info("Unable to find crs, continuing with default WGS4 CRS");
-		}
+            }
+        }
+        if (crs == null) {
+            crs = AbstractGridFormat.getDefaultCRS();
+            LOGGER.info("Unable to find crs, continuing with default WGS4 CRS");
+        }
 
-	}
+    }
 
 	/**
 	 * This method is in charge for reading the metadata file and for creating a
