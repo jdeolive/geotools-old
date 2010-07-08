@@ -24,16 +24,13 @@ import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.imageio.GeoToolsWriteParams;
 import org.geotools.factory.Hints;
 import org.geotools.parameter.DefaultParameterDescriptor;
-import org.geotools.referencing.CRS;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.geotools.referencing.crs.DefaultEngineeringCRS;
 import org.opengis.coverage.grid.Format;
 import org.opengis.coverage.grid.GridCoverageReader;
 import org.opengis.coverage.grid.GridCoverageWriter;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.parameter.ParameterDescriptor;
 import org.opengis.parameter.ParameterValueGroup;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.NoSuchAuthorityCodeException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 /**
@@ -93,16 +90,7 @@ public abstract class AbstractGridFormat implements Format {
 	/**
 	 * Default {@link CoordinateReferenceSystem} used by all the plugins.
 	 */
-	private static CoordinateReferenceSystem crs;
-	static {
-		try {
-			crs = CRS.decode("EPSG:4326", true);
-		} catch (NoSuchAuthorityCodeException e) {
-			crs = DefaultGeographicCRS.WGS84;
-		} catch (FactoryException e) {
-			crs = DefaultGeographicCRS.WGS84;
-		}
-	}
+	private static CoordinateReferenceSystem crs=DefaultEngineeringCRS.GENERIC_2D;
 
 	/**
 	 * This {@link GeneralParameterValue} cacn be provided to the
