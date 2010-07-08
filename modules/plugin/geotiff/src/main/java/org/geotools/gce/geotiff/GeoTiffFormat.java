@@ -54,12 +54,14 @@ import org.geotools.data.DataSourceException;
 import org.geotools.data.DataUtilities;
 import org.geotools.factory.Hints;
 import org.geotools.gce.geotiff.adapters.GeoTiffIIOMetadataDecoder;
+import org.geotools.parameter.DefaultParameterDescriptor;
 import org.geotools.parameter.DefaultParameterDescriptorGroup;
 import org.geotools.parameter.ParameterGroup;
 import org.opengis.coverage.grid.Format;
 import org.opengis.coverage.grid.GridCoverageReader;
 import org.opengis.coverage.grid.GridCoverageWriter;
 import org.opengis.parameter.GeneralParameterDescriptor;
+import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.referencing.operation.MathTransform;
 
 /**
@@ -74,10 +76,21 @@ import org.opengis.referencing.operation.MathTransform;
  */
 @SuppressWarnings("deprecation")
 public final class GeoTiffFormat extends AbstractGridFormat implements Format {
-	private final static TIFFImageReaderSpi spi = new TIFFImageReaderSpi();
+    /** SPI for the writer. */
+    private final static TIFFImageReaderSpi spi = new TIFFImageReaderSpi();
 
-	/** Logger. */
-	private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.gce.geotiff");
+    /** Logger. */
+    private final static Logger LOGGER = org.geotools.util.logging.Logging
+            .getLogger(GeoTiffFormat.class);
+    
+    /**
+     * This {@link GeneralParameterValue} can be provided to the
+     * {@link GeoTiffWriter}s in order
+     * to force the writer to write a tfw file.
+     */
+    public static final DefaultParameterDescriptor<Boolean> WRITE_TFW = new DefaultParameterDescriptor<Boolean>(
+                    "WRITE_TFW", Boolean.class, new Boolean[] {
+                                    Boolean.TRUE, Boolean.FALSE }, Boolean.FALSE);
 
 	/**
 	 * Creates a new instance of GeoTiffFormat
@@ -163,24 +176,32 @@ public final class GeoTiffFormat extends AbstractGridFormat implements Format {
 			final IIOMetadata metadata = reader.getImageMetadata(0);
 			if(metadata==null)
 				return false;
+			//
+			// parse metadata and be resilient with CRS
+			//
 			final GeoTiffIIOMetadataDecoder metadataAdapter = new GeoTiffIIOMetadataDecoder(metadata);
-			if(metadataAdapter==null)
-				return false;
-			if (metadataAdapter.getGeoKeyRevision() != 1) {
-				return false;
-			}
+			if(!metadataAdapter.hasGeoKey()&& LOGGER.isLoggable(Level.FINE))
+                            LOGGER.fine("Unable to find geokey directory for this tif file");
+			    
 			
-
+			//
+			// analyze georeferencing
+			//
+			// do we have verything as geotiff?
+			if(metadataAdapter.hasModelTrasformation()|| (metadataAdapter.hasPixelScales()&&metadataAdapter.hasTiePoints()))
+			    return true;
+			
+			// now look for info into a WLD file
+                        MathTransform raster2Model = GeoTiffReader.parseWorldFile(o);
+                        if (raster2Model != null)
+                            return true;
+                        else{              
+                            if (LOGGER.isLoggable(Level.FINE))
+                                LOGGER.fine("Unable to find georeferencing for this tif file");
+                            return false;
+                        }
+			
 		} catch (Throwable e) {
-		    try {
-        		    if (e instanceof IllegalArgumentException){
-        		        MathTransform raster2Model = GeoTiffReader.parseWorldFile(o);
-        		        if (raster2Model != null)
-        		            return true;
-        		    }
-		    } catch(Throwable e2){
-			
-		    }
 		    if (LOGGER.isLoggable(Level.FINE))
                         LOGGER.log(Level.FINE, e.getLocalizedMessage(), e);
 		    return false;
@@ -200,7 +221,6 @@ public final class GeoTiffFormat extends AbstractGridFormat implements Format {
 				}
 			}
 		}
-		return true;
 	}
 	
 	/**

@@ -22,7 +22,9 @@ import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageWriterSpi;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.image.RenderedImage;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
@@ -65,6 +67,7 @@ import org.opengis.coverage.grid.Format;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.coverage.grid.GridCoverageWriter;
 import org.opengis.parameter.GeneralParameterValue;
+import org.opengis.referencing.ReferenceIdentifier;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.GeographicCRS;
 import org.opengis.referencing.crs.ProjectedCRS;
@@ -164,6 +167,7 @@ public final class GeoTiffWriter extends AbstractGridCoverageWriter implements
 			IndexOutOfBoundsException {
 
 		GeoToolsWriteParams gtParams = null;
+		boolean writeTfw=GeoTiffFormat.WRITE_TFW.getDefaultValue();
 		if (params != null) {
 			// /////////////////////////////////////////////////////////////////////
 			//
@@ -175,8 +179,12 @@ public final class GeoTiffWriter extends AbstractGridCoverageWriter implements
 				final int length = params.length;
 				for (int i = 0; i < length; i++) {
 					param = (Parameter) params[i];
-					if (param.getDescriptor().getName().equals(AbstractGridFormat.GEOTOOLS_WRITE_PARAMS.getName())) {
-						gtParams = (GeoToolsWriteParams) param.getValue();
+					final ReferenceIdentifier name=param.getDescriptor().getName();
+					if (name.equals(AbstractGridFormat.GEOTOOLS_WRITE_PARAMS.getName())) {
+					    gtParams = (GeoToolsWriteParams) param.getValue();
+					}
+					if (name.equals(GeoTiffFormat.WRITE_TFW.getName())){
+					    writeTfw = (Boolean) param.getValue();
 					}
 				}
 			}
@@ -206,7 +214,7 @@ public final class GeoTiffWriter extends AbstractGridCoverageWriter implements
 		if (crs instanceof ProjectedCRS || crs instanceof GeographicCRS) {
 
 			// creating geotiff metadata
-			final CRS2GeoTiffMetadataAdapter adapter = (CRS2GeoTiffMetadataAdapter) CRS2GeoTiffMetadataAdapter.get(crs);
+			final CRS2GeoTiffMetadataAdapter adapter = new  CRS2GeoTiffMetadataAdapter(crs);
 			final GeoTiffIIOMetadataEncoder metadata = adapter.parseCoordinateReferenceSystem();
             if (!Double.isNaN(inNoData)) 
             	metadata.setNoData(inNoData);
@@ -216,6 +224,22 @@ public final class GeoTiffWriter extends AbstractGridCoverageWriter implements
 
 			// writing ALWAYS the geophysics vew of the data
 			writeImage(((GridCoverage2D) gc).geophysics(true).getRenderedImage(), this.outStream, metadata, gtParams);
+			
+			// write tfw
+			if(writeTfw&& (destination instanceof File)){
+			    final File destFile=(File)this.destination;
+			    final File tfw= new File(destFile.getParentFile(),destFile.getName().replace("tif", "tfw"));
+			    final BufferedWriter outW = new BufferedWriter(new FileWriter(tfw));
+			    try{
+			        outW.write(gc.getCoordinateReferenceSystem().toWKT());
+			    }finally{
+			        try{
+			            outW.close();
+			        }catch (Exception e) {
+                                    // ssshhh :)
+                                }
+			    }
+			}
 
 		} else
 			throw new GeoTiffException(

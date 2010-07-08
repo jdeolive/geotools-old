@@ -63,11 +63,9 @@ import javax.media.jai.PlanarImage;
 import javax.media.jai.RenderedOp;
 
 import org.geotools.coverage.Category;
-import org.geotools.coverage.CoverageFactoryFinder;
 import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.TypeMap;
 import org.geotools.coverage.grid.GridCoverage2D;
-import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
@@ -152,52 +150,28 @@ public final class GeoTiffReader extends AbstractGridCoverage2DReader implements
 	 * @throws DataSourceException
 	 */
 	public GeoTiffReader(Object input, Hints uHints) throws DataSourceException {
+	    super(input,uHints);
 		// /////////////////////////////////////////////////////////////////////
 		// 
 		// Forcing longitude first since the geotiff specification seems to
 		// assume that we have first longitude the latitude.
 		//
-		// /////////////////////////////////////////////////////////////////////
-		if (hints == null)
-			this.hints= new Hints();	
+		// /////////////////////////////////////////////////////////////////////	
 		if (uHints != null) {
 			// prevent the use from reordering axes
-			uHints.remove(Hints.FORCE_LONGITUDE_FIRST_AXIS_ORDER);
-			this.hints.add(uHints);
-			this.hints.add(new Hints(Hints.FORCE_LONGITUDE_FIRST_AXIS_ORDER,Boolean.TRUE));
+		    this.hints.remove(Hints.FORCE_LONGITUDE_FIRST_AXIS_ORDER);
+		    this.hints.add(new Hints(Hints.FORCE_LONGITUDE_FIRST_AXIS_ORDER,Boolean.TRUE));
 			
 		}
 
-                // GridCoverageFactory initialization
-                if (this.hints.containsKey(Hints.GRID_COVERAGE_FACTORY)) {
-                    final Object factory = this.hints.get(Hints.GRID_COVERAGE_FACTORY);
-                    if (factory != null && factory instanceof GridCoverageFactory) {
-                        this.coverageFactory = (GridCoverageFactory) factory;
-                    }
-                }
-                if (this.coverageFactory == null) {
-                    this.coverageFactory = CoverageFactoryFinder.getGridCoverageFactory(this.hints);
-                }
-		coverageName = "geotiff_coverage";
-
-		// /////////////////////////////////////////////////////////////////////
-		//
-		// Seting input
-		//
-		// /////////////////////////////////////////////////////////////////////
-		if (input == null) {
-
-			final IOException ex = new IOException(
-					"GeoTiffReader:No source set to read this coverage.");
-			throw new DataSourceException(ex);
-		}
+               
 		// /////////////////////////////////////////////////////////////////////
 		//
 		// Set the source being careful in case it is an URL pointing to a file
 		//
 		// /////////////////////////////////////////////////////////////////////
 		try {
-			this.source = input;
+			
 			// setting source
 			if (input instanceof URL) {
 				final URL sourceURL = (URL) input;
@@ -253,137 +227,128 @@ public final class GeoTiffReader extends AbstractGridCoverage2DReader implements
 		}
 	}
 
-	/**
-	 * Collect georeferencing information about this geotiff.
-	 * @param hints
-	 * @throws DataSourceException
-	 */
-	private void getHRInfo(Hints hints) throws DataSourceException {
-		ImageReader reader=null;
-		CoordinateReferenceSystem foundCrs = null;
-		boolean useWorldFile = false;
-		
-		try{
-			// //
-			//
-			// Get a reader for this format
-			//
-			// //
-			reader = readerSPI.createReaderInstance();
-	
-			// //
-			//
-			// get the METADATA
-			//
-			// //
-			inStream.mark();
-			reader.setInput(inStream);
-			final IIOMetadata iioMetadata = reader.getImageMetadata(0);
-			try{
-			    metadata = new GeoTiffIIOMetadataDecoder(iioMetadata);
-			    gtcs = (GeoTiffMetadata2CRSAdapter) GeoTiffMetadata2CRSAdapter.get(hints);
-			    if (gtcs != null)
-	                foundCrs = gtcs.createCoordinateSystem(metadata);
-			    else 
-			        useWorldFile = true;
-			    
-			    if (metadata.hasNoData())
-		                    noData = metadata.getNoData();
-			}catch (IllegalArgumentException iae){
-			    useWorldFile = true;
-			}catch (UnsupportedOperationException uoe){
-			    useWorldFile = true;
-			}
-			
-			
-			// //
-			//
-			// get the CRS INFO
-			//
-			// //
-			final Object tempCRS = this.hints.get(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM);
-			if (tempCRS != null) {
-				this.crs = (CoordinateReferenceSystem) tempCRS;
-				LOGGER.log(Level.WARNING,"Using forced coordinate reference system "+crs.toWKT());
-			} else{
-			    if (useWorldFile)
-			        foundCrs = getCRS(source);
-			    crs = foundCrs;
-			}
-			
-			if (crs == null)
-	                    throw new DataSourceException ("Coordinate Reference System is not available");
-				
-	
-			// //
-			//
-			// get the dimension of the hr image and build the model as well as
-			// computing the resolution
-			// //
-			numOverviews = reader.getNumImages(true) - 1;
-			int hrWidth = reader.getWidth(0);
-			int hrHeight = reader.getHeight(0);
-			final Rectangle actualDim = new Rectangle(0, 0, hrWidth, hrHeight);
-			originalGridRange = new GridEnvelope2D(actualDim);
-	
-			if (!useWorldFile && gtcs != null) {
-			    this.raster2Model = gtcs.getRasterToModel(metadata);
-	        }
-	        else {
-	                    this.raster2Model = parseWorldFile(source);
-	        }
-			
-			if (this.raster2Model == null){
-	            throw new DataSourceException ("Raster to Model Transformation is not available");
-	        }
-			
-			final AffineTransform tempTransform = new AffineTransform((AffineTransform) raster2Model);
-			tempTransform.translate(-0.5, -0.5);
-			originalEnvelope = CRS.transform(ProjectiveTransform.create(tempTransform), new GeneralEnvelope(actualDim));
-			originalEnvelope.setCoordinateReferenceSystem(crs);
-	
-			// ///
-			// 
-			// setting the higher resolution available for this coverage
-			//
-			// ///
-			highestRes = new double[2];
-			highestRes[0]=XAffineTransform.getScaleX0(tempTransform);
-			highestRes[1]=XAffineTransform.getScaleY0(tempTransform);
-	
-			// //
-			//
-			// get information for the successive images
-			//
-			// //
-			if (numOverviews >= 1) {
-				overViewResolutions = new double[numOverviews][2];
-				for (int i = 0; i < numOverviews; i++) {
-					overViewResolutions[i][0] = (highestRes[0]*this.originalGridRange.getSpan(0))/reader.getWidth(i+1);
-					overViewResolutions[i][1] = (highestRes[1]*this.originalGridRange.getSpan(1))/reader.getHeight(i+1);
-				}
-			} else
-				overViewResolutions = null;
-		}catch (Throwable e) {
-			throw new DataSourceException(e);
-		}
-		finally{
-			if(reader!=null)
-				try{
-					reader.dispose();
-				}
-				catch (Throwable t) {
-				}
-				
-			if(inStream!=null)
-				try{
-					inStream.reset();
-				}
-				catch (Throwable t) {
-				}	
-				
-		}
-	}
+    /**
+     * Collect georeferencing information about this geotiff.
+     * 
+     * @param hints
+     * @throws DataSourceException
+     */
+    private void getHRInfo(Hints hints) throws DataSourceException {
+        ImageReader reader = null;
+
+        try {
+            // //
+            //
+            // Get a reader for this format
+            //
+            // //
+            reader = readerSPI.createReaderInstance();
+
+            // //
+            //
+            // get the METADATA
+            //
+            // //
+            inStream.mark();
+            reader.setInput(inStream);
+            final IIOMetadata iioMetadata = reader.getImageMetadata(0);
+            metadata = new GeoTiffIIOMetadataDecoder(iioMetadata);
+            gtcs = (GeoTiffMetadata2CRSAdapter) GeoTiffMetadata2CRSAdapter.get(hints);
+            
+            // //
+            //
+            // get the CRS INFO
+            //
+            // //
+            final Object tempCRS = this.hints.get(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM);
+            if (tempCRS != null) {
+                this.crs = (CoordinateReferenceSystem) tempCRS;
+                if (LOGGER.isLoggable(Level.FINE))
+                    LOGGER.log(Level.FINE, "Using forced coordinate reference system "
+                            + crs.toWKT());
+            } else {
+                // check metadata first
+                if (metadata.hasGeoKey()&& gtcs != null)
+                    crs = gtcs.createCoordinateSystem(metadata);
+
+                if (crs == null)
+                    crs = getCRS(source);
+            }
+
+            if (crs == null)
+                throw new DataSourceException("Coordinate Reference System is not available");
+
+            if (metadata.hasNoData())
+                noData = metadata.getNoData();
+            // //
+            //
+            // get the dimension of the hr image and build the model as well as
+            // computing the resolution
+            // //
+            numOverviews = reader.getNumImages(true) - 1;
+            int hrWidth = reader.getWidth(0);
+            int hrHeight = reader.getHeight(0);
+            final Rectangle actualDim = new Rectangle(0, 0, hrWidth, hrHeight);
+            originalGridRange = new GridEnvelope2D(actualDim);
+
+            if (gtcs != null&& metadata!=null&& (metadata.hasModelTrasformation()||(metadata.hasPixelScales()&&metadata.hasTiePoints()))) {
+                this.raster2Model = gtcs.getRasterToModel(metadata);
+            } else {
+                this.raster2Model = parseWorldFile(source);
+            }
+
+            if (this.raster2Model == null) {
+                throw new DataSourceException("Raster to Model Transformation is not available");
+            }
+
+            final AffineTransform tempTransform = new AffineTransform(
+                    (AffineTransform) raster2Model);
+            tempTransform.translate(-0.5, -0.5);
+            originalEnvelope = CRS.transform(ProjectiveTransform.create(tempTransform),
+                    new GeneralEnvelope(actualDim));
+            originalEnvelope.setCoordinateReferenceSystem(crs);
+
+            // ///
+            // 
+            // setting the higher resolution available for this coverage
+            //
+            // ///
+            highestRes = new double[2];
+            highestRes[0] = XAffineTransform.getScaleX0(tempTransform);
+            highestRes[1] = XAffineTransform.getScaleY0(tempTransform);
+
+            // //
+            //
+            // get information for the successive images
+            //
+            // //
+            if (numOverviews >= 1) {
+                overViewResolutions = new double[numOverviews][2];
+                for (int i = 0; i < numOverviews; i++) {
+                    overViewResolutions[i][0] = (highestRes[0] * this.originalGridRange.getSpan(0))
+                            / reader.getWidth(i + 1);
+                    overViewResolutions[i][1] = (highestRes[1] * this.originalGridRange.getSpan(1))
+                            / reader.getHeight(i + 1);
+                }
+            } else
+                overViewResolutions = null;
+        } catch (Throwable e) {
+            throw new DataSourceException(e);
+        } finally {
+            if (reader != null)
+                try {
+                    reader.dispose();
+                } catch (Throwable t) {
+                }
+
+            if (inStream != null)
+                try {
+                    inStream.reset();
+                } catch (Throwable t) {
+                }
+
+        }
+    }
 
 	/**
 	 * @see org.opengis.coverage.grid.GridCoverageReader#getFormat()

@@ -28,8 +28,10 @@ import junit.framework.Assert;
 
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridGeometry2D;
+import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.imageio.IIOMetadataDumper;
 import org.geotools.coverage.processing.CoverageProcessor;
+import org.geotools.factory.Hints;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.operation.matrix.XAffineTransform;
@@ -38,6 +40,8 @@ import org.junit.Test;
 import org.opengis.coverage.grid.GridCoverageReader;
 import org.opengis.coverage.grid.GridCoverageWriter;
 import org.opengis.coverage.grid.GridEnvelope;
+import org.opengis.parameter.GeneralParameterValue;
+import org.opengis.parameter.ParameterValue;
 import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -189,11 +193,7 @@ public class GeoTiffWriterTest extends Assert {
 		// /////////////////////////////////////////////////////////////////////
 		final File writeFile = new File(new StringBuilder(writedir.getAbsolutePath()).append(File.separatorChar).append(cropped.getName().toString()).append(".tiff").toString());
 		final GridCoverageWriter writer = format.getWriter(writeFile);
-		// /////////////////////////////////////////////////////////////////////
-		//
-		// Create the writing params
-		//
-		// /////////////////////////////////////////////////////////////////////
+		
 		try{
 			writer.write(cropped, null);
 		}catch (IOException e) {
@@ -236,5 +236,50 @@ public class GeoTiffWriterTest extends Assert {
 			if(!TestData.isInteractiveTest())
 				gc.dispose(true);
 		}
+	}
+	
+	@Test
+	public void testWriteTFW() throws Exception{
+
+	        //
+	        // no crs geotiff
+	        //
+	        final File noCrs = TestData.file(GeoTiffReaderTest.class, "no_crs.tif");
+	        final AbstractGridFormat format = new GeoTiffFormat();
+	        assertTrue(format.accepts(noCrs));
+
+	        // hint for CRS
+	        final CoordinateReferenceSystem crs = CRS.decode("EPSG:32632", true);
+	        final Hints hint = new Hints();
+	        hint.put(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM, crs);
+
+	        // getting a reader
+	        GeoTiffReader reader = new GeoTiffReader(noCrs, hint);
+
+	        // reading the coverage
+	        GridCoverage2D coverage = (GridCoverage2D) reader.read(null);
+
+	        // check coverage and crs
+	        assertNotNull(coverage);
+	        assertNotNull(coverage.getCoordinateReferenceSystem());
+	        assertEquals(CRS.lookupIdentifier(coverage.getCoordinateReferenceSystem(), true),
+	                "EPSG:32632");
+	        reader.dispose();
+	        
+	        
+	        // get a writer
+	        final File noCrsTFW = new File(TestData.file(GeoTiffReaderTest.class, "."),"no_crs_tfw.tif");
+	        GeoTiffWriter writer = new GeoTiffWriter(noCrsTFW);
+	        
+	        final ParameterValue<Boolean> tfw = GeoTiffFormat.WRITE_TFW.createValue();
+	        tfw.setValue(true);
+	        writer.write(coverage,new GeneralParameterValue[]{tfw} );
+	        writer.dispose();
+	        coverage.dispose(true);
+	        
+	        final File finalTFW=new File(noCrsTFW.getParent(),noCrsTFW.getName().replace("tif", "tfw"));
+	        assertTrue(finalTFW.canRead());
+	        
+
 	}
 }
