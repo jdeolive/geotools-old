@@ -76,6 +76,7 @@ import org.geotools.data.DataAccessFactory.Param;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
+import org.geotools.factory.Hints;
 import org.geotools.gce.imagemosaic.catalogbuilder.CatalogBuilder;
 import org.geotools.gce.imagemosaic.catalogbuilder.CatalogBuilderConfiguration;
 import org.geotools.gce.imagemosaic.catalogbuilder.CatalogBuilder.ExceptionEvent;
@@ -188,16 +189,18 @@ public class Utils {
 	 * @param wildcard
 	 *            wildcard to use for walking through files. We are using
 	 *            commonsIO for this task
+	 * @param hints hints to control reader instantiations
 	 * @return <code>true</code> if everything is right, <code>false</code>if
 	 *         something bad happens, in which case the reason should be logged
 	 *         to the logger.
 	 */
 	static boolean createMosaic(final String location, final String indexName,
-			final String wildcard, final boolean absolutePath) {
+			final String wildcard, final boolean absolutePath, final Hints hints) {
 
 		// create a mosaic index builder and set the relevant elements
 		final CatalogBuilderConfiguration configuration = new CatalogBuilderConfiguration();
 		configuration.setAbsolute(absolutePath);
+		configuration.setHints(hints);
 		configuration.setRootMosaicDirectory(location);
 		configuration.setIndexingDirectories(Arrays.asList(location));
 		configuration.setIndexName(indexName);
@@ -295,180 +298,7 @@ public class Utils {
 
 	static URL checkSource(Object source) throws MalformedURLException,
 			DataSourceException {
-		URL sourceURL = null;
-		File sourceFile = null;
-		// /////////////////////////////////////////////////////////////////////
-		//
-		// Check source
-		//
-		// /////////////////////////////////////////////////////////////////////
-		// if it is a URL or a String let's try to see if we can get a file to
-		// check if we have to build the index
-		if (source instanceof File) {
-			sourceFile = (File) source;
-			sourceURL = DataUtilities.fileToURL(sourceFile);
-			sourceURL = checkURLForMosaicQuery((URL) sourceURL);
-		} else if (source instanceof URL) {
-			sourceURL = checkURLForMosaicQuery((URL) source);
-			if (sourceURL.getProtocol().equals("file")) {
-				sourceFile = DataUtilities.urlToFile(sourceURL);
-			}
-		} else if (source instanceof String) {
-			// is it a File?
-			final String tempSource = (String) source;
-			File tempFile = new File(tempSource);
-			if (!tempFile.exists()) {
-				// is it a URL
-				try {
-					sourceURL = new URL(tempSource);
-					sourceURL = checkURLForMosaicQuery(sourceURL);
-					source = DataUtilities.urlToFile(sourceURL);
-				} catch (MalformedURLException e) {
-					sourceURL = null;
-					source = null;
-				}
-			} else {
-				sourceURL = DataUtilities.fileToURL(tempFile);
-
-				// so that we can do our magic here below
-				sourceFile = tempFile;
-			}
-		}
-
-		// //
-		//
-		// at this point we have tried to convert the thing to a File as hard as
-		// we could, let's see what we can do
-		//
-		// //
-		if (sourceFile != null) {
-			if (!sourceFile.isDirectory())
-				// real file, can only be a shapefile at this stage or a
-				// datastore.properties file
-				sourceURL = DataUtilities.fileToURL((File) sourceFile);
-			else {
-				// it's a DIRECTORY, let's look for a possible properties files
-				// that we want to load
-				final String locationPath = sourceFile.getAbsolutePath();
-				final String defaultIndexName = FilenameUtils.getName(locationPath);
-				boolean datastoreFound = false;
-				boolean buildMosaic = false;
-
-				//
-				// do we have a datastore properties file? It will preempt on
-				// the shapefile
-				//
-				File dataStoreProperties = new File(locationPath,"datastore.properties");
-
-				// this can be used to look for properties files that do NOT
-				// define a datastore
-				final File[] properties = sourceFile
-						.listFiles((FilenameFilter) FileFilterUtils
-								.andFileFilter(
-										FileFilterUtils
-												.notFileFilter(FileFilterUtils
-														.nameFileFilter("datastore.properties")),
-										FileFilterUtils
-												.makeFileOnly(FileFilterUtils
-														.suffixFileFilter(".properties"))));
-
-				// do we have a valid datastore + mosaic properties pair?
-				if (Utils.checkFileReadable(dataStoreProperties)) {
-					// we have a datastore.properties file
-					datastoreFound = true;
-
-					// check the first valid mosaic properties
-					boolean found = false;
-					for (File propFile : properties)
-						if (Utils.checkFileReadable(propFile)) {
-							// load it
-							if (null != Utils.loadMosaicProperties(DataUtilities.fileToURL(propFile),"location")) {
-								found = true;
-								break;
-							}
-						}
-
-					// we did not find any good candidate for mosaic.properties
-					// file, this will signal it
-					if (!found)
-						buildMosaic = true;
-
-				} else
-				{
-					// we did not find any good candidate for mosaic.properties
-					// file, this will signal it
-					buildMosaic = true;
-					datastoreFound = false;
-				}
-
-				//
-				// now let's try with shapefile and properties couple
-				//
-				File shapeFile = null;
-				if (!datastoreFound) {
-					for (File propFile : properties) {
-
-						// load properties
-						if (null == Utils.loadMosaicProperties(DataUtilities.fileToURL(propFile), Utils.DEFAULT_LOCATION_ATTRIBUTE))
-							continue;
-
-						// look for a couple shapefile, mosaic properties file
-						shapeFile = new File(locationPath, FilenameUtils.getBaseName(propFile.getName())+ ".shp");
-						if (!Utils.checkFileReadable(shapeFile)&& Utils.checkFileReadable(propFile))
-							buildMosaic = true;
-						else {
-							buildMosaic = false;
-							break;
-						}
-					}
-
-				}
-
-				// did we find anything?
-				if (buildMosaic) {
-					// try to build a mosaic inside this directory and see what
-					// happens
-					createMosaic(locationPath, defaultIndexName,DEFAULT_WILCARD, DEFAULT_PATH_BEHAVIOR);
-
-					// check that the mosaic properties file was created
-					final File propertiesFile = new File(locationPath,
-							defaultIndexName + ".properties");
-					if (!Utils.checkFileReadable(propertiesFile)) {
-						sourceURL = null;
-						return sourceURL;
-					}
-
-					// check that the shapefile was correctly created in case it
-					// was needed
-					if (!datastoreFound) {
-						shapeFile = new File(locationPath, defaultIndexName+ ".shp");
-
-						if (!Utils.checkFileReadable(shapeFile))
-							sourceURL = null;
-						else
-							// now set the new source and proceed
-							sourceURL = DataUtilities.fileToURL(shapeFile);
-					} else {
-						dataStoreProperties = new File(locationPath,"datastore.properties");
-
-						// datastore.properties as the source
-						if (!Utils.checkFileReadable(dataStoreProperties))
-							sourceURL = null;
-						else
-							sourceURL = DataUtilities.fileToURL(dataStoreProperties);
-					}
-
-				} else
-					// now set the new source and proceed
-					sourceURL = datastoreFound ? DataUtilities.fileToURL(dataStoreProperties) : DataUtilities.fileToURL(shapeFile); 
-
-			}
-		} else {
-			// SK: We don't set SourceURL to null now, just because it doesn't
-			// point to a file
-			// sourceURL=null;
-		}
-		return sourceURL;
+		return checkSource(source, null);
 	}
 
 	/**
@@ -476,11 +306,12 @@ public class Utils {
 	 * build a mosaic or not.
 	 * 
 	 * @param sourceURL
+	 * @param hints 
 	 * @return a modified version of the provided {@link URL} which points to a
 	 *         shapefile in case we created a mosaic, or to the original
 	 *         {@link URL}otherwise.
 	 */
-	static URL checkURLForMosaicQuery(final URL sourceURL) {
+	static URL checkURLForMosaicQuery(final URL sourceURL,final  Hints hints) {
 		// //
 		//
 		// Query with parameters, it might be that the user is
@@ -529,7 +360,7 @@ public class Utils {
 					createMosaic(locationPath, indexName != null ? indexName
 							: FilenameUtils.getBaseName(locationPath),
 							wildcardString != null ? wildcardString
-									: DEFAULT_WILCARD, absolutePath);
+									: DEFAULT_WILCARD, absolutePath,hints);
 
 				}
 
@@ -1267,4 +1098,181 @@ public class Utils {
 		
 		return params;
 	}
+
+    static URL checkSource(Object source, Hints hints) {
+        URL sourceURL = null;
+        File sourceFile = null;
+        // /////////////////////////////////////////////////////////////////////
+        //
+        // Check source
+        //
+        // /////////////////////////////////////////////////////////////////////
+        // if it is a URL or a String let's try to see if we can get a file to
+        // check if we have to build the index
+        if (source instanceof File) {
+                sourceFile = (File) source;
+                sourceURL = DataUtilities.fileToURL(sourceFile);
+                sourceURL = checkURLForMosaicQuery((URL) sourceURL,hints);
+        } else if (source instanceof URL) {
+                sourceURL = checkURLForMosaicQuery((URL) source,hints);
+                if (sourceURL.getProtocol().equals("file")) {
+                        sourceFile = DataUtilities.urlToFile(sourceURL);
+                }
+        } else if (source instanceof String) {
+                // is it a File?
+                final String tempSource = (String) source;
+                File tempFile = new File(tempSource);
+                if (!tempFile.exists()) {
+                        // is it a URL
+                        try {
+                                sourceURL = new URL(tempSource);
+                                sourceURL = checkURLForMosaicQuery(sourceURL,hints);
+                                source = DataUtilities.urlToFile(sourceURL);
+                        } catch (MalformedURLException e) {
+                                sourceURL = null;
+                                source = null;
+                        }
+                } else {
+                        sourceURL = DataUtilities.fileToURL(tempFile);
+
+                        // so that we can do our magic here below
+                        sourceFile = tempFile;
+                }
+        }
+
+        // //
+        //
+        // at this point we have tried to convert the thing to a File as hard as
+        // we could, let's see what we can do
+        //
+        // //
+        if (sourceFile != null) {
+                if (!sourceFile.isDirectory())
+                        // real file, can only be a shapefile at this stage or a
+                        // datastore.properties file
+                        sourceURL = DataUtilities.fileToURL((File) sourceFile);
+                else {
+                        // it's a DIRECTORY, let's look for a possible properties files
+                        // that we want to load
+                        final String locationPath = sourceFile.getAbsolutePath();
+                        final String defaultIndexName = FilenameUtils.getName(locationPath);
+                        boolean datastoreFound = false;
+                        boolean buildMosaic = false;
+
+                        //
+                        // do we have a datastore properties file? It will preempt on
+                        // the shapefile
+                        //
+                        File dataStoreProperties = new File(locationPath,"datastore.properties");
+
+                        // this can be used to look for properties files that do NOT
+                        // define a datastore
+                        final File[] properties = sourceFile
+                                        .listFiles((FilenameFilter) FileFilterUtils
+                                                        .andFileFilter(
+                                                                        FileFilterUtils
+                                                                                        .notFileFilter(FileFilterUtils
+                                                                                                        .nameFileFilter("datastore.properties")),
+                                                                        FileFilterUtils
+                                                                                        .makeFileOnly(FileFilterUtils
+                                                                                                        .suffixFileFilter(".properties"))));
+
+                        // do we have a valid datastore + mosaic properties pair?
+                        if (Utils.checkFileReadable(dataStoreProperties)) {
+                                // we have a datastore.properties file
+                                datastoreFound = true;
+
+                                // check the first valid mosaic properties
+                                boolean found = false;
+                                for (File propFile : properties)
+                                        if (Utils.checkFileReadable(propFile)) {
+                                                // load it
+                                                if (null != Utils.loadMosaicProperties(DataUtilities.fileToURL(propFile),"location")) {
+                                                        found = true;
+                                                        break;
+                                                }
+                                        }
+
+                                // we did not find any good candidate for mosaic.properties
+                                // file, this will signal it
+                                if (!found)
+                                        buildMosaic = true;
+
+                        } else
+                        {
+                                // we did not find any good candidate for mosaic.properties
+                                // file, this will signal it
+                                buildMosaic = true;
+                                datastoreFound = false;
+                        }
+
+                        //
+                        // now let's try with shapefile and properties couple
+                        //
+                        File shapeFile = null;
+                        if (!datastoreFound) {
+                                for (File propFile : properties) {
+
+                                        // load properties
+                                        if (null == Utils.loadMosaicProperties(DataUtilities.fileToURL(propFile), Utils.DEFAULT_LOCATION_ATTRIBUTE))
+                                                continue;
+
+                                        // look for a couple shapefile, mosaic properties file
+                                        shapeFile = new File(locationPath, FilenameUtils.getBaseName(propFile.getName())+ ".shp");
+                                        if (!Utils.checkFileReadable(shapeFile)&& Utils.checkFileReadable(propFile))
+                                                buildMosaic = true;
+                                        else {
+                                                buildMosaic = false;
+                                                break;
+                                        }
+                                }
+
+                        }
+
+                        // did we find anything?
+                        if (buildMosaic) {
+                                // try to build a mosaic inside this directory and see what
+                                // happens
+                                createMosaic(locationPath, defaultIndexName,DEFAULT_WILCARD, DEFAULT_PATH_BEHAVIOR,hints);
+
+                                // check that the mosaic properties file was created
+                                final File propertiesFile = new File(locationPath,
+                                                defaultIndexName + ".properties");
+                                if (!Utils.checkFileReadable(propertiesFile)) {
+                                        sourceURL = null;
+                                        return sourceURL;
+                                }
+
+                                // check that the shapefile was correctly created in case it
+                                // was needed
+                                if (!datastoreFound) {
+                                        shapeFile = new File(locationPath, defaultIndexName+ ".shp");
+
+                                        if (!Utils.checkFileReadable(shapeFile))
+                                                sourceURL = null;
+                                        else
+                                                // now set the new source and proceed
+                                                sourceURL = DataUtilities.fileToURL(shapeFile);
+                                } else {
+                                        dataStoreProperties = new File(locationPath,"datastore.properties");
+
+                                        // datastore.properties as the source
+                                        if (!Utils.checkFileReadable(dataStoreProperties))
+                                                sourceURL = null;
+                                        else
+                                                sourceURL = DataUtilities.fileToURL(dataStoreProperties);
+                                }
+
+                        } else
+                                // now set the new source and proceed
+                                sourceURL = datastoreFound ? DataUtilities.fileToURL(dataStoreProperties) : DataUtilities.fileToURL(shapeFile); 
+
+                }
+        } else {
+                // SK: We don't set SourceURL to null now, just because it doesn't
+                // point to a file
+                // sourceURL=null;
+        }
+        return sourceURL;
+    }
 }

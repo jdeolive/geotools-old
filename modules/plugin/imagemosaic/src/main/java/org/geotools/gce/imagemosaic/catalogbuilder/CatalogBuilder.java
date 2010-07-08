@@ -461,7 +461,7 @@ public class CatalogBuilder implements Runnable {
 					return;
 				}
 				cachedFormat=format;
-				coverageReader = (AbstractGridCoverage2DReader) format.getReader(fileBeingProcessed);
+				coverageReader = (AbstractGridCoverage2DReader) format.getReader(fileBeingProcessed,runConfiguration.getHints());
 				GeneralEnvelope envelope = (GeneralEnvelope) coverageReader.getOriginalEnvelope();
 				CoordinateReferenceSystem actualCRS = coverageReader.getCrs();
 

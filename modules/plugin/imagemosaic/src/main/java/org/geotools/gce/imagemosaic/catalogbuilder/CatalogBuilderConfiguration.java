@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.geotools.console.Option;
+import org.geotools.factory.Hints;
 import org.geotools.gce.imagemosaic.Utils;
 import org.geotools.util.Utilities;
 
@@ -33,8 +34,24 @@ import org.geotools.util.Utilities;
  *
  */
 public class CatalogBuilderConfiguration{
+    
+    public Hints hints;
 
-	public CatalogBuilderConfiguration() {
+	/**
+     * @return the hints
+     */
+    public Hints getHints() {
+        return hints;
+    }
+
+    /**
+     * @param hints the hints to set
+     */
+    public void setHints(Hints hints) {
+        this.hints = hints;
+    }
+
+    public CatalogBuilderConfiguration() {
 	}
 	
 	public CatalogBuilderConfiguration(final CatalogBuilderConfiguration that) {

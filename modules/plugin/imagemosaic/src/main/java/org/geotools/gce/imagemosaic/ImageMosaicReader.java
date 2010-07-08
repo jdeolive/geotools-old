@@ -149,18 +149,11 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 	 * 
 	 */
 	public ImageMosaicReader(Object source, Hints uHints) throws IOException {
+	    super(source,uHints);
+	    
 	        multiThreadedLoader = ImageMosaicFormatFactory.DefaultMultiThreadedLoader;
-		// //
-		//
-		// managing hints
-		//
-		// //
-		if (this.hints == null)
-			this.hints= new Hints();	
-		if (uHints != null) {
-			this.hints.add(uHints);
-		}
-		this.coverageFactory= CoverageFactoryFinder.getGridCoverageFactory(this.hints);
+
+	        
 		if(this.hints.containsKey(Hints.MAX_ALLOWED_TILES))
 			this.maxAllowedTiles= ((Integer)this.hints.get(Hints.MAX_ALLOWED_TILES));		
 
@@ -170,13 +163,6 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 		// Check source
 		//
 		// /////////////////////////////////////////////////////////////////////
-		if (source == null) {
-			final IOException ex = new DataSourceException("ImageMosaicReader:No source set to read this coverage.");
-			if (LOGGER.isLoggable(Level.WARNING))
-				LOGGER.log(Level.WARNING, ex.getLocalizedMessage(), ex);
-			throw new DataSourceException(ex);
-		}
-		this.source = source;
 		if (source instanceof ImageMosaicDescriptor) {
 		    initReaderFromDescriptor((ImageMosaicDescriptor) source, uHints);
 		} else {
@@ -215,7 +201,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
      * @throws DataSourceException
      */
     private void initReaderFromURL(final Object source, final Hints hints) throws MalformedURLException, DataSourceException {
-		this.sourceURL=Utils.checkSource(source);
+		this.sourceURL=Utils.checkSource(source,hints);
 		if(this.sourceURL==null)
 			throw new DataSourceException("This plugin accepts File, URL or String. The string may describe a File or an URL");
 		
