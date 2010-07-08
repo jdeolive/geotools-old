@@ -35,6 +35,7 @@ import org.geotools.coverageio.jp2k.JP2KReader;
 import org.geotools.factory.Hints;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.referencing.CRS;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.test.TestData;
 import org.junit.Before;
 import org.junit.Test;
@@ -163,7 +164,7 @@ public final class JP2KTest extends BaseJP2K {
         // //
 
         useJAI.setValue(true);
-        final Envelope wgs84Envelope = CRS.transform(oldEnvelope, JP2KFormat.getDefaultCRS());
+        final Envelope wgs84Envelope = CRS.transform(oldEnvelope, DefaultGeographicCRS.WGS84);
         gg.setValue(new GridGeometry2D(reader.getOriginalGridRange(), wgs84Envelope));
         gc = (GridCoverage2D) reader.read(new GeneralParameterValue[] {gg, useJAI});
         assertNotNull(gc);
