@@ -432,46 +432,46 @@ in database form was the European Petroleum Standards Group (EPSG). The database
 is distributed in Microsoft Access and is ported into all kinds of other forms
 including the gt-hsql jar included with GeoTools.
 
-.. list-table::
-   :widths: 50 50
-   :header-rows: 0
+EPSG:4326
+   EPSG Projection 4326 - WGS 84
 
-   * -  EPSG:4326
-       
-        * EPSG Projection 4326 - WGS 84
-        * This is the big one – information measured by lat/lon using decimal degrees.
-        * CRS.decode(“EPSG:4326”);
-        * DefaultGeographicCRS.WGS84;
-     - .. image:: images/epsg4326.png
-          :width: 70%
-       
-   * -  EPSG: 3785
+   .. image:: images/epsg4326.png
+      :scale: 30
+   
+   This is the big one: nformation measured by lat/lon using decimal degrees.
         
-        * Popular Visualisation CRS / Mercator 
-        * The official code for the “Google map” projection used by a lot of web mapping
-          applications.  It is nice to pretend the world is a sphere (it makes your math
-          very fast) – but it looks really odd if you draw a square in Oslo.
-        * CRS.decode(“EPSG:3785”);
-     -  .. image:: images/epsg3785.png
-           :width: 70%
-       
-   * -  EPSG:3005
+   ``CRS.decode(“EPSG:4326”);``
+
+   `DefaultGeographicCRS.WGS84;``
+
+EPSG: 3785
+    Popular Visualisation CRS / Mercator 
+
+    .. image:: images/epsg3785.png
+       :scale: 30
         
-        * NAD83 / BC Albers
-        * Example of an “equal area” projection for the west coast of Canada. The axes
-          are measured in metres which is handy for calculating distance or area.
-        * CRS.decode(“EPSG:3005”);
-     -  .. image:: images/epsg3005.png
-           :width: 70 %
+    The official code for the “Google map” projection used by a lot of web mapping
+    applications.  It is nice to pretend the world is a sphere (it makes your math
+    very fast). However it looks really odd if you draw a square in Oslo.
+        
+    ``CRS.decode(“EPSG:3785”);``
+       
+EPSG:3005
+    NAD83 / BC Albers
+
+    .. image:: images/epsg3005.png
+       :scale: 30
+        
+    Example of an “equal area” projection for the west coast of Canada. The axes
+    are measured in metres which is handy for calculating distance or area.
+        
+    ``CRS.decode(“EPSG:3005”);``
 
 Note that both EPSG:4326 and EPSG:3785 are using lat/lon – but arrive at a very
 different shape for their map.
 
 Axis Order
 ----------
-
-    .. image:: images/axisOrder.png
-       :align: right
 
 .. sidebar:: Why
 
@@ -486,6 +486,9 @@ always recording position in latitude, followed by longitude; that is, with the
 north-south axis first and the east-west access second. When you draw that on
 the screen quickly it looks like the world is sideways as the coordinates are
 in”y/x” to my way of thinking and you need to swap them before drawing.
+
+.. image:: images/axisOrder.png
+   :scale: 40
 
 We are so used to working in x/y order that we would end up assuming it was
 supposed to be this way – and have been fighting with map makers ever since.

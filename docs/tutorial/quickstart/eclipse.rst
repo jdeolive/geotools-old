@@ -1,3 +1,10 @@
+:Author: Jody Garnett
+:Author: Micheal Bedward
+:Thanks: geotools-user list
+:Version: |release|
+:License: Create Commons with attribution
+
+
 .. _eclipse-quickstart:
 
 **********************
@@ -5,12 +12,6 @@
 **********************
 
 .. sectionauthor:: Jody Garnett <jody.garnett@gmail.org>
-
-:Author: Jody Garnett
-:Author: Micheal Bedward
-:Thanks: geotools-user list
-:Version: |release|
-:License: Create Commons with attribution
    
 .. contents::
 
@@ -453,11 +454,11 @@ generating eclipse :file:`.project` and :file:`.classpath` files.
    
 2. Unzip the file apache-maven-2.2.1-bin.zip to C:\java\apache-maven-2.2.1
 3. You need to have a couple of environmental variables set for maven to work. Use
-   :menuselection:`Control Panel --> System --> Advanced --> Environmental Variables` to set the following:
+   :menuselection:`Control Panel --> System --> Advanced --> Environmental Variables` to set the following.
 
-   JAVA_HOME = :file:`C:\Program Files\Java\jdk1.6.0_16`
-   M2_HOME = :file:`C:\java\apache-maven-2.2.1`
-   PATH = :file:`%JAVA_HOME%\bin;%M2_HOME%\bin`
+   * JAVA_HOME = :file:`C:\Program Files\Java\jdk1.6.0_16`
+   * M2_HOME = :file:`C:\java\apache-maven-2.2.1`
+   * PATH = :file:`%JAVA_HOME%\bin;%M2_HOME%\bin`
 
    .. image:: images/env-variables.jpg
       :scale: 60

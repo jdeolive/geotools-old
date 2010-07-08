@@ -27,7 +27,7 @@ pdf_stylesheets = ['sphinx','kerning','a4']
 #pdf_compressed = False
 
 # A colon-separated list of folders to search for fonts. Example:
-pdf_font_path = ['/usr/share/fonts', '/usr/share/texmf-dist/fonts/']
+# pdf_font_path = ['/usr/share/fonts', '/usr/share/texmf-dist/fonts/']
 
 # Language to be used for hyphenation support
 #pdf_language = "en_US"
@@ -100,7 +100,7 @@ latex_documents = [
   ('feature/csv2shp', 'FeatureTutorial.tex', u'Feature Tutorial',u'Jody Garnett /and Micheal Bedward','howto'),
   ('geometry/geometrycrs', 'GeometryCRS.tex', u'Geometry and CRS Tutorial',u'Jody Garnett /and Micheal Bedward','howto'),
   ('filter/query', 'Query.tex', u'Query Tutorial',u'Jody Garnett /and Micheal Bedward','howto'),
-  ('raster/image', 'Image.tex', u'Image Tutorial',u'Jody Garnett /and Micheal Bedward','howto'),
+ # ('raster/image', 'Image.tex', u'Image Tutorial',u'Jody Garnett /and Micheal Bedward','howto'),
   ('map/style', 'Style.tex', u'Style Tutorial',u'Jody Garnett /and Micheal Bedward','howto'),
 ]
 

@@ -31,6 +31,10 @@
       <param name="id" value="tutorial"/>
       <param name="build" value="latex"/>
     </antcall>
+    <antcall target="sphinx">
+      <param name="id" value="tutorial"/>
+      <param name="build" value="pdf"/>
+    </antcall>
   </target>
 
   <target name="sphinx" if="sphinx.available">
