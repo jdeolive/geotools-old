@@ -810,4 +810,12 @@ public final class WorldImageReader extends AbstractGridCoverage2DReader
 		return 1;
 	}
 
+	/**
+	 * Returns the file extension of the image. 
+	 * 
+	 * @since 2.7
+	 */
+	public String getExtension() {
+	    return extension;
+	}
 }
