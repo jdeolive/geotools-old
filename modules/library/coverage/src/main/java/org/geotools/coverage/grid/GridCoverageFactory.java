@@ -38,10 +38,10 @@ import org.geotools.coverage.GridSampleDimension;
 import org.geotools.factory.AbstractFactory;
 import org.geotools.factory.Hints;
 import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.referencing.crs.DefaultEngineeringCRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
-import org.geotools.util.Utilities;
 import org.opengis.coverage.SampleDimensionType;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.coverage.grid.GridEnvelope;
@@ -121,16 +121,9 @@ public class GridCoverageFactory extends AbstractFactory {
      * @param userHints An optional set of hints to use for coverage constructions.
      */
     public GridCoverageFactory(final Hints userHints) {
-        CoordinateReferenceSystem defaultCRS = null;
         String tileEncoding = null;
         if (userHints != null) {
-            defaultCRS = (CoordinateReferenceSystem) userHints.get(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM);
-            if (Utilities.equals(defaultCRS, DefaultGeographicCRS.WGS84) ||
-                Utilities.equals(defaultCRS, DefaultGeographicCRS.WGS84_3D))
-            {
-                // Will be handled in a special way by getDefaultCRS(int)
-                defaultCRS = null;
-            }
+
             tileEncoding = (String) userHints.get(Hints.TILE_ENCODING);
             if (tileEncoding != null) {
                 tileEncoding = tileEncoding.trim();
@@ -139,7 +132,6 @@ public class GridCoverageFactory extends AbstractFactory {
                 }
             }
         }
-        hints.put(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM, defaultCRS  );
         hints.put(Hints.TILE_ENCODING,                       tileEncoding);
     }
 
@@ -163,8 +155,8 @@ public class GridCoverageFactory extends AbstractFactory {
             return candidate;
         }
         switch (dimension) {
-            case  2: return DefaultGeographicCRS.WGS84;
-            case  3: return DefaultGeographicCRS.WGS84_3D;
+            case  2: return DefaultEngineeringCRS.CARTESIAN_2D;
+            case  3: return DefaultEngineeringCRS.CARTESIAN_3D;
             default: throw new IllegalArgumentException(Errors.format(
                     ErrorKeys.ILLEGAL_ARGUMENT_$2, "dimension", dimension));
         }
