@@ -6,8 +6,9 @@
  */
 package net.opengis.wps10;
 
-import org.eclipse.emf.common.util.EList;
+import javax.xml.namespace.QName;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 
 /**
@@ -64,21 +65,19 @@ public interface InputReferenceType extends EObject {
      * @return the value of the '<em>Body</em>' containment reference.
      * @see #setBody(EObject)
      * @see net.opengis.wps10.Wps10Package#getInputReferenceType_Body()
-     * @model containment="true"
-     *        extendedMetaData="kind='element' name='Body' namespace='##targetNamespace'"
-     * @generated
+     * @model
      */
-    EObject getBody();
+    Object getBody();
 
     /**
-     * Sets the value of the '{@link net.opengis.wps10.InputReferenceType#getBody <em>Body</em>}' containment reference.
+     * Sets the value of the '{@link net.opengis.wps10.InputReferenceType#getBody <em>Body</em>}' attribute.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @param value the new value of the '<em>Body</em>' containment reference.
+     * @param value the new value of the '<em>Body</em>' attribute.
      * @see #getBody()
      * @generated
      */
-    void setBody(EObject value);
+    void setBody(Object value);
 
     /**
      * Returns the value of the '<em><b>Body Reference</b></em>' containment reference.

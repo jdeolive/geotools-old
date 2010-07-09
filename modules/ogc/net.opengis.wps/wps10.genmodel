@@ -14,6 +14,7 @@
     <genDataTypes ecoreDataType="wps10.ecore#//MethodTypeObject"/>
     <genDataTypes ecoreDataType="wps10.ecore#//PercentCompletedType"/>
     <genDataTypes ecoreDataType="wps10.ecore#//Map"/>
+    <genDataTypes ecoreDataType="wps10.ecore#//QName"/>
     <genClasses ecoreClass="wps10.ecore#//BodyReferenceType">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wps10.ecore#//BodyReferenceType/href"/>
     </genClasses>
@@ -120,7 +121,7 @@
     </genClasses>
     <genClasses ecoreClass="wps10.ecore#//InputReferenceType">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wps10.ecore#//InputReferenceType/header"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wps10.ecore#//InputReferenceType/body"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute wps10.ecore#//InputReferenceType/body"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wps10.ecore#//InputReferenceType/bodyReference"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wps10.ecore#//InputReferenceType/encoding"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wps10.ecore#//InputReferenceType/href"/>

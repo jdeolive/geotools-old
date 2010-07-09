@@ -8,6 +8,7 @@ package net.opengis.wps10.impl;
 
 import java.util.Collection;
 
+import javax.xml.namespace.QName;
 import net.opengis.wps10.BodyReferenceType;
 import net.opengis.wps10.HeaderType;
 import net.opengis.wps10.InputReferenceType;
@@ -61,14 +62,24 @@ public class InputReferenceTypeImpl extends EObjectImpl implements InputReferenc
     protected EList header;
 
     /**
-     * The cached value of the '{@link #getBody() <em>Body</em>}' containment reference.
+     * The default value of the '{@link #getBody() <em>Body</em>}' attribute.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @see #getBody()
      * @generated
      * @ordered
      */
-    protected EObject body;
+    protected static final Object BODY_EDEFAULT = null;
+
+    /**
+     * The cached value of the '{@link #getBody() <em>Body</em>}' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @see #getBody()
+     * @generated
+     * @ordered
+     */
+    protected Object body = BODY_EDEFAULT;
 
     /**
      * The cached value of the '{@link #getBodyReference() <em>Body Reference</em>}' containment reference.
@@ -224,7 +235,7 @@ public class InputReferenceTypeImpl extends EObjectImpl implements InputReferenc
      * <!-- end-user-doc -->
      * @generated
      */
-    public EObject getBody() {
+    public Object getBody() {
         return body;
     }
 
@@ -233,33 +244,11 @@ public class InputReferenceTypeImpl extends EObjectImpl implements InputReferenc
      * <!-- end-user-doc -->
      * @generated
      */
-    public NotificationChain basicSetBody(EObject newBody, NotificationChain msgs) {
-        EObject oldBody = body;
+    public void setBody(Object newBody) {
+        Object oldBody = body;
         body = newBody;
-        if (eNotificationRequired()) {
-            ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, Wps10Package.INPUT_REFERENCE_TYPE__BODY, oldBody, newBody);
-            if (msgs == null) msgs = notification; else msgs.add(notification);
-        }
-        return msgs;
-    }
-
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    public void setBody(EObject newBody) {
-        if (newBody != body) {
-            NotificationChain msgs = null;
-            if (body != null)
-                msgs = ((InternalEObject)body).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - Wps10Package.INPUT_REFERENCE_TYPE__BODY, null, msgs);
-            if (newBody != null)
-                msgs = ((InternalEObject)newBody).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - Wps10Package.INPUT_REFERENCE_TYPE__BODY, null, msgs);
-            msgs = basicSetBody(newBody, msgs);
-            if (msgs != null) msgs.dispatch();
-        }
-        else if (eNotificationRequired())
-            eNotify(new ENotificationImpl(this, Notification.SET, Wps10Package.INPUT_REFERENCE_TYPE__BODY, newBody, newBody));
+        if (eNotificationRequired())
+            eNotify(new ENotificationImpl(this, Notification.SET, Wps10Package.INPUT_REFERENCE_TYPE__BODY, oldBody, body));
     }
 
     /**
@@ -444,8 +433,6 @@ public class InputReferenceTypeImpl extends EObjectImpl implements InputReferenc
         switch (featureID) {
             case Wps10Package.INPUT_REFERENCE_TYPE__HEADER:
                 return ((InternalEList)getHeader()).basicRemove(otherEnd, msgs);
-            case Wps10Package.INPUT_REFERENCE_TYPE__BODY:
-                return basicSetBody(null, msgs);
             case Wps10Package.INPUT_REFERENCE_TYPE__BODY_REFERENCE:
                 return basicSetBodyReference(null, msgs);
         }
@@ -491,7 +478,7 @@ public class InputReferenceTypeImpl extends EObjectImpl implements InputReferenc
                 getHeader().addAll((Collection)newValue);
                 return;
             case Wps10Package.INPUT_REFERENCE_TYPE__BODY:
-                setBody((EObject)newValue);
+                setBody(newValue);
                 return;
             case Wps10Package.INPUT_REFERENCE_TYPE__BODY_REFERENCE:
                 setBodyReference((BodyReferenceType)newValue);
@@ -526,7 +513,7 @@ public class InputReferenceTypeImpl extends EObjectImpl implements InputReferenc
                 getHeader().clear();
                 return;
             case Wps10Package.INPUT_REFERENCE_TYPE__BODY:
-                setBody((EObject)null);
+                setBody(BODY_EDEFAULT);
                 return;
             case Wps10Package.INPUT_REFERENCE_TYPE__BODY_REFERENCE:
                 setBodyReference((BodyReferenceType)null);
@@ -560,7 +547,7 @@ public class InputReferenceTypeImpl extends EObjectImpl implements InputReferenc
             case Wps10Package.INPUT_REFERENCE_TYPE__HEADER:
                 return header != null && !header.isEmpty();
             case Wps10Package.INPUT_REFERENCE_TYPE__BODY:
-                return body != null;
+                return BODY_EDEFAULT == null ? body != null : !BODY_EDEFAULT.equals(body);
             case Wps10Package.INPUT_REFERENCE_TYPE__BODY_REFERENCE:
                 return bodyReference != null;
             case Wps10Package.INPUT_REFERENCE_TYPE__ENCODING:
@@ -586,7 +573,9 @@ public class InputReferenceTypeImpl extends EObjectImpl implements InputReferenc
         if (eIsProxy()) return super.toString();
 
         StringBuffer result = new StringBuffer(super.toString());
-        result.append(" (encoding: ");
+        result.append(" (body: ");
+        result.append(body);
+        result.append(", encoding: ");
         result.append(encoding);
         result.append(", href: ");
         result.append(href);
