@@ -262,9 +262,8 @@ public final class GTopo30Reader extends AbstractGridCoverage2DReader implements
                 final Object tempCRS = this.hints.get(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM);
                 if (tempCRS != null) {
                     this.crs = (CoordinateReferenceSystem) tempCRS;
-                    LOGGER.log(Level.WARNING,
-                            new StringBuilder("Using forced coordinate reference system ").append(
-                                    crs.toWKT()).toString());
+                    if(LOGGER.isLoggable(Level.WARNING))
+                            LOGGER.log(Level.WARNING,"Using forced coordinate reference system ");
                 } else
                     crs = initCRS();
 		this.originalEnvelope = getBounds(crs);
@@ -598,7 +597,7 @@ public final class GTopo30Reader extends AbstractGridCoverage2DReader implements
 				}
 		}
                 final CoordinateReferenceSystem crs = AbstractGridFormat.getDefaultCRS();
-                LOGGER.info("PRJ file not found, proceeding with EPSG:4326 as follows: "+crs.toWKT());
+                LOGGER.info("PRJ file not found, proceeding with default crs");
                 return crs;
 	}
 
