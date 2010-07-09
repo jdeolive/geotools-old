@@ -108,7 +108,7 @@ public abstract class BaseGDALGridCoverage2DReader extends
         //
         // //
         if (getCoverageCRS() == null) {
-            LOGGER.info("crs not found, proceeding with EPSG:4326");
+            LOGGER.info("crs not found, proceeding with default crs");
             setCoverageCRS(AbstractGridFormat.getDefaultCRS());
         }
         
@@ -147,9 +147,9 @@ public abstract class BaseGDALGridCoverage2DReader extends
         //
         // //
         final Object tempCRS = this.hints.get(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM);
-            if (tempCRS != null) {
-                this.crs = (CoordinateReferenceSystem) tempCRS;
-                LOGGER.log(Level.WARNING,"Using forced coordinate reference system "+crs.toWKT());
+        if (tempCRS != null) {
+            setCoverageCRS((CoordinateReferenceSystem) tempCRS);
+            LOGGER.log(Level.WARNING,"Using default coordinate reference system ");
         } else{
             
             // //

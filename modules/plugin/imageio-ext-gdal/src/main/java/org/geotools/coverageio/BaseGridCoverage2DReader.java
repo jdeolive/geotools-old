@@ -162,31 +162,10 @@ public abstract class BaseGridCoverage2DReader extends AbstractGridCoverage2DRea
     		final Hints hints,
             final String worldFileExtension,
             final ImageReaderSpi formatSpecificSpi) throws DataSourceException {
-
+        super(input,hints);
     	ImageReader reader=null;;
         try {
-            // //
-            //
-            // managing hints
-            //
-            // //
-            if (this.hints == null)
-                this.hints = new Hints();
-
-            if (hints != null)
-                this.hints.add(hints);
-            
-            // GridCoverageFactory initialization
-            if (this.hints.containsKey(Hints.GRID_COVERAGE_FACTORY)){
-                final Object factory = this.hints.get(Hints.GRID_COVERAGE_FACTORY);
-                if (factory != null && factory instanceof GridCoverageFactory){
-                    this.coverageFactory = (GridCoverageFactory) factory;
-                }
-            }
-            if (this.coverageFactory == null){
-                this.coverageFactory = CoverageFactoryFinder.getGridCoverageFactory(this.hints);
-            }
-            
+           
             readerSPI = formatSpecificSpi;
             worldFileExt = worldFileExtension;
 
@@ -233,22 +212,22 @@ public abstract class BaseGridCoverage2DReader extends AbstractGridCoverage2DRea
             // Reset and dispose reader
             //
             // //
-        	if(reader!=null) {
-        		try {
-        			reader.reset();
-        		}catch (Exception e) {
+            if (reader != null) {
+                try {
+                    reader.reset();
+                } catch (Exception e) {
                     if (LOGGER.isLoggable(Level.FINE))
                         LOGGER.log(Level.FINE, e.getLocalizedMessage(), e);
-				}
-        		
-        		try {
-        			reader.dispose();
-        		}catch (Exception e) {
+                }
+
+                try {
+                    reader.dispose();
+                } catch (Exception e) {
                     if (LOGGER.isLoggable(Level.FINE))
                         LOGGER.log(Level.FINE, e.getLocalizedMessage(), e);
-				}        		
-                
-        	}
+                }
+
+            }
         }
     }
 
@@ -284,14 +263,8 @@ public abstract class BaseGridCoverage2DReader extends AbstractGridCoverage2DRea
      * @throws IOException
      * @throws FileNotFoundException
      */
-    private void checkSource(Object input) throws UnsupportedEncodingException,
-            DataSourceException, IOException, FileNotFoundException {
-        if (input == null) {
-            final IllegalArgumentException ex = new IllegalArgumentException(
-                    "No source set to read this coverage.");
-            throw ex;
-        }
-        this.source = null;
+    private void checkSource(Object input) throws UnsupportedEncodingException,IOException, FileNotFoundException {
+
 
         // //
         //
