@@ -38,6 +38,7 @@ import org.eclipse.emf.common.util.EList;
  *   <li>{@link net.opengis.wfs.GetFeatureType#getTraverseXlinkDepth <em>Traverse Xlink Depth</em>}</li>
  *   <li>{@link net.opengis.wfs.GetFeatureType#getTraverseXlinkExpiry <em>Traverse Xlink Expiry</em>}</li>
  *   <li>{@link net.opengis.wfs.GetFeatureType#getFormatOptions <em>Format Options</em>}</li>
+ *   <li>{@link net.opengis.wfs.GetFeatureType#getMetadata <em>Metadata</em>}</li>
  * </ul>
  * </p>
  *
@@ -323,5 +324,24 @@ public interface GetFeatureType extends BaseRequestType {
      * @generated
      */
     void setFormatOptions(Map value);
+    
+    /**
+     * A generic bag of extra information that implementations can use to carry vendor parameters
+     * <p>
+     * This property is not part of the standard model but an extension.
+     *  </p>
+     * @model
+     */
+     Map getMetadata();
+
+    /**
+     * Sets the value of the '{@link net.opengis.wfs.GetFeatureType#getMetadata <em>Metadata</em>}' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @param value the new value of the '<em>Metadata</em>' attribute.
+     * @see #getMetadata()
+     * @generated
+     */
+    void setMetadata(Map value);
 
 } // GetFeatureType

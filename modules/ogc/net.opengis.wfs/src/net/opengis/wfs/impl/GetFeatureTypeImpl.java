@@ -44,6 +44,7 @@ import org.eclipse.emf.ecore.util.InternalEList;
  *   <li>{@link net.opengis.wfs.impl.GetFeatureTypeImpl#getTraverseXlinkDepth <em>Traverse Xlink Depth</em>}</li>
  *   <li>{@link net.opengis.wfs.impl.GetFeatureTypeImpl#getTraverseXlinkExpiry <em>Traverse Xlink Expiry</em>}</li>
  *   <li>{@link net.opengis.wfs.impl.GetFeatureTypeImpl#getFormatOptions <em>Format Options</em>}</li>
+ *   <li>{@link net.opengis.wfs.impl.GetFeatureTypeImpl#getMetadata <em>Metadata</em>}</li>
  * </ul>
  * </p>
  *
@@ -197,6 +198,26 @@ public class GetFeatureTypeImpl extends BaseRequestTypeImpl implements GetFeatur
      * @ordered
      */
     protected Map formatOptions = FORMAT_OPTIONS_EDEFAULT;
+
+    /**
+     * The default value of the '{@link #getMetadata() <em>Metadata</em>}' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @see #getMetadata()
+     * @generated
+     * @ordered
+     */
+    protected static final Map METADATA_EDEFAULT = null;
+
+    /**
+     * The cached value of the '{@link #getMetadata() <em>Metadata</em>}' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @see #getMetadata()
+     * @generated
+     * @ordered
+     */
+    protected Map metadata = METADATA_EDEFAULT;
 
     /**
      * <!-- begin-user-doc -->
@@ -409,6 +430,27 @@ public class GetFeatureTypeImpl extends BaseRequestTypeImpl implements GetFeatur
 
     /**
      * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public Map getMetadata() {
+        return metadata;
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public void setMetadata(Map newMetadata) {
+        Map oldMetadata = metadata;
+        metadata = newMetadata;
+        if (eNotificationRequired())
+            eNotify(new ENotificationImpl(this, Notification.SET, WfsPackage.GET_FEATURE_TYPE__METADATA, oldMetadata, metadata));
+    }
+
+    /**
+     * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
      * @generated
      */
@@ -441,6 +483,8 @@ public class GetFeatureTypeImpl extends BaseRequestTypeImpl implements GetFeatur
                 return getTraverseXlinkExpiry();
             case WfsPackage.GET_FEATURE_TYPE__FORMAT_OPTIONS:
                 return getFormatOptions();
+            case WfsPackage.GET_FEATURE_TYPE__METADATA:
+                return getMetadata();
         }
         return super.eGet(featureID, resolve, coreType);
     }
@@ -474,6 +518,9 @@ public class GetFeatureTypeImpl extends BaseRequestTypeImpl implements GetFeatur
             case WfsPackage.GET_FEATURE_TYPE__FORMAT_OPTIONS:
                 setFormatOptions((Map)newValue);
                 return;
+            case WfsPackage.GET_FEATURE_TYPE__METADATA:
+                setMetadata((Map)newValue);
+                return;
         }
         super.eSet(featureID, newValue);
     }
@@ -506,6 +553,9 @@ public class GetFeatureTypeImpl extends BaseRequestTypeImpl implements GetFeatur
             case WfsPackage.GET_FEATURE_TYPE__FORMAT_OPTIONS:
                 setFormatOptions(FORMAT_OPTIONS_EDEFAULT);
                 return;
+            case WfsPackage.GET_FEATURE_TYPE__METADATA:
+                setMetadata(METADATA_EDEFAULT);
+                return;
         }
         super.eUnset(featureID);
     }
@@ -531,6 +581,8 @@ public class GetFeatureTypeImpl extends BaseRequestTypeImpl implements GetFeatur
                 return TRAVERSE_XLINK_EXPIRY_EDEFAULT == null ? traverseXlinkExpiry != null : !TRAVERSE_XLINK_EXPIRY_EDEFAULT.equals(traverseXlinkExpiry);
             case WfsPackage.GET_FEATURE_TYPE__FORMAT_OPTIONS:
                 return FORMAT_OPTIONS_EDEFAULT == null ? formatOptions != null : !FORMAT_OPTIONS_EDEFAULT.equals(formatOptions);
+            case WfsPackage.GET_FEATURE_TYPE__METADATA:
+                return METADATA_EDEFAULT == null ? metadata != null : !METADATA_EDEFAULT.equals(metadata);
         }
         return super.eIsSet(featureID);
     }
@@ -556,6 +608,8 @@ public class GetFeatureTypeImpl extends BaseRequestTypeImpl implements GetFeatur
         result.append(traverseXlinkExpiry);
         result.append(", formatOptions: ");
         result.append(formatOptions);
+        result.append(", metadata: ");
+        result.append(metadata);
         result.append(')');
         return result.toString();
     }
