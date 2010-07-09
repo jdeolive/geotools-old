@@ -27,6 +27,8 @@ import javax.imageio.stream.ImageInputStream;
 import javax.media.jai.PlanarImage;
 
 import org.geotools.coverage.grid.GridCoverage2D;
+import org.geotools.factory.Hints;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.test.TestData;
 import org.opengis.coverage.grid.GridCoverageReader;
 
@@ -79,6 +81,7 @@ public final class ArcGridVisualizationTest extends ArcGridTestCaseAdapter {
 	 * @throws IOException
 	 */
 	public void testReadFileGZip() throws IOException {
+	    final Hints hints = new Hints(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM,DefaultGeographicCRS.WGS84);
 		LOGGER.info("Reading the coverage through a file");
 		// get a gzipped ascii grid
 		final File f = TestData.file(this, "arcgrid/spearfish.asc.gz");
@@ -91,18 +94,18 @@ public final class ArcGridVisualizationTest extends ArcGridTestCaseAdapter {
 		final ImageInputStream iiStream = ImageIO
 				.createImageInputStream( new GZIPInputStream(
 						new FileInputStream(f)));
-		reader = new ArcGridReader(iiStream);
+		reader = new ArcGridReader(iiStream,hints);
 		final GridCoverage2D gc2 = (GridCoverage2D) reader.read(null);
 
 		LOGGER.info(" Reading the gzipped coverage through an InputStream");
 		// Reading the coverage through an InputStream
 		reader = new ArcGridReader( new GZIPInputStream(
-				new FileInputStream(f)));
+				new FileInputStream(f)),hints);
 		final GridCoverage2D gc3 = (GridCoverage2D) reader.read(null);
 		
 		LOGGER.info("Reading the gzipped coverage through a URL");
 		// Reading the coverage through a URL
-		reader = new ArcGridReader( f.toURI().toURL());
+		reader = new ArcGridReader( f.toURI().toURL(),hints);
 		final GridCoverage2D gc4 = (GridCoverage2D) reader.read(null);
 
 		// show the coverage or try to load the data

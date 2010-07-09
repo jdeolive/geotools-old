@@ -26,7 +26,9 @@ import java.util.Random;
 import org.geotools.TestData;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
+import org.geotools.factory.Hints;
 import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.resources.coverage.CoverageUtilities;
 import org.opengis.coverage.grid.GridCoverageReader;
 import org.opengis.coverage.grid.GridCoverageWriter;
@@ -165,8 +167,9 @@ public class ArcGridReadWriteTest extends ArcGridBaseTestCase {
 	 */
 	public void writeGrassUnCompressed(File rf, File wf) throws Exception {
 
+            final Hints hints = new Hints(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM,DefaultGeographicCRS.WGS84);
 		/** Step 1: Reading the coverage */
-		GridCoverageReader reader = new ArcGridReader(rf);
+		GridCoverageReader reader = new ArcGridReader(rf,hints);
 		final GridCoverage2D gc1 = (GridCoverage2D) reader.read(null);
 		assertTrue(CoverageUtilities.hasRenderingCategories(gc1));
 
@@ -191,7 +194,7 @@ public class ArcGridReadWriteTest extends ArcGridBaseTestCase {
 		writer.dispose();
 
 		/** Step 3: Read the just written coverage */
-		GridCoverageReader reader2 = new ArcGridReader(wf);
+		GridCoverageReader reader2 = new ArcGridReader(wf,hints);
 		final GridCoverage2D gc2 = (GridCoverage2D) reader2.read(null);
 
 		/** Step 4: Check if the 2 coverage are equals */
@@ -215,8 +218,9 @@ public class ArcGridReadWriteTest extends ArcGridBaseTestCase {
 	 */
 	public void writeEsriUnCompressed(File rf, File wf) throws Exception {
 
+            final Hints hints = new Hints(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM,DefaultGeographicCRS.WGS84);
 		/** Step 1: Reading the coverage */
-		GridCoverageReader reader = new ArcGridReader(rf);
+		GridCoverageReader reader = new ArcGridReader(rf,hints);
 		final GridCoverage2D gc1 = (GridCoverage2D) reader.read(null);
 		assertTrue(CoverageUtilities.hasRenderingCategories(gc1));
 
@@ -241,7 +245,7 @@ public class ArcGridReadWriteTest extends ArcGridBaseTestCase {
 		writer.dispose();
 
 		/** Step 3: Read the just written coverage */
-		GridCoverageReader reader2 = new ArcGridReader(wf);
+		GridCoverageReader reader2 = new ArcGridReader(wf,hints);
 		final GridCoverage2D gc2 = (GridCoverage2D) reader2.read(null);
 
 		/** Step 4: Check if the 2 coverage are equals */

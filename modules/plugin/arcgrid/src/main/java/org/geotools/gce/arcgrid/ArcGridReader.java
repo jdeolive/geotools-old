@@ -127,7 +127,7 @@ public final class ArcGridReader extends AbstractGridCoverage2DReader implements
 	 */
 	public ArcGridReader(Object input, final Hints hints)
 			throws DataSourceException {
-
+	    super(input,hints);
 		// /////////////////////////////////////////////////////////////////////
 		//
 		// Checking input
@@ -143,20 +143,15 @@ public final class ArcGridReader extends AbstractGridCoverage2DReader implements
 			// /////////////////////////////////////////////////////////////////////
 			checkSource(input,hints);
 
-			// /////////////////////////////////////////////////////////////////////
 			//
 			// CRS
 			//
-			// /////////////////////////////////////////////////////////////////////
-			final Object tempCRS = this.hints
-					.get(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM);
-			if (tempCRS != null) {
-				this.crs = (CoordinateReferenceSystem) tempCRS;
-				LOGGER.log(Level.WARNING, new StringBuffer(
-						"Using forced coordinate reference system ").append(
-						crs.toWKT()).toString());
-			} else
-				getCoordinateReferenceSystem();
+		        final Object tempCRS = this.hints.get(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM);
+		        if (tempCRS != null) {
+		            this.crs=(CoordinateReferenceSystem) tempCRS;
+		            LOGGER.log(Level.WARNING,"Using default coordinate reference system ");
+		        } else			
+		            getCoordinateReferenceSystem();
 
 			// /////////////////////////////////////////////////////////////////////
 			//
@@ -244,39 +239,7 @@ public final class ArcGridReader extends AbstractGridCoverage2DReader implements
 	private void checkSource(Object input, final Hints hints)
 			throws UnsupportedEncodingException, DataSourceException,
 			IOException, FileNotFoundException {
-		
-		
-		// //
-		//
-		// managing hints
-		//
-		// //
-		if (this.hints == null)
-			this.hints= new Hints();	
-		if (hints != null) {
-			this.hints.add(hints);
-		}
-		
-                // GridCoverageFactory initialization
-                if (this.hints.containsKey(Hints.GRID_COVERAGE_FACTORY)) {
-                    final Object factory = this.hints.get(Hints.GRID_COVERAGE_FACTORY);
-                    if (factory != null && factory instanceof GridCoverageFactory) {
-                        this.coverageFactory = (GridCoverageFactory) factory;
-                    }
-                }
-                if (this.coverageFactory == null) {
-                    this.coverageFactory = CoverageFactoryFinder.getGridCoverageFactory(this.hints);
-                }
-                
-		
-		if (input == null) {
-			final DataSourceException ex = new DataSourceException(
-					"No source set to read this coverage.");
-			if (LOGGER.isLoggable(Level.SEVERE))
-				LOGGER.log(Level.SEVERE, ex.getLocalizedMessage(), ex);
-			throw ex;
-		}
-		this.source = input;
+	
 		closeMe = true;
 		// //
 		//
@@ -741,7 +704,7 @@ public final class ArcGridReader extends AbstractGridCoverage2DReader implements
 		}
 		if (crs == null) {
 			crs = AbstractGridFormat.getDefaultCRS();
-			LOGGER.info( "Unable to find crs, continuing with default WGS4 CRS" );
+			LOGGER.info( "Unable to find crs, continuing with default CRS" );
 		}
 	}
 
