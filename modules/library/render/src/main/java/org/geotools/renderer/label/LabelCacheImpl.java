@@ -21,6 +21,7 @@ import static org.geotools.styling.TextSymbolizer.*;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.font.GlyphVector;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
@@ -88,6 +89,26 @@ import com.vividsolutions.jts.precision.EnhancedPrecisionOp;
  */
 public final class LabelCacheImpl implements LabelCache {
     
+    public enum LabelRenderingMode {
+        /**
+         * Always uses {@link Graphics2D#drawGlyphVector(java.awt.font.GlyphVector, float, float)} to
+         * draw the straight labels. It's faster, straight and horizontal labels look better,
+         * diagonal labels look worse, labels and halos are not perfectly centered
+         */
+        STRING, 
+        /**
+         * Always extracts the outline from the {@link GlyphVector} and paints it as a shape. It's
+         * a bit slower, generates more antialiasing, ensures labels and halos are perfectly
+         * centered  
+         */
+        OUTLINE, 
+        /**
+         * Draws all diagonal lines in OUTLINE model, but horizontal ones in STRING mode.
+         * Gives the best results when coupled with {@link RenderingHints#VALUE_FRACTIONALMETRICS_ON}
+         * for good label/halo centering 
+         */
+        ADAPTIVE};
+    
     static final Logger LOGGER = Logging.getLogger(LabelCacheImpl.class);
 
     public double DEFAULT_PRIORITY = 1000.0;
@@ -111,13 +132,7 @@ public final class LabelCacheImpl implements LabelCache {
     static final double[] MID_ANCHOR_CANDIDATES = new double[] {0.5,0.5, 0,0.5, 1,0.5};
     static final double[] LEFT_ANCHOR_CANDIDATES = new double[] {1,0.5, 1,0, 1,1};
 
-    /**
-     * When true, the text is rendered as its GlyphVector outline (as a
-     * geometry) instead of using drawGlypVector. Pro: labels and halos are
-     * perfectly centered, some people prefer the extra antialiasing obtained.
-     * Cons: possibly slower, some people do not like the extra antialiasing :)
-     */
-    protected boolean outlineRenderingEnabled = false;
+    protected LabelRenderingMode labelRenderingMode = LabelRenderingMode.STRING;
 
     protected SLDStyleFactory styleFactory = new SLDStyleFactory();
 
@@ -138,19 +153,15 @@ public final class LabelCacheImpl implements LabelCache {
         enabledLayers.add(layerId);
     }
 
-    public boolean isOutlineRenderingEnabled() {
-        return outlineRenderingEnabled;
+    public LabelRenderingMode getLabelRenderingMode() {
+        return labelRenderingMode;
     }
 
     /**
-     * Sets the text rendering mode. When true, the text is rendered as its
-     * GlyphVector outline (as a geometry) instead of using drawGlypVector. Pro:
-     * labels and halos are perfectly centered, some people prefer the extra
-     * antialiasing obtained. Cons: possibly slower, some people do not like the
-     * extra antialiasing :)
+     * Sets the text rendering mode. 
      */
-    public void setOutlineRenderingEnabled(boolean outlineRenderingEnabled) {
-        this.outlineRenderingEnabled = outlineRenderingEnabled;
+    public void setLabelRenderingMode(LabelRenderingMode mode) {
+        this.labelRenderingMode = mode;
     }
 
     public void stop() {
@@ -436,7 +447,8 @@ public final class LabelCacheImpl implements LabelCache {
             // the outline
             // method, we need to re-enable graphics antialiasing during label
             // painting
-            if (outlineRenderingEnabled && antialiasing == RenderingHints.VALUE_ANTIALIAS_OFF
+            if (labelRenderingMode != LabelRenderingMode.STRING 
+                    && antialiasing == RenderingHints.VALUE_ANTIALIAS_OFF
                     && textAntialiasing == RenderingHints.VALUE_TEXT_ANTIALIAS_ON) {
                 graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                         RenderingHints.VALUE_ANTIALIAS_ON);
@@ -473,7 +485,7 @@ public final class LabelCacheImpl implements LabelCache {
         } else {
             items = getActiveLabels();
         }
-        LabelPainter painter = new LabelPainter(graphics, outlineRenderingEnabled);
+        LabelPainter painter = new LabelPainter(graphics, labelRenderingMode);
         for (LabelCacheItem labelItem : items) {
             if (stop)
                 return;

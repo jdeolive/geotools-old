@@ -78,6 +78,7 @@ import org.geotools.renderer.RenderListener;
 import org.geotools.renderer.crs.ProjectionHandler;
 import org.geotools.renderer.crs.ProjectionHandlerFinder;
 import org.geotools.renderer.label.LabelCacheImpl;
+import org.geotools.renderer.label.LabelCacheImpl.LabelRenderingMode;
 import org.geotools.renderer.lite.gridcoverage2d.GridCoverageRenderer;
 import org.geotools.renderer.style.SLDStyleFactory;
 import org.geotools.renderer.style.Style2D;
@@ -256,13 +257,19 @@ public final class StreamingRenderer implements GTRenderer {
      * the text in other applications. The downside is that on most platform the label
      * and its eventual halo are not properly centered.
      */
-    public static final String TEXT_RENDERING_STRING = "STRING";
+    public static final String TEXT_RENDERING_STRING = LabelCacheImpl.LabelRenderingMode.STRING.name();
 
     /**
      * Text will be rendered using the associated {@link GlyphVector} outline, that is, a {@link Shape}.
      * This ensures perfect centering between the text and the halo, but introduces more text aliasing.
      */
-    public static final String TEXT_RENDERING_OUTLINE = "OUTLINE";
+    public static final String TEXT_RENDERING_OUTLINE = LabelCacheImpl.LabelRenderingMode.OUTLINE.name();
+    
+    /**
+     * Will use STRING mode for horizontal labels, OUTLINE mode for all other labels.
+     * Works best when coupled with {@link RenderingHints#VALUE_FRACTIONALMETRICS_ON}
+     */
+    public static final String TEXT_RENDERING_ADAPTIVE = LabelCacheImpl.LabelRenderingMode.ADAPTIVE.name();
 
     /**
      * The text rendering method, either TEXT_RENDERING_OUTLINE or TEXT_RENDERING_STRING
@@ -676,8 +683,7 @@ public final class StreamingRenderer implements GTRenderer {
         final MapLayer[] layers = context.getLayers();
         labelCache.start();
         if(labelCache instanceof LabelCacheImpl) {
-            boolean outlineEnabled = TEXT_RENDERING_OUTLINE.equals(getTextRenderingMethod());
-            ((LabelCacheImpl) labelCache).setOutlineRenderingEnabled(outlineEnabled);
+            ((LabelCacheImpl) labelCache).setLabelRenderingMode(LabelRenderingMode.valueOf(getTextRenderingMethod()));
         }
         final int layersNumber = layers.length;
         MapLayer currLayer;

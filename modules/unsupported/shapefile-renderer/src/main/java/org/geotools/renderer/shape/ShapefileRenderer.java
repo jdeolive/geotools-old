@@ -83,6 +83,7 @@ import org.geotools.referencing.operation.matrix.XAffineTransform;
 import org.geotools.renderer.GTRenderer;
 import org.geotools.renderer.RenderListener;
 import org.geotools.renderer.label.LabelCacheImpl;
+import org.geotools.renderer.label.LabelCacheImpl.LabelRenderingMode;
 import org.geotools.renderer.lite.LabelCache;
 import org.geotools.renderer.lite.LabelCacheDefault;
 import org.geotools.renderer.lite.LiteFeatureTypeStyle;
@@ -1387,9 +1388,8 @@ public class ShapefileRenderer implements GTRenderer {
         CoordinateReferenceSystem destinationCrs = context.getCoordinateReferenceSystem();
         labelCache.start();
         labelCache.clear();
-        if(labelCache instanceof LabelCacheDefault) {
-            boolean outlineEnabled = TEXT_RENDERING_OUTLINE.equals(getTextRenderingMethod());
-            ((LabelCacheDefault) labelCache).setOutlineRenderingEnabled(outlineEnabled);
+        if(labelCache instanceof LabelCacheImpl) {
+            ((LabelCacheImpl) labelCache).setLabelRenderingMode(LabelRenderingMode.valueOf(getTextRenderingMethod()));
         }
         for( int i = 0; i < layers.length; i++ ) {
             MapLayer currLayer = layers[i];

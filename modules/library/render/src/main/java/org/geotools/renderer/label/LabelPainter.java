@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.geotools.geometry.jts.LiteShape2;
+import org.geotools.renderer.label.LabelCacheImpl.LabelRenderingMode;
 import org.geotools.renderer.lite.StyledShapePainter;
 import org.geotools.renderer.style.TextStyle2D;
 
@@ -60,6 +61,11 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * @source $URL$
  */
 public class LabelPainter {
+    
+    /**
+     * Epsilon used for comparisons with 0
+     */
+    static final double EPS = 1e-6;
 
     /**
      * The current label we're tring to draw
@@ -77,10 +83,10 @@ public class LabelPainter {
     Graphics2D graphics;
 
     /**
-     * Wheter we draw text using its {@link Shape} outline, or we use a plain
+     * Whether we draw text using its {@link Shape} outline, or we use a plain
      * {@link Graphics2D#drawGlyphVector(GlyphVector, float, float)} instead
      */
-    boolean outlineRenderingEnabled;
+    LabelRenderingMode labelRenderingMode;
 
     /**
      * Used to build JTS geometries during label painting
@@ -98,9 +104,9 @@ public class LabelPainter {
      * @param graphics
      * @param outlineRenderingEnabled
      */
-    public LabelPainter(Graphics2D graphics, boolean outlineRenderingEnabled) {
+    public LabelPainter(Graphics2D graphics, LabelRenderingMode labelRenderingMode) {
         this.graphics = graphics;
-        this.outlineRenderingEnabled = outlineRenderingEnabled;
+        this.labelRenderingMode = labelRenderingMode;
     }
 
     /**
@@ -382,6 +388,7 @@ public class LabelPainter {
                 return;
 
             // draw the label
+            
             if (lines.size() == 1) {
                 drawGlyphVector(lines.get(0).gv);
             } else {
@@ -413,10 +420,19 @@ public class LabelPainter {
             graphics.draw(outline);
         }
         configureLabelStyle();
-        if (outlineRenderingEnabled)
-            graphics.fill(outline);
-        else
+        
+        if(labelRenderingMode == LabelRenderingMode.STRING) {
             graphics.drawGlyphVector(gv, 0, 0);
+        } else if(labelRenderingMode == LabelRenderingMode.OUTLINE) {
+            graphics.fill(outline);
+        } else {
+            AffineTransform tx = graphics.getTransform();
+            if (Math.abs(tx.getShearX()) >= EPS || Math.abs(tx.getShearY()) > EPS) {
+                graphics.fill(outline);
+            } else {
+                graphics.drawGlyphVector(gv, 0, 0);
+            }
+        }
     }
 
     /**
