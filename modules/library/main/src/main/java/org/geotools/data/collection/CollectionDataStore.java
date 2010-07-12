@@ -67,20 +67,19 @@ public class CollectionDataStore extends AbstractDataStore {
      */
     public CollectionDataStore(FeatureCollection<SimpleFeatureType,SimpleFeature> collection) {
         this.collection = collection;
-
         if (collection.size() == 0) {
             this.featureType = FeatureTypes.EMPTY;
         } else {
-            Iterator iter = null;
-            try {
-                iter = collection.iterator();
-                this.featureType = ((SimpleFeature) iter.next()).getFeatureType();
-            } finally {
-                if (iter != null)
-                    collection.close(iter);
-            }
+            this.featureType = collection.getSchema();
+//            Iterator iter = null;
+//            try {
+//                iter = collection.iterator();
+//                this.featureType = ((SimpleFeature) iter.next()).getFeatureType();
+//            } finally {
+//                if (iter != null)
+//                    collection.close(iter);
+//            }
         }
-
         collection.addListener(new FeatureCollectionListener());
     }
 
