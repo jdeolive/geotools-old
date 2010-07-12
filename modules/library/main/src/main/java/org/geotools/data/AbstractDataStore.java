@@ -26,7 +26,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geotools.data.simple.SimpleFeatureSource;
-import org.geotools.data.view.DefaultView;
 import org.geotools.feature.FeatureTypes;
 import org.geotools.feature.NameImpl;
 import org.geotools.feature.SchemaException;
