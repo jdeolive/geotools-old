@@ -69,10 +69,6 @@ public class WMSLayer extends GridReaderLayer {
         STYLE.featureTypeStyles().add(type);
     }
 
-    public WMSCoverageReader getReader(){
-        return (WMSCoverageReader) this.reader;
-    }
-    
     /**
      * Builds a new WMS layer
      * 
@@ -82,6 +78,11 @@ public class WMSLayer extends GridReaderLayer {
     public WMSLayer(WebMapServer wms, Layer layer) {
         super( new WMSCoverageReader(wms, layer), STYLE );
     }
+
+    public WMSCoverageReader getReader(){
+        return (WMSCoverageReader) this.reader;
+    }
+    
 
     public synchronized ReferencedEnvelope getBounds() {
         WMSCoverageReader wmsReader = getReader();
