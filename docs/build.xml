@@ -39,7 +39,7 @@
 
   <target name="sphinx" if="sphinx.available">
     <exec executable="sphinx-build" failonerror="true" dir="${basedir}/${id}">
-      <arg line="-D release=${project.version} -b ${build} -d &quot;${build.directory}/${id}/doctrees&quot; . &quot;${build.directory}/${id}/${build}&quot;"/>
+      <arg line="-D release=${project.version} -a -E -b ${build} -d &quot;${build.directory}/${id}/doctrees&quot; . &quot;${build.directory}/${id}/${build}&quot;"/>
     </exec>
   </target>
 
