@@ -16,40 +16,16 @@
  */
 package org.geotools.map;
 
-import java.awt.Rectangle;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.List;
-import java.util.Map;
-import java.util.logging.Logger;
 
-
-import org.geotools.coverage.grid.GridCoverageFactory;
-import org.geotools.data.DataUtilities;
 import org.geotools.data.ows.Layer;
-import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.data.wms.WebMapServer;
 import org.geotools.data.wms.request.GetMapRequest;
-import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.map.event.MapLayerListener;
-import org.geotools.referencing.CRS;
-import org.geotools.renderer.lite.RendererUtilities;
-import org.geotools.resources.coverage.FeatureUtilities;
-import org.geotools.styling.FeatureTypeStyle;
-import org.geotools.styling.RasterSymbolizer;
-import org.geotools.styling.Rule;
-import org.geotools.styling.Style;
-import org.geotools.styling.StyleFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
-
-import com.sun.org.apache.bcel.internal.generic.ASTORE;
 
 /**
  * Wraps a WMS layer into a {@link MapLayer} for interactive rendering usage TODO: expose a

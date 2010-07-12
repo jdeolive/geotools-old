@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
-import java.util.logging.Logger;
 
 import org.geotools.data.ows.Layer;
 import org.geotools.data.wms.WebMapServer;
