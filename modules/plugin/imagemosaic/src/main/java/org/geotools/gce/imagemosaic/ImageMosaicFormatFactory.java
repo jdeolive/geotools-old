@@ -58,9 +58,9 @@ import com.sun.media.imageioimpl.plugins.tiff.TIFFImageReaderSpi;
  */
 public final class ImageMosaicFormatFactory implements GridFormatFactorySpi {
         
-    @Override
+        @Override
 	protected void finalize() throws Throwable {
-    	DefaultMultiThreadedLoader.shutdown();
+                DefaultMultiThreadedLoader.shutdown();
 		DefaultMultiThreadedLoader.shutdownNow();
 	}
 
@@ -68,10 +68,11 @@ public final class ImageMosaicFormatFactory implements GridFormatFactorySpi {
     
 	/** Logger. */
 	private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(ImageMosaicFormatFactory.class);
+	
 	private static final String KAKADU_SPI = "it.geosolutions.imageio.plugins.jp2k.JP2KKakaduImageReaderSpi";
 
 	static {
-	    initDefaultMultiThreadedLoader();
+	        initDefaultMultiThreadedLoader();
 	    
 		replaceTIFF();
 		
@@ -116,41 +117,46 @@ public final class ImageMosaicFormatFactory implements GridFormatFactorySpi {
 		return available;
 	}
 
+	/**
+	 * Initialize the multithreaded loader for loading granules in 
+	 * parallel inside {@link ImageMosaicReader}s instances.
+	 */
 	private static void initDefaultMultiThreadedLoader() {
-	        int corePoolSize = Utils.DEFAULT_CORE_POOLSIZE;
+	    // defaults   
+	    int corePoolSize = Utils.DEFAULT_CORE_POOLSIZE;
             int maxPoolSize = Utils.DEFAULT_MAX_POOLSIZE;;
             int keepAliveSeconds = Utils.DEFAULT_KEEP_ALIVE;
             Utils.QueueType queueType=Utils.DEFAULT_QUEUE_TYPE;
             
-            //Looking for file on user home
-            final String userHome = System.getProperty("user.home");
+
             String configFile = null;
-            if (userHome != null && userHome.length()>0) {
-                configFile = new StringBuilder(userHome).
-                append(File.separatorChar).append(Utils.THREADPOOL_CONFIG_FILE).toString();
-            }
             Properties props = null;
-            File file = null;
-            
-            if (configFile != null){
-                file = new File(configFile);
-                if (file != null && file.exists() && file.canRead()){
-                    props = Utils.loadPropertiesFromURL(DataUtilities.fileToURL(file));
+            //
+            // STEP 0 Java property
+            //
+            final String filePath = System.getProperty("mosaic.threadpoolconfig.path");
+            if (filePath != null && filePath.trim().length() > 0) {
+                configFile = filePath;
+                if (configFile != null){
+                    final File file = new File(configFile);
+                    if (file != null && file.exists() && file.canRead()){
+                        props = Utils.loadPropertiesFromURL(DataUtilities.fileToURL(file));
+                    }
                 }
-            }
-            
+            }            
+
+            //
+            // STEP 1 User home config file
+            //
             // Looking for file referred by "mosaic.threadpoolconfig.path" property
             if (props == null) {
-                if (!file.exists() || !file.canRead()) {
-                    final String filePath = System.getProperty("mosaic.threadpoolconfig.path");
-                    if (filePath != null && filePath.trim().length() > 0) {
-                        configFile = filePath;
-                        if (configFile != null){
-                            file = new File(configFile);
-                            if (file != null && file.exists() && file.canRead()){
-                                props = Utils.loadPropertiesFromURL(DataUtilities.fileToURL(file));
-                            }
-                        }
+                //Looking for file on user home
+                final String userHome = System.getProperty("user.home");
+                if (userHome != null && userHome.length()>0) {
+                    configFile = userHome+File.separatorChar+Utils.THREADPOOL_CONFIG_FILE;
+                    final File file = new File(configFile);
+                    if (file != null && file.exists() && file.canRead()){
+                        props = Utils.loadPropertiesFromURL(DataUtilities.fileToURL(file));
                     }
                 }
             }
@@ -194,9 +200,11 @@ public final class ImageMosaicFormatFactory implements GridFormatFactorySpi {
 				break;
 			}
             if (LOGGER.isLoggable(Level.FINE)){
-                LOGGER.fine(new StringBuilder("MultithreadedLoader configured with corePoolSize = ").append(corePoolSize)
-                        .append(" ; maxPoolSize = ").append(maxPoolSize).append(" ; keepAliveSeconds = ").append(keepAliveSeconds)
-                        .append(" ; queueType = ").append(queueType.toString()).toString());
+                LOGGER.fine("MultithreadedLoader configured with corePoolSize = "
+                        +corePoolSize+" ; maxPoolSize = "
+                        +maxPoolSize+" ; keepAliveSeconds = "
+                        +keepAliveSeconds+" ; queueType = "
+                        +queueType);
             }
         
     }

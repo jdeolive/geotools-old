@@ -245,13 +245,13 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
                         final Object tempCRS = this.hints.get(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM);
                         if (tempCRS != null) {
                             this.crs = (CoordinateReferenceSystem) tempCRS;
-                            LOGGER.log(Level.WARNING, "Using forced coordinate reference system " + crs.toWKT().toString());
+                            LOGGER.log(Level.WARNING, "Using forced coordinate reference system ");
                         } else {
                             final CoordinateReferenceSystem tempcrs = type.getGeometryDescriptor().getCoordinateReferenceSystem();
                             if (tempcrs == null) {
                                 // use the default crs
                                 crs = AbstractGridFormat.getDefaultCRS();
-                                LOGGER.log(Level.WARNING, "Unable to find a CRS for this coverage, using a default one: " + crs.toWKT());
+                                LOGGER.log(Level.WARNING, "Unable to find a CRS for this coverage, using a default one" );
                             } else
                                 crs = tempcrs;
                         }

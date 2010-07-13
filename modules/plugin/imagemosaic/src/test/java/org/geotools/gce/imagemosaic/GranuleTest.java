@@ -84,7 +84,6 @@ public class GranuleTest extends Assert {
 	}
 	
 	@Test
-	@Ignore
 	public void testGranuleLevels() throws FileNotFoundException, IOException {
 		
 		//get some test data

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+	<?xml version="1.0" encoding="UTF-8"?>
 <!-- =======================================================================
         Maven Project Configuration File
 
@@ -189,5 +189,4 @@
       <version>1.4</version>
     </dependency>    
   </dependencies>
-
 </project>
