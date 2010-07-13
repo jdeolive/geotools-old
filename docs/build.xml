@@ -22,10 +22,11 @@
       <param name="id" value="index"/>
       <param name="build" value="html"/>
     </antcall>
-    <!--antcall target="sphinx">
+    <antcall target="sphinx">
       <param name="id" value="tutorial"/>
       <param name="build" value="html"/>
-    </antcall-->
+    </antcall>
+    
     <!-- uncomment for pdf -->
     <!--antcall target="sphinx">
       <param name="id" value="tutorial"/>
