@@ -908,9 +908,9 @@ class RasterLayerRequest {
      */
     private void setBaseParameters(final BaseGridCoverage2DReader reader) {
         input = reader.getInputFile();
-        this.coverageEnvelope = reader.getCoverageEnvelope().clone();
-        this.coverageRasterArea = reader.getCoverageGridRange();
-        this.coverageCRS = reader.getCoverageCRS();
+        this.coverageEnvelope = reader.getOriginalEnvelope().clone();
+        this.coverageRasterArea = ((GridEnvelope2D)reader.getOriginalGridRange());
+        this.coverageCRS = reader.getCrs();
         this.coverageName = reader.getCoverageName();
         this.coverageGridToWorld2D = (MathTransform2D) reader.getRaster2Model();
         this.coverageFullResolution = reader.getHighestRes();

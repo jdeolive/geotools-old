@@ -107,23 +107,18 @@ public abstract class BaseGDALGridCoverage2DReader extends
         // Envelope and CRS checks
         //
         // //
-        if (getCoverageCRS() == null) {
+        if (this.crs== null) {
             LOGGER.info("crs not found, proceeding with default crs");
-            setCoverageCRS(AbstractGridFormat.getDefaultCRS());
+            this.crs=AbstractGridFormat.getDefaultCRS();
         }
         
         
-        if (getCoverageEnvelope() == null) {
+        if (this.originalEnvelope== null) {
             throw new DataSourceException("Unable to compute the envelope for this coverage");
         }
 
         // setting the coordinate reference system for the envelope, just to make sure we set it
-        getCoverageEnvelope().setCoordinateReferenceSystem(getCoverageCRS());
-
-        // Additional settings due to "final" methods getOriginalXXX
-        originalEnvelope = getCoverageEnvelope();
-        originalGridRange = getCoverageGridRange();
-        crs = getCoverageCRS();
+        this.originalEnvelope.setCoordinateReferenceSystem(this.crs);       
     }
 
     /**
@@ -148,7 +143,7 @@ public abstract class BaseGDALGridCoverage2DReader extends
         // //
         final Object tempCRS = this.hints.get(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM);
         if (tempCRS != null) {
-            setCoverageCRS((CoordinateReferenceSystem) tempCRS);
+            this.crs=(CoordinateReferenceSystem) tempCRS;
             LOGGER.log(Level.WARNING,"Using default coordinate reference system ");
         } else{
             
@@ -164,19 +159,19 @@ public abstract class BaseGDALGridCoverage2DReader extends
             // //
             parsePRJFile();
             // if there was not prj or the envelope could not be created easily, let's go with the standard metadata.
-            if (getCoverageCRS() == null) {
+            if (this.crs == null) {
                 final String wkt = metadata.getProjection();
     
                 if ((wkt != null) && !(wkt.equalsIgnoreCase(""))) {
                     try {
-                        setCoverageCRS(CRS.parseWKT(wkt));
-                        final Integer epsgCode = CRS.lookupEpsgCode(getCoverageCRS(), true);
+                        this.crs=CRS.parseWKT(wkt);
+                        final Integer epsgCode = CRS.lookupEpsgCode(this.crs, true);
                         // Force the creation of the CRS directly from the
                         // retrieved EPSG code in order to prevent weird transformation
                         // between "same" CRSs having slight differences.
                         // TODO: cache epsgCode-CRSs
                         if (epsgCode != null) {
-                            setCoverageCRS(CRS.decode("EPSG:" + epsgCode));
+                            this.crs=CRS.decode("EPSG:" + epsgCode);
                         }
                     } catch (FactoryException fe) {
                         // unable to get CRS from WKT
@@ -184,7 +179,7 @@ public abstract class BaseGDALGridCoverage2DReader extends
                             LOGGER.log(Level.FINE,"Unable to get CRS from WKT contained in metadata. Looking for a PRJ.");
                         }
                         //reset crs 
-                        setCoverageCRS(null);
+                        this.crs=null;
                     }
                 }
             }
@@ -194,9 +189,9 @@ public abstract class BaseGDALGridCoverage2DReader extends
         // 2) Grid
         //
         // //
-        if (getCoverageGridRange() == null)
-            setCoverageGridRange(new GridEnvelope2D(new Rectangle(0, 0,
-                    metadata.getWidth(), metadata.getHeight())));
+        if (this.originalGridRange == null)
+            this.originalGridRange=new GridEnvelope2D(new Rectangle(0, 0,
+                    metadata.getWidth(), metadata.getHeight()));
 
         // //
         // 
@@ -207,7 +202,7 @@ public abstract class BaseGDALGridCoverage2DReader extends
         // Let's look for a world file first.
         //
         parseWorldFile();
-        if (getCoverageEnvelope() == null) {
+        if (this.originalEnvelope == null) {
 	        final double[] geoTransform = metadata.getGeoTransformation();
 	        if ((geoTransform != null) && (geoTransform.length == 6)) {
 	            final AffineTransform tempTransform = new AffineTransform(
@@ -215,12 +210,12 @@ public abstract class BaseGDALGridCoverage2DReader extends
 	                    geoTransform[5], geoTransform[0], geoTransform[3]);
 	            // ATTENTION: Gdal geotransform does not use the pixel is
 	            // centre convention like world files.
-	            if (getCoverageEnvelope() == null) {
+	            if (this.originalEnvelope == null) {
 	                try {
 	                    // Envelope setting
-	                    setCoverageEnvelope(CRS.transform(ProjectiveTransform
+	                    this.originalEnvelope=CRS.transform(ProjectiveTransform
 	                            .create(tempTransform), new GeneralEnvelope(
-	                            getCoverageGridRange())));
+	                                   ((GridEnvelope2D) this.originalGridRange)));
 	                } catch (IllegalStateException e) {
 	                    if (LOGGER.isLoggable(Level.WARNING)) {
 	                        LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);

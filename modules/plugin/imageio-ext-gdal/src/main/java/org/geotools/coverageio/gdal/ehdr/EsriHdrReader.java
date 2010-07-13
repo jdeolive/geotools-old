@@ -40,6 +40,7 @@ import org.opengis.coverage.grid.GridCoverageReader;
 public final class EsriHdrReader extends BaseGDALGridCoverage2DReader implements
         GridCoverageReader {
     /** Logger. */
+    @SuppressWarnings("unused")
     private final static Logger LOGGER = org.geotools.util.logging.Logging
             .getLogger("org.geotools.coverageio.gdal.ehdr");
 

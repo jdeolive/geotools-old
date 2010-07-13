@@ -373,42 +373,41 @@ class RasterManager {
 		}
 			
 			
-		/**
-		 * Initialize the 2D properties (CRS and Envelope) of this coverage
-		 * @throws TransformException 
-		 * 
-		 * @throws FactoryException
-		 * @throws TransformException
-		 * @throws FactoryException 
-		 */
-		private void prepareCoverageSpatialElements() throws TransformException, FactoryException {
-			//
-			// basic initialization
-			//
-			coverageGeographicBBox =Utils.getReferencedEnvelopeFromGeographicBoundingBox(new GeographicBoundingBoxImpl(coverageEnvelope));
-			coverageGeographicCRS2D=coverageGeographicBBox.getCoordinateReferenceSystem();
-		    
-		    //
-		    // Get the original envelope 2d and its spatial reference system
-		    //
-		    coverageCRS2D = CRS.getHorizontalCRS(coverageCRS);
-		    assert coverageCRS2D.getCoordinateSystem().getDimension() == 2;
-		    if (coverageCRS.getCoordinateSystem().getDimension() != 2) {
-		        final MathTransform transform=CRS.findMathTransform(coverageCRS,(CoordinateReferenceSystem) coverageCRS2D);
-		        final GeneralEnvelope bbox = CRS.transform(transform,coverageEnvelope);
-		        bbox.setCoordinateReferenceSystem(coverageCRS2D);
-				coverageBBox = new ReferencedEnvelope(bbox);
-		    } else {
-		    	//it is already a bbox
-		        coverageBBox = new ReferencedEnvelope(coverageEnvelope);
-		    }
-		    
-		}
+        /**
+         * Initialize the 2D properties (CRS and Envelope) of this coverage
+         * 
+         * @throws TransformException
+         * 
+         * @throws FactoryException
+         * @throws TransformException
+         * @throws FactoryException
+         */
+        private void prepareCoverageSpatialElements() throws TransformException, FactoryException {
+            //
+            // basic initialization
+            //
+            coverageGeographicBBox = Utils.getWGS84ReferencedEnvelope(coverageEnvelope);
+            coverageGeographicCRS2D = coverageGeographicBBox==null?coverageGeographicBBox.getCoordinateReferenceSystem():null;
 
-		
-		
-		
-	}
+            //
+            // Get the original envelope 2d and its spatial reference system
+            //
+            coverageCRS2D = CRS.getHorizontalCRS(coverageCRS);
+            assert coverageCRS2D.getCoordinateSystem().getDimension() == 2;
+            if (coverageCRS.getCoordinateSystem().getDimension() != 2) {
+                final MathTransform transform = CRS.findMathTransform(coverageCRS,
+                        (CoordinateReferenceSystem) coverageCRS2D);
+                final GeneralEnvelope bbox = CRS.transform(transform, coverageEnvelope);
+                bbox.setCoordinateReferenceSystem(coverageCRS2D);
+                coverageBBox = new ReferencedEnvelope(bbox);
+            } else {
+                // it is already a bbox
+                coverageBBox = new ReferencedEnvelope(coverageEnvelope);
+            }
+
+        }
+
+    }
 	
 	/** Default {@link ColorModel}.*/
 	ColorModel defaultCM;

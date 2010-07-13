@@ -80,7 +80,6 @@ import org.geotools.gce.geotiff.adapters.GeoTiffIIOMetadataDecoder;
 import org.geotools.gce.geotiff.adapters.GeoTiffMetadata2CRSAdapter;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.referencing.CRS;
-import org.geotools.referencing.crs.DefaultEngineeringCRS;
 import org.geotools.referencing.operation.matrix.XAffineTransform;
 import org.geotools.referencing.operation.transform.ProjectiveTransform;
 import org.geotools.resources.i18n.Vocabulary;
@@ -96,7 +95,6 @@ import org.opengis.parameter.ParameterValue;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.ReferenceIdentifier;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.crs.ImageCRS;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
@@ -375,7 +373,6 @@ public final class GeoTiffReader extends AbstractGridCoverage2DReader implements
 	 * @throws IOException
 	 *             on any IO related troubles
 	 */
-	@SuppressWarnings("unchecked")
 	public GridCoverage2D read(GeneralParameterValue[] params) throws IOException {
 		GeneralEnvelope requestedEnvelope = null;
 		Rectangle dim = null;

@@ -42,8 +42,9 @@ import org.opengis.coverage.grid.GridCoverageReader;
 public final class MrSIDReader extends BaseGDALGridCoverage2DReader implements
         GridCoverageReader {
     /** Logger. */
+    @SuppressWarnings("unused")
     private final static Logger LOGGER = org.geotools.util.logging.Logging
-            .getLogger("org.geotools.coverageio.gdal.mrsid");
+            .getLogger(MrSIDReader.class);
 
     private final static String worldFileExt = ".sdw";
 
@@ -97,8 +98,8 @@ public final class MrSIDReader extends BaseGDALGridCoverage2DReader implements
         // //
         super.setCoverageProperties(reader);
 
-        if (getCoverageGridRange() != null && getCoverageCRS() != null
-                && getCoverageEnvelope() != null)
+        if (this.originalGridRange != null &&this.crs != null
+                && originalEnvelope != null)
             return;
         
         // Uncomment this section in case we stop using the default CRS.

@@ -84,6 +84,7 @@ public class GranuleTest extends Assert {
 	}
 	
 	@Test
+	@Ignore
 	public void testGranuleLevels() throws FileNotFoundException, IOException {
 		
 		//get some test data
@@ -137,7 +138,6 @@ public class GranuleTest extends Assert {
 	}
 	
 	@Test
-	@Ignore
 	public void testLoadRaster() throws FileNotFoundException, IOException, NoninvertibleTransformException {
 		
 		//get some test data
@@ -152,8 +152,7 @@ public class GranuleTest extends Assert {
 		final GranuleOverviewLevelDescriptor granuleOverviewLevelDescriptor = granuleDescriptor.getLevel(0);
 		assertNotNull(granuleOverviewLevelDescriptor);
 		
-		final Hints crsHints = new Hints(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM, DefaultGeographicCRS.WGS84);
-		
+		final Hints crsHints = new Hints(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM, DefaultGeographicCRS.WGS84);	
 		final ImageMosaicReader reader = (ImageMosaicReader) new ImageMosaicFormat().getReader(testMosaic,crsHints);
 		assertNotNull(reader);
 		final RasterManager manager = new RasterManager(reader);

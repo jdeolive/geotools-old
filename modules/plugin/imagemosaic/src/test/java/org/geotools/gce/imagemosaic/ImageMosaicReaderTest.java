@@ -47,7 +47,6 @@ import org.geotools.test.TestData;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.parameter.GeneralParameterValue;
@@ -106,7 +105,6 @@ public class ImageMosaicReaderTest extends Assert{
 	 * @throws NoSuchAuthorityCodeException
 	 */
 	@Test
-	@Ignore
 	public void defaultParameterValue() throws IOException,	
 			MismatchedDimensionException, NoSuchAuthorityCodeException {
 	        final Hints hints = new Hints(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM, DefaultGeographicCRS.WGS84);
@@ -308,46 +306,47 @@ public class ImageMosaicReaderTest extends Assert{
 		return format;
 	}
 
-	/**
-	 * Tests {@link ImageMosaicReader} asking to crop the lower left quarter of
-	 * the input coverage.
-	 * 
-	 * @param title
-	 *            to use when showing image.
-	 * 
-	 * @throws IOException
-	 * @throws MismatchedDimensionException
-	 * @throws FactoryException
-	 */
-	private void imageMosaicCropTest(URL testURL, String title)
-			throws IOException, MismatchedDimensionException, FactoryException {
-
-		// Get the resources as needed.
-		Assert.assertNotNull(testURL);
-		final AbstractGridFormat format = getFormat(testURL);
-		final ImageMosaicReader reader = getReader(testURL, format);
-
-
-		// crop
-		final ParameterValue<GridGeometry2D> gg =  ImageMosaicFormat.READ_GRIDGEOMETRY2D.createValue();
-		final GeneralEnvelope oldEnvelope = reader.getOriginalEnvelope();
-		final GeneralEnvelope cropEnvelope = new GeneralEnvelope(new double[] {
-				oldEnvelope.getLowerCorner().getOrdinate(0)
-						+ oldEnvelope.getSpan(0) / 2,
-				oldEnvelope.getLowerCorner().getOrdinate(1)
-						+ oldEnvelope.getSpan(1) / 2 }, new double[] {
-				oldEnvelope.getUpperCorner().getOrdinate(0),
-				oldEnvelope.getUpperCorner().getOrdinate(1) });
-		cropEnvelope.setCoordinateReferenceSystem(reader.getCrs());
-		gg.setValue(new GridGeometry2D(PixelInCell.CELL_CENTER,reader.getOriginalGridToWorld(PixelInCell.CELL_CENTER),cropEnvelope,null));
-		final ParameterValue<Color> outTransp =  ImageMosaicFormat.OUTPUT_TRANSPARENT_COLOR.createValue();
-		outTransp.setValue(Color.black);
-
-
-		// test the coverage
-		checkCoverage(reader, new GeneralParameterValue[] { gg, outTransp },title);
-
-	}
+//	/**
+//	 * Tests {@link ImageMosaicReader} asking to crop the lower left quarter of
+//	 * the input coverage.
+//	 * 
+//	 * @param title
+//	 *            to use when showing image.
+//	 * 
+//	 * @throws IOException
+//	 * @throws MismatchedDimensionException
+//	 * @throws FactoryException
+//	 */
+//	private void imageMosaicCropTest(URL testURL, String title)
+//			throws IOException, MismatchedDimensionException, FactoryException {
+//
+//		// Get the resources as needed.
+//		Assert.assertNotNull(testURL);
+//		final AbstractGridFormat format = getFormat(testURL);
+//		final ImageMosaicReader reader = getReader(testURL, format);
+//
+//
+//		// crop
+//		final ParameterValue<GridGeometry2D> gg =  ImageMosaicFormat.READ_GRIDGEOMETRY2D.createValue();
+//		final GeneralEnvelope oldEnvelope = reader.getOriginalEnvelope();
+//		final GeneralEnvelope cropEnvelope = new GeneralEnvelope(new double[] {
+//				oldEnvelope.getLowerCorner().getOrdinate(0)
+//						+ oldEnvelope.getSpan(0) / 2,
+//				oldEnvelope.getLowerCorner().getOrdinate(1)
+//						+ oldEnvelope.getSpan(1) / 2 }, new double[] {
+//				oldEnvelope.getUpperCorner().getOrdinate(0),
+//				oldEnvelope.getUpperCorner().getOrdinate(1) });
+//		cropEnvelope.setCoordinateReferenceSystem(reader.getCrs());
+//		gg.setValue(new GridGeometry2D(PixelInCell.CELL_CENTER,reader.getOriginalGridToWorld(PixelInCell.CELL_CENTER),cropEnvelope,null));
+//		final ParameterValue<Color> outTransp =  ImageMosaicFormat.OUTPUT_TRANSPARENT_COLOR.createValue();
+//		outTransp.setValue(Color.black);
+//
+//
+//		// test the coverage
+//		checkCoverage(reader, new GeneralParameterValue[] { gg, outTransp },title);
+//        DefaultEngineeringCRS.CARTESIAN_2D
+//
+//	}
 
 	/**
 	 * @param args

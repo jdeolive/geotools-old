@@ -36,9 +36,7 @@ import javax.imageio.ImageReader;
 import javax.imageio.spi.ImageReaderSpi;
 import javax.media.jai.JAI;
 
-import org.geotools.coverage.CoverageFactoryFinder;
 import org.geotools.coverage.grid.GridCoverage2D;
-import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.data.DataSourceException;
@@ -57,11 +55,9 @@ import org.geotools.referencing.CRS;
 import org.geotools.resources.coverage.CoverageUtilities;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.coverage.grid.GridCoverageReader;
-import org.opengis.coverage.grid.GridRange;
 import org.opengis.geometry.Envelope;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
@@ -71,7 +67,7 @@ import org.opengis.referencing.operation.TransformException;
  * 
  * @author Daniele Romagnoli, GeoSolutions
  * @author Simone Giannecchini, GeoSolutions
- * 
+ *      
  */
 @SuppressWarnings("deprecation")
 public abstract class BaseGridCoverage2DReader extends AbstractGridCoverage2DReader implements GridCoverageReader {
@@ -106,17 +102,8 @@ public abstract class BaseGridCoverage2DReader extends AbstractGridCoverage2DRea
      */
     protected abstract void setCoverageProperties(ImageReader reader) throws IOException;
 
-    // ////////////////////////////////////////////////////////////////////////
-    //  
-    // Referencing related fields (CRS and Envelope)
-    //  
-    // ////////////////////////////////////////////////////////////////////////
 
-    /** Envelope read from file */
-    private GeneralEnvelope nativeEnvelope = null;
 
-    /** The CRS for the coverage */
-    private CoordinateReferenceSystem nativeCRS = null;
 
     // ////////////////////////////////////////////////////////////////////////
     //  
@@ -130,10 +117,6 @@ public abstract class BaseGridCoverage2DReader extends AbstractGridCoverage2DRea
     /** Coverage name */
     private String coverageName = "geotools_coverage";
 
-    /**
-     * The base {@link GridRange} for the {@link GridCoverage2D} of this reader.
-     */
-    private GridEnvelope2D nativeGridRange = null;
 
     /** Absolute path to the parent dir for this coverage. */
     private String parentPath;
@@ -347,8 +330,8 @@ public abstract class BaseGridCoverage2DReader extends AbstractGridCoverage2DRea
         //
         // //
         final Rectangle originalDim = new Rectangle(0, 0, reader.getWidth(0), reader.getHeight(0));
-        if (getCoverageGridRange() == null) {
-            setCoverageGridRange(new GridEnvelope2D(originalDim));
+        if (originalGridRange == null) {
+            originalGridRange=new GridEnvelope2D(originalDim);
         }
 
         // ///
@@ -391,7 +374,7 @@ public abstract class BaseGridCoverage2DReader extends AbstractGridCoverage2DRea
     protected void parsePRJFile() {
         String prjPath = null;
 
-        setCoverageCRS(null);
+        this.crs=null;
         prjPath =this.parentPath+File.separatorChar+coverageName+".prj";
 
         // read the prj serviceInfo from the file
@@ -406,7 +389,7 @@ public abstract class BaseGridCoverage2DReader extends AbstractGridCoverage2DRea
                 inStream=new FileInputStream(prj);
                 channel=inStream.getChannel();
                 projReader = new PrjFileReader(channel);
-                setCoverageCRS(projReader.getCoordinateReferenceSystem());
+                this.crs=projReader.getCoordinateReferenceSystem();
             }
             // If some exception occurs, warn about the error but proceed
             // using a default CRS
@@ -501,9 +484,9 @@ public abstract class BaseGridCoverage2DReader extends AbstractGridCoverage2DRea
                 //
                 // //
                 MathTransform tempTransform =PixelTranslation.translate(raster2Model, PixelInCell.CELL_CENTER, PixelInCell.CELL_CORNER);            	
-                final Envelope gridRange = new GeneralEnvelope(getCoverageGridRange());
+                final Envelope gridRange = new GeneralEnvelope((GridEnvelope2D)originalGridRange);
                 final GeneralEnvelope coverageEnvelope = CRS.transform(tempTransform, gridRange);
-                setCoverageEnvelope(coverageEnvelope);
+                originalEnvelope=coverageEnvelope;
                 return;
             } catch (TransformException e) {
                 if (LOGGER.isLoggable(Level.WARNING)) {
@@ -600,51 +583,6 @@ public abstract class BaseGridCoverage2DReader extends AbstractGridCoverage2DRea
             return null;
         }
         return response;
-    }
-
-    /**
-     * @param nativeCRS
-     *                the nativeCRS to set
-     */
-    protected void setCoverageCRS(CoordinateReferenceSystem coverageCRS) {
-        this.nativeCRS = coverageCRS;
-    }
-
-    /**
-     * @return the nativeCRS
-     */
-    protected CoordinateReferenceSystem getCoverageCRS() {
-        return nativeCRS;
-    }
-
-    /**
-     * @param nativeEnvelope
-     *                the nativeEnvelope to set
-     */
-    protected void setCoverageEnvelope(GeneralEnvelope coverageEnvelope) {
-        this.nativeEnvelope = coverageEnvelope;
-    }
-
-    /**
-     * @return the nativeEnvelope
-     */
-    protected GeneralEnvelope getCoverageEnvelope() {
-        return nativeEnvelope;
-    }
-
-    /**
-     * @param nativeGridRange
-     *                the nativeGridRange to set
-     */
-    protected void setCoverageGridRange(GridEnvelope2D coverageGridRange) {
-        this.nativeGridRange = coverageGridRange;
-    }
-
-    /**
-     * @return the nativeGridRange
-     */
-    protected GridEnvelope2D getCoverageGridRange() {
-        return nativeGridRange;
     }
 
     /**

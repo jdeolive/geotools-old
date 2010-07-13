@@ -34,6 +34,7 @@ import org.opengis.coverage.grid.GridCoverageReader;
 public final class EnviHdrReader extends BaseGDALGridCoverage2DReader implements GridCoverageReader {
     private final static String worldFileExt = ".wld";
      /** Logger. */
+    @SuppressWarnings("unused")
     private final static Logger LOGGER = org.geotools.util.logging.Logging
             .getLogger("org.geotools.coverageio.gdal.envihdr");
 

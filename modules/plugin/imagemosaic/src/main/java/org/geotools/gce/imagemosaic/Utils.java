@@ -81,6 +81,7 @@ import org.geotools.gce.imagemosaic.catalogbuilder.CatalogBuilder;
 import org.geotools.gce.imagemosaic.catalogbuilder.CatalogBuilderConfiguration;
 import org.geotools.gce.imagemosaic.catalogbuilder.CatalogBuilder.ExceptionEvent;
 import org.geotools.gce.imagemosaic.catalogbuilder.CatalogBuilder.ProcessingEvent;
+import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.image.ImageWorker;
 import org.geotools.metadata.iso.spatial.PixelTranslation;
@@ -590,22 +591,21 @@ public class Utils {
 	}
 
 	/**
-	 * Builds a {@link ReferencedEnvelope} from a {@link GeographicBoundingBox}.
-	 * This is useful in order to have an implementation of {@link BoundingBox}
-	 * from a {@link GeographicBoundingBox} which strangely does implement
-	 * {@link GeographicBoundingBox}.
+	 * Builds a {@link ReferencedEnvelope} in WGS84 from a {@link GeneralEnvelope}.
 	 * 
-	 * @param geographicBBox
-	 *            the {@link GeographicBoundingBox} to convert.
-	 * @return an instance of {@link ReferencedEnvelope}.
+	 * @param coverageEnvelope
+	 *            the {@link GeneralEnvelope} to convert.
+	 * @return an instance of {@link ReferencedEnvelope} in WGS84 or <code>null</code> in case a problem during the conversion occurs.
 	 */
-	static ReferencedEnvelope getReferencedEnvelopeFromGeographicBoundingBox(
-			final GeographicBoundingBox geographicBBox) {
-		Utilities.ensureNonNull("GeographicBoundingBox", geographicBBox);
-		return new ReferencedEnvelope(geographicBBox.getEastBoundLongitude(),
-				geographicBBox.getWestBoundLongitude(), geographicBBox
-						.getSouthBoundLatitude(), geographicBBox
-						.getNorthBoundLatitude(), DefaultGeographicCRS.WGS84);
+	static ReferencedEnvelope getWGS84ReferencedEnvelope(
+			final GeneralEnvelope coverageEnvelope) {
+		Utilities.ensureNonNull("coverageEnvelope", coverageEnvelope);
+		final ReferencedEnvelope refEnv= new ReferencedEnvelope(coverageEnvelope);
+		try{
+		    return refEnv.transform(DefaultGeographicCRS.WGS84, true);
+		}catch (Exception e) {
+                    return null;
+                }
 	}
 
 	/**

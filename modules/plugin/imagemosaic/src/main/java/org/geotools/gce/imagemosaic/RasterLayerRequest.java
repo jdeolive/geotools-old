@@ -1136,47 +1136,53 @@ class RasterLayerRequest {
         
 
         try {
-
-	        //
-			// If we can not reproject the requested envelope to the native CRS,
-			// we go back to reproject in the geographic crs of the native
-			// coverage since this usually happens for conversions between CRS
-			// whose area of definition is different
-	        //              
-
+            
+            // can we proceed? Do we have geo stuff to do all these operations?
+            if(rasterManager.spatialDomainManager.coverageGeographicCRS2D!=null&&rasterManager.spatialDomainManager.coverageGeographicBBox!=null){
+                
+                
+                
+                
+                //
+                // If we can not reproject the requested envelope to the native CRS,
+                // we go back to reproject in the geographic crs of the native
+                // coverage since this usually happens for conversions between CRS
+                // whose area of definition is different
+                //
         	
         	// STEP 1 reproject the requested envelope to the coverage geographic bbox
-	        if(!CRS.equalsIgnoreMetadata(rasterManager.spatialDomainManager.coverageGeographicCRS2D, requestCRS)){
-	        	//try to convert the requested bbox to the coverage geocrs
-	        	requestCRSToCoverageGeographicCRS2D=CRS.findMathTransform(requestCRS, rasterManager.spatialDomainManager.coverageGeographicCRS2D,true);
-	        	if(!requestCRSToCoverageGeographicCRS2D.isIdentity())
-	        	{
-	        		requestedBBOXInCoverageGeographicCRS=CRS.transform(requestCRSToCoverageGeographicCRS2D,requestedBBox);
-	        		requestedBBOXInCoverageGeographicCRS.setCoordinateReferenceSystem(rasterManager.spatialDomainManager.coverageGeographicCRS2D);
-	        	}
-	        }
-	        if(requestedBBOXInCoverageGeographicCRS==null)
-	        	requestedBBOXInCoverageGeographicCRS= new GeneralEnvelope(requestCRS);
-	
-	
-	        // STEP 2 intersection with the geographic bbox for this coverage
-	        if (!requestedBBOXInCoverageGeographicCRS.intersects(rasterManager.spatialDomainManager.coverageGeographicBBox,true))
-	        {
-	            cropBBox=null;
-	            empty=true;
-	        	return;
-	        }
-	        // intersect with the coverage native geographic bbox
-	        // note that for the moment we got to use general envelope since there is no intersection otherwise
-	        requestedBBOXInCoverageGeographicCRS.intersect(rasterManager.spatialDomainManager.coverageGeographicBBox);
-	        requestedBBOXInCoverageGeographicCRS.setCoordinateReferenceSystem(rasterManager.spatialDomainManager.coverageGeographicCRS2D);
-	        
-	        // now go back to the coverage native CRS in order to compute an approximate requested resolution
-	        final MathTransform transform = CRS.findMathTransform(requestedBBOXInCoverageGeographicCRS.getCoordinateReferenceSystem(),rasterManager.spatialDomainManager.coverageCRS2D, true);
-	        approximateRequestedBBoInNativeCRS = CRS.transform(transform, requestedBBOXInCoverageGeographicCRS);
-	    	approximateRequestedBBoInNativeCRS.setCoordinateReferenceSystem(rasterManager.spatialDomainManager.coverageCRS2D);
-	    	cropBBox = new ReferencedEnvelope(approximateRequestedBBoInNativeCRS);     
-	    	
+    	        if(!CRS.equalsIgnoreMetadata(rasterManager.spatialDomainManager.coverageGeographicCRS2D, requestCRS)){
+    	        	//try to convert the requested bbox to the coverage geocrs
+    	        	requestCRSToCoverageGeographicCRS2D=CRS.findMathTransform(requestCRS, rasterManager.spatialDomainManager.coverageGeographicCRS2D,true);
+    	        	if(!requestCRSToCoverageGeographicCRS2D.isIdentity())
+    	        	{
+    	        		requestedBBOXInCoverageGeographicCRS=CRS.transform(requestCRSToCoverageGeographicCRS2D,requestedBBox);
+    	        		requestedBBOXInCoverageGeographicCRS.setCoordinateReferenceSystem(rasterManager.spatialDomainManager.coverageGeographicCRS2D);
+    	        	}
+    	        }
+    	        if(requestedBBOXInCoverageGeographicCRS==null)
+    	        	requestedBBOXInCoverageGeographicCRS= new GeneralEnvelope(requestCRS);
+    	
+    	
+    	        // STEP 2 intersection with the geographic bbox for this coverage
+    	        if (!requestedBBOXInCoverageGeographicCRS.intersects(rasterManager.spatialDomainManager.coverageGeographicBBox,true))
+    	        {
+    	            cropBBox=null;
+    	            empty=true;
+    	        	return;
+    	        }
+    	        // intersect with the coverage native geographic bbox
+    	        // note that for the moment we got to use general envelope since there is no intersection otherwise
+    	        requestedBBOXInCoverageGeographicCRS.intersect(rasterManager.spatialDomainManager.coverageGeographicBBox);
+    	        requestedBBOXInCoverageGeographicCRS.setCoordinateReferenceSystem(rasterManager.spatialDomainManager.coverageGeographicCRS2D);
+    	        
+    	        // now go back to the coverage native CRS in order to compute an approximate requested resolution
+    	        final MathTransform transform = CRS.findMathTransform(requestedBBOXInCoverageGeographicCRS.getCoordinateReferenceSystem(),rasterManager.spatialDomainManager.coverageCRS2D, true);
+    	        approximateRequestedBBoInNativeCRS = CRS.transform(transform, requestedBBOXInCoverageGeographicCRS);
+    	    	approximateRequestedBBoInNativeCRS.setCoordinateReferenceSystem(rasterManager.spatialDomainManager.coverageCRS2D);
+    	    	cropBBox = new ReferencedEnvelope(approximateRequestedBBoInNativeCRS);     
+    	    	return;
+            }
 	    	
         } catch (TransformException te) {
             // something bad happened while trying to transform this

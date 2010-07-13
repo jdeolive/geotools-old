@@ -85,6 +85,7 @@ import org.opengis.referencing.operation.TransformException;
  *
  * @source $URL$
  */
+@SuppressWarnings("deprecation")
 public final class WorldImageReader extends AbstractGridCoverage2DReader
 		implements GridCoverageReader {
 
@@ -243,7 +244,7 @@ public final class WorldImageReader extends AbstractGridCoverage2DReader
                             final Object tempCRS = this.hints.get(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM);
                             if (tempCRS != null) {
                                 this.crs = (CoordinateReferenceSystem) tempCRS;
-                                LOGGER.log(Level.WARNING,  "Using forced coordinate reference system "+crs.toWKT());
+                                LOGGER.log(Level.WARNING,  "Using forced coordinate reference system ");
                             } else
                                 readCRS();
                         }
@@ -328,7 +329,7 @@ public final class WorldImageReader extends AbstractGridCoverage2DReader
 			{
 				// ///
 				//
-				// setting the higher resolution avalaible for this coverage
+				// setting the higher resolution available for this coverage
 				//
 				// ///
 				highestRes = getResolution(originalEnvelope, actualDim, crs);
@@ -661,7 +662,7 @@ public final class WorldImageReader extends AbstractGridCoverage2DReader
         }
         if (crs == null) {
             crs = AbstractGridFormat.getDefaultCRS();
-            LOGGER.info("Unable to find crs, continuing with default WGS4 CRS");
+            LOGGER.info("Unable to find crs, continuing with default CRS");
         }
 
     }
@@ -691,8 +692,8 @@ public final class WorldImageReader extends AbstractGridCoverage2DReader
 			raster2Model = reader.getTransform();
 		} else {
 			// looking for another extension
-			final Set ext=WorldImageFormat.getWorldExtension(extension);
-			final Iterator it=ext.iterator();
+			final Set<String> ext=WorldImageFormat.getWorldExtension(extension);
+			final Iterator<String> it=ext.iterator();
 			if(!it.hasNext())
 				throw new DataSourceException("Unable to parse extension "+extension);
 			do{
