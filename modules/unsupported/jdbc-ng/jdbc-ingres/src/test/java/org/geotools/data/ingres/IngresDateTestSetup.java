@@ -1,5 +1,9 @@
 package org.geotools.data.ingres;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.util.Date;
+
 import org.geotools.jdbc.JDBCDateTestSetup;
 import org.geotools.jdbc.JDBCTestSetup;
 
@@ -12,24 +16,30 @@ public class IngresDateTestSetup extends JDBCDateTestSetup {
 
     @Override
     protected void createDateTable() throws Exception {
-        run( "CREATE TABLE DATES (D ANSIDATE, DT TIMESTAMP, T TIME)");
+        Connection con = getDataSource().getConnection();
+        con.prepareStatement("CREATE TABLE DATES (D ANSIDATE, DT TIMESTAMP, T TIME)").execute();
         
-        //_date('1998/05/31:12:00:00AM', 'yyyy/mm/dd:hh:mi:ssam'));
-        
-        run( "INSERT INTO DATES VALUES (" +
-                "DATE '2009-06-28', " +
-                "TIMESTAMP '2009-06-28 15:12:41', " +
-                "TIME '15:12:41' )");
-        
-        run( "INSERT INTO DATES VALUES (" +
-                "DATE '2009-01-15', " +
-                "TIMESTAMP '2009-01-15 13:10:12', " +
-                "TIME '13:10:12'  )");
-        
-        run( "INSERT INTO DATES VALUES (" +
-                "DATE '2009-09-29', " +
-                "TIMESTAMP '2009-09-29 17:54:23', " +
-                "TIME '17:54:23'  )");
+        PreparedStatement ps = con.prepareStatement("INSERT INTO DATES VALUES (?,?,?)");
+        ps.setDate(1, java.sql.Date.valueOf("2009-06-28"));
+        //ps.setTimestamp(2, java.sql.Timestamp.valueOf("2009-06-28 15:12:41.0"));
+        ps.setTimestamp(2,  new java.sql.Timestamp(new java.text.SimpleDateFormat
+        		("HH:mm:ss,dd-yyyy-MM").parse("15:12:41,28-2009-06").getTime()));
+        ps.setTime(3, java.sql.Time.valueOf("15:12:41"));
+        ps.execute();
+        ps.setDate(1, java.sql.Date.valueOf("2009-01-15"));
+ //       ps.setTimestamp(2, java.sql.Timestamp.valueOf("2009-01-15 13:10:12.0"));
+        ps.setTimestamp(2,  new java.sql.Timestamp(new java.text.SimpleDateFormat
+        		("HH:mm:ss,dd-yyyy-MM").parse("13:10:12,15-2009-01").getTime()));
+        ps.setTime(3, java.sql.Time.valueOf("13:10:12"));
+        ps.execute();
+        ps.setDate(1, java.sql.Date.valueOf("2009-09-29"));
+ //       ps.setTimestamp(2, java.sql.Timestamp.valueOf("2009-09-29 17:54:23.0"));
+        ps.setTimestamp(2,  new java.sql.Timestamp(new java.text.SimpleDateFormat
+        		("HH:mm:ss,dd-yyyy-MM").parse("17:54:23,29-2009-09").getTime()));
+        ps.setTime(3, java.sql.Time.valueOf("17:54:23"));
+        ps.execute();
+        ps.close();
+        con.close();               
     }
 
     @Override

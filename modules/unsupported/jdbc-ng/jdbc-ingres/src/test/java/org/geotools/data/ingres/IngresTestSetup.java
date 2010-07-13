@@ -8,14 +8,13 @@ public class IngresTestSetup extends JDBCTestSetup {
 
     @Override
     protected JDBCDataStoreFactory createDataStoreFactory() {
-    	
         return new IngresDataStoreFactory();
     }
     
     @Override
     protected void setUpDataStore(JDBCDataStore dataStore) {
         super.setUpDataStore(dataStore);
-        dataStore.setDatabaseSchema("atrofast");
+        dataStore.setDatabaseSchema(null);
     }
     
     @Override

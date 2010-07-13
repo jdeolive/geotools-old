@@ -1,10 +1,19 @@
 package org.geotools.data.ingres;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.StringReader;
+import java.math.BigDecimal;
+import java.sql.Clob;
 import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Blob;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -15,7 +24,11 @@ import org.geotools.data.DataSourceException;
 import org.geotools.data.jdbc.FilterToSQL;
 import org.geotools.jdbc.BasicSQLDialect;
 import org.geotools.jdbc.JDBCDataStore;
+import org.geotools.jdbc.PreparedFilterToSQL;
+import org.geotools.jdbc.PreparedStatementSQLDialect;
 import org.geotools.referencing.CRS;
+import org.geotools.util.Converters;
+import org.hsqldb.Types;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.GeometryDescriptor;
@@ -33,10 +46,11 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKBWriter;
 import com.vividsolutions.jts.io.WKTReader;
 import com.vividsolutions.jts.io.WKBReader;
 
-public class IngresDialect extends BasicSQLDialect {
+public class IngresDialect extends PreparedStatementSQLDialect {
 
     final static Map<String, Class> TYPE_TO_CLASS_MAP = new HashMap<String, Class>() {
         {
@@ -79,7 +93,7 @@ public class IngresDialect extends BasicSQLDialect {
         this.looseBBOXEnabled = looseBBOXEnabled;
     }
 
-    @Override
+/*    @Override
     public void encodeGeometryValue(Geometry value, int srid, StringBuffer sql) throws IOException {
         if(value == null) {
             sql.append("NULL");
@@ -91,7 +105,7 @@ public class IngresDialect extends BasicSQLDialect {
             
             sql.append("GeometryFromText('" + value.toText() + "', " + srid + ")");
         }
-    }
+    }*/
 
     ThreadLocal<WKBReader> wkbReader = new ThreadLocal<WKBReader>();
     public Geometry decodeGeometryValue(GeometryDescriptor descriptor, ResultSet rs,
@@ -121,7 +135,6 @@ public class IngresDialect extends BasicSQLDialect {
         try {
             String envelope = rs.getString(column);
             if (envelope != null) {
-                System.out.println("In decodeGeometryEnvelope; " + envelope);
                 return new WKTReader().read(envelope).getEnvelopeInternal();
             } else {
                 // empty one
@@ -144,6 +157,28 @@ public class IngresDialect extends BasicSQLDialect {
     	sql.append(" AsBinary( ");
     	encodeColumnName(gatt.getLocalName(), sql);
     	sql.append(" ) ");
+    }
+    
+    @Override
+    public void prepareGeometryValue(Geometry g, int srid, Class binding,
+            StringBuffer sql) {
+    	sql.append("GeomFromWKB(?, " + srid + ")");
+    }
+
+    @Override
+    public void setGeometryValue(Geometry g, int srid, Class binding,
+            PreparedStatement ps, int column) throws SQLException {
+        if (g != null) {
+            if (g instanceof LinearRing ) {
+                //postgis does not handle linear rings, convert to just a line string
+                g = g.getFactory().createLineString(((LinearRing) g).getCoordinateSequence());
+            }
+            
+            byte[] bytes = new WKBWriter().write(g);
+            ps.setBytes(column, bytes);
+        } else {
+            ps.setBytes(column, null);
+        }
     }
       
     @Override
@@ -340,12 +375,14 @@ public class IngresDialect extends BasicSQLDialect {
     @Override
     public void registerSqlTypeToClassMappings(Map<Integer, Class<?>> mappings) {
         super.registerSqlTypeToClassMappings(mappings);
+        mappings.put(new Integer(Types.LONGVARBINARY), byte[].class);
+        mappings.put(new Integer(Types.CLOB), String.class);
+//        mappings.put(new Integer(Types.LONGVARCHAR), String.class);
     }
         	
     @Override
     public String getSequenceForColumn(String schemaName, String tableName,
             String columnName, Connection cx) throws SQLException {
-    	System.out.println("getSequenceForColumn called");
         String sequenceName = (tableName + "_" + columnName + "_sequence").toLowerCase();
         Statement st = cx.createStatement();
         try {
@@ -456,7 +493,6 @@ public class IngresDialect extends BasicSQLDialect {
     	} else if(limit > 0 && limit < Integer.MAX_VALUE) {
     		sql.append(" FETCH FIRST " + limit + " ROWS ONLY ");
     	}
-    	System.out.println("applyLimitOffset: " + sql);
     }
     
     @Override
@@ -491,6 +527,13 @@ public class IngresDialect extends BasicSQLDialect {
         }
 
         return null;
+    }
+
+    @Override
+    public PreparedFilterToSQL createPreparedFilterToSQL() {
+        IngresFilterToSQL sql = new IngresFilterToSQL(this);
+        sql.setLooseBBOXEnabled(looseBBOXEnabled);
+        return sql;
     }
     
     @Override

@@ -64,6 +64,16 @@ public class IngresDataStoreFactory extends JDBCDataStoreFactory {
     	return super.createDataSource(params);
     }*/
 
+    @Override
+    protected void setupParameters(Map parameters) {    
+        super.setupParameters(parameters);
+        parameters.put(DBTYPE.key, DBTYPE);
+        parameters.put(SCHEMA.key, SCHEMA);
+        parameters.put(LOOSEBBOX.key, LOOSEBBOX);
+        parameters.put(PORT.key, PORT);
+        
+    }
+
     public String getDescription() {
         return "Ingres Database";
     }
