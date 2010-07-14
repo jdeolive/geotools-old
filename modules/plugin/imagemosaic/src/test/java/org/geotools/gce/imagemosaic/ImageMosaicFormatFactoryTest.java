@@ -121,7 +121,6 @@ public class ImageMosaicFormatFactoryTest extends Assert {
     }  
     
     @Test
-    @Ignore
     public void testSystemLoaderUnbounded() throws IOException {
 
         File file= org.geotools.TestData.file(this,"mosaicthreadpoolconfig.properties");

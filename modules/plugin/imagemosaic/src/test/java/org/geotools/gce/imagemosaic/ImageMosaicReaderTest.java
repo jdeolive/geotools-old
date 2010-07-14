@@ -35,7 +35,6 @@ import junit.textui.TestRunner;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.GridFormatFinder;
 import org.geotools.coverage.grid.io.UnknownFormat;
@@ -259,23 +258,6 @@ public class ImageMosaicReaderTest extends Assert{
 
 			}
 		});
-
-	}
-
-	/**
-	 * returns an {@link AbstractGridCoverage2DReader} for the provided
-	 * {@link URL} and for the providede {@link AbstractGridFormat}.
-	 * 
-	 * @param testURL
-	 *            points to a valid object to create an
-	 *            {@link AbstractGridCoverage2DReader} for.
-	 * @param format
-	 *            to use for instantiating such a reader.
-	 * @return a suitable {@link ImageMosaicReader}.
-	 */
-	private ImageMosaicReader getReader(URL testURL,
-			final AbstractGridFormat format) {
-		return getReader(testURL, format, null);
 
 	}
 

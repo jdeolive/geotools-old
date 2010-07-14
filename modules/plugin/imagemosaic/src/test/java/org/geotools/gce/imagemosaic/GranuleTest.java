@@ -41,7 +41,6 @@ import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.geotools.test.TestData;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.parameter.ParameterValue;
