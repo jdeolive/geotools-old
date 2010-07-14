@@ -31,67 +31,58 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.XYPlot;
 
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.WKTReader;
 
-public class GeometryDatasetTest extends TestCase {
+public class GeometryRendererTest extends TestCase {
 
-    WKTReader wkt;
+    WKTReader wkt = new WKTReader();
     
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        
-        wkt = new WKTReader();
+    public void testPoint() throws Exception {
+        render(wkt.read("POINT(6 10)"));
     }
     
-    public void testSimple() throws Exception {
-        LineString line = (LineString) wkt.read("LINESTRING(0 0, 1 1)");
-        render(new GeometryDataset(line));
+    public void testLineString() throws Exception {
+        render(wkt.read("LINESTRING(3 4,10 50,20 25)"));
     }
     
     public void testPolygon() throws Exception {
-        Polygon poly = (Polygon) wkt.read("POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))");
-        render(new GeometryDataset(poly));
-        render(new GeometryDataset(poly.buffer(0.5)));
-        render(new GeometryDataset(wkt.read("POINT(0 0)").buffer(2)));
-    }
-
-    public void testPolygonWithHoles() throws Exception {
-        Polygon poly = (Polygon) wkt.read("POLYGON((0 0, 10 0, 10 10, 0 10, 0 0),(2 2, 5 2, 5 5, 2 5, 2 2))");
-        render(new GeometryDataset(poly));
+        render(wkt.read("POLYGON((1 1,5 1,5 5,1 5,1 1))"));
     }
     
-    public void testPoint() throws Exception {
-        render(new GeometryDataset(wkt.read("POINT(0 0)")));
+    public void testPolygonWithHole() throws Exception {
+        render(wkt.read("POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2,2 3,3 3,3 2,2 2))"));
+    }
+    
+    public void testMultiPoint() throws Exception {
+        render(wkt.read("MULTIPOINT((3.5 5.6),(4.8 10.5))"));
+    }
+    
+    public void testMultiLineString() throws Exception {
+        render(wkt.read("MULTILINESTRING((3 4,10 50,20 25),(-5 -8,-10 -8,-15 -4))"));
     }
     
     public void testMultiPolygon() throws Exception {
-        Geometry g = wkt.read("MULTIPOLYGON(((1 1,5 1,5 5,1 5,1 1),(2 2,2 3,3 3,3 2,2 2)),((6 3,9 2,9 4,6 3))))");
-        render(new GeometryDataset(g));
+        render(wkt.read(
+            "MULTIPOLYGON(((1 1,5 1,5 5,1 5,1 1),(2 2,2 3,3 3,3 2,2 2)),((6 3,9 2,9 4,6 3)))"));
     }
     
-    public void testGeometryCollection() throws Exception {
-        Geometry g = wkt.read("GEOMETRYCOLLECTION(POINT(4 2),LINESTRING(4 6,7 10))");
-        render(new GeometryDataset(g));
+    public void testMulipleGeometries() throws Exception {
+        render(wkt.read("POINT(6 10)"), wkt.read("LINESTRING(3 4,10 50,20 25)"), 
+            wkt.read("POLYGON((1 1,5 1,5 5,1 5,1 1))"));
     }
     
-    public void testGeometryCollections() throws Exception {
-        Geometry g1 = wkt.read("MULTIPOINT((3.5 5.6),(4.8 10.5))");
-        Geometry g2 = wkt.read("MULTILINESTRING((3 4,10 50,20 25),(-5 -8,-10 -8,-15 -4))");
-        Geometry g3 = wkt.read("MULTIPOLYGON(((1 1,5 1,5 5,1 5,1 1),(2 2,2 3,3 3,3 2,2 2)),((6 3,9 2,9 4,6 3)))");
-        render(new GeometryDataset(g1,g2,g3));
-    }
-    
-    void render(GeometryDataset dataset) throws Exception {
-        XYPlot plot = dataset.createPlot();
+    void render(Geometry... geoms) throws Exception {
+        GeometryDataset dataset = new GeometryDataset(geoms);
+        GeometryRenderer r = new GeometryRenderer();
+        
+        XYPlot plot = new XYPlot(dataset, dataset.getDomain(), dataset.getRange(), r);
         showChart(plot);
     }
     
     void showChart(XYPlot plot) throws Exception {
         JFreeChart chart = new JFreeChart(plot);
-        ChartPanel panel = new ChartPanel(chart);
+        chart.setAntiAlias(true);
+        ChartPanel panel = new ChartPanel(chart, true);
         
         final String headless = System.getProperty("java.awt.headless", "false");
         if (!headless.equalsIgnoreCase("true") && TestData.isInteractiveTest()) {
