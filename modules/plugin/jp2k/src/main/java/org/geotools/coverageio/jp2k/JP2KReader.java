@@ -19,6 +19,8 @@ package org.geotools.coverageio.jp2k;
 import it.geosolutions.imageio.plugins.jp2k.JP2KStreamMetadata;
 import it.geosolutions.imageio.plugins.jp2k.box.UUIDBox;
 import it.geosolutions.imageio.plugins.jp2k.box.UUIDBoxMetadataNode;
+import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReader;
+import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReaderSpi;
 
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
@@ -42,12 +44,10 @@ import javax.imageio.metadata.IIOMetadataNode;
 import javax.imageio.spi.ImageReaderSpi;
 import javax.imageio.stream.ImageInputStream;
 
-import org.geotools.coverage.CoverageFactoryFinder;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
-import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.imageio.geotiff.GeoTiffIIOMetadataDecoder;
 import org.geotools.coverage.grid.io.imageio.geotiff.GeoTiffMetadata2CRSAdapter;
 import org.geotools.data.DataSourceException;
@@ -71,9 +71,6 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
-
-import com.sun.media.imageioimpl.plugins.tiff.TIFFImageReader;
-import com.sun.media.imageioimpl.plugins.tiff.TIFFImageReaderSpi;
 
 /**
  * This class can read a JP2K data source and create a {@link GridCoverage2D}
