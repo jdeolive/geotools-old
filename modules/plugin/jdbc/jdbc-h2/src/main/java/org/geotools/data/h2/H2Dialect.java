@@ -448,7 +448,7 @@ public class H2Dialect extends SQLDialect {
     
     @Override
     public void applyLimitOffset(StringBuffer sql, int limit, int offset) {
-        if(limit > 0 && limit < Integer.MAX_VALUE) {
+        if(limit >= 0 && limit < Integer.MAX_VALUE) {
             sql.append(" LIMIT " + limit);
             if(offset > 0) {
                 sql.append(" OFFSET " + offset);

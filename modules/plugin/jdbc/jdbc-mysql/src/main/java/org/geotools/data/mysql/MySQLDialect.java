@@ -332,7 +332,7 @@ public class MySQLDialect extends SQLDialect {
     
     @Override
     public void applyLimitOffset(StringBuffer sql, int limit, int offset) {
-        if(limit > 0 && limit < Integer.MAX_VALUE) {
+        if(limit >= 0 && limit < Integer.MAX_VALUE) {
             if(offset > 0)
                 sql.append(" LIMIT " + offset + ", " + limit);
             else 

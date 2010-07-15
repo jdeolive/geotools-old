@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureReader;
@@ -48,6 +49,7 @@ import org.geotools.filter.visitor.PostPreProcessFilterSplittingVisitor;
 import org.geotools.filter.visitor.SimplifyingFilterVisitor;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
+import org.geotools.util.logging.Logging;
 import org.opengis.feature.Association;
 import org.opengis.feature.FeatureVisitor;
 import org.opengis.feature.simple.SimpleFeature;
@@ -59,6 +61,8 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import com.vividsolutions.jts.geom.Geometry;
 
 public class JDBCFeatureSource extends ContentFeatureSource {
+    
+    private static final Logger LOGGER = Logging.getLogger(JDBCFeatureSource.class);
 
     /**
      * primary key of the table
@@ -668,8 +672,12 @@ public class JDBCFeatureSource extends ContentFeatureSource {
                 sql = vtable.expandParameters(null);
             }
             
+            // state we don't want rows, we just want to gather the results metadata
             st = cx.createStatement();
-            st.setMaxRows(1);
+            st.setMaxRows(0);
+            
+            LOGGER.log(Level.FINE, "Gathering sql view result structure: {0}", sql);
+            
             rs = st.executeQuery(sql);
             
             ResultSetMetaData metadata = rs.getMetaData();
