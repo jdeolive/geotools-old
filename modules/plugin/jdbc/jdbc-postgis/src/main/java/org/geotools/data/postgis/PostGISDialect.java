@@ -156,13 +156,8 @@ public class PostGISDialect extends BasicSQLDialect {
         int dimensions = crs == null ? 2 : crs.getCoordinateSystem()
                 .getDimension();
         sql.append("encode(");
-        if (dimensions > 2) {
-            sql.append("ST_AsEWKB(");
-            encodeColumnName(gatt.getLocalName(), sql);
-        } else {
-            sql.append("ST_AsBinary(");
-            encodeColumnName(gatt.getLocalName(), sql);
-        }
+        sql.append("ST_AsEWKB(");
+        encodeColumnName(gatt.getLocalName(), sql);
         sql.append("),'base64')");
     }
 
