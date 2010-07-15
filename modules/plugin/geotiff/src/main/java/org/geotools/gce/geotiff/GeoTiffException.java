@@ -39,10 +39,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import org.geotools.coverage.grid.io.imageio.geotiff.GeoKeyEntry;
-import org.geotools.coverage.grid.io.imageio.geotiff.GeoTiffIIOMetadataDecoder;
-import org.geotools.coverage.grid.io.imageio.geotiff.PixelScale;
-import org.geotools.coverage.grid.io.imageio.geotiff.TiePoint;
+import org.geotools.gce.geotiff.adapters.GeoKeyEntry;
+import org.geotools.gce.geotiff.adapters.GeoTiffIIOMetadataDecoder;
+import org.geotools.gce.geotiff.adapters.PixelScale;
+import org.geotools.gce.geotiff.adapters.TiePoint;
 
 /**
  * This exception is thrown when the problem with reading the GeoTiff file has
@@ -72,6 +72,7 @@ import org.geotools.coverage.grid.io.imageio.geotiff.TiePoint;
  * @author Simone Giannecchini, GeoSolutions SAS
  * @source $URL:
  *         http://svn.geotools.org/geotools/trunk/gt/plugin/geotiff/src/org/geotools/gce/geotiff/GeoTiffException.java $
+ * @deprecated use {@link org.geotools.coverage.grid.io.imageio.geotiff.GeoTiffException}
  */
 public final class GeoTiffException extends IOException {
 
