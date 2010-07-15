@@ -56,7 +56,7 @@ public class XMLConfigReaderTest extends TestCase {
         assertEquals(1, mappings.size());
         FeatureTypeMapping mapping = (FeatureTypeMapping) mappings.iterator().next();
 
-        assertEquals(7, mapping.getAttributeMappings().size());
+        assertEquals(8, mapping.getAttributeMappings().size());
         assertNotNull(mapping.getTargetFeature());
         assertNotNull(mapping.getSource());
 

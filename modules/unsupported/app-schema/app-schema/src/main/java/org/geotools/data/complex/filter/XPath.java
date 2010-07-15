@@ -287,13 +287,14 @@ public class XPath {
             if (other == this) {
                 return true;
             }
-            return attributeName.equals(other.attributeName) && isXmlAttribute == other.isXmlAttribute;
+            return attributeName.equals(other.attributeName)
+                    && isXmlAttribute == other.isXmlAttribute;
         }
 
         public int getIndex() {
             return index;
         }
-        
+
         public boolean isIndexed() {
             return isIndexed;
         }
@@ -662,7 +663,7 @@ public class XPath {
                 // parent = appendComplexProperty(parent, currStep,
                 // currStepDescriptor);
                 int index = currStep.getIndex();
-                parent = setValue(currStepDescriptor, null, new ArrayList<Property>(), index, 
+                parent = setValue(currStepDescriptor, null, new ArrayList<Property>(), index,
                         parent, null, isXlinkRef);
             }
         }
@@ -736,8 +737,7 @@ public class XPath {
                 }
             } else if (value == null && descriptor.getType().equals(XSSchema.ANYTYPE_TYPE)) {
                 // casting anyType as a complex attribute so we can set xlink:href
-                leafAttribute = builder.addComplexAnyTypeAttribute(convertedValue, descriptor,
-                        id);
+                leafAttribute = builder.addComplexAnyTypeAttribute(convertedValue, descriptor, id);
             } else {
                 leafAttribute = builder.add(id, convertedValue, attributeName);
             }
@@ -756,8 +756,7 @@ public class XPath {
     private boolean isEmpty(Object convertedValue) {
         if (convertedValue == null) {
             return true;
-        } else if (convertedValue instanceof Collection 
-                && ((Collection)convertedValue).isEmpty()) {
+        } else if (convertedValue instanceof Collection && ((Collection) convertedValue).isEmpty()) {
             return true;
         } else {
             return false;
@@ -778,6 +777,9 @@ public class XPath {
         if (type instanceof ComplexType && binding == Collection.class) {
             if (!(value instanceof Collection) && isSimpleContentType(type)) {
                 ArrayList<Property> list = new ArrayList<Property>();
+                if (value == null && !descriptor.isNillable()) {
+                    return list;
+                }
                 list.add(buildSimpleContent(type, value));
                 return list;
             }

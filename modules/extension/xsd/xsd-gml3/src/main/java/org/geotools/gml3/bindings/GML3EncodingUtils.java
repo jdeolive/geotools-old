@@ -204,8 +204,10 @@ public class GML3EncodingUtils {
                 Attributes.class);
         if (clientProperties != null) {
             for (Name name : clientProperties.keySet()) {
-                element.setAttributeNS(name.getNamespaceURI(), name.getLocalPart(),
-                        clientProperties.get(name).toString());
+                if(clientProperties.get(name)!= null){
+                    element.setAttributeNS(name.getNamespaceURI(), name.getLocalPart(),
+                            clientProperties.get(name).toString());
+                }
             }
         }
     }

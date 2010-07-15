@@ -98,7 +98,7 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
     private boolean isNextFeatureSet;
 
     private boolean isDenormalised;
-    
+
     private boolean isFiltered;
 
     private ArrayList<String> filteredFeatures;
@@ -107,6 +107,7 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
             Query query, boolean isFiltered, boolean isDenormalised) throws IOException {
         this(store, mapping, query, isFiltered, isDenormalised, false);
     }
+
     /**
      * 
      * @param store
@@ -119,7 +120,8 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
      * @throws IOException
      */
     public DataAccessMappingFeatureIterator(AppSchemaDataAccess store, FeatureTypeMapping mapping,
-            Query query, boolean isFiltered, boolean isDenormalised, boolean isQueryUnrolled) throws IOException {
+            Query query, boolean isFiltered, boolean isDenormalised, boolean isQueryUnrolled)
+            throws IOException {
         super(store, mapping, query, isQueryUnrolled);
         this.isDenormalised = isDenormalised;
         this.isFiltered = isFiltered;
@@ -144,7 +146,8 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
                 this.curSrcFeature = getSourceFeatureIterator().next();
                 exists = true;
             }
-            if (filteredFeatures != null && filteredFeatures.contains(extractIdForFeature(this.curSrcFeature))) {
+            if (filteredFeatures != null
+                    && filteredFeatures.contains(extractIdForFeature(this.curSrcFeature))) {
                 // get the next one as this row would've been already added to the target
                 // feature
                 // from setNextFilteredFeature
@@ -390,6 +393,7 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
             Attribute instance = xpathAttributeBuilder.set(target, xpath, value, id,
                     targetNodeType, false);
             setClientProperties(instance, source, clientPropsMappings);
+
         }
     }
 
@@ -548,7 +552,8 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
         target.getUserData().put(Attributes.class, targetAttributes);
     }
 
-    private Map getClientProperties(Attribute attribute) throws DataSourceException {
+    private Map getClientProperties(Property attribute) throws DataSourceException {
+
         Map<Object, Object> userData = attribute.getUserData();
         Map clientProperties = new HashMap<Name, Expression>();
         if (userData != null && userData.containsKey(Attributes.class)) {
@@ -666,7 +671,66 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
         if (target.getDefaultGeometryProperty() == null) {
             setGeometry(target);
         }
+        this.cleanEmptyElements(target);
         return target;
+    }
+
+    private void cleanEmptyElements(Feature target) throws DataSourceException {
+        try {
+            ArrayList values = new ArrayList<Property>();
+            for (Iterator i = target.getValue().iterator(); i.hasNext();) {
+                Property p = (Property) i.next();
+
+                if (hasChild(p)) {
+                    values.add(p);
+                } else if (p.getDescriptor().getMinOccurs() > 0) {
+                    if (!p.getDescriptor().isNillable()) {
+                        throw new IllegalArgumentException(p.getDescriptor().getName()
+                                + " requires a non null value");
+                    } else {
+                        values.add(p);
+                    }
+                }
+            }
+            target.setValue(values);
+        } catch (DataSourceException e) {
+            throw new DataSourceException("Unable to clean empty element", e);
+        }
+    }
+
+    private boolean hasChild(Property p) throws DataSourceException {
+        if (p instanceof Feature) {
+            return true;
+        }
+        boolean result = false;
+        if (p.getValue() instanceof Collection) {
+
+            Collection c = (Collection) p.getValue();
+
+            if (c.size() == 0 && this.getClientProperties(p).containsKey(XLINK_HREF_NAME)) {
+                return true;
+            }
+
+            ArrayList values = new ArrayList();
+            for (Object o : c) {
+                if (o instanceof Property) {
+                    if (hasChild((Property) o)) {
+                        values.add(o);
+                        result = true;
+                    } else if (((Property) o).getDescriptor().getMinOccurs() > 0) {
+                        if (((Property) o).getDescriptor().isNillable()) {
+                            // add nil mandatory property
+                            values.add(o);
+                        }
+                    }
+                }
+            }
+            p.setValue(values);
+        } else {
+            result = true;
+        }
+        return result;
+
     }
 
     private boolean isTopLevelmapping(Name targetNodeName, StepList targetXPath) {
