@@ -263,12 +263,14 @@ public final class JDBCDataStore extends ContentDataStore
     /**
      * Adds a virtual table to the data store. If a virtual table with the same name was registered this
      * method will replace it with the new one.
-     * @param vt
+     *      * @param vt
      * @throws IOException If the view definition is not valid
      */
     public void addVirtualTable(VirtualTable vtable) throws IOException {
         try {
-            virtualTables.put(vtable.getName(), vtable);
+            virtualTables.put(vtable.getName(), new VirtualTable(vtable));
+            // the new vtable might be overriding a previous definition
+            entries.remove(new NameImpl(namespaceURI, vtable.getName()));
             getSchema(vtable.getName());
         } catch(IOException e) {
             virtualTables.remove(vtable.getName());
@@ -282,7 +284,12 @@ public final class JDBCDataStore extends ContentDataStore
      * @return
      */
     public VirtualTable removeVirtualTable(String name) {
-        return virtualTables.remove(name);
+        // the new vtable might be overriding a previous definition
+        VirtualTable vt =  virtualTables.remove(name);
+        if(vt != null) {
+            entries.remove(new NameImpl(namespaceURI, name));
+        }
+        return vt;
     }
     
 
@@ -291,7 +298,11 @@ public final class JDBCDataStore extends ContentDataStore
      * @return
      */
     public Map<String, VirtualTable> getVirtualTables() {
-        return Collections.unmodifiableMap(virtualTables);
+        Map<String, VirtualTable> result = new HashMap<String, VirtualTable>();
+        for (String key : virtualTables.keySet()) {
+            result.put(key, new VirtualTable(virtualTables.get(key)));
+        }
+        return Collections.unmodifiableMap(result);
     }
     
     /**

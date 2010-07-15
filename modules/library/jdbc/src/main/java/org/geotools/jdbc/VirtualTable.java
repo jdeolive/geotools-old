@@ -85,6 +85,20 @@ public class VirtualTable implements Serializable {
         this.parameters = new ConcurrentHashMap<String, VirtualTableParameter>(other.parameters);
         this.primaryKeyColumns = new ArrayList<String>(other.primaryKeyColumns);
     }
+    
+    /**
+     * Clone a virtual table 
+     * @param name
+     * @param other
+     */
+    public VirtualTable(VirtualTable other) {
+        this.name = other.name;
+        this.sql = other.sql;
+        this.geometryTypes = new ConcurrentHashMap<String, Class<? extends Geometry>>(other.geometryTypes);
+        this.nativeSrids = new ConcurrentHashMap<String, Integer>(other.nativeSrids);
+        this.parameters = new ConcurrentHashMap<String, VirtualTableParameter>(other.parameters);
+        this.primaryKeyColumns = new ArrayList<String>(other.primaryKeyColumns);
+    }
 
     /**
      * Returns the virtual table primary key columns. It should refer to fields returned by the
