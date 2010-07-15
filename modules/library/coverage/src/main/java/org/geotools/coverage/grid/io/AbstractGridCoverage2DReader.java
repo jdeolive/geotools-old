@@ -34,6 +34,7 @@ import java.util.logging.Logger;
 
 import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
+import javax.imageio.spi.ImageInputStreamSpi;
 import javax.imageio.stream.ImageInputStream;
 import javax.media.jai.PlanarImage;
 
@@ -164,6 +165,8 @@ public abstract class AbstractGridCoverage2DReader implements GridCoverageReader
 	protected GridCoverageFactory coverageFactory;
 
 	private ArrayList<Resolution> resolutionsLevels;
+
+    protected ImageInputStreamSpi inStreamSPI;
 
 	
  

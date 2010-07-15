@@ -167,8 +167,7 @@ public final class GeoTiffMetadata2CRSAdapter {
 	/**
 	 * The pool of cached objects.
 	 */
-	private final static Map pool = Collections
-			.synchronizedMap(new SoftValueHashMap(DEFAULT_MAX));
+	private final static Map pool = Collections.synchronizedMap(new SoftValueHashMap(DEFAULT_MAX));
 
 	/** Group Factory for creating {@link ProjectedCRS} objects. */
 	private final ReferencingFactoryContainer factories;

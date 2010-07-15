@@ -37,8 +37,10 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.spi.IIORegistry;
+import javax.imageio.spi.ImageInputStreamSpi;
 import javax.imageio.spi.ImageReaderWriterSpi;
 import javax.media.jai.BorderExtender;
 import javax.media.jai.BorderExtenderCopy;
@@ -739,4 +741,33 @@ public final class ImageUtilities {
 	public static boolean isCLibAvailable() {
 		return PackageUtil.isCodecLibAvailable();
 	}
+
+    public final static ImageInputStreamSpi getImageInputStreamSPI(final Object input) {
+    
+        Iterator<ImageInputStreamSpi> iter;
+        // Ensure category is present
+        try {
+            iter = IIORegistry.getDefaultInstance().getServiceProviders(ImageInputStreamSpi.class,
+                    true);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    
+        boolean usecache = ImageIO.getUseCache();
+    
+        ImageInputStreamSpi spi = null;
+        while (iter.hasNext()) {
+            spi = (ImageInputStreamSpi) iter.next();
+            if (spi.getInputClass().isInstance(input)) {
+                try {
+                    spi.createInputStreamInstance(input, usecache, ImageIO.getCacheDirectory());
+                    break;
+                } catch (IOException e) {
+                    return null;
+                }
+            }
+        }
+    
+        return spi;
+    }
 }

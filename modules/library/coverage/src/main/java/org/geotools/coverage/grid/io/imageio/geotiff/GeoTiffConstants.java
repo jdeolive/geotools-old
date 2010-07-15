@@ -16,7 +16,7 @@
  */
 package org.geotools.coverage.grid.io.imageio.geotiff;
 
-import com.sun.media.imageio.plugins.tiff.TIFFTag;
+import it.geosolutions.imageio.plugins.tiff.TIFFTag;
 
 /**
  * @author simone
@@ -33,8 +33,7 @@ public final class GeoTiffConstants {
 
 	public static final short ARRAY_ELEM_INCREMENT = 5;
 
-	public static final String GEOTIFF_IIO_METADATA_FORMAT_NAME = "com_sun_media_imageio_plugins_tiff_image_1.0"
-			.intern();
+	public static final String GEOTIFF_IIO_METADATA_FORMAT_NAME = it.geosolutions.imageioimpl.plugins.tiff.TIFFImageMetadata.nativeMetadataFormatName;
 
 	public static final String GEOTIFF_IIO_ROOT_ELEMENT_NAME = GEOTIFF_IIO_METADATA_FORMAT_NAME;
 

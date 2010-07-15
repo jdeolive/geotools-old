@@ -522,7 +522,7 @@ public class GridGeometry2D extends GeneralGridGeometry {
      * {@linkplain #GridGeometry2D(GridGeometry) copy constructor}.
      *
      * @param  other The grid geometry to wrap.
-     * @return The wrapped geometry, or {@code null} if {@code other}Â was null.
+     * @return The wrapped geometry, or {@code null} if {@code other} was null.
      *
      * @since 2.5
      */

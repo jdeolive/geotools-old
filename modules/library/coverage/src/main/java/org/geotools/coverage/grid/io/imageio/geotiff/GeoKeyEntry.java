@@ -167,7 +167,7 @@ public final class GeoKeyEntry implements Comparable<GeoKeyEntry>{
 	}
 
 	public int[] getValues() {
-		return new int[] { keyID, tiffTagLocation, count, valueOffset };
+		return new int[] { keyID, tiffTagLocation, count, valueOffset};
 	}
 
 	/**

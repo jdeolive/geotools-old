@@ -35,16 +35,18 @@
  */
 package org.geotools.coverage.grid.io.imageio.geotiff;
 
+import it.geosolutions.imageio.plugins.tiff.GeoTIFFTagSet;
+
 import java.awt.geom.AffineTransform;
 
 import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.metadata.IIOMetadataNode;
 
 import org.geotools.coverage.grid.io.imageio.geotiff.codes.GeoTiffGCSCodes;
+import org.geotools.resources.i18n.ErrorKeys;
+import org.geotools.resources.i18n.Errors;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import com.sun.media.imageio.plugins.tiff.GeoTIFFTagSet;
 
 /**
  * This class provides an abstraction from the details of TIFF data access for
@@ -121,6 +123,9 @@ public final class GeoTiffIIOMetadataDecoder {
 	 *            The image metadata
 	 */
 	public GeoTiffIIOMetadataDecoder(final IIOMetadata imageMetadata) {
+	    if(imageMetadata==null)
+	        throw new NullPointerException(Errors.format(ErrorKeys.NULL_ARGUMENT_$1,"imageMetadata"));
+	    
 		// getting the image metadata root node.
 		rootNode = (IIOMetadataNode) imageMetadata.getAsTree(imageMetadata.getNativeMetadataFormatName());
 		if (rootNode == null) {
@@ -135,31 +140,27 @@ public final class GeoTiffIIOMetadataDecoder {
 		numTiffTasEntries = tiffTagsEntries.getLength();
 		// getting the geokey ddirectory
 		geoKeyDir = getTiffField(GeoTIFFTagSet.TAG_GEO_KEY_DIRECTORY);
-		if (geoKeyDir == null) {
-			throw new IllegalArgumentException(
-					"GeoKey directory does not exist");
+		if (geoKeyDir != null) {
+
+        		// getting all the entries and its nunber
+        		geoKeyDirEntries = geoKeyDir.getFirstChild().getChildNodes();
+        		// GeoKeyDirVersion and the other parameters
+        		geoKeyDirVersion = getTiffShort(geoKeyDir,GeoTiffGCSCodes.GEO_KEY_DIRECTORY_VERSION_INDEX);
+        		geoKeyRevision = getTiffShort(geoKeyDir,GeoTiffGCSCodes.GEO_KEY_REVISION_INDEX);
+        		if (geoKeyRevision != 1) {
+        			geoKeyRevision = 1;
+        			// I had to remove this because I did not want to have wrong
+        			// revision numbers blocking us.
+        			// throw new UnsupportedOperationException("Unsupported revision");
+        		}
+        		geoKeyMinorRevision = getTiffShort(geoKeyDir,
+        				GeoTiffGCSCodes.GEO_KEY_MINOR_REVISION_INDEX);
+        		// loading the number of geokeys inside the geokeydirectory
+        		geoKeyDirTagsNum = getTiffShort(geoKeyDir,
+        				GeoTiffGCSCodes.GEO_KEY_NUM_KEYS_INDEX);
+        		// each geokey has 4 entries
+        		geoKeyDirEntriesNum = geoKeyDirEntries.getLength();
 		}
-
-
-		// getting all the entries and its nunber
-		geoKeyDirEntries = geoKeyDir.getFirstChild().getChildNodes();
-		// GeoKeyDirVersion and the other parameters
-		geoKeyDirVersion = getTiffShort(geoKeyDir,GeoTiffGCSCodes.GEO_KEY_DIRECTORY_VERSION_INDEX);
-		geoKeyRevision = getTiffShort(geoKeyDir,GeoTiffGCSCodes.GEO_KEY_REVISION_INDEX);
-		if (geoKeyRevision != 1) {
-			geoKeyRevision = 1;
-			// I had to remove this because I did not want to have wrong
-			// revision numbers blocking us.
-			// throw new UnsupportedOperationException("Unsupported revision");
-		}
-		geoKeyMinorRevision = getTiffShort(geoKeyDir,
-				GeoTiffGCSCodes.GEO_KEY_MINOR_REVISION_INDEX);
-		// loading the number of geokeys inside the geokeydirectory
-		geoKeyDirTagsNum = getTiffShort(geoKeyDir,
-				GeoTiffGCSCodes.GEO_KEY_NUM_KEYS_INDEX);
-		// each geokey has 4 entries
-		geoKeyDirEntriesNum = geoKeyDirEntries.getLength();
-
 		geoKeyDoubleParams = getTiffField(GeoTIFFTagSet.TAG_GEO_DOUBLE_PARAMS);
 		geoKeyAsciiParams = getTiffField(GeoTIFFTagSet.TAG_GEO_ASCII_PARAMS);
 
@@ -175,10 +176,8 @@ public final class GeoTiffIIOMetadataDecoder {
 	 *             DOCUMENT ME!
 	 */
 	public int getGeoKeyDirectoryVersion() {
-
 		// now get the value from the correct TIFFShort location
 		return geoKeyDirVersion;
-
 	}
 
 	/**
@@ -190,7 +189,6 @@ public final class GeoTiffIIOMetadataDecoder {
 	 *             DOCUMENT ME!
 	 */
 	public int getGeoKeyRevision() {
-
 		// Get the value from the correct TIFFShort
 		return geoKeyRevision;
 	}
@@ -204,7 +202,6 @@ public final class GeoTiffIIOMetadataDecoder {
 	 *             DOCUMENT ME!
 	 */
 	public int getGeoKeyMinorRevision() {
-
 		// Get the value from the correct TIFFShort
 		return geoKeyMinorRevision;
 	}
@@ -218,8 +215,7 @@ public final class GeoTiffIIOMetadataDecoder {
 	 *             DOCUMENT ME!
 	 */
 	public int getNumGeoKeys() {
-
-		return geoKeyDirTagsNum;
+            return geoKeyDirTagsNum;
 	}
 
 	/**
@@ -311,13 +307,16 @@ public final class GeoTiffIIOMetadataDecoder {
 	 *             DOCUMENT ME!
 	 */
 	public GeoKeyEntry getGeoKeyRecordByIndex(int index) {
+	    if (geoKeyDir != null){
 		index *= 4;
 		return new GeoKeyEntry(getIntValueAttribute(geoKeyDirEntries
 				.item(index)), getIntValueAttribute(geoKeyDirEntries
 				.item(index + 1)), getIntValueAttribute(geoKeyDirEntries
 				.item(index + 2)), getIntValueAttribute(geoKeyDirEntries
 				.item(index + 3)));
-
+	    }
+	    else
+	        return null;
 	}
 
 	/**
@@ -667,5 +666,17 @@ public final class GeoTiffIIOMetadataDecoder {
 
 	public IIOMetadataNode getRootNode() {
 		return rootNode;
+	}
+	
+	/**
+	 * Return <code>true</code> if the geokey directory is present, <code>false</code> otherwise.
+	 * In case no geokey dir is present no CRS can be constructed from this set of metadata.
+	 * 
+	 * <p>
+	 * A  prj can be used otherwise.
+	 * @return <code>true</code> if the geokey directory is present, <code>false</code> otherwise.
+	 */
+	public boolean hasGeoKey(){
+	    return geoKeyDir!=null;
 	}
 } // end of class GeoTiffIIOMetadataDecoder

@@ -16,12 +16,9 @@
  */
 package org.geotools.coverage.grid.io.imageio.geotiff;
 
-import java.lang.ref.Reference;
 import java.text.ParseException;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.measure.unit.NonSI;
@@ -53,7 +50,6 @@ import org.geotools.referencing.operation.transform.ConcatenatedTransform;
 import org.geotools.resources.CRSUtilities;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
-import org.geotools.util.SoftValueHashMap;
 import org.opengis.metadata.Identifier;
 import org.opengis.metadata.citation.Citation;
 import org.opengis.parameter.GeneralParameterValue;
@@ -90,66 +86,11 @@ import org.opengis.referencing.operation.OperationMethod;
  *         http://svn.geotools.org/geotools/trunk/gt/plugin/geotiff/src/org/geotools/gce/geotiff/crs_adapters/CRS2GeoTiffMetadataAdapter.java $
  */
 public final class CRS2GeoTiffMetadataAdapter {
-	/**
-	 * The default value for {@link #maxStrongReferences} .
-	 */
-	public static final int DEFAULT_MAX = 100;
-
-	/**
-	 * The pool of cached objects.
-	 */
-	private final static Map pool = Collections
-			.synchronizedMap(new SoftValueHashMap(DEFAULT_MAX));
 
 	/**
 	 * The {@link CoordinateReferenceSystem} to be get the metadata from:
 	 */
 	private CoordinateReferenceSystem crs;
-
-	/**
-	 * Returns an object from the pool for the specified code. If the object was
-	 * retained as a {@linkplain Reference weak reference}, the
-	 * {@link Reference#get referent} is returned.
-	 * 
-	 * @todo Consider logging a message here to the finer or finest level.
-	 */
-	public static Object get(final Object key) {
-		synchronized (pool) {
-
-			Object object = pool.get(key);
-			if (object == null) {
-				object = new CRS2GeoTiffMetadataAdapter(
-						(CoordinateReferenceSystem) key);
-				put(key, object);
-			}
-			return object;
-		}
-	}
-
-	/**
-	 * Releases resources immediately instead of waiting for the garbage
-	 * collector.
-	 */
-	public static void clear() {
-		synchronized (pool) {
-			pool.clear();
-		}
-	}
-
-	/**
-	 * Put an element in the pool. This method is invoked everytime a
-	 * {@code createFoo(...)} method is invoked, even if an object was already
-	 * in the pool for the given code, for the following reasons: 1) Replaces
-	 * weak reference by strong reference (if applicable) and 2) Alters the
-	 * linked hash set order, so that this object is declared as the last one
-	 * used.
-	 */
-	private static void put(final Object key, final Object object) {
-		synchronized (pool) {
-			pool.put(key, object);
-
-		}
-	}
 
 	/**
 	 * Constructs a parser using the default set of symbols and factories.
@@ -175,13 +116,10 @@ public final class CRS2GeoTiffMetadataAdapter {
 		final Set<? extends Identifier> identifiers = obj.getIdentifiers();
 		final Iterator<? extends Identifier> it = identifiers.iterator();
 		String code = "";
-		Citation cite;
-		Identifier identifier;
 		while (it.hasNext()) {
-			identifier = it.next();
-			cite = identifier.getAuthority();
+			final Identifier identifier = it.next();
+			final Citation cite = identifier.getAuthority();
 			if (Citations.identifierMatches(cite, "EPSG")) {
-
 				code = identifier.getCode();
 				break;
 			}

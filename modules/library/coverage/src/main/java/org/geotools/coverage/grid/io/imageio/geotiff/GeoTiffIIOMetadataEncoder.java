@@ -16,14 +16,16 @@
  */
 package org.geotools.coverage.grid.io.imageio.geotiff;
 
+import it.geosolutions.imageio.plugins.tiff.BaselineTIFFTagSet;
+import it.geosolutions.imageio.plugins.tiff.GeoTIFFTagSet;
+import it.geosolutions.imageio.plugins.tiff.TIFFTag;
+
 import java.awt.geom.AffineTransform;
 
 import org.geotools.util.KeySortedList;
 import org.jdom.Element;
 
-import com.sun.media.imageio.plugins.tiff.BaselineTIFFTagSet;
-import com.sun.media.imageio.plugins.tiff.GeoTIFFTagSet;
-import com.sun.media.imageio.plugins.tiff.TIFFTag;
+
 
 /**
  * This class is responsible for encoding the geotiff tags into suitable
