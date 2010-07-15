@@ -19,6 +19,7 @@ package org.geotools.gce.arcgrid;
 
 import it.geosolutions.imageio.plugins.arcgrid.AsciiGridsImageMetadata;
 import it.geosolutions.imageio.plugins.arcgrid.spi.AsciiGridsImageReaderSpi;
+import it.geosolutions.imageio.utilities.ImageIOUtilities;
 
 import java.awt.Color;
 import java.awt.Rectangle;
@@ -64,6 +65,7 @@ import org.geotools.factory.Hints;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.resources.i18n.Vocabulary;
 import org.geotools.resources.i18n.VocabularyKeys;
+import org.geotools.resources.image.ImageUtilities;
 import org.geotools.util.NumberRange;
 import org.opengis.coverage.grid.Format;
 import org.opengis.coverage.grid.GridCoverage;
@@ -270,10 +272,16 @@ public final class ArcGridReader extends AbstractGridCoverage2DReader implements
 			gzipped = coverageName.toLowerCase().endsWith("gz");
 			coverageName = (dotIndex == -1) ? coverageName : coverageName
 					.substring(0, dotIndex);
-			inStream = gzipped ? ImageIO
-					.createImageInputStream(new GZIPInputStream(
-							new FileInputStream(sourceFile))) : ImageIO
-					.createImageInputStream(sourceFile);
+			if(gzipped)
+                            inStream = ImageIO.createImageInputStream(new GZIPInputStream(
+                                new FileInputStream(sourceFile)));	
+			else{
+			    inStreamSPI=ImageUtilities.getImageInputStreamSPI(sourceFile);
+			    if (inStreamSPI == null)
+	                        throw new DataSourceException(
+	                                        "No input stream for the provided source");
+			    inStream = inStreamSPI.createInputStreamInstance(sourceFile, ImageIO.getUseCache(), ImageIO.getCacheDirectory());
+			}
 		} else
 		// //
 		//
@@ -463,8 +471,12 @@ public final class ArcGridReader extends AbstractGridCoverage2DReader implements
 		// prepare input to handle possible parallelism between different
 		// readers
 		if (source instanceof File) {
-			if (!gzipped)
-				pbjImageRead.add(ImageIO.createImageInputStream(source));
+			if (!gzipped){
+			    if(inStreamSPI!=null)
+			        pbjImageRead.add(inStreamSPI.createInputStreamInstance(source, ImageIO.getUseCache(), ImageIO.getCacheDirectory()    ));
+			    else
+			        pbjImageRead.add(ImageIO.createImageInputStream(source));
+			}
 			else
 				pbjImageRead.add(ImageIO
 						.createImageInputStream(new GZIPInputStream(
@@ -489,8 +501,7 @@ public final class ArcGridReader extends AbstractGridCoverage2DReader implements
 		pbjImageRead.add(null);
 		pbjImageRead.add(readP);
 		pbjImageRead.add(readerSPI.createReaderInstance());
-		final RenderedOp asciiCoverage = JAI.create("ImageRead", pbjImageRead,
-				hints);
+		final RenderedOp asciiCoverage = JAI.create("ImageRead", pbjImageRead,hints);
 
 		// /////////////////////////////////////////////////////////////////////
 		//
@@ -531,24 +542,19 @@ public final class ArcGridReader extends AbstractGridCoverage2DReader implements
 
 			}
 
-			//
-			// ///////////////////////////////////////////////////////////////////
+
 			//
 			// Sample dimension
 			//
-			//
-			// ///////////////////////////////////////////////////////////////////
 			final GridSampleDimension band = new GridSampleDimension(
 					coverageName, new Category[] { nan, values }, uom)
 					.geophysics(true);
 			final Map<String, Double> properties = new HashMap<String, Double>();
 			properties.put("GC_NODATA", new Double(inNoData));
 
-			// /////////////////////////////////////////////////////////////////////
 			//
 			// Coverage
 			//
-			// /////////////////////////////////////////////////////////////////////
 			return coverageFactory.create(coverageName, asciiCoverage,
 					originalEnvelope, new GridSampleDimension[] { band }, null,
 					properties);

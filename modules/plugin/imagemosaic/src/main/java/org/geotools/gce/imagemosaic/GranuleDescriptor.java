@@ -368,7 +368,7 @@ public class GranuleDescriptor {
 	
 	AffineTransform baseGridToWorld;
 	
-	ImageReaderSpi cachedSPI;
+	ImageReaderSpi cachedReaderSPI;
 
 	SimpleFeature originator;
 
@@ -392,23 +392,23 @@ public class GranuleDescriptor {
 				throw new IllegalArgumentException("Unable to get an input stream for the provided file "+granuleUrl.toString());
 			
 			// get a reader and try to cache the suggested SPI first
-			if(cachedSPI == null){
+			if(cachedReaderSPI == null){
 				inStream.mark();
 				if(suggestedSPI!=null && suggestedSPI.canDecodeInput(inStream))
 				{
-					cachedSPI=suggestedSPI;
+					cachedReaderSPI=suggestedSPI;
 					inStream.reset();
 				}
 				else{
 					inStream.mark();
 					reader = Utils.getReader(inStream);
 					if(reader != null)
-						cachedSPI = reader.getOriginatingProvider();
+						cachedReaderSPI = reader.getOriginatingProvider();
 					inStream.reset();
 				}
 				
 			}
-			reader = cachedSPI.createReaderInstance();
+			reader = cachedReaderSPI.createReaderInstance();
 			if(reader == null)
 				throw new IllegalArgumentException("Unable to get an ImageReader for the provided file "+granuleUrl.toString());
 			
@@ -564,13 +564,13 @@ public class GranuleDescriptor {
 				return null;
 	
 			// get a reader and try to cache the relevant SPI
-			if(cachedSPI==null){
+			if(cachedReaderSPI==null){
 				reader = Utils.getReader( inStream);
 				if(reader!=null)
-					cachedSPI=reader.getOriginatingProvider();
+					cachedReaderSPI=reader.getOriginatingProvider();
 			}
 			else
-				reader=cachedSPI.createReaderInstance();
+				reader=cachedReaderSPI.createReaderInstance();
 			if(reader==null) {
 				if (LOGGER.isLoggable(java.util.logging.Level.WARNING)){
 					LOGGER.warning(new StringBuilder("Unable to get s reader for granuleDescriptor ").append(this.toString())
@@ -613,7 +613,7 @@ public class GranuleDescriptor {
 
 			// Setting subsampling 
 			int newSubSamplingFactor = 0;
-			final String pluginName = cachedSPI.getPluginClassName();
+			final String pluginName = cachedReaderSPI.getPluginClassName();
 			if (pluginName != null && pluginName.equals(Utils.DIRECT_KAKADU_PLUGIN)){
 				final int ssx = readParameters.getSourceXSubsampling();
 				final int ssy = readParameters.getSourceYSubsampling();
@@ -631,7 +631,7 @@ public class GranuleDescriptor {
 			final RenderedImage raster;
 			try{
 				// read
-				raster= request.getReadType().read(readParameters,imageIndex, granuleUrl, selectedlevel.rasterDimensions,cachedSPI, hints);
+				raster= request.getReadType().read(readParameters,imageIndex, granuleUrl, selectedlevel.rasterDimensions,cachedReaderSPI, hints);
 				
 			}
 			catch (Throwable e) {
@@ -810,13 +810,13 @@ public class GranuleDescriptor {
 						throw new IllegalArgumentException();
 			
 					// get a reader and try to cache the relevant SPI
-					if(cachedSPI==null){
+					if(cachedReaderSPI==null){
 						reader = Utils.getReader( inStream);
 						if(reader!=null)
-							cachedSPI=reader.getOriginatingProvider();
+							cachedReaderSPI=reader.getOriginatingProvider();
 					}
 					else
-						reader=cachedSPI.createReaderInstance();
+						reader=cachedReaderSPI.createReaderInstance();
 					if(reader==null)
 						throw new IllegalArgumentException("Unable to get an ImageReader for the provided file "+granuleUrl.toString());					
 					

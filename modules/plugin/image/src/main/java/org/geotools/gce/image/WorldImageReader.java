@@ -60,6 +60,7 @@ import org.geotools.referencing.CRS;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
 import org.geotools.referencing.operation.matrix.XAffineTransform;
 import org.geotools.referencing.operation.transform.ProjectiveTransform;
+import org.geotools.resources.image.ImageUtilities;
 import org.opengis.coverage.grid.Format;
 import org.opengis.coverage.grid.GridCoverageReader;
 import org.opengis.geometry.Envelope;
@@ -223,14 +224,18 @@ public final class WorldImageReader extends AbstractGridCoverage2DReader
 			// information for this coverfage
 			//
 			// //
-			if (input instanceof ImageInputStream)
-				closeMe = false;
-
-			inStream = (ImageInputStream) (this.source instanceof ImageInputStream ? this.source
-					: ImageIO
-							.createImageInputStream((this.source instanceof URL) ? ((URL) this.source)
-									.openStream()
-									: this.source));
+			if (input instanceof ImageInputStream){
+			    closeMe = false;
+			}else{
+			    inStreamSPI=ImageUtilities.getImageInputStreamSPI(source);
+			    if (inStreamSPI == null)
+			        throw new DataSourceException(
+			                "No input stream for the provided source");
+	                    inStream = inStreamSPI.createInputStreamInstance( this.source, ImageIO.getUseCache(), ImageIO.getCacheDirectory());
+	                           
+	                      
+			}
+			
 			if (inStream == null)
 				throw new IllegalArgumentException(
 						"No input stream for the provided source");
@@ -463,9 +468,10 @@ public final class WorldImageReader extends AbstractGridCoverage2DReader
 //		}
 //		inStream.close();
 		final ParameterBlock pbjRead = new ParameterBlock();
-		pbjRead.add(wmsRequest ? ImageIO
-				.createImageInputStream(((URL) source).openStream()) : ImageIO
-				.createImageInputStream(source));
+		pbjRead.add(inStreamSPI!=null?inStreamSPI.createInputStreamInstance(source, ImageIO.getUseCache(), ImageIO.getCacheDirectory()):ImageIO.createImageInputStream(source));		
+//		pbjRead.add(wmsRequest ? ImageIO
+//				.createImageInputStream(((URL) source).openStream()) : ImageIO
+//				.createImageInputStream(source));
 		pbjRead.add(imageChoice);
 		pbjRead.add(Boolean.FALSE);
 		pbjRead.add(Boolean.FALSE);

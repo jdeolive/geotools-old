@@ -84,6 +84,7 @@ import org.geotools.referencing.operation.matrix.XAffineTransform;
 import org.geotools.referencing.operation.transform.ProjectiveTransform;
 import org.geotools.resources.i18n.Vocabulary;
 import org.geotools.resources.i18n.VocabularyKeys;
+import org.geotools.resources.image.ImageUtilities;
 import org.geotools.util.NumberRange;
 import org.opengis.coverage.ColorInterpretation;
 import org.opengis.coverage.grid.Format;
@@ -189,8 +190,12 @@ public final class GeoTiffReader extends AbstractGridCoverage2DReader implements
 				closeMe = false;
 			if(source instanceof ImageInputStream )
 				inStream=(ImageInputStream) source;
-			else
-				inStream = ImageIO.createImageInputStream(source);
+			else{
+			    inStreamSPI=ImageUtilities.getImageInputStreamSPI(source);
+			    if (inStreamSPI == null)
+                                throw new IllegalArgumentException("No input stream for the provided source");
+			    inStream = inStreamSPI.createInputStreamInstance(source, ImageIO.getUseCache(), ImageIO.getCacheDirectory());
+			}
 			if (inStream == null)
 				throw new IllegalArgumentException("No input stream for the provided source");
 
@@ -264,8 +269,7 @@ public final class GeoTiffReader extends AbstractGridCoverage2DReader implements
             if (tempCRS != null) {
                 this.crs = (CoordinateReferenceSystem) tempCRS;
                 if (LOGGER.isLoggable(Level.FINE))
-                    LOGGER.log(Level.FINE, "Using forced coordinate reference system "
-                            + crs.toWKT());
+                    LOGGER.log(Level.FINE, "Using forced coordinate reference system");
             } else {
                 // check metadata first
                 if (metadata.hasGeoKey()&& gtcs != null)
@@ -435,7 +439,7 @@ public final class GeoTiffReader extends AbstractGridCoverage2DReader implements
 //		inStream.close();
 //		reader.reset();
 		final ParameterBlock pbjRead = new ParameterBlock();
-		pbjRead.add(ImageIO.createImageInputStream(source));
+		pbjRead.add(inStreamSPI!=null?inStreamSPI.createInputStreamInstance(source, ImageIO.getUseCache(), ImageIO.getCacheDirectory()):ImageIO.createImageInputStream(source));
 		pbjRead.add(imageChoice);
 		pbjRead.add(Boolean.FALSE);
 		pbjRead.add(Boolean.FALSE);
