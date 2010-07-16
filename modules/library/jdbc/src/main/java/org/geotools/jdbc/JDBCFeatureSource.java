@@ -689,6 +689,15 @@ public class JDBCFeatureSource extends ContentFeatureSource {
                 column.nullable = metadata.isNullable(i) != ResultSetMetaData.columnNoNulls;
                 column.srid = vtable.getNativeSrid(column.name);
                 column.binding = vtable.getGeometryType(column.name);
+                if(column.binding == null) {
+                    // determine from type mappings
+                    column.binding = store.getMapping(column.sqlType);
+    
+                    if (column.binding == null) {
+                        //determine from type name mappings
+                        column.binding = store.getMapping(column.typeName);
+                    }
+                }
                 result.add(column);
             }
         } finally {

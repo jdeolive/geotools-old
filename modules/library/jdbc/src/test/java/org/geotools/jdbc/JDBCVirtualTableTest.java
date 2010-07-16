@@ -16,6 +16,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.filter.FilterFactory;
+import org.opengis.filter.Id;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
 
@@ -158,6 +159,24 @@ public abstract class JDBCVirtualTableTest extends JDBCTestSupport {
         } finally {
             it.close();
         }
+    }
+    
+    public void testGetFeatureById() throws Exception {
+        FeatureSource fsView = dataStore.getFeatureSource("riverReducedPk");
+        assertFalse(fsView instanceof FeatureStore);
+        
+        // the problem is actually in pk computation
+        PrimaryKey pk = dataStore.getPrimaryKey((SimpleFeatureType) fsView.getSchema());
+        assertEquals("riverReducedPk", pk.getTableName());
+        assertEquals(1, pk.getColumns().size());
+        PrimaryKeyColumn col = pk.getColumns().get(0);
+        assertEquals(aname("id"), col.getName());
+        assertTrue(Number.class.isAssignableFrom(col.getType()));
+        
+        FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
+        Id filter = ff.id(Collections.singleton(ff.featureId("riverReducedPk.0")));
+        
+        assertEquals(1, fsView.getCount(new Query(null, filter)));
     }
     
     public void testWhereParam() throws Exception {
