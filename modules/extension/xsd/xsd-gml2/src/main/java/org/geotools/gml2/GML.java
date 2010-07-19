@@ -16,11 +16,13 @@
  */
 package org.geotools.gml2;
 
+import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.xsd.XSDSchema;
 import org.geotools.xlink.XLINK;
 import org.geotools.xml.XSD;
 import org.opengis.feature.type.Schema;
@@ -610,5 +612,15 @@ public final class GML extends XSD {
      */
     public String getSchemaLocation() {
         return getClass().getResource("feature.xsd").toString();
+    }
+    
+    @Override
+    protected XSDSchema buildSchema() throws IOException {
+        XSDSchema schema =  super.buildSchema();
+        
+        schema.resolveElementDeclaration(NAMESPACE, "_Feature").eAdapters()
+            .add(new SubstitutionGroupLeakPreventer());
+        schema.eAdapters().add(new ReferencingDirectiveLeakPreventer());
+        return schema;
     }
 }
