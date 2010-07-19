@@ -18,6 +18,7 @@ package org.geotools.geojson;
 
 import java.io.StringWriter;
 import java.util.Iterator;
+import java.util.List;
 
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
@@ -32,6 +33,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
@@ -73,7 +75,7 @@ public class FeatureJSONTest extends GeoJSONTestSupport {
         assertEqualsLax(f1, f2);
     }
     
-    public void testFeatureReadWithRegularGeometryAttribute() throws Exception {
+    public void testFeatureWithRegularGeometryAttributeRead() throws Exception {
         SimpleFeature f = fjson.readFeature(reader(strip("{" + 
         "   'type': 'Feature'," +
         "   'geometry': {" +
@@ -107,6 +109,39 @@ public class FeatureJSONTest extends GeoJSONTestSupport {
         assertEquals(0.1, ((Number)f.getAttribute("double")).doubleValue());
         assertEquals("one", f.getAttribute("string"));
     }
+    
+    public void testFeatureWithRegularGeometryAttributeNoDefaultGeometryRead() throws Exception {
+        SimpleFeature f = fjson.readFeature(reader(strip("{" + 
+        "   'type': 'Feature'," +
+        "   'properties': {" +
+        "     'int': 1," +
+        "     'double': 0.1," +
+        "     'string': 'one'," +
+        "     'otherGeometry': {" +
+        "        'type': 'LineString'," +
+        "        'coordinates': [[1.1, 1.2], [1.3, 1.4]]" +
+        "     }"+
+        "   }," +
+        "   'id': 'feature.0'" +
+        " }")));
+        
+        assertNotNull(f);
+        assertTrue(f.getDefaultGeometry() instanceof LineString);
+        
+        LineString l = (LineString) f.getDefaultGeometry();
+        assertTrue(new GeometryFactory().createLineString(new Coordinate[]{
+                new Coordinate(1.1, 1.2), new Coordinate(1.3, 1.4)}).equals(l));
+        
+        assertTrue(f.getAttribute("otherGeometry") instanceof LineString);
+        assertTrue(new GeometryFactory().createLineString(new Coordinate[]{
+            new Coordinate(1.1, 1.2), new Coordinate(1.3, 1.4)}).equals((LineString)f.getAttribute("otherGeometry")));
+        
+        assertEquals(1, ((Number)f.getAttribute("int")).intValue());
+        assertEquals(0.1, ((Number)f.getAttribute("double")).doubleValue());
+        assertEquals("one", f.getAttribute("string"));
+    }
+    
+    
     
     public void testFeatureWithBoundsWrite() throws Exception {
         String json = 
@@ -184,6 +219,87 @@ public class FeatureJSONTest extends GeoJSONTestSupport {
         SimpleFeature f = fjson.readFeature(reader(strip(featureWithCRSText())));
         assertTrue(CRS.equalsIgnoreMetadata(CRS.decode("EPSG:4326"), 
             f.getFeatureType().getCoordinateReferenceSystem()));
+    }
+    
+    String featureWithBBOXText() {
+        String json = 
+            "{" + 
+            "   'type': 'Feature'," +
+            "   'bbox': [1.1, 1.1, 1.1, 1.1]," +
+            "   'geometry': {" +
+            "     'type': 'Point'," +
+            "     'coordinates': [1.1, 1.1]" +
+            "   }," +
+            "   'properties': {" +
+            "     'int': 1," +
+            "     'double': 1.1," +
+            "     'string': 'one'" +
+            "   }," +
+            "   'id': 'feature.1'" +
+            " }";
+        return json;
+    }
+    
+    public void testFeatureWithBBOXRead() throws Exception {
+        SimpleFeature f = fjson.readFeature(reader(strip(featureWithBBOXText())));
+        assertEquals(1.1, f.getBounds().getMinX(), 0.1d);
+        assertEquals(1.1, f.getBounds().getMaxX(), 0.1d);
+        assertEquals(1.1, f.getBounds().getMinY(), 0.1d);
+        assertEquals(1.1, f.getBounds().getMaxY(), 0.1d);
+    }
+    
+    String featureWithBoundedByAttributeText() {
+        String json = 
+            "{" + 
+            "   'type': 'Feature'," +
+            "   'geometry': {" +
+            "     'type': 'Point'," +
+            "     'coordinates': [1.1, 1.1]" +
+            "   }," +
+            "   'properties': {" +
+            "     'boundedBy': [-1.2, -1.3, 1.2, 1.3]," +
+            "     'int': 1," +
+            "     'double': 1.1," +
+            "     'string': 'one'" +
+            "   }," +
+            "   'id': 'feature.1'" +
+            " }";
+        return json;
+    }
+    
+    SimpleFeature featureWithBoundedByAttribute() {
+        SimpleFeatureTypeBuilder tb = new SimpleFeatureTypeBuilder();
+        tb.setName("feature");
+        tb.add("geometry", Point.class);
+        tb.add("boundedBy", Envelope.class);
+        tb.add("int", Integer.class);
+        tb.add("double", Double.class);
+        tb.add("string", String.class);
+        
+        
+        SimpleFeatureBuilder b = new SimpleFeatureBuilder(tb.buildFeatureType());
+        b.add(new GeometryFactory().createPoint(new Coordinate(1.1,1.1)));
+        b.add(new Envelope(-1.2, 1.2, -1.3, 1.3));
+        b.add(1);
+        b.add(1.1);
+        b.add("one");
+        return b.buildFeature("feature.1");
+    }
+    
+    public void testFeatureWithBoundedByAttributeRead() throws Exception {
+        SimpleFeature f = fjson.readFeature(reader(strip(featureWithBoundedByAttributeText())));
+        List l = (List) f.getAttribute("boundedBy");
+        
+        assertEquals(-1.2, (Double) l.get(0), 0.1d);
+        assertEquals(-1.3, (Double) l.get(1), 0.1d);
+        assertEquals(1.2, (Double) l.get(2), 0.1d);
+        assertEquals(1.3, (Double) l.get(3), 0.1d);
+    }
+    
+    public void testFeatureWithBoundedByAttributeWrite() throws Exception {
+        StringWriter writer = new StringWriter();
+        fjson.writeFeature(featureWithBoundedByAttribute(), writer);
+        assertEquals(strip(featureWithBoundedByAttributeText()), writer.toString());
     }
     
     public void testFeatureCollectionWrite() throws Exception {

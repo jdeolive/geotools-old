@@ -87,6 +87,26 @@ public class FeatureHandler extends DelegatingHandler<SimpleFeature> {
     }
     
     @Override
+    public boolean startArray() throws ParseException, IOException {
+        if (properties != null && delegate == NULL) {
+            //array inside of properties
+            delegate = new ArrayHandler();
+        }
+        
+        return super.startArray();
+    }
+    
+    @Override
+    public boolean endArray() throws ParseException, IOException {
+        if (delegate instanceof ArrayHandler) {
+            super.endArray();
+            values.add(((ArrayHandler) delegate).getValue());
+            delegate = NULL;
+        }
+        return super.endArray();
+    }
+    
+    @Override
     public boolean endObject() throws ParseException, IOException {
         if (delegate instanceof IContentHandler) {
             ((IContentHandler) delegate).endObject();
@@ -168,12 +188,15 @@ public class FeatureHandler extends DelegatingHandler<SimpleFeature> {
             typeBuilder.setCRS(crs);
         }
 
-        for (String prop : properties) {
-            typeBuilder.add(prop, Object.class);
+        for (int i = 0; i < properties.size(); i++) {
+            String prop = properties.get(i);
+            Object valu = values.get(i);
+            typeBuilder.add(prop, valu != null ? valu.getClass() : Object.class);
         }
-        typeBuilder.add("geometry", geometry != null ? geometry.getClass() : Geometry.class);
-        typeBuilder.setDefaultGeometry("geometry");
-        
+        if (geometry != null) {
+            typeBuilder.add("geometry", geometry != null ? geometry.getClass() : Geometry.class);
+            typeBuilder.setDefaultGeometry("geometry");    
+        }
         
         return new SimpleFeatureBuilder(typeBuilder.buildFeatureType());
     }
@@ -181,7 +204,9 @@ public class FeatureHandler extends DelegatingHandler<SimpleFeature> {
     SimpleFeature buildFeature() {
       
         SimpleFeatureType featureType = builder.getFeatureType();
-        builder.set(featureType.getGeometryDescriptor().getLocalName(), geometry);
+        if (geometry != null) {
+            builder.set(featureType.getGeometryDescriptor().getLocalName(), geometry);    
+        }
         
         return builder.buildFeature(id);
     }

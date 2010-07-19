@@ -16,6 +16,7 @@
  */
 package org.geotools.geojson.feature;
 
+import static org.geotools.geojson.GeoJSONUtil.array;
 import static org.geotools.geojson.GeoJSONUtil.entry;
 import static org.geotools.geojson.GeoJSONUtil.string;
 
@@ -45,6 +46,7 @@ import org.opengis.geometry.BoundingBox;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
@@ -364,7 +366,7 @@ public class FeatureJSON {
             if (encodeFeatureBounds) {
                 BoundingBox bbox = feature.getBounds();
                 string("bbox", sb).append(":");
-                encodeBBOX(bbox, sb).append(",");
+                sb.append(gjson.toString(bbox)).append(",");
             }
             
             //geometry
@@ -387,7 +389,16 @@ public class FeatureJSON {
                 }
                 
                 Object value = feature.getAttribute(i);
-                entry(ad.getLocalName(), value, sb).append(",");
+                if (value instanceof Envelope) {
+                    array(ad.getLocalName(), gjson.toString((Envelope)value), sb);
+                }
+                else if (value instanceof BoundingBox) {
+                    array(ad.getLocalName(), gjson.toString((BoundingBox)value), sb);
+                }
+                else {
+                    entry(ad.getLocalName(), value, sb);
+                }
+                sb.append(",");
             }
             
             sb.setLength(sb.length()-1);
@@ -398,13 +409,6 @@ public class FeatureJSON {
             
             sb.append("}");
             return sb.toString();
-        }
-        
-        StringBuilder encodeBBOX(BoundingBox bbox, StringBuilder sb) {
-            sb.append("[").append(bbox.getMinX()).append(",")
-             .append(bbox.getMinY()).append(",").append(bbox.getMaxX()).append(",")
-             .append(bbox.getMaxY()).append("]");
-            return sb;
         }
         
         public String toJSONString() {

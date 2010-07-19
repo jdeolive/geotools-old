@@ -26,9 +26,12 @@ import java.util.Map;
 
 import org.geotools.geojson.GeoJSONUtil;
 import org.geotools.geojson.IContentHandler;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONAware;
+import org.opengis.geometry.BoundingBox;
 
 import com.vividsolutions.jts.geom.CoordinateSequence;
+import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -393,6 +396,32 @@ public class GeometryJSON {
      */
     public GeometryCollection readGeometryCollection(Object input) throws IOException {
         return parse(new GeometryCollectionHandler(factory), input);
+    }
+    
+    /**
+     * Writes an BoundingBox instance as GeoJSON returning the result as a string.
+     * 
+     * @param bbox The bounding box.
+     * 
+     * @return The bounding box encoded as GeoJSON 
+     */
+    public String toString(BoundingBox bbox) {
+        return new StringBuffer().append("[").append(bbox.getMinX()).append(",")
+            .append(bbox.getMinY()).append(",").append(bbox.getMaxX()).append(",")
+            .append(bbox.getMaxY()).append("]").toString();
+    }
+    
+    /**
+     * Writes an Envelope instance as GeoJSON returning the result as a string.
+     * 
+     * @param e The envelope
+     * 
+     * @return The envelope encoded as GeoJSON 
+     */
+    public String toString(Envelope e) {
+        return new StringBuffer().append("[").append(e.getMinX()).append(",")
+            .append(e.getMinY()).append(",").append(e.getMaxX()).append(",")
+            .append(e.getMaxY()).append("]").toString();
     }
     
     <G extends Geometry> G parse(IContentHandler<G> handler, Object input) throws IOException {

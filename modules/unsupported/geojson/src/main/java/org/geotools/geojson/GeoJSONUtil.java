@@ -150,6 +150,10 @@ public class GeoJSONUtil {
         
     }
     
+    public static StringBuilder array(String key, Object value, StringBuilder sb) {
+        return string(key, sb).append(":").append(value);
+    }
+    
     public static StringBuilder nul(StringBuilder sb) {
         sb.append("null");
         return sb;
