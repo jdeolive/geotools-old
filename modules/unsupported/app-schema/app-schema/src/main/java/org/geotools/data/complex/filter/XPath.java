@@ -27,7 +27,7 @@ import java.util.logging.Logger;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
-
+import org.opengis.filter.expression.Expression;
 import org.geotools.data.complex.ComplexFeatureConstants;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.AttributeBuilder;
@@ -538,12 +538,13 @@ public class XPath {
      * @return
      */
     public Attribute set(final Attribute att, final StepList xpath, Object value, String id,
-            AttributeType targetNodeType, boolean isXlinkRef) {
-        return set(att, xpath, value, id, targetNodeType, isXlinkRef, null);
+            AttributeType targetNodeType, boolean isXlinkRef, Expression sourceExpression) {
+        return set(att, xpath, value, id, targetNodeType, isXlinkRef, null, sourceExpression);
     }
 
     public Attribute set(final Attribute att, final StepList xpath, Object value, String id,
-            AttributeType targetNodeType, boolean isXlinkRef, AttributeDescriptor targetDescriptor) {
+            AttributeType targetNodeType, boolean isXlinkRef, AttributeDescriptor targetDescriptor,
+            Expression sourceExpression) {
         if (XPath.LOGGER.isLoggable(Level.CONFIG)) {
             XPath.LOGGER.entering("XPath", "set", new Object[] { att, xpath, value, id,
                     targetNodeType });
@@ -654,6 +655,12 @@ public class XPath {
                 if (currStepDescriptor == null) {
                     throw new IllegalArgumentException(currStep
                             + " is not a valid location path for type " + _parentType.getName());
+                }
+                if (value == null && !currStepDescriptor.isNillable() && sourceExpression != null
+                        && !sourceExpression.equals(Expression.NIL)) {
+                    if (currStepDescriptor.getMinOccurs() == 0) {
+                        return null;
+                    }
                 }
                 int index = currStep.getIndex();
                 Attribute attribute = setValue(currStepDescriptor, id, value, index, parent,
@@ -774,6 +781,7 @@ public class XPath {
     private Object convertValue(final AttributeDescriptor descriptor, final Object value) {
         final AttributeType type = descriptor.getType();
         Class<?> binding = type.getBinding();
+
         if (type instanceof ComplexType && binding == Collection.class) {
             if (!(value instanceof Collection) && isSimpleContentType(type)) {
                 ArrayList<Property> list = new ArrayList<Property>();

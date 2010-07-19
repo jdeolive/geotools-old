@@ -109,7 +109,7 @@ public class XmlMappingFeatureIterator extends AbstractMappingFeatureIterator {
         idXpath = featureFidMapping.toString();
 
         List<Integer> ls = xmlResponse.getValidFeatureIndex();
-        count = ls.size();        
+        count = ls.size();
     }
 
     protected Iterator<Feature> getSourceFeatureIterator() {
@@ -194,8 +194,8 @@ public class XmlMappingFeatureIterator extends AbstractMappingFeatureIterator {
 
                     StringBuffer usedXpath = new StringBuffer();
                     List<String> values = getValue(parentPair.getXpath(), sourceExpression,
-                            usedXpath);                    
-                    setValues(attMapping, setterTarget, usedXpath, values);                    
+                            usedXpath);
+                    setValues(attMapping, setterTarget, usedXpath, values);
                 }
             }
         }
@@ -206,20 +206,19 @@ public class XmlMappingFeatureIterator extends AbstractMappingFeatureIterator {
         for (int j = 0; j < values.size(); j++) {
             String value = values.get(j);
 
-            if(LOGGER.isLoggable(Level.FINER)) {
-                LOGGER.finer("setting target=" + setterTarget.getName() + ", targetXpath=" + attMapping
-                        .getTargetXPath() + ", value=" + value);
+            if (LOGGER.isLoggable(Level.FINER)) {
+                LOGGER.finer("setting target=" + setterTarget.getName() + ", targetXpath="
+                        + attMapping.getTargetXPath() + ", value=" + value);
             }
             Attribute subFeature = xpathAttributeBuilder.set(setterTarget, attMapping
-                    .getTargetXPath(), value, null, null, false);
+                    .getTargetXPath(), value, null, null, false, attMapping.getSourceExpression());
             setClientProperties(subFeature, j == 0 ? usedXpath : usedXpath
                     .append(bracketedIndex(j)), attMapping.getClientProperties());
         }
     }
 
     private String bracketedIndex(int j) {
-        return XPATH_LEFT_INDEX_BRACKET + Integer.toString(j + 1)
-                + XPATH_RIGHT_INDEX_BRACKET;
+        return XPATH_LEFT_INDEX_BRACKET + Integer.toString(j + 1) + XPATH_RIGHT_INDEX_BRACKET;
     }
 
     private PathAttributeList populateAttributeList(Feature target) {
@@ -231,12 +230,12 @@ public class XmlMappingFeatureIterator extends AbstractMappingFeatureIterator {
         Iterator<TreeAttributeMapping> it = attOrderedTypeList.iterator();
         while (it.hasNext()) {
             TreeAttributeMapping attMapping = it.next();
-            final Expression sourceExpression = attMapping.getIdentifierExpression();         
+            final Expression sourceExpression = attMapping.getIdentifierExpression();
 
             List<Pair> ls = elements.get(attMapping.getParentLabel());
             if (ls != null) {
                 for (int i = 0; i < ls.size(); i++) {
-                    Pair parentAttribute = ls.get(i);                    
+                    Pair parentAttribute = ls.get(i);
                     int count = 1;
                     String countXpath = null;
                     // if instance path not set, then element exists, with one instance
@@ -259,33 +258,32 @@ public class XmlMappingFeatureIterator extends AbstractMappingFeatureIterator {
             Pair parentAttribute, int count, String countXpath) {
 
         for (int j = 0; j < count; j++) {
-            final String bracketIndex = bracketedIndex(j);            
+            final String bracketIndex = bracketedIndex(j);
             final String xpath = setFeatureXpath(attMapping, sourceExpression, parentAttribute,
                     bracketIndex);
             List<String> featureIdList = getValue(xpath);
             String featureId = null;
             if (!featureIdList.isEmpty()) {
                 featureId = featureIdList.get(0);
-            }    
+            }
             StepList sl = attMapping.getTargetXPath();
             setPathIndex(j, sl);
-            Attribute subFeature = xpathAttributeBuilder.set(parentAttribute.getAttribute(),
-                    sl, null, featureId, attMapping.getTargetNodeInstance(), false);
-            elements.put(attMapping.getLabel(), countXpath + bracketIndex, subFeature);            
+            Attribute subFeature = xpathAttributeBuilder.set(parentAttribute.getAttribute(), sl,
+                    null, featureId, attMapping.getTargetNodeInstance(), false, attMapping
+                            .getSourceExpression());
+            elements.put(attMapping.getLabel(), countXpath + bracketIndex, subFeature);
         }
     }
 
     private String setFeatureXpath(TreeAttributeMapping attMapping,
-            final Expression sourceExpression, Pair parentAttribute,
-            final String bracketIndex) {
+            final Expression sourceExpression, Pair parentAttribute, final String bracketIndex) {
         String xpath;
-        
+
         if (attMapping.getInstanceXpath() == null) {
             xpath = parentAttribute.getXpath() + XPATH_SEPARATOR + sourceExpression.toString();
         } else {
-            xpath = parentAttribute.getXpath() + XPATH_SEPARATOR
-                    + attMapping.getInstanceXpath() + bracketIndex + XPATH_SEPARATOR
-                    + sourceExpression.toString();
+            xpath = parentAttribute.getXpath() + XPATH_SEPARATOR + attMapping.getInstanceXpath()
+                    + bracketIndex + XPATH_SEPARATOR + sourceExpression.toString();
         }
         return xpath;
     }
@@ -391,7 +389,7 @@ public class XmlMappingFeatureIterator extends AbstractMappingFeatureIterator {
     protected void setAttributeValue(Feature target, final Feature source, StepList xpath, String id)
             throws IOException {
 
-        xpathAttributeBuilder.set(target, xpath, source, id, source.getType(), false);
+        xpathAttributeBuilder.set(target, xpath, source, id, source.getType(), false, null);
     }
 
     /**
@@ -416,13 +414,13 @@ public class XmlMappingFeatureIterator extends AbstractMappingFeatureIterator {
 
         final AttributeType targetNodeType = attMapping.getTargetNodeInstance();
         final StepList xpath = attMapping.getTargetXPath();
-        
+
         Attribute instance = xpathAttributeBuilder.set(target, xpath, value, id, targetNodeType,
-                attMapping.isMultiValued());
+                attMapping.isMultiValued(), null, attMapping.getSourceExpression());
         Map<Name, Expression> clientPropsMappings = attMapping.getClientProperties();
         setClientProperties(instance, source, clientPropsMappings);
     }
-    
+
     protected void setClientProperties(final Attribute target, final Object source,
             final Map<Name, Expression> clientProperties) {
         if (clientProperties.size() == 0) {
@@ -438,8 +436,8 @@ public class XmlMappingFeatureIterator extends AbstractMappingFeatureIterator {
             if (!ls.isEmpty()) {
                 propValue = ls.get(0);
             }
-            
-            if(LOGGER.isLoggable(Level.FINER)) {
+
+            if (LOGGER.isLoggable(Level.FINER)) {
                 LOGGER.finer("setting target=" + target.getName() + ", property Name=" + propName
                         + ", value=" + propValue);
             }

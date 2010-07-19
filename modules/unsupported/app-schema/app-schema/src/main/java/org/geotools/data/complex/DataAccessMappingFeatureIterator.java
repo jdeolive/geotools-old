@@ -376,7 +376,7 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
                     valueList.add(singleVal);
                 }
                 Attribute instance = xpathAttributeBuilder.set(target, xpath, valueList, id,
-                        targetNodeType, false);
+                        targetNodeType, false, sourceExpression);
                 setClientProperties(instance, source, valueProperties);
             }
         } else {
@@ -391,7 +391,7 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
                 value = ((Attribute) value).getValue();
             }
             Attribute instance = xpathAttributeBuilder.set(target, xpath, value, id,
-                    targetNodeType, false);
+                    targetNodeType, false, sourceExpression);
             setClientProperties(instance, source, clientPropsMappings);
 
         }
@@ -419,7 +419,7 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
         Object uri = xlinkHrefHints.get(ComplexFeatureConstants.STRING_KEY);
         if (uri != null) {
             Attribute instance = xpathAttributeBuilder.set(target, xpath, null, "", targetNodeType,
-                    true);
+                    true, null);
             FilterFactoryImpl ff = new FilterFactoryImpl();
             Map<Name, Expression> newClientProps = new HashMap<Name, Expression>();
             newClientProps.putAll(clientPropsMappings);
@@ -463,7 +463,7 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
                     polymorphicTypeName.getLocalPart(), this.namespaces
                             .getPrefix(polymorphicTypeName.getNamespaceURI())), 1));
             Attribute instance = xpathAttributeBuilder.set(target, prefixedXpath, null, id,
-                    attDescriptor.getType(), false, attDescriptor);
+                    attDescriptor.getType(), false, attDescriptor, null);
             setClientProperties(instance, source, clientPropsMappings);
             for (AttributeMapping mapping : polymorphicMappings) {
                 if (isTopLevelmapping(polymorphicTypeName, mapping.getTargetXPath())) {
@@ -524,14 +524,14 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
         for (Object singleVal : (Collection) value) {
             assert singleVal instanceof Feature;
             Attribute instance = xpathAttributeBuilder.set(target, xpath, null, null,
-                    targetNodeType, true);
+                    targetNodeType, true, null);
             setClientProperties(instance, singleVal, clientPropsMappings);
         }
     }
 
     protected void setClientProperties(final Attribute target, final Object source,
             final Map<Name, Expression> clientProperties) {
-        if (clientProperties.size() == 0) {
+        if (clientProperties.size() == 0 || target == null) {
             return;
         }
         final Map<Name, Object> targetAttributes = new HashMap<Name, Object>();
