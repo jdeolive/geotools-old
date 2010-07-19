@@ -16,6 +16,7 @@
  */
 package org.geotools.gml2;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.eclipse.emf.common.notify.Adapter;
@@ -70,14 +71,13 @@ public class ReferencingDirectiveLeakPreventer implements Adapter {
         XSDSchemaDirective newDirective = (XSDSchemaDirective) notification.getNewValue();
         XSDSchema schema = newDirective.getSchema();
         synchronized (target) {
-            Iterator<XSDSchemaDirective> i =  target.getReferencingDirectives().iterator();
-            
-            boolean exists = false;
-            while(i.hasNext()) {
-                XSDSchemaDirective directive = i.next();
+            ArrayList<Integer> toremove = new ArrayList();
+            for (int i = 0; i < target.getReferencingDirectives().size(); i++) {
+                XSDSchemaDirective directive = 
+                    (XSDSchemaDirective) target.getReferencingDirectives().get(i);
                 XSDSchema schema2 = directive.getSchema();
                 if (schema2 == null) {
-                    i.remove();
+                    toremove.add(i);
                     continue;
                 }
                 
@@ -85,13 +85,13 @@ public class ReferencingDirectiveLeakPreventer implements Adapter {
                 String ns2 = schema2.getTargetNamespace();
                 
                 if (Utilities.equals(ns1, ns2)) {
-                    if (!exists) {
-                        exists = true;
-                    }
-                    else {
-                        i.remove();
-                    }
+                    toremove.add(i);
                 }
+            }
+            
+            //iterate in reverse order and skip last to keep last version
+            for (int i = toremove.size()-2; i > -1; i--) {
+                target.getReferencingDirectives().remove(toremove.get(i));
             }
         }
     }

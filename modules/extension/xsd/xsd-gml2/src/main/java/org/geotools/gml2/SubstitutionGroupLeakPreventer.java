@@ -16,6 +16,8 @@
  */
 package org.geotools.gml2;
 
+import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 
 import org.eclipse.emf.common.notify.Adapter;
@@ -72,32 +74,27 @@ public class SubstitutionGroupLeakPreventer implements Adapter {
             
         while(e != null) {
             synchronized(e) {
-                //TODO: iterate in reverse order to keep the last one added
-                Iterator<XSDElementDeclaration> i = e.getSubstitutionGroup().iterator();
-
-                boolean exists = false;
-                while(i.hasNext()) {
-                    XSDElementDeclaration se = i.next();
+                ArrayList<Integer> toremove = new ArrayList();
+                for (int i = 0; i < e.getSubstitutionGroup().size(); i++) {
+                    XSDElementDeclaration se = (XSDElementDeclaration) e.getSubstitutionGroup().get(i);
                     if (Utilities.equals(el.getTargetNamespace(), se.getTargetNamespace()) &&  
-                        Utilities.equals(el.getName(), se.getName())) {
+                            Utilities.equals(el.getName(), se.getName())) {
+                        toremove.add(i);
                         
-                        if (!exists) {
-                            exists = true;
-                        }
-                        else {
-                            i.remove();
+                        if (target.equals(el.getSubstitutionGroupAffiliation())) {
+                            XSDElementDeclaration clone = (XSDElementDeclaration) 
+                                target.cloneConcreteComponent(false, false);
+                            clone.setTargetNamespace(GML.NAMESPACE);
                             
-                            if (target.equals(el.getSubstitutionGroupAffiliation())) {
-                                XSDElementDeclaration clone = (XSDElementDeclaration) 
-                                    target.cloneConcreteComponent(false, false);
-                                clone.setTargetNamespace(GML.NAMESPACE);
-                                
-                                el.setSubstitutionGroupAffiliation(clone);
-                            }
-                            
-                            //break?
+                            el.setSubstitutionGroupAffiliation(clone);
                         }
                     }
+                }
+                
+                //iterate back in reverse order and skip the last element as to keep the latest
+                // version of the element
+                for (int i = toremove.size()-2; i > -1; i--) {
+                    e.getSubstitutionGroup().remove(toremove.get(i));
                 }
             }
             e = e.getSubstitutionGroupAffiliation();
