@@ -91,7 +91,7 @@ public class ReferencingDirectiveLeakPreventer implements Adapter {
             
             //iterate in reverse order and skip last to keep last version
             for (int i = toremove.size()-2; i > -1; i--) {
-                target.getReferencingDirectives().remove(toremove.get(i));
+                target.getReferencingDirectives().remove(toremove.get(i).intValue());
             }
         }
     }

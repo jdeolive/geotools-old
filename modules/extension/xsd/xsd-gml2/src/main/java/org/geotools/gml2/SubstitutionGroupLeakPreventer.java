@@ -80,21 +80,23 @@ public class SubstitutionGroupLeakPreventer implements Adapter {
                     if (Utilities.equals(el.getTargetNamespace(), se.getTargetNamespace()) &&  
                             Utilities.equals(el.getName(), se.getName())) {
                         toremove.add(i);
-                        
-                        if (target.equals(el.getSubstitutionGroupAffiliation())) {
-                            XSDElementDeclaration clone = (XSDElementDeclaration) 
-                                target.cloneConcreteComponent(false, false);
-                            clone.setTargetNamespace(GML.NAMESPACE);
-                            
-                            el.setSubstitutionGroupAffiliation(clone);
-                        }
                     }
                 }
                 
                 //iterate back in reverse order and skip the last element as to keep the latest
                 // version of the element
                 for (int i = toremove.size()-2; i > -1; i--) {
-                    e.getSubstitutionGroup().remove(toremove.get(i));
+                    XSDElementDeclaration se = (XSDElementDeclaration)
+                        e.getSubstitutionGroup().remove(toremove.get(i).intValue());
+                    
+                    //set the removed elements sub affiliation to a clone of the actual element
+                    if (e.equals(se.getSubstitutionGroupAffiliation())) {
+                        XSDElementDeclaration clone = (XSDElementDeclaration) 
+                            e.cloneConcreteComponent(false, false);
+                        clone.setTargetNamespace(GML.NAMESPACE);
+                        
+                        se.setSubstitutionGroupAffiliation(clone);
+                    }
                 }
             }
             e = e.getSubstitutionGroupAffiliation();
