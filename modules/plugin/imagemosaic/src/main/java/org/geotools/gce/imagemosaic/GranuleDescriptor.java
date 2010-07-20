@@ -54,15 +54,12 @@ import org.geotools.data.DataUtilities;
 import org.geotools.factory.Hints;
 import org.geotools.gce.imagemosaic.RasterLayerResponse.GranuleLoadingResult;
 import org.geotools.geometry.DirectPosition2D;
-import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.LiteShape2;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.metadata.iso.spatial.PixelTranslation;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
 import org.geotools.referencing.operation.matrix.XAffineTransform;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
-import org.geotools.referencing.operation.transform.ProjectiveTransform;
 import org.geotools.resources.geometry.XRectangle2D;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.geometry.BoundingBox;
@@ -274,6 +271,7 @@ public class GranuleDescriptor {
 	/**
 	 * This class represent an overview level in a single granuleDescriptor.
 	 * 
+	 * <p> Notice that the internal transformations for the various levels are reffered to the corner, rather than to the centre.
 	 * @author Simone Giannecchini, GeoSolutions S.A.S.
 	 *
 	 */
@@ -289,7 +287,7 @@ public class GranuleDescriptor {
 
 		final AffineTransform2D baseToLevelTransform;
 		
-		final AffineTransform2D gridToWorldTransform;
+		final AffineTransform2D gridToWorldTransformCorner;
 
 		final Rectangle rasterDimensions;
 		
@@ -322,7 +320,7 @@ public class GranuleDescriptor {
 			final AffineTransform gridToWorldTransform_ = new AffineTransform(baseToLevelTransform);
 			gridToWorldTransform_.preConcatenate(Utils.CENTER_TO_CORNER);
 			gridToWorldTransform_.preConcatenate(baseGridToWorld);
-			this.gridToWorldTransform=new AffineTransform2D(gridToWorldTransform_);
+			this.gridToWorldTransformCorner=new AffineTransform2D(gridToWorldTransform_);
 			this.width = width;
 			this.height = height;
 			this.rasterDimensions= new Rectangle(0,0,width,height);
@@ -333,7 +331,7 @@ public class GranuleDescriptor {
 		}
 
 		public AffineTransform2D getGridToWorldTransform() {
-			return gridToWorldTransform;
+			return gridToWorldTransformCorner;
 		}		
 		
 
@@ -348,7 +346,7 @@ public class GranuleDescriptor {
 			.append("scaleX:\t\t").append(scaleX).append("\n")
 			.append("scaleY:\t\t").append(scaleY).append("\n")
 			.append("baseToLevelTransform:\t\t").append(baseToLevelTransform.toString()).append("\n")
-			.append("gridToWorldTransform:\t\t").append(gridToWorldTransform.toString()).append("\n");
+			.append("gridToWorldTransform:\t\t").append(gridToWorldTransformCorner.toString()).append("\n");
 			return buffer.toString();
 		}
 		
@@ -479,17 +477,38 @@ public class GranuleDescriptor {
 	    this.maxDecimationFactor = maxDecimationFactor;
             final URL rasterFile = DataUtilities.fileToURL(new File(granuleLocation));
             
-            if (rasterFile == null) {
-                    return;
-            }
-            if (LOGGER.isLoggable(Level.FINER)) {
-                    LOGGER.finer("File found "+granuleLocation);
-            }
-    
+            if (rasterFile == null) 
+                return;
+            
+            if (LOGGER.isLoggable(Level.FINER))
+                LOGGER.finer("File found " + granuleLocation);
+            
             this.originator = null;
             init (granuleBBox, rasterFile, suggestedSPI, inclusionGeometry);
         
 	}
+	
+//        public GranuleDescriptor(
+//                final String granuleLocation,
+//                final GridGeometry2D gridGeometry,
+//                final ImageReaderSpi suggestedSPI,
+//                final Geometry inclusionGeometry,
+//                final int maxDecimationFactor) {
+//
+//            this.maxDecimationFactor = maxDecimationFactor;
+//            final URL rasterFile = DataUtilities.fileToURL(new File(granuleLocation));
+//            
+//            if (rasterFile == null) {
+//                    return;
+//            }
+//            if (LOGGER.isLoggable(Level.FINER)) {
+//                    LOGGER.finer("File found "+granuleLocation);
+//            }
+//    
+//            this.originator = null;
+//            init2(gridGeometry, rasterFile, suggestedSPI, inclusionGeometry);
+//        
+//        }	
 	
 	public GranuleDescriptor(
                 SimpleFeature feature, 
@@ -587,20 +606,21 @@ public class GranuleDescriptor {
 			// which source area we need to crop in the selected level taking
 			// into account the scale factors imposed by the selection of this
 			// level together with the base level grid to world transformation
-			MathTransform2D cropWorldToGrid=(MathTransform2D) PixelTranslation.translate(ProjectiveTransform.create(selectedlevel.gridToWorldTransform), PixelInCell.CELL_CENTER, PixelInCell.CELL_CORNER).inverse();		
-			
+                        AffineTransform tempCropWorldToGrid = new AffineTransform(selectedlevel.gridToWorldTransformCorner);
+                        AffineTransform2D cropWorldToGrid= new AffineTransform2D(tempCropWorldToGrid);
+                        cropWorldToGrid=(AffineTransform2D) cropWorldToGrid.inverse();
 			// computing the crop source area which lives into the
 			// selected level raster space, NOTICE that at the end we need to
 			// take into account the fact that we might also decimate therefore
 			// we cannot just use the crop grid to world but we need to correct
 			// it.
-			final Rectangle sourceArea = CRS.transform(cropWorldToGrid, new GeneralEnvelope(intersection)).toRectangle2D().getBounds();
+			final Rectangle sourceArea = CRS.transform(cropWorldToGrid, intersection).toRectangle2D().getBounds();
 			XRectangle2D.intersect(sourceArea, selectedlevel.rasterDimensions, sourceArea);//make sure roundings don't bother us
 			// is it empty??
 			if (sourceArea.isEmpty()) {
 				if (LOGGER.isLoggable(java.util.logging.Level.FINE)){
-					LOGGER.fine(new StringBuilder("Got empty area for granuleDescriptor ").append(this.toString())
-					        .append(" with request ").append(request.toString()).append(" Resulting in no granule loaded: Empty result").toString());
+					LOGGER.fine("Got empty area for granuleDescriptor "+this.toString()+
+					        " with request "+request.toString()+" Resulting in no granule loaded: Empty result");
 					
 				}
 				return null;
@@ -748,10 +768,10 @@ public class GranuleDescriptor {
                                         addBorderExtender = false;
                                     }
                                 }
+                                // border extender
                                 if (addBorderExtender) {
                                     localHints.add(Utils.BORDER_EXTENDER_HINTS);
                                 }
-				// border extender
 //				return WarpDescriptor.create(raster, new WarpAffine(translationTransform.createInverse()),new InterpolationNearest(), request.getBackgroundValues(),localHints);
 				return new GranuleLoadingResult(AffineDescriptor.create(raster, finalRaster2Model, interpolation, request.getBackgroundValues(),localHints), granuleLoadingShape);
 			}

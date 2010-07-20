@@ -120,6 +120,7 @@ class RasterLayerResponse{
 
     /**
      * Simple placeholder class to store the result of a Granule Loading
+     * which comprises of a raster as well as a {@link ROIShape} for its footprint.
      * 
      * @author Daniele Romagnoli, GeoSolutions S.A.S.
      * 
@@ -128,10 +129,10 @@ class RasterLayerResponse{
 
         RenderedImage loadedImage;
 
-        ROIShape inclusionArea;
+        ROIShape footprint;
 
         public ROIShape getFootprint() {
-            return inclusionArea;
+            return footprint;
         }
 
         public RenderedImage getRaster() {
@@ -140,7 +141,7 @@ class RasterLayerResponse{
 
         GranuleLoadingResult(RenderedImage loadedImage, ROIShape inclusionArea) {
             this.loadedImage = loadedImage;
-            this.inclusionArea = inclusionArea;
+            this.footprint = inclusionArea;
         }
     }
     
@@ -698,11 +699,23 @@ class RasterLayerResponse{
 		}
 		if (oversampledRequest){
 		    try {
-		        AffineTransform affine1 = new AffineTransform((AffineTransform) baseGridToWorld);
-		        affine1.concatenate(Utils.CENTER_TO_CORNER);
-		        AffineTransform affine2 = request.getRequestedGridToWorld().createInverse();
-		        affine2.concatenate(affine1);
-                        mosaic = AffineDescriptor.create(mosaic, affine2 , interpolation, backgroundValues, hints);
+		        // creating source grid to world corrected to the pixel corner
+		        final AffineTransform sourceGridToWorld = new AffineTransform((AffineTransform) baseGridToWorld);
+		        sourceGridToWorld.concatenate(Utils.CENTER_TO_CORNER);
+		        
+		        // creating target grid to world corrected to the pixel corner
+		        final AffineTransform targetGridToWorld = new AffineTransform(request.getRequestedGridToWorld());
+		        targetGridToWorld.concatenate(Utils.CENTER_TO_CORNER);
+		        
+		        // target world to grid at the corner
+		        final AffineTransform targetWorldToGrid=targetGridToWorld.createInverse();
+		        
+		        // final complete transformation
+		        targetWorldToGrid.concatenate(sourceGridToWorld);
+		        
+		        // create final image
+		        // TODO this one could be optimized further depending on how the affine is created
+                        mosaic = AffineDescriptor.create(mosaic, targetWorldToGrid , interpolation, backgroundValues, hints);
                     } catch (NoninvertibleTransformException e) {
                         if (LOGGER.isLoggable(Level.SEVERE)){
                             LOGGER.log(Level.SEVERE, "Unable to create the requested mosaic ", e );
@@ -768,7 +781,7 @@ class RasterLayerResponse{
                             final double resY = baseLevel.resolutionY;
                             final double[] requestRes = request.getRequestedResolution();
                             if (requestRes[0] < resX || requestRes[1] < resY) {
-                                // Using the better available resolution
+                                // Using the best available resolution
                                 oversampledRequest = true;
                                 g2w = new AffineTransform((AffineTransform) baseGridToWorld);
                                 g2w.concatenate(Utils.CENTER_TO_CORNER);
@@ -787,7 +800,8 @@ class RasterLayerResponse{
 
 			finalGridToWorldCorner=new AffineTransform2D(g2w);
 			finalWorldToGridCorner = finalGridToWorldCorner.inverse();// compute raster bounds
-			rasterBounds=new GeneralGridEnvelope(CRS.transform(finalWorldToGridCorner, mosaicBBox),PixelInCell.CELL_CORNER,false).toRectangle();
+			final GeneralEnvelope tempRasterBounds = CRS.transform(finalWorldToGridCorner, mosaicBBox);
+			rasterBounds=tempRasterBounds.toRectangle2D().getBounds();
 			if (rasterBounds.width == 0)
 			    rasterBounds.width++;
 			if (rasterBounds.height == 0)
