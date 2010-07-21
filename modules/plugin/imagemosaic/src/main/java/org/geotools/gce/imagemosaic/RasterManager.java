@@ -440,6 +440,8 @@ class RasterManager {
 	String timeAttribute;
 	
 	String elevationAttribute;
+	
+	String runtimeAttribute;
 
 	ImageLayout defaultImageLayout;
 
@@ -456,6 +458,7 @@ class RasterManager {
 		
         timeAttribute=parent.timeAttribute;
         elevationAttribute=parent.elevationAttribute;
+        runtimeAttribute=parent.runtimeAttribute;
         coverageIdentifier=reader.getName();
         hints = reader.getHints();
         this.coverageIdentifier =reader.getName();

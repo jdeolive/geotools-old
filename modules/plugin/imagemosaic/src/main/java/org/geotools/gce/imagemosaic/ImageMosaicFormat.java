@@ -138,8 +138,10 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
     
     /** Optional Elevation value for this mosaic. */
 	public static final ParameterDescriptor<Double> ELEVATION = DefaultParameterDescriptor.create("ELEVATION", "An elevation value",Double.class, Double.NaN,false);    
-    
-    
+
+    /** Optional Run value for this mosaic. */
+    public static final ParameterDescriptor<String> CQL_FILTER = DefaultParameterDescriptor.create("CQL_FILTER", "A generic CQL Filter value",String.class, null, false);    
+
     /** Filter tiles based on attributes from the input coverage*/
     public static ParameterDescriptor<Filter> FILTER = new DefaultParameterDescriptor<Filter>("Filter", Filter.class, null, Filter.INCLUDE);
     
@@ -222,7 +224,8 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
                 MAX_ALLOWED_TILES,
                 INTERPOLATION,
                 TIME,
-                ELEVATION}));
+                ELEVATION,
+                CQL_FILTER}));
 
         // reading parameters
         writeParameters = null;

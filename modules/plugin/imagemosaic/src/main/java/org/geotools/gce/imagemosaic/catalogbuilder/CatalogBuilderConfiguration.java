@@ -150,6 +150,8 @@ public class CatalogBuilderConfiguration{
 	
 	private String elevationAttribute;
 	
+	private String runtimeAttribute;
+	
 	
 	public String getElevationAttribute() {
 		return elevationAttribute;
@@ -159,6 +161,14 @@ public class CatalogBuilderConfiguration{
 		this.elevationAttribute = elevationAttribute;
 	}
 
+	public String getRuntimeAttribute() {
+		return runtimeAttribute;
+	}
+
+	public void setRuntimeAttribute(String runtimeAttribute) {
+		this.runtimeAttribute = runtimeAttribute;
+	}
+	
 	private List<String> indexingDirectories;
 
 	public List<String> getIndexingDirectories() {

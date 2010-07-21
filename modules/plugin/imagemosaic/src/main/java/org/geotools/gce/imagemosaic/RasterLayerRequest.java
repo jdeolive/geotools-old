@@ -150,11 +150,17 @@ class RasterLayerRequest {
 	private List<Date> requestedTimes;
 
 	private double elevation=Double.NaN;
+	
+	private String cql = null;
 
 	public double getElevation() {
 		return elevation;
 	}
 
+	public String getCQL() {
+		return cql;
+	}
+	
 	public List<Date> getRequestedTimes() {
 		return requestedTimes;
 	}
@@ -646,6 +652,20 @@ class RasterLayerRequest {
             elevation = (Double)param.getValue();
             return;
         }            
+
+        // //
+        //
+        // Runtime parameter
+        //
+        // //
+        if (name.equals(ImageMosaicFormat.CQL_FILTER.getName())) {
+        	final Object value = param.getValue();
+        	if(value==null)
+        		return;
+            cql = (String)param.getValue();
+            return;
+        }            
+
     }
 
     /**

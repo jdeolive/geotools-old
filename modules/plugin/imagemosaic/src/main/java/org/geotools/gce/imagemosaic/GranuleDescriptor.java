@@ -478,11 +478,11 @@ public class GranuleDescriptor {
             final URL rasterFile = DataUtilities.fileToURL(new File(granuleLocation));
             
             if (rasterFile == null) 
-                return;
+                    return;
             
             if (LOGGER.isLoggable(Level.FINER))
                 LOGGER.finer("File found " + granuleLocation);
-            
+    
             this.originator = null;
             init (granuleBBox, rasterFile, suggestedSPI, inclusionGeometry);
         
@@ -787,13 +787,13 @@ public class GranuleDescriptor {
                         LOGGER.log(java.util.logging.Level.WARNING, new StringBuilder("Unable to load raster for granuleDescriptor ")
                         .append(this.toString()).append(" with request ").append(request.toString()).append(" Resulting in no granule loaded: Empty result").toString(), e);
                     }
-                    return null;
+			return null;
 		} catch (TransformException e) {
                     if (LOGGER.isLoggable(java.util.logging.Level.WARNING)) {
                         LOGGER.log(java.util.logging.Level.WARNING, new StringBuilder("Unable to load raster for granuleDescriptor ")
                         .append(this.toString()).append(" with request ").append(request.toString()).append(" Resulting in no granule loaded: Empty result").toString(), e);
                     }
-                    return null;
+			return null;
 
 		} 
 		finally{

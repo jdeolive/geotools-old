@@ -157,7 +157,6 @@
       <groupId>org.geotools</groupId>
       <artifactId>gt-cql</artifactId>
       <version>${project.version}</version>
-      <scope>test</scope>
     </dependency>        
     <dependency>
       <groupId>commons-beanutils</groupId>

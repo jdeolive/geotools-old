@@ -27,7 +27,9 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -133,6 +135,8 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 	boolean cachingIndex;
 
 	String elevationAttribute;
+	
+	String runtimeAttribute;
 	
 	/**
 	 * UTC timezone to serve as reference
@@ -479,7 +483,12 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 		final String elevationAttribute = configuration.getElevationAttribute();
 		if(elevationAttribute != null)
 			this.elevationAttribute = elevationAttribute;		
-		
+
+		// runtime param
+		final String runtimeAttribute = configuration.getRuntimeAttribute();
+		if(runtimeAttribute != null)
+			this.runtimeAttribute = runtimeAttribute;		
+
 
 		// caching for the index
 		cachingIndex = configuration.isCaching();
@@ -679,6 +688,8 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 				metadataNames.add("TIME_DOMAIN");
 			if(hasElevationAttribute)
 				metadataNames.add("ELEVATION_DOMAIN");
+			// TODO: Hack
+			metadataNames.add("RUNTIME_DOMAIN");
 			return metadataNames.toArray(new String[metadataNames.size()]);
 		}
 		return super.getMetadataNames();
@@ -698,7 +709,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 				final SortBy[] sortBy=new SortBy[]{
 						new SortByImpl(
 								Utils.FILTER_FACTORY.property(rasterManager.timeAttribute),
-								SortOrder.ASCENDING
+								SortOrder.DESCENDING
 						)};
 				if(queryCapabilities.supportsSorting(sortBy))
 					query.setSortBy(sortBy);
@@ -708,7 +719,27 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 				rasterManager.index.computeAggregateFunction(query, visitor);
 				
 				// check result
-				final Set<Date> result = manualSort?new TreeSet<Date>(visitor.getUnique()):visitor.getUnique();
+				//final Set<Date> result = manualSort?new TreeSet<Date>(visitor.getUnique()):visitor.getUnique();
+				final Set<Date> result = new TreeSet<Date>(new Comparator<Date>() {
+
+					public int compare(Date o1, Date o2) {
+						Calendar c1 = Calendar.getInstance(TimeZone.getTimeZone("UTC")); 
+						Calendar c2 = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+
+						c1.setTime(o1);
+						c2.setTime(o2);
+
+						// Revert behavior in order to have a dsc time list
+						if (c1.before(c2))
+							return 1;
+						else if (c1.after(c2))
+							return -1;
+						
+						return 0;
+					}
+				});
+				result.addAll(visitor.getUnique());
+
 				if(result.size()<=0)
 					return null;				
 				final StringBuilder buff= new StringBuilder();
@@ -747,7 +778,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 				rasterManager.index.computeAggregateFunction(query, visitor);
 				
 				// check result
-				final Set<Double> result = manualSort?new TreeSet<Double>(visitor.getUnique()):visitor.getUnique();
+				final Set<Double> result = new TreeSet<Double>(visitor.getUnique());//manualSort?new TreeSet<Double>(visitor.getUnique()):visitor.getUnique();
 				if(result.size()<=0)
 					return null;
 				final StringBuilder buff= new StringBuilder();
@@ -764,6 +795,55 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 			}
 			
 		}
+		
+		final boolean getRuntimeAttribute=name.equalsIgnoreCase("runtime_domain");
+		if(getRuntimeAttribute){
+			DefaultQuery query;
+			try {
+				query = new DefaultQuery(rasterManager.index.getType().getTypeName());
+				query.setPropertyNames(Arrays.asList("runtime"));
+				final SortBy[] sortBy=new SortBy[]{
+						new SortByImpl(
+								Utils.FILTER_FACTORY.property("runtime"),
+								SortOrder.DESCENDING
+						)};
+				if(queryCapabilities.supportsSorting(sortBy))
+					query.setSortBy(sortBy);
+				else
+					manualSort=true;				
+				final UniqueVisitor visitor= new UniqueVisitor("runtime");
+				rasterManager.index.computeAggregateFunction(query, visitor);
+				
+				// check result
+				final Set<Integer> result = new TreeSet<Integer>(new Comparator<Integer>() {
+
+					public int compare(Integer o1, Integer o2) {
+						// Revert Order
+						if (o1 > 02)
+							return -1;
+						else if (o1 < o2)
+							return 1;
+						return 0;
+					}
+				});
+				result.addAll(visitor.getUnique());
+				if(result.size()<=0)
+					return null;
+				final StringBuilder buff= new StringBuilder();
+				for(java.util.Iterator it=result.iterator();it.hasNext();){
+					final int value= (Integer) it.next();
+					buff.append(value);
+					if(it.hasNext())
+						buff.append(",");
+				}
+				return buff.toString();
+			} catch (IOException e) {
+				if(LOGGER.isLoggable(Level.WARNING))
+					LOGGER.log(Level.WARNING,"Unable to parse attribute:"+name,e);
+			}
+			
+		}
+		
 		return super.getMetadataValue(name);
 	}
 }

@@ -1381,6 +1381,9 @@ public class CatalogBuilder implements Runnable {
 			final String elevationAttribute= runConfiguration.getElevationAttribute();
 			if(elevationAttribute!=null)
 				mosaicConfiguration.setElevationAttribute(runConfiguration.getElevationAttribute());			
+			final String runtimeAttribute= runConfiguration.getRuntimeAttribute();
+			if(runtimeAttribute!=null)
+				mosaicConfiguration.setRuntimeAttribute(runConfiguration.getRuntimeAttribute());			
 			createPropertiesFiles();
 			
 			// processing information
@@ -1451,7 +1454,9 @@ public class CatalogBuilder implements Runnable {
 		final String elevationAttribute=mosaicConfiguration.getElevationAttribute();
 		if(elevationAttribute!=null)
 			properties.setProperty("ElevationAttribute", mosaicConfiguration.getElevationAttribute());
-
+		final String runtimeAttribute=mosaicConfiguration.getRuntimeAttribute();
+		if(runtimeAttribute!=null)
+			properties.setProperty("RuntimeAttribute", mosaicConfiguration.getRuntimeAttribute());
 		
 		final int numberOfLevels=mosaicConfiguration.getLevelsNum();
 		final double[][] resolutionLevels=mosaicConfiguration.getLevels();

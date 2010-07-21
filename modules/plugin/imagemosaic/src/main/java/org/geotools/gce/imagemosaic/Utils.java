@@ -242,6 +242,9 @@ public class Utils {
 			if (props.containsKey("ElevationAttribute"))
 				configuration.setElevationAttribute(props.getProperty("ElevationAttribute"));			
 			
+			// runtime attr
+			if (props.containsKey("RuntimeAttribute"))
+				configuration.setRuntimeAttribute(props.getProperty("RuntimeAttribute"));			
 
 			// collectors
 			if (props.containsKey("PropertyCollectors"))
@@ -469,6 +472,14 @@ public class Utils {
 		if (properties.containsKey("ElevationAttribute")) {
 		        final String elevationAttribute = properties.getProperty("ElevationAttribute").trim();
 			retValue.setElevationAttribute(elevationAttribute);
+		}
+
+		//
+		// runtime attribute is optional
+		//
+		if (properties.containsKey("RuntimeAttribute")) {
+		        final String runtimeAttribute = properties.getProperty("RuntimeAttribute").trim();
+			retValue.setRuntimeAttribute(runtimeAttribute);
 		}
 
 		//

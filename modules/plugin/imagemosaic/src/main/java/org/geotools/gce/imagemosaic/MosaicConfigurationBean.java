@@ -77,13 +77,24 @@ public class MosaicConfigurationBean {
 	
 	/** elevation attribute name. <code>null</code> if absent.*/
 	private String elevationAttribute;
-	
+
+	/** runtime attribute name. <code>null</code> if absent.*/
+	private String runtimeAttribute;
+
 	public String getElevationAttribute() {
 		return elevationAttribute;
 	}
 	public void setElevationAttribute(final String elevationAttribute) {
 		this.elevationAttribute = elevationAttribute;
 	}
+
+	public String getRuntimeAttribute() {
+		return runtimeAttribute;
+	}
+	public void setRuntimeAttribute(final String runtimeAttribute) {
+		this.runtimeAttribute = runtimeAttribute;
+	}
+
 	/** we want to use caching for our index.*/
 	private boolean caching=true;
 

@@ -1,2 +1,3 @@
 org.geotools.gce.imagemosaic.properties.time.TimestampFileNameExtractorSPI
 org.geotools.gce.imagemosaic.properties.elevation.ElevationFileNameExtractorSPI
+org.geotools.gce.imagemosaic.properties.runtime.RuntimeFileNameExtractorSPI

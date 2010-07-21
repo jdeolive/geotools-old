@@ -71,6 +71,8 @@ import org.geotools.factory.Hints;
 import org.geotools.feature.visitor.MaxVisitor;
 import org.geotools.filter.IllegalFilterException;
 import org.geotools.filter.SortByImpl;
+import org.geotools.filter.text.cql2.CQL;
+import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.gce.imagemosaic.RasterManager.OverviewLevel;
 import org.geotools.gce.imagemosaic.catalog.GranuleCatalog.GranuleCatalogVisitor;
 import org.geotools.geometry.GeneralEnvelope;
@@ -813,8 +815,10 @@ class RasterLayerResponse{
 			final MosaicBuilder visitor = new MosaicBuilder();
 			final List<Date> times = request.getRequestedTimes();
 			final double elevation=request.getElevation();
+			final String cql=request.getCQL();
 			final boolean hasTime=(times!=null&&times.size()>0);
 			final boolean hasElevation=!Double.isNaN(elevation);
+			final boolean hasCQL=cql!=null;
 
 			final SimpleFeatureType type = rasterManager.index.getType();
 			Query query = null;
@@ -824,14 +828,20 @@ class RasterLayerResponse{
 			    query.setFilter( bbox);
 			}
 			
-			if(hasTime||hasElevation)
+			if(hasTime||hasElevation||hasCQL)
 			{
 				//handle elevation indexing first since we then combine this with the max in case we are asking for current in time
 				if(hasElevation){
 					final Filter oldFilter = query.getFilter();
 					final PropertyIsEqualTo elevationF = Utils.FILTER_FACTORY.equal(Utils.FILTER_FACTORY.property(rasterManager.elevationAttribute), Utils.FILTER_FACTORY.literal(elevation),true);
 					query.setFilter(Utils.FILTER_FACTORY.and(oldFilter, elevationF));	
-					
+				}
+
+				//handle runtime indexing since we then combine this with the max in case we are asking for current in time
+				if(hasCQL){
+					final Filter oldFilter = query.getFilter();
+					final Filter cqlFilter = CQL.toFilter(cql, Utils.FILTER_FACTORY);
+					query.setFilter(Utils.FILTER_FACTORY.and(oldFilter, cqlFilter));	
 				}
 				
 				// fuse time query with the bbox query
@@ -922,6 +932,8 @@ class RasterLayerResponse{
 		} catch (IOException e) {
 			throw new DataSourceException("Unable to create this mosaic", e);
 		} catch (TransformException e) {
+			throw new DataSourceException("Unable to create this mosaic", e);
+		} catch (CQLException e) {
 			throw new DataSourceException("Unable to create this mosaic", e);
 		} 
 	}
