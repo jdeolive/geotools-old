@@ -84,8 +84,8 @@ public class MosaicConfigurationBean {
 	public void setElevationAttribute(final String elevationAttribute) {
 		this.elevationAttribute = elevationAttribute;
 	}
-	/** do we want to use caching for our index.*/
-	private boolean caching=false;
+	/** we want to use caching for our index.*/
+	private boolean caching=true;
 
 	/**
          * <code>true</code> if we need to manage footprint if available.

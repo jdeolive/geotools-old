@@ -328,7 +328,7 @@ public class CatalogBuilder implements Runnable {
 	 * @author Simone Giannecchini, GeoSolutions SAS
 	 * 
 	 */
-	final class MosaicDirectoryWalker  extends DirectoryWalker{
+	final class CatalogBuilderDirectoryWalker  extends DirectoryWalker{
 
 		private AbstractGridFormat cachedFormat;
 		private SimpleFeatureType indexSchema;
@@ -735,7 +735,7 @@ public class CatalogBuilder implements Runnable {
 			return true;
 		}
 
-		public MosaicDirectoryWalker(final File root,final FileFilter filter) throws IOException {
+		public CatalogBuilderDirectoryWalker(final File root,final FileFilter filter) throws IOException {
 			super(filter,Integer.MAX_VALUE);//runConfiguration.isRecursive()?Integer.MAX_VALUE:0);
 			this.transaction= new DefaultTransaction("MosaicCreationTransaction"+System.nanoTime());
 			walk(root, null);
@@ -966,7 +966,7 @@ public class CatalogBuilder implements Runnable {
 				final List<String> indexingDirectories = runConfiguration.getIndexingDirectories();
 				for(String indexingDirectory:indexingDirectories){
 					@SuppressWarnings("unused")
-					final MosaicDirectoryWalker walker = new MosaicDirectoryWalker(new File(indexingDirectory),finalFilter);
+					final CatalogBuilderDirectoryWalker walker = new CatalogBuilderDirectoryWalker(new File(indexingDirectory),finalFilter);
 				}
 			}
 				
@@ -1429,8 +1429,7 @@ public class CatalogBuilder implements Runnable {
 	}
 
 	/**
-	 * @param globalEnvelope
-	 * @param doneSomething
+	 * Creates the final properties file.
 	 */
 	private void createPropertiesFiles() {
 		// /////////////////////////////////////////////////////////////////////
@@ -1476,7 +1475,7 @@ public class CatalogBuilder implements Runnable {
 		OutputStream outStream=null;
 		try {
 			outStream=new BufferedOutputStream(new FileOutputStream(runConfiguration.getRootMosaicDirectory() + "/" + runConfiguration.getIndexName() + ".properties"));
-			properties.store(outStream, "-Automagically created-");
+			properties.store(outStream, "-Automagically created from GeoTools-");
 		} catch (FileNotFoundException e) {
 			fireEvent(Level.SEVERE,e.getLocalizedMessage(), 0);
 		} catch (IOException e) {

@@ -59,14 +59,12 @@ import javax.media.jai.operator.MosaicDescriptor;
 import org.geotools.coverage.Category;
 import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.TypeMap;
-import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.io.DecimationPolicy;
 import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.data.DataSourceException;
-import org.geotools.data.DefaultQuery;
 import org.geotools.data.Query;
 import org.geotools.data.QueryCapabilities;
 import org.geotools.factory.Hints;
@@ -112,6 +110,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * A RasterLayerResponse. An instance of this class is produced everytime a
  * requestCoverage is called to a reader.
  * 
+ * @author Simone Giannecchini, GeoSolutions
  * @author Daniele Romagnoli, GeoSolutions
  * @author Stefan Alfons Krueger (alfonx), Wikisquare.de : Support for jar:file:foo.jar/bar.properties URLs
  */
@@ -775,30 +774,32 @@ class RasterLayerResponse{
 			
 			
 			final AffineTransform g2w;
-			
-                            final OverviewLevel baseLevel = rasterManager.overviewsController.resolutionsLevels.get(0);
-                            final double resX = baseLevel.resolutionX;
-                            final double resY = baseLevel.resolutionY;
-                            final double[] requestRes = request.getRequestedResolution();
-                            if (requestRes[0] < resX || requestRes[1] < resY) {
-                                // Using the best available resolution
-                                oversampledRequest = true;
-                                g2w = new AffineTransform((AffineTransform) baseGridToWorld);
-                                g2w.concatenate(Utils.CENTER_TO_CORNER);
-                            } else {
-                                if (!needsReprojection){
-                                    g2w = new AffineTransform(request.getRequestedGridToWorld());
-                                    g2w.concatenate(Utils.CENTER_TO_CORNER);
-                                } else {
-                                    GridToEnvelopeMapper mapper = new GridToEnvelopeMapper(new GridEnvelope2D(request.getRequestedRasterArea()), mosaicBBox);
-                                    mapper.setPixelAnchor(PixelInCell.CELL_CORNER);
-                                    g2w = mapper.createAffineTransform();
-                                }
-                            }
-    
-                            // move it to the corner
 
-			finalGridToWorldCorner=new AffineTransform2D(g2w);
+			final OverviewLevel baseLevel = rasterManager.overviewsController.resolutionsLevels
+					.get(0);
+			final double resX = baseLevel.resolutionX;
+			final double resY = baseLevel.resolutionY;
+			final double[] requestRes = request.getRequestedResolution();
+			if (requestRes[0] < resX || requestRes[1] < resY) {
+				// Using the best available resolution
+				oversampledRequest = true;
+				g2w = new AffineTransform((AffineTransform) baseGridToWorld);
+				g2w.concatenate(Utils.CENTER_TO_CORNER);
+			} else {
+				if (!needsReprojection) {
+					g2w = new AffineTransform(request.getRequestedGridToWorld());
+					g2w.concatenate(Utils.CENTER_TO_CORNER);
+				} else {
+					GridToEnvelopeMapper mapper = new GridToEnvelopeMapper(
+							new GridEnvelope2D(request.getRequestedRasterArea()),
+							mosaicBBox);
+					mapper.setPixelAnchor(PixelInCell.CELL_CORNER);
+					g2w = mapper.createAffineTransform();
+				}
+			}
+
+			// move it to the corner
+			finalGridToWorldCorner = new AffineTransform2D(g2w);
 			finalWorldToGridCorner = finalGridToWorldCorner.inverse();// compute raster bounds
 			final GeneralEnvelope tempRasterBounds = CRS.transform(finalWorldToGridCorner, mosaicBBox);
 			rasterBounds=tempRasterBounds.toRectangle2D().getBounds();
@@ -818,7 +819,7 @@ class RasterLayerResponse{
 			final SimpleFeatureType type = rasterManager.index.getType();
 			Query query = null;
 			if (type != null){
-			    query= new DefaultQuery(rasterManager.index.getType().getTypeName());
+			    query= new Query(rasterManager.index.getType().getTypeName());
 			    final Filter bbox=Utils.FILTER_FACTORY.bbox(Utils.FILTER_FACTORY.property(rasterManager.index.getType().getGeometryDescriptor().getName()),mosaicBBox);
 			    query.setFilter( bbox);
 			}
@@ -871,11 +872,10 @@ class RasterLayerResponse{
 				}
 				
 
-				// get those granules
-				rasterManager.getGranules(query, visitor);
 			}
-			else
-				rasterManager.getGranules(mosaicBBox, visitor);
+
+			// get those granules
+			rasterManager.getGranules(query, visitor);
 			visitor.produce();
 			
 			//

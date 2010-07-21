@@ -45,6 +45,7 @@ import org.geotools.data.Transaction;
 import org.geotools.data.postgis.PostgisNGDataStoreFactory;
 import org.geotools.data.postgis.PostgisNGJNDIDataStoreFactory;
 import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.data.store.ContentFeatureSource;
@@ -134,8 +135,6 @@ class GTDataStoreGranuleCatalog extends AbstractGranuleCatalog {
 	private DataStore tileIndexStore;
 
 	private String typeName;
-
-	private SimpleFeatureSource featureSource;
 
 	private String geometryPropertyName;
 
@@ -238,7 +237,7 @@ class GTDataStoreGranuleCatalog extends AbstractGranuleCatalog {
 			}
 		}
 
-		featureSource = tileIndexStore.getFeatureSource(this.typeName);
+		final SimpleFeatureSource featureSource = tileIndexStore.getFeatureSource(this.typeName);
 		if (featureSource == null) 
 			throw new NullPointerException(
 					"The provided SimpleFeatureSource is null, it's impossible to create an index!");
@@ -411,7 +410,6 @@ class GTDataStoreGranuleCatalog extends AbstractGranuleCatalog {
 	throws IOException {
 		Utilities.ensureNonNull("q",q);
 
-		SimpleFeatureCollection features=null;
 		final Lock lock=rwLock.readLock();
 		try{
 			lock.lock();		
@@ -421,8 +419,12 @@ class GTDataStoreGranuleCatalog extends AbstractGranuleCatalog {
 			// Load tiles informations, especially the bounds, which will be
 			// reused
 			//
-			features = featureSource.getFeatures( q );
-		
+
+			final SimpleFeatureSource featureSource = tileIndexStore.getFeatureSource(this.typeName);
+			if (featureSource == null) 
+				throw new NullPointerException(
+						"The provided SimpleFeatureSource is null, it's impossible to create an index!");			
+			final SimpleFeatureCollection features = featureSource.getFeatures( q );
 			if (features == null) 
 				throw new NullPointerException(
 						"The provided SimpleFeatureCollection is null, it's impossible to create an index!");
@@ -431,10 +433,18 @@ class GTDataStoreGranuleCatalog extends AbstractGranuleCatalog {
 				LOGGER.fine("Index Loaded");
 						
 			
-			//load the feature from the shapefile and create JTS index
-			if (features.size()<=0) 
-				throw new IllegalArgumentException(
-						"The provided SimpleFeatureCollection  is empty, it's impossible to create an index!");
+			//load the feature from the underlying datastore as needed
+			final SimpleFeatureIterator it = features.features();
+			try{
+				if (!it.hasNext()) {
+					if(LOGGER.isLoggable(Level.FINE))
+						LOGGER.fine("The provided SimpleFeatureCollection  or empty, it's impossible to create an index!");
+					return ;
+						
+				}	
+			}finally{
+				it.close();
+			}
 			
 			features.accepts( new AbstractFeatureVisitor(){
 			    public void visit( Feature feature ) {
@@ -467,7 +477,6 @@ class GTDataStoreGranuleCatalog extends AbstractGranuleCatalog {
 		Utilities.ensureNonNull("q",q);
 
 		FeatureIterator<SimpleFeature> it=null;
-		SimpleFeatureCollection features=null;
 		final Lock lock=rwLock.readLock();
 		try{
 			lock.lock();		
@@ -477,8 +486,12 @@ class GTDataStoreGranuleCatalog extends AbstractGranuleCatalog {
 			// Load tiles informations, especially the bounds, which will be
 			// reused
 			//
-			features = featureSource.getFeatures( q );
-		
+
+			final SimpleFeatureSource featureSource = tileIndexStore.getFeatureSource(this.typeName);
+			if (featureSource == null) 
+				throw new NullPointerException(
+						"The provided SimpleFeatureSource is null, it's impossible to create an index!");			
+			final SimpleFeatureCollection features = featureSource.getFeatures( q );
 			if (features == null) 
 				throw new NullPointerException(
 						"The provided SimpleFeatureCollection is null, it's impossible to create an index!");
@@ -487,11 +500,14 @@ class GTDataStoreGranuleCatalog extends AbstractGranuleCatalog {
 				LOGGER.fine("Index Loaded");
 						
 			
-			//load the feature from the shapefile and create JTS index
+			//load the feature from the underlying datastore as needed
 			it = features.features();
-			if (!it.hasNext()) 
-				throw new IllegalArgumentException(
-						"The provided SimpleFeatureCollection  or empty, it's impossible to create an index!");
+			if (!it.hasNext()) {
+				if(LOGGER.isLoggable(Level.FINE))
+					LOGGER.fine("The provided SimpleFeatureCollection  or empty, it's impossible to create an index!");
+				return Collections.emptyList();
+					
+			}
 			
 			// now build the index
 			// TODO make it configurable as far the index is involved
@@ -519,8 +535,7 @@ class GTDataStoreGranuleCatalog extends AbstractGranuleCatalog {
 			lock.unlock();
 			if(it!=null)
 				// closing he iterator to free some resources.
-				if(features!=null)
-					features.close(it);
+    			it.close();
 
 		}
 	}
