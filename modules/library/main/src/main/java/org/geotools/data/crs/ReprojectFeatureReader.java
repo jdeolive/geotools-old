@@ -75,17 +75,31 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 public class ReprojectFeatureReader implements DelegatingFeatureReader<SimpleFeatureType, SimpleFeature>{
     
-     FeatureReader<SimpleFeatureType, SimpleFeature> reader;
+    FeatureReader<SimpleFeatureType, SimpleFeature> reader;
     SimpleFeatureType schema;
     GeometryCoordinateSequenceTransformer transformer = new GeometryCoordinateSequenceTransformer();
-
+    
+    /**
+     * Direct constructor reprojecting the provided reader into the schema indicated (using the supplied math transformation).
+     * <p>
+     * Please note schema is that of the expected results, You may need to use FeatureTypes.transform( FeatureType, crs ) to create the schema provider.
+     * 
+     * @param reader original reader with results in the original coordinate reference system
+     * @param schema This is the target schema describing the results in the expected coordinate reference system
+     * @param transform the math transform used to go from reader coordinate reference system to the provided schema coordinate reference system
+     */
     public ReprojectFeatureReader(FeatureReader <SimpleFeatureType, SimpleFeature> reader, SimpleFeatureType schema,
         MathTransform transform) {
         this.reader = reader;
         this.schema = schema;
         transformer.setMathTransform((MathTransform2D)transform);
     }
-
+    /**
+     * Constructor that will generate schema and mathTransform for the results.
+     * 
+     * @param reader original reader
+     * @param cs Target coordinate reference system; will be used to create the target FeatureType and MathTransform used to transform the data
+     */
     public ReprojectFeatureReader(FeatureReader<SimpleFeatureType, SimpleFeature> reader,
         CoordinateReferenceSystem cs)
         throws SchemaException, OperationNotFoundException, NoSuchElementException, FactoryException{
