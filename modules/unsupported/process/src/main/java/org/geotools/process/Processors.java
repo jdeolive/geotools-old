@@ -69,6 +69,26 @@ public class Processors extends FactoryFinder {
     }
     
     /**
+     * Dynamically register a new process factory into SPI
+     * @param factory
+     */
+    public static void addProcessFactory(ProcessFactory factory) {
+    	getServiceRegistry().registerServiceProvider(factory);
+    }
+    
+    /**
+     * Dynamically removes a process factory from SPI. Normally the factory has been
+     * added before via {@link #addProcessFactory(ProcessFactory)}
+     * @param factory
+     */
+    public static void removeProcessFactory(ProcessFactory factory) {
+    	if(lastFactory == factory) {
+    		lastFactory = null;
+    	}
+    	getServiceRegistry().deregisterServiceProvider(factory);
+    }
+    
+    /**
      * Set of available ProcessFactory; each of which is responsible for one or more processes.
      * 
      * @return Set of ProcessFactory
