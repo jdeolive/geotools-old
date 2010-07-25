@@ -16,6 +16,8 @@
  */
 package org.geotools.referencing.operation.projection;
 
+import static java.lang.Math.abs;
+
 import org.geotools.metadata.iso.citation.Citations;
 import org.geotools.referencing.NamedIdentifier;
 import org.geotools.referencing.operation.projection.MapProjection.AbstractProvider;
@@ -112,6 +114,20 @@ public class MercatorPseudoProvider extends AbstractProvider {
         public ParameterDescriptorGroup getParameterDescriptors() {
             return MercatorPseudoProvider.PARAMETERS;
         }
+        
+		@Override
+		protected double getToleranceForAssertions(double longitude,
+				double latitude) {
+			final double delta = abs(longitude - centralMeridian) / 2
+					+ abs(latitude - latitudeOfOrigin);
+			if (delta > 40) {
+				// When far from the valid area, use a larger tolerance.
+				return 1;
+			} else {
+				// this projection forte is not exactly precision
+				return 0.1;
+			}
+		}
     }
 
 }
