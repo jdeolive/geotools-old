@@ -118,7 +118,7 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 @SuppressWarnings("deprecation")
 class RasterLayerResponse{
-
+    
     /**
      * Simple placeholder class to store the result of a Granule Loading
      * which comprises of a raster as well as a {@link ROIShape} for its footprint.
@@ -881,11 +881,12 @@ class RasterLayerResponse{
 					}
 				}
 				
+				rasterManager.getGranules(query, visitor);
 
+			} else {
+			    rasterManager.getGranules(mosaicBBox, visitor);    
 			}
-
 			// get those granules
-			rasterManager.getGranules(query, visitor);
 			visitor.produce();
 			
 			//
@@ -981,7 +982,6 @@ class RasterLayerResponse{
 				LOGGER.fine("Support for alpha on input image number "+ granuleIndex);
 			granule = Utils.makeColorTransparent(transparentColor, granule);
 			alphaIndex[0]= granule.getColorModel().getNumComponents() - 1 ;
-
 		}
 		//
 		// ROI
