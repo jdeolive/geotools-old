@@ -36,8 +36,6 @@ import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
-import org.geotools.coverage.grid.io.GridFormatFinder;
-import org.geotools.coverage.grid.io.UnknownFormat;
 import org.geotools.factory.Hints;
 import org.geotools.parameter.Parameter;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
@@ -62,6 +60,8 @@ import org.opengis.referencing.NoSuchAuthorityCodeException;
 @SuppressWarnings("deprecation")
 public class ImageMosaicReaderTest extends Assert{
 
+	private static ImageMosaicFormat FORMAT = new ImageMosaicFormat();
+	
 	public static junit.framework.Test suite() { 
 	    return new JUnit4TestAdapter(ImageMosaicReaderTest.class); 
 	}
@@ -167,8 +167,7 @@ public class ImageMosaicReaderTest extends Assert{
 
 		// Get the resources as needed.
 		Assert.assertNotNull(testURL);
-		final AbstractGridFormat format = getFormat(testURL);
-		final ImageMosaicReader reader = getReader(testURL, format, hints);
+		final ImageMosaicReader reader = getReader(testURL, hints);
 
 		// limit yourself to reading just a bit of it
 		final ParameterValue<Color> inTransp =  ImageMosaicFormat.INPUT_TRANSPARENT_COLOR.createValue();
@@ -181,6 +180,11 @@ public class ImageMosaicReaderTest extends Assert{
 		// Test the output coverage
 		checkCoverage(reader, new GeneralParameterValue[] { inTransp, blendPV, outTransp }, title);
 	}
+
+	private ImageMosaicReader getReader(final URL testURL, final Hints hints) {
+		return FORMAT.getReader(testURL, hints);
+	}
+
 
 	/**
 	 * Tests the creation of a {@link GridCoverage2D} using the provided
@@ -259,30 +263,6 @@ public class ImageMosaicReaderTest extends Assert{
 			}
 		});
 
-	}
-
-	private ImageMosaicReader getReader(URL testURL,
-			final AbstractGridFormat format, Hints hints) {
-//		Get a reader
-		final ImageMosaicReader reader = (ImageMosaicReader) format.getReader(testURL, hints);
-		Assert.assertNotNull(reader);
-		return reader;
-	}
-
-	/**
-	 * Tries to get an {@link AbstractGridFormat} for the provided URL.
-	 * 
-	 * @param testURL
-	 *            points to a shapefile that is the index of a certain mosaic.
-	 * @return a suitable {@link AbstractGridFormat}.
-	 */
-	private AbstractGridFormat getFormat(URL testURL) {
-
-		// Get format
-		final AbstractGridFormat format = (AbstractGridFormat) GridFormatFinder.findFormat(testURL);
-		Assert.assertNotNull(format);
-		Assert.assertFalse("UknownFormat", format instanceof UnknownFormat);
-		return format;
 	}
 
 //	/**
