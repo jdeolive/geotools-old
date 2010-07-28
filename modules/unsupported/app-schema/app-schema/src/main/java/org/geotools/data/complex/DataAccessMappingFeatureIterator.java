@@ -706,7 +706,8 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
         if (p.getValue() instanceof Collection) {
 
             Collection c = (Collection) p.getValue();
-
+            // Will need to add && this.getClientProperties(p).get(XLINK_HREF_NAME)!=null if we
+            // intend to skip empty xlink href eg <gsml:samplingFrame/>             
             if (c.size() == 0 && this.getClientProperties(p).containsKey(XLINK_HREF_NAME)) {
                 return true;
             }
