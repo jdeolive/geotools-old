@@ -30,7 +30,7 @@ public class LineTest extends TestCase {
         fs = ds.getFeatureSource("line");
         bounds = new ReferencedEnvelope(0, 10, 0, 10, DefaultGeographicCRS.WGS84);
         
-//        System.setProperty("org.geotools.test.interactive", "true");
+        // System.setProperty("org.geotools.test.interactive", "true");
     }
     
     public void testLineCircle() throws Exception {

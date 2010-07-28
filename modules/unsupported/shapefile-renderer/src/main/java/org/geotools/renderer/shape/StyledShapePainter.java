@@ -20,7 +20,6 @@ import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Canvas;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.Paint;
 import java.awt.RenderingHints;
 import java.awt.Shape;
@@ -28,7 +27,6 @@ import java.awt.Stroke;
 import java.awt.TexturePaint;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.logging.Level;
@@ -178,9 +176,7 @@ public class StyledShapePainter {
 
             while (!(iter.isDone())) {
                 iter.currentSegment(coords);
-                renderImage(graphics, coords[0], coords[1],
-                        (Image) gs2d.getImage(), gs2d.getRotation(), gs2d
-                                .getOpacity(), false);
+                renderImage(graphics, coords[0], coords[1], gs2d.getImage(), gs2d.getRotation(), gs2d.getOpacity());
                 iter.next();
             }
         } else {
@@ -283,192 +279,217 @@ public class StyledShapePainter {
         return citer;
     }
 
-    // draws the image along the path
-    private void drawWithGraphicsStroke(Graphics2D graphics, Shape shape,
-        BufferedImage image) {
-        PathIterator pi = shape.getPathIterator(null, 10.0);
-        double[] coords = new double[4];
-        int type;
+	// draws the image along the path
+	private void drawWithGraphicsStroke(Graphics2D graphics, Shape shape, Style2D graphicStroke) {
+		PathIterator pi = shape.getPathIterator(null);
+		double[] coords = new double[4];
+		int type;
 
-        // I suppose the image has been already scaled and its square
-        int imageSize = image.getWidth();
+		// I suppose the image has been already scaled and its square
+		double imageSize;
+		if(graphicStroke instanceof MarkStyle2D) {
+			imageSize = ((MarkStyle2D) graphicStroke).getSize();
+		} else if(graphicStroke instanceof IconStyle2D) {
+			imageSize = ((IconStyle2D) graphicStroke).getIcon().getIconWidth();
+		} else {
+			GraphicStyle2D gs = (GraphicStyle2D) graphicStroke;
+			imageSize = gs.getImage().getWidth() - gs.getBorder();
+		}
 
-        double[] first = new double[2];
-        double[] previous = new double[2];
-        type = pi.currentSegment(coords);
-        first[0] = coords[0];
-        first[1] = coords[1];
-        previous[0] = coords[0];
-        previous[1] = coords[1];
+		double[] first = new double[2];
+		double[] previous = new double[2];
+		type = pi.currentSegment(coords);
+		first[0] = coords[0];
+		first[1] = coords[1];
+		previous[0] = coords[0];
+		previous[1] = coords[1];
 
-        if (LOGGER.isLoggable(Level.FINEST)) {
-            LOGGER.finest("starting at " + first[0] + "," + first[1]);
-        }
+		if (LOGGER.isLoggable(Level.FINEST)) {
+			LOGGER.finest("starting at " + first[0] + "," + first[1]);
+		}
 
-        pi.next();
+		pi.next();
+		
+		double remainder = imageSize / 2.0;
 
-        while (!pi.isDone()) {
-            type = pi.currentSegment(coords);
+		while (!pi.isDone()) {
+			type = pi.currentSegment(coords);
 
-            switch (type) {
-            case PathIterator.SEG_MOVETO:
+			switch (type) {
+			case PathIterator.SEG_MOVETO:
 
-                // nothing to do?
-                if (LOGGER.isLoggable(Level.FINEST)) {
-                    LOGGER.finest("moving to " + coords[0] + "," + coords[1]);
-                }
+				// nothing to do?
+				if (LOGGER.isLoggable(Level.FINEST)) {
+					LOGGER.finest("moving to " + coords[0] + "," + coords[1]);
+				}
 
-                break;
+				remainder = 0;
+				break;
 
-            case PathIterator.SEG_CLOSE:
+			case PathIterator.SEG_CLOSE:
 
-                // draw back to first from previous
-                coords[0] = first[0];
-                coords[1] = first[1];
+				// draw back to first from previous
+				coords[0] = first[0];
+				coords[1] = first[1];
 
-                if (LOGGER.isLoggable(Level.FINEST)) {
-                    LOGGER.finest("closing from " + previous[0] + ","
-                        + previous[1] + " to " + coords[0] + "," + coords[1]);
-                }
+				if (LOGGER.isLoggable(Level.FINEST)) {
+					LOGGER.finest("closing from " + previous[0] + ","
+							+ previous[1] + " to " + coords[0] + ","
+							+ coords[1]);
+				}
 
-            // no break here - fall through to next section
-            case PathIterator.SEG_LINETO:
+			// no break here - fall through to next section
+			case PathIterator.SEG_LINETO:
 
-                // draw from previous to coords
-                if (LOGGER.isLoggable(Level.FINEST)) {
-                    LOGGER.finest("drawing from " + previous[0] + ","
-                        + previous[1] + " to " + coords[0] + "," + coords[1]);
-                }
+				// draw from previous to coords
+				if (LOGGER.isLoggable(Level.FINEST)) {
+					LOGGER.finest("drawing from " + previous[0] + ","
+							+ previous[1] + " to " + coords[0] + ","
+							+ coords[1]);
+				}
 
-                double dx = coords[0] - previous[0];
-                double dy = coords[1] - previous[1];
-                double len = Math.sqrt((dx * dx) + (dy * dy)); // - imageWidth;
+				double dx = coords[0] - previous[0];
+				double dy = coords[1] - previous[1];
+				double len = Math.sqrt((dx * dx) + (dy * dy)); // - imageWidth;
+				
+				if(len < remainder) {
+					remainder -= len;
+				} else {
+					double theta = Math.atan2(dx, dy);
+					dx = (Math.sin(theta) * imageSize);
+					dy = (Math.cos(theta) * imageSize);
+	
+					if (LOGGER.isLoggable(Level.FINEST)) {
+						LOGGER.finest("dx = " + dx + " dy " + dy + " step = "
+								+ Math.sqrt((dx * dx) + (dy * dy)));
+					}
+	
+					double rotation = -(theta - (Math.PI / 2d));
+					double x = previous[0] + (Math.sin(theta) * remainder);
+					double y = previous[1] + (Math.cos(theta) * remainder);
+	
+					if (LOGGER.isLoggable(Level.FINEST)) {
+						LOGGER.finest("len =" + len + " imageSize " + imageSize);
+					}
+	
+					double dist = 0;
+	
+					for (dist = remainder; dist < len; dist += imageSize) {
+						renderGraphicsStroke(graphics, x, y, graphicStroke, rotation, 1);
+	//					Use this code to visually debug the x,y used to draw the image
+	//					graphics.setColor(Color.BLACK);
+	//					graphics.setStroke(new BasicStroke());
+	//					graphics.draw(new Line2D.Double(x, y, x, y));
+						
+					    x += dx;
+					    y += dy;
+					}
+					remainder = dist - len;
+	
+					if (LOGGER.isLoggable(Level.FINEST)) {
+						LOGGER.finest("loop end dist " + dist + " len " + len + " "
+								+ (len - dist));
+					}
+				}
 
-                double theta = Math.atan2(dx, dy);
-                dx = (Math.sin(theta) * imageSize);
-                dy = (Math.cos(theta) * imageSize);
+				break;
 
-                if (LOGGER.isLoggable(Level.FINEST)) {
-                    LOGGER.finest("dx = " + dx + " dy " + dy + " step = "
-                        + Math.sqrt((dx * dx) + (dy * dy)));
-                }
+			default:
+				LOGGER
+						.warning("default branch reached in drawWithGraphicStroke");
+			}
 
-                double rotation = -(theta - (Math.PI / 2d));
-                double x = previous[0];
-                double y = previous[1];
+			previous[0] = coords[0];
+			previous[1] = coords[1];
+			pi.next();
+		}
+	}
+	
+	private void renderGraphicsStroke(Graphics2D graphics, double x, double y, Style2D style, double rotation, float opacity) {
+		if (LOGGER.isLoggable(Level.FINEST)) {
+			LOGGER.finest("drawing GraphicsStroke@" + x + "," + y);
+		}
+		
+		graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
+		
+		if(style instanceof GraphicStyle2D) {
+			BufferedImage image = ((GraphicStyle2D) style).getImage();
+			renderImage(graphics, x, y, image, rotation, opacity);
+		} else if(style instanceof MarkStyle2D) {
+			// almost like the code in the main paint method, but 
+			// here we don't use the mark composite
+			MarkStyle2D ms2d = (MarkStyle2D) style;
+			Shape transformedShape = ms2d.getTransformedShape((float) x, (float) y, (float) rotation);
+			if (transformedShape != null) {
+				if (ms2d.getFill() != null) {
+					graphics.setPaint(ms2d.getFill());
+					graphics.fill(transformedShape);
+				}
 
-                if (LOGGER.isLoggable(Level.FINEST)) {
-                    LOGGER.finest("len =" + len + " imageSize " + imageSize);
-                }
+				if (ms2d.getContour() != null) {
+					graphics.setPaint(ms2d.getContour());
+					graphics.setStroke(ms2d.getStroke());
+					graphics.draw(transformedShape);
+				}
+			}
+		} else if(style instanceof IconStyle2D) {
+			IconStyle2D icons = (IconStyle2D) style;
+			Icon icon = icons.getIcon();
+			
+			AffineTransform markAT = new AffineTransform(graphics.getTransform());
+			markAT.translate(x, y);
+			markAT.rotate(rotation);
+			markAT.translate(-icon.getIconWidth() / 2.0, -icon.getIconHeight() / 2.0);
+            
+            icon.paintIcon(null, graphics, 0, 0);
+		}
+	}
 
-                double dist = 0;
 
-                for (dist = 0; dist < (len - imageSize); dist += imageSize) {
-                    renderImage(graphics, x, y, image, rotation, 1, true);
-                    
-//                  Use this code to visually debug the x,y used to draw the image
-//                  graphics.setColor(Color.BLACK);
-//                  graphics.setStroke(new BasicStroke());
-//                  graphics.draw(new Line2D.Double(x, y, x, y));
+	/**
+	 * Renders an image on the device
+	 * 
+	 * @param graphics
+	 *            the image location on the screen, x coordinate
+	 * @param x
+	 *            the image location on the screen, y coordinate
+	 * @param y
+	 *            the image
+	 * @param image
+	 *            DOCUMENT ME!
+	 * @param rotation
+	 *            the image rotatation
+	 * @param opacity
+	 *            DOCUMENT ME!
+	 */
+	private void renderImage(Graphics2D graphics, double x, double y,
+			BufferedImage image, double rotation, float opacity) {
+		if (LOGGER.isLoggable(Level.FINEST)) {
+			LOGGER.finest("drawing Image @" + x + "," + y);
+		}
 
-                    x += dx;
-                    y += dy;
-                }
+		AffineTransform markAT = new AffineTransform(graphics.getTransform());
+		markAT.translate(x, y);
+		markAT.rotate(rotation);
+		markAT.translate(-image.getWidth() / 2.0, -image.getHeight() / 2.0);
 
-                if (LOGGER.isLoggable(Level.FINEST)) {
-                    LOGGER.finest("loop end dist " + dist + " len " + len + " "
-                        + (len - dist));
-                }
+		graphics.setComposite(AlphaComposite.getInstance(
+				AlphaComposite.SRC_OVER, opacity));
 
-                double remainder = len - dist;
-                int remainingWidth = (int) Math.round(remainder);
-
-                if (remainingWidth > 0) {
-                    //clip and render image
-                    if (LOGGER.isLoggable(Level.FINEST)) {
-                        LOGGER.finest("about to use clipped image " + remainder);
-                    }
-
-                    // the +2 is a magic number. That is, I don't know exactly
-                    // where it comes from, but closing images always seem to be missing
-                    // two pixels...
-                    BufferedImage img = new BufferedImage(remainingWidth + 2,
-                            image.getHeight(), image.getType());
-                    Graphics2D ig = img.createGraphics();
-                    ig.drawImage(image, 0, 0, imgObserver);
-
-                    renderImage(graphics, x, y, img, rotation, 1, true);
-                }
-
-                break;
-
-            default:
-                LOGGER.warning(
-                    "default branch reached in drawWithGraphicStroke");
-            }
-
-            previous[0] = coords[0];
-            previous[1] = coords[1];
-            pi.next();
-        }
-    }
-
-    /**
-     * Renders an image on the device
-     * 
-     * @param graphics
-     *            the image location on the screen, x coordinate
-     * @param x
-     *            the image location on the screen, y coordinate
-     * @param y
-     *            the image
-     * @param image
-     *            DOCUMENT ME!
-     * @param rotation
-     *            the image rotatation
-     * @param opacity
-     *            DOCUMENT ME!
-     */
-    private void renderImage(Graphics2D graphics, double x, double y,
-            Image image, double rotation, float opacity, boolean leftMiddle) {
-        if (LOGGER.isLoggable(Level.FINEST)) {
-            LOGGER.finest("drawing Image @" + x + "," + y);
-        }
-
-        AffineTransform temp = graphics.getTransform();
-        AffineTransform markAT = new AffineTransform();
-        Point2D center = new java.awt.geom.Point2D.Double(x, y);
-        Point2D pointTx = new java.awt.geom.Point2D.Double();
-        temp.transform(center, pointTx);
-        markAT.translate(pointTx.getX(), pointTx.getY());
-
-        double shearY = temp.getShearY();
-        double scaleY = temp.getScaleY();
-
-        double originalRotation = Math.atan(shearY / scaleY);
-
-        if (LOGGER.isLoggable(Level.FINER)) {
-            LOGGER.finer("originalRotation " + originalRotation);
-        }
-
-        markAT.rotate(rotation);
-        graphics.setTransform(markAT);
-        graphics.setComposite(AlphaComposite.getInstance(
-                AlphaComposite.SRC_OVER, opacity));
-
-        // we moved the origin to the middle of the image.
-        if(leftMiddle) {
-            graphics.drawImage(image, 0, -image
-                    .getHeight(imgObserver) / 2, imgObserver);
-        } else {
-            graphics.drawImage(image, -image.getWidth(imgObserver) / 2, -image
-                .getHeight(imgObserver) / 2, imgObserver);
-        }
-
-        graphics.setTransform(temp);
-
-        return;
-    }
+		Object interpolation = graphics
+				.getRenderingHint(RenderingHints.KEY_INTERPOLATION);
+		if (interpolation == null) {
+			interpolation = RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR;
+		}
+		try {
+			graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+					RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+			graphics.drawRenderedImage(image, markAT);
+		} finally {
+			graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+					interpolation);
+		}
+	}
     
     /**
      * Paints a graphic fill for a given shape.

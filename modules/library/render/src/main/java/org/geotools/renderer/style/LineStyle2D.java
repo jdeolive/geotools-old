@@ -38,7 +38,7 @@ public class LineStyle2D extends Style2D {
     protected Composite contourComposite;
 
     /** Holds value of property graphicStroke. */
-    private BufferedImage graphicStroke;
+    private Style2D graphicStroke;
     
     /**
      * Returns the stroke for the {@linkplain org.geotools.renderer.geom.Polyline polyline} to be
@@ -104,7 +104,7 @@ public class LineStyle2D extends Style2D {
      * @return Value of property graphicStroke.
      *
      */
-    public BufferedImage getGraphicStroke() {
+    public Style2D getGraphicStroke() {
         return this.graphicStroke;
     }
     
@@ -112,7 +112,7 @@ public class LineStyle2D extends Style2D {
      * @param graphicStroke New value of property graphicStroke.
      *
      */
-    public void setGraphicStroke(BufferedImage graphicStroke) {
+    public void setGraphicStroke(Style2D graphicStroke) {
         this.graphicStroke = graphicStroke;
     }
     

@@ -165,9 +165,9 @@ public class SVGGraphicFactory implements ExternalGraphicFactory {
             NodeList list = doc.getElementsByTagName("svg");
             Node svgNode = list.item(0);
 
-            NamedNodeMap attrbiutes = svgNode.getAttributes();
-            Node widthNode = attrbiutes.getNamedItem("width");
-            Node heightNode = attrbiutes.getNamedItem("height");
+            NamedNodeMap attributes = svgNode.getAttributes();
+            Node widthNode = attributes.getNamedItem("width");
+            Node heightNode = attributes.getNamedItem("height");
 
             if (widthNode != null && heightNode != null) {
                 double width = parseDouble(widthNode.getNodeValue());
@@ -211,7 +211,6 @@ public class SVGGraphicFactory implements ExternalGraphicFactory {
 
         public void paint(Graphics2D g, int width, int height, int x, int y) {
             // saves the old transform;
-            // (needs synchronizing since we will mess around with the node's transform)
             AffineTransform oldTransform = g.getTransform();
             try {
                 if (oldTransform == null)
@@ -220,6 +219,7 @@ public class SVGGraphicFactory implements ExternalGraphicFactory {
                 AffineTransform transform = new AffineTransform(oldTransform);
      
                 // adds scaling to the transform so that we respect the declared size
+                transform.translate(x, y);
                 transform.scale(width / bounds.getWidth(), height / bounds.getHeight());
                 g.setTransform(transform);
                 node.paint(g);

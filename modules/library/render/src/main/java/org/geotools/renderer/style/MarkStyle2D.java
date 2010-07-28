@@ -62,6 +62,20 @@ public class MarkStyle2D extends PolygonStyle2D {
      * @return a shape that can be used to draw the mark 
      */
     public Shape getTransformedShape(float x, float y) {
+        return getTransformedShape(x, y, rotation);
+    }
+    
+    /**
+     * Returns a shape that can be used to draw the mark at the x, y coordinates
+     * with appropriated rotation and size (according to the current style)
+     *
+     * @param x the x coordinate where the mark will be drawn
+     * @param y the y coordinate where the mark will be drawn
+     * @param rotation a custom rotation, other than the mark build in one
+     *
+     * @return a shape that can be used to draw the mark 
+     */
+    public Shape getTransformedShape(float x, float y, float rotation) {
         if (shape != null) {
             Rectangle2D bounds = shape.getBounds2D();
             double shapeSize = bounds.getHeight();
@@ -79,6 +93,7 @@ public class MarkStyle2D extends PolygonStyle2D {
             return null;
         }
     }
+
 
     /**
      * Returns the size of the shape, in pixels

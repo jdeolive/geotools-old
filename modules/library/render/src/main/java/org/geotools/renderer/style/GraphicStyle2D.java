@@ -18,68 +18,105 @@ package org.geotools.renderer.style;
 
 import java.awt.image.BufferedImage;
 
-
 /**
- * A style class used to depict a point, polygon centroid or line with a small graphic icon
- *
+ * A style class used to depict a point, polygon centroid or line with a small
+ * graphic icon
+ * 
  * @author Andrea Aime
  * @source $URL$
  * @version $Id$
  */
 public class GraphicStyle2D extends Style2D {
-    BufferedImage image;
-    float rotation;
-    float opacity;
+	BufferedImage image;
+	int border = 0;
+	float rotation;
+	float opacity;
 
-    /**
-     * Creates a new GraphicStyle2D object.
-     *
-     * @param image The image that will be used to depict the centroid/point/...
-     * @param rotation The image rotation
-     * @param opacity The image opacity
-     */
-    public GraphicStyle2D(BufferedImage image, float rotation, float opacity) {
-        this.image = image;
-        this.rotation = rotation;
-        this.opacity = opacity;
-    }
+	/**
+	 * Creates a new GraphicStyle2D object.
+	 * 
+	 * @param image
+	 *            The image that will be used to depict the centroid/point/...
+	 * @param rotation
+	 *            The image rotation
+	 * @param opacity
+	 *            The image opacity
+	 */
+	public GraphicStyle2D(BufferedImage image, float rotation, float opacity) {
+		this.image = image;
+		this.rotation = rotation;
+		this.opacity = opacity;
+	}
+	
+	/**
+	 * Creates a new GraphicStyle2D object.
+	 * 
+	 * @param image
+	 *            The image that will be used to depict the centroid/point/...
+	 * @param rotation
+	 *            The image rotation
+	 * @param opacity
+	 *            The image opacity
+	 */
+	public GraphicStyle2D(BufferedImage image, float rotation, float opacity, int border) {
+		this.image = image;
+		this.rotation = rotation;
+		this.opacity = opacity;
+		this.border = border;
+	}
 
-    /**
-     */
-    public BufferedImage getImage() {
-        return image;
-    }
 
-    /**
+	/**
      */
-    public float getOpacity() {
-        return opacity;
-    }
+	public BufferedImage getImage() {
+		return image;
+	}
 
-    /**
+	/**
      */
-    public float getRotation() {
-        return rotation;
-    }
+	public float getOpacity() {
+		return opacity;
+	}
 
-    /**
-     * @param image
+	/**
      */
-    public void setImage(BufferedImage image) {
-        this.image = image;
-    }
+	public float getRotation() {
+		return rotation;
+	}
 
-    /**
-     * @param f
-     */
-    public void setOpacity(float f) {
-        opacity = f;
-    }
+	/**
+	 * @param image
+	 */
+	public void setImage(BufferedImage image) {
+		this.image = image;
+	}
 
-    /**
-     * @param f
-     */
-    public void setRotation(float f) {
-        rotation = f;
-    }
+	/**
+	 * @param f
+	 */
+	public void setOpacity(float f) {
+		opacity = f;
+	}
+
+	/**
+	 * @param f
+	 */
+	public void setRotation(float f) {
+		rotation = f;
+	}
+
+	/**
+	 * The actual image size might have been extended with an extra border
+	 * (usually of one pixel) to preserve antialiasing pixels
+	 * 
+	 * @return
+	 */
+	public int getBorder() {
+		return border;
+	}
+
+	public void setBorder(int border) {
+		this.border = border;
+	}
+
 }

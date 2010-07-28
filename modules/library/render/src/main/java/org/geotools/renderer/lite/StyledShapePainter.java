@@ -21,7 +21,6 @@ import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Canvas;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.Paint;
 import java.awt.RenderingHints;
 import java.awt.Shape;
@@ -66,9 +65,6 @@ import com.vividsolutions.jts.geom.Polygon;
  */
 public final class StyledShapePainter {
 	private final static AffineTransform IDENTITY_TRANSFORM = new AffineTransform();
-
-	/** Observer for image loading */
-	private final static Canvas imgObserver = new Canvas();
 
 	/** The logger for the rendering module. */
 	private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(StyledShapePainter.class.getName());
@@ -180,8 +176,8 @@ public final class StyledShapePainter {
 			while (!(iter.isDone())) {
                 iter.currentSegment(coords);
     			renderImage(graphics, coords[0], coords[1],
-    					(Image) gs2d.getImage(), gs2d.getRotation(), gs2d
-    							.getOpacity(), false);
+    					gs2d.getImage(), gs2d.getRotation(), gs2d
+    							.getOpacity());
     			iter.next();
 			}
 		} else {
@@ -204,7 +200,7 @@ public final class StyledShapePainter {
 				if (ps2d.getGraphicFill() != null) {
 				    Shape oldClip = graphics.getClip();
 				    try {
-					paintGraphicFill(graphics, shape, ps2d.getGraphicFill(), scale);
+					    paintGraphicFill(graphics, shape, ps2d.getGraphicFill(), scale);
 				    } finally {
 				        graphics.setClip(oldClip);
 				    }
@@ -219,8 +215,7 @@ public final class StyledShapePainter {
 					// is completely
 					// different in this case
 					if (ls2d.getGraphicStroke() != null) {
-						drawWithGraphicsStroke(graphics, shape, ls2d
-								.getGraphicStroke());
+						drawWithGraphicsStroke(graphics, shape, ls2d.getGraphicStroke());
 					} else {
 						Paint paint = ls2d.getContour();
 
@@ -305,14 +300,21 @@ public final class StyledShapePainter {
 	}
 
 	// draws the image along the path
-	private void drawWithGraphicsStroke(Graphics2D graphics, Shape shape,
-			BufferedImage image) {
-		PathIterator pi = shape.getPathIterator(null, 10.0);
+	private void drawWithGraphicsStroke(Graphics2D graphics, Shape shape, Style2D graphicStroke) {
+		PathIterator pi = shape.getPathIterator(null);
 		double[] coords = new double[4];
 		int type;
 
 		// I suppose the image has been already scaled and its square
-		int imageSize = image.getWidth();
+		double imageSize;
+		if(graphicStroke instanceof MarkStyle2D) {
+			imageSize = ((MarkStyle2D) graphicStroke).getSize();
+		} else if(graphicStroke instanceof IconStyle2D) {
+			imageSize = ((IconStyle2D) graphicStroke).getIcon().getIconWidth();
+		} else {
+			GraphicStyle2D gs = (GraphicStyle2D) graphicStroke;
+			imageSize = gs.getImage().getWidth() - gs.getBorder();
+		}
 
 		double[] first = new double[2];
 		double[] previous = new double[2];
@@ -327,6 +329,8 @@ public final class StyledShapePainter {
 		}
 
 		pi.next();
+		
+		double remainder = imageSize / 2.0;
 
 		while (!pi.isDone()) {
 			type = pi.currentSegment(coords);
@@ -339,6 +343,7 @@ public final class StyledShapePainter {
 					LOGGER.finest("moving to " + coords[0] + "," + coords[1]);
 				}
 
+				remainder = 0;
 				break;
 
 			case PathIterator.SEG_CLOSE:
@@ -366,64 +371,45 @@ public final class StyledShapePainter {
 				double dx = coords[0] - previous[0];
 				double dy = coords[1] - previous[1];
 				double len = Math.sqrt((dx * dx) + (dy * dy)); // - imageWidth;
-
-				double theta = Math.atan2(dx, dy);
-				dx = (Math.sin(theta) * imageSize);
-				dy = (Math.cos(theta) * imageSize);
-
-				if (LOGGER.isLoggable(Level.FINEST)) {
-					LOGGER.finest("dx = " + dx + " dy " + dy + " step = "
-							+ Math.sqrt((dx * dx) + (dy * dy)));
-				}
-
-				double rotation = -(theta - (Math.PI / 2d));
-				double x = previous[0];
-				double y = previous[1];
-
-				if (LOGGER.isLoggable(Level.FINEST)) {
-					LOGGER.finest("len =" + len + " imageSize " + imageSize);
-				}
-
-				double dist = 0;
-
-				for (dist = 0; dist < len - imageSize; dist += imageSize) {
-					/* graphic.drawImage(image2,(int)x-midx,(int)y-midy,null); */
-					renderImage(graphics, x, y, image, rotation, 1, true);
-//					Use this code to visually debug the x,y used to draw the image
-//					graphics.setColor(Color.BLACK);
-//					graphics.setStroke(new BasicStroke());
-//					graphics.draw(new Line2D.Double(x, y, x, y));
-					
-				    x += dx;
-				    y += dy;
-				}
-
-				if (LOGGER.isLoggable(Level.FINEST)) {
-					LOGGER.finest("loop end dist " + dist + " len " + len + " "
-							+ (len - dist));
-				}
-
-				double remainder = len - dist;
-				int remainingWidth = (int) Math.round(remainder);
-
-				if (remainingWidth > 0) {
-					// clip and render image
+				
+				if(len < remainder) {
+					remainder -= len;
+				} else {
+					double theta = Math.atan2(dx, dy);
+					dx = (Math.sin(theta) * imageSize);
+					dy = (Math.cos(theta) * imageSize);
+	
 					if (LOGGER.isLoggable(Level.FINEST)) {
-						LOGGER
-								.finest("about to use clipped image "
-										+ remainder);
+						LOGGER.finest("dx = " + dx + " dy " + dy + " step = "
+								+ Math.sqrt((dx * dx) + (dy * dy)));
 					}
-
-					// the +2 is a magic number. That is, I don't know exactly
-					// where it comes from, but closing images always seem to be missing
-					// two pixels...
-					BufferedImage img = new BufferedImage(remainingWidth + 2,
-							image.getHeight(), image.getType());
-					Graphics2D ig = img.createGraphics();
-					ig.drawImage(image, 0, 0, imgObserver);
-					
-
-					renderImage(graphics, x, y, img, rotation, 1, true);
+	
+					double rotation = -(theta - (Math.PI / 2d));
+					double x = previous[0] + (Math.sin(theta) * remainder);
+					double y = previous[1] + (Math.cos(theta) * remainder);
+	
+					if (LOGGER.isLoggable(Level.FINEST)) {
+						LOGGER.finest("len =" + len + " imageSize " + imageSize);
+					}
+	
+					double dist = 0;
+	
+					for (dist = remainder; dist < len; dist += imageSize) {
+						renderGraphicsStroke(graphics, x, y, graphicStroke, rotation, 1);
+	//					Use this code to visually debug the x,y used to draw the image
+	//					graphics.setColor(Color.BLACK);
+	//					graphics.setStroke(new BasicStroke());
+	//					graphics.draw(new Line2D.Double(x, y, x, y));
+						
+					    x += dx;
+					    y += dy;
+					}
+					remainder = dist - len;
+	
+					if (LOGGER.isLoggable(Level.FINEST)) {
+						LOGGER.finest("loop end dist " + dist + " len " + len + " "
+								+ (len - dist));
+					}
 				}
 
 				break;
@@ -456,31 +442,71 @@ public final class StyledShapePainter {
 	 *            DOCUMENT ME!
 	 */
 	private void renderImage(Graphics2D graphics, double x, double y,
-			Image image, double rotation, float opacity, boolean leftMiddle) {
+			BufferedImage image, double rotation, float opacity) {
 		if (LOGGER.isLoggable(Level.FINEST)) {
 			LOGGER.finest("drawing Image @" + x + "," + y);
 		}
-        
-		AffineTransform temp = graphics.getTransform();
+
+		AffineTransform markAT = new AffineTransform(graphics.getTransform());
+		markAT.translate(x, y);
+		markAT.rotate(rotation);
+		markAT.translate(-image.getWidth() / 2.0, -image.getHeight() / 2.0);
+
+		graphics.setComposite(AlphaComposite.getInstance(
+				AlphaComposite.SRC_OVER, opacity));
+
+		Object interpolation = graphics
+				.getRenderingHint(RenderingHints.KEY_INTERPOLATION);
+		if (interpolation == null) {
+			interpolation = RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR;
+		}
 		try {
-    		AffineTransform markAT = new AffineTransform(graphics.getTransform());
-    		markAT.translate(x, y);
-    		markAT.rotate(rotation);
-    		graphics.setTransform(markAT);
-    		graphics.setComposite(AlphaComposite.getInstance(
-    				AlphaComposite.SRC_OVER, opacity));
-    		
-    
-    		// we moved the origin to the middle of the image.
-    		if(leftMiddle) {
-    		    graphics.drawImage(image, 0, -image
-    	                .getHeight(imgObserver) / 2, imgObserver);
-    		} else {
-    		    graphics.drawImage(image, -image.getWidth(imgObserver) / 2, -image
-    				.getHeight(imgObserver) / 2, imgObserver);
-    		}
+			graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+					RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+			graphics.drawRenderedImage(image, markAT);
 		} finally {
-		    graphics.setTransform(temp);
+			graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+					interpolation);
+		}
+	}
+	
+	private void renderGraphicsStroke(Graphics2D graphics, double x, double y, Style2D style, double rotation, float opacity) {
+		if (LOGGER.isLoggable(Level.FINEST)) {
+			LOGGER.finest("drawing GraphicsStroke@" + x + "," + y);
+		}
+		
+		graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
+		
+		if(style instanceof GraphicStyle2D) {
+			BufferedImage image = ((GraphicStyle2D) style).getImage();
+			renderImage(graphics, x, y, image, rotation, opacity);
+		} else if(style instanceof MarkStyle2D) {
+			// almost like the code in the main paint method, but 
+			// here we don't use the mark composite
+			MarkStyle2D ms2d = (MarkStyle2D) style;
+			Shape transformedShape = ms2d.getTransformedShape((float) x, (float) y, (float) rotation);
+			if (transformedShape != null) {
+				if (ms2d.getFill() != null) {
+					graphics.setPaint(ms2d.getFill());
+					graphics.fill(transformedShape);
+				}
+
+				if (ms2d.getContour() != null) {
+					graphics.setPaint(ms2d.getContour());
+					graphics.setStroke(ms2d.getStroke());
+					graphics.draw(transformedShape);
+				}
+			}
+		} else if(style instanceof IconStyle2D) {
+			IconStyle2D icons = (IconStyle2D) style;
+			Icon icon = icons.getIcon();
+			
+			AffineTransform markAT = new AffineTransform(graphics.getTransform());
+			markAT.translate(x, y);
+			markAT.rotate(rotation);
+			markAT.translate(-icon.getIconWidth() / 2.0, -icon.getIconHeight() / 2.0);
+            
+            icon.paintIcon(null, graphics, 0, 0);
 		}
 	}
 	

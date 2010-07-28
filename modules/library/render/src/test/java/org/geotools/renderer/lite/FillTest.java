@@ -19,7 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class FillTest {
-    private static final long TIME = 20000;
+    private static final long TIME = 4000;
     SimpleFeatureSource fs;
     SimpleFeatureSource bfs;
     ReferencedEnvelope bounds;
