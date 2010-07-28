@@ -505,8 +505,14 @@ public final class StyledShapePainter {
 			markAT.translate(x, y);
 			markAT.rotate(rotation);
 			markAT.translate(-icon.getIconWidth() / 2.0, -icon.getIconHeight() / 2.0);
-            
-            icon.paintIcon(null, graphics, 0, 0);
+
+			AffineTransform temp = graphics.getTransform();
+		    try {
+		    	graphics.setTransform(markAT);
+		    	icon.paintIcon(null, graphics, 0, 0);
+		    } finally {
+		        graphics.setTransform(temp);
+		    }
 		}
 	}
 	
