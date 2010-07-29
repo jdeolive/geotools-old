@@ -30,6 +30,8 @@ public class ChartRenderingTest extends TestCase {
         bounds.expandBy(10);
         
         renderer = new StreamingRenderer();
+        
+        // System.setProperty("org.geotools.test.interactive", "true");
     }
     
     public void testPieCharts() throws Exception {

@@ -598,10 +598,13 @@ public class SLDStyleFactory {
 						break;
 					}
 				} else {
-					retval = getGraphicStyle(eg, (Feature) feature, size, 1);
-					if (retval == null) {
+					GraphicStyle2D g2d = getGraphicStyle(eg, (Feature) feature, size, 1);
+					if (g2d == null) {
 						continue;
 					} else {
+						g2d.setRotation(rotation);
+						g2d.setOpacity(opacity);
+						retval = g2d;
 						break;
 					}
 				}
