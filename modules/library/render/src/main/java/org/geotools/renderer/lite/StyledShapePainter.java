@@ -19,7 +19,6 @@ package org.geotools.renderer.lite;
 
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
-import java.awt.Canvas;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.RenderingHints;
@@ -215,7 +214,7 @@ public final class StyledShapePainter {
 					// is completely
 					// different in this case
 					if (ls2d.getGraphicStroke() != null) {
-						drawWithGraphicsStroke(graphics, shape, ls2d.getGraphicStroke());
+						drawWithGraphicsStroke(graphics, dashShape(shape, ls2d.getStroke()), ls2d.getGraphicStroke());
 					} else {
 						Paint paint = ls2d.getContour();
 
@@ -253,6 +252,19 @@ public final class StyledShapePainter {
 				}
 			}
 		}
+	}
+
+	Shape dashShape(Shape shape, Stroke stroke) {
+		if(!(stroke instanceof BasicStroke)) {
+			return shape;
+		}
+		
+		BasicStroke bs = (BasicStroke) stroke;
+		if(bs.getDashArray() == null || bs.getDashArray().length == 0) {
+			return shape;
+		}
+		
+		return new DashedShape(shape, bs.getDashArray(), bs.getDashPhase());
 	}
 
 	/**
@@ -330,7 +342,8 @@ public final class StyledShapePainter {
 
 		pi.next();
 		
-		double remainder = imageSize / 2.0;
+		double remainder, dx, dy, len;
+		remainder = imageSize / 2.0;
 
 		while (!pi.isDone()) {
 			type = pi.currentSegment(coords);
@@ -342,8 +355,8 @@ public final class StyledShapePainter {
 				if (LOGGER.isLoggable(Level.FINEST)) {
 					LOGGER.finest("moving to " + coords[0] + "," + coords[1]);
 				}
-
-				remainder = 0;
+				
+                remainder = imageSize / 2.0;
 				break;
 
 			case PathIterator.SEG_CLOSE:
@@ -368,9 +381,9 @@ public final class StyledShapePainter {
 							+ coords[1]);
 				}
 
-				double dx = coords[0] - previous[0];
-				double dy = coords[1] - previous[1];
-				double len = Math.sqrt((dx * dx) + (dy * dy)); // - imageWidth;
+				dx = coords[0] - previous[0];
+				dy = coords[1] - previous[1];
+				len = Math.sqrt((dx * dx) + (dy * dy)); // - imageWidth;
 				
 				if(len < remainder) {
 					remainder -= len;
@@ -396,10 +409,6 @@ public final class StyledShapePainter {
 	
 					for (dist = remainder; dist < len; dist += imageSize) {
 						renderGraphicsStroke(graphics, x, y, graphicStroke, rotation, 1);
-	//					Use this code to visually debug the x,y used to draw the image
-	//					graphics.setColor(Color.BLACK);
-	//					graphics.setStroke(new BasicStroke());
-	//					graphics.draw(new Line2D.Double(x, y, x, y));
 						
 					    x += dx;
 					    y += dy;

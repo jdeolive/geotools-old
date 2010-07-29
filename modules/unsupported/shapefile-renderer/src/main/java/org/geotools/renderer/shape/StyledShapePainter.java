@@ -18,7 +18,6 @@ package org.geotools.renderer.shape;
 
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
-import java.awt.Canvas;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.RenderingHints;
@@ -38,6 +37,7 @@ import org.geotools.geometry.jts.Decimator;
 import org.geotools.geometry.jts.GeomCollectionIterator;
 import org.geotools.geometry.jts.LiteShape2;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
+import org.geotools.renderer.lite.DashedShape;
 import org.geotools.renderer.lite.LabelCache;
 import org.geotools.renderer.style.GraphicStyle2D;
 import org.geotools.renderer.style.IconStyle2D;
@@ -64,9 +64,6 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  */
 public class StyledShapePainter {
     private static AffineTransform IDENTITY_TRANSFORM = new AffineTransform();
-
-    /** Observer for image loading */
-    private static Canvas imgObserver = new Canvas();
 
     /** The logger for the rendering module. */
     private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger(StyledShapePainter.class
@@ -216,7 +213,7 @@ public class StyledShapePainter {
                     // see if a graphic stroke is to be used, the drawing method is completely
                     // different in this case
                     if (ls2d.getGraphicStroke() != null) {
-                        drawWithGraphicsStroke(graphics, shape,
+                        drawWithGraphicsStroke(graphics, dashShape(shape, ls2d.getStroke()),
                             ls2d.getGraphicStroke());
                     } else {
                         Paint paint = ls2d.getContour();
@@ -257,6 +254,19 @@ public class StyledShapePainter {
         }
     }
     
+    Shape dashShape(Shape shape, Stroke stroke) {
+        if (!(stroke instanceof BasicStroke)) {
+            return shape;
+        }
+
+        BasicStroke bs = (BasicStroke) stroke;
+        if (bs.getDashArray() == null || bs.getDashArray().length == 0) {
+            return shape;
+        }
+
+        return new DashedShape(shape, bs.getDashArray(), bs.getDashPhase());
+    }
+    
     /**
      * Extracts a ath iterator from the shape
      * @param shape
@@ -279,131 +289,128 @@ public class StyledShapePainter {
         return citer;
     }
 
-	// draws the image along the path
-	private void drawWithGraphicsStroke(Graphics2D graphics, Shape shape, Style2D graphicStroke) {
-		PathIterator pi = shape.getPathIterator(null);
-		double[] coords = new double[4];
-		int type;
+    // draws the image along the path
+    private void drawWithGraphicsStroke(Graphics2D graphics, Shape shape, Style2D graphicStroke) {
+        PathIterator pi = shape.getPathIterator(null);
+        double[] coords = new double[4];
+        int type;
 
-		// I suppose the image has been already scaled and its square
-		double imageSize;
-		if(graphicStroke instanceof MarkStyle2D) {
-			imageSize = ((MarkStyle2D) graphicStroke).getSize();
-		} else if(graphicStroke instanceof IconStyle2D) {
-			imageSize = ((IconStyle2D) graphicStroke).getIcon().getIconWidth();
-		} else {
-			GraphicStyle2D gs = (GraphicStyle2D) graphicStroke;
-			imageSize = gs.getImage().getWidth() - gs.getBorder();
-		}
+        // I suppose the image has been already scaled and its square
+        double imageSize;
+        if(graphicStroke instanceof MarkStyle2D) {
+            imageSize = ((MarkStyle2D) graphicStroke).getSize();
+        } else if(graphicStroke instanceof IconStyle2D) {
+            imageSize = ((IconStyle2D) graphicStroke).getIcon().getIconWidth();
+        } else {
+            GraphicStyle2D gs = (GraphicStyle2D) graphicStroke;
+            imageSize = gs.getImage().getWidth() - gs.getBorder();
+        }
 
-		double[] first = new double[2];
-		double[] previous = new double[2];
-		type = pi.currentSegment(coords);
-		first[0] = coords[0];
-		first[1] = coords[1];
-		previous[0] = coords[0];
-		previous[1] = coords[1];
+        double[] first = new double[2];
+        double[] previous = new double[2];
+        type = pi.currentSegment(coords);
+        first[0] = coords[0];
+        first[1] = coords[1];
+        previous[0] = coords[0];
+        previous[1] = coords[1];
 
-		if (LOGGER.isLoggable(Level.FINEST)) {
-			LOGGER.finest("starting at " + first[0] + "," + first[1]);
-		}
+        if (LOGGER.isLoggable(Level.FINEST)) {
+            LOGGER.finest("starting at " + first[0] + "," + first[1]);
+        }
 
-		pi.next();
-		
-		double remainder = imageSize / 2.0;
+        pi.next();
+        
+        double remainder, dx, dy, len;
+        remainder = imageSize / 2.0;
 
-		while (!pi.isDone()) {
-			type = pi.currentSegment(coords);
+        while (!pi.isDone()) {
+            type = pi.currentSegment(coords);
 
-			switch (type) {
-			case PathIterator.SEG_MOVETO:
+            switch (type) {
+            case PathIterator.SEG_MOVETO:
 
-				// nothing to do?
-				if (LOGGER.isLoggable(Level.FINEST)) {
-					LOGGER.finest("moving to " + coords[0] + "," + coords[1]);
-				}
+                // nothing to do?
+                if (LOGGER.isLoggable(Level.FINEST)) {
+                    LOGGER.finest("moving to " + coords[0] + "," + coords[1]);
+                }
+                
+                remainder = imageSize / 2.0;
+                break;
 
-				remainder = 0;
-				break;
+            case PathIterator.SEG_CLOSE:
 
-			case PathIterator.SEG_CLOSE:
+                // draw back to first from previous
+                coords[0] = first[0];
+                coords[1] = first[1];
 
-				// draw back to first from previous
-				coords[0] = first[0];
-				coords[1] = first[1];
+                if (LOGGER.isLoggable(Level.FINEST)) {
+                    LOGGER.finest("closing from " + previous[0] + ","
+                            + previous[1] + " to " + coords[0] + ","
+                            + coords[1]);
+                }
 
-				if (LOGGER.isLoggable(Level.FINEST)) {
-					LOGGER.finest("closing from " + previous[0] + ","
-							+ previous[1] + " to " + coords[0] + ","
-							+ coords[1]);
-				}
+            // no break here - fall through to next section
+            case PathIterator.SEG_LINETO:
 
-			// no break here - fall through to next section
-			case PathIterator.SEG_LINETO:
+                // draw from previous to coords
+                if (LOGGER.isLoggable(Level.FINEST)) {
+                    LOGGER.finest("drawing from " + previous[0] + ","
+                            + previous[1] + " to " + coords[0] + ","
+                            + coords[1]);
+                }
 
-				// draw from previous to coords
-				if (LOGGER.isLoggable(Level.FINEST)) {
-					LOGGER.finest("drawing from " + previous[0] + ","
-							+ previous[1] + " to " + coords[0] + ","
-							+ coords[1]);
-				}
+                dx = coords[0] - previous[0];
+                dy = coords[1] - previous[1];
+                len = Math.sqrt((dx * dx) + (dy * dy)); // - imageWidth;
+                
+                if(len < remainder) {
+                    remainder -= len;
+                } else {
+                    double theta = Math.atan2(dx, dy);
+                    dx = (Math.sin(theta) * imageSize);
+                    dy = (Math.cos(theta) * imageSize);
+    
+                    if (LOGGER.isLoggable(Level.FINEST)) {
+                        LOGGER.finest("dx = " + dx + " dy " + dy + " step = "
+                                + Math.sqrt((dx * dx) + (dy * dy)));
+                    }
+    
+                    double rotation = -(theta - (Math.PI / 2d));
+                    double x = previous[0] + (Math.sin(theta) * remainder);
+                    double y = previous[1] + (Math.cos(theta) * remainder);
+    
+                    if (LOGGER.isLoggable(Level.FINEST)) {
+                        LOGGER.finest("len =" + len + " imageSize " + imageSize);
+                    }
+    
+                    double dist = 0;
+    
+                    for (dist = remainder; dist < len; dist += imageSize) {
+                        renderGraphicsStroke(graphics, x, y, graphicStroke, rotation, 1);
+                        
+                        x += dx;
+                        y += dy;
+                    }
+                    remainder = dist - len;
+    
+                    if (LOGGER.isLoggable(Level.FINEST)) {
+                        LOGGER.finest("loop end dist " + dist + " len " + len + " "
+                                + (len - dist));
+                    }
+                }
 
-				double dx = coords[0] - previous[0];
-				double dy = coords[1] - previous[1];
-				double len = Math.sqrt((dx * dx) + (dy * dy)); // - imageWidth;
-				
-				if(len < remainder) {
-					remainder -= len;
-				} else {
-					double theta = Math.atan2(dx, dy);
-					dx = (Math.sin(theta) * imageSize);
-					dy = (Math.cos(theta) * imageSize);
-	
-					if (LOGGER.isLoggable(Level.FINEST)) {
-						LOGGER.finest("dx = " + dx + " dy " + dy + " step = "
-								+ Math.sqrt((dx * dx) + (dy * dy)));
-					}
-	
-					double rotation = -(theta - (Math.PI / 2d));
-					double x = previous[0] + (Math.sin(theta) * remainder);
-					double y = previous[1] + (Math.cos(theta) * remainder);
-	
-					if (LOGGER.isLoggable(Level.FINEST)) {
-						LOGGER.finest("len =" + len + " imageSize " + imageSize);
-					}
-	
-					double dist = 0;
-	
-					for (dist = remainder; dist < len; dist += imageSize) {
-						renderGraphicsStroke(graphics, x, y, graphicStroke, rotation, 1);
-	//					Use this code to visually debug the x,y used to draw the image
-	//					graphics.setColor(Color.BLACK);
-	//					graphics.setStroke(new BasicStroke());
-	//					graphics.draw(new Line2D.Double(x, y, x, y));
-						
-					    x += dx;
-					    y += dy;
-					}
-					remainder = dist - len;
-	
-					if (LOGGER.isLoggable(Level.FINEST)) {
-						LOGGER.finest("loop end dist " + dist + " len " + len + " "
-								+ (len - dist));
-					}
-				}
+                break;
 
-				break;
+            default:
+                LOGGER
+                        .warning("default branch reached in drawWithGraphicStroke");
+            }
 
-			default:
-				LOGGER
-						.warning("default branch reached in drawWithGraphicStroke");
-			}
-
-			previous[0] = coords[0];
-			previous[1] = coords[1];
-			pi.next();
-		}
-	}
+            previous[0] = coords[0];
+            previous[1] = coords[1];
+            pi.next();
+        }
+    }
 	
 	private void renderGraphicsStroke(Graphics2D graphics, double x, double y, Style2D style, double rotation, float opacity) {
 		if (LOGGER.isLoggable(Level.FINEST)) {

@@ -105,7 +105,7 @@ public class UomRescaleStyleVisitor extends DuplicatingStyleVisitor {
         if (unscaled == null || unscaled.equals(Expression.NIL))
             return unscaled;
 
-        if (unscaled instanceof LiteralExpression) {
+        if (unscaled instanceof LiteralExpression && unscaled.evaluate(null, Double.class) != null) {
             // if given Expression is a literal, we can return a literal
             double rescaled = rescale(unscaled.evaluate(null, Double.class), mapScale, uom);
             return ff.literal(rescaled);
