@@ -30,7 +30,7 @@ public class LineTest extends TestCase {
         fs = ds.getFeatureSource("line");
         bounds = new ReferencedEnvelope(0, 10, 0, 10, DefaultGeographicCRS.WGS84);
         
-         System.setProperty("org.geotools.test.interactive", "true");
+         // System.setProperty("org.geotools.test.interactive", "true");
     }
     
     public void testLineCircle() throws Exception {
@@ -59,7 +59,7 @@ public class LineTest extends TestCase {
         RendererBaseTest.showRender("Lines with circl stroke", renderer, TIME, bounds);
     }
     
-    public void XtestDotsStars() throws Exception {
+    public void testDotsStars() throws Exception {
         Style style = RendererBaseTest.loadStyle(this, "dotsStars.sld");
         
         DefaultMapContext mc = new DefaultMapContext(DefaultGeographicCRS.WGS84);
