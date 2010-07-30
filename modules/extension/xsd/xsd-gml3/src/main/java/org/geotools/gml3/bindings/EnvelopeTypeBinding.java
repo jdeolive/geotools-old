@@ -171,9 +171,18 @@ public class EnvelopeTypeBinding extends AbstractComplexBinding {
             return new DirectPosition2D(envelope.getMaxX(), envelope.getMaxY());
         }
 
-        if (name.getLocalPart().equals("srsName") && envelope instanceof ReferencedEnvelope) {
-            return GML3EncodingUtils.crs(((ReferencedEnvelope) envelope)
-                .getCoordinateReferenceSystem());
+        if (envelope instanceof ReferencedEnvelope) {
+            String localName = name.getLocalPart();
+            if (localName.equals("srsName")) {
+                return GML3EncodingUtils.toURI(((ReferencedEnvelope) envelope)
+                        .getCoordinateReferenceSystem());
+            } else if (localName.equals("srsDimension")) {
+                CoordinateReferenceSystem crs = ((ReferencedEnvelope) envelope)
+                        .getCoordinateReferenceSystem();
+                if (crs != null) {
+                    return crs.getCoordinateSystem().getDimension();
+                }
+            }
         }
 
         return null;

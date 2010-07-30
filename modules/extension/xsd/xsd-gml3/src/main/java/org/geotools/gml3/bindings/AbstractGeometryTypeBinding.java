@@ -101,15 +101,22 @@ public class AbstractGeometryTypeBinding extends AbstractComplexBinding {
 
         return value;
     }
-
+    
     public Object getProperty(Object object, QName name)
         throws Exception {
         Geometry geometry = (Geometry) object;
-        if ("srsName".equals( name.getLocalPart() ) ) {
+        
+        if ("srsName".equals(name.getLocalPart())) {
             CoordinateReferenceSystem crs = GML3EncodingUtils.getCRS(geometry);
-
             if (crs != null) {
-                return GML3EncodingUtils.crs(crs);
+                return GML3EncodingUtils.toURI(crs);
+            }
+        }
+
+        if ("srsDimension".equals(name.getLocalPart())) {
+            CoordinateReferenceSystem crs = GML3EncodingUtils.getCRS(geometry);
+            if (crs != null) {
+                return crs.getCoordinateSystem().getDimension();
             }
         }
 
