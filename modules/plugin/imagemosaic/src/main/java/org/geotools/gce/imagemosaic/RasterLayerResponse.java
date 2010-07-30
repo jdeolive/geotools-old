@@ -782,7 +782,7 @@ class RasterLayerResponse{
 			final double resX = baseLevel.resolutionX;
 			final double resY = baseLevel.resolutionY;
 			final double[] requestRes = request.getRequestedResolution();
-			if (requestRes[0] < resX || requestRes[1] < resY) {
+			if ((requestRes[0] < resX || requestRes[1] < resY) && !needsReprojection) {
 				// Using the best available resolution
 				oversampledRequest = true;
 				g2w = new AffineTransform((AffineTransform) baseGridToWorld);
