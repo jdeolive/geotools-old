@@ -59,7 +59,7 @@ public class LineTest extends TestCase {
         RendererBaseTest.showRender("Lines with circl stroke", renderer, TIME, bounds);
     }
     
-    public void testDotsStars() throws Exception {
+    public void XtestDotsStars() throws Exception {
         Style style = RendererBaseTest.loadStyle(this, "dotsStars.sld");
         
         DefaultMapContext mc = new DefaultMapContext(DefaultGeographicCRS.WGS84);
