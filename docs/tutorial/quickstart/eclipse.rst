@@ -250,8 +250,8 @@ When downloading jars maven makes use of a "local repository" to store jars.
   ==================  ========================================================
      PLATFORM           LOCAL REPOSITORY
   ==================  ========================================================
-     Windows XP:      :file:`C:\Documents and Settings\Jody\.m2\repository`
-     Windows:         :file:`C:\Users\Jody\.m2\repository`
+     Windows XP:      :file:`C:\\Documents and Settings\\Jody\\.m2\\repository`
+     Windows:         :file:`C:\\Users\\Jody\\.m2\repository`
      Linux and Mac:   :file:`~/.m2/repository`
   ==================  ========================================================
 
@@ -293,23 +293,27 @@ such as GeoTools publish their work.
         :start-after: </dependencies>
         :end-before: </project>
 
-7. For comarison here is the completed :download:`pom.xml <artifacts/pom.xml` file for download.
+7. For comparison here is the completed :download:`pom.xml <artifacts/pom.xml` file for download.
 
    * You may find cutting and pasting to be easier then typing, you can choose Source --> Format to
      fix indentation
 
-8.  If maven has trouble downloading any jar; you can try again by selecting
-    :menuselection:`Project --> Update All Maven Dependencies`.
+Tips:
+
+* If maven has trouble downloading any jar; you can try again by selecting
+  :menuselection:`Project --> Update All Maven Dependencies`.
     
-    If it really cannot connect you will need to switch to |release|-SNAPSHOT and add the following
-    snap shot repository.
+  If it really cannot connect you will need to switch to |version|-SNAPSHOT and add the following
+  snap shot repository.
     
   .. literalinclude:: artifacts/pom2.xml
-   :language: xml
-   :start-after: <url>http://maven.apache.org</url>
-   :end-before: <dependencies>
-
-
+     :language: xml
+     :start-after: </dependencies>
+     :end-before: </project>
+   
+* If the dependencies do not update automatically
+  use :menuselection:`Project --> Clean`
+   
 Quickstart Application
 ----------------------
 
@@ -328,8 +332,8 @@ Now that your environment is setup we can put together a simple Quickstart. This
 3. We need to download some sample data to work with. The http://www.naturalearthdata.com/ project
    is a great project supported by the North American Cartographic Information Society.
    
-   * `110m-cultural.zip <http//www.naturalearthdata.com/download/110m/cultural/110m-cultural.zip>`_
-   
+   * `110m-cultural.zip <http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/110m/cultural/110m-cultural.zip>`_
+
    Please unzip the above data into a location you can find easily such as the desktop.
 
 4. Run the application to open a file chooser. Choose a shapefile from the example dataset.
@@ -337,7 +341,7 @@ Now that your environment is setup we can put together a simple Quickstart. This
    .. image:: images/QuickstartOpen.png
       :scale: 60
    
-5. The application will connect to your shapefile, 1.produce a map context and display the shapefile.
+5. The application will connect to your shapefile, produce a map context, and display the shapefile.
 
    .. image:: images/QuickstartMap.png
       :scale: 60
@@ -348,7 +352,6 @@ Now that your environment is setup we can put together a simple Quickstart. This
   This approach allows you to work with data sets larger then available memory.
       
 * We are using a very basic display style here that just shows feature outlines. In the examples that follow we will see how to specify more sophisticated styles.
-   
 
 Things to Try
 =============
@@ -514,7 +517,7 @@ generating eclipse :file:`.project` and :file:`.classpath` files.
 17. Navigate to the pom.xml file and double click to open it up.
 18. We are going to start by defining the version number of GeoTools we wish to use. This workbook
     was written for |version| although you may wish to try a newer version, or make use of a
-    nightly build by using |release|-SNAPSHOT.
+    nightly build by using |version|-SNAPSHOT.
     
 .. literalinclude:: artifacts/pom.xml
         :language: xml
