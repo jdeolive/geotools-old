@@ -40,7 +40,12 @@ import org.geotools.factory.Hints;
 import org.geotools.feature.AttributeBuilder;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureImpl;
+import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.Types;
+import org.geotools.feature.type.AttributeDescriptorImpl;
+import org.geotools.feature.type.ComplexFeatureTypeImpl;
+import org.geotools.feature.type.GeometryDescriptorImpl;
+import org.geotools.feature.type.GeometryTypeImpl;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.FilterFactoryImpl;
 import org.opengis.feature.Attribute;
@@ -50,12 +55,17 @@ import org.opengis.feature.Property;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.FeatureType;
+import org.opengis.feature.type.GeometryDescriptor;
+import org.opengis.feature.type.GeometryType;
 import org.opengis.feature.type.Name;
+import org.opengis.feature.type.PropertyDescriptor;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.identity.FeatureId;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.xml.sax.Attributes;
+
+import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * A Feature iterator that operates over the FeatureSource of a
@@ -103,6 +113,8 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
 
     private ArrayList<String> filteredFeatures;
 
+    private AttributeDescriptor targetNode;
+    
     public DataAccessMappingFeatureIterator(AppSchemaDataAccess store, FeatureTypeMapping mapping,
             Query query, boolean isFiltered, boolean isDenormalised) throws IOException {
         this(store, mapping, query, isFiltered, isDenormalised, false);
@@ -146,15 +158,18 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
                 this.curSrcFeature = getSourceFeatureIterator().next();
                 exists = true;
             }
-            if (filteredFeatures != null
-                    && filteredFeatures.contains(extractIdForFeature(this.curSrcFeature))) {
-                // get the next one as this row would've been already added to the target
-                // feature
-                // from setNextFilteredFeature
-                exists = getSourceFeatureIterator().hasNext();
-                if (exists) {
-                    curSrcFeature = getSourceFeatureIterator().next();
-                } else {
+            if (exists && filteredFeatures != null) {
+                // get the next one if this row has already been added to the target
+                // feature from setNextFilteredFeature
+                while (exists && filteredFeatures.contains(extractIdForFeature(this.curSrcFeature))) {
+                    if (getSourceFeatureIterator() != null && getSourceFeatureIterator().hasNext()) {
+                        this.curSrcFeature = getSourceFeatureIterator().next();
+                        exists = true;
+                    } else {
+                        exists = false;
+                    }
+                }
+                if (!exists) {
                     curSrcFeature = null;
                 }
             }
@@ -188,6 +203,46 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
         query.setMaxFeatures(Query.DEFAULT_MAX);
         sourceFeatures = mappedSource.getFeatures(query);
         this.sourceFeatureIterator = sourceFeatures.iterator();
+        setTargetNode(mapping);
+    }
+
+    private void setTargetNode(FeatureTypeMapping mapping) {
+        if (reprojection != null) {
+            // update CRS if necessary
+            AttributeType type = mapping.getTargetFeature().getType();
+            if (type instanceof ComplexFeatureTypeImpl) {
+                ComplexFeatureTypeImpl fType = (ComplexFeatureTypeImpl) type;
+                Collection<PropertyDescriptor> newDescriptors = new ArrayList<PropertyDescriptor>(
+                        fType.getDescriptors().size());
+                for (PropertyDescriptor descriptor : fType.getDescriptors()) {
+                    if (descriptor instanceof GeometryDescriptor) {
+                        GeometryType origType = (GeometryType) descriptor.getType();
+                        GeometryType geomType = new GeometryTypeImpl(origType.getName(), origType
+                                .getBinding(), reprojection, origType.isIdentified(), origType
+                                .isAbstract(), origType.getRestrictions(), origType.getSuper(),
+                                origType.getDescription());
+                        geomType.getUserData().putAll(origType.getUserData());
+
+                        GeometryDescriptor newDescriptor = new GeometryDescriptorImpl(geomType,
+                                descriptor.getName(), descriptor.getMinOccurs(), descriptor
+                                        .getMaxOccurs(), descriptor.isNillable(),
+                                ((GeometryDescriptor) descriptor).getDefaultValue());
+                        newDescriptor.getUserData().putAll(descriptor.getUserData());
+                        newDescriptors.add(newDescriptor);
+                    } else {
+                        newDescriptors.add(descriptor);
+                    }
+                }
+                AttributeDescriptor targetFeature = mapping.getTargetFeature();
+                targetNode = new AttributeDescriptorImpl(
+                        new ComplexFeatureTypeImpl(fType, newDescriptors), targetFeature.getName(),
+                        targetFeature.getMinOccurs(), targetFeature.getMaxOccurs(), targetFeature
+                                .isNillable(), targetFeature.getDefaultValue());
+                targetNode.getUserData().putAll(targetFeature.getUserData());
+            }
+        } else {
+            targetNode = mapping.getTargetFeature();
+        }
     }
 
     protected boolean unprocessedFeatureExists() {
@@ -644,7 +699,6 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
         } else {
             sources.add(curSrcFeature);
         }
-        final AttributeDescriptor targetNode = mapping.getTargetFeature();
         final Name targetNodeName = targetNode.getName();
         final List<AttributeMapping> mappings = mapping.getAttributeMappings();
 
