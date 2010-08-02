@@ -12,7 +12,7 @@
   <parent>
     <groupId>org.geotools</groupId>
     <artifactId>geotools</artifactId>
-    <version>2.7-SNAPSHOT</version>
+    <version>2.7-M2</version>
   </parent>
   
 
@@ -176,7 +176,8 @@
               <tasks>
                 <ant antfile="build.xml" dir="${basedir}" target="build">
                   <property name="build.directory" value="${build.directory}"/>
-                  <property name="project.version" value="${project.version}"/>
+                  <!-- may be ${project.version} when tagged -->
+                  <property name="project.version" value="2.7-M2"/>
                 </ant>
               </tasks>
             </configuration>

@@ -22,7 +22,7 @@ Style
 Please ensure your pom.xml includes the following::
 
     <properties>
-        <geotools.version>2.6.4</geotools.version>
+        <geotools.version>2.7-M2</geotools.version>
     </properties>
 
     <dependencies>
@@ -252,7 +252,7 @@ The selected style
 This method creates a Style with one **Rule** for selected features, to paint them in a
 highlight colour, and a second **Rule** for unselected features. Both rules are then wrapped in the Style object.
 
-   .. literalinclude:: ../../src/main/java/org/geotools/tutorial/style/StyleLab.java
+   .. literalinclude:: ../../src/main/java/org/geotools/tutorial/style/SelectionLab.java
       :language: java
       :start-after: // docs start selected style
       :end-before: // docs end selected style

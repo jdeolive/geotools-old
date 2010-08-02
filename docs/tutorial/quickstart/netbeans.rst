@@ -1,22 +1,21 @@
+:Author: Jody Garnett
+:Author: Micheal Bedward
+:Thanks: geotools-user list
+:Version: |release|
+:License: Create Commons with attribution
+
 .. _netbeans-quickstart:
 
 **********************
  Netbeans Quickstart 
 **********************
 
-:Author: Jody Garnett
-:Author: Micheal Bedward
-:Thanks: geotools-user list
-:Version: |release|
-:License: Create Commons with attribution
+.. sectionauthor:: Jody Garnett <jody.garnett@gmail.org>
+   
+.. contents::
    
 Welcome NetBeans Developers
 ===========================
-
-.. sidebar:: Lab
-
-   In a lab setting the instructor will provide you with a local repository to place in your
-   home directory. This step will allow you to avoid the long download.
 
 Welcome to Geospatial for Java -this workbook is aimed at Java developers who are new to geospatial
 and would like to get started.

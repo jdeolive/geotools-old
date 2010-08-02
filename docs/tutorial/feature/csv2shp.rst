@@ -1,3 +1,9 @@
+:Author: Jody Garnett
+:Author: Micheal Bedward
+:Thanks: geotools-user list
+:Version: |release|
+:License: Create Commons with attribution
+
 .. _feature_tutorial:
 
 ********************
@@ -5,12 +11,6 @@
 ********************
 
 .. sectionauthor:: Jody Garnett <jody.garnett@gmail.org>
-
-:Author: Jody Garnett
-:Author: Micheal Bedward
-:Thanks: geotools-user list
-:Version: |release|
-:License: Create Commons with attribution
 
 .. contents::
 
@@ -87,7 +87,7 @@ Please ensure your pom.xml includes the following:
    :start-after: </properties>
    :end-before: <repositories>
 
-ote that the jars mentioned above will pull in a host of other dependencies (such as the hsql database driver).
+Note that the jars mentioned above will pull in a host of other dependencies (such as the hsql database driver).
 
 Main Application
 ----------------
@@ -278,6 +278,7 @@ into fields.
    The "feature types" for a map are listed in the map key.
    
    .. image:: images/key.png
+       :scale: 40
    
 Occasionally you have two features that have a lot in common. You may have the LAX airport in Los
 Angeles and the SYD airport in Sydney. Because these two features have a couple of things in common
@@ -286,7 +287,7 @@ will create a Feature Type called Airport.
 
  .. image:: images/airport.png
  
-Although it is not a capability supported by Java early programming languages made use of a
+Although it is not a capability supported by Java, early programming languages made use of a
 prototype system (rather than a class system) that supported lots of “one off” Objects. You will
 find this situation is fairly common when making maps – since how many Eiffel towers are there?
 You will also occasionally find the same real world thing represented a couple of different ways

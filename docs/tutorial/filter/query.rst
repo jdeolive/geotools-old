@@ -322,27 +322,27 @@ Filter
 =======
 
 .. sidebar: CQL
-
+   
    CQL is defined in OGC Catalog specification; the standard comes from library science.
 
 To request information from a FeatureSource we are going to need to describe (or select)  what
 information we want back. The data structure we use for this is called a Filter.
 
-We have a nice parser in GeoTools that can be used to create a Filter in a human readable form::
+We have a nice parser in GeoTools that can be used to create a Filter in a human readable form:
 
 .. code-block:: java
    
    Filter filter = CQL.toFilter("POPULATION > 30000");
    
 We can also make spatial filters using CQL |hyphen| geometry is expressed using the same Well Known Text
-format employed earlier for JTS Geometry::
+format employed earlier for JTS Geometry:
 
 .. code-block:: java
    
    Filter pointInPolygon = CQL.toFilter("CONTAINS(THE_GEOM, POINT(1 2))");
    Filter clickedOn = CQL.toFilter("BBOX(ATTR1, 151.12, 151.14, -33.5, -33.51)";
    
-You may also skip CQL and make direct use of a FilterFactory::
+You may also skip CQL and make direct use of a FilterFactory:
 
 .. code-block:: java
    
@@ -353,7 +353,7 @@ You may also skip CQL and make direct use of a FilterFactory::
 Your IDE should provide command completion allowing you to quickly see what is available from
 FilterFactory.
 
-Note, filter is a real live java object that you can use do to work::
+Note, filter is a real live java object that you can use do to work:
 
 .. code-block:: java
    
@@ -379,7 +379,7 @@ Expression
 You may have missed it in the last section; but we also described how to access data using an
 expression.
 
-Here are some examples::
+Here are some examples:
 
 .. code-block:: java
    
@@ -388,7 +388,7 @@ Here are some examples::
 
 You can also make function calls using the expression library.
 
-Here are some examples::
+Here are some examples:
 
 .. code-block:: java
    

@@ -1,3 +1,9 @@
+:Author: Jody Garnett
+:Author: Micheal Bedward
+:Thanks: geotools-user list
+:Version: |release|
+:License: Create Commons with attribution
+
 .. _geometrycrs:
 
 ***********************
@@ -5,12 +11,6 @@
 ***********************
 
 .. sectionauthor:: Jody Garnett <jody.garnett@gmail.org>
-
-:Author: Jody Garnett
-:Author: Micheal Bedward
-:Thanks: geotools-user list
-:Version: |release|
-:License: Create Commons with attribution
 
 .. contents::
 

@@ -4,7 +4,6 @@
 :Version: |release|
 :License: Create Commons with attribution
 
-
 .. _eclipse-quickstart:
 
 **********************
@@ -270,7 +269,7 @@ such as GeoTools publish their work.
 3. To make use of GeoTools we are going to add three things to this pom.xml file.
    
 4. At the top after moduleVersion add a *properties* element defining the version of GeoTools that
-   we want to use (|version| for this example).
+   we want to use (|release| for this example).
    
    .. literalinclude:: artifacts/pom.xml
         :language: xml
@@ -295,8 +294,8 @@ such as GeoTools publish their work.
 
 7. For comparison here is the completed :download:`pom.xml <artifacts/pom.xml` file for download.
 
-   * You may find cutting and pasting to be easier then typing, you can choose Source --> Format to
-     fix indentation
+   You may find cutting and pasting to be easier then typing, you can choose Source --> Format to
+   fix indentation
 
 Tips:
 
