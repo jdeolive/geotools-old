@@ -5,8 +5,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.geotools.data.complex.ComplexFeatureConstants;
-import org.geotools.feature.NameImpl;
-import org.geotools.xs.XSSchema;
 import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.feature.type.Name;
@@ -60,6 +58,21 @@ public class ComplexFeatureTypeImpl extends FeatureTypeImpl {
         }, defaultGeometry, isAbstract, restrictions, superType, description);
 
         this.schema = schema;
+    }
+
+    /**
+     * Create a clone of an existing ComplexFeatureTypeImpl with new schema.
+     * 
+     * @param type
+     *            Type to copy
+     * @param schema
+     *            Set of descriptors
+     */
+    public ComplexFeatureTypeImpl(ComplexFeatureTypeImpl type, Collection<PropertyDescriptor> schema) {
+        super(type.name, schema, null, type.isAbstract, type.restrictions,
+                (AttributeType) type.superType, type.description);
+        this.schema = schema;
+        this.userData.putAll(type.userData);
     }
 
     /**
