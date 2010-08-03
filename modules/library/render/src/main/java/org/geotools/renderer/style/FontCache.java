@@ -19,6 +19,7 @@ package org.geotools.renderer.style;
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.GraphicsEnvironment;
+import java.awt.Toolkit;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -26,7 +27,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -50,7 +50,7 @@ public class FontCache {
     static FontCache defaultInstance;
 
     /** Set containing the font families known of this machine */
-    Set<String> fontFamilies = null;
+    Set<String> systemFonts = null;
 
     /** Fonts already loaded */
     Map<String, Font> loadedFonts = new ConcurrentHashMap<String, Font>();
@@ -76,14 +76,19 @@ public class FontCache {
 
     public synchronized Font getFont(String requestedFont) {
         // make sure we load the known font families once
-        if (fontFamilies == null) {
+        if (systemFonts == null) {
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-            fontFamilies = new HashSet<String>();
+            systemFonts = new HashSet<String>();
 
-            fontFamilies.addAll(Arrays.asList(ge.getAvailableFontFamilyNames()));
+            // register both faces and families
+            Font[] fonts = ge.getAllFonts();
+            for (Font font : fonts) {
+                systemFonts.add(font.getName());
+                systemFonts.add(font.getFamily());
+            }
 
             if (LOGGER.isLoggable(Level.FINEST)) {
-                LOGGER.finest("there are " + fontFamilies.size() + " fonts available");
+                LOGGER.finest("there are " + systemFonts.size() + " fonts available");
             }
         }
 
@@ -102,7 +107,7 @@ public class FontCache {
         }
 
         // if not, try to load from the java runtime or as an URL
-        if (fontFamilies.contains(requestedFont)) {
+        if (systemFonts.contains(requestedFont)) {
             javaFont = new java.awt.Font(requestedFont, Font.PLAIN, 12);
         } else {
             if (LOGGER.isLoggable(Level.FINEST)) {
@@ -114,7 +119,7 @@ public class FontCache {
         
         // log the result and exit
         if(javaFont == null) {
-            if (LOGGER.isLoggable(Level.FINE)) {
+            if (LOGGER.isLoggable(Level.WARNING)) {
                 LOGGER.fine("Could not load font " + requestedFont);
             }
         } else {
@@ -209,8 +214,8 @@ public class FontCache {
      * Resets the font loading cache. If any font was manually registered, it will have to be registered again
      */
     public synchronized void resetCache() {
-        if(fontFamilies != null) {
-            fontFamilies.clear();
+        if(systemFonts != null) {
+            systemFonts.clear();
         }
         if(loadedFonts != null) {
             loadedFonts.clear();
