@@ -62,7 +62,7 @@ import com.vividsolutions.jts.util.Stopwatch;
  * @source $URL$
  */
 public class FeatureChainingTest {
-    static final String GSMLNS = "http://www.cgi-iugs.org/xml/GeoSciML/2";
+    static final String GSMLNS = "urn:cgi:xmlns:CGI:GeoSciML:2.0";
 
     static final String GMLNS = "http://www.opengis.net/gml";
 
@@ -489,7 +489,7 @@ public class FeatureChainingTest {
         /**
          * Test filtering client properties on chained features
          */
-        property = ff.property("gsml:specification/gsml:GeologicUnit/gsml:occurence/@xlink:href");
+        property = ff.property("gsml:specification/gsml:GeologicUnit/gsml:occurrence/@xlink:href");
         filter = ff.like(property, "urn:cgi:feature:MappedFeature:mf1");
         filteredResults = mfSource.getFeatures(filter);
         assertEquals(1, filteredResults.size());
@@ -673,8 +673,8 @@ public class FeatureChainingTest {
     @Test
     public void testMultiValuedPropertiesByRef() throws Exception {
         final String MF_PREFIX = "urn:cgi:feature:MappedFeature:";
-        final String OCCURENCE = "occurence";
-        final Map<String, String> guToOccurenceMap = new HashMap<String, String>() {
+        final String OCCURENCE = "occurrence";
+        final Map<String, String> guToOccurrenceMap = new HashMap<String, String>() {
             {
                 put("gu.25699", "mf1");
                 put("gu.25678", "mf2;mf3");
@@ -688,7 +688,7 @@ public class FeatureChainingTest {
         while (guIterator.hasNext()) {
             Feature guFeature = (Feature) guIterator.next();
             String guId = guFeature.getIdentifier().toString();
-            String[] mfIds = guToOccurenceMap.get(guId).split(";");
+            String[] mfIds = guToOccurrenceMap.get(guId).split(";");
             Collection<Property> properties = guFeature.getProperties(OCCURENCE);
 
             assertEquals(mfIds.length, properties.size());
@@ -711,8 +711,8 @@ public class FeatureChainingTest {
             processedFeatureIds.add(guId);
         }
 
-        assertEquals(guToOccurenceMap.size(), processedFeatureIds.size());
-        assertTrue(processedFeatureIds.containsAll(guToOccurenceMap.keySet()));
+        assertEquals(guToOccurrenceMap.size(), processedFeatureIds.size());
+        assertTrue(processedFeatureIds.containsAll(guToOccurrenceMap.keySet()));
 
         // clean ups
         guIterator.close();

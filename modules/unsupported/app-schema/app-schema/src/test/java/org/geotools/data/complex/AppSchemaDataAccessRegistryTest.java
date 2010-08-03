@@ -65,7 +65,7 @@ public class AppSchemaDataAccessRegistryTest {
     public static final Logger LOGGER = org.geotools.util.logging.Logging
             .getLogger("org.geotools.data.complex");
 
-    private static final String GSMLNS = "http://www.cgi-iugs.org/xml/GeoSciML/2";
+    private static final String GSMLNS = "urn:cgi:xmlns:CGI:GeoSciML:2.0";
 
     private static final Name MAPPED_FEATURE = Types.typeName(GSMLNS, "MappedFeature");
 
@@ -256,7 +256,7 @@ public class AppSchemaDataAccessRegistryTest {
         });
         config.setTargetSchemasUris(new ArrayList<String>() {
             {
-                add("http://schemas.opengis.net/GeoSciML/geosciml.xsd");
+                add("http://www.geosciml.org/geosciml/2.0/xsd/geosciml.xsd");
             }
         });
         config.setCatalog("mappedPolygons.oasis.xml");

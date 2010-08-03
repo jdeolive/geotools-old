@@ -53,6 +53,7 @@ import org.geotools.feature.type.AttributeDescriptorImpl;
 import org.geotools.feature.type.FeatureTypeImpl;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.expression.FeaturePropertyAccessorFactory;
+import org.geotools.filter.identity.FeatureIdImpl;
 import org.geotools.gml3.GMLSchema;
 import org.geotools.xml.SchemaIndex;
 import org.junit.AfterClass;
@@ -84,16 +85,16 @@ import org.opengis.filter.identity.FeatureId;
  */
 public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTest {
 
-    private static final String MO_URI = "urn:cgi:xmlns:GGIC:MineralOccurrence:1.0";
+    private static final String ER_URI = "urn:cgi:xmlns:GGIC:EarthResource:1.1";
 
-    private static final Name EARTH_RESOURCE = Types.typeName(MO_URI, "EarthResource");
+    private static final Name EARTH_RESOURCE = Types.typeName(ER_URI, "EarthResource");
 
-    private static final Name EARTH_RESOURCE_TYPE = Types.typeName(MO_URI, "EarthResourceType");
+    private static final Name EARTH_RESOURCE_TYPE = Types.typeName(ER_URI, "EarthResourceType");
 
-    private static final Name MINERAL_DEPOSIT_TYPE = Types.typeName(MO_URI,
+    private static final Name MINERAL_DEPOSIT_TYPE = Types.typeName(ER_URI,
             "MineralDepositModelType");
 
-    private static final Name MINERAL_DEPOSIT_PROPERTY_TYPE = Types.typeName(MO_URI,
+    private static final Name MINERAL_DEPOSIT_PROPERTY_TYPE = Types.typeName(ER_URI,
             "MineralDepositModelPropertyType");
 
     /**
@@ -102,15 +103,15 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
     private static DataAccess<FeatureType, Feature> newGuDataAccess;
 
     /**
-     * Create the input data access containing complex features of MO form.
+     * Create the input data access containing complex features of ER form.
      */
     @BeforeClass
     public static void setUp() throws Exception {
-        Map<String, Serializable> moParams = new HashMap<String, Serializable>();
-        moParams.put("dbtype", "mo-data-access");
-        moParams.put("directory", AppSchemaDataAccessIntegrationTest.class.getResource(schemaBase));
+        Map<String, Serializable> erParams = new HashMap<String, Serializable>();
+        erParams.put("dbtype", "er-data-access");
+        erParams.put("directory", AppSchemaDataAccessIntegrationTest.class.getResource(schemaBase));
         // get original non-app-schema data access
-        DataAccessFinder.getDataStore(moParams);
+        DataAccessFinder.getDataStore(erParams);
         DataAccessIntegrationTest.setFilterFactory();
         // load app-schema data access instances
         loadGeologicUnitDataAccess();
@@ -145,13 +146,13 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
     }
 
     /**
-     * Create complex features of type MO:EarthResource
+     * Create complex features of type er:EarthResource
      * 
      * @param fCollection
      *            Simple features collection
      * @param earthResourceType
      *            Earth Resource schema
-     * @return MO:EarthResource features
+     * @return er:EarthResource features
      * @throws IOException
      */
     private static ArrayList<Feature> getInputFeatures(
@@ -191,7 +192,7 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
             value.add(new AttributeImpl(next.getProperty(propertyName).getValue(),
                     stringDescriptor, null));
             properties.add(new ComplexAttributeImpl(value, (AttributeDescriptor) earthResourceType
-                    .getDescriptor(Types.typeName(MO_URI, "form")), null));
+                    .getDescriptor(Types.typeName(ER_URI, "form")), null));
 
             // gml:name[1]
             value = new ArrayList<Property>();
@@ -205,33 +206,33 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
             ComplexAttributeImpl name2 = new ComplexAttributeImpl(value, nameDescriptor, null);
             properties.add(name2);
 
-            // mo:classification
+            // er:classification
             propertyName = "CLASSIFICATION";
             ComplexAttributeImpl classification = new ComplexAttributeImpl(
                     new ArrayList<Property>(), (AttributeDescriptor) earthResourceType
-                            .getDescriptor(Types.typeName(MO_URI, "classification")), null);
+                            .getDescriptor(Types.typeName(ER_URI, "classification")), null);
 
-            // mo:classification/mo:MineralDepositModel/mo:mineralDepositGroup
+            // er:classification/er:MineralDepositModel/er:mineralDepositGroup
             value = new ArrayList<Property>();
             value.add(new AttributeImpl(next.getProperty(propertyName).getValue(),
                     stringDescriptor, null));
 
-            Name leafAttribute = Types.typeName(MO_URI, "mineralDepositGroup");
+            Name leafAttribute = Types.typeName(ER_URI, "mineralDepositGroup");
             AttributeImpl mineralDepositGroup = new AttributeImpl(value,
                     (AttributeDescriptor) mineralDepositType.getDescriptor(leafAttribute), null);
             value = new ArrayList<Property>();
             value.add(mineralDepositGroup);
 
-            // mo:classification/mo:MineralDepositModel
+            // er:classification/er:MineralDepositModel
             ComplexAttributeImpl mineralDepositModel = new ComplexAttributeImpl(value,
                     (AttributeDescriptor) mineralDepositPropertyType.getDescriptor(Types.typeName(
-                            MO_URI, "MineralDepositModel")), null);
+                            ER_URI, "MineralDepositModel")), null);
             value = new ArrayList<Property>();
             value.add(mineralDepositModel);
             classification.setValue(value);
             properties.add(classification);
 
-            // mo:composition
+            // er:composition
             propertyName = "COMPOSITION";
             String[] cpIds = next.getProperty(propertyName).getValue().toString().split(",");
             for (String cpId : cpIds) {
@@ -239,10 +240,10 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
                 cpProperties.add(new AttributeImpl(cpId, stringDescriptor, null));
                 properties.add(new AttributeImpl(cpProperties,
                         (AttributeDescriptor) earthResourceType.getDescriptor(Types.typeName(
-                                MO_URI, "composition")), null));
+                                ER_URI, "composition")), null));
             }
 
-            // mo:commodityDescription
+            // er:commodityDescription
             propertyName = "COMMODITYDESCRIPTION";
 
             String[] mfIds = next.getProperty(propertyName).getValue().toString().split(",");
@@ -251,7 +252,7 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
                 mfProperties.add(new AttributeImpl(mfId, stringDescriptor, null));
                 properties.add(new AttributeImpl(mfProperties,
                         (AttributeDescriptor) earthResourceType.getDescriptor(Types.typeName(
-                                MO_URI, "commodityDescription")), null));
+                                ER_URI, "commodityDescription")), null));
             }
 
             features.add(new FeatureImpl(properties, featureDesc, next.getIdentifier()));
@@ -283,18 +284,18 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
         PropertyDataStore dataStore = new PropertyDataStore(dir);
         SimpleFeatureSource simpleFeatureSource = dataStore
                 .getFeatureSource(EARTH_RESOURCE);
-        SimpleFeatureCollection moFeatures = simpleFeatureSource
+        SimpleFeatureCollection erFeatures = simpleFeatureSource
                 .getFeatures();
-        SimpleFeatureIterator moIterator = moFeatures.features();
-        ArrayList<String> moIds = new ArrayList<String>();
-        while (moIterator.hasNext()) {
-            moIds.add(moIterator.next().getIdentifier().toString());
+        SimpleFeatureIterator erIterator = erFeatures.features();
+        ArrayList<String> erIds = new ArrayList<String>();
+        while (erIterator.hasNext()) {
+            erIds.add(erIterator.next().getIdentifier().toString());
         }
-        moIterator.close();
+        erIterator.close();
 
         // compare the feature ids and make sure that the features are all there
-        assertEquals(guIds.size(), moIds.size());
-        assertTrue(guIds.containsAll(moIds));
+        assertEquals(guIds.size(), erIds.size());
+        assertTrue(guIds.containsAll(erIds));
     }
 
     /**
@@ -315,7 +316,7 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
                 .getNamespaces());
         // find attribute mappings for chained features
         final String composition = "composition";
-        final String occurrence = "occurence";
+        final String occurrence = "occurrence";
         final String commodity = "commodityDescription";
         List<AttributeMapping> otherMappings = new ArrayList<AttributeMapping>();
         AttributeMapping compositionMapping = null;
@@ -542,10 +543,10 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
     /**
      * Non app-schema data access factory producing min-occ XML output.
      */
-    public static class MinOccDataAccessFactory extends InputDataAccessFactory {
+    public static class EarthResourceDataAccessFactory extends InputDataAccessFactory {
         public DataAccess<? extends FeatureType, ? extends Feature> createDataStore(
                 Map<String, Serializable> params) throws IOException {
-            String schemaLocation = "/commonSchemas_new/mineralOccurrence/mineralOccurrence.xsd";
+            String schemaLocation = "http://www.earthresourceml.org/earthresourceml/1.1/xsd/earthResource.xsd";
             String typeName = EARTH_RESOURCE.getLocalPart();
             URL schemaDir = (URL) params.get("directory");
             File fileDir;
@@ -564,12 +565,8 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
                     .getFeatures();
             reader = EmfAppSchemaReader.newInstance();
             typeRegistry = new FeatureTypeRegistry();
-            // set catalog
-            URL catalogLocation = getClass().getResource(schemaBase + "mappedPolygons.oasis.xml");
-            reader.setResolver(catalogLocation);   
             
-            SchemaIndex schemaIndex = reader.parse(new URL(schemaDir.toString() + schemaLocation),
-                    null);
+            SchemaIndex schemaIndex = reader.parse(new URL(schemaLocation), null);
             typeRegistry.addSchemas(schemaIndex);
 
             ComplexType complexType = (ComplexType) typeRegistry
@@ -582,7 +579,7 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
 
         public boolean canProcess(Map<String, Serializable> params) {
             Object dbType = params.get("dbtype");
-            return dbType == null ? false : dbType.equals("mo-data-access");
+            return dbType == null ? false : dbType.equals("er-data-access");
         }
     }
 }

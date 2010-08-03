@@ -96,7 +96,7 @@ import org.xml.sax.helpers.NamespaceSupport;
  */
 public class DataAccessIntegrationTest {
 
-    protected static final String GSMLNS = "http://www.cgi-iugs.org/xml/GeoSciML/2";
+    protected static final String GSMLNS = "urn:cgi:xmlns:CGI:GeoSciML:2.0";
 
     protected static final String GMLNS = "http://www.opengis.net/gml";
 
@@ -384,9 +384,9 @@ public class DataAccessIntegrationTest {
      * @throws IOException
      */
     private static void loadGeologicUnitDataAccess() throws IOException {
-        Map<String, Serializable> moParams = new HashMap<String, Serializable>();
-        moParams.put("dbtype", "input-data-access");
-        DataAccess<FeatureType, Feature> inputDataAccess = DataAccessFinder.getDataStore(moParams);
+        Map<String, Serializable> erParams = new HashMap<String, Serializable>();
+        erParams.put("dbtype", "input-data-access");
+        DataAccess<FeatureType, Feature> inputDataAccess = DataAccessFinder.getDataStore(erParams);
         guFeatureSource = inputDataAccess.getFeatureSource(GEOLOGIC_UNIT);
     }
 
@@ -479,12 +479,9 @@ public class DataAccessIntegrationTest {
             SimpleFeatureCollection fCollection = simpleFeatureSource
                     .getFeatures();
             reader = EmfAppSchemaReader.newInstance();
-            // set catalog
-            URL catalogLocation = getClass().getResource(schemaBase + "mappedPolygons.oasis.xml");
-            reader.setResolver(catalogLocation);
             // set schema URI
-            SchemaIndex schemaIndex = reader.parse(new URL(schemaURL.toString() + File.separator
-                    + "commonSchemas_new/GeoSciML/geologicUnit.xsd"), null);
+            SchemaIndex schemaIndex = reader.parse(new URL(
+                    "http://www.geosciml.org/geosciml/2.0/xsd/geosciml.xsd"), null);
             typeRegistry = new FeatureTypeRegistry();
             typeRegistry.addSchemas(schemaIndex);
 

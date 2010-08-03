@@ -57,7 +57,7 @@ public class BBoxTest {
     @BeforeClass
     public static void setUp() throws Exception {
 
-        final String GSML_URI = "http://www.cgi-iugs.org/xml/GeoSciML/2";
+        final String GSML_URI = "urn:cgi:xmlns:CGI:GeoSciML:2.0";
         /**
          * Set up filter factory
          */

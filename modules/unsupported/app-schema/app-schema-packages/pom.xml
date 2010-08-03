@@ -37,6 +37,7 @@
 
     <modules>
         <module>cgiutilities-1.0</module>
+        <module>earthresourceml-1.1</module>
         <module>geosciml-2.0</module>
         <module>gml-3.1</module>
         <module>ic-2.0</module>

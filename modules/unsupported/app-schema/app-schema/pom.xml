@@ -138,6 +138,12 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.earthresourceml</groupId>
+      <artifactId>earthresourceml-1.1</artifactId>
+      <version>1.1.0-1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <!-- required for sweCommon 1.0.30 used by XMML/borehole -->
       <groupId>org.w3</groupId>
       <artifactId>xml</artifactId>
