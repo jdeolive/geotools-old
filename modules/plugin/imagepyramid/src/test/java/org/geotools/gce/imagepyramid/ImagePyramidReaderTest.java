@@ -40,6 +40,8 @@ import org.geotools.data.DataUtilities;
 import org.geotools.factory.Hints;
 import org.geotools.gce.imagemosaic.ImageMosaicFormat;
 import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.parameter.Parameter;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.test.TestData;
 import org.junit.Ignore;
@@ -372,6 +374,7 @@ public class ImagePyramidReaderTest extends Assert {
 		assertTrue("Some of the unsopported method did not send an exception",false);
 
 	}
+	
 	@Test
 	public void testComplete() throws IOException,
 			MismatchedDimensionException, NoSuchAuthorityCodeException {
@@ -423,6 +426,34 @@ public class ImagePyramidReaderTest extends Assert {
 			PlanarImage.wrapRenderedImage(((GridCoverage2D) coverage).getRenderedImage()).getTiles();
 
 	}
+	
+	/**
+	 * This is related to http://jira.codehaus.org/browse/GEOS-4081 and happens only if the requested
+	 * envelope is overlapping with the pyramid envelope for way less than a pixel
+	 * @throws IOException
+	 * @throws MismatchedDimensionException
+	 * @throws NoSuchAuthorityCodeException
+	 */
+    @Test
+    public void testRequestOutsideBounds() throws IOException, MismatchedDimensionException,
+            NoSuchAuthorityCodeException {
+        // grab the reader
+        final URL testFile = TestData.getResource(this, TEST_FILE);
+        assertNotNull(testFile);
+        final ImagePyramidReader reader = new ImagePyramidReader(testFile, new Hints(
+                Hints.FORCE_LONGITUDE_FIRST_AXIS_ORDER, Boolean.FALSE));
+        assertNotNull(reader);
+        
+        // prepare a request that crosses the bounds for a really minimal part
+        GeneralEnvelope ge = reader.getOriginalEnvelope();
+        ReferencedEnvelope requestedEnvelope = new ReferencedEnvelope(ge.getMinimum(0) - 5, ge.getMinimum(0), 
+                ge.getMinimum(1), ge.getMaximum(1), ge.getCoordinateReferenceSystem());
+        final Parameter<GridGeometry2D> readGG = new Parameter<GridGeometry2D>(AbstractGridFormat.READ_GRIDGEOMETRY2D);
+        readGG.setValue(new GridGeometry2D(new GridEnvelope2D(0, 0, 400, 400), requestedEnvelope));
+        
+        // make sure we get back a null, not an exception
+        assertNull(reader.read(new GeneralParameterValue[] {readGG}));
+    }
 
 	/**
 	 * Testing {@link ImagePyramidReader} by cropping requesting a the best

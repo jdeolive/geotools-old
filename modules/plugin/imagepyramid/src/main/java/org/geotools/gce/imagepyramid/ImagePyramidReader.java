@@ -418,7 +418,7 @@ public final class ImagePyramidReader extends AbstractGridCoverage2DReader imple
 					throw new DataSourceException("Unable to create a coverage for this source", e);
 				}
 			}
-			if (!requestedEnvelope.intersects(this.originalEnvelope, true))
+			if (!requestedEnvelope.intersects(this.originalEnvelope, false))
 				return null;
 
 			// intersect the requested area with the bounds of this layer
@@ -505,7 +505,12 @@ public final class ImagePyramidReader extends AbstractGridCoverage2DReader imple
 		// gridcoverage2d, then rename it
 		//
 		GridCoverage2D mosaicCoverage = reader.read(params);
-		return new GridCoverage2D(coverageName, mosaicCoverage);
+		if(mosaicCoverage != null) {
+		    return new GridCoverage2D(coverageName, mosaicCoverage);
+		} else {
+		    // the mosaic can still return null in corner cases, handle that gracefully
+		    return null;
+		}
 	}
 
 	/**
