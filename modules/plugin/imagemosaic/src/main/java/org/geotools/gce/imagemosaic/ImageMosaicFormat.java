@@ -245,16 +245,20 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
         throw new UnsupportedOperationException("This plugin does not support writing.");
     }
 
-    /**
-     * @see org.geotools.data.coverage.grid.AbstractGridFormat#accepts(Object input)
-     */
-    public boolean accepts( Object source ) {
+    public boolean accepts( Object source, Hints hints ) {
         Utilities.ensureNonNull("source", source);
             if (source instanceof ImageMosaicDescriptor){
                 return checkDescriptor((ImageMosaicDescriptor)source);
             } else {
-                return checkForUrl(source);
+                return checkForUrl(source, hints);
             }
+    }
+    
+    /**
+     * @see org.geotools.data.coverage.grid.AbstractGridFormat#accepts(Object input)
+     */
+    public boolean accepts( Object source ) {
+        return accepts(source, null);
     }
             
     /**
@@ -289,11 +293,11 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
         return true;
     }
 
-    private boolean checkForUrl( Object source ) {
+    private boolean checkForUrl( Object source, Hints hints){
          try {
             
-            URL sourceURL = Utils.checkSource(source);
-            if(sourceURL==null)
+            URL sourceURL = Utils.checkSource(source, hints);
+            if(sourceURL == null)
             	return false;
             // /////////////////////////////////////////////////////////////////////
             //
