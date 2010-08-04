@@ -178,7 +178,7 @@ public final class ImagePyramidReader extends AbstractGridCoverage2DReader imple
 			throw new DataSourceException(ex);
 		}
 		this.source = source;
-		this.sourceURL = Utils.checkSource(source);
+		this.sourceURL = Utils.checkSource(source, uHints);
 		if(sourceURL == null) {
 		    throw new IllegalArgumentException(
                 "This plugin accepts only File, URL and String pointing to a file");

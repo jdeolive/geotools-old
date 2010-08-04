@@ -35,6 +35,7 @@ import java.util.logging.Logger;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.geotools.data.DataUtilities;
+import org.geotools.factory.Hints;
 import org.geotools.gce.imagemosaic.ImageMosaicFormat;
 import org.geotools.gce.imagemosaic.ImageMosaicReader;
 import org.geotools.geometry.GeneralEnvelope;
@@ -52,8 +53,11 @@ class Utils {
 
     static final Logger LOGGER = Logging.getLogger(Utils.class);
     
-
     static URL checkSource(Object source) {
+    	return checkSource(source, null);
+    }
+
+    static URL checkSource(Object source, Hints hints) {
         URL sourceURL = null;
         File sourceFile = null;
         // /////////////////////////////////////////////////////////////////////
@@ -150,8 +154,8 @@ class Utils {
         List<MosaicInfo> mosaics = new ArrayList<MosaicInfo>();
         ImageMosaicFormat mosaicFactory = new ImageMosaicFormat();
         for (File subdir : directories) {
-            if(mosaicFactory.accepts(subdir)) {
-                mosaics.add(new MosaicInfo(subdir, mosaicFactory.getReader(subdir)));
+            if(mosaicFactory.accepts(subdir, hints)) {
+                mosaics.add(new MosaicInfo(subdir, mosaicFactory.getReader(subdir, hints)));
             }
         }
         

@@ -162,14 +162,23 @@ public final class ImagePyramidFormat extends AbstractGridFormat implements Form
 	 *      input)
 	 */
 	public boolean accepts(Object source) {
+		return accepts(source, null);
+	}
+	
+	
+	/**
+	 * @see org.geotools.data.coverage.grid.AbstractGridFormat#accepts(Object
+	 *      input)
+	 */
+	public boolean accepts(Object source, Hints hints) {
 		try {
 
-		    // /////////////////////////////////////////////////////////////////////
+            // /////////////////////////////////////////////////////////////////////
             //
             // Check source
             //
             // /////////////////////////////////////////////////////////////////////
-			URL sourceURL = Utils.checkSource(source);
+			URL sourceURL = Utils.checkSource(source, hints);
 			if(sourceURL == null)
 			    return false;
             try {

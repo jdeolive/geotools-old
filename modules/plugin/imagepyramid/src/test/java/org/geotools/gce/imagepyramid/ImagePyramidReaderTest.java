@@ -76,7 +76,6 @@ public class ImagePyramidReaderTest extends Assert {
      * @throws IOException
      */
     @Test
-    @Ignore
     public void testAutomaticBuild() throws IOException {
         final URL testFile = TestData.getResource(this, TEST_FILE);
         File sourceDir = DataUtilities.urlToFile(testFile).getParentFile();
@@ -88,8 +87,9 @@ public class ImagePyramidReaderTest extends Assert {
 
             // now make sure we can actually rebuild the mosaic
             final AbstractGridFormat format = new ImagePyramidFormat();
-            assertTrue(format.accepts(targetDir));
-            final ImagePyramidReader reader = (ImagePyramidReader) format.getReader(targetDir);
+            final Hints hints = new Hints(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM, DefaultGeographicCRS.WGS84);
+            assertTrue(((ImagePyramidFormat)format).accepts(targetDir, hints));
+            final ImagePyramidReader reader = (ImagePyramidReader) format.getReader(targetDir, hints);
             assertNotNull(reader);
         } finally {
             // cleanup
@@ -104,7 +104,6 @@ public class ImagePyramidReaderTest extends Assert {
      * @throws IOException
      */
     @Test
-    @Ignore
     public void testAutomaticBuildGdalRetile() throws IOException {
         final URL testFile = TestData.getResource(this, TEST_FILE);
         File sourceDir = DataUtilities.urlToFile(testFile).getParentFile();
@@ -122,8 +121,9 @@ public class ImagePyramidReaderTest extends Assert {
 
             // now make sure we can actually rebuild the mosaic
             final AbstractGridFormat format = new ImagePyramidFormat();
-            assertTrue(format.accepts(targetDir));
-            final ImagePyramidReader reader = (ImagePyramidReader) format.getReader(targetDir);
+            final Hints hints = new Hints(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM, DefaultGeographicCRS.WGS84);
+            assertTrue(((ImagePyramidFormat)format).accepts(targetDir, hints));
+            final ImagePyramidReader reader = (ImagePyramidReader) format.getReader(targetDir, hints);
             assertNotNull(reader);
         } finally {
             // cleanup
