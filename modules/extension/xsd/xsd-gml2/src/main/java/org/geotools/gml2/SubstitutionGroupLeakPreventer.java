@@ -24,6 +24,7 @@ import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.Notifier;
 import org.eclipse.xsd.XSDElementDeclaration;
+import org.eclipse.xsd.XSDFactory;
 import org.eclipse.xsd.XSDPackage;
 import org.geotools.util.Utilities;
 
@@ -77,22 +78,26 @@ public class SubstitutionGroupLeakPreventer implements Adapter {
                 ArrayList<Integer> toremove = new ArrayList();
                 for (int i = 0; i < e.getSubstitutionGroup().size(); i++) {
                     XSDElementDeclaration se = (XSDElementDeclaration) e.getSubstitutionGroup().get(i);
-                    if (Utilities.equals(el.getTargetNamespace(), se.getTargetNamespace()) &&  
-                            Utilities.equals(el.getName(), se.getName())) {
+                    if (se == null || (Utilities.equals(el.getTargetNamespace(), se.getTargetNamespace())
+                            && Utilities.equals(el.getName(), se.getName()))) {
                         toremove.add(i);
                     }
                 }
                 
                 //iterate back in reverse order and skip the last element as to keep the latest
                 // version of the element
+                ArrayList<XSDElementDeclaration> removed = new ArrayList();
                 for (int i = toremove.size()-2; i > -1; i--) {
                     XSDElementDeclaration se = (XSDElementDeclaration)
                         e.getSubstitutionGroup().remove(toremove.get(i).intValue());
-                    
-                    //set the removed elements sub affiliation to a clone of the actual element
-                    if (e.equals(se.getSubstitutionGroupAffiliation())) {
-                        XSDElementDeclaration clone = (XSDElementDeclaration) 
-                            e.cloneConcreteComponent(false, false);
+                    removed.add(e);
+                }
+                
+                //set the removed elements sub affiliation to a clone of the actual element
+                for (XSDElementDeclaration se : removed) {
+                    if (se != null && e.equals(se.getSubstitutionGroupAffiliation())) {
+                        XSDElementDeclaration clone = 
+                            (XSDElementDeclaration) e.cloneConcreteComponent(false, false);
                         clone.setTargetNamespace(GML.NAMESPACE);
                         
                         se.setSubstitutionGroupAffiliation(clone);
