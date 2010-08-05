@@ -15,16 +15,17 @@ tutorial notes and source code that illustrate some of the common uses of GeoToo
 FAQ
 ---
 
-Our `faq <http://docs.geotools.org/stable/userguide/faq.html>` convey wisdom gleaned from the
+Our `faq <http://docs.geotools.org/stable/userguide/faq.html>`_ convey wisdom gleaned from the
 GeoTools user list.
 
 GeoTools API
 ------------
 
-`Browse <http://geotools.org/javadocs/>`_ the GeoTools API javadocs online or `download <http://sourceforge.net/projects/geotools/files/>`_ them as a zip file.
+`Browse <http://docs.geotools.org/stable/javadocs/>`_ the GeoTools API javadocs online or `download <http://sourceforge.net/projects/geotools/files/>`_ them as a zip file.
 
 Latest (Trunk)
 --------------
  
-  * `Latest User Guide <http://docs.geotools.org/latest/userguide/e>`_
-  * `Latest Examples <http://docs.geotools.org/latest/userguide/examples>`_
+  * `Latest User Guide <http://docs.geotools.org/latest/userguide/>`_
+  * `Latest Examples <http://docs.geotools.org/latest/userguide/examples/>`_
+  * `Latest API <http://docs.geotools.org/latest/javadocs/>`_
