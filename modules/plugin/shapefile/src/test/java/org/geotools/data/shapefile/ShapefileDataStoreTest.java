@@ -178,7 +178,7 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
         map.put(ShapefileDataStoreFactory.NAMESPACEP.key, namespace);
         map.put(ShapefileDataStoreFactory.URLP.key, TestData.url(STATE_POP));
 
-        ShapefileDataStore store = factory.createDataStore(map);
+        ShapefileDataStore store = (ShapefileDataStore) factory.createDataStore(map);
         FeatureType schema = store.getSchema();
         assertEquals(namespace.toString(), schema.getName().getNamespaceURI());
     }

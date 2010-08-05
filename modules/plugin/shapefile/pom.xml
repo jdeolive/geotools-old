@@ -140,7 +140,7 @@
   <dependencies>
     <dependency>
       <groupId>org.geotools</groupId>
-      <artifactId>gt-main</artifactId>
+      <artifactId>gt-data</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

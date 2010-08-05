@@ -164,7 +164,6 @@
   <modules>
     <module>swing</module>
     <module>process</module>
-    <module>directory</module>
     <module>wfs</module>
     <module>geojson</module>
     <module>grid</module>

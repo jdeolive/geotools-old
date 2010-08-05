@@ -47,10 +47,13 @@ import org.geotools.data.DataStore;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.Diff;
 import org.geotools.data.FIDReader;
+import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureStore;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
 import org.geotools.data.TransactionStateDiff;
+import org.geotools.data.directory.DirectoryDataStore;
+import org.geotools.data.directory.DirectoryFeatureSource;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.data.shapefile.ShapefileRendererUtil;
 import org.geotools.data.shapefile.ShpFiles;
@@ -1301,7 +1304,9 @@ public class ShapefileRenderer implements GTRenderer {
 
         int i=0;
         for(MapLayer layer:layers ) {
-            DataStore ds = (DataStore) layer.getFeatureSource().getDataStore();
+            final FeatureSource fs = layer.getFeatureSource();
+            DataStore ds = (DataStore) fs.getDataStore();
+            
             if( ds instanceof ShapefileDataStore ){
 	            ShapefileDataStore sds = (ShapefileDataStore) ds;
 	            try {
@@ -1412,7 +1417,12 @@ public class ShapefileRenderer implements GTRenderer {
             ReferencedEnvelope bbox = envelope;
 
             try {
-                GeometryDescriptor geom = currLayer.getFeatureSource().getSchema().getGeometryDescriptor();
+                FeatureSource featureSource = currLayer.getFeatureSource();
+                if(featureSource instanceof DirectoryFeatureSource) {
+                    featureSource = ((DirectoryFeatureSource) featureSource).unwrap();
+                }
+                
+                GeometryDescriptor geom = featureSource.getSchema().getGeometryDescriptor();
                 
                 CoordinateReferenceSystem dataCRS;
                 if (getForceCRSHint() == null) {
@@ -1456,7 +1466,7 @@ public class ShapefileRenderer implements GTRenderer {
                 }
 
                 // dbfheader must be set so that the attributes required for theming can be read in.
-                ShapefileDataStore ds = (ShapefileDataStore) currLayer.getFeatureSource().getDataStore();
+                ShapefileDataStore ds = (ShapefileDataStore) featureSource.getDataStore();
 
                 // graphics.setTransform(transform);
                 // extract the feature type stylers from the style object
@@ -1464,8 +1474,8 @@ public class ShapefileRenderer implements GTRenderer {
 
                 Transaction transaction = Transaction.AUTO_COMMIT;
 
-                if (currLayer.getFeatureSource() instanceof FeatureStore) {
-                    transaction = ((SimpleFeatureStore) currLayer.getFeatureSource()).getTransaction();
+                if (featureSource instanceof FeatureStore) {
+                    transaction = ((SimpleFeatureStore) featureSource).getTransaction();
                 }
 
                 DefaultQuery query = new DefaultQuery(currLayer.getQuery());

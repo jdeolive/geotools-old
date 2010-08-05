@@ -120,7 +120,7 @@ public class Csv2Shape {
         params.put("url", newFile.toURI().toURL());
         params.put("create spatial index", Boolean.TRUE);
 
-        ShapefileDataStore newDataStore = dataStoreFactory.createNewDataStore(params);
+        ShapefileDataStore newDataStore = (ShapefileDataStore) dataStoreFactory.createNewDataStore(params);
         newDataStore.createSchema(TYPE);
 
         /*

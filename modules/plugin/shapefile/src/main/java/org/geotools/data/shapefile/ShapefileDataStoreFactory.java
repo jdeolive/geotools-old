@@ -16,7 +16,7 @@
  */
 package org.geotools.data.shapefile;
 
-import java.io.FileNotFoundException;
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -32,6 +32,8 @@ import org.geotools.data.DataStore;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.FileDataStore;
 import org.geotools.data.FileDataStoreFactorySpi;
+import org.geotools.data.directory.DirectoryDataStore;
+import org.geotools.data.directory.FileStoreFactory;
 import org.geotools.data.shapefile.indexed.IndexType;
 import org.geotools.data.shapefile.indexed.IndexedShapefileDataStore;
 import org.geotools.util.KVP;
@@ -83,6 +85,13 @@ public class ShapefileDataStoreFactory implements FileDataStoreFactorySpi {
     public static final Param MEMORY_MAPPED = new Param("memory mapped buffer",
             Boolean.class, "enable/disable the use of memory-mapped io", false, true,
             new KVP(Param.LEVEL,"advanced") );
+    
+    /**
+     * Optional - discriminator for directory stores
+     */
+    public static final Param FILE_TYPE = new Param("filetype",
+            String.class, "Discriminator for directory stores", false, "shapefile",
+            new KVP(Param.LEVEL,"advanced") );
 
     /**
      * Optional - Enable/disable the automatic creation of spatial index
@@ -132,6 +141,13 @@ public class ShapefileDataStoreFactory implements FileDataStoreFactorySpi {
             try {
                 URL url = (URL) URLP.lookUp(params);
                 accept = canProcess(url);
+                if(!accept) {
+                    // maybe it's a directory?
+                    Object fileType = FILE_TYPE.lookUp(params);
+                    File dir = DataUtilities.urlToFile(url);
+                    // check for null fileType for backwards compatibility
+                    accept = dir.isDirectory() && (fileType == null || "shapefile".equals(fileType));  
+                }
             } catch (IOException ioe) {
                 // yes, I am eating this - since it is my job to return a
                 // true/false
@@ -169,69 +185,8 @@ public class ShapefileDataStoreFactory implements FileDataStoreFactorySpi {
      *                 Thrown if the datastore which is created cannot be
      *                 attached to the restore specified in params.
      */
-    public ShapefileDataStore createDataStore(Map params) throws IOException {
-        URL url = (URL) URLP.lookUp(params);
-        Boolean isMemoryMapped = (Boolean) MEMORY_MAPPED.lookUp(params);
-        URI namespace = (URI) NAMESPACEP.lookUp(params);
-        Charset dbfCharset = (Charset) DBFCHARSET.lookUp(params);
-        Boolean isCreateSpatialIndex = (Boolean) CREATE_SPATIAL_INDEX
-                .lookUp(params);
-
-        if (isCreateSpatialIndex == null) {
-            // should not be needed as default is TRUE
-            isCreateSpatialIndex = Boolean.TRUE;
-        }
-        if (dbfCharset == null) {
-            // this should not happen as Charset.forName("ISO-8859-1") was used
-            // as the param default?
-            dbfCharset = Charset.forName("ISO-8859-1");
-        }
-        if (isMemoryMapped == null) {
-            isMemoryMapped = Boolean.FALSE;
-        }
-
-        ShpFiles shpFiles = new ShpFiles(url);
-
-        boolean isLocal = shpFiles.isLocal();
-        if (isLocal && !shpFiles.exists(ShpFileType.SHP)) {
-            throw new FileNotFoundException("Shapefile not found:"
-                    + shpFiles.get(ShpFileType.SHP));
-        }
-        boolean useMemoryMappedBuffer = isLocal
-                && shpFiles.exists(ShpFileType.SHP)
-                && isMemoryMapped.booleanValue();
-        boolean createIndex = isCreateSpatialIndex.booleanValue() && isLocal;
-        IndexType treeIndex = IndexType.NONE;
-        if (isLocal) {
-            if (createIndex) {
-                treeIndex = IndexType.QIX; // default
-            } else {
-                // lets check and see if any index file is avaialble
-                if (shpFiles.exists(ShpFileType.QIX)) {
-                    treeIndex = IndexType.QIX;
-                } 
-//                else if (shpFiles.exists(ShpFileType.GRX)) {
-//                    treeIndex = IndexType.GRX;
-//                }
-            }
-        }
-
-        try {
-            if (createIndex) {
-                return new IndexedShapefileDataStore(url, namespace,
-                        useMemoryMappedBuffer, createIndex, IndexType.QIX,
-                        dbfCharset);
-            } else if (treeIndex != IndexType.NONE) {
-                return new IndexedShapefileDataStore(url, namespace,
-                        useMemoryMappedBuffer, false, treeIndex, dbfCharset);
-            } else {
-                return new ShapefileDataStore(url, namespace,
-                        useMemoryMappedBuffer, dbfCharset);
-            }
-        } catch (MalformedURLException mue) {
-            throw new DataSourceException(
-                    "Url for shapefile malformed: " + url, mue);
-        }
+    public DataStore createDataStore(Map params) throws IOException {
+        return createNewDataStore(params);
     }
 
     /**
@@ -242,7 +197,8 @@ public class ShapefileDataStoreFactory implements FileDataStoreFactorySpi {
      * yet.
      * 
      */
-    public ShapefileDataStore createNewDataStore(Map params) throws IOException {
+    public DataStore createNewDataStore(Map params) throws IOException {
+        // basic param lookup
         URL url = (URL) URLP.lookUp(params);
         Boolean isMemoryMapped = (Boolean) MEMORY_MAPPED.lookUp(params);
         URI namespace = (URI) NAMESPACEP.lookUp(params);
@@ -266,28 +222,31 @@ public class ShapefileDataStoreFactory implements FileDataStoreFactorySpi {
             // this should not happen as false was the default
             isMemoryMapped = Boolean.FALSE;
         }
-        ShpFiles shpFiles = new ShpFiles(url);
-
-        boolean isLocal = shpFiles.isLocal();
-        if (!isLocal || shpFiles.exists(ShpFileType.SHP)) {
-            LOGGER.warning("File already exists: "
-                    + shpFiles.get(ShpFileType.SHP));
-        }
-        boolean useMemoryMappedBuffer = isLocal
-                && isMemoryMapped.booleanValue();
-        boolean createIndex = isCreateSpatialIndex.booleanValue() && isLocal;
-
-        try {
-            if (createIndex) {
-                return new IndexedShapefileDataStore(url, namespace,
-                        useMemoryMappedBuffer, true, IndexType.QIX, dbfCharset);
-            } else {
-                return new ShapefileDataStore(url, namespace,
-                        useMemoryMappedBuffer, dbfCharset);
+        
+        // are we creating a directory of shapefiles store, or a single one?
+        File dir = DataUtilities.urlToFile(url);
+        if(dir != null && dir.isDirectory()) {
+            return new DirectoryDataStore(DataUtilities.urlToFile(url), new ShpFileStoreFactory(this, params));
+        } else {
+            ShpFiles shpFiles = new ShpFiles(url);
+    
+            boolean isLocal = shpFiles.isLocal();
+            boolean useMemoryMappedBuffer = isLocal
+                    && isMemoryMapped.booleanValue();
+            boolean createIndex = isCreateSpatialIndex.booleanValue() && isLocal;
+    
+            try {
+                if (createIndex) {
+                    return new IndexedShapefileDataStore(url, namespace,
+                            useMemoryMappedBuffer, true, IndexType.QIX, dbfCharset);
+                } else {
+                    return new ShapefileDataStore(url, namespace,
+                            useMemoryMappedBuffer, dbfCharset);
+                }
+            } catch (MalformedURLException mue) {
+                throw new DataSourceException(
+                        "Url for shapefile malformed: " + url, mue);
             }
-        } catch (MalformedURLException mue) {
-            throw new DataSourceException(
-                    "Url for shapefile malformed: " + url, mue);
         }
     }
 
@@ -355,7 +314,7 @@ public class ShapefileDataStoreFactory implements FileDataStoreFactorySpi {
      */
     public Param[] getParametersInfo() {
         return new Param[] { URLP, NAMESPACEP, CREATE_SPATIAL_INDEX,
-                DBFCHARSET, MEMORY_MAPPED };
+                DBFCHARSET, MEMORY_MAPPED, FILE_TYPE };
     }
 
     /**
@@ -383,10 +342,15 @@ public class ShapefileDataStoreFactory implements FileDataStoreFactorySpi {
         params.put(URLP.key, url);
 
         boolean isLocal = url.getProtocol().equalsIgnoreCase("file");
-        if (isLocal && !DataUtilities.urlToFile(url).exists()) {
-            return createNewDataStore(params);
+        File file = DataUtilities.urlToFile(url);
+        if(file != null && file.isDirectory()) {
+            return null;
         } else {
-            return createDataStore(params);
+            if (isLocal && !file.exists()) {
+                return (FileDataStore) createNewDataStore(params);
+            } else {
+                return (FileDataStore) createDataStore(params);
+            }
         }
     }
 
@@ -421,6 +385,35 @@ public class ShapefileDataStoreFactory implements FileDataStoreFactorySpi {
      */
     public Map getImplementationHints() {
         return Collections.EMPTY_MAP;
+    }
+
+    
+    /**
+     * A delegates that allow to build a directory of shapfiles store
+     * @author Andrea Aime - OpenGeo
+     */
+    public static class ShpFileStoreFactory implements FileStoreFactory {
+        
+        ShapefileDataStoreFactory shpFactory;
+        Map originalParams;
+        
+        public ShpFileStoreFactory(ShapefileDataStoreFactory factory, Map originalParams) {
+            this.shpFactory = factory;
+            this.originalParams = originalParams;
+        }
+        
+
+        public DataStore getDataStore(File file) throws IOException {
+            final URL url = DataUtilities.fileToURL(file);
+            if(shpFactory.canProcess(url)) {
+                Map params = new HashMap(originalParams);
+                params.put(URLP.key, url);
+                return shpFactory.createDataStore(params);
+            } else {
+                return null;
+            }
+        }
+        
     }
 
 }
