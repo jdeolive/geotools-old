@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.ExecutorService;
 
 import javax.naming.Name;
 import javax.sql.DataSource;
@@ -753,6 +754,13 @@ public class Hints extends RenderingHints {
      * @since 2.7
      */
     public static final ClassKey GRID_COVERAGE_FACTORY = new ClassKey("org.geotools.coverage.grid.GridCoverageFactory");
+    
+    /**
+     * The {@link ExecutorService} to use.
+     * 
+     * @since 2.7
+     */
+    public static final ClassKey EXECUTOR_SERVICE = new ClassKey("java.util.concurrent.ExecutorService");
     
 
 
