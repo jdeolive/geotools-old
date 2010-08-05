@@ -251,7 +251,10 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
             NoSuchElementException {
         try {
             ensureOpen();
-            ensureNext();
+            if(!hasNext()) {
+                throw new NoSuchElementException("No more features in this reader, you should call " +
+                		"hasNext() to check for feature availability");
+            }
             
             //grab the connection
             Connection cx;

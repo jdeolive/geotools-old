@@ -17,6 +17,7 @@
 package org.geotools.jdbc;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.Query;
@@ -109,6 +110,7 @@ public abstract class JDBCFeatureSourceTest extends JDBCTestSupport {
         query.setMaxFeatures(1);
         assertEquals(1, featureSource.getCount(query));
     }
+    
     public void testGetFeatures() throws Exception {
         SimpleFeatureCollection features = featureSource.getFeatures();
         assertEquals(3, features.size());
@@ -381,5 +383,34 @@ public abstract class JDBCFeatureSourceTest extends JDBCTestSupport {
             prevId = currId;
         }
         features.close();
+    }
+    
+    public void testFeatureIteratorNextContract() throws Exception {
+        SimpleFeatureIterator features = featureSource.getFeatures().features();
+        
+        try {
+            // 1) non empty iterator, calling next() should just return the feature
+            SimpleFeature f = features.next();
+            assertNotNull(f);
+        } finally {        
+            features.close();
+        }
+    }
+    
+    public void testFeatureIteratorEmptyContract() throws Exception {
+        FilterFactory ff = dataStore.getFilterFactory();
+        PropertyIsEqualTo filter = ff.equals(ff.property(aname("stringProperty")), ff.literal("not_there"));
+        SimpleFeatureIterator features = featureSource.getFeatures(filter).features();
+        
+        
+        try {
+            // 1) non empty iterator, calling next() should just return the feature
+            SimpleFeature f = features.next();
+            assertNotNull(f);
+        } catch(NoSuchElementException e) {
+            // ok
+        } finally {        
+            features.close();
+        }
     }
 }
