@@ -119,7 +119,7 @@ public class ComplexSupportXSAnyTypeBinding extends XSAnyTypeBinding {
     /**
      * @see org.geotools.xml.AbstractComplexBinding#getProperties(java.lang.Object,
      *      org.eclipse.xsd.XSDElementDeclaration)
-     */
+     */   
     @SuppressWarnings("unchecked")
     @Override
     public List getProperties(Object object, XSDElementDeclaration element) throws Exception {
@@ -201,9 +201,114 @@ public class ComplexSupportXSAnyTypeBinding extends XSAnyTypeBinding {
                     }
                 }
             }
-            return properties;
         }
-        return null;
+
+        List<XSDParticle> anyElementParticles = new ArrayList<XSDParticle>(Schemas
+                .getAnyElementParticles(element.getTypeDefinition()));
+        if (anyElementParticles.size() > 0) {
+            Collection complexAtts = null;
+            if (object instanceof Collection) {
+                // collection of features
+                complexAtts = (Collection) object;
+            } else if (object instanceof ComplexAttribute) {
+                // get collection of features from this attribute
+                complexAtts = ((ComplexAttribute) object).getProperties();
+            }
+
+            // If child elements can't be retrieved from
+            // Schemas.getChildElementParticles(element.getTypeDefinition(), true)),
+            // properties list is empty. In this case, add all the complex
+            // attributes in the object to the properties list.
+            if (properties.isEmpty()) {
+                for (Object complex : complexAtts) {
+                    // only process complex attributes
+                    if (complex instanceof ComplexAttribute) {
+                        ComplexAttribute newComplexAtt = (ComplexAttribute) complex;
+                        PropertyDescriptor descriptor = newComplexAtt.getDescriptor();
+                        if (descriptor.getUserData() != null) {
+                            Object propertyElement = descriptor.getUserData().get(
+                                    XSDElementDeclaration.class);
+                            if (propertyElement != null
+                                    && propertyElement instanceof XSDElementDeclaration) {
+                                XSDParticle substitutedChildParticle = XSDFactory.eINSTANCE
+                                        .createXSDParticle();
+                                substitutedChildParticle.setMaxOccurs(descriptor.getMaxOccurs());
+                                substitutedChildParticle.setMinOccurs(descriptor.getMinOccurs());
+                                XSDElementDeclaration wrapper = XSDFactory.eINSTANCE
+                                        .createXSDElementDeclaration();
+                                wrapper
+                                        .setResolvedElementDeclaration((XSDElementDeclaration) propertyElement);
+                                substitutedChildParticle.setContent(wrapper);
+                                properties.add(new Object[] { substitutedChildParticle,
+                                        newComplexAtt });
+                            }
+                        }
+                    }
+                }
+            }
+
+            /*
+             * properties list is not empty.
+             * 
+             * It's possible <any> and <element> co-exist in the same type. For example, 
+             * 
+             * <sequence>
+             *     <any/> 
+             *     <element name="..." type="..."> 
+             * </sequence>
+             * 
+             * In this case, only add <any> complex attributes to the properties list. The following
+             * code is not covered in unit test, as app-schema, doesn't support <any> as a
+             * targetAttribute in a mapping file. 
+             */
+            else {
+                List<XSDParticle> elementParticles = new ArrayList<XSDParticle>(Schemas
+                        .getChildElementParticles(element.getTypeDefinition(), false));
+                for (Object complex : complexAtts) {
+                    if (complex instanceof ComplexAttribute) {
+                        ComplexAttribute newComplexAtt = (ComplexAttribute) complex;
+                        PropertyDescriptor descriptor = ((Attribute) complex).getDescriptor();
+                        if (descriptor.getUserData() != null) {
+                            Object propertyElement = descriptor.getUserData().get(
+                                    XSDElementDeclaration.class);
+                            if (propertyElement != null
+                                    && propertyElement instanceof XSDElementDeclaration) {
+                                XSDParticle substitutedChildParticle = XSDFactory.eINSTANCE
+                                        .createXSDParticle();
+                                substitutedChildParticle.setMaxOccurs(descriptor.getMaxOccurs());
+                                substitutedChildParticle.setMinOccurs(descriptor.getMinOccurs());
+                                XSDElementDeclaration wrapper = XSDFactory.eINSTANCE
+                                        .createXSDElementDeclaration();
+                                wrapper
+                                        .setResolvedElementDeclaration((XSDElementDeclaration) propertyElement);
+                                substitutedChildParticle.setContent(wrapper);
+                                boolean propertyExist = false;
+                                for (XSDParticle childParticle : elementParticles) {
+                                    XSDElementDeclaration childElement = (XSDElementDeclaration) childParticle
+                                            .getContent();
+                                    if (childElement.isElementDeclarationReference()) {
+                                        childElement = childElement.getResolvedElementDeclaration();
+                                    }
+                                    String existingName = childElement.getName();
+                                    String newName = newComplexAtt.getDescriptor().getName()
+                                            .getLocalPart();
+                                    if (existingName.equals(newName)) {
+                                        propertyExist = true;
+                                        break;
+                                    }
+                                }
+                                if (!propertyExist) {
+                                    properties.add(new Object[] { substitutedChildParticle,
+                                            newComplexAtt });
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+        return properties;
     }
     
     /**
