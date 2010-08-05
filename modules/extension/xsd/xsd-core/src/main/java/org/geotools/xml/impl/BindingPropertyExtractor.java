@@ -260,8 +260,13 @@ O:
                     if (partContent.getResolvedElementDeclaration() != null) {
                         partContent = partContent.getResolvedElementDeclaration();
                     }
-                    if (child.getName().equals(partContent.getName())) {
+                    if (child.getName().equals(partContent.getName())
+                            && ((child.getTargetNamespace() != null && partContent
+                                    .getTargetNamespace() != null) ? child.getTargetNamespace()
+                                    .equals(partContent.getTargetNamespace()) : true)) {
                         sortedProperties.add(prop);
+                        properties.remove(prop);
+                        i--;
                         break;
                     }
                 }
