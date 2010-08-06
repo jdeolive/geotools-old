@@ -24,9 +24,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.geotools.data.DataUtilities;
 import org.geotools.data.simple.SimpleFeatureCollection;
@@ -34,6 +32,8 @@ import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.feature.CollectionListener;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureCollections;
+import org.geotools.feature.FeatureComparators;
+import org.geotools.feature.FeatureComparators.Name;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.opengis.feature.simple.SimpleFeature;
@@ -215,6 +215,39 @@ public abstract class FeatureCollectionTest extends TestCase {
         listen.removeListener(counter);
         listen.removeAll(DataUtilities.list(features));
         assertEquals(1, counter.changeEvents);
+    }
+
+    /**
+     * This test uses FeatureComparators.Name and uses it on an attribute, that contains
+     * <code>null</code>s. It should not throw an NPE.
+     */
+    public void testFeatureComparatorsNameWithNullValues() {
+
+        // features = FeatureCollections.newCollection();
+
+        SimpleFeatureTypeBuilder tb = new SimpleFeatureTypeBuilder();
+        tb.setName("DummyToBeSorted");
+        tb.add("name", String.class);
+        tb.add("number", Integer.class);
+
+        SimpleFeatureBuilder b = new SimpleFeatureBuilder(tb.buildFeatureType());
+
+        SimpleFeature f1 = b.buildFeature(null, new Object[] { "Steve", 32 });
+        SimpleFeature f2 = b.buildFeature(null, new Object[] { null, null });
+        SimpleFeature f3 = b.buildFeature(null, new Object[] { null, null });
+
+        Name compareName = new FeatureComparators.Name("name");
+
+        // f1 has name, f2 has null name, expecting that f1 is greater g2
+        assertTrue(compareName.compare(f1, f2) > 0);
+        assertTrue(compareName.compare(f2, f1) < 0);
+        assertTrue(compareName.compare(f2, f3) == 0);
+
+        Name compareNumber = new FeatureComparators.Name("name");
+        // f1 has number, f2 has null number, expecting that f1 is greater g2
+        assertTrue(compareNumber.compare(f1, f2) > 0);
+        assertTrue(compareNumber.compare(f2, f1) < 0);
+        assertTrue(compareNumber.compare(f2, f3) == 0);
     }
 
     /**

@@ -161,6 +161,14 @@ public final class FeatureComparators {
             if ((att1 == null) && (att2 == null)) {
                 return 0;
             }
+            
+            if (att1 == null) {
+                return -1;
+            }
+            
+            if (att2 == null) {
+                return 1;
+            }                        
 
             return ((Comparable) att1).compareTo((Comparable) att2);
         }
