@@ -653,8 +653,6 @@ public final class StreamingRenderer implements GTRenderer {
             worldToScreenTransform = atg;
             graphics.setTransform(worldToScreenTransform);
         }
-        if(isAdvancedProjectionHandlingEnabled())
-            projectionHandler = ProjectionHandlerFinder.getHandler(mapExtent);
 
         // compute scale according to the user specified method
         scaleDenominator = computeScale(mapArea, paintArea,worldToScreenTransform, rendererHints);
@@ -674,6 +672,13 @@ public final class StreamingRenderer implements GTRenderer {
                     mapExtent.getCoordinateReferenceSystem()); 
         }
 
+        // enable advanced projection handling with the updated map extent
+        if(isAdvancedProjectionHandlingEnabled()) {
+            // get the projection handler and set a tentative envelope
+            projectionHandler = ProjectionHandlerFinder.getHandler(mapExtent);
+        }
+        
+        
         // ////////////////////////////////////////////////////////////////////
         //
         // Processing all the map layers in the context using the accompaining
@@ -892,6 +897,8 @@ public final class StreamingRenderer implements GTRenderer {
                 // default geometric ones
                 List<ReferencedEnvelope> envelopes;
                 if (projectionHandler != null) {
+                    // update the envelope with the one eventually grown by the rendering buffer
+                    projectionHandler.setRenderingEnvelope(envelope);
                     envelopes = projectionHandler.getQueryEnvelopes(featCrs);
                 } else {
                     if (mapCRS != null && featCrs != null && !CRS.equalsIgnoreMetadata(featCrs, mapCRS)) {

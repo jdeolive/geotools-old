@@ -52,8 +52,7 @@ public class WrappingProjectionHandler extends ProjectionHandler {
         super(renderingEnvelope, validArea);
 
         try {
-            MathTransform mt = CRS.findMathTransform(WGS84, renderingEnvelope
-                    .getCoordinateReferenceSystem(), true);
+            MathTransform mt = CRS.findMathTransform(WGS84, renderingEnvelope.getCoordinateReferenceSystem(), true);
             double[] src = new double[] { centralMeridian, 0, 180 + centralMeridian, 0 };
             double[] dst = new double[4];
             mt.transform(src, 0, dst, 0, 2);
@@ -107,10 +106,6 @@ public class WrappingProjectionHandler extends ProjectionHandler {
             min += radius * 2;
             max += radius * 2;
         }
-
-        // if outside, return null (might happen)
-        if (max < renderingEnvelope.getMinX() || min > renderingEnvelope.getMaxX())
-            return null;
 
         // clone and offset as necessary
         while (min < renderingEnvelope.getMaxX()) {

@@ -49,13 +49,29 @@ public class ProjectionHandler {
 
     protected static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger(ProjectionHandler.class);
 
-    final ReferencedEnvelope renderingEnvelope;
-
+    ReferencedEnvelope renderingEnvelope;
+    
     final ReferencedEnvelope validArea;
 
     public ProjectionHandler(ReferencedEnvelope renderingEnvelope, ReferencedEnvelope validArea) {
         this.renderingEnvelope = renderingEnvelope;
         this.validArea = validArea;
+    }
+
+    /**
+     * Returns the current rendering envelope
+     */
+    public ReferencedEnvelope getRenderingEnvelope() {
+        return renderingEnvelope;
+    }
+    
+    /**
+     * Sets the current rendering envelope. Will be used to compute the envelopes to be queried,
+     * and to perform map wrapping when enabled
+     * @return
+     */
+    public void setRenderingEnvelope(ReferencedEnvelope renderingEnvelope) {
+        this.renderingEnvelope = renderingEnvelope;
     }
 
     /**
