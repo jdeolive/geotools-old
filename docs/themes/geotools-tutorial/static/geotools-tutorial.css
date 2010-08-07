@@ -29,6 +29,7 @@ body {
     margin-left: 0;
     margin-right: 0;
     min-width: 900px;
+    max-width: 1050px;
     padding: 0;
     line-height: 110%;
     font-family: 'Lucida Sans','Geneva','Verdana',sans-serif;
@@ -81,7 +82,7 @@ div.documentwrapper {
 
 
 div.footer {
-    background: #fff url(img/footer-bg.png) repeat-x;
+    background: #fff url(img/footer-bg.png) no-repeat;
     color: #000000;
     padding: 60px 0 35px;
     text-align: center;
@@ -92,7 +93,7 @@ div.header {
     position: relative;
     overflow: hidden;
     height: 30px;
-    background: #fff url(img/header-bg2.png) repeat-x;
+    background: #fff url(img/header-bg.png) no-repeat;
 }
 div.header div.wrap {
     margin: 0 80px;
@@ -125,8 +126,9 @@ div.header div.wrap {
 
 #top-nav {
     position: absolute;
-    bottom: 15px;
-    right: 90px;
+    top: 5px;
+    bottom: 10px;
+    right: 10px;
     list-style: none;
     margin: 0;
 }
@@ -137,6 +139,7 @@ div.header div.wrap {
     padding: 0 8px;
 /*    border-left: 1px solid #47aa42;*/
     border-left: 1px solid #CA7900;
+    color: #FFF;
 }
 
 #top-nav li:first-child, #top-nav li.first {
