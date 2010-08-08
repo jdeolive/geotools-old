@@ -39,6 +39,7 @@ import java.util.logging.Logger;
 
 import org.geotools.geometry.jts.Decimator;
 import org.geotools.geometry.jts.LiteShape2;
+import org.geotools.renderer.label.LabelCacheItem.GraphicResize;
 import org.geotools.renderer.lite.LabelCache;
 import org.geotools.renderer.style.SLDStyleFactory;
 import org.geotools.renderer.style.TextStyle2D;
@@ -48,6 +49,7 @@ import org.geotools.util.logging.Logging;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.filter.expression.Literal;
 
+import com.sun.java_cup.internal.sym;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
@@ -339,6 +341,8 @@ public final class LabelCacheImpl implements LabelCache {
         item.setForceLeftToRightEnabled(getBooleanOption(symbolizer, FORCE_LEFT_TO_RIGHT_KEY, DEFAULT_FORCE_LEFT_TO_RIGHT));
         item.setConflictResolutionEnabled(getBooleanOption(symbolizer, CONFLICT_RESOLUTION_KEY, DEFAULT_CONFLICT_RESOLUTION));
         item.setGoodnessOfFit(getDoubleOption(symbolizer, GOODNESS_OF_FIT_KEY, DEFAULT_GOODNESS_OF_FIT));
+        item.setGraphicsResize(getGraphicResize(symbolizer));
+        item.setGraphicMargin(getGraphicMargin(symbolizer));
         return item;
     }
     
@@ -379,6 +383,52 @@ public final class LabelCacheImpl implements LabelCache {
             return defaultValue;
         return value.equalsIgnoreCase("yes") || value.equalsIgnoreCase("true")
                 || value.equalsIgnoreCase("1");
+    }
+    
+    /**
+     * Parses the {@link GraphicResize} enum
+     * @param symbolizer
+     * @return
+     */
+    private GraphicResize getGraphicResize(TextSymbolizer symbolizer) {
+        String value = symbolizer.getOptions().get("graphic-resize");
+        if(value == null) {
+            return GraphicResize.NONE;
+        } else {
+            return GraphicResize.valueOf(value.toUpperCase());
+        }
+    }
+    
+    /**
+     * Parses the graphic margin, if any
+     * @param symbolizer
+     * @return
+     */
+    private int[] getGraphicMargin(TextSymbolizer symbolizer) {
+        String value = symbolizer.getOptions().get("graphic-margin");
+        if(value == null) {
+            return null;
+        } else {
+            String[] values = value.trim().split("\\s+");
+            if(values.length == 0) {
+                return null;
+            } else if(values.length > 4) {
+                throw new IllegalArgumentException("The graphic margin is to be specified with 1, 2 or 4 values");
+            }
+            int[] parsed = new int[values.length];
+            for (int i = 0; i < parsed.length; i++) {
+                parsed[i] = Integer.parseInt(values[i]);
+            } 
+            if(parsed.length == 4) {
+                return parsed;
+            } else if(parsed.length == 3) {
+                return new int[] {parsed[0], parsed[1], parsed[2], parsed[1]};
+            } else if(parsed.length == 2) {
+                return new int[] {parsed[0], parsed[1], parsed[0], parsed[1]};
+            } else {
+                return new int[] {parsed[0], parsed[0], parsed[0], parsed[0]};
+            }
+        }
     }
 
     /**

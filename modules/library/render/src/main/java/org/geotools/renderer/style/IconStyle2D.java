@@ -101,5 +101,25 @@ public class IconStyle2D extends Style2D {
      */
     public Icon getIcon() {
         return icon;
+    }
+
+    public void setIcon(Icon icon) {
+        this.icon = icon;
+    }
+
+    public void setRotation(float rotation) {
+        this.rotation = rotation;
+    }
+
+    public void setComposite(Composite composite) {
+        this.composite = composite;
+    }
+
+    public void setDisplacementX(float displacementX) {
+        this.displacementX = displacementX;
+    }
+
+    public void setDisplacementY(float displacementY) {
+        this.displacementY = displacementY;
     };
 }

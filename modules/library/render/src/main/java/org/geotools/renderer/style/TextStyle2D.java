@@ -28,6 +28,8 @@ import java.awt.font.GlyphVector;
 import java.awt.image.BufferedImage;
 import java.text.Bidi;
 
+import javax.swing.Icon;
+
 import org.geotools.resources.Classes;
 
 
@@ -381,11 +383,14 @@ public class TextStyle2D extends Style2D {
     }
     
     public Rectangle getGraphicDimensions() {
-    	if (graphic instanceof MarkStyle2D)
-    		return ((MarkStyle2D)graphic).getShape().getBounds();
-    	else if (graphic instanceof GraphicStyle2D) {
+    	if (graphic instanceof MarkStyle2D) {
+    	    return  ((MarkStyle2D)graphic).getShape().getBounds(); 
+    	} else if (graphic instanceof GraphicStyle2D) {
     		BufferedImage i = ((GraphicStyle2D)graphic).getImage();
     		return new Rectangle(i.getWidth(),i.getHeight());
+    	} else if(graphic instanceof IconStyle2D) {
+    	    final Icon icon = ((IconStyle2D) graphic).getIcon();
+            return new Rectangle(icon.getIconWidth(), icon.getIconWidth());
     	} else {
     		throw new RuntimeException("Can't render graphic which is not a MarkStyle2D or a GraphicStyle2D");
     	}

@@ -481,7 +481,7 @@ public class StyledShapePainter {
 			LOGGER.finest("drawing Image @" + x + "," + y);
 		}
 
-		AffineTransform markAT = new AffineTransform(graphics.getTransform());
+		AffineTransform markAT = new AffineTransform();
 		markAT.translate(x, y);
 		markAT.rotate(rotation);
 		markAT.translate(-image.getWidth() / 2.0, -image.getHeight() / 2.0);

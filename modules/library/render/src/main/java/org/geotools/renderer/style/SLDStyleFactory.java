@@ -31,7 +31,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -41,7 +40,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.imageio.ImageIO;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
@@ -435,7 +433,7 @@ public class SLDStyleFactory {
 				// sets graphic fill if available and vector rendering is
 				// enabled
 				Style2D style2DFill = createPointStyle(feature, fill
-						.getGraphicFill(), scaleRange);
+						.getGraphicFill(), scaleRange, false);
 				style.setGraphicFill(style2DFill);
 				return;
 			}
@@ -495,7 +493,7 @@ public class SLDStyleFactory {
 	 */
 	Style2D createPointStyle(Object feature, PointSymbolizer symbolizer,
 			Range scaleRange) {
-		return createPointStyle(feature, symbolizer.getGraphic(), scaleRange);
+		return createPointStyle(feature, symbolizer.getGraphic(), scaleRange, false);
 	}
 
 	/**
@@ -512,8 +510,7 @@ public class SLDStyleFactory {
 	 * @param scaleRange
 	 * @return
 	 */
-	Style2D createPointStyle(Object feature, Graphic sldGraphic,
-			Range scaleRange) {
+	Style2D createPointStyle(Object feature, Graphic sldGraphic, Range scaleRange, boolean forceVector) {
 		Style2D retval = null;
 
 		// extract base properties
@@ -581,12 +578,24 @@ public class SLDStyleFactory {
 				// rendering too, since
 				// pre-rasterizing and caching the result will use too much
 				// memory
-				if (vectorRenderingEnabled || size > MAX_RASTERIZATION_SIZE) {
+				if (vectorRenderingEnabled || forceVector || size > MAX_RASTERIZATION_SIZE) {
 					Icon icon = getIcon(eg, feature, -1);
 					if (icon == null) {
 						// no icon -> no image either, there is no raster
 						// fallback
 						continue;
+					} else if(icon instanceof ImageIcon) {
+					    // when the icon is an image better use the graphic style, we have
+					    // better rendering code for it
+					    GraphicStyle2D g2d = getGraphicStyle(eg, (Feature) feature, size, 1);
+	                    if (g2d == null) {
+	                        continue;
+	                    } else {
+	                        g2d.setRotation(rotation);
+	                        g2d.setOpacity(opacity);
+	                        retval = g2d;
+	                        break;
+	                    }
 					} else {
 						if (icon.getIconHeight() != size && size != 0) {
 							double scale = ((double) size)
@@ -774,11 +783,7 @@ public class SLDStyleFactory {
 		if (symbolizer instanceof TextSymbolizer2) {
 			graphicShield = ((TextSymbolizer2) symbolizer).getGraphic();
 			if (graphicShield != null) {
-				PointSymbolizer p = StyleFactoryFinder.createStyleFactory()
-						.createPointSymbolizer();
-				p.setGraphic(graphicShield);
-
-				Style2D shieldStyle = createPointStyle(feature, p, scaleRange);
+				Style2D shieldStyle = createPointStyle(feature, graphicShield, scaleRange, true);
 				ts2d.setGraphic(shieldStyle);
 			}
 		}
@@ -879,7 +884,7 @@ public class SLDStyleFactory {
 		}
 
 		// sets graphic stroke if available and vector rendering is enabled
-		return createPointStyle(feature, stroke.getGraphicStroke(), scaleRange);
+		return createPointStyle(feature, stroke.getGraphicStroke(), scaleRange, false);
 	}
 
 	private Stroke getStroke(org.geotools.styling.Stroke stroke, Object feature) {

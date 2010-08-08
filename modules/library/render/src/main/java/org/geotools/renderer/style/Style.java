@@ -16,6 +16,8 @@
  */
 package org.geotools.renderer.style;
 
+import javax.swing.text.html.HTMLDocument.RunElement;
+
 /**
  * Base class for resolved styles. Styles are resolved according a particular rendering context.
  * The base class make no assumption about the output device (AWT, SWT, <i>etc.</i>). However, a
@@ -25,7 +27,7 @@ package org.geotools.renderer.style;
  * @source $URL$
  * @version $Id$
  */
-public abstract class Style {
+public abstract class Style implements Cloneable {
     /** Maximum scale at which the geometry has to be painted with this style */
     protected double maxScale = Double.POSITIVE_INFINITY;
 
@@ -78,5 +80,15 @@ public abstract class Style {
      */
     public boolean isScaleInRange(double scale) {
         return (scale >= minScale) && (scale <= maxScale);
+    }
+    
+    @Override
+    public Style clone() {
+        try {
+            return (Style) super.clone();
+        } catch(CloneNotSupportedException e) {
+            // can't happen, we implement cloneable
+            throw new RuntimeException(e);
+        }
     }
 }

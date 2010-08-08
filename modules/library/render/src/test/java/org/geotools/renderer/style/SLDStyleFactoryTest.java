@@ -199,14 +199,14 @@ public class SLDStyleFactoryTest extends TestCase {
         symb.getGraphic().addExternalGraphic(eg);
         sld.setVectorRenderingEnabled(true);
         
-        IconStyle2D gs = (IconStyle2D) sld.createStyle(feature, symb, range);
+        GraphicStyle2D gs = (GraphicStyle2D) sld.createStyle(feature, symb, range);
         // make sure the style has been recognized as dynamic
         SymbolizerKey key = new SymbolizerKey(symb, range);
         assertTrue(sld.dynamicSymbolizers.containsKey(key));
 
         BufferedImage expected = ImageIO.read(StreamingRenderer.class.getResource("test-data/draw.png"));
-        assertEquals(expected.getHeight(), gs.getIcon().getIconHeight());
-        assertEquals(expected.getWidth(), gs.getIcon().getIconWidth());
+        assertEquals(expected.getHeight(), gs.getImage().getHeight());
+        assertEquals(expected.getWidth(), gs.getImage().getWidth());
     }
     
     public void testDefaultSizeExternalGraphic() throws Exception {

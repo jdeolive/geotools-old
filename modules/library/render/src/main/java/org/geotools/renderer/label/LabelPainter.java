@@ -33,6 +33,8 @@ import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.AffineTransformOp;
+import java.awt.image.BufferedImage;
 import java.text.AttributedCharacterIterator;
 import java.text.AttributedString;
 import java.text.Bidi;
@@ -43,9 +45,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.media.jai.Interpolation;
+import javax.swing.Icon;
+
 import org.geotools.geometry.jts.LiteShape2;
+import org.geotools.geometry.jts.TransformedShape;
 import org.geotools.renderer.label.LabelCacheImpl.LabelRenderingMode;
+import org.geotools.renderer.label.LabelCacheItem.GraphicResize;
 import org.geotools.renderer.lite.StyledShapePainter;
+import org.geotools.renderer.style.GraphicStyle2D;
+import org.geotools.renderer.style.IconStyle2D;
+import org.geotools.renderer.style.MarkStyle2D;
+import org.geotools.renderer.style.Style2D;
 import org.geotools.renderer.style.TextStyle2D;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -66,6 +77,11 @@ public class LabelPainter {
      * Epsilon used for comparisons with 0
      */
     static final double EPS = 1e-6;
+    
+    /**
+     * Delegate shape painter used to paint the graphics below the text
+     */
+    StyledShapePainter shapePainter = new StyledShapePainter(null);
 
     /**
      * The current label we're tring to draw
@@ -329,15 +345,51 @@ public class LabelPainter {
         if (labelItem.getTextStyle().getGraphic() != null) {
             Rectangle2D area = labelItem.getTextStyle().getGraphicDimensions();
             // center the graphics on the labels back
-            Rectangle2D shieldBounds = new Rectangle2D.Double(-area.getWidth() / 2
-                    + bounds.getMinX() - bounds.getWidth() / 2, -area.getHeight() / 2
-                    + bounds.getMinY() - bounds.getHeight() / 2, area.getWidth(), area.getHeight());
+            Rectangle2D shieldBounds;
+            // handle the image resizing and margins
+            int[] margin = labelItem.getGraphicMargin();
+            GraphicResize mode = labelItem.getGraphicsResize();
+            if (mode == GraphicResize.STRETCH) {
+                // it's really the label bounds + margin
+                shieldBounds = applyMargins(margin, bounds);
+            } else if (mode == GraphicResize.PROPORTIONAL) {
+                // the shield will be inflated in proportion to its size
+                double factor = 1;
+                if (bounds.getWidth() > bounds.getHeight()) {
+                    factor = bounds.getWidth() / area.getWidth();
+                } else {
+                    factor = bounds.getHeight() / area.getHeight();
+                }
+                double width = area.getWidth() * factor;
+                double height = area.getHeight() * factor;
+                shieldBounds = new Rectangle2D.Double(width / 2 + bounds.getMinX() - bounds.getWidth() / 2, 
+                        height / 2 + bounds.getMinY() - bounds.getHeight() / 2, width, height);
+                shieldBounds = applyMargins(margin, shieldBounds);
+            } else {
+                // use the shield natural bounds
+                shieldBounds = new Rectangle2D.Double(-area.getWidth() / 2 + bounds.getMinX()
+                        - bounds.getWidth() / 2, -area.getHeight() / 2 + bounds.getMinY()
+                        - bounds.getHeight() / 2, area.getWidth(), area.getHeight());
+            }
+
             bounds = bounds.createUnion(shieldBounds);
         }
         
         normalizeBounds(bounds);
 
         return bounds;
+    }
+    
+    Rectangle2D applyMargins(int[] margin, Rectangle2D bounds) {
+        if(bounds != null) {
+            double xmin = bounds.getMinX() - margin[3];
+            double ymin = bounds.getMinY() - margin[0];
+            double width = bounds.getWidth() + margin[1] + margin[3];
+            double height = bounds.getHeight() + margin[0] + margin[2];
+            return new Rectangle2D.Double(xmin, ymin, width, height);
+        } else {
+            return bounds;
+        }
     }
 
     /**
@@ -358,37 +410,37 @@ public class LabelPainter {
      * @throws Exception
      */
     public void paintStraightLabel(AffineTransform transform) throws Exception {
-        Rectangle2D glyphBounds = getLabelBounds();
-        glyphBounds = transform.createTransformedShape(glyphBounds).getBounds();
-
         AffineTransform oldTransform = graphics.getTransform();
         try {
             AffineTransform newTransform = new AffineTransform(oldTransform);
             newTransform.concatenate(transform);
             graphics.setTransform(newTransform);
 
-            // draw the shield
-            if (labelItem.getTextStyle().getGraphic() != null) {
-                // draw the label shield first, underneath the halo
-                LiteShape2 tempShape = new LiteShape2(gf.createPoint(new Coordinate(glyphBounds
-                        .getWidth() / 2.0, -1.0 * glyphBounds.getHeight() / 2.0)), null, null,
+            // draw the label shield first, underneath the halo
+            Style2D graphic = labelItem.getTextStyle().getGraphic();
+            if (graphic != null) {
+                // take into account the graphic margins, if any
+                double offsetY = 0;
+                double offsetX = 0;
+                final int[] margin = labelItem.getGraphicMargin();
+                if(margin != null) {
+                    offsetX = margin[1] - margin[3];
+                    offsetY = margin[2] - margin[0];
+                }
+                LiteShape2 tempShape = new LiteShape2(gf.createPoint(new Coordinate(labelBounds
+                        .getWidth() / 2.0 + offsetX, -1.0 * labelBounds.getHeight() / 2.0 + offsetY)), null, null,
                         false, false);
 
-                // labels should always draw, so we'll just force this
-                // one to draw by setting it's min/max scale to 0<10 and
-                // then drawing at scale 5.0 on the next line
-                labelItem.getTextStyle().getGraphic().setMinMaxScale(0.0, 10.0);
-                new StyledShapePainter(null).paint(graphics, tempShape, labelItem.getTextStyle()
-                        .getGraphic(), 5.0);
-                // graphics.setTransform(transform);
+                graphic = resizeGraphic(graphic);
+                shapePainter.paint(graphics, tempShape, graphic, graphic.getMaxScale());
             }
             
             // 0 is unfortunately an acceptable value if people only want to draw shields
+            // (to leverage conflict resolution, priority when placing symbols)
             if(labelItem.getTextStyle().getFont().getSize() == 0)
                 return;
 
             // draw the label
-            
             if (lines.size() == 1) {
                 drawGlyphVector(lines.get(0).gv);
             } else {
@@ -405,6 +457,105 @@ public class LabelPainter {
             }
         } finally {
             graphics.setTransform(oldTransform);
+        }
+    }
+
+    /**
+     * Resizes the graphic according to the resize mode, label size and margins
+     * @param graphic
+     * @return
+     */
+    private Style2D resizeGraphic(Style2D graphic) {
+        final GraphicResize mode = labelItem.graphicsResize;
+        
+        // if no resize, nothing to do
+        if(mode == GraphicResize.NONE || mode == null) {
+            return graphic;
+        }
+        
+        // compute the new width and height
+        double width = labelBounds.getWidth();
+        double height = labelBounds.getHeight();
+        final int[] margin = labelItem.graphicMargin;
+        if(margin != null) {
+            width +=  margin[1] + margin[3]; 
+            height += margin[0] + margin[2];
+        } 
+        width = Math.round(width);
+        height = Math.round(height);
+        
+        // just in case someone specified negative margins for some reason
+        if(width <= 0 || height <= 0) {
+            return null;
+        }
+        
+        if(graphic instanceof MarkStyle2D) {
+            MarkStyle2D mark = (MarkStyle2D) graphic;
+            
+            Shape original = mark.getShape();
+            Rectangle2D bounds = original.getBounds2D();
+            MarkStyle2D resized = (MarkStyle2D) mark.clone();
+            if(mode == GraphicResize.PROPORTIONAL) {
+                if(width > height) {
+                    resized.setSize((int) Math.round(bounds.getHeight() * width / bounds.getWidth()));
+                } else {
+                    resized.setSize((int) height);
+                }
+            } else {
+                TransformedShape tss = new TransformedShape();
+                tss.shape = original;
+                tss.setTransform(AffineTransform.getScaleInstance(width / bounds.getWidth(), height / bounds.getHeight()));
+                resized.setShape(tss);
+                resized.setSize((int) height);
+            }
+            
+            return resized;
+        } else if(graphic instanceof IconStyle2D) {
+            IconStyle2D iconStyle = (IconStyle2D) graphic;
+            IconStyle2D resized = (IconStyle2D) iconStyle.clone();
+            
+            
+            final Icon icon = iconStyle.getIcon();
+            AffineTransform at;
+            if(mode == GraphicResize.PROPORTIONAL) {
+                double factor;
+                if(width > height) {
+                    factor = width / icon.getIconWidth(); 
+                } else {
+                    factor = height / icon.getIconHeight();
+                }
+                at = AffineTransform.getScaleInstance(factor, factor);
+            } else {
+                at = AffineTransform.getScaleInstance(width / icon.getIconWidth(), 
+                        height / icon.getIconHeight());
+            }
+            resized.setIcon(new TransformedIcon(icon, at));
+            return resized;
+        } else if(graphic instanceof GraphicStyle2D) {
+            GraphicStyle2D gstyle = (GraphicStyle2D) graphic;
+            GraphicStyle2D resized = (GraphicStyle2D) graphic.clone();
+            BufferedImage image = gstyle.getImage();
+            
+            AffineTransform at;
+            if(mode == GraphicResize.PROPORTIONAL) {
+                double factor;
+                if(width > height) {
+                    factor = width / image.getWidth();
+                } else {
+                    factor = height / image.getHeight();
+                }
+                at = AffineTransform.getScaleInstance(factor, factor);
+            } else {
+                at = AffineTransform.getScaleInstance(width / image.getWidth(), 
+                        height / image.getHeight());
+            }
+            
+            AffineTransformOp ato = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
+            image = ato.filter(image, null);
+            resized.setImage(image);
+            return resized;
+        } else {
+            return graphic;
         }
     }
 

@@ -38,6 +38,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * @source $URL$
  */
 public class LabelCacheItem implements Comparable<LabelCacheItem> {
+    
+    public enum GraphicResize {NONE, STRETCH, PROPORTIONAL};
 
     TextStyle2D textStyle;
 
@@ -74,6 +76,10 @@ public class LabelCacheItem implements Comparable<LabelCacheItem> {
     boolean conflictResolutionEnabled = true;
     
     double goodnessOfFit = 0;
+    
+    GraphicResize graphicsResize = GraphicResize.NONE;
+    
+    int[] graphicMargin = null;
 
     public double getGoodnessOfFit() {
         return goodnessOfFit;
@@ -344,6 +350,25 @@ public class LabelCacheItem implements Comparable<LabelCacheItem> {
      */
     public void setConflictResolutionEnabled(boolean conflictResolutionEnabled) {
         this.conflictResolutionEnabled = conflictResolutionEnabled;
+ 
     }
 
+    public GraphicResize getGraphicsResize() {
+        return graphicsResize;
+    }
+
+    public void setGraphicsResize(GraphicResize graphicsResize) {
+        this.graphicsResize = graphicsResize;
+    }
+
+    public int[] getGraphicMargin() {
+        return graphicMargin;
+    }
+
+    public void setGraphicMargin(int[] graphicMargin) {
+        this.graphicMargin = graphicMargin;
+    }
+    
+    
 }
+
