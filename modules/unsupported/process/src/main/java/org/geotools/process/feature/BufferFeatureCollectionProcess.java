@@ -25,6 +25,7 @@ import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.GeometryDescriptor;
 
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 
 /**
@@ -53,6 +54,10 @@ public class BufferFeatureCollectionProcess extends FeatureToFeatureProcess {
        Geometry g = (Geometry) feature.getDefaultGeometry();
        g = g.buffer( buffer );
        
+       if(g instanceof Polygon) {
+           g = g.getFactory().createMultiPolygon(new Polygon[] {(Polygon) g});
+       }
+       
        feature.setDefaultGeometry( g );
     }
 
@@ -62,7 +67,7 @@ public class BufferFeatureCollectionProcess extends FeatureToFeatureProcess {
         for (AttributeDescriptor ad : sourceSchema.getAttributeDescriptors()) {
             GeometryDescriptor defaultGeometry = sourceSchema.getGeometryDescriptor();
             if(ad == defaultGeometry) {
-                tb.add(ad.getName().getLocalPart(), Polygon.class, defaultGeometry.getCoordinateReferenceSystem());
+                tb.add(ad.getName().getLocalPart(), MultiPolygon.class, defaultGeometry.getCoordinateReferenceSystem());
             } else {
                 tb.add(ad);
             }
