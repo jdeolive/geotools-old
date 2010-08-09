@@ -113,7 +113,7 @@ public class DbaseFileReader implements FileReader {
 
     protected boolean randomAccessEnabled;
 
-    protected int currentOffset = 0;
+    protected long currentOffset = 0;
     private final StreamLogging streamLogger = new StreamLogging("Dbase File Reader");
 
     private Charset stringCharset;
@@ -157,7 +157,8 @@ public class DbaseFileReader implements FileReader {
 
         // create the ByteBuffer
         // if we have a FileChannel, lets map it
-        if (channel instanceof FileChannel && this.useMemoryMappedBuffer) {
+        if (channel instanceof FileChannel && this.useMemoryMappedBuffer 
+                && (((FileChannel) channel).size() < (long) Integer.MAX_VALUE)) {
             final FileChannel fc = (FileChannel) channel;
             buffer = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
             buffer.position((int) fc.position());
