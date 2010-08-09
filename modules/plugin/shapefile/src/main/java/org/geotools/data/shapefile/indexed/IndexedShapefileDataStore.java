@@ -213,6 +213,27 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
         }
 
     }
+    
+    /**
+     * Creates the spatial index is appropriate. 
+     * @param force Forces the index re-creation even if the spatial index seems to be up to date
+     * @return true if the spatial index has been created/updated
+     */
+    public boolean createSpatialIndex(boolean force) {
+        // create index as needed
+        try {
+            if (shpFiles.isLocal() && createIndex
+                    && (needsGeneration(treeType.shpFileType) || force)) {
+                createSpatialIndex();
+                return true;
+            }
+        } catch (IOException e) {
+            this.treeType = IndexType.NONE;
+            ShapefileDataStoreFactory.LOGGER.log(Level.SEVERE, e
+                    .getLocalizedMessage());
+        }
+        return false;
+    }
 
     /**
      * Forces the spatial index to be created
@@ -665,17 +686,8 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
             throws DataSourceException, IOException, TreeException {
         CloseableCollection<Data> tmp = null;
         
-        // create index as needed
-        try {
-            if (shpFiles.isLocal() && createIndex
-                    && needsGeneration(treeType.shpFileType)) {
-                createSpatialIndex();
-            }
-        } catch (IOException e) {
-            this.treeType = IndexType.NONE;
-            ShapefileDataStoreFactory.LOGGER.log(Level.SEVERE, e
-                    .getLocalizedMessage());
-        }
+        // check if the spatial index needs recreating
+        createSpatialIndex(false);
 
         try {
             QuadTree quadTree = openQuadTree();

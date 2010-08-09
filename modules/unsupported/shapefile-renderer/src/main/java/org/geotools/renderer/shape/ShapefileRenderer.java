@@ -55,12 +55,14 @@ import org.geotools.data.TransactionStateDiff;
 import org.geotools.data.directory.DirectoryDataStore;
 import org.geotools.data.directory.DirectoryFeatureSource;
 import org.geotools.data.shapefile.ShapefileDataStore;
+import org.geotools.data.shapefile.ShapefileDataStoreFactory;
 import org.geotools.data.shapefile.ShapefileRendererUtil;
 import org.geotools.data.shapefile.ShpFiles;
 import org.geotools.data.shapefile.dbf.DbaseFileHeader;
 import org.geotools.data.shapefile.dbf.DbaseFileReader;
 import org.geotools.data.shapefile.dbf.IndexedDbaseFileReader;
 import org.geotools.data.shapefile.indexed.IndexType;
+import org.geotools.data.shapefile.indexed.IndexedShapefileDataStore;
 import org.geotools.data.shapefile.shp.ShapeType;
 import org.geotools.data.shapefile.shp.ShapefileReader;
 import org.geotools.data.shapefile.shp.ShapefileReader.Record;
@@ -577,7 +579,12 @@ public class ShapefileRenderer implements GTRenderer {
                 Rule rule = (Rule) iter.next();
                 rule.accept(opacityFinder);
             }
-    
+            
+            // create index as needed
+            if(datastore instanceof IndexedShapefileDataStore) {
+                ((IndexedShapefileDataStore) datastore).createSpatialIndex(false);
+            }
+            
             boolean useJTS=true;
             try {
                 shpreader = new IndexInfo.Reader(info, ShapefileRendererUtil.getShpReader(datastore,
@@ -634,9 +641,8 @@ public class ShapefileRenderer implements GTRenderer {
                         continue;
                     }
                     
-                    if( dbfreader != null && dbfreader.IsRandomAccessEnabled() ){
-                        dbfreader.goTo(shpreader.getRecordNumber());
-                    }
+                    // store the current record number, we'll use it for reading the dbf
+                    final int recno = shpreader.getRecordNumber();
                     ShapefileReader.Record record = shpreader.next();
 
                     Object geom = record.shape();
@@ -646,6 +652,11 @@ public class ShapefileRenderer implements GTRenderer {
                         if( dbfreader != null && !dbfreader.IsRandomAccessEnabled() )
                             dbfreader.skip();
                         continue;
+                    }
+                    
+                    // read the dbf file only if we got a non null shape
+                    if( dbfreader != null && dbfreader.IsRandomAccessEnabled() ){
+                        dbfreader.goTo(recno);
                     }
 
                     SimpleFeature feature = createFeature(fbuilder, record, dbfreader, nextFid);
