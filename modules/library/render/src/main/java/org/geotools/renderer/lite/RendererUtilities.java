@@ -16,12 +16,16 @@
  */
 package org.geotools.renderer.lite;
 
+import java.awt.BasicStroke;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
+import java.awt.image.BufferedImage;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.swing.Icon;
 
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.geometry.Envelope2D;
@@ -33,6 +37,10 @@ import org.geotools.referencing.GeodeticCalculator;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
 import org.geotools.referencing.operation.matrix.XAffineTransform;
+import org.geotools.renderer.style.GraphicStyle2D;
+import org.geotools.renderer.style.IconStyle2D;
+import org.geotools.renderer.style.LineStyle2D;
+import org.geotools.renderer.style.Style2D;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
 import org.opengis.geometry.DirectPosition;
@@ -735,5 +743,25 @@ public final class RendererUtilities {
             }
         }
         return p;
+    }
+    
+    public static double getStyle2DSize(Style2D style) {
+        if(style instanceof GraphicStyle2D) {
+           final BufferedImage image = ((GraphicStyle2D) style).getImage();
+           return Math.max(image.getWidth(), image.getHeight());
+        } else if(style instanceof IconStyle2D) {
+           final Icon icon = ((IconStyle2D) style).getIcon();
+           return Math.max(icon.getIconWidth(), icon.getIconHeight());
+        } else if(style instanceof LineStyle2D) {
+            LineStyle2D ls = ((LineStyle2D) style);
+            double gsSize = getStyle2DSize(ls.getGraphicStroke());
+            double strokeSize = 0;
+            if(ls.getStroke() instanceof BasicStroke) {
+                strokeSize = ((BasicStroke) ls.getStroke()).getLineWidth();
+            }
+            return Math.max(gsSize, strokeSize);
+        } else {
+            return 0;
+        }
     }
 }

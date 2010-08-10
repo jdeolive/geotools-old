@@ -62,8 +62,10 @@ import org.geotools.filter.IllegalFilterException;
 import org.geotools.filter.function.GeometryTransformationVisitor;
 import org.geotools.filter.visitor.SimplifyingFilterVisitor;
 import org.geotools.geometry.jts.Decimator;
+import org.geotools.geometry.jts.GeometryClipper;
 import org.geotools.geometry.jts.LiteCoordinateSequence;
 import org.geotools.geometry.jts.LiteCoordinateSequenceFactory;
+import org.geotools.geometry.jts.LiteShape;
 import org.geotools.geometry.jts.LiteShape2;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.MapContext;
@@ -2116,12 +2118,29 @@ public final class StreamingRenderer implements GTRenderer {
                 LiteShape2 shape = drawMe.getShape(symbolizer, at);
                 if(shape == null)
                     continue;
+                
+                // finally render
                 if (symbolizer instanceof TextSymbolizer && drawMe.content instanceof SimpleFeature) {
                     labelCache.put(layerId, (TextSymbolizer) symbolizer, (SimpleFeature) drawMe.content,
                             shape, scaleRange);
                 } else {
                     Style2D style = styleFactory.createStyle(drawMe.content,
                             symbolizer, scaleRange);
+                    
+                    // clip to the visible area + the size of the symbolizer (with some extra 
+                    // to make sure we get no artefacts from polygon new borders)
+                    double size = RendererUtilities.getStyle2DSize(style) + 10;
+                    Envelope env = new Envelope(screenSize.getMinX(), screenSize.getMaxX(), screenSize.getMinY(), screenSize.getMaxY());
+                    env.expandBy(size);
+                    final GeometryClipper clipper = new GeometryClipper(env);
+                    Geometry g = clipper.clip(shape.getGeometry(), false);
+                    //System.out.println(g);
+                    if(g == null) 
+                        continue;
+                    if(g != shape.getGeometry()) {
+                        shape = new LiteShape2(g, null, null, false);
+                    }
+                    
                     painter.paint(clippedGraphics, shape, style, scaleDenominator);
                 }
 

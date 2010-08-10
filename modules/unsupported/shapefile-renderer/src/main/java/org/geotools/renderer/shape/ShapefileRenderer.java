@@ -16,8 +16,7 @@
  */
 package org.geotools.renderer.shape;
 
-import static org.geotools.data.shapefile.ShpFileType.QIX;
-import static org.geotools.data.shapefile.ShpFileType.SHX;
+import static org.geotools.data.shapefile.ShpFileType.*;
 
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -52,10 +51,8 @@ import org.geotools.data.FeatureStore;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
 import org.geotools.data.TransactionStateDiff;
-import org.geotools.data.directory.DirectoryDataStore;
 import org.geotools.data.directory.DirectoryFeatureSource;
 import org.geotools.data.shapefile.ShapefileDataStore;
-import org.geotools.data.shapefile.ShapefileDataStoreFactory;
 import org.geotools.data.shapefile.ShapefileRendererUtil;
 import org.geotools.data.shapefile.ShpFiles;
 import org.geotools.data.shapefile.dbf.DbaseFileHeader;
@@ -73,6 +70,7 @@ import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.filter.FilterAttributeExtractor;
 import org.geotools.geometry.jts.Decimator;
+import org.geotools.geometry.jts.GeometryClipper;
 import org.geotools.geometry.jts.LiteCoordinateSequenceFactory;
 import org.geotools.geometry.jts.LiteShape2;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -90,8 +88,6 @@ import org.geotools.renderer.RenderListener;
 import org.geotools.renderer.label.LabelCacheImpl;
 import org.geotools.renderer.label.LabelCacheImpl.LabelRenderingMode;
 import org.geotools.renderer.lite.LabelCache;
-import org.geotools.renderer.lite.LabelCacheDefault;
-import org.geotools.renderer.lite.LiteFeatureTypeStyle;
 import org.geotools.renderer.lite.RendererUtilities;
 import org.geotools.renderer.lite.StreamingRenderer;
 import org.geotools.renderer.style.SLDStyleFactory;
@@ -698,7 +694,7 @@ public class ShapefileRenderer implements GTRenderer {
 
                             Symbolizer[] symbolizers = r.getSymbolizers();
 
-                            processSymbolizers(graphics, feature, geom, symbolizers, scaleRange, useJTS, layerId);
+                            processSymbolizers(graphics, feature, geom, symbolizers, scaleRange, useJTS, layerId, screenSize);
 
                             if (LOGGER.isLoggable(Level.FINER)) {
                                 LOGGER.finer("... done!");
@@ -720,7 +716,7 @@ public class ShapefileRenderer implements GTRenderer {
                                 LOGGER.finer("processing Symobolizer ...");
                             }
 
-                            processSymbolizers(graphics, feature, geom, symbolizers, scaleRange, useJTS, layerId);
+                            processSymbolizers(graphics, feature, geom, symbolizers, scaleRange, useJTS, layerId, screenSize);
 
                             if (LOGGER.isLoggable(Level.FINER)) {
                                 LOGGER.finer("... done!");
@@ -910,7 +906,7 @@ public class ShapefileRenderer implements GTRenderer {
      * @param layerId 
      */
     private void processSymbolizers( Graphics2D graphics, SimpleFeature feature, Object geom,
-            Symbolizer[] symbolizers, NumberRange scaleRange, boolean isJTS, String layerId ) {
+            Symbolizer[] symbolizers, NumberRange scaleRange, boolean isJTS, String layerId, Rectangle screenSize) {
         for( int m = 0; m < symbolizers.length; m++ ) {
             if (LOGGER.isLoggable(Level.FINER)) {
                 LOGGER.finer("applying symbolizer " + symbolizers[m]);
@@ -940,7 +936,18 @@ public class ShapefileRenderer implements GTRenderer {
                         } else {
                             g = (Geometry) geom;
                         }
-                        shape = new LiteShape2(g, null, null, false, false);
+                        
+                        // clip to the visible area + the size of the symbolizer (with some extra 
+                        // to make sure we get no artefacts from polygon new borders)
+                        double size = RendererUtilities.getStyle2DSize(style) + 10;
+                        Envelope env = new Envelope(screenSize.getMinX(), screenSize.getMaxX(), screenSize.getMinY(), screenSize.getMaxY());
+                        env.expandBy(size);
+                        final GeometryClipper clipper = new GeometryClipper(env);
+                        Geometry clipped = clipper.clip(g, false);
+                        if(clipped == null) 
+                            continue;
+                        shape = new LiteShape2(clipped, null, null, false);
+                        
                         painter.paint(graphics, shape, style, scaleDenominator);
                     }else{
                         if(symbolizers[m] instanceof PointSymbolizer) {

@@ -38,6 +38,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geotools.geometry.jts.Decimator;
+import org.geotools.geometry.jts.GeometryClipper;
 import org.geotools.geometry.jts.LiteShape2;
 import org.geotools.renderer.label.LabelCacheItem.GraphicResize;
 import org.geotools.renderer.lite.LabelCache;
@@ -146,6 +147,8 @@ public final class LabelCacheImpl implements LabelCache {
     LineLengthComparator lineLengthComparator = new LineLengthComparator();
 
     GeometryFactory gf = new GeometryFactory();
+    
+    GeometryClipper clipper;
 
     private boolean needsOrdering = false;
 
@@ -527,6 +530,9 @@ public final class LabelCacheImpl implements LabelCache {
         displayArea = new Rectangle(displayArea);
         displayArea.width -= 1;
         displayArea.height -= 1;
+        
+        // prepare the geometry clipper
+        clipper = new GeometryClipper(new Envelope(displayArea.getMinX(), displayArea.getMaxX(), displayArea.getMinY(), displayArea.getMaxY()));
 
         List<LabelCacheItem> items; // both grouped and non-grouped
         if (needsOrdering) {
@@ -1261,8 +1267,6 @@ public final class LabelCacheImpl implements LabelCache {
      */
     List<LineString> getLineSetRepresentativeLocation(List<Geometry> geoms, Rectangle displayArea,
             boolean removeOverlaps) {
-        Geometry displayGeom = gf.toGeometry(toEnvelope(displayArea));
-        Envelope displayGeomEnv = displayGeom.getEnvelopeInternal();
 
         // go through each geometry in the set.
         // if its a polygon or multipolygon, get the boundary (reduce to a line)
@@ -1279,7 +1283,7 @@ public final class LabelCacheImpl implements LabelCache {
         List<LineString> clippedLines = new ArrayList<LineString>();
         for (LineString ls : lines) {
             // more robust clipper -- see its dox
-            MultiLineString ll = clipLineString(ls, (Polygon) displayGeom, displayGeomEnv);
+            MultiLineString ll = clipLineString(ls);
             if ((ll != null) && (!(ll.isEmpty()))) {
                 for (int t = 0; t < ll.getNumGeometries(); t++)
                     clippedLines.add((LineString) ll.getGeometryN(t));
@@ -1375,12 +1379,12 @@ public final class LabelCacheImpl implements LabelCache {
      * @param bbox
      *            MUST BE A BOUNDING BOX
      */
-    public MultiLineString clipLineString(LineString line, Polygon bbox, Envelope displayGeomEnv) {
+    public MultiLineString clipLineString(LineString line) {
 
         Geometry clip = line;
         // djb -- jessie should do this during generalization
         line.geometryChanged();
-        if (displayGeomEnv.contains(line.getEnvelopeInternal())) {
+        if (clipper.getBounds().contains(line.getEnvelopeInternal())) {
             // shortcut -- entirely inside the display rectangle -- no clipping
             // required!
             LineString[] lns = new LineString[1];
@@ -1388,7 +1392,14 @@ public final class LabelCacheImpl implements LabelCache {
             return line.getFactory().createMultiLineString(lns);
         }
         try {
-            return clipLineToEnvelope(line, bbox, displayGeomEnv);
+            Geometry g = clipper.clip(line, false);
+            if(g == null) {
+                return null;
+            } else if(g instanceof LineString){
+                return line.getFactory().createMultiLineString(new LineString[] { (LineString) g });
+            } else {
+                return (MultiLineString) g;
+            }
         } catch (Exception e) {
             // TODO: should try to expand the bounding box and re-do the
             // intersection, but line-bounding box
@@ -1397,55 +1408,7 @@ public final class LabelCacheImpl implements LabelCache {
         }
     }
 
-    private MultiLineString clipLineToEnvelope(LineString line, Polygon bbox,
-            Envelope displayGeomEnv) {
-        Coordinate[] coords = line.getCoordinates();
-        List<LineString> clipped = new ArrayList<LineString>();
-        List<Coordinate> coordinates = new ArrayList<Coordinate>();
-        boolean prevInside = displayGeomEnv.contains(coords[0]);
-        if (prevInside)
-            coordinates.add(coords[0]);
-        for (int i = 1; i < coords.length; i++) {
-            boolean inside = displayGeomEnv.contains(coords[i]);
-            if (inside == prevInside) {
-                if (inside) {
-                    // both segments were inside, not need for cutting
-                    coordinates.add(coords[i]);
-                } else {
-                    // both were outside, this might still be caused by a line
-                    // crossing the envelope but whose endpoints lie outside
-                    LineString segment = gf.createLineString(new Coordinate[] { coords[i - 1],
-                            coords[i] });
-                    Geometry g = segment.intersection(bbox);
-                    // in case of null intersection we'll get an empty geometry
-                    // collection
-                    if (g instanceof LineString)
-                        clipped.add((LineString) g);
-                }
-            } else {
-                LineString segment = gf.createLineString(new Coordinate[] { coords[i - 1],
-                        coords[i] });
-                LineString ls = (LineString) segment.intersection(bbox);
-                if (prevInside) {
-                    coordinates.add(ls.getCoordinateN(1));
-                } else {
-                    coordinates.add(ls.getCoordinateN(0));
-                    coordinates.add(coords[i]);
-                }
-                if (prevInside) {
-                    clipped.add(gf.createLineString((Coordinate[]) coordinates
-                            .toArray(new Coordinate[coordinates.size()])));
-                    coordinates.clear();
-                }
-            }
-            prevInside = inside;
-        }
-        if (coordinates.size() > 0)
-            clipped.add(gf.createLineString((Coordinate[]) coordinates
-                    .toArray(new Coordinate[coordinates.size()])));
-        return gf.createMultiLineString((LineString[]) clipped.toArray(new LineString[clipped
-                .size()]));
-    }
+   
 
     /**
      * 1. make a list of all the polygons clipped to the displayGeometry NOTE:
