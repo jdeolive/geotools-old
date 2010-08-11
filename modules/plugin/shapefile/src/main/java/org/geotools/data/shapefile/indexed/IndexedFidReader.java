@@ -87,39 +87,43 @@ public class IndexedFidReader implements FIDReader, FileReader {
         streamLogger.open();
         getHeader(shpFiles);
 
-        buffer = ByteBuffer.allocateDirect(IndexedFidWriter.RECORD_SIZE * 1024);
+        buffer = NIOUtilities.allocate(IndexedFidWriter.RECORD_SIZE * 1024);
         buffer.position(buffer.limit());
     }
 
     private void getHeader(ShpFiles shpFiles) throws IOException {
-        ByteBuffer buffer = ByteBuffer.allocate(IndexedFidWriter.HEADER_SIZE);
-        ShapefileReader.fill(buffer, readChannel);
-
-        if (buffer.position() == 0) {
-            done = true;
-            count = 0;
-
-            return;
-        }
-
-        buffer.position(0);
-
-        byte version = buffer.get();
-
-        if (version != 1) {
-            throw new IOException(
-                    "File is not of a compatible version for this reader or file is corrupt.");
-        }
-
-        this.count = buffer.getLong();
-        this.removes = buffer.getInt();
-        if (removes > getCount() / 2) {
-            URL url = shpFiles.acquireRead(FIX, this);
-            try {
-                DataUtilities.urlToFile(url).deleteOnExit();
-            } finally {
-                shpFiles.unlockRead(url, this);
+        ByteBuffer buffer = NIOUtilities.allocate(IndexedFidWriter.HEADER_SIZE);
+        try {
+            ShapefileReader.fill(buffer, readChannel);
+    
+            if (buffer.position() == 0) {
+                done = true;
+                count = 0;
+    
+                return;
             }
+    
+            buffer.position(0);
+    
+            byte version = buffer.get();
+    
+            if (version != 1) {
+                throw new IOException(
+                        "File is not of a compatible version for this reader or file is corrupt.");
+            }
+    
+            this.count = buffer.getLong();
+            this.removes = buffer.getInt();
+            if (removes > getCount() / 2) {
+                URL url = shpFiles.acquireRead(FIX, this);
+                try {
+                    DataUtilities.urlToFile(url).deleteOnExit();
+                } finally {
+                    shpFiles.unlockRead(url, this);
+                }
+            }
+        } finally {
+            NIOUtilities.clean(buffer, false);
         }
     }
 
@@ -269,7 +273,7 @@ public class IndexedFidReader implements FIDReader, FileReader {
     public void close() throws IOException {
         try {
             if (buffer != null) {
-                NIOUtilities.clean(buffer);
+                NIOUtilities.clean(buffer, false);
                 buffer = null;
             }
             if (reader != null) {

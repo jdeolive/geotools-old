@@ -213,7 +213,7 @@ public class FileSystemNode extends Node {
             this.bufferStart = channel.position();
 
             // start with an 8kb buffer
-            this.buffer = ByteBuffer.allocateDirect(8 * 1024);
+            this.buffer = NIOUtilities.allocate(8 * 1024);
             this.buffer.order(order);
             channel.read(buffer);
             buffer.flip();
@@ -221,7 +221,7 @@ public class FileSystemNode extends Node {
 
         public void close() {
             if(buffer != null) {
-                NIOUtilities.clean(buffer);
+                NIOUtilities.clean(buffer, false);
                 buffer = null;
             }
             
@@ -265,7 +265,7 @@ public class FileSystemNode extends Node {
                 int size = buffer.capacity();
                 while (size < requiredSize)
                     size *= 2;
-                buffer = ByteBuffer.allocateDirect(size);
+                buffer = NIOUtilities.allocate(size);
                 buffer.order(order);
             }
             readBuffer(currentPosition);

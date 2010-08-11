@@ -253,7 +253,7 @@ public class ShapefileReader implements FileReader {
      */
     public static ShapefileHeader readHeader(ReadableByteChannel channel,
             boolean strict) throws IOException {
-        ByteBuffer buffer = ByteBuffer.allocateDirect(100);
+        ByteBuffer buffer = NIOUtilities.allocate(100);
         try {
             if (fill(buffer, channel) == -1) {
                 throw new EOFException("Premature end of header");
@@ -263,7 +263,7 @@ public class ShapefileReader implements FileReader {
             header.read(buffer, strict);
             return header;
         } finally {
-            NIOUtilities.clean(buffer);
+            NIOUtilities.clean(buffer, false);
         }
     }
 
@@ -286,7 +286,7 @@ public class ShapefileReader implements FileReader {
         }
         if (limit != buffer.limit()) {
             // clean up the old buffer and allocate a new one
-            buffer = ByteBuffer.allocateDirect(limit);
+            buffer = NIOUtilities.allocate(limit);
         }
         return buffer;
     }
@@ -328,7 +328,7 @@ public class ShapefileReader implements FileReader {
             // force useMemoryMappedBuffer to false
             this.useMemoryMappedBuffer = false;
             // start with 8K buffer
-            buffer = ByteBuffer.allocateDirect(8 * 1024);
+            buffer = NIOUtilities.allocate(8 * 1024);
             fill(buffer, channel);
             buffer.flip();
             this.currentOffset = 100;
@@ -367,7 +367,7 @@ public class ShapefileReader implements FileReader {
             channel.close();
             streamLogger.close();
         }
-        NIOUtilities.clean(buffer);
+        NIOUtilities.clean(buffer, useMemoryMappedBuffer);
         if(shxReader != null)
             shxReader.close();
         shxReader = null;
@@ -526,7 +526,7 @@ public class ShapefileReader implements FileReader {
                 buffer = ensureCapacity(buffer, recordLength + 8,
                         useMemoryMappedBuffer);
                 buffer.put(old);
-                NIOUtilities.clean(old);
+                NIOUtilities.clean(old, useMemoryMappedBuffer);
                 fill(buffer, channel);
                 buffer.position(0);
             } else

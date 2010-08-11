@@ -113,7 +113,7 @@ public class IndexedFidWriter implements FileWriter {
      * Allocate some buffers for writing.
      */
     private void allocateBuffers() {
-        writeBuffer = ByteBuffer.allocateDirect(HEADER_SIZE + RECORD_SIZE * 1024);
+        writeBuffer = NIOUtilities.allocate(HEADER_SIZE + RECORD_SIZE * 1024);
     }
 
     /**
@@ -135,14 +135,18 @@ public class IndexedFidWriter implements FileWriter {
     }
 
     private void writeHeader() throws IOException {
-        ByteBuffer buffer = ByteBuffer.allocate(HEADER_SIZE);
-
-        buffer.put((byte) 1);
-
-        buffer.putLong(recordIndex);
-        buffer.putInt(removes);
-        buffer.flip();
-        channel.write(buffer, 0);
+        ByteBuffer buffer = NIOUtilities.allocate(HEADER_SIZE);
+        
+        try {
+            buffer.put((byte) 1);
+    
+            buffer.putLong(recordIndex);
+            buffer.putInt(removes);
+            buffer.flip();
+            channel.write(buffer, 0);
+        } finally {
+            NIOUtilities.clean(buffer, false);
+        }
     }
 
     public boolean hasNext() throws IOException {
@@ -193,7 +197,7 @@ public class IndexedFidWriter implements FileWriter {
             channel.close();
         streamLogger.close();
         if (writeBuffer != null) {
-            NIOUtilities.clean(writeBuffer);
+            NIOUtilities.clean(writeBuffer, false);
             writeBuffer = null;
         }
 

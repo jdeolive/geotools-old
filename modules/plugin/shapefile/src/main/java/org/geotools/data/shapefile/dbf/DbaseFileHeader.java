@@ -518,7 +518,7 @@ public class DbaseFileHeader {
      */
     public void readHeader(ReadableByteChannel channel) throws IOException {
         // we'll read in chunks of 1K
-        ByteBuffer in = ByteBuffer.allocateDirect(1024);
+        ByteBuffer in = NIOUtilities.allocate(1024);
         try {
             // do this or GO CRAZY
             // ByteBuffers come preset to BIG_ENDIAN !
@@ -563,8 +563,8 @@ public class DbaseFileHeader {
     
             // if the header is bigger than our 1K, reallocate
             if (headerLength > in.capacity()) {
-                NIOUtilities.clean(in);
-                in = ByteBuffer.allocateDirect(headerLength - 10);
+                NIOUtilities.clean(in, false);
+                in = NIOUtilities.allocate(headerLength - 10);
             }
             in.limit(headerLength - 10);
             in.position(0);
@@ -674,74 +674,76 @@ public class DbaseFileHeader {
         if (headerLength == -1) {
             headerLength = MINIMUM_HEADER;
         }
-        ByteBuffer buffer = ByteBuffer.allocateDirect(headerLength);
-        buffer.order(ByteOrder.LITTLE_ENDIAN);
-
-        // write the output file type.
-        buffer.put((byte) MAGIC);
-
-        // write the date stuff
-        Calendar c = Calendar.getInstance();
-        c.setTime(new Date());
-        buffer.put((byte) (c.get(Calendar.YEAR) % 100));
-        buffer.put((byte) (c.get(Calendar.MONTH) + 1));
-        buffer.put((byte) (c.get(Calendar.DAY_OF_MONTH)));
-
-        // write the number of records in the datafile.
-        buffer.putInt(recordCnt);
-
-        // write the length of the header structure.
-        buffer.putShort((short) headerLength);
-
-        // write the length of a record
-        buffer.putShort((short) recordLength);
-
-        // // write the reserved bytes in the header
-        // for (int i=0; i<20; i++) out.writeByteLE(0);
-        buffer.position(buffer.position() + 20);
-
-        // write all of the header records
-        int tempOffset = 0;
-        for (int i = 0; i < fields.length; i++) {
-
-            // write the field name
-            for (int j = 0; j < 11; j++) {
-                if (fields[i].fieldName.length() > j) {
-                    buffer.put((byte) fields[i].fieldName.charAt(j));
-                } else {
-                    buffer.put((byte) 0);
+        ByteBuffer buffer = NIOUtilities.allocate(headerLength);
+        try {
+            buffer.order(ByteOrder.LITTLE_ENDIAN);
+    
+            // write the output file type.
+            buffer.put((byte) MAGIC);
+    
+            // write the date stuff
+            Calendar c = Calendar.getInstance();
+            c.setTime(new Date());
+            buffer.put((byte) (c.get(Calendar.YEAR) % 100));
+            buffer.put((byte) (c.get(Calendar.MONTH) + 1));
+            buffer.put((byte) (c.get(Calendar.DAY_OF_MONTH)));
+    
+            // write the number of records in the datafile.
+            buffer.putInt(recordCnt);
+    
+            // write the length of the header structure.
+            buffer.putShort((short) headerLength);
+    
+            // write the length of a record
+            buffer.putShort((short) recordLength);
+    
+            // // write the reserved bytes in the header
+            // for (int i=0; i<20; i++) out.writeByteLE(0);
+            buffer.position(buffer.position() + 20);
+    
+            // write all of the header records
+            int tempOffset = 0;
+            for (int i = 0; i < fields.length; i++) {
+    
+                // write the field name
+                for (int j = 0; j < 11; j++) {
+                    if (fields[i].fieldName.length() > j) {
+                        buffer.put((byte) fields[i].fieldName.charAt(j));
+                    } else {
+                        buffer.put((byte) 0);
+                    }
                 }
+    
+                // write the field type
+                buffer.put((byte) fields[i].fieldType);
+                // // write the field data address, offset from the start of the
+                // record.
+                buffer.putInt(tempOffset);
+                tempOffset += fields[i].fieldLength;
+    
+                // write the length of the field.
+                buffer.put((byte) fields[i].fieldLength);
+    
+                // write the decimal count.
+                buffer.put((byte) fields[i].decimalCount);
+    
+                // write the reserved bytes.
+                // for (in j=0; jj<14; j++) out.writeByteLE(0);
+                buffer.position(buffer.position() + 14);
             }
-
-            // write the field type
-            buffer.put((byte) fields[i].fieldType);
-            // // write the field data address, offset from the start of the
-            // record.
-            buffer.putInt(tempOffset);
-            tempOffset += fields[i].fieldLength;
-
-            // write the length of the field.
-            buffer.put((byte) fields[i].fieldLength);
-
-            // write the decimal count.
-            buffer.put((byte) fields[i].decimalCount);
-
-            // write the reserved bytes.
-            // for (in j=0; jj<14; j++) out.writeByteLE(0);
-            buffer.position(buffer.position() + 14);
+    
+            // write the end of the field definitions marker
+            buffer.put((byte) 0x0D);
+    
+            buffer.position(0);
+    
+            int r = buffer.remaining();
+            while ((r -= out.write(buffer)) > 0) {
+                ; // do nothing
+            }
+        } finally {
+            NIOUtilities.clean(buffer, false);
         }
-
-        // write the end of the field definitions marker
-        buffer.put((byte) 0x0D);
-
-        buffer.position(0);
-
-        int r = buffer.remaining();
-        while ((r -= out.write(buffer)) > 0) {
-            ; // do nothing
-        }
-
-        NIOUtilities.clean(buffer);
     }
 
     /**

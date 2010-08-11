@@ -90,7 +90,7 @@ public class IndexFile implements FileReader {
                     this.channelOffset = 0;
                 } else {
                     LOGGER.finest("Reading from file...");
-                    this.buf = ByteBuffer.allocateDirect(8 * RECS_IN_BUFFER);
+                    this.buf = NIOUtilities.allocate(8 * RECS_IN_BUFFER);
                     this.channelOffset = 100;
                 }
 
@@ -125,7 +125,7 @@ public class IndexFile implements FileReader {
     }
 
     private void readHeader(ReadableByteChannel channel) throws IOException {
-        ByteBuffer buffer = ByteBuffer.allocateDirect(100);
+        ByteBuffer buffer = NIOUtilities.allocate(100);
         try {
             while (buffer.remaining() > 0) {
                 channel.read(buffer);
@@ -134,14 +134,14 @@ public class IndexFile implements FileReader {
             header = new ShapefileHeader();
             header.read(buffer, true);
         } finally {
-            NIOUtilities.clean(buffer);
+            NIOUtilities.clean(buffer, false);
         }
     }
 
     private void readRecords(ReadableByteChannel channel) throws IOException {
         check();
         int remaining = (header.getFileLength() * 2) - 100;
-        ByteBuffer buffer = ByteBuffer.allocateDirect(remaining);
+        ByteBuffer buffer = NIOUtilities.allocate(remaining);
         try {
             buffer.order(ByteOrder.BIG_ENDIAN);
             while (buffer.remaining() > 0) {
@@ -153,7 +153,7 @@ public class IndexFile implements FileReader {
             IntBuffer ints = buffer.asIntBuffer();
             ints.get(content);
         } finally {
-            NIOUtilities.clean(buffer);
+            NIOUtilities.clean(buffer, false);
         }
     }
 
@@ -187,7 +187,7 @@ public class IndexFile implements FileReader {
             channel.close();
             streamLogger.close();
 
-            NIOUtilities.clean(buf);
+            NIOUtilities.clean(buf, useMemoryMappedBuffer);
         }
         this.buf = null;
         this.content = null;

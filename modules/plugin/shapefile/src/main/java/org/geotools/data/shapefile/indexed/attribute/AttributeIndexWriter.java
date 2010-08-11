@@ -318,7 +318,7 @@ public class AttributeIndexWriter {
     }
 
     private void allocateBuffers() throws IOException {
-        writeBuffer = ByteBuffer.allocateDirect(HEADER_SIZE+record_size * 1024);
+        writeBuffer = NIOUtilities.allocate(HEADER_SIZE+record_size * 1024);
     }
 
     private void drain() throws IOException {

@@ -172,7 +172,7 @@ public class DbaseFileReader implements FileReader {
             // if for some reason its not, resize it
             size = header.getRecordLength() > size ? header.getRecordLength()
                     : size;
-            buffer = ByteBuffer.allocateDirect(size);
+            buffer = NIOUtilities.allocate(size);
             // fill it and reset
             fill(buffer, channel);
             buffer.flip();
@@ -252,7 +252,7 @@ public class DbaseFileReader implements FileReader {
             streamLogger.close();
         }
         if(buffer != null) {
-            NIOUtilities.clean(buffer);
+            NIOUtilities.clean(buffer, useMemoryMappedBuffer);
         }
 
         buffer = null;

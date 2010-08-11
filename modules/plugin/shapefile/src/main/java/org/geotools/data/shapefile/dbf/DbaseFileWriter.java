@@ -107,7 +107,7 @@ public class DbaseFileWriter {
     }
 
     private void init() throws IOException {
-        buffer = ByteBuffer.allocateDirect(header.getRecordLength());
+        buffer = NIOUtilities.allocate(header.getRecordLength());
     }
 
     private void write() throws IOException {
@@ -241,7 +241,7 @@ public class DbaseFileWriter {
             streamLogger.close();
         }
         if(buffer != null) {
-            NIOUtilities.clean(buffer);
+            NIOUtilities.clean(buffer, false);
         }
         buffer = null;
         channel = null;

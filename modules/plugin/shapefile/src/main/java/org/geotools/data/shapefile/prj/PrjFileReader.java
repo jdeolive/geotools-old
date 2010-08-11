@@ -115,7 +115,7 @@ public class PrjFileReader implements FileReader {
             // if for some reason its not, resize it
             // size = header.getRecordLength() > size ? header.getRecordLength()
             // : size;
-            buffer = ByteBuffer.allocateDirect(size);
+            buffer = NIOUtilities.allocate(size);
             // fill it and reset
             fill(buffer, channel);
             buffer.flip();
@@ -132,7 +132,7 @@ public class PrjFileReader implements FileReader {
 
     public void close() throws IOException {
         if (buffer != null) {
-            NIOUtilities.clean(buffer);
+            NIOUtilities.clean(buffer, memoryMapped);
             buffer = null;
         }
 

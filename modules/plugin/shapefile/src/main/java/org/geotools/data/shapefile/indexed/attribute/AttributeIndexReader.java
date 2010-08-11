@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.NoSuchElementException;
 
 import org.geotools.data.shapefile.StreamLogging;
+import org.geotools.resources.NIOUtilities;
 
 /**
  * Class to read an attribute index file
@@ -142,7 +143,7 @@ public class AttributeIndexReader {
     }
 
     private void allocateBuffers() throws IOException {
-        buffer = ByteBuffer.allocateDirect(record_size*1024);
+        buffer = NIOUtilities.allocate(record_size*1024);
         buffer.position(buffer.limit());
     }
 

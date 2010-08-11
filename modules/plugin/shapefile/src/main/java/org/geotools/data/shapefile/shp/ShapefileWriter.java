@@ -100,8 +100,8 @@ public class ShapefileWriter {
      * Allocate some buffers for writing.
      */
     private void allocateBuffers() {
-        shapeBuffer = ByteBuffer.allocateDirect(16 * 1024);
-        indexBuffer = ByteBuffer.allocateDirect(100);
+        shapeBuffer = NIOUtilities.allocate(16 * 1024);
+        indexBuffer = NIOUtilities.allocate(100);
     }
 
     /**
@@ -110,8 +110,8 @@ public class ShapefileWriter {
     private void checkShapeBuffer(int size) {
         if (shapeBuffer.capacity() < size) {
             if (shapeBuffer != null)
-                NIOUtilities.clean(shapeBuffer);
-            shapeBuffer = ByteBuffer.allocateDirect(size);
+                NIOUtilities.clean(shapeBuffer, false);
+            shapeBuffer = NIOUtilities.allocate(size);
         }
     }
 
@@ -277,9 +277,9 @@ public class ShapefileWriter {
         shxChannel = null;
         handler = null;
         if(indexBuffer != null)
-            NIOUtilities.clean(indexBuffer);
+            NIOUtilities.clean(indexBuffer, false);
         if(shapeBuffer != null)
-            NIOUtilities.clean(shapeBuffer);
+            NIOUtilities.clean(shapeBuffer, false);
         indexBuffer = null;
         shapeBuffer = null;
     }
