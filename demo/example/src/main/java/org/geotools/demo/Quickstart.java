@@ -35,12 +35,12 @@ public class Quickstart {
      */    
     public static void main(String[] args) throws Exception {
         // display a data store file chooser dialog for shapefiles
-//        File file = JFileDataStoreChooser.showOpenFile("shp", null);
-//        if (file == null) {
-//            return;
-//        }
+        File file = JFileDataStoreChooser.showOpenFile("shp", null);
+        if (file == null) {
+            return;
+        }
 
-        FileDataStore store = FileDataStoreFinder.getDataStore(new File("/home/aaime/devel/gisData/foss4g2009/data/TIGER-2008/48_TEXAS/edges_merge.shp"));
+        FileDataStore store = FileDataStoreFinder.getDataStore(file);
         FeatureSource featureSource = store.getFeatureSource();
 
         // Create a map context and add our shapefile to it
