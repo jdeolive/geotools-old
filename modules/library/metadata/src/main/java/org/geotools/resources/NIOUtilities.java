@@ -46,6 +46,8 @@ public final class NIOUtilities {
      */
     static Map<Integer, Queue<Object>> cache = new ConcurrentHashMap<Integer, Queue<Object>>();
     
+    static Map<Class, Method> cleanerMethodCache = new ConcurrentHashMap<Class, Method>();
+    
     /**
      * The maximum size of the hard reference cache (the soft one can be unbounded, the GC will
      * regulate its size according to the memory pressure)
@@ -131,7 +133,7 @@ public final class NIOUtilities {
                 buffer = (ByteBuffer) sr;
                 hardCacheSize.addAndGet(-buffer.capacity());
             }
-            // setup the buffer to the 
+            // clean up the buffer and return it
             if (buffer != null) {
                 buffer.clear();
                 return buffer;
@@ -139,8 +141,11 @@ public final class NIOUtilities {
         }
 
         // we could not find one, then allocated it
-        ByteBuffer buffer = ByteBuffer.allocate(size);
-        return buffer;
+        if(directBuffersEnabled) {
+            return ByteBuffer.allocateDirect(size);
+        } else {
+            return ByteBuffer.allocate(size);
+        }
     }
 
     /**
@@ -194,17 +199,21 @@ public final class NIOUtilities {
      * @see java.nio.MappedByteBuffer
      */
     public static boolean clean(final ByteBuffer buffer) {
+        if(buffer == null || !buffer.isDirect()) {
+            return true;
+        }
+        
         Boolean b = AccessController.doPrivileged(new PrivilegedAction<Boolean>() {
             public Boolean run() {
                 Boolean success = Boolean.FALSE;
                 try {
-                    Method getCleanerMethod = buffer.getClass().getMethod("cleaner",
-                            (Class[]) null);
-                    getCleanerMethod.setAccessible(true);
-                    Object cleaner = getCleanerMethod.invoke(buffer, (Object[]) null);
-                    Method clean = cleaner.getClass().getMethod("clean", (Class[]) null);
-                    clean.invoke(cleaner, (Object[]) null);
-                    success = Boolean.TRUE;
+                    Method getCleanerMethod = getCleanerMethod(buffer);
+                    if(getCleanerMethod != null) {
+                        Object cleaner = getCleanerMethod.invoke(buffer, (Object[]) null);
+                        Method clean = cleaner.getClass().getMethod("clean", (Class[]) null);
+                        clean.invoke(cleaner, (Object[]) null);
+                        success = Boolean.TRUE;
+                    }
                 } catch (Exception e) {
                     // This really is a show stopper on windows
                     if (isLoggable()) {
@@ -215,6 +224,16 @@ public final class NIOUtilities {
             }
         });
         return b.booleanValue();
+    }
+    
+    static Method getCleanerMethod(final ByteBuffer buffer) throws NoSuchMethodException {
+        Method result = cleanerMethodCache.get(buffer.getClass());
+        if(result == null) {
+            result = buffer.getClass().getMethod("cleaner", (Class[]) null);
+            result.setAccessible(true);
+            cleanerMethodCache.put(buffer.getClass(), result);
+        }
+        return result;
     }
 
     public static boolean returnToCache(final ByteBuffer buffer) {
