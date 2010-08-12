@@ -472,7 +472,11 @@ class RasterLayerRequest {
 
 
     	//set source region
-    	imageReadParam.setSourceRegion(this.coverageRequestedRasterArea);
+    	if(!coverageRequestedRasterArea.isEmpty()) {
+    		imageReadParam.setSourceRegion(this.coverageRequestedRasterArea);
+    	} else {
+    		emptyRequest = true;
+    	}
     	
         // //
         //
