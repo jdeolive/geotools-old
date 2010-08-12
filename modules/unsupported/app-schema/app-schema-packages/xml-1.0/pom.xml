@@ -6,9 +6,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.geotools.schemas</groupId>
-    <artifactId>sampling-1.0</artifactId>
-    <version>1.0.0-3</version>
-    <name>Sampling 1.0 application schema</name>
+    <artifactId>xml-1.0</artifactId>
+    <version>1.0.0-2</version>
+    <name>XML 1.0 schema</name>
     
     <developers>
         <developer>
@@ -20,24 +20,6 @@
             </roles>
         </developer>
     </developers>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.geotools.schemas</groupId>
-            <artifactId>gml-3.1</artifactId>
-            <version>3.1.1-3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.geotools.schemas</groupId>
-            <artifactId>om-1.0</artifactId>
-            <version>1.0.0-3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.geotools.schemas</groupId>
-            <artifactId>sweCommon-1.0</artifactId>
-            <version>1.0.1-3</version>
-        </dependency>
-    </dependencies>
 
     <build>
     
@@ -60,16 +42,11 @@
                         <phase>generate-resources</phase>
                         <configuration>
                             <tasks>
-                                <property name="srcdir" value="http://schemas.opengis.net/sampling/1.0.0"/>
-                                <property name="destdir" value="${project.build.outputDirectory}/net/opengis/schemas/sampling/1.0.0"/>
+                                <property name="srcdir" value="http://www.w3.org/2001"/>
+                                <property name="destdir" value="${project.build.outputDirectory}/org/w3/www/2001"/>
                                 <mkdir dir="${destdir}"/>
                                 <!-- maven antrun get does not support nested url so have to be explicit -->
-                                <get src="${srcdir}/LUTgeodesy.xsd"         dest="${destdir}/LUTgeodesy.xsd"/>
-                                <get src="${srcdir}/sampling.xsd"           dest="${destdir}/sampling.xsd"/>
-                                <get src="${srcdir}/samplingBase.xsd"       dest="${destdir}/samplingBase.xsd"/>
-                                <get src="${srcdir}/samplingManifold.xsd"   dest="${destdir}/samplingManifold.xsd"/>
-                                <get src="${srcdir}/specimen.xsd"           dest="${destdir}/specimen.xsd"/>
-                                <get src="${srcdir}/surveyProcedure.xsd"    dest="${destdir}/surveyProcedure.xsd"/>
+                                <get src="${srcdir}/xml.xsd" dest="${destdir}/xml.xsd"/>
                             </tasks>
                         </configuration>
                         <goals>

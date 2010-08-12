@@ -5,10 +5,10 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>net.opengis.schemas</groupId>
-    <artifactId>xlink</artifactId>
-    <version>1.0.0-1</version>
-    <name>XLink application schema</name>
+    <groupId>org.geotools.schemas</groupId>
+    <artifactId>sweCommon-1.0</artifactId>
+    <version>1.0.1-3</version>
+    <name>Sensor Web Enablement (SWE) Common 1.0 application schema</name>
     
     <developers>
         <developer>
@@ -20,6 +20,14 @@
             </roles>
         </developer>
     </developers>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.geotools.schemas</groupId>
+            <artifactId>gml-3.1</artifactId>
+            <version>3.1.1-3</version>
+        </dependency>
+    </dependencies>
 
     <build>
     
@@ -42,11 +50,21 @@
                         <phase>generate-resources</phase>
                         <configuration>
                             <tasks>
-                                <property name="srcdir" value="http://schemas.opengis.net/xlink/1.0.0"/>
-                                <property name="destdir" value="${project.build.outputDirectory}/net/opengis/schemas/xlink/1.0.0"/>
+                                <property name="srcdir" value="http://schemas.opengis.net/sweCommon/1.0.1"/>
+                                <property name="destdir" value="${project.build.outputDirectory}/net/opengis/schemas/sweCommon/1.0.1"/>
                                 <mkdir dir="${destdir}"/>
                                 <!-- maven antrun get does not support nested url so have to be explicit -->
-                                <get src="${srcdir}/xlinks.xsd" dest="${destdir}/xlinks.xsd"/>
+                                <get src="${srcdir}/aggregateTypes.xsd" dest="${destdir}/aggregateTypes.xsd"/>
+                                <get src="${srcdir}/basicTypes.xsd" dest="${destdir}/basicTypes.xsd"/>
+                                <get src="${srcdir}/curveTypes.xsd" dest="${destdir}/curveTypes.xsd"/>
+                                <get src="${srcdir}/data.xsd" dest="${destdir}/data.xsd"/>
+                                <get src="${srcdir}/encoding.xsd" dest="${destdir}/encoding.xsd"/>
+                                <get src="${srcdir}/phenomenon.xsd" dest="${destdir}/phenomenon.xsd"/>
+                                <get src="${srcdir}/positionTypes.xsd" dest="${destdir}/positionTypes.xsd"/>
+                                <get src="${srcdir}/simpleTypes.xsd" dest="${destdir}/simpleTypes.xsd"/>
+                                <get src="${srcdir}/swe.xsd" dest="${destdir}/swe.xsd"/>
+                                <get src="${srcdir}/temporalAggregates.xsd" dest="${destdir}/temporalAggregates.xsd"/>
+                                <get src="${srcdir}/xmlData.xsd" dest="${destdir}/xmlData.xsd"/>
                             </tasks>
                         </configuration>
                         <goals>

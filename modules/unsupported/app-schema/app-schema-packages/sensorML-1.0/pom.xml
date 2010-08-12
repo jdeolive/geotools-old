@@ -5,10 +5,10 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>net.opengis.schemas</groupId>
-    <artifactId>sweCommon-1.0.1</artifactId>
-    <version>1.0.1-2</version>
-    <name>Sensor Web Enablement (SWE) Common 1.0.1 application schema</name>
+    <groupId>org.geotools.schemas</groupId>
+    <artifactId>sensorML-1.0</artifactId>
+    <version>1.0.1-3</version>
+    <name>Sensor Model Language (SensorML) 1.0 application schema</name>
     
     <developers>
         <developer>
@@ -23,9 +23,19 @@
 
     <dependencies>
         <dependency>
-            <groupId>net.opengis.schemas</groupId>
+            <groupId>org.geotools.schemas</groupId>
+            <artifactId>ic-2.0</artifactId>
+            <version>2.0.0-2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools.schemas</groupId>
             <artifactId>gml-3.1</artifactId>
-            <version>3.1.1-2</version>
+            <version>3.1.1-3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools.schemas</groupId>
+            <artifactId>sweCommon-1.0</artifactId>
+            <version>1.0.1-3</version>
         </dependency>
     </dependencies>
 
@@ -50,21 +60,15 @@
                         <phase>generate-resources</phase>
                         <configuration>
                             <tasks>
-                                <property name="srcdir" value="http://schemas.opengis.net/sweCommon/1.0.1"/>
-                                <property name="destdir" value="${project.build.outputDirectory}/net/opengis/schemas/sweCommon/1.0.1"/>
+                                <property name="srcdir" value="http://schemas.opengis.net/sensorML/1.0.1"/>
+                                <property name="destdir" value="${project.build.outputDirectory}/net/opengis/schemas/sensorML/1.0.1"/>
                                 <mkdir dir="${destdir}"/>
                                 <!-- maven antrun get does not support nested url so have to be explicit -->
-                                <get src="${srcdir}/aggregateTypes.xsd" dest="${destdir}/aggregateTypes.xsd"/>
-                                <get src="${srcdir}/basicTypes.xsd" dest="${destdir}/basicTypes.xsd"/>
-                                <get src="${srcdir}/curveTypes.xsd" dest="${destdir}/curveTypes.xsd"/>
-                                <get src="${srcdir}/data.xsd" dest="${destdir}/data.xsd"/>
-                                <get src="${srcdir}/encoding.xsd" dest="${destdir}/encoding.xsd"/>
-                                <get src="${srcdir}/phenomenon.xsd" dest="${destdir}/phenomenon.xsd"/>
-                                <get src="${srcdir}/positionTypes.xsd" dest="${destdir}/positionTypes.xsd"/>
-                                <get src="${srcdir}/simpleTypes.xsd" dest="${destdir}/simpleTypes.xsd"/>
-                                <get src="${srcdir}/swe.xsd" dest="${destdir}/swe.xsd"/>
-                                <get src="${srcdir}/temporalAggregates.xsd" dest="${destdir}/temporalAggregates.xsd"/>
-                                <get src="${srcdir}/xmlData.xsd" dest="${destdir}/xmlData.xsd"/>
+                                <get src="${srcdir}/base.xsd" dest="${destdir}/base.xsd"/>
+                                <get src="${srcdir}/method.xsd" dest="${destdir}/method.xsd"/>
+                                <get src="${srcdir}/process.xsd" dest="${destdir}/process.xsd"/>
+                                <get src="${srcdir}/sensorML.xsd" dest="${destdir}/sensorML.xsd"/>
+                                <get src="${srcdir}/system.xsd" dest="${destdir}/system.xsd"/>
                             </tasks>
                         </configuration>
                         <goals>

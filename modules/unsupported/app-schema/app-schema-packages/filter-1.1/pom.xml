@@ -5,10 +5,10 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.w3</groupId>
-    <artifactId>xml</artifactId>
-    <version>1.0.0-1</version>
-    <name>XML schema</name>
+    <groupId>org.geotools.schemas</groupId>
+    <artifactId>filter-1.1</artifactId>
+    <version>1.1.1-1</version>
+    <name>OGC Filter 1.1 application schema</name>
     
     <developers>
         <developer>
@@ -20,6 +20,14 @@
             </roles>
         </developer>
     </developers>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.geotools.schemas</groupId>
+            <artifactId>gml-3.1</artifactId>
+            <version>3.1.1-3</version>
+        </dependency>
+    </dependencies>
 
     <build>
     
@@ -42,11 +50,14 @@
                         <phase>generate-resources</phase>
                         <configuration>
                             <tasks>
-                                <property name="srcdir" value="http://www.w3.org/2001"/>
-                                <property name="destdir" value="${project.build.outputDirectory}/org/w3/www/2001"/>
+                                <property name="srcdir" value="http://schemas.opengis.net/filter/1.1.0"/>
+                                <property name="destdir" value="${project.build.outputDirectory}/net/opengis/schemas/filter/1.1.0"/>
                                 <mkdir dir="${destdir}"/>
                                 <!-- maven antrun get does not support nested url so have to be explicit -->
-                                <get src="${srcdir}/xml.xsd" dest="${destdir}/xml.xsd"/>
+                                <get src="${srcdir}/expr.xsd" dest="${destdir}/expr.xsd"/>
+                                <get src="${srcdir}/filter.xsd" dest="${destdir}/filter.xsd"/>
+                                <get src="${srcdir}/filterCapabilities.xsd" dest="${destdir}/filterCapabilities.xsd"/>
+                                <get src="${srcdir}/sort.xsd" dest="${destdir}/sort.xsd"/>
                             </tasks>
                         </configuration>
                         <goals>

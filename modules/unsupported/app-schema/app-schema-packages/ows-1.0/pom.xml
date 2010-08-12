@@ -6,9 +6,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.geotools.schemas</groupId>
-    <artifactId>sampling-1.0</artifactId>
-    <version>1.0.0-3</version>
-    <name>Sampling 1.0 application schema</name>
+    <artifactId>ows-1.0</artifactId>
+    <version>1.0.0-1</version>
+    <name>OGC Web Service (OWS) 1.0 application schema</name>
     
     <developers>
         <developer>
@@ -29,13 +29,8 @@
         </dependency>
         <dependency>
             <groupId>org.geotools.schemas</groupId>
-            <artifactId>om-1.0</artifactId>
-            <version>1.0.0-3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.geotools.schemas</groupId>
-            <artifactId>sweCommon-1.0</artifactId>
-            <version>1.0.1-3</version>
+            <artifactId>xlink-1.0</artifactId>
+            <version>1.0.0-2</version>
         </dependency>
     </dependencies>
 
@@ -60,16 +55,19 @@
                         <phase>generate-resources</phase>
                         <configuration>
                             <tasks>
-                                <property name="srcdir" value="http://schemas.opengis.net/sampling/1.0.0"/>
-                                <property name="destdir" value="${project.build.outputDirectory}/net/opengis/schemas/sampling/1.0.0"/>
+                                <property name="srcdir" value="http://schemas.opengis.net/ows/1.0.0"/>
+                                <property name="destdir" value="${project.build.outputDirectory}/net/opengis/schemas/ows/1.0.0"/>
                                 <mkdir dir="${destdir}"/>
                                 <!-- maven antrun get does not support nested url so have to be explicit -->
-                                <get src="${srcdir}/LUTgeodesy.xsd"         dest="${destdir}/LUTgeodesy.xsd"/>
-                                <get src="${srcdir}/sampling.xsd"           dest="${destdir}/sampling.xsd"/>
-                                <get src="${srcdir}/samplingBase.xsd"       dest="${destdir}/samplingBase.xsd"/>
-                                <get src="${srcdir}/samplingManifold.xsd"   dest="${destdir}/samplingManifold.xsd"/>
-                                <get src="${srcdir}/specimen.xsd"           dest="${destdir}/specimen.xsd"/>
-                                <get src="${srcdir}/surveyProcedure.xsd"    dest="${destdir}/surveyProcedure.xsd"/>
+                                <get src="${srcdir}/ows19115subset.xsd" dest="${destdir}/ows19115subset.xsd"/>
+                                <get src="${srcdir}/owsAll.xsd" dest="${destdir}/owsAll.xsd"/>
+                                <get src="${srcdir}/owsCommon.xsd" dest="${destdir}/owsCommon.xsd"/>
+                                <get src="${srcdir}/owsDataIdentification.xsd" dest="${destdir}/owsDataIdentification.xsd"/>
+                                <get src="${srcdir}/owsExceptionReport.xsd" dest="${destdir}/owsExceptionReport.xsd"/>
+                                <get src="${srcdir}/owsGetCapabilities.xsd" dest="${destdir}/owsGetCapabilities.xsd"/>
+                                <get src="${srcdir}/owsOperationsMetadata.xsd" dest="${destdir}/owsOperationsMetadata.xsd"/>
+                                <get src="${srcdir}/owsServiceIdentification.xsd" dest="${destdir}/owsServiceIdentification.xsd"/>
+                                <get src="${srcdir}/owsServiceProvider.xsd" dest="${destdir}/owsServiceProvider.xsd"/>
                             </tasks>
                         </configuration>
                         <goals>

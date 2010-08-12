@@ -38,15 +38,18 @@
     <modules>
         <module>cgiutilities-1.0</module>
         <module>earthresourceml-1.1</module>
+        <module>filter-1.1</module>
         <module>geosciml-2.0</module>
         <module>gml-3.1</module>
         <module>ic-2.0</module>
         <module>om-1.0</module>
+        <module>ows-1.0</module>
         <module>sampling-1.0</module>
-        <module>sensorML-1.0.1</module>
-        <module>sweCommon-1.0.1</module>
-        <module>xlink</module>
-        <module>xml</module>
+        <module>sensorML-1.0</module>
+        <module>sweCommon-1.0</module>
+        <module>wfs-1.1</module>
+        <module>xlink-1.0</module>
+        <module>xml-1.0</module>
     </modules>
 
     <!--
