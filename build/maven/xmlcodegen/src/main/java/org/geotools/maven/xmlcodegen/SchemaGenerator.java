@@ -51,6 +51,7 @@ import org.geotools.graph.traverse.basic.BasicGraphTraversal;
 import org.geotools.graph.traverse.standard.DirectedDepthFirstTopologicalIterator;
 import org.geotools.graph.util.graph.CycleDetector;
 import org.geotools.graph.util.graph.DirectedCycleDetector;
+import org.geotools.util.Utilities;
 import org.geotools.xml.Schemas;
 import org.geotools.xs.XS;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -602,6 +603,17 @@ public class SchemaGenerator extends AbstractGenerator {
                             }
                             
                             XSDSimpleTypeDefinition type = attribute.getTypeDefinition();
+                            if (type == null) {
+                                //look up in global schema
+                                for (Iterator a = schema.getAttributeDeclarations().iterator(); a.hasNext();) {
+                                    XSDAttributeDeclaration ad = (XSDAttributeDeclaration) a.next();
+                                    if (Utilities.equals(ad.getTargetNamespace(), attribute.getTargetNamespace()) 
+                                        && Utilities.equals(ad.getName(), attribute.getName())) {
+                                        type = ad.getTypeDefinition();
+                                        break;
+                                    }
+                                }
+                            }
                             if ( type.getName() == null ) {
                             	//TODO: deal with anonymous attribute types
                             	continue;

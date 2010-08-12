@@ -19,6 +19,8 @@ package org.geotools.xml;
 import org.eclipse.xsd.XSDSchema;
 import org.eclipse.xsd.util.XSDSchemaLocator;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -256,6 +258,29 @@ public abstract class XSD {
 
     public SchemaLocationResolver createSchemaLocationResolver() {
         return new SchemaLocationResolver(this);
+    }
+    
+    /**
+     * Returns the qualified name for the specified local part.
+     * 
+     * @return The QName, or null if no such name exists.
+     */
+    public QName qName(String local) {
+        for (Field f : getClass().getFields()) {
+            if (Modifier.isStatic(f.getModifiers()) && QName.class.equals(f.getType())) {
+                try {
+                    QName name = (QName) f.get(null);
+                    if (name.getLocalPart().equals(local)) {
+                        return name;
+                    }
+                } 
+                catch(Exception e) {
+                    throw new RuntimeException(e);
+                }
+                
+            }
+        }
+        return null;
     }
 
     /**

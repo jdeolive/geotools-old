@@ -92,7 +92,10 @@ public class CurvePropertyTypeBinding extends AbstractComplexBinding {
 
     public Object getProperty(Object object, QName name)
         throws Exception {
-        if (GML._Curve.equals(name)) {
+        
+        //GML3  -> _Curve
+        //GML32 -> AbstractCurve
+        if ("_Curve".equals(name.getLocalPart()) || "AbstractCurve".equals(name.getLocalPart())) {
             return object;
         }
 

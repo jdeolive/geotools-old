@@ -259,8 +259,9 @@ public class Schemas {
      * @param schema The schema being imported into.
      * @param importee The schema being imported.
      * 
+     * @return The import object.
      */
-    public static final void importSchema( XSDSchema schema, final XSDSchema importee ) throws IOException {
+    public static final XSDImport importSchema( XSDSchema schema, final XSDSchema importee ) throws IOException {
         Resource resource = schema.eResource();
         if ( resource == null ) {
             final ResourceSet resourceSet = new ResourceSetImpl();
@@ -287,8 +288,7 @@ public class Schemas {
         });
         AdapterFactory adapterFactory = new SchemaLocatorAdapterFactory(locators);
         resource.getResourceSet().getAdapterFactories().add( adapterFactory );
-        
-        
+        return imprt;
     }
     
     public static final List validateImportsIncludes(String location) throws IOException {

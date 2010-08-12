@@ -30,6 +30,8 @@ import org.eclipse.xsd.XSDElementDeclaration;
 import org.geotools.feature.NameImpl;
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.gml2.bindings.GML2EncodingUtils;
+import org.geotools.gml2.bindings.GMLEncodingUtils;
+//import org.geotools.gml3.GML;
 import org.geotools.gml3.GML;
 import org.geotools.gml3.XSDIdRegistry;
 import org.geotools.util.Converters;
@@ -37,6 +39,7 @@ import org.geotools.xlink.XLINK;
 import org.geotools.xml.ComplexBinding;
 import org.geotools.xml.Configuration;
 import org.geotools.xml.SchemaIndex;
+import org.geotools.xml.XSD;
 import org.opengis.feature.ComplexAttribute;
 import org.opengis.feature.Feature;
 import org.opengis.feature.Property;
@@ -62,6 +65,21 @@ import com.vividsolutions.jts.geom.LineString;
  * @source $URL$
  */
 public class GML3EncodingUtils {
+    
+    static GML3EncodingUtils INSTANCE = new GML3EncodingUtils();
+    
+    XSD gml;
+    
+    GMLEncodingUtils e;
+    public GML3EncodingUtils() {
+        this(GML.getInstance());
+    }
+    
+    public GML3EncodingUtils(XSD gml) {
+        this.gml = gml;
+        e = new GMLEncodingUtils(gml);
+    }
+    
     static DirectPosition[] positions(LineString line) {
         CoordinateSequence coordinates = line.getCoordinateSequence();
         DirectPosition[] dps = new DirectPosition[coordinates.size()];
@@ -129,8 +147,15 @@ public class GML3EncodingUtils {
      * <li>PolygonPropertyType
      * </ul>
      */
+    public Object GeometryPropertyType_GetProperty(Geometry geometry, QName name) {
+        return e.GeometryPropertyType_getProperty(geometry, name);
+    }
+    
+    /**
+     * @deprecated use {@link #GeometryPropertyType_GetProperty(Geometry, QName)}
+     */
     public static Object getProperty(Geometry geometry, QName name) {
-        return GML2EncodingUtils.GeometryPropertyType_getProperty(geometry, name);
+        return INSTANCE.GeometryPropertyType_GetProperty(geometry, name);
     }
 
     /**
@@ -143,11 +168,19 @@ public class GML3EncodingUtils {
      * <li>PolygonPropertyType
      * </ul>
      */
+    
+    public List GeometryPropertyType_GetProperties(Geometry geometry) {
+        return e.GeometryPropertyType_getProperties(geometry);
+    }
+    
+    /**
+     * @deprecated use {@link #GeometryPropertyType_GetProperties(Geometry)}
+     */
     public static List getProperties(Geometry geometry) {
-        return GML2EncodingUtils.GeometryPropertyType_getProperties(geometry);
+        return INSTANCE.GeometryPropertyType_GetProperties(geometry);
     }
 
-    public static Element AbstractFeatureType_encode(Object object, Document document,
+    public Element AbstractFeatureTypeEncode(Object object, Document document,
             Element value, XSDIdRegistry idSet) {
         Feature feature = (Feature) object;
         String id = feature.getIdentifier().getID();
@@ -176,17 +209,33 @@ public class GML3EncodingUtils {
                 idSet.add(id);
             }
         }
-        encoding.setAttributeNS(GML.NAMESPACE, "id", id);
+        encoding.setAttributeNS(gml.getNamespaceURI(), "id", id);
         encodeClientProperties(feature, value);
 
         return encoding;
     }
+    
+    /**
+     * @deprecated use {@link #AbstractFeatureTypeEncode(Object, Document, Element, XSDIdRegistry)}
+     */
+    public static Element AbstractFeatureType_encode(Object object, Document document,
+            Element value, XSDIdRegistry idSet) {
+        return INSTANCE.AbstractFeatureTypeEncode(object, document, value, idSet);
+    }
 
-    public static List AbstractFeatureType_getProperties(Object object,
+    public List AbstractFeatureTypeGetProperties(Object object,
             XSDElementDeclaration element, SchemaIndex schemaIndex, Configuration configuration) {
-        return GML2EncodingUtils.AbstractFeatureType_getProperties(object, element, schemaIndex,
+        return e.AbstractFeatureType_getProperties(object, element, schemaIndex,
                 new HashSet<String>(Arrays.asList("name", "description", "boundedBy", "location",
                         "metaDataProperty")), configuration);
+    }
+    
+    /**
+     * @deprecated use {@link #AbstractFeatureTypeGetProperties(Object, XSDElementDeclaration, SchemaIndex, Configuration)
+     */
+    public static List AbstractFeatureType_getProperties(Object object,
+            XSDElementDeclaration element, SchemaIndex schemaIndex, Configuration configuration) {
+        return INSTANCE.AbstractFeatureTypeGetProperties(object, element, schemaIndex, configuration);
     }
 
     /**

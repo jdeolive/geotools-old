@@ -80,7 +80,10 @@ public class AbstractRingPropertyTypeBinding extends AbstractComplexBinding {
 
     public Object getProperty(Object object, QName name)
         throws Exception {
-        if (GML._Ring.equals(name)) {
+        //GML3  -> _Ring
+        //GML32 -> AbstractRing
+        if ("_Ring".equals(name.getLocalPart()) || "AbstractRing".equals(name.getLocalPart()) ){
+        //if (GML._Ring.equals(name)) {
             return object;
         }
 

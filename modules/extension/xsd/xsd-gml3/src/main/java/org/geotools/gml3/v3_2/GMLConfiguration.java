@@ -32,6 +32,7 @@ import org.geotools.gml3.bindings.DoubleListBinding;
 import org.geotools.gml3.bindings.EnvelopeTypeBinding;
 import org.geotools.gml3.bindings.FeatureArrayPropertyTypeBinding;
 import org.geotools.gml3.bindings.FeaturePropertyTypeBinding;
+import org.geotools.gml3.bindings.GML3EncodingUtils;
 import org.geotools.gml3.bindings.GeometryPropertyTypeBinding;
 import org.geotools.gml3.bindings.IntegerListBinding;
 import org.geotools.gml3.bindings.LineStringSegmentTypeBinding;
@@ -53,6 +54,7 @@ import org.geotools.gml3.bindings.PolygonTypeBinding;
 import org.geotools.gml3.bindings.ReferenceTypeBinding;
 import org.geotools.gml3.bindings.SurfaceArrayPropertyTypeBinding;
 import org.geotools.gml3.bindings.SurfacePropertyTypeBinding;
+import org.geotools.gml3.v3_2.bindings.GML32EncodingUtils;
 import org.geotools.xml.Configuration;
 import org.picocontainer.MutablePicoContainer;
 
@@ -155,6 +157,9 @@ public class GMLConfiguration extends Configuration {
     
     @Override
     protected void configureContext(MutablePicoContainer container) {
+        super.configureContext(container);
         new org.geotools.gml3.GMLConfiguration().configureContext(container);
+        container.unregisterComponent(GML3EncodingUtils.class);
+        container.registerComponentInstance(new GML32EncodingUtils());
     }
 } 

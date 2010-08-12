@@ -64,6 +64,13 @@ import com.vividsolutions.jts.geom.Point;
  * @source $URL$
  */
 public class PointPropertyTypeBinding extends AbstractComplexBinding {
+    
+    GML3EncodingUtils encodingUtils;
+    
+    public PointPropertyTypeBinding(GML3EncodingUtils encodingUtils) {
+        this.encodingUtils = encodingUtils;
+    }
+    
     /**
      * @generated
      */
@@ -94,10 +101,10 @@ public class PointPropertyTypeBinding extends AbstractComplexBinding {
     }
 
     public Object getProperty(Object object, QName name) {
-        return GML3EncodingUtils.getProperty((Point)object, name);
+        return encodingUtils.GeometryPropertyType_GetProperty((Point)object, name);
     }
     
     public List getProperties(Object object) throws Exception {
-        return GML3EncodingUtils.getProperties((Point)object);
+        return encodingUtils.GeometryPropertyType_GetProperties((Point)object);
     }
 }

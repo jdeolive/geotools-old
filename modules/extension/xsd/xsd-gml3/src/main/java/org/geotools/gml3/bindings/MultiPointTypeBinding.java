@@ -116,7 +116,7 @@ public class MultiPointTypeBinding extends AbstractComplexBinding {
 
     public Object getProperty(Object object, QName name)
         throws Exception {
-        if (GML.pointMember.equals(name)) {
+        if ("pointMember".equals(name.getLocalPart())) {
             MultiPoint multiPoint = (MultiPoint) object;
             Point[] members = new Point[multiPoint.getNumGeometries()];
 

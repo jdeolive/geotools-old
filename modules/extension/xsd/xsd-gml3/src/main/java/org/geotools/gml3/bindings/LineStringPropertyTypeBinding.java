@@ -65,6 +65,13 @@ import com.vividsolutions.jts.geom.LineString;
  * @source $URL$
  */
 public class LineStringPropertyTypeBinding extends AbstractComplexBinding {
+    
+    GML3EncodingUtils encodingUtils;
+    
+    public LineStringPropertyTypeBinding(GML3EncodingUtils encodingUtils) {
+        this.encodingUtils = encodingUtils;
+    }
+    
     /**
      * @generated
      */
@@ -94,10 +101,10 @@ public class LineStringPropertyTypeBinding extends AbstractComplexBinding {
     }
 
     public Object getProperty(Object object, QName name) {
-        return GML3EncodingUtils.getProperty( (LineString) object, name );
+        return encodingUtils.GeometryPropertyType_GetProperty( (LineString) object, name );
     }
     
     public List getProperties(Object object) throws Exception {
-        return GML3EncodingUtils.getProperties( (LineString) object );
+        return encodingUtils.GeometryPropertyType_GetProperties( (LineString) object );
     }
 }

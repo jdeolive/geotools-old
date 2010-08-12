@@ -22,6 +22,7 @@ import javax.xml.namespace.QName;
 
 import org.eclipse.xsd.XSDElementDeclaration;
 import org.geotools.gml2.FeatureTypeCache;
+import org.geotools.gml2.bindings.GMLEncodingUtils;
 import org.geotools.gml3.GML;
 import org.geotools.gml3.XSDIdRegistry;
 import org.geotools.xml.AbstractComplexBinding;
@@ -75,14 +76,16 @@ public class AbstractFeatureTypeBinding extends AbstractComplexBinding {
     BindingWalkerFactory bwFactory;
     SchemaIndex schemaIndex;
     Configuration configuration;
+    GML3EncodingUtils encodingUtils;
     
     public AbstractFeatureTypeBinding(FeatureTypeCache ftCache, BindingWalkerFactory bwFactory,
-            SchemaIndex schemaIndex, Configuration configuration, XSDIdRegistry idRegistry) {
+            SchemaIndex schemaIndex, Configuration configuration, XSDIdRegistry idRegistry, GML3EncodingUtils encodingUtils ) {
         this.ftCache = ftCache;
         this.bwFactory = bwFactory;
         this.schemaIndex = schemaIndex;
         this.configuration = configuration;
         this.idSet = idRegistry;
+        this.encodingUtils = encodingUtils;
     }
 
     /**
@@ -132,12 +135,12 @@ public class AbstractFeatureTypeBinding extends AbstractComplexBinding {
 
     public Element encode(Object object, Document document, Element value)
         throws Exception {
-        return GML3EncodingUtils.AbstractFeatureType_encode(object,document,value,idSet);
+        return encodingUtils.AbstractFeatureTypeEncode(object,document,value,idSet);
     }
 
     @Override
     public List getProperties(Object object, XSDElementDeclaration element) throws Exception {
-        return GML3EncodingUtils.AbstractFeatureType_getProperties(object, element, schemaIndex,
+        return encodingUtils.AbstractFeatureTypeGetProperties(object, element, schemaIndex,
                 configuration);
     }
 }
