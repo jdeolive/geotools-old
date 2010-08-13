@@ -164,11 +164,8 @@ public class PostGISDialect extends BasicSQLDialect {
     @Override
     public void encodeGeometryColumn(GeometryDescriptor gatt, int srid,
             StringBuffer sql) {
-        CoordinateReferenceSystem crs = gatt.getCoordinateReferenceSystem();
-        int dimensions = crs == null ? 2 : crs.getCoordinateSystem()
-                .getDimension();
         sql.append("encode(");
-        sql.append("ST_AsEWKB(");
+        sql.append("ST_AsBinary(");
         encodeColumnName(gatt.getLocalName(), sql);
         sql.append("),'base64')");
     }
