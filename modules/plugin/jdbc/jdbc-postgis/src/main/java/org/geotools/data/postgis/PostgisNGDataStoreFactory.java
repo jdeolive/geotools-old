@@ -28,8 +28,11 @@ public class PostgisNGDataStoreFactory extends JDBCDataStoreFactory {
     /** parameter for database type */
     public static final Param DBTYPE = new Param("dbtype", String.class, "Type", true, "postgis");
     
-    /** parameter for namespace of the datastore */
+    /** enables using && in bbox queries */
     public static final Param LOOSEBBOX = new Param("Loose bbox", Boolean.class, "Perform only primary filter on bbox", false, Boolean.TRUE);
+    
+    /** parameter that enables estimated extends instead of exact ones */ 
+    public static final Param ESTIMATED_EXTENTS = new Param("Estimated extends", Boolean.class, "Use the spatial index information to quickly get an estimate of the data bounds", false, Boolean.TRUE);
     
     /** parameter for database port */
     public static final Param PORT = new Param("port", Integer.class, "Port", true, 5432);
@@ -95,11 +98,16 @@ public class PostgisNGDataStoreFactory extends JDBCDataStoreFactory {
         Boolean loose = (Boolean) LOOSEBBOX.lookUp(params);
         dialect.setLooseBBOXEnabled(loose == null || Boolean.TRUE.equals(loose));
         
+        // check the estimated extents
+        Boolean estimated = (Boolean) ESTIMATED_EXTENTS.lookUp(params);
+        dialect.setEstimatedExtentsEnabled(estimated == null || Boolean.TRUE.equals(estimated));
+        
         // setup the ps dialect if need be
         Boolean usePs = (Boolean) PREPARED_STATEMENTS.lookUp(params);
         if(Boolean.TRUE.equals(usePs)) {
             dataStore.setSQLDialect(new PostGISPSDialect(dataStore, dialect));
         }
+        
         
         return dataStore;
     }
@@ -112,6 +120,7 @@ public class PostgisNGDataStoreFactory extends JDBCDataStoreFactory {
         parameters.put(DBTYPE.key, DBTYPE);
         parameters.put(SCHEMA.key, SCHEMA);
         parameters.put(LOOSEBBOX.key, LOOSEBBOX);
+        parameters.put(ESTIMATED_EXTENTS.key, ESTIMATED_EXTENTS);
         parameters.put(PORT.key, PORT);
         parameters.put(PREPARED_STATEMENTS.key, PREPARED_STATEMENTS);
         parameters.put(MAX_OPEN_PREPARED_STATEMENTS.key, MAX_OPEN_PREPARED_STATEMENTS);

@@ -44,6 +44,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
 import javax.sql.DataSource;
+import javax.xml.transform.TransformerException;
 
 import org.geotools.data.DataStore;
 import org.geotools.data.DefaultQuery;
@@ -88,7 +89,9 @@ import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.identity.GmlObjectId;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
+import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.TransformException;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
@@ -1078,64 +1081,86 @@ public final class JDBCDataStore extends ContentDataStore
         
         Statement st = null;
         ResultSet rs = null;
+        ReferencedEnvelope bounds = new ReferencedEnvelope(featureType.getCoordinateReferenceSystem());
         try {
-            if ( dialect instanceof PreparedStatementSQLDialect ) {
-                st = selectBoundsSQLPS(featureType, query, cx);
-                rs = ((PreparedStatement)st).executeQuery();
-            }
-            else {
-                String sql = selectBoundsSQL(featureType, query);
-                LOGGER.log(Level.FINE, "Retriving bounding box: {0}", sql);
-        
-                st = cx.createStatement();
-                rs = st.executeQuery(sql);
-            }
-                        
-            try {
-                ReferencedEnvelope bounds = null;
-                Envelope e = null;
-                if( rs.next() ) {
-                    e = dialect.decodeGeometryEnvelope(rs, 1, st.getConnection());
+            List<ReferencedEnvelope> result = dialect.getOptimizedBounds(databaseSchema, featureType, cx);
+            if(result != null && !result.isEmpty()) {
+                // merge the envelopes into one
+                for (ReferencedEnvelope envelope : result) {
+                    bounds = mergeEnvelope(bounds, envelope);
                 }
-                
-                if ( e == null ) {
-                    e = new Envelope();
-                    e.setToNull();
-                }
-               
-                if (e instanceof ReferencedEnvelope) {
-                    bounds = (ReferencedEnvelope) e;
+            } else {
+                // build an aggregate query
+                if ( dialect instanceof PreparedStatementSQLDialect ) {
+                    st = selectBoundsSQLPS(featureType, query, cx);
+                    rs = ((PreparedStatement)st).executeQuery();
                 } else {
-                    //set the crs to be the crs of the feature type
-                    // grab the 2d part of the crs 
-                    CoordinateReferenceSystem flatCRS = CRS.getHorizontalCRS(featureType.getCoordinateReferenceSystem());
-                    
-                    if ( e != null ) {
-                        bounds = new ReferencedEnvelope(e, flatCRS);
-                    }
-                    else {
-                        bounds = new ReferencedEnvelope( flatCRS );
-                        bounds.setToNull();
-                    }
+                    String sql = selectBoundsSQL(featureType, query);
+                    LOGGER.log(Level.FINE, "Retriving bounding box: {0}", sql);
+            
+                    st = cx.createStatement();
+                    rs = st.executeQuery(sql);
                 }
 
-                //keep going to handle case where envelope is not calculated
-                // as aggregate function
-		if (e.isNull()==false) { // featuretype not empty
-		  while (rs.next()) {
-		      bounds.expandToInclude(dialect.decodeGeometryEnvelope(rs, 1, st.getConnection()));
-		  }
-		}
-
-                return bounds;
+                // scan through all the rows (just in case a non aggregated function was used)
+                // and through all the columns (in case we have multiple geometry columns)
+                CoordinateReferenceSystem flatCRS = CRS.getHorizontalCRS(featureType
+                        .getCoordinateReferenceSystem());
+                final int columns = rs.getMetaData().getColumnCount();
+                while (rs.next()) {
+                    for (int i = 1; i <= columns; i++) {
+                        final Envelope envelope = dialect.decodeGeometryEnvelope(rs, i, st.getConnection());
+                        if(envelope instanceof ReferencedEnvelope) {
+                            bounds = mergeEnvelope(bounds, (ReferencedEnvelope) envelope);
+                        } else {
+                            bounds = mergeEnvelope(bounds, new ReferencedEnvelope(envelope, flatCRS));
+                        }
+                    }
+                }
             }
-            finally {
-                closeSafe(rs);
-                closeSafe(st);
-            }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             String msg = "Error occured calculating bounds";
             throw (IOException) new IOException(msg).initCause(e);
+        } finally {
+            closeSafe(rs);
+            closeSafe(st);
+        }
+        
+        return bounds;
+    }
+    
+    /**
+     * Merges two envelopes handling possibly different CRS
+     * @param base
+     * @param merge
+     * @return
+     * @throws TransformException
+     * @throws FactoryException
+     */
+    ReferencedEnvelope mergeEnvelope(ReferencedEnvelope base, ReferencedEnvelope merge) 
+                        throws TransformException, FactoryException {
+        if(base == null || base.isNull()) {
+            return merge;
+        } else if(merge == null || merge.isNull()) {
+            return base;
+        } else {
+            // reproject and merge
+            final CoordinateReferenceSystem crsBase = base.getCoordinateReferenceSystem();
+            final CoordinateReferenceSystem crsMerge = merge.getCoordinateReferenceSystem();
+            if(crsBase == null) {
+                merge.expandToInclude(base);
+                return merge;
+            } else if(crsMerge == null) {
+                base.expandToInclude(base);
+                return base;
+            } else {
+                // both not null, are they equal?
+                if(!CRS.equalsIgnoreMetadata(crsBase, crsMerge)) {
+                    merge = merge.transform(crsBase, true);
+                }
+                base.expandToInclude(merge);
+                return base;
+            }
         }
     }
 

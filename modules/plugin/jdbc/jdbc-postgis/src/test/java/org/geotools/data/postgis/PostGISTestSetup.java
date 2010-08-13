@@ -31,6 +31,9 @@ public class PostGISTestSetup extends JDBCTestSetup {
         // the unit tests assume a non loose behaviour
         ((PostGISDialect) dataStore.getSQLDialect()).setLooseBBOXEnabled(false);
         
+        // the tests assume non estimated extents 
+        ((PostGISDialect) dataStore.getSQLDialect()).setEstimatedExtentsEnabled(false);
+        
         // let's work with the most common schema please
         dataStore.setDatabaseSchema("public");
     }
@@ -69,6 +72,9 @@ public class PostGISTestSetup extends JDBCTestSetup {
         // advance the sequence to 2
         run("SELECT nextval(pg_get_serial_sequence('ft1','id'))");
         run("SELECT nextval(pg_get_serial_sequence('ft1','id'))");
+        // analyze so that the stats will be up to date
+        run("ANALYZE \"ft1\"");
+
     }
 
     @Override

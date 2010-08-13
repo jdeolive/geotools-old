@@ -23,8 +23,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
@@ -38,6 +40,7 @@ import org.geotools.data.oracle.sdo.GeometryConverter;
 import org.geotools.data.oracle.sdo.SDOSqlDumper;
 import org.geotools.data.oracle.sdo.TT;
 import org.geotools.factory.Hints;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.jdbc.JDBCDataStore;
 import org.geotools.jdbc.PreparedFilterToSQL;
 import org.geotools.jdbc.PreparedStatementSQLDialect;
@@ -121,6 +124,11 @@ public class OracleDialect extends PreparedStatementSQLDialect {
     boolean looseBBOXEnabled = false;
     
     /**
+     * Whether to use estimated extents to build
+     */
+    boolean estimatedExtentsEnabled = false;
+    
+    /**
      * Stores srid and their nature, true if geodetic, false otherwise. Avoids repeated
      * accesses to the MDSYS.GEODETIC_SRIDS table
      */
@@ -143,6 +151,14 @@ public class OracleDialect extends PreparedStatementSQLDialect {
         this.looseBBOXEnabled = looseBBOXEnabled;
     }
     
+    public boolean isEstimatedExtentsEnabled() {
+        return estimatedExtentsEnabled;
+    }
+
+    public void setEstimatedExtentsEnabled(boolean estimatedExtenstEnabled) {
+        this.estimatedExtentsEnabled = estimatedExtenstEnabled;
+    }
+
     /**
      * Checks the user has permissions to read from the USER_SDO_INDEX_METADATA and
      * USER_SDO_GEOM_METADATA. The code can use this information to decide to access the
@@ -579,6 +595,53 @@ public class OracleDialect extends PreparedStatementSQLDialect {
         sql.append( "SDO_AGGR_MBR(");
         encodeColumnName(geometryColumn, sql);
         sql.append( ")");
+    }
+    
+    @Override
+    public List<ReferencedEnvelope> getOptimizedBounds(String schema, SimpleFeatureType featureType,
+            Connection cx) throws SQLException, IOException {
+        if (!estimatedExtentsEnabled)
+            return null;
+
+        String tableName = featureType.getTypeName();
+
+        Statement st = null;
+        ResultSet rs = null;
+
+        List<ReferencedEnvelope> result = new ArrayList<ReferencedEnvelope>();
+        try {
+            st = cx.createStatement();
+
+            for (AttributeDescriptor att : featureType.getAttributeDescriptors()) {
+                if (att instanceof GeometryDescriptor) {
+                    // use estimated extent (optimizer statistics)
+                    StringBuffer sql = new StringBuffer();
+                    sql.append("select SDO_TUNE.EXTENT_OF('");
+                    sql.append(tableName);
+                    sql.append("', '");
+                    sql.append(att.getName().getLocalPart());
+                    sql.append("') FROM DUAL");
+                    rs = st.executeQuery(sql.toString());
+
+                    if (rs.next()) {
+                        // decode the geometry
+                        Envelope env = decodeGeometryEnvelope(rs, 1, cx);
+
+                        // reproject and merge
+                        if (!env.isNull()) {
+                            CoordinateReferenceSystem crs = ((GeometryDescriptor) att)
+                                    .getCoordinateReferenceSystem();
+                            result.add(new ReferencedEnvelope(env, crs));
+                        }
+                    }
+                    rs.close();
+                }
+            }
+        } finally {
+            dataStore.closeSafe(rs);
+            dataStore.closeSafe(st);
+        }
+        return result;
     }
 
     @Override

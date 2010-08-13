@@ -22,11 +22,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
 import org.geotools.data.jdbc.FilterToSQL;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.jdbc.BasicSQLDialect;
 import org.geotools.jdbc.JDBCDataStore;
 import org.geotools.referencing.CRS;
@@ -106,6 +109,15 @@ public class PostGISDialect extends BasicSQLDialect {
     public void setLooseBBOXEnabled(boolean looseBBOXEnabled) {
         this.looseBBOXEnabled = looseBBOXEnabled;
     }
+    
+        
+    public boolean isEstimatedExtentsEnabled() {
+        return estimatedExtentsEnabled;
+    }
+
+    public void setEstimatedExtentsEnabled(boolean estimatedExtentsEnabled) {
+        this.estimatedExtentsEnabled = estimatedExtentsEnabled;
+    }
 
     @Override
     public boolean includeTable(String schemaName, String tableName,
@@ -164,13 +176,62 @@ public class PostGISDialect extends BasicSQLDialect {
     @Override
     public void encodeGeometryEnvelope(String tableName, String geometryColumn,
             StringBuffer sql) {
-        if (estimatedExtentsEnabled) {
-            sql.append("ST_Estimated_Extent(");
-            sql.append("'" + tableName + "','" + geometryColumn + "'))));");
-        } else {
-            sql.append("ST_AsText(ST_Force_2D(Envelope(");
-            sql.append("ST_Extent(\"" + geometryColumn + "\"::geometry))))");
-        }
+        sql.append("ST_AsText(ST_Force_2D(Envelope(");
+        sql.append("ST_Extent(\"" + geometryColumn + "\"::geometry))))");
+    }
+    
+    @Override
+    public List<ReferencedEnvelope> getOptimizedBounds(String schema, SimpleFeatureType featureType,
+            Connection cx) throws SQLException, IOException {
+        if (!estimatedExtentsEnabled)
+            return null;
+
+        String tableName = featureType.getTypeName();
+
+        Statement st = null;
+        ResultSet rs = null;
+
+        List<ReferencedEnvelope> result = new ArrayList<ReferencedEnvelope>();
+        try {
+            st = cx.createStatement();
+
+            for (AttributeDescriptor att : featureType.getAttributeDescriptors()) {
+                if (att instanceof GeometryDescriptor) {
+                    // use estimated extent (optimizer statistics)
+                    StringBuffer sql = new StringBuffer();
+                    sql.append("select AsText(force_2d(Envelope(ST_Estimated_Extent('");
+                    if(schema != null) {
+                        sql.append(schema);
+                        sql.append("', '");
+                    }
+                    sql.append(tableName);
+                    sql.append("', '");
+                    sql.append(att.getName().getLocalPart());
+                    sql.append("'))))");
+                    rs = st.executeQuery(sql.toString());
+
+                    if (rs.next()) {
+                        // decode the geometry
+                        Envelope env = decodeGeometryEnvelope(rs, 1, cx);
+
+                        // reproject and merge
+                        if (!env.isNull()) {
+                            CoordinateReferenceSystem crs = ((GeometryDescriptor) att)
+                                    .getCoordinateReferenceSystem();
+                            result.add(new ReferencedEnvelope(env, crs));
+                        }
+                    }
+                    rs.close();
+                }
+            }
+        } catch(SQLException e) {
+            LOGGER.log(Level.WARNING, "Failed to use ST_Estimated_Extent, falling back on envelope aggregation", e);
+            return null;
+        } finally {
+            dataStore.closeSafe(rs);
+            dataStore.closeSafe(st);
+        } 
+        return result;
     }
 
     @Override

@@ -26,6 +26,7 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
@@ -38,6 +39,7 @@ import org.geotools.feature.visitor.MaxVisitor;
 import org.geotools.feature.visitor.MinVisitor;
 import org.geotools.feature.visitor.SumVisitor;
 import org.geotools.filter.FilterCapabilities;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.util.logging.Logging;
 import org.opengis.feature.FeatureVisitor;
@@ -534,6 +536,26 @@ public abstract class SQLDialect {
             }
             return null;
         }
+    }
+    
+    /**
+     * Returns the bounds of all geometry columns in the layer using any approach that proves 
+     * to be faster than the plain bounds aggregation 
+     * (e.g., better than the "plain select extent(geom) from table" on PostGIS),
+     * or null if none exists or the fast method has not been enabled (e.g., if the fast method is
+     * just an estimate of the bounds you probably want the user to enable it manually)
+     * 
+     * @param schema
+     *            The database schema, if any, or null
+     * @param featureType
+     *            The feature type containing the geometry columns whose bounds need to computed.
+     *            Mind, it may be retyped and thus contain less geometry columns than the table
+     * @param cx
+     * @return a list of referenced envelopes (some of which may be null or empty)
+     */
+    public List<ReferencedEnvelope> getOptimizedBounds(String schema, SimpleFeatureType featureType,
+            Connection cx) throws SQLException, IOException {
+        return null;
     }
 
     /**

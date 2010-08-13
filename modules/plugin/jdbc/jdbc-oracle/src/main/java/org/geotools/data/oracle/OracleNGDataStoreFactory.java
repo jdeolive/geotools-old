@@ -19,6 +19,7 @@ package org.geotools.data.oracle;
 import java.io.IOException;
 import java.util.Map;
 
+import org.geotools.data.DataAccessFactory.Param;
 import org.geotools.jdbc.JDBCDataStore;
 import org.geotools.jdbc.JDBCDataStoreFactory;
 import org.geotools.jdbc.SQLDialect;
@@ -39,6 +40,9 @@ public class OracleNGDataStoreFactory extends JDBCDataStoreFactory {
 
     /** parameter for database port */
     public static final Param PORT = new Param("port", Integer.class, "Port", true, 1521);
+    
+    /** parameter that enables estimated extends instead of exact ones */ 
+    public static final Param ESTIMATED_EXTENTS = new Param("Estimated extends", Boolean.class, "Use the spatial index information to quickly get an estimate of the data bounds", false, Boolean.TRUE);
     
     /** parameter for namespace of the datastore */
     public static final Param LOOSEBBOX = new Param("Loose bbox", Boolean.class, "Perform only primary filter on bbox", false, Boolean.TRUE);
@@ -100,6 +104,10 @@ public class OracleNGDataStoreFactory extends JDBCDataStoreFactory {
         Boolean loose = (Boolean) LOOSEBBOX.lookUp(params);
         dialect.setLooseBBOXEnabled(loose == null || Boolean.TRUE.equals(loose));
         
+        // check the estimated extents
+        Boolean estimated = (Boolean) ESTIMATED_EXTENTS.lookUp(params);
+        dialect.setEstimatedExtentsEnabled(estimated == null || Boolean.TRUE.equals(estimated));
+        
         // setup proper fetch size
         dataStore.setFetchSize(200);
         
@@ -126,6 +134,7 @@ public class OracleNGDataStoreFactory extends JDBCDataStoreFactory {
         
         super.setupParameters(parameters);
         parameters.put(LOOSEBBOX.key, LOOSEBBOX);
+        parameters.put(ESTIMATED_EXTENTS.key, ESTIMATED_EXTENTS);
         parameters.put(MAX_OPEN_PREPARED_STATEMENTS.key, MAX_OPEN_PREPARED_STATEMENTS);
         parameters.put(PORT.key, PORT);
         parameters.put(DBTYPE.key, DBTYPE);
