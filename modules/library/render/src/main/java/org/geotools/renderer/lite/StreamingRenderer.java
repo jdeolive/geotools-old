@@ -1260,7 +1260,10 @@ public final class StreamingRenderer implements GTRenderer {
         if(!rbe.isEstimateAccurate())
             LOGGER.warning("Assuming rendering buffer = " + rbe.getBuffer() 
                     + ", but estimation is not accurate, you may want to set a buffer manually");
-        return rbe.getBuffer();
+        
+        // the actual amount we have to grow the rendering area by is half of the stroke/symbol sizes
+        // plus one extra pixel for antialiasing effects
+        return (int) Math.round(rbe.getBuffer() / 2.0 + 1);
     }
 
     /**
