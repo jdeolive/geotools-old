@@ -19,6 +19,8 @@ package org.geotools.data.shapefile.shp;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.geotools.geometry.jts.coordinatesequence.CoordinateSequences;
 
@@ -43,6 +45,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * @version $Id$
  */
 public class PolygonHandler implements ShapeHandler {
+    protected static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.data.shapefile");
+    
     GeometryFactory geometryFactory;
 
     final ShapeType shapeType;
@@ -207,11 +211,7 @@ public class PolygonHandler implements ShapeHandler {
         // if for some reason, there is only one hole, we just reverse it and
         // carry on.
         else if (holes.size() == 1 && shells.size() == 0) {
-            org.geotools.util.logging.Logging.getLogger(
-                    "org.geotools.data.shapefile").warning(
-                    "only one hole in this polygon record");
-            return createMulti(JTSUtilities.reverseRing((LinearRing) holes
-                    .get(0)));
+            return createMulti((LinearRing) holes.get(0));
         } else {
 
             // build an association between shells and holes
@@ -268,8 +268,7 @@ public class PolygonHandler implements ShapeHandler {
         if (shells.size() == 0) {
             for (int i = 0, ii = holes.size(); i < ii; i++) {
                 LinearRing hole = (LinearRing) holes.get(i);
-                polygons[i] = geometryFactory.createPolygon(JTSUtilities
-                        .reverseRing(hole), new LinearRing[0]);
+                polygons[i] = geometryFactory.createPolygon(hole, null);
             }
         }
 
@@ -326,11 +325,8 @@ public class PolygonHandler implements ShapeHandler {
             }
 
             if (minShell == null) {
-                org.geotools.util.logging.Logging.getLogger(
-                        "org.geotools.data.shapefile").warning(
-                        "polygon found with a hole thats not inside a shell");
                 // now reverse this bad "hole" and turn it into a shell
-                shells.add(JTSUtilities.reverseRing(testRing));
+                shells.add(testRing);
                 holesForShells.add(new ArrayList());
             } else {
                 ((ArrayList) holesForShells.get(shells.indexOf(minShell)))

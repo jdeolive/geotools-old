@@ -37,7 +37,7 @@ public class GeometryClipperTest {
     
     @Before
     public void setUp() throws Exception {
-//         System.setProperty("org.geotools.test.interactive", "true");
+        // System.setProperty("org.geotools.test.interactive", "true");
         clipper = new GeometryClipper(new Envelope(0, 10, 0, 10));
         wkt = new WKTReader();
         boundsPoly = wkt.read("POLYGON((0 0, 0 10, 10 10, 10 0, 0 0))");
@@ -193,8 +193,8 @@ public class GeometryClipperTest {
     public void testDonutCrossingInvalid() throws Exception {
         Geometry g = wkt.read("POLYGON((6 2, 14 2, 14 8, 6 8, 6 2), (8 4, 12 4, 12 6, 8 6, 8 4))");
         Geometry clipped = clipper.clip(g, false);
-//        System.out.println(clipped);
-        assertTrue(clipped.equalsExact(wkt.read("POLYGON ((10 2, 10 8, 6 8, 6 2, 10 2), (8 6, 10 6, 10 4, 8 4, 8 6))")));
+        // System.out.println(clipped);
+        assertTrue(clipped.equalsExact(wkt.read("POLYGON ((10 2, 10 8, 6 8, 6 2, 10 2), (10 4, 10 6, 8 6, 8 4, 10 4))")));
         showResult("Donut crossing, invalid geom", g, clipped);
     }
     

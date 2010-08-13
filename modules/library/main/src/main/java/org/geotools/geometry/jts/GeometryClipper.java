@@ -252,21 +252,13 @@ public class GeometryClipper {
      */
     private Geometry clipPolygon(Polygon polygon) {
         final GeometryFactory gf = polygon.getFactory();
-        final CoordinateSequenceFactory csf = gf.getCoordinateSequenceFactory();
 
         LinearRing exterior = (LinearRing) polygon.getExteriorRing();
-        if (!CoordinateSequences.isCCW(exterior.getCoordinateSequence())) {
-            CoordinateSequences.reverse(exterior.getCoordinateSequence());
-        }
-
         LinearRing shell = polygonClip(exterior);
 
         List<LinearRing> holes = new ArrayList<LinearRing>();
         for (int i = 0; i < polygon.getNumInteriorRing(); i++) {
             LinearRing hole = (LinearRing) polygon.getInteriorRingN(i);
-            if (CoordinateSequences.isCCW(hole.getCoordinateSequence())) {
-                CoordinateSequences.reverse(hole.getCoordinateSequence());
-            }
             hole = polygonClip(hole);
             if(hole != null) {
                 holes.add(hole);
