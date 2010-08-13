@@ -222,7 +222,6 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
                 SUGGESTED_TILE_SIZE,
                 ALLOW_MULTITHREADING,
                 MAX_ALLOWED_TILES,
-                INTERPOLATION,
                 TIME,
                 ELEVATION,
                 CQL_FILTER}));
