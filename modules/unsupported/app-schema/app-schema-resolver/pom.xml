@@ -32,9 +32,21 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.geosciml</groupId>
+            <groupId>org.geotools.schemas</groupId>
             <artifactId>geosciml-2.0</artifactId>
-            <version>2.0.2-2</version>
+            <version>2.0.2-3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools.schemas</groupId>
+            <artifactId>earthresourceml-1.1</artifactId>
+            <version>1.1.0-2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools.schemas</groupId>
+            <artifactId>wfs-1.1</artifactId>
+            <version>1.1.2-1</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
