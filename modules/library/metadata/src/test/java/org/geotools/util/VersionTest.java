@@ -65,4 +65,14 @@ public final class VersionTest {
         assertTrue(version.compareTo(new Version("1.6.b1"))  > 0);
         assertTrue(version.compareTo(new Version("1.07.b1")) < 0);
     }
+    
+    @Test
+    public void testSNAPSHOT() {
+        final Version version = new Version("2.6-SNAPSHOT");
+        assertEquals(2, version.getMajor());
+        assertEquals(6, version.getMinor());
+        
+        assertEquals("SNAPSHOT", version.getRevision());
+    }
+    
 }

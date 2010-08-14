@@ -43,15 +43,9 @@ public class Version implements CharSequence, Comparable<Version>, Serializable 
     private static final long serialVersionUID = -6793384507333713770L;
 
     /**
-     * The separator character between {@linkplain #getMajor major}, {@linkplain #getMinor minor}
-     * and {@linkplain #getRevision revision} components.
-     */
-    public static final char SEPARATOR = '.';
-
-    /**
      * The pattern to use for splitting version numbers.
      */
-    private static final Pattern PATTERN = Pattern.compile("\\" + SEPARATOR);
+    private static final Pattern PATTERN = Pattern.compile("(\\.|\\-)");
 
     /**
      * The version in string form, with leading and trailing spaces removed.
