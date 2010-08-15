@@ -24,10 +24,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.WeakHashMap;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
@@ -47,7 +44,6 @@ import com.esri.sde.sdk.client.SeQuery;
 import com.esri.sde.sdk.client.SeRasterColumn;
 import com.esri.sde.sdk.client.SeRegistration;
 import com.esri.sde.sdk.client.SeRelease;
-import com.esri.sde.sdk.client.SeRow;
 import com.esri.sde.sdk.client.SeSqlConstruct;
 import com.esri.sde.sdk.client.SeState;
 import com.esri.sde.sdk.client.SeStreamOp;
@@ -129,7 +125,7 @@ class Session implements ISession {
      * performed in the same thread regardless of the thread the {@link #issue(Command)} is being
      * called from.
      */
-    //private final ExecutorService taskExecutor;
+    // private final ExecutorService taskExecutor;
 
     /**
      * Thread used by the taskExecutor; so we can detect recursion.
@@ -231,7 +227,8 @@ class Session implements ISession {
         this.sessionId = sessionCounter.incrementAndGet();
         this.config = config;
         this.pool = pool;
-        //this.taskExecutor = Executors.newSingleThreadExecutor(new SessionThreadFactory(sessionId));
+        // this.taskExecutor = Executors.newSingleThreadExecutor(new
+        // SessionThreadFactory(sessionId));
 
         // grab command thread, held by taskExecutor
         updateCommandThread();
@@ -246,10 +243,10 @@ class Session implements ISession {
             this.connection = issue(connectionCommand);
         } catch (IOException e) {
             // make sure a connection creation failure does not leave a stale thread
-            //this.taskExecutor.shutdownNow();
+            // this.taskExecutor.shutdownNow();
             throw e;
         } catch (RuntimeException shouldntHappen) {
-            //this.taskExecutor.shutdownNow();
+            // this.taskExecutor.shutdownNow();
             throw shouldntHappen;
         }
     }
@@ -267,39 +264,39 @@ class Session implements ISession {
         } catch (SeException e) {
             throw new ArcSdeException(e);
         }
-//        final Thread callingThread = Thread.currentThread();
-//        if (callingThread == commandThread) {
-//            // Called command inside command
-//            try {
-//                return command.execute(this, connection);
-//            } catch (SeException e) {
-//                Throwable cause = e.getCause();
-//                if (cause instanceof IOException) {
-//                    throw (IOException) cause;
-//                }
-//                throw new ArcSdeException(e);
-//            }
-//        } else {
-//            final SessionTask<T> sessionTask = new SessionTask<T>(command);
-//            final Future<T> task = taskExecutor.submit(sessionTask);
-//            T result;
-//            try {
-//                result = task.get();
-//            } catch (InterruptedException e) {
-//                updateCommandThread();
-//                throw new RuntimeException("Command execution abruptly interrupted", e);
-//            } catch (ExecutionException e) {
-//                updateCommandThread();
-//                Throwable cause = e.getCause();
-//                if (cause instanceof IOException) {
-//                    throw (IOException) cause;
-//                } else if (cause instanceof SeException) {
-//                    throw new ArcSdeException((SeException) cause);
-//                }
-//                throw (IOException) new IOException().initCause(cause);
-//            }
-//            return result;
-//        }
+        // final Thread callingThread = Thread.currentThread();
+        // if (callingThread == commandThread) {
+        // // Called command inside command
+        // try {
+        // return command.execute(this, connection);
+        // } catch (SeException e) {
+        // Throwable cause = e.getCause();
+        // if (cause instanceof IOException) {
+        // throw (IOException) cause;
+        // }
+        // throw new ArcSdeException(e);
+        // }
+        // } else {
+        // final SessionTask<T> sessionTask = new SessionTask<T>(command);
+        // final Future<T> task = taskExecutor.submit(sessionTask);
+        // T result;
+        // try {
+        // result = task.get();
+        // } catch (InterruptedException e) {
+        // updateCommandThread();
+        // throw new RuntimeException("Command execution abruptly interrupted", e);
+        // } catch (ExecutionException e) {
+        // updateCommandThread();
+        // Throwable cause = e.getCause();
+        // if (cause instanceof IOException) {
+        // throw (IOException) cause;
+        // } else if (cause instanceof SeException) {
+        // throw new ArcSdeException((SeException) cause);
+        // }
+        // throw (IOException) new IOException().initCause(cause);
+        // }
+        // return result;
+        // }
     }
 
     private void updateCommandThread() {
@@ -317,13 +314,13 @@ class Session implements ISession {
         // used to detect when thread has been
         // restarted after error
         // and block until task is executed
-//        try {
-//            taskExecutor.submit(task).get();
-//        } catch (InterruptedException e) {
-//            throw new RuntimeException(e);
-//        } catch (ExecutionException e) {
-//            throw new RuntimeException(e);
-//        }
+        // try {
+        // taskExecutor.submit(task).get();
+        // } catch (InterruptedException e) {
+        // throw new RuntimeException(e);
+        // } catch (ExecutionException e) {
+        // throw new RuntimeException(e);
+        // }
     }
 
     /**
@@ -409,24 +406,15 @@ class Session implements ISession {
     public SeLayer getLayer(final String layerName) throws IOException {
         checkActive();
         if (!cachedLayers.containsKey(layerName)) {
-            issue(new Command<Void>() {
-                @Override
-                public Void execute(final ISession session, final SeConnection connection)
-                        throws SeException, IOException {
-                    synchronized (cachedLayers) {
-                        if (!cachedLayers.containsKey(layerName)) {
-                            SeTable table = getTable(layerName);
-                            String shapeColumn = getShapeColumn(table);
-                            if (shapeColumn == null) {
-                                return null;
-                            }
-                            SeLayer layer = new SeLayer(connection, layerName, shapeColumn);
-                            cachedLayers.put(layerName, layer);
-                        }
+            synchronized (cachedLayers) {
+                if (!cachedLayers.containsKey(layerName)) {
+                    SeTable table = getTable(layerName);
+                    SeLayer layer = issue(new Commands.GetLayerCommand(table));
+                    if (layer != null) {
+                        cachedLayers.put(layerName, layer);
                     }
-                    return null;
                 }
-            });
+            }
         }
 
         SeLayer seLayer = cachedLayers.get(layerName);
@@ -435,19 +423,6 @@ class Session implements ISession {
         }
         return seLayer;
 
-    }
-
-    private String getShapeColumn(SeTable table) throws ArcSdeException {
-        try {
-            for (SeColumnDefinition aDef : table.describe()) {
-                if (aDef.getType() == SeColumnDefinition.TYPE_SHAPE) {
-                    return aDef.getName();
-                }
-            }
-        } catch (SeException e) {
-            throw new ArcSdeException("Exception describing table " + table.getName(), e);
-        }
-        return null;
     }
 
     /**
@@ -472,31 +447,16 @@ class Session implements ISession {
     public SeTable getTable(final String tableName) throws IOException {
         checkActive();
         if (!cachedTables.containsKey(tableName)) {
-            issue(new Command<Void>() {
-                @Override
-                public Void execute(final ISession session, final SeConnection connection)
-                        throws SeException, IOException {
-                    synchronized (cachedTables) {
-                        if (!cachedTables.containsKey(tableName)) {
-                            SeTable table = new SeTable(connection, tableName);
-                            try {
-                                table.describe();
-                            } catch (SeException e) {
-                                throw new NoSuchElementException("Table '" + tableName
-                                        + "' not found");
-                            }
-                            cachedTables.put(tableName, table);
-                        }
-                    }
-                    return null;
+            synchronized (cachedTables) {
+                if (!cachedTables.containsKey(tableName)) {
+                    SeTable table = issue(new Commands.GetTableCommand(tableName));
+                    cachedTables.put(tableName, table);
                 }
-            });
+            }
         }
 
         SeTable seTable = (SeTable) cachedTables.get(tableName);
-        if (seTable == null) {
-            throw new NoSuchElementException("Table '" + tableName + "' not found");
-        }
+
         return seTable;
     }
 
@@ -588,7 +548,7 @@ class Session implements ISession {
         } catch (Exception e) {
             LOGGER.log(Level.FINE, "closing connection " + toString(), e);
         } finally {
-            //taskExecutor.shutdown();
+            // taskExecutor.shutdown();
         }
     }
 
@@ -701,19 +661,7 @@ class Session implements ISession {
     }
 
     public SdeRow fetch(final SeQuery query, final SdeRow currentRow) throws IOException {
-        return issue(new Command<SdeRow>() {
-            @Override
-            public SdeRow execute(final ISession session, final SeConnection connection)
-                    throws SeException, IOException {
-                SeRow row = query.fetch();
-                if (row == null) {
-                    return null;
-                } else {
-                    currentRow.setRow(row);
-                }
-                return currentRow;
-            }
-        });
+        return issue(new Commands.FetchRowCommand(query, currentRow));
     }
 
     /**
@@ -792,7 +740,7 @@ class Session implements ISession {
                         }
                         conn = new SeConnection(serverName, portNumber, databaseName, userName,
                                 userPassword);
-                        //conn.setConcurrency(SeConnection.SE_ONE_THREAD_POLICY);
+                        // conn.setConcurrency(SeConnection.SE_ONE_THREAD_POLICY);
 
                         // SeStreamSpec streamSpec = new SeStreamSpec();
                         // streamSpec.setRasterBufSize(2*128*128);

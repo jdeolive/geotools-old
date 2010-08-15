@@ -22,6 +22,7 @@ import com.esri.sde.sdk.client.SeQuery;
 import com.esri.sde.sdk.client.SeRasterColumn;
 import com.esri.sde.sdk.client.SeRegistration;
 import com.esri.sde.sdk.client.SeRelease;
+import com.esri.sde.sdk.client.SeRow;
 import com.esri.sde.sdk.client.SeSqlConstruct;
 import com.esri.sde.sdk.client.SeState;
 import com.esri.sde.sdk.client.SeStreamOp;
@@ -270,6 +271,94 @@ public class Commands {
             version.getInfo();
             return version;
         }
+    }
+
+    public static final class GetTableCommand extends Command<SeTable> {
+
+        private final String tableName;
+
+        public GetTableCommand(final String tableName) {
+            this.tableName = tableName;
+        }
+
+        @Override
+        public SeTable execute(ISession session, SeConnection connection) throws SeException,
+                IOException {
+            SeTable table = new SeTable(connection, tableName);
+
+            try {
+                table.describe();
+            } catch (SeException e) {
+                throw new IOException("Table does not exist: " + tableName);
+            }
+
+            return table;
+        }
+
+    }
+
+    public static final class GetLayerCommand extends Command<SeLayer> {
+
+        private final SeTable table;
+
+        public GetLayerCommand(final SeTable table) {
+            this.table = table;
+        }
+
+        /**
+         * @return the SeLayer corresponding to the provided SeTable, or {@code null} if the table
+         *         has no shape column
+         */
+        public SeLayer execute(ISession session, SeConnection connection) throws SeException,
+                IOException {
+            final String shapeColumn = getShapeColumn(table);
+            if (shapeColumn == null) {
+                return null;
+            }
+            final String layerName = table.getQualifiedName();
+
+            SeLayer layer = new SeLayer(connection, layerName, shapeColumn);
+
+            return layer;
+        }
+
+        private String getShapeColumn(SeTable table) throws ArcSdeException {
+            try {
+                for (SeColumnDefinition aDef : table.describe()) {
+                    if (aDef.getType() == SeColumnDefinition.TYPE_SHAPE) {
+                        return aDef.getName();
+                    }
+                }
+            } catch (SeException e) {
+                throw new ArcSdeException("Exception describing table " + table.getName(), e);
+            }
+            return null;
+        }
+    }
+
+    public static class FetchRowCommand extends Command<SdeRow> {
+
+        private final SeQuery query;
+
+        private final SdeRow holder;
+
+        public FetchRowCommand(final SeQuery query, final SdeRow holder) {
+            this.query = query;
+            this.holder = holder;
+        }
+
+        @Override
+        public SdeRow execute(ISession session, SeConnection connection) throws SeException,
+                IOException {
+            SeRow row = query.fetch();
+            if (row == null) {
+                return null;
+            } else {
+                holder.setRow(row);
+            }
+            return holder;
+        }
+
     }
 
     public static final Command<Void> StartTransactionCommand = new Command<Void>() {
