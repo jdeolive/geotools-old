@@ -7,3 +7,8 @@ target
 **/.project
 **/.settings
 **/target
+
+#some other build left overs
+modules/plugin/jdbc/jdbc-h2/*.db
+modules/unsupported/caching/filters.data
+
