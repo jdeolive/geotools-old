@@ -1,4 +1,4 @@
-package org.geotools.data.store;
+package org.geotools.feature;
 
 import java.io.IOException;
 import java.util.NoSuchElementException;

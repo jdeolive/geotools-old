@@ -36,14 +36,14 @@ import org.geotools.feature.CollectionEvent;
 import org.geotools.feature.CollectionListener;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
-import org.geotools.feature.IllegalAttributeException;
-import org.geotools.feature.collection.DelegateFeatureIterator;
+import org.geotools.feature.FeatureReaderIterator;
 import org.geotools.feature.collection.DelegateSimpleFeatureIterator;
 import org.geotools.feature.collection.SubFeatureCollection;
 import org.geotools.filter.SortBy2;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.util.NullProgressListener;
 import org.opengis.feature.Feature;
+import org.opengis.feature.IllegalAttributeException;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
@@ -221,7 +221,7 @@ public abstract class DataFeatureCollection implements SimpleFeatureCollection {
         catch( UnsupportedOperationException readOnly ){
         }
         try {
-            return new FeatureReaderIterator<SimpleFeature>( reader() );
+            return new FeatureReaderIterator( reader() );
         } catch (IOException e) {
             return new NoContentIterator( e );
         }        
