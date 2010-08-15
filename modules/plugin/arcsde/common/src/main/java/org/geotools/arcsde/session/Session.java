@@ -23,9 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.WeakHashMap;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -121,97 +118,11 @@ class Session implements ISession {
     private Map<String, SeLayer> cachedLayers = new WeakHashMap<String, SeLayer>();
 
     /**
-     * The SeConnection bound task executor, ensures all operations against a given connection are
-     * performed in the same thread regardless of the thread the {@link #issue(Command)} is being
-     * called from.
-     */
-    // private final ExecutorService taskExecutor;
-
-    /**
-     * Thread used by the taskExecutor; so we can detect recursion.
-     */
-    private Thread commandThread;
-
-    /**
      * Keeps track of the number of references to this session (ie, how many times it has been
      * {@link #markActive() activated} so it's only actually {@link #dispose() disposed} when the
      * reference count gets down to zero.
      */
     private final AtomicInteger referenceCounter = new AtomicInteger();
-
-    /**
-     * Executes a {@link Command} inside the Session's worker thread
-     */
-    private final class SessionTask<T> implements Callable<T> {
-        private final Command<T> command;
-
-        private SessionTask(Command<T> command) {
-            this.command = command;
-        }
-
-        /**
-         * Executes a {@link Command} inside the Session's worker thread
-         * 
-         * @see java.util.concurrent.Callable#call()
-         * @see Session#issue(Command)
-         */
-        public T call() throws Exception {
-            final Thread currentThread = Thread.currentThread();
-
-            if (commandThread != currentThread) {
-                LOGGER.fine("updating command thread from " + commandThread + " to "
-                        + currentThread);
-                commandThread = currentThread;
-
-            }
-            if (currentThread != commandThread) {
-                throw new IllegalStateException("currentThread != commandThread");
-            }
-            try {
-                return command.execute(Session.this, connection);
-            } catch (Exception e) {
-                if (LOGGER.isLoggable(Level.FINEST)) {
-                    LOGGER.log(Level.FINEST, "Command execution failed for Session "
-                            + Session.this.sessionId + " in thread " + currentThread.getId(), e);
-                } else if (LOGGER.isLoggable(Level.FINE)) {
-                    LOGGER.fine("Command execution failed for Session " + Session.this.sessionId
-                            + " in thread " + currentThread.getId());
-                }
-
-                if (e instanceof SeException) {
-                    throw new ArcSdeException((SeException) e);
-                } else if (e instanceof IOException) {
-                    throw e;
-                }
-                throw new RuntimeException("Command execution failed for Session "
-                        + Session.this.sessionId + " in thread " + currentThread.getId(), e);
-            }
-        }
-    }
-
-    /**
-     * A custom {@link ThreadFactory} for the Session's {@link ExecutorService} for the sole reason
-     * of giving threads a significative name (unvaluable when debugging/profiling)
-     */
-    private static class SessionThreadFactory implements ThreadFactory {
-
-        private final int sessionId;
-
-        private static final ThreadGroup group = new ThreadGroup("ArcSDE Session threads");
-
-        public SessionThreadFactory(final int sessionId) {
-            this.sessionId = sessionId;
-        }
-
-        /**
-         * @see java.util.concurrent.ThreadFactory#newThread(java.lang.Runnable)
-         */
-        public Thread newThread(final Runnable r) {
-            Thread t = new Thread(group, r, "ArcSDE Session " + sessionId);
-            t.setDaemon(true);
-            return t;
-        }
-    }
 
     /**
      * Provides safe access to an SeConnection.
@@ -227,26 +138,14 @@ class Session implements ISession {
         this.sessionId = sessionCounter.incrementAndGet();
         this.config = config;
         this.pool = pool;
-        // this.taskExecutor = Executors.newSingleThreadExecutor(new
-        // SessionThreadFactory(sessionId));
 
-        // grab command thread, held by taskExecutor
-        updateCommandThread();
-
-        /*
-         * This ensures the connection runs always on the same thread. Will fail if its accessed by
-         * different threads
-         */
         final CreateSeConnectionCommand connectionCommand;
         connectionCommand = new CreateSeConnectionCommand(config, sessionId);
         try {
             this.connection = issue(connectionCommand);
         } catch (IOException e) {
-            // make sure a connection creation failure does not leave a stale thread
-            // this.taskExecutor.shutdownNow();
             throw e;
         } catch (RuntimeException shouldntHappen) {
-            // this.taskExecutor.shutdownNow();
             throw shouldntHappen;
         }
     }
@@ -264,63 +163,6 @@ class Session implements ISession {
         } catch (SeException e) {
             throw new ArcSdeException(e);
         }
-        // final Thread callingThread = Thread.currentThread();
-        // if (callingThread == commandThread) {
-        // // Called command inside command
-        // try {
-        // return command.execute(this, connection);
-        // } catch (SeException e) {
-        // Throwable cause = e.getCause();
-        // if (cause instanceof IOException) {
-        // throw (IOException) cause;
-        // }
-        // throw new ArcSdeException(e);
-        // }
-        // } else {
-        // final SessionTask<T> sessionTask = new SessionTask<T>(command);
-        // final Future<T> task = taskExecutor.submit(sessionTask);
-        // T result;
-        // try {
-        // result = task.get();
-        // } catch (InterruptedException e) {
-        // updateCommandThread();
-        // throw new RuntimeException("Command execution abruptly interrupted", e);
-        // } catch (ExecutionException e) {
-        // updateCommandThread();
-        // Throwable cause = e.getCause();
-        // if (cause instanceof IOException) {
-        // throw (IOException) cause;
-        // } else if (cause instanceof SeException) {
-        // throw new ArcSdeException((SeException) cause);
-        // }
-        // throw (IOException) new IOException().initCause(cause);
-        // }
-        // return result;
-        // }
-    }
-
-    private void updateCommandThread() {
-        final Callable<Object> task = new Callable<Object>() {
-            public Object call() throws Exception {
-                final Thread currentThread = Thread.currentThread();
-                if (currentThread != commandThread) {
-                    LOGGER.fine("updating command thread from " + commandThread + " to "
-                            + currentThread);
-                    commandThread = currentThread;
-                }
-                return null;
-            }
-        };
-        // used to detect when thread has been
-        // restarted after error
-        // and block until task is executed
-        // try {
-        // taskExecutor.submit(task).get();
-        // } catch (InterruptedException e) {
-        // throw new RuntimeException(e);
-        // } catch (ExecutionException e) {
-        // throw new RuntimeException(e);
-        // }
     }
 
     /**
@@ -740,11 +582,6 @@ class Session implements ISession {
                         }
                         conn = new SeConnection(serverName, portNumber, databaseName, userName,
                                 userPassword);
-                        // conn.setConcurrency(SeConnection.SE_ONE_THREAD_POLICY);
-
-                        // SeStreamSpec streamSpec = new SeStreamSpec();
-                        // streamSpec.setRasterBufSize(2*128*128);
-                        // conn.setStreamSpec(streamSpec);
                         break;
                     } catch (NegativeArraySizeException nase) {
                         LOGGER.warning("Strange failed ArcSDE connection error.  "
