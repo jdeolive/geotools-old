@@ -44,16 +44,15 @@ import org.geotools.arcsde.session.SdeRow;
 import org.geotools.data.BatchFeatureEvent;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataUtilities;
-import org.geotools.data.DefaultQuery;
 import org.geotools.data.DefaultTransaction;
 import org.geotools.data.FeatureEvent;
+import org.geotools.data.FeatureEvent.Type;
 import org.geotools.data.FeatureListener;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
-import org.geotools.data.FeatureEvent.Type;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.data.simple.SimpleFeatureSource;
@@ -170,8 +169,7 @@ public class ArcSDEFeatureStoreTest {
 
         final DataStore dataStore = testData.getDataStore();
         final String typeName = testData.getTempTableName();
-        final SimpleFeatureSource origional = dataStore
-                .getFeatureSource(typeName);
+        final SimpleFeatureSource origional = dataStore.getFeatureSource(typeName);
         TestFeatureListener listener = new TestFeatureListener();
         origional.addFeatureListener(listener);
 
@@ -211,7 +209,7 @@ public class ArcSDEFeatureStoreTest {
         assertEquals(8, featureStore1.getCount(Query.ALL));
         assertEquals(8, featureStore2.getCount(Query.ALL));
 
-        DefaultQuery queryOneFeature = new DefaultQuery();
+        Query queryOneFeature = new Query();
         queryOneFeature.setTypeName(typeName);
         queryOneFeature.setFilter(Filter.INCLUDE);
         queryOneFeature.setMaxFeatures(1);
@@ -268,8 +266,7 @@ public class ArcSDEFeatureStoreTest {
 
         final DataStore dataStore = testData.getDataStore();
         final String typeName = testData.getTempTableName();
-        final SimpleFeatureSource origional = dataStore
-                .getFeatureSource(typeName);
+        final SimpleFeatureSource origional = dataStore.getFeatureSource(typeName);
         TestFeatureListener listener = new TestFeatureListener();
         origional.addFeatureListener(listener);
 
@@ -326,8 +323,8 @@ public class ArcSDEFeatureStoreTest {
         assertEquals(2, listener1.list.size());
 
         BatchFeatureEvent batch = (BatchFeatureEvent) listener1.list.get(2);
-        assertFalse("confirm tempFid is not in the commit", id.getIdentifiers().contains(
-                tempFeatureId));
+        assertFalse("confirm tempFid is not in the commit",
+                id.getIdentifiers().contains(tempFeatureId));
         assertNotNull(batch.getFilter());
 
         FeatureId featureId = (FeatureId) batch.getCreatedFeatureIds().iterator().next();
@@ -346,7 +343,7 @@ public class ArcSDEFeatureStoreTest {
         final Filter fidFilter;
         {
             // get a fid
-            DefaultQuery query = new DefaultQuery(typeName);
+            Query query = new Query(typeName);
             FeatureReader<SimpleFeatureType, SimpleFeature> reader = ds.getFeatureReader(query,
                     Transaction.AUTO_COMMIT);
             try {
@@ -402,7 +399,7 @@ public class ArcSDEFeatureStoreTest {
 
         // was it really removed?
         {
-            DefaultQuery query = new DefaultQuery(typeName, fidFilter);
+            Query query = new Query(typeName, fidFilter);
             FeatureReader<SimpleFeatureType, SimpleFeature> reader = ds.getFeatureReader(query,
                     Transaction.AUTO_COMMIT);
             try {
@@ -449,8 +446,8 @@ public class ArcSDEFeatureStoreTest {
         }
 
         // was it really removed?
-        FeatureReader<SimpleFeatureType, SimpleFeature> read = ds.getFeatureReader(
-                new DefaultQuery(typeName, or), Transaction.AUTO_COMMIT);
+        FeatureReader<SimpleFeatureType, SimpleFeature> read = ds.getFeatureReader(new Query(
+                typeName, or), Transaction.AUTO_COMMIT);
         try {
             assertFalse(read.hasNext());
         } finally {
@@ -501,7 +498,7 @@ public class ArcSDEFeatureStoreTest {
         writer = ds.getFeatureWriter(typeName, transaction);
 
         FeatureReader<SimpleFeatureType, SimpleFeature> reader;
-        final Query query = new DefaultQuery(typeName);
+        final Query query = new Query(typeName);
         try {
             try {
                 while (iterator.hasNext()) {
@@ -606,8 +603,7 @@ public class ArcSDEFeatureStoreTest {
 
         final DataStore ds = testData.getDataStore();
 
-        SimpleFeatureStore store = (SimpleFeatureStore) ds
-                .getFeatureSource(typeName);
+        SimpleFeatureStore store = (SimpleFeatureStore) ds.getFeatureSource(typeName);
 
         SimpleFeatureType ftype = store.getSchema();
 
@@ -615,8 +611,7 @@ public class ArcSDEFeatureStoreTest {
 
         feature.setAttribute("INT32_COL", null);
 
-        SimpleFeatureCollection collection = DataUtilities
-                .collection(feature);
+        SimpleFeatureCollection collection = DataUtilities.collection(feature);
         try {
             store.addFeatures(collection);
             fail("Expected IAE");
@@ -648,7 +643,7 @@ public class ArcSDEFeatureStoreTest {
             writer.close();
         }
 
-        DefaultQuery query = new DefaultQuery(typeName, filter);
+        Query query = new Query(typeName, filter);
         FeatureReader<SimpleFeatureType, SimpleFeature> reader;
         reader = ds.getFeatureReader(query, Transaction.AUTO_COMMIT);
         try {
@@ -657,7 +652,7 @@ public class ArcSDEFeatureStoreTest {
             reader.close();
         }
 
-        query = new DefaultQuery(typeName, CQL.toFilter("INT32_COL = -1000"));
+        query = new Query(typeName, CQL.toFilter("INT32_COL = -1000"));
         reader = ds.getFeatureReader(query, Transaction.AUTO_COMMIT);
         try {
             assertTrue(reader.hasNext());
@@ -675,9 +670,9 @@ public class ArcSDEFeatureStoreTest {
         final String typeName = testData.getTempTableName();
         final DataStore ds = testData.getDataStore();
         final Filter oldValueFilter = CQL.toFilter("INT32_COL = 3");
-        final Query oldValueQuery = new DefaultQuery(typeName, oldValueFilter);
+        final Query oldValueQuery = new Query(typeName, oldValueFilter);
         final Filter newValueFilter = CQL.toFilter("INT32_COL = -1000");
-        final Query newValueQuery = new DefaultQuery(typeName, newValueFilter);
+        final Query newValueQuery = new Query(typeName, newValueFilter);
 
         final Transaction transaction = new DefaultTransaction("testUpdateTransaction");
         FeatureWriter<SimpleFeatureType, SimpleFeature> writer;
@@ -764,8 +759,7 @@ public class ArcSDEFeatureStoreTest {
         final Filter oldValueFilter = CQL.toFilter("INT32_COL = 3");
         final Filter newValueFilter = CQL.toFilter("INT32_COL = -1000");
 
-        SimpleFeatureCollection features = store
-                .getFeatures(oldValueFilter);
+        SimpleFeatureCollection features = store.getFeatures(oldValueFilter);
         final int initialSize = features.size();
         assertEquals(1, initialSize);// just to not go forward with bad data
         final SimpleFeature originalFeature;
@@ -792,14 +786,13 @@ public class ArcSDEFeatureStoreTest {
         }
         store.setTransaction(Transaction.AUTO_COMMIT);
 
-        final Query oldValueQuery = new DefaultQuery(typeName, oldValueFilter);
-        final Query newValueQuery = new DefaultQuery(typeName, newValueFilter);
+        final Query oldValueQuery = new Query(typeName, oldValueFilter);
+        final Query newValueQuery = new Query(typeName, newValueFilter);
 
         assertEquals(0, store.getCount(oldValueQuery));
         assertEquals(1, store.getCount(newValueQuery));
 
-        final SimpleFeatureIterator newFeatures = store.getFeatures(newValueQuery)
-                .features();
+        final SimpleFeatureIterator newFeatures = store.getFeatures(newValueQuery).features();
         final SimpleFeature modifiedFeature;
         try {
             modifiedFeature = newFeatures.next();
@@ -840,8 +833,7 @@ public class ArcSDEFeatureStoreTest {
         // String[] typeNames = dataStore.getTypeNames();
         // System.err.println(typeNames);
         final SimpleFeatureStore store;
-        store = (SimpleFeatureStore) dataStore
-                .getFeatureSource(typeName);
+        store = (SimpleFeatureStore) dataStore.getFeatureSource(typeName);
         final SimpleFeatureType schema = store.getSchema();
         GeometryDescriptor defaultGeometry = schema.getGeometryDescriptor();
         String fid1;
@@ -946,8 +938,7 @@ public class ArcSDEFeatureStoreTest {
         testFeatures = testData.createTestFeatures(geometryClass, insertCount);
 
         final DataStore ds = testData.getDataStore();
-        final SimpleFeatureSource fsource = ds
-                .getFeatureSource(typeName);
+        final SimpleFeatureSource fsource = ds.getFeatureSource(typeName);
 
         // incremented on each feature added event to
         // ensure events are being raised as expected
@@ -1014,8 +1005,7 @@ public class ArcSDEFeatureStoreTest {
         LOGGER.info("Wrote null-geom feature to sde");
 
         FeatureReader<SimpleFeatureType, SimpleFeature> reader;
-        reader = ds.getFeatureReader(new DefaultQuery(typeName, Filter.INCLUDE),
-                Transaction.AUTO_COMMIT);
+        reader = ds.getFeatureReader(new Query(typeName, Filter.INCLUDE), Transaction.AUTO_COMMIT);
 
         // save the ID to update the feature later
         String newId;
@@ -1059,7 +1049,7 @@ public class ArcSDEFeatureStoreTest {
         }
         LOGGER.info("Null-geom feature updated with a sample geometry.");
 
-        DefaultQuery query = new DefaultQuery(testData.getTempTableName(), idFilter);
+        Query query = new Query(testData.getTempTableName(), idFilter);
         reader = ds.getFeatureReader(query, Transaction.AUTO_COMMIT);
         try {
             assertTrue(reader.hasNext());
@@ -1091,13 +1081,12 @@ public class ArcSDEFeatureStoreTest {
         final String typeName = testData.getTempTableName();
 
         final DataStore ds = testData.getDataStore();
-        final SimpleFeatureSource fsource = ds
-                .getFeatureSource(typeName);
+        final SimpleFeatureSource fsource = ds.getFeatureSource(typeName);
 
         final int initialCount = fsource.getCount(Query.ALL);
         final int writeCount = initialCount + 2;
-        final SimpleFeatureCollection testFeatures = testData
-                .createTestFeatures(LineString.class, writeCount);
+        final SimpleFeatureCollection testFeatures = testData.createTestFeatures(LineString.class,
+                writeCount);
 
         // incremented on each feature added event to
         // ensure events are being raised as expected
@@ -1159,12 +1148,11 @@ public class ArcSDEFeatureStoreTest {
         testData.insertTestData();
 
         final String typeName = testData.getTempTableName();
-        final SimpleFeatureCollection testFeatures = testData
-                .createTestFeatures(LineString.class, 2);
+        final SimpleFeatureCollection testFeatures = testData.createTestFeatures(LineString.class,
+                2);
 
         final DataStore ds = testData.getDataStore();
-        final SimpleFeatureSource fsource = ds
-                .getFeatureSource(typeName);
+        final SimpleFeatureSource fsource = ds.getFeatureSource(typeName);
         final int initialCount = fsource.getCount(Query.ALL);
 
         final FeatureWriter<SimpleFeatureType, SimpleFeature> writer = ds.getFeatureWriterAppend(
@@ -1227,7 +1215,7 @@ public class ArcSDEFeatureStoreTest {
             // now confirm for that transaction the feature is fetched, and outside
             // it it's not.
             final Filter filterNewFeature = CQL.toFilter("INT32_COL = 1000");
-            final DefaultQuery newFeatureQuery = new DefaultQuery(typeName, filterNewFeature);
+            final Query newFeatureQuery = new Query(typeName, filterNewFeature);
 
             SimpleFeatureCollection features;
             features = transFs.getFeatures(filterNewFeature);
@@ -1334,8 +1322,7 @@ public class ArcSDEFeatureStoreTest {
     @Test
     public void testSetFeaturesAutoCommit() throws Exception {
         testData.insertTestData();
-        final SimpleFeatureCollection featuresToSet = testData
-                .createTestFeatures(Point.class, 5);
+        final SimpleFeatureCollection featuresToSet = testData.createTestFeatures(Point.class, 5);
         final DataStore ds = testData.getDataStore();
         final String typeName = testData.getTempTableName();
 
@@ -1355,8 +1342,7 @@ public class ArcSDEFeatureStoreTest {
     @Test
     public void testSetFeaturesTransaction() throws Exception {
         testData.insertTestData();
-        final SimpleFeatureCollection featuresToSet = testData
-                .createTestFeatures(Point.class, 5);
+        final SimpleFeatureCollection featuresToSet = testData.createTestFeatures(Point.class, 5);
         final DataStore ds = testData.getDataStore();
         final String typeName = testData.getTempTableName();
 
@@ -1410,12 +1396,11 @@ public class ArcSDEFeatureStoreTest {
         // start with an empty table
         final String typeName = testData.getTempTableName();
         final int featureCount = 2;
-        final SimpleFeatureCollection testFeatures = testData
-                .createTestFeatures(LineString.class, featureCount);
+        final SimpleFeatureCollection testFeatures = testData.createTestFeatures(LineString.class,
+                featureCount);
 
         final DataStore ds = testData.getDataStore();
-        final SimpleFeatureStore fStore = (SimpleFeatureStore) ds
-                .getFeatureSource(typeName);
+        final SimpleFeatureStore fStore = (SimpleFeatureStore) ds.getFeatureSource(typeName);
         final Transaction transaction = new DefaultTransaction("testTransactionMultithreadAccess");
         fStore.setTransaction(transaction);
 
@@ -1437,8 +1422,7 @@ public class ArcSDEFeatureStoreTest {
                     final Id newFidsFilter = ff.id(fids);
 
                     System.err.println("querying..");
-                    SimpleFeatureCollection features = fStore
-                            .getFeatures(newFidsFilter);
+                    SimpleFeatureCollection features = fStore.getFeatures(newFidsFilter);
                     System.err.println("querying returned...");
 
                     int size = features.size();
@@ -1449,7 +1433,7 @@ public class ArcSDEFeatureStoreTest {
                     transaction.commit();
                     System.err.println("commited.");
 
-                    size = fStore.getCount(new DefaultQuery(typeName, newFidsFilter));
+                    size = fStore.getCount(new Query(typeName, newFidsFilter));
                     System.err.println("Size: " + size);
                     assertEquals(2, size);
                 } catch (Throwable e) {
@@ -1470,8 +1454,7 @@ public class ArcSDEFeatureStoreTest {
             public void run() {
                 try {
                     System.err.println("worker2 calling getFeartures()");
-                    SimpleFeatureCollection collection = fStore
-                            .getFeatures();
+                    SimpleFeatureCollection collection = fStore.getFeatures();
                     System.err.println("worker2 opening iterator...");
                     SimpleFeatureIterator features = collection.features();
                     try {
@@ -1558,8 +1541,7 @@ public class ArcSDEFeatureStoreTest {
             final SimpleFeatureStore store;
 
             source = dataStore.getFeatureSource(tableName);
-            store = (SimpleFeatureStore) dataStore
-                    .getFeatureSource(tableName);
+            store = (SimpleFeatureStore) dataStore.getFeatureSource(tableName);
 
             Transaction transaction = new DefaultTransaction();
             store.setTransaction(transaction);

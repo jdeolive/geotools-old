@@ -33,7 +33,6 @@ import org.geotools.arcsde.data.ArcSDEQuery.FilterSet;
 import org.geotools.arcsde.data.versioning.ArcSdeVersionHandler;
 import org.geotools.arcsde.data.versioning.AutoCommitVersionHandler;
 import org.geotools.arcsde.session.ISession;
-import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
@@ -140,7 +139,7 @@ public class ArcSDEQueryTest {
         }
         iterator.close();
         Id filter = ff.id(new HashSet(fids));
-        filteringQuery = new DefaultQuery(typeName, filter);
+        filteringQuery = new Query(typeName, filter);
     }
 
     @After
@@ -171,7 +170,7 @@ public class ArcSDEQueryTest {
 
         Filter filter = CQL
                 .toFilter("STRING_COL = strConcat('string', STRING_COL) AND STRING_COL > 'String2' AND BBOX(SHAPE, 10.0,20.0,30.0,40.0)");
-        filteringQuery = new DefaultQuery(typeName, filter);
+        filteringQuery = new Query(typeName, filter);
         // filteringQuery based on the above filter...
         ArcSDEQuery sdeQuery = createFilteringQuery();
 
@@ -195,10 +194,10 @@ public class ArcSDEQueryTest {
 
         FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
         // @id = 'DELETEME.1' AND STRING_COL = 'test'
-        filter = ff.and(ff.id(Collections.singleton(ff.featureId(typeName + ".1"))), ff.equals(ff
-                .property("STRING_COL"), ff.literal("test")));
+        filter = ff.and(ff.id(Collections.singleton(ff.featureId(typeName + ".1"))),
+                ff.equals(ff.property("STRING_COL"), ff.literal("test")));
 
-        filteringQuery = new DefaultQuery(typeName, filter);
+        filteringQuery = new Query(typeName, filter);
         // filteringQuery based on the above filter...
         sdeQuery = createFilteringQuery();
 
@@ -224,7 +223,7 @@ public class ArcSDEQueryTest {
                 .singleton(ff.featureId(typeName + ".1"))));
         filter = ff.and(singleAnded);
 
-        filteringQuery = new DefaultQuery(typeName, filter);
+        filteringQuery = new Query(typeName, filter);
         // filteringQuery based on the above filter...
         sdeQuery = createFilteringQuery();
 
@@ -258,7 +257,7 @@ public class ArcSDEQueryTest {
         ids.add(ff.featureId("states_.1"));
 
         Filter filter = ff.id(ids);
-        filteringQuery = new DefaultQuery(typeName, filter);
+        filteringQuery = new Query(typeName, filter);
         // filteringQuery based on the above filter...
         ArcSDEQuery sdeQuery = createFilteringQuery();
 
@@ -343,8 +342,7 @@ public class ArcSDEQueryTest {
 
     @Test
     public void testCalculateResultCountAll() throws Exception {
-        SimpleFeatureCollection features = dstore.getFeatureSource(
-                typeName).getFeatures();
+        SimpleFeatureCollection features = dstore.getFeatureSource(typeName).getFeatures();
         SimpleFeatureIterator reader = features.features();
         int read = 0;
         try {
@@ -386,7 +384,7 @@ public class ArcSDEQueryTest {
 
         // same filter than ArcSDEJavaApiTest.testCalculateCountSpatialFilter
         Filter filter = CQL.toFilter("BBOX(SHAPE, -180, -90, -170, -80)");
-        filteringQuery = new DefaultQuery(typeName, filter);
+        filteringQuery = new Query(typeName, filter);
         ArcSDEQuery q = ArcSDEQuery.createQuery(session, ftype, filteringQuery, fti
                 .getFidStrategy(), new AutoCommitVersionHandler(
                 SeVersion.SE_QUALIFIED_DEFAULT_VERSION_NAME));
@@ -406,7 +404,7 @@ public class ArcSDEQueryTest {
         FeatureTypeInfo fti = ArcSDEAdapter.fetchSchema(typeName, null, session);
 
         Filter filter = CQL.toFilter("INT32_COL < 5 AND BBOX(SHAPE, -180, -90, -170, -80)");
-        filteringQuery = new DefaultQuery(typeName, filter);
+        filteringQuery = new Query(typeName, filter);
         ArcSDEQuery q = ArcSDEQuery.createQuery(session, ftype, filteringQuery, fti
                 .getFidStrategy(), new AutoCommitVersionHandler(
                 SeVersion.SE_QUALIFIED_DEFAULT_VERSION_NAME));
@@ -428,8 +426,8 @@ public class ArcSDEQueryTest {
             SimpleFeatureIterator reader = features.features();
             SimpleFeatureType featureType = features.getSchema();
             GeometryDescriptor defaultGeometry = featureType.getGeometryDescriptor();
-            ReferencedEnvelope real = new ReferencedEnvelope(defaultGeometry
-                    .getCoordinateReferenceSystem());
+            ReferencedEnvelope real = new ReferencedEnvelope(
+                    defaultGeometry.getCoordinateReferenceSystem());
             try {
                 while (reader.hasNext()) {
                     real.include(reader.next().getBounds());

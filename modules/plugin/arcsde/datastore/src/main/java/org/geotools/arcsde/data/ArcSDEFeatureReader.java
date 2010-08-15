@@ -20,9 +20,9 @@ import java.io.IOException;
 
 import org.geotools.data.AttributeReader;
 import org.geotools.data.DefaultFeatureReader;
-import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.SchemaException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
+import org.opengis.feature.IllegalAttributeException;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 

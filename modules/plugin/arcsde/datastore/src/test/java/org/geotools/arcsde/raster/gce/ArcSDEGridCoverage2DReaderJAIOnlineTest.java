@@ -70,6 +70,7 @@ import com.esri.sde.sdk.client.SeRaster;
  * 
  */
 @SuppressWarnings( { "deprecation", "nls" })
+@Ignore
 public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
 
     private static final String RASTER_TEST_DEBUG_TO_DISK = "raster.test.debugToDisk";

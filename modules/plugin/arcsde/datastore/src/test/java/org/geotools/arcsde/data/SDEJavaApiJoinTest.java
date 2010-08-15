@@ -36,7 +36,6 @@ import org.geotools.arcsde.session.Command;
 import org.geotools.arcsde.session.ISession;
 import org.geotools.arcsde.session.SdeRow;
 import org.geotools.arcsde.session.UnavailableConnectionException;
-import org.geotools.data.DefaultQuery;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
 import org.geotools.data.simple.SimpleFeatureCollection;
@@ -214,9 +213,8 @@ public class SDEJavaApiJoinTest {
      * 
      * SimpleFeatureType type = (SimpleFeatureType) store.getSchema(typeName); assertNotNull(type);
      * 
-     * SimpleFeatureSource fs = store.getFeatureSource(typeName);
-     * assertNotNull(fs); int count = fs.getCount(Query.ALL); final int expected = 16479;
-     * assertEquals(expected, count); }
+     * SimpleFeatureSource fs = store.getFeatureSource(typeName); assertNotNull(fs); int count =
+     * fs.getCount(Query.ALL); final int expected = 16479; assertEquals(expected, count); }
      */
 
     /**
@@ -335,8 +333,7 @@ public class SDEJavaApiJoinTest {
                 .parseSqlQuery(InProcessViewSupportTestData.masterChildSql);
         store.registerView(InProcessViewSupportTestData.typeName, (PlainSelect) select);
 
-        SimpleFeatureSource fs = store
-                .getFeatureSource(InProcessViewSupportTestData.typeName);
+        SimpleFeatureSource fs = store.getFeatureSource(InProcessViewSupportTestData.typeName);
         assertNotNull(fs);
         Envelope bounds = fs.getBounds();
         assertNotNull(bounds);
@@ -352,13 +349,12 @@ public class SDEJavaApiJoinTest {
                 .parseSqlQuery(InProcessViewSupportTestData.masterChildSql);
         store.registerView(InProcessViewSupportTestData.typeName, (PlainSelect) select);
 
-        SimpleFeatureSource fs = store
-                .getFeatureSource(InProcessViewSupportTestData.typeName);
+        SimpleFeatureSource fs = store.getFeatureSource(InProcessViewSupportTestData.typeName);
         assertNotNull(fs);
 
         String cqlQuery = "NAME='name2' OR DESCRIPTION='description4'";
         Filter filter = CQL.toFilter(cqlQuery);
-        DefaultQuery query = new DefaultQuery(InProcessViewSupportTestData.typeName, filter);
+        Query query = new Query(InProcessViewSupportTestData.typeName, filter);
 
         Envelope bounds = fs.getBounds(query);
 
@@ -375,8 +371,7 @@ public class SDEJavaApiJoinTest {
                 .parseSqlQuery(InProcessViewSupportTestData.masterChildSql);
         store.registerView(InProcessViewSupportTestData.typeName, (PlainSelect) select);
 
-        SimpleFeatureSource fs = store
-                .getFeatureSource(InProcessViewSupportTestData.typeName);
+        SimpleFeatureSource fs = store.getFeatureSource(InProcessViewSupportTestData.typeName);
         assertNotNull(fs);
         int count = fs.getCount(Query.ALL);
         final int expected = 7;
@@ -389,13 +384,12 @@ public class SDEJavaApiJoinTest {
                 .parseSqlQuery(InProcessViewSupportTestData.masterChildSql);
         store.registerView(InProcessViewSupportTestData.typeName, (PlainSelect) select);
 
-        SimpleFeatureSource fs = store
-                .getFeatureSource(InProcessViewSupportTestData.typeName);
+        SimpleFeatureSource fs = store.getFeatureSource(InProcessViewSupportTestData.typeName);
         assertNotNull(fs);
 
         String cqlQuery = "NAME='name2' OR DESCRIPTION='description4'";
         Filter filter = CQL.toFilter(cqlQuery);
-        DefaultQuery query = new DefaultQuery(InProcessViewSupportTestData.typeName, filter);
+        Query query = new Query(InProcessViewSupportTestData.typeName, filter);
 
         int count = fs.getCount(query);
         final int expected = 3;
@@ -408,11 +402,9 @@ public class SDEJavaApiJoinTest {
                 .parseSqlQuery(InProcessViewSupportTestData.masterChildSql);
         store.registerView(InProcessViewSupportTestData.typeName, (PlainSelect) select);
 
-        SimpleFeatureSource fs = store
-                .getFeatureSource(InProcessViewSupportTestData.typeName);
+        SimpleFeatureSource fs = store.getFeatureSource(InProcessViewSupportTestData.typeName);
 
-        DefaultQuery query = new DefaultQuery(InProcessViewSupportTestData.typeName,
-                Filter.INCLUDE, null);
+        Query query = new Query(InProcessViewSupportTestData.typeName, Filter.INCLUDE, null);
         SimpleFeatureCollection fc = fs.getFeatures(query);
         int fcCount = fc.size();
         int itCount = 0;
@@ -436,10 +428,9 @@ public class SDEJavaApiJoinTest {
 
         String cqlQuery = "NAME='name2' OR DESCRIPTION='description6'";
         Filter filter = CQL.toFilter(cqlQuery);
-        DefaultQuery query = new DefaultQuery(InProcessViewSupportTestData.typeName, filter);
+        Query query = new Query(InProcessViewSupportTestData.typeName, filter);
 
-        SimpleFeatureSource fs = store
-                .getFeatureSource(InProcessViewSupportTestData.typeName);
+        SimpleFeatureSource fs = store.getFeatureSource(InProcessViewSupportTestData.typeName);
         SimpleFeatureCollection fc = fs.getFeatures(query);
         int fcCount = fc.size();
         int itCount = 0;

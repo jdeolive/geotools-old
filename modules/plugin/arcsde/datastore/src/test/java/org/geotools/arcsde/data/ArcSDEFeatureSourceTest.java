@@ -44,7 +44,6 @@ import java.util.concurrent.FutureTask;
 import java.util.logging.Logger;
 
 import org.geotools.data.DataStore;
-import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.Query;
 import org.geotools.data.QueryCapabilities;
@@ -53,7 +52,6 @@ import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.feature.IllegalAttributeException;
 import org.geotools.filter.text.cql2.CQL;
 import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -62,6 +60,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opengis.feature.Feature;
 import org.opengis.feature.GeometryAttribute;
+import org.opengis.feature.IllegalAttributeException;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
@@ -175,7 +174,7 @@ public class ArcSDEFeatureSourceTest {
         }
 
         // build the query asking for a subset of attributes
-        final Query query = new DefaultQuery(typeName, Filter.INCLUDE, queryAtts);
+        final Query query = new Query(typeName, Filter.INCLUDE, queryAtts);
 
         FeatureReader<SimpleFeatureType, SimpleFeature> reader;
         reader = ds.getFeatureReader(query, Transaction.AUTO_COMMIT);
@@ -219,7 +218,7 @@ public class ArcSDEFeatureSourceTest {
         }
 
         // build the query asking for a subset of attributes
-        final Query query = new DefaultQuery(typeName, Filter.INCLUDE, queryAtts);
+        final Query query = new Query(typeName, Filter.INCLUDE, queryAtts);
 
         FeatureReader<SimpleFeatureType, SimpleFeature> reader;
         reader = ds.getFeatureReader(query, Transaction.AUTO_COMMIT);
@@ -256,7 +255,7 @@ public class ArcSDEFeatureSourceTest {
         final Filter filter = CQL.toFilter("INT32_COL = 1");
 
         // build the query asking for a subset of attributes
-        final Query query = new DefaultQuery(typeName, filter, queryAtts);
+        final Query query = new Query(typeName, filter, queryAtts);
 
         SimpleFeatureCollection features = fs.getFeatures(query);
         SimpleFeatureType resultSchema = features.getSchema();
@@ -297,7 +296,7 @@ public class ArcSDEFeatureSourceTest {
 
     private FeatureReader<SimpleFeatureType, SimpleFeature> getReader(String typeName)
             throws IOException {
-        Query q = new DefaultQuery(typeName, Filter.INCLUDE);
+        Query q = new Query(typeName, Filter.INCLUDE);
         FeatureReader<SimpleFeatureType, SimpleFeature> reader = store.getFeatureReader(q,
                 Transaction.AUTO_COMMIT);
         SimpleFeatureType retType = reader.getFeatureType();
@@ -325,8 +324,7 @@ public class ArcSDEFeatureSourceTest {
     @Test
     public void testMixedQueries() throws Exception {
         final int EXPECTED_RESULT_COUNT = 1;
-        SimpleFeatureSource fs = store.getFeatureSource(testData
-                .getTempTableName());
+        SimpleFeatureSource fs = store.getFeatureSource(testData.getTempTableName());
         SimpleFeatureType schema = fs.getSchema();
         Filter bboxFilter = ff.bbox(schema.getGeometryDescriptor().getLocalName(), -60, -55, -40,
                 -20, schema.getCoordinateReferenceSystem().getName().getCode());
@@ -385,10 +383,9 @@ public class ArcSDEFeatureSourceTest {
     @Test
     public void testAttributeOnlyQuery() throws Exception {
         DataStore ds = testData.getDataStore();
-        SimpleFeatureSource fSource = ds.getFeatureSource(testData
-                .getTempTableName());
+        SimpleFeatureSource fSource = ds.getFeatureSource(testData.getTempTableName());
         SimpleFeatureType type = fSource.getSchema();
-        DefaultQuery attOnlyQuery = new DefaultQuery(type.getTypeName());
+        Query attOnlyQuery = new Query(type.getTypeName());
         List propNames = new ArrayList(type.getAttributeCount() - 1);
 
         for (int i = 0; i < type.getAttributeCount(); i++) {
@@ -401,8 +398,7 @@ public class ArcSDEFeatureSourceTest {
 
         attOnlyQuery.setPropertyNames(propNames);
 
-        SimpleFeatureCollection results = fSource
-                .getFeatures(attOnlyQuery);
+        SimpleFeatureCollection results = fSource.getFeatures(attOnlyQuery);
         SimpleFeatureType resultSchema = results.getSchema();
         assertEquals(propNames.size(), resultSchema.getAttributeCount());
 
@@ -441,8 +437,8 @@ public class ArcSDEFeatureSourceTest {
         final String typeName = testData.getTempTableName();
 
         // grab some fids
-        FeatureReader<SimpleFeatureType, SimpleFeature> reader = ds.getFeatureReader(
-                new DefaultQuery(typeName), Transaction.AUTO_COMMIT);
+        FeatureReader<SimpleFeatureType, SimpleFeature> reader = ds.getFeatureReader(new Query(
+                typeName), Transaction.AUTO_COMMIT);
         List fids = new ArrayList();
 
         while (reader.hasNext()) {
@@ -459,7 +455,7 @@ public class ArcSDEFeatureSourceTest {
         Id filter = ff.id(new HashSet(fids));
 
         SimpleFeatureSource source = ds.getFeatureSource(typeName);
-        Query query = new DefaultQuery(typeName, filter);
+        Query query = new Query(typeName, filter);
         SimpleFeatureCollection results = source.getFeatures(query);
 
         assertEquals(fids.size(), results.size());
@@ -467,8 +463,8 @@ public class ArcSDEFeatureSourceTest {
 
         while (iterator.hasNext()) {
             String fid = iterator.next().getID();
-            assertTrue("a fid not included in query was returned: " + fid, fids.contains(ff
-                    .featureId(fid)));
+            assertTrue("a fid not included in query was returned: " + fid,
+                    fids.contains(ff.featureId(fid)));
         }
         results.close(iterator);
     }
@@ -486,8 +482,8 @@ public class ArcSDEFeatureSourceTest {
         final String typeName = testData.getTempTableName();
 
         // grab some fids
-        FeatureReader<SimpleFeatureType, SimpleFeature> reader = ds.getFeatureReader(
-                new DefaultQuery(typeName), Transaction.AUTO_COMMIT);
+        FeatureReader<SimpleFeatureType, SimpleFeature> reader = ds.getFeatureReader(new Query(
+                typeName), Transaction.AUTO_COMMIT);
 
         final String idTemplate;
         Set<FeatureId> fids = new TreeSet<FeatureId>(new Comparator<FeatureId>() {
@@ -512,7 +508,7 @@ public class ArcSDEFeatureSourceTest {
         Id filter = ff.id(fids);
 
         SimpleFeatureSource source = ds.getFeatureSource(typeName);
-        Query query = new DefaultQuery(typeName, filter);
+        Query query = new Query(typeName, filter);
         SimpleFeatureCollection results = source.getFeatures(query);
 
         assertEquals(1, results.size());
@@ -520,8 +516,8 @@ public class ArcSDEFeatureSourceTest {
 
         while (iterator.hasNext()) {
             String fid = iterator.next().getID();
-            assertTrue("a fid not included in query was returned: " + fid, fids.contains(ff
-                    .featureId(fid)));
+            assertTrue("a fid not included in query was returned: " + fid,
+                    fids.contains(ff.featureId(fid)));
         }
         results.close(iterator);
     }
@@ -559,8 +555,7 @@ public class ArcSDEFeatureSourceTest {
     public void testSQLFilter() throws Exception {
         int expected = 4;
         Filter filter = CQL.toFilter("INT32_COL < 5");
-        SimpleFeatureSource fsource = store.getFeatureSource(testData
-                .getTempTableName());
+        SimpleFeatureSource fsource = store.getFeatureSource(testData.getTempTableName());
         testFilter(filter, fsource, expected);
     }
 
@@ -634,7 +629,7 @@ public class ArcSDEFeatureSourceTest {
         final String typeName = testData.getTempTableName();
         SimpleFeatureSource fs = store.getFeatureSource(typeName);
 
-        DefaultQuery query = new DefaultQuery(typeName);
+        Query query = new Query(typeName);
 
         final String sortAtt = "INT32_COL";
         SortBy[] sortBy;
@@ -727,8 +722,7 @@ public class ArcSDEFeatureSourceTest {
      * @throws IOException
      *             DOCUMENT ME!
      */
-    private void testGetFeatureSource(SimpleFeatureSource fsource)
-            throws IOException {
+    private void testGetFeatureSource(SimpleFeatureSource fsource) throws IOException {
         assertNotNull(fsource);
         assertNotNull(fsource.getDataStore());
         assertEquals(fsource.getDataStore(), store);
@@ -764,8 +758,8 @@ public class ArcSDEFeatureSourceTest {
         reader.close();
     }
 
-    private void testFilter(Filter filter, SimpleFeatureSource fsource,
-            int expected) throws IOException {
+    private void testFilter(Filter filter, SimpleFeatureSource fsource, int expected)
+            throws IOException {
         SimpleFeatureCollection fc = fsource.getFeatures(filter);
 
         SimpleFeatureIterator fi = fc.features();
@@ -796,8 +790,8 @@ public class ArcSDEFeatureSourceTest {
 
         public String toString() {
             StringBuilder sb = new StringBuilder("Time[");
-            sb.append("\n getTypeNames=").append(getTypeNames).append("\n getCount=\t").append(
-                    getCount).append("\n getBounds\t").append(getBounds)
+            sb.append("\n getTypeNames=").append(getTypeNames).append("\n getCount=\t")
+                    .append(getCount).append("\n getBounds\t").append(getBounds)
                     .append("\n getFeatures=\t").append(getFeatures).append("\n iterate=\t")
                     .append(iterate).append("\n]");
             return sb.toString();

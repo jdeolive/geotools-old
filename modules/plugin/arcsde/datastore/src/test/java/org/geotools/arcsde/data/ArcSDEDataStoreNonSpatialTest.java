@@ -34,7 +34,6 @@ import org.geotools.arcsde.session.UnavailableConnectionException;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataUtilities;
-import org.geotools.data.DefaultQuery;
 import org.geotools.data.DefaultTransaction;
 import org.geotools.data.FeatureStore;
 import org.geotools.data.FeatureWriter;
@@ -282,7 +281,7 @@ public class ArcSDEDataStoreNonSpatialTest {
         writer.close();
         assertEquals(2, ds.getFeatureSource(tableName).getCount(Query.ALL));
 
-        DefaultQuery query = new DefaultQuery(tableName, CQL.toFilter("STRING_COL = 'modified'"));
+        Query query = new Query(tableName, CQL.toFilter("STRING_COL = 'modified'"));
         assertEquals(0, ds.getFeatureSource(tableName).getCount(query));
 
         Filter f = CQL.toFilter("INT_COL = 1000");

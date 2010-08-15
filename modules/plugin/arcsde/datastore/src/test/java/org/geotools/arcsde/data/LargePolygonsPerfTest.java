@@ -14,7 +14,6 @@ import javax.imageio.ImageIO;
 
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
-import org.geotools.data.DefaultQuery;
 import org.geotools.data.Query;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
@@ -137,8 +136,7 @@ public class LargePolygonsPerfTest {
         }
     }
 
-    private void testRender(SimpleFeatureSource featureSource)
-            throws Exception {
+    private void testRender(SimpleFeatureSource featureSource) throws Exception {
         SimpleFeatureType schema = featureSource.getSchema();
         CoordinateReferenceSystem crs = schema.getCoordinateReferenceSystem();
         ReferencedEnvelope bounds = featureSource.getBounds();
@@ -233,15 +231,14 @@ public class LargePolygonsPerfTest {
         return dataStore;
     }
 
-    private void testFeatureSource(SimpleFeatureSource fs)
-            throws IOException {
+    private void testFeatureSource(SimpleFeatureSource fs) throws IOException {
         log("-----------------------------------------------------");
         log("Testing feature source");
         final SimpleFeatureType schema = fs.getSchema();
         final String typeName = schema.getTypeName();
         final String spatialColName = schema.getGeometryDescriptor().getLocalName();
 
-        Query query = new DefaultQuery(typeName, Filter.INCLUDE, new String[] { spatialColName });
+        Query query = new Query(typeName, Filter.INCLUDE, new String[] { spatialColName });
         long runTime = 0;
         for (int run = 0; run < numRuns; run++) {
             runTime += iterate(fs, query);
@@ -259,7 +256,7 @@ public class LargePolygonsPerfTest {
         DataStore ds = testData.getDataStore();
         SimpleFeatureSource fs = ds.getFeatureSource(typeName);
         try {
-            Query query = new DefaultQuery(typeName, Filter.INCLUDE, new String[] { "TOWN_ID" });
+            Query query = new Query(typeName, Filter.INCLUDE, new String[] { "TOWN_ID" });
             long runTime = 0;
             for (int run = 0; run < numRuns; run++) {
                 runTime += iterate(fs, query);
@@ -421,8 +418,7 @@ public class LargePolygonsPerfTest {
         return sw.getTime();
     }
 
-    private long iterate(SimpleFeatureSource fs, Query query)
-            throws IOException {
+    private long iterate(SimpleFeatureSource fs, Query query) throws IOException {
         Stopwatch sw = new Stopwatch();
         SimpleFeatureCollection features;
         features = fs.getFeatures(query);

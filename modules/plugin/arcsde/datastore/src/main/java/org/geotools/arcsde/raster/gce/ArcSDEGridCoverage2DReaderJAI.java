@@ -19,9 +19,12 @@ package org.geotools.arcsde.raster.gce;
 
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
+import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
+import java.awt.image.WritableRaster;
 import java.awt.image.renderable.ParameterBlock;
 import java.io.File;
 import java.io.IOException;
@@ -412,6 +415,9 @@ public final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DR
             image = cropToRequiredDimension(image, query.getTiledImageSize(), query
                     .getResultDimensionInsideTiledImage());
             log.log(image, query.getRasterId(), "02_crop");
+            
+            //Raster data = image.getData();
+            //image = new BufferedImage(image.getColorModel(), (WritableRaster) data, false, null);
             if (queries.size() == 1) {
                 return image;
             }

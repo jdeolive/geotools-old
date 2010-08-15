@@ -27,7 +27,6 @@ import java.util.logging.Logger;
 import org.geotools.arcsde.data.versioning.ArcSdeVersionHandler;
 import org.geotools.arcsde.session.ISession;
 import org.geotools.data.DataSourceException;
-import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureListener;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureSource;
@@ -197,8 +196,8 @@ public class ArcSdeFeatureSource implements SimpleFeatureSource {
             if (defaultGeometry == null) {
                 envelope = ReferencedEnvelope.reference(ev);
             } else {
-                envelope = new ReferencedEnvelope(ev, defaultGeometry
-                        .getCoordinateReferenceSystem());
+                envelope = new ReferencedEnvelope(ev,
+                        defaultGeometry.getCoordinateReferenceSystem());
             }
             return envelope;
         }
@@ -256,7 +255,7 @@ public class ArcSdeFeatureSource implements SimpleFeatureSource {
             throw new IllegalArgumentException("Wrong type name: " + typeName + " (this is "
                     + localName + ")");
         }
-        DefaultQuery namedQuery = new DefaultQuery(query);
+        Query namedQuery = new Query(query);
         namedQuery.setTypeName(localName);
         return namedQuery;
     }
@@ -271,8 +270,7 @@ public class ArcSdeFeatureSource implements SimpleFeatureSource {
     /**
      * @see FeatureSource#getFeatures(Query)
      */
-    public final SimpleFeatureCollection getFeatures(final Query query)
-            throws IOException {
+    public final SimpleFeatureCollection getFeatures(final Query query) throws IOException {
         final Query namedQuery = namedQuery(query);
         SimpleFeatureCollection collection;
         SimpleFeatureType queryType = dataStore.getQueryType(namedQuery);
@@ -283,17 +281,15 @@ public class ArcSdeFeatureSource implements SimpleFeatureSource {
     /**
      * @see FeatureSource#getFeatures(Filter)
      */
-    public final SimpleFeatureCollection getFeatures(final Filter filter)
-            throws IOException {
-        DefaultQuery query = new DefaultQuery(typeInfo.getFeatureTypeName(), filter);
+    public final SimpleFeatureCollection getFeatures(final Filter filter) throws IOException {
+        Query query = new Query(typeInfo.getFeatureTypeName(), filter);
         return getFeatures(query);
     }
 
     /**
      * @see FeatureSource#getFeatures()
      */
-    public final SimpleFeatureCollection getFeatures()
-            throws IOException {
+    public final SimpleFeatureCollection getFeatures() throws IOException {
         return getFeatures(Filter.INCLUDE);
     }
 
@@ -315,9 +311,9 @@ public class ArcSdeFeatureSource implements SimpleFeatureSource {
      * <li>JTS_PRECISION_MODEL
      * <li>JTS_SRID
      * </ul>
-     * Note, however, that if a {@link GeometryFactory} is provided through the {@code
-     * JTS_GEOMETRY_FACTORY} hint, that very factory is used and takes precedence over all the other
-     * ones.
+     * Note, however, that if a {@link GeometryFactory} is provided through the
+     * {@code JTS_GEOMETRY_FACTORY} hint, that very factory is used and takes precedence over all
+     * the other ones.
      * </p>
      * 
      * @see FeatureSource#getSupportedHints()

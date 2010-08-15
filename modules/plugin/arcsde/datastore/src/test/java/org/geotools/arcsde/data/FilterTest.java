@@ -31,9 +31,9 @@ import java.util.HashSet;
 import java.util.NoSuchElementException;
 
 import org.geotools.data.DataStore;
-import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.FilteringFeatureReader;
+import org.geotools.data.Query;
 import org.geotools.data.Transaction;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.IllegalAttributeException;
@@ -59,8 +59,8 @@ import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Polygon;
 
 /**
- * This test case does not still use the ArcSDEDataStore testing data supplied with in {@code
- * test-data/import}, so it is excluded in project.xml.
+ * This test case does not still use the ArcSDEDataStore testing data supplied with in
+ * {@code test-data/import}, so it is excluded in project.xml.
  * 
  * @author cdillard
  * @author Gabriel Roldan
@@ -165,8 +165,8 @@ public class FilterTest {
 
                     if (value1 instanceof Geometry) {
                         // jts geometry is not my friend
-                        assertTrue("Feature[" + i + "]." + name + " geometry", ((Geometry) value1)
-                                .equals((Geometry) value2));
+                        assertTrue("Feature[" + i + "]." + name + " geometry",
+                                ((Geometry) value1).equals((Geometry) value2));
                     } else {
                         assertEquals("Feature[" + i + "]." + name, value1, value2);
                     }
@@ -354,11 +354,11 @@ public class FilterTest {
 
         // Get a geometry for equality comparison
         HashSet fidSet = new HashSet();
-        DefaultQuery defaultQuery = new DefaultQuery(testData.getTempTableName());
-        defaultQuery.setPropertyNames(safePropertyNames(ft));
-        defaultQuery.setMaxFeatures(1);
-        FeatureReader<SimpleFeatureType, SimpleFeature> fr = this.dataStore.getFeatureReader(
-                defaultQuery, Transaction.AUTO_COMMIT);
+        Query Query = new Query(testData.getTempTableName());
+        Query.setPropertyNames(safePropertyNames(ft));
+        Query.setMaxFeatures(1);
+        FeatureReader<SimpleFeatureType, SimpleFeature> fr = this.dataStore.getFeatureReader(Query,
+                Transaction.AUTO_COMMIT);
         SimpleFeature feature = fr.next();
         fr.close();
 
@@ -379,8 +379,7 @@ public class FilterTest {
 
         // First, read using the slow, built-in mechanisms
         String[] propertyNames = safePropertyNames(ft);
-        DefaultQuery allQuery = new DefaultQuery(testData.getTempTableName(), Filter.INCLUDE,
-                propertyNames);
+        Query allQuery = new Query(testData.getTempTableName(), Filter.INCLUDE, propertyNames);
         System.err.println("Performing slow read...");
 
         long startTime = System.currentTimeMillis();
@@ -399,8 +398,7 @@ public class FilterTest {
         System.err.println("Performing fast read...");
         startTime = System.currentTimeMillis();
 
-        DefaultQuery filteringQuery = new DefaultQuery(testData.getTempTableName(), filter,
-                safePropertyNames(ft));
+        Query filteringQuery = new Query(testData.getTempTableName(), filter, safePropertyNames(ft));
         fr = this.dataStore.getFeatureReader(filteringQuery, Transaction.AUTO_COMMIT);
 
         ArrayList fastResults = new ArrayList();

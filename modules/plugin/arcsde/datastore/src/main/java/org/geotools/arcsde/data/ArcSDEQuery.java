@@ -43,7 +43,6 @@ import org.geotools.arcsde.session.ISession;
 import org.geotools.arcsde.session.SdeRow;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataUtilities;
-import org.geotools.data.DefaultQuery;
 import org.geotools.data.Query;
 import org.geotools.data.jdbc.FilterToSQLException;
 import org.geotools.feature.SchemaException;
@@ -573,7 +572,7 @@ class ArcSDEQuery {
 
         // we're calculating the bounds, so we'd better be sure and add the
         // spatial column to the query's propertynames
-        final DefaultQuery realQuery = new DefaultQuery(query);
+        final Query realQuery = new Query(query);
         realQuery.setPropertyNames(new String[] { defaultGeomAttName });
 
         final ArcSDEQuery boundsQuery;

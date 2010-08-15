@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
+import java.awt.image.DataBufferDouble;
 import java.awt.image.DataBufferFloat;
 import java.awt.image.DataBufferInt;
 import java.awt.image.DataBufferShort;
@@ -25,7 +26,6 @@ import org.geotools.arcsde.raster.io.TileReader;
 import org.geotools.util.Utilities;
 import org.geotools.util.logging.Logging;
 
-import com.sun.media.jai.codecimpl.util.DataBufferDouble;
 import com.sun.media.jai.util.ImageUtil;
 
 @SuppressWarnings("unchecked")
@@ -106,7 +106,7 @@ public class ArcSDEPlanarImage extends PlanarImage {
         }
 
         // System.err.printf("getTile(%d, %d) %s\n", tileX, tileY, this.toString());
-        final boolean useCache = false;
+        final boolean useCache = true;
         final JAI jai = JAI.getDefaultInstance();
         final TileCache jaiCache = jai.getTileCache();
 
