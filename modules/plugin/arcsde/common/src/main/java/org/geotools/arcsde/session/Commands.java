@@ -212,7 +212,7 @@ public class Commands {
     /**
      * Command to check a connection is alive
      */
-    public static final Command<Void> TEST_SERVER_COMMAND = new Command<Void>() {
+    public static final Command<Void> TEST_SERVER = new Command<Void>() {
         @Override
         public Void execute(final ISession session, final SeConnection connection)
                 throws SeException, IOException {
@@ -225,7 +225,7 @@ public class Commands {
     /**
      * Command to fetch the default version
      */
-    public static final Command<SeVersion> GetDefaultVersionCommand = new GetVersionCommand(
+    public static final Command<SeVersion> GET_DEFAULT_VERSION = new GetVersionCommand(
             SeVersion.SE_QUALIFIED_DEFAULT_VERSION_NAME);
 
     /**
@@ -361,7 +361,7 @@ public class Commands {
 
     }
 
-    public static final Command<Void> StartTransactionCommand = new Command<Void>() {
+    public static final Command<Void> START_TRANSACTION = new Command<Void>() {
         @Override
         public Void execute(final ISession session, final SeConnection connection)
                 throws SeException, IOException {
@@ -371,7 +371,7 @@ public class Commands {
         }
     };
 
-    public static final Command<List<String>> GetRasterColumnNamesCommand = new Command<List<String>>() {
+    public static final Command<List<String>> GET_RASTER_COLUMN_NAMES = new Command<List<String>>() {
         @SuppressWarnings("unchecked")
         @Override
         public List<String> execute(final ISession session, final SeConnection connection)
@@ -387,16 +387,18 @@ public class Commands {
         }
     };
 
-    public static final Command<Void> CommitTransactionCommand = new Command<Void>() {
+    public static final Command<Void> COMMIT_TRANSACTION = new CommitTransaction();
+
+    public static final class CommitTransaction extends Command<Void> {
         @Override
         public Void execute(final ISession session, final SeConnection connection)
                 throws SeException, IOException {
             connection.commitTransaction();
             return null;
         }
-    };
+    }
 
-    public static final Command<Void> RollbackTransactionCommand = new Command<Void>() {
+    public static final Command<Void> ROLLBACK_TRANSACTION = new Command<Void>() {
         @Override
         public Void execute(final ISession session, final SeConnection connection)
                 throws SeException, IOException {
@@ -405,7 +407,7 @@ public class Commands {
         }
     };
 
-    public static final Command<Void> CloseConnectionCommand = new Command<Void>() {
+    public static final class CloseConnection extends Command<Void> {
         @Override
         public Void execute(final ISession session, final SeConnection connection)
                 throws SeException, IOException {
@@ -415,7 +417,9 @@ public class Commands {
         }
     };
 
-    public static final Command<List<SeLayer>> GetLayersCommand = new Command<List<SeLayer>>() {
+    public static final Command<Void> CLOSE_CONNECTION = new CloseConnection();
+
+    public static final Command<List<SeLayer>> GET_LAYERS = new Command<List<SeLayer>>() {
         @SuppressWarnings("unchecked")
         @Override
         public List<SeLayer> execute(final ISession session, final SeConnection connection)
@@ -424,7 +428,7 @@ public class Commands {
         }
     };
 
-    public static final Command<String> GetUserCommand = new Command<String>() {
+    public static final Command<String> GET_USER = new Command<String>() {
         @Override
         public String execute(final ISession session, final SeConnection connection)
                 throws SeException, IOException {
@@ -432,7 +436,7 @@ public class Commands {
         }
     };
 
-    public static final Command<SeRelease> GetReleaseCommand = new Command<SeRelease>() {
+    public static final Command<SeRelease> GET_RELEASE = new Command<SeRelease>() {
         @Override
         public SeRelease execute(final ISession session, final SeConnection connection)
                 throws SeException, IOException {
@@ -440,7 +444,7 @@ public class Commands {
         }
     };
 
-    public static final Command<String> GetDatabaseNameCommand = new Command<String>() {
+    public static final Command<String> GET_DATABASENAME = new Command<String>() {
         @Override
         public String execute(final ISession session, final SeConnection connection)
                 throws SeException, IOException {
@@ -448,7 +452,7 @@ public class Commands {
         }
     };
 
-    public static final Command<SeDBMSInfo> getDBMSInfoCommand = new Command<SeDBMSInfo>() {
+    public static final Command<SeDBMSInfo> GET_DBMS_INFO = new Command<SeDBMSInfo>() {
         @Override
         public SeDBMSInfo execute(final ISession session, final SeConnection connection)
                 throws SeException, IOException {
@@ -456,7 +460,7 @@ public class Commands {
         }
     };
 
-    public static final Command<SeInsert> CreateSeInsertCommand = new Command<SeInsert>() {
+    public static final Command<SeInsert> CREATE_SEINSERT = new Command<SeInsert>() {
         @Override
         public SeInsert execute(final ISession session, final SeConnection connection)
                 throws SeException, IOException {
@@ -464,7 +468,7 @@ public class Commands {
         }
     };
 
-    public static final Command<SeUpdate> CreateSeUpdateCommand = new Command<SeUpdate>() {
+    public static final Command<SeUpdate> CREATE_SEUPDATE = new Command<SeUpdate>() {
         @Override
         public SeUpdate execute(final ISession session, final SeConnection connection)
                 throws SeException, IOException {
@@ -472,7 +476,7 @@ public class Commands {
         }
     };
 
-    public static final Command<SeDelete> CreateSeDeleteCommand = new Command<SeDelete>() {
+    public static final Command<SeDelete> CREATE_SEDELETE = new Command<SeDelete>() {
         @Override
         public SeDelete execute(final ISession session, final SeConnection connection)
                 throws SeException, IOException {

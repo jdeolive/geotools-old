@@ -179,7 +179,7 @@ class Session implements ISession {
         final long secondsSinceLastServerRoundTrip = this.connection.getTimeSinceLastRT();
 
         if (TEST_SERVER_ROUNDTRIP_INTERVAL_SECONDS < secondsSinceLastServerRoundTrip) {
-            issue(Commands.TEST_SERVER_COMMAND);
+            issue(Commands.TEST_SERVER);
         }
     }
 
@@ -279,7 +279,7 @@ class Session implements ISession {
      */
     public List<String> getRasterColumns() throws IOException {
         checkActive();
-        List<String> rasterNames = issue(Commands.GetRasterColumnNamesCommand);
+        List<String> rasterNames = issue(Commands.GET_RASTER_COLUMN_NAMES);
         return rasterNames;
     }
 
@@ -307,7 +307,7 @@ class Session implements ISession {
      */
     public void startTransaction() throws IOException {
         checkActive();
-        issue(Commands.StartTransactionCommand);
+        issue(Commands.START_TRANSACTION);
         transactionInProgress = true;
     }
 
@@ -316,7 +316,7 @@ class Session implements ISession {
      */
     public void commitTransaction() throws IOException {
         checkActive();
-        issue(Commands.CommitTransactionCommand);
+        issue(Commands.COMMIT_TRANSACTION);
         transactionInProgress = false;
     }
 
@@ -334,7 +334,7 @@ class Session implements ISession {
     public void rollbackTransaction() throws IOException {
         checkActive();
         try {
-            issue(Commands.RollbackTransactionCommand);
+            issue(Commands.ROLLBACK_TRANSACTION);
         } finally {
             transactionInProgress = false;
         }
@@ -386,7 +386,7 @@ class Session implements ISession {
     void destroy() {
         LOGGER.fine("Destroying connection " + toString());
         try {
-            issue(Commands.CloseConnectionCommand);
+            issue(Commands.CLOSE_CONNECTION);
         } catch (Exception e) {
             LOGGER.log(Level.FINE, "closing connection " + toString(), e);
         } finally {
@@ -414,35 +414,35 @@ class Session implements ISession {
      * @see ISession#getLayers()
      */
     public List<SeLayer> getLayers() throws IOException {
-        return issue(Commands.GetLayersCommand);
+        return issue(Commands.GET_LAYERS);
     }
 
     /**
      * @see ISession#getUser()
      */
     public String getUser() throws IOException {
-        return issue(Commands.GetUserCommand);
+        return issue(Commands.GET_USER);
     }
 
     /**
      * @see ISession#getRelease()
      */
     public SeRelease getRelease() throws IOException {
-        return issue(Commands.GetReleaseCommand);
+        return issue(Commands.GET_RELEASE);
     }
 
     /**
      * @see ISession#getDatabaseName()
      */
     public String getDatabaseName() throws IOException {
-        return issue(Commands.GetDatabaseNameCommand);
+        return issue(Commands.GET_DATABASENAME);
     }
 
     /**
      * @see ISession#getDBMSInfo()
      */
     public SeDBMSInfo getDBMSInfo() throws IOException {
-        return issue(Commands.getDBMSInfoCommand);
+        return issue(Commands.GET_DBMS_INFO);
     }
 
     /**
@@ -463,21 +463,21 @@ class Session implements ISession {
      * @see ISession#createSeInsert()
      */
     public SeInsert createSeInsert() throws IOException {
-        return issue(Commands.CreateSeInsertCommand);
+        return issue(Commands.CREATE_SEINSERT);
     }
 
     /**
      * @see ISession#createSeUpdate()
      */
     public SeUpdate createSeUpdate() throws IOException {
-        return issue(Commands.CreateSeUpdateCommand);
+        return issue(Commands.CREATE_SEUPDATE);
     }
 
     /**
      * @see ISession#createSeDelete()
      */
     public SeDelete createSeDelete() throws IOException {
-        return issue(Commands.CreateSeDeleteCommand);
+        return issue(Commands.CREATE_SEDELETE);
     }
 
     /**
