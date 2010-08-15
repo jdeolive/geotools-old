@@ -17,13 +17,16 @@
 package org.geotools.arcsde.data;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geotools.data.FeatureReader;
 import org.geotools.data.Query;
 import org.geotools.data.store.DataFeatureCollection;
+import org.geotools.data.store.NoContentIterator;
 import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureReaderIterator;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.util.logging.Logging;
 import org.hsqldb.Session;
@@ -113,4 +116,35 @@ public class ArcSdeFeatureCollection extends DataFeatureCollection {
 
         return reader;
     }
+
+    /**
+     * Overrides to avoid the superclass' call to {@link #writer()} and it's
+     * {@code UnsupportedOperationException}
+     * 
+     * @return Iterator, should be closed closeIterator
+     */
+    @Override
+    protected Iterator<SimpleFeature> openIterator() throws IOException {
+        try {
+            return new FeatureReaderIterator<SimpleFeature>(reader());
+        } catch (IOException e) {
+            return new NoContentIterator(e);
+        }
+    }
+
+    /**
+     * Overrides to deal with closing the {@link FeatureReaderIterator}s created at
+     * {@link #openIterator()}, as superclass uses another class that does the same but its package
+     * visible (actually I don't see the point on two versions of FeatureReaderIterator?)
+     */
+    @Override
+    protected void closeIterator(Iterator<SimpleFeature> close) throws IOException {
+        if (close == null) {
+            // iterator probably failed during consturction !
+        } else if (close instanceof FeatureReaderIterator) {
+            FeatureReaderIterator<SimpleFeature> iterator = (FeatureReaderIterator<SimpleFeature>) close;
+            iterator.close(); // only needs package visability
+        }
+    }
+
 }
