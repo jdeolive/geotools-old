@@ -18,7 +18,6 @@
 package org.geotools.arcsde.jndi;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
@@ -45,7 +44,7 @@ import org.junit.Test;
  * Unit test suite for {@link ArcSDEConnectionFactory}
  * 
  * @author Gabriel Roldan (OpenGeo)
- *
+ * 
  * @source $URL$
  * @version $Id$
  * @since 2.5.7
@@ -57,6 +56,7 @@ public class ArcSDEConnectionFactoryTest {
     @Before
     public void setUp() throws Exception {
         factory = new ArcSDEConnectionFactory();
+        factory.setClosableSessionPoolFactory(new MockSessionPoolFactory());
     }
 
     @Test
@@ -76,7 +76,7 @@ public class ArcSDEConnectionFactoryTest {
 
     @Test
     public void getObjectInstance_MandatoryParams() throws Exception {
-        String className = ArcSDEConnectionConfig.class.getName();
+        String className = ISessionPool.class.getName();
         String factoryName = ArcSDEConnectionFactory.class.getName();
         String factoryLocation = null;
         Reference ref = new Reference(className, factoryName, factoryLocation);
@@ -113,64 +113,6 @@ public class ArcSDEConnectionFactoryTest {
     }
 
     @Test
-    public void getObjectInstance_ArcSDEConnectionConfig_Minimum() throws Exception {
-        String className = ArcSDEConnectionConfig.class.getName();
-        String factoryName = ArcSDEConnectionFactory.class.getName();
-        String factoryLocation = null;
-        Reference ref = createRef(className, factoryName, factoryLocation);
-
-        Name name = null;
-        Context nameCtx = null;
-        Hashtable<?, ?> environment = null;
-
-        Object object = factory.getObjectInstance(ref, name, nameCtx, environment);
-        assertNotNull(object);
-        assertTrue(object instanceof ArcSDEConnectionConfig);
-
-        Object object2 = factory.getObjectInstance(ref, name, nameCtx, environment);
-
-        assertFalse(object == object2);
-        assertEquals(object, object2);
-        ArcSDEConnectionConfig config = (ArcSDEConnectionConfig) object;
-        assertEquals("localhost", config.getServerName());
-        assertEquals(Integer.valueOf(5151), config.getPortNumber());
-        assertEquals("sde", config.getDatabaseName());
-        assertEquals("sdeusr", config.getUserName());
-        assertEquals("s3cr3t", config.getPassword());
-    }
-
-    @Test
-    public void getObjectInstance_ArcSDEConnectionConfig_Full() throws Exception {
-        String className = ArcSDEConnectionConfig.class.getName();
-        String factoryName = ArcSDEConnectionFactory.class.getName();
-        String factoryLocation = null;
-        Reference ref = createRef(className, factoryName, factoryLocation);
-        // add the non mandatory params
-        ref.add(new StringRefAddr(ArcSDEConnectionConfig.MIN_CONNECTIONS_PARAM_NAME, "2"));
-        ref.add(new StringRefAddr(ArcSDEConnectionConfig.MAX_CONNECTIONS_PARAM_NAME, "6"));
-        ref.add(new StringRefAddr(ArcSDEConnectionConfig.CONNECTION_TIMEOUT_PARAM_NAME, "2000"));
-
-        Name name = null;
-        Context nameCtx = null;
-        Hashtable<?, ?> environment = null;
-
-        Object object = factory.getObjectInstance(ref, name, nameCtx, environment);
-        assertNotNull(object);
-        assertTrue(object instanceof ArcSDEConnectionConfig);
-
-        Object object2 = factory.getObjectInstance(ref, name, nameCtx, environment);
-
-        assertFalse(object == object2);
-        assertEquals(object, object2);
-
-        ArcSDEConnectionConfig config = (ArcSDEConnectionConfig) object;
-        assertEquals(Integer.valueOf(2), config.getMinConnections());
-        assertEquals(Integer.valueOf(6), config.getMaxConnections());
-        assertEquals(Integer.valueOf(2000), config.getConnTimeOut());
-
-    }
-
-    @Test
     public void getObjectInstance_ISessionPool() throws Exception {
         String className = ISessionPool.class.getName();
         String factoryName = ArcSDEConnectionFactory.class.getName();
@@ -180,8 +122,6 @@ public class ArcSDEConnectionFactoryTest {
         Name name = null;
         Context nameCtx = null;
         Hashtable<?, ?> environment = null;
-
-        factory.setClosableSessionPoolFactory(new MockSessionPoolFactory());
 
         Object object = factory.getObjectInstance(ref, name, nameCtx, environment);
         assertNotNull(object);
@@ -243,7 +183,8 @@ public class ArcSDEConnectionFactoryTest {
             return null;
         }
 
-        public ISession getSession(boolean transactional) throws IOException, UnavailableConnectionException {
+        public ISession getSession(boolean transactional) throws IOException,
+                UnavailableConnectionException {
             return null;
         }
 
