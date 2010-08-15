@@ -62,11 +62,20 @@ public class ArcSDEDataStoreVersioningTest {
 
     @BeforeClass
     public static void oneTimeSetUp() throws Exception {
+
+    }
+
+    @AfterClass
+    public static void oneTimeTearDown() {
+
+    }
+
+    @Before
+    public void setUp() throws Exception {
         testData = new TestData();
         testData.setUp();
 
         typeName = testData.getTempTableName();
-
         {// set up a couple versions
             ISession session = testData.getConnectionPool().getSession();
 
@@ -85,17 +94,7 @@ public class ArcSDEDataStoreVersioningTest {
                 session.dispose();
             }
         }
-    }
 
-    @AfterClass
-    public static void oneTimeTearDown() {
-        boolean cleanTestTable = true;
-        boolean cleanPool = true;
-        testData.tearDown(cleanTestTable, cleanPool);
-    }
-
-    @Before
-    public void setUp() throws Exception {
         final boolean insertTestData = true;
         testData.createTempTable(insertTestData);
         ISession session = testData.getConnectionPool().getSession();
@@ -118,12 +117,28 @@ public class ArcSDEDataStoreVersioningTest {
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws Exception {
         defaultVersionDataStore.dispose();
         version1DataStore.dispose();
         version2DataStore.dispose();
+        ISession session = testData.getConnectionPool().getSession();
+        try {
+            testData.deleteVersion(session, version1);
+            testData.deleteVersion(session, version2);
+        } finally {
+            session.dispose();
+        }
+        boolean cleanTestTable = true;
+        boolean cleanPool = true;
+        testData.tearDown(cleanTestTable, cleanPool);
     }
 
+    /**
+     * Why... oh why this test fails if executed twice, but succeeds if the transactional version
+     * ran before? no time to look further into it right now, but beware
+     * 
+     * @throws IOException
+     */
     @Test
     public void testMultiVersionSupportAutoCommit() throws IOException {
         testMultiVersionSupport(Transaction.AUTO_COMMIT);
@@ -167,8 +182,8 @@ public class ArcSDEDataStoreVersioningTest {
         }
     }
 
-    private void delete(final SimpleFeatureStore store,
-            final String ecqlPredicate) throws IOException {
+    private void delete(final SimpleFeatureStore store, final String ecqlPredicate)
+            throws IOException {
 
         Filter filter;
         try {
@@ -184,8 +199,8 @@ public class ArcSDEDataStoreVersioningTest {
         return store.getCount(Query.ALL);
     }
 
-    private SimpleFeatureStore store(final DataStore ds,
-            final String typeName, final Transaction transaction) throws IOException {
+    private SimpleFeatureStore store(final DataStore ds, final String typeName,
+            final Transaction transaction) throws IOException {
         SimpleFeatureStore store;
         store = (SimpleFeatureStore) ds.getFeatureSource(typeName);
         store.setTransaction(transaction);
