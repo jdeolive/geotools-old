@@ -7,9 +7,14 @@
 
     <groupId>org.geotools.schemas</groupId>
     <artifactId>ic-2.0</artifactId>
-    <version>2.0.0-2</version>
-    <name>Intelligence Community Information Security Marking (IC ISM) 2.0 application schema</name>
-    
+    <version>2.0.0-3</version>
+    <name>Intelligence Community Information Security Marking (IC ISM) 2.0 schema</name>
+
+    <scm>
+        <connection>scm:svn:http://svn.osgeo.org/geotools/trunk/modules/unsupported/app-schema/app-schema-packages/ic-2.0/</connection>
+        <url>http://svn.osgeo.org/geotools/trunk/modules/unsupported/app-schema/app-schema-packages/ic-2.0/</url>
+    </scm>
+
     <developers>
         <developer>
             <name>Ben Caradoc-Davies</name>
@@ -25,7 +30,6 @@
     
         <plugins>
             
-            <!-- suppress bogus encoding warning -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
@@ -34,7 +38,6 @@
                 </configuration>
             </plugin>
 
-            <!-- download the application schema -->
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
@@ -45,7 +48,6 @@
                                 <property name="srcdir" value="http://schemas.opengis.net/ic/2.0"/>
                                 <property name="destdir" value="${project.build.outputDirectory}/net/opengis/schemas/ic/2.0"/>
                                 <mkdir dir="${destdir}"/>
-                                <!-- maven antrun get does not support nested url so have to be explicit -->
                                 <get src="${srcdir}/IC-ISM-v2.xsd" dest="${destdir}/IC-ISM-v2.xsd"/>
                             </tasks>
                         </configuration>

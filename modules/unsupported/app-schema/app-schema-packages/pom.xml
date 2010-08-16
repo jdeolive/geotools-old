@@ -13,13 +13,17 @@
  
     <groupId>org.geotools</groupId>
     <artifactId>app-schema-packages</artifactId>
-    <name>Application schema package collection</name>
+    <name>Application schema packages</name>
     <packaging>pom</packaging>
+
+    <scm>
+        <connection>scm:svn:http://svn.osgeo.org/geotools/trunk/modules/unsupported/app-schema/app-schema-packages/</connection>
+        <url>http://svn.osgeo.org/geotools/trunk/modules/unsupported/app-schema/app-schema-packages/</url>
+    </scm>
   
     <description>
-        This is an aggregating pom used to build remote
-        application schema resources into maven artifacts
-        so they can be used in offline GeoTools testing.
+        This is an aggregating pom used to build remote schema resources into
+        maven artifacts so they can be used in offline GeoTools testing.
         This module should not be part of the standard build.
         Modules below have no parent, by design.
     </description>
@@ -39,15 +43,20 @@
         <module>cgiutilities-1.0</module>
         <module>earthresourceml-1.1</module>
         <module>filter-1.1</module>
+        <module>filter-2.0</module>
         <module>geosciml-2.0</module>
         <module>gml-3.1</module>
+        <module>gml-3.2</module>
         <module>ic-2.0</module>
+        <module>iso-19139-2007</module>
         <module>om-1.0</module>
         <module>ows-1.0</module>
+        <module>ows-1.1</module>
         <module>sampling-1.0</module>
         <module>sensorML-1.0</module>
         <module>sweCommon-1.0</module>
         <module>wfs-1.1</module>
+        <module>wfs-2.0</module>
         <module>xlink-1.0</module>
         <module>xml-1.0</module>
     </modules>

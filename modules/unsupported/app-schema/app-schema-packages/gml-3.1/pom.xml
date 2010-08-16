@@ -7,9 +7,14 @@
 
     <groupId>org.geotools.schemas</groupId>
     <artifactId>gml-3.1</artifactId>
-    <version>3.1.1-3</version>
-    <name>Geography Markup Language (GML) 3.1 application schema</name>
-    
+    <version>3.1.1-4</version>
+    <name>Geography Markup Language (GML) 3.1 schema</name>
+
+    <scm>
+        <connection>scm:svn:http://svn.osgeo.org/geotools/trunk/modules/unsupported/app-schema/app-schema-packages/gml-3.1/</connection>
+        <url>http://svn.osgeo.org/geotools/trunk/modules/unsupported/app-schema/app-schema-packages/gml-3.1/</url>
+    </scm>
+
     <developers>
         <developer>
             <name>Ben Caradoc-Davies</name>
@@ -25,7 +30,7 @@
         <dependency>
             <groupId>org.geotools.schemas</groupId>
             <artifactId>xlink-1.0</artifactId>
-            <version>1.0.0-2</version>
+            <version>1.0.0-3</version>
         </dependency>
     </dependencies>
 
@@ -33,7 +38,6 @@
     
         <plugins>
             
-            <!-- suppress bogus encoding warning -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
@@ -42,7 +46,6 @@
                 </configuration>
             </plugin>
 
-            <!-- download the application schema -->
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
@@ -50,10 +53,10 @@
                         <phase>generate-resources</phase>
                         <configuration>
                             <tasks>
+                                <!-- gml 3.1 -->
                                 <property name="srcdir" value="http://schemas.opengis.net/gml/3.1.1/base"/>
                                 <property name="destdir" value="${project.build.outputDirectory}/net/opengis/schemas/gml/3.1.1/base"/>
                                 <mkdir dir="${destdir}"/>
-                                <!-- maven antrun get does not support nested url so have to be explicit -->
                                 <get src="${srcdir}/basicTypes.xsd"                 dest="${destdir}/basicTypes.xsd"/>
                                 <get src="${srcdir}/coordinateOperations.xsd"       dest="${destdir}/coordinateOperations.xsd"/>
                                 <get src="${srcdir}/coordinateReferenceSystems.xsd" dest="${destdir}/coordinateReferenceSystems.xsd"/>
@@ -83,10 +86,10 @@
                                 <get src="${srcdir}/topology.xsd"                   dest="${destdir}/topology.xsd"/>
                                 <get src="${srcdir}/units.xsd"                      dest="${destdir}/units.xsd"/>
                                 <get src="${srcdir}/valueObjects.xsd"               dest="${destdir}/valueObjects.xsd"/>
+                                <!-- smil -->
                                 <property name="smilsrcdir" value="http://schemas.opengis.net/gml/3.1.1/smil"/>
                                 <property name="smildestdir" value="${project.build.outputDirectory}/net/opengis/schemas/gml/3.1.1/smil"/>
                                 <mkdir dir="${smildestdir}"/>
-                                <!-- maven antrun get does not support nested url so have to be explicit -->
                                 <get src="${smilsrcdir}/smil20-language.xsd"    dest="${smildestdir}/smil20-language.xsd"/>
                                 <get src="${smilsrcdir}/smil20.xsd"             dest="${smildestdir}/smil20.xsd"/>
                                 <get src="${smilsrcdir}/xml-mod.xsd"            dest="${smildestdir}/xml-mod.xsd"/>

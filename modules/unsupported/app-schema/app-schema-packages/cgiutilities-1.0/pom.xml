@@ -7,9 +7,14 @@
 
     <groupId>org.geotools.schemas</groupId>
     <artifactId>cgiutilities-1.0</artifactId>
-    <version>1.0.0-3</version>
+    <version>1.0.0-4</version>
     <name>CGI Utilities 1.0 application schema</name>
     
+    <scm>
+        <connection>scm:svn:http://svn.osgeo.org/geotools/trunk/modules/unsupported/app-schema/app-schema-packages/cgiutilities-1.0/</connection>
+        <url>http://svn.osgeo.org/geotools/trunk/modules/unsupported/app-schema/app-schema-packages/cgiutilities-1.0/</url>
+    </scm>
+
     <developers>
         <developer>
             <name>Ben Caradoc-Davies</name>
@@ -25,7 +30,7 @@
         <dependency>
             <groupId>org.geotools.schemas</groupId>
             <artifactId>gml-3.1</artifactId>
-            <version>3.1.1-3</version>
+            <version>3.1.1-4</version>
         </dependency>
     </dependencies>
 
@@ -33,7 +38,6 @@
     
         <plugins>
             
-            <!-- suppress bogus encoding warning -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
@@ -42,7 +46,6 @@
                 </configuration>
             </plugin>
 
-            <!-- download the application schema -->
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
@@ -53,8 +56,7 @@
                                 <property name="srcdir" value="http://www.geosciml.org/cgiutilities/1.0/xsd"/>
                                 <property name="destdir" value="${project.build.outputDirectory}/org/geosciml/www/cgiutilities/1.0/xsd"/>
                                 <mkdir dir="${destdir}"/>
-                                <!-- maven antrun get does not support nested url so have to be explicit -->
-                                <get src="${srcdir}/cgiUtilities.xsd"   dest="${destdir}/cgiUtilities.xsd"/>
+                                <get src="${srcdir}/cgiUtilities.xsd" dest="${destdir}/cgiUtilities.xsd"/>
                                 <get src="${srcdir}/primitiveTypes.xsd" dest="${destdir}/primitiveTypes.xsd"/>
                             </tasks>
                         </configuration>
