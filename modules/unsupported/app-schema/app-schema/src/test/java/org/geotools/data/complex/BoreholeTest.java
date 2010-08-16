@@ -132,7 +132,7 @@ public class BoreholeTest {
         // load needed GML types directly from the gml schemas
         URL schemaLocation = getClass().getResource(location);
         assertNotNull(location, schemaLocation);
-        return reader.parse(schemaLocation, null);
+        return reader.parse(schemaLocation);
     }
 
     /**

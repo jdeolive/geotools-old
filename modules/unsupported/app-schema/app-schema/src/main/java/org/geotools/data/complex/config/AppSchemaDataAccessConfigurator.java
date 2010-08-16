@@ -70,6 +70,7 @@ import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.feature.type.GeometryType;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.expression.Expression;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.xml.sax.helpers.NamespaceSupport;
 
 /**
@@ -94,8 +95,6 @@ public class AppSchemaDataAccessConfigurator {
     /** DOCUMENT ME! */
     private AppSchemaDataAccessDTO config;
 
-    private Map<String, String> resolvedSchemaLocations;
-
     private FeatureTypeRegistry typeRegistry;
 
     private Map sourceDataStores;
@@ -105,6 +104,8 @@ public class AppSchemaDataAccessConfigurator {
      * mapping file.
      */
     private NamespaceSupport namespaces;
+    
+    private Map schemaURIs;
 
     /**
      * This holds the data access ids when isDataAccess is specified in the mapping connection
@@ -124,7 +125,6 @@ public class AppSchemaDataAccessConfigurator {
         this.config = config;
         namespaces = new NamespaceSupport();
         inputDataAccessIds = new ArrayList<String>();
-        resolvedSchemaLocations = new HashMap<String, String>();
         Map nsMap = config.getNamespaces();
         for (Iterator it = nsMap.entrySet().iterator(); it.hasNext();) {
             Map.Entry entry = (Entry) it.next();
@@ -204,14 +204,9 @@ public class AppSchemaDataAccessConfigurator {
             }
             AttributeDescriptor target = getTargetDescriptor(dto, geomType);
 
-            // set schema location for describeFeatureType
-            String nsURI = target.getName().getNamespaceURI();
-            if (nsURI != null) {
-                String schemaURI = resolvedSchemaLocations.get(nsURI);
-                if (schemaURI != null) {
-                    target.getType().getUserData().put("schemaURI", schemaURI);
-                }
-            }
+            // set original schema locations for encoding
+            target.getType().getUserData().put("schemaURI", schemaURIs);
+            
             List attMappings = getAttributeMappings(target, dto.getAttributeMappings(), dto.getItemXpath());
 
             FeatureTypeMapping mapping;
@@ -479,13 +474,20 @@ public class AppSchemaDataAccessConfigurator {
         // create a single type registry for all the schemas in the config
         typeRegistry = new FeatureTypeRegistry(namespaces);
 
+        schemaURIs = new HashMap<String, String>(schemaFiles.size());
+        String nameSpace;
+        String schemaLocation;
         for (Iterator it = schemaFiles.iterator(); it.hasNext();) {
-            String schemaLocation = (String) it.next();
+            schemaLocation = (String) it.next();
             final URL schemaUrl = resolveResourceLocation(baseUrl, schemaLocation);
             AppSchemaDataAccessConfigurator.LOGGER.fine("parsing schema "
                     + schemaUrl.toExternalForm());
 
-            SchemaIndex schemaIndex = schemaParser.parse(schemaUrl, resolvedSchemaLocations);
+            nameSpace = schemaParser.findSchemaNamespace(schemaUrl);
+            schemaLocation = schemaUrl.toExternalForm();
+            schemaURIs.put(nameSpace, schemaLocation);
+
+            SchemaIndex schemaIndex = schemaParser.parse(nameSpace, schemaLocation);
             // add the resolved EMF schema so typeRegistry can find the needed type tree when it's
             // asked for the mapped FeatureType
             typeRegistry.addSchemas(schemaIndex);

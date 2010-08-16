@@ -103,7 +103,7 @@ public class GeoSciMLTest {
     private SchemaIndex loadSchema(String location) throws IOException {
         URL catalogLocation = getClass().getResource(schemaBase + "mappedPolygons.oasis.xml");
         reader.setResolver(catalogLocation);
-        return reader.parse(new URL(location), null);
+        return reader.parse(new URL(location));
     }
 
     /**

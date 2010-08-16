@@ -20,7 +20,6 @@ package org.geotools.data.complex.config;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.Map;
 import java.util.logging.Logger;
 
 import org.geotools.gml3.ApplicationSchemaConfiguration;
@@ -109,27 +108,16 @@ public class EmfAppSchemaReader {
     /**
      * Parses the gml schema referenced by <code>location</code> into a {@link SchemaIndex}
      * 
+     * @param nameSpace
+     *            the location namespace
      * @param location
-     *            the phisical location of the root xsd schema that comprises the application schema
+     *            the physical location of the root xsd schema that comprises the application schema
      *            to parse.
-     * @param resolvedSchemaLocations
-     *            A map to hold schema URI location for each element name space so they can be
-     *            imported in DescribeFeatureType
      * @throws IOException
      *             if any non recoverable problem occurs while parsing the application schema
      *             pointed out by <code>location</code> or one of its dependencies.
      */
-    public SchemaIndex parse(final URL location, Map<String, String> resolvedSchemaLocations)
-            throws IOException {
-
-        final String nameSpace = findSchemaNamespace(location);
-
-        final String schemaLocation = location.toExternalForm();
-
-        if (resolvedSchemaLocations != null) {
-            resolvedSchemaLocations.put(nameSpace, schemaLocation);
-        }
-
+    public SchemaIndex parse(String nameSpace, String schemaLocation) throws IOException {        
         /*
          * FIXME: This hardcoded GML 3.1 dependency will have to change when GML 3.2 support is
          * added. The solution is probably to resolve the schema and look at the namespaces to see
@@ -140,6 +128,26 @@ public class EmfAppSchemaReader {
 
         return parse(configuration);
     }
+    
+    /**
+     * Parses the gml schema referenced by <code>location</code> into a {@link SchemaIndex}
+     * 
+     * @param location
+     *            the physical location of the root xsd schema that comprises the application schema
+     *            to parse.
+     * @throws IOException
+     *             if any non recoverable problem occurs while parsing the application schema
+     *             pointed out by <code>location</code> or one of its dependencies.
+     */
+    public SchemaIndex parse(final URL location)
+            throws IOException {
+
+        final String nameSpace = findSchemaNamespace(location);
+
+        final String schemaLocation = location.toExternalForm();
+        
+        return parse(nameSpace, schemaLocation);
+    }
 
     /**
      * Finds out the targetNamespace of the xsd schema referenced by <code>location</code>
@@ -148,7 +156,7 @@ public class EmfAppSchemaReader {
      * @return
      * @throws IOException
      */
-    private String findSchemaNamespace(URL location) throws IOException {
+    public String findSchemaNamespace(URL location) throws IOException {
         String targetNamespace = null;
         // parse some of the instance document to find out the
         // schema location

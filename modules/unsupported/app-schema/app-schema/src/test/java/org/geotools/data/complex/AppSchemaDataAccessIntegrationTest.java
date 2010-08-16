@@ -53,7 +53,6 @@ import org.geotools.feature.type.AttributeDescriptorImpl;
 import org.geotools.feature.type.FeatureTypeImpl;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.expression.FeaturePropertyAccessorFactory;
-import org.geotools.filter.identity.FeatureIdImpl;
 import org.geotools.gml3.GMLSchema;
 import org.geotools.xml.SchemaIndex;
 import org.junit.AfterClass;
@@ -566,7 +565,9 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
             reader = EmfAppSchemaReader.newInstance();
             typeRegistry = new FeatureTypeRegistry();
             
-            SchemaIndex schemaIndex = reader.parse(new URL(schemaLocation), null);
+
+            SchemaIndex schemaIndex = reader.parse(new URL(schemaLocation));
+
             typeRegistry.addSchemas(schemaIndex);
 
             ComplexType complexType = (ComplexType) typeRegistry

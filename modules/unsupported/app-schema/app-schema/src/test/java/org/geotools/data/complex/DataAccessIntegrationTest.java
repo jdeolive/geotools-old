@@ -481,7 +481,7 @@ public class DataAccessIntegrationTest {
             reader = EmfAppSchemaReader.newInstance();
             // set schema URI
             SchemaIndex schemaIndex = reader.parse(new URL(
-                    "http://www.geosciml.org/geosciml/2.0/xsd/geosciml.xsd"), null);
+                    "http://www.geosciml.org/geosciml/2.0/xsd/geosciml.xsd"));
             typeRegistry = new FeatureTypeRegistry();
             typeRegistry.addSchemas(schemaIndex);
 
