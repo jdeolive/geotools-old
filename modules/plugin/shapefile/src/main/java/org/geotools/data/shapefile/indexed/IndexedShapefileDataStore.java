@@ -203,15 +203,6 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
         this.treeType = treeType;
         this.useIndex = treeType != IndexType.NONE;
         this.createIndex = createIndex;
-        try {
-            if (shpFiles.isLocal() && needsGeneration(FIX)) {
-                generateFidIndex();
-            }
-        } catch (IOException e) {
-            ShapefileDataStoreFactory.LOGGER.log(Level.SEVERE, e
-                    .getLocalizedMessage());
-        }
-
     }
     
     /**
@@ -409,6 +400,29 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
     public void generateFidIndex() throws IOException {
         FidIndexer.generate(shpFiles);
     }
+    
+    /**
+     * If the fid index can be used and it is missing this method will try to create it
+     * @return
+     */
+    boolean existsOrCreateFidIndex() {
+        if(indexUseable(ShpFileType.FIX)) {
+            return true;
+        } else {
+            if(isLocal()) {
+                try {
+                    FidIndexer.generate(shpFiles);
+                    return true;
+                } catch(IOException e) {
+                    LOGGER.log(Level.WARNING, "Failed to create fid index");
+                    return false;
+                }
+            } else {
+                return false;
+            }
+            
+        }
+    }
 
     /**
      * Returns the attribute reader, allowing for a pure shape reader, or a
@@ -432,7 +446,7 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
 
         Filter filter = query != null ? query.getFilter() : null;
         CloseableCollection<Data> goodRecs = null;
-        if (filter instanceof Id && shpFiles.isLocal() && shpFiles.exists(FIX)) {
+        if (filter instanceof Id && shpFiles.isLocal() && existsOrCreateFidIndex()) {
             Id fidFilter = (Id) filter;
 
             TreeSet idsSet = new TreeSet(new IdentifierComparator());
@@ -811,8 +825,12 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
     protected FeatureWriter<SimpleFeatureType, SimpleFeature> createFeatureWriter(String typeName,
             Transaction transaction) throws IOException {
         typeCheck(typeName);
+        
+        // when writing we may remove features, in order to prevent fid changes we'll need
+        // a .fix file
+        existsOrCreateFidIndex();
 
-         FeatureReader<SimpleFeatureType, SimpleFeature> featureReader;
+        FeatureReader<SimpleFeatureType, SimpleFeature> featureReader;
         IndexedShapefileAttributeReader attReader;
         try {
             SimpleFeatureType schema = getSchema();

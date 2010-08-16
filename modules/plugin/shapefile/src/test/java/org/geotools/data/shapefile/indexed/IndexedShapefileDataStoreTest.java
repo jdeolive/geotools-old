@@ -386,7 +386,7 @@ public class IndexedShapefileDataStoreTest extends TestCaseSupport {
         SimpleFeatureCollection features = featureSource.getFeatures();
         SimpleFeatureIterator indexIter = features.features();
 
-        Set<String> expectedFids = new HashSet<String>();
+        Set<String> expectedFids = new LinkedHashSet<String>();
         final Filter fidFilter;
         try {
             FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
@@ -837,6 +837,7 @@ public class IndexedShapefileDataStoreTest extends TestCaseSupport {
         File fixFile = sibling(shpFile, fix.extension);
         fixFile.delete();
         IndexedShapefileDataStore ds = new IndexedShapefileDataStore(shpFile.toURI().toURL());
+        ds.generateFidIndex();
         
         assertFalse(ds.needsGeneration(fix));
         long fixMod = fixFile.lastModified();

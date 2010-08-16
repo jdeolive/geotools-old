@@ -57,7 +57,7 @@ class IndexedShapefileFeatureWriter extends ShapefileFeatureWriter implements
             throws IOException {
         super(typeName, shpFiles, attsReader, featureReader, charset);
         this.indexedShapefileDataStore = datastore;
-        if (!datastore.indexUseable(FIX)) {
+        if (!datastore.isLocal()) {
             this.fidWriter = IndexedFidWriter.EMPTY_WRITER;
         } else {
             StorageFile storageFile = shpFiles.getStorageFile(FIX);
@@ -106,6 +106,7 @@ class IndexedShapefileFeatureWriter extends ShapefileFeatureWriter implements
      */
     public void close() throws IOException {
         super.close();
+        fidWriter.close();
 
         try {
             if (shpFiles.isLocal()) {
