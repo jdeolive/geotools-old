@@ -87,6 +87,28 @@ public class NonFeatureTypeProxy extends ComplexTypeProxy implements FeatureType
         };
     }
 
+    public NonFeatureTypeProxy(final ComplexType type, final FeatureTypeMapping mapping,
+            Collection<PropertyDescriptor> schema) {
+        super(type.getName(), null);
+
+        subject = type;
+
+        AttributeDescriptor originalTarget = mapping.getTargetFeature();
+        int maxOccurs = originalTarget.getMaxOccurs();
+        int minOccurs = originalTarget.getMinOccurs();
+        boolean nillable = originalTarget.isNillable();
+        Object defaultValue = originalTarget.getDefaultValue();
+        Name name = originalTarget.getName();
+
+        // create a new descriptor with the wrapped type and set it to the mapping
+        ComplexFeatureTypeFactoryImpl typeFactory = new ComplexFeatureTypeFactoryImpl();
+        AttributeDescriptor descriptor = typeFactory.createAttributeDescriptor(this, name,
+                minOccurs, maxOccurs, nillable, defaultValue);
+        descriptor.getUserData().putAll(originalTarget.getUserData());
+        mapping.setTargetFeature(descriptor);
+        this.descriptors = schema;
+    }
+
     /**
      * @see org.geotools.data.complex.config.ComplexTypeProxy#getSubject()
      */

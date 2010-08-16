@@ -14,7 +14,7 @@
       <xs:extension base="gml:AbstractFeatureType">
         <xs:sequence>
           <xs:element name="geom" type="gml:GeometryPropertyType" />
-          <xs:element name="nestedFeature" type="ex:nestedFeaturePropertyType" nillable="true"/>
+          <xs:element name="nestedFeature" type="ex:nestedFeaturePropertyType" nillable="true" maxOccurs="unbounded"/>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
@@ -23,11 +23,14 @@
   <xs:element name="nestedGeom" type="ex:nestedGeometryFeatureType" />
   <xs:element name="geom" type="gml:GeometryPropertyType"/>
   
+  
   <xs:complexType name="nestedGeometryFeatureType" xmlns:xs="http://www.w3.org/2001/XMLSchema">
     <xs:complexContent>    
       <xs:extension base="gml:AbstractFeatureType">
-        <xs:sequence>
-		  <xs:element name="geom" type="gml:GeometryPropertyType"/>
+        <xs:sequence>		  	
+		  <xs:element name="name" type="xs:string" minOccurs="0"/>
+		  <xs:element name="geom" type="gml:GeometryPropertyType" minOccurs="0"/>
+		  <xs:element name="nestedFeature" type="ex:nestedFeaturePropertyType" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>      
       </xs:extension>
    </xs:complexContent>
@@ -35,7 +38,7 @@
   
   <xs:complexType name="nestedFeaturePropertyType">
 		<xs:sequence minOccurs="0">
-			<xs:element ref="ex:nestedGeom"/>
+			<xs:element ref="ex:nestedGeom"/>			
 		</xs:sequence>
   </xs:complexType>
   

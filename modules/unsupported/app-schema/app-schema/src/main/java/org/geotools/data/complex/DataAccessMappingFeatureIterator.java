@@ -33,6 +33,7 @@ import org.geotools.data.DataAccess;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
+import org.geotools.data.complex.config.NonFeatureTypeProxy;
 import org.geotools.data.complex.filter.XPath;
 import org.geotools.data.complex.filter.XPath.Step;
 import org.geotools.data.complex.filter.XPath.StepList;
@@ -114,7 +115,7 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
     private ArrayList<String> filteredFeatures;
 
     private AttributeDescriptor targetNode;
-    
+
     public DataAccessMappingFeatureIterator(AppSchemaDataAccess store, FeatureTypeMapping mapping,
             Query query, boolean isFiltered, boolean isDenormalised) throws IOException {
         this(store, mapping, query, isFiltered, isDenormalised, false);
@@ -202,6 +203,10 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
         // sort them manually just in case the data is denormalised
         query.setMaxFeatures(Query.DEFAULT_MAX);
         sourceFeatures = mappedSource.getFeatures(query);
+        // VT: No point trying to re-project without any geometry.
+        if (reprojection != null && sourceFeatures.getSchema().getGeometryDescriptor() == null) {
+            query.setCoordinateSystemReproject(null);
+        }
         this.sourceFeatureIterator = sourceFeatures.iterator();
         setTargetNode(mapping);
     }
@@ -212,37 +217,55 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
             AttributeType type = mapping.getTargetFeature().getType();
             if (type instanceof ComplexFeatureTypeImpl) {
                 ComplexFeatureTypeImpl fType = (ComplexFeatureTypeImpl) type;
-                Collection<PropertyDescriptor> newDescriptors = new ArrayList<PropertyDescriptor>(
-                        fType.getDescriptors().size());
-                for (PropertyDescriptor descriptor : fType.getDescriptors()) {
-                    if (descriptor instanceof GeometryDescriptor) {
-                        GeometryType origType = (GeometryType) descriptor.getType();
-                        GeometryType geomType = new GeometryTypeImpl(origType.getName(), origType
-                                .getBinding(), reprojection, origType.isIdentified(), origType
-                                .isAbstract(), origType.getRestrictions(), origType.getSuper(),
-                                origType.getDescription());
-                        geomType.getUserData().putAll(origType.getUserData());
-
-                        GeometryDescriptor newDescriptor = new GeometryDescriptorImpl(geomType,
-                                descriptor.getName(), descriptor.getMinOccurs(), descriptor
-                                        .getMaxOccurs(), descriptor.isNillable(),
-                                ((GeometryDescriptor) descriptor).getDefaultValue());
-                        newDescriptor.getUserData().putAll(descriptor.getUserData());
-                        newDescriptors.add(newDescriptor);
-                    } else {
-                        newDescriptors.add(descriptor);
-                    }
-                }
+                Collection<PropertyDescriptor> newDescriptors = reprojectDescriptor(fType
+                        .getDescriptors());
                 AttributeDescriptor targetFeature = mapping.getTargetFeature();
-                targetNode = new AttributeDescriptorImpl(
-                        new ComplexFeatureTypeImpl(fType, newDescriptors), targetFeature.getName(),
-                        targetFeature.getMinOccurs(), targetFeature.getMaxOccurs(), targetFeature
-                                .isNillable(), targetFeature.getDefaultValue());
+                targetNode = new AttributeDescriptorImpl(new ComplexFeatureTypeImpl(fType,
+                        newDescriptors), targetFeature.getName(), targetFeature.getMinOccurs(),
+                        targetFeature.getMaxOccurs(), targetFeature.isNillable(), targetFeature
+                                .getDefaultValue());
+                targetNode.getUserData().putAll(targetFeature.getUserData());
+            } else if (type instanceof NonFeatureTypeProxy) {
+                NonFeatureTypeProxy fType = (NonFeatureTypeProxy) type;
+                Collection<PropertyDescriptor> newDescriptors = reprojectDescriptor(fType
+                        .getDescriptors());
+                AttributeDescriptor targetFeature = mapping.getTargetFeature();
+                targetNode = new AttributeDescriptorImpl(new NonFeatureTypeProxy(fType, mapping,
+                        newDescriptors), targetFeature.getName(), targetFeature.getMinOccurs(),
+                        targetFeature.getMaxOccurs(), targetFeature.isNillable(), targetFeature
+                                .getDefaultValue());
                 targetNode.getUserData().putAll(targetFeature.getUserData());
             }
         } else {
             targetNode = mapping.getTargetFeature();
         }
+    }
+
+    private Collection<PropertyDescriptor> reprojectDescriptor(Collection<PropertyDescriptor> source) {
+        Collection<PropertyDescriptor> newDescriptors = new ArrayList<PropertyDescriptor>(source
+                .size());
+        for (PropertyDescriptor descriptor : source) {
+            if (descriptor instanceof GeometryDescriptor) {
+                GeometryType origType = (GeometryType) descriptor.getType();
+                GeometryType geomType = new GeometryTypeImpl(origType.getName(), origType
+                        .getBinding(), reprojection, origType.isIdentified(),
+                        origType.isAbstract(), origType.getRestrictions(), origType.getSuper(),
+                        origType.getDescription());
+                geomType.getUserData().putAll(origType.getUserData());
+
+                GeometryDescriptor newDescriptor = new GeometryDescriptorImpl(geomType, descriptor
+                        .getName(), descriptor.getMinOccurs(), descriptor.getMaxOccurs(),
+                        descriptor.isNillable(), ((GeometryDescriptor) descriptor)
+                                .getDefaultValue());
+                newDescriptor.getUserData().putAll(descriptor.getUserData());
+                newDescriptors.add(newDescriptor);
+            } else {
+                newDescriptors.add(descriptor);
+            }
+        }
+
+        return newDescriptors;
+
     }
 
     protected boolean unprocessedFeatureExists() {
@@ -643,8 +666,11 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
         FeatureId featureId = namespaceAwareFilterFactory.featureId(fId);
         Query query = new Query();
         if (reprojection != null) {
-            query.setCoordinateSystemReproject(reprojection);
+            if (sourceFeatures.getSchema().getGeometryDescriptor() != null) {
+                query.setCoordinateSystemReproject(reprojection);
+            }
         }
+
         if (featureFidMapping instanceof PropertyName
                 && ((PropertyName) featureFidMapping).getPropertyName().equals("@id")) {
             // no real feature id mapping,
@@ -761,7 +787,7 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
 
             Collection c = (Collection) p.getValue();
             // Will need to add && this.getClientProperties(p).get(XLINK_HREF_NAME)!=null if we
-            // intend to skip empty xlink href eg <gsml:samplingFrame/>             
+            // intend to skip empty xlink href eg <gsml:samplingFrame/>
             if (c.size() == 0 && this.getClientProperties(p).containsKey(XLINK_HREF_NAME)) {
                 return true;
             }
