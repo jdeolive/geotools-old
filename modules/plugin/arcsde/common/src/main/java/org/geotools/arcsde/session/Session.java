@@ -51,13 +51,12 @@ import com.esri.sde.sdk.client.SeStreamOp;
 import com.esri.sde.sdk.client.SeTable;
 import com.esri.sde.sdk.client.SeUpdate;
 import com.esri.sde.sdk.geom.GeometryFactory;
-import com.esri.sde.sdk.sg.SgCoordRef;
 
 /**
  * Default implementation of an {@link ISession}
  * <p>
  * As for the ESRI ArcSDE Java API v9.3.0, the {@link SeQuery#prepareQuery} and
- * {@link SeQuery#prepareQueryInfo} methods lead to a memory leak, with {@link SgCoordRef} and
+ * {@link SeQuery#prepareQueryInfo} methods lead to a memory leak, with {@code SgCoordRef} and
  * {@link SeCoordinateReference} instances somehow tied to the {@link SeConnection}. To avoid Heap
  * Memory starvation, this {@link Session} will auto-close upon a fixed number of calls to those
  * {@code SeQuery} methods, so that the memory can be reclaimed by the garbage collector before it
