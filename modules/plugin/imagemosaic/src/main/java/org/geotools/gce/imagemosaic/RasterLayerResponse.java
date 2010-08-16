@@ -382,10 +382,10 @@ class RasterLayerResponse{
                         final Geometry inclusionGeometry = granuleDescriptor.inclusionGeometry;
                         if (!footprintManagement || inclusionGeometry == null || footprintManagement && inclusionGeometry.intersects(bb)){
                             final GranuleLoader loader = new GranuleLoader(baseReadParameters, imageChoice, mosaicBBox, finalWorldToGridCorner, granuleDescriptor, request, hints);
-                            if(!multithreadingAllowed)
-                                        tasks.add(new FutureTask<GranuleLoadingResult>(loader));
+                            if (multithreadingAllowed && rasterManager.parent.multiThreadedLoader != null)
+                                    tasks.add(rasterManager.parent.multiThreadedLoader.submit(loader));
                                 else
-                                        tasks.add(rasterManager.parent.multiThreadedLoader.submit(loader));
+                                    tasks.add(new FutureTask<GranuleLoadingResult>(loader));
                                 
                                 granulesNumber++;
                         }

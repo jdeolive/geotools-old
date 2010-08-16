@@ -36,6 +36,8 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -43,7 +45,6 @@ import javax.imageio.spi.ImageReaderSpi;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
-import org.geotools.coverage.CoverageFactoryFinder;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.grid.GridEnvelope2D;
@@ -117,7 +118,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 	
 	PathType pathType;
 	
-	ExecutorService multiThreadedLoader;
+	ExecutorService multiThreadedLoader = null;
 
 	String locationAttributeName="location";
 
@@ -155,9 +156,21 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 	public ImageMosaicReader(Object source, Hints uHints) throws IOException {
 	    super(source,uHints);
 	    
-	        multiThreadedLoader = ImageMosaicFormatFactory.DefaultMultiThreadedLoader;
-
-	        
+	    if (this.hints.containsKey(Hints.EXECUTOR_SERVICE)) {
+	      final Object executor = uHints.get(Hints.EXECUTOR_SERVICE);
+	      if (executor != null && executor instanceof ExecutorService){
+	          multiThreadedLoader = (ExecutorService) executor;
+	          if (LOGGER.isLoggable(Level.FINE)){
+	              if (multiThreadedLoader instanceof ThreadPoolExecutor){
+	                  final ThreadPoolExecutor tpe = (ThreadPoolExecutor) multiThreadedLoader;
+	                  LOGGER.fine("Using ThreadPoolExecutor with the following settings: " +
+	                              "core pool size = " + tpe.getCorePoolSize() + 
+	                              "\nmax pool size = " + tpe.getMaximumPoolSize() + 
+	                              "\nkeep alive time " + tpe.getKeepAliveTime(TimeUnit.MILLISECONDS));    
+	              }
+	          }
+	      }
+	    }
 		if(this.hints.containsKey(Hints.MAX_ALLOWED_TILES))
 			this.maxAllowedTiles= ((Integer)this.hints.get(Hints.MAX_ALLOWED_TILES));		
 

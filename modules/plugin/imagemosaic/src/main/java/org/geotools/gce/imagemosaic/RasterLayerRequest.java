@@ -307,6 +307,7 @@ class RasterLayerRequest {
                             continue;
                     }
                     interpolation = (Interpolation) value;
+//                    interpolation = ((InterpolationType) value).getInstance();
                     continue;
                 }
                 
@@ -502,6 +503,7 @@ class RasterLayerRequest {
                 if(value==null)
                         return;
             interpolation = (Interpolation) value;
+//            interpolation = ((InterpolationType) value).getInstance();
             return;
         }
 

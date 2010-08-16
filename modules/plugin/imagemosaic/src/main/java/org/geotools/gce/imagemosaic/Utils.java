@@ -132,7 +132,7 @@ public class Utils {
 		}
     }
 	final static String THREADPOOL_CONFIG_FILE = "mosaicthreadpoolconfig.properties";
-	static final int DEFAULT_CORE_POOLSIZE = 5;	
+	
 	/**
 	 * {@link AffineTransform} that can be used to go from an image datum placed
 	 * at the center of pixels to one that is placed at ULC.

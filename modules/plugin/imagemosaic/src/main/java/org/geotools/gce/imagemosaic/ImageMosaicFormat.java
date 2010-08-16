@@ -28,10 +28,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -43,10 +39,10 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.imageio.GeoToolsWriteParams;
+import org.geotools.data.DataAccessFactory.Param;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFactorySpi;
 import org.geotools.data.DataUtilities;
-import org.geotools.data.DataAccessFactory.Param;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.Hints;
@@ -107,8 +103,6 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 @SuppressWarnings("deprecation")
 public final class ImageMosaicFormat extends AbstractGridFormat implements Format {
 
-    ExecutorService mtLoader = null; 
-    
     /** Logger. */
     private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(ImageMosaicFormat.class.toString());
     
@@ -116,6 +110,7 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
     private static final String SUGGESTED_TILESIZE = "SUGGESTED_TILE_SIZE";
     
     static final Interpolation DEFAULT_INTERPOLATION = new InterpolationNearest();
+//    static final InterpolationType DEFAULT_INTERPOLATION = InterpolationType.NEAREST;
 
     /**
      * This {@link GeneralParameterValue} can be provided to the
@@ -178,27 +173,20 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
             "BackgroundValues", double[].class, null, null);
     
     /** Control the interpolation to be used in mosaicking */
+//    public static final ParameterDescriptor<InterpolationType> INTERPOLATION = new DefaultParameterDescriptor<InterpolationType>(
+//            "Interpolation", InterpolationType.class, null, DEFAULT_INTERPOLATION);
+    
     public static final ParameterDescriptor<Interpolation> INTERPOLATION = new DefaultParameterDescriptor<Interpolation>(
             "Interpolation", Interpolation.class, null, DEFAULT_INTERPOLATION);
+
     
     /**
      * Creates an instance and sets the metadata.
      */
     public ImageMosaicFormat() {
         setInfo();
-        mtLoader = ImageMosaicFormatFactory.DefaultMultiThreadedLoader;
     }
 
-    /**
-     * Creates an instance with a specific multiThreadedLoaderConfiguration.
-     */
-    public ImageMosaicFormat(final int corePoolSize, final int maxCorePoolSize, final int keepAliveSeconds) {
-        setInfo();
-        mtLoader = new ThreadPoolExecutor(corePoolSize,maxCorePoolSize,keepAliveSeconds,
-                TimeUnit.SECONDS,new LinkedBlockingQueue<Runnable>());
-    }
-
-    
     /**
      * Sets the metadata information.
      */
@@ -222,6 +210,7 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
                 SUGGESTED_TILE_SIZE,
                 ALLOW_MULTITHREADING,
                 MAX_ALLOWED_TILES,
+//                INTERPOLATION,
                 TIME,
                 ELEVATION,
                 CQL_FILTER}));
@@ -445,7 +434,7 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
         try {
 
             final ImageMosaicReader reader = new ImageMosaicReader(source, hints);
-            reader.multiThreadedLoader = mtLoader;
+//            reader.multiThreadedLoader = mtLoader;
             return reader;
         } catch (MalformedURLException e) {
             if (LOGGER.isLoggable(Level.WARNING))
