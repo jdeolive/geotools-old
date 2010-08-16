@@ -19,7 +19,8 @@ package org.geotools.arcsde.session;
 
 /**
  * Exception thrown when a free SDE connection can't be obtained after the calling thread was
- * waiting an available connection for <code>SdeConnectionPool instance's getMaxWaitTime()</code> milliseconds
+ * waiting an available connection for <code>SdeConnectionPool instance's getMaxWaitTime()</code>
+ * milliseconds
  * 
  * @author Gabriel Roldan
  * @source $URL:

@@ -24,12 +24,12 @@ import org.geotools.arcsde.jndi.ArcSDEConnectionFactory;
 /**
  * Factory interface for {@link ISessionPool}.
  * <p>
- * A specific {@link ISessionPool} factory can be injected when using JNDI through the {@code
- * sessionPoolFactory} parameter. See {@link ArcSDEConnectionFactory}.
+ * A specific {@link ISessionPool} factory can be injected when using JNDI through the
+ * {@code sessionPoolFactory} parameter. See {@link ArcSDEConnectionFactory}.
  * </p>
  * 
  * @author Gabriel Roldan (OpenGeo)
- *
+ * 
  * @source $URL$
  * @version $Id$
  * @since 2.5.7

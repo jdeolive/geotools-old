@@ -18,7 +18,6 @@
 package org.geotools.arcsde.session;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -28,16 +27,21 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geotools.arcsde.ArcSdeException;
+import org.geotools.arcsde.logging.Loggers;
+import org.geotools.arcsde.versioning.ArcSdeVersionHandler;
 
 import com.esri.sde.sdk.client.SeColumnDefinition;
 import com.esri.sde.sdk.client.SeConnection;
+import com.esri.sde.sdk.client.SeCoordinateReference;
 import com.esri.sde.sdk.client.SeDBMSInfo;
 import com.esri.sde.sdk.client.SeDelete;
 import com.esri.sde.sdk.client.SeException;
+import com.esri.sde.sdk.client.SeFilter;
 import com.esri.sde.sdk.client.SeInsert;
 import com.esri.sde.sdk.client.SeLayer;
 import com.esri.sde.sdk.client.SeObjectId;
 import com.esri.sde.sdk.client.SeQuery;
+import com.esri.sde.sdk.client.SeQueryInfo;
 import com.esri.sde.sdk.client.SeRasterColumn;
 import com.esri.sde.sdk.client.SeRegistration;
 import com.esri.sde.sdk.client.SeRelease;
@@ -47,13 +51,28 @@ import com.esri.sde.sdk.client.SeStreamOp;
 import com.esri.sde.sdk.client.SeTable;
 import com.esri.sde.sdk.client.SeUpdate;
 import com.esri.sde.sdk.geom.GeometryFactory;
+import com.esri.sde.sdk.sg.SgCoordRef;
 
 /**
- * Provides thread safe access to an SeConnection.
+ * Default implementation of an {@link ISession}
  * <p>
- * This class has become more and more magic over time! It no longer represents a Connection but
- * provides "safe" access to a connection.
+ * As for the ESRI ArcSDE Java API v9.3.0, the {@link SeQuery#prepareQuery} and
+ * {@link SeQuery#prepareQueryInfo} methods lead to a memory leak, with {@link SgCoordRef} and
+ * {@link SeCoordinateReference} instances somehow tied to the {@link SeConnection}. To avoid Heap
+ * Memory starvation, this {@link Session} will auto-close upon a fixed number of calls to those
+ * {@code SeQuery} methods, so that the memory can be reclaimed by the garbage collector before it
+ * becomes a real problem. When that happens, this Session will be marked closed and discarded from
+ * the {@link SessionPool}, leaving room in the pool to create a new Session as needed.
+ * </p>
  * <p>
+ * Both the {@link #createAndExecuteQuery} and {@link #prepareQuery} methods will increment the
+ * auto-close counter.
+ * <p>
+ * The default value for the auto-close threshold is {@code 500}. A different value can be specified
+ * through the {@code "org.geotools.arcsde.session.AutoCloseThreshold"} System property. For
+ * example, by running your application like
+ * {@code java -Dorg.geotools.arcsde.session.AutoCloseThreshold=100 -cp... MyApp}
+ * </p>
  * 
  * @author Gabriel Roldan
  * @author Jody Garnett
@@ -62,26 +81,29 @@ import com.esri.sde.sdk.geom.GeometryFactory;
  */
 class Session implements ISession {
 
-    public static final Logger LOGGER;
+    private static final Logger LOGGER = Loggers.getLogger("org.geotools.arcsde.session");
 
+    /**
+     * Threshold to be reached by {@link #autoCloseCounter} to automatically recycle (close) the
+     * Session and its {@link SeConnection}
+     */
+    private static final int AUTO_CLOSE_COUNTER_THRESHOLD;
     static {
-        /*
-         * This Jar may be used withoug geotools' gt-metadata being in the class path, so try to use
-         * the org.geotools.util.logging.Logging.getLogger method reflectively and fall back to
-         * plain java.util.logger if that's the case
-         */
-        Logger logger = null;
-        try {
-            Class<?> clazz = Class.forName("org.geotools.util.logging.Logging");
-            Method method = clazz.getMethod("getLogger", String.class);
-            logger = (Logger) method.invoke(null, "org.geotools.arcsde.session");
-        } catch (Exception e) {
-            logger = Logger.getLogger("org.geotools.arcsde.session");
-            logger.info("org.geotools.util.logging.Logging seems not to be in the classpath, "
-                    + "acquired Logger through java.util.Logger");
-        }
-        LOGGER = logger;
+        Integer systemPropValue = Integer
+                .getInteger("org.geotools.arcsde.session.AutoCloseThreshold");
+        AUTO_CLOSE_COUNTER_THRESHOLD = systemPropValue == null ? 500 : systemPropValue.intValue();
+        LOGGER.info("Session auto-close threshold set to " + AUTO_CLOSE_COUNTER_THRESHOLD);
     }
+
+    /**
+     * Counter incremented every time an operation that degrades the performance of the running
+     * application is executed, in order to close the {@link SeConnection} when it reaches
+     * {@link #AUTO_CLOSE_COUNTER_THRESHOLD}. See class' JavaDocs for more details
+     * 
+     * @see <a href="http://jira.codehaus.org/browse/GEOT-3227">GEOT-3227</a>
+     * @see #prepareQuery(SeQueryInfo, SeFilter[], ArcSdeVersionHandler)
+     */
+    private int autoCloseCounter;
 
     /**
      * How many seconds must have elapsed since the last connection round trip to the server for
@@ -366,6 +388,11 @@ class Session implements ISession {
             throw new IllegalStateException(
                     "Transaction is in progress, should commit or rollback before closing");
         }
+        if (autoCloseCounter >= AUTO_CLOSE_COUNTER_THRESHOLD) {
+            LOGGER.warning("Auto-closing " + this
+                    + " to avoid memory leak in ESRI Java API (see GEOT-3227)");
+            this.destroy();
+        }
         try {
             // System.err.println("---------> Disposing " + this + " on thread " +
             // Thread.currentThread().getName());
@@ -533,6 +560,7 @@ class Session implements ISession {
      */
     public SeQuery createAndExecuteQuery(final String[] propertyNames, final SeSqlConstruct sql)
             throws IOException {
+        this.autoCloseCounter++;
         return issue(new Commands.CreateAndExecuteQueryCommand(propertyNames, sql));
     }
 
@@ -606,5 +634,15 @@ class Session implements ISession {
             }
             return conn;
         }
+    }
+
+    /**
+     * @see org.geotools.arcsde.session.ISession#prepareQuery(com.esri.sde.sdk.client.SeQueryInfo,
+     *      com.esri.sde.sdk.client.SeFilter[], org.geotools.arcsde.versioning.ArcSdeVersionHandler)
+     */
+    public SeQuery prepareQuery(final SeQueryInfo qInfo, final SeFilter[] spatialConstraints,
+            final ArcSdeVersionHandler version) throws IOException {
+        this.autoCloseCounter++;
+        return issue(new Commands.PrepareQueryCommand(qInfo, spatialConstraints, version));
     }
 }

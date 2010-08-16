@@ -19,7 +19,7 @@ package org.geotools.arcsde.data;
 import java.io.IOException;
 import java.util.NoSuchElementException;
 
-import org.geotools.arcsde.data.versioning.ArcSdeVersionHandler;
+import org.geotools.arcsde.versioning.ArcSdeVersionHandler;
 import org.geotools.data.FeatureEvent;
 import org.geotools.data.FeatureListenerManager;
 import org.geotools.data.FeatureReader;

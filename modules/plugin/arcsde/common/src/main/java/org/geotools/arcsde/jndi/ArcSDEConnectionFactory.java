@@ -36,6 +36,7 @@ import javax.naming.RefAddr;
 import javax.naming.Reference;
 import javax.naming.spi.ObjectFactory;
 
+import org.geotools.arcsde.logging.Loggers;
 import org.geotools.arcsde.session.ArcSDEConnectionConfig;
 import org.geotools.arcsde.session.ISessionPool;
 import org.geotools.arcsde.session.ISessionPoolFactory;
@@ -75,14 +76,14 @@ import org.geotools.arcsde.session.SessionPoolFactory;
  * </p>
  * 
  * @author Gabriel Roldan (OpenGeo)
- *
+ * 
  * @source $URL$
  * @version $Id$
  * @since 2.5.7
  */
 public class ArcSDEConnectionFactory implements ObjectFactory {
 
-    private static final Logger LOGGER = Logger.getLogger("org.geotools.arcsde.jndi");
+    private static final Logger LOGGER = Loggers.getLogger("org.geotools.arcsde.jndi");
 
     private ISessionPoolFactory closablePoolFactory = SessionPoolFactory.getInstance();
 

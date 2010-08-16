@@ -14,16 +14,16 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.arcsde.data.versioning;
+package org.geotools.arcsde.versioning;
 
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.geotools.arcsde.logging.Loggers;
 import org.geotools.arcsde.session.Command;
-import org.geotools.arcsde.session.ISession;
 import org.geotools.arcsde.session.Commands.GetVersionCommand;
-import org.geotools.util.logging.Logging;
+import org.geotools.arcsde.session.ISession;
 
 import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeException;
@@ -46,7 +46,7 @@ import com.esri.sde.sdk.client.SeVersion;
  */
 public class AutoCommitVersionHandler implements ArcSdeVersionHandler {
 
-    private static final Logger LOGGER = Logging
+    private static final Logger LOGGER = Loggers
             .getLogger(AutoCommitVersionHandler.class.getName());
 
     private SeVersion version;

@@ -23,10 +23,10 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.geotools.arcsde.data.versioning.ArcSdeVersionHandler;
-import org.geotools.arcsde.data.versioning.TransactionVersionHandler;
 import org.geotools.arcsde.session.Command;
 import org.geotools.arcsde.session.ISession;
+import org.geotools.arcsde.versioning.ArcSdeVersionHandler;
+import org.geotools.arcsde.versioning.TransactionVersionHandler;
 import org.geotools.data.FeatureListenerManager;
 import org.geotools.data.Transaction;
 import org.geotools.util.logging.Logging;

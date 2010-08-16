@@ -30,9 +30,9 @@ import java.util.List;
 import java.util.Set;
 
 import org.geotools.arcsde.data.ArcSDEQuery.FilterSet;
-import org.geotools.arcsde.data.versioning.ArcSdeVersionHandler;
-import org.geotools.arcsde.data.versioning.AutoCommitVersionHandler;
 import org.geotools.arcsde.session.ISession;
+import org.geotools.arcsde.versioning.ArcSdeVersionHandler;
+import org.geotools.arcsde.versioning.AutoCommitVersionHandler;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;

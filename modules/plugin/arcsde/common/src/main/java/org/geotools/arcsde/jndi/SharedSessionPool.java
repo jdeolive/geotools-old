@@ -24,6 +24,7 @@ import java.util.WeakHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
+import org.geotools.arcsde.logging.Loggers;
 import org.geotools.arcsde.session.ArcSDEConnectionConfig;
 import org.geotools.arcsde.session.ISession;
 import org.geotools.arcsde.session.ISessionPool;
@@ -42,7 +43,7 @@ import org.geotools.arcsde.session.UnavailableConnectionException;
  */
 public final class SharedSessionPool implements ISessionPool {
 
-    private static final Logger LOGGER = Logger.getLogger("org.geotools.arcsde.session");
+    private static final Logger LOGGER = Loggers.getLogger("org.geotools.arcsde.session");
 
     private static final AtomicInteger instanceCounter = new AtomicInteger();
 
@@ -130,7 +131,8 @@ public final class SharedSessionPool implements ISessionPool {
     /**
      * @see ISessionPool#getSession(boolean)
      */
-    public ISession getSession(final boolean transactional) throws IOException, UnavailableConnectionException {
+    public ISession getSession(final boolean transactional) throws IOException,
+            UnavailableConnectionException {
         return delegate.getSession(transactional);
     }
 

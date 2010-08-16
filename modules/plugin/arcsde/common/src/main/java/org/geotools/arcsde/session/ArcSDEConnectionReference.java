@@ -50,9 +50,11 @@ final class ArcSDEConnectionReference extends SessionPool {
     }
 
     @Override
-    public ISession getSession(final boolean transactional) throws IOException, UnavailableConnectionException {
+    public ISession getSession(final boolean transactional) throws IOException,
+            UnavailableConnectionException {
         if (cached == null) {
-            ISession session = super.getSession(transactional); // this will block if session is already in use
+            ISession session = super.getSession(transactional); // this will block if session is
+                                                                // already in use
             this.cached = new SessionWrapper(session) {
                 @Override
                 public void dispose() {

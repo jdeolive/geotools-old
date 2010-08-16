@@ -20,14 +20,18 @@ package org.geotools.arcsde.session;
 import java.io.IOException;
 import java.util.List;
 
+import org.geotools.arcsde.versioning.ArcSdeVersionHandler;
+
 import com.esri.sde.sdk.client.SeColumnDefinition;
 import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeDBMSInfo;
 import com.esri.sde.sdk.client.SeDelete;
+import com.esri.sde.sdk.client.SeFilter;
 import com.esri.sde.sdk.client.SeInsert;
 import com.esri.sde.sdk.client.SeLayer;
 import com.esri.sde.sdk.client.SeObjectId;
 import com.esri.sde.sdk.client.SeQuery;
+import com.esri.sde.sdk.client.SeQueryInfo;
 import com.esri.sde.sdk.client.SeRasterColumn;
 import com.esri.sde.sdk.client.SeRegistration;
 import com.esri.sde.sdk.client.SeRelease;
@@ -38,6 +42,25 @@ import com.esri.sde.sdk.client.SeStreamOp;
 import com.esri.sde.sdk.client.SeTable;
 import com.esri.sde.sdk.client.SeUpdate;
 
+/**
+ * Provides thread safe access to an SeConnection.
+ * <p>
+ * An {@code ISession} is a decorator around an SeConnection, ensuring the SeConnection is not hit
+ * by two concurrent threads while at the same time participating in a {@link ISessionPool
+ * connection pool} where more than one thread can reclaim usage of the {@link SeConnection}.
+ * <p>
+ * Each piece of code that needs access to an {@link SeConnection}, either directly or indirectly
+ * (for example, by accessing an {@link SeStreamOp} like in {@code SeQuery.fetch()} or
+ * {@code new SeLayer(connection)}, needs to do so inside the body of a {@link Command}, and issue
+ * the command through {@link ISession#issue(Command)}.
+ * <p>
+ * 
+ * 
+ * @author Gabriel Roldan
+ * @author Jody Garnett
+ * @version $Id$
+ * @since 2.5.x
+ */
 public interface ISession {
 
     /**
@@ -200,5 +223,9 @@ public interface ISession {
             final SeSqlConstruct sql) throws IOException;
 
     public SeState createChildState(long parentStateId) throws IOException;
+
+    public abstract SeQuery prepareQuery(final SeQueryInfo qInfo,
+            final SeFilter[] spatialConstraints, final ArcSdeVersionHandler version)
+            throws IOException;
 
 }

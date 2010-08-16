@@ -49,8 +49,11 @@ public class SessionPoolFactory implements ISessionPoolFactory {
         return singleton;
     }
 
-    /* (non-Javadoc)
-     * @see org.geotools.arcsde.session.ISessionPoolFactory#createPool(org.geotools.arcsde.session.ArcSDEConnectionConfig)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.geotools.arcsde.session.ISessionPoolFactory#createPool(org.geotools.arcsde.session.
+     * ArcSDEConnectionConfig)
      */
     public synchronized ISessionPool createPool(ArcSDEConnectionConfig config) throws IOException {
         ISessionPool pool;

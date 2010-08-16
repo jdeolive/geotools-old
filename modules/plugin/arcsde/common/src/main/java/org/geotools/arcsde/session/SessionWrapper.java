@@ -20,13 +20,17 @@ package org.geotools.arcsde.session;
 import java.io.IOException;
 import java.util.List;
 
+import org.geotools.arcsde.versioning.ArcSdeVersionHandler;
+
 import com.esri.sde.sdk.client.SeColumnDefinition;
 import com.esri.sde.sdk.client.SeDBMSInfo;
 import com.esri.sde.sdk.client.SeDelete;
+import com.esri.sde.sdk.client.SeFilter;
 import com.esri.sde.sdk.client.SeInsert;
 import com.esri.sde.sdk.client.SeLayer;
 import com.esri.sde.sdk.client.SeObjectId;
 import com.esri.sde.sdk.client.SeQuery;
+import com.esri.sde.sdk.client.SeQueryInfo;
 import com.esri.sde.sdk.client.SeRasterColumn;
 import com.esri.sde.sdk.client.SeRegistration;
 import com.esri.sde.sdk.client.SeRelease;
@@ -273,8 +277,20 @@ public class SessionWrapper implements ISession {
         wrapped.startTransaction();
     }
 
+    /**
+     * @see org.geotools.arcsde.session.ISession#createChildState(long)
+     */
     public SeState createChildState(long parentStateId) throws IOException {
         return wrapped.createChildState(parentStateId);
+    }
+
+    /**
+     * @see org.geotools.arcsde.session.ISession#prepareQuery(SeQueryInfo, SeFilter[],
+     *      ArcSdeVersionHandler)
+     */
+    public SeQuery prepareQuery(final SeQueryInfo qInfo, final SeFilter[] spatialConstraints,
+            final ArcSdeVersionHandler version) throws IOException {
+        return wrapped.prepareQuery(qInfo, spatialConstraints, version);
     }
 
 }

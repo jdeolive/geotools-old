@@ -34,13 +34,13 @@ import net.sf.jsqlparser.statement.select.PlainSelect;
 import org.geotools.arcsde.ArcSdeException;
 import org.geotools.arcsde.data.FIDReader.SdeManagedFidReader;
 import org.geotools.arcsde.data.FIDReader.UserManagedFidReader;
-import org.geotools.arcsde.data.versioning.ArcSdeVersionHandler;
 import org.geotools.arcsde.filter.FilterToSQLSDE;
 import org.geotools.arcsde.filter.GeometryEncoderException;
 import org.geotools.arcsde.filter.GeometryEncoderSDE;
 import org.geotools.arcsde.session.Command;
 import org.geotools.arcsde.session.ISession;
 import org.geotools.arcsde.session.SdeRow;
+import org.geotools.arcsde.versioning.ArcSdeVersionHandler;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.Query;
@@ -113,9 +113,6 @@ class ArcSDEQuery {
      * clause and the set of spatial filters for the ArcSDE Java API
      */
     private ArcSDEQuery.FilterSet filters;
-
-    /** The lazyly calculated result count */
-    private int resultCount = -1;
 
     private final FIDReader fidReader;
 
@@ -400,23 +397,7 @@ class ArcSDEQuery {
 
         final SeQuery seQuery;
 
-        seQuery = session.issue(new Command<SeQuery>() {
-            @Override
-            public SeQuery execute(ISession session, SeConnection connection) throws SeException,
-                    IOException {
-                final SeQuery seQuery = new SeQuery(connection);
-                setQueryVersionState(seQuery);
-                seQuery.prepareQueryInfo(qInfo);
-
-                if (spatialConstraints.length > 0) {
-                    final boolean setReturnGeometryMasks = false;
-                    seQuery.setSpatialConstraints(SeQuery.SE_OPTIMIZE, setReturnGeometryMasks,
-                            spatialConstraints);
-                }
-
-                return seQuery;
-            }
-        });
+        seQuery = session.prepareQuery(qInfo, spatialConstraints, versioningHandler);
 
         return seQuery;
     }
@@ -497,17 +478,6 @@ class ArcSDEQuery {
         }
         sb.append("]");
         return sb.toString();
-    }
-
-    /**
-     * If the table being queried is multi versioned (we have a flag indicating it), retrieves the
-     * default version and its current version state to use for the query object
-     * 
-     * @param seQuery
-     * @throws IOException
-     */
-    private void setQueryVersionState(SeQuery seQuery) throws IOException {
-        versioningHandler.setUpStream(session, seQuery);
     }
 
     /**
@@ -607,8 +577,8 @@ class ArcSDEQuery {
      * result count calculation is optimized by selecting a <code>count()</code> single row. If the
      * filter involves any kind of spatial filter, such as BBOX, the calculation can't be optimized
      * by this way, because the ArcSDE Java API throws a <code>"DATABASE LEVEL
-     * ERROR OCURRED"</code> exception. So, in this case, a query over the shape field is made and the result is
-     * traversed counting the number of rows inside a while loop
+     * ERROR OCURRED"</code> exception. So, in this case, a query over the shape field is made and
+     * the result is traversed counting the number of rows inside a while loop
      * 
      */
     public int calculateResultCount() throws IOException {
@@ -634,7 +604,7 @@ class ArcSDEQuery {
 
                 SeQuery query = new SeQuery(connection);
                 try {
-                    setQueryVersionState(query);
+                    versioningHandler.setUpStream(session, query);
 
                     if (spatialFilters != null && spatialFilters.length > 0) {
                         query.setSpatialConstraints(SeQuery.SE_OPTIMIZE, true, spatialFilters);
@@ -689,7 +659,7 @@ class ArcSDEQuery {
 
                     final SeQuery extentQuery = new SeQuery(connection);
                     try {
-                        setQueryVersionState(extentQuery);
+                        versioningHandler.setUpStream(session, extentQuery);
 
                         if (spatialConstraints.length > 0) {
                             extentQuery.setSpatialConstraints(SeQuery.SE_OPTIMIZE, false,
@@ -976,8 +946,8 @@ class ArcSDEQuery {
 
             Filter remainingFilter = unpacker.getFilterPost();
 
-            unpacker = new PostPreProcessFilterSplittingVisitor(GeometryEncoderSDE
-                    .getCapabilities(), featureType, null);
+            unpacker = new PostPreProcessFilterSplittingVisitor(
+                    GeometryEncoderSDE.getCapabilities(), featureType, null);
             remainingFilter.accept(unpacker, null);
 
             this.geometryFilter = unpacker.getFilterPre();

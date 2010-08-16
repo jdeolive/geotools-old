@@ -17,18 +17,18 @@
  */
 package org.geotools.arcsde.session;
 
-import static org.geotools.arcsde.session.Session.LOGGER;
-
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.commons.pool.BasePoolableObjectFactory;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.apache.commons.pool.impl.GenericObjectPool.Config;
 import org.geotools.arcsde.ArcSdeException;
+import org.geotools.arcsde.logging.Loggers;
 
 import com.esri.sde.sdk.client.SeException;
 import com.esri.sde.sdk.client.SeRelease;
@@ -61,6 +61,8 @@ import com.esri.sde.sdk.client.SeRelease;
  * @version $Id$
  */
 class SessionPool implements ISessionPool {
+
+    private static final Logger LOGGER = Loggers.getLogger("org.geotools.arcsde.session");
 
     protected static final Level INFO_LOG_LEVEL = Level.WARNING;
 
@@ -291,14 +293,13 @@ class SessionPool implements ISessionPool {
                         }
                     } catch (NoSuchElementException e) {
                         if (LOGGER.isLoggable(Level.FINER)) {
-                            LOGGER
-                                    .finer("No available sessions in the pool, falling back to queued session");
+                            LOGGER.finer("No available sessions in the pool, falling back to queued session");
                         }
                         connection = openSessionsNonTransactional.remove();
                     }
-                    
+
                     openSessionsNonTransactional.add(connection);
-                    
+
                     if (LOGGER.isLoggable(Level.FINER)) {
                         LOGGER.finer("Got session from the in use queue on "
                                 + Thread.currentThread().getName());
@@ -359,8 +360,8 @@ class SessionPool implements ISessionPool {
          * <p>
          * The implementation for this method needs to be synchronized in order to make sure no two
          * {@code SeConnection} instances are created at the same time. Otherwise, when that happens
-         * under load, SeConnection's constructor uses to throw a nasty {@code
-         * NegativeArraySizeException}.
+         * under load, SeConnection's constructor uses to throw a nasty
+         * {@code NegativeArraySizeException}.
          * </p>
          * 
          * @return a newly created <code>SeConnection</code>

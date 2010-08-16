@@ -1,13 +1,14 @@
 package org.geotools.arcsde.session;
 
-import static org.geotools.arcsde.session.Session.LOGGER;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
+import java.util.logging.Logger;
 
 import org.geotools.arcsde.ArcSdeException;
+import org.geotools.arcsde.logging.Loggers;
+import org.geotools.arcsde.versioning.ArcSdeVersionHandler;
 
 import com.esri.sde.sdk.client.SeColumnDefinition;
 import com.esri.sde.sdk.client.SeConnection;
@@ -15,10 +16,12 @@ import com.esri.sde.sdk.client.SeDBMSInfo;
 import com.esri.sde.sdk.client.SeDelete;
 import com.esri.sde.sdk.client.SeError;
 import com.esri.sde.sdk.client.SeException;
+import com.esri.sde.sdk.client.SeFilter;
 import com.esri.sde.sdk.client.SeInsert;
 import com.esri.sde.sdk.client.SeLayer;
 import com.esri.sde.sdk.client.SeObjectId;
 import com.esri.sde.sdk.client.SeQuery;
+import com.esri.sde.sdk.client.SeQueryInfo;
 import com.esri.sde.sdk.client.SeRasterColumn;
 import com.esri.sde.sdk.client.SeRegistration;
 import com.esri.sde.sdk.client.SeRelease;
@@ -31,6 +34,8 @@ import com.esri.sde.sdk.client.SeUpdate;
 import com.esri.sde.sdk.client.SeVersion;
 
 public class Commands {
+
+    private static final Logger LOGGER = Loggers.getLogger("org.geotools.arcsde.session");
 
     /**
      * Creates either a direct child state of parentStateId, or a sibling being an exact copy of
@@ -411,8 +416,12 @@ public class Commands {
         @Override
         public Void execute(final ISession session, final SeConnection connection)
                 throws SeException, IOException {
-            connection.close();
-            LOGGER.fine(session.toString() + " successfully closed");
+            try {
+                connection.close();
+                LOGGER.fine(session.toString() + " successfully closed");
+            } catch (Exception ignore) {
+                LOGGER.fine("Problem closing " + session.toString() + ": " + ignore.getMessage());
+            }
             return null;
         }
     };
@@ -495,6 +504,45 @@ public class Commands {
         public SeRegistration execute(final ISession session, final SeConnection connection)
                 throws SeException, IOException {
             return new SeRegistration(connection, typeName);
+        }
+    }
+
+    /**
+     * 
+     * @author groldan
+     */
+    public static final class PrepareQueryCommand extends Command<SeQuery> {
+
+        private final SeFilter[] spatialConstraints;
+
+        private final SeQueryInfo qInfo;
+
+        private ArcSdeVersionHandler version;
+
+        public PrepareQueryCommand(final SeQueryInfo qInfo, final SeFilter[] spatialConstraints,
+                final ArcSdeVersionHandler version) {
+            this.qInfo = qInfo;
+            this.spatialConstraints = spatialConstraints;
+            this.version = version;
+        }
+
+        @Override
+        public SeQuery execute(ISession session, SeConnection connection) throws SeException,
+                IOException {
+
+            final SeQuery seQuery = new SeQuery(connection);
+
+            version.setUpStream(session, seQuery);
+
+            seQuery.prepareQueryInfo(qInfo);
+
+            if (spatialConstraints.length > 0) {
+                final boolean setReturnGeometryMasks = false;
+                seQuery.setSpatialConstraints(SeQuery.SE_OPTIMIZE, setReturnGeometryMasks,
+                        spatialConstraints);
+            }
+
+            return seQuery;
         }
     }
 }
