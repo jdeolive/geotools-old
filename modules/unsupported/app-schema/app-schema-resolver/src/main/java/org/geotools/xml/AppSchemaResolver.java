@@ -38,7 +38,7 @@ import java.util.logging.Logger;
  * <li>In an <a href="http://www.oasis-open.org/committees/entity/spec-2001-08-06.html">OASIS
  * Catalog</a> (with URI resolution semantics), which maps URLs to arbitrary filesystem locations.</li>
  * 
- * <li>On the classpath, where resoruces are located by their Simple HTTP Resource Path (see
+ * <li>On the classpath, where resources are located by their Simple HTTP Resource Path (see
  * {@link #getSimpleHttpResourcePath(URI)}).
  * 
  * <li>In a cache, with optional downloading support.
@@ -67,10 +67,16 @@ public class AppSchemaResolver {
      * original HTTP URL used to obtain it. This is required so that relative imports can be
      * resolved if they cross resolution boundaries. For example, an import ../../../om/.. used to
      * import om in a schema, where one is supplied locally and the other must be downloaded and
-     * cached. Yes, this does happen in real life.
+     * cached. Another example is when the schemas are in different jar files.
      */
-    private Map<String, String> resolvedLocationToLocationMap = new HashMap<String, String>();
+    private Map<String, String> resolvedLocationToOriginalLocationMap = new HashMap<String, String>();
 
+    /**
+     * Constructor.
+     * 
+     * @param catalog
+     * @param cache
+     */
     public AppSchemaResolver(AppSchemaCatalog catalog, AppSchemaCache cache) {
         this.catalog = catalog;
         this.cache = cache;
@@ -102,6 +108,52 @@ public class AppSchemaResolver {
     }
 
     /**
+     * Resolve an absolute or relative URL to a local file or jar URL. Relative URLs are resolved
+     * against a context schema URL if provided.
+     * 
+     * @param location
+     *            an absolute or relative URL for a schema
+     * @param context
+     *            an absolute URL specifying the context schema of a relative location, or null if
+     *            none
+     * @return the string representation of a file or jar URL
+     * @throws RuntimeException
+     *             if a local resource could not be found
+     */
+    public String resolve(String location, String context) {
+        URI locationUri;
+        try {
+            locationUri = new URI(location);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+        if (!locationUri.isAbsolute()) {
+            // Location is relative, so need to resolve against context.
+            if (context == null) {
+                throw new RuntimeException("Could not determine absolute schema location for "
+                        + location + " because context schema location is unknown");
+            }
+            // Find the original absolute http/https (canonical) URL used to obtain the
+            // context schema, so relative imports can be honoured across resolution source
+            // boundaries or jar file boundaries.
+            String originalContext = resolvedLocationToOriginalLocationMap.get(context);
+            if (originalContext == null) {
+                // Do not know any better context, so treat as original.
+                originalContext = context;
+            }
+            // Resolve the location URI against the context URI to make it absolute.
+            URI contextUri;
+            try {
+                contextUri = new URI(originalContext);
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
+            locationUri = contextUri.resolve(locationUri);
+        }
+        return resolve(locationUri.toString());
+    }
+
+    /**
      * Resolve an absolute URL to a local file or jar URL.
      * 
      * @param location
@@ -112,27 +164,27 @@ public class AppSchemaResolver {
      */
     public String resolve(String location) {
         String resolvedLocation = null;
-        // already resolved?
+        // Already resolved?
         if (location.startsWith("file:") || location.startsWith("jar:file:")) {
             resolvedLocation = location;
         }
-        // use catalog if one supplied
+        // Use catalog if one supplied.
         if (resolvedLocation == null && catalog != null) {
             resolvedLocation = catalog.resolveLocation(location);
         }
-        // look on classpath
+        // Look on classpath.
         if (resolvedLocation == null) {
             resolvedLocation = resolveClasspathLocation(location);
         }
-        // use download cache
+        // Use download cache.
         if (resolvedLocation == null && cache != null) {
             resolvedLocation = cache.resolveLocation(location);
         }
-        // fail if still not resolved
+        // Fail if still not resolved.
         if (resolvedLocation == null) {
             throw new RuntimeException(String.format("Failed to resolve %s", location));
         }
-        resolvedLocationToLocationMap.put(resolvedLocation, location);
+        resolvedLocationToOriginalLocationMap.put(resolvedLocation, location);
         try {
             /*
              * This monstrous hack is required because org.geotools.xml.Schemas.parse(String, List,
@@ -142,24 +194,13 @@ public class AppSchemaResolver {
              * inserting the decoded version into the map as well as the undecoded version inserted
              * above). *Shudder*.
              */
-            resolvedLocationToLocationMap.put(URLDecoder.decode(resolvedLocation, "UTF-8"),
+            resolvedLocationToOriginalLocationMap.put(URLDecoder.decode(resolvedLocation, "UTF-8"),
                     location);
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
         LOGGER.fine(String.format("Resolved %s -> %s", location, resolvedLocation));
         return resolvedLocation;
-    }
-
-    /**
-     * Maps a resolved location (a URL used to obtain a schema from a file or the classpath) to the
-     * original HTTP URL used to obtain it. This is required so that relative imports can be
-     * resolved if they cross resolution boundaries. For example, an import ../../../om/.. used to
-     * import om in a schema, where one is supplied locally and the other must be downloaded and
-     * cached. Yes, this does happen in real life.
-     */
-    public String unresolve(String resolvedLocation) {
-        return resolvedLocationToLocationMap.get(resolvedLocation);
     }
 
     /**

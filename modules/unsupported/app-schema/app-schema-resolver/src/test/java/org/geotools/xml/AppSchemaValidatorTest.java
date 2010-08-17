@@ -28,7 +28,7 @@ import org.junit.Test;
 public class AppSchemaValidatorTest {
 
     /**
-     * Test that validation passes for a known-valid XML instance document.
+     * Test that validation succeeds for a known-valid XML instance document.
      */
     @Test
     public void validateErMineralOccurrence() {
@@ -48,6 +48,15 @@ public class AppSchemaValidatorTest {
             Assert.assertTrue(e.getMessage(), e.getMessage().startsWith(
                     "Schema validation failures: 2" + System.getProperty("line.separator")));
         }
+    }
+
+    /**
+     * Test that validation succeeds for a WFS 2.0 / GML 3.2 example from an annex of a draft of the
+     * WFS 2.0 specification.
+     */
+    @Test
+    public void validateWfs20Example01() {
+        AppSchemaValidator.validate("/test-data/Example01.xml");
     }
 
 }

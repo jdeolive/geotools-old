@@ -188,4 +188,14 @@ public class AppSchemaConfigurationTest {
         Assert.assertTrue(DataUtilities.urlToFile(new URL(schemaLocation)).exists());
     }
 
+    /**
+     * Test we can resolve GML 3.2 schema on the classpath.
+     */
+    @Test
+    public void classpathGml32() {
+        Configuration configuration = new AppSchemaConfiguration("http://www.opengis.net/gml/3.2",
+                "http://schemas.opengis.net/gml/3.2.1/gml.xsd", new AppSchemaResolver());
+        Schemas.findSchemas(configuration);
+    }
+
 }

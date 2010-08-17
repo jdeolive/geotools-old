@@ -17,9 +17,6 @@
 
 package org.geotools.xml;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-
 import org.eclipse.xsd.XSDSchema;
 
 /**
@@ -62,39 +59,7 @@ public class AppSchemaLocationResolver extends SchemaLocationResolver {
     @Override
     public String resolveSchemaLocation(final XSDSchema schema, final String uri,
             final String location) {
-        String schemaLocation;
-        if (schema.getSchemaLocation().startsWith("http:")
-                || schema.getSchemaLocation().startsWith("https:")) {
-            schemaLocation = schema.getSchemaLocation();
-        } else {
-            /*
-             * Need to find the absolute http/https URL used to obtain the parent schema, so
-             * relative imports can be honoured across resolution source boundaries.
-             */
-            schemaLocation = resolver.unresolve(schema.getSchemaLocation());
-            if (schemaLocation == null) {
-                throw new RuntimeException(
-                        "Could not determine canonical schema location for resource "
-                                + schema.getSchemaLocation());
-            }
-        }
-        URI locationUri;
-        try {
-            locationUri = new URI(location);
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
-        if (!locationUri.isAbsolute()) {
-            // resolve the URI to make it absolute
-            URI schemaLocationUri;
-            try {
-                schemaLocationUri = new URI(schemaLocation);
-            } catch (URISyntaxException e) {
-                throw new RuntimeException(e);
-            }
-            locationUri = schemaLocationUri.resolve(locationUri);
-        }
-        return resolver.resolve(locationUri.toString());
+        return resolver.resolve(location, schema.getSchemaLocation());
     }
 
     /**

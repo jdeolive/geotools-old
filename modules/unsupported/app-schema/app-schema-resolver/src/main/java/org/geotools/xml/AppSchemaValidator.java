@@ -258,9 +258,11 @@ public class AppSchemaValidator {
          */
         public XMLInputSource resolveEntity(XMLResourceIdentifier resourceIdentifier)
                 throws XNIException, IOException {
-            return new XMLInputSource(resourceIdentifier.getPublicId(), resolver
-                    .resolve(resourceIdentifier.getExpandedSystemId()), resourceIdentifier
-                    .getBaseSystemId());
+            // We use AppSchemaResolver.resolve(String, String) to ensure relative
+            // imports work across jar file boundaries.
+            return new XMLInputSource(resourceIdentifier.getPublicId(), resolver.resolve(
+                    resourceIdentifier.getLiteralSystemId(), resourceIdentifier.getBaseSystemId()),
+                    resourceIdentifier.getBaseSystemId());
         }
 
     }
