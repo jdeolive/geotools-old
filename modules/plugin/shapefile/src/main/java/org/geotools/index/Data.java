@@ -36,7 +36,7 @@ public class Data {
      */
     public Data(DataDefinition def) {
         this.def = def;
-        this.values = new ArrayList();
+        this.values = new ArrayList(def.getFieldsCount());
     }
 
     /**

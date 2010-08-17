@@ -137,13 +137,13 @@ public class QuadTree {
      * @param node
      * @param recno
      * @param bounds
-     * @param md
+     * @param maxDepth
      * @throws StoreException
      */
-    private void insert(Node node, int recno, Envelope bounds, int md)
+    public void insert(Node node, int recno, Envelope bounds, int maxDepth)
             throws StoreException {
 
-        if (md > 1 && node.getNumSubNodes() > 0) {
+        if (maxDepth > 1 && node.getNumSubNodes() > 0) {
             /*
              * If there are subnodes, then consider whether this object will fit
              * in them.
@@ -152,11 +152,12 @@ public class QuadTree {
             for (int i = 0; i < node.getNumSubNodes(); i++) {
                 subNode = node.getSubNode(i);
                 if (subNode.getBounds().contains(bounds)) {
-                    this.insert(subNode, recno, bounds, md - 1);
+                    this.insert(subNode, recno, bounds, maxDepth - 1);
                     return;
                 }
             }
-        } else if (md > 1 && node.getNumSubNodes() == 0) {
+        } 
+        if (maxDepth > 1 && node.getNumSubNodes() < 4) {
             /*
              * Otherwise, consider creating four subnodes if could fit into
              * them, and adding to the appropriate subnode.
@@ -175,15 +176,20 @@ public class QuadTree {
             quad3 = tmp[0];
             quad4 = tmp[1];
 
-            if (quad1.contains(bounds) || quad2.contains(bounds)
-                    || quad3.contains(bounds) || quad4.contains(bounds)) {
-                node.addSubNode(new Node(quad1, 0));
-                node.addSubNode(new Node(quad2, 1));
-                node.addSubNode(new Node(quad3, 2));
-                node.addSubNode(new Node(quad4, 3));
-
-                // recurse back on this node now that it has subnodes
-                this.insert(node, recno, bounds, md);
+            Node subnode = null;            
+            if (quad1.contains(bounds)) {
+                subnode = new Node(quad1, 0);
+            } else if(quad2.contains(bounds)) {
+                subnode = new Node(quad2, 1);
+            } else if(quad3.contains(bounds)) {
+                subnode = new Node(quad3, 2);
+            } else if(quad4.contains(bounds)) {
+                subnode = new Node(quad4, 3);
+            }
+            
+            if(subnode != null) {
+                node.addSubNode(subnode);
+                this.insert(subnode, recno, bounds, maxDepth - 1);
                 return;
             }
         }

@@ -19,6 +19,13 @@ package org.geotools.data.shapefile.indexed;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import org.geotools.data.shapefile.FileWriter;
@@ -31,6 +38,7 @@ import org.geotools.data.shapefile.shp.ShapefileReader;
 import org.geotools.data.shapefile.shp.ShapefileReader.Record;
 import org.geotools.index.LockTimeoutException;
 import org.geotools.index.TreeException;
+import org.geotools.index.quadtree.Node;
 import org.geotools.index.quadtree.QuadTree;
 import org.geotools.index.quadtree.StoreException;
 import org.geotools.index.quadtree.fs.FileSystemIndexStore;
@@ -53,6 +61,7 @@ public class ShapeFileIndexer implements FileWriter {
     private static final Logger LOGGER = Logging.getLogger(ShapeFileIndexer.class);
     
     private int max = -1;
+    private int loadFactor = 8;
     private String byteOrder;
     private boolean interactive = false;
     private ShpFiles shpFiles;
@@ -233,11 +242,82 @@ public class ShapeFileIndexer implements FileWriter {
             if (verbose)
                 System.out.println("done");
             FileSystemIndexStore store = new FileSystemIndexStore(file, order);
+            
+            if(loadFactor > 0) {
+                System.out.println("Rebalancing the tree (this might take some time)");
+                applyLoadFactor(tree, tree.getRoot(), 0, reader, shpIndex);
+                System.out.println("Done");
+            }
+            
+            printStats(tree);
             store.store(tree);
         } finally {
             tree.close();
         }
         return cnt;
+    }
+
+    private void applyLoadFactor(QuadTree tree, Node node, int level, ShapefileReader reader, IndexFile index) throws StoreException, IOException {
+//        System.out.println("Analyzing node at level " + level);
+        if(node.getNumShapeIds() > loadFactor && node.getNumSubNodes() == 0) {
+            // ok, we need to split this baby further
+            int[] shapeIds = node.getShapesId();
+            int numShapesId = node.getNumShapeIds();
+            node.clean();
+            
+//            System.out.println("Splitting node with " + numShapesId + " ids at level " + level);
+            System.out.print(".");
+            
+            // get an estimate on how many more levels we need
+            int extraLevels = 0;
+            int nodes = 1;
+            while(nodes * loadFactor < numShapesId) {
+                extraLevels++;
+                nodes *= 4;
+            }
+            
+            for (int i = 0; i < numShapesId; i++) {
+                final int shapeId = shapeIds[i];
+                int offset = index.getOffsetInBytes(shapeId);
+                reader.goTo(offset);
+                Record rec = reader.nextRecord();
+                Envelope env = new Envelope(rec.minX, rec.maxX, rec.minY, rec.maxY);
+                tree.insert(node, shapeId, env, extraLevels);
+            }
+        }
+        // recurse, with a check to avoid too deep recursion due to odd data that has a
+        // number of superimposed points and the like
+        if(node.getNumSubNodes() > 0 && level < max * 2) {
+            // not a leaf, we cannot split it further
+            for (int i = 0; i < node.getNumSubNodes(); i++) {
+                applyLoadFactor(tree, node.getSubNode(i), level + 1, reader, index);
+            }
+        }
+
+    }
+
+    private void printStats(QuadTree tree) throws StoreException {
+       Map<Integer, Integer> stats = new HashMap<Integer, Integer>();
+       gatherStats(tree.getRoot(), stats);
+       
+       List<Integer> nums = new ArrayList<Integer>(stats.keySet());
+       Collections.sort(nums);
+       for (Integer num : nums) {
+           System.out.println(num + " -> " + stats.get(num));
+       }
+    }
+
+    void gatherStats(Node node, Map<Integer, Integer> stats) throws StoreException  {
+        int num = node.getNumShapeIds();
+        Integer count = stats.get(num);
+        if(count == null) {
+            stats.put(num, 1);
+        } else {
+            stats.put(num, count + 1);
+        }
+        for (int i = 0; i < node.getNumSubNodes(); i++) {
+            gatherStats(node.getSubNode(i), stats);
+        }
     }
 
     /**

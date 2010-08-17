@@ -18,6 +18,7 @@ package org.geotools.index.quadtree;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -26,7 +27,10 @@ import java.util.NoSuchElementException;
 import org.geotools.data.shapefile.shp.IndexFile;
 import org.geotools.index.Data;
 import org.geotools.index.DataDefinition;
+import org.geotools.index.quadtree.fs.FileSystemNode;
 
+import com.vividsolutions.jts.geom.CoordinateSequence;
+import com.vividsolutions.jts.geom.CoordinateSequenceFactory;
 import com.vividsolutions.jts.geom.Envelope;
 
 /**
@@ -40,6 +44,8 @@ import com.vividsolutions.jts.geom.Envelope;
  * @source $URL$
  */
 public class LazySearchIterator implements Iterator<Data> {
+    
+    static final int[] ZERO = new int[0];
 
     static final DataDefinition DATA_DEFINITION = new DataDefinition("US-ASCII");
 
@@ -64,6 +70,8 @@ public class LazySearchIterator implements Iterator<Data> {
     private IndexFile indexfile;
     
     ArrayList<Node> parents = new ArrayList<Node>();
+    
+    Indices indices = new Indices();
 
     public LazySearchIterator(Node root, IndexFile indexfile, Envelope bounds) {
         super();
@@ -91,13 +99,13 @@ public class LazySearchIterator implements Iterator<Data> {
     }
 
     private void fillCache() {
-        List indices = new ArrayList(MAX_INDICES);
+        indices.clear();
         ArrayList dataList = null;
         try {
             while (indices.size() < MAX_INDICES && current != null) {
                 if (idIndex < current.getNumShapeIds() && !current.isVisited()
                         && current.getBounds().intersects(bounds)) {
-                    indices.add(new Integer(current.getShapeId(idIndex)));
+                    indices.add(current.getShapeId(idIndex));
                     idIndex++;
                 } else {
                     // free the shapes id array of the current node and prepare to move to the next
@@ -118,7 +126,7 @@ public class LazySearchIterator implements Iterator<Data> {
                     if (!foundUnvisited) {
                         // mark as visited and free the subnodes
                         current.setVisited(true);
-                        current.clearSubNodes();
+                        current.clean();
                         
                         // move up to parent
                         if(parents.isEmpty())
@@ -130,14 +138,14 @@ public class LazySearchIterator implements Iterator<Data> {
             }
             
             // sort so offset lookup is faster
-            Collections.sort(indices);
-            dataList = new ArrayList(indices.size());
-            for (Iterator iter = indices.iterator(); iter.hasNext();) {
-                Integer recno = (Integer) iter.next();
+            indices.sort();
+            int size = indices.size();
+            dataList = new ArrayList(size);
+            for (int i = 0; i < size; i++) {
+                int recno = indices.get(i);
                 Data data = new Data(DATA_DEFINITION);
-                data.addValue(new Integer(recno.intValue() + 1));
-                data.addValue(new Long(indexfile.getOffsetInBytes(recno
-                        .intValue())));
+                data.addValue(recno + 1);
+                data.addValue(new Long(indexfile.getOffsetInBytes(recno)));
                 dataList.add(data);
             }
         } catch (IOException e) {
@@ -164,4 +172,65 @@ public class LazySearchIterator implements Iterator<Data> {
         this.closed = true;
     }
 
+    /**
+     * An efficient wrapper around an array of integers
+     */
+    class Indices {
+        /**
+         * The current coordinate
+         */
+        int curr;
+        
+        /**
+         * The ordinates holder
+         */
+        int[] indices;
+        
+        public Indices() {
+            indices = new int[MAX_INDICES];
+            curr = -1;
+        }
+        
+        /**
+         * The number of coordinates
+         * @return
+         */
+        int size() {
+            return curr + 1;
+        }
+        
+        /**
+         * Adds a coordinate to this list
+         * @param x
+         * @param y
+         */
+        void add(int index) {
+            curr++;
+            if((curr * 2 + 1) >= indices.length) {
+                int newSize = indices.length * 3 / 2;
+                if(newSize < 10) {
+                    newSize = 10;
+                }
+                int[] resized = new int[newSize];
+                System.arraycopy(indices, 0, resized, 0, indices.length);
+                indices = resized;
+            }
+            indices[curr] = index;
+        }
+        
+        /**
+         * Resets the indices
+         */
+        void clear() {
+            curr = -1;
+        }
+        
+        int get(int position) {
+            return indices[position];
+        }
+        
+        void sort() {
+            Arrays.sort(indices, 0, curr + 1);
+        }
+    }
 }

@@ -36,6 +36,8 @@ import com.vividsolutions.jts.geom.Envelope;
  *         http://svn.geotools.org/geotools/trunk/gt/modules/plugin/shapefile/src/main/java/org/geotools/index/quadtree/fs/FileSystemNode.java $
  */
 public class FileSystemNode extends Node {
+    static final int[] ZERO = new int[0];
+    
     private ScrollingBuffer buffer;
     private ByteOrder order;
     private int subNodeStartByte;
@@ -174,8 +176,13 @@ public class FileSystemNode extends Node {
 
         // shapes in this node
         int numShapesId = buf.getInt();
-        int[] ids = new int[numShapesId];
-        buf.getIntArray(ids);
+        int[] ids = null;
+        if(numShapesId > 0) { 
+            ids = new int[numShapesId];
+            buf.getIntArray(ids);
+        } else {
+            ids = ZERO;
+        }
         int numSubNodes = buf.getInt();
 
         // let's create the new node

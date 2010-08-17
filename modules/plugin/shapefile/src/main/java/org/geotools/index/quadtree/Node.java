@@ -233,4 +233,14 @@ public class Node {
     public void close() {
         // TODO Auto-generated method stub
     }
+    
+    /**
+     * To be used only against in memory nodes, allows to start over on
+     * rebuilding this node
+     */
+    public void clean() {
+        shapesId = null;
+        numShapesId = 0;
+        subNodes.clear();
+    }
 }
