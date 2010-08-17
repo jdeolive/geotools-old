@@ -43,7 +43,6 @@ import org.geotools.data.DataAccess;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataUtilities;
-import org.geotools.data.DefaultQuery;
 import org.geotools.data.DefaultServiceInfo;
 import org.geotools.data.EmptyFeatureReader;
 import org.geotools.data.FeatureListenerManager;
@@ -73,9 +72,7 @@ import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
 
 import com.esri.sde.sdk.client.SeException;
-import com.esri.sde.sdk.client.SeLayer;
 import com.esri.sde.sdk.client.SeQueryInfo;
-import com.esri.sde.sdk.client.SeTable;
 import com.esri.sde.sdk.client.SeVersion;
 import com.vividsolutions.jts.geom.CoordinateSequenceFactory;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -357,9 +354,9 @@ public class ArcSDEDataStore implements DataStore {
         final SimpleFeatureType completeSchema = typeInfo.getFeatureType();
         final ArcSDEQuery sdeQuery;
 
-        Filter filter = query.getFilter();
+        final Filter queryFilter = query.getFilter();
 
-        if (filter == Filter.EXCLUDE || filter.equals(Filter.EXCLUDE)) {
+        if (queryFilter == Filter.EXCLUDE || queryFilter.equals(Filter.EXCLUDE)) {
             return new EmptyFeatureReader<SimpleFeatureType, SimpleFeature>(targetSchema);
         }
 
@@ -381,16 +378,20 @@ public class ArcSDEDataStore implements DataStore {
         attReader = new ArcSDEAttributeReader(sdeQuery, geometryFactory, session);
 
         FeatureReader<SimpleFeatureType, SimpleFeature> reader;
+        final Filter unsupportedFilter = sdeQuery.getFilters().getUnsupportedFilter();
+
         try {
-            reader = new ArcSDEFeatureReader(attReader);
+            final ArcSDEFeatureReader sdeReader;
+            sdeReader = new ArcSDEFeatureReader(attReader);
+            reader = sdeReader;
         } catch (SchemaException e) {
             throw new RuntimeException("Schema missmatch, should never happen!: " + e.getMessage(),
                     e);
         }
 
-        filter = getUnsupportedFilter(typeInfo, filter, session);
-        if (!filter.equals(Filter.INCLUDE)) {
-            reader = new FilteringFeatureReader<SimpleFeatureType, SimpleFeature>(reader, filter);
+        if (!unsupportedFilter.equals(Filter.INCLUDE)) {
+            reader = new FilteringFeatureReader<SimpleFeatureType, SimpleFeature>(reader,
+                    unsupportedFilter);
         }
 
         if (!targetSchema.equals(reader.getFeatureType())) {
@@ -399,8 +400,8 @@ public class ArcSDEDataStore implements DataStore {
         }
 
         if (query.getMaxFeatures() != Query.DEFAULT_MAX) {
-            reader = new MaxFeatureReader<SimpleFeatureType, SimpleFeature>(reader, query
-                    .getMaxFeatures());
+            reader = new MaxFeatureReader<SimpleFeatureType, SimpleFeature>(reader,
+                    query.getMaxFeatures());
         }
 
         return reader;
@@ -450,8 +451,8 @@ public class ArcSDEDataStore implements DataStore {
 
         if (!query.retrieveAllProperties() || query.getCoordinateSystem() != null) {
             try {
-                featureType = DataUtilities.createSubType(featureType, propertyNames, query
-                        .getCoordinateSystem());
+                featureType = DataUtilities.createSubType(featureType, propertyNames,
+                        query.getCoordinateSystem());
             } catch (SchemaException e) {
                 LOGGER.log(Level.FINEST, e.getMessage(), e);
                 throw new DataSourceException("Could not create Feature Type for query", e);
@@ -465,8 +466,7 @@ public class ArcSDEDataStore implements DataStore {
      * @return {@link FeatureSource} or {@link FeatureStore} depending on if the user has write
      *         permissions over <code>typeName</code>
      */
-    public SimpleFeatureSource getFeatureSource(final String typeName)
-            throws IOException {
+    public SimpleFeatureSource getFeatureSource(final String typeName) throws IOException {
         final FeatureTypeInfo typeInfo = typeInfoCache.getFeatureTypeInfo(typeName);
         SimpleFeatureSource fsource;
         if (typeInfo.isWritable()) {
@@ -534,7 +534,7 @@ public class ArcSDEDataStore implements DataStore {
             if (Filter.EXCLUDE.equals(filter)) {
                 reader = new EmptyFeatureReader<SimpleFeatureType, SimpleFeature>(featureType);
             } else {
-                final DefaultQuery query = new DefaultQuery(typeName, filter);
+                final Query query = new Query(typeName, filter);
                 final ISession nonDisposableSession = new SessionWrapper(session) {
                     @Override
                     public void dispose() throws IllegalStateException {
@@ -614,8 +614,7 @@ public class ArcSDEDataStore implements DataStore {
      * @since 2.5
      * @see DataAccess#getFeatureSource(Name)
      */
-    public SimpleFeatureSource getFeatureSource(Name typeName)
-            throws IOException {
+    public SimpleFeatureSource getFeatureSource(Name typeName) throws IOException {
         return getFeatureSource(typeName.getLocalPart());
     }
 
@@ -641,8 +640,8 @@ public class ArcSDEDataStore implements DataStore {
     }
 
     /**
-     * Delegates to {@link #updateSchema(String, SimpleFeatureType)} with {@code
-     * name.getLocalPart()}
+     * Delegates to {@link #updateSchema(String, SimpleFeatureType)} with
+     * {@code name.getLocalPart()}
      * 
      * @since 2.5
      * @see DataAccess#getFeatureSource(Name)
@@ -652,60 +651,6 @@ public class ArcSDEDataStore implements DataStore {
     }
 
     // ////// NON API Methods /////////
-
-    /**
-     * Returns the unsupported part of the passed filter, so a FilteringFeatureReader will be
-     * constructed upon it. Otherwise it will just return the same filter.
-     * <p>
-     * If the complete filter is supported, returns <code>Filter.INCLUDE</code>
-     * </p>
-     */
-    private org.opengis.filter.Filter getUnsupportedFilter(final FeatureTypeInfo typeInfo,
-            final Filter filter, final ISession session) {
-        try {
-            SeTable table;
-            SeQueryInfo qInfo;
-
-            if (typeInfo.isInProcessView()) {
-                qInfo = typeInfo.getSdeDefinitionQuery();
-                String mainLayerName;
-                try {
-                    mainLayerName = qInfo.getConstruct().getTables()[0];
-                } catch (SeException e) {
-                    throw new ArcSdeException(e);
-                }
-                table = session.getTable(mainLayerName);
-            } else {
-                table = session.getTable(typeInfo.getFeatureTypeName());
-                qInfo = null;
-            }
-
-            FIDReader fidReader = typeInfo.getFidStrategy();
-
-            SimpleFeatureType schema = typeInfo.getFeatureType();
-            PlainSelect viewSelectStatement = typeInfo.getDefinitionQuery();
-            SeLayer layer = null;
-            if (schema.getGeometryDescriptor() != null) {
-                layer = session.getLayer(table.getQualifiedName());
-            }
-            ArcSDEQuery.FilterSet filters = ArcSDEQuery.createFilters(table, layer, schema, filter,
-                    qInfo, viewSelectStatement, fidReader);
-
-            Filter result = filters.getUnsupportedFilter();
-
-            if (LOGGER.isLoggable(Level.FINE)) {
-                LOGGER.fine("Supported filters: " + filters.getSqlFilter() + " --- "
-                        + filters.getGeometryFilter());
-                LOGGER.fine("Unsupported filter: " + result.toString());
-            }
-
-            return result;
-        } catch (Exception ex) {
-            LOGGER.log(Level.WARNING, ex.getMessage(), ex);
-        }
-
-        return filter;
-    }
 
     /**
      * Creates a given FeatureType on the ArcSDE instance this DataStore is running over.

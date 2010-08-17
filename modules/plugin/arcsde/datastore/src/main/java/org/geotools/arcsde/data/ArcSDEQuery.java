@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -324,19 +323,6 @@ class ArcSDEQuery {
      */
     public FIDReader getFidReader() {
         return this.fidReader;
-    }
-
-    public static ArcSDEQuery.FilterSet createFilters(SeTable table, SeLayer layer,
-            SimpleFeatureType schema, Filter filter, SeQueryInfo qInfo, PlainSelect viewSelect,
-            FIDReader fidReader) throws NoSuchElementException, IOException {
-        assert table != null;
-        assert schema != null;
-        assert filter != null;
-
-        ArcSDEQuery.FilterSet filters = new ArcSDEQuery.FilterSet(table, layer, filter, schema,
-                qInfo, viewSelect, fidReader);
-
-        return filters;
     }
 
     /**
