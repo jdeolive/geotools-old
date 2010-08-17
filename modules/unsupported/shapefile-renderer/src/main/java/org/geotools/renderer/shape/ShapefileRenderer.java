@@ -55,7 +55,6 @@ import org.geotools.data.directory.DirectoryFeatureSource;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.data.shapefile.ShapefileRendererUtil;
 import org.geotools.data.shapefile.ShpFiles;
-import org.geotools.data.shapefile.dbf.DbaseFileHeader;
 import org.geotools.data.shapefile.dbf.DbaseFileReader;
 import org.geotools.data.shapefile.dbf.IndexedDbaseFileReader;
 import org.geotools.data.shapefile.indexed.IndexType;
@@ -205,7 +204,6 @@ public class ShapefileRenderer implements GTRenderer {
     /** If we are caching styles; by default this is false */
     boolean caching = false;
     private double scaleDenominator;
-    DbaseFileHeader dbfheader;
     private Object defaultGeom;
     IndexInfo[] layerIndexInfo;
     StreamingRenderer delegate;
@@ -274,29 +272,6 @@ public class ShapefileRenderer implements GTRenderer {
         } // Other arguments get checked later
         paint(graphics, paintArea, mapArea, RendererUtilities.worldToScreenTransform(mapArea,
                 paintArea));
-    }
-
-    private DbaseFileHeader getDBFHeader( ShapefileDataStore ds ) {
-        DbaseFileReader reader = null;
-
-        try {
-            reader = ShapefileRendererUtil.getDBFReader(ds);
-
-            return reader.getHeader();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        return null;
     }
 
     private void processStylers( Graphics2D graphics, ShapefileDataStore datastore,
@@ -554,6 +529,9 @@ public class ShapefileRenderer implements GTRenderer {
         IndexInfo.Reader shpreader = null;
         FIDReader fidReader = null;
         
+        int hit = 0;
+        int miss = 0;
+
         try {
     		// clips Graphics to current drawing area before painting
             graphics = (Graphics2D)graphics.create();
@@ -643,11 +621,14 @@ public class ShapefileRenderer implements GTRenderer {
 
                     Object geom = record.shape();
                     if (geom == null) {
+                        miss++;
                         if(LOGGER.isLoggable(Level.FINEST))
                             LOGGER.finest("skipping geometry");
                         if( dbfreader != null && !dbfreader.IsRandomAccessEnabled() )
                             dbfreader.skip();
                         continue;
+                    } else {
+                        hit++;
                     }
                     
                     // read the dbf file only if we got a non null shape
@@ -747,6 +728,9 @@ public class ShapefileRenderer implements GTRenderer {
                 }
             }
         }
+        if(LOGGER.isLoggable(Level.FINE)) {
+            LOGGER.log(Level.FINE, type.getTypeName() + "): hit " + hit + " miss " + miss);
+        }
     }
 
     private Class[] getAcceptableSymbolizers( GeometryDescriptor defaultGeometry ) {
@@ -840,19 +824,19 @@ public class ShapefileRenderer implements GTRenderer {
                 throw new IllegalArgumentException("Attribute " + attributes[0]
                         + " does not exist. Maybe it has just been spelled wrongly?");
         } else {
-            dbfheader = getDBFHeader(ds);
             for( int i = 0; i < types.length; i++ ) {
                 types[i] = schema.getDescriptor(attributes[i]);
     
                 if (types[i] == null)
                     throw new IllegalArgumentException("Attribute " + attributes[i]
                             + " does not exist. Maybe it has just been spelled wrongly?");
-                for( int j = 0; j < dbfheader.getNumFields(); j++ ) {
-                    if (dbfheader.getFieldName(j).equals(attributes[i])) {
-                        attributeIndexing[i] = j;
+                for( int j = 0; j < schema.getAttributeCount(); j++ ) {
+                    if (schema.getDescriptor(j).getLocalName().equals(attributes[i])) {
+                        attributeIndexing[i] = j - 1;
     
                         break;
                     }
+                    
                 }
             }
         }

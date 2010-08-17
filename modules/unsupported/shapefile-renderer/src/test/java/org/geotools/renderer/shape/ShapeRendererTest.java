@@ -312,7 +312,6 @@ public class ShapeRendererTest extends TestCase {
         ShapefileDataStore ds = TestUtilites.getDataStore(shp2.getName());
         IndexedDbaseFileReader reader = ShapefileRendererUtil
                         .getDBFReader(ds);
-        renderer.dbfheader = reader.getHeader();
         SimpleFeatureType type = renderer.createFeatureType(null, style, ds);
         assertEquals(2, type.getAttributeCount());
         assertEquals("NAME", type.getDescriptor(0).getLocalName());
