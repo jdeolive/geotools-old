@@ -190,9 +190,6 @@ public class CatalogBuilder implements Runnable {
 	 */
 	static public class ProcessingEvent extends EventObject {
 
-		/**
-		 * 
-		 */
 		private static final long serialVersionUID = 6930580659705360225L;
 
 		private String message = null;
@@ -230,10 +227,8 @@ public class CatalogBuilder implements Runnable {
 	 */
 	static public final  class ExceptionEvent extends ProcessingEvent {
 
-	    /**
-		 * 
-		 */
 		private static final long serialVersionUID = 2272452028229922551L;
+
 		private Exception exception;
 
 	    public ExceptionEvent(Object source, String message, double percentage, Exception exception) {
@@ -1335,7 +1330,7 @@ public class CatalogBuilder implements Runnable {
 				final String name=pcDef.substring(0,squareLPos);
 				PropertiesCollectorSPI selectedSPI=null;
 				for(PropertiesCollectorSPI spi:pcSPIs){
-					if(spi.getName().equalsIgnoreCase(name)&&spi.isAvailable())
+					if(spi.isAvailable()&&spi.getName().equalsIgnoreCase(name))
 					{
 						selectedSPI=spi;
 						break;

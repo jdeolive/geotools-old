@@ -40,7 +40,6 @@ import javax.media.jai.InterpolationNearest;
 import javax.media.jai.JAI;
 import javax.media.jai.operator.AffineDescriptor;
 import javax.media.jai.operator.ScaleDescriptor;
-import javax.media.jai.operator.TranslateDescriptor;
 
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridEnvelope2D;
@@ -72,6 +71,8 @@ import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.MathTransform2D;
 import org.opengis.referencing.operation.TransformException;
 
+import com.sun.media.jai.opimage.RIFUtil;
+import com.sun.media.jai.opimage.TranslateIntOpImage;
 import com.vividsolutions.jts.geom.Envelope;
 
 /**
@@ -85,6 +86,33 @@ import com.vividsolutions.jts.geom.Envelope;
  */
 @SuppressWarnings("deprecation")
 public final class GridCoverageRenderer {
+	
+	/**
+	 * Simple pair class for holding a {@link GridCoverage2D} with the final WorldToGrid.
+	 * 
+	 * @author Simone Giannecchini, GeoSolutions SAS.
+	 *
+	 */
+	private final static class GCpair{
+
+		private final AffineTransform transform;
+		
+		private final GridCoverage2D gc;
+
+		public GCpair(AffineTransform transform, GridCoverage2D gc) {
+			this.transform = transform;
+			this.gc = gc;
+		}
+		
+		
+		public AffineTransform getTransform() {
+			return transform;
+		}
+
+		public GridCoverage2D getGc() {
+			return gc;
+		}
+	}
     
     /**
      * Helper function
@@ -369,37 +397,33 @@ public final class GridCoverageRenderer {
      * @throws TransformException
      * @throws NoninvertibleTransformException
      */
-    private Object[] prepareFinalImage(final GridCoverage2D gridCoverage,
+    private GCpair prepareFinalImage(final GridCoverage2D gridCoverage,
             final RasterSymbolizer symbolizer)
             throws FactoryException, TransformException,
             NoninvertibleTransformException {
-        // ///////////////////////////////////////////////////////////////////
-        //
+
         // Initial checks
-        //
-        // ///////////////////////////////////////////////////////////////////
     	if(gridCoverage==null)
     		throw new NullPointerException(Errors.format(ErrorKeys.NULL_ARGUMENT_$1,"gridCoverage"));
     	
         if (LOGGER.isLoggable(Level.FINE))
             LOGGER.fine(new StringBuilder("Drawing coverage ").append(gridCoverage.toString()).toString());
-        // ///////////////////////////////////////////////////////////////////
+        
+
         //
         // Getting information about the source coverage like the source CRS,
         // the source envelope and the source geometry.
         //
-        // ///////////////////////////////////////////////////////////////////
         final CoordinateReferenceSystem sourceCoverageCRS = gridCoverage.getCoordinateReferenceSystem2D();
         final GeneralEnvelope sourceCoverageEnvelope = (GeneralEnvelope) gridCoverage.getEnvelope();
 
-        // ///////////////////////////////////////////////////////////////////
+
         //
         // GET THE CRS MAPPING
         //
         // This step I instantiate the MathTransform for going from the source
         // crs to the destination crs.
         //
-        // ///////////////////////////////////////////////////////////////////
         // math transform from source to target crs
         final MathTransform sourceCRSToDestinationCRSTransformation = CRS.findMathTransform(sourceCoverageCRS, destinationCRS, true);
         final MathTransform destinationCRSToSourceCRSTransformation = sourceCRSToDestinationCRSTransformation.inverse();
@@ -559,7 +583,7 @@ public final class GridCoverageRenderer {
         
         // /////////////////////////////////////////////////////////////////////
         //
-        // Reproject
+        // REPROJECTION if needed
         //
         // /////////////////////////////////////////////////////////////////////
         GridCoverage2D preSymbolizer;
@@ -576,7 +600,7 @@ public final class GridCoverageRenderer {
 
         // ///////////////////////////////////////////////////////////////////
         //
-        // Apply RasterSymbolizer
+        // RASTERSYMBOLIZER
         //
         // ///////////////////////////////////////////////////////////////////
         if (LOGGER.isLoggable(Level.FINE))
@@ -598,6 +622,7 @@ public final class GridCoverageRenderer {
         if (DEBUG) {
             writeRenderedImage(finalImage,"postSymbolizer");
         }
+        
         // ///////////////////////////////////////////////////////////////////
         //
         // DRAW ME
@@ -629,7 +654,7 @@ public final class GridCoverageRenderer {
         final AffineTransform clonedFinalWorldToGrid = (AffineTransform) finalWorldToGrid.clone();
         clonedFinalWorldToGrid.concatenate(finalGCgridToWorld);
 
-        return new Object[] {finalImage, clonedFinalWorldToGrid};
+        return new GCpair(clonedFinalWorldToGrid,finalGC);
     }            	
 
     /**
@@ -653,56 +678,97 @@ public final class GridCoverageRenderer {
             final int tileSizeY
             ) throws FactoryException, TransformException, NoninvertibleTransformException {
 
-        // Build the final image and the transformation
-        Object[] couple = prepareFinalImage(gridCoverage, symbolizer);
+        // Build the final image and the associated world to grid transformation
+        GCpair couple = prepareFinalImage(gridCoverage, symbolizer);
         if (couple == null)
             return null;
         // NOTICE that at this stage the image we get should be 8 bits, either RGB, RGBA, Gray, GrayA
         // either multiband or indexed. It could also be 16 bits indexed!!!!
         
-        final RenderedImage finalImage = (RenderedImage) couple[0];
-        final AffineTransform clonedFinalWorldToGrid = (AffineTransform) couple[1];
+        final RenderedImage finalImage = couple.getGc().getRenderedImage();
+        final AffineTransform clonedFinalWorldToGrid = couple.getTransform();
 
         // TODO: optimize translate/scale transformations
         // TODO: use mosaic to merge with a background respecting alpha and transparency
         // TODO: check tolerance value
         // TODO: do we need to pass in any hints?
-        final double tolerance = 1e-6;
-        if (XAffineTransform.isIdentity(clonedFinalWorldToGrid, tolerance)) {
+//        final double tolerance = 1e-6;
+//        if (XAffineTransform.isIdentity(clonedFinalWorldToGrid, tolerance)) {
+//            return finalImage;
+//        }
+        
+        boolean hasScaleX=!(Math.abs(clonedFinalWorldToGrid.getScaleX()-1) < 1E-2/(finalImage.getWidth()+1-finalImage.getMinX()));
+        boolean hasScaleY=!(Math.abs(clonedFinalWorldToGrid.getScaleY()-1) < 1E-2/(finalImage.getHeight()+1-finalImage.getMinY()));
+        boolean hasShearX=!(clonedFinalWorldToGrid.getShearX() == 0.0);
+        boolean hasShearY=!(clonedFinalWorldToGrid.getShearY() == 0.0);
+        boolean hasTranslateX=!(Math.abs(clonedFinalWorldToGrid.getTranslateX()) <  1E-2);
+        boolean hasTranslateY=!(Math.abs(clonedFinalWorldToGrid.getTranslateY()) <  1E-2);
+        boolean isTranslateXInt=!(Math.abs(clonedFinalWorldToGrid.getTranslateX() - (int) clonedFinalWorldToGrid.getTranslateX()) <  1E-2);
+        boolean isTranslateYInt=!(Math.abs(clonedFinalWorldToGrid.getTranslateY() - (int) clonedFinalWorldToGrid.getTranslateY()) <  1E-2);
+        
+        boolean isIdentity = clonedFinalWorldToGrid.isIdentity() && !hasScaleX&&!hasScaleY &&!hasTranslateX&&!hasTranslateY;
+        boolean isScale = hasScaleX&&hasScaleY &&!hasShearX&&!hasShearY;
+        
+        // TODO how can we check that the a skew is harmless????
+        if(isIdentity){
+            // TODO check if we are missing anything like tiling or such that comes from hints 
             return finalImage;
         }
-
-        // TODO: make this check a little more general, AffineTransform type won't use tolerances,
-        // but this will do for the moment, in our tests the common case fits with AffineTransform
-        // expectations
+        
+        // TOLERANCE ON PIXELS SIZE
+        
+        // Check and see if the affine transform is in fact doing
+        // a Translate operation. That is a scale by 1 and no rotation.
+        // In which case call translate. Note that only integer translate
+        // is applicable. For non-integer translate we'll have to do the
+        // affine.
+        // If the hints contain an ImageLayout hint, we can't use 
+        // TranslateIntOpImage since it isn't capable of dealing with that.
+        // Get ImageLayout from renderHints if any.
+        ImageLayout layout_ = RIFUtil.getImageLayoutHint(hints);                                
+        if ( !hasScaleX &&
+             !hasScaleY  &&
+              !hasShearX&&
+              !hasShearY&&
+              isTranslateXInt&&
+              isTranslateYInt&&
+            layout_ == null) {
+            // It's a integer translate
+            return new TranslateIntOpImage(finalImage,
+            								hints,
+                                           (int) clonedFinalWorldToGrid.getShearX(),
+                                           (int) clonedFinalWorldToGrid.getShearY());
+        }                                
+                          
+        // final transformation
         final ImageLayout layout = new ImageLayout(finalImage);
         layout.setTileGridXOffset(0).setTileGridYOffset(0).setTileHeight(tileSizeY).setTileWidth(tileSizeX);
         final RenderingHints hints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, layout);
-        float sx = (float) clonedFinalWorldToGrid.getScaleX();
-        float sy = (float) clonedFinalWorldToGrid.getScaleY();
-        float tx = (float) clonedFinalWorldToGrid.getTranslateX();
-        float ty = (float) clonedFinalWorldToGrid.getTranslateY();
-        int txType = clonedFinalWorldToGrid.getType();
         //add hints to preserve IndexColorModel
         hints.add(new RenderingHints(JAI.KEY_REPLACE_INDEX_COLOR_MODEL, Boolean.FALSE));
-        if (txType == AffineTransform.TYPE_TRANSLATION) {
-            return TranslateDescriptor.create(finalImage, tx, ty, interpolation, hints);
-        } else if (txType == AffineTransform.TYPE_GENERAL_SCALE
-                || txType == AffineTransform.TYPE_UNIFORM_SCALE
-                || txType == (AffineTransform.TYPE_GENERAL_SCALE | AffineTransform.TYPE_TRANSLATION)
-                || txType == (AffineTransform.TYPE_UNIFORM_SCALE | AffineTransform.TYPE_TRANSLATION)) {
-            return ScaleDescriptor.create(finalImage, sx, sy, tx, ty, interpolation, hints);
-        } else {
-        	RenderedImage im=null;
-        	try{
-        		// 
-        		im= AffineDescriptor.create(finalImage, clonedFinalWorldToGrid, interpolation, null,hints);
-        		return im;
-        	}finally{
-        		if(DEBUG)
-        			writeRenderedImage(im, "postAffine");
-        	}
-        }
+    	RenderedImage im=null;
+    	try{
+    		// scale ?
+    		if (isScale)
+    			ScaleDescriptor.create(	finalImage, 
+    									(float) clonedFinalWorldToGrid.getScaleX(),
+    									(float) clonedFinalWorldToGrid.getScaleY(),
+    									(float) clonedFinalWorldToGrid.getTranslateX(), 
+    									(float) clonedFinalWorldToGrid.getTranslateY(), 
+    									interpolation, 
+    									hints);
+    		// use more general affine (but slower)
+    		im= AffineDescriptor.create(finalImage, 
+    									clonedFinalWorldToGrid, 
+    									interpolation, 
+    									null,
+    									hints);
+    	}finally{
+    		if(DEBUG)
+    			writeRenderedImage(im, "postAffine");
+    	}
+    	return im;
+
     }
     
     /**
@@ -729,11 +795,9 @@ public final class GridCoverageRenderer {
             throws FactoryException, TransformException,
             NoninvertibleTransformException {
 
-        // ///////////////////////////////////////////////////////////////////
         //
         // Initial checks
         //
-        // ///////////////////////////////////////////////////////////////////
         if(graphics==null)
             throw new NullPointerException(Errors.format(ErrorKeys.NULL_ARGUMENT_$1,"graphics"));
         if(gridCoverage==null)
@@ -747,12 +811,12 @@ public final class GridCoverageRenderer {
         
         
         // Build the final image and the transformation
-        Object[] couple = prepareFinalImage(gridCoverage, symbolizer);
+        GCpair couple = prepareFinalImage(gridCoverage, symbolizer);
         if (couple == null)
             return;
 
-        RenderedImage finalImage = (RenderedImage) couple[0];
-        AffineTransform clonedFinalWorldToGrid = (AffineTransform) couple[1];
+        RenderedImage finalImage = couple.getGc().getRenderedImage();
+        AffineTransform clonedFinalWorldToGrid = couple.getTransform();
 
         // //
         // Opacity

@@ -68,6 +68,8 @@ import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform2D;
 import org.opengis.referencing.operation.TransformException;
 
+import com.sun.media.jai.opimage.RIFUtil;
+import com.sun.media.jai.opimage.TranslateIntOpImage;
 import com.sun.media.jai.util.Rational;
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -545,6 +547,18 @@ public class GranuleDescriptor {
 		
 	}
 
+	/**
+	 * Load a specified a raster as a portion of the granule describe by this {@link GranuleDescriptor}.
+	 * 
+	 * @param readParameters the {@link ImageReadParam} to use for reading.
+	 * @param imageIndex the index to use for the {@link ImageReader}.
+	 * @param cropBBox the bbox to use for cropping. 
+	 * @param mosaicWorldToGrid the cropping grid to world transform.
+	 * @param request the incoming request to satisfy.
+	 * @param hints {@link Hints} to be used for creating this raster.
+	 * @return a specified a raster as a portion of the granule describe by this {@link GranuleDescriptor}.
+	 * @throws IOException in case an error occurs.
+	 */
 	public GranuleLoadingResult loadRaster(
 			final ImageReadParam readParameters,
 			final int imageIndex, 
@@ -761,17 +775,62 @@ public class GranuleDescriptor {
                                         localHints.add(new RenderingHints(JAI.KEY_TILE_SCHEDULER, (TileScheduler) scheduler));
                                 }
 				boolean addBorderExtender = true;
-                                if (hints != null && hints.containsKey(JAI.KEY_BORDER_EXTENDER)) {
-                                    final Object extender = hints.get(JAI.KEY_BORDER_EXTENDER);
-                                    if (extender != null && extender instanceof BorderExtender) {
-                                        localHints.add(new RenderingHints(JAI.KEY_BORDER_EXTENDER, (BorderExtender) extender));
-                                        addBorderExtender = false;
-                                    }
-                                }
-                                // border extender
-                                if (addBorderExtender) {
-                                    localHints.add(Utils.BORDER_EXTENDER_HINTS);
-                                }
+                if (hints != null && hints.containsKey(JAI.KEY_BORDER_EXTENDER)) {
+                    final Object extender = hints.get(JAI.KEY_BORDER_EXTENDER);
+                    if (extender != null && extender instanceof BorderExtender) {
+                        localHints.add(new RenderingHints(JAI.KEY_BORDER_EXTENDER, (BorderExtender) extender));
+                        addBorderExtender = false;
+                    }
+                }
+                // border extender
+                if (addBorderExtender) {
+                    localHints.add(Utils.BORDER_EXTENDER_HINTS);
+                }
+                
+                boolean hasScaleX=!(Math.abs(finalRaster2Model.getScaleX()-1) < 1E-2/(raster.getWidth()+1-raster.getMinX()));
+                boolean hasScaleY=!(Math.abs(finalRaster2Model.getScaleY()-1) < 1E-2/(raster.getHeight()+1-raster.getMinY()));
+                boolean hasShearX=!(finalRaster2Model.getShearX() == 0.0);
+                boolean hasShearY=!(finalRaster2Model.getShearY() == 0.0);
+                boolean hasTranslateX=!(Math.abs(finalRaster2Model.getTranslateX()) <  0.01F);
+                boolean hasTranslateY=!(Math.abs(finalRaster2Model.getTranslateY()) <  0.01F);
+                boolean isTranslateXInt=!(Math.abs(finalRaster2Model.getTranslateX() - (int) finalRaster2Model.getTranslateX()) <  0.01F);
+                boolean isTranslateYInt=!(Math.abs(finalRaster2Model.getTranslateY() - (int) finalRaster2Model.getTranslateY()) <  0.01F);
+                
+                boolean isIdentity = finalRaster2Model.isIdentity() && !hasScaleX&&!hasScaleY &&!hasTranslateX&&!hasTranslateY;
+                
+                
+                // TODO how can we check that the a skew is harmelss????
+                if(isIdentity){
+                    // TODO check if we are missing anything like tiling or such that comes from hints 
+                    return new GranuleLoadingResult(raster, granuleLoadingShape);
+                }
+                
+                // TOLERANCE ON PIXELS SIZE
+                
+                // Check and see if the affine transform is in fact doing
+                // a Translate operation. That is a scale by 1 and no rotation.
+                // In which case call translate. Note that only integer translate
+                // is applicable. For non-integer translate we'll have to do the
+                // affine.
+                // If the hints contain an ImageLayout hint, we can't use 
+                // TranslateIntOpImage since it isn't capable of dealing with that.
+                // Get ImageLayout from renderHints if any.
+                ImageLayout layout = RIFUtil.getImageLayoutHint(localHints);                                
+                if ( !hasScaleX &&
+                     !hasScaleY  &&
+                      !hasShearX&&
+                      !hasShearY&&
+                      isTranslateXInt&&
+                      isTranslateYInt&&
+                    layout == null) {
+                    // It's a integer translate
+                    return new GranuleLoadingResult(new TranslateIntOpImage(raster,
+                                                    localHints,
+                                                   (int) finalRaster2Model.getShearX(),
+                                                   (int) finalRaster2Model.getShearY()),granuleLoadingShape);
+                }                                
+                                
+                                
 //				return WarpDescriptor.create(raster, new WarpAffine(translationTransform.createInverse()),new InterpolationNearest(), request.getBackgroundValues(),localHints);
 				return new GranuleLoadingResult(AffineDescriptor.create(raster, finalRaster2Model, interpolation, request.getBackgroundValues(),localHints), granuleLoadingShape);
 			}

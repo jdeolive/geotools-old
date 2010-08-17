@@ -31,6 +31,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
@@ -53,6 +54,7 @@ import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultQuery;
+import org.geotools.data.Query;
 import org.geotools.data.QueryCapabilities;
 import org.geotools.factory.Hints;
 import org.geotools.feature.visitor.UniqueVisitor;
@@ -708,14 +710,13 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 		return super.getMetadataNames();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public String getMetadataValue(final String name) {
 		final boolean getTimeAttribute=(timeAttribute!=null&&name.equalsIgnoreCase("time_domain"));
 		final QueryCapabilities queryCapabilities = rasterManager.index.getQueryCapabilities();
-		boolean manualSort=false;
+//		boolean manualSort=false;
 		if(getTimeAttribute){
-			DefaultQuery query;
+			Query query;
 			try {
 				query = new DefaultQuery(rasterManager.index.getType().getTypeName());
 				query.setPropertyNames(Arrays.asList(timeAttribute));
@@ -726,8 +727,8 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 						)};
 				if(queryCapabilities.supportsSorting(sortBy))
 					query.setSortBy(sortBy);
-				else
-					manualSort=true;
+//				else
+//					manualSort=true;
 				final UniqueVisitor visitor= new UniqueVisitor(timeAttribute);
 				rasterManager.index.computeAggregateFunction(query, visitor);
 				
@@ -758,8 +759,8 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 				final StringBuilder buff= new StringBuilder();
 				final SimpleDateFormat df= new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
 				df.setTimeZone(UTC_TZ);
-				for(java.util.Iterator it=result.iterator();it.hasNext();){
-					final Date time= (Date) it.next();
+				for(Iterator<Date> it=result.iterator();it.hasNext();){
+					final Date time=  it.next();
 					buff.append(df.format(time)).append("Z");
 					if(it.hasNext())
 						buff.append(",");
@@ -774,7 +775,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 
 		final boolean getElevationAttribute=(elevationAttribute!=null&&name.equalsIgnoreCase("elevation_domain"));
 		if(getElevationAttribute){
-			DefaultQuery query;
+			Query query;
 			try {
 				query = new DefaultQuery(rasterManager.index.getType().getTypeName());
 				query.setPropertyNames(Arrays.asList(elevationAttribute));
@@ -785,8 +786,8 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 						)};
 				if(queryCapabilities.supportsSorting(sortBy))
 					query.setSortBy(sortBy);
-				else
-					manualSort=true;				
+//				else
+//					manualSort=true;				
 				final UniqueVisitor visitor= new UniqueVisitor(elevationAttribute);
 				rasterManager.index.computeAggregateFunction(query, visitor);
 				
@@ -795,7 +796,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 				if(result.size()<=0)
 					return null;
 				final StringBuilder buff= new StringBuilder();
-				for(java.util.Iterator it=result.iterator();it.hasNext();){
+				for(Iterator<Double> it=result.iterator();it.hasNext();){
 					final double value= (Double) it.next();
 					buff.append(value);
 					if(it.hasNext())
@@ -811,7 +812,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 		
 		final boolean getRuntimeAttribute=name.equalsIgnoreCase("runtime_domain");
 		if(getRuntimeAttribute){
-			DefaultQuery query;
+			Query query;
 			try {
 				query = new DefaultQuery(rasterManager.index.getType().getTypeName());
 				query.setPropertyNames(Arrays.asList("runtime"));
@@ -822,8 +823,8 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 						)};
 				if(queryCapabilities.supportsSorting(sortBy))
 					query.setSortBy(sortBy);
-				else
-					manualSort=true;				
+//				else
+//					manualSort=true;				
 				final UniqueVisitor visitor= new UniqueVisitor("runtime");
 				rasterManager.index.computeAggregateFunction(query, visitor);
 				
@@ -843,8 +844,8 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 				if(result.size()<=0)
 					return null;
 				final StringBuilder buff= new StringBuilder();
-				for(java.util.Iterator it=result.iterator();it.hasNext();){
-					final int value= (Integer) it.next();
+				for(Iterator<Integer> it=result.iterator();it.hasNext();){
+					final int value= it.next();
 					buff.append(value);
 					if(it.hasNext())
 						buff.append(",");

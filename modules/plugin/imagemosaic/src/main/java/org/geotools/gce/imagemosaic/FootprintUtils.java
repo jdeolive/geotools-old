@@ -202,7 +202,7 @@ class FootprintUtils {
 
             try {
                 if (it != null) {
-                    features.close(it);
+                    it.close();
                 }
             } catch (Throwable e) {
             }
