@@ -179,10 +179,14 @@ class ArcSDEQuery {
         } else {
             sdeLayer = session.getLayer(typeName);
         }
-        final SimpleFeatureType querySchema = getQuerySchema(query, fullSchema);
         // create the set of filters to work over
         final ArcSDEQuery.FilterSet filters = new ArcSDEQuery.FilterSet(sdeTable, sdeLayer, filter,
-                querySchema, null, null, fidReader);
+                fullSchema, null, null, fidReader);
+
+        final Filter unsupportedFilter = filters.getUnsupportedFilter();
+        final String[] queryProperties = query.getPropertyNames();
+        final SimpleFeatureType querySchema = getQuerySchema(queryProperties, unsupportedFilter,
+                fullSchema);
 
         final String sortByClause = buildSortByClause(fullSchema, query.getSortBy(), fidReader);
         final ArcSDEQuery sdeQuery;
@@ -233,10 +237,14 @@ class ArcSDEQuery {
             sdeLayer = session.getLayer(layerName);
         }
 
-        final SimpleFeatureType querySchema = getQuerySchema(query, fullSchema);
         // create the set of filters to work over
         final ArcSDEQuery.FilterSet filters = new ArcSDEQuery.FilterSet(sdeTable, sdeLayer, filter,
-                querySchema, definitionQuery, viewSelectStatement, fidReader);
+                fullSchema, definitionQuery, viewSelectStatement, fidReader);
+
+        final Filter unsupportedFilter = filters.getUnsupportedFilter();
+        final String[] queryProperties = query.getPropertyNames();
+        final SimpleFeatureType querySchema = getQuerySchema(queryProperties, unsupportedFilter,
+                fullSchema);
 
         final ArcSDEQuery sdeQuery;
         sdeQuery = new ArcSDEQuery(session, querySchema, filters, null, fidReader,
@@ -248,20 +256,23 @@ class ArcSDEQuery {
      * Returns a {@link SimpleFeatureType} whichs a "view" of the <code>fullSchema</code> adapted as
      * per the required query property names.
      * 
-     * @param query
+     * @param queryProperties
      *            the query containing the list of property names required by the output schema and
      *            the {@link Filter query predicate} from which to fetch required properties to be
      *            used at runtime filter evaluation.
+     * @param unsupportedFilter
      * @param fullSchema
      *            a feature type representing an ArcSDE layer full schema.
      * @return a FeatureType derived from <code>fullSchema</code> which contains the property names
      *         required by the <code>query</code> and the ones referenced in the query filter.
      * @throws DataSourceException
      */
-    public static SimpleFeatureType getQuerySchema(final Query query,
-            final SimpleFeatureType fullSchema) throws DataSourceException {
+    public static SimpleFeatureType getQuerySchema(final String[] queryProperties,
+            Filter unsupportedFilter, final SimpleFeatureType fullSchema)
+            throws DataSourceException {
         // guess which properties need to actually be retrieved.
-        final List<String> queryColumns = getQueryColumns(query, fullSchema);
+        final List<String> queryColumns = getQueryColumns(queryProperties, unsupportedFilter,
+                fullSchema);
         final String[] attNames = queryColumns.toArray(new String[queryColumns.size()]);
 
         try {
@@ -276,13 +287,12 @@ class ArcSDEQuery {
         }
     }
 
-    private static List<String> getQueryColumns(Query query, final SimpleFeatureType fullSchema)
+    private static List<String> getQueryColumns(final String[] queryProperties,
+            final Filter unsupportedFilter, final SimpleFeatureType fullSchema)
             throws DataSourceException {
         final List<String> columnNames = new ArrayList<String>();
 
-        final String[] queryColumns = query.getPropertyNames();
-
-        if ((queryColumns == null) || (queryColumns.length == 0)) {
+        if ((queryProperties == null) || (queryProperties.length == 0)) {
             final List<AttributeDescriptor> attNames = fullSchema.getAttributeDescriptors();
             for (Iterator<AttributeDescriptor> it = attNames.iterator(); it.hasNext();) {
                 AttributeDescriptor att = it.next();
@@ -295,20 +305,20 @@ class ArcSDEQuery {
                 columnNames.add(attName);
             }
         } else {
-            columnNames.addAll(Arrays.asList(queryColumns));
-        }
+            columnNames.addAll(Arrays.asList(queryProperties));
 
-        // Ok, say we don't support the full filter natively and it references
-        // some properties, then they have to be retrieved in order to evaluate
-        // the filter at runtime
-        Filter f = query.getFilter();
-        if (f != null) {
-            final FilterAttributeExtractor attExtractor = new FilterAttributeExtractor(fullSchema);
-            f.accept(attExtractor, null);
-            final String[] filterAtts = attExtractor.getAttributeNames();
-            for (String attName : filterAtts) {
-                if (!columnNames.contains(attName)) {
-                    columnNames.add(attName);
+            // Ok, say we don't support the full filter natively and it references
+            // some properties, then they have to be retrieved in order to evaluate
+            // the filter at runtime
+            if (unsupportedFilter != null) {
+                final FilterAttributeExtractor attExtractor;
+                attExtractor = new FilterAttributeExtractor(fullSchema);
+                unsupportedFilter.accept(attExtractor, null);
+                final String[] filterAtts = attExtractor.getAttributeNames();
+                for (String attName : filterAtts) {
+                    if (!columnNames.contains(attName)) {
+                        columnNames.add(attName);
+                    }
                 }
             }
         }

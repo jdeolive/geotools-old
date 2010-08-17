@@ -42,6 +42,7 @@ import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.filter.text.cql2.CQL;
 import org.geotools.filter.text.cql2.CQLException;
+import org.geotools.filter.text.ecql.ECQL;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -277,6 +278,91 @@ public class ArcSDEQueryTest {
         validFids.add(ff.featureId(typeName + ".2"));
         Id expected = ff.id(validFids);
         Assert.assertEquals(expected, id);
+    }
+
+    /**
+     * Query specifies no request properties, then all properties should be fetch
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testGetSchemaDefaultQuery() throws Exception {
+        String[] requestProperties = {};
+
+        Filter filter = Filter.INCLUDE;
+
+        SimpleFeatureType resultingSchema = testGetSchema(requestProperties, filter);
+
+        SimpleFeatureType fullSchema = dstore.getSchema(testData.getTempTableName());
+        Assert.assertEquals(fullSchema, resultingSchema);
+    }
+
+    /**
+     * The query is fully supported, the requested properties does not contain a property that is
+     * needed for the filter evaluation, then the resulting schema should not contain the non
+     * requested property neither
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testGetSchemaSupportedFilterPropertySingleRequestProperty() throws Exception {
+        String[] requestProperties = { "INT32_COL" };
+
+        Filter filter = ECQL
+                .toFilter("INTERSECTS(SHAPE, POLYGON((-1 -1, -1 0, 0 0, 0 -1, -1 -1)) )");
+
+        SimpleFeatureType resultingSchema = testGetSchema(requestProperties, filter);
+
+        Assert.assertEquals(1, resultingSchema.getAttributeCount());
+        Assert.assertEquals("INT32_COL", resultingSchema.getAttributeDescriptors().get(0)
+                .getLocalName());
+    }
+
+    /**
+     * Query filter references a property name inside an unsupported filter/expression, then the
+     * referenced property should be part of the resulting schema even if the query didn't requested
+     * it, so that the filter/expression can be evaluated at runtime.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testGetSchemaUnsupportedFilterProperty() throws Exception {
+        String[] requestProperties = { "SHAPE" };
+
+        Filter filter = ECQL.toFilter("Min(INT32_COL, 5) = 5");// we don't support the Min function
+        // natively
+
+        SimpleFeatureType resultingSchema = testGetSchema(requestProperties, filter);
+
+        Assert.assertEquals(2, resultingSchema.getAttributeCount());
+        assertNotNull(resultingSchema.getDescriptor("SHAPE"));
+        assertNotNull(resultingSchema.getDescriptor("INT32_COL"));
+
+    }
+
+    private SimpleFeatureType testGetSchema(String[] requestProperties, Filter filter)
+            throws Exception {
+
+        String typeName = testData.getTempTableName();
+        SimpleFeatureType fullSchema = dstore.getSchema(typeName);
+        assertNotNull(fullSchema.getDescriptor("SHAPE"));// just a safety check
+        assertNotNull(fullSchema.getDescriptor("INT32_COL"));
+
+        Query query = new Query(typeName, filter, requestProperties);
+        FIDReader fidReader = new FIDReader.SdeManagedFidReader(typeName, "rowid");
+        ArcSdeVersionHandler versioningHandler = ArcSdeVersionHandler.NONVERSIONED_HANDLER;
+
+        ArcSDEQuery sdeQuery;
+        ISession session = dstore.getSession(Transaction.AUTO_COMMIT);
+        try {
+            sdeQuery = ArcSDEQuery.createQuery(session, fullSchema, query, fidReader,
+                    versioningHandler);
+        } finally {
+            session.dispose();
+        }
+        SimpleFeatureType schema = sdeQuery.getSchema();
+        assertNotNull(schema);
+        return schema;
     }
 
     private ArcSDEQuery getQueryAll() throws IOException {
