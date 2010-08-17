@@ -3,8 +3,6 @@ package org.geotools.arcsde.data;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.io.IOException;
-
 import org.geotools.arcsde.session.ISession;
 import org.geotools.arcsde.session.SdeRow;
 import org.geotools.arcsde.versioning.ArcSdeVersionHandler;
@@ -19,9 +17,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 
 public class ArcSDEClobTest {
     private static ClobTestData testData;
-
-    private String temp_table = "clob_test";
-
+    
     private String[] columnNames = { "IntegerField", "ClobField" };
 
     @BeforeClass
@@ -82,22 +78,6 @@ public class ArcSDEClobTest {
                 session.dispose();
             }
         }
-    }
-
-    private String getTempTableName(ISession session) throws IOException {
-        String tempTableName;
-        String dbName = session.getDatabaseName();
-        String user = session.getUser();
-        StringBuffer sb = new StringBuffer();
-        if (dbName != null && dbName.length() > 0) {
-            sb.append(dbName).append(".");
-        }
-        if (user != null && user.length() > 0) {
-            sb.append(user).append(".");
-        }
-        sb.append(this.temp_table);
-        tempTableName = sb.toString().toUpperCase();
-        return tempTableName;
     }
 
 }

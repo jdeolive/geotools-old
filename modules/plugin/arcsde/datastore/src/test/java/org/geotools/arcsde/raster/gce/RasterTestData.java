@@ -48,6 +48,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -73,7 +74,6 @@ import org.geotools.arcsde.session.ISession;
 import org.geotools.arcsde.session.ISessionPool;
 import org.geotools.util.logging.Logging;
 
-import com.esri.sde.sdk.client.SDEPoint;
 import com.esri.sde.sdk.client.SeColumnDefinition;
 import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeCoordinateReference;
@@ -97,20 +97,17 @@ import com.esri.sde.sdk.pe.PeFactory;
 import com.esri.sde.sdk.pe.PePCSDefs;
 import com.esri.sde.sdk.pe.PeProjectedCS;
 
-@SuppressWarnings( { "nls", "deprecation" })
+@SuppressWarnings({ "nls", "deprecation" })
 public class RasterTestData {
 
     private TestData testData;
 
     private static final Logger LOGGER = Logging.getLogger("org.geotools.arcsde.gce");
 
-    private boolean overrideExistingTables;
-
     public void setUp() throws IOException {
         // load a raster dataset into SDE
         testData = new TestData();
         testData.setUp();
-        overrideExistingTables = true;
     }
 
     public void tearDown() throws Exception {
@@ -169,7 +166,8 @@ public class RasterTestData {
     }
 
     public String getRasterTestDataProperty(String propName) {
-        return testData.getConProps().get(propName);
+        Serializable val = testData.getConProps().get(propName);
+        return val == null ? null : String.valueOf(val);
     }
 
     // public void load1bitRaster() throws Exception {
@@ -202,7 +200,7 @@ public class RasterTestData {
 
         SeExtent imgExtent = new SeExtent(231000, 898000, 231000 + 500, 898000 + 500);
         SeCoordinateReference crs = getSeCRSFromPeProjectedCSId(PePCSDefs.PE_PCS_NAD_1983_HARN_MA_M);
-        String rasterFilename = testData.getConProps().get("sampledata.onebitraster");
+        String rasterFilename = (String) testData.getConProps().get("sampledata.onebitraster");
         ArcSDERasterProducer producer = new ArcSDERasterOneBitPerBandProducerImpl();
 
         importRasterImage(tableName, crs, rasterFilename, SeRaster.SE_PIXEL_TYPE_1BIT, imgExtent,
@@ -232,7 +230,7 @@ public class RasterTestData {
 
         SeExtent imgExtent = new SeExtent(231000, 898000, 231000 + 501, 898000 + 501);
         SeCoordinateReference crs = getSeCRSFromPeProjectedCSId(PePCSDefs.PE_PCS_NAD_1983_HARN_MA_M);
-        String rasterFilename = testData.getConProps().get("sampledata.rgbraster");
+        String rasterFilename = (String) testData.getConProps().get("sampledata.rgbraster");
         ArcSDERasterProducer prod = new ArcSDERasterOneBytePerBandProducerImpl();
 
         importRasterImage(tableName, crs, rasterFilename, SeRaster.SE_PIXEL_TYPE_8BIT_U, imgExtent,
@@ -258,7 +256,8 @@ public class RasterTestData {
 
         SeExtent imgExtent = new SeExtent(231000, 898000, 231000 + 500, 898000 + 500);
         SeCoordinateReference crs = getSeCRSFromPeProjectedCSId(PePCSDefs.PE_PCS_NAD_1983_HARN_MA_M);
-        String rasterFilename = testData.getConProps().get("sampledata.rgbraster-colormapped");
+        String rasterFilename = (String) testData.getConProps().get(
+                "sampledata.rgbraster-colormapped");
         ArcSDERasterProducer prod = new ArcSDERasterOneBytePerBandProducerImpl();
 
         importRasterImage(tableName, crs, rasterFilename, SeRaster.SE_PIXEL_TYPE_8BIT_U, imgExtent,
@@ -282,7 +281,8 @@ public class RasterTestData {
 
         SeExtent imgExtent = new SeExtent(231000, 898000, 231000 + 500, 898000 + 500);
         SeCoordinateReference crs = getSeCRSFromPeProjectedCSId(PePCSDefs.PE_PCS_NAD_1983_HARN_MA_M);
-        String rasterFilename = testData.getConProps().get("sampledata.onebyteonebandraster");
+        String rasterFilename = (String) testData.getConProps().get(
+                "sampledata.onebyteonebandraster");
         ArcSDERasterProducer prod = new ArcSDERasterOneBytePerBandProducerImpl();
 
         importRasterImage(tableName, crs, rasterFilename, SeRaster.SE_PIXEL_TYPE_8BIT_U, imgExtent,
@@ -307,7 +307,7 @@ public class RasterTestData {
 
         SeExtent imgExtent = new SeExtent(245900, 899600, 246300, 900000);
         SeCoordinateReference crs = getSeCRSFromPeProjectedCSId(PePCSDefs.PE_PCS_NAD_1983_HARN_MA_M);
-        String rasterFilename = testData.getConProps().get("sampledata.floatraster");
+        String rasterFilename = (String) testData.getConProps().get("sampledata.floatraster");
         ArcSDERasterProducer prod = new ArcSDERasterFloatProducerImpl();
 
         importRasterImage(tableName, crs, rasterFilename, SeRaster.SE_PIXEL_TYPE_32BIT_REAL,
@@ -569,8 +569,8 @@ public class RasterTestData {
      * @param numberOfBands
      *            the number of bands of the raster
      * @param pixelType
-     *            the pixel (cell) depth of the raster bands (one of the {@code
-     *            SeRaster#SE_PIXEL_TYPE_*} constants)
+     *            the pixel (cell) depth of the raster bands (one of the
+     *            {@code SeRaster#SE_PIXEL_TYPE_*} constants)
      * @param colorModel
      *            the color model to apply to the raster, may be {@code null}. A non null value adds
      *            as precondition that {@code numberOfBands == 1}
@@ -721,15 +721,15 @@ public class RasterTestData {
      * @param numberOfBands
      *            the number of bands of the raster
      * @param pixelType
-     *            the pixel (cell) depth of the raster bands (one of the {@code
-     *            SeRaster#SE_PIXEL_TYPE_*} constants)
+     *            the pixel (cell) depth of the raster bands (one of the
+     *            {@code SeRaster#SE_PIXEL_TYPE_*} constants)
      * @param colorModel
      *            the color model to apply to the raster, may be {@code null}. A non null value adds
      *            as precondition that {@code numberOfBands == 1}
      * @param pyramiding
-     *            whether to create tiles or not for the raster. If {@code true} and {@code
-     *            skipLevelOne == true} a pyramid with three levels will be created, avoiding to
-     *            create the pyramid tiles for level 0 (same dimension as the source raster). If
+     *            whether to create tiles or not for the raster. If {@code true} and
+     *            {@code skipLevelOne == true} a pyramid with three levels will be created, avoiding
+     *            to create the pyramid tiles for level 0 (same dimension as the source raster). If
      *            {@code skipLevelOne == false}, even for level 0 the pyramid tiles will be created,
      *            that is, four levels.
      * @param skipLevelOne
@@ -988,9 +988,6 @@ public class RasterTestData {
     public static boolean imageEquals(RenderedImage image1, RenderedImage image2,
             boolean ignoreAlpha) {
 
-        final int h = image1.getHeight();
-        final int w = image2.getWidth();
-
         int skipBand = -1;
         if (ignoreAlpha) {
             skipBand = 3;
@@ -1043,8 +1040,8 @@ public class RasterTestData {
             // Now build a SeRasterConstraint object which queries the db for
             // the right tiles/bands/pyramid level
             SeRasterConstraint rConstraint = new SeRasterConstraint();
-            rConstraint.setEnvelope((int) tiles.getMinX(), (int) tiles.getMinY(), (int) tiles
-                    .getMaxX(), (int) tiles.getMaxY());
+            rConstraint.setEnvelope((int) tiles.getMinX(), (int) tiles.getMinY(),
+                    (int) tiles.getMaxX(), (int) tiles.getMaxY());
             rConstraint.setLevel(level);
             rConstraint.setBands(bands);
 
@@ -1491,13 +1488,11 @@ public class RasterTestData {
                         int pixelType = attr.getPixelType();
                         final RasterCellType cellType = RasterCellType.valueOf(pixelType);
                         final int numBands = attr.getNumBands();
-                        final SeExtent extent = attr.getExtent();
                         final int imageWidth = attr.getImageWidth();
                         final int imageHeight = attr.getImageHeight();
                         final int compressionType = attr.getCompressionType();
                         final int tileHeight = attr.getTileHeight();
                         final int tileWidth = attr.getTileWidth();
-                        final SDEPoint tileOrigin = attr.getTileOrigin();
                         final int interpolation = attr.getInterpolation();
 
                         System.out.println(tableName + ":\n\t pixelType: " + cellType
@@ -1556,15 +1551,6 @@ public class RasterTestData {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    /**
-     * TODO: avoiding the deletion of an existing table not yet implemented
-     * 
-     * @param override
-     */
-    public void setOverrideExistingTestTables(boolean override) {
-        this.overrideExistingTables = override;
     }
 
 }

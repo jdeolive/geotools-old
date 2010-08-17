@@ -60,6 +60,7 @@ import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.Id;
 import org.opengis.filter.PropertyIsEqualTo;
 import org.opengis.filter.PropertyIsGreaterThan;
+import org.opengis.filter.identity.FeatureId;
 import org.opengis.filter.identity.Identifier;
 import org.opengis.filter.spatial.BBOX;
 
@@ -134,12 +135,12 @@ public class ArcSDEQueryTest {
         SimpleFeatureSource source = dstore.getFeatureSource(typeName);
         SimpleFeatureCollection features = source.getFeatures();
         SimpleFeatureIterator iterator = features.features();
-        List fids = new ArrayList();
+        List<FeatureId> fids = new ArrayList<FeatureId>();
         for (int i = 0; i < FILTERING_COUNT; i++) {
             fids.add(ff.featureId(iterator.next().getID()));
         }
         iterator.close();
-        Id filter = ff.id(new HashSet(fids));
+        Id filter = ff.id(new HashSet<FeatureId>(fids));
         filteringQuery = new Query(typeName, filter);
     }
 

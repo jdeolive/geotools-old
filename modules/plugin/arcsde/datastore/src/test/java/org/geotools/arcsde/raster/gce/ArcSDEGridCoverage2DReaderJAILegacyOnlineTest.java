@@ -11,7 +11,6 @@ import java.awt.Rectangle;
 import java.awt.image.ColorModel;
 import java.awt.image.IndexColorModel;
 import java.awt.image.RenderedImage;
-import java.awt.image.SampleModel;
 import java.awt.image.renderable.ParameterBlock;
 import java.io.File;
 import java.io.IOException;
@@ -54,7 +53,6 @@ import org.junit.Test;
 import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.geometry.Envelope;
 import org.opengis.parameter.GeneralParameterValue;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.vividsolutions.jts.util.Stopwatch;
 
@@ -90,7 +88,7 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         rasterTestData.setUp();
         DEBUG = Boolean
                 .valueOf(rasterTestData.getRasterTestDataProperty(RASTER_TEST_DEBUG_TO_DISK));
-        rasterTestData.setOverrideExistingTestTables(false);
+        // rasterTestData.setOverrideExistingTestTables(false);
     }
 
     @AfterClass
@@ -201,7 +199,6 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         System.out.println(reader.getInfo().getDescription());
 
         final GeneralEnvelope originalEnvelope = reader.getOriginalEnvelope();
-        final GridEnvelope originalGridRange = reader.getOriginalGridRange();
 
         final int reqWidth = 225;
         final int reqHeight = 512;
@@ -336,16 +333,17 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
                                 double dx = (originalEnvelope.getSpan(0) / 2) / (2 * i + 1);
                                 double dy = (originalEnvelope.getSpan(1) / 2) / (2 * i + 1);
                                 reqEnv.setEnvelope(originalEnvelope.getMedian(0) - dx,
-                                        originalEnvelope.getMedian(1) - dy, originalEnvelope
-                                                .getMedian(0)
-                                                + dx, originalEnvelope.getMedian(1) + dy);
+                                        originalEnvelope.getMedian(1) - dy,
+                                        originalEnvelope.getMedian(0) + dx,
+                                        originalEnvelope.getMedian(1) + dy);
                             }
 
                             final GridCoverage2D coverage = readCoverage(reader, reqWidth,
                                     reqHeight, reqEnv);
                             assertNotNull("read coverage returned null", coverage);
 
-                            RenderedImage image = coverage.view(ViewType.PHOTOGRAPHIC).getRenderedImage();
+                            RenderedImage image = coverage.view(ViewType.PHOTOGRAPHIC)
+                                    .getRenderedImage();
                             // RenderedImage image =
                             // coverage.view(ViewType.NATIVE).getRenderedImage();
                             Stopwatch sw = new Stopwatch();
@@ -473,7 +471,6 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         assertNotNull("Couldn't obtain a reader for " + tableName, reader);
 
         final GeneralEnvelope originalEnvelope = reader.getOriginalEnvelope();
-        GridEnvelope originalGridRange = reader.getOriginalGridRange();
 
         final int reqWidth = 100;// 800;// originalGridRange.getSpan(0) / 8;
         final int reqHeight = 75;// 595;// originalGridRange.getSpan(1) / 8;
@@ -500,7 +497,6 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
 
         RenderedImage image = coverage.getRenderedImage();
         ColorModel colorModel = image.getColorModel();
-        SampleModel sampleModel = image.getSampleModel();
 
         assertTrue(colorModel instanceof IndexColorModel);
         IndexColorModel cm = ((IndexColorModel) colorModel);
@@ -587,11 +583,8 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         }
         GeoTiffWriter writer = new GeoTiffWriter(destination);
 
-        // System.out.println("\n --- Writing to " + destination);
         try {
-            long t = System.currentTimeMillis();
             writer.write(coverage, null);
-            // System.out.println(" - wrote in " + t + "ms" + destination);
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
@@ -614,7 +607,6 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         // System.out.println("\n --- Writing to " + file);
         try {
             long t = System.currentTimeMillis();
-            Object output;
 
             if (doWriteToDisk) {
                 ImageIO.write(image, "TIFF", path);
@@ -645,7 +637,6 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
             final int reqWidth, final int reqHeight, final Envelope reqEnv) throws Exception {
 
         GeneralParameterValue[] requestParams = new Parameter[2];
-        final CoordinateReferenceSystem crs = reader.getCrs();
 
         GridGeometry2D gg2d;
         gg2d = new GridGeometry2D(new GridEnvelope2D(new Rectangle(reqWidth, reqHeight)), reqEnv);
@@ -709,7 +700,7 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         // writeToDisk(coverage, "testRead_" + tableName);
 
         RenderedImage image = coverage.view(ViewType.RENDERED).getRenderedImage();
-        // writeToDisk(image, tableName);
+        writeToDisk(image, tableName);
 
         // writeBand(image, new int[] { 0 }, "band1");
     }

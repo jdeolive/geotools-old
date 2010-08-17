@@ -35,9 +35,6 @@ public class GeometryEncoderException extends Exception {
 
     /**
      * Creates a new GeometryEncoderException object.
-     * 
-     * @param msg
-     *            DOCUMENT ME!
      */
     public GeometryEncoderException(String msg) {
         this(msg, null);
@@ -45,11 +42,6 @@ public class GeometryEncoderException extends Exception {
 
     /**
      * Creates a new GeometryEncoderException object.
-     * 
-     * @param msg
-     *            DOCUMENT ME!
-     * @param cause
-     *            DOCUMENT ME!
      */
     public GeometryEncoderException(String msg, Throwable cause) {
         super(msg, cause);

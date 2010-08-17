@@ -117,7 +117,7 @@ public class ArcSDEJNDIDataStoreFactoryTest {
         Map<String, Serializable> params = new HashMap<String, Serializable>();
         params.put(ArcSDEJNDIDataStoreFactory.JNDI_REFNAME.key, jndiRef);
 
-        Map<String, String> config = testData.getConProps();
+        Map<String, Serializable> config = testData.getConProps();
         try {
             InitialContext initialContext = GeoTools.getInitialContext(GeoTools.getDefaultHints());
             initialContext.bind(jndiRef, config);
@@ -131,7 +131,8 @@ public class ArcSDEJNDIDataStoreFactoryTest {
         ISession session = dataStore.getSession(Transaction.AUTO_COMMIT);
         assertNotNull(session);
         try {
-            assertEquals(config.get("user").toUpperCase(), session.getUser().toUpperCase());
+            assertEquals(String.valueOf(config.get("user")).toUpperCase(), session.getUser()
+                    .toUpperCase());
         } finally {
             session.dispose();
         }

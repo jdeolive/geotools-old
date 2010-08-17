@@ -33,14 +33,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
 import java.util.logging.Logger;
 
 import org.geotools.data.DataStore;
@@ -54,7 +49,6 @@ import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.filter.text.cql2.CQL;
 import org.geotools.filter.text.cql2.CQLException;
-import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -75,7 +69,6 @@ import org.opengis.filter.spatial.BBOX;
 
 import com.esri.sde.sdk.client.SeException;
 import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.util.Stopwatch;
 
 /**
  * {@link ArcSdeFeatureSource} test cases
@@ -91,7 +84,6 @@ public class ArcSDEFeatureSourceTest {
     private static Logger LOGGER = org.geotools.util.logging.Logging
             .getLogger(ArcSDEFeatureSourceTest.class.getPackage().getName());
 
-    /** DOCUMENT ME! */
     private static TestData testData;
 
     /** an ArcSDEDataStore created on setUp() to run tests against */
@@ -127,12 +119,6 @@ public class ArcSDEFeatureSourceTest {
      * than 24 simultaneous streams are tryied to be opened upon a single SeConnection, an exception
      * is thrown by de Java ArcSDE API saying that a "NETWORK I/O OPERATION FAILED"
      * </p>
-     * 
-     * @throws IOException
-     *             DOCUMENT ME!
-     * @throws IllegalAttributeException
-     *             DOCUMENT ME!
-     * @throws SeException
      */
     @Test
     public void testGetFeatureReader() throws IOException {
@@ -195,12 +181,6 @@ public class ArcSDEFeatureSourceTest {
     /**
      * Checks that arcsde datastore returns featuretypes whose attributes are exactly in the
      * requested order.
-     * 
-     * @throws IOException
-     *             DOCUMENT ME!
-     * @throws IllegalAttributeException
-     *             DOCUMENT ME!
-     * @throws SeException
      */
     @Test
     public void testRespectsAttributeOrder() throws IOException, IllegalAttributeException,
@@ -264,14 +244,11 @@ public class ArcSDEFeatureSourceTest {
         assertEquals("SHAPE", resultSchema.getDescriptor(0).getLocalName());
 
         Feature feature = null;
-        SimpleFeatureIterator iterator = null;
+        SimpleFeatureIterator iterator = features.features();
         try {
-            iterator = features.features();
             feature = iterator.next();
         } finally {
-            if (iterator != null) {
-                features.close(iterator);
-            }
+            iterator.close();
         }
 
         assertEquals(resultSchema, feature.getType());
@@ -386,7 +363,7 @@ public class ArcSDEFeatureSourceTest {
         SimpleFeatureSource fSource = ds.getFeatureSource(testData.getTempTableName());
         SimpleFeatureType type = fSource.getSchema();
         Query attOnlyQuery = new Query(type.getTypeName());
-        List propNames = new ArrayList(type.getAttributeCount() - 1);
+        List<String> propNames = new ArrayList<String>(type.getAttributeCount() - 1);
 
         for (int i = 0; i < type.getAttributeCount(); i++) {
             if (type.getDescriptor(i) instanceof GeometryDescriptor) {
@@ -439,7 +416,7 @@ public class ArcSDEFeatureSourceTest {
         // grab some fids
         FeatureReader<SimpleFeatureType, SimpleFeature> reader = ds.getFeatureReader(new Query(
                 typeName), Transaction.AUTO_COMMIT);
-        List fids = new ArrayList();
+        List<FeatureId> fids = new ArrayList<FeatureId>();
 
         while (reader.hasNext()) {
             fids.add(ff.featureId(reader.next().getID()));
@@ -452,7 +429,7 @@ public class ArcSDEFeatureSourceTest {
 
         reader.close();
 
-        Id filter = ff.id(new HashSet(fids));
+        Id filter = ff.id(new HashSet<FeatureId>(fids));
 
         SimpleFeatureSource source = ds.getFeatureSource(typeName);
         Query query = new Query(typeName, filter);
@@ -460,13 +437,15 @@ public class ArcSDEFeatureSourceTest {
 
         assertEquals(fids.size(), results.size());
         SimpleFeatureIterator iterator = results.features();
-
-        while (iterator.hasNext()) {
-            String fid = iterator.next().getID();
-            assertTrue("a fid not included in query was returned: " + fid,
-                    fids.contains(ff.featureId(fid)));
+        try {
+            while (iterator.hasNext()) {
+                String fid = iterator.next().getID();
+                assertTrue("a fid not included in query was returned: " + fid,
+                        fids.contains(ff.featureId(fid)));
+            }
+        } finally {
+            iterator.close();
         }
-        results.close(iterator);
     }
 
     @Test
@@ -513,13 +492,15 @@ public class ArcSDEFeatureSourceTest {
 
         assertEquals(1, results.size());
         SimpleFeatureIterator iterator = results.features();
-
-        while (iterator.hasNext()) {
-            String fid = iterator.next().getID();
-            assertTrue("a fid not included in query was returned: " + fid,
-                    fids.contains(ff.featureId(fid)));
+        try {
+            while (iterator.hasNext()) {
+                String fid = iterator.next().getID();
+                assertTrue("a fid not included in query was returned: " + fid,
+                        fids.contains(ff.featureId(fid)));
+            }
+        } finally {
+            iterator.close();
         }
-        results.close(iterator);
     }
 
     /**
@@ -686,7 +667,6 @@ public class ArcSDEFeatureSourceTest {
     public void testBboxFilterWithEmptyAttributeName() throws Exception {
         BBOX emptyAttNameFilter = ff.bbox("", -10, -10, 10, 10, "EPSG:4326");
         String typeName = testData.getTempTableName();
-        SimpleFeatureType schema = store.getSchema(typeName);
 
         SimpleFeatureSource source;
         source = store.getFeatureSource(typeName);
@@ -716,11 +696,6 @@ public class ArcSDEFeatureSourceTest {
      * <li>.getFeatures().reader().hasNex() == true</li>
      * <li>.getFeatures().reader().next() != null</li>
      * </ul>
-     * 
-     * @param fsource
-     *            DOCUMENT ME!
-     * @throws IOException
-     *             DOCUMENT ME!
      */
     private void testGetFeatureSource(SimpleFeatureSource fsource) throws IOException {
         assertNotNull(fsource);
@@ -773,181 +748,7 @@ public class ArcSDEFeatureSourceTest {
             String failMsg = "Fully fetched features size and estimated num features count does not match";
             assertEquals(failMsg, expected, numFeat);
         } finally {
-            fc.close(fi);
-        }
-    }
-
-    class Time {
-        long getTypeNames, getCount, getBounds, getFeatures, iterate;
-
-        public void add(Time o) {
-            getTypeNames += o.getTypeNames;
-            getCount += o.getCount;
-            getBounds += o.getBounds;
-            getFeatures += o.getFeatures;
-            iterate += o.iterate;
-        }
-
-        public String toString() {
-            StringBuilder sb = new StringBuilder("Time[");
-            sb.append("\n getTypeNames=").append(getTypeNames).append("\n getCount=\t")
-                    .append(getCount).append("\n getBounds\t").append(getBounds)
-                    .append("\n getFeatures=\t").append(getFeatures).append("\n iterate=\t")
-                    .append(iterate).append("\n]");
-            return sb.toString();
-        }
-
-        public long getTotal() {
-            return getTypeNames + getBounds + getCount + getFeatures + iterate;
-        }
-    }
-
-    int count;
-
-    /**
-     * NOTE: manually run it with pool.minConnections == pool.maxConnections to avoid the
-     * penalization of creating the connections to reach maxConnections while the test runs
-     * 
-     * @throws Exception
-     */
-    Time testConcurrencyPerformance(final int nExecutions, final int nThreads) throws Exception {
-        final String table = testData.getTempTableName();
-
-        class TestCommand implements Callable<Time> {
-
-            public Time call() throws Exception {
-                int mine = ++count;
-                // System.out.println("Starting execution " + count);
-                Stopwatch sw = new Stopwatch();
-                Time result = new Time();
-
-                sw.start();
-                store.getTypeNames();
-                sw.stop();
-                result.getTypeNames = sw.getTime();
-                sw.reset();
-
-                SimpleFeatureSource source;
-                source = store.getFeatureSource(table);
-
-                sw.start();
-                int fCount = source.getCount(Query.ALL);
-                sw.stop();
-                result.getCount = sw.getTime();
-                sw.reset();
-
-                sw.start();
-                ReferencedEnvelope bounds = source.getBounds();
-                sw.stop();
-                result.getBounds = sw.getTime();
-                sw.reset();
-
-                SimpleFeatureCollection fcol;
-
-                sw.start();
-                fcol = source.getFeatures();
-                SimpleFeatureIterator features = fcol.features();
-                sw.stop();
-                result.getFeatures = sw.getTime();
-                sw.reset();
-
-                sw.start();
-                while (features.hasNext()) {
-                    features.next();
-                }
-                sw.stop();
-                result.iterate = sw.getTime();
-                sw.reset();
-                features.close();
-
-                // System.out.println("Finishing execution " + mine);
-                return result;
-            }
-        }
-
-        // ignore initialization time
-        new TestCommand().call();
-
-        ExecutorService executor = Executors.newFixedThreadPool(nThreads);
-
-        List<FutureTask<Time>> tasks = new ArrayList<FutureTask<Time>>(nExecutions);
-
-        for (int i = 0; i < nExecutions; i++) {
-            TestCommand command = new TestCommand();
-            FutureTask<Time> task = new FutureTask<Time>(command);
-            executor.execute(task);
-            tasks.add(task);
-        }
-
-        Thread.currentThread().sleep(10000);
-
-        Time totalTime = new Time();
-        List<Time> results;
-        while (true) {
-            for (ListIterator<FutureTask<Time>> it = tasks.listIterator(); it.hasNext();) {
-                FutureTask<Time> next = it.next();
-                if (next.isDone()) {
-                    it.remove();
-                    Time taskTime = next.get();
-                    totalTime.add(taskTime);
-                }
-            }
-            if (tasks.size() == 0) {
-                break;
-            }
-            Thread.currentThread().sleep(100);
-        }
-
-        return totalTime;
-    }
-
-    public static void main(String[] argv) {
-
-        final int nExecutions = 30;
-
-        // how many connections to use for the tests. Make sure pool.maxConnections is set to a
-        // large enough value on testparams.properties
-        final int[] connections = { 10 };
-        final int[] testThreads = { 1, 5, 10, 15, 20 };
-
-        ArcSDEFeatureSourceTest test = new ArcSDEFeatureSourceTest();
-        try {
-            testData = new TestData();
-            testData.setUp();
-            final boolean insertTestData = true;
-            testData.createTempTable(insertTestData);
-            testData.getConnectionPool().close();
-
-            for (int nConnections : connections) {
-                for (int threads : testThreads) {
-
-                    testData.getConProps().put("pool.minConnections", String.valueOf(nConnections));
-                    testData.getConProps().put("pool.maxConnections", String.valueOf(nConnections));
-
-                    testData.tearDown(false, true);
-                    if (store != null) {
-                        store.dispose();
-                    }
-                    store = testData.getDataStore();
-
-                    Time t = test.testConcurrencyPerformance(nExecutions, threads);
-
-                    final int usedConnections = store.connectionPool.getPoolSize();
-
-                    testData.tearDown(false, false);
-                    store.dispose();
-
-                    System.out.println("\n\n" + nExecutions + " executions on " + threads
-                            + " threads " + " with " + usedConnections
-                            + " connections \nexecuted in " + t.getTotal() + "ms. " + t
-                            + "\n avg: " + (t.getTotal() / nExecutions));
-
-                }
-            }
-            System.exit(0);
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(-1);
+            fi.close();
         }
     }
 }

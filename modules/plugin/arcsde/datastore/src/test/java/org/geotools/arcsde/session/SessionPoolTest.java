@@ -27,9 +27,11 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -46,12 +48,11 @@ import org.junit.Test;
  *         /org/geotools/arcsde/pool/SessionPoolTest.java $
  * @version $Id$
  */
-@SuppressWarnings("unchecked")
 public class SessionPoolTest {
 
     private static Logger LOGGER = Logger.getLogger("org.geotools.data.sde");
 
-    private Map<String, String> connectionParameters;
+    private Map<String, Serializable> connectionParameters;
 
     private ArcSDEConnectionConfig connectionConfig = null;
 
@@ -83,8 +84,8 @@ public class SessionPoolTest {
 
         conProps.load(in);
         in.close();
-        connectionParameters = new HashMap<String, String>();
-        for (Map.Entry e : conProps.entrySet()) {
+        connectionParameters = new HashMap<String, Serializable>();
+        for (Entry<Object, Object> e : conProps.entrySet()) {
             connectionParameters.put((String) e.getKey(), (String) e.getValue());
         }
 
@@ -129,7 +130,7 @@ public class SessionPoolTest {
      *             if the pool can't create the connections with the passed arguments (i.e. can't
      *             connect to SDE database)
      */
-    private ISessionPool createPool(Map<String, String> connParams)
+    private ISessionPool createPool(Map<String, Serializable> connParams)
             throws IllegalArgumentException, NullPointerException, IOException {
         this.connectionConfig = ArcSDEConnectionConfig.fromMap(connParams);
         LOGGER.fine("creating a new SessionPool with " + connectionConfig);
@@ -196,7 +197,8 @@ public class SessionPoolTest {
         // override pool.minConnections and pool.maxConnections from
         // the configured parameters to test the connections' pool
         // availability
-        Map params = new HashMap(this.connectionParameters);
+        Map<String, Serializable> params = new HashMap<String, Serializable>(
+                this.connectionParameters);
         params.put(MIN_CONNECTIONS_PARAM_NAME, Integer.valueOf(MIN_CONNECTIONS));
         params.put(MAX_CONNECTIONS_PARAM_NAME, Integer.valueOf(MAX_CONNECTIONS));
 
@@ -223,7 +225,8 @@ public class SessionPoolTest {
         // override pool.minConnections and pool.maxConnections from
         // the configured parameters to test the connections' pool
         // availability
-        Map params = new HashMap(this.connectionParameters);
+        Map<String, Serializable> params = new HashMap<String, Serializable>(
+                this.connectionParameters);
         params.put(MIN_CONNECTIONS_PARAM_NAME, Integer.valueOf(MIN_CONNECTIONS));
         params.put(MAX_CONNECTIONS_PARAM_NAME, Integer.valueOf(1));
 
@@ -250,7 +253,8 @@ public class SessionPoolTest {
         final int MIN_CONNECTIONS = 2;
         final int MAX_CONNECTIONS = 2;
 
-        Map params = new HashMap(this.connectionParameters);
+        Map<String, Serializable> params = new HashMap<String, Serializable>(
+                this.connectionParameters);
         params.put(MIN_CONNECTIONS_PARAM_NAME, Integer.valueOf(MIN_CONNECTIONS));
         params.put(MAX_CONNECTIONS_PARAM_NAME, Integer.valueOf(MAX_CONNECTIONS));
 
@@ -269,8 +273,7 @@ public class SessionPoolTest {
             this.pool.getSession();
             fail("since the max number of connections was reached, the pool should have throwed an UnavailableArcSDEConnectionException");
         } catch (UnavailableConnectionException ex) {
-            LOGGER
-                    .fine("maximun number of connections reached, got an UnavailableArcSDEConnectionException, it's OK");
+            LOGGER.fine("maximun number of connections reached, got an UnavailableArcSDEConnectionException, it's OK");
         }
 
         // now, free one and check the same conection is returned on the
@@ -278,7 +281,7 @@ public class SessionPoolTest {
         ISession expected = sessions[0];
         expected.dispose();
 
-        Thread.currentThread().sleep(1000);
+        Thread.sleep(1000);
         ISession session = this.pool.getSession();
         assertEquals(expected, session);
     }
@@ -290,7 +293,8 @@ public class SessionPoolTest {
      */
     @Test
     public void testCreateWithNullDBName() throws IOException {
-        Map params = new HashMap(this.connectionParameters);
+        Map<String, Serializable> params = new HashMap<String, Serializable>(
+                this.connectionParameters);
         params.remove(INSTANCE_NAME_PARAM_NAME);
         createPool(params);
     }
@@ -302,7 +306,8 @@ public class SessionPoolTest {
      */
     @Test
     public void testCreateWithEmptyDBName() throws IOException {
-        Map params = new HashMap(this.connectionParameters);
+        Map<String, Serializable> params = new HashMap<String, Serializable>(
+                this.connectionParameters);
         params.put(INSTANCE_NAME_PARAM_NAME, "");
         createPool(params);
     }

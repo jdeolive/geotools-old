@@ -36,35 +36,25 @@ import org.geotools.arcsde.session.ISession;
  * @since 2.3.x
  */
 public class OrderByElementQualifier implements OrderByVisitor {
-    /** DOCUMENT ME! */
+
     private OrderByElement _qualifiedOrderBy;
 
-    /** DOCUMENT ME! */
     private ISession session;
 
-    private Map tableAliases;
+    private Map<String, Object> tableAliases;
 
     /**
      * Creates a new OrderByElementQualifier object.
      * 
      * @param session
-     *            DOCUMENT ME!
      */
-    private OrderByElementQualifier(ISession session, Map tableAliases) {
+    private OrderByElementQualifier(ISession session, Map<String, Object> tableAliases) {
         this.session = session;
         this.tableAliases = tableAliases;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param session
-     *            DOCUMENT ME!
-     * @param orderBy
-     *            DOCUMENT ME!
-     * @return DOCUMENT ME!
-     */
-    public static OrderByElement qualify(ISession session, Map tableAliases, OrderByElement orderBy) {
+    public static OrderByElement qualify(ISession session, Map<String, Object> tableAliases,
+            OrderByElement orderBy) {
         if (orderBy == null) {
             return null;
         }
@@ -75,12 +65,6 @@ public class OrderByElementQualifier implements OrderByVisitor {
         return qualifier._qualifiedOrderBy;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param orderBy
-     *            DOCUMENT ME!
-     */
     public void visit(OrderByElement orderBy) {
         OrderByElement qualifiedOrderBy = new OrderByElement();
         qualifiedOrderBy.setAsc(orderBy.isAsc());

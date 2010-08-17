@@ -70,7 +70,7 @@ public class InProcessViewSupportTestData {
      * Extra datastore creation parameters to set up {@link #typeName} as a FeatureType defined by
      * {@link #masterChildSql}
      */
-    public static Map registerViewParams;
+    public static Map<String, String> registerViewParams;
 
     public static final String typeName = "MasterChildTest";
 
@@ -94,7 +94,7 @@ public class InProcessViewSupportTestData {
         createMasterTable(session, td);
         createChildTable(session, td);
 
-        registerViewParams = new HashMap();
+        registerViewParams = new HashMap<String, String>();
         registerViewParams.put("sqlView.1.typeName", typeName);
         registerViewParams.put("sqlView.1.sqlQuery", masterChildSql);
     }
@@ -151,6 +151,7 @@ public class InProcessViewSupportTestData {
         final SeTable table = session.createSeTable(CHILD);
         Command<Void> createCmd = new Command<Void>() {
 
+            @SuppressWarnings("deprecation")
             @Override
             public Void execute(ISession session, SeConnection connection) throws SeException,
                     IOException {

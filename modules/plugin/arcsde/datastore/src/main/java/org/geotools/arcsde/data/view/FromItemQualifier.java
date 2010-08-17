@@ -43,33 +43,21 @@ import org.geotools.arcsde.session.ISession;
  * @since 2.3.x
  */
 class FromItemQualifier implements FromItemVisitor {
-    /** DOCUMENT ME! */
+
     private ISession session;
 
-    /** DOCUMENT ME! */
     private FromItem qualifiedFromItem;
 
     /**
      * Creates a new FromItemQualifier object.
      * 
      * @param session
-     *            DOCUMENT ME!
      * @throws IllegalStateException
-     *             DOCUMENT ME!
      */
     private FromItemQualifier(ISession session) throws IllegalStateException {
         this.session = session;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param session
-     *            DOCUMENT ME!
-     * @param fromItem
-     *            DOCUMENT ME!
-     * @return DOCUMENT ME!
-     */
     public static FromItem qualify(ISession session, FromItem fromItem) {
         if (fromItem == null) {
             return null;
@@ -81,22 +69,10 @@ class FromItemQualifier implements FromItemVisitor {
         return qualifier.qualifiedFromItem;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param tableName
-     *            DOCUMENT ME!
-     */
     public void visit(Table tableName) {
         qualifiedFromItem = TableQualifier.qualify(session, tableName);
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param subSelect
-     *            DOCUMENT ME!
-     */
     public void visit(SubSelect subSelect) {
         this.qualifiedFromItem = SubSelectQualifier.qualify(session, subSelect);
     }

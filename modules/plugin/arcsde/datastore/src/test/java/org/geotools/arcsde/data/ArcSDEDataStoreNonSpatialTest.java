@@ -368,6 +368,7 @@ public class ArcSDEDataStoreNonSpatialTest {
         String tableName = seRowidSdeTable;
 
         List<FeatureId> fids = testFeatureStore(tableName, Transaction.AUTO_COMMIT);
+        assertEquals(1, fids.size());
         assertEquals(1, ds.getFeatureSource(tableName).getCount(Query.ALL));
     }
 
@@ -379,6 +380,7 @@ public class ArcSDEDataStoreNonSpatialTest {
         Transaction transaction = new DefaultTransaction();
         try {
             List<FeatureId> fids = testFeatureStore(tableName, transaction);
+            assertEquals(1, fids.size());
 
             assertEquals(0, ds.getFeatureSource(tableName).getCount(Query.ALL));
             transaction.commit();
@@ -394,6 +396,8 @@ public class ArcSDEDataStoreNonSpatialTest {
         String tableName = seRowidUserTable;
 
         List<FeatureId> fids = testFeatureStore(tableName, Transaction.AUTO_COMMIT);
+        assertEquals(1, fids.size());
+
         assertEquals(1, ds.getFeatureSource(tableName).getCount(Query.ALL));
     }
 
@@ -405,6 +409,7 @@ public class ArcSDEDataStoreNonSpatialTest {
         Transaction transaction = new DefaultTransaction();
         try {
             List<FeatureId> fids = testFeatureStore(tableName, transaction);
+            assertEquals(1, fids.size());
 
             if (databaseIsMsSqlServer) {
                 /*

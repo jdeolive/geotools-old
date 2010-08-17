@@ -25,6 +25,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -60,7 +61,6 @@ import com.esri.sde.sdk.client.SeVersion;
  * @version $Id$
  * @since 2.4.x
  */
-@SuppressWarnings("unchecked")
 public class ArcSDEDataStoreFactoryTest {
 
     /**
@@ -71,19 +71,19 @@ public class ArcSDEDataStoreFactoryTest {
     /**
      * A set of datastore parameters that are meant to work
      */
-    private Map workingParams;
+    private Map<String, Serializable> workingParams;
 
     /**
      * Aset of datastore parameters that though valid (contains all the required parameters) point
      * to a non available server
      */
-    private Map nonWorkingParams;
+    private Map<String, Serializable> nonWorkingParams;
 
     /**
      * A set of datastore parameters that does not conform to the parameters required by the ArcSDE
      * plugin
      */
-    private Map illegalParams;
+    private Map<String, Serializable> illegalParams;
 
     private TestData testData;
 
@@ -94,10 +94,10 @@ public class ArcSDEDataStoreFactoryTest {
 
         workingParams = testData.getConProps();
 
-        nonWorkingParams = new HashMap(workingParams);
+        nonWorkingParams = new HashMap<String, Serializable>(workingParams);
         nonWorkingParams.put(ArcSDEConnectionConfig.SERVER_NAME_PARAM_NAME, "non-existent-server");
 
-        illegalParams = new HashMap(workingParams);
+        illegalParams = new HashMap<String, Serializable>(workingParams);
         illegalParams.put(ArcSDEDataStoreConfig.DBTYPE_PARAM_NAME, "non-existent-db-type");
 
         dsFactory = new ArcSDEDataStoreFactory();
@@ -156,10 +156,11 @@ public class ArcSDEDataStoreFactoryTest {
      * Test method for
      * {@link org.geotools.arcsde.ArcSDEDataStoreFactory#createNewDataStore(java.util.Map)}.
      */
+    @SuppressWarnings("unchecked")
     @Test
     public void testCreateNewDataStore() {
         try {
-            dsFactory.createNewDataStore(Collections.EMPTY_MAP);
+            dsFactory.createNewDataStore((Map<String, Serializable>) Collections.EMPTY_MAP);
             fail("Expected UOE as we can't create new datastores");
         } catch (UnsupportedOperationException e) {
             assertTrue(true);
@@ -214,7 +215,8 @@ public class ArcSDEDataStoreFactoryTest {
             session.dispose();
         }
 
-        Map workingParamsWithSqlView = new HashMap(workingParams);
+        Map<String, Serializable> workingParamsWithSqlView = new HashMap<String, Serializable>(
+                workingParams);
         workingParamsWithSqlView.putAll(InProcessViewSupportTestData.registerViewParams);
 
         DataStore store = dsFactory.createDataStore(workingParamsWithSqlView);
@@ -237,13 +239,14 @@ public class ArcSDEDataStoreFactoryTest {
             session.dispose();
         }
 
-        Map paramsWithVersion = new HashMap(workingParams);
+        Map<String, Serializable> paramsWithVersion = new HashMap<String, Serializable>(
+                workingParams);
         try {
             paramsWithVersion.put(VERSION_PARAM_NAME, "Non existent version name");
             dsFactory.createDataStore(paramsWithVersion);
         } catch (IOException e) {
-            assertTrue(e.getMessage(), e.getMessage().startsWith(
-                    "Specified ArcSDE version does not exist"));
+            assertTrue(e.getMessage(),
+                    e.getMessage().startsWith("Specified ArcSDE version does not exist"));
         }
     }
 
@@ -258,7 +261,8 @@ public class ArcSDEDataStoreFactoryTest {
             session.dispose();
         }
 
-        Map paramsWithVersion = new HashMap(workingParams);
+        Map<String, Serializable> paramsWithVersion = new HashMap<String, Serializable>(
+                workingParams);
         paramsWithVersion.put(VERSION_PARAM_NAME, versionName);
         DataStore ds = dsFactory.createDataStore(paramsWithVersion);
         assertNotNull(ds);

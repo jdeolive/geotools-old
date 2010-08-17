@@ -275,14 +275,14 @@ public class LargePolygonsPerfTest {
         log("-----------------------------------------------------");
         log("Testing SeQuery with SeShape fetching");
 
-        Map<String, String> props = testData.getConProps();
+        Map<String, Serializable> props = testData.getConProps();
 
-        SeConnection conn = new SeConnection(props.get("server"), Integer.parseInt(props
-                .get("port")), props.get("instance"), props.get("user"), props.get("password"));
+        SeConnection conn = new SeConnection(String.valueOf(props.get("server")),
+                Integer.parseInt(String.valueOf(props.get("port"))), String.valueOf(props
+                        .get("instance")), String.valueOf(props.get("user")), String.valueOf(props
+                        .get("password")));
 
         try {
-            Stopwatch sw = new Stopwatch();
-
             SeQuery query;
             SeQueryInfo queryInfo;
 
@@ -309,14 +309,13 @@ public class LargePolygonsPerfTest {
         log("-----------------------------------------------------");
         log("Testing SeQuery with GeometryFactory fetching");
 
-        Map<String, String> props = testData.getConProps();
-
-        SeConnection conn = new SeConnection(props.get("server"), Integer.parseInt(props
-                .get("port")), props.get("instance"), props.get("user"), props.get("password"));
+        Map<String, Serializable> props = testData.getConProps();
+        SeConnection conn = new SeConnection(String.valueOf(props.get("server")),
+                Integer.parseInt(String.valueOf(props.get("port"))), String.valueOf(props
+                        .get("instance")), String.valueOf(props.get("user")), String.valueOf(props
+                        .get("password")));
 
         try {
-            Stopwatch sw = new Stopwatch();
-
             SeQuery query;
             SeQueryInfo queryInfo;
 
@@ -338,6 +337,7 @@ public class LargePolygonsPerfTest {
         log("-----------------------------------------------------");
     }
 
+    @SuppressWarnings("unused")
     private long iterateWithSeShapeFetching(SeQuery query, SeQueryInfo seQueryInfo)
             throws SeException {
         Stopwatch sw = new Stopwatch();
@@ -376,6 +376,7 @@ public class LargePolygonsPerfTest {
         return sw.getTime();
     }
 
+    @SuppressWarnings("unused")
     private long iterateWithGeometryFactory(SeQuery query, SeQueryInfo seQueryInfo)
             throws SeException {
         Stopwatch sw = new Stopwatch();
@@ -418,6 +419,7 @@ public class LargePolygonsPerfTest {
         return sw.getTime();
     }
 
+    @SuppressWarnings("unused")
     private long iterate(SimpleFeatureSource fs, Query query) throws IOException {
         Stopwatch sw = new Stopwatch();
         SimpleFeatureCollection features;

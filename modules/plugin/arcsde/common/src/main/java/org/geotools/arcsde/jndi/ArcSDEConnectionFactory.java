@@ -26,6 +26,7 @@ import static org.geotools.arcsde.session.ArcSDEConnectionConfig.SERVER_NAME_PAR
 import static org.geotools.arcsde.session.ArcSDEConnectionConfig.USER_NAME_PARAM_NAME;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -122,7 +123,7 @@ public class ArcSDEConnectionFactory implements ObjectFactory {
         return dereferencedObject;
     }
 
-    public ISessionPool getInstance(Map<String, String> properties) throws IOException {
+    public ISessionPool getInstance(Map<String, Serializable> properties) throws IOException {
         ArcSDEConnectionConfig config = ArcSDEConnectionConfig.fromMap(properties);
         return getInstance(config);
     }

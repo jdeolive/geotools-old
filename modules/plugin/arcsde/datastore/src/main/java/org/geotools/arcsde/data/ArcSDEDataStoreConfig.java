@@ -44,7 +44,6 @@ import org.geotools.arcsde.session.ArcSDEConnectionConfig;
  *         /org/geotools/arcsde/pool/ArcSDEConnectionConfig.java $
  * @version $Id$
  */
-@SuppressWarnings("unchecked")
 public class ArcSDEDataStoreConfig {
     /*
      * ArcSDEDataStoreConfige's logger
@@ -99,17 +98,19 @@ public class ArcSDEDataStoreConfig {
     /**
      * Configure arcsde connection information from supplied connection parameters.
      * 
-     * @param params Connection parameters
-     * @throws NullPointerException if at least one mandatory parameter is null
-     * @throws IllegalArgumentException if at least one mandatory parameter is present but does not
-     *         have a "valid" value.
+     * @param params
+     *            Connection parameters
+     * @throws NullPointerException
+     *             if at least one mandatory parameter is null
+     * @throws IllegalArgumentException
+     *             if at least one mandatory parameter is present but does not have a "valid" value.
      */
-    public ArcSDEDataStoreConfig( Map params ) throws IllegalArgumentException {
+    public ArcSDEDataStoreConfig(Map<String, Serializable> params) throws IllegalArgumentException {
         init(params);
     }
 
-    public ArcSDEDataStoreConfig( ArcSDEConnectionConfig sessionConfig, final String namespace,
-            final String versionName, final boolean allowNonSpatialTables ) {
+    public ArcSDEDataStoreConfig(ArcSDEConnectionConfig sessionConfig, final String namespace,
+            final String versionName, final boolean allowNonSpatialTables) {
 
         this.sessionConfig = sessionConfig;
         this.namespaceUri = namespace;
@@ -120,11 +121,15 @@ public class ArcSDEDataStoreConfig {
     /**
      * Extra connection parameters from the provided map.
      * 
-     * @param params Connection parameters
-     * @throws NumberFormatException If port could not be parsed into a number
-     * @throws IllegalArgumentException If any of the parameters are invalid
+     * @param params
+     *            Connection parameters
+     * @throws NumberFormatException
+     *             If port could not be parsed into a number
+     * @throws IllegalArgumentException
+     *             If any of the parameters are invalid
      */
-    private void init( Map params ) throws NumberFormatException, IllegalArgumentException {
+    private void init(Map<String, Serializable> params) throws NumberFormatException,
+            IllegalArgumentException {
         String dbtype = (String) params.get(DBTYPE_PARAM_NAME);
         String server = (String) params.get(SERVER_NAME_PARAM_NAME);
         String port = String.valueOf(params.get(PORT_NUMBER_PARAM_NAME));
@@ -148,13 +153,17 @@ public class ArcSDEDataStoreConfig {
         params.put(ALLOW_NON_SPATIAL_TABLES_PARAM_NAME, isAllowNonSpatialTables());
         return params;
     }
+
     /**
      * Handle optional parameters; most are focused on connection pool use.
      * 
-     * @param params Connection parameters
-     * @throws IllegalArgumentException If any of the optional prameters are invlaid.
+     * @param params
+     *            Connection parameters
+     * @throws IllegalArgumentException
+     *             If any of the optional prameters are invlaid.
      */
-    private void setUpOptionalParams( Map params ) throws IllegalArgumentException {
+    private void setUpOptionalParams(Map<String, Serializable> params)
+            throws IllegalArgumentException {
         String exceptionMsg = "";
         Object ns = params.get(NAMESPACE_PARAM_NAME);
 
@@ -201,11 +210,13 @@ public class ArcSDEDataStoreConfig {
     /**
      * Convert value to an Integer, or use the default value
      * 
-     * @param value Object to convert to int
-     * @param defaultValue Default value if conversion fails
+     * @param value
+     *            Object to convert to int
+     * @param defaultValue
+     *            Default value if conversion fails
      * @return value as an interger, or default value if that is not possible
      */
-    private static final Integer getInt( Object value, int defaultValue ) {
+    private static final Integer getInt(Object value, int defaultValue) {
         if (value == null) {
             return Integer.valueOf(defaultValue);
         }
@@ -219,8 +230,8 @@ public class ArcSDEDataStoreConfig {
         }
     }
 
-    private static Integer checkParams( String dbType, String serverName, String portNumber,
-            String databaseName, String userName, String userPassword )
+    private static Integer checkParams(String dbType, String serverName, String portNumber,
+            String databaseName, String userName, String userPassword)
             throws IllegalArgumentException, NullPointerException {
         // check if dbtype is 'arcsde'
         if (!(DBTYPE_PARAM_VALUE.equals(dbType))) {
@@ -260,14 +271,7 @@ public class ArcSDEDataStoreConfig {
         return port;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param paramName DOCUMENT ME!
-     * @param paramValue DOCUMENT ME!
-     * @throws IllegalArgumentException DOCUMENT ME!
-     */
-    private static void throwIllegal( String paramName, String paramValue )
+    private static void throwIllegal(String paramName, String paramValue)
             throws IllegalArgumentException {
         throw new IllegalArgumentException("'" + paramValue + "'" + ILLEGAL_ARGUMENT_MSG
                 + paramName);
@@ -309,12 +313,9 @@ public class ArcSDEDataStoreConfig {
     /**
      * Checks for equality over another <code>ArcSDEConnectionConfig</code>, taking into account the
      * values of database name, user name, and port number.
-     * 
-     * @param o DOCUMENT ME!
-     * @return DOCUMENT ME!
      */
     @Override
-    public boolean equals( Object o ) {
+    public boolean equals(Object o) {
         if (o == this) {
             return true;
         }

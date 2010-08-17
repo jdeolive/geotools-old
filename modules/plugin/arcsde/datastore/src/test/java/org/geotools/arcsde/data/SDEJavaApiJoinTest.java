@@ -25,9 +25,7 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Logger;
 
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.SelectBody;
@@ -39,6 +37,7 @@ import org.geotools.arcsde.session.UnavailableConnectionException;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
 import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.filter.text.cql2.CQL;
 import org.junit.AfterClass;
@@ -145,9 +144,6 @@ import com.vividsolutions.jts.geom.Point;
  *         /geotools/arcsde/data/SDEJavaApiJoinTest.java $
  */
 public class SDEJavaApiJoinTest {
-    /** package logger */
-    private static Logger LOGGER = org.geotools.util.logging.Logging
-            .getLogger(SDEJavaApiJoinTest.class.getPackage().getName());
 
     /** Helper class that provides config loading and test data for unit tests */
     private static TestData testData;
@@ -287,7 +283,7 @@ public class SDEJavaApiJoinTest {
         SelectBody select = ViewRegisteringFactoryHelper.parseSqlQuery(plainSQL);
         store.registerView(InProcessViewSupportTestData.typeName, (PlainSelect) select);
 
-        List publishedTypeNames = Arrays.asList(store.getTypeNames());
+        List<String> publishedTypeNames = Arrays.asList(store.getTypeNames());
         assertTrue(publishedTypeNames.contains(InProcessViewSupportTestData.typeName));
     }
 
@@ -309,7 +305,7 @@ public class SDEJavaApiJoinTest {
         assertEquals(InProcessViewSupportTestData.typeName, type.getTypeName());
 
         assertEquals(4, type.getAttributeCount());
-        List atts = type.getAttributeDescriptors();
+        List<AttributeDescriptor> atts = type.getAttributeDescriptors();
         assertEquals(4, atts.size());
         AttributeDescriptor att1 = (AttributeDescriptor) atts.get(0);
         AttributeDescriptor att2 = (AttributeDescriptor) atts.get(1);
@@ -409,13 +405,16 @@ public class SDEJavaApiJoinTest {
         int fcCount = fc.size();
         int itCount = 0;
         final int expectedCount = 7;
-        Iterator it = fc.iterator();
-        while (it.hasNext()) {
-            SimpleFeature f = (SimpleFeature) it.next();
-            assertNotNull(f);
-            itCount++;
+        SimpleFeatureIterator it = fc.features();
+        try {
+            while (it.hasNext()) {
+                SimpleFeature f = (SimpleFeature) it.next();
+                assertNotNull(f);
+                itCount++;
+            }
+        } finally {
+            it.close();
         }
-        fc.close(it);
         assertEquals(expectedCount, fcCount);
         assertEquals(expectedCount, itCount);
     }
@@ -435,15 +434,15 @@ public class SDEJavaApiJoinTest {
         int fcCount = fc.size();
         int itCount = 0;
         final int expectedCount = 3;
-        Iterator<SimpleFeature> it = fc.iterator();
+        SimpleFeatureIterator it = fc.features();
         try {
             while (it.hasNext()) {
-                SimpleFeature f = (SimpleFeature) it.next();
+                SimpleFeature f = it.next();
                 assertNotNull(f);
                 itCount++;
             }
         } finally {
-            fc.close(it);
+            it.close();
         }
         assertEquals(expectedCount, fcCount);
         assertEquals(expectedCount, itCount);
@@ -483,14 +482,14 @@ public class SDEJavaApiJoinTest {
         final Integer[] expectedChildIds = { new Integer(7), new Integer(6), new Integer(5),
                 new Integer(4), new Integer(3), new Integer(2), new Integer(1) };
 
-        final int[] expectedShapeIndicators = { SeRow.SE_IS_NOT_NULL_VALUE, // child7
-                SeRow.SE_IS_REPEATED_FEATURE, // child6
-                SeRow.SE_IS_REPEATED_FEATURE, // child5
-                SeRow.SE_IS_REPEATED_FEATURE, // child4
-                SeRow.SE_IS_NOT_NULL_VALUE, // child3
-                SeRow.SE_IS_REPEATED_FEATURE, // child2
-                SeRow.SE_IS_NOT_NULL_VALUE // child1
-        };
+        // final int[] expectedShapeIndicators = { SeRow.SE_IS_NOT_NULL_VALUE, // child7
+        // SeRow.SE_IS_REPEATED_FEATURE, // child6
+        // SeRow.SE_IS_REPEATED_FEATURE, // child5
+        // SeRow.SE_IS_REPEATED_FEATURE, // child4
+        // SeRow.SE_IS_NOT_NULL_VALUE, // child3
+        // SeRow.SE_IS_REPEATED_FEATURE, // child2
+        // SeRow.SE_IS_NOT_NULL_VALUE // child1
+        // };
 
         final SeQuery query = session.issue(new Command<SeQuery>() {
 

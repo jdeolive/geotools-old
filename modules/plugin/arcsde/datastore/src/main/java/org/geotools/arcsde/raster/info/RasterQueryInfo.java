@@ -19,10 +19,8 @@ package org.geotools.arcsde.raster.info;
 
 import java.awt.Rectangle;
 import java.awt.image.RenderedImage;
-import java.util.logging.Logger;
 
 import org.geotools.geometry.GeneralEnvelope;
-import org.geotools.util.logging.Logging;
 
 /**
  * Captures information about a query for a single raster in a raster dataset.
@@ -34,8 +32,6 @@ import org.geotools.util.logging.Logging;
  * @see RasterUtils#fitRequestToRaster
  */
 public final class RasterQueryInfo {
-
-    private static final Logger LOGGER = Logging.getLogger("org.geotools.arcsde.gce");
 
     private GeneralEnvelope requestedEnvelope;
 
@@ -170,12 +166,12 @@ public final class RasterQueryInfo {
 
     public void setResultImage(RenderedImage rasterImage) {
         this.resultImage = rasterImage;
-//        if (rasterImage.getWidth() != tiledImageSize.width
-//                || rasterImage.getHeight() != tiledImageSize.height) {
-//            LOGGER.warning("Result image and expected dimensions don't match: image="
-//                    + resultImage.getWidth() + "x" + resultImage.getHeight() + ", expected="
-//                    + tiledImageSize.width + "x" + tiledImageSize.height);
-//        }
+        // if (rasterImage.getWidth() != tiledImageSize.width
+        // || rasterImage.getHeight() != tiledImageSize.height) {
+        // LOGGER.warning("Result image and expected dimensions don't match: image="
+        // + resultImage.getWidth() + "x" + resultImage.getHeight() + ", expected="
+        // + tiledImageSize.width + "x" + tiledImageSize.height);
+        // }
     }
 
     public RenderedImage getResultImage() {

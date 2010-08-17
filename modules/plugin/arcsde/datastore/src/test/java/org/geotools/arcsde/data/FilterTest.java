@@ -27,7 +27,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.NoSuchElementException;
 
 import org.geotools.data.DataStore;
@@ -36,7 +35,6 @@ import org.geotools.data.FilteringFeatureReader;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.feature.IllegalAttributeException;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -44,6 +42,7 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.opengis.feature.Feature;
+import org.opengis.feature.IllegalAttributeException;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.FeatureType;
@@ -116,7 +115,8 @@ public class FilterTest {
     }
 
     private static void collectResults(FeatureReader<SimpleFeatureType, SimpleFeature> fr,
-            Collection c) throws NoSuchElementException, IOException, IllegalAttributeException {
+            Collection<SimpleFeature> c) throws NoSuchElementException, IOException,
+            IllegalAttributeException {
         while (fr.hasNext()) {
             c.add(fr.next());
         }
@@ -143,8 +143,8 @@ public class FilterTest {
         int n = c1.size();
 
         for (int i = 0; i < n; i++) {
-            Feature f1 = (Feature) al1.get(i);
-            Feature f2 = (Feature) al2.get(i);
+            Feature f1 = al1.get(i);
+            Feature f2 = al2.get(i);
             if (i == 0) {
                 assertEquals("Feature Type", f1.getType(), f2.getType());
             }
@@ -173,48 +173,6 @@ public class FilterTest {
                 }
             }
         }
-    }
-
-    /**
-     * Are the two collections similar?
-     * 
-     * @param c1
-     *            Collection first
-     * @param c2
-     *            Collection second
-     * @return true if they have the same content
-     */
-    private boolean compareFeatureLists2(Collection<SimpleFeature> c1, Collection<SimpleFeature> c2) {
-        System.err.println("Collection 1 size: " + c1.size());
-        System.err.println("Collection 2 size: " + c2.size());
-
-        if (c1.size() != c2.size()) {
-            System.err.println("Returned feature collections have different sizes.");
-
-            return false;
-        }
-
-        ArrayList<SimpleFeature> al1 = new ArrayList<SimpleFeature>(c1);
-        ArrayList<SimpleFeature> al2 = new ArrayList<SimpleFeature>(c2);
-        Collections.sort(al1, FEATURE_COMPARATOR);
-        Collections.sort(al2, FEATURE_COMPARATOR);
-
-        int n = c1.size();
-
-        for (int i = 0; i < n; i++) {
-            Feature f1 = (Feature) al1.get(i);
-            Feature f2 = (Feature) al2.get(i);
-
-            if (!f1.equals(f2)) {
-                System.err.println("Mismatch at sorted record " + i + ":");
-                System.err.println(f1);
-                System.err.println(f2);
-
-                return false;
-            }
-        }
-
-        return true;
     }
 
     private static LineString buildSegment(double x1, double y1, double x2, double y2) {
@@ -353,7 +311,6 @@ public class FilterTest {
         FeatureType ft = this.dataStore.getSchema(testData.getTempTableName());
 
         // Get a geometry for equality comparison
-        HashSet fidSet = new HashSet();
         Query Query = new Query(testData.getTempTableName());
         Query.setPropertyNames(safePropertyNames(ft));
         Query.setMaxFeatures(1);
@@ -387,7 +344,7 @@ public class FilterTest {
                 allQuery, Transaction.AUTO_COMMIT);
         FilteringFeatureReader<SimpleFeatureType, SimpleFeature> ffr = new FilteringFeatureReader<SimpleFeatureType, SimpleFeature>(
                 fr, filter);
-        ArrayList slowResults = new ArrayList();
+        ArrayList<SimpleFeature> slowResults = new ArrayList<SimpleFeature>();
         collectResults(ffr, slowResults);
         ffr.close();
 
@@ -401,7 +358,7 @@ public class FilterTest {
         Query filteringQuery = new Query(testData.getTempTableName(), filter, safePropertyNames(ft));
         fr = this.dataStore.getFeatureReader(filteringQuery, Transaction.AUTO_COMMIT);
 
-        ArrayList fastResults = new ArrayList();
+        ArrayList<SimpleFeature> fastResults = new ArrayList<SimpleFeature>();
         collectResults(fr, fastResults);
         fr.close();
         endTime = System.currentTimeMillis();

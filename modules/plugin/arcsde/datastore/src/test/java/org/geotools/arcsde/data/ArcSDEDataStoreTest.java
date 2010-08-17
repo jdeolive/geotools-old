@@ -46,18 +46,13 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.filter.FilterFactory;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.esri.sde.sdk.client.SeException;
-import com.esri.sde.sdk.pe.PeFactory;
-import com.esri.sde.sdk.pe.PeProjectedCS;
-import com.esri.sde.sdk.pe.PeProjectionException;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.Point;
 
@@ -75,7 +70,6 @@ public class ArcSDEDataStoreTest {
     private static Logger LOGGER = org.geotools.util.logging.Logging
             .getLogger(ArcSDEDataStoreTest.class.getPackage().getName());
 
-    /** DOCUMENT ME! */
     private static TestData testData;
 
     /** an ArcSDEDataStore created on setUp() to run tests against */
@@ -102,9 +96,6 @@ public class ArcSDEDataStoreTest {
     /**
      * loads {@code testData/testparams.properties} into a Properties object, wich is used to obtain
      * test tables names and is used as parameter to find the DataStore
-     * 
-     * @throws Exception
-     *             DOCUMENT ME!
      */
     @Before
     public void setUp() throws Exception {
@@ -163,59 +154,6 @@ public class ArcSDEDataStoreTest {
         assertNotNull(info.getSchema());
     }
 
-    /**
-     * This test is currently broken. It's a placeholder for some logic that sfarber wrote which
-     * tries to guess the SRS of a featureclass, based on connecting to it via an SeLayer.
-     * 
-     * @throws Throwable
-     */
-    @Test
-    @Ignore
-    public void testAutoFillSRS() throws Throwable {
-
-        ArcSDEDataStore ds = testData.getDataStore();
-        CoordinateReferenceSystem sdeCRS = ds.getSchema("GISDATA.TOWNS_POLY")
-                .getGeometryDescriptor().getCoordinateReferenceSystem();
-
-        LOGGER.info(sdeCRS.toWKT().replaceAll(" ", "").replaceAll("\n", "")
-                .replaceAll("\"", "\\\""));
-
-        // CoordinateReferenceSystem epsgCRS = CRS.decode("EPSG:26986");
-
-        // LOGGER.info("are these two CRS's equal? " +
-        // CRS.equalsIgnoreMetadata(sdeCRS, epsgCRS));
-
-        if (1 == 1)
-            return;
-
-        int epsgCode = -1;
-        int[] projcs = PeFactory.projcsCodelist();
-        LOGGER.info(projcs.length + " projections available.");
-        for (int i = 0; i < projcs.length; i++) {
-            try {
-                PeProjectedCS candidate = PeFactory.projcs(projcs[i]);
-                // in ArcSDE 9.2, if the PeFactory doesn't support a projection
-                // it claimed
-                // to support, it returns 'null'. So check for it.
-                if (candidate != null && candidate.getName().indexOf("Massachusetts") != -1) {
-                    // LOGGER.info("\n\n" + projcs[i] + " has name " +
-                    // candidate.getName() + "\ntried to match " + wktName +
-                    // "\n\n");
-                    epsgCode = projcs[i];
-                } else if (candidate == null) {
-                    // LOGGER.info(projcs[i] + " was null");
-                } else if (candidate != null) {
-                    // LOGGER.info(projcs[i] + " wasn't null");
-                }
-            } catch (PeProjectionException pe) {
-                // Strangely SDE includes codes in the projcsCodeList() that
-                // it doesn't actually support.
-                // Catch the exception and skip them here.
-            }
-        }
-
-    }
-
     @Test
     public void testDispose() throws IOException {
         store.dispose();
@@ -255,10 +193,6 @@ public class ArcSDEDataStoreTest {
 
     /**
      * tests that the schema for the defined tests tables are returned.
-     * 
-     * @throws IOException
-     *             DOCUMENT ME!
-     * @throws SeException
      */
     @Test
     public void testGetSchema() throws IOException, SeException {
@@ -318,14 +252,13 @@ public class ArcSDEDataStoreTest {
         DataStore ds = testData.getDataStore();
         testData.deleteTable(typeName);
 
-        Map hints = new HashMap();
+        Map<String, String> hints = new HashMap<String, String>();
         hints.put("configuration.keyword", testData.getConfigKeyword());
         ((ArcSDEDataStore) ds).createSchema(type, hints);
 
         testData.deleteTable(typeName);
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void testCreateNillableShapeSchema() throws IOException, SchemaException, SeException,
             UnavailableConnectionException {
@@ -344,7 +277,7 @@ public class ArcSDEDataStoreTest {
         ArcSDEDataStore ds = testData.getDataStore();
 
         testData.deleteTable(typeName);
-        Map hints = new HashMap();
+        Map<String, String> hints = new HashMap<String, String>();
         hints.put("configuration.keyword", testData.getConfigKeyword());
         ds.createSchema(type, hints);
         testData.deleteTable(typeName);
@@ -356,11 +289,6 @@ public class ArcSDEDataStoreTest {
      * checks for the existence of <code>table</code> in <code>featureTypes</code>.
      * <code>table</code> must be a full qualified sde feature type name. (i.e "TEST_POINT" ==
      * "SDE.SDE.TEST_POINT")
-     * 
-     * @param featureTypes
-     *            DOCUMENT ME!
-     * @param table
-     *            DOCUMENT ME!
      */
     private void testTypeExists(String[] featureTypes, String table) {
         for (int i = 0; i < featureTypes.length; i++) {

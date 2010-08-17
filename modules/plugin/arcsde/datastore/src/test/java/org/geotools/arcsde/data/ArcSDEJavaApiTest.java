@@ -108,9 +108,6 @@ public class ArcSDEJavaApiTest {
     /**
      * loads {@code test-data/testparams.properties} into a Properties object, wich is used to
      * obtain test tables names and is used as parameter to find the DataStore
-     * 
-     * @throws Exception
-     *             DOCUMENT ME!
      */
     @Before
     public void setUp() throws Exception {
@@ -123,12 +120,6 @@ public class ArcSDEJavaApiTest {
         this.session = this.pool.getSession();
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @throws Exception
-     *             DOCUMENT ME!
-     */
     @After
     public void tearDown() throws Exception {
         if (session != null) {
@@ -171,12 +162,6 @@ public class ArcSDEJavaApiTest {
         }
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @throws Exception
-     *             DOCUMENT ME!
-     */
     @Test
     public void testGetBoundsWhileFetchingRows() throws Exception {
         final String typeName = testData.getTempTableName();
@@ -288,12 +273,6 @@ public class ArcSDEJavaApiTest {
         return count.intValue();
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @throws Exception
-     *             DOCUMENT ME!
-     */
     @Test
     public void testCalculateCount() throws Exception {
         try {
@@ -775,14 +754,8 @@ public class ArcSDEJavaApiTest {
      * This code is directly taken from the createBaseTable mehtod of the arcsdeonline
      * "Working with layers" example, to verify that it works prior to blame the gt implementation.
      * </p>
-     * 
-     * @throws SeException
-     *             DOCUMENT ME!
-     * @throws IOException
-     *             DOCUMENT ME!
-     * @throws UnavailableConnectionException
-     *             DOCUMENT ME!
      */
+    @SuppressWarnings("deprecation")
     @Test
     public void testCreateBaseTable() throws SeException, IOException,
             UnavailableConnectionException {
@@ -895,18 +868,13 @@ public class ArcSDEJavaApiTest {
      * "Working with layers" example, to verify that it works prior to blame the gt implementation.
      * </p>
      * 
-     * @throws SeException
-     *             DOCUMENT ME!
-     * @throws IOException
-     *             DOCUMENT ME!
-     * @throws UnavailableConnectionException
-     *             DOCUMENT ME!
      */
     @Test
     public void testCreateNonStandardSchema() throws SeException, IOException,
             UnavailableConnectionException {
 
         Command<Void> createCommand = new Command<Void>() {
+            @SuppressWarnings("deprecation")
             @Override
             public Void execute(ISession session, SeConnection connection) throws SeException,
                     IOException {

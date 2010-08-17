@@ -37,13 +37,15 @@ import org.geotools.data.DataSourceException;
 import org.geotools.data.FeatureListenerManager;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureWriter;
-import org.geotools.data.jdbc.MutableFIDFeature;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
+import org.geotools.feature.simple.SimpleFeatureImpl;
+import org.geotools.filter.identity.FeatureIdImpl;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.util.Converters;
 import org.geotools.util.logging.Logging;
 import org.hsqldb.Session;
+import org.opengis.feature.IllegalAttributeException;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -237,7 +239,7 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
         } else {
             final String newFid = newFid();
             final SimpleFeature newFeature = featureBuilder.buildFeature(newFid);
-            final List properties = (List) newFeature.getAttributes();
+            final List<Object> properties = newFeature.getAttributes();
             feature = new MutableFIDFeature(properties, featureType, newFid);
         }
         return feature;
@@ -868,5 +870,43 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
 
     public ISession getSession() {
         return session;
+    }
+
+    private static class MutableFIDFeature extends SimpleFeatureImpl {
+
+        public MutableFIDFeature(List<Object> values, SimpleFeatureType ft, String fid)
+                throws IllegalAttributeException {
+            super(values, ft, createDefaultFID(fid));
+        }
+
+        private static FeatureIdImpl createDefaultFID(String id) {
+            if (id == null) {
+                id = SimpleFeatureBuilder.createDefaultFeatureId();
+            }
+            return new FeatureIdImpl(id) {
+                public void setID(String id) {
+                    if (fid == null) {
+                        throw new NullPointerException("fid must not be null");
+                    }
+                    if (origionalFid == null) {
+                        origionalFid = fid;
+                    }
+                    fid = id;
+                }
+            };
+        }
+
+        /**
+         * Sets the FID, used by datastores only.
+         * 
+         * I would love to protect this for safety reason, i.e. so client classes can't use it by
+         * casting to it.
+         * 
+         * @param id
+         *            The fid to set.
+         */
+        public void setID(String fid) {
+            ((FeatureIdImpl) id).setID(fid);
+        }
     }
 }

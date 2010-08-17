@@ -115,6 +115,7 @@ final class ArcSDEAttributeReader implements AttributeReader {
      *            close it only if it does not have a transaction in progress.
      * @throws IOException
      */
+    @SuppressWarnings("unchecked")
     public ArcSDEAttributeReader(final ArcSDEQuery query, final GeometryFactory geometryFactory,
             final ISession session) throws IOException {
         this.query = query;
@@ -213,9 +214,6 @@ final class ArcSDEAttributeReader implements AttributeReader {
      * Retrieves the next row, or throws a DataSourceException if not more rows are available.
      * 
      * @throws IOException
-     *             DOCUMENT ME!
-     * @throws DataSourceException
-     *             DOCUMENT ME!
      */
     public void next() throws IOException {
         if (this.currentRow == null) {
@@ -226,11 +224,9 @@ final class ArcSDEAttributeReader implements AttributeReader {
     }
 
     /**
-     * DOCUMENT ME!
      * 
      * @param index
-     *            DOCUMENT ME!
-     * @return DOCUMENT ME!
+     * @return
      * @throws IOException
      *             never, since the feature retrieve was done in <code>hasNext()</code>
      * @throws ArrayIndexOutOfBoundsException

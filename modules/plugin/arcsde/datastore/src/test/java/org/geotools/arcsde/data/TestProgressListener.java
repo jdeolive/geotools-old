@@ -51,6 +51,7 @@ public class TestProgressListener implements ProgressListener {
 
     private boolean started;
 
+    @SuppressWarnings("unused")
     private String[] warning;
 
     public void reset() {

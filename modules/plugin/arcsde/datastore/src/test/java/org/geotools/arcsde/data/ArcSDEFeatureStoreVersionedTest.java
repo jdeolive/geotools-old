@@ -21,8 +21,8 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.Serializable;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import org.geotools.arcsde.ArcSdeException;
 import org.geotools.arcsde.session.ISession;
@@ -36,14 +36,12 @@ import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
-import org.geotools.util.logging.Logging;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
-import com.esri.sde.sdk.client.SeDBMSInfo;
 import com.esri.sde.sdk.client.SeException;
 import com.esri.sde.sdk.client.SeTable;
 import com.vividsolutions.jts.geom.Point;
@@ -59,8 +57,6 @@ import com.vividsolutions.jts.io.WKTReader;
  * @version $Id$
  */
 public class ArcSDEFeatureStoreVersionedTest {
-    /** package logger */
-    private static Logger LOGGER = Logging.getLogger(" org.geotools.arcsde.data");
 
     private TestData testData;
 
@@ -70,23 +66,8 @@ public class ArcSDEFeatureStoreVersionedTest {
     private String tableName;
 
     /**
-     * Flag that indicates whether the underlying database is MS SQL Server.
-     * <p>
-     * This is used to decide what's the expected result count in some transaction tests, and its
-     * value is obtained from an {@link SeDBMSInfo} object. Hacky as it seems it is. The problem is
-     * that ArcSDE for SQL Server _explicitly_ sets the transaction isolation level to READ
-     * UNCOMMITTED for all and every transaction, while for other databases it uses READ COMMITTED.
-     * And no, ESRI documentation says there's no way to change nor workaround this behaviour.
-     * </p>
-     */
-    private static boolean databaseIsMsSqlServer;
-
-    /**
      * loads {@code test-data/testparams.properties} into a Properties object, wich is used to
      * obtain test tables names and is used as parameter to find the DataStore
-     * 
-     * @throws Exception
-     *             DOCUMENT ME!
      */
     @Before
     public void setUp() throws Exception {
@@ -97,15 +78,6 @@ public class ArcSDEFeatureStoreVersionedTest {
             try {
                 SeTable versionedTable = testData.createVersionedTable(session);
                 tableName = versionedTable.getQualifiedName();
-            } finally {
-                session.dispose();
-            }
-        }
-        {
-            ISession session = testData.getConnectionPool().getSession();
-            try {
-                SeDBMSInfo dbInfo = session.getDBMSInfo();
-                databaseIsMsSqlServer = dbInfo.dbmsId == SeDBMSInfo.SE_DBMS_IS_SQLSERVER;
             } finally {
                 session.dispose();
             }
@@ -123,8 +95,7 @@ public class ArcSDEFeatureStoreVersionedTest {
         final SimpleFeatureSource source;
         final SimpleFeatureStore store;
         source = dataStore.getFeatureSource(tableName);
-        store = (SimpleFeatureStore) dataStore
-                .getFeatureSource(tableName);
+        store = (SimpleFeatureStore) dataStore.getFeatureSource(tableName);
 
         ArcSdeResourceInfo info = (ArcSdeResourceInfo) store.getInfo();
         assertTrue(info.isVersioned());
@@ -183,8 +154,7 @@ public class ArcSDEFeatureStoreVersionedTest {
             final SimpleFeatureStore store;
 
             source = dataStore.getFeatureSource(tableName);
-            store = (SimpleFeatureStore) dataStore
-                    .getFeatureSource(tableName);
+            store = (SimpleFeatureStore) dataStore.getFeatureSource(tableName);
 
             Transaction transaction = new DefaultTransaction();
             store.setTransaction(transaction);
@@ -267,7 +237,7 @@ public class ArcSDEFeatureStoreVersionedTest {
 
     @Test
     public void testEditVersionedTableTransactionConcurrently() throws Exception {
-        Map<String, String> conProps = testData.getConProps();
+        Map<String, Serializable> conProps = testData.getConProps();
 
         final ArcSDEDataStore dataStore1 = (ArcSDEDataStore) DataStoreFinder.getDataStore(conProps);
         final ArcSDEDataStore dataStore2 = (ArcSDEDataStore) DataStoreFinder.getDataStore(conProps);
@@ -276,11 +246,9 @@ public class ArcSDEFeatureStoreVersionedTest {
 
         final SimpleFeatureStore store1, store2;
 
-        store1 = (SimpleFeatureStore) dataStore1
-                .getFeatureSource(tableName);
+        store1 = (SimpleFeatureStore) dataStore1.getFeatureSource(tableName);
 
-        store2 = (SimpleFeatureStore) dataStore2
-                .getFeatureSource(tableName);
+        store2 = (SimpleFeatureStore) dataStore2.getFeatureSource(tableName);
 
         Transaction transaction1 = new DefaultTransaction();
         store1.setTransaction(transaction1);

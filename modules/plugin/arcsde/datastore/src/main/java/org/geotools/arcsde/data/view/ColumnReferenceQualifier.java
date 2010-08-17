@@ -38,35 +38,24 @@ import org.geotools.arcsde.session.ISession;
  * @since 2.3.x
  */
 public class ColumnReferenceQualifier implements ColumnReferenceVisitor {
-    /** DOCUMENT ME! */
     private ColumnReference qualifiedReference;
 
-    /** DOCUMENT ME! */
     private ISession session;
 
-    private Map tableAliases;
+    private Map<String, Object> tableAliases;
 
     /**
      * Creates a new ColumnReferenceQualifier object.
      * 
      * @param session
-     *            DOCUMENT ME!
      */
-    private ColumnReferenceQualifier(ISession session, Map tableAliases) {
+    private ColumnReferenceQualifier(ISession session, Map<String, Object> tableAliases) {
         this.session = session;
         this.tableAliases = tableAliases;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param session
-     *            DOCUMENT ME!
-     * @param colRef
-     *            DOCUMENT ME!
-     * @return DOCUMENT ME!
-     */
-    public static ColumnReference qualify(ISession session, Map tableAliases, ColumnReference colRef) {
+    public static ColumnReference qualify(ISession session, Map<String, Object> tableAliases,
+            ColumnReference colRef) {
         if (colRef == null) {
             return null;
         }
@@ -77,22 +66,10 @@ public class ColumnReferenceQualifier implements ColumnReferenceVisitor {
         return qualifier.qualifiedReference;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param columnIndex
-     *            DOCUMENT ME!
-     */
     public void visit(ColumnIndex columnIndex) {
         qualifiedReference = columnIndex;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param column
-     *            DOCUMENT ME!
-     */
     public void visit(Column column) {
         this.qualifiedReference = ColumnQualifier.qualify(session, tableAliases, column);
     }

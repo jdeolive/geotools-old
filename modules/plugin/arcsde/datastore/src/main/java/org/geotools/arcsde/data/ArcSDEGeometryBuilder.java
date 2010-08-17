@@ -548,8 +548,8 @@ public abstract class ArcSDEGeometryBuilder {
                 final GeometryFactory geometryFactory) throws DataSourceException {
             LineString ls = null;
 
-            CoordinateSequence coords = toCoords(linearCoords, geometryFactory
-                    .getCoordinateSequenceFactory());
+            CoordinateSequence coords = toCoords(linearCoords,
+                    geometryFactory.getCoordinateSequenceFactory());
 
             ls = geometryFactory.createLineString(coords);
 
@@ -710,36 +710,6 @@ public abstract class ArcSDEGeometryBuilder {
 
                     holes[i] = geometryFactory.createLinearRing(toCoords(linearCoordArray,
                             coordinateSequenceFactory));
-                }
-            }
-
-            p = geometryFactory.createPolygon(shell, holes);
-
-            return p;
-        }
-
-        @Deprecated
-        protected Polygon buildPolygon(final double[][][] parts,
-                final GeometryFactory geometryFactory) {
-            Polygon p = null;
-
-            double[] linearCoordArray = parts[0][0];
-
-            int nHoles = parts.length - 1;
-
-            CoordinateSequenceFactory sequenceFactory = geometryFactory
-                    .getCoordinateSequenceFactory();
-            LinearRing shell = geometryFactory.createLinearRing(toCoords(linearCoordArray,
-                    sequenceFactory));
-
-            LinearRing[] holes = new LinearRing[nHoles];
-
-            if (nHoles > 0) {
-                for (int i = 0; i < nHoles; i++) {
-                    linearCoordArray = parts[i + 1][0];
-
-                    holes[i] = geometryFactory.createLinearRing(toCoords(linearCoordArray,
-                            sequenceFactory));
                 }
             }
 

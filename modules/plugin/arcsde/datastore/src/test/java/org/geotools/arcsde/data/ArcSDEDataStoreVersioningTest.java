@@ -20,6 +20,7 @@ package org.geotools.arcsde.data;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -105,7 +106,7 @@ public class ArcSDEDataStoreVersioningTest {
             session.dispose();
         }
 
-        Map<String, String> params = new HashMap<String, String>(testData.getConProps());
+        Map<String, Serializable> params = new HashMap<String, Serializable>(testData.getConProps());
         ArcSDEDataStoreFactory factory = new ArcSDEDataStoreFactory();
         defaultVersionDataStore = factory.createDataStore(params);
 

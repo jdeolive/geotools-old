@@ -80,6 +80,7 @@ import com.vividsolutions.jts.geom.Envelope;
  *         /org/geotools/arcsde/data/ArcSDEQuery.java $
  * @version $Id$
  */
+@SuppressWarnings("deprecation")
 class ArcSDEQuery {
     /** Shared package's logger */
     private static final Logger LOGGER = Logging.getLogger(ArcSDEQuery.class.getName());
@@ -129,12 +130,10 @@ class ArcSDEQuery {
      * @param schema
      *            the schema with all the attributes as expected.
      * @param filterSet
-     *            DOCUMENT ME!
      * @param versioningHandler
      *            used to transparently set up SeQuery streams pointing to the propper version edit
      *            state when appropriate
      * @throws DataSourceException
-     *             DOCUMENT ME!
      * @see prepareQuery
      */
     private ArcSDEQuery(final ISession session, final SimpleFeatureType schema,
@@ -329,7 +328,6 @@ class ArcSDEQuery {
     /**
      * Returns the FID strategy used
      * 
-     * @return DOCUMENT ME!
      */
     public FIDReader getFidReader() {
         return this.fidReader;
@@ -365,12 +363,10 @@ class ArcSDEQuery {
      * 
      * @param propertyNames
      *            names of attributes to build the query for, respecting order
-     * @return DOCUMENT ME!
      * @throws SeException
      *             if the ArcSDE Java API throws it while creating the SeQuery or setting it the
      *             spatial constraints.
      * @throws IOException
-     *             DOCUMENT ME!
      */
     private SeQuery createSeQueryForFetch(String[] propertyNames) throws SeException, IOException {
         if (LOGGER.isLoggable(Level.FINEST)) {
@@ -485,11 +481,6 @@ class ArcSDEQuery {
         return this.schema;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @return DOCUMENT ME!
-     */
     public ArcSDEQuery.FilterSet getFilters() {
         return this.filters;
     }
@@ -742,9 +733,6 @@ class ArcSDEQuery {
      * Tells the server to execute a stream operation.
      * 
      * @throws IOException
-     *             DOCUMENT ME!
-     * @throws DataSourceException
-     *             DOCUMENT ME!
      */
     public void execute() throws IOException {
         final SeQuery seQuery = getSeQuery();
@@ -763,7 +751,6 @@ class ArcSDEQuery {
     /**
      * Fetches an SeRow of data.
      * 
-     * @return DOCUMENT ME!
      * @throws IOException
      *             (DataSourceException) if the fetching fails
      * @throws IllegalStateException
@@ -820,9 +807,6 @@ class ArcSDEQuery {
      * @param filters
      *            a set of spatial constraints to filter upon
      * @throws IOException
-     *             DOCUMENT ME!
-     * @throws DataSourceException
-     *             DOCUMENT ME!
      */
     public void setSpatialConstraints(SeFilter[] filters) throws IOException {
         try {
@@ -832,18 +816,14 @@ class ArcSDEQuery {
         }
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @return DOCUMENT ME!
-     */
     @Override
     public String toString() {
         return "Schema: " + this.schema.getTypeName() + ", query: " + this.query;
     }
 
     /**
-     * DOCUMENT ME!
+     * Helper class to split out the geotools request filter into the supported non spatial one,
+     * supported spatial one and unsupported filters.
      * 
      * @author $author$
      * 
@@ -892,9 +872,7 @@ class ArcSDEQuery {
          * Creates a new FilterSet object.
          * 
          * @param sdeLayer
-         *            DOCUMENT ME!
          * @param sourceFilter
-         *            DOCUMENT ME!
          */
         public FilterSet(SeTable table, SeLayer sdeLayer, Filter sourceFilter,
                 SimpleFeatureType ft, SeQueryInfo definitionQuery,
@@ -1028,7 +1006,6 @@ class ArcSDEQuery {
         }
 
         /**
-         * DOCUMENT ME!
          * 
          * @return the SeSqlConstruct corresponding to the given SeLayer and SQL based filter.
          *         Should never return null.
@@ -1069,7 +1046,6 @@ class ArcSDEQuery {
          * 
          * @return an array with the spatial filters to be applied to the SeQuery, or null if none.
          * @throws DataSourceException
-         *             DOCUMENT ME!
          */
         public SeFilter[] getSpatialFilters() throws DataSourceException {
             if (this.sdeSpatialFilters == null) {
@@ -1090,7 +1066,6 @@ class ArcSDEQuery {
         }
 
         /**
-         * DOCUMENT ME!
          * 
          * @return the subset, non geometry related, of the original filter this datastore
          *         implementation supports natively, or <code>Filter.INCLUDE</code> if the original
@@ -1102,7 +1077,6 @@ class ArcSDEQuery {
         }
 
         /**
-         * DOCUMENT ME!
          * 
          * @return the geometry related subset of the original filter this datastore implementation
          *         supports natively, or <code>Filter.INCLUDE</code> if the original Query does not
@@ -1113,7 +1087,6 @@ class ArcSDEQuery {
         }
 
         /**
-         * DOCUMENT ME!
          * 
          * @return the part of the original filter this datastore implementation does not supports
          *         natively, or <code>Filter.INCLUDE</code> if we support the whole Query filter.

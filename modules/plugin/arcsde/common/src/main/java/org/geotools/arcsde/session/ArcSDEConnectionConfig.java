@@ -191,13 +191,13 @@ public class ArcSDEConnectionConfig {
         return o == null ? 1 : String.valueOf(o).hashCode();
     }
 
-    public static ArcSDEConnectionConfig fromMap(final Map<String, String> map) {
+    public static ArcSDEConnectionConfig fromMap(final Map<String, Serializable> map) {
         ArcSDEConnectionConfig config = new ArcSDEConnectionConfig();
-        config.setDatabaseName(map.get(INSTANCE_NAME_PARAM_NAME));
-        config.setPassword(map.get(PASSWORD_PARAM_NAME));
-        config.setPortNumber(Integer.valueOf(map.get(PORT_NUMBER_PARAM_NAME)));
-        config.setServerName(map.get(SERVER_NAME_PARAM_NAME));
-        config.setUserName(map.get(USER_NAME_PARAM_NAME));
+        config.setDatabaseName(String.valueOf(map.get(INSTANCE_NAME_PARAM_NAME)));
+        config.setPassword(String.valueOf(map.get(PASSWORD_PARAM_NAME)));
+        config.setPortNumber(Integer.valueOf(String.valueOf(map.get(PORT_NUMBER_PARAM_NAME))));
+        config.setServerName(String.valueOf(map.get(SERVER_NAME_PARAM_NAME)));
+        config.setUserName(String.valueOf(map.get(USER_NAME_PARAM_NAME)));
 
         config.setConnTimeOut(Integer.valueOf(String.valueOf(map.get(CONNECTION_TIMEOUT_PARAM_NAME))));
         config.setMaxConnections(Integer.valueOf(String.valueOf(map.get(MAX_CONNECTIONS_PARAM_NAME))));

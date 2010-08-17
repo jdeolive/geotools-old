@@ -63,7 +63,6 @@ import com.vividsolutions.jts.io.WKTReader;
  *         /org/geotools/arcsde/data/GeometryBuilderTest.java $
  * @version $Id$
  */
-@SuppressWarnings("unchecked")
 public class GeometryBuilderTest {
 
     static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(GeometryBuilderTest.class
@@ -142,8 +141,7 @@ public class GeometryBuilderTest {
         try {
             testData.createTempTable(false);
         } catch (Exception e) {
-            LOGGER
-                    .warning("can't create temp table, connection params may be not set. Skipping testInsertGeometries");
+            LOGGER.warning("can't create temp table, connection params may be not set. Skipping testInsertGeometries");
             return;
         }
         testInsertGeometries(testPoints, testData);
@@ -174,7 +172,7 @@ public class GeometryBuilderTest {
             while (i < fetched.length && row != null) {
                 shape = row.getShape(0);
                 assertNotNull(shape);
-                Class clazz = ArcSDEAdapter.getGeometryTypeFromSeShape(shape);
+                Class<? extends Geometry> clazz = ArcSDEAdapter.getGeometryTypeFromSeShape(shape);
                 ArcSDEGeometryBuilder builder = ArcSDEGeometryBuilder.builderFor(clazz);
                 fetched[i] = builder.construct(shape, new GeometryFactory());
                 i++;
@@ -198,8 +196,8 @@ public class GeometryBuilderTest {
         StringBuilder wkt = new StringBuilder();
         wkt.append("expected: ").append(g1).append(", actual: ").append(g2);
         Assert.assertEquals("geometry dimension " + wkt, g1.getDimension(), g2.getDimension());
-        Assert.assertEquals("number of geometries " + wkt, g1.getNumGeometries(), g2
-                .getNumGeometries());
+        Assert.assertEquals("number of geometries " + wkt, g1.getNumGeometries(),
+                g2.getNumGeometries());
         Assert.assertEquals("number of points " + wkt, g1.getNumPoints(), g2.getNumPoints());
     }
 
@@ -311,11 +309,6 @@ public class GeometryBuilderTest {
     /**
      * tests each geometry in <code>geometries</code> using
      * <code>testConstructShape(Geometry)</code>
-     * 
-     * @param geometries
-     *            DOCUMENT ME!
-     * @throws Exception
-     *             DOCUMENT ME!
      */
     private static void testBuildSeShapes(Geometry[] geometries) throws Exception {
         for (int i = 0; i < geometries.length; i++) {
@@ -329,16 +322,11 @@ public class GeometryBuilderTest {
      * an equivalent SeShape. With this SeShape, checks that it's number of points is equal to the
      * number of points in <code>geometry</code>, and then creates an equivalent Geometry object,
      * wich in turn is checked for equality against <code>geometry</code>.
-     * 
-     * @param geometry
-     *            DOCUMENT ME!
-     * @throws Exception
-     *             DOCUMENT ME!
      */
     private static void testConstructShape(Geometry geometry) throws Exception {
         LOGGER.finer("testConstructShape: testing " + geometry);
 
-        Class geometryClass = geometry.getClass();
+        Class<? extends Geometry> geometryClass = geometry.getClass();
         ArcSDEGeometryBuilder builder = ArcSDEGeometryBuilder.builderFor(geometryClass);
 
         SeCoordinateReference cr = TestData.getGenericCoordRef();
@@ -448,21 +436,6 @@ public class GeometryBuilderTest {
         return createdGeometries;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param jtsGeom
-     *            DOCUMENT ME!
-     * @param seCRS
-     *            DOCUMENT ME!
-     * @return DOCUMENT ME!
-     * @throws SeException
-     *             DOCUMENT ME!
-     * @throws IOException
-     *             DOCUMENT ME!
-     * @throws DataSourceException
-     *             DOCUMENT ME!
-     */
     private double[][][] geometryToSdeCoords(final Geometry jtsGeom,
             final SeCoordinateReference seCRS) throws SeException, IOException {
         int numParts;
@@ -476,7 +449,7 @@ public class GeometryBuilderTest {
             gcol = new GeometryFactory().createGeometryCollection(geoms);
         }
 
-        List allPoints = new ArrayList();
+        List<SDEPoint> allPoints = new ArrayList<SDEPoint>();
         numParts = gcol.getNumGeometries();
 
         int[] partOffsets = new int[numParts];
@@ -521,11 +494,8 @@ public class GeometryBuilderTest {
     /**
      * given a geometry class, tests that ArcSDEGeometryBuilder.defaultValueFor that class returns
      * an empty geometry of the same geometry class
-     * 
-     * @param geometryClass
-     *            DOCUMENT ME!
      */
-    private void testGetDefaultValue(Class geometryClass) {
+    private void testGetDefaultValue(Class<? extends Geometry> geometryClass) {
         Geometry geom = ArcSDEGeometryBuilder.defaultValueFor(geometryClass);
         assertNotNull(geom);
         assertTrue(geom.isEmpty());

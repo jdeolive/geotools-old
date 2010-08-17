@@ -50,10 +50,9 @@ import com.esri.sde.sdk.client.SeColumnDefinition;
  * @since 2.3.x
  */
 class SelectItemQualifier implements net.sf.jsqlparser.statement.select.SelectItemVisitor {
-    /** DOCUMENT ME! */
+
     private List /* <SelectExpressionItem> */qualifiedItems = Collections.EMPTY_LIST;
 
-    /** DOCUMENT ME! */
     private ISession session;
 
     private Map tableAliases;
@@ -62,22 +61,12 @@ class SelectItemQualifier implements net.sf.jsqlparser.statement.select.SelectIt
      * Creates a new SelectItemQualifier object.
      * 
      * @param session
-     *            DOCUMENT ME!
      */
     private SelectItemQualifier(ISession session, Map tableAliases) {
         this.session = session;
         this.tableAliases = tableAliases;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param session
-     *            DOCUMENT ME!
-     * @param item
-     *            DOCUMENT ME!
-     * @return DOCUMENT ME!
-     */
     public static List qualify(ISession session, Map tableAliases, SelectItem item) {
         if (item == null) {
             return null;
@@ -89,22 +78,10 @@ class SelectItemQualifier implements net.sf.jsqlparser.statement.select.SelectIt
         return qualifier.qualifiedItems;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param allColumns
-     *            DOCUMENT ME!
-     */
     public void visit(AllColumns allColumns) {
         this.qualifiedItems = Collections.singletonList(allColumns);
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param allTableColumns
-     *            DOCUMENT ME!
-     */
     public void visit(AllTableColumns allTableColumns) {
         AllTableColumns qualified = new AllTableColumns();
 
@@ -147,12 +124,6 @@ class SelectItemQualifier implements net.sf.jsqlparser.statement.select.SelectIt
         }
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param selectExpressionItem
-     *            DOCUMENT ME!
-     */
     public void visit(SelectExpressionItem selectExpressionItem) {
 
         SelectExpressionItem qualifiedItem = new SelectExpressionItem();

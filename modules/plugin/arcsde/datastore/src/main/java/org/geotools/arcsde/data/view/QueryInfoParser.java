@@ -52,6 +52,7 @@ import com.esri.sde.sdk.client.SeSqlConstruct;
  *         /org/geotools/arcsde/data/view/QueryInfoParser.java $
  * @since 2.3.x
  */
+@SuppressWarnings("unchecked")
 public class QueryInfoParser {
     private static final Logger LOGGER = org.geotools.util.logging.Logging
             .getLogger(QueryInfoParser.class.getPackage().getName());

@@ -19,13 +19,11 @@ package org.geotools.arcsde.data;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.NumberFormat;
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Properties;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geotools.arcsde.ArcSDEDataStoreFactory;
@@ -84,9 +82,9 @@ import com.vividsolutions.jts.operation.valid.TopologyValidationError;
  *         /org/geotools/arcsde/data/TestData.java $
  * @version $Id$
  */
-@SuppressWarnings( { "nls", "unchecked" })
+@SuppressWarnings({ "nls", "unchecked" })
 public class TestData {
-    /** DOCUMENT ME! */
+
     private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger(TestData.class
             .getPackage().getName());
 
@@ -102,7 +100,7 @@ public class TestData {
     /**
      * the set of test parameters loaded from {@code test-data/testparams.properties}
      */
-    private Properties conProps = null;
+    private Map<String, Serializable> conProps = null;
 
     /**
      * the name of a table that can be manipulated without risk of loosing important data
@@ -116,9 +114,6 @@ public class TestData {
 
     /**
      * Creates a new TestData object.
-     * 
-     * @throws IOException
-     *             DOCUMENT ME!
      */
     public TestData() {
         // intentionally blank
@@ -140,7 +135,7 @@ public class TestData {
                     + "Make sure the real ArcSDE jars are on your classpath.");
         }
 
-        this.conProps = new Properties();
+        Properties conProps = new Properties();
 
         String propsFile = "testparams.properties";
         InputStream in = org.geotools.test.TestData.openStream(null, propsFile);
@@ -148,17 +143,21 @@ public class TestData {
         // The line above should never returns null. It should thow a
         // FileNotFoundException instead if the resource is not available.
 
-        this.conProps.load(in);
+        conProps.load(in);
         in.close();
 
-        this.temp_table = this.conProps.getProperty("temp_table");
-        this.configKeyword = this.conProps.getProperty("configKeyword");
+        this.temp_table = conProps.getProperty("temp_table");
+        this.configKeyword = conProps.getProperty("configKeyword");
         if (this.configKeyword == null) {
             this.configKeyword = "DEFAULTS";
         }
 
         if (this.temp_table == null) {
             throw new IllegalArgumentException("temp_table not defined in " + propsFile);
+        }
+        this.conProps = new HashMap<String, Serializable>();
+        for (Map.Entry<Object, Object> e : conProps.entrySet()) {
+            this.conProps.put(String.valueOf(e.getKey()), (Serializable) e.getValue());
         }
     }
 
@@ -189,9 +188,6 @@ public class TestData {
      * creates an ArcSDEDataStore using {@code test-data/testparams.properties} as holder of
      * datastore parameters
      * 
-     * @return DOCUMENT ME!
-     * @throws IOException
-     *             DOCUMENT ME!
      */
     public ArcSDEDataStore getDataStore() throws IOException {
         ISessionPool pool = newSessionPool();
@@ -214,12 +210,13 @@ public class TestData {
     }
 
     /**
-     * DOCUMENT ME!
+     * 
      * 
      * @return Returns the conProps.
      */
-    public Map<String, String> getConProps() {
-        return new HashMap<String, String>((Map) this.conProps);
+    @SuppressWarnings("rawtypes")
+    public Map<String, Serializable> getConProps() {
+        return new HashMap<String, Serializable>((Map) this.conProps);
     }
 
     public String getTempTableName() throws IOException {
@@ -676,8 +673,8 @@ public class TestData {
     } // End method insertData
 
     /**
-     * Creates a SimpleFeatureCollection with features whose schema
-     * adheres to the one created in <code>createTestData()</code> and returns it.
+     * Creates a SimpleFeatureCollection with features whose schema adheres to the one created in
+     * <code>createTestData()</code> and returns it.
      * <p>
      * This schema is something like:
      * 
@@ -704,10 +701,9 @@ public class TestData {
      *             if the schema for te test table cannot be fetched from the database.
      * @throws SeException
      */
-    public SimpleFeatureCollection createTestFeatures(
-            Class jtsGeomType, int numFeatures) throws IOException, SeException {
-        SimpleFeatureCollection col = FeatureCollections
-                .newCollection();
+    public SimpleFeatureCollection createTestFeatures(Class<? extends Geometry> jtsGeomType,
+            int numFeatures) throws IOException, SeException {
+        SimpleFeatureCollection col = FeatureCollections.newCollection();
         SimpleFeatureType type = getDataStore().getSchema(getTempTableName());
         Object[] values = new Object[type.getAttributeCount()];
 
@@ -733,18 +729,7 @@ public class TestData {
         return col;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param geomType
-     *            DOCUMENT ME!
-     * @param index
-     *            DOCUMENT ME!
-     * @return DOCUMENT ME!
-     * @throws UnsupportedOperationException
-     *             DOCUMENT ME!
-     */
-    private static Geometry createTestGeometry(Class geomType, int index) {
+    private static Geometry createTestGeometry(Class<? extends Geometry> geomType, int index) {
         Geometry geom = null;
         GeometryFactory gf = new GeometryFactory();
 
@@ -769,15 +754,6 @@ public class TestData {
         return geom;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param gf
-     *            DOCUMENT ME!
-     * @param index
-     *            DOCUMENT ME!
-     * @return DOCUMENT ME!
-     */
     private static Geometry createTestGenericGeometry(GeometryFactory gf, int index) {
         if ((index % 6) == 0) {
             return createTestPoint(gf, index);
@@ -794,58 +770,22 @@ public class TestData {
         }
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param gf
-     *            DOCUMENT ME!
-     * @param index
-     *            DOCUMENT ME!
-     * @return DOCUMENT ME!
-     */
     private static Point createTestPoint(GeometryFactory gf, int index) {
         return gf.createPoint(new Coordinate(index, index));
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param gf
-     *            DOCUMENT ME!
-     * @param index
-     *            DOCUMENT ME!
-     * @return DOCUMENT ME!
-     */
     private static MultiPoint createTestMultiPoint(GeometryFactory gf, int index) {
         Coordinate[] coords = { new Coordinate(index, index), new Coordinate(-index, -index) };
 
         return gf.createMultiPoint(coords);
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param gf
-     *            DOCUMENT ME!
-     * @param index
-     *            DOCUMENT ME!
-     * @return DOCUMENT ME!
-     */
     private static LineString createTestLineString(final GeometryFactory gf, final int index) {
         Coordinate[] coords = { new Coordinate(0, 0), new Coordinate(1 + index, -index) };
 
         return gf.createLineString(coords);
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param gf
-     *            DOCUMENT ME!
-     * @param index
-     *            DOCUMENT ME!
-     * @return DOCUMENT ME!
-     */
     private static MultiLineString createTestMultiLineString(final GeometryFactory gf,
             final int index) {
         Coordinate[] coords1 = { new Coordinate(0, 0), new Coordinate(1 + index, 1 + index) };
@@ -855,15 +795,6 @@ public class TestData {
         return gf.createMultiLineString(lines);
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param gf
-     *            DOCUMENT ME!
-     * @param index
-     *            DOCUMENT ME!
-     * @return DOCUMENT ME!
-     */
     private static Polygon createTestPolygon(GeometryFactory gf, int index) {
         Coordinate[] coords = { new Coordinate(index, index), new Coordinate(index, index + 1),
                 new Coordinate(index + 1, index + 1), new Coordinate(index + 1, index),
@@ -873,15 +804,6 @@ public class TestData {
         return gf.createPolygon(shell, null);
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param gf
-     *            DOCUMENT ME!
-     * @param index
-     *            DOCUMENT ME!
-     * @return DOCUMENT ME!
-     */
     private static MultiPolygon createTestMultiPolygon(GeometryFactory gf, int index) {
         Polygon[] polys = { createTestPolygon(gf, index), createTestPolygon(gf, 1 + index) };
 
@@ -899,10 +821,6 @@ public class TestData {
      * Actually tested to deal with coordinates with 0.0002 units of separation as well as with
      * large coordinates such as UTM (values greater than 500,000.00)
      * </p>
-     * 
-     * @return DOCUMENT ME!
-     * @throws SeException
-     *             DOCUMENT ME!
      */
     public static SeCoordinateReference getGenericCoordRef() throws SeException {
 
@@ -912,112 +830,6 @@ public class TestData {
         // seCRS.setPrecision(1000);
         seCRS.setXYByEnvelope(new SeExtent(-180, -90, 180, 90));
         return seCRS;
-    }
-
-    /**
-     * Creates some simple test layers on the sde instance
-     * 
-     * @param argv
-     */
-    public static void main(String[] argv) {
-        TestData testData = new TestData();
-        try {
-            testData.setUp();
-            // testData.createSimpleTestTables();
-            testData.createSampleLayers(1500, 1);
-            // testData.deleteSampleLayers(5000);
-            System.err.println("test tables successfully created");
-        } catch (Exception e) {
-            LOGGER.log(Level.WARNING, "while creating test tables got '" + e.getMessage() + "'");
-            e.printStackTrace();
-        } finally {
-            System.exit(0);
-        }
-    }
-
-    private void deleteSampleLayers(final int numLayersToCreate) throws IOException,
-            UnavailableConnectionException {
-        final ISessionPool connectionPool = getConnectionPool();
-        final ISession session = connectionPool.getSession();
-        final NumberFormat formatter = NumberFormat.getInstance();
-        formatter.setMinimumIntegerDigits(4);
-        formatter.setGroupingUsed(false);
-
-        session.issue(new Command<Void>() {
-            @Override
-            public Void execute(ISession session, SeConnection connection) throws SeException,
-                    IOException {
-                LOGGER.info("Deleting tables GT_MULTIPLE_LAYER_" + formatter.format(1)
-                        + " to GT_MULTIPLE_LAYER_" + formatter.format(numLayersToCreate));
-                for (int i = 1; i <= numLayersToCreate; i++) {
-                    String tableName = "GT_MULTIPLE_LAYER_" + formatter.format(i);
-                    SeTable table = new SeTable(connection, tableName);
-                    try {
-                        table.delete();
-                    } catch (SeException e) {
-                        LOGGER.info("Couldn't delete table " + tableName);
-                    }
-                }
-                LOGGER.info("Tables deleted");
-                return null;
-            }
-        });
-    }
-
-    /**
-     * This private method is used to create a lot of layers in the test database in order to fix
-     * GEOT-1956
-     * 
-     * @throws UnavailableConnectionException
-     */
-    private void createSampleLayers(final int numLayersToCreate, final int startFrom)
-            throws IOException, UnavailableConnectionException {
-        final ISessionPool connectionPool = getConnectionPool();
-        final ISession session = connectionPool.getSession();
-
-        String tableName;
-        String rowIdColName;
-        int rowIdColumnType;
-        int shapeTypeMask;
-        NumberFormat formatter = NumberFormat.getInstance();
-        formatter.setMinimumIntegerDigits(4);
-        formatter.setGroupingUsed(false);
-
-        // use a double linked list to set to alternate between rowid
-        // registration types
-        LinkedList<Integer> registrationTypes = new LinkedList<Integer>();
-        registrationTypes.add(Integer
-                .valueOf(SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_USER));
-        registrationTypes.add(Integer
-                .valueOf(SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_SDE));
-        registrationTypes.add(Integer
-                .valueOf(SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_NONE));
-
-        LOGGER.info("Creating " + numLayersToCreate + " layers...");
-        try {
-            rowIdColName = "ROW_ID";
-            shapeTypeMask = SeLayer.SE_POINT_TYPE_MASK;
-            for (int count = 1; count <= numLayersToCreate; count++) {
-                tableName = "GT_MULTIPLE_LAYER_" + formatter.format(count + startFrom - 1);
-                System.err.println("Creating " + tableName);
-
-                Integer registrationType = registrationTypes.removeFirst();
-                rowIdColumnType = registrationType.intValue();
-                registrationTypes.addLast(registrationType);
-
-                createTestTable(session, tableName, rowIdColName, rowIdColumnType, true,
-                        shapeTypeMask);
-                try {
-                    Thread.currentThread().sleep(1500);
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
-        } finally {
-            session.dispose();
-        }
-        LOGGER.info(numLayersToCreate + " created successfully");
     }
 
     public void createSimpleTestTables() throws IOException, UnavailableConnectionException {

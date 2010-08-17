@@ -63,7 +63,7 @@ import org.opengis.referencing.operation.TransformException;
  *         http://svn.osgeo.org/geotools/trunk/modules/plugin/arcsde/datastore/src/main/java/org
  *         /geotools/arcsde/gce/RasterDatasetInfo.java $
  */
-@SuppressWarnings( { "nls" })
+@SuppressWarnings({ "nls" })
 public final class RasterDatasetInfo {
 
     /** TRasterDatasetInfo the raster table we're pulling images from in this reader * */
@@ -138,7 +138,7 @@ public final class RasterDatasetInfo {
         return gridSampleDimensions.toArray(new GridSampleDimension[getNumBands()]);
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private List<GridSampleDimension> buildSampleDimensions() {
 
         final int numBands = getNumBands();
@@ -149,7 +149,6 @@ public final class RasterDatasetInfo {
         List<RasterBandInfo> bands = subRasterInfo.get(0).getBands();
 
         for (RasterBandInfo band : bands) {
-            final int bandNumber = band.getBandNumber();
             // use native cell type, in case no-data value has been computed to account for
             // sample depth promotion, we want to category to keep being the native range for
             // the values category
@@ -180,8 +179,9 @@ public final class RasterDatasetInfo {
                 double noDataValue = band.getNoDataValue().doubleValue();
                 // same as Category.NODATA but for the actual nodata value instead of hardcoded to
                 // zero
-                Category nodataCat = new Category(Vocabulary
-                        .formatInternational(VocabularyKeys.NODATA), transparent, noDataValue);
+                Category nodataCat = new Category(
+                        Vocabulary.formatInternational(VocabularyKeys.NODATA), transparent,
+                        noDataValue);
                 categories = new Category[] { valuesCat, nodataCat };
             } else {
                 // do not build a nodata category. A nodata value that doesn't overlap the value

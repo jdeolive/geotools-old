@@ -41,35 +41,25 @@ import org.geotools.arcsde.session.ISession;
  * @since 2.3.x
  */
 class ItemsListQualifier implements ItemsListVisitor {
-    /** DOCUMENT ME! */
+
     ItemsList _qualifiedList;
 
-    /** DOCUMENT ME! */
     private ISession session;
 
-    private Map tableAliases;
+    private Map<String, Object> tableAliases;
 
     /**
      * Creates a new ItemsListQualifier object.
      * 
      * @param session
-     *            DOCUMENT ME!
      */
-    public ItemsListQualifier(ISession session, Map tableAliases) {
+    public ItemsListQualifier(ISession session, Map<String, Object> tableAliases) {
         this.session = session;
         this.tableAliases = tableAliases;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param session
-     *            DOCUMENT ME!
-     * @param items
-     *            DOCUMENT ME!
-     * @return DOCUMENT ME!
-     */
-    public static ItemsList qualify(ISession session, Map tableAliases, ItemsList items) {
+    public static ItemsList qualify(ISession session, Map<String, Object> tableAliases,
+            ItemsList items) {
         if (items == null) {
             return null;
         }
@@ -80,28 +70,17 @@ class ItemsListQualifier implements ItemsListVisitor {
         return q._qualifiedList;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param subSelect
-     *            DOCUMENT ME!
-     */
     public void visit(SubSelect subSelect) {
         SubSelect qualified = SubSelectQualifier.qualify(session, subSelect);
         this._qualifiedList = qualified;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param expressionList
-     *            DOCUMENT ME!
-     */
+    @SuppressWarnings("unchecked")
     public void visit(ExpressionList expressionList) {
-        List expressions = expressionList.getExpressions();
-        List qualifiedList = new ArrayList(expressions.size());
+        List<Expression> expressions = expressionList.getExpressions();
+        List<Expression> qualifiedList = new ArrayList<Expression>(expressions.size());
 
-        for (Iterator it = expressions.iterator(); it.hasNext();) {
+        for (Iterator<Expression> it = expressions.iterator(); it.hasNext();) {
             Expression exp = (Expression) it.next();
             Expression qExp = ExpressionQualifier.qualify(session, tableAliases, exp);
 

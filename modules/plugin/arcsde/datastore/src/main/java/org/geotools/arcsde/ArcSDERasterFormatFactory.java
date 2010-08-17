@@ -17,6 +17,7 @@
  */
 package org.geotools.arcsde;
 
+import java.awt.RenderingHints;
 import java.util.Collections;
 import java.util.Map;
 import java.util.logging.Level;
@@ -76,7 +77,7 @@ public class ArcSDERasterFormatFactory implements GridFormatFactorySpi {
      * 
      * @return the empty map, this factory make no use of any implementation hint so far
      */
-    public Map getImplementationHints() {
-        return Collections.EMPTY_MAP;
+    public Map<RenderingHints.Key, ?> getImplementationHints() {
+        return Collections.emptyMap();
     }
 }

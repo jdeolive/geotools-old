@@ -46,10 +46,7 @@ import org.geotools.data.DataStore;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultTransaction;
 import org.geotools.data.FeatureEvent;
-import org.geotools.data.FeatureEvent.Type;
-import org.geotools.data.FeatureListener;
 import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
@@ -58,7 +55,6 @@ import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.filter.text.cql2.CQL;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -72,7 +68,6 @@ import org.opengis.feature.FeatureVisitor;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
-import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
@@ -88,7 +83,6 @@ import com.esri.sde.sdk.client.SeQuery;
 import com.esri.sde.sdk.client.SeSqlConstruct;
 import com.esri.sde.sdk.client.SeTable;
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
@@ -305,7 +299,7 @@ public class ArcSDEFeatureStoreTest {
         build.add(reader.read("POINT(1 1)"));
 
         SimpleFeature newFeature = build.buildFeature(null);
-        FeatureCollection newFeatures = DataUtilities.collection(newFeature);
+        SimpleFeatureCollection newFeatures = DataUtilities.collection(newFeature);
 
         List<FeatureId> newFids = featureStore1.addFeatures(newFeatures);
         assertEquals(0, listener.list.size());
@@ -328,7 +322,6 @@ public class ArcSDEFeatureStoreTest {
         assertNotNull(batch.getFilter());
 
         FeatureId featureId = (FeatureId) batch.getCreatedFeatureIds().iterator().next();
-        String fid = featureId.getID();
         assertSame("confirm temp feature Id was updated", tempFeatureId, featureId);
     }
 
@@ -748,6 +741,7 @@ public class ArcSDEFeatureStoreTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testModifyFeaturesTransaction() throws Exception {
         testData.insertTestData();
 
@@ -776,7 +770,8 @@ public class ArcSDEFeatureStoreTest {
 
             try {
                 final AttributeDescriptor propDescriptor = schema.getDescriptor("INT32_COL");
-                store.modifyFeatures(propDescriptor, Integer.valueOf(-1000), oldValueFilter);
+                store.modifyFeatures(propDescriptor.getName(), Integer.valueOf(-1000),
+                        oldValueFilter);
                 transaction.commit();
             } catch (Exception e) {
                 transaction.rollback();
@@ -870,8 +865,8 @@ public class ArcSDEFeatureStoreTest {
         Filter fid1Filter = ff.id(Collections.singleton(ff.featureId(fid1)));
         Filter fid2Filter = ff.id(Collections.singleton(ff.featureId(fid2)));
         try {
-            store.modifyFeatures(defaultGeometry, modif2, fid2Filter);
-            store.modifyFeatures(defaultGeometry, modif1, fid1Filter);
+            store.modifyFeatures(defaultGeometry.getName(), modif2, fid2Filter);
+            store.modifyFeatures(defaultGeometry.getName(), modif1, fid1Filter);
             transaction.commit();
         } catch (Exception e) {
             transaction.rollback();
@@ -924,12 +919,6 @@ public class ArcSDEFeatureStoreTest {
     /**
      * Tests the writing of features with autocommit transaction.
      * 
-     * @param geometryClass
-     *            DOCUMENT ME!
-     * @throws Exception
-     *             DOCUMENT ME!
-     * @throws IllegalArgumentException
-     *             DOCUMENT ME!
      */
     private void testInsertAutoCommit(Class<? extends Geometry> geometryClass) throws Exception {
         final String typeName = testData.getTempTableName();
@@ -1069,8 +1058,6 @@ public class ArcSDEFeatureStoreTest {
     /**
      * Tests the writing of features with real transactions
      * 
-     * @throws UnsupportedOperationException
-     *             DOCUMENT ME!
      */
     @Test
     public void testFeatureWriterTransaction() throws Exception {
@@ -1135,12 +1122,6 @@ public class ArcSDEFeatureStoreTest {
          */
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @throws UnsupportedOperationException
-     *             DOCUMENT ME!
-     */
     @Test
     public void testFeatureWriterAppend() throws Exception {
         // the table populated here is test friendly since it can hold
@@ -1505,22 +1486,6 @@ public class ArcSDEFeatureStoreTest {
             }
             fail(errMessg);
         }
-    }
-
-    static class Watcher implements FeatureListener {
-
-        private Type type;
-
-        private Envelope bounds;
-
-        private FeatureSource<? extends FeatureType, ? extends Feature> source;
-
-        public void changed(FeatureEvent featureEvent) {
-            type = featureEvent.getType();
-            bounds = featureEvent.getBounds();
-            source = featureEvent.getFeatureSource();
-        }
-
     }
 
     public void testEditVersionedTableTransactionConcurrently() throws Exception {

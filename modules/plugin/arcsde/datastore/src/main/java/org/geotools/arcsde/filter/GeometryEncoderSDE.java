@@ -88,7 +88,6 @@ public class GeometryEncoderSDE implements FilterVisitor {
     /** Standard java logger */
     private static Logger log = org.geotools.util.logging.Logging.getLogger("org.geotools.filter");
 
-    /** DOCUMENT ME! */
     private static FilterCapabilities capabilities = new FilterCapabilities();
 
     static {
@@ -105,10 +104,8 @@ public class GeometryEncoderSDE implements FilterVisitor {
         capabilities.addType(Within.class);
     }
 
-    /** DOCUMENT ME! */
     private List sdeSpatialFilters = null;
 
-    /** DOCUMENT ME! */
     private SeLayer sdeLayer;
 
     private SimpleFeatureType featureType;
@@ -126,33 +123,16 @@ public class GeometryEncoderSDE implements FilterVisitor {
         this.featureType = featureType;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @return DOCUMENT ME!
-     */
     public static FilterCapabilities getCapabilities() {
         return capabilities;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @return DOCUMENT ME!
-     */
     public SeFilter[] getSpatialFilters() {
         SeFilter[] filters = new SeFilter[this.sdeSpatialFilters.size()];
 
         return (SeFilter[]) this.sdeSpatialFilters.toArray(filters);
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @return DOCUMENT ME!
-     * @throws IllegalStateException
-     *             DOCUMENT ME!
-     */
     private String getLayerName() throws SeException {
         if (this.sdeLayer == null) {
             throw new IllegalStateException("SDE layer has not been set");
@@ -161,12 +141,7 @@ public class GeometryEncoderSDE implements FilterVisitor {
     }
 
     /**
-     * overriden just to avoid the "WHERE" keyword
-     * 
-     * @param filter
-     *            DOCUMENT ME!
-     * @throws GeometryEncoderException
-     *             DOCUMENT ME!
+     * overrides just to avoid the "WHERE" keyword
      */
     public void encode(Filter filter) throws GeometryEncoderException {
         this.sdeSpatialFilters = new ArrayList();
@@ -251,12 +226,12 @@ public class GeometryEncoderSDE implements FilterVisitor {
         // vertical line) then we may have
         // a layer extent that's a point or line. We need to correct this.
         if (seExtent.getMaxX() == seExtent.getMinX()) {
-            seExtent = new SeExtent(seExtent.getMinX() - 100, seExtent.getMinY(), seExtent
-                    .getMaxX() + 100, seExtent.getMaxY());
+            seExtent = new SeExtent(seExtent.getMinX() - 100, seExtent.getMinY(),
+                    seExtent.getMaxX() + 100, seExtent.getMaxY());
         }
         if (seExtent.getMaxY() == seExtent.getMinY()) {
-            seExtent = new SeExtent(seExtent.getMinX(), seExtent.getMinY() - 100, seExtent
-                    .getMaxX(), seExtent.getMaxY() + 100);
+            seExtent = new SeExtent(seExtent.getMinX(), seExtent.getMinY() - 100,
+                    seExtent.getMaxX(), seExtent.getMaxY() + 100);
         }
 
         try {
@@ -286,8 +261,8 @@ public class GeometryEncoderSDE implements FilterVisitor {
                 filterShape = gb.constructShape(geom, this.sdeLayer.getCoordRef());
             }
             // Add the filter to our list
-            SeShapeFilter shapeFilter = new SeShapeFilter(getLayerName(), this.sdeLayer
-                    .getSpatialColumn(), filterShape, sdeMethod, appliedTruth);
+            SeShapeFilter shapeFilter = new SeShapeFilter(getLayerName(),
+                    this.sdeLayer.getSpatialColumn(), filterShape, sdeMethod, appliedTruth);
             this.sdeSpatialFilters.add(shapeFilter);
         } catch (IOException ioe) {
             throw new RuntimeException(ioe);

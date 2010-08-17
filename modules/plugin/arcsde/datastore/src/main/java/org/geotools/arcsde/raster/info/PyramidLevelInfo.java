@@ -95,16 +95,10 @@ final class PyramidLevelInfo {
         return yRes;
     }
 
-    /**
-     * @return DOCUMENT ME!!!
-     */
     public int getXOffset() {
         return imageOffset.x;
     }
 
-    /**
-     * @return DOCUMENT ME!!!
-     */
     public int getYOffset() {
         return imageOffset.y;
     }

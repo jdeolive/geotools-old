@@ -45,8 +45,7 @@ import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeException;
 import com.esri.sde.sdk.client.SeTable;
 
-public class ArcSdeFeatureStore extends ArcSdeFeatureSource implements
-        SimpleFeatureStore {
+public class ArcSdeFeatureStore extends ArcSdeFeatureSource implements SimpleFeatureStore {
 
     private static final Logger LOGGER = Logging.getLogger(ArcSdeFeatureStore.class.getName());
 
@@ -95,7 +94,7 @@ public class ArcSdeFeatureStore extends ArcSdeFeatureSource implements
      * @see FeatureStore#addFeatures(SimpleFeatureCollection)
      */
     public List<FeatureId> addFeatures(
-            final FeatureCollection collection)
+            final FeatureCollection<SimpleFeatureType, SimpleFeature> collection)
             throws IOException {
         // System.err.println(">>addFeatures called at " +
         // Thread.currentThread().getName());
@@ -125,17 +124,18 @@ public class ArcSdeFeatureStore extends ArcSdeFeatureSource implements
     /**
      * @see FeatureStore#modifyFeatures(AttributeDescriptor[], Object[], Filter)
      */
-    public final void modifyFeatures(AttributeDescriptor[] type, Object[] value,
-        Filter filter) throws IOException {
-        
-        Name attributeNames[] = new Name[ type.length ];
-        for( int i=0; i < type.length; i ++){
+    public final void modifyFeatures(AttributeDescriptor[] type, Object[] value, Filter filter)
+            throws IOException {
+
+        Name attributeNames[] = new Name[type.length];
+        for (int i = 0; i < type.length; i++) {
             attributeNames[i] = type[i].getName();
         }
-        modifyFeatures( attributeNames, value, filter );       
+        modifyFeatures(attributeNames, value, filter);
     }
-    public void modifyFeatures(final Name[] attributes, final Object[] values,
-            final Filter filter) throws IOException {
+
+    public void modifyFeatures(final Name[] attributes, final Object[] values, final Filter filter)
+            throws IOException {
         final ISession session = getSession();
         try {
             final String typeName = typeInfo.getFeatureTypeName();
@@ -172,6 +172,7 @@ public class ArcSdeFeatureStore extends ArcSdeFeatureSource implements
         }
         modifyFeatures(attributeNames, values, filter);
     }
+
     /**
      * @see FeatureStore#modifyFeatures(AttributeDescriptor, Object, Filter)
      */
@@ -179,8 +180,9 @@ public class ArcSdeFeatureStore extends ArcSdeFeatureSource implements
             final Filter filter) throws IOException {
         modifyFeatures(new Name[] { type.getName(), }, new Object[] { value, }, filter);
     }
-    public final void modifyFeatures(final Name name, final Object value,
-            final Filter filter) throws IOException {
+
+    public final void modifyFeatures(final Name name, final Object value, final Filter filter)
+            throws IOException {
         modifyFeatures(new Name[] { name, }, new Object[] { value, }, filter);
     }
 

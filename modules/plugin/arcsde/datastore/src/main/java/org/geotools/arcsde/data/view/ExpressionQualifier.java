@@ -73,35 +73,24 @@ import org.geotools.arcsde.session.ISession;
  * @since 2.3.x
  */
 class ExpressionQualifier implements ExpressionVisitor {
-    /** DOCUMENT ME! */
     private Expression _qualifiedExpression;
 
-    /** DOCUMENT ME! */
     private ISession session;
 
-    private Map tableAliases;
+    private Map<String, Object> tableAliases;
 
     /**
      * Creates a new ExpressionQualifier object.
      * 
      * @param session
-     *            DOCUMENT ME!
      */
-    private ExpressionQualifier(ISession session, Map tableAliases) {
+    private ExpressionQualifier(ISession session, Map<String, Object> tableAliases) {
         this.session = session;
         this.tableAliases = tableAliases;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param session
-     *            DOCUMENT ME!
-     * @param exp
-     *            DOCUMENT ME!
-     * @return DOCUMENT ME!
-     */
-    public static Expression qualify(ISession session, Map tableAliases, Expression exp) {
+    public static Expression qualify(ISession session, Map<String, Object> tableAliases,
+            Expression exp) {
         if (exp == null) {
             return null;
         }
@@ -113,22 +102,10 @@ class ExpressionQualifier implements ExpressionVisitor {
         return qualifier._qualifiedExpression;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param nullValue
-     *            DOCUMENT ME!
-     */
     public void visit(NullValue nullValue) {
         _qualifiedExpression = nullValue;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param function
-     *            DOCUMENT ME!
-     */
     public void visit(Function function) {
         Function qfunction = new Function();
         qfunction.setAllColumns(function.isAllColumns());
@@ -146,12 +123,6 @@ class ExpressionQualifier implements ExpressionVisitor {
         this._qualifiedExpression = qfunction;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param inverseExpression
-     *            DOCUMENT ME!
-     */
     public void visit(InverseExpression inverseExpression) {
         InverseExpression qInv = new InverseExpression();
 
@@ -162,72 +133,30 @@ class ExpressionQualifier implements ExpressionVisitor {
         this._qualifiedExpression = qInv;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param jdbcParameter
-     *            DOCUMENT ME!
-     */
     public void visit(JdbcParameter jdbcParameter) {
         this._qualifiedExpression = jdbcParameter;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param doubleValue
-     *            DOCUMENT ME!
-     */
     public void visit(DoubleValue doubleValue) {
         this._qualifiedExpression = doubleValue;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param longValue
-     *            DOCUMENT ME!
-     */
     public void visit(LongValue longValue) {
         this._qualifiedExpression = longValue;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param dateValue
-     *            DOCUMENT ME!
-     */
     public void visit(DateValue dateValue) {
         this._qualifiedExpression = dateValue;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param timeValue
-     *            DOCUMENT ME!
-     */
     public void visit(TimeValue timeValue) {
         this._qualifiedExpression = timeValue;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param timestampValue
-     *            DOCUMENT ME!
-     */
     public void visit(TimestampValue timestampValue) {
         this._qualifiedExpression = timestampValue;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param parenthesis
-     *            DOCUMENT ME!
-     */
     public void visit(Parenthesis parenthesis) {
         Expression pExp = parenthesis.getExpression();
         Expression qualifiedExpression;
@@ -238,22 +167,16 @@ class ExpressionQualifier implements ExpressionVisitor {
         this._qualifiedExpression = qualified;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param stringValue
-     *            DOCUMENT ME!
-     */
     public void visit(StringValue stringValue) {
         this._qualifiedExpression = stringValue;
     }
 
     private void visitBinaryExpression(BinaryExpression exp) {
 
-        Expression left = ExpressionQualifier.qualify(session, tableAliases, exp
-                .getLeftExpression());
-        Expression right = ExpressionQualifier.qualify(session, tableAliases, exp
-                .getRightExpression());
+        Expression left = ExpressionQualifier.qualify(session, tableAliases,
+                exp.getLeftExpression());
+        Expression right = ExpressionQualifier.qualify(session, tableAliases,
+                exp.getRightExpression());
 
         BinaryExpression qualified;
 
@@ -288,52 +211,22 @@ class ExpressionQualifier implements ExpressionVisitor {
         this._qualifiedExpression = qualified;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param addition
-     *            DOCUMENT ME!
-     */
     public void visit(Addition addition) {
         visitBinaryExpression(addition);
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param division
-     *            DOCUMENT ME!
-     */
     public void visit(Division division) {
         visitBinaryExpression(division);
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param multiplication
-     *            DOCUMENT ME!
-     */
     public void visit(Multiplication multiplication) {
         visitBinaryExpression(multiplication);
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param subtraction
-     *            DOCUMENT ME!
-     */
     public void visit(Subtraction subtraction) {
         visitBinaryExpression(subtraction);
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param andExpression
-     *            DOCUMENT ME!
-     */
     public void visit(AndExpression andExpression) {
         Expression left = qualify(session, tableAliases, andExpression.getLeftExpression());
         Expression rigth = qualify(session, tableAliases, andExpression.getRightExpression());
@@ -342,12 +235,6 @@ class ExpressionQualifier implements ExpressionVisitor {
         this._qualifiedExpression = and;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param orExpression
-     *            DOCUMENT ME!
-     */
     public void visit(OrExpression orExpression) {
         Expression left = qualify(session, tableAliases, orExpression.getLeftExpression());
         Expression rigth = qualify(session, tableAliases, orExpression.getRightExpression());
@@ -356,12 +243,6 @@ class ExpressionQualifier implements ExpressionVisitor {
         this._qualifiedExpression = or;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param between
-     *            DOCUMENT ME!
-     */
     public void visit(Between between) {
         Between qualified = new Between();
 
@@ -375,46 +256,22 @@ class ExpressionQualifier implements ExpressionVisitor {
         this._qualifiedExpression = qualified;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param equalsTo
-     *            DOCUMENT ME!
-     */
     public void visit(EqualsTo equalsTo) {
         visitBinaryExpression(equalsTo);
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param greaterThan
-     *            DOCUMENT ME!
-     */
     public void visit(GreaterThan greaterThan) {
         visitBinaryExpression(greaterThan);
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param greaterThanEquals
-     *            DOCUMENT ME!
-     */
     public void visit(GreaterThanEquals greaterThanEquals) {
         visitBinaryExpression(greaterThanEquals);
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param inExpression
-     *            DOCUMENT ME!
-     */
     public void visit(InExpression inExpression) {
         Expression left = qualify(session, tableAliases, inExpression.getLeftExpression());
-        ItemsList itemsList = ItemsListQualifier.qualify(session, tableAliases, inExpression
-                .getItemsList());
+        ItemsList itemsList = ItemsListQualifier.qualify(session, tableAliases,
+                inExpression.getItemsList());
 
         InExpression qualified = new InExpression();
         qualified.setLeftExpression(left);
@@ -422,12 +279,6 @@ class ExpressionQualifier implements ExpressionVisitor {
         this._qualifiedExpression = qualified;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param isNullExpression
-     *            DOCUMENT ME!
-     */
     public void visit(IsNullExpression isNullExpression) {
         IsNullExpression qualified = new IsNullExpression();
         Expression left = qualify(session, tableAliases, isNullExpression.getLeftExpression());
@@ -437,52 +288,22 @@ class ExpressionQualifier implements ExpressionVisitor {
         this._qualifiedExpression = qualified;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param likeExpression
-     *            DOCUMENT ME!
-     */
     public void visit(LikeExpression likeExpression) {
         visitBinaryExpression(likeExpression);
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param minorThan
-     *            DOCUMENT ME!
-     */
     public void visit(MinorThan minorThan) {
         visitBinaryExpression(minorThan);
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param minorThanEquals
-     *            DOCUMENT ME!
-     */
     public void visit(MinorThanEquals minorThanEquals) {
         visitBinaryExpression(minorThanEquals);
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param notEqualsTo
-     *            DOCUMENT ME!
-     */
     public void visit(NotEqualsTo notEqualsTo) {
         visitBinaryExpression(notEqualsTo);
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param tableColumn
-     *            DOCUMENT ME!
-     */
     public void visit(Column tableColumn) {
 
         Column qualified = ColumnQualifier.qualify(session, tableAliases, tableColumn);
@@ -490,32 +311,21 @@ class ExpressionQualifier implements ExpressionVisitor {
 
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param subSelect
-     *            DOCUMENT ME!
-     */
     public void visit(SubSelect subSelect) {
         SubSelect qualified = SubSelectQualifier.qualify(session, subSelect);
         this._qualifiedExpression = qualified;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param caseExpression
-     *            DOCUMENT ME!
-     */
+    @SuppressWarnings("unchecked")
     public void visit(CaseExpression caseExpression) {
         Expression switchExpr = qualify(session, tableAliases, caseExpression.getSwitchExpression());
         Expression elseExpr = qualify(session, tableAliases, caseExpression.getElseExpression());
 
-        List whenClauses = null;
+        List<WhenClause> whenClauses = null;
         if (caseExpression.getWhenClauses() != null) {
-            whenClauses = new ArrayList();
-            for (Iterator it = caseExpression.getWhenClauses().iterator(); it.hasNext();) {
-                WhenClause whenClause = (WhenClause) it.next();
+            whenClauses = new ArrayList<WhenClause>();
+            for (Iterator<WhenClause> it = caseExpression.getWhenClauses().iterator(); it.hasNext();) {
+                WhenClause whenClause = it.next();
                 WhenClause qWhen = (WhenClause) qualify(session, tableAliases, whenClause);
                 whenClauses.add(qWhen);
             }
@@ -528,12 +338,6 @@ class ExpressionQualifier implements ExpressionVisitor {
         this._qualifiedExpression = qualifiedWhen;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param whenClause
-     *            DOCUMENT ME!
-     */
     public void visit(WhenClause whenClause) {
         Expression whenExpr = qualify(session, tableAliases, whenClause.getWhenExpression());
         Expression thenExpr = qualify(session, tableAliases, whenClause.getThenExpression());

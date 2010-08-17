@@ -46,7 +46,6 @@ import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.gce.geotiff.GeoTiffWriter;
-import org.geotools.geometry.Envelope2D;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.parameter.Parameter;
@@ -69,7 +68,7 @@ import com.esri.sde.sdk.client.SeRaster;
  * @author groldan
  * 
  */
-@SuppressWarnings( { "deprecation", "nls" })
+@SuppressWarnings({ "deprecation", "nls" })
 @Ignore
 public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
 
@@ -110,7 +109,7 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
         rasterTestData.setUp();
         DEBUG = Boolean
                 .valueOf(rasterTestData.getRasterTestDataProperty(RASTER_TEST_DEBUG_TO_DISK));
-        rasterTestData.setOverrideExistingTestTables(false);
+        //rasterTestData.setOverrideExistingTestTables(false);
     }
 
     /**
@@ -313,19 +312,8 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
     @Test
     public void testReadRasterCatalogFull() throws Exception {
         tableName = rasterTestData.loadRasterCatalog();
-        GridCoverage2D coverage = testReadFullLevel0(TYPE_8BIT_U, 3, TYPE_8BIT_U, "RasterCatalog");
+        testReadFullLevel0(TYPE_8BIT_U, 3, TYPE_8BIT_U, "RasterCatalog");
 
-        GridGeometry2D gridGeometry = coverage.getGridGeometry();
-        Envelope2D envelope2D = gridGeometry.getEnvelope2D();
-        GridEnvelope2D gridRange2D = gridGeometry.getGridRange2D();
-
-        // assertEquals(0, envelope2D.getMinX(), 1);
-        // assertEquals(0, envelope2D.getMinY(), 1);
-        // assertEquals(512, envelope2D.getMaxX(), 1);
-        // assertEquals(512, envelope2D.getMaxY(), 1);
-        //        
-        // assertEquals(512, gridRange2D.width);
-        // assertEquals(512, gridRange2D.height);
     }
 
     @Test
@@ -340,8 +328,8 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
         final int reqWidth = originalGridRange.getSpan(0) / 2;
         final int reqHeight = originalGridRange.getSpan(1) / 2;
 
-        GeneralEnvelope reqEnvelope = new GeneralEnvelope(originalEnvelope
-                .getCoordinateReferenceSystem());
+        GeneralEnvelope reqEnvelope = new GeneralEnvelope(
+                originalEnvelope.getCoordinateReferenceSystem());
         double deltaX = originalEnvelope.getSpan(0) / 6;
         double deltaY = originalEnvelope.getSpan(1) / 6;
 
@@ -371,8 +359,8 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
         final int reqWidth = originalGridRange.getSpan(0) / 10;
         final int reqHeight = originalGridRange.getSpan(1) / 10;
 
-        GeneralEnvelope reqEnvelope = new GeneralEnvelope(originalEnvelope
-                .getCoordinateReferenceSystem());
+        GeneralEnvelope reqEnvelope = new GeneralEnvelope(
+                originalEnvelope.getCoordinateReferenceSystem());
         double minx = originalEnvelope.getMinimum(0);
         double miny = originalEnvelope.getMinimum(1);
         double maxx = minx + originalEnvelope.getSpan(0);// / 2;
@@ -428,8 +416,6 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
         assertNotNull(coverage.getEnvelope());
         GeneralEnvelope envelope = (GeneralEnvelope) coverage.getEnvelope();
         assertTrue(originalEnvelope.intersects(envelope, true));
-
-        GridGeometry2D gridGeometry = coverage.getGridGeometry();
 
         // ///////////////////////////////////////////////////////////assertEquals(originalGridRange,
         // gridGeometry.getGridRange());
@@ -522,9 +508,6 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
         assertTrue(tileWidth > 0);
         assertTrue(tileHeight > 0);
 
-        int fullWidth = originalGridRange.getSpan(0);
-        int fullHeight = originalGridRange.getSpan(1);
-
         GeneralEnvelope expectedEnvelope = new GeneralEnvelope(originalCrs);
         expectedEnvelope.setRange(0, originalEnvelope.getMinimum(0), originalEnvelope.getMinimum(0)
                 + (originalEnvelope.getSpan(0) / 2));
@@ -585,9 +568,6 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
         assertTrue(tileWidth > 0);
         assertTrue(tileHeight > 0);
 
-        int fullWidth = originalGridRange.getSpan(0);
-        int fullHeight = originalGridRange.getSpan(1);
-
         GeneralEnvelope expectedEnvelope = new GeneralEnvelope(originalCrs);
         expectedEnvelope.setRange(0, 0, 100);
         expectedEnvelope.setRange(1, 0, 100);
@@ -625,9 +605,8 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
         nonOverlappingEnvelope = new GeneralEnvelope(new ReferencedEnvelope(300, 500, 300, 500,
                 originalCrs));
 
-        final GridCoverage2D coverage;
         try {
-            coverage = readCoverage(reader, requestedWidth, requestedHeight, nonOverlappingEnvelope);
+            readCoverage(reader, requestedWidth, requestedHeight, nonOverlappingEnvelope);
             fail("Expected IAE, envelopes does not overlap");
         } catch (IllegalArgumentException e) {
             assertTrue(true);
@@ -690,7 +669,6 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
             final int reqWidth, final int reqHeight, final Envelope reqEnv) throws Exception {
 
         GeneralParameterValue[] requestParams = new Parameter[2];
-        final CoordinateReferenceSystem crs = reader.getCrs();
 
         GridGeometry2D gg2d;
         gg2d = new GridGeometry2D(new GridEnvelope2D(new Rectangle(reqWidth, reqHeight)), reqEnv);

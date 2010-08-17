@@ -64,17 +64,15 @@ import org.geotools.arcsde.session.ISession;
  * @since 2.3.x
  */
 public class SelectQualifier implements net.sf.jsqlparser.statement.select.SelectVisitor {
-    /** DOCUMENT ME! */
+
     private ISession session;
 
-    /** DOCUMENT ME! */
     private PlainSelect qualifiedSelect;
 
     /**
      * Creates a new SelectQualifier object.
      * 
      * @param session
-     *            DOCUMENT ME!
      */
     public SelectQualifier(ISession session) {
         this.session = session;
@@ -86,13 +84,6 @@ public class SelectQualifier implements net.sf.jsqlparser.statement.select.Selec
         return q.qualifiedSelect;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @return DOCUMENT ME!
-     * @throws IllegalStateException
-     *             DOCUMENT ME!
-     */
     public PlainSelect getQualifiedQuery() {
         if (qualifiedSelect == null) {
             throw new IllegalStateException("not created yet");
@@ -101,21 +92,14 @@ public class SelectQualifier implements net.sf.jsqlparser.statement.select.Selec
         return qualifiedSelect;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param plainSelect
-     *            DOCUMENT ME!
-     * @throws IllegalStateException
-     *             DOCUMENT ME!
-     */
     public void visit(PlainSelect plainSelect) throws IllegalStateException {
         qualifiedSelect = new PlainSelect();
 
-        List fromItems = qualifyFromItems(plainSelect.getFromItems());
+        @SuppressWarnings("unchecked")
+        List<FromItem> fromItems = qualifyFromItems(plainSelect.getFromItems());
         qualifiedSelect.setFromItems(fromItems);
 
-        Map /* <String,Table> */aliases = extractTableAliases(fromItems);
+        Map<String, Table> aliases = extractTableAliases(fromItems);
 
         // @todo: REVISIT, looks like a bug here, fromItems is not being read after assigned
         fromItems = removeTableAliases(fromItems);
@@ -126,14 +110,14 @@ public class SelectQualifier implements net.sf.jsqlparser.statement.select.Selec
         Expression where = qualifyWhere(aliases, plainSelect.getWhere());
         qualifiedSelect.setWhere(where);
 
-        List orderByItems = qualifyOrderBy(aliases, plainSelect.getOrderByElements());
+        List<OrderByElement> orderByItems = qualifyOrderBy(aliases, plainSelect.getOrderByElements());
         qualifiedSelect.setOrderByElements(orderByItems);
     }
 
-    private Map extractTableAliases(List fromItems) {
-        Map aliases = new HashMap();
-        for (Iterator it = fromItems.iterator(); it.hasNext();) {
-            FromItem fromItem = (FromItem) it.next();
+    private Map<String, Table> extractTableAliases(List<FromItem> fromItems) {
+        Map<String, Table> aliases = new HashMap<String, Table>();
+        for (Iterator<FromItem> it = fromItems.iterator(); it.hasNext();) {
+            FromItem fromItem = it.next();
             if (fromItem instanceof Table) {
                 Table table = (Table) fromItem;
                 String alias = table.getAlias();
@@ -145,12 +129,12 @@ public class SelectQualifier implements net.sf.jsqlparser.statement.select.Selec
         return aliases;
     }
 
-    private List removeTableAliases(final List fromItems) {
-        List items = new ArrayList(fromItems);
+    private List<FromItem> removeTableAliases(final List<FromItem> fromItems) {
+        List<FromItem> items = new ArrayList<FromItem>(fromItems);
 
-        for (Iterator it = items.iterator(); it.hasNext();) {
+        for (Iterator<FromItem> it = items.iterator(); it.hasNext();) {
 
-            FromItem fromItem = (FromItem) it.next();
+            FromItem fromItem = it.next();
 
             if (fromItem instanceof Table) {
                 Table table = (Table) fromItem;
@@ -160,13 +144,6 @@ public class SelectQualifier implements net.sf.jsqlparser.statement.select.Selec
         return items;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param where
-     *            DOCUMENT ME!
-     * @return DOCUMENT ME!
-     */
     private Expression qualifyWhere(Map tableAliases, Expression where) {
         if (where == null) {
             return null;
@@ -177,19 +154,12 @@ public class SelectQualifier implements net.sf.jsqlparser.statement.select.Selec
         return qualifiedWhere;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param orderByElements
-     *            DOCUMENT ME!
-     * @return DOCUMENT ME!
-     */
-    private List qualifyOrderBy(Map tableAliases, List orderByElements) {
+    private List<OrderByElement> qualifyOrderBy(Map tableAliases, List orderByElements) {
         if (orderByElements == null) {
             return null;
         }
 
-        List qualifiedOrderElems = new ArrayList();
+        List<OrderByElement> qualifiedOrderElems = new ArrayList<OrderByElement>();
 
         for (Iterator it = orderByElements.iterator(); it.hasNext();) {
             OrderByElement orderByElem = (OrderByElement) it.next();
@@ -203,13 +173,6 @@ public class SelectQualifier implements net.sf.jsqlparser.statement.select.Selec
         return qualifiedOrderElems;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param selectItems
-     *            List&lt;{@link SelectItem}&gt;
-     * @return DOCUMENT ME!
-     */
     private List qualifySelectItems(Map tableAlias, List selectItems) {
         if (selectItems == null) {
             return null;
@@ -228,19 +191,12 @@ public class SelectQualifier implements net.sf.jsqlparser.statement.select.Selec
         return qualifiedItems;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param fromItems
-     *            List&lt;{@link FromItem}&gt;
-     * @return DOCUMENT ME!
-     */
-    private List qualifyFromItems(List fromItems) {
+    private List<FromItem> qualifyFromItems(List fromItems) {
         if (fromItems == null) {
             return null;
         }
 
-        List qualifiedFromItems = new ArrayList();
+        List<FromItem> qualifiedFromItems = new ArrayList<FromItem>();
 
         for (Iterator it = fromItems.iterator(); it.hasNext();) {
             FromItem fromItem = (FromItem) it.next();
@@ -253,14 +209,6 @@ public class SelectQualifier implements net.sf.jsqlparser.statement.select.Selec
         return qualifiedFromItems;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param union
-     *            DOCUMENT ME!
-     * @throws UnsupportedOperationException
-     *             DOCUMENT ME!
-     */
     public void visit(Union union) {
         throw new UnsupportedOperationException();
     }

@@ -137,7 +137,7 @@ public class ArcSDEJNDIDataStoreFactory implements DataStoreFactorySpi {
             sessionPool = (ISessionPool) lookup;
 
         } else if (lookup instanceof Map) {
-            Map<String, String> map = new HashMap<String, String>();
+            Map<String, Serializable> map = new HashMap<String, Serializable>();
             {
                 Map<Object, Object> props = (Map<Object, Object>) lookup;
                 String key;
@@ -165,8 +165,8 @@ public class ArcSDEJNDIDataStoreFactory implements DataStoreFactorySpi {
      * Looks up and returns the JNDI resource addressed by {@code jndiName}
      * 
      * @param jndiName
-     * @return the resource mapped at {@code jndiName}, which shall be either a {@code
-     *         java.util.Map<String, String>}, an {@link ArcSDEConnectionConfig} or a
+     * @return the resource mapped at {@code jndiName}, which shall be either a
+     *         {@code java.util.Map<String, String>}, an {@link ArcSDEConnectionConfig} or a
      *         {@link ISessionPool}.
      * @throws IOException
      *             if a resource is not found at {@code jndiName}
@@ -291,7 +291,6 @@ public class ArcSDEJNDIDataStoreFactory implements DataStoreFactorySpi {
     /**
      * @see org.geotools.factory.Factory#getImplementationHints()
      */
-    @SuppressWarnings("unchecked")
     public Map<Key, ?> getImplementationHints() {
         return delegateFactory.getImplementationHints();
     }

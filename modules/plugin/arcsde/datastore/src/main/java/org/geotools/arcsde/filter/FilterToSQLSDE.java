@@ -74,7 +74,6 @@ public class FilterToSQLSDE extends FilterToSQL implements FilterVisitor {
 
     private final String layerFidFieldName;
 
-    /** DOCUMENT ME! */
     private final PlainSelect definitionQuery;
 
     /**
@@ -164,7 +163,6 @@ public class FilterToSQLSDE extends FilterToSQL implements FilterVisitor {
      * Overrides the superclass implementation to indicate that we support pushing FeatureId filters
      * down into the data store.
      * 
-     * @return DOCUMENT ME!
      */
     @Override
     protected FilterCapabilities createFilterCapabilities() {
@@ -183,14 +181,8 @@ public class FilterToSQLSDE extends FilterToSQL implements FilterVisitor {
     }
 
     /**
-     * overriden just to avoid the "WHERE" keyword
+     * overrides just to avoid the "WHERE" keyword
      * 
-     * @param out
-     *            DOCUMENT ME!
-     * @param filter
-     *            DOCUMENT ME!
-     * @throws GeoAPIFilterToSQLEncoderException
-     *             DOCUMENT ME!
      */
     @Override
     public void encode(Filter filter) throws FilterToSQLException {
@@ -207,8 +199,6 @@ public class FilterToSQLSDE extends FilterToSQL implements FilterVisitor {
      * 
      * @param filter
      *            the Fid Filter.
-     * @throws RuntimeException
-     *             DOCUMENT ME!
      */
     @Override
     public Object visit(final Id filter, final Object unused) {

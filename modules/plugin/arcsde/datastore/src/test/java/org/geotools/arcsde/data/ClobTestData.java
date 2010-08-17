@@ -3,6 +3,9 @@ package org.geotools.arcsde.data;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -39,6 +42,7 @@ public class ClobTestData {
     /*
      * The first column definition must be an SDE managed row id.
      */
+    @SuppressWarnings("deprecation")
     public static SeColumnDefinition[] getTestTableCols() throws SeException {
         if (TEST_TABLE_COLS == null) {
             TEST_TABLE_COLS = new SeColumnDefinition[] {
@@ -53,7 +57,7 @@ public class ClobTestData {
     /**
      * the set of test parameters loaded from {@code test-data/testparams.properties}
      */
-    private Properties conProps = null;
+    private Map<String, Serializable> conProps = null;
 
     /**
      * the name of a table that can be manipulated without risk of loosing important data
@@ -67,9 +71,6 @@ public class ClobTestData {
 
     /**
      * Creates a new TestData object.
-     * 
-     * @throws IOException
-     *             DOCUMENT ME!
      */
     public ClobTestData() {
         // intentionally blank
@@ -91,7 +92,7 @@ public class ClobTestData {
                     + "Make sure the real ArcSDE jars are on your classpath.");
         }
 
-        this.conProps = new Properties();
+        Properties props = new Properties();
 
         String propsFile = "testparams.properties";
         InputStream in = org.geotools.test.TestData.openStream(null, propsFile);
@@ -99,17 +100,21 @@ public class ClobTestData {
         // The line above should never returns null. It should thow a
         // FileNotFoundException instead if the resource is not available.
 
-        this.conProps.load(in);
+        props.load(in);
         in.close();
 
-        this.temp_table = this.conProps.getProperty("temp_table");
-        this.configKeyword = this.conProps.getProperty("configKeyword");
+        this.temp_table = props.getProperty("temp_table");
+        this.configKeyword = props.getProperty("configKeyword");
         if (this.configKeyword == null) {
             this.configKeyword = "DEFAULTS";
         }
 
         if (this.temp_table == null) {
             throw new IllegalArgumentException("temp_table not defined in " + propsFile);
+        }
+        this.conProps = new HashMap<String, Serializable>();
+        for (Map.Entry<Object, Object> e : props.entrySet()) {
+            this.conProps.put(String.valueOf(e.getKey()), (Serializable) e.getValue());
         }
     }
 
@@ -119,9 +124,6 @@ public class ClobTestData {
     public void tearDown(boolean cleanTestTable, boolean cleanPool) {
         if (cleanTestTable) {
             deleteTempTable();
-        }
-        if (cleanPool) {
-            ISessionPoolFactory pfac = SessionPoolFactory.getInstance();
         }
     }
 
@@ -140,10 +142,6 @@ public class ClobTestData {
     /**
      * creates an ArcSDEDataStore using {@code test-data/testparams.properties} as holder of
      * datastore parameters
-     * 
-     * @return DOCUMENT ME!
-     * @throws IOException
-     *             DOCUMENT ME!
      */
     public ArcSDEDataStore getDataStore() throws IOException {
         ISessionPool pool = getConnectionPool();
@@ -159,15 +157,6 @@ public class ClobTestData {
             this._pool = pfac.createPool(config.getSessionConfig());
         }
         return this._pool;
-    }
-
-    /**
-     * DOCUMENT ME!
-     * 
-     * @return Returns the conProps.
-     */
-    public Properties getConProps() {
-        return this.conProps;
     }
 
     public String getTempTableName() throws IOException, UnavailableConnectionException {
@@ -385,13 +374,6 @@ public class ClobTestData {
 
                 SeColumnDefinition[] colDefs = getTestTableCols();
 
-                /*
-                 * Define the columns and their attributes for the table to be created. NOTE: The
-                 * valid range/values of size and scale parameters vary from one database to
-                 * another.
-                 */
-                boolean isNullable = true;
-
                 try {
                     table.delete();
                 } catch (Exception e) {
@@ -534,10 +516,6 @@ public class ClobTestData {
      * Actually tested to deal with coordinates with 0.0002 units of separation as well as with
      * large coordinates such as UTM (values greater than 500,000.00)
      * </p>
-     * 
-     * @return DOCUMENT ME!
-     * @throws SeException
-     *             DOCUMENT ME!
      */
     public static SeCoordinateReference getGenericCoordRef() throws SeException {
 

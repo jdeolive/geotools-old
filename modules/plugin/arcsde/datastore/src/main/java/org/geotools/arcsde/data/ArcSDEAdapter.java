@@ -80,6 +80,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *         /java/org/geotools/arcsde/data/ArcSDEAdapter.java $
  * @version $Id$
  */
+@SuppressWarnings("deprecation")
 public class ArcSDEAdapter {
     /** Logger for ths class' package */
     private static final Logger LOGGER = Logging.getLogger(ArcSDEAdapter.class.getName());
@@ -138,23 +139,12 @@ public class ArcSDEAdapter {
         java2SDETypes.put(Number.class, new SdeTypeDef(SeColumnDefinition.TYPE_DOUBLE, 25, 4));
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param attribute
-     *            DOCUMENT ME!
-     * @return DOCUMENT ME!
-     * @throws NullPointerException
-     *             DOCUMENT ME!
-     * @throws IllegalArgumentException
-     *             DOCUMENT ME!
-     */
     public static int guessShapeTypes(GeometryDescriptor attribute) {
         if (attribute == null) {
             throw new NullPointerException("a GeometryAttributeType must be provided, got null");
         }
 
-        Class geometryClass = attribute.getType().getBinding();
+        Class<?> geometryClass = attribute.getType().getBinding();
 
         int shapeTypes = 0;
 
@@ -221,14 +211,12 @@ public class ArcSDEAdapter {
     }
 
     /**
-     * DOCUMENT ME!
      * 
      * @param attClass
      * @return an SdeTypeDef instance with default values for the given class
      * @throws IllegalArgumentException
-     *             DOCUMENT ME!
      */
-    private static SdeTypeDef getSdeType(Class attClass) throws IllegalArgumentException {
+    private static SdeTypeDef getSdeType(Class<?> attClass) throws IllegalArgumentException {
         SdeTypeDef sdeType = java2SDETypes.get(attClass);
 
         if (sdeType == null) {
@@ -429,7 +417,7 @@ public class ArcSDEAdapter {
         final int nCols = seColumns.length;
         List<AttributeDescriptor> attDescriptors = new ArrayList<AttributeDescriptor>(nCols);
 
-        Class typeClass = null;
+        Class<?> typeClass = null;
 
         for (int i = 0; i < nCols; i++) {
             SeColumnDefinition colDef = seColumns[i];
@@ -541,8 +529,8 @@ public class ArcSDEAdapter {
         builder.setName(typeName);
         builder.setNamespaceURI(namespace);
 
-        for (Iterator it = properties.iterator(); it.hasNext();) {
-            AttributeDescriptor attType = (AttributeDescriptor) it.next();
+        for (Iterator<AttributeDescriptor> it = properties.iterator(); it.hasNext();) {
+            AttributeDescriptor attType = it.next();
             builder.add(attType);
         }
 
@@ -611,13 +599,11 @@ public class ArcSDEAdapter {
      * </p>
      * 
      * @param seShapeType
-     *            DOCUMENT ME!
-     * @return DOCUMENT ME!
+     * @return
      * @throws IllegalArgumentException
-     *             DOCUMENT ME!
      */
-    public static Class getGeometryTypeFromLayerMask(int seShapeType) {
-        Class clazz = com.vividsolutions.jts.geom.Geometry.class;
+    public static Class<? extends Geometry> getGeometryTypeFromLayerMask(int seShapeType) {
+        Class<? extends Geometry> clazz = com.vividsolutions.jts.geom.Geometry.class;
         final int MULTIPART_MASK = SeLayer.SE_MULTIPART_TYPE_MASK;
         final int POINT_MASK = SeLayer.SE_POINT_TYPE_MASK;
         final int SIMPLE_LINE_MASK = SeLayer.SE_SIMPLE_LINE_TYPE_MASK;
@@ -778,22 +764,14 @@ public class ArcSDEAdapter {
         }
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param identifiers
-     *            DOCUMENT ME!
-     * @return DOCUMENT ME!
-     * @throws IllegalArgumentException
-     *             DOCUMENT ME!
-     */
-    public static long[] getNumericFids(Set identifiers) throws IllegalArgumentException {
+    public static long[] getNumericFids(Set<Identifier> identifiers)
+            throws IllegalArgumentException {
         int nfids = identifiers.size();
         long[] fids = new long[nfids];
 
-        Iterator ids = identifiers.iterator();
+        Iterator<Identifier> ids = identifiers.iterator();
         for (int i = 0; i < nfids; i++) {
-            fids[i] = ArcSDEAdapter.getNumericFid((Identifier) ids.next());
+            fids[i] = ArcSDEAdapter.getNumericFid(ids.next());
         }
 
         return fids;
@@ -918,8 +896,9 @@ public class ArcSDEAdapter {
      *             connection pool), or an SeException exception is catched while creating the
      *             feature type at the ArcSDE instance (e.g. a table with that name already exists).
      */
-    public static void createSchema(final SimpleFeatureType featureType, final Map hints,
-            final ISession session) throws IOException, IllegalArgumentException {
+    public static void createSchema(final SimpleFeatureType featureType,
+            final Map<String, String> hints, final ISession session) throws IOException,
+            IllegalArgumentException {
 
         if (featureType == null) {
             throw new NullPointerException("You have to provide a FeatureType instance");
@@ -1154,9 +1133,8 @@ public class ArcSDEAdapter {
      * This method is driven by the equally named method in TestData.java
      * </p>
      * 
-     * @return DOCUMENT ME!
+     * @return
      * @throws SeException
-     *             DOCUMENT ME!
      */
     private static SeCoordinateReference getGenericCoordRef() throws SeException {
         // create a sde CRS with a huge value range and 5 digits of presission

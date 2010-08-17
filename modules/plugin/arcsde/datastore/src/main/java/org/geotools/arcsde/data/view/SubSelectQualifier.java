@@ -34,15 +34,7 @@ import org.geotools.arcsde.session.ISession;
  * @since 2.3.x
  */
 class SubSelectQualifier {
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param session
-     *            DOCUMENT ME!
-     * @param subSelect
-     *            DOCUMENT ME!
-     * @return DOCUMENT ME!
-     */
+
     public static SubSelect qualify(ISession session, SubSelect subSelect) {
         String alias = subSelect.getAlias();
         SelectBody select = subSelect.getSelectBody();

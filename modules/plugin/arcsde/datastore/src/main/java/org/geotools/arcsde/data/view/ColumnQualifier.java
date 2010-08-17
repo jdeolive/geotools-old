@@ -36,16 +36,8 @@ import org.geotools.arcsde.session.ISession;
  * @since 2.3.x
  */
 class ColumnQualifier {
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param session
-     *            DOCUMENT ME!
-     * @param column
-     *            DOCUMENT ME!
-     * @return DOCUMENT ME!
-     */
-    public static Column qualify(ISession session, Map tableAliases, Column column) {
+
+    public static Column qualify(ISession session, Map<String, Object> tableAliases, Column column) {
         Table table = column.getTable();
 
         String columnName = column.getColumnName();

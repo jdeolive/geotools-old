@@ -30,7 +30,9 @@ import static org.geotools.arcsde.session.ArcSDEConnectionConfig.PORT_NUMBER_PAR
 import static org.geotools.arcsde.session.ArcSDEConnectionConfig.SERVER_NAME_PARAM_NAME;
 import static org.geotools.arcsde.session.ArcSDEConnectionConfig.USER_NAME_PARAM_NAME;
 
+import java.awt.RenderingHints;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -76,7 +78,6 @@ public final class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
     /** friendly factory description */
     public static final String FACTORY_DESCRIPTION = "ESRI(tm) ArcSDE 9.2+ vector data store";
 
-    /** DOCUMENT ME! */
     private static List<Param> paramMetadata = new ArrayList<Param>(10);
 
     public static final int JSDE_VERSION_DUMMY = -1;
@@ -116,8 +117,8 @@ public final class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
             Collections.singletonMap(Parameter.IS_PASSWORD, Boolean.TRUE));
 
     public static final Param MIN_CONNECTIONS_PARAM = new Param(MIN_CONNECTIONS_PARAM_NAME,
-            Integer.class, "Minimun number of open connections", false, Integer
-                    .valueOf(ArcSDEDataStoreConfig.DEFAULT_CONNECTIONS));
+            Integer.class, "Minimun number of open connections", false,
+            Integer.valueOf(ArcSDEDataStoreConfig.DEFAULT_CONNECTIONS));
 
     public static final Param MAX_CONNECTIONS_PARAM = new Param(MAX_CONNECTIONS_PARAM_NAME,
             Integer.class, "Maximun number of open connections (will not work if < 2)", false,
@@ -206,7 +207,7 @@ public final class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
      *             always as the operation is not supported
      * @see DataStoreFactorySpi#createNewDataStore(Map)
      */
-    public DataStore createNewDataStore(java.util.Map map) {
+    public DataStore createNewDataStore(java.util.Map<String, Serializable> map) {
         throw new UnsupportedOperationException(
                 "ArcSDE DataStore does not support the creation of new databases. "
                         + "This should be done through database's specific tools");
@@ -243,7 +244,8 @@ public final class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
      * @throws java.io.IOException
      *             if something goes wrong creating the datastore.
      */
-    public DataStore createDataStore(final Map params) throws java.io.IOException {
+    public DataStore createDataStore(final Map<String, Serializable> params)
+            throws java.io.IOException {
         if (JSDE_CLIENT_VERSION == JSDE_VERSION_DUMMY) {
             throw new DataSourceException("Can't connect to ArcSDE with the dummy jar.");
         }
@@ -258,7 +260,6 @@ public final class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
     }
 
     final ArcSDEDataStore createDataStore(ArcSDEDataStoreConfig config) throws IOException {
-        ArcSDEDataStore sdeDStore;
         // create a new session pool to be used only by this datastore
         final ISessionPool connPool = poolFactory.createPool(config.getSessionConfig());
 
@@ -285,20 +286,19 @@ public final class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
                 // just won't
                 // work when trying to draw maps. Oh well, at least we'll warn
                 // people.
-                LOGGER
-                        .severe("\n\n**************************\n"
-                                + "DANGER DANGER DANGER!!!  You're using the ArcSDE 9.0 (or earlier) jars with "
-                                + "ArcSDE "
-                                + majVer
-                                + "."
-                                + minVer
-                                + " on host '"
-                                + config.getServerName()
-                                + "' .  "
-                                + "This PROBABLY WON'T WORK.  If you have issues "
-                                + "or unexplained exceptions when rendering maps, upgrade your ArcSDE jars to version "
-                                + "9.2 or higher.  See http://docs.codehaus.org/display/GEOTOOLS/ArcSDE+Plugin\n"
-                                + "**************************\n\n");
+                LOGGER.severe("\n\n**************************\n"
+                        + "DANGER DANGER DANGER!!!  You're using the ArcSDE 9.0 (or earlier) jars with "
+                        + "ArcSDE "
+                        + majVer
+                        + "."
+                        + minVer
+                        + " on host '"
+                        + config.getServerName()
+                        + "' .  "
+                        + "This PROBABLY WON'T WORK.  If you have issues "
+                        + "or unexplained exceptions when rendering maps, upgrade your ArcSDE jars to version "
+                        + "9.2 or higher.  See http://docs.codehaus.org/display/GEOTOOLS/ArcSDE+Plugin\n"
+                        + "**************************\n\n");
             }
 
             // if a version was specified, verify it exists
@@ -341,12 +341,7 @@ public final class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
         return FACTORY_DESCRIPTION;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param params
-     */
-    public boolean canProcess(Map params) {
+    public boolean canProcess(Map<String, Serializable> params) {
         if (JSDE_CLIENT_VERSION == JSDE_VERSION_DUMMY) {
             return false;
         }
@@ -396,8 +391,10 @@ public final class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
 
     /**
      * Returns the implementation hints. The default implementation returns en empty map.
+     * 
+     * @see DataStoreFactorySpi#getImplementationHints()
      */
-    public Map getImplementationHints() {
+    public Map<RenderingHints.Key, ?> getImplementationHints() {
         return Collections.EMPTY_MAP;
     }
 
