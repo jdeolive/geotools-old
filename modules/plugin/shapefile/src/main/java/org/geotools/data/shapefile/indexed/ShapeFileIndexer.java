@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geotools.data.shapefile.FileWriter;
@@ -249,7 +250,9 @@ public class ShapeFileIndexer implements FileWriter {
                 System.out.println("Done");
             }
             
-            printStats(tree);
+            if(LOGGER.isLoggable(Level.FINE)) {
+                printStats(tree);
+            }
             store.store(tree);
         } finally {
             tree.close();
@@ -302,9 +305,11 @@ public class ShapeFileIndexer implements FileWriter {
        
        List<Integer> nums = new ArrayList<Integer>(stats.keySet());
        Collections.sort(nums);
+       StringBuilder sb = new StringBuilder("Index statistics");
        for (Integer num : nums) {
-           System.out.println(num + " -> " + stats.get(num));
+           sb.append(num).append(" -> ").append(num).append("\n");
        }
+       LOGGER.log(Level.FINE, sb.toString());
     }
 
     void gatherStats(Node node, Map<Integer, Integer> stats) throws StoreException  {
