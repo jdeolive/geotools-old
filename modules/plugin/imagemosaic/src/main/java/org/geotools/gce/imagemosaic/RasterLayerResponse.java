@@ -849,20 +849,25 @@ class RasterLayerResponse{
 					final int size=times.size();
 					boolean current= size==1&&times.get(0)==null;
 					if( !current){
-						Filter temporal;
-						boolean first =true;
-						for( Date datetime: times){
-							if(first){
-								temporal=Utils.FILTER_FACTORY.equal(Utils.FILTER_FACTORY.property(rasterManager.timeAttribute), Utils.FILTER_FACTORY.literal(times.get(0)),true);
-								first =false;
-							}
-							else{
-								final PropertyIsEqualTo temp =
-									Utils.FILTER_FACTORY.equal(Utils.FILTER_FACTORY.property(rasterManager.timeAttribute), Utils.FILTER_FACTORY.literal(times.get(0)),true);
-								temporal= Utils.FILTER_FACTORY.or(Arrays.asList(temporal,temp));
+						Filter temporal=null;
+						if(size==1)
+							temporal=Utils.FILTER_FACTORY.equal(Utils.FILTER_FACTORY.property(rasterManager.timeAttribute), Utils.FILTER_FACTORY.literal(times.get(0)),true);
+						else{
+							boolean first =true;
+							for( Date datetime: times){
+								if(first){
+									temporal=Utils.FILTER_FACTORY.equal(Utils.FILTER_FACTORY.property(rasterManager.timeAttribute), Utils.FILTER_FACTORY.literal(datetime),true);
+									first =false;
+								}
+								else{
+									final PropertyIsEqualTo temp =
+										Utils.FILTER_FACTORY.equal(Utils.FILTER_FACTORY.property(rasterManager.timeAttribute), Utils.FILTER_FACTORY.literal(datetime),true);
+									temporal= Utils.FILTER_FACTORY.or(Arrays.asList(temporal,temp));
+								}
 							}
 						}
-						query.setFilter(Utils.FILTER_FACTORY.and(oldFilter, temporal));
+						if(temporal!=null)//should not happen
+							query.setFilter(Utils.FILTER_FACTORY.and(oldFilter, temporal));
 					}
 					else{
 						// current management
