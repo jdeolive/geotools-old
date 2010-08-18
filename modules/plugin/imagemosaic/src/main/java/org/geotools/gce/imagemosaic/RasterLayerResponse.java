@@ -30,6 +30,7 @@ import java.awt.image.SampleModel;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -55,6 +56,7 @@ import javax.media.jai.TileScheduler;
 import javax.media.jai.operator.AffineDescriptor;
 import javax.media.jai.operator.ConstantDescriptor;
 import javax.media.jai.operator.MosaicDescriptor;
+import javax.print.attribute.standard.DateTimeAtCompleted;
 
 import org.geotools.coverage.Category;
 import org.geotools.coverage.GridSampleDimension;
@@ -847,7 +849,19 @@ class RasterLayerResponse{
 					final int size=times.size();
 					boolean current= size==1&&times.get(0)==null;
 					if( !current){
-						final PropertyIsEqualTo temporal = Utils.FILTER_FACTORY.equal(Utils.FILTER_FACTORY.property(rasterManager.timeAttribute), Utils.FILTER_FACTORY.literal(times.get(0)),true);
+						Filter temporal;
+						boolean first =true;
+						for( Date datetime: times){
+							if(first){
+								temporal=Utils.FILTER_FACTORY.equal(Utils.FILTER_FACTORY.property(rasterManager.timeAttribute), Utils.FILTER_FACTORY.literal(times.get(0)),true);
+								first =false;
+							}
+							else{
+								final PropertyIsEqualTo temp =
+									Utils.FILTER_FACTORY.equal(Utils.FILTER_FACTORY.property(rasterManager.timeAttribute), Utils.FILTER_FACTORY.literal(times.get(0)),true);
+								temporal= Utils.FILTER_FACTORY.or(Arrays.asList(temporal,temp));
+							}
+						}
 						query.setFilter(Utils.FILTER_FACTORY.and(oldFilter, temporal));
 					}
 					else{
