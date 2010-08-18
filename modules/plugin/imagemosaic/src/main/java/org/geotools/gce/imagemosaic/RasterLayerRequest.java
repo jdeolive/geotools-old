@@ -47,6 +47,7 @@ import org.geotools.referencing.operation.transform.ProjectiveTransform;
 import org.geotools.resources.geometry.XRectangle2D;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
+import org.opengis.filter.Filter;
 import org.opengis.geometry.BoundingBox;
 import org.opengis.geometry.Envelope;
 import org.opengis.geometry.MismatchedDimensionException;
@@ -151,14 +152,14 @@ class RasterLayerRequest {
 
 	private double elevation=Double.NaN;
 	
-	private String cql = null;
+	private Filter filter = null;
 
 	public double getElevation() {
 		return elevation;
 	}
 
-	public String getCQL() {
-		return cql;
+	public Filter getFilter() {
+		return filter;
 	}
 	
 	public List<Date> getRequestedTimes() {
@@ -633,7 +634,7 @@ class RasterLayerRequest {
         	final Object value = param.getValue();
         	if(value==null)
         		return;
-            final List dates = (List) param.getValue();
+            final List dates = (List) value;
             if (dates==null|| dates.size()<=0) {
                 return;
             }
@@ -651,7 +652,7 @@ class RasterLayerRequest {
         	final Object value = param.getValue();
         	if(value==null)
         		return;
-            elevation = (Double)param.getValue();
+            elevation = (Double) value;
             return;
         }            
 
@@ -660,11 +661,11 @@ class RasterLayerRequest {
         // Runtime parameter
         //
         // //
-        if (name.equals(ImageMosaicFormat.CQL_FILTER.getName())) {
+        if (name.equals(ImageMosaicFormat.FILTER.getName())) {
         	final Object value = param.getValue();
         	if(value==null)
         		return;
-            cql = (String)param.getValue();
+            filter = (Filter) value;
             return;
         }            
 
