@@ -62,7 +62,7 @@ public class ShapeFileIndexer implements FileWriter {
     private static final Logger LOGGER = Logging.getLogger(ShapeFileIndexer.class);
     
     private int max = -1;
-    private int loadFactor = 8;
+    private int loadFactor = 4;
     private String byteOrder;
     private boolean interactive = false;
     private ShpFiles shpFiles;
@@ -245,7 +245,7 @@ public class ShapeFileIndexer implements FileWriter {
             FileSystemIndexStore store = new FileSystemIndexStore(file, order);
             
             if(loadFactor > 0) {
-                System.out.println("Rebalancing the tree (this might take some time)");
+                System.out.println("Optimizing the tree (this might take some time)");
                 applyLoadFactor(tree, tree.getRoot(), 0, reader, shpIndex);
                 System.out.println("Done");
             }
@@ -260,9 +260,11 @@ public class ShapeFileIndexer implements FileWriter {
         return cnt;
     }
 
-    private void applyLoadFactor(QuadTree tree, Node node, int level, ShapefileReader reader, IndexFile index) throws StoreException, IOException {
+    private Node applyLoadFactor(QuadTree tree, Node node, int level, ShapefileReader reader, IndexFile index) throws StoreException, IOException {
 //        System.out.println("Analyzing node at level " + level);
-        if(node.getNumShapeIds() > loadFactor && node.getNumSubNodes() == 0) {
+        // recurse, with a check to avoid too deep recursion due to odd data that has a
+        // number of superimposed points and the like
+        if(node.getNumShapeIds() > loadFactor && node.getNumSubNodes() == 0 && level < max * 2) {
             // ok, we need to split this baby further
             int[] shapeIds = node.getShapesId();
             int numShapesId = node.getNumShapeIds();
@@ -288,15 +290,28 @@ public class ShapeFileIndexer implements FileWriter {
                 tree.insert(node, shapeId, env, extraLevels);
             }
         }
-        // recurse, with a check to avoid too deep recursion due to odd data that has a
-        // number of superimposed points and the like
-        if(node.getNumSubNodes() > 0 && level < max * 2) {
-            // not a leaf, we cannot split it further
+
+        if(node.getNumSubNodes() == 0) {
+            return node;
+        } else if(node.getNumSubNodes() == 1) {
+            // are we facing a degenerate chain?
+            Node subnode = applyLoadFactor(tree, node.getSubNode(0), level + 1, reader, index);
+            if(subnode != null) {
+                // remove the children and move up to the parent, no point in having extra
+                // nodes here
+                node.setShapesId(subnode);
+                node.clearSubNodes();
+                return node;
+            } else {
+                return null;
+            }
+        } else {
+            // recurse, and remember we cannot simplify up since there are multiple children
             for (int i = 0; i < node.getNumSubNodes(); i++) {
                 applyLoadFactor(tree, node.getSubNode(i), level + 1, reader, index);
             }
+            return null;
         }
-
     }
 
     private void printStats(QuadTree tree) throws StoreException {
@@ -305,9 +320,9 @@ public class ShapeFileIndexer implements FileWriter {
        
        List<Integer> nums = new ArrayList<Integer>(stats.keySet());
        Collections.sort(nums);
-       StringBuilder sb = new StringBuilder("Index statistics");
+       StringBuilder sb = new StringBuilder("Index statistics\n");
        for (Integer num : nums) {
-           sb.append(num).append(" -> ").append(num).append("\n");
+           sb.append(num).append(" -> ").append(stats.get(num)).append("\n");
        }
        LOGGER.log(Level.FINE, sb.toString());
     }

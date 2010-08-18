@@ -197,6 +197,11 @@ public class Node {
             }
         }
     }
+    
+    public void setShapesId(Node other) {
+        this.numShapesId = other.numShapesId;
+        this.shapesId = other.shapesId;
+    }
 
     /**
      * DOCUMENT ME!

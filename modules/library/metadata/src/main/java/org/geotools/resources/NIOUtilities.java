@@ -182,7 +182,11 @@ public final class NIOUtilities {
         if(memoryMapped) {
             return clean(buffer);
         } else {
-            return returnToCache(buffer);
+            if(returnToCache(buffer)) {
+                return true;
+            } else {
+                return clean(buffer);
+            }
         }
     }
 
@@ -237,9 +241,14 @@ public final class NIOUtilities {
     }
 
     public static boolean returnToCache(final ByteBuffer buffer) {
-        int size = (int) Math.pow(2, Math.ceil(Math.log(buffer.capacity()) / Math.log(2)));
-        if(size != buffer.capacity()) {
-            return false;
+        // is the buffer cacheable? There are some blessed sizes we use over and over, for the
+        // rest buffer only powers of two
+        final int capacity = buffer.capacity();
+        if(capacity != 100 && capacity != 13 && capacity != 16000) {
+            int size = (int) Math.pow(2, Math.ceil(Math.log(capacity) / Math.log(2)));
+            if(size != capacity) {
+                return false;
+            }
         }
         
         // clean up the buffer -> we need to zero out its contents as if it was just
@@ -253,11 +262,11 @@ public final class NIOUtilities {
         
         // set the buffer back in the cache, either as a soft reference or as
         // a hard one depending on whether we're past the hard cache or not
-        Queue<Object> buffers = cache.get(buffer.capacity());
+        Queue<Object> buffers = cache.get(capacity);
         if(hardCacheSize.get() > maxCacheSize) {
             buffers.add(new BufferSoftReference(buffer));
         } else {
-            hardCacheSize.addAndGet(buffer.capacity());
+            hardCacheSize.addAndGet(capacity);
             buffers.add(buffer);
         }
         return true;
