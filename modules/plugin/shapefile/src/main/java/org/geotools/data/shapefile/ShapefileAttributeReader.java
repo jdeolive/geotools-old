@@ -46,7 +46,7 @@ public class ShapefileAttributeReader extends AbstractAttributeIO implements
     int cnt;
     protected int[] dbfindexes;
     protected Envelope targetBBox;
-    double simplificationDistance;
+    protected double simplificationDistance;
     protected Object geometry;
 
     public ShapefileAttributeReader(List<AttributeDescriptor> atts,

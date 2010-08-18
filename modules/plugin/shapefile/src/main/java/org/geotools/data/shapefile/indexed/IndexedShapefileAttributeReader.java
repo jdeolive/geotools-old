@@ -27,6 +27,8 @@ import org.geotools.index.CloseableCollection;
 import org.geotools.index.Data;
 import org.opengis.feature.type.AttributeDescriptor;
 
+import com.vividsolutions.jts.geom.Envelope;
+
 /**
  * An AttributeReader implementation for shape. Pretty straightforward. <BR/>The
  * default geometry is at position 0, and all dbf columns follow. <BR/>The dbf
@@ -42,6 +44,8 @@ public class IndexedShapefileAttributeReader extends ShapefileAttributeReader
     private int recno;
 
     private Data next;
+    
+    private boolean featureAvailable = false;
 
     private CloseableCollection<Data> closeableCollection;
 
@@ -88,38 +92,58 @@ public class IndexedShapefileAttributeReader extends ShapefileAttributeReader
 
     public boolean hasNext() throws IOException {
         if (this.goodRecs != null) {
-            if (next != null)
-                return true;
-            if (this.goodRecs.hasNext()) {
-
+            while (!featureAvailable && this.goodRecs.hasNext()) {
                 next = (Data) goodRecs.next();
                 this.recno = ((Integer) next.getValue(0)).intValue();
-                return true;
-            }
-            return false;
-        }
+                
+                Long l = (Long) next.getValue(1);
+                shp.goTo((int) l.longValue());
+                
+                record = shp.nextRecord();
+                
+                // read the geometry, so that we can decide if this row is to be skipped or not
+                Envelope envelope = record.envelope();
+                // ... if geometry is out of the target bbox, skip both geom and row
+                if (targetBBox != null && !targetBBox.isNull() && !targetBBox.intersects(envelope)) {
+                    geometry = null;
+                    continue;
+                // ... if the geometry is awfully small avoid reading it (unless it's a point)
+                } else if (simplificationDistance > 0 && envelope.getWidth() < simplificationDistance
+                        && envelope.getHeight() < simplificationDistance) {
+                    geometry = record.getSimplifiedShape();
+                // ... otherwise business as usual
+                } else {
+                    geometry = record.shape();
+                }
 
-        return super.hasNext();
+                // read the dbf only if the geometry was not skipped
+                if (dbf != null) {
+                    ((IndexedDbaseFileReader) dbf).goTo(this.recno);
+                    row = dbf.readRow();
+                } else {
+                    row = null;
+                }
+                
+                featureAvailable = true;
+            }
+            
+            return featureAvailable;
+        } else {
+            return super.hasNext();
+        }
     }
 
     public void next() throws IOException {
         if (!hasNext())
             throw new IndexOutOfBoundsException("No more features in reader");
         if (this.goodRecs != null) {
-            this.recno = ((Integer) next.getValue(0)).intValue();
-
-            if (dbf != null) {
-                ((IndexedDbaseFileReader) dbf).goTo(this.recno);
-            }
-
-            Long l = (Long) next.getValue(1);
-            shp.goTo((int) l.longValue());
-            next = null;
+            featureAvailable = false;
         } else {
             this.recno++;
+            super.next();
         }
 
-        super.next();
+        
     }
 
     public int getRecordNumber() {
