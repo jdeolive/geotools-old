@@ -27,6 +27,7 @@ import java.util.logging.Logger;
 import org.geotools.data.complex.ComplexFeatureConstants;
 import org.geotools.data.complex.config.NonFeatureTypeProxy;
 import org.geotools.feature.type.AttributeDescriptorImpl;
+import org.geotools.feature.type.GeometryDescriptorImpl;
 import org.opengis.feature.Association;
 import org.opengis.feature.Attribute;
 import org.opengis.feature.ComplexAttribute;
@@ -370,8 +371,13 @@ public class AttributeBuilder {
             boolean nillable = descriptor.isNillable();
             // TODO: handle default value
             Object defaultValue = null;
-            descriptor = new AttributeDescriptorImpl(type, name, minOccurs, maxOccurs, nillable,
-                    defaultValue);
+            if (type instanceof GeometryType) {
+                descriptor = new GeometryDescriptorImpl((GeometryType) type, name, minOccurs,
+                        maxOccurs, nillable, defaultValue);
+            } else {
+                descriptor = new AttributeDescriptorImpl(type, name, minOccurs, maxOccurs,
+                        nillable, defaultValue);
+            }
         }
         Attribute attribute;
         if (descriptor != null && descriptor.getType() instanceof NonFeatureTypeProxy) {

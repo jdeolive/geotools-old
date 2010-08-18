@@ -20,7 +20,6 @@ package org.geotools.data.complex.config;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.logging.Logger;
 
 import org.geotools.gml3.ApplicationSchemaConfiguration;
 import org.geotools.gml3.GMLConfiguration;
@@ -58,9 +57,6 @@ import org.xmlpull.v1.XmlPullParserFactory;
  * @since 2.4
  */
 public class EmfAppSchemaReader {
-    private static final Logger LOGGER = org.geotools.util.logging.Logging
-            .getLogger(EmfAppSchemaReader.class.getPackage().getName());
-
     /**
      * The initial resolver has support for only file and classpath resolution. Anything more than a
      * test should probably set this to something more useful.

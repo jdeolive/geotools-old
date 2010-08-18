@@ -66,8 +66,6 @@ import org.geotools.xml.AppSchemaResolver;
 import org.geotools.xml.SchemaIndex;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.AttributeType;
-import org.opengis.feature.type.GeometryDescriptor;
-import org.opengis.feature.type.GeometryType;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.expression.Expression;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -196,13 +194,9 @@ public class AppSchemaDataAccessConfigurator {
             TypeMapping dto = (TypeMapping) it.next();
 
             FeatureSource featureSource = getFeatureSource(dto);
-            GeometryType geomType = null;
-            // get default geometry from underlying feature source and pass it on
-            GeometryDescriptor defaultGeom = featureSource.getSchema().getGeometryDescriptor();
-            if (defaultGeom != null) {
-                geomType = defaultGeom.getType();
-            }
-            AttributeDescriptor target = getTargetDescriptor(dto, geomType);
+            // get CRS from underlying feature source and pass it on
+            AttributeDescriptor target = getTargetDescriptor(dto, featureSource.getSchema()
+                    .getCoordinateReferenceSystem());
 
             // set original schema locations for encoding
             target.getType().getUserData().put("schemaURI", schemaURIs);
@@ -224,13 +218,13 @@ public class AppSchemaDataAccessConfigurator {
         return featureTypeMappings;
     }
 
-    private AttributeDescriptor getTargetDescriptor(TypeMapping dto, GeometryType geomType)
+    private AttributeDescriptor getTargetDescriptor(TypeMapping dto, CoordinateReferenceSystem crs)
             throws IOException {
         String prefixedTargetName = dto.getTargetElementName();
         Name targetNodeName = Types.degloseName(prefixedTargetName, namespaces);
 
-        AttributeDescriptor targetDescriptor = typeRegistry.getDescriptor(targetNodeName, geomType,
-                dto.getAttributeMappings());
+        AttributeDescriptor targetDescriptor = typeRegistry.getDescriptor(targetNodeName, crs, dto
+                .getAttributeMappings());
         if (targetDescriptor == null) {
             throw new NoSuchElementException("descriptor " + targetNodeName
                     + " not found in parsed schema");

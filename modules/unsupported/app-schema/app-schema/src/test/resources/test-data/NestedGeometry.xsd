@@ -14,6 +14,7 @@
       <xs:extension base="gml:AbstractFeatureType">
         <xs:sequence>
           <xs:element name="geom" type="gml:GeometryPropertyType" />
+          <xs:element name="shape" type="gml:GeometryPropertyType" />
           <xs:element name="nestedFeature" type="ex:nestedFeaturePropertyType" nillable="true" maxOccurs="unbounded"/>
         </xs:sequence>
       </xs:extension>

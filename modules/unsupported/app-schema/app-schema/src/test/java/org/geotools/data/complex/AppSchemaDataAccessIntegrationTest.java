@@ -564,10 +564,8 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
                     .getFeatures();
             reader = EmfAppSchemaReader.newInstance();
             typeRegistry = new FeatureTypeRegistry();
-            
-
+          
             SchemaIndex schemaIndex = reader.parse(new URL(schemaLocation));
-
             typeRegistry.addSchemas(schemaIndex);
 
             ComplexType complexType = (ComplexType) typeRegistry

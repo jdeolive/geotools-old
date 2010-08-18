@@ -17,7 +17,6 @@
 package org.geotools.data.complex;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -31,27 +30,16 @@ import org.geotools.data.complex.filter.XPath.Step;
 import org.geotools.data.complex.filter.XPath.StepList;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.AppSchemaFeatureFactoryImpl;
-import org.geotools.feature.GeometryAttributeImpl;
 import org.geotools.feature.Types;
-import org.geotools.feature.type.GeometryDescriptorImpl;
-import org.geotools.feature.type.GeometryTypeImpl;
 import org.geotools.filter.FilterFactoryImplNamespaceAware;
 import org.geotools.xlink.XLINK;
 import org.opengis.feature.Attribute;
 import org.opengis.feature.Feature;
 import org.opengis.feature.FeatureFactory;
-import org.opengis.feature.GeometryAttribute;
-import org.opengis.feature.Property;
-import org.opengis.feature.type.AttributeDescriptor;
-import org.opengis.feature.type.AttributeType;
-import org.opengis.feature.type.GeometryDescriptor;
-import org.opengis.feature.type.GeometryType;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
 import org.xml.sax.helpers.NamespaceSupport;
-
-import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * Base class for several MappingFeatureImplementation's. 
@@ -261,48 +249,8 @@ public abstract class AbstractMappingFeatureIterator implements IMappingFeatureI
         }
 
         String id = extractIdForFeature();
-        Feature target = populateFeatureData(id);
-
-        if (target.getDefaultGeometryProperty() == null) {
-            setGeometry(target);
-        }
-
-        return target;
-
+        return populateFeatureData(id);
     }
-
-    /**
-     * Set the feature geometry to that of the first property bound to a JTS geometry
-     * 
-     * @param feature
-     */
-    protected void setGeometry(Feature feature) {
-        // FIXME an ugly, ugly hack to smuggle a geometry into a feature
-        // FeatureImpl.getBounds and GMLSchema do not work together
-        for (final Property property : feature.getProperties()) {
-            if (Geometry.class.isAssignableFrom(property.getType().getBinding())) {
-                // need to manufacture a GeometryDescriptor so we can make a GeometryAttribute
-                // in which we can store the Geometry
-                AttributeType type = (AttributeType) property.getType();
-                GeometryType geometryType = new GeometryTypeImpl(type.getName(), type.getBinding(),
-                        null, type.isIdentified(), type.isAbstract(), type.getRestrictions(), type
-                                .getSuper(), type.getDescription());
-                AttributeDescriptor descriptor = (AttributeDescriptor) property.getDescriptor();
-                GeometryDescriptor geometryDescriptor = new GeometryDescriptorImpl(geometryType,
-                        descriptor.getName(), descriptor.getMinOccurs(), descriptor.getMaxOccurs(),
-                        property.isNillable(), null);
-                GeometryAttribute geometryAttribute = new GeometryAttributeImpl(
-                        property.getValue(), geometryDescriptor, null);
-                List<Property> properties = new ArrayList<Property>(feature.getProperties());
-                properties.remove(property);
-                properties.add(geometryAttribute);
-                feature.setValue(properties);
-                feature.setDefaultGeometryProperty(geometryAttribute);
-                break;
-            }
-        }
-    }
-
 
     protected boolean isHasNextCalled() {
         return hasNextCalled;

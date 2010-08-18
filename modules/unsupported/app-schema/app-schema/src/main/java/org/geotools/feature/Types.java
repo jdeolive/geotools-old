@@ -54,8 +54,10 @@ import org.xml.sax.helpers.NamespaceSupport;
  * 
  * @author Jody Garnett, Refractions Research
  * @author Justin Deoliveira, The Open Planning Project
- *
- * @source $URL$
+ * 
+ * @source $URL:
+ *         http://svn.osgeo.org/geotools/trunk/modules/unsupported/app-schema/app-schema/src/main
+ *         /java/org/geotools/feature/Types.java $
  */
 public class Types {
 
@@ -63,7 +65,7 @@ public class Types {
      * Returns The name of attributes defined in the type.
      * 
      * @param type
-     *                The type.
+     *            The type.
      * 
      */
     public static Name[] names(ComplexType type) {
@@ -80,7 +82,7 @@ public class Types {
      * Creates a type name from a single non-qualified string.
      * 
      * @param name
-     *                The name, may be null
+     *            The name, may be null
      * 
      * @return The name in which getLocalPart() == name and getNamespaceURI() == null. Or null if
      *         name == null.
@@ -96,9 +98,9 @@ public class Types {
      * Creates an attribute name from a single non-qualified string.
      * 
      * @param name
-     *                The name, may be null
+     *            The name, may be null
      * @param namespace
-     *                The scope or namespace, may be null.
+     *            The scope or namespace, may be null.
      * 
      * @return The name in which getLocalPart() == name and getNamespaceURI() == namespace.
      */
@@ -110,7 +112,7 @@ public class Types {
      * Creates a type name from another name.
      * 
      * @param name
-     *                The other name.
+     *            The other name.
      */
     public static Name typeName(Name name) {
         return new NameImpl(name.getNamespaceURI(), name.getLocalPart());
@@ -200,9 +202,9 @@ public class Types {
      * Returns the first descriptor matching the given local name within the given type.
      * 
      * @param type
-     *                The type, non null.
+     *            The type, non null.
      * @param name
-     *                The name, non null.
+     *            The name, non null.
      * 
      * @return The first descriptor, or null if no match.
      */
@@ -219,9 +221,9 @@ public class Types {
      * Returns the first descriptor matching the given local name within the given type.
      * 
      * @param type
-     *                The type, non null.
+     *            The type, non null.
      * @param name
-     *                The name, non null.
+     *            The name, non null.
      * 
      * @return The first descriptor, or null if no match.
      */
@@ -275,11 +277,11 @@ public class Types {
      * Returns the first descriptor matching the given name + namespace within the given type.
      * 
      * @param type
-     *                The type, non null.
+     *            The type, non null.
      * @param name
-     *                The name, non null.
+     *            The name, non null.
      * @param namespace
-     *                The namespace, non null.
+     *            The namespace, non null.
      * 
      * @return The first descriptor, or null if no match.
      */
@@ -292,9 +294,9 @@ public class Types {
      * 
      * 
      * @param type
-     *                The type, non null.
+     *            The type, non null.
      * @param name
-     *                The name, non null.
+     *            The name, non null.
      * 
      * @return The first descriptor, or null if no match.
      */
@@ -311,9 +313,9 @@ public class Types {
      * Returns the set of descriptors matching the given local name within the given type.
      * 
      * @param type
-     *                The type, non null.
+     *            The type, non null.
      * @param name
-     *                The name, non null.
+     *            The name, non null.
      * 
      * @return The list of descriptors named 'name', or an empty list if none such match.
      */
@@ -347,9 +349,9 @@ public class Types {
      * Returns the set of descriptors matching the given name.
      * 
      * @param type
-     *                The type, non null.
+     *            The type, non null.
      * @param name
-     *                The name, non null.
+     *            The name, non null.
      * 
      * @return The list of descriptors named 'name', or an empty list if none such match.
      */
@@ -383,9 +385,9 @@ public class Types {
      * Determines if <code>parent</code> is a super type of <code>type</code>
      * 
      * @param type
-     *                The type in question.
+     *            The type in question.
      * @param parent
-     *                The possible parent type.
+     *            The possible parent type.
      * 
      */
     public static boolean isSuperType(PropertyType type, PropertyType parent) {
@@ -403,10 +405,10 @@ public class Types {
      * specific type.
      * 
      * @param value
-     *                the object to attempt parsing of.
+     *            the object to attempt parsing of.
      * 
      * @throws IllegalArgumentException
-     *                 if parsing is attempted and is unsuccessful.
+     *             if parsing is attempted and is unsuccessful.
      */
     public static Object parse(AttributeType type, Object content) throws IllegalArgumentException {
 
@@ -429,22 +431,20 @@ public class Types {
      * Same result as calling:
      * 
      * <pre>
-     * 	<code>
+     * 	&lt;code&gt;
      * validate(attribute.type(), attribute)
-     * </code>
+     * &lt;/code&gt;
      * </pre>
      * 
      * </p>
      * 
      * @param attribute
-     *                The attribute.
+     *            The attribute.
      * 
      * @throws IllegalAttributeException
-     *                 In the event that content violates any restrictions specified by the
-     *                 attribute.
+     *             In the event that content violates any restrictions specified by the attribute.
      */
-    public static void validate(Attribute attribute)
-            throws IllegalAttributeException {
+    public static void validate(Attribute attribute) throws IllegalAttributeException {
 
         validate(attribute, attribute.getValue());
     }
@@ -453,13 +453,12 @@ public class Types {
      * Validates content against an attribute.
      * 
      * @param attribute
-     *                The attribute.
+     *            The attribute.
      * @param attributeContent
-     *                Content of attribute.
+     *            Content of attribute.
      * 
      * @throws IllegalAttributeException
-     *                 In the event that content violates any restrictions specified by the
-     *                 attribute.
+     *             In the event that content violates any restrictions specified by the attribute.
      */
     public static void validate(Attribute attribute, Object attributeContent)
             throws IllegalAttributeException {
@@ -474,18 +473,16 @@ public class Types {
     }
 
     protected static void validate(AttributeType type, Attribute attribute,
-            Object attributeContent, boolean isSuper)
-            throws IllegalAttributeException {
+            Object attributeContent, boolean isSuper) throws IllegalAttributeException {
 
         if (type == null) {
-            throw new IllegalAttributeException(attribute.getDescriptor(),
-                    "null type");
+            throw new IllegalAttributeException(attribute.getDescriptor(), "null type");
         }
 
         if (attributeContent == null) {
             if (!attribute.isNillable()) {
-                throw new IllegalAttributeException(attribute.getDescriptor(),
-                        type.getName() + " not nillable");
+                throw new IllegalAttributeException(attribute.getDescriptor(), type.getName()
+                        + " not nillable");
             }
             return;
         }
@@ -505,9 +502,9 @@ public class Types {
             Class clazz = attributeContent.getClass();
             Class binding = type.getBinding();
             if (binding != null && !binding.isAssignableFrom(clazz)) {
-                throw new IllegalAttributeException(attribute.getDescriptor(),
-                        clazz.getName() + " is not an acceptable class for " + type.getName()
-                                + " as it is not assignable from " + binding);
+                throw new IllegalAttributeException(attribute.getDescriptor(), clazz.getName()
+                        + " is not an acceptable class for " + type.getName()
+                        + " as it is not assignable from " + binding);
             }
         }
 
@@ -572,9 +569,9 @@ public class Types {
             for (Iterator itr = type.getRestrictions().iterator(); itr.hasNext();) {
                 Filter f = (Filter) itr.next();
                 if (!f.evaluate(fake)) {
-                    throw new IllegalAttributeException(attribute
-                            .getDescriptor(), "Attribute instance ("
-                            + fake.getIdentifier().toString() + ")" + "fails to pass filter: " + f);
+                    throw new IllegalAttributeException(attribute.getDescriptor(),
+                            "Attribute instance (" + fake.getIdentifier().toString() + ")"
+                                    + "fails to pass filter: " + f);
                 }
             }
         }
@@ -661,8 +658,9 @@ public class Types {
         processAll(type.getDescriptors(), content);
     }
 
-    private static void processAll(Collection/* <AttributeDescriptor> */all,
-            Collection/* <Attribute> */content)
+    private static void processAll(Collection/* <AttributeDescriptor> */all, Collection/*
+                                                                                        * <Attribute>
+                                                                                        */content)
             throws IllegalAttributeException {
 
         // TODO: JD: this can be definitley be optimzed, as written its O(n^2)
@@ -685,16 +683,14 @@ public class Types {
             }
 
             if (occurences < ad.getMinOccurs() || occurences > ad.getMaxOccurs()) {
-                throw new IllegalAttributeException(ad, "Found " + occurences
-                        + " of " + ad.getName() + " when type" + "specifies between " + min
-                        + " and " + max);
+                throw new IllegalAttributeException(ad, "Found " + occurences + " of "
+                        + ad.getName() + " when type" + "specifies between " + min + " and " + max);
             }
         }
 
         if (!remaining.isEmpty()) {
-            throw new IllegalAttributeException((AttributeDescriptor) remaining
-                    .iterator().next(), "Extra content found beyond the specified in the schema: "
-                    + remaining);
+            throw new IllegalAttributeException((AttributeDescriptor) remaining.iterator().next(),
+                    "Extra content found beyond the specified in the schema: " + remaining);
         }
 
     }
@@ -764,8 +760,6 @@ public class Types {
         return name.getNamespaceURI().equals(qName.getNamespaceURI())
                 && name.getLocalPart().equals(qName.getLocalPart());
     }
-    
-
 
     /**
      * Takes a prefixed attribute name and returns an {@link Name} by looking which namespace
@@ -775,9 +769,8 @@ public class Types {
      *            , namespaces
      * @return
      * @throws IllegalArgumentException
-	 *             if <code>prefixedName</code> has no declared namespace in
-	 *             app-schema config file.
-	 */	
+     *             if <code>prefixedName</code> has no declared namespace in app-schema config file.
+     */
     public static Name degloseName(String prefixedName, NamespaceSupport namespaces)
             throws IllegalArgumentException {
         Name name = null;
@@ -796,19 +789,15 @@ public class Types {
         String nsPrefix = prefixedName.substring(0, prefixIdx);
         String localName = prefixedName.substring(prefixIdx + 1);
         String nsUri = namespaces.getURI(nsPrefix);
-        
-        // handles undeclared namespaces in the app-schema mapping file
-		if (nsUri == null) {
-			throw new IllegalArgumentException(
-					"No namespace set: The namespace has not"
-							+ " been declared in the app-schema mapping file for name: "
-							+ nsPrefix
-							+ ":"
-							+ localName
-							+ " [Check the Namespaces section in the config file] ");
 
-		}
-        
+        // handles undeclared namespaces in the app-schema mapping file
+        if (nsUri == null) {
+            throw new IllegalArgumentException("No namespace set: The namespace has not"
+                    + " been declared in the app-schema mapping file for name: " + nsPrefix + ":"
+                    + localName + " [Check the Namespaces section in the config file] ");
+
+        }
+
         name = Types.typeName(nsUri, localName);
 
         return name;

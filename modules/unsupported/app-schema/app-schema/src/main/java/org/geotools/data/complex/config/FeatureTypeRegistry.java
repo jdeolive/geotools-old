@@ -53,14 +53,16 @@ import org.geotools.xs.XSSchema;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.FeatureTypeFactory;
-import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.feature.type.GeometryType;
 import org.opengis.feature.type.Name;
 import org.opengis.feature.type.PropertyDescriptor;
 import org.opengis.feature.type.Schema;
 import org.opengis.filter.Filter;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.util.InternationalString;
 import org.xml.sax.helpers.NamespaceSupport;
+
+import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * A registry of GeoTools {@link AttributeType} and {@link AttributeDescriptor} lazily parsed from
@@ -72,6 +74,7 @@ import org.xml.sax.helpers.NamespaceSupport;
  * </p>
  * <p>
  * Usage:
+ * 
  * <pre>
  * <code>
  * FeatureTypeRegistry registry = new FeatureTypeRegistry();
@@ -86,9 +89,12 @@ import org.xml.sax.helpers.NamespaceSupport;
  * Name typeName = ...
  * FeatureType ft = (FeatureType)registry.getAttributeType(typeName);
  * </p>
+ * 
  * @author Gabriel Roldan
- *
- * @source $URL$
+ * 
+ * @source $URL:
+ *         http://svn.osgeo.org/geotools/trunk/modules/unsupported/app-schema/app-schema/src/main
+ *         /java/org/geotools/data/complex/config/FeatureTypeRegistry.java $
  * @version $Id$
  * 
  */
@@ -111,7 +117,7 @@ public class FeatureTypeRegistry {
     private HashMap<Name, AttributeDescriptor> descriptorRegistry;
 
     private HashMap<Name, AttributeType> typeRegistry;
-    
+
     private HashMap<Name, AttributeType> anonTypeRegistry;
 
     private FeatureTypeFactory typeFactory;
@@ -152,13 +158,13 @@ public class FeatureTypeRegistry {
         schemas.add(schemaIndex);
     }
 
-    public AttributeDescriptor getDescriptor(final Name descriptorName, GeometryType geomType,
-            List<AttributeMapping> attMappings) {
+    public AttributeDescriptor getDescriptor(final Name descriptorName,
+            CoordinateReferenceSystem crs, List<AttributeMapping> attMappings) {
         AttributeDescriptor descriptor = descriptorRegistry.get(descriptorName);
         if (descriptor == null) {
             try {
                 XSDElementDeclaration elemDecl = getElementDeclaration(descriptorName);
-                descriptor = createAttributeDescriptor(null, elemDecl, geomType, attMappings);
+                descriptor = createAttributeDescriptor(null, elemDecl, crs, attMappings);
                 LOGGER.finest("Registering attribute descriptor " + descriptor.getName());
                 register(descriptor);
             } catch (NoSuchElementException e) {
@@ -192,14 +198,14 @@ public class FeatureTypeRegistry {
         return getAttributeType(typeName, null, null);
     }
 
-    public AttributeType getAttributeType(final Name typeName, GeometryType geomType,
+    public AttributeType getAttributeType(final Name typeName, CoordinateReferenceSystem crs,
             List<AttributeMapping> attMappings) {
         AttributeType type = (AttributeType) typeRegistry.get(typeName);
         if (type == null) {
             XSDTypeDefinition typeDef = getTypeDefinition(typeName);
 
             LOGGER.finest("Creating attribute type " + typeDef.getQName());
-            type = createType(typeDef, geomType, attMappings);
+            type = createType(typeDef, crs, attMappings);
             LOGGER.finest("Registering attribute type " + type.getName());
         } else {
             // LOGGER.finer("Ignoring type " +
@@ -233,7 +239,7 @@ public class FeatureTypeRegistry {
         Name name = type.getName();
         Object old;
         if (anonymous) {
-            old = anonTypeRegistry.put(name, type);            
+            old = anonTypeRegistry.put(name, type);
         } else {
             old = typeRegistry.put(name, type);
         }
@@ -243,7 +249,7 @@ public class FeatureTypeRegistry {
     }
 
     private AttributeDescriptor createAttributeDescriptor(final XSDComplexTypeDefinition container,
-            final XSDElementDeclaration elemDecl, GeometryType geomType,
+            final XSDElementDeclaration elemDecl, CoordinateReferenceSystem crs,
             List<AttributeMapping> attMappings) {
         String targetNamespace = elemDecl.getTargetNamespace();
         String name = elemDecl.getName();
@@ -251,7 +257,7 @@ public class FeatureTypeRegistry {
 
         AttributeType type;
         try {
-            type = getTypeOf(elemDecl, geomType, attMappings);
+            type = getTypeOf(elemDecl, crs, attMappings);
         } catch (NoSuchElementException e) {
             String msg = "Type not found for " + elemName + " at type container "
                     + container.getTargetNamespace() + "#" + container.getName() + " at "
@@ -272,28 +278,12 @@ public class FeatureTypeRegistry {
         Object defaultValue = null;
         AttributeDescriptor descriptor;
 
-        boolean isGeometry = false;
-        if (geomType != null) {
-            String nsPrefix = this.namespaces.getPrefix(targetNamespace);
-            for (AttributeMapping att : attMappings) {
-                String[] attParts = att.getTargetAttributePath().split("/");
-                String[] nameParts = attParts[attParts.length - 1].split(":");
-                String ns = nameParts.length > 1 ? nameParts[0] : null;
-                String attName = ns == null ? nameParts[0] : nameParts[1];
-                // assume if it's pointing to a geometry column, source expression is not wrapped in
-                // a function, so just compare the source expression with the type name
-                if (name.equals(attName) && nsPrefix.equals(ns)
-                        && geomType.getName().getLocalPart().equals(att.getSourceExpression())) {
-                    isGeometry = true;
-                    break;
-                }
-            }
-        }
-        if (isGeometry) {
+        if (!(type instanceof AttributeTypeProxy)
+                && Geometry.class.isAssignableFrom(type.getBinding())) {
             // create geometry descriptor with the simple feature type CRS
-            geomType = new GeometryTypeImpl(type.getName(), type.getBinding(), geomType
-                    .getCoordinateReferenceSystem(), type.isIdentified(), type.isAbstract(), type
-                    .getRestrictions(), type.getSuper(), type.getDescription());
+            GeometryType geomType = new GeometryTypeImpl(type.getName(), type.getBinding(), crs,
+                    type.isIdentified(), type.isAbstract(), type.getRestrictions(),
+                    type.getSuper(), type.getDescription());
             descriptor = typeFactory.createGeometryDescriptor(geomType, elemName, minOccurs,
                     maxOccurs, nillable, defaultValue);
         } else {
@@ -301,6 +291,7 @@ public class FeatureTypeRegistry {
                     maxOccurs, nillable, defaultValue);
         }
         descriptor.getUserData().put(XSDElementDeclaration.class, elemDecl);
+
         return descriptor;
     }
 
@@ -312,7 +303,7 @@ public class FeatureTypeRegistry {
      * @param elemDecl
      * @return
      */
-    private AttributeType getTypeOf(XSDElementDeclaration elemDecl, GeometryType geomType,
+    private AttributeType getTypeOf(XSDElementDeclaration elemDecl, CoordinateReferenceSystem crs,
             List<AttributeMapping> attMappings) {
         boolean hasToBeRegistered = false;
         XSDTypeDefinition typeDefinition;
@@ -339,15 +330,15 @@ public class FeatureTypeRegistry {
             String targetNamespace = typeDefinition.getTargetNamespace();
             String name = typeDefinition.getName();
             Name typeName = Types.typeName(targetNamespace, name);
-            type = getAttributeType(typeName, geomType, attMappings);
+            type = getAttributeType(typeName, crs, attMappings);
             if (type == null) {
-                type = createType(typeName, typeDefinition, geomType, attMappings, false);
+                type = createType(typeName, typeDefinition, crs, attMappings, false);
             }
         } else {
             String name = elemDecl.getName();
             String targetNamespace = elemDecl.getTargetNamespace();
             Name overrideName = Types.typeName(targetNamespace, name);
-            type = createType(overrideName, typeDefinition, geomType, attMappings, true);
+            type = createType(overrideName, typeDefinition, crs, attMappings, true);
         }
         return type;
     }
@@ -390,12 +381,12 @@ public class FeatureTypeRegistry {
         return isDerivedFrom(typeDefinition, typeName);
     }
 
-    private AttributeType createType(XSDTypeDefinition typeDefinition, GeometryType geomType,
-            List<AttributeMapping> attMappings) {
+    private AttributeType createType(XSDTypeDefinition typeDefinition,
+            CoordinateReferenceSystem crs, List<AttributeMapping> attMappings) {
         String targetNamespace = typeDefinition.getTargetNamespace();
         String name = typeDefinition.getName();
         Name typeName = Types.typeName(targetNamespace, name);
-        return createType(typeName, typeDefinition, geomType, attMappings, false);
+        return createType(typeName, typeDefinition, crs, attMappings, false);
     }
 
     /**
@@ -416,7 +407,7 @@ public class FeatureTypeRegistry {
      * @return
      */
     private AttributeType createType(final Name assignedName,
-            final XSDTypeDefinition typeDefinition, GeometryType geomType,
+            final XSDTypeDefinition typeDefinition, CoordinateReferenceSystem crs,
             List<AttributeMapping> attMappings, boolean anonymous) {
 
         AttributeType attType;
@@ -425,8 +416,8 @@ public class FeatureTypeRegistry {
             if (LOGGER.isLoggable(Level.FINE)) {
                 LOGGER.fine("Recursion found for type " + assignedName + ". Proxying it.");
             }
-            attType = createProxiedType(assignedName, typeDefinition, anonymous ?
-                anonTypeRegistry : typeRegistry);            
+            attType = createProxiedType(assignedName, typeDefinition, anonymous ? anonTypeRegistry
+                    : typeRegistry);
             return attType;
         }
         processingTypes.push(assignedName);
@@ -440,12 +431,12 @@ public class FeatureTypeRegistry {
             String name = baseType.getName();
             superType = getType(targetNamespace, name);
             if (superType == null) {
-                superType = createType(baseType, geomType, attMappings);
+                superType = createType(baseType, crs, attMappings);
             }
         } else {
             LOGGER.warning(assignedName + " has no super type");
         }
-        
+
         if (typeDefinition instanceof XSDComplexTypeDefinition) {
             XSDComplexTypeDefinition complexTypeDef;
             complexTypeDef = (XSDComplexTypeDefinition) typeDefinition;
@@ -460,7 +451,7 @@ public class FeatureTypeRegistry {
             for (Iterator it = children.iterator(); it.hasNext();) {
                 childDecl = (XSDElementDeclaration) it.next();
                 try {
-                    descriptor = createAttributeDescriptor(complexTypeDef, childDecl, geomType,
+                    descriptor = createAttributeDescriptor(complexTypeDef, childDecl, crs,
                             attMappings);
                     schema.add(descriptor);
                 } catch (NoSuchElementException e) {
@@ -470,7 +461,6 @@ public class FeatureTypeRegistry {
             }
 
             attType = createComplexAttributeType(assignedName, schema, complexTypeDef, superType);
-
         } else {
             Class<?> binding = String.class;
             boolean isIdentifiable = false;
@@ -484,13 +474,15 @@ public class FeatureTypeRegistry {
         attType.getUserData().put(XSDTypeDefinition.class, typeDefinition);
 
         processingTypes.pop();
-        
+
         // even if the type is anonymous, it still has to be registered somewhere because
-        // it's needed for the proxied types to find them. That's why we have 2 registries, typeRegistry
-        // and anonTypeRegistry. TypeRegistry is the global one, since anonymous types are meant to be
+        // it's needed for the proxied types to find them. That's why we have 2 registries,
+        // typeRegistry
+        // and anonTypeRegistry. TypeRegistry is the global one, since anonymous types are meant to
+        // be
         // local and shouldn't be searchable.
         register(attType, anonymous);
-        
+
         return attType;
     }
 
@@ -518,19 +510,7 @@ public class FeatureTypeRegistry {
 
         AttributeType type;
         if (isFeatureType) {
-            GeometryDescriptor defaultGeometry = null;
-
-            for (PropertyDescriptor att : schema) {
-                // the first one would be default geometry
-                if (defaultGeometry == null) {
-                    if (att instanceof GeometryDescriptor) {
-                        defaultGeometry = (GeometryDescriptor) att;
-                        break;
-                    }
-                    break;
-                }
-            }
-            type = typeFactory.createFeatureType(assignedName, schema, defaultGeometry, isAbstract,
+            type = typeFactory.createFeatureType(assignedName, schema, null, isAbstract,
                     restrictions, superType, description);
         } else {
             boolean isIdentifiable = isIdentifiable((XSDComplexTypeDefinition) typeDefinition);

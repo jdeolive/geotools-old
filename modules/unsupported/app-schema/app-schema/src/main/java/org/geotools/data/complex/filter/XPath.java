@@ -37,6 +37,7 @@ import org.geotools.feature.Types;
 import org.geotools.feature.ValidatingFeatureFactoryImpl;
 import org.geotools.feature.type.AttributeDescriptorImpl;
 import org.geotools.feature.type.FeatureTypeFactoryImpl;
+import org.geotools.feature.type.GeometryTypeImpl;
 import org.geotools.util.CheckedArrayList;
 import org.geotools.xs.XSSchema;
 import org.opengis.feature.Association;
@@ -48,12 +49,16 @@ import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.ComplexType;
 import org.opengis.feature.type.FeatureTypeFactory;
+import org.opengis.feature.type.GeometryDescriptor;
+import org.opengis.feature.type.GeometryType;
 import org.opengis.feature.type.Name;
 import org.opengis.feature.type.PropertyDescriptor;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.PropertyName;
 import org.opengis.util.Cloneable;
 import org.xml.sax.helpers.NamespaceSupport;
+
+import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * Utility class to evaluate XPath expressions against an Attribute instance, which may be any
@@ -623,9 +628,31 @@ public class XPath {
                         int minOccurs = actualDescriptor.getMinOccurs();
                         int maxOccurs = actualDescriptor.getMaxOccurs();
                         boolean nillable = actualDescriptor.isNillable();
-                        currStepDescriptor = descriptorFactory
-                                .createAttributeDescriptor(targetNodeType, attributeName,
-                                        minOccurs, maxOccurs, nillable, null);
+                        if (actualDescriptor instanceof GeometryDescriptor) {
+                            // important to maintain CRS information encoding
+                            if (Geometry.class.isAssignableFrom(targetNodeType.getBinding())) {
+                                if (!(targetNodeType instanceof GeometryType)) {
+                                    targetNodeType = new GeometryTypeImpl(targetNodeType.getName(),
+                                            targetNodeType.getBinding(),
+                                            ((GeometryDescriptor) actualDescriptor)
+                                                    .getCoordinateReferenceSystem(), targetNodeType
+                                                    .isIdentified(), targetNodeType.isAbstract(),
+                                            targetNodeType.getRestrictions(), targetNodeType
+                                                    .getSuper(), targetNodeType.getDescription());
+                                }
+                                currStepDescriptor = descriptorFactory.createGeometryDescriptor(
+                                        (GeometryType) targetNodeType, attributeName, minOccurs,
+                                        maxOccurs, nillable, null);
+                            } else {
+                                throw new IllegalArgumentException("Can't set targetNodeType: "
+                                        + targetNodeType.toString() + " for attribute mapping: "
+                                        + attributeName + " as it is not a Geometry type!");
+                            }
+                        } else {
+                            currStepDescriptor = descriptorFactory.createAttributeDescriptor(
+                                    targetNodeType, attributeName, minOccurs, maxOccurs, nillable,
+                                    null);
+                        }
                     }
                 }
 

@@ -66,8 +66,6 @@ import org.opengis.filter.identity.FeatureId;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.xml.sax.Attributes;
 
-import com.vividsolutions.jts.geom.Geometry;
-
 /**
  * A Feature iterator that operates over the FeatureSource of a
  * {@linkplain org.geotools.data.complex.FeatureTypeMapping} and produces Features of the output
@@ -202,7 +200,7 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
         // we need to disable the max number of features retrieved so we can
         // sort them manually just in case the data is denormalised
         query.setMaxFeatures(Query.DEFAULT_MAX);
-        sourceFeatures = mappedSource.getFeatures(query);
+        sourceFeatures = mappedSource.getFeatures(query);        
         // VT: No point trying to re-project without any geometry.
         if (reprojection != null && sourceFeatures.getSchema().getGeometryDescriptor() == null) {
             query.setCoordinateSystemReproject(null);
@@ -747,9 +745,6 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
             } else {
                 setAttributeValue(target, sources.get(0), attMapping);
             }
-        }
-        if (target.getDefaultGeometryProperty() == null) {
-            setGeometry(target);
         }
         this.cleanEmptyElements(target);
         return target;
