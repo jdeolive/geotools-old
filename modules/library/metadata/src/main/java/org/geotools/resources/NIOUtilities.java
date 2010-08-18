@@ -73,6 +73,11 @@ public final class NIOUtilities {
      * Wheter direct buffers usage is enabled, or not
      */
     private static boolean directBuffersEnabled = true;
+    
+    static {
+        String directBuffers = System.getProperty("geotools.nioutilities.direct", "true");
+        directBuffersEnabled = "TRUE".equalsIgnoreCase(directBuffers);
+    }
 
     /**
      * Wheter direct buffers are used, or not (defaults to true)
