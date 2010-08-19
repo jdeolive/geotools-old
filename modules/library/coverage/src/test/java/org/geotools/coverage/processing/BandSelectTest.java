@@ -73,7 +73,7 @@ public final class BandSelectTest extends GridProcessingTestBase {
          */
         ParameterValueGroup param = processor.getOperation("SelectSampleDimension").getParameters();
         param.parameter("Source").setValue(newCoverage);
-        param.parameter("SampleDimensions").setValue(new int[]{0});
+        param.parameter("SampleDimensions").setValue(new int[]{2});
         GridCoverage2D singleBanded = (GridCoverage2D) processor.doOperation(param);
         if (SHOW) {
         	Viewer.show(source);
