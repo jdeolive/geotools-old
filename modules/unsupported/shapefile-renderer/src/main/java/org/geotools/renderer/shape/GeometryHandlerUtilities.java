@@ -21,6 +21,7 @@ import java.awt.geom.Point2D;
 import java.nio.ByteBuffer;
 
 import org.geotools.data.shapefile.shp.ShapeType;
+import org.geotools.renderer.ScreenMap;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.NoninvertibleTransformException;
 import org.opengis.referencing.operation.TransformException;

@@ -14,7 +14,7 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.renderer.shape;
+package org.geotools.renderer.lite;
 
 import org.geotools.styling.AnchorPoint;
 import org.geotools.styling.ChannelSelection;
@@ -53,7 +53,7 @@ import org.opengis.filter.expression.Literal;
 
 
 /**
- * Searches for symbolizers with opacity.
+ * Searches for translucent symbolizers
  *
  * @author jones
  * @source $URL$

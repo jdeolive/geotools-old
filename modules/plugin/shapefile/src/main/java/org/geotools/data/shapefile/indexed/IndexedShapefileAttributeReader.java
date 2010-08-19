@@ -36,17 +36,12 @@ import com.vividsolutions.jts.geom.Envelope;
  *
  * @source $URL$
  */
-public class IndexedShapefileAttributeReader extends ShapefileAttributeReader
-        implements RecordNumberTracker {
+public class IndexedShapefileAttributeReader extends ShapefileAttributeReader {
 
     protected Iterator<Data> goodRecs;
 
-    private int recno;
-
     private Data next;
     
-    private boolean featureAvailable = false;
-
     private CloseableCollection<Data> closeableCollection;
 
     public IndexedShapefileAttributeReader(
@@ -75,7 +70,6 @@ public class IndexedShapefileAttributeReader extends ShapefileAttributeReader
         if (goodRecs != null)
             this.goodRecs = goodRecs.iterator();
         this.closeableCollection = goodRecs;
-        this.recno = 0;
     }
 
     public void close() throws IOException {
@@ -94,7 +88,6 @@ public class IndexedShapefileAttributeReader extends ShapefileAttributeReader
         if (this.goodRecs != null) {
             while (!featureAvailable && this.goodRecs.hasNext()) {
                 next = (Data) goodRecs.next();
-                this.recno = ((Integer) next.getValue(0)).intValue();
                 
                 Long l = (Long) next.getValue(1);
                 shp.goTo((int) l.longValue());
@@ -110,7 +103,19 @@ public class IndexedShapefileAttributeReader extends ShapefileAttributeReader
                 // ... if the geometry is awfully small avoid reading it (unless it's a point)
                 } else if (simplificationDistance > 0 && envelope.getWidth() < simplificationDistance
                         && envelope.getHeight() < simplificationDistance) {
-                    geometry = record.getSimplifiedShape();
+                    try {
+                        if(screenMap != null && screenMap.checkAndSet(envelope)) {
+                            geometry = null;
+                            continue;
+                        } else {
+                            // if we are using the screenmap better provide a slightly modified
+                            // version of the geometry bounds or we'll end up with many holes
+                            // in the rendering
+                            geometry = record.getSimplifiedShape(screenMap);
+                        }
+                    } catch(Exception e) {
+                        geometry = record.getSimplifiedShape();
+                    }
                 // ... otherwise business as usual
                 } else {
                     geometry = record.shape();
@@ -118,7 +123,7 @@ public class IndexedShapefileAttributeReader extends ShapefileAttributeReader
 
                 // read the dbf only if the geometry was not skipped
                 if (dbf != null) {
-                    ((IndexedDbaseFileReader) dbf).goTo(this.recno);
+                    ((IndexedDbaseFileReader) dbf).goTo(record.number);
                     row = dbf.readRow();
                 } else {
                     row = null;
@@ -136,18 +141,12 @@ public class IndexedShapefileAttributeReader extends ShapefileAttributeReader
     public void next() throws IOException {
         if (!hasNext())
             throw new IndexOutOfBoundsException("No more features in reader");
-        if (this.goodRecs != null) {
-            featureAvailable = false;
-        } else {
-            this.recno++;
-            super.next();
-        }
+        featureAvailable = false;
 
         
     }
 
-    public int getRecordNumber() {
-        return this.recno;
-    }
+    
 
+    
 }

@@ -23,8 +23,8 @@ import java.util.logging.Logger;
 
 import org.geotools.data.shapefile.shp.ShapeHandler;
 import org.geotools.data.shapefile.shp.ShapeType;
+import org.geotools.renderer.ScreenMap;
 import org.geotools.renderer.shape.GeometryHandlerUtilities;
-import org.geotools.renderer.shape.ScreenMap;
 import org.geotools.renderer.shape.ShapefileRenderer;
 import org.geotools.renderer.shape.SimpleGeometry;
 import org.opengis.referencing.operation.MathTransform;
@@ -137,12 +137,11 @@ public class MultiPointHandler implements ShapeHandler {
                 transformed[0] = coords[0];
             }
             
-            if( screenMap.get((int)transformed[0][0], (int)transformed[0][1] ) ){
+            if( screenMap.checkAndSet((int)transformed[0][0], (int)transformed[0][1] ) ){
                 LOGGER.finest("Point already rendered" + transformed[0][0] + " "
                         + transformed[0][1]);
                 return null;
             }
-            screenMap.set( (int)transformed[0][0], (int)transformed[0][1], true );
         } else {
 
             int partsInBBox = 0;

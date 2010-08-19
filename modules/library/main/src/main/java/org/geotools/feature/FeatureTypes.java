@@ -290,7 +290,9 @@ public class FeatureTypes {
         tb.setName(name);
         tb.setNamespaceURI(ns);
         tb.setAbstract(isAbstract);
-        tb.addAll(types);
+        if(types != null) {
+            tb.addAll(types);
+        }
 
         if ( defaultGeometry != null ) {
             //make sure that the default geometry was one of the types specified

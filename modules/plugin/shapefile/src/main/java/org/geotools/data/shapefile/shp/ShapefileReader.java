@@ -31,15 +31,19 @@ import org.geotools.data.shapefile.FileReader;
 import org.geotools.data.shapefile.ShpFileType;
 import org.geotools.data.shapefile.ShpFiles;
 import org.geotools.data.shapefile.StreamLogging;
+import org.geotools.renderer.ScreenMap;
 import org.geotools.resources.NIOUtilities;
 import org.geotools.util.logging.Logging;
 
 import com.vividsolutions.jts.geom.CoordinateSequence;
 import com.vividsolutions.jts.geom.CoordinateSequenceFactory;
 import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.MultiPoint;
+import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
@@ -77,7 +81,7 @@ public class ShapefileReader implements FileReader {
     public final class Record {
         int length;
 
-        int number = 0;
+        public int number = 0;
 
         int offset; // Relative to the whole file
 
@@ -156,6 +160,22 @@ public class ShapefileReader implements FileReader {
             } else {
                 return shape();
             }
+        }
+        
+        public Object getSimplifiedShape(ScreenMap sm) {
+            if(type.isPointType()) {
+                return shape();
+            }
+            
+            Class geomType = Geometry.class;
+            if(type.isLineType()) {
+                geomType = LineString.class;
+            } else if(type.isMultiPointType()) {
+                geomType = MultiPoint.class;
+            } else if(type.isPolygonType()) {
+                geomType = MultiPolygon.class;
+            }
+            return sm.getSimplifiedShape(minX, minY, maxX, maxY, geometryFactory, geomType);
         }
     }
 

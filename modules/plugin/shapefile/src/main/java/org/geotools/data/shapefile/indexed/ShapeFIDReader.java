@@ -19,6 +19,7 @@ package org.geotools.data.shapefile.indexed;
 import java.io.IOException;
 
 import org.geotools.data.FIDReader;
+import org.geotools.data.shapefile.ShapefileAttributeReader;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 /**
@@ -32,12 +33,12 @@ public class ShapeFIDReader implements FIDReader {
     protected static final String CLOSE_MESG = "Close has already been called"
             + " on this FIDReader";
     private boolean opened;
-    private IndexedShapefileAttributeReader reader;
+    private ShapefileAttributeReader reader;
     private int len;
     protected StringBuffer buffer;
 
     public ShapeFIDReader(String typeName,
-            IndexedShapefileAttributeReader reader) {
+            ShapefileAttributeReader reader) {
         buffer = new StringBuffer(typeName);
         buffer.append('.');
         len = typeName.length() + 1;
@@ -46,7 +47,7 @@ public class ShapeFIDReader implements FIDReader {
     }
 
     public ShapeFIDReader(SimpleFeatureType featureType,
-            IndexedShapefileAttributeReader reader) {
+            ShapefileAttributeReader reader) {
         this(featureType.getTypeName(), reader);
     }
 

@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -458,7 +459,11 @@ public class IndexedShapefileDataStoreTest extends TestCaseSupport {
             }
             assertFalse(indexIter.hasNext());
             assertFalse(baselineIter.hasNext());
-            assertEquals(baselineFeatures, indexedFeatures);
+            assertEquals(baselineFeatures.size(), indexedFeatures.size());
+            for (Iterator it = baselineFeatures.iterator(); it.hasNext();) {
+                SimpleFeature f = (SimpleFeature) it.next();
+                assertTrue(f.getID() + ((Geometry) f.getDefaultGeometry()).getEnvelopeInternal(), indexedFeatures.contains(f));
+            }
         } finally {
             indexIter.close();
             baselineIter.close();

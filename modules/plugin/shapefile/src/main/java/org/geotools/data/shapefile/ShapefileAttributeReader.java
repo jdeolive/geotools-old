@@ -18,12 +18,15 @@ package org.geotools.data.shapefile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.geotools.data.AbstractAttributeIO;
 import org.geotools.data.AttributeReader;
 import org.geotools.data.shapefile.dbf.DbaseFileHeader;
 import org.geotools.data.shapefile.dbf.DbaseFileReader;
+import org.geotools.data.shapefile.indexed.RecordNumberTracker;
 import org.geotools.data.shapefile.shp.ShapefileReader;
+import org.geotools.renderer.ScreenMap;
 import org.opengis.feature.type.AttributeDescriptor;
 
 import com.vividsolutions.jts.geom.Envelope;
@@ -37,7 +40,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * @source $URL$
  */
 public class ShapefileAttributeReader extends AbstractAttributeIO implements
-        AttributeReader {
+        AttributeReader, RecordNumberTracker {
 
     protected ShapefileReader shp;
     protected DbaseFileReader dbf;
@@ -48,6 +51,8 @@ public class ShapefileAttributeReader extends AbstractAttributeIO implements
     protected Envelope targetBBox;
     protected double simplificationDistance;
     protected Object geometry;
+    protected ScreenMap screenMap;
+    protected boolean featureAvailable = false;
 
     public ShapefileAttributeReader(List<AttributeDescriptor> atts,
             ShapefileReader shp, DbaseFileReader dbf) {
@@ -65,6 +70,10 @@ public class ShapefileAttributeReader extends AbstractAttributeIO implements
     
     public void setSimplificationDistance(double distance) {
         this.simplificationDistance = distance;
+    }
+    
+    public void setScreenMap(ScreenMap screenMap) {
+        this.screenMap = screenMap;        
     }
 
     /**
@@ -117,7 +126,7 @@ public class ShapefileAttributeReader extends AbstractAttributeIO implements
         }
     }
 
-    public boolean hasNext() throws IOException {
+    boolean internalReadersHaveNext() throws IOException {
         int n = shp.hasNext() ? 1 : 0;
 
         if (dbf != null) {
@@ -134,37 +143,61 @@ public class ShapefileAttributeReader extends AbstractAttributeIO implements
 
         throw new IOException(((n == 1) ? "Shp" : "Dbf") + " has extra record");
     }
+    
+    public boolean hasNext() throws IOException {
+        while(!featureAvailable && internalReadersHaveNext()) {
+            record = shp.nextRecord();
+            
+            // read the geometry, so that we can decide if this row is to be skipped or not
+            Envelope envelope = record.envelope();
+            boolean skip = false;
+            // ... if geometry is out of the target bbox, skip both geom and row
+            if (targetBBox != null && !targetBBox.isNull() && !targetBBox.intersects(envelope)) {
+                geometry = null;
+                skip = true;
+            // ... if the geometry is awfully small avoid reading it (unless it's a point)
+            } else if (simplificationDistance > 0 && envelope.getWidth() < simplificationDistance
+                    && envelope.getHeight() < simplificationDistance) {
+                try {
+                    if(screenMap != null && screenMap.checkAndSet(envelope)) {
+                        geometry = null;
+                        skip = true;
+                    } else {
+                        // if we are using the screenmap better provide a slightly modified
+                        // version of the geometry bounds or we'll end up with many holes
+                        // in the rendering
+                        geometry = record.getSimplifiedShape(screenMap);
+                    }
+                } catch(Exception e) {
+                    geometry = record.getSimplifiedShape();
+                }
+            // ... otherwise business as usual
+            } else {
+                geometry = record.shape();
+            }
+
+            // read the dbf only if the geometry was not skipped
+            if (dbf != null) {
+                if(skip) {
+                    dbf.skip();
+                    row = null;
+                } else {
+                    row = dbf.readRow();
+                }
+            } else {
+                row = null;
+            }
+            featureAvailable = !skip;
+        }
+        
+        return featureAvailable;
+    }
 
     public void next() throws IOException {
-        record = shp.nextRecord();
-        
-        // read the geometry, so that we can decide if this row is to be skipped or not
-        Envelope envelope = record.envelope();
-        boolean skip = false;
-        // ... if geometry is out of the target bbox, skip both geom and row
-        if (targetBBox != null && !targetBBox.isNull() && !targetBBox.intersects(envelope)) {
-            geometry = null;
-            skip = true;
-        // ... if the geometry is awfully small avoid reading it (unless it's a point)
-        } else if (simplificationDistance > 0 && envelope.getWidth() < simplificationDistance
-                && envelope.getHeight() < simplificationDistance) {
-            geometry = record.getSimplifiedShape();
-        // ... otherwise business as usual
-        } else {
-            geometry = record.shape();
+        if(!hasNext()) {
+            throw new NoSuchElementException("hasNext() returned false");
         }
-
-        // read the dbf only if the geometry was not skipped
-        if (dbf != null) {
-            if(skip) {
-                dbf.skip();
-                row = null;
-            } else {
-                row = dbf.readRow();
-            }
-        } else {
-            row = null;
-        }
+        featureAvailable = false;
     }
 
     public Object read(int param) throws IOException,
@@ -182,4 +215,9 @@ public class ShapefileAttributeReader extends AbstractAttributeIO implements
             return null;
         }
     }
+    
+    public int getRecordNumber() {
+        return this.record.number;
+    }
+    
 }

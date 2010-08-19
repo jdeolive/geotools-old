@@ -156,8 +156,8 @@ public class SimpleFeatureImpl implements SimpleFeature {
 
     public Object getDefaultGeometry() {
         // should be specified in the index as the default key (null)
-        Object defaultGeometry = 
-            index.get( null ) != null ? getAttribute( index.get( null ) ) : null;
+        Integer idx = index.get(null);
+        Object defaultGeometry = idx != null ? getAttribute( idx ) : null;
            
        // not found? do we have a default geometry at all?
        if(defaultGeometry == null){

@@ -589,6 +589,10 @@ public class Hints extends RenderingHints {
      */
     public static final Key GEOMETRY_SIMPLIFICATION = new Key(Double.class);
     
+    /**
+     * The rendering aid used to avoid painting tiny features over and over in the same pixel
+     */
+    public static final Key SCREENMAP = new ClassKey("org.geotools.renderer.ScreenMap");
     
     /**
      * The actual coordinate dimensions of the geometry (to be used in

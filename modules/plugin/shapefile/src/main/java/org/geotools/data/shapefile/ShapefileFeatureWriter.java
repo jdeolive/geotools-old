@@ -228,7 +228,7 @@ public class ShapefileFeatureWriter implements FeatureWriter<SimpleFeatureType, 
         // if the attribute reader is here, that means we may have some
         // additional tail-end file flushing to do if the Writer was closed
         // before the end of the file
-        if (attReader != null && attReader.hasNext()) {
+        if (attReader != null && attReader.internalReadersHaveNext()) {
             shapeType = attReader.shp.getHeader().getShapeType();
             handler = shapeType.getShapeHandler(gf);
 
@@ -241,7 +241,7 @@ public class ShapefileFeatureWriter implements FeatureWriter<SimpleFeatureType, 
             // copy array for bounds
             double[] env = new double[4];
 
-            while (attReader.hasNext()) {
+            while (attReader.internalReadersHaveNext()) {
                 // transfer bytes from shapefile
                 shapefileLength += attReader.shp.transferTo(shpWriter,
                         ++records, env);

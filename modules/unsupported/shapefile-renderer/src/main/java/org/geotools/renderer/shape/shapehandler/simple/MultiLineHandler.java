@@ -22,8 +22,8 @@ import java.nio.ByteBuffer;
 
 import org.geotools.data.shapefile.shp.ShapeHandler;
 import org.geotools.data.shapefile.shp.ShapeType;
+import org.geotools.renderer.ScreenMap;
 import org.geotools.renderer.shape.GeometryHandlerUtilities;
-import org.geotools.renderer.shape.ScreenMap;
 import org.geotools.renderer.shape.ShapefileRenderer;
 import org.geotools.renderer.shape.SimpleGeometry;
 import org.opengis.referencing.operation.MathTransform;
@@ -138,14 +138,11 @@ public class MultiLineHandler implements ShapeHandler {
 
             try {
                 mt.transform(coords[0], 0, transformed[0], 0, 1);
-
-                if (screenMap.get((int) transformed[0][0],
-                            (int) transformed[0][1])) {
+                
+                if (screenMap.checkAndSet((int) transformed[0][0], (int) transformed[0][1])) {
                     return null;
                 }
 
-                screenMap.set((int) transformed[0][0], (int) transformed[0][1],
-                    true);
                 mt.transform(coords[0], 2, transformed[0], 2, 1);
 
                 double minx = (int) transformed[0][0];

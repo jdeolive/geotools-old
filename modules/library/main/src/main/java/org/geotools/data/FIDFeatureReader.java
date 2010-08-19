@@ -125,7 +125,6 @@ public class FIDFeatureReader implements  FeatureReader<SimpleFeatureType, Simpl
         //have default FIDAttributeReader.
         String fid = fidReader.next();
 
-        builder.reset();
         for (int i = 0, ii = atts.getAttributeCount(); i < ii; i++) {
             builder.add(atts.read(i));
         }

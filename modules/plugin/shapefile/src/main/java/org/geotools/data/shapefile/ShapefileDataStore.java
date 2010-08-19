@@ -16,11 +16,7 @@
  */
 package org.geotools.data.shapefile;
 
-import static org.geotools.data.shapefile.ShpFileType.DBF;
-import static org.geotools.data.shapefile.ShpFileType.PRJ;
-import static org.geotools.data.shapefile.ShpFileType.SHP;
-import static org.geotools.data.shapefile.ShpFileType.SHP_XML;
-import static org.geotools.data.shapefile.ShpFileType.SHX;
+import static org.geotools.data.shapefile.ShpFileType.*;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -55,6 +51,7 @@ import org.geotools.data.Transaction;
 import org.geotools.data.shapefile.dbf.DbaseFileException;
 import org.geotools.data.shapefile.dbf.DbaseFileHeader;
 import org.geotools.data.shapefile.dbf.DbaseFileReader;
+import org.geotools.data.shapefile.indexed.ShapeFIDReader;
 import org.geotools.data.shapefile.prj.PrjFileReader;
 import org.geotools.data.shapefile.shp.IndexFile;
 import org.geotools.data.shapefile.shp.JTSUtilities;
@@ -72,7 +69,9 @@ import org.geotools.feature.SchemaException;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.feature.type.BasicFeatureTypes;
 import org.geotools.filter.FilterAttributeExtractor;
+import org.geotools.filter.visitor.ExtractBoundsFilterVisitor;
 import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.renderer.ScreenMap;
 import org.geotools.resources.Classes;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -113,7 +112,7 @@ public class ShapefileDataStore extends AbstractFileDataStore {
      * The query hints we do support
      */
     private static final Set HINTS = Collections.unmodifiableSet(new HashSet(
-            Arrays.asList(new Object[] { Hints.FEATURE_DETACHED })));
+            Arrays.asList(new Object[] { Hints.FEATURE_DETACHED, Hints.SCREENMAP })));
 
     protected final ShpFiles shpFiles;
     protected URI namespace = null; // namespace provided by the constructor's
@@ -326,7 +325,7 @@ public class ShapefileDataStore extends AbstractFileDataStore {
     public FeatureReader<SimpleFeatureType, SimpleFeature> getFeatureReader() throws IOException {
         try {
             return createFeatureReader(getSchema().getTypeName(),
-                    getAttributesReader(true, new GeometryFactory()), schema);
+                    getAttributesReader(true, null), schema);
         } catch (SchemaException se) {
             throw new DataSourceException("Error creating schema", se);
         }
@@ -345,8 +344,6 @@ public class ShapefileDataStore extends AbstractFileDataStore {
         String[] propertyNames = query.getPropertyNames();
         String defaultGeomName = schema.getGeometryDescriptor().getLocalName();
         
-        GeometryFactory geometryFactory = getGeometryFactory(query.getHints());
-
         // gather attributes needed by the query tool, they will be used by the
         // query filter
         FilterAttributeExtractor extractor = new FilterAttributeExtractor(schema);
@@ -366,13 +363,18 @@ public class ShapefileDataStore extends AbstractFileDataStore {
                         schema, propertyNames);
 
                 return createFeatureReader(typeName,
-                        getAttributesReader(false, geometryFactory), newSchema);
+                        getAttributesReader(false, query), newSchema);
             } catch (SchemaException se) {
                 throw new DataSourceException("Error creating schema", se);
             }
         }
 
-        return super.getFeatureReader(typeName, query);
+        try {
+            return createFeatureReader(getSchema().getTypeName(),
+                    getAttributesReader(true, query), schema);
+        } catch (SchemaException se) {
+            throw new DataSourceException("Error creating schema", se);
+        }
     }
 
     /**
@@ -409,7 +411,7 @@ public class ShapefileDataStore extends AbstractFileDataStore {
             throws SchemaException {
 
         return new org.geotools.data.FIDFeatureReader(reader,
-                new DefaultFIDReader(typeName), readerSchema);
+                new ShapeFIDReader(readerSchema, reader), readerSchema);
     }
 
     /**
@@ -422,22 +424,50 @@ public class ShapefileDataStore extends AbstractFileDataStore {
      * 
      * @throws IOException
      */
-    protected ShapefileAttributeReader getAttributesReader(boolean readDbf, GeometryFactory gf)
+    protected ShapefileAttributeReader getAttributesReader(boolean readDbf, Query q)
             throws IOException {
 
         List<AttributeDescriptor> atts = (schema == null) ? readAttributes()
                 : schema.getAttributeDescriptors();
-
-        if (!readDbf) {
-            LOGGER
-                    .fine("The DBF file won't be opened since no attributes will be read from it");
-            atts = new ArrayList(1);
-            atts.add(schema.getGeometryDescriptor());
-            return new ShapefileAttributeReader(atts, openShapeReader(gf), null);
+        
+        GeometryFactory geometryFactory;
+        if(q != null) {
+            geometryFactory = getGeometryFactory(q.getHints());
+        } else {
+            geometryFactory = new GeometryFactory();
         }
 
-        return new ShapefileAttributeReader(atts, openShapeReader(gf),
-                openDbfReader());
+        ShapefileAttributeReader result;
+        if (!readDbf) {
+            LOGGER.fine("The DBF file won't be opened since no attributes will be read from it");
+            atts = new ArrayList(1);
+            atts.add(schema.getGeometryDescriptor());
+            result =new ShapefileAttributeReader(atts, openShapeReader(geometryFactory), null);
+        } else {
+            result = new ShapefileAttributeReader(atts, openShapeReader(geometryFactory), openDbfReader());
+        }
+        
+        // setup the target bbox if any, and the generalization hints if available
+        if(q != null) {
+            Envelope bbox = new ReferencedEnvelope();
+            bbox = (Envelope) q.getFilter().accept(
+                ExtractBoundsFilterVisitor.BOUNDS_VISITOR, bbox);
+            if(bbox != null && !bbox.isNull()) {
+                result.setTargetBBox(bbox);
+            }
+
+            Hints hints = q.getHints();
+            if(hints != null) {
+                Number simplificationDistance = (Number) hints.get(Hints.GEOMETRY_DISTANCE);
+                if(simplificationDistance != null) {
+                    result.setSimplificationDistance(simplificationDistance.doubleValue());
+                }
+                result.setScreenMap((ScreenMap) hints.get(Hints.SCREENMAP));
+            }
+        }
+        
+        
+        return result;
     }
 
     /**
@@ -597,7 +627,7 @@ public class ShapefileDataStore extends AbstractFileDataStore {
         typeCheck(typeName);
 
         FeatureReader<SimpleFeatureType, SimpleFeature> featureReader;
-        ShapefileAttributeReader attReader = getAttributesReader(true, new GeometryFactory());
+        ShapefileAttributeReader attReader = getAttributesReader(true, null);
         try {
             SimpleFeatureType schema = getSchema();
             if (schema == null) {
@@ -1084,7 +1114,13 @@ public class ShapefileDataStore extends AbstractFileDataStore {
     
     @Override
     protected Set getSupportedHints() {
-        return HINTS;
+        Set<Hints.Key> hints = new HashSet<Hints.Key>();
+        hints.add( Hints.FEATURE_DETACHED );
+        hints.add( Hints.JTS_GEOMETRY_FACTORY );
+        hints.add( Hints.JTS_COORDINATE_SEQUENCE_FACTORY );
+        hints.add( Hints.GEOMETRY_DISTANCE);
+        hints.add( Hints.SCREENMAP);
+        return hints;
     }
     
 }

@@ -65,7 +65,6 @@ import org.geotools.geometry.jts.Decimator;
 import org.geotools.geometry.jts.GeometryClipper;
 import org.geotools.geometry.jts.LiteCoordinateSequence;
 import org.geotools.geometry.jts.LiteCoordinateSequenceFactory;
-import org.geotools.geometry.jts.LiteShape;
 import org.geotools.geometry.jts.LiteShape2;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.MapContext;
@@ -77,6 +76,7 @@ import org.geotools.referencing.operation.transform.ConcatenatedTransform;
 import org.geotools.referencing.operation.transform.ProjectiveTransform;
 import org.geotools.renderer.GTRenderer;
 import org.geotools.renderer.RenderListener;
+import org.geotools.renderer.ScreenMap;
 import org.geotools.renderer.crs.ProjectionHandler;
 import org.geotools.renderer.crs.ProjectionHandlerFinder;
 import org.geotools.renderer.label.LabelCacheImpl;
@@ -113,9 +113,13 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.MathTransform2D;
 import org.opengis.referencing.operation.TransformException;
+import org.opengis.style.LineSymbolizer;
+import org.opengis.style.PolygonSymbolizer;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Point;
 
 /**
  * A streaming implementation of the GTRenderer interface.
@@ -622,6 +626,10 @@ public final class StreamingRenderer implements GTRenderer {
             if (worldToScreen == null)
                 return;
         }
+        
+        // clips Graphics to current drawing area before painting
+        graphics = (Graphics2D) graphics.create();
+        graphics.clip(screenSize);
 
         // ////////////////////////////////////////////////////////////////////
         // 
@@ -960,32 +968,52 @@ public final class StreamingRenderer implements GTRenderer {
         query.setCoordinateSystem(featCrs);
 
         // prepare hints
-        // ... basic one, we want fast and compact coordinate sequences
-        Hints hints = new Hints(Hints.JTS_COORDINATE_SEQUENCE_FACTORY, new LiteCoordinateSequenceFactory());
-        // ... if possible we let the datastore do the generalization
-        Set<RenderingHints.Key> fsHints = source.getSupportedHints();
-        if(fsHints.contains(Hints.GEOMETRY_DISTANCE) || fsHints.contains(Hints.GEOMETRY_SIMPLIFICATION)) {
+        // ... basic one, we want fast and compact coordinate sequences and geometries optimized
+        // for the collection of one item case (typical in shapefiles)
+        LiteCoordinateSequenceFactory csFactory = new LiteCoordinateSequenceFactory();
+        GeometryFactory gFactory = new SimpleGeometryFactory(csFactory);
+        Hints hints = new Hints(Hints.JTS_COORDINATE_SEQUENCE_FACTORY, csFactory);
+        hints.put(Hints.JTS_GEOMETRY_FACTORY, gFactory);
+        
+        // update the screenmaps
+        try {
             CoordinateReferenceSystem crs = getNativeCRS(schema, Arrays.asList(attributes));
             if(crs != null) {
-                try {
-                    MathTransform mt = buildFullTransform(crs, mapCRS, worldToScreenTransform);
-                    double[] spans = Decimator.computeGeneralizationDistances(mt.inverse(), screenSize, generalizationDistance);
-                    double distance = spans[0] < spans[1] ? spans[0] : spans[1];
-                    if(fsHints.contains(Hints.GEOMETRY_SIMPLIFICATION)) {
-                        // good, we don't need to perform in memory generalization, the datastore
-                        // does it all for us
-                        hints.put(Hints.GEOMETRY_SIMPLIFICATION, distance);
-                        inMemoryGeneralization = false;
-                    } else if(fsHints.contains(Hints.GEOMETRY_DISTANCE)) {
-                        // in this case the datastore can get us close, but we can still
-                        // perform some in memory generalization
-                        hints.put(Hints.GEOMETRY_DISTANCE, distance);
+                Set<RenderingHints.Key> fsHints = source.getSupportedHints();
+                
+                MathTransform mt = buildFullTransform(crs, mapCRS, worldToScreenTransform);
+                double[] spans = Decimator.computeGeneralizationDistances(mt.inverse(), screenSize, generalizationDistance);
+                double distance = spans[0] < spans[1] ? spans[0] : spans[1];
+                for (LiteFeatureTypeStyle fts : styles) {
+                    if(fts.screenMap != null) {
+                        fts.screenMap.setTransform(mt);
+                        fts.screenMap.setSpans(spans[0], spans[1]);
+                        if(fsHints.contains(Hints.SCREENMAP)) {
+                            // replace the renderer screenmap with the hint, and avoid doing
+                            // the work twice
+                            hints.put(Hints.SCREENMAP, fts.screenMap);
+                            fts.screenMap = null;
+                        }
                     }
-                } catch(Exception e) {
-                    LOGGER.log(Level.INFO, "Error computing the generalization hints", e);
+                }
+            
+                // ... if possible we let the datastore do the generalization
+                if(fsHints.contains(Hints.GEOMETRY_SIMPLIFICATION)) {
+                    // good, we don't need to perform in memory generalization, the datastore
+                    // does it all for us
+                    hints.put(Hints.GEOMETRY_SIMPLIFICATION, distance);
+                    inMemoryGeneralization = false;
+                } else if(fsHints.contains(Hints.GEOMETRY_DISTANCE)) {
+                    // in this case the datastore can get us close, but we can still
+                    // perform some in memory generalization
+                    hints.put(Hints.GEOMETRY_DISTANCE, distance);
                 }
             }
+            
+        } catch(Exception e) {
+            LOGGER.log(Level.INFO, "Error computing the generalization hints", e);
         }
+
         if(query.getHints() == null) {
             query.setHints(hints);
         } else {
@@ -1181,8 +1209,10 @@ public final class StreamingRenderer implements GTRenderer {
      */
     private int getMaxFiltersToSendToDatastore() {
         try {
-            Integer result = (Integer) rendererHints
-            .get("maxFiltersToSendToDatastore");
+            if (rendererHints == null)
+                return defaultMaxFiltersToSendToDatastore;
+            
+            Integer result = (Integer) rendererHints.get("maxFiltersToSendToDatastore");
             if (result == null)
                 return defaultMaxFiltersToSendToDatastore; // default if not
             // present in hints
@@ -1452,63 +1482,55 @@ public final class StreamingRenderer implements GTRenderer {
      * @param typeDescription The type description that has to be matched
      * @return ArrayList<LiteFeatureTypeStyle>
      */
-    //TODO: Merge the two createLiteFeatureTypeStyles() methods
-    private ArrayList createLiteFeatureTypeStyles(FeatureTypeStyle[] featureStyles, Object typeDescription, Graphics2D graphics) throws IOException {
-        ArrayList result = new ArrayList();
+    private ArrayList<LiteFeatureTypeStyle> createLiteFeatureTypeStyles(FeatureTypeStyle[] featureStyles, 
+            Object typeDescription, Graphics2D graphics) throws IOException {
+        ArrayList<LiteFeatureTypeStyle> result = new ArrayList<LiteFeatureTypeStyle>();
 
-        Rule[] rules;
-        ArrayList ruleList = new ArrayList();
-        ArrayList elseRuleList = new ArrayList();
-        Rule r;
+        List<Rule> rules;
+        List<Rule> ruleList;
+        List<Rule> elseRuleList;
         LiteFeatureTypeStyle lfts;
         BufferedImage image;
-        int numOfRules;		
-        int itemNumber = 0;
 
         final int length = featureStyles.length;
         for (int i = 0; i < length; i++) {
             FeatureTypeStyle fts = featureStyles[i];
 
-            if ( typeDescription == null || typeDescription.toString().indexOf( fts.getFeatureTypeName() ) == -1 ) continue; 
+            if (typeDescription == null || typeDescription.toString().indexOf( fts.getFeatureTypeName() ) == -1) 
+                continue; 
 
             // get applicable rules at the current scale
-            rules = fts.getRules();
-            ruleList = new ArrayList();
-            elseRuleList = new ArrayList();
+            rules = fts.rules();
+            ruleList = new ArrayList<Rule>();
+            elseRuleList = new ArrayList<Rule>();
 
-            numOfRules = rules.length;
-            for (int j = 0; j < numOfRules; j++) {
-                // getting rule
-                r = rules[j];
-
+            // gather the active rules
+            for(Rule r : rules) {
                 if (isWithInScale(r)) {
-                    if (r.hasElseFilter()) {
+                    if (r.isElseFilter()) {
                         elseRuleList.add(r);
                     } else {
                         ruleList.add(r);
                     }
                 }
             }
+            
+            // nothing to render, don't do anything!!
             if ((ruleList.size() == 0) && (elseRuleList.size() == 0))
-                continue; // DJB: optimization - nothing to render, dont
-            // do anything!!
+                continue; 
 
-            if (itemNumber == 0 || !isOptimizedFTSRenderingEnabled()) // we can optimize this one!
-            {
+            // first fts, we can reuse the graphics directly
+            if (result.size() == 0 || !isOptimizedFTSRenderingEnabled()) {
                 lfts = new LiteFeatureTypeStyle(graphics, ruleList,
                         elseRuleList);
             } else {
-                image = graphics
-                .getDeviceConfiguration()
-                .createCompatibleImage(screenSize.width,
+                image = graphics.getDeviceConfiguration().createCompatibleImage(screenSize.width,
                         screenSize.height, Transparency.TRANSLUCENT);
                 lfts = new LiteFeatureTypeStyle(image, graphics
                         .getTransform(), ruleList, elseRuleList,
                         java2dHints);
             }
             result.add(lfts);
-            itemNumber++;			
-
         }
 
         return result;
@@ -1524,15 +1546,13 @@ public final class StreamingRenderer implements GTRenderer {
      * @throws Exception
      * @return ArrayList<LiteFeatureTypeStyle>
      */
-    private ArrayList createLiteFeatureTypeStyles(
+    private ArrayList<LiteFeatureTypeStyle> createLiteFeatureTypeStyles(
             FeatureTypeStyle[] featureStyles, SimpleFeatureType ftype,
             Graphics2D graphics) throws IOException {
         if (LOGGER.isLoggable(Level.FINE))
             LOGGER.fine("creating rules for scale denominator - "
                     + NumberFormat.getNumberInstance().format(scaleDenominator));
-        ArrayList result = new ArrayList();
-
-        int itemNumber = 0;
+        ArrayList<LiteFeatureTypeStyle> result = new ArrayList<LiteFeatureTypeStyle>();
 
         LiteFeatureTypeStyle lfts;
         for (FeatureTypeStyle fts : featureStyles) {
@@ -1548,28 +1568,53 @@ public final class StreamingRenderer implements GTRenderer {
                 if ((ruleList.size() == 0) && (elseRuleList.size() == 0))
                     continue; 
 
-                if (itemNumber == 0 || !isOptimizedFTSRenderingEnabled()) // we can optimize this one!
-                {
+                // we can optimize this one!
+                if (result.size() == 0 || !isOptimizedFTSRenderingEnabled()) {
                     lfts = new LiteFeatureTypeStyle(graphics, ruleList,
                             elseRuleList);
                 } else {
-                    BufferedImage image = graphics
-                    .getDeviceConfiguration()
-                    .createCompatibleImage(screenSize.width,
+                    BufferedImage image = graphics.getDeviceConfiguration().createCompatibleImage(screenSize.width,
                             screenSize.height, Transparency.TRANSLUCENT);
                     lfts = new LiteFeatureTypeStyle(image, graphics
                             .getTransform(), ruleList, elseRuleList,
                             java2dHints);
                 }
+                if (screenMapEnabled(lfts)) {
+                    lfts.screenMap = new ScreenMap(screenSize.x, screenSize.y, screenSize.width,
+                            screenSize.height);
+                }
+                                                   
                 result.add(lfts);
-                itemNumber++;
-
             }
         }
 
         return result;
     }
 
+    
+    /**
+     * Returns true if the ScreenMap optimization can be applied given the current renderer and
+     * configuration and the style to be applied
+     * 
+     * @param lfts
+     * @return
+     */
+    boolean screenMapEnabled(LiteFeatureTypeStyle lfts) {
+        if (generalizationDistance == 0.0) {
+            return false;
+        }
+
+        OpacityFinder finder = new OpacityFinder(new Class[] { PointSymbolizer.class,
+                LineSymbolizer.class, PolygonSymbolizer.class });
+        for (Rule r : lfts.ruleList) {
+            r.accept(finder);
+        }
+        for (Rule r : lfts.elseRules) {
+            r.accept(finder);
+        }
+
+        return !finder.hasOpacity;
+    }
 
 
     private boolean isFeatureTypeStyleActive(SimpleFeatureType ftype, FeatureTypeStyle fts) {
@@ -1592,7 +1637,7 @@ public final class StreamingRenderer implements GTRenderer {
             Rule r = rules[j];
 
             if (isWithInScale(r)) {
-                if (r.hasElseFilter()) {
+                if (r.isElseFilter()) {
                     elseRuleList.add(r);
                 } else {
                     ruleList.add(r);
@@ -1945,6 +1990,7 @@ public final class StreamingRenderer implements GTRenderer {
                     rf.setFeature(iterator.next());
                     // draw the feature on the main graphics and on the eventual extra image buffers
                     for (LiteFeatureTypeStyle liteFeatureTypeStyle : fts_array) {
+                        rf.setScreenMap(liteFeatureTypeStyle.screenMap);
                         process(rf, liteFeatureTypeStyle, scaleRange, at, destinationCrs, layerId);
 
                     }
@@ -1963,6 +2009,10 @@ public final class StreamingRenderer implements GTRenderer {
         }
         // have to re-form the image now.
         // graphics.setTransform( new AffineTransform() );
+//        final AlphaComposite comp = AlphaComposite.getInstance(AlphaComposite.SRC_OVER);
+//        if(graphics.getComposite() == null || !graphics.getComposite().equals(comp)) {
+//            graphics.setComposite(comp);
+//        }
         graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER));
         for (int t = 0; t < fts_array.length; t++) {
             // first fts won't have an image, it's using the user provided graphics
@@ -2030,29 +2080,28 @@ public final class StreamingRenderer implements GTRenderer {
     /**
      * @param rf
      * @param feature 
-     * @param style
+     * @param fts
      * @param layerId 
      */
-    final private void process(RenderableFeature rf, LiteFeatureTypeStyle style,
+    final private void process(RenderableFeature rf, LiteFeatureTypeStyle fts,
             NumberRange scaleRange, AffineTransform at,
             CoordinateReferenceSystem destinationCrs, String layerId)
     throws TransformException, FactoryException {
         boolean doElse = true;
-        Rule[] elseRuleList = style.elseRules;
-        Rule[] ruleList = style.ruleList;
+        Rule[] elseRuleList = fts.elseRules;
+        Rule[] ruleList = fts.ruleList;
         Rule r;
         Filter filter;
-        Graphics2D graphics = style.graphics;
+        Graphics2D graphics = fts.graphics;
         // applicable rules
         final int length = ruleList.length;
         for (int t = 0; t < length; t++) {
             r = ruleList[t];
             filter = r.getFilter();
 
-            if ((filter == null) || filter.evaluate(rf.content)) {
+            if (filter == null || filter.evaluate(rf.content)) {
                 doElse = false;
-                processSymbolizers(graphics, rf, r.symbolizers(), scaleRange,
-                        at, destinationCrs, layerId);
+                processSymbolizers(graphics, rf, r.symbolizers(), scaleRange, at, destinationCrs, layerId);
             }
         }
 
@@ -2093,12 +2142,8 @@ public final class StreamingRenderer implements GTRenderer {
             final RenderableFeature drawMe, final List<Symbolizer> symbolizers,
             NumberRange scaleRange, AffineTransform at,
             CoordinateReferenceSystem destinationCrs, String layerId)
-    throws TransformException, FactoryException {
-
-        // clips Graphics to current drawing area before painting
-        Graphics2D clippedGraphics = (Graphics2D)graphics.create();
-        clippedGraphics.clip(screenSize);
-
+            throws TransformException, FactoryException {
+        
         for (Symbolizer symbolizer : symbolizers) {
 
             // /////////////////////////////////////////////////////////////////
@@ -2107,7 +2152,7 @@ public final class StreamingRenderer implements GTRenderer {
             //
             // /////////////////////////////////////////////////////////////////
             if (symbolizer instanceof RasterSymbolizer) {
-                renderRaster(clippedGraphics, drawMe.content,
+                renderRaster(graphics, drawMe.content,
                         (RasterSymbolizer) symbolizer, destinationCrs,
                         scaleRange,at);
 
@@ -2119,10 +2164,10 @@ public final class StreamingRenderer implements GTRenderer {
                 //
                 // /////////////////////////////////////////////////////////////////
                 LiteShape2 shape = drawMe.getShape(symbolizer, at);
-                if(shape == null)
+                if(shape == null) {
                     continue;
+                }
                 
-                // finally render
                 if (symbolizer instanceof TextSymbolizer && drawMe.content instanceof SimpleFeature) {
                     labelCache.put(layerId, (TextSymbolizer) symbolizer, (SimpleFeature) drawMe.content,
                             shape, scaleRange);
@@ -2144,7 +2189,7 @@ public final class StreamingRenderer implements GTRenderer {
                         shape = new LiteShape2(g, null, null, false);
                     }
                     
-                    painter.paint(clippedGraphics, shape, style, scaleDenominator);
+                    painter.paint(graphics, shape, style, scaleDenominator);
                 }
 
             }
@@ -2593,11 +2638,16 @@ public final class StreamingRenderer implements GTRenderer {
         private List shapes = new ArrayList();
         private boolean clone;
         private IdentityHashMap decimators = new IdentityHashMap();
+        private ScreenMap screenMap;
 
 
         public RenderableFeature(MapLayer layer, boolean clone) {
             this.layer = layer;
             this.clone = clone;
+        }
+
+        public void setScreenMap(ScreenMap screenMap) {
+            this.screenMap = screenMap;
         }
 
         public void setFeature(Object feature) {
@@ -2611,33 +2661,47 @@ public final class StreamingRenderer implements GTRenderer {
 
             if ( g == null )
                 return null;
-
-            SymbolizerAssociation sa = (SymbolizerAssociation) symbolizerAssociationHT
-            .get(symbolizer);
-            MathTransform2D crsTransform = null;
-            MathTransform2D atTransform = null;
-            MathTransform2D fullTransform = null;
-            if (sa == null) {
-                sa = new SymbolizerAssociation();
-                sa.crs = (findGeometryCS(layer, content, symbolizer));
-                try {
-                    crsTransform = buildTransform(sa.crs, destinationCrs);
-                    atTransform = (MathTransform2D) ProjectiveTransform.create(worldToScreenTransform);
-                    fullTransform = buildFullTransform(sa.crs, destinationCrs, at);
-                } catch (Exception e) {
-                    // fall through
-                    LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);
-                }
-                sa.xform = fullTransform;
-                sa.crsxform = crsTransform;
-                sa.axform = atTransform;
-
-                symbolizerAssociationHT.put(symbolizer, sa);
-            }
-
-            // some shapes may be too close to projection boundaries to
-            // get transformed, try to be lenient
+            
             try {
+                // process screenmap if necessary
+                if (screenMap != null // 
+                        && !(symbolizer instanceof PointSymbolizer) //
+                        && !(g instanceof Point)) {
+                    Envelope env = g.getEnvelopeInternal();
+                    if(screenMap.canSimplify(env))
+                        if (screenMap.checkAndSet(env)) {
+                            return null;
+                        } else {
+                            g = screenMap.getSimplifiedShape(env.getMinX(), env.getMinY(), 
+                                    env.getMaxX(), env.getMaxY(), g.getFactory(), g.getClass());
+                        }
+                }
+    
+                SymbolizerAssociation sa = (SymbolizerAssociation) symbolizerAssociationHT
+                .get(symbolizer);
+                MathTransform2D crsTransform = null;
+                MathTransform2D atTransform = null;
+                MathTransform2D fullTransform = null;
+                if (sa == null) {
+                    sa = new SymbolizerAssociation();
+                    sa.crs = (findGeometryCS(layer, content, symbolizer));
+                    try {
+                        crsTransform = buildTransform(sa.crs, destinationCrs);
+                        atTransform = (MathTransform2D) ProjectiveTransform.create(worldToScreenTransform);
+                        fullTransform = buildFullTransform(sa.crs, destinationCrs, at);
+                    } catch (Exception e) {
+                        // fall through
+                        LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);
+                    }
+                    sa.xform = fullTransform;
+                    sa.crsxform = crsTransform;
+                    sa.axform = atTransform;
+    
+                    symbolizerAssociationHT.put(symbolizer, sa);
+                }
+
+                // some shapes may be too close to projection boundaries to
+                // get transformed, try to be lenient
                 if (symbolizer instanceof PointSymbolizer) {
                     // if the coordinate transformation will occurr in place on the coordinate sequence
                     if(!clone && g.getFactory().getCoordinateSequenceFactory() instanceof LiteCoordinateSequenceFactory) {

@@ -75,6 +75,7 @@ import org.geotools.index.TreeException;
 import org.geotools.index.quadtree.QuadTree;
 import org.geotools.index.quadtree.StoreException;
 import org.geotools.index.quadtree.fs.FileSystemIndexStore;
+import org.geotools.renderer.ScreenMap;
 import org.geotools.util.NullProgressListener;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -501,7 +502,8 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
             Number simplificationDistance = (Number) hints.get(Hints.GEOMETRY_DISTANCE);
             if(simplificationDistance != null) {
                 reader.setSimplificationDistance(simplificationDistance.doubleValue());
-            } 
+            }
+            reader.setScreenMap((ScreenMap) hints.get(Hints.SCREENMAP));
         }
         
         return reader;
@@ -1103,6 +1105,7 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
         hints.add( Hints.JTS_GEOMETRY_FACTORY );
         hints.add( Hints.JTS_COORDINATE_SEQUENCE_FACTORY );
         hints.add( Hints.GEOMETRY_DISTANCE);
+        hints.add( Hints.SCREENMAP);
         return hints;
     }
 }

@@ -129,13 +129,14 @@ public class ReprojectedFiltersTest extends TestCase {
             expected.add( fid );
         }
         iter.close();
+        System.out.println(expected);
         
         ShapefileRenderer r = new ShapefileRenderer(mc);
         r.addRenderListener(new RenderListener() {
             public void featureRenderer(SimpleFeature feature) {
                 features++;
                 String fid = feature.getID();
-                assertTrue("Unexpected result "+fid, expected.contains( fid ));
+                assertTrue("Unexpected result " + fid + " - " + feature.getAttribute("STATE_NAME"), expected.contains( fid ));
             }        
             public void errorOccurred(Exception e) {
                 errors++;
