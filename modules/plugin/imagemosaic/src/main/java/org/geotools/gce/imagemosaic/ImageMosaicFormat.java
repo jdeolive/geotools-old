@@ -222,6 +222,7 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
     /**
      * @see org.geotools.data.coverage.grid.AbstractGridFormat#getReader(Object)
      */
+    @Override
     public ImageMosaicReader getReader( Object source ) {
         return getReader(source, null);
     }
@@ -229,10 +230,12 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
     /**
      * 
      */
+    @Override
     public GridCoverageWriter getWriter( Object destination ) {
         throw new UnsupportedOperationException("This plugin does not support writing.");
     }
 
+    @Override
     public boolean accepts( Object source, Hints hints ) {
         Utilities.ensureNonNull("source", source);
             if (source instanceof ImageMosaicDescriptor){
@@ -245,6 +248,7 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
     /**
      * @see org.geotools.data.coverage.grid.AbstractGridFormat#accepts(Object input)
      */
+    @Override
     public boolean accepts( Object source ) {
         return accepts(source, null);
     }
@@ -430,6 +434,7 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
 	/**
      * @see AbstractGridFormat#getReader(Object, Hints)
      */
+    @Override
     public ImageMosaicReader getReader( Object source, Hints hints ) {
         try {
 
@@ -452,8 +457,14 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
      * 
      * @return nothing.
      */
+    @Override
     public GeoToolsWriteParams getDefaultImageIOWriteParameters() {
         throw new UnsupportedOperationException("Unsupported method.");
     }
+
+	@Override
+	public GridCoverageWriter getWriter(Object destination, Hints hints) {
+		throw new UnsupportedOperationException("This plugin does not support writing.");
+	}
 
 }

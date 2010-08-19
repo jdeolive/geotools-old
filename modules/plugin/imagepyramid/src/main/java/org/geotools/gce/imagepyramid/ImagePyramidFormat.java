@@ -144,6 +144,7 @@ public final class ImagePyramidFormat extends AbstractGridFormat implements Form
 	 * @return An {@link ImagePyramidReader} if the provided object can be read
 	 *         using this plugin or null.
 	 */
+	@Override
 	public ImagePyramidReader getReader(Object source) {
 		return getReader(source, null);
 	}
@@ -152,24 +153,18 @@ public final class ImagePyramidFormat extends AbstractGridFormat implements Form
 	 * This methods throw an {@link UnsupportedOperationException} because this
 	 * plugiin si read only.
 	 */
+	@Override
 	public GridCoverageWriter getWriter(Object destination) {
 		throw new UnsupportedOperationException(
 				"This plugin is a read only plugin!");
 	}
 
-	/**
-	 * @see org.geotools.data.coverage.grid.AbstractGridFormat#accepts(Object
-	 *      input)
-	 */
-	public boolean accepts(Object source) {
-		return accepts(source, null);
-	}
-	
 	
 	/**
 	 * @see org.geotools.data.coverage.grid.AbstractGridFormat#accepts(Object
 	 *      input)
 	 */
+	@Override
 	public boolean accepts(Object source, Hints hints) {
 		try {
 
@@ -294,6 +289,7 @@ public final class ImagePyramidFormat extends AbstractGridFormat implements Form
 	 * @return An {@link ImagePyramidReader} if the provided object can be read
 	 *         using this plugin or null.
 	 */
+	@Override
 	public ImagePyramidReader getReader(Object source, Hints hints) {
 		try {
 
@@ -320,7 +316,13 @@ public final class ImagePyramidFormat extends AbstractGridFormat implements Form
 	 * 
 	 * @return nothing.
 	 */
+	@Override
 	public GeoToolsWriteParams getDefaultImageIOWriteParameters() {
+		throw new UnsupportedOperationException("Unsupported method.");
+	}
+
+	@Override
+	public GridCoverageWriter getWriter(Object destination, Hints hints) {
 		throw new UnsupportedOperationException("Unsupported method.");
 	}
 

@@ -107,20 +107,13 @@ public abstract class BaseGDALGridFormat extends AbstractGridFormat implements
     protected abstract void setInfo();
 
     /**
-     * @see org.geotools.data.coverage.grid.AbstractGridFormat#getReader(Object
-     *      source)
-     */
-    public AbstractGridCoverage2DReader getReader(Object source) {
-        return getReader(source, null);
-    }
-
-    /**
      * @see org.geotools.data.coverage.grid.AbstractGridFormat#createWriter(java.lang.Object
      *      destination)
      * 
      * Actually, the plugin does not support write capabilities. The method
      * throws an {@code UnsupportedOperationException}.
      */
+    @Override
     public GridCoverageWriter getWriter(Object destination) {
         throw new UnsupportedOperationException(
                 "This plugin does not support writing at this time.");
@@ -132,6 +125,7 @@ public abstract class BaseGDALGridFormat extends AbstractGridFormat implements
      * Actually, the plugin does not support write capabilities. The method
      * throws an {@code UnsupportedOperationException}.
      */
+    @Override
     public GeoToolsWriteParams getDefaultImageIOWriteParameters() {
         throw new UnsupportedOperationException("This plugin does not support writing parameters");
     }
@@ -150,7 +144,8 @@ public abstract class BaseGDALGridFormat extends AbstractGridFormat implements
     /**
      * @see org.geotools.data.coverage.grid.AbstractGridFormat#accepts(java.lang.Object input)
      */
-    public boolean accepts(Object input) {
+    @Override
+    public boolean accepts(Object input,Hints hints) {
         try {
             return spi.canDecodeInput(input);
         } catch (IOException e) {
@@ -175,4 +170,14 @@ public abstract class BaseGDALGridFormat extends AbstractGridFormat implements
                                 USE_MULTITHREADING, 
                                 SUGGESTED_TILE_SIZE }));
     }
+    
+    /**
+     * @see org.geotools.data.coverage.grid.AbstractGridFormat#getReader(Object
+     *      source)
+     */
+    @Override
+    public AbstractGridCoverage2DReader getReader(Object source) {
+        return getReader(source, null);
+    }
+
 }

@@ -130,7 +130,8 @@ public final class GeoTiffFormat extends AbstractGridFormat implements Format {
 	 * @return true if "o" is a File or a URL that points to a GeoTiff with a
 	 *         GeoTiff file as a resource.
 	 */
-	public boolean accepts(Object o) {
+	@Override
+	public boolean accepts(Object o,Hints hints) {
 
 		if (o == null) {
 			return false;
@@ -192,14 +193,14 @@ public final class GeoTiffFormat extends AbstractGridFormat implements Format {
 			    return true;
 			
 			// now look for info into a WLD file
-                        MathTransform raster2Model = GeoTiffReader.parseWorldFile(o);
-                        if (raster2Model != null)
-                            return true;
-                        else{              
-                            if (LOGGER.isLoggable(Level.FINE))
-                                LOGGER.fine("Unable to find georeferencing for this tif file");
-                            return false;
-                        }
+            MathTransform raster2Model = GeoTiffReader.parseWorldFile(o);
+            if (raster2Model != null)
+                return true;
+            else{              
+                if (LOGGER.isLoggable(Level.FINE))
+                    LOGGER.fine("Unable to find georeferencing for this tif file");
+                return false;
+            }
 			
 		} catch (Throwable e) {
 		    if (LOGGER.isLoggable(Level.FINE))
@@ -232,6 +233,7 @@ public final class GeoTiffFormat extends AbstractGridFormat implements Format {
 	 * 
 	 * @return a GeoTiffReader object initialized to the specified File.
 	 */
+	@Override
 	public GeoTiffReader getReader(Object source) {
 		return getReader(source, null);
 	}
@@ -248,6 +250,7 @@ public final class GeoTiffFormat extends AbstractGridFormat implements Format {
 	 * 
 	 * @return a GeoTiffReader object initialized to the specified File.
 	 */
+	@Override
 	public GeoTiffReader getReader(Object source, Hints hints) {
 		// if (source instanceof CatalogEntry) {
 		// source = ((CatalogEntry) source).resource();
@@ -289,6 +292,7 @@ public final class GeoTiffFormat extends AbstractGridFormat implements Format {
 	 * 
 	 * @return a GeoTiffReader object initialized to the specified File.
 	 */
+	@Override
 	public GridCoverageWriter getWriter(Object destination, Hints hints) {
 		try {
 			return new GeoTiffWriter(destination, hints);
@@ -310,6 +314,7 @@ public final class GeoTiffFormat extends AbstractGridFormat implements Format {
 	 * 
 	 * @return a GeoTiffReader object initialized to the specified File.
 	 */
+	@Override
 	public GridCoverageWriter getWriter(Object destination) {
 		try {
 			return new GeoTiffWriter(destination);
@@ -326,6 +331,7 @@ public final class GeoTiffFormat extends AbstractGridFormat implements Format {
 	 * 
 	 * @return an instance of {@link GeoTiffWriteParams}.
 	 */
+	@Override
 	public GeoToolsWriteParams getDefaultImageIOWriteParameters() {
 		return new GeoTiffWriteParams();
 	}

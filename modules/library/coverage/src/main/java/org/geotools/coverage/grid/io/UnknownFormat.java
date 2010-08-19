@@ -58,6 +58,7 @@ public class UnknownFormat extends AbstractGridFormat implements Format {
 	/**
 	 * @see AbstractGridFormat#getReader(Object)
 	 */
+	@Override
 	public AbstractGridCoverage2DReader getReader(java.lang.Object source) {
 		throw new UnsupportedOperationException(
 			"Trying to get a reader from an unknown format.");
@@ -66,6 +67,7 @@ public class UnknownFormat extends AbstractGridFormat implements Format {
 	/**
 	 * @see AbstractGridFormat#getWriter(Object)
 	 */
+	@Override
 	public GridCoverageWriter getWriter(Object destination) {
 		throw new UnsupportedOperationException(
 				"Trying to get a writer from an unknown format.");
@@ -77,6 +79,7 @@ public class UnknownFormat extends AbstractGridFormat implements Format {
 	/**
 	 * @see AbstractGridFormat#getReader(Object, Hints)
 	 */
+	@Override
 	public AbstractGridCoverage2DReader getReader(Object source, Hints hints) {
 		throw new UnsupportedOperationException(
 				"Trying to get a reader from an unknown format.");
@@ -85,6 +88,7 @@ public class UnknownFormat extends AbstractGridFormat implements Format {
 	/**
 	 * @see AbstractGridFormat#getDefaultImageIOWriteParameters()
 	 */
+	@Override
 	public GeoToolsWriteParams getDefaultImageIOWriteParameters() {
 		throw new UnsupportedOperationException(
 				"Trying to get a writing parameters from an unknown format.");
@@ -92,7 +96,8 @@ public class UnknownFormat extends AbstractGridFormat implements Format {
 	/**
 	 * @see AbstractGridFormat#accepts(Object)
 	 */
-	public  boolean accepts(Object input) {
+	@Override
+	public  boolean accepts(Object input,Hints hints) {
 		return false;
 	}
 
@@ -100,6 +105,7 @@ public class UnknownFormat extends AbstractGridFormat implements Format {
 	 * (non-Javadoc)
 	 * @see org.geotools.coverage.grid.io.AbstractGridFormat#getReadParameters()
 	 */
+	@Override
 	public ParameterValueGroup getReadParameters() {
 		throw new UnsupportedOperationException(
 		"Trying to get a reading parameters from an unknown format.");
@@ -109,9 +115,16 @@ public class UnknownFormat extends AbstractGridFormat implements Format {
 	 * (non-Javadoc)
 	 * @see org.geotools.coverage.grid.io.AbstractGridFormat#getWriteParameters()
 	 */
+	@Override
 	public ParameterValueGroup getWriteParameters() {
 		throw new UnsupportedOperationException(
 		"Trying to get a writing parameters from an unknown format.");
+	}
+
+	@Override
+	public GridCoverageWriter getWriter(Object destination, Hints hints) {
+		throw new UnsupportedOperationException(
+		"Trying to get a writer from an unknown format.");
 	}
 
 }

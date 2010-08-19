@@ -84,6 +84,7 @@ import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.geotools.resources.i18n.Vocabulary;
 import org.geotools.resources.i18n.VocabularyKeys;
+import org.geotools.util.Converters;
 import org.geotools.util.NumberRange;
 import org.geotools.util.SimpleInternationalString;
 import org.opengis.coverage.ColorInterpretation;
@@ -378,17 +379,17 @@ class RasterLayerResponse{
 			// load raster data
 			//
 			//create a granuleDescriptor loader
-                        final Geometry bb = JTS.toGeometry((BoundingBox)mosaicBBox);
-                        final Geometry inclusionGeometry = granuleDescriptor.inclusionGeometry;
-                        if (!footprintManagement || inclusionGeometry == null || footprintManagement && inclusionGeometry.intersects(bb)){
-                            final GranuleLoader loader = new GranuleLoader(baseReadParameters, imageChoice, mosaicBBox, finalWorldToGridCorner, granuleDescriptor, request, hints);
-                            if (multithreadingAllowed && rasterManager.parent.multiThreadedLoader != null)
-                                    tasks.add(rasterManager.parent.multiThreadedLoader.submit(loader));
-                                else
-                                    tasks.add(new FutureTask<GranuleLoadingResult>(loader));
-                                
-                                granulesNumber++;
-                        }
+            final Geometry bb = JTS.toGeometry((BoundingBox)mosaicBBox);
+            final Geometry inclusionGeometry = granuleDescriptor.inclusionGeometry;
+            if (!footprintManagement || inclusionGeometry == null || footprintManagement && inclusionGeometry.intersects(bb)){
+                final GranuleLoader loader = new GranuleLoader(baseReadParameters, imageChoice, mosaicBBox, finalWorldToGridCorner, granuleDescriptor, request, hints);
+                if (multithreadingAllowed && rasterManager.parent.multiThreadedLoader != null)
+                        tasks.add(rasterManager.parent.multiThreadedLoader.submit(loader));
+                    else
+                        tasks.add(new FutureTask<GranuleLoadingResult>(loader));
+                    
+                    granulesNumber++;
+            }
                         
 			if(granulesNumber>request.getMaximumNumberOfGranules())
 				throw new IllegalStateException("The maximum number of allowed granules ("+request.getMaximumNumberOfGranules()+")has been exceeded.");
@@ -881,17 +882,13 @@ class RasterLayerResponse{
 							query.setSortBy(descendingSortOrder);
 						else{
 							// the datastore does not support descending sortby, let's support the maximum
-							final MaxVisitor2 max = new MaxVisitor2(rasterManager.timeAttribute);
+							final MaxVisitor max = new MaxVisitor(rasterManager.timeAttribute);
 							rasterManager.index.computeAggregateFunction(query,max);
-							final  Feature targetFeature=max.getTargetFeature();
-							if(targetFeature==null)
-								throw new IllegalStateException();
-							final FeatureId fid=targetFeature.getIdentifier();
+							final Object result=max.getResult().getValue();		
 							
 							// now let's get this feature by is fid
-							final Filter fidFilter=Utils.FILTER_FACTORY.id(Collections.singleton(fid));
-							query.setFilter(Utils.FILTER_FACTORY.and(oldFilter, fidFilter));
-							
+							final Filter temporal = Utils.FILTER_FACTORY.equal(Utils.FILTER_FACTORY.property(rasterManager.timeAttribute), Utils.FILTER_FACTORY.literal(Converters.convert(result, Date.class)),true);
+							query.setFilter(Utils.FILTER_FACTORY.and(oldFilter, temporal));
 						}
 						
 					}

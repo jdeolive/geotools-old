@@ -108,6 +108,7 @@ public final class ArcGridFormat extends AbstractGridFormat implements Format {
 	 * @see org.geotools.data.coverage.grid.AbstractGridFormat#getReader(Object
 	 *      source)
 	 */
+	@Override
 	public ArcGridReader getReader(Object source) {
 		return getReader(source, null);
 	}
@@ -116,6 +117,7 @@ public final class ArcGridFormat extends AbstractGridFormat implements Format {
 	 * @see org.geotools.data.coverage.grid.AbstractGridFormat#createWriter(java.lang.Object
 	 *      destination)
 	 */
+	@Override
 	public GridCoverageWriter getWriter(Object destination) {
 		try {
 			return new ArcGridWriter(destination);
@@ -130,6 +132,7 @@ public final class ArcGridFormat extends AbstractGridFormat implements Format {
 	 * @see org.geotools.data.coverage.grid.AbstractGridFormat#createWriter(java.lang.Object
 	 *      destination,Hints hints)
 	 */
+	@Override
 	public GridCoverageWriter getWriter(Object destination, Hints hints) {
 		try {
 			return new ArcGridWriter(destination, hints);
@@ -144,7 +147,8 @@ public final class ArcGridFormat extends AbstractGridFormat implements Format {
 	 * @see org.geotools.data.coverage.grid.AbstractGridFormat#accepts(Object
 	 *      input)
 	 */
-	public boolean accepts(Object input) {
+	@Override
+	public boolean accepts(Object input,Hints hints) {
 		try {
 			return spi.canDecodeInput(input);
 		} catch (IOException e) {
@@ -158,6 +162,7 @@ public final class ArcGridFormat extends AbstractGridFormat implements Format {
 	 * @see org.geotools.data.coverage.grid.AbstractGridFormat#getReader(Object,
 	 *      Hints)
 	 */
+	@Override
 	public ArcGridReader getReader(Object source, Hints hints) {
 		try {
 			return new ArcGridReader(source, hints);
@@ -175,6 +180,7 @@ public final class ArcGridFormat extends AbstractGridFormat implements Format {
 	 * @return a default instance for the {@link ArcGridFormat} of the
 	 *         {@link GeoToolsWriteParams} to control the writing process.
 	 */
+	@Override
 	public GeoToolsWriteParams getDefaultImageIOWriteParameters() {
 		return new ArcGridWriteParams();
 	}

@@ -22,6 +22,7 @@ import javax.imageio.ImageWriteParam;
 
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.imageio.GeoToolsWriteParams;
+import org.geotools.factory.GeoTools;
 import org.geotools.factory.Hints;
 import org.geotools.parameter.DefaultParameterDescriptor;
 import org.geotools.referencing.crs.DefaultEngineeringCRS;
@@ -239,10 +240,25 @@ public abstract class AbstractGridFormat implements Format {
 	 * 
 	 * 
 	 * @param input
-	 *            The input object to test for suitablilty.
+	 *            The input object to test for suitability.
 	 * @return True if this format can read this object, False otherwise.
 	 */
-	public abstract boolean accepts(Object input);
+	public boolean accepts(Object source){
+		return accepts(source,GeoTools.getDefaultHints());
+	}
+	
+	/**
+	 * Tells me if this {@link Format} can read the provided <code>input</code>.
+	 * 
+	 * 
+	 * @param input
+	 *            The input object to test for suitability.
+	 * @param hints
+	 * 				{@link Hints} to control the accepts internal machinery.
+	 * 
+	 * @return True if this format can read this object, False otherwise.
+	 */
+	public abstract boolean accepts(Object source, Hints hints) ;
 
 	/**
 	 * @see org.geotools.data.coverage.grid.Format#equals(org.geotools.data.coverage.grid.Format)
@@ -298,4 +314,16 @@ public abstract class AbstractGridFormat implements Format {
 	 * @return an instance of {@link ImageWriteParam}.
 	 */
 	public abstract GeoToolsWriteParams getDefaultImageIOWriteParameters();
+
+	/**
+	 * Call the accepts() method before asking for a writer to determine if the
+	 * current object is supported.
+	 * 
+	 * @param destination
+	 *            the destination object to write a WorldImage to
+	 * @param hints
+	 * 				{@link Hints} to control the  internal machinery.
+	 * @return a new WorldImageWriter for the destination
+	 */
+	public abstract GridCoverageWriter getWriter(Object destination, Hints hints);
 }

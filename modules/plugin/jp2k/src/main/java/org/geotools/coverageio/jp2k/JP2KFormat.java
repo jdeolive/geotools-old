@@ -139,6 +139,7 @@ public final class JP2KFormat extends AbstractGridFormat implements Format {
     /**
      * @see org.geotools.data.coverage.grid.AbstractGridFormat#getReader(Object, Hints)
      */
+    @Override
     public AbstractGridCoverage2DReader getReader(Object source, Hints hints) {
         try {
             return new JP2KReader(source, hints);
@@ -160,6 +161,7 @@ public final class JP2KFormat extends AbstractGridFormat implements Format {
     /**
      * @see org.geotools.data.coverage.grid.AbstractGridFormat#getReader(Object)
      */
+    @Override
     public AbstractGridCoverage2DReader getReader( Object source ) {
         return getReader(source, null);
     }
@@ -171,6 +173,7 @@ public final class JP2KFormat extends AbstractGridFormat implements Format {
      * Actually, the plugin does not support write capabilities. The method
      * throws an {@code UnsupportedOperationException}.
      */
+    @Override
     public GridCoverageWriter getWriter(Object destination) {
         throw new UnsupportedOperationException(
                 "This plugin does not support writing at this time.");
@@ -182,6 +185,7 @@ public final class JP2KFormat extends AbstractGridFormat implements Format {
      * Actually, the plugin does not support write capabilities. The method
      * throws an {@code UnsupportedOperationException}.
      */
+    @Override
     public GeoToolsWriteParams getDefaultImageIOWriteParameters() {
         throw new UnsupportedOperationException(
                 "This plugin does not support writing parameters");
@@ -194,6 +198,7 @@ public final class JP2KFormat extends AbstractGridFormat implements Format {
      * Actually, the plugin does not support write capabilities. The method
      * throws an {@code UnsupportedOperationException}.
      */
+    @Override
     public GridCoverageWriter getWriter(Object destination, Hints hints) {
         throw new UnsupportedOperationException(
                 "This plugin does not support writing at this time.");
@@ -203,7 +208,7 @@ public final class JP2KFormat extends AbstractGridFormat implements Format {
      * @see org.geotools.data.coverage.grid.AbstractGridFormat#accepts(java.lang.Object input)
      */
     @Override
-    public boolean accepts(Object input) {
+    public boolean accepts(Object input,Hints hints) {
         try {
         	
         	//Directories aren't accepted

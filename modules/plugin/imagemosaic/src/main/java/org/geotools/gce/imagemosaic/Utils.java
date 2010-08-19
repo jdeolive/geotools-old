@@ -417,46 +417,50 @@ public class Utils {
 		String pair[] = null;
 		
 		//
-                // resolutions levels
-                //              
-                if (!ignoreSome || !ignorePropertiesSet.contains(Prop.LEVELS)){
-                        int levelsNumber = Integer.parseInt(properties.getProperty(Prop.LEVELS_NUM,"1").trim()) ;
-                        retValue.setLevelsNum(levelsNumber);
-                        if(!properties.containsKey(Prop.LEVELS)) {
-                                if(LOGGER.isLoggable(Level.INFO))
-                                        LOGGER.info("Required key Levels not found.");                
-                                return  null;
-                        }                       
-                        final String levels = properties.getProperty(Prop.LEVELS).trim();
-                        pairs = levels.split(" ");
-                        if (pairs == null || pairs.length != levelsNumber) {
-                            if (LOGGER.isLoggable(Level.INFO))
-                                LOGGER.info("Levels number is different from the provided number of levels resoltion.");
-                                return null;
-                        }
-                        final double[][] resolutions = new double[levelsNumber][2];
-                        for (int i = 0; i < levelsNumber; i++) {
-                                pair = pairs[i].split(",");
-                                if (pair == null || pair.length != 2) {
-                                    if (LOGGER.isLoggable(Level.INFO))
-                                        LOGGER.info("OverviewLevel number is different from the provided number of levels resoltion.");
-                                        return null;
-                                }                               
-                                resolutions[i][0] = Double.parseDouble(pair[0]);
-                                resolutions[i][1] = Double.parseDouble(pair[1]);
-                        }
-                        retValue.setLevels(resolutions);
-                }
+		// resolutions levels
+		//              
+		if (!ignoreSome || !ignorePropertiesSet.contains(Prop.LEVELS)) {
+			int levelsNumber = Integer.parseInt(properties.getProperty(
+					Prop.LEVELS_NUM, "1").trim());
+			retValue.setLevelsNum(levelsNumber);
+			if (!properties.containsKey(Prop.LEVELS)) {
+				if (LOGGER.isLoggable(Level.INFO))
+					LOGGER.info("Required key Levels not found.");
+				return null;
+			}
+			final String levels = properties.getProperty(Prop.LEVELS).trim();
+			pairs = levels.split(" ");
+			if (pairs == null || pairs.length != levelsNumber) {
+				if (LOGGER.isLoggable(Level.INFO))
+					LOGGER
+							.info("Levels number is different from the provided number of levels resoltion.");
+				return null;
+			}
+			final double[][] resolutions = new double[levelsNumber][2];
+			for (int i = 0; i < levelsNumber; i++) {
+				pair = pairs[i].split(",");
+				if (pair == null || pair.length != 2) {
+					if (LOGGER.isLoggable(Level.INFO))
+						LOGGER
+								.info("OverviewLevel number is different from the provided number of levels resoltion.");
+					return null;
+				}
+				resolutions[i][0] = Double.parseDouble(pair[0]);
+				resolutions[i][1] = Double.parseDouble(pair[1]);
+			}
+			retValue.setLevels(resolutions);
+		}
 
 		//
 		// suggested spi is optional
 		//
-                if (!ignoreSome || !ignorePropertiesSet.contains(Prop.SUGGESTED_SPI)) {
-                    if (properties.containsKey(Prop.SUGGESTED_SPI)) {
-                            final String suggestedSPI = properties.getProperty(Prop.SUGGESTED_SPI).trim();
-                            retValue.setSuggestedSPI(suggestedSPI);
-                    }
-                }
+		if (!ignoreSome || !ignorePropertiesSet.contains(Prop.SUGGESTED_SPI)) {
+			if (properties.containsKey(Prop.SUGGESTED_SPI)) {
+				final String suggestedSPI = properties.getProperty(
+						Prop.SUGGESTED_SPI).trim();
+				retValue.setSuggestedSPI(suggestedSPI);
+			}
+		}
 
 		//
 		// time attribute is optional
@@ -508,35 +512,44 @@ public class Utils {
                 }
 
 		// need a color expansion?
-                // this is a newly added property we have to be ready to the case where
-                // we do not find it.
-                if (!ignoreSome || !ignorePropertiesSet.contains(Prop.EXP_RGB)) {
-                        final boolean expandMe = Boolean.valueOf(properties.getProperty(Prop.EXP_RGB,"false").trim());  
-                        retValue.setExpandToRGB(expandMe);
-                }
+		// this is a newly added property we have to be ready to the case where
+		// we do not find it.
+		if (!ignoreSome || !ignorePropertiesSet.contains(Prop.EXP_RGB)) {
+			final boolean expandMe = Boolean.valueOf(properties.getProperty(
+					Prop.EXP_RGB, "false").trim());
+			retValue.setExpandToRGB(expandMe);
+		}
 
-                //
-                // Absolute or relative path
-                //
-                if (!ignoreSome || !ignorePropertiesSet.contains(Prop.ABSOLUTE_PATH)) {
-                        final boolean absolutePath = Boolean.parseBoolean(properties.getProperty(Prop.ABSOLUTE_PATH, Boolean.toString(Utils.DEFAULT_PATH_BEHAVIOR)).trim());
-                        retValue.setAbsolutePath(absolutePath);
-                }
-                
-                //
-                // Footprint management
-                //
-                if (!ignoreSome || !ignorePropertiesSet.contains(Prop.FOOTPRINT_MANAGEMENT)) {
-                        final boolean footprintManagement=Boolean.valueOf(properties.getProperty(Prop.FOOTPRINT_MANAGEMENT, "false").trim());   
-                        retValue.setFootprintManagement(footprintManagement);
-                }
-                
-                //
-                //  location
-                //  
-                if (!ignoreSome || !ignorePropertiesSet.contains(Prop.LOCATION_ATTRIBUTE)) {
-                        retValue.setLocationAttribute(properties.getProperty(Prop.LOCATION_ATTRIBUTE, Utils.DEFAULT_LOCATION_ATTRIBUTE).trim());
-                }
+		//
+		// Absolute or relative path
+		//
+		if (!ignoreSome || !ignorePropertiesSet.contains(Prop.ABSOLUTE_PATH)) {
+			final boolean absolutePath = Boolean.parseBoolean(properties
+					.getProperty(Prop.ABSOLUTE_PATH,
+							Boolean.toString(Utils.DEFAULT_PATH_BEHAVIOR))
+					.trim());
+			retValue.setAbsolutePath(absolutePath);
+		}
+
+		//
+		// Footprint management
+		//
+		if (!ignoreSome
+				|| !ignorePropertiesSet.contains(Prop.FOOTPRINT_MANAGEMENT)) {
+			final boolean footprintManagement = Boolean.valueOf(properties
+					.getProperty(Prop.FOOTPRINT_MANAGEMENT, "false").trim());
+			retValue.setFootprintManagement(footprintManagement);
+		}
+
+		//
+		// location
+		//  
+		if (!ignoreSome
+				|| !ignorePropertiesSet.contains(Prop.LOCATION_ATTRIBUTE)) {
+			retValue.setLocationAttribute(properties.getProperty(
+					Prop.LOCATION_ATTRIBUTE, Utils.DEFAULT_LOCATION_ATTRIBUTE)
+					.trim());
+		}
 
 		// retrn value
 		return retValue;

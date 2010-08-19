@@ -235,7 +235,7 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
      * @see AbstractGridFormat#accepts(Object input)
      */
     @Override
-    public boolean accepts(Object input) {
+    public boolean accepts(Object input, Hints hints) {
         StringBuffer url;
         if (input instanceof File) {
             url = new StringBuffer(((File) input).getPath());
@@ -503,4 +503,9 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
     void setStatisticsMandatory(final boolean statisticsMandatory) {
         this.statisticsMandatory = statisticsMandatory;
     }
+
+	@Override
+	public GridCoverageWriter getWriter(Object destination, Hints hints) {
+		return null;
+	}
 }

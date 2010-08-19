@@ -342,7 +342,7 @@ class STRTreeGranuleCatalog extends AbstractGranuleCatalog {
 			final ReferencedEnvelope referencedEnvelope= new ReferencedEnvelope(intersection,originalIndex.getBounds().getCoordinateReferenceSystem());
 		}
 		else
-			ReferencedEnvelope.reference(originalIndex.getBounds());
+			return ReferencedEnvelope.reference(originalIndex.getBounds());
 		return requestedBBox;
 	}
 

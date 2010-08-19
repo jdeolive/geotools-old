@@ -43,6 +43,7 @@ import org.opengis.parameter.GeneralParameterDescriptor;
  * @source $URL:
  *         http://svn.geotools.org/geotools/trunk/gt/plugin/gtopo30/src/org/geotools/gce/gtopo30/GTopo30Format.java $
  */
+@SuppressWarnings("deprecation")
 public final class GTopo30Format extends AbstractGridFormat implements Format {
 
 	/** Logger. */
@@ -83,6 +84,7 @@ public final class GTopo30Format extends AbstractGridFormat implements Format {
 	 * @return a GridCoverageReader object or null if the source object could
 	 *         not be accessed.
 	 */
+    @Override
 	public GTopo30Reader getReader(final Object o) {
 		return getReader(o, null);
 	}
@@ -96,6 +98,7 @@ public final class GTopo30Format extends AbstractGridFormat implements Format {
 	 * 
 	 * @return a GridCoverageWriter object
 	 */
+	@Override
 	public GridCoverageWriter getWriter(final Object destination) {
 		try {
 			return new GTopo30Writer(destination);
@@ -116,6 +119,7 @@ public final class GTopo30Format extends AbstractGridFormat implements Format {
 	 * @return a GridCoverageWriter object
 	 * @throws DataSourceException
 	 */
+    @Override
 	public GridCoverageWriter getWriter(final Object destination, Hints hints) {
 		try {
 			return new GTopo30Writer(destination, hints);
@@ -135,7 +139,8 @@ public final class GTopo30Format extends AbstractGridFormat implements Format {
 	 * 
 	 * @return if the source object is compatible
 	 */
-	public boolean accepts(final Object o) {
+    @Override
+	public boolean accepts(final Object o, Hints hints) {
 		URL urlToUse;
 
 		if (o instanceof File) {
@@ -191,6 +196,7 @@ public final class GTopo30Format extends AbstractGridFormat implements Format {
 	 * @return a GridCoverageReader object or null if the source object could
 	 *         not be accessed.
 	 */
+    @Override
 	public GTopo30Reader getReader(final Object o, Hints hints) {
 
 		try {
@@ -209,6 +215,7 @@ public final class GTopo30Format extends AbstractGridFormat implements Format {
 	 * 
 	 * @return always null.
 	 */
+    @Override
 	public GeoToolsWriteParams getDefaultImageIOWriteParameters() {
 		return null;
 	}

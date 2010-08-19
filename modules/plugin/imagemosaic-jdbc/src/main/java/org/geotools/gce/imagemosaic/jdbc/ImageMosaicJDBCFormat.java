@@ -158,7 +158,7 @@ public class ImageMosaicJDBCFormat extends AbstractGridFormat implements Format 
 	 *      input)
 	 */
 	@Override
-	public boolean accepts(Object source) {
+	public boolean accepts(Object source, Hints hints) {
 		if (source == null) {
 			return false;
 		}
@@ -213,6 +213,11 @@ public class ImageMosaicJDBCFormat extends AbstractGridFormat implements Format 
 	 */
 	@Override
 	public GeoToolsWriteParams getDefaultImageIOWriteParameters() {
+		throw new UnsupportedOperationException("Unsupported method.");
+	}
+
+	@Override
+	public GridCoverageWriter getWriter(Object destination, Hints hints) {
 		throw new UnsupportedOperationException("Unsupported method.");
 	}
 }

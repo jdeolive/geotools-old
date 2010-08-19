@@ -137,7 +137,7 @@ public class DataStoreTimeTest{
 				
 				// create feature
 				final SimpleFeature feature = fw.next();
-				feature.setAttribute("location", "\\\\192.168.1.12\\c\\emule\\incoming");
+				feature.setAttribute("location", "xxx");
 				feature.setAttribute("the_geom", geomFactory.toGeometry(envelope));
 				final Date day = new Date(109,11,i+1);
 				days.add(day);

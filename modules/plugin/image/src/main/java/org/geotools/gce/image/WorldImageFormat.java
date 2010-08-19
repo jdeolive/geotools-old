@@ -156,6 +156,7 @@ public final class WorldImageFormat extends AbstractGridFormat implements
 	 * 
 	 * @return a new WorldImageReader for the source
 	 */
+	@Override
 	public WorldImageReader getReader(Object source) {
 		return getReader(source, null);
 	}
@@ -169,6 +170,7 @@ public final class WorldImageFormat extends AbstractGridFormat implements
 	 * 
 	 * @return a new WorldImageWriter for the destination
 	 */
+	@Override
 	public GridCoverageWriter getWriter(Object destination) {
 		return new WorldImageWriter(destination);
 	}
@@ -182,6 +184,7 @@ public final class WorldImageFormat extends AbstractGridFormat implements
 	 * 
 	 * @return a new WorldImageWriter for the destination
 	 */
+	@Override
 	public GridCoverageWriter getWriter(Object destination, Hints hints) {
 		return new WorldImageWriter(destination, hints);
 	}
@@ -196,7 +199,8 @@ public final class WorldImageFormat extends AbstractGridFormat implements
 	 * 
 	 * @return true if the input is acceptable, false otherwise
 	 */
-	public boolean accepts(Object input) {
+	@Override
+	public boolean accepts(Object input,Hints hints) {
 		String pathname = "";
 
 		if (input instanceof URL) {
@@ -334,6 +338,7 @@ public final class WorldImageFormat extends AbstractGridFormat implements
 	 *            {@link Hints} to control the provided {@link WorldImageReader}.
 	 * @return a new WorldImageReader for the source
 	 */
+	@Override
 	public WorldImageReader getReader(Object source, Hints hints) {
 		try {
 			return new WorldImageReader(source, hints);
@@ -350,6 +355,7 @@ public final class WorldImageFormat extends AbstractGridFormat implements
 	 * 
 	 * @return always null.
 	 */
+	@Override
 	public GeoToolsWriteParams getDefaultImageIOWriteParameters() {
 		return null;
 	}

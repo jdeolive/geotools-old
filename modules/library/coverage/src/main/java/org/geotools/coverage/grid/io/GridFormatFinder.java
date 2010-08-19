@@ -27,6 +27,8 @@ import java.util.Set;
 
 import org.geotools.factory.FactoryCreator;
 import org.geotools.factory.FactoryRegistry;
+import org.geotools.factory.GeoTools;
+import org.geotools.factory.Hints;
 import org.opengis.coverage.grid.Format;
 import org.opengis.coverage.grid.GridCoverage;
 
@@ -150,33 +152,48 @@ public final class GridFormatFinder {
 	}
 
 	/**
-	 * Returns all the {@link Format}s that can read the supplied
-	 * {@link Object} o.
-	 *
+	 * Returns all the {@link Format}s that can read the supplied {@link Object}
+	 * o.
+	 * 
 	 * @param o
 	 *            is the object to search a {@link Format} that is able to read
 	 * @return an unmodifiable {@link Set} comprising all the {@link Format}
 	 *         that can read the {@link Object} o.
 	 */
-        public static synchronized Set<AbstractGridFormat> findFormats(Object o) {
-		final Set<GridFormatFactorySpi> availaibleFormats = getAvailableFormats();
-		final Set<AbstractGridFormat> formats=new HashSet<AbstractGridFormat>();
-		final Iterator<GridFormatFactorySpi> it = availaibleFormats.iterator();
-		while (it.hasNext()) {
-			// get the factory
-			final GridFormatFactorySpi spi = (GridFormatFactorySpi) it.next();
-			// create a format for it
-			final AbstractGridFormat retVal = spi.createFormat();
-			// check if we can accept it
-			if (retVal instanceof AbstractGridFormat) {
-				if (((AbstractGridFormat) retVal).accepts(o))
-					formats.add(retVal);
-			}
-
-		}
-
-		return Collections.unmodifiableSet(formats);
+     public static synchronized Set<AbstractGridFormat> findFormats(Object o) {
+		return findFormats(o, GeoTools.getDefaultHints());
 	}
+     
+ 	/**
+ 	 * Returns all the {@link Format}s that can read the supplied
+ 	 * {@link Object} o.
+ 	 *
+ 	 * @param o
+ 	 *            is the object to search a {@link Format} that is able to read
+	 * @param hints
+	 *            the {@link Hints} to control the format search.            
+ 	 * @return an unmodifiable {@link Set} comprising all the {@link Format}
+ 	 *         that can read the {@link Object} o.
+ 	 */
+      public static synchronized Set<AbstractGridFormat> findFormats(Object o, Hints hints) {
+ 		final Set<GridFormatFactorySpi> availaibleFormats = getAvailableFormats();
+ 		final Set<AbstractGridFormat> formats=new HashSet<AbstractGridFormat>();
+ 		final Iterator<GridFormatFactorySpi> it = availaibleFormats.iterator();
+ 		while (it.hasNext()) {
+ 			// get the factory
+ 			final GridFormatFactorySpi spi = (GridFormatFactorySpi) it.next();
+ 			// create a format for it
+ 			final AbstractGridFormat retVal = spi.createFormat();
+ 			// check if we can accept it
+ 			if (retVal instanceof AbstractGridFormat) {
+ 				if (((AbstractGridFormat) retVal).accepts(o,hints))
+ 					formats.add(retVal);
+ 			}
+
+ 		}
+
+ 		return Collections.unmodifiableSet(formats);
+ 	}     
 
 	/**
 	 * Returns a {@link Format} that is able to read a certain object. If no
@@ -196,13 +213,38 @@ public final class GridFormatFinder {
 	 *         {@link Object} o or <code>null</code> in no plugins was able to
 	 *         accept it.
 	 */
-        public static synchronized AbstractGridFormat findFormat(Object o) {
-		final Set<AbstractGridFormat> formats = findFormats(o);
-		final Iterator<AbstractGridFormat> it = formats.iterator();
-		if (it.hasNext()){
-			return (AbstractGridFormat) it.next();
-		}
-		return new UnknownFormat();
+      public static synchronized AbstractGridFormat findFormat(Object o) {
+		return findFormat(o, GeoTools.getDefaultHints());
 
 	}
+        
+    	/**
+    	 * Returns a {@link Format} that is able to read a certain object. If no
+    	 * {@link Format} is able to read such an {@link Object} we return an
+    	 * {@link UnknownFormat} object.
+    	 *
+    	 * <p>
+    	 * It is worth to point out that this method will try to convert each format
+    	 * implementation to {@link AbstractGridFormat} because the original
+    	 * {@link Format} interface did not allow for an accept method hence we had
+    	 * to subclass the interface to add such method and we did so by the
+    	 * {@link AbstractGridFormat} abstract class.
+    	 *
+    	 * @param o
+    	 *            the object to check for acceptance.
+    	 * @param hints 
+    	 * 			   the {@link Hints} to control the format search.
+    	 * @return an {@link AbstractGridFormat} that has stated to accept this
+    	 *         {@link Object} o or <code>null</code> in no plugins was able to
+    	 *         accept it.
+    	 */
+         public static synchronized AbstractGridFormat findFormat(Object o, Hints hints) {
+    		final Set<AbstractGridFormat> formats = findFormats(o,hints);
+    		final Iterator<AbstractGridFormat> it = formats.iterator();
+    		if (it.hasNext()){
+    			return (AbstractGridFormat) it.next();
+    		}
+    		return new UnknownFormat();
+
+    	}        
 }
