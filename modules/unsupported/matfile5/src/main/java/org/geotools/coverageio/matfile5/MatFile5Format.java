@@ -62,25 +62,8 @@ public class MatFile5Format extends BaseMatFileGridFormat implements Format {
         setInfo();
     }
 
-    /**
-     * @see org.geotools.data.coverage.grid.AbstractGridFormat#getReader(Object
-     *      source)
-     */
-    public AbstractGridCoverage2DReader getReader(Object source) {
-        return getReader(source, null);
-    }
 
-    /**
-     * @see org.geotools.data.coverage.grid.AbstractGridFormat#createWriter(java.lang.Object
-     *      destination)
-     * 
-     * Actually, the plugin does not support write capabilities. The method
-     * throws an {@code UnsupportedOperationException}.
-     */
-    public GridCoverageWriter getWriter(Object destination) {
-        throw new UnsupportedOperationException(
-                "This plugin does not support writing at this time.");
-    }
+
 
     /**
      * @see org.geotools.data.coverage.grid.AbstractGridFormat#getDefaultImageIOWriteParameters
@@ -88,22 +71,12 @@ public class MatFile5Format extends BaseMatFileGridFormat implements Format {
      * Actually, the plugin does not support write capabilities. The method
      * throws an {@code UnsupportedOperationException}.
      */
+    @Override
     public GeoToolsWriteParams getDefaultImageIOWriteParameters() {
         throw new UnsupportedOperationException(
                 "This plugin does not support writing parameters");
     }
 
-    /**
-     * @see org.geotools.data.coverage.grid.AbstractGridFormat#createWriter(java.lang.Object
-     *      destination,Hints hints)
-     * 
-     * Actually, the plugin does not support write capabilities. The method
-     * throws an {@code UnsupportedOperationException}.
-     */
-    public GridCoverageWriter getWriter(Object destination, Hints hints) {
-        throw new UnsupportedOperationException(
-                "This plugin does not support writing at this time.");
-    }
 
     @Override
     public AbstractGridCoverage2DReader getReader(Object source, Hints hints) {
@@ -136,4 +109,5 @@ public class MatFile5Format extends BaseMatFileGridFormat implements Format {
                 new DefaultParameterDescriptorGroup(mInfo,
                         new GeneralParameterDescriptor[] { READ_GRIDGEOMETRY2D}));
     }
+
 }

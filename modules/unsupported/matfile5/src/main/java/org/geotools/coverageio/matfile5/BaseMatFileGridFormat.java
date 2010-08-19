@@ -106,6 +106,7 @@ public abstract class BaseMatFileGridFormat extends AbstractGridFormat implement
      * @see org.geotools.data.coverage.grid.AbstractGridFormat#getReader(Object
      *      source)
      */
+    @Override
     public AbstractGridCoverage2DReader getReader(Object source) {
         return getReader(source, null);
     }
@@ -117,6 +118,7 @@ public abstract class BaseMatFileGridFormat extends AbstractGridFormat implement
      * Actually, the plugin does not support write capabilities. The method
      * throws an {@code UnsupportedOperationException}.
      */
+    @Override
     public GridCoverageWriter getWriter(Object destination) {
         throw new UnsupportedOperationException(
                 "This plugin does not support writing at this time.");
@@ -128,6 +130,7 @@ public abstract class BaseMatFileGridFormat extends AbstractGridFormat implement
      * Actually, the plugin does not support write capabilities. The method
      * throws an {@code UnsupportedOperationException}.
      */
+    @Override
     public GeoToolsWriteParams getDefaultImageIOWriteParameters() {
         throw new UnsupportedOperationException(
                 "This plugin does not support writing parameters");
@@ -140,6 +143,7 @@ public abstract class BaseMatFileGridFormat extends AbstractGridFormat implement
      * Actually, the plugin does not support write capabilities. The method
      * throws an {@code UnsupportedOperationException}.
      */
+    @Override
     public GridCoverageWriter getWriter(Object destination, Hints hints) {
         throw new UnsupportedOperationException(
                 "This plugin does not support writing at this time.");
@@ -148,7 +152,8 @@ public abstract class BaseMatFileGridFormat extends AbstractGridFormat implement
     /**
      * @see org.geotools.data.coverage.grid.AbstractGridFormat#accepts(java.lang.Object input)
      */
-    public boolean accepts(Object input) {
+    @Override
+    public boolean accepts(Object input,Hints hints) {
         try {
             return spi.canDecodeInput(input);
         } catch (IOException e) {
