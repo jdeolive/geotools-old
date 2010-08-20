@@ -168,42 +168,20 @@ public class GeologicUnitTest {
         DataAccess mfDataAccess = DataAccessFinder.getDataStore(dsParams);
         assertNotNull(mfDataAccess);
 
-        /*
-         * Make sure there are 3 geological unit features
-         */
         FeatureSource guSource = (FeatureSource) guDataStore
                 .getFeatureSource(FeatureChainingTest.GEOLOGIC_UNIT);
 
-        int EXPECTED_RESULT_COUNT = 3;
-
         FeatureCollection guFeatures = (FeatureCollection) guSource.getFeatures();
+        assertEquals(3, guFeatures.size());
 
-        int resultCount = guFeatures.size();
-        assertEquals(EXPECTED_RESULT_COUNT, resultCount);
-
-        /*
-         * Make sure there are 3 compositional part features
-         */
         FeatureSource cpSource = DataAccessRegistry
                 .getFeatureSource(FeatureChainingTest.COMPOSITION_PART);
-
         FeatureCollection cpFeatures = (FeatureCollection) cpSource.getFeatures();
-
-        resultCount = cpFeatures.size();
-
-        assertEquals(EXPECTED_RESULT_COUNT, resultCount);
-
-        /*
-         * Make sure there are 5 cgi term values
-         */
-        EXPECTED_RESULT_COUNT = 5;
+        assertEquals(4, cpFeatures.size());
 
         FeatureSource cgiSource = DataAccessRegistry
                 .getFeatureSource(FeatureChainingTest.CGI_TERM_VALUE);
         FeatureCollection cgiFeatures = (FeatureCollection) cgiSource.getFeatures();
-
-        resultCount = cgiFeatures.size();
-
-        assertEquals(EXPECTED_RESULT_COUNT, resultCount);
+        assertEquals(6, cgiFeatures.size());
     }
 }

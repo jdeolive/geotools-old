@@ -67,7 +67,7 @@
 					<!-- Test Categorize function -->
 					<targetAttribute>ex:someAttribute</targetAttribute>
 					<sourceExpression>
-						<OCQL>Categorize(getID(), 'missing value', 2, 'a valid value')</OCQL>
+						<OCQL>Categorize(getID(), 'missing value', 'sc.2', 'a valid value')</OCQL>
 					</sourceExpression>
 				</AttributeMapping>
 				<AttributeMapping>

@@ -79,8 +79,12 @@
 					<sourceExpression>
 						<OCQL>COMPONENT_ROLE</OCQL>
 					</sourceExpression>
+                    <ClientProperty>
+                        <name>codeSpace</name>
+                        <value>'urn:cgi:classifierScheme:Example:CompositionPartRole'</value>
+                    </ClientProperty> 
 				</AttributeMapping>
-				<AttributeMapping>
+ 				<AttributeMapping>
 					<targetAttribute>gsml:proportion</targetAttribute>
 					<sourceExpression>
 						<OCQL>PROPORTION</OCQL>

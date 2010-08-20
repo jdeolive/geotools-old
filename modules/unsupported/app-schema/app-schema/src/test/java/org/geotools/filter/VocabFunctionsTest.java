@@ -106,9 +106,9 @@ public class VocabFunctionsTest extends TestCase {
     public void testRecodeFunction() throws IOException {
         final Map<String, String> VALUE_MAP = new HashMap<String, String>() {
             {
-                put("1", "a");
-                put("2", "b");
-                put("3", "c");
+                put("sc.1", "a");
+                put("sc.2", "b");
+                put("sc.3", "c");
             }
         };
         Iterator<Feature> features = exCollection.iterator();
@@ -133,9 +133,9 @@ public class VocabFunctionsTest extends TestCase {
     public void testCategorizeFunction() {
         final Map<String, String> VALUE_MAP = new HashMap<String, String>() {
             {
-                put("1", "missing value");
-                put("2", "a valid value");
-                put("3", "a valid value");
+                put("sc.1", "missing value");
+                put("sc.2", "a valid value");
+                put("sc.3", "a valid value");
             }
         };
         Iterator<Feature> features = exCollection.iterator();
@@ -185,9 +185,9 @@ public class VocabFunctionsTest extends TestCase {
     public void testVocabFunctionInMappingFile() {
         final Map<String, String> VALUE_MAP = new HashMap<String, String>() {
             {
-                put("1", "urn:cgi:classifier:CGI:SimpleLithology:2008:gravel");
-                put("2", "urn:cgi:classifier:CGI:SimpleLithology:2008:diamictite");
-                put("3", "urn:cgi:classifier:CGI:SimpleLithology:2008:sediment");
+                put("sc.1", "urn:cgi:classifier:CGI:SimpleLithology:2008:gravel");
+                put("sc.2", "urn:cgi:classifier:CGI:SimpleLithology:2008:diamictite");
+                put("sc.3", "urn:cgi:classifier:CGI:SimpleLithology:2008:sediment");
             }
         };
         Iterator<Feature> features = exCollection.iterator();

@@ -106,7 +106,7 @@ public class FeatureChainingTest {
      */
     final static Map<String, String> guToCpMap = new HashMap<String, String>() {
         {
-            put("gu.25699", "cp.167775491936278844");
+            put("gu.25699", "cp.167775491936278899");
             put("gu.25678", "cp.167775491936278844;cp.167775491936278856");
             put("gu.25682", "cp.167775491936278812");
         }
@@ -297,7 +297,6 @@ public class FeatureChainingTest {
     public void testManyOnChainedSide() throws Exception {
 
         final String LITHOLOGY = "lithology";
-        final int EXPECTED_RESULT_COUNT = 2;
         // get controlled concept features on their own
         AbstractMappingFeatureIterator iterator = (AbstractMappingFeatureIterator) ccFeatures
                 .features();
@@ -312,7 +311,7 @@ public class FeatureChainingTest {
         } finally {
             iterator.close();
         }
-        assertEquals(EXPECTED_RESULT_COUNT, count);
+        assertEquals(5, count);
 
         FeatureIterator<Feature> cpIterator = cpFeatures.features();
         while (cpIterator.hasNext()) {
@@ -321,11 +320,11 @@ public class FeatureChainingTest {
             if (cpFeature.getIdentifier().toString().equals("cp.167775491936278812")) {
                 // see ControlledConcept.properties file:
                 // _=NAME:String,COMPOSITION_ID:String
-                // 1=name_a|cp.167775491936278812
-                // 1=name_b|cp.167775491936278812
-                // 1=name_c|cp.167775491936278812
-                // 2=name_2|cp.167775491936278812
-                assertEquals(EXPECTED_RESULT_COUNT, ((Collection) lithologies).size());
+                // cc.1=name_a|cp.167775491936278812
+                // cc.1=name_b|cp.167775491936278812
+                // cc.1=name_c|cp.167775491936278812
+                // cc.2=name_2|cp.167775491936278812
+                assertEquals(2, ((Collection) lithologies).size());
                 Collection<String> lithologyIds = new ArrayList<String>();
                 for (Property lithologyProperty : lithologies) {
                     Feature nestedFeature = (Feature) ((Collection) lithologyProperty.getValue())
@@ -337,7 +336,8 @@ public class FeatureChainingTest {
                 }
                 assertTrue(featureList.keySet().containsAll(lithologyIds));
             } else {
-                assertTrue(lithologies.isEmpty());
+                // lithology is required
+                assertEquals(1, lithologies.size());
             }
         }
     }
@@ -422,12 +422,13 @@ public class FeatureChainingTest {
         while (iterator.hasNext()) {
             Feature next = iterator.next();
             Collection<Property> names = next.getProperties("name");
-            if (next.getIdentifier().toString().equals("1")) {
-                // see ControlledConcept.properties where id = 1
-                assertEquals(3, names.size());
+            // these are gml:name and gsml:name, so count twice
+            if (next.getIdentifier().toString().equals("cc.1")) {
+                // see ControlledConcept.properties where id = cc.1
+                assertEquals(6, names.size());
             } else {
-                // see ControlledConcept.properties where id = 2
-                assertEquals(1, names.size());
+                // see ControlledConcept.properties where id = cc.2
+                assertEquals(2, names.size());
             }
         }
         iterator.close();
@@ -476,10 +477,8 @@ public class FeatureChainingTest {
                 .property("gsml:composition/gsml:CompositionPart/gsml:proportion/gsml:CGI_TermValue/gsml:value");
         filter = ff.equals(property, ff.literal("significant"));
         filteredResults = guSource.getFeatures(filter);
-        assertEquals(3, filteredResults.size());
+        assertEquals(2, filteredResults.size());
         iterator = filteredResults.features();
-        feature = iterator.next();
-        assertEquals("gu.25699", feature.getIdentifier().toString());
         feature = iterator.next();
         assertEquals("gu.25678", feature.getIdentifier().toString());
         feature = iterator.next();
@@ -589,18 +588,17 @@ public class FeatureChainingTest {
         FeatureSource fSource = (FeatureSource) dataAccess.getFeatureSource(typeName);
         FeatureCollection features = (FeatureCollection) fSource.getFeatures();
 
-        final int EXPECTED_RESULTS = 2;
-        assertEquals(EXPECTED_RESULTS, features.size());
+        assertEquals(5, features.size());
 
         FeatureIterator iterator = features.features();
         while (iterator.hasNext()) {
             Feature next = iterator.next();
             Collection<Property> children = next.getProperties("nestedFeature");
-            if (next.getIdentifier().toString().equals("1")) {
+            if (next.getIdentifier().toString().equals("cc.1")) {
                 // _=STRING:String,LINK_ONE:String,LINK_TWO:String
-                // 1=string_one|1|2
-                // 2=string_two|1|2
-                // 3=string_three|NULL|2
+                // sc.1=string_one|cc.1|cc.2
+                // sc.2=string_two|cc.1|cc.2
+                // sc.3=string_three|NULL|cc.2
                 assertEquals(2, children.size());
             } else {
                 assertEquals(0, children.size());
@@ -636,17 +634,17 @@ public class FeatureChainingTest {
         fSource = (FeatureSource) dataAccess.getFeatureSource(typeName);
         features = (FeatureCollection) fSource.getFeatures();
 
-        assertEquals(EXPECTED_RESULTS, features.size());
+        assertEquals(5, features.size());
 
         iterator = features.features();
         while (iterator.hasNext()) {
             Feature next = iterator.next();
             Collection<Property> children = next.getProperties("nestedFeature");
-            if (next.getIdentifier().toString().equals("2")) {
+            if (next.getIdentifier().toString().equals("cc.2")) {
                 // _=STRING:String,LINK_ONE:String,LINK_TWO:String
-                // 1=string_one|1|2
-                // 2=string_two|1|2
-                // 3=string_three|NULL|2
+                // sc.1=string_one|cc.1|cc.2
+                // sc.2=string_two|cc.1|cc.2
+                // sc.3=string_three|NULL|cc.2
                 assertEquals(3, children.size());
             } else {
                 assertEquals(0, children.size());
@@ -772,21 +770,9 @@ public class FeatureChainingTest {
                 CGI_TERM_VALUE).getFeatures();
         // ControlledConcept
         ccFeatures = DataAccessRegistry.getFeatureSource(CONTROLLED_CONCEPT).getFeatures();
-
-        int EXPECTED_RESULT_COUNT = 4;
-
-        int resultCount = mfFeatures.size();
-        assertEquals(EXPECTED_RESULT_COUNT, resultCount);
-
-        EXPECTED_RESULT_COUNT = 3;
-        resultCount = guFeatures.size();
-        assertEquals(EXPECTED_RESULT_COUNT, resultCount);
-
-        resultCount = cpFeatures.size();
-        assertEquals(EXPECTED_RESULT_COUNT, resultCount);
-
-        EXPECTED_RESULT_COUNT = 5;
-        resultCount = cgiFeatures.size();
-        assertEquals(EXPECTED_RESULT_COUNT, resultCount);
+        assertEquals(4, mfFeatures.size());
+        assertEquals(3, guFeatures.size());
+        assertEquals(4, cpFeatures.size());
+        assertEquals(6, cgiFeatures.size());
     }
 }

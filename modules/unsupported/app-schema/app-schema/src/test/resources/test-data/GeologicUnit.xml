@@ -113,6 +113,29 @@
 						<OCQL>strTrim(getId())</OCQL>
 					</sourceExpression>
 				</AttributeMapping>
+                <AttributeMapping> 
+                    <targetAttribute>gsml:observationMethod/gsml:CGI_TermValue/gsml:value</targetAttribute> 
+                    <sourceExpression>
+                        <OCQL>'urn:ogc:def:nil:OGC::missing'</OCQL>
+                    </sourceExpression> 
+                    <ClientProperty>
+                        <name>codeSpace</name>
+                        <value>'http://urn.opengis.net'</value>
+                    </ClientProperty> 
+                </AttributeMapping>
+               <AttributeMapping>
+                    <targetAttribute>gsml:purpose</targetAttribute>
+                    <sourceExpression>
+                        <OCQL>'instance'</OCQL>
+                    </sourceExpression>
+                </AttributeMapping>
+               <AttributeMapping>
+                    <targetAttribute>gsml:geologicUnitType</targetAttribute>
+                    <ClientProperty>
+                        <name>xlink:href</name>
+                        <value>'urn:ogc:def:nil:OGC::unknown'</value>
+                    </ClientProperty> 
+                </AttributeMapping>
 				<AttributeMapping>
 					<targetAttribute>
 			            gsml:composition
