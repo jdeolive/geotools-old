@@ -290,7 +290,7 @@ public class ShapefileReader implements FileReader {
     // ensure the capacity of the buffer is of size by doubling the original
     // capacity until it is big enough
     // this may be naiive and result in out of MemoryError as implemented...
-    public static ByteBuffer ensureCapacity(ByteBuffer buffer, int size,
+    private ByteBuffer ensureCapacity(ByteBuffer buffer, int size,
             boolean useMemoryMappedBuffer) {
         // This sucks if you accidentally pass is a MemoryMappedBuffer of size
         // 80M
@@ -320,9 +320,7 @@ public class ShapefileReader implements FileReader {
         while (buffer.remaining() > 0 && r != -1) {
             r = channel.read(buffer);
         }
-        if (r == -1) {
-            buffer.limit(buffer.position());
-        }
+        buffer.limit(buffer.position());
         return r;
     }
 
@@ -503,9 +501,10 @@ public class ShapefileReader implements FileReader {
         writer.shxChannel.write(headerTransfer);
 
         // reset to mark and limit at end of record, then write
+        int oldLimit = buffer.limit();
         buffer.position(mark).limit(mark + len);
         writer.shpChannel.write(buffer);
-        buffer.limit(buffer.capacity());
+        buffer.limit(oldLimit);
 
         record.end = this.toFileOffset(buffer.position());
         record.number++;

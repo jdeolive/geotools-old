@@ -636,7 +636,7 @@ public class DbaseFileHeader {
             fields = new DbaseField[lfields.size()];
             fields = (DbaseField[]) lfields.toArray(fields);
         } finally {
-            NIOUtilities.clean(in);
+            NIOUtilities.clean(in, false);
         }
     }
 

@@ -258,12 +258,8 @@ public final class NIOUtilities {
         
         // clean up the buffer -> we need to zero out its contents as if it was just
         // created or some shapefile tests will start failing
+        buffer.clear();
         buffer.order(ByteOrder.BIG_ENDIAN);
-        buffer.clear();
-        while(buffer.remaining() > 0) {
-            buffer.put(ZEROES, 0, buffer.remaining() < ZEROES.length ? buffer.remaining() : ZEROES.length);
-        }
-        buffer.clear();
         
         // set the buffer back in the cache, either as a soft reference or as
         // a hard one depending on whether we're past the hard cache or not
