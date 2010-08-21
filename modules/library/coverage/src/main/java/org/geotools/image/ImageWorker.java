@@ -2261,7 +2261,7 @@ public class ImageWorker {
         } else {
             // Compressing with pure Java.
             // pure java from native
-            if (nativeAcc && it.hasNext() && writer.getClass().getName().equals(
+            if (!nativeAcc && it.hasNext() && writer.getClass().getName().equals(
                     "com.sun.media.imageioimpl.plugins.png.CLibPNGImageWriter"))
             {
                 writer = it.next();
