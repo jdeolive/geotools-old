@@ -17,6 +17,7 @@
 package org.geotools.data.shapefile.shp;
 
 import java.nio.ByteBuffer;
+import java.nio.DoubleBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -74,14 +75,10 @@ public class PolygonHandler implements ShapeHandler {
         for (int t = pointList.length - 1; t >= 0; t--) {
             p = pointList[t];
 
+            // nan test; x!=x iff x is nan
             if ((testPoint.x == p.x)
                     && (testPoint.y == p.y)
-                    && ((testPoint.z == p.z) || (!(testPoint.z == testPoint.z))) // nan
-                                                                                    // test;
-                                                                                    // x!=x
-                                                                                    // iff
-                                                                                    // x is
-                                                                                    // nan
+                    && ((testPoint.z == p.z) || (!(testPoint.z == testPoint.z))) 
             ) {
                 return true;
             }
@@ -129,7 +126,7 @@ public class PolygonHandler implements ShapeHandler {
         return length;
     }
 
-    public Object read(ByteBuffer buffer, ShapeType type) {
+    public Object read(ByteBuffer buffer, ShapeType type, boolean flatFeature) {
         if (type == ShapeType.NULL) {
             return createNull();
         }
@@ -140,7 +137,7 @@ public class PolygonHandler implements ShapeHandler {
 
         int numParts = buffer.getInt();
         int numPoints = buffer.getInt();
-        int dimensions = shapeType == ShapeType.POLYGONZ ? 3 : 2;
+        int dimensions = (shapeType == ShapeType.POLYGONZ) && !flatFeature ? 3 : 2;
 
         partOffsets = new int[numParts];
 
@@ -151,15 +148,6 @@ public class PolygonHandler implements ShapeHandler {
         ArrayList shells = new ArrayList();
         ArrayList holes = new ArrayList();
         CoordinateSequence coords = readCoordinates(buffer, numPoints, dimensions);
-
-        if (shapeType == ShapeType.POLYGONZ) {
-            // z
-            buffer.position(buffer.position() + 2 * 8);
-
-            for (int t = 0; t < numPoints; t++) {
-                coords.setOrdinate(t, 2, buffer.getDouble());
-            }
-        }
 
         int offset = 0;
         int start;
@@ -231,9 +219,22 @@ public class PolygonHandler implements ShapeHandler {
             final int numPoints, final int dimensions) {
         CoordinateSequence cs = geometryFactory.getCoordinateSequenceFactory().create(numPoints, dimensions);
 
+        DoubleBuffer dbuffer = buffer.asDoubleBuffer();
+        double[] ordinates = new double[numPoints * 2];
+        dbuffer.get(ordinates);
         for (int t = 0; t < numPoints; t++) {
-            cs.setOrdinate(t, 0, buffer.getDouble());
-            cs.setOrdinate(t, 1, buffer.getDouble());
+            cs.setOrdinate(t, 0, ordinates[t * 2]);
+            cs.setOrdinate(t, 1, ordinates[t * 2 + 1]);
+        }
+        
+        if (dimensions > 2) {
+            // z
+            dbuffer.position(dbuffer.position() + 2);
+            dbuffer.get(ordinates, 0, numPoints);
+
+            for (int t = 0; t < numPoints; t++) {
+                cs.setOrdinate(t, 2, ordinates[t]);
+            }
         }
 
         return cs;

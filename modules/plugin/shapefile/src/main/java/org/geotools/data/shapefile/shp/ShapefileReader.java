@@ -110,7 +110,7 @@ public class ShapefileReader implements FileReader {
             if (shape == null) {
                 buffer.position(start);
                 buffer.order(ByteOrder.LITTLE_ENDIAN);
-                shape = handler.read(buffer, type);
+                shape = handler.read(buffer, type, flatGeometry);
             }
             return shape;
         }
@@ -206,6 +206,8 @@ public class ShapefileReader implements FileReader {
     private StreamLogging streamLogger = new StreamLogging("Shapefile Reader");
     
     private GeometryFactory geometryFactory;
+
+    private boolean flatGeometry;
     
     /**
      * @deprecated Use {@link #ShapefileReader(ShpFiles, boolean, boolean, GeometryFactory)} instead
@@ -773,5 +775,9 @@ public class ShapefileReader implements FileReader {
 
     public String id() {
         return getClass().getName();
+    }
+
+    public void setFlatGeometry(boolean flatGeometry) {
+        this.flatGeometry = flatGeometry;        
     }
 }

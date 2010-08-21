@@ -79,7 +79,7 @@ public class PolygonHandler implements ShapeHandler {
 		return type;
 	}
 
-	public Object read(ByteBuffer buffer, ShapeType type) {
+	public Object read(ByteBuffer buffer, ShapeType type, boolean flatGeometry) {
 		if (type == ShapeType.NULL) {
 			return null;
 		}

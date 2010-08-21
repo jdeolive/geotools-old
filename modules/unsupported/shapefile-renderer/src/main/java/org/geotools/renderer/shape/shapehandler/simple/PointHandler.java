@@ -90,7 +90,7 @@ public class PointHandler implements ShapeHandler {
      * @see org.geotools.data.shapefile.shp.ShapeHandler#read(java.nio.ByteBuffer,
      *      org.geotools.data.shapefile.shp.ShapeType)
      */
-    public Object read(ByteBuffer buffer, ShapeType type) {
+    public Object read(ByteBuffer buffer, ShapeType type, boolean flatFeature) {
         if (type == ShapeType.NULL) {
             LOGGER.finest("shape type is NULL");
             return null;

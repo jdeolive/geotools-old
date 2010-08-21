@@ -974,6 +974,7 @@ public final class StreamingRenderer implements GTRenderer {
         GeometryFactory gFactory = new SimpleGeometryFactory(csFactory);
         Hints hints = new Hints(Hints.JTS_COORDINATE_SEQUENCE_FACTORY, csFactory);
         hints.put(Hints.JTS_GEOMETRY_FACTORY, gFactory);
+        hints.put(Hints.FEATURE_2D, Boolean.TRUE);
         
         // update the screenmaps
         try {

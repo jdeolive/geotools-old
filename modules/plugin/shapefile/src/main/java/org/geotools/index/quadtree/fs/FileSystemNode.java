@@ -162,17 +162,9 @@ public class FileSystemNode extends Node {
             throws IOException {
         // offset
         int offset = buf.getInt();
-        double x1;
-        double y1;
-        double x2;
-        double y2;
 
         // envelope
-        x1 = buf.getDouble();
-        y1 = buf.getDouble();
-        x2 = buf.getDouble();
-        y2 = buf.getDouble();
-        Envelope env = new Envelope(x1, x2, y1, y2);
+        Envelope env = buf.getEnvelope();
 
         // shapes in this node
         int numShapesId = buf.getInt();
@@ -212,6 +204,7 @@ public class FileSystemNode extends Node {
         ByteBuffer buffer;
         /** the initial position of the buffer in the channel */
         long bufferStart;
+        double[] envelope = new double[4];
 
         public ScrollingBuffer(FileChannel channel, ByteOrder order)
                 throws IOException {
@@ -240,10 +233,13 @@ public class FileSystemNode extends Node {
             return buffer.getInt();
         }
 
-        public double getDouble() throws IOException {
-            if (buffer.remaining() < 8)
-                refillBuffer(8);
-            return buffer.getDouble();
+        public Envelope getEnvelope() throws IOException {
+            if (buffer.remaining() < 32)
+                refillBuffer(32);
+            
+            buffer.asDoubleBuffer().get(envelope);
+            buffer.position(buffer.position() + 32);
+            return new Envelope(envelope[0], envelope[2], envelope[1], envelope[3]);
         }
 
         public void getIntArray(int[] array) throws IOException {

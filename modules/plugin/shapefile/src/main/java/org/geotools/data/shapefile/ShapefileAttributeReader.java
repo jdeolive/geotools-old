@@ -53,6 +53,7 @@ public class ShapefileAttributeReader extends AbstractAttributeIO implements
     protected Object geometry;
     protected ScreenMap screenMap;
     protected boolean featureAvailable = false;
+    protected boolean flatFeature = false;
 
     public ShapefileAttributeReader(List<AttributeDescriptor> atts,
             ShapefileReader shp, DbaseFileReader dbf) {
@@ -219,5 +220,7 @@ public class ShapefileAttributeReader extends AbstractAttributeIO implements
     public int getRecordNumber() {
         return this.record.number;
     }
+
+    
     
 }

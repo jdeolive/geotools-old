@@ -88,7 +88,7 @@ public class MultiLineHandler implements ShapeHandler {
      * @see org.geotools.data.shapefile.shp.ShapeHandler#read(java.nio.ByteBuffer,
      *      org.geotools.data.shapefile.shp.ShapeType)
      */
-    public Object read(ByteBuffer buffer, ShapeType type) {
+    public Object read(ByteBuffer buffer, ShapeType type, boolean flatGeometry) {
         if (type == ShapeType.NULL) {
             return null;
         }

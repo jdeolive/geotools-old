@@ -49,7 +49,7 @@ public class RenderingBenchmark {
      * and displays its contents on the screen in a map frame
      */    
     public static void main(String[] args) throws Exception {
-         FileDataStore store = new ShapefileDataStore(new File("/home/aaime/devel/gisData/bc_shapefiles/bc_elections_1996.shp").toURL());
+         FileDataStore store = new ShapefileDataStore(new File("/home/aaime/devel/gisData/bc_shapefiles/bc_roads.shp").toURL());
 //        FileDataStore store = new ShapefileDataStore(new File("/home/aaime/devel/gisData/gshhs/gshhs_land/gshhs_land.shp").toURL());
         FeatureSource featureSource = store.getFeatureSource();
 

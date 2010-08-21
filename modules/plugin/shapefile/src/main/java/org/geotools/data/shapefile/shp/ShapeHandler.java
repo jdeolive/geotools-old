@@ -47,7 +47,7 @@ public interface ShapeHandler {
      *                The ByteBuffer to read from.
      * @return A geometry object.
      */
-    public Object read(ByteBuffer buffer, ShapeType type);
+    public Object read(ByteBuffer buffer, ShapeType type, boolean flatGeometry);
 
     /**
      * Write the geometry into the ByteBuffer. The position, byteOrder, and

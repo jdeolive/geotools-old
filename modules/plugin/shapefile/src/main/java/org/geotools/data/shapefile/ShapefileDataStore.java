@@ -438,13 +438,14 @@ public class ShapefileDataStore extends AbstractFileDataStore {
         }
 
         ShapefileAttributeReader result;
+        ShapefileReader shapeReader = openShapeReader(geometryFactory);
         if (!readDbf) {
             LOGGER.fine("The DBF file won't be opened since no attributes will be read from it");
             atts = new ArrayList(1);
             atts.add(schema.getGeometryDescriptor());
-            result =new ShapefileAttributeReader(atts, openShapeReader(geometryFactory), null);
+            result =new ShapefileAttributeReader(atts, shapeReader, null);
         } else {
-            result = new ShapefileAttributeReader(atts, openShapeReader(geometryFactory), openDbfReader());
+            result = new ShapefileAttributeReader(atts, shapeReader, openDbfReader());
         }
         
         // setup the target bbox if any, and the generalization hints if available
@@ -463,7 +464,13 @@ public class ShapefileDataStore extends AbstractFileDataStore {
                     result.setSimplificationDistance(simplificationDistance.doubleValue());
                 }
                 result.setScreenMap((ScreenMap) hints.get(Hints.SCREENMAP));
+                
+                if(Boolean.TRUE.equals(hints.get(Hints.FEATURE_2D))) {
+                    shapeReader.setFlatGeometry(true);
+                }
             }
+            
+            
         }
         
         

@@ -17,6 +17,7 @@
 package org.geotools.data.shapefile.shp;
 
 import java.nio.ByteBuffer;
+import java.nio.DoubleBuffer;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.CoordinateSequence;
@@ -98,7 +99,7 @@ public class MultiPointHandler implements ShapeHandler {
         return geometryFactory.createMultiPoint(c);
     }
 
-    public Object read(ByteBuffer buffer, ShapeType type) {
+    public Object read(ByteBuffer buffer, ShapeType type, boolean flatGeometry) {
         if (type == ShapeType.NULL) {
             return createNull();
         }
@@ -107,19 +108,23 @@ public class MultiPointHandler implements ShapeHandler {
         buffer.position(buffer.position() + 4 * 8);
 
         int numpoints = buffer.getInt();
-        int dimensions = shapeType == shapeType.MULTIPOINTZ ? 3 : 2;
+        int dimensions = shapeType == shapeType.MULTIPOINTZ && !flatGeometry ? 3 : 2;
         CoordinateSequence cs = geometryFactory.getCoordinateSequenceFactory().create(numpoints, dimensions);
 
+        DoubleBuffer dbuffer = buffer.asDoubleBuffer();
+        double[] ordinates = new double[numpoints * 2];
+        dbuffer.get(ordinates);
         for (int t = 0; t < numpoints; t++) {
-            cs.setOrdinate(t, 0, buffer.getDouble());
-            cs.setOrdinate(t, 1, buffer.getDouble());
+            cs.setOrdinate(t, 0, ordinates[t * 2]);
+            cs.setOrdinate(t, 1, ordinates[t * 2 + 1]);
         }
 
-        if (shapeType == ShapeType.MULTIPOINTZ) {
-            buffer.position(buffer.position() + 2 * 8);
+        if (dimensions > 2) {
+            dbuffer.position(dbuffer.position() + 2);
 
+            dbuffer.get(ordinates, 0, numpoints);
             for (int t = 0; t < numpoints; t++) {
-                cs.setOrdinate(t, 2, buffer.getDouble()); // z
+                cs.setOrdinate(t, 2, ordinates[t]); // z
             }
         }
 

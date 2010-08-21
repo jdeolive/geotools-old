@@ -495,15 +495,20 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
         }
 
         Hints hints = query != null ? query.getHints() : null;
+        final ShapefileReader shapeReader = openShapeReader(getGeometryFactory(hints));
         IndexedShapefileAttributeReader reader =  new IndexedShapefileAttributeReader(atts, 
-                openShapeReader(getGeometryFactory(hints)), dbfR, goodRecs);
+                shapeReader, dbfR, goodRecs);
         reader.setTargetBBox(bbox);
         if(hints != null) {
-            Number simplificationDistance = (Number) hints.get(Hints.GEOMETRY_DISTANCE);
+            Number simplificationDistance = (Number) hints.get(Hints.GEOMETRY_DISTANCE);    
             if(simplificationDistance != null) {
                 reader.setSimplificationDistance(simplificationDistance.doubleValue());
             }
             reader.setScreenMap((ScreenMap) hints.get(Hints.SCREENMAP));
+            
+            if(Boolean.TRUE.equals(hints.get(Hints.FEATURE_2D))) {
+                shapeReader.setFlatGeometry(true);
+            }
         }
         
         return reader;
