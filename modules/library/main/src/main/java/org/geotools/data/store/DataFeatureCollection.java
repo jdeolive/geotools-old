@@ -143,12 +143,14 @@ public abstract class DataFeatureCollection implements SimpleFeatureCollection {
      * <p>
      * All operations that attempt to modify the "data" will
      * use this method, allowing them to throw an "UnsupportedOperationException"
-     * in the same manner as Collections.unmodifiableCollection(Collection c)
+     * in the same manner as Collections.unmodifiableCollection(Collection c), or just
+     * return null.
      * </p>
      * @throws UnsupportedOperationException To indicate that write support is not avaiable
+     * @return the writer, or null if write support is not available
      */
     protected FeatureWriter<SimpleFeatureType, SimpleFeature> writer() throws IOException {
-        throw new UnsupportedOperationException( "Modification of this collection is not supported" );
+        return null;
     }
     //
     // SimpleFeatureCollection methods
@@ -213,13 +215,15 @@ public abstract class DataFeatureCollection implements SimpleFeatureCollection {
     protected Iterator<SimpleFeature> openIterator() throws IOException
     {    	
     	try {
-            return new FeatureWriterIterator( writer() );
-        }
-        catch (IOException badWriter) {
+    	    FeatureWriter writer = writer();
+    	    if(writer != null) {
+    	        return new FeatureWriterIterator( writer() );
+    	    }
+        } catch (IOException badWriter) {
             return new NoContentIterator( badWriter );
+        } catch( UnsupportedOperationException readOnly ){
         }
-        catch( UnsupportedOperationException readOnly ){
-        }
+        
         try {
             return new FeatureReaderIterator( reader() );
         } catch (IOException e) {
@@ -408,6 +412,9 @@ public abstract class DataFeatureCollection implements SimpleFeatureCollection {
         }
         try {
             FeatureWriter writer = writer();
+            if(writer == null) {
+                return false;
+            }
             try {
                 // skip to end
                  while( writer.hasNext() ){
