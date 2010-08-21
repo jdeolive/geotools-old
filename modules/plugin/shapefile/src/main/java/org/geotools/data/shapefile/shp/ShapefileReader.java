@@ -20,7 +20,6 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.util.logging.Level;
@@ -42,6 +41,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
@@ -169,7 +169,7 @@ public class ShapefileReader implements FileReader {
             
             Class geomType = Geometry.class;
             if(type.isLineType()) {
-                geomType = LineString.class;
+                geomType = MultiLineString.class;
             } else if(type.isMultiPointType()) {
                 geomType = MultiPoint.class;
             } else if(type.isPolygonType()) {
