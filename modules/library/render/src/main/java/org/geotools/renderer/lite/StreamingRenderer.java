@@ -1436,7 +1436,7 @@ public final class StreamingRenderer implements GTRenderer {
             }
 
             if (attType instanceof GeometryDescriptor) {
-                Filter gfilter = new FastBBOX(attType.getLocalName(), bboxes.get(0));
+                Filter gfilter = new FastBBOX(attType.getLocalName(), bboxes.get(0), filterFactory);
 
                 if (filter == Filter.INCLUDE) {
                     filter = gfilter;
@@ -1446,7 +1446,7 @@ public final class StreamingRenderer implements GTRenderer {
 
                 if(bboxes.size() > 0) {
                     for (int k = 1; k < bboxes.size(); k++) {
-                        filter = filterFactory.or( filter, new FastBBOX(attType.getLocalName(), bboxes.get(k)) );
+                        filter = filterFactory.or( filter, new FastBBOX(attType.getLocalName(), bboxes.get(k), filterFactory) );
                     }
                 }
             }

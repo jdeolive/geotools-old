@@ -1435,10 +1435,7 @@ public class SLDStyleFactory {
 		if (exp == null) {
 			return fallback;
 		}
-		Object o = exp.evaluate(f);
-		if (o instanceof String)
-			return (String) o;
-		String s = (String) exp.evaluate(f, String.class);
+		String s = exp.evaluate(f, String.class);
 		if (s != null) {
 			return s;
 		}
@@ -1449,9 +1446,6 @@ public class SLDStyleFactory {
 		if (exp == null) {
 			return fallback;
 		}
-		Object o = exp.evaluate(f);
-		if (o instanceof Number)
-			return ((Number) o).floatValue();
 		Float fo = (Float) exp.evaluate(f, Float.class);
 		if (fo != null) {
 			return fo.floatValue();
@@ -1463,9 +1457,6 @@ public class SLDStyleFactory {
 		if (exp == null) {
 			return fallback;
 		}
-		Object o = exp.evaluate(f);
-		if (o instanceof Number)
-			return ((Number) o).doubleValue();
 		Double d = exp.evaluate(f, Double.class);
 		if (d != null) {
 			return d.doubleValue();
@@ -1477,9 +1468,6 @@ public class SLDStyleFactory {
 		if (exp == null) {
 			return fallback;
 		}
-		Object o = exp.evaluate(f);
-		if (o instanceof Number)
-			return ((Number) o).intValue();
 		Integer i = exp.evaluate(f, Integer.class);
 		if (i != null) {
 			return i.intValue();

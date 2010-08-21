@@ -16,7 +16,6 @@
  */
 package org.geotools.renderer.lite;
 
-import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.filter.Filter;
 import org.geotools.filter.FilterVisitorFilterWrapper;
 import org.geotools.filter.GeometryFilter;
@@ -48,11 +47,12 @@ class FastBBOX implements BBOX, BinarySpatialOperator, BinaryComparisonOperator,
     
     String property;
     Envelope envelope; 
-    FilterFactory factory = CommonFactoryFinder.getFilterFactory(null);
+    FilterFactory factory;
     
-    public FastBBOX(String propertyName, Envelope env) {
+    public FastBBOX(String propertyName, Envelope env, FilterFactory factory) {
         this.property = propertyName;
         this.envelope = env;
+        this.factory = factory;
     }
 
     public double getMaxX() {
@@ -80,7 +80,7 @@ class FastBBOX implements BBOX, BinarySpatialOperator, BinaryComparisonOperator,
     }
 
     public Expression getExpression1() {
-        return CommonFactoryFinder.getFilterFactory(null).property(property);
+        return factory.property(property);
     }
 
     public Expression getExpression2() {
@@ -106,7 +106,7 @@ class FastBBOX implements BBOX, BinarySpatialOperator, BinaryComparisonOperator,
             polygon.setUserData(refEnv.getCoordinateReferenceSystem());
         }
         
-        return CommonFactoryFinder.getFilterFactory(null).literal(polygon);
+        return factory.literal(polygon);
     }
 
     public Object accept(FilterVisitor visitor, Object context) {
@@ -116,7 +116,7 @@ class FastBBOX implements BBOX, BinarySpatialOperator, BinaryComparisonOperator,
         
         BBOX clone = (BBOX) result;
         if(clone.getExpression1().equals(getExpression1()) && clone.getExpression2().equals(getExpression2())) 
-            return new FastBBOX(property, envelope);
+            return new FastBBOX(property, envelope, factory);
         
         return result;
     }
