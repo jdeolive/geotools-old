@@ -131,12 +131,12 @@ public final class GeoTiffFormatFactorySpi implements GridFormatFactorySpi {
 	}
 
 	/**
-	 * Returns the implementation hints. The default implementation returns en
+	 * Returns the implementation hints. The default implementation returns an
 	 * empty map.
 	 * 
 	 * @return Empty Map.
 	 */
-	public Map<RenderingHints.Key, ?> getImplementationHints() {
+	public Map<RenderingHints.Key, ?>  getImplementationHints() {
 		return Collections.emptyMap();
 	}
 }
