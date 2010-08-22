@@ -478,7 +478,7 @@ public final class RendererUtilities {
      */
     public static double getDpi(Map hints) {
         if( hints!=null && hints.containsKey("dpi") ){
-            return ((Integer)hints.get("dpi")).intValue();
+            return ((Number)hints.get("dpi")).doubleValue();
         }else{
             return  25.4 / 0.28;   // 90 = OGC standard
         }
