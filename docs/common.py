@@ -36,6 +36,9 @@ source_suffix = '.rst'
 # The master toctree document.
 master_doc = 'index'
 
+# exclude
+exclude_patterns = ['**/.svn']
+
 # General information about the project.
 project = u'GeoTools'
 copyright = u'2010, GeoTools'
