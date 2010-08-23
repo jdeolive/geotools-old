@@ -19,7 +19,6 @@ package org.geotools.gce.imagemosaic;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.image.RenderedImage;
-import java.awt.image.renderable.ParameterBlock;
 import java.io.IOException;
 import java.net.URL;
 import java.util.logging.Level;
@@ -50,6 +49,57 @@ enum ReadType {
 
 
     DIRECT_READ{
+    	
+		@Override
+		RenderedImage read(
+				final ImageReadParam readParameters, 
+				final int imageIndex,
+				final URL granuleUrl, 
+				final Rectangle rasterDimensions, 
+				final ImageReader reader,
+				final Hints hints,
+				final boolean closeElements) {
+			//
+    		// Using ImageReader to load the data directly
+    		//
+    		try{
+    	
+    			if(reader==null)
+    			{
+    				if (LOGGER.isLoggable(Level.WARNING))
+    					LOGGER.warning("Unable to get reader for URL " + granuleUrl);
+    				return null;
+    			}
+    			
+    			
+    			//check source regione
+    			if(CoverageUtilities.checkEmptySourceRegion(readParameters, rasterDimensions))
+    				return null;
+    			
+    			if (LOGGER.isLoggable(Level.FINER))
+    			    LOGGER.log(Level.FINER, "reading file: " + granuleUrl);
+    			
+    			// read data
+    			return reader.read(imageIndex,readParameters);
+    		} catch (IOException e) {
+    			if (LOGGER.isLoggable(Level.WARNING))
+    				LOGGER.log(Level.WARNING,"Unable to compute source area for URL "
+    						+ granuleUrl,e);	
+    			return null;
+    		} finally {
+    			//close everything
+    			try {
+    				// reader
+    				if(closeElements&&reader!=null)
+    					reader.dispose();
+    			} catch (Throwable t) {
+    				// swallow the exception, we are just trying to close as much stuff as possible
+    			} 
+    			
+						
+    		}      
+		}
+		
     	RenderedImage read(
     			final ImageReadParam readP,
     			final int imageIndex, 
@@ -123,59 +173,12 @@ enum ReadType {
     			final ImageReaderSpi spi,
     			final Hints hints
     			) throws IOException{
-    		
-      		///
-    		// Using ImageReader to load the data directly
-    		//
-    		ImageInputStream inStream=null;
-    		ImageReader reader=null;
-    		try{
-    			//get stream
-    			inStream = Utils.getInputStream(rasterUrl);
-    			if(inStream==null)
-    				return null;
-    			// get a reader
-    			reader=spi.createReaderInstance();
-    			if(reader==null)
-    			{
-    				if (LOGGER.isLoggable(Level.WARNING))
-    					LOGGER.warning("Unable to get reader for URL "
-    							+ rasterUrl);
-    				return null;
-    			}
     			
-    			inStream.reset();
-    			reader.setInput(inStream);
+			//check source regionepbjMosaic,
+			if(CoverageUtilities.checkEmptySourceRegion(readP, readDimension))
+				return null;
+			
 
-    			
-    			//check source regionepbjMosaic,
-    			if(CoverageUtilities.checkEmptySourceRegion(readP, readDimension))
-    				return null;
-    			
-
-    		} catch (IOException e) {
-    			if (LOGGER.isLoggable(Level.WARNING))
-    				LOGGER.log(Level.WARNING,"Unable to compute source area for URL "
-    						+ rasterUrl,e);	
-    			return null;
-    		} finally {
-    			//close everything
-    			try {
-    				// reader
-    				if(reader!=null)
-    					reader.dispose();
-    			} catch (Throwable t) {
-    				// swallow the exception, we are just trying to close as much stuff as possible
-    			} 
-    			
-    			try {
-    				// instream
-    				if(inStream!=null)
-    					inStream.close();
-    			} catch (Throwable t) {
-    				// swallow the exception, we are just trying to close as much stuff as possible
-    			} 							
-    		}
     		
 			// read data    	
 //			final ParameterBlock pbjImageRead = new ParameterBlock();
@@ -196,7 +199,17 @@ enum ReadType {
 //				layout.setTileWidth(tileDimension.width).setTileHeight(tileDimension.height);
 //				raster = JAI.create("ImageRead", pbjImageRead,new RenderingHints(JAI.KEY_IMAGE_LAYOUT,layout));
 //			    raster = JAI.create("ImageRead", pbjImageRead, hints);
-			    raster = ImageReadDescriptor.create(Utils.getInputStream(rasterUrl), imageIndex, false, false, false, null, null, readP, spi.createReaderInstance(), hints);
+			    raster = ImageReadDescriptor.create(
+			    		Utils.getInputStream(rasterUrl), 
+			    		imageIndex, 
+			    		false, 
+			    		false, 
+			    		false,
+			    		null, 
+			    		null, 
+			    		readP, 
+			    		spi.createReaderInstance(),
+			    		hints);
 //			}
 //			else
 //				raster = JAI.create("ImageRead", pbjImageRead);
@@ -205,10 +218,59 @@ enum ReadType {
 				raster.getWidth();
 			return raster;
     	}
+
+		@Override
+		RenderedImage read(
+				final ImageReadParam readParameters, 
+				final int imageIndex,
+				final URL granuleUrl, 
+				final Rectangle rasterDimensions, 
+				final ImageReader reader,
+				final Hints hints,
+				final boolean closeElements) {
+
+
+    		try{
+				//check source regionepbjMosaic,
+				if(CoverageUtilities.checkEmptySourceRegion(readParameters, rasterDimensions))
+					return null;
+	    			
+				// read data    
+				final RenderedOp raster = ImageReadDescriptor.create(
+						Utils.getInputStream(granuleUrl), 
+						imageIndex,
+						false,
+						false, 
+						false,
+						null,
+						null,
+						readParameters,
+						reader, 
+						hints);
+	
+				if (raster != null)
+					raster.getWidth();
+				return raster;
+    		}catch (IOException e) {
+				if(LOGGER.isLoggable(Level.INFO))
+					LOGGER.log(Level.INFO,e.getLocalizedMessage(),e);
+				return null;
+			}
+		}
     }, 
     
     UNSPECIFIED{
-
+		@Override
+		RenderedImage read(
+				final ImageReadParam readParameters, 
+				final int imageIndex,
+				final URL granuleUrl, 
+				final Rectangle rasterDimensions, 
+				final ImageReader reader,
+				final Hints hints,
+				final boolean closeElements) {
+			throw new UnsupportedOperationException(Errors.format(ErrorKeys.UNSUPPORTED_OPERATION_$1,"read"));
+		}
     	@Override
 		RenderedImage read(
     			final ImageReadParam readP,
@@ -264,5 +326,14 @@ enum ReadType {
 			final ImageReaderSpi spi,
 			final Hints hints
 			) throws IOException;
+
+	abstract RenderedImage read(
+			final ImageReadParam readParameters, 
+			final int imageIndex,
+			final URL granuleUrl, 
+			final Rectangle rasterDimensions, 
+			final ImageReader reader,
+			final Hints hints,
+			final boolean closeElements) ;
 	
 };
