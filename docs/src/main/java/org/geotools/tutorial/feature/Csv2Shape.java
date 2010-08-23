@@ -92,7 +92,7 @@ public class Csv2Shape {
                     double latitude = Double.parseDouble(tokens[0]);
                     double longitude = Double.parseDouble(tokens[1]);
                     String name = tokens[2].trim();
-                    int number = Integer.parseInt(tokens[3]);
+                    int number = Integer.parseInt(tokens[3].trim());
 
                     /* Longitude (= x coord) first ! */
                     Point point = geometryFactory.createPoint(new Coordinate(longitude, latitude));

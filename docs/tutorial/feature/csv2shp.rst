@@ -60,22 +60,19 @@ The tutorial covers the following:
 * Writing out a Shapefile
 * Forcing a Projection
 
-At the end of the tutorial you will be able to create your own custom shapefiles.
-
-#. To start with you will need a CSV file. Create a text file location.csv and copy and paste the
-   following locations into it:
-   
+At the end of the tutorial you will be able to create your own custom shapefiles.   
    
 Comma Separated Value
 ---------------------
-To start with you will need a CSV file.  Create a text file *location.csv* and copy and paste the
-following locations into it:
+To start with you will need a CSV file.
 
-.. literalinclude:: artifacts/locations.csv
 
-Or download :download:`locations.csv <artifacts/locations.csv>`.
+#. Create a text file location.csv and copy and paste the following locations into it:
 
-Feel free to add other locations to the file.
+   .. literalinclude:: artifacts/locations.csv
+
+#. Or download :download:`locations.csv <artifacts/locations.csv>`.
+#. Feel free to add other locations to the file such as your home town.
 
 Dependencies
 ------------

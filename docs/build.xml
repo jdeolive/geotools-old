@@ -21,7 +21,6 @@
         <available file="latex" filepath="${env.PATH}"/>
       </or>
     </condition>
-    
     <antcall target="sphinx">
       <param name="id" value="user"/>
       <param name="build" value="html"/>
@@ -38,21 +37,20 @@
       <param name="id" value="tutorial"/>
       <param name="build" value="html"/>
     </antcall>
-    
     <!-- uncomment for pdf -->
     <!--antcall target="pdf">
       <param name="id" value="tutorial"/>
       <param name="build" value="pdf"/>
     </antcall-->
-    <antcall target="latex">
+    <!--antcall target="latex">
       <param name="id" value="tutorial"/>
       <param name="build" value="latex"/>
-    </antcall>
+    </antcall>-->
   </target>
 
   <target name="sphinx" if="sphinx.available">
     <exec executable="sphinx-build" failonerror="true" dir="${basedir}/${id}">
-      <arg line="-D release=${project.version} -a -E -b ${build} -d &quot;${build.directory}/${id}/doctrees&quot; . &quot;${build.directory}/${id}/${build}&quot;"/>
+      <arg line="-D release=${project.version} -a -W -E -b ${build} -d &quot;${build.directory}/${id}/doctrees&quot; . &quot;${build.directory}/${id}/${build}&quot;"/>
     </exec>
   </target>
 
