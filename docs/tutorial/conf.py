@@ -8,18 +8,23 @@ from common import *
 html_title='GeoTools %s Tutorial' % release
 html_theme = 'geotools-tutorial'
 
+# -- General configuration -----------------------------------------------------
+# Add any Sphinx extension module names here, as strings. They can be extensions
+# coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
+#
 # extension for pdf
-# extensions = ['sphinx.ext.autodoc','rst2pdf.pdfbuilder']
+extensions = ['sphinx.ext.autodoc','rst2pdf.pdfbuilder']
 
 # options for pdf
 pdf_documents = [
-#  ('index', u'eclipseQuickstart', u'Eclipse Quickstart', u'Jody Garnett\\Micheal Bedward'),
   ('quickstart/eclipse', u'eclipseQuickstart', u'Eclipse Quickstart', u'Jody Garnett\\Micheal Bedward'),
 #  ('quickstart/netbeans', u'eclipseQuickstart', u'Eclipse Quickstart', u'Jody Garnett\\Micheal Bedward'),
 ]
 
-# A comma-separated list of custom stylesheets. Example:
-pdf_stylesheets = ['sphinx','kerning','a4']
+# A comma-separated list of custom stylesheets. Removed 'kerning' to prevent failure on mac
+#
+# 
+pdf_stylesheets = ['sphinx','a4']
 
 # Create a compressed PDF
 # Use True/False or 1/0

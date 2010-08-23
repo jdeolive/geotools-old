@@ -38,7 +38,7 @@ This workbook is part of the FOSS4G 2010 conference proceedings.
 About Your Instructors
 
 * Jody Garnett is the lead architect for the uDig project; and on the steering committee for
-  GeoTools; GeoServer and uDig. Taking the roll of geospatial consultant a bit too literally
+  GeoTools; GeoServer and uDig. Taking the role of geospatial consultant a bit too literally
   Jody has presented workshops and training courses in every continent (except Antarctica).
   Jody Garnett is an employee of LISAsoft. 
 
@@ -87,7 +87,8 @@ Please ensure your pom.xml includes the following:
    :start-after: </properties>
    :end-before: <repositories>
 
-Note that the jars mentioned above will pull in a host of other dependencies (such as the hsql database driver).
+Note that the jars mentioned above will pull in a host of other dependencies
+(such as the hsql database driver).
 
 Main Application
 ----------------

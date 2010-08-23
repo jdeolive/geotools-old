@@ -17,7 +17,7 @@ Welcome
 ========
 
 Welcome to Geospatial for Java. This workbook is aimed at Java developers who are new to geospatial
- and would like to get started.
+and would like to get started.
 
 Please set up your development environment prior to starting this tutorial. We will list the maven
 dependencies required at the start of the workbook.
@@ -65,52 +65,51 @@ We are going to be using connection parameters to connect to our DataStore this 
 and you will have a chance to try out using PostGIS or a Web Feature Server at the end of this
 example.
 
-1. Please ensure your pom.xml includes the following::
-
-.. literalinclude:: artifacts/pom.xml
-        :language: xml
-        :start-after: </properties>
-        :end-before: <repositories>
-
+1. Please ensure your pom.xml includes the following:
+   
+   .. literalinclude:: artifacts/pom.xml
+      :language: xml
+      :start-after: <url>http://maven.apache.org</url>
+      :end-before: <dependencies>
 
 2. Create the *QueryLab** class and copy and paste the following to get going.
-
-.. literalinclude:: ../../src/main/java/org/geotools/tutorial/filter/QueryLab.java
-   :language: java
-   :start-after: // docs start source
-   :end-before: // docs end main
+   
+   .. literalinclude:: ../../src/main/java/org/geotools/tutorial/filter/QueryLab.java
+      :language: java
+      :start-after: // docs start source
+      :end-before: // docs end main
 
 The Application GUI
 -------------------
 
-Next we create the application's GUI which includes a text field to enter a query and a table to
+Next we create the application user interface which includes a text field to enter a query and a table to
 display data for the features that the query selects.
 
 Here is the code to create the controls:
 
 1. Add the following constructor:
 
-.. literalinclude:: ../../src/main/java/org/geotools/tutorial/filter/QueryLab.java
-   :language: java
-   :start-after: // docs start constructor
-   :end-before: // docs start file menu
+   .. literalinclude:: ../../src/main/java/org/geotools/tutorial/filter/QueryLab.java
+      :language: java
+      :start-after: // docs start constructor
+      :end-before: // docs start file menu
 
 2. Next we add menu items and Actions to the File menu to connect to either a shapefile or a
    PostGIS database:
    
    Each Action is calling the same method but passing in a different DataStore factory
 
-.. literalinclude:: ../../src/main/java/org/geotools/tutorial/filter/QueryLab.java
-   :language: java
-   :start-after: // docs start file menu
-   :end-before: // docs end file menu
+   .. literalinclude:: ../../src/main/java/org/geotools/tutorial/filter/QueryLab.java
+      :language: java
+      :start-after: // docs start file menu
+      :end-before: // docs end file menu
 
-3. Now let's look at the Data menu items and Actions:
-
-.. literalinclude:: ../../src/main/java/org/geotools/tutorial/filter/QueryLab.java
-   :language: java
-   :start-after: // docs start data menu
-   :end-before: // docs end data menu
+3. Now let us look at the Data menu items and Actions:
+   
+   .. literalinclude:: ../../src/main/java/org/geotools/tutorial/filter/QueryLab.java
+      :language: java
+      :start-after: // docs start data menu
+      :end-before: // docs end data menu
    
 Connect to DataStore
 ---------------------
@@ -128,18 +127,18 @@ used in the Quickstart to prompt the user for a shapefile, but allows greater co
 
  
 1. The File menu actions call this method to connect.
-
-.. literalinclude:: ../../src/main/java/org/geotools/tutorial/filter/QueryLab.java
-   :language: java
-   :start-after: // docs start connect
-   :end-before: // docs end connect
+   
+   .. literalinclude:: ../../src/main/java/org/geotools/tutorial/filter/QueryLab.java
+      :language: java
+      :start-after: // docs start connect
+      :end-before: // docs end connect
 
 2. Helper method to update the combo box used to choose a feature type:
-
-.. literalinclude:: ../../src/main/java/org/geotools/tutorial/filter/QueryLab.java
-   :language: java
-   :start-after: // docs start update
-   :end-before: // docs end update
+   
+   .. literalinclude:: ../../src/main/java/org/geotools/tutorial/filter/QueryLab.java
+      :language: java
+      :start-after: // docs start update
+      :end-before: // docs end update
 
 Query
 ------
@@ -147,37 +146,39 @@ Query
 A **Filter** is similar to the where clause of an SQL statement; defining a condition that each
 selected feature needs to meet in order to be included.
 
-Here is our strategy for displaying the selected features.
+Here is our strategy for displaying the selected features:
+   
+    * Get the feature type name selected by the user and retrieve the corresponding FeatureSource
+      from the DataStore.
+    
+    * Get the query condition that was entered in the text field and use the CQL class to create a
+      Filter object.
+    
+    * Pass the filter to the getFeatures method which returns the features matching the query
+      as a FeatureCollection.
+    
+    * Create a FeatureCollectionTableModel for our dialog|apos|s JTable. This GeoTools
+      class takes a FeatureCollection and retrieves the feature attribute names and the data for
+      each feature.
 
-* Get the feature type name selected by the user and retrieve the corresponding FeatureSource from
-  the DataStore.
-
-* Get the query condition that was entered in the text field and use the CQL class to create a
-  Filter object.
-
-* Pass the filter to the getFeatures method which returns the features matching the query
-  as a FeatureCollection.
-
-* Create a FeatureCollectionTableModel for our dialog|apos|s JTable. This GeoTools
-  class takes a FeatureCollection and retrieves the feature attribute names and the data for
-  each feature.
+With this strategy in mind here is the implementation:
 
 1. Getting feature data using featureSource.getFeatures( filter )
-
-.. literalinclude:: ../../src/main/java/org/geotools/tutorial/filter/QueryLab.java
-   :language: java
-   :start-after: // docs start filterFeatures
-   :end-before: // docs end filterFeatures
+   
+   .. literalinclude:: ../../src/main/java/org/geotools/tutorial/filter/QueryLab.java
+      :language: java
+      :start-after: // docs start filterFeatures
+      :end-before: // docs end filterFeatures
 
 2. The FeatureCollection behaves as a predefined query or result set and does not load the data
    into memory.
    
    You can ask questions of the FeatureCollection as a whole using the available methods.
 
-.. literalinclude:: ../../src/main/java/org/geotools/tutorial/filter/QueryLab.java
-   :language: java
-   :start-after: // docs start countFeatures
-   :end-before: // docs end countFeatures
+   .. literalinclude:: ../../src/main/java/org/geotools/tutorial/filter/QueryLab.java
+      :language: java
+      :start-after: // docs start countFeatures
+      :end-before: // docs end countFeatures
 
 4. By using the **Query** data structure you are afforded greater control over your request
    allowing you to select just the attributes needed; control how many features are returned;
@@ -185,10 +186,10 @@ Here is our strategy for displaying the selected features.
    
    Here is an example of selecting just the geometry attribute and displaying it in the table.
 
-.. literalinclude:: ../../src/main/java/org/geotools/tutorial/filter/QueryLab.java
-   :language: java
-   :start-after: // docs start queryFeatures
-   :end-before: // docs end queryFeatures
+   .. literalinclude:: ../../src/main/java/org/geotools/tutorial/filter/QueryLab.java
+      :language: java
+      :start-after: // docs start queryFeatures
+      :end-before: // docs end queryFeatures
 
 Running the Application
 -----------------------
@@ -263,14 +264,14 @@ Things to Try
 ==============
 
 * Try connecting to a public postgis instance.
-
+  
   Select *Connect to PostGIS database...* from the file menu and fill in the following parameters.
-
+  
   .. image:: images/postgisWizard1.png
-
+  
   If you don't have a PostGIS database you can try connecting to a public online database at
   `Refractions Research <http://www.refractions.net/>` with the following credentials:
-
+  
   :host:
     www.refractions.net
   :port:
@@ -281,7 +282,7 @@ Things to Try
     demo
   :passwd:
     demo
-
+  
   Next the wizard will display a second page of optional parameters. For this example you can leave this blank and just
   click the *Finish* button.
 
@@ -312,11 +313,11 @@ Things to Try
 *  Earlier we covered the use FeatureIterator to sift through the contents of a FeatureCollection.
    Using this idea with **Query** allows you to work with just the geometry when determining the
    center of a collection of features.
-
-.. literalinclude:: ../../src/main/java/org/geotools/tutorial/filter/QueryLab.java
-   :language: java
-   :start-after: // docs start centerFeatures
-   :end-before: // docs end centerFeatures
+   
+   .. literalinclude:: ../../src/main/java/org/geotools/tutorial/filter/QueryLab.java
+      :language: java
+      :start-after: // docs start centerFeatures
+      :end-before: // docs end centerFeatures
 
 Filter
 =======
