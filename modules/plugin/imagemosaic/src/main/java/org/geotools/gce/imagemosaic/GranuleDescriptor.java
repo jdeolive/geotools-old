@@ -16,7 +16,7 @@
  */
 package org.geotools.gce.imagemosaic;
 
-import it.geosolutions.imageio.utilities.ImageIOUtilities;
+import it.geosolutions.imageio.utilities.Utilities;
 
 import java.awt.Dimension;
 import java.awt.Rectangle;
@@ -424,18 +424,18 @@ public class GranuleDescriptor {
 			this.baseGridToWorld = geMapper.createAffineTransform();
 			
 			try {
-				if (inclusionGeometry != null) {
-					LiteShape2 shape = null;
-					geMapper.setPixelAnchor(PixelInCell.CELL_CORNER);
-					shape = new LiteShape2(inclusionGeometry, geMapper.createTransform().inverse(), null, false);
-					this.granuleROIShape = (ROIShape) new ROIShape(shape);
-				}
-
-			} catch (TransformException e1) {
-				throw new IllegalArgumentException(e1);
-			} catch (FactoryException e1) {
-				throw new IllegalArgumentException(e1);
-			}
+                            if (inclusionGeometry != null){
+                                        LiteShape2 shape = null;
+                                        geMapper.setPixelAnchor(PixelInCell.CELL_CORNER);
+                                shape = new LiteShape2(inclusionGeometry, geMapper.createTransform().inverse(),null, false);
+                                this.granuleROIShape = (ROIShape) new ROIShape(shape);
+                            }
+                            
+                        } catch (TransformException e1) {
+                            throw new IllegalArgumentException(e1);
+                        } catch (FactoryException e1) {
+                            throw new IllegalArgumentException(e1);
+                        }
 			
 			// add the base level
 			this.granuleLevels.put(Integer.valueOf(0), new GranuleOverviewLevelDescriptor(1, 1, originalDimension.width, originalDimension.height));
@@ -611,20 +611,18 @@ public class GranuleDescriptor {
 				}
 				return null;
 			}
-			// set input
-			reader.setInput(inStream);
 			
 			//get selected level and base level dimensions
-			final GranuleOverviewLevelDescriptor selectedlevel= getLevel(imageIndex,reader,inStream);
+			final GranuleOverviewLevelDescriptor selectedlevel= getLevel(imageIndex);
 	
 			
 			// now create the crop grid to world which can be used to decide
 			// which source area we need to crop in the selected level taking
 			// into account the scale factors imposed by the selection of this
 			// level together with the base level grid to world transformation
-            AffineTransform tempCropWorldToGrid = new AffineTransform(selectedlevel.gridToWorldTransformCorner);
-            AffineTransform2D cropWorldToGrid= new AffineTransform2D(tempCropWorldToGrid);
-            cropWorldToGrid=(AffineTransform2D) cropWorldToGrid.inverse();
+                        AffineTransform tempCropWorldToGrid = new AffineTransform(selectedlevel.gridToWorldTransformCorner);
+                        AffineTransform2D cropWorldToGrid= new AffineTransform2D(tempCropWorldToGrid);
+                        cropWorldToGrid=(AffineTransform2D) cropWorldToGrid.inverse();
 			// computing the crop source area which lives into the
 			// selected level raster space, NOTICE that at the end we need to
 			// take into account the fact that we might also decimate therefore
@@ -653,7 +651,7 @@ public class GranuleDescriptor {
 			if (pluginName != null && pluginName.equals(Utils.DIRECT_KAKADU_PLUGIN)){
 				final int ssx = readParameters.getSourceXSubsampling();
 				final int ssy = readParameters.getSourceYSubsampling();
-				newSubSamplingFactor = ImageIOUtilities.getSubSamplingFactor2(ssx , ssy);
+				newSubSamplingFactor = Utilities.getSubSamplingFactor2(ssx , ssy);
 				if (newSubSamplingFactor != 0) {
 				    if (newSubSamplingFactor > maxDecimationFactor && maxDecimationFactor != -1){
 				        newSubSamplingFactor = maxDecimationFactor;
@@ -667,8 +665,7 @@ public class GranuleDescriptor {
 			final RenderedImage raster;
 			try{
 				// read
-//				raster= request.getReadType().read(readParameters,imageIndex, granuleUrl, selectedlevel.rasterDimensions,cachedReaderSPI, hints);
-				raster= request.getReadType().read(readParameters,imageIndex, granuleUrl, selectedlevel.rasterDimensions,reader, hints,false);
+				raster= request.getReadType().read(readParameters,imageIndex, granuleUrl, selectedlevel.rasterDimensions,cachedReaderSPI, hints);
 				
 			}
 			catch (Throwable e) {
@@ -869,13 +866,9 @@ public class GranuleDescriptor {
 			}
 		}
 	}
-	private GranuleOverviewLevelDescriptor getLevel(final int index, final ImageReader reader, final ImageInputStream inStream) {
 
-		if(reader==null)
-			throw new NullPointerException("Null reader passed to the internal GranuleOverviewLevelDescriptor method");
-		if(inStream==null)
-			throw new NullPointerException("Null stream passed to the internal GranuleOverviewLevelDescriptor method");
-		
+
+	public GranuleOverviewLevelDescriptor getLevel(final int index) {
 		synchronized (granuleLevels) {
 			if(granuleLevels.containsKey(Integer.valueOf(index)))
 				return granuleLevels.get(Integer.valueOf(index));
@@ -883,13 +876,32 @@ public class GranuleDescriptor {
 			{
 				//load level
 				// create the base grid to world transformation
+				ImageInputStream inStream=null;
+				ImageReader reader=null;
 				try {
 					//
 					//get info about the raster we have to read
 					//
 					
+					// get a stream
+					inStream = Utils.getInputStream(granuleUrl);
+					if(inStream==null)
+						throw new IllegalArgumentException();
+			
+					// get a reader and try to cache the relevant SPI
+					if(cachedReaderSPI==null){
+						reader = Utils.getReader( inStream);
+						if(reader!=null)
+							cachedReaderSPI=reader.getOriginatingProvider();
+					}
+					else
+						reader=cachedReaderSPI.createReaderInstance();
+					if(reader==null)
+						throw new IllegalArgumentException("Unable to get an ImageReader for the provided file "+granuleUrl.toString());					
+					
 					//get selected level and base level dimensions
 					final Rectangle levelDimension = Utils.getDimension(index,inStream, reader);
+					
 					
 					final GranuleOverviewLevelDescriptor baseLevel= granuleLevels.get(0);
 					final double scaleX=baseLevel.width/(1.0*levelDimension.width);
@@ -908,71 +920,21 @@ public class GranuleDescriptor {
 				} catch (IOException e) {
 					throw new IllegalArgumentException(e);
 				} 
-
+				finally{
+					try{
+						if(inStream!=null)
+							inStream.close();
+					}
+					catch (Throwable e) {
+						throw new IllegalArgumentException(e);
+					}
+					finally{
+						if(reader!=null)
+							reader.dispose();
+					}
+				}	
 			}			
 		}
-	}
-
-	public GranuleOverviewLevelDescriptor getLevel(final int index) {
-		
-			//load level
-			// create the base grid to world transformation
-			ImageInputStream inStream=null;
-			ImageReader reader=null;
-			try {
-				
-				// get a stream
-				inStream = Utils.getInputStream(granuleUrl);
-				if(inStream==null)
-					throw new IllegalArgumentException("Unable to create an inputstream for the granuleurl:"+(granuleUrl!=null?granuleUrl:"null"));
-		
-				// get a reader and try to cache the relevant SPI
-				if(cachedReaderSPI==null){
-					reader = Utils.getReader( inStream);
-					if(reader!=null)
-						cachedReaderSPI=reader.getOriginatingProvider();
-				}
-				else
-					reader=cachedReaderSPI.createReaderInstance();
-				if(reader==null)
-					throw new IllegalArgumentException("Unable to get an ImageReader for the provided file "+granuleUrl.toString());					
-				
-				// call internal method which will close everything
-				return getLevel(index, reader, inStream);
-
-			} catch (IllegalStateException e) {
-				
-				// clean up
-				try{
-					if(inStream!=null)
-						inStream.close();
-				}
-				catch (Throwable ee) {
-					
-				}
-				finally{
-					if(reader!=null)
-						reader.dispose();
-				}
-				
-				throw new IllegalArgumentException(e);
-				
-			} catch (IOException e) {
-				
-				// clean up
-				try{
-					if(inStream!=null)
-						inStream.close();
-				}
-				catch (Throwable ee) {
-				}
-				finally{
-					if(reader!=null)
-						reader.dispose();
-				}
-				
-				throw new IllegalArgumentException(e);
-			}
 	}
 
 	@Override
