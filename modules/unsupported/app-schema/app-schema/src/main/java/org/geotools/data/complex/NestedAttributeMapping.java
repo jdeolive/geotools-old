@@ -129,14 +129,12 @@ public class NestedAttributeMapping extends AttributeMapping {
      * Get matching input features that are stored in this mapping using a supplied link value.
      * 
      * @param foreignKeyValue
-     * @param reprojection
-     *            Reprojected CRS or null
      * @return The matching input feature
      * @throws IOException
      * @throws IOException
      */
-    public List<Feature> getInputFeatures(Object foreignKeyValue,
-            CoordinateReferenceSystem reprojection, Feature feature) throws IOException {
+    public List<Feature> getInputFeatures(Object foreignKeyValue, Feature feature)
+            throws IOException {
         if (isSameSource()) {
             // if linkField is null, this method shouldn't be called because the mapping
             // should use the same table, and handles it differently
@@ -175,10 +173,7 @@ public class NestedAttributeMapping extends AttributeMapping {
         Filter filter = filterFac.equals(this.nestedSourceExpression, filterFac
                 .literal(foreignKeyValue));
         // get all the nested features based on the link values
-        Query query = new Query();
-        query.setCoordinateSystemReproject(reprojection);
-        query.setFilter(filter);
-        FeatureCollection<FeatureType, Feature> fCollection = source.getFeatures(query);
+        FeatureCollection<FeatureType, Feature> fCollection = source.getFeatures(filter);
         FeatureIterator<Feature> it = fCollection.features();
 
         while (it.hasNext()) {
@@ -199,14 +194,12 @@ public class NestedAttributeMapping extends AttributeMapping {
      * Get matching input features that are stored in this mapping using a supplied link value.
      * 
      * @param foreignKeyValue
-     * @param reprojection
-     *            Reprojected CRS or null
      * @return The matching input feature
      * @throws IOException
      * @throws IOException
      */
-    public List<Feature> getInputFeatures(Object foreignKeyValue,
-            CoordinateReferenceSystem reprojection, FeatureTypeMapping fMapping) throws IOException {
+    public List<Feature> getInputFeatures(Object foreignKeyValue, FeatureTypeMapping fMapping)
+            throws IOException {
         if (isSameSource()) {
             // if linkField is null, this method shouldn't be called because the mapping
             // should use the same table, and handles it differently
@@ -234,10 +227,7 @@ public class NestedAttributeMapping extends AttributeMapping {
         Filter filter = filterFac.equals(this.nestedSourceExpression, filterFac
                 .literal(foreignKeyValue));
         // get all the nested features based on the link values
-        Query query = new Query();
-        query.setCoordinateSystemReproject(reprojection);
-        query.setFilter(filter);
-        FeatureCollection<FeatureType, Feature> fCollection = source.getFeatures(query);
+        FeatureCollection<FeatureType, Feature> fCollection = source.getFeatures(filter);
         FeatureIterator<Feature> it = fCollection.features();
 
         while (it.hasNext()) {
