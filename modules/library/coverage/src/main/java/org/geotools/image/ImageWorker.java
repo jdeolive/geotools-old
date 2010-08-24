@@ -53,6 +53,7 @@ import javax.media.jai.operator.*;
 import com.sun.media.imageioimpl.common.BogusColorSpace;
 import com.sun.media.imageioimpl.common.PackageUtil;
 import com.sun.media.imageioimpl.plugins.jpeg.CLibJPEGImageWriterSpi;
+import com.sun.media.jai.opimage.RIFUtil;
 import com.sun.media.jai.util.ImageUtil;
 
 import org.geotools.factory.Hints;
@@ -654,7 +655,13 @@ public class ImageWorker {
      * @see #rescaleToBytes
      */
     public final boolean isBytes() {
-        return image.getSampleModel().getDataType() == DataBuffer.TYPE_BYTE;
+        final SampleModel sm    = image.getSampleModel();
+        final int[] sampleSize=sm.getSampleSize();
+        for(int i=0;i<sampleSize.length;i++)
+            if(sampleSize[i]!=8)
+                return false;
+        return true;
+        
     }
 
     /**
@@ -740,13 +747,15 @@ public class ImageWorker {
      * @see RescaleDescriptor
      */
     public final ImageWorker rescaleToBytes() {
-        if (isBytes()) {
-            // Already using bytes - nothing to do.
-            return this;
-        }
+
         if (isIndexed()) {
             throw new UnsupportedOperationException(
                     "Rescaling not yet implemented for IndexColorModel.");
+        }
+        
+        if (isBytes()) {
+            // Already using bytes - nothing to do.
+            return this;
         }
         final double[][] extrema = getExtremas();
         final int length = extrema[0].length;
@@ -1036,10 +1045,13 @@ public class ImageWorker {
          * color model. We might also need to reformat the image in order to get
          * it to 8 bits samples.
          */
-        if (image.getColorModel() instanceof PackedColorModel) {
+        ColorModel cm= image.getColorModel();
+        if (cm instanceof PackedColorModel) {
             forceComponentColorModel();
+            cm= image.getColorModel();
         }
-        rescaleToBytes();
+        if(!(cm instanceof IndexColorModel))
+            rescaleToBytes();
         /*
          * Getting the alpha channel and separating from the others bands. If
          * the initial image had no alpha channel (more specifically, if it is
@@ -1102,8 +1114,8 @@ public class ImageWorker {
         // shortcut for index color model
         if (cm instanceof IndexColorModel) {
             final IndexColorModel icm = (IndexColorModel) cm;
-            final SampleModel sm=this.image.getSampleModel();
-            final int datatype =sm.getDataType();
+            final SampleModel sm   = this.image.getSampleModel();
+            final int datatype	   = sm.getDataType();
             final boolean gray     = ColorUtilities.isGrayPalette(icm, checkTransparent)&optimizeGray;
             final boolean alpha    = icm.hasAlpha();
             /*
@@ -1205,7 +1217,8 @@ public class ImageWorker {
             // Most of the code adapted from jai-interests is in 'getRenderingHints(int)'.
             final int type = (cm instanceof DirectColorModel) ?DataBuffer.TYPE_BYTE : image.getSampleModel().getTransferType();
             final RenderingHints hints = getRenderingHints(type);
-            image = FormatDescriptor.create(image, type, hints);
+//            image=ColorConvertDescriptor.create(image, RIFUtil.getImageLayoutHint(hints).getColorModel(null), hints);
+            image = FormatDescriptor.create(image, type, hints);;
         } 
         invalidateStatistics();
 
@@ -2223,6 +2236,8 @@ public class ImageWorker {
         // Reformatting this image for PNG.
         if (!paletted) {
             forceComponentColorModel();
+        }else{
+        	forceIndexColorModelForGIF(true);
         }
         if(LOGGER.isLoggable(Level.FINER))
 			LOGGER.finer("Encoded input image for png writer");
@@ -2404,15 +2419,17 @@ public class ImageWorker {
         if(LOGGER.isLoggable(Level.FINER))
         	LOGGER.finer("Encoding input image to write out as JPEG.");
 
-             	
-        rescaleToBytes();
-        final ColorModel cm = image.getColorModel();
-        final boolean indexColorModel = image.getColorModel() instanceof IndexColorModel;
+        // go to component color model if needed
+        ColorModel cm = image.getColorModel();        
         final boolean hasAlpha = cm.hasAlpha();
-        if (indexColorModel) {
-                forceComponentColorModel();
-        }
-
+        forceComponentColorModel();  
+        cm = image.getColorModel();
+        
+        // rescale to 8 bit
+        rescaleToBytes();
+        cm = image.getColorModel();
+        
+        // remove transparent band
         final int numBands = image.getSampleModel().getNumBands();
         if (hasAlpha) {
             retainBands(numBands - 1);
