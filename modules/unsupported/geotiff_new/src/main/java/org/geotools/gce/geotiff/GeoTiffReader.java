@@ -199,21 +199,19 @@ public final class GeoTiffReader extends AbstractGridCoverage2DReader implements
 		this.coverageFactory= CoverageFactoryFinder.getGridCoverageFactory(this.hints);
 		coverageName = "geotiff_coverage";
 
-		// /////////////////////////////////////////////////////////////////////
+
 		//
 		// Seting input
 		//
-		// /////////////////////////////////////////////////////////////////////
 		if (input == null) {
 
 			final IOException ex = new IOException("GeoTiffReader:No source set to read this coverage.");
 			throw new DataSourceException(ex);
 		} 
-		// /////////////////////////////////////////////////////////////////////
+
 		//
 		// Set the source being careful in case it is an URL pointing to a file
 		//
-		// /////////////////////////////////////////////////////////////////////
 		try {
 			this.source = input;
 			// setting source
