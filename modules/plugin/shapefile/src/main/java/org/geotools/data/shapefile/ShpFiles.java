@@ -69,6 +69,7 @@ import org.geotools.data.DataUtilities;
  * @source $URL$
  */
 public class ShpFiles {
+   
     /**
      * The urls for each type of file that is associated with the shapefile. The
      * key is the type of file
@@ -232,13 +233,13 @@ public class ShpFiles {
     public void logCurrentLockers(Level logLevel) {
         for (Collection<ShpFilesLocker> lockerList : lockers.values()) {
             for (ShpFilesLocker locker : lockerList) {
-                ShapefileDataStoreFactory.LOGGER
-                        .log(
-                                logLevel,
-                                "The following locker still has a lock� "
-                                        + locker
-                                        + "\n it was created with the following stack trace",
-                                locker.getTrace());
+                StringBuilder sb = new StringBuilder("The following locker still has a lock: ");
+                sb.append(locker);
+                if(locker.getTrace() != null) {
+                    sb.append("\nIt was created with the following stack trace:\n");
+                    sb.append(locker.getTrace());
+                }
+                ShapefileDataStoreFactory.LOGGER.log(logLevel, sb.toString());
             }
         }
     }

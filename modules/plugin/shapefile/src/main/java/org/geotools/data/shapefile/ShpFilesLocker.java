@@ -21,6 +21,12 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 class ShpFilesLocker {
+    /**
+     * When true, the stack trace that got a lock that wasn't released is recorded and then
+     * printed out when warning the user about this.
+     */
+    protected static final Boolean TRACE_ENABLED = "true".equalsIgnoreCase(System.getProperty("gt2.shapefile.trace"));
+    
     final URI uri;
     final URL url;
     final FileReader reader;
@@ -69,7 +75,9 @@ class ShpFilesLocker {
             type = "write";
             id = writer.id();
         }
-        trace = new Trace("Locking " + url + " for " + type + " by " + id + " in thread " + name);
+        if(TRACE_ENABLED) {
+            trace = new Trace("Locking " + url + " for " + type + " by " + id + " in thread " + name);
+        }
     }
 
     /**
