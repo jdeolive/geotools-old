@@ -73,14 +73,20 @@ public class IndexedDbaseFileReader extends DbaseFileReader {
             if (this.useMemoryMappedBuffer) {
                 buffer.position((int) newPosition);
             } else {
-                FileChannel fc = (FileChannel) this.channel;
-                fc.position(newPosition);
-                buffer.limit(buffer.capacity());
-                buffer.position(0);
-                fill(buffer, channel);
-                buffer.position(0);
-
-                this.currentOffset = newPosition;
+                if (this.currentOffset <= newPosition
+                        && this.currentOffset + buffer.limit() >= newPosition) {
+                    buffer.position((int) (newPosition - this.currentOffset));
+                    //System.out.println("Hit");
+                } else {
+                    //System.out.println("Jump");
+                    FileChannel fc = (FileChannel) this.channel;
+                    fc.position(newPosition);
+                    this.currentOffset = newPosition;
+                    buffer.limit(buffer.capacity());
+                    buffer.position(0);
+                    fill(buffer, fc);
+                    buffer.position(0);
+                }
             }
         } else {
             throw new UnsupportedOperationException(

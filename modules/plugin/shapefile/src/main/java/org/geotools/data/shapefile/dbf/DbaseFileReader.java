@@ -167,11 +167,11 @@ public class DbaseFileReader implements FileReader {
             // Force useMemoryMappedBuffer to false
             this.useMemoryMappedBuffer = false;
             // Some other type of channel
-            // start with a 8K buffer, should be more than adequate
-            int size = 8 * 1024;
-            // if for some reason its not, resize it
-            size = header.getRecordLength() > size ? header.getRecordLength()
-                    : size;
+            // size the buffer so that we can read 4 records at a time (and make the buffer cacheable)
+            int size = (int) Math.pow(2, Math.ceil(Math.log(header.getRecordLength() * 4) / Math.log(2)));
+            if(size < 4096) {
+                size = 4096;
+            }
             buffer = NIOUtilities.allocate(size);
             // fill it and reset
             fill(buffer, channel);
