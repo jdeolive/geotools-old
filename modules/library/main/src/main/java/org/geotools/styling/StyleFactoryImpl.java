@@ -125,13 +125,13 @@ public class StyleFactoryImpl extends AbstractStyleFactory
     }
 
     public TextSymbolizer createTextSymbolizer() {
-        return new TextSymbolizerImpl();
+        return new TextSymbolizerImpl(filterFactory);
     }
 
     public TextSymbolizer createTextSymbolizer(Fill fill, Font[] fonts,
         Halo halo, Expression label, LabelPlacement labelPlacement,
         String geometryPropertyName) {
-        TextSymbolizer tSymb = new TextSymbolizerImpl();
+        TextSymbolizer tSymb = new TextSymbolizerImpl(filterFactory);
         tSymb.setFill(fill);
         tSymb.setFonts(fonts);
         tSymb.setGeometryPropertyName(geometryPropertyName);
@@ -146,7 +146,7 @@ public class StyleFactoryImpl extends AbstractStyleFactory
     public TextSymbolizer2 createTextSymbolizer(Fill fill, Font[] fonts,
         Halo halo, Expression label, LabelPlacement labelPlacement,
         String geometryPropertyName, Graphic graphic) {
-        TextSymbolizer2 tSymb = new TextSymbolizerImpl();
+        TextSymbolizer2 tSymb = new TextSymbolizerImpl(filterFactory);
         tSymb.setFill(fill);
         tSymb.setFonts(fonts);
         tSymb.setGeometryPropertyName(geometryPropertyName);
@@ -282,7 +282,7 @@ public class StyleFactoryImpl extends AbstractStyleFactory
         Expression opacity, Expression lineJoin, Expression lineCap,
         float[] dashArray, Expression dashOffset, Graphic graphicFill,
         Graphic graphicStroke) {
-        Stroke stroke = new StrokeImpl();
+        Stroke stroke = new StrokeImpl(filterFactory);
 
         if (color == null) {
         	//use default
@@ -321,7 +321,7 @@ public class StyleFactoryImpl extends AbstractStyleFactory
 
     public Fill createFill(Expression color, Expression backgroundColor,
         Expression opacity, Graphic graphicFill) {
-        Fill fill = new FillImpl();
+        Fill fill = new FillImpl(filterFactory);
 
         if (color == null) {
             color = Fill.DEFAULT.getColor();
@@ -354,7 +354,7 @@ public class StyleFactoryImpl extends AbstractStyleFactory
 
     public Mark createMark(Expression wellKnownName, Stroke stroke, Fill fill,
         Expression size, Expression rotation) {
-        Mark mark = new MarkImpl();
+        Mark mark = new MarkImpl(filterFactory, null);
 
         if (wellKnownName == null) {
             throw new IllegalArgumentException(
@@ -426,7 +426,7 @@ public class StyleFactoryImpl extends AbstractStyleFactory
     }
 
     public Mark createMark() {
-        Mark mark = new MarkImpl();
+        Mark mark = new MarkImpl(filterFactory, null);
 
         return mark;
     }
@@ -434,7 +434,7 @@ public class StyleFactoryImpl extends AbstractStyleFactory
     public Graphic createGraphic(ExternalGraphic[] externalGraphics,
         Mark[] marks, Symbol[] symbols, Expression opacity, Expression size,
         Expression rotation) {
-        Graphic graphic = new GraphicImpl();
+        Graphic graphic = new GraphicImpl(filterFactory);
         
         symbols = symbols != null ? symbols : new Symbol[0];
         graphic.setSymbols(symbols);
@@ -518,7 +518,7 @@ public class StyleFactoryImpl extends AbstractStyleFactory
     //        return new LinePlacementImpl();
     //    }
     public LinePlacement createLinePlacement(Expression offset) {
-        LinePlacement linep = new LinePlacementImpl();
+        LinePlacement linep = new LinePlacementImpl(filterFactory);
         linep.setPerpendicularOffset(offset);
 
         return linep;
@@ -529,7 +529,7 @@ public class StyleFactoryImpl extends AbstractStyleFactory
     //    }
     public PointPlacement createPointPlacement(AnchorPoint anchorPoint,
         Displacement displacement, Expression rotation) {
-        PointPlacement pointp = new PointPlacementImpl();
+        PointPlacement pointp = new PointPlacementImpl(filterFactory);
         pointp.setAnchorPoint(anchorPoint);
         pointp.setDisplacement(displacement);
         pointp.setRotation(rotation);
@@ -538,7 +538,7 @@ public class StyleFactoryImpl extends AbstractStyleFactory
     }
 
     public AnchorPoint createAnchorPoint(Expression x, Expression y) {
-        AnchorPoint anchorPoint = new AnchorPointImpl();
+        AnchorPoint anchorPoint = new AnchorPointImpl(filterFactory);
         anchorPoint.setAnchorPointX(x);
         anchorPoint.setAnchorPointY(y);
 
@@ -546,7 +546,7 @@ public class StyleFactoryImpl extends AbstractStyleFactory
     }
 
     public Displacement createDisplacement(Expression x, Expression y) {
-        Displacement displacement = new DisplacementImpl();
+        Displacement displacement = new DisplacementImpl(filterFactory);
         displacement.setDisplacementX(x);
         displacement.setDisplacementY(y);
 
@@ -554,7 +554,7 @@ public class StyleFactoryImpl extends AbstractStyleFactory
     }
 
     public Halo createHalo(Fill fill, Expression radius) {
-        Halo halo = new HaloImpl();
+        Halo halo = new HaloImpl(filterFactory);
         halo.setFill(fill);
         halo.setRadius(radius);
 
@@ -562,7 +562,7 @@ public class StyleFactoryImpl extends AbstractStyleFactory
     }
 
     public Fill getDefaultFill() {
-        Fill fill = new FillImpl();
+        Fill fill = new FillImpl(filterFactory);
 
         try {
             fill.setColor(filterFactory.literal("#808080"));
@@ -643,7 +643,7 @@ public class StyleFactoryImpl extends AbstractStyleFactory
     }
 
     public Graphic createDefaultGraphic() {
-        Graphic graphic = new GraphicImpl();
+        Graphic graphic = new GraphicImpl(filterFactory);
         graphic.addMark( createMark() ); // a default graphic is assumed to have a single Mark
         graphic.setSize(Expression.NIL);
         graphic.setOpacity(filterFactory.literal(1.0));
@@ -672,7 +672,7 @@ public class StyleFactoryImpl extends AbstractStyleFactory
     }
 
     public RasterSymbolizer createRasterSymbolizer() {
-    	return new RasterSymbolizerImpl();
+    	return new RasterSymbolizerImpl(filterFactory);
     }
     
     public RasterSymbolizer createRasterSymbolizer(
@@ -680,7 +680,7 @@ public class StyleFactoryImpl extends AbstractStyleFactory
         ChannelSelection channel, Expression overlap, ColorMap colorMap,
         ContrastEnhancement cenhancement, ShadedRelief relief,
         Symbolizer outline) {
-        RasterSymbolizer rastersym = new RasterSymbolizerImpl();
+        RasterSymbolizer rastersym = new RasterSymbolizerImpl(filterFactory);
 
         if (geometryPropertyName != null) {
             rastersym.setGeometryPropertyName(geometryPropertyName);
@@ -743,7 +743,7 @@ public class StyleFactoryImpl extends AbstractStyleFactory
     }
 
     public ContrastEnhancement createContrastEnhancement() {
-        return new ContrastEnhancementImpl();
+        return new ContrastEnhancementImpl(filterFactory);
     }
 
     public ContrastEnhancement createContrastEnhancement(Expression gammaValue) {
@@ -755,7 +755,7 @@ public class StyleFactoryImpl extends AbstractStyleFactory
 
     public SelectedChannelType createSelectedChannelType(String name,
         ContrastEnhancement enhancement) {
-        SelectedChannelType sct = new SelectedChannelTypeImpl();
+        SelectedChannelType sct = new SelectedChannelTypeImpl(filterFactory);
         sct.setChannelName(name);
         sct.setContrastEnhancement(enhancement);
 
@@ -764,7 +764,7 @@ public class StyleFactoryImpl extends AbstractStyleFactory
 
     public SelectedChannelType createSelectedChannelType(String name,
         Expression gammaValue) {
-        SelectedChannelType sct = new SelectedChannelTypeImpl();
+        SelectedChannelType sct = new SelectedChannelTypeImpl(filterFactory);
         sct.setChannelName(name);
         sct.setContrastEnhancement(createContrastEnhancement(gammaValue));
 
@@ -791,7 +791,7 @@ public class StyleFactoryImpl extends AbstractStyleFactory
     	return remoteOWS;
     }    
     public ShadedRelief createShadedRelief(Expression reliefFactor) {
-    	ShadedRelief relief = new ShadedReliefImpl();
+    	ShadedRelief relief = new ShadedReliefImpl(filterFactory);
     	relief.setReliefFactor(reliefFactor);
     	
     	return relief;

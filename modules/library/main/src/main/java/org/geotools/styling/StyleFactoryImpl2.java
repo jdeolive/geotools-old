@@ -322,7 +322,7 @@ public class StyleFactoryImpl2 implements org.opengis.style.StyleFactory {
     public MarkImpl mark(Expression wellKnownName, org.opengis.style.Fill fill,
             org.opengis.style.Stroke stroke) {
         
-        MarkImpl mark = new MarkImpl();
+        MarkImpl mark = new MarkImpl(filterFactory, null);
         mark.setWellKnownName(wellKnownName);
         mark.setFill(fill);
         mark.setStroke(stroke);
@@ -509,7 +509,7 @@ public class StyleFactoryImpl2 implements org.opengis.style.StyleFactory {
     public StrokeImpl stroke(GraphicStroke stroke, Expression color,
             Expression opacity, Expression width, Expression join, Expression cap, float[] dashes,
             Expression offset) {
-        StrokeImpl s = new StrokeImpl();
+        StrokeImpl s = new StrokeImpl(filterFactory);
         s.setColor(color);
         s.setWidth(width);
         s.setOpacity(opacity);
@@ -544,7 +544,7 @@ public class StyleFactoryImpl2 implements org.opengis.style.StyleFactory {
             org.opengis.style.LabelPlacement placement, org.opengis.style.Halo halo,
             org.opengis.style.Fill fill) {
 
-        TextSymbolizerImpl tSymb = new TextSymbolizerImpl();
+        TextSymbolizerImpl tSymb = new TextSymbolizerImpl(filterFactory);
         tSymb.setName(name);
         tSymb.setFill(fill);
         tSymb.setUnitOfMeasure( (Unit<Length>) unit );
