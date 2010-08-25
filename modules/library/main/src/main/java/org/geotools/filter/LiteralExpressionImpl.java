@@ -306,9 +306,17 @@ public class LiteralExpressionImpl extends DefaultExpression
             if (this.literal == null) {
                 return expLit.literal == null;
             }
-            if (this.expressionType == expLit.expressionType 
-                    && this.literal.equals(expLit.literal))
-                return true;
+            if (this.expressionType == expLit.expressionType) {
+                if(this.literal.equals(expLit.literal)) {
+                    return true;
+                } else if(expressionType == LITERAL_GEOMETRY && this.literal instanceof Geometry &&
+                        expLit.literal instanceof Geometry) {
+                    // deal with JTS stupid equal implementation
+                    if(((Geometry) literal).equals((Geometry) expLit.literal)) {
+                        return true;
+                    }
+                }
+            }
 
             if (expressionType == LITERAL_GEOMETRY) {
                 return ((Geometry) this.literal).equals((Geometry) expLit.evaluate(null, Geometry.class));
