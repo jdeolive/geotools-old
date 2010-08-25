@@ -35,7 +35,7 @@ import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.feature.type.GeometryType;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
-import org.opengis.filter.FilterFactory2;
+import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.util.InternationalString;
@@ -188,7 +188,7 @@ public class AttributeTypeBuilder {
     /**
      * filter factory
      */
-    protected FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
+    protected FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
 
 	/**
 	 * Constructs the builder.
