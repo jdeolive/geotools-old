@@ -38,7 +38,7 @@ public class HaloImpl implements Halo, Cloneable {
     /** The logger for the default core module. */
     private static final java.util.logging.Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.core");
     private FilterFactory filterFactory;
-    private FillImpl fill = new FillImpl();
+    private FillImpl fill;
     private Expression radius = null;
 
     /**
@@ -77,6 +77,7 @@ public class HaloImpl implements Halo, Cloneable {
 
     private void init() {
         try {
+            fill = new FillImpl(filterFactory);
             radius = filterFactory.literal(1);
         } catch (org.geotools.filter.IllegalFilterException ife) {
             LOGGER.severe("Failed to build defaultHalo: " + ife);
