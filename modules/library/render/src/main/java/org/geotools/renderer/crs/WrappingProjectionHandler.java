@@ -128,6 +128,11 @@ public class WrappingProjectionHandler extends ProjectionHandler {
         if(geomType == null) {
             return null;
         }
+        
+        // if we did not have to actually clone the geometries
+        if(geoms.size() == 1) {
+            return geometry;
+        }
 
         // rewrap all the clones into a single geometry
         if (Point.class.equals(geomType)) {
