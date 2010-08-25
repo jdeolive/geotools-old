@@ -75,6 +75,8 @@ public class ShpFiles {
      * key is the type of file
      */
     private final Map<ShpFileType, URL> urls = new ConcurrentHashMap<ShpFileType, URL>();
+    
+    private final Map<ShpFileType, FileStatus> lastChecked = new ConcurrentHashMap<ShpFileType, FileStatus>();
 
     /**
      * A read/write lock, so that we can have concurrent readers 
@@ -817,15 +819,7 @@ public class ShpFiles {
             if (isLocal()) {
 
                 File file = DataUtilities.urlToFile(url);
-
-                if (!file.exists()) {
-                    throw new FileNotFoundException(file.toString());
-                }
-
-                if (!file.canRead()) {
-                    throw new IOException("File is unreadable : " + file);
-                }
-
+                
                 RandomAccessFile raf = new RandomAccessFile(file, "r");
                 channel = new FileChannelDecorator(raf.getChannel(), this, url,
                         requestor);
@@ -974,13 +968,29 @@ public class ShpFiles {
             throw new IllegalArgumentException(
                     "This method only makes sense if the files are local");
         }
-        URL url = urls.get(fileType);
-        if (url == null) {
-            return false;
-        }
+        
+        long now = System.currentTimeMillis();
+        FileStatus status = this.lastChecked.get(fileType);
+        if(status == null || status.lastChecked > now - 1000) {
+            URL url = urls.get(fileType);
+            if (url == null) {
+                return false;
+            }
 
-        File file = DataUtilities.urlToFile(url);
-        return file.exists();
+            File file = DataUtilities.urlToFile(url);
+            if(status == null) {
+                status = new FileStatus();
+            }
+            status.existed = file.exists();
+            status.lastChecked = now;
+            lastChecked.put(fileType, status);
+        } 
+        return status.existed;
+    }
+    
+    static class FileStatus {
+        long lastChecked;
+        boolean existed;
     }
 
 }
