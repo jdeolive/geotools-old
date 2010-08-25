@@ -243,7 +243,7 @@ public final class StreamingRenderer implements GTRenderer {
     protected LabelCache labelCache = new LabelCacheImpl();
 
     /** The painter class we use to depict shapes onto the screen */
-    private StyledShapePainter painter = new StyledShapePainter(labelCache);
+    private StyledShapePainter painter = new StyledShapePainter();
 
     private IndexedFeatureResults indexedFeatureResults;
 
@@ -2567,7 +2567,6 @@ public final class StreamingRenderer implements GTRenderer {
                 throw new NullPointerException("Label_Cache_Hint has a null value for the labelcache");
 
             this.labelCache=cache;
-            this.painter=new StyledShapePainter(cache);
         }
         if(hints != null && hints.containsKey(LINE_WIDTH_OPTIMIZATION_KEY)) {
             styleFactory.setLineOptimizationEnabled(Boolean.TRUE.equals(hints.get(LINE_WIDTH_OPTIMIZATION_KEY)));

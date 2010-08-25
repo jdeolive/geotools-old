@@ -576,7 +576,7 @@ public final class LabelCacheDefault implements LabelCache {
 						// drawing at scale 5.0 on the next line
 						labelItem.getTextStyle().getGraphic().setMinMaxScale(
 								0.0, 10.0);
-						new StyledShapePainter(this).paint(graphics, tempShape,
+						new StyledShapePainter().paint(graphics, tempShape,
 								labelItem.getTextStyle().getGraphic(), 5.0);
 						graphics.setTransform(tempTransform);
 					}

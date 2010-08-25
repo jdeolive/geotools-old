@@ -67,14 +67,18 @@ public final class StyledShapePainter {
 
     /** The logger for the rendering module. */
     private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(StyledShapePainter.class.getName());
-
-    LabelCache labelCache;
-
+    
+    public StyledShapePainter() {
+        // nothing do do, just needs to exist
+    }
+    
     /**
-     * Construct <code>StyledShapePainter</code>.
+     * 
+     * @deprecated Use the no arguments constructor instead
      */
-    public StyledShapePainter(LabelCache labelCache) {
-        this.labelCache = labelCache;
+    @Deprecated
+    public StyledShapePainter(LabelCache cache) {
+        // nothing do do
     }
 
     /**

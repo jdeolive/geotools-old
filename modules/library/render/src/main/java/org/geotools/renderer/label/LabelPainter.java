@@ -81,7 +81,7 @@ public class LabelPainter {
     /**
      * Delegate shape painter used to paint the graphics below the text
      */
-    StyledShapePainter shapePainter = new StyledShapePainter(null);
+    StyledShapePainter shapePainter = new StyledShapePainter();
 
     /**
      * The current label we're tring to draw
