@@ -88,7 +88,7 @@ public class OracleFilterToSQL extends PreparedFilterToSQL {
     /**
      * The whole world in WGS84
      */
-    private static final Envelope WORLD = new Envelope(-180.0,180.0,-90.0,90.0);
+    private static final Envelope WORLD = new Envelope(-179.99,179.99,-89.99,89.99);
 
     /**
      * If we have to turn <code>a op b</code> into <code>b op2 a</code>, what's the op2 that returns
