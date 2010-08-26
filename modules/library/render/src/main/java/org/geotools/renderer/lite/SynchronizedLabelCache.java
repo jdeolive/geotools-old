@@ -22,6 +22,7 @@ import java.awt.geom.Rectangle2D;
 import java.util.List;
 
 import org.geotools.geometry.jts.LiteShape2;
+import org.geotools.renderer.label.LabelCacheImpl;
 import org.geotools.styling.TextSymbolizer;
 import org.geotools.util.NumberRange;
 import org.opengis.feature.simple.SimpleFeature;
@@ -38,7 +39,7 @@ public class SynchronizedLabelCache implements LabelCache {
     private final LabelCache wrapped;
 
     public SynchronizedLabelCache() {
-        this(new LabelCacheDefault());
+        this(new LabelCacheImpl());
     }
 
     public SynchronizedLabelCache(LabelCache cache) {

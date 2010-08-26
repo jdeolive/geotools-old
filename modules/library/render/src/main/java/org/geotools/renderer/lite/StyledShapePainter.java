@@ -293,7 +293,7 @@ public final class StyledShapePainter {
         return citer;
     }
 
-    public void debugShape(Shape shape) {
+    void debugShape(Shape shape) {
         float[] pt = new float[2];
         PathIterator iter = shape.getPathIterator(null);
         while (!(iter.isDone())) {

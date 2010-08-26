@@ -39,7 +39,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -95,7 +100,6 @@ import org.geotools.styling.visitor.DuplicatingStyleVisitor;
 import org.geotools.styling.visitor.RescaleStyleVisitor;
 import org.geotools.styling.visitor.UomRescaleStyleVisitor;
 import org.geotools.util.NumberRange;
-import org.geotools.util.Range;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.coverage.processing.OperationNotFoundException;
 import org.opengis.feature.simple.SimpleFeature;
@@ -147,6 +151,8 @@ import com.vividsolutions.jts.geom.Point;
  * @version $Id$
  */
 public final class StreamingRenderer implements GTRenderer {
+
+    
 
     private final static int defaultMaxFiltersToSendToDatastore = 5; // default
 
@@ -244,6 +250,7 @@ public final class StreamingRenderer implements GTRenderer {
 
     /** The painter class we use to depict shapes onto the screen */
     private StyledShapePainter painter = new StyledShapePainter();
+    private BlockingQueue<RenderingRequest> requests;
 
     private IndexedFeatureResults indexedFeatureResults;
 
@@ -357,6 +364,11 @@ public final class StreamingRenderer implements GTRenderer {
      * generalization for us, or not
      */
     private boolean inMemoryGeneralization = true;
+    
+    /**
+     * The thread pool used to submit the painter workers. 
+     */
+    private ExecutorService threadPool;
 
     /**
      * Creates a new instance of LiteRenderer without a context. Use it only to
@@ -365,6 +377,14 @@ public final class StreamingRenderer implements GTRenderer {
      */
     public StreamingRenderer() {
 
+    }
+
+    /**
+     * Sets a thread pool to be used in parallel rendering
+     * @param threadPool
+     */
+    public void setThreadPool(ExecutorService threadPool) {
+        this.threadPool = threadPool;
     }
 
     /**
@@ -627,10 +647,6 @@ public final class StreamingRenderer implements GTRenderer {
                 return;
         }
         
-        // clips Graphics to current drawing area before painting
-        graphics = (Graphics2D) graphics.create();
-        graphics.clip(screenSize);
-
         // ////////////////////////////////////////////////////////////////////
         // 
         // Setting base information
@@ -688,51 +704,73 @@ public final class StreamingRenderer implements GTRenderer {
             projectionHandler = ProjectionHandlerFinder.getHandler(mapExtent);
         }
         
-        
-        // ////////////////////////////////////////////////////////////////////
-        //
-        // Processing all the map layers in the context using the accompaining
-        // styles
-        //
-        // ////////////////////////////////////////////////////////////////////
-        final MapLayer[] layers = context.getLayers();
-        labelCache.start();
-        if(labelCache instanceof LabelCacheImpl) {
-            ((LabelCacheImpl) labelCache).setLabelRenderingMode(LabelRenderingMode.valueOf(getTextRenderingMethod()));
+        // Setup the secondary painting thread
+        requests = new ArrayBlockingQueue<RenderingRequest>(10000);
+        PainterThread painterThread = new PainterThread(requests);
+        ExecutorService localThreadPool = threadPool;
+        boolean userProvidedPool = false;
+        if(localThreadPool == null) {
+            localThreadPool = Executors.newCachedThreadPool();
+            userProvidedPool = true;
         }
-        final int layersNumber = layers.length;
-        MapLayer currLayer;
-        for (int i = 0; i < layersNumber; i++) // DJB: for each layer (ie. one
-        {
-            currLayer = layers[i];
-
-            if (!currLayer.isVisible()) {
-                // Only render layer when layer is visible
-                continue;
+        Future painterFuture = localThreadPool.submit(painterThread);
+        try {
+            // ////////////////////////////////////////////////////////////////////
+            //
+            // Processing all the map layers in the context using the accompaining
+            // styles
+            //
+            // ////////////////////////////////////////////////////////////////////
+            final MapLayer[] layers = context.getLayers();
+            labelCache.start();
+            if(labelCache instanceof LabelCacheImpl) {
+                ((LabelCacheImpl) labelCache).setLabelRenderingMode(LabelRenderingMode.valueOf(getTextRenderingMethod()));
             }
-
-            if (renderingStopRequested) {
-                return;
+            final int layersNumber = layers.length;
+            MapLayer currLayer;
+            for (int i = 0; i < layersNumber; i++) // DJB: for each layer (ie. one
+            {
+                currLayer = layers[i];
+    
+                if (!currLayer.isVisible()) {
+                    // Only render layer when layer is visible
+                    continue;
+                }
+    
+                if (renderingStopRequested) {
+                    return;
+                }
+                labelCache.startLayer(i+"");
+                try {
+    
+                    // extract the feature type stylers from the style object
+                    // and process them
+                    processStylers(graphics, currLayer, worldToScreenTransform,
+                            destinationCrs, mapExtent, screenSize, i+"");
+                } catch (Throwable t) {
+                    LOGGER.log(Level.SEVERE, t.getLocalizedMessage(), t);
+                    fireErrorEvent(new Exception(new StringBuffer(
+                    "Exception rendering layer ").append(currLayer)
+                    .toString(), t));
+                }
+    
+                labelCache.endLayer(i+"", graphics, screenSize);
             }
-            labelCache.startLayer(i+"");
+        } finally {
             try {
-
-                // extract the feature type stylers from the style object
-                // and process them
-                processStylers(graphics, currLayer, worldToScreenTransform,
-                        destinationCrs, mapExtent, screenSize, i+"");
-            } catch (Throwable t) {
-                LOGGER.log(Level.SEVERE, t.getLocalizedMessage(), t);
-                fireErrorEvent(new Exception(new StringBuffer(
-                "Exception rendering layer ").append(currLayer)
-                .toString(), t));
+                requests.put(new EndRequest());
+                painterFuture.get();
+            } catch(Exception e) {
+                painterFuture.cancel(true);
+            } finally {
+                if(userProvidedPool) {
+                    localThreadPool.shutdown();
+                }
             }
-
-            labelCache.endLayer(i+"", graphics, screenSize);
         }
-
+        
         labelCache.end(graphics, paintArea);
-
+    
         if (LOGGER.isLoggable(Level.FINE))
             LOGGER.fine(new StringBuffer("Style cache hit ratio: ").append(
                     styleFactory.getHitRatio()).append(" , hits ").append(
@@ -744,6 +782,7 @@ public final class StreamingRenderer implements GTRenderer {
             "Number of Errors during paint(Graphics2D, AffineTransform) = ")
             .append(error).toString());
         }
+        
     }
 
     /**
@@ -841,7 +880,7 @@ public final class StreamingRenderer implements GTRenderer {
      * @param envelope
      *            the spatial extent which is the target area of the rendering
      *            process
-     * @param destinationCrs
+     * @param destinationCRS
      *            DOCUMENT ME!
      * @param sourceCrs
      * @param screenSize
@@ -1860,7 +1899,7 @@ public final class StreamingRenderer implements GTRenderer {
         if (lfts.size() == 0) return; // nothing to do
 
         // finally, perform rendering
-        if(isOptimizedFTSRenderingEnabled()) {
+        if(isOptimizedFTSRenderingEnabled() && lfts.size() > 1) {
             drawOptimized(graphics, currLayer, at, destinationCrs, layerId, collection, features,
                     scaleRange, lfts);
         } else {
@@ -2008,23 +2047,9 @@ public final class StreamingRenderer implements GTRenderer {
                 features.close( iterator );
             }
         }
-        // have to re-form the image now.
-        // graphics.setTransform( new AffineTransform() );
-//        final AlphaComposite comp = AlphaComposite.getInstance(AlphaComposite.SRC_OVER);
-//        if(graphics.getComposite() == null || !graphics.getComposite().equals(comp)) {
-//            graphics.setComposite(comp);
-//        }
-        graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER));
-        for (int t = 0; t < fts_array.length; t++) {
-            // first fts won't have an image, it's using the user provided graphics
-            // straight, so we don't need to compose it back in.
-            if (fts_array[t].myImage != null) 
-            {
-                graphics.drawImage(fts_array[t].myImage, 0, 0, null);
-                fts_array[t].myImage.flush();
-                fts_array[t].graphics.dispose();
-            }
-        }
+        
+        // submit the merge request
+        requests.add(new MergeLayersRequest(graphics, fts_array));
     }
 
     /**
@@ -2087,7 +2112,7 @@ public final class StreamingRenderer implements GTRenderer {
     final private void process(RenderableFeature rf, LiteFeatureTypeStyle fts,
             NumberRange scaleRange, AffineTransform at,
             CoordinateReferenceSystem destinationCrs, String layerId)
-    throws TransformException, FactoryException {
+            throws Exception {
         boolean doElse = true;
         Rule[] elseRuleList = fts.elseRules;
         Rule[] ruleList = fts.ruleList;
@@ -2143,7 +2168,7 @@ public final class StreamingRenderer implements GTRenderer {
             final RenderableFeature drawMe, final List<Symbolizer> symbolizers,
             NumberRange scaleRange, AffineTransform at,
             CoordinateReferenceSystem destinationCrs, String layerId)
-            throws TransformException, FactoryException {
+            throws Exception {
         
         for (Symbolizer symbolizer : symbolizers) {
 
@@ -2153,9 +2178,7 @@ public final class StreamingRenderer implements GTRenderer {
             //
             // /////////////////////////////////////////////////////////////////
             if (symbolizer instanceof RasterSymbolizer) {
-                renderRaster(graphics, drawMe.content,
-                        (RasterSymbolizer) symbolizer, destinationCrs,
-                        scaleRange,at);
+                requests.put(new RenderRasterRequest(graphics, drawMe.content, (RasterSymbolizer) symbolizer, destinationCrs, at));
 
             } else {
 
@@ -2190,7 +2213,7 @@ public final class StreamingRenderer implements GTRenderer {
                         shape = new LiteShape2(g, null, null, false);
                     }
                     
-                    painter.paint(graphics, shape, style, scaleDenominator);
+                    requests.put(new PaintShapeRequest(graphics, shape, style, scaleDenominator));
                 }
 
             }
@@ -2200,134 +2223,6 @@ public final class StreamingRenderer implements GTRenderer {
 
 
 
-    /**
-     * Renders a grid coverage on the device.
-     * 
-     * @param graphics
-     *            DOCUMENT ME!
-     * @param drawMe
-     *            the feature that contains the GridCoverage. The grid coverage
-     *            must be contained in the "grid" attribute
-     * @param symbolizer
-     *            The raster symbolizer
-     * @param scaleRange
-     * @param worldToScreen the world to screen transform
-     * @param world2Grid 
-     * @task make it follow the symbolizer
-     */
-    private void renderRaster(Graphics2D graphics, Object drawMe,
-            RasterSymbolizer symbolizer,
-            CoordinateReferenceSystem destinationCRS, Range scaleRange, AffineTransform worldToScreen) {
-        final Object grid = gridPropertyName.evaluate( drawMe);
-        if (LOGGER.isLoggable(Level.FINE))
-            LOGGER.fine(new StringBuffer("rendering Raster for feature ")
-            .append(drawMe.toString()).append(" - ").append(
-                    grid).toString());
-
-        GridCoverage2D coverage=null;
-        try {
-            // /////////////////////////////////////////////////////////////////
-            //
-            // If the grid object is a reader we ask him to do its best for the
-            // requested resolution, if it is a gridcoverage instead we have to
-            // rely on the gridocerage renderer itself.
-            //
-            // /////////////////////////////////////////////////////////////////
-            final GridCoverageRenderer gcr = new GridCoverageRenderer(
-                    destinationCRS, originalMapExtent, screenSize, worldToScreen,java2dHints);
-
-            // //
-            // It is a grid coverage
-            // //
-            if (grid instanceof GridCoverage)
-                gcr.paint(graphics, (GridCoverage2D) grid, symbolizer);
-            else if (grid instanceof AbstractGridCoverage2DReader) {
-
-                // //
-                // It is an AbstractGridCoverage2DReader, let's use parameters
-                // if we have any supplied by a user.
-                // //
-                // first I created the correct ReadGeometry
-                final Parameter<GridGeometry2D> readGG = new Parameter<GridGeometry2D>(AbstractGridFormat.READ_GRIDGEOMETRY2D);
-                readGG.setValue(new GridGeometry2D(new GridEnvelope2D(screenSize), mapExtent));
-                final AbstractGridCoverage2DReader reader = (AbstractGridCoverage2DReader) grid;
-                // then I try to get read parameters associated with this
-                // coverage if there are any.
-                final Object params = paramsPropertyName.evaluate(drawMe);
-                if (params != null) {
-                    // //
-                    //
-                    // Getting parameters to control how to read this coverage.
-                    // Remember to check to actually have them before forwarding
-                    // them to the reader.
-                    //
-                    // //
-                    GeneralParameterValue[] readParams = (GeneralParameterValue[]) params;
-                    final int length = readParams.length;
-                    if (length > 0) {
-                        // we have a valid number of parameters, let's check if
-                        // also have a READ_GRIDGEOMETRY2D. In such case we just
-                        // override it with the one we just build for this
-                        // request.
-                        final String name = AbstractGridFormat.READ_GRIDGEOMETRY2D
-                        .getName().toString();
-                        int i = 0;
-                        for (; i < length; i++)
-                            if (readParams[i].getDescriptor().getName()
-                                    .toString().equalsIgnoreCase(name))
-                                break;
-                        // did we find anything?
-                        if (i < length) {
-                            //we found another READ_GRIDGEOMETRY2D, let's override it.
-                            ((Parameter) readParams[i]).setValue(readGG);
-                            coverage = (GridCoverage2D) reader.read(readParams);
-                        } else {
-                            // add the correct read geometry to the supplied
-                            // params since we did not find anything
-                            GeneralParameterValue[] readParams2 = new GeneralParameterValue[length + 1];
-                            System.arraycopy(readParams, 0, readParams2, 0,length);
-                            readParams2[length] = readGG;
-                            coverage = (GridCoverage2D) reader.read(readParams2);
-                        }
-                    } else
-                        // we have no parameters hence we just use the read grid
-                        // geometry to get a coverage
-                        coverage = (GridCoverage2D) reader.read(new GeneralParameterValue[] { readGG });
-                } else {
-                    coverage = (GridCoverage2D) reader.read(new GeneralParameterValue[] { readGG });
-                }
-                try{
-                    if(coverage!=null)
-                        gcr.paint(graphics, coverage, symbolizer);
-                }
-                finally {
-
-                    //we need to try and dispose this coverage since it was created on purpose for rendering 
-                    if(coverage!=null)
-                        coverage.dispose(true);
-                }
-            }
-            if (LOGGER.isLoggable(Level.FINE))
-                LOGGER.fine("Raster rendered");
-
-        } catch (FactoryException e) {
-            LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);
-            fireErrorEvent(e);
-        } catch (TransformException e) {
-            LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);
-            fireErrorEvent(e);
-        } catch (NoninvertibleTransformException e) {
-            LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);
-            fireErrorEvent(e);
-        } catch (IllegalArgumentException e) {
-            LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);
-            fireErrorEvent(e);
-        } catch (IOException e) {
-            LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);
-            fireErrorEvent(e);
-        }
-
-    }
 
 
     /**
@@ -2809,5 +2704,290 @@ public final class StreamingRenderer implements GTRenderer {
             }
             return decimator;
         }
+    }
+    
+    /**
+     * A request sent to the painting thread 
+     * @author aaime
+     */
+    abstract class RenderingRequest {
+        abstract void execute();
+    }
+    
+    /**
+     * A request to paint a shape with a specific Style2D
+     * @author aaime
+     *
+     */
+    class PaintShapeRequest extends RenderingRequest {
+        Graphics2D graphic;
+        
+        LiteShape2 shape;
+
+        Style2D style;
+
+        double scale;
+
+        public PaintShapeRequest(Graphics2D graphic, LiteShape2 shape, Style2D style, double scale) {
+            this.graphic = graphic;
+            this.shape = shape;
+            this.style = style;
+            this.scale = scale;
+        }
+
+        @Override
+        void execute() {
+            try {
+                painter.paint(graphic, shape, style, scale);
+            } catch(Throwable t) {
+                if(t instanceof Exception) {
+                    fireErrorEvent((Exception) t);
+                } else {
+                    // wrap it to make the api happy... bleah...
+                    fireErrorEvent(new RuntimeException(t));
+                }
+            }
+        }
+    }
+    
+    /**
+     * A request to merge multiple back buffers to the main graphics
+     * @author aaime
+     *
+     */
+    class MergeLayersRequest extends RenderingRequest {
+        Graphics2D graphics;
+        LiteFeatureTypeStyle fts_array[];
+        
+        
+
+        public MergeLayersRequest(Graphics2D graphics, LiteFeatureTypeStyle[] ftsArray) {
+            this.graphics = graphics;
+            fts_array = ftsArray;
+        }
+
+        @Override
+        void execute() {
+            graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER));
+            for (int t = 0; t < fts_array.length; t++) {
+                // first fts won't have an image, it's using the user provided graphics
+                // straight, so we don't need to compose it back in.
+                if (fts_array[t].myImage != null) 
+                {
+                    graphics.drawImage(fts_array[t].myImage, 0, 0, null);
+                    fts_array[t].graphics.dispose();
+                    fts_array[t].myImage.flush();
+                    fts_array[t].myImage = null;
+                }
+            }
+            
+        }
+    }
+    
+    /**
+     * A request to render a raster
+     * @author aaime
+     *
+     */
+    public class RenderRasterRequest extends RenderingRequest {
+
+        private Graphics2D graphics;
+        private Object content;
+        private RasterSymbolizer symbolizer;
+        private CoordinateReferenceSystem destinationCRS;
+        private AffineTransform worldToScreen;
+
+        public RenderRasterRequest(Graphics2D graphics, Object content,
+                RasterSymbolizer symbolizer, CoordinateReferenceSystem destinationCRS,
+                AffineTransform worldToScreen) {
+            this.graphics = graphics;
+            this.content = content;
+            this.symbolizer = symbolizer;
+            this.destinationCRS = destinationCRS;
+            this.worldToScreen = worldToScreen;
+        }
+
+        @Override
+        void execute() {
+            final Object grid = gridPropertyName.evaluate(content);
+            if (LOGGER.isLoggable(Level.FINE))
+                LOGGER.fine(new StringBuffer("rendering Raster for feature ")
+                .append(content.toString()).append(" - ").append(
+                        grid).toString());
+
+            GridCoverage2D coverage=null;
+            try {
+                // /////////////////////////////////////////////////////////////////
+                //
+                // If the grid object is a reader we ask him to do its best for the
+                // requested resolution, if it is a gridcoverage instead we have to
+                // rely on the gridocerage renderer itself.
+                //
+                // /////////////////////////////////////////////////////////////////
+                final GridCoverageRenderer gcr = new GridCoverageRenderer(
+                        destinationCRS, originalMapExtent, screenSize, worldToScreen,java2dHints);
+
+                // //
+                // It is a grid coverage
+                // //
+                if (grid instanceof GridCoverage)
+                    gcr.paint(graphics, (GridCoverage2D) grid, symbolizer);
+                else if (grid instanceof AbstractGridCoverage2DReader) {
+
+                    // //
+                    // It is an AbstractGridCoverage2DReader, let's use parameters
+                    // if we have any supplied by a user.
+                    // //
+                    // first I created the correct ReadGeometry
+                    final Parameter<GridGeometry2D> readGG = new Parameter<GridGeometry2D>(AbstractGridFormat.READ_GRIDGEOMETRY2D);
+                    readGG.setValue(new GridGeometry2D(new GridEnvelope2D(screenSize), mapExtent));
+                    final AbstractGridCoverage2DReader reader = (AbstractGridCoverage2DReader) grid;
+                    // then I try to get read parameters associated with this
+                    // coverage if there are any.
+                    final Object params = paramsPropertyName.evaluate(content);
+                    if (params != null) {
+                        // //
+                        //
+                        // Getting parameters to control how to read this coverage.
+                        // Remember to check to actually have them before forwarding
+                        // them to the reader.
+                        //
+                        // //
+                        GeneralParameterValue[] readParams = (GeneralParameterValue[]) params;
+                        final int length = readParams.length;
+                        if (length > 0) {
+                            // we have a valid number of parameters, let's check if
+                            // also have a READ_GRIDGEOMETRY2D. In such case we just
+                            // override it with the one we just build for this
+                            // request.
+                            final String name = AbstractGridFormat.READ_GRIDGEOMETRY2D
+                            .getName().toString();
+                            int i = 0;
+                            for (; i < length; i++)
+                                if (readParams[i].getDescriptor().getName()
+                                        .toString().equalsIgnoreCase(name))
+                                    break;
+                            // did we find anything?
+                            if (i < length) {
+                                //we found another READ_GRIDGEOMETRY2D, let's override it.
+                                ((Parameter) readParams[i]).setValue(readGG);
+                                coverage = (GridCoverage2D) reader.read(readParams);
+                            } else {
+                                // add the correct read geometry to the supplied
+                                // params since we did not find anything
+                                GeneralParameterValue[] readParams2 = new GeneralParameterValue[length + 1];
+                                System.arraycopy(readParams, 0, readParams2, 0,length);
+                                readParams2[length] = readGG;
+                                coverage = (GridCoverage2D) reader.read(readParams2);
+                            }
+                        } else
+                            // we have no parameters hence we just use the read grid
+                            // geometry to get a coverage
+                            coverage = (GridCoverage2D) reader.read(new GeneralParameterValue[] { readGG });
+                    } else {
+                        coverage = (GridCoverage2D) reader.read(new GeneralParameterValue[] { readGG });
+                    }
+                    try{
+                        if(coverage!=null)
+                            gcr.paint(graphics, coverage, symbolizer);
+                    }
+                    finally {
+
+                        //we need to try and dispose this coverage since it was created on purpose for rendering 
+                        if(coverage!=null)
+                            coverage.dispose(true);
+                    }
+                }
+                if (LOGGER.isLoggable(Level.FINE))
+                    LOGGER.fine("Raster rendered");
+
+            } catch (FactoryException e) {
+                LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);
+                fireErrorEvent(e);
+            } catch (TransformException e) {
+                LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);
+                fireErrorEvent(e);
+            } catch (NoninvertibleTransformException e) {
+                LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);
+                fireErrorEvent(e);
+            } catch (IllegalArgumentException e) {
+                LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);
+                fireErrorEvent(e);
+            } catch (IOException e) {
+                LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);
+                fireErrorEvent(e);
+            }
+
+
+        }
+
+    }
+    
+    /**
+     * Marks the end of the request flow, instructs the painting thread to exit
+     * @author Andrea Aime - OpenGeo
+     */
+    class EndRequest extends RenderingRequest {
+
+        @Override
+        void execute() {
+            // nothing to do here
+        }
+        
+    }
+    
+    /**
+     * The secondary thread that actually issues the paint requests against the graphic object
+     * @author aaime
+     *
+     */
+    class PainterThread implements Runnable {
+        BlockingQueue<RenderingRequest> requests;
+        
+        public PainterThread(BlockingQueue<RenderingRequest> requests) {
+            this.requests = requests;
+        }
+
+        public void run() {
+            
+            List<RenderingRequest> rl = new ArrayList<RenderingRequest>(100);
+            boolean done = false;
+            while(!done) {
+                try {
+                    // System.out.println("Grabbing the next request");
+                    
+                    rl.clear();
+                    // try a bulk read
+                    int count = requests.drainTo(rl, 100);
+                    // if that fails just block on the next element
+                    if(count == 0) {
+                        rl.add(requests.take());
+                        count = 1;
+                    } 
+                    
+                    for (int i = 0; i < count; i++) {
+                        RenderingRequest request = rl.get(i);
+                        rl.set(i, null);
+                        // System.out.println(request);
+                        // special value to signal the sequence of requests ended
+                        
+                        if(request instanceof EndRequest || renderingStopRequested) {
+                            done = true;
+                        } else {
+                            request.execute();
+                        }
+                    }
+                    
+                } catch(InterruptedException e) {
+                    // ok, we might have been interupped to stop processing
+                    if(renderingStopRequested) {
+                        done = true;
+                    }
+                }
+                
+            }
+            
+        }
+        
     }
 }
