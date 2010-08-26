@@ -448,6 +448,7 @@ public final class StreamingRenderer implements GTRenderer {
     }
 
     private void fireErrorEvent(Exception e) {
+        LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
         if (renderListeners.size() > 0) {
             RenderListener listener;
             for (int i = 0; i < renderListeners.size(); i++) {
@@ -503,7 +504,6 @@ public final class StreamingRenderer implements GTRenderer {
                     worldToScreen);
             paint(graphics, paintArea, mapArea, worldToScreen);
         } catch (NoninvertibleTransformException e) {
-            LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
             fireErrorEvent(new Exception(
                     "Can't create pixel to world transform", e));
         }
@@ -748,7 +748,6 @@ public final class StreamingRenderer implements GTRenderer {
                     processStylers(graphics, currLayer, worldToScreenTransform,
                             destinationCrs, mapExtent, screenSize, i+"");
                 } catch (Throwable t) {
-                    LOGGER.log(Level.SEVERE, t.getLocalizedMessage(), t);
                     fireErrorEvent(new Exception(new StringBuffer(
                     "Exception rendering layer ").append(currLayer)
                     .toString(), t));
@@ -762,6 +761,7 @@ public final class StreamingRenderer implements GTRenderer {
                 painterFuture.get();
             } catch(Exception e) {
                 painterFuture.cancel(true);
+                fireErrorEvent(e);
             } finally {
                 if(userProvidedPool) {
                     localThreadPool.shutdown();
@@ -1561,14 +1561,9 @@ public final class StreamingRenderer implements GTRenderer {
 
             // first fts, we can reuse the graphics directly
             if (result.size() == 0 || !isOptimizedFTSRenderingEnabled()) {
-                lfts = new LiteFeatureTypeStyle(graphics, ruleList,
-                        elseRuleList);
+                lfts = new LiteFeatureTypeStyle(graphics, ruleList, elseRuleList);
             } else {
-                image = graphics.getDeviceConfiguration().createCompatibleImage(screenSize.width,
-                        screenSize.height, Transparency.TRANSLUCENT);
-                lfts = new LiteFeatureTypeStyle(image, graphics
-                        .getTransform(), ruleList, elseRuleList,
-                        java2dHints);
+                lfts = new LiteFeatureTypeStyle(new DelayedBackbufferGraphic(graphics, screenSize), ruleList, elseRuleList);
             }
             result.add(lfts);
         }
@@ -1613,11 +1608,12 @@ public final class StreamingRenderer implements GTRenderer {
                     lfts = new LiteFeatureTypeStyle(graphics, ruleList,
                             elseRuleList);
                 } else {
-                    BufferedImage image = graphics.getDeviceConfiguration().createCompatibleImage(screenSize.width,
-                            screenSize.height, Transparency.TRANSLUCENT);
-                    lfts = new LiteFeatureTypeStyle(image, graphics
-                            .getTransform(), ruleList, elseRuleList,
-                            java2dHints);
+//                    BufferedImage image = graphics.getDeviceConfiguration().createCompatibleImage(screenSize.width,
+//                            screenSize.height, Transparency.TRANSLUCENT);
+//                    lfts = new LiteFeatureTypeStyle(image, graphics
+//                            .getTransform(), ruleList, elseRuleList,
+//                            java2dHints);
+                    lfts = new LiteFeatureTypeStyle(new DelayedBackbufferGraphic(graphics, screenSize), ruleList, elseRuleList);
                 }
                 if (screenMapEnabled(lfts)) {
                     lfts.screenMap = new ScreenMap(screenSize.x, screenSize.y, screenSize.width,
@@ -1985,7 +1981,6 @@ public final class StreamingRenderer implements GTRenderer {
                         rf.setFeature(iterator.next());
                         process(rf, liteFeatureTypeStyle, scaleRange, at, destinationCrs, layerId);
                     } catch (Throwable tr) {
-                        LOGGER.log(Level.SEVERE, tr.getLocalizedMessage(), tr);
                         fireErrorEvent(new Exception("Error rendering feature", tr));
                     }
                 }
@@ -2035,7 +2030,6 @@ public final class StreamingRenderer implements GTRenderer {
 
                     }
                 } catch (Throwable tr) {
-                    LOGGER.log(Level.SEVERE, tr.getLocalizedMessage(), tr);
                     fireErrorEvent(new Exception("Error rendering feature", tr));
                 }
             }
@@ -2737,6 +2731,10 @@ public final class StreamingRenderer implements GTRenderer {
 
         @Override
         void execute() {
+            if(graphic instanceof DelayedBackbufferGraphic) {
+                ((DelayedBackbufferGraphic) graphic).init();
+            }
+            
             try {
                 painter.paint(graphic, shape, style, scale);
             } catch(Throwable t) {
@@ -2772,12 +2770,10 @@ public final class StreamingRenderer implements GTRenderer {
             for (int t = 0; t < fts_array.length; t++) {
                 // first fts won't have an image, it's using the user provided graphics
                 // straight, so we don't need to compose it back in.
-                if (fts_array[t].myImage != null) 
-                {
-                    graphics.drawImage(fts_array[t].myImage, 0, 0, null);
-                    fts_array[t].graphics.dispose();
-                    fts_array[t].myImage.flush();
-                    fts_array[t].myImage = null;
+                final Graphics2D ftsGraphics = fts_array[t].graphics;
+                if (ftsGraphics instanceof DelayedBackbufferGraphic) {
+                    graphics.drawImage(((DelayedBackbufferGraphic) ftsGraphics).image, 0, 0, null);
+                    ftsGraphics.dispose();
                 }
             }
             
