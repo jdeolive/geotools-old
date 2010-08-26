@@ -292,7 +292,7 @@ such as GeoTools publish their work.
         :start-after: </dependencies>
         :end-before: </project>
 
-7. For comparison here is the completed :download:`pom.xml <artifacts/pom.xml` file for download.
+7. For comparison here is the completed :download:`pom.xml <artifacts/pom.xml>` file for download.
 
    You may find cutting and pasting to be easier then typing, you can choose Source --> Format to
    fix indentation

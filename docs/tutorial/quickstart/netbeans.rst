@@ -217,7 +217,7 @@ such as GeoTools publish their work.
    
    * You may find cutting and pasting from the documentation to be easier then typing.
    
-   * You may also :download:`download this file <artifacts/pom.xml`
+   * You may also :download:`download this file <artifacts/pom.xml>`
 
 Quickstart Application
 -----------------------
