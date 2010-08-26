@@ -13,7 +13,7 @@ html_theme = 'geotools-tutorial'
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 #
 # extension for pdf
-extensions = ['sphinx.ext.autodoc','rst2pdf.pdfbuilder']
+# extensions = ['sphinx.ext.autodoc','rst2pdf.pdfbuilder']
 
 # options for pdf
 pdf_documents = [
