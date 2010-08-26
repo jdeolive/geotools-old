@@ -104,7 +104,9 @@ final class DelayedBackbufferGraphic extends Graphics2D {
     }
 
     public void dispose() {
-        delegate.dispose();
+        if(delegate != null) {
+            delegate.dispose();
+        }
     }
 
     public void draw(Shape s) {

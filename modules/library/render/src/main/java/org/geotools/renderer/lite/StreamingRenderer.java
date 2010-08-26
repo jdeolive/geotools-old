@@ -2772,8 +2772,13 @@ public final class StreamingRenderer implements GTRenderer {
                 // straight, so we don't need to compose it back in.
                 final Graphics2D ftsGraphics = fts_array[t].graphics;
                 if (ftsGraphics instanceof DelayedBackbufferGraphic) {
-                    graphics.drawImage(((DelayedBackbufferGraphic) ftsGraphics).image, 0, 0, null);
-                    ftsGraphics.dispose();
+                    final BufferedImage image = ((DelayedBackbufferGraphic) ftsGraphics).image;
+                    // we may have not found anything to paint, in that case the delegate
+                    // has not been initialized
+                    if(image != null) {
+                        graphics.drawImage(image, 0, 0, null);
+                        ftsGraphics.dispose();
+                    }
                 }
             }
             
