@@ -165,8 +165,8 @@ When downloading jars maven makes use of a "local repository" to store jars.
   ==================  ========================================================
      PLATFORM           LOCAL REPOSITORY
   ==================  ========================================================
-     Windows XP:      :file:`C:\Documents and Settings\Jody\.m2\repository`
-     Windows:         :file:`C:\Users\Jody\.m2\repository`
+     Windows XP:      :file:`C:\\Documents and Settings\\Jody\\.m2\\repository`
+     Windows:         :file:`C:\\Users\\Jody\\.m2\\repository`
      Linux and Mac:   :file:`~/.m2/repository`
   ==================  ========================================================
 

@@ -45,7 +45,7 @@
     <!--antcall target="latex">
       <param name="id" value="tutorial"/>
       <param name="build" value="latex"/>
-    </antcall>-->
+    </antcall-->
   </target>
 
   <target name="sphinx" if="sphinx.available">

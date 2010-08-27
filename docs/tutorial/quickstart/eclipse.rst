@@ -167,7 +167,9 @@ To install the M2Eclipse plugin:
    .. image: images/SoftwareUpdates.png
    
 At the end of this workbook we offer two alternatives to using the M2Eclipse plugin:
+
 * Using maven from the command line
+
 * Downloading GeoTools and throwing out the parts that conflict
 
 .. _eclipse-m2-start:
@@ -500,8 +502,8 @@ generating eclipse :file:`.project` and :file:`.classpath` files.
     ==================  ========================================================
        PLATFORM           LOCAL REPOSITORY
     ==================  ========================================================
-       Windows XP:      :file:`C:\Documents and Settings\Jody\.m2\repository`
-       Windows:         :file:`C:\Users\Jody\.m2\repository`
+       Windows XP:      :file:`C:\\Documents and Settings\\Jody\\.m2\\repository`
+       Windows:         :file:`C:\\Users\\Jody\.m2\\repository`
        Linux and Mac:   :file:`~/.m2/repository`
     ==================  ========================================================
 
