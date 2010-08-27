@@ -815,10 +815,10 @@ class RasterLayerResponse{
 			// create the index visitor and visit the feature
 			final MosaicBuilder visitor = new MosaicBuilder();
 			final List<Date> times = request.getRequestedTimes();
-			final double elevation=request.getElevation();
+			final List<Double> elevations=request.getElevation();
 			final Filter filter = request.getFilter();
 			final boolean hasTime=(times!=null&&times.size()>0);
-			final boolean hasElevation=!Double.isNaN(elevation);
+			final boolean hasElevation=(elevations!=null && elevations.size()>0);
 			final boolean hasFilter = filter != null;
 
 			final SimpleFeatureType type = rasterManager.index.getType();
@@ -833,8 +833,15 @@ class RasterLayerResponse{
 			{
 				//handle elevation indexing first since we then combine this with the max in case we are asking for current in time
 				if (hasElevation){
+					
 					final Filter oldFilter = query.getFilter();
-					final PropertyIsEqualTo elevationF = Utils.FILTER_FACTORY.equal(Utils.FILTER_FACTORY.property(rasterManager.elevationAttribute), Utils.FILTER_FACTORY.literal(elevation),true);
+					final PropertyIsEqualTo elevationF = 
+						Utils.FILTER_FACTORY.equal(
+								Utils.FILTER_FACTORY.property(
+										rasterManager.elevationAttribute), 
+										Utils.FILTER_FACTORY.literal(elevations.get(0)),
+										true
+						);
 					query.setFilter(Utils.FILTER_FACTORY.and(oldFilter, elevationF));	
 				}
 

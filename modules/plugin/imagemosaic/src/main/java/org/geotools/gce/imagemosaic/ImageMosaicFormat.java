@@ -132,7 +132,8 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
 	public static final ParameterDescriptor<List> TIME = DefaultParameterDescriptor.create("TIME", "A list of time objects",List.class, null,false);    
     
     /** Optional Elevation value for this mosaic. */
-	public static final ParameterDescriptor<Double> ELEVATION = DefaultParameterDescriptor.create("ELEVATION", "An elevation value",Double.class, Double.NaN,false);    
+    @SuppressWarnings("unchecked")
+	public static final ParameterDescriptor<List> ELEVATION = DefaultParameterDescriptor.create("ELEVATION", "An elevation value",List.class, null,false);    
 
 //    /** Optional Run value for this mosaic. */
 //    public static final ParameterDescriptor<String> CQL_FILTER = DefaultParameterDescriptor.create("CQL_FILTER", "A generic CQL Filter value",String.class, null, false);    

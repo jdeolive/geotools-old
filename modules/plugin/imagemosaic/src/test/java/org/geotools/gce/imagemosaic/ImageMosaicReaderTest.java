@@ -28,6 +28,7 @@ import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -306,8 +307,8 @@ public class ImageMosaicReaderTest extends Assert{
 		timeValues.add(date);
 		time.setValue(timeValues);
 		
-		final ParameterValue<Double> elevation = ImageMosaicFormat.ELEVATION.createValue();
-		elevation.setValue(10.0);
+		final ParameterValue<List> elevation = ImageMosaicFormat.ELEVATION.createValue();
+		elevation.setValue(Arrays.asList(10.0));
 		
 		
 		final ParameterValue<double[]> bkg = ImageMosaicFormat.BACKGROUND_VALUES.createValue();

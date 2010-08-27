@@ -150,11 +150,11 @@ class RasterLayerRequest {
 
 	private List<Date> requestedTimes;
 
-	private double elevation=Double.NaN;
+	private List<Double> elevation;
 	
 	private Filter filter = null;
 
-	public double getElevation() {
+	public List<Double> getElevation() {
 		return elevation;
 	}
 
@@ -652,7 +652,7 @@ class RasterLayerRequest {
         	final Object value = param.getValue();
         	if(value==null)
         		return;
-            elevation = (Double) value;
+            elevation = (List<Double>) value;
             return;
         }            
 
