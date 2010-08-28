@@ -165,9 +165,9 @@ public class PostGISDialect extends BasicSQLDialect {
     public void encodeGeometryColumn(GeometryDescriptor gatt, int srid,
             StringBuffer sql) {
         sql.append("encode(");
-        sql.append("ST_AsBinary(");
+        sql.append("ST_AsBinary(ST_Force_2D(");
         encodeColumnName(gatt.getLocalName(), sql);
-        sql.append("),'base64')");
+        sql.append(")),'base64')");
     }
 
     @Override
