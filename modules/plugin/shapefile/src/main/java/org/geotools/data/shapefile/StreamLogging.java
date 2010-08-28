@@ -16,6 +16,7 @@
  */
 package org.geotools.data.shapefile;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class StreamLogging {
@@ -39,12 +40,16 @@ public class StreamLogging {
      */
     public synchronized void open() {
         open++;
-        LOGGER.finest(name + " has been opened. Number open: " + open);
+        if(LOGGER.isLoggable(Level.FINER)) {
+            LOGGER.finest(name + " has been opened. Number open: " + open);
+        }
     }
 
     public synchronized void close() {
         open--;
-        LOGGER.finest(name + " has been closed. Number open: " + open);
+        if(LOGGER.isLoggable(Level.FINER)) {
+            LOGGER.finest(name + " has been closed. Number open: " + open);
+        }
     }
 
 }
