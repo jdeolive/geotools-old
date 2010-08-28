@@ -21,7 +21,6 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Shape;
-import java.awt.Transparency;
 import java.awt.RenderingHints.Key;
 import java.awt.font.GlyphVector;
 import java.awt.geom.AffineTransform;
@@ -447,9 +446,15 @@ public final class StreamingRenderer implements GTRenderer {
         }
     }
 
-    private void fireErrorEvent(Exception e) {
-        LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
+    private void fireErrorEvent(Throwable t) {
+        LOGGER.log(Level.SEVERE, t.getLocalizedMessage(), t);
         if (renderListeners.size() > 0) {
+            Exception e;
+            if(t instanceof Exception) {
+                e = (Exception) t;
+            } else {
+                e = new Exception(t);
+            }
             RenderListener listener;
             for (int i = 0; i < renderListeners.size(); i++) {
                 listener = renderListeners.get(i);
@@ -504,8 +509,7 @@ public final class StreamingRenderer implements GTRenderer {
                     worldToScreen);
             paint(graphics, paintArea, mapArea, worldToScreen);
         } catch (NoninvertibleTransformException e) {
-            fireErrorEvent(new Exception(
-                    "Can't create pixel to world transform", e));
+            fireErrorEvent(e);
         }
     }
 
@@ -748,9 +752,7 @@ public final class StreamingRenderer implements GTRenderer {
                     processStylers(graphics, currLayer, worldToScreenTransform,
                             destinationCrs, mapExtent, screenSize, i+"");
                 } catch (Throwable t) {
-                    fireErrorEvent(new Exception(new StringBuffer(
-                    "Exception rendering layer ").append(currLayer)
-                    .toString(), t));
+                    fireErrorEvent(t);
                 }
     
                 labelCache.endLayer(i+"", graphics, screenSize);
@@ -1981,7 +1983,7 @@ public final class StreamingRenderer implements GTRenderer {
                         rf.setFeature(iterator.next());
                         process(rf, liteFeatureTypeStyle, scaleRange, at, destinationCrs, layerId);
                     } catch (Throwable tr) {
-                        fireErrorEvent(new Exception("Error rendering feature", tr));
+                        fireErrorEvent(tr);
                     }
                 }
             } finally {
@@ -2030,9 +2032,14 @@ public final class StreamingRenderer implements GTRenderer {
 
                     }
                 } catch (Throwable tr) {
-                    fireErrorEvent(new Exception("Error rendering feature", tr));
+                    fireErrorEvent(tr);
                 }
             }
+            
+            // submit the merge request
+            requests.put(new MergeLayersRequest(graphics, fts_array));
+        }catch(InterruptedException e) {
+            fireErrorEvent(e);
         } finally {
             if( collection instanceof FeatureCollection ){
                 FeatureCollection resource = (FeatureCollection ) collection;
@@ -2040,10 +2047,7 @@ public final class StreamingRenderer implements GTRenderer {
             } else if(features != null) {
                 features.close( iterator );
             }
-        }
-        
-        // submit the merge request
-        requests.add(new MergeLayersRequest(graphics, fts_array));
+        } 
     }
 
     /**
@@ -2614,7 +2618,7 @@ public final class StreamingRenderer implements GTRenderer {
                 return null;
             } catch (AssertionError ae) {
                 LOGGER.log(Level.FINE, ae.getLocalizedMessage(), ae);
-                fireErrorEvent(new RuntimeException(ae));
+                fireErrorEvent(ae);
                 return null;
             }
         }
@@ -2738,12 +2742,7 @@ public final class StreamingRenderer implements GTRenderer {
             try {
                 painter.paint(graphic, shape, style, scale);
             } catch(Throwable t) {
-                if(t instanceof Exception) {
-                    fireErrorEvent((Exception) t);
-                } else {
-                    // wrap it to make the api happy... bleah...
-                    fireErrorEvent(new RuntimeException(t));
-                }
+                fireErrorEvent(t);
             }
         }
     }
