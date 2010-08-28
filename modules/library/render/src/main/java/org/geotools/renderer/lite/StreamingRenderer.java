@@ -710,7 +710,7 @@ public final class StreamingRenderer implements GTRenderer {
         ExecutorService localThreadPool = threadPool;
         boolean userProvidedPool = false;
         if(localThreadPool == null) {
-            localThreadPool = Executors.newCachedThreadPool();
+            localThreadPool = Executors.newSingleThreadExecutor();
             userProvidedPool = true;
         }
         Future painterFuture = localThreadPool.submit(painterThread);
