@@ -347,8 +347,8 @@ public class ShapefileReader implements FileReader {
         } else {
             // force useMemoryMappedBuffer to false
             this.useMemoryMappedBuffer = false;
-            // start with 8K buffer
-            buffer = NIOUtilities.allocate(8 * 1024);
+            // start small
+            buffer = NIOUtilities.allocate(1024);
             fill(buffer, channel);
             buffer.flip();
             this.currentOffset = 100;
