@@ -274,13 +274,13 @@ public class IndexedFidReader implements FIDReader, FileReader {
         try {
             if (buffer != null) {
                 NIOUtilities.clean(buffer, false);
-                buffer = null;
             }
             if (reader != null) {
                 reader.close();
-                reader = null;
             }
         } finally {
+            buffer = null;
+            reader = null;
             readChannel.close();
             streamLogger.close();
         }
