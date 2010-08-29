@@ -382,14 +382,16 @@ public class ShapefileReader implements FileReader {
         // don't throw NPE on double close
         if(channel == null)
             return;
-        
-        if (channel.isOpen()) {
-            channel.close();
-            streamLogger.close();
+        try {
+            if (channel.isOpen()) {
+                channel.close();
+                streamLogger.close();
+            }
+            NIOUtilities.clean(buffer, useMemoryMappedBuffer);
+        } finally {
+            if(shxReader != null)
+                shxReader.close();
         }
-        NIOUtilities.clean(buffer, useMemoryMappedBuffer);
-        if(shxReader != null)
-            shxReader.close();
         shxReader = null;
         channel = null;
         header = null;
