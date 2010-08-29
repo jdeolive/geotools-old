@@ -24,7 +24,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geotools.data.shapefile.shp.IndexFile;
-import org.geotools.index.CloseableCollection;
+import org.geotools.index.CloseableIterator;
 import org.geotools.index.Data;
 
 import com.vividsolutions.jts.geom.Envelope;
@@ -203,19 +203,17 @@ public class QuadTree {
      * @param bounds
      * @return A List of Integer
      */
-    public CloseableCollection<Data> search(Envelope bounds) throws StoreException {
+    public CloseableIterator<Data> search(Envelope bounds) throws StoreException {
         if (LOGGER.isLoggable(Level.FINEST)) {
             LOGGER.log(Level.FINEST, "Querying " + bounds);
         }
 
-        LazySearchCollection lazySearchCollection;
         try {
-            lazySearchCollection = new LazySearchCollection(this, bounds);
+            return new LazySearchIterator(this, bounds);
         } catch (RuntimeException e) {
             LOGGER.warning("IOException occurred while reading root");
             return null;
         }
-        return lazySearchCollection;
     }
 
     /**
@@ -223,10 +221,8 @@ public class QuadTree {
      * 
      * @throws StoreException
      */
-    public void close(Iterator iter) throws StoreException {
+    public void close(Iterator iter) throws IOException {
         iterators.remove(iter);
-        if (iter instanceof LazySearchIterator)
-            ((LazySearchIterator) iter).close();
     }
 
     /**

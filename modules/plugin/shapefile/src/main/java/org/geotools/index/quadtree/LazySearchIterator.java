@@ -19,18 +19,14 @@ package org.geotools.index.quadtree;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.geotools.data.shapefile.shp.IndexFile;
+import org.geotools.index.CloseableIterator;
 import org.geotools.index.Data;
 import org.geotools.index.DataDefinition;
-import org.geotools.index.quadtree.fs.FileSystemNode;
 
-import com.vividsolutions.jts.geom.CoordinateSequence;
-import com.vividsolutions.jts.geom.CoordinateSequenceFactory;
 import com.vividsolutions.jts.geom.Envelope;
 
 /**
@@ -43,7 +39,7 @@ import com.vividsolutions.jts.geom.Envelope;
  *
  * @source $URL$
  */
-public class LazySearchIterator implements Iterator<Data> {
+public class LazySearchIterator implements CloseableIterator<Data> {
     
     static final int[] ZERO = new int[0];
 
@@ -73,9 +69,14 @@ public class LazySearchIterator implements Iterator<Data> {
     
     Indices indices = new Indices();
 
-    public LazySearchIterator(Node root, IndexFile indexfile, Envelope bounds) {
+    QuadTree tree;
+
+    public LazySearchIterator(QuadTree tree, Envelope bounds) {
         super();
-        this.current = root;
+        this.tree = tree;
+        this.indexfile = tree.getIndexfile();
+        tree.registerIterator(this);
+        this.current = tree.getRoot();
         this.bounds = bounds;
         this.closed = false;
         this.next = null;
@@ -150,8 +151,6 @@ public class LazySearchIterator implements Iterator<Data> {
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
-        } catch (StoreException e) {
-            throw new RuntimeException(e);
         }
         data = dataList.iterator();
     }
@@ -168,7 +167,9 @@ public class LazySearchIterator implements Iterator<Data> {
         throw new UnsupportedOperationException();
     }
 
-    public void close() throws StoreException {
+    public void close() throws IOException {
+        tree.close(this);
+        tree.close();
         this.closed = true;
     }
 

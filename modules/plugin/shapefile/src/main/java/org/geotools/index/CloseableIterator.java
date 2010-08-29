@@ -17,24 +17,13 @@
 package org.geotools.index;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Iterator;
 
 /**
- * Tag interface for collection that must be closed 
- * 
- * @author jesse
- *
- * @source $URL$
+ * An iterator backed by some resource that needs closing when done using
+ * @author Andrea Aime - OpenGeo
  */
-public interface CloseableCollection<T> extends Collection<T>{
+public interface CloseableIterator<E> extends Iterator<E> {
 
-    /**
-     * Close the collection so it cleans up its resources
-     */
-    void close() throws IOException;
-    /**
-     * Close the collection so it cleans up its resources
-     */
-    void closeIterator(Iterator<T> iter) throws IOException;
+    public void close() throws IOException;
 }

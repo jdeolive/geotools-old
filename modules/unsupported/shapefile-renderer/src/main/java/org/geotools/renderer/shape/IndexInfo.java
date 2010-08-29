@@ -34,6 +34,7 @@ import org.geotools.data.shapefile.indexed.IndexType;
 import org.geotools.data.shapefile.indexed.RecordNumberTracker;
 import org.geotools.data.shapefile.shp.IndexFile;
 import org.geotools.data.shapefile.shp.ShapefileReader;
+import org.geotools.index.CloseableIterator;
 import org.geotools.index.Data;
 import org.geotools.index.TreeException;
 import org.geotools.index.quadtree.QuadTree;
@@ -71,7 +72,7 @@ public class IndexInfo implements FileReader {
      * @throws TreeException
      *                 DOCUMENT ME!
      */
-    Collection queryQuadTree(Envelope bbox) throws DataSourceException,
+    CloseableIterator<Data> queryQuadTree(Envelope bbox) throws DataSourceException,
             IOException, TreeException {
         try {
             // old code was checking the resulting collection wasn't empty and
@@ -131,7 +132,7 @@ public class IndexInfo implements FileReader {
         }
     }
 
-    private Collection queryTree(Envelope bbox) throws IOException,
+    private CloseableIterator<Data> queryTree(Envelope bbox) throws IOException,
             TreeException {
         if (treeType == IndexType.QIX) {
             return queryQuadTree(bbox);
@@ -158,9 +159,7 @@ public class IndexInfo implements FileReader {
                     info.qtree = info.openQuadTree();
                 }
 
-                Collection queryTree = info.queryTree(bbox);
-                if (queryTree != null)
-                    goodRecs = queryTree.iterator();
+                goodRecs = info.queryTree(bbox);
             } catch (Exception e) {
                 ShapefileRenderer.LOGGER.log(Level.FINE,
                         "Exception occured attempting to use indexing:", e);

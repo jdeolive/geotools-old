@@ -62,21 +62,18 @@ public class PolygonLazySearchCollectionTest extends TestCaseSupport {
     public void testGetAllFeatures() throws Exception {
         ReferencedEnvelope env = new ReferencedEnvelope(-125.5, -66, 23.6,
                 53.0, crs);
-        LazySearchCollection collection = new LazySearchCollection(tree, env);
-        assertEquals(49, collection.size());
+        assertEquals(49, countIterator(new LazySearchIterator(tree, env)));
     }
 
     public void testGetOneFeatures() throws Exception {
         ReferencedEnvelope env = new ReferencedEnvelope(-70, -68.2, 44.5, 45.7,
                 crs);
-        LazySearchCollection collection = new LazySearchCollection(tree, env);
-        assertEquals(14, collection.size());
+        assertEquals(14, countIterator(new LazySearchIterator(tree, env)));
 
     }
 
     public void testGetNoFeatures() throws Exception {
         ReferencedEnvelope env = new ReferencedEnvelope(0, 10, 0, 10, crs);
-        LazySearchCollection collection = new LazySearchCollection(tree, env);
-        assertEquals(0, collection.size());
+        assertEquals(0, countIterator(new LazySearchIterator(tree, env)));
     }
 }

@@ -16,6 +16,8 @@
  */
 package org.geotools.index.quadtree;
 
+import java.io.IOException;
+
 /**
  * DOCUMENT ME!
  * 
@@ -23,7 +25,7 @@ package org.geotools.index.quadtree;
  * @source $URL:
  *         http://svn.geotools.org/geotools/trunk/gt/modules/plugin/shapefile/src/main/java/org/geotools/index/quadtree/StoreException.java $
  */
-public class StoreException extends Exception {
+public class StoreException extends IOException {
 
     private static final long serialVersionUID = -3356954193373344773L;
 
@@ -36,10 +38,12 @@ public class StoreException extends Exception {
     }
 
     public StoreException(Throwable cause) {
-        super(cause);
+        super();
+        initCause(cause);
     }
 
     public StoreException(String message, Throwable cause) {
-        super(message, cause);
+        super(message);
+        initCause(cause);
     }
 }

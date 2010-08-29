@@ -16,11 +16,7 @@
  */
 package org.geotools.data.shapefile.indexed;
 
-import static org.geotools.data.shapefile.ShpFileType.DBF;
-import static org.geotools.data.shapefile.ShpFileType.FIX;
-import static org.geotools.data.shapefile.ShpFileType.QIX;
-import static org.geotools.data.shapefile.ShpFileType.SHP;
-import static org.geotools.data.shapefile.ShpFileType.SHX;
+import static org.geotools.data.shapefile.ShpFileType.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,6 +40,7 @@ import java.util.logging.Level;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.EmptyFeatureReader;
+import org.geotools.data.EmptyFeatureWriter;
 import org.geotools.data.FIDReader;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureWriter;
@@ -67,7 +64,7 @@ import org.geotools.feature.visitor.IdCollectorFilterVisitor;
 import org.geotools.filter.FilterAttributeExtractor;
 import org.geotools.filter.visitor.ExtractBoundsFilterVisitor;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.index.CloseableCollection;
+import org.geotools.index.CloseableIterator;
 import org.geotools.index.Data;
 import org.geotools.index.DataDefinition;
 import org.geotools.index.LockTimeoutException;
@@ -382,6 +379,10 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
     protected  FeatureReader<SimpleFeatureType, SimpleFeature> createFeatureReader(String typeName,
             IndexedShapefileAttributeReader r, SimpleFeatureType readerSchema)
             throws SchemaException, IOException {
+        
+        if(r == null) {
+            return new EmptyFeatureReader<SimpleFeatureType, SimpleFeature>(readerSchema);
+        }
 
         FIDReader fidReader;
         if (!indexUseable(FIX)) {
@@ -427,7 +428,8 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
 
     /**
      * Returns the attribute reader, allowing for a pure shape reader, or a
-     * combined dbf/shp reader.
+     * combined dbf/shp reader. Will return null if reading the indexes confirms there is nothing
+     * to read
      * 
      * @param readDbf -
      *                if true, the dbf fill will be opened and read
@@ -446,13 +448,13 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
         // start
 
         Filter filter = query != null ? query.getFilter() : null;
-        CloseableCollection<Data> goodRecs = null;
+        CloseableIterator<Data> goodRecs = null;
         if (filter instanceof Id && shpFiles.isLocal() && existsOrCreateFidIndex()) {
             Id fidFilter = (Id) filter;
 
             TreeSet idsSet = new TreeSet(new IdentifierComparator());
             idsSet.addAll(fidFilter.getIdentifiers());
-            goodRecs = queryFidIndex(idsSet);
+            goodRecs = new CloseableIteratorWrapper<Data>(queryFidIndex(idsSet).iterator());
         } else {
             if (filter != null) {
                 // Add additional bounds from the filter
@@ -480,6 +482,13 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
         List<AttributeDescriptor> atts = targetSchema.getAttributeDescriptors();
 
         IndexedDbaseFileReader dbfR = null;
+        
+        // do we have anything to read at all? If not don't bother opening all the files
+        if(goodRecs != null && !goodRecs.hasNext()) {
+            // System.out.println("Empty results for " + targetSchema.getName().getLocalPart() + ", skipping read");
+            goodRecs.close();
+            return null;
+        }
 
         if (!readDbf) {
             LOGGER.fine("The DBF file won't be opened since no attributes "
@@ -524,7 +533,7 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
      * @throws IOException
      * @throws TreeException
      */
-    private CloseableCollection<Data> queryFidIndex(Set<Identifier> idsSet) throws IOException {
+    private List<Data> queryFidIndex(Set<Identifier> idsSet) throws IOException {
 
         if (!indexUseable(FIX)) {
             return null;
@@ -532,7 +541,7 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
 
         IndexedFidReader reader = new IndexedFidReader(shpFiles);
 
-        CloseableCollection<Data> records = new CloseableArrayList(idsSet.size());
+        List<Data> records = new ArrayList(idsSet.size());
         try {
             IndexFile shx = openIndexFile();
             try {
@@ -703,9 +712,9 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
      * @throws TreeException
      *                 DOCUMENT ME!
      */
-    protected CloseableCollection<Data> queryQuadTree(Envelope bbox)
+    protected CloseableIterator<Data> queryQuadTree(Envelope bbox)
             throws DataSourceException, IOException, TreeException {
-        CloseableCollection<Data> tmp = null;
+        CloseableIterator<Data> tmp = null;
         
         // check if the spatial index needs recreating
         createSpatialIndex(false);
@@ -852,6 +861,10 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
             attReader = getAttributesReader(true, true, null, schema);
             featureReader = new EmptyFeatureReader<SimpleFeatureType, SimpleFeature>(schema);
         }
+        
+        if(featureReader == null) {
+            return new EmptyFeatureWriter(schema);
+        }
 
         return new IndexedShapefileFeatureWriter(typeName, shpFiles, attReader,
                 featureReader, this, dbfCharset);
@@ -879,7 +892,7 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
                 IdCollectorFilterVisitor.IDENTIFIER_COLLECTOR, new TreeSet<Identifier>(identifierComparator));
 
         if (!fids.isEmpty()) {
-            Collection<Data> recordsFound = queryFidIndex(fids);
+            List<Data> recordsFound = queryFidIndex(fids);
             if (recordsFound != null) {
                 records.addAll(recordsFound);
             }

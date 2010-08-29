@@ -31,6 +31,7 @@ import junit.framework.TestSuite;
 import org.geotools.TestData;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.index.CloseableIterator;
 import org.opengis.feature.simple.SimpleFeature;
 
 import com.vividsolutions.jts.geom.Geometry;
@@ -230,6 +231,21 @@ public class TestCaseSupport extends TestCase {
         markTempFile(copy);
         
         return copy;
+    }
+    
+    protected int countIterator(CloseableIterator it)  {
+        int count = 0;
+        while(it.hasNext()) {
+            count++;
+            it.next();
+        }
+        try {
+            it.close();
+        } catch(IOException e) {
+            throw new RuntimeException(e);
+        }
+        
+        return count;
     }
 
     /**

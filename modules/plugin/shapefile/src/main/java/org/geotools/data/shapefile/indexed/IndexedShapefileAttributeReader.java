@@ -17,13 +17,12 @@
 package org.geotools.data.shapefile.indexed;
 
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.List;
 
 import org.geotools.data.shapefile.ShapefileAttributeReader;
 import org.geotools.data.shapefile.dbf.IndexedDbaseFileReader;
 import org.geotools.data.shapefile.shp.ShapefileReader;
-import org.geotools.index.CloseableCollection;
+import org.geotools.index.CloseableIterator;
 import org.geotools.index.Data;
 import org.opengis.feature.type.AttributeDescriptor;
 
@@ -38,15 +37,13 @@ import com.vividsolutions.jts.geom.Envelope;
  */
 public class IndexedShapefileAttributeReader extends ShapefileAttributeReader {
 
-    protected Iterator<Data> goodRecs;
+    protected CloseableIterator<Data> goodRecs;
 
     private Data next;
     
-    private CloseableCollection<Data> closeableCollection;
-
     public IndexedShapefileAttributeReader(
             List<AttributeDescriptor> attributes, ShapefileReader shp,
-            IndexedDbaseFileReader dbf, CloseableCollection<Data> goodRecs) {
+            IndexedDbaseFileReader dbf, CloseableIterator<Data> goodRecs) {
         this(attributes.toArray(new AttributeDescriptor[0]), shp, dbf, goodRecs);
     }
 
@@ -65,20 +62,17 @@ public class IndexedShapefileAttributeReader extends ShapefileAttributeReader {
      */
     public IndexedShapefileAttributeReader(AttributeDescriptor[] atts,
             ShapefileReader shp, IndexedDbaseFileReader dbf,
-            CloseableCollection<Data> goodRecs) {
+            CloseableIterator<Data> goodRecs) {
         super(atts, shp, dbf);
-        if (goodRecs != null)
-            this.goodRecs = goodRecs.iterator();
-        this.closeableCollection = goodRecs;
+        this.goodRecs = goodRecs;
     }
 
     public void close() throws IOException {
         try {
             super.close();
         } finally {
-            if( closeableCollection!=null ){
-                closeableCollection.closeIterator(goodRecs);
-                closeableCollection.close();
+            if( goodRecs != null ){
+                goodRecs.close();
             }
             goodRecs = null;
         }
