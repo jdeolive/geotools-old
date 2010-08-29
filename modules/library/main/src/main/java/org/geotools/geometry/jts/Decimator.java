@@ -17,6 +17,8 @@
 package org.geotools.geometry.jts;
 
 import java.awt.Rectangle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
@@ -40,6 +42,24 @@ import com.vividsolutions.jts.geom.Polygon;
  * @source $URL$
  */
 public final class Decimator {
+    
+    private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger(Decimator.class);
+    
+    static final double DP_THRESHOLD;
+    
+    static {
+        int threshold = 50;
+        String sthreshold = System.getProperty("org.geotools.decimate.dpThreshold");
+        if(sthreshold != null) {
+            try {
+                threshold = Integer.parseInt(sthreshold);
+            } catch(Throwable t) {
+                LOGGER.log(Level.WARNING, "Invalid value for org.geotools.decimate.dpThreshold, " +
+                		"should be a positive integer but is: " + sthreshold);
+            }
+        }
+        DP_THRESHOLD = threshold;
+    }
     
     private static final double EPS = 1e-9; 
 
@@ -335,22 +355,13 @@ public final class Decimator {
             return;
         }
 
-
-		int actualCoords = 1;
-		double lastX = coords[0];
-		double lastY = coords[1];
-		for (int t = 1; t < (ncoords - 1); t++) {
-			// see if this one should be added
-			double x = coords[t * 2];
-			double y = coords[t * 2 + 1];
-			if ((Math.abs(x - lastX) > spanx) || (Math.abs(y - lastY)) > spany) {
-				coords[actualCoords * 2] = x;
-				coords[actualCoords * 2 + 1] = y;
-				lastX = x;
-				lastY = y;
-				actualCoords++;
-			}
-		}
+        // generalize, use the heavier algorithm for longer lines
+        int actualCoords;
+        if(DP_THRESHOLD > 0 && ncoords > DP_THRESHOLD) {
+            actualCoords = dpBasedGeneralize(ncoords, coords, Math.min(spanx, spany) * Math.min(spanx, spany));
+        }  else {
+            actualCoords = spanBasedGeneralize(ncoords, coords);
+        }
 		
 		// handle rings
 		if(ring && actualCoords <= 3) {
@@ -391,7 +402,89 @@ public final class Decimator {
 		}
 	}
 
-	private void decimate(Geometry g, LiteCoordinateSequence seq) {
+    private int spanBasedGeneralize(int ncoords, double[] coords) {
+        int actualCoords = 1;
+		double lastX = coords[0];
+		double lastY = coords[1];
+		for (int t = 1; t < (ncoords - 1); t++) {
+			// see if this one should be added
+			double x = coords[t * 2];
+			double y = coords[t * 2 + 1];
+			if ((Math.abs(x - lastX) > spanx) || (Math.abs(y - lastY)) > spany) {
+				coords[actualCoords * 2] = x;
+				coords[actualCoords * 2 + 1] = y;
+				lastX = x;
+				lastY = y;
+				actualCoords++;
+			}
+		}
+        return actualCoords;
+    }
+    
+    private int dpBasedGeneralize(int ncoords, double[] coords, double maxDistance) {
+        dpSimplifySection(0, ncoords - 1, coords, maxDistance);
+        int actualCoords = 1;
+        for(int i = 1; i < ncoords - 1; i++) {
+            final double x = coords[i * 2];
+            final double y = coords[i * 2 + 1];
+            if(!Double.isNaN(x)) {
+                coords[actualCoords * 2] = x;
+                coords[actualCoords * 2 + 1] = y;
+                actualCoords++;
+            }
+        }
+        
+        return actualCoords;
+    }
+
+	private void dpSimplifySection(int first, int last, double[] coords, double maxDistanceSquared) {
+	    if(last - 1 <= first) {
+	        return;
+	    }
+	    
+	    double x0 = coords[first * 2];
+	    double y0 = coords[first * 2 + 1];
+	    double x1 = coords[last * 2];
+	    double y1 = coords[last * 2 + 1];
+	    double dx = x1 - x0;
+	    double dy = y1 - y0;
+	    double ls = dx * dx + dy * dy;
+	    
+	    int idx = -1;
+	    double dsmax = -1;
+	    for (int i = first + 1; i < last; i++) {
+            double x = coords[i * 2];
+            double y = coords[i * 2 + 1];
+          
+            double ds;
+            double r = ((x - x0) * dx + (y - y0) * dy)  / ls;
+            if (r <= 0.0) {
+                ds = (x - x0) * (x - x0) + (y - y0) * (y - y0);
+            } else if (r >= 1.0) {
+                ds = (x - x1) * (x - x1) + (y - y1) * (y - y1);
+            } else {
+                double s = ((y0 - y) * dx - (x0 - x) *dy) / ls;
+                ds = s * s * ls;
+            }
+            
+            if(idx == -1 || ds > dsmax) {
+                idx = i;
+                dsmax = ds;
+            } 
+        }
+	    
+	    if(dsmax <= maxDistanceSquared) {
+	        for (int i = first + 1; i < last; i++) {
+                coords[i * 2] = Double.NaN;
+                coords[i * 2 + 1] = Double.NaN;
+            }
+	    } else {
+	        dpSimplifySection(first, idx, coords, maxDistanceSquared);
+	        dpSimplifySection(idx, last, coords, maxDistanceSquared);
+	    }
+    }
+
+    private void decimate(Geometry g, LiteCoordinateSequence seq) {
 		double[] coords = seq.getXYArray();
 		int dim = seq.getDimension();
 		int numDoubles = coords.length;
