@@ -69,7 +69,7 @@ public class TextSymbolizerImpl extends AbstractSymbolizer implements TextSymbol
     protected TextSymbolizerImpl( FilterFactory factory, Description desc, String name, Unit<Length> uom ) {
         super(name, desc, (Expression) null, uom);
         this.filterFactory = factory;
-        fill = new FillImpl();
+        fill = new FillImpl(factory);
         fill.setColor(filterFactory.literal("#000000")); // default text fill is black
         halo = null;
         placement = new PointPlacementImpl();

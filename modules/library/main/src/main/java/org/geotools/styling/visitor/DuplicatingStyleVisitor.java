@@ -283,84 +283,15 @@ public class DuplicatingStyleVisitor implements StyleVisitor {
         Description descCopy = rule.getDescription();
         descCopy = copy(descCopy);
         
-        copy = new StyleFactoryImpl().createRule(
-        		symsCopy, 
-        		descCopy,
-                legendCopy,
-                rule.getName(), 
-                filterCopy, 
-                rule.isElseFilter(), 
-                rule.getMaxScaleDenominator(), 
-                rule.getMinScaleDenominator());
-
-//        Graphic[] legendGraphic = rule.getLegendGraphic();
-//        Graphic[] legendGraphicCopy = new Graphic[legendGraphic.length];
-//
-//        int length=legendGraphic.length;
-//        for (int i = 0; i < length; i++) {
-//            if (legendGraphic[i] != null) {
-//                legendGraphic[i].accept(this);
-//                legendGraphicCopy[i] = (Graphic) pages.pop();
-//            }
-//        }
-//
-//        Symbolizer[] symbolizer = rule.getSymbolizers();
-//        Symbolizer[] symbolizerCopy = new Symbolizer[symbolizer.length];
-//
-//        length=symbolizer.length;
-//        for (int i = 0; i < length; i++) {
-//            if (symbolizer[i] != null) {
-//                symbolizer[i].accept(this);
-//                symbolizerCopy[i] = (Symbolizer) pages.pop();
-//            }
-//        }
-//
-//        copy = sf.createRule();
-//        copy.setAbstract(rule.getAbstract());
-//        copy.setFilter(filterCopy);
-//        copy.setIsElseFilter(rule.hasElseFilter());
-//        copy.setLegendGraphic(legendGraphicCopy);
-//        copy.setMinScaleDenominator(rule.getMinScaleDenominator());
-//        copy.setMaxScaleDenominator(rule.getMaxScaleDenominator());
-//        copy.setName(rule.getName());
-//        copy.setTitle(rule.getTitle());
-//        copy.setSymbolizers(symbolizerCopy);
-
-//        int length=legendGraphic.length;
-//        for (int i = 0; i < length; i++) {
-//            if (legendGraphic[i] != null) {
-//                legendGraphic[i].accept(this);
-//                legendGraphicCopy[i] = (Graphic) pages.pop();
-//            }
-//        }
-//
-//        Symbolizer[] symbolizer = rule.getSymbolizers();
-//        ArrayList<Symbolizer> symbolizerList = new ArrayList<Symbolizer>();
-//        
-//
-//        length=symbolizer.length;
-//        for (int i = 0; i < length; i++) {
-//            if (symbolizer[i] == null) continue;
-//            
-//            symbolizer[i].accept(this);
-//            Symbolizer symbolizerCopy = (Symbolizer) pages.pop();
-//            
-//            if( symbolizerCopy == null ) continue;
-//            
-//            symbolizerList.add( symbolizerCopy );
-//        }
-//        Symbolizer[] symbolizerCopy = symbolizerList.toArray( new Symbolizer[0] );
-//        
-//        copy = sf.createRule();
-//        copy.setAbstract(rule.getAbstract());
-//        copy.setFilter(filterCopy);
-//        copy.setIsElseFilter(rule.hasElseFilter());
-//        copy.setLegendGraphic(legendGraphicCopy);
-//        copy.setMinScaleDenominator(rule.getMinScaleDenominator());
-//        copy.setMaxScaleDenominator(rule.getMaxScaleDenominator());
-//        copy.setName(rule.getName());
-//        copy.setTitle(rule.getTitle());
-//        copy.setSymbolizers(symbolizerCopy);
+        copy = sf.createRule();
+        copy.setSymbolizers(symsCopy);
+        copy.setDescription(descCopy);
+        copy.setLegendGraphic(legendCopy);
+        copy.setName(rule.getName());
+        copy.setFilter(filterCopy);
+        copy.setElseFilter(rule.isElseFilter());
+        copy.setMaxScaleDenominator(rule.getMaxScaleDenominator());
+        copy.setMinScaleDenominator(rule.getMinScaleDenominator());
 
         if( STRICT && !copy.equals( rule )){
             throw new IllegalStateException("Was unable to duplicate provided Rule:"+rule );
