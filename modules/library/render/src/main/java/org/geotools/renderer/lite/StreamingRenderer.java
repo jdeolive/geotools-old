@@ -668,6 +668,9 @@ public final class StreamingRenderer implements GTRenderer {
             graphics.setRenderingHints(java2dHints);
         // reset the abort flag
         renderingStopRequested = false;
+        
+        // setup the graphic clip
+        graphics.setClip(paintArea);
 
         // ////////////////////////////////////////////////////////////////////
         //
