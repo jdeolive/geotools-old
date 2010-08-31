@@ -356,11 +356,9 @@ public final class Decimator {
         }
 
         // generalize, use the heavier algorithm for longer lines
-        int actualCoords;
-        if(DP_THRESHOLD > 0 && ncoords > DP_THRESHOLD) {
-            actualCoords = dpBasedGeneralize(ncoords, coords, Math.min(spanx, spany) * Math.min(spanx, spany));
-        }  else {
-            actualCoords = spanBasedGeneralize(ncoords, coords);
+        int actualCoords = spanBasedGeneralize(ncoords, coords);
+        if(DP_THRESHOLD > 0 && actualCoords > DP_THRESHOLD) {
+            actualCoords = dpBasedGeneralize(actualCoords, coords, Math.min(spanx, spany) * Math.min(spanx, spany));
         }
 		
 		// handle rings
