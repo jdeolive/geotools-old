@@ -39,7 +39,9 @@ What licence does GeoTools use ?
 --------------------------------
 
 All GeoTools modules are released under the GNU Lesser General Public License (LGPL). GeoTools can be used for
-commercial applications.
+commercial applications, any changes made to GeoTools need to be made available to your customers.
+
+An easy way to do this is to contribute the changes back to the GeoTools project (but this is not required).
 
 
 How do I search the archives of the GeoTools mailing lists ?
@@ -47,6 +49,74 @@ How do I search the archives of the GeoTools mailing lists ?
 
 Go to `this page <http://n2.nabble.com/GeoTools-the-java-GIS-toolkit-f1936684.html>`_.
 
+What are the featuers of the GeoTools Library ?
+-----------------------------------------------
+
+That is a hard question to answer as GeoTools is a general purpose geospatial library.
+
+Here is a sample of some of the great features in the library today:
+
+* Supports OGC Grid Coverage implementation
+* Coordinate reference system and transformation support
+* Symbology using OGC Styled Layer Descriptor (SLD) specification
+* Attribute and spatial filters using OGC Filter Encoding specification
+* Supports graphs and networks
+* Java Topology Suite (JTS) - with support for the OGC Simple Features Specification - used as the geometry model for vector features.
+* A stateless, low memory renderer, particularly useful in server-side environments
+* Powerful "schema asisted" parsing technology using XML Schema to bind to GML content
+* Interact with OGC web services with both Web Map Server and Web Feature Server support
+* Open plug-in system allowing you to teach the library additional formats
+* Plug-ins for the ImageIO-EXT project allowing GeoTools to read additional raster formats from GDAL
+
+Okay what data formats does GeoTools support ?
+----------------------------------------------
+
+GeoTools supports additional formats through the use of plug-ins. You can control the formats supported
+by your application by only including the plug-ins you requrie.
+
+* arcgrid
+* arcsde
+* db2
+* raster formats
+  
+  * geotiff
+  * gtopo30
+  * image - world plus image files using common image formats such as JPEG, TIFF, GIF and PNG
+  * imageio-ext-gdal (allows access to additional GDAL formats thanks to the ImageIO project)
+  * imagemoasaic
+  * imagepyramid
+  * JP2K
+  
+* Database "jdbc-ng" support
+  
+  * h2
+  * mysql
+  * oracle
+  * postgis
+  * spatialite
+  * sqlserver
+
+* postgis
+* property - simple text file format often used for testing
+* shapefile
+
+Perhaps one of the unsupported modules or plugins may have what you need. These modules
+are supplied by the community and do not yet meet the quality expected by the library:
+
+There are also some "unsupported" formats that are either popular or under development:
+* app-schema (under development) - allows the remapping and combining of one or more data sources into a provided application schema
+* directory (under development)
+* dfx
+* edigeo
+* geojson
+* grassraster (under development)
+* oracle-spatial
+* wfs
+
+The current authoritive list of plugins is of course the source code: 
+
+* http://svn.osgeo.org/geotools/trunk/modules/plugin/
+* http://svn.osgeo.org/geotools/trunk/modules/unsupported/
 
 Why can't I find module X in the GeoTools distribution or javadocs ?
 --------------------------------------------------------------------
