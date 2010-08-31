@@ -923,7 +923,7 @@ public class ShapefileRenderer implements GTRenderer {
                         }
                         
                         // clip to the visible area + the size of the symbolizer (with some extra 
-                        // to make sure we get no artefacts from polygon new borders)
+                        // to make sure we get no artifacts from polygon new borders)
                         double size = RendererUtilities.getStyle2DSize(style) + 10;
                         Envelope env = new Envelope(screenSize.getMinX(), screenSize.getMaxX(), screenSize.getMinY(), screenSize.getMaxY());
                         env.expandBy(size);
