@@ -105,7 +105,7 @@ public class IndexInfo implements FileReader {
             FileSystemIndexStore store = new FileSystemIndexStore(file);
 
             try {
-                return store.load(openIndexFile());
+                return store.load(openIndexFile(), false);
             } catch (IOException e) {
                 throw new StoreException(e);
             }

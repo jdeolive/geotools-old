@@ -61,7 +61,7 @@ public class LineLazySearchCollectionTest extends TestCaseSupport {
             ShpFiles shpFiles = new ShpFiles(qixFile);
 
             IndexFile indexFile = new IndexFile(shpFiles, false);
-            return store.load(indexFile);
+            return store.load(indexFile, true);
 
         } catch (IOException e) {
             throw new StoreException(e);

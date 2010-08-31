@@ -21,6 +21,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.channels.FileChannel.MapMode;
 
 import org.geotools.index.quadtree.Node;
 import org.geotools.index.quadtree.StoreException;
@@ -153,8 +154,8 @@ public class FileSystemNode extends Node {
      * @throws IOException
      */
     public static FileSystemNode readNode(int id, Node parent,
-            FileChannel channel, ByteOrder order) throws IOException {
-        ScrollingBuffer buffer = new ScrollingBuffer(channel, order);
+            FileChannel channel, ByteOrder order, boolean useMemoryMapping) throws IOException {
+        ScrollingBuffer buffer = new ScrollingBuffer(channel, order, useMemoryMapping);
         return readNode(id, parent, buffer);
     }
 
@@ -205,36 +206,44 @@ public class FileSystemNode extends Node {
         /** the initial position of the buffer in the channel */
         long bufferStart;
         double[] envelope = new double[4];
+        boolean useMemoryMapping;
 
-        public ScrollingBuffer(FileChannel channel, ByteOrder order)
+        public ScrollingBuffer(FileChannel channel, ByteOrder order, boolean useMemoryMapping)
                 throws IOException {
             this.channel = channel;
             this.order = order;
+            this.useMemoryMapping = useMemoryMapping;
+            
             this.bufferStart = channel.position();
-
-            // start with an 8kb buffer
-            this.buffer = NIOUtilities.allocate(8 * 1024);
-            this.buffer.order(order);
-            channel.read(buffer);
-            buffer.flip();
+            if(useMemoryMapping) {
+                this.buffer = channel.map(MapMode.READ_ONLY, channel.position(), channel.size() - channel.position());
+                this.buffer.order(order);
+            } else {
+                // start with an 8kb buffer
+                this.buffer = NIOUtilities.allocate(8 * 1024);
+                this.buffer.order(order);
+                channel.read(buffer);
+                buffer.flip();
+            }
         }
 
         public void close() {
             if(buffer != null) {
-                NIOUtilities.clean(buffer, false);
+                NIOUtilities.clean(buffer, useMemoryMapping);
                 buffer = null;
             }
             
         }
 
         public int getInt() throws IOException {
-            if (buffer.remaining() < 4)
+            if(!useMemoryMapping && buffer.remaining() < 4) {
                 refillBuffer(4);
+            }
             return buffer.getInt();
         }
 
         public Envelope getEnvelope() throws IOException {
-            if (buffer.remaining() < 32)
+            if (!useMemoryMapping && buffer.remaining() < 32)
                 refillBuffer(32);
             
             buffer.asDoubleBuffer().get(envelope);
@@ -292,7 +301,7 @@ public class FileSystemNode extends Node {
             // if the new position is already in the buffer, just move the
             // buffer position
             // otherwise we have to reload it
-            if (newPosition >= bufferStart
+            if (useMemoryMapping || newPosition >= bufferStart
                     && newPosition <= bufferStart + buffer.limit()) {
                 buffer.position((int) (newPosition - bufferStart));
             } else {

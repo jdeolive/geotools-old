@@ -197,7 +197,7 @@ public class FileSystemIndexStore implements IndexStore {
      * 
      * @see org.geotools.index.quadtree.IndexStore#load()
      */
-    public QuadTree load(IndexFile indexfile) throws StoreException {
+    public QuadTree load(IndexFile indexfile, boolean useMemoryMapping) throws StoreException {
         QuadTree tree = null;
 
         try {
@@ -238,7 +238,7 @@ public class FileSystemIndexStore implements IndexStore {
                 }
             };
 
-            tree.setRoot(FileSystemNode.readNode(0, null, channel, order));
+            tree.setRoot(FileSystemNode.readNode(0, null, channel, order, useMemoryMapping));
 
             LOGGER.finest("QuadTree opened");
         } catch (IOException e) {

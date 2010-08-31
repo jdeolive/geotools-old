@@ -814,7 +814,7 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
 
             try {
                 FileSystemIndexStore store = new FileSystemIndexStore(treeFile);
-                return store.load(openIndexFile());
+                return store.load(openIndexFile(), useMemoryMappedBuffer);
             } catch (IOException e) {
                 throw new StoreException(e);
             }

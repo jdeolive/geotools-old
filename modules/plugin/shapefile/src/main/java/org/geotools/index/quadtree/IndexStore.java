@@ -43,5 +43,5 @@ public interface IndexStore {
      * 
      * @throws StoreException
      */
-    public QuadTree load(IndexFile indexfile) throws StoreException;
+    public QuadTree load(IndexFile indexfile, boolean useMemoryMapping) throws StoreException;
 }
