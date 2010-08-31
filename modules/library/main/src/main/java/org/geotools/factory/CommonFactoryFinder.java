@@ -16,6 +16,7 @@
  */
 package org.geotools.factory;
 
+import java.awt.RenderingHints;
 import java.util.Arrays;
 import java.util.Set;
 
@@ -99,12 +100,11 @@ public final class CommonFactoryFinder extends FactoryFinder {
      *
      * @see Hints#STYLE_FACTORY
      */
-    public static synchronized StyleFactory getStyleFactory(Hints hints)
+    public static StyleFactory getStyleFactory(Hints hints)
             throws FactoryRegistryException
     {
         hints = mergeSystemHints(hints);
-        return (StyleFactory) getServiceRegistry().getServiceProvider(
-                StyleFactory.class, null, hints, Hints.STYLE_FACTORY);
+        return (StyleFactory) lookup(StyleFactory.class, hints, Hints.STYLE_FACTORY);
     }
 
     /**
@@ -156,10 +156,9 @@ public final class CommonFactoryFinder extends FactoryFinder {
      *
      * @see Hints#FEATURE_LOCK_FACTORY
      */
-    public static synchronized FeatureLockFactory getFeatureLockFactory(Hints hints) {
+    public static FeatureLockFactory getFeatureLockFactory(Hints hints) {
         hints = mergeSystemHints(hints);
-        return (FeatureLockFactory) getServiceRegistry().getServiceProvider(
-                FeatureLockFactory.class, null, hints, Hints.FEATURE_LOCK_FACTORY);
+        return (FeatureLockFactory) lookup(FeatureLockFactory.class, hints, Hints.FEATURE_LOCK_FACTORY);
     }
 
     /**
@@ -195,12 +194,11 @@ public final class CommonFactoryFinder extends FactoryFinder {
      * @throws FactoryRegistryException if no implementation could be provided
      * @see Hints#FEATURE_FACTORY
      */
-    public static synchronized FeatureFactory getFeatureFactory(Hints hints) {
+    public static FeatureFactory getFeatureFactory(Hints hints) {
         hints = mergeSystemHints(hints);
         if(hints.get(Hints.FEATURE_FACTORY) == null)
             hints.put(Hints.FEATURE_FACTORY, LenientFeatureFactoryImpl.class);
-        return (FeatureFactory) getServiceRegistry().getServiceProvider(
-                FeatureFactory.class, null, hints, Hints.FEATURE_FACTORY);
+        return (FeatureFactory) lookup(FeatureFactory.class, hints, Hints.FEATURE_FACTORY);
     }
     
     /** Return the first implementation of {@link FeatureTypeFactory} matching the specified hints.
@@ -212,10 +210,9 @@ public final class CommonFactoryFinder extends FactoryFinder {
      * @throws FactoryRegistryException if no implementation could be provided
      * @see Hints#FEATURE_TYPE_FACTORY
      */
-    public static synchronized FeatureTypeFactory getFeatureTypeFactory(Hints hints) {
+    public static FeatureTypeFactory getFeatureTypeFactory(Hints hints) {
         hints = mergeSystemHints(hints);
-        return (FeatureTypeFactory) getServiceRegistry().getServiceProvider(
-                FeatureTypeFactory.class, null, hints, Hints.FEATURE_TYPE_FACTORY);
+        return (FeatureTypeFactory) lookup(FeatureTypeFactory.class, hints, Hints.FEATURE_TYPE_FACTORY);
     }
     
     /**
@@ -230,10 +227,9 @@ public final class CommonFactoryFinder extends FactoryFinder {
      *
      * @see Hints#FEATURE_COLLECTIONS
      */
-    public static synchronized FeatureCollections getFeatureCollections(Hints hints) {
+    public static FeatureCollections getFeatureCollections(Hints hints) {
         hints = mergeSystemHints(hints);
-        return (FeatureCollections) getServiceRegistry().getServiceProvider(
-                FeatureCollections.class, null, hints, Hints.FEATURE_COLLECTIONS);
+        return (FeatureCollections) lookup(FeatureCollections.class, hints, Hints.FEATURE_COLLECTIONS);
     }
 
     /**
@@ -260,12 +256,41 @@ public final class CommonFactoryFinder extends FactoryFinder {
      *
      * @see Hints#FILTER_FACTORY
      */
-    public static synchronized FilterFactory getFilterFactory(Hints hints)
+    public static FilterFactory getFilterFactory(Hints hints)
             throws FactoryRegistryException
     {
         hints = mergeSystemHints(hints);
-        return (FilterFactory) getServiceRegistry().getServiceProvider(
-                FilterFactory.class, null, hints, Hints.FILTER_FACTORY);
+        return (FilterFactory) lookup(FilterFactory.class, hints, Hints.FILTER_FACTORY);
+    }
+    
+    /**
+     * Looks up a certain factory using two methods:
+     * <ul><li>First and un-synchronized lookup in the hints, should the user have provided the
+     *         preferred factroy</li>
+     * <li>A standard SPI registry scan, which has to be fully synchronized</li>
+     * @param category
+     * @param hints
+     * @param key
+     * @return
+     */
+    private static Object lookup(Class category, Hints hints, Hints.Key key) {
+        // nulls?
+        if(hints == null || key == null) {
+            return null;
+        }
+        
+        // see if the user expressed a preference in the hints
+        final Object hint = hints.get(key);
+        if (hint != null) {
+            if (category.isInstance(hint)) {
+                return hint;
+            }
+        } 
+
+        // otherwise do the lousy slow system scan
+        synchronized (CommonFactoryFinder.class) {
+            return getServiceRegistry().getServiceProvider(category, null, hints, key);
+        }
     }
 
     /**
