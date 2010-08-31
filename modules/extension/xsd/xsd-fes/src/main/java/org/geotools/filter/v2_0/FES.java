@@ -1,6 +1,5 @@
 package org.geotools.filter.v2_0;
 
-
 import java.util.Set;
 import javax.xml.namespace.QName;
 
@@ -74,6 +73,9 @@ public final class FES extends XSD {
     public static final QName AbstractSortingClauseType = 
         new QName("http://www.opengis.net/fes/2.0","AbstractSortingClauseType");
     /** @generated */
+    public static final QName AdditionalOperatorsType = 
+        new QName("http://www.opengis.net/fes/2.0","AdditionalOperatorsType");
+    /** @generated */
     public static final QName AliasesType = 
         new QName("http://www.opengis.net/fes/2.0","AliasesType");
     /** @generated */
@@ -116,8 +118,20 @@ public final class FES extends XSD {
     public static final QName ComparisonOpsType = 
         new QName("http://www.opengis.net/fes/2.0","ComparisonOpsType");
     /** @generated */
+    public static final QName ConformanceType = 
+        new QName("http://www.opengis.net/fes/2.0","ConformanceType");
+    /** @generated */
     public static final QName DistanceBufferType = 
         new QName("http://www.opengis.net/fes/2.0","DistanceBufferType");
+    /** @generated */
+    public static final QName Extended_CapabilitiesType = 
+        new QName("http://www.opengis.net/fes/2.0","Extended_CapabilitiesType");
+    /** @generated */
+    public static final QName ExtensionOperatorType = 
+        new QName("http://www.opengis.net/fes/2.0","ExtensionOperatorType");
+    /** @generated */
+    public static final QName ExtensionOpsType = 
+        new QName("http://www.opengis.net/fes/2.0","ExtensionOpsType");
     /** @generated */
     public static final QName FilterType = 
         new QName("http://www.opengis.net/fes/2.0","FilterType");
@@ -142,6 +156,9 @@ public final class FES extends XSD {
     /** @generated */
     public static final QName MatchActionType = 
         new QName("http://www.opengis.net/fes/2.0","MatchActionType");
+    /** @generated */
+    public static final QName MeasureType = 
+        new QName("http://www.opengis.net/fes/2.0","MeasureType");
     /** @generated */
     public static final QName PropertyIsBetweenType = 
         new QName("http://www.opengis.net/fes/2.0","PropertyIsBetweenType");
@@ -218,6 +235,15 @@ public final class FES extends XSD {
     public static final QName UnaryLogicOpType = 
         new QName("http://www.opengis.net/fes/2.0","UnaryLogicOpType");
     /** @generated */
+    public static final QName UomIdentifier = 
+        new QName("http://www.opengis.net/fes/2.0","UomIdentifier");
+    /** @generated */
+    public static final QName UomSymbol = 
+        new QName("http://www.opengis.net/fes/2.0","UomSymbol");
+    /** @generated */
+    public static final QName UomURI = 
+        new QName("http://www.opengis.net/fes/2.0","UomURI");
+    /** @generated */
     public static final QName UpperBoundaryType = 
         new QName("http://www.opengis.net/fes/2.0","UpperBoundaryType");
     /** @generated */
@@ -265,6 +291,9 @@ public final class FES extends XSD {
     public static final QName And = 
         new QName("http://www.opengis.net/fes/2.0","And");
     /** @generated */
+    public static final QName AnyInteracts = 
+        new QName("http://www.opengis.net/fes/2.0","AnyInteracts");
+    /** @generated */
     public static final QName BBOX = 
         new QName("http://www.opengis.net/fes/2.0","BBOX");
     /** @generated */
@@ -309,6 +338,9 @@ public final class FES extends XSD {
     /** @generated */
     public static final QName expression = 
         new QName("http://www.opengis.net/fes/2.0","expression");
+    /** @generated */
+    public static final QName extensionOps = 
+        new QName("http://www.opengis.net/fes/2.0","extensionOps");
     /** @generated */
     public static final QName Filter = 
         new QName("http://www.opengis.net/fes/2.0","Filter");

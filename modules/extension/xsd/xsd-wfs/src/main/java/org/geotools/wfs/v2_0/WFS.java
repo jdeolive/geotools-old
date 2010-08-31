@@ -96,6 +96,9 @@ public final class WFS extends XSD {
     public static final QName EmptyType = 
         new QName("http://www.opengis.net/wfs/2.0","EmptyType");
     /** @generated */
+    public static final QName EnvelopePropertyType = 
+        new QName("http://www.opengis.net/wfs/2.0","EnvelopePropertyType");
+    /** @generated */
     public static final QName ExecutionStatusType = 
         new QName("http://www.opengis.net/wfs/2.0","ExecutionStatusType");
     /** @generated */
@@ -104,9 +107,6 @@ public final class WFS extends XSD {
     /** @generated */
     public static final QName FeatureCollectionType = 
         new QName("http://www.opengis.net/wfs/2.0","FeatureCollectionType");
-    /** @generated */
-    public static final QName FeaturePropertyType = 
-        new QName("http://www.opengis.net/wfs/2.0","FeaturePropertyType");
     /** @generated */
     public static final QName FeaturesLockedType = 
         new QName("http://www.opengis.net/wfs/2.0","FeaturesLockedType");
@@ -147,8 +147,8 @@ public final class WFS extends XSD {
     public static final QName LockFeatureType = 
         new QName("http://www.opengis.net/wfs/2.0","LockFeatureType");
     /** @generated */
-    public static final QName MemberType = 
-        new QName("http://www.opengis.net/wfs/2.0","MemberType");
+    public static final QName MemberPropertyType = 
+        new QName("http://www.opengis.net/wfs/2.0","MemberPropertyType");
     /** @generated */
     public static final QName MetadataURLType = 
         new QName("http://www.opengis.net/wfs/2.0","MetadataURLType");
@@ -195,9 +195,6 @@ public final class WFS extends XSD {
     public static final QName SimpleFeatureCollectionType = 
         new QName("http://www.opengis.net/wfs/2.0","SimpleFeatureCollectionType");
     /** @generated */
-    public static final QName SimpleValueCollectionType = 
-        new QName("http://www.opengis.net/wfs/2.0","SimpleValueCollectionType");
-    /** @generated */
     public static final QName StarStringType = 
         new QName("http://www.opengis.net/wfs/2.0","StarStringType");
     /** @generated */
@@ -222,6 +219,9 @@ public final class WFS extends XSD {
     public static final QName TransactionType = 
         new QName("http://www.opengis.net/wfs/2.0","TransactionType");
     /** @generated */
+    public static final QName TupleType = 
+        new QName("http://www.opengis.net/wfs/2.0","TupleType");
+    /** @generated */
     public static final QName UpdateActionType = 
         new QName("http://www.opengis.net/wfs/2.0","UpdateActionType");
     /** @generated */
@@ -240,6 +240,12 @@ public final class WFS extends XSD {
     public static final QName _Abstract = 
         new QName("http://www.opengis.net/wfs/2.0","_Abstract");
     /** @generated */
+    public static final QName _additionalObjects = 
+        new QName("http://www.opengis.net/wfs/2.0","_additionalObjects");
+    /** @generated */
+    public static final QName _additionalValues = 
+        new QName("http://www.opengis.net/wfs/2.0","_additionalValues");
+    /** @generated */
     public static final QName _DropStoredQuery = 
         new QName("http://www.opengis.net/wfs/2.0","_DropStoredQuery");
     /** @generated */
@@ -249,20 +255,14 @@ public final class WFS extends XSD {
     public static final QName _Title = 
         new QName("http://www.opengis.net/wfs/2.0","_Title");
     /** @generated */
-    public static final QName _TruncatedResponse = 
-        new QName("http://www.opengis.net/wfs/2.0","_TruncatedResponse");
+    public static final QName _truncatedResponse = 
+        new QName("http://www.opengis.net/wfs/2.0","_truncatedResponse");
     /** @generated */
     public static final QName FeatureTypeType_NoCRS = 
         new QName("http://www.opengis.net/wfs/2.0","FeatureTypeType_NoCRS");
     /** @generated */
     public static final QName PropertyType_ValueReference = 
         new QName("http://www.opengis.net/wfs/2.0","PropertyType_ValueReference");
-    /** @generated */
-    public static final QName SimpleFeatureCollectionType_tuple = 
-        new QName("http://www.opengis.net/wfs/2.0","SimpleFeatureCollectionType_tuple");
-    /** @generated */
-    public static final QName SimpleFeatureCollectionType_collection = 
-        new QName("http://www.opengis.net/wfs/2.0","SimpleFeatureCollectionType_collection");
     /** @generated */
     public static final QName WFS_CapabilitiesType_WSDL = 
         new QName("http://www.opengis.net/wfs/2.0","WFS_CapabilitiesType_WSDL");
@@ -274,6 +274,15 @@ public final class WFS extends XSD {
     /** @generated */
     public static final QName AbstractTransactionAction = 
         new QName("http://www.opengis.net/wfs/2.0","AbstractTransactionAction");
+    /** @generated */
+    public static final QName additionalObjects = 
+        new QName("http://www.opengis.net/wfs/2.0","additionalObjects");
+    /** @generated */
+    public static final QName additionalValues = 
+        new QName("http://www.opengis.net/wfs/2.0","additionalValues");
+    /** @generated */
+    public static final QName boundedBy = 
+        new QName("http://www.opengis.net/wfs/2.0","boundedBy");
     /** @generated */
     public static final QName CreateStoredQuery = 
         new QName("http://www.opengis.net/wfs/2.0","CreateStoredQuery");
@@ -368,8 +377,11 @@ public final class WFS extends XSD {
     public static final QName TransactionResponse = 
         new QName("http://www.opengis.net/wfs/2.0","TransactionResponse");
     /** @generated */
-    public static final QName TruncatedResponse = 
-        new QName("http://www.opengis.net/wfs/2.0","TruncatedResponse");
+    public static final QName truncatedResponse = 
+        new QName("http://www.opengis.net/wfs/2.0","truncatedResponse");
+    /** @generated */
+    public static final QName Tuple = 
+        new QName("http://www.opengis.net/wfs/2.0","Tuple");
     /** @generated */
     public static final QName Update = 
         new QName("http://www.opengis.net/wfs/2.0","Update");
