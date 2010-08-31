@@ -48,7 +48,7 @@ public final class Decimator {
     static final double DP_THRESHOLD;
     
     static {
-        int threshold = 50;
+        int threshold = -1;
         String sthreshold = System.getProperty("org.geotools.decimate.dpThreshold");
         if(sthreshold != null) {
             try {
@@ -420,6 +420,13 @@ public final class Decimator {
     }
     
     private int dpBasedGeneralize(int ncoords, double[] coords, double maxDistance) {
+        while(coords[0] == coords[(ncoords - 1) * 2] && coords[1] == coords[2 * ncoords - 1] && ncoords > 0) {
+            ncoords--;
+        }
+        if(ncoords == 0) {
+            return 0;
+        }
+        
         dpSimplifySection(0, ncoords - 1, coords, maxDistance);
         int actualCoords = 1;
         for(int i = 1; i < ncoords - 1; i++) {
