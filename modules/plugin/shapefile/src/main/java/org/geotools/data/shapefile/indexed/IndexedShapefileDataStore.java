@@ -55,6 +55,7 @@ import org.geotools.data.shapefile.ShpFileType;
 import org.geotools.data.shapefile.dbf.DbaseFileReader;
 import org.geotools.data.shapefile.dbf.IndexedDbaseFileReader;
 import org.geotools.data.shapefile.shp.IndexFile;
+import org.geotools.data.shapefile.shp.ShapefileException;
 import org.geotools.data.shapefile.shp.ShapefileReader;
 import org.geotools.data.shapefile.shp.ShapefileReader.Record;
 import org.geotools.factory.Hints;
@@ -504,7 +505,7 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
         }
 
         Hints hints = query != null ? query.getHints() : null;
-        final ShapefileReader shapeReader = openShapeReader(getGeometryFactory(hints));
+        final ShapefileReader shapeReader = openShapeReader(getGeometryFactory(hints), goodRecs != null);
         IndexedShapefileAttributeReader reader =  new IndexedShapefileAttributeReader(atts, 
                 shapeReader, dbfR, goodRecs);
         reader.setTargetBBox(bbox);
@@ -521,6 +522,22 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
         }
         
         return reader;
+    }
+    
+    /**
+     * Convenience method for opening a ShapefileReader.
+     * 
+     * @return A new ShapefileReader.
+     * 
+     * @throws IOException
+     *                 If an error occurs during creation.
+     */
+    protected ShapefileReader openShapeReader(GeometryFactory gf, boolean onlyRandomAccess) throws IOException {
+        try {
+            return new ShapefileReader(shpFiles, true, useMemoryMappedBuffer, gf, onlyRandomAccess);
+        } catch (ShapefileException se) {
+            throw new DataSourceException("Error creating ShapefileReader", se);
+        }
     }
 
     /**

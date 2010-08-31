@@ -247,6 +247,41 @@ public class ShapefileReader implements FileReader {
     }
     
     /**
+     * Creates a new instance of ShapeFile.
+     * 
+     * @param shapefileFiles
+     *                The ReadableByteChannel this reader will use.
+     * @param strict
+     *                True to make the header parsing throw Exceptions if the
+     *                version or magic number are incorrect.
+     * @param useMemoryMapped Wheter to enable memory mapping or not
+     * @param gf      The geometry factory used to build the geometries
+     * @param onlyRandomAccess When true sets up the reader to do exclusively read driven by goTo(x)
+     *                         and thus avoids opening the .shx file
+     * @throws IOException
+     *                 If problems arise.
+     * @throws ShapefileException
+     *                 If for some reason the file contains invalid records.
+     */
+    public ShapefileReader(ShpFiles shapefileFiles, boolean strict,
+            boolean useMemoryMapped, GeometryFactory gf, boolean onlyRandomAccess) throws IOException, ShapefileException {
+        this.channel = shapefileFiles.getReadChannel(ShpFileType.SHP, this);
+        this.useMemoryMappedBuffer = useMemoryMapped;
+        streamLogger.open();
+        randomAccessEnabled = channel instanceof FileChannel;
+        if(!onlyRandomAccess) {
+            try {
+                shxReader = new IndexFile(shapefileFiles, this.useMemoryMappedBuffer);
+            } catch(Exception e) {
+                LOGGER.log(Level.WARNING, "Could not open the .shx file, continuing " +
+                        "assuming the .shp file is not sparse", e);
+                currentShape = UNKNOWN;
+            }
+        }
+        init(strict, gf);
+    }
+    
+    /**
      * Disables .shx file usage. By doing so you drop support for sparse shapefiles, the 
      * .shp will have to be without holes, all the valid shapefile records will have to
      * be contiguous.
