@@ -45,7 +45,6 @@
   <modules>
     <module>arcgrid</module>
     <module>arcsde</module>
-    <module>db2</module>
     <module>charts</module>
     <module>epsg-extension</module>
     <module>epsg-hsql</module>
@@ -61,7 +60,6 @@
     <module>imagemosaic-jdbc</module>
     <module>jdbc</module>
     <module>jp2k</module>
-    <module>postgis</module>
     <module>property</module>
     <module>referencing3D</module>
     <module>shapefile</module>
