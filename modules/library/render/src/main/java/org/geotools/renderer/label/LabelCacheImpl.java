@@ -1499,7 +1499,7 @@ public final class LabelCacheImpl implements LabelCache {
         }
 
         try {
-            clip = new GeometryClipper(displayGeomEnv).clip(poly, false);
+            clip = clipper.clip(poly, false);
         } catch (Exception e) {
             // TODO: should try to expand the bounding box and re-do the
             // intersection.
