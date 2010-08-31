@@ -1499,13 +1499,7 @@ public final class LabelCacheImpl implements LabelCache {
         }
 
         try {
-            // the representative geometry does not need to be accurate, let's
-            // simplify it further before doing the overlay to reduce the
-            // overlay cost
-            Decimator d = new Decimator(10, 10);
-            d.decimate(poly);
-            poly.geometryChanged();
-            clip = EnhancedPrecisionOp.intersection(poly, bbox);
+            clip = new GeometryClipper(displayGeomEnv).clip(poly, false);
         } catch (Exception e) {
             // TODO: should try to expand the bounding box and re-do the
             // intersection.
@@ -1528,6 +1522,8 @@ public final class LabelCacheImpl implements LabelCache {
         if (clip instanceof LineString)
             return null;
         if (clip instanceof MultiLineString)
+            return null;
+        if (clip == null)
             return null;
 
         // its a GC
