@@ -3,7 +3,7 @@
  *    http://geotools.org
  *
  *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
- * 
+ *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
  *    License as published by the Free Software Foundation;
@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -98,7 +99,7 @@ import com.vividsolutions.jts.io.WKTReader;
 
 /**
  * Postgis DataStore implementation.
- * 
+ *
  * <p>
  * This datastore by default will read/write geometries in WKT format.<br>
  * Optionally use of WKB can be turned on, in which case you may want to turn
@@ -120,19 +121,19 @@ import com.vividsolutions.jts.io.WKTReader;
  *       -ch
  */
 public class PostgisDataStore extends JDBCDataStore implements DataStore {
-	
+
     /** The logger for the postgis module. */
     protected static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger(
             "org.geotools.data.postgis");
 
     /** Factory for producing geometries (from JTS). */
     protected static GeometryFactory geometryFactory = new GeometryFactory();
-    
+
     /** Well Known Text reader (from JTS). */
     protected static WKTReader geometryReader = new WKTReader(geometryFactory);
-    
+
     /** Map of postgis geometries to jts geometries */
-    private static Map GEOM_TYPE_MAP = new HashMap();
+    private static Map GEOM_TYPE_MAP = new LinkedHashMap();
 
     static {
         GEOM_TYPE_MAP.put("GEOMETRY", Geometry.class);
@@ -178,7 +179,7 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
     }
 
     private static Map GEOM_CLASS_MAPPINGS = new HashMap();
-    
+
     //why don't we just stick this in with the non-geom class mappings?
     static {
         // init the inverse map
@@ -187,7 +188,9 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
         for (Iterator it = keys.iterator(); it.hasNext();) {
             String name = (String) it.next();
             Class geomClass = (Class) GEOM_TYPE_MAP.get(name);
-            GEOM_CLASS_MAPPINGS.put(geomClass, name);
+            //make sure that the the first found class is returned for "class to geometrytype"
+            if (GEOM_CLASS_MAPPINGS.get(geomClass)==null)
+                GEOM_CLASS_MAPPINGS.put(geomClass, name);
         }
     }
 
@@ -197,7 +200,7 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
 
     /** Maximum string size for postgres */
     private static final int MAX_ALLOWED_VALUE = 10485760;
-    
+
     //JD: GEOT-723, keeping this reference static allows the authority factory
     // to hold onto a stale connection pool when a new datastore is created.
     //private static PostgisAuthorityFactory paf = null;
@@ -209,8 +212,8 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
     /** Enables the use of geos operators */
     protected boolean useGeos;
 
-    /** 
-     * Current optimize mode 
+    /**
+     * Current optimize mode
      * @deprecated Dot not use this directly, use {@link #getOptimizeMode()}.
      */
     public int OPTIMIZE_MODE;
@@ -223,29 +226,29 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
      * loading when using WKB format
      */
     protected boolean byteaEnabled = false;
-    
+
     /**
      *  postgis 1.0 changed the way WKB is handled, this needs to be
      *  set if version >1.
      *  (it affects the way you send WKB to the database)
      */
     protected boolean byteaWKB = false;
-    
+
     /**
      * If true then the bounding box filters will use the && postgis operator,
      * which uses the spatial index and performs against the envelope of the
      * geom, leading to greater speed and slightly less accuracy.
      */
     protected boolean looseBbox;
-    
+
     /**
-     * set to true if the bounds for a table should be computed using the  
+     * set to true if the bounds for a table should be computed using the
 	 * estimated_extent' function, but beware that this function is less accurate
 	 * and in some cases *far* less accurate if the data within the actual bounds
 	 * does not follow a uniform distribution.
      */
     protected boolean estimatedExtent;
-    
+
     /** Flag indicating whether schema support **/
     protected boolean schemaEnabled = true;
 
@@ -270,10 +273,10 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
         String namespace, int optimizeMode) throws IOException {
         this(dataSource,
             new JDBCDataStoreConfig(namespace, schema(schema), new HashMap(),
-                new HashMap()), optimizeMode); 
+                new HashMap()), optimizeMode);
     }
 
-    /** 
+    /**
      * Simple helper method to ensure that a schema is always set.
      */
     protected static String schema(String schema) {
@@ -282,7 +285,7 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
 
         return (String) PostgisDataStoreFactory.SCHEMA.sample;
     }
-    	
+
     public PostgisDataStore(DataSource dataSource,
         JDBCDataStoreConfig config, int optimizeMode) throws IOException {
         super(dataSource, config);
@@ -300,10 +303,10 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
     protected LockingManager createLockingManager() {
         return new InProcessLockingManager();
     }
-    
+
     /**
      * Creates a new sql builder for encoding raw sql statements;
-     * 
+     *
      */
     protected PostgisSQLBuilder createSQLBuilder() {
         PostgisSQLBuilder builder = new PostgisSQLBuilder(new SQLEncoderPostgis(), config);
@@ -343,7 +346,7 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
      * @see org.geotools.data.DataStore#getTypeNames()
      */
     public String[] getTypeNames() throws IOException {
-    	
+
         final int TABLE_NAME_COL = 3;
         Connection conn = null;
         List list = new ArrayList();
@@ -358,7 +361,7 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
 
             while (tables.next()) {
             	String tableName = tables.getString(TABLE_NAME_COL);
-            	            	
+
                 if (allowTable(tableName)) {
                     list.add(tableName);
                 }
@@ -376,16 +379,16 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
         } finally {
             JDBCUtils.close(conn, Transaction.AUTO_COMMIT, null);
         }
-        
+
     	/*
         //Justin's patch from uDig, should be faster, but untested.
-    	Connection conn = null;    	
+    	Connection conn = null;
 		String namespace = config.getNamespace();
 		try {
 			conn = getConnection(Transaction.AUTO_COMMIT);
-			
+
 			PreparedStatement st = null;
-			
+
 			if (namespace != null && !namespace.trim().equals("")) { //$NON-NLS-1$
 				st = conn.prepareStatement(
 					"SELECT distinct a.relname "  //$NON-NLS-1$
@@ -411,30 +414,30 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
 				);
 				st.setString(1, "geometry"); //$NON-NLS-1$
 			}
-			
-			ResultSet rs = st.executeQuery(); 
+
+			ResultSet rs = st.executeQuery();
 			ArrayList names = new ArrayList();
 			while(rs.next()) {
 				String table = rs.getString(1);
 				if (allowTable(table)){
 					names.add(table);
 				}
-					
+
 			}
-			
+
 			return (String[])names.toArray(new String[names.size()]);
 		}
 		catch (SQLException sqlException) {
 	        JDBCUtils.close(conn, Transaction.AUTO_COMMIT, sqlException);
 	        conn = null;
 	        throw new DataSourceException( sqlException );
-	    } 
+	    }
 	    finally {
 	        JDBCUtils.close(conn, Transaction.AUTO_COMMIT, null);
-	    }    
-	    */	    	
+	    }
+	    */
     }
-    
+
     /**
      * Retrieve approx bounds of all Features.
      * <p>
@@ -445,23 +448,23 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
      */
     public Envelope getEnvelope( String typeName ){
     	Connection conn = null;
-    	    	
+
     	try {
-    		conn = createConnection();    		
+    		conn = createConnection();
             Statement st = null;
             ResultSet rs = null;
             Envelope envelope = null;
-    		    	
+
         	SimpleFeatureType schema = getSchema(typeName);
         	String geomName = schema.getGeometryDescriptor().getLocalName();
-        	
+
 	    	// optimization, postgis version >= 1.0 contains estimated_extent
             // function to query the stats of the table to determine the bbox,
             // however, it may return null
 		    if (getDBInfo().getMajorVersion() >= 1) {
 		    	//try the estimated_extent([schema], table, geocolumn) function
 	    	    String q;
-                String dbSchema = config.getDatabaseSchemaName(); 
+                String dbSchema = config.getDatabaseSchemaName();
                 if (!schemaEnabled || dbSchema == null || "".equals(dbSchema)) {
                     q = "SELECT AsText(force_2d(envelope(estimated_extent('"+typeName+"','"+geomName+"'))))";
                 } else {
@@ -469,13 +472,13 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
                 }
                 st = conn.createStatement();
                 rs = st.executeQuery(q);
-		    	
+
 		    	if (rs.next()) {
 		    		//parse return value
 		    		String wkt = rs.getString(1);
 		    		if (wkt != null &&  !wkt.trim().equals("")) { //$NON-NLS-1$
 		    			envelope = geometryReader.read(wkt).getEnvelopeInternal();
-		    			
+
 		    			// expand the bounds by 20% (10% in each direction)
 		    			// Works whether or not the bounds are at the origin
 		    			double minX = envelope.getMinX();
@@ -491,13 +494,13 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
                                 "\nPerhaps 'ANALYZE "+typeName+";' needs to be run or the table is empty?");
                     }
 		    	}
-		    	
+
 		    	rs.close();
 		    	st.close();
 		    }
-		    
+
 		    if (envelope == null) {
-		    	
+
                 //try to generate an approximation
                 envelope = new Envelope();
                 //this is an attempt to grab a handful of envelopes without counting the features
@@ -540,10 +543,10 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
                         if (wkt != null && !wkt.trim().equals("")) { //$NON-NLS-1$
                             Envelope e = geometryReader.read(wkt)
                                 .getEnvelopeInternal();
-                            
-                            if (envelope.isNull()) 
+
+                            if (envelope.isNull())
                                 envelope.init(e);
-                            else 
+                            else
                                 envelope.expandToInclude(e);
                         }
                     }
@@ -577,7 +580,7 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
                             } else {
                                 rs.close();
                                 st.close();
-                                break;    
+                                break;
                             }
                         }
                         i--;
@@ -587,7 +590,7 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
                     if (offset[i] == -1)
                         break;
                 }
-		    	
+
 		    	// expand since this is an approximation
 		    	// Works whether or not the bounds are at the origin
 		    	double minX = envelope.getMinX();
@@ -598,8 +601,8 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
 		    	double deltaY = (maxY - minY)*1.0;
 		    	envelope.expandToInclude(minX - deltaX, minY - deltaY);
 		    	envelope.expandToInclude(maxX + deltaX, maxY + deltaY);
-                
-		    }		    
+
+		    }
 		    return envelope;
     	} catch (Exception ignore) {
 			return null;
@@ -613,7 +616,7 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
     		}
     	}
     }
-    
+
 
     protected boolean allowTable(String tablename) {
         if (tablename.equals("geometry_columns")) {
@@ -625,24 +628,24 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
         //others?
         return true;
     }
-    
+
     /**
-     * Override this method to perform a few permission checks before the super 
+     * Override this method to perform a few permission checks before the super
      * class has a chance to do its thing.
      */
     protected SimpleFeatureType buildSchema(String typeName, FIDMapper mapper) throws IOException {
     	//be sure we can query the necessary tables
     	//TODO: should spatial_ref_sys be in here?
     	Connection conn = getConnection(Transaction.AUTO_COMMIT);
-    	
+
     	try {
 			Statement st = conn.createStatement();
-			
+
 			try {
 				st.execute("SELECT * FROM geometry_columns LIMIT 0;");
-			} 
+			}
 			catch (Throwable t) {
-				String msg = "Error querying relation: geometry_columns." + 
+				String msg = "Error querying relation: geometry_columns." +
 				 	" Possible cause:" + t.getLocalizedMessage();
 				throw new DataSourceException(msg,t);
 			}
@@ -655,14 +658,14 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
 
                 st.execute("SELECT * FROM " + builder.encodeTableName(typeName)
                         + " LIMIT 0;");
-            } 
+            }
 			catch (Throwable t) {
-				String msg = "Error querying relation:" + typeName + "."  +  
+				String msg = "Error querying relation:" + typeName + "."  +
 						" Possible cause:" + t.getLocalizedMessage();
 				throw new DataSourceException(msg,t);
 			}
             st.close();
-		} 
+		}
     	catch (SQLException e) {
     		JDBCUtils.close(conn, Transaction.AUTO_COMMIT, e);
     		throw new DataSourceException(e);
@@ -670,21 +673,21 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
     	finally {
     		JDBCUtils.close(conn, Transaction.AUTO_COMMIT, null);
     	}
-		
+
     	//everything is cool, keep going
     	return super.buildSchema(typeName, mapper);
     }
-    
 
-   
+
+
 
     /**
      * This is a public entry point to the DataStore.
-     * 
+     *
      * <p>
      * We have given some though to changing this api to be based on query.
      * </p>
-     * 
+     *
      * <p>
      * Currently this is the only way to retype your features to different
      * name spaces.
@@ -723,9 +726,9 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
         if ((filter == Filter.EXCLUDE) || filter.equals(Filter.EXCLUDE)) {
             return new EmptyFeatureReader<SimpleFeatureType, SimpleFeature>(requestType);
         }
-        
+
          FeatureReader<SimpleFeatureType, SimpleFeature> reader = getFeatureReader(query, transaction);
-        
+
         if (compare == 1) {
             reader = new ReTypeFeatureReader(reader, requestType, false);
         }
@@ -802,13 +805,13 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
         encoder.setFeatureType( info.getSchema() );
         encoder.setSRID(srid);
         encoder.setLooseBbox(looseBbox);
-       
+
         PostgisSQLBuilder builder = new PostgisSQLBuilder(encoder,config,info.getSchema());
         initBuilder(builder);
-        
+
         return builder;
     }
-    
+
     protected void initBuilder(PostgisSQLBuilder builder) {
     	builder.setWKBEnabled(WKBEnabled);
         builder.setByteaEnabled(byteaEnabled);
@@ -843,10 +846,10 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
             sql.append("' AND f_geometry_column='");
             sql.append(geometryColumnName);
             sql.append("';");
-            
+
             String sqlStatement = sql.toString();
             LOGGER.fine("srid statement is " + sqlStatement);
-            
+
             dbConnection = getConnection(Transaction.AUTO_COMMIT);
             Statement statement = dbConnection.createStatement();
             ResultSet result = statement.executeQuery(sqlStatement);
@@ -877,7 +880,7 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
                 JDBCUtils.close(statement);
                 return retSrid;
             }
-            
+
             String mesg = "No geometry column row for srid in table: "
                 + tableName + ", geometry column " + geometryColumnName;
             throw new DataSourceException(mesg);
@@ -891,20 +894,20 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
 
     /**
      * Provides the default implementation of determining the FID column.
-     * 
+     *
      * <p>
      * The default implementation of determining the FID column name is to use
      * the primary key as the FID column. If no primary key is present, null
      * will be returned. Sub classes can override this behaviour to define
      * primary keys for vendor specific cases.
      * </p>
-     * 
+     *
      * <p>
      * There is an unresolved issue as to what to do when there are multiple
      * primary keys. Maybe a restriction that table much have a single column
      * primary key is appropriate.
      * </p>
-     * 
+     *
      * <p>
      * This should not be called by subclasses to retreive the FID column name.
      * Instead, subclasses should call getFeatureTypeInfo(String) to get the
@@ -921,10 +924,10 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
     //    protected String determineFidColumnName(String typeName)
     //        throws IOException {
     //        String fidColumn = super.determineFidColumnName(typeName);
-    //        
+    //
     //        if(fidColumn == null)
     //        	fidColumn = DEFAULT_FID_COLUMN;
-    //        	
+    //
     //        return fidColumn;
     //    }
     /*
@@ -945,14 +948,14 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
      * contains the information retrieved by a call to getColumns() on the
      * DatabaseMetaData object. This information can be used to construct an
      * Attribute Type.
-     * 
+     *
      * <p>
      * This implementation construct an AttributeDescriptor using the default JDBC
      * type mappings defined in JDBCDataStore. These type mappings only handle
      * native Java classes and SQL standard column types. If a geometry type
      * is found then getGeometryAttribute is called.
      * </p>
-     * 
+     *
      * <p>
      * Note: Overriding methods must never move the current row pointer in the
      * result set.
@@ -973,11 +976,11 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
             final int TYPE_NAME = 6;
             final int NULLABLE = 11;
             String typeName = metadataRs.getString(TYPE_NAME);
-            
+
             if (typeName.equals("geometry")) {
                 String tableName = metadataRs.getString(TABLE_NAME);
                 String columnName = metadataRs.getString(COLUMN_NAME);
-                
+
                 // check for nullability
                 int nullCode = metadataRs.getInt( NULLABLE );
                 boolean nillable = isNullable(nullCode);
@@ -986,17 +989,17 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
             } else if("uuid".equals(typeName)) {
                 String tableName = metadataRs.getString(TABLE_NAME);
                 String columnName = metadataRs.getString(COLUMN_NAME);
-                
+
                 // check for nullability
                 int nullCode = metadataRs.getInt( NULLABLE );
                 boolean nillable = isNullable(nullCode);
-                
+
                 AttributeTypeBuilder atb = new AttributeTypeBuilder();
                 atb.setName(columnName);
                 atb.setBinding(String.class);
                 atb.setMinOccurs(nillable ? 0 : 1);
                 atb.setMaxOccurs(1);
-                return atb.buildDescriptor(columnName); 
+                return atb.buildDescriptor(columnName);
             } else {
                 return super.buildAttributeType(metadataRs);
             }
@@ -1011,11 +1014,11 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
             case DatabaseMetaData.columnNoNulls:
                 nillable = false;
                 break;
-                
+
             case DatabaseMetaData.columnNullable:
                 nillable = true;
                 break;
-                
+
             case DatabaseMetaData.columnNullableUnknown:
                 nillable = true;
                 break;
@@ -1035,7 +1038,7 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
 
         try {
             conn = getConnection(Transaction.AUTO_COMMIT);
-            
+
             String dbSchema = config.getDatabaseSchemaName();
             FIDMapper mapper = factory.getMapper(null, dbSchema, typeName, conn);
 
@@ -1050,7 +1053,7 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
      *
      * @param tableName The feature table name.
      * @param columnName The geometry column name.
-     * @param nillable 
+     * @param nillable
      *
      * @return Geometric attribute.
      *
@@ -1082,7 +1085,7 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
             sql.append("' AND f_geometry_column='");
             sql.append(columnName);
             sql.append("';");
-            
+
             String sqlStatement = sql.toString();
             LOGGER.fine("geometry type sql statement is " + sqlStatement);
 
@@ -1100,7 +1103,7 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
                     dimension = 2;
                     LOGGER.warning("Geometry dimension " + dimension + " + is invalid, assuming 2");
                 }
-                    
+
             }
             result.close();
 
@@ -1137,7 +1140,7 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
                 result.close();
             }
             statement.close();
-            
+
             if (geometryType == null) {
                 String msg = " no geometry found in the GEOMETRY_COLUMNS table"
                     + " for " + tableName + " of the postgis install.  A row"
@@ -1168,7 +1171,7 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
         } catch (FactoryException e) {
             crs = null;
         }
-        
+
         return new AttributeTypeBuilder().name(columnName).binding(type)
         	.nillable(nillable).crs(crs).userData(Hints.COORDINATE_DIMENSION, dimension).buildDescriptor(columnName);
     }
@@ -1210,27 +1213,27 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
      * called "tablename_fid_seq". The user should not interact with this
      * column, although its value will be the FID. This method currently assumes
      * there are only 2 dimensions.
-     * 
+     *
      * @throws IOException
      *             if something goes horribly wrong or the table already exists
      * @see org.geotools.data.DataStore#createSchema(org.geotools.feature.FeatureType)
      */
     public void createSchema(SimpleFeatureType featureType) throws IOException {
     	String tableName = featureType.getTypeName();
-    	
+
     	String lcTableName = tableName.toLowerCase();
-        
+
         AttributeDescriptor[] attributeType = (AttributeDescriptor[]) featureType.getAttributeDescriptors().toArray(new AttributeDescriptor[featureType.getAttributeDescriptors().size()]);
         String dbSchema = config.getDatabaseSchemaName();
-        
+
         PostgisSQLBuilder sqlb = createSQLBuilder();
-    		
-        
+
+
         //the featureType won't tell us who the primary key is, so we'll create
         //our own "fid_tablename".  Later when we load the featureType, we will
         //pretend we didn't see fid_tablename when we return the attributes.
         String fidColumn = lcTableName + "_fid";
-        
+
         //make sure the fid column doesn't already exist
         for (int i = 0; i < attributeType.length; i++) {
         	if (attributeType[i].getLocalName().equalsIgnoreCase(fidColumn)) {
@@ -1239,7 +1242,7 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
                 throw new IOException(message);
             }
         }
-        
+
         Connection con = this.getConnection(Transaction.AUTO_COMMIT);
         Statement st = null;
 
@@ -1250,7 +1253,7 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
             st = con.createStatement();
 
             StringBuffer sql = new StringBuffer("CREATE TABLE ");
-			sql.append(sqlb.encodeTableName(tableName));            
+			sql.append(sqlb.encodeTableName(tableName));
             sql.append(" (");
             sql.append(sqlb.encodeColumnName(fidColumn));
             sql.append(" serial PRIMARY KEY,");
@@ -1267,9 +1270,9 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
             //fix from pr: it may be that table existed and then was dropped
             //without removing its geometry info from GEOMETRY_COLUMNS.
             //To support this, try to delete before inserting.
-            //Preserving case for table names gives problems, 
+            //Preserving case for table names gives problems,
             //so convert to lower case
-            
+
             sql = new StringBuffer("DELETE FROM GEOMETRY_COLUMNS WHERE f_table_catalog=''");
             sql.append(" AND f_table_schema = '");
             sql.append(dbSchema);
@@ -1289,27 +1292,27 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
             //Ok, so Paolo Rizzi suggested that we get rid of our hand-adding
             //of geometry column information and use AddGeometryColumn instead
             //as it is better (this is in GEOT-379, he attached an extended
-            //datastore that does postgis fixes).  But I am pretty positive 
+            //datastore that does postgis fixes).  But I am pretty positive
             //the reason we are doing things this way is to preserve the order
-            //of FeatureTypes.  I know this is fairly silly, from most 
+            //of FeatureTypes.  I know this is fairly silly, from most
             //information perspectives, but from another perspective it seems
             //to make sense - if you were transfering a featureType from one
             //data store to another then it should have the same order, right?
             //And order is important in WFS.  There are a few caveats though
             //for one I don't even know if things work right.  I imagine the
-            //proper constraints that a AddGeometryColumn operation does are 
+            //proper constraints that a AddGeometryColumn operation does are
             //not set in our hand version, for one.  I would feel better about
-            //ignoring the order and just doing things as we like if we had 
+            //ignoring the order and just doing things as we like if we had
             //views in place, if users could add the schema, and then be able
-            //to get it back in exactly the order they wanted.  So for now 
-            //let's leave things as is, and maybe talk about it in an irc. -ch 
+            //to get it back in exactly the order they wanted.  So for now
+            //let's leave things as is, and maybe talk about it in an irc. -ch
             for (int i = 0; i < attributeType.length; i++) {
                 if (!(attributeType[i] instanceof GeometryDescriptor)) {
                     continue;
                 }
                 GeometryDescriptor geomAttribute = (GeometryDescriptor) attributeType[i];
                 String columnName = attributeType[i].getLocalName();
-                
+
                 CoordinateReferenceSystem refSys = geomAttribute.getCoordinateReferenceSystem();
                 int SRID;
 
@@ -1342,11 +1345,11 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
                 //this construct seems unnecessary, since we already would
                 //pass over if this wasn't a geometry...
                 Class type = geomAttribute.getType().getBinding();
-                
-                
+
+
                 int dimension = 2;
                 typeName = getGeometrySQLTypeName(type);
-                
+
                 GeometryDescriptor gd = (GeometryDescriptor) geomAttribute;
                 if(gd.getUserData().get(Hints.COORDINATE_DIMENSION) instanceof Integer) {
                     dimension = (Integer) gd.getUserData().get(Hints.COORDINATE_DIMENSION);
@@ -1358,7 +1361,7 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
 //                        + tableName + "','" + attributeType[i].getName()
 //                        + "','" + SRID + "','" + typeName + "',2);"
 //                    ); //assumes 2-D
-                    
+
                 	//add a row to the geometry_columns table
                     sql = new StringBuffer("INSERT INTO GEOMETRY_COLUMNS VALUES (");
                     sql.append("'','");
@@ -1374,14 +1377,14 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
                     sql.append(",'");
                     sql.append(typeName);
                     sql.append("');");
-                    
+
                     sqlStr = sql.toString();
                     LOGGER.info(sqlStr);
 
                     if (shouldExecute) {
                         st.execute(sqlStr);
                     }
-                    
+
                     //add geometry constaints to the table
                     if (SRID > -1) {
                         sql = new StringBuffer("ALTER TABLE ");
@@ -1392,14 +1395,14 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
                         sql.append(sqlb.encodeColumnName(columnName));
                         sql.append(") = ");
                         sql.append(SRID);
-                        sql.append(");"); 
+                        sql.append(");");
                         sqlStr = sql.toString();
 	                    LOGGER.info(sqlStr);
 	                    if (shouldExecute) {
 	                        st.execute(sqlStr);
 	                    }
                     }
-                    
+
                     sql = new StringBuffer("ALTER TABLE ");
                     sql.append(sqlb.encodeTableName(tableName));
                     sql.append(" ADD CONSTRAINT enforce_dims_");
@@ -1426,7 +1429,7 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
                         sql.append(typeName);
                         sql.append("'::text OR ");
                         sql.append(sqlb.encodeColumnName(columnName));
-                        sql.append(" IS NULL);"); 
+                        sql.append(" IS NULL);");
 	                    sqlStr = sql.toString();
                         LOGGER.info(sqlStr);
 	                    if (shouldExecute) {
@@ -1438,8 +1441,8 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
                 	LOGGER.warning("Error: " + geomAttribute.getLocalName()+ " unknown type!!!");
                 }
 
-                
-                
+
+
                 //also build a spatial index on each geometry column.
                 sql = new StringBuffer("CREATE INDEX spatial_");
                 sql.append(tableName);
@@ -1450,7 +1453,7 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
                 sql.append(" USING GIST (");
                 sql.append(sqlb.encodeColumnName(attributeType[i].getLocalName()));
                 sql.append(");");
-                
+
                 sqlStr = sql.toString();
                 LOGGER.info(sqlStr);
 
@@ -1530,7 +1533,7 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
             typeName = (String) CLASS_MAPPINGS.get(attributeType[i].getType().getBinding());
             if (typeName == null)
             	typeName = (String) GEOM_CLASS_MAPPINGS.get(attributeType[i].getType().getBinding());
-            	
+
             if (typeName != null) {
                 if (attributeType[i] instanceof GeometryDescriptor) {
                     typeName = "GEOMETRY";
@@ -1631,7 +1634,7 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
      */
     /**
      * Get propertyNames in a safe manner.
-     * 
+     *
      * <p>
      * Method wil figure out names from the schema for query.getTypeName(), if
      * query getPropertyNames() is <code>null</code>, or
@@ -1666,14 +1669,14 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
      *      org.geotools.feature.FeatureType)
      */
     public void updateSchema(String typeName, SimpleFeatureType featureType)
-        throws IOException { 
+        throws IOException {
     	throw new IOException("PostgisDataStore.updateSchema not yet implemented");
     	//TODO: implement updateSchema
     }
 
     /**
      * Default implementation based on getFeatureReader and getFeatureWriter.
-     * 
+     *
      * <p>
      * We should be able to optimize this to only get the RowSet once
      * </p>
@@ -1715,10 +1718,10 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
     public PostgisFeatureLocking createFeatureLockingInternal(
 		PostgisDataStore ds, SimpleFeatureType type
 	) throws IOException {
-    	
+
     	return new PostgisFeatureLocking(ds,type);
     }
-    
+
     /**
      * DOCUMENT ME!
      *
@@ -1730,30 +1733,30 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
      */
     protected JDBCFeatureWriter createFeatureWriter(FeatureReader <SimpleFeatureType, SimpleFeature> fReader,
         QueryData queryData) throws IOException {
-    	PostgisSQLBuilder sqlBuilder = 
+    	PostgisSQLBuilder sqlBuilder =
     		(PostgisSQLBuilder) getSqlBuilder(fReader.getFeatureType().getTypeName());
-        PostgisFeatureWriter postgisFeatureWriter = new PostgisFeatureWriter(fReader, queryData, WKBEnabled,byteaWKB,sqlBuilder);        
+        PostgisFeatureWriter postgisFeatureWriter = new PostgisFeatureWriter(fReader, queryData, WKBEnabled,byteaWKB,sqlBuilder);
         return postgisFeatureWriter;
     }
 
     /**
      * Retrieve a FeatureWriter over entire dataset.
-     * 
+     *
      * <p>
      * Quick notes: This FeatureWriter is often used to add new content, or
      * perform summary calculations over the entire dataset.
      * </p>
-     * 
+     *
      * <p>
      * Subclass may wish to implement an optimized featureWriter for these
      * operations.
      * </p>
-     * 
+     *
      * <p>
      * It should provide Feature for next() even when hasNext() is
      * <code>false</code>.
      * </p>
-     * 
+     *
      * <p>
      * Subclasses are responsible for checking with the lockingManger unless
      * they are providing their own locking support.
@@ -1782,18 +1785,18 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
 
     /**
      * Retrieve a FeatureWriter for creating new content.
-     * 
+     *
      * <p>
      * Subclass may wish to implement an optimized featureWriter for this
      * operation. One based on prepared statements is a possibility, as we do
      * not require a ResultSet.
      * </p>
-     * 
+     *
      * <p>
      * To allow new content the FeatureWriter should provide Feature for next()
      * even when hasNext() is <code>false</code>.
      * </p>
-     * 
+     *
      * <p>
      * Subclasses are responsible for checking with the lockingManger unless
      * they are providing their own locking support.
@@ -1829,22 +1832,22 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
      */
     protected AttributeIO getGeometryAttributeIO(AttributeDescriptor type,
         QueryData queryData) {
-        
+
         // grab the crs if available
         GeometryDescriptor geometryType = (GeometryDescriptor) type;
         CoordinateReferenceSystem crs = null;
         if(geometryType != null)
             crs = geometryType.getCoordinateReferenceSystem();
-        
+
         Hints hints = queryData != null ? queryData.getHints() : GeoTools.getDefaultHints();
-        if(geometryType != null && geometryType.getUserData().get(Hints.COORDINATE_DIMENSION) instanceof Integer) { 
+        if(geometryType != null && geometryType.getUserData().get(Hints.COORDINATE_DIMENSION) instanceof Integer) {
             hints.put(Hints.COORDINATE_DIMENSION, geometryType.getUserData().get(Hints.COORDINATE_DIMENSION));
         }
         int D = (crs == null || Boolean.TRUE.equals( queryData.getHints().get( Hints.FEATURE_2D )))
                 ? 2 : crs.getCoordinateSystem().getDimension();
-        
+
         if (WKBEnabled) {
-            return new PgWKBAttributeIO(isByteaEnabled(), hints);            
+            return new PgWKBAttributeIO(isByteaEnabled(), hints);
         } else {
             if( D == 3 ){
                 return new EWKTAttributeIO();
@@ -1933,34 +1936,34 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
         this.byteaEnabled = byteaEnabled;
     }
 
-    
+
     /**
      * Enables the use of the 'estimated_extent' function for bounds computation.
      * <p>
-     * Beware that this function is an approximation and is dependent on the 
+     * Beware that this function is an approximation and is dependent on the
      * degree to with the data in the actual bounds follows a uniform distribution.
      * </p>
      */
     public void setEstimatedExtent(boolean estimatedExtent) {
     	this.estimatedExtent = estimatedExtent;
-    	
+
     	//also make sure optimize mode is set properly
     	if ( estimatedExtent ) {
     		LOGGER.info( "Setting OPTIMIZE_MODE to 'SQL'" );
-    		setOptimizeMode( OPTIMIZE_SQL );	
+    		setOptimizeMode( OPTIMIZE_SQL );
     	}
     }
-    
+
     /**
      * @see {@link #setEstimatedExtent(boolean)}.
      */
     public boolean isEstimatedExtent() {
     	return estimatedExtent;
     }
-    
+
     /**
      * Sets the optimization mode for the datastore.
-     * 
+     *
      * @param mode One of {@link #OPTIMIZE_SAFE},{@link #OPTIMIZE_SQL}.
      */
     public void setOptimizeMode( int mode ) {
@@ -1969,20 +1972,20 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
     public int getOptimizeMode() {
     	return OPTIMIZE_MODE;
     }
-    
+
 	public SimpleFeatureType getSchema(String arg0) throws IOException {
 		return super.getSchema(arg0);
 	}
-    
+
     /**
      * Obtains the postgis datastore connection pool.
-     *  
+     *
      * @return ConnectionPool
      */
     public DataSource getDataSource() {
         return dataSource;
     }
-    
+
     /**
      * Obtains database specific information, such as version, supported
      * functions, etc.
@@ -1999,11 +2002,11 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
         }
         return dbInfo;
     }
-    
+
     /**
      * Returns the JDBC type constant (as in {@link Types}) that maps to the given
      * Java class binding when constructing attribute types, or null if no such mapping exist.
-     * 
+     *
      * @param attributeTypeBinding
      * @return
      */
@@ -2030,8 +2033,8 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
             Hints.FEATURE_DETACHED})));
     private static final Set WKB_HINTS = Collections.unmodifiableSet(
             new HashSet(Arrays.asList(new Object[] {
-            Hints.FEATURE_DETACHED, 
-            Hints.JTS_COORDINATE_SEQUENCE_FACTORY, 
+            Hints.FEATURE_DETACHED,
+            Hints.JTS_COORDINATE_SEQUENCE_FACTORY,
             Hints.JTS_GEOMETRY_FACTORY})));
     public Set getSupportedHints() {
         if(isWKBEnabled()) {
