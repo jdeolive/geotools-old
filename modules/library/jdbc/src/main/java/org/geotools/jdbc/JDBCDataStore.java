@@ -1110,10 +1110,12 @@ public final class JDBCDataStore extends ContentDataStore
                 while (rs.next()) {
                     for (int i = 1; i <= columns; i++) {
                         final Envelope envelope = dialect.decodeGeometryEnvelope(rs, i, st.getConnection());
-                        if(envelope instanceof ReferencedEnvelope) {
-                            bounds = mergeEnvelope(bounds, (ReferencedEnvelope) envelope);
-                        } else {
-                            bounds = mergeEnvelope(bounds, new ReferencedEnvelope(envelope, flatCRS));
+                        if(envelope != null) {
+                            if(envelope instanceof ReferencedEnvelope) {
+                                bounds = mergeEnvelope(bounds, (ReferencedEnvelope) envelope);
+                            } else {
+                                bounds = mergeEnvelope(bounds, new ReferencedEnvelope(envelope, flatCRS));
+                            }
                         }
                     }
                 }

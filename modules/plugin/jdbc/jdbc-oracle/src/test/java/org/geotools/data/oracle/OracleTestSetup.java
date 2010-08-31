@@ -42,6 +42,7 @@ public class OracleTestSetup extends JDBCTestSetup {
         super.setUpDataStore(dataStore);
         // tests do assume the dialect is working in non loose mode
         ((OracleDialect) dataStore.getSQLDialect()).setLooseBBOXEnabled(false);
+        ((OracleDialect) dataStore.getSQLDialect()).setEstimatedExtentsEnabled(false);
         dataStore.setDatabaseSchema(fixture.getProperty("user").toUpperCase());
     }
     

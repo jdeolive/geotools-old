@@ -600,11 +600,11 @@ public class OracleDialect extends PreparedStatementSQLDialect {
     @Override
     public List<ReferencedEnvelope> getOptimizedBounds(String schema, SimpleFeatureType featureType,
             Connection cx) throws SQLException, IOException {
-        if (!estimatedExtentsEnabled)
+        if (!estimatedExtentsEnabled || dataStore.getVirtualTables().get(featureType.getTypeName()) != null)
             return null;
 
         String tableName = featureType.getTypeName();
-
+        
         Statement st = null;
         ResultSet rs = null;
 
@@ -628,7 +628,7 @@ public class OracleDialect extends PreparedStatementSQLDialect {
                         Envelope env = decodeGeometryEnvelope(rs, 1, cx);
 
                         // reproject and merge
-                        if (!env.isNull()) {
+                        if (env != null && !env.isNull()) {
                             CoordinateReferenceSystem crs = ((GeometryDescriptor) att)
                                     .getCoordinateReferenceSystem();
                             result.add(new ReferencedEnvelope(env, crs));
