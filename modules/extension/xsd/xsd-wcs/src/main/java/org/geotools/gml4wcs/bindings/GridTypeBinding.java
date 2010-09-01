@@ -75,7 +75,10 @@ public class GridTypeBinding extends AbstractComplexBinding {
             throws Exception {
         RectifiedGridType grid = Gml4wcsFactory.eINSTANCE.createRectifiedGridType();
         
-        grid.setSrsName(((URI) node.getAttribute("srsName").getValue()).toString());
+        if(node.hasAttribute("srsName")) {
+            grid.setSrsName(node.getAttributeValue("srsName").toString());
+        }
+        
         grid.setDimension((BigInteger) node.getAttribute("dimension").getValue());
 
         GeneralGridEnvelope limitsEnvelope = (GeneralGridEnvelope) node.getChildValue("limits");
