@@ -74,7 +74,7 @@ public class EMFUtils {
 
         return eobject.eGet(feature);
     }
-
+    
     /**
      * Adds a value to a multi-valued propert of an eobject.
      * <p>
@@ -90,12 +90,30 @@ public class EMFUtils {
     public static void add(EObject eobject, String property, Object value) {
         EStructuralFeature feature = feature(eobject, property);
 
-        if ((feature != null) && isCollection(eobject, property)) {
-            Collection collection = (Collection) get(eobject, property);
-            collection.addAll(collection(value));
+        if ((feature != null)) {
+            add(eobject, feature, value);
         }
     }
 
+    /**
+     * Adds a value to a multi-valued propert of an eobject.
+     * <p>
+     * The <param>feature</param> must map to a multi-valued property of the
+     * eobject. The {@link #isCollection(EStructuralFeature)} method can be used
+     * to test this.
+     * </p>
+     *
+     * @param eobject The object.
+     * @param feature The multi-valued feature.
+     * @param value The value to add.
+     */
+    public static void add(EObject eobject, EStructuralFeature feature, Object value) {
+        if (isCollection(eobject, feature)) {
+            Collection collection = (Collection) eobject.eGet(feature);
+            collection.addAll(collection(value));
+        }
+    }
+    
     /**
      * Returns a collection view for value, taking care of the case where value
      * is of an array type, in which case the collection returned contains the
@@ -151,13 +169,29 @@ public class EMFUtils {
             return false;
         }
 
+        return isCollection(eobject, feature);
+    }
+
+    /**
+     * Determines if a feature of an eobject is a collection.
+     *
+     * @return <code>true</code> if the feature is a collection, otherwise
+     * <code>false</code>
+     */
+    public static boolean isCollection(EObject eobject, EStructuralFeature feature) {
+        
+        Object o = eobject.eGet(feature);
+        if (o != null) {
+            return o instanceof Collection;
+        }
+        
         if (EList.class.isAssignableFrom(feature.getEType().getInstanceClass())) {
             return true;
         }
 
         return false;
     }
-
+    
     /**
      * Method which looks up a structure feature of an eobject, first doing
      * an exact name match, then a case insensitive one.

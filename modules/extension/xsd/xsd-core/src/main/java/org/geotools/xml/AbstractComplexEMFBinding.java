@@ -229,7 +229,7 @@ public abstract class AbstractComplexEMFBinding extends AbstractComplexBinding {
         
                 try {
                     if (EMFUtils.isCollection(eObject, property)) {
-                            EMFUtils.add(eObject, property, value);    
+                            EMFUtils.add(eObject, property, value);
                     } else {
                         EMFUtils.set(eObject, property, value);
                     }
@@ -272,11 +272,15 @@ public abstract class AbstractComplexEMFBinding extends AbstractComplexBinding {
                     if (features.size() == 1) {
                         EStructuralFeature feature = (EStructuralFeature) features.get(0);
                         
-                        //only set if not previous set
-                        if ( !eObject.eIsSet( feature ) ) {
-                            eObject.eSet(feature, value);    
-                        }    
-                        
+                        if(EMFUtils.isCollection(eObject, feature)) {
+                            EMFUtils.add(eObject, feature, value);
+                        }
+                        else {
+                            //only set if not previous set
+                            if ( !eObject.eIsSet( feature ) ) {
+                                eObject.eSet(feature, value);
+                            }
+                        }
                     }
                 }
             }
