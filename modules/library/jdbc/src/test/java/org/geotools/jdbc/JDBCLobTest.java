@@ -24,6 +24,7 @@ public abstract class JDBCLobTest extends JDBCTestSupport {
     protected static final String ID = "id";
     protected static final String BLOB_FIELD = "blob_field";
     protected static final String CLOB_FIELD = "clob_field";
+    protected static final String RAW_FIELD = "raw_field";
     
     protected FilterFactory ff = CommonFactoryFinder.getFilterFactory(null); 
     protected SimpleFeatureType lobSchema;
@@ -40,6 +41,7 @@ public abstract class JDBCLobTest extends JDBCTestSupport {
         tb.setName(TESTLOB);
         tb.add(aname(BLOB_FIELD), byte[].class);
         tb.add(aname(CLOB_FIELD), String.class);
+        tb.add(aname(RAW_FIELD), byte[].class);
         lobSchema = tb.buildFeatureType();
     }
     
@@ -57,6 +59,7 @@ public abstract class JDBCLobTest extends JDBCTestSupport {
         SimpleFeature f = fi.next();
         fi.close();
         assertTrue(Arrays.equals(new byte[] {1,2,3,4,5}, (byte[]) f.getAttribute(aname(BLOB_FIELD))));
+        assertTrue(Arrays.equals(new byte[] {6,7,8,9,10}, (byte[]) f.getAttribute(aname(RAW_FIELD))));
         assertEquals("small clob", f.getAttribute(aname(CLOB_FIELD)));
     }
     
@@ -65,7 +68,7 @@ public abstract class JDBCLobTest extends JDBCTestSupport {
             dataStore.getFeatureSource(tname(TESTLOB));
         
         SimpleFeature sf = SimpleFeatureBuilder.build(lobSchema, new Object[] {
-                new byte[] {6,7,8}, "newclob"}, null);
+                new byte[] {6,7,8}, "newclob", new byte[] {11,12,13}}, null);
         List<FeatureId> fids = fs.addFeatures(DataUtilities.collection(sf));
         
         Filter filter = ff.id(new HashSet<Identifier>(fids));
@@ -74,6 +77,7 @@ public abstract class JDBCLobTest extends JDBCTestSupport {
         SimpleFeature f = fi.next();
         fi.close();
         assertTrue(Arrays.equals(new byte[] {6,7,8}, (byte[]) f.getAttribute(aname(BLOB_FIELD))));
+        assertTrue(Arrays.equals(new byte[] {11,12,13}, (byte[]) f.getAttribute(aname(RAW_FIELD))));
         assertEquals("newclob", f.getAttribute(aname(CLOB_FIELD)));
     }
 
