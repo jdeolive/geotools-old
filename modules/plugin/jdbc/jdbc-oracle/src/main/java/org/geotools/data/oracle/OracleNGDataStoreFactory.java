@@ -39,7 +39,13 @@ public class OracleNGDataStoreFactory extends JDBCDataStoreFactory {
     public static final Param DBTYPE = new Param("dbtype", String.class, "Type", true, "oracle");
 
     /** parameter for database port */
-    public static final Param PORT = new Param("port", Integer.class, "Port", true, 1521);
+    public static final Param PORT = new Param("port", Integer.class, "Port", false, 1521);
+    
+    /** parameter for database host */
+    public static final Param HOST = new Param("host", String.class, "Host", false, "localhost");
+    
+    /** parameter for database instance */
+    public static final Param DATABASE = new Param("database", String.class, "Database", true);
     
     /** parameter that enables estimated extends instead of exact ones */ 
     public static final Param ESTIMATED_EXTENTS = new Param("Estimated extends", Boolean.class, "Use the spatial index information to quickly get an estimate of the data bounds", false, Boolean.TRUE);
@@ -116,15 +122,18 @@ public class OracleNGDataStoreFactory extends JDBCDataStoreFactory {
     
     @Override
     protected String getJDBCUrl(Map params) throws IOException {
-        String host = (String) HOST.lookUp(params);
-        String db = (String) DATABASE.lookUp(params);
-        int port = (Integer) PORT.lookUp(params);
-        if( db.startsWith("(") )
-            return JDBC_PATH + db;
-        else if( db.startsWith("/") )
-            return JDBC_PATH + "//" + host + ":" + port + db;
+    	String db = (String) DATABASE.lookUp(params);    	
+      String host = (String) HOST.lookUp(params);        
+      Integer port =(Integer) PORT.lookUp(params);
+
+    	if(db.startsWith("("))
+    		return JDBC_PATH + db;  
+    	else if(db.startsWith("/") && host != null && port != null)
+    		return JDBC_PATH + "//" + host + ":" + port + db;
+        else if(host != null && port != null)
+    		return JDBC_PATH + host + ":" + port + ":" + db;
         else
-            return JDBC_PATH + host + ":" + port + ":" + db;
+        	throw new IOException("Unable to properly compose the JDBC URL string, some parameters as host and port may be null !");
     }
     
     @Override
@@ -137,6 +146,8 @@ public class OracleNGDataStoreFactory extends JDBCDataStoreFactory {
         parameters.put(ESTIMATED_EXTENTS.key, ESTIMATED_EXTENTS);
         parameters.put(MAX_OPEN_PREPARED_STATEMENTS.key, MAX_OPEN_PREPARED_STATEMENTS);
         parameters.put(PORT.key, PORT);
+        parameters.put(HOST.key, HOST);
+        parameters.put(DATABASE.key, DATABASE);
         parameters.put(DBTYPE.key, DBTYPE);
     }
     
