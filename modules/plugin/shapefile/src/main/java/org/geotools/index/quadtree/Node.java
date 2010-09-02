@@ -229,7 +229,11 @@ public class Node {
     }
 
     public Node copy() throws IOException {
-        return new Node(bounds, id);
+        Node copy = new Node(bounds, id);
+        copy.setShapesId(shapesId);
+        copy.numShapesId = numShapesId;
+        
+        return copy;
     }
 
     /**

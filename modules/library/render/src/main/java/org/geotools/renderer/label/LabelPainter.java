@@ -708,7 +708,7 @@ public class LabelPainter {
         
         // gracefully handle font size = 0
         if(lm.getHeight() > 0)
-            return (Math.abs(lm.getStrikethroughOffset()) + lm.getDescent() + lm.getLeading() / 2)
+            return (Math.abs(lm.getStrikethroughOffset()) + lm.getDescent() + lm.getLeading())
                     / lm.getHeight();
         else 
             return 0;

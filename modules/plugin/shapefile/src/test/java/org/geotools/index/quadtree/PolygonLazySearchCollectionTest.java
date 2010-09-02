@@ -68,7 +68,7 @@ public class PolygonLazySearchCollectionTest extends TestCaseSupport {
     public void testGetOneFeatures() throws Exception {
         ReferencedEnvelope env = new ReferencedEnvelope(-70, -68.2, 44.5, 45.7,
                 crs);
-        assertEquals(14, countIterator(new LazySearchIterator(tree, env)));
+        assertEquals(10, countIterator(new LazySearchIterator(tree, env)));
 
     }
 

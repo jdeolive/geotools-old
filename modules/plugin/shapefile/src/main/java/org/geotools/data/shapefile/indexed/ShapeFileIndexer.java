@@ -20,10 +20,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -185,6 +183,9 @@ public class ShapeFileIndexer implements FileWriter {
                     max++;
                     nodes *= 4;
                 }
+                if(max < 10) {
+                    max = 10;
+                }
                 
                 reader.close();
                 reader = new ShapefileReader(shpFiles, true, false, new GeometryFactory());
@@ -245,9 +246,9 @@ public class ShapeFileIndexer implements FileWriter {
             FileSystemIndexStore store = new FileSystemIndexStore(file, order);
             
             if(loadFactor > 0) {
-                System.out.println("Optimizing the tree (this might take some time)");
-                applyLoadFactor(tree, tree.getRoot(), 0, reader, shpIndex);
-                System.out.println("Done");
+                LOGGER.info("Optimizing the tree (this might take some time)");
+                optimizeTree(tree, tree.getRoot(), 0, reader, shpIndex);
+                System.out.println("Tree optimized");
             }
             
             if(LOGGER.isLoggable(Level.FINE)) {
@@ -259,22 +260,19 @@ public class ShapeFileIndexer implements FileWriter {
         }
         return cnt;
     }
-
-    private Node applyLoadFactor(QuadTree tree, Node node, int level, ShapefileReader reader, IndexFile index) throws StoreException, IOException {
-//        System.out.println("Analyzing node at level " + level);
+    
+    private Node optimizeTree(QuadTree tree, Node node, int level, ShapefileReader reader, IndexFile index) throws StoreException, IOException {
         // recurse, with a check to avoid too deep recursion due to odd data that has a
-        // number of superimposed points and the like
         if(node.getNumShapeIds() > loadFactor && node.getNumSubNodes() == 0 && level < max * 2) {
             // ok, we need to split this baby further
             int[] shapeIds = node.getShapesId();
             int numShapesId = node.getNumShapeIds();
             node.clean();
             
-//            System.out.println("Splitting node with " + numShapesId + " ids at level " + level);
             System.out.print(".");
             
             // get an estimate on how many more levels we need
-            int extraLevels = 0;
+            int extraLevels = 1;
             int nodes = 1;
             while(nodes * loadFactor < numShapesId) {
                 extraLevels++;
@@ -289,29 +287,43 @@ public class ShapeFileIndexer implements FileWriter {
                 Envelope env = new Envelope(rec.minX, rec.maxX, rec.minY, rec.maxY);
                 tree.insert(node, shapeId, env, extraLevels);
             }
+        } 
+        
+        // recurse and eventually simplify
+        for (int i = 0; i < node.getNumSubNodes(); i++) {
+            optimizeTree(tree, node.getSubNode(i), level + 1, reader, index);
         }
-
-        if(node.getNumSubNodes() == 0) {
-            return node;
-        } else if(node.getNumSubNodes() == 1) {
-            // are we facing a degenerate chain?
-            Node subnode = applyLoadFactor(tree, node.getSubNode(0), level + 1, reader, index);
-            if(subnode != null) {
-                // remove the children and move up to the parent, no point in having extra
-                // nodes here
-                node.setShapesId(subnode);
-                node.clearSubNodes();
-                return node;
+        
+        // prune empty subnodes
+        for (int i = 0; i < node.getNumSubNodes();) {
+            Node child = node.getSubNode(i);
+            if(child != null && child.getNumShapeIds() == 0 && child.getNumSubNodes() == 0) {
+                // empty child, we don't need it, clean it up
+                node.removeSubNode(child);
             } else {
-                return null;
+                i++;
             }
-        } else {
-            // recurse, and remember we cannot simplify up since there are multiple children
-            for (int i = 0; i < node.getNumSubNodes(); i++) {
-                applyLoadFactor(tree, node.getSubNode(i), level + 1, reader, index);
-            }
-            return null;
         }
+        
+        // handle degenerate chains, we pop up the nodes to the top by keeping
+        // their shape ids _and_ their bounds (as it's the only area that has something)
+        if(node.getNumSubNodes() == 1 && node.getNumShapeIds() == 0 && node.getSubNode(0).getNumSubNodes() == 0) {
+            Node subnode = node.getSubNode(0);
+            node.clearSubNodes();
+            node.setShapesId(subnode);
+            node.setBounds(subnode.getBounds());
+        }
+        
+        // limit this node area to the effective child area
+        if(node.getNumShapeIds() == 0 && node.getNumSubNodes() > 0) {
+            Envelope bounds = new Envelope();
+            for (int i = 0; i < node.getNumSubNodes(); i++) {
+                bounds.expandToInclude(node.getSubNode(i).getBounds());
+            }
+            node.setBounds(bounds);
+        }
+        
+        return node;
     }
 
     private void printStats(QuadTree tree) throws StoreException {
@@ -320,11 +332,11 @@ public class ShapeFileIndexer implements FileWriter {
        
        List<Integer> nums = new ArrayList<Integer>(stats.keySet());
        Collections.sort(nums);
-       StringBuilder sb = new StringBuilder("Index statistics\n");
+       LOGGER.log(Level.FINE, "Index statistics");
        for (Integer num : nums) {
-           sb.append(num).append(" -> ").append(stats.get(num)).append("\n");
+           LOGGER.log(Level.FINE, num + " -> "  + stats.get(num));
        }
-       LOGGER.log(Level.FINE, sb.toString());
+       
     }
 
     void gatherStats(Node node, Map<Integer, Integer> stats) throws StoreException  {

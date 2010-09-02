@@ -68,7 +68,7 @@ public class PointLazySearchCollectionTest extends TestCaseSupport {
     public void testGetOneFeatures() throws Exception {
         ReferencedEnvelope env = new ReferencedEnvelope(597867, 598068,
                 4918863, 4919031, crs);
-        assertEquals(4, countIterator(new LazySearchIterator(tree, env)));
+        assertEquals(1, countIterator(new LazySearchIterator(tree, env)));
 
     }
 

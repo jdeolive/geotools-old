@@ -85,7 +85,7 @@ public class LineLazySearchCollectionTest extends TestCaseSupport {
     public void testGetOneFeatures() throws Exception {
         ReferencedEnvelope env = new ReferencedEnvelope(588993, 589604,
                 4927443, 4927443, crs);
-        assertEquals(22, countIterator(new LazySearchIterator(tree, env)));
+        assertEquals(14, countIterator(new LazySearchIterator(tree, env)));
 
     }
 
