@@ -769,7 +769,7 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
             return null;
         }
 
-        return new IndexedDbaseFileReader(shpFiles, false, dbfCharset);
+        return new IndexedDbaseFileReader(shpFiles, useMemoryMappedBuffer, dbfCharset);
     }
 
     //

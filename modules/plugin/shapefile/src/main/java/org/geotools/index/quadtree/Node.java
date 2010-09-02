@@ -146,7 +146,7 @@ public class Node {
             Arrays.fill(this.shapesId, -1);
         } else if (this.shapesId.length == this.numShapesId) {
             // Increase the array
-            int[] newIds = new int[this.numShapesId * 2];
+            int[] newIds = new int[(int) Math.ceil(this.numShapesId * 3.0 / 2.0)];
             Arrays.fill(newIds, -1);
             System.arraycopy(this.shapesId, 0, newIds, 0, this.numShapesId);
             this.shapesId = newIds;
@@ -251,5 +251,16 @@ public class Node {
         shapesId = null;
         numShapesId = 0;
         subNodes.clear();
+    }
+
+    public void pack() {
+        if(numShapesId == 0) {
+            shapesId = null;
+        } else if(shapesId != null && shapesId.length > numShapesId) {
+            int[] ids = new int[numShapesId];
+            System.arraycopy(shapesId, 0, ids, 0, numShapesId);
+            shapesId = ids;
+        }
+        
     }
 }

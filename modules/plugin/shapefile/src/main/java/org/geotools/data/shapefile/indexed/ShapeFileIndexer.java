@@ -179,7 +179,7 @@ public class ShapeFileIndexer implements FileWriter {
                 int features = reader.getCount(0);
                 max = 1;
                 int nodes = 1;
-                while(nodes * 8 < features) {
+                while(nodes * loadFactor < features) {
                     max++;
                     nodes *= 4;
                 }
@@ -248,7 +248,7 @@ public class ShapeFileIndexer implements FileWriter {
             if(loadFactor > 0) {
                 LOGGER.info("Optimizing the tree (this might take some time)");
                 optimizeTree(tree, tree.getRoot(), 0, reader, shpIndex);
-                System.out.println("Tree optimized");
+                LOGGER.info("Tree optimized");
             }
             
             if(LOGGER.isLoggable(Level.FINE)) {
@@ -269,11 +269,9 @@ public class ShapeFileIndexer implements FileWriter {
             int numShapesId = node.getNumShapeIds();
             node.clean();
             
-            System.out.print(".");
-            
             // get an estimate on how many more levels we need
-            int extraLevels = 1;
-            int nodes = 1;
+            int extraLevels = 2;
+            int nodes = 4;
             while(nodes * loadFactor < numShapesId) {
                 extraLevels++;
                 nodes *= 4;
@@ -287,7 +285,10 @@ public class ShapeFileIndexer implements FileWriter {
                 Envelope env = new Envelope(rec.minX, rec.maxX, rec.minY, rec.maxY);
                 tree.insert(node, shapeId, env, extraLevels);
             }
-        } 
+        }
+        
+        // pack the arrays
+        node.pack();
         
         // recurse and eventually simplify
         for (int i = 0; i < node.getNumSubNodes(); i++) {
@@ -312,13 +313,24 @@ public class ShapeFileIndexer implements FileWriter {
             node.clearSubNodes();
             node.setShapesId(subnode);
             node.setBounds(subnode.getBounds());
-        }
-        
-        // limit this node area to the effective child area
-        if(node.getNumShapeIds() == 0 && node.getNumSubNodes() > 0) {
+        } else {
+            // limit this node area to the effective child area
             Envelope bounds = new Envelope();
-            for (int i = 0; i < node.getNumSubNodes(); i++) {
-                bounds.expandToInclude(node.getSubNode(i).getBounds());
+            if(node.getNumShapeIds() > 0) {
+                int[] shapeIds  = node.getShapesId();
+                for (int i = 0; i < shapeIds.length; i++) {
+                    final int shapeId = shapeIds[i];
+                    int offset = index.getOffsetInBytes(shapeId);
+                    reader.goTo(offset);
+                    Record rec = reader.nextRecord();
+                    Envelope env = new Envelope(rec.minX, rec.maxX, rec.minY, rec.maxY);
+                    bounds.expandToInclude(env);
+                }
+            }
+            if(node.getNumSubNodes() > 0) {
+                for (int i = 0; i < node.getNumSubNodes(); i++) {
+                    bounds.expandToInclude(node.getSubNode(i).getBounds());
+                }
             }
             node.setBounds(bounds);
         }
