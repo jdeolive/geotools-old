@@ -295,35 +295,6 @@ public class ShapefileReader implements FileReader {
         currentShape = UNKNOWN;
     }
 
-    // convenience to peak at a header
-    /**
-     * A short cut for reading the header from the given channel.
-     * 
-     * @param channel
-     *                The channel to read from.
-     * @param strict
-     *                True to make the header parsing throw Exceptions if the
-     *                version or magic number are incorrect.
-     * @throws IOException
-     *                 If problems arise.
-     * @return A ShapefileHeader object.
-     */
-    public static ShapefileHeader readHeader(ReadableByteChannel channel,
-            boolean strict) throws IOException {
-        ByteBuffer buffer = NIOUtilities.allocate(100);
-        try {
-            if (fill(buffer, channel) == -1) {
-                throw new EOFException("Premature end of header");
-            }
-            buffer.flip();
-            ShapefileHeader header = new ShapefileHeader();
-            header.read(buffer, strict);
-            return header;
-        } finally {
-            NIOUtilities.clean(buffer, false);
-        }
-    }
-
     // ensure the capacity of the buffer is of size by doubling the original
     // capacity until it is big enough
     // this may be naiive and result in out of MemoryError as implemented...
@@ -363,21 +334,11 @@ public class ShapefileReader implements FileReader {
 
     private void init(boolean strict, GeometryFactory gf) throws IOException, ShapefileException {
         geometryFactory = gf;
-        header = readHeader(channel, strict);
-        fileShapeType = header.getShapeType();
-        handler = fileShapeType.getShapeHandler(gf);
-
-        // recordHeader = ByteBuffer.allocateDirect(8);
-        // recordHeader.order(ByteOrder.BIG_ENDIAN);
-
-        if (handler == null) {
-            throw new IOException("Unsuported shape type:" + fileShapeType);
-        }
 
         if (channel instanceof FileChannel && useMemoryMappedBuffer) {
             FileChannel fc = (FileChannel) channel;
             buffer = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
-            buffer.position(100);
+            buffer.position(0);
             this.currentOffset = 0;
         } else {
             // force useMemoryMappedBuffer to false
@@ -386,7 +347,14 @@ public class ShapefileReader implements FileReader {
             buffer = NIOUtilities.allocate(1024);
             fill(buffer, channel);
             buffer.flip();
-            this.currentOffset = 100;
+            this.currentOffset = 0;
+        }
+        header = new ShapefileHeader();
+        header.read(buffer, strict);
+        fileShapeType = header.getShapeType();
+        handler = fileShapeType.getShapeHandler(gf);
+        if (handler == null) {
+            throw new IOException("Unsuported shape type:" + fileShapeType);
         }
 
         headerTransfer = ByteBuffer.allocate(8);

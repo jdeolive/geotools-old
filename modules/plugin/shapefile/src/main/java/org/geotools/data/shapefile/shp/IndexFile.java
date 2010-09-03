@@ -78,7 +78,6 @@ public class IndexFile implements FileReader {
         ReadableByteChannel byteChannel = shpFiles.getReadChannel(
                 ShpFileType.SHX, this);
         try {
-            readHeader(byteChannel);
             if (byteChannel instanceof FileChannel) {
 
                 this.channel = (FileChannel) byteChannel;
@@ -91,11 +90,16 @@ public class IndexFile implements FileReader {
                 } else {
                     LOGGER.finest("Reading from file...");
                     this.buf = NIOUtilities.allocate(8 * RECS_IN_BUFFER);
-                    this.channelOffset = 100;
+                    channel.read(buf);
+                    buf.flip();
+                    this.channelOffset = 0;
                 }
-
+                
+                header = new ShapefileHeader();
+                header.read(buf, true);
             } else {
                 LOGGER.finest("Loading all shx...");
+                readHeader(byteChannel);
                 readRecords(byteChannel);
                 byteChannel.close();
             }

@@ -639,6 +639,123 @@ public class DbaseFileHeader {
             NIOUtilities.clean(in, false);
         }
     }
+    
+    /**
+     * Read the header data from the DBF file.
+     * 
+     * @param channel
+     *                A readable byte channel. If you have an InputStream you
+     *                need to use, you can call
+     *                java.nio.Channels.getChannel(InputStream in).
+     * @throws IOException
+     *                 If errors occur while reading.
+     */
+    public void readHeader(ByteBuffer in) throws IOException {
+        // do this or GO CRAZY
+        // ByteBuffers come preset to BIG_ENDIAN !
+        in.order(ByteOrder.LITTLE_ENDIAN);
+
+        // type of file.
+        byte magic = in.get();
+        if (magic != MAGIC) {
+            throw new IOException("Unsupported DBF file Type "
+                    + Integer.toHexString(magic));
+        }
+
+        // parse the update date information.
+        int tempUpdateYear = in.get();
+        int tempUpdateMonth = in.get();
+        int tempUpdateDay = in.get();
+        // ouch Y2K uncompliant
+        if (tempUpdateYear > 90) {
+            tempUpdateYear = tempUpdateYear + 1900;
+        } else {
+            tempUpdateYear = tempUpdateYear + 2000;
+        }
+        Calendar c = Calendar.getInstance();
+        c.set(Calendar.YEAR, tempUpdateYear);
+        c.set(Calendar.MONTH, tempUpdateMonth - 1);
+        c.set(Calendar.DATE, tempUpdateDay);
+        date = c.getTime();
+
+        // read the number of records.
+        recordCnt = in.getInt();
+
+        // read the length of the header structure.
+        // ahhh.. unsigned little-endian shorts
+        // mask out the byte and or it with shifted 2nd byte
+        headerLength = (in.get() & 0xff) | ((in.get() & 0xff) << 8);
+
+        // if the header is bigger than our 1K, reallocate
+        if (headerLength > in.capacity()) {
+            throw new IllegalArgumentException("The contract says the buffer should be long enough to fit all the header!");
+        }
+
+        // read the length of a record
+        // ahhh.. unsigned little-endian shorts
+        recordLength = (in.get() & 0xff) | ((in.get() & 0xff) << 8);
+
+        // skip the reserved bytes in the header.
+        in.position(in.position() + 20);
+
+        // calculate the number of Fields in the header
+        fieldCnt = (headerLength - FILE_DESCRIPTOR_SIZE - 1)
+                / FILE_DESCRIPTOR_SIZE;
+
+        // read all of the header records
+        List lfields = new ArrayList();
+        for (int i = 0; i < fieldCnt; i++) {
+            DbaseField field = new DbaseField();
+
+            // read the field name
+            byte[] buffer = new byte[11];
+            in.get(buffer);
+            String name = new String(buffer);
+            int nullPoint = name.indexOf(0);
+            if (nullPoint != -1) {
+                name = name.substring(0, nullPoint);
+            }
+            field.fieldName = name.trim();
+
+            // read the field type
+            field.fieldType = (char) in.get();
+
+            // read the field data address, offset from the start of the record.
+            field.fieldDataAddress = in.getInt();
+
+            // read the field length in bytes
+            int length = (int) in.get();
+            if (length < 0) {
+                length = length + 256;
+            }
+            field.fieldLength = length;
+
+            if (length > largestFieldSize) {
+                largestFieldSize = length;
+            }
+
+            // read the field decimal count in bytes
+            field.decimalCount = (int) in.get();
+
+            // reserved bytes.
+            // in.skipBytes(14);
+            in.position(in.position() + 14);
+
+            // some broken shapefiles have 0-length attributes. The reference
+            // implementation
+            // (ArcExplorer 2.0, built with MapObjects) just ignores them.
+            if (field.fieldLength > 0) {
+                lfields.add(field);
+            }
+        }
+
+        // Last byte is a marker for the end of the field definitions.
+        // in.skipBytes(1);
+        in.position(in.position() + 1);
+
+        fields = new DbaseField[lfields.size()];
+        fields = (DbaseField[]) lfields.toArray(fields);
+    }
 
     /**
      * Get the largest field size of this table.

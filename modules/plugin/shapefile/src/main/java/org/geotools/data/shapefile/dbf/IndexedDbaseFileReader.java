@@ -20,10 +20,12 @@ package org.geotools.data.shapefile.dbf;
 
 import java.io.IOException;
 import java.nio.channels.FileChannel;
+import java.nio.channels.FileChannel.MapMode;
 import java.nio.charset.Charset;
 
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.data.shapefile.ShpFiles;
+import org.geotools.resources.NIOUtilities;
 
 /**
  * A DbaseFileReader is used to read a dbase III format file. <br>
@@ -71,7 +73,19 @@ public class IndexedDbaseFileReader extends DbaseFileReader {
                     + this.header.getRecordLength() * (long) (recno - 1);
 
             if (this.useMemoryMappedBuffer) {
-                buffer.position((int) newPosition);
+                if(newPosition < this.currentOffset || (this.currentOffset + buffer.limit()) < (newPosition + header.getRecordLength())) {
+                    NIOUtilities.clean(buffer);
+                    FileChannel fc = (FileChannel) channel;
+                    if(fc.size() > newPosition + Integer.MAX_VALUE) {
+                        currentOffset = newPosition;
+                    } else {
+                        currentOffset = fc.size() - Integer.MAX_VALUE;
+                    }
+                    buffer = fc.map(MapMode.READ_ONLY, currentOffset, Integer.MAX_VALUE);
+                    buffer.position((int) (newPosition - currentOffset));
+                } else {
+                    buffer.position((int) (newPosition - currentOffset));
+                }
             } else {
                 if (this.currentOffset <= newPosition
                         && this.currentOffset + buffer.limit() >= newPosition) {

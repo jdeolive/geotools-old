@@ -28,6 +28,7 @@ import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.FileChannel.MapMode;
 import java.nio.charset.Charset;
 import java.util.Calendar;
 import java.util.Locale;
@@ -153,19 +154,24 @@ public class DbaseFileReader implements FileReader {
         this.randomAccessEnabled = (channel instanceof FileChannel);
         streamLogger.open();
         header = new DbaseFileHeader();
-        header.readHeader(channel);
 
         // create the ByteBuffer
         // if we have a FileChannel, lets map it
-        if (channel instanceof FileChannel && this.useMemoryMappedBuffer 
-                && (((FileChannel) channel).size() < (long) Integer.MAX_VALUE)) {
+        if (channel instanceof FileChannel && this.useMemoryMappedBuffer) {
             final FileChannel fc = (FileChannel) channel;
-            buffer = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
+            if((fc.size() - fc.position()) < (long) Integer.MAX_VALUE) {
+                buffer = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
+            } else {
+                buffer = fc.map(FileChannel.MapMode.READ_ONLY, 0, Integer.MAX_VALUE);
+            }
             buffer.position((int) fc.position());
+            header.readHeader(buffer);
+            
             this.currentOffset = 0;
         } else {
             // Force useMemoryMappedBuffer to false
             this.useMemoryMappedBuffer = false;
+            header.readHeader(channel);
             // Some other type of channel
             // size the buffer so that we can read 4 records at a time (and make the buffer cacheable)
             //int size = (int) Math.pow(2, Math.ceil(Math.log(header.getRecordLength()) / Math.log(2)));
@@ -216,11 +222,23 @@ public class DbaseFileReader implements FileReader {
     private void bufferCheck() throws IOException {
         // remaining is less than record length
         // compact the remaining data and read again
-        if (!buffer.isReadOnly()
-                && buffer.remaining() < header.getRecordLength()) {
-            // if (!this.useMemoryMappedBuffer) {
+        if(useMemoryMappedBuffer) {
+            if(buffer.remaining() < header.getRecordLength()) {
+                // ops, we're dealing with a DBF whose size is > 2GB (and < 4 normally?)
+                FileChannel fc = (FileChannel) channel;
+                int position = buffer.position();
+                if(fc.size() > position + Integer.MAX_VALUE) {
+                    currentOffset = position;
+                } else {
+                    currentOffset = fc.size() - Integer.MAX_VALUE;
+                }
+                NIOUtilities.clean(buffer);
+                buffer = fc.map(MapMode.READ_ONLY, currentOffset, Integer.MAX_VALUE);
+                
+                buffer = ((FileChannel) channel).map(MapMode.READ_ONLY, buffer.position(), Integer.MAX_VALUE);
+            }
+        } else if (buffer.remaining() < header.getRecordLength()) {
             this.currentOffset += buffer.position();
-            // }
             buffer.compact();
             fill(buffer, channel);
             buffer.position(0);

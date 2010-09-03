@@ -28,25 +28,34 @@ import java.nio.channels.FileChannel;
  * @author jamesm
  * @author Ian Schneider
  * @source $URL:
- *         http://svn.geotools.org/geotools/trunk/gt/modules/plugin/shapefile/src/main/java/org/geotools/data/shapefile/shp/ShapefileHeader.java $
+ *         http://svn.geotools.org/geotools/trunk/gt/modules/plugin/shapefile/src/main/java/org
+ *         /geotools/data/shapefile/shp/ShapefileHeader.java $
  */
 public class ShapefileHeader {
 
     public static final int MAGIC = 9994;
+
     public static final int VERSION = 1000;
+
     private int fileCode = -1;
+
     private int fileLength = -1;
+
     private int version = -1;
+
     private ShapeType shapeType = ShapeType.UNDEFINED;
+
     private double minX;
+
     private double maxX;
+
     private double minY;
+
     private double maxY;
 
     private void checkMagic(boolean strict) throws java.io.IOException {
         if (fileCode != MAGIC) {
-            String message = "Wrong magic number, expected " + MAGIC + ", got "
-                    + fileCode;
+            String message = "Wrong magic number, expected " + MAGIC + ", got " + fileCode;
             if (!strict) {
                 System.err.println(message);
             } else {
@@ -57,8 +66,7 @@ public class ShapefileHeader {
 
     private void checkVersion(boolean strict) throws java.io.IOException {
         if (version != VERSION) {
-            String message = "Wrong version, expected " + MAGIC + ", got "
-                    + version;
+            String message = "Wrong version, expected " + MAGIC + ", got " + version;
             if (!strict) {
                 System.err.println(message);
             } else {
@@ -67,8 +75,7 @@ public class ShapefileHeader {
         }
     }
 
-    public void read(ByteBuffer file, boolean strict)
-            throws java.io.IOException {
+    public void read(ByteBuffer file, boolean strict) throws java.io.IOException {
         file.order(ByteOrder.BIG_ENDIAN);
         fileCode = file.getInt();
 
@@ -91,14 +98,13 @@ public class ShapefileHeader {
 
         // skip remaining unused bytes
         file.order(ByteOrder.BIG_ENDIAN);// well they may not be unused
-                                            // forever...
+        // forever...
         file.position(file.position() + 32);
 
     }
 
-    public void write(ByteBuffer file, ShapeType type, int numGeoms,
-            int length, double minX, double minY, double maxX, double maxY)
-            throws IOException {
+    public void write(ByteBuffer file, ShapeType type, int numGeoms, int length, double minX,
+            double minY, double maxX, double maxY) throws IOException {
         file.order(ByteOrder.BIG_ENDIAN);
 
         file.putInt(MAGIC);
@@ -156,17 +162,10 @@ public class ShapefileHeader {
     }
 
     public String toString() {
-        String res = new String("ShapeFileHeader[ size " + fileLength
-                + " version " + version + " shapeType " + shapeType
-                + " bounds " + minX + "," + minY + "," + maxX + "," + maxY
-                + " ]");
+        String res = new String("ShapeFileHeader[ size " + fileLength + " version " + version
+                + " shapeType " + shapeType + " bounds " + minX + "," + minY + "," + maxX + ","
+                + maxY + " ]");
         return res;
     }
 
-    public static void main(String[] args) throws Exception {
-        FileChannel channel = new FileInputStream(new File(args[0]))
-                .getChannel();
-        System.out.println(ShapefileReader.readHeader(channel, true));
-        channel.close();
-    }
 }

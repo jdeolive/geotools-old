@@ -287,10 +287,10 @@ public class ShapeFileIndexer implements FileWriter {
             }
         }
         
-        // pack the arrays
+        // pack the arrays to use less memory (the optimization often makes the tree grow)
         node.pack();
         
-        // recurse and eventually simplify
+        // recurse 
         for (int i = 0; i < node.getNumSubNodes(); i++) {
             optimizeTree(tree, node.getSubNode(i), level + 1, reader, index);
         }
@@ -308,11 +308,14 @@ public class ShapeFileIndexer implements FileWriter {
         
         // handle degenerate chains, we pop up the nodes to the top by keeping
         // their shape ids _and_ their bounds (as it's the only area that has something)
-        if(node.getNumSubNodes() == 1 && node.getNumShapeIds() == 0 && node.getSubNode(0).getNumSubNodes() == 0) {
+        if(node.getNumSubNodes() == 1 && node.getNumShapeIds() == 0) {
             Node subnode = node.getSubNode(0);
             node.clearSubNodes();
             node.setShapesId(subnode);
             node.setBounds(subnode.getBounds());
+            for (int i = 0; i < subnode.getNumSubNodes(); i++) {
+                node.addSubNode(subnode.getSubNode(i));
+            }
         } else {
             // limit this node area to the effective child area
             Envelope bounds = new Envelope();
@@ -333,6 +336,28 @@ public class ShapeFileIndexer implements FileWriter {
                 }
             }
             node.setBounds(bounds);
+            
+            // can we shrink?
+            int count = node.getNumShapeIds();
+            for (int i = 0; i < node.getNumSubNodes(); i++) {
+                Node child = node.getSubNode(i);
+                if(child.getNumSubNodes() > 0) {
+                    count = Integer.MAX_VALUE;
+                    break;
+                } else {
+                    count += child.getNumShapeIds();
+                }
+            }
+            if(count < loadFactor) {
+                for (int i = 0; i < node.getNumSubNodes(); i++) {
+                    Node child = node.getSubNode(i);
+                    int[] shapesId = child.getShapesId();
+                    for (int j = 0; j < child.getNumShapeIds(); j++) {
+                        node.addShapeId(shapesId[j]);
+                    }
+                }
+                node.clearSubNodes();
+            }
         }
         
         return node;
