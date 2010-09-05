@@ -31,17 +31,14 @@ import com.vividsolutions.jts.geom.Envelope;
  *         http://svn.geotools.org/geotools/trunk/gt/modules/plugin/shapefile/src/main/java/org/geotools/index/quadtree/Node.java $
  */
 public class Node {
-    private Envelope bounds;
     protected int numShapesId;
-    protected int[] shapesId;
-    protected List subNodes;
     private boolean visited = false;
     private boolean childrenVisited = false;
-    protected int id;
-//    static int count;
+    private Envelope bounds;
+    protected int[] shapesId;
+    protected List subNodes;
 
-    public Node(Envelope bounds, int id) {
-        this.id = id;
+    public Node(Envelope bounds) {
         this.bounds = new Envelope(bounds);
         this.subNodes = new ArrayList(4);
         this.shapesId = null;
@@ -229,7 +226,7 @@ public class Node {
     }
 
     public Node copy() throws IOException {
-        Node copy = new Node(bounds, id);
+        Node copy = new Node(bounds);
         copy.setShapesId(shapesId);
         copy.numShapesId = numShapesId;
         

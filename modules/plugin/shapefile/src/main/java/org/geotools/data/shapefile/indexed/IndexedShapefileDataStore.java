@@ -65,6 +65,7 @@ import org.geotools.feature.visitor.IdCollectorFilterVisitor;
 import org.geotools.filter.FilterAttributeExtractor;
 import org.geotools.filter.visitor.ExtractBoundsFilterVisitor;
 import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.index.CachedQuadTree;
 import org.geotools.index.CloseableIterator;
 import org.geotools.index.Data;
 import org.geotools.index.DataDefinition;
@@ -81,6 +82,7 @@ import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.filter.Filter;
 import org.opengis.filter.Id;
 import org.opengis.filter.identity.Identifier;
+import org.opengis.geometry.MismatchedDimensionException;
 
 import com.vividsolutions.jts.geom.CoordinateSequenceFactory;
 import com.vividsolutions.jts.geom.Envelope;
@@ -111,6 +113,25 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
     final boolean useIndex;
     
     final boolean createIndex;
+    
+    CachedQuadTree cachedTree;
+
+	int maxQixCacheSize = DEFAULT_MAX_QIX_CACHE_SIZE;
+	
+	static final int DEFAULT_MAX_QIX_CACHE_SIZE;
+	
+	static {
+		int max = -1;
+		try {
+			String smax = System.getProperty("org.geotools.shapefile.maxQixCacheSize");
+			if(smax != null) {
+				max = Integer.parseInt(smax);
+			}
+		} catch(Throwable t) {
+			LOGGER.log(Level.SEVERE, "Could not set the max qix cache size", t);
+		}
+		DEFAULT_MAX_QIX_CACHE_SIZE = max;
+	}
 
     /**
      * Creates a new instance of ShapefileDataStore.
@@ -735,18 +756,48 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
         
         // check if the spatial index needs recreating
         createSpatialIndex(false);
+        
+        if(cachedTree == null) {
+            boolean canCache = false;
+            URL treeURL = shpFiles.acquireRead(QIX, this);
+            try {
+                File treeFile = DataUtilities.urlToFile(treeURL);
 
-        try {
-            QuadTree quadTree = openQuadTree();
-            if ((quadTree != null)
-                    && !bbox.contains(quadTree.getRoot().getBounds())) {
-                tmp = quadTree.search(bbox);
+                if (treeFile.exists() && treeFile.length() < 1024 * maxQixCacheSize) {
+                    canCache = true;
+                }
+            } finally {
+                shpFiles.unlockRead(treeURL, this);
             }
-            if (tmp == null && quadTree != null) {
-                quadTree.close();
+
+            if(canCache) {
+                QuadTree quadTree = openQuadTree();
+                if(quadTree != null) {
+                    LOGGER.warning("Experimental: loading in memory the quadtree for " + shpFiles.get(SHP));
+                    cachedTree = new CachedQuadTree(quadTree);
+                    quadTree.close();
+                }
             }
-        } catch (Exception e) {
-            throw new DataSourceException("Error querying QuadTree", e);
+        }
+        if(cachedTree != null) {
+            if(!bbox.contains(cachedTree.getBounds())) {
+                return cachedTree.search(bbox);
+            } else {
+                return null;
+            }
+        } else {
+            try {
+                QuadTree quadTree = openQuadTree();
+                if ((quadTree != null)
+                        && !bbox.contains(quadTree.getRoot().getBounds())) {
+                    tmp = quadTree.search(bbox);
+                }
+                if (tmp == null && quadTree != null) {
+                    quadTree.close();
+                }
+            } catch (Exception e) {
+                throw new DataSourceException("Error querying QuadTree", e);
+            }
         }
 
         return tmp;

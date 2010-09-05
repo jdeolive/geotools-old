@@ -188,7 +188,7 @@ public class LazySearchIterator implements CloseableIterator<Data> {
         int[] indices;
         
         public Indices() {
-            indices = new int[MAX_INDICES];
+            indices = new int[100];
             curr = -1;
         }
         

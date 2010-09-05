@@ -133,4 +133,8 @@ public class Data {
 
         return ret.toString();
     }
+    
+    public void clear() {
+        values.clear();
+    }
 }
