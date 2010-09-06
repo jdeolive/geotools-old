@@ -423,9 +423,8 @@ public class GML2EncodingUtils {
                             if (obj != null && obj instanceof Map) {
                                 userData.putAll((Map) obj);
                             }
-                            userData.put(CoordinateReferenceSystem.class, featureType
-                                    .getCoordinateReferenceSystem());
-                            geometry.setUserData(crs);
+                            userData.put(CoordinateReferenceSystem.class, crs);
+                            geometry.setUserData(userData);
                         }
                     } else {
                         // non-complex bindings are unpacked as for simple feature case
