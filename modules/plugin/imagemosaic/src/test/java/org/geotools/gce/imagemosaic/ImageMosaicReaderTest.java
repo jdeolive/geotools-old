@@ -112,6 +112,8 @@ public class ImageMosaicReaderTest extends Assert{
 	private boolean interactive;
 
 	private URL timeURL;
+
+	private URL imposedEnvelopeURL;
 	
 	/**
 	 * Testing crop capabilities.
@@ -121,7 +123,7 @@ public class ImageMosaicReaderTest extends Assert{
 	 * @throws FactoryException
 	 */
 	@Test
-//	@Ignore
+	@Ignore
 	public void crop() throws MismatchedDimensionException, IOException,
 			FactoryException {
 		imageMosaicCropTest(rgbURL, "crop-rgbURL");
@@ -154,7 +156,7 @@ public class ImageMosaicReaderTest extends Assert{
 	 * @throws FactoryException 
 	 */
 	@Test
-//	@Ignore
+	@Ignore
 	public void alpha() throws IOException,
 			MismatchedDimensionException, FactoryException {
 		
@@ -227,7 +229,7 @@ public class ImageMosaicReaderTest extends Assert{
 	 * @throws FactoryException 
 	 */
 	@Test
-//	@Ignore
+	@Ignore
 	public void overviews() throws IOException,	
 			MismatchedDimensionException, FactoryException {
 		final AbstractGridFormat format = getFormat(overviewURL);
@@ -264,7 +266,7 @@ public class ImageMosaicReaderTest extends Assert{
 	 * @throws NoSuchAuthorityCodeException
 	 */
 	@Test
-//	@Ignore
+	@Ignore
 	public void timeElevation() throws IOException, ParseException, NoSuchAuthorityCodeException, FactoryException {
 	        TestData.unzipFile(this, "ensmean.zip");
 	        final URL timeElevURL = TestData.url(this, "ensmean");
@@ -319,6 +321,27 @@ public class ImageMosaicReaderTest extends Assert{
 		testCoverage(reader, new GeneralParameterValue[] {gg,time,bkg ,elevation}, "Time-Elevation Test", coverage);
 	}	
 	
+	
+	@Test
+	public void imposedBBox() throws IOException, NoSuchAuthorityCodeException, FactoryException {
+		final AbstractGridFormat format = getFormat(imposedEnvelopeURL);
+		final ImageMosaicReader reader = getReader(imposedEnvelopeURL, format);
+	
+		
+		//check envelope
+		final GeneralEnvelope envelope = reader.getOriginalEnvelope();
+		assertNotNull(envelope);
+		
+		assertEquals(envelope.getMinimum(0), -180.0,1E-6);
+		assertEquals(envelope.getMinimum(1), -90.0,1E-6);
+		assertEquals(envelope.getMaximum(0), 180.0,1E-6);
+		assertEquals(envelope.getMaximum(1), 90.0,1E-6);
+		
+
+		// Test the output coverage
+		checkCoverage(reader, null, "Imposed BBox");
+	}	
+	
 	/**
 	 * 
 	 * @throws IOException
@@ -328,7 +351,7 @@ public class ImageMosaicReaderTest extends Assert{
 	 * @throws NoSuchAuthorityCodeException
 	 */
 	@Test
-//	@Ignore
+	@Ignore
 	public void time() throws IOException, NoSuchAuthorityCodeException, FactoryException {
 	        System.setProperty("org.geotools.shapefile.datetime", "true");
 		final AbstractGridFormat format = getFormat(timeURL);
@@ -392,7 +415,7 @@ public class ImageMosaicReaderTest extends Assert{
 	
 	
 	@Test
-//	@Ignore
+	@Ignore
 	public void errors() throws NoSuchAuthorityCodeException, FactoryException {
 		final Hints hints= new Hints(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM, CRS.decode("EPSG:4326", true));
 		
@@ -532,7 +555,7 @@ public class ImageMosaicReaderTest extends Assert{
 	private void testCoverage(final ImageMosaicReader reader,
 			GeneralParameterValue[] values, String title,
 			final GridCoverage2D coverage) {
-		if (interactive)
+		if (true)
 			show( coverage.getRenderedImage(), title);
 		else
 			PlanarImage.wrapRenderedImage( coverage.getRenderedImage()).getTiles();
@@ -718,6 +741,8 @@ public class ImageMosaicReaderTest extends Assert{
 		
 		index_unique_paletteAlphaURL = TestData.url(this,"index_alpha_unique_palette/");
 		index_unique_paletteAlphaJarURL = new URL("jar:"+TestData.url(this, "index_alpha_unique_palette.jar").toExternalForm()+"!/index_alpha_unique_palette/dof.shp");
+		
+		imposedEnvelopeURL=TestData.url(this,"env");
 		
 		interactive = TestData.isInteractiveTest();
 

@@ -74,7 +74,13 @@ class RasterManager {
 	    double resolutionX;
 	    double resolutionY;
 	    int imageChoice;
-	    
+	    /**
+	     * 
+	     * @param scaleFactor
+	     * @param resolutionX
+	     * @param resolutionY
+	     * @param imageChoice
+	     */
         public OverviewLevel(
         		final double scaleFactor,
         		final double resolutionX,
@@ -435,7 +441,7 @@ class RasterManager {
 	SpatialDomainManager spatialDomainManager;
 
 	/** {@link SoftReference} to the index holding the tiles' envelopes. */
-	final GranuleCatalog index;
+	final GranuleCatalog granuleCatalog;
 
 	String timeAttribute;
 	
@@ -453,7 +459,7 @@ class RasterManager {
 		this.expandMe=parent.expandMe;
         
         //take ownership of the index
-		index= parent.catalog;
+		granuleCatalog= parent.catalog;
 		parent.catalog=null;
 		
         timeAttribute=parent.timeAttribute;
@@ -614,7 +620,7 @@ class RasterManager {
 	 *             In case loading the needed features failes.
 	 */
 	Collection<GranuleDescriptor> getGranules(final BoundingBox envelope)throws IOException {
-		final Collection<GranuleDescriptor> granules = index.getGranules(envelope);
+		final Collection<GranuleDescriptor> granules = granuleCatalog.getGranules(envelope);
 		if (granules != null)
 			return granules;
 		else
@@ -622,7 +628,7 @@ class RasterManager {
 	}
 	
 	Collection<GranuleDescriptor> getGranules(final Query q)throws IOException {
-		final Collection<GranuleDescriptor> granules = index.getGranules(q);
+		final Collection<GranuleDescriptor> granules = granuleCatalog.getGranules(q);
 		if (granules != null)
 			return granules;
 		else
@@ -630,7 +636,7 @@ class RasterManager {
 	}
 	
 	void getGranules(final Query q,final GranuleCatalogVisitor visitor)throws IOException {
-		index.getGranules(q,visitor);
+		granuleCatalog.getGranules(q,visitor);
 
 	}
 
@@ -645,7 +651,7 @@ class RasterManager {
 	 *             In case loading the needed features failes.
 	 */
 	void getGranules(final BoundingBox envelope,final GranuleCatalogVisitor visitor)throws IOException {
-		index.getGranules(envelope,visitor);
+		granuleCatalog.getGranules(envelope,visitor);
 	}
 
 	public PathType getPathType() {

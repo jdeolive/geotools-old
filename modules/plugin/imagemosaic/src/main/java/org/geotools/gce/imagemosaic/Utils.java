@@ -188,13 +188,19 @@ public class Utils {
 	 * @param wildcard
 	 *            wildcard to use for walking through files. We are using
 	 *            commonsIO for this task
+	 * @param absolutePath
+	 * 			  tells the catalogue builder to use absolute paths.
 	 * @param hints hints to control reader instantiations
 	 * @return <code>true</code> if everything is right, <code>false</code>if
 	 *         something bad happens, in which case the reason should be logged
 	 *         to the logger.
 	 */
-	static boolean createMosaic(final String location, final String indexName,
-			final String wildcard, final boolean absolutePath, final Hints hints) {
+	static boolean createMosaic(
+			final String location, 
+			final String indexName,
+			final String wildcard, 
+			final boolean absolutePath, 
+			final Hints hints) {
 
 		// create a mosaic index builder and set the relevant elements
 		final CatalogBuilderConfiguration configuration = new CatalogBuilderConfiguration();
@@ -244,7 +250,15 @@ public class Utils {
 			
 			// runtime attr
 			if (props.containsKey("RuntimeAttribute"))
-				configuration.setRuntimeAttribute(props.getProperty("RuntimeAttribute"));			
+				configuration.setRuntimeAttribute(props.getProperty("RuntimeAttribute"));
+			
+			// imposed BBOX
+			if (props.containsKey("Envelope2D"))
+				configuration.setEnvelope2D(props.getProperty("Envelope2D"));	
+			
+			// imposed Pyramid Layout
+			if (props.containsKey("ResolutionLevels"))
+				configuration.setResolutionLevels(props.getProperty("ResolutionLevels"));			
 
 			// collectors
 			if (props.containsKey("PropertyCollectors"))
@@ -417,6 +431,28 @@ public class Utils {
 		String pair[] = null;
 		
 		//
+		// imposed bbox is optional
+		//              
+		if (!ignoreSome || !ignorePropertiesSet.contains(Prop.ENVELOPE2D)) {
+			String bboxString = properties.getProperty(Prop.ENVELOPE2D, null);
+			if(bboxString!=null){
+				bboxString=bboxString.trim();
+				try{
+					ReferencedEnvelope bbox = parseEnvelope(bboxString);
+					if(bbox!=null)
+						retValue.setEnvelope(bbox);
+					else
+						if (LOGGER.isLoggable(Level.INFO))
+							LOGGER.info("Cannot parse imposed bbox.");
+				}catch (Exception e) {
+					if (LOGGER.isLoggable(Level.INFO))
+						LOGGER.log(Level.INFO,"Cannot parse imposed bbox.",e);
+				}
+			}
+				
+		}
+		
+		//
 		// resolutions levels
 		//              
 		if (!ignoreSome || !ignorePropertiesSet.contains(Prop.LEVELS)) {
@@ -551,8 +587,35 @@ public class Utils {
 					.trim());
 		}
 
-		// retrn value
+		// return value
 		return retValue;
+	}
+
+	/**
+	 * Parses a bbox in the form of MIX,MINY MAXX,MAXY
+	 * @param bboxString the string to parse the bbox from
+	 * @return a {@link ReferencedEnvelope} with the parse bbox or null
+	 */
+	public static ReferencedEnvelope parseEnvelope(final String bboxString) {
+		if(bboxString==null||bboxString.length()==0)
+			return null;
+		
+		final String[] pairs = bboxString.split(" ");
+		if (pairs != null &&pairs.length == 2) {
+		
+			String[] pair1 = pairs[0].split(",");
+			String[] pair2 = pairs[1].split(",");
+			if(pair1!=null&&pair1.length==2&&pair2!=null&&pair2.length==2)
+				return new ReferencedEnvelope(
+						 Double.parseDouble(pair1[0]),
+						 Double.parseDouble(pair2[0]),
+						 Double.parseDouble(pair1[1]),
+						 Double.parseDouble(pair2[1]),
+						 null);
+	
+		}
+		// something bad happened
+		return null;
 	}
 
 	public static Properties loadPropertiesFromURL(URL propsURL) {

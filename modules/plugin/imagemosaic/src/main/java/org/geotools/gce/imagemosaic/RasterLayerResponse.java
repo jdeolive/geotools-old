@@ -821,11 +821,11 @@ class RasterLayerResponse{
 			final boolean hasElevation=(elevations!=null && elevations.size()>0);
 			final boolean hasFilter = filter != null;
 
-			final SimpleFeatureType type = rasterManager.index.getType();
+			final SimpleFeatureType type = rasterManager.granuleCatalog.getType();
 			Query query = null;
 			if (type != null){
-			    query= new Query(rasterManager.index.getType().getTypeName());
-			    final Filter bbox=Utils.FILTER_FACTORY.bbox(Utils.FILTER_FACTORY.property(rasterManager.index.getType().getGeometryDescriptor().getName()),mosaicBBox);
+			    query= new Query(rasterManager.granuleCatalog.getType().getTypeName());
+			    final Filter bbox=Utils.FILTER_FACTORY.bbox(Utils.FILTER_FACTORY.property(rasterManager.granuleCatalog.getType().getGeometryDescriptor().getName()),mosaicBBox);
 			    query.setFilter( bbox);
 			}
 			
@@ -884,13 +884,13 @@ class RasterLayerResponse{
 										Utils.FILTER_FACTORY.property(rasterManager.timeAttribute),
 										SortOrder.DESCENDING
 								)};
-						final QueryCapabilities queryCapabilities = rasterManager.index.getQueryCapabilities();
+						final QueryCapabilities queryCapabilities = rasterManager.granuleCatalog.getQueryCapabilities();
 						if(queryCapabilities.supportsSorting(descendingSortOrder))
 							query.setSortBy(descendingSortOrder);
 						else{
 							// the datastore does not support descending sortby, let's support the maximum
 							final MaxVisitor max = new MaxVisitor(rasterManager.timeAttribute);
-							rasterManager.index.computeAggregateFunction(query,max);
+							rasterManager.granuleCatalog.computeAggregateFunction(query,max);
 							final Object result=max.getResult().getValue();		
 							
 							// now let's get this feature by is fid

@@ -62,6 +62,7 @@ import org.geotools.filter.SortByImpl;
 import org.geotools.gce.imagemosaic.catalog.GranuleCatalog;
 import org.geotools.gce.imagemosaic.catalog.GranuleCatalogFactory;
 import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
 import org.geotools.util.Utilities;
 import org.opengis.coverage.grid.Format;
@@ -140,6 +141,8 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 	String elevationAttribute;
 	
 	String runtimeAttribute;
+
+	boolean imposedBBox;
 	
 	/**
 	 * UTC timezone to serve as reference
@@ -206,7 +209,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
         if (catalog == null) {
             throw new DataSourceException("Unable to create reader for this mosaic since the inner catalog is null.");
         }
-        setGridGeometry(catalog);
+        setGridGeometry();
         
         rasterManager = new RasterManager(this);
         
@@ -256,24 +259,24 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 			if (type==null)
 				throw new IllegalArgumentException("Problems when opening the index, no typenames for the schema are defined");
 			
-			setGridGeometry(catalog);
-			
-                        //
-                        // get the crs if able to
-                        //
-                        final Object tempCRS = this.hints.get(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM);
-                        if (tempCRS != null) {
-                            this.crs = (CoordinateReferenceSystem) tempCRS;
-                            LOGGER.log(Level.WARNING, "Using forced coordinate reference system ");
-                        } else {
-                            final CoordinateReferenceSystem tempcrs = type.getGeometryDescriptor().getCoordinateReferenceSystem();
-                            if (tempcrs == null) {
-                                // use the default crs
-                                crs = AbstractGridFormat.getDefaultCRS();
-                                LOGGER.log(Level.WARNING, "Unable to find a CRS for this coverage, using a default one" );
-                            } else
-                                crs = tempcrs;
-                        }
+			setGridGeometry(configuration.getEnvelope());
+
+            //
+            // get the crs if able to
+            //
+            final Object tempCRS = this.hints.get(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM);
+            if (tempCRS != null) {
+                this.crs = (CoordinateReferenceSystem) tempCRS;
+                LOGGER.log(Level.WARNING, "Using forced coordinate reference system ");
+            } else {
+                final CoordinateReferenceSystem tempcrs = type.getGeometryDescriptor().getCoordinateReferenceSystem();
+                if (tempcrs == null) {
+                    // use the default crs
+                    crs = AbstractGridFormat.getDefaultCRS();
+                    LOGGER.log(Level.WARNING, "Unable to find a CRS for this coverage, using a default one" );
+                } else
+                    crs = tempcrs;
+            }
 			
 			//
 			// location attribute field checks
@@ -351,29 +354,41 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 		
 	}
 
-	private void setGridGeometry (final GranuleCatalog index) {
-	    Utilities.ensureNonNull("index", index);
+	private void setGridGeometry(ReferencedEnvelope envelope) {
+		Utilities.ensureNonNull("index", catalog);
 	    //
-            // save the bbox and prepare otherinfo
-            //
-            final BoundingBox bounds = index.getBounds();
-            if(bounds.isEmpty()) {
-                    throw new IllegalArgumentException("Cannot create a mosaic out of an empty index");
-            }
-            this.originalEnvelope=new GeneralEnvelope(bounds);
-            this.crs = originalEnvelope.getCoordinateReferenceSystem();
-            
-            // original gridrange (estimated)
-            originalGridRange = new GridEnvelope2D(
-                            new Rectangle(
-                                            (int) Math.round(originalEnvelope.getSpan(0)/ highestRes[0]), 
-                                            (int) Math.round(originalEnvelope.getSpan(1)/ highestRes[1])
-                                            )
-                            );
-            final GridToEnvelopeMapper geMapper = new GridToEnvelopeMapper(originalGridRange, originalEnvelope);
-            geMapper.setPixelAnchor(PixelInCell.CELL_CENTER);
-            raster2Model = geMapper.createTransform();                       
+        // save the bbox and prepare other info
+        //
+        final BoundingBox bounds = catalog.getBounds();
+        if(bounds.isEmpty()) {
+                throw new IllegalArgumentException("Cannot create a mosaic out of an empty index");
         }
+        
+        // we might have an imposed bbox
+        this.crs=bounds.getCoordinateReferenceSystem();
+        if(envelope==null)
+        	this.originalEnvelope=new GeneralEnvelope(bounds);
+        else{
+        	this.originalEnvelope=new GeneralEnvelope(envelope);
+        	this.originalEnvelope.setCoordinateReferenceSystem(crs);
+        }
+        
+        // original gridrange (estimated)
+        originalGridRange = new GridEnvelope2D(
+                        new Rectangle(
+                                        (int) Math.round(originalEnvelope.getSpan(0)/ highestRes[0]), 
+                                        (int) Math.round(originalEnvelope.getSpan(1)/ highestRes[1])
+                                        )
+                        );
+        final GridToEnvelopeMapper geMapper = new GridToEnvelopeMapper(originalGridRange, originalEnvelope);
+        geMapper.setPixelAnchor(PixelInCell.CELL_CENTER);
+        raster2Model = geMapper.createTransform();      
+		
+	}
+
+	private void setGridGeometry () {
+	    setGridGeometry(null)                ; 
+    }
 
         /**
 	 * Loads the properties file that contains useful information about this
@@ -507,6 +522,9 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 
 		// caching for the index
 		cachingIndex = configuration.isCaching();
+		
+		// imposed BBOX?
+		this.imposedBBox=true;
 		
 		return configuration;
 	}
@@ -713,12 +731,12 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 	@Override
 	public String getMetadataValue(final String name) {
 		final boolean getTimeAttribute=(timeAttribute!=null&&name.equalsIgnoreCase("time_domain"));
-		final QueryCapabilities queryCapabilities = rasterManager.index.getQueryCapabilities();
+		final QueryCapabilities queryCapabilities = rasterManager.granuleCatalog.getQueryCapabilities();
 //		boolean manualSort=false;
 		if(getTimeAttribute){
 			Query query;
 			try {
-				query = new DefaultQuery(rasterManager.index.getType().getTypeName());
+				query = new DefaultQuery(rasterManager.granuleCatalog.getType().getTypeName());
 				query.setPropertyNames(Arrays.asList(timeAttribute));
 				final SortBy[] sortBy=new SortBy[]{
 						new SortByImpl(
@@ -730,7 +748,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 //				else
 //					manualSort=true;
 				final UniqueVisitor visitor= new UniqueVisitor(timeAttribute);
-				rasterManager.index.computeAggregateFunction(query, visitor);
+				rasterManager.granuleCatalog.computeAggregateFunction(query, visitor);
 				
 				// check result
 				//final Set<Date> result = manualSort?new TreeSet<Date>(visitor.getUnique()):visitor.getUnique();
@@ -777,7 +795,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 		if(getElevationAttribute){
 			Query query;
 			try {
-				query = new DefaultQuery(rasterManager.index.getType().getTypeName());
+				query = new DefaultQuery(rasterManager.granuleCatalog.getType().getTypeName());
 				query.setPropertyNames(Arrays.asList(elevationAttribute));
 				final SortBy[] sortBy=new SortBy[]{
 						new SortByImpl(
@@ -789,7 +807,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 //				else
 //					manualSort=true;				
 				final UniqueVisitor visitor= new UniqueVisitor(elevationAttribute);
-				rasterManager.index.computeAggregateFunction(query, visitor);
+				rasterManager.granuleCatalog.computeAggregateFunction(query, visitor);
 				
 				// check result
 				final Set<Double> result = new TreeSet<Double>(visitor.getUnique());//manualSort?new TreeSet<Double>(visitor.getUnique()):visitor.getUnique();
@@ -814,7 +832,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 		if(getRuntimeAttribute){
 			Query query;
 			try {
-				query = new DefaultQuery(rasterManager.index.getType().getTypeName());
+				query = new DefaultQuery(rasterManager.granuleCatalog.getType().getTypeName());
 				query.setPropertyNames(Arrays.asList("runtime"));
 				final SortBy[] sortBy=new SortBy[]{
 						new SortByImpl(
@@ -826,7 +844,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 //				else
 //					manualSort=true;				
 				final UniqueVisitor visitor= new UniqueVisitor("runtime");
-				rasterManager.index.computeAggregateFunction(query, visitor);
+				rasterManager.granuleCatalog.computeAggregateFunction(query, visitor);
 				
 				// check result
 				final Set<Integer> result = new TreeSet<Integer>(new Comparator<Integer>() {

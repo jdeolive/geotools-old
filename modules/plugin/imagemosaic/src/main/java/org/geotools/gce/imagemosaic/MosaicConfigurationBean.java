@@ -20,6 +20,7 @@ import java.awt.image.IndexColorModel;
 import java.lang.reflect.InvocationTargetException;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.util.Utilities;
 
 /**
@@ -80,6 +81,18 @@ public class MosaicConfigurationBean {
 
 	/** runtime attribute name. <code>null</code> if absent.*/
 	private String runtimeAttribute;
+	
+	/** Imposed envelope for this mosaic. If not present we need to compute from catalogue.*/
+	
+	private ReferencedEnvelope envelope;
+
+	public ReferencedEnvelope getEnvelope() {
+		return envelope;
+	}
+
+	public void setEnvelope(ReferencedEnvelope envelope) {
+		this.envelope = envelope;
+	}
 
 	public String getElevationAttribute() {
 		return elevationAttribute;

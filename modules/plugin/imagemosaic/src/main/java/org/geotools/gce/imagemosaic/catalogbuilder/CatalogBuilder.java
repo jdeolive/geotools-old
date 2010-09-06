@@ -929,6 +929,8 @@ public class CatalogBuilder implements Runnable {
 
 	private SampleModel defaultSM;
 
+	private ReferencedEnvelope imposedBBox;
+
 
 	/* (non-Javadoc)
 	 * @see org.geotools.gce.imagemosaic.JMXIndexBuilderMBean#run()
@@ -1282,6 +1284,18 @@ public class CatalogBuilder implements Runnable {
 		mosaicConfiguration.setName(runConfiguration.getIndexName());
 		
 		//
+		// IMPOSED ENVELOPE
+		//
+		String bbox= runConfiguration.getEnvelope2D();
+		try{
+			this.imposedBBox=Utils.parseEnvelope(bbox);
+		}catch (Exception e) {
+			this.imposedBBox=null;
+			if(LOGGER.isLoggable(Level.WARNING))
+				LOGGER.log(Level.WARNING,"Unable to parse imposed bbox",e);
+		}
+	
+		//
 		// load property collectors
 		//
 		loadPropertyCollectors();
@@ -1470,7 +1484,11 @@ public class CatalogBuilder implements Runnable {
 			// suggested spi
 			properties.setProperty("SuggestedSPI", cachedSPI.getClass().getName());
 		}
-		
+
+		// write down imposed bbox
+		if(imposedBBox!=null){
+			properties.setProperty("Envelope2D", imposedBBox.getMinX()+","+imposedBBox.getMinY()+" "+imposedBBox.getMaxX()+","+imposedBBox.getMaxY());
+		}
  	
 		OutputStream outStream=null;
 		try {
