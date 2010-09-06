@@ -33,7 +33,6 @@ import org.geotools.data.DataAccess;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
-import org.geotools.data.complex.config.NonFeatureTypeProxy;
 import org.geotools.data.complex.filter.XPath;
 import org.geotools.data.complex.filter.XPath.Step;
 import org.geotools.data.complex.filter.XPath.StepList;
@@ -43,10 +42,6 @@ import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureImpl;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.Types;
-import org.geotools.feature.type.AttributeDescriptorImpl;
-import org.geotools.feature.type.ComplexFeatureTypeImpl;
-import org.geotools.feature.type.GeometryDescriptorImpl;
-import org.geotools.feature.type.GeometryTypeImpl;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.FilterFactoryImpl;
 import org.opengis.feature.Attribute;
@@ -56,15 +51,14 @@ import org.opengis.feature.Property;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.FeatureType;
-import org.opengis.feature.type.GeometryDescriptor;
-import org.opengis.feature.type.GeometryType;
 import org.opengis.feature.type.Name;
-import org.opengis.feature.type.PropertyDescriptor;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.identity.FeatureId;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.xml.sax.Attributes;
+
+import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * A Feature iterator that operates over the FeatureSource of a
@@ -111,8 +105,6 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
     private boolean isFiltered;
 
     private ArrayList<String> filteredFeatures;
-
-    private AttributeDescriptor targetNode;
 
     public DataAccessMappingFeatureIterator(AppSchemaDataAccess store, FeatureTypeMapping mapping,
             Query query, boolean isFiltered, boolean isDenormalised) throws IOException {
@@ -199,73 +191,22 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
         this.reprojection = query.getCoordinateSystemReproject();
         // we need to disable the max number of features retrieved so we can
         // sort them manually just in case the data is denormalised
-        query.setMaxFeatures(Query.DEFAULT_MAX);
-        sourceFeatures = mappedSource.getFeatures(query);
-        // VT: No point trying to re-project without any geometry.
-        if (reprojection != null && sourceFeatures.getSchema().getGeometryDescriptor() == null) {
-            query.setCoordinateSystemReproject(null);
+        query.setMaxFeatures(Query.DEFAULT_MAX);        
+        try {
+            sourceFeatures = mappedSource.getFeatures(query);       
+        } catch (Exception e) {
+            throw new IOException(e.getMessage());
+        }       
+        if (reprojection != null) {
+            xpathAttributeBuilder.setCRS(reprojection);
+            if (sourceFeatures.getSchema().getGeometryDescriptor() == null) {
+                // VT: No point trying to re-project without any geometry.
+                query.setCoordinateSystemReproject(null);
+            }
         }
         this.sourceFeatureIterator = sourceFeatures.iterator();
-        setTargetNode(mapping);
     }
-
-    private void setTargetNode(FeatureTypeMapping mapping) {
-        if (reprojection != null) {
-            // update CRS if necessary
-            AttributeType type = mapping.getTargetFeature().getType();
-            if (type instanceof ComplexFeatureTypeImpl) {
-                ComplexFeatureTypeImpl fType = (ComplexFeatureTypeImpl) type;
-                Collection<PropertyDescriptor> newDescriptors = reprojectDescriptor(fType
-                        .getDescriptors());
-                AttributeDescriptor targetFeature = mapping.getTargetFeature();
-                targetNode = new AttributeDescriptorImpl(new ComplexFeatureTypeImpl(fType,
-                        newDescriptors), targetFeature.getName(), targetFeature.getMinOccurs(),
-                        targetFeature.getMaxOccurs(), targetFeature.isNillable(), targetFeature
-                                .getDefaultValue());
-                targetNode.getUserData().putAll(targetFeature.getUserData());
-            } else if (type instanceof NonFeatureTypeProxy) {
-                NonFeatureTypeProxy fType = (NonFeatureTypeProxy) type;
-                Collection<PropertyDescriptor> newDescriptors = reprojectDescriptor(fType
-                        .getDescriptors());
-                AttributeDescriptor targetFeature = mapping.getTargetFeature();
-                targetNode = new AttributeDescriptorImpl(new NonFeatureTypeProxy(fType, mapping,
-                        newDescriptors), targetFeature.getName(), targetFeature.getMinOccurs(),
-                        targetFeature.getMaxOccurs(), targetFeature.isNillable(), targetFeature
-                                .getDefaultValue());
-                targetNode.getUserData().putAll(targetFeature.getUserData());
-            }
-        } else {
-            targetNode = mapping.getTargetFeature();
-        }
-    }
-
-    private Collection<PropertyDescriptor> reprojectDescriptor(Collection<PropertyDescriptor> source) {
-        Collection<PropertyDescriptor> newDescriptors = new ArrayList<PropertyDescriptor>(source
-                .size());
-        for (PropertyDescriptor descriptor : source) {
-            if (descriptor instanceof GeometryDescriptor) {
-                GeometryType origType = (GeometryType) descriptor.getType();
-                GeometryType geomType = new GeometryTypeImpl(origType.getName(), origType
-                        .getBinding(), reprojection, origType.isIdentified(),
-                        origType.isAbstract(), origType.getRestrictions(), origType.getSuper(),
-                        origType.getDescription());
-                geomType.getUserData().putAll(origType.getUserData());
-
-                GeometryDescriptor newDescriptor = new GeometryDescriptorImpl(geomType, descriptor
-                        .getName(), descriptor.getMinOccurs(), descriptor.getMaxOccurs(),
-                        descriptor.isNillable(), ((GeometryDescriptor) descriptor)
-                                .getDefaultValue());
-                newDescriptor.getUserData().putAll(descriptor.getUserData());
-                newDescriptors.add(newDescriptor);
-            } else {
-                newDescriptors.add(descriptor);
-            }
-        }
-
-        return newDescriptors;
-
-    }
-
+    
     protected boolean unprocessedFeatureExists() {
 
         boolean exists = getSourceFeatureIterator().hasNext();
@@ -606,7 +547,34 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
 
     protected void setClientProperties(final Attribute target, final Object source,
             final Map<Name, Expression> clientProperties) {
-        if (clientProperties.size() == 0 || target == null) {
+        if (target == null) {
+            return;
+        }
+        Object value = target.getValue();
+        if (value != null && value instanceof Geometry) {
+            // set gml:id in Geometry userData
+            if (target.getIdentifier() != null) {
+                Geometry geom = (Geometry) value;
+                Object userData = geom.getUserData();
+                Map newUserData = new HashMap<Object, Object>();
+                if (userData != null) {
+                    if (userData instanceof Map) {
+                        newUserData.putAll((Map) userData);
+                    } else if (userData instanceof CoordinateReferenceSystem) {
+                        newUserData.put(CoordinateReferenceSystem.class, userData);
+                    }
+                }
+                newUserData.put("gml:id", target.getIdentifier().toString());
+                // need to clone because it seems the same geometry object from the
+                // db is reused instead of regenerated if different attributes refer
+                // to the same database row... so if we change the userData, we have
+                // to clone it
+                geom = (Geometry) geom.clone();
+                geom.setUserData(newUserData);
+                target.setValue(geom);
+            }
+        }
+        if (clientProperties.size() == 0) {
             return;
         }
         final Map<Name, Object> targetAttributes = new HashMap<Name, Object>();
@@ -722,6 +690,7 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
         } else {
             sources.add(curSrcFeature);
         }
+        final AttributeDescriptor targetNode = mapping.getTargetFeature();
         final Name targetNodeName = targetNode.getName();
         final List<AttributeMapping> mappings = mapping.getAttributeMappings();
 

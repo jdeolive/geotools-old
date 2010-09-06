@@ -15,15 +15,14 @@
         <xs:sequence>
           <xs:element name="geom" type="gml:GeometryPropertyType" />
           <xs:element name="shape" type="gml:GeometryPropertyType" />
+          <xs:element name="length" type="gml:MeasureType" />
           <xs:element name="nestedFeature" type="ex:nestedFeaturePropertyType" nillable="true" maxOccurs="unbounded"/>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
   
-  <xs:element name="nestedGeom" type="ex:nestedGeometryFeatureType" />
-  <xs:element name="geom" type="gml:GeometryPropertyType"/>
-  
+  <xs:element name="nestedGeom" type="ex:nestedGeometryFeatureType" />  
   
   <xs:complexType name="nestedGeometryFeatureType" xmlns:xs="http://www.w3.org/2001/XMLSchema">
     <xs:complexContent>    

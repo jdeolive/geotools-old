@@ -131,10 +131,10 @@ public abstract class AbstractMappingFeatureIterator implements IMappingFeatureI
                 
         if (!isQueryUnrolled) {
             query = getUnrolledQuery(query);
-        }                
-        initialiseSourceFeatures(mapping, query);
+        }
         xpathAttributeBuilder = new XPath();
         xpathAttributeBuilder.setFeatureFactory(attf);
+        initialiseSourceFeatures(mapping, query);
         namespaces = mapping.getNamespaces();
         namespaceAwareFilterFactory = new FilterFactoryImplNamespaceAware(namespaces);
         xpathAttributeBuilder.setFilterFactory(namespaceAwareFilterFactory);

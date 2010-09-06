@@ -166,7 +166,10 @@ public class AttributeBuilder {
             Feature feature = (Feature) attribute;
 
             if (feature.getDefaultGeometryProperty() != null) {
-                crs = feature.getDefaultGeometryProperty().getType().getCoordinateReferenceSystem();
+                if (crs == null) {
+                    crs = feature.getDefaultGeometryProperty().getType()
+                            .getCoordinateReferenceSystem();
+                }
                 defaultGeometry = feature.getDefaultGeometryProperty().getValue();
             }
         }

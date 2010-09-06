@@ -162,7 +162,7 @@ public class MappingFeatureCollection implements FeatureCollection<FeatureType, 
     public FeatureIterator<Feature> features() {
         try {
             return MappingFeatureIteratorFactory.getInstance(store, mapping, query);
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -232,7 +232,7 @@ public class MappingFeatureCollection implements FeatureCollection<FeatureType, 
     public Iterator<Feature> iterator() {
         try {
             return MappingFeatureIteratorFactory.getInstance(store, mapping, query);
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }

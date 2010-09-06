@@ -40,7 +40,6 @@ import org.geotools.feature.type.FeatureTypeFactoryImpl;
 import org.geotools.feature.type.GeometryTypeImpl;
 import org.geotools.util.CheckedArrayList;
 import org.geotools.xs.XSSchema;
-import org.opengis.feature.Association;
 import org.opengis.feature.Attribute;
 import org.opengis.feature.ComplexAttribute;
 import org.opengis.feature.FeatureFactory;
@@ -55,6 +54,7 @@ import org.opengis.feature.type.Name;
 import org.opengis.feature.type.PropertyDescriptor;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.PropertyName;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.util.Cloneable;
 import org.xml.sax.helpers.NamespaceSupport;
 
@@ -86,6 +86,8 @@ public class XPath {
     private FilterFactory FF;
 
     private FeatureFactory featureFactory;
+    
+    private CoordinateReferenceSystem crs;
 
     /**
      * Used to create specific attribute descriptors for
@@ -108,6 +110,10 @@ public class XPath {
 
     public void setFilterFactory(FilterFactory ff) {
         this.FF = ff;
+    }
+    
+    public void setCRS(CoordinateReferenceSystem crs) {
+        this.crs = crs;
     }
 
     public void setFeatureFactory(FeatureFactory featureFactory) {
@@ -633,10 +639,11 @@ public class XPath {
                             if (Geometry.class.isAssignableFrom(targetNodeType.getBinding())) {
                                 if (!(targetNodeType instanceof GeometryType)) {
                                     targetNodeType = new GeometryTypeImpl(targetNodeType.getName(),
-                                            targetNodeType.getBinding(),
-                                            ((GeometryDescriptor) actualDescriptor)
-                                                    .getCoordinateReferenceSystem(), targetNodeType
-                                                    .isIdentified(), targetNodeType.isAbstract(),
+                                            targetNodeType.getBinding(), crs != null ? crs
+                                                    : ((GeometryDescriptor) actualDescriptor)
+                                                            .getCoordinateReferenceSystem(),
+                                            targetNodeType.isIdentified(), targetNodeType
+                                                    .isAbstract(),
                                             targetNodeType.getRestrictions(), targetNodeType
                                                     .getSuper(), targetNodeType.getDescription());
                                 }
@@ -739,26 +746,12 @@ public class XPath {
         }
         if (leafAttribute == null) {
             AttributeBuilder builder = new AttributeBuilder(featureFactory);
+            if (crs != null) {
+                builder.setCRS(crs);
+            }
             builder.setDescriptor(parent.getDescriptor());
             // check for mapped type override
-
             builder.setType(parent.getType());
-            if (parent instanceof ComplexAttribute) {
-                ComplexAttribute complex = (ComplexAttribute) parent;
-                Collection properties = (Collection) complex.getValue();
-                for (Iterator itr = properties.iterator(); itr.hasNext();) {
-                    Property property = (Property) itr.next();
-                    if (property instanceof Attribute
-                            && !property.getName().getLocalPart().equals("simpleContent")) {
-                        Attribute att = (Attribute) property;
-                        builder.add(att.getIdentifier() == null ? null : att.getIdentifier()
-                                .toString(), att.getValue(), att.getName());
-                    } else if (property instanceof Association) {
-                        Association assoc = (Association) property;
-                        builder.associate(assoc.getValue(), assoc.getName());
-                    }
-                }
-            }
 
             if (targetNodeType != null) {
                 if (parent.getType().equals(XSSchema.ANYTYPE_TYPE)) {

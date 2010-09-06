@@ -37,7 +37,7 @@ public class MappingFeatureIteratorFactory {
             .getLogger("org.geotools.data.complex");
 
     public static IMappingFeatureIterator getInstance(AppSchemaDataAccess store,
-            FeatureTypeMapping mapping, Query query) throws Exception {
+            FeatureTypeMapping mapping, Query query) throws IOException {
 
         if (mapping instanceof XmlFeatureTypeMapping) {
             return new XmlMappingFeatureIterator(store, mapping, query);
@@ -62,7 +62,7 @@ public class MappingFeatureIteratorFactory {
         try {
             iterator = new DataAccessMappingFeatureIterator(store, mapping, query, isFiltered,
                     isDenormalised(mapping));
-        } catch (Exception e) {
+        } catch (IOException e) {
             // HACK HACK HACK
             // could mean it's a combination of filters (such as AND) involving nested attribute
             // it's hard to predetermine such condition, because a filter could be deeply nested
@@ -74,10 +74,8 @@ public class MappingFeatureIteratorFactory {
                         .info("Caught exception: "
                                 + e.getMessage()
                                 + "in DataAccessMappingFeatureIterator."
-                                + "Assuming this is caused by filtering nested attribute. Retrying with FilteringMappingFeatureIterator.");
-                if (iterator != null) {
-                    iterator.close();
-                }
+                                + "Assuming this is caused by filtering nested attribute."
+                                + "Retrying with FilteringMappingFeatureIterator.");
                 Query unrolledQuery = store.unrollQuery(query, mapping);
                 Filter filter = unrolledQuery.getFilter();
                 unrolledQuery.setFilter(Filter.INCLUDE);

@@ -20,6 +20,8 @@ package org.geotools.feature;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.geotools.feature.type.GeometryDescriptorImpl;
+import org.geotools.feature.type.GeometryTypeImpl;
 import org.opengis.feature.Attribute;
 import org.opengis.feature.ComplexAttribute;
 import org.opengis.feature.Feature;
@@ -30,6 +32,7 @@ import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.ComplexType;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
+import org.opengis.feature.type.GeometryType;
 import org.opengis.filter.identity.FeatureId;
 import org.opengis.filter.identity.GmlObjectId;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -70,6 +73,19 @@ public class AppSchemaFeatureFactoryImpl extends ValidatingFeatureFactoryImpl {
     @Override
     public GeometryAttribute createGeometryAttribute(Object value, GeometryDescriptor descriptor,
             String id, CoordinateReferenceSystem crs) {
+        if (crs != null && !(crs.equals(descriptor.getCoordinateReferenceSystem()))) {
+            // update CRS
+            GeometryType origType = (GeometryType) descriptor.getType();
+            GeometryType geomType = new GeometryTypeImpl(origType.getName(), origType.getBinding(),
+                    crs, origType.isIdentified(), origType.isAbstract(),
+                    origType.getRestrictions(), origType.getSuper(), origType.getDescription());
+            geomType.getUserData().putAll(origType.getUserData());
+
+            descriptor = new GeometryDescriptorImpl(geomType, descriptor.getName(), descriptor
+                    .getMinOccurs(), descriptor.getMaxOccurs(), descriptor.isNillable(),
+                    ((GeometryDescriptor) descriptor).getDefaultValue());
+            descriptor.getUserData().putAll(descriptor.getUserData());
+        }
         return new GeometryAttributeImpl(value, descriptor, buildSafeGmlObjectId(id));
     }
 
