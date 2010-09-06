@@ -79,7 +79,7 @@ import org.opengis.referencing.datum.PixelInCell;
 @SuppressWarnings("deprecation")
 public class ImageMosaicReaderTest extends Assert{
 
-        private final static Logger LOGGER = Logger.getLogger(ImageMosaicReaderTest.class.toString());
+    private final static Logger LOGGER = Logger.getLogger(ImageMosaicReaderTest.class.toString());
     
 	public static junit.framework.Test suite() { 
 	    return new JUnit4TestAdapter(ImageMosaicReaderTest.class); 
@@ -337,9 +337,22 @@ public class ImageMosaicReaderTest extends Assert{
 		assertEquals(envelope.getMaximum(0), 180.0,1E-6);
 		assertEquals(envelope.getMaximum(1), 90.0,1E-6);
 		
-
+		// limit yourself to reading just a bit of it
+		final ParameterValue<GridGeometry2D> gg =  ImageMosaicFormat.READ_GRIDGEOMETRY2D.createValue();
+		final Dimension dim= new Dimension();
+		dim.setSize(reader.getOriginalGridRange().getSpan(0)/3.0, reader.getOriginalGridRange().getSpan(1)/3.0);
+		final Rectangle rasterArea=(( GridEnvelope2D)reader.getOriginalGridRange());
+		rasterArea.setSize(dim);
+		final GridEnvelope2D range= new GridEnvelope2D(rasterArea);
+		gg.setValue(new GridGeometry2D(range,envelope));
+		
+		// use imageio with defined tiles
+		final ParameterValue<Boolean> useJai = ImageMosaicFormat.USE_JAI_IMAGEREAD.createValue();
+		useJai.setValue(false);
+		
+		
 		// Test the output coverage
-		checkCoverage(reader, null, "Imposed BBox");
+		checkCoverage(reader, new GeneralParameterValue[] {gg,useJai }, "Imposed BBox");
 	}	
 	
 	/**
@@ -555,7 +568,7 @@ public class ImageMosaicReaderTest extends Assert{
 	private void testCoverage(final ImageMosaicReader reader,
 			GeneralParameterValue[] values, String title,
 			final GridCoverage2D coverage) {
-		if (true)
+		if (interactive)
 			show( coverage.getRenderedImage(), title);
 		else
 			PlanarImage.wrapRenderedImage( coverage.getRenderedImage()).getTiles();
