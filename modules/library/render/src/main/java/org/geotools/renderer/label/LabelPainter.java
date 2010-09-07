@@ -186,24 +186,42 @@ public class LabelPainter {
                 AttributedCharacterIterator iter = attributed.getIterator();
                 LineBreakMeasurer lineMeasurer = new LineBreakMeasurer(iter, BreakIterator
                         .getWordInstance(), graphics.getFontRenderContext());
+                BreakIterator breaks = BreakIterator.getWordInstance();
+                breaks.setText(line);
 
                 // setup iteration and start splitting at word boundaries
                 int prevPosition = 0;
                 while (lineMeasurer.getPosition() < iter.getEndIndex()) {
                     // grab the next portion of text within the wrapping limits
-                    TextLayout layout = lineMeasurer.nextLayout(labelItem.getAutoWrap());
-                    int newPosition = lineMeasurer.getPosition();
+                    TextLayout layout = lineMeasurer.nextLayout(labelItem.getAutoWrap(), line.length(), true);
+                    int newPosition = prevPosition;
+
+                    if (layout != null) {
+                        newPosition = lineMeasurer.getPosition();
+                    } else {
+                        int nextBoundary = breaks.following(prevPosition);
+                        if (nextBoundary == BreakIterator.DONE) {
+                            newPosition = line.length();
+                        } else {
+                            newPosition = nextBoundary;
+                        }
+                        AttributedCharacterIterator subIter = attributed.getIterator(null, prevPosition, newPosition);
+                        layout = new TextLayout(subIter, graphics.getFontRenderContext());
+                        lineMeasurer.setPosition(newPosition);
+                    }
 
                     // extract the text, and trim it since leading and trailing
                     // and ... spaces can affect label alignment in an
                     // unpleasant way (improper left or right alignment, or bad
                     // centering)
-                    String extracted = line.substring(prevPosition, newPosition).trim();
-                    prevPosition = newPosition;
 
-                    LineInfo info = new LineInfo(extracted, layoutSentence(extracted, labelItem),
-                            layout);
-                    lines.add(info);
+                    String extracted = line.substring(prevPosition, newPosition).trim();
+                    if(!"".equals(extracted)) {
+	                    LineInfo info = new LineInfo(extracted, layoutSentence(extracted, labelItem),
+	                            layout);
+	                    lines.add(info);
+                    }
+                    prevPosition = newPosition;
                 }
             }
         }
