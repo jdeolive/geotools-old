@@ -50,6 +50,8 @@ import org.opengis.filter.expression.PropertyName;
 public class CQLAttributeNameTest  {
 	
     protected final Language language;
+    
+    
 
     public CQLAttributeNameTest(){
         

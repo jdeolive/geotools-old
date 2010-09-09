@@ -250,10 +250,12 @@ TOKEN [IGNORE_CASE]: /* Literals */
 	< #UTC_TIME: <DIGIT><DIGIT> ":" <DIGIT><DIGIT> ":" <DIGIT><DIGIT> ("." (<DIGIT>)+)? "Z" > |
 	< DATE_TIME : <FULL_DATE>"T"<UTC_TIME> > |
 
-    < IDENTIFIER: (<LETTER> (<LETTER>|<DIGIT>)*) | <DOUBLE_QUOTE> (<LETTER> (<LETTER>|<DIGIT>)*) <DOUBLE_QUOTE> > |
+//    < IDENTIFIER: (<LETTER> (<LETTER>|<DIGIT>)*) | <DOUBLE_QUOTE> (<LETTER> (<LETTER>|<DIGIT>)*) <DOUBLE_QUOTE> > |
+    < IDENTIFIER: (<LETTER> (<LETTER>|<DIGIT>)*) | <DOUBLE_QUOTE> (<ANY>)+ <DOUBLE_QUOTE> > |
 
-  	< LETTER: [ "a"-"z", "A"-"Z" , "_"] > |
-  	< DIGIT: [ "0"-"9"] > |
+	< #ANY: ~[" "] > |
+  	< #LETTER: [ "a"-"z", "A"-"Z" , "_"] > |
+  	< #DIGIT: [ "0"-"9"] > |
   	< #EXPONENT: ["e","E"] (["+","-"])? (<DIGIT>)+ > 
 }
 

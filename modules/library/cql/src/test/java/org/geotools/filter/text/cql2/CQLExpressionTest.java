@@ -96,14 +96,4 @@ public class CQLExpressionTest {
         CompilerUtil.parseExpression(language, malformedExp);
     }
 
-    /**
-     * Bas argument
-     * @throws CQLException
-     */
-    @Test(expected = CQLException.class)
-    public void badArgumentInFuncion() throws CQLException {
-
-        String cqlExpression = "strConcat(A, \".\")"; // should be simple quote
-        CompilerUtil.parseExpression(this.language, cqlExpression);
-    }
 }

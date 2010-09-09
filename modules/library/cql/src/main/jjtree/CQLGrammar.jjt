@@ -27,6 +27,10 @@ options {
    SANITY_CHECK=true;
    VISITOR=false;
 
+	// unicode	
+   	// UNICODE_INPUT = true;
+   	// JAVA_UNICODE_ESCAPE = true;
+   
    	// debug
    DEBUG_TOKEN_MANAGER=false;
    DEBUG_PARSER=false;
