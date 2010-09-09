@@ -32,7 +32,7 @@ import org.opengis.filter.expression.PropertyName;
  *          &lt;simple attribute name &gt;
  *      |   &lt;compound attribute name &gt;
  *      
- *  &lt;simple attribute name &gt; ::=  &lt;identifier&gt;
+ *  &lt;simple attribute name &gt; ::=  &lt;identifier&gt;| &lt;double quote&gt; &lt;any character&gt; &lt;double quote&gt;
  *  
  *  &lt;compound attribute name &gt; ::=  &lt;identifier &gt; &lt;period &gt; [{ &lt;identifier &gt; &lt;period &gt;}...] &lt;simple attribute name &gt;
  *  
@@ -100,6 +100,41 @@ public class CQLAttributeNameTest  {
     	
     }
 
+	
+	/**
+	 * Using a CQL Keyword as property name 
+	 * 
+	 * 
+	 * @throws Exception
+	 */
+    @Test 
+    public void keywordAsProperty() throws CQLException {
+
+ 
+    	testAttribute("\"LIKE\"");
+    	
+       	testAttribute("\"AND\"");
+
+       	testAttribute("\"OR\"");
+    }
+
+    /**
+     * Using different local characters as property name.
+     * 
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void localCharactersetInProperty() throws CQLException {
+        
+    	testAttribute("\"población\"");
+
+    	testAttribute("\"reconnaître\"");
+
+    	testAttribute("\"können\"");
+    }
+
+
     private void testAttribute(final String attSample) throws CQLException {
         PropertyIsLike result;
         PropertyName attResult = null;
@@ -111,6 +146,6 @@ public class CQLAttributeNameTest  {
         final String expected = attSample.replace('.', '/');
 
         Assert.assertEquals(expected, attResult.getPropertyName());
-    }    
+    } 
 
 }

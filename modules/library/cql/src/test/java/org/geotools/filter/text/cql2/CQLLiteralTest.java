@@ -223,13 +223,7 @@ public class CQLLiteralTest {
         Assert.assertEquals(otherChars, actual.toString());
     }
 
-    @Test(expected = CQLException.class)
-    public void badCharacterString() throws CQLException {
-
-        String cqlExpression = "A=\"2\""; //should be simple quote
-        CQL.toFilter(cqlExpression);
-    }
-
+ 
     @Test
     public void doubleLiteral() throws Exception{
 
