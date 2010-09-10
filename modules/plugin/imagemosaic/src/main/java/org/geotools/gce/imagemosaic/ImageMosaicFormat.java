@@ -290,8 +290,15 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
          try {
             
             URL sourceURL = Utils.checkSource(source, hints);
-            if(sourceURL == null)
+            if(sourceURL == null){
             	return false;
+            }
+            if( source instanceof File){
+                File file = (File) source;
+                if( !file.exists() ){
+                    return false; // file does not exist
+                }
+            }
             // /////////////////////////////////////////////////////////////////////
             //
             // Load tiles informations, especially the bounds, which will be
@@ -342,8 +349,15 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
         				return false;
               		
             	}
-            	else
-            		tileIndexStore=new ShapefileDataStore(sourceURL);
+            	else {
+            	    URL testPropertiesUrl=DataUtilities.changeUrlExt(sourceURL, "properties");
+            	    File testFile= DataUtilities.urlToFile(testPropertiesUrl);
+            	    if( !testFile.exists() ){
+            	        return false;
+            	    }
+                    
+            	    tileIndexStore=new ShapefileDataStore(sourceURL);
+            	}
                 final String[] typeNames = tileIndexStore.getTypeNames();
                 if (typeNames.length <= 0)
                     return false;
