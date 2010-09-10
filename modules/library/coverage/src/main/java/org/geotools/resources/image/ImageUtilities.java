@@ -18,6 +18,7 @@ package org.geotools.resources.image;
 
 import java.awt.Dimension;
 import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
 import java.awt.image.DataBufferDouble;
@@ -34,8 +35,10 @@ import java.lang.reflect.Method;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Vector;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
@@ -50,11 +53,13 @@ import javax.media.jai.Interpolation;
 import javax.media.jai.JAI;
 import javax.media.jai.OpImage;
 import javax.media.jai.ParameterBlockJAI;
+import javax.media.jai.PlanarImage;
 import javax.media.jai.RenderedOp;
 
 import org.geotools.resources.Classes;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
+import org.geotools.util.Utilities;
 
 import com.sun.media.imageioimpl.common.PackageUtil;
 import com.sun.media.jai.operator.ImageReadDescriptor;
@@ -769,5 +774,40 @@ public final class ImageUtilities {
         }
     
         return spi;
+    }
+    
+    /**
+     * Dispose an image with all its ancestors.
+     * 
+     * @param pi the {@link PlanarImage} to dispose.
+     */
+    public static void disposePlanarImageChain(PlanarImage pi) {
+    	Utilities.ensureNonNull("PlanarImage", pi);
+        disposePlanarImageChain(pi, null);
+    }
+    
+	private static void disposePlanarImageChain(PlanarImage pi, HashSet<PlanarImage> visited) {
+        Vector sinks = pi.getSinks();
+        if(sinks != null) {
+            for (Object sink: sinks) {
+                if(sink instanceof PlanarImage && !visited.contains(sink))
+                    disposePlanarImageChain((PlanarImage) sink, visited);
+                else if(sink instanceof BufferedImage) {
+                    ((BufferedImage) sink).flush();
+                }
+            }
+        }
+        pi.dispose();
+        visited.add(pi);
+        Vector sources = pi.getSources();
+        if(sources != null) {
+            for (Object child : sources) {
+                if(child instanceof PlanarImage && !visited.contains(child))
+                    disposePlanarImageChain((PlanarImage) child, visited);
+                else if(child instanceof BufferedImage) {
+                    ((BufferedImage) child).flush();
+                }
+            }
+        }
     }
 }
