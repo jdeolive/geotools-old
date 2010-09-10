@@ -455,11 +455,24 @@ public class GeometryClipper {
                 }
             }
 
+//            Class targetGeometry = Geometry.class;
+//            if(gc instanceof MultiPoint) {
+//            	targetGeometry = Point.class;
+//            } else if(gc instanceof MultiLineString) {
+//            	targetGeometry = LineString.class;
+//            } else if(gc instanceof MultiPolygon) {
+//            	targetGeometry = Polygon.class;
+//            }
+            
             if (result.size() == 0) {
                 return null;
             } else if (result.size() == 1) {
                 return result.get(0);
-            } else if (gc instanceof MultiPoint) {
+            } 
+            
+            flattenCollection(result);
+            
+            if (gc instanceof MultiPoint) {
                 return gc.getFactory().createMultiPoint(
                         (Point[]) result.toArray(new Point[result.size()]));
             } else if (gc instanceof MultiLineString) {
@@ -475,7 +488,22 @@ public class GeometryClipper {
         }
     }
 
-    /**
+    private void flattenCollection(List<Geometry> result) {
+		for (int i = 0; i < result.size();) {
+			Geometry g = result.get(i);
+			if(g instanceof GeometryCollection) {
+				GeometryCollection gc = (GeometryCollection) g;
+				for (int j = 0; j < gc.getNumGeometries(); j++) {
+					result.add(gc.getGeometryN(j));
+				}
+				result.remove(i);
+			} else {
+				i++;
+			}
+		}
+	}
+
+	/**
      * Clips a linestring using the Cohen-Sutherlan segment clipping helper method
      * @param line
      * @param closed
