@@ -60,9 +60,16 @@ public abstract class AdaptorFeatureCollection implements SimpleFeatureCollectio
         open.add( iter );
         return iter; 
     }
+    public void close(FeatureIterator<SimpleFeature> close) {
+        if( close != null ){
+            close.close();
+        }
+    }
     public void close( SimpleFeatureIterator close ) {     
-        closeIterator( close );
-        open.remove( close );
+        if( close != null ){
+            closeIterator( close );
+            open.remove( close );
+        }
     }
     public void closeIterator( SimpleFeatureIterator close ) {
         DelegateSimpleFeatureIterator iter = (DelegateSimpleFeatureIterator) close;
