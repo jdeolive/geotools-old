@@ -63,6 +63,23 @@ public class ShapeMarkFactory implements MarkFactory {
        gp.moveTo(-0.5f, -0.5f);
        gp.lineTo(0.5f, 0.5f);
        shapes.put("times", gp);
+       
+       gp = new GeneralPath();
+       gp.moveTo(-0.5, 0.2);
+       gp.lineTo(0, 0);
+       gp.lineTo(-0.5, -0.2);
+       ExplicitBoundsShape oarrow = new ExplicitBoundsShape(gp);
+       oarrow.setBounds(new Rectangle2D.Double(-0.5, -0.5, 1, 1));
+       shapes.put("oarrow", oarrow);
+       
+       gp = new GeneralPath();
+       gp.moveTo(-0.5, 0.2);
+       gp.lineTo(0, 0);
+       gp.lineTo(-0.5, -0.2);
+       gp.closePath();
+       ExplicitBoundsShape carrow = new ExplicitBoundsShape(gp);
+       carrow.setBounds(new Rectangle2D.Double(-0.5, -0.5, 1, 1));
+       shapes.put("carrow", carrow);
     }
 
     public Shape getShape(Graphics2D graphics, Expression symbolUrl, Feature feature) throws Exception {

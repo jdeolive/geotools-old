@@ -59,8 +59,10 @@ org.geotools.filter.function.FilterFunction_getX
 org.geotools.filter.function.FilterFunction_getY
 org.geotools.filter.function.FilterFunction_getZ
 org.geotools.filter.function.FilterFunction_pointN
+org.geotools.filter.function.FilterFunction_startAngle
 org.geotools.filter.function.FilterFunction_startPoint
 org.geotools.filter.function.FilterFunction_endPoint
+org.geotools.filter.function.FilterFunction_endAngle
 org.geotools.filter.function.FilterFunction_isRing
 org.geotools.filter.function.FilterFunction_exteriorRing
 org.geotools.filter.function.FilterFunction_numInteriorRing
