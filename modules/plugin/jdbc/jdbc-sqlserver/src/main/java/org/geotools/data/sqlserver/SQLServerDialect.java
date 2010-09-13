@@ -153,7 +153,7 @@ public class SQLServerDialect extends BasicSQLDialect {
         sql.append( ".STSrid");
         
         sql.append( " FROM ");
-        encodeTableName(tableName, sql );
+        encodeTableName(schemaName, tableName, sql, true);
         
         sql.append( " WHERE ");
         encodeColumnName(columnName, sql );
@@ -278,9 +278,13 @@ public class SQLServerDialect extends BasicSQLDialect {
             throws SQLException {
         
         StringBuffer sql = new StringBuffer("SELECT");
-        sql.append( " IDENT_CURRENT('").append( tableName ).append("')");
+        sql.append( " IDENT_CURRENT('");
+        encodeTableName(schemaName, tableName, sql, false);
+        sql.append("')");
         sql.append( " + ");
-        sql.append( " IDENT_INCR('").append( tableName ).append("')");
+        sql.append( " IDENT_INCR('");
+        encodeTableName(schemaName, tableName, sql, false);
+        sql.append("')");
         
         dataStore.getLogger().fine( sql.toString() );
         
@@ -304,5 +308,23 @@ public class SQLServerDialect extends BasicSQLDialect {
     @Override
     public FilterToSQL createFilterToSQL() {
         return new SQLServerFilterToSQL();
+    }
+    
+    protected void encodeTableName(String schemaName, String tableName, StringBuffer sql, boolean escape) {
+        if (schemaName != null) {
+            if (escape) {
+                encodeSchemaName(schemaName, sql);
+            }
+            else {
+                sql.append(schemaName);
+            }
+            sql.append(".");
+        }
+        if (escape) {
+            encodeTableName(tableName, sql);
+        }
+        else {
+            sql.append(tableName);
+        }
     }
 }
