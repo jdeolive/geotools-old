@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 import javax.xml.namespace.QName;
 
-import org.geotools.feature.FeatureImpl;
+import org.geotools.feature.ComplexAttributeImpl;
 import org.geotools.xml.Encoder;
 import org.geotools.xml.PropertyExtractor;
 import org.geotools.xml.Schemas;
@@ -242,7 +242,7 @@ O:
           
          to maintain the feature properties order, sort the properties to their original order as in "children" list               
         */
-        if (object instanceof FeatureImpl && propertiesSortable(properties, children)) {
+        if (object instanceof ComplexAttributeImpl && propertiesSortable(properties, children)) {
             List sortedProperties = new ArrayList();
             
             //sort properties according to their XSDParticle order in "children"
