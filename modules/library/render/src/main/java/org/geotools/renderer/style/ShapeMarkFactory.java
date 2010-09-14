@@ -65,17 +65,17 @@ public class ShapeMarkFactory implements MarkFactory {
        shapes.put("times", gp);
        
        gp = new GeneralPath();
-       gp.moveTo(-0.5, 0.2);
+       gp.moveTo(-0.5f, 0.2f);
        gp.lineTo(0, 0);
-       gp.lineTo(-0.5, -0.2);
+       gp.lineTo(-0.5f, -0.2f);
        ExplicitBoundsShape oarrow = new ExplicitBoundsShape(gp);
        oarrow.setBounds(new Rectangle2D.Double(-0.5, -0.5, 1, 1));
        shapes.put("oarrow", oarrow);
        
        gp = new GeneralPath();
-       gp.moveTo(-0.5, 0.2);
+       gp.moveTo(-0.5f, 0.2f);
        gp.lineTo(0, 0);
-       gp.lineTo(-0.5, -0.2);
+       gp.lineTo(-0.5f, -0.2f);
        gp.closePath();
        ExplicitBoundsShape carrow = new ExplicitBoundsShape(gp);
        carrow.setBounds(new Rectangle2D.Double(-0.5, -0.5, 1, 1));
