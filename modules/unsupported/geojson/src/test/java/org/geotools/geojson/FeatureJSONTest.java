@@ -56,7 +56,7 @@ public class FeatureJSONTest extends GeoJSONTestSupport {
         tb.add("double", Double.class);
         tb.add("string", String.class);
         tb.add("geometry", Geometry.class);
-            
+        
         featureType = tb.buildFeatureType();
         fb = new SimpleFeatureBuilder(featureType);
     }
@@ -367,7 +367,7 @@ public class FeatureJSONTest extends GeoJSONTestSupport {
         Object crs = fjson.readCRS(reader(strip(crsText())));
         assertTrue(CRS.equalsIgnoreMetadata(CRS.decode("epsg:4326"), crs));
     }
-
+    
     String crsText() {
         return 
             "{" + 
@@ -388,7 +388,7 @@ public class FeatureJSONTest extends GeoJSONTestSupport {
     }
     
     String featureText(int val) {
-        return 
+        String text = 
         "{" +
         "  'type': 'Feature'," +
         "  'geometry': {" +
@@ -398,10 +398,12 @@ public class FeatureJSONTest extends GeoJSONTestSupport {
         "'  properties': {" +
         "     'int': " + val + "," +
         "     'double': " + (val + 0.1) + "," +
-        "     'string': '" + toString(val) + "'" +
+        "     'string': '" + toString(val) + "'" + 
         "   }," +
         "   'id':'feature." + val + "'" +
         "}";
+        
+        return text;
     }
     
     FeatureCollection collection() {
@@ -443,42 +445,5 @@ public class FeatureJSONTest extends GeoJSONTestSupport {
         sb.append("]}");
         return sb.toString();
     }
-    String toString(int val) {
-        return val == 0 ? "zero" : 
-                val == 1 ? "one" :
-                val == 2 ? "two" : 
-                val == 3 ? "three" : "four";
-    }
-
-    void assertEqualsLax(SimpleFeature f1, SimpleFeature f2) {
-        assertEquals(f1.getID(), f1.getID());
-        assertEquals(f1.getAttributeCount(), f2.getAttributeCount());
-        
-        for (int i = 0; i < f1.getAttributeCount(); i++) {
-            Object o1 = f1.getAttribute(i);
-            Object o2 = f2.getAttribute(i);
-            
-            if (o1 instanceof Geometry) {
-                assertTrue(((Geometry) o1).equals((Geometry)o2));
-            }
-            else {
-                if (o1 instanceof Number) {
-                    if (o1 instanceof Integer || o1 instanceof Long) {
-                        assertTrue(o2 instanceof Integer || o2 instanceof Long);
-                        assertEquals(((Number)o1).intValue(), ((Number)o2).intValue());
-                    }
-                    else if (o1 instanceof Float || o1 instanceof Double) {
-                        assertTrue(o2 instanceof Float || o2 instanceof Double);
-                        assertEquals(((Number)o1).doubleValue(), ((Number)o2).doubleValue());
-                    }
-                    else {
-                        fail();
-                    }
-                }
-                else {
-                    assertEquals(o1, o2);
-                }
-            }
-        }
-    }
+    
 }

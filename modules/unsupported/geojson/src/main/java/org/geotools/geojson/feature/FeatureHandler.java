@@ -42,10 +42,13 @@ public class FeatureHandler extends DelegatingHandler<SimpleFeature> {
     CoordinateReferenceSystem crs;
    
     SimpleFeatureBuilder builder;
+    AttributeIO attio;
+    
     SimpleFeature feature;
     
-    public FeatureHandler(SimpleFeatureBuilder builder) {
+    public FeatureHandler(SimpleFeatureBuilder builder, AttributeIO attio) {
         this.builder = builder;
+        this.attio = attio;
     }
     
     @Override
@@ -139,7 +142,14 @@ public class FeatureHandler extends DelegatingHandler<SimpleFeature> {
                 builder = createBuilder();
             }
             for (int i = 0; i < properties.size(); i++) {
-                builder.set(properties.get(i), values.get(i));
+                String att = properties.get(i);
+                Object val = values.get(i);
+                
+                if (val instanceof String) {
+                    val = attio.parse(att, (String)val);
+                }
+                
+                builder.set(att, val );
             }
             
             properties = null;
@@ -164,6 +174,7 @@ public class FeatureHandler extends DelegatingHandler<SimpleFeature> {
             return true;
         }
         else if (values != null && delegate == NULL) {
+            //use the attribute parser 
             values.add(value);
             return true;
         }

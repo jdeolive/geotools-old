@@ -1,14 +1,3 @@
-package org.geotools.geojson.feature;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.geotools.feature.simple.SimpleFeatureBuilder;
-import org.geotools.geojson.DelegatingHandler;
-import org.json.simple.parser.ParseException;
-import org.opengis.feature.simple.SimpleFeature;
-
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
@@ -25,15 +14,42 @@ import org.opengis.feature.simple.SimpleFeature;
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
+package org.geotools.geojson.feature;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.geotools.feature.simple.SimpleFeatureBuilder;
+import org.geotools.geojson.DelegatingHandler;
+import org.json.simple.parser.ParseException;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
+
 public class FeatureCollectionHandler extends DelegatingHandler<SimpleFeature> 
     implements IFeatureCollectionHandler {
 
     SimpleFeatureBuilder builder;
+    AttributeIO attio;
+    
     SimpleFeature feature;
     List stack;
    
-    public FeatureCollectionHandler(SimpleFeatureBuilder builder) {
-        this.builder = builder;
+    public FeatureCollectionHandler(SimpleFeatureType featureType, AttributeIO attio) {
+        if (featureType != null) {
+            builder = new SimpleFeatureBuilder(featureType);
+        }
+       
+        if (attio == null) {
+            if (featureType != null) {
+                attio = new FeatureTypeAttributeIO(featureType);
+            }
+            else {
+                attio = new DefaultAttributeIO();
+            }
+        }
+        
+        this.attio = attio;
     }
     
     @Override
@@ -49,7 +65,7 @@ public class FeatureCollectionHandler extends DelegatingHandler<SimpleFeature>
     @Override
     public boolean startArray() throws ParseException, IOException {
         if (delegate == UNINITIALIZED) {
-            delegate = new FeatureHandler(builder);
+            delegate = new FeatureHandler(builder, attio);
             
             //maintain a stack to track when the "features" array ends
             stack = new ArrayList();

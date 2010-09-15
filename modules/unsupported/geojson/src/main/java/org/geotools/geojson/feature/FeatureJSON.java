@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -31,6 +32,7 @@ import java.util.Map;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
+import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.geojson.GeoJSONUtil;
 import org.geotools.geojson.geom.GeometryJSON;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -71,6 +73,8 @@ import com.vividsolutions.jts.geom.Geometry;
 public class FeatureJSON {
 
     GeometryJSON gjson;
+    SimpleFeatureType featureType;
+    AttributeIO attio;
     boolean encodeFeatureBounds = false;
     boolean encodeFeatureCollectionBounds = false;
     boolean encodeFeatureCRS = false;
@@ -78,8 +82,24 @@ public class FeatureJSON {
     
     public FeatureJSON() {
         gjson = new GeometryJSON();
+        attio = new DefaultAttributeIO();
     }
     
+    /**
+     * Sets the target feature type for parsing.
+     * <p>
+     * Setting the target feature type will help the geojson parser determine the type of feature
+     * properties during properties. When the type is not around all properties are returned as 
+     * a string.
+     * </p>
+     *  
+     * @param featureType The feature type. Parsed features will reference this feature type.
+     */
+    public void setFeatureType(SimpleFeatureType featureType) {
+        this.featureType = featureType;
+        this.attio = new FeatureTypeAttributeIO(featureType);
+    }
+
     /**
      * Sets the flag controlling whether feature bounds are encoded.
      *  
@@ -194,7 +214,9 @@ public class FeatureJSON {
      * @throws IOException In the event of a parsing error or if the input json is invalid.
      */
     public SimpleFeature readFeature(Object input) throws IOException {
-        return GeoJSONUtil.parse(new FeatureHandler(null), input, false);
+        return GeoJSONUtil.parse(new FeatureHandler(
+            featureType != null ? new SimpleFeatureBuilder(featureType): null, attio
+        ), input, false);
     }
     
     /**
@@ -389,6 +411,10 @@ public class FeatureJSON {
                 }
                 
                 Object value = feature.getAttribute(i);
+                if (value == null) {
+                    //skip
+                    continue;
+                }
                 if (value instanceof Envelope) {
                     array(ad.getLocalName(), gjson.toString((Envelope)value), sb);
                 }
@@ -452,7 +478,7 @@ public class FeatureJSON {
         }
     }
 
-    static class FeatureCollectionIterator implements FeatureIterator<SimpleFeature> {
+    class FeatureCollectionIterator implements FeatureIterator<SimpleFeature> {
 
         Reader reader;
         IFeatureCollectionHandler handler;
@@ -472,7 +498,7 @@ public class FeatureJSON {
         public boolean hasNext() {
             next = null;
             if (handler == null) {
-                handler = new FeatureCollectionHandler(null);
+                handler = new FeatureCollectionHandler(featureType,  attio);
                 //handler = GeoJSONUtil.trace(handler, IFeatureCollectionHandler.class);
             }
             next = readNext();
