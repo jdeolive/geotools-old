@@ -39,7 +39,9 @@ public class GeoJSON {
         if (obj instanceof Geometry) {
             gjson.write((Geometry)obj, output);
         }
-        else if (obj instanceof Feature || obj instanceof CoordinateReferenceSystem) {
+        else if (obj instanceof Feature || obj instanceof FeatureCollection ||  
+                obj instanceof CoordinateReferenceSystem) {
+            
             if (obj instanceof SimpleFeature) {
                 fjson.writeFeature((SimpleFeature)obj, output);
             }
