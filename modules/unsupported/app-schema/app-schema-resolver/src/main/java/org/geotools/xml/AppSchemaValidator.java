@@ -17,11 +17,15 @@
 
 package org.geotools.xml;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.xerces.parsers.SAXParser;
 import org.apache.xerces.xni.XMLResourceIdentifier;
@@ -43,14 +47,21 @@ import org.xml.sax.XMLReader;
 public class AppSchemaValidator {
 
     /**
+     * Pattern matching a string that starts with an XML declaration with an encoding, with a single
+     * group that contains the encoding.
+     */
+    private static final Pattern XML_ENCODING_PATTERN = Pattern
+            .compile("<\\?xml.*?encoding=[\"'](.+?)[\"'].*?\\?>.*");
+
+    /**
      * The resolver used to find XML schemas.
      */
-    final private AppSchemaResolver resolver;
+    private final AppSchemaResolver resolver;
 
     /**
      * Failures found during parsing of an XML instance document.
      */
-    final private List<String> failures = new ArrayList<String>();
+    private final List<String> failures = new ArrayList<String>();
 
     /**
      * Are validation warnings considered failures? The default is true.
@@ -158,7 +169,7 @@ public class AppSchemaValidator {
      * Throw a {@link RuntimeException} if the validator has found any failures. The exception
      * detail contains the failure messages.
      */
-    public void check() {
+    public void checkForFailures() {
         if (failures.size() > 0) {
             throw new RuntimeException(buildFailureMessage());
         }
@@ -211,7 +222,7 @@ public class AppSchemaValidator {
      * @param name
      *            resource name of XML instance document
      */
-    public static void validate(String name) {
+    public static void validateResource(String name) {
         InputStream input = null;
         try {
             input = AppSchemaValidator.class.getResourceAsStream(name);
@@ -224,6 +235,66 @@ public class AppSchemaValidator {
                     // we tried
                 }
             }
+        }
+    }
+
+    /**
+     * 
+     * Perform schema validation of an XML instance document in a string against schemas found on
+     * the classpath using the convention described in
+     * {@link AppSchemaResolver#getSimpleHttpResourcePath(java.net.URI)}.
+     * 
+     * <p>
+     * 
+     * If validation fails, a {@link RuntimeException} is thrown containing details of all failures.
+     * 
+     * @param xml
+     *            string containing XML instance document
+     */
+    public static void validate(String xml) {
+        byte[] bytes = null;
+        String encoding = getEncoding(xml);
+        if (encoding != null) {
+            try {
+                bytes = xml.getBytes(encoding);
+            } catch (UnsupportedEncodingException e) {
+                // ignore, handled below
+            }
+        }
+        if (bytes == null) {
+            // no encoding in declaration or unsupported encoding
+            // fall back to platform default
+            bytes = xml.getBytes();
+        }
+        InputStream input = null;
+        try {
+            input = new ByteArrayInputStream(bytes);
+            validate(input);
+        } finally {
+            if (input != null) {
+                try {
+                    input.close();
+                } catch (IOException e) {
+                    // we tried
+                }
+            }
+        }
+    }
+
+    /**
+     * Return the encoding from the XML declaration in an XML document, if present, or null if not
+     * found.
+     * 
+     * @param xml
+     *            string containing an XML document
+     * @return declared encoding or null if not present
+     */
+    static String getEncoding(String xml) {
+        Matcher m = XML_ENCODING_PATTERN.matcher(xml);
+        if (m.matches()) {
+            return m.group(1);
+        } else {
+            return null;
         }
     }
 
@@ -243,7 +314,7 @@ public class AppSchemaValidator {
     public static void validate(InputStream input) {
         AppSchemaValidator validator = buildValidator();
         validator.parse(input);
-        validator.check();
+        validator.checkForFailures();
     }
 
     /**
@@ -258,11 +329,17 @@ public class AppSchemaValidator {
          */
         public XMLInputSource resolveEntity(XMLResourceIdentifier resourceIdentifier)
                 throws XNIException, IOException {
-            // We use AppSchemaResolver.resolve(String, String) to ensure relative
-            // imports work across jar file boundaries.
-            return new XMLInputSource(resourceIdentifier.getPublicId(), resolver.resolve(
-                    resourceIdentifier.getLiteralSystemId(), resourceIdentifier.getBaseSystemId()),
-                    resourceIdentifier.getBaseSystemId());
+            if (resourceIdentifier.getLiteralSystemId() == null) {
+                throw new RuntimeException("Schema validation failure caused by "
+                        + "missing schemaLocation for namespace "
+                        + resourceIdentifier.getNamespace());
+            } else {
+                // We use AppSchemaResolver.resolve(String, String) to ensure relative
+                // imports work across jar file boundaries.
+                return new XMLInputSource(resourceIdentifier.getPublicId(), resolver.resolve(
+                        resourceIdentifier.getLiteralSystemId(),
+                        resourceIdentifier.getBaseSystemId()), resourceIdentifier.getBaseSystemId());
+            }
         }
 
     }
