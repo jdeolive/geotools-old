@@ -380,14 +380,6 @@ public class SLDTransformer extends TransformerBase {
                 text.getFill().accept(this);
             }
 
-            if (text.getOptions() != null) {
-                encodeVendorOptions(text.getOptions());
-            }
-            
-            if (text.getPriority() != null) {
-                element("Priority", text.getPriority());
-            }
-            
             if (text instanceof TextSymbolizer2){
             	TextSymbolizer2 text2 = (TextSymbolizer2) text;
             	if (text2.getGraphic() != null) visit(text2.getGraphic());
@@ -399,6 +391,14 @@ public class SLDTransformer extends TransformerBase {
             	    otherTextAtts.addAttribute("", "target", "target", "", otherText.getTarget());
 					element("OtherText",otherText.getText(), null, otherTextAtts);
             	}
+            }
+            
+            if (text.getPriority() != null) {
+                element("Priority", text.getPriority());
+            }
+            
+            if (text.getOptions() != null) {
+                encodeVendorOptions(text.getOptions());
             }
             
             end("TextSymbolizer");
