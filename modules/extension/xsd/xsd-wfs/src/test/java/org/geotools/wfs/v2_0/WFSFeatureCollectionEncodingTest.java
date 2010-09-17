@@ -71,13 +71,14 @@ public class WFSFeatureCollectionEncodingTest extends TestCase {
         Document d = e.encodeAsDOM( fc, WFS.FeatureCollection );
         TransformerFactory.newInstance().newTransformer().transform(
             new DOMSource(d), new StreamResult(System.out));
-//        
-//        assertEquals( 2, d.getElementsByTagName( "gml:Point" ).getLength() );
-//        assertEquals( 2, d.getElementsByTagName( "gml:pos" ).getLength() );
-//        assertEquals( 0, d.getElementsByTagName( "gml:coord" ).getLength() );
-//        
-//        assertEquals( 2, d.getElementsByTagName( "geotools:feature" ).getLength() );
-//        assertNotNull( ((Element)d.getElementsByTagName( "geotools:feature").item( 0 )).getAttribute("gml:id") );
+        
+        assertEquals( 2, d.getElementsByTagName( "wfs:member" ).getLength() );
+        assertEquals( 2, d.getElementsByTagName( "gml:Point" ).getLength() );
+        assertEquals( 2, d.getElementsByTagName( "gml:pos" ).getLength() );
+        assertEquals( 0, d.getElementsByTagName( "gml:coord" ).getLength() );
+        
+        assertEquals( 2, d.getElementsByTagName( "geotools:feature" ).getLength() );
+        assertNotNull( ((Element)d.getElementsByTagName( "geotools:feature").item( 0 )).getAttribute("gml:id") );
     }
     
     Encoder encoder() {

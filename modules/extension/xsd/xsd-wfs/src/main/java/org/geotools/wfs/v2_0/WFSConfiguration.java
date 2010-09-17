@@ -2,7 +2,6 @@ package org.geotools.wfs.v2_0;
 
 import net.opengis.wfs.WfsFactory;
 
-import org.eclipse.xsd.util.XSDSchemaLocationResolver;	
 import org.geotools.filter.v2_0.FESConfiguration;
 import org.geotools.gml3.XSDIdRegistry;
 import org.geotools.gml3.v3_2.GMLConfiguration;
@@ -56,10 +55,10 @@ public class WFSConfiguration extends Configuration {
 //        container.registerComponentImplementation(WFS.DescribeStoredQueriesType,DescribeStoredQueriesTypeBinding.class);
 //        container.registerComponentImplementation(WFS.ElementType,ElementTypeBinding.class);
 //        container.registerComponentImplementation(WFS.EmptyType,EmptyTypeBinding.class);
+//        container.registerComponentImplementation(WFS.EnvelopePropertyType,EnvelopePropertyTypeBinding.class);
 //        container.registerComponentImplementation(WFS.ExecutionStatusType,ExecutionStatusTypeBinding.class);
 //        container.registerComponentImplementation(WFS.ExtendedDescriptionType,ExtendedDescriptionTypeBinding.class);
         container.registerComponentImplementation(WFS.FeatureCollectionType,FeatureCollectionTypeBinding.class);
-        container.registerComponentImplementation(WFS.FeaturePropertyType,FeaturePropertyTypeBinding.class);
 //        container.registerComponentImplementation(WFS.FeaturesLockedType,FeaturesLockedTypeBinding.class);
 //        container.registerComponentImplementation(WFS.FeaturesNotLockedType,FeaturesNotLockedTypeBinding.class);
 //        container.registerComponentImplementation(WFS.FeatureTypeListType,FeatureTypeListTypeBinding.class);
@@ -73,7 +72,7 @@ public class WFSConfiguration extends Configuration {
 //        container.registerComponentImplementation(WFS.ListStoredQueriesType,ListStoredQueriesTypeBinding.class);
 //        container.registerComponentImplementation(WFS.LockFeatureResponseType,LockFeatureResponseTypeBinding.class);
 //        container.registerComponentImplementation(WFS.LockFeatureType,LockFeatureTypeBinding.class);
-//        container.registerComponentImplementation(WFS.MemberType,MemberTypeBinding.class);
+        container.registerComponentImplementation(WFS.MemberPropertyType,MemberPropertyTypeBinding.class);
 //        container.registerComponentImplementation(WFS.MetadataURLType,MetadataURLTypeBinding.class);
 //        container.registerComponentImplementation(WFS.NativeType,NativeTypeBinding.class);
 //        container.registerComponentImplementation(WFS.nonNegativeIntegerOrUnknown,NonNegativeIntegerOrUnknownBinding.class);
@@ -89,7 +88,6 @@ public class WFSConfiguration extends Configuration {
 //        container.registerComponentImplementation(WFS.ResultTypeType,ResultTypeTypeBinding.class);
 //        container.registerComponentImplementation(WFS.ReturnFeatureTypesListType,ReturnFeatureTypesListTypeBinding.class);
 //        container.registerComponentImplementation(WFS.SimpleFeatureCollectionType,SimpleFeatureCollectionTypeBinding.class);
-//        container.registerComponentImplementation(WFS.SimpleValueCollectionType,SimpleValueCollectionTypeBinding.class);
 //        container.registerComponentImplementation(WFS.StarStringType,StarStringTypeBinding.class);
 //        container.registerComponentImplementation(WFS.StateValueType,StateValueTypeBinding.class);
 //        container.registerComponentImplementation(WFS.StoredQueryDescriptionType,StoredQueryDescriptionTypeBinding.class);
@@ -98,23 +96,21 @@ public class WFSConfiguration extends Configuration {
 //        container.registerComponentImplementation(WFS.TransactionResponseType,TransactionResponseTypeBinding.class);
 //        container.registerComponentImplementation(WFS.TransactionSummaryType,TransactionSummaryTypeBinding.class);
 //        container.registerComponentImplementation(WFS.TransactionType,TransactionTypeBinding.class);
+//        container.registerComponentImplementation(WFS.TupleType,TupleTypeBinding.class);
 //        container.registerComponentImplementation(WFS.UpdateActionType,UpdateActionTypeBinding.class);
 //        container.registerComponentImplementation(WFS.UpdateType,UpdateTypeBinding.class);
 //        container.registerComponentImplementation(WFS.ValueCollectionType,ValueCollectionTypeBinding.class);
 //        container.registerComponentImplementation(WFS.ValueListType,ValueListTypeBinding.class);
 //        container.registerComponentImplementation(WFS.WFS_CapabilitiesType,WFS_CapabilitiesTypeBinding.class);
 //        container.registerComponentImplementation(WFS._Abstract,_AbstractBinding.class);
+//        container.registerComponentImplementation(WFS._additionalObjects,_additionalObjectsBinding.class);
+//        container.registerComponentImplementation(WFS._additionalValues,_additionalValuesBinding.class);
 //        container.registerComponentImplementation(WFS._DropStoredQuery,_DropStoredQueryBinding.class);
 //        container.registerComponentImplementation(WFS._PropertyName,_PropertyNameBinding.class);
 //        container.registerComponentImplementation(WFS._Title,_TitleBinding.class);
-//        container.registerComponentImplementation(WFS._TruncatedResponse,_TruncatedResponseBinding.class);
+//        container.registerComponentImplementation(WFS._truncatedResponse,_truncatedResponseBinding.class);
 //        container.registerComponentImplementation(WFS.FeatureTypeType_NoCRS,FeatureTypeType_NoCRSBinding.class);
 //        container.registerComponentImplementation(WFS.PropertyType_ValueReference,PropertyType_ValueReferenceBinding.class);
-//        container.registerComponentImplementation(WFS.SimpleFeatureCollectionType_tuple,SimpleFeatureCollectionType_tupleBinding.class);
-//        container.registerComponentImplementation(WFS.SimpleFeatureCollectionType_collection,SimpleFeatureCollectionType_collectionBinding.class);
 //        container.registerComponentImplementation(WFS.WFS_CapabilitiesType_WSDL,WFS_CapabilitiesType_WSDLBinding.class);
-
-
-    
     }
 } 

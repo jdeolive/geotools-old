@@ -139,7 +139,7 @@
             <schemaLookupDirectory>${basedir}/../xsd-ows/src/main/resources/org/geotools/ows/v1_1</schemaLookupDirectory>
 
           </schemaLookupDirectories>
-          <destinationPackage>org.geotools.filter.v2_0</destinationPackage>
+          <!--destinationPackage>org.geotools.filter.v2_0</destinationPackage-->
           <generateTests>false</generateTests>
         </configuration>
       </plugin>

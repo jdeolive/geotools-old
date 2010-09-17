@@ -6,7 +6,6 @@
    xmlns:ows="http://www.opengis.net/ows/1.1"
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:xml="http://www.w3.org/XML/1998/namespace"
-   xmlns:gml="http://www.opengis.net/gml/3.2"
    elementFormDefault="qualified" version="2.0.0">
    <!-- ==============================================================
         Includes and Imports
@@ -19,9 +18,6 @@
       schemaLocation="http://schemas.opengis.net/ows/1.1.0/owsAll.xsd"/>
    <xsd:import namespace="http://www.opengis.net/fes/2.0"
       schemaLocation="../../filter/2.0.0/filterAll.xsd"/>
-   <xsd:import namespace="http://www.opengis.net/gml/3.2"
-      schemaLocation="../../gml/3.2.1/gml.xsd"/>
-   
    <!-- ================================================================== -->
    <!-- =   BASE REQUEST TYPE                                            = -->
    <!-- ================================================================== -->

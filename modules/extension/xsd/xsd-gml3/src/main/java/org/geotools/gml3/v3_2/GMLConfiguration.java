@@ -55,6 +55,7 @@ import org.geotools.gml3.bindings.ReferenceTypeBinding;
 import org.geotools.gml3.bindings.SurfaceArrayPropertyTypeBinding;
 import org.geotools.gml3.bindings.SurfacePropertyTypeBinding;
 import org.geotools.gml3.v3_2.bindings.GML32EncodingUtils;
+import org.geotools.xlink.XLINKConfiguration;
 import org.geotools.xml.Configuration;
 import org.picocontainer.MutablePicoContainer;
 
@@ -74,8 +75,6 @@ public class GMLConfiguration extends Configuration {
      */     
     public GMLConfiguration() {
        super(GML.getInstance());
-       
-       //TODO: add dependencies here
     }
     
     /**
