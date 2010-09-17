@@ -3392,7 +3392,7 @@ public final class GML extends XSD {
     }
     
     @Override
-    protected Schema buildTypeMappingProfile(Schema typeSchema) {
+    public Schema buildTypeMappingProfile(Schema typeSchema) {
         // set with guaranteed iteration order, so that we can put deprecated elements only
         // after the ones that replaced them
         Set profile = new LinkedHashSet();

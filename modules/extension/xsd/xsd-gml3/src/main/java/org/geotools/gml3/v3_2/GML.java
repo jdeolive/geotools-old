@@ -16,13 +16,18 @@
  */
 package org.geotools.gml3.v3_2;
 
+import java.io.IOException;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.xsd.XSDSchema;
+import org.geotools.gml2.ReferencingDirectiveLeakPreventer;
+import org.geotools.gml2.SubstitutionGroupLeakPreventer;
 import org.geotools.gml3.v3_2.gmd.GMD;
 import org.geotools.xlink.XLINK;
 import org.geotools.xml.XSD;
+import org.opengis.feature.type.Schema;
 
 /**
  * This interface contains the qualified names of all the types,elements, and 
@@ -2673,5 +2678,25 @@ public final class GML extends XSD {
     public static final QName uom = 
         new QName("http://www.opengis.net/gml/3.2","uom");
 
+    @Override
+    protected Schema buildTypeSchema() {
+        return new GMLSchema();
+    }
+    
+    @Override
+    protected Schema buildTypeMappingProfile(Schema typeSchema) {
+        //reuse the regular gml3 type mapping profile
+        return org.geotools.gml3.GML.getInstance().buildTypeMappingProfile(getTypeSchema());
+    }
+    
+    @Override
+    protected XSDSchema buildSchema() throws IOException {
+        XSDSchema schema =  super.buildSchema();
+        
+        schema.resolveElementDeclaration(NAMESPACE, "_Feature").eAdapters()
+            .add(new SubstitutionGroupLeakPreventer());
+        schema.eAdapters().add(new ReferencingDirectiveLeakPreventer());
+        return schema;
+    }
 }
     
