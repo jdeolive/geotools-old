@@ -19,9 +19,22 @@
       schemaLocation="http://schemas.opengis.net/ows/1.1.0/owsAll.xsd"/>
    <xsd:import namespace="http://www.opengis.net/fes/2.0"
       schemaLocation="../../filter/2.0.0/filterAll.xsd"/>
+
+   <!--(JD) The wfs schema does not actually import gml, but we rely on it
+       for feature encoding so we edit the schema to add the import -->
    <xsd:import namespace="http://www.opengis.net/gml/3.2"
       schemaLocation="../../gml/3.2.1/gml.xsd"/>
    
+   <!--(JD) Importing the schems alone is not enough. We need an element that
+       references that schema so that it is resolved -->
+   <xsd:element name="__foo">o
+     <xsd:complexType>
+        <xsd:sequence>
+           <xsd:element ref="gml:AbstractFeature"/>
+        </xsd:sequence>
+     </xsd:complexType>
+   </xsd:element>
+
    <!-- ================================================================== -->
    <!-- =   BASE REQUEST TYPE                                            = -->
    <!-- ================================================================== -->
