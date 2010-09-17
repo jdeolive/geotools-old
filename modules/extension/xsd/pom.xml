@@ -86,6 +86,7 @@
     <module>xsd-gml2</module>
     <module>xsd-gml3</module>
     <module>xsd-filter</module>
+    <module>xsd-fes</module>
     <module>xsd-sld</module>
     <module>xsd-kml</module>
     <module>xsd-ows</module>
