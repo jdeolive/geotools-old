@@ -33,7 +33,7 @@ import org.opengis.filter.expression.Literal;
  */
 public class FallbackFunction extends FunctionExpressionImpl {
 
-    protected FallbackFunction(String name, List params, Literal fallback) {
+    public FallbackFunction(String name, List params, Literal fallback) {
         super(name, fallback);
         this.setParameters(params);
     }

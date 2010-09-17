@@ -25,6 +25,7 @@ import org.geotools.data.FileDataStoreFactorySpi;
 import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.LenientFeatureFactoryImpl;
 import org.geotools.filter.FunctionExpression;
+import org.geotools.filter.FunctionFactory;
 import org.geotools.filter.FunctionImpl;
 import org.geotools.resources.LazySet;
 import org.geotools.styling.StyleFactory;
@@ -81,6 +82,7 @@ public final class CommonFactoryFinder extends FactoryFinder {
                     FunctionImpl.class,
                     FunctionExpression.class,//TODO: remove
                     Function.class,
+                    FunctionFactory.class,
                     FeatureFactory.class,
                     FeatureTypeFactory.class,
                     FeatureCollections.class}));
@@ -142,8 +144,21 @@ public final class CommonFactoryFinder extends FactoryFinder {
         hints = mergeSystemHints(hints);
         return new LazySet(getServiceRegistry().getServiceProviders(
                 Function.class, null, hints));
-    }    
+    }
 
+    /**
+     * Returns a set of all available implementations of {@link FunctionFactory}.
+     * 
+     * @param hints An optional map of hints, or {@code null} if none.
+     * 
+     * @return Set of available function factory implementations.
+     */
+    public static synchronized Set<FunctionFactory> getFunctionFactories(Hints hints) {
+        hints = mergeSystemHints(hints);
+        return new LazySet(getServiceRegistry().getServiceProviders(
+                FunctionFactory.class, null, hints));
+    }
+    
     /**
      * Returns the first implementation of {@link FeatureLockFactory} matching the specified hints.
      * If no implementation matches, a new one is created if possible or an exception is thrown
