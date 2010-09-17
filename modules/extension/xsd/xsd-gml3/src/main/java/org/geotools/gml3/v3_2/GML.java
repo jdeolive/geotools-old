@@ -17,16 +17,19 @@
 package org.geotools.gml3.v3_2;
 
 import java.io.IOException;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
 
 import org.eclipse.xsd.XSDSchema;
+import org.geotools.feature.NameImpl;
 import org.geotools.gml2.ReferencingDirectiveLeakPreventer;
 import org.geotools.gml2.SubstitutionGroupLeakPreventer;
 import org.geotools.gml3.v3_2.gmd.GMD;
 import org.geotools.xlink.XLINK;
 import org.geotools.xml.XSD;
+import org.opengis.feature.type.Name;
 import org.opengis.feature.type.Schema;
 
 /**
@@ -2685,8 +2688,18 @@ public final class GML extends XSD {
     
     @Override
     protected Schema buildTypeMappingProfile(Schema typeSchema) {
-        //reuse the regular gml3 type mapping profile
-        return org.geotools.gml3.GML.getInstance().buildTypeMappingProfile(getTypeSchema());
+        //reuse the regular gml3 type mapping profile bindings, but override
+        // the namespace uri
+        Schema gml3Profile = org.geotools.gml3.GML.getInstance().getTypeMappingProfile();
+        Set profile = new LinkedHashSet();
+        for (Name n : gml3Profile.keySet()) {
+            n = new NameImpl(NAMESPACE, n.getLocalPart());
+            if (typeSchema.get(n) != null) {
+                profile.add(n);    
+            }
+        }
+        
+        return typeSchema.profile(profile);
     }
     
     @Override

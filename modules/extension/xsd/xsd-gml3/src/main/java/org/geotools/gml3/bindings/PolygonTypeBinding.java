@@ -111,11 +111,11 @@ public class PolygonTypeBinding extends AbstractComplexBinding {
         throws Exception {
         Polygon polygon = (Polygon) object;
 
-        if (name.equals(GML.exterior)) {
+        if ("exterior".equals(name.getLocalPart())) {
             return polygon.getExteriorRing();
         }
 
-        if (name.equals(GML.interior)) {
+        if ("interior".equals(name.getLocalPart())) {
             int n = polygon.getNumInteriorRing();
 
             if (n > 0) {

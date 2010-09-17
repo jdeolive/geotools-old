@@ -107,7 +107,7 @@ public class MultiCurveTypeBinding extends AbstractComplexBinding {
 
     public Object getProperty(Object object, QName name)
         throws Exception {
-        if (GML.curveMember.equals(name)) {
+        if ("curveMember".equals(name.getLocalPart())) {
             //MultiCurve multiCurve = (MultiCurve) object;
             MultiLineString multiCurve = (MultiLineString) object;
             LineString[] members = new LineString[multiCurve.getNumGeometries()];

@@ -37,6 +37,7 @@ import org.geotools.gml3.bindings.DoubleListBinding;
 import org.geotools.gml3.bindings.EnvelopeTypeBinding;
 import org.geotools.gml3.bindings.FeatureArrayPropertyTypeBinding;
 import org.geotools.gml3.bindings.FeaturePropertyTypeBinding;
+import org.geotools.gml3.bindings.GML3EncodingUtils;
 import org.geotools.gml3.bindings.GeometryPropertyTypeBinding;
 import org.geotools.gml3.bindings.IntegerListBinding;
 import org.geotools.gml3.bindings.LineStringPropertyTypeBinding;
@@ -228,5 +229,7 @@ public class GMLConfiguration extends Configuration {
         container.registerComponentInstance(CoordinateSequenceFactory.class,
             CoordinateArraySequenceFactory.instance());
         container.registerComponentImplementation(GeometryFactory.class);
+        
+        container.registerComponentInstance(new GML3EncodingUtils());
     }
 }

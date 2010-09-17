@@ -96,10 +96,10 @@ public class BoundingShapeTypeBinding extends AbstractComplexBinding {
         }
         Envelope e = (Envelope) object;
         
-        if (name.equals(GML.Envelope) && !e.isNull()) {
+        if ("Envelope".equals(name.getLocalPart()) && !e.isNull()) {
             return e;
         }
-        if (name.equals(GML.Null) && e.isNull()) {
+        if ("Null".equals(name.getLocalPart()) && e.isNull()) {
             return e;
         }
 

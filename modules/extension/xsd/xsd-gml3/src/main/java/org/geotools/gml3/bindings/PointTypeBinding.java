@@ -139,7 +139,7 @@ public class PointTypeBinding extends AbstractComplexBinding {
             return null;
         }
         
-        if (GML.pos.equals(name)) {
+        if ("pos".equals(name.getLocalPart())) {
             Point point = (Point) object;
 
             DirectPosition2D dp = new DirectPosition2D();

@@ -25,6 +25,7 @@ import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.gml3.GML;
 import org.geotools.referencing.CRS;
+import org.geotools.xml.XSD;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -56,18 +57,26 @@ import com.vividsolutions.jts.geom.Polygon;
  */
 public class GML3MockData {
     static GeometryFactory gf = new GeometryFactory();
-
-    static Element point(Document document, Node parent) {
+    static XSD gml = GML.getInstance();
+    
+    public static void setGML(XSD gml) {
+        if (gml == null) {
+            gml = GML.getInstance();
+        }
+        GML3MockData.gml = gml;
+    }
+    
+    public static Element point(Document document, Node parent) {
         Element point = element(GML.Point, document, parent);
         point.setAttribute("srsName", "urn:x-ogc:def:crs:EPSG:6.11.2:4326");
 
-        Element pos = element(GML.pos, document, point);
+        Element pos = element(qName("pos"), document, point);
         pos.appendChild(document.createTextNode("1.0 2.0 "));
 
         return point;
     }
 
-    static CoordinateReferenceSystem crs() {
+    public static CoordinateReferenceSystem crs() {
         try {
             return CRS.decode("urn:x-ogc:def:crs:EPSG:6.11.2:4326");
         } catch (Exception e) {
@@ -75,86 +84,86 @@ public class GML3MockData {
         }
     }
 
-    static Envelope bounds() {
+    public static Envelope bounds() {
         return new ReferencedEnvelope(0, 10, 0, 10, crs());
     }
 
-    static Point point() {
+    public static Point point() {
         Point p = gf.createPoint(new Coordinate(1, 2));
         p.setUserData(crs());
 
         return p;
     }
 
-    static LineString lineString() {
+    public static LineString lineString() {
         return gf.createLineString(new Coordinate[] { new Coordinate(1, 2), new Coordinate(3, 4) });
     }
 
-    static Element lineString(Document document, Node parent) {
+    public static Element lineString(Document document, Node parent) {
         return lineStringWithPos(document, parent);
     }
     
-    static Element lineStringProperty(Document document, Node parent) {
-        Element property = element(GML.lineStringProperty, document, parent);
+    public static Element lineStringProperty(Document document, Node parent) {
+        Element property = element(qName("lineStringProperty"), document, parent);
 
         lineString(document, property);
 
         return property;
     }
 
-    static Element lineStringWithPos(Document document, Node parent) {
-        Element lineString = element(GML.LineString, document, parent);
+    public static Element lineStringWithPos(Document document, Node parent) {
+        Element lineString = element(qName("LineString"), document, parent);
 
-        Element pos = element(GML.pos, document, lineString);
+        Element pos = element(qName("pos"), document, lineString);
         pos.appendChild(document.createTextNode("1.0 2.0"));
 
-        pos = element(GML.pos, document, lineString);
+        pos = element(qName("pos"), document, lineString);
         pos.appendChild(document.createTextNode("3.0 4.0"));
 
         return lineString;
     }
 
-    static Element lineStringWithPosList(Document document, Node parent) {
-        Element lineString = element(GML.LineString, document, parent);
-        Element posList = element(GML.posList, document, lineString);
+    public static Element lineStringWithPosList(Document document, Node parent) {
+        Element lineString = element(qName("LineString"), document, parent);
+        Element posList = element(qName("posList"), document, lineString);
         posList.appendChild(document.createTextNode("1.0 2.0 3.0 4.0"));
 
         return lineString;
     }
 
-    static LinearRing linearRing() {
+    public static LinearRing linearRing() {
         return gf.createLinearRing(new Coordinate[] {
                 new Coordinate(1, 1), new Coordinate(2, 2), new Coordinate(3, 3),
                 new Coordinate(1, 1)
             });
     }
 
-    static Element linearRing(Document document, Node parent) {
+    public static Element linearRing(Document document, Node parent) {
         return linearRingWithPos(document, parent);
     }
 
-    static Element linearRingWithPos(Document document, Node parent) {
-        Element linearRing = element(GML.LinearRing, document, parent);
+    public static Element linearRingWithPos(Document document, Node parent) {
+        Element linearRing = element(qName("LinearRing"), document, parent);
 
-        Element pos = element(GML.pos, document, linearRing);
+        Element pos = element(qName("pos"), document, linearRing);
         pos.appendChild(document.createTextNode("1.0 2.0"));
 
-        pos = element(GML.pos, document, linearRing);
+        pos = element(qName("pos"), document, linearRing);
         pos.appendChild(document.createTextNode("3.0 4.0"));
 
-        pos = element(GML.pos, document, linearRing);
+        pos = element(qName("pos"), document, linearRing);
         pos.appendChild(document.createTextNode("5.0 6.0"));
 
-        pos = element(GML.pos, document, linearRing);
+        pos = element(qName("pos"), document, linearRing);
         pos.appendChild(document.createTextNode("1.0 2.0"));
 
         return linearRing;
     }
 
-    static Element linearRingWithPosList(Document document, Node parent) {
-        Element linearRing = element(GML.LinearRing, document, parent);
+    public static Element linearRingWithPosList(Document document, Node parent) {
+        Element linearRing = element(qName("LinearRing"), document, parent);
 
-        Element posList = element(GML.posList, document, linearRing);
+        Element posList = element(qName("posList"), document, linearRing);
 
         linearRing.appendChild(posList);
         posList.appendChild(document.createTextNode("1.0 2.0 3.0 4.0 5.0 6.0 1.0 2.0"));
@@ -162,111 +171,111 @@ public class GML3MockData {
         return linearRing;
     }
 
-    static Polygon polygon() {
+    public static Polygon polygon() {
         return gf.createPolygon(linearRing(), null);
     }
 
-    static Element polygon(Document document, Node parent) {
-        return polygon(document,parent,GML.Polygon,false); 
+    public static Element polygon(Document document, Node parent) {
+        return polygon(document,parent,qName("Polygon"),false); 
     }
     
-    static Element polygon(Document document, Node parent, QName name, boolean withInterior) {
+    public static Element polygon(Document document, Node parent, QName name, boolean withInterior) {
         Element polygon = element(name, document, parent);
 
-        Element exterior = element(GML.exterior, document, polygon);
+        Element exterior = element(qName("exterior"), document, polygon);
         linearRing(document, exterior);
         
         if ( withInterior ) {
-            Element interior = element(GML.interior, document, polygon);
+            Element interior = element(qName("interior"), document, polygon);
             linearRing(document,interior);
         }
 
         return polygon;
     }
 
-    static MultiPoint multiPoint() {
+    public static MultiPoint multiPoint() {
         return gf.createMultiPoint(new Coordinate[] { new Coordinate(1, 1), new Coordinate(2, 2) });
     }
 
-    static Element multiPoint(Document document, Node parent) {
-        Element multiPoint = element(GML.MultiPoint, document, parent);
+    public static Element multiPoint(Document document, Node parent) {
+        Element multiPoint = element(qName("MultiPoint"), document, parent);
 
         // 2 pointMember elements
-        Element pointMember = element(GML.pointMember, document, multiPoint);
+        Element pointMember = element(qName("pointMember"), document, multiPoint);
         point(document, pointMember);
 
-        pointMember = element(GML.pointMember, document, multiPoint);
+        pointMember = element(qName("pointMember"), document, multiPoint);
         point(document, pointMember);
 
         //1 pointMembers elmenet with 2 members
-        Element pointMembers = element(GML.pointMembers, document, multiPoint);
+        Element pointMembers = element(qName("pointMembers"), document, multiPoint);
         point(document, pointMembers);
         point(document, pointMembers);
 
         return multiPoint;
     }
 
-    static MultiLineString multiLineString() {
+    public static MultiLineString multiLineString() {
         return gf.createMultiLineString(new LineString[] { lineString(), lineString() });
     }
 
-    static Element multiLineString(Document document, Node parent) {
-        Element multiLineString = element(GML.MultiLineString, document, parent);
+    public static Element multiLineString(Document document, Node parent) {
+        Element multiLineString = element(qName("MultiLineString"), document, parent);
 
-        Element lineStringMember = element(GML.lineStringMember, document, multiLineString);
+        Element lineStringMember = element(qName("lineStringMember"), document, multiLineString);
         lineString(document, lineStringMember);
 
-        lineStringMember = element(GML.lineStringMember, document, multiLineString);
+        lineStringMember = element(qName("lineStringMember"), document, multiLineString);
         lineString(document, lineStringMember);
 
         return multiLineString;
     }
 
-    static MultiPolygon multiPolygon() {
+    public static MultiPolygon multiPolygon() {
         return gf.createMultiPolygon(new Polygon[] { polygon(), polygon() });
     }
 
-    static Element multiPolygon(Document document, Node parent) {
-        Element multiPolygon = element(GML.MultiPolygon, document, parent);
+    public static Element multiPolygon(Document document, Node parent) {
+        Element multiPolygon = element(qName("MultiPolygon"), document, parent);
 
-        Element polygonMember = element(GML.polygonMember, document, multiPolygon);
+        Element polygonMember = element(qName("polygonMember"), document, multiPolygon);
         polygon(document, polygonMember);
 
-        polygonMember = element(GML.polygonMember, document, multiPolygon);
+        polygonMember = element(qName("polygonMember"), document, multiPolygon);
         polygon(document, polygonMember);
 
         return multiPolygon;
     }
     
-    static GeometryCollection multiGeometry() {
+    public static GeometryCollection multiGeometry() {
         return gf.createGeometryCollection(new Geometry[]{point(),lineString(),polygon()});
     }
     
-    static Element multiGeometry(Document document, Node parent ) {
-        Element multiGeometry = element(GML.MultiGeometry, document, parent );
+    public static Element multiGeometry(Document document, Node parent ) {
+        Element multiGeometry = element(qName("MultiGeometry"), document, parent );
         
-        Element geometryMember = element(GML.geometryMember, document, multiGeometry);
+        Element geometryMember = element(qName("geometryMember"), document, multiGeometry);
         point(document,geometryMember);
         
-        geometryMember = element(GML.geometryMember, document, multiGeometry);
+        geometryMember = element(qName("geometryMember"), document, multiGeometry);
         lineString(document,geometryMember);
         
-        geometryMember = element(GML.geometryMember, document, multiGeometry);
+        geometryMember = element(qName("geometryMember"), document, multiGeometry);
         polygon(document,geometryMember);
         
         return multiGeometry;
     }
 
-    static Element surface(Document document, Node parent) {
-        Element surface = element(GML.Surface, document ,parent);
-        Element patches = element(GML.patches, document, surface);
+    public static Element surface(Document document, Node parent) {
+        Element surface = element(qName("Surface"), document ,parent);
+        Element patches = element(qName("patches"), document, surface);
         
-        polygon(document,patches,GML.PolygonPatch,true);
+        polygon(document,patches,qName("PolygonPatch"),true);
         
         return surface;
     }
     
-    static Element feature(Document document, Node parent) {
+    public static Element feature(Document document, Node parent) {
         Element feature = element(TEST.TestFeature, document, parent);
         Element geom = element(new QName(TEST.NAMESPACE, "geom"), document, feature);
         point(document, geom);
@@ -300,14 +309,14 @@ public class GML3MockData {
         return (SimpleFeature) builder.buildFeature("fid.1");
     }
 
-    static Element featureMember(Document document, Node parent) {
-        Element featureMember = element(GML.featureMember, document, parent);
+    public static Element featureMember(Document document, Node parent) {
+        Element featureMember = element(qName("featureMember"), document, parent);
         feature(document, featureMember);
 
         return featureMember;
     }
 
-    static Element element(QName name, Document document, Node parent) {
+    public static Element element(QName name, Document document, Node parent) {
         Element element = document.createElementNS(name.getNamespaceURI(), name.getLocalPart());
 
         if (parent != null) {
@@ -315,5 +324,9 @@ public class GML3MockData {
         }
 
         return element;
+    }
+    
+    public static QName qName(String local) {
+        return gml.qName(local);
     }
 }

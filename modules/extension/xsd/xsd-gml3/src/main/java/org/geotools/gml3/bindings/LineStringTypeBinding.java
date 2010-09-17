@@ -131,7 +131,7 @@ public class LineStringTypeBinding extends AbstractComplexBinding {
 
     public Object getProperty(Object object, QName name)
         throws Exception {
-        if (GML.posList.equals(name)) {
+        if ("posList".equals(name.getLocalPart())) {
             return GML3EncodingUtils.positions((LineString) object);
         }
 

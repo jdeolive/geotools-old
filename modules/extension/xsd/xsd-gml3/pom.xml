@@ -109,6 +109,11 @@
       <artifactId>commons-io</artifactId>
       <scope>test</scope>
     </dependency>    
+    <dependency>
+      <groupId>xmlunit</groupId>
+      <artifactId>xmlunit</artifactId>
+      <scope>test</scope>
+    </dependency>    
   </dependencies>
 
 
@@ -121,18 +126,19 @@
         <groupId>org.geotools.maven</groupId>
         <artifactId>xmlcodegen</artifactId>
         <configuration>
-          <schemaLocation>gml.xsd</schemaLocation>
-	      <schemaSourceDirectory>${basedir}/src/main/resources/org/geotools/gml3</schemaSourceDirectory>
+          <schemaLocation>gmx.xsd</schemaLocation>
+	      <schemaSourceDirectory>${basedir}/src/main/resources/org/geotools/gml3/v3_2/gmx</schemaSourceDirectory>
           <schemaLookupDirectories>
             <schemaLookupDirectory>${basedir}/../xsd-core/src/main/resources/org/geotools/xlink</schemaLookupDirectory>
-            <schemaLookupDirectory>${basedir}/src/main/resources/org/geotools/gml3/</schemaLookupDirectory>
-            <schemaLookupDirectory>${basedir}/src/main/resources/org/geotools/gml3/smil</schemaLookupDirectory>
-            <!--schemaLookupDirectory>${basedir}/src/main/resources/org/geotools/gml3/v3_2/gmd</schemaLookupDirectory>
+            <!--schemaLookupDirectory>${basedir}/src/main/resources/org/geotools/gml3/</schemaLookupDirectory>
+            <schemaLookupDirectory>${basedir}/src/main/resources/org/geotools/gml3/smil</schemaLookupDirectory-->
+            <schemaLookupDirectory>${basedir}/src/main/resources/org/geotools/gml3/v3_2</schemaLookupDirectory>
+            <schemaLookupDirectory>${basedir}/src/main/resources/org/geotools/gml3/v3_2/gmd</schemaLookupDirectory>
             <schemaLookupDirectory>${basedir}/src/main/resources/org/geotools/gml3/v3_2/gts</schemaLookupDirectory>
             <schemaLookupDirectory>${basedir}/src/main/resources/org/geotools/gml3/v3_2/gco</schemaLookupDirectory>
             <schemaLookupDirectory>${basedir}/src/main/resources/org/geotools/gml3/v3_2/gsr</schemaLookupDirectory>
             <schemaLookupDirectory>${basedir}/src/main/resources/org/geotools/gml3/v3_2/gss</schemaLookupDirectory>
-            <schemaLookupDirectory>${basedir}/src/main/resources/org/geotools/gml3/v3_2/gmx</schemaLookupDirectory-->
+            <schemaLookupDirectory>${basedir}/src/main/resources/org/geotools/gml3/v3_2/gmx</schemaLookupDirectory>
           </schemaLookupDirectories>
           <generateConfiguration>false</generateConfiguration>
           <generateBindingConfiguration>false</generateBindingConfiguration>
@@ -144,10 +150,15 @@
           <imports>
             <import>org.geotools.xs.XSSchema</import>
             <import>org.geotools.xlink.XLINKSchema</import>
-            <import>org.geotools.gml3.smil.SMIL20Schema</import>
-            <import>org.geotools.gml3.smil.SMIL20LANGSchema</import>
+            <import>org.geotools.gml3.v3_2.gco.GCOSchema</import>
+            <import>org.geotools.gml3.v3_2.gsr.GSRSchema</import>
+            <import>org.geotools.gml3.v3_2.gts.GTSSchema</import>
+            <import>org.geotools.gml3.v3_2.gmd.GMDSchema</import>
+            <import>org.geotools.gml3.v3_2.GMLSchema</import>
+            <!--import>org.geotools.gml3.smil.SMIL20Schema</import>
+            <import>org.geotools.gml3.smil.SMIL20LANGSchema</import-->
           </imports>
-          <followComplexTypes>true</followComplexTypes>
+          <followComplexTypes>false</followComplexTypes>
           <includeGML>false</includeGML>
           <!--includes>
 	      <include>AbstractFeatureType</include>

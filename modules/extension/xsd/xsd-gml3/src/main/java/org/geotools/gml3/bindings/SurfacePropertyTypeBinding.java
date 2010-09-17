@@ -86,7 +86,10 @@ public class SurfacePropertyTypeBinding extends AbstractComplexBinding {
 
     public Object getProperty(Object object, QName name)
         throws Exception {
-        if (GML._Surface.equals(name)) {
+        
+        // GML3  -> _Surface
+        // GML32 -> AbstractSurface
+        if ("_Surface".equals(name.getLocalPart()) || "AbstractSurface".equals(name.getLocalPart())) {
             return object;
         }
 
