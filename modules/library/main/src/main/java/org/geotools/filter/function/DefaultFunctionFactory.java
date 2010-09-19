@@ -112,10 +112,11 @@ public class DefaultFunctionFactory implements FunctionFactory {
         functions = CommonFactoryFinder.getFunctions(null);
         for (Iterator i = functions.iterator(); i.hasNext();) {
             Function function = (Function) i.next();
+            int argc = function instanceof FunctionExpression ? 
+                ((FunctionExpression)function).getArgCount() : function.getParameters().size();
             
             FunctionDescriptor fd = new FunctionDescriptor(
-                filterFactory.functionName(function.getName(), function.getParameters().size()), 
-                function.getClass());
+                filterFactory.functionName(function.getName(), argc), function.getClass());
             functionCache.put(functionName(function.getName()), fd);
         }
     }
