@@ -75,8 +75,6 @@ public class ShpFiles {
      * key is the type of file
      */
     private final Map<ShpFileType, URL> urls = new ConcurrentHashMap<ShpFileType, URL>();
-    
-    private final Map<ShpFileType, FileStatus> lastChecked = new ConcurrentHashMap<ShpFileType, FileStatus>();
 
     /**
      * A read/write lock, so that we can have concurrent readers 
@@ -968,29 +966,13 @@ public class ShpFiles {
             throw new IllegalArgumentException(
                     "This method only makes sense if the files are local");
         }
-        
-        long now = System.currentTimeMillis();
-        FileStatus status = this.lastChecked.get(fileType);
-        if(status == null || status.lastChecked > now - 1000) {
-            URL url = urls.get(fileType);
-            if (url == null) {
-                return false;
-            }
+        URL url = urls.get(fileType);
+        if (url == null) {
+            return false;
+        }
 
-            File file = DataUtilities.urlToFile(url);
-            if(status == null) {
-                status = new FileStatus();
-            }
-            status.existed = file.exists();
-            status.lastChecked = now;
-            lastChecked.put(fileType, status);
-        } 
-        return status.existed;
-    }
-    
-    static class FileStatus {
-        long lastChecked;
-        boolean existed;
+        File file = DataUtilities.urlToFile(url);
+        return file.exists();
     }
 
 }
