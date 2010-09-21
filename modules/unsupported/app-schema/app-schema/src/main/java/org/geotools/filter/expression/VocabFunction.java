@@ -15,10 +15,12 @@ package org.geotools.filter.expression;
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -141,12 +143,22 @@ public class VocabFunction implements Function {
         properties = new Properties();
         File file = new File( urn );
         if( file.exists() ){
+            InputStream input = null;
             try {
-                properties.load( new FileInputStream( file ) );
+                input = new BufferedInputStream(new FileInputStream(file));
+                properties.load(input);
             } catch (FileNotFoundException e) {
                 throw new RuntimeException("Could not find file for lookup table "+urn );
             } catch (IOException e) {
                 throw new RuntimeException("Difficulty parsing lookup table "+urn );
+            } finally {
+                if (input != null) {
+                    try {
+                        input.close();
+                    } catch (IOException e) {
+                        // we tried;
+                    }
+                }
             }
         }
         else {
