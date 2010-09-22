@@ -164,10 +164,20 @@ public class PostGISDialect extends BasicSQLDialect {
     @Override
     public void encodeGeometryColumn(GeometryDescriptor gatt, int srid,
             StringBuffer sql) {
+        
+        boolean geography = "geography".equals(gatt.getUserData().get(JDBCDataStore.JDBC_NATIVE_TYPENAME));
+        
         sql.append("encode(");
-        sql.append("ST_AsBinary(ST_Force_2D(");
+        sql.append("ST_AsBinary(");
+        if (!geography) {
+            sql.append("ST_Force_2D(");
+        }
+        
         encodeColumnName(gatt.getLocalName(), sql);
-        sql.append(")),'base64')");
+        if (!geography) {
+            sql.append(")");
+        }
+        sql.append("),'base64')");
     }
 
     @Override
