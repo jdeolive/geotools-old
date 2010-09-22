@@ -4053,13 +4053,13 @@ public final class JDBCDataStore extends ContentDataStore
         if(dataSource != null && dataSource instanceof ManageableDataSource) {
             try {
                 ManageableDataSource mds = (ManageableDataSource) dataSource; 
-                dataSource = null;
                 mds.close();
             } catch(SQLException e) {
                 // it's ok, we did our best..
                 LOGGER.log(Level.FINE, "Could not close dataSource", e);
             }
         }
+        dataSource = null;
     }
     /**
      * Checks if geometry generalization required and makes sense
