@@ -921,10 +921,11 @@ public final class LabelCacheImpl implements LabelCache {
             // use the one the user supplied!
             rotation = textStyle.getRotation();
         } else { // lineplacement
-            if(painter.getLabel().isForceLeftToRightEnabled())
+            if(painter.getLabel().isForceLeftToRightEnabled()) {
                 rotation = cursor.getLabelOrientation();
-            else
+            } else {
                 rotation = cursor.getCurrentAngle();
+            }
             // move it off the line
             displacementY -= textStyle.getPerpendicularOffset();
             anchorX = 0.5; // centered

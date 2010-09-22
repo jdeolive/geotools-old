@@ -35,6 +35,11 @@ import com.vividsolutions.jts.geom.LineString;
  * @source $URL$
  */
 public class LineStringCursor {
+    
+    /**
+     * Tolerance used for angle comparisons
+     */
+    static final double ONE_DEGREE = Math.PI / 180.0;
 
     /**
      * The LineString being walked
@@ -275,7 +280,14 @@ public class LineStringCursor {
         double dx = (coords.getX(segment + 1) - coords.getX(segment));
         double dy = (coords.getY(segment + 1) - coords.getY(segment));
         double slope = dy / dx;
-        return Math.atan(slope);
+        double angle = Math.atan(slope);
+        // make sure we turn PI/2 into -PI/2, we don't want some labels looking straight up
+        // and some others straight down, when almost vertical they should all be orianted
+        // on the same side
+        if(Math.abs(angle - Math.PI / 2) < ONE_DEGREE) {
+            angle = -Math.PI / 2 + Math.abs(angle - Math.PI / 2);
+        }
+        return angle;
     }
 
     /**
