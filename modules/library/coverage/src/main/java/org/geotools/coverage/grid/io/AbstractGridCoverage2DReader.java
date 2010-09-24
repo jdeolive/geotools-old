@@ -480,6 +480,29 @@ public abstract class AbstractGridCoverage2DReader implements GridCoverageReader
     }
 	
 	/**
+	 * Returns the actual resolution used to read the data given the specified target resolution
+	 * and the specified overview policy
+	 * @param policy
+	 * @param resolutions
+	 * @return
+	 */
+	public double[] getReadingResolutions(OverviewPolicy policy, double[] requestedResolution) {
+	    // find the target resolution level
+	    double[] result;
+	    if(numOverviews > 0) {
+	        int imageIdx = getOverviewImage(policy, requestedResolution);
+	        result = overViewResolutions[imageIdx];
+	    } else {
+	        result = highestRes;
+	    }
+	    
+	    // return via cloning to protect internal state
+	    double[] clone = new double[result.length];
+	    System.arraycopy(result, 0, clone, 0, result.length);
+	    return clone;
+	}
+	
+	/**
 	 * Simple support class for sorting overview resolutions
 	 * @author Andrea Aime
 	 * @author Simone Giannecchini, GeoSolutions.
