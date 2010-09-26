@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 
+import org.geotools.data.Query;
 import org.geotools.data.shapefile.TestCaseSupport;
 import org.geotools.data.shapefile.indexed.IndexedShapefileDataStore;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -55,6 +56,7 @@ public class PointLazySearchCollectionTest extends TestCaseSupport {
         if (iterator != null)
             tree.close(iterator);
         tree.close();
+        ds.dispose();
         super.tearDown();
         file.getParentFile().delete();
     }
@@ -62,13 +64,15 @@ public class PointLazySearchCollectionTest extends TestCaseSupport {
     public void testGetAllFeatures() throws Exception {
         ReferencedEnvelope env = new ReferencedEnvelope(585000, 610000,
                 4910000, 4930000, crs);
+        System.out.println(ds.getCount(Query.ALL));
+        System.out.println(ds.getFeatureSource().getBounds());
         assertEquals(25, countIterator(new LazySearchIterator(tree, env)));
     }
 
     public void testGetOneFeatures() throws Exception {
         ReferencedEnvelope env = new ReferencedEnvelope(597867, 598068,
                 4918863, 4919031, crs);
-        assertEquals(1, countIterator(new LazySearchIterator(tree, env)));
+        assertEquals(4, countIterator(new LazySearchIterator(tree, env)));
 
     }
 

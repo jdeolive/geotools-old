@@ -44,6 +44,7 @@ public class DirectoryDataStoreTest extends DirectoryTestSupport {
         assertEquals(2, typeNames.size());
         assertTrue(typeNames.contains("archsites"));
         assertTrue(typeNames.contains("bugsites"));
+        store.dispose();
     }
     
     @Test
@@ -71,6 +72,7 @@ public class DirectoryDataStoreTest extends DirectoryTestSupport {
         FeatureSource fs = dds.getFeatureSource("archsites");
         assertNotNull(fs);
         assertSame(dds, fs.getDataStore());
+        dds.dispose();
     }
 
     @Test
@@ -115,6 +117,7 @@ public class DirectoryDataStoreTest extends DirectoryTestSupport {
         assertEquals(2, typeNames.size());
         assertTrue(typeNames.contains("archsites"));
         assertTrue(typeNames.contains("bugsites"));
+        dds.dispose();
     }
     
     @Test
@@ -134,6 +137,7 @@ public class DirectoryDataStoreTest extends DirectoryTestSupport {
         assertEquals(2, typeNames.size());
         assertTrue(typeNames.contains("archsites"));
         assertTrue(typeNames.contains("bugsites"));
+        dds.dispose();
     }
     
     @Test
@@ -148,5 +152,5 @@ public class DirectoryDataStoreTest extends DirectoryTestSupport {
         DataStore store = DataStoreFinder.getDataStore(params);
         
         assertNull(store);
-    }
+     }
 }

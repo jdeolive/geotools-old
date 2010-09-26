@@ -33,6 +33,7 @@ public class DirectoryDataStoreFactoryTest extends DirectoryTestSupport {
         DataStore store = factory.createDataStore(params);
         assertNotNull(store);
         assertEquals(2, store.getNames().size());
+        store.dispose();
     }
     
     @Test
@@ -42,6 +43,8 @@ public class DirectoryDataStoreFactoryTest extends DirectoryTestSupport {
         params.put(ShapefileDataStoreFactory.NAMESPACEP.key, "http://www.geotools.org");
         ShapefileDirectoryFactory factory = new ShapefileDirectoryFactory();
         assertTrue(factory.canProcess(params));
-        assertNotNull(factory.createDataStore(params));
+        DataStore store = factory.createDataStore(params);
+		assertNotNull(store);
+		store.dispose();
     }
 }

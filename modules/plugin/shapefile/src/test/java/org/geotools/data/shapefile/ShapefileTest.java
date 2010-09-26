@@ -149,6 +149,8 @@ public class ShapefileTest extends TestCaseSupport {
         SimpleFeatureStore store = (SimpleFeatureStore) s.getFeatureSource(typeName);
 
         store.addFeatures(features);
+        s.dispose();
+        
 
         s = new ShapefileDataStore(tmpFile.toURI().toURL());
         typeName = s.getTypeNames()[0];
@@ -156,6 +158,7 @@ public class ShapefileTest extends TestCaseSupport {
         SimpleFeatureCollection fc = source.getFeatures();
 
         ShapefileReadWriteTest.compare(features, fc);
+        s.dispose();
     }
 
     public void testSkippingRecords() throws Exception {
@@ -181,6 +184,7 @@ public class ShapefileTest extends TestCaseSupport {
         SimpleFeatureType schema = states.getSchema();
         assertEquals(6, schema.getAttributeCount());
         assertTrue(states.getCount(Query.ALL) > 0);
+        dataStore.dispose();
     }
 
     public void testShapefileReaderRecord() throws Exception {

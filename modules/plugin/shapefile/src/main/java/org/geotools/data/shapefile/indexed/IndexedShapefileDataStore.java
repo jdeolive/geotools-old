@@ -16,7 +16,11 @@
  */
 package org.geotools.data.shapefile.indexed;
 
-import static org.geotools.data.shapefile.ShpFileType.*;
+import static org.geotools.data.shapefile.ShpFileType.DBF;
+import static org.geotools.data.shapefile.ShpFileType.FIX;
+import static org.geotools.data.shapefile.ShpFileType.QIX;
+import static org.geotools.data.shapefile.ShpFileType.SHP;
+import static org.geotools.data.shapefile.ShpFileType.SHX;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,7 +31,6 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -82,7 +85,6 @@ import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.filter.Filter;
 import org.opengis.filter.Id;
 import org.opengis.filter.identity.Identifier;
-import org.opengis.geometry.MismatchedDimensionException;
 
 import com.vividsolutions.jts.geom.CoordinateSequenceFactory;
 import com.vividsolutions.jts.geom.Envelope;
@@ -218,7 +220,18 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
             boolean useMemoryMappedBuffer, boolean createIndex,
             IndexType treeType, Charset dbfCharset)
             throws java.net.MalformedURLException {
-        super(url, namespace, useMemoryMappedBuffer, dbfCharset);
+    	super(url, namespace, useMemoryMappedBuffer, dbfCharset);
+
+        this.treeType = treeType;
+        this.useIndex = treeType != IndexType.NONE;
+        this.createIndex = createIndex;
+    }
+    
+    public IndexedShapefileDataStore(URL url, URI namespace,
+            boolean useMemoryMappedBuffer, boolean cacheMemoryMaps, boolean createIndex,
+            IndexType treeType, Charset dbfCharset)
+            throws java.net.MalformedURLException {
+    	super(url, namespace, useMemoryMappedBuffer, cacheMemoryMaps, dbfCharset);
 
         this.treeType = treeType;
         this.useIndex = treeType != IndexType.NONE;
@@ -261,6 +274,28 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
         return filter;
     }
 
+    /**
+     * Creates a new instance of ShapefileDataStore.
+     * 
+     * @param url
+     *                The URL of the shp file to use for this DataSource.
+     * @param namespace
+     *                DOCUMENT ME!
+     * @param useMemoryMappedBuffer
+     *                enable/disable memory mapping of files
+     * @param cacheMemoryMaps
+     *                caches and reuses the read only memory mapped buffers                
+     * @param createIndex
+     *                enable/disable automatic index creation if needed
+     * @param treeType
+     *                The type of index used
+     * @param dbfCharset
+     *                {@link Charset} used to decode strings from the DBF
+     * 
+     * @throws NullPointerException
+     *                 DOCUMENT ME!
+     * @throws .
+     */
     public FeatureWriter<SimpleFeatureType, SimpleFeature> getFeatureWriterAppend(String typeName,
             Transaction transaction) throws IOException {
         if (transaction == null) {
@@ -476,7 +511,10 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
 
             TreeSet idsSet = new TreeSet(new IdentifierComparator());
             idsSet.addAll(fidFilter.getIdentifiers());
-            goodRecs = new CloseableIteratorWrapper<Data>(queryFidIndex(idsSet).iterator());
+            List<Data> records = queryFidIndex(idsSet);
+            if(records != null) {
+            	goodRecs = new CloseableIteratorWrapper<Data>(records.iterator());
+            }
         } else {
             if (filter != null) {
                 // Add additional bounds from the filter
@@ -1159,7 +1197,7 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
 
             ShapeFileIndexer indexer = new ShapeFileIndexer();
             indexer.setShapeFileName(shpFiles);
-
+            
             try {
                 indexer.index(false, new NullProgressListener());
             } catch (MalformedURLException e) {

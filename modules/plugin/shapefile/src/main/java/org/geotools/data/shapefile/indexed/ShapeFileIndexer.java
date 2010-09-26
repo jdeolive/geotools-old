@@ -60,8 +60,9 @@ public class ShapeFileIndexer implements FileWriter {
     private static final Logger LOGGER = Logging.getLogger(ShapeFileIndexer.class);
     
     private int max = -1;
-    private int loadFactor = 4;
-    private String byteOrder;
+    private int leafSize = 16;
+
+	private String byteOrder;
     private boolean interactive = false;
     private ShpFiles shpFiles;
 
@@ -82,6 +83,8 @@ public class ShapeFileIndexer implements FileWriter {
                 i++;
             } else if (args[i].equals("-M")) {
                 idx.setMax(Integer.parseInt(args[++i]));
+            } else if (args[i].equals("-s")) {
+                idx.setLeafSize(Integer.parseInt(args[++i]));
             } else if (args[i].equals("-b")) {
                 idx.setByteOrder(args[++i]);
             } else {
@@ -112,19 +115,14 @@ public class ShapeFileIndexer implements FileWriter {
 
     private static void usage() {
         System.out.println("Usage: ShapeFileIndexer " + "-t <QIX> "
-                + "[-M <max entries per node>] "
-                + "[-s <split algorithm>] "
-                + "[-b <byte order NL | NM>] " + "<shape file>");
+                + "[-M <max tree depth>] "
+                + "[-b <byte order NL | NM>] " + "<shape file>"
+                + "[-s <max number of items in a leaf>]");
 
         System.out.println();
 
         System.out.println("Options:");
         System.out.println("\t-t Index type: RTREE or QUADTREE");
-        System.out.println();
-        System.out.println("Following options apllies only to RTREE:");
-        System.out.println("\t-M maximum number of entries per node");
-        System.out.println("\t-m minimum number of entries per node");
-        System.out.println("\t-s split algorithm to use");
         System.out.println();
         System.out.println("Following options apllies only to QUADTREE:");
         System.out.println("\t-b byte order to use: NL = LSB; "
@@ -179,7 +177,7 @@ public class ShapeFileIndexer implements FileWriter {
                 int features = reader.getCount(0);
                 max = 1;
                 int nodes = 1;
-                while(nodes * loadFactor < features) {
+                while(nodes * leafSize < features) {
                     max++;
                     nodes *= 4;
                 }
@@ -245,7 +243,7 @@ public class ShapeFileIndexer implements FileWriter {
                 System.out.println("done");
             FileSystemIndexStore store = new FileSystemIndexStore(file, order);
             
-            if(loadFactor > 0) {
+            if(leafSize > 0) {
                 LOGGER.info("Optimizing the tree (this might take some time)");
                 optimizeTree(tree, tree.getRoot(), 0, reader, shpIndex);
                 LOGGER.info("Tree optimized");
@@ -263,7 +261,7 @@ public class ShapeFileIndexer implements FileWriter {
     
     private Node optimizeTree(QuadTree tree, Node node, int level, ShapefileReader reader, IndexFile index) throws StoreException, IOException {
         // recurse, with a check to avoid too deep recursion due to odd data that has a
-        if(node.getNumShapeIds() > loadFactor && node.getNumSubNodes() == 0 && level < max * 2) {
+        if(node.getNumShapeIds() > leafSize && node.getNumSubNodes() == 0 && level < max * 2) {
             // ok, we need to split this baby further
             int[] shapeIds = node.getShapesId();
             int numShapesId = node.getNumShapeIds();
@@ -272,7 +270,7 @@ public class ShapeFileIndexer implements FileWriter {
             // get an estimate on how many more levels we need
             int extraLevels = 2;
             int nodes = 4;
-            while(nodes * loadFactor < numShapesId) {
+            while(nodes * leafSize < numShapesId) {
                 extraLevels++;
                 nodes *= 4;
             }
@@ -348,7 +346,7 @@ public class ShapeFileIndexer implements FileWriter {
                     count += child.getNumShapeIds();
                 }
             }
-            if(count < loadFactor) {
+            if(count < leafSize) {
                 for (int i = 0; i < node.getNumSubNodes(); i++) {
                     Node child = node.getSubNode(i);
                     int[] shapesId = child.getShapesId();
@@ -421,4 +419,12 @@ public class ShapeFileIndexer implements FileWriter {
     public String id() {
         return getClass().getName();
     }
+    
+    public int getLeafSize() {
+		return leafSize;
+	}
+
+	public void setLeafSize(int leafSize) {
+		this.leafSize = leafSize;
+	}
 }

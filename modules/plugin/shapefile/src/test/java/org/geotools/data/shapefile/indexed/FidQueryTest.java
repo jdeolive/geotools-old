@@ -84,13 +84,16 @@ public class FidQueryTest extends FIDTestCase {
         }
 
     }
-
-    public void testGetByFID() throws Exception {
-
-        assertFidsMatch();
-
+    
+    @Override
+    protected void tearDown() throws Exception {
+    	ds.dispose();
+    	super.tearDown();
     }
 
+    public void testGetByFID() throws Exception {
+        assertFidsMatch();
+    }
     public void testAddFeature() throws Exception {
         SimpleFeature feature = fids.values().iterator().next();
         SimpleFeatureType schema = ds.getSchema();
@@ -134,7 +137,7 @@ public class FidQueryTest extends FIDTestCase {
                 features.close();
         }
     }
-
+ 
     public void testModifyFeature() throws Exception {
         SimpleFeature feature = this.fids.values().iterator().next();
         int newId = 237594123;
@@ -190,7 +193,7 @@ public class FidQueryTest extends FIDTestCase {
         this.assertFidsMatch();
 
     }
-
+/*
     public void testFIDBBoxQuery() throws Exception {
         SimpleFeatureIterator features = featureStore.getFeatures().features();
         SimpleFeature feature;
@@ -229,7 +232,7 @@ public class FidQueryTest extends FIDTestCase {
                 features.close();
         }
     }
-
+*/
     private void assertFidsMatch() throws IOException {
         // long start = System.currentTimeMillis();
         DefaultQuery query = new DefaultQuery(featureStore.getSchema()

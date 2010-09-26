@@ -37,11 +37,13 @@ public class IndexedFidReaderTest extends FIDTestCase {
     private IndexedFidReader reader;
 
     private IndexFile indexFile;
+    
+    private ShpFiles shpFiles;
 
     protected void setUp() throws Exception {
         super.setUp();
 
-        ShpFiles shpFiles = new ShpFiles(backshp.toURI().toURL());
+        shpFiles = new ShpFiles(backshp.toURI().toURL());
         FidIndexer.generate(shpFiles);
 
         indexFile = new IndexFile(shpFiles, false);
@@ -51,6 +53,8 @@ public class IndexedFidReaderTest extends FIDTestCase {
     protected void tearDown() throws Exception {
         reader.close();
         indexFile.close();
+        shpFiles.dispose();
+        
         super.tearDown();
     }
 
@@ -93,6 +97,7 @@ public class IndexedFidReaderTest extends FIDTestCase {
                 expectedCount++;
                 expectedFids.add(next.getID());
             }
+            ds.dispose();
         }
 
         assertTrue(expectedCount > 0);
@@ -117,14 +122,15 @@ public class IndexedFidReaderTest extends FIDTestCase {
                 expectedCount++;
                 expectedFids.add(next.getID());
             }
+            ds.dispose();
         }
 
         assertTrue(expectedCount > 0);
         assertEquals(expectedCount, reader.getCount());
         
-        while (reader.hasNext()) {
-            System.out.println(reader.next());
-        }
+//        while (reader.hasNext()) {
+//            System.out.println(reader.next());
+//        }
         
         
         assertFalse("findFid for archsites.5 returned -1",-1 == reader.findFid("archsites.5"));
@@ -133,7 +139,7 @@ public class IndexedFidReaderTest extends FIDTestCase {
         for(String fid : expectedFids){
             long offset = reader.findFid(fid);
             assertNotNull(offset);
-            System.out.print(fid + "=" + offset + ", ");
+            // System.out.print(fid + "=" + offset + ", ");
             assertFalse("findFid for " + fid + " returned -1", -1 == offset);
         }
     }

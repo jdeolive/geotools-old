@@ -60,6 +60,7 @@ public class FidIndexerTest extends FIDTestCase {
             assertEquals(features, i - 1);
         } finally {
             reader.close();
+            ds.dispose();
         }
     }
 }

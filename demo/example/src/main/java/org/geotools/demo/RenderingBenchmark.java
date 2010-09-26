@@ -15,6 +15,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.nio.charset.Charset;
 
 import javax.imageio.ImageIO;
 
@@ -49,7 +50,7 @@ public class RenderingBenchmark {
      * and displays its contents on the screen in a map frame
      */    
     public static void main(String[] args) throws Exception {
-         FileDataStore store = new ShapefileDataStore(new File("/home/aaime/devel/gisData/bc_shapefiles/bc_roads.shp").toURL());
+         FileDataStore store = new ShapefileDataStore(new File("/home/aaime/devel/gisData/bc_shapefiles/bc_roads.shp").toURL(), null, true, false, Charset.forName("ISO-8859-1"));
 //        FileDataStore store = new ShapefileDataStore(new File("/home/aaime/devel/gisData/gshhs/gshhs_land/gshhs_land.shp").toURL());
         FeatureSource featureSource = store.getFeatureSource();
 

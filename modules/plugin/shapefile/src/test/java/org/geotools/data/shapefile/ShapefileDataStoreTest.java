@@ -85,18 +85,28 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
     final static String RUSSIAN = "shapes/rus-windows-1251.shp";
     final static FilterFactory2 ff = CommonFactoryFinder
             .getFilterFactory2(null);
+	private ShapefileDataStore store;
 
     public ShapefileDataStoreTest(String testName) throws IOException {
         super(testName);
     }
+    
+    @Override
+    protected void tearDown() throws Exception {
+    	if(store != null) {
+    		store.dispose();
+    	}
+    	super.tearDown();
+    }
+    
 
     protected SimpleFeatureCollection loadFeatures(String resource, Query query)
             throws Exception {
         assertNotNull(query);
 
         URL url = TestData.url(resource);
-        ShapefileDataStore s = new ShapefileDataStore(url);
-        SimpleFeatureSource fs = s.getFeatureSource(s.getTypeNames()[0]);
+        store = new ShapefileDataStore(url);
+        SimpleFeatureSource fs = store.getFeatureSource(store.getTypeNames()[0]);
         return fs.getFeatures(query);
     }
 
@@ -113,8 +123,8 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
         if (q == null)
             q = new DefaultQuery();
         URL url = TestData.url(resource);
-        ShapefileDataStore s = new ShapefileDataStore(url, false, charset);
-        SimpleFeatureSource fs = s.getFeatureSource(s.getTypeNames()[0]);
+        store = new ShapefileDataStore(url, false, charset);
+        SimpleFeatureSource fs = store.getFeatureSource(store.getTypeNames()[0]);
         return fs.getFeatures(q);
     }
 
@@ -181,6 +191,7 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
         ShapefileDataStore store = (ShapefileDataStore) factory.createDataStore(map);
         FeatureType schema = store.getSchema();
         assertEquals(namespace.toString(), schema.getName().getNamespaceURI());
+        store.dispose();
     }
 
     public void testSchema() throws Exception {
@@ -190,6 +201,7 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
         SimpleFeatureType schema = shapeDataStore.getSchema(typeName);
         List<AttributeDescriptor> attributes = schema.getAttributeDescriptors();
         assertEquals("Number of Attributes", 253, attributes.size());
+        shapeDataStore.dispose();
     }
 
     public void testSpacesInPath() throws Exception {
@@ -198,6 +210,7 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
         assertTrue(f.exists());
         ShapefileDataStore s = new ShapefileDataStore(u);
         loadFeatures(s);
+        s.dispose();
     }
 
     /**
@@ -210,6 +223,7 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
         SimpleFeatureCollection all = s.getFeatureSource(typeName).getFeatures();
 
         assertEquals(features.getBounds(), all.getBounds());
+        s.dispose();
     }
 
     public void testLoadAndVerify() throws Exception {
@@ -252,6 +266,7 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
         ds.createSchema(DataUtilities.createType("test", "geom:MultiPolygon"));
 
         assertEquals("test", ds.getSchema().getTypeName());
+        ds.dispose();
 
         file.deleteOnExit();
         file = new File("test.dbf");
@@ -284,6 +299,7 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
         CoordinateReferenceSystem crs2 = ds.getSchema().getGeometryDescriptor().getCoordinateReferenceSystem();
         assertNotNull( crs2 );
         assertEquals( crs.getName(), crs2.getName() );
+        ds.dispose();
         
         file.deleteOnExit();
         file = new File("test.dbf");
@@ -316,6 +332,7 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
 
         ds.forceSchemaCRS(CRS.decode("EPSG:3005"));
         FeatureType after = ds.getSchema();
+        ds.dispose();
 
         assertNotSame(before, after);
         assertNull("4326", before.getCoordinateReferenceSystem());
@@ -379,6 +396,7 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
             for (SimpleFeatureIterator i = fc.features(); i.hasNext();) {
                 assertEquals(-1, ((Byte) i.next().getAttribute(1)).byteValue());
             }
+            sds.dispose();
     }
 
     /**
@@ -406,6 +424,7 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
             }
             assertEquals(--idx, loadFeatures(sds).size());
         }
+        sds.dispose();
     }
     
     /**
@@ -436,6 +455,7 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
             t.close();
             assertEquals(--idx, loadFeatures(sds).size());
         }
+        sds.dispose();
     }
 
     /**
@@ -464,6 +484,7 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
                 }
                 assertEquals(--idx, loadFeatures(sds).size());
             }
+            sds.dispose();
     }
     
     public void testWriteShapefileWithNoRecords() throws Exception {
@@ -486,6 +507,7 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
         // iteration,
         // where the SimpleFeatureCollection has nothing in it.
         featureWriter.close();
+        shapefileDataStore.dispose();
     }
 
     /**
@@ -550,6 +572,7 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
         tmpFile.createNewFile();
         ShapefileDataStore s = new ShapefileDataStore(tmpFile.toURI().toURL());
         writeFeatures(s, features);
+        s.dispose();
     }
 
     public void testWriteReadBigNumbers() throws Exception {
@@ -587,6 +610,7 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
         } finally {
             reader.close();
         }
+        s.dispose();
     }
 
     public void testGeometriesWriting() throws Exception {
@@ -663,6 +687,7 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
                 .toURI().toURL());
         shapeDataStore.createSchema(type);
         writeFeatures(shapeDataStore, features);
+        shapeDataStore.dispose();
 
         // read features
         shapeDataStore = new ShapefileDataStore(tmpFile.toURI().toURL());
@@ -694,6 +719,7 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
             }
         }
         tmpFile.delete();
+        shapeDataStore.dispose();
     }
 
     public void testGetCount() throws Exception {
@@ -714,6 +740,7 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
         } finally {
             reader.close();
         }
+        store.dispose();
     }
 
     /**
@@ -767,6 +794,7 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
         reader = s.getFeatureReader(s.getSchema().getTypeName(), query);
         assertEquals(s.getSchema(), reader.getFeatureType());
         reader.close();
+        s.dispose();
     }
     
     public void testWrite() throws Exception {
@@ -794,6 +822,7 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
         Transaction t= new DefaultTransaction();
         FeatureWriter<SimpleFeatureType, SimpleFeature> writer = s.getFeatureWriter(s.getTypeNames()[0], t);
         SimpleFeature feature1 = writer.next();
+        s.dispose();
     }
     
     private void doTestReadWriteDate(String str_date) throws Exception {

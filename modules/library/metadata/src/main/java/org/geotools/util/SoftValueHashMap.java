@@ -27,9 +27,12 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
+import org.geotools.util.logging.Logging;
 
 
 /**
@@ -57,6 +60,8 @@ import org.geotools.resources.i18n.Errors;
  * @author Martin Desruisseaux
  */
 public class SoftValueHashMap<K,V> extends AbstractMap<K,V> {
+    static final Logger LOGGER = Logging.getLogger(SoftValueHashMap.class);
+    
     /**
      * The default value for {@link #hardReferencesCount}.
      */
@@ -83,11 +88,17 @@ public class SoftValueHashMap<K,V> extends AbstractMap<K,V> {
      * The entries to be returned by {@link #entrySet()}, or {@code null} if not yet created.
      */
     private transient Set<Map.Entry<K,V>> entries;
+    
+    /**
+     * The eventual cleaner
+     */
+    private final ValueCleaner cleaner;
 
     /**
      * Creates a map with the default hard references count.
      */
     public SoftValueHashMap() {
+        this.cleaner = null;
         hardReferencesCount = DEFAULT_HARD_REFERENCE_COUNT;
     }
 
@@ -97,6 +108,17 @@ public class SoftValueHashMap<K,V> extends AbstractMap<K,V> {
      * @param hardReferencesCount The maximal number of hard references to keep.
      */
     public SoftValueHashMap(final int hardReferencesCount) {
+        this.cleaner = null;
+        this.hardReferencesCount = hardReferencesCount;
+    }
+    
+    /**
+     * Creates a map with the specified hard references count.
+     *
+     * @param hardReferencesCount The maximal number of hard references to keep.
+     */
+    public SoftValueHashMap(final int hardReferencesCount, ValueCleaner cleaner) {
+        this.cleaner = cleaner;
         this.hardReferencesCount = hardReferencesCount;
     }
 
@@ -600,6 +622,11 @@ public class SoftValueHashMap<K,V> extends AbstractMap<K,V> {
          * The key for the entry to be removed when the soft reference is cleared.
          */
         private final K key;
+        
+        /**
+         * The eventual value cleaner
+         */
+        private ValueCleaner cleaner;
 
         /**
          * Creates a soft reference for the specified key-value pair.
@@ -634,6 +661,18 @@ public class SoftValueHashMap<K,V> extends AbstractMap<K,V> {
          */
         @Override
         public void clear() {
+            if(cleaner != null) {
+                final Object value = get();
+                if(value != null) {
+                    try {
+                        cleaner.clean(value);
+                    } catch(Throwable t) {
+                        // never let a bad implementation break soft reference cleaning
+                        LOGGER.log(Level.SEVERE, "Exception occurred while cleaning soft referenced object", t);
+                    }
+                }
+            }
+            
             super.clear();
             synchronized (hash) {
                 final Object old = hash.remove(key);
@@ -647,5 +686,19 @@ public class SoftValueHashMap<K,V> extends AbstractMap<K,V> {
                 }
             }
         }
+    }
+    
+    /**
+     * A delegate that can be used to perform clean up operation, such as resource closing,
+     * before the values cached in soft part of the cache gets disposed of
+     * @author Andrea Aime - OpenGeo
+     *
+     */
+    public static interface ValueCleaner {
+        /**
+         * Cleans the specified object
+         * @param object
+         */
+        public void clean(Object object);
     }
 }

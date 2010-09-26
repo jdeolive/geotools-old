@@ -104,6 +104,7 @@ public class ShapefileQuadTreeReadWriteTest extends TestCaseSupport {
         assertNotNull(it);
         assertFalse(it.hasNext());
         it.close();
+        ds.dispose();
     }
 
     public void testWriteTwice() throws Exception {
@@ -119,6 +120,7 @@ public class ShapefileQuadTreeReadWriteTest extends TestCaseSupport {
 
          doubleWrite(type, one, getTempFile(), maker, false);
          doubleWrite(type, one, getTempFile(), maker, true);
+        s1.dispose();
     }
 
     private DataStore createDataStore( ShapefileDataStoreFactory fac, URL url, boolean memoryMapped )
@@ -142,8 +144,8 @@ public class ShapefileQuadTreeReadWriteTest extends TestCaseSupport {
         store.addFeatures(one);
         store.addFeatures(one);
 
-        s = createDataStore(maker, tmp.toURI().toURL(), true);
         assertEquals(one.size() * 2, store.getCount(Query.ALL));
+        s.dispose();
     }
 
     void test( String f ) throws Exception {
@@ -158,6 +160,7 @@ public class ShapefileQuadTreeReadWriteTest extends TestCaseSupport {
         ShapefileDataStoreFactory maker = new ShapefileDataStoreFactory();
         test(type, one, getTempFile(), maker, false);
         test(type, one, getTempFile(), maker, true);
+        s.dispose();
     }
 
     private void test( SimpleFeatureType type, SimpleFeatureCollection one, File tmp,
@@ -172,6 +175,7 @@ public class ShapefileQuadTreeReadWriteTest extends TestCaseSupport {
         SimpleFeatureStore store = (SimpleFeatureStore) s.getFeatureSource(type.getTypeName());
 
         store.addFeatures(one);
+        s.dispose();
 
         s = createDataStore(new ShapefileDataStoreFactory(), tmp.toURI().toURL(), true);
         typeName = s.getTypeNames()[0];
@@ -179,6 +183,7 @@ public class ShapefileQuadTreeReadWriteTest extends TestCaseSupport {
         SimpleFeatureCollection two = s.getFeatureSource(typeName).getFeatures();
 
         compare(one.features(), two.features());
+        s.dispose();
     }
 
     static void compare( SimpleFeatureIterator fs1, SimpleFeatureIterator fs2 ) throws Exception {
@@ -261,6 +266,7 @@ public class ShapefileQuadTreeReadWriteTest extends TestCaseSupport {
         Envelope result = ds.getFeatureSource().getBounds(query);
 
         assertTrue(result.equals(bounds));
+        ds.dispose();
     }
 
     public static final void main( String[] args ) throws Exception {

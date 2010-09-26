@@ -176,6 +176,7 @@ public class ShapefileReadWriteTest extends TestCaseSupport {
         File tmp2 = getTempFile(); // TODO consider reuse tmp results in
         // failure
         test(type, one, tmp2, maker, false, charset);
+        s.dispose();
     }
 
     private void test(SimpleFeatureType type, SimpleFeatureCollection original,
@@ -214,7 +215,9 @@ public class ShapefileReadWriteTest extends TestCaseSupport {
 
             compare(copy, again);
             compare(original, again);
+            review.dispose();
         }
+        shapefile.dispose();
     }
 
     static void compare(SimpleFeatureCollection one, SimpleFeatureCollection two)

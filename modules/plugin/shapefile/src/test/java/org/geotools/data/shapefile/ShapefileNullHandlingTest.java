@@ -77,6 +77,8 @@ public class ShapefileNullHandlingTest extends TestCaseSupport {
 		orig = (Geometry) features[3].getDefaultGeometry();
 	    read = (Geometry) features[3].getDefaultGeometry();
 		assertTrue(orig.equals(read));
+		
+		store.dispose();
 	}
 	
 

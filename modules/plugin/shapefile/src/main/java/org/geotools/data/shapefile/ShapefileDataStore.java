@@ -36,6 +36,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 
 import org.geotools.data.AbstractFileDataStore;
 import org.geotools.data.DataSourceException;
@@ -107,6 +108,12 @@ public class ShapefileDataStore extends AbstractFileDataStore {
     // This is the default character as specified by the DBF specification
     public static final Charset DEFAULT_STRING_CHARSET = Charset
             .forName("ISO-8859-1");
+    
+    /**
+     * When true, the stack trace that got a lock that wasn't released is recorded and then
+     * printed out when warning the user about this.
+     */
+    protected static final Boolean TRACE_ENABLED = "true".equalsIgnoreCase(System.getProperty("gt2.shapefile.trace"));
 
     /**
      * The query hints we do support
@@ -114,7 +121,7 @@ public class ShapefileDataStore extends AbstractFileDataStore {
     private static final Set HINTS = Collections.unmodifiableSet(new HashSet(
             Arrays.asList(new Object[] { Hints.FEATURE_DETACHED, Hints.SCREENMAP })));
 
-    protected final ShpFiles shpFiles;
+    protected ShpFiles shpFiles;
     protected URI namespace = null; // namespace provided by the constructor's
     // map
     protected SimpleFeatureType schema; // read only
@@ -124,6 +131,8 @@ public class ShapefileDataStore extends AbstractFileDataStore {
     private ServiceInfo info;
 
     private ResourceInfo resourceInfo;
+    Exception trace;
+
     /**
      * Creates a new instance of ShapefileDataStore.
      * 
@@ -146,7 +155,7 @@ public class ShapefileDataStore extends AbstractFileDataStore {
 
     public ShapefileDataStore(URL url, boolean useMemoryMappedBuffer,
             Charset dbfCharset) throws java.net.MalformedURLException {
-        this(url, null, false, dbfCharset);
+        this(url, null, useMemoryMappedBuffer, dbfCharset);
     }
 
     /**
@@ -179,10 +188,40 @@ public class ShapefileDataStore extends AbstractFileDataStore {
         if (!isLocal() || !shpFiles.exists(SHP)) {
             this.useMemoryMappedBuffer = false;
         } else {
-            this.useMemoryMappedBuffer = useMemoryMapped;
+            this.useMemoryMappedBuffer = true;
         }
-        this.useMemoryMappedBuffer = useMemoryMapped;
         this.dbfCharset = dbfCharset;
+        if(TRACE_ENABLED) {
+        	trace = new Exception();
+        	trace.fillInStackTrace();
+        }
+    }
+    
+    /**
+     * this sets the datastore's namespace during construction (so the schema -
+     * FeatureType - will have the correct value) You can call this with
+     * namespace = null, but I suggest you give it an actual namespace.
+     * 
+     * @param url
+     * @param namespace
+     * @param useMemoryMapped
+     * @param dbfCharset
+     */
+    public ShapefileDataStore(URL url, URI namespace, boolean useMemoryMapped,
+            boolean cacheMemoryMap, Charset dbfCharset) throws java.net.MalformedURLException {
+        this.namespace = namespace;
+        shpFiles = new ShpFiles(url);
+        if (!isLocal() || !shpFiles.exists(SHP)) {
+            this.useMemoryMappedBuffer = false;
+        } else {
+            this.useMemoryMappedBuffer = true;
+        }
+        shpFiles.setMemoryMapCacheEnabled(this.useMemoryMappedBuffer && cacheMemoryMap);
+        this.dbfCharset = dbfCharset;
+        if(TRACE_ENABLED) {
+        	trace = new Exception();
+        	trace.fillInStackTrace();
+        }
     }
 
     /**
@@ -1116,7 +1155,19 @@ public class ShapefileDataStore extends AbstractFileDataStore {
     @Override
     public void dispose() {
         super.dispose();
-        shpFiles.dispose();
+        if(shpFiles != null) {
+	        shpFiles.dispose();
+	        shpFiles = null;
+        }
+    }
+    
+    @Override
+    protected void finalize() throws Throwable {
+    	super.finalize();
+    	if(shpFiles != null && trace != null) {
+    		LOGGER.log(Level.SEVERE, "Undisposed of shapefile, you should call dispose() on all shapefile stores", trace);
+    	}
+    	dispose();
     }
     
     @Override

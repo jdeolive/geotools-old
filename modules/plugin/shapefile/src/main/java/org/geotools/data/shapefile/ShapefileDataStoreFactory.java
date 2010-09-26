@@ -83,7 +83,14 @@ public class ShapefileDataStoreFactory implements FileDataStoreFactorySpi {
      * Optional - enable/disable the use of memory-mapped io
      */
     public static final Param MEMORY_MAPPED = new Param("memory mapped buffer",
-            Boolean.class, "enable/disable the use of memory-mapped io", false, true,
+            Boolean.class, "enable/disable the use of memory-mapped io", false, false,
+            new KVP(Param.LEVEL,"advanced") );
+    
+    /**
+     * Optional - enable/disable the use of memory-mapped io
+     */
+    public static final Param CACHE_MEMORY_MAPS = new Param("cache and reuse memory maps",
+            Boolean.class, "only memory map a file one, then cache and reuse the map", false, true,
             new KVP(Param.LEVEL,"advanced") );
     
     /**
@@ -201,11 +208,11 @@ public class ShapefileDataStoreFactory implements FileDataStoreFactorySpi {
         // basic param lookup
         URL url = (URL) URLP.lookUp(params);
         Boolean isMemoryMapped = (Boolean) MEMORY_MAPPED.lookUp(params);
+        Boolean cacheMemoryMaps = (Boolean) CACHE_MEMORY_MAPS.lookUp(params);
         URI namespace = (URI) NAMESPACEP.lookUp(params);
         Charset dbfCharset = (Charset) DBFCHARSET.lookUp(params);
         Boolean isCreateSpatialIndex = (Boolean) CREATE_SPATIAL_INDEX
                 .lookUp(params);
-
         if (isCreateSpatialIndex == null) {
             // should not be needed as default is TRUE
             assert (true);
@@ -221,6 +228,9 @@ public class ShapefileDataStoreFactory implements FileDataStoreFactorySpi {
             assert (true);
             // this should not happen as false was the default
             isMemoryMapped = Boolean.FALSE;
+        }
+        if (cacheMemoryMaps == null) {
+        	cacheMemoryMaps = Boolean.FALSE;
         }
         
         // are we creating a directory of shapefiles store, or a single one?
@@ -238,10 +248,10 @@ public class ShapefileDataStoreFactory implements FileDataStoreFactorySpi {
             try {
                 if (createIndex) {
                     return new IndexedShapefileDataStore(url, namespace,
-                            useMemoryMappedBuffer, true, IndexType.QIX, dbfCharset);
+                            useMemoryMappedBuffer, cacheMemoryMaps, true, IndexType.QIX, dbfCharset);
                 } else {
                     return new ShapefileDataStore(url, namespace,
-                            useMemoryMappedBuffer, dbfCharset);
+                            useMemoryMappedBuffer, cacheMemoryMaps, dbfCharset);
                 }
             } catch (MalformedURLException mue) {
                 throw new DataSourceException(
@@ -314,7 +324,7 @@ public class ShapefileDataStoreFactory implements FileDataStoreFactorySpi {
      */
     public Param[] getParametersInfo() {
         return new Param[] { URLP, NAMESPACEP, CREATE_SPATIAL_INDEX,
-                DBFCHARSET, MEMORY_MAPPED, FILE_TYPE };
+                DBFCHARSET, MEMORY_MAPPED, CACHE_MEMORY_MAPS, FILE_TYPE };
     }
 
     /**
@@ -371,6 +381,7 @@ public class ShapefileDataStoreFactory implements FileDataStoreFactorySpi {
     public String getTypeName(URL url) throws IOException {
         DataStore ds = createDataStore(url);
         String[] names = ds.getTypeNames(); // should be exactly one
+        ds.dispose();
         return ((names == null || names.length == 0) ? null : names[0]);
     }
 

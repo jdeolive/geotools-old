@@ -117,6 +117,7 @@ public class DirectoryDataStore implements DataStore {
             ds = (DataStore) Class.forName(shpDataStoreClassName).getConstructor(URL.class)
                 .newInstance(f.toURL());
             ds.createSchema(featureType);
+            ds.dispose();
             cache.refreshCacheContents();
         }
         catch(Exception e) {

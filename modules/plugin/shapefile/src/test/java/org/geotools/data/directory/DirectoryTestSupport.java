@@ -43,7 +43,9 @@ public class DirectoryTestSupport {
             if (f.isDirectory()) {
                 deleteDirectory(f);
             } else {
-                f.delete();
+                if(!f.delete()) {
+                	System.out.println("Couldn't delete " + f.getAbsolutePath());
+                }
             }
         }
         directory.delete();
@@ -73,30 +75,6 @@ public class DirectoryTestSupport {
         return TestData.copy(this, name, directoryName);
     }
     
-//    /**
-//     * Copies the specified shape file into the {@code test-data} directory, together with its
-//     * sibling ({@code .dbf}, {@code .shp}, {@code .shx} and {@code .prj} files).
-//     */
-//    protected File copyFile(String name, String destDirName) throws IOException {
-//        File directory = TestData.file(TestData.class, null);
-//        InputStream is = this.getClass().getResourceAsStream(name);
-//        File destDir = new File(directory, destDirName);
-//        if(!destDir.exists())
-//            destDir.mkdirs();
-//        File file = new File(destDir, name);
-//        file.deleteOnExit();
-//        final OutputStream out = new FileOutputStream(file);
-//        final byte[] buffer = new byte[4096];
-//        int count;
-//        while ((count = is.read(buffer)) >= 0) {
-//            out.write(buffer, 0, count);
-//        }
-//        out.close();
-//        is.close();
-//        
-//        return file;
-//    }
-   
     /**
      * Helper method for {@link #copyShapefiles}.
      */

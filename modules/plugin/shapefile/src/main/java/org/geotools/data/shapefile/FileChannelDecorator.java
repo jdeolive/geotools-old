@@ -74,7 +74,8 @@ public class FileChannelDecorator extends FileChannel implements
 
     public MappedByteBuffer map(MapMode mode, long position, long size)
             throws IOException {
-        return wrapped.map(mode, position, size);
+//    	return wrapped.map(mode, position, size)
+    	 return shapefileFiles.map(wrapped, url, mode, position, size);
     }
 
     public long position() throws IOException {
@@ -150,5 +151,7 @@ public class FileChannelDecorator extends FileChannel implements
         }
 
     }
+    
+    
 
 }

@@ -28,6 +28,7 @@ public class DataStoreCacheTest extends DirectoryTestSupport {
         assertEquals(2, cache.getTypeNames().size());
         assertTrue(cache.getTypeNames().contains("archsites"));
         assertTrue(cache.getTypeNames().contains("bugsites"));
+        cache.dispose();
     }
     
     @Test
@@ -46,6 +47,7 @@ public class DataStoreCacheTest extends DirectoryTestSupport {
         assertEquals(2, cache.getTypeNames().size());
         assertTrue(cache.getTypeNames().contains("bugsites"));
         assertTrue(cache.getTypeNames().contains("archsites"));
+        cache.dispose();
     }
     
     @Test
@@ -68,6 +70,7 @@ public class DataStoreCacheTest extends DirectoryTestSupport {
         System.out.println(Arrays.asList(tempDir.listFiles()));
         assertEquals(1, cache.getTypeNames().size());
         assertTrue(cache.getTypeNames().contains("bugsites"));
+        cache.dispose();
     }
     
     @Test
@@ -86,6 +89,7 @@ public class DataStoreCacheTest extends DirectoryTestSupport {
         assertTrue(new File(tempDir, "archsites.shp").delete());
         assertEquals(1, cache.getTypeNames().size());
         assertTrue(cache.getTypeNames().contains("bugsites"));
+        cache.dispose();
     }
     
     @Test
@@ -103,6 +107,7 @@ public class DataStoreCacheTest extends DirectoryTestSupport {
         assertEquals(2, cache.getTypeNames().size());
         assertTrue(cache.getTypeNames().contains("bugsites"));
         assertTrue(cache.getTypeNames().contains("archsites"));
+        cache.dispose();
     }
 
 }

@@ -67,6 +67,7 @@ public class ServiceTest extends TestCaseSupport {
         assertNotNull(ds);
         params.put("url", TestData.url(TEST_FILE).toString());
         assertNotNull(ds);
+        ds.dispose();
     }
 
     public void testBadURL() {

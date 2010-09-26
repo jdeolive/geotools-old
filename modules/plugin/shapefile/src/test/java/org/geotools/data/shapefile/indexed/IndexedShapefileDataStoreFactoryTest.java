@@ -62,15 +62,19 @@ public class IndexedShapefileDataStoreFactoryTest extends TestCaseSupport {
      * 'org.geotools.data.shapefile.indexed.IndexedShapefileDataStoreFactory.createDataStore(Map)'
      */
     public void testCreateDataStoreMap() throws Exception {
-        testCreateDataStore(true);
+        ShapefileDataStore ds = testCreateDataStore(true);
+        ds.dispose();
 
         ShapefileDataStore ds1 = testCreateDataStore(true, true);
         ShapefileDataStore ds2 = testCreateDataStore(true, true);
 
         assertNotSame(ds1, ds2);
+        ds2.dispose();
 
         ds2 = testCreateDataStore(true, false);
         assertNotSame(ds1, ds2);
+        ds1.dispose();
+        ds2.dispose();
     }
 
     private ShapefileDataStore testCreateDataStore(boolean createIndex)
@@ -92,6 +96,7 @@ public class IndexedShapefileDataStoreFactoryTest extends TestCaseSupport {
                 IndexedShapefileDataStoreTest.STATE_POP.lastIndexOf('.'));
         assertEquals("http://jesse.com", store.getSchema(typeName).getName()
                 .getNamespaceURI());
+        store.dispose();
     }
 
     private ShapefileDataStore testCreateDataStore(boolean newDS,
@@ -134,6 +139,8 @@ public class IndexedShapefileDataStoreFactoryTest extends TestCaseSupport {
         ShapefileDataStore ds2 = testCreateDataStore(true, true);
 
         assertNotSame(ds1, ds2);
+        ds1.dispose();
+        ds2.dispose();
     }
 
     /*
@@ -181,6 +188,7 @@ public class IndexedShapefileDataStoreFactoryTest extends TestCaseSupport {
         DataStore ds = factory.createDataStore(TestData.url(TestCaseSupport.class,
                 IndexedShapefileDataStoreTest.STATE_POP));
         testDataStore(IndexType.QIX, true, (IndexedShapefileDataStore) ds);
+        ds.dispose();
     }
 
     /*

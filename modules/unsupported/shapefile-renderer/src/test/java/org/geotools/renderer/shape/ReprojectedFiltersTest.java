@@ -54,6 +54,12 @@ public class ReprojectedFiltersTest extends TestCase {
         
         ds = new ShapefileDataStore(shape.toURI().toURL());
     }
+    
+    @Override
+    protected void tearDown() throws Exception {
+    	ds.dispose();
+    	super.tearDown();
+    }
 
     /**
      * Helper method for {@link #copyShapefiles}.

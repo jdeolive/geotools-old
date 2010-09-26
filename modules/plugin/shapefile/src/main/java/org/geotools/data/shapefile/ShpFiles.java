@@ -31,16 +31,18 @@ import java.io.RandomAccessFile;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.MappedByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
+import java.nio.channels.FileChannel.MapMode;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
@@ -88,6 +90,13 @@ public class ShpFiles {
     private final Map<Thread, Collection<ShpFilesLocker>> lockers = new ConcurrentHashMap<Thread, Collection<ShpFilesLocker>>();
 
     /**
+     * A cache for read only memory mapped buffers
+     */
+    private final MemoryMapCache mapCache = new MemoryMapCache();
+    
+    private boolean memoryMapCacheEnabled;
+    
+	/**
      * Searches for all the files and adds then to the map of files.
      * 
      * @param fileName
@@ -217,11 +226,12 @@ public class ShpFiles {
         dispose();
     }
 
-    void dispose() {
+    public void dispose() {
         if (numberOfLocks() != 0) {
             logCurrentLockers(Level.SEVERE);
             lockers.clear(); // so as not to get this log again.
         }
+        mapCache.clean();
     }
 
     /**
@@ -508,6 +518,7 @@ public class ShpFiles {
         relinquishReadLocks(threadLockers);
         readWriteLock.writeLock().lock();
         threadLockers.add(new ShpFilesLocker(url, requestor));
+        mapCache.cleanFileCache(url);        
         return url;
     }
     
@@ -948,6 +959,45 @@ public class ShpFiles {
 
         return path.substring(slash, dot);
     }
+    
+    /**
+     * Internal method that the file channel decorators will call to allow reuse of the memory mapped buffers
+     * @param wrapped
+     * @param url
+     * @param mode
+     * @param position
+     * @param size
+     * @return
+     * @throws IOException
+     */
+	MappedByteBuffer map(FileChannel wrapped, URL url, MapMode mode, long position, long size) throws IOException {
+		if(memoryMapCacheEnabled) {
+			return mapCache.map(wrapped, url, mode, position, size);
+		} else {
+			return wrapped.map(mode, position, size);
+		}
+	}
+	
+	/**
+	 * Returns the status of the memory map cache. When enabled the memory mapped portions of the files are cached and shared
+	 * (giving each thread a clone of it)
+	 * @param memoryMapCacheEnabled
+	 */
+	public boolean isMemoryMapCacheEnabled() {
+		return memoryMapCacheEnabled;
+	}
+
+	/**
+	 * Enables the memory map cache. When enabled the memory mapped portions of the files are cached and shared
+	 * (giving each thread a clone of it)
+	 * @param memoryMapCacheEnabled
+	 */
+	public void setMemoryMapCacheEnabled(boolean memoryMapCacheEnabled) {
+		this.memoryMapCacheEnabled = memoryMapCacheEnabled;
+		if(!memoryMapCacheEnabled) {
+			mapCache.clean();
+		}
+	}
 
     /**
      * Returns true if the file exists. Throws an exception if the file is not
@@ -974,5 +1024,5 @@ public class ShpFiles {
         File file = DataUtilities.urlToFile(url);
         return file.exists();
     }
-
+    
 }

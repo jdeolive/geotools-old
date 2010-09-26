@@ -219,9 +219,11 @@ public final class NIOUtilities {
                     Method getCleanerMethod = getCleanerMethod(buffer);
                     if(getCleanerMethod != null) {
                         Object cleaner = getCleanerMethod.invoke(buffer, (Object[]) null);
-                        Method clean = cleaner.getClass().getMethod("clean", (Class[]) null);
-                        clean.invoke(cleaner, (Object[]) null);
-                        success = Boolean.TRUE;
+                        if(cleaner != null) {
+	                        Method clean = cleaner.getClass().getMethod("clean", (Class[]) null);
+	                        clean.invoke(cleaner, (Object[]) null);
+	                        success = Boolean.TRUE;
+                        }
                     }
                 } catch (Exception e) {
                     // This really is a show stopper on windows

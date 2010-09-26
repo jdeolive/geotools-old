@@ -57,10 +57,12 @@ public class ShapefileAttributeReaderTest extends TestCaseSupport {
 		String indexedStateName = (String) indexedFeature.getAttribute("STATE_NAME");
 		String stateName = (String) feature.getAttribute("STATE_NAME");
 
-		System.out.println(indexedStateName);
-		System.out.println(stateName);
+		// System.out.println(indexedStateName);
+		// System.out.println(stateName);
 
 		assertEquals(indexedStateName, stateName);
+		store.dispose();
+		indexedstore.dispose();
 	}
 
 }

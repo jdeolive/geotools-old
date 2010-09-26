@@ -97,8 +97,18 @@ public class IndexedShapefileDataStoreTest extends TestCaseSupport {
 
     final static String UTF8 = "shapes/wgs1snt.shp";
 
+	IndexedShapefileDataStore s;
+
     public IndexedShapefileDataStoreTest(String testName) throws IOException {
         super(testName);
+    }
+    
+    @Override
+    protected void tearDown() throws Exception {
+    	if(s != null) {
+    		s.dispose();
+    	}
+    	super.tearDown();
     }
 
     protected SimpleFeatureCollection loadFeatures(String resource, Query q)
@@ -109,13 +119,11 @@ public class IndexedShapefileDataStoreTest extends TestCaseSupport {
         
         File shpFile = copyShapefiles(resource);
         URL url = shpFile.toURI().toURL();
-        IndexedShapefileDataStore s = new IndexedShapefileDataStore(url);
+        s = new IndexedShapefileDataStore(url);
         SimpleFeatureSource fs = s.getFeatureSource(s.getTypeNames()[0]);
 
         SimpleFeatureCollection features = fs.getFeatures(q);
 
-        s.dispose();
-        
         return features;
     }
 
@@ -125,11 +133,10 @@ public class IndexedShapefileDataStoreTest extends TestCaseSupport {
             q = new DefaultQuery();
         File shpFile = copyShapefiles(resource);
         URL url = shpFile.toURI().toURL();
-        ShapefileDataStore s = new IndexedShapefileDataStore(url, null, false,
+        s = new IndexedShapefileDataStore(url, null, false,
                 true, IndexType.QIX, charset);
         SimpleFeatureSource fs = s.getFeatureSource(s.getTypeNames()[0]);
         SimpleFeatureCollection features = fs.getFeatures(q);
-        s.dispose();
         return features;
     }
 
@@ -237,6 +244,7 @@ public class IndexedShapefileDataStoreTest extends TestCaseSupport {
         List<AttributeDescriptor> types = schema.getAttributeDescriptors();
         assertEquals("Number of Attributes", 253, types.size());
         assertNotNull(schema.getCoordinateReferenceSystem());
+        s.dispose();
     }
 
     public void testSpacesInPath() throws Exception {
@@ -356,6 +364,7 @@ public class IndexedShapefileDataStoreTest extends TestCaseSupport {
         
         assertNotNull( "selection query worked", features );
         assertTrue( "selection non empty", features.size() > 0 );
+        ds.dispose();
     }
     
     public void testQueryBboxNonGeomAttributes() throws Exception {
@@ -376,6 +385,7 @@ public class IndexedShapefileDataStoreTest extends TestCaseSupport {
         // grab the features
         SimpleFeatureCollection fc = fs.getFeatures(q);
         assertTrue(fc.size() > 0);
+        ds.dispose();
     }
 
     public void testFidFilter() throws Exception {
@@ -425,6 +435,7 @@ public class IndexedShapefileDataStoreTest extends TestCaseSupport {
         String failureMsg = "lacking fids: " + lacking + ". Unexpected ones: " + unexpected;
         assertEquals(failureMsg, expectedFids.size(), actualFids.size());
         assertEquals(failureMsg, expectedFids, actualFids);
+        ds.dispose();
     }
 
     private ArrayList performQueryComparison(
@@ -600,6 +611,7 @@ public class IndexedShapefileDataStoreTest extends TestCaseSupport {
             t.close();
             assertEquals(--idx, loadFeatures(sds).size());
         }
+        sds.dispose();
     }
 
     /**
@@ -900,6 +912,7 @@ public class IndexedShapefileDataStoreTest extends TestCaseSupport {
         store.removeFeatures(fidFilter);
         final int afterCount = store.getCount(Query.ALL);
         assertEquals(initialCount - 2, afterCount);
+        ds.dispose();
     }
     
     public void testCountTransaction() throws Exception {
@@ -929,6 +942,7 @@ public class IndexedShapefileDataStoreTest extends TestCaseSupport {
 		assertEquals(-1, store.getCount(new DefaultQuery(store.getSchema().getTypeName(), id)));
 		assertEquals(initialCount - 1, count(ds, typeName, Filter.INCLUDE, t));
 		assertEquals(0, count(ds, typeName, id, t));
+		ds.dispose();
     }
     
     private int count(DataStore ds, String typeName, Filter filter) throws Exception {
