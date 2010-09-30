@@ -16,6 +16,8 @@
  */
 package org.geotools.data.sqlserver;
 
+import java.util.Properties;
+
 import org.geotools.jdbc.JDBCDataStore;
 import org.geotools.jdbc.JDBCDataStoreFactory;
 import org.geotools.jdbc.JDBCTestSetup;
@@ -25,6 +27,19 @@ public class SQLServerTestSetup extends JDBCTestSetup {
     @Override
     protected JDBCDataStoreFactory createDataStoreFactory() {
         return new SQLServerDataStoreFactory();
+    }
+    
+    @Override
+    protected Properties createExampleFixture() {
+        Properties fixture = new Properties();
+        fixture.put("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
+        fixture.put("url", "jdbc:sqlserver://192.168.150.138:4866");
+        fixture.put("host", "192.168.150.138");
+        fixture.put("database", "geotools");
+        fixture.put("port", "4866");
+        fixture.put("user", "geotools");
+        fixture.put("password", "geotools");
+        return fixture;
     }
     
     protected void setUpDataStore(JDBCDataStore dataStore) {
