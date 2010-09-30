@@ -249,13 +249,13 @@ public class JDBCFeatureSource extends ContentFeatureSource {
                 Class binding = column.binding;
 
                 if (binding == null) {
-                    //determine from type mappings
-                    binding = getDataStore().getMapping(column.sqlType);
+                    //determine from type name mappings
+                    binding = getDataStore().getMapping(column.typeName);
                 }
 
                 if (binding == null) {
-                    //determine from type name mappings
-                    binding = getDataStore().getMapping(column.typeName);
+                    //determine from type mappings
+                    binding = getDataStore().getMapping(column.sqlType);
                 }
 
                 // if still not found, ignore the column we don't know about
