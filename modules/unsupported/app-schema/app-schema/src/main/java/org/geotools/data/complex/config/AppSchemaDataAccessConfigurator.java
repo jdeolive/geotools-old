@@ -19,6 +19,7 @@ package org.geotools.data.complex.config;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -30,15 +31,16 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
+import org.apache.commons.io.FilenameUtils;
 import org.geotools.data.DataAccess;
 import org.geotools.data.DataAccessFinder;
 import org.geotools.data.DataSourceException;
@@ -150,11 +152,11 @@ public class AppSchemaDataAccessConfigurator {
      * @throws IOException
      *             if any error occurs while creating the mappings
      */
-    public static Set buildMappings(AppSchemaDataAccessDTO config) throws IOException {
+    public static Set<FeatureTypeMapping> buildMappings(AppSchemaDataAccessDTO config) throws IOException {
         AppSchemaDataAccessConfigurator mappingsBuilder;
 
         mappingsBuilder = new AppSchemaDataAccessConfigurator(config);
-        Set mappingObjects = mappingsBuilder.buildMappings();
+        Set<FeatureTypeMapping> mappingObjects = mappingsBuilder.buildMappings();
 
         return mappingObjects;
     }
@@ -172,7 +174,7 @@ public class AppSchemaDataAccessConfigurator {
      * @throws IOException
      *             DOCUMENT ME!
      */
-    private Set buildMappings() throws IOException {
+    private Set<FeatureTypeMapping> buildMappings() throws IOException {
         // -parse target xml schemas, let parsed types on <code>registry</code>
         parseGmlSchemas();
 
@@ -180,15 +182,15 @@ public class AppSchemaDataAccessConfigurator {
         sourceDataStores = acquireSourceDatastores();
 
         // -create FeatureType mappings
-        Set featureTypeMappings = createFeatureTypeMappings();
+        Set<FeatureTypeMapping> featureTypeMappings = createFeatureTypeMappings();
 
         return featureTypeMappings;
     }
 
-    private Set createFeatureTypeMappings() throws IOException {
+    private Set<FeatureTypeMapping> createFeatureTypeMappings() throws IOException {
         Set mappingsConfigs = config.getTypeMappings();
 
-        Set featureTypeMappings = new HashSet();
+        Set<FeatureTypeMapping> featureTypeMappings = new HashSet<FeatureTypeMapping>();
 
         for (Iterator it = mappingsConfigs.iterator(); it.hasNext();) {
             TypeMapping dto = (TypeMapping) it.next();
@@ -578,13 +580,13 @@ public class AppSchemaDataAccessConfigurator {
                 inputDataAccessIds.add(id);
             }
 
-            Map datastoreParams = dsconfig.getParams();
+            Map<String, Serializable> datastoreParams = dsconfig.getParams();
 
             datastoreParams = resolveRelativePaths(datastoreParams);
 
             AppSchemaDataAccessConfigurator.LOGGER.fine("looking for datastore " + id);
 
-            DataAccess dataStore = DataAccessFinder.getDataStore(datastoreParams);
+            DataAccess<?, ?> dataStore = DataAccessFinder.getDataStore(datastoreParams);
 
             if (dataStore == null) {
                 AppSchemaDataAccessConfigurator.LOGGER.log(Level.SEVERE,
@@ -646,41 +648,81 @@ public class AppSchemaDataAccessConfigurator {
      * the xml mappings configuration file as an absolute path and returns a new Map with it.
      * 
      * @param datastoreParams
-     * @return
-     * @throws MalformedURLException
+     * @return parameter map with resolved file url
      */
-    private Map resolveRelativePaths(final Map datastoreParams) {
-        Map resolvedParams = new HashMap();
-        for (Map.Entry entry : (Set<Map.Entry>) datastoreParams.entrySet()) {
+    private Map<String, Serializable> resolveRelativePaths(
+            final Map<String, Serializable> datastoreParams) {
+        Map<String, Serializable> resolvedParams = new HashMap<String, Serializable>();
+
+        AppSchemaDataAccessConfigurator.LOGGER.entering(getClass().getName(),
+                "resolveRelativePaths");
+        for (Map.Entry<String, Serializable> entry : (Set<Map.Entry<String, Serializable>>) datastoreParams
+                .entrySet()) {
             String key = (String) entry.getKey();
             String value = (String) entry.getValue();
+
             if (value != null && value.startsWith("file:")) {
-                value = value.substring("file:".length());
-                File f = new File(value);
+                // a parameter prefix of "file:" is the only case that will be resolved
+                // any file paths entered without this prefix will remain unchanged
+                String oldValue = value;
+                String resolvedDataPath = null;
+                String inputDataPath = (String) value.substring("file:".length());
+                File f = new File(inputDataPath);
+
                 if (!f.isAbsolute()) {
-                    LOGGER.fine("resolving relative path " + value + " for dataURLstore parameter "
-                            + key);
+                    AppSchemaDataAccessConfigurator.LOGGER.fine("resolving original parameter "
+                            + value + " for datastore parameter " + key);
                     try {
                         // use of URL here should be safe as the base schema url should
                         // not yet have undergone any conversion to file or
                         // encoding/decoding
-                        URL baseSchemasUrl = new URL(config.getBaseSchemasUrl());
-                        URL resolvedUrl = new URL(baseSchemasUrl, value);
-                        if ("url".equals(key)) {
-                            // HACK for shapefile: shapefile requires file:/...
-                            value = resolvedUrl.toExternalForm();
-                        } else {
-                            // data stores seem to not expect file URIs
-                            value = DataUtilities.urlToFile(resolvedUrl).getPath();
+                        URL mappingFileUrl = new URL(config.getBaseSchemasUrl());
+                        AppSchemaDataAccessConfigurator.LOGGER.finer("mapping file URL is "
+                                + mappingFileUrl.toString());
+
+                        String mappingFileDirPath = DataUtilities.urlToFile(mappingFileUrl)
+                                .getParent();
+                        AppSchemaDataAccessConfigurator.LOGGER
+                                .finer("mapping file parent directory is " + mappingFileDirPath);
+
+                        // FilenameUtils.concat handles a number of system-dependent issues here
+                        // but it might be better to add this method to DataUtilities
+                        resolvedDataPath = FilenameUtils.concat(mappingFileDirPath, inputDataPath);
+                        if (resolvedDataPath == null) {
+                            throw new RuntimeException(
+                                    "Relative path to datastore is incompatible with"
+                                            + " the base path - check double dot steps.");
                         }
                     } catch (Exception e) {
+                        AppSchemaDataAccessConfigurator.LOGGER.throwing(getClass().getName(),
+                                "resolveRelativePaths", e);
                         throw new RuntimeException(e);
                     }
-                    LOGGER.fine("new value for " + key + ": " + value);
+                } else {
+                    resolvedDataPath = inputDataPath;
                 }
+                AppSchemaDataAccessConfigurator.LOGGER.finer("Path to data has been resolved to "
+                        + resolvedDataPath);
+
+                /*
+                 * Shapefile expects the protocol "file:" at the beginning of the parameter value,
+                 * other file-based datastores do not. We can distinguish shapefiles from other
+                 * cases because the key is "url" and as of 2010-09-25 no other file-based datastore
+                 * uses this key (properties files use the key "directory"). If a new file-based
+                 * datastore is created, everything will work fine provided the key "url" is used if
+                 * and only if the datastore expects a parameter value starting with "file:"
+                 */
+                if ("url".equals(key)) {
+                    value = "file:" + resolvedDataPath;
+                } else {
+                    value = resolvedDataPath;
+                }
+                AppSchemaDataAccessConfigurator.LOGGER
+                        .fine("Resolved " + oldValue + " -> " + value);
             }
             resolvedParams.put(key, value);
         }
         return resolvedParams;
     }
+    
 }

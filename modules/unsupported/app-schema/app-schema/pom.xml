@@ -105,6 +105,11 @@
       <groupId>xpp3</groupId>
       <artifactId>xpp3</artifactId>
     </dependency>
+    <dependency>
+      <!-- for FilenameUtils -->
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+    </dependency>
 
     <dependency>
       <!-- For GeometryFunctionsTest to find the EPSG factory -->
@@ -128,6 +133,12 @@
     <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-postgis</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-shapefile</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
