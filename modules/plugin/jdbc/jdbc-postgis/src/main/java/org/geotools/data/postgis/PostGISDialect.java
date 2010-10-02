@@ -569,7 +569,10 @@ public class PostGISDialect extends BasicSQLDialect {
 
                     // add srid checks
                     if (srid > -1) {
-                        sql = "ALTER TABLE \"" + tableName + "\"" //
+                        sql = "ALTER TABLE " //
+                                + "\"" + schemaName + "\"" // 
+                                + "." //
+                                + "\"" + tableName + "\"" //
                                 + " ADD CONSTRAINT \"enforce_srid_" // 
                                 + gd.getLocalName() + "\""// 
                                 + " CHECK (SRID(" //
@@ -580,7 +583,10 @@ public class PostGISDialect extends BasicSQLDialect {
                     }
 
                     // add dimension checks
-                    sql = "ALTER TABLE \"" + tableName + "\"" //
+                    sql = "ALTER TABLE " //
+                            + "\"" + schemaName + "\"" // 
+                            + "." //
+                            + "\"" + tableName + "\"" //
                             + " ADD CONSTRAINT \"enforce_dims_" // 
                             + gd.getLocalName() + "\""// 
                             + " CHECK (ndims(\"" + gd.getLocalName() + "\")" //
@@ -590,8 +596,10 @@ public class PostGISDialect extends BasicSQLDialect {
 
                     // add geometry type checks
                     if (!geomType.equals("GEOMETRY")) {
-                        sql = "ALTER TABLE \"" + tableName
-                                + "\"" //
+                        sql = "ALTER TABLE " //
+                                + "\"" + schemaName + "\"" // 
+                                + "." //
+                                + "\"" + tableName + "\"" //
                                 + " ADD CONSTRAINT \"enforce_geotype_" //
                                 + gd.getLocalName() + "\""//
                                 + " CHECK (geometrytype(" //
@@ -608,6 +616,8 @@ public class PostGISDialect extends BasicSQLDialect {
                     "CREATE INDEX \"spatial_" + tableName // 
                             + "_" + gd.getLocalName().toLowerCase() + "\""// 
                             + " ON " //
+                            + "\"" + schemaName + "\"" // 
+                            + "." //
                             + "\"" + tableName + "\"" //
                             + " USING GIST (" //
                             + "\"" + gd.getLocalName() + "\"" //
