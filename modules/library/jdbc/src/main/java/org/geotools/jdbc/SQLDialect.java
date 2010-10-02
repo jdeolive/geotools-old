@@ -284,14 +284,20 @@ public abstract class SQLDialect {
         mappings.put(String.class, new Integer(Types.VARCHAR));
 
         mappings.put(Boolean.class, new Integer(Types.BOOLEAN));
+        mappings.put(boolean.class, new Integer(Types.BOOLEAN));
 
         mappings.put(Short.class, new Integer(Types.SMALLINT));
+        mappings.put(short.class, new Integer(Types.SMALLINT));
 
         mappings.put(Integer.class, new Integer(Types.INTEGER));
+        mappings.put(int.class, new Integer(Types.INTEGER));
         mappings.put(Long.class, new Integer(Types.BIGINT));
+        mappings.put(long.class, new Integer(Types.BIGINT));
 
         mappings.put(Float.class, new Integer(Types.REAL));
+        mappings.put(float.class, new Integer(Types.REAL));
         mappings.put(Double.class, new Integer(Types.DOUBLE));
+        mappings.put(double.class, new Integer(Types.DOUBLE));
 
         mappings.put(BigDecimal.class, new Integer(Types.NUMERIC));
 
