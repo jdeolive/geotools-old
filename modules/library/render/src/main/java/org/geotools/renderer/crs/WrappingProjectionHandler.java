@@ -108,7 +108,7 @@ public class WrappingProjectionHandler extends ProjectionHandler {
         }
 
         // clone and offset as necessary
-        while (min < renderingEnvelope.getMaxX()) {
+        while (min <= renderingEnvelope.getMaxX()) {
             double offset = min - env.getMinX();
             if (Math.abs(offset) < radius) {
                 // in this case we can keep the original geometry
