@@ -152,9 +152,10 @@ public final class LiteShape2 implements Shape, Cloneable {
 			this.geometry.geometryChanged();
 		} else {
 		        // if we have a transform a decimation span can be detected, so try to decimate anyways
-			if (mathTransform != null && !mathTransform.isIdentity() && generalize)
+			if (mathTransform != null && !mathTransform.isIdentity() && generalize && geometry != null) {
 				new Decimator(mathTransform.inverse()).decimate(this.geometry);
 			    this.geometry.geometryChanged();
+			}
 			if (geometry != null) {
 				transformGeometry(geometry);
 				this.geometry.geometryChanged();
