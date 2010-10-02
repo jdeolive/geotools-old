@@ -1206,8 +1206,9 @@ public class SLDStyleFactory {
 				.getExternalGraphicFactories();
 		while (it.hasNext()) {
 			try {
-				Icon icon = it.next().getIcon((Feature) feature, location,
-						eg.getFormat(), toImageSize(size));
+			    Expression formatExpression = ExpressionExtractor.extractCqlExpressions(eg.getFormat());
+			    String format = formatExpression.evaluate(feature, String.class);
+				Icon icon = it.next().getIcon((Feature) feature, location, format, toImageSize(size));
 				if (icon != null) {
 					return icon;
 				}

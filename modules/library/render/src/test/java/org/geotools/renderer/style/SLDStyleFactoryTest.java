@@ -221,6 +221,26 @@ public class SLDStyleFactoryTest extends TestCase {
         assertEquals(64, img.getWidth());
     }
     
+    public void testCreateDynamicExternalFormat() throws Exception {
+    	feature.setAttribute("symb", "image/png");
+        URL url = StreamingRenderer.class.getResource("test-data/");
+        PointSymbolizer symb = sf.createPointSymbolizer();
+        ExternalGraphic eg = sf.createExternalGraphic(url + "${icon}", "${symb}");
+        symb.getGraphic().addExternalGraphic(eg);
+        
+        GraphicStyle2D gs = (GraphicStyle2D) sld.createStyle(feature, symb, range);
+        // make sure the style has been recognized as dynamic
+        SymbolizerKey key = new SymbolizerKey(symb, range);
+        assertTrue(sld.dynamicSymbolizers.containsKey(key));
+
+        BufferedImage img = gs.getImage();
+        BufferedImage expected = ImageIO.read(StreamingRenderer.class.getResource("test-data/draw.png"));
+        assertEquals(expected.getHeight(), img.getHeight());
+        assertEquals(expected.getWidth(), img.getWidth());
+        // the two images are equal, but they have different color models due to the
+        // different ways they have been loaded
+    }
+
     public void testResizeExternalGraphic() throws Exception {
         URL url = StreamingRenderer.class.getResource("test-data/");
         PointSymbolizer symb = sf.createPointSymbolizer();

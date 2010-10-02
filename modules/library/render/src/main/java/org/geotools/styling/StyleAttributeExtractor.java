@@ -386,6 +386,9 @@ public class StyleAttributeExtractor extends FilterAttributeExtractor
      * @see org.geotools.styling.StyleVisitor#visit(org.geotools.styling.ExternalGraphic)
      */
     public void visit(ExternalGraphic exgr) {
+        // add dynamic support for ExternalGrapic format attribute
+        visitCqlExpression(exgr.getFormat());
+
         try {
             if(exgr.getLocation() != null)
                 visitCqlExpression(exgr.getLocation().toString());
