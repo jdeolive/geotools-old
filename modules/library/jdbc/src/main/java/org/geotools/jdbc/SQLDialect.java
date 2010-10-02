@@ -962,6 +962,7 @@ public abstract class SQLDialect {
     public void applyLimitOffset(StringBuffer sql, int limit, int offset) {
         throw new UnsupportedOperationException("Ovveride this method when isLimitOffsetSupported returns true");
     }
+    
     /**
      * Add hints to the JDBC Feature Source. A subclass 
      * can override
@@ -974,6 +975,23 @@ public abstract class SQLDialect {
      * @param hints
      */
     protected void addSupportedHints(Set<Hints.Key> hints) {       	
+    }
+    
+    /**
+     * Determines the default length that a varchar field should be when creating 
+     * datastore tables from feature types.
+     * <p>
+     * Some dialects allow no length to be specified for varchar fields (PostGIS 
+     * for example) however others require a maximum length to be set.  
+     * </p>
+     * <p>
+     * Subclasses can override this method and either return -1 to specify that 
+     * no length is required, or otherwise return an appropriate default length 
+     * for varchars of that dialect.
+     * </p>
+     */
+    public int getDefaultVarcharSize(){
+        return 255;
     }
 
 }

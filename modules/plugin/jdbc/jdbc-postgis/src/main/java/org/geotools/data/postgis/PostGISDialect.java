@@ -693,6 +693,11 @@ public class PostGISDialect extends BasicSQLDialect {
             super.encodeValue(value, type, sql);
         }
     }
+    
+    @Override
+    public int getDefaultVarcharSize(){
+        return -1;
+    }
 
     /**
      * Returns the PostGIS version

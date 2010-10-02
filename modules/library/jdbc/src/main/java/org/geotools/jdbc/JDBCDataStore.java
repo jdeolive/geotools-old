@@ -2544,23 +2544,21 @@ public final class JDBCDataStore extends ContentDataStore
             dialect.encodeColumnName(columnNames[i], sql);
             sql.append(" ");
 
-            //sql type name
-            //JD: some sql dialects require strings / varchars to have an 
+            //some sql dialects require varchars to have an
             // associated size with them
+            int length = -1;
             if ( sqlTypeNames[i].toUpperCase().startsWith( "VARCHAR" ) ) {
-                Integer length = null;
                 if ( featureType != null ) {
                     AttributeDescriptor att = featureType.getDescriptor(columnNames[i]);
                     length = findVarcharColumnLength( att );
                 }
-                if ( length == null || length < 0 ) {
-                    length = 255;
-                }
-
-                dialect.encodeColumnType(sqlTypeNames[i] + "("+ length + ")", sql);
             }
-            else {
-                dialect.encodeColumnType(sqlTypeNames[i], sql);    
+            
+            //only apply a length if one exists (i.e. to applicable varchars)
+            if ( length == -1 ) {
+                dialect.encodeColumnType(sqlTypeNames[i], sql);  
+            } else {  
+                dialect.encodeColumnType(sqlTypeNames[i] + "("+ length + ")", sql);
             }
 
             //nullable
@@ -2608,7 +2606,7 @@ public final class JDBCDataStore extends ContentDataStore
             }
         }
 
-        return null;
+        return dialect.getDefaultVarcharSize();
     }
 
     /**
@@ -4145,4 +4143,5 @@ public final class JDBCDataStore extends ContentDataStore
 
         return tx;
     }
+    
 }
