@@ -21,6 +21,7 @@ package org.geotools.filter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geotools.factory.CommonFactoryFinder;
@@ -36,19 +37,19 @@ import org.opengis.filter.Or;
  * with an internally defined type (AND, OR, NOT).
  *
  * @author Rob Hranac, TOPP
- * @source $URL$
- * @version $Id$
+ * @source $URL: http://svn.osgeo.org/geotools/tags/2.6-RC1/modules/library/main/src/main/java/org/geotools/filter/LogicFilterImpl.java $
+ * @version $Id: LogicFilterImpl.java 31682 2008-10-19 13:23:25Z aaime $
  */
 public abstract class LogicFilterImpl extends BinaryLogicAbstract implements LogicFilter {
     /** The logger for the default core module. */
     private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.core");
 
       protected LogicFilterImpl(org.opengis.filter.FilterFactory factory) {
-    	this(factory,new ArrayList());
+        this(factory,new ArrayList());
     }
     
     protected LogicFilterImpl(org.opengis.filter.FilterFactory factory, List children) {
-    	super(factory,children);
+        super(factory,children);
     }
     
     /**
@@ -61,8 +62,10 @@ public abstract class LogicFilterImpl extends BinaryLogicAbstract implements Log
      * an actual java type.
      */
     protected LogicFilterImpl(short filterType) throws IllegalFilterException {
-    	super(CommonFactoryFinder.getFilterFactory(null), new ArrayList());
-        LOGGER.finest("filtertype " + filterType);
+        super(CommonFactoryFinder.getFilterFactory(null), new ArrayList());
+        if( LOGGER.isLoggable(Level.FINEST)) {
+            LOGGER.finest("filtertype " + filterType);
+        }
 
         if (isLogicFilter(filterType)) {
             this.filterType = filterType;
@@ -83,8 +86,8 @@ public abstract class LogicFilterImpl extends BinaryLogicAbstract implements Log
      */
     protected LogicFilterImpl(Filter filter, short filterType)
         throws IllegalFilterException {
-    	
-    	super(CommonFactoryFinder.getFilterFactory(null), new ArrayList());
+        
+        super(CommonFactoryFinder.getFilterFactory(null), new ArrayList());
         if (isLogicFilter(filterType)) {
             this.filterType = filterType;
         } else {
@@ -107,8 +110,8 @@ public abstract class LogicFilterImpl extends BinaryLogicAbstract implements Log
      */
     protected LogicFilterImpl(Filter filter1, Filter filter2, short filterType)
         throws IllegalFilterException {
-    	super(CommonFactoryFinder.getFilterFactory(null), new ArrayList());
-    	
+        super(CommonFactoryFinder.getFilterFactory(null), new ArrayList());
+        
         if (isLogicFilter(filterType)) {
             this.filterType = filterType;
         } else {
@@ -282,18 +285,20 @@ public abstract class LogicFilterImpl extends BinaryLogicAbstract implements Log
      *         otherwise.
      */
     public boolean equals(Object obj) {
-    	if (obj == this )
-    		return true;
+        if (obj == this )
+            return true;
         if ((obj != null) && (obj.getClass() == this.getClass())) {
             LogicFilterImpl logFilter = (LogicFilterImpl) obj;
-            LOGGER.finest("filter type match:"
-                + (logFilter.getFilterType() == this.filterType));
-            LOGGER.finest("same size:"
-                + (logFilter.getSubFilters().size() == this.children.size())
-                + "; inner size: " + logFilter.getSubFilters().size()
-                + "; outer size: " + this.children.size());
-            LOGGER.finest("contains:"
-                + logFilter.getSubFilters().containsAll(this.children));
+            if( LOGGER.isLoggable(Level.FINEST)) {
+                LOGGER.finest("filter type match:"
+                        + (logFilter.getFilterType() == this.filterType));
+                LOGGER.finest("same size:"
+                        + (logFilter.getSubFilters().size() == this.children.size())
+                        + "; inner size: " + logFilter.getSubFilters().size()
+                        + "; outer size: " + this.children.size());
+                LOGGER.finest("contains:"
+                        + logFilter.getSubFilters().containsAll(this.children));
+            }
 
             return ((logFilter.getFilterType() == this.filterType)
             && (logFilter.getSubFilters().size() == this.children.size())

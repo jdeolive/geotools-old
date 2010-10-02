@@ -16,10 +16,12 @@
  */
 package org.geotools.filter;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geotools.factory.CommonFactoryFinder;
 import org.opengis.feature.simple.SimpleFeature;
+
 
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -46,8 +48,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * </p>
  *
  * @author Rob Hranac, TOPP
- * @source $URL$
- * @version $Id$
+ * @source $URL: http://svn.osgeo.org/geotools/tags/2.6-RC1/modules/library/main/src/main/java/org/geotools/filter/GeometryFilterImpl.java $
+ * @version $Id: GeometryFilterImpl.java 32201 2009-01-12 10:20:34Z jesseeichar $
  *
  * @task REVISIT: make this class (and all filters) immutable, implement
  *       cloneable and return new filters when calling addLeftGeometry and
@@ -67,11 +69,11 @@ public abstract class GeometryFilterImpl extends BinaryComparisonAbstract
     private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.filter");
 
     protected GeometryFilterImpl(org.opengis.filter.FilterFactory factory) {
-    	super(factory);
+        super(factory);
     }
     
     protected GeometryFilterImpl(org.opengis.filter.FilterFactory factory,org.opengis.filter.expression.Expression e1,org.opengis.filter.expression.Expression e2) {
-    	super(factory,e1,e2);
+        super(factory,e1,e2);
     }
     
     /**
@@ -83,9 +85,9 @@ public abstract class GeometryFilterImpl extends BinaryComparisonAbstract
      */
     protected GeometryFilterImpl(short filterType)
         throws IllegalFilterException {
-    	
-    	super(CommonFactoryFinder.getFilterFactory(null));
-    	
+        
+        super(CommonFactoryFinder.getFilterFactory(null));
+        
         if (isGeometryFilter(filterType)) {
             this.filterType = filterType;
         } else {
@@ -106,7 +108,7 @@ public abstract class GeometryFilterImpl extends BinaryComparisonAbstract
     public final void addLeftGeometry(Expression leftGeometry)
         throws IllegalFilterException {
 
-    	setExpression1(leftGeometry);
+        setExpression1(leftGeometry);
     }
     
     public void setExpression1(org.opengis.filter.expression.Expression expression) {
@@ -141,7 +143,7 @@ public abstract class GeometryFilterImpl extends BinaryComparisonAbstract
     public final void addRightGeometry(Expression rightGeometry)
         throws IllegalFilterException {
         
-    	setExpression2(rightGeometry);
+        setExpression2(rightGeometry);
     }
   
     public void setExpression2(org.opengis.filter.expression.Expression expression) {
@@ -187,9 +189,9 @@ public abstract class GeometryFilterImpl extends BinaryComparisonAbstract
      * JTS geometry.
      */
     protected Geometry getLeftGeometry(Object feature) {
-    	org.opengis.filter.expression.Expression leftGeometry = getExpression1();
-    	
-    	 if (leftGeometry != null) {
+        org.opengis.filter.expression.Expression leftGeometry = getExpression1();
+        
+         if (leftGeometry != null) {
              Object obj = leftGeometry.evaluate(feature,Geometry.class);
 
              //LOGGER.finer("leftGeom = " + o.toString()); 
@@ -197,7 +199,7 @@ public abstract class GeometryFilterImpl extends BinaryComparisonAbstract
          } else if (feature instanceof SimpleFeature) {
              return (Geometry) ((SimpleFeature)feature).getDefaultGeometry();
          }
-    	 return null;
+         return null;
     }
     
     /**
@@ -205,14 +207,14 @@ public abstract class GeometryFilterImpl extends BinaryComparisonAbstract
      * JTS geometry.
      */
     protected Geometry getRightGeometry(Object feature) {
-    	org.opengis.filter.expression.Expression rightGeometry = getExpression2();
-    	
-    	 if (rightGeometry != null) {
+        org.opengis.filter.expression.Expression rightGeometry = getExpression2();
+        
+         if (rightGeometry != null) {
              return (Geometry) rightGeometry.evaluate(feature,Geometry.class);
          } else if(feature instanceof SimpleFeature){
              return (Geometry) ((SimpleFeature)feature).getDefaultGeometry();
          }
-    	 return null;
+         return null;
     }
     
     /**
@@ -221,8 +223,8 @@ public abstract class GeometryFilterImpl extends BinaryComparisonAbstract
      * <p>
      * @return true iff we can perform a geometry operation
      */
-    protected boolean validate(SimpleFeature feature) {    	
-    	// Checks for error condition
+    protected boolean validate(SimpleFeature feature) {     
+        // Checks for error condition
         Geometry right = getRightGeometry(feature);
         Geometry left = getLeftGeometry(feature);
 
@@ -242,8 +244,8 @@ public abstract class GeometryFilterImpl extends BinaryComparisonAbstract
      * @return Flag confirming whether or not this feature is inside filter.
      */
     public boolean evaluate(SimpleFeature feature) {
-	    return evaluate((Object)feature);
-	}
+        return evaluate((Object)feature);
+    }
 
     /**
      * Return this filter as a string.
@@ -304,20 +306,25 @@ public abstract class GeometryFilterImpl extends BinaryComparisonAbstract
             boolean isEqual = true;
 
             isEqual = geomFilter.getFilterType() == this.filterType;
-            LOGGER.finest("filter type match:" + isEqual + "; in:"
-                + geomFilter.getFilterType() + "; out:" + this.filterType);
+            if( LOGGER.isLoggable(Level.FINEST) ) {
+                LOGGER.finest("filter type match:" + isEqual + "; in:"
+                        + geomFilter.getFilterType() + "; out:" + this.filterType);
+            }
             isEqual = (geomFilter.expression1 != null)
                 ? (isEqual && geomFilter.expression1.equals(this.expression1))
                 : (isEqual && (this.expression1 == null));
-            LOGGER.finest("left geom match:" + isEqual + "; in:"
-                + geomFilter.expression1 + "; out:" + this.expression1);
+            if( LOGGER.isLoggable(Level.FINEST) ) {
+                LOGGER.finest("left geom match:" + isEqual + "; in:"
+                        + geomFilter.expression1 + "; out:" + this.expression1);
+            }
             isEqual = (geomFilter.expression2 != null)
                 ? (isEqual
                 && geomFilter.expression2.equals(this.expression2))
                 : (isEqual && (this.expression2 == null));
-            LOGGER.finest("right geom match:" + isEqual + "; in:"
-                + geomFilter.expression2 + "; out:" + this.expression2);
-
+            if( LOGGER.isLoggable(Level.FINEST) ) {
+                LOGGER.finest("right geom match:" + isEqual + "; in:"
+                        + geomFilter.expression2 + "; out:" + this.expression2);
+            }
             return isEqual;
         } else {
             return false;
@@ -330,7 +337,7 @@ public abstract class GeometryFilterImpl extends BinaryComparisonAbstract
      * @return a hash code value for this geometry filter.
      */
     public int hashCode() {
-    	org.opengis.filter.expression.Expression leftGeometry = getExpression1();
+        org.opengis.filter.expression.Expression leftGeometry = getExpression1();
         org.opengis.filter.expression.Expression rightGeometry = getExpression2();
          
         int result = 17;
