@@ -88,9 +88,9 @@ public class DefaultFeatureResults extends DataFeatureCollection {
     	super(null,getSchemaInternal(source,query));
     	this.featureSource = source;        
         
-        SimpleFeatureType origionalType = source.getSchema();
+        SimpleFeatureType originalType = source.getSchema();
         
-        String typeName = origionalType.getTypeName();        
+        String typeName = originalType.getTypeName();        
         if( typeName.equals( query.getTypeName() ) ){
             this.query = query;
         }
@@ -105,7 +105,7 @@ public class DefaultFeatureResults extends DataFeatureCollection {
             //((DefaultQuery) this.query).setCoordinateSystemReproject(query.getCoordinateSystemReproject());
         }
        
-        if( origionalType.getGeometryDescriptor() == null ){
+        if( originalType.getGeometryDescriptor() == null ){
             return; // no transform needed
         }
         
@@ -115,13 +115,13 @@ public class DefaultFeatureResults extends DataFeatureCollection {
         } else if (query.getCoordinateSystem() != null) {
             cs = query.getCoordinateSystem();
         }     
-        CoordinateReferenceSystem origionalCRS = origionalType.getGeometryDescriptor().getCoordinateReferenceSystem();
+        CoordinateReferenceSystem originalCRS = originalType.getGeometryDescriptor().getCoordinateReferenceSystem();
         if( query.getCoordinateSystem() != null ){
-            origionalCRS = query.getCoordinateSystem();
+            originalCRS = query.getCoordinateSystem();
         }
-        if( cs != null && cs != origionalCRS ){
+        if( cs != null && cs != originalCRS ){
             try {
-                transform = CRS.findMathTransform( origionalCRS, cs, true);
+                transform = CRS.findMathTransform( originalCRS, cs, true);
             } catch (FactoryException noTransform) {
                 throw (IOException) new IOException("Could not reproject data to "+cs).initCause( noTransform );
             }
@@ -130,7 +130,7 @@ public class DefaultFeatureResults extends DataFeatureCollection {
 
     static SimpleFeatureType getSchemaInternal(
             SimpleFeatureSource featureSource, Query query) {
-    	SimpleFeatureType origionalType = featureSource.getSchema();
+    	SimpleFeatureType originalType = featureSource.getSchema();
     	SimpleFeatureType schema = null;
     	
     	 CoordinateReferenceSystem cs = null;        
@@ -141,15 +141,15 @@ public class DefaultFeatureResults extends DataFeatureCollection {
          }
          try {
              if( cs == null ){
-                 if (query.retrieveAllProperties()) { // we can use the origionalType as is                
+                 if (query.retrieveAllProperties()) { // we can use the originalType as is                
                      schema = featureSource.getSchema();
                  } else { 
                      schema = DataUtilities.createSubType(featureSource.getSchema(), query.getPropertyNames());                    
                  } 
              }
              else {
-                 // we need to change the projection of the origional type
-                 schema = DataUtilities.createSubType(origionalType, query.getPropertyNames(), cs, query.getTypeName(), null);
+                 // we need to change the projection of the original type
+                 schema = DataUtilities.createSubType(originalType, query.getPropertyNames(), cs, query.getTypeName(), null);
              }
          }
          catch (SchemaException e) {
@@ -278,13 +278,14 @@ public class DefaultFeatureResults extends DataFeatureCollection {
 	            bounds = new ReferencedEnvelope();
 	
 	             FeatureReader<SimpleFeatureType, SimpleFeature> reader = boundsReader();
-	
-	            while (reader.hasNext()) {
-	                feature = reader.next();
-	                bounds.include(feature.getBounds());
-	            }
-	
-	            reader.close();
+	             try {
+	            	 while (reader.hasNext()) {
+	            		 feature = reader.next();
+	            		 bounds.include(feature.getBounds());
+	            	 }
+	             } finally {
+	            	 reader.close();
+	             }
         	} catch (IllegalAttributeException e) {
 	            //throw new DataSourceException("Could not read feature ", e);
 	            bounds = new ReferencedEnvelope();
@@ -326,13 +327,14 @@ public class DefaultFeatureResults extends DataFeatureCollection {
         try {
             count = 0;
 
-             FeatureReader<SimpleFeatureType, SimpleFeature> reader = reader();
-
-            for (; reader.hasNext(); count++) {
-                reader.next();
+            FeatureReader<SimpleFeatureType, SimpleFeature> reader = reader();
+            try {
+            	for (; reader.hasNext(); count++) {
+            		reader.next();
+            	}
+            } finally {
+            	reader.close();
             }
-
-            reader.close();
 
             return count;
         } catch (IllegalAttributeException e) {
@@ -346,10 +348,13 @@ public class DefaultFeatureResults extends DataFeatureCollection {
             //Feature feature;
              FeatureReader<SimpleFeatureType, SimpleFeature> reader = reader();
             //SimpleFeatureType type = reader.getFeatureType();
-            while (reader.hasNext()) {
-                collection.add(reader.next());
-            }
-            reader.close();
+             try {
+            	 while (reader.hasNext()) {
+            		 collection.add(reader.next());
+            	 }
+             } finally {
+            	 reader.close();
+             }
 
             return collection;
         } catch (IllegalAttributeException e) {
