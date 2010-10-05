@@ -85,6 +85,9 @@ public abstract class JDBCDataStoreTest extends JDBCTestSupport {
         //JD: making the comparison a bit more lax
         //asertEquals(ft2,featureType);
         assertEqualsLax(ft2,featureType);
+        //TODO: we should also check the crs as well
+        //assertTrue(CRS.equalsIgnoreMetadata(featureType.getCoordinateReferenceSystem(),
+        //        ft2.getCoordinateReferenceSystem()));
         
         // GEOT-2031
         assertNotSame(ft2, featureType);

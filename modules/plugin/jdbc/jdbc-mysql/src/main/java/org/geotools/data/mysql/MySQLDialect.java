@@ -18,17 +18,23 @@ package org.geotools.data.mysql;
 
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
 import java.util.Map;
+import java.util.logging.Level;
 
+import org.geotools.geometry.jts.Geometries;
 import org.geotools.jdbc.JDBCDataStore;
 import org.geotools.jdbc.SQLDialect;
+import org.geotools.referencing.CRS;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.GeometryDescriptor;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
@@ -120,8 +126,54 @@ public class MySQLDialect extends SQLDialect {
 
     public Integer getGeometrySRID(String schemaName, String tableName, String columnName,
         Connection cx) throws SQLException {
-        //execute SELECT srid(<columnName>) FROM <tableName> LIMIT 1;
+        
+        //first check the geometry_columns table
         StringBuffer sql = new StringBuffer();
+        sql.append("SELECT ");
+        encodeColumnName("srid", sql);
+        sql.append(" FROM ");
+        encodeTableName("geometry_columns", sql);
+        sql.append(" WHERE ");
+        
+        encodeColumnName("f_table_schema", sql);
+        
+        if (schemaName != null) {
+            sql.append( " = '").append(schemaName).append("'");
+        }
+        else {
+            sql.append(" IS NULL");
+        }
+        sql.append(" AND ");
+        
+        encodeColumnName("f_table_name", sql);
+        sql.append(" = '").append(tableName).append("' AND ");
+        
+        encodeColumnName("f_geometry_column", sql);
+        sql.append(" = '").append(columnName).append("'");
+        
+        dataStore.getLogger().fine(sql.toString());
+        
+        Statement st = cx.createStatement();
+        try {
+            ResultSet rs = st.executeQuery(sql.toString());
+            try {
+                if (rs.next()) {
+                    return new Integer(rs.getInt(1));
+                }
+            }
+            finally {
+                dataStore.closeSafe(rs);
+            }
+        }
+        catch(SQLException e) {
+            //geometry_columns does not exist
+        }
+        finally {
+            dataStore.closeSafe(st);
+        }
+        
+        //execute SELECT srid(<columnName>) FROM <tableName> LIMIT 1;
+        sql = new StringBuffer();
         sql.append("SELECT srid(");
         encodeColumnName(columnName, sql);
         sql.append(") ");
@@ -139,8 +191,7 @@ public class MySQLDialect extends SQLDialect {
 
         dataStore.getLogger().fine(sql.toString());
 
-        Statement st = cx.createStatement();
-
+        st = cx.createStatement();
         try {
             ResultSet rs = st.executeQuery(sql.toString());
 
@@ -262,21 +313,86 @@ public class MySQLDialect extends SQLDialect {
     public void postCreateTable(String schemaName, SimpleFeatureType featureType, Connection cx)
             throws SQLException, IOException {
         
+        //create teh geometry_columns table if necessary
+        DatabaseMetaData md = cx.getMetaData();
+        ResultSet rs = md.getTables(null, schemaName, "geometry_columns", new String[]{"TABLE"});
+        try {
+            if (!rs.next()) {
+                //create it
+                Statement st = cx.createStatement();
+                try {
+                    StringBuffer sql = new StringBuffer("CREATE TABLE ");
+                    encodeTableName("geometry_columns", sql);
+                    sql.append("(");
+                    encodeColumnName("f_table_schema", sql); sql.append(" varchar(255), ");
+                    encodeColumnName("f_table_name", sql); sql.append(" varchar(255), ");
+                    encodeColumnName("f_geometry_column", sql); sql.append(" varchar(255), ");
+                    encodeColumnName("coord_dimension", sql); sql.append(" int, ");
+                    encodeColumnName("srid", sql); sql.append(" int, ");
+                    encodeColumnName("type", sql); sql.append(" varchar(32)");
+                    sql.append(")");
+                    
+                    if (LOGGER.isLoggable(Level.FINE)) { LOGGER.fine(sql.toString()); }
+                    st.execute(sql.toString());
+                }
+                finally {
+                    dataStore.closeSafe(st);
+                }
+            }
+        }
+        finally {
+            dataStore.closeSafe(rs);
+        }
+        
         //create spatial index for all geometry columns
         for (AttributeDescriptor ad : featureType.getAttributeDescriptors()) {
             if (!(ad instanceof GeometryDescriptor)) {
                 continue;
             }
-            if (ad.isNillable()) {
-                //cannot index null columns
-                continue;
-            }
             GeometryDescriptor gd = (GeometryDescriptor) ad;
-            StringBuffer sql = new StringBuffer("ALTER TABLE ");
-            encodeTableName(featureType.getTypeName(), sql);
-            sql.append(" ADD SPATIAL INDEX (");
-            encodeColumnName(gd.getLocalName(), sql);
-            sql.append(")");
+            
+            if (!ad.isNillable()) {
+                //can only index non null columns
+                StringBuffer sql = new StringBuffer("ALTER TABLE ");
+                encodeTableName(featureType.getTypeName(), sql);
+                sql.append(" ADD SPATIAL INDEX (");
+                encodeColumnName(gd.getLocalName(), sql);
+                sql.append(")");
+                
+                LOGGER.fine( sql.toString() );
+                Statement st = cx.createStatement();
+                try {
+                    st.execute(sql.toString());
+                }
+                finally {
+                    dataStore.closeSafe(st);
+                }
+            }
+            
+            CoordinateReferenceSystem crs = gd.getCoordinateReferenceSystem();
+            int srid = -1;
+            if (crs != null) {
+                Integer i = null;
+                try {
+                    i = CRS.lookupEpsgCode(crs, true);
+                } catch (FactoryException e) {
+                    LOGGER.log(Level.FINER, "Could not determine epsg code", e);
+                }
+                srid = i != null ? i : srid;
+            }
+            
+            StringBuffer sql = new StringBuffer("INSERT INTO ");
+            encodeTableName("geometry_columns", sql);
+            sql.append(" VALUES (");
+            sql.append(schemaName != null ? "'"+schemaName+"'" : "NULL").append(", ");
+            sql.append("'").append(featureType.getTypeName()).append("', ");
+            sql.append("'").append(ad.getLocalName()).append("', ");
+            sql.append("2, ");
+            sql.append(srid).append(", ");
+            
+            
+            Geometries g = Geometries.getForBinding((Class<? extends Geometry>) gd.getType().getBinding());
+            sql.append("'").append(g != null ? g.getName().toUpperCase() : "GEOMETRY").append("')");
             
             LOGGER.fine( sql.toString() );
             Statement st = cx.createStatement();

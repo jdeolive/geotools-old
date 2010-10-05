@@ -60,6 +60,7 @@ public class MySQLTestSetup extends JDBCTestSetup {
         } catch (Exception e) {
             //e.printStackTrace();
         }
+        runSafe("DELETE FROM geometry_columns");
 
         //create some data
         StringBuffer sb = new StringBuffer();
@@ -88,5 +89,19 @@ public class MySQLTestSetup extends JDBCTestSetup {
     @Override
     protected void setUpDataStore(JDBCDataStore dataStore) {
         dataStore.setDatabaseSchema(null);
+    }
+    
+    @Override
+    protected Properties createExampleFixture() {
+        Properties p = new Properties();
+        
+        p.put("driver", "com.mysql.jdbc.Driver");
+        p.put("url", "jdbc:mysql://localhost/geotools");
+        p.put("host", "localhost");
+        p.put("port", "3306");
+        p.put("user", "geotools");
+        p.put("password", "geotools");
+        
+        return p;
     }
 }

@@ -152,9 +152,14 @@ public class MySQLDialectBasic extends BasicSQLDialect {
     @Override
     public void encodeGeometryValue(Geometry value, int srid, StringBuffer sql)
             throws IOException {
-        sql.append("GeomFromText('");
-        sql.append(new WKTWriter().write(value));
-        sql.append("', ").append(srid).append(")");
+        if (value != null) {
+            sql.append("GeomFromText('");
+            sql.append(new WKTWriter().write(value));
+            sql.append("', ").append(srid).append(")");
+        }
+        else {
+            sql.append("NULL");
+        }
     }
 
     @Override
