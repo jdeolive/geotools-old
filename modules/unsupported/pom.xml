@@ -148,6 +148,7 @@
        </activation>
        <modules>
          <module>app-schema</module>
+         <module>csv</module>
          <module>db2</module>
          <module>epsg-oracle</module>
          <module>epsg-h2</module>
