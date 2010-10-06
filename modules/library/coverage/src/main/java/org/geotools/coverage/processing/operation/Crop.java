@@ -138,14 +138,13 @@ import com.vividsolutions.jts.geom.PrecisionModel;
  * {@link Polygon}.
  * 
  * @source $URL$
- * @todo make this operation work with a general polygon. instead of an envelope.
  * @todo make this operation more t,z friendly
  * @version $Id$
  * @author Simone Giannecchini (GeoSolutions)
  * @author Emanuele Tajariol (GeoSolutions)
  * @since 2.3
  *
- * @see javax.media.jai.operator.ScaleDescriptor
+ * @see javax.media.jai.operator.CropDescriptor
  */
 public class Crop extends Operation2D {
 	/**
@@ -224,9 +223,9 @@ public class Crop extends Operation2D {
 			null, // Unit of measure
 			true); // Parameter is optional
 
-        /**
-         * Constructs a default {@code "Crop"} operation.
-         */
+    /**
+     * Constructs a default {@code "Crop"} operation.
+     */
 	public Crop() {
 		super(new DefaultParameterDescriptorGroup(Citations.GEOTOOLS,
 				"CoverageCrop", new ParameterDescriptor[] { SOURCE_0,
