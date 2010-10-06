@@ -699,19 +699,24 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
         Feature target = (Feature) builder.build(id);
 
         for (AttributeMapping attMapping : mappings) {
-            if (isTopLevelmapping(targetNodeName, attMapping.getTargetXPath())) {
-                // ignore the top level mapping for the Feature itself
-                // as it was already set
-                continue;
-            }
-            // extract the values from multiple source features of the same id
-            // and set them to one built feature
-            if (attMapping.isMultiValued()) {
-                for (Feature source : sources) {
-                    setAttributeValue(target, source, attMapping);
+            try {
+                if (isTopLevelmapping(targetNodeName, attMapping.getTargetXPath())) {
+                    // ignore the top level mapping for the Feature itself
+                    // as it was already set
+                    continue;
                 }
-            } else {
-                setAttributeValue(target, sources.get(0), attMapping);
+                // extract the values from multiple source features of the same id
+                // and set them to one built feature
+                if (attMapping.isMultiValued()) {
+                    for (Feature source : sources) {
+                        setAttributeValue(target, source, attMapping);
+                    }
+                } else {
+                    setAttributeValue(target, sources.get(0), attMapping);
+                }
+            } catch (Exception e) {
+                throw new RuntimeException("Error applying mapping with targetAttribute "
+                        + attMapping.getTargetXPath(), e);
             }
         }
         this.cleanEmptyElements(target);
