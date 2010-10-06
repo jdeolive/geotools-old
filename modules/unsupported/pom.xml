@@ -58,6 +58,7 @@
          <module>coveragetools</module>
          <module>sql-datastore</module>
          <module>geometryless</module>
+         <module>excel</module>
        </modules>
      </profile>
 
