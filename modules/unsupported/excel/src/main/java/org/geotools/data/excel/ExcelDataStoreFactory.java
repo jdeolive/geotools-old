@@ -44,11 +44,11 @@ public class ExcelDataStoreFactory extends AbstractDataStoreFactory implements D
     public static final Param SHEETNAME = new Param("sheet", String.class, "name of the sheet",
             true);
 
-    public static final Param LATCOL = new Param("latcol", Integer.class,
-            "Column index of Latitude or X value", true);
+    public static final Param LATCOL = new Param("latcol", String.class,
+            "Column name of Latitude or X value", true);
 
-    public static final Param LONGCOL = new Param("longcol", Integer.class,
-            "Column index of Longitude or Y value", true);
+    public static final Param LONGCOL = new Param("longcol", String.class,
+            "Column name of Longitude or Y value", true);
 
     public static final Param PROJECTION = new Param("projection", String.class,
             "EPSG code of projection", true);
@@ -104,8 +104,8 @@ public class ExcelDataStoreFactory extends AbstractDataStoreFactory implements D
         if (params.containsKey(HEADERROW.key)) {
             headerRow = ((Integer) HEADERROW.lookUp(params)).intValue();
         }
-        int latCol = ((Integer) LATCOL.lookUp(params)).intValue();
-        int longCol = ((Integer) LONGCOL.lookUp(params)).intValue();
+        String latCol = ((String) LATCOL.lookUp(params));
+        String longCol = ((String) LONGCOL.lookUp(params));
         String projectionString = (String) PROJECTION.lookUp(params);
         ExcelDataStore excel = new ExcelDataStore(file, sheet, headerRow, latCol, longCol,
                 projectionString);

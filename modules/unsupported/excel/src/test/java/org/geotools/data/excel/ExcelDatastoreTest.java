@@ -62,8 +62,8 @@ public class ExcelDatastoreTest extends TestCase {
                 params.put("type", "excel");
                 params.put("filename", filename);
                 params.put("sheet", "locations");
-                params.put("latcol", 0);
-                params.put("longcol", 1);
+                params.put("latcol", "LAT");
+                params.put("longcol", "LON");
                 params.put("projection", "epsg:4326");
                 ExcelDataStoreFactory fac = new ExcelDataStoreFactory();
                 assertTrue("Can't process params", fac.canProcess(params));
@@ -90,8 +90,8 @@ public class ExcelDatastoreTest extends TestCase {
         params.put("type", "excel");
         params.put("filename", filename);
         params.put("sheet", "locations");
-        params.put("latcol", 0);
-        params.put("longcol", 1);
+        params.put("latcol", "LAT");
+        params.put("longcol", "LON");
         params.put("projection", "epsg:4326");
         DataStore store = DataStoreFinder.getDataStore(params);
         assertNotNull("no datastore found", store);
@@ -109,7 +109,7 @@ public class ExcelDatastoreTest extends TestCase {
 
     public void testGetNames() throws IOException {
         for (ExcelDataStore ed : eds) {
-            System.out.println(ed);
+            System.out.println(ed.file.getName());
 
             String[] names = ed.getTypeNames();
             System.out.println(names);
@@ -119,6 +119,7 @@ public class ExcelDatastoreTest extends TestCase {
 
     public void testGetFeatureSource() throws IOException {
         for (ExcelDataStore ed : eds) {
+            System.out.println(ed.file.getName());
             List<Name> names = ed.getNames();
             ExcelFeatureSource source = (ExcelFeatureSource) ed.getFeatureSource(names.get(0));
             assertNotNull("FeatureSource is null", source);

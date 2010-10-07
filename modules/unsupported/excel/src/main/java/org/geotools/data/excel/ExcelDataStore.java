@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
@@ -64,8 +66,8 @@ public class ExcelDataStore extends ContentDataStore {
 
     private static final Logger logger = Logging.getLogger("org.geotools.excel");
 
-    public ExcelDataStore(String file2, String sheet2, int headerRow, int latCol, int longCol,
-            String projectionString) throws IOException {
+    public ExcelDataStore(String file2, String sheet2, int headerRow, String latCol,
+            String longCol, String projectionString) throws IOException {
         super();
         file = new File(file2);
 
@@ -78,8 +80,9 @@ public class ExcelDataStore extends ContentDataStore {
         }
         sheet = workbook.getSheet(sheet2);
         headerRowIndex = headerRow;
-        latColumnIndex = latCol;
-        lonColumnIndex = longCol;
+        latColumnIndex = lookupColumn(latCol);
+        lonColumnIndex = lookupColumn(longCol);
+        
         try {
             setProjection(CRS.decode(projectionString));
         } catch (NoSuchAuthorityCodeException e) {
@@ -90,6 +93,24 @@ public class ExcelDataStore extends ContentDataStore {
             e.printStackTrace();
         }
     }
+
+    /**
+     * Look up a column name and return it's index
+     * @param columnName 
+     * @return the index of the column
+     */
+    private int lookupColumn(String columnName) {
+        Row header = sheet.getRow(getHeaderRowIndex());
+
+        for (int i = header.getFirstCellNum(); i < header.getLastCellNum(); i++) {
+            if (header.getCell(i).getStringCellValue().trim().equalsIgnoreCase(columnName)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    
 
     public int getLatColumnIndex() {
         return latColumnIndex;
