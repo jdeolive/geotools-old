@@ -49,14 +49,13 @@ public class ExcelDatastoreTest extends TestCase {
     @Override
     protected void setUp() throws Exception {
         if (!setup) {
-            // TODO Auto-generated method stub
             super.setUp();
             final File test_data_dir = TestData.file(this, null);
             String[] testFiles = test_data_dir.list();
             eds = new ExcelDataStore[testFiles.length];
             int i = 0;
             for (String f : testFiles) {
-                File file = org.geotools.TestData.file(this, f);
+                File file = TestData.file(this, f);
 
                 String filename = file.getCanonicalPath();
                 HashMap<String, Serializable> params = new HashMap<String, Serializable>();
@@ -85,7 +84,7 @@ public class ExcelDatastoreTest extends TestCase {
     }
 
     public void testExcelDatastore() throws IOException {
-        File file = org.geotools.TestData.file(this, "locations.xls");
+        File file = TestData.file(this, "locations.xls");
         String filename = file.getCanonicalPath();
         HashMap<String, Serializable> params = new HashMap<String, Serializable>();
         params.put("type", "excel");
