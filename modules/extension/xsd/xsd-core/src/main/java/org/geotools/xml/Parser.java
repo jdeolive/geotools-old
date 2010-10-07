@@ -41,14 +41,19 @@ import org.apache.xerces.parsers.SAXParser;
 import org.eclipse.xsd.XSDSchema;
 import org.geotools.xml.impl.ParserHandler;
 import org.geotools.xs.XS;
+import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.NamespaceSupport;
 
 
 /**
- * Main interface to the geotools xml parser.
- *
+ * GeoTools XML parser.
+ * <p>
+ * This parser uses a sax based driver to parse an input stream into a single object. For streaming
+ * look at {@link StreamingParser}. If the source document being parsed as already been parsed into
+ * a {@link Document} the {@link DOMParser} class may be used.
+ * </p>
  * <p>
  * <h3>Schema Resolution</h3>
  * See {@link org.geotools.xml.Configuration} javadocs for instructions on how
