@@ -64,32 +64,43 @@ public class XmlConverterFactory implements ConverterFactory {
 
             //JD: this is a bit of a hack but delegate to the 
             // commons converter in case we are executing first.
-            Converter converter = new CommonsConverterFactory().createConverter(value.getClass(),
-                    target, null);
-
-            if (converter != null) {
-                Object converted = null;
-
-                try {
-                    converted = converter.convert(source, target);
-                } catch (Exception e) {
-                    //ignore
-                }
-
-                if (converted != null) {
-                    return converted;
+            try {
+                Converter converter = new CommonsConverterFactory().createConverter(value.getClass(),
+                        target, null);
+    
+                if (converter != null) {
+                    Object converted = null;
+    
+                    try {
+                        converted = converter.convert(source, target);
+                    } catch (Exception e) {
+                        //ignore
+                    }
+    
+                    if (converted != null) {
+                        return converted;
+                    }
                 }
             }
-
+            catch(Exception e) {
+                //fall through to jaxb parsing
+            }
+            
             Calendar date;
 
             //try parsing as dateTime
             try {
-                date = DatatypeConverterImpl.getInstance().parseDateTime(value);
+                try {
+                    date = DatatypeConverterImpl.getInstance().parseDateTime(value);
+                }
+                catch(Exception e) {
+                    //try as just date
+                    date = DatatypeConverterImpl.getInstance().parseDate(value);    
+                }
                 
             } catch (Exception e) {
-                //try as just date
-                date = DatatypeConverterImpl.getInstance().parseDate(value);
+                //try as just time
+                date = DatatypeConverterImpl.getInstance().parseTime(value);
             }
 
             if (Calendar.class.equals(target)) {
