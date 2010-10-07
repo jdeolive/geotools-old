@@ -17,15 +17,14 @@ package org.geotools.data.excel;
  *    Lesser General Public License for more details.
  */
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -46,11 +45,15 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import com.vividsolutions.jts.geom.GeometryFactory;
 
 public class ExcelDataStore extends ContentDataStore {
-    File file;
+    String name = "";
+
+    public String getName() {
+        return name;
+    }
 
     /** the workbook object */
     org.apache.poi.ss.usermodel.Workbook workbook;
-
+    
     /** The sheet that holds the data */
     org.apache.poi.ss.usermodel.Sheet sheet;
 
@@ -66,14 +69,15 @@ public class ExcelDataStore extends ContentDataStore {
 
     private static final Logger logger = Logging.getLogger("org.geotools.excel");
 
-    public ExcelDataStore(String file2, String sheet2, int headerRow, String latCol,
+    public ExcelDataStore(URL url, String sheet2, int headerRow, String latCol,
             String longCol, String projectionString) throws IOException {
         super();
-        file = new File(file2);
-
-        FileInputStream fis = new FileInputStream(file);
+        
+        name = url.getFile();
+        InputStream is = url.openStream();
         try {
-            workbook = WorkbookFactory.create(fis);
+            workbook = WorkbookFactory.create(is);
+            
         } catch (InvalidFormatException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();

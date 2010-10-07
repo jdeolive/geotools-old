@@ -23,10 +23,13 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.print.DocFlavor.URL;
+
 import junit.framework.TestCase;
 
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
+import org.geotools.data.DataUtilities;
 import org.geotools.data.Query;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.data.store.ContentFeatureCollection;
@@ -56,11 +59,11 @@ public class ExcelDatastoreTest extends TestCase {
             int i = 0;
             for (String f : testFiles) {
                 File file = TestData.file(this, f);
-
-                String filename = file.getCanonicalPath();
+                java.net.URL url = DataUtilities.fileToURL(file);
+                
                 HashMap<String, Serializable> params = new HashMap<String, Serializable>();
                 params.put("type", "excel");
-                params.put("filename", filename);
+                params.put("url", url);
                 params.put("sheet", "locations");
                 params.put("latcol", "LAT");
                 params.put("longcol", "LON");
@@ -85,10 +88,12 @@ public class ExcelDatastoreTest extends TestCase {
 
     public void testExcelDatastore() throws IOException {
         File file = TestData.file(this, "locations.xls");
-        String filename = file.getCanonicalPath();
+        
+        java.net.URL url = DataUtilities.fileToURL(file);
+
         HashMap<String, Serializable> params = new HashMap<String, Serializable>();
         params.put("type", "excel");
-        params.put("filename", filename);
+        params.put("url", url);
         params.put("sheet", "locations");
         params.put("latcol", "LAT");
         params.put("longcol", "LON");
@@ -109,7 +114,7 @@ public class ExcelDatastoreTest extends TestCase {
 
     public void testGetNames() throws IOException {
         for (ExcelDataStore ed : eds) {
-            System.out.println(ed.file.getName());
+            System.out.println(ed.getName());
 
             String[] names = ed.getTypeNames();
             System.out.println(names);
@@ -119,7 +124,7 @@ public class ExcelDatastoreTest extends TestCase {
 
     public void testGetFeatureSource() throws IOException {
         for (ExcelDataStore ed : eds) {
-            System.out.println(ed.file.getName());
+            System.out.println(ed.getName());
             List<Name> names = ed.getNames();
             ExcelFeatureSource source = (ExcelFeatureSource) ed.getFeatureSource(names.get(0));
             assertNotNull("FeatureSource is null", source);

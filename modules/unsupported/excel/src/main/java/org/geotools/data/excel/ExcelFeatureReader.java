@@ -28,22 +28,18 @@ import org.opengis.feature.simple.SimpleFeatureType;
 class ExcelFeatureReader implements FeatureReader<SimpleFeatureType, SimpleFeature> {
 
     private ExcelFeatureSource source;
-
+    
     private Iterator<SimpleFeature> iterator;
 
     private ArrayList<SimpleFeature> features;
 
-    public ExcelFeatureReader(ArrayList<SimpleFeature> features2) {
+    public ExcelFeatureReader(ArrayList<SimpleFeature> features2, ExcelFeatureSource excelFeatureSource) {
         features = features2;
+        source = excelFeatureSource;
         iterator = features.iterator();
     }
 
-    public SimpleFeatureType getFeatureType() {
-        // TODO Auto-generated method stub
-
-        return source.getSchema();
-
-    }
+    
 
     public SimpleFeature next() throws IOException, IllegalArgumentException,
             NoSuchElementException {
@@ -59,6 +55,16 @@ class ExcelFeatureReader implements FeatureReader<SimpleFeatureType, SimpleFeatu
     public void close() throws IOException {
         // TODO Auto-generated method stub
         iterator = features.iterator();
+    }
+
+
+
+    /* (non-Javadoc)
+     * @see org.geotools.data.FeatureReader#getFeatureType()
+     */
+    public SimpleFeatureType getFeatureType() {
+        // TODO Auto-generated method stub
+        return source.getSchema();
     }
 
 }

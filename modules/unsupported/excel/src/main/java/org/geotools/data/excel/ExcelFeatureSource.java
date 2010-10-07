@@ -187,7 +187,7 @@ public class ExcelFeatureSource extends ContentFeatureSource implements SimpleFe
             throws IOException {
         if (lastQuery != query)
             filterFeatures(query);
-        return new ExcelFeatureReader(filteredFeatures);
+        return new ExcelFeatureReader(filteredFeatures,this);
     }
 
     @Override
