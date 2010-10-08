@@ -748,7 +748,26 @@ public final class ImageUtilities {
 		return PackageUtil.isCodecLibAvailable();
 	}
 
+    /**
+     * Get a proper {@link ImageInputStreamSpi} instance for the provided {@link Object} input without
+     * trying to create an {@link ImageInputStream}.
+     *  
+     * @see #getImageInputStreamSPI(Object, boolean) 
+     */
     public final static ImageInputStreamSpi getImageInputStreamSPI(final Object input) {
+        return getImageInputStreamSPI(input, true);
+    }
+
+    /**
+     * Get a proper {@link ImageInputStreamSpi} instance for the provided {@link Object} input.
+     *   
+     * @param input the input object for which we need to find a proper {@link ImageInputStreamSpi} instance
+     * @param streamCreationCheck if <code>true</code>, when a proper {@link ImageInputStreamSpi} have been found 
+     * for the provided input, use it to try creating an {@link ImageInputStream} on top of the input.  
+     * 
+     * @return an {@link ImageInputStreamSpi} instance.
+     */
+    public final static ImageInputStreamSpi getImageInputStreamSPI(final Object input, final boolean streamCreationCheck) {
     
         Iterator<ImageInputStreamSpi> iter;
         // Ensure category is present
@@ -765,21 +784,27 @@ public final class ImageUtilities {
         while (iter.hasNext()) {
             spi = (ImageInputStreamSpi) iter.next();
             if (spi.getInputClass().isInstance(input)) {
-                ImageInputStream stream = null;
-                try {
-                    stream = spi.createInputStreamInstance(input, usecache, ImageIO.getCacheDirectory());
-                    break;
-                } catch (IOException e) {
-                    return null;
-                } finally {
-                    //Make sure to close the created stream
-                    if (stream != null){
-                        try {
-                            stream.close();
-                        } catch (Throwable t){
-                            //eat exception
+                
+                // Stream creation check
+                if (streamCreationCheck){
+                    ImageInputStream stream = null;
+                    try {
+                        stream = spi.createInputStreamInstance(input, usecache, ImageIO.getCacheDirectory());
+                        break;
+                    } catch (IOException e) {
+                        return null;
+                    } finally {
+                        //Make sure to close the created stream
+                        if (stream != null){
+                            try {
+                                stream.close();
+                            } catch (Throwable t){
+                                //eat exception
+                            }
                         }
                     }
+                } else {
+                    break;
                 }
             }
         }
