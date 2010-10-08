@@ -45,6 +45,7 @@ import javax.imageio.ImageReader;
 import javax.imageio.spi.IIORegistry;
 import javax.imageio.spi.ImageInputStreamSpi;
 import javax.imageio.spi.ImageReaderWriterSpi;
+import javax.imageio.stream.ImageInputStream;
 import javax.media.jai.BorderExtender;
 import javax.media.jai.BorderExtenderCopy;
 import javax.media.jai.BorderExtenderReflect;
@@ -764,11 +765,21 @@ public final class ImageUtilities {
         while (iter.hasNext()) {
             spi = (ImageInputStreamSpi) iter.next();
             if (spi.getInputClass().isInstance(input)) {
+                ImageInputStream stream = null;
                 try {
-                    spi.createInputStreamInstance(input, usecache, ImageIO.getCacheDirectory());
+                    stream = spi.createInputStreamInstance(input, usecache, ImageIO.getCacheDirectory());
                     break;
                 } catch (IOException e) {
                     return null;
+                } finally {
+                    //Make sure to close the created stream
+                    if (stream != null){
+                        try {
+                            stream.close();
+                        } catch (Throwable t){
+                            //eat exception
+                        }
+                    }
                 }
             }
         }
