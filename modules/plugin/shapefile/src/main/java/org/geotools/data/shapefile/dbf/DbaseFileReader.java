@@ -433,19 +433,13 @@ public class DbaseFileReader implements FileReader {
         final char type = fieldTypes[fieldNum];
         final int fieldLen = fieldLengths[fieldNum];
         Object object = null;
-
-        // System.out.println( charBuffer.subSequence(fieldOffset,fieldOffset +
-        // fieldLen));
-
         if (fieldLen > 0) {
-
             switch (type) {
             // (L)logical (T,t,F,f,Y,y,N,n)
             case 'l':
             case 'L':
                 final char c = (char) bytes[fieldOffset];
                 switch (c) {
-
                 case 't':
                 case 'T':
                 case 'Y':
@@ -466,31 +460,40 @@ public class DbaseFileReader implements FileReader {
             // (C)character (String)
             case 'c':
             case 'C':
-                // remember we need to skip trailing and leading spaces
-                if(oneBytePerChar) {
-                    object = fastParse(bytes, fieldOffset, fieldLen).trim();
-                } else {
-                    object = new String(bytes, fieldOffset, fieldLen, stringCharset.name()).trim();
+                // if the string begins with a null terminator, the value is null
+                if (bytes[fieldOffset] != '\0') {
+                    // remember we need to skip trailing and leading spaces
+                    if(oneBytePerChar) {
+                        object = fastParse(bytes, fieldOffset, fieldLen).trim();
+                    } else {
+                        object = new String(bytes, fieldOffset, fieldLen, stringCharset.name()).trim();
+                    }
                 }
                 break;
             // (D)date (Date)
             case 'd':
             case 'D':
-                try {
-                    String tempString = fastParse(bytes,fieldOffset,4); 
-                    final int tempYear = Integer.parseInt(tempString);
-                    tempString =  fastParse(bytes,fieldOffset + 4,2);
-                    final int tempMonth = Integer.parseInt(tempString) - 1;
-                    tempString = fastParse(bytes,fieldOffset + 6,2); 
-                    final int tempDay = Integer.parseInt(tempString);
-                    final Calendar cal = Calendar.getInstance(Locale.US);
-                    cal.clear();
-                    cal.set(Calendar.YEAR, tempYear);
-                    cal.set(Calendar.MONTH, tempMonth);
-                    cal.set(Calendar.DAY_OF_MONTH, tempDay);
-                    object = cal.getTime();
-                } catch (final NumberFormatException nfe) {
-                    // todo: use progresslistener, this isn't a grave error.
+                // If the first 8 characters are '0', this is a null date
+                for (int i = 0; i < 8; i++) {
+                    if (bytes[fieldOffset+i] != '0') {
+                        try {
+                            String tempString = fastParse(bytes,fieldOffset,4); 
+                            final int tempYear = Integer.parseInt(tempString);
+                            tempString =  fastParse(bytes,fieldOffset + 4,2);
+                            final int tempMonth = Integer.parseInt(tempString) - 1;
+                            tempString = fastParse(bytes,fieldOffset + 6,2); 
+                            final int tempDay = Integer.parseInt(tempString);
+                            final Calendar cal = Calendar.getInstance(Locale.US);
+                            cal.clear();
+                            cal.set(Calendar.YEAR, tempYear);
+                            cal.set(Calendar.MONTH, tempMonth);
+                            cal.set(Calendar.DAY_OF_MONTH, tempDay);
+                            object = cal.getTime();
+                        } catch (final NumberFormatException nfe) {
+                            // todo: use progresslistener, this isn't a grave error.
+                        }
+                        break;
+                    }
                 }
                 break;
             // (@) Timestamp (Date)
@@ -522,7 +525,11 @@ public class DbaseFileReader implements FileReader {
             // (N)umeric (Integer, Long or Fallthrough to Double)
             case 'n':
             case 'N':
-                final String string = fastParse(bytes,fieldOffset,fieldLen);
+                // numbers that begin with '*' are considered null
+                if (bytes[fieldOffset] == '*') {
+                    break;
+                } else {
+                    final String string = fastParse(bytes,fieldOffset,fieldLen).trim();
                     Class clazz = header.getFieldClass(fieldNum);
                     if (clazz == Integer.class) {
                         try {
@@ -541,18 +548,20 @@ public class DbaseFileReader implements FileReader {
                             // fall through to the floating point number
                         }
                     }
-                    // else will fall through to the floating point number
+                }
+                // do not break, fall through to the 'f' case
 
             // (F)loating point number
             case 'f':
             case 'F': 
-                try {
-
+                if (bytes[fieldOffset] != '*') {
+                    try {
                         object = Double.parseDouble(fastParse(bytes,fieldOffset,fieldLen));
-                } catch (final NumberFormatException e) {
-                    // okay, now whatever we got was truly indigestible. Lets go
-                    // with a zero Double.
-                    object = new Double(0.0);
+                    } catch (final NumberFormatException e) {
+                        // okay, now whatever we got was truly indigestible. Lets go
+                        // with a zero Double.
+                        object = new Double(0.0);
+                    }
                 }
                 break;
             default:

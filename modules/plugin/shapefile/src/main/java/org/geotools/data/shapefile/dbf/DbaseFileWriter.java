@@ -30,6 +30,7 @@ import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 import java.text.FieldPosition;
 import java.text.NumberFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -55,14 +56,16 @@ import org.geotools.resources.NIOUtilities;
  *         http://svn.geotools.org/geotools/trunk/gt/modules/plugin/shapefile/src/main/java/org/geotools/data/shapefile/dbf/DbaseFileWriter.java $
  */
 public class DbaseFileWriter {
-
     private DbaseFileHeader header;
     private DbaseFileWriter.FieldFormatter formatter;
     WritableByteChannel channel;
     private ByteBuffer buffer;
-    private final Number NULL_NUMBER = new Integer(0);
-    private final String NULL_STRING = "";
-    private final Date NULL_DATE = new Date();
+    /**
+     * The null values to use for each column. This will be accessed only when
+     * null values are actually encountered, but it is allocated in the ctor
+     * to save time and memory.
+     */
+    private final byte[][] nullValues;
     private StreamLogging streamLogger = new StreamLogging("Dbase File Writer");
     private Charset charset;
     
@@ -103,10 +106,46 @@ public class DbaseFileWriter {
         this.charset = charset == null ? Charset.defaultCharset() : charset;
         this.formatter = new DbaseFileWriter.FieldFormatter(this.charset);
         streamLogger.open();
-        init();
-    }
 
-    private void init() throws IOException {
+        // As the 'shapelib' osgeo project does, we use specific values for
+        // null cells. We can set up these values for each column once, in
+        // the constructor, to save time and memory.
+        nullValues = new byte[header.getNumFields()][];
+        for (int i = 0; i < nullValues.length; i++) {
+            char nullChar;
+            switch (header.getFieldType(i)) {
+            case 'C':
+            case 'c':
+            case 'M':
+            case 'G':
+                nullChar = '\0';
+                break;
+            case 'L':
+            case 'l':
+                nullChar = '?';
+                break;
+            case 'N':
+            case 'n':
+            case 'F':
+            case 'f':
+                nullChar = '*';
+                break;
+            case 'D':
+            case 'd':
+                nullChar = '0';
+                break;
+            case '@':
+                // becomes day 0 time 0.
+                nullChar = '\0';
+                break;
+            default:
+                // catches at least 'D', and 'd'
+                nullChar = '0';
+                break;
+            }
+            nullValues[i] = new byte[header.getFieldLength(i)];
+            Arrays.fill(nullValues[i], (byte)nullChar);
+        }
         buffer = NIOUtilities.allocate(header.getRecordLength());
     }
 
@@ -117,7 +156,7 @@ public class DbaseFileWriter {
             ; // do nothing
         }
     }
-
+    
     /**
      * Write a single dbase record.
      * 
@@ -129,7 +168,6 @@ public class DbaseFileWriter {
      *                 If the entry doesn't comply to the header.
      */
     public void write(Object[] record) throws IOException, DbaseFileException {
-
         if (record.length != header.getNumFields()) {
             throw new DbaseFileException("Wrong number of fields "
                     + record.length + " expected " + header.getNumFields());
@@ -140,85 +178,99 @@ public class DbaseFileWriter {
         // put the 'not-deleted' marker
         buffer.put((byte) ' ');
 
+        byte[] bytes;
         for (int i = 0; i < header.getNumFields(); i++) {
-            String fieldString = fieldString(record[i], i);
-            if (header.getFieldLength(i) != fieldString.getBytes(charset.name()).length) {
-                buffer.put(new byte[header.getFieldLength(i)]);
+            // convert this column to bytes
+            if (record[i] == null) {
+                bytes = nullValues[i];
             } else {
-                if ( Boolean.getBoolean("org.geotools.shapefile.datetime")
-                     &&  header.getFieldType(i) == '@')       
-                {
-                    // Adding the charset to getBytes causes the output to
-                    // get altered for the '@: Timestamp' field.
-                	// And using getBytes returns a different array in 64-bit platforms
-                	// so we expect chars and cast to byte just before writing.
-                    for (char c:  fieldString.toCharArray()){
-                    	buffer.put((byte) c);
-                    }                        	
-                }else{
-                    buffer.put(fieldString.getBytes(charset.name()));   
+                bytes = fieldBytes(record[i], i);
+                // if the returned array is not the proper length
+                // write a null instead; this will only happen
+                // when the formatter handles a value improperly.
+                if (bytes.length != nullValues[i].length) {
+                    bytes = nullValues[i];
                 }
             }
-
+            buffer.put(bytes);
         }
 
         write();
     }
 
-    private String fieldString(Object obj, final int col) {
+    
+    /**
+     * Called to convert the given object to bytes.
+     * 
+     * @param obj
+     *            The value to convert; never null.
+     * @param col
+     *            The column this object will be encoded into.
+     * @return The bytes of a string representation of the given object in the
+     *         current character encoding.
+     * @throws UnsupportedEncodingException Thrown if the current charset is unsupported. 
+     */
+    private byte[] fieldBytes(Object obj, final int col)
+            throws UnsupportedEncodingException {
         String o;
         final int fieldLen = header.getFieldLength(col);
         switch (header.getFieldType(col)) {
         case 'C':
         case 'c':
-            o = formatter.getFieldString(fieldLen, obj == null ? NULL_STRING
-                    : obj.toString());
+            o = formatter.getFieldString(fieldLen, obj.toString());
             break;
         case 'L':
         case 'l':
-            o = (obj == null ? " " : obj == Boolean.TRUE ? "T" : "F");
-            // o = formatter.getFieldString(
-            // fieldLen,
-            // o
-            // );
+            if (obj instanceof Boolean) {
+                o = ((Boolean)obj).booleanValue() ? "T" : "F";
+            } else {
+                o = "?";
+            }
             break;
         case 'M':
         case 'G':
-            o = formatter.getFieldString(fieldLen, obj == null ? NULL_STRING
-                    : obj.toString());
+            o = formatter.getFieldString(fieldLen, obj.toString());
             break;
         case 'N':
         case 'n':
             // int?
             if (header.getFieldDecimalCount(col) == 0) {
-
-                o = formatter.getFieldString(fieldLen, 0,
-                        (Number) (obj == null ? NULL_NUMBER : obj));
+                o = formatter.getFieldString(fieldLen, 0, (Number)obj);
                 break;
             }
         case 'F':
         case 'f':
-            o = formatter.getFieldString(fieldLen, header
-                    .getFieldDecimalCount(col),
-                    (Number) (obj == null ? NULL_NUMBER : obj));
+            o = formatter.getFieldString(fieldLen,
+                    header.getFieldDecimalCount(col),
+                    (Number)obj);
             break;
         case 'D':
         case 'd':
-            o = formatter
-                    .getFieldString((Date) (obj == null ? NULL_DATE : obj));
+            o = formatter.getFieldString((Date)obj);
             break;
         case '@':
-               o = 
-                 formatter.getFieldStringDateTime(
-                     (Date) (obj == null ? new Date(NULL_DATE.getTime()): obj)
-                 );
+            o = formatter.getFieldStringDateTime((Date)obj);
+            if (Boolean.getBoolean("org.geotools.shapefile.datetime")) {
+                // Adding the charset to getBytes causes the output to
+                // get altered for the '@: Timestamp' field.
+                // And using String.getBytes returns a different array
+                // in 64-bit platforms so we get chars and cast to byte
+                // one element at a time.
+                char[] carr = o.toCharArray();
+                byte[] barr = new byte[carr.length];
+                for (int i = 0; i < carr.length; i++) {
+                    barr[i] = (byte)carr[i];
+                }                            
+                return barr;
+            }
             break;   
         default:
             throw new RuntimeException("Unknown type "
                     + header.getFieldType(col));
         }
 
-        return o;
+        // convert the string to bytes with the given charset.
+        return o.getBytes(charset.name());
     }
 
     /**
