@@ -255,22 +255,24 @@ public class GeometryClipper {
 
         LinearRing exterior = (LinearRing) polygon.getExteriorRing();
         LinearRing shell = polygonClip(exterior);
+        if(shell == null || shell.isEmpty()) {
+            return null;
+        }
 
         List<LinearRing> holes = new ArrayList<LinearRing>();
         for (int i = 0; i < polygon.getNumInteriorRing(); i++) {
             LinearRing hole = (LinearRing) polygon.getInteriorRingN(i);
             hole = polygonClip(hole);
-            if(hole != null) {
+            if(hole != null && !hole.isEmpty()) {
                 holes.add(hole);
             }
-
         }
 
         return gf.createPolygon(shell, (LinearRing[]) holes.toArray(new LinearRing[holes.size()]));
     }
 
     /**
-     * This routine uses the Liang-Barsky algorithm for polygon clipping as desribed in Foley & van
+     * This routine uses the Liang-Barsky algorithm for polygon clipping as described in Foley & van
      * Dam. It's more efficient Sutherland-Hodgman version, but produces redundent turning vertices
      * at the corners of the clip region. This can make rendering as a series of triangles very
      * awkward, but it's fine of your underlying graphics mechanism has a forgiving drawPolygon
@@ -284,23 +286,31 @@ public class GeometryClipper {
         CoordinateSequence cs = ring.getCoordinateSequence();
         Ordinates out = new Ordinates();
 
-        double xIn, xOut, yIn, yOut; // Coordinates of entry and exit points
-        double tOut1, tIn2, tOut2; // Parameter values of same
-        double tInX, tOutX, tInY, tOutY; // Parameter values for intersection
-        double deltaX, deltaY; // Direction of edge
+        // Coordinates of intersection between the infinite line hosting the segment and the clip area 
+        double xIn, xOut, yIn, yOut;
+        // Parameter values of same, they are in [0,1] if the intersections are inside the segment, < 0 or > 1 otherwise
+        double tInX, tOutX, tInY, tOutY; 
+        // tOut2: max between tOutX and tOutY, tIn2: max between tInX and tinY
+        double tOut1, tOut2, tIn1, tIn2; 
+        
+        // Direction of edge
+        double deltaX, deltaY; 
         int i;
 
-        for (i = 0; i < cs.size() - 1; i++) // for each edge
-        {
+        // for each edge
+        for (i = 0; i < cs.size() - 1; i++) {
+            // extract the edge 
             double x0 = cs.getOrdinate(i, 0);
             double x1 = cs.getOrdinate(i + 1, 0);
             double y0 = cs.getOrdinate(i, 1);
             double y1 = cs.getOrdinate(i + 1, 1);
-            deltaX = x1 - x0; // determine direction of edge
+            
+            // determine direction of edge
+            deltaX = x1 - x0; 
             deltaY = y1 - y0;
 
             // use this to determine which bounding lines for the clip region the
-            // containing line hits first
+            // containing line hits first (from which side, to which other side)
             if ((deltaX > 0) || (deltaX == 0 && x0 > xmax)) {
                 xIn = xmin;
                 xOut = xmax;
@@ -308,7 +318,6 @@ public class GeometryClipper {
                 xIn = xmax;
                 xOut = xmin;
             }
-
             if ((deltaY > 0) || (deltaY == 0 && y0 > ymax)) {
                 yIn = ymin;
                 yOut = ymax;
@@ -318,19 +327,25 @@ public class GeometryClipper {
             }
 
             // find the t values for the x and y exit points
-            if (deltaX != 0)
+            if (deltaX != 0) {
                 tOutX = (xOut - x0) / deltaX;
-            else if (x0 <= xmax && xmin <= x0)
-                tOutX = INFINITY;
-            else
+            } else if (x0 <= xmax && xmin <= x0) {
+                // vertical line crossing the clip box
+                tOutX = INFINITY; 
+            } else {
+                // vertical line outside the clip box
                 tOutX = -INFINITY;
+            }
 
-            if (deltaY != 0)
+            if (deltaY != 0) {
                 tOutY = (yOut - y0) / deltaY;
-            else if (y0 <= ymax && ymin <= y0)
+            } else if (y0 <= ymax && ymin <= y0) {
+                // horizontal line crossing the clip box
                 tOutY = INFINITY;
-            else
+            } else {
+                // horizontal line outside the clip box
                 tOutY = -INFINITY;
+            }
 
             // Order the two exit points
             if (tOutX < tOutY) {
@@ -341,25 +356,34 @@ public class GeometryClipper {
                 tOut2 = tOutX;
             }
 
+            // skip tests if exit intersection points are before the 
+            // beginning of the segment
             if (tOut2 > 0) {
-
-                if (deltaX != 0)
+                
+                // now compute the params of the first intersection point 
+                if (deltaX != 0) {
                     tInX = (xIn - x0) / deltaX;
-                else
+                } else {
                     tInX = -INFINITY;
+                }
 
-                if (deltaY != 0)
+                if (deltaY != 0) {
                     tInY = (yIn - y0) / deltaY;
-                else
+                } else {
                     tInY = -INFINITY;
+                }
 
-                if (tInX < tInY)
+                // sort them 
+                if (tInX < tInY) {
+                    tIn1 = tInX;
                     tIn2 = tInY;
-                else
+                } else {
+                    tIn1 = tInY;
                     tIn2 = tInX;
+                }
 
-                if (tOut1 < tIn2) // no visible segment
-                {
+                if (tOut1 < tIn2) { 
+                    // no visible segment
                     if (0 < tOut1 && tOut1 <= 1.0) {
                         // line crosses over intermediate corner region
                         if (tInX < tInY) {
@@ -369,18 +393,15 @@ public class GeometryClipper {
                         }
 
                     }
-
                 } else {
                     // line crosses though window
                     if (0 < tOut1 && tIn2 <= 1.0) {
-                        if (0 <= tIn2) // visible segment
-                        {
+                        if (0 <= tIn2) {// visible segment
                             if (tInX > tInY) {
                                 out.add(xIn, y0 + (tInX * deltaY));
                             } else {
                                 out.add(x0 + (tInY * deltaX), yIn);
                             }
-
                         }
 
                         if (1.0 >= tOut1) {
@@ -396,20 +417,22 @@ public class GeometryClipper {
 
                 }
 
-                if (0 < tOut2 && tOut2 <= 1.0) {
+                if ((0 < tOut2 && tOut2 <= 1.0)) {
                     out.add(xOut, yOut);
-                }
+                } 
 
             }
         }
         
-        if(out.size() < 4) {
+        if(out.size() < 3) {
             return null;
         }
 
         if (out.getOrdinate(0, 0) != out.getOrdinate(out.size() - 1, 0)
                 || out.getOrdinate(0, 1) != out.getOrdinate(out.size() - 1, 1)) {
             out.add(out.getOrdinate(0, 0), out.getOrdinate(0, 1));
+        } else if(out.size() == 3) {
+            return null;
         }
 
         return ring.getFactory().createLinearRing(

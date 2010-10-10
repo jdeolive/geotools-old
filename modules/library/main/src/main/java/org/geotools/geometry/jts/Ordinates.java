@@ -102,4 +102,19 @@ class Ordinates {
             add(cs.getOrdinate(i, 0), cs.getOrdinate(i, 1));
         }
     }
+    
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("Ordinates[");
+        for (int i = 0; i <= curr; i++) {
+            sb.append(ordinates[i * 2]);
+            sb.append(" ");
+            sb.append(ordinates[i * 2 + 1]);
+            if(i < curr) {
+                sb.append(";");
+            }
+        }
+        sb.append("]");
+        return sb.toString();
+    }
 }
