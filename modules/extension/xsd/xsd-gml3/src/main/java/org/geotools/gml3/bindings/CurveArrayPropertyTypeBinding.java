@@ -25,6 +25,8 @@ import org.geotools.xml.AbstractComplexBinding;
 import org.geotools.xml.ElementInstance;
 import org.geotools.xml.Node;
 
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
 
 
@@ -53,6 +55,13 @@ import com.vividsolutions.jts.geom.MultiLineString;
  * @source $URL$
  */
 public class CurveArrayPropertyTypeBinding extends AbstractComplexBinding {
+    
+    GeometryFactory gf;
+    
+    public CurveArrayPropertyTypeBinding(GeometryFactory gf) {
+        this.gf = gf;
+    }
+    
     /**
      * @generated
      */
@@ -80,7 +89,11 @@ public class CurveArrayPropertyTypeBinding extends AbstractComplexBinding {
     public Object parse(ElementInstance instance, Node node, Object value)
         throws Exception {
         List curves = node.getChildValues(MultiLineString.class);
-
+        
+        //pick up any regular line strings as well
+        for (LineString l : (List<LineString>) node.getChildValues(LineString.class)) {
+            curves.add(gf.createMultiLineString(new LineString[]{l}));
+        }
         return curves.toArray(new MultiLineString[curves.size()]);
     }
 }

@@ -16,6 +16,7 @@
  */
 package org.geotools.gml3.bindings;
 
+import java.util.Arrays;
 import java.util.List;
 
 import javax.xml.namespace.QName;
@@ -98,9 +99,15 @@ public class MultiSurfaceTypeBinding extends AbstractComplexBinding {
      */
     public Object parse(ElementInstance instance, Node node, Object value)
         throws Exception {
+        
         //&lt;element maxOccurs="unbounded" minOccurs="0" ref="gml:surfaceMember"/&gt;
         List surfaces = node.getChildValues(Polygon.class);
-
+        
+        //&lt;element minOccurs="0" ref="gml:surfaceMembers"/&gt;
+        if (node.hasChild(Polygon[].class)) {
+            surfaces.addAll(Arrays.asList((Polygon[])node.getChildValue(Polygon[].class)));
+        }
+        
         return gf.createMultiPolygon((Polygon[]) surfaces.toArray(new Polygon[surfaces.size()]));
     }
 
@@ -116,7 +123,7 @@ public class MultiSurfaceTypeBinding extends AbstractComplexBinding {
 
             return members;
         }
-
+        
         return null;
     }
 }

@@ -20,10 +20,27 @@ import org.geotools.gml3.GML;
 import org.geotools.gml3.GML3TestSupport;
 import org.w3c.dom.Document;
 
+import com.vividsolutions.jts.geom.MultiLineString;
+import com.vividsolutions.jts.geom.MultiPolygon;
+
 
 public class MultiCurveTypeBindingTest extends GML3TestSupport {
     public void testEncode() throws Exception {
         Document dom = encode(GML3MockData.multiLineString(), GML.MultiCurve);
         assertEquals(2, dom.getElementsByTagNameNS(GML.NAMESPACE, "curveMember").getLength());
+    }
+    
+    public void testParseWithCurveMember() throws Exception {
+        GML3MockData.multiCurve(document, document);
+        MultiLineString mline = (MultiLineString) parse();
+        
+        assertEquals(2, mline.getNumGeometries());
+    }
+
+    public void testParseWithCurveMembers() throws Exception {
+        GML3MockData.multiCurve(document, document, false);
+        MultiLineString mline = (MultiLineString) parse();
+        
+        assertEquals(2, mline.getNumGeometries());
     }
 }

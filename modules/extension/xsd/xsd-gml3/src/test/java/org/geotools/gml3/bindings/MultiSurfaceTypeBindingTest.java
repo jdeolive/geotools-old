@@ -20,6 +20,8 @@ import org.geotools.gml3.GML;
 import org.geotools.gml3.GML3TestSupport;
 import org.w3c.dom.Document;
 
+import com.vividsolutions.jts.geom.MultiPolygon;
+
 
 public class MultiSurfaceTypeBindingTest extends GML3TestSupport {
     public void testEncode() throws Exception {
@@ -27,4 +29,20 @@ public class MultiSurfaceTypeBindingTest extends GML3TestSupport {
         assertEquals(2,
             dom.getElementsByTagNameNS(GML.NAMESPACE, GML.Polygon.getLocalPart()).getLength());
     }
+    
+    public void testParseWithSurfaceMember() throws Exception {
+        GML3MockData.multiSurface(document, document);
+        MultiPolygon mpoly = (MultiPolygon) parse();
+        
+        assertEquals(2, mpoly.getNumGeometries());
+    }
+
+    public void testParseWithSurfaceMembers() throws Exception {
+        GML3MockData.multiSurface(document, document, false);
+        MultiPolygon mpoly = (MultiPolygon) parse();
+        
+        assertEquals(2, mpoly.getNumGeometries());
+    }
+    
+    
 }

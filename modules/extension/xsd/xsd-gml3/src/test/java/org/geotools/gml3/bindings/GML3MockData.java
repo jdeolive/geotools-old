@@ -231,6 +231,29 @@ public class GML3MockData {
         return multiLineString;
     }
 
+    public static Element multiCurve(Document document, Node parent) {
+        return multiCurve(document, parent, true);
+    }
+    
+    public static Element multiCurve(Document document, Node parent, boolean useCurveMember) {
+        Element multiCurve = element(qName("MultiCurve"), document, parent);
+
+        if (useCurveMember) {
+            Element curveMember = element(qName("curveMember"), document, multiCurve);
+            lineString(document, curveMember);
+    
+            curveMember = element(qName("curveMember"), document, multiCurve);
+            lineString(document, curveMember);
+        }
+        else {
+            Element curveMembers = element(qName("curveMembers"), document, multiCurve);
+            lineString(document, curveMembers);
+            lineString(document, curveMembers);
+        }
+
+        return multiCurve;
+    }
+    
     public static MultiPolygon multiPolygon() {
         return gf.createMultiPolygon(new Polygon[] { polygon(), polygon() });
     }
@@ -246,6 +269,30 @@ public class GML3MockData {
 
         return multiPolygon;
     }
+    
+    public static Element multiSurface(Document document, Node parent) {
+        return multiSurface(document, parent, true);
+    }
+        
+    public static Element multiSurface(Document document, Node parent, boolean useSurfaceMember) {
+        Element multiSurface = element(qName("MultiSurface"), document, parent);
+
+        if (useSurfaceMember) {
+            Element surfaceMember = element(qName("surfaceMember"), document, multiSurface);
+            polygon(document, surfaceMember);
+    
+            surfaceMember = element(qName("surfaceMember"), document, multiSurface);
+            polygon(document, surfaceMember);
+        }
+        else {
+            Element surfaceMembers = element(qName("surfaceMembers"), document, multiSurface);
+            polygon(document, surfaceMembers);
+            polygon(document, surfaceMembers);
+        }
+
+        return multiSurface;
+    }
+    
     
     public static GeometryCollection multiGeometry() {
         return gf.createGeometryCollection(new Geometry[]{point(),lineString(),polygon()});

@@ -16,6 +16,7 @@
  */
 package org.geotools.gml3.bindings;
 
+import java.util.Arrays;
 import java.util.List;
 
 import javax.xml.namespace.QName;
@@ -102,6 +103,21 @@ public class MultiCurveTypeBinding extends AbstractComplexBinding {
         //&lt;element maxOccurs="unbounded" minOccurs="0" ref="gml:curveMember"/&gt;
         List curves = node.getChildValues(LineString.class);
 
+        //&lt;element minOccurs="0" ref="gml:curveMembers"/&gt;
+        if (node.hasChild(MultiLineString[].class)) {
+            //this is a hack but we map curve itself to multi line string
+            MultiLineString[] lines = (MultiLineString[]) node.getChildValue(MultiLineString[].class);
+            for (MultiLineString mline : lines) {
+                if (mline.getNumGeometries() == 1) {
+                    curves.add(mline.getGeometryN(0));
+                }
+                else {
+                    //TODO: perhaps log this instead?
+                    throw new IllegalArgumentException("Unable to handle curve member with multiple segments");
+                }
+            }
+        }
+        
         return gf.createMultiLineString((LineString[]) curves.toArray(new LineString[curves.size()]));
     }
 
