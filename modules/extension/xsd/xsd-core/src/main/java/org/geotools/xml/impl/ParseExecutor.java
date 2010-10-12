@@ -249,32 +249,32 @@ public class ParseExecutor implements Visitor {
                 final XSDSimpleTypeDefinition itemType = type.getItemTypeDefinition();
                 List parsed = new ArrayList();
 
+                //create a pseudo declaration
+                final XSDElementDeclaration element = XSDFactory.eINSTANCE
+                    .createXSDElementDeclaration();
+                element.setTypeDefinition(itemType);
+
+                if (instance.getName() != null) {
+                    element.setName(instance.getName());
+                }
+
+                if (instance.getNamespace() != null) {
+                    element.setTargetNamespace(instance.getNamespace());
+                }
+
+                //create a new instance of the specified type
+                InstanceComponentImpl theInstance = new InstanceComponentImpl() {
+                        public XSDTypeDefinition getTypeDefinition() {
+                            return itemType;
+                        }
+
+                        public XSDNamedComponent getDeclaration() {
+                            return element;
+                        }
+                        ;
+                    };
+                    
                 for (int i = 0; i < list.length; i++) {
-                    //create a pseudo declaration
-                    final XSDElementDeclaration element = XSDFactory.eINSTANCE
-                        .createXSDElementDeclaration();
-                    element.setTypeDefinition(itemType);
-
-                    if (instance.getName() != null) {
-                        element.setName(instance.getName());
-                    }
-
-                    if (instance.getNamespace() != null) {
-                        element.setTargetNamespace(instance.getNamespace());
-                    }
-
-                    //create a new instance of the specified type
-                    InstanceComponentImpl theInstance = new InstanceComponentImpl() {
-                            public XSDTypeDefinition getTypeDefinition() {
-                                return itemType;
-                            }
-
-                            public XSDNamedComponent getDeclaration() {
-                                return element;
-                            }
-                            ;
-                        };
-
                     theInstance.setText(list[i]);
 
                     //perform the parse
