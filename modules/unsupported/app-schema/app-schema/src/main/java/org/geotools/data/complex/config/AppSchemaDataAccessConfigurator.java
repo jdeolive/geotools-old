@@ -66,8 +66,10 @@ import org.geotools.xml.AppSchemaCache;
 import org.geotools.xml.AppSchemaCatalog;
 import org.geotools.xml.AppSchemaResolver;
 import org.geotools.xml.SchemaIndex;
+import org.opengis.feature.Feature;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.AttributeType;
+import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.expression.Expression;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -96,8 +98,6 @@ public class AppSchemaDataAccessConfigurator {
     private AppSchemaDataAccessDTO config;
 
     private FeatureTypeRegistry typeRegistry;
-
-    private Map sourceDataStores;
 
     /**
      * Placeholder for the prefix:namespaceURI mappings declared in the Namespaces section of the
@@ -177,17 +177,52 @@ public class AppSchemaDataAccessConfigurator {
     private Set<FeatureTypeMapping> buildMappings() throws IOException {
         // -parse target xml schemas, let parsed types on <code>registry</code>
         parseGmlSchemas();
-
-        // -create source datastores
-        sourceDataStores = acquireSourceDatastores();
-
-        // -create FeatureType mappings
-        Set<FeatureTypeMapping> featureTypeMappings = createFeatureTypeMappings();
-
-        return featureTypeMappings;
+        Map<String, DataAccess<FeatureType, Feature>> sourceDataStores = null;
+        Set<FeatureTypeMapping> featureTypeMappings = null;
+        try {
+            // -create source datastores
+            sourceDataStores = acquireSourceDatastores();
+            // -create FeatureType mappings
+            featureTypeMappings = createFeatureTypeMappings(sourceDataStores);
+            return featureTypeMappings;
+        } finally  {
+            disposeUnusedSourceDataStores(sourceDataStores, featureTypeMappings);
+        }
     }
 
-    private Set<FeatureTypeMapping> createFeatureTypeMappings() throws IOException {
+    /**
+     * Ensure any source data stores not used in a mapping are disposed.
+     * 
+     * @param sourceDataStores
+     * @param featureTypeMappings
+     */
+    private void disposeUnusedSourceDataStores(
+            Map<String, DataAccess<FeatureType, Feature>> sourceDataStores,
+            Set<FeatureTypeMapping> featureTypeMappings) {
+        if (sourceDataStores == null) {
+            return;
+        } else if (featureTypeMappings == null) {
+            for (DataAccess<FeatureType, Feature> dataAccess : sourceDataStores.values()) {
+                dataAccess.dispose();
+            }
+        } else {
+            for (DataAccess<FeatureType, Feature> dataAccess : sourceDataStores.values()) {
+                boolean usedDataAccess = false;
+                for (FeatureTypeMapping mapping : featureTypeMappings) {
+                    if (mapping.getSource().getDataStore() == dataAccess) {
+                        usedDataAccess = true;
+                        break;
+                    }
+                }
+                if (!usedDataAccess) {
+                    dataAccess.dispose();
+                }
+            }
+        }
+    }
+    
+    private Set<FeatureTypeMapping> createFeatureTypeMappings(
+            Map<String, DataAccess<FeatureType, Feature>> sourceDataStores) throws IOException {
         Set mappingsConfigs = config.getTypeMappings();
 
         Set<FeatureTypeMapping> featureTypeMappings = new HashSet<FeatureTypeMapping>();
@@ -195,7 +230,7 @@ public class AppSchemaDataAccessConfigurator {
         for (Iterator it = mappingsConfigs.iterator(); it.hasNext();) {
             TypeMapping dto = (TypeMapping) it.next();
 
-            FeatureSource featureSource = getFeatureSource(dto);
+            FeatureSource featureSource = getFeatureSource(dto, sourceDataStores);
             // get CRS from underlying feature source and pass it on
             AttributeDescriptor target = getTargetDescriptor(dto, featureSource.getSchema()
                     .getCoordinateReferenceSystem());
@@ -417,11 +452,12 @@ public class AppSchemaDataAccessConfigurator {
         return clientProperties;
     }
 
-    private FeatureSource getFeatureSource(TypeMapping dto) throws IOException {
+    private FeatureSource<FeatureType, Feature> getFeatureSource(TypeMapping dto,
+            Map<String, DataAccess<FeatureType, Feature>> sourceDataStores) throws IOException {
         String dsId = dto.getSourceDataStore();
         String typeName = dto.getSourceTypeName();
 
-        DataAccess sourceDataStore = (DataAccess) sourceDataStores.get(dsId);
+        DataAccess<FeatureType, Feature> sourceDataStore = sourceDataStores.get(dsId);
         if (sourceDataStore == null) {
             throw new DataSourceException("datastore " + dsId + " not found for type mapping "
                     + dto);
@@ -430,7 +466,7 @@ public class AppSchemaDataAccessConfigurator {
         AppSchemaDataAccessConfigurator.LOGGER.fine("asking datastore " + sourceDataStore
                 + " for source type " + typeName);
         Name name = Types.degloseName(typeName, namespaces);
-        FeatureSource fSource = (FeatureSource) sourceDataStore.getFeatureSource(name);
+        FeatureSource<FeatureType, Feature> fSource = sourceDataStore.getFeatureSource(name);
 
         if (inputDataAccessIds.contains(dsId)) {
             // reassign with complex feature source
@@ -564,29 +600,30 @@ public class AppSchemaDataAccessConfigurator {
      * @throws DataSourceException
      *             DOCUMENT ME!
      */
-    private Map/* <String, FeatureAccess> */acquireSourceDatastores() throws IOException {
+    private Map<String, DataAccess<FeatureType, Feature>> acquireSourceDatastores() throws IOException {
         AppSchemaDataAccessConfigurator.LOGGER.entering(getClass().getName(),
                 "acquireSourceDatastores");
 
-        final Map datastores = new HashMap();
-        final List dsParams = config.getSourceDataStores();
+        final Map<String, DataAccess<FeatureType, Feature>> datastores = new LinkedHashMap<String, DataAccess<FeatureType, Feature>>();
+        @SuppressWarnings("unchecked")
+        final List<SourceDataStore> dsParams = config.getSourceDataStores();
         String id;
 
-        for (Iterator it = dsParams.iterator(); it.hasNext();) {
-            SourceDataStore dsconfig = (SourceDataStore) it.next();
+        for (SourceDataStore dsconfig : dsParams) {
             id = dsconfig.getId();
 
             if (dsconfig.isDataAccess()) {
                 inputDataAccessIds.add(id);
             }
 
+            @SuppressWarnings("unchecked")
             Map<String, Serializable> datastoreParams = dsconfig.getParams();
 
             datastoreParams = resolveRelativePaths(datastoreParams);
 
             AppSchemaDataAccessConfigurator.LOGGER.fine("looking for datastore " + id);
 
-            DataAccess<?, ?> dataStore = DataAccessFinder.getDataStore(datastoreParams);
+            DataAccess<FeatureType, Feature> dataStore = DataAccessFinder.getDataStore(datastoreParams);
 
             if (dataStore == null) {
                 AppSchemaDataAccessConfigurator.LOGGER.log(Level.SEVERE,

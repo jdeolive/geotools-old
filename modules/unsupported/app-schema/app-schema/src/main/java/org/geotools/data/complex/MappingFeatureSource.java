@@ -122,9 +122,16 @@ class MappingFeatureSource implements FeatureSource<FeatureType, Feature> {
             // count < 0 indicates broken a datastore, such as PropertyDataStore.
             // If the data store cannot count its own features, we have to do it.
             int featureCount = 0;
-            for (FeatureIterator<Feature> features = getFeatures(namedQuery).features(); features
-                    .hasNext(); features.next()) {
-                featureCount++;
+            FeatureIterator<Feature> features = null;
+            try {
+                for (features = getFeatures(namedQuery).features(); features.hasNext(); features
+                        .next()) {
+                    featureCount++;
+                }
+            } finally {
+                if (features != null) {
+                    features.close();
+                }
             }
             return featureCount;
         }

@@ -21,8 +21,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -74,7 +74,7 @@ public class AppSchemaDataAccess implements DataAccess<FeatureType, Feature> {
     private static final Logger LOGGER = org.geotools.util.logging.Logging
             .getLogger(AppSchemaDataAccess.class.getPackage().getName());
 
-    private Map<Name, FeatureTypeMapping> mappings = Collections.emptyMap();
+    private Map<Name, FeatureTypeMapping> mappings = new LinkedHashMap<Name, FeatureTypeMapping>();
 
     private FilterFactory filterFac = CommonFactoryFinder.getFilterFactory(null);
 
@@ -87,29 +87,37 @@ public class AppSchemaDataAccess implements DataAccess<FeatureType, Feature> {
      * @throws IOException
      */
     public AppSchemaDataAccess(Set<FeatureTypeMapping> mappings) throws IOException {
-        this.mappings = new HashMap<Name, FeatureTypeMapping>();
-        for (FeatureTypeMapping mapping : mappings) {
-            Name name = mapping.getMappingName();
-            if (name == null) {
-                name = mapping.getTargetFeature().getName();
+        try {
+            for (FeatureTypeMapping mapping : mappings) {
+                Name name = mapping.getMappingName();
+                if (name == null) {
+                    name = mapping.getTargetFeature().getName();
+                }
+                if (this.mappings.containsKey(name) || DataAccessRegistry.hasName(name)) {
+                    // check both mappings and the registry, because the data access is
+                    // only registered at the bottom of this constructor, so it might not
+                    // be in the registry yet
+                    throw new DataSourceException(
+                            "Duplicate mappingName or targetElement across FeatureTypeMapping instances detected.\n"
+                            + "They have to be unique, or app-schema doesn't know which one to get.\n"
+                            + "Please check your mapping file(s) with mappingName or targetElement of: "
+                            + name);
+                }
+                this.mappings.put(name, mapping);
+                // if the type is not a feature, it should be wrapped with
+                // a fake feature type, so attributes can be chained/nested
+                AttributeType type = mapping.getTargetFeature().getType();
+                if (!(type instanceof FeatureType)) {
+                    // nasty side-effect: constructor edits mapping to use this type proxy
+                    new NonFeatureTypeProxy((ComplexType) type, mapping);
+                }
             }
-            if (this.mappings.containsKey(name) || DataAccessRegistry.hasName(name)) {
-                // check both mappings and the registry, because the data access is
-                // only registered at the bottom of this constructor, so it might not
-                // be in the registry yet
-                throw new DataSourceException(
-                        "Duplicate mappingName or targetElement across FeatureTypeMapping instances detected.\n"
-                                + "They have to be unique, or app-schema doesn't know which one to get.\n"
-                                + "Please check your mapping file(s) with mappingName or targetElement of: "
-                                + name);
+        } catch (RuntimeException e) {
+            // dispose all source data stores in the input mappings
+            for (FeatureTypeMapping mapping : mappings) {
+                mapping.getSource().getDataStore().dispose();
             }
-            this.mappings.put(name, mapping);
-            // if the type is not a feature, it should be wrapped with
-            // a fake feature type, so attributes can be chained/nested
-            AttributeType type = mapping.getTargetFeature().getType();
-            if (!(type instanceof FeatureType)) {
-                type = new NonFeatureTypeProxy((ComplexType) type, mapping);
-            }
+            throw e;
         }
         register();
     }
@@ -386,6 +394,10 @@ public class AppSchemaDataAccess implements DataAccess<FeatureType, Feature> {
 
     public void dispose() {
         DataAccessRegistry.unregister(this);
+        // dispose all the source data stores
+        for (FeatureTypeMapping mapping : mappings.values()) {
+            mapping.getSource().getDataStore().dispose();
+        }
     }
 
     /**
