@@ -74,7 +74,8 @@ public class Buffer {
             }
         }
 
-        Object object = buffer[out++];
+        Object object = buffer[out];
+        buffer[out++] = null;
         out = (out == buffer.length) ? 0 : out;
         size--;
 
