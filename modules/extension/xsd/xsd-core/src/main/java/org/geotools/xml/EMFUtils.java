@@ -185,7 +185,7 @@ public class EMFUtils {
             return o instanceof Collection;
         }
         
-        if (EList.class.isAssignableFrom(feature.getEType().getInstanceClass())) {
+        if (Collection.class.isAssignableFrom(feature.getEType().getInstanceClass())) {
             return true;
         }
 
