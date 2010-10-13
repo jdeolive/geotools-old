@@ -98,13 +98,22 @@ public class PropertyFeatureSource extends AbstractFeatureLocking {
         return -1;
     }
     private int countFile(File file){
+        LineNumberReader reader = null;
         try {
-            LineNumberReader reader = new LineNumberReader( new FileReader( file ) );
+            reader = new LineNumberReader( new FileReader( file ) );
             while( reader.readLine() != null);                    
             return reader.getLineNumber() -1;   
         }
         catch( IOException e){
             return -1;
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    // we tried
+                }
+            }
         }
     }
     public ReferencedEnvelope getBounds() {
