@@ -18,10 +18,14 @@ package org.geotools.data.excel;
  */
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 
 import javax.print.DocFlavor.URL;
 
@@ -54,20 +58,47 @@ public class ExcelDatastoreTest extends TestCase {
         if (!setup) {
             super.setUp();
             final File test_data_dir = TestData.file(this, null);
-            String[] testFiles = test_data_dir.list();
+            String[] testFiles = test_data_dir.list(new FilenameFilter() {
+
+                public boolean accept(File dir, String name) {
+
+                    final boolean accept = name.endsWith(".xlsx") || name.endsWith(".xls");
+                    return accept;
+                }
+            });
             eds = new ExcelDataStore[testFiles.length];
             int i = 0;
             for (String f : testFiles) {
                 File file = TestData.file(this, f);
-                java.net.URL url = DataUtilities.fileToURL(file);
-                
                 HashMap<String, Serializable> params = new HashMap<String, Serializable>();
-                params.put("type", "excel");
-                params.put("url", url);
-                params.put("sheet", "locations");
-                params.put("latcol", "LAT");
-                params.put("longcol", "LON");
-                params.put("projection", "epsg:4326");
+                java.net.URL url = DataUtilities.fileToURL(file);
+                int idx = f.lastIndexOf('.');
+                String props = f.substring(0, idx) + ".props";
+                File propsFile = null;
+                try {
+                    propsFile = TestData.file(this, props);
+                } catch (IOException e) {
+                    // TestData throws an exception for file Notfound!
+                    // ignore it.
+                }
+                if (propsFile == null || !propsFile.exists()) {
+
+                    params.put("type", "excel");
+                    params.put("url", url);
+                    params.put("sheet", "locations");
+                    params.put("latcol", "LAT");
+                    params.put("longcol", "LON");
+                    params.put("projection", "epsg:4326");
+                } else {
+                    Properties p = new Properties();
+                    p.load(new FileInputStream(propsFile));
+                    Enumeration<?> en = p.keys();
+                    while (en.hasMoreElements()) {
+                        String key = (String) en.nextElement();
+                        params.put(key, p.getProperty(key));
+                    }
+                    params.put("url", url);
+                }
                 ExcelDataStoreFactory fac = new ExcelDataStoreFactory();
                 assertTrue("Can't process params", fac.canProcess(params));
                 ExcelDataStore ex = (ExcelDataStore) fac.createDataStore(params);
@@ -88,7 +119,7 @@ public class ExcelDatastoreTest extends TestCase {
 
     public void testExcelDatastore() throws IOException {
         File file = TestData.file(this, "locations.xls");
-        
+
         java.net.URL url = DataUtilities.fileToURL(file);
 
         HashMap<String, Serializable> params = new HashMap<String, Serializable>();
@@ -115,9 +146,10 @@ public class ExcelDatastoreTest extends TestCase {
     public void testGetNames() throws IOException {
         for (ExcelDataStore ed : eds) {
             System.out.println(ed.getName());
-
+            
             String[] names = ed.getTypeNames();
             System.out.println(names);
+            if(ed.getName().contains("qed")) break;
             assertEquals("Sheet Name is wrong", "locations", names[0]);
         }
     }
@@ -125,6 +157,7 @@ public class ExcelDatastoreTest extends TestCase {
     public void testGetFeatureSource() throws IOException {
         for (ExcelDataStore ed : eds) {
             System.out.println(ed.getName());
+           
             List<Name> names = ed.getNames();
             ExcelFeatureSource source = (ExcelFeatureSource) ed.getFeatureSource(names.get(0));
             assertNotNull("FeatureSource is null", source);
@@ -139,11 +172,17 @@ public class ExcelDatastoreTest extends TestCase {
             System.out.println("BBox = " + source.getBounds());
             System.out.println("got " + fts.size() + " features");
             SimpleFeatureIterator its = fts.features();
-            while (its.hasNext()) {
+            int count = 10;
+            int counter = 0;
+            while (its.hasNext()&& counter++<count) {
                 SimpleFeature feature = its.next();
-                System.out.println(feature.getID() + " " + feature.getAttribute("the_geom") + " ^"
-                        + feature.getAttribute("CITY") + "^");
+                System.out.print(feature.getID() + " ");
+                for (AttributeDescriptor attr : attrs) {
+                    System.out.print(feature.getAttribute(attr.getName())+" ");
+                }
+                System.out.println();
             }
+            if(ed.getName().contains("qed")) break;
             FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(GeoTools.getDefaultHints());
             Filter filter = ff.equal(ff.property("CITY"), ff.literal("Trento"), true);
             Query query = new Query("locations", filter);

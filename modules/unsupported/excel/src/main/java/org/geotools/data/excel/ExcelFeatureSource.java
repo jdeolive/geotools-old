@@ -17,8 +17,11 @@ package org.geotools.data.excel;
  *    Lesser General Public License for more details.
  */
 import java.io.IOException;
-import java.util.ArrayList;
 
+import java.util.ArrayList;
+import java.util.Date;
+
+import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellValue;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
@@ -73,6 +76,7 @@ public class ExcelFeatureSource extends ContentFeatureSource implements SimpleFe
      */
     public ExcelFeatureSource(ContentEntry entry, Query query) {
         super(entry, query);
+        Date beginingOfExcelTime = HSSFDateUtil.getJavaDate(0);
 
         dataStore = (ExcelDataStore) entry.getDataStore();
 
@@ -111,7 +115,22 @@ public class ExcelFeatureSource extends ContentFeatureSource implements SimpleFe
                     final String name = header.getCell(col).getStringCellValue().trim();
                     switch (value.getCellType()) {
                     case Cell.CELL_TYPE_NUMERIC:
-                        builder.set(name, value.getNumberValue());
+                        
+                        if(HSSFDateUtil.isCellDateFormatted(cell)) {
+                            //builder.set(name,cell.getDateCellValue() );
+                           if(value.getNumberValue()<1.0) {
+                               // it is really a time not a date
+                               final java.util.Date javaDate = HSSFDateUtil.getJavaDate(value.getNumberValue());
+                               
+                               builder.set(name,javaDate );
+                           }else {
+                               final java.util.Date javaDate = HSSFDateUtil.getJavaDate(value.getNumberValue());
+                            
+                               builder.set(name,javaDate );
+                           }
+                        }else {
+                            builder.set(name, value.getNumberValue());
+                        }
                         break;
                     case Cell.CELL_TYPE_STRING:
                         builder.set(name, value.getStringValue().trim());
@@ -205,6 +224,7 @@ public class ExcelFeatureSource extends ContentFeatureSource implements SimpleFe
             String name = header.getCell(i).getStringCellValue().trim();
             CellValue value = evaluator.evaluate(cell);
             int type = value.getCellType();
+            
             Class<?> clazz = null;
             if (latCol == i) {
                 // check it's a number
@@ -219,7 +239,11 @@ public class ExcelFeatureSource extends ContentFeatureSource implements SimpleFe
             } else {
                 switch (type) {
                 case Cell.CELL_TYPE_NUMERIC:
-                    clazz = Double.class;
+                    if(HSSFDateUtil.isCellDateFormatted(cell)) {
+                        clazz = Date.class;
+                    }else {
+                        clazz = Double.class;
+                    }
                     break;
                 case Cell.CELL_TYPE_STRING:
                     clazz = String.class;
