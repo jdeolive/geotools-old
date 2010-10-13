@@ -164,7 +164,7 @@ The recursive inclusion of gml:TimeOrdinalEra elements allow the construction of
 					<element name="start" type="gml:TimeNodePropertyType" minOccurs="0"/>
 					<element name="end" type="gml:TimeNodePropertyType" minOccurs="0"/>
 					<element name="extent" type="gml:TimePeriodPropertyType" minOccurs="0"/>
-					<element name="member" type="gml:TimeOrdinalEraPropertyType" minOccurs="0" maxOccurs="unbounded"/>
+					<!--element name="member" type="gml:TimeOrdinalEraPropertyType" minOccurs="0" maxOccurs="unbounded"/-->
 					<element name="group" type="gml:ReferenceType" minOccurs="0"/>
 				</sequence>
 			</extension>

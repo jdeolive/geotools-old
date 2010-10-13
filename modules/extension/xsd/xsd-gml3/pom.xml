@@ -126,8 +126,8 @@
         <groupId>org.geotools.maven</groupId>
         <artifactId>xmlcodegen</artifactId>
         <configuration>
-          <schemaLocation>gmx.xsd</schemaLocation>
-	      <schemaSourceDirectory>${basedir}/src/main/resources/org/geotools/gml3/v3_2/gmx</schemaSourceDirectory>
+          <schemaLocation>gml.xsd</schemaLocation>
+	      <schemaSourceDirectory>${basedir}/src/main/resources/org/geotools/gml3/v3_2</schemaSourceDirectory>
           <schemaLookupDirectories>
             <schemaLookupDirectory>${basedir}/../xsd-core/src/main/resources/org/geotools/xlink</schemaLookupDirectory>
             <!--schemaLookupDirectory>${basedir}/src/main/resources/org/geotools/gml3/</schemaLookupDirectory>
@@ -154,11 +154,11 @@
             <import>org.geotools.gml3.v3_2.gsr.GSRSchema</import>
             <import>org.geotools.gml3.v3_2.gts.GTSSchema</import>
             <import>org.geotools.gml3.v3_2.gmd.GMDSchema</import>
-            <import>org.geotools.gml3.v3_2.GMLSchema</import>
+            <!--import>org.geotools.gml3.v3_2.GMLSchema</import-->
             <!--import>org.geotools.gml3.smil.SMIL20Schema</import>
             <import>org.geotools.gml3.smil.SMIL20LANGSchema</import-->
           </imports>
-          <followComplexTypes>false</followComplexTypes>
+          <followComplexTypes>true</followComplexTypes>
           <includeGML>false</includeGML>
           <!--includes>
 	      <include>AbstractFeatureType</include>
@@ -270,6 +270,7 @@
                     <binding>com.vividsolutions.jts.geom.Polygon</binding>
                 </typeBinding>
             </typeBindings>
+            <printRecursionPaths>true</printRecursionPaths>
         </configuration>
       </plugin>
 

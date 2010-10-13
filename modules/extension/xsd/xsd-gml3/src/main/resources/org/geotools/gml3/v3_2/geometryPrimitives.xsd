@@ -649,7 +649,7 @@ If provided, the aggregationType attribute shall have the value "sequence".</doc
 				<complexType>
 					<sequence>
 						<element name="Row" maxOccurs="unbounded">
-							<complexType>
+							<complexType name="PointGrid_rows_RowType">
 								<group ref="gml:geometricPositionListGroup"/>
 							</complexType>
 						</element>
