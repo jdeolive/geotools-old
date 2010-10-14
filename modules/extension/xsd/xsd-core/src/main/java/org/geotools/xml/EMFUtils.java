@@ -16,6 +16,7 @@
  */
 package org.geotools.xml;
 
+import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EFactory;
 import org.eclipse.emf.ecore.EObject;
@@ -24,8 +25,10 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -110,9 +113,28 @@ public class EMFUtils {
     public static void add(EObject eobject, EStructuralFeature feature, Object value) {
         if (isCollection(eobject, feature)) {
             Collection collection = (Collection) eobject.eGet(feature);
+            if (collection == null) {
+                //most likely not an ECollection
+                collection = createEmptyCollection(feature);
+                eobject.eSet(feature, collection);
+            }
             collection.addAll(collection(value));
         }
     }
+    
+    static Collection createEmptyCollection(EStructuralFeature feature) {
+        Class clazz = feature.getEType().getInstanceClass();
+        if (EList.class.isAssignableFrom(clazz)) {
+            return new BasicEList();
+        }
+        if (List.class.isAssignableFrom(clazz)) {
+            return new ArrayList();
+        }
+        if (Set.class.isAssignableFrom(clazz)) {
+            return new HashSet();
+        }
+        throw new IllegalArgumentException("Unable to create collection for " + clazz);
+     }
     
     /**
      * Returns a collection view for value, taking care of the case where value
