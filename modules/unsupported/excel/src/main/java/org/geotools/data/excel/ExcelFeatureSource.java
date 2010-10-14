@@ -17,8 +17,9 @@ package org.geotools.data.excel;
  *    Lesser General Public License for more details.
  */
 import java.io.IOException;
-
+import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
@@ -37,6 +38,7 @@ import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.AttributeType;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -89,10 +91,13 @@ public class ExcelFeatureSource extends ContentFeatureSource implements SimpleFe
         lonCol = dataStore.getLonColumnIndex();
         features = new ArrayList<SimpleFeature>();
         filteredFeatures = new ArrayList<SimpleFeature>();
-
-        GeometryFactory geometryFactory = dataStore.getGeometryFactory();
         evaluator = dataStore.workbook.getCreationHelper().createFormulaEvaluator();
-        SimpleFeatureBuilder builder = new SimpleFeatureBuilder(getSchema());
+        if(schema==null) {
+            schema=getSchema();
+        }
+        GeometryFactory geometryFactory = dataStore.getGeometryFactory();
+        
+        SimpleFeatureBuilder builder = new SimpleFeatureBuilder(schema);
         Row header = sheet.getRow(dataStore.getHeaderRowIndex());
         for (int i = start; i < rows; i++) {
             Row data = sheet.getRow(i);
@@ -115,23 +120,33 @@ public class ExcelFeatureSource extends ContentFeatureSource implements SimpleFe
                     final String name = header.getCell(col).getStringCellValue().trim();
                     switch (value.getCellType()) {
                     case Cell.CELL_TYPE_NUMERIC:
-                        
-                        if(HSSFDateUtil.isCellDateFormatted(cell)) {
-                            //builder.set(name,cell.getDateCellValue() );
-                           if(value.getNumberValue()<1.0) {
-                               // it is really a time not a date
-                               final java.util.Date javaDate = HSSFDateUtil.getJavaDate(value.getNumberValue());
-                               
-                               builder.set(name,javaDate );
-                           }else {
-                               final java.util.Date javaDate = HSSFDateUtil.getJavaDate(value.getNumberValue());
-                            
-                               builder.set(name,javaDate );
-                           }
-                        }else {
+                        AttributeType type = schema.getType(name);
+                        Class<?> clazz = type.getBinding();
+                        if(clazz==Double.class) {
                             builder.set(name, value.getNumberValue());
+                        }else if (clazz == java.sql.Date.class) {
+                            final java.util.Date javaDate = HSSFDateUtil.getJavaDate(value
+                                    .getNumberValue());
+                            final Calendar cal = Calendar.getInstance();
+                            cal.clear();
+                            cal.setTime(javaDate);
+                            java.sql.Date date = new java.sql.Date(cal.getTimeInMillis());
+                            builder.set(name, date);
+                        }else if (clazz == java.util.Date.class) {
+                            final java.util.Date javaDate = HSSFDateUtil.getJavaDate(value
+                                    .getNumberValue());
+                            builder.set(name, javaDate);
+                        }else if (clazz == Time.class) {
+                            final java.util.Date javaDate = HSSFDateUtil.getJavaDate(value
+                                    .getNumberValue());
+                            final Calendar cal = Calendar.getInstance();
+                            cal.clear();
+                            cal.setTime(javaDate);
+                            cal.set(0, 0, 0);
+                            Time time = new Time(cal.getTimeInMillis());
+                            builder.set(name, time);
                         }
-                        break;
+                                                break;
                     case Cell.CELL_TYPE_STRING:
                         builder.set(name, value.getStringValue().trim());
                         break;
@@ -206,7 +221,7 @@ public class ExcelFeatureSource extends ContentFeatureSource implements SimpleFe
             throws IOException {
         if (lastQuery != query)
             filterFeatures(query);
-        return new ExcelFeatureReader(filteredFeatures,this);
+        return new ExcelFeatureReader(filteredFeatures, this);
     }
 
     @Override
@@ -216,6 +231,7 @@ public class ExcelFeatureSource extends ContentFeatureSource implements SimpleFe
         tb.setCRS(dataStore.getProjection());
         Row header = sheet.getRow(dataStore.getHeaderRowIndex());
         Row data = sheet.getRow(dataStore.getHeaderRowIndex() + 1);
+        Row nextData = sheet.getRow(dataStore.getHeaderRowIndex() + 2);
         boolean latColGood = false;
         boolean lonColGood = false;
         for (int i = header.getFirstCellNum(); i < header.getLastCellNum(); i++) {
@@ -224,7 +240,7 @@ public class ExcelFeatureSource extends ContentFeatureSource implements SimpleFe
             String name = header.getCell(i).getStringCellValue().trim();
             CellValue value = evaluator.evaluate(cell);
             int type = value.getCellType();
-            
+
             Class<?> clazz = null;
             if (latCol == i) {
                 // check it's a number
@@ -239,9 +255,27 @@ public class ExcelFeatureSource extends ContentFeatureSource implements SimpleFe
             } else {
                 switch (type) {
                 case Cell.CELL_TYPE_NUMERIC:
-                    if(HSSFDateUtil.isCellDateFormatted(cell)) {
-                        clazz = Date.class;
-                    }else {
+                    if (HSSFDateUtil.isCellDateFormatted(cell)) {
+                        if (value.getNumberValue() < 1.0) {
+                            clazz = Time.class;
+                        } else if (Math.floor(cell.getNumericCellValue()) == Math.ceil(cell
+                                .getNumericCellValue())) {
+                            // midnight or just a date
+                            // check the next row
+                            Cell cell2 = nextData.getCell(i);
+                            if (Math.floor(cell2.getNumericCellValue()) == Math.ceil(cell2
+                                    .getNumericCellValue())) {
+                                //probably a simple date
+                                clazz = java.sql.Date.class;
+                            } else {
+                                // actual date/time element
+                                clazz = java.util.Date.class;
+                            }
+                        } else {
+                            // actual date/time element
+                            clazz = java.util.Date.class;
+                        }
+                    } else {
                         clazz = Double.class;
                     }
                     break;
@@ -259,7 +293,7 @@ public class ExcelFeatureSource extends ContentFeatureSource implements SimpleFe
         }
         if (latColGood && lonColGood) {
             tb.add("the_geom", Point.class);
-        }else {
+        } else {
             throw new IOException("failed to find a Lat and Lon column");
         }
         // build the type (it is immutable and cannot be modified)
