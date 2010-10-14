@@ -363,6 +363,8 @@ public class Import extends AbstractCmd {
 			Class.forName(config.getDriverClassName());
 			con = DriverManager.getConnection(config.getJdbcUrl(), config
 					.getUsername(), config.getPassword());
+			if (con.getAutoCommit()) // no autocommit 
+			    con.setAutoCommit(false);
 			List<ImportParam> importParamList = new ArrayList<ImportParam>();
 
 			if (isLevelImport) {
