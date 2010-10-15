@@ -192,5 +192,6 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute ows10.ecore#//TelephoneType/facsimile"/>
     </genClasses>
     <genClasses ecoreClass="ows10.ecore#//WGS84BoundingBoxType"/>
+    <genClasses image="false" ecoreClass="ows10.ecore#//Object"/>
   </genPackages>
 </genmodel:GenModel>

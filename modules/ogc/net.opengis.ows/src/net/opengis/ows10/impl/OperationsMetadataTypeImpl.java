@@ -6,6 +6,7 @@
  */
 package net.opengis.ows10.impl;
 
+import java.lang.Object;
 import java.util.Collection;
 
 import net.opengis.ows10.DomainType;
@@ -46,246 +47,240 @@ import org.eclipse.emf.ecore.util.InternalEList;
  */
 public class OperationsMetadataTypeImpl extends EObjectImpl implements OperationsMetadataType {
 	/**
-	 * The cached value of the '{@link #getOperation() <em>Operation</em>}' containment reference list.
-	 * <!-- begin-user-doc -->
+     * The cached value of the '{@link #getOperation() <em>Operation</em>}' containment reference list.
+     * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #getOperation()
-	 * @generated
-	 * @ordered
-	 */
+     * @see #getOperation()
+     * @generated
+     * @ordered
+     */
 	protected EList operation;
 
 	/**
-	 * The cached value of the '{@link #getParameter() <em>Parameter</em>}' containment reference list.
-	 * <!-- begin-user-doc -->
+     * The cached value of the '{@link #getParameter() <em>Parameter</em>}' containment reference list.
+     * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #getParameter()
-	 * @generated
-	 * @ordered
-	 */
+     * @see #getParameter()
+     * @generated
+     * @ordered
+     */
 	protected EList parameter;
 
 	/**
-	 * The cached value of the '{@link #getConstraint() <em>Constraint</em>}' containment reference list.
-	 * <!-- begin-user-doc -->
+     * The cached value of the '{@link #getConstraint() <em>Constraint</em>}' containment reference list.
+     * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #getConstraint()
-	 * @generated
-	 * @ordered
-	 */
+     * @see #getConstraint()
+     * @generated
+     * @ordered
+     */
 	protected EList constraint;
 
 	/**
-	 * The cached value of the '{@link #getExtendedCapabilities() <em>Extended Capabilities</em>}' containment reference.
-	 * <!-- begin-user-doc -->
+     * The cached value of the '{@link #getExtendedCapabilities() <em>Extended Capabilities</em>}' reference.
+     * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #getExtendedCapabilities()
-	 * @generated
-	 * @ordered
-	 */
-	protected EObject extendedCapabilities;
+     * @see #getExtendedCapabilities()
+     * @generated
+     * @ordered
+     */
+	protected Object extendedCapabilities;
 
 	/**
-	 * <!-- begin-user-doc -->
+     * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
+     * @generated
+     */
 	protected OperationsMetadataTypeImpl() {
-		super();
-	}
+        super();
+    }
 
 	/**
-	 * <!-- begin-user-doc -->
+     * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
+     * @generated
+     */
 	protected EClass eStaticClass() {
-		return Ows10Package.eINSTANCE.getOperationsMetadataType();
-	}
+        return Ows10Package.eINSTANCE.getOperationsMetadataType();
+    }
 
 	/**
-	 * <!-- begin-user-doc -->
+     * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
+     * @generated
+     */
 	public EList getOperation() {
-		if (operation == null) {
-			operation = new EObjectContainmentEList(OperationType.class, this, Ows10Package.OPERATIONS_METADATA_TYPE__OPERATION);
-		}
-		return operation;
-	}
+        if (operation == null) {
+            operation = new EObjectContainmentEList(OperationType.class, this, Ows10Package.OPERATIONS_METADATA_TYPE__OPERATION);
+        }
+        return operation;
+    }
 
 	/**
-	 * <!-- begin-user-doc -->
+     * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
+     * @generated
+     */
 	public EList getParameter() {
-		if (parameter == null) {
-			parameter = new EObjectContainmentEList(DomainType.class, this, Ows10Package.OPERATIONS_METADATA_TYPE__PARAMETER);
-		}
-		return parameter;
-	}
+        if (parameter == null) {
+            parameter = new EObjectContainmentEList(DomainType.class, this, Ows10Package.OPERATIONS_METADATA_TYPE__PARAMETER);
+        }
+        return parameter;
+    }
 
 	/**
-	 * <!-- begin-user-doc -->
+     * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
+     * @generated
+     */
 	public EList getConstraint() {
-		if (constraint == null) {
-			constraint = new EObjectContainmentEList(DomainType.class, this, Ows10Package.OPERATIONS_METADATA_TYPE__CONSTRAINT);
-		}
-		return constraint;
-	}
+        if (constraint == null) {
+            constraint = new EObjectContainmentEList(DomainType.class, this, Ows10Package.OPERATIONS_METADATA_TYPE__CONSTRAINT);
+        }
+        return constraint;
+    }
 
 	/**
-	 * <!-- begin-user-doc -->
+     * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public EObject getExtendedCapabilities() {
-		return extendedCapabilities;
-	}
+     * @generated
+     */
+	public Object getExtendedCapabilities() {
+        if (extendedCapabilities != null && ((EObject)extendedCapabilities).eIsProxy()) {
+            InternalEObject oldExtendedCapabilities = (InternalEObject)extendedCapabilities;
+            extendedCapabilities = (Object)eResolveProxy(oldExtendedCapabilities);
+            if (extendedCapabilities != oldExtendedCapabilities) {
+                if (eNotificationRequired())
+                    eNotify(new ENotificationImpl(this, Notification.RESOLVE, Ows10Package.OPERATIONS_METADATA_TYPE__EXTENDED_CAPABILITIES, oldExtendedCapabilities, extendedCapabilities));
+            }
+        }
+        return extendedCapabilities;
+    }
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public NotificationChain basicSetExtendedCapabilities(EObject newExtendedCapabilities, NotificationChain msgs) {
-		EObject oldExtendedCapabilities = extendedCapabilities;
-		extendedCapabilities = newExtendedCapabilities;
-		if (eNotificationRequired()) {
-			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, Ows10Package.OPERATIONS_METADATA_TYPE__EXTENDED_CAPABILITIES, oldExtendedCapabilities, newExtendedCapabilities);
-			if (msgs == null) msgs = notification; else msgs.add(notification);
-		}
-		return msgs;
-	}
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public Object basicGetExtendedCapabilities() {
+        return extendedCapabilities;
+    }
 
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setExtendedCapabilities(EObject newExtendedCapabilities) {
-		if (newExtendedCapabilities != extendedCapabilities) {
-			NotificationChain msgs = null;
-			if (extendedCapabilities != null)
-				msgs = ((InternalEObject)extendedCapabilities).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - Ows10Package.OPERATIONS_METADATA_TYPE__EXTENDED_CAPABILITIES, null, msgs);
-			if (newExtendedCapabilities != null)
-				msgs = ((InternalEObject)newExtendedCapabilities).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - Ows10Package.OPERATIONS_METADATA_TYPE__EXTENDED_CAPABILITIES, null, msgs);
-			msgs = basicSetExtendedCapabilities(newExtendedCapabilities, msgs);
-			if (msgs != null) msgs.dispatch();
-		}
-		else if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, Ows10Package.OPERATIONS_METADATA_TYPE__EXTENDED_CAPABILITIES, newExtendedCapabilities, newExtendedCapabilities));
-	}
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public void setExtendedCapabilities(Object newExtendedCapabilities) {
+        Object oldExtendedCapabilities = extendedCapabilities;
+        extendedCapabilities = newExtendedCapabilities;
+        if (eNotificationRequired())
+            eNotify(new ENotificationImpl(this, Notification.SET, Ows10Package.OPERATIONS_METADATA_TYPE__EXTENDED_CAPABILITIES, oldExtendedCapabilities, extendedCapabilities));
+    }
 
-	/**
-	 * <!-- begin-user-doc -->
+    /**
+     * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
+     * @generated
+     */
 	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
-		switch (featureID) {
-			case Ows10Package.OPERATIONS_METADATA_TYPE__OPERATION:
-				return ((InternalEList)getOperation()).basicRemove(otherEnd, msgs);
-			case Ows10Package.OPERATIONS_METADATA_TYPE__PARAMETER:
-				return ((InternalEList)getParameter()).basicRemove(otherEnd, msgs);
-			case Ows10Package.OPERATIONS_METADATA_TYPE__CONSTRAINT:
-				return ((InternalEList)getConstraint()).basicRemove(otherEnd, msgs);
-			case Ows10Package.OPERATIONS_METADATA_TYPE__EXTENDED_CAPABILITIES:
-				return basicSetExtendedCapabilities(null, msgs);
-		}
-		return super.eInverseRemove(otherEnd, featureID, msgs);
-	}
+        switch (featureID) {
+            case Ows10Package.OPERATIONS_METADATA_TYPE__OPERATION:
+                return ((InternalEList)getOperation()).basicRemove(otherEnd, msgs);
+            case Ows10Package.OPERATIONS_METADATA_TYPE__PARAMETER:
+                return ((InternalEList)getParameter()).basicRemove(otherEnd, msgs);
+            case Ows10Package.OPERATIONS_METADATA_TYPE__CONSTRAINT:
+                return ((InternalEList)getConstraint()).basicRemove(otherEnd, msgs);
+        }
+        return super.eInverseRemove(otherEnd, featureID, msgs);
+    }
 
 	/**
-	 * <!-- begin-user-doc -->
+     * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
+     * @generated
+     */
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
-		switch (featureID) {
-			case Ows10Package.OPERATIONS_METADATA_TYPE__OPERATION:
-				return getOperation();
-			case Ows10Package.OPERATIONS_METADATA_TYPE__PARAMETER:
-				return getParameter();
-			case Ows10Package.OPERATIONS_METADATA_TYPE__CONSTRAINT:
-				return getConstraint();
-			case Ows10Package.OPERATIONS_METADATA_TYPE__EXTENDED_CAPABILITIES:
-				return getExtendedCapabilities();
-		}
-		return super.eGet(featureID, resolve, coreType);
-	}
+        switch (featureID) {
+            case Ows10Package.OPERATIONS_METADATA_TYPE__OPERATION:
+                return getOperation();
+            case Ows10Package.OPERATIONS_METADATA_TYPE__PARAMETER:
+                return getParameter();
+            case Ows10Package.OPERATIONS_METADATA_TYPE__CONSTRAINT:
+                return getConstraint();
+            case Ows10Package.OPERATIONS_METADATA_TYPE__EXTENDED_CAPABILITIES:
+                if (resolve) return getExtendedCapabilities();
+                return basicGetExtendedCapabilities();
+        }
+        return super.eGet(featureID, resolve, coreType);
+    }
 
 	/**
-	 * <!-- begin-user-doc -->
+     * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
+     * @generated
+     */
 	public void eSet(int featureID, Object newValue) {
-		switch (featureID) {
-			case Ows10Package.OPERATIONS_METADATA_TYPE__OPERATION:
-				getOperation().clear();
-				getOperation().addAll((Collection)newValue);
-				return;
-			case Ows10Package.OPERATIONS_METADATA_TYPE__PARAMETER:
-				getParameter().clear();
-				getParameter().addAll((Collection)newValue);
-				return;
-			case Ows10Package.OPERATIONS_METADATA_TYPE__CONSTRAINT:
-				getConstraint().clear();
-				getConstraint().addAll((Collection)newValue);
-				return;
-			case Ows10Package.OPERATIONS_METADATA_TYPE__EXTENDED_CAPABILITIES:
-				setExtendedCapabilities((EObject)newValue);
-				return;
-		}
-		super.eSet(featureID, newValue);
-	}
+        switch (featureID) {
+            case Ows10Package.OPERATIONS_METADATA_TYPE__OPERATION:
+                getOperation().clear();
+                getOperation().addAll((Collection)newValue);
+                return;
+            case Ows10Package.OPERATIONS_METADATA_TYPE__PARAMETER:
+                getParameter().clear();
+                getParameter().addAll((Collection)newValue);
+                return;
+            case Ows10Package.OPERATIONS_METADATA_TYPE__CONSTRAINT:
+                getConstraint().clear();
+                getConstraint().addAll((Collection)newValue);
+                return;
+            case Ows10Package.OPERATIONS_METADATA_TYPE__EXTENDED_CAPABILITIES:
+                setExtendedCapabilities((Object)newValue);
+                return;
+        }
+        super.eSet(featureID, newValue);
+    }
 
 	/**
-	 * <!-- begin-user-doc -->
+     * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
+     * @generated
+     */
 	public void eUnset(int featureID) {
-		switch (featureID) {
-			case Ows10Package.OPERATIONS_METADATA_TYPE__OPERATION:
-				getOperation().clear();
-				return;
-			case Ows10Package.OPERATIONS_METADATA_TYPE__PARAMETER:
-				getParameter().clear();
-				return;
-			case Ows10Package.OPERATIONS_METADATA_TYPE__CONSTRAINT:
-				getConstraint().clear();
-				return;
-			case Ows10Package.OPERATIONS_METADATA_TYPE__EXTENDED_CAPABILITIES:
-				setExtendedCapabilities((EObject)null);
-				return;
-		}
-		super.eUnset(featureID);
-	}
+        switch (featureID) {
+            case Ows10Package.OPERATIONS_METADATA_TYPE__OPERATION:
+                getOperation().clear();
+                return;
+            case Ows10Package.OPERATIONS_METADATA_TYPE__PARAMETER:
+                getParameter().clear();
+                return;
+            case Ows10Package.OPERATIONS_METADATA_TYPE__CONSTRAINT:
+                getConstraint().clear();
+                return;
+            case Ows10Package.OPERATIONS_METADATA_TYPE__EXTENDED_CAPABILITIES:
+                setExtendedCapabilities((Object)null);
+                return;
+        }
+        super.eUnset(featureID);
+    }
 
 	/**
-	 * <!-- begin-user-doc -->
+     * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
+     * @generated
+     */
 	public boolean eIsSet(int featureID) {
-		switch (featureID) {
-			case Ows10Package.OPERATIONS_METADATA_TYPE__OPERATION:
-				return operation != null && !operation.isEmpty();
-			case Ows10Package.OPERATIONS_METADATA_TYPE__PARAMETER:
-				return parameter != null && !parameter.isEmpty();
-			case Ows10Package.OPERATIONS_METADATA_TYPE__CONSTRAINT:
-				return constraint != null && !constraint.isEmpty();
-			case Ows10Package.OPERATIONS_METADATA_TYPE__EXTENDED_CAPABILITIES:
-				return extendedCapabilities != null;
-		}
-		return super.eIsSet(featureID);
-	}
+        switch (featureID) {
+            case Ows10Package.OPERATIONS_METADATA_TYPE__OPERATION:
+                return operation != null && !operation.isEmpty();
+            case Ows10Package.OPERATIONS_METADATA_TYPE__PARAMETER:
+                return parameter != null && !parameter.isEmpty();
+            case Ows10Package.OPERATIONS_METADATA_TYPE__CONSTRAINT:
+                return constraint != null && !constraint.isEmpty();
+            case Ows10Package.OPERATIONS_METADATA_TYPE__EXTENDED_CAPABILITIES:
+                return extendedCapabilities != null;
+        }
+        return super.eIsSet(featureID);
+    }
 
 } //OperationsMetadataTypeImpl

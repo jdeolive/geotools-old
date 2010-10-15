@@ -229,7 +229,7 @@
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference ows11.ecore#//OperationsMetadataType/operation"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference ows11.ecore#//OperationsMetadataType/parameter"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference ows11.ecore#//OperationsMetadataType/constraint"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference ows11.ecore#//OperationsMetadataType/extendedCapabilities"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute ows11.ecore#//OperationsMetadataType/extendedCapabilities"/>
     </genClasses>
     <genClasses ecoreClass="ows11.ecore#//OperationType">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference ows11.ecore#//OperationType/dCP"/>

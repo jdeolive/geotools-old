@@ -76,14 +76,24 @@ public class OperationsMetadataTypeImpl extends EObjectImpl implements Operation
     protected EList constraint;
 
     /**
-     * The cached value of the '{@link #getExtendedCapabilities() <em>Extended Capabilities</em>}' containment reference.
+     * The default value of the '{@link #getExtendedCapabilities() <em>Extended Capabilities</em>}' attribute.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @see #getExtendedCapabilities()
      * @generated
      * @ordered
      */
-    protected EObject extendedCapabilities;
+    protected static final Object EXTENDED_CAPABILITIES_EDEFAULT = null;
+
+    /**
+     * The cached value of the '{@link #getExtendedCapabilities() <em>Extended Capabilities</em>}' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @see #getExtendedCapabilities()
+     * @generated
+     * @ordered
+     */
+    protected Object extendedCapabilities = EXTENDED_CAPABILITIES_EDEFAULT;
 
     /**
      * <!-- begin-user-doc -->
@@ -144,7 +154,7 @@ public class OperationsMetadataTypeImpl extends EObjectImpl implements Operation
      * <!-- end-user-doc -->
      * @generated
      */
-    public EObject getExtendedCapabilities() {
+    public Object getExtendedCapabilities() {
         return extendedCapabilities;
     }
 
@@ -153,33 +163,11 @@ public class OperationsMetadataTypeImpl extends EObjectImpl implements Operation
      * <!-- end-user-doc -->
      * @generated
      */
-    public NotificationChain basicSetExtendedCapabilities(EObject newExtendedCapabilities, NotificationChain msgs) {
-        EObject oldExtendedCapabilities = extendedCapabilities;
+    public void setExtendedCapabilities(Object newExtendedCapabilities) {
+        Object oldExtendedCapabilities = extendedCapabilities;
         extendedCapabilities = newExtendedCapabilities;
-        if (eNotificationRequired()) {
-            ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, Ows11Package.OPERATIONS_METADATA_TYPE__EXTENDED_CAPABILITIES, oldExtendedCapabilities, newExtendedCapabilities);
-            if (msgs == null) msgs = notification; else msgs.add(notification);
-        }
-        return msgs;
-    }
-
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    public void setExtendedCapabilities(EObject newExtendedCapabilities) {
-        if (newExtendedCapabilities != extendedCapabilities) {
-            NotificationChain msgs = null;
-            if (extendedCapabilities != null)
-                msgs = ((InternalEObject)extendedCapabilities).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - Ows11Package.OPERATIONS_METADATA_TYPE__EXTENDED_CAPABILITIES, null, msgs);
-            if (newExtendedCapabilities != null)
-                msgs = ((InternalEObject)newExtendedCapabilities).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - Ows11Package.OPERATIONS_METADATA_TYPE__EXTENDED_CAPABILITIES, null, msgs);
-            msgs = basicSetExtendedCapabilities(newExtendedCapabilities, msgs);
-            if (msgs != null) msgs.dispatch();
-        }
-        else if (eNotificationRequired())
-            eNotify(new ENotificationImpl(this, Notification.SET, Ows11Package.OPERATIONS_METADATA_TYPE__EXTENDED_CAPABILITIES, newExtendedCapabilities, newExtendedCapabilities));
+        if (eNotificationRequired())
+            eNotify(new ENotificationImpl(this, Notification.SET, Ows11Package.OPERATIONS_METADATA_TYPE__EXTENDED_CAPABILITIES, oldExtendedCapabilities, extendedCapabilities));
     }
 
     /**
@@ -195,8 +183,6 @@ public class OperationsMetadataTypeImpl extends EObjectImpl implements Operation
                 return ((InternalEList)getParameter()).basicRemove(otherEnd, msgs);
             case Ows11Package.OPERATIONS_METADATA_TYPE__CONSTRAINT:
                 return ((InternalEList)getConstraint()).basicRemove(otherEnd, msgs);
-            case Ows11Package.OPERATIONS_METADATA_TYPE__EXTENDED_CAPABILITIES:
-                return basicSetExtendedCapabilities(null, msgs);
         }
         return super.eInverseRemove(otherEnd, featureID, msgs);
     }
@@ -240,7 +226,7 @@ public class OperationsMetadataTypeImpl extends EObjectImpl implements Operation
                 getConstraint().addAll((Collection)newValue);
                 return;
             case Ows11Package.OPERATIONS_METADATA_TYPE__EXTENDED_CAPABILITIES:
-                setExtendedCapabilities((EObject)newValue);
+                setExtendedCapabilities(newValue);
                 return;
         }
         super.eSet(featureID, newValue);
@@ -263,7 +249,7 @@ public class OperationsMetadataTypeImpl extends EObjectImpl implements Operation
                 getConstraint().clear();
                 return;
             case Ows11Package.OPERATIONS_METADATA_TYPE__EXTENDED_CAPABILITIES:
-                setExtendedCapabilities((EObject)null);
+                setExtendedCapabilities(EXTENDED_CAPABILITIES_EDEFAULT);
                 return;
         }
         super.eUnset(featureID);
@@ -283,9 +269,24 @@ public class OperationsMetadataTypeImpl extends EObjectImpl implements Operation
             case Ows11Package.OPERATIONS_METADATA_TYPE__CONSTRAINT:
                 return constraint != null && !constraint.isEmpty();
             case Ows11Package.OPERATIONS_METADATA_TYPE__EXTENDED_CAPABILITIES:
-                return extendedCapabilities != null;
+                return EXTENDED_CAPABILITIES_EDEFAULT == null ? extendedCapabilities != null : !EXTENDED_CAPABILITIES_EDEFAULT.equals(extendedCapabilities);
         }
         return super.eIsSet(featureID);
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public String toString() {
+        if (eIsProxy()) return super.toString();
+
+        StringBuffer result = new StringBuffer(super.toString());
+        result.append(" (extendedCapabilities: ");
+        result.append(extendedCapabilities);
+        result.append(')');
+        return result.toString();
     }
 
 } //OperationsMetadataTypeImpl
