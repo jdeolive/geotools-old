@@ -228,6 +228,27 @@ public abstract class SQLDialect {
     }
 
     /**
+     * Handles the mapping for a user defined type.
+     * <p>
+     * This method is called after {@link #getMapping(ResultSet, Connection)} but before the rest
+     * of the type mapping heuristics are applied.
+     * </p>
+     * <p>
+     * Implementing this method is optional. It is used to allow for handling user defined types
+     * or "DOMAINS". Dialects that implement this method should set the appropriate information on
+     * the <tt>metadata</tt> object to allow the column to be mapped via teh regular type mapping
+     * heuristics.
+     * </p>
+     * 
+     * @param columnMetaData The column metdata.
+     * @param metadata The column metadata object that collections mapping information.
+     * @param cx The database connection, not to be closed.
+     */
+    public void handleUserDefinedType(ResultSet columnMetaData, ColumnMetadata metadata, Connection cx) 
+        throws SQLException {
+    }
+    
+    /**
      * Registers the sql type to java type mappings that the dialect uses when
      * reading and writing objects to and from the database.
      * <p>

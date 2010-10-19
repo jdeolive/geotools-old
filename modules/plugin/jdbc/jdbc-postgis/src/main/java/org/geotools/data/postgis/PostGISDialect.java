@@ -31,6 +31,7 @@ import java.util.logging.Level;
 import org.geotools.data.jdbc.FilterToSQL;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.jdbc.BasicSQLDialect;
+import org.geotools.jdbc.ColumnMetadata;
 import org.geotools.jdbc.JDBCDataStore;
 import org.geotools.referencing.CRS;
 import org.geotools.util.Version;
@@ -320,6 +321,37 @@ public class PostGISDialect extends BasicSQLDialect {
     }
     
     @Override
+    public void handleUserDefinedType(ResultSet columnMetaData, ColumnMetadata metadata,
+            Connection cx) throws SQLException {
+
+        String tableName = columnMetaData.getString("TABLE_NAME");
+        String columnName = columnMetaData.getString("COLUMN_NAME");
+        String schemaName = columnMetaData.getString("TABLE_SCHEM");
+        
+        String sql = "SELECT udt_name FROM information_schema.columns " + 
+        " WHERE table_schema = '"+schemaName+"' " + 
+        "   AND table_name = '"+tableName+"' " + 
+        "   AND column_name = '"+columnName+"' ";
+        LOGGER.fine(sql);
+        
+        Statement st = cx.createStatement();
+        try {
+            ResultSet rs = st.executeQuery(sql);
+            try {
+                if (rs.next()) {
+                    metadata.setTypeName(rs.getString(1));
+                }
+            }
+            finally {
+                dataStore.closeSafe(rs);
+            }
+        }
+        finally {
+            dataStore.closeSafe(st);
+        }
+    }
+    
+    @Override
     public Integer getGeometrySRID(String schemaName, String tableName,
             String columnName, Connection cx) throws SQLException {
 
@@ -478,6 +510,7 @@ public class PostGISDialect extends BasicSQLDialect {
         super.registerSqlTypeNameToClassMappings(mappings);
 
         mappings.put("geometry", Geometry.class);
+        mappings.put("text", String.class);
     }
     
     @Override

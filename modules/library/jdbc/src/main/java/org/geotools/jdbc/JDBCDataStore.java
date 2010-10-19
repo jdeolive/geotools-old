@@ -71,7 +71,6 @@ import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.visitor.CountVisitor;
 import org.geotools.filter.FilterCapabilities;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.jdbc.JDBCFeatureSource.ColumnMetadata;
 import org.geotools.referencing.CRS;
 import org.geotools.util.Converters;
 import org.opengis.feature.FeatureVisitor;

@@ -24,6 +24,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.Map;
 
+import org.geotools.jdbc.ColumnMetadata;
 import org.geotools.jdbc.JDBCDataStore;
 import org.geotools.jdbc.PreparedFilterToSQL;
 import org.geotools.jdbc.PreparedStatementSQLDialect;
@@ -164,6 +165,11 @@ public class PostGISPSDialect extends PreparedStatementSQLDialect {
         delegate.registerSqlTypeToSqlTypeNameOverrides(overrides);
     }
 
+    @Override
+    public void handleUserDefinedType(ResultSet columnMetaData, ColumnMetadata metadata,
+            Connection cx) throws SQLException {
+        delegate.handleUserDefinedType(columnMetaData, metadata, cx);
+    }
 
     public void setLooseBBOXEnabled(boolean looseBBOXEnabled) {
         delegate.setLooseBBOXEnabled(looseBBOXEnabled);

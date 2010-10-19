@@ -24,6 +24,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -634,6 +635,12 @@ public class JDBCFeatureSource extends ContentFeatureSource {
                 column.sqlType = columns.getInt("DATA_TYPE");
                 column.nullable = "YES".equalsIgnoreCase(columns.getString("IS_NULLABLE"));
                 column.binding = dialect.getMapping(columns, cx);
+                
+                //support for user defined types, allow the dialect to handle them
+                if (column.sqlType == Types.DISTINCT) {
+                    dialect.handleUserDefinedType(columns, column, cx);
+                }
+                
                 result.add(column);
             }
         } finally {
@@ -708,23 +715,4 @@ public class JDBCFeatureSource extends ContentFeatureSource {
         return result;
     }
     
-    
-    /**
-     * Represents the column metadata we need to build a feature type
-     * @author Andrea Aime - OpenGeo
-     */
-    static class ColumnMetadata {
-        /** The column java type, if known */
-        Class binding;
-        /** The column name */
-        String name;
-        /** The native type name */
-        String typeName;
-        /** The native sql type */
-        int sqlType;
-        /** Is the column accepting null values? */
-        boolean nullable;
-        /** The native srid */
-        Integer srid;
-    }
 }
