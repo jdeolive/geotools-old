@@ -188,12 +188,13 @@ public class FeaturePropertyAccessorTest extends TestCase {
         // expect an exception when object supplied is not a complex attribute
         boolean exceptionThrown = false;
         try {
+            ex.setLenient(false); //NC -added, only exception if lenient off
             assertEquals(null, ex.evaluate(singleLeaf));
-        } catch (ClassCastException e) {
+        } catch (Exception e) {
             exceptionThrown = true;
         }
         if (!exceptionThrown) {
-            fail("Expecting ClassCastException since object passed in is not a complex attribute.");
+            fail("Expecting Exception since object passed in is not a complex attribute.");
         }
 
         // invalid property

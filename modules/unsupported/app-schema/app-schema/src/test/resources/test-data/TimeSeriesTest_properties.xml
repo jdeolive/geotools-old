@@ -199,10 +199,10 @@
           <sourceExpression>
             <OCQL>result</OCQL>
           </sourceExpression>
-          <ClientProperty>
+       <!--   <ClientProperty>
             <name>xsi:type</name>
             <value>gml:MeasureType</value>
-          </ClientProperty>
+          </ClientProperty>  -->
           <ClientProperty>
             <name>uom</name>
             <value>uom</value>

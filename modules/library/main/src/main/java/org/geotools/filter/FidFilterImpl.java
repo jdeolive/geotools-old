@@ -27,7 +27,6 @@ import java.util.logging.Logger;
 
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.filter.expression.PropertyAccessor;
-import org.geotools.filter.expression.PropertyAccessors;
 import org.geotools.filter.expression.SimpleFeaturePropertyAccessorFactory;
 import org.opengis.filter.FilterVisitor;
 import org.opengis.filter.identity.Identifier;
@@ -236,22 +235,17 @@ public class FidFilterImpl extends AbstractFilterImpl implements FidFilter {
      * @see SimpleFeaturePropertyAccessorFactory
      */
     public boolean evaluate(Object feature) {
-        if (feature == null) {
-            return false;
-        }
-
-        final Set fids = fids();
-        final String attPath = "@id";
-        
-        PropertyAccessor accessor = PropertyAccessors.findPropertyAccessor(feature, attPath, null, null);
-
-        if (accessor == null) {
-            return false;
-        }
-        Object id = accessor.get(feature, attPath, null);
-        return fids.contains(id);
-    }
-
+            if (feature == null) {
+                return false;
+            }
+    
+            final Set fids = fids();
+		
+		
+            //NC - updated, using attributeexpressionimpl will be easiest, don't have to copy and paste lots of code				
+            return fids.contains(CommonFactoryFinder.getFilterFactory(null).property("@id").evaluate(feature));		
+	}
+	
     /**
      * Returns a string representation of this filter.
      * 

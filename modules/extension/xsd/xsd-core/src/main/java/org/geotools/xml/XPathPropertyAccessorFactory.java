@@ -64,9 +64,8 @@ public class XPathPropertyAccessorFactory implements PropertyAccessorFactory {
     }
 
     static class XPathPropertyAcessor implements PropertyAccessor {
-        public boolean canHandle(Object object, String xpath, Class target) {
-            //TODO: some better check for a valid xpath expression
-            return (xpath != null) && !"".equals(xpath.trim());
+        public boolean canHandle(Object object, String xpath, Class target) {           
+            return (xpath != null) && !"".equals(xpath.trim()); 
         }
 
         public Object get(Object object, String xpath, Class target) {
@@ -80,7 +79,7 @@ public class XPathPropertyAccessorFactory implements PropertyAccessorFactory {
 
         JXPathContext context(Object object) {
             JXPathContext context = JXPathContextFactory.newInstance().newContext(null, object);
-            context.setLenient(true);
+            //context.setLenient(true);
 
             return context;
         }

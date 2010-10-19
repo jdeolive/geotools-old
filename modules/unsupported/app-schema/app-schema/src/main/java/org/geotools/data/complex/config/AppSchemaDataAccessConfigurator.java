@@ -58,7 +58,8 @@ import org.geotools.data.complex.filter.XPath.StepList;
 import org.geotools.factory.Hints;
 import org.geotools.feature.Types;
 import org.geotools.filter.AttributeExpressionImpl;
-import org.geotools.filter.FilterFactoryImpl;
+import org.geotools.filter.FilterFactory;
+import org.geotools.filter.FilterFactoryImplReportInvalidProperty;
 import org.geotools.filter.expression.FeaturePropertyAccessorFactory;
 import org.geotools.filter.text.cql2.CQL;
 import org.geotools.filter.text.cql2.CQLException;
@@ -98,6 +99,10 @@ public class AppSchemaDataAccessConfigurator {
     private AppSchemaDataAccessDTO config;
 
     private FeatureTypeRegistry typeRegistry;
+
+    private Map sourceDataStores;
+    
+    private FilterFactory ff = new FilterFactoryImplReportInvalidProperty();
 
     /**
      * Placeholder for the prefix:namespaceURI mappings declared in the Namespaces section of the
@@ -399,7 +404,7 @@ public class AppSchemaDataAccessConfigurator {
         Expression expression = Expression.NIL;
         if (sourceExpr != null && sourceExpr.trim().length() > 0) {
             try {
-                expression = CQL.toExpression(sourceExpr);
+                expression = CQL.toExpression(sourceExpr, ff);
             } catch (CQLException e) {
                 String formattedErrorMessage = e.getMessage();
                 AppSchemaDataAccessConfigurator.LOGGER.log(Level.SEVERE, formattedErrorMessage, e);
@@ -440,7 +445,6 @@ public class AppSchemaDataAccessConfigurator {
             if (inputXPath == null) {
                 expression =  parseOgcCqlExpression(cqlExpression);
             } else if(cqlExpression.startsWith("'")) {
-                FilterFactoryImpl ff = new FilterFactoryImpl();
                 expression = ff.literal(cqlExpression);
             } else {
                 expression =  new AttributeExpressionImpl(cqlExpression, new Hints(

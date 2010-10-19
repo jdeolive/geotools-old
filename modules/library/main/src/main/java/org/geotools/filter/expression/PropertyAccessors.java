@@ -19,6 +19,7 @@ package org.geotools.filter.expression;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.geotools.factory.FactoryRegistry;
 import org.geotools.factory.Hints;
@@ -38,14 +39,16 @@ public class PropertyAccessors {
         List<PropertyAccessorFactory> cache = new ArrayList<PropertyAccessorFactory>();
 
         // add the simple feature property accessor factory first for performance
-        // reasons
+        // reasons         
+        cache.add( new NullPropertyAccessorFactory()); //NC - added       
         cache.add( new SimpleFeaturePropertyAccessorFactory());
-        cache.add( new DirectPropertyAccessorFactory());
+        cache.add( new DirectPropertyAccessorFactory());       
         Iterator factories = FactoryRegistry
                  .lookupProviders(PropertyAccessorFactory.class);
          while (factories.hasNext()) {
             Object factory = factories.next();
-            if ( factory instanceof SimpleFeaturePropertyAccessorFactory || factory instanceof DirectPropertyAccessorFactory)
+            if ( factory instanceof SimpleFeaturePropertyAccessorFactory || factory instanceof DirectPropertyAccessorFactory
+                 || factory instanceof NullPropertyAccessorFactory )
                 continue;
             
             cache.add((PropertyAccessorFactory) factory);
@@ -58,6 +61,7 @@ public class PropertyAccessors {
      */
     private PropertyAccessors() {}
 
+    //NC - old method, not used anymore
     /**
      * Looks up a {@link PropertyAccessor} for a particular object.
      * <p>
@@ -73,8 +77,11 @@ public class PropertyAccessors {
      *            Hints to pass on to factories.
      * 
      * @return A property accessor, or <code>null</code> if one could not be found.
+     * 
+     * @deprecated Use findPropertyAccessors, returned property accessor might not work
+     * @see findPropertyAccessors
      */
-    public static PropertyAccessor findPropertyAccessor(Object object, String xpath, Class target,
+     public static PropertyAccessor findPropertyAccessor(Object object, String xpath, Class target,
             Hints hints) {
         if (object == null)
             return null;
@@ -87,5 +94,41 @@ public class PropertyAccessors {
             }
         }
         return null;
+    } 
+    
+    
+    /**
+     * Looks up a list of {@link PropertyAccessor} for a particular object.
+     * <p>
+     * This method will return all accessors that is capable of handling the object and xpath
+     * expression provided, no order is guaranteed.
+     * </p>
+     * 
+     * @param object
+     *            The target object.
+     * @param xpath
+     *            An xpath expression denoting a property of the target object.
+     * @param hints
+     *            Hints to pass on to factories.
+     * 
+     * @return List of Property accessors, or <code>null</code> if object is null
+     */
+    public static List<PropertyAccessor> findPropertyAccessors(Object object, String xpath,
+            Class target, Hints hints) {
+        if (object == null)
+            return null;
+
+        List<PropertyAccessor> list = new ArrayList<PropertyAccessor>();
+
+        for (PropertyAccessorFactory factory : FACTORY_CACHE) {
+            PropertyAccessor accessor = factory.createPropertyAccessor(object.getClass(), xpath,
+                    target, hints);
+            if (accessor != null && accessor.canHandle(object, xpath, target)) {
+                list.add(accessor);
+            }
+        }
+        return list;
     }
-}
+    
+    
+ }

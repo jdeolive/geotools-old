@@ -39,12 +39,17 @@ public class XPathPropertyAcessorTest extends TestCase {
         typeBuilder.add("name", String.class);
         typeBuilder.add("description", String.class);
         typeBuilder.add("geometry", Geometry.class);
+        //NC- added - if you want null, property should still exist, otherwise exception
+        typeBuilder.add("foo", Object.class);
+        
         type = (SimpleFeatureType) typeBuilder.buildFeatureType();
 
         SimpleFeatureBuilder builder = new SimpleFeatureBuilder(type);
         builder.add("theName");
         builder.add("theDescription");
         builder.add(new GeometryFactory().createPoint(new Coordinate(0, 0)));
+        //NC- foo remains null
+        
         target = (SimpleFeature) builder.buildFeature("fid");
     }
 
@@ -87,7 +92,9 @@ public class XPathPropertyAcessorTest extends TestCase {
 
         accessor = accessor("foo");
         o = accessor.get(type, "foo", null);
-        assertNull(o);
+        //NC - changed, it does exist now
+        //assertNull(o);
+        assertEquals(type.getDescriptor("foo"), o);
     }
 
     public void testSimpleXpathWithNamespace() {

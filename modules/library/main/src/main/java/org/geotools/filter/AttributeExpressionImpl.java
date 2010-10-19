@@ -16,6 +16,9 @@
  */
 package org.geotools.filter;
 
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -51,6 +54,11 @@ public class AttributeExpressionImpl extends DefaultExpression
     
     /** Holds hints for the property accessor factory */
     private Hints hints;
+    
+    //NC -added
+    /** Configures whether evaluate should return null if it cannot find a working
+     * property accessor, rather than throwing an exception (default behaviour). */
+    protected boolean lenient = true;
 
     /**
      * Constructor with the schema for this attribute.
@@ -154,23 +162,16 @@ public class AttributeExpressionImpl extends DefaultExpression
        }
     }	
     
-   /**
+    /**
       * Gets the value of this attribute from the passed feature.
       *
       * @param feature Feature from which to extract attribute value.
       */
     public Object evaluate(SimpleFeature feature) {
-    	PropertyAccessor accessor = getPropertyAccessor(feature, null);
-    	if ( accessor == null ) {
-    		//JD:not throwing exception to remain backwards compatabile, just returnign null
-    		return null;
-//    		throw new IllegalArgumentException( 
-//				"Could not find property accessor for: (" + feature + "," + attPath + ")" 
-//			);
-    	}
-    	
-    	return accessor.get( feature, attPath, null );
-    	//return feature.getAttribute(attPath);
+       //NC - is exact copy of code anyway, don't need to keep changing both
+       //this method can probably be removed all together
+        return evaluate((Object) feature, null); 
+       
     }
   
     /**
@@ -183,30 +184,75 @@ public class AttributeExpressionImpl extends DefaultExpression
    }
    
    
-   public Object evaluate(Object obj, Class target) {
-       PropertyAccessor accessor = getPropertyAccessor(obj, target);
+   /**
+    * Gets the value of this attribute from the passed object.
+    *
+    * @param obj Object from which to extract attribute value.
+    * @param target Target Class 
+    */
+    public Object evaluate(Object obj, Class target) {
+        // NC- new method
 
-       if ( accessor == null ) {
-               return null; //JD:not throwing exception to remain backwards compatabile, just returnign null                
-       }        
-       Object value = accessor.get( obj, attPath, target );
-       if(target == null)
-           return value;
+        PropertyAccessor accessor = getLastPropertyAccessor();
+        AtomicReference<Object> value = new AtomicReference<Object>();
+        AtomicReference<Exception> e = new AtomicReference<Exception>();
 
-       return Converters.convert( value, target );
-       
-  } 
-   
-   // accessor caching, scanning the registry every time is really very expensive
-   private PropertyAccessor lastAccessor;
-   private synchronized PropertyAccessor getPropertyAccessor(Object obj, Class target) {
-       if(lastAccessor == null)
-           lastAccessor = PropertyAccessors.findPropertyAccessor( obj, attPath, target, hints );
-       else if(!lastAccessor.canHandle(obj, attPath, target))
-           lastAccessor = PropertyAccessors.findPropertyAccessor( obj, attPath, target, hints );
-       
-       return lastAccessor;
-   }
+        if (accessor == null || !accessor.canHandle(obj, attPath, target)
+                || !tryAccessor(accessor, obj, target, value, e)) {
+            boolean success = false;
+
+            List<PropertyAccessor> accessors = PropertyAccessors.findPropertyAccessors(obj,
+                    attPath, target, hints);
+
+            if (accessors != null) {
+                Iterator<PropertyAccessor> it = accessors.iterator();
+                while (!success && it.hasNext())
+                    success = tryAccessor(it.next(), obj, target, value, e);
+
+            }
+
+            if (!success) {
+                if (lenient) return null;
+                else throw new IllegalArgumentException(
+                        "Could not find working property accessor for attribute (" + attPath
+                                + ") in object (" + obj + ")", e.get());
+            } else {
+                setLastPropertyAccessor(accessor);
+            }
+
+        }
+
+        if (target == null) {
+            return value.get();
+        }
+
+        return Converters.convert(value.get(), target);
+
+    }
+
+    // NC - helper method for evaluation - attempt to use property accessor
+    private boolean tryAccessor(PropertyAccessor accessor, Object obj, Class target,
+            AtomicReference<Object> value, AtomicReference<Exception> ex) {
+        try {
+            value.set(accessor.get(obj, attPath, target));
+            return true;
+        } catch (Exception e) {
+            ex.set(e);
+            return false;
+        }
+
+    }
+
+    // accessor caching, scanning the registry every time is really very expensive
+    private PropertyAccessor lastAccessor;
+
+    private synchronized PropertyAccessor getLastPropertyAccessor() {
+        return lastAccessor;
+    }
+
+    private synchronized void setLastPropertyAccessor(PropertyAccessor accessor) {
+        lastAccessor = accessor;
+    }
    
      /**
      * Return this expression as a string.
@@ -282,4 +328,23 @@ public class AttributeExpressionImpl extends DefaultExpression
     public Object accept(ExpressionVisitor visitor, Object extraData) {
     	return visitor.visit(this,extraData);
     }
+    
+    /**
+     * Sets lenient property.
+     * 
+     * @param lenient
+     */
+    public void setLenient (boolean lenient) {
+        this.lenient = lenient;
+    }
+        
+    /**
+     * Gets lenient property
+     * 
+     * @return lenient
+     */
+    public boolean isLenient () {
+        return lenient;
+    }
+    
 }

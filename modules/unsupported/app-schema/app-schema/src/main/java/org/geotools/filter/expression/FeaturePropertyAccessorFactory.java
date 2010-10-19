@@ -283,7 +283,7 @@ public class FeaturePropertyAccessorFactory implements PropertyAccessorFactory {
             // xpath = stripPrefix(xpath);
 
             JXPathContext context = JXPathContext.newContext(object);
-            context.setLenient(true);
+            // context.setLenient(true); -- NC, edited
             Enumeration declaredPrefixes = namespaces.getDeclaredPrefixes();
             while (declaredPrefixes.hasMoreElements()) {
                 String prefix = (String) declaredPrefixes.nextElement();
@@ -305,7 +305,7 @@ public class FeaturePropertyAccessorFactory implements PropertyAccessorFactory {
             }
 
             JXPathContext context = JXPathContext.newContext(object);
-            context.setLenient(true);
+            // context.setLenient(true); --NC -edited
             context.setValue(xpath, value);
 
             assert value == context.getValue(xpath);
