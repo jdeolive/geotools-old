@@ -243,6 +243,8 @@ public abstract class AbstractGenerator {
         File file = null;
         try {
             file = new File(new URL(path).toURI());
+        } catch( MalformedURLException e ) {
+            file = new File(path);
         } catch( URISyntaxException e ) {
             file = new File( path );
         }
