@@ -872,7 +872,8 @@ public class UnmappingFilterVisitor implements org.opengis.filter.FilterVisitor,
             parentPath.remove(parentPath.size() - 1);
 
             candidates = mappings.getAttributeMappingsIgnoreIndex(parentPath);
-            expressions = getClientPropertyExpressions(candidates, clientPropertyName);
+              
+            expressions = getClientPropertyExpressions(candidates, clientPropertyName);            
             if (expressions.isEmpty()) {
                 // this might be a wrapper mapping for another complex mapping
                 // look for the client properties there
@@ -896,6 +897,11 @@ public class UnmappingFilterVisitor implements org.opengis.filter.FilterVisitor,
         for (Iterator it = attributeMappings.iterator(); it.hasNext();) {
             attMapping = (AttributeMapping) it.next();
             clientProperties = attMapping.getClientProperties();
+            // NC -added
+            // Fix Me - Id Checking should be done in a better way
+            if (clientPropertyName.getLocalPart().equals("id"))
+                clientPropertyExpressions.add(attMapping.getIdentifierExpression());
+            else // end NC - added      
             if (clientProperties.containsKey(clientPropertyName)) {
                 propertyExpression = (Expression) clientProperties.get(clientPropertyName);
                 clientPropertyExpressions.add(propertyExpression);

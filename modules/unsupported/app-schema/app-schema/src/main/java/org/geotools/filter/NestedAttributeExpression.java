@@ -32,6 +32,7 @@ import org.geotools.data.complex.NestedAttributeMapping;
 import org.geotools.data.complex.filter.XPath;
 import org.geotools.data.complex.filter.XPath.Step;
 import org.geotools.data.complex.filter.XPath.StepList;
+import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.Hints;
 import org.geotools.feature.FeatureImpl;
 import org.geotools.feature.Types;
@@ -40,6 +41,7 @@ import org.geotools.filter.expression.FeaturePropertyAccessorFactory;
 import org.opengis.feature.Attribute;
 import org.opengis.feature.Feature;
 import org.opengis.feature.type.Name;
+import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
 import org.xml.sax.helpers.NamespaceSupport;
 
@@ -241,10 +243,10 @@ public class NestedAttributeExpression extends AttributeExpressionImpl {
                                         values.addAll(nestedValues);
                                     }
                                 }
-                            } catch (IOException e) {
+                           } catch (IOException e) {
                                 throw new RuntimeException("Failed evaluating filter expression: '"
                                         + attPath + "'. Caused by: " + e.getMessage());
-                            }
+                           }
                         }
                     } else {
                         // normal attribute mapping
@@ -384,6 +386,16 @@ public class NestedAttributeExpression extends AttributeExpressionImpl {
             } else {
                 lastStep = Types.toTypeName(lastStepName);
             }
+            //NC -added
+            //Fix Me - Id Checking should be done in a better way
+            if (lastStep.getLocalPart().equals("id")) {
+                if (mapping.getIdentifierExpression() == Expression.NIL) {
+                    return CommonFactoryFinder.getFilterFactory(null).property("@id");
+                } else {
+                    return mapping.getIdentifierExpression();
+                }
+            }
+            else // end NC - added
             if (clientProperties.containsKey(lastStep)) {
                 return (Expression) clientProperties.get(lastStep);
             } else {
