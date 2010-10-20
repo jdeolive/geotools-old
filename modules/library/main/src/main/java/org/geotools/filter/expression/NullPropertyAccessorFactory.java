@@ -22,7 +22,7 @@ import org.geotools.factory.Hints;
 /**
  * This class supports the use of Expression/NIL for referring to a 'null' value.
  * 
- * @author Niels Charlier, CSIRO
+ * @author Niels Charlier, Curtin University Of Technology
  * 
  * @source $URL:
  *         http://svn.osgeo.org/geotools/trunk/modules/library/main/src/main/java/org/geotools/
