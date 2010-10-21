@@ -34,8 +34,8 @@ public class H2NoPrimaryKeyTestSetup extends JDBCNoPrimaryKeyTestSetup {
 
     @Override
     protected void createLakeTable() throws Exception {
-        run("CREATE TABLE \"lake\"(\"id\" int, \"geom\" blob, \"name\" varchar )");
-
+        run("CREATE TABLE \"lake\"(\"id\" int, \"geom\" POLYGON, \"name\" varchar )");
+        run("CALL AddGeometryColumn(NULL, 'lake', 'geom', 4326, 'POLYGON', 2)");
         run("INSERT INTO \"lake\" (\"id\",\"geom\",\"name\") VALUES ( 0,"
                 + "ST_GeomFromText('POLYGON((12 6, 14 8, 16 6, 16 4, 14 4, 12 6))',4326),"
                 + "'muddy')");
@@ -43,6 +43,7 @@ public class H2NoPrimaryKeyTestSetup extends JDBCNoPrimaryKeyTestSetup {
 
     @Override
     protected void dropLakeTable() throws Exception {
+        run("CALL DropGeometryColumn(NULL, 'lake', 'geom')");
         run("DROP TABLE \"lake\"");
     }
 

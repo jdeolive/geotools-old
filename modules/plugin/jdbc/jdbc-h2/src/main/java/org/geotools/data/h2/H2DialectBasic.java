@@ -168,13 +168,36 @@ public class H2DialectBasic extends BasicSQLDialect {
     //
     
     @Override
+    public void encodeValue(Object value, Class type, StringBuffer sql) {
+        if (byte[].class == type) {
+            byte[] b = (byte[]) value;
+            
+            //encode as hex string
+            sql.append("'");
+            for (int i=0; i < b.length; i++) {
+                sql.append(Integer.toString( ( b[i] & 0xff ) + 0x100, 16).substring( 1 ));
+            }
+            sql.append("'");
+        }
+        else {
+            super.encodeValue(value, type, sql);
+        }
+        
+    }
+    
+    @Override
     public void encodeGeometryValue(Geometry value, int srid, StringBuffer sql)
             throws IOException {
-        sql.append("ST_GeomFromText ('");
-        sql.append(new WKTWriter().write(value));
-        sql.append("',");
-        sql.append(srid);
-        sql.append(")");
+        if (value != null) {
+            sql.append("ST_GeomFromText ('");
+            sql.append(new WKTWriter().write(value));
+            sql.append("',");
+            sql.append(srid);
+            sql.append(")");
+        }
+        else {
+            sql.append("NULL");
+        }
     }
 
     @Override

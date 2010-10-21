@@ -26,7 +26,8 @@ public class H2DataStoreAPITestSetup extends JDBCDataStoreAPITestSetup {
 
     protected void createRoadTable() throws Exception {
         run("CREATE TABLE \"road\"(\"fid\" int AUTO_INCREMENT(0) PRIMARY KEY, \"id\" int, "
-            + "\"geom\" blob, \"name\" varchar )");
+            + "\"geom\" LINESTRING, \"name\" varchar )");
+        run("CALL AddGeometryColumn(NULL, 'road', 'geom', 4326, 'LINESTRING', 2)");
         run("CALL CreateSpatialIndex(NULL, 'road', 'geom', 4326)");
         run("INSERT INTO \"road\" (\"id\",\"geom\",\"name\") VALUES (0,"
             + "ST_GeomFromText('LINESTRING(1 1, 2 2, 4 2, 5 1)',4326)," + "'r1')");
@@ -38,7 +39,8 @@ public class H2DataStoreAPITestSetup extends JDBCDataStoreAPITestSetup {
 
     protected void createRiverTable() throws Exception {
         run("CREATE TABLE \"river\"(\"fid\" int AUTO_INCREMENT(0) PRIMARY KEY, \"id\" int, "
-            + "\"geom\" blob, \"river\" varchar , \"flow\" double )");
+            + "\"geom\" MULTILINESTRING, \"river\" varchar , \"flow\" double )");
+        run("CALL AddGeometryColumn(NULL, 'river', 'geom', 4326, 'MULTILINESTRING', 2)");
         run("CALL CreateSpatialIndex(NULL, 'river', 'geom', 4326)");
         run("INSERT INTO \"river\" (\"id\",\"geom\",\"river\", \"flow\")  VALUES ( 0,"
             + "ST_GeomFromText('MULTILINESTRING((5 5, 7 4),(7 5, 9 7, 13 7),(7 5, 9 3, 11 3))',4326),"
@@ -49,7 +51,8 @@ public class H2DataStoreAPITestSetup extends JDBCDataStoreAPITestSetup {
 
     protected void createLakeTable() throws Exception {
         run("CREATE TABLE \"lake\"(\"fid\" int AUTO_INCREMENT(0) PRIMARY KEY, \"id\" int, "
-            + "\"geom\" blob, \"name\" varchar )");
+            + "\"geom\" POLYGON, \"name\" varchar )");
+        run("CALL AddGeometryColumn(NULL, 'lake', 'geom', 4326, 'POLYGON', 2)");
         run("CALL CreateSpatialIndex(NULL, 'lake', 'geom', 4326)");
         run("INSERT INTO \"lake\" (\"id\",\"geom\",\"name\") VALUES ( 0,"
             + "ST_GeomFromText('POLYGON((12 6, 14 8, 16 6, 16 4, 14 4, 12 6))',4326)," + "'muddy')");
@@ -57,21 +60,30 @@ public class H2DataStoreAPITestSetup extends JDBCDataStoreAPITestSetup {
 
     protected void dropRoadTable() throws Exception {
         runSafe("DROP TABLE \"road\"");
+        runSafe("CALL DropGeometryColumn(NULL, 'road', 'geom')");
+        //runSafe("DELETE FROM geometry_columns where f_table_name = 'road'");
+        
         runSafe("DROP TABLE \"road_HATBOX\"");
     }
 
     protected void dropRiverTable() throws Exception {
         runSafe("DROP TABLE \"river\"");
+        runSafe("CALL DropGeometryColumn(NULL, 'river', 'geom')");
+        //runSafe("DELETE FROM geometry_columns where f_table_name = 'river'");
         runSafe("DROP TABLE \"river_HATBOX\"");
     }
 
     protected void dropLakeTable() throws Exception {
         runSafe("DROP TABLE \"lake\"");
+        runSafe("CALL DropGeometryColumn(NULL, 'lake', 'geom')");
+        //runSafe("DELETE FROM geometry_columns where f_table_name = 'lake'");
         runSafe("DROP TABLE \"lake_HATBOX\"");
     }
 
     protected void dropBuildingTable() throws Exception {
         runSafe("DROP TABLE \"building\"");
+        runSafe("CALL DropGeometryColumn(NULL, 'building', 'geom')");
+        //runSafe("DELETE FROM geometry_columns where f_table_name = 'building'");
         runSafe("DROP TABLE \"building_HATBOX\"");
     }
 }

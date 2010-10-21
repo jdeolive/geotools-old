@@ -39,7 +39,8 @@ public class H2PrimaryKeyFinderTestSetup extends JDBCPrimaryKeyFinderTestSetup {
     @Override
     protected void createSequencedPrimaryKeyTable() throws Exception {
         run("CREATE TABLE \"seqtable\" ( \"key\" int PRIMARY KEY, "
-                + "\"name\" VARCHAR, \"geom\" BLOB)");
+                + "\"name\" VARCHAR, \"geom\" GEOMETRY)");
+        run("CALL AddGeometryColumn(NULL, 'seqtable', 'geom', 4326, 'GEOMETRY', 2)");
         run("CREATE SEQUENCE pksequence START WITH 1");
 
         run("INSERT INTO \"seqtable\" (\"key\", \"name\",\"geom\" ) VALUES ("
@@ -62,8 +63,8 @@ public class H2PrimaryKeyFinderTestSetup extends JDBCPrimaryKeyFinderTestSetup {
     @Override
     protected void createPlainTable() throws Exception {
         run("CREATE TABLE \"plaintable\" ( \"key1\" int, \"key2\" int, "
-                + "\"name\" VARCHAR, \"geom\" BLOB)");
-
+                + "\"name\" VARCHAR, \"geom\" GEOMETRY)");
+        run("CALL AddGeometryColumn(NULL, 'plaintable', 'geom', 4326, 'GEOMETRY', 2)");
         run("INSERT INTO \"plaintable\" VALUES (1, 2, 'one', NULL)");
         run("INSERT INTO \"plaintable\" VALUES (2, 3, 'two', NULL)");
         run("INSERT INTO \"plaintable\" VALUES (3, 4, 'three', NULL)");

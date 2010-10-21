@@ -77,30 +77,7 @@ public class H2Dialect extends SQLDialect {
         return "\"";
     }
 
-    public void registerSqlTypeToClassMappings(Map<Integer, Class<?>> mappings) {
-        super.registerSqlTypeToClassMappings(mappings);
-
-        //geometries
-        //mappings.put(new Integer(Types.OTHER), Geometry.class);
-        mappings.put(new Integer(Types.BLOB), Geometry.class);
-    }
-
-    public void registerClassToSqlMappings(Map<Class<?>, Integer> mappings) {
-        super.registerClassToSqlMappings(mappings);
-
-        //geometries
-
-        //TODO: only map geometry?
-        mappings.put(Geometry.class, new Integer(Types.BLOB));
-        mappings.put(Point.class, new Integer(Types.BLOB));
-        mappings.put(LineString.class, new Integer(Types.BLOB));
-        mappings.put(Polygon.class, new Integer(Types.BLOB));
-        mappings.put(GeometryCollection.class, new Integer(Types.BLOB));
-        mappings.put(MultiPoint.class, new Integer(Types.BLOB));
-        mappings.put(MultiLineString.class, new Integer(Types.BLOB));
-        mappings.put(MultiPolygon.class, new Integer(Types.BLOB));
-    }
-
+    
     @Override
     public void initializeConnection(Connection cx) throws SQLException {
         //spatialize the database
@@ -121,7 +98,45 @@ public class H2Dialect extends SQLDialect {
     public Class<?> getMapping(ResultSet columnMetaData, Connection cx)
             throws SQLException {
         
+        String typeName = columnMetaData.getString("TYPE_NAME");
+        if ("BLOB".equalsIgnoreCase(typeName)) {
+            String schemaName = columnMetaData.getString("TABLE_SCHEM");
+            String tableName = columnMetaData.getString("TABLE_NAME");
+            String columnName = columnMetaData.getString("COLUMN_NAME");
+            
+            //look up in geometry columns table
+            StringBuffer sql = new StringBuffer("SELECT type FROM geometry_columns WHERE ");
+            if (schemaName != null) {
+                sql.append("f_table_schema = '").append(schemaName).append("'").append(" AND ");
+            }
+            sql.append("f_table_name = '").append(tableName).append("' AND ");
+            sql.append("f_geometry_column = '").append(columnName).append("'");
+            
+            Statement st = cx.createStatement();
+            try {
+                LOGGER.fine(sql.toString());
+                ResultSet rs = st.executeQuery(sql.toString());
+                try {
+                    if (rs.next()) {
+                        String type = rs.getString(1);
+                        Geometries g = Geometries.getForName(type);
+                        if (g != null) {
+                            return g.getBinding();
+                        }
+                        LOGGER.warning("Geometry type " + type + " not supported.");
+                    }
+                }
+                finally {
+                    dataStore.closeSafe(rs);
+                }
+            }
+            finally {
+                dataStore.closeSafe(st);
+            }
+        }
+        
         //do a check for a column remark which marks this as a geometry
+        // do this mostly for backwards compatability
         String remark = columnMetaData.getString( "REMARKS" );
         if ( remark != null ) {
             Geometries g = Geometries.getForName(remark);
@@ -131,6 +146,7 @@ public class H2Dialect extends SQLDialect {
         }
         
         return null;
+
     }
     
     @Override
@@ -147,6 +163,12 @@ public class H2Dialect extends SQLDialect {
     }
     
     @Override
+    public void registerClassToSqlMappings(Map<Class<?>, Integer> mappings) {
+        super.registerClassToSqlMappings(mappings);
+        mappings.put(Geometry.class, Types.BLOB);
+    }
+    
+    @Override
     public void postCreateTable(String schemaName,
             SimpleFeatureType featureType, Connection cx) throws SQLException {
         
@@ -160,41 +182,41 @@ public class H2Dialect extends SQLDialect {
                     GeometryDescriptor gd = (GeometryDescriptor)ad;
                     Class binding = ad.getType().getBinding();
                     String propertyName = ad.getName().getLocalPart();
-                    
-                    if ( isConcreteGeometry( binding ) ) {
-                        StringBuffer sql = new StringBuffer();
-                        sql.append( "ALTER TABLE ");
-                        encodeTableName(tableName, sql);
-                        sql.append( " ADD CONSTRAINT " );
-                        encodeTableName( tableName + "_"+propertyName + "GeometryType", sql );
-                        sql.append( " CHECK ");
-                        encodeColumnName( propertyName, sql );
-                        sql.append( " IS NULL OR");
-                        sql.append( " GeometryType(");
-                        encodeColumnName( propertyName, sql );
-                        sql.append( ") = '").append( Geometries.getForBinding(binding).getName()
-                                .toUpperCase() ).append( "'");
-                            
-                        LOGGER.fine( sql.toString() );
-                        st.execute( sql.toString() );
-                    }
-                    
+                  
                     //create a spatial index
-                    CoordinateReferenceSystem crs = gd.getCoordinateReferenceSystem();
-                    if (crs == null) {
-                        continue;
-                    }
-                    
-                    Integer epsg = null;
+                    int epsg = -1;
                     try {
+                        CoordinateReferenceSystem crs = gd.getCoordinateReferenceSystem();
+                        if (crs == null) {
+                            continue;
+                        }
+                        
                         epsg = CRS.lookupEpsgCode(crs, true);
                     } 
                     catch (FactoryException e) {
                         LOGGER.log(Level.FINER, "Unable to look epsg code", e);
                     }
+
+                    StringBuffer sql = new StringBuffer();
+                    sql.append("CALL AddGeometryColumn(");
+                    if (schemaName != null) {
+                        sql.append("'").append(schemaName).append("'");
+                    }
+                    else {
+                        sql.append("NULL");
+                    }
+                    sql.append(", '").append(tableName).append("'");
+                    sql.append(", '").append(gd.getLocalName()).append("'");
+                    sql.append(", ").append(epsg);
+                    sql.append(", '").append(Geometries.getForBinding(binding).getName()).append("'");
+                    sql.append(", ").append(2); //TODO: dimension
+                    sql.append(")");
                     
-                    if (epsg != null) {
-                        StringBuffer sql = new StringBuffer();
+                    LOGGER.fine(sql.toString());
+                    st.execute(sql.toString());
+                    
+                    if (epsg != -1) {
+                        sql = new StringBuffer();
                         sql.append("CALL CreateSpatialIndex(");
                         if (schemaName == null) {
                             sql.append("NULL");

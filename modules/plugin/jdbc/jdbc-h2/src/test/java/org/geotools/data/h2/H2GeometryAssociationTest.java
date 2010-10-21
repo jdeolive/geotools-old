@@ -33,7 +33,10 @@ public class H2GeometryAssociationTest extends JDBCGeometryAssociationTestSuppor
 
                     String sql = "CREATE TABLE \"geotools\".\"geometry\" ("
                         + "\"id\" VARCHAR, \"name\" VARCHAR, \"description\" VARCHAR,  "
-                        + "\"type\" VARCHAR, \"geometry\" BLOB" + ")";
+                        + "\"type\" VARCHAR, \"geometry\" POINT" + ")";
+                    run(sql);
+                    
+                    sql = "CALL AddGeometryColumn('geotools', 'geometry', 'geometry', 4326, 'POINT', 2)";
                     run(sql);
 
                     sql = "INSERT INTO \"geotools\".\"geometry\" VALUES ("
@@ -94,7 +97,10 @@ public class H2GeometryAssociationTest extends JDBCGeometryAssociationTestSuppor
                     }
 
                     sql = "CREATE TABLE \"geotools\".\"ga\" ("
-                        + "\"id\" int AUTO_INCREMENT(1) PRIMARY KEY, " + "\"geometry\" BLOB " + ")";
+                        + "\"id\" int AUTO_INCREMENT(1) PRIMARY KEY, " + "\"geometry\" GEOMETRY " + ")";
+                    run(sql);
+                    
+                    sql = "CALL AddGeometryColumn('geotools', 'ga', 'geometry', 4326, 'GEOMETRY', 2)";
                     run(sql);
 
                     sql = "INSERT INTO \"geotools\".\"ga\" VALUES (0, NULL);";
