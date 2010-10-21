@@ -728,16 +728,9 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
             ArrayList values = new ArrayList<Property>();
             for (Iterator i = target.getValue().iterator(); i.hasNext();) {
                 Property p = (Property) i.next();
-
-                if (hasChild(p)) {
+                
+                if (hasChild(p) || p.getDescriptor().getMinOccurs() > 0) {
                     values.add(p);
-                } else if (p.getDescriptor().getMinOccurs() > 0) {
-                    if (!p.getDescriptor().isNillable()) {
-                        throw new IllegalArgumentException(p.getDescriptor().getName()
-                                + " requires a non null value");
-                    } else {
-                        values.add(p);
-                    }
                 }
             }
             target.setValue(values);
@@ -754,9 +747,8 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
         if (p.getValue() instanceof Collection) {
 
             Collection c = (Collection) p.getValue();
-            // Will need to add && this.getClientProperties(p).get(XLINK_HREF_NAME)!=null if we
-            // intend to skip empty xlink href eg <gsml:samplingFrame/>
-            if (c.size() == 0 && this.getClientProperties(p).containsKey(XLINK_HREF_NAME)) {
+            // don't skip if it has value or client properties
+            if (c.size() == 0 && !this.getClientProperties(p).isEmpty()) {
                 return true;
             }
 

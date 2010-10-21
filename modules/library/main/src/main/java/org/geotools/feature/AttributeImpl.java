@@ -47,8 +47,7 @@ public class AttributeImpl extends PropertyImpl implements Attribute {
 	public AttributeImpl(Object content, AttributeDescriptor descriptor,
 			Identifier id) {
 	    super( content, descriptor );
-	    this.id = id;
-	    Types.validate(this, getValue());
+	    this.id = id;	    
 	}
 
 	public AttributeImpl(Object content, AttributeType type, Identifier id) {
@@ -75,9 +74,6 @@ public class AttributeImpl extends PropertyImpl implements Attribute {
 			IllegalStateException {
 
 		newValue = parse(newValue);
-
-		//TODO: remove this validation
-		Types.validate(getType(), this, newValue);
 		super.setValue( newValue );
 	}
 
@@ -115,9 +111,11 @@ public class AttributeImpl extends PropertyImpl implements Attribute {
 		
 		return Utilities.equals( id, att.getIdentifier() );
 	}
+	
 	public void validate() {
 	    Types.validate(this, this.getValue() );
 	}
+	
 	public String toString() {
 		StringBuffer sb = new StringBuffer(getClass().getSimpleName()).append(":");
         sb.append(getDescriptor().getName().getLocalPart());
