@@ -176,6 +176,8 @@ public class Utils {
 	 * {@link ImageInputStream} instances.
 	 */
 	private static ImageInputStreamSpi cachedStreamSPI = new URLImageInputStreamSpi();
+	
+	public static final AffineTransform IDENTITY_TRANSFORM = new AffineTransform();
 
 	/**
 	 * Creates a mosaic for the provided input parameters.
@@ -1109,7 +1111,7 @@ public class Utils {
 	    static Number[] getBackgroundValues(final SampleModel sampleModel, final double[] backgroundValues) {
 	        Number[] values = null;
 	        final int dataType = sampleModel != null ? sampleModel.getDataType() : DataBuffer.TYPE_DOUBLE;
-	        final int numBands=sampleModel.getNumBands();
+	        final int numBands=sampleModel != null? sampleModel.getNumBands() : 1;
 	        switch (dataType){
 	            case DataBuffer.TYPE_BYTE:
 	                values = new Byte[numBands];

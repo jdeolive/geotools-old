@@ -16,6 +16,7 @@
  */
 package org.geotools.gce.imagemosaic;
 
+import it.geosolutions.imageio.utilities.ImageIOUtilities;
 import it.geosolutions.imageio.utilities.Utilities;
 
 import java.awt.Dimension;
@@ -44,6 +45,7 @@ import javax.media.jai.BorderExtender;
 import javax.media.jai.ImageLayout;
 import javax.media.jai.Interpolation;
 import javax.media.jai.JAI;
+import javax.media.jai.ROI;
 import javax.media.jai.ROIShape;
 import javax.media.jai.TileCache;
 import javax.media.jai.TileScheduler;
@@ -667,7 +669,6 @@ public class GranuleDescriptor {
 			final RenderedImage raster;
 			try{
 				// read
-//				raster= request.getReadType().read(readParameters,imageIndex, granuleUrl, selectedlevel.rasterDimensions,cachedReaderSPI, hints);
 				raster= request.getReadType().read(readParameters,imageIndex, granuleUrl, selectedlevel.rasterDimensions,reader, hints,false);
 				
 			}
@@ -736,6 +737,7 @@ public class GranuleDescriptor {
 			}
 			ROIShape granuleLoadingShape = null;
 			if (granuleROIShape != null){
+			    
                             final Point2D translate = mosaicWorldToGrid.transform(new DirectPosition2D(x,y), (Point2D) null);
                             AffineTransform tx2 = new AffineTransform();
                             tx2.preConcatenate(AffineTransform.getScaleInstance(((AffineTransform)mosaicWorldToGrid).getScaleX(), 
@@ -743,10 +745,11 @@ public class GranuleDescriptor {
                             tx2.preConcatenate(AffineTransform.getScaleInstance(((AffineTransform)baseGridToWorld).getScaleX(), 
                                     -((AffineTransform)baseGridToWorld).getScaleY()));
                             tx2.preConcatenate(AffineTransform.getTranslateInstance(translate.getX(),translate.getY()));
-                            final Shape sp = granuleROIShape.getAsShape();
-                            final Area area = new Area(sp);
-                            area.transform(tx2);
-                            granuleLoadingShape = new ROIShape(area);
+//                            final Shape sp = granuleROIShape.getAsShape();
+//                            final Area area = new Area(sp);
+//                            area.transform(tx2);
+//                            granuleLoadingShape = new ROIShape(area);
+                            granuleLoadingShape = (ROIShape) granuleROIShape.transform(tx2);
                             
                         }
 			// apply the affine transform  conserving indexed color model
@@ -766,6 +769,13 @@ public class GranuleDescriptor {
 					final ImageLayout layout = new ImageLayout();
 					layout.setTileHeight(tileDimensions.width).setTileWidth(tileDimensions.height);
 					localHints.add(new RenderingHints(JAI.KEY_IMAGE_LAYOUT,layout));
+				} else {
+				    if (hints != null && hints.containsKey(JAI.KEY_IMAGE_LAYOUT)) {
+			                    final Object layout = hints.get(JAI.KEY_IMAGE_LAYOUT);
+			                    if (layout != null && layout instanceof ImageLayout) {
+			                        localHints.add(new RenderingHints(JAI.KEY_IMAGE_LAYOUT, ((ImageLayout) layout).clone()));
+			                    }
+			                }
 				}
 				if (hints != null && hints.containsKey(JAI.KEY_TILE_CACHE)){
 				    final Object cache = hints.get(JAI.KEY_TILE_CACHE);
@@ -857,18 +867,19 @@ public class GranuleDescriptor {
                     }
 			return null;
 
-		} 
-		finally{
-			try{
-				if(inStream!=null)
-					inStream.close();
-			}
-			finally{
-				if(reader!=null)
-					reader.dispose();
-			}
-		}
-	}
+                } finally {
+                    try {
+                        if (inStream != null) {
+                            inStream.close();
+                        }
+                    } finally {
+                        if (request.getReadType() != ReadType.JAI_IMAGEREAD && reader != null) {
+                            reader.dispose();
+                        }
+                    }
+                }
+            }
+
 	private GranuleOverviewLevelDescriptor getLevel(final int index, final ImageReader reader, final ImageInputStream inStream) {
 
 		if(reader==null)

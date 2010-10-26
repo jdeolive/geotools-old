@@ -17,6 +17,7 @@
 package org.geotools.gce.imagemosaic;
 
 import java.awt.image.IndexColorModel;
+import java.awt.image.SampleModel;
 import java.lang.reflect.InvocationTargetException;
 
 import org.apache.commons.beanutils.BeanUtils;
@@ -82,6 +83,12 @@ public class MosaicConfigurationBean {
 	/** runtime attribute name. <code>null</code> if absent.*/
 	private String runtimeAttribute;
 	
+        /** 
+         * mosaic's dummy sample model useful to store dataType and number of bands. All the other fields
+         * shouldn't be queried since they are meaningless for the whole mosaic (width, height, ...)
+         */
+        private SampleModel sampleModel;
+	
 	/** Imposed envelope for this mosaic. If not present we need to compute from catalogue.*/
 	
 	private ReferencedEnvelope envelope;
@@ -93,6 +100,14 @@ public class MosaicConfigurationBean {
 	public void setEnvelope(ReferencedEnvelope envelope) {
 		this.envelope = envelope;
 	}
+
+    public SampleModel getSampleModel() {
+        return sampleModel;
+    }
+
+    public void setSampleModel(SampleModel sampleModel) {
+        this.sampleModel = sampleModel;
+    }
 
 	public String getElevationAttribute() {
 		return elevationAttribute;
