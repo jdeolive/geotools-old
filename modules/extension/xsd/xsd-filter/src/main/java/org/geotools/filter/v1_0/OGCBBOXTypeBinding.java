@@ -23,12 +23,15 @@ import org.w3c.dom.Element;
 import javax.xml.namespace.QName;
 import com.vividsolutions.jts.geom.Envelope;
 import org.opengis.filter.FilterFactory;
+import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.spatial.BBOX;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.gml2.GML;
 import org.geotools.gml2.bindings.GML2EncodingUtils;
+import org.geotools.referencing.CRS;
 import org.geotools.xml.AbstractComplexBinding;
 import org.geotools.xml.ElementInstance;
 import org.geotools.xml.Node;
@@ -144,6 +147,15 @@ public class OGCBBOXTypeBinding extends AbstractComplexBinding {
 
         //&lt;xsd:element ref="gml:Box"/&gt;
         if (GML.Box.equals(name) || org.geotools.gml3.GML.Envelope.equals(name)) {
+            try {
+                String srs = box.getSRS();
+                if(srs != null) {
+                    CoordinateReferenceSystem crs = CRS.decode(srs);
+                    return new ReferencedEnvelope(box.getMinX(), box.getMaxX(), box.getMinY(), box.getMaxY(), crs);
+                }
+            } catch(Throwable t) {
+                // never mind
+            }
             return new Envelope(box.getMinX(), box.getMaxX(), box.getMinY(), box.getMaxY());
         }
 

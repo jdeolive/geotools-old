@@ -20,10 +20,12 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.gml2.GML;
 import org.geotools.xml.AbstractComplexBinding;
 import org.geotools.xml.ElementInstance;
 import org.geotools.xml.Node;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.CoordinateSequence;
@@ -125,6 +127,8 @@ public class GMLBoxTypeBinding extends AbstractComplexBinding {
             return new Coordinate[] {
                 new Coordinate(e.getMinX(), e.getMinY()), new Coordinate(e.getMaxX(), e.getMaxY())
             };
+        } else if("srsName".equals(name.getLocalPart()) && e instanceof ReferencedEnvelope) {
+            return GML2EncodingUtils.toURI(((ReferencedEnvelope) e).getCoordinateReferenceSystem());
         }
 
         return null;
