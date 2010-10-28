@@ -191,12 +191,8 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
         this.reprojection = query.getCoordinateSystemReproject();
         // we need to disable the max number of features retrieved so we can
         // sort them manually just in case the data is denormalised
-        query.setMaxFeatures(Query.DEFAULT_MAX);        
-        try {
-            sourceFeatures = mappedSource.getFeatures(query);       
-        } catch (Exception e) {
-            throw new IOException(e.getMessage());
-        }       
+        query.setMaxFeatures(Query.DEFAULT_MAX);
+        sourceFeatures = mappedSource.getFeatures(query);
         if (reprojection != null) {
             xpathAttributeBuilder.setCRS(reprojection);
             if (sourceFeatures.getSchema().getGeometryDescriptor() == null) {
@@ -204,9 +200,14 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
                 query.setCoordinateSystemReproject(null);
             }
         }
-        this.sourceFeatureIterator = sourceFeatures.iterator();
+        try {
+            this.sourceFeatureIterator = sourceFeatures.iterator();
+        } catch (Exception e) {
+            throw new IOException(e.getMessage());
+        }
+
     }
-    
+
     protected boolean unprocessedFeatureExists() {
 
         boolean exists = getSourceFeatureIterator().hasNext();
@@ -728,7 +729,7 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
             ArrayList values = new ArrayList<Property>();
             for (Iterator i = target.getValue().iterator(); i.hasNext();) {
                 Property p = (Property) i.next();
-                
+
                 if (hasChild(p) || p.getDescriptor().getMinOccurs() > 0) {
                     values.add(p);
                 }
