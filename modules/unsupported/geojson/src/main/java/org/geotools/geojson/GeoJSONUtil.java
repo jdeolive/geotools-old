@@ -144,7 +144,7 @@ public class GeoJSONUtil {
     // encoding
     //
     public static StringBuilder string(String string, StringBuilder sb) {
-        sb.append("\"").append(string).append("\"");
+        sb.append("\"").append(JSONObject.escape(string)).append("\"");
         return sb;
     }
     
