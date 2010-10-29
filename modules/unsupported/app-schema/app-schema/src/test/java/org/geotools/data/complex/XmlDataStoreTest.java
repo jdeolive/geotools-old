@@ -83,6 +83,7 @@ import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
+import org.xml.sax.Attributes;
 import org.xml.sax.helpers.NamespaceSupport;
 
 /**
@@ -249,13 +250,13 @@ public class XmlDataStoreTest extends TestCase {
         at = attNameList.get(0);
         assertEquals("Unit Name1248396531312 UC1248396531312 description name",
                 getValueForAttribute(at));
-        assertEquals(1, at.getUserData().size());
+        assertEquals(1, ((Map) at.getUserData().get(Attributes.class)).size());
         assertEquals("gsv:NameSpace", getUserDataForAttribute(at, new NameImpl("codeSpace")));
 
         // Second one has a value and a single attribute--codeSpace
         at = attNameList.get(1);
         assertEquals("urn:cgi:feature:GSV:1679161021439131319", getValueForAttribute(at));
-        assertTrue(at.getUserData() != null && at.getUserData().size() == 1);
+        assertTrue(at.getUserData() != null && ((Map) at.getUserData().get(Attributes.class)).size() == 1);
         assertEquals("gsv:NameSpace", getUserDataForAttribute(at, new NameImpl("codeSpace")));
 
         // ***************************************************************************************
@@ -341,8 +342,8 @@ public class XmlDataStoreTest extends TestCase {
     private String getUserDataForAttribute(Attribute sv, Name key) {
         String value = null;
         Map<Object, Object> userData = (Map<Object, Object>) sv.getUserData();
-        if (userData.size() > 0) {
-            Map map = (Map) userData.values().iterator().next();
+        if (userData.containsKey(Attributes.class)) {
+            Map map = (Map) userData.get(Attributes.class);
             value = (String) map.get(key);
         }
         return value;

@@ -484,8 +484,9 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
             setClientProperties(instance, source, clientPropsMappings);
             for (AttributeMapping mapping : polymorphicMappings) {
                 if (isTopLevelmapping(polymorphicTypeName, mapping.getTargetXPath())) {
-                    // ignore the top level mapping for the Feature itself
-                    // as it was already set
+                    // if the top level mapping for the Feature itself, the attribute instance
+                    // has already been created.. just need to set the client properties
+                    setClientProperties(instance, source, mapping.getClientProperties());
                     continue;
                 }
                 setAttributeValue(instance, source, mapping);
@@ -579,6 +580,10 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
             return;
         }
         final Map<Name, Object> targetAttributes = new HashMap<Name, Object>();
+        if (target.getUserData().containsValue(Attributes.class)) {
+            targetAttributes.putAll((Map<? extends Name, ? extends Object>) target.getUserData()
+                    .get(Attributes.class));
+        }        
         for (Map.Entry<Name, Expression> entry : clientProperties.entrySet()) {
             Name propName = entry.getKey();
             Object propExpr = entry.getValue();

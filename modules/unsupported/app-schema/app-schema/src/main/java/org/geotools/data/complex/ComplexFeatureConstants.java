@@ -38,7 +38,7 @@ public class ComplexFeatureConstants {
     /**
      * Static attribute name used to link different feature types.
      */
-    final public static Name FEATURE_CHAINING_LINK_NAME = new NameImpl("FEATURE_LINK");
+    public static final Name FEATURE_CHAINING_LINK_NAME = new NameImpl("FEATURE_LINK");
 
     /**
      * Static attribute descriptor used to link different feature types. This attribute won't appear
@@ -46,7 +46,7 @@ public class ComplexFeatureConstants {
      * more than one instances to be used in one type that can be chained by different parent
      * feature types.
      */
-    final public static PropertyDescriptor FEATURE_CHAINING_LINK = new AttributeDescriptorImpl(
+    public static final PropertyDescriptor FEATURE_CHAINING_LINK = new AttributeDescriptorImpl(
             XSSchema.STRING_TYPE, FEATURE_CHAINING_LINK_NAME, 0, -1, true, null);
 
     /**
@@ -66,4 +66,10 @@ public class ComplexFeatureConstants {
      * Hints key for xlink:href used in ToXlinkHrefFunction
      */
     public static final Hints.Key STRING_KEY = new Hints.Key(String.class);
+
+    /**
+     * User data key to indicate the specified attribute index in the mapping file for the case of
+     * multi-valued properties, e.g. gml:name[2]
+     */
+    public static final String MAPPED_ATTRIBUTE_INDEX = "MAPPED_ATTRIBUTE_INDEX";
 }

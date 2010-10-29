@@ -320,7 +320,7 @@ public class XPath {
                 sb.append(attributeName.getPrefix()).append(':');
             }
             sb.append(attributeName.getLocalPart());
-            if (isIndexed || index > 1) {
+            if (isIndexed) {
                 // we want to print index = 1 as well if specified
                 // so filtering on the first index doesn't return all
                 // e.g. gml:name[1] doesn't get translated to
@@ -696,14 +696,14 @@ public class XPath {
                         return null;
                     }
                 }
-                int index = currStep.getIndex();
+                int index = currStep.isIndexed ? currStep.getIndex() : -1;
                 Attribute attribute = setValue(currStepDescriptor, id, value, index, parent,
                         targetNodeType, isXlinkRef);
                 return attribute;
             } else {
                 // parent = appendComplexProperty(parent, currStep,
                 // currStepDescriptor);
-                int index = currStep.getIndex();
+                int index = currStep.isIndexed ? currStep.getIndex() : -1;
                 parent = setValue(currStepDescriptor, null, new ArrayList<Property>(), index,
                         parent, null, isXlinkRef);
             }
@@ -717,22 +717,60 @@ public class XPath {
         // adapt value to context
         Object convertedValue = convertValue(descriptor, value);
         Attribute leafAttribute = null;
-        final Name attributeName = descriptor.getName();
-        if (parent instanceof ComplexAttribute) {
-            Object currStepValue = ((ComplexAttribute) parent).getProperties(attributeName);
-            if (!isXlinkRef) {
-                // skip this process if the attribute would only contain xlink:ref
-                // that is chained, because it won't contain any values, and we
-                // want to create a new empty leaf attribute
+        final Name attributeName = descriptor.getName();        
+        if (!isXlinkRef) {
+            // skip this process if the attribute would only contain xlink:ref
+            // that is chained, because it won't contain any values, and we
+            // want to create a new empty leaf attribute
+            if (parent instanceof ComplexAttribute) {
+                Object currStepValue = ((ComplexAttribute) parent).getProperties(attributeName);
                 if (currStepValue instanceof Collection) {
                     List<Attribute> values = new ArrayList((Collection) currStepValue);
-                    if (isEmpty(convertedValue) && values.size() >= index) {
-                        leafAttribute = (Attribute) values.get(index - 1);
-                    }
-                    for (Attribute stepValue : values) {
-                        // eliminate duplicates in case the values come from denormalized view..
-                        if (stepValue.getValue().equals(convertedValue)) {
-                            return stepValue;
+                    if (!values.isEmpty()) {
+                        if (isEmpty(convertedValue)) {
+                            // when attribute is empty, it is probably just a parent of a leaf
+                            // attribute
+                            // it could already exist from another attribute mapping for a different
+                            // leaf
+                            // e.g. 2 different attribute mappings:
+                            // sa:relatedObservation/om:Observation/om:parameter[2]/swe:Time/swe:uom
+                            // sa:relatedObservation/om:Observation/om:parameter[2]/swe:Time/swe:value
+                            // and this could be processing om:parameter[2] the second time for
+                            // swe:value
+                            // so we need to find it if it already exists
+                            if (index > -1) {
+                                // get the attribute of specified index
+                                for (Attribute stepValue : values) {
+                                    if (stepValue.getUserData().containsKey(
+                                            ComplexFeatureConstants.MAPPED_ATTRIBUTE_INDEX)) {
+                                        if (index == Integer.parseInt(
+                                                String.valueOf(stepValue.getUserData().get(
+                                                    ComplexFeatureConstants.MAPPED_ATTRIBUTE_INDEX)))) {
+                                            return stepValue;
+                                        }
+                                    }
+                                }
+                            } else {
+                                // get the last existing node
+                                return values.get(values.size() - 1);
+                            }
+                        } else {
+                            for (Attribute stepValue : values) {
+                                // eliminate duplicates in case the values come from denormalized
+                                // view..
+                                boolean sameIndex = true;
+                                if (index > -1) {
+                                    if (stepValue.getUserData().containsKey(
+                                            ComplexFeatureConstants.MAPPED_ATTRIBUTE_INDEX)) {
+                                        sameIndex = (index == Integer.parseInt(
+                                            String.valueOf(stepValue.getUserData().get(
+                                                ComplexFeatureConstants.MAPPED_ATTRIBUTE_INDEX))));
+                                    }
+                                }
+                                if (sameIndex && stepValue.getValue().equals(convertedValue)) {
+                                    return stepValue;
+                                }
+                            }
                         }
                     }
                 } else if (currStepValue instanceof Attribute) {
@@ -767,6 +805,11 @@ public class XPath {
                 leafAttribute = builder.addComplexAnyTypeAttribute(convertedValue, descriptor, id);
             } else {
                 leafAttribute = builder.add(id, convertedValue, attributeName);
+            }
+            if (index > -1) {
+                // set attribute index if specified so it can be retrieved later for grouping
+                leafAttribute.getUserData().put(ComplexFeatureConstants.MAPPED_ATTRIBUTE_INDEX,
+                        index);
             }
             List newValue = new ArrayList();
             newValue.addAll((Collection) parent.getValue());
