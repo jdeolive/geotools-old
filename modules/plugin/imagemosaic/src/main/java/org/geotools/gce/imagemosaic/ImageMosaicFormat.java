@@ -213,8 +213,8 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
                 MAX_ALLOWED_TILES,
 //                INTERPOLATION,
                 TIME,
-                ELEVATION,
-                FILTER}));
+                ELEVATION/*,
+                FILTER*/}));
 
         // reading parameters
         writeParameters = null;
