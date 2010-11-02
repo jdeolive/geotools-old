@@ -82,58 +82,67 @@ public final class StorageFile implements Comparable<StorageFile>, FileWriter {
      * @param storageFiles files to execute the replace functionality.
      * @throws IOException
      */
-    public static void replaceOriginals( StorageFile... storageFiles ) throws IOException {
+    public static void replaceOriginals(StorageFile... storageFiles) throws IOException {
         SortedSet<StorageFile> files = new TreeSet<StorageFile>(Arrays.asList(storageFiles));
 
         ShpFiles currentShpFiles = null;
         URL shpURL = null;
         StorageFile locker = null;
-        for( StorageFile storageFile : files ) {
-            if (currentShpFiles != storageFile.shpFiles) {
-                // there's a new set of files so unlock old and lock new.
-                unlock(currentShpFiles, shpURL, locker);
-                locker = storageFile;
-                currentShpFiles = storageFile.shpFiles;
-                shpURL = currentShpFiles.acquireWrite(ShpFileType.SHP, storageFile);
-            }
 
-            File storage = storageFile.getFile();
+        try {
 
-            URL url = storageFile.getSrcURLForWrite();
-            try {
-                File dest = DataUtilities.urlToFile(url);
+            for (StorageFile storageFile : files) {
+                if (currentShpFiles != storageFile.shpFiles) {
+                    // there's a new set of files so unlock old and lock new.
+                    unlock(currentShpFiles, shpURL, locker);
+                    locker = storageFile;
+                    currentShpFiles = storageFile.shpFiles;
+                    shpURL = currentShpFiles.acquireWrite(ShpFileType.SHP, storageFile);
+                }
 
-                if (storage.equals(dest))
-                    return;
+                File storage = storageFile.getFile();
 
-                if (dest.exists()) {
-                    if (!dest.delete()){
-                        ShapefileDataStoreFactory.LOGGER.severe("Unable to delete the file: "+dest+" when attempting to replace with temporary copy.");
-                        if( storageFile.shpFiles.numberOfLocks()>0 ){
-                            ShapefileDataStoreFactory.LOGGER.severe("The problem is almost certainly caused by the fact that there are still locks being held on the shapefiles.  Probably a reader or writer was left unclosed");
-                            storageFile.shpFiles.logCurrentLockers(Level.SEVERE);
+                URL url = storageFile.getSrcURLForWrite();
+                try {
+                    File dest = DataUtilities.urlToFile(url);
+
+                    if (storage.equals(dest))
+                        return;
+
+                    if (dest.exists()) {
+                        if (!dest.delete()) {
+                            ShapefileDataStoreFactory.LOGGER.severe("Unable to delete the file: "
+                                    + dest + " when attempting to replace with temporary copy.");
+                            if (storageFile.shpFiles.numberOfLocks() > 0) {
+                                ShapefileDataStoreFactory.LOGGER
+                                        .severe("The problem is almost certainly caused by the fact that there are still locks being held on the shapefiles.  Probably a reader or writer was left unclosed");
+                                storageFile.shpFiles.logCurrentLockers(Level.SEVERE);
+                            }
+                            // throw new IOException("Unable to delete original file: " + url);
                         }
-//                        throw new IOException("Unable to delete original file: " + url);
                     }
-                }
 
-                if (storage.exists() && !storage.renameTo(dest)) {
-                    ShapefileDataStoreFactory.LOGGER.finer("Unable to rename temporary file to the file: "+dest+" when attempting to replace with temporary copy");
-                    
-                    copyFile(storage, url, dest);
-                    if (!storage.delete()) {
-                        storage.deleteOnExit();
+                    if (storage.exists() && !storage.renameTo(dest)) {
+                        ShapefileDataStoreFactory.LOGGER
+                                .finer("Unable to rename temporary file to the file: " + dest
+                                        + " when attempting to replace with temporary copy");
+
+                        copyFile(storage, url, dest);
+                        if (!storage.delete()) {
+                            storage.deleteOnExit();
+                        }
                     }
-                }
-            } finally {
-                storageFile.unlockWriteURL(url);
+                } finally {
+                    storageFile.unlockWriteURL(url);
 
-                if (storage.exists()) {
-                    storage.delete();
+                    if (storage.exists()) {
+                        storage.delete();
+                    }
                 }
             }
+        } finally {
+            unlock(currentShpFiles, shpURL, locker);
         }
-        unlock(currentShpFiles, shpURL, locker);
 
     }
 
