@@ -19,6 +19,8 @@ package org.geotools.xml.impl;
 import org.eclipse.xsd.XSDNamedComponent;
 import java.util.logging.Logger;
 import javax.xml.namespace.QName;
+
+import org.geotools.feature.ComplexAttributeImpl;
 import org.geotools.util.Converters;
 import org.geotools.xml.Binding;
 import org.geotools.xml.ComplexBinding;
@@ -84,6 +86,14 @@ public class GetPropertyExecutor implements BindingWalker.Visitor {
                 } else {
                     LOGGER.fine("Could not convert " + parent + " to "
                         + binding.getType().getName());
+                    // For complex feature, if the feature can't be converted to the binding type,
+                    // exit the route to avoid ClassCastException raised in
+                    // child = complex.getProperty(parent, name);
+                    // For example, MeasureTypeBinding.getProperty(parent, name) throws
+                    // ClassCastException when 'uom' is not set.
+                    if (parent instanceof ComplexAttributeImpl) {
+                        return;
+                    }
                 }
             }
 
