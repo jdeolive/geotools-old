@@ -17,9 +17,12 @@
 package org.geotools.data.complex;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
@@ -93,6 +96,8 @@ public abstract class AbstractMappingFeatureIterator implements IMappingFeatureI
      * True if hasNext has been called prior to calling next()
      */
     private boolean hasNextCalled = false;
+    
+    protected Set<String> propertyNames;
 
     public AbstractMappingFeatureIterator(AppSchemaDataAccess store, FeatureTypeMapping mapping,
             Query query) throws IOException {
@@ -105,6 +110,8 @@ public abstract class AbstractMappingFeatureIterator implements IMappingFeatureI
         this.attf = new AppSchemaFeatureFactoryImpl();
 
         Name name = mapping.getTargetFeature().getName();
+        
+        propertyNames = query.getPropertyNames()==null? null: new HashSet<String>(Arrays.asList(query.getPropertyNames()));
 
         List<AttributeMapping> attributeMappings = mapping.getAttributeMappings();
 

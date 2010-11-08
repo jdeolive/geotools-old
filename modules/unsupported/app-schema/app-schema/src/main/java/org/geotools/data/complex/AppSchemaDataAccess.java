@@ -20,8 +20,10 @@ package org.geotools.data.complex;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -335,39 +337,48 @@ public class AppSchemaDataAccess implements DataAccess<FeatureType, Feature> {
     private List<String> getSurrogatePropertyNames(String[] mappingProperties,
             FeatureTypeMapping mapping) {
         List<String> propNames = null;
-        final AttributeDescriptor targetDescriptor = mapping.getTargetFeature();
-        final AttributeType mappedType = targetDescriptor.getType();
+        //NC - get source type
+        final AttributeType mappedType = mapping.getSource().getSchema();
         if (mappingProperties != null && mappingProperties.length > 0) {
             Set<String> requestedSurrogateProperties = new HashSet<String>();
             // add all surrogate attributes involved in mapping of the requested
             // target schema attributes
             List<AttributeMapping> attMappings = mapping.getAttributeMappings();
-            List<String> requestedProperties = Arrays.asList(mappingProperties);
-            for (String requestedPropertyXPath : requestedProperties) {
-                StepList requestedPropertySteps;
-                NamespaceSupport namespaces = mapping.getNamespaces();
-                requestedPropertySteps = XPath.steps(targetDescriptor, requestedPropertyXPath,
-                        namespaces);
+            List<String> requestedProperties = new ArrayList<String>( Arrays.asList(mappingProperties));
+            //NC - add feature to list, to include its ID expression
+            requestedProperties.add(mapping.getTargetFeature().getName().getLocalPart());
+            for (String requestedProperty : requestedProperties) {
                 for (final AttributeMapping entry : attMappings) {
                     final StepList targetSteps = entry.getTargetXPath();
-                    final Expression sourceExpression = entry.getSourceExpression();
-                    final Expression idExpression = entry.getIdentifierExpression();
                     // i.e.: requested "measurement", found mapping of
                     // "measurement/result".
                     // "result" must be included to create "measurement"
-                    if (targetSteps.containsAll(requestedPropertySteps)) {
+                    //NC - requested Properties are only top level nodes, get all mappings inside node
+                    if (targetSteps.get(0).getName().getLocalPart().equals(requestedProperty) ) {
+                        
+                        final Expression sourceExpression = entry.getSourceExpression();
+                        final Expression idExpression = entry.getIdentifierExpression();
+                        //NC - include client properties
+                        final Collection<Expression> clientProperties = entry.getClientProperties().values();
+                        
                         FilterAttributeExtractor extractor = new FilterAttributeExtractor();
                         sourceExpression.accept(extractor, null);
                         idExpression.accept(extractor, null);
+                        Iterator<Expression> it = clientProperties.iterator(); 
+                        while (it.hasNext()) {
+                            it.next().accept(extractor, null);
+                        }
                         Set<String> exprAtts = extractor.getAttributeNameSet();
                         for (String mappedAtt : exprAtts) {
-                            PropertyName propExpr = filterFac.property(mappedAtt);
-                            Object object = propExpr.evaluate(mappedType);
-                            AttributeDescriptor mappedAttribute = (AttributeDescriptor) object;
-                            if (mappedAttribute != null) {
-                                requestedSurrogateProperties.add(mappedAtt);
-                            } else {
-                                LOGGER.info("mapped type does not contains property " + mappedAtt);
+                            if (!mappedAtt.equals("Expression.NIL")) { //NC - ignore Nil Expression
+                               PropertyName propExpr = filterFac.property(mappedAtt);
+                               Object object = propExpr.evaluate(mappedType);
+                               AttributeDescriptor mappedAttribute = (AttributeDescriptor) object;
+                               if (mappedAttribute != null) {
+                                    requestedSurrogateProperties.add(mappedAtt);
+                               } else {
+                                    LOGGER.info("mapped type does not contains property " + mappedAtt);
+                                }
                             }
                         }
                         LOGGER.fine("adding atts needed for : " + exprAtts);
