@@ -17880,7 +17880,7 @@ public class GMLSchema extends SchemaImpl {
     private static AttributeType build_MULTICURVETYPE_TYPE() {
         AttributeType builtType;
         builtType = new AttributeTypeImpl(
-            new NameImpl("http://www.opengis.net/gml","MultiCurveType"), com.vividsolutions.jts.geom.MultiLineString[].class, false,
+            new NameImpl("http://www.opengis.net/gml","MultiCurveType"), com.vividsolutions.jts.geom.GeometryCollection.class, false,
             false, Collections.<Filter>emptyList(), ABSTRACTGEOMETRICAGGREGATETYPE_TYPE, null
         );
         return builtType;
@@ -22212,7 +22212,7 @@ public class GMLSchema extends SchemaImpl {
     private static AttributeType build_MULTICURVEPROPERTYTYPE_TYPE() {
         AttributeType builtType;
         builtType = new AttributeTypeImpl(
-            new NameImpl("http://www.opengis.net/gml","MultiCurvePropertyType"), com.vividsolutions.jts.geom.MultiLineString[].class, false,
+            new NameImpl("http://www.opengis.net/gml","MultiCurvePropertyType"), com.vividsolutions.jts.geom.GeometryCollection.class, false,
             false, Collections.<Filter>emptyList(), XSSchema.ANYTYPE_TYPE, null
         );
         return builtType;

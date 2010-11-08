@@ -16,23 +16,18 @@
  */
 package org.geotools.gml3.bindings;
 
-import java.util.List;
-
 import javax.xml.namespace.QName;
-
 import org.geotools.gml3.GML;
-import org.geotools.xml.AbstractComplexBinding;
-import org.geotools.xml.ElementInstance;
-import org.geotools.xml.Node;
-
+import org.geotools.gml3.XSDIdRegistry;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.LineString;
-
 
 /**
  * Binding object for the type http://www.opengis.net/gml:LineStringPropertyType.
- *
+ * 
  * <p>
- *        <pre>
+ * 
+ * <pre>
  *         <code>
  *  &lt;complexType name="LineStringPropertyType"&gt;
  *      &lt;annotation&gt;
@@ -55,23 +50,24 @@ import com.vividsolutions.jts.geom.LineString;
  *          &lt;/annotation&gt;
  *      &lt;/attributeGroup&gt;
  *  &lt;/complexType&gt;
- *
+ * 
  *          </code>
- *         </pre>
+ * </pre>
+ * 
  * </p>
- *
+ * 
  * @generated
- *
- * @source $URL$
+ * 
+ * @source $URL:
+ *         http://svn.osgeo.org/geotools/trunk/modules/extension/xsd/xsd-gml3/src/main/java/org
+ *         /geotools/gml3/bindings/LineStringPropertyTypeBinding.java $
  */
-public class LineStringPropertyTypeBinding extends AbstractComplexBinding {
-    
-    GML3EncodingUtils encodingUtils;
-    
-    public LineStringPropertyTypeBinding(GML3EncodingUtils encodingUtils) {
-        this.encodingUtils = encodingUtils;
+public class LineStringPropertyTypeBinding extends GeometryPropertyTypeBindingBase {
+
+    public LineStringPropertyTypeBinding(GML3EncodingUtils encodingUtils, XSDIdRegistry idRegistry) {
+        super(encodingUtils, idRegistry);
     }
-    
+
     /**
      * @generated
      */
@@ -79,32 +75,8 @@ public class LineStringPropertyTypeBinding extends AbstractComplexBinding {
         return GML.LineStringPropertyType;
     }
 
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     *
-     * @generated modifiable
-     */
-    public Class getType() {
+    public Class<? extends Geometry> getGeometryType() {
         return LineString.class;
     }
 
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     *
-     * @generated modifiable
-     */
-    public Object parse(ElementInstance instance, Node node, Object value)
-        throws Exception {
-        return node.getChildValue(LineString.class);
-    }
-
-    public Object getProperty(Object object, QName name) {
-        return encodingUtils.GeometryPropertyType_GetProperty( (LineString) object, name );
-    }
-    
-    public List getProperties(Object object) throws Exception {
-        return encodingUtils.GeometryPropertyType_GetProperties( (LineString) object );
-    }
 }

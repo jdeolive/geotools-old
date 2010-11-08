@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
 import org.eclipse.xsd.XSDElementDeclaration;
@@ -62,24 +63,27 @@ import com.vividsolutions.jts.geom.LineString;
  * @author Justin Deoliveira, The Open Planning Project, jdeolive@openplans.org
  * @author Ben Caradoc-Davies, CSIRO Exploration and Mining
  * 
- * @source $URL$
+ * @source $URL:
+ *         http://svn.osgeo.org/geotools/trunk/modules/extension/xsd/xsd-gml3/src/main/java/org
+ *         /geotools/gml3/bindings/GML3EncodingUtils.java $
  */
 public class GML3EncodingUtils {
-    
+
     static GML3EncodingUtils INSTANCE = new GML3EncodingUtils();
-    
+
     XSD gml;
-    
+
     GMLEncodingUtils e;
+
     public GML3EncodingUtils() {
         this(GML.getInstance());
     }
-    
+
     public GML3EncodingUtils(XSD gml) {
         this.gml = gml;
         e = new GMLEncodingUtils(gml);
     }
-    
+
     static DirectPosition[] positions(LineString line) {
         CoordinateSequence coordinates = line.getCoordinateSequence();
         DirectPosition[] dps = new DirectPosition[coordinates.size()];
@@ -150,7 +154,21 @@ public class GML3EncodingUtils {
     public Object GeometryPropertyType_GetProperty(Geometry geometry, QName name) {
         return e.GeometryPropertyType_getProperty(geometry, name);
     }
-    
+
+    /**
+     * Helper method used to implement {@link ComplexBinding#getProperty(Object, QName)} for
+     * bindings of geometry reference types:
+     * <ul>
+     * <li>GeometryPropertyType
+     * <li>PointPropertyType
+     * <li>LineStringPropertyType
+     * <li>PolygonPropertyType
+     * </ul>
+     */
+    public Object GeometryPropertyType_GetProperty(Geometry geometry, QName name, boolean makeEmpty) {
+        return e.GeometryPropertyType_getProperty(geometry, name, true, makeEmpty);
+    }
+
     /**
      * @deprecated use {@link #GeometryPropertyType_GetProperty(Geometry, QName)}
      */
@@ -168,11 +186,11 @@ public class GML3EncodingUtils {
      * <li>PolygonPropertyType
      * </ul>
      */
-    
+
     public List GeometryPropertyType_GetProperties(Geometry geometry) {
         return e.GeometryPropertyType_getProperties(geometry);
     }
-    
+
     /**
      * @deprecated use {@link #GeometryPropertyType_GetProperties(Geometry)}
      */
@@ -180,8 +198,8 @@ public class GML3EncodingUtils {
         return INSTANCE.GeometryPropertyType_GetProperties(geometry);
     }
 
-    public Element AbstractFeatureTypeEncode(Object object, Document document,
-            Element value, XSDIdRegistry idSet) {
+    public Element AbstractFeatureTypeEncode(Object object, Document document, Element value,
+            XSDIdRegistry idSet) {
         Feature feature = (Feature) object;
         String id = feature.getIdentifier().getID();
         Name typeName;
@@ -193,15 +211,15 @@ public class GML3EncodingUtils {
             // honour the name set in the descriptor
             typeName = feature.getDescriptor().getName();
         }
-        Element encoding = document.createElementNS(typeName.getNamespaceURI(), typeName
-                .getLocalPart());
+        Element encoding = document.createElementNS(typeName.getNamespaceURI(),
+                typeName.getLocalPart());
         if (!(feature instanceof SimpleFeature) && idSet != null) {
             if (idSet.idExists(id)) {
                 // XSD type ids can only appear once in the same document, otherwise the document is
                 // not schema valid. Attributes of the same ids should be encoded as xlink:href to
                 // the existing attribute.
-                encoding.setAttributeNS(XLINK.NAMESPACE, XLINK.HREF.getLocalPart(), "#"
-                        + id.toString());
+                encoding.setAttributeNS(XLINK.NAMESPACE, XLINK.HREF.getLocalPart(),
+                        "#" + id.toString());
                 // make sure the attributes aren't encoded
                 feature.setValue(Collections.emptyList());
                 return encoding;
@@ -214,7 +232,7 @@ public class GML3EncodingUtils {
 
         return encoding;
     }
-    
+
     /**
      * @deprecated use {@link #AbstractFeatureTypeEncode(Object, Document, Element, XSDIdRegistry)}
      */
@@ -223,19 +241,25 @@ public class GML3EncodingUtils {
         return INSTANCE.AbstractFeatureTypeEncode(object, document, value, idSet);
     }
 
-    public List AbstractFeatureTypeGetProperties(Object object,
-            XSDElementDeclaration element, SchemaIndex schemaIndex, Configuration configuration) {
-        return e.AbstractFeatureType_getProperties(object, element, schemaIndex,
+    public List AbstractFeatureTypeGetProperties(Object object, XSDElementDeclaration element,
+            SchemaIndex schemaIndex, Configuration configuration) {
+        return e.AbstractFeatureType_getProperties(
+                object,
+                element,
+                schemaIndex,
                 new HashSet<String>(Arrays.asList("name", "description", "boundedBy", "location",
                         "metaDataProperty")), configuration);
     }
-    
+
     /**
-     * @deprecated use {@link #AbstractFeatureTypeGetProperties(Object, XSDElementDeclaration, SchemaIndex, Configuration)
+     * @deprecated use
+     *             {@link #AbstractFeatureTypeGetProperties(Object, XSDElementDeclaration, SchemaIndex, Configuration)
+
      */
     public static List AbstractFeatureType_getProperties(Object object,
             XSDElementDeclaration element, SchemaIndex schemaIndex, Configuration configuration) {
-        return INSTANCE.AbstractFeatureTypeGetProperties(object, element, schemaIndex, configuration);
+        return INSTANCE.AbstractFeatureTypeGetProperties(object, element, schemaIndex,
+                configuration);
     }
 
     /**
@@ -253,7 +277,7 @@ public class GML3EncodingUtils {
                 Attributes.class);
         if (clientProperties != null) {
             for (Name name : clientProperties.keySet()) {
-                if(clientProperties.get(name)!= null){
+                if (clientProperties.get(name) != null) {
                     element.setAttributeNS(name.getNamespaceURI(), name.getLocalPart(),
                             clientProperties.get(name).toString());
                 }

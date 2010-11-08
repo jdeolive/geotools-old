@@ -16,23 +16,17 @@
  */
 package org.geotools.gml3.bindings;
 
-import java.util.List;
-
 import javax.xml.namespace.QName;
-
 import org.geotools.gml3.GML;
-import org.geotools.xml.AbstractComplexBinding;
-import org.geotools.xml.ElementInstance;
-import org.geotools.xml.Node;
-
-import com.vividsolutions.jts.geom.Geometry;
+import org.geotools.gml3.XSDIdRegistry;
 
 
 /**
  * Binding object for the type http://www.opengis.net/gml:GeometryPropertyType.
- *
+ * 
  * <p>
- *        <pre>
+ * 
+ * <pre>
  *         <code>
  *  &lt;complexType name="GeometryPropertyType"&gt;
  *      &lt;annotation&gt;
@@ -55,16 +49,25 @@ import com.vividsolutions.jts.geom.Geometry;
  *          &lt;/annotation&gt;
  *      &lt;/attributeGroup&gt;
  *  &lt;/complexType&gt;
- *
+ * 
  *          </code>
- *         </pre>
+ * </pre>
+ * 
  * </p>
- *
+ * 
  * @generated
- *
- * @source $URL$
+ * 
+ * @source $URL:
+ *         http://svn.osgeo.org/geotools/trunk/modules/extension/xsd/xsd-gml3/src/main/java/org
+ *         /geotools/gml3/bindings/GeometryPropertyTypeBinding.java $
  */
-public class GeometryPropertyTypeBinding extends AbstractComplexBinding {
+public class GeometryPropertyTypeBinding extends GeometryPropertyTypeBindingBase {
+
+    public GeometryPropertyTypeBinding(GML3EncodingUtils encodingUtils, XSDIdRegistry idRegistry) {
+        super(encodingUtils, idRegistry);
+        // TODO Auto-generated constructor stub
+    }
+
     /**
      * @generated
      */
@@ -72,33 +75,4 @@ public class GeometryPropertyTypeBinding extends AbstractComplexBinding {
         return GML.GeometryPropertyType;
     }
 
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     *
-     * @generated modifiable
-     */
-    public Class getType() {
-        return Geometry.class;
-    }
-
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     *
-     * @generated modifiable
-     */
-    public Object parse(ElementInstance instance, Node node, Object value)
-        throws Exception {
-        return node.getChildValue(Geometry.class);
-    }
-
-    public Object getProperty(Object object, QName name)
-        throws Exception {
-        return GML3EncodingUtils.getProperty((Geometry) object, name );
-    }
-    
-    public List getProperties(Object object) throws Exception {
-        return GML3EncodingUtils.getProperties((Geometry) object);
-    }
 }

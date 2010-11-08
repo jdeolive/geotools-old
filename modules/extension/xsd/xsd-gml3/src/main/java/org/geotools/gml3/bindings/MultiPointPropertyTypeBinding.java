@@ -17,20 +17,17 @@
 package org.geotools.gml3.bindings;
 
 import javax.xml.namespace.QName;
-
 import org.geotools.gml3.GML;
-import org.geotools.xml.AbstractComplexBinding;
-import org.geotools.xml.ElementInstance;
-import org.geotools.xml.Node;
-
+import org.geotools.gml3.XSDIdRegistry;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPoint;
-
 
 /**
  * Binding object for the type http://www.opengis.net/gml:MultiPointPropertyType.
- *
+ * 
  * <p>
- *        <pre>
+ * 
+ * <pre>
  *         <code>
  *  &lt;complexType name="MultiPointPropertyType"&gt;
  *      &lt;annotation&gt;
@@ -46,16 +43,25 @@ import com.vividsolutions.jts.geom.MultiPoint;
  *          &lt;/annotation&gt;
  *      &lt;/attributeGroup&gt;
  *  &lt;/complexType&gt;
- *
+ * 
  *          </code>
- *         </pre>
+ * </pre>
+ * 
  * </p>
- *
+ * 
  * @generated
- *
- * @source $URL$
+ * 
+ * @source $URL:
+ *         http://svn.osgeo.org/geotools/trunk/modules/extension/xsd/xsd-gml3/src/main/java/org
+ *         /geotools/gml3/bindings/MultiPointPropertyTypeBinding.java $
  */
-public class MultiPointPropertyTypeBinding extends AbstractComplexBinding {
+public class MultiPointPropertyTypeBinding extends GeometryPropertyTypeBindingBase {
+
+    public MultiPointPropertyTypeBinding(GML3EncodingUtils encodingUtils, XSDIdRegistry idRegistry) {
+        super(encodingUtils, idRegistry);
+        // TODO Auto-generated constructor stub
+    }
+
     /**
      * @generated
      */
@@ -63,33 +69,8 @@ public class MultiPointPropertyTypeBinding extends AbstractComplexBinding {
         return GML.MultiPointPropertyType;
     }
 
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     *
-     * @generated modifiable
-     */
-    public Class getType() {
+    public Class<? extends Geometry> getGeometryType() {
         return MultiPoint.class;
     }
 
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     *
-     * @generated modifiable
-     */
-    public Object parse(ElementInstance instance, Node node, Object value)
-        throws Exception {
-        return node.getChildValue(MultiPoint.class);
-    }
-
-    public Object getProperty(Object object, QName name)
-        throws Exception {
-        if (GML.MultiPoint.equals(name)) {
-            return object;
-        }
-
-        return null;
-    }
 }

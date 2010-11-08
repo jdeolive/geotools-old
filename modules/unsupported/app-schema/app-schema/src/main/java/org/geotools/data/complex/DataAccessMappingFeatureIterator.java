@@ -47,6 +47,7 @@ import org.geotools.filter.FilterFactoryImpl;
 import org.opengis.feature.Attribute;
 import org.opengis.feature.ComplexAttribute;
 import org.opengis.feature.Feature;
+import org.opengis.feature.GeometryAttribute;
 import org.opengis.feature.Property;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.AttributeType;
@@ -58,6 +59,7 @@ import org.opengis.filter.identity.FeatureId;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.xml.sax.Attributes;
 
+import com.vividsolutions.jts.geom.EmptyGeometry;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
@@ -552,33 +554,8 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
         if (target == null) {
             return;
         }
-        Object value = target.getValue();
-        if (value != null && value instanceof Geometry) {
-            // set gml:id in Geometry userData
-            if (target.getIdentifier() != null) {
-                Geometry geom = (Geometry) value;
-                Object userData = geom.getUserData();
-                Map newUserData = new HashMap<Object, Object>();
-                if (userData != null) {
-                    if (userData instanceof Map) {
-                        newUserData.putAll((Map) userData);
-                    } else if (userData instanceof CoordinateReferenceSystem) {
-                        newUserData.put(CoordinateReferenceSystem.class, userData);
-                    }
-                }
-                newUserData.put("gml:id", target.getIdentifier().toString());
-                // need to clone because it seems the same geometry object from the
-                // db is reused instead of regenerated if different attributes refer
-                // to the same database row... so if we change the userData, we have
-                // to clone it
-                geom = (Geometry) geom.clone();
-                geom.setUserData(newUserData);
-                target.setValue(geom);
-            }
-        }
-        if (clientProperties.size() == 0) {
-            return;
-        }
+        
+        // NC - first calculate target attributes
         final Map<Name, Object> targetAttributes = new HashMap<Name, Object>();
         if (target.getUserData().containsValue(Attributes.class)) {
             targetAttributes.putAll((Map<? extends Name, ? extends Object>) target.getUserData()
@@ -598,7 +575,48 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
         // FIXME should set a child Property.. but be careful for things that
         // are smuggled in there internally and don't exist in the schema, like
         // XSDTypeDefinition, CRS etc.
-        target.getUserData().put(Attributes.class, targetAttributes);
+        if (targetAttributes.size() > 0) {
+            target.getUserData().put(Attributes.class, targetAttributes);
+        }
+        
+        // with geometry objects, set ID and attributes in geometry object
+        if (target instanceof GeometryAttribute
+                && (targetAttributes.size() > 0 || target.getIdentifier() != null)) {
+            Geometry geom;
+            if (target.getValue() == null) {
+                // create empty geometry if null but attributes
+                geom = new EmptyGeometry();
+            } else {
+                // need to clone because it seems the same geometry object from the
+                // db is reused instead of regenerated if different attributes refer
+                // to the same database row... so if we change the userData, we have
+                // to clone it
+                geom = (Geometry) ((Geometry) target.getValue()).clone();
+            }
+
+            if (geom != null) {
+
+                Object userData = geom.getUserData();
+                Map newUserData = new HashMap<Object, Object>();
+                if (userData != null) {
+                    if (userData instanceof Map) {
+                        newUserData.putAll((Map) userData);
+                    } else if (userData instanceof CoordinateReferenceSystem) {
+                        newUserData.put(CoordinateReferenceSystem.class, userData);
+                    }
+                }
+                // set gml:id and attributes in Geometry userData
+                if (target.getIdentifier() != null) {
+                    newUserData.put("gml:id", target.getIdentifier().toString());
+                }
+                if (targetAttributes.size() > 0) {
+                    newUserData.put(Attributes.class, targetAttributes);
+                }
+
+                geom.setUserData(newUserData);
+                target.setValue(geom);
+            }
+        }
     }
 
     private Map getClientProperties(Property attribute) throws DataSourceException {

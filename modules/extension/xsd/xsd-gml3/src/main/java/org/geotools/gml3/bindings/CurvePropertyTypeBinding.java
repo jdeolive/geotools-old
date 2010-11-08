@@ -17,20 +17,17 @@
 package org.geotools.gml3.bindings;
 
 import javax.xml.namespace.QName;
-
 import org.geotools.gml3.GML;
-import org.geotools.xml.AbstractComplexBinding;
-import org.geotools.xml.ElementInstance;
-import org.geotools.xml.Node;
-
+import org.geotools.gml3.XSDIdRegistry;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.LineString;
-
 
 /**
  * Binding object for the type http://www.opengis.net/gml:CurvePropertyType.
- *
+ * 
  * <p>
- *        <pre>
+ * 
+ * <pre>
  *         <code>
  *  &lt;complexType name="CurvePropertyType"&gt;
  *      &lt;annotation&gt;
@@ -52,16 +49,24 @@ import com.vividsolutions.jts.geom.LineString;
  *          &lt;/annotation&gt;
  *      &lt;/attributeGroup&gt;
  *  &lt;/complexType&gt;
- *
+ * 
  *          </code>
- *         </pre>
+ * </pre>
+ * 
  * </p>
- *
+ * 
  * @generated
- *
- * @source $URL$
+ * 
+ * @source $URL:
+ *         http://svn.osgeo.org/geotools/trunk/modules/extension/xsd/xsd-gml3/src/main/java/org
+ *         /geotools/gml3/bindings/CurvePropertyTypeBinding.java $
  */
-public class CurvePropertyTypeBinding extends AbstractComplexBinding {
+public class CurvePropertyTypeBinding extends GeometryPropertyTypeBindingBase {
+
+    public CurvePropertyTypeBinding(GML3EncodingUtils encodingUtils, XSDIdRegistry idRegistry) {
+        super(encodingUtils, idRegistry);
+    }
+
     /**
      * @generated
      */
@@ -69,36 +74,8 @@ public class CurvePropertyTypeBinding extends AbstractComplexBinding {
         return GML.CurvePropertyType;
     }
 
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     *
-     * @generated modifiable
-     */
-    public Class getType() {
+    public Class<? extends Geometry> getGeometryType() {
         return LineString.class;
     }
 
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     *
-     * @generated modifiable
-     */
-    public Object parse(ElementInstance instance, Node node, Object value)
-        throws Exception {
-        return node.getChildValue(LineString.class);
-    }
-
-    public Object getProperty(Object object, QName name)
-        throws Exception {
-        
-        //GML3  -> _Curve
-        //GML32 -> AbstractCurve
-        if ("_Curve".equals(name.getLocalPart()) || "AbstractCurve".equals(name.getLocalPart())) {
-            return object;
-        }
-
-        return null;
-    }
 }

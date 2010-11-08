@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -47,6 +48,7 @@ import org.opengis.feature.type.Name;
 import org.opengis.geometry.BoundingBox;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.w3c.dom.Document;
+import org.xml.sax.Attributes;
 
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
@@ -321,35 +323,69 @@ public class GMLEncodingUtils {
         }
     }
 
+
     public Object GeometryPropertyType_getProperty(Geometry geometry, QName name) {
-        return GeometryPropertyType_getProperty(geometry, name, true); 
+        return GeometryPropertyType_getProperty(geometry, name, true, false);
     }
-    
-    public Object GeometryPropertyType_getProperty(Geometry geometry,
-            QName name, boolean includeAbstractGeometry ) {
-        if (name.equals(gml.qName("Point")) || name.equals(gml.qName("LineString")) || 
-            name.equals(gml.qName("Polygon")) || name.equals(gml.qName("MultiPoint")) || 
-            name.equals(gml.qName("MultiLineString")) || name.equals(gml.qName("MultiPolygon")) || 
-            (includeAbstractGeometry && name.equals(gml.qName("_Geometry")))) {
-                //if the geometry is null, return null
-                if ( isEmpty( geometry ) ) {
-                    return null;
-                }
-                
-                return geometry;
-            }
-            
-            if (XLINK.HREF.equals(name)) {
-                //only process if geometry is empty
-                if ( isEmpty(geometry) ) {
-                    String id = getID( geometry );
-                    if ( id != null ) {
-                        return "#" + id;
-                    }
-                }
+
+    public Object GeometryPropertyType_getProperty(Geometry geometry, QName name,
+            boolean includeAbstractGeometry) {
+        return GeometryPropertyType_getProperty(geometry, name, includeAbstractGeometry, false);
+
+    }
+
+    public Object GeometryPropertyType_getProperty(Geometry geometry, QName name,
+            boolean includeAbstractGeometry, boolean makeEmpty) {
+
+        if (name.equals(gml.qName("Point")) || name.equals(gml.qName("LineString"))
+                || name.equals(gml.qName("Polygon")) || name.equals(gml.qName("MultiPoint"))
+                || name.equals(gml.qName("MultiLineString"))
+                || name.equals(gml.qName("MultiPolygon")) || name.equals(gml.qName("MultiSurface"))
+                || name.equals(gml.qName("AbstractSurface")) || name.equals(gml.qName("_Surface"))
+                || name.equals(gml.qName("_Curve")) || name.equals(gml.qName("AbstractCurve"))
+                || name.equals(gml.qName("MultiCurve"))
+                || (includeAbstractGeometry && name.equals(gml.qName("_Geometry")))) {
+            // if the geometry is null, return null
+            if (isEmpty(geometry) || makeEmpty) {
+                return null;
             }
 
-            return null;
+            return geometry;
+        }
+
+        if (geometry.getUserData() instanceof Map) {
+            Map<Name, Object> clientProperties = (Map<Name, Object>) ((Map) geometry.getUserData())
+                    .get(Attributes.class);
+
+            Name cname = toTypeName(name);
+            if (clientProperties != null && clientProperties.keySet().contains(cname))
+                return clientProperties.get(cname);
+        }
+
+        if (XLINK.HREF.equals(name)) {
+            // only process if geometry is empty and ID exists
+            String id = getID(geometry);
+            if ((makeEmpty || isEmpty(geometry)) && id != null) {
+                return "#" + id;
+            }
+        }
+
+        return null;
+
+    }
+
+    /**
+     * Convert a {@link QName} to a {@link Name}.
+     * 
+     * @param name
+     * @return
+     */
+    private static Name toTypeName(QName name) {
+        if (XMLConstants.NULL_NS_URI.equals(name.getNamespaceURI())) {
+            return new NameImpl(name.getLocalPart());
+        } else {
+            return new NameImpl(name.getNamespaceURI(), name.getLocalPart());
+        }
     }
     
     public List GeometryPropertyType_getProperties(Geometry geometry) {

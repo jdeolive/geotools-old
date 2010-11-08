@@ -17,20 +17,17 @@
 package org.geotools.gml3.bindings;
 
 import javax.xml.namespace.QName;
-
 import org.geotools.gml3.GML;
-import org.geotools.xml.AbstractComplexBinding;
-import org.geotools.xml.ElementInstance;
-import org.geotools.xml.Node;
-
+import org.geotools.gml3.XSDIdRegistry;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
-
 
 /**
  * Binding object for the type http://www.opengis.net/gml:MultiSurfacePropertyType.
- *
+ * 
  * <p>
- *        <pre>
+ * 
+ * <pre>
  *         <code>
  *  &lt;complexType name="MultiSurfacePropertyType"&gt;
  *      &lt;annotation&gt;
@@ -46,16 +43,24 @@ import com.vividsolutions.jts.geom.MultiPolygon;
  *          &lt;/annotation&gt;
  *      &lt;/attributeGroup&gt;
  *  &lt;/complexType&gt;
- *
+ * 
  *          </code>
- *         </pre>
+ * </pre>
+ * 
  * </p>
- *
+ * 
  * @generated
- *
- * @source $URL$
+ * 
+ * @source $URL:
+ *         http://svn.osgeo.org/geotools/trunk/modules/extension/xsd/xsd-gml3/src/main/java/org
+ *         /geotools/gml3/bindings/MultiSurfacePropertyTypeBinding.java $
  */
-public class MultiSurfacePropertyTypeBinding extends AbstractComplexBinding {
+public class MultiSurfacePropertyTypeBinding extends GeometryPropertyTypeBindingBase {
+
+    public MultiSurfacePropertyTypeBinding(GML3EncodingUtils encodingUtils, XSDIdRegistry idRegistry) {
+        super(encodingUtils, idRegistry);
+    }
+
     /**
      * @generated
      */
@@ -63,35 +68,9 @@ public class MultiSurfacePropertyTypeBinding extends AbstractComplexBinding {
         return GML.MultiSurfacePropertyType;
     }
 
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     *
-     * @generated modifiable
-     */
-    public Class getType() {
-        //return MultiSurface.class;
+    public Class<? extends Geometry> getGeometryType() {
+        // return MultiSurface.class;
         return MultiPolygon.class;
     }
 
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     *
-     * @generated modifiable
-     */
-    public Object parse(ElementInstance instance, Node node, Object value)
-        throws Exception {
-        //return node.getChildValue(MultiSurface.class);
-        return node.getChildValue(MultiPolygon.class);
-    }
-
-    public Object getProperty(Object object, QName name)
-        throws Exception {
-        if (GML.MultiSurface.equals(name)) {
-            return object;
-        }
-
-        return null;
-    }
 }

@@ -10958,7 +10958,7 @@ public class GMLSchema extends SchemaImpl {
      *   <code>
      *  &lt;simpleType name="CompassPointEnumeration"&gt;
      *      &lt;annotation&gt;
-     *          &lt;documentation&gt;These directions are necessarily approximate, giving direction with a precision of 22.5¡. It is thus generally unnecessary to specify the reference frame, though this may be detailed in the definition of a GML application language.&lt;/documentation&gt;
+     *          &lt;documentation&gt;These directions are necessarily approximate, giving direction with a precision of 22.5ï¿½. It is thus generally unnecessary to specify the reference frame, though this may be detailed in the definition of a GML application language.&lt;/documentation&gt;
      *      &lt;/annotation&gt;
      *      &lt;restriction base="string"&gt;
      *          &lt;enumeration value="N"/&gt;
@@ -16636,7 +16636,7 @@ public class GMLSchema extends SchemaImpl {
     private static AttributeType build_MULTICURVETYPE_TYPE() {
         AttributeType builtType;
         builtType = new AttributeTypeImpl(
-            new NameImpl("http://www.opengis.net/gml/3.2","MultiCurveType"), com.vividsolutions.jts.geom.MultiLineString[].class, false,
+            new NameImpl("http://www.opengis.net/gml/3.2","MultiCurveType"), com.vividsolutions.jts.geom.GeometryCollection.class, false,
             false, Collections.<Filter>emptyList(), ABSTRACTGEOMETRICAGGREGATETYPE_TYPE, null
         );
         return builtType;
@@ -16668,7 +16668,7 @@ public class GMLSchema extends SchemaImpl {
     private static AttributeType build_MULTICURVEPROPERTYTYPE_TYPE() {
         AttributeType builtType;
         builtType = new AttributeTypeImpl(
-            new NameImpl("http://www.opengis.net/gml/3.2","MultiCurvePropertyType"), com.vividsolutions.jts.geom.MultiLineString[].class, false,
+            new NameImpl("http://www.opengis.net/gml/3.2","MultiCurvePropertyType"), com.vividsolutions.jts.geom.GeometryCollection.class, false,
             false, Collections.<Filter>emptyList(), XSSchema.ANYTYPE_TYPE, null
         );
         return builtType;

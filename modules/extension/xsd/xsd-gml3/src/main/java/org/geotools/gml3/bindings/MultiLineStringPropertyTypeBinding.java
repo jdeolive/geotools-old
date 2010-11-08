@@ -17,20 +17,17 @@
 package org.geotools.gml3.bindings;
 
 import javax.xml.namespace.QName;
-
 import org.geotools.gml3.GML;
-import org.geotools.xml.AbstractComplexBinding;
-import org.geotools.xml.ElementInstance;
-import org.geotools.xml.Node;
-
+import org.geotools.gml3.XSDIdRegistry;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiLineString;
-
 
 /**
  * Binding object for the type http://www.opengis.net/gml:MultiLineStringPropertyType.
- *
+ * 
  * <p>
- *        <pre>
+ * 
+ * <pre>
  *         <code>
  *  &lt;complexType name="MultiLineStringPropertyType"&gt;
  *      &lt;annotation&gt;
@@ -47,16 +44,25 @@ import com.vividsolutions.jts.geom.MultiLineString;
  *          &lt;/annotation&gt;
  *      &lt;/attributeGroup&gt;
  *  &lt;/complexType&gt;
- *
+ * 
  *          </code>
- *         </pre>
+ * </pre>
+ * 
  * </p>
- *
+ * 
  * @generated
- *
- * @source $URL$
+ * 
+ * @source $URL:
+ *         http://svn.osgeo.org/geotools/trunk/modules/extension/xsd/xsd-gml3/src/main/java/org
+ *         /geotools/gml3/bindings/MultiLineStringPropertyTypeBinding.java $
  */
-public class MultiLineStringPropertyTypeBinding extends AbstractComplexBinding {
+public class MultiLineStringPropertyTypeBinding extends GeometryPropertyTypeBindingBase {
+
+    public MultiLineStringPropertyTypeBinding(GML3EncodingUtils encodingUtils,
+            XSDIdRegistry idRegistry) {
+        super(encodingUtils, idRegistry);
+    }
+
     /**
      * @generated
      */
@@ -64,33 +70,8 @@ public class MultiLineStringPropertyTypeBinding extends AbstractComplexBinding {
         return GML.MultiLineStringPropertyType;
     }
 
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     *
-     * @generated modifiable
-     */
-    public Class getType() {
+    public Class<? extends Geometry> getGeometryType() {
         return MultiLineString.class;
     }
 
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     *
-     * @generated modifiable
-     */
-    public Object parse(ElementInstance instance, Node node, Object value)
-        throws Exception {
-        return node.getChildValue(MultiLineString.class);
-    }
-
-    public Object getProperty(Object object, QName name)
-        throws Exception {
-        if (GML.MultiLineString.equals(name)) {
-            return object;
-        }
-
-        return null;
-    }
 }

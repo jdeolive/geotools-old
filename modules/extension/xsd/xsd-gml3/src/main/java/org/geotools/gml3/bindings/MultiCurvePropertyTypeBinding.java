@@ -17,20 +17,17 @@
 package org.geotools.gml3.bindings;
 
 import javax.xml.namespace.QName;
-
 import org.geotools.gml3.GML;
-import org.geotools.xml.AbstractComplexBinding;
-import org.geotools.xml.ElementInstance;
-import org.geotools.xml.Node;
-
+import org.geotools.gml3.XSDIdRegistry;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiLineString;
-
 
 /**
  * Binding object for the type http://www.opengis.net/gml:MultiCurvePropertyType.
- *
+ * 
  * <p>
- *        <pre>
+ * 
+ * <pre>
  *         <code>
  *  &lt;complexType name="MultiCurvePropertyType"&gt;
  *      &lt;annotation&gt;
@@ -46,16 +43,24 @@ import com.vividsolutions.jts.geom.MultiLineString;
  *          &lt;/annotation&gt;
  *      &lt;/attributeGroup&gt;
  *  &lt;/complexType&gt;
- *
+ * 
  *          </code>
- *         </pre>
+ * </pre>
+ * 
  * </p>
- *
+ * 
  * @generated
- *
- * @source $URL$
+ * 
+ * @source $URL:
+ *         http://svn.osgeo.org/geotools/trunk/modules/extension/xsd/xsd-gml3/src/main/java/org
+ *         /geotools/gml3/bindings/MultiCurvePropertyTypeBinding.java $
  */
-public class MultiCurvePropertyTypeBinding extends AbstractComplexBinding {
+public class MultiCurvePropertyTypeBinding extends GeometryPropertyTypeBindingBase {
+
+    public MultiCurvePropertyTypeBinding(GML3EncodingUtils encodingUtils, XSDIdRegistry idRegistry) {
+        super(encodingUtils, idRegistry);
+    }
+
     /**
      * @generated
      */
@@ -64,34 +69,12 @@ public class MultiCurvePropertyTypeBinding extends AbstractComplexBinding {
     }
 
     /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     *
+     * <!-- begin-user-doc --> <!-- end-user-doc -->
+     * 
      * @generated modifiable
      */
-    public Class getType() {
-        //return MultiCurve.class;
+    public Class<? extends Geometry> getGeometryType() {
         return MultiLineString.class;
     }
 
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     *
-     * @generated modifiable
-     */
-    public Object parse(ElementInstance instance, Node node, Object value)
-        throws Exception {
-        //return node.getChildValue(MultiCurve.class);
-        return node.getChildValue(MultiLineString.class);
-    }
-
-    public Object getProperty(Object object, QName name)
-        throws Exception {
-        if (GML.MultiCurve.equals(name)) {
-            return object;
-        }
-
-        return null;
-    }
 }

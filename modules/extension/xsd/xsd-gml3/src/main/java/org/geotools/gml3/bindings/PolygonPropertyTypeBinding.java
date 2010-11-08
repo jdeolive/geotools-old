@@ -16,23 +16,18 @@
  */
 package org.geotools.gml3.bindings;
 
-import java.util.List;
-
 import javax.xml.namespace.QName;
-
 import org.geotools.gml3.GML;
-import org.geotools.xml.AbstractComplexBinding;
-import org.geotools.xml.ElementInstance;
-import org.geotools.xml.Node;
-
+import org.geotools.gml3.XSDIdRegistry;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygon;
-
 
 /**
  * Binding object for the type http://www.opengis.net/gml:PolygonPropertyType.
- *
+ * 
  * <p>
- *        <pre>
+ * 
+ * <pre>
  *         <code>
  *  &lt;complexType name="PolygonPropertyType"&gt;
  *      &lt;annotation&gt;
@@ -49,16 +44,24 @@ import com.vividsolutions.jts.geom.Polygon;
  *          &lt;/annotation&gt;
  *      &lt;/attributeGroup&gt;
  *  &lt;/complexType&gt;
- *
+ * 
  *          </code>
- *         </pre>
+ * </pre>
+ * 
  * </p>
- *
+ * 
  * @generated
- *
- * @source $URL$
+ * 
+ * @source $URL:
+ *         http://svn.osgeo.org/geotools/trunk/modules/extension/xsd/xsd-gml3/src/main/java/org
+ *         /geotools/gml3/bindings/PolygonPropertyTypeBinding.java $
  */
-public class PolygonPropertyTypeBinding extends AbstractComplexBinding {
+public class PolygonPropertyTypeBinding extends GeometryPropertyTypeBindingBase {
+
+    public PolygonPropertyTypeBinding(GML3EncodingUtils encodingUtils, XSDIdRegistry idRegistry) {
+        super(encodingUtils, idRegistry);
+    }
+
     /**
      * @generated
      */
@@ -67,31 +70,12 @@ public class PolygonPropertyTypeBinding extends AbstractComplexBinding {
     }
 
     /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     *
+     * <!-- begin-user-doc --> <!-- end-user-doc -->
+     * 
      * @generated modifiable
      */
-    public Class getType() {
+    public Class<? extends Geometry> getGeometryType() {
         return Polygon.class;
     }
 
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     *
-     * @generated modifiable
-     */
-    public Object parse(ElementInstance instance, Node node, Object value)
-        throws Exception {
-        return node.getChildValue(Polygon.class);
-    }
-
-    public Object getProperty(Object object, QName name) {
-        return GML3EncodingUtils.getProperty((Polygon) object, name );
-    }
-    
-    public List getProperties(Object object) throws Exception {
-        return GML3EncodingUtils.getProperties((Polygon)object);
-    }
 }

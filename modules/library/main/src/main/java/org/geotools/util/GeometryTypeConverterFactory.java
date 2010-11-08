@@ -18,13 +18,16 @@ package org.geotools.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geotools.factory.Hints;
 import org.geotools.util.Converter;
 import org.geotools.util.ConverterFactory;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -88,81 +91,134 @@ public class GeometryTypeConverterFactory implements ConverterFactory {
 						return source;
 					if(source instanceof Geometry) { 
 						Geometry sourceGeometry=(Geometry)source;
+						
+						Geometry destGeometry = null;
 						// multi<geometry> types: for each one we
 						// try the followings:
 						//  - if source is <geometry> we create a multi<geometry> with just 1 element
 						//  - if source is a GeometryCollection, we try to convert each element to <geometry>
 						//  - else we firtsly convert the geometry to a <geometry> and then we create a multi<geometry> with the obtained element
 						if(MultiPoint.class.isAssignableFrom(target)) {
-							Point[] points=new Point[] {};
-							if(source instanceof Point)
+							Point[] points;
+							// NC - Empty Geometry Support
+							if (sourceGeometry.isEmpty())
+				                                points = new Point[0];
+				                        else if(source instanceof Point)
 								points=new Point[] {(Point)source};
 							else if(source instanceof GeometryCollection)
-								points=this.convertAll((GeometryCollection)source,Point.class).toArray(points);												
+								points=this.convertAll((GeometryCollection)source,Point.class).toArray(new Point[] {});												
 							else
 								points=new Point[] {(Point)this.convert(source,Point.class)};
-							return gFac.createMultiPoint(points);
+							destGeometry = gFac.createMultiPoint(points);
 						}
-						if(MultiLineString.class.isAssignableFrom(target)) {
-							LineString[] lineStrings=new LineString[] {};
-							if(source instanceof LineString)
+						else if(MultiLineString.class.isAssignableFrom(target)) {
+							LineString[] lineStrings;
+							// NC - Empty Geometry Support
+							if (sourceGeometry.isEmpty())
+				                                lineStrings = new LineString[0];
+				                        else if(source instanceof LineString)
 								lineStrings=new LineString[] {(LineString)source};
 							else if(source instanceof GeometryCollection)
-								lineStrings=this.convertAll((GeometryCollection)source,LineString.class).toArray(lineStrings);							
+								lineStrings=this.convertAll((GeometryCollection)source,LineString.class).toArray(new LineString[] {});							
 							else
 								lineStrings=new LineString[] {(LineString)this.convert(source,LineString.class)};
-							return gFac.createMultiLineString(lineStrings);
+							destGeometry = gFac.createMultiLineString(lineStrings);
 						}
-						if(MultiPolygon.class.isAssignableFrom(target)) {
-							Polygon[] polygons=new Polygon[] {};
-							if(source instanceof Polygon)
+						else if(MultiPolygon.class.isAssignableFrom(target)) {
+							Polygon[] polygons;
+							// NC - Empty Geometry Support
+				                        if (sourceGeometry.isEmpty())
+				                                polygons = new Polygon[0];
+				                        else if(source instanceof Polygon)
 								polygons=new Polygon[] {(Polygon)source};
 							else if(source instanceof GeometryCollection)
-								polygons=this.convertAll((GeometryCollection)source,Polygon.class).toArray(polygons);
+								polygons=this.convertAll((GeometryCollection)source,Polygon.class).toArray(new Polygon[] {});
 							else
 								polygons=new Polygon[] {(Polygon)this.convert(source,Polygon.class)};
-							return gFac.createMultiPolygon(polygons);
+							destGeometry = gFac.createMultiPolygon(polygons);
 						}
 						
 						// target is a geometrycollection: we add the source to
 						// a new geometrycollection
-						if(GeometryCollection.class.isAssignableFrom(target))
-							return gFac.createGeometryCollection(new Geometry[] {(Geometry)source});						
+						else if(GeometryCollection.class.isAssignableFrom(target)) {
+						    // NC - Empty Geometry Support
+			                            if (sourceGeometry.isEmpty())
+			                                destGeometry = gFac
+			                                    .createGeometryCollection(new Geometry[0]);
+			                            else
+			                                destGeometry = gFac.createGeometryCollection(new Geometry[] {(Geometry)source});						
+						}
 						
 						// target is a point: we return the centroid of any complex geometry
-						if(Point.class.isAssignableFrom(target)) {
-							if(source instanceof MultiPoint && sourceGeometry.getNumGeometries()==1)
-								return ((MultiPoint)source).getGeometryN(0);
+						else if(Point.class.isAssignableFrom(target)) {
+    						        // NC - Empty Geometry Support
+    			                                if (sourceGeometry.isEmpty())
+    			                                    destGeometry = gFac.createPoint((Coordinate) null);
+    			                                else if(source instanceof MultiPoint && sourceGeometry.getNumGeometries()==1)
+    			                                    destGeometry = (Geometry) ((MultiPoint)source).getGeometryN(0).clone();
 							else {
 								if(LOGGER.isLoggable(Level.FINE))
 									LOGGER.fine("Converting Geometry "+source.toString()+" to Point. This could be unsafe");
-								return ((Geometry)source).getCentroid();
+								destGeometry = ((Geometry)source).getCentroid();
 							}
 						}
 						
 						// target is a linestring: we return the linestring connecting all the geometry coordinates
-						if(LineString.class.isAssignableFrom(target)) {
-							if(source instanceof MultiLineString && sourceGeometry.getNumGeometries()==1)
-								return ((MultiLineString)source).getGeometryN(0);
+						else if(LineString.class.isAssignableFrom(target)) {
+						        // NC - Empty Geometry Support
+    			                                if (sourceGeometry.isEmpty())
+    			                                    destGeometry = gFac.createLineString(new Coordinate[0]);
+    			                                else if(source instanceof MultiLineString && sourceGeometry.getNumGeometries()==1)
+								destGeometry = (Geometry) ((MultiLineString)source).getGeometryN(0).clone();
 							else {
 								if(LOGGER.isLoggable(Level.FINE))
 									LOGGER.fine("Converting Geometry "+source.toString()+" to LineString. This could be unsafe");
-								return gFac.createLineString(getLineStringCoordinates(((Geometry)source).getCoordinates()));
+								destGeometry = gFac.createLineString(getLineStringCoordinates(((Geometry)source).getCoordinates()));
 							}
 						}
 						// target is a polygon: we return a polygon connecting all the coordinates of the given geometry
-						if(Polygon.class.isAssignableFrom(target)) {
-							if(source instanceof MultiPolygon && sourceGeometry.getNumGeometries()==1)
-								return ((MultiPolygon)source).getGeometryN(0);
+						else if(Polygon.class.isAssignableFrom(target)) {
+						        // NC - Empty Geometry Support
+			                                if (sourceGeometry.isEmpty())
+			                                    destGeometry = gFac.createLineString(new Coordinate[0]);
+			                                else if(source instanceof MultiPolygon && sourceGeometry.getNumGeometries()==1)
+								destGeometry = (Geometry) ((MultiPolygon)source).getGeometryN(0).clone();
 							else {
 								if(LOGGER.isLoggable(Level.FINE))
 									LOGGER.fine("Converting Geometry "+source.toString()+" to Polygon. This could be unsafe");
 								Coordinate[] coords=getPolygonCoordinates(((Geometry)source).getCoordinates());
-								return gFac.createPolygon(gFac.createLinearRing(coords), new LinearRing[] {});
+								destGeometry = gFac.createPolygon(gFac.createLinearRing(coords), new LinearRing[] {});
 							}
 						}
+											
+        					// NC - added cloning above for cases where an existing geometry is used
+        		                        // for purpose for changing user data - we don't want any side effects
+        
+        		                        // NC-added, copy userdata
+        		                        if (destGeometry != null) {
+        		                            Map<Object, Object> newUserData = new HashMap<Object, Object>();
+        
+        		                            // copy if anything is already in destination data
+        		                            if (destGeometry.getUserData() instanceof Map) {
+        		                                newUserData.putAll((Map) destGeometry.getUserData());
+        		                            } else if (destGeometry.getUserData() instanceof CoordinateReferenceSystem) {
+        		                                newUserData.put(CoordinateReferenceSystem.class,
+        		                                        destGeometry.getUserData());
+        		                            }
+        		                            // overwrite with source
+        		                            if (sourceGeometry.getUserData() instanceof Map) {
+        		                                newUserData.putAll((Map) sourceGeometry.getUserData());
+        		                            } else if (sourceGeometry.getUserData() instanceof CoordinateReferenceSystem) {
+        		                                newUserData.put(CoordinateReferenceSystem.class,
+        		                                        sourceGeometry.getUserData());
+        		                            }
+        
+        		                            destGeometry.setUserData(newUserData);
+        
+        		                        }
+        		                        return destGeometry;
 					}
-						
+					
 					return null;
 				}
 				

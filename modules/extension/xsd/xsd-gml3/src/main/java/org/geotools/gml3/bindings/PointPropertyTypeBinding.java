@@ -16,23 +16,18 @@
  */
 package org.geotools.gml3.bindings;
 
-import java.util.List;
-
 import javax.xml.namespace.QName;
-
 import org.geotools.gml3.GML;
-import org.geotools.xml.AbstractComplexBinding;
-import org.geotools.xml.ElementInstance;
-import org.geotools.xml.Node;
-
+import org.geotools.gml3.XSDIdRegistry;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
-
 
 /**
  * Binding object for the type http://www.opengis.net/gml:PointPropertyType.
- *
+ * 
  * <p>
- *        <pre>
+ * 
+ * <pre>
  *         <code>
  *  &lt;complexType name="PointPropertyType"&gt;
  *      &lt;annotation&gt;
@@ -54,23 +49,25 @@ import com.vividsolutions.jts.geom.Point;
  *          &lt;/annotation&gt;
  *      &lt;/attributeGroup&gt;
  *  &lt;/complexType&gt;
- *
+ * 
  *          </code>
- *         </pre>
+ * </pre>
+ * 
  * </p>
- *
+ * 
  * @generated
- *
- * @source $URL$
+ * 
+ * @source $URL:
+ *         http://svn.osgeo.org/geotools/trunk/modules/extension/xsd/xsd-gml3/src/main/java/org
+ *         /geotools/gml3/bindings/PointPropertyTypeBinding.java $
  */
-public class PointPropertyTypeBinding extends AbstractComplexBinding {
-    
-    GML3EncodingUtils encodingUtils;
-    
-    public PointPropertyTypeBinding(GML3EncodingUtils encodingUtils) {
-        this.encodingUtils = encodingUtils;
+public class PointPropertyTypeBinding extends GeometryPropertyTypeBindingBase {
+
+    public PointPropertyTypeBinding(GML3EncodingUtils encodingUtils, XSDIdRegistry idRegistry) {
+        super(encodingUtils, idRegistry);
+        // TODO Auto-generated constructor stub
     }
-    
+
     /**
      * @generated
      */
@@ -78,33 +75,8 @@ public class PointPropertyTypeBinding extends AbstractComplexBinding {
         return GML.PointPropertyType;
     }
 
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     *
-     * @generated modifiable
-     */
-    public Class getType() {
+    public Class<? extends Geometry> getGeometryType() {
         return Point.class;
     }
 
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     *
-     * @generated modifiable
-     */
-    public Object parse(ElementInstance instance, Node node, Object value)
-        throws Exception {
-        //TODO: xlink
-        return node.getChildValue(Point.class);
-    }
-
-    public Object getProperty(Object object, QName name) {
-        return encodingUtils.GeometryPropertyType_GetProperty((Point)object, name);
-    }
-    
-    public List getProperties(Object object) throws Exception {
-        return encodingUtils.GeometryPropertyType_GetProperties((Point)object);
-    }
 }
