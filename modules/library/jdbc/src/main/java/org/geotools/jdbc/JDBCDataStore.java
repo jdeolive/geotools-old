@@ -1475,7 +1475,7 @@ public final class JDBCDataStore extends ContentDataStore
                 closeSafe(st);
             }
         } catch (SQLException e) {
-            String msg = "Error occured calculating bounds";
+            String msg = "Error occured during delete";
             throw (IOException) new IOException(msg).initCause(e);
         }
     }
