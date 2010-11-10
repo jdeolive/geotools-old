@@ -43,10 +43,7 @@ public class FilteringMappingFeatureIterator extends DataAccessMappingFeatureIte
 
     public FilteringMappingFeatureIterator(AppSchemaDataAccess store, FeatureTypeMapping mapping,
             Query query, Filter filter) throws IOException {
-        // assumed it's denormalised, since the filter would be on nested feature's attribute
-        // and we don't even know what type the nested feature is of..
-        // so we don't know if it's multi-valued or not
-        super(store, mapping, query, false, true, true);
+        super(store, mapping, query, false, true);
         this.filter = filter;
     }
 

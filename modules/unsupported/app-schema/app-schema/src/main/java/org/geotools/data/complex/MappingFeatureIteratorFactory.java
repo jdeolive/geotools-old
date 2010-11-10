@@ -60,8 +60,7 @@ public class MappingFeatureIteratorFactory {
 
         DataAccessMappingFeatureIterator iterator = null;
         try {
-            iterator = new DataAccessMappingFeatureIterator(store, mapping, query, isFiltered,
-                    isDenormalised(mapping));
+            iterator = new DataAccessMappingFeatureIterator(store, mapping, query, isFiltered);
         } catch (IOException e) {
             // HACK HACK HACK
             // could mean it's a combination of filters (such as AND) involving nested attribute
@@ -86,22 +85,5 @@ public class MappingFeatureIteratorFactory {
             }
         }
         return iterator;
-    }
-
-    /**
-     * Determine if at least one attribute mapping is multi-valued, which means the data comes from
-     * denormalised view.
-     * 
-     * @param mapping
-     *            The feature type mapping
-     * @return
-     */
-    private static boolean isDenormalised(FeatureTypeMapping mapping) {
-        for (AttributeMapping att : mapping.getAttributeMappings()) {
-            if (att.isMultiValued()) {
-                return true;
-            }
-        }
-        return false;
     }
 }

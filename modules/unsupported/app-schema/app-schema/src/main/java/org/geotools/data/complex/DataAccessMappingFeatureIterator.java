@@ -102,15 +102,13 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
 
     private boolean isNextFeatureSet;
 
-    private boolean isDenormalised;
-
     private boolean isFiltered;
 
     private ArrayList<String> filteredFeatures;
 
     public DataAccessMappingFeatureIterator(AppSchemaDataAccess store, FeatureTypeMapping mapping,
-            Query query, boolean isFiltered, boolean isDenormalised) throws IOException {
-        this(store, mapping, query, isFiltered, isDenormalised, false);
+            Query query, boolean isFiltered) throws IOException {
+        this(store, mapping, query, isFiltered, false);
     }
 
     /**
@@ -125,12 +123,10 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
      * @throws IOException
      */
     public DataAccessMappingFeatureIterator(AppSchemaDataAccess store, FeatureTypeMapping mapping,
-            Query query, boolean isFiltered, boolean isDenormalised, boolean isQueryUnrolled)
-            throws IOException {
+            Query query, boolean isFiltered, boolean isQueryUnrolled) throws IOException {
         super(store, mapping, query, isQueryUnrolled);
-        this.isDenormalised = isDenormalised;
         this.isFiltered = isFiltered;
-        if (isDenormalised && isFiltered) {
+        if (isFiltered) {
             filteredFeatures = new ArrayList<String>();
         }
     }
@@ -705,14 +701,10 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
 
         String id = extractIdForFeature(curSrcFeature);
 
-        if (isDenormalised) {
-            if (isFiltered) {
-                setNextFilteredFeature(id, sources);
-            } else {
-                setNextFeature(id, sources);
-            }
+        if (isFiltered) {
+            setNextFilteredFeature(id, sources);
         } else {
-            sources.add(curSrcFeature);
+            setNextFeature(id, sources);
         }
         final AttributeDescriptor targetNode = mapping.getTargetFeature();
         final Name targetNodeName = targetNode.getName();
