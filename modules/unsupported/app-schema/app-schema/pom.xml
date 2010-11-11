@@ -131,8 +131,8 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.geotools</groupId>
-      <artifactId>gt-postgis</artifactId>
+      <groupId>org.geotools.jdbc</groupId>
+      <artifactId>gt-jdbc-postgis</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
@@ -171,12 +171,7 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <excludes>
-            <exclude>**/TimeSeriesStressTest.java</exclude>
-          </excludes>
-        </configuration>
+        <artifactId>maven-surefire-plugin</artifactId>       
       </plugin>
       <!-- build test jar so that app-schema tests in GeoServer 
         can use classes in GeoTools app-schema tests -->
