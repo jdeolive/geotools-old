@@ -16,6 +16,7 @@
  */
 package org.geotools.data.spatialite;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -44,8 +45,14 @@ public class SpatiaLiteTestSetup extends JDBCTestSetup {
     @Override
     protected void initializeDataSource(BasicDataSource ds, Properties db) {
         super.initializeDataSource(ds, db);
-        ds.addConnectionProperty("enable_load_extension", "true");
-        ds.addConnectionProperty("shared_cache", "true");
+        try {
+            SpatiaLiteDataStoreFactory.addConnectionProperties(ds);
+            SpatiaLiteDataStoreFactory.initializeDataSource(ds);
+        }
+        catch(IOException e) {
+            throw new RuntimeException(e);
+        }
+        
         ds.setDefaultTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
     }
     
@@ -89,9 +96,8 @@ public class SpatiaLiteTestSetup extends JDBCTestSetup {
     public boolean shouldRunTests(Connection cx) throws SQLException {
         Statement st = cx.createStatement();
         try {
-            String libsptialite = SpatiaLiteDialect.spatialiteLibFile();
             try {
-                st.executeUpdate("SELECT load_extension('"+libsptialite+"')");
+                st.execute("SELECT spatialite_version()");
             } 
             catch (SQLException e) {
                 return false;

@@ -61,14 +61,6 @@ public class SpatiaLiteDialect extends BasicSQLDialect {
 
     public static String SPATIALITE_SPATIAL_INDEX = "org.geotools.data.spatialite.spatialIndex";
     
-    static String spatialiteLibFile() {
-        String libspatialite = System.mapLibraryName("spatialite");
-        if (libspatialite.endsWith("jnilib")) {
-            libspatialite = libspatialite.replaceAll("jnilib", "dylib");
-        }
-        return libspatialite;
-    }
-    
     public SpatiaLiteDialect(JDBCDataStore dataStore) {
         super(dataStore);
     }
@@ -77,20 +69,6 @@ public class SpatiaLiteDialect extends BasicSQLDialect {
     public void initializeConnection(Connection cx) throws SQLException {
         Statement st = cx.createStatement();
         try {
-            //load the spatial extensions
-            String libspatialite = spatialiteLibFile();
-            
-            try {
-                st.execute( "SELECT load_extension('"+libspatialite+"')" );
-            }
-            catch(SQLException e) {
-                LOGGER.warning("libspatialite not found, attempting to load internal library" );
-                loadSpatiaLiteLib(libspatialite);
-                
-                st.execute( "SELECT load_extension('"+libspatialite+"')" );
-            }
-            st.close();
-            
             st = cx.createStatement();
             
             //determine if the spatial metadata tables need to be created
@@ -135,31 +113,6 @@ public class SpatiaLiteDialect extends BasicSQLDialect {
         }
         finally {
             dataStore.closeSafe( st );
-        }
-    }
-    
-    void loadSpatiaLiteLib(String lib) {
-        //copy the local lib into a temp file and load directly
-        InputStream libstream = SpatiaLiteDataStoreFactory.class.getResourceAsStream(lib);
-        if (libstream == null) {
-            throw new RuntimeException("No library " + lib); 
-        }
-        
-        File libfile = new File(System.getProperty("user.dir"), lib);
-        try {
-            BufferedInputStream in = new BufferedInputStream(libstream);
-            BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(libfile));
-            
-            int c = -1;
-            while( (c = in.read()) != -1 ) {
-                out.write(c);
-            }
-            out.flush();
-            out.close();
-            in.close();
-        }
-        catch(IOException ioe) {
-            throw new RuntimeException(ioe);
         }
     }
     

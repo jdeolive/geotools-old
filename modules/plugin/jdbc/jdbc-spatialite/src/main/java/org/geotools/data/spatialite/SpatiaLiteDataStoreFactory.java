@@ -17,12 +17,15 @@
 package org.geotools.data.spatialite;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Map;
 
 import org.apache.commons.dbcp.BasicDataSource;
 import org.geotools.jdbc.JDBCDataStore;
 import org.geotools.jdbc.JDBCDataStoreFactory;
 import org.geotools.jdbc.SQLDialect;
+import org.sqlite.SQLiteConfig;
 
 /**
  * DataStoreFactory for SpatiaLite database.
@@ -101,9 +104,33 @@ public class SpatiaLiteDataStoreFactory extends JDBCDataStoreFactory {
         // url
         dataSource.setUrl(getJDBCUrl(params));
         
-        dataSource.addConnectionProperty("enable_load_extension", "true");
-        dataSource.addConnectionProperty("shared_cache", "yes");
+        addConnectionProperties(dataSource);
+        initializeDataSource(dataSource);
         
         return dataSource;
+    }
+    
+    static void addConnectionProperties(BasicDataSource dataSource) {
+        SQLiteConfig config = new SQLiteConfig();
+        config.setSharedCache(true);
+        config.enableLoadExtension(true);
+        config.enableSpatiaLite(true);
+        
+        for (Map.Entry e : config.toProperties().entrySet()) {
+            dataSource.addConnectionProperty((String)e.getKey(), (String)e.getValue());
+        }
+    }
+    
+    static void initializeDataSource(BasicDataSource dataSource) throws IOException {
+        //because of the way spatialite is loaded we need to instantiate and close
+        // a connection, and the spatialite functions will be registered for all future
+        // connections
+        try {
+            Connection cx = dataSource.getConnection();
+            cx.close();
+        } 
+        catch (SQLException e) {
+            throw (IOException) new IOException().initCause(e);
+        }
     }
 }

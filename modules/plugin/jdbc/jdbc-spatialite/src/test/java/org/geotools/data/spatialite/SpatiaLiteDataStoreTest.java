@@ -31,5 +31,12 @@ public class SpatiaLiteDataStoreTest extends JDBCDataStoreTest {
         //SQLite does not enforce length restrictions on strings
         //See FAQ (9) from http://www.sqlite.org/faq.html 
     }
+    
+    @Override
+    public void testCreateSchema() throws Exception {
+        //SQLite only has a few types, date not being one of them. So it is currently 
+        // not really possible to create a feature attribute of type Date, and have that 
+        // information round tripped
+    }
 
 }
