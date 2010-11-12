@@ -36,7 +36,7 @@ public class FixtureUtilities {
     /**
      * Load {@link Properties} from a {@link File}.
      */
-    static Properties loadProperties(File file) {
+    public static Properties loadProperties(File file) {
         try {
             InputStream input = null;
             try {
@@ -58,7 +58,7 @@ public class FixtureUtilities {
      * Return the directory containing GeoTools test fixture configuration files. This is
      * ".geotools" in the user home directory.
      */
-    static File getFixtureDirectory() {
+    public static File getFixtureDirectory() {
         return new File(System.getProperty("user.home") + File.separator + ".geotools");
     }
 
@@ -78,7 +78,7 @@ public class FixtureUtilities {
      * @param fixtureId
      *            the fixture id
      */
-    static File getFixtureFile(File fixtureDirectory, String fixtureId) {
+    public static File getFixtureFile(File fixtureDirectory, String fixtureId) {
         return new File(fixtureDirectory, fixtureId.replace('.', File.separatorChar).concat(
                 ".properties"));
     }
@@ -92,7 +92,7 @@ public class FixtureUtilities {
      * @param fixtureFile
      *            the missing fixture configuration file
      */
-    static void printSkipNotice(String fixtureId, File fixtureFile) {
+    public static void printSkipNotice(String fixtureId, File fixtureFile) {
         try {
             System.out.println("Skipping " + fixtureId + " tests. Fixture file "
                     + fixtureFile.getCanonicalPath() + " not found.");
