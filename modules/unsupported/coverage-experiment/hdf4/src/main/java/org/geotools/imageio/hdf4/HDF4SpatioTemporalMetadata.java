@@ -52,10 +52,14 @@ import org.geotools.imageio.metadata.SpatioTemporalMetadataFormat;
 import org.geotools.imageio.metadata.TemporalCRS;
 import org.geotools.imageio.metadata.AbstractCoordinateReferenceSystem.Datum;
 import org.geotools.metadata.iso.spatial.PixelTranslation;
+import org.geotools.referencing.CRS;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
 import org.geotools.temporal.object.DefaultInstant;
 import org.geotools.temporal.object.DefaultPeriod;
 import org.geotools.temporal.object.DefaultPosition;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.NoSuchAuthorityCodeException;
 import org.opengis.referencing.crs.GeographicCRS;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.temporal.Instant;
@@ -82,7 +86,7 @@ public class HDF4SpatioTemporalMetadata extends SpatioTemporalMetadata {
 
     private org.opengis.referencing.crs.CoordinateReferenceSystem nativeCrs;
     
-    private final static org.opengis.referencing.crs.GeographicCRS WGS84_CRS = (GeographicCRS)AbstractGridFormat.getDefaultCRS();
+    private static org.opengis.referencing.crs.GeographicCRS WGS84_CRS;
     
     private GeneralEnvelope envelope;
     
@@ -97,6 +101,18 @@ public class HDF4SpatioTemporalMetadata extends SpatioTemporalMetadata {
     private Instant startInstant;
     
     private Instant endInstant;
+    
+    static {
+        try {
+            WGS84_CRS = (GeographicCRS) CRS.decode("EPSG:4326",true);
+        } catch (NoSuchAuthorityCodeException e) {
+            if (LOGGER.isLoggable(Level.WARNING))
+                LOGGER.warning("Unable to setup WGS84 CRS" + e.getLocalizedMessage());
+        } catch (FactoryException e) {
+            if (LOGGER.isLoggable(Level.WARNING))
+                LOGGER.warning("Unable to setup WGS84 CRS" + e.getLocalizedMessage());
+        }
+    }
     
     /**
      * Get the attributes Map from the underlying ImageMetadata.
