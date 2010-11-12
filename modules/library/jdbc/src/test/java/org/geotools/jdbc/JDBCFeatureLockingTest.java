@@ -275,13 +275,13 @@ public abstract class JDBCFeatureLockingTest extends JDBCTestSupport {
         }
         catch( FeatureLockException e ) {}
         
+        tx1.close();
+        
         store.setTransaction( tx );
         store.removeFeatures( f1 );
         
         tx.commit();
         tx.close();
-        tx1.close();
-        
     }
     
     public void testModifyLockedFeatures() throws Exception {
@@ -313,12 +313,14 @@ public abstract class JDBCFeatureLockingTest extends JDBCTestSupport {
         }
         catch( FeatureLockException e ) {}
         
+        tx1.close();
+        
         store.setTransaction( tx );
         store.modifyFeatures(ad, v, f1 );
         tx.commit();
        
         assertEquals( 1 , store.getCount( new DefaultQuery( tname("ft1"), f0 ) ));
         tx.close();
-        tx1.close();
+        
     }
 }
