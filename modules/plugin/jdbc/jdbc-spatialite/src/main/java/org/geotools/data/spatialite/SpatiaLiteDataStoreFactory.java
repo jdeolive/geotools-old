@@ -16,6 +16,7 @@
  */
 package org.geotools.data.spatialite;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -45,6 +46,26 @@ public class SpatiaLiteDataStoreFactory extends JDBCDataStoreFactory {
     public static final Param USER = new Param(JDBCDataStoreFactory.USER.key, JDBCDataStoreFactory.USER.type, 
             JDBCDataStoreFactory.USER.description, false, JDBCDataStoreFactory.USER.sample);
     
+    /**
+     * base location to store sqlite database files
+     */
+    File baseDirectory = null;
+
+    /**
+     * Sets the base location to store sqlite database files.
+     *
+     * @param baseDirectory A directory.
+     */
+    public void setBaseDirectory(File baseDirectory) {
+        this.baseDirectory = baseDirectory;
+    }
+
+    /**
+     * The base location to store sqlite database files.
+     */
+    public File getBaseDirectory() {
+        return baseDirectory;
+    }
     @Override
     protected SQLDialect createSQLDialect(JDBCDataStore dataStore) {
         return new SpatiaLiteDialect( dataStore );
@@ -90,7 +111,11 @@ public class SpatiaLiteDataStoreFactory extends JDBCDataStoreFactory {
     @Override
     protected String getJDBCUrl(Map params) throws IOException {
         String db = (String) DATABASE.lookUp(params);
-        return "jdbc:sqlite:" + db;
+        String location = db;
+        if (baseDirectory != null) {
+            location = baseDirectory.getAbsolutePath() + File.separator + db;
+        }
+        return "jdbc:sqlite:" + location;
     }
     
     @Override
