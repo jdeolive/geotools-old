@@ -113,7 +113,10 @@ public class SpatiaLiteDataStoreFactory extends JDBCDataStoreFactory {
         String db = (String) DATABASE.lookUp(params);
         String location = db;
         if (baseDirectory != null) {
-            location = baseDirectory.getAbsolutePath() + File.separator + db;
+            //prepend base directory unless it is an absolute path
+            if (!new File(location).isAbsolute()) {
+                location = baseDirectory.getAbsolutePath() + File.separator + db;    
+            }
         }
         return "jdbc:sqlite:" + location;
     }
