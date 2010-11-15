@@ -98,6 +98,15 @@
        </modules>
      </profile>
      <profile>
+       <id>grass</id>
+       <activation>
+         <property><name>all</name></property>
+       </activation>
+       <modules>
+         <module>grassraster</module>
+       </modules>
+     </profile>
+     <profile>
        <id>geometry</id>
        <activation>
          <property><name>all</name></property>
