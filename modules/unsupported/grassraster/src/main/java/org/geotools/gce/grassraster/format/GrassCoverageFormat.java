@@ -32,6 +32,7 @@ import org.geotools.gce.grassraster.GrassCoverageWriter;
 import org.geotools.parameter.DefaultParameterDescriptorGroup;
 import org.geotools.parameter.ParameterGroup;
 import org.opengis.coverage.grid.Format;
+import org.opengis.coverage.grid.GridCoverageWriter;
 import org.opengis.parameter.GeneralParameterDescriptor;
 
 /**
@@ -42,8 +43,7 @@ import org.opengis.parameter.GeneralParameterDescriptor;
 public final class GrassCoverageFormat extends AbstractGridFormat implements Format {
 
     /** Logger. */
-    private final static Logger LOGGER = org.geotools.util.logging.Logging
-            .getLogger("org.geotools.gce.gtopo30");
+    private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.gce.grassraster");
 
     /**
      * Creates an instance and sets the metadata.
@@ -63,31 +63,11 @@ public final class GrassCoverageFormat extends AbstractGridFormat implements For
                 new GeneralParameterDescriptor[]{GEOTOOLS_WRITE_PARAMS}));
     }
 
-    /**
-     * Returns a reader object which you can use to read GridCoverages from a
-     * given source
-     * 
-     * @param o
-     *            the the source object. This can be a File, an URL or a String
-     *            (representing a filename or an URL)
-     * 
-     * @return a GridCoverageReader object or null if the source object could
-     *         not be accessed.
-     */
     public GrassCoverageReader getReader( final Object o ) {
         return getReader(o, null);
     }
 
-    /**
-     * Returns a writer object which you can use to write GridCoverages to a
-     * given destination.
-     * 
-     * @param destination
-     *            The destination object
-     * 
-     * @return a GridCoverageWriter object
-     */
-    public GrassCoverageWriter getWriter( final Object destination ) {
+    public GrassCoverageWriter getWriter( final Object destination, Hints hints ) {
         try {
             return new GrassCoverageWriter(destination);
         } catch (Exception e) {
@@ -97,17 +77,11 @@ public final class GrassCoverageFormat extends AbstractGridFormat implements For
         }
     }
 
-    /**
-     * Checks if the GTopo30DataSource supports a given file
-     * 
-     * @param o
-     *            the source object to test for compatibility with this format.
-     *            This can be a File, an URL or a String (representing a
-     *            filename or an URL)
-     * 
-     * @return if the source object is compatible
-     */
-    public boolean accepts( final Object o ) {
+    public GridCoverageWriter getWriter( Object destination ) {
+        return getWriter(destination, null);
+    }
+
+    public boolean accepts( final Object o, Hints hints ) {
         File fileToUse;
 
         if (o instanceof File) {
@@ -125,17 +99,6 @@ public final class GrassCoverageFormat extends AbstractGridFormat implements For
         return true;
     }
 
-    /**
-     * Returns a reader object which you can use to read GridCoverages from a
-     * given source
-     * 
-     * @param o
-     *            the the source object. This can be a File, an URL or a String
-     *            (representing a filename or an URL)
-     * 
-     * @return a GridCoverageReader object or null if the source object could
-     *         not be accessed.
-     */
     public GrassCoverageReader getReader( final Object o, Hints hints ) {
 
         try {
@@ -148,6 +111,7 @@ public final class GrassCoverageFormat extends AbstractGridFormat implements For
         }
 
     }
+
     /**
      * Always returns null since for the moment there are no
      * {@link GeoToolsWriteParams} availaible for this format.
