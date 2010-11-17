@@ -25,6 +25,12 @@
         <include>NOTICE*</include>
       </includes>
     </fileSet>
+    <fileSet>
+      <directory>target</directory>
+      <includes>
+        <include>VERSION*</include>
+      </includes>
+    </fileSet>
     <!--fileSet>
       <outputDirectory></outputDirectory>
       <directory>licenses</directory>

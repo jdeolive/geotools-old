@@ -73,6 +73,8 @@
     <src.output>${basedir}/target</src.output>
     <imageio.ext.version>1.0.8</imageio.ext.version>
     <jvm.opts></jvm.opts>
+    <maven.build.timestamp.format>dd-MMM-yyyy HH:mm</maven.build.timestamp.format>
+    <build.timestamp>${maven.build.timestamp}</build.timestamp>
   </properties>
 
   <!-- Profiles set on the command-line overwrite default properties. -->
@@ -948,7 +950,6 @@
   <!-- =========================================================== -->
   <build>
 
-
     <!-- ========================================================= -->
     <!--   Maven plugins dependencies management.                  -->
     <!--   It should not be needed since Maven select by default   -->
@@ -1024,7 +1025,33 @@
         </configuration>
       </plugin>
 
-
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <inherited>false</inherited>
+        <executions>
+          <execution>
+             <id>copy-resources</id>
+             <phase>install</phase>
+             <goals>
+               <goal>copy-resources</goal>
+             </goals>
+           </execution>
+        </executions>
+        <configuration>
+          <encoding>UTF-8</encoding>
+          <outputDirectory>${basedir}/target</outputDirectory>
+          <resources>
+            <resource>
+              <filtering>true</filtering>
+              <directory>${basedir}</directory>
+              <includes>
+                <include>VERSION.txt</include>
+              </includes>
+           </resource>
+         </resources>
+        </configuration>
+      </plugin>
 
       <!-- ======================================================= -->
       <!--     Tests.                                              -->
@@ -1071,6 +1098,11 @@
             <manifest>
               <addClasspath>true</addClasspath>
             </manifest>
+            <manifestEntries>
+              <Project-Version>${project.version}</Project-Version>
+              <Svn-Revision>${build.revision}</Svn-Revision>
+              <Build-Timestamp>${build.timestamp}</Build-Timestamp>
+            </manifestEntries>
           </archive>
         </configuration>
       </plugin>
@@ -1097,6 +1129,30 @@
         </executions>
       </plugin>
 
+
+      <!-- ======================================================= -->
+      <!--     Svn revision info.                                  -->
+      <!-- ======================================================= -->
+      <plugin>
+         <groupId>com.google.code.maven-svn-revision-number-plugin</groupId>
+         <artifactId>maven-svn-revision-number-plugin</artifactId>
+         <version>1.5</version>
+         <executions>
+            <execution>
+               <goals>
+                  <goal>revision</goal>
+               </goals>
+            </execution>
+         </executions>
+         <configuration>
+            <entries>
+               <entry>
+                 <prefix>build</prefix>
+               </entry>
+            </entries>
+         </configuration>
+     </plugin>
+      
     </plugins>
   </build>
 

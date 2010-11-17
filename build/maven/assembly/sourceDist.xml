@@ -20,6 +20,12 @@
   </formats>
   <fileSets>
     <fileSet>
+      <directory>target</directory>
+      <includes>
+        <include>VERSION*</include>
+      </includes>
+    </fileSet>
+    <fileSet>
       <directory>.</directory>
       <outputDirectory></outputDirectory>
       <useDefaultExcludes>true</useDefaultExcludes>
