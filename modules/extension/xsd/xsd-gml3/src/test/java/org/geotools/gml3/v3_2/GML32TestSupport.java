@@ -9,7 +9,7 @@ import org.geotools.xml.Configuration;
 import org.geotools.xml.test.XMLTestSupport;
 import org.w3c.dom.Element;
 
-public class GML32TestSupport extends XMLTestSupport {
+public abstract class GML32TestSupport extends XMLTestSupport {
     
     static {
         HashMap namespaces = new HashMap();

@@ -41,7 +41,7 @@ import org.opengis.feature.type.PropertyDescriptor;
  * @author Rob Atkinson, CSIRO Land and Water
  */
 
-public class ComplexAttributeTestSupport extends GML3TestSupport {
+public abstract class ComplexAttributeTestSupport extends GML3TestSupport {
 
     /*
      * can extend this later to generate more generate complex attributes - lets start with
