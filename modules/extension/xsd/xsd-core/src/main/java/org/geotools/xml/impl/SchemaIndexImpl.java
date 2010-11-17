@@ -86,7 +86,9 @@ public class SchemaIndexImpl implements SchemaIndex {
         //set the schemas passed in
         for (int i = 0; i < schemas.length; i++) {
             this.schemas[i] = schemas[i];
-            this.schemas[i].eAdapters().add(adapter);
+            synchronized(this.schemas[i].eAdapters()) {
+                this.schemas[i].eAdapters().add(adapter);
+            }
         }
 
         //add the schema for xml schema itself
@@ -96,7 +98,9 @@ public class SchemaIndexImpl implements SchemaIndex {
     public void destroy() {
         //remove the adapter from the schemas
         for (int i = 0; i < schemas.length; i++) {
-            this.schemas[i].eAdapters().remove(adapter);
+            synchronized(this.schemas[i].eAdapters()) {
+                this.schemas[i].eAdapters().remove(adapter);
+            }
         }
         schemas = null;
     }
