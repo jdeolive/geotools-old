@@ -19,6 +19,7 @@ package org.geotools.factory;
 import java.awt.RenderingHints;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.StringTokenizer;
 
 import javax.naming.Context;
@@ -65,10 +66,34 @@ import org.geotools.util.Version;
  */
 public final class GeoTools {
     /**
+     * Properties about this geotools build 
+     */
+    private static final Properties PROPS;  
+    static {
+        Properties props = new Properties();
+        try {
+            props.load(GeoTools.class.getResourceAsStream("GeoTools.properties"));
+        }
+        catch(Exception e) {}
+        
+        PROPS = props;
+    }
+    
+    /**
      * The current GeoTools version. The separator character must be the dot.
      */
-    private static final Version VERSION = new Version("2.7-SNAPSHOT");
+    private static final Version VERSION = new Version(PROPS.getProperty("version", "2.7-SNAPSHOT"));
 
+    /**
+     * The version control (svn) revision at which this version of geotools was built.
+     */
+    private static final String BUILD_REVISION = PROPS.getProperty("build.revision", "-1");
+    
+    /**
+     * The timestamp at which this version of geotools was built.
+     */
+    private static final String BUILD_TIMESTAMP = PROPS.getProperty("build.timestamp", ""); 
+        
     /**
      * Object to inform about system-wide configuration changes.
      * We use the Swing utility listener list since it is lightweight and thread-safe.
@@ -179,6 +204,24 @@ public final class GeoTools {
      */
     public static Version getVersion(){
          return VERSION;
+    }
+    
+    /**
+     * Reports back the vcs revision at which the version of GeoTools was built. 
+     * 
+     * @return The svn revision.
+     */
+    public static String getBuildRevision() {
+        return BUILD_REVISION;
+    }
+    
+    /**
+     * Reports back the timestamp at which the version of GeoTools of built. 
+     * 
+     * @return The build timestamp.
+     */
+    public static String getBuildTimestamp() {
+        return BUILD_TIMESTAMP;
     }
 
     /**
