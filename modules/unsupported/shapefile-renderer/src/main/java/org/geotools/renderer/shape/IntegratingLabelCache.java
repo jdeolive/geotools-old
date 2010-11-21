@@ -25,7 +25,7 @@ import org.geotools.geometry.jts.LiteShape2;
 import org.geotools.renderer.lite.LabelCache;
 import org.geotools.styling.TextSymbolizer;
 import org.geotools.util.NumberRange;
-import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.Feature;
 
 /**
  * Wrapper around another {@link LabelCache} that disables the following methods:
@@ -77,7 +77,7 @@ class IntegratingLabelCache implements LabelCache {
         return wrapped.orderedLabels();
     }
 
-    public void put(String layerId, TextSymbolizer symbolizer, SimpleFeature feature, LiteShape2 shape,
+    public void put(String layerId, TextSymbolizer symbolizer, Feature feature, LiteShape2 shape,
             NumberRange scaleRange) {
         wrapped.put(layerId, symbolizer, feature, shape, scaleRange);
     }

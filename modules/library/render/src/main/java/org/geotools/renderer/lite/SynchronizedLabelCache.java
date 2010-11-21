@@ -25,7 +25,7 @@ import org.geotools.geometry.jts.LiteShape2;
 import org.geotools.renderer.label.LabelCacheImpl;
 import org.geotools.styling.TextSymbolizer;
 import org.geotools.util.NumberRange;
-import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.Feature;
 
 /**
  * Allow multiple thread to modify LabelCache.  
@@ -76,7 +76,7 @@ public class SynchronizedLabelCache implements LabelCache {
     }
 
     
-    public synchronized void put( String layerId, TextSymbolizer symbolizer, SimpleFeature feature, LiteShape2 shape, NumberRange<Double> scaleRange ) {
+    public synchronized void put( String layerId, TextSymbolizer symbolizer, Feature feature, LiteShape2 shape, NumberRange<Double> scaleRange ) {
         wrapped.put(layerId, symbolizer, feature, shape, scaleRange);
     }
 

@@ -24,7 +24,7 @@ import java.util.List;
 import org.geotools.geometry.jts.LiteShape2;
 import org.geotools.styling.TextSymbolizer;
 import org.geotools.util.NumberRange;
-import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.Feature;
 
 /**
  * Used to cache labels prior to their being drawn on the screen.
@@ -59,7 +59,7 @@ public interface LabelCache {
 	 * @param shape the shape to be labeled.  This is in screen coordinates.
 	 * @param scaleRange the scaleRange that the symbolizer is legal
 	 */
-	void put( String layerId, TextSymbolizer symbolizer, SimpleFeature feature, LiteShape2 shape, NumberRange<Double> scaleRange) ;
+	void put( String layerId, TextSymbolizer symbolizer, Feature feature, LiteShape2 shape, NumberRange<Double> scaleRange) ;
 
 	/**
 	 * Reserve the provided geometry prior to sorting out where labels can go.

@@ -101,11 +101,12 @@ import org.geotools.styling.visitor.UomRescaleStyleVisitor;
 import org.geotools.util.NumberRange;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.coverage.processing.OperationNotFoundException;
+import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
+import org.opengis.feature.type.PropertyDescriptor;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
@@ -435,6 +436,9 @@ public final class StreamingRenderer implements GTRenderer {
 
     private void fireFeatureRenderedEvent(Object feature) {
         if( !(feature instanceof SimpleFeature)){
+            if(feature instanceof Feature) {
+                LOGGER.log(Level.FINE, "Skipping non simple feature rendering notification");
+            }
             return;
         }
         if (renderListeners.size() > 0) {
@@ -901,14 +905,14 @@ public final class StreamingRenderer implements GTRenderer {
      * Default visibility for testing purposes
      */
 
-    FeatureCollection<SimpleFeatureType, SimpleFeature> queryLayer(MapLayer currLayer, FeatureSource<SimpleFeatureType, SimpleFeature> source,
-            SimpleFeatureType schema, LiteFeatureTypeStyle[] styles,
+    FeatureCollection<FeatureType, Feature> queryLayer(MapLayer currLayer, FeatureSource<FeatureType, Feature> source,
+            FeatureType schema, LiteFeatureTypeStyle[] styles,
             Envelope mapArea, CoordinateReferenceSystem mapCRS,
             CoordinateReferenceSystem featCrs, Rectangle screenSize,
             GeometryDescriptor geometryAttribute,
             AffineTransform worldToScreenTransform)
             throws IllegalFilterException, IOException {
-        FeatureCollection<SimpleFeatureType, SimpleFeature> results = null;
+        FeatureCollection<FeatureType, Feature> results = null;
         Query query = new Query(Query.ALL);
         Query definitionQuery;
         final int length;
@@ -929,12 +933,13 @@ public final class StreamingRenderer implements GTRenderer {
         // build a list of attributes used in the rendering
         String[] attributes;
         if (styles == null) {
-            List<AttributeDescriptor> ats = schema.getAttributeDescriptors();
-            length = ats.size();
-            attributes = new String[length];
-            for (int t = 0; t < length; t++) {
-                attributes[t] = ats.get(t).getLocalName();
-            }
+//            List<AttributeDescriptor> ats = schema.getAttributeDescriptors();
+//            length = ats.size();
+//            attributes = new String[length];
+//            for (int t = 0; t < length; t++) {
+//                attributes[t] = ats.get(t).getLocalName();
+//            }
+            attributes = null;
         } else {
             attributes = findStyleAttributes(styles, schema);
         }
@@ -963,12 +968,12 @@ public final class StreamingRenderer implements GTRenderer {
                 }
 
                 if(LOGGER.isLoggable(Level.FINE))
-                    LOGGER.fine("Querying layer " + schema.getTypeName() +  " with bbox: " + envelope);
+                    LOGGER.fine("Querying layer " + schema.getName() +  " with bbox: " + envelope);
                 filter = createBBoxFilters(schema, attributes, envelopes);
 
                 // now build the query using only the attributes and the
                 // bounding box needed
-                query = new Query(schema.getTypeName());
+                query = new Query(schema.getName().getLocalPart());
                 query.setFilter(filter);
                 query.setPropertyNames(attributes);
                 processRuleForQuery(styles, query);
@@ -976,7 +981,7 @@ public final class StreamingRenderer implements GTRenderer {
             } catch (Exception e) {
                 fireErrorEvent(new Exception("Error transforming bbox", e));
                 canTransform = false;
-                query = new Query(schema.getTypeName());
+                query = new Query(schema.getName().getLocalPart());
                 query.setPropertyNames(attributes);
                 Envelope bounds = source.getBounds();
                 if (bounds != null && envelope.intersects(bounds)) {
@@ -1145,12 +1150,12 @@ public final class StreamingRenderer implements GTRenderer {
      * @param schema
      * @return
      */
-    private CoordinateReferenceSystem getNativeCRS(SimpleFeatureType schema, List<String> attNames) {
+    private CoordinateReferenceSystem getNativeCRS(FeatureType schema, List<String> attNames) {
         // first off, check how many crs we have, this hint works only
         // if we have just one native CRS at hand (and the native CRS is known
         CoordinateReferenceSystem crs = null;
-        for (AttributeDescriptor att : schema.getAttributeDescriptors()) {
-            if(!attNames.contains(att.getLocalName()))
+        for (PropertyDescriptor att : schema.getDescriptors()) {
+            if(!attNames.contains(att.getName().getLocalPart()))
                 continue;
 
             if(att instanceof GeometryDescriptor) {
@@ -1354,7 +1359,7 @@ public final class StreamingRenderer implements GTRenderer {
      *         <code>layer</code>
      */
     private String[] findStyleAttributes(LiteFeatureTypeStyle[] styles,
-            SimpleFeatureType schema) {
+            FeatureType schema) {
         final StyleAttributeExtractor sae = new StyleAttributeExtractor();
 
         LiteFeatureTypeStyle lfts;
@@ -1390,12 +1395,12 @@ public final class StreamingRenderer implements GTRenderer {
          * behavior
          */
         List atts = new LinkedList(Arrays.asList(ftsAttributes));
-        List<AttributeDescriptor> attTypes = schema.getAttributeDescriptors();
+        Collection<PropertyDescriptor> attTypes = schema.getDescriptors();
         String attName;
 
         final int attTypesLength = attTypes.size();
-        for (int i = 0; i < attTypesLength; i++) {
-            attName = attTypes.get(i).getLocalName();
+        for (PropertyDescriptor pd : attTypes) {
+            attName = pd.getName().getLocalPart();
 
             // DJB: This geometry check was commented out. I think it should
             // actually be back in or
@@ -1457,11 +1462,11 @@ public final class StreamingRenderer implements GTRenderer {
      * @throws IllegalFilterException
      *             if something goes wrong creating the filter
      */
-    private Filter createBBoxFilters(SimpleFeatureType schema, String[] attributes,
+    private Filter createBBoxFilters(FeatureType schema, String[] attributes,
             List<ReferencedEnvelope> bboxes) throws IllegalFilterException {
         Filter filter = Filter.INCLUDE;
         final int length = attributes.length;
-        AttributeDescriptor attType;
+        PropertyDescriptor attType;
 
         for (int j = 0; j < length; j++) {
             attType = schema.getDescriptor(attributes[j]);
@@ -1471,16 +1476,17 @@ public final class StreamingRenderer implements GTRenderer {
                 if (LOGGER.isLoggable(Level.FINE))
                     LOGGER.fine(new StringBuffer("Could not find '").append(
                             attributes[j]).append("' in the FeatureType (")
-                            .append(schema.getTypeName()).append(")")
+                            .append(schema.getName()).append(")")
                             .toString());
                 throw new IllegalFilterException(new StringBuffer(
                 "Could not find '").append(
                         attributes[j] + "' in the FeatureType (").append(
-                                schema.getTypeName()).append(")").toString());
+                                schema.getName()).append(")").toString());
             }
 
             if (attType instanceof GeometryDescriptor) {
-                Filter gfilter = new FastBBOX(attType.getLocalName(), bboxes.get(0), filterFactory);
+                String localName = ((GeometryDescriptor) attType).getLocalName();
+                Filter gfilter = new FastBBOX(localName, bboxes.get(0), filterFactory);
 
                 if (filter == Filter.INCLUDE) {
                     filter = gfilter;
@@ -1490,7 +1496,7 @@ public final class StreamingRenderer implements GTRenderer {
 
                 if(bboxes.size() > 0) {
                     for (int k = 1; k < bboxes.size(); k++) {
-                        filter = filterFactory.or( filter, new FastBBOX(attType.getLocalName(), bboxes.get(k), filterFactory) );
+                        filter = filterFactory.or( filter, new FastBBOX(localName, bboxes.get(k), filterFactory) );
                     }
                 }
             }
@@ -1587,7 +1593,7 @@ public final class StreamingRenderer implements GTRenderer {
      * @return ArrayList<LiteFeatureTypeStyle>
      */
     private ArrayList<LiteFeatureTypeStyle> createLiteFeatureTypeStyles(
-            FeatureTypeStyle[] featureStyles, SimpleFeatureType ftype,
+            FeatureTypeStyle[] featureStyles, FeatureType ftype,
             Graphics2D graphics) throws IOException {
         if (LOGGER.isLoggable(Level.FINE))
             LOGGER.fine("creating rules for scale denominator - "
@@ -1658,9 +1664,10 @@ public final class StreamingRenderer implements GTRenderer {
     }
 
 
-    private boolean isFeatureTypeStyleActive(SimpleFeatureType ftype, FeatureTypeStyle fts) {
-        return ((ftype.getTypeName() != null)
-                && (ftype.getTypeName().equalsIgnoreCase(fts.getFeatureTypeName()) || 
+    private boolean isFeatureTypeStyleActive(FeatureType ftype, FeatureTypeStyle fts) {
+        // TODO: find a complex feature equivalent for this check
+        return fts.featureTypeNames().isEmpty() || ((ftype.getName().getLocalPart() != null)
+                && (ftype.getName().getLocalPart().equalsIgnoreCase(fts.getFeatureTypeName()) || 
                         FeatureTypes.isDecendedFrom(ftype, null, fts.getFeatureTypeName())));
     }
 
@@ -1713,7 +1720,7 @@ public final class StreamingRenderer implements GTRenderer {
 
             // count how many lite feature type styles are active
             int currCount = 0;
-            SimpleFeatureType ftype = (SimpleFeatureType) layer.getFeatureSource().getSchema();
+            FeatureType ftype = layer.getFeatureSource().getSchema();
             for (FeatureTypeStyle fts : layer.getStyle().getFeatureTypeStyles()) {
                 if (isFeatureTypeStyleActive(ftype, fts)) {
                     // get applicable rules at the current scale
@@ -1750,7 +1757,7 @@ public final class StreamingRenderer implements GTRenderer {
      * @param sourceCrs
      * @return FeatureCollection<SimpleFeatureType, SimpleFeature> that produces results with the correct CRS
      */
-    private FeatureCollection<SimpleFeatureType, SimpleFeature> prepFeatureCollection( FeatureCollection<SimpleFeatureType, SimpleFeature> features, CoordinateReferenceSystem sourceCrs ) {
+    private FeatureCollection prepFeatureCollection(FeatureCollection features, CoordinateReferenceSystem sourceCrs ) {
         // DJB: dont do reprojection here - do it after decimation
         // but we ensure that the reader is producing geometries with
         // the correct CRS
@@ -1844,7 +1851,7 @@ public final class StreamingRenderer implements GTRenderer {
         // /////////////////////////////////////////////////////////////////////
         final FeatureTypeStyle[] featureStylers = currLayer.getStyle().getFeatureTypeStyles();
 
-        final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = (FeatureSource<SimpleFeatureType, SimpleFeature>) currLayer.getFeatureSource();
+        final FeatureSource featureSource =  currLayer.getFeatureSource();
 
         Collection collection = null;
         FeatureCollection features = null;
@@ -1854,7 +1861,7 @@ public final class StreamingRenderer implements GTRenderer {
         final ArrayList<LiteFeatureTypeStyle> lfts ;
 
         if ( featureSource != null ) {
-            final SimpleFeatureType schema = featureSource.getSchema();
+            final FeatureType schema = featureSource.getSchema();
 
             final GeometryDescriptor geometryAttribute = schema.getGeometryDescriptor();
             sourceCrs = geometryAttribute.getType().getCoordinateReferenceSystem();
@@ -2193,8 +2200,8 @@ public final class StreamingRenderer implements GTRenderer {
                     continue;
                 }
                 
-                if (symbolizer instanceof TextSymbolizer && drawMe.content instanceof SimpleFeature) {
-                    labelCache.put(layerId, (TextSymbolizer) symbolizer, (SimpleFeature) drawMe.content,
+                if (symbolizer instanceof TextSymbolizer && drawMe.content instanceof Feature) {
+                    labelCache.put(layerId, (TextSymbolizer) symbolizer, (Feature) drawMe.content,
                             shape, scaleRange);
                 } else {
                     Style2D style = styleFactory.createStyle(drawMe.content,
@@ -2249,10 +2256,13 @@ public final class StreamingRenderer implements GTRenderer {
         // get the geometry
         Geometry geom;
         if(geomExpr == null) {
-            if(drawMe instanceof SimpleFeature)
+            if(drawMe instanceof SimpleFeature) {
                 geom = (Geometry) ((SimpleFeature) drawMe).getDefaultGeometry();
-            else
+            } else if (drawMe instanceof Feature) {
+                geom = (Geometry) ((Feature) drawMe).getDefaultGeometryProperty().getValue();
+            } else {
                 geom = (Geometry) defaultGeometryPropertyName.evaluate(drawMe, Geometry.class);
+            }
         } else {
             geom = (Geometry) geomExpr.evaluate(drawMe, Geometry.class);
         }
@@ -2272,9 +2282,9 @@ public final class StreamingRenderer implements GTRenderer {
             MapLayer currLayer, Object drawMe, Symbolizer s) {
 
 
-        if( drawMe instanceof SimpleFeature ){
-            SimpleFeature f = (SimpleFeature) drawMe;
-            SimpleFeatureType schema = f.getFeatureType();
+        if( drawMe instanceof Feature) {
+            Feature f = (Feature) drawMe;
+            FeatureType schema = f.getType();
 
             Expression geometry = s.getGeometry();
 
@@ -2309,7 +2319,7 @@ public final class StreamingRenderer implements GTRenderer {
      * @return
      */
     org.opengis.referencing.crs.CoordinateReferenceSystem getAttributeCRS(String geomName,
-            SimpleFeatureType schema) {
+            FeatureType schema) {
         if (geomName == null || "".equals(geomName)) {
             GeometryDescriptor geom = schema.getGeometryDescriptor();
             return geom.getType().getCoordinateReferenceSystem();

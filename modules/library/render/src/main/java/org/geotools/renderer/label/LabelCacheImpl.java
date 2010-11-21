@@ -46,7 +46,7 @@ import org.geotools.renderer.style.TextStyle2D;
 import org.geotools.styling.TextSymbolizer;
 import org.geotools.util.NumberRange;
 import org.geotools.util.logging.Logging;
-import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.Feature;
 import org.opengis.filter.expression.Literal;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -234,7 +234,7 @@ public final class LabelCacheImpl implements LabelCache {
      * @param symbolizer
      * @param feature
      */
-    public double getPriority(TextSymbolizer symbolizer, SimpleFeature feature) {
+    public double getPriority(TextSymbolizer symbolizer, Feature feature) {
         if (symbolizer.getPriority() == null)
             return DEFAULT_PRIORITY;
 
@@ -251,7 +251,7 @@ public final class LabelCacheImpl implements LabelCache {
      * @see org.geotools.renderer.lite.LabelCache#put(org.geotools.renderer.style.TextStyle2D,
      *      org.geotools.renderer.lite.LiteShape)
      */
-    public void put(String layerId, TextSymbolizer symbolizer, SimpleFeature feature,
+    public void put(String layerId, TextSymbolizer symbolizer, Feature feature,
             LiteShape2 shape, NumberRange scaleRange) {
         needsOrdering = true;
         try {
@@ -315,7 +315,7 @@ public final class LabelCacheImpl implements LabelCache {
     }
     
     private LabelCacheItem buildLabelCacheItem(String layerId, TextSymbolizer symbolizer,
-            SimpleFeature feature, LiteShape2 shape, NumberRange scaleRange, String label,
+            Feature feature, LiteShape2 shape, NumberRange scaleRange, String label,
             double priorityValue) {
         TextStyle2D textStyle = (TextStyle2D) styleFactory.createStyle(feature, symbolizer,
                 scaleRange);
