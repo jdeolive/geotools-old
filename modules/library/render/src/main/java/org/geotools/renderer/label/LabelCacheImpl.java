@@ -37,7 +37,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.geotools.geometry.jts.Decimator;
 import org.geotools.geometry.jts.GeometryClipper;
 import org.geotools.geometry.jts.LiteShape2;
 import org.geotools.renderer.label.LabelCacheItem.GraphicResize;
@@ -65,7 +64,6 @@ import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.prep.PreparedGeometry;
 import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
 import com.vividsolutions.jts.operation.linemerge.LineMerger;
-import com.vividsolutions.jts.precision.EnhancedPrecisionOp;
 
 /**
  * Default LabelCache Implementation.
@@ -1089,7 +1087,7 @@ public final class LabelCacheImpl implements LabelCache {
             centroid = geom.getCentroid();
         } catch (Exception e) {
             // generalized polygons causes problems - this
-            // tries to hid them.
+            // tries to hide them.
             try {
                 centroid = geom.getExteriorRing().getCentroid();
             } catch (Exception ee) {
@@ -1104,14 +1102,41 @@ public final class LabelCacheImpl implements LabelCache {
         // check we're inside, if not, use a different approach
         PreparedGeometry pg = PreparedGeometryFactory.prepare(geom);
         if(!pg.contains(centroid)) {
+            // resort to sampling, computing the intersection is slow and
+            // due invalid geometries can easily break with an exception
             Envelope env = geom.getEnvelopeInternal();
-            LineString bisector = geom.getFactory().createLineString(new Coordinate[] { 
-                new Coordinate(env.getMinX(), centroid.getY()),
-                new Coordinate(env.getMaxX(), centroid.getY()) });
-            Geometry intersection = bisector.intersection(geom);
-            Envelope widestEnv = widestGeometry(intersection).getEnvelopeInternal();
-            double midX = (widestEnv.getMinX() + widestEnv.getMaxX()) / 2;
-            centroid = geom.getFactory().createPoint(new Coordinate(midX, centroid.getY()));
+            double step = 5;
+            int steps = (int) Math.round((env.getMaxX() - env.getMinX()) / step);
+            Coordinate c = new Coordinate();
+            Point pp = gf.createPoint(c);
+            c.y = centroid.getY();
+            int max = -1;
+            int maxIdx = -1;
+            int containCounter = -1;
+            for (int i = 0; i < steps; i++) {
+                c.x = env.getMinX() + step * i;
+                pp.geometryChanged();
+                if(!pg.contains(pp)) {
+                    containCounter = 0;
+                } else if(i == 0) {
+                    containCounter = 1;
+                } else {
+                    containCounter++;
+                    if(containCounter > max) {
+                        max = containCounter;
+                        maxIdx = i;
+                    }
+                }
+            }
+                    
+            if(maxIdx != -1) {
+                int midIdx = max > 1 ? maxIdx - max / 2 : maxIdx;
+                c.x = env.getMinX() + step * midIdx;
+                pp.geometryChanged();
+                centroid = pp;
+            } else {
+                return false;
+            }
         }
 
         // compute the transformation used to position the label
@@ -1458,21 +1483,26 @@ public final class LabelCacheImpl implements LabelCache {
         
         // clippedPolys is a list of Polygon, all cliped (hopefully) to the
         // display geometry. we choose largest one
-        if (clippedPolys.size() == 0)
+        if (clippedPolys.size() == 0) {
             return null;
-        if (clippedPolys.size() == 1)
-            return (Polygon) clippedPolys.get(0);
+        }
         double maxSize = -1;
         Polygon maxPoly = null;
         Polygon cpoly;
         for (int t = 0; t < clippedPolys.size(); t++) {
             cpoly = (Polygon) clippedPolys.get(t);
-            if (cpoly.getArea() > maxSize) {
+            final double area = cpoly.getArea();
+            if (area > maxSize) {
                 maxPoly = cpoly;
-                maxSize = cpoly.getArea();
+                maxSize = area;
             }
         }
-        return maxPoly;
+        // fast clipping may result in polygons with 0 area
+        if(maxSize > 0) {
+            return maxPoly;
+        } else {
+            return null;
+        }
     }
 
     /**
