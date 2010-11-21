@@ -92,9 +92,22 @@ public class ComplexTypeImpl extends AttributeTypeImpl implements ComplexType {
 	    return propertyMap.get(name);
 	}
 	
-	public PropertyDescriptor getDescriptor(String name) {
-	    return getDescriptor(new NameImpl( name ) );
-	}
+    public PropertyDescriptor getDescriptor(String name) {
+        PropertyDescriptor result = getDescriptor(new NameImpl(name));
+        if (result == null) {
+            // look in the same namespace as the complex type
+            result = getDescriptor(new NameImpl(getName().getNamespaceURI(), name));
+            if (result == null) {
+                // full scan
+                for (PropertyDescriptor pd : properties) {
+                    if (pd.getName().getLocalPart().equals(name)) {
+                        return pd;
+                    }
+                }
+            }
+        }
+        return result;
+    }
 	
 	public boolean isInline() {
 	    //JD: at this point "inlining" is unused... we might want to kill it 
