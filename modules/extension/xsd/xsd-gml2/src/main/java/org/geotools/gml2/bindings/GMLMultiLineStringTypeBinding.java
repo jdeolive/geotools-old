@@ -23,9 +23,7 @@ import org.geotools.xml.AbstractComplexBinding;
 import org.geotools.xml.ElementInstance;
 import org.geotools.xml.Node;
 
-import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
 
 
@@ -81,7 +79,7 @@ public class GMLMultiLineStringTypeBinding extends AbstractComplexBinding {
      * @generated modifiable
      */
     public int getExecutionMode() {
-        return AFTER;
+        return OVERRIDE;
     }
 
     /**
@@ -102,17 +100,7 @@ public class GMLMultiLineStringTypeBinding extends AbstractComplexBinding {
      */
     public Object parse(ElementInstance instance, Node node, Object value)
         throws Exception {
-        GeometryCollection gc = (GeometryCollection) value;
-        LineString[] lines = new LineString[gc.getNumGeometries()];
-
-        for (int i = 0; i < gc.getNumGeometries(); i++) {
-            lines[i] = (LineString) gc.getGeometryN(i);
-        }
-
-        MultiLineString multiLineString = gFactory.createMultiLineString(lines);
-        multiLineString.setUserData(gc.getUserData());
-
-        return multiLineString;
+        return GML2ParsingUtils.GeometryCollectionType_parse(node, MultiLineString.class, gFactory);
     }
 
     public Object getProperty(Object object, QName name)
@@ -121,6 +109,6 @@ public class GMLMultiLineStringTypeBinding extends AbstractComplexBinding {
             return GML2ParsingUtils.asCollection((MultiLineString) object);
         }
 
-        return null;
+        return GML2ParsingUtils.GeometryCollectionType_getProperty(object, name);
     }
 }

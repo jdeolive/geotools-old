@@ -54,6 +54,7 @@ import com.vividsolutions.jts.geom.GeometryCollection;
  * @generated
  *
  * @source $URL$
+ * JD: this binding should not longer be used
  */
 public class GMLAbstractGeometryCollectionBaseTypeBinding extends AbstractComplexBinding {
     /**
@@ -81,26 +82,11 @@ public class GMLAbstractGeometryCollectionBaseTypeBinding extends AbstractComple
      */
     public Object parse(ElementInstance instance, Node node, Object value)
         throws Exception {
-        if (value instanceof GeometryCollection) {
-            //set an srs if there is one
-            CoordinateReferenceSystem crs = GML2ParsingUtils.crs(node);
-
-            if (crs != null) {
-                ((GeometryCollection) value).setUserData(crs);
-            }
-        }
-
-        return value;
+        return null;
     }
     
     @Override
     public Object getProperty(Object object, QName name) throws Exception {
-        if ( "srsName".equals( name.getLocalPart() ) ) {
-            CoordinateReferenceSystem crs = GML2EncodingUtils.getCRS((GeometryCollection)object );
-            if ( crs != null ) {
-                return GML2EncodingUtils.toURI(crs,true);
-            }
-        }
-        return null;
+        return GML2ParsingUtils.GeometryCollectionType_getProperty(object, name);
     }
 }

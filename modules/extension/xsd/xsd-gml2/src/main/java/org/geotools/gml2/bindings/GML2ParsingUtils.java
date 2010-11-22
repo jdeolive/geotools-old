@@ -24,6 +24,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javax.xml.namespace.QName;
+
 import org.eclipse.xsd.XSDElementDeclaration;
 import org.eclipse.xsd.XSDParticle;
 import org.geotools.feature.NameImpl;
@@ -53,6 +55,13 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.MultiLineString;
+import com.vividsolutions.jts.geom.MultiPoint;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 
 
 /**
@@ -365,5 +374,54 @@ public class GML2ParsingUtils {
         return members;
     }
     
+    static GeometryCollection GeometryCollectionType_parse(Node node, Class clazz, GeometryFactory gFactory) {
+        //round up children that are geometries, since this type is often 
+        // extended by multi geometries, dont reference members by element name
+        List geoms = new ArrayList();
+
+        for (Iterator itr = node.getChildren().iterator(); itr.hasNext();) {
+            Node cnode = (Node) itr.next();
+
+            if (cnode.getValue() instanceof Geometry) {
+                geoms.add(cnode.getValue());
+            }
+        }
+
+        GeometryCollection gc = null;
+        
+        if (MultiPoint.class.isAssignableFrom(clazz)) {
+            gc = gFactory.createMultiPoint((Point[]) geoms.toArray(new Point[geoms.size()]));
+        }
+        else if (MultiLineString.class.isAssignableFrom(clazz)) {
+            gc = gFactory.createMultiLineString(
+                (LineString[]) geoms.toArray(new LineString[geoms.size()]));
+        }
+        else if (MultiPolygon.class.isAssignableFrom(clazz)) {
+            gc = gFactory.createMultiPolygon((Polygon[]) geoms.toArray(new Polygon[geoms.size()]));
+        }
+        
+        else {
+            gc = gFactory.createGeometryCollection((Geometry[]) geoms.toArray(
+                new Geometry[geoms.size()]));
+        }
+        
+        //set an srs if there is one
+        CoordinateReferenceSystem crs = crs(node);
+
+        if (crs != null) {
+            gc.setUserData(crs);
+        }
+        
+        return gc;
+    }
     
+    static Object GeometryCollectionType_getProperty(Object object, QName name) {
+        if ( "srsName".equals( name.getLocalPart() ) ) {
+            CoordinateReferenceSystem crs = GML2EncodingUtils.getCRS((GeometryCollection)object );
+            if ( crs != null ) {
+                return GML2EncodingUtils.toURI(crs,true);
+            }
+        }
+        return null;
+    }
 }

@@ -23,10 +23,8 @@ import org.geotools.xml.AbstractComplexBinding;
 import org.geotools.xml.ElementInstance;
 import org.geotools.xml.Node;
 
-import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Polygon;
 
 
 /**
@@ -82,7 +80,7 @@ public class GMLMultiPolygonTypeBinding extends AbstractComplexBinding {
      * @generated modifiable
      */
     public int getExecutionMode() {
-        return AFTER;
+        return OVERRIDE;
     }
 
     /**
@@ -103,17 +101,7 @@ public class GMLMultiPolygonTypeBinding extends AbstractComplexBinding {
      */
     public Object parse(ElementInstance instance, Node node, Object value)
         throws Exception {
-        GeometryCollection gc = (GeometryCollection) value;
-        Polygon[] polygons = new Polygon[gc.getNumGeometries()];
-
-        for (int i = 0; i < gc.getNumGeometries(); i++) {
-            polygons[i] = (Polygon) gc.getGeometryN(i);
-        }
-
-        MultiPolygon multiPolygon = gFactory.createMultiPolygon(polygons);
-        multiPolygon.setUserData(gc.getUserData());
-
-        return multiPolygon;
+        return GML2ParsingUtils.GeometryCollectionType_parse(node, MultiPolygon.class, gFactory);
     }
 
     public Object getProperty(Object object, QName name)
@@ -122,6 +110,6 @@ public class GMLMultiPolygonTypeBinding extends AbstractComplexBinding {
             return GML2ParsingUtils.asCollection((MultiPolygon) object);
         }
 
-        return null;
+        return GML2ParsingUtils.GeometryCollectionType_getProperty(object, name);
     }
 }

@@ -23,10 +23,8 @@ import org.geotools.xml.AbstractComplexBinding;
 import org.geotools.xml.ElementInstance;
 import org.geotools.xml.Node;
 
-import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.MultiPoint;
-import com.vividsolutions.jts.geom.Point;
 
 
 /**
@@ -74,7 +72,7 @@ public class GMLMultiPointTypeBinding extends AbstractComplexBinding {
     }
 
     public int getExecutionMode() {
-        return AFTER;
+        return OVERRIDE;
     }
 
     /**
@@ -95,25 +93,16 @@ public class GMLMultiPointTypeBinding extends AbstractComplexBinding {
      */
     public Object parse(ElementInstance instance, Node node, Object value)
         throws Exception {
-        GeometryCollection gc = (GeometryCollection) value;
-        Point[] points = new Point[gc.getNumGeometries()];
-
-        for (int i = 0; i < gc.getNumGeometries(); i++) {
-            points[i] = (Point) gc.getGeometryN(i);
-        }
-
-        MultiPoint multiPoint = gFactory.createMultiPoint(points);
-        multiPoint.setUserData(gc.getUserData());
-
-        return multiPoint;
+        return GML2ParsingUtils.GeometryCollectionType_parse(node, MultiPoint.class, gFactory);
     }
 
     public Object getProperty(Object object, QName name)
         throws Exception {
+      
         if (GML.pointMember.equals(name)) {
             return GML2ParsingUtils.asCollection((MultiPoint) object);
         }
 
-        return null;
+        return GML2ParsingUtils.GeometryCollectionType_getProperty(object, name);
     }
 }

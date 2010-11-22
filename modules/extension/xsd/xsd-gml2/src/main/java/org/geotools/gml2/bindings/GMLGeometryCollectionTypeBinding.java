@@ -16,10 +16,6 @@
  */
 package org.geotools.gml2.bindings;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import javax.xml.namespace.QName;
 
 import org.geotools.gml2.GML;
@@ -27,7 +23,6 @@ import org.geotools.xml.AbstractComplexBinding;
 import org.geotools.xml.ElementInstance;
 import org.geotools.xml.Node;
 
-import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
 
@@ -78,7 +73,7 @@ public class GMLGeometryCollectionTypeBinding extends AbstractComplexBinding {
     }
 
     public int getExecutionMode() {
-        return BEFORE;
+        return OVERRIDE;
     }
 
     /**
@@ -100,19 +95,15 @@ public class GMLGeometryCollectionTypeBinding extends AbstractComplexBinding {
      */
     public Object parse(ElementInstance instance, Node node, Object value)
         throws Exception {
-        //round up children that are geometries, since this type is often 
-        // extended by multi geometries, dont reference members by element name
-        List geoms = new ArrayList();
-
-        for (Iterator itr = node.getChildren().iterator(); itr.hasNext();) {
-            Node cnode = (Node) itr.next();
-
-            if (cnode.getValue() instanceof Geometry) {
-                geoms.add(cnode.getValue());
-            }
+        return GML2ParsingUtils.GeometryCollectionType_parse(node, GeometryCollection.class, gFactory);
+    }
+    
+    @Override
+    public Object getProperty(Object object, QName name) throws Exception {
+        if (GML.geometryMember.equals(name)) {
+            return GML2ParsingUtils.asCollection((GeometryCollection) object);
         }
-
-        return gFactory.createGeometryCollection((Geometry[]) geoms.toArray(
-                new Geometry[geoms.size()]));
+        
+        return GML2ParsingUtils.GeometryCollectionType_getProperty(object, name);
     }
 }

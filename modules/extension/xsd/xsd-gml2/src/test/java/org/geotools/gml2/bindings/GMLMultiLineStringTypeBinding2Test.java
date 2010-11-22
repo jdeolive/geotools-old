@@ -29,7 +29,7 @@ public class GMLMultiLineStringTypeBinding2Test extends GMLTestSupport {
     }
 
     public void testExecutionMode() {
-        assertEquals(Binding.AFTER, binding(GML.MultiLineStringType).getExecutionMode());
+        assertEquals(Binding.OVERRIDE, binding(GML.MultiLineStringType).getExecutionMode());
     }
 
     public void testParse() throws Exception {
