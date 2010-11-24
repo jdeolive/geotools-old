@@ -159,6 +159,8 @@ public class GrassBinaryRasterReadHandler {
 
     private ProgressListener monitor = new DummyProgressListener();
 
+    private JGrassRegion activeReadRegion;
+
     /**
      * the constructor to build a {@link GrassBinaryRasterReadHandler} usable
      * for reading grass rasters.
@@ -221,7 +223,6 @@ public class GrassBinaryRasterReadHandler {
     public WritableRaster readRaster( ImageReadParam param ) throws IOException,
             DataFormatException {
 
-        JGrassRegion activeReadRegion = null;
         if (param != null) {
             // extract the region to read from file as a Rectangle
             Rectangle srcRegion = param.getSourceRegion();
@@ -1393,8 +1394,8 @@ public class GrassBinaryRasterReadHandler {
     public SampleModel getSampleModel() {
         int[] bands = {0};
         int[] bandOffsets = {0};
-        rasterMapWidth = nativeRasterRegion.getCols();
-        rasterMapHeight = nativeRasterRegion.getRows();
+        rasterMapWidth = activeReadRegion.getCols();
+        rasterMapHeight = activeReadRegion.getRows();
         if (sampleModel == null) {
             if (numberOfBytesPerValue == 8) {
                 if (!castDoubleToFloating) {
