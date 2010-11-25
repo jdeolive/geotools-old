@@ -100,7 +100,6 @@ import com.sun.media.imageioimpl.common.BogusColorSpace;
 import com.sun.media.imageioimpl.common.PackageUtil;
 import com.sun.media.imageioimpl.plugins.gif.GIFImageWriter;
 import com.sun.media.imageioimpl.plugins.jpeg.CLibJPEGImageWriterSpi;
-import com.sun.media.jai.codecimpl.PNGImageEncoder;
 import com.sun.media.jai.util.ImageUtil;
 
 
