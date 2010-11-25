@@ -55,7 +55,6 @@ import org.geotools.resources.image.ComponentColorModelJAI;
 import org.geotools.test.TestData;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.sun.media.imageioimpl.common.PackageUtil;
@@ -199,7 +198,6 @@ public final class ImageWorkerTest {
 
 
     @Test
-    @Ignore
     public void testBitmask(){
         assertTrue("Assertions should be enabled.", ImageWorker.class.desiredAssertionStatus());
         ImageWorker worker = new ImageWorker(sstImage);
@@ -264,8 +262,8 @@ public final class ImageWorkerTest {
      * @throws IOException If an error occured while writting the image.
      */
     @Test
-    @Ignore
     public void testGIFImageWrite() throws IOException {
+    	assertTrue("Assertions should be enabled.", ImageWorker.class.desiredAssertionStatus());
         // Get the image of the world with transparency.
         ImageWorker worker = new ImageWorker(worldDEMImage);
         show(worker, "Input GIF");
@@ -308,8 +306,8 @@ public final class ImageWorkerTest {
      * @throws IOException If an error occured while writting the image.
      */
     @Test
-    @Ignore
     public void testJPEGWrite() throws IOException {
+    	assertTrue("Assertions should be enabled.", ImageWorker.class.desiredAssertionStatus());
         // get the image of the world with transparency
         final ImageWorker worker = new ImageWorker(getSyntheticRGB(true));
         show(worker, "Input JPEG");
@@ -350,6 +348,7 @@ public final class ImageWorkerTest {
      */
     @Test
     public void testPNGWrite() throws IOException {
+    	assertTrue("Assertions should be enabled.", ImageWorker.class.desiredAssertionStatus());
         // Get the image of the world with transparency.
         final ImageWorker worker = new ImageWorker(worldImage);
         show(worker, "Input file");
@@ -392,8 +391,8 @@ public final class ImageWorkerTest {
      * Tests the conversion between RGB and indexed color model.
      */
     @Test
-    @Ignore
     public void testRGB2Palette(){
+    	assertTrue("Assertions should be enabled.", ImageWorker.class.desiredAssertionStatus());
         final ImageWorker worker = new ImageWorker(worldImage);
         show(worker, "Input file");
         worker.forceIndexColorModelForGIF(true);
@@ -509,7 +508,6 @@ public final class ImageWorkerTest {
      * @throws IllegalStateException 
      */
     @Test
-    @Ignore
     public void testMakeColorTransparent() throws IllegalStateException, FileNotFoundException, IOException {
         assertTrue("Assertions should be enabled.", ImageWorker.class.desiredAssertionStatus());
         ImageWorker worker = new ImageWorker(sstImage);
@@ -642,7 +640,6 @@ public final class ImageWorkerTest {
      * Some trivial tests are performed before.
      */
     @Test
-    @Ignore
     public void testReTile()  {
         assertTrue("Assertions should be enabled.", ImageWorker.class.desiredAssertionStatus());
         ImageWorker worker = new ImageWorker(worldImage);

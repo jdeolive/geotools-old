@@ -16,15 +16,36 @@
  */
 package org.geotools.image;
 
-import java.awt.Image;
-import java.awt.image.*;
-import java.awt.image.renderable.ParameterBlock;
 import java.awt.Color;
-import java.awt.Transparency;
-import java.awt.RenderingHints;
 import java.awt.HeadlessException;
+import java.awt.Image;
+import java.awt.RenderingHints;
+import java.awt.Transparency;
 import java.awt.color.ColorSpace;
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.ComponentColorModel;
+import java.awt.image.DataBuffer;
+import java.awt.image.DirectColorModel;
+import java.awt.image.IndexColorModel;
+import java.awt.image.PackedColorModel;
+import java.awt.image.RenderedImage;
+import java.awt.image.SampleModel;
+import java.awt.image.WritableRaster;
+import java.awt.image.renderable.ParameterBlock;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import javax.imageio.IIOException;
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageTypeSpecifier;
@@ -32,37 +53,55 @@ import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.plugins.jpeg.JPEGImageWriteParam;
 import javax.imageio.spi.IIORegistry;
+import javax.imageio.spi.ImageOutputStreamSpi;
 import javax.imageio.spi.ImageWriterSpi;
 import javax.imageio.stream.ImageOutputStream;
-import javax.imageio.IIOException;
-import java.io.IOException;
-import java.io.FileNotFoundException;
-import java.io.File;
-import java.util.List;
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Locale;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.lang.reflect.InvocationTargetException;
-
-import javax.media.jai.*;
-import javax.media.jai.operator.*;
-
-import com.sun.media.imageioimpl.common.BogusColorSpace;
-import com.sun.media.imageioimpl.common.PackageUtil;
-import com.sun.media.imageioimpl.plugins.jpeg.CLibJPEGImageWriterSpi;
-import com.sun.media.jai.opimage.RIFUtil;
-import com.sun.media.jai.util.ImageUtil;
+import javax.media.jai.ColorCube;
+import javax.media.jai.IHSColorSpace;
+import javax.media.jai.ImageLayout;
+import javax.media.jai.JAI;
+import javax.media.jai.KernelJAI;
+import javax.media.jai.LookupTableJAI;
+import javax.media.jai.ParameterBlockJAI;
+import javax.media.jai.PlanarImage;
+import javax.media.jai.ROI;
+import javax.media.jai.RenderedOp;
+import javax.media.jai.TileCache;
+import javax.media.jai.operator.AddConstDescriptor;
+import javax.media.jai.operator.AddDescriptor;
+import javax.media.jai.operator.AndDescriptor;
+import javax.media.jai.operator.BandCombineDescriptor;
+import javax.media.jai.operator.BandMergeDescriptor;
+import javax.media.jai.operator.BandSelectDescriptor;
+import javax.media.jai.operator.BinarizeDescriptor;
+import javax.media.jai.operator.ColorConvertDescriptor;
+import javax.media.jai.operator.ErrorDiffusionDescriptor;
+import javax.media.jai.operator.ExtremaDescriptor;
+import javax.media.jai.operator.FormatDescriptor;
+import javax.media.jai.operator.InvertDescriptor;
+import javax.media.jai.operator.LookupDescriptor;
+import javax.media.jai.operator.MultiplyConstDescriptor;
+import javax.media.jai.operator.NotDescriptor;
+import javax.media.jai.operator.NullDescriptor;
+import javax.media.jai.operator.OrderedDitherDescriptor;
+import javax.media.jai.operator.RescaleDescriptor;
+import javax.media.jai.operator.XorConstDescriptor;
 
 import org.geotools.factory.Hints;
-import org.geotools.util.logging.Logging;
 import org.geotools.resources.Arguments;
-import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
+import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.image.ColorUtilities;
 import org.geotools.resources.image.ImageUtilities;
+import org.geotools.util.logging.Logging;
+
+import com.sun.imageio.plugins.png.PNGImageWriter;
+import com.sun.media.imageioimpl.common.BogusColorSpace;
+import com.sun.media.imageioimpl.common.PackageUtil;
+import com.sun.media.imageioimpl.plugins.gif.GIFImageWriter;
+import com.sun.media.imageioimpl.plugins.jpeg.CLibJPEGImageWriterSpi;
+import com.sun.media.jai.codecimpl.PNGImageEncoder;
+import com.sun.media.jai.util.ImageUtil;
 
 
 /**
@@ -972,6 +1011,8 @@ public class ImageWorker {
             final RenderingHints hints = getRenderingHints();
             final ImageLayout layout = getImageLayout(hints);
             layout.setColorModel(newCM);
+            // we should not transform on color map here
+            hints.put(JAI.KEY_TRANSFORM_ON_COLORMAP,Boolean.FALSE);            
             hints.put(JAI.KEY_IMAGE_LAYOUT, layout);
             image = LookupDescriptor.create(image, lookupTable, hints);
             
@@ -1870,6 +1911,8 @@ public class ImageWorker {
         // Create a LookupTableJAI object to be used with the "lookup" operator.
         LookupTableJAI table = new LookupTableJAI(tableData);
         // Do the lookup operation.
+        // we should not transform on color map here
+        hints.put(JAI.KEY_TRANSFORM_ON_COLORMAP,Boolean.FALSE);
         PlanarImage luImage = LookupDescriptor.create(image, table, hints);
         
         /*
