@@ -144,9 +144,9 @@ public class Resample extends Operation2D {
     /**
      * The parameter descriptor for the interpolation type.
      */
-    public static final ParameterDescriptor INTERPOLATION_TYPE =
-            new DefaultParameterDescriptor(Citations.OGC, "InterpolationType",
-                Object.class,                       // Value class (mandatory)
+    public static final ParameterDescriptor<String> INTERPOLATION_TYPE =
+            new DefaultParameterDescriptor<String>(Citations.OGC, "InterpolationType",
+            	String.class,                       // Value class (mandatory)
                 null,                               // Array of valid values
                 "NearestNeighbor",                  // Default value
                 null,                               // Minimal value
@@ -157,8 +157,8 @@ public class Resample extends Operation2D {
     /**
      * The parameter descriptor for the coordinate reference system.
      */
-    public static final ParameterDescriptor COORDINATE_REFERENCE_SYSTEM =
-            new DefaultParameterDescriptor(Citations.OGC, "CoordinateReferenceSystem",
+    public static final ParameterDescriptor<CoordinateReferenceSystem> COORDINATE_REFERENCE_SYSTEM =
+            new DefaultParameterDescriptor<CoordinateReferenceSystem>(Citations.OGC, "CoordinateReferenceSystem",
                 CoordinateReferenceSystem.class,    // Value class (mandatory)
                 null,                               // Array of valid values
                 null,                               // Default value
@@ -170,8 +170,8 @@ public class Resample extends Operation2D {
     /**
      * The parameter descriptor for the grid geometry.
      */
-    public static final ParameterDescriptor GRID_GEOMETRY =
-            new DefaultParameterDescriptor(Citations.OGC, "GridGeometry",
+    public static final ParameterDescriptor<GridGeometry> GRID_GEOMETRY =
+            new DefaultParameterDescriptor<GridGeometry>(Citations.OGC, "GridGeometry",
                 GridGeometry.class,                 // Value class (mandatory)
                 null,                               // Array of valid values
                 null,                               // Default value
@@ -183,8 +183,8 @@ public class Resample extends Operation2D {
     /**
      * The parameter descriptor for the BackgroundValues.
      */
-    public static final ParameterDescriptor BACKGROUND_VALUES =
-            new DefaultParameterDescriptor(Citations.JAI, "BackgroundValues",
+    public static final ParameterDescriptor<double[]> BACKGROUND_VALUES =
+            new DefaultParameterDescriptor<double[]>(Citations.JAI, "BackgroundValues",
                 double[].class,                     // Value class (mandatory)
                 null,                               // Array of valid values
                 null,                               // Default value
