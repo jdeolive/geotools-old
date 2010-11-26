@@ -50,6 +50,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.channels.FileChannel;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -513,35 +515,38 @@ public final class GeoTiffReader extends AbstractGridCoverage2DReader implements
          */
         protected final GridCoverage2D createCoverage(PlanarImage image, MathTransform raster2Model) throws IOException {
 
-                // creating bands
+        //creating bands
         final SampleModel sm = image.getSampleModel();
         final ColorModel cm = image.getColorModel();
-                final int numBands = sm.getNumBands();
-                final GridSampleDimension[] bands = new GridSampleDimension[numBands];
-                // setting bands names.
-                
-                Category noDataCategory = null;
-                if (!Double.isNaN(noData)){
-                    noDataCategory = new Category(Vocabulary
-                            .formatInternational(VocabularyKeys.NODATA), new Color[] { new Color(0, 0, 0, 0) }, NumberRange
-                            .create(noData, noData), NumberRange
-                            .create(noData, noData));
-                }
-                
-                for (int i = 0; i < numBands; i++) {
-                        final ColorInterpretation colorInterpretation=TypeMap.getColorInterpretation(cm, i);
-                        if(colorInterpretation==null)
-                               throw new IOException("Unrecognized sample dimension type");
-                        Category[] categories = null;
-                        if (noDataCategory != null)
-                            categories = new Category[]{noDataCategory};
-                        bands[i] = new GridSampleDimension(colorInterpretation.name(),categories,null).geophysics(true);
-                }
-                // creating coverage
-                if (raster2Model != null) {
-                        return coverageFactory.create(coverageName, image, crs,raster2Model, bands, null, null);
-                }
-                return coverageFactory.create(coverageName, image, new GeneralEnvelope(originalEnvelope), bands, null, null);
+        final int numBands = sm.getNumBands();
+        final GridSampleDimension[] bands = new GridSampleDimension[numBands];
+        // setting bands names.
+        
+        Category noDataCategory = null;
+        final Map<String, Double> properties = new HashMap<String, Double>();        
+        if (!Double.isNaN(noData)){
+            noDataCategory = new Category(Vocabulary
+                    .formatInternational(VocabularyKeys.NODATA), new Color[] { new Color(0, 0, 0, 0) }, NumberRange
+                    .create(noData, noData), NumberRange
+                    .create(noData, noData));
+
+            properties.put("GC_NODATA", new Double(noData));
+        }
+        
+        for (int i = 0; i < numBands; i++) {
+                final ColorInterpretation colorInterpretation=TypeMap.getColorInterpretation(cm, i);
+                if(colorInterpretation==null)
+                       throw new IOException("Unrecognized sample dimension type");
+                Category[] categories = null;
+                if (noDataCategory != null)
+                    categories = new Category[]{noDataCategory};
+                bands[i] = new GridSampleDimension(colorInterpretation.name(),categories,null).geophysics(true);
+        }
+        // creating coverage
+        if (raster2Model != null) {
+                return coverageFactory.create(coverageName, image, crs,raster2Model, bands, null, properties);
+        }
+        return coverageFactory.create(coverageName, image, new GeneralEnvelope(originalEnvelope), bands, null, properties);
 
         }
 	

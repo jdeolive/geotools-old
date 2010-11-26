@@ -867,11 +867,8 @@ final public class GTopo30Writer extends AbstractGridCoverageWriter implements
 		// we need to evaluate stats first using jai
 		//
 		// /////////////////////////////////////////////////////////////////////
-		final int visibleBand = CoverageUtilities.getVisibleBand(image);
-		final GridSampleDimension sd = (GridSampleDimension) gc
-				.getSampleDimension(visibleBand);
-		final double[] Max = new double[] { sd.getMaximumValue() };
-		final double[] Min = new double[] { -9999.0 };
+		final double[] Max = new double[] { Short.MAX_VALUE };//we should encode more than the maximum short anyway
+		final double[] Min = new double[] { Short.MIN_VALUE };//we should avoid No Data values TODO
 
 		// histogram
 		pb.addSource(image);

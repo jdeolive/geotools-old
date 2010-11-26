@@ -218,7 +218,7 @@ public final class ImageUtilities {
      * List of valid names. Note: the "Optimal" type is not
      * implemented because currently not provided by JAI.
      */
-    private static final String[] INTERPOLATION_NAMES = {
+    public static final String[] INTERPOLATION_NAMES = {
         "Nearest",          // JAI name
         "NearestNeighbor",  // OpenGIS name
         "Bilinear",
@@ -229,7 +229,7 @@ public final class ImageUtilities {
     /**
      * Interpolation types (provided by Java Advanced Imaging) for {@link #INTERPOLATION_NAMES}.
      */
-    private static final int[] INTERPOLATION_TYPES= {
+    public static final int[] INTERPOLATION_TYPES= {
         Interpolation.INTERP_NEAREST,
         Interpolation.INTERP_NEAREST,
         Interpolation.INTERP_BILINEAR,

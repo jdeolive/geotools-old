@@ -101,6 +101,7 @@ import com.sun.media.imageioimpl.plugins.raw.RawImageReaderSpi;
  * @source $URL:
  *         http://svn.geotools.org/geotools/trunk/gt/plugin/gtopo30/src/org/geotools/gce/gtopo30/GTopo30Reader.java $
  */
+@SuppressWarnings("deprecation")
 public final class GTopo30Reader extends AbstractGridCoverage2DReader implements
 		GridCoverageReader {
 
@@ -643,17 +644,13 @@ public final class GTopo30Reader extends AbstractGridCoverage2DReader implements
 			uom = null;
 		}
 
-		final Category values = new Category("values", demColors,
-				 NumberRange.create(1, 255), NumberRange.create((short) min,
-						(short) max));
+		
 		final Category nan =
-		// new Category("No data",
-		// new Color(0, 0, 0, 0),0);
-		new Category(Vocabulary.format(VocabularyKeys.NODATA), new Color[] { new Color(0, 0, 0, 0) },
+		    new Category(Vocabulary.format(VocabularyKeys.NODATA), new Color[] { new Color(0, 0, 0, 0) },
 				NumberRange.create(0, 0), NumberRange.create((short) -9999,
 						(short) -9999));
 		final GridSampleDimension band = new GridSampleDimension(
-				"digital-elevation", new Category[] { values, nan }, uom);
+				"digital-elevation", new Category[] { nan }, uom);
 
 		return band.geophysics(true);
 	}

@@ -98,16 +98,6 @@ public abstract class AbstractGridCoverage2DReader implements GridCoverageReader
 	public static final double EPS = 1E-6;
 
 	/**
-	 * Default color ramp. Preset colors used to generate an Image from the raw
-	 * data
-	 */
-	protected final static Color[] demColors = new Color[] {
-			new Color(5, 90, 5), new Color(150, 200, 150),
-			new Color(190, 150, 20), new Color(100, 100, 50),
-			new Color(200, 210, 220), Color.WHITE, Color.WHITE, Color.WHITE,
-			Color.WHITE };
-
-	/**
 	 * This contains the  number of overviews.aaa
 	 */
 	protected int numOverviews = 0;

@@ -23,6 +23,8 @@ import it.geosolutions.imageio.utilities.ImageIOUtilities;
 
 import java.awt.Color;
 import java.awt.Rectangle;
+import java.awt.image.ColorModel;
+import java.awt.image.SampleModel;
 import java.awt.image.renderable.ParameterBlock;
 import java.io.File;
 import java.io.FileInputStream;
@@ -52,6 +54,7 @@ import javax.media.jai.RenderedOp;
 
 import org.geotools.coverage.Category;
 import org.geotools.coverage.GridSampleDimension;
+import org.geotools.coverage.TypeMap;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
@@ -67,6 +70,7 @@ import org.geotools.resources.i18n.Vocabulary;
 import org.geotools.resources.i18n.VocabularyKeys;
 import org.geotools.resources.image.ImageUtilities;
 import org.geotools.util.NumberRange;
+import org.opengis.coverage.ColorInterpretation;
 import org.opengis.coverage.grid.Format;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.coverage.grid.GridCoverageReader;
@@ -503,28 +507,26 @@ public final class ArcGridReader extends AbstractGridCoverage2DReader implements
 		pbjImageRead.add(readerSPI.createReaderInstance());
 		final RenderedOp asciiCoverage = JAI.create("ImageRead", pbjImageRead,hints);
 
-		// /////////////////////////////////////////////////////////////////////
+		// //
 		//
 		// Creating the coverage
 		//
-		// /////////////////////////////////////////////////////////////////////
+		// //
 		try {
 
-			//
-			// ///////////////////////////////////////////////////////////////////
+			
+			// //
 			//
 			// Categories
 			//
 			//
-			// ///////////////////////////////////////////////////////////////////
+			// //
 			Unit<?> uom = null;
 			final Category nan;
-			final Category values;
 			if (Double.isNaN(inNoData)) {
 				nan = new Category(Vocabulary
 						.formatInternational(VocabularyKeys.NODATA), new Color(
 						0, 0, 0, 0), 0);
-				values = new Category("values", demColors,NumberRange.create(1,255), NumberRange.create(0, 9000));
 
 			} else {
 				nan = new Category(Vocabulary
@@ -532,13 +534,7 @@ public final class ArcGridReader extends AbstractGridCoverage2DReader implements
 						new Color[] { new Color(0, 0, 0, 0) }, 
 						NumberRange.create(0, 0),
 						NumberRange.create(inNoData, inNoData));
-				values = new Category(
-						"values", 
-						demColors, 
-						NumberRange.create(1,255), 
-						NumberRange.create(inNoData + Math.abs(inNoData)
-						* 0.1, inNoData + Math.abs(inNoData) * 10)
-				);
+	
 
 			}
 
@@ -546,18 +542,27 @@ public final class ArcGridReader extends AbstractGridCoverage2DReader implements
 			//
 			// Sample dimension
 			//
+		        final SampleModel sm = asciiCoverage.getSampleModel();
+		        final ColorModel cm = asciiCoverage.getColorModel();
+	                final ColorInterpretation colorInterpretation=TypeMap.getColorInterpretation(cm, 0);
+	                if(colorInterpretation==null)
+	                       throw new IOException("Unrecognized sample dimension type");
+	                
 			final GridSampleDimension band = new GridSampleDimension(
-					coverageName, new Category[] { nan, values }, uom)
-					.geophysics(true);
+					coverageName, new Category[] { nan }, uom).geophysics(true);
 			final Map<String, Double> properties = new HashMap<String, Double>();
 			properties.put("GC_NODATA", new Double(inNoData));
 
 			//
 			// Coverage
 			//
-			return coverageFactory.create(coverageName, asciiCoverage,
-					originalEnvelope, new GridSampleDimension[] { band }, null,
-					properties);
+			return coverageFactory.create(
+			        coverageName, 
+			        asciiCoverage,
+			        originalEnvelope, 
+			        new GridSampleDimension[] { band },
+			        null,
+			        properties);
 
 		} catch (NoSuchElementException e) {
 			if (LOGGER.isLoggable(Level.SEVERE))
