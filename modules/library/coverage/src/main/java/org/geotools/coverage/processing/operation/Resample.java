@@ -144,9 +144,9 @@ public class Resample extends Operation2D {
     /**
      * The parameter descriptor for the interpolation type.
      */
-    public static final ParameterDescriptor<String> INTERPOLATION_TYPE =
-            new DefaultParameterDescriptor<String>(Citations.OGC, "InterpolationType",
-            	String.class,                       // Value class (mandatory)
+    public static final ParameterDescriptor<Object> INTERPOLATION_TYPE =
+            new DefaultParameterDescriptor<Object>(Citations.OGC, "InterpolationType",
+            	Object.class,                       // Value class (mandatory)
                 null,                               // Array of valid values
                 "NearestNeighbor",                  // Default value
                 null,                               // Minimal value
