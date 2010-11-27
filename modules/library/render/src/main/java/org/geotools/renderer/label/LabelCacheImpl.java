@@ -44,6 +44,7 @@ import org.geotools.renderer.lite.LabelCache;
 import org.geotools.renderer.style.SLDStyleFactory;
 import org.geotools.renderer.style.TextStyle2D;
 import org.geotools.styling.TextSymbolizer;
+import org.geotools.styling.TextSymbolizer.PolygonAlignOptions;
 import org.geotools.util.NumberRange;
 import org.geotools.util.logging.Logging;
 import org.opengis.feature.Feature;
@@ -341,12 +342,24 @@ public final class LabelCacheImpl implements LabelCache {
         item.setForceLeftToRightEnabled(getBooleanOption(symbolizer, FORCE_LEFT_TO_RIGHT_KEY, DEFAULT_FORCE_LEFT_TO_RIGHT));
         item.setConflictResolutionEnabled(getBooleanOption(symbolizer, CONFLICT_RESOLUTION_KEY, DEFAULT_CONFLICT_RESOLUTION));
         item.setGoodnessOfFit(getDoubleOption(symbolizer, GOODNESS_OF_FIT_KEY, DEFAULT_GOODNESS_OF_FIT));
+        item.setPolygonAlign((PolygonAlignOptions) getEnumOption(symbolizer, POLYGONALIGN_KEY, DEFAULT_POLYGONALIGN));
         item.setGraphicsResize(getGraphicResize(symbolizer));
         item.setGraphicMargin(getGraphicMargin(symbolizer));
         return item;
     }
     
-    
+    private Enum getEnumOption(TextSymbolizer symbolizer, String optionName, Enum defaultValue) {
+        String value = symbolizer.getOption(optionName);
+        
+        if (value == null)
+            return defaultValue;
+        try {
+            Enum enumValue = Enum.valueOf(defaultValue.getDeclaringClass(), value.toUpperCase());
+            return enumValue;
+        } catch (Exception e) {
+            return defaultValue;
+        }
+    }
 
     private int getIntOption(TextSymbolizer symbolizer, String optionName, int defaultValue) {
         String value = symbolizer.getOption(optionName);
@@ -605,7 +618,7 @@ public final class LabelCacheImpl implements LabelCache {
      * @param representativeGeom
      * @return
      */
-    private double goodnessOfFit(LabelPainter painter, Rectangle2D glyphBounds,
+    private double goodnessOfFit(LabelPainter painter, AffineTransform transform,
             PreparedGeometry representativeGeom) {
         if (representativeGeom.getGeometry() instanceof Point) {
             return 1.0;
@@ -614,6 +627,7 @@ public final class LabelCacheImpl implements LabelCache {
             return 1.0;
         }
         if (representativeGeom.getGeometry() instanceof Polygon) {
+            Rectangle2D glyphBounds = painter.getFullLabelBounds();
             try {
                 // do a sampling, how many points sitting on the labels are also
                 // within a certain distance of the polygon?
@@ -621,16 +635,26 @@ public final class LabelCacheImpl implements LabelCache {
                 int n = 10;
                 Coordinate c = new Coordinate();
                 Point pp = gf.createPoint(c);
+                double[] gp = new double[2];
+                double[] tp = new double[2];
                 for (int i = 1; i < (painter.getLineCount() + 1); i++) {
-                    double y = glyphBounds.getY() + ((double) glyphBounds.getHeight())
+                    gp[1] = glyphBounds.getY() + ((double) glyphBounds.getHeight())
                             * (((double) i) / (painter.getLineCount() + 1));
                     for (int j = 1; j < (n + 1); j++) {
-                        c.x = glyphBounds.getX() + ((double) glyphBounds.getWidth())
-                                * (((double) j) / (n + 1));
-                        c.y = y;
+                        gp[0] = glyphBounds.getX() + ((double) glyphBounds.getWidth())
+                            * (((double) j) / (n + 1));
+                        transform.transform(gp, 0, tp, 0, 1);
+                        c.x = tp[0];
+                        c.y = tp[1];
                         pp.geometryChanged();
-                        if (representativeGeom.contains(pp))
+                        
+                        // useful to debug the sampling point positions
+                        // painter.graphics.setColor(Color.CYAN);
+                        // painter.graphics.drawRect((int) (c.x - 1), (int) (c.y - 1), 2, 2);
+                        
+                        if (representativeGeom.contains(pp)) {
                             count++;
+                        }
                     }
                 }
                 return ((double) count) / (n * painter.getLineCount());
@@ -638,12 +662,14 @@ public final class LabelCacheImpl implements LabelCache {
                 Geometry g = representativeGeom.getGeometry();
                 g.geometryChanged();
                 Envelope ePoly = g.getEnvelopeInternal();
-                Envelope eglyph = toEnvelope(glyphBounds);
+                Envelope eglyph = toEnvelope(transform.createTransformedShape(glyphBounds).getBounds2D());
                 Envelope inter = intersection(ePoly, eglyph);
-                if (inter != null)
+                if (inter != null) {
                     return (inter.getWidth() * inter.getHeight())
                             / (eglyph.getWidth() * eglyph.getHeight());
-                return 0.0;
+                } else {
+                    return 0.0;
+                }
             }
         }
         return 0.0;
@@ -873,11 +899,10 @@ public final class LabelCacheImpl implements LabelCache {
         tempTransform.translate(centroid.getX(), centroid.getY());
         
         double rotation = textStyle.getRotation();
-        if (rotation != rotation) // IEEE def'n x=x for all x except when x is
-            // NaN
+        if (Double.isNaN(rotation) || Double.isInfinite(rotation)) {
+            // might legitimately happen if the rotation is computed out of an expression
             rotation = 0.0;
-        if (Double.isInfinite(rotation))
-            rotation = 0; // weird number
+        }
 
         tempTransform.rotate(rotation);
         
@@ -1078,11 +1103,11 @@ public final class LabelCacheImpl implements LabelCache {
             Rectangle displayArea, LabelIndex glyphs) throws Exception {
         LabelCacheItem labelItem = painter.getLabel();
         Polygon geom = getPolySetRepresentativeLocation(labelItem.getGeoms(), displayArea);
-        if (geom == null)
+        if (geom == null) {
             return false;
+        }
         
         Point centroid;
-
         try {
             centroid = geom.getCentroid();
         } catch (Exception e) {
@@ -1140,7 +1165,7 @@ public final class LabelCacheImpl implements LabelCache {
         }
 
         // compute the transformation used to position the label
-        TextStyle2D textStyle = new TextStyle2D(labelItem.getTextStyle());
+        TextStyle2DExt textStyle = new TextStyle2DExt(labelItem);
         if(labelItem.getMaxDisplacement() > 0) {
             textStyle.setDisplacementX(0);
             textStyle.setDisplacementY(0);
@@ -1185,10 +1210,15 @@ public final class LabelCacheImpl implements LabelCache {
         return false;
         
     }
-
+    
     private boolean paintPolygonLabelInternal(LabelPainter painter, AffineTransform tempTransform,
             Rectangle displayArea, LabelIndex glyphs, LabelCacheItem labelItem, PreparedGeometry pg,
-            Point centroid, TextStyle2D textStyle) throws Exception {
+            Point centroid, TextStyle2DExt textStyle) throws Exception {
+        // useful to debug the label/centroid relationship 
+        // painter.graphics.setColor(Color.RED);
+        // painter.graphics.drawRect((int)(centroid.getX() - 2), (int) (centroid.getY() - 2), 2, 2);
+        
+        AffineTransform original = new AffineTransform(tempTransform);
         setupPointTransform(tempTransform, centroid, textStyle, painter);
 
         Rectangle2D transformed = tempTransform
@@ -1196,12 +1226,30 @@ public final class LabelCacheImpl implements LabelCache {
         if (!displayArea.contains(transformed)
                 || (labelItem.isConflictResolutionEnabled() 
                         && glyphs.labelsWithinDistance(transformed, labelItem.getSpaceAround()))
-                || goodnessOfFit(painter, transformed, pg) < painter.getLabel().getGoodnessOfFit())
-            return false;
+                || goodnessOfFit(painter, tempTransform, pg) < painter.getLabel().getGoodnessOfFit()) {
+            // try the alternate rotation if possible
+            if(textStyle.flipRotation(pg.getGeometry())) {
+                tempTransform.setTransform(original);
+                setupPointTransform(tempTransform, centroid, textStyle, painter);
+
+                transformed = tempTransform.createTransformedShape(painter.getFullLabelBounds()).getBounds2D();
+                if (!displayArea.contains(transformed)
+                        || (labelItem.isConflictResolutionEnabled() 
+                                && glyphs.labelsWithinDistance(transformed, labelItem.getSpaceAround()))
+                        || goodnessOfFit(painter, tempTransform, pg) < painter.getLabel().getGoodnessOfFit()) {
+                    textStyle.flipRotation(pg.getGeometry());
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+            
 
         painter.paintStraightLabel(tempTransform);
-        if(labelItem.isConflictResolutionEnabled())
+        if(labelItem.isConflictResolutionEnabled()) {
             glyphs.addLabel(labelItem, transformed);
+        }
         return true;
     }
     

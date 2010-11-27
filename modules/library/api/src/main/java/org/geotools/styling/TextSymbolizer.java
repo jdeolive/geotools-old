@@ -245,6 +245,35 @@ public interface TextSymbolizer extends org.opengis.style.TextSymbolizer,Symboli
     public static final double DEFAULT_GOODNESS_OF_FIT = 0.5;
     
     /**
+     * Option overriding manual rotation to align label rotation automatically for polygons.
+     */
+    public static String POLYGONALIGN_KEY = "polygonAlign";
+    
+    /**
+     * Enumerated options that can be used with polygonAlign.
+     */
+    public static enum PolygonAlignOptions {
+        /**
+         * Disable automatic rotation alignment (default)
+         */
+        NONE,
+        /**
+         * Rotate label orthogonally with x-axis if the polygon is higher than wider
+         */
+        ORTHO,
+        /**
+         * Rotate label using the minimum bounding rectangle of the polygon, if a
+         * default horizontal label will not fit into the polygon. 
+         */
+        MBR
+    };
+    
+    /**
+     * Default value for the polygonAlign
+     */
+    public static final PolygonAlignOptions DEFAULT_POLYGONALIGN = PolygonAlignOptions.NONE;
+    
+    /**
      * Returns the expression that will be evaluated to determine what text is
      * displayed.
      *

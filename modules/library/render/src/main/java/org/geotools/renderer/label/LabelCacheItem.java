@@ -24,6 +24,7 @@ import java.util.Set;
 
 import org.geotools.geometry.jts.LiteShape2;
 import org.geotools.renderer.style.TextStyle2D;
+import org.geotools.styling.TextSymbolizer.PolygonAlignOptions;
 
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -76,6 +77,8 @@ public class LabelCacheItem implements Comparable<LabelCacheItem> {
     boolean conflictResolutionEnabled = true;
     
     double goodnessOfFit = 0;
+    
+    PolygonAlignOptions polygonAlign = PolygonAlignOptions.NONE;
     
     GraphicResize graphicsResize = GraphicResize.NONE;
     
@@ -368,7 +371,14 @@ public class LabelCacheItem implements Comparable<LabelCacheItem> {
     public void setGraphicMargin(int[] graphicMargin) {
         this.graphicMargin = graphicMargin;
     }
-    
+
+    void setPolygonAlign(PolygonAlignOptions polygonAlign) {
+        this.polygonAlign = polygonAlign;
+    }
+
+    PolygonAlignOptions getPolygonAlign() {
+        return polygonAlign;
+    }
     
 }
 
