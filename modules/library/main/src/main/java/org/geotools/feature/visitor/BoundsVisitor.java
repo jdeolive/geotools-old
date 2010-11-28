@@ -45,6 +45,9 @@ public class BoundsVisitor implements FeatureCalc {
     }
 
     public CalcResult getResult() {
+    	if(bounds == null || bounds.isEmpty()) {
+    		return CalcResult.NULL_RESULT;
+    	}
         return new BoundsResult(bounds);
     }
 
@@ -61,7 +64,7 @@ public class BoundsVisitor implements FeatureCalc {
 
         public boolean isCompatible(CalcResult targetResults) {
             //list each calculation result which can merge with this type of result
-            if (targetResults instanceof BoundsResult) {
+            if (targetResults instanceof BoundsResult || targetResults == CalcResult.NULL_RESULT) {
                 return true;
             }
 
@@ -73,6 +76,10 @@ public class BoundsVisitor implements FeatureCalc {
                 throw new IllegalArgumentException(
                     "Parameter is not a compatible type");
             }
+            
+            if(resultsToAdd == CalcResult.NULL_RESULT) {
+        		return this;
+        	}
 
             if (resultsToAdd instanceof BoundsResult) {
                 BoundsResult boundsToAdd = (BoundsResult) resultsToAdd;

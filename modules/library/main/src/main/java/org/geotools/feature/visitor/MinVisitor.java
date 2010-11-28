@@ -113,8 +113,7 @@ public class MinVisitor implements FeatureCalc {
 
     public CalcResult getResult() {
         if (!visited) {
-            throw new IllegalStateException(
-                "Must visit before min value is ready!");
+            return CalcResult.NULL_RESULT;
         }
 
         return new MinResult(minvalue);
@@ -154,7 +153,7 @@ public class MinVisitor implements FeatureCalc {
 
         public boolean isCompatible(CalcResult targetResults) {
             //list each calculation result which can merge with this type of result
-            if (targetResults instanceof MinResult) {
+            if (targetResults instanceof MinResult || targetResults == CalcResult.NULL_RESULT) {
                 return true;
             }
 
@@ -166,6 +165,10 @@ public class MinVisitor implements FeatureCalc {
                 throw new IllegalArgumentException(
                     "Parameter is not a compatible type");
             }
+            
+            if(resultsToAdd == CalcResult.NULL_RESULT) {
+        		return this;
+        	}
 
             if (resultsToAdd instanceof MinResult) {
                 //take the smaller of the 2 values

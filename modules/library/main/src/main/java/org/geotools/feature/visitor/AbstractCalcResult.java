@@ -40,11 +40,22 @@ import com.vividsolutions.jts.geom.Point;
  */
 public class AbstractCalcResult implements CalcResult {
     public boolean isCompatible(CalcResult targetResults) {
-        return false;
+        return targetResults == CalcResult.NULL_RESULT;
     }
 
     public CalcResult merge(CalcResult resultsToAdd) {
-        return null;
+    	if(resultsToAdd == CalcResult.NULL_RESULT) {
+    		return this;
+    	} else {
+    		if (!isCompatible(resultsToAdd)) {
+                throw new IllegalArgumentException(
+                    "Parameter is not a compatible type");
+            } else {
+            	throw new IllegalArgumentException(
+				"The CalcResults claim to be compatible, but the appropriate merge " +
+				"method has not been implemented.");
+            }
+    	}
     }
 
     public Object getValue() {

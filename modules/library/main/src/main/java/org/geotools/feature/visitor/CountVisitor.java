@@ -30,7 +30,7 @@ import org.opengis.feature.simple.SimpleFeature;
  * @source $URL$
  */
 public class CountVisitor implements FeatureCalc {
-    int count = 0;
+    Integer count = null;
 
     public void init(SimpleFeatureCollection collection) {
     	//do nothing
@@ -40,10 +40,16 @@ public class CountVisitor implements FeatureCalc {
     }
     
     public void visit(org.opengis.feature.Feature feature) {
+    	if(count == null) {
+    		count = 0;
+    	}
     	count++;
     }
 
     public int getCount() {
+    	if(count == null) {
+    		return 0;
+    	}
         return count;
     }
 
@@ -52,10 +58,13 @@ public class CountVisitor implements FeatureCalc {
     }
     
     public void reset() {
-        this.count = 0;
+        this.count = null;
     }
 
     public CalcResult getResult() {
+    	if(count == null) {
+    		return CalcResult.NULL_RESULT;
+    	}
         return new CountResult(count);
     }
 
@@ -71,6 +80,7 @@ public class CountVisitor implements FeatureCalc {
         }
 
         public boolean isCompatible(CalcResult targetResults) {
+        	if (targetResults == CalcResult.NULL_RESULT) return true;
         	if (targetResults instanceof CountResult) return true;
         	if (targetResults instanceof SumResult) return true;
         	return false;
@@ -81,6 +91,10 @@ public class CountVisitor implements FeatureCalc {
                 throw new IllegalArgumentException(
                     "Parameter is not a compatible type");
             }
+            
+            if(resultsToAdd == CalcResult.NULL_RESULT) {
+        		return this;
+        	}
 
             if (resultsToAdd instanceof CountResult) {
             	//add the two counts

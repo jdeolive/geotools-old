@@ -154,6 +154,9 @@ public class AverageVisitor implements FeatureCalc {
      *
      */
     public CalcResult getResult() {
+    	if(strategy == null) {
+    		return CalcResult.NULL_RESULT;
+    	}
         return new AverageResult(strategy, isOptimized);
     }
 
@@ -374,7 +377,7 @@ public class AverageVisitor implements FeatureCalc {
          * @return boolean
          */
         public boolean isCompatible(CalcResult targetResults) {
-            if (targetResults instanceof AverageResult) {
+            if (targetResults instanceof AverageResult || targetResults == CalcResult.NULL_RESULT) {
                 return true;
             } else {
                 return false;
@@ -398,6 +401,10 @@ public class AverageVisitor implements FeatureCalc {
                 throw new IllegalArgumentException(
                     "Parameter is not a compatible type");
             }
+            
+            if(resultsToAdd == CalcResult.NULL_RESULT) {
+        		return this;
+        	}
 
             if (resultsToAdd instanceof AverageResult) {
                 AverageResult moreResults = (AverageResult) resultsToAdd;

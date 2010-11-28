@@ -145,8 +145,7 @@ public class MaxVisitor implements FeatureCalc {
 
     public CalcResult getResult() {
         if (!visited) {
-            throw new IllegalStateException(
-                "Must visit before max value is ready!");
+            return CalcResult.NULL_RESULT;
         }
 
         return new MaxResult(maxvalue);
@@ -182,7 +181,7 @@ public class MaxVisitor implements FeatureCalc {
 
         public boolean isCompatible(CalcResult targetResults) {
             //list each calculation result which can merge with this type of result
-            if (targetResults instanceof MaxResult) {
+            if (targetResults instanceof MaxResult || targetResults == CalcResult.NULL_RESULT) {
                 return true;
             }
 
@@ -194,6 +193,10 @@ public class MaxVisitor implements FeatureCalc {
                 throw new IllegalArgumentException(
                     "Parameter is not a compatible type");
             }
+            
+            if(resultsToAdd == CalcResult.NULL_RESULT) {
+        		return this;
+        	}
 
             if (resultsToAdd instanceof MaxResult) {
                 //take the smaller of the 2 values

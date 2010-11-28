@@ -57,6 +57,9 @@ public class StandardDeviationVisitor implements FeatureCalc {
 	}
 	
 	public CalcResult getResult() {
+		if(count == 0) {
+    		return CalcResult.NULL_RESULT;
+    	}
 		return new AbstractCalcResult() {
 			public Object getValue() {
                 if (count == 0) return null;

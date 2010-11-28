@@ -117,6 +117,9 @@ public class SumVisitor implements FeatureCalc {
     }
 
     public CalcResult getResult() {
+    	if(strategy == null) {
+    		return CalcResult.NULL_RESULT;
+    	}
         return new SumResult(strategy);
     }
 
@@ -186,6 +189,7 @@ public class SumVisitor implements FeatureCalc {
         }
 
         public boolean isCompatible(CalcResult targetResults) {
+        	if (targetResults == CalcResult.NULL_RESULT) return true;
             if (targetResults instanceof SumResult) return true;
             if (targetResults instanceof CountResult) return true;
             return false;
@@ -196,6 +200,10 @@ public class SumVisitor implements FeatureCalc {
                 throw new IllegalArgumentException(
                     "Parameter is not a compatible type");
             }
+            
+            if(resultsToAdd == CalcResult.NULL_RESULT) {
+        		return this;
+        	}
 
             if (resultsToAdd instanceof SumResult) {
                 //create a new strategy object of the correct dataType

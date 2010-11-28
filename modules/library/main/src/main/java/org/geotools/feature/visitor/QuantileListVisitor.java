@@ -55,7 +55,9 @@ public class QuantileListVisitor implements FeatureCalc {
 	}
 	
 	public CalcResult getResult() {
-	    if (bins == 0 || count == 0) return null;
+	    if (bins == 0 || count == 0) {
+	    	return CalcResult.NULL_RESULT;
+	    }
         
         // sort the list
 		Collections.sort(items);

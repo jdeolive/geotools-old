@@ -113,7 +113,7 @@ public class UniqueVisitor implements FeatureCalc {
 
     public CalcResult getResult() {
         if (set.size() < 1) {
-            return null;
+            return CalcResult.NULL_RESULT;
         }
         return new UniqueResult(set);
     }
@@ -131,7 +131,7 @@ public class UniqueVisitor implements FeatureCalc {
         
         public boolean isCompatible(CalcResult targetResults) {
             //list each calculation result which can merge with this type of result
-        	if (targetResults instanceof UniqueResult) return true;
+        	if (targetResults instanceof UniqueResult || targetResults == CalcResult.NULL_RESULT) return true;
         	return false;
         }
 
@@ -140,6 +140,10 @@ public class UniqueVisitor implements FeatureCalc {
                 throw new IllegalArgumentException(
                     "Parameter is not a compatible type");
             }
+            
+            if(resultsToAdd == CalcResult.NULL_RESULT) {
+        		return this;
+        	}
 
             if (resultsToAdd instanceof UniqueResult) {
             	//add one set to the other (to create one big unique list)

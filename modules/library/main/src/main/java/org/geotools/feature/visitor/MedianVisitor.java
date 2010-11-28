@@ -125,7 +125,7 @@ public class MedianVisitor implements FeatureCalc {
 			return new MedianResult(median);
 		} else if (list.size() < 1) {
 			// no items in the list
-            return null;
+            return CalcResult.NULL_RESULT;
 		} else {
 			// we have a list; create a CalcResult containing the list
 			return new MedianResult(list);
@@ -174,7 +174,7 @@ public class MedianVisitor implements FeatureCalc {
 
         public boolean isCompatible(CalcResult targetResults) {
             //list each calculation result which can merge with this type of result
-        	if (targetResults instanceof MedianResult) return true;
+        	if (targetResults instanceof MedianResult || targetResults == CalcResult.NULL_RESULT) return true;
         	return false;
         }
 
@@ -188,6 +188,11 @@ public class MedianVisitor implements FeatureCalc {
                 throw new IllegalArgumentException(
                     "Parameter is not a compatible type");
             }
+            
+            if(resultsToAdd == CalcResult.NULL_RESULT) {
+        		return this;
+        	}
+            
             if (resultsToAdd instanceof MedianResult) {
             	MedianResult moreResults = (MedianResult) resultsToAdd;
             	//ensure both MedianResults are NOT optimized

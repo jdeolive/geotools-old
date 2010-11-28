@@ -26,6 +26,7 @@ import org.geotools.data.DataTestCase;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.visitor.MaxVisitor.MaxResult;
 import org.geotools.feature.visitor.MedianVisitor.MedianResult;
@@ -44,6 +45,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * @source $URL$
  */
 public class VisitorCalculationTest extends DataTestCase {
+	SimpleFeatureCollection empty;
     SimpleFeatureCollection fc;
     SimpleFeatureType ft;
     SimpleFeatureCollection fc2;
@@ -57,6 +59,7 @@ public class VisitorCalculationTest extends DataTestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
+        empty = FeatureCollections.newCollection();
         fc = DataUtilities.collection(roadFeatures);
         fc2 = DataUtilities.collection(riverFeatures);
         ft = roadType;
@@ -112,6 +115,13 @@ public class VisitorCalculationTest extends DataTestCase {
         minResult7 = minResult7.merge(minResult1);
         assertEquals(-100.0, minResult7.toDouble(), 0);
         assertEquals(-100, minResult7.toInt());
+        //test empty collection
+        minVisitor.reset();
+        empty.accepts(minVisitor, null);
+        assertEquals(CalcResult.NULL_RESULT, minVisitor.getResult());
+        // test merge
+        assertSame(minResult2, minVisitor.getResult().merge(minResult2));
+        assertSame(minResult2, minResult2.merge(minVisitor.getResult()));
     }
 
     public void testMax() throws IllegalFilterException, IOException {
@@ -152,6 +162,13 @@ public class VisitorCalculationTest extends DataTestCase {
         maxResult7 = maxResult7.merge(maxResult1);
         assertEquals(6453, maxResult7.toDouble(), 0);
         assertEquals(6453, maxResult7.toInt());
+        //test empty collection
+        maxVisitor.reset();
+        empty.accepts(maxVisitor, null);
+        assertEquals(CalcResult.NULL_RESULT, maxVisitor.getResult());
+        // test merge
+        assertSame(maxResult2, maxVisitor.getResult().merge(maxResult2));
+        assertSame(maxResult2, maxResult2.merge(maxVisitor.getResult()));
     }
 
     public void testMedian() throws IllegalFilterException, IOException {
@@ -183,6 +200,13 @@ public class VisitorCalculationTest extends DataTestCase {
         } catch (Exception e) {
             assertEquals("Optimized median results cannot be merged.", e.getMessage());
 		}
+        //test empty collection
+        medianVisitor1.reset();
+        empty.accepts(medianVisitor1, null);
+        assertEquals(CalcResult.NULL_RESULT, medianVisitor1.getResult());
+        // test merge
+        assertSame(medianResult2, medianVisitor1.getResult().merge(medianResult2));
+        assertSame(medianResult2, medianResult2.merge(medianVisitor1.getResult()));
     }
 
     public void testSum() throws IllegalFilterException, IOException {
@@ -209,6 +233,13 @@ public class VisitorCalculationTest extends DataTestCase {
         //test for destruction during merge
         assertEquals(13.5, sumResult3.toDouble(), 0);
         assertEquals(-42.0, sumResult4.toDouble(), 0);
+        //test empty collection
+        sumVisitor.reset();
+        empty.accepts(sumVisitor, null);
+        assertEquals(CalcResult.NULL_RESULT, sumVisitor.getResult());
+        // test merge
+        assertSame(sumResult2, sumVisitor.getResult().merge(sumResult2));
+        assertSame(sumResult2, sumResult2.merge(sumVisitor.getResult()));
     }
     
     public void testCount() throws IllegalFilterException, IOException {
@@ -236,6 +267,13 @@ public class VisitorCalculationTest extends DataTestCase {
         assertEquals(5, countResult3.toInt());
         assertEquals(20, countResult4.toInt());
         assertEquals(25, countResult5.toInt());
+        //test empty collection
+        countVisitor.reset();
+        empty.accepts(countVisitor, null);
+        assertEquals(CalcResult.NULL_RESULT, countVisitor.getResult());
+        // test merge
+        assertSame(countResult2, countVisitor.getResult().merge(countResult2));
+        assertSame(countResult2, countResult2.merge(countVisitor.getResult()));
     }
 
     public void testAverage() throws IllegalFilterException, IOException {
@@ -278,6 +316,13 @@ public class VisitorCalculationTest extends DataTestCase {
         averageResult2 = averageVisitor2.getResult();
         averageResult3 = averageResult1.merge(averageResult2); //int + double --> double?
         assertEquals((double) 4.33, averageResult3.toDouble(), 0);
+        //test empty collection
+        averageVisitor.reset();
+        empty.accepts(averageVisitor, null);
+        assertEquals(CalcResult.NULL_RESULT, averageVisitor.getResult());
+        // test merge
+        assertSame(averageResult2, averageVisitor.getResult().merge(averageResult2));
+        assertSame(averageResult2, averageResult2.merge(averageVisitor.getResult()));
     }
     
     public void testUnique() throws IllegalFilterException, IOException {
@@ -318,6 +363,13 @@ public class VisitorCalculationTest extends DataTestCase {
         assertTrue(set.contains(2));
         assertTrue(set.contains(4));
         assertFalse(set.contains(6));
+        //test empty collection
+        uniqueVisitor.reset();
+        empty.accepts(uniqueVisitor, null);
+        assertEquals(CalcResult.NULL_RESULT, uniqueVisitor.getResult());
+        // test merge
+        assertSame(uniqueResult2, uniqueVisitor.getResult().merge(uniqueResult2));
+        assertSame(uniqueResult2, uniqueResult2.merge(uniqueVisitor.getResult()));
     }
 
     public void testBounds() throws IOException {
@@ -334,6 +386,13 @@ public class VisitorCalculationTest extends DataTestCase {
         CalcResult boundsResult3 = boundsResult2.merge(boundsResult1);
         Envelope env3 = new Envelope(1,13,0,10);
         assertEquals(env3, boundsResult3.toEnvelope());
+        //test empty collection
+        boundsVisitor1.reset(null);
+        empty.accepts(boundsVisitor1, null);
+        assertEquals(CalcResult.NULL_RESULT, boundsVisitor1.getResult());
+        // test merge
+        assertSame(boundsResult2, boundsVisitor1.getResult().merge(boundsResult2));
+        assertSame(boundsResult2, boundsResult2.merge(boundsVisitor1.getResult()));
     }
     
     public void testQuantileList() throws Exception {
@@ -341,10 +400,18 @@ public class VisitorCalculationTest extends DataTestCase {
         Expression expr = factory.property(ft.getDescriptor(0).getLocalName());
         QuantileListVisitor visitor = new QuantileListVisitor(expr, 2);
         fc.accepts(visitor, null);
-        List[] qResult = (List[]) visitor.getResult().getValue();
+        CalcResult result = visitor.getResult();
+		List[] qResult = (List[]) result.getValue();
         assertEquals(2, qResult.length);
         assertEquals(2, qResult[0].size());
         assertEquals(1, qResult[1].size());
+        //test empty collection
+        QuantileListVisitor emptyVisitor = new QuantileListVisitor(expr, 2);
+        empty.accepts(emptyVisitor, null);
+        assertEquals(CalcResult.NULL_RESULT, emptyVisitor.getResult());
+        // test merge
+        assertSame(result, emptyVisitor.getResult().merge(result));
+        assertSame(result, result.merge(emptyVisitor.getResult()));
     }
 
     public void testStandardDeviation() throws Exception {
@@ -352,11 +419,19 @@ public class VisitorCalculationTest extends DataTestCase {
     	Expression expr = factory.property(ft3.getDescriptor(0).getLocalName());
     	AverageVisitor visit1 = new AverageVisitor(expr);
     	fc3.accepts(visit1, null);
-    	double average = visit1.getResult().toDouble();
+    	CalcResult result = visit1.getResult();
+		double average = result.toDouble();
     	System.out.println("AV="+average);
     	StandardDeviationVisitor visit2 = new StandardDeviationVisitor(expr, average);
     	fc3.accepts(visit2, null);
     	assertEquals(28.86, visit2.getResult().toDouble(), 0.01); //TODO: verify std_dev(1..100) =~ 28.86
+    	//test empty collection
+    	StandardDeviationVisitor emptyVisitor = new StandardDeviationVisitor(expr, average);
+        empty.accepts(emptyVisitor, null);
+        assertEquals(CalcResult.NULL_RESULT, emptyVisitor.getResult());
+        // test merge
+        assertSame(result, emptyVisitor.getResult().merge(result));
+        assertSame(result, result.merge(emptyVisitor.getResult()));
     }
     
     //try merging a count and sum to get an average, both count+sum and sum+count 
