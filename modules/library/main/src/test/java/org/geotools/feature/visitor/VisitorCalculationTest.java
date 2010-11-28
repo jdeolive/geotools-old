@@ -417,6 +417,7 @@ public class VisitorCalculationTest extends DataTestCase {
     public void testStandardDeviation() throws Exception {
     	FilterFactory factory = CommonFactoryFinder.getFilterFactory(null);
     	Expression expr = factory.property(ft3.getDescriptor(0).getLocalName());
+    	// first do it the old fashioned way to ensure backwards compatibility
     	AverageVisitor visit1 = new AverageVisitor(expr);
     	fc3.accepts(visit1, null);
     	CalcResult result = visit1.getResult();
@@ -424,7 +425,11 @@ public class VisitorCalculationTest extends DataTestCase {
     	System.out.println("AV="+average);
     	StandardDeviationVisitor visit2 = new StandardDeviationVisitor(expr, average);
     	fc3.accepts(visit2, null);
-    	assertEquals(28.86, visit2.getResult().toDouble(), 0.01); //TODO: verify std_dev(1..100) =~ 28.86
+    	assertEquals(28.86, visit2.getResult().toDouble(), 0.01); 
+        // then do it single pass
+    	StandardDeviationVisitor visit3 = new StandardDeviationVisitor(expr);
+    	fc3.accepts(visit3, null);
+    	assertEquals(28.86, visit3.getResult().toDouble(), 0.01);
     	//test empty collection
     	StandardDeviationVisitor emptyVisitor = new StandardDeviationVisitor(expr, average);
         empty.accepts(emptyVisitor, null);

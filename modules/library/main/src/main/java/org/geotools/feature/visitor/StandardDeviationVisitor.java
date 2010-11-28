@@ -30,26 +30,46 @@ import org.opengis.filter.expression.Expression;
  *           \|  N   /__
  * </pre>
  *           
- * aka std dev = sqrt((sum((x-mean)^2))/N) where N is the number of samples
+ * aka std dev = sqrt((sum((x-mean)^2))/N) where N is the number of samples.
+ * 
+ * It uses the rolling variance algorithm described here: 
+ * http://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#On-line_algorithm
  * 
  * @author Cory Horner, Refractions Research Inc.
+ * @author Andrea Aime, GeoSolutions
  *
  * @source $URL$
  */
 public class StandardDeviationVisitor implements FeatureCalc {
 	private Expression expr;
-	private int count = 0;
-    private double deviationSquaredSum = 0;
-    private double average = 0;
 
     boolean visited = false;
     int countNull = 0;
     int countNaN = 0;
-	
+    int count = 0;
+    double mean = 0;
+    double m2 = 0;
+
+    /**
+     * Constructor left for backwards compatibility. The current algorithm uses
+     * a on line computation that does not require the average to be calculated
+     * in advance
+     * @param expr
+     * @param average
+     * @deprecated use {@link StandardDeviationVisitor(Expression)} insteads
+     */
+    @Deprecated
 	public StandardDeviationVisitor(Expression expr, double average) {
 		this.expr = expr;
-		this.average = average;
-		//at the moment we're assuming we won't know who the feature collection is, and need the average as input
+	}
+    
+    /**
+     * Constructs a standard deviation visitor based on the specified expression
+     * @param expr
+     * @param average
+     */
+	public StandardDeviationVisitor(Expression expr) {
+		this.expr = expr;
 	}
 
 	public void init(SimpleFeatureCollection collection) {
@@ -63,7 +83,7 @@ public class StandardDeviationVisitor implements FeatureCalc {
 		return new AbstractCalcResult() {
 			public Object getValue() {
                 if (count == 0) return null;
-				return new Double(Math.sqrt(deviationSquaredSum / count));
+				return new Double(Math.sqrt(m2 / count));
 			}
 		};
 	}
@@ -87,16 +107,19 @@ public class StandardDeviationVisitor implements FeatureCalc {
 			}
 		}
 		
+		double x = ((Number) value).doubleValue();
 		count++;
-		deviationSquaredSum += Math.pow(average - Double.parseDouble(value.toString()),2);
+		double delta = x - mean;
+		mean = mean + delta / count;
+		m2 = m2 + delta * (x - mean);  // This expression uses the new value of mean
 	}
 	
 	public void reset() {
 		this.count = 0;
 	    this.countNull = 0;
 	    this.countNaN = 0;
-	    this.deviationSquaredSum = 0;
-	    this.average = 0;
+	    this.m2 = 0;
+	    this.mean = 0;
 	}
 
     /**
