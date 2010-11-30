@@ -52,6 +52,7 @@ import org.geotools.data.FileDataStoreFinder;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.gce.geotiff.GeoTiffReader;
+import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.operation.transform.ProjectiveTransform;
 import org.junit.Before;
@@ -139,7 +140,6 @@ public class ZonalStasTest extends TestCase {
 	            final Geometry geometry = (Geometry) feature.getDefaultGeometry();
 	            if (geometry instanceof Polygon || geometry instanceof MultiPolygon) {
 	                final BoundingBox bbox = feature.getBounds();
-	                final ReferencedEnvelope rEnvelope = new ReferencedEnvelope(bbox);
 
 	                /*
 	                 * crop on region of interest
@@ -147,7 +147,7 @@ public class ZonalStasTest extends TestCase {
 	                final CoverageProcessor processor = CoverageProcessor.getInstance();
 	                final ParameterValueGroup param = processor.getOperation("CoverageCrop").getParameters();
 	                param.parameter("Source").setValue(gridCoverage2D);
-	                param.parameter("Envelope").setValue(rEnvelope);
+	                param.parameter("Envelope").setValue(new GeneralEnvelope(bbox));
 	                final GridCoverage2D cropped = (GridCoverage2D) processor.doOperation(param);
 
 	                ROI roi = null;

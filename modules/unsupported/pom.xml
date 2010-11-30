@@ -149,6 +149,16 @@
          <module>shapefile-renderer</module>
        </modules>
      </profile>
+     
+     <profile>
+       <id>jai-tools</id>
+       <activation>
+         <property><name>all</name></property>
+       </activation>
+       <modules>
+         <module>jai-tools</module>
+       </modules>
+     </profile>     
 
      <profile>
        <id>unsupported</id>
@@ -170,6 +180,7 @@
          <module>caching</module>
          <module>shapefile-renderer</module>
          <module>matfile5</module>
+         <module>jai-tools</module>
        </modules>
      </profile>
   </profiles>
