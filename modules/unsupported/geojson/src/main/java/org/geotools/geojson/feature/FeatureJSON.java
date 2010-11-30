@@ -496,7 +496,10 @@ public class FeatureJSON {
         }
         
         public boolean hasNext() {
-            next = null;
+            if (next != null) {
+                return true;
+            }
+            
             if (handler == null) {
                 handler = new FeatureCollectionHandler(featureType,  attio);
                 //handler = GeoJSONUtil.trace(handler, IFeatureCollectionHandler.class);
@@ -506,7 +509,9 @@ public class FeatureJSON {
         }
 
         public SimpleFeature next() {
-            return next;
+            SimpleFeature feature = next;
+            next = null;
+            return feature;
         }
         
         SimpleFeature readNext() { 

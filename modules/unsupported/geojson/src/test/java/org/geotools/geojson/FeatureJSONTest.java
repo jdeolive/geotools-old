@@ -337,6 +337,7 @@ public class FeatureJSONTest extends GeoJSONTestSupport {
         Iterator e = expected.iterator();
         
         while(e.hasNext()) {
+            features.hasNext(); //ensure that hasNext() does not skip features
             assertTrue(features.hasNext());
             assertEqualsLax((SimpleFeature)e.next(), features.next());
         }
