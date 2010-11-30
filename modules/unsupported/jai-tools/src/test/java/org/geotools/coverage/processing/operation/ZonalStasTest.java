@@ -29,7 +29,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -45,7 +44,7 @@ import junit.framework.TestCase;
 import org.geotools.TestData;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.coverage.processing.AbstractProcessor;
+import org.geotools.coverage.processing.CoverageProcessor;
 import org.geotools.coverage.processing.OperationJAI;
 import org.geotools.data.DataStore;
 import org.geotools.data.FeatureSource;
@@ -56,7 +55,6 @@ import org.geotools.gce.geotiff.GeoTiffReader;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.operation.transform.ProjectiveTransform;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -146,7 +144,7 @@ public class ZonalStasTest extends TestCase {
 	                /*
 	                 * crop on region of interest
 	                 */
-	                final AbstractProcessor processor = AbstractProcessor.getInstance();
+	                final CoverageProcessor processor = CoverageProcessor.getInstance();
 	                final ParameterValueGroup param = processor.getOperation("CoverageCrop").getParameters();
 	                param.parameter("Source").setValue(gridCoverage2D);
 	                param.parameter("Envelope").setValue(rEnvelope);
