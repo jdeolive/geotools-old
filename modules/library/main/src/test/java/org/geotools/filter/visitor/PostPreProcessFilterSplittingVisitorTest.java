@@ -20,9 +20,12 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.filter.FilterCapabilities;
 import org.geotools.filter.function.FilterFunction_geometryType;
+import org.opengis.filter.And;
 import org.opengis.filter.Filter;
+import org.opengis.filter.FilterFactory;
 import org.opengis.filter.Id;
 import org.opengis.filter.Or;
 import org.opengis.filter.PropertyIsBetween;
@@ -309,4 +312,26 @@ public class PostPreProcessFilterSplittingVisitorTest extends AbstractPostPrePro
 		assertEquals( ff.or( f,ff.id(ids)), visitor.getFilterPre());
 	}
 	
+	
+	public void testOrNotSupported() {
+	    FilterCapabilities caps = new FilterCapabilities();
+        caps.addAll(FilterCapabilities.SIMPLE_COMPARISONS_OPENGIS);
+        caps.addType(And.class);
+        PostPreProcessFilterSplittingVisitor visitor = new PostPreProcessFilterSplittingVisitor(caps, null, null);
+	    
+	    FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
+        Filter f1 = ff.equals(ff.property("CFCC"), ff.literal("A41"));
+        Filter f2 = ff.equals(ff.property("CFCC"), ff.literal("A42"));
+        
+        Filter ored = ff.or(f1, f2);
+        ored.accept(visitor, null);
+        assertEquals(Filter.INCLUDE, visitor.getFilterPre());
+        assertEquals(ored, visitor.getFilterPost());
+        
+        Filter anded = ff.and(f1, f2);
+        visitor = new PostPreProcessFilterSplittingVisitor(caps, null, null);
+        anded.accept(visitor, null);
+        assertEquals(anded, visitor.getFilterPre());
+        assertEquals(Filter.INCLUDE, visitor.getFilterPost());
+	}
 }

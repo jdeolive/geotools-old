@@ -615,8 +615,6 @@ public class CapabilitiesFilterSplitter implements FilterVisitor, ExpressionVisi
         if (original == null)
             original = filter;
 
-        // if (!fcs.supports(Not.class) && !fcs.supports(And.class) && !fcs.supports(Or.class))
-        // {
         if (!fcs.supports(filter)) {
             postStack.push(filter);
             return;

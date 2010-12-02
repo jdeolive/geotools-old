@@ -583,29 +583,26 @@ public class PostPreProcessFilterSplittingVisitor implements FilterVisitor, Expr
 	
 
         public Object visit(And filter, Object notUsed) {
-            visitLogicOperator(filter);
+            visitLogicOperator(filter, And.class);
             return null;
         }
         public Object visit(Not filter, Object notUsed) {
-            visitLogicOperator(filter);
+            visitLogicOperator(filter, Not.class);
             return null;
         }
         public Object visit(Or filter, Object notUsed) {
-            visitLogicOperator(filter);
+            visitLogicOperator(filter, Or.class);
             return null;
         }
         
-	    private void visitLogicOperator(Filter filter) {
+	    private void visitLogicOperator(Filter filter, Class filterInterface) {
 	        if( original==null )
 	        	original=filter;
 
-            
-	        if (!fcs.supports(Not.class)
-                    && !fcs.supports(And.class)
-                    && !fcs.supports(Or.class)) {
-	        	postStack.push(filter);
-	            return;
-	        }
+	        if (!fcs.supports(filterInterface)) {
+	                        postStack.push(filter);
+	                    return;
+	                }
 
             int i = postStack.size();
             int j = preStack.size();
