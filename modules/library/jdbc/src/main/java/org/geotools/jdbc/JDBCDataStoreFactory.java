@@ -272,6 +272,8 @@ public abstract class JDBCDataStoreFactory extends AbstractDataStoreFactory {
      * @param parameters Map of {@link Param} objects.
      */
     protected void setupParameters(Map parameters) {
+        // remember: when adding a new parameter here that is not connection related,
+        // add it to the JDBCJNDIDataStoreFactory class
         parameters.put(DBTYPE.key,
             new Param(DBTYPE.key, DBTYPE.type, DBTYPE.description, DBTYPE.required, getDatabaseID()));
         parameters.put(HOST.key, HOST);
