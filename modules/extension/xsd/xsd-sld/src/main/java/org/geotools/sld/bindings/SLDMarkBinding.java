@@ -58,8 +58,8 @@ import org.picocontainer.MutablePicoContainer;
  * @source $URL$
  */
 public class SLDMarkBinding extends AbstractComplexBinding {
-    FilterFactory filterFactory;
-    StyleFactory styleFactory;
+    protected FilterFactory filterFactory;
+    protected StyleFactory styleFactory;
 
     public SLDMarkBinding(StyleFactory styleFactory, FilterFactory filterFactory) {
         this.styleFactory = styleFactory;

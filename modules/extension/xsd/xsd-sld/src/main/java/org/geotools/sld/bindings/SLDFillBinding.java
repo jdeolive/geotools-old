@@ -120,7 +120,7 @@ public class SLDFillBinding extends AbstractComplexBinding {
 
         //&quot;fill&quot; (color) 
         //&quot;fill-opacity&quot;
-        List params = node.getChildValues("CssParameter");
+        List params = node.getChildValues(CssParameter.class);
 
         for (Iterator itr = params.iterator(); itr.hasNext();) {
             CssParameter param = (CssParameter) itr.next();

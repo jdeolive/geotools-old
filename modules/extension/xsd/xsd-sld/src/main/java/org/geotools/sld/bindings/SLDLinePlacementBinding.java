@@ -16,10 +16,14 @@
  */
 package org.geotools.sld.bindings;
 
+import org.opengis.filter.expression.Expression;
 import org.picocontainer.MutablePicoContainer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import javax.xml.namespace.QName;
+
+import org.geotools.styling.LinePlacement;
+import org.geotools.styling.StyleFactory;
 import org.geotools.xml.*;
 
 
@@ -51,6 +55,13 @@ import org.geotools.xml.*;
  * @source $URL$
  */
 public class SLDLinePlacementBinding extends AbstractComplexBinding {
+    
+    StyleFactory styleFactory;
+    
+    public SLDLinePlacementBinding(StyleFactory styleFactory) {
+        this.styleFactory = styleFactory;
+    }
+    
     /**
      * @generated
      */
@@ -75,16 +86,7 @@ public class SLDLinePlacementBinding extends AbstractComplexBinding {
      * @generated modifiable
      */
     public Class getType() {
-        return null;
-    }
-
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     *
-     * @generated modifiable
-     */
-    public void initialize(ElementInstance instance, Node node, MutablePicoContainer context) {
+        return LinePlacement.class;
     }
 
     /**
@@ -95,7 +97,11 @@ public class SLDLinePlacementBinding extends AbstractComplexBinding {
      */
     public Object parse(ElementInstance instance, Node node, Object value)
         throws Exception {
-        //TODO: implement
-        return null;
+        
+        Expression offset = null;
+        if (node.hasChild("PerpendicularOffset")) {
+            offset = (Expression) node.getChildValue("PerpendicularOffset");
+        }
+        return styleFactory.createLinePlacement(offset);
     }
 }
