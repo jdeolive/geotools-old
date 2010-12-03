@@ -92,6 +92,30 @@ public class ECQLINPredicateTest {
     }
 
     /**
+     * sample: length IN (4100001,4100002, 4100003 )
+     * @throws CQLException 
+     */
+    @Test
+    public void manyStringLiteralInList() throws CQLException{
+        
+        List<String> stringList = new LinkedList<String>();
+        String v1 = "one";
+        stringList.add(v1);
+        String v2 = "two";
+        stringList.add(v2);
+        String v3 = "three";
+        stringList.add(v3);
+        String propName = "name";
+        final String txtPredicate = makeInPredicateUsingString(propName, stringList);
+
+        Filter filter = ECQL.toFilter( txtPredicate);
+        
+        commonAssertForInPredicate(filter);
+
+        assertFilterHasProperty((Or) filter, propName);
+    }
+
+    /**
      * Sample: length in ((1+2), 3-4, [5*6])
      * @throws CQLException
      */
@@ -196,4 +220,25 @@ public class ECQLINPredicateTest {
         return txtPredicate;
     }
 
+    /**
+     * Makes an in predicate using the property name and the list of expressions
+     * @param propName
+     * @param exprList
+     * @return an In Predicate
+     */
+    private String makeInPredicateUsingString(final String propName,
+            final List<String> exprList) {
+        
+        StringBuffer  txtExprList = new StringBuffer();
+        Iterator<String> iterator = exprList.iterator();
+        while( iterator.hasNext() ) {
+            String literal = iterator.next();
+            txtExprList.append("'").append(literal).append("'");
+            if(iterator.hasNext()){
+                txtExprList.append(",");
+            }
+        }
+        String txtPredicate = propName + " IN (" + txtExprList  + ")";
+        return txtPredicate;
+    }    
 }

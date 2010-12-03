@@ -35,6 +35,29 @@ public class ECQLLiteralTest extends CQLLiteralTest {
     public ECQLLiteralTest(){
         super(Language.ECQL);
     }
+
+    /**
+     * Test for LineString Expression
+     * Sample: LINESTRING( 1 2, 3 4)
+     * @throws Exception
+     */
+    @Test
+    public void lineString() throws Exception {
+        Expression resultFilter;
+
+        final String expectedGeometry= "LINESTRING (1 2, 3 4)";
+        resultFilter = CompilerUtil.parseExpression(language, expectedGeometry);
+
+        Assert.assertTrue("DistanceBufferOperator filter was expected",
+                resultFilter instanceof Literal);
+
+        Literal filter = (Literal) resultFilter;
+        Object actualGeometry = filter.getValue();
+        
+        Assert.assertTrue("LineString class was expected",  actualGeometry instanceof LineString);
+
+        assertEqualsGeometries(expectedGeometry, (LineString) actualGeometry);
+    }
     
     /**
      * Sample: POINT(1 2)
@@ -54,29 +77,6 @@ public class ECQLLiteralTest extends CQLLiteralTest {
         Assert.assertTrue(value instanceof Point);
         
         assertEqualsGeometries(strGeometry, (Point) value);
-    }
-
-    /**
-     * Test for LineString Expression
-     * Sample: LINESTRING( 1 2, 3 4)
-     * @throws Exception
-     */
-    @Test
-    public void lineString() throws Exception {
-        Expression resultFilter;
-
-        final String expectedGeometry= "LINESTRING (1 2, 3 4)";
-        resultFilter = CompilerUtil.parseExpression(language,expectedGeometry);
-
-        Assert.assertTrue("DistanceBufferOperator filter was expected",
-                resultFilter instanceof Literal);
-
-        Literal filter = (Literal) resultFilter;
-        Object actualGeometry = filter.getValue();
-        
-        Assert.assertTrue("LineString class was expected",  actualGeometry instanceof LineString);
-
-        assertEqualsGeometries(expectedGeometry, (LineString) actualGeometry);
     }
 
     
@@ -199,8 +199,6 @@ public class ECQLLiteralTest extends CQLLiteralTest {
         Assert.assertTrue(actualGeometry instanceof GeometryCollection);
 
     }
-    
-    
 
     /**
      * Sample: MULTIPOLYGON( ((10 10, 10 20, 20 20, 20 15, 10 10)),((60 60, 70 70, 80 60, 60 60 )) )
@@ -221,24 +219,6 @@ public class ECQLLiteralTest extends CQLLiteralTest {
         Assert.assertTrue( actualGeometry instanceof MultiPolygon);
 
         assertEqualsGeometries(expectedGeom, (MultiPolygon) actualGeometry);
-    }
-
-    /**
-     * Asserts that the geometries are equals
-     * 
-     * @param strGeomExpected
-     * @param actualGeometry
-     */
-    private void assertEqualsGeometries(
-            final String strGeomExpected,
-            final Geometry actualGeometry) throws Exception{
-
-            WKTReader reader = new WKTReader();
-            Geometry expectedGeometry;
-            expectedGeometry = reader.read(strGeomExpected);
-            
-            Assert.assertTrue(expectedGeometry.equals(actualGeometry));
-
     }
     
 }

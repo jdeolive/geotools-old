@@ -108,7 +108,7 @@ public class CQLAttributeNameTest  {
 	 * @throws Exception
 	 */
     @Test 
-    public void keywordAsProperty() throws CQLException {
+    public void keywordAsAttribute() throws CQLException {
 
  
     	testAttribute("\"LIKE\"");
@@ -125,13 +125,25 @@ public class CQLAttributeNameTest  {
      * @throws Exception
      */
     @Test
-    public void localCharactersetInProperty() throws CQLException {
+    public void localCharactersetInAttributeName() throws CQLException {
         
     	testAttribute("\"población\"");
 
     	testAttribute("\"reconnaître\"");
 
     	testAttribute("\"können\"");
+    	
+    	// Russian
+    	testAttribute("\"ДОБРИЧ\"");
+    	testAttribute("\"название\"");
+    	testAttribute("\"фамилия\"");
+    	testAttribute("\"среды\"");
+    	
+    	// Japanese
+    	testAttribute("\"名\"");
+    	testAttribute("\"姓\"");
+    	testAttribute("\"環境\"");
+    	
     }
 
 

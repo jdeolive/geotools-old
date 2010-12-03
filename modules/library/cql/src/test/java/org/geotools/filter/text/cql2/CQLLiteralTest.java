@@ -17,15 +17,34 @@
 
 package org.geotools.filter.text.cql2;
 
+import java.util.LinkedList;
+import java.util.List;
+
+import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.factory.Hints;
+import org.geotools.filter.FilterFactoryFinder;
 import org.geotools.filter.text.commons.CompilerUtil;
 import org.geotools.filter.text.commons.Language;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.opengis.filter.Filter;
+import org.opengis.filter.FilterFactory;
 import org.opengis.filter.PropertyIsEqualTo;
+import org.opengis.filter.capability.Operator;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Literal;
 import org.opengis.filter.spatial.BinarySpatialOperator;
+
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.MultiLineString;
+import com.vividsolutions.jts.geom.MultiPoint;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.io.WKTReader;
 
 /**
  * Literal parser test
@@ -158,7 +177,7 @@ public class CQLLiteralTest {
      * &lt;quote symbol&gt; ::=  &lt;quote&gt; &lt;quote&gt;
      * </pre>
      */
-    @Test
+    @Test 
     public void characterStringLiteral() throws Exception {
 
         PropertyIsEqualTo eqFilter;
@@ -212,7 +231,7 @@ public class CQLLiteralTest {
         // special characters
         final String otherChars = "üä";
 
-        filter = (PropertyIsEqualTo) CQL.toFilter("NAME = '" + otherChars
+        filter = (PropertyIsEqualTo) CompilerUtil.parseFilter(language, "NAME = '" + otherChars
                 + "'");
 
         Assert.assertNotNull(filter);
@@ -222,6 +241,42 @@ public class CQLLiteralTest {
         actual = eqFilter.getExpression2();
         Assert.assertEquals(otherChars, actual.toString());
     }
+    
+    @Test 
+    public void russianCharacterStringLiteral() throws Exception{
+    	
+    	testCharacterString("ДОБРИЧ" );
+    	testCharacterString("название");
+    	testCharacterString("фамилия");
+    	testCharacterString("среды");
+    }
+    
+    /**
+     * Japan charset
+     * @throws Exception
+     */
+    @Test 
+    public void japanCharacterStringLiteral() throws Exception{
+    	
+        testCharacterString("名" );
+        testCharacterString("姓");
+        testCharacterString("環境");
+    }
+    
+    private void testCharacterString(final String str) throws Exception{
+
+        Filter filter = (PropertyIsEqualTo) CompilerUtil.parseFilter(language, "NAME = '" + str
+                + "'");
+
+        Assert.assertNotNull(filter);
+        Assert.assertTrue(filter instanceof PropertyIsEqualTo);
+        
+        PropertyIsEqualTo eqFilter = (PropertyIsEqualTo) filter;
+        Expression actual = eqFilter.getExpression2();
+        Assert.assertEquals(str, actual.toString());
+    }
+    
+    
 
  
     @Test
@@ -305,7 +360,6 @@ public class CQLLiteralTest {
         
     }
 
-
     @Test
     public void timeStampLiteral() throws Exception{
     	
@@ -324,5 +378,24 @@ public class CQLLiteralTest {
         Assert.assertEquals(expectedDateTime, actualDateTime.toString());
     }
     
+    
+
+    /**
+     * Asserts that the geometries are equals
+     * 
+     * @param strGeomExpected
+     * @param actualGeometry
+     */
+    protected void assertEqualsGeometries(
+            final String strGeomExpected,
+            final Geometry actualGeometry) throws Exception{
+
+            WKTReader reader = new WKTReader();
+            Geometry expectedGeometry;
+            expectedGeometry = reader.read(strGeomExpected);
+            
+            Assert.assertTrue(expectedGeometry.equals(actualGeometry));
+
+    }
     
 }
