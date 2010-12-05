@@ -424,6 +424,8 @@ public class GrassCoverageReader extends AbstractGridCoverage2DReader implements
 
         BufferedImage image = imageReader.read(0, imageReadParam,
                 useSubSamplingAsRequestedColsRows, castDoubleToFloating, monitor);
+        imageReader.dispose();
+        
         int imageWidth = image.getWidth();
         int imageHeight = image.getHeight();
         if (requestedSouth < fileSouth || requestedWest < fileWest || requestedEast > fileEast
