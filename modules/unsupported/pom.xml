@@ -181,6 +181,7 @@
          <module>shapefile-renderer</module>
          <module>matfile5</module>
          <module>jai-tools</module>
+         <module>sfs</module>
        </modules>
      </profile>
   </profiles>
