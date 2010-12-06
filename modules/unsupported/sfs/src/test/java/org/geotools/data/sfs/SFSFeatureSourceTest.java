@@ -21,8 +21,6 @@ import java.net.MalformedURLException;
 import java.util.HashSet;
 import java.util.Set;
 
-import junit.framework.Assert;
-
 import org.geotools.data.FeatureReader;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
@@ -37,12 +35,12 @@ import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.NoSuchAuthorityCodeException;
 
 
-public class OpenDataStoreFeatureSourceTest extends OnlineTest {
+public class SFSFeatureSourceTest extends OnlineTest {
 
     /* layerName for mock service*/
     private static final String FEATURESOURCE = "layerAsia";
 
-    public OpenDataStoreFeatureSourceTest(String testName) {
+    public SFSFeatureSourceTest(String testName) {
         super(testName);
     }
 
@@ -61,7 +59,7 @@ public class OpenDataStoreFeatureSourceTest extends OnlineTest {
             SFSDataStoreFactory factory = new SFSDataStoreFactory();
             SFSDataStore ods = (SFSDataStore) factory.createDataStore(createParams());
             SFSFeatureSource odsfs = (SFSFeatureSource) ods.getFeatureSource(FEATURESOURCE);
-            Assert.assertNotNull(odsfs);
+            assertNotNull(odsfs);
         }
     }
 
@@ -73,7 +71,7 @@ public class OpenDataStoreFeatureSourceTest extends OnlineTest {
             SFSFeatureSource odsfs = (SFSFeatureSource) ods.getFeatureSource(FEATURESOURCE);
             SimpleFeatureType type = odsfs.getSchema();
             assertEquals(NAMESPACE, type.getName().getNamespaceURI());
-            Assert.assertEquals(3, type.getAttributeCount());
+            assertEquals(3, type.getAttributeCount());
             Set<String> attributes = new HashSet<String>();
             for (AttributeDescriptor ad : type.getAttributeDescriptors()) {
                 attributes.add(ad.getLocalName());
@@ -92,7 +90,7 @@ public class OpenDataStoreFeatureSourceTest extends OnlineTest {
             SFSFeatureSource odsfs = (SFSFeatureSource) ods.getFeatureSource(FEATURESOURCE);
 
             int count = odsfs.getCount(new Query(FEATURESOURCE, Filter.INCLUDE));
-            Assert.assertEquals(2, count);
+            assertEquals(2, count);
         }
     }
 
@@ -104,10 +102,10 @@ public class OpenDataStoreFeatureSourceTest extends OnlineTest {
 
             ReferencedEnvelope env = odsfs.getBoundsInternal(new Query(FEATURESOURCE, Filter.INCLUDE));
             /* Remember the axis order is flipped so this also test if flipaxis is working or not*/
-            Assert.assertEquals(-40.0, env.getMinX());
-            Assert.assertEquals(-10.0, env.getMinY());
-            Assert.assertEquals(80.0, env.getMaxX());
-            Assert.assertEquals(30.0, env.getMaxY());
+            assertEquals(-40.0, env.getMinX());
+            assertEquals(-10.0, env.getMinY());
+            assertEquals(80.0, env.getMaxX());
+            assertEquals(30.0, env.getMaxY());
         }
     }
 
@@ -160,6 +158,6 @@ public class OpenDataStoreFeatureSourceTest extends OnlineTest {
         SFSDataStore ods = new SFSDataStore(_jsonText, null);
 
         SFSFeatureSource odsfs = (SFSFeatureSource) ods.getFeatureSource(FEATURESOURCE);
-        Assert.assertNotNull(odsfs);
+        assertNotNull(odsfs);
     }
 }

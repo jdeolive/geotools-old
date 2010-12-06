@@ -17,8 +17,6 @@
 
 package org.geotools.data.sfs;
 
-import junit.framework.Assert;
-
 import org.geotools.data.sfs.SFSFilterVisitor;
 import org.geotools.factory.CommonFactoryFinder;
 import org.opengis.filter.FilterFactory2;
@@ -39,11 +37,7 @@ import com.vividsolutions.jts.geom.Point;
 import java.net.URLDecoder;
 
 
-/**
- * This test is borrowed from GeoREST module
- * author
- */
-public class OpenDataStoreFilterVisitorTest extends OnlineTest {
+public class SFSFilterVisitorTest extends OnlineTest {
 
     private static final String URL_LAYER_ASIA = URL+"/layerAsia";
     private static final String PROPERTY_NAME = "aProperty";
@@ -59,7 +53,7 @@ public class OpenDataStoreFilterVisitorTest extends OnlineTest {
         BBOX bbox = FF.bbox("prop0", 0, 0, 10, 10, "EPSG:4326");
         visitor.visit(bbox, null);
         visitor.finish(builder, false);
-        Assert.assertEquals(URL_LAYER_ASIA + "?bbox=0.0,0.0,10.0,10.0", URLDecoder.decode(builder.toString(),"UTF-8"));
+        assertEquals(URL_LAYER_ASIA + "?bbox=0.0,0.0,10.0,10.0", URLDecoder.decode(builder.toString(),"UTF-8"));
     }
     
     /* This test was added */
@@ -74,7 +68,7 @@ public class OpenDataStoreFilterVisitorTest extends OnlineTest {
         DWithin dws = FF.dwithin(FF.property("Point"), FF.literal(p), 10, "");
         visitor.visit(dws, null);
         visitor.finish(builder, false);
-        Assert.assertEquals(URL_LAYER_ASIA + "?epsg=&lat=0.1&lon=100.1&tolerance=10.0", URLDecoder.decode(builder.toString(),"UTF-8"));
+        assertEquals(URL_LAYER_ASIA + "?epsg=&lat=0.1&lon=100.1&tolerance=10.0", URLDecoder.decode(builder.toString(),"UTF-8"));
     }
     
     /* Test for point geometry but it can be tested for other also */
@@ -89,7 +83,7 @@ public class OpenDataStoreFilterVisitorTest extends OnlineTest {
         Intersects intr = FF.intersects(FF.property("Point"), FF.literal(p));
         visitor.visit(intr, null);
         visitor.finish(builder, false);
-        Assert.assertEquals(URL_LAYER_ASIA + "?geometry={\"type\":\"Point\",\"coordinates\":[100.1,0.1]}", URLDecoder.decode(builder.toString(),"UTF-8"));
+        assertEquals(URL_LAYER_ASIA + "?geometry={\"type\":\"Point\",\"coordinates\":[100.1,0.1]}", URLDecoder.decode(builder.toString(),"UTF-8"));
     }
 
     public void testPropertyIsEqualTo() throws Exception {
@@ -99,7 +93,7 @@ public class OpenDataStoreFilterVisitorTest extends OnlineTest {
         PropertyIsEqualTo filter = FF.equals(FF.property(PROPERTY_NAME), FF.literal(PROPERTY_VALUE));
         visitor.visit(filter, null);
         visitor.finish(builder, false);
-        Assert.assertEquals(URL_LAYER_ASIA + "?" + PROPERTY_NAME + "__eq=" + PROPERTY_VALUE + "&queryable="
+        assertEquals(URL_LAYER_ASIA + "?" + PROPERTY_NAME + "__eq=" + PROPERTY_VALUE + "&queryable="
                 + PROPERTY_NAME,URLDecoder.decode(builder.toString(),"UTF-8"));
     }
 
@@ -111,7 +105,7 @@ public class OpenDataStoreFilterVisitorTest extends OnlineTest {
                 FF.literal(PROPERTY_VALUE));
         visitor.visit(filter, null);
         visitor.finish(builder, false);
-        Assert.assertEquals(URL_LAYER_ASIA + "?" + PROPERTY_NAME + "__ne=" + PROPERTY_VALUE + "&queryable="
+        assertEquals(URL_LAYER_ASIA + "?" + PROPERTY_NAME + "__ne=" + PROPERTY_VALUE + "&queryable="
                 + PROPERTY_NAME, URLDecoder.decode(builder.toString(),"UTF-8"));
     }
 
@@ -123,7 +117,7 @@ public class OpenDataStoreFilterVisitorTest extends OnlineTest {
                 FF.literal(PROPERTY_VALUE));
         visitor.visit(filter, null);
         visitor.finish(builder, false);
-        Assert.assertEquals(URL_LAYER_ASIA + "?" + PROPERTY_NAME + "__gt=" + PROPERTY_VALUE + "&queryable="
+        assertEquals(URL_LAYER_ASIA + "?" + PROPERTY_NAME + "__gt=" + PROPERTY_VALUE + "&queryable="
                 + PROPERTY_NAME, URLDecoder.decode(builder.toString(),"UTF-8"));
     }
 
@@ -135,7 +129,7 @@ public class OpenDataStoreFilterVisitorTest extends OnlineTest {
                 FF.literal(PROPERTY_VALUE));
         visitor.visit(filter, null);
         visitor.finish(builder, false);
-        Assert.assertEquals(URL_LAYER_ASIA + "?" + PROPERTY_NAME + "__gte=" + PROPERTY_VALUE + "&queryable="
+        assertEquals(URL_LAYER_ASIA + "?" + PROPERTY_NAME + "__gte=" + PROPERTY_VALUE + "&queryable="
                 + PROPERTY_NAME, URLDecoder.decode(builder.toString(),"UTF-8"));
     }
 
@@ -146,7 +140,7 @@ public class OpenDataStoreFilterVisitorTest extends OnlineTest {
         PropertyIsLessThan filter = FF.less(FF.property(PROPERTY_NAME), FF.literal(PROPERTY_VALUE));
         visitor.visit(filter, null);
         visitor.finish(builder, false);
-        Assert.assertEquals(URL_LAYER_ASIA + "?" + PROPERTY_NAME + "__lt=" + PROPERTY_VALUE + "&queryable="
+        assertEquals(URL_LAYER_ASIA + "?" + PROPERTY_NAME + "__lt=" + PROPERTY_VALUE + "&queryable="
                 + PROPERTY_NAME, URLDecoder.decode(builder.toString(),"UTF-8"));
     }
 
@@ -158,7 +152,7 @@ public class OpenDataStoreFilterVisitorTest extends OnlineTest {
                 FF.literal(PROPERTY_VALUE));
         visitor.visit(filter, null);
         visitor.finish(builder, false);
-        Assert.assertEquals(URL_LAYER_ASIA + "?" + PROPERTY_NAME + "__lte=" + PROPERTY_VALUE + "&queryable="
+        assertEquals(URL_LAYER_ASIA + "?" + PROPERTY_NAME + "__lte=" + PROPERTY_VALUE + "&queryable="
                 + PROPERTY_NAME, URLDecoder.decode(builder.toString(),"UTF-8"));
     }
 
@@ -169,7 +163,7 @@ public class OpenDataStoreFilterVisitorTest extends OnlineTest {
         PropertyIsLike filter = FF.like(FF.property(PROPERTY_NAME), PROPERTY_VALUE);
         visitor.visit(filter, null);
         visitor.finish(builder, false);
-        Assert.assertEquals(URL_LAYER_ASIA + "?" + PROPERTY_NAME + "__like=" + PROPERTY_VALUE + "&queryable="
+        assertEquals(URL_LAYER_ASIA + "?" + PROPERTY_NAME + "__like=" + PROPERTY_VALUE + "&queryable="
                 + PROPERTY_NAME, URLDecoder.decode(builder.toString(),"UTF-8"));
     }
 

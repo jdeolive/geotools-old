@@ -23,7 +23,6 @@ import java.io.StringReader;
 
 import java.util.ArrayList;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import org.geotools.data.sfs.SFSDataStoreUtil;
@@ -232,9 +231,9 @@ public class SFSDataStoreFeatureReaderTest extends TestCase {
 
         SFSDataStoreUtil.flipFeatureYX(fnG);
 
-        Assert.assertEquals(fnG.getCoordinate().x, 2.9);
+        assertEquals(fnG.getCoordinate().x, 2.9);
 
-        Assert.assertEquals(fnG.getCoordinate().y, 1.5);
+        assertEquals(fnG.getCoordinate().y, 1.5);
 
     }
 
@@ -249,12 +248,12 @@ public class SFSDataStoreFeatureReaderTest extends TestCase {
         SFSDataStoreUtil.flipFeatureYX(fnG);
 
         /* Check for first point*/
-        Assert.assertEquals(fnG.getCoordinates()[0].x, 1.2);
-        Assert.assertEquals(fnG.getCoordinates()[0].y, 1.1);
+        assertEquals(fnG.getCoordinates()[0].x, 1.2);
+        assertEquals(fnG.getCoordinates()[0].y, 1.1);
 
         /* Check for second point*/
-        Assert.assertEquals(fnG.getCoordinates()[1].x, 1.4);
-        Assert.assertEquals(fnG.getCoordinates()[1].y, 1.3);
+        assertEquals(fnG.getCoordinates()[1].x, 1.4);
+        assertEquals(fnG.getCoordinates()[1].y, 1.3);
     }
 
     /* Test feature flipping with Polygon w/o holes geometry*/
@@ -268,16 +267,16 @@ public class SFSDataStoreFeatureReaderTest extends TestCase {
         SFSDataStoreUtil.flipFeatureYX(fnG);
 
         /* Check for first point*/
-        Assert.assertEquals(fnG.getCoordinates()[0].x, 0.1);
-        Assert.assertEquals(fnG.getCoordinates()[0].y, 100.1);
+        assertEquals(fnG.getCoordinates()[0].x, 0.1);
+        assertEquals(fnG.getCoordinates()[0].y, 100.1);
 
         /* Check for second point*/
-        Assert.assertEquals(fnG.getCoordinates()[1].x, 0.1);
-        Assert.assertEquals(fnG.getCoordinates()[1].y, 101.1);
+        assertEquals(fnG.getCoordinates()[1].x, 0.1);
+        assertEquals(fnG.getCoordinates()[1].y, 101.1);
 
         /* Check for last point*/
-        Assert.assertEquals(fnG.getCoordinates()[4].x, 0.1);
-        Assert.assertEquals(fnG.getCoordinates()[4].y, 100.1);
+        assertEquals(fnG.getCoordinates()[4].x, 0.1);
+        assertEquals(fnG.getCoordinates()[4].y, 100.1);
     }
 
     /* Test feature flipping with Polygon w/ holes geometry*/
@@ -291,20 +290,20 @@ public class SFSDataStoreFeatureReaderTest extends TestCase {
         SFSDataStoreUtil.flipFeatureYX(fnG);
 
         /* Check for first point*/
-        Assert.assertEquals(fnG.getCoordinates()[0].x, 0.1);
-        Assert.assertEquals(fnG.getCoordinates()[0].y, 100.1);
+        assertEquals(fnG.getCoordinates()[0].x, 0.1);
+        assertEquals(fnG.getCoordinates()[0].y, 100.1);
 
         /* Check for fourth point*/
-        Assert.assertEquals(fnG.getCoordinates()[3].x, 1.1);
-        Assert.assertEquals(fnG.getCoordinates()[3].y, 100.1);
+        assertEquals(fnG.getCoordinates()[3].x, 1.1);
+        assertEquals(fnG.getCoordinates()[3].y, 100.1);
 
         /* Check for sixth point*/
-        Assert.assertEquals(fnG.getCoordinates()[5].x, 0.2);
-        Assert.assertEquals(fnG.getCoordinates()[5].y, 100.2);
+        assertEquals(fnG.getCoordinates()[5].x, 0.2);
+        assertEquals(fnG.getCoordinates()[5].y, 100.2);
 
         /* Check for ninth point*/
-        Assert.assertEquals(fnG.getCoordinates()[8].x, 0.8);
-        Assert.assertEquals(fnG.getCoordinates()[8].y, 100.2);
+        assertEquals(fnG.getCoordinates()[8].x, 0.8);
+        assertEquals(fnG.getCoordinates()[8].y, 100.2);
     }
 
     /* Test feature flipping with Multi-Point geometry*/
@@ -318,12 +317,12 @@ public class SFSDataStoreFeatureReaderTest extends TestCase {
         SFSDataStoreUtil.flipFeatureYX(fnG);
 
         /* Check for first point*/
-        Assert.assertEquals(fnG.getCoordinates()[0].x, 0.1);
-        Assert.assertEquals(fnG.getCoordinates()[0].y, 100.1);
+        assertEquals(fnG.getCoordinates()[0].x, 0.1);
+        assertEquals(fnG.getCoordinates()[0].y, 100.1);
 
         /* Check for second point*/
-        Assert.assertEquals(fnG.getCoordinates()[1].x, 1.1);
-        Assert.assertEquals(fnG.getCoordinates()[1].y, 101.1);
+        assertEquals(fnG.getCoordinates()[1].x, 1.1);
+        assertEquals(fnG.getCoordinates()[1].y, 101.1);
     }
 
     /* Test feature flipping with Multi-Line String geometry*/
@@ -337,20 +336,20 @@ public class SFSDataStoreFeatureReaderTest extends TestCase {
         SFSDataStoreUtil.flipFeatureYX(fnG);
 
         /* Check for first point*/
-        Assert.assertEquals(fnG.getCoordinates()[0].x, 0.1);
-        Assert.assertEquals(fnG.getCoordinates()[0].y, 100.1);
+        assertEquals(fnG.getCoordinates()[0].x, 0.1);
+        assertEquals(fnG.getCoordinates()[0].y, 100.1);
 
         /* Check for second point*/
-        Assert.assertEquals(fnG.getCoordinates()[1].x, 1.1);
-        Assert.assertEquals(fnG.getCoordinates()[1].y, 101.1);
+        assertEquals(fnG.getCoordinates()[1].x, 1.1);
+        assertEquals(fnG.getCoordinates()[1].y, 101.1);
 
         /* Check for third point*/
-        Assert.assertEquals(fnG.getCoordinates()[2].x, 2.1);
-        Assert.assertEquals(fnG.getCoordinates()[2].y, 102.1);
+        assertEquals(fnG.getCoordinates()[2].x, 2.1);
+        assertEquals(fnG.getCoordinates()[2].y, 102.1);
 
         /* Check for last point*/
-        Assert.assertEquals(fnG.getCoordinates()[3].x, 3.1);
-        Assert.assertEquals(fnG.getCoordinates()[3].y, 103.1);
+        assertEquals(fnG.getCoordinates()[3].x, 3.1);
+        assertEquals(fnG.getCoordinates()[3].y, 103.1);
     }
 
     /* Test feature flipping with Multi-Polygongeometry*/
@@ -364,69 +363,31 @@ public class SFSDataStoreFeatureReaderTest extends TestCase {
         SFSDataStoreUtil.flipFeatureYX(fnG);
 
         /* Check for first point*/
-        Assert.assertEquals(fnG.getCoordinates()[0].x, 2.1);
-        Assert.assertEquals(fnG.getCoordinates()[0].y, 102.1);
+        assertEquals(fnG.getCoordinates()[0].x, 2.1);
+        assertEquals(fnG.getCoordinates()[0].y, 102.1);
 
         /* Check for fourth point*/
-        Assert.assertEquals(fnG.getCoordinates()[3].x, 3.1);
-        Assert.assertEquals(fnG.getCoordinates()[3].y, 102.1);
+        assertEquals(fnG.getCoordinates()[3].x, 3.1);
+        assertEquals(fnG.getCoordinates()[3].y, 102.1);
 
         /* Check for sixth point*/
-        Assert.assertEquals(fnG.getCoordinates()[5].x, 0.1);
-        Assert.assertEquals(fnG.getCoordinates()[5].y, 100.1);
+        assertEquals(fnG.getCoordinates()[5].x, 0.1);
+        assertEquals(fnG.getCoordinates()[5].y, 100.1);
 
         /* Check for eight point*/
-        Assert.assertEquals(fnG.getCoordinates()[7].x, 1.1);
-        Assert.assertEquals(fnG.getCoordinates()[7].y, 101.1);
+        assertEquals(fnG.getCoordinates()[7].x, 1.1);
+        assertEquals(fnG.getCoordinates()[7].y, 101.1);
 
         /* Check for 12th point*/
-        Assert.assertEquals(fnG.getCoordinates()[11].x, 0.2);
-        Assert.assertEquals(fnG.getCoordinates()[11].y, 100.8);
+        assertEquals(fnG.getCoordinates()[11].x, 0.2);
+        assertEquals(fnG.getCoordinates()[11].y, 100.8);
 
         /* Check for last (15th) point*/
-        Assert.assertEquals(fnG.getCoordinates()[14].x, 0.2);
-        Assert.assertEquals(fnG.getCoordinates()[14].y, 100.2);
+        assertEquals(fnG.getCoordinates()[14].x, 0.2);
+        assertEquals(fnG.getCoordinates()[14].y, 100.2);
     }
 
     
-    /* Test feature flipping with Multi-Line String geometry*/
-    /*
-    public void testFeatureFlippingWithGeometryCollectionGeom() throws IOException {
-        FeatureJSON fjson = new FeatureJSON();
-
-        SimpleFeature sf = fjson.readFeature(reader(strip(getFeatureWithGeometryCollectionGeometry())));
-
-        Geometry fnG = (Geometry) sf.getDefaultGeometry();
-
-        OpenDataStoreUtil.flipFeatureYX(fnG);
-
-        
-        Assert.assertEquals(fnG.getCoordinates()[0].x, 2.1);
-        Assert.assertEquals(fnG.getCoordinates()[0].y, 102.1);
-
-        
-        Assert.assertEquals(fnG.getCoordinates()[3].x, 3.1);
-        Assert.assertEquals(fnG.getCoordinates()[3].y, 102.1);
-
-       
-        Assert.assertEquals(fnG.getCoordinates()[5].x, 0.1);
-        Assert.assertEquals(fnG.getCoordinates()[5].y, 100.1);
-
-        
-        Assert.assertEquals(fnG.getCoordinates()[7].x, 1.1);
-        Assert.assertEquals(fnG.getCoordinates()[7].y, 101.1);
-
-        
-        Assert.assertEquals(fnG.getCoordinates()[11].x, 0.2);
-        Assert.assertEquals(fnG.getCoordinates()[11].y, 100.8);
-
-        
-        Assert.assertEquals(fnG.getCoordinates()[14].x, 0.2);
-        Assert.assertEquals(fnG.getCoordinates()[14].y, 100.2);
-    }
-    */
-
-
     /**
      * Test Whether the boundingbox params get flipped properly or not
      * @throws IOException
@@ -441,14 +402,14 @@ public class SFSDataStoreFeatureReaderTest extends TestCase {
         SFSDataStoreUtil.flipYXInsideTheBoundingBox(al);
 
         /* Check for first point*/
-        Assert.assertEquals(Double.parseDouble(al.get(0).toString()), -1.2);
+        assertEquals(Double.parseDouble(al.get(0).toString()), -1.2);
 
-        Assert.assertEquals(Double.parseDouble(al.get(1).toString()), -1.1);
+        assertEquals(Double.parseDouble(al.get(1).toString()), -1.1);
 
         /* Check for second point*/
-        Assert.assertEquals(Double.parseDouble(al.get(2).toString()), 1.4);
+        assertEquals(Double.parseDouble(al.get(2).toString()), 1.4);
 
-        Assert.assertEquals(Double.parseDouble(al.get(3).toString()), 1.3);
+        assertEquals(Double.parseDouble(al.get(3).toString()), 1.3);
     }
    
     /* Methods used for testing*/

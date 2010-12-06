@@ -32,7 +32,7 @@ import org.opengis.feature.type.Name;
 
 import com.vividsolutions.jts.geom.Envelope;
 
-public class OpenDataStoreTest extends OnlineTest {
+public class SFSDataStoreTest extends OnlineTest {
 
     protected void setUp() throws Exception {
         super.setUp();
