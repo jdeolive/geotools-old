@@ -6,9 +6,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.geotools.data.sfs.SFSDataStoreFactory;
+import org.geotools.data.sfs.mock.MockSimpleFeatureService;
 
 import junit.framework.TestCase;
 
+/**
+ * To have the online tests run start the {@link MockSimpleFeatureService} class 
+ */
 public abstract class OnlineTest extends TestCase {
 
     protected static final String URL = "http://localhost:8082/simplefeatureservice/";
