@@ -35,6 +35,7 @@ import org.opengis.referencing.*;
 import org.opengis.referencing.crs.*;
 import org.opengis.referencing.datum.*;
 import org.opengis.referencing.operation.*;
+import org.opengis.referencing.cs.AxisDirection;
 import org.opengis.referencing.cs.EllipsoidalCS;
 import org.opengis.referencing.cs.CartesianCS;
 import org.opengis.referencing.cs.CoordinateSystem;
@@ -114,6 +115,26 @@ import org.geotools.util.UnsupportedImplementationException;
  * @tutorial http://docs.codehaus.org/display/GEOTOOLS/Coordinate+Transformation+Services+for+Geotools+2.1
  */
 public final class CRS {
+    /**
+     * Enumeration describing axis order for geographic coordinate reference systems.
+     */
+    public static enum AxisOrder {
+        /** 
+         * Ordering in which longitude comes before latitude, commonly referred to as x/y ordering. 
+         */
+        LON_LAT, 
+        
+        /**
+         * Ordering in which latitude comes before longitude, commonly referred to as y/x ordering.
+         */
+        LAT_LON, 
+        
+        /**
+         * Indicates axis ordering is not applicable to the coordinate reference system.
+         */
+        INAPPLICABLE;
+    };
+    
     /**
      * A map with {@link Hints#FORCE_LONGITUDE_FIRST_AXIS_ORDER} set to {@link Boolean#TRUE}.
      */
@@ -1720,7 +1741,59 @@ search:             if (DefaultCoordinateSystemAxis.isCompassDirection(axis.getD
         DefaultMathTransformFactory.cleanupThreadLocals();
         Formattable.cleanupThreadLocals();
     }
+    
+    /**
+     * Determines the axis ordering of a specified crs object.
+     * <p>
+     * If called with a projected crs object the base crs will be used for the axis 
+     * order determination.
+     * </p>
+     * @param crs The coordinate reference system.
+     * 
+     * @return One of {@link AxisOrder#LON_LAT}, {@link AxisOrder@LAT_LON}, or 
+     *  {@link AxisOrder#INAPPLICABLE}
+     * 
+     * @see AxisOrder
+     * @since 2.7
+     */
+    public static AxisOrder getAxisOrder(CoordinateReferenceSystem crs) {
+        CoordinateSystem cs = null;
 
+        if (crs instanceof ProjectedCRS) {
+            ProjectedCRS pcrs = (ProjectedCRS) crs;
+            cs = pcrs.getBaseCRS().getCoordinateSystem();
+        } else if (crs instanceof GeographicCRS) {
+            cs = crs.getCoordinateSystem();
+        } else {
+            return AxisOrder.INAPPLICABLE;
+        }
+
+        int dimension = cs.getDimension();
+        int longitudeDim = -1;
+        int latitudeDim = -1;
+
+        for (int i = 0; i < dimension; i++) {
+            AxisDirection dir = cs.getAxis(i).getDirection().absolute();
+
+            if (dir.equals(AxisDirection.EAST)) {
+                longitudeDim = i;
+            }
+
+            if (dir.equals(AxisDirection.NORTH)) {
+                latitudeDim = i;
+            }
+        }
+
+        if ((longitudeDim >= 0) && (latitudeDim >= 0)) {
+            if (longitudeDim < latitudeDim) {
+                return AxisOrder.LON_LAT;
+            } else {
+                return AxisOrder.LAT_LON;
+            }
+        }
+
+        return AxisOrder.INAPPLICABLE;
+    }
 
     /**
      * Prints to the {@linkplain System#out standard output stream} some information about

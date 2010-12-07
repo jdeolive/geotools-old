@@ -22,6 +22,7 @@ import java.awt.geom.Rectangle2D;
 import java.util.Set;
 
 import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.referencing.CRS.AxisOrder;
 import org.geotools.referencing.crs.DefaultEngineeringCRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.resources.geometry.XRectangle2D;
@@ -241,5 +242,30 @@ public final class CrsTest {
     @Test
     public void testGetHorizontalCrs() {
         assertEquals( DefaultEngineeringCRS.GENERIC_2D, CRS.getHorizontalCRS(DefaultEngineeringCRS.GENERIC_2D));
+    }
+    
+    @Test
+    public void testGetAxisOrder() throws FactoryException {
+        String wkt = 
+        "GEOGCS[\"WGS84(DD)\"," +  
+          "DATUM[\"WGS84\", " +
+            "SPHEROID[\"WGS84\", 6378137.0, 298.257223563]]," + 
+          "PRIMEM[\"Greenwich\", 0.0]," + 
+          "UNIT[\"degree\", 0.017453292519943295]," + 
+          "AXIS[\"Geodetic longitude\", EAST]," + 
+          "AXIS[\"Geodetic latitude\", NORTH]]";
+        assertEquals(AxisOrder.LON_LAT, CRS.getAxisOrder(CRS.parseWKT(wkt)));
+        
+        wkt = 
+        "GEOGCS[\"WGS84(DD)\"," +  
+          "DATUM[\"WGS84\", " +
+            "SPHEROID[\"WGS84\", 6378137.0, 298.257223563]]," + 
+          "PRIMEM[\"Greenwich\", 0.0]," + 
+          "UNIT[\"degree\", 0.017453292519943295]," + 
+          "AXIS[\"Geodetic latitude\", NORTH]," +
+          "AXIS[\"Geodetic longitude\", EAST]]";
+        assertEquals(AxisOrder.LAT_LON, CRS.getAxisOrder(CRS.parseWKT(wkt)));
+        
+        assertEquals(AxisOrder.INAPPLICABLE, CRS.getAxisOrder(CRS.getHorizontalCRS(DefaultEngineeringCRS.GENERIC_2D)));
     }
 }
