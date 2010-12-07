@@ -233,16 +233,12 @@ class SFSFeatureSource extends ContentFeatureSource implements SimpleFeatureSour
 
 
         /* Do the pre part first */
-        reader = new SFSFeatureReader(getState(), layer, preQuery);
+        reader = new SFSFeatureReader(getState(), layer, preQuery, returnedSchema);
 
         /* Finish off with Post Filtering*/
         if (postFilter != null && postFilter != Filter.INCLUDE) {
 
             reader = new FilteringFeatureReader<SimpleFeatureType, SimpleFeature>(reader, postFilter);
-
-            if (!returnedSchema.equals(querySchema)) {
-                reader = new ReTypeFeatureReader(reader, returnedSchema);
-            }
         }
 
         return reader;

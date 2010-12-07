@@ -46,7 +46,7 @@ class SFSFeatureReader implements SimpleFeatureReader {
 
     protected static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.data.simplefeatureservice");
     ContentState contentState;
-    FeatureJSON fjson = new FeatureJSON();
+    FeatureJSON fjson;
     FeatureIterator<SimpleFeature> featureIterator;
     InputStream jsonStream;
     SFSLayer layer;
@@ -59,7 +59,7 @@ class SFSFeatureReader implements SimpleFeatureReader {
      * @param fnQuery
      * @throws IOException
      */
-    public SFSFeatureReader(ContentState contentState, SFSLayer layer, Query fnQuery) throws IOException {
+    public SFSFeatureReader(ContentState contentState, SFSLayer layer, Query fnQuery, SimpleFeatureType targetSchema) throws IOException {
 
         this.contentState = contentState;
         this.layer = layer;
@@ -75,8 +75,10 @@ class SFSFeatureReader implements SimpleFeatureReader {
 
         // read the feature collection with a streaming reader
         jsonStream = ods.resourceToStream("data/" + layer.getTypeName().getLocalPart() + "?mode=features", queryURL);
+        fjson = new FeatureJSON();
+        fjson.setFeatureType(contentState.getFeatureType());
         featureIterator = fjson.streamFeatureCollection(jsonStream);
-        fbuilder = new SimpleFeatureBuilder(contentState.getFeatureType());
+        fbuilder = new SimpleFeatureBuilder(targetSchema);
     }
 
     /**
