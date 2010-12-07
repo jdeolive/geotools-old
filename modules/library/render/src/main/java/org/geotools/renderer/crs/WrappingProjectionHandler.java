@@ -52,12 +52,18 @@ public class WrappingProjectionHandler extends ProjectionHandler {
         super(renderingEnvelope, validArea);
 
         try {
-            MathTransform mt = CRS.findMathTransform(WGS84, renderingEnvelope.getCoordinateReferenceSystem(), true);
+            CoordinateReferenceSystem targetCRS = renderingEnvelope.getCoordinateReferenceSystem();
+            MathTransform mt = CRS.findMathTransform(WGS84, targetCRS, true);
             double[] src = new double[] { centralMeridian, 0, 180 + centralMeridian, 0 };
             double[] dst = new double[4];
             mt.transform(src, 0, dst, 0, 2);
 
-            radius = Math.abs(dst[2] - dst[0]);
+            if(CRS.getAxisOrder(targetCRS) == CRS.AxisOrder.LAT_LON) {
+                radius = Math.abs(dst[3] - dst[1]);
+            }
+            else {
+                radius = Math.abs(dst[2] - dst[0]);
+            }
             
             if(radius <= 0) {
                 throw new RuntimeException("Computed Earth radius is 0, what is going on?");
