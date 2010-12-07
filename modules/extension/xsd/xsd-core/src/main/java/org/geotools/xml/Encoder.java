@@ -258,6 +258,8 @@ public class Encoder {
         propertyExtractors.add(0, new BindingPropertyExtractor(this, context));
 
         outputFormat = new OutputFormat();
+        
+        configuration.setupEncoder(this);
     }
     
     /**

@@ -18,6 +18,7 @@ package org.geotools.xml;
 
 import junit.framework.TestCase;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
 
@@ -162,5 +163,70 @@ public class ParserTest extends TestCase {
                 throws SAXException {
         }
         
+    }
+    
+    public void testMixedContent() throws Exception {
+        final StringBuffer sb = new StringBuffer();
+        XSD xsd = new XSD() {
+            @Override
+            public String getSchemaLocation() {
+                return ParserTest.class.getResource("mixed.xsd").getFile();
+            }
+            
+            @Override
+            public String getNamespaceURI() {
+                return "http://geotools.org/test";
+            }
+        };
+        Configuration cfg = new Configuration(xsd) {
+            @Override
+            protected void registerBindings(Map bindings) {
+                bindings.put(new QName("http://geotools.org/test", "MixedType"), 
+                        new MixedTypeBinding(sb));
+            }
+
+            @Override
+            protected void configureParser(Parser parser) {
+                parser.setHandleMixedContent(true);
+            }
+        };
+    
+        Parser p = new Parser(cfg);
+        
+        p.parse(getClass().getResourceAsStream("mixed1.xml"));
+        assertEquals("Hello 'there' how are 'you'?", sb.toString());
+        
+        sb.setLength(0);
+        p.parse(getClass().getResourceAsStream("mixed2.xml"));
+        assertEquals("Hello 'there' how are 'you' ?", sb.toString());
+    }
+    
+    public static class MixedTypeBinding extends AbstractComplexBinding {
+        StringBuffer sb = new StringBuffer();
+        
+        public MixedTypeBinding(StringBuffer sb) {
+            this.sb = sb;
+        }
+        
+        public QName getTarget() {
+            return new QName("http://geotools.org/test", "MixedType");
+        }
+
+        public Class getType() {
+           return Object.class;
+        }
+        
+        @Override
+        public Object parse(ElementInstance instance, Node node, Object value) throws Exception {
+            for (Node n : ((List<Node>)node.getChildren())) {
+                if (n.getValue() instanceof Text) {
+                    sb.append(((Text)n.getValue()).getValue());
+                }
+                else {
+                    sb.append("'").append(n.getValue()).append("'");
+                }
+            }
+            return value;
+        }
     }
 }

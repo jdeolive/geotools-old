@@ -516,6 +516,32 @@ public abstract class Configuration {
     }
     
     /**
+     * Prepares a parser instance for use with this Configuration instance and
+     * all of its dependencies.
+     * 
+     * @since 2.7
+     */
+    public final void setupParser(Parser parser) {
+        for (Iterator it = allDependencies().iterator(); it.hasNext();) {
+            Configuration dep = (Configuration) it.next();
+            dep.configureParser(parser);
+        }
+    }
+    
+    /**
+     * Prepares a encoder instance for use with this Configuration instance and
+     * all of its dependencies.
+     * 
+     * @since 2.7
+     */
+    public final void setupEncoder(Encoder encoder) {
+        for (Iterator it = allDependencies().iterator(); it.hasNext();) {
+            Configuration dep = (Configuration) it.next();
+            dep.configureEncoder(encoder);
+        }
+    }
+    
+    /**
      * Registers the bindings for the configuration.
      * <p>
      * This method is intended to provide the default bindings for a configuration
@@ -647,6 +673,26 @@ public abstract class Configuration {
     protected void configureContext(MutablePicoContainer container) {
     }
 
+    /**
+     * Configures the parser to be used with this configuration.
+     * <p>
+     * This method provides a callback for Configuration instances to configure
+     * the parser with whatever options they require.
+     * </p>
+     */
+    protected void configureParser(Parser parser) {
+    }
+    
+    /**
+     * Configures the encoder to be used with this configuration.
+     * <p>
+     * This method provides a callback for Configuration instances to configure
+     * the encoder with whatever options they require.
+     * </p>
+     */
+    protected void configureEncoder(Encoder encoder) {
+    }
+    
     /**
      * Equals override, equality is based soley on {@link #getNamespaceURI()}.
      */

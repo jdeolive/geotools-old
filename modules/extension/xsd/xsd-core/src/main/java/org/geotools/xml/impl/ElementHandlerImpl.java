@@ -17,6 +17,7 @@
 package org.geotools.xml.impl;
 
 import org.eclipse.xsd.XSDAttributeDeclaration;
+import org.eclipse.xsd.XSDComplexTypeDefinition;
 import org.eclipse.xsd.XSDElementDeclaration;
 import org.eclipse.xsd.XSDFactory;
 import org.eclipse.xsd.XSDSchemaContent;
@@ -40,6 +41,8 @@ import org.geotools.xml.Node;
 import org.geotools.xml.Parser;
 import org.geotools.xml.SchemaIndex;
 import org.geotools.xml.Schemas;
+import org.geotools.xml.Text;
+import org.geotools.xml.TextInstance;
 
 
 public class ElementHandlerImpl extends HandlerImpl implements ElementHandler {
@@ -199,19 +202,23 @@ public class ElementHandlerImpl extends HandlerImpl implements ElementHandler {
 
     public void characters(char[] ch, int start, int length)
         throws SAXException {
-        //simply add the text to the element
-        element.addText(ch, start, length);
+        
+        if (isMixed()) {
+            String text = new String(ch, start, length);
+            node.addChild(new NodeImpl(TextInstance.INSTANCE, new Text(text)));    
+        }
+        else {
+            //simply add the text to the element
+            element.addText(ch, start, length);
+        }
     }
 
     public void endElement(QName qName) throws SAXException {
-        //round up the children
-        //        for (int i = 0; i < childHandlers.size(); i++) {
-        //            Handler handler = (Handler) childHandlers.get(i);
-        //            node.addChild(new NodeImpl(handler.getComponent(),
-        //                    handler.getValue()));
-        //        }
-
-       //get the containing type (we do this for anonymous complex types)
+        if (isMixed()) {
+            ((NodeImpl)node).collapseWhitespace();
+        }
+        
+        //get the containing type (we do this for anonymous complex types)
         XSDTypeDefinition container = null;
         if (getParentHandler().getComponent() != null) {
             container = getParentHandler().getComponent().getTypeDefinition();
@@ -345,6 +352,15 @@ public class ElementHandlerImpl extends HandlerImpl implements ElementHandler {
         return value;
     }
 
+    boolean isMixed() {
+        if (!parser.isHandleMixedContent()) {
+            return false;
+        }
+        
+        return content.getType() != null && content.getType() instanceof XSDComplexTypeDefinition 
+            && ((XSDComplexTypeDefinition)content).isMixed();
+    }
+    
     public String toString() {
         return (node != null) ? node.toString() : "";
     }

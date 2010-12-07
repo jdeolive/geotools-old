@@ -16,6 +16,16 @@
  */
 package org.geotools.xml.impl;
 
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Stack;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.xml.namespace.QName;
+
 import org.eclipse.xsd.XSDElementDeclaration;
 import org.eclipse.xsd.XSDFactory;
 import org.eclipse.xsd.XSDImport;
@@ -24,23 +34,6 @@ import org.eclipse.xsd.XSDSchema;
 import org.eclipse.xsd.XSDTypeDefinition;
 import org.eclipse.xsd.util.XSDSchemaLocationResolver;
 import org.eclipse.xsd.util.XSDSchemaLocator;
-import org.picocontainer.MutablePicoContainer;
-import org.picocontainer.defaults.DefaultPicoContainer;
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
-import org.xml.sax.helpers.DefaultHandler;
-import org.xml.sax.helpers.NamespaceSupport;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.xml.namespace.QName;
 import org.geotools.xml.BindingFactory;
 import org.geotools.xml.Configuration;
 import org.geotools.xml.ElementInstance;
@@ -48,6 +41,13 @@ import org.geotools.xml.ParserDelegate;
 import org.geotools.xml.SchemaIndex;
 import org.geotools.xml.Schemas;
 import org.geotools.xs.XS;
+import org.picocontainer.MutablePicoContainer;
+import org.picocontainer.defaults.DefaultPicoContainer;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
+import org.xml.sax.helpers.DefaultHandler;
+import org.xml.sax.helpers.NamespaceSupport;
 
 
 /**
@@ -107,9 +107,12 @@ public class ParserHandler extends DefaultHandler {
     /** handler for validation errors */
     ValidatorHandler validator;
     
-    /** wether the parser is strict or not */
+    /** whether the parser is strict or not */
     boolean strict = false;
-
+    
+    /** whether the parser should maintain order for elements with mixed content */ 
+    boolean handleMixedContent = false;
+    
     public ParserHandler(Configuration config) {
         this.config = config;
         namespaces = new NamespaceSupport();
@@ -145,6 +148,14 @@ public class ParserHandler extends DefaultHandler {
         return validator.isFailOnValidationError();
     }
 
+    public void setHandleMixedContent(boolean handleMixedContent) {
+        this.handleMixedContent = handleMixedContent;
+    }
+    
+    public boolean isHandleMixedContent() {
+        return handleMixedContent; 
+    }
+    
     public List getValidationErrors() {
         return validator.getErrors();
     }
@@ -562,7 +573,7 @@ O:          for (int i = 0; i < schemas.length; i++) {
                     decl.setTypeDefinition(type);
                 }
 
-                handler = new ElementHandlerImpl(decl, parent, this);
+                handler = handlerFactory.createElementHandler(decl, parent, this);
             }
         }
 
