@@ -203,13 +203,12 @@ public class ElementHandlerImpl extends HandlerImpl implements ElementHandler {
     public void characters(char[] ch, int start, int length)
         throws SAXException {
         
+        //simply add the text to the element
+        element.addText(ch, start, length);
+        
         if (isMixed()) {
             String text = new String(ch, start, length);
             node.addChild(new NodeImpl(TextInstance.INSTANCE, new Text(text)));    
-        }
-        else {
-            //simply add the text to the element
-            element.addText(ch, start, length);
         }
     }
 
@@ -358,7 +357,7 @@ public class ElementHandlerImpl extends HandlerImpl implements ElementHandler {
         }
         
         return content.getType() != null && content.getType() instanceof XSDComplexTypeDefinition 
-            && ((XSDComplexTypeDefinition)content).isMixed();
+            && ((XSDComplexTypeDefinition)content.getType()).isMixed();
     }
     
     public String toString() {
