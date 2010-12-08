@@ -285,7 +285,15 @@ public class ParserHandler extends DefaultHandler {
 
                 for (int i = 0; i < locations.length; i += 2) {
                     String namespace = locations[i];
-                    String location = locations[i + 1];
+                    String location = null;
+                    if (i+1 < locations.length) {
+                        location = locations[i + 1];
+                    }
+                    else {
+                        logger.warning("Schema location not specified as namespace/location pair. "
+                            + "Ignoring " + namespace);
+                        continue;
+                    }
 
                     //first check for a location override
                     for (int j = 0; j < resolvers.length; j++) {
