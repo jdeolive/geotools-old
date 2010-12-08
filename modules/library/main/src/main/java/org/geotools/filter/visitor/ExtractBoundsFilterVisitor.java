@@ -231,9 +231,9 @@ public class ExtractBoundsFilterVisitor extends NullFilterVisitor {
     }
 
     public Object visit( Disjoint filter, Object data ) {
-        data = filter.getExpression1().accept(this, data);
-        data = filter.getExpression2().accept(this, data);
-        return data;
+        // disjoint does not define a rectangle, but a hole in the
+        // Cartesian plane, no way to limit it
+        return infinity();
     }
 
     public Object visit( DWithin filter, Object data ) {

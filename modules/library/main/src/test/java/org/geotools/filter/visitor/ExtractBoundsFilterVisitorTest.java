@@ -118,5 +118,26 @@ public class ExtractBoundsFilterVisitorTest {
         
         assertEquals(new Envelope(50, 100, 50, 100), env);
     }
+    
+    @Test
+    public void testDisjoint() {
+        Coordinate[] coords = new Coordinate[] { new Coordinate(0, 0), new Coordinate(10, 10) };
+        LineString lineString = new GeometryFactory().createLineString(coords);
+        Filter filter = ff.disjoint(ff.property("name"), ff.literal(lineString));
+        Envelope env = (Envelope) filter.accept(visitor, null);
+        
+        assertEquals(infinity, env);
+    }
+    
+    @Test
+    public void testAndDisjoint() {
+        Coordinate[] coords = new Coordinate[] { new Coordinate(0, 0), new Coordinate(10, 10) };
+        LineString lineString = new GeometryFactory().createLineString(coords);
+        Filter filter = ff.disjoint(ff.property("name"), ff.literal(lineString));
+        filter = ff.and(filter, ff.bbox(ff.property("geom"), 50, 50, 150, 150, null));
+        Envelope env = (Envelope) filter.accept(visitor, null);
+        
+        assertEquals(new Envelope(50, 150, 50, 150), env);
+    }
 
 }
