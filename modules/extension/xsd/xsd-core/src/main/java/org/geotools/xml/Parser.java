@@ -122,6 +122,13 @@ public class Parser {
     }
 
     /**
+     * @return The underlying parser handler.
+     */
+    ParserHandler getParserHandler() {
+        return handler;
+    }
+    
+    /**
      * Signals the parser to parse the entire instance document. The object
      * returned from the parse is the object which has been bound to the root
      * element of the document. This method should only be called once for
