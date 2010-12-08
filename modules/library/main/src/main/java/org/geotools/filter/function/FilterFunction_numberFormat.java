@@ -18,6 +18,7 @@ package org.geotools.filter.function;
 
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 
 import org.geotools.filter.FunctionExpressionImpl;
 
@@ -37,7 +38,7 @@ public class FilterFunction_numberFormat extends FunctionExpressionImpl {
 
     @Override
     public int getArgCount() {
-        return 2;
+        return 5;
     }
 
     public Object evaluate(Object feature) {
@@ -61,10 +62,25 @@ public class FilterFunction_numberFormat extends FunctionExpressionImpl {
                     "Filter Function problem for function dateFormat argument #1 - expected type java.util.Date");
         }
 
-        DecimalFormat numberFormat = new DecimalFormat(format);
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+        
+        if (params.size() > 2) {
+            Character neg = getExpression(2).evaluate(feature, Character.class);
+            symbols.setMinusSign(neg);
+        }
+        
+        if (params.size() > 3) {
+            Character dec = getExpression(3).evaluate(feature, Character.class);
+            symbols.setDecimalSeparator(dec);
+        }
+        
+        if (params.size() > 4) {
+            Character grp = getExpression(3).evaluate(feature, Character.class);
+            symbols.setGroupingSeparator(grp);
+        }
+        
+        DecimalFormat numberFormat = new DecimalFormat(format, symbols);
         return numberFormat.format(number);
     }
-
-    
 
 }
