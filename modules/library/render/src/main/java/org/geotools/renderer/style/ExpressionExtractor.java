@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.filter.text.cql2.CQL;
 import org.geotools.filter.text.cql2.CQLException;
+import org.geotools.filter.text.ecql.ECQL;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
 
@@ -114,7 +114,7 @@ public class ExpressionExtractor {
                     throw new IllegalArgumentException("Invalid empty cql expression ${} at " + (i - 1));
                 
                 try {
-                    result.add(CQL.toExpression(sb.toString()));
+                    result.add(ECQL.toExpression(sb.toString()));
                     sb.setLength(0);
                 } catch(CQLException e) {
                     throw new IllegalArgumentException("Invalid cql expression '" + sb + "'", e);
