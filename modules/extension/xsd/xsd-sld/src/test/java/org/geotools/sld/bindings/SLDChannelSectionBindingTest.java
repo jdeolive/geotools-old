@@ -24,8 +24,8 @@ public class SLDChannelSectionBindingTest extends SLDTestSupport {
         assertEquals(ChannelSelection.class, new SLDChannelSelectionBinding(styleFactory).getType());
     }
 
-    public void testNormal() throws Exception {
-        SLDMockData.channelSelection(document, document);
+    public void testRGB() throws Exception {
+        SLDMockData.channelSelectionRGB(document, document);
 
         ChannelSelection cs = (ChannelSelection) parse();
         assertNotNull(cs);
@@ -33,6 +33,14 @@ public class SLDChannelSectionBindingTest extends SLDTestSupport {
         assertEquals(cs.getRGBChannels()[0].getChannelName(), "Red");
         assertEquals(cs.getRGBChannels()[1].getChannelName(), "Green");
         assertEquals(cs.getRGBChannels()[2].getChannelName(), "Blue");
+    }
+    
+    public void testGray() throws Exception {
+        SLDMockData.channelSelectionGray(document, document);
+
+        ChannelSelection cs = (ChannelSelection) parse();
+        assertNotNull(cs);
+
         assertEquals(cs.getGrayChannel().getChannelName(), "Gray");
     }
 }

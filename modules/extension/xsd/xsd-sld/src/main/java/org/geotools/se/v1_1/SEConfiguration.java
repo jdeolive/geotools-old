@@ -5,6 +5,7 @@ import org.geotools.se.v1_1.bindings.*;
 import org.geotools.styling.StyleFactory;
 import org.geotools.styling.StyleFactoryImpl;
 import org.geotools.xml.Configuration;
+import org.geotools.xml.Parser;
 import org.picocontainer.MutablePicoContainer;
 
 /**
@@ -32,7 +33,6 @@ public class SEConfiguration extends Configuration {
      */
     protected final void registerBindings( MutablePicoContainer container ) {
         //Types
-        //container.registerComponentImplementation(SE.CoverageStyleType,CoverageStyleTypeBinding.class);
         //container.registerComponentImplementation(SE.directionType,DirectionTypeBinding.class);
         //container.registerComponentImplementation(SE.FunctionType,FunctionTypeBinding.class);
         //container.registerComponentImplementation(SE.MethodType,MethodTypeBinding.class);
@@ -49,15 +49,15 @@ public class SEConfiguration extends Configuration {
         container.registerComponentImplementation(SE.AnchorPoint,AnchorPointBinding.class);
         container.registerComponentImplementation(SE.BaseSymbolizer,BaseSymbolizerBinding.class);
         container.registerComponentImplementation(SE.BrightnessOnly,BrightnessOnlyBinding.class);
-        //container.registerComponentImplementation(SE.Categorize,CategorizeBinding.class);
+        container.registerComponentImplementation(SE.Categorize,CategorizeBinding.class);
         //container.registerComponentImplementation(SE.ChangeCase,ChangeCaseBinding.class);
         container.registerComponentImplementation(SE.ChannelSelection,ChannelSelectionBinding.class);
-        //container.registerComponentImplementation(SE.ColorMap,ColorMapBinding.class);
+        container.registerComponentImplementation(SE.ColorMap,ColorMapBinding.class);
         //container.registerComponentImplementation(SE.ColorReplacement,ColorReplacementBinding.class);
         //container.registerComponentImplementation(SE.Concatenate,ConcatenateBinding.class);
         container.registerComponentImplementation(SE.ContrastEnhancement,ContrastEnhancementBinding.class);
         container.registerComponentImplementation(SE.CoverageName,CoverageNameBinding.class);
-        //container.registerComponentImplementation(SE.CoverageStyle,CoverageStyleBinding.class);
+        container.registerComponentImplementation(SE.CoverageStyle,CoverageStyleBinding.class);
         
         container.registerComponentImplementation(SE.Description,DescriptionBinding.class);
         container.registerComponentImplementation(SE.Displacement,DisplacementBinding.class);
@@ -66,7 +66,7 @@ public class SEConfiguration extends Configuration {
         container.registerComponentImplementation(SE.Fill,FillBinding.class);
         container.registerComponentImplementation(SE.Font,FontBinding.class);
         //container.registerComponentImplementation(SE.FormatDate,FormatDateBinding.class);
-        //container.registerComponentImplementation(SE.FormatNumber,FormatNumberBinding.class);
+        container.registerComponentImplementation(SE.FormatNumber,FormatNumberBinding.class);
         container.registerComponentImplementation(SE.Geometry,GeometryBinding.class);
         container.registerComponentImplementation(SE.Graphic,GraphicBinding.class);
         container.registerComponentImplementation(SE.GraphicFill,GraphicFillBinding.class);
@@ -75,8 +75,8 @@ public class SEConfiguration extends Configuration {
         //container.registerComponentImplementation(SE.Histogram,HistogramBinding.class);
         container.registerComponentImplementation(SE.ImageOutline,ImageOutlineBinding.class);
         container.registerComponentImplementation(SE.InlineContent,InlineContentBinding.class);
-        //container.registerComponentImplementation(SE.Interpolate,InterpolateBinding.class);
-        //container.registerComponentImplementation(SE.InterpolationPoint,InterpolationPointBinding.class);
+        container.registerComponentImplementation(SE.Interpolate,InterpolateBinding.class);
+        container.registerComponentImplementation(SE.InterpolationPoint,InterpolationPointBinding.class);
         container.registerComponentImplementation(SE.LabelPlacement,LabelPlacementBinding.class);
         container.registerComponentImplementation(SE.LegendGraphic,LegendGraphicBinding.class);
         container.registerComponentImplementation(SE.LinePlacement,LinePlacementBinding.class);
@@ -108,5 +108,10 @@ public class SEConfiguration extends Configuration {
         super.configureContext(container);
         
         container.registerComponentImplementation(StyleFactory.class, StyleFactoryImpl.class);
+    }
+    
+    @Override
+    protected void configureParser(Parser parser) {
+        parser.setHandleMixedContent(true);
     }
 } 

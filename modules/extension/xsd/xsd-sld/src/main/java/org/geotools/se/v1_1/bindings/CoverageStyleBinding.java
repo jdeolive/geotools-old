@@ -1,6 +1,9 @@
 package org.geotools.se.v1_1.bindings;
 
 import org.geotools.se.v1_1.SE;
+import org.geotools.sld.bindings.SLDFeatureTypeStyleBinding;
+import org.geotools.styling.FeatureTypeStyle;
+import org.geotools.styling.StyleFactory;
 import org.geotools.xml.*;
 
 import javax.xml.namespace.QName;
@@ -49,7 +52,11 @@ import javax.xml.namespace.QName;
  * 
  * @generated
  */
-public class CoverageStyleBinding extends AbstractComplexBinding {
+public class CoverageStyleBinding extends FeatureTypeStyleBinding {
+
+    public CoverageStyleBinding(StyleFactory styleFactory) {
+        super(styleFactory);
+    }
 
     /**
      * @generated
@@ -63,19 +70,17 @@ public class CoverageStyleBinding extends AbstractComplexBinding {
      * 
      * @generated modifiable
      */
-    public Class getType() {
-        return null;
-    }
-
-    /**
-     * <!-- begin-user-doc --> <!-- end-user-doc -->
-     * 
-     * @generated modifiable
-     */
     public Object parse(ElementInstance instance, Node node, Object value) throws Exception {
 
-        // TODO: implement and remove call to super
-        return super.parse(instance, node, value);
+        FeatureTypeStyle fts = (FeatureTypeStyle) super.parse(instance, node, value);
+
+        if (node.hasChild("CoverageName")) {
+            QName name = (QName) node.getChildValue("CoverageName");
+            fts.setFeatureTypeName(name.getPrefix() != null ? 
+                name.getPrefix()+":"+name.getLocalPart() : name.getLocalPart());
+        }
+
+        return fts;
     }
 
 }

@@ -174,7 +174,7 @@ public class SLDMockData {
         return geometry;
     }
 
-    static Element channelSelection(Document document, Node parent) {
+    static Element channelSelectionRGB(Document document, Node parent) {
         Element channelSelection = element(SLD.CHANNELSELECTION, document, parent);
 
         Element channel = element(SLD.REDCHANNEL, document, channelSelection);
@@ -189,8 +189,14 @@ public class SLDMockData {
         sourceChannelName = element(SLD.SOURCECHANNELNAME, document, channel);
         sourceChannelName.appendChild(document.createTextNode("Blue"));
 
-        channel = element(SLD.GRAYCHANNEL, document, channelSelection);
-        sourceChannelName = element(SLD.SOURCECHANNELNAME, document, channel);
+        return channelSelection;
+    }
+    
+    static Element channelSelectionGray(Document document, Node parent) {
+        Element channelSelection = element(SLD.CHANNELSELECTION, document, parent);
+
+        Element channel = element(SLD.GRAYCHANNEL, document, channelSelection);
+        Element sourceChannelName = element(SLD.SOURCECHANNELNAME, document, channel);
         sourceChannelName.appendChild(document.createTextNode("Gray"));
 
         return channelSelection;
@@ -245,7 +251,7 @@ public class SLDMockData {
 
         geometry(document, rasterSymbolizer);
         opacity(document, rasterSymbolizer);
-        channelSelection(document, rasterSymbolizer);
+        channelSelectionRGB(document, rasterSymbolizer);
         overlapBehaviour(document, rasterSymbolizer);
         colorMap(document, rasterSymbolizer);
         contrastEnhancement(document, rasterSymbolizer);

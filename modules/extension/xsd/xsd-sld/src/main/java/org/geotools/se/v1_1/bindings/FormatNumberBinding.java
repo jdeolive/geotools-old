@@ -1,7 +1,13 @@
 package org.geotools.se.v1_1.bindings;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.geotools.se.v1_1.SE;
 import org.geotools.xml.*;
+import org.opengis.filter.FilterFactory;
+import org.opengis.filter.expression.Expression;
+import org.opengis.filter.expression.Function;
 
 import javax.xml.namespace.QName;
 
@@ -50,6 +56,12 @@ import javax.xml.namespace.QName;
  */
 public class FormatNumberBinding extends AbstractComplexBinding {
 
+    FilterFactory filterFactory;
+    
+    public FormatNumberBinding(FilterFactory filterFactory) {
+        this.filterFactory = filterFactory;
+    }
+    
     /**
      * @generated
      */
@@ -63,7 +75,7 @@ public class FormatNumberBinding extends AbstractComplexBinding {
      * @generated modifiable
      */
     public Class getType() {
-        return null;
+        return Function.class;
     }
 
     /**
@@ -72,9 +84,39 @@ public class FormatNumberBinding extends AbstractComplexBinding {
      * @generated modifiable
      */
     public Object parse(ElementInstance instance, Node node, Object value) throws Exception {
-
-        // TODO: implement and remove call to super
-        return super.parse(instance, node, value);
+        Expression[] expressions = new Expression[5];
+        
+        //&lt;xsd:element ref="se:NumericValue"/&gt;
+        expressions[1] = (Expression) node.getChildValue("NumericValue");
+        
+        //&lt;xsd:element ref="se:Pattern"/&gt;
+        expressions[0] = filterFactory.literal(node.getChildValue("Pattern"));
+        
+        //&lt;xsd:element minOccurs="0" ref="se:NegativePattern"/&gt;
+        if (node.hasChild("NegativePattern")) {
+            expressions[2] = filterFactory.literal(node.getChildValue("NegativePattern"));
+        }
+        else {
+            expressions[2] = filterFactory.literal("-");
+        }
+        
+        //&lt;xsd:attribute default="." name="decimalPoint" type="xsd:string" use="optional"/&gt;
+        if (node.hasAttribute("decimalPoint")) {
+            expressions[3] = filterFactory.literal(node.getAttributeValue("decimalPoint"));
+        }
+        else {
+            expressions[3] = filterFactory.literal(".");
+        }
+        
+        //&lt;xsd:attribute default="," name="groupingSeparator" type="xsd:string" use="optional"/&gt;
+        if (node.hasAttribute("groupingSeparator")) {
+            expressions[4] = filterFactory.literal(node.getAttributeValue("groupingSeparator"));
+        }
+        else {
+            expressions[4] = filterFactory.literal(",");
+        }
+        
+        return filterFactory.function("numberFormat", expressions);
     }
 
 }

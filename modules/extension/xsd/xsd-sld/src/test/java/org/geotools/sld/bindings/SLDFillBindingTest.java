@@ -22,7 +22,7 @@ import org.geotools.styling.Fill;
 
 public class SLDFillBindingTest extends SLDTestSupport {
     public void testType() throws Exception {
-        assertEquals(Fill.class, new SLDFillBinding(null).getType());
+        assertEquals(Fill.class, new SLDFillBinding(null,null).getType());
     }
 
     public void test() throws Exception {

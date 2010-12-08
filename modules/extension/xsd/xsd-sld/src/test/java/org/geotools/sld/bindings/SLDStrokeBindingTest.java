@@ -23,7 +23,7 @@ import org.geotools.styling.Stroke;
 
 public class SLDStrokeBindingTest extends SLDTestSupport {
     public void testType() throws Exception {
-        assertEquals(Stroke.class, new SLDStrokeBinding(null).getType());
+        assertEquals(Stroke.class, new SLDStrokeBinding(null,null).getType());
     }
 
     public void test() throws Exception {

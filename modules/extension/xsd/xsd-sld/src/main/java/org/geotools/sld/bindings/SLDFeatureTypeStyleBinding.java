@@ -130,7 +130,13 @@ public class SLDFeatureTypeStyleBinding extends AbstractComplexBinding {
 
         //&lt;xsd:element ref="sld:FeatureTypeName" minOccurs="0"/&gt;
         if (node.hasChild("FeatureTypeName")) {
-            featureTypeStyle.setFeatureTypeName((String) node.getChildValue("FeatureTypeName"));
+            //sld 1.0 FTN is a String, in SE 1.1 it is a QName
+            Object ftn = node.getChildValue("FeatureTypeName");
+            if (ftn instanceof QName) {
+                QName qn = (QName)ftn;
+                ftn = qn.getPrefix() != null ? qn.getPrefix() + ":" + qn.getLocalPart() : qn.getLocalPart();
+            }
+            featureTypeStyle.setFeatureTypeName(ftn.toString());
         }
 
         //&lt;xsd:element ref="sld:SemanticTypeIdentifier" minOccurs="0" maxOccurs="unbounded"/&gt;

@@ -4,6 +4,7 @@ import org.geotools.se.v1_1.SE;
 import org.geotools.sld.bindings.SLDFillBinding;
 import org.geotools.styling.StyleFactory;
 import org.geotools.xml.*;
+import org.opengis.filter.FilterFactory;
 
 import javax.xml.namespace.QName;
 
@@ -32,8 +33,8 @@ import javax.xml.namespace.QName;
  */
 public class FillBinding extends SLDFillBinding {
 
-    public FillBinding(StyleFactory styleFactory) {
-        super(styleFactory);
+    public FillBinding(StyleFactory styleFactory, FilterFactory filterFactory) {
+        super(styleFactory, filterFactory);
     }
 
     /**

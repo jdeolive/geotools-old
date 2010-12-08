@@ -1,6 +1,7 @@
 package org.geotools.se.v1_1.bindings;
 
 import org.geotools.se.v1_1.SE;
+import org.geotools.styling.ColorMap;
 import org.geotools.xml.*;
 
 import javax.xml.namespace.QName;
@@ -56,7 +57,7 @@ public class ColorMapBinding extends AbstractComplexBinding {
      * @generated modifiable
      */
     public Class getType() {
-        return null;
+        return ColorMap.class;
     }
 
     /**
@@ -66,8 +67,15 @@ public class ColorMapBinding extends AbstractComplexBinding {
      */
     public Object parse(ElementInstance instance, Node node, Object value) throws Exception {
 
-        // TODO: implement and remove call to super
-        return super.parse(instance, node, value);
+        ColorMap map = (ColorMap) node.getChildValue("Categorize");
+        if (map == null) {
+            map = (ColorMap) node.getChildValue("Interpolate");
+        }
+        
+        if (map == null) {
+            throw new IllegalArgumentException("Categorize or Interpolate not specified");
+        }
+        return map;
     }
 
 }

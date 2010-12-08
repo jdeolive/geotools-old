@@ -9,8 +9,8 @@
 		<ogc:PropertyName>locatedAt</ogc:PropertyName>
 	</Geometry>
 	<Label>
-		<ogc:PropertyName>hospitalName</ogc:PropertyName> (
-			<FormatNumber fallbackValue="">
+		<ogc:PropertyName>hospitalName</ogc:PropertyName>
+			(<FormatNumber fallbackValue="">
 				<NumericValue>
 					<ogc:PropertyName>numberOfBeds</ogc:PropertyName>
 				</NumericValue>

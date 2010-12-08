@@ -1,7 +1,11 @@
 package org.geotools.se.v1_1.bindings;
 
 import org.geotools.se.v1_1.SE;
+import org.geotools.styling.ColorMapEntry;
+import org.geotools.styling.StyleFactory;
 import org.geotools.xml.*;
+import org.opengis.filter.FilterFactory;
+import org.opengis.filter.expression.Expression;
 
 import javax.xml.namespace.QName;
 
@@ -40,6 +44,14 @@ import javax.xml.namespace.QName;
  */
 public class InterpolationPointBinding extends AbstractComplexBinding {
 
+    StyleFactory styleFactory;
+    FilterFactory filterFactory;
+    
+    public InterpolationPointBinding(StyleFactory styleFactory, FilterFactory filterFactory) {
+        this.styleFactory = styleFactory;
+        this.filterFactory = filterFactory;
+    }
+    
     /**
      * @generated
      */
@@ -53,7 +65,7 @@ public class InterpolationPointBinding extends AbstractComplexBinding {
      * @generated modifiable
      */
     public Class getType() {
-        return null;
+        return ColorMapEntry.class;
     }
 
     /**
@@ -63,8 +75,15 @@ public class InterpolationPointBinding extends AbstractComplexBinding {
      */
     public Object parse(ElementInstance instance, Node node, Object value) throws Exception {
 
-        // TODO: implement and remove call to super
-        return super.parse(instance, node, value);
+        ColorMapEntry entry = styleFactory.createColorMapEntry();
+
+        //&lt;xsd:element ref="se:Data"/&gt;
+        entry.setQuantity(filterFactory.literal(node.getChildValue("Data")));
+        
+        //&lt;xsd:element ref="se:Value"/&gt;
+        entry.setColor((Expression) node.getChildValue("Value"));
+        
+        return entry;
     }
 
 }

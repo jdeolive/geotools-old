@@ -68,6 +68,7 @@ import org.geotools.sld.bindings.SLDUserStyleBinding;
 import org.geotools.styling.StyleFactory;
 import org.geotools.styling.StyleFactoryImpl;
 import org.geotools.xml.Configuration;
+import org.geotools.xml.Parser;
 
 
 /**
@@ -183,5 +184,10 @@ public class SLDConfiguration extends Configuration {
         super.configureContext(container);
 
         container.registerComponentImplementation(StyleFactory.class, StyleFactoryImpl.class);
+    }
+    
+    @Override
+    protected void configureParser(Parser parser) {
+        parser.setHandleMixedContent(true);
     }
 }

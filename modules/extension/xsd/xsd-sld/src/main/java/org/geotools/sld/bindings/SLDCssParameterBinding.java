@@ -16,7 +16,9 @@
  */
 package org.geotools.sld.bindings;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.xml.namespace.QName;
 
@@ -24,6 +26,7 @@ import org.geotools.sld.CssParameter;
 import org.geotools.xml.AbstractComplexBinding;
 import org.geotools.xml.ElementInstance;
 import org.geotools.xml.Node;
+import org.geotools.xml.Text;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
 import org.picocontainer.MutablePicoContainer;
@@ -111,26 +114,10 @@ public class SLDCssParameterBinding extends AbstractComplexBinding {
      */
     public Object parse(ElementInstance instance, Node node, Object value)
         throws Exception {
+        
         CssParameter parameter = new CssParameter((String) node.getAttributeValue("name"));
-
-        for (Iterator itr = node.getChildren().iterator(); itr.hasNext();) {
-            Node child = (Node) itr.next();
-
-            if (child.getValue() instanceof Expression) {
-                parameter.getExpressions().add(child.getValue());
-            }
-        }
-
-        String text = instance.getText();
-
-        if ((text != null) && !"".equals(text)) {
-            Expression exp = filterFactory.literal(text);
-
-            if (exp != null) {
-                parameter.getExpressions().add(exp);
-            }
-        }
-
+        parameter.setExpression((Expression)value);
+        
         return parameter;
     }
 }

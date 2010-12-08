@@ -128,24 +128,25 @@ public class SLDFontBinding extends AbstractComplexBinding {
         for (Iterator i = node.getChildValues(CssParameter.class).iterator(); i.hasNext();) {
             CssParameter css = (CssParameter) i.next();
 
-            if (css.getExpressions().isEmpty()) {
+            Expression exp = css.getExpression();
+            if (exp == null) {
                 continue;
             }
 
             if ("font-family".equals(css.getName())) {
-                family.add((Expression) css.getExpressions().get(0));
+                family.add(exp);
             }
 
             if ("font-style".equals(css.getName())) {
-                style = (Expression) css.getExpressions().get(0);
+                style = exp;
             }
 
             if ("font-weight".equals(css.getName())) {
-                weight = (Expression) css.getExpressions().get(0);
+                weight = exp;
             }
 
             if ("font-size".equals(css.getName())) {
-                size = (Expression) css.getExpressions().get(0);
+                size = exp;
             }
         }
 

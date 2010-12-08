@@ -2,7 +2,11 @@ package org.geotools.se.v1_1;
 
 import java.awt.Color;
 
+import org.geotools.feature.simple.SimpleFeatureBuilder;
+import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
+import org.geotools.styling.ColorMap;
 import org.geotools.styling.ExternalGraphic;
+import org.geotools.styling.FeatureTypeStyle;
 import org.geotools.styling.Fill;
 import org.geotools.styling.Font;
 import org.geotools.styling.Graphic;
@@ -11,15 +15,39 @@ import org.geotools.styling.Mark;
 import org.geotools.styling.PointSymbolizer;
 import org.geotools.styling.PolygonSymbolizer;
 import org.geotools.styling.RasterSymbolizer;
+import org.geotools.styling.SLD;
+import org.geotools.styling.SelectedChannelType;
 import org.geotools.styling.Stroke;
 import org.geotools.styling.TextSymbolizer;
+import org.geotools.styling.UomOgcMapping;
 import org.geotools.xml.Parser;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.filter.expression.Expression;
+import org.opengis.filter.expression.Function;
 import org.opengis.filter.expression.PropertyName;
+import org.opengis.style.ContrastMethod;
+import org.opengis.style.OverlapBehavior;
+import org.opengis.style.Rule;
 
 import junit.framework.TestCase;
 
 public class SEExampleTest extends TestCase {
 
+    SimpleFeature f1;
+    
+    @Override
+    protected void setUp() throws Exception {
+        SimpleFeatureTypeBuilder tb = new SimpleFeatureTypeBuilder();
+        tb.setName("test");
+        tb.add("hospitalName", String.class);
+        tb.add("numberOfBeds", Integer.class);
+        
+        SimpleFeatureBuilder b = new SimpleFeatureBuilder(tb.buildFeatureType());
+        b.add("foobar");
+        b.add(10);
+        f1 = b.buildFeature(null);
+    }
+    
     public void testParsePointSymbolizer1() throws Exception {
         /*<PointSymbolizer version="1.1.0" xsi:schemaLocation="http://www.opengis.net/se/1.1.0/Symbolizer.xsd" xmlns="http://www.opengis.net/se" xmlns:ogc="http://www.opengis.net/ogc" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" uom="http://www.opengeospatial.org/se/units/metre">
         <Name>MyPointSymbolizer</Name>
@@ -185,8 +213,9 @@ public class SEExampleTest extends TestCase {
         
         assertEquals("locatedAt", sym.getGeometryPropertyName());
         
-        //at the moment we don't support this type of mixed expression
-        //assertEquals("hospitalName", ((PropertyName)sym.getLabel()).getPropertyName());
+        Function l = (Function) sym.getLabel();
+        assertEquals("foobar (10)", l.evaluate(f1));
+        //assertEquals("hospitalName", l);
         
         Font f = sym.getFont();
         assertEquals(2, f.getFamily().size());
@@ -196,7 +225,7 @@ public class SEExampleTest extends TestCase {
         assertEquals("10", f.getSize().evaluate(null, String.class));
         
         Fill fill = sym.getFill();
-        assertEquals(Color.WHITE, fill.getColor().evaluate(null, Color.class));
+        assertEquals(Color.BLACK, fill.getColor().evaluate(null, Color.class));
     }
     
     public void testParseRasterSymbolizer1() throws Exception {
@@ -250,7 +279,161 @@ public class SEExampleTest extends TestCase {
                 <ShadedRelief/>
         </RasterSymbolizer>*/
         RasterSymbolizer sym = (RasterSymbolizer) parse("example-rastersymbolizer1.xml");
+        assertEquals(1.0, sym.getOpacity().evaluate(null, Double.class));
+        assertEquals(OverlapBehavior.AVERAGE, sym.getOverlapBehavior());
+        
+        ColorMap map = sym.getColorMap();
+        assertNotNull(map);
+        assertEquals(20, map.getColorMapEntries().length);
+        
+        //
+        Color c = map.getColorMapEntry(0).getColor().evaluate(null, Color.class);
+        assertEquals(0, c.getRed());
+        assertEquals(255, c.getGreen());
+        assertEquals(0, c.getBlue());
+        
+        c = map.getColorMapEntry(1).getColor().evaluate(null, Color.class);
+        assertEquals(0, c.getRed());
+        assertEquals(250, c.getGreen());
+        assertEquals(0, c.getBlue());
+        assertEquals(-417d, map.getColorMapEntry(1).getQuantity().evaluate(null, Double.class));
+        
+        c = map.getColorMapEntry(19).getColor().evaluate(null, Color.class);
+        assertEquals(Color.WHITE, c);
+        assertEquals(13000d, map.getColorMapEntry(19).getQuantity().evaluate(null, Double.class));
     }
+    
+    public void testParseRasterSymbolizer2() throws Exception {
+        /*
+        <RasterSymbolizer version="1.1.0" xsi:schemaLocation="http://www.opengis.net/se/1.1.0/Symbolizer.xsd" xmlns="http://www.opengis.net/se" xmlns:ogc="http://www.opengis.net/ogc" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <Opacity>1.0</Opacity>
+                <ChannelSelection>
+                        <RedChannel>
+                                <SourceChannelName>1</SourceChannelName>
+                                <ContrastEnhancement>
+                                        <Histogram/>
+                                </ContrastEnhancement>
+                        </RedChannel>
+                        <GreenChannel>
+                                <SourceChannelName>2</SourceChannelName>
+                                <ContrastEnhancement>
+                                        <GammaValue>2.5</GammaValue>
+                                </ContrastEnhancement>
+                        </GreenChannel>
+                        <BlueChannel>
+                                <SourceChannelName>3</SourceChannelName>
+                                <ContrastEnhancement>
+                                        <Normalize/>
+                                </ContrastEnhancement>
+                        </BlueChannel>
+                </ChannelSelection>
+                <OverlapBehavior>LATEST_ON_TOP</OverlapBehavior>
+                <ColorMap>
+                        <Interpolate fallbackValue="#dddddd">
+                                <LookupValue>Rasterdata</LookupValue>
+                                <InterpolationPoint>
+                                        <Data>0</Data>
+                                        <Value>#000000</Value>
+                                </InterpolationPoint>
+                                <InterpolationPoint>
+                                        <Data>255</Data>
+                                        <Value>#ffffff</Value>
+                                </InterpolationPoint>
+                        </Interpolate>
+                </ColorMap>
+                <ContrastEnhancement>
+                        <GammaValue>1.0</GammaValue>
+                </ContrastEnhancement>
+        </RasterSymbolizer>*/
+
+        RasterSymbolizer sym = (RasterSymbolizer) parse("example-rastersymbolizer2.xml");
+        assertEquals(1.0, sym.getOpacity().evaluate(null, Double.class));
+        assertEquals(OverlapBehavior.LATEST_ON_TOP, sym.getOverlapBehavior());
+        
+        SelectedChannelType[] ch = sym.getChannelSelection().getRGBChannels();
+        assertEquals("1", ch[0].getChannelName());
+        assertEquals(ContrastMethod.HISTOGRAM, ch[0].getContrastEnhancement().getMethod());
+        assertEquals("2", ch[1].getChannelName());
+        assertEquals(2.5, ch[1].getContrastEnhancement().getGammaValue().evaluate(null, Double.class));
+        assertEquals("3", ch[2].getChannelName());
+        assertEquals(ContrastMethod.NORMALIZE, ch[2].getContrastEnhancement().getMethod());
+        
+        ColorMap map = sym.getColorMap();
+        assertNotNull(map);
+        assertEquals(2, map.getColorMapEntries().length);
+        
+        Color c = map.getColorMapEntry(0).getColor().evaluate(null, Color.class);
+        assertEquals(Color.BLACK, c);
+        
+        c = map.getColorMapEntry(1).getColor().evaluate(null, Color.class);
+        assertEquals(Color.WHITE, c);
+        
+        assertEquals(1.0, sym.getContrastEnhancement().getGammaValue().evaluate(null, Double.class));
+    }
+    
+    public void testParseFeatureStyle() throws Exception {
+        /*
+        <FeatureTypeStyle version="1.1.0" xsi:schemaLocation="http://www.opengis.net/se/1.1.0/FeatureStyle.xsd" xmlns="http://www.opengis.net/se" xmlns:ogc="http://www.opengis.net/ogc" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xmlns:oceansea="http://www.myurl.net/oceansea">
+                <FeatureTypeName>oceansea:Foundation</FeatureTypeName>
+                <Rule>
+                        <Name>main</Name>
+                        <PolygonSymbolizer uom="http://www.opengeospatial.org/sld/units/pixel">
+                                <Fill>
+                                        <SvgParameter name="fill">#96C3F5</SvgParameter>
+                                </Fill>
+                        </PolygonSymbolizer>
+                </Rule>
+        </FeatureTypeStyle>*/
+        
+        FeatureTypeStyle fts = (FeatureTypeStyle) parse("example-featurestyle.xml");
+        assertEquals("oceansea:Foundation", fts.getFeatureTypeName());
+        assertEquals(1, fts.rules().size());
+    
+        Rule rule = fts.rules().get(0);
+        assertEquals("main", rule.getName());
+        
+        assertEquals(1, rule.symbolizers().size());
+        
+        PolygonSymbolizer sym = (PolygonSymbolizer) rule.symbolizers().get(0);
+        assertEquals(UomOgcMapping.PIXEL.getUnit(), sym.getUnitOfMeasure());
+        assertEquals(SLD.toColor("#96C3F5"), sym.getFill().getColor().evaluate(null, Color.class));
+        
+    }
+    
+    public void testParseCoverageStyle() throws Exception {
+        /*
+        <CoverageStyle version="1.1.0" xsi:schemaLocation="http://www.opengis.net/se http://www.opengis.net/se/1.1.0/FeatureStyle.xsd" xmlns="http://www.opengis.net/se" xmlns:ogc="http://www.opengis.net/ogc" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <Rule>
+            <Name>ChannelSelection</Name>
+            <Description>
+                <Title>Gray channel mapping</Title>
+            </Description>
+            <RasterSymbolizer>
+                <ChannelSelection>
+                    <GrayChannel>
+                        <SourceChannelName>Band.band1</SourceChannelName>
+                    </GrayChannel>
+                </ChannelSelection>
+                <ContrastEnhancement>
+                    <Normalize/>
+                </ContrastEnhancement>
+            </RasterSymbolizer>
+        </Rule>
+        </CoverageStyle>
+        */
+        
+        FeatureTypeStyle cs = (FeatureTypeStyle) parse("example-coveragestyle.xml");
+        assertEquals(1, cs.rules().size());
+        Rule rule = cs.rules().get(0);
+        
+        assertEquals("ChannelSelection", rule.getName());
+        assertEquals("Gray channel mapping", rule.getDescription().getTitle().toString());
+        assertEquals(1, rule.symbolizers().size());
+        
+        RasterSymbolizer sym = (RasterSymbolizer) rule.symbolizers().get(0);
+        assertEquals("Band.band1", sym.getChannelSelection().getGrayChannel().getChannelName());
+    }
+    
     
     Object parse(String filename) throws Exception {
         SEConfiguration se = new SEConfiguration();

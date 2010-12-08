@@ -1,7 +1,14 @@
 package org.geotools.se.v1_1.bindings;
 
+import java.util.List;
+
 import org.geotools.se.v1_1.SE;
+import org.geotools.styling.ColorMap;
+import org.geotools.styling.ColorMapEntry;
+import org.geotools.styling.StyleFactory;
 import org.geotools.xml.*;
+import org.opengis.filter.FilterFactory;
+import org.opengis.filter.expression.Expression;
 
 import javax.xml.namespace.QName;
 
@@ -51,6 +58,14 @@ import javax.xml.namespace.QName;
  */
 public class CategorizeBinding extends AbstractComplexBinding {
 
+    StyleFactory styleFactory;
+    FilterFactory filterFactory;
+    
+    public CategorizeBinding(StyleFactory styleFactory, FilterFactory filterFactory) {
+        this.styleFactory = styleFactory;
+        this.filterFactory = filterFactory;
+    }
+
     /**
      * @generated
      */
@@ -64,7 +79,7 @@ public class CategorizeBinding extends AbstractComplexBinding {
      * @generated modifiable
      */
     public Class getType() {
-        return null;
+        return ColorMap.class;
     }
 
     /**
@@ -74,8 +89,30 @@ public class CategorizeBinding extends AbstractComplexBinding {
      */
     public Object parse(ElementInstance instance, Node node, Object value) throws Exception {
 
-        // TODO: implement and remove call to super
-        return super.parse(instance, node, value);
+        ColorMap map = styleFactory.createColorMap();
+        
+        List<Node> children = node.getChildren();
+        int i = 0;
+        while(!"Value".equals(children.get(i).getComponent().getName())) i++;
+        
+        ColorMapEntry entry = styleFactory.createColorMapEntry();
+        entry.setColor((Expression)children.get(i++).getValue());
+        map.addColorMapEntry(entry);
+        
+        while(i < children.size()) {
+            entry = styleFactory.createColorMapEntry();
+            entry.setQuantity((Expression)children.get(i).getValue());
+            if (i+1 >= children.size()) {
+                throw new IllegalArgumentException("Incorrectly specified color map Threshold/Value pair");
+            }
+            
+            entry.setColor((Expression)children.get(i+1).getValue());
+            map.addColorMapEntry(entry);
+
+            i+=2;
+        }
+        
+        return map;
     }
 
 }

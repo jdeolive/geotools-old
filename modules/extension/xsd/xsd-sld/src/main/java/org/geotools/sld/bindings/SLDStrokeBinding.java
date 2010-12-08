@@ -28,6 +28,7 @@ import org.geotools.styling.StyleFactory;
 import org.geotools.xml.AbstractComplexBinding;
 import org.geotools.xml.ElementInstance;
 import org.geotools.xml.Node;
+import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
 import org.picocontainer.MutablePicoContainer;
 
@@ -70,9 +71,11 @@ import org.picocontainer.MutablePicoContainer;
  */
 public class SLDStrokeBinding extends AbstractComplexBinding {
     StyleFactory styleFactory;
+    FilterFactory filterFactory;
 
-    public SLDStrokeBinding(StyleFactory styleFactory) {
+    public SLDStrokeBinding(StyleFactory styleFactory, FilterFactory filterFactory) {
         this.styleFactory = styleFactory;
+        this.filterFactory = filterFactory;
     }
 
     /**
@@ -164,25 +167,25 @@ public class SLDStrokeBinding extends AbstractComplexBinding {
 
         for (Iterator i = node.getChildValues(CssParameter.class).iterator(); i.hasNext();) {
             CssParameter css = (CssParameter) i.next();
-
-            if (css.getExpressions().isEmpty()) {
+            Expression exp = css.getExpression();
+            if (exp == null) {
                 continue;
             }
 
             if ("stroke".equals(css.getName())) {
-                color = (Expression) css.getExpressions().get(0);
+                color = exp;
             } else if ("stroke-opacity".equals(css.getName())) {
-                opacity = (Expression) css.getExpressions().get(0);
+                opacity = exp;
             } else if ("stroke-width".equals(css.getName())) {
-                width = (Expression) css.getExpressions().get(0);
+                width = exp;
             } else if ("stroke-linejoin".equals(css.getName())) {
-                lineJoin = (Expression) css.getExpressions().get(0);
+                lineJoin = exp;
             } else if ("stroke-linecap".equals(css.getName())) {
-                lineCap = (Expression) css.getExpressions().get(0);
+                lineCap = exp;
             } else if ("stroke-dasharray".equals(css.getName())) {
-                dashArray = (Expression) css.getExpressions().get(0);
+                dashArray = exp;
             } else if ("stroke-dashoffset".equals(css.getName())) {
-                dashOffset = (Expression) css.getExpressions().get(0);
+                dashOffset = exp;
             }
         }
 

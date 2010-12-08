@@ -3,6 +3,7 @@ package org.geotools.se.v1_1.bindings;
 import org.geotools.se.v1_1.SE;
 import org.geotools.sld.bindings.SLDOverlapBehaviorBinding;
 import org.geotools.xml.*;
+import org.opengis.style.OverlapBehavior;
 
 import javax.xml.namespace.QName;
 
@@ -38,12 +39,26 @@ import javax.xml.namespace.QName;
  * 
  * @generated
  */
-public class OverlapBehaviorBinding extends SLDOverlapBehaviorBinding {
+public class OverlapBehaviorBinding extends AbstractSimpleBinding {
 
     /**
      * @generated
      */
     public QName getTarget() {
         return SE.OverlapBehavior;
+    }
+    
+    public Class getType() {
+        return OverlapBehavior.class;
+    }
+    
+    @Override
+    public Object parse(InstanceComponent instance, Object value) throws Exception {
+        OverlapBehavior overlap = OverlapBehavior.valueOf((String)value);
+        if (overlap == null) {
+            throw new IllegalArgumentException("Overlap behaviour " + value + " not supported");
+        }
+        
+        return overlap;
     }
 }
