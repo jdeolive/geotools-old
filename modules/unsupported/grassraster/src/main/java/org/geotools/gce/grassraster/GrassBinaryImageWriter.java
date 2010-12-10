@@ -51,8 +51,7 @@ public class GrassBinaryImageWriter extends ImageWriter {
 
     private ProgressListener monitor = new DummyProgressListener();
 
-    public GrassBinaryImageWriter( GrassBinaryImageWriterSpi originatingProvider,
-            ProgressListener monitor ) {
+    public GrassBinaryImageWriter( GrassBinaryImageWriterSpi originatingProvider, ProgressListener monitor ) {
         super(originatingProvider);
         if (monitor != null) {
             this.monitor = monitor;
@@ -72,8 +71,7 @@ public class GrassBinaryImageWriter extends ImageWriter {
         if (output instanceof File) {
             final File outFile = (File) output;
             JGrassMapEnvironment tmp = new JGrassMapEnvironment(outFile);
-            rasterWriter = new GrassBinaryRasterWriteHandler(tmp.getMAPSET(), tmp.getMapName(),
-                    monitor);
+            rasterWriter = new GrassBinaryRasterWriteHandler(tmp.getMAPSET(), tmp.getMapName(), monitor);
             try {
                 if (writeRegion == null) {
                     writeRegion = rasterWriter.getWriteRegion();
@@ -81,8 +79,7 @@ public class GrassBinaryImageWriter extends ImageWriter {
                     rasterWriter.setWriteRegion(writeRegion);
                 }
             } catch (IOException e) {
-                throw new IllegalArgumentException(
-                        "The supplied input isn't a GRASS raster map path!");
+                throw new IllegalArgumentException("The supplied input isn't a GRASS raster map path!");
             }
         } else {
             // is not something we can decode
@@ -90,12 +87,9 @@ public class GrassBinaryImageWriter extends ImageWriter {
         }
     }
 
-    public void write( IIOMetadata streamMetadata, IIOImage image, ImageWriteParam param )
-            throws IOException {
+    public void write( IIOMetadata streamMetadata, IIOImage image, ImageWriteParam param ) throws IOException {
 
-        hasListeners = (this.progressListeners != null && (!(this.progressListeners.isEmpty())))
-                ? true
-                : false;
+        hasListeners = (this.progressListeners != null && (!(this.progressListeners.isEmpty()))) ? true : false;
 
         if (hasListeners) {
             clearAbortRequest();
@@ -119,8 +113,7 @@ public class GrassBinaryImageWriter extends ImageWriter {
         double south = writeRegion.getSouth();
         double cellsizeX = writeRegion.getWEResolution();
         double cellsizeY = writeRegion.getNSResolution();
-        rasterWriter.writeRaster(renderedImage, nColumns, nRows, west, south, cellsizeX, cellsizeY,
-                noDataValue);
+        rasterWriter.writeRaster(renderedImage, nColumns, nRows, west, south, cellsizeX, cellsizeY, noDataValue);
 
         if (hasListeners) {
             // Checking the status of the write operation (aborted/completed)
@@ -198,8 +191,7 @@ public class GrassBinaryImageWriter extends ImageWriter {
      * @see javax.imageio.ImageWriter#convertImageMetadata(javax.imageio.metadata.IIOMetadata,
      *      javax.imageio.ImageTypeSpecifier, javax.imageio.ImageWriteParam)
      */
-    public IIOMetadata convertImageMetadata( IIOMetadata md, ImageTypeSpecifier its,
-            ImageWriteParam param ) {
+    public IIOMetadata convertImageMetadata( IIOMetadata md, ImageTypeSpecifier its, ImageWriteParam param ) {
         return md;
     }
 
@@ -207,7 +199,11 @@ public class GrassBinaryImageWriter extends ImageWriter {
      * Cleans this {@link GrassBinaryImageWriter}.
      */
     public void dispose() {
-        rasterWriter = null;
+        try {
+            rasterWriter.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         super.dispose();
     }
 
