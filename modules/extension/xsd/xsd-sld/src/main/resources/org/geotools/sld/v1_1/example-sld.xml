@@ -10,7 +10,7 @@ xmlns:ogc="http://www.opengis.net/ogc" xmlns:se="http://www.opengis.net/se" xmln
 				<se:FeatureTypeName>Foundation</se:FeatureTypeName>
 				<se:Rule>
 					<se:Name>main</se:Name>
-					<se:PolygonSymbolizer uom="http://www.opengis.net/sld/units/pixel">
+					<se:PolygonSymbolizer uom="http://www.opengeospatial.org/se/units/pixel">
 						<se:Name>MySymbol</se:Name>
 						<se:Description>
 							<se:Title>Example Symbol</se:Title>

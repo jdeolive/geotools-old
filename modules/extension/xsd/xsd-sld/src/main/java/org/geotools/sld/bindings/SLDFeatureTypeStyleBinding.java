@@ -134,7 +134,8 @@ public class SLDFeatureTypeStyleBinding extends AbstractComplexBinding {
             Object ftn = node.getChildValue("FeatureTypeName");
             if (ftn instanceof QName) {
                 QName qn = (QName)ftn;
-                ftn = qn.getPrefix() != null ? qn.getPrefix() + ":" + qn.getLocalPart() : qn.getLocalPart();
+                ftn = qn.getPrefix() != null && !"".equals(qn.getPrefix().trim()) ? 
+                        qn.getPrefix() + ":" + qn.getLocalPart() : qn.getLocalPart();
             }
             featureTypeStyle.setFeatureTypeName(ftn.toString());
         }
