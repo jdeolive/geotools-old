@@ -297,6 +297,16 @@ public class SLDParser {
     }
 
     /**
+     * Read styles from the dom that was previously parsed.
+     */
+    public Style[] readDOM() {
+        if (dom == null) {
+            throw new NullPointerException("dom is null");
+        }
+        return readDOM(dom);
+    }
+    
+    /**
      * Read the DOM provided and create a Style object for each user style found
      * 
      * @param document
