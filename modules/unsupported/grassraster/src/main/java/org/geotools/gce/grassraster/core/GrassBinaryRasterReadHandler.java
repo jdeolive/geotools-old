@@ -363,7 +363,6 @@ public class GrassBinaryRasterReadHandler {
          */
         if (numberOfBytesPerValue == 8) {
             if (!castDoubleToFloating) {
-                System.out.println("reading double map");
                 for( int y = 0; y < activeRows; y++ ) {
                     for( int x = 0; x < activeCols; x++ ) {
                         double value = rasterByteBuffer.getDouble();
@@ -375,7 +374,6 @@ public class GrassBinaryRasterReadHandler {
                     // System.out.println();
                 }
             } else {
-                System.out.println("reading double map cast to float");
                 for( int y = 0; y < activeRows; y++ ) {
                     for( int x = 0; x < activeCols; x++ ) {
                         float value = (float) rasterByteBuffer.getDouble();
@@ -384,7 +382,6 @@ public class GrassBinaryRasterReadHandler {
                 }
             }
         } else if (numberOfBytesPerValue == 4 && readerMapType < 0) {
-            System.out.println("reading float map");
             for( int y = 0; y < activeRows; y++ ) {
                 for( int x = 0; x < activeCols; x++ ) {
                     float value = rasterByteBuffer.getFloat();
@@ -392,7 +389,6 @@ public class GrassBinaryRasterReadHandler {
                 }
             }
         } else if (readerMapType > -1) {
-            System.out.println("reading int map");
             for( int y = 0; y < activeRows; y++ ) {
                 for( int x = 0; x < activeCols; x++ ) {
                     int value = rasterByteBuffer.getInt();
