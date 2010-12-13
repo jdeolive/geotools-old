@@ -301,7 +301,7 @@ public final class GeoTiffReader extends AbstractGridCoverage2DReader implements
             originalGridRange = new GridEnvelope2D(actualDim);
 
             if (gtcs != null&& metadata!=null&& (metadata.hasModelTrasformation()||(metadata.hasPixelScales()&&metadata.hasTiePoints()))) {
-                this.raster2Model = gtcs.getRasterToModel(metadata);
+                this.raster2Model = GeoTiffMetadata2CRSAdapter.getRasterToModel(metadata);
             } else {
                 this.raster2Model = parseWorldFile(source);
             }
@@ -379,7 +379,8 @@ public final class GeoTiffReader extends AbstractGridCoverage2DReader implements
 	 * @throws IOException
 	 *             on any IO related troubles
 	 */
-	public GridCoverage2D read(GeneralParameterValue[] params) throws IOException {
+	@SuppressWarnings("unchecked")
+    public GridCoverage2D read(GeneralParameterValue[] params) throws IOException {
 		GeneralEnvelope requestedEnvelope = null;
 		Rectangle dim = null;
 		OverviewPolicy overviewPolicy=null;

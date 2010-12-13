@@ -30,6 +30,7 @@ import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.imageio.IIOMetadataDumper;
 import org.geotools.factory.Hints;
 import org.geotools.referencing.CRS;
+import org.geotools.referencing.crs.DefaultEngineeringCRS;
 import org.geotools.test.TestData;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -65,14 +66,20 @@ public class GeoTiffReaderTest extends Assert {
         final File noCrs = TestData.file(GeoTiffReaderTest.class, "no_crs.tif");
         final AbstractGridFormat format = new GeoTiffFormat();
         assertTrue(format.accepts(noCrs));
+        GeoTiffReader reader = (GeoTiffReader) format.getReader(noCrs);
+        CoordinateReferenceSystem crs=reader.getCrs();
+        assertTrue(crs.toWKT().equalsIgnoreCase(DefaultEngineeringCRS.GENERIC_2D.toWKT()));
+        GridCoverage2D coverage=reader.read(null);
+        assertTrue(coverage.getCoordinateReferenceSystem().toWKT().equalsIgnoreCase(DefaultEngineeringCRS.GENERIC_2D.toWKT()));
+        
 
         // hint for CRS
-        final CoordinateReferenceSystem crs = CRS.decode("EPSG:32632", true);
+        crs = CRS.decode("EPSG:32632", true);
         final Hints hint = new Hints();
         hint.put(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM, crs);
 
         // getting a reader
-        GeoTiffReader reader = new GeoTiffReader(noCrs, hint);
+        reader = new GeoTiffReader(noCrs, hint);
 
         // reading the coverage
         GridCoverage2D coverage1 = (GridCoverage2D) reader.read(null);
@@ -135,6 +142,7 @@ public class GeoTiffReaderTest extends Assert {
      * @throws NoSuchAuthorityCodeException
      */
     @Test
+    @Ignore
     public void testReader() throws 
                     IllegalArgumentException, 
                     IOException,
