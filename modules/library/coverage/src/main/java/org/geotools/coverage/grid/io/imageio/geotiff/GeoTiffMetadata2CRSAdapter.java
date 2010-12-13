@@ -448,7 +448,7 @@ public final class GeoTiffMetadata2CRSAdapter {
 	 *            containing the key we are looking for.
 	 * @return
 	 */
-	private int getGeoKeyAsInt(final int key,
+	private static int getGeoKeyAsInt(final int key,
 			final GeoTiffIIOMetadataDecoder metadata) {
 
 		try {
@@ -475,7 +475,7 @@ public final class GeoTiffMetadata2CRSAdapter {
          * 
          * @throws GeoTiffException
          */
-        public MathTransform getRasterToModel(
+        public static MathTransform getRasterToModel(
                         final GeoTiffIIOMetadataDecoder metadata) throws GeoTiffException {
                 return getRasterToModel(metadata, true);
         }
@@ -497,7 +497,7 @@ public final class GeoTiffMetadata2CRSAdapter {
 	 * 
 	 * @throws GeoTiffException
 	 */
-	public MathTransform getRasterToModel(
+	public static MathTransform getRasterToModel(
 			final GeoTiffIIOMetadataDecoder metadata, 
 			final boolean forceToCellCenter) throws GeoTiffException {
 		// /////////////////////////////////////////////////////////////////////
@@ -531,12 +531,12 @@ public final class GeoTiffMetadata2CRSAdapter {
 			final double scaleRaster2ModelLongitude = pixScales.getScaleX();
 			final double scaleRaster2ModelLatitude = -pixScales.getScaleY();
 			final double tiePointColumn = tiePoints[0].getValueAt(0)
-					+ ((forceToCellCenter && rasterType == GeoTiffConstants.RasterPixelIsArea) ? -0.5
+					+ ((forceToCellCenter && rasterType == GeoTiffConstants.RasterPixelIsArea) ? 0.5
 							: 0); // "raster" space
 			// coordinates
 			// (indicies)
 			final double tiePointRow = tiePoints[0].getValueAt(1)
-					+ ((forceToCellCenter && rasterType == GeoTiffConstants.RasterPixelIsArea) ? -0.5
+					+ ((forceToCellCenter && rasterType == GeoTiffConstants.RasterPixelIsArea) ? 0.5
 							: 0);
 
 			// compute an "offset and scale" matrix
@@ -546,9 +546,9 @@ public final class GeoTiffMetadata2CRSAdapter {
 			gm.setElement(1, 0, 0);
 
 			gm.setElement(0, 2, tiePoints[0].getValueAt(3)
-					- (scaleRaster2ModelLongitude * tiePointColumn));
+					+ (scaleRaster2ModelLongitude * tiePointColumn));
 			gm.setElement(1, 2, tiePoints[0].getValueAt(4)
-					- (scaleRaster2ModelLatitude * tiePointRow));
+					+ (scaleRaster2ModelLatitude * tiePointRow));
 
 			// make it a LinearTransform
 			xform = ProjectiveTransform.create(gm);
@@ -575,7 +575,7 @@ public final class GeoTiffMetadata2CRSAdapter {
                 return xform;
 	}
 	
-	public PixelInCell getRasterType(GeoTiffIIOMetadataDecoder metadata){
+	public static PixelInCell getRasterType(GeoTiffIIOMetadataDecoder metadata){
 	    int rasterType = getGeoKeyAsInt(GeoTiffConstants.GTRasterTypeGeoKey,metadata);
 	    // geotiff spec says that PixelIsArea is the default
 	    if (rasterType == GeoTiffConstants.UNDEFINED)
@@ -598,7 +598,7 @@ public final class GeoTiffMetadata2CRSAdapter {
 	 * @return the value for the provided key.
 	 * @throws IOException
 	 */
-	private double getGeoKeyAsDouble(final int key,
+	private static double getGeoKeyAsDouble(final int key,
 			final GeoTiffIIOMetadataDecoder metadata) {
 
 		try {
@@ -1587,7 +1587,7 @@ public final class GeoTiffMetadata2CRSAdapter {
 	 *            to use for searching the scale factor.
 	 * @return the scale factor
 	 */
-	private double getScaleFactor(final GeoTiffIIOMetadataDecoder metadata) {
+	private static double getScaleFactor(final GeoTiffIIOMetadataDecoder metadata) {
 		String scale = metadata.getGeoKey(GeoTiffPCSCodes.ProjScaleAtCenterGeoKey);
 		if (scale == null)
 			scale = metadata.getGeoKey(GeoTiffPCSCodes.ProjScaleAtNatOriginGeoKey);
@@ -1606,7 +1606,7 @@ public final class GeoTiffMetadata2CRSAdapter {
 	 *            to use for searching the false easting.
 	 * @return double False easting.
 	 */
-	private double getFalseEasting(final GeoTiffIIOMetadataDecoder metadata) {
+	private  static double getFalseEasting(final GeoTiffIIOMetadataDecoder metadata) {
 		String easting = metadata.getGeoKey(GeoTiffPCSCodes.ProjFalseEastingGeoKey);
 		if (easting == null)
 			easting = metadata.getGeoKey(GeoTiffPCSCodes.ProjFalseOriginEastingGeoKey);
@@ -1626,7 +1626,7 @@ public final class GeoTiffMetadata2CRSAdapter {
 	 *            to use for searching the false northing.
 	 * @return double False northing.
 	 */
-	private double getFalseNorthing(final GeoTiffIIOMetadataDecoder metadata) {
+	private static double getFalseNorthing(final GeoTiffIIOMetadataDecoder metadata) {
 		String northing = metadata.getGeoKey(GeoTiffPCSCodes.ProjFalseNorthingGeoKey);
 		if (northing == null)
 			northing = metadata.getGeoKey(GeoTiffPCSCodes.ProjFalseOriginNorthingGeoKey);
@@ -1646,7 +1646,7 @@ public final class GeoTiffMetadata2CRSAdapter {
 	 *            to use for searching the originating longitude.
 	 * @return double origin longitude.
 	 */
-	private double getOriginLong(final GeoTiffIIOMetadataDecoder metadata) {
+	private static double getOriginLong(final GeoTiffIIOMetadataDecoder metadata) {
 		String origin = metadata.getGeoKey(GeoTiffPCSCodes.ProjCenterLongGeoKey);
 		if (origin == null)
 			origin = metadata.getGeoKey(GeoTiffPCSCodes.ProjNatOriginLongGeoKey);
@@ -1669,7 +1669,7 @@ public final class GeoTiffMetadata2CRSAdapter {
 	 *            to use for searching the origin latitude.
 	 * @return double origin latitude.
 	 */
-	private double getOriginLat(final GeoTiffIIOMetadataDecoder metadata) {
+	private static double getOriginLat(final GeoTiffIIOMetadataDecoder metadata) {
 		String origin = metadata.getGeoKey(GeoTiffPCSCodes.ProjCenterLatGeoKey);
 		if (origin == null)
 			origin = metadata.getGeoKey(GeoTiffPCSCodes.ProjNatOriginLatGeoKey);
