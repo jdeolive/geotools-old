@@ -116,7 +116,7 @@ public class FormatNumberBinding extends AbstractComplexBinding {
             expressions[4] = filterFactory.literal(",");
         }
         
-        return filterFactory.function("numberFormat", expressions);
+        return filterFactory.function("numberFormat2", expressions);
     }
 
 }

@@ -110,6 +110,7 @@ org.geotools.filter.function.FilterFunction_in10
 org.geotools.filter.function.FilterFunction_dateParse
 org.geotools.filter.function.FilterFunction_dateFormat
 org.geotools.filter.function.FilterFunction_numberFormat
+org.geotools.filter.function.FilterFunction_numberFormat2
 org.geotools.filter.function.FilterFunction_Convert
 org.geotools.filter.function.FilterFunction_vertices
 org.geotools.filter.function.FilterFunction_offset
