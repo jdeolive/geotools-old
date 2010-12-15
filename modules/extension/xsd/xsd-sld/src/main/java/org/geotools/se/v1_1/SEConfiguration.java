@@ -116,7 +116,6 @@ public class SEConfiguration extends Configuration {
         container.registerComponentImplementation(SE.SvgParameter,SvgParameterBinding.class);
         container.registerComponentImplementation(SE.TextSymbolizer,TextSymbolizerBinding.class);
         //container.registerComponentImplementation(SE.Trim,TrimBinding.class);
-        container.registerComponentImplementation(SE.WellKnownName,WellKnownNameBinding.class);
     }
     
     @Override
