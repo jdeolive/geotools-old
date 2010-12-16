@@ -246,6 +246,11 @@ public class NestedAttributeExpression extends AttributeExpressionImpl {
                            } catch (IOException e) {
                                 throw new RuntimeException("Failed evaluating filter expression: '"
                                         + attPath + "'. Caused by: " + e.getMessage());
+                           } catch (IllegalArgumentException e) {
+                        	    // might be a polymorphic case where it's looking for an attribute from another type
+                        	    // that doesn't match this, but might match another database row
+                        	    // so just continue
+                        	    continue;                        	   
                            }
                         }
                     } else {
