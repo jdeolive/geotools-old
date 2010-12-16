@@ -1,5 +1,6 @@
 org.geotools.filter.AreaFunction
 org.geotools.filter.LengthFunction
+org.geotools.filter.function.CategorizeFunction
 org.geotools.filter.function.ClassifyFunction
 org.geotools.filter.function.EqualIntervalFunction
 org.geotools.filter.function.StandardDeviationFunction
@@ -118,6 +119,8 @@ org.geotools.filter.function.FilterFunction_vertices
 org.geotools.filter.function.FilterFunction_offset
 org.geotools.filter.function.FilterFunction_isometric
 org.geotools.filter.function.IDFunction
+org.geotools.filter.function.InterpolateFunction
+org.geotools.filter.function.RecodeFunction
 org.geotools.filter.function.math.FilterFunction_IEEEremainder
 org.geotools.filter.function.math.FilterFunction_abs
 org.geotools.filter.function.math.FilterFunction_abs_2

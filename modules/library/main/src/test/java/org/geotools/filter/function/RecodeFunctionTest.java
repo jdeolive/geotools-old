@@ -15,7 +15,7 @@
  *    Lesser General Public License for more details.
  */
 
-package org.geotools.filter;
+package org.geotools.filter.function;
 
 import java.awt.Color;
 import java.util.ArrayList;
