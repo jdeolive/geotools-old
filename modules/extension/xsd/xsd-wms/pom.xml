@@ -14,21 +14,29 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.geotools</groupId>
-    <artifactId>extension</artifactId>
+    <groupId>org.geotools.xsd</groupId>
+    <artifactId>xsd</artifactId>
     <version>2.7-SNAPSHOT</version>
   </parent>
-
-
+  
   <!-- =========================================================== -->
   <!--     Module Description                                      -->
   <!-- =========================================================== -->
   <groupId>org.geotools.xsd</groupId>
-  <artifactId>xsd</artifactId>
-  <packaging>pom</packaging>
-  <name>XML Parsing</name>
+  <artifactId>gt-xsd-wms</artifactId>
+  <packaging>jar</packaging>
+  <name>WFS XML Support</name>
+  
+
+  <scm>
+    <connection>
+      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/extension/xsd/xsd-wms/
+    </connection>
+    <url>http://svn.osgeo.org/geotools/trunk/modules/extension/xsd/xsd-wms/</url>
+  </scm>
+
   <description>
-  Parent module for xml modules.
+    WMS XML support for Geotools.
   </description>
 
   <licenses>
@@ -39,62 +47,51 @@
     </license>
   </licenses>
 
+
   <!-- =========================================================== -->
   <!--     Developers and Contributors                             -->
   <!-- =========================================================== -->
   <developers>
     <developer>
-      <name>Jody Garnett</name>
-      <id>jive</id>
-      <email>jive@users.sourceforge.net</email>
-      <organization>Refractions Research</organization>
-      <roles>
-        <role>Java Developer</role>
-        <role>Module Maintainer</role>
-      </roles>
-    </developer>
-    <developer>
       <name>Justin Deoliveira</name>
       <id>jdeolive</id>
-      <email>jdeolive@users.sourceforge.net</email>
+      <email>jdeolive@openplans.org</email>
       <organization>The Open Planning Project</organization>
       <roles>
         <role>Java Developer</role>
-        <role>Module Maintainer</role>
       </roles>
     </developer>
   </developers>
 
-  <!--build>
+
+  <!-- =========================================================== -->
+  <!--     Dependency Management                                   -->
+  <!-- =========================================================== -->
+  <dependencies>
+    <dependency>
+     <groupId>org.geotools.xsd</groupId>
+     <artifactId>gt-xsd-core</artifactId>
+     <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+
+  <build>
     <plugins>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>jalopy-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>format</goal>
-            </goals>
-          </execution>
-        </executions>
+        <groupId>org.geotools.maven</groupId>
+        <artifactId>xmlcodegen</artifactId>
+        <configuration>
+          <schemaLocation>capabilities_1_3_0.xsd</schemaLocation>
+          <schemaSourceDirectory>src/main/resources/org/geotools/wms/v1_3</schemaSourceDirectory>
+          <schemaLookupDirectories>
+            <schemaLookupDirectory>${basedir}/../xsd-gml3/src/main/resources/org/geotools/gml3/v3_2/gts</schemaLookupDirectory>
+          </schemaLookupDirectories>
+          <!--destinationPackage>org.geotools.wfs.v2_0</destinationPackage-->
+        </configuration>
       </plugin>
-    </plugins>
-  </build-->
 
-  <modules>
-    <module>xsd-core</module>
-    <module>xsd-gml2</module>
-    <module>xsd-gml3</module>
-    <module>xsd-filter</module>
-    <module>xsd-fes</module>
-    <module>xsd-sld</module>
-    <module>xsd-kml</module>
-    <module>xsd-ows</module>
-    <module>xsd-wfs</module>
-	<module>xsd-wcs</module>
-    <module>xsd-wps</module>
-    <module>xsd-wms</module>
-  </modules>
+    </plugins>
+  </build>
 
 </project>
 
