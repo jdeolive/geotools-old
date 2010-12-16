@@ -665,23 +665,18 @@ public class JDBCFeatureSource extends ContentFeatureSource {
         ResultSet rs = null;
         try {
             String sql;
-            if(dialect.isLimitOffsetSupported()) {
-                // try to avoid actually running the query as it might be very expensive
-                // and just grab the metadata instead
-                StringBuffer sb = new StringBuffer();
-                sb.append("select * from (");
-                sb.append(vtable.expandParameters(null));
-                sb.append(")");
-                dialect.encodeTableAlias("vtable", sb);
-                dialect.applyLimitOffset(sb, 0, 0);
-                sql = sb.toString();
-            } else {
-                sql = vtable.expandParameters(null);
-            }
-            
+            // avoid actually running the query as it might be very expensive
+            // and just grab the metadata instead
+            StringBuffer sb = new StringBuffer();
+            sb.append("select * from (");
+            sb.append(vtable.expandParameters(null));
+            sb.append(")");
+            dialect.encodeTableAlias("vtable", sb);
             // state we don't want rows, we just want to gather the results metadata
+            sb.append( " where 1 = 0");
+            sql = sb.toString();
+            
             st = cx.createStatement();
-            st.setMaxRows(0);
             
             LOGGER.log(Level.FINE, "Gathering sql view result structure: {0}", sql);
             
