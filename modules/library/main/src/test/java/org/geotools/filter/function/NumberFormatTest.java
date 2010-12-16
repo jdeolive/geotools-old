@@ -31,4 +31,17 @@ public class NumberFormatTest extends TestCase {
         char gs = new DecimalFormatSymbols().getGroupingSeparator();
         assertEquals("123" + gs + "456", f.evaluate(null , String.class));
     }
+    
+    public void testNumberFormat2() {
+        FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
+        Literal pattern = ff.literal("###,###.##");
+        Literal number = ff.literal("-123456.7891");
+        Literal minus = ff.literal("x");
+        Literal ds = ff.literal(":");
+        Literal gs = ff.literal(";");
+        
+        Function f = ff.function("numberFormat2", new Expression[]{pattern, number, minus, ds, gs});
+        assertEquals("x123;456:79", f.evaluate(null, String.class));
+        
+    }
 }

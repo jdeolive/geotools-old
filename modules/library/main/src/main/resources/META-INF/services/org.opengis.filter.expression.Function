@@ -78,10 +78,12 @@ org.geotools.filter.function.FilterFunction_strLength
 org.geotools.filter.function.FilterFunction_strToLowerCase
 org.geotools.filter.function.FilterFunction_strToUpperCase
 org.geotools.filter.function.FilterFunction_strMatches
+org.geotools.filter.function.FilterFunction_strPosition
 org.geotools.filter.function.FilterFunction_strReplace
 org.geotools.filter.function.FilterFunction_strSubstring
 org.geotools.filter.function.FilterFunction_strSubstringStart
 org.geotools.filter.function.FilterFunction_strTrim
+org.geotools.filter.function.FilterFunction_strTrim2
 org.geotools.filter.function.FilterFunction_parseBoolean
 org.geotools.filter.function.FilterFunction_roundDouble
 org.geotools.filter.function.FilterFunction_int2ddouble
@@ -110,6 +112,7 @@ org.geotools.filter.function.FilterFunction_in10
 org.geotools.filter.function.FilterFunction_dateParse
 org.geotools.filter.function.FilterFunction_dateFormat
 org.geotools.filter.function.FilterFunction_numberFormat
+org.geotools.filter.function.FilterFunction_numberFormat2
 org.geotools.filter.function.FilterFunction_Convert
 org.geotools.filter.function.FilterFunction_vertices
 org.geotools.filter.function.FilterFunction_offset

@@ -56,5 +56,31 @@ public class StringFunctionTest  {
         assertEquals("United Kingdom", ff.function("strCapitalize", ff.literal("UnItEd kInGdOm")).evaluate(null));
     }
     
+    @Test
+    public void testStrTrim2() throws Exception {
+        assertEquals("hello", ff.function("strTrim2", ff.literal("  hello  "), ff.literal("both"), 
+            ff.literal(" ")).evaluate(null));
+        assertEquals("hello  ", ff.function("strTrim2", ff.literal("  hello  "), ff.literal("leading"), 
+                ff.literal(" ")).evaluate(null));
+        assertEquals("  hello", ff.function("strTrim2", ff.literal("  hello  "), ff.literal("trailing"), 
+                ff.literal(" ")).evaluate(null));
+        assertEquals("hello", ff.function("strTrim2", ff.literal("xxhelloxx"), ff.literal("both"), 
+                ff.literal("x")).evaluate(null));
+    }
     
+    @Test
+    public void testStrPosition() throws Exception {
+        assertEquals("1", ff.function("strPosition", ff.literal("he"), ff.literal("hello"), 
+                ff.literal("frontToBack")).evaluate(null, String.class));
+        assertEquals("1", ff.function("strPosition", ff.literal("he"), ff.literal("hello"), 
+                ff.literal("backToFront")).evaluate(null, String.class));
+        assertEquals("0", ff.function("strPosition", ff.literal("x"), ff.literal("hello"), 
+                ff.literal("backToFront")).evaluate(null, String.class));
+        assertEquals("0", ff.function("strPosition", ff.literal("x"), ff.literal("hello"), 
+                ff.literal("frontToBack")).evaluate(null, String.class));
+        assertEquals("3", ff.function("strPosition", ff.literal("l"), ff.literal("hello"), 
+                ff.literal("frontToBack")).evaluate(null, String.class));
+        assertEquals("4", ff.function("strPosition", ff.literal("l"), ff.literal("hello"), 
+                ff.literal("backToFront")).evaluate(null, String.class));
+    }
 }
