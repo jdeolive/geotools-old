@@ -108,24 +108,21 @@ public class SLDChannelSelectionBinding extends AbstractComplexBinding {
      */
     public Object parse(ElementInstance instance, Node node, Object value)
         throws Exception {
-        if ((node.getChild("RedChannel") == null) || (node.getChild("BlueChannel") == null)
-                || (node.getChild("GreenChannel") == null)
-                || (node.getChild("GrayChannel") == null)) {
-            String msg = "All of Red,Blue,Green,Gray must be specified";
-            throw new RuntimeException(msg);
+        
+        ChannelSelection cs = styleFactory.createChannelSelection(null);
+        
+        if (node.hasChild("GrayChannel")) {
+            cs.setGrayChannel((SelectedChannelType) node.getChildValue("GrayChannel"));
         }
-
-        SelectedChannelType[] rgb = new SelectedChannelType[] {
+        else {
+            SelectedChannelType[] rgb = new SelectedChannelType[] {
                 (SelectedChannelType) node.getChildValue("RedChannel"),
                 (SelectedChannelType) node.getChildValue("GreenChannel"),
                 (SelectedChannelType) node.getChildValue("BlueChannel")
             };
-        SelectedChannelType gray = (SelectedChannelType) node.getChildValue("GrayChannel");
-
-        ChannelSelection cs = styleFactory.createChannelSelection(null);
-        cs.setGrayChannel(gray);
-        cs.setRGBChannels(rgb);
-
+            cs.setRGBChannels(rgb);
+        }
+        
         return cs;
     }
 }

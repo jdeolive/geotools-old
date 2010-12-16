@@ -22,7 +22,7 @@ import org.geotools.styling.Font;
 
 public class SLDFontTestBinding extends SLDTestSupport {
     public void testType() throws Exception {
-        assertEquals(Font.class, new SLDFontBinding(null).getType());
+        assertEquals(Font.class, new SLDFontBinding(null, null).getType());
     }
 
     public void test() throws Exception {

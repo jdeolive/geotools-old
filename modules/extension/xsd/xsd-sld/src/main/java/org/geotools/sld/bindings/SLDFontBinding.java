@@ -16,7 +16,11 @@
  */
 package org.geotools.sld.bindings;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.xml.namespace.QName;
 
@@ -26,6 +30,7 @@ import org.geotools.styling.StyleFactory;
 import org.geotools.xml.AbstractComplexBinding;
 import org.geotools.xml.ElementInstance;
 import org.geotools.xml.Node;
+import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
 import org.picocontainer.MutablePicoContainer;
 
@@ -60,9 +65,11 @@ import org.picocontainer.MutablePicoContainer;
  */
 public class SLDFontBinding extends AbstractComplexBinding {
     StyleFactory styleFactory;
+    FilterFactory filterFactory;
 
-    public SLDFontBinding(StyleFactory styleFactory) {
+    public SLDFontBinding(StyleFactory styleFactory, FilterFactory filterFactory) {
         this.styleFactory = styleFactory;
+        this.filterFactory = filterFactory;
     }
 
     /**
@@ -113,50 +120,36 @@ public class SLDFontBinding extends AbstractComplexBinding {
         //&quot;font-style&quot;
         //&quot;font-weight&quot;
         //&quot;font-size&quot
-        Expression family = null;
-
-        //&quot;font-family&quot;
-        //&quot;font-style&quot;
-        //&quot;font-weight&quot;
-        //&quot;font-size&quot
+        List<Expression> family = new ArrayList();
         Expression style = null;
-
-        //&quot;font-family&quot;
-        //&quot;font-style&quot;
-        //&quot;font-weight&quot;
-        //&quot;font-size&quot
         Expression weight = null;
-
-        //&quot;font-family&quot;
-        //&quot;font-style&quot;
-        //&quot;font-weight&quot;
-        //&quot;font-size&quot
         Expression size = null;
 
-        for (Iterator i = node.getChildValues("CssParameter").iterator(); i.hasNext();) {
+        for (Iterator i = node.getChildValues(CssParameter.class).iterator(); i.hasNext();) {
             CssParameter css = (CssParameter) i.next();
 
-            if (css.getExpressions().isEmpty()) {
+            Expression exp = css.getExpression();
+            if (exp == null) {
                 continue;
             }
 
             if ("font-family".equals(css.getName())) {
-                family = (Expression) css.getExpressions().get(0);
+                family.add(exp);
             }
 
             if ("font-style".equals(css.getName())) {
-                style = (Expression) css.getExpressions().get(0);
+                style = exp;
             }
 
             if ("font-weight".equals(css.getName())) {
-                weight = (Expression) css.getExpressions().get(0);
+                weight = exp;
             }
 
             if ("font-size".equals(css.getName())) {
-                size = (Expression) css.getExpressions().get(0);
+                size = exp;
             }
         }
 
-        return styleFactory.createFont(family, style, weight, size);
+        return styleFactory.font(family, style, weight, size);
     }
 }

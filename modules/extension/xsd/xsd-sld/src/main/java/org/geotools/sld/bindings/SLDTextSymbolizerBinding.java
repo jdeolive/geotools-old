@@ -16,8 +16,11 @@
  */
 package org.geotools.sld.bindings;
 
+import java.util.List;
+
 import javax.xml.namespace.QName;
 
+import org.geotools.sld.CssParameter;
 import org.geotools.styling.Fill;
 import org.geotools.styling.Font;
 import org.geotools.styling.Halo;
@@ -54,6 +57,9 @@ import org.picocontainer.MutablePicoContainer;
  *                      &lt;xsd:element ref="sld:LabelPlacement" minOccurs="0"/&gt;
  *                      &lt;xsd:element ref="sld:Halo" minOccurs="0"/&gt;
  *                      &lt;xsd:element ref="sld:Fill" minOccurs="0"/&gt;
+ *                      
+ *                      &lt;!-- geotools specific vendor option --&gt;
+ *                      &lt;xsd:element ref="sld:VendorOption" minOccurs="0" maxOccurs="unbounded"/&gt;
  *                  &lt;/xsd:sequence&gt;
  *              &lt;/xsd:extension&gt;
  *          &lt;/xsd:complexContent&gt;
@@ -152,6 +158,10 @@ public class SLDTextSymbolizerBinding extends AbstractComplexBinding {
             ts.setFill((Fill) node.getChildValue("Fill"));
         }
 
+        //&lt;xsd:element ref="sld:VendorOption" minOccurs="0" maxOccurs="unbounded"/&gt;
+        for (CssParameter param : (List<CssParameter>) node.getChildValues(CssParameter.class)) {
+            ts.getOptions().put(param.getName(), param.getExpression().evaluate(null, String.class));
+        }
         return ts;
     }
 }

@@ -16,13 +16,16 @@
  */
 package org.geotools.sld.bindings;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.xml.namespace.QName;
 
 import org.geotools.xml.AbstractComplexBinding;
 import org.geotools.xml.ElementInstance;
 import org.geotools.xml.Node;
+import org.geotools.xml.Text;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
 import org.picocontainer.MutablePicoContainer;
@@ -109,21 +112,29 @@ public class SLDParameterValueTypeBinding extends AbstractComplexBinding {
      */
     public Object parse(ElementInstance instance, Node node, Object value)
         throws Exception {
-        //first look for an expresion in the child text
-        String text = instance.getText();
 
-        if ((text != null) && !"".equals(text)) {
-            return filterFactory.literal(text);
-        }
-
+        List<Expression> expressions = new ArrayList();
         for (Iterator itr = node.getChildren().iterator(); itr.hasNext();) {
             Node child = (Node) itr.next();
 
             if (child.getValue() instanceof Expression) {
-                return child.getValue();
+                expressions.add((Expression) child.getValue());
+            }
+            else if (child.getValue() instanceof Text) {
+                expressions.add(filterFactory.literal(((Text)child.getValue()).getValue()));
             }
         }
+        
+        if (expressions.isEmpty()) {
+            return null;
+        }
+        if (expressions.size() == 1) return (Expression) expressions.get(0);
+      
+        Expression e = expressions.get(0);
+        for (int i = 1; i < expressions.size(); i++) {
+              e = filterFactory.function("strConcat", new Expression[]{e, expressions.get(i)});
+        }
 
-        return null;
+        return e;
     }
 }

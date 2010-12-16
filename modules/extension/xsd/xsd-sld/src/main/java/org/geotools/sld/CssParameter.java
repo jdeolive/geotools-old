@@ -19,6 +19,9 @@ package org.geotools.sld;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.opengis.filter.FilterFactory;
+import org.opengis.filter.expression.Expression;
+
 
 /**
  * A Cascading Style Sheet parameter.
@@ -33,18 +36,22 @@ import java.util.List;
  */
 public class CssParameter {
     String name;
-    List expressions;
+    Expression expression;
 
     public CssParameter(String name) {
         this.name = name;
-        expressions = new ArrayList();
     }
 
     public String getName() {
         return name;
     }
-
-    public List getExpressions() {
-        return expressions;
+    
+    public Expression getExpression() {
+        return expression;
     }
+    
+    public void setExpression(Expression expression) {
+        this.expression = expression;
+    }
+
 }

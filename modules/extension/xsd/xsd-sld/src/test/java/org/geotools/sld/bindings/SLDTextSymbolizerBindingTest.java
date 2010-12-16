@@ -36,4 +36,16 @@ public class SLDTextSymbolizerBindingTest extends SLDTestSupport {
         assertNotNull(ts.getHalo());
         assertNotNull(ts.getLabel());
     }
+    
+    public void testWithVendorOptions() throws Exception {
+        SLDMockData.textSymbolizerWithVendorOptions(document, document);
+        
+        TextSymbolizer ts = (TextSymbolizer) parse();
+        assertNotNull(ts);
+        
+        //vendorOption(document, textSymbolizer, "followLine", "true");
+        //vendorOption(document, textSymbolizer, "spaceAround", "10");
+        assertEquals("true", ts.getOptions().get("followLine"));
+        assertEquals("10", ts.getOptions().get("spaceAround"));
+    }
 }

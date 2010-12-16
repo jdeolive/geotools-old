@@ -22,7 +22,6 @@ import org.geotools.styling.ChannelSelection;
 import org.geotools.styling.ColorMap;
 import org.geotools.styling.ContrastEnhancement;
 import org.geotools.styling.ImageOutline;
-import org.geotools.styling.OverlapBehavior;
 import org.geotools.styling.RasterSymbolizer;
 import org.geotools.styling.ShadedRelief;
 import org.geotools.styling.StyleFactory;
@@ -31,6 +30,7 @@ import org.geotools.xml.ElementInstance;
 import org.geotools.xml.Node;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.PropertyName;
+import org.opengis.style.OverlapBehavior;
 import org.picocontainer.MutablePicoContainer;
 
 
@@ -143,7 +143,7 @@ public class SLDRasterSymbolizerBinding extends AbstractComplexBinding {
 
         //&lt;xsd:element ref="sld:OverlapBehavior" minOccurs="0"/&gt;
         if (node.hasChild("OverlapBehavior")) {
-            rs.setOverlap((OverlapBehavior) node.getChildValue("OverlapBehavior"));
+            rs.setOverlapBehavior((OverlapBehavior) node.getChildValue("OverlapBehavior"));
         }
 
         //&lt;xsd:element ref="sld:ColorMap" minOccurs="0"/&gt;
@@ -152,7 +152,7 @@ public class SLDRasterSymbolizerBinding extends AbstractComplexBinding {
         }
 
         //&lt;xsd:element ref="sld:ContrastEnhancement" minOccurs="0"/&gt;
-        if (node.hasChild("ConstrastEnhancement")) {
+        if (node.hasChild("ContrastEnhancement")) {
             rs.setContrastEnhancement((ContrastEnhancement) node.getChildValue(
                     "ContrastEnhancement"));
         }

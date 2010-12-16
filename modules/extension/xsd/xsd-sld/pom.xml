@@ -90,6 +90,11 @@
       <version>${project.version}</version>
     </dependency>    
     <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-render</artifactId>
+      <version>${project.version}</version>
+    </dependency>    
+    <dependency>
       <groupId>org.geotools.xsd</groupId>
       <artifactId>gt-xsd-core</artifactId>
       <version>${project.version}</version>
@@ -125,6 +130,23 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.geotools.maven</groupId>
+        <artifactId>xmlcodegen</artifactId>
+        <configuration>
+          <schemaLocation>all.xsd</schemaLocation>
+          <schemaSourceDirectory>${basedir}/src/main/resources/org/geotools/sld/v1_1</schemaSourceDirectory>
+          <schemaLookupDirectories>
+            <schemaLookupDirectory>${basedir}/src/main/resources/org/geotools/se/v1_1</schemaLookupDirectory>
+            <schemaLookupDirectory>${basedir}/../xsd-filter/src/main/resources/org/geotools/filter/v1_1</schemaLookupDirectory>
+            <schemaLookupDirectory>${basedir}/../xsd-gml3/src/main/resources/org/geotools/gml3</schemaLookupDirectory>
+            <schemaLookupDirectory>${basedir}/../xsd-ows/src/main/resources/org/geotools/ows</schemaLookupDirectory>
+            <schemaLookupDirectory>${basedir}/../xsd-wms/src/main/resources/org/geotools/wms/v1_3</schemaLookupDirectory>
+          </schemaLookupDirectories>
+          <generateElementBindings>true</generateElementBindings>
+          <generateAttributeBindings>true</generateAttributeBindings>
+        </configuration>
       </plugin>
     </plugins>
   </build>

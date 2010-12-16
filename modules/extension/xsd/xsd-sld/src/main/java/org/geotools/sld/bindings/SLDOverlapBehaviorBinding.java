@@ -16,12 +16,13 @@
  */
 package org.geotools.sld.bindings;
 
-import org.picocontainer.MutablePicoContainer;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import javax.xml.namespace.QName;
-import org.geotools.styling.OverlapBehavior;
-import org.geotools.xml.*;
+
+import org.geotools.xml.AbstractComplexBinding;
+import org.geotools.xml.ElementInstance;
+import org.geotools.xml.Node;
+import org.opengis.style.OverlapBehavior;
+import org.picocontainer.MutablePicoContainer;
 
 
 /**

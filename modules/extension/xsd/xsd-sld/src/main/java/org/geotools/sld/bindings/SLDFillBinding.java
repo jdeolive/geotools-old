@@ -28,6 +28,7 @@ import org.geotools.styling.StyleFactory;
 import org.geotools.xml.AbstractComplexBinding;
 import org.geotools.xml.ElementInstance;
 import org.geotools.xml.Node;
+import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
 import org.picocontainer.MutablePicoContainer;
 
@@ -63,9 +64,11 @@ import org.picocontainer.MutablePicoContainer;
  */
 public class SLDFillBinding extends AbstractComplexBinding {
     StyleFactory styleFactory;
-
-    public SLDFillBinding(StyleFactory styleFactory) {
+    FilterFactory filterFactory;
+   
+    public SLDFillBinding(StyleFactory styleFactory, FilterFactory filterFactory) {
         this.styleFactory = styleFactory;
+        this.filterFactory = filterFactory;
     }
 
     /**
@@ -120,17 +123,17 @@ public class SLDFillBinding extends AbstractComplexBinding {
 
         //&quot;fill&quot; (color) 
         //&quot;fill-opacity&quot;
-        List params = node.getChildValues("CssParameter");
+        List params = node.getChildValues(CssParameter.class);
 
         for (Iterator itr = params.iterator(); itr.hasNext();) {
             CssParameter param = (CssParameter) itr.next();
 
             if ("fill".equals(param.getName())) {
-                color = (Expression) param.getExpressions().get(0);
+                color = param.getExpression();
             }
 
             if ("fill-opacity".equals(param.getName())) {
-                opacity = (Expression) param.getExpressions().get(0);
+                opacity = param.getExpression();
             }
         }
 

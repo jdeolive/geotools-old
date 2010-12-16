@@ -322,6 +322,8 @@ public final class SLD extends XSD {
     public static final QName WELLKNOWNNAME = new QName("http://www.opengis.net/sld",
             "WellKnownName");
 
+    public static final QName VENDOROPTION = new QName("http://www.opengis.net/sld", "VendorOption");
+    
     /**
      * private constructor
      */

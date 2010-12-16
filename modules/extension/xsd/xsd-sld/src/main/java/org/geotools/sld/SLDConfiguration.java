@@ -65,9 +65,11 @@ import org.geotools.sld.bindings.SLDSymbolizerTypeBinding;
 import org.geotools.sld.bindings.SLDTextSymbolizerBinding;
 import org.geotools.sld.bindings.SLDUserLayerBinding;
 import org.geotools.sld.bindings.SLDUserStyleBinding;
+import org.geotools.sld.bindings.SLDVendorOptionBinding;
 import org.geotools.styling.StyleFactory;
 import org.geotools.styling.StyleFactoryImpl;
 import org.geotools.xml.Configuration;
+import org.geotools.xml.Parser;
 
 
 /**
@@ -168,6 +170,8 @@ public class SLDConfiguration extends Configuration {
 
         container.registerComponentImplementation(SLD.USERLAYER, SLDUserLayerBinding.class);
         container.registerComponentImplementation(SLD.USERSTYLE, SLDUserStyleBinding.class);
+        
+        container.registerComponentImplementation(SLD.VENDOROPTION, SLDVendorOptionBinding.class);
     }
 
     /**
@@ -183,5 +187,10 @@ public class SLDConfiguration extends Configuration {
         super.configureContext(container);
 
         container.registerComponentImplementation(StyleFactory.class, StyleFactoryImpl.class);
+    }
+    
+    @Override
+    protected void configureParser(Parser parser) {
+        parser.setHandleMixedContent(true);
     }
 }
