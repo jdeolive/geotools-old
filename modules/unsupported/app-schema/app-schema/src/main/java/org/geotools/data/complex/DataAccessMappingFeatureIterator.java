@@ -54,7 +54,6 @@ import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.expression.Expression;
-import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.identity.FeatureId;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.xml.sax.Attributes;
@@ -221,9 +220,15 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
     }
 
     protected String extractIdForFeature(Feature feature) {
-        ComplexAttribute sourceInstance = (ComplexAttribute) feature;
-        return (String) featureFidMapping.evaluate(sourceInstance, String.class);
-    }
+		if (mapping.getFeatureIdExpression().equals(Expression.NIL)) {
+			if (feature.getIdentifier() == null) {
+				return null;
+			} else {
+				return feature.getIdentifier().getID();
+			}
+		} 
+		return mapping.getFeatureIdExpression().evaluate(feature, String.class);
+	}
 
     protected String extractIdForAttribute(final Expression idExpression, Object sourceInstance) {
         String value = (String) idExpression.evaluate(sourceInstance, String.class);
@@ -656,10 +661,9 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
             }
         }
 
-        if (featureFidMapping instanceof PropertyName
-                && ((PropertyName) featureFidMapping).getPropertyName().equals("@id")) {
+        if (mapping.getFeatureIdExpression().equals(Expression.NIL)) {
             // no real feature id mapping,
-            // so trying to find it when the filter's evaluated will result in exception
+            // so let's find by database row id
             Set<FeatureId> ids = new HashSet<FeatureId>();
             ids.add(featureId);
             query.setFilter(namespaceAwareFilterFactory.id(ids));
@@ -667,7 +671,7 @@ public class DataAccessMappingFeatureIterator extends AbstractMappingFeatureIter
         } else {
             // in case the expression is wrapped in a function, eg. strConcat
             // that's why we don't always filter by id, but do a PropertyIsEqualTo
-            query.setFilter(namespaceAwareFilterFactory.equals(featureFidMapping,
+            query.setFilter(namespaceAwareFilterFactory.equals(mapping.getFeatureIdExpression(),
                     namespaceAwareFilterFactory.literal(featureId)));
             matchingFeatures = this.mappedSource.getFeatures(query);
         }

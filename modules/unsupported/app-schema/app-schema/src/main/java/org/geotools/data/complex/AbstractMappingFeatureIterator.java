@@ -67,11 +67,6 @@ public abstract class AbstractMappingFeatureIterator implements IMappingFeatureI
     protected FeatureTypeMapping mapping;
 
     /**
-     * Expression to evaluate the feature id
-     */
-    protected Expression featureFidMapping;
-
-    /**
      * Factory used to create the target feature and attributes
      */
     protected FeatureFactory attf;
@@ -113,27 +108,8 @@ public abstract class AbstractMappingFeatureIterator implements IMappingFeatureI
         
         propertyNames = query.getPropertyNames()==null? null: new HashSet<String>(Arrays.asList(query.getPropertyNames()));
 
-        List<AttributeMapping> attributeMappings = mapping.getAttributeMappings();
-
-        for (AttributeMapping attMapping : attributeMappings) {
-            StepList targetXPath = attMapping.getTargetXPath();
-            if (targetXPath.size() > 1) {
-                continue;
-            }
-            Step step = (Step) targetXPath.get(0);
-            QName stepName = step.getName();
-            if (Types.equals(name, stepName)) {
-                featureFidMapping = attMapping.getIdentifierExpression();
-                break;
-            }
-        }
-
         this.mapping = mapping;
-
-        if (featureFidMapping == null || Expression.NIL.equals(featureFidMapping)) {
-            FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
-            featureFidMapping = ff.property("@id");
-        }        
+        
         this.maxFeatures = query.getMaxFeatures();
                 
         if (!isQueryUnrolled) {

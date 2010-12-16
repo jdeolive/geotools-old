@@ -23,8 +23,12 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.xml.namespace.QName;
+
 import org.geotools.data.FeatureSource;
+import org.geotools.data.complex.filter.XPath.Step;
 import org.geotools.data.complex.filter.XPath.StepList;
+import org.geotools.feature.Types;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.Name;
@@ -67,6 +71,8 @@ public class FeatureTypeMapping {
      */
     private Name mappingName;
 
+	private Expression featureFidMapping;
+
     /**
      * No parameters constructor for use by the digester configuration engine as a JavaBean
      */
@@ -80,6 +86,23 @@ public class FeatureTypeMapping {
         this.target = target;
         this.attributeMappings = new LinkedList<AttributeMapping>(mappings);
         this.namespaces = namespaces;
+        
+        // find id expression
+        for (AttributeMapping attMapping : attributeMappings) {
+            StepList targetXPath = attMapping.getTargetXPath();
+            if (targetXPath.size() > 1) {
+                continue;
+            }
+            Step step = (Step) targetXPath.get(0);
+            QName stepName = step.getName();
+            if (Types.equals(target.getName(), stepName)) {
+                featureFidMapping = attMapping.getIdentifierExpression();
+                break;
+            }
+        }
+        if (featureFidMapping == null) {
+        	featureFidMapping = Expression.NIL;
+        }
     }
 
     public FeatureTypeMapping(FeatureSource<?,?> source, AttributeDescriptor target,
@@ -90,6 +113,10 @@ public class FeatureTypeMapping {
 
     public List<AttributeMapping> getAttributeMappings() {
         return Collections.unmodifiableList(attributeMappings);
+    }
+    
+    public Expression getFeatureIdExpression() {
+    	return featureFidMapping;
     }
 
     /**

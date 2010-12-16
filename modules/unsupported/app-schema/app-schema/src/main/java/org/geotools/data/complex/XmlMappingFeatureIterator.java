@@ -106,7 +106,8 @@ public class XmlMappingFeatureIterator extends AbstractMappingFeatureIterator {
             Query query) throws IOException {
         super(store, mapping, query);
 
-        idXpath = featureFidMapping.toString();
+        idXpath = mapping.getFeatureIdExpression().equals(Expression.NIL) ? "@id" : mapping
+				.getFeatureIdExpression().toString();
 
         List<Integer> ls = xmlResponse.getValidFeatureIndex();
         count = ls.size();

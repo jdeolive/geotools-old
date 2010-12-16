@@ -344,7 +344,7 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
             Feature moFeature = null;
             // find matching input MO feature to compare the values with
             for (Feature inputFeature : inputFeatures) {
-                if (iterator.featureFidMapping.evaluate(inputFeature).equals(fId.toString())) {
+                if (inputFeature.getIdentifier().equals(fId)) {
                     moFeature = inputFeature;
                 }
             }
