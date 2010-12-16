@@ -69,8 +69,10 @@ public class DOMParser {
         //Prepare the DOM source
         Source source = new DOMSource(document);
 
+        Parser fake = new Parser(configuration);
+        
         // Create the handler to handle the SAX events
-        handler = new ParserHandler(configuration);
+        handler = fake.getParserHandler();
 
         try {
             // Prepare the result

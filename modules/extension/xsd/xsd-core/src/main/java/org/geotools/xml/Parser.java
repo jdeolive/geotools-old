@@ -88,6 +88,7 @@ public class Parser {
         }
 
         handler = new ParserHandler(configuration);
+        configuration.setupParser(this);
     }
 
     /**
@@ -120,6 +121,13 @@ public class Parser {
         this.input = input;
     }
 
+    /**
+     * @return The underlying parser handler.
+     */
+    ParserHandler getParserHandler() {
+        return handler;
+    }
+    
     /**
      * Signals the parser to parse the entire instance document. The object
      * returned from the parse is the object which has been bound to the root
@@ -290,6 +298,30 @@ public class Parser {
      */
     public boolean isFailOnValidationError() {
         return handler.isFailOnValidationError();
+    }
+    
+    /**
+     * Sets flag that controls whether the parser will process mixed content in a way 
+     * that preserves order of child elements and text.
+     * 
+     * @since 2.7
+     */
+    public void setHandleMixedContent(boolean handleMixedContent) {
+        handler.setHandleMixedContent(handleMixedContent);
+    }
+    
+    /**
+     * Flag that controls whether the parser will process mixed content in a way 
+     * that preserves order of child elements and text.
+     * <p>
+     * By default the parser will simply concatenate blindly all child text and not preserve order
+     * with respect to other elements within a mixed content type.
+     * </p>
+     * 
+     * @since 2.7
+     */
+    public boolean isHandleMixedContent() {
+        return handler.isHandleMixedContent();
     }
     
     /**

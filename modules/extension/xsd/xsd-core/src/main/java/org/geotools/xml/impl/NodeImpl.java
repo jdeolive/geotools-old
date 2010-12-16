@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 import org.geotools.xml.InstanceComponent;
 import org.geotools.xml.Node;
+import org.geotools.xml.Text;
 
 
 public class NodeImpl implements Node {
@@ -476,5 +477,62 @@ public class NodeImpl implements Node {
         }
 
         return attribute;
+    }
+    
+    public void collapseWhitespace() {
+        //leading whitespace
+        for (Iterator<Node> it = ((List<Node>)children).iterator(); it.hasNext();) {
+            Text t = text(it.next());
+            if (t == null) break;
+            
+            if (t.isWhitespace()) {
+                it.remove();
+            }
+            else {
+                t.trimLeading();
+                break;
+            }
+        }
+        
+        //trailing whitespace
+        for (int i = children.size()-1; i > -1; i--) {
+            Text t = text((Node) children.get(i));
+            if (t == null) break;
+            
+            if (t.isWhitespace()) {
+                children.remove(i);
+            }
+            else {
+                t.trimTrailing();
+                break;
+            }
+        }
+        
+        //inner whitespace
+        boolean remove = false;
+        for (Iterator<Node> it = ((List<Node>)children).iterator(); it.hasNext();) {
+            Text t = text(it.next());
+            if (t == null) continue;
+            
+            t.trimInner();
+            if (t.isWhitespace()) {
+                if (remove) {
+                    it.remove();
+                }
+                else {
+                    remove = true;
+                }
+            }
+            else {
+                remove = false;
+            }
+        }
+    }
+  
+    Text text(Node n) {
+        if (n.getValue() instanceof Text) {
+            return (Text) n.getValue();
+        }
+        return null;
     }
 }
