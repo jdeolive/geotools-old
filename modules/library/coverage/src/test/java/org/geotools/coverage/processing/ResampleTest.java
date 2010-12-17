@@ -37,6 +37,7 @@ import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.ViewType;
+import org.geotools.factory.GeoTools;
 import org.geotools.factory.Hints;
 import org.geotools.metadata.iso.spatial.PixelTranslation;
 import org.geotools.referencing.CRS;
@@ -100,6 +101,7 @@ public final class ResampleTest extends GridProcessingTestBase {
         indexedCoverage                 = EXAMPLES.get(2);
         indexedCoverageWithTransparency = EXAMPLES.get(3);
         floatCoverage                   = EXAMPLES.get(4);
+        Hints.putSystemDefault(Hints.RESAMPLE_TOLERANCE, 0.0);
     }
 
     /**

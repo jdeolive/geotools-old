@@ -369,6 +369,12 @@ public class Hints extends RenderingHints {
      */
     public static final Key VERSION = new Key("org.geotools.util.Version");
     
+      
+    ////////////////////////////////////////////////////////////////////////
+    ////////                                                        ////////
+    ////////              Query hints                               ////////
+    ////////                                                        ////////
+    ////////////////////////////////////////////////////////////////////////
     
 
     /**
@@ -380,8 +386,8 @@ public class Hints extends RenderingHints {
      * @since 2.7
      */
     public static final Key USE_PROVIDED_FID = new Key("org.geotools.fidPolicy.UseExisting");
-
-
+    
+    
     ////////////////////////////////////////////////////////////////////////
     ////////                                                        ////////
     ////////                     ISO Geometries                     ////////
@@ -766,6 +772,12 @@ public class Hints extends RenderingHints {
      */
     public static final ClassKey EXECUTOR_SERVICE = new ClassKey("java.util.concurrent.ExecutorService");
     
+    /**
+     * Resample tolerance (defaults to 0.333)
+     * 
+     * @since 2.7
+     */
+    public static final Key RESAMPLE_TOLERANCE = new Key(Double.class);
 
 
     ////////////////////////////////////////////////////////////////////////

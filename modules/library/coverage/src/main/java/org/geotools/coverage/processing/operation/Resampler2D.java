@@ -20,39 +20,24 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
-import java.awt.image.renderable.ParameterBlock;
 import java.awt.image.DataBuffer;
+import java.awt.image.renderable.ParameterBlock;
 import java.util.List;
 import java.util.Locale;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 
-import javax.media.jai.JAI;
-import javax.media.jai.Warp;
-import javax.media.jai.WarpAffine;
-import javax.media.jai.RenderedOp;
-import javax.media.jai.PlanarImage;
-import javax.media.jai.ImageLayout;
-import javax.media.jai.Interpolation;
 import javax.media.jai.BorderExtender;
 import javax.media.jai.BorderExtenderConstant;
-import javax.media.jai.operator.MosaicDescriptor;
+import javax.media.jai.ImageLayout;
+import javax.media.jai.Interpolation;
 import javax.media.jai.InterpolationNearest;
-
-import org.opengis.coverage.grid.GridEnvelope;
-import org.opengis.coverage.grid.GridCoverage;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.datum.PixelInCell;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.CoordinateOperation;
-import org.opengis.referencing.operation.CoordinateOperationFactory;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.MathTransform2D;
-import org.opengis.referencing.operation.MathTransformFactory;
-import org.opengis.referencing.operation.TransformException;
-import org.opengis.metadata.spatial.PixelOrientation;
-import org.opengis.geometry.Envelope;
+import javax.media.jai.JAI;
+import javax.media.jai.PlanarImage;
+import javax.media.jai.RenderedOp;
+import javax.media.jai.Warp;
+import javax.media.jai.operator.MosaicDescriptor;
 
 import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
@@ -60,25 +45,41 @@ import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.ViewType;
-import org.geotools.coverage.processing.CoverageProcessor;
 import org.geotools.coverage.processing.CannotReprojectException;
+import org.geotools.coverage.processing.CoverageProcessor;
 import org.geotools.factory.Hints;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.ReferencingFactoryFinder;
 import org.geotools.referencing.operation.AbstractCoordinateOperationFactory;
 import org.geotools.referencing.operation.matrix.XAffineTransform;
+import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.geotools.referencing.operation.transform.DimensionFilter;
 import org.geotools.referencing.operation.transform.IdentityTransform;
-import org.geotools.referencing.operation.transform.AffineTransform2D;
-import org.geotools.referencing.operation.transform.WarpTransform2D;
+import org.geotools.referencing.operation.transform.WarpBuilder;
+import org.geotools.resources.CRSUtilities;
 import org.geotools.resources.XArray;
-import org.geotools.resources.i18n.Errors;
-import org.geotools.resources.i18n.ErrorKeys;
-import org.geotools.resources.i18n.Loggings;
-import org.geotools.resources.i18n.LoggingKeys;
-import org.geotools.resources.image.ImageUtilities;
 import org.geotools.resources.coverage.CoverageUtilities;
+import org.geotools.resources.i18n.ErrorKeys;
+import org.geotools.resources.i18n.Errors;
+import org.geotools.resources.i18n.LoggingKeys;
+import org.geotools.resources.i18n.Loggings;
+import org.geotools.resources.image.ImageUtilities;
+import org.opengis.coverage.grid.GridCoverage;
+import org.opengis.coverage.grid.GridEnvelope;
+import org.opengis.coverage.grid.GridGeometry;
+import org.opengis.geometry.Envelope;
+import org.opengis.metadata.spatial.PixelOrientation;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.datum.PixelInCell;
+import org.opengis.referencing.operation.CoordinateOperation;
+import org.opengis.referencing.operation.CoordinateOperationFactory;
+import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.MathTransform2D;
+import org.opengis.referencing.operation.MathTransformFactory;
+import org.opengis.referencing.operation.NoninvertibleTransformException;
+import org.opengis.referencing.operation.TransformException;
 
 
 /**
@@ -121,7 +122,7 @@ final class Resampler2D extends GridCoverage2D {
      * The logging level for defails about resampling operation applied.
      */
     private static final Level LOGGING_LEVEL = Level.FINE;
-
+    
     /**
      * Constructs a new grid coverage for the specified grid geometry.
      *
@@ -650,19 +651,9 @@ final class Resampler2D extends GridCoverage2D {
                 operation = "Warp";
                 final Warp warp;
                 if (forceAdapter) {
-                    warp = WarpTransform2D.getWarp(name, transform);
+                    warp = new WarpBuilder(0.0).buildWarp(transform, sourceBB);
                 } else {
-                    final Rectangle imageBB;
-                    if (layout.getMinX  (sourceImage) == targetBB.x &&
-                        layout.getMinY  (sourceImage) == targetBB.y &&
-                        layout.getWidth (sourceImage) == targetBB.width &&
-                        layout.getHeight(sourceImage) == targetBB.height)
-                    {
-                        imageBB = targetBB;
-                    } else {
-                        imageBB = null;
-                    }
-                    warp = createWarp(name, sourceBB, imageBB, transform, mtFactory);
+                    warp = createWarp(name, sourceBB, targetBB, transform, mtFactory, hints);
                 }
                 paramBlk.add(warp).add(interpolation).add(background);
             }
@@ -881,7 +872,7 @@ final class Resampler2D extends GridCoverage2D {
         }
         return new GeneralEnvelope(lower, upper);
     }
-
+    
     /**
      * Creates a warp for the given transform. This method performs some empirical adjustment
      * for working around the {@link ArrayIndexOutOfBoundsException} which occurs sometime in
@@ -894,11 +885,21 @@ final class Resampler2D extends GridCoverage2D {
      * @param  mtFactory  A math transform factory in case new transforms need to be created.
      * @return The warp.
      * @throws FactoryException if the warp can't be created.
+     * @throws TransformException if the warp can't be created.
      */
     private static Warp createWarp(final CharSequence name, final Rectangle sourceBB, final Rectangle targetBB,
-                                   final MathTransform2D allSteps2D, final MathTransformFactory mtFactory)
-            throws FactoryException
+                                   final MathTransform2D allSteps2D, final MathTransformFactory mtFactory, Hints hints)
+            throws FactoryException, TransformException
     {
+        Double tolerance = (Double) hints.get(Hints.RESAMPLE_TOLERANCE);
+        if(tolerance == null) {
+            tolerance = (Double) Hints.getSystemDefault(Hints.RESAMPLE_TOLERANCE);
+        } 
+        if(tolerance == null) {
+            tolerance = 0.333;
+        }
+        WarpBuilder wb = new WarpBuilder(tolerance);
+        
         MathTransform2D transform = allSteps2D;
         Rectangle actualBB = null;
         int step = 0;
@@ -908,7 +909,7 @@ final class Resampler2D extends GridCoverage2D {
              * creation that we need to perform some empirical adjustment. The difference between
              * the actual and expected bounding boxes should be only 1 pixel.
              */
-            if (actualBB != null) {
+            if (actualBB != null) { 
                 final double scaleX     = 1 - ((double) sourceBB.width  / (double) actualBB.width);
                 final double scaleY     = 1 - ((double) sourceBB.height / (double) actualBB.height);
                 final double translateX = sourceBB.x - actualBB.x;
@@ -926,32 +927,27 @@ final class Resampler2D extends GridCoverage2D {
              * Otherwise we assume that the difference is caused by rounding error and we will try
              * progressive empirical adjustment in order to get the rectangles to fit.
              */
-            final Warp warp;
-            if (transform instanceof AffineTransform) {
-                warp = new WarpAffine((AffineTransform) transform);
-            } else {
-                warp = WarpTransform2D.getWarp(name, transform);
-            }
-//            if (true)
-//            {
+            final Warp warp = wb.buildWarp(transform, sourceBB);
+            if(true) {
                 return warp;
-//            }
-//            // remainder is disabled for now since it break Geoserver build.
-//            if (sourceBB == null || targetBB == null) {
-//                return warp;
-//            }
-//            actualBB = warp.mapSourceRect(sourceBB); // May be null
-//            if (actualBB == null || targetBB.contains(sourceBB)) {
-//                return warp;
-//            }
-//            actualBB = warp.mapDestRect(targetBB); // Should never be null.
-//            if (sourceBB.contains(actualBB)) {
-//                return warp;
-//            }
+            }
+            
+            // remainder is disabled for now since it break Geoserver build.
+            if (sourceBB == null || targetBB == null) {
+                return warp;
+            }
+            actualBB = warp.mapSourceRect(sourceBB); // May be null
+            if (actualBB != null && targetBB.contains(sourceBB)) {
+                return warp;
+            }
+            actualBB = warp.mapDestRect(targetBB); // Should never be null.
+            if (actualBB != null && targetBB.contains(sourceBB)) {
+                return warp;
+            }
             // The loop below intentionally tries one more iteration than the constant in case we need
             // to apply slightly more than the above scale and translation because of rounding errors.
         } while (step++ <= EMPIRICAL_ADJUSTMENT_STEPS);
-//        throw new FactoryException(Errors.format(ErrorKeys.CANT_REPROJECT_$1, name));
+        throw new FactoryException(Errors.format(ErrorKeys.CANT_REPROJECT_$1, name));
     }
 
     /**
