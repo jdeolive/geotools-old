@@ -125,7 +125,7 @@ public class ShapefileDataStore extends AbstractFileDataStore {
     protected URI namespace = null; // namespace provided by the constructor's
     // map
     protected SimpleFeatureType schema; // read only
-    protected boolean useMemoryMappedBuffer = true;
+    protected boolean useMemoryMappedBuffer = false; // windows is not up to use memory mapping in anger
     protected Charset dbfCharset;
     
     private ServiceInfo info;
@@ -188,7 +188,7 @@ public class ShapefileDataStore extends AbstractFileDataStore {
         if (!isLocal() || !shpFiles.exists(SHP)) {
             this.useMemoryMappedBuffer = false;
         } else {
-            this.useMemoryMappedBuffer = true;
+            this.useMemoryMappedBuffer = useMemoryMapped;
         }
         this.dbfCharset = dbfCharset;
         if(TRACE_ENABLED) {
@@ -214,7 +214,7 @@ public class ShapefileDataStore extends AbstractFileDataStore {
         if (!isLocal() || !shpFiles.exists(SHP)) {
             this.useMemoryMappedBuffer = false;
         } else {
-            this.useMemoryMappedBuffer = true;
+            this.useMemoryMappedBuffer = useMemoryMapped;
         }
         shpFiles.setMemoryMapCacheEnabled(this.useMemoryMappedBuffer && cacheMemoryMap);
         this.dbfCharset = dbfCharset;
