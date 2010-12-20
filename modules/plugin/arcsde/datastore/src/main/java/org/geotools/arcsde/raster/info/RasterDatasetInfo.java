@@ -78,11 +78,6 @@ public final class RasterDatasetInfo {
     /** Array holding information on each level of the pyramid in this raster. * */
     private List<RasterInfo> subRasterInfo;
 
-    /**
-     * The original (ie, pyramid level zero) envelope for the whole raster dataset
-     */
-    private GeneralEnvelope originalEnvelope;
-
     private GridEnvelope originalGridRange;
 
     private List<GridSampleDimension> gridSampleDimensions;
@@ -254,7 +249,7 @@ public final class RasterDatasetInfo {
 
             final MathTransform modelToRaster;
             try {
-                final MathTransform rasterToModel = getRasterToModel(PixelInCell.CELL_CENTER);
+                final MathTransform rasterToModel = getRasterToModel();
                 modelToRaster = rasterToModel.inverse();
             } catch (NoninvertibleTransformException e) {
                 throw new IllegalStateException("Can't create transform from model to raster");
@@ -289,12 +284,11 @@ public final class RasterDatasetInfo {
         return originalGridRange;
     }
 
-    public MathTransform getRasterToModel(PixelInCell pixelAnchor) {
-        return getRasterToModel(0, 0, pixelAnchor);
+    public MathTransform getRasterToModel() {
+        return getRasterToModel(0, 0);
     }
 
-    public MathTransform getRasterToModel(final int rasterIndex, final int pyramidLevel,
-            final PixelInCell pixelAnchor) {
+    public MathTransform getRasterToModel(final int rasterIndex, final int pyramidLevel) {
 
         GeneralEnvelope levelEnvelope = getGridEnvelope(rasterIndex, pyramidLevel);
         GridEnvelope levelGridRange = getGridRange(rasterIndex, pyramidLevel);
@@ -305,37 +299,37 @@ public final class RasterDatasetInfo {
         geMapper.setPixelAnchor(PixelInCell.CELL_CORNER);
 
         MathTransform rasterToModel = geMapper.createTransform();
-
-        // if (PixelInCell.CELL_CENTER.equals(pixelAnchor)) {
-        // final AffineTransform tr = new AffineTransform((AffineTransform) rasterToModel);
-        // tr.concatenate(AffineTransform.getTranslateInstance(0.5, 0.5));
-        // rasterToModel = ProjectiveTransform.create(tr);
-        // }
-
         return rasterToModel;
     }
 
     /**
+     * @param pixelAnchor
      * @return the originalEnvelope
      */
-    public GeneralEnvelope getOriginalEnvelope() {
-        if (originalEnvelope == null) {
-            GeneralEnvelope env = null;
-            if (1 == getNumRasters()) {
-                env = getGridEnvelope(0, 0);
-            } else {
-                for (RasterInfo raster : subRasterInfo) {
-                    GeneralEnvelope rasterEnvelope = raster.getOriginalEnvelope();
-                    if (env == null) {
-                        env = new GeneralEnvelope(rasterEnvelope);
-                    } else {
-                        env.add(rasterEnvelope);
-                    }
+    public GeneralEnvelope getOriginalEnvelope(final PixelInCell pixelAnchor) {
+        GeneralEnvelope env = null;
+        if (1 == getNumRasters()) {
+            env = getGridEnvelope(0, 0);
+        } else {
+            for (RasterInfo raster : subRasterInfo) {
+                int rasterIndex = getRasterIndex(raster.getRasterId());
+                GeneralEnvelope rasterEnvelope = getGridEnvelope(rasterIndex, 0);
+                if (env == null) {
+                    env = new GeneralEnvelope(rasterEnvelope);
+                } else {
+                    env.add(rasterEnvelope);
                 }
             }
-            originalEnvelope = env;
         }
-        return originalEnvelope;
+
+        if (PixelInCell.CELL_CENTER.equals(pixelAnchor)) {
+            double[] resolution = getResolution(0, 0);
+            double deltaX = resolution[0] / 2;
+            double deltaY = resolution[1] / 2;
+            env.setEnvelope(env.getMinimum(0) + deltaX, env.getMinimum(1) + deltaY,
+                    env.getMaximum(0) - deltaX, env.getMaximum(1) - deltaY);
+        }
+        return env;
     }
 
     @Override

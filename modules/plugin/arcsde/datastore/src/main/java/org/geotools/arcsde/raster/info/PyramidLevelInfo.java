@@ -17,6 +17,7 @@
  */
 package org.geotools.arcsde.raster.info;
 
+import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.geometry.GeneralEnvelope;
 import org.opengis.coverage.grid.GridEnvelope;
 
@@ -32,15 +33,16 @@ final class PyramidLevelInfo {
 
     private int pyramidLevel, xTiles, yTiles;
 
-    private GeneralEnvelope spatialExtent;
+    private final GeneralEnvelope spatialExtent;
 
-    private GridEnvelope gridEnvelope;
+    private GridEnvelope2D gridEnvelope;
 
     PyramidLevelInfo(final int level, final int numTilesWide, final int numTilesHigh,
             final GridEnvelope gridEnvelope, final GeneralEnvelope spatialExtent) {
         this.pyramidLevel = level;
         this.spatialExtent = spatialExtent;
-        this.gridEnvelope = gridEnvelope;
+        this.gridEnvelope = new GridEnvelope2D(gridEnvelope.getLow(0), gridEnvelope.getLow(1),
+                gridEnvelope.getSpan(0), gridEnvelope.getSpan(1));
         this.xTiles = numTilesWide;
         this.yTiles = numTilesHigh;
     }
@@ -87,7 +89,7 @@ final class PyramidLevelInfo {
      *         raster at this pyramid level
      */
     public GeneralEnvelope getSpatialExtent() {
-        return spatialExtent;
+        return new GeneralEnvelope(spatialExtent);
     }
 
     /**
@@ -96,7 +98,7 @@ final class PyramidLevelInfo {
      * @return
      */
     public GridEnvelope getGridEnvelope() {
-        return this.gridEnvelope;
+        return new GridEnvelope2D(this.gridEnvelope);
     }
 
     @Override

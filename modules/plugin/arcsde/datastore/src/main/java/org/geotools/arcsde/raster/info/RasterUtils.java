@@ -55,7 +55,6 @@ import org.geotools.util.logging.Logging;
 import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.geometry.Envelope;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.MathTransform2D;
 import org.opengis.referencing.operation.NoninvertibleTransformException;
@@ -145,9 +144,9 @@ public class RasterUtils {
             }
 
             levelMinPixelX = (int) Math.floor(requestedPixels.getMinimum(0));
-            levelMaxPixelX = (int) Math.floor(requestedPixels.getMaximum(0));
+            levelMinPixelY = (int) Math.floor(requestedPixels.getMinimum(1));
 
-            levelMinPixelY = (int) Math.ceil(requestedPixels.getMinimum(1));
+            levelMaxPixelX = (int) Math.ceil(requestedPixels.getMaximum(0));
             levelMaxPixelY = (int) Math.ceil(requestedPixels.getMaximum(1));
 
             final int width = levelMaxPixelX - levelMinPixelX;
@@ -209,8 +208,8 @@ public class RasterUtils {
 
         // Prepare temporary colorModel and sample model, needed to build the final
         // ArcSDEPyramidLevel level;
-        int sampleImageWidth = 1;// rasterInfo.getImageWidth();
-        int sampleImageHeight = 1;// rasterInfo.getImageHeight();
+        final int sampleImageWidth = 1;// rasterInfo.getImageWidth();
+        final int sampleImageHeight = 1;// rasterInfo.getImageHeight();
 
         final ImageTypeSpecifier its;
         // treat special cases...
@@ -417,10 +416,13 @@ public class RasterUtils {
      * @return
      */
     public static GridEnvelope setMosaicLocations(final RasterDatasetInfo rasterInfo,
-            final GeneralEnvelope resultEnvelope, final List<RasterQueryInfo> results) {
-        final GridEnvelope mosaicDimension;
+            final List<RasterQueryInfo> results) {
         final MathTransform modelToRaster;
         final MathTransform rasterToModel;
+        int minx = Integer.MAX_VALUE;
+        int miny = Integer.MAX_VALUE;
+        int maxx = Integer.MIN_VALUE;
+        int maxy = Integer.MIN_VALUE;
         {
             /*
              * Of all the rasters that match the requested envelope, chose the one with the lowest
@@ -432,14 +434,12 @@ public class RasterUtils {
             Long rasterId = dimensionChoice.getRasterId();
             int pyramidLevel = dimensionChoice.getPyramidLevel();
             int rasterIndex = rasterInfo.getRasterIndex(rasterId);
-            rasterToModel = rasterInfo.getRasterToModel(rasterIndex, pyramidLevel,
-                    PixelInCell.CELL_CENTER);
+            rasterToModel = rasterInfo.getRasterToModel(rasterIndex, pyramidLevel);
             try {
                 modelToRaster = rasterToModel.inverse();
             } catch (NoninvertibleTransformException e) {
                 throw new RuntimeException(e);
             }
-            mosaicDimension = getTargetGridRange(modelToRaster, resultEnvelope);
         }
 
         for (RasterQueryInfo rasterResultInfo : results) {
@@ -449,12 +449,19 @@ public class RasterUtils {
             targetRasterGridRange = getTargetGridRange(modelToRaster, rasterResultEnvelope);
 
             rasterResultInfo.setMosaicLocation(targetRasterGridRange);
+
+            minx = Math.min(minx, targetRasterGridRange.getLow(0));
+            miny = Math.min(miny, targetRasterGridRange.getLow(1));
+            maxx = Math.max(maxx, targetRasterGridRange.getHigh(0));
+            maxy = Math.max(maxy, targetRasterGridRange.getHigh(1));
         }
 
+        final GridEnvelope2D mosaicDimension;
+        mosaicDimension = new GridEnvelope2D(minx, miny, 1 + (maxx - minx), 1 + (maxy - miny));
         return mosaicDimension;
     }
 
-    private static RasterQueryInfo findLowestResolution(List<RasterQueryInfo> results) {
+    public static RasterQueryInfo findLowestResolution(List<RasterQueryInfo> results) {
         double[] prev = { Double.MIN_VALUE, Double.MIN_VALUE };
         RasterQueryInfo lowestResQuery = null;
 
@@ -521,7 +528,7 @@ public class RasterUtils {
         int rasterIndex = query.getRasterIndex();
         int pyramidLevel = query.getPyramidLevel();
         MathTransform2D rasterToModel = (MathTransform2D) rasterInfo.getRasterToModel(rasterIndex,
-                pyramidLevel, PixelInCell.CELL_CORNER);
+                pyramidLevel);
         MathTransform2D modelToRaster;
 
         try {

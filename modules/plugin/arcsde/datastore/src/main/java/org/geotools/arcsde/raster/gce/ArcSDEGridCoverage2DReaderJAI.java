@@ -17,12 +17,16 @@
  */
 package org.geotools.arcsde.raster.gce;
 
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
+import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
+import java.awt.image.SampleModel;
+import java.awt.image.WritableRaster;
 import java.awt.image.renderable.ParameterBlock;
 import java.io.File;
 import java.io.IOException;
@@ -36,6 +40,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
+import javax.imageio.ImageTypeSpecifier;
 import javax.media.jai.ImageLayout;
 import javax.media.jai.InterpolationNearest;
 import javax.media.jai.JAI;
@@ -126,7 +131,7 @@ public final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DR
         super.hints = hints;
         super.coverageFactory = CoverageFactoryFinder.getGridCoverageFactory(this.hints);
         super.crs = rasterInfo.getCoverageCrs();
-        super.originalEnvelope = rasterInfo.getOriginalEnvelope();
+        super.originalEnvelope = rasterInfo.getOriginalEnvelope(PixelInCell.CELL_CENTER);
 
         GridEnvelope gridRange = rasterInfo.getOriginalGridRange();
         // super.originalGridRange = new GeneralGridRange(gridRange.toRectangle());
@@ -143,7 +148,9 @@ public final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DR
         // setting the higher resolution avalaible for this coverage
         //
         // ///
-        highestRes = super.getResolution(originalEnvelope, (Rectangle) originalGridRange, crs);
+        highestRes = super.getResolution(originalEnvelope,
+                new Rectangle(originalGridRange.getLow(0), originalGridRange.getLow(1),
+                        originalGridRange.getSpan(0), originalGridRange.getSpan(1)), crs);
         // //
         //
         // get information for the successive images
@@ -166,8 +173,6 @@ public final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DR
         } else {
             overViewResolutions = null;
         }
-
-        this.raster2Model = rasterInfo.getRasterToModel(PixelInCell.CELL_CENTER);
     }
 
     /**
@@ -213,17 +218,27 @@ public final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DR
         final List<RasterQueryInfo> queries;
         queries = findMatchingRasters(requestedEnvelope, requestedDim, overviewPolicy);
         if (queries.isEmpty()) {
+            if (requestedEnvelope.intersects(getOriginalEnvelope(), true)) {
+                /*
+                 * No matching rasters but envelopes intersect, meaning it's a raster catalog with
+                 * irregular coverage and the request lies on an area with no coverage
+                 */
+                ImageTypeSpecifier imageTypeSpecifier;
+                imageTypeSpecifier = RasterUtils.createFullImageTypeSpecifier(rasterInfo, 0);
+                SampleModel sampleModel = imageTypeSpecifier.getSampleModel();
+                Point location = new Point(0, 0);
+                WritableRaster raster = Raster.createWritableRaster(sampleModel, location);
+                GridCoverage2D emptyCoverage;
+                emptyCoverage = coverageFactory.create(coverageName, raster, requestedEnvelope);
+                return emptyCoverage;
+            }
             /*
              * none of the rasters match the requested envelope.
              */
             return null;
         }
 
-        final GeneralEnvelope resultEnvelope = getResultEnvelope(queries);
-
         final LoggingHelper log = new LoggingHelper();
-        log.appendLoggingGeometries(LoggingHelper.REQ_ENV, requestedEnvelope);
-        log.appendLoggingGeometries(LoggingHelper.RES_ENV, resultEnvelope);
 
         /*
          * Once we collected the matching rasters and their image subsets, find out where in the
@@ -231,7 +246,7 @@ public final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DR
          * the QueryInfo.resultDimension and QueryInfo.mosaicLocation width or height won't match
          */
         final GridEnvelope mosaicGeometry;
-        mosaicGeometry = RasterUtils.setMosaicLocations(rasterInfo, resultEnvelope, queries);
+        mosaicGeometry = RasterUtils.setMosaicLocations(rasterInfo, queries);
 
         if (mosaicGeometry.getSpan(0) == 0 || mosaicGeometry.getSpan(1) == 0) {
             LOGGER.finer("Mosaic geometry width or height is zero,"
@@ -264,20 +279,34 @@ public final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DR
          */
         GridSampleDimension[] bands = getSampleDimensions(coverageRaster);
 
-        // GridCoverage2D resultCoverage = coverageFactory.create(coverageName, coverageRaster,
-        // resultEnvelope, bands, null, null);
+        final GeneralEnvelope resultEnvelope = getResultEnvelope(queries, mosaicGeometry);
+        log.appendLoggingGeometries(LoggingHelper.REQ_ENV, requestedEnvelope);
+        log.appendLoggingGeometries(LoggingHelper.RES_ENV, resultEnvelope);
 
-        MathTransform gridToCRS = rasterInfo.getRasterToModel(queries.get(0).getRasterIndex(),
-                queries.get(0).getPyramidLevel(), PixelInCell.CELL_CORNER);
-
-        GridGeometry2D gridGeometry = new GridGeometry2D(PixelInCell.CELL_CORNER, gridToCRS,
-                resultEnvelope, hints);
-
-        GridCoverage[] sources = null;
-        Map<?, ?> properties = null;
         GridCoverage2D resultCoverage = coverageFactory.create(coverageName, coverageRaster,
-                gridGeometry, bands, sources, properties);
+                resultEnvelope, bands, null, null);
+
+        // MathTransform gridToCRS = rasterInfo.getRasterToModel(queries.get(0).getRasterIndex(),
+        // queries.get(0).getPyramidLevel());
+        //
+        // GridGeometry2D gridGeometry = new GridGeometry2D(PixelInCell.CELL_CORNER, gridToCRS,
+        // resultEnvelope, hints);
+        //
+        // GridCoverage[] sources = null;
+        // Map<?, ?> properties = null;
+        // GridCoverage2D resultCoverage = coverageFactory.create(coverageName, coverageRaster,
+        // gridGeometry, bands, sources, properties);
         return resultCoverage;
+    }
+
+    private GeneralEnvelope toPixelCenter(double[] resolution, GeneralEnvelope pixelCornerEnv) {
+        double deltaX = resolution[0] / 2;
+        double deltaY = resolution[1] / 2;
+        GeneralEnvelope env = new GeneralEnvelope(pixelCornerEnv.getCoordinateReferenceSystem());
+        env.setEnvelope(pixelCornerEnv.getMinimum(0) + deltaX, pixelCornerEnv.getMinimum(1)
+                + deltaY, pixelCornerEnv.getMaximum(0) - deltaX, pixelCornerEnv.getMaximum(1)
+                - deltaY);
+        return env;
     }
 
     private GridSampleDimension[] getSampleDimensions(final RenderedImage coverageRaster)
@@ -366,22 +395,33 @@ public final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DR
         return matchingQueries;
     }
 
-    private GeneralEnvelope getResultEnvelope(final List<RasterQueryInfo> queryInfos) {
+    private GeneralEnvelope getResultEnvelope(final List<RasterQueryInfo> queryInfos,
+            final GridEnvelope mosaicGeometry) {
+
+        // use the same queryInfo used by setMosaicLocations
+        final RasterQueryInfo baseQueryInfo = RasterUtils.findLowestResolution(queryInfos);
 
         GeneralEnvelope finalEnvelope = null;
+        // if (queryInfos.size() == 1) {
+        // finalEnvelope = queryInfos.get(0).getResultEnvelope();
+        // } else {
+        int rasterIndex = baseQueryInfo.getRasterIndex();
+        int pyramidLevel = baseQueryInfo.getPyramidLevel();
+        MathTransform rasterToModel = rasterInfo.getRasterToModel(rasterIndex, pyramidLevel);
+        CoordinateReferenceSystem coverageCrs = rasterInfo.getCoverageCrs();
+        GeneralEnvelope mosaicGeometryEnv = new GeneralEnvelope(coverageCrs);
+        mosaicGeometryEnv.setEnvelope(mosaicGeometry.getLow(0), mosaicGeometry.getLow(1),
+                1 + mosaicGeometry.getHigh(0), 1 + mosaicGeometry.getHigh(1));
+        try {
+            finalEnvelope = CRS.transform(rasterToModel, mosaicGeometryEnv);
+            finalEnvelope.setCoordinateReferenceSystem(coverageCrs);
+        } catch (TransformException e) {
+            throw new RuntimeException(e);
+        }
+        // }
 
-        for (RasterQueryInfo rasterQueryInfo : queryInfos) {
-            // gather resulting envelope
-            if (finalEnvelope == null) {
-                finalEnvelope = new GeneralEnvelope(rasterQueryInfo.getResultEnvelope());
-            } else {
-                finalEnvelope.add(rasterQueryInfo.getResultEnvelope());
-            }
-        }
-        if (finalEnvelope == null) {
-            throw new IllegalStateException("Restult envelope is null, this shouldn't happen!! "
-                    + "we checked the request overlaps the coverage envelope before!");
-        }
+        // double[] resolution = baseQueryInfo.getResolution();
+        // finalEnvelope = toPixelCenter(resolution, finalEnvelope);
         return finalEnvelope;
     }
 
@@ -436,8 +476,8 @@ public final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DR
             }
             final GridEnvelope mosaicLocation = query.getMosaicLocation();
             // scale
-            Float scaleX = Float.valueOf((float) (mosaicLocation.getSpan(0) / image.getWidth()));
-            Float scaleY = Float.valueOf((float) (mosaicLocation.getSpan(1) / image.getHeight()));
+            Float scaleX = Float.valueOf(((float) mosaicLocation.getSpan(0) / image.getWidth()));
+            Float scaleY = Float.valueOf(((float) mosaicLocation.getSpan(1) / image.getHeight()));
             Float translateX = Float.valueOf(0);
             Float translateY = Float.valueOf(0);
 

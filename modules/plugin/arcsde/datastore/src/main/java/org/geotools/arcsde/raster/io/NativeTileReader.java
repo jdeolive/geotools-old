@@ -194,6 +194,17 @@ final class NativeTileReader implements TileReader {
 
         final RasterCellType targetCellType = rasterInfo.getTargetCellType(rasterId);
         this.dataFetcher = TileDataFetcher.getTileDataFetcher(this.nativeCellType, targetCellType);
+
+        int rasterIndex = rasterInfo.getRasterIndex(rasterId);
+        int maxTileX = rasterInfo.getNumTilesWide(rasterIndex, pyramidLevel) - 1;
+        int maxTileY = rasterInfo.getNumTilesHigh(rasterIndex, pyramidLevel) - 1;
+
+        if (tileRange.getLow(0) < 0 || tileRange.getLow(1) < 0 || tileRange.getHigh(0) > maxTileX
+                || tileRange.getHigh(1) > maxTileY) {
+            throw new IllegalArgumentException("Invalid tile range for raster #" + rasterId + "/"
+                    + pyramidLevel + ": " + tileRange + ". Valid range is 0.." + maxTileX + " 0.."
+                    + maxTileY);
+        }
     }
 
     /**
@@ -465,7 +476,7 @@ final class NativeTileReader implements TileReader {
     }
 
     private void getTile(final int tileX, final int tileY, TileInfo[] target) throws IOException {
-        //System.out.printf("fetchTile %d, %d\n", tileX, tileY);
+        // System.out.printf("fetchTile %d, %d\n", tileX, tileY);
         try {
             fetchTile(tileX, tileY, target);
         } catch (IOException e) {
@@ -487,7 +498,7 @@ final class NativeTileReader implements TileReader {
      * How many random tiles requested (ie, not consecutive) before re executing the original
      * request as a rewind
      */
-    private static final int RANDOM_THRESHOLD = 2;
+    private static final int RANDOM_THRESHOLD = Integer.MAX_VALUE;
 
     private int nonConsecutiveCallCount;
 
@@ -545,13 +556,9 @@ final class NativeTileReader implements TileReader {
             LOGGER.info("fetchSingleTile raster #" + this.rasterId + ", plevel " + pyramidLevel
                     + ", tile " + tileX + ", " + tileY);
         }
-        // System.err.println("->fetchSingleTile " + tileX + ", " + tileY);
-        final int rasterTileX = requestedTiles.getLow(0) + tileX;
-        final int rasterTileY = requestedTiles.getLow(1) + tileY;
         final int width = 1;
         final int height = 1;
-        final GridEnvelope requestTiles = new GridEnvelope2D(rasterTileX, rasterTileY, width,
-                height);
+        final GridEnvelope requestTiles = new GridEnvelope2D(tileX, tileY, width, height);
 
         final QueryObjects singleTileQueryObjects = execute(requestTiles);
         final SeQuery query = singleTileQueryObjects.preparedQuery;

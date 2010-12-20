@@ -216,7 +216,10 @@ public class ArcSDEPlanarImage extends PlanarImage {
             throw new RuntimeException(e);
         }
 
-        tileCache.add(this, tileX, tileY, currentTile);
+//        if (tileX == tileReader.getMinTileX() || tileX == tileReader.getMaxTileX()
+//                || tileY == tileReader.getMinTileY() || tileY == tileReader.getMaxTileY()) {
+            tileCache.add(this, tileX, tileY, currentTile);
+//        }
 
         return currentTile;
     }
@@ -231,4 +234,14 @@ public class ArcSDEPlanarImage extends PlanarImage {
         return ignore;
     }
 
+    @Override
+    public synchronized void dispose(){
+        super.dispose();
+        this.tileReader.dispose();
+    }
+    
+    @Override
+    protected void finalize(){
+        dispose();
+    }
 }
