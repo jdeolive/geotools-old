@@ -18,6 +18,7 @@ package org.geotools.filter.text.cql2;
 
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.opengis.filter.Filter;
 
@@ -69,6 +70,32 @@ public class FilterToCQLTest{
     	cqlTest( "BBOX(the_geom, 10.0,20.0,30.0,40.0)" );
 	}
     
+    @Test 
+    public void testAfter() throws Exception{
+    	
+    	cqlTest("attr AFTER 2006-12-31T01:30:00Z");
+    }
+    
+    @Test 
+    public void testBefore() throws Exception{
+    	
+    	cqlTest("attr BEFORE 2006-12-31T01:30:00Z");
+    }
+
+    /**
+     * FIXME This require an implementation. The "and" filter should be modified to take into account that 
+     * a filter with dates should be transformed in a "during" predicate.
+     * 
+     * @throws Exception
+     */
+    @Ignore
+    public void testDuring() throws Exception{
+    	
+    	cqlTest("dateAttr DURING 2006-10-10T01:30:00Z/2010-12-31T01:30:00Z");
+    }
+    
+    
+    
     protected void cqlTest( String cql ) throws Exception {
         Filter filter = CQL.toFilter(cql);
         Assert.assertNotNull( cql + " parse", filter );
@@ -77,4 +104,7 @@ public class FilterToCQLTest{
         Assert.assertNotNull( cql + " encode", output );
         Assert.assertEquals( cql, cql,output );        
     }
+    
+    
+    
 }

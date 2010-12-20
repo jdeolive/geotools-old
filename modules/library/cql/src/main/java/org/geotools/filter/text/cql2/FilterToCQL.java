@@ -128,16 +128,22 @@ class FilterToCQL implements FilterVisitor, ExpressionVisitor {
             for( Iterator<Filter> i=children.iterator(); i.hasNext(); ){
                 Filter child = i.next();
                 child.accept(this, output);
-                if (i.hasNext()) {
-                    output.append(" AND ");
+                if(comparisonHasDate(child) ){
+
+                	// FIXME during should be built
+                	throw new UnsupportedOperationException("work in progress: DURING requires implementation!");
+
+                } else {
+                    if (i.hasNext()) {
+                        output.append(" AND ");
+                    }
                 }
             }
             output.append(")");
         }
         return output;
     }
-    
-    /**
+	/**
      * Encoding an Id filter is not supported by CQL.
      * <p>
      * This is because in the Catalog specification retreiving an object
@@ -213,7 +219,7 @@ class FilterToCQL implements FilterVisitor, ExpressionVisitor {
     }
     public Object visit(PropertyIsGreaterThan filter, Object extraData) {
         StringBuffer output = asStringBuffer(extraData);
-        if( isDate( filter )){
+        if( comparisonHasDate( filter )){
             return after( filter, output);
         }
         LOGGER.finer("exporting PropertyIsGreaterThan");
@@ -225,19 +231,30 @@ class FilterToCQL implements FilterVisitor, ExpressionVisitor {
         
         return output;
     }
+    
     /**
-     * Check if we are working with dates; may ned to check propertyName against
-     * the current SimpleFature type.
-     * @param compare
-     * @return true if we are working on Date
+     * Checks if the comparison filter has a literal date.
+     * @param filter
+     * @return true if the comparison has a literal date , false in other case.
      */
-    protected boolean isDate( BinaryComparisonOperator compare ){
-        if( compare.getExpression2() instanceof Literal){
-            Literal literal = (Literal) compare.getExpression2();
-            return literal.getValue() instanceof Date;
+    private boolean comparisonHasDate( Filter filter) {
+    	
+    	if(!(filter instanceof BinaryComparisonOperator)){
+    		return false;
+    		
+    	}
+    	BinaryComparisonOperator  comparison  = (BinaryComparisonOperator) filter;
+    	boolean bool;
+        if( comparison.getExpression2() instanceof Literal){
+            Literal literal = (Literal) comparison.getExpression2();
+            bool =  literal.getValue() instanceof Date;
+        } else {
+            Literal literal = (Literal) comparison.getExpression1();
+            bool =  literal.getValue() instanceof Date;
         }
-        return false;
-    }
+        return bool;
+	}
+    
     
     /**
      * This is where it would be noice to know if we are working on a Date.
@@ -245,7 +262,7 @@ class FilterToCQL implements FilterVisitor, ExpressionVisitor {
      * I am tempted to do the SimpleFeature look aisde in order to guess
      * what kind of type I am working with.
      */
-    public StringBuffer after( PropertyIsGreaterThan filter, StringBuffer output ){
+    private StringBuffer after( PropertyIsGreaterThan filter, StringBuffer output ){
         LOGGER.finer("exporting AFTER");
         PropertyName propertyName = (PropertyName) filter.getExpression1();
         propertyName.accept(this, output);
@@ -255,39 +272,73 @@ class FilterToCQL implements FilterVisitor, ExpressionVisitor {
         return output;
         
     }
+    
     public Object visit(PropertyIsGreaterThanOrEqualTo filter, Object extraData) {
-        LOGGER.finer("exporting PropertyIsGreaterThanOrEqualTo");
+        LOGGER.finer("exporting PropertyIsLessThanOrEqualTo");
         StringBuffer output = asStringBuffer(extraData);
         
-        PropertyName propertyName = (PropertyName) filter.getExpression1();
-        propertyName.accept(this, output);
-        output.append(" >= ");
-        filter.getExpression2().accept(this, output);
+        Object expr1 = filter.getExpression1();
+        if( expr1 instanceof PropertyName){
+            PropertyName propertyName = (PropertyName) filter.getExpression1();
+            propertyName.accept(this, output);
+            output.append(" >= ");
+            filter.getExpression2().accept(this, output);
+        } else { 
+            PropertyName propertyName = (PropertyName) filter.getExpression2();
+            propertyName.accept(this, output);
+            output.append(" >= ");
+            filter.getExpression1().accept(this, output);
+        }
         
         return output;
     }
+    
+    
     public Object visit(PropertyIsLessThan filter, Object extraData) {
+    	
         LOGGER.finer("exporting PropertyIsLessThan");
         StringBuffer output = asStringBuffer(extraData);
         
         PropertyName propertyName = (PropertyName) filter.getExpression1();
-        propertyName.accept(this, output);
-        output.append(" < ");
-        filter.getExpression2().accept(this, output);
+    	propertyName.accept(this, output);
+
+        Literal expression2 = (Literal)filter.getExpression2();
+        Object literalValue = expression2.getValue();
+        
+        if( literalValue instanceof Date){
+
+            output.append(" BEFORE ");
+            filter.getExpression2().accept(this, output);
+        	
+        } else {
+            output.append(" < ");
+            filter.getExpression2().accept(this, output);
+        	
+        }
         
         return output;
     }
+    
     public Object visit(PropertyIsLessThanOrEqualTo filter, Object extraData) {
         LOGGER.finer("exporting PropertyIsLessThanOrEqualTo");
         StringBuffer output = asStringBuffer(extraData);
         
-        PropertyName propertyName = (PropertyName) filter.getExpression1();
-        propertyName.accept(this, output);
-        output.append(" <= ");
-        filter.getExpression2().accept(this, output);
+        Object expr1 = filter.getExpression1();
+        if( expr1 instanceof PropertyName){
+            PropertyName propertyName = (PropertyName) filter.getExpression1();
+            propertyName.accept(this, output);
+            output.append(" <= ");
+            filter.getExpression2().accept(this, output);
+        } else { 
+            PropertyName propertyName = (PropertyName) filter.getExpression2();
+            propertyName.accept(this, output);
+            output.append(" <= ");
+            filter.getExpression1().accept(this, output);
+        }
         
         return output;
     }
+    
     public Object visit(PropertyIsLike filter, Object extraData) {
         StringBuffer output = asStringBuffer(extraData);
         
@@ -457,6 +508,7 @@ class FilterToCQL implements FilterVisitor, ExpressionVisitor {
         
         return output;
     }
+    	     
     public Object visit(Within filter, Object extraData) {
         LOGGER.finer("exporting Within");
         StringBuffer output = asStringBuffer(extraData);
