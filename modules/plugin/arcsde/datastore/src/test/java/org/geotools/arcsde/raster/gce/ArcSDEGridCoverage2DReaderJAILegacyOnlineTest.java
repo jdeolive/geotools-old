@@ -42,7 +42,6 @@ import org.geotools.coverage.grid.ViewType;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.OverviewPolicy;
-import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.gce.geotiff.GeoTiffWriter;
 import org.geotools.geometry.Envelope2D;
 import org.geotools.geometry.GeneralEnvelope;
@@ -719,42 +718,6 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         writeToDisk(image, tableName);
 
         // writeBand(image, new int[] { 0 }, "band1");
-    }
-
-    @Test
-    public void testDescribe() throws Exception {
-        tableName = "SDE.IMG_USGSQUADM";
-
-        final AbstractGridCoverage2DReader reader = getReader();
-        assertNotNull("Couldn't obtain a reader for " + tableName, reader);
-
-        final GeneralEnvelope originalEnvelope = reader.getOriginalEnvelope();
-        GridEnvelope originalGridRange = reader.getOriginalGridRange();
-        LOGGER.info("original envelope  : " + originalEnvelope);
-        LOGGER.info("original grid range: " + originalGridRange);
-
-        int reqWidth = 294;
-        int reqHeight = 184;
-        GeneralEnvelope reqEnv = new GeneralEnvelope(
-                originalEnvelope.getCoordinateReferenceSystem());
-        // reqEnv.setEnvelope(236534.9499999986, 901973.4499999813, 236718.8499999986,
-        // 902163.0499999814);
-        //
-        //reqEnv.setEnvelope(32680.0,774232.0,333736.0,962648.0);
-        reqEnv.setEnvelope(33192.0,774244.0,333224.0,962136.0);
-        GridCoverage2D coverage = readCoverage(reader, reqWidth, reqHeight, reqEnv);
-
-        GridGeometry2D gridGeometry = coverage.getGridGeometry();
-        GridEnvelope gridRange = gridGeometry.getGridRange();
-        Envelope2D envelope2d = gridGeometry.getEnvelope2D();
-
-        System.out.println("requested size: " + reqWidth + "x" + reqHeight);
-        System.out.println("result size   : " + gridRange.getSpan(0) + "x" + gridRange.getSpan(1));
-
-        System.out.println("requested envelope: " + reqEnv);
-        System.out.println("result envelope   : " + envelope2d);
-
-        writeToDisk(coverage.getRenderedImage(), tableName);
     }
 
 }
