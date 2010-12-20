@@ -242,12 +242,16 @@ public class NestedAttributeMapping extends AttributeMapping {
 
 		if (matchingIdFilter != null) {
 			fCollection = source.getFeatures(matchingIdFilter);
-			it = fCollection.features();
 
-			while (it.hasNext()) {
-				matchingFeatures.add(it.next());
-			}
-			it.close();
+			if (fCollection.size() > matchingFeatures.size()) {
+				// there are rows of same id from denormalised view
+				it = fCollection.features();
+				matchingFeatures.clear();
+				while (it.hasNext()) {
+					matchingFeatures.add(it.next());
+				}
+				it.close();
+			}			
 		}
 
 		return matchingFeatures;
