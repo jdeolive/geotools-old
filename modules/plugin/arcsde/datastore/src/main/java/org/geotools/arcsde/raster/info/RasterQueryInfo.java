@@ -17,10 +17,11 @@
  */
 package org.geotools.arcsde.raster.info;
 
-import java.awt.Rectangle;
 import java.awt.image.RenderedImage;
 
+import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.geometry.GeneralEnvelope;
+import org.opengis.coverage.grid.GridEnvelope;
 
 /**
  * Captures information about a query for a single raster in a raster dataset.
@@ -35,7 +36,7 @@ public final class RasterQueryInfo {
 
     private GeneralEnvelope requestedEnvelope;
 
-    private Rectangle requestedDim;
+    private GridEnvelope requestedDim;
 
     private int pyramidLevel;
 
@@ -43,19 +44,19 @@ public final class RasterQueryInfo {
      * The two-dimensional range of tile indices whose envelope intersect the requested extent. Will
      * have negative width and height if none of the tiles do.
      */
-    private Rectangle matchingTiles;
+    private GridEnvelope matchingTiles;
 
     private GeneralEnvelope resultEnvelope;
 
-    private Rectangle resultDimension;
+    private GridEnvelope resultDimension;
 
     private Long rasterId;
 
-    private Rectangle mosaicLocation;
+    private GridEnvelope mosaicLocation;
 
     private RenderedImage resultImage;
 
-    private Rectangle tiledImageSize;
+    private GridEnvelope tiledImageGridRange;
 
     private double[] resolution;
 
@@ -64,11 +65,13 @@ public final class RasterQueryInfo {
     /**
      * The full tile range for the matching pyramid level
      */
-    private Rectangle levelTileRange;
+    private GridEnvelope levelTileRange;
+
+    private GridEnvelope resultGridRange;
 
     public RasterQueryInfo() {
-        setResultDimensionInsideTiledImage(new Rectangle(0, 0, 0, 0));
-        setMatchingTiles(new Rectangle(0, 0, 0, 0));
+        setResultDimensionInsideTiledImage(new GridEnvelope2D(0, 0, 0, 0));
+        setMatchingTiles(new GridEnvelope2D(0, 0, 0, 0));
         setResultEnvelope(null);
     }
 
@@ -81,14 +84,14 @@ public final class RasterQueryInfo {
                 getResolution()[0] + "," + getResolution()[1]);
         s.append("\n\tRequested envelope   : ").append(getRequestedEnvelope());
         s.append("\n\tRequested dimension  : ").append(getRequestedDim());
-        Rectangle mt = getMatchingTiles();
-        Rectangle ltr = getLevelTileRange();
-        String matching = "x=" + mt.x + "-" + (mt.x + mt.width - 1) + ", y=" + mt.y + "-"
-                + (mt.y + mt.height - 1);
-        String level = "x=" + ltr.x + "-" + (ltr.width - 1) + ", y=" + ltr.y + "-"
-                + (ltr.height - 1);
-        s.append("\n\tMatching tiles       : ").append(matching).append(" out of ").append(level);
-        s.append("\n\tTiled image size     : ").append(getTiledImageSize());
+        GridEnvelope mt = getMatchingTiles();
+//        GridEnvelope ltr = getLevelTileRange();
+//        String matching = "x=" + mt.getLow(0) + "-" + mt.getHigh(0) + ", y=" + mt.getLow(1) + "-"
+//                + mt.getHigh(1);
+//        String level = "x=" + ltr.getLow(0) + "-" + ltr.getHigh(0) + ", y=" + ltr.getLow(1) + "-"
+//                + ltr.getHigh(1);
+        s.append("\n\tMatching tiles       : ").append(mt).append(" out of ").append("level");
+        s.append("\n\tTiled image size     : ").append(getTiledImageGridRange());
         s.append("\n\tResult dimension     : ").append(getResultDimensionInsideTiledImage());
         s.append("\n\tMosaiced dimension   : ").append(getMosaicLocation());
         s.append("\n\tResult envelope      : ").append(getResultEnvelope());
@@ -108,7 +111,7 @@ public final class RasterQueryInfo {
         return requestedEnvelope;
     }
 
-    public Rectangle getRequestedDim() {
+    public GridEnvelope getRequestedDim() {
         return requestedDim;
     }
 
@@ -116,7 +119,7 @@ public final class RasterQueryInfo {
         return pyramidLevel;
     }
 
-    public Rectangle getMatchingTiles() {
+    public GridEnvelope getMatchingTiles() {
         return matchingTiles;
     }
 
@@ -124,7 +127,8 @@ public final class RasterQueryInfo {
         return resultEnvelope;
     }
 
-    public Rectangle getResultDimensionInsideTiledImage() {
+    @Deprecated
+    public GridEnvelope getResultDimensionInsideTiledImage() {
         return resultDimension;
     }
 
@@ -140,7 +144,7 @@ public final class RasterQueryInfo {
         this.requestedEnvelope = requestedEnvelope;
     }
 
-    void setRequestedDim(Rectangle requestedDim) {
+    void setRequestedDim(GridEnvelope requestedDim) {
         this.requestedDim = requestedDim;
     }
 
@@ -148,19 +152,19 @@ public final class RasterQueryInfo {
         this.resultEnvelope = resultEnvelope;
     }
 
-    void setMatchingTiles(Rectangle matchingTiles) {
+    void setMatchingTiles(GridEnvelope matchingTiles) {
         this.matchingTiles = matchingTiles;
     }
 
-    void setResultDimensionInsideTiledImage(Rectangle resultDimension) {
-        this.resultDimension = resultDimension;
+    void setResultDimensionInsideTiledImage(GridEnvelope resultDimensionInsideTiledImage) {
+        this.resultDimension = resultDimensionInsideTiledImage;
     }
 
-    void setMosaicLocation(Rectangle rasterMosaicLocation) {
-        this.mosaicLocation = rasterMosaicLocation;
+    void setMosaicLocation(GridEnvelope targetRasterGridRange) {
+        this.mosaicLocation = targetRasterGridRange;
     }
 
-    public Rectangle getMosaicLocation() {
+    public GridEnvelope getMosaicLocation() {
         return mosaicLocation;
     }
 
@@ -178,12 +182,12 @@ public final class RasterQueryInfo {
         return resultImage;
     }
 
-    void setTiledImageSize(Rectangle tiledImageSize) {
-        this.tiledImageSize = tiledImageSize;
+    void setTiledImageGridRange(GridEnvelope tiledImageGridRange) {
+        this.tiledImageGridRange = tiledImageGridRange;
     }
 
-    public Rectangle getTiledImageSize() {
-        return tiledImageSize;
+    public GridEnvelope getTiledImageGridRange() {
+        return tiledImageGridRange;
     }
 
     void setResolution(double[] resolution) {
@@ -202,11 +206,21 @@ public final class RasterQueryInfo {
         return rasterIndex;
     }
 
-    void setLevelTileRange(Rectangle levelTileRange) {
-        this.levelTileRange = levelTileRange;
+    @Deprecated
+    void setLevelTileRange(GridEnvelope levelTileRange2) {
+        this.levelTileRange = levelTileRange2;
     }
 
-    public Rectangle getLevelTileRange() {
+    @Deprecated
+    public GridEnvelope getLevelTileRange() {
         return levelTileRange;
+    }
+
+    void setResultGridRange(GridEnvelope resultGridRange) {
+        this.resultGridRange = resultGridRange;     
+    }
+    
+    public GridEnvelope getResultGridRange(){
+        return resultGridRange;
     }
 }

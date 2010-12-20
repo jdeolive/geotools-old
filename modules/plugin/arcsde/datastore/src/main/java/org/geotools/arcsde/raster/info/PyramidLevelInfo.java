@@ -17,13 +17,8 @@
  */
 package org.geotools.arcsde.raster.info;
 
-import java.awt.Dimension;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.geom.Point2D;
-
-import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.geometry.GeneralEnvelope;
+import org.opengis.coverage.grid.GridEnvelope;
 
 /**
  * Represents one level in an ArcSDE pyramid. Holds information about a given pyramid level, like
@@ -34,44 +29,20 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * 
  */
 final class PyramidLevelInfo {
+
     private int pyramidLevel, xTiles, yTiles;
 
-    Point2D extentOffset;
+    private GeneralEnvelope spatialExtent;
 
-    Point imageOffset;
+    private GridEnvelope gridEnvelope;
 
-    private double xRes, yRes;
-
-    private ReferencedEnvelope envelope;
-
-    public Dimension size;
-
-    /**
-     * 
-     * @param level
-     *            the level index
-     * @param extent
-     *            the geographical extent the level covers
-     * @param imgOffset
-     *            the offset of the image at this level
-     * @param extOffset
-     *            the offset of the image extent at this level
-     * @param numTilesWide
-     * @param numTilesHigh
-     * @param levelSize
-     *            the size of the actual image inside the tiled pixel range
-     */
-    PyramidLevelInfo(int level, ReferencedEnvelope extent, Point imgOffset, Point2D extOffset,
-            int numTilesWide, int numTilesHigh, Dimension levelSize) {
+    PyramidLevelInfo(final int level, final int numTilesWide, final int numTilesHigh,
+            final GridEnvelope gridEnvelope, final GeneralEnvelope spatialExtent) {
         this.pyramidLevel = level;
-        this.xRes = extent.getWidth() / levelSize.width;
-        this.yRes = extent.getHeight() / levelSize.height;
-        this.envelope = extent;
-        this.imageOffset = imgOffset;
-        this.extentOffset = extOffset;
+        this.spatialExtent = spatialExtent;
+        this.gridEnvelope = gridEnvelope;
         this.xTiles = numTilesWide;
         this.yTiles = numTilesHigh;
-        this.size = levelSize;
     }
 
     /**
@@ -85,22 +56,14 @@ final class PyramidLevelInfo {
      * @return The X and Y resolution in units/pixel for pixels at this level
      */
     public double getXRes() {
-        return xRes;
+        return spatialExtent.getSpan(0) / gridEnvelope.getSpan(0);
     }
 
     /**
      * @return The X and Y resolution in units/pixel for pixels at this level
      */
     public double getYRes() {
-        return yRes;
-    }
-
-    public int getXOffset() {
-        return imageOffset.x;
-    }
-
-    public int getYOffset() {
-        return imageOffset.y;
+        return spatialExtent.getSpan(1) / gridEnvelope.getSpan(1);
     }
 
     /**
@@ -120,28 +83,11 @@ final class PyramidLevelInfo {
     /**
      * The envelope covering the image grid range inside fully tiled image at this pyramid level
      * 
-     * @return The geographical area covered by the {@link #getImageRange() grid range} of the
+     * @return The geographical area covered by the {@link #getGridEnvelope() grid range} of the
      *         raster at this pyramid level
      */
-    public ReferencedEnvelope getImageEnvelope() {
-        final double deltaX = extentOffset.getX();
-        final double deltaY = extentOffset.getY();
-        double minx = this.envelope.getMinX() - deltaX;
-        double miny = this.envelope.getMinY() - deltaY;
-        double maxx = minx + this.envelope.getWidth();
-        double maxy = miny + this.envelope.getHeight();
-
-        CoordinateReferenceSystem crs = this.envelope.getCoordinateReferenceSystem();
-        ReferencedEnvelope imageExtent = new ReferencedEnvelope(minx, maxx, miny, maxy, crs);
-
-        return imageExtent;
-    }
-
-    /**
-     * @return The total number of pixels in the image at this level as whole tiles
-     */
-    public Dimension getSize() {
-        return size;
+    public GeneralEnvelope getSpatialExtent() {
+        return spatialExtent;
     }
 
     /**
@@ -149,24 +95,18 @@ final class PyramidLevelInfo {
      * 
      * @return
      */
-    public Rectangle getImageRange() {
-        final int offsetX = getXOffset();
-        final int offsetY = getYOffset();
-
-        /*
-         * get the range of actual data pixels in this pyramid level in pixel space, offset and
-         * trailing no data pixels to fill up the tile space do not count
-         */
-        final Rectangle levelRange = new Rectangle(offsetX, offsetY, size.width, size.height);
-        return levelRange;
+    public GridEnvelope getGridEnvelope() {
+        return this.gridEnvelope;
     }
 
     @Override
     public String toString() {
-        return "[level: " + pyramidLevel + " size: " + size.width + "x" + size.height + "  xRes: "
-                + xRes + "  yRes: " + yRes + "  xOffset: " + getXOffset() + "  yOffset: "
-                + getYOffset() + "  extent: " + envelope.getMinX() + "," + envelope.getMinY() + " "
-                + envelope.getMaxX() + "," + envelope.getMaxY() + "  tilesWide: " + xTiles
-                + "  tilesHigh: " + yTiles + "]";
+        return "[level: " + pyramidLevel + " size: " + gridEnvelope.getSpan(0) + "x"
+                + gridEnvelope.getSpan(1) + " Grid: " + gridEnvelope + "  xRes: " + getXRes()
+                + "  yRes: " + getYRes() + "  xOffset: " + gridEnvelope.getLow(0) + "  yOffset: "
+                + gridEnvelope.getLow(1) + "  extent: " + spatialExtent.getMinimum(0) + ","
+                + spatialExtent.getMinimum(1) + "," + spatialExtent.getMaximum(0) + ","
+                + spatialExtent.getMaximum(1) + "  tilesWide: " + xTiles + "  tilesHigh: " + yTiles
+                + "]";
     }
 }

@@ -275,16 +275,17 @@ public class ArcSDEDataStoreFactoryTest {
         ds.dispose();
 
         // version name should be case insensitive
-        qualifiedVersionName = qualifiedVersionName.toUpperCase();
-        paramsWithVersion.put(VERSION_PARAM_NAME, qualifiedVersionName);
-        ds = dsFactory.createDataStore(paramsWithVersion);
-        assertNotNull(ds);
-        ds.dispose();
+        // EDIT: version name is NOT case sensitive, at least for sde10/oracle
+        // qualifiedVersionName = qualifiedVersionName.toUpperCase();
+        // paramsWithVersion.put(VERSION_PARAM_NAME, qualifiedVersionName);
+        // ds = dsFactory.createDataStore(paramsWithVersion);
+        // assertNotNull(ds);
+        // ds.dispose();
 
-        qualifiedVersionName = qualifiedVersionName.toLowerCase();
-        paramsWithVersion.put(VERSION_PARAM_NAME, qualifiedVersionName);
-        ds = dsFactory.createDataStore(paramsWithVersion);
-        assertNotNull(ds);
-        ds.dispose();
+        // qualifiedVersionName = qualifiedVersionName.toLowerCase();
+        // paramsWithVersion.put(VERSION_PARAM_NAME, qualifiedVersionName);
+        // ds = dsFactory.createDataStore(paramsWithVersion);
+        // assertNotNull(ds);
+        // ds.dispose();
     }
 }

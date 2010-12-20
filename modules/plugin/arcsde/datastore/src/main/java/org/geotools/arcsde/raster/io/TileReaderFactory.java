@@ -1,9 +1,8 @@
 package org.geotools.arcsde.raster.io;
 
-import java.awt.Rectangle;
-
 import org.geotools.arcsde.raster.info.RasterDatasetInfo;
 import org.geotools.arcsde.session.ISessionPool;
+import org.opengis.coverage.grid.GridEnvelope;
 
 public class TileReaderFactory {
 
@@ -15,18 +14,18 @@ public class TileReaderFactory {
      * @param targetType
      * @param noDataValues
      * @param numberOfBands
-     * @param requestedTiles
+     * @param tileRange
      * @param tileSize
      * @return
      */
     public static TileReader getInstance(final ISessionPool sessionPool,
             final RasterDatasetInfo rasterInfo, final long rasterId, final int pyramidLevel,
-            final Rectangle requestedTiles) {
+            final GridEnvelope tileRange) {
 
         final TileReader tileReader;
 
         TileReader nativeTileReader = new NativeTileReader(sessionPool, rasterInfo, rasterId,
-                pyramidLevel, requestedTiles);
+                pyramidLevel, tileRange);
 
         tileReader = nativeTileReader;
 

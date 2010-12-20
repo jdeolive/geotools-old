@@ -18,7 +18,6 @@
 package org.geotools.arcsde.raster.io;
 
 import java.awt.Dimension;
-import java.awt.Rectangle;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,7 +29,9 @@ import org.geotools.arcsde.session.Command;
 import org.geotools.arcsde.session.ISession;
 import org.geotools.arcsde.session.ISessionPool;
 import org.geotools.arcsde.session.UnavailableConnectionException;
+import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.util.logging.Logging;
+import org.opengis.coverage.grid.GridEnvelope;
 
 import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeException;
@@ -51,7 +52,7 @@ import com.esri.sde.sdk.client.SeSqlConstruct;
  *         http://svn.osgeo.org/geotools/trunk/modules/plugin/arcsde/datastore/src/main/java/org
  *         /geotools/arcsde/gce/NativeTileReader.java $
  */
-@SuppressWarnings( { "nls" })
+@SuppressWarnings({ "nls" })
 final class NativeTileReader implements TileReader {
 
     private static final Logger LOGGER = Logging.getLogger("org.geotools.arcsde.gce");
@@ -62,7 +63,7 @@ final class NativeTileReader implements TileReader {
 
     private final int pyramidLevel;
 
-    private final Rectangle requestedTiles;
+    private final GridEnvelope requestedTiles;
 
     private final ISessionPool sessionPool;
 
@@ -154,8 +155,8 @@ final class NativeTileReader implements TileReader {
     }
 
     /**
-     * Creates a {@link TileReader} that reads tiles out of ArcSDE for the given {@code
-     * preparedQuery} and {@code SeRow} using the given {@code session}, in the native raster
+     * Creates a {@link TileReader} that reads tiles out of ArcSDE for the given
+     * {@code preparedQuery} and {@code SeRow} using the given {@code session}, in the native raster
      * format.
      * <p>
      * As for any object that receives a {@link ISession session}, the same rule applies: this class
@@ -172,15 +173,15 @@ final class NativeTileReader implements TileReader {
      *            dimensions
      * @param bitsPerSample
      * @param numberOfBands2
-     * @param requestedTiles
+     * @param tileRange
      */
     NativeTileReader(final ISessionPool sessionPool, final RasterDatasetInfo rasterInfo,
-            final long rasterId, final int pyramidLevel, final Rectangle requestedTiles) {
+            final long rasterId, final int pyramidLevel, final GridEnvelope tileRange) {
         this.sessionPool = sessionPool;
         this.rasterInfo = rasterInfo;
         this.rasterId = rasterId;
         this.pyramidLevel = pyramidLevel;
-        this.requestedTiles = requestedTiles;
+        this.requestedTiles = tileRange;
 
         final Dimension tileSize = rasterInfo.getTileDimension(rasterId);
 
@@ -234,14 +235,14 @@ final class NativeTileReader implements TileReader {
      * @see org.geotools.arcsde.raster.io.TileReader#getTilesWide()
      */
     public int getTilesWide() {
-        return requestedTiles.width;
+        return requestedTiles.getSpan(0);
     }
 
     /**
      * @see org.geotools.arcsde.raster.io.TileReader#getTilesHigh()
      */
     public int getTilesHigh() {
-        return requestedTiles.height;
+        return requestedTiles.getSpan(1);
     }
 
     /**
@@ -259,17 +260,15 @@ final class NativeTileReader implements TileReader {
      * @throws IOException
      */
     private void execute() throws IOException {
-        final Rectangle requestedTiles = this.requestedTiles;
+        final GridEnvelope requestedTiles = this.requestedTiles;
         this.queryObjects = execute(requestedTiles);
         this.started = true;
         this.lastTileX = this.lastTileY = -1;
     }
 
-    private QueryObjects execute(final Rectangle rasterTiles) throws IOException {
+    private QueryObjects execute(final GridEnvelope requestedTiles) throws IOException {
 
         final int rasterIndex = rasterInfo.getRasterIndex(rasterId);
-        final int tileWidth = rasterInfo.getTileWidth(rasterId);
-        final int tileHeight = rasterInfo.getTileHeight(rasterId);
 
         /*
          * Create the raster constraint to query the needed tiles out of the specified raster at the
@@ -285,10 +284,10 @@ final class NativeTileReader implements TileReader {
                 bandsToQuery[bandN - 1] = bandN;
             }
 
-            int minTileX = rasterTiles.x;
-            int minTileY = rasterTiles.y;
-            int maxTileX = minTileX + rasterTiles.width - 1;
-            int maxTileY = minTileY + rasterTiles.height - 1;
+            int minTileX = requestedTiles.getLow(0);
+            int minTileY = requestedTiles.getLow(1);
+            int maxTileX = requestedTiles.getHigh(0);
+            int maxTileY = requestedTiles.getHigh(1);
             if (LOGGER.isLoggable(Level.FINE)) {
                 LOGGER.fine("Requesting tiles [x=" + minTileX + "-" + maxTileX + ", y=" + minTileY
                         + "-" + maxTileY + "] from tile range [x=0-"
@@ -298,10 +297,7 @@ final class NativeTileReader implements TileReader {
             // SDEPoint tileOrigin = rAttr.getTileOrigin();
 
             if (LOGGER.isLoggable(Level.FINE)) {
-                Rectangle tiledImageSize = new Rectangle(0, 0, tileWidth * rasterTiles.width,
-                        tileHeight * rasterTiles.height);
-
-                LOGGER.fine("Tiled image size: " + tiledImageSize);
+                LOGGER.fine("Tiled image size: " + requestedTiles);
             }
 
             final int interleaveType = SeRaster.SE_RASTER_INTERLEAVE_BIP;
@@ -327,7 +323,7 @@ final class NativeTileReader implements TileReader {
                 if (LOGGER.isLoggable(Level.FINER)) {
                     LOGGER.finer("Using " + session + " to read raster #" + rasterId
                             + " on Thread " + Thread.currentThread().getName() + ". Tile set: "
-                            + rasterTiles);
+                            + requestedTiles);
                 }
             }
         } catch (UnavailableConnectionException e) {
@@ -469,7 +465,7 @@ final class NativeTileReader implements TileReader {
     }
 
     private void getTile(final int tileX, final int tileY, TileInfo[] target) throws IOException {
-
+        //System.out.printf("fetchTile %d, %d\n", tileX, tileY);
         try {
             fetchTile(tileX, tileY, target);
         } catch (IOException e) {
@@ -496,7 +492,6 @@ final class NativeTileReader implements TileReader {
     private int nonConsecutiveCallCount;
 
     private void fetchTile(final int tileX, final int tileY, TileInfo[] target) throws IOException {
-
         SeRasterTile[] seTile = null;
 
         if (isConsecutive(tileX, tileY)) {
@@ -519,11 +514,25 @@ final class NativeTileReader implements TileReader {
             }
         }
 
-        if (lastTileX == getTilesWide() - 1 && lastTileY == getTilesHigh() - 1) {
+        if (lastTileX == getMaxTileX() && lastTileY == getMaxTileY()) {
             dispose();
         }
 
         extractTile(seTile, target);
+    }
+
+    /**
+     * @see org.geotools.arcsde.raster.io.TileReader#getMaxTileX()
+     */
+    public int getMaxTileX() {
+        return requestedTiles.getHigh(0);
+    }
+
+    /**
+     * @see org.geotools.arcsde.raster.io.TileReader#getMaxTileY()
+     */
+    public int getMaxTileY() {
+        return requestedTiles.getHigh(1);
     }
 
     /**
@@ -537,11 +546,12 @@ final class NativeTileReader implements TileReader {
                     + ", tile " + tileX + ", " + tileY);
         }
         // System.err.println("->fetchSingleTile " + tileX + ", " + tileY);
-        final int rasterTileX = requestedTiles.x + tileX;
-        final int rasterTileY = requestedTiles.y + tileY;
+        final int rasterTileX = requestedTiles.getLow(0) + tileX;
+        final int rasterTileY = requestedTiles.getLow(1) + tileY;
         final int width = 1;
         final int height = 1;
-        final Rectangle requestTiles = new Rectangle(rasterTileX, rasterTileY, width, height);
+        final GridEnvelope requestTiles = new GridEnvelope2D(rasterTileX, rasterTileY, width,
+                height);
 
         final QueryObjects singleTileQueryObjects = execute(requestTiles);
         final SeQuery query = singleTileQueryObjects.preparedQuery;
@@ -585,13 +595,15 @@ final class NativeTileReader implements TileReader {
 
         SeRasterTile[] tileData = readTile(sequentialFetchCommand);
 
-        if (lastTileY == -1) {
-            lastTileY = 0;
-        }
-        lastTileX++;
-        if (lastTileX == getTilesWide()) {
-            lastTileX = 0;
-            lastTileY++;
+        if (lastTileX == -1 && lastTileY == -1) {
+            lastTileX = getMinTileX();
+            lastTileY = getMinTileY();
+        } else {
+            lastTileX++;
+            if (lastTileX > getMaxTileX()) {
+                lastTileX = getMinTileX();
+                lastTileY++;
+            }
         }
 
         return tileData;
@@ -660,11 +672,11 @@ final class NativeTileReader implements TileReader {
     }
 
     public int getMinTileX() {
-        return requestedTiles.x;
+        return requestedTiles.getLow(0);
     }
 
     public int getMinTileY() {
-        return requestedTiles.y;
+        return requestedTiles.getLow(1);
     }
 
     public String getServerName() {
@@ -681,14 +693,6 @@ final class NativeTileReader implements TileReader {
 
     public long getRasterId() {
         return rasterId;
-    }
-
-    public int toRealTileX(final int tileX) {
-        return requestedTiles.x + tileX;
-    }
-
-    public int toRealTileY(final int tileY) {
-        return requestedTiles.y + tileY;
     }
 
     private void extractTile(final SeRasterTile[] seTile, TileInfo[] target) {

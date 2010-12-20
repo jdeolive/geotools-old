@@ -25,11 +25,13 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.data.DataSourceException;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
+import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -73,6 +75,8 @@ public final class RasterInfo {
 
     private Long rasterId;
 
+    private final boolean skipLevelone;
+
     /**
      * Creates an in-memory representation of an ArcSDE Raster Pyramid. Basically it wraps the
      * supplide SeRasterAttr object and implements some convenience logic for extracting
@@ -96,53 +100,80 @@ public final class RasterInfo {
             tileWidth = rasterAttributes.getTileWidth();
             tileHeight = rasterAttributes.getTileHeight();
 
-            for (int level = 0; level < numLevels; level++) {
-                if (level == 1 && rasterAttributes.skipLevelOne()) {
-                    continue;
+            skipLevelone = rasterAttributes.skipLevelOne();
+
+            int internalPyramidLevel = 0;
+            for (int arcsdePyramidLevel = 0; arcsdePyramidLevel < numLevels; arcsdePyramidLevel++) {
+                if (arcsdePyramidLevel == 1 && skipLevelone) {
+                    // continue;
                 }
 
-                /*
-                 * this extent corresponds to the actual image size inside the tiled grid. That is,
-                 * to getImageWidth/Height by level. The dimensions of this extent are correct, but
-                 * it needs to be shifted by SeRasterAttr.getExtentOffsetByLevel(level) the same way
-                 * the grid envelope does by SeRasterAttr.getImageOffsetByLevel(level)
-                 */
-                final SeExtent slExtent = rasterAttributes.getExtentByLevel(level);
+                final int numTilesWide = rasterAttributes.getTilesPerRowByLevel(arcsdePyramidLevel);
+                final int numTilesHigh = rasterAttributes.getTilesPerColByLevel(arcsdePyramidLevel);
+                final GridEnvelope actualImageGridEnvelope;
+                final GeneralEnvelope actualImageSpatialExtent;
 
-                final int levelWidth = rasterAttributes.getImageWidthByLevel(level);
-                final int levelHeight = rasterAttributes.getImageHeightByLevel(level);
+                actualImageGridEnvelope = computeImageGridRange(arcsdePyramidLevel,
+                        rasterAttributes);
+                actualImageSpatialExtent = computeImageSpatialExtent(arcsdePyramidLevel,
+                        rasterAttributes, crs, actualImageGridEnvelope);
 
-                Dimension levelImageSize = new Dimension(levelWidth, levelHeight);
+                addPyramidLevel(arcsdePyramidLevel, numTilesWide, numTilesHigh,
+                        actualImageGridEnvelope, actualImageSpatialExtent);
 
-                Point imgOffset = new Point();
-                // extent offset equals imgOffset * pixel resolution (ie, if resx == 2 and offsetX =
-                // 10, extent offset x == 20)
-                Point2D extOffset = new Point2D.Double();
-                {
-                    SDEPoint imageOffset = rasterAttributes.getImageOffsetByLevel(level);
-                    int xOffset = (int) (imageOffset == null ? 0 : imageOffset.getX());
-                    int yOffset = (int) (imageOffset == null ? 0 : imageOffset.getY());
-                    imgOffset.setLocation(xOffset, yOffset);
-
-                    SDEPoint extentOffset = rasterAttributes.getExtentOffsetByLevel(level);
-                    double xOffsetExtent = extentOffset == null ? 0D : extentOffset.getX();
-                    double yOffsetExtent = extentOffset == null ? 0D : extentOffset.getY();
-                    extOffset.setLocation(xOffsetExtent, yOffsetExtent);
-                }
-
-                final int numTilesWide = rasterAttributes.getTilesPerRowByLevel(level);
-                final int numTileHigh = rasterAttributes.getTilesPerColByLevel(level);
-
-                ReferencedEnvelope levelExtent = new ReferencedEnvelope(slExtent.getMinX(),
-                        slExtent.getMaxX(), slExtent.getMinY(), slExtent.getMaxY(), crs);
-
-                addPyramidLevel(level, levelExtent, imgOffset, extOffset, numTilesWide,
-                        numTileHigh, levelImageSize);
+                internalPyramidLevel++;
             }
 
         } catch (SeException se) {
             throw new DataSourceException(se);
         }
+    }
+
+    private GeneralEnvelope computeImageSpatialExtent(final int level,
+            final SeRasterAttr rasterAttributes, final CoordinateReferenceSystem crs,
+            final GridEnvelope gridRange) throws SeException {
+
+        /*
+         * To get the actual resolution we use an image width and height diminished by one pixel,
+         * since the extent represents the covered area from the center of the top left to the
+         * center of the bottom right pixel
+         */
+        int imageWidth = -1 + rasterAttributes.getImageWidthByLevel(level);
+        int imageHeight = -1 + rasterAttributes.getImageHeightByLevel(level);
+
+        SeExtent levelExtent = rasterAttributes.getExtentByLevel(level);
+        double minx = levelExtent.getMinX();
+        double miny = levelExtent.getMinY();
+        double maxx = levelExtent.getMaxX();
+        double maxy = levelExtent.getMaxY();
+        double w = maxx - minx;
+        double h = maxy - miny;
+
+        double resx = w / imageWidth;
+        double resy = h / imageHeight;
+
+        minx -= resx / 2;
+        miny -= resy / 2;
+        maxx += resx / 2;
+        maxy += resy / 2;
+
+        GeneralEnvelope spatialExtent = new GeneralEnvelope(crs);
+        spatialExtent.setEnvelope(minx, miny, maxx, maxy);
+
+        return spatialExtent;
+    }
+
+    private GridEnvelope computeImageGridRange(final int level, final SeRasterAttr rasterAttributes)
+            throws SeException {
+
+        SDEPoint imageOffset = rasterAttributes.getImageOffsetByLevel(level);
+        int xOffset = (int) (imageOffset == null ? 0 : imageOffset.getX());
+        int yOffset = (int) (imageOffset == null ? 0 : imageOffset.getY());
+
+        int imageWidth = rasterAttributes.getImageWidthByLevel(level);
+        int imageHeight = rasterAttributes.getImageHeightByLevel(level);
+
+        return new GridEnvelope2D(xOffset, yOffset, imageWidth, imageHeight);
     }
 
     public Long getRasterId() {
@@ -165,11 +196,12 @@ public final class RasterInfo {
      * @param tileHeight
      *            DON'T USE
      */
-    public RasterInfo(Long rasterId, int tileWidth, int tileHeight) {
+    RasterInfo(Long rasterId, int tileWidth, int tileHeight) {
         this.rasterId = rasterId;
         this.tileWidth = tileWidth;
         this.tileHeight = tileHeight;
         pyramidList = new ArrayList<PyramidLevelInfo>(4);
+        this.skipLevelone = false;
     }
 
     public Dimension getTileDimension() {
@@ -199,6 +231,8 @@ public final class RasterInfo {
     }
 
     /**
+     * Returns the optimal pyramid level for the requested resolution, ignoring pyramid level 1 if
+     * {@link SeRasterAttr#skipLevelOne()} was {@code true}.
      * <p>
      * NOTE: logic stolen and adapted from {@code AbstractGridCoverage2DReader#getOverviewImage()}
      * </p>
@@ -209,6 +243,11 @@ public final class RasterInfo {
     public int getOptimalPyramidLevel(final OverviewPolicy policy, final double[] requestedRes) {
 
         int pyramidLevelChoice = 0;
+
+        // don't use getNumLevels() and getResolution(numLevel) to account for ArcSDE's
+        // skipLevelOne. See at the end of this method.
+        final List<double[]> resolutions = getValidResolutions();
+        final int numLevels = resolutions.size();
 
         // sort resolutions from smallest pixels (higher res) to biggest pixels (higher res)
         // keeping a reference to the original image choice
@@ -230,14 +269,12 @@ public final class RasterInfo {
         final double requestedScaleFactor = leastReduceAxis == 0 ? requestedScaleFactorX
                 : requestedScaleFactorY;
 
-        final int numLevels = getNumLevels();
-
         // no pyramiding or are we looking for a resolution even higher than the native one?
         if (0 == numLevels || requestedScaleFactor <= 1) {
             pyramidLevelChoice = 0;
         } else {
             // are we looking for a resolution even lower than the smallest overview?
-            final double[] min = getResolution(numLevels - 1);
+            final double[] min = resolutions.get(numLevels - 1);
             if (requestedScaleFactor >= min[2]) {
                 pyramidLevelChoice = numLevels - 1;
             } else {
@@ -246,7 +283,7 @@ public final class RasterInfo {
                 // that one and the one from the previous step will bound the searched resolution
                 double[] prev = highestRes;
                 for (int levelN = 1; levelN < numLevels; levelN++) {
-                    final double[] curr = getResolution(levelN);
+                    final double[] curr = resolutions.get(levelN);
                     // perfect match check
                     if (curr[2] == requestedScaleFactor) {
                         pyramidLevelChoice = levelN;
@@ -277,8 +314,24 @@ public final class RasterInfo {
                 }
             }
         }
-        // fallback
+
+        // if skip level one, the actual pyramid level is one more
+        if (pyramidLevelChoice > 0 && skipLevelone) {
+            pyramidLevelChoice++;
+        }
         return pyramidLevelChoice;
+    }
+
+    private List<double[]> getValidResolutions() {
+        List<double[]> validResolutions = new ArrayList<double[]>();
+        final int numLevels = getNumLevels();
+        for (int l = 0; l < numLevels; l++) {
+            if (l == 1 && skipLevelone) {
+                continue;
+            }
+            validResolutions.add(getResolution(l));
+        }
+        return validResolutions;
     }
 
     /**
@@ -286,9 +339,8 @@ public final class RasterInfo {
      * 
      * @param level
      *            the zero-based level index for the new level
-     * @param extent
-     *            the geographical extent the level covers, may need to be offsetted by {@code
-     *            extOffset}
+     * @param imageExtent
+     *            the geographical extent the actual image size covers at this level
      * @param imgOffset
      *            the offset on the X and Y axes of the actual image inside the tile space for this
      *            level
@@ -302,13 +354,26 @@ public final class RasterInfo {
      * @param imageSize
      *            the size of the actual image in pixels
      */
-    public void addPyramidLevel(int level, ReferencedEnvelope extent, Point imgOffset,
+    void addPyramidLevel(int level, ReferencedEnvelope imageExtent, Point imgOffset,
             Point2D extOffset, int numTilesWide, int numTilesHigh, Dimension imageSize) {
 
         PyramidLevelInfo pyramidLevel;
-        pyramidLevel = new PyramidLevelInfo(level, extent, imgOffset, extOffset, numTilesWide,
-                numTilesHigh, imageSize);
+        GridEnvelope2D gridEnvelope = new GridEnvelope2D((int) imgOffset.getX(),
+                (int) imgOffset.getY(), imageSize.width, imageSize.height);
+        GeneralEnvelope spatialExtent = new GeneralEnvelope(imageExtent);
+        pyramidLevel = new PyramidLevelInfo(level, numTilesWide, numTilesHigh, gridEnvelope,
+                spatialExtent);
 
+        pyramidList.add(pyramidLevel);
+
+        Collections.sort(pyramidList, levelComparator);
+    }
+
+    public void addPyramidLevel(final int level, final int numTilesWide, final int numTilesHigh,
+            final GridEnvelope gridEnvelope, final GeneralEnvelope spatialExtent) {
+
+        PyramidLevelInfo pyramidLevel = new PyramidLevelInfo(level, numTilesWide, numTilesHigh,
+                gridEnvelope, spatialExtent);
         pyramidList.add(pyramidLevel);
 
         Collections.sort(pyramidList, levelComparator);
@@ -397,10 +462,18 @@ public final class RasterInfo {
         sb.append("\n ]");
         sb.append("\n Pyramid[");
         for (int l = 0; l < getNumLevels(); l++) {
-            sb.append("\n\t").append(getPyramidLevel(l).toString());
+            sb.append("\n\t");
+            if (l == 1 && skipLevelone) {
+                sb.append("(skipped) ");
+            }
+            sb.append(getPyramidLevel(l).toString());
         }
         sb.append("\n ]");
         return sb.toString();
+    }
+
+    public boolean isSkipLevelOne() {
+        return skipLevelone;
     }
 
 }

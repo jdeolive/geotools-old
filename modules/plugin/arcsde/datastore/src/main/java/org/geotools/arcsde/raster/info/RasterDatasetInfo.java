@@ -19,7 +19,6 @@ package org.geotools.arcsde.raster.info;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.IndexColorModel;
 import java.util.ArrayList;
@@ -41,6 +40,7 @@ import org.geotools.referencing.operation.transform.LinearTransform1D;
 import org.geotools.resources.i18n.Vocabulary;
 import org.geotools.resources.i18n.VocabularyKeys;
 import org.geotools.util.NumberRange;
+import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
@@ -83,7 +83,7 @@ public final class RasterDatasetInfo {
      */
     private GeneralEnvelope originalEnvelope;
 
-    private GeneralGridEnvelope originalGridRange;
+    private GridEnvelope originalGridRange;
 
     private List<GridSampleDimension> gridSampleDimensions;
 
@@ -222,13 +222,13 @@ public final class RasterDatasetInfo {
     }
 
     public int getImageWidth() {
-        final GeneralGridEnvelope originalGridRange = getOriginalGridRange();
+        final GridEnvelope originalGridRange = getOriginalGridRange();
         final int width = originalGridRange.getSpan(0);
         return width;
     }
 
     public int getImageHeight() {
-        final GeneralGridEnvelope originalGridRange = getOriginalGridRange();
+        final GridEnvelope originalGridRange = getOriginalGridRange();
         final int height = originalGridRange.getSpan(1);
         return height;
     }
@@ -244,11 +244,17 @@ public final class RasterDatasetInfo {
      * @return the originalGridRange for the whole raster dataset, based on the first raster in the
      *         raster dataset
      */
-    public GeneralGridEnvelope getOriginalGridRange() {
+    public GridEnvelope getOriginalGridRange() {
         if (originalGridRange == null) {
+            final int rasterCount = getNumRasters();
+            if (1 == rasterCount) {
+                originalGridRange = getGridRange(0, 0);
+                return originalGridRange;
+            }
+
             final MathTransform modelToRaster;
             try {
-                final MathTransform rasterToModel = getRasterToModel();
+                final MathTransform rasterToModel = getRasterToModel(PixelInCell.CELL_CENTER);
                 modelToRaster = rasterToModel.inverse();
             } catch (NoninvertibleTransformException e) {
                 throw new IllegalStateException("Can't create transform from model to raster");
@@ -259,7 +265,6 @@ public final class RasterDatasetInfo {
             int maxx = Integer.MIN_VALUE;
             int maxy = Integer.MIN_VALUE;
 
-            final int rasterCount = getNumRasters();
             for (int rasterN = 0; rasterN < rasterCount; rasterN++) {
                 final GeneralEnvelope rasterEnvelope = getGridEnvelope(rasterN, 0);
                 GeneralEnvelope rasterGridRangeInDataSet;
@@ -284,18 +289,29 @@ public final class RasterDatasetInfo {
         return originalGridRange;
     }
 
-    public MathTransform getRasterToModel() {
+    public MathTransform getRasterToModel(PixelInCell pixelAnchor) {
+        return getRasterToModel(0, 0, pixelAnchor);
+    }
 
-        GeneralEnvelope firstRasterEnvelope = getGridEnvelope(0, 0);
-        Rectangle firstRasterGridRange = getGridRange(0, 0);
-        GeneralGridEnvelope gridRange = new GeneralGridEnvelope(firstRasterGridRange, 2);
+    public MathTransform getRasterToModel(final int rasterIndex, final int pyramidLevel,
+            final PixelInCell pixelAnchor) {
+
+        GeneralEnvelope levelEnvelope = getGridEnvelope(rasterIndex, pyramidLevel);
+        GridEnvelope levelGridRange = getGridRange(rasterIndex, pyramidLevel);
 
         // create a raster to model transform, from this tile pixel space to the tile's geographic
         // extent
-        GridToEnvelopeMapper geMapper = new GridToEnvelopeMapper(gridRange, firstRasterEnvelope);
+        GridToEnvelopeMapper geMapper = new GridToEnvelopeMapper(levelGridRange, levelEnvelope);
         geMapper.setPixelAnchor(PixelInCell.CELL_CORNER);
 
-        final MathTransform rasterToModel = geMapper.createTransform();
+        MathTransform rasterToModel = geMapper.createTransform();
+
+        // if (PixelInCell.CELL_CENTER.equals(pixelAnchor)) {
+        // final AffineTransform tr = new AffineTransform((AffineTransform) rasterToModel);
+        // tr.concatenate(AffineTransform.getTranslateInstance(0.5, 0.5));
+        // rasterToModel = ProjectiveTransform.create(tr);
+        // }
+
         return rasterToModel;
     }
 
@@ -305,12 +321,16 @@ public final class RasterDatasetInfo {
     public GeneralEnvelope getOriginalEnvelope() {
         if (originalEnvelope == null) {
             GeneralEnvelope env = null;
-            for (RasterInfo raster : subRasterInfo) {
-                GeneralEnvelope rasterEnvelope = raster.getOriginalEnvelope();
-                if (env == null) {
-                    env = new GeneralEnvelope(rasterEnvelope);
-                } else {
-                    env.add(rasterEnvelope);
+            if (1 == getNumRasters()) {
+                env = getGridEnvelope(0, 0);
+            } else {
+                for (RasterInfo raster : subRasterInfo) {
+                    GeneralEnvelope rasterEnvelope = raster.getOriginalEnvelope();
+                    if (env == null) {
+                        env = new GeneralEnvelope(rasterEnvelope);
+                    } else {
+                        env.add(rasterEnvelope);
+                    }
                 }
             }
             originalEnvelope = env;
@@ -351,12 +371,12 @@ public final class RasterDatasetInfo {
 
     public GeneralEnvelope getGridEnvelope(final int rasterIndex, final int pyramidLevel) {
         PyramidLevelInfo level = getLevel(rasterIndex, pyramidLevel);
-        return new GeneralEnvelope(level.getImageEnvelope());
+        return level.getSpatialExtent();
     }
 
-    public Rectangle getGridRange(final int rasterIndex, final int pyramidLevel) {
+    public GridEnvelope getGridRange(final int rasterIndex, final int pyramidLevel) {
         PyramidLevelInfo level = getLevel(rasterIndex, pyramidLevel);
-        Rectangle levelRange = level.getImageRange();
+        GridEnvelope levelRange = level.getGridEnvelope();
         return levelRange;
     }
 
@@ -450,15 +470,15 @@ public final class RasterDatasetInfo {
     }
 
     public int getOptimalPyramidLevel(final int rasterIndex, final OverviewPolicy policy,
-            final GeneralEnvelope requestedEnvelope, final Rectangle requestedDim) {
+            final GeneralEnvelope requestedEnvelope, final GridEnvelope requestedDim) {
 
         final RasterInfo rasterInfo = getRasterInfo(rasterIndex);
 
         double[] requestedRes = new double[2];
         double reqSpanX = requestedEnvelope.getSpan(0);
         double reqSpanY = requestedEnvelope.getSpan(1);
-        requestedRes[0] = reqSpanX / requestedDim.getWidth();
-        requestedRes[1] = reqSpanY / requestedDim.getHeight();
+        requestedRes[0] = reqSpanX / (double) requestedDim.getSpan(0);
+        requestedRes[1] = reqSpanY / (double) requestedDim.getSpan(1);
 
         return rasterInfo.getOptimalPyramidLevel(policy, requestedRes);
     }
@@ -480,12 +500,6 @@ public final class RasterDatasetInfo {
         return resolution;
     }
 
-    public Point getTileOffset(final int rasterIndex, final int pyramidLevel) {
-        RasterInfo rasterInfo = getRasterInfo(rasterIndex);
-        PyramidLevelInfo level = rasterInfo.getPyramidLevel(pyramidLevel);
-        return new Point(level.getXOffset(), level.getYOffset());
-    }
-
     public Number getNoDataValue(final long rasterId, final int bandIndex) {
         final int rasterIndex = getRasterIndex(rasterId);
         return getNoDataValue(rasterIndex, bandIndex);
@@ -504,5 +518,22 @@ public final class RasterDatasetInfo {
      */
     public List<Number> getNoDataValues(final int rasterIndex) {
         return getRasterInfo(rasterIndex).getNoDataValues();
+    }
+
+    /**
+     * Returns the actual ArcSDE pyramid level for the given raster and internal pyramid level, in
+     * order to take into acount the fact that if the raster is registered with "skipLevelOne", we
+     * don't hold any information for the arcsde pyramid level 1 of this raster.
+     */
+    public int getArcSDEPyramidLevel(final Long rasterId, final int pyramidLevel) {
+        if (pyramidLevel == 0) {
+            return 0;
+        }
+        RasterInfo rasterInfo = getRasterInfo(getRasterIndex(rasterId));
+        boolean skipLevelOne = rasterInfo.isSkipLevelOne();
+        if (skipLevelOne) {
+            return pyramidLevel + 1;
+        }
+        return pyramidLevel;
     }
 }

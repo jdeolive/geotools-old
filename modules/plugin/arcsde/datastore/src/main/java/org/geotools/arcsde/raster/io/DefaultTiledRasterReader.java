@@ -27,6 +27,7 @@ import javax.imageio.ImageTypeSpecifier;
 import org.geotools.arcsde.raster.info.RasterDatasetInfo;
 import org.geotools.arcsde.raster.jai.ArcSDEPlanarImage;
 import org.geotools.arcsde.session.ISessionPool;
+import org.opengis.coverage.grid.GridEnvelope;
 
 import com.esri.sde.sdk.client.SeQuery;
 
@@ -67,7 +68,7 @@ class DefaultTiledRasterReader implements TiledRasterReader {
     /**
      * @see org.geotools.arcsde.raster.io.TiledRasterReader#read
      */
-    public RenderedImage read(final long rasterId, final int pyramidLevel, final Rectangle tileRange)
+    public RenderedImage read(final long rasterId, final int pyramidLevel, final GridEnvelope tileRange)
             throws IOException {
 
         final TileReader tileReader;
@@ -91,13 +92,13 @@ class DefaultTiledRasterReader implements TiledRasterReader {
      * only the required tiles, the calling code is responsible for cropping it as needed
      * 
      * @param tileReader
-     * @param matchingTiles
+     * @param tileRange
      * @param rasterId
      * @return
      * @throws IOException
      */
     private RenderedImage createTiledRaster(final TileReader tileReader,
-            final Rectangle matchingTiles, final long rasterId) throws IOException {
+            final GridEnvelope tileRange, final long rasterId) throws IOException {
         // Prepare temporary colorModel and sample model, needed to build the final
         // ArcSDEPyramidLevel level;
         final ColorModel colorModel;

@@ -11,9 +11,9 @@ import java.awt.image.DataBufferShort;
 import java.awt.image.DataBufferUShort;
 import java.awt.image.Raster;
 import java.awt.image.SampleModel;
-import java.awt.image.WritableRaster;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.Observable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -23,6 +23,7 @@ import javax.media.jai.TileCache;
 import javax.media.jai.TileFactory;
 
 import org.geotools.arcsde.raster.io.TileReader;
+import org.geotools.coverage.grid.io.imageio.RecyclingTileFactory;
 import org.geotools.util.Utilities;
 import org.geotools.util.logging.Logging;
 
@@ -31,7 +32,7 @@ import com.sun.media.jai.util.ImageUtil;
 @SuppressWarnings("unchecked")
 public class ArcSDEPlanarImage extends PlanarImage {
 
-    private static final Logger LOGGER = Logging.getLogger("org.geotools.arcsde.raster.jai");
+    private static final Logger LOGGER = Logging.getLogger(ArcSDEPlanarImage.class);
 
     private TileReader tileReader;
 
@@ -40,6 +41,16 @@ public class ArcSDEPlanarImage extends PlanarImage {
     private final BigInteger UID;
 
     private final int hashCode;
+
+    /**
+     * We use an internal TileCache for each ArcSDEPlanarImage because RenderedOp's use to call
+     * getTile(x,y) repeteadly for the same tile and since we're hitting a database it's not easy to
+     * go fetch a tile from the stream that has already been fetch. Anyway, if a tile is requested
+     * that's past the current tile index in the stream and it's not on this cache, NativeTileReader
+     * will perform an extra database query to fetch that single tile, but this is to avoid that
+     * situation to the maximum extent possible.
+     */
+    private final TileCache tileCache;
 
     public ArcSDEPlanarImage(TileReader tileReader, int minX, int minY, int width, int height,
             int tileGridXOffset, int tileGridYOffset, SampleModel tileSampleModel,
@@ -70,6 +81,45 @@ public class ArcSDEPlanarImage extends PlanarImage {
             this.hashCode = result;
         }
         this.UID = (BigInteger) ImageUtil.generateID(this);
+
+        int bytesPerPixel;
+        switch (tileSampleModel.getDataType()) {
+        case DataBuffer.TYPE_BYTE:
+            bytesPerPixel = 1;
+            break;
+        case DataBuffer.TYPE_DOUBLE:
+            bytesPerPixel = 8;
+            break;
+        case DataBuffer.TYPE_FLOAT:
+        case DataBuffer.TYPE_INT:
+            bytesPerPixel = 4;
+            break;
+        case DataBuffer.TYPE_SHORT:
+        case DataBuffer.TYPE_USHORT:
+            bytesPerPixel = 2;
+            break;
+        default:
+            throw new IllegalArgumentException("Unknown DataBuffer type: "
+                    + tileSampleModel.getDataType());
+        }
+
+        int numTilesInCache = 16;
+        long memCapacity = numTilesInCache * bytesPerPixel * tileWidth * tileHeight
+                * tileSampleModel.getNumBands();
+        this.tileCache = JAI.createTileCache(memCapacity);
+
+        final JAI jai = JAI.getDefaultInstance();
+        TileFactory tileFactory = (TileFactory) jai.getRenderingHint(JAI.KEY_TILE_FACTORY);
+        if (tileFactory == null) {
+            if (tileCache instanceof Observable) {
+                super.tileFactory = new RecyclingTileFactory((Observable) tileCache);
+            } else {
+                // not a SunTileCache?
+                super.tileFactory = new javax.media.jai.RecyclingTileFactory();
+            }
+        } else {
+            super.tileFactory = tileFactory;
+        }
     }
 
     // @Override
@@ -92,59 +142,32 @@ public class ArcSDEPlanarImage extends PlanarImage {
         return UID;
     }
 
-    private int lastTileX, lastTileY;
-
-    private WritableRaster currentTile;
-
     /**
      * @see java.awt.image.RenderedImage#getTile(int, int)
      */
     @Override
     public synchronized Raster getTile(final int tileX, final int tileY) {
-        if (tileX == lastTileX && tileY == lastTileY && currentTile != null) {
+        Raster currentTile = tileCache.getTile(this, tileX, tileY);
+        if (currentTile != null) {
+            if (LOGGER.isLoggable(Level.FINER)) {
+                LOGGER.finer("! GOT TILE FROM TileCache " + tileX + ", " + tileY + ", plevel "
+                        + tileReader.getPyramidLevel());
+            }
             return currentTile;
-        }
-
-        // System.err.printf("getTile(%d, %d) %s\n", tileX, tileY, this.toString());
-        final boolean useCache = true;
-        final JAI jai = JAI.getDefaultInstance();
-        final TileCache jaiCache = jai.getTileCache();
-
-        if (useCache && jaiCache != null) {
-            Raster tile = jaiCache.getTile(this, tileX, tileY);
-            if (tile != null) {
-                if (LOGGER.isLoggable(Level.INFO)) {
-                    LOGGER.info("! GOT TILE FROM TileCache " + tileX + ", " + tileY + ", plevel "
-                            + tileReader.getPyramidLevel());
-                }
-                return tile;
-            }
-        }
-        if (super.tileFactory == null) {
-            TileFactory tileFactory = (TileFactory) jai.getRenderingHint(JAI.KEY_TILE_FACTORY);
-            if (tileFactory != null) {
-                super.tileFactory = tileFactory;
-            }
         }
 
         final int xOrigin = tileXToX(tileX);
         final int yOrigin = tileYToY(tileY);
 
-        if (currentTile == null) {
-            currentTile = Raster.createWritableRaster(tileSampleModel, new Point(xOrigin, yOrigin));
-        } else {
-            DataBuffer db = currentTile.getDataBuffer();
-            currentTile = Raster.createWritableRaster(tileSampleModel, db, new Point(xOrigin,
-                    yOrigin));
-        }
+        currentTile = tileFactory.createTile(tileSampleModel, new Point(xOrigin, yOrigin));
 
         if (shallIgnoreTile(tileX, tileY)) {
             // not a requested tile
             return currentTile;
         }
 
-        final int readerTileX = tileX - tileReader.getMinTileX();
-        final int readerTileY = tileY - tileReader.getMinTileY();
+        final int readerTileX = tileX;// - tileReader.getMinTileX();
+        final int readerTileY = tileY;// - tileReader.getMinTileY();
 
         try {
             switch (tileSampleModel.getDataType()) {
@@ -193,12 +216,7 @@ public class ArcSDEPlanarImage extends PlanarImage {
             throw new RuntimeException(e);
         }
 
-        if (useCache && jaiCache != null) {
-            jaiCache.add(this, tileX, tileY, currentTile);
-        }
-
-        lastTileX = tileX;
-        lastTileY = tileY;
+        tileCache.add(this, tileX, tileY, currentTile);
 
         return currentTile;
     }
@@ -206,11 +224,11 @@ public class ArcSDEPlanarImage extends PlanarImage {
     private boolean shallIgnoreTile(int tx, int ty) {
         int minTileX = tileReader.getMinTileX();
         int minTileY = tileReader.getMinTileY();
-        int tilesWide = tileReader.getTilesWide();
-        int tilesHigh = tileReader.getTilesHigh();
+        int maxTileX = tileReader.getMaxTileX();
+        int maxTileY = tileReader.getMaxTileY();
 
-        return tx < minTileX || ty < minTileY || tx > minTileX + tilesWide
-                || ty > minTileY + tilesHigh;
+        boolean ignore = tx < minTileX || ty < minTileY || tx > maxTileX || ty > maxTileY;
+        return ignore;
     }
 
 }

@@ -146,7 +146,7 @@ public class GatherCoverageMetadataCommand extends Command<RasterDatasetInfo> {
                 for (SeRasterAttr rAtt : rasterAttributes) {
                     LOGGER.fine("Gathering raster metadata for " + rasterTableName + " raster "
                             + rAtt.getRasterId().longValue());
-
+                    
                     if (rAtt.getMaxLevel() == 0) {
                         throw new IllegalArgumentException(
                                 "Raster cotains no pyramid levels, we don't support non pyramid rasters");
@@ -175,6 +175,8 @@ public class GatherCoverageMetadataCommand extends Command<RasterDatasetInfo> {
                         LOGGER.finer("Gathered metadata for " + rasterTableName + "#"
                                 + rAtt.getRasterId().longValue() + ":\n" + rasterInfo.toString());
                     }
+                    
+                    System.out.println(rasterInfo);
                 }
             } catch (SeException e) {
                 throw new ArcSdeException("Gathering raster dataset information", e);

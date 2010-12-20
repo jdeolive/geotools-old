@@ -20,6 +20,8 @@ import java.awt.Rectangle;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
 
+import org.opengis.coverage.grid.GridEnvelope;
+
 /**
  * An Iterator like interface to read ArcSDE rasters for a given ArcSDE raster dataset (whether it
  * is a single raster or a raster catalog).
@@ -80,14 +82,14 @@ public interface TiledRasterReader {
      * 
      * @param pyramidLevel
      *            the pyramid level to read
-     * @param tileRange
+     * @param matchingTiles
      *            the range of tiles to read at the given pyramid level. The boundaries of the tile
      *            range are inclusive and starts at {@code 0,0} for the upper left most tile.
      * @return the rendered image determined by the requested pyramid level and tile range
      * @throws IOException
      *             for any exception occurred while reading the image
      */
-    RenderedImage read(final long rasterId, final int pyramidLevel, final Rectangle tileRange)
+    RenderedImage read(final long rasterId, final int pyramidLevel, final GridEnvelope matchingTiles)
             throws IOException;
 
 }
