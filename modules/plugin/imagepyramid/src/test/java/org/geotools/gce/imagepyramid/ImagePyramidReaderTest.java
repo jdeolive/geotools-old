@@ -197,7 +197,7 @@ public class ImagePyramidReaderTest extends Assert {
 		if (TestData.isInteractiveTest())
 			coverage.show("testDefaultParameterValue");
 		else
-			((GridCoverage2D) coverage).getRenderedImage().getData();
+			PlanarImage.wrapRenderedImage(((GridCoverage2D) coverage).getRenderedImage()).getTiles();
 
 	}
 	@Test

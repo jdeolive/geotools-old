@@ -968,9 +968,6 @@ class RasterLayerRequest {
         //
         computeRequestedResolution();
 
-
-
-
     }
 
 	/**

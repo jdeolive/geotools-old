@@ -59,6 +59,7 @@ import javax.media.jai.operator.MosaicDescriptor;
 import org.geotools.coverage.Category;
 import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.TypeMap;
+import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.grid.GridEnvelope2D;
@@ -73,6 +74,7 @@ import org.geotools.filter.IllegalFilterException;
 import org.geotools.filter.SortByImpl;
 import org.geotools.gce.imagemosaic.RasterManager.OverviewLevel;
 import org.geotools.gce.imagemosaic.catalog.GranuleCatalog.GranuleCatalogVisitor;
+import org.geotools.geometry.Envelope2D;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -80,6 +82,7 @@ import org.geotools.image.ImageWorker;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
+import org.geotools.resources.geometry.XRectangle2D;
 import org.geotools.resources.i18n.Vocabulary;
 import org.geotools.resources.i18n.VocabularyKeys;
 import org.geotools.util.Converters;
@@ -802,7 +805,11 @@ class RasterLayerResponse{
 			finalGridToWorldCorner = new AffineTransform2D(g2w);
 			finalWorldToGridCorner = finalGridToWorldCorner.inverse();// compute raster bounds
 			final GeneralEnvelope tempRasterBounds = CRS.transform(finalWorldToGridCorner, mosaicBBox);
-			rasterBounds=tempRasterBounds.toRectangle2D().getBounds();
+//			rasterBounds=tempRasterBounds.toRectangle2D().getBounds();
+			// SG using the above may lead to problems since the reason is that  may be a little (1 px) bigger
+			// than what we need. The code below is a bit better since it uses a proper logic (see GridEnvelope
+			// Javadoc)
+			rasterBounds = new GridEnvelope2D(new Envelope2D(tempRasterBounds), PixelInCell.CELL_CORNER);
 			if (rasterBounds.width == 0)
 			    rasterBounds.width++;
 			if (rasterBounds.height == 0)
