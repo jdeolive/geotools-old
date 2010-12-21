@@ -17,8 +17,14 @@
 package org.geotools.coverage.grid;
 
 import java.awt.Rectangle;
+import java.awt.image.RenderedImage;
+
+import org.geotools.geometry.Envelope2D;
+import org.geotools.metadata.iso.spatial.PixelTranslation;
+import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.util.Cloneable;
 import org.opengis.coverage.grid.GridEnvelope;
+import org.opengis.geometry.Envelope;
 
 
 /**
@@ -70,7 +76,115 @@ public class GridEnvelope2D extends Rectangle implements GridEnvelope, Cloneable
     public GridEnvelope2D(final int x, final int y, final int width, final int height) {
         super(x, y, width, height);
     }
-
+    /**
+     * Casts the specified envelope into a grid envelope. This is sometime useful after an
+     * envelope has been transformed from "real world" coordinates to grid coordinates using the
+     * {@linkplain org.opengis.coverage.grid.GridGeometry#getGridToCRS grid to CRS} transform.
+     * The floating point values are rounded toward the nearest integers.
+     * <p>
+     * <strong>Notice that highest values are interpreted as inclusive</strong>
+     * 
+     * <p>
+     * <b>Anchor</b><br>
+     * According OpenGIS specification, {@linkplain org.opengis.coverage.grid.GridGeometry grid
+     * geometry} maps pixel's center. But envelopes typically encompass all pixels. This means
+     * that grid coordinates (0,0) has an envelope starting at (-0.5, -0.5). In order to revert
+     * back such envelope to a grid envelope, it is necessary to add 0.5 to every coordinates
+     * (including the maximum value since it is exclusive in a grid envelope). This offset is
+     * applied only if {@code anchor} is {@link PixelInCell#CELL_CENTER}. Users who don't want
+     * such offset should specify {@link PixelInCell#CELL_CORNER}.
+     * <p>
+     * The convention is specified as a {@link PixelInCell} code instead than the more detailed
+     * {@link org.opengis.metadata.spatial.PixelOrientation} because the latter is restricted to
+     * the two-dimensional case while the former can be used for any number of dimensions.
+     *
+     * @param envelope
+     *          The envelope to use for initializing this grid envelope.
+     * @param anchor
+     *          Whatever envelope coordinates map to pixel center or pixel corner. Should be
+     *          {@link PixelInCell#CELL_CENTER} for OGC convention (an offset of 0.5 will be
+     *          added to every envelope coordinate values), or {@link PixelInCell#CELL_CORNER}
+     *          for Java2D/JAI convention (no offset will be added).
+     * @throws IllegalArgumentException
+     *          If {@code anchor} is not valid.
+     *
+     */
+    public GridEnvelope2D(final Envelope2D envelope, final PixelInCell anchor)
+            throws IllegalArgumentException
+    {
+        this(envelope,anchor,false);
+    }
+    
+    /**
+     * Casts the specified envelope into a grid envelope. This is sometime useful after an
+     * envelope has been transformed from "real world" coordinates to grid coordinates using the
+     * {@linkplain org.opengis.coverage.grid.GridGeometry#getGridToCRS grid to CRS} transform.
+     * The floating point values are rounded toward the nearest integers.
+     * <p>
+     * <b>Note about rounding mode</b><br>
+     * It would have been possible to round the {@linkplain Envelope#getMinimum minimal value}
+     * toward {@linkplain Math#floor floor} and the {@linkplain Envelope#getMaximum maximal value}
+     * toward {@linkplain Math#ceil ceil} in order to make sure that the grid envelope encompass
+     * fully the envelope - like what Java2D does when converting {@link java.awt.geom.Rectangle2D}
+     * to {@link Rectangle}). But this approach may increase by 1 or 2 units the image
+     * {@linkplain RenderedImage#getWidth width} or {@linkplain RenderedImage#getHeight height}. For
+     * example the range {@code [-0.25 ... 99.75]} (which is exactly 101 units wide) would be casted
+     * to {@code [-1 ... 100]}, which is 102 units wide. This leads to unexpected results when using
+     * grid envelope with image operations like "{@link javax.media.jai.operator.AffineDescriptor
+     * Affine}". For avoiding such changes in size, it is necessary to use the same rounding mode
+     * for both minimal and maximal values. The selected rounding mode is {@linkplain Math#round
+     * nearest integer} in this implementation.
+     * <p>
+     * <b>Anchor</b><br>
+     * According OpenGIS specification, {@linkplain org.opengis.coverage.grid.GridGeometry grid
+     * geometry} maps pixel's center. But envelopes typically encompass all pixels. This means
+     * that grid coordinates (0,0) has an envelope starting at (-0.5, -0.5). In order to revert
+     * back such envelope to a grid envelope, it is necessary to add 0.5 to every coordinates
+     * (including the maximum value since it is exclusive in a grid envelope). This offset is
+     * applied only if {@code anchor} is {@link PixelInCell#CELL_CENTER}. Users who don't want
+     * such offset should specify {@link PixelInCell#CELL_CORNER}.
+     * <p>
+     * The convention is specified as a {@link PixelInCell} code instead than the more detailed
+     * {@link org.opengis.metadata.spatial.PixelOrientation} because the latter is restricted to
+     * the two-dimensional case while the former can be used for any number of dimensions.
+     *
+     * @param envelope
+     *          The envelope to use for initializing this grid envelope.
+     * @param anchor
+     *          Whatever envelope coordinates map to pixel center or pixel corner. Should be
+     *          {@link PixelInCell#CELL_CENTER} for OGC convention (an offset of 0.5 will be
+     *          added to every envelope coordinate values), or {@link PixelInCell#CELL_CORNER}
+     *          for Java2D/JAI convention (no offset will be added).
+     * @param isHighIncluded
+     *          {@code true} if the envelope maximal values are inclusive, or {@code false} if
+     *          they are exclusive. This argument does not apply to minimal values, which are
+     *          always inclusive.
+     * @throws IllegalArgumentException
+     *          If {@code anchor} is not valid.
+     *
+     */
+    public GridEnvelope2D(final Envelope2D envelope, final PixelInCell anchor,
+                               final boolean isHighIncluded)
+            throws IllegalArgumentException
+    {
+        final double offset = PixelTranslation.getPixelTranslation(anchor) + 0.5;
+        final int dimension = envelope.getDimension();
+        assert dimension==2;
+        final int[] index = new int[dimension * 2];
+        for (int i=0; i<dimension; i++) {
+            // See "note about conversion of floating point values to integers" in the JavaDoc.
+            index[i            ] = (int) Math.round(envelope.getMinimum(i) + offset);
+            index[i + dimension] = (int) Math.round(envelope.getMaximum(i) + offset);
+        }
+        if (isHighIncluded) {
+            for (int i=index.length/2; i<index.length; i++) {
+                index[i]++;
+            }
+        }
+        
+        setLocation(index[0], index[1]);
+        setSize(index[0+dimension]-index[0], index[1+dimension]-index[1]);
+    }
     /**
      * Returns the number of dimensions, which is always 2.
      */
