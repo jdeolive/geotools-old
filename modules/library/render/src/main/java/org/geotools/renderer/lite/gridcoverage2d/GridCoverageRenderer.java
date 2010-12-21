@@ -34,6 +34,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
+import javax.media.jai.BorderExtender;
 import javax.media.jai.ImageLayout;
 import javax.media.jai.Interpolation;
 import javax.media.jai.InterpolationNearest;
@@ -109,7 +110,7 @@ public final class GridCoverageRenderer {
 			return transform;
 		}
 
-		public GridCoverage2D getGc() {
+		public GridCoverage2D getGridCoverage() {
 			return gc;
 		}
 	}
@@ -397,10 +398,10 @@ public final class GridCoverageRenderer {
      * @throws TransformException
      * @throws NoninvertibleTransformException
      */
-    private GCpair prepareFinalImage(final GridCoverage2D gridCoverage,
-            final RasterSymbolizer symbolizer)
-            throws FactoryException, TransformException,
-            NoninvertibleTransformException {
+    private GCpair prepareFinalImage(
+            final GridCoverage2D gridCoverage,
+            final RasterSymbolizer symbolizer
+            )throws FactoryException, TransformException,NoninvertibleTransformException {
 
         // Initial checks
     	if(gridCoverage==null)
@@ -670,7 +671,7 @@ public final class GridCoverageRenderer {
      * @throws NoninvertibleTransformException
      */
     public RenderedImage renderImage(
-    		final GridCoverage2D gridCoverage,
+            final GridCoverage2D gridCoverage,
             final RasterSymbolizer symbolizer, 
             final Interpolation interpolation, 
             final Color background,
@@ -679,23 +680,19 @@ public final class GridCoverageRenderer {
             ) throws FactoryException, TransformException, NoninvertibleTransformException {
 
         // Build the final image and the associated world to grid transformation
-        GCpair couple = prepareFinalImage(gridCoverage, symbolizer);
+        final GCpair couple = prepareFinalImage(gridCoverage, symbolizer);
         if (couple == null)
             return null;
         // NOTICE that at this stage the image we get should be 8 bits, either RGB, RGBA, Gray, GrayA
         // either multiband or indexed. It could also be 16 bits indexed!!!!
         
-        final RenderedImage finalImage = couple.getGc().getRenderedImage();
+        final RenderedImage finalImage = couple.getGridCoverage().getRenderedImage();
         final AffineTransform clonedFinalWorldToGrid = couple.getTransform();
 
         // TODO: optimize translate/scale transformations
         // TODO: use mosaic to merge with a background respecting alpha and transparency
         // TODO: check tolerance value
         // TODO: do we need to pass in any hints?
-//        final double tolerance = 1e-6;
-//        if (XAffineTransform.isIdentity(clonedFinalWorldToGrid, tolerance)) {
-//            return finalImage;
-//        }
         
         boolean hasScaleX=!(Math.abs(clonedFinalWorldToGrid.getScaleX()-1) < 1E-2/(finalImage.getWidth()+1-finalImage.getMinX()));
         boolean hasScaleY=!(Math.abs(clonedFinalWorldToGrid.getScaleY()-1) < 1E-2/(finalImage.getHeight()+1-finalImage.getMinY()));
@@ -745,7 +742,10 @@ public final class GridCoverageRenderer {
         layout.setTileGridXOffset(0).setTileGridYOffset(0).setTileHeight(tileSizeY).setTileWidth(tileSizeX);
         final RenderingHints hints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, layout);
         //add hints to preserve IndexColorModel
-        hints.add(new RenderingHints(JAI.KEY_REPLACE_INDEX_COLOR_MODEL, Boolean.FALSE));
+        if(interpolation instanceof InterpolationNearest)
+            hints.add(new RenderingHints(JAI.KEY_REPLACE_INDEX_COLOR_MODEL, Boolean.FALSE));
+        //SG add hints for the border extender
+        hints.add(new RenderingHints(JAI.KEY_BORDER_EXTENDER,BorderExtender.createInstance(BorderExtender.BORDER_COPY)));
     	RenderedImage im=null;
     	try{
     		// scale ?
@@ -815,7 +815,7 @@ public final class GridCoverageRenderer {
         if (couple == null)
             return;
 
-        RenderedImage finalImage = couple.getGc().getRenderedImage();
+        RenderedImage finalImage = couple.getGridCoverage().getRenderedImage();
         AffineTransform clonedFinalWorldToGrid = couple.getTransform();
 
         // //
