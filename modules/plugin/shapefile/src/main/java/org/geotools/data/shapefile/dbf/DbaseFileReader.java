@@ -171,7 +171,7 @@ public class DbaseFileReader implements FileReader {
         } else {
             // Force useMemoryMappedBuffer to false
             this.useMemoryMappedBuffer = false;
-            header.readHeader(channel);
+            header.readHeader(channel, charset);
             // Some other type of channel
             // size the buffer so that we can read 4 records at a time (and make the buffer cacheable)
             //int size = (int) Math.pow(2, Math.ceil(Math.log(header.getRecordLength()) / Math.log(2)));

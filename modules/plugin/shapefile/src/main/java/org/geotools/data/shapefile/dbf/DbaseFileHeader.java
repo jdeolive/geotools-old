@@ -25,6 +25,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.nio.charset.Charset;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -505,7 +506,7 @@ public class DbaseFileHeader {
     public int getHeaderLength() {
         return headerLength;
     }
-
+    
     /**
      * Read the header data from the DBF file.
      * 
@@ -517,6 +518,20 @@ public class DbaseFileHeader {
      *                 If errors occur while reading.
      */
     public void readHeader(ReadableByteChannel channel) throws IOException {
+        readHeader(channel, Charset.defaultCharset());
+    }
+
+    /**
+     * Read the header data from the DBF file.
+     * 
+     * @param channel
+     *                A readable byte channel. If you have an InputStream you
+     *                need to use, you can call
+     *                java.nio.Channels.getChannel(InputStream in).
+     * @throws IOException
+     *                 If errors occur while reading.
+     */
+    public void readHeader(ReadableByteChannel channel, Charset charset) throws IOException {
         // we'll read in chunks of 1K
         ByteBuffer in = NIOUtilities.allocate(1024);
         try {
@@ -590,7 +605,7 @@ public class DbaseFileHeader {
                 // read the field name
                 byte[] buffer = new byte[11];
                 in.get(buffer);
-                String name = new String(buffer);
+                String name = new String(buffer, charset.name());
                 int nullPoint = name.indexOf(0);
                 if (nullPoint != -1) {
                     name = name.substring(0, nullPoint);

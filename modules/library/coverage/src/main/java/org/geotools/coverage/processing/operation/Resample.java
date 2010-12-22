@@ -16,6 +16,8 @@
  */
 package org.geotools.coverage.processing.operation;
 
+import java.awt.Dimension;
+
 import javax.media.jai.Interpolation;
 import javax.media.jai.operator.AffineDescriptor;
 import javax.media.jai.operator.WarpDescriptor;
@@ -192,6 +194,23 @@ public class Resample extends Operation2D {
                 null,                               // Maximal value
                 null,                               // Unit of measure
                 false);                             // Parameter is optional
+            
+    /**
+     * Key for the reprojection operation being used (null if no operation is performed)
+     */
+    public static final String OPERATION = "method";
+    
+    /**
+     * Key for the warp operation {@link Class}, null otherwise
+     */
+    public static final String WARP_TYPE = "warpType";
+    
+    /**
+     * Key for the warp grid dimensions, available only if a WarpGrid is being used.
+     * Returned as a {@link Dimension} object
+     */
+    public static final String GRID_DIMENSIONS = "gridDimensions";
+
 
     /**
      * Constructs a {@code "Resample"} operation.
