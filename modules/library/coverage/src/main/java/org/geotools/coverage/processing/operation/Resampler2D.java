@@ -186,7 +186,7 @@ final class Resampler2D extends GridCoverage2D {
                 properties.put(Resample.WARP_TYPE, warp.getClass());
                 if(warp instanceof WarpGrid) {
                     WarpGrid grid = (WarpGrid) warp;
-                    Dimension dimension = new Dimension(grid.getYNumCells(), grid.getXNumCells());
+                    Dimension dimension = new Dimension(grid.getXNumCells(), grid.getYNumCells());
                     properties.put(Resample.GRID_DIMENSIONS, dimension);
                 }
             }
