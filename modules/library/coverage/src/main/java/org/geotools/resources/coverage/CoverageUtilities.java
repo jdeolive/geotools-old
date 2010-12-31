@@ -20,6 +20,7 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.image.ColorModel;
+import java.awt.image.DataBuffer;
 import java.awt.image.IndexColorModel;
 import java.awt.image.RenderedImage;
 import java.util.Collection;
@@ -66,7 +67,7 @@ import org.opengis.referencing.operation.TransformException;
  * @source $URL$
  * @version $Id$
  * @author Martin Desruisseaux (IRD)
- * @author Simone Giannecchini
+ * @author Simone Giannecchini, GeoSolutions
  */
 public final class CoverageUtilities {
     /**
@@ -174,7 +175,6 @@ public final class CoverageUtilities {
      * @param coverage to use for guessing background values.
      * @return an array of double values to use as a background.
      */
-    @SuppressWarnings("unchecked")
 	public static double[] getBackgroundValues(GridCoverage2D coverage) {
         /*
          * Get the sample value to use for background. We will try to fetch this
@@ -184,7 +184,7 @@ public final class CoverageUtilities {
         final GridSampleDimension[] sampleDimensions = coverage.getSampleDimensions();
         final double[] background = new double[sampleDimensions.length];
         for (int i=0; i<background.length; i++) {
-            final NumberRange range = sampleDimensions[i].getBackground().getRange();
+            final NumberRange<?> range = sampleDimensions[i].getBackground().getRange();
             final double min = range.getMinimum();
             final double max = range.getMaximum();
             if (range.isMinIncluded()) {
@@ -543,5 +543,61 @@ public final class CoverageUtilities {
         }
         readParameters.setSourceRegion(sourceRegion);
         return false;
-    }    
+    }
+
+	/**
+	 * Returns a suitable threshold depending on the {@link DataBuffer} type.
+	 * 
+	 * <p>
+	 * Remember that the threshold works with >=.
+	 * 
+	 * @param dataType
+	 *            to create a low threshold for.
+	 * @return a minimum threshold value suitable for this data type.
+	 */
+	public static double getMosaicThreshold(int dataType) {
+		switch (dataType) {
+		case DataBuffer.TYPE_BYTE:
+		case DataBuffer.TYPE_USHORT:
+			// this may cause problems and truncations when the native mosaic
+			// operations is enabled
+			return 0.0;
+		case DataBuffer.TYPE_INT:
+			return Integer.MIN_VALUE;
+		case DataBuffer.TYPE_SHORT:
+			return Short.MIN_VALUE;
+		case DataBuffer.TYPE_DOUBLE:
+			return -Double.MAX_VALUE;
+		case DataBuffer.TYPE_FLOAT:
+			return -Float.MAX_VALUE;
+		}
+		return 0;
+	}    
+	
+	/**
+	 * Returns a suitable no data value depending on the {@link DataBuffer} type.
+	 * 
+	 * 	 * 
+	 * @param dataType
+	 *            to create a low threshold for.
+	 * @return a no data value suitable for this data type.
+	 */
+	public static Number suggestNoDataValue(int dataType) {
+		switch (dataType) {
+		case DataBuffer.TYPE_BYTE:
+			return Byte.valueOf((byte)0);
+		case DataBuffer.TYPE_USHORT:
+			return Short.valueOf((short)0);
+		case DataBuffer.TYPE_INT:
+			return Integer.valueOf(Integer.MIN_VALUE);
+		case DataBuffer.TYPE_SHORT:
+			return Short.valueOf((short)Short.MIN_VALUE);
+		case DataBuffer.TYPE_DOUBLE:
+			return Double.NaN;
+		case DataBuffer.TYPE_FLOAT:
+			return Float.NaN;
+		default:
+			throw new IllegalAccessError(Errors.format(ErrorKeys.ILLEGAL_ARGUMENT_$2,"dataType",dataType));
+		}
+	}  
 }
