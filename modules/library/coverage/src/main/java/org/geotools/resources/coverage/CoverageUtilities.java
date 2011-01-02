@@ -593,9 +593,9 @@ public final class CoverageUtilities {
 		case DataBuffer.TYPE_SHORT:
 			return Short.valueOf((short)Short.MIN_VALUE);
 		case DataBuffer.TYPE_DOUBLE:
-			return Double.NaN;
+			return Double.valueOf(Double.NaN);
 		case DataBuffer.TYPE_FLOAT:
-			return Float.NaN;
+			return Float.valueOf(Float.NaN);
 		default:
 			throw new IllegalAccessError(Errors.format(ErrorKeys.ILLEGAL_ARGUMENT_$2,"dataType",dataType));
 		}
