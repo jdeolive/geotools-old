@@ -199,7 +199,7 @@ public final class GeoTiffIIOMetadataEncoder {
 
 	public GeoKeyEntry getGeoKeyEntry(int keyID) {
 		GeoKeyEntry retVal = null;
-		final Object o = geoTiffEntries.first(new Integer(keyID));
+		final Object o = geoTiffEntries.first(Integer.valueOf(keyID));
 		if (o != null)
 			retVal = (GeoKeyEntry) o;
 
@@ -299,7 +299,7 @@ public final class GeoTiffIIOMetadataEncoder {
 		}
 
 		final int numKeyEntries = numGeoTiffEntries;
-		geoTiffEntries.add(new Integer(keyID), new GeoKeyEntry(keyID, tag,
+		geoTiffEntries.add(Integer.valueOf(keyID), new GeoKeyEntry(keyID, tag,
 				count, offset));
 		getGeoKeyEntryAt(0).setCount(numKeyEntries);
 		numGeoTiffEntries++;

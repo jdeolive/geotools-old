@@ -164,11 +164,6 @@ public final class GeoTiffMetadata2CRSAdapter {
 	 */
 	public static final int DEFAULT_MAX = 100;
 
-	/**
-	 * The pool of cached objects.
-	 */
-	private final static Map pool = Collections.synchronizedMap(new SoftValueHashMap(DEFAULT_MAX));
-
 	/** Group Factory for creating {@link ProjectedCRS} objects. */
 	private final ReferencingFactoryContainer factories;
 
@@ -483,11 +478,8 @@ public final class GeoTiffMetadata2CRSAdapter {
 
 	/**
 	 * Create the grid to world (or raster to model) transformation for this
-	 * source.
+	 * source which is placed at the centre of the pixel rather at the corner.
 	 * 
-	 * @see <a
-	 *      href="http://lists.maptools.org/pipermail/geotiff/2006-January/000213.html">this
-	 *      email post</a>
 	 * @param metadata
 	 *            containing the information to build the {@link MathTransform}
 	 *            for going from grid to world.
@@ -500,11 +492,9 @@ public final class GeoTiffMetadata2CRSAdapter {
 	public static MathTransform getRasterToModel(
 			final GeoTiffIIOMetadataDecoder metadata, 
 			final boolean forceToCellCenter) throws GeoTiffException {
-		// /////////////////////////////////////////////////////////////////////
 		//
 		// Load initials
 		//
-		// /////////////////////////////////////////////////////////////////////
 		final boolean hasTiePoints = metadata.hasTiePoints();
 		final boolean hasPixelScales = metadata.hasPixelScales();
 		final boolean hasModelTransformation = metadata.hasModelTrasformation();
@@ -514,30 +504,28 @@ public final class GeoTiffMetadata2CRSAdapter {
 			rasterType = GeoTiffConstants.RasterPixelIsArea;
 		MathTransform xform = null;
 		if (hasTiePoints && hasPixelScales) {
+			
+			//
+			// we use tie points and pixel scales to build the grid to world
+			//
+			// model space
 			final TiePoint[] tiePoints = metadata.getModelTiePoints();
 			final PixelScale pixScales = metadata.getModelPixelScales();
 
-			// /////////////////////////////////////////////////////////////////////
-			//
-			// checking the directions of the axes.
-			// we need to understand how the axes of this gridcoverage are
-			// specified.
-			// trying to understand the direction of the first axis in order to
-			//
-			// /////////////////////////////////////////////////////////////////////
-			// latitude index
 
-			final GeneralMatrix gm = new GeneralMatrix(3); // identity
+
+			// here is the matrix we need to build
+			final GeneralMatrix gm = new GeneralMatrix(3);
 			final double scaleRaster2ModelLongitude = pixScales.getScaleX();
 			final double scaleRaster2ModelLatitude = -pixScales.getScaleY();
+			// "raster" space 
 			final double tiePointColumn = tiePoints[0].getValueAt(0)
-					+ ((forceToCellCenter && rasterType == GeoTiffConstants.RasterPixelIsArea) ? 0.5
-							: 0); // "raster" space
+					+ ((forceToCellCenter || rasterType == GeoTiffConstants.RasterPixelIsArea) ? - 0.5: 0); 
+			
 			// coordinates
 			// (indicies)
 			final double tiePointRow = tiePoints[0].getValueAt(1)
-					+ ((forceToCellCenter && rasterType == GeoTiffConstants.RasterPixelIsArea) ? 0.5
-							: 0);
+					+ ((forceToCellCenter || rasterType == GeoTiffConstants.RasterPixelIsArea) ? - 0.5: 0);
 
 			// compute an "offset and scale" matrix
 			gm.setElement(0, 0, scaleRaster2ModelLongitude);
@@ -546,9 +534,9 @@ public final class GeoTiffMetadata2CRSAdapter {
 			gm.setElement(1, 0, 0);
 
 			gm.setElement(0, 2, tiePoints[0].getValueAt(3)
-					+ (scaleRaster2ModelLongitude * tiePointColumn));
+					- (scaleRaster2ModelLongitude * tiePointColumn));
 			gm.setElement(1, 2, tiePoints[0].getValueAt(4)
-					+ (scaleRaster2ModelLatitude * tiePointRow));
+					- (scaleRaster2ModelLatitude * tiePointRow));
 
 			// make it a LinearTransform
 			xform = ProjectiveTransform.create(gm);
@@ -1759,43 +1747,6 @@ public final class GeoTiffMetadata2CRSAdapter {
 		}
 	}
 
-	/**
-	 * Returns an object from the pool for the specified code. If the object was
-	 * retained as a {@linkplain Reference weak reference}, the
-	 * {@link Reference#get referent} is returned.
-	 * 
-	 * @param key
-	 *            to use for doing the lookup inside the pool.
-	 * @return a cached instance of a {@link GeoTiffMetadata2CRSAdapter}
-	 *         suitable for the provided key.
-	 * @todo Consider logging a message here to the finer or finest level.
-	 */
-	public static Object get(final Object key) {
-		synchronized (pool) {
-
-			Object object = pool.get(key);
-			if (object == null) {
-				object = new GeoTiffMetadata2CRSAdapter((Hints) key);
-				put(key, object);
-			}
-			return object;
-		}
-	}
-
-	/**
-	 * Put an element in the pool. This method is invoked everytime a
-	 * {@code createFoo(...)} method is invoked, even if an object was already
-	 * in the pool for the given code, for the following reasons: 1) Replaces
-	 * weak reference by strong reference (if applicable) and 2) Alters the
-	 * linked hash set order, so that this object is declared as the last one
-	 * used.
-	 */
-	private static void put(final Object key, final Object object) {
-		synchronized (pool) {
-			pool.put(key, object);
-
-		}
-	}
 
 	/**
 	 * Returns the {@link Hints} for this {@link GeoTiffMetadata2CRSAdapter}.

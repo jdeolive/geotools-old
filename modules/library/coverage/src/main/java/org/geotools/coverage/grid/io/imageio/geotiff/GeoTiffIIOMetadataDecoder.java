@@ -133,7 +133,7 @@ public final class GeoTiffIIOMetadataDecoder {
 					"Unable to retrieve metadata");
 		}
 		tiffTagsEntries = (IIOMetadataNode) rootNode.getFirstChild().getChildNodes();
-		if (rootNode == null) {
+		if (tiffTagsEntries == null) {
 			throw new IllegalArgumentException(
 					"Unable to retrieve metadata");
 		}
@@ -327,9 +327,8 @@ public final class GeoTiffIIOMetadataDecoder {
 		final double[] pixScales = getTiffDoubles(getTiffField(GeoTIFFTagSet.TAG_MODEL_PIXEL_SCALE));
 		if (pixScales == null)
 			return null;
-		final int length = pixScales.length;
 		final PixelScale retVal = new PixelScale();
-		for (int i = 0; i < length; i++)
+		for (int i = 0; i <  pixScales.length; i++)
 			switch (i) {
 			case 0:
 				retVal.setScaleX(pixScales[i]);
