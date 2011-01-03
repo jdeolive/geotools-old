@@ -372,14 +372,14 @@ public final class JP2KReader extends AbstractGridCoverage2DReader implements
          final IIOMetadata tiffmetadata = tiffreader.getImageMetadata(0);
          try {
             final GeoTiffIIOMetadataDecoder metadataDecoder = new GeoTiffIIOMetadataDecoder(tiffmetadata);
-            final GeoTiffMetadata2CRSAdapter adapter = (GeoTiffMetadata2CRSAdapter) GeoTiffMetadata2CRSAdapter.get(hints);
+            final GeoTiffMetadata2CRSAdapter adapter = new GeoTiffMetadata2CRSAdapter(hints);
              coordinateReferenceSystem = adapter.createCoordinateSystem(metadataDecoder);
              if (coordinateReferenceSystem != null) {
              	if (this.crs == null)
              		this.crs = coordinateReferenceSystem;
              }
              if (this.raster2Model == null){
-                 this.raster2Model = adapter.getRasterToModel(metadataDecoder);
+                 this.raster2Model = GeoTiffMetadata2CRSAdapter.getRasterToModel(metadataDecoder);
                  final AffineTransform tempTransform = new AffineTransform((AffineTransform) raster2Model);
                  tempTransform.translate(-0.5, -0.5);
                  final GeneralEnvelope envelope = CRS.transform(ProjectiveTransform.create(tempTransform),
