@@ -260,7 +260,7 @@ public final class GeoTiffReader extends AbstractGridCoverage2DReader implements
             reader.setInput(inStream);
             final IIOMetadata iioMetadata = reader.getImageMetadata(0);
             metadata = new GeoTiffIIOMetadataDecoder(iioMetadata);
-            gtcs = (GeoTiffMetadata2CRSAdapter) GeoTiffMetadata2CRSAdapter.get(hints);
+            gtcs = new GeoTiffMetadata2CRSAdapter(hints);
             
             // //
             //
