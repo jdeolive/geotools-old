@@ -277,7 +277,7 @@ public final class GeoTiffWriter extends AbstractGridCoverageWriter implements
 	 * @throws IOException
 	 * @throws TransformException
 	 */
-	private void setGeoReference(final CoordinateReferenceSystem crs,
+	private static void setGeoReference(final CoordinateReferenceSystem crs,
 			final GeoTiffIIOMetadataEncoder metadata,
 			final AffineTransform rasterToModel, GridEnvelope2D range)
 			throws IndexOutOfBoundsException, IOException {
