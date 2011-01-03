@@ -31,7 +31,6 @@ import org.geotools.referencing.operation.matrix.GeneralMatrix;
 import org.geotools.referencing.operation.transform.ProjectiveTransform;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
-import org.opengis.parameter.InvalidParameterValueException;
 import org.opengis.referencing.operation.MathTransform;
 
 /**
@@ -66,20 +65,6 @@ import org.opengis.referencing.operation.MathTransform;
  * @source $URL$
  */
 public class WorldFileReader {
-    /**
-     * Makes sure an argument is non-null.
-     *
-     * @param  name   Argument name.
-     * @param  object User argument.
-     * @throws InvalidParameterValueException if {@code object} is null.
-     */
-    private static void ensureNonNull(final String name, final Object object)
-            throws IllegalArgumentException
-    {
-        if (object == null) {
-            throw new IllegalArgumentException(Errors.format(ErrorKeys.NULL_ARGUMENT_$1, name));
-        }
-    }	
 
 	/**
 	 * Default size for the underlying buffer,
@@ -238,7 +223,6 @@ public class WorldFileReader {
 			}
 
 		}
-		bufferedreader.close();
 
 		// did we find all we were looking for?
 		if (index < 5)
