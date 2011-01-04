@@ -65,6 +65,7 @@ import org.geotools.gce.imagemosaic.catalog.GranuleCatalogFactory;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
+import org.geotools.resources.coverage.FeatureUtilities;
 import org.geotools.util.Utilities;
 import org.opengis.coverage.grid.Format;
 import org.opengis.coverage.grid.GridCoverage;
@@ -742,7 +743,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 				query.setPropertyNames(Arrays.asList(timeAttribute));
 				final SortBy[] sortBy=new SortBy[]{
 						new SortByImpl(
-								Utils.FILTER_FACTORY.property(rasterManager.timeAttribute),
+								FeatureUtilities.DEFAULT_FILTER_FACTORY.property(rasterManager.timeAttribute),
 								SortOrder.DESCENDING
 						)};
 				if(queryCapabilities.supportsSorting(sortBy))
@@ -801,7 +802,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 				query.setPropertyNames(Arrays.asList(elevationAttribute));
 				final SortBy[] sortBy=new SortBy[]{
 						new SortByImpl(
-								Utils.FILTER_FACTORY.property(rasterManager.elevationAttribute),
+								FeatureUtilities.DEFAULT_FILTER_FACTORY.property(rasterManager.elevationAttribute),
 								SortOrder.ASCENDING
 						)};
 				if(queryCapabilities.supportsSorting(sortBy))
@@ -838,7 +839,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 				query.setPropertyNames(Arrays.asList("runtime"));
 				final SortBy[] sortBy=new SortBy[]{
 						new SortByImpl(
-								Utils.FILTER_FACTORY.property("runtime"),
+								FeatureUtilities.DEFAULT_FILTER_FACTORY.property("runtime"),
 								SortOrder.DESCENDING
 						)};
 				if(queryCapabilities.supportsSorting(sortBy))

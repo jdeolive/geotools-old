@@ -62,7 +62,9 @@ import org.geotools.referencing.CRS;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
 import org.geotools.referencing.operation.matrix.XAffineTransform;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
+import org.geotools.resources.coverage.CoverageUtilities;
 import org.geotools.resources.geometry.XRectangle2D;
+import org.geotools.resources.image.ImageUtilities;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.geometry.BoundingBox;
 import org.opengis.referencing.FactoryException;
@@ -322,7 +324,7 @@ public class GranuleDescriptor {
 			this.baseToLevelTransform=new AffineTransform2D( XAffineTransform.getScaleInstance(scaleX,scaleY,0,0));
 			
 			final AffineTransform gridToWorldTransform_ = new AffineTransform(baseToLevelTransform);
-			gridToWorldTransform_.preConcatenate(Utils.CENTER_TO_CORNER);
+			gridToWorldTransform_.preConcatenate(CoverageUtilities.CENTER_TO_CORNER);
 			gridToWorldTransform_.preConcatenate(baseGridToWorld);
 			this.gridToWorldTransformCorner=new AffineTransform2D(gridToWorldTransform_);
 			this.width = width;
@@ -707,7 +709,7 @@ public class GranuleDescriptor {
 			
 			// now create the overall transform
 			final AffineTransform finalRaster2Model = new AffineTransform(baseGridToWorld);
-			finalRaster2Model.concatenate(Utils.CENTER_TO_CORNER);
+			finalRaster2Model.concatenate(CoverageUtilities.CENTER_TO_CORNER);
 			final double x = finalRaster2Model.getTranslateX();
                         final double y = finalRaster2Model.getTranslateY();
                         
@@ -797,7 +799,7 @@ public class GranuleDescriptor {
                 }
                 // border extender
                 if (addBorderExtender) {
-                    localHints.add(Utils.BORDER_EXTENDER_HINTS);
+                    localHints.add(ImageUtilities.BORDER_EXTENDER_HINTS);
                 }
                 
                 boolean hasScaleX=!(Math.abs(finalRaster2Model.getScaleX()-1) < 1E-2/(raster.getWidth()+1-raster.getMinX()));

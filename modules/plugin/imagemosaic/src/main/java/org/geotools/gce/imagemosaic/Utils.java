@@ -20,8 +20,6 @@ import it.geosolutions.imageio.stream.input.spi.URLImageInputStreamSpi;
 
 import java.awt.Color;
 import java.awt.Rectangle;
-import java.awt.RenderingHints;
-import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
@@ -60,8 +58,6 @@ import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
 import javax.imageio.spi.ImageInputStreamSpi;
 import javax.imageio.stream.ImageInputStream;
-import javax.media.jai.BorderExtender;
-import javax.media.jai.JAI;
 import javax.media.jai.RasterFactory;
 import javax.media.jai.remote.SerializableRenderedImage;
 
@@ -74,8 +70,6 @@ import org.geotools.data.DataStoreFactorySpi;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DataAccessFactory.Param;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
-import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.factory.GeoTools;
 import org.geotools.factory.Hints;
 import org.geotools.gce.imagemosaic.catalogbuilder.CatalogBuilder;
 import org.geotools.gce.imagemosaic.catalogbuilder.CatalogBuilderConfiguration;
@@ -84,14 +78,11 @@ import org.geotools.gce.imagemosaic.catalogbuilder.CatalogBuilder.ProcessingEven
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.image.ImageWorker;
-import org.geotools.metadata.iso.spatial.PixelTranslation;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.util.Converters;
 import org.geotools.util.Utilities;
-import org.opengis.filter.FilterFactory2;
-import org.opengis.referencing.datum.PixelInCell;
 
 /**
  * Sparse utilities for the various mosaic classes. I use them to extract
@@ -101,10 +92,6 @@ import org.opengis.referencing.datum.PixelInCell;
  * 
  */
 public class Utils {
-    
-    final static BorderExtender BORDER_EXTENDER = BorderExtender.createInstance(BorderExtender.BORDER_COPY);
-
-    final static RenderingHints BORDER_EXTENDER_HINTS = new RenderingHints(JAI.KEY_BORDER_EXTENDER, BORDER_EXTENDER);
     
     static class Prop {
         final static String LOCATION_ATTRIBUTE = "LocationAttribute";
@@ -134,24 +121,6 @@ public class Utils {
 	final static String THREADPOOL_CONFIG_FILE = "mosaicthreadpoolconfig.properties";
 	
 	/**
-	 * {@link AffineTransform} that can be used to go from an image datum placed
-	 * at the center of pixels to one that is placed at ULC.
-	 */
-	final static AffineTransform CENTER_TO_CORNER = AffineTransform
-			.getTranslateInstance(PixelTranslation
-					.getPixelTranslation(PixelInCell.CELL_CORNER),
-					PixelTranslation
-							.getPixelTranslation(PixelInCell.CELL_CORNER));
-	/**
-	 * {@link AffineTransform} that can be used to go from an image datum placed
-	 * at the ULC corner of pixels to one that is placed at center.
-	 */
-	final static AffineTransform CORNER_TO_CENTER = AffineTransform
-			.getTranslateInstance(-PixelTranslation
-					.getPixelTranslation(PixelInCell.CELL_CORNER),
-					-PixelTranslation
-							.getPixelTranslation(PixelInCell.CELL_CORNER));
-	/**
 	 * Logger.
 	 */
 	private final static Logger LOGGER = org.geotools.util.logging.Logging
@@ -177,8 +146,6 @@ public class Utils {
 	 */
 	private static ImageInputStreamSpi cachedStreamSPI = new URLImageInputStreamSpi();
 	
-	public static final AffineTransform IDENTITY_TRANSFORM = new AffineTransform();
-
 	/**
 	 * Creates a mosaic for the provided input parameters.
 	 * 
@@ -649,35 +616,6 @@ public class Utils {
 	}
 
 	/**
-	 * Returns a suitable threshold depending on the {@link DataBuffer} type.
-	 * 
-	 * <p>
-	 * Remember that the threshold works with >=.
-	 * 
-	 * @param dataType
-	 *            to create a low threshold for.
-	 * @return a minimum threshold value suitable for this data type.
-	 */
-	static double getThreshold(int dataType) {
-		switch (dataType) {
-		case DataBuffer.TYPE_BYTE:
-		case DataBuffer.TYPE_USHORT:
-			// this may cause problems and truncations when the native mosaic
-			// operations is enabled
-			return 0.0;
-		case DataBuffer.TYPE_INT:
-			return Integer.MIN_VALUE;
-		case DataBuffer.TYPE_SHORT:
-			return Short.MIN_VALUE;
-		case DataBuffer.TYPE_DOUBLE:
-			return -Double.MAX_VALUE;
-		case DataBuffer.TYPE_FLOAT:
-			return -Float.MAX_VALUE;
-		}
-		return 0;
-	}
-
-	/**
 	 * Builds a {@link ReferencedEnvelope} in WGS84 from a {@link GeneralEnvelope}.
 	 * 
 	 * @param coverageEnvelope
@@ -1088,7 +1026,6 @@ public class Utils {
 		}
 	}
 
-	static final FilterFactory2 FILTER_FACTORY = CommonFactoryFinder.getFilterFactory2(GeoTools.getDefaultHints());
 	/**
 	 * A transparent color for missing data.
 	 */

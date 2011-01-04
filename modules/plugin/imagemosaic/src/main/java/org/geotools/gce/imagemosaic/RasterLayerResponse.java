@@ -82,9 +82,12 @@ import org.geotools.image.ImageWorker;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
+import org.geotools.resources.coverage.CoverageUtilities;
+import org.geotools.resources.coverage.FeatureUtilities;
 import org.geotools.resources.geometry.XRectangle2D;
 import org.geotools.resources.i18n.Vocabulary;
 import org.geotools.resources.i18n.VocabularyKeys;
+import org.geotools.resources.image.ImageUtilities;
 import org.geotools.util.Converters;
 import org.geotools.util.NumberRange;
 import org.geotools.util.SimpleInternationalString;
@@ -455,7 +458,7 @@ class RasterLayerResponse{
 						// for data type other than byte and ushort. With float and double
 						// it can cut off a large par of the dynamic.
 						//
-						sourceThreshold = new double[][] { { Utils.getThreshold(loadedImage.getSampleModel().getDataType()) } };
+						sourceThreshold = new double[][] { { CoverageUtilities.getMosaicThreshold(loadedImage.getSampleModel().getDataType()) } };
 						
 						
 						firstGranule=false;
@@ -703,11 +706,11 @@ class RasterLayerResponse{
 		    try {
 		        // creating source grid to world corrected to the pixel corner
 		        final AffineTransform sourceGridToWorld = new AffineTransform((AffineTransform) baseGridToWorld);
-		        sourceGridToWorld.concatenate(Utils.CENTER_TO_CORNER);
+		        sourceGridToWorld.concatenate(CoverageUtilities.CENTER_TO_CORNER);
 		        
 		        // creating target grid to world corrected to the pixel corner
 		        final AffineTransform targetGridToWorld = new AffineTransform(request.getRequestedGridToWorld());
-		        targetGridToWorld.concatenate(Utils.CENTER_TO_CORNER);
+		        targetGridToWorld.concatenate(CoverageUtilities.CENTER_TO_CORNER);
 		        
 		        // target world to grid at the corner
 		        final AffineTransform targetWorldToGrid=targetGridToWorld.createInverse();
@@ -787,11 +790,11 @@ class RasterLayerResponse{
 				// Using the best available resolution
 				oversampledRequest = true;
 				g2w = new AffineTransform((AffineTransform) baseGridToWorld);
-				g2w.concatenate(Utils.CENTER_TO_CORNER);
+				g2w.concatenate(CoverageUtilities.CENTER_TO_CORNER);
 			} else {
 				if (!needsReprojection) {
 					g2w = new AffineTransform(request.getRequestedGridToWorld());
-					g2w.concatenate(Utils.CENTER_TO_CORNER);
+					g2w.concatenate(CoverageUtilities.CENTER_TO_CORNER);
 				} else {
 					GridToEnvelopeMapper mapper = new GridToEnvelopeMapper(
 							new GridEnvelope2D(request.getRequestedRasterArea()),
@@ -829,7 +832,7 @@ class RasterLayerResponse{
 			Query query = null;
 			if (type != null){
 			    query= new Query(rasterManager.granuleCatalog.getType().getTypeName());
-			    final Filter bbox=Utils.FILTER_FACTORY.bbox(Utils.FILTER_FACTORY.property(rasterManager.granuleCatalog.getType().getGeometryDescriptor().getName()),mosaicBBox);
+			    final Filter bbox=FeatureUtilities.DEFAULT_FILTER_FACTORY.bbox(FeatureUtilities.DEFAULT_FILTER_FACTORY.property(rasterManager.granuleCatalog.getType().getGeometryDescriptor().getName()),mosaicBBox);
 			    query.setFilter( bbox);
 			}
 			
@@ -840,19 +843,19 @@ class RasterLayerResponse{
 					
 					final Filter oldFilter = query.getFilter();
 					final PropertyIsEqualTo elevationF = 
-						Utils.FILTER_FACTORY.equal(
-								Utils.FILTER_FACTORY.property(
+						FeatureUtilities.DEFAULT_FILTER_FACTORY.equal(
+								FeatureUtilities.DEFAULT_FILTER_FACTORY.property(
 										rasterManager.elevationAttribute), 
-										Utils.FILTER_FACTORY.literal(elevations.get(0)),
+										FeatureUtilities.DEFAULT_FILTER_FACTORY.literal(elevations.get(0)),
 										true
 						);
-					query.setFilter(Utils.FILTER_FACTORY.and(oldFilter, elevationF));	
+					query.setFilter(FeatureUtilities.DEFAULT_FILTER_FACTORY.and(oldFilter, elevationF));	
 				}
 
 				//handle runtime indexing since we then combine this with the max in case we are asking for current in time
 				if (hasFilter){
 					final Filter oldFilter = query.getFilter();
-					query.setFilter(Utils.FILTER_FACTORY.and(oldFilter, filter));	
+					query.setFilter(FeatureUtilities.DEFAULT_FILTER_FACTORY.and(oldFilter, filter));	
 				}
 				
 				// fuse time query with the bbox query
@@ -863,29 +866,29 @@ class RasterLayerResponse{
 					if( !current){
 						Filter temporal=null;
 						if(size==1)
-							temporal=Utils.FILTER_FACTORY.equal(Utils.FILTER_FACTORY.property(rasterManager.timeAttribute), Utils.FILTER_FACTORY.literal(times.get(0)),true);
+							temporal=FeatureUtilities.DEFAULT_FILTER_FACTORY.equal(FeatureUtilities.DEFAULT_FILTER_FACTORY.property(rasterManager.timeAttribute), FeatureUtilities.DEFAULT_FILTER_FACTORY.literal(times.get(0)),true);
 						else{
 							boolean first =true;
 							for( Date datetime: times){
 								if(first){
-									temporal=Utils.FILTER_FACTORY.equal(Utils.FILTER_FACTORY.property(rasterManager.timeAttribute), Utils.FILTER_FACTORY.literal(datetime),true);
+									temporal=FeatureUtilities.DEFAULT_FILTER_FACTORY.equal(FeatureUtilities.DEFAULT_FILTER_FACTORY.property(rasterManager.timeAttribute), FeatureUtilities.DEFAULT_FILTER_FACTORY.literal(datetime),true);
 									first =false;
 								}
 								else{
 									final PropertyIsEqualTo temp =
-										Utils.FILTER_FACTORY.equal(Utils.FILTER_FACTORY.property(rasterManager.timeAttribute), Utils.FILTER_FACTORY.literal(datetime),true);
-									temporal= Utils.FILTER_FACTORY.or(Arrays.asList(temporal,temp));
+										FeatureUtilities.DEFAULT_FILTER_FACTORY.equal(FeatureUtilities.DEFAULT_FILTER_FACTORY.property(rasterManager.timeAttribute), FeatureUtilities.DEFAULT_FILTER_FACTORY.literal(datetime),true);
+									temporal= FeatureUtilities.DEFAULT_FILTER_FACTORY.or(Arrays.asList(temporal,temp));
 								}
 							}
 						}
 						if(temporal!=null)//should not happen
-							query.setFilter(Utils.FILTER_FACTORY.and(oldFilter, temporal));
+							query.setFilter(FeatureUtilities.DEFAULT_FILTER_FACTORY.and(oldFilter, temporal));
 					}
 					else{
 						// current management
 						final SortBy[] descendingSortOrder = new SortBy[]{
 								new SortByImpl(
-										Utils.FILTER_FACTORY.property(rasterManager.timeAttribute),
+										FeatureUtilities.DEFAULT_FILTER_FACTORY.property(rasterManager.timeAttribute),
 										SortOrder.DESCENDING
 								)};
 						final QueryCapabilities queryCapabilities = rasterManager.granuleCatalog.getQueryCapabilities();
@@ -898,8 +901,8 @@ class RasterLayerResponse{
 							final Object result=max.getResult().getValue();		
 							
 							// now let's get this feature by is fid
-							final Filter temporal = Utils.FILTER_FACTORY.equal(Utils.FILTER_FACTORY.property(rasterManager.timeAttribute), Utils.FILTER_FACTORY.literal(Converters.convert(result, Date.class)),true);
-							query.setFilter(Utils.FILTER_FACTORY.and(oldFilter, temporal));
+							final Filter temporal = FeatureUtilities.DEFAULT_FILTER_FACTORY.equal(FeatureUtilities.DEFAULT_FILTER_FACTORY.property(rasterManager.timeAttribute), FeatureUtilities.DEFAULT_FILTER_FACTORY.literal(Converters.convert(result, Date.class)),true);
+							query.setFilter(FeatureUtilities.DEFAULT_FILTER_FACTORY.and(oldFilter, temporal));
 						}
 						
 					}
@@ -1065,7 +1068,7 @@ class RasterLayerResponse{
                         }
                     }
 		    if (addBorderExtender){
-		        localHints.add(Utils.BORDER_EXTENDER_HINTS);
+		        localHints.add(ImageUtilities.BORDER_EXTENDER_HINTS);
 		    }
 		    if (hints.containsKey(JAI.KEY_TILE_SCHEDULER)){
                         final Object ts = hints.get(JAI.KEY_TILE_SCHEDULER);
