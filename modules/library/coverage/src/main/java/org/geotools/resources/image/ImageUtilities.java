@@ -237,6 +237,10 @@ public final class ImageUtilities {
         Interpolation.INTERP_BICUBIC_2
     };
 
+    public final static BorderExtender DEFAULT_BORDER_EXTENDER = BorderExtender.createInstance(BorderExtender.BORDER_COPY);
+
+    public final static RenderingHints BORDER_EXTENDER_HINTS = new RenderingHints(JAI.KEY_BORDER_EXTENDER, DEFAULT_BORDER_EXTENDER);
+
     /**
      * Do not allow creation of instances of this class.
      */

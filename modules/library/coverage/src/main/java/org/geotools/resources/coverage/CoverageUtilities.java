@@ -41,6 +41,7 @@ import org.geotools.coverage.grid.RenderedCoverage;
 import org.geotools.coverage.grid.ViewType;
 import org.geotools.factory.Hints;
 import org.geotools.geometry.Envelope2D;
+import org.geotools.metadata.iso.spatial.PixelTranslation;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.operation.matrix.XAffineTransform;
 import org.geotools.resources.CRSUtilities;
@@ -54,6 +55,7 @@ import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.MathTransform1D;
 import org.opengis.referencing.operation.TransformException;
@@ -70,6 +72,26 @@ import org.opengis.referencing.operation.TransformException;
  * @author Simone Giannecchini, GeoSolutions
  */
 public final class CoverageUtilities {
+    public static final AffineTransform IDENTITY_TRANSFORM = new AffineTransform();
+    /**
+     * {@link AffineTransform} that can be used to go from an image datum placed
+     * at the center of pixels to one that is placed at ULC.
+     */
+    public final static AffineTransform CENTER_TO_CORNER = AffineTransform
+    		.getTranslateInstance(PixelTranslation
+    				.getPixelTranslation(PixelInCell.CELL_CORNER),
+    				PixelTranslation
+    						.getPixelTranslation(PixelInCell.CELL_CORNER));
+    /**
+     * {@link AffineTransform} that can be used to go from an image datum placed
+     * at the ULC corner of pixels to one that is placed at center.
+     */
+    public final static AffineTransform CORNER_TO_CENTER = AffineTransform
+    		.getTranslateInstance(-PixelTranslation
+    				.getPixelTranslation(PixelInCell.CELL_CORNER),
+    				-PixelTranslation
+    						.getPixelTranslation(PixelInCell.CELL_CORNER));
+
     /**
      * Do not allows instantiation of this class.
      */
