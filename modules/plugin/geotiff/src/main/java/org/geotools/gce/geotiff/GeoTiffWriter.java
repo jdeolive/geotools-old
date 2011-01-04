@@ -16,6 +16,7 @@
  */
 package org.geotools.gce.geotiff;
 
+import it.geosolutions.imageio.utilities.Utilities;
 import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageMetadata;
 import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageWriterSpi;
 
@@ -56,8 +57,10 @@ import org.geotools.data.DataUtilities;
 import org.geotools.factory.Hints;
 import org.geotools.parameter.Parameter;
 import org.geotools.referencing.operation.matrix.XAffineTransform;
+import org.geotools.resources.coverage.CoverageUtilities;
 import org.geotools.resources.i18n.Vocabulary;
 import org.geotools.resources.i18n.VocabularyKeys;
+import org.geotools.resources.image.ImageUtilities;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -288,7 +291,9 @@ public final class GeoTiffWriter extends AbstractGridCoverageWriter implements
 		// since we support baseline GeoTiff.
 		//
 		// /////////////////////////////////////////////////////////////////////
-		final AffineTransform modifiedRasterToModel;
+		final AffineTransform modifiedRasterToModel = new AffineTransform(rasterToModel);
+		// move the internal grid to world to corner from center
+                modifiedRasterToModel.concatenate(CoverageUtilities.CENTER_TO_CORNER);;
 		int minx = range.getLow(0), miny = range.getLow(1);
 		if (minx != 0 || miny != 0) {
 			// //
@@ -297,20 +302,17 @@ public final class GeoTiffWriter extends AbstractGridCoverageWriter implements
 			// (0,0)
 			//
 			// //
-			modifiedRasterToModel = new AffineTransform(rasterToModel);
-			modifiedRasterToModel.concatenate(AffineTransform
-					.getTranslateInstance(minx, miny));
-		} else
-			modifiedRasterToModel = rasterToModel;
+			modifiedRasterToModel.concatenate(AffineTransform.getTranslateInstance(minx, miny));
+		} 
 
 		// /////////////////////////////////////////////////////////////////////
 		//
-		// Setting raster type to pixel centre since the ogc specifications
-		// require so.
+		// Setting raster type to pixel corner since that is the default for geotiff
+		// and makes most software happy
 		//
 		// /////////////////////////////////////////////////////////////////////
 		metadata.addGeoShortParam(GeoTiffConstants.GTRasterTypeGeoKey,
-				GeoTiffConstants.RasterPixelIsPoint);
+				GeoTiffConstants.RasterPixelIsArea);
 
 		// /////////////////////////////////////////////////////////////////////
 		//
