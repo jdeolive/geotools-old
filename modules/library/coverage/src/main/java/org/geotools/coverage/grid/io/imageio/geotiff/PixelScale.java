@@ -86,9 +86,9 @@ public final class PixelScale {
 	public String toString() {
 		final StringBuilder buf= new StringBuilder();
 		buf.append("Pixel Scale").append("\n");
-		buf.append("\tscalex=").append(scaleX).append(" is set? ").append(isComponentSet(scaleX)).append("\n");
-		buf.append("\tscalex=").append(scaleY).append(" is set? ").append(isComponentSet(scaleY)).append("\n");
-		buf.append("\tscalez=").append(scaleZ).append(" is set? ").append(isComponentSet(scaleZ)).append("\n");
+		buf.append("\tscaleX=").append(scaleX).append(" is set? ").append(isComponentSet(scaleX)).append("\n");
+		buf.append("\tscaleY=").append(scaleY).append(" is set? ").append(isComponentSet(scaleY)).append("\n");
+		buf.append("\tscaleZ=").append(scaleZ).append(" is set? ").append(isComponentSet(scaleZ)).append("\n");
 		return buf.toString();
 	}
 
