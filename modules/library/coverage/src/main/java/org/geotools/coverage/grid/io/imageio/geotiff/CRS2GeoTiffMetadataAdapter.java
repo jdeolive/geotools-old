@@ -228,7 +228,7 @@ public final class CRS2GeoTiffMetadataAdapter {
 
 		// do we have a code for this pcrs
 		final int code = getEPSGCode(projectedCRS);
-		if (code != -1) {
+		if (GeoTiffIIOMetadataEncoder.isTiffUShort(code)) {
 			metadata.addGeoShortParam(GeoTiffPCSCodes.ProjectedCSTypeGeoKey,
 					code);
 			return;
@@ -264,7 +264,7 @@ public final class CRS2GeoTiffMetadataAdapter {
 		// getting the conversion
 		final Conversion conversion = projectedCRS.getConversionFromBase();
 		final int code = getEPSGCode(conversion);
-		if (code != -1) {
+		if (GeoTiffIIOMetadataEncoder.isTiffUShort(code)) {
 			metadata.addGeoShortParam(GeoTiffPCSCodes.ProjectionGeoKey, code);
 			return;
 		}
@@ -751,7 +751,7 @@ public final class CRS2GeoTiffMetadataAdapter {
 
 		// is it one of the EPSG standard GCS?
 		final int code = getEPSGCode(geographicCRS);
-		if (code != -1) {
+		if (GeoTiffIIOMetadataEncoder.isTiffUShort(code)) {
 			metadata.addGeoShortParam(GeoTiffGCSCodes.GeographicTypeGeoKey,
 					code);
 			return;
@@ -808,7 +808,7 @@ public final class CRS2GeoTiffMetadataAdapter {
 
 		// looking for an EPSG code
 		final int code = getEPSGCode(datum);
-		if (code != -1) {
+		if (GeoTiffIIOMetadataEncoder.isTiffUShort(code)) {
 			metadata.addGeoShortParam(GeoTiffGCSCodes.GeogGeodeticDatumGeoKey,
 					code);
 			return;
@@ -846,7 +846,7 @@ public final class CRS2GeoTiffMetadataAdapter {
 			GeoTiffIIOMetadataEncoder metadata) {
 
 		final int code = getEPSGCode(ellipsoid);
-		if (code != -1) {
+		if (GeoTiffIIOMetadataEncoder.isTiffUShort(code)) {
 
 			metadata
 					.addGeoShortParam(GeoTiffGCSCodes.GeogEllipsoidGeoKey, code);
@@ -887,10 +887,10 @@ public final class CRS2GeoTiffMetadataAdapter {
 	private void parsePrimem(final DefaultPrimeMeridian pm,
 			GeoTiffIIOMetadataEncoder metadata) {
 		// looking for an EPSG code
-		final int numCode = getEPSGCode(pm);
-		if (numCode > 0)
+		final int code = getEPSGCode(pm);
+		if (GeoTiffIIOMetadataEncoder.isTiffUShort(code))
 			metadata.addGeoShortParam(GeoTiffGCSCodes.GeogPrimeMeridianGeoKey,
-					numCode);
+					code);
 		else {
 			// user defined
 			metadata.addGeoShortParam(GeoTiffGCSCodes.GeogPrimeMeridianGeoKey,

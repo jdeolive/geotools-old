@@ -472,7 +472,7 @@ public final class GeoTiffMetadata2CRSAdapter {
          */
         public static MathTransform getRasterToModel(
                         final GeoTiffIIOMetadataDecoder metadata) throws GeoTiffException {
-                return getRasterToModel(metadata, true);
+                return getRasterToModel(metadata, false);
         }
 	
 
