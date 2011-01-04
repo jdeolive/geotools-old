@@ -31,10 +31,13 @@ import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.imageio.IIOMetadataDumper;
 import org.geotools.coverage.processing.CoverageProcessor;
+import org.geotools.coverage.processing.Operations;
+import org.geotools.coverage.processing.operation.Resample;
 import org.geotools.factory.Hints;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.operation.matrix.XAffineTransform;
+import org.geotools.resources.CRSUtilities;
 import org.geotools.test.TestData;
 import org.junit.Test;
 import org.opengis.coverage.grid.GridCoverageReader;
@@ -237,7 +240,60 @@ public class GeoTiffWriterTest extends Assert {
 				gc.dispose(true);
 		}
 	}
-	
+
+    @Test
+    public void testWriteGoogleMercator() throws Exception {
+        final String google= "PROJCS[\"WGS84 / Google Mercator\", GEOGCS[\"WGS 84\", DATUM[\"World Geodetic System 1984\", SPHEROID[\"WGS 84\", 6378137.0, 298.257223563, AUTHORITY[\"EPSG\",\"7030\"]], AUTHORITY[\"EPSG\",\"6326\"]], PRIMEM[\"Greenwich\", 0.0, AUTHORITY[\"EPSG\",\"8901\"]], UNIT[\"degree\", 0.017453292519943295], AUTHORITY[\"EPSG\",\"4326\"]], PROJECTION[\"Mercator (1SP)\", AUTHORITY[\"EPSG\",\"9804\"]], PARAMETER[\"semi_major\", 6378137.0], PARAMETER[\"semi_minor\", 6378137.0], PARAMETER[\"latitude_of_origin\", 0.0], PARAMETER[\"central_meridian\", 0.0], PARAMETER[\"scale_factor\", 1.0], PARAMETER[\"false_easting\", 0.0], PARAMETER[\"false_northing\", 0.0], UNIT[\"m\", 1.0],  AUTHORITY[\"EPSG\",\"900913\"]]";
+        final CoordinateReferenceSystem googleCRS= CRS.parseWKT(google);
+        
+        //
+        // world geotiff
+        //
+        final File testFile = TestData.file(GeoTiffReaderTest.class, "latlon.tiff");
+        final AbstractGridFormat format = new GeoTiffFormat();
+        assertTrue(format.accepts(testFile));
+        
+        // getting a reader
+        GeoTiffReader reader = new GeoTiffReader(testFile);
+
+        // reading the coverage
+        GridCoverage2D coverage = (GridCoverage2D) reader.read(null);
+
+        // check coverage and crs
+        assertNotNull(coverage);
+        assertNotNull(coverage.getCoordinateReferenceSystem());
+        assertEquals(CRS.lookupIdentifier(coverage.getCoordinateReferenceSystem(), true),
+                "EPSG:4267");
+        reader.dispose();
+        
+        // reproject
+        coverage=(GridCoverage2D) Operations.DEFAULT.resample(coverage, googleCRS);
+        
+        
+        
+        // get a writer
+        final File mercator = new File(TestData.file(GeoTiffReaderTest.class, "."),"wms_900913.tif");
+        GeoTiffWriter writer = new GeoTiffWriter(mercator);
+        
+        writer.write(coverage,null );
+        writer.dispose();
+        
+        
+        // getting a reader
+        reader = new GeoTiffReader(mercator);
+        // reading the coverage
+        GridCoverage2D coverageMercator = (GridCoverage2D) reader.read(null);
+     // check coverage and crs
+        assertNotNull(coverageMercator);
+        assertNotNull(coverageMercator.getCoordinateReferenceSystem());
+        assertTrue(CRS.equalsIgnoreMetadata(coverage.getCoordinateReferenceSystem(),googleCRS));
+        assertTrue(coverage.getEnvelope2D().getFrame().equals(coverageMercator.getEnvelope2D().getFrame()));
+        reader.dispose();
+        coverage.dispose(true);
+        coverage.dispose(true);
+
+                
+    }
 	@Test
 	public void testWriteTFW() throws Exception{
 
