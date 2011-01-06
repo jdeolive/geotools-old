@@ -52,34 +52,13 @@
   <!-- =========================================================== -->
   <developers>
     <developer>
-      <name>Martin Desruisseaux</name>
-      <id>desruisseaux</id>
-      <email>desruisseaux@users.sourceforge.net</email>
-      <organization>Geomatys</organization>
-      <organizationUrl>http://www.geomatys.fr/</organizationUrl>
-      <timezone>+1</timezone>
-      <roles>
-        <role>Module Maintainer</role>
-        <role>Java Developer</role>
-      </roles>
-    </developer>
-    <developer>
       <name>Jody Garnett</name>
       <id>jive</id>
       <email>jive@users.sourceforge.net</email>
       <organization>Refractions Research</organization>
       <roles>
+        <role>Module Maintainer</role>
         <role>Java Developer</role>
-      </roles>
-    </developer>
-    <developer>
-      <name>Cédric Briançon</name>
-      <id>cedricbr</id>
-      <email>cedric.briancon@geomatys.fr</email>
-      <organization>Geomatys</organization>
-      <timezone>+1</timezone>
-      <roles>
-        <role>Java developper</role>
       </roles>
     </developer>
   </developers>
@@ -94,6 +73,26 @@
         <role>Java developper</role>
       </roles>
     </contributor>
+    <contributor>
+      <name>Martin Desruisseaux</name>
+      <email>desruisseaux@users.sourceforge.net</email>
+      <organization>Geomatys</organization>
+      <organizationUrl>http://www.geomatys.fr/</organizationUrl>
+      <timezone>+1</timezone>
+      <roles>
+        <role>Retired Module Maintainer</role>
+        <role>Retired Java Developer</role>
+      </roles>
+    </contributor>
+    <contributor>
+      <name>Cédric Briançon</name>
+      <email>cedric.briancon@geomatys.fr</email>
+      <organization>Geomatys</organization>
+      <timezone>+1</timezone>
+      <roles>
+        <role>Java developper</role>
+      </roles>
+    </contributor>
   </contributors>
 
   <!-- =========================================================== -->
@@ -103,32 +102,10 @@
     <!-- NOTE: The metadata module does not depend on JTS. -->
 
     <dependency>
-      <groupId>java3d</groupId>
-      <artifactId>vecmath</artifactId>
-      <!-- The version number is specified in the parent POM. -->
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-util</artifactId>
+      <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.opengis</groupId>
-      <artifactId>geoapi</artifactId>
-      <!-- The version number is specified in the parent POM. -->
-      <exclusions>
-        <exclusion>
-          <groupId>org.opengis</groupId>
-          <artifactId>geoapi-dummy-pending</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.opengis</groupId>
-      <artifactId>geoapi-pending</artifactId>
-      <!-- The version number is specified in the parent POM. -->
-    </dependency>
-    <dependency>
-      <groupId>net.java.dev.jsr-275</groupId>
-      <artifactId>jsr-275</artifactId>
-      <!-- The version number is specified in the parent POM. -->
-    </dependency>
-
     <!--
       The following is required only for compilation.  It should not be included
       in distribution, unless the user really want to use Apache commons logging

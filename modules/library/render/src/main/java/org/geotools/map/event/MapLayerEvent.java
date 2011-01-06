@@ -20,11 +20,9 @@ package org.geotools.map.event;
 // J2SE dependencies
 import java.util.EventObject;
 
-import org.opengis.sld.Layer;
-
 
 /**
- * Event fired when some {@linkplain Layer layer} property changes.
+ * Event fired when some Layer property changes.
  *
  * @author Andrea Aime
  * @author Ian Turton
