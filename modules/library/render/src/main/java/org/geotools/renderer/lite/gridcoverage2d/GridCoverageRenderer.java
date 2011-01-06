@@ -77,43 +77,68 @@ import com.sun.media.jai.opimage.TranslateIntOpImage;
 import com.vividsolutions.jts.geom.Envelope;
 
 /**
- * A helper class for rendering  {@link GridCoverage}  objects. Support for grid coverage SLD stylers is still limited.
- * @author  Simone Giannecchini
- * @author  Andrea Aime
- * @author  Alessio Fabiani
+ * A helper class for rendering  {@link GridCoverage}  objects. 
+ * @author  Simone Giannecchini, GeoSolutions SAS
+ * @author  Andrea Aime, GeoSolutions SAS
+ * @author  Alessio Fabiani, GeoSolutions SAS
  * @source  $URL$
  * @version  $Id$
- * @task  Add support for SLD styles
+ *
  */
 @SuppressWarnings("deprecation")
-public final class GridCoverageRenderer {
-	
-	/**
-	 * Simple pair class for holding a {@link GridCoverage2D} with the final WorldToGrid.
-	 * 
-	 * @author Simone Giannecchini, GeoSolutions SAS.
-	 *
-	 */
-	private final static class GCpair{
+public final class GridCoverageRenderer { 
+    
+    /**
+     * This variable is use for testing purposes in order to force this
+     * {@link GridCoverageRenderer} to dump images at various steps on the disk.
+     */
+    private static boolean DEBUG = Boolean
+            .getBoolean("org.geotools.renderer.lite.gridcoverage2d.debug");
 
-		private final AffineTransform transform;
-		
-		private final GridCoverage2D gc;
+    private static String debugDir;
+    static {
+        if (DEBUG) {
+            final File tempDir = new File(System.getProperty("user.home"),"gt-renderer");
+            if (!tempDir.exists() ) {
+                if(!tempDir.mkdir())
+                System.out
+                        .println("Unable to create debug dir, exiting application!!!");
+                DEBUG=false;
+                debugDir = null;
+            } else
+               {
+                        debugDir = tempDir.getAbsolutePath();
+                         System.out.println("Debug dir "+debugDir);
+               }
+        }
 
-		public GCpair(AffineTransform transform, GridCoverage2D gc) {
-			this.transform = transform;
-			this.gc = gc;
-		}
-		
-		
-		public AffineTransform getTransform() {
-			return transform;
-		}
+    }
+    
+    /**
+     * Simple pair class for holding a {@link GridCoverage2D} with the final WorldToGrid.
+     * 
+     * @author Simone Giannecchini, GeoSolutions SAS.
+     * 
+     */
+    private final static class GCpair {
 
-		public GridCoverage2D getGridCoverage() {
-			return gc;
-		}
-	}
+        private final AffineTransform transform;
+
+        private final GridCoverage2D gc;
+
+        public GCpair(AffineTransform transform, GridCoverage2D gc) {
+            this.transform = transform;
+            this.gc = gc;
+        }
+
+        public AffineTransform getTransform() {
+            return transform;
+        }
+
+        public GridCoverage2D getGridCoverage() {
+            return gc;
+        }
+    }
     
     /**
      * Helper function
@@ -130,32 +155,8 @@ public final class GridCoverageRenderer {
                     return alpha;
             }
             return number.floatValue();
-    }    
-    /**
-     * This variable is use for testing purposes in order to force this
-     * {@link GridCoverageRenderer} to dump images at various steps on the disk.
-     */
-    private static boolean DEBUG = Boolean
-            .getBoolean("org.geotools.renderer.lite.gridcoverage2d.debug");
+    } 
 
-    private static String debugDir;
-    static {
-        if (DEBUG) {
-            final File tempDir = new File(System.getProperty("user.home"),"gt-renderer");
-            if (!tempDir.exists() ) {
-            	if(!tempDir.mkdir())
-                System.out
-                        .println("Unable to create debug dir, exiting application!!!");
-                DEBUG=false;
-                debugDir = null;
-            } else
-               {
-            		debugDir = tempDir.getAbsolutePath();
-            		 System.out.println("Debug dir "+debugDir);
-               }
-        }
-
-    }
 
     /** Cached factory for the {@link Crop} operation. */
     private final static Crop coverageCropFactory = new Crop();
@@ -244,14 +245,17 @@ public final class GridCoverageRenderer {
      * to screen coordinates. Otherwise, a standard {@link GridToEnvelopeMapper}
      * is used to calculate the affine transform.
      * 
-     * @param java2dHints
-     *                to control this rendering process.
+     * @param hints
+     *                {@link RenderingHints} to control this rendering process.
      * @throws TransformException
      * @throws NoninvertibleTransformException
      */
-    public GridCoverageRenderer(final CoordinateReferenceSystem destinationCRS,
-            final Envelope envelope, Rectangle screenSize,
-            AffineTransform worldToScreen, RenderingHints java2dHints) throws TransformException,
+    public GridCoverageRenderer(
+            final CoordinateReferenceSystem destinationCRS,
+            final Envelope envelope, 
+            final Rectangle screenSize,
+            final AffineTransform worldToScreen, 
+            final RenderingHints hints) throws TransformException,
             NoninvertibleTransformException {
 
         // ///////////////////////////////////////////////////////////////////
@@ -264,9 +268,6 @@ public final class GridCoverageRenderer {
         if (this.destinationCRS == null)
             throw new TransformException(Errors.format(
                     ErrorKeys.CANT_SEPARATE_CRS_$1, destinationCRS));
-        final GridToEnvelopeMapper gridToEnvelopeMapper = new GridToEnvelopeMapper();
-        gridToEnvelopeMapper.setPixelAnchor(PixelInCell.CELL_CORNER);
-        gridToEnvelopeMapper.setGridRange(new GridEnvelope2D(destinationSize));
         destinationEnvelope = new GeneralEnvelope(new ReferencedEnvelope(envelope, destinationCRS));
         // ///////////////////////////////////////////////////////////////////
         //
@@ -277,7 +278,6 @@ public final class GridCoverageRenderer {
         // source coverage.
         //
         // ///////////////////////////////////////////////////////////////////
-        gridToEnvelopeMapper.setEnvelope(destinationEnvelope);
         
         // PHUSTAD : The gridToEnvelopeMapper does not handle rotated views. 
         // 
@@ -285,17 +285,19 @@ public final class GridCoverageRenderer {
             finalWorldToGrid = new AffineTransform(worldToScreen);
             finalGridToWorld = finalWorldToGrid.createInverse();
         } else {
+            final GridToEnvelopeMapper gridToEnvelopeMapper = new GridToEnvelopeMapper();
+            gridToEnvelopeMapper.setPixelAnchor(PixelInCell.CELL_CORNER);
+            gridToEnvelopeMapper.setGridRange(new GridEnvelope2D(destinationSize));       
+            gridToEnvelopeMapper.setEnvelope(destinationEnvelope);            
             finalGridToWorld = new AffineTransform(gridToEnvelopeMapper.createAffineTransform());
             finalWorldToGrid = finalGridToWorld.createInverse();
         }
 
-        // ///////////////////////////////////////////////////////////////////
         //
         // HINTS
         //
-        // ///////////////////////////////////////////////////////////////////
-        if (java2dHints != null)
-            this.hints.add(java2dHints);
+        if (hints != null)
+            this.hints.add(hints);
         // this prevents users from overriding lenient hint
         this.hints.put(Hints.LENIENT_DATUM_SHIFT, Boolean.TRUE);
         this.hints.add(ImageUtilities.DONT_REPLACE_INDEX_COLOR_MODEL);
@@ -408,7 +410,7 @@ public final class GridCoverageRenderer {
     		throw new NullPointerException(Errors.format(ErrorKeys.NULL_ARGUMENT_$1,"gridCoverage"));
     	
         if (LOGGER.isLoggable(Level.FINE))
-            LOGGER.fine(new StringBuilder("Drawing coverage ").append(gridCoverage.toString()).toString());
+            LOGGER.fine("Drawing coverage "+gridCoverage.toString());
         
 
         //
@@ -430,8 +432,7 @@ public final class GridCoverageRenderer {
         final MathTransform destinationCRSToSourceCRSTransformation = sourceCRSToDestinationCRSTransformation.inverse();
         final boolean doReprojection = !sourceCRSToDestinationCRSTransformation.isIdentity();
         if (LOGGER.isLoggable(Level.FINE))
-            LOGGER.fine(
-                    new StringBuilder("Transforming coverage envelope with transform ").append(destinationCRSToSourceCRSTransformation.toWKT()).toString());
+            LOGGER.fine("Transforming coverage envelope with transform "+destinationCRSToSourceCRSTransformation.toWKT());
         
         // //
         //
@@ -539,8 +540,7 @@ public final class GridCoverageRenderer {
         intersectionEnvelope.intersect(sourceCoverageEnvelope);
         if (intersectionEnvelope.isEmpty()||intersectionEnvelope.isNull()) {
             if (LOGGER.isLoggable(Level.INFO)) {
-                LOGGER
-                        .info("The destination envelope does not intersect the envelope of the source coverage.");
+                LOGGER.info("The destination envelope does not intersect the envelope of the source coverage.");
             }
             return null;
         }
@@ -548,7 +548,7 @@ public final class GridCoverageRenderer {
 
         final Interpolation interpolation = (Interpolation) hints.get(JAI.KEY_INTERPOLATION);
         if (LOGGER.isLoggable(Level.FINE))
-            LOGGER.fine(new StringBuilder("Using interpolation ").append(interpolation).toString());
+            LOGGER.fine("Using interpolation "+interpolation);
 
 
         // /////////////////////////////////////////////////////////////////////
@@ -562,8 +562,7 @@ public final class GridCoverageRenderer {
 		    if (preResample == null) {
 		        // nothing to render, the AOI does not overlap
 		        if (LOGGER.isLoggable(Level.FINE))
-		            LOGGER.fine(
-		                    new StringBuilder("Skipping current coverage because cropped to an empty area").toString());
+		            LOGGER.fine("Skipping current coverage because cropped to an empty area");
                 return null;
 		    }
     	}catch (Throwable t) {
@@ -574,7 +573,7 @@ public final class GridCoverageRenderer {
     		//
     		////
             if (LOGGER.isLoggable(Level.FINE))
-                LOGGER.fine(new StringBuilder("Crop Failed for reason: ").append(t.getLocalizedMessage()).toString());
+                LOGGER.log(Level.FINE,"Crop Failed for reason: "+t.getLocalizedMessage(),t);
             preResample=gridCoverage;
 		}
         if (DEBUG) {
@@ -591,7 +590,7 @@ public final class GridCoverageRenderer {
         if (doReprojection) {
             preSymbolizer = resample(preResample, destinationCRS,interpolation == null ? new InterpolationNearest(): interpolation, destinationEnvelope,this.hints);
             if (LOGGER.isLoggable(Level.FINE))
-                LOGGER.fine(new StringBuilder("Reprojecting to crs ").append( destinationCRS.toWKT()).toString());
+                LOGGER.fine("Reprojecting to crs "+ destinationCRS.toWKT());
         } else
             preSymbolizer = preResample;
         if (DEBUG) {
@@ -749,20 +748,23 @@ public final class GridCoverageRenderer {
     	RenderedImage im=null;
     	try{
     		// scale ?
-    		if (isScale)
-    			ScaleDescriptor.create(	finalImage, 
+    		if (isScale){
+    			im=ScaleDescriptor.create(	finalImage, 
     									(float) clonedFinalWorldToGrid.getScaleX(),
     									(float) clonedFinalWorldToGrid.getScaleY(),
     									(float) clonedFinalWorldToGrid.getTranslateX(), 
     									(float) clonedFinalWorldToGrid.getTranslateY(), 
     									interpolation, 
     									hints);
-    		// use more general affine (but slower)
-    		im= AffineDescriptor.create(finalImage, 
-    									clonedFinalWorldToGrid, 
-    									interpolation, 
-    									null,
-    									hints);
+    		}else{
+                    // use more general affine (but slower)
+                    im = AffineDescriptor.create(
+                            finalImage, 
+                            clonedFinalWorldToGrid, 
+                            interpolation,
+                            null, 
+                            hints);
+    		}
     	}finally{
     		if(DEBUG)
     			writeRenderedImage(im, "postAffine");
