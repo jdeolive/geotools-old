@@ -100,10 +100,9 @@
   <!-- =========================================================== -->
   <dependencies>
     <!-- NOTE: The metadata module does not depend on JTS. -->
-
     <dependency>
       <groupId>org.geotools</groupId>
-      <artifactId>gt-util</artifactId>
+        <artifactId>gt-opengis</artifactId>
       <version>${project.version}</version>
     </dependency>
     <!--
