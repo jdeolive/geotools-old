@@ -88,7 +88,7 @@ public class MessageDirectLayer extends DirectLayer {
 
     }
 
-    double position(double x, double width, double dx, double span) {
+    static double position(double x, double width, double dx, double span) {
         double ratio = dx / width;
 
         if (ratio < 0.3) {
@@ -104,7 +104,7 @@ public class MessageDirectLayer extends DirectLayer {
         }
     }
 
-    Rectangle2D rectangle2D(Rectangle rectangle) {
+    static Rectangle2D rectangle2D(Rectangle rectangle) {
         if (rectangle == null) {
             return null;
         }
