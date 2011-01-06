@@ -1,13 +1,12 @@
-/*$************************************************************************************************
- **
- ** $Id: BinaryLogicOperator.java 946 2006-12-20 05:27:27Z jdeolive $
- **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi-pending/src/main/java/org/opengis/filter/BinaryLogicOperator.java $
- **
- ** Copyright (C) 2005 Open GIS Consortium, Inc.
- ** All Rights Reserved. http://www.opengis.org/legal/
- **
- *************************************************************************************************/
+/*
+ *    GeoTools - The Open Source Java GIS Toolkit
+ *    http://geotools.org
+ *
+ *    (C) 2011, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2005 Open Geospatial Consortium Inc.
+ *    
+ *    All Rights Reserved. http://www.opengis.org/legal/
+ */
 package org.opengis.filter;
 
 // J2SE direct dependencies

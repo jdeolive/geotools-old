@@ -1,13 +1,12 @@
-/*$************************************************************************************************
- **
- ** $Id: SemanticType.java 1247 2008-06-24 13:46:34Z eclesia $
- **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi-pending/src/main/java/org/opengis/style/SemanticType.java $
- **
- ** Copyright (C) 2004-2005 Open GIS Consortium, Inc.
- ** All Rights Reserved. http://www.opengis.org/legal/
- **
- *************************************************************************************************/
+/*
+ *    GeoTools - The Open Source Java GIS Toolkit
+ *    http://geotools.org
+ *
+ *    (C) 2011, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2008, Open Geospatial Consortium Inc.
+ *    
+ *    All Rights Reserved. http://www.opengis.org/legal/
+ */
 package org.opengis.style;
 
 import java.util.List;

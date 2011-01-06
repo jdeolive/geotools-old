@@ -1,12 +1,12 @@
-/*$************************************************************************************************
- **
- ** $Id: KeyConstantsTest.java 1265 2008-07-09 18:24:37Z desruisseaux $
- **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/test/java/org/opengis/referencing/KeyConstantsTest.java $
- **
- ** Copyright (C) 2003 Open GIS Consortium, Inc. All Rights Reserved. http://www.opengis.org/Legal/
- **
- *************************************************************************************************/
+/*
+ *    GeoTools - The Open Source Java GIS Toolkit
+ *    http://geotools.org
+ *
+ *    (C) 2011, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2003-2005, Open Geospatial Consortium Inc.
+ *    
+ *    All Rights Reserved. http://www.opengis.org/legal/
+ */
 package org.opengis.referencing;
 
 import org.opengis.referencing.datum.Datum;

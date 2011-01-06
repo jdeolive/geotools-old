@@ -1,13 +1,12 @@
-/*$************************************************************************************************
- **
- ** $Id: MemberName.java 1107 2007-10-18 19:56:14Z desruisseaux $
- **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/util/MemberName.java $
- **
- ** Copyright (C) 2003-2005 Open GIS Consortium, Inc.
- ** All Rights Reserved. http://www.opengis.org/legal/
- **
- *************************************************************************************************/
+/*
+ *    GeoTools - The Open Source Java GIS Toolkit
+ *    http://geotools.org
+ *
+ *    (C) 2011, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2003-2005, Open Geospatial Consortium Inc.
+ *    
+ *    All Rights Reserved. http://www.opengis.org/legal/
+ */
 package org.opengis.util;
 
 import org.opengis.annotation.UML;

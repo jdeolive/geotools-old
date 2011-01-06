@@ -1,15 +1,12 @@
-/*$************************************************************************************************
- **
- ** $Id: package-info.java 1263 2008-07-09 17:25:51Z desruisseaux $
- **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi-pending/src/main/java/org/opengis/coverage/grid/package-info.java $
- **
- ** Copyright (C) 2005 Open GIS Consortium, Inc.
- ** All Rights Reserved. http://www.opengis.org/legal/
- **
- *************************************************************************************************/
-
-
+/*
+ *    GeoTools - The Open Source Java GIS Toolkit
+ *    http://geotools.org
+ *
+ *    (C) 2011, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2005 Open Geospatial Consortium Inc.
+ *    
+ *    All Rights Reserved. http://www.opengis.org/legal/
+ */
 /**
  * Quadrilateral grid coverages.
  * The following is adapted from ISO 19123 specification.

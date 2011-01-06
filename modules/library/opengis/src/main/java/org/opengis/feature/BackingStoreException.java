@@ -1,13 +1,12 @@
-/*$************************************************************************************************
- **
- ** $Id: BackingStoreException.java 978 2007-03-27 00:58:39Z jive $
- **
- ** $Source$
- **
- ** Copyright (C) 2005 Open GIS Consortium, Inc.
- ** All Rights Reserved. http://www.opengis.org/legal/
- **
- *************************************************************************************************/
+/*
+ *    GeoTools - The Open Source Java GIS Toolkit
+ *    http://geotools.org
+ *
+ *    (C) 2011, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2005 Open Geospatial Consortium Inc.
+ *    
+ *    All Rights Reserved. http://www.opengis.org/legal/
+ */
 package org.opengis.feature;
 
 // J2SE direct dependencies

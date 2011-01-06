@@ -1,13 +1,12 @@
-/*$************************************************************************************************
- **
- ** $Id: ReferenceIdentifier.java 1259 2008-07-07 21:07:35Z desruisseaux $
- **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/referencing/ReferenceIdentifier.java $
- **
- ** Copyright (C) 2004-2007 Open GIS Consortium, Inc.
- ** All Rights Reserved. http://www.opengis.org/legal/
- **
- *************************************************************************************************/
+/*
+ *    GeoTools - The Open Source Java GIS Toolkit
+ *    http://geotools.org
+ *
+ *    (C) 2011, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2003-2005, Open Geospatial Consortium Inc.
+ *    
+ *    All Rights Reserved. http://www.opengis.org/legal/
+ */
 package org.opengis.referencing;
 
 import org.opengis.annotation.UML;

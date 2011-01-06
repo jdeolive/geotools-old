@@ -1,13 +1,12 @@
-/*$************************************************************************************************
- **
- ** $Id: PropertyDescriptor.java 1176 2008-03-26 16:15:59Z avcuster $
- **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi-pending/src/main/java/org/opengis/feature/type/PropertyDescriptor.java $
- **
- ** Copyright (C) 2004-2007 Open GIS Consortium, Inc.
- ** All Rights Reserved. http://www.opengis.org/legal/
- **
- *************************************************************************************************/
+/*
+ *    GeoTools - The Open Source Java GIS Toolkit
+ *    http://geotools.org
+ *
+ *    (C) 2011, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2004-2007 Open Geospatial Consortium Inc.
+ *    
+ *    All Rights Reserved. http://www.opengis.org/legal/
+ */
 package org.opengis.feature.type;
 
 import java.util.Map;

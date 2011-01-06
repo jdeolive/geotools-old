@@ -1,16 +1,12 @@
-/*$************************************************************************************************
- **
- ** $Id: MultiSurface.java 1128 2007-11-27 19:00:39Z desruisseaux $
- **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi-pending/src/main/java/org/opengis/geometry/aggregate/MultiSurface.java $
- **
- ** Copyright (C) 2003-2005 Open GIS Consortium, Inc.
- ** All Rights Reserved. http://www.opengis.org/legal/
- **
- *************************************************************************************************/
-// This class was created by Sanjay Jena and Prof. Jackson Roehrig in order to complete
-// missing parts of the GeoAPI and submit the results to GeoAPI afterwards as proposal.
-
+/*
+ *    GeoTools - The Open Source Java GIS Toolkit
+ *    http://geotools.org
+ *
+ *    (C) 2011, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2003-2005, Open Geospatial Consortium Inc.
+ *    
+ *    All Rights Reserved. http://www.opengis.org/legal/
+ */
 package org.opengis.geometry.aggregate;
 
 import java.util.Set;
