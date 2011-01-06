@@ -21,7 +21,6 @@ import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -136,7 +135,7 @@ public class MapContent {
        }
     }
     
-    @SuppressWarnings("deprecation")
+   
     public MapContent(MapContext context){
         for( MapLayer mapLayer : context.getLayers() ){
             layers().add( mapLayer.toLayer() );

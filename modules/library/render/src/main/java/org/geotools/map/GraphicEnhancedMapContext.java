@@ -35,7 +35,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * </ul>
  * </p>
  * 
- * @author simone giannecchini
+ * @author Simone Giannecchini, GeoSolutions SAS
  *
  * @source $URL$
  * @version $Id$

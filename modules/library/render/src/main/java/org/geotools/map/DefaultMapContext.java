@@ -278,7 +278,7 @@ public class DefaultMapContext extends MapContext {
      */
     public void addLayer(AbstractGridCoverage2DReader reader, Style style) {
         if (style == null) {
-            throw new IllegalArgumentException("style cannot be null");
+            throw new IllegalArgumentException("Style cannot be null");
         }
         // checkCRS(reader.getCrs());
         Layer layer = new GridReaderLayer(reader, style);
