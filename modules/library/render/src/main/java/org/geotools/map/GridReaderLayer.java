@@ -1,8 +1,23 @@
+/*
+ *    GeoTools - The Open Source Java GIS Toolkit
+ *    http://geotools.org
+ * 
+ *    (C) 2003-2011, Open Source Geospatial Foundation (OSGeo)
+ *    
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ */
 package org.geotools.map;
 
 import java.util.logging.Level;
 
-import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.factory.FactoryRegistryException;
@@ -50,6 +65,11 @@ public class GridReaderLayer extends Layer {
     @Override
     public void dispose() {
         if (reader != null) {
+            try{
+                reader.dispose();
+            }catch (Exception e) {
+                // eat me
+            }
             reader = null;
         }
         if( style != null ){

@@ -1,3 +1,19 @@
+/*
+ *    GeoTools - The Open Source Java GIS Toolkit
+ *    http://geotools.org
+ * 
+ *    (C) 2003-2011, Open Source Geospatial Foundation (OSGeo)
+ *    
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ */
 package org.geotools.map;
 
 import java.util.logging.Level;
@@ -11,7 +27,6 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.event.MapLayerEvent;
 import org.geotools.resources.coverage.FeatureUtilities;
 import org.geotools.styling.Style;
-import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 
@@ -45,6 +60,11 @@ public class GridCoverageLayer extends Layer {
     @Override
     public void dispose() {
         if( coverage == null ){
+            try{
+                coverage.dispose(true);
+            }catch (Exception e) {
+                // eat me
+            }            
             coverage = null;
         }
         if( style == null ){

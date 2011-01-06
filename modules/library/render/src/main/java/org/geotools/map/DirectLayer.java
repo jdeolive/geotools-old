@@ -1,9 +1,6 @@
 package org.geotools.map;
 
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
-
-import org.geotools.geometry.jts.ReferencedEnvelope;
 
 /**
  * A Layer directly responsible for its own rendering.
