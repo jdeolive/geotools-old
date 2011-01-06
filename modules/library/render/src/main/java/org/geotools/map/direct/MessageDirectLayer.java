@@ -34,12 +34,12 @@ public class MessageDirectLayer extends DirectLayer {
     /**
      * Key used to store x position in getUserData().
      */
-    public static String X = "x";
+    public static final String X = "x";
 
     /**
      * Key used to store y position in getUserData()
      */
-    public static String Y = "y";
+    public static final String Y = "y";
 
     public MessageDirectLayer(String message) {
         this.message = message;
