@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: DataQuality.java 1422 2009-06-17 14:21:57Z desruisseaux $
+ ** $Id: DataQuality.java 1264 2008-07-09 17:46:15Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/metadata/quality/DataQuality.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/metadata/quality/DataQuality.java $
  **
  ** Copyright (C) 2004-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -27,6 +27,7 @@ import static org.opengis.annotation.ComplianceLevel.*;
  * @author  Martin Desruisseaux (IRD)
  * @since   GeoAPI 2.0
  */
+@Profile (level=CORE)
 @UML(identifier="DQ_DataQuality", specification=ISO_19115)
 public interface DataQuality {
     /**
@@ -43,8 +44,6 @@ public interface DataQuality {
      * {@linkplain org.opengis.metadata.maintenance.ScopeCode#DATASET dataset}.
      *
      * @return Quantitative quality information for the data.
-     *
-     * @condition {@linkplain #getLineage() Lineage} not provided.
      */
     @UML(identifier="report", obligation=CONDITIONAL, specification=ISO_19115)
     Collection<? extends Element> getReports();
@@ -56,10 +55,8 @@ public interface DataQuality {
      *
      * @return Non-quantitative quality information about the lineage of the data specified,
      *         or {@code null}.
-     *
-     * @condition {@linkplain #getReports() Report} not provided.
      */
-    @Profile(level=CORE)
+    @Profile (level=CORE)
     @UML(identifier="lineage", obligation=CONDITIONAL, specification=ISO_19115)
     Lineage getLineage();
 }

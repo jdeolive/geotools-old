@@ -12,12 +12,13 @@ package org.opengis.filter.expression;
 
 import org.opengis.annotation.Extension;
 import org.opengis.annotation.XmlElement;
+import org.opengis.feature.Feature;
 
 
 /**
  * Interface for all the OGC Filter elements that compute values.
  * <p>
- * The most common use is with potentially using feature and
+ * The most common use is with potentially using {@linkplain Feature feature} and
  * metadata.  The ability to access "attributes" based on the provided content is
  * defined based on XPath queries currently.
  *

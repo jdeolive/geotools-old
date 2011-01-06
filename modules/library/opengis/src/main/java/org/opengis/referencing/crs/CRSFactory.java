@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: CRSFactory.java 1436 2009-06-29 22:37:57Z desruisseaux $
+ ** $Id: CRSFactory.java 1269 2008-07-11 17:37:04Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/referencing/crs/CRSFactory.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/referencing/crs/CRSFactory.java $
  **
  ** Copyright (C) 2003-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -56,8 +56,8 @@ public interface CRSFactory extends ObjectFactory {
      * @throws FactoryException if the object creation failed.
      */
     @UML(identifier="createCompoundCoordinateSystem", specification=OGC_01009)
-    CompoundCRS createCompoundCRS(Map<String, ?> properties,
-                                  CoordinateReferenceSystem... elements) throws FactoryException;
+    CompoundCRS createCompoundCRS(Map<String, ?>              properties,
+                                  CoordinateReferenceSystem[] elements) throws FactoryException;
 
     /**
      * Creates a engineering coordinate reference system.

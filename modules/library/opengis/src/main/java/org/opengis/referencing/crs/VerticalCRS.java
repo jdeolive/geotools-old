@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: VerticalCRS.java 1414 2009-06-02 17:15:45Z desruisseaux $
+ ** $Id: VerticalCRS.java 1301 2008-08-11 17:39:30Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/referencing/crs/VerticalCRS.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/referencing/crs/VerticalCRS.java $
  **
  ** Copyright (C) 2003-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -56,12 +56,12 @@ public interface VerticalCRS extends SingleCRS {
     /**
      * Returns the coordinate system, which must be vertical.
      */
-    @UML(identifier="coordinateSystem", obligation=MANDATORY, specification=ISO_19111)
+    @UML(identifier="usesCS", obligation=MANDATORY, specification=ISO_19111)
     VerticalCS getCoordinateSystem();
 
     /**
      * Returns the datum, which must be vertical.
      */
-    @UML(identifier="datum", obligation=MANDATORY, specification=ISO_19111)
+    @UML(identifier="usesDatum", obligation=MANDATORY, specification=ISO_19111)
     VerticalDatum getDatum();
 }

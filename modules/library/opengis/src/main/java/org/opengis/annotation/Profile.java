@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: Profile.java 1422 2009-06-17 14:21:57Z desruisseaux $
+ ** $Id: Profile.java 1263 2008-07-09 17:25:51Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/annotation/Profile.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/annotation/Profile.java $
  **
  ** Copyright (C) 2003-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -22,7 +22,7 @@ import static java.lang.annotation.ElementType.*;
  * @since   GeoAPI 2.0
  */
 @Documented
-@Target(METHOD)
+@Target({TYPE, FIELD, METHOD})
 public @interface Profile {
     /**
      * The level for the annoted element. {@link ComplianceLevel#CORE CORE} means

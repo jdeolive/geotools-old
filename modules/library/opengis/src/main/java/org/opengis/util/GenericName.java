@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: GenericName.java 1437 2009-06-30 17:18:20Z desruisseaux $
+ ** $Id: GenericName.java 1308 2008-08-14 19:10:11Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/util/GenericName.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/util/GenericName.java $
  **
  ** Copyright (C) 2003-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -33,90 +33,81 @@ import static org.opengis.annotation.Specification.*;
  * Names are <em>immutables</em>. They may be {@linkplain #toFullyQualifiedName fully qualified}
  * like {@code "org.opengis.util.Record"}, or they may be relative to a {@linkplain #scope scope}
  * like {@code "util.Record"} in the {@code "org.opengis"} scope. The illustration below shows all
- * possible constructions for {@code "org.opengis.util.Record"}. They are all instances of
- * {@link ScopedName} except the last one which is a {@link LocalName}.
+ * possible constructions for {@code "org.opengis.util.Record"}.
  *
  * <blockquote><table border="1" cellpadding="15"><tr><td><table border="0" cellspacing="0">
  *   <tr>
- *     <td align="right"><b>org</b></td>
- *     <td><b>.</b></td><td><b>opengis</b></td>
- *     <td><b>.</b></td><td><b>util</b></td>
- *     <td><b>.</b></td><td><b>Record</b></td>
- *     <td width="50"></td>
- *     <td><b>{@link #scope}</b></td>
- *     <td align="right"><b>{@link #getParsedNames}</b></td>
+ *     <th align="right">org</th>
+ *     <th>.</th><th>opengis</th>
+ *     <th>.</th><th>util</th>
+ *     <th>.</th><th>Record</th>
+ *     <th width="50"></th>
+ *     <th>{@link #scope}</th>
+ *     <th>{@link #getParsedNames}</th>
  *   </tr>
+ *
  *   <tr align="center">
  *     <td bgcolor="palegoldenrod" colspan="1"><font size="-1">{@linkplain #head head}</font></td><td></td>
  *     <td bgcolor="palegoldenrod" colspan="5"><font size="-1">{@linkplain ScopedName#tail tail}</font></td>
- *     <td rowspan="2"></td>
- *     <td rowspan="2" bgcolor="beige" align="left">{@linkplain NameSpace#isGlobal global}</td>
- *     <td rowspan="2" bgcolor="beige" align="right">{{@code "org"}, {@code "opengis"}, {@code "util"}, {@code "Record"}}</td>
+ *     <td rowspan="3"></td>
+ *     <td rowspan="3" bgcolor="beige" align="left">{@linkplain NameSpace#isGlobal global}</td>
+ *     <td rowspan="3" bgcolor="beige" align="right">{@literal {"org", "opengis", "util", "Record"}}</td>
  *   </tr>
  *   <tr align="center">
  *     <td bgcolor="wheat" colspan="5"><font size="-1">{@linkplain ScopedName#path path}</font></td><td></td>
  *     <td bgcolor="wheat" colspan="1"><font size="-1">{@linkplain #tip tip}</font></td>
  *   </tr>
- *
- *   <tr><td colspan="7" height="15"></td></tr>
- *   <tr>
- *     <td align="right">org</td>
- *     <td>.</td><td><b>opengis</b></td>
- *     <td><b>.</b></td><td><b>util</b></td>
- *     <td><b>.</b></td><td><b>Record</b></td>
- *     <td colspan="3"></td>
- *   </tr>
  *   <tr align="center">
- *     <td bgcolor="palegoldenrod" colspan="1" rowspan="2"><font size="-1">{@linkplain #scope scope}</font></td><td rowspan="3"></td>
+ *     <td bgcolor="burlywood" colspan="7">{@linkplain ScopedName}</td>
+ *   </tr>
+ *
+ *   <tr><td colspan="7" height="3"></td></tr>
+ *   <tr align="center">
+ *     <td bgcolor="palegoldenrod" colspan="1" rowspan="3"><font size="-1">{@linkplain #scope scope}</font></td><td rowspan="3"></td>
  *     <td bgcolor="palegoldenrod" colspan="1"><font size="-1">head</font></td><td></td>
  *     <td bgcolor="palegoldenrod" colspan="3"><font size="-1">tail</font></td>
- *     <td rowspan="2"></td>
- *     <td rowspan="2" bgcolor="beige" align="left">{@code "org"}</td>
- *     <td rowspan="2" bgcolor="beige" align="right">{{@code "opengis"}, {@code "util"}, {@code "Record"}}</td>
+ *     <td rowspan="3"></td>
+ *     <td rowspan="3" bgcolor="beige" align="left">{@literal "org"}</td>
+ *     <td rowspan="3" bgcolor="beige" align="right">{@literal {"opengis", "util", "Record"}}</td>
  *   </tr>
  *   <tr align="center">
  *     <td bgcolor="wheat" colspan="3"><font size="-1">path</font></td><td></td>
  *     <td bgcolor="wheat" colspan="1"><font size="-1">tip</font></td>
  *   </tr>
- *
- *   <tr><td colspan="7" height="15"></td></tr>
- *   <tr>
- *     <td align="right">org</td>
- *     <td>.</td><td>opengis</td>
- *     <td>.</td><td><b>util</b></td>
- *     <td><b>.</b></td><td><b>Record</b></td>
- *     <td colspan="3"></td>
- *   </tr>
  *   <tr align="center">
- *     <td bgcolor="palegoldenrod" colspan="3" rowspan="2"><font size="-1">scope</font></td><td rowspan="3"></td>
+ *     <td bgcolor="burlywood" colspan="5">ScopedName</td>
+ *   </tr>
+ *
+ *   <tr><td colspan="7" height="3"></td></tr>
+ *   <tr align="center">
+ *     <td bgcolor="palegoldenrod" colspan="3" rowspan="3"><font size="-1">scope</font></td><td rowspan="3"></td>
  *     <td bgcolor="palegoldenrod" colspan="1"><font size="-1">head</font></td><td></td>
  *     <td bgcolor="palegoldenrod" colspan="1"><font size="-1">tail</font></td>
- *     <td rowspan="2"></td>
- *     <td rowspan="2" bgcolor="beige" align="left">{@code "org.opengis"}</td>
- *     <td rowspan="2" bgcolor="beige" align="right">{{@code "util"}, {@code "Record"}}</td>
+ *     <td rowspan="3"></td>
+ *     <td rowspan="3" bgcolor="beige" align="left">{@literal "org.opengis"}</td>
+ *     <td rowspan="3" bgcolor="beige" align="right">{@literal {"util", "Record"}}</td>
  *   </tr>
  *   <tr align="center">
  *     <td bgcolor="wheat" colspan="1"><font size="-1">path</font></td><td></td>
  *     <td bgcolor="wheat" colspan="1"><font size="-1">tip</font></td>
  *   </tr>
- *
- *   <tr><td colspan="7" height="15"></td></tr>
- *   <tr>
- *     <td align="right">org</td>
- *     <td>.</td><td>opengis</td>
- *     <td>.</td><td>util</td>
- *     <td>.</td><td><b>Record</b></td>
- *     <td colspan="3"></td>
- *   </tr>
  *   <tr align="center">
- *     <td bgcolor="palegoldenrod" colspan="5" rowspan="2"><font size="-1">scope</font></td><td rowspan="3"></td>
+ *     <td bgcolor="burlywood" colspan="3">ScopedName</td>
+ *   </tr>
+ *
+ *   <tr><td colspan="7" height="3"></td></tr>
+ *   <tr align="center">
+ *     <td bgcolor="palegoldenrod" colspan="5" rowspan="3"><font size="-1">scope</font></td><td rowspan="3"></td>
  *     <td bgcolor="palegoldenrod" colspan="1"><font size="-1">head</font></td>
- *     <td rowspan="2"></td>
- *     <td rowspan="2" bgcolor="beige" align="left">{@code "org.opengis.util"}</td>
- *     <td rowspan="2" bgcolor="beige" align="right">{{@code "Record"}}</td>
+ *     <td rowspan="3"></td>
+ *     <td rowspan="3" bgcolor="beige" align="left">{@literal "org.opengis.util"}</td>
+ *     <td rowspan="3" bgcolor="beige" align="right">{@literal {"Record"}}</td>
  *   </tr>
  *   <tr align="center">
  *     <td bgcolor="wheat" colspan="1"><font size="-1">tip</font></td>
+ *   </tr>
+ *   <tr align="center">
+ *     <td bgcolor="burlywood" colspan="1">{@linkplain LocalName}</td>
  *   </tr>
  * </table></td></tr></table></blockquote>
  * <p>
@@ -229,6 +220,15 @@ public interface GenericName extends Comparable<GenericName> {
     LocalName tip();
 
     /**
+     * @deprecated Renamed as {@link #tip}.
+     *
+     * @return The last element in the list of {@linkplain #getParsedNames parsed names}.
+     */
+    @Extension
+    @Deprecated
+    LocalName name();
+
+    /**
      * Returns a view of this name as a fully-qualified name. The {@linkplain #scope scope}
      * of a fully qualified name must be {@linkplain NameSpace#isGlobal global}. If the scope
      * of this name is already global, then this method shall returns {@code this}.
@@ -252,13 +252,13 @@ public interface GenericName extends Comparable<GenericName> {
      * <p>
      * <ul>
      *   <li><code>push(</code><var>foo</var><code> : LocalName).{@linkplain #head}</code>
-     *       {@linkplain Object#equals equals} <var>foo</var></li>
+     *       {@linkplain #equals equals} <var>foo</var></li>
      *
      *   <li><code>push(</code><var>foo</var><code> : LocalName).{@linkplain ScopedName#tail tail()}</code>
-     *       {@linkplain Object#equals equals} <var>this</var></li>
+     *       {@linkplain #equals equals} <var>this</var></li>
      *
      *   <li><code>push(</code><var>foo</var><code> : GenericName).{@linkplain #scope}</code>
-     *       {@linkplain Object#equals equals} <var>foo</var>.{@link #scope()}</li>
+     *       {@linkplain #equals equals} <var>foo</var>.{@link #scope()}</li>
      *
      *   <li><code>push(</code><var>foo</var><code> : GenericName).{@linkplain #getParsedNames}</code>
      *       {@linkplain List#equals equals} <var>foo</var>.<code>getParsedNames().{@linkplain

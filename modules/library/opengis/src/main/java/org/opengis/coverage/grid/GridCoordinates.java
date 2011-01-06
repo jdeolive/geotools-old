@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: GridCoordinates.java 1425 2009-06-17 16:56:46Z desruisseaux $
+ ** $Id: GridCoordinates.java 1263 2008-07-09 17:25:51Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi-pending/src/main/java/org/opengis/coverage/grid/GridCoordinates.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi-pending/src/main/java/org/opengis/coverage/grid/GridCoordinates.java $
  **
  ** Copyright (C) 2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -10,6 +10,7 @@
  *************************************************************************************************/
 package org.opengis.coverage.grid;
 
+import org.opengis.util.Cloneable;
 import org.opengis.annotation.UML;
 import org.opengis.annotation.Extension;
 
@@ -28,7 +29,7 @@ import static org.opengis.annotation.Specification.*;
  * @since   GeoAPI 2.1
  */
 @UML(identifier="CV_GridCoordinates", specification=ISO_19123)
-public interface GridCoordinates {
+public interface GridCoordinates extends Cloneable {
     /**
      * Returns the number of dimensions. This method is equivalent to
      * <code>{@linkplain #getCoordinateValues()}.length</code>. It is

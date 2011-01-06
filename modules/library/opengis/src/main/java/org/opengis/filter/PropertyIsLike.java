@@ -11,6 +11,7 @@
 package org.opengis.filter;
 
 // OpenGIS direct dependencies
+import org.opengis.annotation.Profile;
 import org.opengis.annotation.XmlElement;
 import org.opengis.filter.expression.Expression;
 

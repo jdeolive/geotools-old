@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: LegalConstraints.java 1416 2009-06-03 14:36:11Z desruisseaux $
+ ** $Id: LegalConstraints.java 1264 2008-07-09 17:46:15Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/metadata/constraint/LegalConstraints.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/metadata/constraint/LegalConstraints.java $
  **
  ** Copyright (C) 2004-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -53,10 +53,6 @@ public interface LegalConstraints extends Constraints {
      * {@linkplain Restriction#OTHER_RESTRICTIONS other restrictions}.
      *
      * @return Other restrictions and legal prerequisites for accessing and using the resource.
-     *
-     * @condition {@linkplain #getAccessConstraints() Access constraints} or
-     *            {@linkplain #getUseConstraints() use constraints} equal
-     *            {@link Restriction#OTHER_RESTRICTIONS}.
      */
     @UML(identifier="otherConstraints", obligation=CONDITIONAL, specification=ISO_19115)
     Collection<? extends InternationalString> getOtherConstraints();

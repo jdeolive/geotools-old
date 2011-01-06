@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: package-info.java 1414 2009-06-02 17:15:45Z desruisseaux $
+ ** $Id: package-info.java 1265 2008-07-09 18:24:37Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/referencing/cs/package-info.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/referencing/cs/package-info.java $
  **
  ** Copyright (C) 2004-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -105,22 +105,19 @@
  * <TABLE ALIGN="center" CELLPADDING='6' BORDER='1'>
  * <TR BGCOLOR="#EEEEFF"><TH>CS</TH><TH>CRS</TH><TH NOWRAP>Permitted coordinate system axis names</TH></TR>
  * <TR><TD>Cartesian</TD><TD>Geocentric</TD>
- *     <TD><cite>Geocentric X</cite>,
- *         <cite>Geocentric Y</cite>,
- *         <cite>Geocentric Z</cite></TD></TR>
+ *         <TD>Geocentric X, Geocentric Y, Geocentric Z</TD></TR>
  * <TR><TD>Spherical</TD><TD>Geocentric</TD>
- *     <TD><cite>Spherical Latitude</cite>,
- *         <cite>Spherical Longitude</cite>,
- *         <cite>Geocentric Radius</cite></TD></TR>
+ *         <TD>Spherical Latitude, Spherical Longitude, Geocentric Radius</TD></TR>
  * <TR><TD>Ellipsoidal</TD><TD>Geographic</TD>
- *     <TD><cite>Geodetic Latitude</cite>,
- *         <cite>Geodetic Longitude</cite>,
- *         <cite>Ellipsoidal height</cite> (if 3D)</TD></TR>
+ *         <TD>Geodetic Latitude, Geodetic Longitude, Ellipsoidal height (if 3D)</TD></TR>
  * <TR><TD>Vertical</TD><TD>Vertical</TD>
- *     <TD><cite>Gravity-related height</cite> or <cite>Depth</cite></TD></TR>
+ *         <TD>Gravity-related height</TD></TR>
+ * <TR><TD>Vertical</TD><TD>Vertical</TD>
+ *         <TD>Depth</TD></TR>
  * <TR><TD>Cartesian</TD><TD>Projected</TD>
- *     <TD><cite>Easting</cite> or <cite>Westing</cite>,
- *         <cite>Northing</cite> or <cite>Southing</cite></TD></TR>
+ *         <TD>Easting, Northing</TD></TR>
+ * <TR><TD>Cartesian</TD><TD>Projected</TD>
+ *         <TD>Westing, Southing</TD></TR>
  * </TABLE>
  *
  * <P ALIGN="justify">Image and engineering coordinate reference systems may make

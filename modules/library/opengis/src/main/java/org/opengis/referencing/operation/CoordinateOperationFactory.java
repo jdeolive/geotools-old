@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: CoordinateOperationFactory.java 1417 2009-06-03 14:58:00Z desruisseaux $
+ ** $Id: CoordinateOperationFactory.java 1332 2008-10-24 19:53:53Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/referencing/operation/CoordinateOperationFactory.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/referencing/operation/CoordinateOperationFactory.java $
  **
  ** Copyright (C) 2003-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -70,9 +70,9 @@ public interface CoordinateOperationFactory extends ObjectFactory {
      * </ul>
      * <p>
      * <b>Example:</b> A transformation between two {@linkplain org.opengis.referencing.crs.GeographicCRS
-     * geographic CRS} using different {@linkplain org.opengis.referencing.datum.GeodeticDatum datum}
-     * requires a <cite>datum shift</cite>. Many methods exist for this purpose, including interpolations
-     * in a grid, a scale/rotation/translation in geocentric coordinates or the Molodenski approximation.
+     * geographic CRS} using different {@linkplain org.opengis.datum.GeodeticDatum datum} requires a
+     * <cite>datum shift</cite>. Many methods exist for this purpose, including interpolations in a
+     * grid, a scale/rotation/translation in geocentric coordinates or the Molodenski approximation.
      * When invoking {@code createOperation} without operation method, this factory may select by
      * default the most accurate transformation (typically interpolation in a grid). When invoking
      * {@code createOperation} with an operation method, user can force usage of Molodenski
@@ -129,14 +129,14 @@ public interface CoordinateOperationFactory extends ObjectFactory {
      *     <td nowrap>&nbsp;{@link CoordinateOperation#getOperationVersion}</td>
      *   </tr>
      *   <tr>
-     *     <td nowrap>&nbsp;{@value org.opengis.referencing.operation.CoordinateOperation#COORDINATE_OPERATION_ACCURACY_KEY}&nbsp;</td>
+     *     <td nowrap>&nbsp;{@value org.opengis.referencing.operation.CoordinateOperation#POSITIONAL_ACCURACY_KEY}&nbsp;</td>
      *     <td nowrap>&nbsp;<code>{@linkplain org.opengis.metadata.quality.PositionalAccuracy}[]</code>&nbsp;</td>
-     *     <td nowrap>&nbsp;{@link CoordinateOperation#getCoordinateOperationAccuracy}</td>
+     *     <td nowrap>&nbsp;{@link CoordinateOperation#getPositionalAccuracy}</td>
      *   </tr>
      *   <tr>
-     *     <td nowrap>&nbsp;{@value org.opengis.referencing.operation.CoordinateOperation#DOMAIN_OF_VALIDITY_KEY}&nbsp;</td>
+     *     <td nowrap>&nbsp;{@value org.opengis.referencing.operation.CoordinateOperation#VALID_AREA_KEY}&nbsp;</td>
      *     <td nowrap>&nbsp;{@link org.opengis.metadata.extent.Extent}&nbsp;</td>
-     *     <td nowrap>&nbsp;{@link CoordinateOperation#getDomainOfValidity}</td>
+     *     <td nowrap>&nbsp;{@link CoordinateOperation#getValidArea}</td>
      *   </tr>
      *   <tr>
      *     <td nowrap>&nbsp;{@value org.opengis.referencing.operation.CoordinateOperation#SCOPE_KEY}&nbsp;</td>

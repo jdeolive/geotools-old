@@ -10,11 +10,11 @@
  *************************************************************************************************/
 package org.opengis.style;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.ArrayList;
+import org.opengis.util.CodeList;
 
 import org.opengis.annotation.XmlElement;
-import org.opengis.util.CodeList;
 
 
 /**

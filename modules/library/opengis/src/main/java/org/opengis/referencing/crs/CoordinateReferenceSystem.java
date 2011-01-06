@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: CoordinateReferenceSystem.java 1414 2009-06-02 17:15:45Z desruisseaux $
+ ** $Id: CoordinateReferenceSystem.java 1265 2008-07-09 18:24:37Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/referencing/crs/CoordinateReferenceSystem.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/referencing/crs/CoordinateReferenceSystem.java $
  **
  ** Copyright (C) 2003-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -63,11 +63,11 @@ public interface CoordinateReferenceSystem extends ReferenceSystem {
      * </ul>
      *
      * @departure
-     *   ISO 19111 defines this method for {@linkplain SingleCRS Single CRS} only.
-     *   GeoAPI declares this method in this parent interface for user convenience, since CS
+     *   Strictly speaking, this method is defined by ISO 19111 for {@linkplain SingleCRS single CRS}
+     *   only. GeoAPI declares this method in this parent interface for user convenience, since CS
      *   {@linkplain CoordinateSystem#getDimension dimension} and {@linkplain CoordinateSystem#getAxis axis}
      *   are commonly requested information and shall be available, directly or indirectly, in all cases
-     *   (including {@linkplain CompoundCRS Compound CRS}).
+     *   (including {@linkplain CompoundCRS compound CRS}).
      *
      * @return The coordinate system.
      */

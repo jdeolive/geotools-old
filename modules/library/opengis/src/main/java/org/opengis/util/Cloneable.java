@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: Cloneable.java 1425 2009-06-17 16:56:46Z desruisseaux $
+ ** $Id: Cloneable.java 1246 2008-06-24 06:52:12Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi-pending/src/main/java/org/opengis/util/Cloneable.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/util/Cloneable.java $
  **
  ** Copyright (C) 2003-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -35,13 +35,7 @@ package org.opengis.util;
  * @see java.lang.Cloneable
  * @see <A HREF="http://developer.java.sun.com/developer/bugParade/bugs/4098033.html">&quot;<cite>Cloneable
  *      doesn't define <code>clone()</code></cite>&quot; on Sun's bug parade</A>
- *
- * @deprecated The need for this interface in GeoAPI is weaker than it was at the begining of this
- *      project, since the interfaces which were originally extending {@code Cloneable} do not
- *      extend it anymore today. Consequently this interface will be removed and the handling
- *      of the {@code Cloneable} issue left to implementors.
  */
-@Deprecated
 public interface Cloneable extends java.lang.Cloneable {
     /**
      * Creates and returns a copy of this object.

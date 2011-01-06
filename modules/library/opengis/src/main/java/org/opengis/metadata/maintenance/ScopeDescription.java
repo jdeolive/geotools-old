@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: ScopeDescription.java 1416 2009-06-03 14:36:11Z desruisseaux $
+ ** $Id: ScopeDescription.java 1264 2008-07-09 17:46:15Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/metadata/maintenance/ScopeDescription.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/metadata/maintenance/ScopeDescription.java $
  **
  ** Copyright (C) 2004-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -33,9 +33,6 @@ public interface ScopeDescription {
      * Attributes to which the information applies.
      *
      * @return Attributes to which the information applies.
-     *
-     * @condition Features, featureInstances, attributeInstances, dataset and other not
-     *            documented.
      */
     @UML(identifier="attributes", obligation=CONDITIONAL, specification=ISO_19115)
     Set<? extends AttributeType> getAttributes();
@@ -44,9 +41,6 @@ public interface ScopeDescription {
      * Features to which the information applies.
      *
      * @return Features to which the information applies.
-     *
-     * @condition attributes, featureInstances, attributeInstances, dataset and other not
-     *            documented.
      */
     @UML(identifier="features", obligation=CONDITIONAL, specification=ISO_19115)
     Set<? extends FeatureType> getFeatures();
@@ -55,9 +49,6 @@ public interface ScopeDescription {
      * Feature instances to which the information applies.
      *
      * @return Feature instances to which the information applies.
-     *
-     * @condition Attributes, features, attributeInstances, dataset and other not
-     *            documented.
      */
     @UML(identifier="featureInstances", obligation=CONDITIONAL, specification=ISO_19115)
     Set<? extends FeatureType> getFeatureInstances();
@@ -68,9 +59,6 @@ public interface ScopeDescription {
      * @return Attribute instances to which the information applies.
      *
      * @since GeoAPI 2.1
-     *
-     * @condition Attributes, features, featureInstances, dataset and other not
-     *            documented.
      */
     @UML(identifier="attributeInstances", obligation=CONDITIONAL, specification=ISO_19115)
     Set<? extends AttributeType> getAttributeInstances();
@@ -81,9 +69,6 @@ public interface ScopeDescription {
      * @return Dataset to which the information applies.
      *
      * @since GeoAPI 2.1
-     *
-     * @condition Attributes, features, featureInstances, attributeInstances and other not
-     *            documented.
      */
     @UML(identifier="dataset", obligation=CONDITIONAL, specification=ISO_19115)
     String getDataset();
@@ -95,9 +80,6 @@ public interface ScopeDescription {
      * @return Class of information that does not fall into the other categories.
      *
      * @since GeoAPI 2.1
-     *
-     * @condition Attributes, features, featureInstances, attributeInstances and dataset not
-     *            documented.
      */
     @UML(identifier="other", obligation=CONDITIONAL, specification=ISO_19115)
     String getOther();

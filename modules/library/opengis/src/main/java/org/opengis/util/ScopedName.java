@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: ScopedName.java 1431 2009-06-22 15:29:36Z desruisseaux $
+ ** $Id: ScopedName.java 1303 2008-08-13 10:47:48Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/util/ScopedName.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/util/ScopedName.java $
  **
  ** Copyright (C) 2003-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -67,7 +67,7 @@ public interface ScopedName extends GenericName {
      * scoped name. In other words, the following relationship must holds:
      * <p>
      * <ul>
-     *   <li><code>head().scope() {@linkplain Object#equals equals}
+     *   <li><code>head().scope() {@linkplain NameSpace#equals equals}
      *       this.{@linkplain #scope scope()}</code></li>
      * </ul>
      * <p>

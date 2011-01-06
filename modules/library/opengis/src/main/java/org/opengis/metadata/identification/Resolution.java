@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: Resolution.java 1422 2009-06-17 14:21:57Z desruisseaux $
+ ** $Id: Resolution.java 1264 2008-07-09 17:46:15Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/metadata/identification/Resolution.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/metadata/identification/Resolution.java $
  **
  ** Copyright (C) 2004-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -26,6 +26,7 @@ import static org.opengis.annotation.ComplianceLevel.*;
  * @author  Cory Horner (Refractions Research)
  * @since   GeoAPI 2.0
  */
+@Profile (level=CORE)
 @UML(identifier="MD_Resolution", specification=ISO_19115)
 public interface Resolution {
     /**
@@ -34,10 +35,8 @@ public interface Resolution {
      * {@linkplain #getDistance ground sample distance} may be provided.
      *
      * @return Level of detail expressed as the scale of a comparable hardcopy, or {@code null}.
-     *
-     * @condition {@linkplain #getDistance() Distance} not documented.
      */
-    @Profile(level=CORE)
+    @Profile (level=CORE)
     @UML(identifier="equivalentScale", obligation=CONDITIONAL, specification=ISO_19115)
     RepresentativeFraction getEquivalentScale();
 
@@ -50,10 +49,8 @@ public interface Resolution {
      *
      * @todo change return type to ISO 19103 {@code Distance} or to JScience {@code Measure}.
      * @unitof Distance
-     *
-     * @condition {@linkplain #getEquivalentScale() Equivalent scale} not documented.
      */
-    @Profile(level=CORE)
+    @Profile (level=CORE)
     @UML(identifier="distance", obligation=CONDITIONAL, specification=ISO_19115)
     Double getDistance();
 }

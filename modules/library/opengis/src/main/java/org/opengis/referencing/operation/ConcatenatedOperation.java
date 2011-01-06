@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: ConcatenatedOperation.java 1414 2009-06-02 17:15:45Z desruisseaux $
+ ** $Id: ConcatenatedOperation.java 1265 2008-07-09 18:24:37Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/referencing/operation/ConcatenatedOperation.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/referencing/operation/ConcatenatedOperation.java $
  **
  ** Copyright (C) 2003-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -38,6 +38,6 @@ public interface ConcatenatedOperation extends CoordinateOperation {
      *
      * @return The sequence of operations.
      */
-    @UML(identifier="coordOperation", obligation=MANDATORY, specification=ISO_19111)
+    @UML(identifier="usesOperation", obligation=MANDATORY, specification=ISO_19111)
     List<SingleOperation> getOperations();
 }

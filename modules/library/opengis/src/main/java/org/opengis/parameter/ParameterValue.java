@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: ParameterValue.java 1415 2009-06-03 12:41:40Z desruisseaux $
+ ** $Id: ParameterValue.java 1265 2008-07-09 18:24:37Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/parameter/ParameterValue.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/parameter/ParameterValue.java $
  **
  ** Copyright (C) 2003-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -181,8 +181,10 @@ public interface ParameterValue<T> extends GeneralParameterValue {
      * @see #setValue(Object)
      * @see #intValue
      *
-     * @rename Renamed {@code integerValueList} as {@code intValueList} for consistency
-     *         with {@link #intValue()}.
+     * @rename Renamed {@code valueList} as {@code doubleValueList} for consistency
+     *         with {@link #doubleValue()}. Also because, like {@code doubleValue()}, this
+     *         method returns a {@code double} value rather than a {@code Measure}
+     *         object.
      */
     @UML(identifier="integerValueList", obligation=CONDITIONAL, specification=ISO_19111)
     int[] intValueList() throws InvalidParameterTypeException;

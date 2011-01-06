@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: Citation.java 1438 2009-07-02 02:42:27Z desruisseaux $
+ ** $Id: Citation.java 1264 2008-07-09 17:46:15Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/metadata/citation/Citation.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/metadata/citation/Citation.java $
  **
  ** Copyright (C) 2004-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -30,6 +30,7 @@ import static org.opengis.annotation.ComplianceLevel.*;
  * @author  Cory Horner (Refractions Research)
  * @since   GeoAPI 1.0
  */
+@Profile (level=CORE)
 @UML(identifier="CI_Citation", specification=ISO_19115)
 public interface Citation {
     /**
@@ -37,7 +38,7 @@ public interface Citation {
      *
      * @return The cited resource name.
      */
-    @Profile(level=CORE)
+    @Profile (level=CORE)
     @UML(identifier="title", obligation=MANDATORY, specification=ISO_19115)
     InternationalString getTitle();
 
@@ -55,7 +56,7 @@ public interface Citation {
      *
      * @return The reference date.
      */
-    @Profile(level=CORE)
+    @Profile (level=CORE)
     @UML(identifier="date", obligation=MANDATORY, specification=ISO_19115)
     Collection<? extends CitationDate> getDates();
 
@@ -100,14 +101,6 @@ public interface Citation {
      */
     @UML(identifier="presentationForm", obligation=OPTIONAL, specification=ISO_19115)
     Collection<PresentationForm> getPresentationForm();
-
-    /**
-     * Mode in which the resource is represented, or an empty string if none.
-     *
-     * @return The presentation mode, or an empty collection if none.
-     */
-    //@UML(identifier="presentationForm", obligation=OPTIONAL, specification=ISO_19115)
-    //Collection<PresentationForm> getPresentationForms();
 
     /**
      * Information about the series, or aggregate dataset, of which the dataset is a part.

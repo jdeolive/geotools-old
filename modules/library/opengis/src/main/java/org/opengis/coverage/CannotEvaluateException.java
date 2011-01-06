@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: CannotEvaluateException.java 1421 2009-06-04 20:18:07Z desruisseaux $
+ ** $Id: CannotEvaluateException.java 1263 2008-07-09 17:25:51Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi-pending/src/main/java/org/opengis/coverage/CannotEvaluateException.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi-pending/src/main/java/org/opengis/coverage/CannotEvaluateException.java $
  **
  ** Copyright (C) 2003-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -27,7 +27,6 @@ import org.opengis.annotation.Extension;
  * @see Coverage#evaluate(DirectPosition, byte[])
  * @see Coverage#evaluate(DirectPosition, double[])
  */
-@Extension
 public class CannotEvaluateException extends RuntimeException {
     /**
      * Serial number for interoperability with different versions.

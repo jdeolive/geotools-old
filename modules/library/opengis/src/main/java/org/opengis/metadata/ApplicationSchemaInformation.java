@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: ApplicationSchemaInformation.java 1439 2009-07-03 01:42:05Z desruisseaux $
+ ** $Id: ApplicationSchemaInformation.java 1264 2008-07-09 17:46:15Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/metadata/ApplicationSchemaInformation.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/metadata/ApplicationSchemaInformation.java $
  **
  ** Copyright (C) 2004-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -88,4 +88,15 @@ public interface ApplicationSchemaInformation {
      */
     @UML(identifier="softwareDevelopmentFileFormat", obligation=OPTIONAL, specification=ISO_19115)
     String getSoftwareDevelopmentFileFormat();
+
+    /**
+     * Information about the spatial attributes in the application schema for the feature types.
+     *
+     * @return The spatial attributes in the application schema for the feature types.
+     *
+     * @deprecated removed from ISO_19115
+     */
+    @Deprecated
+    @UML(identifier="featureCatalogueSupplement", obligation=OPTIONAL, specification=ISO_19115)
+    SpatialAttributeSupplement getFeatureCatalogueSupplement();
 }

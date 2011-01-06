@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: GeneralParameterDescriptor.java 1415 2009-06-03 12:41:40Z desruisseaux $
+ ** $Id: GeneralParameterDescriptor.java 1265 2008-07-09 18:24:37Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/parameter/GeneralParameterDescriptor.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/parameter/GeneralParameterDescriptor.java $
  **
  ** Copyright (C) 2003-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -27,9 +27,6 @@ import static org.opengis.annotation.Specification.*;
  * @since   GeoAPI 2.0
  *
  * @see GeneralParameterValue
- *
- * @rename Selected a name which contain the "Descriptor" word for consistency with other
- *         libraries in Java (e.g. {@code ParameterList} in Java Advanced Imaging).
  */
 @UML(identifier="CC_GeneralOperationParameter", specification=ISO_19111)
 public interface GeneralParameterDescriptor extends IdentifiedObject {

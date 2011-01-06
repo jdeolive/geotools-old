@@ -10,9 +10,10 @@
  *************************************************************************************************/
 package org.opengis.geometry;
 
-import static org.opengis.annotation.Specification.ISO_19107;
-
 import org.opengis.annotation.UML;
+
+import static org.opengis.annotation.Obligation.*;
+import static org.opengis.annotation.Specification.*;
 
 
 /**

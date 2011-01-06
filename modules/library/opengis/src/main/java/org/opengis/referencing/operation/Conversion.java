@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: Conversion.java 1415 2009-06-03 12:41:40Z desruisseaux $
+ ** $Id: Conversion.java 1325 2008-10-17 15:33:23Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/referencing/operation/Conversion.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/referencing/operation/Conversion.java $
  **
  ** Copyright (C) 2003-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -56,6 +56,6 @@ public interface Conversion extends Operation {
      *
      * @return Always {@code null}.
      */
-    @UML(identifier="operationVersion", obligation=FORBIDDEN, specification=ISO_19111)
+    @UML(identifier="operationVersion", obligation=CONDITIONAL, specification=ISO_19111)
     String getOperationVersion();
 }

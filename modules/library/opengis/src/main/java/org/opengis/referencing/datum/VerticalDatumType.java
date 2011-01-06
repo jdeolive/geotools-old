@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: VerticalDatumType.java 1423 2009-06-17 14:56:11Z desruisseaux $
+ ** $Id: VerticalDatumType.java 1298 2008-08-07 10:17:36Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/referencing/datum/VerticalDatumType.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/referencing/datum/VerticalDatumType.java $
  **
  ** Copyright (C) 2003-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -61,7 +61,7 @@ public final class VerticalDatumType extends CodeList<VerticalDatumType> {
      * normal to the ellipsoid used in the definition of horizontal datum.
      *
      * @departure
-     *   This code is a violation of ISO 19111 specification, which does not allow instantiation of
+     *   This code is a violation of ISO 19111 specification, which does not allow instantation of
      *   {@linkplain org.opengis.referencing.crs.VerticalCRS Vertical CRS} for ellipsoidal height.
      *   More specifically {@linkplain org.opengis.referencing.crs.GeographicCRS Geographic CRS}
      *   with ellipsoidal height shall be backed by a three-dimensional

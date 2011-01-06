@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: GeodeticDatum.java 1414 2009-06-02 17:15:45Z desruisseaux $
+ ** $Id: GeodeticDatum.java 1265 2008-07-09 18:24:37Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/referencing/datum/GeodeticDatum.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/referencing/datum/GeodeticDatum.java $
  **
  ** Copyright (C) 2003-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -35,7 +35,7 @@ public interface GeodeticDatum extends Datum {
      *
      * @return The ellipsoid.
      */
-    @UML(identifier="ellipsoid", obligation=MANDATORY, specification=ISO_19111)
+    @UML(identifier="usesEllipsoid", obligation=MANDATORY, specification=ISO_19111)
     Ellipsoid getEllipsoid();
 
     /**
@@ -43,6 +43,6 @@ public interface GeodeticDatum extends Datum {
      *
      * @return The prime meridian.
      */
-    @UML(identifier="primeMeridian", obligation=MANDATORY, specification=ISO_19111)
+    @UML(identifier="usesPrimeMeridian", obligation=MANDATORY, specification=ISO_19111)
     PrimeMeridian getPrimeMeridian();
 }

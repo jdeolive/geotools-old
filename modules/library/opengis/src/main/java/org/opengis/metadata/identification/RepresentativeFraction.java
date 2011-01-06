@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: RepresentativeFraction.java 1437 2009-06-30 17:18:20Z desruisseaux $
+ ** $Id: RepresentativeFraction.java 1268 2008-07-10 21:21:46Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/metadata/identification/RepresentativeFraction.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/metadata/identification/RepresentativeFraction.java $
  **
  ** Copyright (C) 2004-2007 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -45,9 +45,18 @@ import static org.opengis.annotation.Specification.ISO_19115;
 @UML(identifier="MD_RepresentativeFraction", specification=ISO_19115)
 public interface RepresentativeFraction {
     /**
+     * @deprecated Replaced by {@link #doubleValue}, which is both consistent with
+     *  {@link java.lang.Number} naming and avoid the idea that a representative
+     *  fraction is only for scales - it could be used for any quantity conveniently
+     *  represented as a ratio.
+     */
+    @Deprecated
+    double toScale();
+
+    /**
      * Returns the scale value in a form usable for computation.
      *
-     * @return <code>1.0 / (double) {@linkplain #getDenominator()}</code>
+     * @return {@code 1.0 / (double) {@linkplain #getDenominator()}.
      *
      * @since GeoAPI 2.2
      */

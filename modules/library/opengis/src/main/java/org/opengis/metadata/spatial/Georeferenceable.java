@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: Georeferenceable.java 1438 2009-07-02 02:42:27Z desruisseaux $
+ ** $Id: Georeferenceable.java 1264 2008-07-09 17:46:15Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/metadata/spatial/Georeferenceable.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/metadata/spatial/Georeferenceable.java $
  **
  ** Copyright (C) 2004-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -73,12 +73,4 @@ public interface Georeferenceable extends GridSpatialRepresentation {
      */
     @UML(identifier="parameterCitation", obligation=OPTIONAL, specification=ISO_19115)
     Collection<? extends Citation> getParameterCitation();
-//
-//    /**
-//     * Reference providing description of the parameters.
-//     *
-//     * @return Reference providing description of the parameters.
-//     */
-//    @UML(identifier="parameterCitation", obligation=OPTIONAL, specification=ISO_19115)
-//    Collection<? extends Citation> getParameterCitations();
 }

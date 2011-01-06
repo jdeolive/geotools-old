@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: GeneralParameterValue.java 1425 2009-06-17 16:56:46Z desruisseaux $
+ ** $Id: GeneralParameterValue.java 1265 2008-07-09 18:24:37Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/parameter/GeneralParameterValue.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/parameter/GeneralParameterValue.java $
  **
  ** Copyright (C) 2003-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -10,6 +10,7 @@
  *************************************************************************************************/
 package org.opengis.parameter;
 
+import org.opengis.util.Cloneable;
 import org.opengis.annotation.UML;
 
 import static org.opengis.annotation.Specification.*;
@@ -26,7 +27,7 @@ import static org.opengis.annotation.Specification.*;
  * @see GeneralParameterDescriptor
  */
 @UML(identifier="CC_GeneralParameterValue", specification=ISO_19111)
-public interface GeneralParameterValue {
+public interface GeneralParameterValue extends Cloneable {
     /**
      * Returns the abstract definition of this parameter or group of parameters.
      *

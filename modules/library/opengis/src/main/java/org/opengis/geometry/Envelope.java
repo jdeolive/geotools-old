@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: Envelope.java 1437 2009-06-30 17:18:20Z desruisseaux $
+ ** $Id: Envelope.java 1246 2008-06-24 06:52:12Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/geometry/Envelope.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/geometry/Envelope.java $
  **
  ** Copyright (C) 2003-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -136,7 +136,7 @@ public interface Envelope {
     @Extension
     @Deprecated
     double getCenter(int dimension) throws IndexOutOfBoundsException;
-    
+
     /**
      * Returns the median ordinate along the specified dimension. The result should be equals
      * (minus rounding error) to:
@@ -178,7 +178,7 @@ public interface Envelope {
     @Extension
     @Deprecated
     double getLength(int dimension) throws IndexOutOfBoundsException;
-    
+
     /**
      * Returns the envelope span (typically width or height) along the specified dimension.
      * The result should be equals (minus rounding error) to:

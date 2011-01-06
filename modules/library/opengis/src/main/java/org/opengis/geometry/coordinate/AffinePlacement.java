@@ -10,10 +10,11 @@
  *************************************************************************************************/
 package org.opengis.geometry.coordinate;
 
-import static org.opengis.annotation.Obligation.MANDATORY;
-import static org.opengis.annotation.Specification.ISO_19107;
-
+import org.opengis.geometry.coordinate.Position;
 import org.opengis.annotation.UML;
+
+import static org.opengis.annotation.Obligation.*;
+import static org.opengis.annotation.Specification.*;
 
 /**
  * A placement defined by linear transformation from the parameter space to the target

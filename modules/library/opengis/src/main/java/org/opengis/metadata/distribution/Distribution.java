@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: Distribution.java 1422 2009-06-17 14:21:57Z desruisseaux $
+ ** $Id: Distribution.java 1264 2008-07-09 17:46:15Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/metadata/distribution/Distribution.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/metadata/distribution/Distribution.java $
  **
  ** Copyright (C) 2004-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -26,16 +26,15 @@ import static org.opengis.annotation.ComplianceLevel.*;
  * @author  Martin Desruisseaux (IRD)
  * @since   GeoAPI 2.0
  */
+@Profile (level=CORE)
 @UML(identifier="MD_Distribution", specification=ISO_19115)
 public interface Distribution {
     /**
      * Provides a description of the format of the data to be distributed.
      *
      * @return Description of the format of the data to be distributed.
-     *
-     * @condition {@link Distributor#getDistributorFormats()} not documented.
      */
-    @Profile(level=CORE)
+    @Profile (level=CORE)
     @UML(identifier="distributionFormat", obligation=CONDITIONAL, specification=ISO_19115)
     Collection<? extends Format> getDistributionFormats();
 
@@ -53,7 +52,7 @@ public interface Distribution {
      *
      * @return Technical means and media by which a resource is obtained from the distributor.
      */
-    @Profile(level=CORE)
+    @Profile (level=CORE)
     @UML(identifier="transferOptions", obligation=OPTIONAL, specification=ISO_19115)
     Collection<? extends DigitalTransferOptions> getTransferOptions();
 }

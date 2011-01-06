@@ -1,6 +1,6 @@
 /*$************************************************************************************************
  **
- ** $Id: BackingStoreException.java 1421 2009-06-04 20:18:07Z desruisseaux $
+ ** $Id: BackingStoreException.java 978 2007-03-27 00:58:39Z jive $
  **
  ** $Source$
  **
@@ -10,9 +10,9 @@
  *************************************************************************************************/
 package org.opengis.feature;
 
+// J2SE direct dependencies
 import java.io.IOException;    // For javadoc
 import java.sql.SQLException;  // For javadoc
-import org.opengis.annotation.Extension;
 
 
 /**
@@ -27,7 +27,6 @@ import org.opengis.annotation.Extension;
  * @author Martin Desruisseaux (IRD)
  * @since GeoAPI 2.0
  */
-@Extension
 public class BackingStoreException extends RuntimeException {
     /**
      * Serial version UID allowing cross compiler use of {@code BackingStoreException}.

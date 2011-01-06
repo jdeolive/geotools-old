@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: OperationMethod.java 1415 2009-06-03 12:41:40Z desruisseaux $
+ ** $Id: OperationMethod.java 1265 2008-07-09 18:24:37Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/referencing/operation/OperationMethod.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/referencing/operation/OperationMethod.java $
  **
  ** Copyright (C) 2003-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -53,12 +53,6 @@ public interface OperationMethod extends IdentifiedObject {
     /**
      * Number of dimensions in the source CRS of this operation method.
      *
-     * @departure
-     *   This attribute was mandatory in ISO 19111:2003 but became optional in ISO 19111:2007.
-     *   It has been left mandatory in GeoAPI for historical reasons.  This is problematic for
-     *   a few operations like <cite>affine transform</cite> which can operate on an arbitrary
-     *   number of dimensions.
-     *
      * @return The dimension of source CRS.
      */
     @UML(identifier="sourceDimensions", obligation=MANDATORY, specification=ISO_19111)
@@ -66,12 +60,6 @@ public interface OperationMethod extends IdentifiedObject {
 
     /**
      * Number of dimensions in the target CRS of this operation method.
-     *
-     * @departure
-     *   This attribute was mandatory in ISO 19111:2003 but became optional in ISO 19111:2007.
-     *   It has been left mandatory in GeoAPI for historical reasons.  This is problematic for
-     *   a few operations like <cite>affine transform</cite> which can operate on an arbitrary
-     *   number of dimensions.
      *
      * @return The dimension of target CRS.
      */
@@ -83,6 +71,6 @@ public interface OperationMethod extends IdentifiedObject {
      *
      * @return The parameters, or an empty group if none.
      */
-    @UML(identifier="parameter", obligation=MANDATORY, specification=ISO_19111)
+    @UML(identifier="usesParameter", obligation=MANDATORY, specification=ISO_19111)
     ParameterDescriptorGroup getParameters();
 }

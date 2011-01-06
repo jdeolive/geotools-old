@@ -1,16 +1,14 @@
 /**************************************************************************************************
  **
- ** $Id: MismatchedReferenceSystemException.java 1421 2009-06-04 20:18:07Z desruisseaux $
+ ** $Id: MismatchedReferenceSystemException.java 1352 2009-02-18 20:46:17Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi-pending/src/main/java/org/opengis/geometry/MismatchedReferenceSystemException.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi-pending/src/main/java/org/opengis/geometry/MismatchedReferenceSystemException.java $
  **
  ** Copyright (C) 2003-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
  **
  *************************************************************************************************/
 package org.opengis.geometry;
-
-import org.opengis.annotation.Extension;
 
 
 /**
@@ -21,7 +19,6 @@ import org.opengis.annotation.Extension;
  * @author Martin Desruisseaux (IRD)
  * @since GeoAPI 2.0
  */
-@Extension
 public class MismatchedReferenceSystemException extends IllegalArgumentException {
     /**
      * Serial number for interoperability with different versions.

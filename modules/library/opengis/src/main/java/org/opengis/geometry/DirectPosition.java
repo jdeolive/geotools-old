@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: DirectPosition.java 1437 2009-06-30 17:18:20Z desruisseaux $
+ ** $Id: DirectPosition.java 1252 2008-07-04 15:23:04Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/geometry/DirectPosition.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/geometry/DirectPosition.java $
  **
  ** Copyright (C) 2003-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -28,6 +28,11 @@ import static org.opengis.annotation.Specification.*;
  * {@linkplain CoordinateReferenceSystem coordinate reference system}. In this case,
  * the cordinate reference system is implicitly assumed to take on the value of the containing
  * object's {@linkplain CoordinateReferenceSystem coordinate reference system}.
+ * <p>
+ * <b>Note:</b> this interface does not extends {@link org.opengis.util.Cloneable} on purpose,
+ * since {@code DirectPosition} implementations are most likely to be backed by references to
+ * internal structures of the geometry containing this position. A direct position may or may
+ * not be cloneable at implementor choice.
  *
  * @version <A HREF="http://www.opengeospatial.org/standards/as">ISO 19107</A>
  * @author Martin Desruisseaux (IRD)
@@ -109,7 +114,7 @@ public interface DirectPosition extends Position {
      */
     @Deprecated
     double[] getCoordinates();
-    
+
     /**
      * Returns the ordinate at the specified dimension.
      *
@@ -161,7 +166,7 @@ public interface DirectPosition extends Position {
      * Returns a hash code value for this direct position. This method should returns
      * the same value as:
      *
-     * <code>{@linkplain java.util.Arrays#hashCode(double[]) Arrays.hashCode}({@linkplain
+     * <code>{@linkplain java.util.Arrays.hashCode(double[]) Arrays.hashCode}({@linkplain
      * #getCoordinate()}) + {@linkplain #getCoordinateReferenceSystem()}.hashCode()</code>
      *
      * where the right hand side of the addition is omitted if the coordinate reference

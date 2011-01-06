@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: ResponsibleParty.java 1422 2009-06-17 14:21:57Z desruisseaux $
+ ** $Id: ResponsibleParty.java 1264 2008-07-09 17:46:15Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/metadata/citation/ResponsibleParty.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/metadata/citation/ResponsibleParty.java $
  **
  ** Copyright (C) 2004-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -27,6 +27,7 @@ import static org.opengis.annotation.ComplianceLevel.*;
  * @author  Martin Desruisseaux (IRD)
  * @since   GeoAPI 1.0
  */
+@Profile (level=CORE)
 @UML(identifier="CI_ResponsibleParty", specification=ISO_19115)
 public interface ResponsibleParty {
     /**
@@ -35,11 +36,7 @@ public interface ResponsibleParty {
      * and {@link #getPositionName positionName} should be provided.
      *
      * @return Name, surname, given name and title of the responsible person, or {@code null}.
-     *
-     * @condition {@link #getOrganisationName Organisation name} and
-     *            {@link #getPositionName position name} not documented.
      */
-    @Profile(level=CORE)
     @UML(identifier="individualName", obligation=CONDITIONAL, specification=ISO_19115)
     String getIndividualName();
 
@@ -49,11 +46,7 @@ public interface ResponsibleParty {
      * and {@link #getPositionName positionName} should be provided.
      *
      * @return Name of the responsible organization, or {@code null}.
-     *
-     * @condition {@link #getIndividualName Individual name} and
-     *            {@link #getPositionName position name} not documented.
      */
-    @Profile(level=CORE)
     @UML(identifier="organisationName", obligation=CONDITIONAL, specification=ISO_19115)
     InternationalString getOrganisationName();
 
@@ -63,11 +56,7 @@ public interface ResponsibleParty {
      * and {@code positionName} should be provided.
      *
      * @return Role or position of the responsible person, or {@code null}
-     *
-     * @condition {@link #getIndividualName Individual name} and
-     *            {@link #getOrganisationName organisation name} not documented.
      */
-    @Profile(level=CORE)
     @UML(identifier="positionName", obligation=CONDITIONAL, specification=ISO_19115)
     InternationalString getPositionName();
 
@@ -84,7 +73,6 @@ public interface ResponsibleParty {
      *
      * @return Function performed by the responsible party.
      */
-    @Profile(level=CORE)
     @UML(identifier="role", obligation=MANDATORY, specification=ISO_19115)
     Role getRole();
 }

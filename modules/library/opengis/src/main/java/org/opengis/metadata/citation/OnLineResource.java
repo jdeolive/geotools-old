@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: OnLineResource.java 1422 2009-06-17 14:21:57Z desruisseaux $
+ ** $Id: OnLineResource.java 1264 2008-07-09 17:46:15Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/metadata/citation/OnLineResource.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/metadata/citation/OnLineResource.java $
  **
  ** Copyright (C) 2004-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -29,6 +29,7 @@ import static org.opengis.annotation.Specification.*;
  * @author  Cory Horner (Refractions Research)
  * @since   GeoAPI 1.0
  */
+@Profile (level=CORE)
 @UML(identifier="CI_OnlineResource", specification=ISO_19115)
 public interface OnLineResource {
     /**
@@ -37,7 +38,6 @@ public interface OnLineResource {
      *
      * @return Location for on-line access using a Uniform Resource Locator address or similar scheme.
      */
-    @Profile(level=CORE)
     @UML(identifier="linkage", obligation=MANDATORY, specification=ISO_19115)
     URI getLinkage();
 

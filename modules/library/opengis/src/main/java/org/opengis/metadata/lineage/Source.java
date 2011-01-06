@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: Source.java 1416 2009-06-03 14:36:11Z desruisseaux $
+ ** $Id: Source.java 1264 2008-07-09 17:46:15Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/metadata/lineage/Source.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/metadata/lineage/Source.java $
  **
  ** Copyright (C) 2004-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -36,8 +36,6 @@ public interface Source {
      * Detailed description of the level of the source data.
      *
      * @return Description of the level of the source data, or {@code null}.
-     *
-     * @condition {@linkplain #getSourceExtents() Source extent} not provided.
      */
     @UML(identifier="description", obligation=CONDITIONAL, specification=ISO_19115)
     InternationalString getDescription();
@@ -70,8 +68,6 @@ public interface Source {
      * Information about the spatial, vertical and temporal extent of the source data.
      *
      * @return Information about the extent of the source data.
-     *
-     * @condition {@linkplain #getDescription() Description} not provided.
      */
     @UML(identifier="sourceExtent", obligation=CONDITIONAL, specification=ISO_19115)
     Collection<? extends Extent> getSourceExtents();

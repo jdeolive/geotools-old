@@ -10,18 +10,16 @@
  *************************************************************************************************/
 package org.opengis.geometry.coordinate;
 
-import static org.opengis.annotation.Obligation.MANDATORY;
-import static org.opengis.annotation.Obligation.OPTIONAL;
-import static org.opengis.annotation.Specification.ISO_19107;
-
 import java.util.List;
-
-import org.opengis.annotation.UML;
-import org.opengis.geometry.complex.Complex;
 import org.opengis.geometry.primitive.Curve;
 import org.opengis.geometry.primitive.Surface;
-import org.opengis.geometry.primitive.SurfaceBoundary;
 import org.opengis.geometry.primitive.SurfacePatch;
+import org.opengis.geometry.primitive.SurfaceBoundary;
+import org.opengis.geometry.complex.Complex;
+import org.opengis.annotation.UML;
+
+import static org.opengis.annotation.Obligation.*;
+import static org.opengis.annotation.Specification.*;
 
 
 /**

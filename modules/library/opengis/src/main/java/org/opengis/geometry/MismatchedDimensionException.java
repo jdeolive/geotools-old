@@ -1,16 +1,14 @@
 /**************************************************************************************************
  **
- ** $Id: MismatchedDimensionException.java 1421 2009-06-04 20:18:07Z desruisseaux $
+ ** $Id: MismatchedDimensionException.java 1163 2008-01-17 12:18:10Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/geometry/MismatchedDimensionException.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/geometry/MismatchedDimensionException.java $
  **
  ** Copyright (C) 2003-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
  **
  *************************************************************************************************/
 package org.opengis.geometry;
-
-import org.opengis.annotation.Extension;
 
 
 /**
@@ -20,7 +18,6 @@ import org.opengis.annotation.Extension;
  * @author Martin Desruisseaux (IRD)
  * @since GeoAPI 1.0
  */
-@Extension
 public class MismatchedDimensionException extends IllegalArgumentException {
     /**
      * Serial number for interoperability with different versions.

@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: Format.java 1422 2009-06-17 14:21:57Z desruisseaux $
+ ** $Id: Format.java 1264 2008-07-09 17:46:15Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/metadata/distribution/Format.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/metadata/distribution/Format.java $
  **
  ** Copyright (C) 2004-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -28,6 +28,7 @@ import static org.opengis.annotation.ComplianceLevel.*;
  * @author  Martin Desruisseaux (IRD)
  * @since   GeoAPI 2.0
  */
+@Profile (level=CORE)
 @UML(identifier="MD_Format", specification=ISO_19115)
 public interface Format {
     /**
@@ -35,16 +36,16 @@ public interface Format {
      *
      * @return Name of the data transfer format(s).
      */
-    @Profile(level=CORE)
+    @Profile (level=CORE)
     @UML(identifier="name", obligation=MANDATORY, specification=ISO_19115)
     InternationalString getName();
 
     /**
-     * Version of the format (date, number, <i>etc</i>).
+     * Version of the format (date, number, <cite>etc.</cite>).
      *
      * @return Version of the format.
      */
-    @Profile(level=CORE)
+    @Profile (level=CORE)
     @UML(identifier="version", obligation=MANDATORY, specification=ISO_19115)
     InternationalString getVersion();
 

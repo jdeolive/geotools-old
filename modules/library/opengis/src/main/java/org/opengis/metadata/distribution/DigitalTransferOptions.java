@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: DigitalTransferOptions.java 1422 2009-06-17 14:21:57Z desruisseaux $
+ ** $Id: DigitalTransferOptions.java 1264 2008-07-09 17:46:15Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/metadata/distribution/DigitalTransferOptions.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/metadata/distribution/DigitalTransferOptions.java $
  **
  ** Copyright (C) 2004-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -29,6 +29,7 @@ import static org.opengis.annotation.ComplianceLevel.*;
  * @author  Cory Horner (Refractions Research)
  * @since   GeoAPI 2.0
  */
+@Profile (level=CORE)
 @UML(identifier="MD_DigitalTransferOptions", specification=ISO_19115)
 public interface DigitalTransferOptions {
     /**
@@ -54,7 +55,7 @@ public interface DigitalTransferOptions {
      *
      * @return Online sources from which the resource can be obtained.
      */
-    @Profile(level=CORE)
+    @Profile (level=CORE)
     @UML(identifier="onLine", obligation=OPTIONAL, specification=ISO_19115)
     Collection<? extends OnLineResource> getOnLines();
 

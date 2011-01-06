@@ -1,16 +1,14 @@
 /*$************************************************************************************************
  **
- ** $Id: FactoryException.java 1421 2009-06-04 20:18:07Z desruisseaux $
+ ** $Id: FactoryException.java 1265 2008-07-09 18:24:37Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/referencing/FactoryException.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/referencing/FactoryException.java $
  **
  ** Copyright (C) 2003-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
  **
  *************************************************************************************************/
 package org.opengis.referencing;
-
-import org.opengis.annotation.Extension;
 
 
 /**
@@ -31,7 +29,6 @@ import org.opengis.annotation.Extension;
  *
  * @see org.opengis.referencing.operation.CoordinateOperationFactory
  */
-@Extension
 public class FactoryException extends Exception {
     /**
      * Serial number for interoperability with different versions.

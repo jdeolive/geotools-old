@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: Identification.java 1438 2009-07-02 02:42:27Z desruisseaux $
+ ** $Id: Identification.java 1264 2008-07-09 17:46:15Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/metadata/identification/Identification.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/metadata/identification/Identification.java $
  **
  ** Copyright (C) 2004-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -33,6 +33,7 @@ import static org.opengis.annotation.ComplianceLevel.*;
  * @author  Cory Horner (Refractions Research)
  * @since   GeoAPI 2.0
  */
+@Profile (level=CORE)
 @UML(identifier="MD_Identification", specification=ISO_19115)
 public interface Identification {
     /**
@@ -40,7 +41,7 @@ public interface Identification {
      *
      * @return Citation data for the resource(s).
      */
-    @Profile(level=CORE)
+    @Profile (level=CORE)
     @UML(identifier="citation", obligation=MANDATORY, specification=ISO_19115)
     Citation getCitation();
 
@@ -49,7 +50,7 @@ public interface Identification {
      *
      * @return Brief narrative summary of the content.
      */
-    @Profile(level=CORE)
+    @Profile (level=CORE)
     @UML(identifier="abstract", obligation=MANDATORY, specification=ISO_19115)
     InternationalString getAbstract();
 
@@ -84,7 +85,7 @@ public interface Identification {
      * @return Means of communication with person(s) and organizations(s) associated with the
      *         resource(s).
      */
-    @Profile(level=CORE)
+    @Profile (level=CORE)
     @UML(identifier="pointOfContact", obligation=OPTIONAL, specification=ISO_19115)
     Collection<? extends ResponsibleParty> getPointOfContacts();
 
@@ -95,14 +96,6 @@ public interface Identification {
      */
     @UML(identifier="resourceMaintenance", obligation=OPTIONAL, specification=ISO_19115)
     Collection<? extends MaintenanceInformation> getResourceMaintenance();
-
-//    /**
-//     * Provides information about the frequency of resource updates, and the scope of those updates.
-//     *
-//     * @return Frequency and scope of resource updates.
-//     */
-//    @UML(identifier="resourceMaintenance", obligation=OPTIONAL, specification=ISO_19115)
-//    Collection<? extends MaintenanceInformation> getResourceMaintenances();
 
     /**
      * Provides a graphic that illustrates the resource(s) (should include a legend for the graphic).
@@ -119,14 +112,6 @@ public interface Identification {
      */
     @UML(identifier="resourceFormat", obligation=OPTIONAL, specification=ISO_19115)
     Collection<? extends Format> getResourceFormat();
-
-//    /**
-//     * Provides a description of the format of the resource(s).
-//     *
-//     * @return Description of the format.
-//     */
-//    @UML(identifier="resourceFormat", obligation=OPTIONAL, specification=ISO_19115)
-//    Collection<? extends Format> getResourceFormats();
 
     /**
      * Provides category keywords, their type, and reference source.

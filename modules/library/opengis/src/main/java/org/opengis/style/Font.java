@@ -11,11 +11,10 @@
 package org.opengis.style;
 
 import java.util.List;
-
 import org.opengis.annotation.Extension;
+import org.opengis.filter.expression.Expression;
 import org.opengis.annotation.XmlElement;
 import org.opengis.annotation.XmlParameter;
-import org.opengis.filter.expression.Expression;
 
 
 /**

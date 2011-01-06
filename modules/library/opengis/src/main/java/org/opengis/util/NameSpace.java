@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: NameSpace.java 1437 2009-06-30 17:18:20Z desruisseaux $
+ ** $Id: NameSpace.java 1303 2008-08-13 10:47:48Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/util/NameSpace.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/util/NameSpace.java $
  **
  ** Copyright (C) 2003-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -10,6 +10,7 @@
  *************************************************************************************************/
 package org.opengis.util;
 
+import java.util.Set;
 import org.opengis.annotation.UML;
 
 import static org.opengis.annotation.Obligation.*;
@@ -18,19 +19,6 @@ import static org.opengis.annotation.Specification.*;
 
 /**
  * A domain in which {@linkplain GenericName names} given by character strings are defined.
- * Every {@link GenericName} must be valid in a namespace. For a {@link LocalName}, this means
- * that the name must exist in the current namespace. For a {@link ScopedName}, this means:
- * <p>
- * <ol>
- *   <li>The {@linkplain ScopedName#head head} of a {@code ScopedName} must be a {@code LocalName}
- *       which is valid in this namespace.</li>
- *   <li>The {@linkplain ScopedName#tail tail} must either be:
- *       <ul>
- *         <li>a {@code LocalName} which is valid in the {@code NameSpace} associated with the head, or</li>
- *         <li>another {@code ScopedName} with these same constraints on head and tail, applied to
- *             the {@code NameSpace} associated with the head.</li>
- *       </ul></li>
- * </ol>
  *
  * @author Bryce Nordgren (USDA)
  * @author Martin Desruisseaux (IRD)
@@ -59,4 +47,33 @@ public interface NameSpace {
      */
     @UML(identifier="name", obligation=MANDATORY, specification=ISO_19103)
     GenericName name();
+
+    /**
+     * Returns the set of {@linkplain GenericName generic names} registered with this namespace.
+     * Duplicate names are forbidden. The names may be either:
+     * <p>
+     * <ul>
+     *   <li>A {@link LocalName}.</li>
+     *   <li>A {@link ScopedName} with the following constraints:
+     *     <ul>
+     *       <li>All elements of the {@linkplain ScopedName#getParsedNames parsed names list} except
+     *           for the {@linkplain ScopedName#tail tail} must refer to a {@code NameSpace}.</li>
+     *       <li>Each element of the {@linkplain ScopedName#getParsedNames parsed names list} except
+     *           for the {@linkplain ScopedName#head head} must be defined in the {@code NameSpace}
+     *           referred to by the previous element.</li>
+     *     </ul></li>
+     * </ul>
+     *
+     * @return All generic names registered with this namespace.
+     *
+     * @todo This method will put a significant burden on implementations (they will need to manage
+     *       a list of names, probably through weak references, etc.). Is the ISO 19103 association
+     *       really naviguable that way?
+     *
+     * @deprecated Not implementable in a simple naming system. We may create a {@code Register}
+     *             subclass (or something similar) later for this kind of job.
+     */
+    @Deprecated
+    @UML(identifier="names", obligation=MANDATORY, specification=ISO_19103)
+    Set<GenericName> getNames();
 }

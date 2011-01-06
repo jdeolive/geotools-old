@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: Datum.java 1423 2009-06-17 14:56:11Z desruisseaux $
+ ** $Id: Datum.java 1318 2008-09-19 19:07:47Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/referencing/datum/Datum.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/referencing/datum/Datum.java $
  **
  ** Copyright (C) 2003-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -127,12 +127,6 @@ public interface Datum extends IdentifiedObject {
     /**
      * Description of domain of usage, or limitations of usage, for which this
      * datum object is valid.
-     *
-     * @departure
-     *   This method is conform to the specification published in 2003. The revision
-     *   published in 2007 replaced the singleton by a collection and changed the obligation
-     *   from "optional" to "mandatory", requiring a return value of "<cite>not known</cite>"
-     *   if the scope is unknown.
      *
      * @return A description of domain of usage, or {@code null} if none.
      */

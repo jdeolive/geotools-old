@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id$
+ ** $Id: Operation.java 1265 2008-07-09 18:24:37Z desruisseaux $
  **
- ** $URL$
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/referencing/operation/Operation.java $
  **
  ** Copyright (C) 2003-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/

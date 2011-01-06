@@ -10,17 +10,15 @@
  *************************************************************************************************/
 package org.opengis.style;
 
-import static org.opengis.annotation.Obligation.MANDATORY;
-import static org.opengis.annotation.Obligation.OPTIONAL;
-import static org.opengis.annotation.Specification.ISO_19117;
-
 import java.util.List;
-
 import org.opengis.annotation.Extension;
+import org.opengis.filter.Filter;
 import org.opengis.annotation.UML;
 import org.opengis.annotation.XmlElement;
-import org.opengis.filter.Filter;
+
 import org.opengis.metadata.citation.OnLineResource;
+import static org.opengis.annotation.Obligation.*;
+import static org.opengis.annotation.Specification.*;
 
 /**
  * A rule consists of two important parts: a {@linkplain Filter filter} and a list of

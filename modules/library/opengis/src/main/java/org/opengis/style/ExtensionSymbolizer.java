@@ -11,7 +11,6 @@
 package org.opengis.style;
 
 import java.util.Map;
-
 import org.opengis.filter.expression.Expression;
 
 /**

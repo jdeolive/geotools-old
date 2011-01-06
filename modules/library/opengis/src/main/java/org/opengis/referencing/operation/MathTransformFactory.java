@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: MathTransformFactory.java 1430 2009-06-18 17:46:40Z desruisseaux $
+ ** $Id: MathTransformFactory.java 1325 2008-10-17 15:33:23Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/referencing/operation/MathTransformFactory.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/referencing/operation/MathTransformFactory.java $
  **
  ** Copyright (C) 2003-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -83,8 +83,7 @@ public interface MathTransformFactory extends Factory {
      */
     @Extension
     Set<OperationMethod> getAvailableMethods(Class<? extends Operation> type);
-    //Set<OperationMethod> getAvailableMethods(Class<? extends SingleOperation> type);
-    
+
     /**
      * Returns the operation method used for the latest call to
      * {@link #createParameterizedTransform createParameterizedTransform},

@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: TemporalCRS.java 1414 2009-06-02 17:15:45Z desruisseaux $
+ ** $Id: TemporalCRS.java 1265 2008-07-09 18:24:37Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/referencing/crs/TemporalCRS.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/referencing/crs/TemporalCRS.java $
  **
  ** Copyright (C) 2003-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -36,12 +36,12 @@ public interface TemporalCRS extends SingleCRS {
     /**
      * Returns the coordinate system, which must be temporal.
      */
-    @UML(identifier="coordinateSystem", obligation=MANDATORY, specification=ISO_19111)
+    @UML(identifier="usesCS", obligation=MANDATORY, specification=ISO_19111)
     TimeCS getCoordinateSystem();
 
     /**
      * Returns the datum, which must be temporal.
      */
-    @UML(identifier="datum", obligation=MANDATORY, specification=ISO_19111)
+    @UML(identifier="usesDatum", obligation=MANDATORY, specification=ISO_19111)
     TemporalDatum getDatum();
 }

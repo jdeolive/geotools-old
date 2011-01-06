@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: ImageCRS.java 1414 2009-06-02 17:15:45Z desruisseaux $
+ ** $Id: ImageCRS.java 1265 2008-07-09 18:24:37Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/referencing/crs/ImageCRS.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/referencing/crs/ImageCRS.java $
  **
  ** Copyright (C) 2003-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -40,12 +40,12 @@ public interface ImageCRS extends SingleCRS {
     /**
      * Returns the cartesian coordinate system.
      */
-    @UML(identifier="coordinateSystem", obligation=MANDATORY, specification=ISO_19111)
+    @UML(identifier="usesObliqueCartesianCS, usesCartesianCS", obligation=MANDATORY, specification=ISO_19111)
     AffineCS getCoordinateSystem();
 
     /**
      * Returns the datum, which must be an image one.
      */
-    @UML(identifier="datum", obligation=MANDATORY, specification=ISO_19111)
+    @UML(identifier="usesDatum", obligation=MANDATORY, specification=ISO_19111)
     ImageDatum getDatum();
 }

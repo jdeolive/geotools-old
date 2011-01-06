@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: Band.java 1416 2009-06-03 14:36:11Z desruisseaux $
+ ** $Id: Band.java 1340 2008-11-12 09:13:35Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/metadata/content/Band.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/metadata/content/Band.java $
  **
  ** Copyright (C) 2004-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -49,12 +49,11 @@ public interface Band extends RangeDimension {
     Double getMinValue();
 
     /**
-     * Units in which sensor wavelengths are expressed.
+     * Units in which sensor wavelengths are expressed. Should be non-null if
+     * {@linkplain #getMinValue min value} or {@linkplain #getMaxValue max value}
+     * are provided.
      *
      * @return Units in which sensor wavelengths are expressed, or {@code null}.
-     *
-     * @condition Should be non-null if {@linkplain #getMinValue min value} or
-     *            {@linkplain #getMaxValue max value} are provided.
      */
     @UML(identifier="units", obligation=CONDITIONAL, specification=ISO_19115)
     Unit<Length> getUnits();

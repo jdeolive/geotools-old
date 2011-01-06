@@ -10,14 +10,14 @@
  *************************************************************************************************/
 package org.opengis.style;
 
-import static org.opengis.annotation.Specification.ISO_19117;
-
 import javax.measure.quantity.Length;
 import javax.measure.unit.Unit;
 
 import org.opengis.annotation.Extension;
 import org.opengis.annotation.UML;
 import org.opengis.annotation.XmlElement;
+
+import static org.opengis.annotation.Specification.*;
 
 /**
  * Abstract superclass of the symbolizers defined by the Symbology Encoding specification.

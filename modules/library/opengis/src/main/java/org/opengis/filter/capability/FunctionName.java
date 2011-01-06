@@ -46,11 +46,11 @@
 package org.opengis.filter.capability;
 
 // Annotations
-import static org.opengis.annotation.Specification.UNSPECIFIED;
-
+import java.util.Collection;
 import java.util.List;
 
 import org.opengis.annotation.UML;
+import static org.opengis.annotation.Specification.*;
 
 /**
  * Function provided in a filter capabilities.

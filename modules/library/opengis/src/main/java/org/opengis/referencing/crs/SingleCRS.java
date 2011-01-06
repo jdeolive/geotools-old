@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: SingleCRS.java 1414 2009-06-02 17:15:45Z desruisseaux $
+ ** $Id: SingleCRS.java 1265 2008-07-09 18:24:37Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/referencing/crs/SingleCRS.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/referencing/crs/SingleCRS.java $
  **
  ** Copyright (C) 2003-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -49,7 +49,7 @@ public interface SingleCRS extends CoordinateReferenceSystem {
      *
      * @rename Expanded the "CS" abbreviation into "CoordinateSystem".
      */
-    @UML(identifier="coordinateSystem", obligation=MANDATORY, specification=ISO_19111)
+    @UML(identifier="usesCS", obligation=MANDATORY, specification=ISO_19111)
     CoordinateSystem getCoordinateSystem();
 
     /**
@@ -57,6 +57,6 @@ public interface SingleCRS extends CoordinateReferenceSystem {
      *
      * @return The datum.
      */
-    @UML(identifier="datum", obligation=OPTIONAL, specification=ISO_19111)
+    @UML(identifier="usesDatum", obligation=MANDATORY, specification=ISO_19111)
     Datum getDatum();
 }

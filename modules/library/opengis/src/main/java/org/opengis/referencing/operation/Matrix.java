@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: Matrix.java 1425 2009-06-17 16:56:46Z desruisseaux $
+ ** $Id: Matrix.java 1317 2008-09-16 20:06:47Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/referencing/operation/Matrix.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/referencing/operation/Matrix.java $
  **
  ** Copyright (C) 2003-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -10,6 +10,7 @@
  *************************************************************************************************/
 package org.opengis.referencing.operation;
 
+import org.opengis.util.Cloneable;
 import org.opengis.annotation.UML;
 import org.opengis.annotation.Extension;
 
@@ -38,7 +39,7 @@ import static org.opengis.annotation.Specification.*;
  * @see <A HREF="http://jcp.org/jsr/detail/83.jsp">JSR-83 Multiarray package</A>
  */
 @UML(identifier="PT_Matrix", specification=OGC_01009)
-public interface Matrix {
+public interface Matrix extends Cloneable {
     /**
      * Returns the number of rows in this matrix.
      *

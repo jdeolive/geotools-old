@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: CartesianCS.java 1414 2009-06-02 17:15:45Z desruisseaux $
+ ** $Id: CartesianCS.java 1265 2008-07-09 18:24:37Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/referencing/cs/CartesianCS.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/referencing/cs/CartesianCS.java $
  **
  ** Copyright (C) 2003-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -29,11 +29,6 @@ import static org.opengis.annotation.Specification.*;
  *   {@link org.opengis.referencing.crs.EngineeringCRS Engineering},
  *   {@link org.opengis.referencing.crs.ImageCRS       Image}
  * </TD></TR></TABLE>
- *
- * @departure
- *   According ISO specification, this interface should extends directly {@code CoordinateSystem}.
- *   GeoAPI defines this interface as a specialization of {@code AffineCS} instead. This avoid the
- *   need for the {@code ImageCS} union defined in ISO 19111:2007.
  *
  * @version <A HREF="http://portal.opengeospatial.org/files/?artifact_id=6716">Abstract specification 2.0</A>
  * @author  Martin Desruisseaux (IRD)

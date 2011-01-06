@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: InvalidParameterValueException.java 1421 2009-06-04 20:18:07Z desruisseaux $
+ ** $Id: InvalidParameterValueException.java 1265 2008-07-09 18:24:37Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/parameter/InvalidParameterValueException.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/parameter/InvalidParameterValueException.java $
  **
  ** Copyright (C) 2003-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -25,7 +25,7 @@ import static org.opengis.annotation.Specification.*;
  * @see ParameterValue#setValue(double)
  * @see ParameterValue#setValue(Object)
  */
-@UML(identifier="GC_InvalidParameterValue", specification=OGC_01004)
+@UML(identifier="GC_InvalidParameterValue", specification=ISO_19111)
 public class InvalidParameterValueException extends IllegalArgumentException {
     /**
      * Serial number for interoperability with different versions.

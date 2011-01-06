@@ -46,9 +46,8 @@
 package org.opengis.filter.capability;
 
 // Annotations
-import static org.opengis.annotation.Specification.UNSPECIFIED;
-
 import org.opengis.annotation.UML;
+import static org.opengis.annotation.Specification.*;
 
 
 /**

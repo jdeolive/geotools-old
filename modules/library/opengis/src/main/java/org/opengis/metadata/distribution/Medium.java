@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: Medium.java 1416 2009-06-03 14:36:11Z desruisseaux $
+ ** $Id: Medium.java 1340 2008-11-12 09:13:35Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/metadata/distribution/Medium.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/metadata/distribution/Medium.java $
  **
  ** Copyright (C) 2004-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -49,8 +49,6 @@ public interface Medium {
      * Units of measure for the recording density.
      *
      * @return Units of measure for the recording density, or {@code null}.
-     *
-     * @condition {@link #getDensities()} must be documented.
      */
     @UML(identifier="densityUnits", obligation=CONDITIONAL, specification=ISO_19115)
     Unit<?> getDensityUnits();

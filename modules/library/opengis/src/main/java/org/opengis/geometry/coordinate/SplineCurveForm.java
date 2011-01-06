@@ -10,14 +10,14 @@
  *************************************************************************************************/
 package org.opengis.geometry.coordinate;
 
-import static org.opengis.annotation.Obligation.CONDITIONAL;
-import static org.opengis.annotation.Specification.ISO_19107;
-
-import java.util.ArrayList;
 import java.util.List;
+import java.util.ArrayList;
 
-import org.opengis.annotation.UML;
 import org.opengis.util.CodeList;
+import org.opengis.annotation.UML;
+
+import static org.opengis.annotation.Obligation.*;
+import static org.opengis.annotation.Specification.*;
 
 
 /**

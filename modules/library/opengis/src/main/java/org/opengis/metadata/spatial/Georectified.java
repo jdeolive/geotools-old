@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: Georectified.java 1416 2009-06-03 14:36:11Z desruisseaux $
+ ** $Id: Georectified.java 1264 2008-07-09 17:46:15Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/metadata/spatial/Georectified.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/metadata/spatial/Georectified.java $
  **
  ** Copyright (C) 2004-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -46,10 +46,8 @@ public interface Georectified extends GridSpatialRepresentation {
      * georeferenced grid data.
      *
      * @return Description of geographic position points used to test accuracy, or {@code null}.
-     *
-     * @condition {@linkplain #isCheckPointAvailable() Check point availability} equals yes.
      */
-    @UML(identifier="checkPointDescription", obligation=CONDITIONAL, specification=ISO_19115)
+    @UML(identifier="checkPointDescription", obligation=OPTIONAL, specification=ISO_19115)
     InternationalString getCheckPointDescription();
 
     /**

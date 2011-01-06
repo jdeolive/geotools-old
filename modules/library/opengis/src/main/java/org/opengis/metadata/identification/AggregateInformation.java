@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: AggregateInformation.java 1416 2009-06-03 14:36:11Z desruisseaux $
+ ** $Id: AggregateInformation.java 1264 2008-07-09 17:46:15Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/metadata/identification/AggregateInformation.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/metadata/identification/AggregateInformation.java $
  **
  ** Copyright (C) 2004-2007 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -31,9 +31,6 @@ public interface AggregateInformation {
      * Citation information about the aggregate dataset.
      *
      * @return Citation information about the aggregate dataset, or {@code null}.
-     *
-     * @condition {@linkplain #getAggregateDataSetIdentifier()} Aggregate data set identifier}
-     *            not documented.
      */
     @UML(identifier="aggregateDataSetName", obligation=CONDITIONAL, specification=ISO_19115)
     Citation getAggregateDataSetName();
@@ -42,8 +39,6 @@ public interface AggregateInformation {
      * Identification information about aggregate dataset.
      *
      * @return Identification information about aggregate dataset, or {@code null}.
-     *
-     * @condition {@linkplain #getAggregateDataSetName() Aggregate data set name} not documented.
      */
     @UML(identifier="aggregateDataSetIdentifier", obligation=CONDITIONAL, specification=ISO_19115)
     Identifier getAggregateDataSetIdentifier();

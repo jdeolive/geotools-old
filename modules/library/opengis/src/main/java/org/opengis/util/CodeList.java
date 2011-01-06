@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: CodeList.java 1419 2009-06-04 10:10:10Z desruisseaux $
+ ** $Id: CodeList.java 1222 2008-06-03 15:19:33Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/util/CodeList.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/util/CodeList.java $
  **
  ** Copyright (C) 2003-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -19,11 +19,7 @@ import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.opengis.annotation.UML;
-import org.opengis.annotation.Extension;
-
-import static org.opengis.annotation.Specification.*;
 
 
 /**
@@ -38,7 +34,6 @@ import static org.opengis.annotation.Specification.*;
  * @author Martin Desruisseaux (IRD)
  * @since GeoAPI 1.0
  */
-@UML(identifier="CodeList", specification=ISO_19103)
 public abstract class CodeList<E extends CodeList<E>> implements Comparable<E>, Serializable {
     /**
      * Serial number for compatibility with different versions.
@@ -116,7 +111,6 @@ public abstract class CodeList<E extends CodeList<E>> implements Comparable<E>, 
      * @param name The name of the code to obtain.
      * @return A code matching the given name.
      */
-    @Extension
     public static <T extends CodeList> T valueOf(final Class<T> codeType, String name) {
         if (name == null) {
             return null;
@@ -155,7 +149,6 @@ public abstract class CodeList<E extends CodeList<E>> implements Comparable<E>, 
      *
      * @return The position of this code constants in elements declaration.
      */
-    @Extension
     public final int ordinal() {
         return ordinal;
     }
@@ -168,7 +161,6 @@ public abstract class CodeList<E extends CodeList<E>> implements Comparable<E>, 
      *
      * @since GeoAPI 2.2
      */
-    @Extension
     public String identifier() {
         // Save the field in a local variable for protection against concurrent change (this
         // operation is garanteed atomic according Java specification). We don't synchronize
@@ -212,7 +204,6 @@ public abstract class CodeList<E extends CodeList<E>> implements Comparable<E>, 
      *
      * @return The name of this code constant.
      */
-    @Extension
     public final String name() {
         return name;
     }
@@ -227,7 +218,6 @@ public abstract class CodeList<E extends CodeList<E>> implements Comparable<E>, 
      *
      * @since GeoAPI 2.2
      */
-    @Extension
     public boolean matches(String name) {
         if (name == null) {
             return false;
@@ -241,16 +231,9 @@ public abstract class CodeList<E extends CodeList<E>> implements Comparable<E>, 
 
     /**
      * Returns the list of codes of the same kind than this code.
-     * This is similar to the static {@code values()} method provided in {@code CodeList}
-     * subclasses, except that {@code family()} does not require the class to be known at
-     * compile-time - provided that at leat one instance of the familly is available. The
-     * static {@code values()} method has the opposite constraints (does not require a code
-     * instance, but the class needs to be known at compile time unless
-     * {@linkplain java.lang.reflect reflection} is used).
      *
      * @return The codes of the same kind than this code.
      */
-    @Extension
     public abstract E[] family();
 
     /**
@@ -263,8 +246,7 @@ public abstract class CodeList<E extends CodeList<E>> implements Comparable<E>, 
      * the constants are declared.
      *
      * @param other The code constant to compare with this code.
-     * @return A negative value if the given code is less than this code,
-     *         a positive value if greater or 0 if equal.
+     * @return -1 if the given code is less than this code, +1 if greater or 0 if equal.
      */
     public final int compareTo(final E other) {
         final Class<? extends CodeList> ct =  this.getClass();

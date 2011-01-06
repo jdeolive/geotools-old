@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: ComplianceLevel.java 1422 2009-06-17 14:21:57Z desruisseaux $
+ ** $Id: ComplianceLevel.java 1263 2008-07-09 17:25:51Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/annotation/ComplianceLevel.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/annotation/ComplianceLevel.java $
  **
  ** Copyright (C) 2003-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -36,49 +36,31 @@ public enum ComplianceLevel {
 
     /**
      * Indicates a required element of the spatial profile.
-     *
-     * @deprecated This enum is not defined by ISO.
      */
-    @Deprecated
     SPATIAL,
 
     /**
      * Indicates a required element of the feature profile.
-     *
-     * @deprecated This enum is not defined by ISO.
      */
-    @Deprecated
     FEATURE,
 
     /**
      * Indicates a required element of the data provider profile.
-     *
-     * @deprecated This enum is not defined by ISO.
      */
-    @Deprecated
     DATA_PROVIDER,
 
     /**
      * Indicates a required element of the display object profile.
-     *
-     * @deprecated This enum is not defined by ISO.
      */
-    @Deprecated
     DISPLAY_OBJECT,
 
     /**
      * Indicates a required element of the editable display object profile.
-     *
-     * @deprecated This enum is not defined by ISO.
      */
-    @Deprecated
     EDITABLE_DISPLAY_OBJECT,
 
     /**
      * Indicates a required element of the feature display object profile.
-     *
-     * @deprecated This enum is not defined by ISO.
      */
-    @Deprecated
     FEATURE_DISPLAY_OBJECT
 }

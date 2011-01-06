@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: Constraints.java 1438 2009-07-02 02:42:27Z desruisseaux $
+ ** $Id: Constraints.java 1294 2008-08-05 08:41:11Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/metadata/constraint/Constraints.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/metadata/constraint/Constraints.java $
  **
  ** Copyright (C) 2004-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -27,7 +27,6 @@ import static org.opengis.annotation.Specification.*;
  */
 @UML(identifier="MD_Constraints", specification=ISO_19115)
 public interface Constraints {
-
     /**
      * Limitation affecting the fitness for use of the resource.
      * Example: "not to be used for navigation".
@@ -35,4 +34,5 @@ public interface Constraints {
      * @return Limitation affecting the fitness for use of the resource.
      */
     @UML(identifier="useLimitation", obligation=OPTIONAL, specification=ISO_19115)
-    Collection<? extends InternationalString> getUseLimitation();}
+    Collection<? extends InternationalString> getUseLimitation();
+}

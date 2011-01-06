@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: Position.java 1437 2009-06-30 17:18:20Z desruisseaux $
+ ** $Id: Position.java 1223 2008-06-03 15:30:54Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/geometry/coordinate/Position.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/geometry/coordinate/Position.java $
  **
  ** Copyright (C) 2003-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -48,7 +48,7 @@ public interface Position {
     @Deprecated
     @UML(identifier="direct", obligation=CONDITIONAL, specification=ISO_19107)
     DirectPosition getPosition();
-    
+
     /**
      * Returns the direct position. This method shall never returns {@code null}, but may returns
      * {@code this} if invoked on an object which is already a {@code DirectPosition} instance.

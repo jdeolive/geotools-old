@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: ProjectedCRS.java 1414 2009-06-02 17:15:45Z desruisseaux $
+ ** $Id: ProjectedCRS.java 1265 2008-07-09 18:24:37Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/referencing/crs/ProjectedCRS.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/referencing/crs/ProjectedCRS.java $
  **
  ** Copyright (C) 2003-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -50,12 +50,11 @@ public interface ProjectedCRS extends GeneralDerivedCRS {
     /**
      * Returns the coordinate system, which must be cartesian.
      */
-    @UML(identifier="coordinateSystem", obligation=MANDATORY, specification=ISO_19111)
+    @UML(identifier="usesCS", obligation=MANDATORY, specification=ISO_19111)
     CartesianCS getCoordinateSystem();
 
     /**
      * Returns the datum.
      */
-    @UML(identifier="datum", obligation=MANDATORY, specification=ISO_19111)
     GeodeticDatum getDatum();
 }

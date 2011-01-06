@@ -10,13 +10,9 @@
  *************************************************************************************************/
 package org.opengis.geometry.coordinate;
 
-import static org.opengis.annotation.Obligation.MANDATORY;
-import static org.opengis.annotation.Specification.ISO_19107;
-
 import java.util.List;
 import java.util.Set;
-
-import org.opengis.annotation.UML;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.Envelope;
 import org.opengis.geometry.MismatchedDimensionException;
@@ -24,7 +20,10 @@ import org.opengis.geometry.MismatchedReferenceSystemException;
 import org.opengis.geometry.aggregate.MultiPrimitive;
 import org.opengis.geometry.primitive.Surface;
 import org.opengis.geometry.primitive.SurfaceBoundary;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.annotation.UML;
+
+import static org.opengis.annotation.Obligation.*;
+import static org.opengis.annotation.Specification.*;
 
 
 /**

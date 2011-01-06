@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: SpatialRepresentationType.java 1422 2009-06-17 14:21:57Z desruisseaux $
+ ** $Id: SpatialRepresentationType.java 1264 2008-07-09 17:46:15Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/metadata/spatial/SpatialRepresentationType.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/metadata/spatial/SpatialRepresentationType.java $
  **
  ** Copyright (C) 2004-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -14,9 +14,11 @@ import java.util.List;
 import java.util.ArrayList;
 import org.opengis.util.CodeList;
 import org.opengis.annotation.UML;
+import org.opengis.annotation.Profile;
 
 import static org.opengis.annotation.Obligation.*;
 import static org.opengis.annotation.Specification.*;
+import static org.opengis.annotation.ComplianceLevel.*;
 
 
 /**
@@ -26,6 +28,7 @@ import static org.opengis.annotation.Specification.*;
  * @author  Martin Desruisseaux (IRD)
  * @since   GeoAPI 2.0
  */
+@Profile (level=CORE)
 @UML(identifier="MD_SpatialRepresentationTypeCode", specification=ISO_19115)
 public final class SpatialRepresentationType extends CodeList<SpatialRepresentationType> {
     /**

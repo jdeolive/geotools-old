@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: Distributor.java 1416 2009-06-03 14:36:11Z desruisseaux $
+ ** $Id: Distributor.java 1264 2008-07-09 17:46:15Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/metadata/distribution/Distributor.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/metadata/distribution/Distributor.java $
  **
  ** Copyright (C) 2004-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -48,8 +48,6 @@ public interface Distributor {
      * Provides information about the format used by the distributor.
      *
      * @return Information about the format used by the distributor.
-     *
-     * @condition {@link Distribution#getDistributionFormats()} not documented.
      */
     @UML(identifier="distributorFormat", obligation=CONDITIONAL, specification=ISO_19115)
     Collection<? extends Format> getDistributorFormats();

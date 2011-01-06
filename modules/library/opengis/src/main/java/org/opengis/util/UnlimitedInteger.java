@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: UnlimitedInteger.java 1425 2009-06-17 16:56:46Z desruisseaux $
+ ** $Id: UnlimitedInteger.java 1133 2007-12-05 14:37:40Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi-pending/src/main/java/org/opengis/util/UnlimitedInteger.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/util/UnlimitedInteger.java $
  **
  ** Copyright (C) 2003-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -11,6 +11,7 @@
 package org.opengis.util;
 
 import org.opengis.annotation.UML;
+import static org.opengis.annotation.Obligation.*;
 import static org.opengis.annotation.Specification.*;
 
 
@@ -23,12 +24,7 @@ import static org.opengis.annotation.Specification.*;
  * @author Jody Garnett (Refractions Research)
  * @author Martin Desruisseaux (IRD)
  * @since GeoAPI 2.1
- *
- * @deprecated ISO uses this type only for the multiplicity of associations in UML models,
- *      which is not something that we try to represent in GeoAPI. Even if we wanted this
- *      information, custom class can not be used in Java annotations.
  */
-@Deprecated
 @UML(identifier="UnlimitedInteger", specification=ISO_19103)
 public final class UnlimitedInteger extends Number implements Comparable<UnlimitedInteger> {
     /**
@@ -65,8 +61,6 @@ public final class UnlimitedInteger extends Number implements Comparable<Unlimit
      * Constructs a newly allocated {@code UnlimitedInteger} object that represents the specified
      * {@code int} value. {@link Integer#MAX_VALUE} and {@link Integer#MIN_VALUE MIN_VALUE} maps
      * to positive and negative infinities respectively.
-     *
-     * @param value The integer value to wrap in a {@code UnlimitedInteger}.
      */
     public UnlimitedInteger(final int value) {
         this.value = value;
@@ -74,8 +68,6 @@ public final class UnlimitedInteger extends Number implements Comparable<Unlimit
 
     /**
      * Returns {@code true} if this integer represents a positive or negative infinity.
-     *
-     * @return {@code true} if this integer represents a positive or negative infinity.
      */
     public boolean isInfinite(){
         return (value == Integer.MAX_VALUE) || (value == Integer.MIN_VALUE);
@@ -150,9 +142,6 @@ public final class UnlimitedInteger extends Number implements Comparable<Unlimit
 
     /**
      * Compares this number with the specified object for equality.
-     *
-     * @param  object The object to compare with this unlimited integer for equality.
-     * @return {@code true} if both objects are equal.
      */
     @Override
     public boolean equals(final Object object) {

@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: DiscreteGridPointCoverage.java 1414 2009-06-02 17:15:45Z desruisseaux $
+ ** $Id: DiscreteGridPointCoverage.java 1395 2009-05-13 08:52:42Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi-pending/src/main/java/org/opengis/coverage/DiscreteGridPointCoverage.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi-pending/src/main/java/org/opengis/coverage/DiscreteGridPointCoverage.java $
  **
  ** Copyright (C) 2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -53,8 +53,6 @@ import static org.opengis.annotation.Specification.*;
  *       a logical consequence of {@link GridPointValuePair} restriction.
  * @todo Should we move this interface to org.opengis.coverage.grid as all the other grid interfaces,
  *       or should it remain in org.opengis.coverage to follow the ordering in ISO19123?
- * @todo What should be the behavior of {@link #evaluate(DirectPosition)} when the position
- *       is not exactly on a grid point? Current proposal is to return an empty set.
  */
 @UML(identifier="CV_DiscreteGridPointCoverage", specification=ISO_19123)
 public interface DiscreteGridPointCoverage extends DiscreteCoverage {

@@ -1,8 +1,8 @@
 /*$************************************************************************************************
  **
- ** $Id: CompoundCRS.java 1436 2009-06-29 22:37:57Z desruisseaux $
+ ** $Id: CompoundCRS.java 1265 2008-07-09 18:24:37Z desruisseaux $
  **
- ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M2/geoapi/src/main/java/org/opengis/referencing/crs/CompoundCRS.java $
+ ** $URL: https://geoapi.svn.sourceforge.net/svnroot/geoapi/tags/2.3-M1/geoapi/src/main/java/org/opengis/referencing/crs/CompoundCRS.java $
  **
  ** Copyright (C) 2003-2005 Open GIS Consortium, Inc.
  ** All Rights Reserved. http://www.opengis.org/legal/
@@ -55,25 +55,11 @@ import static org.opengis.annotation.Specification.*;
  */
 @UML(identifier="SC_CompoundCRS", specification=ISO_19111)
 public interface CompoundCRS extends CoordinateReferenceSystem {
-//    /**
-//     * The ordered list of coordinate reference systems.
-//     *
-//     * @return The ordered list of coordinate reference systems.
-//     *
-//     * @since GeoAPI 2.3
-//     *
-//     * @departure The element type is consistent with OGC 01-009 but is a departure of ISO 19111:2007,
-//     *    which restrict the component type to {@link SingleCRS}. This GeoAPI method is slightly more
-//     *    general.
-//     */
-//    @UML(identifier="componentReferenceSystem", obligation=MANDATORY, specification=ISO_19111)
-//    List<CoordinateReferenceSystem> getComponents();
-
     /**
      * The ordered list of coordinate reference systems.
      *
      * @return The ordered list of coordinate reference systems.
      */
-    @UML(identifier="componentReferenceSystem", obligation=MANDATORY, specification=ISO_19111)
+    @UML(identifier="includesCRS", obligation=MANDATORY, specification=ISO_19111)
     List<CoordinateReferenceSystem> getCoordinateReferenceSystems();
 }
