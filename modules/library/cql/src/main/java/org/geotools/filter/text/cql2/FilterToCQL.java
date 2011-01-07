@@ -131,7 +131,7 @@ class FilterToCQL implements FilterVisitor, ExpressionVisitor {
                 if(comparisonHasDate(child) ){
 
                 	// FIXME during should be built
-                	throw new UnsupportedOperationException("work in progress: DURING requires implementation!");
+                	//throw new UnsupportedOperationException("work in progress: DURING requires implementation!");
 
                 } else {
                     if (i.hasNext()) {
@@ -264,17 +264,25 @@ class FilterToCQL implements FilterVisitor, ExpressionVisitor {
      */
     private StringBuffer after( PropertyIsGreaterThan filter, StringBuffer output ){
         LOGGER.finer("exporting AFTER");
-        PropertyName propertyName = (PropertyName) filter.getExpression1();
-        propertyName.accept(this, output);
-        output.append(" AFTER ");
         
-        filter.getExpression2().accept(this, output);        
+        Object expr1 = filter.getExpression1();
+        if( expr1 instanceof PropertyName){
+        	PropertyName propertyName = (PropertyName) expr1;
+        	propertyName.accept(this, output);
+        	output.append(" AFTER ");
+            filter.getExpression2().accept(this, output);        
+        }else { 
+        	PropertyName propertyName = (PropertyName) filter.getExpression2();
+            propertyName.accept(this, output);
+            output.append(" BEFORE ");
+            filter.getExpression1().accept(this, output);        
+        }
         return output;
         
     }
     
     public Object visit(PropertyIsGreaterThanOrEqualTo filter, Object extraData) {
-        LOGGER.finer("exporting PropertyIsLessThanOrEqualTo");
+        LOGGER.finer("exporting PropertyIsGreaterThanOrEqualTo");
         StringBuffer output = asStringBuffer(extraData);
         
         Object expr1 = filter.getExpression1();
@@ -286,7 +294,7 @@ class FilterToCQL implements FilterVisitor, ExpressionVisitor {
         } else { 
             PropertyName propertyName = (PropertyName) filter.getExpression2();
             propertyName.accept(this, output);
-            output.append(" >= ");
+            output.append(" <= ");
             filter.getExpression1().accept(this, output);
         }
         
@@ -299,21 +307,41 @@ class FilterToCQL implements FilterVisitor, ExpressionVisitor {
         LOGGER.finer("exporting PropertyIsLessThan");
         StringBuffer output = asStringBuffer(extraData);
         
-        PropertyName propertyName = (PropertyName) filter.getExpression1();
-    	propertyName.accept(this, output);
-
-        Literal expression2 = (Literal)filter.getExpression2();
-        Object literalValue = expression2.getValue();
-        
-        if( literalValue instanceof Date){
-
-            output.append(" BEFORE ");
-            filter.getExpression2().accept(this, output);
-        	
+        Object expr1 = filter.getExpression1();
+        if( expr1 instanceof PropertyName){
+	        PropertyName propertyName = (PropertyName) expr1;
+	    	propertyName.accept(this, output);
+	
+	        Literal expression2 = (Literal)filter.getExpression2();
+	        Object literalValue = expression2.getValue();
+	        
+	        if( literalValue instanceof Date){
+	
+	            output.append(" BEFORE ");
+	            filter.getExpression2().accept(this, output);
+	        	
+	        } else {
+	            output.append(" < ");
+	            filter.getExpression2().accept(this, output);
+	        	
+	        }
         } else {
-            output.append(" < ");
-            filter.getExpression2().accept(this, output);
-        	
+	        PropertyName propertyName = (PropertyName) filter.getExpression2();
+	    	propertyName.accept(this, output);
+	
+	        Literal expression2 = (Literal)expr1;
+	        Object literalValue = expression2.getValue();
+	        
+	        if( literalValue instanceof Date){
+	
+	            output.append(" AFTER ");
+	            filter.getExpression1().accept(this, output);
+	        	
+	        } else {
+	            output.append(" > ");
+	            filter.getExpression1().accept(this, output);
+	        	
+	        }
         }
         
         return output;
@@ -332,7 +360,7 @@ class FilterToCQL implements FilterVisitor, ExpressionVisitor {
         } else { 
             PropertyName propertyName = (PropertyName) filter.getExpression2();
             propertyName.accept(this, output);
-            output.append(" <= ");
+            output.append(" >= ");
             filter.getExpression1().accept(this, output);
         }
         
