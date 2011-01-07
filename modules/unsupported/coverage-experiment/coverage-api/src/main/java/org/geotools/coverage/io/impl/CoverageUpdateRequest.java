@@ -21,16 +21,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.geotools.coverage.io.CoverageStore;
-import org.geotools.coverage.io.CoverageUpdateRequest;
 import org.opengis.coverage.Coverage;
 
 /**
  * @author   Simone Giannecchini, GeoSolutions
  * @todo revisit and improve when feedback starts to flow in
- * @todo inherit {@link DefaultCoverageReadRequest} and add a method to obtain the capabilities 
+ * @todo inherit {@link CoverageReadRequest} and add a method to obtain the capabilities 
  * for a {@link CoverageStore}
  */
-public class DefaultCoverageUpdateRequest extends DefaultCoverageRequest implements CoverageUpdateRequest {
+public class CoverageUpdateRequest extends CoverageRequest  {
 
 	/**
 	 * @uml.property  name="data"

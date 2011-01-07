@@ -22,7 +22,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.geotools.coverage.io.domain.RasterDatasetDomainManager;
-import org.geotools.coverage.io.impl.DefaultCoverageRequest;
+import org.geotools.coverage.io.impl.CoverageReadRequest;
+import org.geotools.coverage.io.impl.CoverageResponse;
 import org.geotools.coverage.io.metadata.MetadataNode;
 import org.geotools.coverage.io.range.RangeType;
 import org.geotools.data.Parameter;

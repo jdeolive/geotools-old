@@ -34,14 +34,13 @@ import org.geotools.coverage.CoverageFactoryFinder;
 import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.io.CoverageCapabilities;
-import org.geotools.coverage.io.CoverageReadRequest;
-import org.geotools.coverage.io.CoverageResponse;
 import org.geotools.coverage.io.CoverageSource;
-import org.geotools.coverage.io.CoverageResponse.Status;
 import org.geotools.coverage.io.domain.RasterDatasetDomainManager;
 import org.geotools.coverage.io.domain.RasterLayout;
 import org.geotools.coverage.io.driver.BaseFileDriver;
-import org.geotools.coverage.io.impl.DefaultCoverageResponseImpl;
+import org.geotools.coverage.io.impl.CoverageReadRequest;
+import org.geotools.coverage.io.impl.CoverageResponse;
+import org.geotools.coverage.io.impl.CoverageResponse.Status;
 import org.geotools.coverage.io.metadata.MetadataNode;
 import org.geotools.coverage.io.range.FieldType;
 import org.geotools.coverage.io.range.RangeType;
@@ -327,7 +326,7 @@ public class HDF4Source implements CoverageSource {
 
         final boolean useJAI = false;
 
-        final DefaultCoverageResponseImpl response = new DefaultCoverageResponseImpl();
+        final CoverageResponse response = new CoverageResponse();
         response.setRequest(request);
 
         final Rectangle sourceRasterRegion = new Rectangle();
@@ -436,7 +435,7 @@ public class HDF4Source implements CoverageSource {
     
 
     
-    private void addCoverage(final DefaultCoverageResponseImpl response, final Set<NumberRange<Double>> verticalSubset, 
+    private void addCoverage(final CoverageResponse response, final Set<NumberRange<Double>> verticalSubset, 
             final SliceDescriptor sd, final boolean needTransformation, final boolean emptyRequest,
             final boolean useJAI, final ImageReadParam imageReadParam, final GridSampleDimension[] sampleDimensions) throws IOException {
 //        if (!verticalSubset.isEmpty()) {

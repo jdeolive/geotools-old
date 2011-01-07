@@ -35,17 +35,16 @@ import junit.framework.Assert;
 
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.io.CoverageAccess;
-import org.geotools.coverage.io.CoverageReadRequest;
-import org.geotools.coverage.io.CoverageResponse;
-import org.geotools.coverage.io.CoverageSource;
 import org.geotools.coverage.io.CoverageAccess.AccessType;
-import org.geotools.coverage.io.CoverageResponse.Status;
+import org.geotools.coverage.io.CoverageSource;
 import org.geotools.coverage.io.domain.RasterDatasetDomainManager.HorizontalDomain;
 import org.geotools.coverage.io.domain.RasterDatasetDomainManager.TemporalDomain;
 import org.geotools.coverage.io.domain.RasterDatasetDomainManager.VerticalDomain;
 import org.geotools.coverage.io.driver.BaseFileDriver;
 import org.geotools.coverage.io.driver.Driver.DriverOperation;
-import org.geotools.coverage.io.impl.DefaultCoverageReadRequest;
+import org.geotools.coverage.io.impl.CoverageReadRequest;
+import org.geotools.coverage.io.impl.CoverageResponse;
+import org.geotools.coverage.io.impl.CoverageResponse.Status;
 import org.geotools.coverage.io.impl.range.DefaultRangeType;
 import org.geotools.coverage.io.range.FieldType;
 import org.geotools.coverage.io.range.RangeType;
@@ -155,7 +154,7 @@ public final class GRIB1Test extends Assert {
 	                	LOGGER.info(buf.toString());
 	                }	
 	                RangeType range = gridSource.getRangeType(null);
-	                CoverageReadRequest readRequest = new DefaultCoverageReadRequest();
+	                CoverageReadRequest readRequest = new CoverageReadRequest();
 	                // //
 	                //
 	                // Setting up a limited range for the request.

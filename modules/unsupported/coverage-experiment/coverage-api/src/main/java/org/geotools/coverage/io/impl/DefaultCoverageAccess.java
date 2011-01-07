@@ -24,10 +24,15 @@ import org.opengis.util.ProgressListener;
  * @author Simone Giannecchini, GeoSolutions SAS
  *
  */
-public class DefaultCoverageAccess extends BaseCoverageAccess {
+public class DefaultCoverageAccess implements CoverageAccess {
 
-	protected DefaultCoverageAccess(Driver driver) {
-		super(driver);
+	/**
+     * Driver used to create this CoverageAccess.
+     */
+    private final Driver driver;
+
+    public DefaultCoverageAccess(Driver driver) {
+		this.driver=driver;
 	}
 
 	public CoverageSource access(Name name, Map<String, Serializable> params,
@@ -100,5 +105,13 @@ public class DefaultCoverageAccess extends BaseCoverageAccess {
 	public boolean isDeleteSupported() {
 		return false;
 	}
+
+    public Driver getDriver() {
+    	return driver;
+    }
+
+    public void dispose() {
+    	
+    }
 
 }

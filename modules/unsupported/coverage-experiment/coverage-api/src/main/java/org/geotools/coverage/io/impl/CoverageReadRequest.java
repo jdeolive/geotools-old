@@ -24,7 +24,6 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.geotools.coverage.grid.GridEnvelope2D;
-import org.geotools.coverage.io.CoverageReadRequest;
 import org.geotools.coverage.io.CoverageSource;
 import org.geotools.coverage.io.range.RangeType;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -45,7 +44,7 @@ import org.opengis.temporal.TemporalGeometricPrimitive;
  * Request information from a   {@link CoverageSource}. 
  * <p> Note that we are working with the assumption that the queried coverage has separable dimensions.
  */
-public class DefaultCoverageReadRequest extends DefaultCoverageRequest implements CoverageReadRequest {
+public class CoverageReadRequest extends CoverageRequest  {
 	
 	/**
 	 * The requested area in the destination raster space. <p> This field shall basically contain the screen dimension of the requested area in pixels.
@@ -157,9 +156,11 @@ public class DefaultCoverageReadRequest extends DefaultCoverageRequest implement
 		setDomainSubset(rasterArea,(BoundingBox) new ReferencedEnvelope((org.opengis.geometry.Envelope)worldArea),anchor);
 	}	
 
-	/**
-	 * @see org.geotools.coverage.io.CoverageReadRequest#setRangeSubset(org.geotools.coverage.io.range.RangeType)
-	 */
+        /**
+         * Set the range subset we are requesting. <p> Note that a null  {@link RangeType}  means get everything.
+         * @param  value
+         * @uml.property  name="rangeSubset"
+         */
 	public void setRangeSubset(final RangeType value) {
 		this.rangeSubset = value;
 	}
