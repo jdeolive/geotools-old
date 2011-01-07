@@ -126,6 +126,9 @@ public class ForceCoordinateSystemFeatureResults extends AbstractFeatureCollecti
      */
     public ReferencedEnvelope getBounds() {
         ReferencedEnvelope env = results.getBounds();
+        if(env == null) {
+            return null;
+        }
         env = new ReferencedEnvelope(env, getSchema().getCoordinateReferenceSystem());
         return env;
     }
