@@ -444,9 +444,6 @@ class RasterLayerRequest {
         	if(value==null)
         		return;
             final GridGeometry2D gg = (GridGeometry2D) value;
-            if (gg == null) {
-                return;
-            }
 
             requestedBBox = new ReferencedEnvelope((Envelope) gg.getEnvelope2D());
             requestedRasterArea = gg.getGridRange2D().getBounds();
@@ -634,7 +631,7 @@ class RasterLayerRequest {
         	final Object value = param.getValue();
         	if(value==null)
         		return;
-            final List dates = (List) value;
+            final List<Date> dates = (List<Date>) value;
             if (dates==null|| dates.size()<=0) {
                 return;
             }
@@ -967,6 +964,9 @@ class RasterLayerRequest {
         // Compute the request resolution from the request
         //
         computeRequestedResolution();
+
+
+
 
     }
 

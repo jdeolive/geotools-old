@@ -17,7 +17,6 @@
 package org.geotools.gce.imagemosaic;
 
 import java.awt.Rectangle;
-import java.awt.image.BandedSampleModel;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -673,7 +672,6 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 	}
 
 	public Object getDestination() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
