@@ -319,11 +319,16 @@ public final class StreamingRenderer implements GTRenderer {
 
     /**
      * Enables advanced reprojection handling. Geometries will be sliced to fit into the
-     * area of definition of the rendering projection, and for projections that can wrap
-     * the world in a continuous way (e.g., Mercator) a Google Maps like effect will be
-     * generated (continuous horizontal map).
+     * area of definition of the rendering projection.
      */
     public static final String ADVANCED_PROJECTION_HANDLING_KEY = "advancedProjectionHandling";
+    
+    /**
+     * Enabled continuous cartographic wrapping for projections that can wrap
+     * around their edges (e.g., Mercator): this results in a continous horizontal map much
+     * like Google Maps
+     */
+    public static final String CONTINUOUS_MAP_WRAPPING = "continuousMapWrapping";
 
     /**
      * Boolean flag indicating whether vector rendering should be preferred when
@@ -712,7 +717,7 @@ public final class StreamingRenderer implements GTRenderer {
         // enable advanced projection handling with the updated map extent
         if(isAdvancedProjectionHandlingEnabled()) {
             // get the projection handler and set a tentative envelope
-            projectionHandler = ProjectionHandlerFinder.getHandler(mapExtent);
+            projectionHandler = ProjectionHandlerFinder.getHandler(mapExtent, isMapWrappingEnabled());
         }
         
         // Setup the secondary painting thread
@@ -1294,6 +1299,19 @@ public final class StreamingRenderer implements GTRenderer {
         if (rendererHints == null)
             return false;
         Object result = rendererHints.get(ADVANCED_PROJECTION_HANDLING_KEY);
+        if (result == null)
+            return false;
+        return Boolean.TRUE.equals(result);
+    }
+    
+    /**
+     * Checks if continuous map wrapping is enabled
+     * @return
+     */
+    private boolean isMapWrappingEnabled() {
+        if (rendererHints == null)
+            return false;
+        Object result = rendererHints.get(CONTINUOUS_MAP_WRAPPING);
         if (result == null)
             return false;
         return Boolean.TRUE.equals(result);

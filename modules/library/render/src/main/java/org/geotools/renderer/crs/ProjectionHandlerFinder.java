@@ -40,13 +40,15 @@ public class ProjectionHandlerFinder {
 
     /**
      * Returns a projection handler for the specified rendering area, or null if not found
+     * @param renderingArea The area to be painted (mind, the CRS must be property set for projection handling to work)
+     * @param wrap Enable continuous map wrapping if it's possible for the current projection
      */
-    public static ProjectionHandler getHandler(ReferencedEnvelope renderingArea) {
+    public static ProjectionHandler getHandler(ReferencedEnvelope renderingArea, boolean wrap) {
         if (renderingArea.getCoordinateReferenceSystem() == null)
             return null;
 
         for (ProjectionHandlerFactory factory : factories) {
-            ProjectionHandler handler = factory.getHandler(renderingArea);
+            ProjectionHandler handler = factory.getHandler(renderingArea, wrap);
             if (handler != null)
                 return handler;
         }

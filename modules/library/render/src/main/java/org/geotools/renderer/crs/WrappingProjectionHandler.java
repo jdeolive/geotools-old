@@ -84,8 +84,10 @@ public class WrappingProjectionHandler extends ProjectionHandler {
             return geometry;
 
         // Check if the geometry has wrapped the dateline. Heuristic: we assume
-        // anything larger than half of the world might have wrapped it
-        if (env.getWidth() > radius) {
+        // anything larger than half of the world might have wrapped it, however,
+        // if it's touching both datelines then don't wrap it, as it might be something
+        // like antarctica
+        if (env.getWidth() > radius && env.getWidth() < radius * 2) {
             geometry.apply(new WrappingCoordinateFilter(radius, radius * 2));
             geometry.geometryChanged();
             env = geometry.getEnvelopeInternal();

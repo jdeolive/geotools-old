@@ -85,7 +85,10 @@ class WrappingCoordinateFilter implements GeometryComponentFilter {
         double lastX = cs.getX(0);
         for (int i = 0; i < cs.size(); i++) {
             double x = cs.getX(i);
-            if (Math.abs(x - lastX) > wrapLimit) {
+            final double distance = Math.abs(x - lastX);
+            // heuristic: an object crossing the dateline is not as big as the world, if it
+            // is, it's probably something like Antarctica that does not need coordinate rewrapping
+            if (distance > wrapLimit && distance < wrapLimit * 1.9) {
                 if (offset != 0)
                     offset = 0;
                 else

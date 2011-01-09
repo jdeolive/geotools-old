@@ -31,7 +31,8 @@ public interface ProjectionHandlerFactory {
      * cannot create one
      * 
      * @param renderingEnvelope
+     * @param wrap enables map wrapping, if it's possible and makes sense for this projection
      * @return
      */
-    ProjectionHandler getHandler(ReferencedEnvelope renderingEnvelope);
+    ProjectionHandler getHandler(ReferencedEnvelope renderingEnvelope, boolean wrap);
 }

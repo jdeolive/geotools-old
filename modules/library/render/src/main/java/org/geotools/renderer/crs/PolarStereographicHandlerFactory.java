@@ -33,7 +33,7 @@ import org.opengis.parameter.ParameterValue;
  */
 public class PolarStereographicHandlerFactory implements ProjectionHandlerFactory {
 
-    public ProjectionHandler getHandler(ReferencedEnvelope renderingEnvelope) {
+    public ProjectionHandler getHandler(ReferencedEnvelope renderingEnvelope, boolean wrap) {
         MapProjection mapProjection = CRS.getMapProjection(renderingEnvelope
                 .getCoordinateReferenceSystem());
         if (renderingEnvelope != null && mapProjection instanceof PolarStereographic) {

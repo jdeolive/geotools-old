@@ -25,12 +25,16 @@ import org.opengis.referencing.crs.GeographicCRS;
  */
 public class GeographicHandlerFactory implements ProjectionHandlerFactory {
     
-    public ProjectionHandler getHandler(ReferencedEnvelope renderingEnvelope) {
+    public ProjectionHandler getHandler(ReferencedEnvelope renderingEnvelope, boolean wrap) {
         CoordinateReferenceSystem crs = renderingEnvelope.getCoordinateReferenceSystem();
         if (renderingEnvelope != null  && crs instanceof GeographicCRS) {
             GeographicCRS  geogCrs = (GeographicCRS) crs;
-            double centralMeridian = geogCrs.getDatum().getPrimeMeridian().getGreenwichLongitude();
-            return new WrappingProjectionHandler(renderingEnvelope, null, centralMeridian);
+            if(wrap) {
+                double centralMeridian = geogCrs.getDatum().getPrimeMeridian().getGreenwichLongitude();
+                return new WrappingProjectionHandler(renderingEnvelope, null, centralMeridian);
+            } else {
+                return new ProjectionHandler(renderingEnvelope, null);
+            }
         }
 
         return null;

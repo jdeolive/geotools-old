@@ -43,7 +43,7 @@ public class ProjectionHandlerTest {
     @Test
     public void testQueryWrappingWGS84() throws Exception {
         ReferencedEnvelope wgs84Envelope = new ReferencedEnvelope(-190, 60, -90, 45, WGS84);
-        ProjectionHandler handler = ProjectionHandlerFinder.getHandler(wgs84Envelope);
+        ProjectionHandler handler = ProjectionHandlerFinder.getHandler(wgs84Envelope, true);
 
         assertNull(handler.validArea);
         List<ReferencedEnvelope> envelopes = handler.getQueryEnvelopes(DefaultGeographicCRS.WGS84);
@@ -60,7 +60,7 @@ public class ProjectionHandlerTest {
         ReferencedEnvelope mercatorEnvelope = world.transform(MERCATOR_SHIFTED, true);
 
         // check valid area
-        ProjectionHandler handler = ProjectionHandlerFinder.getHandler(mercatorEnvelope);
+        ProjectionHandler handler = ProjectionHandlerFinder.getHandler(mercatorEnvelope, true);
         ReferencedEnvelope va = handler.validArea;
         assertNotNull(va);
         assertEquals(WGS84, va.getCoordinateReferenceSystem());
@@ -76,7 +76,7 @@ public class ProjectionHandlerTest {
         ReferencedEnvelope mercatorEnvelope = world.transform(MERCATOR_SHIFTED, true);
 
         // get query area, we expect just one envelope spanning the whole world
-        ProjectionHandler handler = ProjectionHandlerFinder.getHandler(mercatorEnvelope);
+        ProjectionHandler handler = ProjectionHandlerFinder.getHandler(mercatorEnvelope, true);
         List<ReferencedEnvelope> envelopes = handler.getQueryEnvelopes(DefaultGeographicCRS.WGS84);
         assertEquals(1, envelopes.size());
 
@@ -95,7 +95,7 @@ public class ProjectionHandlerTest {
         mercatorEnvelope.translate(mercatorEnvelope.getWidth() / 2, 0);
 
         // get query area, we expect two separate query envelopes, the original and the
-        ProjectionHandler handler = ProjectionHandlerFinder.getHandler(mercatorEnvelope);
+        ProjectionHandler handler = ProjectionHandlerFinder.getHandler(mercatorEnvelope, true);
         List<ReferencedEnvelope> envelopes = handler.getQueryEnvelopes(DefaultGeographicCRS.WGS84);
         assertEquals(2, envelopes.size());
 
@@ -114,7 +114,7 @@ public class ProjectionHandlerTest {
         ReferencedEnvelope utmEnvelope = wgs84Envelope.transform(UTM32N, true);
 
         // check valid area
-        ProjectionHandler handler = ProjectionHandlerFinder.getHandler(utmEnvelope);
+        ProjectionHandler handler = ProjectionHandlerFinder.getHandler(utmEnvelope, true);
         ReferencedEnvelope va = handler.validArea;
         assertNotNull(va);
         assertEquals(WGS84, va.getCoordinateReferenceSystem());
@@ -130,7 +130,7 @@ public class ProjectionHandlerTest {
         ReferencedEnvelope utmEnvelope = wgs84Envelope.transform(UTM32N, true);
 
         // get query area, we expect just one envelope, the original one
-        ProjectionHandler handler = ProjectionHandlerFinder.getHandler(utmEnvelope);
+        ProjectionHandler handler = ProjectionHandlerFinder.getHandler(utmEnvelope, true);
         ReferencedEnvelope expected = utmEnvelope.transform(WGS84, true);
         List<ReferencedEnvelope> envelopes = handler.getQueryEnvelopes(DefaultGeographicCRS.WGS84);
         assertEquals(1, envelopes.size());
@@ -150,7 +150,7 @@ public class ProjectionHandlerTest {
         Geometry g = new WKTReader().read("LINESTRING(170 -40, 190 40)");
 
         // make sure the geometry is not wrapped
-        ProjectionHandler handler = ProjectionHandlerFinder.getHandler(mercatorEnvelope);
+        ProjectionHandler handler = ProjectionHandlerFinder.getHandler(mercatorEnvelope, true);
         assertTrue(handler.requiresProcessing(WGS84, g));
         Geometry preProcessed = handler.preProcess(WGS84, g);
         // no cutting expected
@@ -174,7 +174,7 @@ public class ProjectionHandlerTest {
         Geometry g = new WKTReader().read("LINESTRING(170 -50, 190 50)");
 
         // make sure the geometry is not wrapped
-        ProjectionHandler handler = ProjectionHandlerFinder.getHandler(mercatorEnvelope);
+        ProjectionHandler handler = ProjectionHandlerFinder.getHandler(mercatorEnvelope, true);
         assertTrue(handler.requiresProcessing(WGS84, g));
         Geometry preProcessed = handler.preProcess(WGS84, g);
         // no cutting expected
@@ -199,7 +199,7 @@ public class ProjectionHandlerTest {
         // a geometry that will definitely go outside of the UTM32N valid area
         Geometry g = new WKTReader().read("LINESTRING(-170 -40, 170, 40)");
 
-        ProjectionHandler handler = ProjectionHandlerFinder.getHandler(utmEnvelope);
+        ProjectionHandler handler = ProjectionHandlerFinder.getHandler(utmEnvelope, true);
         assertTrue(handler.requiresProcessing(UTM32N, g));
         Geometry preProcessed = handler.preProcess(WGS84, g);
         assertTrue(!preProcessed.equals(g));
