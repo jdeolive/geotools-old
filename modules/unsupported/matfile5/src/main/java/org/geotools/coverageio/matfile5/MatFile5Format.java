@@ -25,13 +25,11 @@ import java.util.logging.Logger;
 
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.imageio.GeoToolsWriteParams;
-import org.geotools.coverageio.matfile5.BaseMatFileGridFormat;
 import org.geotools.data.DataSourceException;
 import org.geotools.factory.Hints;
 import org.geotools.parameter.DefaultParameterDescriptorGroup;
 import org.geotools.parameter.ParameterGroup;
 import org.opengis.coverage.grid.Format;
-import org.opengis.coverage.grid.GridCoverageWriter;
 import org.opengis.parameter.GeneralParameterDescriptor;
 
 /**
@@ -41,7 +39,6 @@ import org.opengis.parameter.GeneralParameterDescriptor;
  * @author Simone Giannecchini, GeoSolutions
  * @since 2.7.x
  */
-@SuppressWarnings("deprecation")
 public class MatFile5Format extends BaseMatFileGridFormat implements Format {
     private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(MatFile5Format.class.toString());
     

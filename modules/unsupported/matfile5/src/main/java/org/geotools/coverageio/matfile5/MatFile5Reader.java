@@ -30,9 +30,7 @@ import javax.imageio.ImageReader;
 import javax.imageio.metadata.IIOMetadata;
 
 import org.geotools.coverage.grid.GridEnvelope2D;
-import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverageio.BaseGridCoverage2DReader;
-import org.geotools.coverageio.UTMUtilities;
 import org.geotools.data.DataSourceException;
 import org.geotools.factory.Hints;
 import org.geotools.geometry.GeneralEnvelope;
@@ -56,7 +54,6 @@ import org.opengis.referencing.operation.TransformException;
  * @author Simone Giannecchini, GeoSolutions
  * @since 2.7.x
  */
-@SuppressWarnings("deprecation")
 public class MatFile5Reader extends BaseGridCoverage2DReader implements GridCoverageReader {
 
     private final static String worldFileExt = ".wld";

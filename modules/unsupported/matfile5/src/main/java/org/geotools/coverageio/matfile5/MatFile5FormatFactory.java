@@ -34,7 +34,6 @@ import org.opengis.coverage.grid.Format;
  * @author Simone Giannecchini (simboss), GeoSolutions
  * @since 2.7.x
  */
-@SuppressWarnings("deprecation")
 public final class MatFile5FormatFactory implements GridFormatFactorySpi {
     /** Logger. */
     private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(

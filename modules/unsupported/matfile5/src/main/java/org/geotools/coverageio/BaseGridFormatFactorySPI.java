@@ -31,7 +31,6 @@ import org.geotools.coverage.grid.io.UnknownFormat;
  * @author Simone Giannecchini, GeoSolutions
  * @since 2.5.x
  */
-@SuppressWarnings("deprecation")
 public class BaseGridFormatFactorySPI implements GridFormatFactorySpi {
 
 	public AbstractGridFormat createFormat() {

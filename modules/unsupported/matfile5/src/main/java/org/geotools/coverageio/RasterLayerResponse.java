@@ -52,7 +52,6 @@ import org.opengis.referencing.operation.MathTransform;
  * 
  * @author Daniele Romagnoli, GeoSolutions
  */
-@SuppressWarnings("deprecation")
 class RasterLayerResponse {
 
     /** Logger. */

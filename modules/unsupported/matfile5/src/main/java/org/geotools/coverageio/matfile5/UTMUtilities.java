@@ -14,7 +14,7 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.coverageio;
+package org.geotools.coverageio.matfile5;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,7 +38,7 @@ import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.NoSuchAuthorityCodeException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-public class UTMUtilities {
+class UTMUtilities {
 
     private final static Logger LOGGER = org.geotools.util.logging.Logging
     .getLogger("org.geotools.coverageio.matfile5.sas");
