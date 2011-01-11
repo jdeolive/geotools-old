@@ -18,15 +18,15 @@ package org.geotools.factory;
 
 import java.awt.RenderingHints;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Set;
 
 import org.geotools.data.FeatureLockFactory;
 import org.geotools.data.FileDataStoreFactorySpi;
 import org.geotools.feature.FeatureCollections;
-import org.geotools.feature.LenientFeatureFactoryImpl;
 import org.geotools.filter.FunctionExpression;
 import org.geotools.filter.FunctionFactory;
-import org.geotools.filter.FunctionImpl;
+//import org.geotools.filter.FunctionImpl;
 import org.geotools.resources.LazySet;
 import org.geotools.styling.StyleFactory;
 import org.opengis.feature.FeatureFactory;
@@ -79,8 +79,8 @@ public final class CommonFactoryFinder extends FactoryFinder {
                     FilterFactory.class,
                     FeatureLockFactory.class,
                     FileDataStoreFactorySpi.class,
-                    FunctionImpl.class,
-                    FunctionExpression.class,//TODO: remove
+//                  FunctionImpl.class, // TODO: remove
+//                  FunctionExpression.class,//TODO: remove
                     Function.class,
                     FunctionFactory.class,
                     FeatureFactory.class,
@@ -129,9 +129,10 @@ public final class CommonFactoryFinder extends FactoryFinder {
      * @deprecated Use FunctionExpression is now @deprecated
      */
     public static synchronized Set getFunctionExpressions(Hints hints) {
-        hints = mergeSystemHints(hints);
-        return new LazySet(getServiceRegistry().getServiceProviders(
-                FunctionExpression.class, null, hints));
+        //hints = mergeSystemHints(hints);
+        //return new LazySet(getServiceRegistry().getServiceProviders(
+        //        FunctionExpression.class, null, hints));
+        return Collections.EMPTY_SET;
     }
 
     /**
@@ -211,8 +212,14 @@ public final class CommonFactoryFinder extends FactoryFinder {
      */
     public static FeatureFactory getFeatureFactory(Hints hints) {
         hints = mergeSystemHints(hints);
-        if(hints.get(Hints.FEATURE_FACTORY) == null)
-            hints.put(Hints.FEATURE_FACTORY, LenientFeatureFactoryImpl.class);
+        if(hints.get(Hints.FEATURE_FACTORY) == null){
+            try {
+                Class<?> lenient = Class.forName("org.geotools.feature.LenientFeatureFactoryImpl");
+                hints.put(Hints.FEATURE_FACTORY, lenient );
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
         return (FeatureFactory) lookup(FeatureFactory.class, hints, Hints.FEATURE_FACTORY);
     }
     
