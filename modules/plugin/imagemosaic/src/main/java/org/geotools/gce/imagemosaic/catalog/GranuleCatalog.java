@@ -37,15 +37,6 @@ import org.opengis.geometry.BoundingBox;
 public interface GranuleCatalog {
 	
 	/**
-	 * 
-	 * @author Simone Giannecchini, GeoSolutions SAS
-	 *
-	 */
-	public interface GranuleCatalogVisitor{
-		public void visit(final GranuleDescriptor granule, Object o);
-	}
-
-	/**
 	 * Finds the granules that intersects the provided {@link BoundingBox}:
 	 * 
 	 * @param envelope

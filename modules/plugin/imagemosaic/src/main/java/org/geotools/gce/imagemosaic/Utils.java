@@ -102,7 +102,8 @@ public class Utils {
         final static String EXP_RGB = "ExpandToRGB";
         final static String ABSOLUTE_PATH = "AbsolutePath";
         final static String NAME = "Name";
-        final static String FOOTPRINT_MANAGEMENT = "FootprintManagement";       
+        final static String FOOTPRINT_MANAGEMENT = "FootprintManagement";
+        final static String HETEROGENEOUS = "Heterogeneous";
     }
     
 	/**
@@ -442,6 +443,15 @@ public class Utils {
 					Prop.EXP_RGB, "false").trim());
 			retValue.setExpandToRGB(expandMe);
 		}
+		
+		// 
+		// Is heterogeneous granules mosaic
+		//
+                if (!ignoreSome || !ignorePropertiesSet.contains(Prop.HETEROGENEOUS)) {
+                    final boolean heterogeneous = Boolean.valueOf(properties.getProperty(
+                            Prop.HETEROGENEOUS, "false").trim());
+                    retValue.setHeterogeneous(heterogeneous);
+                }
 
 		//
 		// Absolute or relative path

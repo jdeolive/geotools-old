@@ -53,6 +53,18 @@ public class PropertiesCollectorTest extends Assert {
 	public void tearDown() throws Exception {
 	}
 	
+        @Test
+        public void test(){
+    
+            // get the spi
+            final Set<PropertiesCollectorSPI> spis = PropertiesCollectorFinder.getPropertiesCollectorSPI();
+            assertNotNull(spis);
+            assertTrue(!spis.isEmpty());
+            assertEquals(7,spis.size());
+
+    
+        }
+	
 	@Test
 	public void testTime() throws IOException{
 		

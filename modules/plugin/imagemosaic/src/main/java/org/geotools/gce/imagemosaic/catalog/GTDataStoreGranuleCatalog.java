@@ -149,7 +149,8 @@ class GTDataStoreGranuleCatalog extends AbstractGranuleCatalog {
 	private ImageReaderSpi suggestedSPI;
 
 	private String parentLocation;
-
+	
+	private boolean heterogeneous;
 
 	public GTDataStoreGranuleCatalog(
 			final Map<String, Serializable> params, 
@@ -166,6 +167,10 @@ class GTDataStoreGranuleCatalog extends AbstractGranuleCatalog {
 			final String temp=(String)params.get("SuggestedSPI");
 			this.suggestedSPI=temp!=null?(ImageReaderSpi) Class.forName(temp).newInstance():null;
 			this.parentLocation=(String)params.get("ParentLocation");
+			Object heterogen = params.get("Heterogeneous");
+			if (heterogen != null){
+			    this.heterogeneous = ((Boolean) heterogen).booleanValue();
+			}
 			
 			// creating a store, this might imply creating it for an existing underlying store or 
 			// creating a brand new one
@@ -457,7 +462,8 @@ class GTDataStoreGranuleCatalog extends AbstractGranuleCatalog {
 								suggestedSPI,
 								pathType,
 								locationAttribute,
-								parentLocation);
+								parentLocation,
+								heterogeneous);
 			        	visitor.visit(granule, null);
 			        }
 			    }            
@@ -521,7 +527,8 @@ class GTDataStoreGranuleCatalog extends AbstractGranuleCatalog {
 						suggestedSPI,
 						pathType,
 						locationAttribute,
-						parentLocation);
+						parentLocation, 
+						heterogeneous);
 				retVal.add(granule);
 			}
 			return retVal;

@@ -167,7 +167,7 @@ class TimeParser {
      * @return A date found in the request.
      * @throws ParseException if the string can not be parsed.
      */
-    private Date getDate(final String value) throws ParseException {
+    private static Date getDate(final String value) throws ParseException {
         for (int i=0; i<PATTERNS.length; i++) {
             // rebuild formats at each parse, date formats are not thread safe
             SimpleDateFormat format = new SimpleDateFormat(PATTERNS[i]);

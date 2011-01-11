@@ -105,8 +105,11 @@ class RasterLayerRequest {
     private boolean setRoiProperty;
     
     private boolean needsReprojection = false;
+    
+    private boolean heterogeneousGranules = false; 
 
-
+    RasterManager rasterManager;
+    
     /**
      * Set to {@code true} if this request will produce an empty result, and the
      * coverageResponse will produce a {@code null} coverage.
@@ -133,8 +136,6 @@ class RasterLayerRequest {
 	private double[] requestedResolution;
 
 	private double[] backgroundValues;
-
-	private RasterManager rasterManager;
 
 	private MathTransform destinationToSourceTransform;
 
@@ -170,13 +171,26 @@ class RasterLayerRequest {
 		return multithreadingAllowed;
 	}
 
-	 public DecimationPolicy getDecimationPolicy() {
+	public DecimationPolicy getDecimationPolicy() {
 	        return decimationPolicy;
-	 }
+	}
 	
-	 public boolean isNeedsReprojection() {
+	public boolean isNeedsReprojection() {
 	        return needsReprojection;
-	    }
+    }
+	 
+    public boolean isHeterogeneousGranules() {
+        return heterogeneousGranules;
+    }
+
+    public void setHeterogeneousGranules(final boolean heterogeneousGranules) {
+        this.heterogeneousGranules = heterogeneousGranules;
+    }
+
+    RasterManager getRasterManager() {
+        return rasterManager;
+    }
+
 	 
 	/**
      * Build a new {@code CoverageRequest} given a set of input parameters.
@@ -195,6 +209,7 @@ class RasterLayerRequest {
         //
         // //
     	this.rasterManager = rasterManager;
+    	this.heterogeneousGranules = rasterManager.heterogeneousGranules;
     	setDefaultParameterValues();
     	
     	
@@ -205,9 +220,8 @@ class RasterLayerRequest {
         // //
         if (params != null) {
             for (GeneralParameterValue gParam : params) {
-            	if(gParam instanceof ParameterValue<?>)
-            	{                
-            		final ParameterValue<?> param = (ParameterValue<?>) gParam;
+            	if(gParam instanceof ParameterValue<?>){                
+            	    final ParameterValue<?> param = (ParameterValue<?>) gParam;
                     final ReferenceIdentifier name = param.getDescriptor().getName();
                     extractParameter(param, name);
             	}
@@ -224,8 +238,10 @@ class RasterLayerRequest {
         prepare();
     }
 
-    @SuppressWarnings({ "unchecked", "deprecation" })
-	private void setDefaultParameterValues() {
+    @SuppressWarnings({ "unchecked"})
+    private void setDefaultParameterValues() {
+        
+        // get the read parameters for this format plus the ones for the basic format and set them to the default
     	final ParameterValueGroup readParams = this.rasterManager.parent.getFormat().getReadParameters();
     	if (readParams == null) {
     		if(LOGGER.isLoggable(Level.FINER))
@@ -267,7 +283,7 @@ class RasterLayerRequest {
 	        //
 	        // //
 	        if (name.equals(AbstractGridFormat.USE_JAI_IMAGEREAD.getName())) {
-	        	if(value==null)
+	        	if (value == null)
 	        		continue;
 	            readType = ((Boolean)value)? ReadType.JAI_IMAGEREAD: ReadType.DIRECT_READ;
 	            continue;
@@ -280,8 +296,8 @@ class RasterLayerRequest {
 	        //
 	        // //
 	        if (name.equals(AbstractGridFormat.OVERVIEW_POLICY.getName())) {
-	        	if(value==null)
-	        		continue;
+	            if (value == null)
+	                continue;
 	            overviewPolicy = (OverviewPolicy) value;
 	            continue;
 	        }
@@ -292,8 +308,8 @@ class RasterLayerRequest {
                 //
                 // //
                 if (name.equals(ImageMosaicFormat.DECIMATION_POLICY.getName())) {
-                        if(value==null)
-                                continue;
+                    if (value == null)
+                            continue;
                     decimationPolicy = (DecimationPolicy) value;
                     continue;
                 }
@@ -308,7 +324,6 @@ class RasterLayerRequest {
                             continue;
                     }
                     interpolation = (Interpolation) value;
-//                    interpolation = ((InterpolationType) value).getInstance();
                     continue;
                 }
                 
@@ -441,7 +456,7 @@ class RasterLayerRequest {
         // //
         if (name.equals(AbstractGridFormat.READ_GRIDGEOMETRY2D.getName())) {
         	final Object value = param.getValue();
-        	if(value==null)
+        	if (value == null)
         		return;
             final GridGeometry2D gg = (GridGeometry2D) value;
 
@@ -471,9 +486,9 @@ class RasterLayerRequest {
         //
         // //
         if (name.equals(AbstractGridFormat.OVERVIEW_POLICY.getName())) {
-        	final Object value = param.getValue();
-        	if(value==null)
-        		return;
+            final Object value = param.getValue();
+            if (value == null)
+                return;
             overviewPolicy = (OverviewPolicy) value;
             return;
         }

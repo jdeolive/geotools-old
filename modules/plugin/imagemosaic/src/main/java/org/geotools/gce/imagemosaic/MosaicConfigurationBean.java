@@ -90,8 +90,9 @@ public class MosaicConfigurationBean {
         private SampleModel sampleModel;
 	
 	/** Imposed envelope for this mosaic. If not present we need to compute from catalogue.*/
-	
 	private ReferencedEnvelope envelope;
+	
+	private boolean heterogeneous;
 
 	public ReferencedEnvelope getEnvelope() {
 		return envelope;
@@ -126,10 +127,8 @@ public class MosaicConfigurationBean {
 	/** we want to use caching for our index.*/
 	private boolean caching=true;
 
-	/**
-         * <code>true</code> if we need to manage footprint if available.
-         */
-        private boolean footprintManagement;
+   /** <code>true</code> if we need to manage footprint if available.  */
+    private boolean footprintManagement;
 
 	public String getTimeAttribute() {
 		return timeAttribute;
@@ -199,5 +198,13 @@ public class MosaicConfigurationBean {
 
         public boolean isFootprintManagement() {
             return footprintManagement;
+        }
+
+        public boolean isHeterogeneous() {
+            return heterogeneous;
+        }
+
+        public void setHeterogeneous(boolean heterogeneous) {
+            this.heterogeneous = heterogeneous;
         }
 }

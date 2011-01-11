@@ -108,6 +108,7 @@ import com.vividsolutions.jts.geom.PrecisionModel;
  */
 public class CatalogBuilder implements Runnable {
 
+    final private static double RESOLUTION_TOLERANCE_FACTOR = 10E-2;
 
 	/** Default Logger * */
 	final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(CatalogBuilder.class);
@@ -347,12 +348,12 @@ public class CatalogBuilder implements Runnable {
 		}		
 
 		@Override
-		protected boolean handleIsCancelled(File file, int depth,Collection results) throws IOException {			
-			return CatalogBuilder.this.stop&&super.handleIsCancelled(file, depth, results);
+		protected boolean handleIsCancelled(final File file, final int depth, Collection results) throws IOException {			
+			return CatalogBuilder.this.stop && super.handleIsCancelled(file, depth, results);
 		}
 
 		@Override
-		protected void handleFile(final File fileBeingProcessed,final int depth,final Collection results)
+		protected void handleFile(final File fileBeingProcessed, final int depth, final Collection results)
 				throws IOException {
 			
 			// increment counter
@@ -437,7 +438,7 @@ public class CatalogBuilder implements Runnable {
 				// Getting a coverage reader for this coverage.
 				//
 				final AbstractGridFormat format;
-				if(cachedFormat==null) {
+				if(cachedFormat == null) {
 					format= (AbstractGridFormat) GridFormatFinder.findFormat(fileBeingProcessed);
 				} else {
 					if(cachedFormat.accepts(fileBeingProcessed)) {
@@ -459,7 +460,7 @@ public class CatalogBuilder implements Runnable {
 				// STEP 3
 				// Get the type specifier for this image and the check that the
 				// image has the correct sample model and color model.
-				// If this is the first cycle of the loop we initialize eveything.
+				// If this is the first cycle of the loop we initialize everything.
 				//
 				final ImageTypeSpecifier its = ((ImageTypeSpecifier) imageioReader.getImageTypes(0).next());
 				if (numberOfProcessedFiles==0) {
@@ -520,19 +521,7 @@ public class CatalogBuilder implements Runnable {
 					imageioReader.setInput(inStream);
 					int numberOfLevels = imageioReader.getNumImages(true);
 					double[][] resolutionLevels = new double[2][numberOfLevels];
-					double[] res = CoverageUtilities.getResolution((AffineTransform) coverageReader.getOriginalGridToWorld(PixelInCell.CELL_CORNER));
-					resolutionLevels[0][0] = res[0];
-					resolutionLevels[1][0] = res[1];
-
-					// resolutions levels are computed using the raster space scale factors
-					if (numberOfLevels > 1) {
-
-						for (int k = 0; k < numberOfLevels; k++) {
-							resolutionLevels[0][k] = resolutionLevels[0][0]*coverageReader.getOriginalGridRange().getSpan(0)/(1.0*imageioReader.getWidth(k));
-							resolutionLevels[1][k] = resolutionLevels[1][0]*coverageReader.getOriginalGridRange().getSpan(1)/(1.0*imageioReader.getHeight(k));
-						}
-					}
-					
+					setupResolutions(resolutionLevels, numberOfLevels, coverageReader, imageioReader, null);
 					mosaicConfiguration.setLevelsNum(numberOfLevels);
 					mosaicConfiguration.setLevels(resolutionLevels);
 
@@ -570,6 +559,27 @@ public class CatalogBuilder implements Runnable {
 					catalog.createType(indexSchema);
 					
 				} else {
+				    if (!mosaicConfiguration.isHeterogeneous()){
+				        // //
+				        //
+				        // There is no need to check resolutions if the mosaic
+				        // has been already marked as heterogeneous
+				        //
+				        // //
+				        int numberOfLevels = imageioReader.getNumImages(true);
+                                        if (numberOfLevels != mosaicConfiguration.getLevelsNum()) {
+                                            mosaicConfiguration.setHeterogeneous(true);
+                                        } else {
+                                            final double[][] mosaicLevels = mosaicConfiguration.getLevels();
+                                            final double[][] resolutionLevels = new double[2][numberOfLevels];
+                                            final boolean homogeneousLevels = setupResolutions(resolutionLevels, numberOfLevels, coverageReader, imageioReader, mosaicLevels);
+                                            if (!homogeneousLevels){
+                                                mosaicConfiguration.setHeterogeneous(true);
+                                            }
+                                        }
+				    }
+				    
+				    
 					// ////////////////////////////////////////////////////////
 					// 
 					// comparing ColorModel
@@ -1450,6 +1460,7 @@ public class CatalogBuilder implements Runnable {
 		properties.setProperty("Levels", levels.toString());
 		properties.setProperty("Name", runConfiguration.getIndexName());
 		properties.setProperty("ExpandToRGB", Boolean.toString(mustConvertToRGB));
+		properties.setProperty("Heterogeneous", Boolean.toString(mosaicConfiguration.isHeterogeneous()));
 		
 		if(cachedSPI!=null){
 			// suggested spi
@@ -1487,5 +1498,44 @@ public class CatalogBuilder implements Runnable {
 		reset();
 		
 	}
+	
+	/**
+	 * 
+	 * @param resolutionLevels
+	 * @param numberOfLevels
+	 * @param coverageReader
+	 * @param imageioReader
+	 * @param compareLevels optional resolutionLevels to be compared.
+	 * @return 
+	 * @throws IndexOutOfBoundsException
+	 * @throws IOException
+	 */
+	private static boolean setupResolutions(
+                final double[][] resolutionLevels, 
+                final int numberOfLevels, 
+                final AbstractGridCoverage2DReader coverageReader, 
+                final ImageReader imageioReader,
+                final double[][] compareLevels
+                ) throws IndexOutOfBoundsException, IOException {
+            double[] res = CoverageUtilities.getResolution((AffineTransform) coverageReader.getOriginalGridToWorld(PixelInCell.CELL_CORNER));
+            resolutionLevels[0][0] = res[0];
+            resolutionLevels[1][0] = res[1];
+            final boolean checkLevels = compareLevels != null;
+
+            // resolutions levels are computed using the raster space scale factors
+            if (numberOfLevels > 1) {
+                for (int k = 0; k < numberOfLevels; k++) {
+                    resolutionLevels[0][k] = resolutionLevels[0][0]*coverageReader.getOriginalGridRange().getSpan(0)/(1.0*imageioReader.getWidth(k));
+                    resolutionLevels[1][k] = resolutionLevels[1][0]*coverageReader.getOriginalGridRange().getSpan(1)/(1.0*imageioReader.getHeight(k));
+                    if (checkLevels)  {
+                        if (Math.abs(resolutionLevels[0][k] - compareLevels[0][k]) > RESOLUTION_TOLERANCE_FACTOR * compareLevels[0][k] ||
+                            Math.abs(resolutionLevels[1][k] - compareLevels[1][k]) > RESOLUTION_TOLERANCE_FACTOR * compareLevels[1][k]){
+                            return false;
+                        }
+                    }
+                }
+            }
+            return true;
+        }
 
 }

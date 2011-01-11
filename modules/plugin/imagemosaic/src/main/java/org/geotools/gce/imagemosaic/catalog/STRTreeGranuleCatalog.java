@@ -144,7 +144,23 @@ class STRTreeGranuleCatalog extends AbstractGranuleCatalog {
 		
 	}
 	
-	/** The {@link STRtree} index. */
+
+    /**
+     * Constructor which simply expectes a catalogue. 
+     * 
+     * <p>
+     * Notice that this cached implementation will take ownership of
+     * the provided {@link GranuleCatalog}, which means it is responsible
+     * for closing it.
+     * 
+     * @param catalogue the {@link GranuleCatalog} to be wrapped.
+     */
+    public STRTreeGranuleCatalog(GranuleCatalog catalogue) {
+        Utilities.ensureNonNull("catalogue", catalogue);
+        this.wrappedCatalogue = catalogue;
+    }
+
+    /** The {@link STRtree} index. */
 	private SoftReference<STRtree> index= new SoftReference<STRtree>(null);
 
 	private final ReadWriteLock rwLock= new ReentrantReadWriteLock(true);

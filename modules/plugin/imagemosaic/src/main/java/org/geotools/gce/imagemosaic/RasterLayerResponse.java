@@ -40,7 +40,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageReadParam;
-import javax.imageio.ImageReader;
 import javax.measure.unit.Unit;
 import javax.media.jai.BorderExtender;
 import javax.media.jai.ImageLayout;
@@ -59,12 +58,9 @@ import javax.media.jai.operator.MosaicDescriptor;
 import org.geotools.coverage.Category;
 import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.TypeMap;
-import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.grid.GridEnvelope2D;
-import org.geotools.coverage.grid.io.DecimationPolicy;
-import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.Query;
 import org.geotools.data.QueryCapabilities;
@@ -72,8 +68,8 @@ import org.geotools.factory.Hints;
 import org.geotools.feature.visitor.MaxVisitor;
 import org.geotools.filter.IllegalFilterException;
 import org.geotools.filter.SortByImpl;
-import org.geotools.gce.imagemosaic.RasterManager.OverviewLevel;
-import org.geotools.gce.imagemosaic.catalog.GranuleCatalog.GranuleCatalogVisitor;
+import org.geotools.gce.imagemosaic.OverviewsController.OverviewLevel;
+import org.geotools.gce.imagemosaic.catalog.GranuleCatalogVisitor;
 import org.geotools.geometry.Envelope2D;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.JTS;
@@ -84,7 +80,6 @@ import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.geotools.resources.coverage.CoverageUtilities;
 import org.geotools.resources.coverage.FeatureUtilities;
-import org.geotools.resources.geometry.XRectangle2D;
 import org.geotools.resources.i18n.Vocabulary;
 import org.geotools.resources.i18n.VocabularyKeys;
 import org.geotools.resources.image.ImageUtilities;
@@ -120,7 +115,6 @@ import com.vividsolutions.jts.geom.Geometry;
  * @author Daniele Romagnoli, GeoSolutions
  * @author Stefan Alfons Krueger (alfonx), Wikisquare.de : Support for jar:file:foo.jar/bar.properties URLs
  */
-@SuppressWarnings("deprecation")
 class RasterLayerResponse{
     
     /**
@@ -360,6 +354,7 @@ class RasterLayerResponse{
 		private List<ROI> rois = new ArrayList<ROI>();
 		private Color inputTransparentColor;
 		private PlanarImage[] alphaChannels;
+		private RasterLayerRequest request;
         
                 private ROI[] sourceRoi;
         
@@ -563,7 +558,6 @@ class RasterLayerResponse{
 
 	private Color finalTransparentColor;
 
-
 	private ReferencedEnvelope mosaicBBox;
 
 	private Rectangle rasterBounds;
@@ -754,10 +748,16 @@ class RasterLayerResponse{
 			// therefore we are assuming that each granuleDescriptor has a scale and
 			// translate only grid to world that can be deduced from its base
 			// level dimension and envelope. The grid to world transforms for
-			// the other levels can be computed accordingly knowning the scale
+			// the other levels can be computed accordingly knowing the scale
 			// factors.
-			if (request.getRequestedBBox() != null&& request.getRequestedRasterArea() != null)
-				imageChoice = setReadParams(request.getOverviewPolicy(), request.getDecimationPolicy(), baseReadParameters, request);
+			if (request.getRequestedBBox() != null && request.getRequestedRasterArea() != null && !request.isHeterogeneousGranules())
+				imageChoice = ReadParamsController.setReadParams(
+				        request.getRequestedResolution(),
+				        request.getOverviewPolicy(),
+				        request.getDecimationPolicy(),
+				        baseReadParameters,
+				        request.rasterManager,
+				        request.rasterManager.overviewsController); // use general overviews controller
 			else
 				imageChoice = 0;
 			assert imageChoice>=0;
@@ -821,6 +821,7 @@ class RasterLayerResponse{
 			
 			// create the index visitor and visit the feature
 			final MosaicBuilder visitor = new MosaicBuilder();
+			visitor.request = request;
 			final List<Date> times = request.getRequestedTimes();
 			final List<Double> elevations=request.getElevation();
 			final Filter filter = request.getFilter();
@@ -1077,8 +1078,8 @@ class RasterLayerResponse{
                     }
 		}
 
-		ROI[] sourceRoi = visitor.sourceRoi;
-		RenderedImage mosaic = MosaicDescriptor.create(visitor.getSourcesAsArray(), 
+		final ROI[] sourceRoi = visitor.sourceRoi;
+		final RenderedImage mosaic = MosaicDescriptor.create(visitor.getSourcesAsArray(), 
 		        request.isBlend()? MosaicDescriptor.MOSAIC_TYPE_BLEND: MosaicDescriptor.MOSAIC_TYPE_OVERLAY
 		        , (alphaIn || visitor.doInputTransparency) ? visitor.alphaChannels : null, sourceRoi, visitor.sourceThreshold, backgroundValues, localHints);
 		
@@ -1214,74 +1215,5 @@ class RasterLayerResponse{
         return coverageFactory.create(rasterManager.getCoverageIdentifier(), image,new GeneralEnvelope(mosaicBBox), bands, null, null);		
 
 	}
-
-	/**
-	 * This method is responsible for preparing the read param for doing an
-	 * {@link ImageReader#read(int, ImageReadParam)}. It sets the passed
-	 * {@link ImageReadParam} in terms of decimation on reading using the
-	 * provided requestedEnvelope and requestedDim to evaluate the needed
-	 * resolution. It also returns and {@link Integer} representing the index of
-	 * the raster to be read when dealing with multipage raster.
-	 * 
-	 * @param overviewPolicy
-	 *            it can be one of {@link Hints#VALUE_OVERVIEW_POLICY_IGNORE},
-	 *            {@link Hints#VALUE_OVERVIEW_POLICY_NEAREST},
-	 *            {@link Hints#VALUE_OVERVIEW_POLICY_QUALITY} or
-	 *            {@link Hints#VALUE_OVERVIEW_POLICY_SPEED}. It specifies the
-	 *            policy to compute the overviews level upon request.
-	 * @param readParams
-	 *            an instance of {@link ImageReadParam} for setting the
-	 *            subsampling factors.
-	 * @param requestedEnvelope
-	 *            the {@link GeneralEnvelope} we are requesting.
-	 * @param requestedDim
-	 *            the requested dimensions.
-	 * @return the index of the raster to read in the underlying data source.
-	 * @throws IOException
-	 * @throws TransformException
-	 */
-	private int setReadParams(final OverviewPolicy overviewPolicy, final DecimationPolicy decimationPolicy,
-			final ImageReadParam readParams, final RasterLayerRequest request)
-			throws IOException, TransformException {
-
-		// Default image index 0
-		int imageChoice = 0;
-		// default values for subsampling
-		readParams.setSourceSubsampling(1, 1, 0, 0);
-
-		//
-		// Init overview policy
-		//
-		// //
-		// when policy is explictly provided it overrides the policy provided
-		// using hints.
-		final OverviewPolicy policy;
-		final DecimationPolicy decPolicy;
-		if (overviewPolicy == null)
-			policy = rasterManager.overviewPolicy;
-		else
-			policy = overviewPolicy;
-		
-		if (decimationPolicy == null)
-                    decPolicy = rasterManager.decimationPolicy;
-                else
-                    decPolicy = decimationPolicy;
-
-		// requested to ignore overviews
-		if (policy.equals(OverviewPolicy.IGNORE) && decPolicy.equals(DecimationPolicy.DISALLOW))
-			return imageChoice;
-
-		if (!policy.equals(OverviewPolicy.IGNORE)) {
-		    imageChoice = rasterManager.overviewsController.pickOverviewLevel(overviewPolicy, request);
-		}
-		
-		// DECIMATION ON READING
-		if (!decPolicy.equals(DecimationPolicy.DISALLOW)) {
-		    rasterManager.decimationController.performDecimation(imageChoice, readParams, request, rasterManager.overviewsController, rasterManager.spatialDomainManager);
-		}
-		return imageChoice;
-
-	}
-
 
 }

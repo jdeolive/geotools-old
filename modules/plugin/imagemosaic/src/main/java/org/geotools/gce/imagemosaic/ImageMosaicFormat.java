@@ -109,7 +109,6 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
     private static final String SUGGESTED_TILESIZE = "SUGGESTED_TILE_SIZE";
     
     static final Interpolation DEFAULT_INTERPOLATION = new InterpolationNearest();
-//    static final InterpolationType DEFAULT_INTERPOLATION = InterpolationType.NEAREST;
 
     /**
      * This {@link GeneralParameterValue} can be provided to the
@@ -134,12 +133,8 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
     @SuppressWarnings("unchecked")
 	public static final ParameterDescriptor<List> ELEVATION = DefaultParameterDescriptor.create("ELEVATION", "An elevation value",List.class, null,false);    
 
-//    /** Optional Run value for this mosaic. */
-//    public static final ParameterDescriptor<String> CQL_FILTER = DefaultParameterDescriptor.create("CQL_FILTER", "A generic CQL Filter value",String.class, null, false);    
-
     /** Filter tiles based on attributes from the input coverage*/
-    public static ParameterDescriptor<Filter> FILTER = new DefaultParameterDescriptor<Filter>("Filter", Filter.class, null, null);
-    
+    public static final ParameterDescriptor<Filter> FILTER = new DefaultParameterDescriptor<Filter>("Filter", Filter.class, null, null);
     
     /** Control the type of the final mosaic. */
     public static final ParameterDescriptor<Boolean> FADING = new DefaultParameterDescriptor<Boolean>("Fading", Boolean.class, new Boolean[]{Boolean.TRUE,Boolean.FALSE}, Boolean.FALSE);
@@ -173,9 +168,6 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
             "BackgroundValues", double[].class, null, null);
     
     /** Control the interpolation to be used in mosaicking */
-//    public static final ParameterDescriptor<InterpolationType> INTERPOLATION = new DefaultParameterDescriptor<InterpolationType>(
-//            "Interpolation", InterpolationType.class, null, DEFAULT_INTERPOLATION);
-    
     public static final ParameterDescriptor<Interpolation> INTERPOLATION = new DefaultParameterDescriptor<Interpolation>(
             "Interpolation", Interpolation.class, null, DEFAULT_INTERPOLATION);
 
@@ -213,7 +205,10 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
 //                INTERPOLATION,
                 TIME,
                 ELEVATION,
-                FILTER}));
+                FILTER,
+                OVERVIEW_POLICY,
+                DECIMATION_POLICY
+        }));
 
         // reading parameters
         writeParameters = null;

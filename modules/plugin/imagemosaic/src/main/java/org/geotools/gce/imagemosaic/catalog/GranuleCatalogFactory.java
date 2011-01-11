@@ -56,7 +56,11 @@ public abstract class GranuleCatalogFactory {
 
 	public static GranuleCatalog createGranuleCatalog(final  Map<String, Serializable> params, final boolean caching, final boolean create, final DataStoreFactorySpi spi){
 		//TODO @todo this is a temporary hack before we have an even stupid SPI mechanism here
-		return caching?new STRTreeGranuleCatalog(params,spi):new GTDataStoreGranuleCatalog(params,create,spi);	
+	    final GranuleCatalog catalogue= new GTDataStoreGranuleCatalog(params,create,spi);
+	    if (caching) {
+		    return new STRTreeGranuleCatalog(catalogue);
+	    }
+	    return  catalogue;
 	}
 
 	public static GranuleCatalog createGranuleCatalog(
@@ -77,6 +81,7 @@ public abstract class GranuleCatalogFactory {
 			params.put("PathType",configuration.isAbsolutePath()?PathType.ABSOLUTE:PathType.RELATIVE);
 			params.put("LocationAttribute",configuration.getLocationAttribute());
 			params.put("SuggestedSPI",configuration.getSuggestedSPI());
+			params.put("Heterogeneous", configuration.isHeterogeneous());
 			File parentDirectory=DataUtilities.urlToFile(sourceURL);
 			if(parentDirectory.isFile())
 				parentDirectory=parentDirectory.getParentFile();
@@ -112,6 +117,7 @@ public abstract class GranuleCatalogFactory {
 				params.put("PathType",configuration.isAbsolutePath()?PathType.ABSOLUTE:PathType.RELATIVE);
 				params.put("LocationAttribute",configuration.getLocationAttribute());
 				params.put("SuggestedSPI",configuration.getSuggestedSPI());
+				params.put("Heterogeneous", configuration.isHeterogeneous());
 				if(sourceURL!=null){
 					File parentDirectory=DataUtilities.urlToFile(sourceURL);
 					if(parentDirectory.isFile())

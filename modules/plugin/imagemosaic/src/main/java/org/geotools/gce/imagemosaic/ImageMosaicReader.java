@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Comparator;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -92,7 +92,7 @@ import org.opengis.referencing.operation.MathTransform;
  * All source images are assumed to have been geometrically mapped into a common
  * coordinate space. The origin (minX, minY) of each image is therefore taken to
  * represent the location of the respective image in the common coordinate
- * system of the sour ce images. This coordinate space will also be that of the
+ * system of the source images. This coordinate space will also be that of the
  * destination image.
  * 
  * All source images must have the same data type and sample size for all bands
@@ -144,6 +144,8 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 
 	boolean imposedBBox;
 	
+	boolean heterogeneousGranules;
+	
 	/**
 	 * UTC timezone to serve as reference
 	 */
@@ -160,7 +162,6 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 	 */
 	public ImageMosaicReader(Object source, Hints uHints) throws IOException {
 	    super(source,uHints);
-	    
 	    if (this.hints.containsKey(Hints.EXECUTOR_SERVICE)) {
 	      final Object executor = uHints.get(Hints.EXECUTOR_SERVICE);
 	      if (executor != null && executor instanceof ExecutorService){
@@ -470,6 +471,8 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 		// this is a newly added property we have to be ready to the case where
 		// we do not find it.
 		expandMe = configuration.isExpandToRGB();
+		
+		heterogeneousGranules = configuration.isHeterogeneous();
 
 
 		// absolute or relative path
@@ -717,12 +720,8 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 		if(hasElevationAttribute||hasTimeAttribute)
 		{
 			final List<String> metadataNames= new ArrayList<String>();
-			if(hasTimeAttribute)
-				metadataNames.add("TIME_DOMAIN");
-			if(hasElevationAttribute)
-				metadataNames.add("ELEVATION_DOMAIN");
-			// TODO: Hack
-			metadataNames.add("RUNTIME_DOMAIN");
+			metadataNames.add("TIME_DOMAIN");
+			metadataNames.add("ELEVATION_DOMAIN");
 			return metadataNames.toArray(new String[metadataNames.size()]);
 		}
 		return super.getMetadataNames();
@@ -732,7 +731,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 	public String getMetadataValue(final String name) {
 		final boolean getTimeAttribute=(timeAttribute!=null&&name.equalsIgnoreCase("time_domain"));
 		final QueryCapabilities queryCapabilities = rasterManager.granuleCatalog.getQueryCapabilities();
-//		boolean manualSort=false;
+		boolean manualSort=false;
 		if(getTimeAttribute){
 			Query query;
 			try {
@@ -741,49 +740,51 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 				final SortBy[] sortBy=new SortBy[]{
 						new SortByImpl(
 								FeatureUtilities.DEFAULT_FILTER_FACTORY.property(rasterManager.timeAttribute),
-								SortOrder.DESCENDING
+								SortOrder.ASCENDING
 						)};
-				if(queryCapabilities.supportsSorting(sortBy))
+				// if the store does not support sorting we have to do it by hand
+				if (queryCapabilities.supportsSorting(sortBy)) {
 					query.setSortBy(sortBy);
-//				else
-//					manualSort=true;
+				} else {
+					manualSort=true;
+				}
 				final UniqueVisitor visitor= new UniqueVisitor(timeAttribute);
 				rasterManager.granuleCatalog.computeAggregateFunction(query, visitor);
 				
 				// check result
-				//final Set<Date> result = manualSort?new TreeSet<Date>(visitor.getUnique()):visitor.getUnique();
-				final Set<Date> result = new TreeSet<Date>(new Comparator<Date>() {
-
-					public int compare(Date o1, Date o2) {
-						Calendar c1 = Calendar.getInstance(TimeZone.getTimeZone("UTC")); 
-						Calendar c2 = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-
-						c1.setTime(o1);
-						c2.setTime(o2);
-
-						// Revert behavior in order to have a dsc time list
-						if (c1.before(c2))
-							return 1;
-						else if (c1.after(c2))
-							return -1;
-						
-						return 0;
-					}
-				});
+				final ArrayList<Date> result= new ArrayList<Date>();
 				result.addAll(visitor.getUnique());
+				Collections.sort(result);
+//				final Set<Date> result = manualSort?new TreeSet<Date>(visitor.getUnique()):visitor.getUnique();
+//				final Set<Date> result = new TreeSet<Date>(new Comparator<Date>() {
+//				        private final Calendar c1 = Calendar.getInstance(TimeZone.getTimeZone("UTC")); 
+//				        private final Calendar c2 = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+//					public int compare(Date o1, Date o2) {
+//
+//						c1.setTime(o1);
+//						c2.setTime(o2);
+//
+//						// Revert behavior in order to have a dsc time list
+//						if (c1.before(c2))
+//							return -1;
+//						else if (c1.after(c2))
+//							return 1;
+//						
+//						return 0;
+//					}
+//				});
+//				result.addAll(visitor.getUnique());
 
 				if(result.size()<=0)
 					return null;				
 				final StringBuilder buff= new StringBuilder();
 				final SimpleDateFormat df= new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
 				df.setTimeZone(UTC_TZ);
-				for(Iterator<Date> it=result.iterator();it.hasNext();){
-					final Date time=  it.next();
-					buff.append(df.format(time)).append("Z");
-					if(it.hasNext())
-						buff.append(",");
+				for(Date date:result){
+					buff.append(df.format(date)).append("Z");//ZULU
+					buff.append(",");
 				}
-				return buff.toString();
+				return buff.substring(0,buff.length()-1).toString();
 			} catch (IOException e) {
 				if(LOGGER.isLoggable(Level.WARNING))
 					LOGGER.log(Level.WARNING,"Unable to parse attribute:"+name,e);
@@ -828,54 +829,54 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader implem
 			
 		}
 		
-		final boolean getRuntimeAttribute=name.equalsIgnoreCase("runtime_domain");
-		if(getRuntimeAttribute){
-			Query query;
-			try {
-				query = new DefaultQuery(rasterManager.granuleCatalog.getType().getTypeName());
-				query.setPropertyNames(Arrays.asList("runtime"));
-				final SortBy[] sortBy=new SortBy[]{
-						new SortByImpl(
-								FeatureUtilities.DEFAULT_FILTER_FACTORY.property("runtime"),
-								SortOrder.DESCENDING
-						)};
-				if(queryCapabilities.supportsSorting(sortBy))
-					query.setSortBy(sortBy);
-//				else
-//					manualSort=true;				
-				final UniqueVisitor visitor= new UniqueVisitor("runtime");
-				rasterManager.granuleCatalog.computeAggregateFunction(query, visitor);
-				
-				// check result
-				final Set<Integer> result = new TreeSet<Integer>(new Comparator<Integer>() {
-
-					public int compare(Integer o1, Integer o2) {
-						// Revert Order
-						if (o1 > 02)
-							return -1;
-						else if (o1 < o2)
-							return 1;
-						return 0;
-					}
-				});
-				result.addAll(visitor.getUnique());
-				if(result.size()<=0)
-					return null;
-				final StringBuilder buff= new StringBuilder();
-				for(Iterator<Integer> it=result.iterator();it.hasNext();){
-					final int value= it.next();
-					buff.append(value);
-					if(it.hasNext())
-						buff.append(",");
-				}
-				return buff.toString();
-			} catch (IOException e) {
-				if(LOGGER.isLoggable(Level.WARNING))
-					LOGGER.log(Level.WARNING,"Unable to parse attribute:"+name,e);
-			}
-			
-		}
-		
+//		final boolean getRuntimeAttribute=name.equalsIgnoreCase("runtime_domain");
+//		if(getRuntimeAttribute){
+//			Query query;
+//			try {
+//				query = new DefaultQuery(rasterManager.granuleCatalog.getType().getTypeName());
+//				query.setPropertyNames(Arrays.asList("runtime"));
+//				final SortBy[] sortBy=new SortBy[]{
+//						new SortByImpl(
+//								FeatureUtilities.DEFAULT_FILTER_FACTORY.property("runtime"),
+//								SortOrder.DESCENDING
+//						)};
+//				if(queryCapabilities.supportsSorting(sortBy))
+//					query.setSortBy(sortBy);
+////				else
+////					manualSort=true;				
+//				final UniqueVisitor visitor= new UniqueVisitor("runtime");
+//				rasterManager.granuleCatalog.computeAggregateFunction(query, visitor);
+//				
+//				// check result
+//				final Set<Integer> result = new TreeSet<Integer>(new Comparator<Integer>() {
+//
+//					public int compare(Integer o1, Integer o2) {
+//						// Revert Order
+//						if (o1 > 02)
+//							return -1;
+//						else if (o1 < o2)
+//							return 1;
+//						return 0;
+//					}
+//				});
+//				result.addAll(visitor.getUnique());
+//				if(result.size()<=0)
+//					return null;
+//				final StringBuilder buff= new StringBuilder();
+//				for(Iterator<Integer> it=result.iterator();it.hasNext();){
+//					final int value= it.next();
+//					buff.append(value);
+//					if(it.hasNext())
+//						buff.append(",");
+//				}
+//				return buff.toString();
+//			} catch (IOException e) {
+//				if(LOGGER.isLoggable(Level.WARNING))
+//					LOGGER.log(Level.WARNING,"Unable to parse attribute:"+name,e);
+//			}
+//			
+//		}
+//		
 		return super.getMetadataValue(name);
 	}
 }

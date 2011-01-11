@@ -24,13 +24,11 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.imageio.ImageReadParam;
 import javax.media.jai.ImageLayout;
 
 import org.geotools.coverage.grid.GridCoverage2D;
@@ -42,8 +40,9 @@ import org.geotools.data.DataSourceException;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.Query;
 import org.geotools.factory.Hints;
+import org.geotools.gce.imagemosaic.OverviewsController.OverviewLevel;
 import org.geotools.gce.imagemosaic.catalog.GranuleCatalog;
-import org.geotools.gce.imagemosaic.catalog.GranuleCatalog.GranuleCatalogVisitor;
+import org.geotools.gce.imagemosaic.catalog.GranuleCatalogVisitor;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
@@ -58,274 +57,10 @@ import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.MathTransform2D;
 import org.opengis.referencing.operation.TransformException;
 class RasterManager {
+    
 	/** Logger. */
 	private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(RasterManager.class);
 	
-	/**
-	 * Simple support class for sorting overview resolutions
-	 * @author Andrea Aime
-	 * @author Simone Giannecchini, GeoSolutions.
-	 * @since 2.5
-	 */
-	static class OverviewLevel implements Comparable<OverviewLevel> {
-		
-		double scaleFactor;
-
-	    double resolutionX;
-	    double resolutionY;
-	    int imageChoice;
-	    /**
-	     * 
-	     * @param scaleFactor
-	     * @param resolutionX
-	     * @param resolutionY
-	     * @param imageChoice
-	     */
-        public OverviewLevel(
-        		final double scaleFactor,
-        		final double resolutionX,
-        		final double resolutionY,
-        		int imageChoice) {
-            this.scaleFactor = scaleFactor;
-            this.resolutionX=resolutionX;
-            this.resolutionY=resolutionY;
-            this.imageChoice = imageChoice;
-        }
-	    
-	    public int compareTo(final OverviewLevel other) {
-	        if(scaleFactor > other.scaleFactor)
-	            return 1;
-	        else if(scaleFactor < other.scaleFactor)
-	            return -1;
-	        else 
-	        	return 0;
-	    }
-	    
-	    @Override
-	    public String toString() {
-	        return "OverviewLevel[Choice=" + imageChoice + ",scaleFactor=" + scaleFactor + "]";
-	    }
-	    
-
-		@Override
-		public int hashCode() {
-			int hash= Utilities.hash(imageChoice, 31);
-			hash=Utilities.hash(resolutionX, hash);
-			hash=Utilities.hash(resolutionY, hash);
-			hash=Utilities.hash(scaleFactor, hash);
-			return hash;
-		}	    
-	    
-	    
-	}
-	
-	static class OverviewsController  {
-		final ArrayList<org.geotools.gce.imagemosaic.RasterManager.OverviewLevel> resolutionsLevels = new ArrayList<OverviewLevel>();
-	
-		public OverviewsController(
-        		final double []highestRes,
-        		final int numberOfOvervies,
-        		final double [][] overviewsResolution) {
-				
-			// notice that we assume what follows:
-			// -highest resolution image is at level 0.
-			// -all the overviews share the same envelope
-			// -the aspect ratio for the overviews is constant
-			// -the provided resolutions are taken directly from the grid
-			resolutionsLevels.add(new OverviewLevel(1, highestRes[0],highestRes[1], 0));
-			if (numberOfOvervies > 0) {
-				for (int i = 0; i < overviewsResolution.length; i++)
-					resolutionsLevels.add(
-								new OverviewLevel(
-												overviewsResolution[i][0] / highestRes[0],
-												overviewsResolution[i][0],
-												overviewsResolution[i][1], i + 1)
-					);
-				Collections.sort(resolutionsLevels);
-			}
-		}
-
-		int pickOverviewLevel(final OverviewPolicy policy,final RasterLayerRequest request) {
-    
-			// //
-			//
-			// If this file has only
-			// one page we use decimation, otherwise we use the best page available.
-			// Future versions should use both.
-			//
-			// //
-			if (resolutionsLevels==null||resolutionsLevels.size() <=0) 
-				return 0;
-			
-			// Now search for the best matching resolution. 
-	        // Check also for the "perfect match"... unlikely in practice unless someone
-	        // tunes the clients to request exactly the resolution embedded in
-	        // the overviews, something a perf sensitive person might do in fact
-	        
-            
-	        // requested scale factor for least reduced axis
-	        final OverviewLevel max = (OverviewLevel) resolutionsLevels.get(0);
-	        
-	        // the requested resolutions
-			final double requestedScaleFactorX;
-			final double requestedScaleFactorY;
-			final double[] requestedRes = request.getRequestedResolution();
-			if (requestedRes != null)
-			{	
-		        final double reqx = requestedRes[0];
-		        final double reqy = requestedRes[1];
-		        
-				requestedScaleFactorX = reqx / max.resolutionX;
-				requestedScaleFactorY = reqy / max.resolutionY;		        
-			}
-			else
-				return 0;
-//			{
-//				final double[] scaleFactors = request.getRequestedRasterScaleFactors();
-//				if(scaleFactors==null)
-//					return 0;
-//				requestedScaleFactorX=scaleFactors[0];
-//				requestedScaleFactorY=scaleFactors[1];
-//			}
-			final int leastReduceAxis = requestedScaleFactorX <= requestedScaleFactorY ? 0: 1;
-			final double requestedScaleFactor = leastReduceAxis == 0 ? requestedScaleFactorX: requestedScaleFactorY;
-	        
-	        
-			// are we looking for a resolution even higher than the native one?
-	        if(requestedScaleFactor<=1)
-	            return max.imageChoice;
-	        // are we looking for a resolution even lower than the smallest overview?
-	        final OverviewLevel min = (OverviewLevel) resolutionsLevels.get(resolutionsLevels.size() - 1);
-	        if(requestedScaleFactor>=min.scaleFactor)
-	            return min.imageChoice;
-	        // Ok, so we know the overview is between min and max, skip the first
-	        // and search for an overview with a resolution lower than the one requested,
-	        // that one and the one from the previous step will bound the searched resolution
-	        OverviewLevel prev = max;
-	        final int size=resolutionsLevels.size();
-	        for (int i = 1; i <size; i++) {
-	            final OverviewLevel curr = resolutionsLevels.get(i);
-	            // perfect match check
-	            if(curr.scaleFactor==requestedScaleFactor) {
-	                return curr.imageChoice;
-	            }
-	            
-	            // middle check. The first part of the condition should be sufficient, but
-	            // there are cases where the x resolution is satisfied by the lowest resolution, 
-	            // the y by the one before the lowest (so the aspect ratio of the request is 
-	            // different than the one of the overviews), and we would end up going out of the loop
-	            // since not even the lowest can "top" the request for one axis 
-	            if(curr.scaleFactor>requestedScaleFactor|| i == size - 1) {
-	                if(policy ==OverviewPolicy.QUALITY)
-	                    return prev.imageChoice;
-	                else if(policy == OverviewPolicy.SPEED)
-	                    return curr.imageChoice;
-	                else if(requestedScaleFactor - prev.scaleFactor < curr.scaleFactor - requestedScaleFactor)
-	                    return prev.imageChoice;
-	                else
-	                    return curr.imageChoice;
-	            }
-	            prev = curr;
-	        }
-	        //fallback
-	        return max.imageChoice;
-	    }
-		
-	}
-	/**
-	 * 
-	 * @author Simone Giannecchini, GeoSolutions S.A.S.
-	 *
-	 */
-	static class  DecimationController  {
-		
-		public DecimationController() {
-
-		}
-
-		/**
-		 * This method is responsible for evaluating possible subsampling factors
-		 * once the best resolution level has been found, in case we have support
-		 * for overviews, or starting from the original coverage in case there are
-		 * no overviews available.
-		 * 
-		 * Anyhow this method should not be called directly but subclasses should
-		 * make use of the setReadParams method instead in order to transparently
-		 * look for overviews.
-		 * 
-		 * @param imageIndex
-		 * @param readParameters
-		 * @param requestedRes
-		 */
-		void performDecimation(
-				final int imageIndex,
-				final ImageReadParam readParameters, 
-				final RasterLayerRequest request,
-				final OverviewsController overviewsController,
-				final SpatialDomainManager spatialDomainManager) {
-			{
-		
-				// the read parameters cannot be null
-				Utilities.ensureNonNull("readParameters", readParameters);
-				Utilities.ensureNonNull("request", request);
-				
-				//get the requested resolution
-				final double[] requestedRes=request.getRequestedResolution();
-				if(requestedRes==null)
-				{
-					// if there is no requested resolution we don't do any subsampling
-					readParameters.setSourceSubsampling(1, 1, 0, 0);
-					return;
-				}
-
-				double selectedRes[] = new double[2];
-				final OverviewLevel level=overviewsController.resolutionsLevels.get(imageIndex);
-				selectedRes[0] = level.resolutionX;
-				selectedRes[1] = level.resolutionY;
-				
-				final int rasterWidth, rasterHeight;
-				if (imageIndex == 0) {
-					// highest resolution
-					rasterWidth = spatialDomainManager.coverageRasterArea.width;
-					rasterHeight = spatialDomainManager.coverageRasterArea.height;
-				} else {
-					// work on overviews
-					//TODO this is bad side effect of how the Overviews are managed right now. There are two problems here,
-					// first we are assuming that we are working with LON/LAT, second is that we are getting just an approximation of 
-					// raster dimensions. The solution is to have the rater dimensions on each level and to confront raster dimensions,
-					//which means working
-					rasterWidth = (int) Math.round(spatialDomainManager.coverageBBox.getSpan(0)/ selectedRes[0]);
-					rasterHeight = (int) Math.round(spatialDomainManager.coverageBBox.getSpan(1)/ selectedRes[1]);
-		
-				}
-				// /////////////////////////////////////////////////////////////////////
-				// DECIMATION ON READING
-				// Setting subsampling factors with some checks
-				// 1) the subsampling factors cannot be zero
-				// 2) the subsampling factors cannot be such that the w or h are
-				// zero
-				// /////////////////////////////////////////////////////////////////////
-				int subSamplingFactorX = (int) Math.floor(requestedRes[0]/ selectedRes[0]);
-				subSamplingFactorX = subSamplingFactorX == 0 ? 1: subSamplingFactorX;
-	
-				while (rasterWidth / subSamplingFactorX <= 0 && subSamplingFactorX >= 0)
-					subSamplingFactorX--;
-				subSamplingFactorX = subSamplingFactorX <= 0 ? 1: subSamplingFactorX;
-	
-				int subSamplingFactorY = (int) Math.floor(requestedRes[1]/ selectedRes[1]);
-				subSamplingFactorY = subSamplingFactorY == 0 ? 1: subSamplingFactorY;
-	
-				while (rasterHeight / subSamplingFactorY <= 0 && subSamplingFactorY >= 0)subSamplingFactorY--;
-				subSamplingFactorY = subSamplingFactorY <= 0 ? 1: subSamplingFactorY;
-	
-				readParameters.setSourceSubsampling(subSamplingFactorX,subSamplingFactorY, 0, 0);
-				
-		
-			}
-		}
-		
-	}
-
 	/**
 	 * This class is responsible for putting together all the 2D spatial information needed for a certain raster.
 	 * 
@@ -340,8 +75,10 @@ class RasterManager {
 
 		/** The base envelope 2D */
 		ReferencedEnvelope coverageBBox;
+		
 		/** The CRS for the coverage */
 		CoordinateReferenceSystem coverageCRS;
+		
 		/** The CRS related to the base envelope 2D */
 		CoordinateReferenceSystem coverageCRS2D;
 		// ////////////////////////////////////////////////////////////////////////
@@ -351,13 +88,18 @@ class RasterManager {
 		// ////////////////////////////////////////////////////////////////////////
 		/** The base envelope read from file */
 		GeneralEnvelope coverageEnvelope = null;
+		
 		double[] coverageFullResolution;
+		
 		/** WGS84 envelope 2D for this coverage */
 		ReferencedEnvelope coverageGeographicBBox;
+		
 		CoordinateReferenceSystem coverageGeographicCRS2D;
+		
 		MathTransform2D coverageGridToWorld2D;
+		
 		/** The base grid range for the coverage */
-		 Rectangle coverageRasterArea;
+		Rectangle coverageRasterArea;
 		 
 
 		public SpatialDomainManager(final GeneralEnvelope envelope,
@@ -374,7 +116,7 @@ class RasterManager {
 		    coverageFullResolution[0] = highestLevel.resolutionX;
 		    coverageFullResolution[1] = highestLevel.resolutionY;
 		    
-			prepareCoverageSpatialElements();
+		    prepareCoverageSpatialElements();
 		}
 			
 			
@@ -434,10 +176,10 @@ class RasterManager {
 	OverviewsController overviewsController;
 	OverviewPolicy overviewPolicy;
 	DecimationPolicy decimationPolicy;
-	DecimationController decimationController;
 	ImageMosaicReader parent;
 	private PathType pathType;
 	boolean expandMe;
+	boolean heterogeneousGranules;
 	SpatialDomainManager spatialDomainManager;
 
 	/** {@link SoftReference} to the index holding the tiles' envelopes. */
@@ -457,10 +199,11 @@ class RasterManager {
 		
 		this.parent=reader;
 		this.expandMe=parent.expandMe;
+		this.heterogeneousGranules = parent.heterogeneousGranules;
         
         //take ownership of the index
-		granuleCatalog= parent.catalog;
-		parent.catalog=null;
+        granuleCatalog = parent.catalog;
+        parent.catalog = null;
 		
         timeAttribute=parent.timeAttribute;
         elevationAttribute=parent.elevationAttribute;
@@ -478,7 +221,6 @@ class RasterManager {
         		reader.getHighestRes(),
         		reader.getNumberOfOvervies(),
         		reader.getOverviewsResolution());
-        decimationController= new DecimationController();
         try {
 			spatialDomainManager= new SpatialDomainManager(
 					reader.getOriginalEnvelope(),
@@ -648,7 +390,7 @@ class RasterManager {
 	 *            Envelope for selecting features that intersect.
 	 * @return A list of features.
 	 * @throws IOException
-	 *             In case loading the needed features failes.
+	 *             In case loading the needed features fails.
 	 */
 	void getGranules(final BoundingBox envelope,final GranuleCatalogVisitor visitor)throws IOException {
 		granuleCatalog.getGranules(envelope,visitor);

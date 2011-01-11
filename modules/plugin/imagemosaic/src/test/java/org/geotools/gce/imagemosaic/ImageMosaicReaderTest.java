@@ -48,7 +48,9 @@ import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
+import org.geotools.coverage.grid.io.DecimationPolicy;
 import org.geotools.coverage.grid.io.GridFormatFinder;
+import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.coverage.grid.io.UnknownFormat;
 import org.geotools.factory.Hints;
 import org.geotools.geometry.GeneralEnvelope;
@@ -86,6 +88,8 @@ public class ImageMosaicReaderTest extends Assert{
 	}
 
 	private URL rgbURL;
+	
+	private URL heterogeneousGranulesURL;
 
 	private URL indexURL;
 
@@ -123,7 +127,6 @@ public class ImageMosaicReaderTest extends Assert{
 	 * @throws FactoryException
 	 */
 	@Test
-	@Ignore
 	public void crop() throws MismatchedDimensionException, IOException,
 			FactoryException {
 		imageMosaicCropTest(rgbURL, "crop-rgbURL");
@@ -156,7 +159,6 @@ public class ImageMosaicReaderTest extends Assert{
 	 * @throws FactoryException 
 	 */
 	@Test
-	@Ignore
 	public void alpha() throws IOException,
 			MismatchedDimensionException, FactoryException {
 		
@@ -229,7 +231,6 @@ public class ImageMosaicReaderTest extends Assert{
 	 * @throws FactoryException 
 	 */
 	@Test
-	@Ignore
 	public void overviews() throws IOException,	
 			MismatchedDimensionException, FactoryException {
 		final AbstractGridFormat format = getFormat(overviewURL);
@@ -266,7 +267,6 @@ public class ImageMosaicReaderTest extends Assert{
 	 * @throws NoSuchAuthorityCodeException
 	 */
 	@Test
-	@Ignore
 	public void timeElevation() throws IOException, ParseException, NoSuchAuthorityCodeException, FactoryException {
 	        TestData.unzipFile(this, "ensmean.zip");
 	        final URL timeElevURL = TestData.url(this, "ensmean");
@@ -278,7 +278,7 @@ public class ImageMosaicReaderTest extends Assert{
 		
 		final String[] metadataNames = reader.getMetadataNames();
 		assertNotNull(metadataNames);
-		assertEquals(metadataNames.length,3);
+		assertEquals(metadataNames.length,2);
 		
 		final String timeMetadata = reader.getMetadataValue("TIME_DOMAIN");
 		assertNotNull(timeMetadata);
@@ -362,10 +362,10 @@ public class ImageMosaicReaderTest extends Assert{
 	 * @throws NoSuchAuthorityCodeException 
 	 * @throws MismatchedDimensionException
 	 * @throws NoSuchAuthorityCodeException
+	 * @throws ParseException 
 	 */
 	@Test
-	@Ignore
-	public void time() throws IOException, NoSuchAuthorityCodeException, FactoryException {
+	public void time() throws IOException, NoSuchAuthorityCodeException, FactoryException, ParseException {
 	        System.setProperty("org.geotools.shapefile.datetime", "true");
 		final AbstractGridFormat format = getFormat(timeURL);
 		final ImageMosaicReader reader = getReader(timeURL, format);
@@ -373,6 +373,7 @@ public class ImageMosaicReaderTest extends Assert{
 		final String[] metadataNames = reader.getMetadataNames();
 		assertNotNull(metadataNames);
 		assertEquals(metadataNames.length,2);
+		assertEquals("2004-01-01T00:00:00.000Z,2004-02-01T00:00:00.000Z,2004-03-01T00:00:00.000Z,2004-04-01T00:00:00.000Z,2004-05-01T00:00:00.000Z,2004-06-01T00:00:00.000Z,2004-07-01T00:00:00.000Z", reader.getMetadataValue(metadataNames[0]));
 
 		// limit yourself to reading just a bit of it
 		final ParameterValue<GridGeometry2D> gg =  ImageMosaicFormat.READ_GRIDGEOMETRY2D.createValue();
@@ -392,11 +393,73 @@ public class ImageMosaicReaderTest extends Assert{
 		
 		// specify current time
 		final ParameterValue<List> time = ImageMosaicFormat.TIME.createValue();
-		time.setValue(new ArrayList(){{add(null);}});	
+		
+		final SimpleDateFormat formatD = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+		formatD.setTimeZone(TimeZone.getTimeZone("GMT"));
+		final Date timeD=formatD.parse("2004-01-01T00:00:00.000Z");
+		time.setValue(new ArrayList(){{add(timeD);}});
 		
 		// Test the output coverage
 		checkCoverage(reader, new GeneralParameterValue[] {gg,useJai ,tileSize,time}, "time test");
+		
 	}	
+	
+    /**
+     * Tests the {@link ImageMosaicReader} with support for different
+     * resolutions/different number of overviews.
+     * 
+     * world_a.tif => Pixel Size = (0.833333333333333,-0.833333333333333); 4
+     * overviews world_b1.tif => Pixel Size =
+     * (1.406250000000000,-1.406250000000000); 2 overviews world_b2.tif => Pixel
+     * Size = (0.666666666666667,-0.666666666666667); 0 overviews
+     * 
+     * @throws IOException
+     * @throws MismatchedDimensionException
+     * @throws FactoryException
+     */
+    @Test
+    public void testHeterogeneousGranules() throws IOException,
+            MismatchedDimensionException, FactoryException {
+
+        final AbstractGridFormat format = getFormat(heterogeneousGranulesURL);
+        final ImageMosaicReader reader = getReader(heterogeneousGranulesURL, format);
+
+        final ParameterValue<GridGeometry2D> gg = ImageMosaicFormat.READ_GRIDGEOMETRY2D.createValue();
+        final GeneralEnvelope envelope = reader.getOriginalEnvelope();
+        final Dimension dim = new Dimension();
+        dim.setSize(reader.getOriginalGridRange().getSpan(0) / 7.0, reader.getOriginalGridRange().getSpan(1) / 7.0);
+        final Rectangle rasterArea = ((GridEnvelope2D) reader.getOriginalGridRange());
+        rasterArea.setSize(dim);
+        final GridEnvelope2D range = new GridEnvelope2D(rasterArea);
+        gg.setValue(new GridGeometry2D(range, envelope));
+
+        // use imageio with defined tiles
+        final ParameterValue<Boolean> useJai = ImageMosaicFormat.USE_JAI_IMAGEREAD.createValue();
+        useJai.setValue(false);
+
+        final ParameterValue<OverviewPolicy> op = ImageMosaicFormat.OVERVIEW_POLICY.createValue();
+
+        LOGGER.info("\nTesting with OverviewPolicy = QUALITY");
+        op.setValue(OverviewPolicy.QUALITY);
+        checkCoverage(reader, new GeneralParameterValue[] { gg, useJai, op },
+                "heterogeneous granules test: OverviewPolicy=QUALITY", rasterArea);
+
+        LOGGER.info("\nTesting with OverviewPolicy = SPEED");
+        op.setValue(OverviewPolicy.SPEED);
+        checkCoverage(reader, new GeneralParameterValue[] { gg, useJai, op },
+                "heterogeneous granules test: OverviewPolicy=SPEED", rasterArea);
+
+        LOGGER.info("\nTesting with OverviewPolicy = NEAREST");
+        op.setValue(OverviewPolicy.NEAREST);
+        checkCoverage(reader, new GeneralParameterValue[] { gg, useJai, op },
+                "heterogeneous granules test: OverviewPolicy=NEAREST", rasterArea);
+
+        LOGGER.info("\nTesting with OverviewPolicy = IGNORE");
+        op.setValue(OverviewPolicy.IGNORE);
+        checkCoverage(reader, new GeneralParameterValue[] { gg, useJai, op },
+                "heterogeneous granules test: OverviewPolicy=IGNORE", rasterArea);
+
+    }
 	
 	/**
 	 * Tests the {@link ImageMosaicReader} with default parameters for the
@@ -407,7 +470,6 @@ public class ImageMosaicReaderTest extends Assert{
 	 * @throws FactoryException 
 	 */
 	@Test
-	@Ignore
 	public void defaultParameterValue() throws IOException,	
 			MismatchedDimensionException, FactoryException {
 
@@ -428,7 +490,6 @@ public class ImageMosaicReaderTest extends Assert{
 	
 	
 	@Test
-	@Ignore
 	public void errors() throws NoSuchAuthorityCodeException, FactoryException {
 		final Hints hints= new Hints(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM, CRS.decode("EPSG:4326", true));
 		
@@ -439,7 +500,7 @@ public class ImageMosaicReaderTest extends Assert{
 		// error for location attribute
 		AbstractGridCoverage2DReader reader=null;
 		try {
-		    LOGGER.info("Testing Invalid location attribute");
+		    LOGGER.info("Testing Invalid location attribute. (A DataSourceException should be catched) ");
 			reader=(AbstractGridCoverage2DReader) ((AbstractGridFormat) GridFormatFinder.findFormat(rgbURL,hints))
 					.getReader(rgbURL, new Hints(Hints.MOSAIC_LOCATION_ATTRIBUTE, "aaaa"));
 			Assert.assertNull(reader);
@@ -558,20 +619,32 @@ public class ImageMosaicReaderTest extends Assert{
 	 * @throws IOException
 	 */
 	private void checkCoverage(final ImageMosaicReader reader,
-			GeneralParameterValue[] values, String title) throws IOException {
+                GeneralParameterValue[] values, String title) throws IOException {
+	    checkCoverage(reader, values, title, null);
+	}
+	
+	private void checkCoverage(final ImageMosaicReader reader,
+			GeneralParameterValue[] values, String title, Rectangle rect) throws IOException {
 		// Test the coverage
 		final GridCoverage2D coverage = getCoverage(reader, values);
-		testCoverage(reader, values, title, coverage);
+		testCoverage(reader, values, title, coverage, rect);
 	}
 
+	private void testCoverage(final ImageMosaicReader reader,
+                GeneralParameterValue[] values, String title,
+                final GridCoverage2D coverage){
+	    testCoverage(reader, values, title, coverage, null);
+	}
+	
 	@SuppressWarnings("unchecked")
 	private void testCoverage(final ImageMosaicReader reader,
 			GeneralParameterValue[] values, String title,
-			final GridCoverage2D coverage) {
+			final GridCoverage2D coverage, final Rectangle rect) {
+	    final RenderedImage image = coverage.getRenderedImage(); 
 		if (interactive)
-			show( coverage.getRenderedImage(), title);
+			show(image, title);
 		else
-			PlanarImage.wrapRenderedImage( coverage.getRenderedImage()).getTiles();
+			PlanarImage.wrapRenderedImage(image).getTiles();
 		
 		if(values!=null)	
 			for(GeneralParameterValue pv:values){
@@ -595,6 +668,10 @@ public class ImageMosaicReaderTest extends Assert{
 	
 				}
 			}
+		if (rect != null){
+		    assertEquals(image.getWidth(), rect.width); 
+		    assertEquals(image.getHeight(), rect.height);
+		}
 		
 		if (!interactive){
 			// dispose stuff
@@ -734,9 +811,11 @@ public class ImageMosaicReaderTest extends Assert{
 	@Before
 	public void setUp() throws Exception {
 		//remove generated file
+	    
 		cleanUp();
 		
 		rgbURL = TestData.url(this, "rgb");
+		heterogeneousGranulesURL = TestData.url(this, "heterogeneous");
 		timeURL = TestData.url(this, "time_geotiff");
 		rgbJarURL = new URL("jar:"+TestData.url(this, "rgb.jar").toExternalForm()+"!/rgb/mosaic.shp");
 		
