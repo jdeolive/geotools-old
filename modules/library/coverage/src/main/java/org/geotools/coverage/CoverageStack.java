@@ -16,40 +16,29 @@
  */
 package org.geotools.coverage;
 
-import java.util.List;
-import java.util.Locale;
+import static java.lang.Double.NEGATIVE_INFINITY;
+import static java.lang.Double.NaN;
+import static java.lang.Double.POSITIVE_INFINITY;
+import static java.lang.Double.isNaN;
+import static org.geotools.referencing.CRS.equalsIgnoreMetadata;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.logging.LogRecord;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import javax.imageio.ImageReader;
-import javax.imageio.event.IIOReadWarningListener;
-import javax.imageio.event.IIOReadProgressListener;
-import javax.media.jai.InterpolationNearest;
-import java.lang.reflect.UndeclaredThrowableException;
+import java.util.logging.Logger;
 
-import org.opengis.coverage.Coverage;
-import org.opengis.coverage.SampleDimension;
-import org.opengis.coverage.CannotEvaluateException;
-import org.opengis.coverage.grid.GridEnvelope;
-import org.opengis.coverage.grid.GridGeometry;
-import org.opengis.coverage.grid.GridCoverage;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.crs.TemporalCRS;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
-import org.opengis.referencing.operation.CoordinateOperation;
-import org.opengis.referencing.operation.CoordinateOperationFactory;
-import org.opengis.referencing.operation.OperationNotFoundException;
-import org.opengis.geometry.MismatchedReferenceSystemException;
-import org.opengis.geometry.DirectPosition;
-import org.opengis.geometry.Envelope;
+import javax.imageio.ImageReader;
+import javax.imageio.event.IIOReadProgressListener;
+import javax.imageio.event.IIOReadWarningListener;
+import javax.media.jai.InterpolationNearest;
 
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.Interpolator2D;
@@ -57,26 +46,38 @@ import org.geotools.geometry.GeneralDirectPosition;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.image.io.IIOListeners;
 import org.geotools.image.io.IIOReadProgressAdapter;
-import org.geotools.util.NumberRange;
-import org.geotools.util.FrequencySortedSet;
-import org.geotools.util.logging.Logging;
-import org.geotools.resources.XArray;
-import org.geotools.resources.Classes;
-import org.geotools.resources.CRSUtilities;
-import org.geotools.resources.i18n.Errors;
-import org.geotools.resources.i18n.ErrorKeys;
-import org.geotools.resources.i18n.Loggings;
-import org.geotools.resources.i18n.LoggingKeys;
-import org.geotools.resources.i18n.Vocabulary;
-import org.geotools.resources.i18n.VocabularyKeys;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultTemporalCRS;
-
-import static java.lang.Double.NaN;
-import static java.lang.Double.isNaN;
-import static java.lang.Double.POSITIVE_INFINITY;
-import static java.lang.Double.NEGATIVE_INFINITY;
-import static org.geotools.referencing.CRS.equalsIgnoreMetadata;
+import org.geotools.resources.CRSUtilities;
+import org.geotools.resources.Classes;
+import org.geotools.resources.XArray;
+import org.geotools.resources.i18n.ErrorKeys;
+import org.geotools.resources.i18n.Errors;
+import org.geotools.resources.i18n.LoggingKeys;
+import org.geotools.resources.i18n.Loggings;
+import org.geotools.resources.i18n.Vocabulary;
+import org.geotools.resources.i18n.VocabularyKeys;
+import org.geotools.util.FrequencySortedSet;
+import org.geotools.util.NumberRange;
+import org.geotools.util.logging.Logging;
+import org.opengis.coverage.CannotEvaluateException;
+import org.opengis.coverage.Coverage;
+import org.opengis.coverage.PointOutsideCoverageException;
+import org.opengis.coverage.SampleDimension;
+import org.opengis.coverage.grid.GridCoverage;
+import org.opengis.coverage.grid.GridEnvelope;
+import org.opengis.coverage.grid.GridGeometry;
+import org.opengis.geometry.DirectPosition;
+import org.opengis.geometry.Envelope;
+import org.opengis.geometry.MismatchedReferenceSystemException;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.crs.TemporalCRS;
+import org.opengis.referencing.operation.CoordinateOperation;
+import org.opengis.referencing.operation.CoordinateOperationFactory;
+import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.OperationNotFoundException;
+import org.opengis.referencing.operation.TransformException;
 
 
 /**
@@ -1198,7 +1199,7 @@ public class CoverageStack extends AbstractCoverage {
         return evaluate(coord, (double[]) null);
     }
 
-    /**
+    /**u
      * Returns a sequence of boolean values for a given point in the coverage.
      *
      * @param  coord The coordinate point where to evaluate.

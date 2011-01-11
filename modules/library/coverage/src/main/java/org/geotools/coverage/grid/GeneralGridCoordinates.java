@@ -18,10 +18,9 @@ package org.geotools.coverage.grid;
 
 import java.io.Serializable;
 import java.util.Arrays;
-import org.opengis.coverage.grid.Grid;
-import org.opengis.coverage.grid.GridPoint;
-import org.opengis.coverage.grid.GridCoordinates;
+
 import org.geotools.resources.Classes;
+import org.opengis.coverage.grid.GridCoordinates;
 
 
 /**

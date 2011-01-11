@@ -26,9 +26,22 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+
 import javax.measure.unit.Unit;
 import javax.media.jai.JAI;
 
+import org.geotools.referencing.operation.transform.LinearTransform1D;
+import org.geotools.resources.ClassChanger;
+import org.geotools.resources.Classes;
+import org.geotools.resources.XArray;
+import org.geotools.resources.i18n.ErrorKeys;
+import org.geotools.resources.i18n.Errors;
+import org.geotools.resources.i18n.Vocabulary;
+import org.geotools.resources.i18n.VocabularyKeys;
+import org.geotools.resources.image.ColorUtilities;
+import org.geotools.util.NumberRange;
+import org.geotools.util.SimpleInternationalString;
+import org.geotools.util.Utilities;
 import org.opengis.coverage.ColorInterpretation;
 import org.opengis.coverage.PaletteInterpretation;
 import org.opengis.coverage.SampleDimension;
@@ -36,19 +49,6 @@ import org.opengis.coverage.SampleDimensionType;
 import org.opengis.referencing.operation.MathTransform1D;
 import org.opengis.referencing.operation.TransformException;
 import org.opengis.util.InternationalString;
-
-import org.geotools.referencing.operation.transform.LinearTransform1D;
-import org.geotools.resources.ClassChanger;
-import org.geotools.resources.Classes;
-import org.geotools.resources.XArray;
-import org.geotools.resources.i18n.Errors;
-import org.geotools.resources.i18n.ErrorKeys;
-import org.geotools.resources.i18n.Vocabulary;
-import org.geotools.resources.i18n.VocabularyKeys;
-import org.geotools.resources.image.ColorUtilities;
-import org.geotools.util.SimpleInternationalString;
-import org.geotools.util.NumberRange;
-import org.geotools.util.Utilities;
 
 
 /**
@@ -1216,7 +1216,6 @@ public class GridSampleDimension implements SampleDimension, Serializable {
      *
      * @return The type of color palette entry for sample dimensions which have a palette.
      *
-     * @deprecated No replacement.
      */
     public PaletteInterpretation getPaletteInterpretation() {
         return PaletteInterpretation.RGB;
