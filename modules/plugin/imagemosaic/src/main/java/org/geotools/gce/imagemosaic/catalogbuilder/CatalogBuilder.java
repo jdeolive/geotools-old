@@ -106,7 +106,6 @@ import com.vividsolutions.jts.geom.PrecisionModel;
  * @author Simone Giannecchini, GeoSolutions
  * 
  */
-@SuppressWarnings("unchecked")
 public class CatalogBuilder implements Runnable {
 
 
@@ -391,8 +390,7 @@ public class CatalogBuilder implements Runnable {
 				// Getting an ImageIO reader for this coverage.
 				//
 				inStream = ImageIO.createImageInputStream(fileBeingProcessed);
-				if(inStream==null)
-				{
+				if(inStream==null) {
 					fireEvent(Level.INFO,fileBeingProcessed+" has been skipped since we could not get a stream for it", ((fileIndex * 100.0) / numFiles));
 					return;
 				}
@@ -410,12 +408,10 @@ public class CatalogBuilder implements Runnable {
 								cachedSPI=imageioReader.getOriginatingProvider();
 								imageioReader.setInput(inStream);
 							}
-						}
-						else
+						} else {
 							imageioReader=null;
-					}
-					else
-					{
+						}
+					} else {
 						// we have a cached SPI, let's try to use it
 						if(!cachedSPI.canDecodeInput(inStream)){				
 							// the SPI is no good for this input
@@ -429,8 +425,7 @@ public class CatalogBuilder implements Runnable {
 					}
 				}
 				// did we found a reader
-				if(imageioReader==null)
-				{
+				if (imageioReader == null) {
 					// send a message
 					fireEvent(Level.INFO,new StringBuilder("Skipped file ").append(fileBeingProcessed).append(":No ImageIO reader	s availaible.").toString(), ((fileIndex * 99.0) / numFiles));
 					return;
@@ -442,15 +437,15 @@ public class CatalogBuilder implements Runnable {
 				// Getting a coverage reader for this coverage.
 				//
 				final AbstractGridFormat format;
-				if(cachedFormat==null)
-				{
+				if(cachedFormat==null) {
 					format= (AbstractGridFormat) GridFormatFinder.findFormat(fileBeingProcessed);
-				}
-				else
-					if(cachedFormat.accepts(fileBeingProcessed))
+				} else {
+					if(cachedFormat.accepts(fileBeingProcessed)) {
 						format=cachedFormat;
-					else
+					} else {
 						format=new UnknownFormat();
+					}
+				}
 				if ((format instanceof UnknownFormat)||format == null) {
 					fireEvent(Level.INFO,new StringBuilder("Skipped file ").append(fileBeingProcessed).append(": File format is not supported.").toString(), ((fileIndex * 99.0) / numFiles));
 					return;
@@ -464,8 +459,7 @@ public class CatalogBuilder implements Runnable {
 				// STEP 3
 				// Get the type specifier for this image and the check that the
 				// image has the correct sample model and color model.
-				// If this is the first cycle of the loop we initialize
-				// eveything.
+				// If this is the first cycle of the loop we initialize eveything.
 				//
 				final ImageTypeSpecifier its = ((ImageTypeSpecifier) imageioReader.getImageTypes(0).next());
 				if (numberOfProcessedFiles==0) {
@@ -504,13 +498,13 @@ public class CatalogBuilder implements Runnable {
 					// resetting reader and recreating stream, turnaround for a
 					// strange imageio bug that sometimes pops up
 					imageioReader.reset();
-					try{
+					try {
 						inStream.reset();
-					}catch (IOException e) {
+					} catch (IOException e) {
 						//close me and reopen me
-						try{
+						try {
 							inStream.close();
-						}catch (Throwable e1) {
+						} catch (Throwable e1) {
 							if(LOGGER.isLoggable(Level.FINE))
 								LOGGER.log(Level.FINE,e1.getLocalizedMessage(),e1);
 						}
@@ -518,8 +512,7 @@ public class CatalogBuilder implements Runnable {
 					}
 					
 					//let's check if we got something now
-					if(inStream==null)
-					{
+					if(inStream==null) {
 						//skip file
 						fireEvent(Level.INFO,fileBeingProcessed+" has been skipped since we could not get a stream for it", ((fileIndex * 100.0) / numFiles));
 						return;
@@ -599,27 +592,6 @@ public class CatalogBuilder implements Runnable {
 								(((fileIndex + 1) * 99.0) / numFiles));
 						return;
 					}							
-					
-					// defaultCM.getNumComponents()==actualCM.getNumComponents()&&
-					// defaultCM.getClass().equals(actualCM.getClass())
-					// && defaultSM.getNumBands() == actualSM
-					// .getNumBands()
-					// && defaultSM.getDataType() == actualSM
-					// .getDataType() &&
-					//
-//						 if (skipFeature)
-//						 LOGGER
-//						 .warning(new StringBuilder("Skipping image ")
-//						 .append(files.get(fileIndex))
-//						 .append(
-//						 " because cm or sm does not match.")
-//						 .toString());
-//						 double[] res = getResolution(envelope, new Rectangle(r.getWidth(0), r.getHeight(0)), defaultCRS);
-//						 if (Math.abs((resX - res[0]) / resX) > EPS || Math.abs(resY - res[1]) > EPS) {
-//							 LOGGER.warning(new StringBuilder("Skipping image").append( files.get(fileIndex)).append(" because resolutions does not match.")
-//						 .toString());
-//						 	skipFeature = true;
-//						 }
 				}
 
 				// ////////////////////////////////////////////////////////
@@ -697,7 +669,7 @@ public class CatalogBuilder implements Runnable {
 			super.handleFile(fileBeingProcessed, depth, results);
 		}
 
-		private String prepareLocation(final File fileBeingProcessed) throws IOException {
+        private String prepareLocation(final File fileBeingProcessed) throws IOException {
 			//absolute
 			if(runConfiguration.isAbsolute())
 				return fileBeingProcessed.getAbsolutePath();
@@ -1264,8 +1236,7 @@ public class CatalogBuilder implements Runnable {
 				final IOException ioe = new IOException();
 				throw (IOException) ioe.initCause(e);
 			}			
-		}
-		else{
+		} else {
 			
 			// we do not have a datastore properties file therefore we continue with a shapefile datastore
 			final URL file= new File(parent ,runConfiguration.getIndexName() + ".shp").toURI().toURL();
@@ -1378,7 +1349,7 @@ public class CatalogBuilder implements Runnable {
 		// create sample image if the needed elements are available
 		createSampleImage();
 		
-		// complete initialization of mosaic oconfiguration
+		// complete initialization of mosaic configuration
 		if(numberOfProcessedFiles>0){
 			mosaicConfiguration.setName(runConfiguration.getIndexName());
 			mosaicConfiguration.setExpandToRGB(mustConvertToRGB);

@@ -77,7 +77,6 @@ import org.opengis.referencing.cs.AxisDirection;
  * @author Daniele Romagnoli
  * @author Simone Giannecchini (simboss)
  */
-@SuppressWarnings("deprecation")
 public final class ArcGridWriter extends AbstractGridCoverageWriter implements GridCoverageWriter {
 	/** Logger. */
 	private final static Logger LOGGER = org.geotools.util.logging.Logging
@@ -213,7 +212,6 @@ public final class ArcGridWriter extends AbstractGridCoverageWriter implements G
 	 * @throws DataSourceException
 	 *             indicates an unexpected exception
 	 */
-	@SuppressWarnings("unchecked")
 	private void writeGridCoverage(GridCoverage2D gc,
 			GeneralParameterValue[] parameters) throws DataSourceException {
 		try {

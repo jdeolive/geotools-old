@@ -106,7 +106,6 @@ import org.opengis.referencing.operation.MathTransform;
  * @since 2.3
  * 
  */
-@SuppressWarnings("deprecation")
 public final class ImageMosaicReader extends AbstractGridCoverage2DReader implements GridCoverageReader, GridCoverageWriter {
 
         /** Logger. */

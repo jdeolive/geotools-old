@@ -18,12 +18,14 @@ package org.geotools.coverageio.gdal.aig;
 
 import it.geosolutions.imageio.plugins.arcbinarygrid.ArcBinaryGridImageReaderSpi;
 
+import java.awt.RenderingHints;
 import java.util.Collections;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geotools.coverage.grid.io.GridFormatFactorySpi;
+import org.geotools.coverageio.gdal.ehdr.EsriHdrFormat;
 import org.opengis.coverage.grid.Format;
 
 
@@ -36,7 +38,6 @@ import org.opengis.coverage.grid.Format;
  * @author Simone Giannecchini (simboss), GeoSolutions
  * @since 2.5.x
  */
-@SuppressWarnings("deprecation")
 public final class AIGFormatFactory implements GridFormatFactorySpi {
     /** Logger. */
     private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(
@@ -85,7 +86,7 @@ public final class AIGFormatFactory implements GridFormatFactorySpi {
      * Returns the implementation hints. The default implementation returns en
      * empty map.
      */
-    public Map getImplementationHints() {
-        return Collections.EMPTY_MAP;
+    public Map<RenderingHints.Key, ?> getImplementationHints() {
+        return Collections.emptyMap();
     }
 }

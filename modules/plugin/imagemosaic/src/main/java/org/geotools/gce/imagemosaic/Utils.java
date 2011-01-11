@@ -286,89 +286,7 @@ public class Utils {
 		return checkSource(source, null);
 	}
 
-	/**
-	 * Checks the provided {@link URL} in order to see if it is a a query to
-	 * build a mosaic or not.
-	 * 
-	 * @param sourceURL
-	 * @param hints 
-	 * @return a modified version of the provided {@link URL} which points to a
-	 *         shapefile in case we created a mosaic, or to the original
-	 *         {@link URL}otherwise.
-	 */
-	static URL checkURLForMosaicQuery(final URL sourceURL,final  Hints hints) {
-		// //
-		//
-		// Query with parameters, it might be that the user is
-		// trying to build the mosaic specifying the params as
-		// well
-		//
-		// //
-		if (sourceURL.getProtocol().equalsIgnoreCase("file")) {
-			final String query = sourceURL.getQuery();
-			if (query != null) {
-				final String[] tokens = query.split("\\&");
-				final String locationPath = sourceURL.getPath();// remove
-																// 'file:'
-																// prefix
-				String indexName = null;
-				final File sourceDir = new File(locationPath);
-				if (!(sourceDir.isDirectory() && sourceDir.exists() && sourceDir
-						.canRead()))
-					return null;
-				String wildcardString = null;
-				boolean absolutePath = DEFAULT_PATH_BEHAVIOR;
-				for (String token : tokens) {
-					// splitting token
-					final String[] values = token.split("\\=");
-					if (values[0].equalsIgnoreCase("name"))
-						indexName = values[1];
-					else if (values[0].equalsIgnoreCase("w")
-							|| values[0].equalsIgnoreCase("wildcard"))
-						wildcardString = values[1];
-					else if (values[0].equalsIgnoreCase("p")
-							|| values[0].equalsIgnoreCase("path"))
-						absolutePath = Boolean.parseBoolean(values[1]);
-
-				}
-
-				// now check if the shapefle is already there
-				final File shapeFile = new File(locationPath, indexName
-						+ ".shp");
-				File propertiesFile = new File(locationPath, indexName
-						+ ".properties");
-				if (!shapeFile.exists() || !shapeFile.canRead()
-						|| !shapeFile.isFile() || !propertiesFile.exists()
-						|| !propertiesFile.canRead()
-						|| !propertiesFile.isFile()) {
-					// try to build it
-					createMosaic(locationPath, indexName != null ? indexName
-							: FilenameUtils.getBaseName(locationPath),
-							wildcardString != null ? wildcardString
-									: DEFAULT_WILCARD, absolutePath,hints);
-
-				}
-
-				// check URL again
-				if (!shapeFile.exists() || !shapeFile.canRead()
-						|| !shapeFile.isFile() || !propertiesFile.exists()
-						|| !propertiesFile.canRead()
-						|| !propertiesFile.isFile())
-					return null;
-				else
-					try {
-						return shapeFile.toURI().toURL();
-					} catch (MalformedURLException e) {
-						if (LOGGER.isLoggable(Level.FINE))
-							LOGGER.log(Level.FINE, e.getLocalizedMessage(), e);
-					}
-
-			}
-
-		}
-
-		return sourceURL;
-	}
+	
 
 	static MosaicConfigurationBean loadMosaicProperties(final URL sourceURL,
                 final String defaultLocationAttribute) {
@@ -1136,12 +1054,11 @@ public class Utils {
         if (source instanceof File) {
                 sourceFile = (File) source;
                 sourceURL = DataUtilities.fileToURL(sourceFile);
-                sourceURL = checkURLForMosaicQuery((URL) sourceURL,hints);
         } else if (source instanceof URL) {
-                sourceURL = checkURLForMosaicQuery((URL) source,hints);
-                if (sourceURL.getProtocol().equals("file")) {
-                        sourceFile = DataUtilities.urlToFile(sourceURL);
-                }
+            sourceURL = (URL) source;
+            if (sourceURL.getProtocol().equals("file")) {
+                sourceFile = DataUtilities.urlToFile(sourceURL);
+            }
         } else if (source instanceof String) {
                 // is it a File?
                 final String tempSource = (String) source;
@@ -1150,7 +1067,6 @@ public class Utils {
                         // is it a URL
                         try {
                                 sourceURL = new URL(tempSource);
-                                sourceURL = checkURLForMosaicQuery(sourceURL,hints);
                                 source = DataUtilities.urlToFile(sourceURL);
                         } catch (MalformedURLException e) {
                                 sourceURL = null;

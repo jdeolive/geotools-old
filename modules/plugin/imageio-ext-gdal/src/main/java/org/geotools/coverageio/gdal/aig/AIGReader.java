@@ -36,7 +36,6 @@ import org.opengis.coverage.grid.GridCoverageReader;
  * @author Simone Giannecchini (simboss), GeoSolutions
  * @since 2.5.x
  */
-@SuppressWarnings("deprecation")
 public final class AIGReader extends BaseGDALGridCoverage2DReader implements
         GridCoverageReader {
     /** Logger. */

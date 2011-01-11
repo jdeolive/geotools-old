@@ -53,10 +53,8 @@ import javax.media.jai.JAI;
 import javax.media.jai.RenderedOp;
 
 import org.geotools.coverage.Category;
-import org.geotools.coverage.CoverageFactoryFinder;
 import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.grid.GridCoverage2D;
-import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
@@ -101,7 +99,6 @@ import com.sun.media.imageioimpl.plugins.raw.RawImageReaderSpi;
  * @source $URL:
  *         http://svn.geotools.org/geotools/trunk/gt/plugin/gtopo30/src/org/geotools/gce/gtopo30/GTopo30Reader.java $
  */
-@SuppressWarnings("deprecation")
 public final class GTopo30Reader extends AbstractGridCoverage2DReader implements
 		GridCoverageReader {
 
@@ -285,7 +282,6 @@ public final class GTopo30Reader extends AbstractGridCoverage2DReader implements
 	/**
 	 * @see org.opengis.coverage.grid.GridCoverageReader#getFormat()
 	 */
-	@SuppressWarnings("deprecation")
         public Format getFormat() {
 		return  new GTopo30Format();
 	}

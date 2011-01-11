@@ -29,7 +29,6 @@ import org.geotools.factory.Hints;
 import org.geotools.parameter.DefaultParameterDescriptorGroup;
 import org.geotools.parameter.ParameterGroup;
 import org.opengis.coverage.grid.Format;
-import org.opengis.coverage.grid.GridCoverageReader;
 import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.parameter.GeneralParameterDescriptor;
 
@@ -40,13 +39,9 @@ import org.opengis.parameter.GeneralParameterDescriptor;
  * @author Simone Giannecchini (simboss), GeoSolutions
  * @since 2.5.x
  */
-@SuppressWarnings("deprecation")
 public final class MrSIDFormat extends BaseGDALGridFormat implements Format {
     private final static Logger LOGGER = org.geotools.util.logging.Logging
             .getLogger("org.geotools.coverageio.gdal.mrsid");
-
-    /** Caching the {@link MrSIDImageReaderSpi} factory. */
-    private final MrSIDImageReaderSpi spi = new MrSIDImageReaderSpi();
 
     /**
      * Creates an instance and sets the metadata.

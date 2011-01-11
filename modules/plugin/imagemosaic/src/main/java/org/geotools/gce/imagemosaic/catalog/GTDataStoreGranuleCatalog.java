@@ -399,7 +399,7 @@ class GTDataStoreGranuleCatalog extends AbstractGranuleCatalog {
 			// do your thing
 			
 			//update bounds
-			bounds=tileIndexStore.getFeatureSource(typeName).getBounds();
+			bounds=tileIndexStore.getFeatureSource(typeName).getBounds(Query.ALL);
 		}finally{
 			lock.unlock();
 		}	

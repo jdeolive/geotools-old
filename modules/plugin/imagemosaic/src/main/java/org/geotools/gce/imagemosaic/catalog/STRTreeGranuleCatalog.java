@@ -122,17 +122,17 @@ class STRTreeGranuleCatalog extends AbstractGranuleCatalog {
 
 	}
 
-	private GranuleCatalog originalIndex;
+	private GranuleCatalog wrappedCatalogue;
 	
 	public STRTreeGranuleCatalog(final Map<String,Serializable> params, DataStoreFactorySpi spi) {
 		Utilities.ensureNonNull("params",params);
 		try{
-			originalIndex= new GTDataStoreGranuleCatalog(params,false,spi);
+			wrappedCatalogue= new GTDataStoreGranuleCatalog(params,false,spi);
 		}
 		catch (Throwable e) {
 			try {
-				if (originalIndex != null)
-					originalIndex.dispose();
+				if (wrappedCatalogue != null)
+					wrappedCatalogue.dispose();
 			} catch (Throwable e2) {
 				if (LOGGER.isLoggable(Level.FINE))
 					LOGGER.log(Level.FINE, e2.getLocalizedMessage(), e2);
@@ -200,7 +200,7 @@ class STRTreeGranuleCatalog extends AbstractGranuleCatalog {
 		//
 		try{
 
-			features = originalIndex.getGranules();
+			features = wrappedCatalogue.getGranules();
 			if (features == null) 
 				throw new NullPointerException(
 						"The provided SimpleFeatureCollection is null, it's impossible to create an index!");
@@ -279,14 +279,26 @@ class STRTreeGranuleCatalog extends AbstractGranuleCatalog {
 		try{
 			l.lock();
 			if(index!=null)
-				index.clear();
+                            try {
+                                index.clear();
+                            } catch (Exception e) {
+                                if (LOGGER.isLoggable(Level.FINE))
+                                    LOGGER.log(Level.FINE, e.getLocalizedMessage(), e);
+                            }
+	        
 			 
 			// original index
-			originalIndex.dispose();
+			if(wrappedCatalogue!=null)
+			    try{
+			        wrappedCatalogue.dispose();
+			    }catch (Exception e) {
+                                if(LOGGER.isLoggable(Level.FINE))
+                                    LOGGER.log(Level.FINE,e.getLocalizedMessage(),e);
+                            }
 	
 			
 		}finally{
-			originalIndex=null;
+			wrappedCatalogue=null;
 			index= null;
 			l.unlock();
 		
@@ -336,13 +348,13 @@ class STRTreeGranuleCatalog extends AbstractGranuleCatalog {
 		// add eventual bbox from the underlying index to constrain search
 		if(requestedBBox!=null){
 			// intersection
-			final Envelope intersection = requestedBBox.intersection(ReferencedEnvelope.reference(originalIndex.getBounds()));
+			final Envelope intersection = requestedBBox.intersection(ReferencedEnvelope.reference(wrappedCatalogue.getBounds()));
 			
 			// create intersection
-			final ReferencedEnvelope referencedEnvelope= new ReferencedEnvelope(intersection,originalIndex.getBounds().getCoordinateReferenceSystem());
+			final ReferencedEnvelope referencedEnvelope= new ReferencedEnvelope(intersection,wrappedCatalogue.getBounds().getCoordinateReferenceSystem());
 		}
 		else
-			return ReferencedEnvelope.reference(originalIndex.getBounds());
+			return ReferencedEnvelope.reference(wrappedCatalogue.getBounds());
 		return requestedBBox;
 	}
 
@@ -376,7 +388,7 @@ class STRTreeGranuleCatalog extends AbstractGranuleCatalog {
 			lock.lock();
 			checkStore();
 			
-			return originalIndex.getBounds();
+			return wrappedCatalogue.getBounds();
 			
 		}finally{
 			lock.unlock();
@@ -387,7 +399,7 @@ class STRTreeGranuleCatalog extends AbstractGranuleCatalog {
 	 * @throws IllegalStateException
 	 */
 	private void checkStore() throws IllegalStateException {
-		if(originalIndex==null)
+		if(wrappedCatalogue==null)
 			throw new IllegalStateException("The underlying store has already been disposed!");
 	}
 
@@ -396,7 +408,7 @@ class STRTreeGranuleCatalog extends AbstractGranuleCatalog {
 		try{
 			lock.lock();
 			checkStore();
-			return this.originalIndex.getType();
+			return this.wrappedCatalogue.getType();
 		}finally{
 			lock.unlock();
 		}
@@ -407,7 +419,7 @@ class STRTreeGranuleCatalog extends AbstractGranuleCatalog {
 		try{
 			lock.lock();
 			checkStore();
-			originalIndex.computeAggregateFunction(query, function);
+			wrappedCatalogue.computeAggregateFunction(query, function);
 		}finally{
 			lock.unlock();
 		}		
@@ -419,7 +431,7 @@ class STRTreeGranuleCatalog extends AbstractGranuleCatalog {
 			lock.lock();
 			checkStore();
 			
-			return originalIndex.getQueryCapabilities();
+			return wrappedCatalogue.getQueryCapabilities();
 		
 		}finally{
 			lock.unlock();

@@ -52,7 +52,6 @@ import org.opengis.referencing.operation.TransformException;
  * @author Simone Giannecchini, GeoSolutions
  * 
  */
-@SuppressWarnings("deprecation")
 public abstract class BaseGDALGridCoverage2DReader extends
         BaseGridCoverage2DReader implements GridCoverageReader {
 

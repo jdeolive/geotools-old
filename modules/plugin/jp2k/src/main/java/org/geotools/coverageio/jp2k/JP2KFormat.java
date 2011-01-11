@@ -50,7 +50,6 @@ import org.opengis.parameter.ParameterDescriptor;
  * @author Daniele Romagnoli, GeoSolutions
  * @author Simone Giannecchini (simboss), GeoSolutions
  */
-@SuppressWarnings("deprecation")
 public final class JP2KFormat extends AbstractGridFormat implements Format {
     
 	 /** The inner {@code ImageReaderSpi} */

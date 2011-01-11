@@ -36,7 +36,6 @@ import org.opengis.parameter.GeneralParameterDescriptor;
  * @author Mathew Wyatt, CSIRO Australia
  * @author Daniele Romagnoli, GeoSolutions SAS
  */
-@SuppressWarnings("deprecation")
 public final class EnviHdrFormat extends BaseGDALGridFormat implements Format {
 
     /**

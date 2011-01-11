@@ -78,7 +78,6 @@ import org.opengis.referencing.operation.TransformException;
  * @author Daniele Romagnoli, GeoSolutions.
  * @author Simone Giannecchini (simboss), GeoSolutions
  */
-@SuppressWarnings("deprecation")
 public final class JP2KReader extends AbstractGridCoverage2DReader implements
         GridCoverageReader {
 

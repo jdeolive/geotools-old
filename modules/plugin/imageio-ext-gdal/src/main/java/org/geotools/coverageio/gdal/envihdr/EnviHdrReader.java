@@ -30,7 +30,6 @@ import org.opengis.coverage.grid.GridCoverageReader;
  * @author Mathew Wyatt, CSIRO Australia
  * @author Daniele Romagnoli, GeoSolutions.
  */
-@SuppressWarnings("deprecation")
 public final class EnviHdrReader extends BaseGDALGridCoverage2DReader implements GridCoverageReader {
     private final static String worldFileExt = ".wld";
      /** Logger. */

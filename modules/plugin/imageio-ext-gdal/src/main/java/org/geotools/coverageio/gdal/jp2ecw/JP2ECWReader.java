@@ -33,8 +33,7 @@ import org.opengis.coverage.grid.GridCoverageReader;
  * @author Daniele Romagnoli, GeoSolutions.
  * @author Simone Giannecchini (simboss), GeoSolutions
  * @since 2.5.x
- */
-@SuppressWarnings("deprecation")
+ */     
 public final class JP2ECWReader extends BaseGDALGridCoverage2DReader implements GridCoverageReader {
     private final static String worldFileExt = ".j2w";
 

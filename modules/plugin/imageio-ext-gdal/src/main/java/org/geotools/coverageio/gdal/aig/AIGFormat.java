@@ -37,7 +37,6 @@ import org.opengis.geometry.MismatchedDimensionException;
  * @author Simone Giannecchini (simboss), GeoSolutions
  * @since 2.5.x
  */
-@SuppressWarnings("deprecation")
 public final class AIGFormat extends BaseGDALGridFormat implements Format {
     /**
      * Logger.

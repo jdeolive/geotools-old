@@ -45,7 +45,6 @@ import com.sun.media.imageioimpl.plugins.jpeg2000.J2KImageReaderSpi;
  * @author Daniele Romagnoli, GeoSolutions
  * @author Simone Giannecchini (simboss), GeoSolutions
  */
-@SuppressWarnings("deprecation")
 public final class JP2KFormatFactory implements GridFormatFactorySpi {
     /** Logger. */
     private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(JP2KFormatFactory.class);

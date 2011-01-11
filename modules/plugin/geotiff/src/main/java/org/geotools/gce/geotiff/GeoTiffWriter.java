@@ -16,7 +16,6 @@
  */
 package org.geotools.gce.geotiff;
 
-import it.geosolutions.imageio.utilities.Utilities;
 import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageMetadata;
 import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageWriterSpi;
 
@@ -60,7 +59,6 @@ import org.geotools.referencing.operation.matrix.XAffineTransform;
 import org.geotools.resources.coverage.CoverageUtilities;
 import org.geotools.resources.i18n.Vocabulary;
 import org.geotools.resources.i18n.VocabularyKeys;
-import org.geotools.resources.image.ImageUtilities;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -84,7 +82,6 @@ import org.opengis.referencing.operation.TransformException;
  * @source $URL:
  *         http://svn.geotools.org/geotools/trunk/gt/plugin/geotiff/src/org/geotools/gce/geotiff/GeoTiffWriter.java $
  */
-@SuppressWarnings("deprecation")
 public final class GeoTiffWriter extends AbstractGridCoverageWriter implements
 		GridCoverageWriter {
 

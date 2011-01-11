@@ -30,7 +30,6 @@ import org.opengis.coverage.grid.Format;
  * @author Simone Giannecchini (simboss)
  * @since 2.3
  */
-@SuppressWarnings("deprecation")
 public final class ImagePyramidFormatFactory implements GridFormatFactorySpi {
 	/**
 	 * Tells us if this plugin is avaialble or not. Since usually coverage

@@ -33,7 +33,6 @@ import org.opengis.coverage.grid.Format;
  * @author Daniele Romagnoli
  * @author Simone Giannecchini (simboss)
  */
-@SuppressWarnings("deprecation")
 public final class ArcGridFormatFactory implements GridFormatFactorySpi {
 	/** Logger. */
 	private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.gce.arcgrid");

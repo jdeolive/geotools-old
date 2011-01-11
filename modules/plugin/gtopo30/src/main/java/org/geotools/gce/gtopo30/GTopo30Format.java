@@ -43,7 +43,6 @@ import org.opengis.parameter.GeneralParameterDescriptor;
  * @source $URL:
  *         http://svn.geotools.org/geotools/trunk/gt/plugin/gtopo30/src/org/geotools/gce/gtopo30/GTopo30Format.java $
  */
-@SuppressWarnings("deprecation")
 public final class GTopo30Format extends AbstractGridFormat implements Format {
 
 	/** Logger. */

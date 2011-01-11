@@ -113,7 +113,6 @@ import org.opengis.referencing.operation.TransformException;
  * @source $URL:
  *         http://svn.geotools.org/geotools/branches/coverages_branch/trunk/gt/plugin/geotiff/src/org/geotools/gce/geotiff/GeoTiffReader.java $
  */
-@SuppressWarnings("deprecation")
 public final class GeoTiffReader extends AbstractGridCoverage2DReader implements GridCoverageReader {
 
 	/** Logger for the {@link GeoTiffReader} class. */

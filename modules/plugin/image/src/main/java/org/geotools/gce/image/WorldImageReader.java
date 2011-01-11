@@ -86,7 +86,6 @@ import org.opengis.referencing.operation.TransformException;
  *
  * @source $URL$
  */
-@SuppressWarnings("deprecation")
 public final class WorldImageReader extends AbstractGridCoverage2DReader
 		implements GridCoverageReader {
 

@@ -230,7 +230,6 @@ final public class GTopo30Writer extends AbstractGridCoverageWriter implements
 	/**
 	 * @see org.opengis.coverage.grid.GridCoverageWriter#getFormat()
 	 */
-	@SuppressWarnings("deprecation")
     public Format getFormat() {
 		return new GTopo30Format();
 	}

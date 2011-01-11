@@ -18,7 +18,6 @@ package org.geotools.gce.imagepyramid;
 
 import java.awt.Color;
 import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -52,7 +51,6 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * @author Simone Giannecchini (simboss)
  * @author Stefan Alfons Krueger (alfonx), Wikisquare.de : Support for jar:file:foo.jar/bar.properties like URLs
  */
-@SuppressWarnings("deprecation")
 public final class ImagePyramidFormat extends AbstractGridFormat implements Format {
 
 	/** Logger. */

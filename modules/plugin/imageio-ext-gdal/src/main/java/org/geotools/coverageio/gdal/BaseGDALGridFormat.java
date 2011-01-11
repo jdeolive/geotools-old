@@ -44,7 +44,6 @@ import org.opengis.parameter.GeneralParameterValue;
  * @author Simone Giannecchini, GeoSolutions
  * 
  */
-@SuppressWarnings("deprecation")
 public abstract class BaseGDALGridFormat extends AbstractGridFormat implements
         Format {
     private final static Logger LOGGER = org.geotools.util.logging.Logging

@@ -45,7 +45,6 @@ import org.geotools.factory.Hints;
 import org.geotools.image.ImageWorker;
 import org.geotools.parameter.Parameter;
 import org.geotools.referencing.operation.matrix.XAffineTransform;
-import org.geotools.resources.CRSUtilities;
 import org.opengis.coverage.grid.Format;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.coverage.grid.GridCoverageWriter;
@@ -168,7 +167,7 @@ public final class WorldImageWriter extends AbstractGridCoverageWriter
 		if (parameters != null) {
 			this.extension = ((Parameter) parameters[0]).stringValue();
 		}
-
+		
 		// /////////////////////////////////////////////////////////////////////
 		//
 		// WorldFile and projection file.
@@ -187,7 +186,7 @@ public final class WorldImageWriter extends AbstractGridCoverageWriter
 
 			// world file
 			try {
-				createWorldFile(coverage, image, baseFile);
+				createWorldFile(coverage, image, baseFile,extension);
 			} catch (TransformException e) {
 				final IOException ex = new IOException();
 				ex.initCause(e);
@@ -210,7 +209,7 @@ public final class WorldImageWriter extends AbstractGridCoverageWriter
 		if (outStream == null)
 			throw new IOException(
 					"WorldImageWriter::write:No image output stream avalaible for the provided destination");
-		this.encode(gc, outStream);
+		this.encode(gc, outStream,extension);
 
 	}
 
@@ -224,7 +223,7 @@ public final class WorldImageWriter extends AbstractGridCoverageWriter
 	 * @param coordinateReferenceSystem
 	 * @throws IOException
 	 */
-	private void createProjectionFile(final String baseFile,
+	private static void createProjectionFile(final String baseFile,
 			final CoordinateReferenceSystem coordinateReferenceSystem)
 			throws IOException {
 		final File prjFile = new File(new StringBuffer(baseFile).append(".prj")
@@ -253,15 +252,14 @@ public final class WorldImageWriter extends AbstractGridCoverageWriter
 	 * @throws TransformException
 	 * @throws TransformException
 	 */
-	private void createWorldFile(GridCoverage gc, final RenderedImage image,
-			final String baseFile) throws IOException, TransformException {
+	private static void createWorldFile(final GridCoverage gc, final RenderedImage image,
+			final String baseFile, final String extension) throws IOException, TransformException {
 		// /////////////////////////////////////////////////////////////////////
 		//
 		// CRS information
 		//
 		// ////////////////////////////////////////////////////////////////////
-		final AffineTransform gridToWorld = (AffineTransform) gc
-				.getGridGeometry().getGridToCRS();
+		final AffineTransform gridToWorld = (AffineTransform) gc.getGridGeometry().getGridToCRS();
 		final boolean lonFirst = (XAffineTransform.getSwapXY(gridToWorld) != -1);
 
 		// /////////////////////////////////////////////////////////////////////
@@ -322,8 +320,8 @@ public final class WorldImageWriter extends AbstractGridCoverageWriter
 	 * @throws IllegalArgumentException
 	 *             DOCUMENT ME!
 	 */
-	private void encode(final GridCoverage2D sourceCoverage,
-			final ImageOutputStream outstream) throws IOException {
+	static private void encode(final GridCoverage2D sourceCoverage,
+			final ImageOutputStream outstream, final String extension) throws IOException {
 
 		// do we have a source coverage?
 		if (sourceCoverage == null) {

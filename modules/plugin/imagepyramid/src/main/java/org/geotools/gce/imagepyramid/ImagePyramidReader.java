@@ -30,11 +30,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageReadParam;
-import javax.media.jai.PlanarImage;
 
 import org.apache.commons.io.IOUtils;
 import org.geotools.coverage.CoverageFactoryFinder;
-import org.geotools.coverage.grid.GridCoordinates2D;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
@@ -120,7 +118,6 @@ import org.opengis.referencing.operation.TransformException;
  * @since 2.3
  * 
  */
-@SuppressWarnings("deprecation")
 public final class ImagePyramidReader extends AbstractGridCoverage2DReader implements GridCoverageReader {
 
 	/** Logger. */

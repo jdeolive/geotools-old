@@ -18,19 +18,17 @@ package org.geotools.coverageio.gdal.envihdr;
 
 import it.geosolutions.imageio.plugins.envihdr.ENVIHdrImageReaderSpi;
 
-import java.awt.RenderingHints;
-import java.util.Collections;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geotools.coverage.grid.io.GridFormatFactorySpi;
+import org.geotools.coverageio.BaseGridFormatFactorySPI;
 
 /**
  * @author Mathew Wyatt, CSIRO Australia
  * @author Daniele Romagnoli, GeoSolutions SAS
  */
-public class EnviHdrFormatFactory implements GridFormatFactorySpi {
+public class EnviHdrFormatFactory extends BaseGridFormatFactorySPI implements GridFormatFactorySpi  {
 
     /** Logger. */
     private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(
@@ -70,7 +68,4 @@ public class EnviHdrFormatFactory implements GridFormatFactorySpi {
         return new EnviHdrFormat();
     }
 
-    public Map<RenderingHints.Key, ?> getImplementationHints() {
-        return Collections.EMPTY_MAP;
-    }
 }

@@ -17,6 +17,7 @@
  */
 package org.geotools.gce.gtopo30;
 
+import java.awt.RenderingHints;
 import java.util.Collections;
 import java.util.Map;
 import java.util.logging.Level;
@@ -44,7 +45,6 @@ public class GTopo30FormatFactory implements GridFormatFactorySpi {
 	 * 
 	 * @return an instance of GTopo30Format
 	 */
-	@SuppressWarnings("deprecation")
         public GTopo30Format createFormat() {
 		return new GTopo30Format();
 	}
@@ -77,7 +77,7 @@ public class GTopo30FormatFactory implements GridFormatFactorySpi {
 	 * 
 	 * @return the implementation hints (an empty map, actually)
 	 */
-	public Map getImplementationHints() {
+	public Map<RenderingHints.Key, ?> getImplementationHints() {
 		return Collections.emptyMap();
 	}
 }
