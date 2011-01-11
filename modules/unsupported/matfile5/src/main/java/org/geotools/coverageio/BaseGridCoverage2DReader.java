@@ -39,7 +39,6 @@ import javax.imageio.ImageReader;
 import javax.imageio.spi.ImageReaderSpi;
 import javax.media.jai.JAI;
 
-import org.geotools.coverage.CoverageFactoryFinder;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
@@ -58,7 +57,6 @@ import org.geotools.referencing.CRS;
 import org.geotools.resources.coverage.CoverageUtilities;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.coverage.grid.GridCoverageReader;
-import org.opengis.coverage.grid.GridRange;
 import org.opengis.geometry.Envelope;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.referencing.FactoryException;
@@ -128,7 +126,7 @@ public abstract class BaseGridCoverage2DReader extends AbstractGridCoverage2DRea
     private File inputFile = null;
 
     /** Coverage name */
-    private String coverageName = "geotools_coverage";
+    private String localCoverageName = "geotools_coverage";
 
     /**
      * The base {@link GridRange} for the {@link GridCoverage2D} of this reader.
@@ -332,10 +330,10 @@ public abstract class BaseGridCoverage2DReader extends AbstractGridCoverage2DRea
             }
 
             this.parentPath = sourceFile.getParent();
-            coverageName = sourceFile.getName();
+            localCoverageName = sourceFile.getName();
 
-            final int dotIndex = coverageName.lastIndexOf(".");
-            coverageName = (dotIndex == -1) ? coverageName : coverageName
+            final int dotIndex = localCoverageName.lastIndexOf(".");
+            localCoverageName = (dotIndex == -1) ? localCoverageName : localCoverageName
                     .substring(0, dotIndex);
 
         } else {
@@ -410,7 +408,7 @@ public abstract class BaseGridCoverage2DReader extends AbstractGridCoverage2DRea
 
         setCoverageCRS(null);
         prjPath = new StringBuilder(this.parentPath).append(File.separatorChar)
-                .append(coverageName).append(".prj").toString();
+                .append(localCoverageName).append(".prj").toString();
 
         // read the prj serviceInfo from the file
         PrjFileReader projReader = null;
@@ -459,7 +457,7 @@ public abstract class BaseGridCoverage2DReader extends AbstractGridCoverage2DRea
      */
     protected void parseWorldFile() throws IOException {
         final String worldFilePath = new StringBuffer(this.parentPath).append(
-                GridCoverageUtilities.SEPARATOR).append(coverageName).toString();
+                GridCoverageUtilities.SEPARATOR).append(localCoverageName).toString();
 
         File file2Parse = null;
         boolean worldFileExists = false;
@@ -518,6 +516,7 @@ public abstract class BaseGridCoverage2DReader extends AbstractGridCoverage2DRea
      * 
      * @return ServiceInfo describing getSource().
      */
+    @Override
     public synchronized ServiceInfo getInfo() {
     	if (serviceInfo!=null)
     		return new DefaultServiceInfo(this.serviceInfo);
@@ -675,12 +674,13 @@ public abstract class BaseGridCoverage2DReader extends AbstractGridCoverage2DRea
      * @return the coverage name
      */
     public String getCoverageName() {
-        return coverageName;
+        return localCoverageName;
     }
 
     /**
      * @return the gridCoverage count
      */
+    @Override
     public int getGridCoverageCount() {
         return 1;
     }
@@ -688,6 +688,7 @@ public abstract class BaseGridCoverage2DReader extends AbstractGridCoverage2DRea
     /**
      * @see org.opengis.coverage.grid.GridCoverageReader#hasMoreGridCoverages()
      */
+    @Override
     public boolean hasMoreGridCoverages() {
         return false;
     }
