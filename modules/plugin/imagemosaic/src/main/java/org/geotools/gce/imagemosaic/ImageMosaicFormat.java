@@ -205,9 +205,10 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
 //                INTERPOLATION,
                 TIME,
                 ELEVATION,
-                FILTER,
-                OVERVIEW_POLICY,
-                DECIMATION_POLICY
+                FILTER
+//				,
+//              OVERVIEW_POLICY,
+//              DECIMATION_POLICY
         }));
 
         // reading parameters

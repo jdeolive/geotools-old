@@ -145,8 +145,8 @@ public class ReadParamsController {
      */
     static int setReadParams(
                     final double[] requestedResolution,
-                    final OverviewPolicy overviewPolicy,
-                    final DecimationPolicy decimationPolicy,
+                    OverviewPolicy overviewPolicy,
+                    DecimationPolicy decimationPolicy,
                     final ImageReadParam readParams,
                     final RasterManager rasterManager,
                     final OverviewsController overviewController)
@@ -155,9 +155,15 @@ public class ReadParamsController {
             Utilities.ensureNonNull("readParams", readParams);
             Utilities.ensureNonNull("RasterManager", rasterManager);
             Utilities.ensureNonNull("overviewsController", overviewController);
-            Utilities.ensureNonNull("decimationPolicy", decimationPolicy);
-            Utilities.ensureNonNull("overviewPolicy", overviewPolicy);
 
+            if (overviewPolicy == null){
+                overviewPolicy = OverviewPolicy.getDefaultPolicy();
+            }
+            
+            if (decimationPolicy == null){
+                decimationPolicy = DecimationPolicy.getDefaultPolicy();
+            }
+            
             // Default image index 0
             int imageChoice = 0;
             // default values for subsampling
