@@ -26,7 +26,6 @@ import javax.imageio.ImageReader;
 
 // OpenGIS dependencies
 import org.opengis.coverage.grid.GridCoverage;
-import org.opengis.coverage.grid.GridRange;
 import org.opengis.geometry.Envelope;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -213,24 +212,6 @@ public class ExoreferencedGridCoverageReader extends AbstractGridCoverageReader 
      *         the input source.
      */
     public synchronized Envelope getEnvelope(final int index) throws IOException {
-        checkImageIndex(index);
-        return null;
-    }
-
-    /**
-     * Returns the grid range for the {@link GridCoverage} to be read.
-     * The default implementation invokes
-     * <code>{@linkplain #metadata}.{@linkplain MetadataBuilder#getGridRange() getGridRange()}</code>.
-     *
-     * @param  index The index of the image to be queried.
-     * @return The grid range for the {@link GridCoverage} at the specified index.
-     * @throws IllegalStateException if the input source has not been set.
-     * @throws IndexOutOfBoundsException if the supplied index is out of bounds.
-     * @throws IOException if an error occurs reading the width information from
-     *         the input source.
-     */
-    @Override
-    public synchronized GridRange getGridRange(final int index) throws IOException {
         checkImageIndex(index);
         return null;
     }

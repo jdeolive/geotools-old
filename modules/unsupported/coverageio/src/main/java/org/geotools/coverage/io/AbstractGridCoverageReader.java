@@ -52,9 +52,7 @@ import org.geotools.resources.i18n.VocabularyKeys;
 import org.geotools.util.logging.Logging;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.coverage.grid.GridEnvelope;
-import org.opengis.coverage.grid.GridRange;
 import org.opengis.geometry.Envelope;
-import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 
@@ -91,7 +89,7 @@ public abstract class AbstractGridCoverageReader implements GridCoverageReader {
     /**
      * The logger for the {@link #getGridCoverage} method.
      */
-    static Logger LOGGER = Logging.getLogger("org.geotools.coverage.io");
+    static final Logger LOGGER = Logging.getLogger("org.geotools.coverage.io");
 
     /**
      * The format name (e.g. "PNG" or "GeoTIFF"). This format name should
@@ -322,28 +320,28 @@ public abstract class AbstractGridCoverageReader implements GridCoverageReader {
     {
         clear();
         if (input != null) {
-            ImageReader reader = this.reader;
-            boolean reuseLast = (reader != null);
+            ImageReader rdr = this.reader;
+            boolean reuseLast = (rdr != null);
             for (final Iterator it=getImageReaders(input); it.hasNext();) {
                 if (!reuseLast) {
-                    reader = (ImageReader) it.next();
+                    rdr = (ImageReader) it.next();
                     setReaderLocale(locale);
                 }
                 reuseLast = false;
-                final Class[] types = reader.getOriginatingProvider().getInputTypes();
+                final Class[] types = rdr.getOriginatingProvider().getInputTypes();
                 if (contains(types, input.getClass())) {
-                    reader.setInput(input, seekForwardOnly);
+                    rdr.setInput(input, seekForwardOnly);
                     this.input  = input;
-                    this.reader = reader;
+                    this.reader = rdr;
                     return;
                 }
                 if (contains(types, ImageInputStream.class)) {
                     assert stream == null;
                     stream = ImageIO.createImageInputStream(input);
                     if (stream != null) {
-                        reader.setInput(stream, seekForwardOnly);
+                        rdr.setInput(stream, seekForwardOnly);
                         this.input  = input;
-                        this.reader = reader;
+                        this.reader = rdr;
                         return;
                     }
                 }
