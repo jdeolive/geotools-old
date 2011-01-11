@@ -68,9 +68,7 @@ import static org.opengis.annotation.Specification.*;
  * @author  Martin Desruisseaux (IRD)
  * @since   GeoAPI 1.0
  *
- * @deprecated Need to be replaced by a mechanism better aligned on WCPS specification.
  */
-@Deprecated
 @UML(identifier="GP_GridCoverageProcessor", specification=OGC_01004)
 public interface GridCoverageProcessor {
     /**

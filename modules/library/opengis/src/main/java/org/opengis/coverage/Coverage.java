@@ -9,24 +9,24 @@
  */
 package org.opengis.coverage;
 
-import java.util.Set;
-import java.util.List;
-import java.util.Collection;
+import static org.opengis.annotation.Obligation.MANDATORY;
+import static org.opengis.annotation.Specification.ISO_19123;
+import static org.opengis.annotation.Specification.OGC_01004;
+
 import java.awt.image.Raster;
 import java.awt.image.renderable.RenderableImage;
-import org.opengis.metadata.extent.Extent;
-import org.opengis.geometry.Envelope;
-import org.opengis.geometry.Geometry;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+
+import org.opengis.annotation.Extension;
+import org.opengis.annotation.Specification;
+import org.opengis.annotation.UML;
 import org.opengis.geometry.DirectPosition;
+import org.opengis.geometry.Envelope;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.temporal.Period;
 import org.opengis.util.Record;
 import org.opengis.util.RecordType;
-import org.opengis.annotation.UML;
-import org.opengis.annotation.Extension;
-
-import static org.opengis.annotation.Obligation.*;
-import static org.opengis.annotation.Specification.*;
 
 
 /**
@@ -111,51 +111,6 @@ public interface Coverage {
     Envelope getEnvelope();
 
     /**
-     * Returns the extent of the domain of the coverage. Extents may be specified in space,
-     * time or space-time. The collection must contains at least one element.
-     *
-     * @return The domain extent of the coverage.
-     */
-    @UML(identifier="domainExtent", obligation=MANDATORY, specification=ISO_19123)
-    Set<Extent> getDomainExtents();
-
-    /**
-     * Returns the set of domain objects in the domain.
-     * The collection must contains at least one element.
-     *
-     * @return The domain elements.
-     */
-    @UML(identifier="domainElement", obligation=MANDATORY, specification=ISO_19123)
-    Set<? extends DomainObject<?>> getDomainElements();
-
-    /**
-     * Returns the set of attribute values in the range. The range of a coverage shall be a
-     * homogeneous collection of records. That is, the range shall have a constant dimension
-     * over the entire domain, and each field of the record shall provide a value of the same
-     * attribute type over the entire domain.
-     * <p>
-     * In the case of a {@linkplain DiscreteCoverage discrete coverage}, the size of the range
-     * collection equals that of the {@linkplain #getDomainElements domains} collection. In other
-     * words, there is one instance of {@link AttributeValues} for each instance of {@link DomainObject}.
-     * Usually, these are stored values that are accessed by the
-     * {@link #evaluate(DirectPosition,Collection) evaluate} operation.
-     * <p>
-     * In the case of a {@linkplain ContinuousCoverage continuous coverage}, there is a transfinite
-     * number of instances of {@link AttributeValues} for each {@link DomainObject}. A few instances
-     * may be stored as input for the {@link #evaluate(DirectPosition,Collection) evaluate} operation,
-     * but most are generated as needed by that operation.
-     * <p>
-     * <B>NOTE:</B> ISO 19123 does not specify how the {@linkplain #getDomainElements domain}
-     * and {@linkplain #getRangeElements range} associations are to be implemented. The relevant
-     * data may be generated in real time, it may be held in persistent local storage, or it may
-     * be electronically accessible from remote locations.
-     *
-     * @return The attribute values in the range.
-     */
-    @UML(identifier="rangeElement", obligation=OPTIONAL, specification=ISO_19123)
-    Collection<AttributeValues> getRangeElements();
-
-    /**
      * Describes the range of the coverage. It consists of a list of attribute name/data type pairs.
      * A simple list is the most common form of range type, but {@code RecordType} can be used
      * recursively to describe more complex structures. The range type for a specific coverage
@@ -165,79 +120,6 @@ public interface Coverage {
      */
     @UML(identifier="rangeType", obligation=MANDATORY, specification=ISO_19123)
     RecordType getRangeType();
-
-    /**
-     * Identifies the procedure to be used for evaluating the coverage at a position that falls
-     * either on a boundary between geometric objects or within the boundaries of two or more
-     * overlapping geometric objects. The geometric objects are either {@linkplain DomainObject
-     * domain objects} or {@linkplain ValueObject value objects}.
-     *
-     * @return The procedure for evaluating the coverage on overlapping geometries.
-     */
-    @UML(identifier="commonPointRule", obligation=MANDATORY, specification=ISO_19123)
-    CommonPointRule getCommonPointRule();
-
-    /**
-     * Returns the dictionary of <var>geometry</var>-<var>value</var> pairs that contain the
-     * {@linkplain DomainObject objects} in the domain of the coverage each paired with its
-     * record of feature attribute values. In the case of an analytical coverage, the operation
-     * shall return the empty set.
-     *
-     * @return The geometry-value pairs.
-     */
-    @UML(identifier="list", obligation=MANDATORY, specification=ISO_19123)
-    Set<? extends GeometryValuePair> list();
-
-    /**
-     * Returns the set of <var>geometry</var>-<var>value</var> pairs that contain
-     * {@linkplain DomainObject domain objects} that lie within the specified geometry and period.
-     * If {@code s} is null, the operation shall return all <var>geometry</var>-<var>value</var>
-     * pairs that contain {@linkplain DomainObject domain objects} within {@code t}. If the value
-     * of {@code t} is null, the operation shall return all <var>geometry</var>-<var>value</var>
-     * pair that contain {@linkplain DomainObject domain objects} within {@code s}. In the case
-     * of an analytical coverage, the operation shall return the empty set.
-     *
-     * @param s The spatial component.
-     * @param t The temporal component.
-     * @return The values in the given spatio-temporal domain.
-     */
-    @UML(identifier="select", obligation=MANDATORY, specification=ISO_19123)
-    Set<? extends GeometryValuePair> select(Geometry s, Period t);
-
-    /**
-     * Returns the sequence of <var>geometry</var>-<var>value</var> pairs that include the
-     * {@linkplain DomainObject domain objects} nearest to the direct position and their distances
-     * from the direction position. The sequence shall be ordered by distance from the direct position,
-     * beginning with the record containing the {@linkplain DomainObject domain object} nearest to the
-     * direct position. The length of the sequence (the number of <var>geometry</var>-<var>value</var>
-     * pairs returned) shall be no greater than the number specified by the parameter {@code limit}.
-     * The default shall be to return a single <var>geometry</var>-<var>value</var> pair. The operation
-     * shall return a warning if the last {@linkplain DomainObject domain object} in the sequence is at
-     * a distance from the direct position equal to the distance of other {@linkplain DomainObject domain
-     * objects} that are not included in the sequence. In the case of an analytical coverage, the operation
-     * shall return the empty set.
-     * <p>
-     * <B>NOTE:</B> This operation is useful when the domain of a coverage does not exhaustively
-     * partition the extent of the coverage. Even in that case, the first element of the sequence
-     * returned may be the <var>geometry</var>-<var>value</var> pair that contains the input direct
-     * position.
-     *
-     * @param  p The search position.
-     * @param  limit The maximal size of the list to be returned.
-     * @return The <var>geometry</var>-<var>value</var> pairs nearest to the given position.
-     */
-    @UML(identifier="find", obligation=MANDATORY, specification=ISO_19123)
-    List<? extends GeometryValuePair> find(DirectPosition p, int limit);
-
-    /**
-     * Returns the nearest <var>geometry</var>-<var>value</var> pair from the specified direct
-     * position. This is a shortcut for <code>{@linkplain #find(DirectPosition,int) find}(p,1)</code>.
-     *
-     * @param  p The search position.
-     * @return The <var>geometry</var>-<var>value</var> pair nearest to the given position.
-     */
-    @UML(identifier="find", obligation=MANDATORY, specification=ISO_19123)
-    GeometryValuePair find(DirectPosition p);
 
     /**
      * Returns a set of records of feature attribute values for the specified direct position. The
@@ -413,23 +295,6 @@ public interface Coverage {
     @UML(identifier="evaluateAsDouble", obligation=MANDATORY, specification=OGC_01004)
     double[] evaluate(DirectPosition point, double[] destination)
             throws PointOutsideCoverageException, CannotEvaluateException, ArrayIndexOutOfBoundsException;
-
-    /**
-     * Returns a set of {@linkplain DomainObject domain objects} for the specified record of feature
-     * attribute values. Normally, this method returns the set of {@linkplain DomainObject objects}
-     * in the domain that are associated with values equal to those in the input record. However,
-     * the operation may return other {@linkplain DomainObject objects} derived from those in the
-     * domain, as specified by the application schema.
-     * <p>
-     * <B>Example:</B> The {@code evaluateInverse} operation could return a set
-     * of contours derived from the feature attribute values associated with the
-     * {@linkplain org.opengis.coverage.grid.GridPoint grid points} of a grid coverage.
-     *
-     * @param  v The feature attributes.
-     * @return The domain where the attributes are found.
-     */
-    @UML(identifier="evaluateInverse", obligation=MANDATORY, specification=ISO_19123)
-    Set<? extends DomainObject<?>> evaluateInverse(Record v);
 
     /**
      * The number of sample dimensions in the coverage.
