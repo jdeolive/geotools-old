@@ -57,7 +57,6 @@ import org.opengis.coverage.grid.GridCoverage;
  * @source $URL:
  *         http://svn.geotools.org/geotools/trunk/gt/module/main/src/org/geotools/data/coverage/grid/GridFormatFinder.java $
  */
-@SuppressWarnings("deprecation")
 public final class GridFormatFinder {
 	/**
 	 * The service registry for this manager. Will be initialized only when

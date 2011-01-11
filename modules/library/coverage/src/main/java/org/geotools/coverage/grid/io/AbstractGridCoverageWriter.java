@@ -40,7 +40,6 @@ import org.opengis.coverage.grid.GridCoverageWriter;
  * @since 2.3.x
  *
  */
-@SuppressWarnings("deprecation")
 public abstract class AbstractGridCoverageWriter implements GridCoverageWriter {
 
 	/** The {@link Logger} for this {@link AbstractGridCoverageWriter}. */

@@ -1227,7 +1227,6 @@ public class GridSampleDimension implements SampleDimension, Serializable {
      * component. If the sample dimension is not assigned a color interpretation
      * the value is {@link ColorInterpretation#UNDEFINED}.
      *
-     * @deprecated No replacement.
      */
     public ColorInterpretation getColorInterpretation() {
         // The 'Grid2DSampleDimension' class overrides this method
