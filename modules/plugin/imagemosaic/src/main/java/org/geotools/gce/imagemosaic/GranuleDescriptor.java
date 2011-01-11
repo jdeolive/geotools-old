@@ -16,7 +16,7 @@
  */
 package org.geotools.gce.imagemosaic;
 
-import it.geosolutions.imageio.utilities.ImageIOUtilities;
+import it.geosolutions.imageio.utilities.Utilities;
 
 import java.awt.Dimension;
 import java.awt.Rectangle;
@@ -760,7 +760,7 @@ public class GranuleDescriptor {
 			if (pluginName != null && pluginName.equals(Utils.DIRECT_KAKADU_PLUGIN)){
 				final int ssx = readParameters.getSourceXSubsampling();
 				final int ssy = readParameters.getSourceYSubsampling();
-				newSubSamplingFactor = ImageIOUtilities.getSubSamplingFactor2(ssx, ssy);
+				newSubSamplingFactor = Utilities.getSubSamplingFactor2(ssx, ssy);
 				if (newSubSamplingFactor != 0) {
 				    if (newSubSamplingFactor > maxDecimationFactor && maxDecimationFactor != -1){
 				        newSubSamplingFactor = maxDecimationFactor;
