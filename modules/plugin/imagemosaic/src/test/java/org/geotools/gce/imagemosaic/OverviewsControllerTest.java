@@ -71,6 +71,53 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 public class OverviewsControllerTest extends Assert{
 
+    static double THRESHOLD = 0.000001;
+    
+    static class TestSet {
+        
+        public TestSet(OverviewConfig[] ot) {
+            super();
+            this.ot = ot;
+        }
+
+        double resolution;
+        
+        OverviewConfig[] ot;
+    }
+    
+    static class GranuleParams {
+        
+        public GranuleParams(int imageIndex, int ssx, int ssy) {
+            super();
+            this.imageIndex = imageIndex;
+            this.ssx = ssx;
+            this.ssy = ssy;
+        }
+
+        int imageIndex;
+        
+        int ssx;
+        
+        int ssy;
+    }
+    
+    static class OverviewConfig {
+        
+        public OverviewConfig(OverviewPolicy ovPolicy, GranuleParams g1, GranuleParams g2) {
+            super();
+            this.ovPolicy = ovPolicy;
+            this.g1 = g1;
+            this.g2 = g2;
+        }
+
+        OverviewPolicy ovPolicy;
+        
+        GranuleParams g1;
+        
+        GranuleParams g2;
+        
+    }
+    
     private static CoordinateReferenceSystem WGS84;
     static{
         try{
@@ -80,6 +127,19 @@ public class OverviewsControllerTest extends Assert{
         }
     }
     
+    private final static TestSet at1 = new TestSet(new OverviewConfig[]{
+            new OverviewConfig(OverviewPolicy.QUALITY, new GranuleParams(3, 1, 1), new GranuleParams(2, 1, 2)),
+            new OverviewConfig(OverviewPolicy.SPEED, new GranuleParams(4, 1, 1), new GranuleParams(2, 1, 2)),
+            new OverviewConfig(OverviewPolicy.NEAREST, new GranuleParams(3, 1, 1), new GranuleParams(2, 1, 2)),
+            new OverviewConfig(OverviewPolicy.IGNORE, new GranuleParams(0, 9, 8), new GranuleParams(0, 5, 5))});
+    private final static TestSet at2 = new TestSet(new OverviewConfig[]{
+            new OverviewConfig(OverviewPolicy.QUALITY, new GranuleParams(3, 1, 1), new GranuleParams(2, 1, 2)),
+            new OverviewConfig(OverviewPolicy.SPEED, new GranuleParams(4, 1, 1), new GranuleParams(2, 1, 2)),
+            new OverviewConfig(OverviewPolicy.NEAREST, new GranuleParams(3, 1, 1), new GranuleParams(2, 1, 2)),
+            new OverviewConfig(OverviewPolicy.IGNORE, new GranuleParams(0, 9, 9), new GranuleParams(0, 5, 5))});
+    
+    
+    
     private final static Logger LOGGER = Logger.getLogger(OverviewsControllerTest.class.toString());
     
     public static junit.framework.Test suite() {
@@ -88,6 +148,8 @@ public class OverviewsControllerTest extends Assert{
 
     private static final ReferencedEnvelope TEST_BBOX_A = new ReferencedEnvelope(-180,0,-90,90,WGS84);
     private static final ReferencedEnvelope TEST_BBOX_B = new ReferencedEnvelope(0,180,0,90,WGS84);
+    
+    
 
     private static final ImageReaderSpi spi = new TIFFImageReaderSpi();
     
@@ -98,7 +160,7 @@ public class OverviewsControllerTest extends Assert{
      * resolutions/different number of overviews.
      * 
      * world_a.tif => Pixel Size = (0.833333333333333,-0.833333333333333); 4 overviews 
-     * world_b1.tif => Pixel Size = (1.406250000000000,-1.406250000000000); 2 overviews 
+     * world_b.tif => Pixel Size = (1.406250000000000,-1.406250000000000); 2 overviews 
      * 
      * @throws IOException
      * @throws MismatchedDimensionException
@@ -116,6 +178,8 @@ public class OverviewsControllerTest extends Assert{
         // //
         final AbstractGridFormat format = getFormat(heterogeneousGranulesURL);
         final ImageMosaicReader reader = getReader(heterogeneousGranulesURL, format);
+        final int nOv = reader.getNumberOfOvervies();
+        final double[] hRes = reader.getHighestRes();
         final RasterManager rasterManager = new RasterManager(reader);
         
         // //
@@ -124,11 +188,11 @@ public class OverviewsControllerTest extends Assert{
         //
         // //
         final File g1File = new File(heterogeneousGranulesURL.getPath()+"/world_a.tif");
-        final File g2File = new File(heterogeneousGranulesURL.getPath()+"/world_b1.tif");
+        final File g2File = new File(heterogeneousGranulesURL.getPath()+"/world_b.tif");
         final ImageReadParam readParamsG1 = new ImageReadParam();
         final ImageReadParam readParamsG2 = new ImageReadParam();
-        int levelIndexG1 = 0;
-        int levelIndexG2 = 0;
+        int imageIndexG1 = 0;
+        int imageIndexG2 = 0;
         
         final GranuleDescriptor granuleDescriptor1 = new GranuleDescriptor(g1File.getAbsolutePath(), TEST_BBOX_A, spi, (Geometry) null, true);
         final GranuleDescriptor granuleDescriptor2 = new GranuleDescriptor(g2File.getAbsolutePath(), TEST_BBOX_B, spi, (Geometry) null, true);
@@ -152,56 +216,35 @@ public class OverviewsControllerTest extends Assert{
         final AffineTransform gridToWorld = geMapper.createAffineTransform();
         final double requestedResolution[] = new double[]{XAffineTransform.getScaleX0(gridToWorld), XAffineTransform.getScaleY0(gridToWorld)}; 
         
+        TestSet at = null;
+        if (nOv == 4 && Math.abs(hRes[0] - 0.833333333333) <= THRESHOLD) {
+            at = at1;
+        } else if (nOv == 2 && Math.abs(hRes[0] - 1.40625) <= THRESHOLD) { 
+            at = at2;
+        } else {
+            return;
+        }
+
+        
         // //
         //
         // Starting OverviewsController tests
         //
         // //
-        
-        OverviewPolicy ovPolicy = OverviewPolicy.QUALITY;
-        
-        LOGGER.info("Testing with OverviewPolicy = QUALITY");
-        levelIndexG1 = ReadParamsController.setReadParams(requestedResolution, ovPolicy, DecimationPolicy.ALLOW, readParamsG1, rasterManager, ovControllerG1);
-        levelIndexG2 = ReadParamsController.setReadParams(requestedResolution, ovPolicy, DecimationPolicy.ALLOW, readParamsG2, rasterManager, ovControllerG2);
-        assertSame(3, levelIndexG1);
-        assertSame(2, levelIndexG2);
-        assertSame(1, readParamsG1.getSourceXSubsampling());
-        assertSame(1, readParamsG1.getSourceYSubsampling());
-        assertSame(1, readParamsG2.getSourceXSubsampling());
-        assertSame(2, readParamsG2.getSourceYSubsampling());
+        final OverviewPolicy[] ovPolicies = new OverviewPolicy[]{OverviewPolicy.QUALITY, OverviewPolicy.SPEED, OverviewPolicy.NEAREST, OverviewPolicy.IGNORE};
+        for (int i = 0; i < ovPolicies.length; i++){
+            OverviewPolicy ovPolicy = ovPolicies[i]; 
+            LOGGER.info("Testing with OverviewPolicy = " + ovPolicy.toString());
+            imageIndexG1 = ReadParamsController.setReadParams(requestedResolution, ovPolicy, DecimationPolicy.ALLOW, readParamsG1, rasterManager, ovControllerG1);
+            imageIndexG2 = ReadParamsController.setReadParams(requestedResolution, ovPolicy, DecimationPolicy.ALLOW, readParamsG2, rasterManager, ovControllerG2);
+            assertSame(at.ot[i].g1.imageIndex, imageIndexG1);
+            assertSame(at.ot[i].g2.imageIndex, imageIndexG2);
+            assertSame(at.ot[i].g1.ssx, readParamsG1.getSourceXSubsampling());
+            assertSame(at.ot[i].g1.ssy, readParamsG1.getSourceYSubsampling());
+            assertSame(at.ot[i].g2.ssx, readParamsG2.getSourceXSubsampling());
+            assertSame(at.ot[i].g2.ssy, readParamsG2.getSourceYSubsampling());
 
-        LOGGER.info("Testing with OverviewPolicy = SPEED");
-        ovPolicy = OverviewPolicy.SPEED;
-        levelIndexG1 = ReadParamsController.setReadParams(requestedResolution, ovPolicy, DecimationPolicy.ALLOW, readParamsG1, rasterManager, ovControllerG1);
-        levelIndexG2 = ReadParamsController.setReadParams(requestedResolution, ovPolicy, DecimationPolicy.ALLOW, readParamsG2, rasterManager, ovControllerG2);
-        assertSame(4, levelIndexG1);
-        assertSame(2, levelIndexG2);
-        assertSame(1, readParamsG1.getSourceXSubsampling());
-        assertSame(1, readParamsG1.getSourceYSubsampling());
-        assertSame(1, readParamsG2.getSourceXSubsampling());
-        assertSame(2, readParamsG2.getSourceYSubsampling());
-        
-        LOGGER.info("Testing with OverviewPolicy = NEAREST");
-        ovPolicy = OverviewPolicy.NEAREST;
-        levelIndexG1 = ReadParamsController.setReadParams(requestedResolution, ovPolicy, DecimationPolicy.ALLOW, readParamsG1, rasterManager, ovControllerG1);
-        levelIndexG2 = ReadParamsController.setReadParams(requestedResolution, ovPolicy, DecimationPolicy.ALLOW, readParamsG2, rasterManager, ovControllerG2);
-        assertSame(3, levelIndexG1);
-        assertSame(2, levelIndexG2);
-        assertSame(1, readParamsG1.getSourceXSubsampling());
-        assertSame(1, readParamsG1.getSourceYSubsampling());
-        assertSame(1, readParamsG2.getSourceXSubsampling());
-        assertSame(2, readParamsG2.getSourceYSubsampling());
-        
-        LOGGER.info("Testing with OverviewPolicy = IGNORE");
-        ovPolicy = OverviewPolicy.IGNORE;
-        levelIndexG1 = ReadParamsController.setReadParams(requestedResolution, ovPolicy, DecimationPolicy.ALLOW, readParamsG1, rasterManager, ovControllerG1);
-        levelIndexG2 = ReadParamsController.setReadParams(requestedResolution, ovPolicy, DecimationPolicy.ALLOW, readParamsG2, rasterManager, ovControllerG2);
-        assertSame(0, levelIndexG1);
-        assertSame(0, levelIndexG2);
-        assertSame(9, readParamsG1.getSourceXSubsampling());
-        assertSame(9, readParamsG1.getSourceYSubsampling());
-        assertSame(5, readParamsG2.getSourceXSubsampling());
-        assertSame(5, readParamsG2.getSourceYSubsampling());
+        }
     }
 
     /**
