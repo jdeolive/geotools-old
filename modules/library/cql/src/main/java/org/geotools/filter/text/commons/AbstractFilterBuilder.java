@@ -424,6 +424,7 @@ public abstract class AbstractFilterBuilder {
                     break; 
                 }
                 String part = resultStack.popIdentifierPart();
+                part = removeFirstAndLastDoubleQuote(part);
                 arrayParts.add(part);
             }
             assert arrayParts.size() >= 1 : "postcondition: the list of identifier part must have one or more elements ";
@@ -462,7 +463,26 @@ public abstract class AbstractFilterBuilder {
         return part;
     }
     
-    public PropertyName buildSimpleAttribute() throws CQLException {
+    /**
+     * Removes the initial and final double quote. If the source string has not double quotes the
+     * source is returned without changes. 
+     * @param source
+     * @return the source without double quotes (initial and final)
+     */
+    private String removeFirstAndLastDoubleQuote(String source) {
+            
+            // checks if it has initial an final quote
+            final String doubleQuote = "\"";
+            if( !( source.startsWith(doubleQuote) && source.endsWith(doubleQuote)) ){
+                    return source; // return without changes
+            }
+            // removes the first and last quote
+            String result = source.substring(1,source.length() -1);
+            
+            return result;
+	}
+
+	public PropertyName buildSimpleAttribute() throws CQLException {
         // Only retrieve the identifier built before
         String identifier = resultStack.popIdentifier();
         PropertyName property = filterFactory.property(identifier);

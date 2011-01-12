@@ -82,6 +82,12 @@ public class FilterToCQLTest{
     	cqlTest("attr BEFORE 2006-12-31T01:30:00Z");
     }
 
+    @Test
+    public void testBeforeAndAfter() throws Exception{
+    	
+    	cqlTest("(dateAttr AFTER 2006-10-10T01:30:00Z AND dateAttr BEFORE 2010-12-31T01:30:00Z)");
+    }
+
     /**
      * FIXME This require an implementation. The "and" filter should be modified to take into account that 
      * a filter with dates should be transformed in a "during" predicate.

@@ -110,12 +110,11 @@ public class CQLAttributeNameTest  {
     @Test 
     public void keywordAsAttribute() throws CQLException {
 
- 
-    	testAttribute("\"LIKE\"");
+    	testAttributeBetweenDoubleQuotes("\"LIKE\"");
     	
-       	testAttribute("\"AND\"");
+    	testAttributeBetweenDoubleQuotes("\"AND\"");
 
-       	testAttribute("\"OR\"");
+    	testAttributeBetweenDoubleQuotes("\"OR\"");
     }
 
     /**
@@ -127,25 +126,40 @@ public class CQLAttributeNameTest  {
     @Test
     public void localCharactersetInAttributeName() throws CQLException {
         
-    	testAttribute("\"población\"");
+    	testAttributeBetweenDoubleQuotes("\"población\"");
 
-    	testAttribute("\"reconnaître\"");
+    	testAttributeBetweenDoubleQuotes("\"reconnaître\"");
 
-    	testAttribute("\"können\"");
+    	testAttributeBetweenDoubleQuotes("\"können\"");
     	
     	// Russian
-    	testAttribute("\"ДОБРИЧ\"");
-    	testAttribute("\"название\"");
-    	testAttribute("\"фамилия\"");
-    	testAttribute("\"среды\"");
+    	testAttributeBetweenDoubleQuotes("\"ДОБРИЧ\"");
+    	testAttributeBetweenDoubleQuotes("\"название\"");
+    	testAttributeBetweenDoubleQuotes("\"фамилия\"");
+    	testAttributeBetweenDoubleQuotes("\"среды\"");
     	
     	// Japanese
-    	testAttribute("\"名\"");
-    	testAttribute("\"姓\"");
-    	testAttribute("\"環境\"");
+    	testAttributeBetweenDoubleQuotes("\"名\"");
+    	testAttributeBetweenDoubleQuotes("\"姓\"");
+    	testAttributeBetweenDoubleQuotes("\"環境\"");
     	
     }
 
+
+    private void testAttributeBetweenDoubleQuotes(final String attSample) throws CQLException {
+        PropertyIsLike result;
+        PropertyName attResult = null;
+
+        result = (PropertyIsLike) CompilerUtil.parseFilter(this.language, attSample + " LIKE 'abc%'");
+
+        attResult = (PropertyName) result.getExpression();
+
+        String expected = attSample.replace('.', '/');
+        expected = expected.substring(1, expected.length()-1);
+
+        String propertyName = attResult.getPropertyName();
+		Assert.assertEquals(expected, propertyName);
+    } 
 
     private void testAttribute(final String attSample) throws CQLException {
         PropertyIsLike result;

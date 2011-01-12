@@ -128,16 +128,16 @@ class FilterToCQL implements FilterVisitor, ExpressionVisitor {
             for( Iterator<Filter> i=children.iterator(); i.hasNext(); ){
                 Filter child = i.next();
                 child.accept(this, output);
-                if(comparisonHasDate(child) ){
+                /*if(comparisonHasDate(child) ){
 
                 	// FIXME during should be built
-                	//throw new UnsupportedOperationException("work in progress: DURING requires implementation!");
+                	throw new UnsupportedOperationException("work in progress: DURING requires implementation!");
 
-                } else {
+                } else {*/
                     if (i.hasNext()) {
                         output.append(" AND ");
                     }
-                }
+               // }
             }
             output.append(")");
         }
