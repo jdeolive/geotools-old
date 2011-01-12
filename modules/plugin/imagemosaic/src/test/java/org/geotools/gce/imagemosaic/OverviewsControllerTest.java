@@ -163,45 +163,45 @@ public class OverviewsControllerTest extends Assert{
         LOGGER.info("Testing with OverviewPolicy = QUALITY");
         levelIndexG1 = ReadParamsController.setReadParams(requestedResolution, ovPolicy, DecimationPolicy.ALLOW, readParamsG1, rasterManager, ovControllerG1);
         levelIndexG2 = ReadParamsController.setReadParams(requestedResolution, ovPolicy, DecimationPolicy.ALLOW, readParamsG2, rasterManager, ovControllerG2);
-        assertTrue(levelIndexG1 == 3);
-        assertTrue(levelIndexG2 == 2);
-        assertTrue(readParamsG1.getSourceXSubsampling() == 1);
-        assertTrue(readParamsG1.getSourceYSubsampling() == 1);
-        assertTrue(readParamsG2.getSourceXSubsampling() == 1);
-        assertTrue(readParamsG2.getSourceYSubsampling() == 2);
+        assertSame(3, levelIndexG1);
+        assertSame(2, levelIndexG2);
+        assertSame(1, readParamsG1.getSourceXSubsampling());
+        assertSame(1, readParamsG1.getSourceYSubsampling());
+        assertSame(1, readParamsG2.getSourceXSubsampling());
+        assertSame(2, readParamsG2.getSourceYSubsampling());
 
         LOGGER.info("Testing with OverviewPolicy = SPEED");
         ovPolicy = OverviewPolicy.SPEED;
         levelIndexG1 = ReadParamsController.setReadParams(requestedResolution, ovPolicy, DecimationPolicy.ALLOW, readParamsG1, rasterManager, ovControllerG1);
         levelIndexG2 = ReadParamsController.setReadParams(requestedResolution, ovPolicy, DecimationPolicy.ALLOW, readParamsG2, rasterManager, ovControllerG2);
-        assertTrue(levelIndexG1 == 4);
-        assertTrue(levelIndexG2 == 2);
-        assertTrue(readParamsG1.getSourceXSubsampling() == 1);
-        assertTrue(readParamsG1.getSourceYSubsampling() == 1);
-        assertTrue(readParamsG2.getSourceXSubsampling() == 1);
-        assertTrue(readParamsG2.getSourceYSubsampling() == 2);
+        assertSame(4, levelIndexG1);
+        assertSame(2, levelIndexG2);
+        assertSame(1, readParamsG1.getSourceXSubsampling());
+        assertSame(1, readParamsG1.getSourceYSubsampling());
+        assertSame(1, readParamsG2.getSourceXSubsampling());
+        assertSame(2, readParamsG2.getSourceYSubsampling());
         
         LOGGER.info("Testing with OverviewPolicy = NEAREST");
         ovPolicy = OverviewPolicy.NEAREST;
         levelIndexG1 = ReadParamsController.setReadParams(requestedResolution, ovPolicy, DecimationPolicy.ALLOW, readParamsG1, rasterManager, ovControllerG1);
         levelIndexG2 = ReadParamsController.setReadParams(requestedResolution, ovPolicy, DecimationPolicy.ALLOW, readParamsG2, rasterManager, ovControllerG2);
-        assertTrue(levelIndexG1 == 3);
-        assertTrue(levelIndexG2 == 2);
-        assertTrue(readParamsG1.getSourceXSubsampling() == 1);
-        assertTrue(readParamsG1.getSourceYSubsampling() == 1);
-        assertTrue(readParamsG2.getSourceXSubsampling() == 1);
-        assertTrue(readParamsG2.getSourceYSubsampling() == 2);
+        assertSame(3, levelIndexG1);
+        assertSame(2, levelIndexG2);
+        assertSame(1, readParamsG1.getSourceXSubsampling());
+        assertSame(1, readParamsG1.getSourceYSubsampling());
+        assertSame(1, readParamsG2.getSourceXSubsampling());
+        assertSame(2, readParamsG2.getSourceYSubsampling());
         
         LOGGER.info("Testing with OverviewPolicy = IGNORE");
         ovPolicy = OverviewPolicy.IGNORE;
         levelIndexG1 = ReadParamsController.setReadParams(requestedResolution, ovPolicy, DecimationPolicy.ALLOW, readParamsG1, rasterManager, ovControllerG1);
         levelIndexG2 = ReadParamsController.setReadParams(requestedResolution, ovPolicy, DecimationPolicy.ALLOW, readParamsG2, rasterManager, ovControllerG2);
-        assertTrue(levelIndexG1 == 0);
-        assertTrue(levelIndexG2 == 0);
-        assertTrue(readParamsG1.getSourceXSubsampling() == 9);
-        assertTrue(readParamsG1.getSourceYSubsampling() == 9);
-        assertTrue(readParamsG2.getSourceXSubsampling() == 5);
-        assertTrue(readParamsG2.getSourceYSubsampling() == 5);
+        assertSame(0, levelIndexG1);
+        assertSame(0, levelIndexG2);
+        assertSame(9, readParamsG1.getSourceXSubsampling());
+        assertSame(9, readParamsG1.getSourceYSubsampling());
+        assertSame(5, readParamsG2.getSourceXSubsampling());
+        assertSame(5, readParamsG2.getSourceYSubsampling());
     }
 
     /**

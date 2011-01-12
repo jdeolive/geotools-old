@@ -569,6 +569,12 @@ public class CatalogBuilder implements Runnable {
 				        int numberOfLevels = imageioReader.getNumImages(true);
                                         if (numberOfLevels != mosaicConfiguration.getLevelsNum()) {
                                             mosaicConfiguration.setHeterogeneous(true);
+                                            if (numberOfLevels > mosaicConfiguration.getLevelsNum()){
+                                                final double[][] resolutionLevels = new double[2][numberOfLevels];
+                                                setupResolutions(resolutionLevels, numberOfLevels, coverageReader, imageioReader, null);
+                                                mosaicConfiguration.setLevelsNum(numberOfLevels);
+                                                mosaicConfiguration.setLevels(resolutionLevels);
+                                            }
                                         } else {
                                             final double[][] mosaicLevels = mosaicConfiguration.getLevels();
                                             final double[][] resolutionLevels = new double[2][numberOfLevels];
