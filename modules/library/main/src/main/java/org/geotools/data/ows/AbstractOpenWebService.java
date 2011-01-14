@@ -203,7 +203,7 @@ public abstract class AbstractOpenWebService<C extends Capabilities, R extends O
      * @throws ServiceException if the server returns a ServiceException
      */
     protected C negotiateVersion() throws IOException, ServiceException {
-        List versions = new ArrayList(specs.length);
+        List<String> versions = new ArrayList<String>(specs.length);
         Exception exception = null;
 
         for( int i = 0; i < specs.length; i++ ) {
@@ -214,6 +214,18 @@ public abstract class AbstractOpenWebService<C extends Capabilities, R extends O
         int maxClient = specs.length - 1;
 
         int test = maxClient;
+        // Respect Version if provided in URL (GEOT-3361 )
+        if( serverURL.getQuery() != null ){
+            String[] tokens = serverURL.getQuery().split("&");
+            for (String token : tokens) {
+                String[] param = token.split("=");
+                if( param != null && param.length > 1 && param[0] != null && 
+                        param[0].equalsIgnoreCase("version") ){
+                    if( versions.contains(param[1]) )
+                        test = versions.indexOf(param[1]);
+                }
+            }
+        }
 
         while( (minClient <= test) && (test <= maxClient) ) {
             Specification tempSpecification = specs[test];
