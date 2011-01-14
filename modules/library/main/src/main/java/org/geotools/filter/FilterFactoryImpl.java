@@ -25,8 +25,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.geotools.factory.Hints;
+import org.geotools.factory.Hints.Key;
 import org.geotools.filter.capability.ArithmeticOperatorsImpl;
 import org.geotools.filter.capability.ComparisonOperatorsImpl;
 import org.geotools.filter.capability.FilterCapabilitiesImpl;
@@ -41,6 +41,7 @@ import org.geotools.filter.capability.SpatialOperatorsImpl;
 import org.geotools.filter.expression.AddImpl;
 import org.geotools.filter.expression.DivideImpl;
 import org.geotools.filter.expression.MultiplyImpl;
+import org.geotools.filter.expression.PropertyAccessorFactory;
 import org.geotools.filter.expression.SubtractImpl;
 import org.geotools.filter.identity.FeatureIdImpl;
 import org.geotools.filter.identity.GmlObjectIdImpl;
@@ -110,6 +111,7 @@ import org.opengis.filter.spatial.Touches;
 import org.opengis.filter.spatial.Within;
 import org.opengis.geometry.BoundingBox;
 import org.opengis.geometry.Geometry;
+import org.xml.sax.helpers.NamespaceSupport;
 
 import com.vividsolutions.jts.geom.Envelope;
 
@@ -123,7 +125,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * @version $Id$
  */
 public class FilterFactoryImpl implements FilterFactory {
-    
+        
     private FunctionFinder functionFinder;
 
     /**
@@ -192,10 +194,10 @@ public class FilterFactoryImpl implements FilterFactory {
         return new IsEqualsToImpl(this,expr1,expr2,matchCase); 
     }
     
-        public PropertyIsNotEqualTo notEqual(Expression expr1, Expression expr2) {
-                return notEqual(expr1, expr2, false );
-        }
-        
+    public PropertyIsNotEqualTo notEqual(Expression expr1, Expression expr2) {
+            return notEqual(expr1, expr2, false );
+    }
+    
     public PropertyIsNotEqualTo notEqual(Expression expr1, Expression expr2, boolean matchCase) {
         return new IsNotEqualToImpl(this,expr1,expr2,matchCase);
     }
@@ -204,10 +206,10 @@ public class FilterFactoryImpl implements FilterFactory {
         return greater(expr1,expr2,false);
     }
     
-    public PropertyIsGreaterThan greater(Expression expr1, Expression expr2,
-                        boolean matchCase) {
-                return new IsGreaterThanImpl(this,expr1,expr2);
-        }       
+    public PropertyIsGreaterThan greater(Expression expr1, Expression expr2, boolean matchCase) {
+        return new IsGreaterThanImpl(this, expr1, expr2);
+    }
+    
     public PropertyIsGreaterThanOrEqualTo greaterOrEqual(Expression expr1,
             Expression expr2) {
         return greaterOrEqual(expr1,expr2,false);
@@ -276,7 +278,7 @@ public class FilterFactoryImpl implements FilterFactory {
             double maxx, double maxy, String srs) {
         
         PropertyName name = property(propertyName);
-        return bbox( name, minx, miny, maxx, maxy, srs );
+        return bbox(name, minx, miny, maxx, maxy, srs);
     }
 
     public BBOX bbox( Expression geometry, Expression bounds ) {
@@ -997,7 +999,13 @@ public class FilterFactoryImpl implements FilterFactory {
         return beyond( geometry1, literal( geometry2), distance, units );        
     }
     public PropertyName property( Name name ) {
-        return property( name.toString() ); // uses full URI for justin
+        return new AttributeExpressionImpl( name );
+    }
+    public PropertyName property( String name, NamespaceSupport namespaceContext ) {
+        if (namespaceContext == null) {
+            return property(name);
+        }
+        return new AttributeExpressionImpl(name, namespaceContext );
     }
     public Within within( Expression geometry1, Geometry geometry2 ) {
         return within( geometry1, literal( geometry2 ));

@@ -17,10 +17,10 @@
 package org.geotools.filter;
 
 import java.util.logging.Logger;
-
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.filter.expression.ExpressionVisitor;
+import org.xml.sax.helpers.NamespaceSupport;
 
 
 /**
@@ -171,6 +171,10 @@ public class AttributeExpressionImpl2 extends DefaultExpression
      */
     public Object accept(ExpressionVisitor visitor, Object extraData) {
     	return visitor.visit(this,extraData);
+    }
+
+    public NamespaceSupport getNamespaceContext() {
+        return null;
     }
 
 }

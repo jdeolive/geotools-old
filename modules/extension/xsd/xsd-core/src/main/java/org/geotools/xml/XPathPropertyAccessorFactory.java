@@ -39,10 +39,6 @@ import org.geotools.xml.impl.jxpath.FeatureNodeFactory;
  * @source $URL$
  */
 public class XPathPropertyAccessorFactory implements PropertyAccessorFactory {
-    /**
-     * Namespace support hint
-     */
-    public static Hints.Key NAMESPACE_SUPPORT = new Hints.Key(NamespaceSupport.class);
 
     static {
         //unfortunatley, jxpath only works against concreate classes

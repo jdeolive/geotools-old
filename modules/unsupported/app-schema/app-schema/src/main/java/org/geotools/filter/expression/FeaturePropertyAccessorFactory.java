@@ -23,7 +23,6 @@ import org.apache.commons.jxpath.JXPathContext;
 import org.apache.commons.jxpath.JXPathIntrospector;
 import org.apache.commons.jxpath.ri.JXPathContextReferenceImpl;
 import org.geotools.factory.Hints;
-import org.geotools.factory.Hints.Key;
 import org.geotools.feature.AttributeImpl;
 import org.geotools.feature.ComplexAttributeImpl;
 import org.geotools.feature.FeatureImpl;
@@ -69,15 +68,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * @source $URL$
  */
 public class FeaturePropertyAccessorFactory implements PropertyAccessorFactory {
-
-    /**
-     * {@link Hints} key used to pass namespace context to
-     * {@link #createPropertyAccessor(Class, String, Class, Hints)} in the form of a
-     * {@link NamespaceSupport} instance with the prefix/namespaceURI mappings
-     */
-    public static final Key NAMESPACE_CONTEXT = new Hints.Key(
-            org.xml.sax.helpers.NamespaceSupport.class);
-
+   
     static {
         // unfortunatley, jxpath only works against concreate classes
         // JXPathIntrospector.registerDynamicClass(DefaultFeature.class,

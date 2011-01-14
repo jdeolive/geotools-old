@@ -17,14 +17,12 @@
 
 package org.geotools.filter;
 
-import org.geotools.factory.Hints;
-import org.geotools.filter.expression.FeaturePropertyAccessorFactory;
 import org.opengis.filter.expression.PropertyName;
 import org.xml.sax.helpers.NamespaceSupport;
 
 public class FilterFactoryImplNamespaceAware extends FilterFactoryImpl {
 
-    private Hints namespaceHints;
+    private NamespaceSupport namespaceContext;
 
     /**
      * Empty constructor, no namespace context received, behaves exactly like
@@ -34,17 +32,16 @@ public class FilterFactoryImplNamespaceAware extends FilterFactoryImpl {
         super();
     }
 
-    public FilterFactoryImplNamespaceAware(NamespaceSupport namespaces) {
-        setNamepaceContext(namespaces);
+    public FilterFactoryImplNamespaceAware(NamespaceSupport namespaceContext) {
+        setNamepaceContext(namespaceContext);
     }
 
     // @Override
     public PropertyName property(String name) {
-        return new AttributeExpressionImpl(name, namespaceHints);
+        return property(name, namespaceContext);
     }
 
-    public void setNamepaceContext(NamespaceSupport namespaces) {
-        // must use identical instance as Hints$Key equals is by identity
-        namespaceHints = new Hints(FeaturePropertyAccessorFactory.NAMESPACE_CONTEXT, namespaces);
+    public void setNamepaceContext(NamespaceSupport namespaceContext) {
+        this.namespaceContext = namespaceContext;
     }
 }

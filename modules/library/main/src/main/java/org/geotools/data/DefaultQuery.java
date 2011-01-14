@@ -17,8 +17,11 @@
 package org.geotools.data;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.opengis.filter.Filter;
+import org.opengis.filter.expression.PropertyName;
 
 
 /**
@@ -98,7 +101,27 @@ public class DefaultQuery extends Query {
         this.typeName = typeName;
         this.filter = filter;
         this.namespace = namespace;
-        this.properties = propNames;
+        this.maxFeatures = maxFeatures;
+        this.handle = handle;
+        setPropertyNames(propNames);
+    }
+    
+    /**
+     * Constructor that sets all fields.
+     *
+     * @param typeName the name of the featureType to retrieve.
+     * @param namespace Namespace for provided typeName, or null if unspecified
+     * @param filter the OGC filter to constrain the request.
+     * @param maxFeatures the maximum number of features to be returned.
+     * @param propNames a list of the properties to fetch.
+     * @param handle the name to associate with the query.
+     */
+    public DefaultQuery(String typeName, URI namespace, Filter filter, int maxFeatures,
+        List<PropertyName> propNames, String handle) {
+        this.typeName = typeName;
+        this.filter = filter;
+        this.namespace = namespace;
+        this.properties = propNames==null? null : new ArrayList<PropertyName>(propNames);
         this.maxFeatures = maxFeatures;
         this.handle = handle;
     }
@@ -109,7 +132,7 @@ public class DefaultQuery extends Query {
      */
     public DefaultQuery(Query query) {
       this(query.getTypeName(), query.getNamespace(), query.getFilter(), query.getMaxFeatures(),
-          query.getPropertyNames(), query.getHandle());
+          query.getProperties(), query.getHandle());
       this.sortBy = query.getSortBy();
       this.coordinateSystem = query.getCoordinateSystem();
       this.coordinateSystemReproject = query.getCoordinateSystemReproject();

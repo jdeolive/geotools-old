@@ -17,13 +17,17 @@
 package org.geotools.data;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import org.opengis.filter.Filter;
+import org.opengis.filter.FilterFactory;
+import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.Hints;
 
 /**
@@ -118,9 +122,26 @@ public class Query {
      * are to be retrieved.
      */
     public static final String[] ALL_NAMES = null;
+    
+    /**
+     * A constant (empty String array) that can be used with
+     * {@linkplain #setProperties(Collection<PropertyName>)} to indicate that no
+     * properties are to be retrieved.
+     * <p>
+     * Note the query will still return a result - limited to FeatureIDs.
+     * </p>
+     */
+    public static final List<PropertyName> NO_PROPERTIES = Collections.<PropertyName>emptyList();
+
+    /**
+     * A constant (value {@code null}) that can be used with
+     * {@linkplain #setProperties(Collection<PropertyName>)} to indicate that all properties
+     * are to be retrieved.
+     */
+    public static final List<PropertyName> ALL_PROPERTIES = null;
 
     /** The properties to fetch */
-    protected String[] properties;
+    protected List<PropertyName> properties;
 
     /** The maximum numbers of features to fetch */
     protected int maxFeatures = Query.DEFAULT_MAX;
@@ -191,7 +212,18 @@ public class Query {
      */
     public Query(String typeName, Filter filter, String[] properties) {
         this( typeName, null, filter, Query.DEFAULT_MAX, properties, null );        
-    }    
+    }
+    
+    /**
+     * Constructor.
+     *
+     * @param typeName the name of the featureType to retrieve.
+     * @param filter the OGC filter to constrain the request.
+     * @param properties a list of the properties to fetch.
+     */
+    public Query(String typeName, Filter filter, List<PropertyName> properties) {
+        this( typeName, null, filter, Query.DEFAULT_MAX, properties, null );        
+    }
 
     /**
      * Constructor.
@@ -211,6 +243,20 @@ public class Query {
      * Constructor.
      *
      * @param typeName the name of the featureType to retrieve.
+     * @param filter the OGC filter to constrain the request.
+     * @param maxFeatures the maximum number of features to be returned.
+     * @param properties a list of the properties to fetch.
+     * @param handle the name to associate with this query.
+     */
+    public Query(String typeName, Filter filter, int maxFeatures,
+            List<PropertyName>  properties, String handle) {
+        this(typeName, null, filter, maxFeatures, properties, handle );
+    }
+        
+    /**
+     * Constructor.
+     *
+     * @param typeName the name of the featureType to retrieve.
      * @param namespace Namespace for provided typeName, or null if unspecified
      * @param filter the OGC filter to constrain the request.
      * @param maxFeatures the maximum number of features to be returned.
@@ -222,9 +268,29 @@ public class Query {
         this.typeName = typeName;
         this.filter = filter;
         this.namespace = namespace;
-        this.properties = propNames;
         this.maxFeatures = maxFeatures;
         this.handle = handle;
+        setPropertyNames(propNames);
+    }
+    
+    /**
+     * Constructor.
+     *
+     * @param typeName the name of the featureType to retrieve.
+     * @param namespace Namespace for provided typeName, or null if unspecified
+     * @param filter the OGC filter to constrain the request.
+     * @param maxFeatures the maximum number of features to be returned.
+     * @param properties a list of the property names to fetch.
+     * @param handle the name to associate with the query.
+     */
+    public Query( String typeName, URI namespace, Filter filter, int maxFeatures,
+        List<PropertyName> propNames, String handle) {
+        this.typeName = typeName;
+        this.filter = filter;
+        this.namespace = namespace;
+        this.maxFeatures = maxFeatures;
+        this.handle = handle;
+        this.properties = propNames==null? null : new ArrayList<PropertyName>(propNames);
     }
     
     /**
@@ -234,7 +300,7 @@ public class Query {
      */
     public Query(Query query) {
       this(query.getTypeName(), query.getNamespace(), query.getFilter(), query.getMaxFeatures(),
-          query.getPropertyNames(), query.getHandle());
+          query.getProperties(), query.getHandle());
       this.sortBy = query.getSortBy();
       this.coordinateSystem = query.getCoordinateSystem();
       this.coordinateSystemReproject = query.getCoordinateSystemReproject();
@@ -256,7 +322,19 @@ public class Query {
      *       Query.FIDS.equals( filter ) would meet this need?
      */
     public String[] getPropertyNames() {
-        return properties;
+        if (properties == null) {
+            return null;
+        }
+        
+        String[] propertyNames = new String[properties.size()];
+        for (int i=0; i< properties.size(); i++) {
+            PropertyName propertyName = properties.get(i);
+            if( propertyName != null){
+                String xpath = propertyName.getPropertyName();
+                propertyNames[i] = xpath;
+            }
+        }
+        return propertyNames;
     }
 
     /**
@@ -279,7 +357,57 @@ public class Query {
      *        {@linkplain #ALL_NAMES} or {@linkplain #NO_NAMES}.
      */
     public void setPropertyNames(String[] propNames) {
-        this.properties = propNames;
+        if (propNames == null) {
+            properties = ALL_PROPERTIES;
+            return;
+        }
+        
+        final FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
+        properties = new ArrayList<PropertyName>(propNames.length);
+        for (int i=0; i< propNames.length; i++) {
+            String xpath = propNames[i];
+            if(xpath != null ){
+                properties.add(ff.property(xpath));
+            }
+        }
+    }
+    
+    /**
+     * Get the names of the properties that this Query will retrieve values for
+     * as part of the returned {@linkplain org.geotools.feature.FeatureCollection}.
+     *
+     * @return the xpath expressions to be used in the returned FeatureCollection.
+     *
+     * @see #retrieveAllProperties()
+     */
+    public List<PropertyName> getProperties() {
+        if (properties == ALL_PROPERTIES) {
+            return ALL_PROPERTIES;
+        }
+        return Collections.<PropertyName>unmodifiableList(properties) ;
+    }
+
+    /**
+     * Set the names of the properties that this Query should retrieve as part of
+     * the returned {@linkplain org.geotools.feature.FeatureCollection}.
+     * As well as an array of names, the following constants can be used:
+     * <ul>
+     * <li>
+     * {@linkplain #ALL_PROPERTIES} to retrieve all properties.
+     * </li>
+     * <li>
+     * {@linkplain #NO_PROPERTIES} to indicate no properties are required, just feature IDs.
+     * </li>
+     * </ul>
+     * The available properties can be determined with {@linkplain FeatureSource#getSchema()}.
+     * If properties that are not part of the source's schema are requested
+     * an exception will be thrown.
+     *
+     * @param propNames the names of the properties to retrieve or one of
+     *        {@linkplain #ALL_PROPERTIES} or {@linkplain #NO_PROPERTIES}.
+     */
+    public void setProperties(List<PropertyName> propNames) {
+        this.properties = propNames== ALL_PROPERTIES ? ALL_PROPERTIES : new ArrayList<PropertyName>(propNames);
     }
     
     /**
@@ -300,12 +428,19 @@ public class Query {
      */
     public void setPropertyNames(List<String> propNames) {
         if (propNames == null) {
-            this.properties = ALL_NAMES;
+            this.properties = ALL_PROPERTIES;
             return;
         }
 
-        String[] stringArr = new String[propNames.size()];
-        this.properties = propNames.toArray(stringArr);
+        final FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
+        
+        properties = new ArrayList<PropertyName>(propNames.size());
+        for (int i=0; i< propNames.size(); i++) {
+            String xpath = propNames.get(i);
+            if(xpath != null ){
+                properties.add(ff.property(xpath));
+            }
+        }
     }
     
     /**
@@ -719,13 +854,13 @@ public class Query {
 
         returnString.append("\n   [properties: ");
 
-        if ((properties == null) || (properties.length == 0)) {
+        if ((properties == null) || (properties.size() == 0)) {
             returnString.append(" ALL ]");
         } else {
-            for (int i = 0; i < properties.length; i++) {
-                returnString.append(properties[i]);
+            for (int i = 0; i < properties.size(); i++) {
+                returnString.append(properties.get(i));
 
-                if (i < (properties.length - 1)) {
+                if (i < (properties.size() - 1)) {
                     returnString.append(", ");
                 }
             }

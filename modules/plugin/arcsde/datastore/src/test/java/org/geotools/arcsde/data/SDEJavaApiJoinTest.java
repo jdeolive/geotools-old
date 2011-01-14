@@ -400,7 +400,7 @@ public class SDEJavaApiJoinTest {
 
         SimpleFeatureSource fs = store.getFeatureSource(InProcessViewSupportTestData.typeName);
 
-        Query query = new Query(InProcessViewSupportTestData.typeName, Filter.INCLUDE, null);
+        Query query = new Query(InProcessViewSupportTestData.typeName, Filter.INCLUDE, Query.ALL_PROPERTIES);
         SimpleFeatureCollection fc = fs.getFeatures(query);
         int fcCount = fc.size();
         int itCount = 0;

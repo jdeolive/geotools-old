@@ -24,6 +24,7 @@ import org.opengis.filter.spatial.Overlaps;
 import org.opengis.filter.spatial.Touches;
 import org.opengis.filter.spatial.Within;
 import org.opengis.geometry.BoundingBox;
+import org.xml.sax.helpers.NamespaceSupport;
 
 
 /**
@@ -45,8 +46,22 @@ public interface FilterFactory2 extends FilterFactory {
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-    /** Retrieves the value of a {@linkplain org.opengis.feature.Feature feature}'s property. */
+    /**
+     * Retrieves the value of a {@linkplain org.opengis.feature.Feature feature}'s property.
+     * @param name Name of attribute referenced
+     * @return PropertyName
+     */
     PropertyName property(Name name);
+    
+    /**
+     * Retrieves the value of a {@linkplain org.opengis.feature.Feature feature}'s property.
+     * 
+     * @param xpath XPath expression (subject to the restrictions of filter specificaiton)
+     * @param namespaceContext Used to interpret any namespace prefixs in above xpath expression
+     * @return PropertyName
+     */
+     
+    PropertyName property(String xpath, NamespaceSupport namespaceContext);
 
     /**
      * Character string comparison operator with pattern matching and specified wildcards.

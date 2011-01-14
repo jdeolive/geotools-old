@@ -29,7 +29,9 @@ import org.geotools.filter.expression.PropertyAccessors;
 import org.geotools.util.Converters;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.Name;
 import org.opengis.filter.expression.ExpressionVisitor;
+import org.xml.sax.helpers.NamespaceSupport;
 
 
 /**
@@ -43,22 +45,30 @@ import org.opengis.filter.expression.ExpressionVisitor;
  */
 public class AttributeExpressionImpl extends DefaultExpression
     implements AttributeExpression {
+            
     /** The logger for the default core module. */
     private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.core");
 
     /** Holds all sub filters of this filter. */
     protected String attPath;
 
-    /** Holds all sub filters of this filter. */
+    /** Used to validate attribute references to ensure they match the provided schema */
     protected SimpleFeatureType schema = null;
     
-    /** Holds hints for the property accessor factory */
-    private Hints hints;
+    /** NamespaceSupport used to defining the prefix information for the xpath expression */
+    NamespaceSupport namespaceSupport;
     
-    //NC -added
-    /** Configures whether evaluate should return null if it cannot find a working
-     * property accessor, rather than throwing an exception (default behaviour). */
+    /**
+     * Configures whether evaluate should return null if it cannot find a working
+     * property accessor, rather than throwing an exception (default behaviour).
+     * */
     protected boolean lenient = true;
+    
+    /**
+     * Hints passed to the property accessor gathering up additional context information
+     * used during evaluation.
+     */
+    private Hints hints;
 
     /**
      * Constructor with the schema for this attribute.
@@ -76,23 +86,59 @@ public class AttributeExpressionImpl extends DefaultExpression
      * @param xpath the String xpath to the attribute.
      */
     public AttributeExpressionImpl( String xpath ){
-        this(xpath, null);
-    }    
+        this.attPath = xpath;
+        this.schema = null;
+        this.namespaceSupport = null;
+        this.hints = null;
+        this.expressionType = ATTRIBUTE;
+    }
+    
+    /**
+     * Constructor with full attribute name.
+     * 
+     * @param name Attribute Name.
+     */
+    public AttributeExpressionImpl( Name name ){
+    	attPath = name.getLocalPart();
+        schema = null;
+        if (name.getNamespaceURI() != null) {
+        	namespaceSupport = new NamespaceSupport();
+        	namespaceSupport.declarePrefix("", name.getNamespaceURI());
+        } else {
+        	namespaceSupport = null;
+        }
+        expressionType = ATTRIBUTE;        
+    }
     
     /**
      * Constructor with schema and path to the attribute.
      * 
      * @param xpath the String xpath to the attribute.
-     * @param propertyAccessorHints hints to be passed to 
-     *        {@link PropertyAccessorFactory#createPropertyAccessor(Class, String, Class, Hints)}
-     *        at evaluation time.
+     * @param namespaceContext Defining the prefix information for the xpath expression 
      */
-    public AttributeExpressionImpl( String xpath, Hints propertyAccessorHints ){
-    	attPath = xpath;
-    	schema = null;
-        hints = propertyAccessorHints;
-    	this.expressionType = ATTRIBUTE;    	
-    }    
+    public AttributeExpressionImpl( String xpath, NamespaceSupport namespaceContext ){
+        attPath = xpath;
+        schema = null;
+        this.namespaceSupport = namespaceContext;
+        this.expressionType = ATTRIBUTE;
+    }   
+    
+    /**
+     * 
+     * @param xpath xpath expression
+     * @param hints Hints passed to the property accessor during evaulation
+     */
+    public AttributeExpressionImpl( String xpath, Hints hints){
+        attPath = xpath;
+        schema = null;
+        this.namespaceSupport = null;
+        this.hints = hints;
+        this.expressionType = ATTRIBUTE;
+    } 
+    
+    public NamespaceSupport getNamespaceContext() {
+        return namespaceSupport;
+    }
     
     /**
      * Constructor with schema and path to the attribute.
@@ -200,9 +246,11 @@ public class AttributeExpressionImpl extends DefaultExpression
         if (accessor == null || !accessor.canHandle(obj, attPath, target)
                 || !tryAccessor(accessor, obj, target, value, e)) {
             boolean success = false;
-
+            if( namespaceSupport != null && hints == null ){
+                hints = new Hints(PropertyAccessorFactory.NAMESPACE_CONTEXT, namespaceSupport);
+            }
             List<PropertyAccessor> accessors = PropertyAccessors.findPropertyAccessors(obj,
-                    attPath, target, hints);
+                    attPath, target, hints );
 
             if (accessors != null) {
                 Iterator<PropertyAccessor> it = accessors.iterator();
@@ -346,5 +394,6 @@ public class AttributeExpressionImpl extends DefaultExpression
     public boolean isLenient () {
         return lenient;
     }
+    
     
 }

@@ -11,6 +11,7 @@ package org.opengis.filter.expression;
 
 // Annotations
 import org.opengis.annotation.XmlElement;
+import org.xml.sax.helpers.NamespaceSupport;
 
 
 /**
@@ -37,5 +38,12 @@ public interface PropertyName extends Expression {
      * {@link #evaluate evaluate} method.
      */
     String getPropertyName();
+    
+    /**
+     * Returns namespace context information, or null if unavailable/inapplicable
+     * 
+     * @return namespace context information, or null if unavailable/inapplicable
+     */
+    NamespaceSupport getNamespaceContext();
 
 }

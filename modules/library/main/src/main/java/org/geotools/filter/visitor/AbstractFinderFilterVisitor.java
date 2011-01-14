@@ -16,8 +16,6 @@
  */
 package org.geotools.filter.visitor;
 
-import java.util.Iterator;
-
 import org.opengis.filter.And;
 import org.opengis.filter.ExcludeFilter;
 import org.opengis.filter.Filter;
@@ -56,6 +54,7 @@ import org.opengis.filter.spatial.Intersects;
 import org.opengis.filter.spatial.Overlaps;
 import org.opengis.filter.spatial.Touches;
 import org.opengis.filter.spatial.Within;
+import org.xml.sax.helpers.NamespaceSupport;
 
 /**
  * Abstract FilterVisitor for answering yes / no questions about a filter.
@@ -193,6 +192,10 @@ public abstract class AbstractFinderFilterVisitor implements FilterVisitor, Expr
                 return null;
             }
             public Object evaluate( Object object, Class context ) {
+                return null;
+            }
+
+            public NamespaceSupport getNamespaceContext() {
                 return null;
             }
         };

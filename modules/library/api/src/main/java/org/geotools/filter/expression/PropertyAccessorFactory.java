@@ -17,7 +17,7 @@
 package org.geotools.filter.expression;
 
 import org.geotools.factory.Hints;
-
+import org.geotools.factory.Hints.Key;
 
 /**
  * Factory used to create instances of {@link PropertyAccessor}
@@ -28,6 +28,15 @@ import org.geotools.factory.Hints;
  * @source $URL$
  */
 public interface PropertyAccessorFactory {
+		    
+	/**
+	 * {@link Hints} key used to pass namespace context to
+	 * {@link #createPropertyAccessor(Class, String, Class, Hints)} in the form of a
+	 * {@link NamespaceSupport} instance with the prefix/namespaceURI mappings
+	 */
+	public static final Key NAMESPACE_CONTEXT = new Hints.Key(org.xml.sax.helpers.NamespaceSupport.class);
+	
+	
     /**
      * Creates a property accessor for a particular class.
      *

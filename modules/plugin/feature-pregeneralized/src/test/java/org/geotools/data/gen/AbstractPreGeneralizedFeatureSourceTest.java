@@ -54,6 +54,7 @@ import org.opengis.filter.expression.ExpressionVisitor;
 import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
+import org.xml.sax.helpers.NamespaceSupport;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
@@ -579,6 +580,10 @@ public abstract class AbstractPreGeneralizedFeatureSourceTest extends TestCase {
                 }
 
                 public <T> T evaluate(Object arg0, Class<T> arg1) {
+                    return null;
+                }
+
+                public NamespaceSupport getNamespaceContext() {
                     return null;
                 }
 
