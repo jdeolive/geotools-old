@@ -229,6 +229,21 @@ public class Operations {
     }
 
     /**
+     * Finds the maximum and minimum pixel values for each band within that region of the coverage.
+     * The coverage data pass through this operation unchanged.
+     * 
+     * @param source
+     *            The source coverage.
+     * @throws CoverageProcessingException
+     *             if the operation can't be applied.
+     * 
+     * @see org.geotools.coverage.processing.operation.Extrema
+     */
+    public Coverage extrema(final Coverage source) throws CoverageProcessingException {
+        return doOperation("Extrema", source);
+    }
+
+    /**
      * Replaces {@link Float#NaN NaN} values by the weighted average of neighbors values.
      * This method uses the default padding and validity threshold.
      *
