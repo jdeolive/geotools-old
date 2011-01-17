@@ -41,6 +41,7 @@ import org.geotools.coverage.grid.io.DecimationPolicy;
 import org.geotools.coverage.grid.io.GridFormatFinder;
 import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.coverage.grid.io.UnknownFormat;
+import org.geotools.data.DataUtilities;
 import org.geotools.factory.Hints;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -187,8 +188,8 @@ public class OverviewsControllerTest extends Assert{
         // Initialize granules related variables 
         //
         // //
-        final File g1File = new File(heterogeneousGranulesURL.getPath()+"/world_a.tif");
-        final File g2File = new File(heterogeneousGranulesURL.getPath()+"/world_b.tif");
+        final File g1File = new File(DataUtilities.urlToFile(heterogeneousGranulesURL), "world_a.tif");
+        final File g2File = new File(DataUtilities.urlToFile(heterogeneousGranulesURL), "world_b.tif");
         final ImageReadParam readParamsG1 = new ImageReadParam();
         final ImageReadParam readParamsG2 = new ImageReadParam();
         int imageIndexG1 = 0;
