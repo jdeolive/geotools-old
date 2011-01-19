@@ -593,7 +593,7 @@ class Session implements ISession {
         public SeConnection execute(final ISession session, final SeConnection connection)
                 throws SeException, IOException {
             final String serverName = config.getServerName();
-            final int portNumber = config.getPortNumber();
+            final String portNumber = config.getPortNumber();
             final String databaseName = config.getDatabaseName();
             final String userName = config.getUserName();
             final String userPassword = config.getPassword();

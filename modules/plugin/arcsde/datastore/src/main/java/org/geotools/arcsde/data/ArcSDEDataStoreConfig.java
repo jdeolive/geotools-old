@@ -39,10 +39,9 @@ import org.geotools.arcsde.session.ArcSDEConnectionConfig;
  * connection properties
  * 
  * @author Gabriel Roldan
- * @source $URL:
- *         http://svn.geotools.org/geotools/trunk/gt/modules/plugin/arcsde/datastore/src/main/java
- *         /org/geotools/arcsde/pool/ArcSDEConnectionConfig.java $
- * @version $Id$
+ * @source $URL: http://svn.geotools.org/geotools/trunk/gt/modules/plugin/arcsde/
+ *         datastore/src/main/java /org/geotools/arcsde/pool/ArcSDEConnectionConfig.java $
+ * @version $Id: ArcSDEDataStoreConfig.java 95099 2011-01-13 14:18:17Z WIEN1::lanadvhmu $
  */
 public class ArcSDEDataStoreConfig {
     /*
@@ -136,7 +135,8 @@ public class ArcSDEDataStoreConfig {
         String instance = (String) params.get(INSTANCE_NAME_PARAM_NAME);
         String user = (String) params.get(USER_NAME_PARAM_NAME);
         String pwd = (String) params.get(PASSWORD_PARAM_NAME);
-        Integer _port = checkParams(dbtype, server, port, instance, user, pwd);
+        /** ESRI Direct Connect needs port parameter as String */
+        String _port = checkParams(dbtype, server, port, instance, user, pwd);
         sessionConfig.setServerName(server);
         sessionConfig.setPortNumber(_port);
         sessionConfig.setDatabaseName(instance);
@@ -230,7 +230,7 @@ public class ArcSDEDataStoreConfig {
         }
     }
 
-    private static Integer checkParams(String dbType, String serverName, String portNumber,
+    private static String checkParams(String dbType, String serverName, String portNumber,
             String databaseName, String userName, String userPassword)
             throws IllegalArgumentException, NullPointerException {
         // check if dbtype is 'arcsde'
@@ -260,10 +260,18 @@ public class ArcSDEDataStoreConfig {
             throwIllegal(PASSWORD_PARAM_NAME, userPassword);
         }
 
-        Integer port = null;
+        String port = null;
 
         try {
-            port = Integer.valueOf(portNumber);
+            /**
+             * in DirectConnect Mode for Oracle, the port has following syntax: sde:oracle10g or
+             * sde:oracle10g:/:<schema> so check portNumber for colon character
+             */
+            if (portNumber.indexOf(":") > 0) {
+                port = portNumber;
+            } else {
+                port = Integer.valueOf(portNumber).toString();
+            }
         } catch (NumberFormatException ex) {
             throwIllegal(PORT_NUMBER_PARAM_NAME, portNumber);
         }
@@ -285,7 +293,8 @@ public class ArcSDEDataStoreConfig {
         return sessionConfig.getDatabaseName();
     }
 
-    public Integer getPortNumber() {
+    /** ESRI Direct Connect needs port parameter as String */
+    public String getPortNumber() {
         return sessionConfig.getPortNumber();
     }
 

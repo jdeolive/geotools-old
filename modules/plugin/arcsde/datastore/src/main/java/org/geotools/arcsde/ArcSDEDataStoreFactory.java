@@ -64,10 +64,9 @@ import com.esri.sde.sdk.pe.PeFactory;
  * Factory to create DataStores over a live ArcSDE instance.
  * 
  * @author Gabriel Roldan, Axios Engineering
- * @source $URL:
- *         http://svn.geotools.org/geotools/trunk/gt/modules/plugin/arcsde/datastore/src/main/java
- *         /org/geotools/arcsde/ArcSDEDataStoreFactory.java $
- * @version $Id$
+ * @source $URL: http://svn.geotools.org/geotools/trunk/gt/modules/plugin/arcsde/
+ *         datastore/src/main/java /org/geotools/arcsde/ArcSDEDataStoreFactory.java $
+ * @version $Id: ArcSDEDataStoreFactory.java 95099 2011-01-13 14:18:17Z WIEN1::lanadvhmu $
  */
 @SuppressWarnings("unchecked")
 public final class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
@@ -88,6 +87,8 @@ public final class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
 
     public static final int JSDE_VERSION_92 = 2;
 
+    public static final int JSDE_VERSION_93 = 3;
+
     private static int JSDE_CLIENT_VERSION;
 
     public static final Param NAMESPACE_PARAM = new Param(NAMESPACE_PARAM_NAME, String.class,
@@ -99,9 +100,10 @@ public final class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
     public static final Param SERVER_PARAM = new Param(SERVER_NAME_PARAM_NAME, String.class,
             "sever name where the ArcSDE gateway is running", true);
 
+    /** In order to use Direct Connect, port parameter has to be of type String */
     public static final Param PORT_PARAM = new Param(
             PORT_NUMBER_PARAM_NAME,
-            Integer.class,
+            String.class,
             "port number in wich the ArcSDE server is listening for connections.Generally it's 5151",
             true, Integer.valueOf(5151));
 
@@ -319,6 +321,32 @@ public final class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
             versionName = null;
         }
         boolean allowNonSpatialTables = config.isAllowNonSpatialTables();
+        /**
+         * Multiple GeoDB Patch
+         * 
+         * check if directconnect string has a schema Multiple GeoDB Syntax: Oracle 10g user's
+         * schema geodatabase <schema_name> is the name of the schema that owns the geodatabase.
+         * sde:oracle10g:/:<schema_name>
+         * 
+         * Default single GeoDB Syntax: sde:oracle10g or in MultipleGeoDB Notation:
+         * sde:oracle10g:/:sde
+         * 
+         * for further infos look at
+         * http://webhelp.esri.com/arcgisserver/9.3/java/geodatabases/arcsde-2034353163.htm
+         */
+        final String port = config.getPortNumber();
+
+        final String[] directConnectParts = port.split(":");
+        final int length = directConnectParts.length;
+        final int multiGeoDB = 4;
+
+        if (length == multiGeoDB) {
+            final int multiGeoDBIndex = port.lastIndexOf(":");
+            final String user_schema = port.substring(multiGeoDBIndex + 1);
+
+            versionName = user_schema + ".DEFAULT";
+
+        }
         sdeDStore = new ArcSDEDataStore(connPool, namespaceUri, versionName, allowNonSpatialTables);
         return sdeDStore;
     }

@@ -181,7 +181,7 @@ public class ArcSDEConnectionFactory implements ObjectFactory {
 
         ArcSDEConnectionConfig config = new ArcSDEConnectionConfig();
         config.setServerName(server);
-        config.setPortNumber(Integer.parseInt(port));
+        config.setPortNumber(port);
         config.setDatabaseName(instance);
         config.setUserName(user);
         config.setPassword(password);

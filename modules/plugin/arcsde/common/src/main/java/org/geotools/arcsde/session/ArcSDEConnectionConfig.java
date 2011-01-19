@@ -56,7 +56,7 @@ public class ArcSDEConnectionConfig {
     private String serverName;
 
     /** port number where the ArcSDE instance listens for connections */
-    private Integer portNumber;
+    private String portNumber;
 
     /** name of the ArcSDE database to connect to */
     private String databaseName;
@@ -88,11 +88,11 @@ public class ArcSDEConnectionConfig {
         this.serverName = serverName;
     }
 
-    public Integer getPortNumber() {
+    public String getPortNumber() {
         return portNumber;
     }
 
-    public void setPortNumber(Integer portNumber) {
+    public void setPortNumber(String portNumber) {
         this.portNumber = portNumber;
     }
 
@@ -195,7 +195,7 @@ public class ArcSDEConnectionConfig {
         ArcSDEConnectionConfig config = new ArcSDEConnectionConfig();
         config.setDatabaseName(String.valueOf(map.get(INSTANCE_NAME_PARAM_NAME)));
         config.setPassword(String.valueOf(map.get(PASSWORD_PARAM_NAME)));
-        config.setPortNumber(Integer.valueOf(String.valueOf(map.get(PORT_NUMBER_PARAM_NAME))));
+        config.setPortNumber(String.valueOf(map.get(PORT_NUMBER_PARAM_NAME)));
         config.setServerName(String.valueOf(map.get(SERVER_NAME_PARAM_NAME)));
         config.setUserName(String.valueOf(map.get(USER_NAME_PARAM_NAME)));
 
