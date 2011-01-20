@@ -348,6 +348,9 @@ public final class ImagePyramidReader extends AbstractGridCoverage2DReader imple
 			if (params != null) {
 				for (int i = 0; i < params.length; i++) {
 					final ParameterValue param = (ParameterValue) params[i];
+					if (param == null){
+						continue;
+					}
 					final String name = param.getDescriptor().getName().getCode();
 					if (name.equals(AbstractGridFormat.READ_GRIDGEOMETRY2D.getName().toString())) {
 						final GridGeometry2D gg = (GridGeometry2D) param.getValue();
