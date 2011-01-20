@@ -16,9 +16,18 @@
  */
 package org.geotools.coverage.grid;
 
-import java.util.List;
-import java.util.Random;
-import java.util.AbstractList;
+import static java.awt.Color.decode;
+import static javax.measure.unit.SI.CELSIUS;
+import static javax.measure.unit.SI.CUBIC_METRE;
+import static javax.measure.unit.SI.GRAM;
+import static javax.measure.unit.SI.MILLI;
+import static org.geotools.util.NumberRange.create;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+
 import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -26,35 +35,34 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
 import java.awt.image.WritableRaster;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import java.util.AbstractList;
+import java.util.List;
+import java.util.Random;
+
 import javax.imageio.ImageIO;
 import javax.media.jai.RasterFactory;
 
-import org.opengis.referencing.operation.MathTransform1D;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-
-import org.geotools.factory.Hints;
 import org.geotools.coverage.Category;
-import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.CoverageFactoryFinder;
 import org.geotools.coverage.CoverageTestBase;
+import org.geotools.coverage.GridSampleDimension;
+import org.geotools.factory.Hints;
 import org.geotools.geometry.Envelope2D;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.geotools.referencing.operation.transform.LinearTransform1D;
 import org.geotools.referencing.operation.transform.ConcatenatedTransform;
 import org.geotools.referencing.operation.transform.ExponentialTransform1D;
+import org.geotools.referencing.operation.transform.LinearTransform1D;
 import org.geotools.test.TestData;
-
-import static java.awt.Color.decode;
-import static javax.measure.unit.SI.*;
-import static org.geotools.util.NumberRange.create;
-import static org.junit.Assert.*;
+import org.opengis.coverage.grid.GridCoverage;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.MathTransform1D;
 
 
 /**
@@ -182,7 +190,7 @@ public class GridCoverageTestBase extends CoverageTestBase {
         /**
          * The coverages returned by previous invocations.
          */
-        private final GridCoverage2D[] cached = new GridCoverage2D[5];
+        private final GridCoverage2D[] cached = new GridCoverage2D[6];
 
         /**
          * Returns the number of available coverages which may be used as example.
@@ -231,7 +239,7 @@ public class GridCoverageTestBase extends CoverageTestBase {
                  * This is a raster from Earth observations using a relatively straightforward
                  * conversion formula to geophysics values (a linear transform using the usual
                  * scale and offset parameters, in this case 0.1 and 10 respectively).     The
-                 * interresting part of this example is that it contains a lot of nodata values.
+                 * interesting part of this example is that it contains a lot of nodata values.
                  */
                 case 0: {
                     path = "QL95209.png";
@@ -323,6 +331,25 @@ public class GridCoverageTestBase extends CoverageTestBase {
                     return factory.create("Float coverage", raster,
                             new Envelope2D(DefaultGeographicCRS.WGS84, 35, -41, 35+45, -41+46),
                                         null, null, null, new Color[][] {colors}, null);
+                }
+                /*
+                 * A single band fictitious coverage with type UINT 16.
+                 * 
+                 */
+                case 5: {
+                    final int width  = 500;
+                    final int height = 500;
+                    final BufferedImage image= new BufferedImage(width, height, BufferedImage.TYPE_USHORT_GRAY);
+                    final WritableRaster raster =(WritableRaster) image.getData();
+                    for (int y=0; y<height; y++) {
+                        for (int x=0; x<width; x++) {
+                            raster.setSample(x, y, 0,(int)( 1+(x+y)*65534.0/1000.0));
+                           
+                        }
+                    }
+                    image.setData(raster);
+                    return factory.create("UInt16 coverage", image,
+                            new Envelope2D(DefaultGeographicCRS.WGS84, 35, -41, 35+45, -41+46));
                 }
             }
             /*

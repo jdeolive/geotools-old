@@ -37,6 +37,7 @@ import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.ViewType;
+import org.geotools.coverage.processing.operation.Extrema;
 import org.geotools.factory.Hints;
 import org.geotools.metadata.iso.spatial.PixelTranslation;
 import org.geotools.referencing.CRS;
@@ -44,11 +45,13 @@ import org.geotools.referencing.crs.DefaultProjectedCRS;
 import org.geotools.referencing.cs.DefaultCartesianCS;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.geotools.referencing.operation.transform.ProjectiveTransform;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.opengis.coverage.grid.GridGeometry;
 import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.NoSuchAuthorityCodeException;
 import org.opengis.referencing.NoSuchIdentifierException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.GeographicCRS;
@@ -65,8 +68,32 @@ import org.opengis.referencing.operation.MathTransform;
  * @version $Id$
  * @author Rémi Eve (IRD)
  * @author Martin Desruisseaux (IRD)
+ * @author Simone Giannecchini, GeoSolutions
  */
 public final class ResampleTest extends GridProcessingTestBase {
+    
+    private final static String GOOGLE_MERCATOR_WKT="PROJCS[\"WGS 84 / Pseudo-Mercator\","+
+    "GEOGCS[\"Popular Visualisation CRS\","+
+        "DATUM[\"Popular_Visualisation_Datum\","+
+            "SPHEROID[\"Popular Visualisation Sphere\",6378137,0,"+
+                "AUTHORITY[\"EPSG\",\"7059\"]],"+
+            "TOWGS84[0,0,0,0,0,0,0],"+
+            "AUTHORITY[\"EPSG\",\"6055\"]],"+
+        "PRIMEM[\"Greenwich\",0,"+
+            "AUTHORITY[\"EPSG\",\"8901\"]],"+
+        "UNIT[\"degree\",0.01745329251994328,"+
+            "AUTHORITY[\"EPSG\",\"9122\"]],"+
+        "AUTHORITY[\"EPSG\",\"4055\"]],"+
+    "UNIT[\"metre\",1,"+
+        "AUTHORITY[\"EPSG\",\"9001\"]],"+
+    "PROJECTION[\"Mercator_1SP\"],"+
+    "PARAMETER[\"central_meridian\",0],"+
+    "PARAMETER[\"scale_factor\",1],"+
+    "PARAMETER[\"false_easting\",0],"+
+    "PARAMETER[\"false_northing\",0],"+
+    "AUTHORITY[\"EPSG\",\"3785\"],"+
+    "AXIS[\"X\",EAST],"+
+    "AXIS[\"Y\",NORTH]]";
     /**
      * The source grid coverage, to be initialized by {@link #setUp}.
      * Contains 8-bits indexed color model for a PNG image, with categories.
@@ -90,6 +117,12 @@ public final class ResampleTest extends GridProcessingTestBase {
      * Contains float values.
      */
     private GridCoverage2D floatCoverage;
+    
+    /**
+     * An other source coverage initialized by {@link #setUp}.
+     * Contains ushort values.
+     */
+    private GridCoverage2D ushortCoverage;
 
     /**
      * Set up common objects used for all tests.
@@ -100,6 +133,7 @@ public final class ResampleTest extends GridProcessingTestBase {
         indexedCoverage                 = EXAMPLES.get(2);
         indexedCoverageWithTransparency = EXAMPLES.get(3);
         floatCoverage                   = EXAMPLES.get(4);
+        ushortCoverage                  = EXAMPLES.get(5);
         Hints.putSystemDefault(Hints.RESAMPLE_TOLERANCE, 0.0);
     }
 
@@ -177,6 +211,42 @@ public final class ResampleTest extends GridProcessingTestBase {
     @Test
     public void testStereographic() {
         assertEquals("Warp", showProjected(coverage,getProjectedCRS(coverage), null, null, true));
+    }
+    
+    
+    /**
+     * Tests the "Resample" operation with a stereographic coordinate system.
+     * @throws FactoryException 
+     * @throws NoSuchAuthorityCodeException 
+     */
+    @Test
+    public void testReproject() throws NoSuchAuthorityCodeException, FactoryException {
+        
+        // do it again, make sure the image does not turn black since 
+        GridCoverage2D coverage_ = project(ushortCoverage,CRS.parseWKT(GOOGLE_MERCATOR_WKT), null,"nearest", null, true);
+        
+        // reproject the ushort and check that things did not go bad, that is it turned black
+        coverage_=(GridCoverage2D) Operations.DEFAULT.extrema(coverage_);
+        Object minimums = coverage_.getProperty(Extrema.GT_SYNTHETIC_PROPERTY_MINIMUM);
+        Assert.assertTrue(minimums instanceof double[]) ;
+        final double[] mins=(double[]) minimums;
+        Object maximums = coverage_.getProperty(Extrema.GT_SYNTHETIC_PROPERTY_MAXIMUM);
+        Assert.assertTrue(maximums instanceof double[]) ;
+        final double[] max=(double[]) maximums;        
+        boolean fail=true;
+        for(int i=0;i<mins.length;i++)
+            if(mins[i]!=max[i]&&max[i]>0)
+                fail=false;
+        Assert.assertFalse("Reprojection failed", fail);
+        
+        //exception incase the target crs does not comply with the target gg crs
+        try{
+            // we supplied both crs and target gg in different crs, we get an exception backS
+            assertEquals("Warp", showProjected(coverage,CRS.parseWKT(GOOGLE_MERCATOR_WKT), coverage.getGridGeometry(), null, true));
+            Assert.assertTrue("We should not be allowed to set different crs for target crs and target gg", false);
+        }catch (Exception e) {
+            // ok!
+        }
     }
 
     /**

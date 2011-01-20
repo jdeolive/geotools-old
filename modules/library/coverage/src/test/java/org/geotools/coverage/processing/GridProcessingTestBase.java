@@ -79,30 +79,42 @@ public class GridProcessingTestBase extends GridCoverageTestBase {
                                       final Hints                     hints,
                                       final boolean                   useGeophysics)
     {
+        return project(coverage, targetCRS, geometry, "bilinear", hints, useGeophysics);
+
+        
+    }
+    
+    /**
+     * Projects the specified coverage to the specified CRS using the specified hints.
+     *
+     * @param coverage  The coverage to project.
+     * @param targetCRS The target CRS, or {@code null} if the same.
+     * @param geometry  The target geometry, or {@code null} if the same.
+     * @param interpolationType The target interpolation.
+     * @param hints     An optional set of hints, or {@code null} if none.
+     * @param useGeophysics {@code true} for projecting the geophysics view.
+     * @return The operation name which was applied on the image, or {@code null} if none.
+     */
+    protected static GridCoverage2D project(GridCoverage2D            coverage,
+                                      final CoordinateReferenceSystem targetCRS,
+                                      final GridGeometry2D            geometry,
+                                      final String                    interpolationType,
+                                      final Hints                     hints,
+                                      final boolean                   useGeophysics)
+    {
         final CoverageProcessor processor = CoverageProcessor.getInstance(hints);
-        final String arg1, arg2;
-        final Object value1, value2;
-        if (targetCRS != null) {
-            arg1 = "CoordinateReferenceSystem";
-            value1 = targetCRS;
-            if (geometry != null) {
-                arg2 = "GridGeometry";
-                value2 = geometry;
-            } else {
-                arg2 = "InterpolationType";
-                value2 = "bilinear";
-            }
-        } else {
-            arg1 = "GridGeometry";
-            value1 = geometry;
-            arg2 = "InterpolationType";
-            value2 = "bilinear";
-        }
         coverage = coverage.view(useGeophysics ? ViewType.GEOPHYSICS : ViewType.PACKED);
         final ParameterValueGroup param = processor.getOperation("Resample").getParameters();
         param.parameter("Source").setValue(coverage);
-        param.parameter(arg1).setValue(value1);
-        param.parameter(arg2).setValue(value2);
+        if (targetCRS != null) {
+            param.parameter("CoordinateReferenceSystem").setValue(targetCRS);
+        }
+        if (geometry != null) {
+            param.parameter( "GridGeometry").setValue(geometry);
+        }
+        if (interpolationType != null&&interpolationType.length()!=0) {
+            param.parameter( "InterpolationType").setValue(interpolationType);
+        }
         coverage = (GridCoverage2D) processor.doOperation(param);
         return coverage;
     }

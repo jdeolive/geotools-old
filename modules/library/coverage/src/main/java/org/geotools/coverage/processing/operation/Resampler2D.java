@@ -22,6 +22,7 @@ import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.image.DataBuffer;
 import java.awt.image.renderable.ParameterBlock;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -68,6 +69,7 @@ import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.LoggingKeys;
 import org.geotools.resources.i18n.Loggings;
 import org.geotools.resources.image.ImageUtilities;
+import org.geotools.util.Utilities;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.coverage.grid.GridGeometry;
@@ -138,7 +140,7 @@ final class Resampler2D extends GridCoverage2D {
                         final PlanarImage           image,
                         final GridGeometry2D        geometry,
                         final GridSampleDimension[] sampleDimensions,
-                        final Map                   properties,
+                        final Map<String, Serializable>                   properties,
                         final Hints                 hints)
     {
         super(source.getName(), image, geometry, sampleDimensions,
@@ -179,7 +181,7 @@ final class Resampler2D extends GridCoverage2D {
          * whether it wants to actually do the resample (which might take hours with WarpAdapter on
          * very large grids) or not
          */
-        Map properties = new HashMap();
+        Map<String, Serializable> properties = new HashMap<String, Serializable>();
         if(operation != null) {
             properties.put(Resample.OPERATION, operation);
             if(warp != null) {
@@ -263,7 +265,7 @@ final class Resampler2D extends GridCoverage2D {
     public static GridCoverage2D reproject(GridCoverage2D            sourceCoverage,
                                            CoordinateReferenceSystem targetCRS,
                                            GridGeometry2D            targetGG,
-                                           final Interpolation       interpolation,
+                                           Interpolation             interpolation,
                                            final Hints               hints,
                                            final double[]            backgroundValues)
             throws FactoryException, TransformException
@@ -276,11 +278,43 @@ final class Resampler2D extends GridCoverage2D {
         ////            STEP 4: Applies the JAI operation ("Affine", "Warp", etc)           ////
         ////                                                                                ////
         ////////////////////////////////////////////////////////////////////////////////////////
-
+        Utilities.ensureNonNull("sourceCoverage", sourceCoverage);
+        // CRS
         final CoordinateReferenceSystem sourceCRS = sourceCoverage.getCoordinateReferenceSystem();
         if (targetCRS == null) {
-            targetCRS = sourceCRS;
+            // in case the TargetCRS has not been set we try to use the CRS that was part of the TargetGG
+            if(targetGG!=null&&targetGG.isDefined(GridGeometry2D.CRS_BITMASK)){
+                targetCRS=targetGG.getCoordinateReferenceSystem();
+            }else{
+                // in case the TargetCRS is not set and either the TargetGG is not set
+                // or it has not CRS inside, we reuse sourceCRS 
+                targetCRS = sourceCRS;
+            }
             // From this point, consider "targetCRS" as final.
+        }else{
+            // in case the targetCRS is set we should check that it is compatible
+            // with the targetGG crs, otherwise we throw an exception
+            if(targetGG!=null&&targetGG.isDefined(GridGeometry2D.CRS_BITMASK)){
+                final CoordinateReferenceSystem targetGGCRS=targetGG.getCoordinateReferenceSystem();
+                if(!CRS.equalsIgnoreMetadata(targetCRS, targetGGCRS)&&!CRS.findMathTransform(targetCRS, targetGGCRS).isIdentity()){
+                    throw new IllegalArgumentException(Errors.format(ErrorKeys.ILLEGAL_ARGUMENT_$1,"TargetCRS must be compatible with TargetGG CRS"));
+                }
+                
+            }
+        }
+        
+        // INTERPOLATION
+        if(interpolation==null){
+
+            //if we did not the interpolation, let's try to get it from hints
+            if(hints!=null){
+                // JAI interpolation 
+                if(hints.containsKey(JAI.KEY_INTERPOLATION))
+                        interpolation=(Interpolation) hints.get(JAI.KEY_INTERPOLATION);
+            }
+        }else{
+            // we have been provided with interpolation, let's override hints
+            hints.put(JAI.KEY_INTERPOLATION,interpolation);
         }
         /*
          * The following will tell us if the target GridRange (GR) and GridGeometry (GG) should
@@ -958,20 +992,20 @@ final class Resampler2D extends GridCoverage2D {
                 return warp;
             }
             
-            // remainder is disabled for now since it break Geoserver build.
-            if (sourceBB == null || targetBB == null) {
-                return warp;
-            }
-            actualBB = warp.mapSourceRect(sourceBB); // May be null
-            if (actualBB != null && targetBB.contains(sourceBB)) {
-                return warp;
-            }
-            actualBB = warp.mapDestRect(targetBB); // Should never be null.
-            if (actualBB != null && targetBB.contains(sourceBB)) {
-                return warp;
-            }
-            // The loop below intentionally tries one more iteration than the constant in case we need
-            // to apply slightly more than the above scale and translation because of rounding errors.
+//            // remainder is disabled for now since it break Geoserver build.
+//            if (sourceBB == null || targetBB == null) {
+//                return warp;
+//            }
+//            actualBB = warp.mapSourceRect(sourceBB); // May be null
+//            if (actualBB != null && targetBB.contains(sourceBB)) {
+//                return warp;
+//            }
+//            actualBB = warp.mapDestRect(targetBB); // Should never be null.
+//            if (actualBB != null && targetBB.contains(sourceBB)) {
+//                return warp;
+//            }
+//            // The loop below intentionally tries one more iteration than the constant in case we need
+//            // to apply slightly more than the above scale and translation because of rounding errors.
         } while (step++ <= EMPIRICAL_ADJUSTMENT_STEPS);
         throw new FactoryException(Errors.format(ErrorKeys.CANT_REPROJECT_$1, name));
     }

@@ -102,7 +102,7 @@ import org.opengis.referencing.operation.TransformException;
  *   <tr>
  *     <td>{@code "InterpolationType"}</td>
  *     <td>{@link java.lang.CharSequence}</td>
- *     <td>"NearestNieghbor"</td>
+ *     <td>"NearestNeighbor"</td>
  *     <td align="center">N/A</td>
  *     <td align="center">N/A</td>
  *   </tr>
@@ -133,6 +133,8 @@ import org.opengis.referencing.operation.TransformException;
  * @source $URL$
  * @version $Id$
  * @author Martin Desruisseaux (IRD)
+ * @author Giannecchini Simone, GeoSolutions SAS
+ * @author Daniele Romagnoli, GeoSolutions SAS
  *
  * @see org.geotools.coverage.processing.Operations#resample
  * @see WarpDescriptor
@@ -231,6 +233,7 @@ public class Resample extends Operation2D {
      * {@link org.geotools.coverage.processing.DefaultProcessor}
      * for the {@code "Resample"} operation.
      */
+    @SuppressWarnings("unchecked")
     public Coverage doOperation(final ParameterValueGroup parameters, final Hints hints) {
         final GridCoverage2D source = (GridCoverage2D) parameters.parameter("Source").getValue();
         final Interpolation interpolation = ImageUtilities.toInterpolation(
@@ -242,7 +245,6 @@ public class Resample extends Operation2D {
         }
         final GridGeometry2D targetGG = GridGeometry2D.wrap(
                 (GridGeometry) parameters.parameter("GridGeometry").getValue());
-        final GridCoverage2D target;
         final Object bgValueParam = parameters.parameter("BackgroundValues");
         final double [] bgValues;
         if (bgValueParam != null && bgValueParam instanceof Parameter<?>){
@@ -251,7 +253,7 @@ public class Resample extends Operation2D {
             bgValues = null;
         }
         try {
-            target = Resampler2D.reproject(source, targetCRS, targetGG, interpolation,
+            return Resampler2D.reproject(source, targetCRS, targetGG, interpolation,
                 (hints instanceof Hints) ? hints : new Hints(hints), bgValues);
         } catch (FactoryException exception) {
             throw new CannotReprojectException(Errors.format(
@@ -260,7 +262,6 @@ public class Resample extends Operation2D {
             throw new CannotReprojectException(Errors.format(
                     ErrorKeys.CANT_REPROJECT_$1, source.getName()), exception);
         }
-        return target;
     }
 
     /**

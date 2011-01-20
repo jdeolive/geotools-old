@@ -16,26 +16,29 @@
  */
 package org.geotools.coverage;
 
-import java.awt.image.RenderedImage;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.awt.geom.AffineTransform;
+import java.awt.image.RenderedImage;
+
 import javax.media.jai.iterator.RectIter;
 import javax.media.jai.iterator.RectIterFactory;
 
-import org.opengis.geometry.Envelope;
+import org.geotools.coverage.grid.GridCoverage2D;
+import org.geotools.coverage.grid.GridGeometry2D;
+import org.geotools.coverage.grid.ViewType;
+import org.geotools.coverage.grid.Viewer;
+import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.referencing.operation.matrix.XAffineTransform;
+import org.geotools.test.TestData;
 import org.opengis.coverage.Coverage;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.coverage.grid.GridGeometry;
+import org.opengis.geometry.Envelope;
 import org.opengis.referencing.operation.MathTransform;
-
-import org.geotools.test.TestData;
-import org.geotools.geometry.GeneralEnvelope;
-import org.geotools.coverage.grid.Viewer;
-import org.geotools.coverage.grid.ViewType;
-import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.coverage.grid.GridCoverage2D;
-import org.geotools.referencing.operation.matrix.XAffineTransform;
-
-import static org.junit.Assert.*;
 
 
 /**
