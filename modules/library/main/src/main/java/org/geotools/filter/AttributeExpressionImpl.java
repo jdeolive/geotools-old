@@ -254,8 +254,10 @@ public class AttributeExpressionImpl extends DefaultExpression
 
             if (accessors != null) {
                 Iterator<PropertyAccessor> it = accessors.iterator();
-                while (!success && it.hasNext())
-                    success = tryAccessor(it.next(), obj, target, value, e);
+                while (!success && it.hasNext()) {
+                    accessor = it.next();
+                    success = tryAccessor(accessor, obj, target, value, e);
+                }
 
             }
 
