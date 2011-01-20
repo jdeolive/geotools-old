@@ -384,7 +384,7 @@ public class TextStyle2D extends Style2D {
     
     public Rectangle getGraphicDimensions() {
     	if (graphic instanceof MarkStyle2D) {
-    	    return  ((MarkStyle2D)graphic).getShape().getBounds(); 
+    	    return  ((MarkStyle2D)graphic).getTransformedShape(0f, 0f).getBounds(); 
     	} else if (graphic instanceof GraphicStyle2D) {
     		BufferedImage i = ((GraphicStyle2D)graphic).getImage();
     		return new Rectangle(i.getWidth(),i.getHeight());
