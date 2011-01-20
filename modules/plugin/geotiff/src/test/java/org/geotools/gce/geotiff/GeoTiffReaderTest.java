@@ -211,4 +211,15 @@ public class GeoTiffReaderTest extends Assert {
     	}
     
     }
+    
+    public void testBandNames() throws Exception {
+        final File file = TestData.file(GeoTiffReaderTest.class, "wind.tiff");
+        assertNotNull(file);
+        final AbstractGridFormat format = new GeoTiffFormat();
+        GridCoverage2D coverage = format.getReader(file).read(null);
+        String band1Name = coverage.getSampleDimension(0).getDescription().toString();
+        String band2Name = coverage.getSampleDimension(1).getDescription().toString();
+        assertEquals("Band1", band1Name);
+        assertEquals("Band2", band2Name);
+    }
 }

@@ -51,7 +51,9 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.channels.FileChannel;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -533,14 +535,21 @@ public final class GeoTiffReader extends AbstractGridCoverage2DReader implements
             properties.put("GC_NODATA", new Double(noData));
         }
         
+        Set<String> bandNames = new HashSet<String>();
         for (int i = 0; i < numBands; i++) {
                 final ColorInterpretation colorInterpretation=TypeMap.getColorInterpretation(cm, i);
                 if(colorInterpretation==null)
                        throw new IOException("Unrecognized sample dimension type");
                 Category[] categories = null;
-                if (noDataCategory != null)
+                if (noDataCategory != null) {
                     categories = new Category[]{noDataCategory};
-                bands[i] = new GridSampleDimension(colorInterpretation.name(),categories,null).geophysics(true);
+                }
+                String bandName = colorInterpretation.name();
+                // make sure we create no duplicate band names
+                if(colorInterpretation == ColorInterpretation.UNDEFINED || bandNames.contains(bandName)) {
+                    bandName = "Band" + (i + 1);
+                } 
+                bands[i] = new GridSampleDimension(bandName,categories,null).geophysics(true);
         }
         // creating coverage
         if (raster2Model != null) {
