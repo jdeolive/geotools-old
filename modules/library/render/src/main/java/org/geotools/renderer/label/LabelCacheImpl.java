@@ -257,12 +257,15 @@ public final class LabelCacheImpl implements LabelCache {
         needsOrdering = true;
         try {
             // get label and geometry
+            if(symbolizer.getLabel() == null) {
+                return;
+            }
+            
             String label = (String) symbolizer.getLabel().evaluate(feature, String.class);
 
             if (label == null)
                 return;
 
-            label = label.trim();
             if (label.length() == 0) {
                 return; // dont label something with nothing!
             }
@@ -307,7 +310,7 @@ public final class LabelCacheImpl implements LabelCache {
                 }
             }
         } catch (Exception e) {
-            LOGGER.log(Level.FINE, "Error adding label to the label cache", e);
+            LOGGER.log(Level.SEVERE, "Error adding label to the label cache", e);
         }
     }
 
